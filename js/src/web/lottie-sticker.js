@@ -10,6 +10,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import lottie from 'lottie-web/build/player/lottie_light.js';
+import { useMediaRetry } from './media-loading.js';
+import { readMedia } from './media-src.js';
 
 const el = React.createElement;
 
@@ -67,11 +69,8 @@ const readText = async (src) => {
   if (texts.has(src)) {
     return texts.get(src);
   }
-  const answer = await fetch(src, { credentials: 'same-origin' });
-  if (!answer.ok) {
-    throw new Error(`HTTP ${answer.status}`);
-  }
-  const text = await lottieText(await answer.arrayBuffer());
+  const text = await lottieText(await readMedia(src, 'arrayBuffer'));
+  JSON.parse(text); // An interrupted animation must not poison the text cache.
   remember(src, text);
   return text;
 };
@@ -98,9 +97,16 @@ export const LottieSticker = ({
   const box = useRef(null);
   const player = useRef(null);
   const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useMediaRetry(!ready, failed, () => {
+    setFailed(false);
+    setAttempt((value) => value + 1);
+  });
   useEffect(() => {
     let live = true;
     setFailed(false);
+    setReady(false);
     readText(src)
       .then((text) => {
         if (!live || !box.current) {
@@ -116,6 +122,7 @@ export const LottieSticker = ({
         });
         player.current.addEventListener('DOMLoaded', () => {
           if (live) {
+            setReady(true);
             onReady?.(true);
           }
         });
@@ -139,7 +146,7 @@ export const LottieSticker = ({
       player.current?.destroy();
       player.current = null;
     };
-  }, [src]);
+  }, [src, attempt]);
   useEffect(() => {
     const anim = player.current;
     if (!anim) {

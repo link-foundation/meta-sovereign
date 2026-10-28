@@ -23,6 +23,7 @@ import { createReplyCache } from '../replies/reply-cache.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
 import { createAvailability } from './server-availability.js';
+import { createRecoveringRequest } from './request-recovery.js';
 
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
@@ -103,12 +104,15 @@ const suggestParams = ({ source, chat, lastMessage, typed, limit }) => {
 
 const loadDirectory = async (store, fetchOrLocal, { onProgress }) => {
   const [remote, heads] = await Promise.all([
-    fetchOrLocal('/links?except=msg:', () => null),
-    fetchOrLocal('/api/chat/heads', () => null),
+    fetchOrLocal('/links?except=msg:', () => null, { recover: false }),
+    fetchOrLocal('/api/chat/heads', () => null, { recover: false }),
   ]);
   if (!Array.isArray(remote) || !Array.isArray(heads)) {
     const local = await store.query().catch(() => []);
-    throw Object.assign(new Error('the server did not answer'), { local });
+    throw Object.assign(new Error('the server did not answer'), {
+      local,
+      code: 'network',
+    });
   }
   const directory = [...remote, ...heads];
   onProgress?.(directory);
@@ -124,6 +128,28 @@ const loadDirectory = async (store, fetchOrLocal, { onProgress }) => {
     ).values(),
   ];
 };
+
+const localWrites = (store) => ({
+  async broadcast({ id, text, networks, body }) {
+    const link = {
+      id: id ?? `broadcast:${Date.now()}`,
+      tokens: ['broadcast'],
+      networks,
+      body: body ?? text,
+    };
+    await store.put(link);
+    return link;
+  },
+  async syncProfile(profile) {
+    const link = {
+      id: `profile:${profile.id ?? 'me'}`,
+      tokens: ['profile-sync'],
+      ...profile,
+    };
+    await store.put(link);
+    return link;
+  },
+});
 
 export const createOfflineClient = ({
   store,
@@ -152,30 +178,40 @@ export const createOfflineClient = ({
     setOnline,
     ...timing,
   });
+  const makeRequests = () =>
+    createRecoveringRequest({
+      fetchImpl: (url, init) => server.fetchImpl(url, init),
+      reached: watch.reached,
+      failed: watch.failed,
+    });
+  let requests = makeRequests();
 
   // The same reply graph as the server's /api/suggest, learned from
   // the local store, for offline use.
   let localReplies = null;
   const replies = () => (localReplies ??= createReplyService({ store }));
 
-  const fetchOrLocal = async (path, fallback) => {
-    if (!online || !server?.fetchImpl) {
+  const fetchOrLocal = async (path, fallback, { recover = true } = {}) => {
+    if (!server?.fetchImpl || (!online && !recover)) {
       return fallback();
     }
     try {
       // A server that does not answer (busy, stuck) counts as gone.
-      const signal = timeoutSignal(READ_TIMEOUT_MS);
-      const res = await server.fetchImpl(
+      const signal = recover ? null : timeoutSignal(READ_TIMEOUT_MS);
+      const res = await requests.request(
         `${server.origin}${path}`,
-        signal ? { signal } : undefined
+        signal ? { signal } : {},
+        { retry: recover, json: true }
       );
       watch.reached();
       if (!res.ok) {
         return fallback();
       }
       return await res.json();
-    } catch {
-      await watch.failed();
+    } catch (error) {
+      if (error?.name !== 'AbortError') {
+        await watch.failed();
+      }
       return fallback();
     }
   };
@@ -189,9 +225,16 @@ export const createOfflineClient = ({
     },
     isOnline: () => online,
     reached: watch.reached,
+    failed: watch.failed,
+    close: () => {
+      watch.stop();
+      requests.stop();
+    },
     setServer: (next) => {
       watch.stop();
+      requests.stop();
       server = next;
+      requests = makeRequests();
       setOnline(Boolean(next));
     },
 
@@ -241,7 +284,8 @@ export const createOfflineClient = ({
     async chatPage(request) {
       return fetchOrLocal(
         `/api/chat/messages?${pageQuery(request)}`,
-        () => null
+        () => null,
+        { recover: false }
       );
     },
 
@@ -249,7 +293,8 @@ export const createOfflineClient = ({
     async autocomplete(q, me = 'me') {
       return fetchOrLocal(
         `/api/autocomplete?q=${encodeURIComponent(q)}&me=${encodeURIComponent(me)}`,
-        () => computeAutocomplete(store, q, me)
+        () => computeAutocomplete(store, q, me),
+        { recover: false }
       );
     },
     /**
@@ -259,43 +304,32 @@ export const createOfflineClient = ({
     replyCache,
     async suggest({ source, chat, lastMessage, typed = '', limit = 8 } = {}) {
       const params = suggestParams({ source, chat, lastMessage, typed, limit });
-      return fetchOrLocal(`/api/suggest?${params}`, () =>
-        replies().autocomplete({ source, chat, lastMessage, typed, limit })
+      return fetchOrLocal(
+        `/api/suggest?${params}`,
+        () =>
+          replies().autocomplete({ source, chat, lastMessage, typed, limit }),
+        { recover: false }
       );
     },
     async contacts() {
       return fetchOrLocal('/api/contacts', () => computeContacts(store));
     },
     async status() {
-      return fetchOrLocal('/api/status', async () => {
-        const links = await store.query();
-        return { online, count: links.length };
-      });
+      return fetchOrLocal(
+        '/api/status',
+        async () => {
+          const links = await store.query();
+          return { online, count: links.length };
+        },
+        { recover: false }
+      );
     },
 
     // ---- DDD: writing a link IS the API ------------------------------
     // Trigger a broadcast by writing a link; the server-side handler
     // (or the in-browser handler bus, when offline) does the actual
     // work and stamps `handledBy`.
-    async broadcast({ id, text, networks, body }) {
-      const link = {
-        id: id ?? `broadcast:${Date.now()}`,
-        tokens: ['broadcast'],
-        networks,
-        body: body ?? text,
-      };
-      await store.put(link);
-      return link;
-    },
-    async syncProfile(profile) {
-      const link = {
-        id: `profile:${profile.id ?? 'me'}`,
-        tokens: ['profile-sync'],
-        ...profile,
-      };
-      await store.put(link);
-      return link;
-    },
+    ...localWrites(store),
   };
 };
 

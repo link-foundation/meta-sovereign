@@ -1,13 +1,16 @@
 // Tiny DOM helper used across views, plus the API surface used by
-// every view. The API is a thin shim over an offline-first client
-// (see ./client.js): it tries the discovered server first, and falls
-// back to the local browser store when offline.
+// every view. A known server's reads keep recovering automatically;
+// browser-only operation uses the local store (see ./client.js).
 
 import { reportApiFailure } from './api-errors.js';
+import { openServerEvents } from './server-events.js';
 import { trackServerStream } from './server-transport.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { rememberServerConnection } from './connection-prefs.js';
+import { createPasscodeCaller } from './passcode-request.js';
 import { LOCKED_EVENT } from './passcode.js';
+import { createRecoveringRequest } from './request-recovery.js';
+import { isReadRequest } from './request-policy.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
   createBrowserStore,
@@ -192,6 +195,11 @@ const boot = async () => {
     store,
     bus,
     client,
+    requests: createRecoveringRequest({
+      fetchImpl: (url, init) => globalThis.fetch(url, init),
+      reached: client.reached,
+      failed: client.failed,
+    }),
     rtc,
     nearby,
     origin: discovered?.origin ?? null,
@@ -217,7 +225,13 @@ const ensure = () => {
  * otherwise decide the binding for every file after it.
  */
 export const resetServerBinding = () => {
-  bootPromise?.then(({ follow }) => follow?.stop?.()).catch(() => {});
+  bootPromise
+    ?.then(({ follow, client, requests }) => {
+      follow?.stop?.();
+      client.close?.();
+      requests.stop();
+    })
+    .catch(() => {});
   bootPromise = null;
   automationApi = null;
 };
@@ -235,7 +249,7 @@ const NO_ANSWER = Object.freeze({
 });
 
 const serverResponse = async (path, init, { network = false } = {}) => {
-  const { client, origin } = await ensure();
+  const { origin, requests } = await ensure();
   if (!origin) {
     return null;
   }
@@ -248,13 +262,12 @@ const serverResponse = async (path, init, { network = false } = {}) => {
     origin ? new URL(path, origin).toString() : path,
     init?.method ?? 'GET'
   );
-  const deadline = path === '/api/telegram/status' ? 10_000 : 30_000;
-  const signal = init?.signal ?? globalThis.AbortSignal?.timeout?.(deadline);
-  return fetch(url, { ...init, ...(signal ? { signal } : {}) })
-    .then((response) => {
-      client.reached?.();
-      return announceLocked(response);
+  return requests
+    .request(url, init ?? {}, {
+      retry: isReadRequest(path, init?.method),
+      json: true,
     })
+    .then(announceLocked)
     .catch(() => (network ? NO_ANSWER : null));
 };
 
@@ -268,28 +281,7 @@ const announceLocked = (response) => {
 
 // The local passcode (R-Y183): `op` is status, unlock, lock, set, remove or
 // auto-lock; the answer is the server's JSON with `httpStatus`, null offline.
-const passcodeCall = async (op, body) => {
-  // Not through `client.isOnline()`: a locked server answers its health
-  // check with 423, which must not make the unlock screen think it is gone.
-  const { origin } = await ensure();
-  if (!origin) {
-    return null;
-  }
-  const path = `/api/passcode/${op}`;
-  const init =
-    body === undefined
-      ? undefined
-      : {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(body),
-        };
-  const response = await fetch(new URL(path, origin), init)
-    .then(announceLocked)
-    .catch(() => null);
-  const data = response ? await response.json().catch(() => ({})) : null;
-  return data && { ...data, httpStatus: response.status };
-};
+const passcodeCall = createPasscodeCaller(ensure, announceLocked);
 
 const serverFetch = async (path, init) => {
   const response = await serverResponse(path, init);
@@ -1028,40 +1020,46 @@ const rawApi = {
   events: async (onEvent, onState = () => {}) => {
     const { client, origin, follow } = await ensure();
     const Source = globalThis.EventSource;
-    if (!client.isOnline() || typeof Source !== 'function') {
+    if (!origin || typeof Source !== 'function') {
       return () => {};
     }
     const url = scopedUrl(
       origin ? new URL('/api/events', origin).toString() : '/api/events'
     );
-    const source = new Source(url);
     const transport = trackServerStream();
     let interrupted = false;
-    source.addEventListener('ready', () => {
-      transport.state('open');
-      client.reached?.();
-      if (interrupted) {
-        interrupted = false;
-        globalThis.dispatchEvent?.(new globalThis.Event(READ_RECOVERED_EVENT));
-      }
-      onState('open');
-      // Opened again after the server restarted: maybe a new build.
-      follow?.check();
-    });
-    source.addEventListener('link', (event) => {
-      try {
-        onEvent(JSON.parse(event.data));
-      } catch {
-        // A malformed frame: skip it, the next reload fixes the view.
-      }
-    });
-    source.addEventListener('error', () => {
-      interrupted = true;
-      transport.state('closed');
-      onState('closed');
-    });
+    const stop = openServerEvents(
+      url,
+      {
+        ready: () => {
+          transport.state('open');
+          client.reached?.();
+          if (interrupted) {
+            interrupted = false;
+            globalThis.dispatchEvent?.(
+              new globalThis.Event(READ_RECOVERED_EVENT)
+            );
+          }
+          onState('open');
+          follow?.check();
+        },
+        link: (event) => {
+          try {
+            onEvent(JSON.parse(event.data));
+          } catch {
+            /* Skip malformed frames; the next refresh catches up. */
+          }
+        },
+        error: () => {
+          interrupted = true;
+          transport.state('closed');
+          onState('closed');
+        },
+      },
+      { Source }
+    );
     return () => {
-      source.close();
+      stop();
       transport.close();
     };
   },
@@ -1072,21 +1070,25 @@ const rawApi = {
    * Returns a stop function; without a server it does nothing.
    */
   telegramAccountsEvents: async (onEvent) => {
-    const { client, origin } = await ensure();
+    const { origin } = await ensure();
     const Source = globalThis.EventSource;
-    if (!client.isOnline() || typeof Source !== 'function') {
+    if (!origin || typeof Source !== 'function') {
       return () => {};
     }
     const path = '/api/telegram/accounts-events';
-    const source = new Source(origin ? new URL(path, origin).toString() : path);
-    source.addEventListener('message', (event) => {
-      try {
-        onEvent(JSON.parse(event.data));
-      } catch {
-        // A malformed frame: skip it.
-      }
-    });
-    return () => source.close();
+    return openServerEvents(
+      origin ? new URL(path, origin).toString() : path,
+      {
+        message: (event) => {
+          try {
+            onEvent(JSON.parse(event.data));
+          } catch {
+            /* Skip malformed frames. */
+          }
+        },
+      },
+      { Source }
+    );
   },
   // Mark a chat read up to a message on Telegram, and save its draft
   // there, so the phone and other apps show the same.

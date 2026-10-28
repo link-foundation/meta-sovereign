@@ -296,19 +296,35 @@ test('online mode: links() adds the server links to the local ones', async () =>
     'msg:vk:2': 'only on the server',
   });
 
+  let interrupted = true;
   const down = createOfflineClient({
     store,
     server: {
       origin: 'http://x',
-      fetchImpl: async () => {
-        throw new Error('network down');
+      fetchImpl: async (url) => {
+        if (new URL(url).pathname === '/links' && interrupted) {
+          interrupted = false;
+          throw new Error('temporary network interruption');
+        }
+        return {
+          ok: true,
+          json: async () => [{ id: 'msg:remote', body: 'recovered' }],
+        };
       },
     },
   });
-  assert.equal((await down.links()).length, 2);
-  assert.equal(down.isOnline(), true);
-  await down.links();
-  assert.equal(down.isOnline(), false);
+  try {
+    const restored = await down.links();
+    assert.equal(
+      restored.length,
+      3,
+      'server-backed reads recover instead of returning a smaller local-only list'
+    );
+    assert.equal(restored.at(-1).id, 'msg:remote');
+    assert.equal(down.isOnline(), true);
+  } finally {
+    down.close();
+  }
 });
 
 test('the local copy reloads itself when its server comes back with a new build', async () => {

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Spinner } from './spinner.js';
+import { READ_RECOVERED_EVENT } from './read-retry.js';
 
 const el = React.createElement;
 
@@ -43,20 +44,70 @@ export const useMediaSource = (api, method, args, enabled) => {
 
 export const useMediaReady = (src) => {
   const [settled, setSettled] = useState({ src: null, phase: 'loading' });
+  const element = useRef(null);
+  const attempt = useRef(0);
   const phase = settled.src === src ? settled.phase : 'loading';
   const set = (value) => setSettled({ src, phase: value });
   return {
     ready: Boolean(src) && phase === 'ready',
     failed: Boolean(src) && phase === 'failed',
+    retry: () => {
+      const node = element.current;
+      if (!node || !src) {
+        return;
+      }
+      set('loading');
+      attempt.current += 1;
+      node.src = /^(blob:|data:)/.test(src)
+        ? src
+        : `${src}${src.includes('?') ? '&' : '?'}mediaRetry=${attempt.current}`;
+    },
     handlers: {
       onLoad: () => set('ready'),
       onLoadedData: () => set('ready'),
       onCanPlay: () => set('ready'),
       onPlaying: () => set('ready'),
       onWaiting: () => set('loading'),
-      onError: () => set('failed'),
+      onError: (event) => {
+        element.current = event?.currentTarget;
+        set('failed');
+      },
     },
   };
+};
+
+export const useMediaRetry = (active, failed, retry) => {
+  const latest = useRef(retry);
+  const attempts = useRef(0);
+  latest.current = retry;
+  useEffect(() => {
+    if (!active && !failed) {
+      attempts.current = 0;
+    }
+    if (!failed || !latest.current) {
+      return undefined;
+    }
+    let pending = true;
+    const run = () => {
+      if (!pending) {
+        return;
+      }
+      pending = false;
+      latest.current?.();
+    };
+    const timer = globalThis.setTimeout(
+      run,
+      [1000, 2000, 5000, 10000, 30000][Math.min(attempts.current++, 4)]
+    );
+    globalThis.addEventListener?.(READ_RECOVERED_EVENT, run);
+    globalThis.addEventListener?.('online', run);
+    return () => {
+      pending = false;
+      globalThis.clearTimeout(timer);
+      globalThis.removeEventListener?.(READ_RECOVERED_EVENT, run);
+      globalThis.removeEventListener?.('online', run);
+    };
+  }, [active, failed]);
 };
 
 export const MediaLoading = ({
@@ -66,43 +117,20 @@ export const MediaLoading = ({
   small = false,
 }) => {
   const t = useT();
+  useMediaRetry(active, failed, retry);
   if (!active && !failed) {
     return null;
   }
-  const label = t(failed ? 'chat.media.unavailable' : 'common.loading');
-  const body = failed
-    ? el(
-        'span',
-        { className: 'media-load-error', title: label },
-        small ? '!' : label
-      )
-    : el(Spinner, { size: small ? 'small' : 'large' });
+  const label = t('common.loading');
   return el(
     'span',
     {
-      className: `media-loading${small ? ' is-small' : ''}${failed ? ' is-failed' : ''}`,
+      className: `media-loading${small ? ' is-small' : ''}`,
       role: 'status',
       'aria-label': label,
-      'data-media-loading': failed ? 'failed' : 'loading',
+      'data-media-loading': 'loading',
     },
-    [
-      el(React.Fragment, { key: 'body' }, body),
-      failed && retry
-        ? el(
-            'button',
-            {
-              key: 'retry',
-              type: 'button',
-              'data-action': 'media-retry',
-              onClick: (event) => {
-                event.stopPropagation();
-                retry();
-              },
-            },
-            t('error.retry')
-          )
-        : null,
-    ]
+    el(Spinner, { size: small ? 'small' : 'large' })
   );
 };
 
@@ -118,6 +146,7 @@ export const LoadingImage = ({
   ...props
 }) => {
   const state = useMediaReady(src);
+  useMediaRetry(!state.ready, state.failed && !showProgress, state.retry);
   return el(
     'span',
     {
@@ -145,6 +174,7 @@ export const LoadingImage = ({
             key: 'loading',
             active: !state.ready,
             failed: state.failed,
+            retry: state.retry,
           })
         : null,
     ]
@@ -171,6 +201,7 @@ export const LoadingPlayer = ({ as = 'video', src, onError, ...props }) => {
       key: 'loading',
       active: started && !state.ready,
       failed: state.failed,
+      retry: state.retry,
     }),
   ]);
 };

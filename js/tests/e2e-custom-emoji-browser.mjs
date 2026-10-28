@@ -95,6 +95,12 @@ await page.route('**/api/telegram/custom-emoji?*', (route) => {
   const id = url.searchParams.get('id');
   const full = url.searchParams.get('full') === '1';
   asked.push(`${id}${full ? '-full' : ''}`);
+  if (
+    asked.filter((value) => value === `${id}${full ? '-full' : ''}`).length ===
+    1
+  ) {
+    return route.fulfill({ status: 503, body: 'restarting' });
+  }
   if (full) {
     return id === '5003'
       ? route.fulfill({

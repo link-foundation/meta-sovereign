@@ -5,6 +5,25 @@
 // own origins have them (../server/routes-telegram.js `fromApp`). A plain
 // <img> load from another origin says only "cross-site" and is refused.
 
+import { createRecoveringRequest } from './request-recovery.js';
+
+const requests = createRecoveringRequest({
+  fetchImpl: (url, init) => globalThis.fetch(url, init),
+});
+
+/** Complete asset bytes, retried through transport and interrupted bodies. */
+export const readMedia = async (url, body = 'blob') => {
+  const response = await requests.request(
+    url,
+    { credentials: 'same-origin' },
+    { retry: true, body }
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response[body]();
+};
+
 /** `'anonymous'` for a server URL on another origin, else undefined. */
 export const crossOriginFor = (src, here = globalThis.location?.href) => {
   if (!src || !here) {
@@ -38,9 +57,7 @@ export const saveUrl = async (url, filename = '') => {
   let href = url;
   if (crossOriginFor(url)) {
     try {
-      href = globalThis.URL.createObjectURL(
-        await (await globalThis.fetch(url)).blob()
-      );
+      href = globalThis.URL.createObjectURL(await readMedia(url));
     } catch {
       // The link as it is: the browser says what went wrong.
     }

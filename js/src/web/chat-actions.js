@@ -34,7 +34,7 @@ import { useSavedGifs } from './chat-saved-gifs.js';
 import { useMusicSave } from './chat-music-save.js';
 import { useReport } from './chat-report.js';
 import { useBlockFromReplies } from './chat-replies-block.js';
-import { saveUrl } from './media-src.js';
+import { readMedia, saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
@@ -329,7 +329,7 @@ const copyImage = async (state, api, chat, message) => {
     return;
   }
   try {
-    const blob = await asPng(await (await globalThis.fetch(url)).blob());
+    const blob = await asPng(await readMedia(url));
     await globalThis.navigator.clipboard.write([
       new Item({ [blob.type]: blob }),
     ]);

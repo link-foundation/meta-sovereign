@@ -11,6 +11,7 @@ import { avatarFor } from './chat-model.js';
 import { peerColorClass } from './peer-color.js';
 import { mediaSrc } from './media-src.js';
 import { MediaLoading } from './media-loading.js';
+import { READ_RECOVERED_EVENT } from './read-retry.js';
 
 const el = React.createElement;
 
@@ -104,14 +105,21 @@ const returns = new WeakMap();
 const backOnline = (api) => {
   if (!returns.has(api)) {
     const state = { count: 0, listeners: new Set() };
+    const recovered = () => {
+      for (const [key, value] of photos) {
+        if (value === false) {
+          photos.delete(key);
+        }
+      }
+      state.count += 1;
+      state.listeners.forEach((listener) => listener(state.count));
+    };
     returns.set(api, state);
+    globalThis.addEventListener?.(READ_RECOVERED_EVENT, recovered);
     Promise.resolve(
       api.on?.((event) => {
         if (event?.type === 'mode-change' && event.online) {
-          state.count += 1;
-          for (const listener of state.listeners) {
-            listener(state.count);
-          }
+          recovered();
         }
       })
     ).catch(() => {});
@@ -142,6 +150,7 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
   const [url, setUrl] = useState(() => photos.get(key) || null);
   const [attempt, setAttempt] = useState(0);
   const returned = useBackOnline(api);
+  useEffect(() => setAttempt(0), [key, returned]);
   const retry = useRef(null);
   useEffect(() => () => globalThis.clearTimeout(retry.current), []);
   useEffect(() => {

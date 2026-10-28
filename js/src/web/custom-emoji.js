@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNearView } from './chat-media.js';
 import { LottieSticker } from './lottie-sticker.js';
 import { mediaSrc } from './media-src.js';
+import { LoadingImage, useMediaReady, useMediaRetry } from './media-loading.js';
 
 const el = React.createElement;
 
@@ -23,7 +24,13 @@ const kindOf = async (url) => {
   }
   let kind = 'none';
   try {
-    const answer = await globalThis.fetch(url, { credentials: 'same-origin' });
+    const answer = await globalThis.fetch(url, {
+      credentials: 'same-origin',
+      signal: globalThis.AbortSignal?.timeout?.(30_000),
+    });
+    if (answer.status >= 500 && answer.status !== 501) {
+      return null;
+    }
     const type = answer.ok ? (answer.headers.get('content-type') ?? '') : '';
     if (type.startsWith('video/')) {
       kind = 'video';
@@ -31,8 +38,11 @@ const kindOf = async (url) => {
       kind = 'tgs';
     }
   } catch {
-    // No animation: the picture stays.
+    // Keep the picture while a temporary lookup failure is retried.
+    return null;
   }
+  // Only a definite answer may be cached as having no animation.
+  // A restart's error response must not suppress it for the tab's lifetime.
   kinds.set(url, kind);
   return kind;
 };
@@ -57,20 +67,34 @@ const useEmojiUrl = (api, id, full, when) => {
 };
 
 const useKind = (url) => {
-  const [kind, setKind] = useState('none');
+  const [kind, setKind] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useMediaRetry(kind === null, failed, () => {
+    setFailed(false);
+    setAttempt((value) => value + 1);
+  });
   useEffect(() => {
     let active = true;
     if (url) {
-      kindOf(url).then((next) => active && setKind(next));
+      setKind(null);
+      kindOf(url).then((next) => {
+        if (active) {
+          setKind(next);
+          setFailed(next === null);
+        }
+      });
     }
     return () => {
       active = false;
     };
-  }, [url]);
-  return kind;
+  }, [url, attempt]);
+  return kind ?? 'none';
 };
 
 const Animation = ({ kind, url, visible, onDrawn }) => {
+  const state = useMediaReady(url);
+  useMediaRetry(!state.ready, state.failed, state.retry);
   if (kind === 'tgs') {
     return el(LottieSticker, {
       src: url,
@@ -82,12 +106,16 @@ const Animation = ({ kind, url, visible, onDrawn }) => {
   return kind === 'video' && visible
     ? el('video', {
         ...mediaSrc(url),
+        ...state.handlers,
         className: 'msg-custom-emoji-anim',
         muted: true,
         loop: true,
         autoPlay: true,
         playsInline: true,
-        onLoadedData: () => onDrawn(true),
+        onLoadedData: () => {
+          state.handlers.onLoadedData();
+          onDrawn(true);
+        },
       })
     : null;
 };
@@ -110,12 +138,14 @@ export const CustomEmoji = ({ id, text, api, big = false }) => {
     [
       el('span', { key: 't', className: 'msg-custom-emoji-text' }, text),
       still
-        ? el('img', {
+        ? el(LoadingImage, {
             key: 'i',
             ...mediaSrc(still),
             alt: '',
             draggable: false,
             className: 'msg-custom-emoji-img',
+            compact: true,
+            showProgress: false,
             onLoad: () => setDrawn(true),
           })
         : null,

@@ -256,6 +256,7 @@ export const PhotoViewer = ({
         key: 'loading',
         active: fullLoading || !ready.ready,
         failed: ready.failed,
+        retry: ready.retry,
       }),
       stickers
         ? el(ViewerMenu, { key: 'menu', t, onStickers: () => setAsking(true) })

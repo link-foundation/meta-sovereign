@@ -381,6 +381,8 @@ test('restoring into a folder swaps the log in one step and keeps secrets', asyn
 const inV8 = typeof Bun === 'undefined';
 test(
   'a 200k-link store backs up in bounded memory',
+  // Includes generating, encrypting and restoring 200k records. Shared CI
+  // gets a dedicated bounded-heap job; ordinary unit runs skip this scenario.
   { skip: !inV8 || process.env.RUN_BACKUP_STRESS !== '1', timeout: 120_000 },
   async () => {
     const dir = await tmp('mem');
