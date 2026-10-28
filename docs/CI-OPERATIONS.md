@@ -47,3 +47,5 @@ Windows Deno selects cifrante’s existing WASM AES backend before Telegram init
 Desktop, registry, mobile and package-smoke commands share exact-pinned `cross-spawn@7.0.6` to resolve Windows npm/npx shims and escape arguments. Raw argument arrays with Node’s `shell: true` cause DEP0190; the shared launcher uses `shell: false` and preserves command failures. Regression tests run npm/npx with `--throw-deprecation` and check literal arguments and exit codes.
 
 The pre-commit hook passes `--config package.json` to lint-staged. This prevents configuration discovery inside archived template snapshots; root ESLint/Prettier exclusions preserve the immutable evidence. A real temporary-Git regression verifies that nested reference tasks never run and maintained files still receive root checks.
+
+GitHub test fixtures close every owned connection during teardown, including persistent and incomplete requests; the application server is separate. `CI_FIXTURE_DEBUG=1` reports connection counts and shutdown duration (off by default). Keep the runtime job deadline unchanged; fix fixture ownership instead of waiting for client keep-alive timeouts.

@@ -41,3 +41,5 @@ Windows Deno 在 Telegram 初始化之前选择 cifrante 现有的 WASM AES 后�
 Desktop、registry、mobile 和 package-smoke 命令共用精确固定的 `cross-spawn@7.0.6`，以解析 Windows npm/npx shim 并转义参数。Node 的参数数组与 `shell: true` 组合会触发 DEP0190；共用启动器设置 `shell: false` 并保留命令失败状态。回归测试以 `--throw-deprecation` 运行 npm/npx，并检查参数原样传递及退出码。
 
 Pre-commit hook 向 lint-staged 传入 `--config package.json`，避免自动发现归档模板快照中的配置。根级 ESLint/Prettier 排除规则保留原始证据。真实的临时 Git 回归测试验证嵌套参考任务不会运行，而维护中的文件仍接受根级检查。
+
+GitHub 测试 fixture 在清理时关闭其拥有的所有连接，包括 keep-alive 和未完成的请求；应用服务器保持独立。`CI_FIXTURE_DEBUG=1` 输出连接数与关闭耗时（默认关闭）。保持 runtime job 原有截止时间，通过修复 fixture 的连接清理避免等待客户端超时。

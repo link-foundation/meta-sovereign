@@ -41,3 +41,5 @@ Windows Deno पर Telegram शुरू होने से पहले cifra
 Desktop, registry, mobile और package-smoke कमांड Windows npm/npx shim और argument escaping के लिए सटीक `cross-spawn@7.0.6` साझा करते हैं। Node में argument array के साथ `shell: true` DEP0190 देता है; साझा launcher `shell: false` रखता है और कमांड की विफलता बरकरार रखता है। Regression tests npm/npx को `--throw-deprecation` के साथ चलाते हैं और literal arguments तथा exit codes जाँचते हैं।
 
 Pre-commit hook lint-staged को `--config package.json` देता है, ताकि संग्रहित template snapshot की configuration अपने आप न चले। Root ESLint/Prettier exclusions साक्ष्य को अपरिवर्तित रखते हैं। अस्थायी Git regression जाँचता है कि nested reference tasks न चलें और maintained files पर root checks लागू रहें।
+
+GitHub test fixtures teardown पर अपने सभी connections बंद करते हैं, जिनमें keep-alive और अधूरे requests शामिल हैं; application server अलग रहता है। `CI_FIXTURE_DEBUG=1` connection count और shutdown समय दिखाता है (डिफ़ॉल्ट बंद)। Runtime job deadline बढ़ाने के बजाय fixture का connection cleanup ठीक किया गया है।

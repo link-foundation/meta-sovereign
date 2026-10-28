@@ -190,10 +190,35 @@ export const startFakeGithub = async (initial = {}) => {
       return rest(state, req, res, url);
     });
   });
+  // Fixture teardown owns its clients too. Waiting for fetch keep-alive or
+  // incomplete request timeouts can consume minutes on another runtime.
+  const sockets = new Set();
+  server.on('connection', (socket) => {
+    sockets.add(socket);
+    socket.on('close', () => sockets.delete(socket));
+  });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   return {
     state,
     baseUrl: `http://127.0.0.1:${server.address().port}`,
-    close: () => new Promise((resolve) => server.close(resolve)),
+    close: () =>
+      new Promise((resolve) => {
+        const debug = process.env.CI_FIXTURE_DEBUG === '1';
+        const started = Date.now();
+        if (debug) {
+          console.error(
+            `[fake-github] closing ${sockets.size} owned connections`
+          );
+        }
+        server.close(() => {
+          if (debug) {
+            console.error(`[fake-github] closed in ${Date.now() - started} ms`);
+          }
+          resolve();
+        });
+        for (const socket of sockets) {
+          socket.destroy();
+        }
+      }),
   };
 };
