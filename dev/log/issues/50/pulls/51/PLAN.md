@@ -1,6 +1,6 @@
 # Issue 50 / PR 51 work plan
 
-Objective: fully update all dependencies and toolchains, fix regressions from merged Dependabot PRs, verify all acceptance criteria, and preserve evidence in this folder. Work only on issue-50-d289f94d6edd; do not merge main.
+Objective: fully update all dependencies and toolchains, fix regressions from merged Dependabot PRs, verify all acceptance criteria, and preserve evidence in this folder. Commit and push only on issue-50-d289f94d6edd. Integrate through PR 51 after its checks pass, then verify default-branch CI as explicitly required by issue 50.
 
 - [x] Read root AGENTS.md and verify branch and clean starting state.
 - [x] Read complete issue, issue comments, and PR conversation/inline/review feedback.
@@ -21,5 +21,6 @@ Objective: fully update all dependencies and toolchains, fix regressions from me
 - [ ] Review fresh CI for exact latest SHA, download every failed run, fix root causes, repeat focused checks.
 - [ ] Review gh pr diff, preserve existing features, ensure current main is included, update PR title/body with reproduction/validation/closing keyword.
 - [ ] Verify clean tree, all requirements mapped to evidence, CI green; mark PR 51 ready.
+- [ ] Integrate the verified PR through GitHub and verify every applicable default-branch workflow; preserve its exact SHA and results.
 
 Resource rules: no full suite, stress tests, or browser/runtime matrices locally. Rust builds sequentially with CARGO_BUILD_JOBS=1 and reduced debug if needed. Stop repeating memory-killed builds and use CI. Save large output to logs; read files above 1500 lines in bounded chunks. Keep experiment scripts in experiments/. Wait for every background command before finishing.
