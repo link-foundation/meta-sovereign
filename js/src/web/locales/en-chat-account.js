@@ -2,6 +2,23 @@
 // (en; R-Y174).
 
 export const enChatAccount = {
+  'chat.versions.title': 'Edit history',
+  'chat.versions.edited': 'Edited messages',
+  'chat.versions.local':
+    'Versions saved by this server remain available after the service changes or deletes the message.',
+  'chat.versions.partial':
+    'Versions from before this server first observed the message were not captured.',
+  'chat.versions.mediaMissing':
+    'No attachment bytes were retained for this version.',
+  'chat.versions.attachment': 'Attachment',
+  'chat.versions.download': 'Download saved attachment',
+  'chat.versions.number': 'Saved version {number}',
+  'chat.versions.savedAt': 'Preserved {when}',
+  'chat.versions.count':
+    '{count, plural, one {# saved version} other {# saved versions}}',
+  'chat.versions.bar':
+    '{count, plural, one {# edited message is kept} other {# edited messages are kept}}',
+  'chat.versions.empty': 'No saved versions are available.',
   'chat.archive.settingsTitle': 'Archive and mute new chats',
   'chat.archive.privacyTitle': 'Read marks and new chats',
   'chat.archive.archiveAndMute': 'Archive and mute new chats from non-contacts',

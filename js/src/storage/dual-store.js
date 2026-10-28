@@ -26,6 +26,11 @@ import { managedDualStore } from './dual-handoff.js';
 import { verifyCheckpoint } from './lino-handoff.js';
 import { CURRENT_SCHEMA } from './migrations/index.js';
 import { acquireStoreLock } from './store-lock.js';
+import { withMessageVersions } from './message-versions.js';
+import {
+  preserveMessageMedia,
+  purgeVersionMedia,
+} from './message-version-media.js';
 import { DIR_MODE, ensurePrivateDir, sweepTemp, tighten } from './durable.js';
 import {
   checkReadOnly,
@@ -240,16 +245,22 @@ export const openDualStore = async (
       onError,
       onEvent,
     });
-    return managedDualStore({
-      dir,
-      text,
-      binary,
-      lock,
-      schema,
-      access: (binary, text) => createDualStore({ binary, text }),
-      onError,
-      onEvent,
-    });
+    return withMessageVersions(
+      managedDualStore({
+        dir,
+        text,
+        binary,
+        lock,
+        schema,
+        access: (binary, text) => createDualStore({ binary, text }),
+        onError,
+        onEvent,
+      }),
+      {
+        preserve: preserveMessageMedia(dir),
+        purgeMedia: purgeVersionMedia(dir),
+      }
+    );
   } catch (error) {
     lock.release();
     throw error;
@@ -281,12 +292,15 @@ export const openWarmDualStore = async (
     );
   }
   schema.version = CURRENT_SCHEMA;
-  return managedDualStore({
-    dir,
-    text,
-    schema,
-    access: (binary, text) => createDualStore({ binary, text }),
-    onError,
-    onEvent,
-  });
+  return withMessageVersions(
+    managedDualStore({
+      dir,
+      text,
+      schema,
+      access: (binary, text) => createDualStore({ binary, text }),
+      onError,
+      onEvent,
+    }),
+    { preserve: preserveMessageMedia(dir), purgeMedia: purgeVersionMedia(dir) }
+  );
 };

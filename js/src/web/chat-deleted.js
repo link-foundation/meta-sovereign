@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
 import { useEsc } from './chat-invite.js';
+import { useMessageVersions } from './chat-message-versions.js';
 
 const el = React.createElement;
 
@@ -81,7 +82,7 @@ const PurgeDialog = ({ t, busy, error, onYes, onNo }) => {
   );
 };
 
-const Row = ({ message, t, dates, onRecover, onPurge, busy }) => {
+const Row = ({ message, t, dates, onRecover, onPurge, onVersions, busy }) => {
   const when = deletedWhen(message);
   return el(
     'div',
@@ -92,7 +93,7 @@ const Row = ({ message, t, dates, onRecover, onPurge, busy }) => {
         el(
           'span',
           { key: 'b', className: 'deleted-body' },
-          message.body || '📎'
+          message.body || t('chat.versions.attachment')
         ),
         el(
           'span',
@@ -108,6 +109,19 @@ const Row = ({ message, t, dates, onRecover, onPurge, busy }) => {
         ),
       ]),
       el('div', { key: 'a', className: 'deleted-actions' }, [
+        message.versionHead
+          ? el(
+              'button',
+              {
+                key: 'v',
+                type: 'button',
+                className: 'button',
+                onClick: () => onVersions(message),
+                'data-action': 'deleted-versions',
+              },
+              t('chat.versions.count', { count: message.versionCount ?? 1 })
+            )
+          : null,
         el(
           'button',
           {
@@ -143,6 +157,7 @@ const DeletedList = ({ api, messages, reload, close }) => {
   const [asking, setAsking] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const versions = useMessageVersions(api);
   const run = async (call, ids) => {
     setBusy(true);
     setError(false);
@@ -155,6 +170,9 @@ const DeletedList = ({ api, messages, reload, close }) => {
       setError(true);
     }
   };
+  if (versions.dialog) {
+    return versions.dialog;
+  }
   return el(
     Frame,
     { title: t('chat.deleted.title'), close, name: 'deleted-messages' },
@@ -172,6 +190,7 @@ const DeletedList = ({ api, messages, reload, close }) => {
           busy,
           onRecover: (id) => run(api.recoverDeleted, [id]),
           onPurge: (id) => setAsking([id]),
+          onVersions: versions.open,
         })
       ),
       messages.length > 1

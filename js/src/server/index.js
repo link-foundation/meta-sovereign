@@ -89,6 +89,8 @@ import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
 import { backgroundJobs } from './background-jobs.js';
 import { handleDeletedRoutes } from './routes-deleted.js';
+import { handleVersionRoutes } from './routes-message-versions.js';
+import { withMessageVersions } from '../storage/message-versions.js';
 import { handleAudienceSyncRoute } from './audience-sync.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
@@ -637,6 +639,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleEmailGets(store, req, res, p, url, ctx),
     () => handleMediaGets(req, res, p, ctx),
     () => handleDeletedRoutes(store, req, res, p, url, ctx),
+    () => handleVersionRoutes(store, req, res, p, url, ctx),
     () => handleAudienceSyncRoute(store, req, res, p, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
     () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
@@ -685,6 +688,7 @@ const initStore = async ({
     }
   }
   // Kept before wrapping: the secret wrapper does not pass `flush` on.
+  store = withMessageVersions(store);
   const unwrapped = store;
   const flush = async () => {
     await unwrapped.flush?.();

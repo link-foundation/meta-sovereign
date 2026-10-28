@@ -57,11 +57,10 @@ const listLinks = async (store, res, url) => {
   const prefix = url.searchParams.get('prefix');
   const idOf = (l) => String(l?.id ?? '');
   const all = await store.query(
-    except || prefix
-      ? (l) =>
-          (!except || !idOf(l).startsWith(except)) &&
-          (!prefix || idOf(l).startsWith(prefix))
-      : undefined
+    (l) =>
+      !(except === 'msg:' && idOf(l).startsWith('message-version:')) &&
+      (!except || !idOf(l).startsWith(except)) &&
+      (!prefix || idOf(l).startsWith(prefix))
   );
   const visible = includeTombstones(url)
     ? all
@@ -83,9 +82,12 @@ export const linkProblem = (link) => {
   return null;
 };
 
-// The schema marker is the app's own; the API never writes it (R-Z17).
+// Schema and immutable message revisions are managed by the store itself.
+const isReserved = (id) =>
+  id === SCHEMA_ID || id.startsWith('message-version:');
 const reserved = (res) =>
-  fail(res, 400, 'reserved-link', 'meta:schema is reserved') ?? true;
+  fail(res, 400, 'reserved-link', 'this link is managed by the application') ??
+  true;
 
 const putLink = async (store, req, res) => {
   const link = await readBody(req);
@@ -93,7 +95,7 @@ const putLink = async (store, req, res) => {
   if (problem) {
     return fail(res, 400, 'bad-link', problem) ?? true;
   }
-  if (link.id === SCHEMA_ID) {
+  if (isReserved(link.id)) {
     return reserved(res);
   }
   await store.put(link);
@@ -152,7 +154,7 @@ const handleLinks = async (store, req, res, p, url) => {
     return getLink(store, res, id, url);
   }
   if (req.method === 'DELETE') {
-    return id === SCHEMA_ID ? reserved(res) : deleteLink(store, res, id, url);
+    return isReserved(id) ? reserved(res) : deleteLink(store, res, id, url);
   }
   return false;
 };

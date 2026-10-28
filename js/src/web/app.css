@@ -12784,6 +12784,47 @@ a.remote-chip:hover {
   display: flex;
   flex: none;
   gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 55%;
+}
+.message-version {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.version-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.version-asset {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+.version-asset :is(img, video, audio) {
+  max-width: 100%;
+}
+.version-asset .loading-image {
+  max-height: 24rem;
+}
+.version-more {
+  display: grid;
+  place-items: center;
+  min-height: 1rem;
+}
+.edited-message-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 /* The tutorial's "Skip step" sits beside the step count (R-M10, R-N3). */

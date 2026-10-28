@@ -2,6 +2,18 @@
 // (zh; R-Y174).
 
 export const zhChatAccount = {
+  'chat.versions.title': '编辑历史',
+  'chat.versions.edited': '已编辑的消息',
+  'chat.versions.local': '此服务器保存的版本在服务更改或删除消息后仍然可用。',
+  'chat.versions.partial': '此服务器首次收到该消息之前的版本未被保存。',
+  'chat.versions.mediaMissing': '此版本未保留附件内容。',
+  'chat.versions.attachment': '附件',
+  'chat.versions.download': '下载已保存的附件',
+  'chat.versions.number': '已保存版本 {number}',
+  'chat.versions.savedAt': '保存于 {when}',
+  'chat.versions.count': '已保存 {count} 个版本',
+  'chat.versions.bar': '保留了 {count} 条已编辑的消息',
+  'chat.versions.empty': '没有可用的已保存版本。',
   'chat.archive.settingsTitle': '归档并静音新聊天',
   'chat.archive.privacyTitle': '已读标记与新聊天',
   'chat.archive.archiveAndMute': '归档并静音非联系人的新聊天',

@@ -405,7 +405,7 @@ jobs:
             send-extras folders passcode service-messages ephemeral \
             rich-messages rich-text instant-view account-data accounts offline \
             email greetings autopilot peer-bar tutorial archive-media \
-            vk-followups github-inbox visual-effects contacts-directory chat-loading calls operator operator-replies recovery navigation loading media-loading web-apps marketplaces profile profile-extras; do
+            vk-followups github-inbox visual-effects contacts-directory chat-loading calls operator operator-replies message-versions recovery navigation loading media-loading web-apps marketplaces profile profile-extras; do
             echo "::group::test:e2e:${name}"
             if ! npm run --silent "test:e2e:${name}"; then
               failed+=("${name}")
@@ -435,7 +435,7 @@ jobs:
           failed=()
           for name in browser consistency chat-menu selection offline \
             email greetings autopilot peer-bar archive-media vk-followups \
-            github-inbox visual-effects contacts-directory chat-loading calls operator operator-replies recovery navigation loading media-loading web-apps marketplaces profile profile-extras; do
+            github-inbox visual-effects contacts-directory chat-loading calls operator operator-replies message-versions recovery navigation loading media-loading web-apps marketplaces profile profile-extras; do
             echo "::group::test:e2e:${name}:webkit"
             if ! npm run --silent "test:e2e:${name}:webkit"; then
               failed+=("${name}")

@@ -2,6 +2,20 @@
 // (hi; R-Y174).
 
 export const hiChatAccount = {
+  'chat.versions.title': 'संपादन इतिहास',
+  'chat.versions.edited': 'संपादित संदेश',
+  'chat.versions.local':
+    'इस सर्वर पर सहेजे गए संस्करण सेवा द्वारा संदेश बदलने या हटाने के बाद भी उपलब्ध रहते हैं।',
+  'chat.versions.partial':
+    'इस सर्वर को संदेश पहली बार मिलने से पहले के संस्करण सहेजे नहीं गए थे।',
+  'chat.versions.mediaMissing': 'इस संस्करण की संलग्न फ़ाइल सहेजी नहीं गई थी।',
+  'chat.versions.attachment': 'संलग्न फ़ाइल',
+  'chat.versions.download': 'सहेजी गई फ़ाइल डाउनलोड करें',
+  'chat.versions.number': 'सहेजा गया संस्करण {number}',
+  'chat.versions.savedAt': '{when} को सहेजा गया',
+  'chat.versions.count': '{count} सहेजे गए संस्करण',
+  'chat.versions.bar': '{count} संपादित संदेश सुरक्षित हैं',
+  'chat.versions.empty': 'कोई सहेजा गया संस्करण उपलब्ध नहीं है।',
   'chat.archive.settingsTitle': 'नई चैट को संग्रहित और म्यूट करें',
   'chat.archive.privacyTitle': 'पढ़ने के निशान और नई चैट',
   'chat.archive.archiveAndMute': 'अपरिचितों की नई चैट संग्रहित और म्यूट करें',
