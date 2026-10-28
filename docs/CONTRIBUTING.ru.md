@@ -121,3 +121,5 @@ git push
 ## Questions?
 
 Если есть вопросы о contribution process, откройте issue для discussion.
+
+Диагностика CI, условия выпуска и восстановление: [CI](CI-OPERATIONS.ru.md) (R-Z32).

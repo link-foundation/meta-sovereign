@@ -120,3 +120,5 @@ git push
 ## Questions?
 
 Contribution process पर सवाल हो तो discussion के लिए issue खोलें।
+
+CI निदान, प्रकाशन की शर्तें और recovery: [CI संचालन](CI-OPERATIONS.hi.md) (R-Z32)।
