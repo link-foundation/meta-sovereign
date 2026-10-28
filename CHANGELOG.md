@@ -1,5 +1,13 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.54.1
+
+### Patch Changes
+
+- Measure read timeouts by inactivity so large downloads keep their progress while bytes arrive, and stalled response bodies still recover automatically.
+
+  Publish local host readiness only after its runtime metadata is durably saved, and release the private control socket if startup persistence fails.
+
 ## 0.54.0
 
 ### Minor Changes
