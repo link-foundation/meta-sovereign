@@ -204,3 +204,28 @@ test('dependency graph preflight permits PR capability notices but fails main an
     true
   );
 });
+
+test('publish retries classify actual npm output, refusing authentication and unknown failures', async () => {
+  const { publishFailureKind } = await import('../scripts/publish-policy.mjs');
+  for (const output of [
+    'npm error code E404',
+    'npm error 403 Forbidden',
+    'npm error code ENEEDAUTH',
+    'Repository rule violations found',
+    'Resource not accessible by integration',
+  ]) {
+    assert.equal(publishFailureKind(output), 'permanent');
+  }
+  for (const output of [
+    'npm error code ECONNRESET',
+    'npm error 503 Service unavailable',
+    'HTTP 429',
+  ]) {
+    assert.equal(publishFailureKind(output), 'transient');
+  }
+  assert.equal(
+    publishFailureKind('cannot publish over previously staged version'),
+    'staged'
+  );
+  assert.equal(publishFailureKind('exit 1'), 'unknown');
+});

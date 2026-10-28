@@ -28,7 +28,14 @@ export function probeNpmVersion(name, version) {
   return npmVersionState(
     spawnSync(
       process.platform === 'win32' ? 'npm.cmd' : 'npm',
-      ['view', `${name}@${version}`, 'version', '--json'],
+      [
+        'view',
+        `${name}@${version}`,
+        'version',
+        '--json',
+        '--fetch-retries=0',
+        '--fetch-timeout=15000',
+      ],
       {
         encoding: 'utf8',
         shell: process.platform === 'win32',

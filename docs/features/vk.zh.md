@@ -12,7 +12,7 @@
    - 自 2024-06-25 起，VK 不再向新应用授予用户的 `messages` 权限，用户令牌的隐式流程已关闭。只有旧版令牌（Kate Mobile、VK Admin）曾拥有该权限，而这些令牌已被切断。据报告，vk.com 网页客户端（id 6287487）和 VK Calls（7793118）的令牌仍可使用，但风险由用户自己的账号承担（有报告称账号会被冻结 24 小时至 4 天）。
    - **社区令牌**只能用于该社区的对话。它无法读取用户的个人聊天；成员列表、好友和输入状态部分不适用（错误 27）。
    - 所有消息方法（`messages.getConversations`、`getHistory`、`send`、`edit`、`delete`、`markAsRead`、`sendReaction`、`getLongPollServer`、照片和文档上传）都需要 `messages`（以及 `photos` / `docs`）权限；没有该权限的用户令牌会得到错误 7 或 15。
-   - 文档：<https://dev.vk.ru/ru/api/access-token/getting-started> 、<https://dev.vk.ru/ru/reference/access-rights> 、<https://dev.vk.ru/ru/reference/errors> 、<https://dev.vk.com/en/method/messages> 。
+   - 文档：<https://dev.vk.ru/ru/api/access-token/getting-started> 、<https://dev.vk.ru/ru/reference/access-rights> 、<https://dev.vk.ru/ru/reference/errors> 、<https://web.archive.org/web/20260316061716/https://dev.vk.com/en/method/messages> 。
 2. **用户自己浏览器配置文件中的网页应用（vk.com/im）。** 这是不需要 `messages` 令牌的唯一途径：用户在配置文件中登录一次。选择器覆盖 VK 的两代界面，尚未对照真实 vk.com 验证。
 3. **数据导出归档**（<https://vk.com/data_protection?section=rules>）。导入器读取 konard/vk-export 的 JSON 结构（`conversations[].messages[]`）。VK 自己的导出是 HTML；其页面现在也能读取 (R-Z8，尚未在真实归档上试过)。
 

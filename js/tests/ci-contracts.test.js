@@ -89,3 +89,20 @@ test('missing lychee report fails instead of claiming all links archived', (t) =
   );
   assert.notEqual(result.status, 0, result.stdout);
 });
+
+test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
+  const { workflowPolicyErrors } =
+    await import('../scripts/workflow-policy.mjs');
+  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
+  const errors = workflowPolicyErrors(text);
+  assert.ok(errors.some((error) => error.includes('runner')));
+  assert.ok(errors.some((error) => error.includes('timeout')));
+  assert.deepEqual(
+    workflowPolicyErrors(
+      text
+        .replace('ubuntu-latest', 'ubuntu-24.04')
+        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
+    ),
+    []
+  );
+});

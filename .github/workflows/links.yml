@@ -10,6 +10,8 @@ on:
       - '.github/workflows/links.yml'
       - '.lycheeignore'
       - 'js/scripts/check-web-archive.mjs'
+      - 'js/scripts/lychee-report.mjs'
+      - 'js/scripts/wayback-state.mjs'
       - '!dev/log/**'
       - '!docs/case-studies/**'
   pull_request:
@@ -20,6 +22,8 @@ on:
       - '.github/workflows/links.yml'
       - '.lycheeignore'
       - 'js/scripts/check-web-archive.mjs'
+      - 'js/scripts/lychee-report.mjs'
+      - 'js/scripts/wayback-state.mjs'
       - '!dev/log/**'
       - '!docs/case-studies/**'
   workflow_dispatch:
