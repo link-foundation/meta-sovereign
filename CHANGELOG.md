@@ -1,5 +1,13 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.53.4
+
+### Patch Changes
+
+- Preserve reply targets, quotes and send options through the shared adapter. Retain opened Operator work until explicit Done, including after sends, read-state updates, Next and reloads. Record reply and queue workflow diagnostics in verbose logs by default. Show reconnecting in one yellow header badge across the app, removing duplicate notices inside conversations.
+
+  Keep selection checks outside the message column without shifting bubbles, paint continuous full-row highlights without overlapping seams, and separate accent text from readable control fills across themes, badges, calls and Mini Apps.
+
 ## 0.53.3
 
 ### Patch Changes
