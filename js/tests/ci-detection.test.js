@@ -40,6 +40,10 @@ const fixture = (t) => {
           ...process.env,
           GITHUB_OUTPUT: '',
           GITHUB_EVENT_PATH: '',
+          GITHUB_EVENT_NAME: '',
+          GITHUB_BASE_SHA: '',
+          GITHUB_HEAD_SHA: '',
+          GITHUB_SHA: '',
           ...env,
         },
       }

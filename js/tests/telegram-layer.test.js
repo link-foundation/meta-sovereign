@@ -96,7 +96,7 @@ test("TDLib's schema becomes the same TL, without TDLib's own calls", () => {
 });
 
 test('the maintained client has the current polls, checklists and vote methods', () => {
-  const { Api } = require('telegram');
+  const { Api } = require('teleproto');
   assert.equal(Api.MessageMediaPoll.CONSTRUCTOR_ID.toString(16), '773f4e66');
   assert.equal(typeof Api.MessageMediaToDo, 'function');
   assert.equal(typeof Api.messages.SendVote, 'function');
@@ -111,7 +111,7 @@ test('GramJS loads at the current layer, before anything else loads it', () => {
     `const m = await import(${JSON.stringify(layerModule)});
        const { Api } = await m.importTelegram();
        const { createRequire } = await import('node:module');
-       const all = createRequire(${JSON.stringify(layerModule)})('telegram/tl');
+       const all = createRequire(${JSON.stringify(layerModule)})('teleproto/tl');
        console.log(JSON.stringify({
          installed: m.installTelegramLayer(),
          layer: all.LAYER,
@@ -128,7 +128,7 @@ test('GramJS loads at the current layer, before anything else loads it', () => {
 });
 
 test('every Api method and class our Telegram code names exists', () => {
-  const { Api } = require('telegram');
+  const { Api } = require('teleproto');
   const known = (name) =>
     name.split('.').reduce((value, key) => value?.[key], Api);
   const missing = [];

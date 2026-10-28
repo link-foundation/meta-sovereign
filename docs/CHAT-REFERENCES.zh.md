@@ -16,17 +16,17 @@
 
 ## 项目
 
-| 项目                            | 简介                                           | 仓库                                                                                  | 许可证     | 我们阅读的提交（日期）                                                                                              |
-| ------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------- |
-| Telegram Web K (tweb)           | Official Telegram web app (web.telegram.org/k) | [morethanwords/tweb](https://github.com/morethanwords/tweb)                           | GPL-3.0    | [`579e559`](https://github.com/morethanwords/tweb/tree/579e5590d5db93e6ef39a5bbe1900257cb594cc2) (2026-10-16)       |
-| Telegram Web A (telegram-tt)    | Official Telegram web app (web.telegram.org/a) | [Ajaxy/telegram-tt](https://github.com/Ajaxy/telegram-tt)                             | GPL-3.0    | [`f67a408`](https://github.com/Ajaxy/telegram-tt/tree/f67a40879a7d78c2683ec5a296cf55bc22417d56) (2026-10-16)        |
-| TDLib                           | Telegram's own client library                  | [tdlib/td](https://github.com/tdlib/td)                                               | BSL-1.0    | [`a94b83d`](https://github.com/tdlib/td/tree/a94b83d67ab4c8397c6245e541b31a4131ea2f79) (2026-10-14)                 |
-| Telegram Desktop                | Official desktop app                           | [telegramdesktop/tdesktop](https://github.com/telegramdesktop/tdesktop)               | GPL-3.0    | [`b16daff`](https://github.com/telegramdesktop/tdesktop/tree/b16daff6df63e8a812bc2b52a04ff243f67a7d3f) (2026-10-15) |
-| Telegram for Android            | Official Android app (not read yet)            | [DrKLO/Telegram](https://github.com/DrKLO/Telegram)                                   | GPL-2.0    | [`f32ffee`](https://github.com/DrKLO/Telegram/tree/f32ffeec763f0bdbf4bec25b52d654f77bff733d) (2026-10-13)           |
-| Signal Desktop                  | Signal's desktop app                           | [signalapp/Signal-Desktop](https://github.com/signalapp/Signal-Desktop)               | AGPL-3.0   | [`f3040f3`](https://github.com/signalapp/Signal-Desktop/tree/f3040f3e13b6dca5021c3db149320e0f7a771f0a) (2026-10-15) |
-| Element Web                     | Matrix web client                              | [element-hq/element-web](https://github.com/element-hq/element-web)                   | AGPL-3.0   | [`fc4d45c`](https://github.com/element-hq/element-web/tree/fc4d45cce130f3dce0d824ecef87bd948bcef842) (2026-10-16)   |
-| matrix-js-sdk                   | Matrix client library behind Element           | [matrix-org/matrix-js-sdk](https://github.com/matrix-org/matrix-js-sdk)               | Apache-2.0 | [`d0e8162`](https://github.com/matrix-org/matrix-js-sdk/tree/d0e8162a6b2c10fe44f1a8a9a03354c28aad1488) (2026-10-16) |
-| GramJS (`telegram` npm package) | The MTProto library our server uses            | [gram-js/gramjs](https://github.com/gram-js/gramjs) (we read `node_modules/telegram`) | MIT        | version 2.26.22                                                                                                     |
+| 项目                                                        | 简介                                           | 仓库                                                                                         | 许可证     | 我们阅读的提交（日期）                                                                                              |
+| ----------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| Telegram Web K (tweb)                                       | Official Telegram web app (web.telegram.org/k) | [morethanwords/tweb](https://github.com/morethanwords/tweb)                                  | GPL-3.0    | [`579e559`](https://github.com/morethanwords/tweb/tree/579e5590d5db93e6ef39a5bbe1900257cb594cc2) (2026-10-16)       |
+| Telegram Web A (telegram-tt)                                | Official Telegram web app (web.telegram.org/a) | [Ajaxy/telegram-tt](https://github.com/Ajaxy/telegram-tt)                                    | GPL-3.0    | [`f67a408`](https://github.com/Ajaxy/telegram-tt/tree/f67a40879a7d78c2683ec5a296cf55bc22417d56) (2026-10-16)        |
+| TDLib                                                       | Telegram's own client library                  | [tdlib/td](https://github.com/tdlib/td)                                                      | BSL-1.0    | [`a94b83d`](https://github.com/tdlib/td/tree/a94b83d67ab4c8397c6245e541b31a4131ea2f79) (2026-10-14)                 |
+| Telegram Desktop                                            | Official desktop app                           | [telegramdesktop/tdesktop](https://github.com/telegramdesktop/tdesktop)                      | GPL-3.0    | [`b16daff`](https://github.com/telegramdesktop/tdesktop/tree/b16daff6df63e8a812bc2b52a04ff243f67a7d3f) (2026-10-15) |
+| Telegram for Android                                        | Official Android app (not read yet)            | [DrKLO/Telegram](https://github.com/DrKLO/Telegram)                                          | GPL-2.0    | [`f32ffee`](https://github.com/DrKLO/Telegram/tree/f32ffeec763f0bdbf4bec25b52d654f77bff733d) (2026-10-13)           |
+| Signal Desktop                                              | Signal's desktop app                           | [signalapp/Signal-Desktop](https://github.com/signalapp/Signal-Desktop)                      | AGPL-3.0   | [`f3040f3`](https://github.com/signalapp/Signal-Desktop/tree/f3040f3e13b6dca5021c3db149320e0f7a771f0a) (2026-10-15) |
+| Element Web                                                 | Matrix web client                              | [element-hq/element-web](https://github.com/element-hq/element-web)                          | AGPL-3.0   | [`fc4d45c`](https://github.com/element-hq/element-web/tree/fc4d45cce130f3dce0d824ecef87bd948bcef842) (2026-10-16)   |
+| matrix-js-sdk                                               | Matrix client library behind Element           | [matrix-org/matrix-js-sdk](https://github.com/matrix-org/matrix-js-sdk)                      | Apache-2.0 | [`d0e8162`](https://github.com/matrix-org/matrix-js-sdk/tree/d0e8162a6b2c10fe44f1a8a9a03354c28aad1488) (2026-10-16) |
+| Teleproto (`teleproto` npm package; maintained GramJS fork) | The MTProto library our server uses            | [sanyok12345/teleproto](https://github.com/sanyok12345/teleproto) (`node_modules/teleproto`) | MIT        | version 1.232.0                                                                                                     |
 
 ## 按主题
 
@@ -119,7 +119,7 @@
   Signal 以斐波那契间隔重连：
   [`BackOff`](https://github.com/signalapp/Signal-Desktop/blob/f3040f3e13b6dca5021c3db149320e0f7a771f0a/ts/util/BackOff.std.ts#L20)。
 - GramJS 自身的 `catchUp()` 是个空的 TODO
-  （`node_modules/telegram/client/updates.js`），因此 GramJS 应用需要自行实现这一功能。
+  （`node_modules/teleproto/client/updates/index.js`），因此 GramJS 应用需要自行实现这一功能。
 
 ### 每个频道各自补齐（群组中的删除）
 

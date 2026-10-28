@@ -80,6 +80,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    outputs:
+      graph-enabled: ${{ steps.graph.outputs.enabled }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -88,10 +90,32 @@ jobs:
         with:
           node-version: '24.x'
           package-manager-cache: false
+      - name: Check dependency review capability before building
+        id: graph
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REQUIRE_GRAPH: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && '1' || '0' }}
+        run: node js/scripts/dependency-graph.mjs
       - name: Verify npm trusted publisher before building
+        id: npm
+        continue-on-error: true
         env:
           PREFLIGHT_MODE: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release_mode == 'instant')) && 'release' || 'report' }}
         run: node js/scripts/preflight-release.mjs
+
+      - name: Require every release prerequisite
+        if: ${{ !cancelled() }}
+        env:
+          GRAPH_OUTCOME: ${{ steps.graph.outcome }}
+          NPM_OUTCOME: ${{ steps.npm.outcome }}
+        run: |
+          if [ "$GRAPH_OUTCOME" != success ] || [ "$NPM_OUTCOME" != success ]; then
+            echo "::error::Release preflight failed. Review every prerequisite above; administrator setup is required before a main release can build."
+            exit 1
+          fi
 
   # === FAST CHECKS - run before slow tests for fastest feedback ===
   # See: hive-mind CI/CD best practices principle #5 (fast-fail job ordering)
@@ -294,17 +318,19 @@ jobs:
         test-compilation,
         lint,
         check-file-line-limits,
+        version-check,
+        workflow-lint,
       ]
     # Use !cancelled() instead of always() so cancellation propagates correctly (hive-mind issue #1278)
     # Run if: push event, OR changeset-check succeeded, OR changeset-check was skipped (docs-only PR)
     # AND all fast checks passed (or were skipped for irrelevant changes)
-    if: |
-      !cancelled() && needs.detect-changes.result == 'success' &&
+    if: |-
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && needs.detect-changes.result == 'success' &&
       (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch') &&
       (github.event_name == 'push' || needs.changeset-check.result == 'success' || needs.changeset-check.result == 'skipped') &&
       (needs.test-compilation.result == 'success' || needs.test-compilation.result == 'skipped') &&
       (needs.lint.result == 'success' || needs.lint.result == 'skipped') &&
-      (needs.check-file-line-limits.result == 'success' || needs.check-file-line-limits.result == 'skipped')
+      (needs.check-file-line-limits.result == 'success' || needs.check-file-line-limits.result == 'skipped'))
     strategy:
       fail-fast: false
       matrix:
@@ -378,10 +404,19 @@ jobs:
     runs-on: ubuntu-24.04
     # Cold build ~4min, cached ~1min.
     timeout-minutes: 20
-    needs: [detect-changes, release-preflight, lint, check-file-line-limits]
+    needs:
+      [
+        detect-changes,
+        release-preflight,
+        lint,
+        check-file-line-limits,
+        test-compilation,
+        changeset-check,
+        version-check,
+        workflow-lint,
+      ]
     if: >-
-      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
-      (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.rust-changed == 'true' || needs.detect-changes.outputs.workflow-changed == 'true')
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.rust-changed == 'true' || needs.detect-changes.outputs.workflow-changed == 'true'))
     steps:
       - uses: actions/checkout@v7
         with:
@@ -432,10 +467,12 @@ jobs:
         lint,
         test-compilation,
         check-file-line-limits,
+        changeset-check,
+        version-check,
+        workflow-lint,
       ]
     if: >-
-      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
-      (needs.detect-changes.outputs.any-code-changed == 'true' || needs.detect-changes.outputs.workflow-changed == 'true')
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || needs.detect-changes.outputs.workflow-changed == 'true'))
     strategy:
       fail-fast: false
       matrix:
@@ -495,14 +532,24 @@ jobs:
     runs-on: ubuntu-24.04
     # Typical run: ~25s. cargo doc dominates and is well-bounded.
     timeout-minutes: 15
-    needs: [detect-changes, release-preflight]
-    if: |
-      github.event_name == 'workflow_dispatch' ||
+    needs:
+      [
+        detect-changes,
+        release-preflight,
+        lint,
+        test-compilation,
+        check-file-line-limits,
+        changeset-check,
+        version-check,
+        workflow-lint,
+      ]
+    if: |-
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (github.event_name == 'workflow_dispatch' ||
       needs.detect-changes.outputs.mjs-changed == 'true' ||
       needs.detect-changes.outputs.js-changed == 'true' ||
       needs.detect-changes.outputs.docs-changed == 'true' ||
       needs.detect-changes.outputs.rust-changed == 'true' ||
-      needs.detect-changes.outputs.workflow-changed == 'true'
+      needs.detect-changes.outputs.workflow-changed == 'true')
     steps:
       - uses: actions/checkout@v7
         with:
@@ -625,11 +672,21 @@ jobs:
     name: Package (packed and run with npx)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    needs: [detect-changes, release-preflight]
-    if: |
-      github.event_name == 'workflow_dispatch' ||
+    needs:
+      [
+        detect-changes,
+        release-preflight,
+        lint,
+        test-compilation,
+        check-file-line-limits,
+        changeset-check,
+        version-check,
+        workflow-lint,
+      ]
+    if: |-
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (github.event_name == 'workflow_dispatch' ||
       needs.detect-changes.outputs.any-code-changed == 'true' ||
-      needs.detect-changes.outputs.package-changed == 'true'
+      needs.detect-changes.outputs.package-changed == 'true')
     steps:
       - uses: actions/checkout@v7
         with:
@@ -673,10 +730,12 @@ jobs:
         lint,
         test-compilation,
         check-file-line-limits,
+        changeset-check,
+        version-check,
+        workflow-lint,
       ]
     if: >-
-      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
-      (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch')
+      !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch'))
     steps:
       - uses: actions/checkout@v7
         with:
@@ -706,6 +765,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: actionlint, ShellCheck and pyflakes
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
+      - name: ShellCheck standalone scripts and hooks
+        run: git ls-files -z '*.sh' '.husky/*' | xargs -0 docker run --rm -v "$PWD:/repo" -w /repo --entrypoint shellcheck rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 --shell=bash
       - name: Install pinned workflow security scanner
         run: pipx install zizmor==1.30.1
       - name: Workflow security audit (offline deterministic policy)
@@ -729,11 +790,61 @@ jobs:
           node-version: '24.x'
           package-manager-cache: false
       - run: npm ci --no-audit --no-fund
-      - run: npm audit --audit-level=low
+      - run: npm audit --package-lock-only --audit-level=low
       - uses: taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b # v2.87.4
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs:
+      [
+        detect-changes,
+        release-preflight,
+        lint,
+        test-compilation,
+        check-file-line-limits,
+        changeset-check,
+        version-check,
+        workflow-lint,
+      ]
+    if: "!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch')"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python, rust, actions]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+      - uses: github/codeql-action/analyze@v4
+
+  dependency-review:
+    name: Review dependency changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: [detect-changes, release-preflight]
+    if: github.event_name == 'pull_request' && needs.release-preflight.outputs.graph-enabled == 'true'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: low
+          comment-summary-in-pr: never
 
   pipeline-status:
     name: Pipeline status
@@ -758,6 +869,8 @@ jobs:
         backup-memory,
         workflow-lint,
         dependency-audit,
+        dependency-review,
+        codeql,
       ]
     steps:
       - uses: actions/checkout@v7
@@ -783,8 +896,7 @@ jobs:
     timeout-minutes: 30
     needs: [pipeline-status, release-preflight]
     if: >-
-      !cancelled() && github.ref == 'refs/heads/main' && github.event_name == 'push' &&
-      needs.pipeline-status.result == 'success'
+      !cancelled() && github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.pipeline-status.result == 'success'
     runs-on: ubuntu-24.04
     # Permissions required for npm OIDC trusted publishing
     permissions:
@@ -839,9 +951,7 @@ jobs:
         # Run if version was committed, if a previous attempt already committed (for re-runs),
         # or if check-release-needed detected an unpublished version (self-healing, issue #36)
         if: >-
-          steps.version.outputs.version_committed == 'true' ||
-          steps.version.outputs.already_released == 'true' ||
-          (steps.check_release.outputs.should_release == 'true' && steps.check_release.outputs.skip_bump == 'true')
+          steps.version.outputs.version_committed == 'true' || steps.version.outputs.already_released == 'true' || (steps.check_release.outputs.should_release == 'true' && steps.check_release.outputs.skip_bump == 'true')
         id: publish
         run: node js/scripts/publish-to-npm.mjs
 

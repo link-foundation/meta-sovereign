@@ -28,7 +28,7 @@ const classesRead = () => {
     const { Api } = await m.importTelegram();
     const { createRequire } = await import('node:module');
     const require = createRequire(${JSON.stringify(LAYER_MODULE)});
-    const { BinaryReader } = require('telegram/extensions');
+    const { BinaryReader } = require('teleproto/extensions');
     const base = { id: 1n, title: 't', photo: new Api.ChatPhotoEmpty(), date: 1 };
     const chats = () => [
       new Api.Channel({ ...base, megagroup: true }),

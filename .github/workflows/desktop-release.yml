@@ -176,6 +176,9 @@ jobs:
 
   build:
     name: Build (${{ matrix.name }})
+    defaults:
+      run:
+        shell: bash
     needs: resolve
     if: needs.resolve.outputs.build == 'true'
     runs-on: ${{ matrix.runner }}

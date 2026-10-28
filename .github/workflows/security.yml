@@ -23,8 +23,48 @@ jobs:
           node-version: '24.x'
           package-manager-cache: false
       - run: npm ci --no-audit --no-fund
-      - run: npm audit --audit-level=low
+      - run: npm audit --package-lock-only --audit-level=low
       - uses: taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b # v2.87.4
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python, rust, actions]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+      - uses: github/codeql-action/analyze@v4
+
+  pipeline-status:
+    name: Security pipeline status
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    if: ${{ !cancelled() }}
+    needs: [dependencies, codeql]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+      - env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node js/scripts/check-pipeline-status.mjs

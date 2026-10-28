@@ -273,7 +273,7 @@ test('TL: the layer wrapper round-trips and refuses other bytes', () => {
 });
 
 test('AES-IGE agrees with the GramJS implementation, both ways', () => {
-  const { IGE } = require('telegram/crypto/IGE.js');
+  const { IGE } = require('teleproto/crypto/IGE.js');
   const key = crypto.randomBytes(32);
   const iv = crypto.randomBytes(32);
   const data = crypto.randomBytes(16 * 9);

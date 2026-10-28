@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "imports": {
-    "telegram": "npm:teleproto@1.232.0"
+    "teleproto": "npm:teleproto@1.232.0"
   },
   "test": {
     "include": ["js/tests/"],

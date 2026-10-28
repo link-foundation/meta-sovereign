@@ -184,3 +184,23 @@ test('GitHub release probes distinguish absence from unknown failures', async ()
     release
   );
 });
+
+test('dependency graph preflight permits PR capability notices but fails main and unknown errors', async () => {
+  const { checkDependencyGraph } =
+    await import('../scripts/dependency-graph.mjs');
+  const env = { GITHUB_REPOSITORY: 'owner/repo', BASE_SHA: 'a', HEAD_SHA: 'b' };
+  const request = async () => ({ status: 403, ok: false });
+  assert.equal(await checkDependencyGraph(env, request), false);
+  await assert.rejects(
+    checkDependencyGraph({ ...env, REQUIRE_GRAPH: '1' }, request),
+    /administrator/
+  );
+  await assert.rejects(
+    checkDependencyGraph(env, async () => ({ status: 500 })),
+    /unknown/
+  );
+  assert.equal(
+    await checkDependencyGraph(env, async () => ({ ok: true })),
+    true
+  );
+});
