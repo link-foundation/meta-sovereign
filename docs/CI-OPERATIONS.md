@@ -51,3 +51,5 @@ The pre-commit hook passes `--config package.json` to lint-staged. This prevents
 GitHub test fixtures close every owned connection during teardown, including persistent and incomplete requests; the application server is separate. `CI_FIXTURE_DEBUG=1` reports connection counts and shutdown duration (off by default). Keep the runtime job deadline unchanged; fix fixture ownership instead of waiting for client keep-alive timeouts.
 
 Node and WebKit use the pinned native `macos-15-intel` runner pool after repeated GitHub macOS ARM allocation failures. Bun, Deno and desktop packaging retain macOS ARM coverage. All nine runtime/OS combinations and both browser gates remain required; queued jobs never count as successful checks.
+
+All owned network fixtures use the same socket-tracking shutdown helper, including GitHub, serverFetch, archive/WhatsApp/marketplace routes, local Pages and mail protocols. Rust documentation rejects warnings in the check and both release paths (`RUSTDOCFLAGS=-D warnings`). Temporary Git fixtures set their own LF policy without changing user settings.

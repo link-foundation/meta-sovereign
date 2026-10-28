@@ -5,6 +5,7 @@
 import { Buffer } from 'node:buffer';
 import net from 'node:net';
 import tls from 'node:tls';
+import { fixtureServerClose } from './fixture-server.mjs';
 
 import { makeLocalCertificate } from '../../src/server/local-tls.js';
 
@@ -84,15 +85,12 @@ export const startServer = async ({
             socket.write(greeting);
           }
         });
+  const close = fixtureServerClose(server, 'mail');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   return {
     port: server.address().port,
     seen,
-    close: () =>
-      new Promise((resolve) => {
-        server.close(() => resolve());
-        server.closeAllConnections?.();
-      }),
+    close,
   };
 };
 

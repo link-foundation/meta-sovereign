@@ -20,6 +20,7 @@
 
 import { describe, it, expect } from 'test-anywhere';
 import http from 'node:http';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 
 const startStub = async () => {
   const seen = [];
@@ -46,8 +47,9 @@ const startStub = async () => {
     // Everything else behaves like the Rust server's catch-all.
     json(404, { error: 'unknown route' });
   });
+  const close = fixtureServerClose(server, 'server-fetch');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  return { server, seen, origin: `http://127.0.0.1:${server.address().port}` };
+  return { close, seen, origin: `http://127.0.0.1:${server.address().port}` };
 };
 
 describe('serverFetch talks to the discovered server', () => {
@@ -99,7 +101,7 @@ describe('serverFetch talks to the discovered server', () => {
       // Leave nothing bound to a server that is about to close.
       const { resetServerBinding } = await import('../src/web/dom.js');
       resetServerBinding();
-      await new Promise((resolve) => stub.server.close(resolve));
+      await stub.close();
     }
   });
 });

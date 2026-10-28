@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import http from 'node:http';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
@@ -29,12 +30,13 @@ const withRoutes = async (extra, run) => {
       res.end('{}');
     }
   });
+  const close = fixtureServerClose(server, 'archive-upload');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
     await run({ base, store, storeDir });
   } finally {
-    await new Promise((resolve) => server.close(resolve));
+    await close();
     await rm(storeDir, { recursive: true, force: true });
   }
 };
