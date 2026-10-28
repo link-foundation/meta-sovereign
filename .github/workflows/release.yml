@@ -543,6 +543,11 @@ jobs:
         env:
           BROWSER: ${{ matrix.browser }}
         run: npx playwright install --with-deps "$BROWSER"
+      # Browser Commander launches Chrome directly with its sandbox enabled.
+      # Match the Pages fixture setup on Ubuntu 24.04.
+      - name: Let Chromium sandbox itself
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: npm run build:web
       - name: Run browser checks
         id: browser-checks
