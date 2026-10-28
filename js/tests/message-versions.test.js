@@ -140,11 +140,11 @@ test('partial writes can be replayed without losing the first capture or duplica
   let fail = true;
   const store = withMessageVersions({
     ...inner,
-    putMany: async (links) => {
-      if (fail && links.some((link) => link.id.startsWith('msg:'))) {
+    put: async (link) => {
+      if (fail && link.id.startsWith('msg:')) {
         throw new Error('fixture current write failed');
       }
-      return inner.putMany(links);
+      return inner.put(link);
     },
   });
   await assert.rejects(store.put(msg('second')), /current write failed/);

@@ -71,8 +71,8 @@ const version = (link, parent, at) => {
     tokens: ['message-version'],
     kind: 'message-version',
     messageId: link.id,
-    source: link.source,
-    chat: link.chat,
+    ...(link.source !== undefined ? { source: link.source } : {}),
+    ...(link.chat !== undefined ? { chat: link.chat } : {}),
     capturedAt: at,
     editedAt: editedAt(link),
     previous: parent ?? null,
@@ -148,7 +148,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       versionPartial: partial,
     };
   };
-  return async (links) => {
+  return async (links, single = false) => {
     const pending = new Map();
     const writes = [];
     const history = [];
@@ -184,11 +184,13 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       writes.push(next);
       output.push(next);
     }
-    const write = async (records) => {
+    const write = async (records, one = false) => {
       if (!records.length) {
         return;
       }
-      if (inner.putMany) {
+      if (one && records.length === 1) {
+        await inner.put(records[0]);
+      } else if (inner.putMany) {
         await inner.putMany(records);
       } else {
         for (const record of records) {
@@ -201,7 +203,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     for (const finish of after) {
       await finish();
     }
-    await write(writes);
+    await write(writes, single);
     indexVersions(writes);
     return output;
   };
@@ -258,7 +260,7 @@ export const withMessageVersions = (
   );
   result.put = (link) =>
     isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
-      ? enqueue(async () => (await prepare([link]))[0])
+      ? enqueue(async () => (await prepare([link], true))[0])
       : inner.put(link);
   result.putMany = (links) =>
     links.some(
