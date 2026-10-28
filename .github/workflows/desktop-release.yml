@@ -289,15 +289,15 @@ jobs:
             echo "::notice::building an ad-hoc signed macOS app (pull request or no signing secrets)"
             # electron-builder skips signing on pull requests unless
             # CSC_FOR_PULL_REQUEST is set; ad-hoc signing uses no secret.
-            # With auto-discovery off it also needs `mac.identity=-`:
-            # without an identity it returns before calling `mac.sign`.
+            # With auto-discovery off it also needs `mac.sign.identity=-`:
+            # without an identity it returns before calling `mac.sign.sign`.
             {
               echo "MACOS_ADHOC_SIGN=1"
               echo "CSC_IDENTITY_AUTO_DISCOVERY=false"
               echo "CSC_FOR_PULL_REQUEST=true"
             } >> "$GITHUB_ENV"
             echo "mode=adhoc" >> "$GITHUB_OUTPUT"
-            echo "args=-c.mac.identity=- -c.mac.notarize=false -c.mac.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"
+            echo "args=-c.mac.sign.identity=- -c.mac.notarize=false -c.mac.sign.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build desktop app

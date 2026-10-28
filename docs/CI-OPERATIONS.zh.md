@@ -33,3 +33,5 @@ npm 可信发布要求 Node 24 自带的 npm 至少为 11.5.1、`id-token: write
 发布辅助工具由 manifest 和 lockfile 固定。Telegram 使用维护中的 `teleproto` 及兼容层，公开 provider 标识仍为 `telegram`。KaTeX 已修补。npm、Bun 和 Deno 均明确批准经过审查的原生安装脚本。
 
 `electron-builder` 固定为 `27.0.0-alpha.13`，因为 26.x 仍含弃用依赖。这是构建工具的预发布版本，所有原生打包目标都必须通过 CI；运行时包的 Node 要求不变。不得隐藏警告或强行覆盖不兼容的主版本。lockfile 回归检查拒绝 deprecated 条目。
+
+v27 构建器的新配置保留相同的打包文件、原生模块策略、desktop 文件和 macOS 权限。临时签名使用 `mac.sign.identity` 和 `mac.sign.sign`。现有 updater 6 通道明确保留未签名的更新清单和 Windows 文件；启用 Authenticode 验证之前必须配置签名发布者。单独安装的 updater 仍然报告上游 `lodash.isequal` 弃用警告；该警告保持可见，尚未解决。

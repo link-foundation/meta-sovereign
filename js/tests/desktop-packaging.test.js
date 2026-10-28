@@ -82,11 +82,33 @@ describe('desktop package.json', () => {
     const pkg = desktopPackageJson(rootPkg);
     expect(pkg.desktopName).toBe(DESKTOP_ENTRY_NAME);
     expect(DESKTOP_ENTRY_NAME).toBe(`${builderConfig.executableName}.desktop`);
-    expect(builderConfig.linux.syncDesktopName).toBe(true);
+    expect(builderConfig.linux.syncDesktopName).toBe(undefined);
   });
 });
 
 describe('electron-builder config', () => {
+  it('uses the v27 schema while preserving files, native and signing settings', () => {
+    expect(builderConfig.files).toBe(undefined);
+    expect(builderConfig.fileOptions.files).toEqual([
+      'js/**/*',
+      'package.json',
+      'LICENSE',
+      'README.md',
+    ]);
+    expect(builderConfig.npmRebuild).toBe(undefined);
+    expect(builderConfig.nativeModules.npmRebuild).toBe(false);
+    expect(builderConfig.mac.sign.hardenedRuntime).toBe(true);
+    expect(builderConfig.mac.sign.entitlements).toContain(
+      'entitlements.mac.plist'
+    );
+    expect(builderConfig.mac.sign.entitlementsInherit).toBe(
+      builderConfig.mac.sign.entitlements
+    );
+    // Preserve the existing unsigned-manifest update channel for updater 6.
+    expect(builderConfig.updateManifest).toBe(false);
+    expect(builderConfig.win.verifyUpdateCodeSignature).toBe(false);
+  });
+
   it('keeps the reverse-DNS app id and GitHub publish target', () => {
     expect(builderConfig.appId).toBe('foundation.link.meta.sovereign');
     expect(builderConfig.publish[0]).toEqual({
@@ -105,8 +127,8 @@ describe('electron-builder config', () => {
   });
 
   it('gives ad-hoc macOS builds an identity, so the sign hook runs', async () => {
-    // Without `mac.identity: '-'` electron-builder 26 finds no identity
-    // (auto-discovery is off), returns before calling `mac.sign` and
+    // Without `mac.sign.identity: '-'` electron-builder finds no identity
+    // (auto-discovery is off), returns before calling `mac.sign.sign` and
     // ships an unsigned bundle that Apple silicon refuses to open.
     const workflow = await readFile(
       new URL('../../.github/workflows/desktop-release.yml', import.meta.url),
@@ -115,7 +137,8 @@ describe('electron-builder config', () => {
     const adhoc = workflow
       .split('\n')
       .find((line) => line.includes('adhoc-sign-mac.cjs'));
-    expect(adhoc).toContain('-c.mac.identity=-');
+    expect(adhoc).toContain('-c.mac.sign.identity=-');
+    expect(adhoc).toContain('-c.mac.sign.sign=');
     expect(adhoc).toContain('-c.mac.notarize=false');
   });
 
