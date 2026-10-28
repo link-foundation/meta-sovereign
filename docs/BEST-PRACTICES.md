@@ -189,10 +189,11 @@ node --test --test-timeout=30000 tests/*.test.js
 bun test --timeout 30000
 ```
 
-The 30-second per-test budget is well above the slowest observed test
-(~250 ms) but small enough that a hung promise or socket surfaces in
-seconds. This is exactly the "fail fast to fix flaky tests faster"
-property requested for this repository.
+Ordinary tests use the 30-second budget so a hung promise or socket
+surfaces promptly. The 200,000-record backup stress test explicitly allows
+120 seconds for generation, encryption and restoration on shared CI
+runners, retaining its full dataset and memory bound. Full suites and
+stress tests run in CI/CD; local validation uses focused tests only.
 
 ### 14. Proper Cancellation Propagation
 

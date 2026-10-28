@@ -381,7 +381,9 @@ test('restoring into a folder swaps the log in one step and keeps secrets', asyn
 const inV8 = typeof Bun === 'undefined';
 test(
   'a 200k-link store backs up in bounded memory',
-  { skip: !inV8 },
+  // Includes generating, encrypting and restoring 200k records. Shared CI
+  // runners can exceed the ordinary unit deadline without a regression.
+  { skip: !inV8, timeout: 120_000 },
   async () => {
     const dir = await tmp('mem');
     const log = path.join(dir, 'data.lino');
@@ -402,12 +404,16 @@ test(
       peak = Math.max(peak, process.memoryUsage().heapUsed);
     }, 25);
     const started = Date.now();
-    const made = await makeBackup(logStore(log), {
-      archiveDir: path.join(dir, 'a'),
-      passphrase: 'pw',
-    });
+    let made;
+    try {
+      made = await makeBackup(logStore(log), {
+        archiveDir: path.join(dir, 'a'),
+        passphrase: 'pw',
+      });
+    } finally {
+      clearInterval(timer);
+    }
     const ms = Date.now() - started;
-    clearInterval(timer);
     const growth = peak - base;
     console.log(
       `# R-Z16 backup: ${COUNT} links, log ${(size / 1e6).toFixed(0)} MB -> ` +
