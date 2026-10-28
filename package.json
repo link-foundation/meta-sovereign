@@ -411,7 +411,7 @@
     "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@secretlint/secretlint-rule-preset-recommend": "13.1.0",
-    "command-stream": "2.4.0",
+    "command-stream": "2.6.0",
     "cross-spawn": "7.0.6",
     "electron-builder": "27.0.0-alpha.13",
     "esbuild": "^0.28.2",
@@ -429,7 +429,7 @@
     "react-dom": "^19.3.1",
     "secretlint": "13.1.0",
     "test-anywhere": "^0.9.1",
-    "yaml": "2.9.0"
+    "yaml": "2.9.1"
   },
   "optionalDependencies": {
     "axe-core": "^4.14.0",
