@@ -172,3 +172,6 @@ dev/log/issues/43/pulls/44/local/*
 
 # Local test diagnostics (published as CI artifacts).
 artifacts/
+
+# Follow-up raw evidence is committed as a compressed snapshot beside the reports.
+dev/log/issues/43/pulls/44/recheck-20261028/

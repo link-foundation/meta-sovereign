@@ -39,7 +39,7 @@ await store.put(
     },
   })
 );
-const { page, base, errors, finish } = await openChatApp('message-versions', {
+const { page, base, finish } = await openChatApp('message-versions', {
   store,
 });
 const dialog = (view) => view.locator('[data-dialog="message-versions"]');
@@ -90,7 +90,8 @@ await finish(async () => {
   await page.locator('[role="menu"] [data-action="editHistory"]').click();
   await dialog(page).getByText('Original message', { exact: true }).waitFor();
 
-  const browser = page.context().browser();
+  const context = page.context();
+  const browser = context.browser();
   await page.close();
   assert(
     browser.contexts().every((context) => context.pages().length === 0),
@@ -98,10 +99,7 @@ await finish(async () => {
   );
   await store.put(message('Captured while closed'));
   await store.put({ ...(await store.get(message('').id)), deleted: true });
-  const reopened = await browser.newPage({
-    viewport: { width: 1200, height: 800 },
-  });
-  reopened.on('pageerror', (error) => errors.push(String(error)));
+  const reopened = await context.newPage();
   // Provider is unavailable; history still comes entirely from the local store.
   await reopened.route('**/api/telegram/status', (route) =>
     fulfil(route, { connected: false, offline: true })

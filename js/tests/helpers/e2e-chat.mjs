@@ -9,6 +9,7 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../src/server/index.js';
+import { watchChatPages, screenshotChatPages } from './e2e-page-errors.mjs';
 
 export const assert = (cond, msg) => {
   if (!cond) {
@@ -81,26 +82,21 @@ export const openChatApp = async (
   });
   const base = `${secure ? 'https' : 'http'}://127.0.0.1:${handle.port}`;
   const browser = await browserType.launch({ headless: true });
-  const page = await browser.newPage({
+  const context = await browser.newContext({
     viewport: { width: 1200, height: 800 },
     ignoreHTTPSErrors: secure,
   });
   const errors = [];
-  // WebKit reports a request the page dropped mid-flight (one that a
-  // test's end or a reload cut short, its rejection handled) as this
-  // error; the app is same-origin, so it is never a real access check.
-  const ABORTED =
-    /^(Error: )?Fetch API cannot load .+ due to access control checks\.?$/;
-  page.on('pageerror', (e) => {
-    if (!ABORTED.test(String(e))) {
-      errors.push(String(e));
-    }
+  watchChatPages(context, {
+    errors,
+    engine,
+    base,
+    trace:
+      process.env.CI_BROWSER_DEBUG === '1'
+        ? (event) => console.log(`[e2e-${name}] ${event}`)
+        : undefined,
   });
-  // The browser's own dialogs must never be used.
-  page.on('dialog', (d) => {
-    errors.push(`browser dialog: ${d.message()}`);
-    d.dismiss();
-  });
+  const page = await context.newPage();
   await page.route('**/api/telegram/status', (route) =>
     fulfil(route, {
       connected: true,
@@ -141,11 +137,7 @@ export const openChatApp = async (
     } catch (error) {
       failed = true;
       console.error(`[e2e-${name}] FAIL (${engine}): ${error.message}`);
-      await page
-        .screenshot({
-          path: path.join(artifactDir, `ms-e2e-${name}-${engine}.png`),
-        })
-        .catch(() => {});
+      await screenshotChatPages(context, { artifactDir, name, engine });
     } finally {
       await browser.close();
       await handle.close();
