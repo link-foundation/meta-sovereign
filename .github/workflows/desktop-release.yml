@@ -395,6 +395,7 @@ jobs:
           BUILD_REF: ${{ needs.resolve.outputs.ref }}
         run: |
           set -euo pipefail
+          builder_version=$(npx --no-install electron-builder --version)
           cd dist/desktop/release
           files=()
           for f in meta-sovereign-desktop-* latest*.yml; do
@@ -407,7 +408,7 @@ jobs:
             echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"
             echo "commit: $BUILD_REF"
             echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"
-            echo "electron-builder: $(node -p "require('electron-builder/package.json').version")"
+            echo "electron-builder: $builder_version"
             echo "node: $(node --version)"
             [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"
             echo "files:"
