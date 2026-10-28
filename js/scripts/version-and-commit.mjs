@@ -11,7 +11,7 @@
  * - Environment: JS_ROOT=<path>
  *
  * Uses link-foundation libraries:
- * - use-m: Dynamic package loading without package.json dependencies
+ * - Lockfile-installed release dependencies (npm ci)
  * - command-stream: Modern shell command execution with streaming support
  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
  *
@@ -22,6 +22,10 @@
  */
 
 import { readFileSync, appendFileSync, readdirSync } from 'fs';
+import {
+  assertValidatedReleaseTree,
+  isReleaseSuperseded,
+} from './validated-release-tree.mjs';
 
 import {
   getJsRoot,
@@ -31,14 +35,12 @@ import {
   parseJsRootConfig,
 } from './js-paths.mjs';
 
-// Load use-m dynamically
-const { use } = eval(
-  await (await fetch('https://unpkg.com/use-m/use.js')).text()
-);
+import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+import { commitReleaseVersion } from './version-and-commit-helpers.mjs';
 
 // Import link-foundation libraries
-const { $ } = await use('command-stream');
-const { makeConfig } = await use('lino-arguments');
+const { $ } = await loadCommandStream();
+const { makeConfig } = await loadLinoArguments();
 
 // Parse CLI arguments using lino-arguments
 const config = makeConfig({
@@ -191,30 +193,23 @@ async function main() {
     const remoteHead = remoteHeadResult.stdout.trim();
 
     if (localHead !== remoteHead) {
-      console.log(
-        `Remote main has advanced (local: ${localHead}, remote: ${remoteHead})`
-      );
-      console.log('This may indicate a previous attempt partially succeeded.');
-
-      // Check if the remote version is already the expected bump
-      const remoteVersion = await getVersion('remote');
-      console.log(`Remote version: ${remoteVersion}`);
-
-      // Check if there are changesets to process
-      const changesetCount = countChangesets();
-
-      if (changesetCount === 0) {
-        console.log('No changesets to process and remote has advanced.');
+      if (isReleaseSuperseded(localHead, remoteHead)) {
         console.log(
-          'Assuming version bump was already completed in a previous attempt.'
+          `::notice::Release superseded by newer source on main: ${localHead} -> ${remoteHead}`
         );
         setOutput('version_committed', 'false');
-        setOutput('already_released', 'true');
-        setOutput('new_version', remoteVersion);
         return;
-      } else {
-        console.log('Rebasing on remote main to incorporate changes...');
-        await $`git rebase origin/main`;
+      }
+      // Re-runs may resume a version-only commit, but must use its actual tree.
+      await $`git checkout -B main origin/main`;
+      const localVersion = JSON.parse(
+        readFileSync(getPackageJsonPath({ jsRoot }), 'utf8')
+      ).version;
+      if (countChangesets() === 0) {
+        setOutput('version_committed', 'false');
+        setOutput('already_released', 'true');
+        setOutput('new_version', localVersion);
+        return;
       }
     }
 
@@ -257,15 +252,26 @@ async function main() {
       console.log('Changes detected, committing...');
 
       // Stage all changes (package.json, package-lock.json, CHANGELOG.md, deleted changesets)
-      await $`git add -A`;
+      await $`git add -- package.json package-lock.json CHANGELOG.md .changeset`;
+      // Reject accidental dependency/config edits before creating a release commit.
+      const staged = await $`git diff --cached --name-only`.run({
+        capture: true,
+      });
+      console.log(`Staged release metadata: ${staged.stdout}`);
 
       // Commit with version number as message
-      const commitMessage = newVersion;
-      const escapedMessage = commitMessage.replace(/"/g, '\\"');
-      await $`git commit -m "${escapedMessage}"`;
+      await commitReleaseVersion($, newVersion);
+      assertValidatedReleaseTree(localHead, 'HEAD');
 
       // Push directly to main
-      await $`git push origin main`;
+      try {
+        await $`git push origin HEAD:refs/heads/main`;
+      } catch (error) {
+        throw new Error(
+          'Release push refused. Check branch rules/token write access; a concurrent main update must be validated by its own run. No policy refusal is retried.',
+          { cause: error }
+        );
+      }
 
       console.log('\u2705 Version bump committed and pushed to main');
       setOutput('version_committed', 'true');

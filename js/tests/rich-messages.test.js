@@ -6,6 +6,7 @@
 // only decodes bytes this test makes, offline.
 
 import { test } from 'node:test';
+import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
@@ -46,7 +47,9 @@ test('the schema is layer 232 and has the rich message', () => {
 // A GramJS message with a rich message, written as bytes and read back.
 const roundTrip = async (make) => {
   const { Api, helpers } = await importTelegram();
-  const { BinaryReader } = await import('telegram/extensions/BinaryReader.js');
+  const { BinaryReader } = createRequire(import.meta.url)(
+    'teleproto/extensions'
+  );
   const bytes = Buffer.from(make(Api, helpers).getBytes());
   return { Api, read: new BinaryReader(bytes).tgReadObject() };
 };

@@ -117,3 +117,5 @@ git push
 ## 问题
 
 如果对贡献流程有疑问，请打开 issue 讨论。
+
+CI 诊断、发布前提及恢复：参见 [CI 操作](CI-OPERATIONS.zh.md)（R-Z32）。

@@ -44,5 +44,6 @@ download/icon\.svg
 # Fiverr challenges automated link checks with 403; keep the official profile guide.
 ^https://help\.fiverr\.com/hc/en-us/articles/360010558598(?:-|$)
 
-# Verified accessible official guide; Zendesk intermittently challenges CI with 403.
-^https://support\.peopleperhour\.com/hc/en-us/articles/115016023568(?:-|$)
+# Verified 2026-10-28: this exact live article is readable in web search, but
+# Cloudflare sends CI/curl HTTP 403 with cf-mitigated: challenge (issue 43 evidence).
+^https://support\.peopleperhour\.com/hc/en-us/articles/115016023568-Create-a-buyer-account$

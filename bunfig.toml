@@ -1,3 +1,4 @@
-# Bun configuration
-# Note: Bun doesn't support excluding test files directly in config
-# Use CLI flags or file naming patterns instead
+# Match the maintained test tree used by Node and Deno. Evidence snapshots and
+# generated build output may contain foreign tests and must never execute.
+[test]
+root = "./js/tests"

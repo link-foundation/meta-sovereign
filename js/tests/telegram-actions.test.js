@@ -375,7 +375,7 @@ test("GramJS gets each download's size as it reads it", async (t) => {
   // GramJS picks the part size by `fileSize.lesser(…)`: a plain number
   // throws, and no photo, sticker or file downloads. We replicate the
   // bigint-like interface locally so the test runs in Deno (which rejects
-  // bare `import('telegram')` in dynamic position) without weakening the
+  // bare `import('teleproto')` in dynamic position) without weakening the
   // check: .lesser() still throws when fileSize is a plain number.
   const bigInt = (n) => {
     const v = BigInt(String(n));

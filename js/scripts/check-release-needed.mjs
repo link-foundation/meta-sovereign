@@ -37,7 +37,8 @@
  */
 
 import { readFileSync, appendFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { probeNpmVersion } from './registry-state.mjs';
+import { probeGitHubRelease } from './github-release-state.mjs';
 
 import {
   getJsRoot,
@@ -78,20 +79,13 @@ function getPackageInfo() {
  * @returns {boolean}
  */
 function checkVersionOnNpm(packageName, version) {
-  try {
-    const result = execSync(`npm view "${packageName}@${version}" version`, {
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return result.trim().includes(version);
-  } catch {
-    return false;
-  }
+  return probeNpmVersion(packageName, version) === 'published';
 }
 
-function main() {
+async function main() {
   const hasChangesets = process.env.HAS_CHANGESETS === 'true';
   const { name: packageName, version: currentVersion } = getPackageInfo();
+  setOutput('current_version', currentVersion);
 
   console.log(`Package: ${packageName}`);
   console.log(`Current version: ${currentVersion}`);
@@ -111,6 +105,11 @@ function main() {
   console.log(`Published on npm: ${isPublished}`);
 
   if (isPublished) {
+    const release = await probeGitHubRelease(
+      process.env.GITHUB_REPOSITORY,
+      `v${currentVersion}`
+    );
+    setOutput('github_release_missing', String(release === null));
     console.log(
       `No changesets and v${currentVersion} already published on npm — no release needed`
     );
@@ -125,4 +124,4 @@ function main() {
   }
 }
 
-main();
+await main();

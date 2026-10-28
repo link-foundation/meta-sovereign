@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { spawnCommandSync } from './command-process.mjs';
 
 const [platform, action = 'open'] = process.argv.slice(2);
 const valid = new Set(['ios', 'android']);
@@ -15,12 +15,11 @@ if (platform !== 'sync' && (!valid.has(platform) || !actions.has(action))) {
 }
 
 const run = (args) => {
-  const result = spawnSync(
-    process.platform === 'win32' ? 'npm.cmd' : 'npm',
+  const result = spawnCommandSync(
+    'npm',
     ['exec', '--yes', '--package', cliPackage, '--', 'cap', ...args],
     {
       stdio: 'inherit',
-      shell: process.platform === 'win32',
     }
   );
   if (result.status !== 0) {

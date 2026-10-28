@@ -555,6 +555,7 @@ const PlainSticker = ({ media, api, chat, msgId, onOpen }) => {
     [
       video && visible
         ? el('video', {
+            key: 'sticker',
             ...progress.handlers,
             ...mediaSrc(video),
             autoPlay: true,
@@ -563,6 +564,7 @@ const PlainSticker = ({ media, api, chat, msgId, onOpen }) => {
             playsInline: true,
           })
         : el(StillSticker, {
+            key: 'sticker',
             picture,
             preview: previewOf(media),
             emoji: media.emoji,

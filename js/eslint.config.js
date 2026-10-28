@@ -195,6 +195,7 @@ export default [
   },
   {
     ignores: [
+      'dev/log/**',
       'node_modules/**',
       'coverage/**',
       'dist/**',

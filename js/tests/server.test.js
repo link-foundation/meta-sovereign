@@ -3,7 +3,9 @@ import { promises as fs } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
+import { setTimeout, clearTimeout } from 'node:timers';
 import { startServer } from '../src/server/index.js';
+import { createMemoryStore } from '../src/storage/index.js';
 import { waitFor } from './helpers/wait-for.js';
 
 const fetchJson = async (url, init) => {
@@ -73,36 +75,74 @@ const withDeadline = (promise, ms, message) =>
   });
 
 describe('http server lifecycle', () => {
-  it('tears down idle keep-alive sockets during shutdown', async () => {
+  it('tears down idle keep-alive sockets before a pending flush completes', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-keepalive-'));
-    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
+    let releaseFlush;
+    const pendingFlush = new Promise((resolve) => {
+      releaseFlush = resolve;
+    });
+    const trace = (stage) => {
+      if (process.env.CI_FIXTURE_DEBUG === '1') {
+        console.error(`[fixture:http-lifecycle] ${stage}`);
+      }
+    };
+    let flushing = false;
+    const store = createMemoryStore();
+    store.flush = () => {
+      flushing = true;
+      trace('flush_pending');
+      return pendingFlush;
+    };
+    const handle = await startServer({
+      localUi: true,
+      port: 0,
+      storeDir: dir,
+      store,
+      enableHandlers: false,
+      enableSync: false,
+      telegramAccount: false,
+      automations: { scheduler: false },
+      emailPoll: false,
+      backups: { intervalHours: 0 },
+    });
     let sock = null;
     let closePromise = null;
     let closedHandle = false;
     try {
       sock = await rawKeepAliveSocket(handle.port);
       const socketClosed = new Promise((resolve) =>
-        sock.once('close', resolve)
+        sock.once('close', () => {
+          trace('socket_closed');
+          resolve();
+        })
       );
-      closePromise = handle.close();
-      await withDeadline(
-        closePromise,
-        2000,
-        'server close timed out with an idle keep-alive socket open'
-      );
-      closedHandle = true;
+      closePromise = handle.close().then(() => {
+        closedHandle = true;
+      });
+      // HTTP shutdown must not wait for unrelated persistence. Hold a flush
+      // open deliberately instead of timing real disk/background services.
       await withDeadline(
         socketClosed,
         2000,
         'idle keep-alive socket stayed open after server close'
       );
+      await waitFor(() => flushing, { timeoutMs: 2000 });
+      expect(closedHandle).toBe(false);
+      releaseFlush();
+      await withDeadline(
+        closePromise,
+        2000,
+        'server close did not finish after its flush was released'
+      );
     } finally {
+      releaseFlush();
       sock?.destroy();
-      if (closePromise && !closedHandle) {
+      if (closePromise) {
         await closePromise;
       } else if (!closePromise) {
         await handle.close();
       }
+      await fs.rm(dir, { recursive: true, force: true });
     }
   });
 });

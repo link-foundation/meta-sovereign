@@ -8,6 +8,7 @@
 
 import http from 'node:http';
 import crypto from 'node:crypto';
+import { fixtureServerClose } from './fixture-server.mjs';
 
 const byUpdated = (a, b) => String(b.updated_at).localeCompare(a.updated_at);
 const since = (list, value) =>
@@ -190,10 +191,11 @@ export const startFakeGithub = async (initial = {}) => {
       return rest(state, req, res, url);
     });
   });
+  const close = fixtureServerClose(server, 'github');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   return {
     state,
     baseUrl: `http://127.0.0.1:${server.address().port}`,
-    close: () => new Promise((resolve) => server.close(resolve)),
+    close,
   };
 };

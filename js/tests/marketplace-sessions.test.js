@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -243,6 +244,7 @@ test('marketplace routes reject foreign origins and browser options before launc
       res.end();
     }
   });
+  const close = fixtureServerClose(server, 'marketplaces');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   const post = (
@@ -291,8 +293,7 @@ test('marketplace routes reject foreign origins and browser options before launc
     assert.equal((await post('/api/marketplaces/fiverr/close')).status, 200);
   } finally {
     await ctx.marketplaceSessions?.stop();
-    server.closeAllConnections();
-    await new Promise((resolve) => server.close(resolve));
+    await close();
     await rm(dir, { recursive: true, force: true });
   }
 });

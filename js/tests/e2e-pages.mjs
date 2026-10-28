@@ -31,6 +31,7 @@
 
 import { promises as fs } from 'node:fs';
 import http from 'node:http';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -91,10 +92,11 @@ const servePages = async (dir) => {
     });
     res.end(body ?? (await fs.readFile(path.join(dir, '404.html'))));
   });
+  const close = fixtureServerClose(server, 'pages');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   return {
     url: `http://127.0.0.1:${server.address().port}${prefix}`,
-    close: () => new Promise((resolve) => server.close(resolve)),
+    close,
   };
 };
 

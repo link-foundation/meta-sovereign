@@ -200,3 +200,5 @@ These apply to every change, by people and AI agents alike; this section is wher
 ## Questions?
 
 If you have questions about contributing, feel free to open an issue for discussion.
+
+CI diagnostics, release prerequisites and recovery: [CI operations](CI-OPERATIONS.md) (R-Z32).

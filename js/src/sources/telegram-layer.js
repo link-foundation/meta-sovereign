@@ -15,6 +15,7 @@
 
 import { readFileSync } from 'node:fs';
 import Module, { createRequire } from 'node:module';
+import { configureTelegramCrypto } from './telegram-runtime.js';
 
 export const LAYER = 232;
 
@@ -33,18 +34,26 @@ let installed = null;
 
 /**
  * Give GramJS the newer schema; `{ layer, from? , error? }`. Must run
- * before the first `import('telegram')`; later it only reports.
+ * before the first `import('teleproto')`; later it only reports.
  */
 export const installTelegramLayer = ({ schema = SCHEMA } = {}) => {
+  configureTelegramCrypto();
   if (installed) {
     return installed;
   }
   try {
     const require = createRequire(import.meta.url);
-    const file = require.resolve('telegram/tl/apiTl.js');
+    // Maintained teleproto ships generated classes at the current layer.
+    // Keep the legacy schema repair for older GramJS installations.
+    const current = require('teleproto/tl').LAYER;
+    if (current >= LAYER) {
+      installed = { layer: current, from: current };
+      return installed;
+    }
+    const file = require.resolve('teleproto/tl/apiTl.js');
     if (require.cache[file]) {
       // GramJS was loaded first: its classes are already built.
-      const { LAYER: current } = require('telegram/tl/AllTLObjects.js');
+      const { LAYER: current } = require('teleproto/tl/AllTLObjects.js');
       installed = { layer: current, error: 'telegram loaded before' };
       return installed;
     }
@@ -54,7 +63,7 @@ export const installTelegramLayer = ({ schema = SCHEMA } = {}) => {
     seeded.loaded = true;
     seeded.exports = tl;
     require.cache[file] = seeded;
-    const all = require('telegram/tl/AllTLObjects.js');
+    const all = require('teleproto/tl/AllTLObjects.js');
     const from = all.LAYER;
     all.LAYER = LAYER;
     installed = { layer: LAYER, from };
@@ -171,10 +180,12 @@ export const quietOldButtons = (Api) => {
   }
 };
 
-/** `import('telegram')` at the current layer. */
+/** `import('teleproto')` at the current layer. */
 export const importTelegram = async () => {
   installTelegramLayer();
-  const telegram = await import('telegram');
+  // Use the same CommonJS registry as the reader and layer probe. Deno's
+  // npm import map can otherwise load a second copy with unpatched classes.
+  const telegram = createRequire(import.meta.url)('teleproto');
   try {
     skipPeerlessDialogs(telegram.Api);
     skipCommunities(telegram.Api, readFileSync(SCHEMA, 'utf8'));

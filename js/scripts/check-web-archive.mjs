@@ -19,12 +19,13 @@
  *   - all_archived: 'true' if all broken links have a web archive version
  *
  * Exit codes:
- *   - 0: All broken links have web archive versions (or no broken links)
- *   - 1: Some broken links have no web archive version
+ *   - 0: No link failures
+ *   - 1: Broken links or missing/failed reports (snapshots are repair suggestions)
  */
 
 import { readFileSync, appendFileSync, existsSync } from 'fs';
 import { extractBrokenUrls } from './lychee-report.mjs';
+import { waybackState } from './wayback-state.mjs';
 
 const WAYBACK_API = 'https://archive.org/wayback/available?url=';
 
@@ -62,29 +63,12 @@ async function checkWaybackMachine(url) {
       signal: controller.signal,
     });
 
-    if (!response.ok) {
-      console.warn(`  Wayback API returned ${response.status} for ${url}`);
-      return { available: false, archiveUrl: null, timestamp: null };
-    }
-
-    const data = await response.json();
-
-    if (data.archived_snapshots?.closest?.available === true) {
-      const snapshot = data.archived_snapshots.closest;
-      const archiveUrl = snapshot.url.replace(/^http:\/\//, 'https://');
-      return {
-        available: true,
-        archiveUrl,
-        timestamp: snapshot.timestamp,
-      };
-    }
-
-    return { available: false, archiveUrl: null, timestamp: null };
+    return await waybackState(response);
   } catch (error) {
     console.warn(
       `  Failed to check Wayback Machine for ${url}: ${error.message}`
     );
-    return { available: false, archiveUrl: null, timestamp: null };
+    return { state: 'unknown', reason: error.message };
   } finally {
     globalThis.clearTimeout(timeoutId);
   }
@@ -105,6 +89,41 @@ function formatTimestamp(timestamp) {
   return `${year}-${month}-${day}`;
 }
 
+function readBrokenUrls(lycheeOutput) {
+  if (!existsSync(lycheeOutput)) {
+    throw new Error(`Missing lychee report: ${lycheeOutput}`);
+  }
+
+  const content = readFileSync(lycheeOutput, 'utf-8');
+  return extractBrokenUrls(content);
+}
+
+function recordArchive(
+  url,
+  result,
+  { withArchive, withoutArchive, unknownArchive }
+) {
+  if (result.state === 'available') {
+    const date = formatTimestamp(result.timestamp);
+    console.log(`  ✓ Archived on ${date}: ${result.archiveUrl}`);
+    withArchive.push({ url, archiveUrl: result.archiveUrl, date });
+  } else if (result.state === 'unknown') {
+    console.log(`  ? Archive availability unknown: ${result.reason}`);
+    unknownArchive.push(url);
+  } else {
+    console.log('  ✗ Not found in Web Archive');
+    withoutArchive.push(url);
+  }
+}
+
+function reportUnknownArchives(unknownArchive) {
+  if (unknownArchive.length) {
+    console.error(
+      `Archive lookup failed for ${unknownArchive.length} link(s); inspect the errors above. No conclusion about snapshot availability can be made.`
+    );
+  }
+}
+
 /**
  * Main function
  */
@@ -114,16 +133,14 @@ async function main() {
   console.log('=== Web Archive Fallback Check ===\n');
   console.log(`Reading lychee output from: ${lycheeOutput}\n`);
 
-  if (!existsSync(lycheeOutput)) {
-    console.log('No lychee output file found. Skipping web archive check.');
-    setOutput('all_archived', 'true');
-    process.exit(0);
-  }
-
-  const content = readFileSync(lycheeOutput, 'utf-8');
-  const brokenUrls = extractBrokenUrls(content);
+  const brokenUrls = readBrokenUrls(lycheeOutput);
 
   if (brokenUrls.length === 0) {
+    if (process.env.LYCHEE_EXIT_CODE && process.env.LYCHEE_EXIT_CODE !== '0') {
+      throw new Error(
+        'lychee failed without a recognized HTTP failure. Inspect the preserved report for local paths, invalid URLs and tool errors.'
+      );
+    }
     console.log('No broken URLs found in lychee output.');
     setOutput('all_archived', 'true');
     process.exit(0);
@@ -135,19 +152,13 @@ async function main() {
 
   const withArchive = [];
   const withoutArchive = [];
+  const unknownArchive = [];
 
   for (const url of brokenUrls) {
     console.log(`Checking: ${url}`);
     const result = await checkWaybackMachine(url);
 
-    if (result.available) {
-      const date = formatTimestamp(result.timestamp);
-      console.log(`  ✓ Archived on ${date}: ${result.archiveUrl}`);
-      withArchive.push({ url, archiveUrl: result.archiveUrl, date });
-    } else {
-      console.log('  ✗ Not found in Web Archive');
-      withoutArchive.push(url);
-    }
+    recordArchive(url, result, { withArchive, withoutArchive, unknownArchive });
 
     // Small delay to avoid rate-limiting the Wayback API
     await new Promise((resolve) => globalThis.setTimeout(resolve, 500));
@@ -200,7 +211,10 @@ async function main() {
     }
   }
 
-  const allArchived = withoutArchive.length === 0;
+  reportUnknownArchives(unknownArchive);
+
+  const allArchived =
+    withoutArchive.length === 0 && unknownArchive.length === 0;
   setOutput('all_archived', allArchived ? 'true' : 'false');
 
   if (!allArchived) {
@@ -215,7 +229,8 @@ async function main() {
     console.log(
       '\nAll broken links have Web Archive versions. Consider replacing them with the suggested archive.org URLs.'
     );
-    process.exit(0);
+    // A snapshot is a repair suggestion; the source link is still broken.
+    process.exit(1);
   }
 }
 

@@ -44,12 +44,15 @@ module.exports = {
   electronVersion: electronVersion(),
   asar: true,
   // The app has no native modules; electron-updater is pure JS.
-  npmRebuild: false,
+  nativeModules: { npmRebuild: false },
+  // v27 includes checksummed native FPM bundles for Linux x64 and arm64.
   directories: {
     output: path.join(ROOT, 'dist', 'desktop', 'release'),
     buildResources: path.join(ROOT, 'desktop'),
   },
-  files: ['js/**/*', 'package.json', 'LICENSE', 'README.md'],
+  fileOptions: { files: ['js/**/*', 'package.json', 'LICENSE', 'README.md'] },
+  // Retain the existing updater-6 channel; this workflow has no manifest key.
+  updateManifest: false,
   publish: [
     {
       provider: 'github',
@@ -63,7 +66,6 @@ module.exports = {
     category: 'Utility',
     // Keep the .desktop entry and the staged package.json `desktopName`
     // (js/scripts/prepare-desktop.mjs) in sync.
-    syncDesktopName: true,
     synopsis: 'Local-first personal CRM and unified messenger',
     maintainer: 'Link Foundation <link-foundation@users.noreply.github.com>',
     artifactName: `${PREFIX}-linux-\${arch}-\${version}.\${ext}`,
@@ -79,16 +81,21 @@ module.exports = {
         'Import contacts from this Mac and its synced accounts into your local Meta Sovereign address book, after you review the import.',
     },
     artifactName: `${PREFIX}-macos-\${arch}-\${version}.\${ext}`,
-    hardenedRuntime: true,
     notarize: true,
-    entitlements: path.join(ROOT, 'desktop', 'entitlements.mac.plist'),
-    entitlementsInherit: path.join(ROOT, 'desktop', 'entitlements.mac.plist'),
+    sign: {
+      hardenedRuntime: true,
+      entitlements: path.join(ROOT, 'desktop', 'entitlements.mac.plist'),
+      entitlementsInherit: path.join(ROOT, 'desktop', 'entitlements.mac.plist'),
+    },
   },
   dmg: {
     artifactName: `${PREFIX}-macos-\${arch}-\${version}.\${ext}`,
     title: 'Install Meta Sovereign',
   },
   win: {
+    // Windows artifacts already ship unsigned (no Authenticode publisher).
+    // Keep that channel explicit under v27's fail-closed signing policy.
+    verifyUpdateCodeSignature: false,
     target: ['nsis', 'portable'],
   },
   nsis: {

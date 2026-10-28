@@ -8,18 +8,38 @@ on:
       - '**.md'
       - '**.html'
       - '.github/workflows/links.yml'
+      - '.lycheeignore'
+      - 'js/scripts/check-web-archive.mjs'
+      - 'js/scripts/lychee-report.mjs'
+      - 'js/scripts/wayback-state.mjs'
+      - '!dev/log/**'
+      - '!docs/case-studies/**'
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
       - '**.md'
       - '**.html'
       - '.github/workflows/links.yml'
+      - '.lycheeignore'
+      - 'js/scripts/check-web-archive.mjs'
+      - 'js/scripts/lychee-report.mjs'
+      - 'js/scripts/wayback-state.mjs'
+      - '!dev/log/**'
+      - '!docs/case-studies/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
 
 jobs:
   link-checker:
     name: Check Links
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Typical run: ~8s with the cache hit. Cap at 10min so a slow
     # external host or Wayback Machine probe can't hang the workflow.
     timeout-minutes: 10
@@ -27,6 +47,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Check links with lychee
         id: lychee
@@ -44,6 +66,7 @@ jobs:
             --max-retries 3
             --timeout 30
             --exclude-path docs/case-studies
+            --exclude-path dev/log
             './**/*.md'
             './**/*.html'
           # Don't fail the workflow immediately - we want to check web archive first
@@ -61,15 +84,16 @@ jobs:
         run: node js/scripts/check-web-archive.mjs
         env:
           LYCHEE_OUTPUT: lychee/out.md
+          LYCHEE_EXIT_CODE: ${{ steps.lychee.outputs.exit_code }}
 
-      - name: Fail if broken links found and no web archive fallback
-        if: steps.lychee.outputs.exit_code != 0 && steps.webarchive.outputs.all_archived != 'true'
+      - name: Fail on every unresolved link or checker error
+        if: ${{ !cancelled() && steps.lychee.outputs.exit_code != '0' }}
         run: |
-          echo "::error::Broken links were detected with no Web Archive fallback available."
+          echo "::error::Link validation failed; archived copies are repair suggestions and do not repair source links."
           echo ""
           echo "What happened:"
           echo "  lychee found one or more broken links in the *.md and *.html files of this repository."
-          echo "  The Web Archive (Wayback Machine) check found no archived versions for some of them."
+          echo "  A checker error or unresolved source link must be fixed even when an archive exists."
           echo ""
           echo "How to fix:"
           echo "  1. Review the 'Check links with lychee' step above for a full list of broken links."
@@ -82,3 +106,11 @@ jobs:
           echo ""
           echo "Report location: lychee/out.md (available as a workflow artifact if configured)."
           exit 1
+
+      - name: Preserve link report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: link-report
+          path: lychee/out.md
+          if-no-files-found: error

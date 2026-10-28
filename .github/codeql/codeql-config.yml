@@ -1,0 +1,5 @@
+name: Maintained source and pipeline
+paths-ignore:
+  - dev/log
+  - docs/case-studies
+  - examples

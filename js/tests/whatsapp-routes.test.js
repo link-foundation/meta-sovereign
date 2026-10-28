@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import http from 'node:http';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 
 import { handleWhatsAppRoutes } from '../src/server/routes-whatsapp.js';
 import { createMemoryStore } from '../src/storage/index.js';
@@ -18,12 +19,13 @@ const withRoutes = async (ctx, run) => {
       res.end('{}');
     }
   });
+  const close = fixtureServerClose(server, 'whatsapp-routes');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
     await run(base, store);
   } finally {
-    await new Promise((resolve) => server.close(resolve));
+    await close();
   }
 };
 

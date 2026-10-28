@@ -1,160 +1,77 @@
 #!/usr/bin/env node
+// Diff the entire PR or push range. A docs-only follow-up cannot certify
+// untested code from an earlier commit; unavailable revisions fail closed.
+import { execFileSync } from 'node:child_process';
+import { appendFileSync, readFileSync } from 'node:fs';
 
-// Detect code changes for CI/CD pipeline
-//
-// Detects what types of files changed in the latest commit and outputs
-// results for use in GitHub Actions workflow conditions.
-//
-// For PRs: GitHub Actions checks out a synthetic merge commit, so we
-// compare HEAD^2^ to HEAD^2 (the PR head's per-commit diff).
-// For pushes: compares HEAD^ to HEAD.
-// This ensures a commit touching only non-code files skips tests,
-// even when earlier commits in the same PR changed code.
-//
-// Excluded from code changes (don't require changesets):
-// - Markdown files in any folder
-// - .changeset/ folder (changeset metadata)
-// - docs/ folder (documentation)
-// - js/experiments/ folder (experimental scripts)
-// - js/examples/ folder (example scripts)
-//
-// Outputs (written to GITHUB_OUTPUT):
-//   mjs-changed, js-changed, package-changed, docs-changed,
-//   workflow-changed, any-code-changed
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+const event = process.env.GITHUB_EVENT_PATH
+  ? JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'))
+  : {};
+const nonzero = (sha) => sha && !/^0+$/.test(sha);
 
-import { execSync } from 'child_process';
-import { appendFileSync } from 'fs';
-
-function exec(command) {
-  try {
-    return execSync(command, { encoding: 'utf-8' }).trim();
-  } catch (error) {
-    console.error(`Error executing command: ${command}`);
-    console.error(error.message);
-    return '';
+function changedFiles() {
+  if (process.env.GITHUB_EVENT_NAME === 'workflow_dispatch') {
+    return git('ls-tree', '--name-only', '-rz', 'HEAD')
+      .split('\0')
+      .filter(Boolean);
   }
-}
-
-function setOutput(name, value) {
-  const outputFile = process.env.GITHUB_OUTPUT;
-  if (outputFile) {
-    appendFileSync(outputFile, `${name}=${value}\n`);
-  }
-  console.log(`${name}=${value}`);
-}
-
-function isMergeCommit() {
-  const parentCount = exec('git cat-file -p HEAD')
-    .split('\n')
-    .filter((line) => line.startsWith('parent ')).length;
-  return parentCount > 1;
-}
-
-function getChangedFiles() {
-  // GitHub Actions checks out a synthetic merge commit for pull_request
-  // events: HEAD is the merge commit, HEAD^ is the base branch, HEAD^2
-  // is the actual PR head. To get the per-commit diff (what the latest
-  // push actually changed), we compare HEAD^2^ to HEAD^2.
-  // For push events, HEAD is the real commit, so HEAD^ to HEAD works.
-  if (isMergeCommit()) {
-    console.log('Merge commit detected (pull_request event)');
-    console.log('Comparing HEAD^2^ to HEAD^2 (per-commit diff of PR head)');
-    try {
-      const output = exec('git diff --name-only HEAD^2^ HEAD^2');
-      return output ? output.split('\n').filter(Boolean) : [];
-    } catch {
-      console.log(
-        'HEAD^2^ not available (first commit in PR), listing files in HEAD^2'
-      );
-      const output = exec('git diff --name-only HEAD^ HEAD^2');
-      return output ? output.split('\n').filter(Boolean) : [];
+  let base;
+  let head = 'HEAD';
+  if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+    base = process.env.GITHUB_BASE_SHA || event.pull_request?.base?.sha;
+    head =
+      process.env.GITHUB_HEAD_SHA || event.pull_request?.head?.sha || 'HEAD';
+    if (!base) {
+      throw new Error('PR base SHA is required for complete change detection');
     }
-  }
-
-  console.log('Comparing HEAD^ to HEAD');
-  try {
-    const output = exec('git diff --name-only HEAD^ HEAD');
-    return output ? output.split('\n').filter(Boolean) : [];
-  } catch {
-    console.log('HEAD^ not available, listing all files in HEAD');
-    const output = exec('git ls-tree --name-only -r HEAD');
-    return output ? output.split('\n').filter(Boolean) : [];
-  }
-}
-
-function isExcludedFromCodeChanges(filePath) {
-  if (filePath.endsWith('.md')) {
-    return true;
-  }
-
-  const excludedFolders = [
-    '.changeset/',
-    'docs/',
-    'js/experiments/',
-    'js/examples/',
-  ];
-
-  for (const folder of excludedFolders) {
-    if (filePath.startsWith(folder)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function detectChanges() {
-  console.log('Detecting file changes for CI/CD...\n');
-
-  const changedFiles = getChangedFiles();
-
-  console.log('Changed files:');
-  if (changedFiles.length === 0) {
-    console.log('  (none)');
+    base = git('merge-base', base, head);
+  } else if (nonzero(event.before)) {
+    base = event.before;
+    head = event.after || 'HEAD';
   } else {
-    changedFiles.forEach((file) => console.log(`  ${file}`));
+    const parents = git('rev-list', '--parents', '-n', '1', 'HEAD').split(' ');
+    base = parents[1];
   }
-  console.log('');
-
-  const mjsChanged = changedFiles.some((file) => file.endsWith('.mjs'));
-  setOutput('mjs-changed', mjsChanged ? 'true' : 'false');
-
-  const jsChanged = changedFiles.some((file) => file.endsWith('.js'));
-  setOutput('js-changed', jsChanged ? 'true' : 'false');
-
-  const packageChanged = changedFiles.some(
-    (file) => file === 'package.json' || file === 'package-lock.json'
-  );
-  setOutput('package-changed', packageChanged ? 'true' : 'false');
-
-  const docsChanged = changedFiles.some((file) => file.endsWith('.md'));
-  setOutput('docs-changed', docsChanged ? 'true' : 'false');
-
-  const workflowChanged = changedFiles.some((file) =>
-    file.startsWith('.github/workflows/')
-  );
-  setOutput('workflow-changed', workflowChanged ? 'true' : 'false');
-
-  const codeChangedFiles = changedFiles.filter(
-    (file) => !isExcludedFromCodeChanges(file)
-  );
-
-  console.log('\nFiles considered as code changes:');
-  if (codeChangedFiles.length === 0) {
-    console.log('  (none)');
-  } else {
-    codeChangedFiles.forEach((file) => console.log(`  ${file}`));
-  }
-  console.log('');
-
-  const codePattern = /\.(mjs|js|json|yml|yaml)$|\.github\/workflows\//;
-  const anyCodeChanged = codeChangedFiles.some((file) =>
-    codePattern.test(file)
-  );
-  setOutput('any-code-changed', anyCodeChanged ? 'true' : 'false');
-
-  console.log('\nChange detection completed.');
+  console.log(`Change range: ${base || '(initial tree)'} -> ${head}`);
+  // NUL delimiters preserve spaces, tabs and newlines in repository paths.
+  const output = base
+    ? git('diff', '--name-only', '-z', base, head)
+    : git('ls-tree', '--name-only', '-rz', head);
+  return output.split('\0').filter(Boolean);
 }
 
-// Run the detection
-detectChanges();
+const ignored =
+  /^(dev\/log\/|docs\/case-studies\/|(?:js\/)?(?:experiments|examples)\/|\.changeset\/)/;
+const files = changedFiles().filter((file) => !ignored.test(file));
+console.log('Changed files:', JSON.stringify(files));
+const outputs = {
+  'mjs-changed': files.some((file) => /\.(mjs|cjs)$/.test(file)),
+  'js-changed': files.some((file) =>
+    /\.(js|jsx|ts|tsx|css|html|swift)$/.test(file)
+  ),
+  'package-changed': files.some((file) =>
+    /^(package(?:-lock)?\.json|deno\.json|bunfig\.toml)$/.test(file)
+  ),
+  'docs-changed': files.some((file) => file.endsWith('.md')),
+  'workflow-changed': files.some(
+    (file) =>
+      file.startsWith('.github/') ||
+      /^(?:\.\w|js\/eslint|js\/scripts\/)/.test(file)
+  ),
+  'rust-changed': files.some((file) => file.startsWith('rust/')),
+  'python-changed': files.some((file) => file.endsWith('.py')),
+  'any-code-changed': files.some(
+    (file) =>
+      !file.endsWith('.md') &&
+      !file.startsWith('docs/') &&
+      !file.endsWith('.gitkeep')
+  ),
+};
+for (const [name, value] of Object.entries(outputs)) {
+  const line = `${name}=${value}\n`;
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, line);
+  }
+  process.stdout.write(line);
+}

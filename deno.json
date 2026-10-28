@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "imports": {
-    "telegram": "npm:telegram@^2.26.22"
+    "teleproto": "npm:teleproto@1.232.0"
   },
   "test": {
     "include": ["js/tests/"],
@@ -9,5 +9,10 @@
   },
   "tasks": {
     "serve": "deno run --allow-read --allow-write --allow-env --allow-net --allow-sys --allow-run js/bin/meta-sovereign.js serve"
-  }
+  },
+  "allowScripts": [
+    "npm:better-sqlite3@13.0.3",
+    "npm:esbuild@0.28.2",
+    "npm:node-pty@1.1.0"
+  ]
 }

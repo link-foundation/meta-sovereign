@@ -20,7 +20,8 @@
     "**/reports/**",
     "**/ci-logs/**",
     "**/target/**",
-    "**/Cargo.lock"
+    "**/Cargo.lock",
+    "**/dev/log/**"
   ],
   "reporters": ["console", "html"],
   "output": "./reports/jscpd"

@@ -61,14 +61,12 @@ let bc;
 try {
   playwright = await import('playwright');
 } catch {
-  skip('playwright not installed (install with `npm i -D playwright`)');
+  throw new Error('RUN_BROWSER_E2E requires Playwright (run npm ci)');
 }
 try {
   bc = await import('browser-commander');
 } catch {
-  skip(
-    'browser-commander not installed (install with `npm i -D browser-commander`)'
-  );
+  throw new Error('RUN_BROWSER_E2E requires browser-commander (run npm ci)');
 }
 
 const assert = (cond, msg) => {
@@ -966,6 +964,19 @@ const runSuite = async (backend) => {
       } catch (err) {
         console.log(`FAIL\n${err.stack || err.message}`);
         failures.push({ name, err });
+        const artifacts = process.env.E2E_ARTIFACT_DIR || os.tmpdir();
+        await fs.mkdir(artifacts, { recursive: true });
+        await page
+          .screenshot({
+            path: path.join(
+              artifacts,
+              `spa-${backend.name}-${name.replace(/[^a-z0-9]/gi, '-')}.png`
+            ),
+          })
+          .catch(() => {});
+        // Later steps share this page. Preserve the first failure rather than
+        // spending minutes on errors caused by its contaminated state.
+        break;
       }
     }
   } finally {

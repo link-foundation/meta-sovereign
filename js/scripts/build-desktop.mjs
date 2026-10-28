@@ -15,12 +15,12 @@
 //   npm run desktop:build -- --linux --x64
 //   npm run desktop:build -- --mac --x64 --arm64 -c.mac.notarize=false
 //
-// electron-builder must be installed (`npm i --no-save electron-builder@^26`).
+// electron-builder comes from the committed lockfile (`npm ci`).
 // The Electron version comes from META_SOVEREIGN_ELECTRON_VERSION, an
 // installed `electron` package, or the newest release matching the
 // `electron` peer range (resolved with `npm view`).
 
-import { execFileSync } from 'node:child_process';
+import { execCommandSync } from './command-process.mjs';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,11 +34,9 @@ const APP_DIR = join(ROOT, 'dist', 'desktop', 'app');
 const RELEASE_DIR = join(ROOT, 'dist', 'desktop', 'release');
 const CONFIG = join(ROOT, 'desktop', 'electron-builder.config.cjs');
 
-// `shell` lets Windows resolve npm.cmd/npx.cmd.
 const run = (cmd, args, opts = {}) =>
-  execFileSync(cmd, args, {
+  execCommandSync(cmd, args, {
     cwd: ROOT,
-    shell: process.platform === 'win32',
     ...opts,
   });
 

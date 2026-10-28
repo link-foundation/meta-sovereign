@@ -53,21 +53,43 @@ export const createRuntimeLifecycle = ({
       if (closing) {
         return closing;
       }
-      const jobsDone = stopRuntime();
+      const startedAt = Date.now();
+      const trace = (stage) => {
+        if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+          console.error(
+            `[lifecycle] ${stage} after ${Date.now() - startedAt} ms (${sockets.size} owned connections)`
+          );
+        }
+      };
+      trace('close_started');
+      const jobsDone = stopRuntime().then((result) => {
+        trace('jobs_stopped');
+        return result;
+      });
       const accountsDone = stopAccounts(ctx, handoff);
       transports.wsHandle?.close();
       transports.signaling?.close();
       listening.closeFront();
       closing = new Promise((resolve) => {
-        server.close(resolve);
+        server.close(() => {
+          trace('http_closed');
+          resolve();
+        });
         for (const socket of sockets) {
           socket.destroy();
         }
       })
         .then(() => (handoff ? accountsDone : jobsDone))
-        .then(() =>
-          Promise.resolve(handoff ? flushLog?.() : flush()).catch(() => {})
-        );
+        .then(() => {
+          trace('flush_started');
+          return Promise.resolve(handoff ? flushLog?.() : flush()).catch(
+            () => {}
+          );
+        })
+        .then((result) => {
+          trace('close_finished');
+          return result;
+        });
       return closing;
     },
   };

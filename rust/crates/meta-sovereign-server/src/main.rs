@@ -3,7 +3,7 @@
 //! Usage:
 //!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web]
 //!
-//! GitHub Pages is the default UI: https://link-foundation.github.io/meta-sovereign/.
+//! GitHub Pages is the default UI: <https://link-foundation.github.io/meta-sovereign/>.
 //! When `--web` explicitly points at the SPA assets the Rust server doubles as
 //! the static host, so the SPA can be opened at the same origin and
 //! `discover.js` picks the server up via the same-origin probe.

@@ -3,7 +3,7 @@
 // Ad-hoc macOS signing for builds without a Developer ID certificate
 // (issue #37). Apple silicon refuses to run unsigned executables, but
 // "a simple ad-hoc signature is sufficient", so the desktop release
-// workflow passes this file as `-c.mac.sign=` (together with
+// workflow passes this file as `-c.mac.sign.sign=` (together with
 // `-c.mac.notarize=false`) when the signing secrets are not configured.
 //
 // Same approach as konard/vk-bot-desktop's `scripts/adhoc-sign-mac.cjs`:

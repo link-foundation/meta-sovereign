@@ -10,7 +10,7 @@
  * - Environment: JS_ROOT=<path>
  *
  * Uses link-foundation libraries:
- * - use-m: Dynamic package loading without package.json dependencies
+ * - Lockfile-installed release dependencies (npm ci)
  * - command-stream: Modern shell command execution with streaming support
  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
  *
@@ -23,16 +23,16 @@
 import { appendFileSync } from 'fs';
 
 import { getJsRoot, needsCd, parseJsRootConfig } from './js-paths.mjs';
+import { probeNpmVersion } from './registry-state.mjs';
+import { publishFailureKind } from './publish-policy.mjs';
+import { assertValidatedReleaseTree } from './validated-release-tree.mjs';
 import { formatNpmPackageVersion, readPackageInfo } from './package-info.mjs';
 
-// Load use-m dynamically
-const { use } = eval(
-  await (await fetch('https://unpkg.com/use-m/use.js')).text()
-);
+import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
 
 // Import link-foundation libraries
-const { $ } = await use('command-stream');
-const { makeConfig } = await use('lino-arguments');
+const { $ } = await loadCommandStream();
+const { makeConfig } = await loadLinoArguments();
 
 // Parse CLI arguments using lino-arguments
 const config = makeConfig({
@@ -56,7 +56,7 @@ const { shouldPull, jsRoot: jsRootArg } = config;
 // Get JavaScript package root (auto-detect or use explicit config)
 const jsRootConfig = jsRootArg || parseJsRootConfig();
 const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
-const { name: packageName, version: currentPackageVersion } = readPackageInfo({
+const { name: packageName, version: _initialVersion } = readPackageInfo({
   jsRoot,
 });
 
@@ -64,7 +64,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 10000; // 10 seconds
 // npm can take minutes before a new version is visible; it holds the upload
 // as a staged version meanwhile, which a re-publish of it collides with.
-const VISIBLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const VISIBLE_TIMEOUT = 15 * 60 * 1000; // npm has taken over 14 minutes to expose a staged version
 const VISIBLE_POLL_INTERVAL = 15000; // 15 seconds
 const STAGED_PATTERN = /cannot publish over previously staged version/i;
 
@@ -117,10 +117,7 @@ function detectPublishFailure(output) {
  * @returns {Promise<boolean>}
  */
 async function verifyPublished(packageName, version) {
-  const result = await $`npm view "${packageName}@${version}" version`.run({
-    capture: true,
-  });
-  return result.code === 0 && result.stdout.trim().includes(version);
+  return probeNpmVersion(packageName, version) === 'published';
 }
 
 /**
@@ -129,19 +126,18 @@ async function verifyPublished(packageName, version) {
  * @param {string} version
  * @returns {Promise<boolean>}
  */
-async function waitForPublished(packageName, version) {
-  const deadline = Date.now() + VISIBLE_TIMEOUT;
+async function waitForPublished(packageName, version, deadline) {
   for (;;) {
     if (await verifyPublished(packageName, version)) {
       return true;
     }
-    if (Date.now() > deadline) {
+    if (Date.now() >= deadline) {
       return false;
     }
     console.log(
       `${packageName}@${version} is not visible on npm yet, checking again in ${VISIBLE_POLL_INTERVAL / 1000}s...`
     );
-    await sleep(VISIBLE_POLL_INTERVAL);
+    await sleep(Math.min(VISIBLE_POLL_INTERVAL, deadline - Date.now()));
   }
 }
 
@@ -180,7 +176,7 @@ async function runChangesetPublish() {
     if (needsCd({ jsRoot })) {
       process.chdir(originalCwd);
     }
-    return { result: null, error };
+    return { result: error.result || error, error };
   }
 }
 
@@ -226,9 +222,9 @@ function analyzePublishResult(publishResult, commandError) {
  * @param {string} currentVersion
  * @returns {Promise<{success: boolean, error: Error|null}>}
  */
-async function attemptPublish(currentVersion) {
+async function attemptPublish(currentVersion, deadline) {
   const { result, error } = await runChangesetPublish();
-  const output = `${result?.stdout || ''}\n${result?.stderr || ''}`;
+  const output = `${result?.stdout || ''}\n${result?.stderr || ''}\n${error?.message || ''}`;
 
   if (STAGED_PATTERN.test(output)) {
     // An earlier attempt uploaded this version and npm is still processing it
@@ -238,13 +234,22 @@ async function attemptPublish(currentVersion) {
   } else {
     const analysisError = analyzePublishResult(result, error);
     if (analysisError) {
-      return { success: false, error: analysisError };
+      return {
+        success: false,
+        error: analysisError,
+        retryable: publishFailureKind(output) === 'transient',
+        output,
+      };
     }
   }
 
   // Verify the package is actually on npm (ultimate verification)
   console.log('Verifying package was published to npm...');
-  const isPublished = await waitForPublished(packageName, currentVersion);
+  const isPublished = await waitForPublished(
+    packageName,
+    currentVersion,
+    deadline
+  );
 
   if (isPublished) {
     return { success: true, error: null };
@@ -253,18 +258,28 @@ async function attemptPublish(currentVersion) {
   console.error('Verification failed: package not found on npm after publish');
   return {
     success: false,
-    error: new Error('Package not found on npm after publish attempt'),
+    error: new Error(
+      'Package not visible before the shared publication deadline; refusing to upload the same version again'
+    ),
+    retryable: false,
   };
 }
 
 async function main() {
   try {
     if (shouldPull) {
-      // Pull the latest changes we just pushed
-      await $`git pull origin main`;
+      // Verify remote metadata before and after updating this checkout.
+      const validated = process.env.GITHUB_SHA;
+      if (!validated) {
+        throw new Error('--should-pull requires the validated GITHUB_SHA');
+      }
+      await $`git fetch origin main`;
+      assertValidatedReleaseTree(validated, 'origin/main');
+      await $`git merge --ff-only origin/main`;
+      assertValidatedReleaseTree(validated);
     }
 
-    const currentVersion = currentPackageVersion;
+    const currentVersion = readPackageInfo({ jsRoot }).version;
     console.log(`Current version to publish: ${currentVersion}`);
 
     // Check if this version is already published on npm
@@ -272,13 +287,7 @@ async function main() {
       `Checking if version ${currentVersion} is already published...`
     );
     const pkgSpec = formatNpmPackageVersion(packageName, currentVersion);
-    const checkResult = await $`npm view "${pkgSpec}" version`.run({
-      capture: true,
-    });
-
-    // command-stream returns { code: 0 } on success, { code: 1 } on failure (e.g., E404)
-    // Exit code 0 means version exists, non-zero means version not found
-    if (checkResult.code === 0) {
+    if (probeNpmVersion(packageName, currentVersion) === 'published') {
       console.log(`Version ${currentVersion} is already published to npm`);
       setOutput('published', 'true');
       setOutput('published_version', currentVersion);
@@ -293,9 +302,13 @@ async function main() {
 
     // Publish to npm using OIDC trusted publishing with retry logic
     // Multi-layer failure detection based on link-assistant/agent PR #116
-    for (let i = 1; i <= MAX_RETRIES; i++) {
+    const deadline = Date.now() + VISIBLE_TIMEOUT;
+    for (let i = 1; i <= MAX_RETRIES && Date.now() < deadline; i++) {
       console.log(`Publish attempt ${i} of ${MAX_RETRIES}...`);
-      const { success, error } = await attemptPublish(currentVersion);
+      const { success, error, retryable, output } = await attemptPublish(
+        currentVersion,
+        deadline
+      );
 
       if (success) {
         setOutput('published', 'true');
@@ -304,11 +317,23 @@ async function main() {
         return;
       }
 
+      if (!retryable) {
+        console.error(
+          'Publish was not retried: only known network, rate-limit and server failures are transient.'
+        );
+        console.error(
+          'For E401/E403/E404, verify package existence and its npm trusted publisher (repository and release.yml).'
+        );
+        if (output) {
+          console.error(output);
+        }
+        throw error;
+      }
       if (i < MAX_RETRIES) {
         console.log(
           `Publish failed: ${error.message}, waiting ${RETRY_DELAY / 1000}s before retry...`
         );
-        await sleep(RETRY_DELAY);
+        await sleep(Math.min(RETRY_DELAY, Math.max(0, deadline - Date.now())));
       }
     }
 

@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { createRequire } from 'node:module';
+import { configureTelegramCrypto } from '../src/sources/telegram-runtime.js';
 
 import {
   CONSTRUCTORS,
@@ -273,12 +274,28 @@ test('TL: the layer wrapper round-trips and refuses other bytes', () => {
 });
 
 test('AES-IGE agrees with the GramJS implementation, both ways', () => {
-  const { IGE } = require('telegram/crypto/IGE.js');
+  const trace = (stage) => {
+    if (process.env.CI_CRYPTO_DIAGNOSTICS === '1') {
+      console.log(`[AES-IGE] ${stage}`);
+    }
+  };
+  trace('before loading teleproto crypto');
+  configureTelegramCrypto();
+  const { IGE } = require('teleproto/crypto/IGE.js');
+  trace('loaded teleproto crypto');
   const key = crypto.randomBytes(32);
   const iv = crypto.randomBytes(32);
   const data = crypto.randomBytes(16 * 9);
   const mine = igeEncrypt(key, iv, data);
-  assert.deepEqual(mine, new IGE(key, iv).encryptIge(data));
+  trace('local encryption complete; constructing reference cipher');
+  const cipher = new IGE(key, iv);
+  try {
+    trace('reference cipher constructed; encrypting');
+    assert.deepEqual(mine, cipher.encryptIge(data));
+    trace('reference encryption complete');
+  } finally {
+    cipher.dispose();
+  }
   assert.deepEqual(igeDecrypt(key, iv, mine), data);
   // A flipped bit garbles that block and everything after it, not before.
   const bent = Buffer.from(mine);

@@ -24,11 +24,12 @@
 //   npx electron-builder --config desktop/electron-builder.config.cjs \
 //     --projectDir dist/desktop/app --publish never
 
-import { execFileSync } from 'node:child_process';
+import { execCommandSync } from './command-process.mjs';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateDesktopUpdater } from './validate-desktop-updater.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..', '..');
@@ -77,6 +78,15 @@ export const desktopPackageJson = (rootPkg) => ({
   dependencies: {
     'electron-updater': rootPkg.peerDependencies['electron-updater'],
   },
+  // Both methods return the same deep-comparison boolean with two arguments.
+  // Scope the exact alias to updater 6; aliasing the whole lodash package
+  // instead would return a truthy wrapper and accept changed update metadata.
+  // Remove after electron-builder#10016 ships a compatible updater fix.
+  overrides: {
+    'electron-updater': {
+      'lodash.isequal': 'npm:lodash.isequalwith@4.4.0',
+    },
+  },
 });
 
 const parseArgs = (argv) => {
@@ -92,8 +102,7 @@ const parseArgs = (argv) => {
 };
 
 const npmInstall = (cwd) => {
-  // `shell` lets Windows resolve npm.cmd; all arguments are constants.
-  execFileSync(
+  execCommandSync(
     'npm',
     [
       'install',
@@ -103,7 +112,7 @@ const npmInstall = (cwd) => {
       '--ignore-scripts',
       '--no-package-lock',
     ],
-    { cwd, stdio: 'inherit', shell: process.platform === 'win32' }
+    { cwd, stdio: 'inherit' }
   );
 };
 
@@ -139,6 +148,7 @@ export const prepareDesktop = async ({
   );
   if (install) {
     npmInstall(out);
+    await validateDesktopUpdater(out);
   }
   return { out, pkg };
 };

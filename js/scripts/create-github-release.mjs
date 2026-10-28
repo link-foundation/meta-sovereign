@@ -8,21 +8,19 @@
  *   tag-prefix: Prefix for the git tag (default: "v", use "js-v" for multi-language repos)
  *
  * Uses link-foundation libraries:
- * - use-m: Dynamic package loading without package.json dependencies
+ * - Lockfile-installed release dependencies (npm ci)
  * - command-stream: Modern shell command execution with streaming support
  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
  */
 
 import { readFileSync } from 'fs';
+import { probeGitHubRelease } from './github-release-state.mjs';
 
-// Load use-m dynamically
-const { use } = eval(
-  await (await fetch('https://unpkg.com/use-m/use.js')).text()
-);
+import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
 
 // Import link-foundation libraries
-const { $ } = await use('command-stream');
-const { makeConfig } = await use('lino-arguments');
+const { $ } = await loadCommandStream();
+const { makeConfig } = await loadLinoArguments();
 
 // Parse CLI arguments using lino-arguments
 // Note: Using --release-version instead of --version to avoid conflict with yargs' built-in --version flag
@@ -70,11 +68,8 @@ console.log(`Creating GitHub release for ${tag}...`);
 // Idempotent: the desktop release workflow (issue #37) creates the
 // release when npm publishing is unavailable, and the npm release path
 // must not fail when it later publishes the same version.
-const existing =
-  await $`gh api "repos/${repository}/releases/tags/${tag}" --jq '.id'`
-    .run({ capture: true })
-    .catch(() => null);
-if (existing && existing.code === 0 && existing.stdout.trim()) {
+const existing = await probeGitHubRelease(repository, tag);
+if (existing) {
   console.log(`\u2705 GitHub release ${tag} already exists, skipping`);
   process.exit(0);
 }
