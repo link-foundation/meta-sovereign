@@ -1034,7 +1034,7 @@ const rawApi = {
           onState('closed');
         },
       },
-      { Source }
+      { Source, signal: pageLifetime }
     );
     return () => {
       stop();
@@ -1065,7 +1065,7 @@ const rawApi = {
           }
         },
       },
-      { Source }
+      { Source, signal: pageLifetime }
     );
   },
   // Mark a chat read up to a message on Telegram, and save its draft

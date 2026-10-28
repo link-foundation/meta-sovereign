@@ -2,6 +2,44 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openServerEvents } from '../src/web/server-events.js';
 
+test('navigation closes event streams and prevents delayed subscriptions', () => {
+  const lifetime = new AbortController();
+  const sources = [];
+  class Source extends globalThis.EventTarget {
+    constructor() {
+      super();
+      this.readyState = 0;
+      sources.push(this);
+    }
+    close() {
+      this.readyState = 2;
+    }
+  }
+  const target = new globalThis.EventTarget();
+  const stop = openServerEvents(
+    'http://fixture/api/events',
+    {},
+    {
+      Source,
+      target,
+      signal: lifetime.signal,
+    }
+  );
+  lifetime.abort();
+  assert.equal(sources[0].readyState, 2, 'the departing stream is closed');
+  openServerEvents(
+    'http://fixture/api/events',
+    {},
+    {
+      Source,
+      target,
+      signal: lifetime.signal,
+    }
+  )();
+  assert.equal(sources.length, 1, 'late subscribers cannot open a new stream');
+  stop();
+});
+
 test('permanently closed event streams reopen with bounded backoff, wake on recovery, and stop with their owner', () => {
   const sources = [];
   class Source extends globalThis.EventTarget {

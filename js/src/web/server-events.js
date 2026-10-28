@@ -9,9 +9,13 @@ export const openServerEvents = (
     Source = globalThis.EventSource,
     clock = globalThis,
     target = globalThis,
+    signal,
     delays = [1000, 2000, 5000, 10000, 30000],
   } = {}
 ) => {
+  if (signal?.aborted) {
+    return () => {};
+  }
   let source = null;
   let stopped = false;
   let timer = null;
@@ -57,14 +61,17 @@ export const openServerEvents = (
       open();
     }
   };
-  target.addEventListener?.(READ_RECOVERED_EVENT, wake);
-  target.addEventListener?.('online', wake);
-  open();
-  return () => {
+  const stop = () => {
     stopped = true;
     clock.clearTimeout(timer);
     source?.close();
     target.removeEventListener?.(READ_RECOVERED_EVENT, wake);
     target.removeEventListener?.('online', wake);
+    signal?.removeEventListener('abort', stop);
   };
+  target.addEventListener?.(READ_RECOVERED_EVENT, wake);
+  target.addEventListener?.('online', wake);
+  signal?.addEventListener('abort', stop, { once: true });
+  open();
+  return stop;
 };
