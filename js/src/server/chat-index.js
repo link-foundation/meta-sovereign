@@ -116,7 +116,13 @@ export const createChatIndex = (store) => {
   const chatOf = (key) => {
     let chat = chats.get(key);
     if (!chat) {
-      chat = { entries: new Map(), sorted: null, head: null, gone: new Set() };
+      chat = {
+        entries: new Map(),
+        sorted: null,
+        head: null,
+        gone: new Set(),
+        edited: new Map(),
+      };
       chats.set(key, chat);
     }
     return chat;
@@ -124,6 +130,7 @@ export const createChatIndex = (store) => {
 
   const remove = (chat, id) => {
     chat.gone.delete(id);
+    chat.edited.delete(id);
     if (!chat.entries.delete(id)) {
       return;
     }
@@ -141,10 +148,18 @@ export const createChatIndex = (store) => {
       remove(chat, link.id);
       // Kept apart for the "deleted messages" view (R-Z7).
       chat.gone.add(link.id);
+      if (Number(link.versionCount) > 1) {
+        chat.edited.set(link.id, entryOf(link));
+      }
       return 'update';
     }
     chat.gone.delete(link.id);
     const entry = entryOf(link);
+    if (Number(link.versionCount) > 1) {
+      chat.edited.set(link.id, entry);
+    } else {
+      chat.edited.delete(link.id);
+    }
     chat.entries.set(link.id, entry);
     chat.sorted = null;
     if (!chat.head || order(entry, chat.head) >= 0) {
@@ -160,7 +175,7 @@ export const createChatIndex = (store) => {
 
   const onChange = (event) => {
     const link = event?.link;
-    let quiet = false;
+    let quiet = String(link?.id ?? '').startsWith('message-version:');
     if (isMessage(link)) {
       if (event.type === 'delete') {
         remove(chatOf(chatKey(link.source, link.chat)), link.id);
@@ -251,6 +266,15 @@ export const createChatIndex = (store) => {
     async deleted(key) {
       await ready;
       return [...(chats.get(key)?.gone ?? [])];
+    },
+    async edited(asked) {
+      await ready;
+      const { key, topic } = splitTopicKey(asked);
+      return [...(chats.get(key)?.edited.values() ?? [])]
+        .filter((entry) => !topic || String(entry.topic) === String(topic))
+        .sort(order)
+        .reverse()
+        .map((entry) => entry.id);
     },
     /** How many messages of a chat the store holds. */
     count: (key) => chats.get(key)?.entries.size ?? 0,

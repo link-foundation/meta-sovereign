@@ -15,6 +15,7 @@ import React, {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -22,6 +23,7 @@ import { createPortal } from 'react-dom';
 import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
+import { versionedMediaApi } from './message-version-media.js';
 import { LoadingImage } from './media-loading.js';
 import { Icon } from './icons.js';
 import { failureText, isPaidFailure } from './chat-failure.js';
@@ -352,6 +354,7 @@ const MENU_ITEMS = {
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],
   edit: ['chat.edit', 'edit'],
+  editHistory: ['chat.versions.title', 'clock'],
   pin: ['chat.pin', 'pin'],
   unpin: ['chat.unpin', 'pin'],
   retractVote: ['chat.poll.retract', 'undo'],
@@ -1252,6 +1255,11 @@ export const MessageBubble = ({
   const bubble = useRef(null);
   const mine = message.sender === 'me';
   const leaving = useLeavingRow(row, message);
+  const revision = message.versionHead;
+  const mediaApi = useMemo(
+    () => versionedMediaApi(api, revision),
+    [api, revision]
+  );
   const handlers = useRowHandlers({
     row,
     bubble,
@@ -1298,7 +1306,7 @@ export const MessageBubble = ({
             message,
             showName,
             mine,
-            api,
+            api: mediaApi,
             chat,
             netId,
             composer,

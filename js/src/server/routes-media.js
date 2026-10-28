@@ -17,6 +17,7 @@ import { fail } from './util.js';
 import { fromApp } from './routes-telegram-files.js';
 
 export const MEDIA_NETWORKS = Object.freeze([
+  'history',
   'facebook',
   'messenger',
   'instagram',
@@ -47,6 +48,7 @@ const INLINE = {
 // would run (svg, html), which are sent as opaque bytes.
 const OPAQUE = 'application/octet-stream';
 const DOWNLOAD = {
+  bin: OPAQUE,
   pdf: 'application/pdf',
   txt: 'text/plain; charset=utf-8',
   vcf: 'text/vcard; charset=utf-8',

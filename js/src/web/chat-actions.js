@@ -35,6 +35,8 @@ import { useMusicSave } from './chat-music-save.js';
 import { useReport } from './chat-report.js';
 import { useBlockFromReplies } from './chat-replies-block.js';
 import { readMedia, saveUrl } from './media-src.js';
+import { useMessageVersions } from './chat-message-versions.js';
+import { versionedMediaApi } from './message-version-media.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
@@ -307,6 +309,7 @@ const asPng = async (blob) => {
 // The message's picture (`photo`) or file (a sticker) from the server.
 const mediaUrl = (api, chat, message, photo) => {
   const id = networkMessageId(message);
+  api = versionedMediaApi(api, message.versionHead);
   return photo
     ? api?.telegramMediaUrl?.({ chat, id, size: 'w' })
     : api?.telegramFileUrl?.({ chat, id });
@@ -541,6 +544,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     report,
     blockReplies,
   } = useFeatureHooks({ state, api, copy, selection });
+  const versions = useMessageVersions(api, state.current?.key);
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -582,6 +586,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       forward: () => setForwarding(expandAlbums([message])),
       delete: () => setDeleting(expandAlbums([message])),
       edit: () => state.composer.startEdit(message),
+      editHistory: () => versions.open(message),
       select: () => selection.add(message.id),
       selectBulk: () => selectBulk(selection, message, order),
       copySelectedItems: copySelected,
@@ -658,6 +663,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     // The state whose Send also forwards what waits (R-Y154).
     withForward: stage.wrap,
     dialogs: [
+      versions.dialog,
       ...dialogs,
       bots.dialog,
       webApp.dialog,

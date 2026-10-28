@@ -2,6 +2,23 @@
 // (ru; R-Y174).
 
 export const ruChatAccount = {
+  'chat.versions.title': 'История изменений',
+  'chat.versions.edited': 'Изменённые сообщения',
+  'chat.versions.local':
+    'Версии, сохранённые сервером, доступны и после изменения или удаления сообщения в сервисе.',
+  'chat.versions.partial':
+    'Версии до первого получения сообщения этим сервером не были сохранены.',
+  'chat.versions.mediaMissing':
+    'Файл вложения для этой версии не был сохранён.',
+  'chat.versions.attachment': 'Вложение',
+  'chat.versions.download': 'Скачать сохранённое вложение',
+  'chat.versions.number': 'Сохранённая версия {number}',
+  'chat.versions.savedAt': 'Сохранено {when}',
+  'chat.versions.count':
+    '{count, plural, one {# сохранённая версия} few {# сохранённые версии} other {# сохранённых версий}}',
+  'chat.versions.bar':
+    '{count, plural, one {Сохранено # изменённое сообщение} few {Сохранено # изменённых сообщения} other {Сохранено # изменённых сообщений}}',
+  'chat.versions.empty': 'Сохранённых версий нет.',
   'chat.archive.settingsTitle': 'Архив и отключение звука новых чатов',
   'chat.archive.privacyTitle': 'Отметки о прочтении и новые чаты',
   'chat.archive.archiveAndMute':

@@ -8,6 +8,7 @@ import { trackServerStream } from './server-transport.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { rememberServerConnection } from './connection-prefs.js';
 import { createPasscodeCaller } from './passcode-request.js';
+import { messageVersionCalls } from './dom-message-versions.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { createRecoveringRequest } from './request-recovery.js';
 import { isReadRequest } from './request-policy.js';
@@ -892,6 +893,7 @@ const rawApi = {
   deletedMessages: async (key) =>
     (await serverFetch(`/api/chat/deleted?key=${encodeURIComponent(key)}`)) ??
     null,
+  ...messageVersionCalls(serverFetch, ensure),
   recoverDeleted: async (ids) =>
     (await serverPostReport('/api/chat/deleted/recover', { ids })) ?? {
       ok: false,

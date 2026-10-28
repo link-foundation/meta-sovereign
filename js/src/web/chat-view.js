@@ -22,6 +22,7 @@ import {
 } from './chat-private-call.js';
 import { PinnedBar } from './chat-pinned.js';
 import { DeletedBar } from './chat-deleted.js';
+import { EditedBar } from './chat-message-versions.js';
 import { LiveLocationsBar } from './chat-live-locations.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
@@ -1284,6 +1285,7 @@ const Conversation = ({
           state,
           api,
         }),
+        el(EditedBar, { key: `edited:${state.current.key}`, state, api }),
         // The live locations shared in the chat (R-Y197).
         el(LiveLocationsBar, {
           key: `live:${state.current.key}`,

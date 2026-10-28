@@ -22,6 +22,7 @@ const GLOBAL_TELEGRAM = /^\/api\/telegram\/accounts(-|$)/;
 const ALWAYS_GET = [
   /^\/links(\/[^/]+)?$/,
   /^\/api\/chat\//,
+  /^\/api\/media\/history\//,
   /^\/api\/events$/,
   /^\/api\/status$/,
   /^\/api\/contacts$/,

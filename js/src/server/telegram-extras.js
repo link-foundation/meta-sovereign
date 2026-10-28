@@ -31,6 +31,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createMemoryStore } from '../storage/universal.js';
 import { openDualStore } from '../storage/dual-store.js';
+import { withMessageVersions } from '../storage/message-versions.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { getSource, liveOptionsFrom } from '../sources/index.js';
@@ -259,7 +260,8 @@ export const createExtraRuntime = ({
     if (!(await readSlotCredentials(home, slot))) {
       return null;
     }
-    const { store: own, dir } = await open(slot);
+    const { store: opened, dir } = await open(slot);
+    const own = withMessageVersions(opened);
     const store = borrowSecrets(own, home, slot);
     const chatIndex = createChatIndex(store);
     const built = await build({
@@ -387,6 +389,7 @@ export const scopedContext = (ctx, entry) => {
         telegramAccounts: null,
         telegramExtras: null,
         chatIndex: entry.chatIndex,
+        storeDir: entry.dir,
         send: entry.send,
         setTyping: entry.setTyping,
         // Its own record of sends in flight (a client id is per account).

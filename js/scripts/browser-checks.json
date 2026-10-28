@@ -30,6 +30,7 @@
   "calls",
   "operator",
   "operator-replies",
+  "message-versions",
   "recovery",
   "navigation",
   "loading",

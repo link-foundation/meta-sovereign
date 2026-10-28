@@ -210,6 +210,10 @@ const tailItems = (message, chat, info) => [
 ];
 
 // The menu with nothing selected.
+export const hasEditHistory = (message) =>
+  Boolean(
+    Number(message.versionCount) > 1 || message.edited || message.raw?.editDate
+  );
 const singleItems = ({
   message,
   chat,
@@ -230,6 +234,7 @@ const singleItems = ({
     quote ? 'quoteReply' : 'reply',
     selectedText ? 'copySelected' : null,
     canEdit(message, now) && 'edit',
+    hasEditHistory(message) && 'editHistory',
     pinItem(message, where),
     ...pollItems(message),
     ...gameItems(message),
