@@ -4,6 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+export class ReleaseTreeChangedError extends Error {}
+
 export function releaseMetadataPath(file) {
   return /^(?:js\/)?(?:package(?:-lock)?\.json|CHANGELOG\.md|\.changeset\/[^/]+\.md)$/.test(
     file
@@ -27,7 +29,7 @@ export function assertValidatedReleaseTree(base, head = 'HEAD') {
     .filter(Boolean);
   for (const file of files) {
     if (!releaseMetadataPath(file)) {
-      throw new Error(
+      throw new ReleaseTreeChangedError(
         `Source changed after validation: ${file} (${base} -> ${head})`
       );
     }
@@ -36,7 +38,7 @@ export function assertValidatedReleaseTree(base, head = 'HEAD') {
       withoutReleaseVersion(file, git('show', `${base}:${file}`)) !==
         withoutReleaseVersion(file, git('show', `${head}:${file}`))
     ) {
-      throw new Error(
+      throw new ReleaseTreeChangedError(
         `Package configuration changed after validation: ${file}`
       );
     }
@@ -47,8 +49,14 @@ if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  assertValidatedReleaseTree(process.argv[2], process.argv[3]);
-  console.log(
-    'Release source matches the validated tree (version metadata may differ)'
-  );
+  try {
+    assertValidatedReleaseTree(process.argv[2], process.argv[3]);
+    console.log(
+      'Release source matches the validated tree (version metadata may differ)'
+    );
+  } catch (error) {
+    console.error(error);
+    // Only a proven tree difference can mean a superseded desktop run.
+    process.exitCode = error instanceof ReleaseTreeChangedError ? 2 : 1;
+  }
 }

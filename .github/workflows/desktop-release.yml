@@ -126,11 +126,16 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$EVENT" = "workflow_run" ]; then
-            if ! node js/scripts/validated-release-tree.mjs "$VALIDATED_SHA" HEAD; then
+            tree_status=0
+            node js/scripts/validated-release-tree.mjs "$VALIDATED_SHA" HEAD || tree_status=$?
+            if [ "$tree_status" -eq 2 ]; then
               echo "::notice::Desktop release superseded: current main contains source not validated by the triggering run. Its own check run must finish first."
               echo "build=false" >> "$GITHUB_OUTPUT"
               echo "publish=false" >> "$GITHUB_OUTPUT"
               exit 0
+            elif [ "$tree_status" -ne 0 ]; then
+              echo "::error::Cannot verify the validated desktop source; this is not a superseded run."
+              exit "$tree_status"
             fi
           fi
           version=$(node -p "require('./package.json').version")

@@ -35,10 +35,10 @@ test('release guard compares committed Git trees and rejects source or dependenc
   });
   writeFileSync(join(cwd, 'source.js'), 'export const value = 1;');
   const base = commit();
-  const check = () =>
+  const check = (validated = base) =>
     spawnSync(
       process.execPath,
-      [...(globalThis.Deno ? ['run', '-A'] : []), guard, base, 'HEAD'],
+      [...(globalThis.Deno ? ['run', '-A'] : []), guard, validated, 'HEAD'],
       { cwd, encoding: 'utf8' }
     );
   put('package.json', { version: '1.0.1', dependencies: { fixture: '1.0.0' } });
@@ -52,8 +52,13 @@ test('release guard compares committed Git trees and rejects source or dependenc
   put('package.json', { version: '1.0.2', dependencies: { fixture: '2.0.0' } });
   commit();
   assert.match(check().stderr, /Package configuration changed/);
+  assert.equal(check().status, 2);
   git('restore', '--source', base, 'package.json');
   writeFileSync(join(cwd, 'source.js'), 'export const value = 2;');
   commit();
   assert.match(check().stderr, /Source changed after validation/);
+  assert.equal(check().status, 2);
+  const unknown = check('missing-validated-commit');
+  assert.equal(unknown.status, 1);
+  assert.match(unknown.stderr, /fatal/);
 });
