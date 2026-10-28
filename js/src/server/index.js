@@ -60,6 +60,7 @@ import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import { createRequestGate } from './request-gate.js';
 import { createRuntimeLifecycle } from './runtime-lifecycle.js';
+import { listenFailure } from './listen-error.js';
 import {
   getSource as getSourceDefault,
   liveOptionsFrom,
@@ -749,17 +750,6 @@ const createHttpServer = (store, ctx, log) => {
   return server;
 };
 
-// A port that cannot be listened on, told so that a person can act on it.
-const listenFailure = (error, port) =>
-  error?.code === 'EADDRINUSE'
-    ? Object.assign(
-        new Error(
-          `port ${port} is already in use (another meta-sovereign running? try --port=<n>)`
-        ),
-        { code: 'EADDRINUSE', cause: error }
-      )
-    : error;
-
 // Listen; when the port cannot be had, let go of what was opened (nothing
 // background was started) and fail with a message a person can act on.
 const listenOrRelease = async (server, sockets, options, release) => {
@@ -776,7 +766,9 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   if (!enableSync) {
     return { wsHandle: null, signaling: null };
   }
-  const verifyOrigin = socketAllowed(ctx);
+  const originAllowed = socketAllowed(ctx);
+  const verifyOrigin = (req) =>
+    server.requestGate.authorize(req) && originAllowed(req);
   const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
   // Peers of another data schema are refused, with a log line (R-Z17).
   createPeer(store, {

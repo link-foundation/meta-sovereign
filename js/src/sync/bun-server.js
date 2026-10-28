@@ -50,10 +50,7 @@ const startBunServer = (httpServer, registry, host, port) => {
       const pathname = url.pathname;
       if (registry.wsByPath.has(pathname)) {
         const verify = registry.wsByPath.get(pathname).verifyOrigin;
-        const headers = {
-          origin: req.headers.get('origin') ?? undefined,
-          host: req.headers.get('host') ?? undefined,
-        };
+        const headers = Object.fromEntries(req.headers);
         if (verify && !verify({ headers })) {
           return new Response('Forbidden', { status: 403 });
         }

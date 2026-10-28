@@ -3,6 +3,7 @@ import { createWorkerProxy } from './worker-proxy.js';
 import { createWorkerTarget } from './worker-target.js';
 import { RollingSupervisor } from './rolling-supervisor.js';
 import { hostedUiUrl, localUiEnabled } from './hosted-ui.js';
+import { listenFailure } from './listen-error.js';
 
 export const startRollingServer = async ({
   port = 8787,
@@ -31,6 +32,8 @@ export const startRollingServer = async ({
     storeDir,
     tls: options.tls,
     log,
+  }).catch((error) => {
+    throw listenFailure(error, port);
   });
   if (listening.listener !== proxy.server) {
     listening.listener.on('connection', track);

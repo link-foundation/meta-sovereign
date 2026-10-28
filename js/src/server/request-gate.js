@@ -12,6 +12,8 @@ export const createRequestGate = (dispatch, front = {}) => {
       return false;
     }
     if (front.token) {
+      // Bun's native WebSocket HTTP bridge supplies a request-shaped object.
+      req.socket ??= {};
       req.socket.encrypted = req.headers['x-meta-sovereign-secure'] === '1';
     }
     return true;
