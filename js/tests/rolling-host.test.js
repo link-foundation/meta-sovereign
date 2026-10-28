@@ -137,6 +137,16 @@ test(
         release: { entry, build: 'one' },
       });
       const ca = await readFile(host.tls.certPath);
+      const trust = await fetch(`http://127.0.0.1:${host.port}/trust`);
+      const trustPage = await trust.text();
+      assert.ok(
+        trustPage.includes(host.tls.fingerprint),
+        'trust page keeps the public certificate fingerprint'
+      );
+      assert.ok(
+        trustPage.includes(`https://127.0.0.1:${host.port}/trust`),
+        'trust page names the public port'
+      );
       client = connect(`https://127.0.0.1:${host.port}`, { ca });
       let connects = 0;
       client.on('connect', () => (connects += 1));

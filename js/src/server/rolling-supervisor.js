@@ -52,7 +52,7 @@ export class RollingSupervisor {
         storeDir: this.storeDir,
         options,
         checkpoints,
-        front: { token: worker.token, port: this.port, tls: Boolean(this.tls) },
+        front: { token: worker.token, port: this.port, tls: this.tls ?? false },
       });
       return worker;
     } catch (error) {

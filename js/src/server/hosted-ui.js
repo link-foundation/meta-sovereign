@@ -132,7 +132,7 @@ export const serveTrust = (req, res, p, ctx) => {
   if (p !== '/trust' || !ctx.tls || !['GET', 'HEAD'].includes(req.method)) {
     return false;
   }
-  const port = req.socket?.localPort ?? 8787;
+  const port = ctx.port ?? req.socket?.localPort ?? 8787;
   const body = TRUST_PAGE(
     Boolean(req.socket?.encrypted),
     port,
