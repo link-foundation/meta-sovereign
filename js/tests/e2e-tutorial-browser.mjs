@@ -80,6 +80,16 @@ const traceTutorial = async (page) => {
   if (process.env.CI_TUTORIAL_DEBUG !== '1') {
     return;
   }
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) {
+      console.log(`[tutorial-navigation] ${frame.url()}`);
+    }
+  });
+  page.on('console', (message) => {
+    if (message.text().startsWith('[tutorial-transition]')) {
+      console.log(message.text());
+    }
+  });
   await page.addInitScript(() => {
     globalThis.__tutorialEvents = [];
     let previous;
@@ -93,6 +103,7 @@ const traceTutorial = async (page) => {
           step,
           at: Math.round(globalThis.performance.now()),
         });
+        console.log('[tutorial-transition]', step ?? 'absent');
       }
     }).observe(document, {
       subtree: true,
@@ -573,6 +584,9 @@ const walk = async (engineName, viewport, base, tall) => {
 
     // Contacts, then Chat (version 5); "open a chat" only with contacts.
     for (const id of ['contacts', 'chat', 'automation', 'backup']) {
+      if (process.env.CI_TUTORIAL_DEBUG === '1') {
+        console.log(`[tutorial-next] ${await stepOf(page)} -> ${id}`);
+      }
       await page.click('[data-action="tutorial-next"]');
       // "open a chat" passes by itself while there are no contacts.
       if (id === 'chat') {

@@ -5,7 +5,7 @@
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:selection
 
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../src/server/index.js';
@@ -286,8 +286,13 @@ try {
   await page.setViewportSize({ width: 2200, height: 1000 });
   const outside = async (n) => {
     const rect = await bodyBox(n);
-    const scroll = await page.locator('.chat-scroll').boundingBox();
-    return [scroll.x + scroll.width - 12, rect.y + rect.height / 2];
+    // macOS WebKit can reserve a native scrollbar inside the border box.
+    // Click the blank content beside the column, clear of that scrollbar.
+    const right = await page.locator('.chat-scroll').evaluate((node) => {
+      const box = node.getBoundingClientRect();
+      return box.left + node.clientLeft + node.clientWidth;
+    });
+    return [right - 12, rect.y + rect.height / 2];
   };
   await page.mouse.click(...(await outside(3)));
   await pause();
@@ -435,8 +440,22 @@ try {
 } catch (error) {
   failed = true;
   console.error('[e2e-chat-selection] FAIL:', error.stack ?? error.message);
+  console.error(
+    '[e2e-chat-selection] geometry:',
+    await page.evaluate(() => {
+      const node = document.querySelector('.chat-scroll');
+      return {
+        viewport: [globalThis.innerWidth, globalThis.innerHeight],
+        scroll: node?.getBoundingClientRect().toJSON(),
+        clientWidth: node?.clientWidth,
+        textSelection: globalThis.getSelection()?.toString(),
+      };
+    })
+  );
+  const artifactDir = process.env.E2E_ARTIFACT_DIR || os.tmpdir();
+  await mkdir(artifactDir, { recursive: true });
   await page.screenshot({
-    path: path.join(os.tmpdir(), `ms-chat-selection-${engine}.png`),
+    path: path.join(artifactDir, `ms-chat-selection-${engine}.png`),
   });
 } finally {
   await browser.close();
