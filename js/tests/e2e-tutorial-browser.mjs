@@ -85,12 +85,36 @@ const traceTutorial = async (page) => {
       console.log(`[tutorial-navigation] ${frame.url()}`);
     }
   });
+  page.on('request', (request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+      console.log(`[tutorial-document-request] ${request.url()}`);
+    }
+  });
+  page.on('crash', () => console.log('[tutorial-crash]'));
   page.on('console', (message) => {
-    if (message.text().startsWith('[tutorial-transition]')) {
+    if (message.text().startsWith('[tutorial-')) {
       console.log(message.text());
     }
   });
   await page.addInitScript(() => {
+    console.log('[tutorial-document]', globalThis.performance.timeOrigin);
+    globalThis.addEventListener('beforeunload', () => {
+      console.log('[tutorial-unload]', globalThis.location.href);
+    });
+    const fetch = globalThis.fetch.bind(globalThis);
+    globalThis.fetch = async (...args) => {
+      const response = await fetch(...args);
+      const url = String(args[0]);
+      if (url.includes('probe=1') || url.includes('app.min.js')) {
+        console.log(
+          '[tutorial-fetch]',
+          url,
+          response.status,
+          response.headers.get('etag')
+        );
+      }
+      return response;
+    };
     globalThis.__tutorialEvents = [];
     let previous;
     new globalThis.MutationObserver(() => {

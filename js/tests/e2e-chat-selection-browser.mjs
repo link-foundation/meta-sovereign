@@ -59,6 +59,33 @@ if (engine === 'chromium') {
   });
 }
 const page = await context.newPage();
+const inputs = [];
+if (process.env.CI_TUTORIAL_DEBUG === '1') {
+  await page.exposeFunction('recordSelectionInput', (input) => {
+    inputs.push(input);
+    if (inputs.length > 40) {
+      inputs.shift();
+    }
+  });
+}
+await page.addInitScript(() => {
+  for (const type of ['mousedown', 'mouseup', 'click']) {
+    document.addEventListener(
+      type,
+      (event) => {
+        globalThis.recordSelectionInput({
+          type,
+          x: event.clientX,
+          y: event.clientY,
+          target: event.target?.className,
+          row: event.target?.closest?.('[data-row]')?.dataset.row,
+          at: globalThis.performance.now(),
+        });
+      },
+      true
+    );
+  }
+});
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
   globalThis.localStorage.setItem('metaSovereignSkin', 't3');
@@ -446,12 +473,24 @@ try {
       const node = document.querySelector('.chat-scroll');
       return {
         viewport: [globalThis.innerWidth, globalThis.innerHeight],
+        screen: [globalThis.screen.width, globalThis.screen.height],
+        column: document
+          .querySelector('.chat-column')
+          ?.getBoundingClientRect()
+          .toJSON(),
+        rows: [...document.querySelectorAll('[data-row]')]
+          .slice(0, 4)
+          .map((row) => ({
+            id: row.dataset.row,
+            box: row.getBoundingClientRect().toJSON(),
+          })),
         scroll: node?.getBoundingClientRect().toJSON(),
         clientWidth: node?.clientWidth,
         textSelection: globalThis.getSelection()?.toString(),
       };
     })
   );
+  console.error('[e2e-chat-selection] inputs:', JSON.stringify(inputs));
   const artifactDir = process.env.E2E_ARTIFACT_DIR || os.tmpdir();
   await mkdir(artifactDir, { recursive: true });
   await page.screenshot({
