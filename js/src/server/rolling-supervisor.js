@@ -33,6 +33,9 @@ export class RollingSupervisor {
     this.closed = false;
     this.timer = null;
     this.recovering = null;
+    this.rapidExits = 0;
+    this.recoverAt = 0;
+    this.stopping = new AbortController();
   }
   async boot(release, checkpoints, options = this.options) {
     const client = spawnWorker({ entry: release.entry, log: this.log });
@@ -54,6 +57,7 @@ export class RollingSupervisor {
         checkpoints,
         front: { token: worker.token, port: this.port, tls: this.tls ?? false },
       });
+      worker.readyAt = Date.now();
       return worker;
     } catch (error) {
       client.discard();
@@ -65,10 +69,17 @@ export class RollingSupervisor {
     if (this.closed || worker !== this.current) {
       return;
     }
+    this.rapidExits =
+      Date.now() - worker.readyAt > 30_000 ? 1 : this.rapidExits + 1;
+    const retryMs = [250, 1000, 2000, 5000, 10_000, 30_000][
+      Math.min(this.rapidExits - 1, 5)
+    ];
+    this.recoverAt = Date.now() + retryMs;
     this.log({
       level: 'warn',
       event: 'server_worker_exited',
       pid: worker.client.pid,
+      retryMs,
       ...info,
     });
     this.target.pause();
@@ -236,6 +247,12 @@ export class RollingSupervisor {
   async recoverLoop() {
     let release = this.current.release;
     while (!this.closed) {
+      await sleep(Math.max(0, this.recoverAt - Date.now()), undefined, {
+        signal: this.stopping.signal,
+      }).catch(() => {});
+      if (this.closed) {
+        return;
+      }
       try {
         if (this.previous && !this.previous.client.exited) {
           await this.previous.client.call('restore');
@@ -267,12 +284,17 @@ export class RollingSupervisor {
           event: 'server_recovery_retrying',
           code: error.code,
         });
-        await sleep(1000);
+        const retryMs = Math.min(
+          30_000,
+          1000 * 2 ** Math.min(5, this.rapidExits++)
+        );
+        this.recoverAt = Date.now() + retryMs;
       }
     }
   }
   async close() {
     this.closed = true;
+    this.stopping.abort();
     clearTimeout(this.timer);
     this.target.close();
     await Promise.allSettled(
