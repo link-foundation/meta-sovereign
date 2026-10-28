@@ -158,3 +158,10 @@ deno.lock
 
 # Playwright MCP traces / snapshots (local-only verification artefacts)
 .playwright-mcp/
+
+# Preserve the issue investigation logs, including original CI logs.
+!dev/log/issues/43/pulls/44/ci-logs/
+!dev/log/issues/43/pulls/44/**/*.log
+
+# Local test diagnostics (published as CI artifacts).
+artifacts/

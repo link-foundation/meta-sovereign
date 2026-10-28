@@ -14,3 +14,6 @@ docs/case-studies/*/data/
 .playwright-mcp/
 # Claude Code's working copies (git worktrees) of this repository.
 .claude/
+
+# Immutable downloaded CI evidence and template snapshots.
+dev/log/

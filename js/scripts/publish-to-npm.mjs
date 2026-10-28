@@ -10,7 +10,7 @@
  * - Environment: JS_ROOT=<path>
  *
  * Uses link-foundation libraries:
- * - use-m: Dynamic package loading without package.json dependencies
+ * - Lockfile-installed release dependencies (npm ci)
  * - command-stream: Modern shell command execution with streaming support
  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
  *
@@ -23,16 +23,14 @@
 import { appendFileSync } from 'fs';
 
 import { getJsRoot, needsCd, parseJsRootConfig } from './js-paths.mjs';
+import { probeNpmVersion } from './registry-state.mjs';
 import { formatNpmPackageVersion, readPackageInfo } from './package-info.mjs';
 
-// Load use-m dynamically
-const { use } = eval(
-  await (await fetch('https://unpkg.com/use-m/use.js')).text()
-);
+import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
 
 // Import link-foundation libraries
-const { $ } = await use('command-stream');
-const { makeConfig } = await use('lino-arguments');
+const { $ } = await loadCommandStream();
+const { makeConfig } = await loadLinoArguments();
 
 // Parse CLI arguments using lino-arguments
 const config = makeConfig({
@@ -56,7 +54,7 @@ const { shouldPull, jsRoot: jsRootArg } = config;
 // Get JavaScript package root (auto-detect or use explicit config)
 const jsRootConfig = jsRootArg || parseJsRootConfig();
 const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
-const { name: packageName, version: currentPackageVersion } = readPackageInfo({
+const { name: packageName, version: _initialVersion } = readPackageInfo({
   jsRoot,
 });
 
@@ -64,7 +62,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 10000; // 10 seconds
 // npm can take minutes before a new version is visible; it holds the upload
 // as a staged version meanwhile, which a re-publish of it collides with.
-const VISIBLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const VISIBLE_TIMEOUT = 15 * 60 * 1000; // npm has taken over 14 minutes to expose a staged version
 const VISIBLE_POLL_INTERVAL = 15000; // 15 seconds
 const STAGED_PATTERN = /cannot publish over previously staged version/i;
 
@@ -117,10 +115,7 @@ function detectPublishFailure(output) {
  * @returns {Promise<boolean>}
  */
 async function verifyPublished(packageName, version) {
-  const result = await $`npm view "${packageName}@${version}" version`.run({
-    capture: true,
-  });
-  return result.code === 0 && result.stdout.trim().includes(version);
+  return probeNpmVersion(packageName, version) === 'published';
 }
 
 /**
@@ -180,7 +175,7 @@ async function runChangesetPublish() {
     if (needsCd({ jsRoot })) {
       process.chdir(originalCwd);
     }
-    return { result: null, error };
+    return { result: error.result || error, error };
   }
 }
 
@@ -228,7 +223,7 @@ function analyzePublishResult(publishResult, commandError) {
  */
 async function attemptPublish(currentVersion) {
   const { result, error } = await runChangesetPublish();
-  const output = `${result?.stdout || ''}\n${result?.stderr || ''}`;
+  const output = `${result?.stdout || ''}\n${result?.stderr || ''}\n${error?.message || ''}`;
 
   if (STAGED_PATTERN.test(output)) {
     // An earlier attempt uploaded this version and npm is still processing it
@@ -261,10 +256,10 @@ async function main() {
   try {
     if (shouldPull) {
       // Pull the latest changes we just pushed
-      await $`git pull origin main`;
+      await $`git pull --ff-only origin main`;
     }
 
-    const currentVersion = currentPackageVersion;
+    const currentVersion = readPackageInfo({ jsRoot }).version;
     console.log(`Current version to publish: ${currentVersion}`);
 
     // Check if this version is already published on npm
@@ -272,13 +267,7 @@ async function main() {
       `Checking if version ${currentVersion} is already published...`
     );
     const pkgSpec = formatNpmPackageVersion(packageName, currentVersion);
-    const checkResult = await $`npm view "${pkgSpec}" version`.run({
-      capture: true,
-    });
-
-    // command-stream returns { code: 0 } on success, { code: 1 } on failure (e.g., E404)
-    // Exit code 0 means version exists, non-zero means version not found
-    if (checkResult.code === 0) {
+    if (probeNpmVersion(packageName, currentVersion) === 'published') {
       console.log(`Version ${currentVersion} is already published to npm`);
       setOutput('published', 'true');
       setOutput('published_version', currentVersion);
@@ -304,6 +293,13 @@ async function main() {
         return;
       }
 
+      if (
+        /E401|E403|ENEEDAUTH|Repository rule violations|Resource not accessible/i.test(
+          error?.message || ''
+        )
+      ) {
+        throw error;
+      }
       if (i < MAX_RETRIES) {
         console.log(
           `Publish failed: ${error.message}, waiting ${RETRY_DELAY / 1000}s before retry...`

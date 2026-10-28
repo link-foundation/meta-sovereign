@@ -29,7 +29,8 @@ name: Desktop release
 # them it is ad-hoc signed (runs after "Open Anyway", no auto-update).
 # See docs/case-studies/issue-37/README.md.
 
-on:
+# workflow_run is restricted below to trusted main push runs. Source equality is checked before packaging; PRs never publish or receive signing secrets.
+on: # zizmor: ignore[dangerous-triggers]
   workflow_run:
     workflows: ['Checks and release']
     types: [completed]
@@ -46,6 +47,14 @@ on:
     paths:
       - '.github/workflows/desktop-release.yml'
       - 'desktop/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'js/src/**'
+      - 'js/bin/**'
+      - 'js/scripts/build-web.mjs'
+      - 'js/scripts/validated-release-tree.mjs'
+      - 'js/scripts/github-release-state.mjs'
+      - 'js/scripts/create-github-release.mjs'
       - 'js/electron/**'
       - 'js/scripts/build-desktop.mjs'
       - 'js/scripts/desktop-release-gate.mjs'
@@ -61,10 +70,15 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
 jobs:
   resolve:
     name: Resolve release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     if: >-
       github.event_name != 'workflow_run' ||
@@ -73,7 +87,7 @@ jobs:
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.event == 'push')
     permissions:
-      contents: write
+      contents: read
       # Read the jobs of the triggering "Checks and release" run.
       actions: read
     outputs:
@@ -82,16 +96,22 @@ jobs:
       tag: ${{ steps.resolve.outputs.tag }}
       ref: ${{ steps.resolve.outputs.ref }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          persist-credentials: false
           # The release job pushes a version commit after the run that
           # triggered us started, so build the current tip of main.
+          fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.sha || github.event.release.tag_name || inputs.tag || 'main' }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
+          package-manager-cache: false
+
+      - name: Install release helper dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Resolve tag and decide what to do
         id: resolve
@@ -102,8 +122,17 @@ jobs:
           INPUT_TAG: ${{ inputs.tag }}
           RUN_ID: ${{ github.event.workflow_run.id }}
           RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
+          if [ "$EVENT" = "workflow_run" ]; then
+            if ! node js/scripts/validated-release-tree.mjs "$VALIDATED_SHA" HEAD; then
+              echo "::notice::Desktop release superseded: current main contains source not validated by the triggering run. Its own check run must finish first."
+              echo "build=false" >> "$GITHUB_OUTPUT"
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
           version=$(node -p "require('./package.json').version")
           sha=$(git rev-parse HEAD)
           tag="${RELEASE_TAG:-${INPUT_TAG:-v$version}}"
@@ -131,20 +160,12 @@ jobs:
             echo "::warning::npm publishing failed; building the desktop release for $tag anyway"
           fi
 
-          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            if [ "$tag" != "v$version" ]; then
-              echo "::error::release $tag does not exist"
-              exit 1
-            fi
-            echo "Release $tag does not exist yet; creating it from CHANGELOG.md at $sha"
-            node js/scripts/create-github-release.mjs \
-              --release-version "$version" \
-              --repository "$GITHUB_REPOSITORY" \
-              --target "$sha"
+          node js/scripts/github-release-state.mjs "$tag" > release-state.json
+          if [ "$(node -p "require('./release-state.json') === null")" = "true" ] && [ "$tag" != "v$version" ]; then
+            echo "::error::release $tag does not exist"
+            exit 1
           fi
-
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets \
-              --jq '.assets[].name' | grep -qx 'SHA256SUMS.txt'; then
+          if node --input-type=module -e 'import fs from "node:fs"; const release = JSON.parse(fs.readFileSync("release-state.json")); process.exit(release?.assets.some(a => a.name === "SHA256SUMS.txt") ? 0 : 1)'; then
             echo "Release $tag already has desktop assets; nothing to do"
             echo "build=false" >> "$GITHUB_OUTPUT"
             echo "publish=false" >> "$GITHUB_OUTPUT"
@@ -166,7 +187,7 @@ jobs:
       matrix:
         include:
           - name: linux-x64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
             os: linux
             args: --linux --x64
           - name: linux-arm64
@@ -174,11 +195,11 @@ jobs:
             os: linux
             args: --linux --arm64
           - name: macos
-            runner: macos-latest
+            runner: macos-15
             os: macos
             args: --mac --x64 --arm64
           - name: windows-x64
-            runner: windows-latest
+            runner: windows-2025
             os: windows
             args: --win --x64
           - name: windows-arm64
@@ -186,15 +207,16 @@ jobs:
             os: windows
             args: --win --arm64
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          persist-credentials: false
           ref: ${{ needs.resolve.outputs.ref }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
-          cache: 'npm'
+          package-manager-cache: false
 
       - name: Install dependencies
         shell: bash
@@ -203,16 +225,20 @@ jobs:
           ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
         run: |
           npm ci --no-audit --no-fund
-          npm install --no-save --no-audit --no-fund electron-builder@^26
 
       - name: Resolve Electron version
+        id: electron
         shell: bash
         run: |
           range=$(node -p "require('./package.json').peerDependencies.electron")
           version=$(npm view "electron@$range" version --json | node -e \
             "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid Electron version from registry"
+            exit 1
+          fi
           echo "Electron $version (peer range $range)"
-          echo "META_SOVEREIGN_ELECTRON_VERSION=$version" >> "$GITHUB_ENV"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install fpm (Linux arm64)
         if: matrix.name == 'linux-arm64'
@@ -273,7 +299,14 @@ jobs:
 
       - name: Build desktop app
         shell: bash
-        run: node js/scripts/build-desktop.mjs ${{ matrix.args }} ${{ steps.macsign.outputs.args }}
+        env:
+          META_SOVEREIGN_ELECTRON_VERSION: ${{ steps.electron.outputs.version }}
+          BUILD_ARGS: ${{ matrix.args }}
+          SIGN_ARGS: ${{ steps.macsign.outputs.args }}
+        run: |
+          read -r -a build_args <<< "$BUILD_ARGS"
+          read -r -a sign_args <<< "$SIGN_ARGS"
+          node js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"
 
       - name: Drop the Windows arm64 update feed
         if: matrix.name == 'windows-arm64'
@@ -353,27 +386,34 @@ jobs:
         shell: bash
         env:
           MAC_SIGNING: ${{ steps.macsign.outputs.mode }}
+          META_SOVEREIGN_ELECTRON_VERSION: ${{ steps.electron.outputs.version }}
+          BUILD_NAME: ${{ matrix.name }}
+          BUILD_RUNNER: ${{ matrix.runner }}
+          BUILD_REF: ${{ needs.resolve.outputs.ref }}
         run: |
           set -euo pipefail
           cd dist/desktop/release
-          files=$(ls meta-sovereign-desktop-* latest*.yml 2>/dev/null | grep -v '\.blockmap$' || true)
+          files=()
+          for f in meta-sovereign-desktop-* latest*.yml; do
+            if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi
+          done
           if command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi
-          $sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-${{ matrix.name }}.txt"
+          $sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"
           {
-            echo "## ${{ matrix.name }}"
-            echo "runner: ${{ matrix.runner }} ($RUNNER_OS $RUNNER_ARCH)"
-            echo "commit: ${{ needs.resolve.outputs.ref }}"
+            echo "## $BUILD_NAME"
+            echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"
+            echo "commit: $BUILD_REF"
             echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"
             echo "electron-builder: $(node -p "require('electron-builder/package.json').version")"
             echo "node: $(node --version)"
             [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"
             echo "files:"
-            for f in $files; do echo "  - $f"; done
-          } > "provenance-${{ matrix.name }}.txt"
-          cat "provenance-${{ matrix.name }}.txt"
+            for f in "${files[@]}"; do echo "  - $f"; done
+          } > "provenance-$BUILD_NAME.txt"
+          cat "provenance-$BUILD_NAME.txt"
 
       - name: Upload build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop-${{ matrix.name }}
           path: |
@@ -388,7 +428,7 @@ jobs:
     name: Publish to release
     needs: [resolve, build]
     if: needs.resolve.outputs.publish == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: write
@@ -396,29 +436,45 @@ jobs:
       attestations: write
       artifact-metadata: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          persist-credentials: false
           ref: ${{ needs.resolve.outputs.ref }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.x'
+          package-manager-cache: false
+
+      - name: Install release helper dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Ensure GitHub release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+          TARGET_COMMITISH: ${{ needs.resolve.outputs.ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          VERSION="${TAG#v}" node js/scripts/create-github-release.mjs
 
       - name: Download builds
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: desktop-*
           path: dist
           merge-multiple: true
 
       - name: Aggregate checksums and provenance
+        env:
+          TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           set -euo pipefail
           cd dist
           cat SHA256SUMS-*.txt | sort -k2 > SHA256SUMS.txt
           {
-            echo "# Meta Sovereign desktop ${{ needs.resolve.outputs.tag }}"
+            echo "# Meta Sovereign desktop $TAG"
             echo "repository: $GITHUB_REPOSITORY"
             echo "workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo
@@ -429,7 +485,9 @@ jobs:
           sha256sum --check SHA256SUMS.txt
 
       - name: Validate release assets
-        run: node js/scripts/validate-desktop-assets.mjs --tag=${{ needs.resolve.outputs.tag }} --dist=dist
+        env:
+          TAG: ${{ needs.resolve.outputs.tag }}
+        run: node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --dist=dist
 
       - name: Attest build provenance
         uses: actions/attest@v4

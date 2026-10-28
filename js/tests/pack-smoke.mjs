@@ -7,7 +7,7 @@
 //   npm run test:pack
 
 import { spawn, spawnSync } from 'node:child_process';
-import { promises as fs } from 'node:fs';
+import { promises as fs, appendFileSync } from 'node:fs';
 import https from 'node:https';
 import net from 'node:net';
 import os from 'node:os';
@@ -15,6 +15,8 @@ import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import { waitForServer } from './helpers/pack-process.mjs';
+import { debug } from '../scripts/debug-print.mjs';
 import { HOSTED_UI_URL } from '../src/server/hosted-ui.js';
 import { localTlsPaths } from '../src/server/local-tls.js';
 import { BEACON_PATH, BEACON_WIDTH, pictureSays } from '../src/web/discover.js';
@@ -29,13 +31,19 @@ const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
 // npx starts the server as its own child: stop them all.
 const stop = (child) => {
-  if (!child || child.exitCode !== null) {
+  if (!child?.pid || child.exitCode !== null) {
     return;
   }
   if (process.platform === 'win32') {
     spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F']);
   } else {
-    process.kill(-child.pid, 'SIGTERM');
+    try {
+      process.kill(-child.pid, 'SIGTERM');
+    } catch (error) {
+      if (error.code !== 'ESRCH') {
+        throw error;
+      }
+    }
   }
 };
 
@@ -69,22 +77,6 @@ const pack = (dir) => {
   }
   say(`packed ${filename}: ${entryCount} files, ${size} bytes`);
   return path.join(dir, filename);
-};
-
-const waitFor = async (url, child) => {
-  for (let i = 0; i < 600; i += 1) {
-    if (child.exitCode !== null) {
-      throw new Error(`the server exited with ${child.exitCode}`);
-    }
-    const answer = await fetch(url, {
-      headers: { origin: new URL(HOSTED_UI_URL).origin },
-    }).catch(() => null);
-    if (answer?.ok) {
-      return;
-    }
-    await sleep(500);
-  }
-  throw new Error(`no answer from ${url}`);
 };
 
 // The status over https, trusting only the server's own certificate.
@@ -145,9 +137,61 @@ const main = async () => {
   const base = `http://127.0.0.1:${port}`;
   let child = null;
   let log = '';
+  const artifactDir = path.resolve(
+    process.env.PACK_SMOKE_ARTIFACT_DIR || 'artifacts/pack'
+  );
+  const record = (chunk) => {
+    log = (log + chunk).slice(-1024 * 1024);
+    appendFileSync(path.join(artifactDir, 'pack-smoke.log'), chunk);
+    debug(String(chunk).trim());
+  };
+  const cache = path.join(dir, 'cache');
+  const environment = {
+    ...process.env,
+    npm_config_cache: cache,
+    npm_config_logs_dir: path.join(artifactDir, 'npm'),
+    npm_config_loglevel:
+      process.env.CI_SCRIPTS_DEBUG === '1' ? 'verbose' : 'notice',
+  };
+  await fs.mkdir(artifactDir, { recursive: true });
   try {
     const tarball = pack(dir);
     await fs.mkdir(path.join(dir, 'run'));
+    // npx resolves optional dependencies from the registry before starting the
+    // CLI. Complete that phase explicitly; the startup deadline starts after it.
+    say('installing the packed package into an isolated npm exec cache');
+    const installStarted = Date.now();
+    await new Promise((resolve, reject) => {
+      child = spawn(
+        npm,
+        [
+          'exec',
+          '--yes',
+          `--package=${tarball}`,
+          '--',
+          'node',
+          '-e',
+          'console.log("packed dependencies installed")',
+        ],
+        {
+          cwd: path.join(dir, 'run'),
+          env: environment,
+          shell: process.platform === 'win32',
+          detached: process.platform !== 'win32',
+        }
+      );
+      child.stdout.on('data', record);
+      child.stderr.on('data', record);
+      child.once('error', reject);
+      child.once('close', (code) =>
+        code === 0
+          ? resolve()
+          : reject(new Error(`packed package install exited with ${code}`))
+      );
+    });
+    say(
+      `packed dependencies installed in ${Date.now() - installStarted}ms; starting the CLI`
+    );
     child = spawn(
       npx,
       [
@@ -164,14 +208,23 @@ const main = async () => {
       {
         cwd: path.join(dir, 'run'),
         // Its own npm cache: nothing of this run is left behind.
-        env: { ...process.env, npm_config_cache: path.join(dir, 'cache') },
+        env: environment,
         shell: process.platform === 'win32',
         detached: process.platform !== 'win32',
       }
     );
-    child.stdout.on('data', (chunk) => (log += chunk));
-    child.stderr.on('data', (chunk) => (log += chunk));
-    await waitFor(`${base}/api/status`, child);
+    child.stdout.on('data', record);
+    child.stderr.on('data', record);
+    let spawnError;
+    child.once('error', (error) => {
+      spawnError = error;
+    });
+    await waitForServer(`${base}/api/status`, child, {
+      headers: { origin: new URL(HOSTED_UI_URL).origin },
+    });
+    if (spawnError) {
+      throw spawnError;
+    }
     say(`npx started the packed server on ${base}`);
     const problems = await problemsOf(base, path.join(dir, 'store'));
     if (!log.includes(`open the app → ${HOSTED_UI_URL}`)) {
@@ -193,6 +246,11 @@ const main = async () => {
   } finally {
     stop(child);
     await sleep(1000);
+    await fs.appendFile(
+      path.join(artifactDir, 'pack-smoke.log'),
+      '\nPacked smoke process finished.\n'
+    );
+
     await fs.rm(dir, { recursive: true, force: true }).catch(() => {});
   }
 };

@@ -1,0 +1,91 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  readFileSync,
+  readdirSync,
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
+
+const root = fileURLToPath(new URL('../../', import.meta.url));
+const workflow = (name) =>
+  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
+
+test('browser failures cannot become a green release', () => {
+  const jobs = workflow('release.yml').jobs;
+  assert.ok(
+    jobs['e2e-browser'].strategy.matrix.include.some(
+      ({ browser }) => browser === 'webkit'
+    )
+  );
+  for (const step of jobs['e2e-browser'].steps) {
+    assert.notEqual(step['continue-on-error'], true);
+  }
+  assert.ok(jobs.release.needs.includes('pipeline-status'));
+});
+
+test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
+  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
+    if (!name.endsWith('.yml')) {
+      continue;
+    }
+    const flow = workflow(name);
+    for (const job of Object.values(flow.jobs)) {
+      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
+      for (const step of job.steps || []) {
+        if (step.uses?.startsWith('actions/checkout@')) {
+          assert.equal(step.with?.['persist-credentials'], false, name);
+        }
+      }
+    }
+    assert.equal(flow.permissions.contents, 'read', name);
+  }
+});
+
+const fixture = (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
+  return dir;
+};
+
+test('syntax checking finds malformed nested JavaScript', (t) => {
+  const cwd = fixture(t);
+  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
+  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
+  spawnSync('git', ['add', '.'], { cwd });
+  const result = spawnSync(
+    'bash',
+    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
+    { cwd, encoding: 'utf8' }
+  );
+  assert.notEqual(result.status, 0, result.stdout);
+});
+
+test('missing lychee report fails instead of claiming all links archived', (t) => {
+  const cwd = fixture(t);
+  const result = spawnSync(
+    process.execPath,
+    [
+      ...(globalThis.Deno ? ['run', '-A'] : []),
+      path.join(root, 'js/scripts/check-web-archive.mjs'),
+    ],
+    {
+      cwd,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
+        GITHUB_OUTPUT: '',
+      },
+    }
+  );
+  assert.notEqual(result.status, 0, result.stdout);
+});

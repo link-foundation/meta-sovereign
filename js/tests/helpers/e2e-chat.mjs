@@ -5,7 +5,7 @@
 // pass or a fail with a screenshot. Nothing reaches a network or a
 // running app.
 
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../src/server/index.js';
@@ -36,8 +36,11 @@ export const browserOf = async (name) => {
   const engine = process.env.E2E_BROWSER || 'chromium';
   try {
     return { engine, browserType: (await import('playwright'))[engine] };
-  } catch {
-    return skip('playwright not installed');
+  } catch (cause) {
+    throw new Error(
+      'RUN_BROWSER_E2E requires Playwright; run npm ci and playwright install',
+      { cause }
+    );
   }
 };
 
@@ -129,6 +132,8 @@ export const openChatApp = async (
   };
   const finish = async (steps) => {
     let failed = false;
+    const artifactDir = process.env.E2E_ARTIFACT_DIR || os.tmpdir();
+    await mkdir(artifactDir, { recursive: true });
     try {
       await steps();
       assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
@@ -138,7 +143,7 @@ export const openChatApp = async (
       console.error(`[e2e-${name}] FAIL (${engine}): ${error.message}`);
       await page
         .screenshot({
-          path: path.join(os.tmpdir(), `ms-e2e-${name}-${engine}.png`),
+          path: path.join(artifactDir, `ms-e2e-${name}-${engine}.png`),
         })
         .catch(() => {});
     } finally {

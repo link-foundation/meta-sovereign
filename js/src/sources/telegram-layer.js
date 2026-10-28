@@ -41,6 +41,13 @@ export const installTelegramLayer = ({ schema = SCHEMA } = {}) => {
   }
   try {
     const require = createRequire(import.meta.url);
+    // Maintained teleproto ships generated classes at the current layer.
+    // Keep the legacy schema repair for older GramJS installations.
+    const current = require('telegram/tl').LAYER;
+    if (current >= LAYER) {
+      installed = { layer: current, from: current };
+      return installed;
+    }
     const file = require.resolve('telegram/tl/apiTl.js');
     if (require.cache[file]) {
       // GramJS was loaded first: its classes are already built.

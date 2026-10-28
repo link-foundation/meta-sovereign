@@ -1,0 +1,30 @@
+name: Scheduled security audit
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+jobs:
+  dependencies:
+    name: Audit installed npm dependencies and Cargo.lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          package-manager-cache: false
+      - run: npm ci --no-audit --no-fund
+      - run: npm audit --audit-level=low
+      - uses: taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b # v2.87.4
+        with:
+          tool: cargo-audit@0.22.2
+      - run: cargo audit --file rust/Cargo.lock --deny warnings

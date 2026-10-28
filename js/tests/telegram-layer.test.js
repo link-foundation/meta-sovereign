@@ -95,18 +95,12 @@ test("TDLib's schema becomes the same TL, without TDLib's own calls", () => {
   ]);
 });
 
-test('the shipped layer parses in GramJS, new polls and checklists too', () => {
-  const { parseTl } = require('telegram/tl/generationHelpers.js');
-  const all = [...parseTl(shipped(), LAYER)];
-  const named = (name, ns) =>
-    all.find((o) => o.name === name && (o.namespace ?? null) === ns);
-  assert.ok(all.length > 2000);
-  assert.equal(
-    named('MessageMediaPoll', null).constructorId.toString(16),
-    '773f4e66'
-  );
-  assert.ok(named('MessageMediaToDo', null));
-  assert.ok(named('SendVote', 'messages').isFunction);
+test('the maintained client has the current polls, checklists and vote methods', () => {
+  const { Api } = require('telegram');
+  assert.equal(Api.MessageMediaPoll.CONSTRUCTOR_ID.toString(16), '773f4e66');
+  assert.equal(typeof Api.MessageMediaToDo, 'function');
+  assert.equal(typeof Api.messages.SendVote, 'function');
+  assert.ok(shipped().includes('messageMediaToDo#'));
 });
 
 // A fresh process of the same runtime, with a module cache nothing has
@@ -117,7 +111,7 @@ test('GramJS loads at the current layer, before anything else loads it', () => {
     `const m = await import(${JSON.stringify(layerModule)});
        const { Api } = await m.importTelegram();
        const { createRequire } = await import('node:module');
-       const all = createRequire(${JSON.stringify(layerModule)})('telegram/tl/AllTLObjects.js');
+       const all = createRequire(${JSON.stringify(layerModule)})('telegram/tl');
        console.log(JSON.stringify({
          installed: m.installTelegramLayer(),
          layer: all.LAYER,
@@ -128,24 +122,20 @@ test('GramJS loads at the current layer, before anything else loads it', () => {
   const got = JSON.parse(out.trim().split('\n').pop());
   assert.equal(got.layer, LAYER);
   assert.equal(got.installed.layer, LAYER);
-  assert.ok(got.installed.from < LAYER);
+  assert.ok(got.installed.from <= LAYER);
   assert.equal(got.poll, '773f4e66');
   assert.equal(got.todo, 'function');
 });
 
 test('every Api method and class our Telegram code names exists', () => {
-  const { parseTl } = require('telegram/tl/generationHelpers.js');
-  const core = require('telegram/tl/schemaTl.js');
-  const known = new Set(
-    [...parseTl(shipped(), LAYER), ...parseTl(core, LAYER)].map((o) =>
-      o.namespace ? `${o.namespace}.${o.name}` : o.name
-    )
-  );
+  const { Api } = require('telegram');
+  const known = (name) =>
+    name.split('.').reduce((value, key) => value?.[key], Api);
   const missing = [];
   for (const file of readdirSync(SOURCES).filter((f) => f.endsWith('.js'))) {
     const text = readFileSync(new URL(file, SOURCES), 'utf8');
     for (const [, name] of text.matchAll(/\bApi\.((?:[a-z]\w*\.)?[A-Z]\w*)/g)) {
-      if (!known.has(name)) {
+      if (typeof known(name) !== 'function') {
         missing.push(`${file}: Api.${name}`);
       }
     }

@@ -18,31 +18,30 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
-# Allow only one concurrent deployment, queue future pushes so we
-# don't skip a deploy.
-concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: false
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
+env:
+  GIT_CONFIG_COUNT: '1'
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
 
 jobs:
   build:
     name: Build SPA bundle
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Typical run: ~30s (esbuild + copy). 10min cap matches the
     # rest of release.yml's fast jobs.
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -61,10 +60,6 @@ jobs:
             fi
           done
 
-      - name: Configure Pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v6
-
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
@@ -72,10 +67,16 @@ jobs:
           path: dist/pages
 
   deploy:
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
     name: Deploy to GitHub Pages
     if: github.event_name != 'pull_request'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Typical run: ~30s (deploy-pages mostly waits on GitHub).
     timeout-minutes: 10
     environment:
@@ -84,13 +85,17 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
 
       - name: Smoke-test the deployed bundle
+        env:
+          url: ${{ steps.deployment.outputs.page_url }}
         run: |
-          url="${{ steps.deployment.outputs.page_url }}"
           if [ -z "$url" ]; then
             echo "::error::deploy-pages did not return a page_url"
             exit 1
@@ -119,10 +124,12 @@ jobs:
     name: E2E against the deployed site
     if: github.event_name != 'pull_request'
     needs: deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -164,10 +171,12 @@ jobs:
   e2e-bundle:
     name: E2E against the built bundle
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v7

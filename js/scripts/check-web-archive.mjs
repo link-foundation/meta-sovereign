@@ -19,8 +19,8 @@
  *   - all_archived: 'true' if all broken links have a web archive version
  *
  * Exit codes:
- *   - 0: All broken links have web archive versions (or no broken links)
- *   - 1: Some broken links have no web archive version
+ *   - 0: No link failures
+ *   - 1: Broken links or missing/failed reports (snapshots are repair suggestions)
  */
 
 import { readFileSync, appendFileSync, existsSync } from 'fs';
@@ -105,6 +105,15 @@ function formatTimestamp(timestamp) {
   return `${year}-${month}-${day}`;
 }
 
+function readBrokenUrls(lycheeOutput) {
+  if (!existsSync(lycheeOutput)) {
+    throw new Error(`Missing lychee report: ${lycheeOutput}`);
+  }
+
+  const content = readFileSync(lycheeOutput, 'utf-8');
+  return extractBrokenUrls(content);
+}
+
 /**
  * Main function
  */
@@ -114,16 +123,14 @@ async function main() {
   console.log('=== Web Archive Fallback Check ===\n');
   console.log(`Reading lychee output from: ${lycheeOutput}\n`);
 
-  if (!existsSync(lycheeOutput)) {
-    console.log('No lychee output file found. Skipping web archive check.');
-    setOutput('all_archived', 'true');
-    process.exit(0);
-  }
-
-  const content = readFileSync(lycheeOutput, 'utf-8');
-  const brokenUrls = extractBrokenUrls(content);
+  const brokenUrls = readBrokenUrls(lycheeOutput);
 
   if (brokenUrls.length === 0) {
+    if (process.env.LYCHEE_EXIT_CODE && process.env.LYCHEE_EXIT_CODE !== '0') {
+      throw new Error(
+        'lychee failed without a recognized HTTP failure. Inspect the preserved report for local paths, invalid URLs and tool errors.'
+      );
+    }
     console.log('No broken URLs found in lychee output.');
     setOutput('all_archived', 'true');
     process.exit(0);
@@ -215,7 +222,8 @@ async function main() {
     console.log(
       '\nAll broken links have Web Archive versions. Consider replacing them with the suggested archive.org URLs.'
     );
-    process.exit(0);
+    // A snapshot is a repair suggestion; the source link is still broken.
+    process.exit(1);
   }
 }
 
