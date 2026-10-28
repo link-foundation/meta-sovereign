@@ -7,6 +7,10 @@ import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { DISMISS_STORAGE_KEY, webModeNotice } from './web-mode.js';
 import { Busy } from './spinner.js';
+import {
+  useBrowserOnlyOffer,
+  useConnectionHistory,
+} from './connection-prefs.js';
 
 const el = React.createElement;
 
@@ -55,6 +59,9 @@ const RetryStatus = ({ retry, text }) => {
     : el('p', { className: 'meta', role: 'status' }, text);
 };
 
+const hideOffer = (connectedBefore, offerBrowserOnly) =>
+  connectedBefore && !offerBrowserOnly;
+
 export const WebModeBanner = ({
   online,
   onRetry,
@@ -62,11 +69,13 @@ export const WebModeBanner = ({
   notice: given,
 }) => {
   const t = useT();
+  const connectedBefore = useConnectionHistory();
+  const [offerBrowserOnly] = useBrowserOnlyOffer();
   const [dismissed, setDismissed] = useState(readDismissed);
   const [retry, setRetry] = useState('idle');
   const nearby = useNearby(online, findNearby);
   const notice = given ?? webModeNotice({ online, nearby });
-  if (!notice || dismissed) {
+  if (!notice || dismissed || hideOffer(connectedBefore, offerBrowserOnly)) {
     return null;
   }
   const check = async () => {

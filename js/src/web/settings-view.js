@@ -23,6 +23,7 @@ import { FoldersSettings } from './chat-folder-edit.js';
 import { useAllFirst } from './chat-folders.js';
 import { useStoriesEnabled } from './stories-pref.js';
 import { useOperatorScope } from './operator-prefs.js';
+import { useBrowserOnlyOffer } from './connection-prefs.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
   NOTIFY_KEY,
@@ -144,6 +145,22 @@ export const StoriesSettings = () => {
       label: t('settings.stories.show'),
     }),
     el('p', { key: 'hint', className: 'meta' }, t('settings.stories.hint')),
+  ]);
+};
+
+const ConnectionSettings = () => {
+  const t = useT();
+  const [allowed, setAllowed] = useBrowserOnlyOffer();
+  return el('section', { className: 'card connection-settings' }, [
+    el('h3', { key: 'h' }, t('settings.connection.title')),
+    el(Check, {
+      key: 'allow',
+      action: 'offer-browser-only',
+      checked: allowed,
+      onChange: setAllowed,
+      label: t('settings.connection.browserOnly'),
+    }),
+    el('p', { key: 'hint', className: 'meta' }, t('settings.connection.hint')),
   ]);
 };
 
@@ -289,6 +306,7 @@ export const SettingsView = () => {
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
+    el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),

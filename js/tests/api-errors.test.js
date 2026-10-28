@@ -137,7 +137,7 @@ test('every common code has its own words in en, ru, hi and zh', () => {
   }
 });
 
-test('a list that cannot load shows why, with a retry button', () => {
+test('a failed read stays in its loading region with diagnostic details', () => {
   const html = renderToStaticMarkup(
     React.createElement(
       LocaleContext.Provider,
@@ -149,11 +149,11 @@ test('a list that cannot load shows why, with a retry button', () => {
       })
     )
   );
-  assert.match(html, /role="alert"/);
+  assert.match(html, /role="status"/);
   assert.match(html, /data-load-error="chat"/);
-  assert.match(html, /Could not load this list/);
+  assert.match(html, /page-loading/);
   assert.match(html, /locked by another running copy/);
-  assert.match(html, /data-action="load-retry"/);
+  assert.doesNotMatch(html, /data-action="load-retry"/);
 });
 
 test('logOnce logs a background failure once per distinct message', () => {

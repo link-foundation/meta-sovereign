@@ -10,7 +10,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { LoadError, logOnce } from './api-errors.js';
+import { logOnce } from './api-errors.js';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { networkName } from './connection-guides.js';
@@ -31,6 +31,7 @@ import { ContactsImport } from './contacts-import.js';
 import { CallsContent } from './chat-calls.js';
 import { MyProfile } from './chat-profile.js';
 import { MarketplaceAccounts } from './marketplace-accounts.js';
+import { createRetryingRead } from './read-retry.js';
 
 const el = React.createElement;
 
@@ -45,39 +46,30 @@ const useAsyncValue = (loader, deps, initialValue) => {
   const loaded = useRef(false);
   const [again, setAgain] = useState(0);
   useEffect(() => {
-    let cancelled = false;
     // A reload keeps what is shown until the new answer: no flash.
     if (!loaded.current) {
       setState((current) => ({ ...current, loading: true, error: null }));
     }
-    Promise.resolve()
-      .then(loader)
-      .then(
-        (value) => {
-          if (!cancelled) {
-            loaded.current = true;
-            setState({ loading: false, error: null, value });
-          }
-        },
-        (error) => {
-          logOnce('view', error);
-          if (!cancelled) {
-            setState({
-              loading: false,
-              error,
-              value: initialValue,
-            });
-          }
-        }
-      );
-    return () => {
-      cancelled = true;
-    };
+    const read = createRetryingRead(loader, {
+      accept: (value) => {
+        loaded.current = true;
+        setState({ loading: false, error: null, value });
+      },
+      failed: (error) => {
+        logOnce('view', error);
+        setState((current) => ({
+          ...current,
+          loading: !loaded.current,
+          error,
+        }));
+      },
+    });
+    read.refresh();
+    return read.stop;
   }, [...deps, again]);
   return {
     ...state,
     retry: () => {
-      loaded.current = false;
       setAgain((n) => n + 1);
     },
   };
@@ -88,9 +80,6 @@ const Loading = () => el(PageLoading);
 const AsyncFrame = ({ state, children }) => {
   if (state.loading) {
     return el(Loading);
-  }
-  if (state.error) {
-    return el(LoadError, { error: state.error, retry: state.retry });
   }
   return children(state.value);
 };

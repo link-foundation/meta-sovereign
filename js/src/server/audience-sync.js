@@ -136,7 +136,9 @@ export const syncAudiences = async ({
   only = null,
   now = Date.now(),
 }) => {
-  const wanted = audienceGroups(await store.query());
+  const wanted = audienceGroups(
+    await store.query((link) => /^(audience|automation):/.test(link?.id ?? ''))
+  );
   const sources = [];
   for (const [source, groups] of wanted) {
     if (!only || only === source) {

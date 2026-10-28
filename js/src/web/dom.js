@@ -5,6 +5,8 @@
 
 import { reportApiFailure } from './api-errors.js';
 import { trackServerStream } from './server-transport.js';
+import { READ_RECOVERED_EVENT } from './read-retry.js';
+import { rememberServerConnection } from './connection-prefs.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
@@ -142,6 +144,9 @@ const boot = async () => {
   bus.register('broadcast', built.selector, built.run);
 
   const discovered = await discoverServer({});
+  if (discovered) {
+    rememberServerConnection();
+  }
   // Looked for meanwhile; the app does not wait for it.
   const nearby = discovered ? Promise.resolve(null) : findNearbyServer();
   const server = discovered
@@ -156,6 +161,11 @@ const boot = async () => {
     store,
     server,
     replyDriver: pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
+  });
+  client.on((event) => {
+    if (event.type === 'mode-change' && event.online) {
+      globalThis.dispatchEvent?.(new globalThis.Event(READ_RECOVERED_EVENT));
+    }
   });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
@@ -1026,8 +1036,14 @@ const rawApi = {
     );
     const source = new Source(url);
     const transport = trackServerStream();
+    let interrupted = false;
     source.addEventListener('ready', () => {
       transport.state('open');
+      client.reached?.();
+      if (interrupted) {
+        interrupted = false;
+        globalThis.dispatchEvent?.(new globalThis.Event(READ_RECOVERED_EVENT));
+      }
       onState('open');
       // Opened again after the server restarted: maybe a new build.
       follow?.check();
@@ -1040,6 +1056,7 @@ const rawApi = {
       }
     });
     source.addEventListener('error', () => {
+      interrupted = true;
       transport.state('closed');
       onState('closed');
     });

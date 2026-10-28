@@ -36,6 +36,11 @@ export const en = {
   'header.online': 'Online',
   'header.offline': 'Offline',
   'header.reconnecting': 'Reconnecting',
+  'settings.connection.title': 'Connection recovery',
+  'settings.connection.browserOnly':
+    'Offer browser-only mode after connecting a server or Telegram',
+  'settings.connection.hint':
+    'Off by default. Temporary disconnects keep your place, retry loading and resume queued messages automatically.',
   'header.telegramOffline':
     'Telegram has not been reachable for a while; it keeps trying. Open the Telegram connection',
   'header.telegramSignIn': 'Telegram ended this session; sign in again',

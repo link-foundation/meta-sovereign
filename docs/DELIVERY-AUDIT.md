@@ -41,3 +41,7 @@ The follow-up [UI state audit](UI-STATES.md) records centered loading/empty stat
 The selection follow-up reserves checks outside the message column, fills the entire row and prevents adjacent highlights from overlapping. Shared filled-control tokens fix white-on-white selection actions and the same failure in badges, tabs, calendar/poll choices, call controls and Mini App buttons. Regression checks compare actual painted pixels, bubble positions and control contrast in Chromium and WebKit.
 
 The [Operator reply incident](OPERATOR-REPLIES.md) fixes dropped reply/send options in the shared adapter and keeps opened work until explicit Done, independently of Telegram unread updates. Regression coverage now reaches the Telegram wire request through the confirmed HTTP send and real shared adapter. Verbose logs include reply intent and queue decisions without message bodies.
+
+# Continuous recovery follow-up
+
+The live-store profile, metadata-query fixes, automatic read retries, persistent app-wide outbox, browser-only preference and toolbar alignment are documented with browser evidence in [Connection recovery](CONNECTION-RECOVERY.md).

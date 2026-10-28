@@ -37,6 +37,11 @@ export const hi = {
   'header.online': 'ऑनलाइन',
   'header.offline': 'ऑफ़लाइन',
   'header.reconnecting': 'फिर से कनेक्ट हो रहा है',
+  'settings.connection.title': 'कनेक्शन बहाली',
+  'settings.connection.browserOnly':
+    'सर्वर या Telegram से जुड़ने के बाद केवल ब्राउज़र मोड का विकल्प दें',
+  'settings.connection.hint':
+    'डिफ़ॉल्ट रूप से बंद। कनेक्शन टूटने पर वर्तमान पेज बना रहता है, लोडिंग फिर होती है और कतार के संदेश अपने आप भेजे जाते हैं।',
   'header.telegramOffline':
     'Telegram कुछ समय से उपलब्ध नहीं है; कोशिश जारी है। Telegram कनेक्शन खोलें',
   'header.telegramSignIn':

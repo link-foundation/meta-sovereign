@@ -6,6 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { PageLoading } from './spinner.js';
 
 const el = React.createElement;
 
@@ -134,36 +135,12 @@ export const logOnce = (what, error) => {
   }
 };
 
-/** A list that could not load: what failed, and a button to try again. */
-export const LoadError = ({ error, retry, what }) => {
+/** Failed reads keep loading while their owner retries; details stay available. */
+export const LoadError = ({ error, what }) => {
   const t = useT();
   const code = typeof error === 'object' ? error?.code : '';
-  return el(
-    'div',
-    {
-      className: 'load-error',
-      role: 'alert',
-      'data-load-error': what ?? 'list',
-    },
-    [
-      el('p', { key: 'm' }, t('error.load')),
-      el(
-        'p',
-        { key: 'd', className: 'meta' },
-        errorText(t, code, String(error?.message ?? error ?? ''))
-      ),
-      retry
-        ? el(
-            'button',
-            {
-              key: 'r',
-              type: 'button',
-              'data-action': 'load-retry',
-              onClick: retry,
-            },
-            t('error.retry')
-          )
-        : null,
-    ]
-  );
+  return el(PageLoading, {
+    'data-load-error': what ?? 'list',
+    title: errorText(t, code, String(error?.message ?? error ?? '')),
+  });
 };

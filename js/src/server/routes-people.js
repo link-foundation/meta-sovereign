@@ -44,7 +44,7 @@ const peopleOf = async (store, url) =>
   });
 
 const linksWith = async (store, prefix) =>
-  (await store.query()).filter((l) => l?.id?.startsWith(prefix));
+  store.query((l) => l?.id?.startsWith(prefix));
 
 // Validate by resolving against the store as it would be once saved, so
 // a saved audience that refers to itself is rejected as a cycle.

@@ -57,15 +57,15 @@ export const loadAutomation = async (store, automationOrId) => {
 
 /** Saved automations first, then the presets not saved yet. */
 export const listAutomations = async (store) => {
-  const saved = (await store.query())
-    .filter((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
-    .map((l) => {
-      try {
-        return { ...normalizeAutomation(l), saved: true };
-      } catch (error) {
-        return { id: l.id, name: l.name ?? l.id, invalid: error.message };
-      }
-    });
+  const saved = (
+    await store.query((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
+  ).map((l) => {
+    try {
+      return { ...normalizeAutomation(l), saved: true };
+    } catch (error) {
+      return { id: l.id, name: l.name ?? l.id, invalid: error.message };
+    }
+  });
   const ids = new Set(saved.map((a) => a.id));
   return [
     ...saved,
@@ -126,7 +126,7 @@ export const draftOperations = ({
       const owner = automation
         ? `${AUTOMATION_PREFIX}${automationKey(automation)}`
         : null;
-      return (await store.query()).filter(
+      return store.query(
         (l) =>
           l?.id?.startsWith(DRAFT_PREFIX) &&
           (!source || l.source === source) &&

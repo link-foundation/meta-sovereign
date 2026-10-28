@@ -229,9 +229,9 @@ export const createAutomationRunner = ({
       const prefix = automation
         ? `${RUN_PREFIX}${automationKey(automation)}:`
         : RUN_PREFIX;
-      return (await store.query())
-        .filter((l) => l?.id?.startsWith(prefix))
-        .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+      return (await store.query((l) => l?.id?.startsWith(prefix))).sort(
+        (a, b) => String(b.at).localeCompare(String(a.at))
+      );
     },
   };
 };

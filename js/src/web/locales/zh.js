@@ -36,6 +36,11 @@ export const zh = {
   'header.online': '在线',
   'header.offline': '离线',
   'header.reconnecting': '正在重新连接',
+  'settings.connection.title': '连接恢复',
+  'settings.connection.browserOnly':
+    '连接过服务器或 Telegram 后仍提供纯浏览器模式',
+  'settings.connection.hint':
+    '默认关闭。暂时断开时保留当前页面，自动重试加载，并继续发送排队的消息。',
   'header.telegramOffline':
     'Telegram 已有一段时间无法连接；仍在持续重试。打开 Telegram 连接',
   'header.telegramSignIn': 'Telegram 已结束此会话；请重新登录',

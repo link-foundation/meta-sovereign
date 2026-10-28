@@ -6,6 +6,7 @@
 // it, the new chat opens. Its refusals show as text.
 
 import React, { useEffect, useState } from 'react';
+import { Icon } from './icons.js';
 import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
 import { useContactsWindow } from './chat-contacts-window.js';
@@ -373,7 +374,10 @@ export const NewChat = ({ api, AddContact = null }) => {
         'aria-expanded': menu,
         onClick: () => setMenu(!menu),
       },
-      ['+', othersBadge(active.others, 'ou', 'new-chat-unread', t)]
+      [
+        el(Icon, { key: 'plus', name: 'plus', size: 18 }),
+        othersBadge(active.others, 'ou', 'new-chat-unread', t),
+      ]
     ),
     menu
       ? el('div', { key: 'm', className: 'new-chat-menu', role: 'menu' }, [

@@ -36,6 +36,11 @@ export const ru = {
   'header.online': 'Онлайн',
   'header.offline': 'Оффлайн',
   'header.reconnecting': 'Переподключение',
+  'settings.connection.title': 'Восстановление соединения',
+  'settings.connection.browserOnly':
+    'Предлагать режим браузера после подключения сервера или Telegram',
+  'settings.connection.hint':
+    'По умолчанию выключено. При временном разрыве сохраняется текущий экран, загрузка повторяется, сообщения из очереди отправляются автоматически.',
   'header.telegramOffline':
     'Telegram какое-то время недоступен; попытки продолжаются. Открыть подключение Telegram',
   'header.telegramSignIn': 'Telegram завершил этот сеанс; войдите снова',

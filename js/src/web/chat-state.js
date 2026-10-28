@@ -20,6 +20,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
+import { createRetryingRead } from './read-retry.js';
 import {
   CHAT_FILTERS,
   CHAT_SORTS,
@@ -115,26 +116,20 @@ export const useLoaded = (load, deps, initial) => {
   const [value, setValue] = useState(initial);
   const [error, setError] = useState(null); // R-Z12: never a silent hang
   useEffect(() => {
-    let live = true;
-    Promise.resolve()
-      .then(load)
-      .then(
-        (next) => {
-          if (live) {
-            setError(null);
-            if (next !== undefined) {
-              setValue(next);
-            }
-          }
-        },
-        (failure) => {
-          logOnce('load', failure);
-          live && setError(failure);
+    const read = createRetryingRead(load, {
+      accept: (next) => {
+        setError(null);
+        if (next !== undefined) {
+          setValue(next);
         }
-      );
-    return () => {
-      live = false;
-    };
+      },
+      failed: (failure) => {
+        logOnce('load', failure);
+        setError(failure);
+      },
+    });
+    read.refresh();
+    return read.stop;
   }, deps);
   return [value, setValue, error];
 };

@@ -214,7 +214,7 @@ const accountEvents = (account, req, res, ctx) => {
   res.writeHead(200, {
     'content-type': 'text/event-stream; charset=utf-8',
     'cache-control': 'no-cache, no-transform',
-    connection: 'keep-alive',
+    ...(req.httpVersionMajor === 2 ? {} : { connection: 'keep-alive' }),
     'x-accel-buffering': 'no',
   });
   res.write('retry: 5000\n\n: open\n\n');

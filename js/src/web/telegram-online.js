@@ -6,6 +6,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
 import { useBrowserOnline, useServerReconnecting } from './server-transport.js';
+import {
+  rememberTelegramConnection,
+  useConnectionHistory,
+} from './connection-prefs.js';
 
 const el = React.createElement;
 
@@ -29,6 +33,9 @@ export const useTelegramReach = (
             return;
           }
           const connected = Boolean(status?.connected);
+          if (connected) {
+            rememberTelegramConnection();
+          }
           const next = {
             offline: connected && Boolean(status.offline),
             needsLogin: connected && Boolean(status.needsLogin),
@@ -99,12 +106,13 @@ const openTelegramConnection = () =>
 /** Global status; a Telegram sign-in failure links to its connection. */
 export const ModeBadge = ({ online, api = defaultApi }) => {
   const t = useT();
+  const connectedBefore = useConnectionHistory();
   const hadServer = useRef(false);
   if (online) {
     hadServer.current = true;
   }
   const connection = {
-    hadServer: hadServer.current,
+    hadServer: hadServer.current || connectedBefore,
     reconnecting: useServerReconnecting(),
     browserOnline: useBrowserOnline(),
   };

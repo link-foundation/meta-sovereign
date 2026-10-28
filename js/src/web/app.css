@@ -337,7 +337,23 @@ main[data-view='chat'] > .web-mode-banner {
   gap: 0.5rem;
 }
 .chat-sidebar-title {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  line-height: 1;
   font-weight: 600;
+}
+.chat-sidebar-top > .icon-btn,
+.chat-sidebar-top .new-chat-btn {
+  width: var(--control-h);
+  height: var(--control-h);
+  flex: none;
+  padding: 0;
+}
+.chat-sidebar-top .chat-sort {
+  height: var(--control-h);
+  padding-block: 0;
+  align-self: center;
 }
 .chat-sort {
   width: auto;

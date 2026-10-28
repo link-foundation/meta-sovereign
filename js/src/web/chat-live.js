@@ -16,6 +16,7 @@
 
 import {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -40,6 +41,9 @@ import {
 import { sendAsField } from './chat-send-as.js';
 import { useEditMode } from './chat-edit-mode.js';
 import { traceClient } from './client-log.js';
+import { READ_RECOVERED_EVENT } from './read-retry.js';
+import { OutboxContext } from './outbox-context.js';
+import { activeAccount } from './telegram-account-scope.js';
 
 /** Shared directory: reopening a view shows its last good snapshot immediately. */
 export const useLiveLinks = (api, tick) => {
@@ -135,9 +139,15 @@ const listen = (target, event, fn) => {
  * `sending`, `waiting` (to be tried again at `retryAt`) or `failed`.
  * Saved in the browser on every change and resumed on load.
  */
-const useOutbox = ({ api, addLinks, after, storage }) => {
+export const useOutboxQueue = (
+  { api, addLinks, after, storage },
+  enabled = true
+) => {
+  const account = activeAccount();
+  const storageKey =
+    account === 1 ? OUTBOX_KEY : `${OUTBOX_KEY}@telegram-${account}`;
   const [items, setItems] = useState(() =>
-    restoreOutbox(readSaved(OUTBOX_KEY, [], storage))
+    restoreOutbox(readSaved(storageKey, [], storage))
   );
   const ref = useRef(items);
   const timers = useRef(new Map());
@@ -146,7 +156,7 @@ const useOutbox = ({ api, addLinks, after, storage }) => {
 
   const mutate = (change) => {
     ref.current = change(ref.current);
-    setKept(writeSaved(OUTBOX_KEY, ref.current, storage));
+    setKept(writeSaved(storageKey, ref.current, storage));
     setItems(ref.current);
   };
   const patch = (clientId, change) =>
@@ -209,24 +219,30 @@ const useOutbox = ({ api, addLinks, after, storage }) => {
   };
 
   useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
     live.current = true;
     pumpAll(); // what the last visit left
     // Back online: what waited for the network goes now.
-    const stop = listen(globalThis, 'online', () => {
+    const resume = () => {
       mutate((all) =>
         all.map((p) => (waitsForNetwork(p) ? { ...p, retryAt: 0 } : p))
       );
       pumpAll();
-    });
+    };
+    const stop = listen(globalThis, 'online', resume);
+    const stopRecovered = listen(globalThis, READ_RECOVERED_EVENT, resume);
     return () => {
       live.current = false;
       stop();
+      stopRecovered();
       for (const timer of timers.current.values()) {
         globalThis.clearTimeout(timer);
       }
       timers.current.clear();
     };
-  }, [api]);
+  }, [api, enabled]);
 
   const find = (clientId) => ref.current.find((p) => p.clientId === clientId);
   return {
@@ -272,6 +288,12 @@ const useOutbox = ({ api, addLinks, after, storage }) => {
         all.filter((p) => !(p.key === key && p.status === 'failed'))
       ),
   };
+};
+
+const useOutbox = (options) => {
+  const shared = useContext(OutboxContext);
+  const local = useOutboxQueue(options, !shared);
+  return shared ?? local;
 };
 
 const DRAFT_SAVE_MS = 400;

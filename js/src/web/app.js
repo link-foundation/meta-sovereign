@@ -39,6 +39,7 @@ import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
 import { PageLoading } from './spinner.js';
+import { OutboxHost } from './outbox-host.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -131,7 +132,7 @@ const App = () => {
   const View = useMemo(() => views[active] ?? views.chat, [active]);
 
   return el(LocaleContext.Provider, { value: localeApi }, [
-    el(React.Fragment, { key: 'shell' }, [
+    el(OutboxHost, { key: 'shell', api }, [
       el('a', { key: 'skip', className: 'skip-link', href: '#root' }, [
         t('skipLink'),
       ]),

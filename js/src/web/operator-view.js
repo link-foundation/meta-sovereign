@@ -177,7 +177,7 @@ const OperatorCard = ({ state, api, current, unread, queue, t }) => {
     );
   }
   if (unread.error || state.loadError) {
-    return null;
+    return el(LoadError, { error: unread.error ?? state.loadError });
   }
   if (unread.checking || queue.length) {
     return el(PageLoading, {
@@ -218,7 +218,7 @@ export const OperatorView = ({ api = defaultApi }) => {
               role: 'status',
               'aria-live': 'polite',
             },
-            state.loading
+            state.loading || (!current && unread.error)
               ? t('operator.loading')
               : t('operator.remaining', { count: queue.length })
           ),
@@ -252,20 +252,6 @@ export const OperatorView = ({ api = defaultApi }) => {
           ),
         ]),
       ]),
-      state.loadError
-        ? el(LoadError, {
-            key: 'load-error',
-            error: state.loadError,
-            retry: state.retryLoad,
-          })
-        : null,
-      unread.error
-        ? el(LoadError, {
-            key: 'unread-error',
-            error: unread.error,
-            retry: unread.retry,
-          })
-        : null,
       error
         ? el(
             'p',
@@ -278,6 +264,7 @@ export const OperatorView = ({ api = defaultApi }) => {
             key: 'body',
             label: t('operator.loading'),
             'data-operator-loading': '',
+            'data-load-error': state.loadError ? 'operator' : undefined,
           })
         : el(OperatorCard, {
             key: 'body',
