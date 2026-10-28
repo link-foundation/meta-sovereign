@@ -190,7 +190,15 @@ test('dependency graph preflight permits PR capability notices but fails main an
     await import('../scripts/dependency-graph.mjs');
   const env = { GITHUB_REPOSITORY: 'owner/repo', BASE_SHA: 'a', HEAD_SHA: 'b' };
   const request = async () => ({ status: 403, ok: false });
-  assert.equal(await checkDependencyGraph(env, request), false);
+  const notices = [];
+  assert.equal(
+    await checkDependencyGraph(env, request, (message) =>
+      notices.push(message)
+    ),
+    false
+  );
+  assert.equal(notices.length, 1);
+  assert.match(notices[0], /^::notice::.*owner\/repo\/settings/);
   await assert.rejects(
     checkDependencyGraph({ ...env, REQUIRE_GRAPH: '1' }, request),
     /administrator/

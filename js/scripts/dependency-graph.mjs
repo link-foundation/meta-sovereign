@@ -1,7 +1,11 @@
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-export async function checkDependencyGraph(env = process.env, request = fetch) {
+export async function checkDependencyGraph(
+  env = process.env,
+  request = fetch,
+  report = console.log
+) {
   const repository = env.GITHUB_REPOSITORY;
   const base = env.BASE_SHA || env.GITHUB_SHA;
   const head = env.HEAD_SHA || env.GITHUB_SHA;
@@ -30,7 +34,7 @@ export async function checkDependencyGraph(env = process.env, request = fetch) {
   if (env.REQUIRE_GRAPH === '1') {
     throw new Error(message);
   }
-  console.log(
+  report(
     `::notice::${message} PR dependency review cannot run; lockfile audits remain required.`
   );
   return false;
