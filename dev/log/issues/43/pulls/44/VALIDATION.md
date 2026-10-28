@@ -83,3 +83,11 @@ No production release is triggered from this PR. Permission/configuration and pu
 ## Archive cutoff and final verification
 
 This archive captures original failures and implementation iterations through the last product source above. The subsequent archive/collector-only commit is verified again by GitHub CI; its permanent run links and completion status are recorded in PR 44. It cannot include the logs of its own future run without creating another commit and another run. This is an explicit collection cutoff, not a substitution of stale product results or a claim that pending checks passed.
+
+## Post-archive Bun discovery correction (F21)
+
+Current archived source `6266e2e` passes all five native builds, Pages and Links (the latter after one independently verified Google 429 retry). Checks run 40730466733 exposes foreign reference-test discovery in all three Bun legs, while its maintained browser-runner contracts pass. This failed run is retained as evidence, never counted as a passing matrix.
+
+The finite owned discovery fixture fails before the real Bun configuration fix and passes after. `local/bun-discovery-focused.log` reports 15 focused Bun tests, zero failures; `bun-discovery-node-contracts.log` reports 14 shared Node contracts passing plus one explicit Bun-only skip. Changed-source lint/format pass. Full verification of the next source remains pending and is recorded in PR 44 after completion, respecting the archive cutoff.
+
+An explicit Prettier attempt on `bunfig.toml` reports no available parser (`local/bun-discovery-format-final.log`); it is not counted as a passing check. The configuration is parsed and exercised by the real bounded Bun child, and the maintained JavaScript passes ESLint and Prettier.

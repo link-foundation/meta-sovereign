@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-10-28T17:09:00Z",
+  "sources": [
+    {
+      "url": "https://bun.sh/docs/test/configuration",
+      "observation": "test.root selects the maintained directory scanned by bun test; default is project root."
+    },
+    {
+      "url": "https://bun.com/docs/test/discovery",
+      "observation": "Bun recursively discovers matching test filenames. An explicit configuration root scopes normal invocations."
+    }
+  ],
+  "decision": "Use the existing Bun test.root component, with no new dependency or timeout change.",
+  "upstream": "https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/269"
+}

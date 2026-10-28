@@ -455,8 +455,8 @@
     "local_counterpart": "bunfig.toml",
     "functions": [],
     "environment": [],
-    "local_sha256": "ee8263f7534cd0aa526f0d8ba58ef76ec257efabc3bac980c5e140a1bf2cf308",
-    "identical": true,
+    "local_sha256": "9f2b0d690b6152863770e688750064bca75672638663e940c690bf23bdad6721",
+    "identical": false,
     "diff": "comparison/js/bunfig.toml.diff"
   },
   {

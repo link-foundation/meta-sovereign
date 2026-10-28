@@ -40,3 +40,6 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 - [ ] Review new source `6526815` native WebKit diagnostics and all required CI; preserve failures and continue any proven fix.
 
 - [x] Forward-merge main release `a58fdab` (0.55.0), retain the pending patch changeset, reproduce four false-green browser skip variants and fix their common gate. Fourteen Node contracts and six selected Deno cases pass.
+
+- [x] F21: preserve all three post-archive Bun failures; reproduce foreign test discovery with bounded owned sentinels, scope the actual Bun configuration to js/tests, verify 15 focused Bun contracts, refresh pinned comparisons and report shared template defect as issue 269.
+- [ ] Verify the complete post-F21 runtime/browser/native matrix on the final source and record the fresh run links in PR 44.
