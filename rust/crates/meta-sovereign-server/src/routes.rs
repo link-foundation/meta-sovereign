@@ -120,16 +120,15 @@ fn serve_static(root: &StaticRoot, req: &Request) -> Option<Response> {
         let bytes = std::fs::read(&file).ok()?;
         return Some(Response::bytes(200, "text/html; charset=utf-8", bytes));
     }
-    if let Some(name) = safe_asset_name(&req.path) {
-        if name.ends_with(".js")
+    if let Some(name) = safe_asset_name(&req.path)
+        && (name.ends_with(".js")
             || name.ends_with(".css")
             || name.ends_with(".svg")
-            || name.ends_with(".wasm")
-        {
-            let file = dir.join(&name);
-            if let Ok(bytes) = std::fs::read(&file) {
-                return Some(Response::bytes(200, ext_mime(&name), bytes));
-            }
+            || name.ends_with(".wasm"))
+    {
+        let file = dir.join(&name);
+        if let Ok(bytes) = std::fs::read(&file) {
+            return Some(Response::bytes(200, ext_mime(&name), bytes));
         }
     }
     serve_browser_mount(root, req)

@@ -29,7 +29,7 @@ env:
 jobs:
   build:
     name: Build SPA bundle
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~30s (esbuild + copy). 10min cap matches the
     # rest of release.yml's fast jobs.
     timeout-minutes: 10
@@ -79,7 +79,7 @@ jobs:
     name: Deploy to GitHub Pages
     if: github.event_name != 'pull_request'
     needs: build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~30s (deploy-pages mostly waits on GitHub).
     timeout-minutes: 10
     environment:
@@ -127,7 +127,7 @@ jobs:
     name: E2E against the deployed site
     if: github.event_name != 'pull_request'
     needs: deploy
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7.0.1
@@ -177,7 +177,7 @@ jobs:
   e2e-bundle:
     name: E2E against the built bundle
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.1

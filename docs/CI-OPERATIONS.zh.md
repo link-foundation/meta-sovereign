@@ -46,6 +46,6 @@ GitHub 测试 fixture 在清理时关闭其拥有的所有连接，包括 keep-a
 
 `MS_LIFECYCLE_DEBUG=1` 输出固定的关闭阶段名称、经过的毫秒数和自有连接数，不含请求或账户内容。默认关闭，Windows Node CI 显式启用。keep-alive 回归测试阻塞内存存储的 flush，分别验证套接字关闭和持久化；随后必须释放 flush 并等待完整关闭。
 
-GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-15-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。
+GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-26-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。
 
 所有自有网络 fixture 共用跟踪 socket 的关闭 helper，覆盖 GitHub、serverFetch、archive/WhatsApp/marketplace 路由、本地 Pages 和邮件协议。Rust 文档在检查和两条发布路径中均拒绝警告（`RUSTDOCFLAGS=-D warnings`）。临时 Git fixture 设置自己的 LF 策略，不修改用户设置。

@@ -46,6 +46,6 @@ GitHub test fixtures teardown पर अपने सभी connections बं�
 
 `MS_LIFECYCLE_DEBUG=1` shutdown चरणों के निश्चित नाम, बीते milliseconds और अपने connections की संख्या दिखाता है; request या account की सामग्री नहीं। यह डिफ़ॉल्ट रूप से बंद है और Windows Node CI में चालू है। Keep-alive regression memory में flush रोककर socket closure को persistence से अलग जाँचता है; फिर flush छोड़ना और पूरा shutdown समाप्त होने तक प्रतीक्षा करना अनिवार्य है।
 
-GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-15-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
+GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-26-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
 
 GitHub, serverFetch, archive/WhatsApp/marketplace routes, स्थानीय Pages और mail protocols के सभी अपने network fixtures एक ही socket-tracking shutdown helper उपयोग करते हैं। Rust documentation जाँच और दोनों release paths में warnings पर विफल होती है (`RUSTDOCFLAGS=-D warnings`)। अस्थायी Git fixtures उपयोगकर्ता की settings बदले बिना अपनी LF policy तय करते हैं।
