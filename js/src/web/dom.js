@@ -3,6 +3,7 @@
 // browser-only operation uses the local store (see ./client.js).
 
 import { reportApiFailure } from './api-errors.js';
+import { debugBrowser } from './client-log.js';
 import { openServerEvents } from './server-events.js';
 import { trackServerStream } from './server-transport.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
@@ -23,11 +24,8 @@ import {
   findServerByPicture,
   mayNeedPicture,
 } from './discover.js';
-import {
-  createBuildWatch,
-  createOfflineClient,
-  createRediscovery,
-} from './client.js';
+import { createOfflineClient } from './client.js';
+import { followServer } from './server-follow.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
@@ -82,37 +80,6 @@ export const findNearbyServer = async ({
 const localBroadcast = async (networks, body) =>
   (networks ?? []).map((n) => ({ network: n, queued: true, body }));
 
-// Every copy, including GitHub Pages, retries a failed initial discovery.
-// The optional local copy also follows new server builds (R-Y65).
-const followServer = (client, origin) => {
-  const here = globalThis.location?.origin ?? '';
-  const reload = () => globalThis.location?.reload?.();
-  // DOM API helpers are also used by scripts and tests without a page.
-  if (!here) {
-    return null;
-  }
-  if (!origin) {
-    return createRediscovery({
-      discover: () => discoverServer({}),
-      found: reload,
-    });
-  }
-  if (origin !== here || typeof globalThis.fetch !== 'function') {
-    return null;
-  }
-  const watch = createBuildWatch({
-    bundleUrl: new URL('./app.min.js', globalThis.location.href).toString(),
-    fetchImpl: globalThis.fetch.bind(globalThis),
-    reload,
-  });
-  client.on((event) => {
-    if (event.type === 'mode-change' && event.online) {
-      watch.check();
-    }
-  });
-  return watch;
-};
-
 // The page's store, brought to the current data schema (R-Z17). One written
 // by a newer build is not touched: the page works on a scratch copy and
 // says so (`ms-schema-too-new`), so nothing of it is overwritten.
@@ -148,6 +115,7 @@ const boot = async () => {
   bus.register('broadcast', built.selector, built.run);
 
   const discovered = await discoverServer({});
+  debugBrowser('boot-discovery', { discovered });
   if (discovered) {
     rememberServerConnection();
   }
@@ -639,6 +607,7 @@ const rawApi = {
     reload = () => globalThis.location?.reload?.(),
   } = {}) => {
     const found = await discover({});
+    debugBrowser('manual-rediscovery', { found });
     if (found) {
       resetServerBinding();
       reload();

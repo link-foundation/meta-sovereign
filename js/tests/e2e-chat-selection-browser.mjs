@@ -49,6 +49,11 @@ const handle = await startServer({
 });
 const base = `http://127.0.0.1:${handle.port}`;
 const browser = await browserType.launch({ headless: true });
+if (process.env.CI_TUTORIAL_DEBUG === '1') {
+  const { probeInput } =
+    await import('../../experiments/issue50-webkit-input.mjs');
+  await probeInput(browser);
+}
 const context = await browser.newContext({
   viewport: { width: 1100, height: 800 },
 });
@@ -61,6 +66,11 @@ if (engine === 'chromium') {
 const page = await context.newPage();
 const inputs = [];
 if (process.env.CI_TUTORIAL_DEBUG === '1') {
+  page.on('console', (message) => {
+    if (message.text().startsWith('[ms-debug]')) {
+      console.log(message.text());
+    }
+  });
   await page.exposeFunction('recordSelectionInput', (input) => {
     inputs.push(input);
     if (inputs.length > 40) {
@@ -69,11 +79,24 @@ if (process.env.CI_TUTORIAL_DEBUG === '1') {
   });
 }
 await page.addInitScript(() => {
+  globalThis.metaSovereignDebug =
+    typeof globalThis.recordSelectionInput === 'function';
+  globalThis.addEventListener(
+    'click',
+    (event) => {
+      globalThis.recordSelectionInput?.({
+        type: 'window-click',
+        x: event.clientX,
+        y: event.clientY,
+      });
+    },
+    true
+  );
   for (const type of ['mousedown', 'mouseup', 'click']) {
     document.addEventListener(
       type,
       (event) => {
-        globalThis.recordSelectionInput({
+        globalThis.recordSelectionInput?.({
           type,
           x: event.clientX,
           y: event.clientY,

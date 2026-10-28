@@ -92,11 +92,12 @@ const traceTutorial = async (page) => {
   });
   page.on('crash', () => console.log('[tutorial-crash]'));
   page.on('console', (message) => {
-    if (message.text().startsWith('[tutorial-')) {
+    if (/^\[(tutorial-|ms-debug)/.test(message.text())) {
       console.log(message.text());
     }
   });
   await page.addInitScript(() => {
+    globalThis.metaSovereignDebug = true;
     console.log('[tutorial-document]', globalThis.performance.timeOrigin);
     globalThis.addEventListener('beforeunload', () => {
       console.log('[tutorial-unload]', globalThis.location.href);

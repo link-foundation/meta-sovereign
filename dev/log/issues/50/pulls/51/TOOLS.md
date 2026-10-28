@@ -30,6 +30,7 @@ Registry/API observations captured 2026-10-28. Original pins are from main d48a3
 | Rust | implicit stable; edition 2021; resolver 2 | 1.99.1, edition 2024, resolver 3 | static.rust-lang.org channel-rust-stable.toml |
 | Rust local core/server/wasm crates | 0.17.0 | 0.17.0 | Internal path dependencies, no registry releases; zero third-party crates. cargo update yields identical Cargo.lock. |
 | Python | runner interpreter, no manifest | CI 3.15.2 | python.org release/python-3152 and CPython v3.15.2; all Python source imports stdlib, no absent third-party manifest |
+| pip | runner-bundled, no project pin | 26.2.2 via current setup-python bootstrap | PyPI latest 26.2.2; workflow-lint-verified-b835bacc.log:235–246 proves that exact version was installed; no required third-party packages |
 | Swift | runner/system interpreter, no manifest | CI 6.4.1 | swiftlang/swift latest swift-6.4.1-RELEASE; only Foundation, Security, CryptoKit and Contacts system SDKs |
 | Swiftly | absent | 1.2.0 | swiftlang/swiftly latest 1.2.0, official macOS pkg SHA256 a1b48692b00ea6902957423473c87bee7c7f3e18c015a4a09317102f6820b987; replaces broken/deprecated setup-swift action |
 | Bun | floating latest | 1.4.4 | oven-sh/bun latest bun-v1.4.4 |

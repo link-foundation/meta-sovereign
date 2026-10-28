@@ -47,7 +47,8 @@ def collect(label):
         if result.returncode:
             failures.append(str(run['id']))
     if failures:
-        print('Logs unavailable for these completed runs; reasons saved:', ', '.join(failures))
+        print('Some run logs are incomplete; downloaded output and error reasons saved:',
+              ', '.join(failures))
 
 
 if __name__ == '__main__':
