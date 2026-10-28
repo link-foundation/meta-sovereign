@@ -22,7 +22,7 @@ R-Z32 के अनुसार प्रकाशित स्रोत की 
 
 प्रकाशन अंतिम pipeline gate की प्रतीक्षा करता है। केवल पढ़ने वाली जाँच पुराने रन रद्द करती है; रिलीज़ लेखन क्रम से और बिना cancellation होता है। जाँचे गए कमिट के बाद केवल version/changelog/changeset metadata आगे बढ़ सकता है। स्रोत या निर्भरता बदलने पर नया सफल CI चाहिए।
 
-npm के लिए Node 26.12.1 का bundled npm कम से कम 11.5.1, `id-token: write` और `link-foundation/meta-sovereign` के `release.yml` workflow का trusted publisher चाहिए। ज़रूरत होने पर package administrator npm में package/publisher की शुरुआती स्थापना करे। token exchange का इनकार मिलने पर बिना जाँच publish न करें।
+npm के लिए Node 26.12.1 और pinned npm 12.2.1, `id-token: write` और `link-foundation/meta-sovereign` के `release.yml` workflow का trusted publisher चाहिए। ज़रूरत होने पर package administrator npm में package/publisher की शुरुआती स्थापना करे। token exchange का इनकार मिलने पर बिना जाँच publish न करें।
 
 **Settings → Security → Code security → Dependency graph** चालू करें। PR में capability न होने की सूचना बिना contributor secrets के मिलती है। `main` पर dependency graph या npm publisher न होने पर preflight महँगी build से पहले स्पष्ट निर्देश देकर विफल होता है। network/authentication और गलत API response त्रुटियाँ हैं।
 

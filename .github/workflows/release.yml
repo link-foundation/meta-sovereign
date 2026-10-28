@@ -943,6 +943,9 @@ jobs:
       - name: Type-check Apple SDK helpers without accessing personal data
         if: runner.os == 'macOS'
         run: |
+          swift_compiler_version=$(swiftc --version)
+          echo "$swift_compiler_version"
+          [[ "$swift_compiler_version" == *"Swift version 6.4.1 "* ]]
           swiftc -typecheck js/src/server/local-key-enclave.swift
           swiftc -parse-as-library -typecheck js/src/sources/system-contacts.swift
       - name: Build both Docker services from the committed lockfile

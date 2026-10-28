@@ -22,7 +22,7 @@ R-Z32 要求验证实际发布的源码，并保留失败诊断。[issue 43 调�
 
 发布任务等待最终流水线门禁。只读检查取消过时运行；发布写操作串行执行且不中途取消。经过验证的提交之后，只允许版本、changelog 和 changeset 元数据变化。源码或依赖变化需要新的成功 CI。
 
-npm 可信发布要求 Node 26.12.1 自带的 npm 至少为 11.5.1、`id-token: write`，并为 `link-foundation/meta-sovereign` 的 `release.yml` 配置 trusted publisher。必要时须由包管理员在 npm 初始化包和发布者。token 交换被拒绝后，不得绕过检查发布。
+npm 可信发布要求 Node 26.12.1 和固定的 npm 12.2.1、`id-token: write`，并为 `link-foundation/meta-sovereign` 的 `release.yml` 配置 trusted publisher。必要时须由包管理员在 npm 初始化包和发布者。token 交换被拒绝后，不得绕过检查发布。
 
 启用 **Settings → Security → Code security → Dependency graph**。PR 在功能不可用时给出说明，无须贡献者提供秘密。`main` 缺少依赖图或 npm 发布者配置时，preflight 会在昂贵构建前失败并明确说明设置步骤。网络、身份验证和无效 API 响应仍是错误。
 
