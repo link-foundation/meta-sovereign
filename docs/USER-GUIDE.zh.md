@@ -218,7 +218,7 @@ Live email 可使用 `source-pull --source=email --protocol=gmail`、`microsoft-
 ### 通过浏览器导入
 
 **连接** 中每个服务卡片都提供两种独立的连接方式：**通过浏览器导入**（推荐）和 **手动填写**（API 密钥、导出文件或粘贴内容）。服务页面将它们显示为两个标签页，地址（`#conn-<service>` 或 `#conn-<service>/manual`）在重新加载后仍保留所打开的标签页。**通过浏览器导入**需要在同一台电脑上
-运行 JS server（`meta-sovereign serve`，Node.js 22.12 或更高版本）；server 通过
+运行 JS server（`meta-sovereign serve`，Node.js 26.12.1 或更高版本）；server 通过
 [browser-commander](https://github.com/link-foundation/browser-commander)
 驱动 Chrome。
 
