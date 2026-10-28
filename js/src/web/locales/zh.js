@@ -1045,9 +1045,11 @@ export const zh = {
   'settings.stories.hint':
     '默认关闭。在此浏览器中启用动态栏、头像圆环和个人资料动态。',
   'settings.folderTabs.title': '文件夹标签',
-  'settings.folderTabs.allFirst': '始终将“全部”放在最前',
+  'settings.folderTabs.placement': '“全部”和“未读”的位置',
+  'settings.folderTabs.end': '末尾（默认）',
+  'settings.folderTabs.start': '开头',
   'settings.folderTabs.hint':
-    '“全部”默认位于最后。此浏览器会记住您的选择；Telegram 中的顺序不变。',
+    '从所选边缘起，“全部”和“未读”分别位于第一和第二位。其他文件夹的顺序保持不变，不会更改 Telegram。',
   'settings.appearance.title': '外观',
   'settings.appearance.intro':
     '主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。',

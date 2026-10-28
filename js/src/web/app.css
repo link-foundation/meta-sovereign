@@ -12748,18 +12748,37 @@ a.remote-chip:hover {
   color: var(--danger, #d1242f);
 }
 
-/* Deleted messages kept on this computer: the bar and the list (R-Z7). */
-.chat-deleted-bar {
+/* Saved deletions and edits share one row; narrow panes can scroll it. */
+.chat-history-bar {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 0.6rem;
+  gap: 1.5rem;
   width: 100%;
   padding: 0.35rem 1rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg-elev);
   color: var(--text-muted);
   font-size: 0.82rem;
+  overflow-x: auto;
+}
+.chat-history-bar:empty {
+  display: none;
+}
+.folder-tab-settings label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.chat-deleted-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.6rem;
+}
+.chat-deleted-bar > :is(span, button) {
+  white-space: nowrap;
 }
 .deleted-row {
   display: flex;

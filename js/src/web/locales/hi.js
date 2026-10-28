@@ -1086,9 +1086,11 @@ export const hi = {
   'settings.stories.hint':
     'डिफ़ॉल्ट रूप से बंद। इस ब्राउज़र में स्टोरी पट्टी, अवतार रिंग और प्रोफ़ाइल स्टोरी चालू करें।',
   'settings.folderTabs.title': 'फ़ोल्डर टैब',
-  'settings.folderTabs.allFirst': '“सभी” हमेशा पहले दिखाएँ',
+  'settings.folderTabs.placement': '“सभी” और “अपठित” का स्थान',
+  'settings.folderTabs.end': 'अंत में (डिफ़ॉल्ट)',
+  'settings.folderTabs.start': 'शुरुआत में',
   'settings.folderTabs.hint':
-    'डिफ़ॉल्ट रूप से “सभी” आख़िर में है। यह ब्राउज़र आपकी पसंद याद रखता है; Telegram का क्रम नहीं बदलता।',
+    'चुने हुए किनारे से “सभी” पहले और “अपठित” दूसरे स्थान पर हैं। अन्य फ़ोल्डरों का क्रम बना रहता है; Telegram नहीं बदलता।',
   'settings.appearance.title': 'रूप-रंग',
   'settings.appearance.intro':
     'थीम और स्किन हर स्क्रीन पर लागू होती हैं और इसी ब्राउज़र में सहेजी जाती हैं। हेडर का थीम बटन हल्की और गहरी थीम के बीच बदलता है।',

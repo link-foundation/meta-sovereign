@@ -78,4 +78,9 @@ await finish(async () => {
   await until(async () => (await rows.count()) === 0, 'row erased');
   assert((await store.get(msg(3).id)) === null, 'erased from the store');
   assert((await store.get(msg(1).id)) !== null, 'a live message stays');
+  await page.keyboard.press('Escape');
+  await until(
+    async () => !(await page.locator('.chat-history-bar').isVisible()),
+    'empty history row takes no space'
+  );
 });

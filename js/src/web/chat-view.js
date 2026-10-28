@@ -1279,13 +1279,11 @@ const Conversation = ({
           api,
           onOpen: (id) => goToMessage(id, state.history?.reach),
         }),
-        // The messages kept after a delete: view, recover, purge (R-Z7).
-        el(DeletedBar, {
-          key: `deleted:${state.current.key}`,
-          state,
-          api,
-        }),
-        el(EditedBar, { key: `edited:${state.current.key}`, state, api }),
+        // Saved deletions and edits share one compact row in Chat and Operator.
+        el('div', { key: 'history', className: 'chat-history-bar' }, [
+          el(DeletedBar, { key: `deleted:${state.current.key}`, state, api }),
+          el(EditedBar, { key: `edited:${state.current.key}`, state, api }),
+        ]),
         // The live locations shared in the chat (R-Y197).
         el(LiveLocationsBar, {
           key: `live:${state.current.key}`,

@@ -242,6 +242,48 @@ test("a folder's own pins come first; All has a local placement preference", () 
   assert.equal(isFolderFilter('group'), false);
 });
 
+test('general Unread stays second from the chosen edge while custom unread folders keep their order', () => {
+  const unread = {
+    id: 7,
+    title: 'Непрочитанные',
+    excludeRead: true,
+    contacts: true,
+    nonContacts: true,
+    groups: true,
+    broadcasts: true,
+    bots: true,
+  };
+  const custom = {
+    id: 3,
+    title: 'Unread work',
+    excludeRead: true,
+    groups: true,
+  };
+  const folders = [
+    unread,
+    { id: 4, title: 'Work' },
+    custom,
+    { id: 0, all: true },
+    { id: 5, title: 'Friends' },
+  ];
+  const before = globalThis.structuredClone(folders);
+  const end = folderTabs(folders, {});
+  assert.deepEqual(
+    end.map((tab) => tab.key),
+    ['folder:4', 'folder:3', 'folder:5', 'folder:7', 'all']
+  );
+  assert.equal(end.at(-2).fixed, true);
+  assert.deepEqual(
+    folderTabs(folders, { allFirst: true }).map((tab) => tab.key),
+    ['all', 'folder:7', 'folder:4', 'folder:3', 'folder:5']
+  );
+  assert.deepEqual(
+    folders,
+    before,
+    'the local layout does not reorder remote folders'
+  );
+});
+
 test('the folders route (R-Y103)', async () => {
   const req = Readable.from([Buffer.from('{}')]);
   req.method = 'POST';

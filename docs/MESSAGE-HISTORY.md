@@ -2,6 +2,8 @@
 
 Chat and Operator share an **Edited messages → View** entry above the conversation when the server has captured an edit. A message's context menu also offers **Edit history**. The dialog shows the saved versions, newest first, preserving text and formatting. It loads older versions automatically as you scroll. Deleted messages keep their history too: open **Deleted messages → View**, then the saved versions of that message.
 
+Deleted and edited message controls share one aligned history row. The row disappears when neither category has saved messages, and stays on one line with horizontal scrolling in a narrow pane.
+
 ## Capture while the browser is closed
 
 The JavaScript local server records changes as it receives them. Its Telegram account connection, live update handler and catch-up processing run independently of the web app. Closing the browser does not stop capture. Keep the local server running and the account connected.
