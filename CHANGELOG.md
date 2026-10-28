@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.55.0
+
+### Minor Changes
+
+- 7630669: Preserve observed message edits on the local server while the web client is closed. Add shared Chat and Operator edit-history readers, retain versions after upstream deletion, and pin already cached Telegram attachments outside the evictable media cache.
+
 ## 0.54.1
 
 ### Patch Changes
