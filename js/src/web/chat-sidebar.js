@@ -163,7 +163,7 @@ const FilterTabs = ({ state }) => {
             'aria-selected': state.filter === tab.key ? 'true' : 'false',
             'data-filter': tab.key,
             // A folder's tab can be dragged sideways (R-Y172).
-            ...(state.folderTools && /^folder:\d+$/.test(tab.key)
+            ...(state.folderTools && !tab.fixed && /^folder:\d+$/.test(tab.key)
               ? {
                   'data-folder-tab': '',
                   onPointerDown: tabDragStart(state.folderTools),

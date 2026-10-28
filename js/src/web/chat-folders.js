@@ -11,8 +11,8 @@
  *   people, groups, channels, bots), and it must not be muted, read or
  *   archived when the folder leaves those out.
  *
- * A folder's pinned chats come first, in its own order. "All" is last
- * by default, or first by an app preference; with no folders the list keeps
+ * A folder's pinned chats come first, in its own order. All and Unread sit
+ * at the end by default, or the start by preference; with no folders the list keeps
  * its own tabs (all, private, groups, channels).
  */
 
@@ -102,9 +102,18 @@ export const chatsInFolder = (chats = [], folder, people = new Map()) => {
 export const unreadChats = (chats = []) =>
   chats.filter((c) => (c.unread > 0 || c.marked) && !c.muted).length;
 
+// A general Unread folder is a special category. A narrower custom folder
+// (such as unread groups only) retains its position among the named folders.
+export const isUnreadFolder = (folder) =>
+  Boolean(folder.excludeRead) &&
+  ['contacts', 'nonContacts', 'groups', 'broadcasts', 'bots'].every(
+    (kind) => folder[kind]
+  ) &&
+  !folder.chatlist;
+
 /**
- * Named folders keep Telegram's order. The app's "All" tab is last unless
- * `allFirst` is enabled; this never changes the order saved to Telegram.
+ * All and Unread are first and second from the selected edge (the end by
+ * default). Other folders keep Telegram's order; the remote order is unchanged.
  * Without folders, use `fallback`. Each `{ key, title?, label?, unread }`.
  */
 export const folderTabs = (
@@ -116,7 +125,11 @@ export const folderTabs = (
     return fallback;
   }
   const entire = { id: 0, all: true };
-  const order = allFirst ? [entire, ...named] : [...named, entire];
+  const unread = named.filter(isUnreadFolder);
+  const regular = named.filter((folder) => !isUnreadFolder(folder));
+  const order = allFirst
+    ? [entire, ...unread, ...regular]
+    : [...regular, ...unread, entire];
   return order.map((folder) =>
     folder.all
       ? { key: 'all', label: 'chat.folder.all', unread: 0 }
@@ -124,6 +137,7 @@ export const folderTabs = (
           key: folderKey(folder),
           title: folder.title,
           unread: unreadChats(chatsInFolder(all, folder, people)),
+          ...(isUnreadFolder(folder) ? { fixed: true } : {}),
         }
   );
 };

@@ -121,13 +121,25 @@ export const FolderTabSettings = () => {
   const [allFirst, setAllFirst] = useAllFirst();
   return el('section', { className: 'card folder-tab-settings' }, [
     el('h3', { key: 'h' }, t('settings.folderTabs.title')),
-    el(Check, {
-      key: 'first',
-      action: 'folder-all-first',
-      checked: allFirst,
-      onChange: setAllFirst,
-      label: t('settings.folderTabs.allFirst'),
-    }),
+    el('label', { key: 'position' }, [
+      t('settings.folderTabs.placement'),
+      el(
+        'select',
+        {
+          key: 'select',
+          'data-action': 'folder-special-position',
+          value: allFirst ? 'start' : 'end',
+          onChange: (event) => setAllFirst(event.target.value === 'start'),
+        },
+        ['end', 'start'].map((position) =>
+          el(
+            'option',
+            { key: position, value: position },
+            t(`settings.folderTabs.${position}`)
+          )
+        )
+      ),
+    ]),
     el('p', { key: 'hint', className: 'meta' }, t('settings.folderTabs.hint')),
   ]);
 };

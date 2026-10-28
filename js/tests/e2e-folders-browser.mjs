@@ -1,6 +1,6 @@
 // Real browser e2e for chat folders (R-Y103): with Telegram's folders the
-// named folders keep Telegram's order, followed by "All" (or first by an
-// app preference); selected tabs stay visible. A folder lists the chats
+// named folders keep Telegram's order; All and Unread sit first and second
+// from the chosen edge (end by default). Selected tabs stay visible. A folder lists the chats
 // its rules take (by kind, by name, not the muted ones), its own pinned
 // chat first; the chosen folder is remembered; without folders the
 // list's own tabs stay. Fake chats in a memory store, Telegram's folders
@@ -73,6 +73,16 @@ let folders = [
     exclude: [],
     pinned: ['-100555'],
   },
+  {
+    id: 4,
+    title: 'Unread',
+    excludeRead: true,
+    contacts: true,
+    nonContacts: true,
+    groups: true,
+    broadcasts: true,
+    bots: true,
+  },
   { id: 0, all: true },
   {
     id: 3,
@@ -127,8 +137,14 @@ const placementSteps = async () => {
     })),
   ];
   await page.reload();
-  await until(async () => (await tabs()).length === 15, 'many folders loaded');
-  assert((await tabs()).at(-1)[0] === 'all', 'All is last by default');
+  await until(async () => (await tabs()).length === 16, 'many folders loaded');
+  assert(
+    (await tabs())
+      .slice(-2)
+      .map((tab) => tab[0])
+      .join() === 'folder:4,all',
+    'Unread is second from the end after All'
+  );
   await until(allVisible, 'All revealed on startup');
   assert(
     await page.locator('.chat-filters').evaluate((node) => node.scrollLeft > 0),
@@ -162,29 +178,47 @@ const placementSteps = async () => {
 
   // Settings affects only this browser, persists across reloads and is reversible.
   await page.locator('button[data-view="settings"]').click();
-  const first = page.locator('[data-action="folder-all-first"]');
-  assert(!(await first.isChecked()), 'first placement starts disabled');
-  await first.check();
+  const first = page.locator('[data-action="folder-special-position"]');
+  assert(
+    (await first.inputValue()) === 'end',
+    'special categories start at the end'
+  );
+  await first.selectOption('start');
   await page.locator('button[data-view="chat"]').click();
   await until(
-    async () => (await tabs()).length === 15 && (await tabs())[0][0] === 'all',
+    async () => (await tabs()).length === 16 && (await tabs())[0][0] === 'all',
     'All first by preference'
+  );
+  assert(
+    (await tabs())[1][0] === 'folder:4',
+    'Unread follows All at the start'
   );
   await until(allVisible, 'All first visible');
   await page.reload();
   await until(
-    async () => (await tabs()).length === 15 && (await tabs())[0][0] === 'all',
+    async () => (await tabs()).length === 16 && (await tabs())[0][0] === 'all',
     'first placement remembered'
+  );
+  assert(
+    (await tabs())[1][0] === 'folder:4',
+    'Unread remains second after reload'
   );
   await until(allVisible, 'All first visible after reload');
   await page.locator('button[data-view="settings"]').click();
-  assert(await first.isChecked(), 'settings remembers first placement');
-  await first.uncheck();
+  assert(
+    (await first.inputValue()) === 'start',
+    'settings remembers start placement'
+  );
+  await first.selectOption('end');
   await page.locator('button[data-view="chat"]').click();
   await until(
     async () =>
-      (await tabs()).length === 15 && (await tabs()).at(-1)[0] === 'all',
+      (await tabs()).length === 16 && (await tabs()).at(-1)[0] === 'all',
     'All back at the end'
+  );
+  assert(
+    (await tabs()).at(-2)[0] === 'folder:4',
+    'Unread returns beside All at the end'
   );
   await until(allVisible, 'All last visible after changing preference');
 
@@ -216,10 +250,17 @@ await finish(async () => {
   );
   const shown = await tabs();
   assert(
+    (await page
+      .locator('[data-filter="folder:4"]')
+      .getAttribute('data-folder-tab')) === null,
+    'special Unread tab is fixed beside All'
+  );
+  assert(
     JSON.stringify(shown) ===
       JSON.stringify([
         ['folder:2', 'Work', '1'],
         ['folder:3', 'Friends', '1'],
+        ['folder:4', 'Unread', '2'],
         ['all', 'All', ''],
       ]),
     `tabs: ${JSON.stringify(shown)}`

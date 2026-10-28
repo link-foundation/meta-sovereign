@@ -20,6 +20,12 @@ const message = (body, extra = {}) => ({
 });
 await store.put(message('Original message'));
 await store.put({
+  ...message('Deleted context'),
+  id: 'msg:telegram:42:3',
+  raw: { id: 3 },
+  deleted: true,
+});
+await store.put({
   ...message('Conversation context'),
   id: 'msg:telegram:42:2',
   raw: { id: 2 },
@@ -42,9 +48,28 @@ const openHistory = async (view) => {
   await view.locator('[data-edited-id]').first().click();
   await dialog(view).waitFor();
 };
+const sharedRow = async (view) => {
+  await view.locator('[data-bar="deleted"]').waitFor();
+  await view.locator('[data-bar="edited"]').waitFor();
+  const groups = await view
+    .locator('.chat-history-bar > [data-bar]')
+    .evaluateAll((items) =>
+      items.map((item) => {
+        const rect = item.getBoundingClientRect();
+        return { y: rect.y, height: rect.height };
+      })
+    );
+  assert(
+    groups.length === 2 &&
+      Math.abs(groups[0].y - groups[1].y) < 1 &&
+      Math.abs(groups[0].height - groups[1].height) < 1,
+    'deleted and edited controls share one aligned row'
+  );
+};
 await finish(async () => {
   await page.goto(base);
   await page.locator('[data-chat="telegram:42"]').click();
+  await sharedRow(page);
   await openHistory(page);
   await dialog(page).getByText('Original message', { exact: true }).waitFor();
   assert(
@@ -117,6 +142,7 @@ await finish(async () => {
   );
   await reopened.goto(`${base}/#/operator`);
   await reopened.locator('[data-operator-chat="telegram:42"]').waitFor();
+  await sharedRow(reopened);
   await openHistory(reopened);
   await dialog(reopened)
     .getByText('Original message', { exact: true })

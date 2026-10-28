@@ -1089,9 +1089,11 @@ export const en = {
   'settings.stories.hint':
     'Off by default. Enable the stories strip, avatar rings and profile stories in this browser.',
   'settings.folderTabs.title': 'Folder tabs',
-  'settings.folderTabs.allFirst': 'Always show “All” first',
+  'settings.folderTabs.placement': 'All and Unread placement',
+  'settings.folderTabs.end': 'At the end (default)',
+  'settings.folderTabs.start': 'At the start',
   'settings.folderTabs.hint':
-    '“All” appears last by default. This browser remembers your choice; the order in Telegram stays the same.',
+    'All and Unread are first and second from the chosen edge. Other folders keep their order; Telegram is unchanged.',
   'settings.appearance.title': 'Appearance',
   'settings.appearance.intro':
     'The theme and skin apply to every screen and are kept in this browser. The Theme button in the header switches between light and dark.',
