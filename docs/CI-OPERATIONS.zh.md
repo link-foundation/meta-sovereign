@@ -43,3 +43,5 @@ Desktop、registry、mobile 和 package-smoke 命令共用精确固定的 `cross
 Pre-commit hook 向 lint-staged 传入 `--config package.json`，避免自动发现归档模板快照中的配置。根级 ESLint/Prettier 排除规则保留原始证据。真实的临时 Git 回归测试验证嵌套参考任务不会运行，而维护中的文件仍接受根级检查。
 
 GitHub 测试 fixture 在清理时关闭其拥有的所有连接，包括 keep-alive 和未完成的请求；应用服务器保持独立。`CI_FIXTURE_DEBUG=1` 输出连接数与关闭耗时（默认关闭）。保持 runtime job 原有截止时间，通过修复 fixture 的连接清理避免等待客户端超时。
+
+GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-15-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。

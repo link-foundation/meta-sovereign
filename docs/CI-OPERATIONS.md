@@ -49,3 +49,5 @@ Desktop, registry, mobile and package-smoke commands share exact-pinned `cross-s
 The pre-commit hook passes `--config package.json` to lint-staged. This prevents configuration discovery inside archived template snapshots; root ESLint/Prettier exclusions preserve the immutable evidence. A real temporary-Git regression verifies that nested reference tasks never run and maintained files still receive root checks.
 
 GitHub test fixtures close every owned connection during teardown, including persistent and incomplete requests; the application server is separate. `CI_FIXTURE_DEBUG=1` reports connection counts and shutdown duration (off by default). Keep the runtime job deadline unchanged; fix fixture ownership instead of waiting for client keep-alive timeouts.
+
+Node and WebKit use the pinned native `macos-15-intel` runner pool after repeated GitHub macOS ARM allocation failures. Bun, Deno and desktop packaging retain macOS ARM coverage. All nine runtime/OS combinations and both browser gates remain required; queued jobs never count as successful checks.

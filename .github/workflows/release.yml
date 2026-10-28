@@ -305,7 +305,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-test-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     # Typical run: 13–55s (deno on Windows can spike to ~2min on cold runners).
     # 10min cap surfaces a hung test or flaky network well before the
     # 6h GitHub default — the user wants flaky tests to fail fast.
@@ -336,6 +336,13 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15, windows-2025]
         runtime: [node, bun, deno]
+        # Retain all nine runtime/OS targets. Use the separate native Intel
+        # pool for Node after repeated hosted ARM runner allocation failures;
+        # Bun/Deno and desktop packaging still cover macOS ARM.
+        include:
+          - os: macos-15
+            runtime: node
+            runner: macos-15-intel
     steps:
       - uses: actions/checkout@v7
         with:
@@ -490,7 +497,7 @@ jobs:
           - browser: chromium
             runner: ubuntu-24.04
           - browser: webkit
-            runner: macos-15
+            runner: macos-15-intel
     env:
       RUN_BROWSER_E2E: '1'
       E2E_BROWSER: ${{ matrix.browser }}

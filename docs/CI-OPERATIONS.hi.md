@@ -43,3 +43,5 @@ Desktop, registry, mobile और package-smoke कमांड Windows npm/npx s
 Pre-commit hook lint-staged को `--config package.json` देता है, ताकि संग्रहित template snapshot की configuration अपने आप न चले। Root ESLint/Prettier exclusions साक्ष्य को अपरिवर्तित रखते हैं। अस्थायी Git regression जाँचता है कि nested reference tasks न चलें और maintained files पर root checks लागू रहें।
 
 GitHub test fixtures teardown पर अपने सभी connections बंद करते हैं, जिनमें keep-alive और अधूरे requests शामिल हैं; application server अलग रहता है। `CI_FIXTURE_DEBUG=1` connection count और shutdown समय दिखाता है (डिफ़ॉल्ट बंद)। Runtime job deadline बढ़ाने के बजाय fixture का connection cleanup ठीक किया गया है।
+
+GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-15-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
