@@ -608,10 +608,14 @@ const rawApi = {
   rediscover: async ({
     discover = discoverServer,
     reload = () => globalThis.location?.reload?.(),
+    signal = pageLifetime,
   } = {}) => {
-    const found = await discover({});
+    if (signal?.aborted) {
+      return false;
+    }
+    const found = await discover({ signal });
     debugBrowser('manual-rediscovery', { found });
-    if (found) {
+    if (found && !signal?.aborted) {
       resetServerBinding();
       reload();
       return true;
