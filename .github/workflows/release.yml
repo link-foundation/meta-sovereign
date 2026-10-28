@@ -307,7 +307,9 @@ jobs:
 
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'
-        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys --allow-run js/tests
+        # Deno requires --allow-all for private Windows named pipes. Tests
+        # remain isolated in fixture stores and never use personal accounts.
+        run: deno test --allow-all js/tests
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the

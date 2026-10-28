@@ -10,6 +10,8 @@ Repeated early worker crashes use increasing restart delays, capped at 30 second
 
 Prepared code snapshots and the control socket live under `<store>/runtime/`. Source files are hashed and verified before activation. The control socket is private to the OS user; executable paths and lifecycle controls are never accepted through the browser HTTP API. The data log, accounts, media, sessions and existing local TLS identity remain in the same application folder.
 
+Deno worker launches disable runtime lockfile writes so they cannot modify a verified release snapshot. On Windows, Deno requires `--allow-all` to use the private named-pipe control channel; start the CLI with `deno run --allow-all js/bin/meta-sovereign.js serve`.
+
 This covers application-worker upgrades with a compatible store schema. An incompatible replacement is refused while the working version remains available. Changing the public TLS listener configuration, stopping the host, or rebooting the OS still requires a host restart. An installation already running the older single-process launcher needs one initial restart to adopt the stable host; subsequent `serve` upgrades use the rolling path. Warm-up temporarily requires memory for both archive readers.
 
 Focused regression tests are `rolling-host.test.js`, `rolling-cli.test.js` and `store-handoff.test.js`. They check writes during warm-up, lock ownership, rollback, crash recovery, unlock state, release integrity, private control permissions, CLI reuse and a verified TLS/HTTP/2 connection across the switch. Tests use temporary fixture stores. Run the full suite in GitHub CI/CD; use only focused tests locally.

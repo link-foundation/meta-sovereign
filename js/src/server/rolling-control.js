@@ -43,7 +43,9 @@ export const requestServerControl = (
       if (end < 0) {
         return;
       }
-      socket.end();
+      // One complete frame is the whole reply. Close both halves explicitly;
+      // Deno can otherwise retain an IPC socket after its writer ends.
+      socket.destroy();
       try {
         const answer = JSON.parse(response.slice(0, end));
         if (answer.protocol !== protocol) {
@@ -130,7 +132,10 @@ export const createServerControl = async ({
     await save();
     return result;
   };
+  const connections = new Set();
   const server = net.createServer((socket) => {
+    connections.add(socket);
+    socket.once('close', () => connections.delete(socket));
     let input = '';
     let handling = false;
     socket.setTimeout(600_000, () => socket.destroy());
@@ -178,7 +183,11 @@ export const createServerControl = async ({
   await save();
   return {
     close: async () => {
-      await new Promise((resolve) => server.close(resolve));
+      // Stop accepting immediately, then destroy every control connection.
+      // Deno's net.Server can omit the close callback after Unix IPC traffic;
+      // worker shutdown must not depend on that compatibility event.
+      server.close();
+      connections.forEach((socket) => socket.destroy());
       if (process.platform !== 'win32') {
         await fs.unlink(controlAddress(storeDir)).catch(() => {});
       }

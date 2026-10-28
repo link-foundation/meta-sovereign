@@ -3,7 +3,7 @@ import { createInterface } from 'node:readline';
 import { setTimeout, clearTimeout } from 'node:timers';
 
 export const workerArgs = (entry, versions = process.versions) =>
-  versions.deno ? ['run', '--allow-all', entry] : [entry];
+  versions.deno ? ['run', '--allow-all', '--no-lock', entry] : [entry];
 
 export const spawnWorker = ({
   entry,
