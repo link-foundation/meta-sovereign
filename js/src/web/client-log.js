@@ -6,9 +6,27 @@
 // that would not load are counted by route and sent together a little
 // later: how many and whether loaded from another origin, never which.
 
+import { activeAccount } from './telegram-account-scope.js';
+
 const PER_MINUTE = 20;
 const MEDIA_ROUTE = /\/api\/telegram\/(avatar|media|file)\b/;
 const MEDIA_EVERY_MS = 10_000;
+
+/** Always-on workflow diagnostics: identifiers/decisions, never message text. */
+export const traceClient = (api, event, fields = {}) => {
+  try {
+    Promise.resolve(
+      api?.clientLog?.({
+        level: 'debug',
+        event,
+        account: activeAccount(),
+        ...fields,
+      })
+    ).catch(() => {});
+  } catch {
+    /* Diagnostics cannot interrupt a send or queue action. */
+  }
+};
 
 /** `avatar`, `media` or `file` for a server picture's element, or null. */
 export const mediaRouteOf = (target) => {

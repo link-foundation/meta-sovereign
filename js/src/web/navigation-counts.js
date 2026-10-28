@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { operatorEligible } from './operator-model.js';
 import { useOperatorScope } from './operator-prefs.js';
 import { activeAccount } from './telegram-account-scope.js';
+import { useOperatorWork } from './operator-work.js';
 
 // Reuse the active screen's feed instead of opening another history stream.
 let feed = { chats: [], links: [] };
@@ -46,13 +47,15 @@ export const missedCallCount = (calls, links, seen, started) => {
   }).length;
 };
 
-export const navigationCounts = (chats, missed = 0, scope) => ({
+export const navigationCounts = (chats, missed = 0, scope, work = {}) => ({
   chat: chats.reduce(
     (sum, chat) =>
       sum + (chat.muted ? 0 : Math.max(0, Number(chat.unread) || 0)),
     0
   ),
-  operator: chats.filter((chat) => operatorEligible(chat, scope)).length,
+  operator: chats.filter((chat) =>
+    operatorEligible(chat, scope, Boolean(work[chat.key]))
+  ).length,
   calls: missed,
 });
 
@@ -112,6 +115,7 @@ const useMissedCalls = (api, revision) => {
 };
 
 export const useNavigationCounts = (api, active) => {
+  const work = useOperatorWork();
   const [scope] = useOperatorScope();
   const { chats, links } = useSyncExternalStore(subscribe, snapshot, snapshot);
   const revision = (links ?? [])
@@ -147,7 +151,7 @@ export const useNavigationCounts = (api, active) => {
       ? 0
       : missedCallCount(calls, links ?? [], seen, started.current);
   return {
-    ...navigationCounts(chats, 0, scope),
+    ...navigationCounts(chats, 0, scope, work),
     calls: { count: missed, more: Boolean(next) },
   };
 };

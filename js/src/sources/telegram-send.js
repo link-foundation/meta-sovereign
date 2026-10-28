@@ -354,6 +354,18 @@ const firstPartOnly = (index, { replyTo, replyQuote }) => ({
  * Send `text` to `peer`, part by part.
  * Returns `[{ id, date, text, entities, duplicate? }]`, one per part.
  */
+const recordSend = (log, fields) =>
+  log?.({
+    level: 'debug',
+    event: 'telegram_send_request',
+    clientId: fields.clientId ?? null,
+    replyTo: fields.replyTo ?? null,
+    quoted: Boolean(fields.replyQuote),
+    topic: fields.topic,
+    parts: fields.parts,
+    scheduled: Boolean(fields.scheduleDate),
+  });
+
 export const sendText = async ({
   client,
   Api,
@@ -370,8 +382,17 @@ export const sendText = async ({
   effect,
   preview = null,
   onResult,
+  log,
 }) => {
   const parts = formattedParts(text, maxLength);
+  recordSend(log, {
+    clientId,
+    replyTo,
+    replyQuote,
+    topic,
+    parts: parts.length,
+    scheduleDate,
+  });
   const sent = [];
   for (const [index, part] of parts.entries()) {
     const randomId = helpers ? randomIdOf(clientId, index, helpers) : undefined;

@@ -36,6 +36,7 @@ export const hi = {
   'header.systemDefault': 'सिस्टम डिफ़ॉल्ट',
   'header.online': 'ऑनलाइन',
   'header.offline': 'ऑफ़लाइन',
+  'header.reconnecting': 'फिर से कनेक्ट हो रहा है',
   'header.telegramOffline':
     'Telegram कुछ समय से उपलब्ध नहीं है; कोशिश जारी है। Telegram कनेक्शन खोलें',
   'header.telegramSignIn':
@@ -92,7 +93,7 @@ export const hi = {
   'common.queue': 'क़तार में डालें',
   'common.evaluate': 'चलाएँ',
   'common.infer': 'निकालें',
-  'operator.remaining': '{count} अपठित बातचीत शेष',
+  'operator.remaining': '{count} बातचीत शेष',
   'operator.empty': 'कोई अपठित बातचीत नहीं',
   'operator.emptyHint': 'नई अपठित बातचीत यहाँ अपने आप दिखाई देगी।',
   'operator.failed':
@@ -100,7 +101,7 @@ export const hi = {
   'nav.unreadAtLeast': 'कम से कम {count} अपठित',
   'nav.unread.chat': 'सभी फ़ोल्डर में {count} अपठित संदेश, म्यूट चैट छोड़कर',
   'nav.unread.calls': '{count} अपठित मिस्ड कॉल',
-  'nav.unread.operator': 'सभी फ़ोल्डर में अपठित संदेश वाली {count} बातचीत',
+  'nav.unread.operator': 'सभी फ़ोल्डर में {count} अधूरी ऑपरेटर बातचीत',
   'nav.unreadCount': '{count} अपठित',
   'marketplace.apiNote':
     'वैकल्पिक API और आर्काइव पहुँच। ब्राउज़र साइन-इन और प्रोफ़ाइल के लिए ऊपर कार्य खाते देखें।',

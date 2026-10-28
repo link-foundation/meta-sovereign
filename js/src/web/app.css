@@ -1127,16 +1127,18 @@ main[data-view='chat'] > .web-mode-banner {
   flex: 1;
   border-top: 1px solid var(--border);
 }
-.chat-banner {
+.chat-account-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.35rem 1rem;
   background: var(--bg-elev);
   border-bottom: 1px solid var(--border);
   color: var(--text-subtle);
   font-size: 0.8rem;
   text-align: center;
-}
-.chat-banner[data-banner='offline'] {
-  color: var(--danger);
 }
 .chat-failed-bar {
   display: flex;
@@ -1854,6 +1856,16 @@ pre {
   background: #3a1a03;
   color: #f0a36c;
   border-color: #5a2c10;
+}
+.mode-badge.reconnecting {
+  background: #352b05;
+  color: #ffdf6b;
+  border-color: #746017;
+}
+:root[data-theme='light'] .mode-badge.reconnecting {
+  background: #fff8c5;
+  color: #705000;
+  border-color: #b68d16;
 }
 :root[data-theme='light'] .mode-badge.online {
   background: #dafbe1;

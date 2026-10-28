@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { unreadCount } from './chat-model.js';
+import { retainOperatorWork } from './operator-work.js';
+import { traceClient } from './client-log.js';
 
 const candidateOf = ({ state, queue }, skipped) => {
   const active = state.current;
@@ -24,9 +26,9 @@ const checkCandidate = async (api, next) => {
 };
 
 /** Validate a candidate before opening it; merely inspecting it never reads it. */
-export const useOperatorUnread = (api, state, queue) => {
-  const latest = useRef({ state, queue });
-  latest.current = { state, queue };
+export const useOperatorUnread = (api, state, queue, work) => {
+  const latest = useRef({ state, queue, work });
+  latest.current = { state, queue, work };
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState(null);
   const [verified, setVerified] = useState(null);
@@ -56,7 +58,14 @@ export const useOperatorUnread = (api, state, queue) => {
         if (!next) {
           break;
         }
-        const answer = await checkCandidate(api, next);
+        traceClient(api, 'operator_candidate', {
+          chat: next.chat,
+          unread: next.unread,
+          retained: Boolean(latest.current.work[next.key]),
+        });
+        const answer = latest.current.work[next.key]
+          ? { unread: true }
+          : await checkCandidate(api, next);
         if (stopped) {
           return;
         }
@@ -64,11 +73,17 @@ export const useOperatorUnread = (api, state, queue) => {
           latest.current.state.addLinks([answer.read]);
         }
         if (answer.unread) {
+          retainOperatorWork(next);
+          traceClient(api, 'operator_opened', {
+            chat: next.chat,
+            unread: next.unread,
+          });
           setVerified(next.key);
           latest.current.state.select(next.key);
           break;
         }
         skipped.add(next.key);
+        traceClient(api, 'operator_skip_read', { chat: next.chat, unread: 0 });
       }
     };
     check()

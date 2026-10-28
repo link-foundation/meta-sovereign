@@ -35,6 +35,7 @@ export const en = {
   'header.systemDefault': 'System default',
   'header.online': 'Online',
   'header.offline': 'Offline',
+  'header.reconnecting': 'Reconnecting',
   'header.telegramOffline':
     'Telegram has not been reachable for a while; it keeps trying. Open the Telegram connection',
   'header.telegramSignIn': 'Telegram ended this session; sign in again',
@@ -90,7 +91,7 @@ export const en = {
   'common.queue': 'Queue',
   'common.evaluate': 'Evaluate',
   'common.infer': 'Infer',
-  'operator.remaining': '{count} unread conversations remaining',
+  'operator.remaining': '{count} conversations remaining',
   'operator.empty': 'No unread conversations',
   'operator.emptyHint':
     'New unread conversations will appear here automatically.',
@@ -101,7 +102,7 @@ export const en = {
     '{count} unread messages across all folders, excluding muted chats',
   'nav.unread.calls': '{count} unread missed calls',
   'nav.unread.operator':
-    '{count} conversations with unread messages across all folders',
+    '{count} unfinished Operator conversations across all folders',
   'nav.unreadCount': '{count} unread',
   'marketplace.apiNote':
     'Optional API and archive access. For browser sign-in and profiles, use Work accounts above.',

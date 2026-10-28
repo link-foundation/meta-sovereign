@@ -467,6 +467,22 @@ export const withAddressForm = (draft, form, templates) => {
  * Send one draft through the source adapter's `live.post`. An adapter
  * that cannot send raises instead of pretending it did.
  */
+const SEND_FIELDS = [
+  'clientId',
+  'replyTo',
+  'replyQuote',
+  'topic',
+  'silent',
+  'scheduleDate',
+  'sendAs',
+  'allowPaidStars',
+  'effect',
+  'noWebpage',
+  'invertMedia',
+  'previewUrl',
+  'previewSize',
+];
+
 export const createAdapterSender =
   ({ getSource, options = {} }) =>
   async (draft) => {
@@ -480,7 +496,17 @@ export const createAdapterSender =
     }
     return send.call(
       live,
-      { chat: draft.chat, to: draft.contact, text: draft.text },
+      {
+        chat: draft.chat,
+        to: draft.contact ?? draft.to,
+        text: draft.text,
+        ...Object.fromEntries(
+          SEND_FIELDS.filter((key) => draft[key] !== undefined).map((key) => [
+            key,
+            draft[key],
+          ])
+        ),
+      },
       options[draft.source] ?? {}
     );
   };

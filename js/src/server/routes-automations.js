@@ -214,12 +214,57 @@ const keepSent = async (store, links) => {
   }
 };
 
+const validReply = (id) =>
+  id === undefined || id === null || (Number.isInteger(id) && id > 0);
+const sendTrace = (draft) => ({
+  source: draft.source,
+  chat: draft.chat,
+  clientId: draft.clientId ?? null,
+  replyTo: draft.replyTo ?? null,
+  quoted: Boolean(draft.replyQuote),
+  topic: draft.topic ?? null,
+});
+const reportSend = (ctx, trace, result, error) =>
+  ctx.log?.({
+    level: error ? 'error' : 'debug',
+    event: 'message_send_result',
+    ...trace,
+    success: !error,
+    ...(error
+      ? { code: error.code ?? 'send-failed' }
+      : { count: result.links?.length ?? 0, stored: result.stored !== false }),
+  });
+
+const deliverMessage = async (store, ctx, draft) => {
+  const result = await ctx.send(draft);
+  const links = sentLinks(draft, result);
+  const stored = await keepSent(store, links);
+  return {
+    status: 'sent',
+    via: result?.via,
+    link: links.at(-1) ?? null,
+    links,
+    ...(stored ? {} : { stored: false }),
+    ...(result?.scheduled ? { scheduled: true } : {}),
+  };
+};
+
+const sendFailure = (res, error) =>
+  json(res, error.code === 'flood-wait' ? 429 : 502, {
+    error: error.message,
+    code: error.code ?? 'send-failed',
+    ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
+  });
+
 const handleSend = async (store, res, body, ctx) => {
   if (!validChat(body) || !String(body.text ?? '').trim()) {
     return fail(res, 400, 'bad-message', 'source, chat and text are needed');
   }
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
+  }
+  if (!validReply(body.replyTo)) {
+    return fail(res, 400, 'bad-reply', 'a valid reply message id is required');
   }
   if (body.scheduleDate !== undefined && !validSchedule(body.scheduleDate)) {
     return fail(res, 400, 'bad-schedule', 'a time from now to a year ahead');
@@ -234,6 +279,13 @@ const handleSend = async (store, res, body, ctx) => {
     return fail(res, 400, 'bad-preview', 'a valid link preview choice');
   }
   const draft = buildDraft(body);
+  const trace = sendTrace(draft);
+  ctx.log?.({
+    level: 'debug',
+    event: 'message_send_requested',
+    ...trace,
+    confirmed: Boolean(body.confirmToken),
+  });
   // The composer's Send press confirms exactly this text.
   const ok = await confirmed(ctx, res, {
     action: 'message.send',
@@ -244,26 +296,14 @@ const handleSend = async (store, res, body, ctx) => {
     return true;
   }
   try {
-    const sent = await sendOnce(ctx, draft, async () => {
-      const result = await ctx.send(draft);
-      const links = sentLinks(draft, result);
-      const stored = await keepSent(store, links);
-      return {
-        status: 'sent',
-        via: result?.via,
-        link: links.at(-1) ?? null,
-        links,
-        ...(stored ? {} : { stored: false }),
-        ...(result?.scheduled ? { scheduled: true } : {}),
-      };
-    });
+    const sent = await sendOnce(ctx, draft, () =>
+      deliverMessage(store, ctx, draft)
+    );
+    reportSend(ctx, trace, sent);
     return json(res, 200, sent);
   } catch (error) {
-    return json(res, error.code === 'flood-wait' ? 429 : 502, {
-      error: error.message,
-      code: error.code ?? 'send-failed',
-      ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
-    });
+    reportSend(ctx, trace, null, error);
+    return sendFailure(res, error);
   }
 };
 

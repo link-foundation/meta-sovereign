@@ -140,9 +140,21 @@ const greetingStickersOfSet = (set, entry) => {
 };
 
 /** `sendSticker` for sticker content, `sendMessage` otherwise. */
+const botSendFields = (content) =>
+  compact({
+    reply_parameters: content?.replyTo
+      ? {
+          message_id: content.replyTo,
+          ...(content.replyQuote ? { quote: content.replyQuote } : {}),
+        }
+      : undefined,
+    message_thread_id: content?.topic > 1 ? content.topic : undefined,
+    disable_notification: content?.silent === true ? true : undefined,
+  });
 const sendRequest = (content, chat) => {
   const sticker = contentSticker(content);
   const business = content?.businessConnectionId;
+  const fields = botSendFields(content);
   if (sticker) {
     return [
       'sendSticker',
@@ -150,6 +162,7 @@ const sendRequest = (content, chat) => {
         chat_id: chat,
         sticker: sticker.id ?? sticker.url,
         business_connection_id: business,
+        ...fields,
       },
     ];
   }
@@ -157,7 +170,15 @@ const sendRequest = (content, chat) => {
     typeof content === 'string' ? content : (content?.text ?? content?.body);
   return [
     'sendMessage',
-    { chat_id: chat, text, business_connection_id: business },
+    {
+      chat_id: chat,
+      text,
+      business_connection_id: business,
+      ...fields,
+      ...(content?.noWebpage
+        ? { link_preview_options: { is_disabled: true } }
+        : {}),
+    },
   ];
 };
 

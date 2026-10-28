@@ -1,18 +1,17 @@
-// Telegram's reachability in the header's Online/Offline badge (R-Y96).
-// There is no sync line under the chat list: the server keeps retrying by
-// itself, as Telegram's apps do, and only a connection lost for long
-// (OFFLINE_AFTER_MS on the server) or a session Telegram ended turns the
-// badge to Offline; then it says why and leads to the Telegram connection.
+// One header badge reports Online, Reconnecting (yellow), or Offline.
+// Local transport and Telegram reconnects share it across every section;
+// conversations retain only their actual history/media loading indicators.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
+import { useBrowserOnline, useServerReconnecting } from './server-transport.js';
 
 const el = React.createElement;
 
 const EVERY_MS = 10_000;
 
-/** `{ offline, needsLogin }` of the connected Telegram account. */
+/** Reachability and sign-in state of the connected Telegram account. */
 export const useTelegramReach = (
   api,
   { enabled = true, everyMs = EVERY_MS } = {}
@@ -33,9 +32,14 @@ export const useTelegramReach = (
           const next = {
             offline: connected && Boolean(status.offline),
             needsLogin: connected && Boolean(status.needsLogin),
+            reconnecting:
+              connected &&
+              Boolean(status.connection) &&
+              status.connection !== 'connected',
           };
           setReach((before) =>
             before.offline === next.offline &&
+            before.reconnecting === next.reconnecting &&
             before.needsLogin === next.needsLogin
               ? before
               : next
@@ -53,15 +57,34 @@ export const useTelegramReach = (
 };
 
 /** What the header badge shows: online, and the reason when it is not. */
-export const badgeOf = (online, reach) => {
-  if (!online) {
+export const badgeOf = (online, reach, connection = {}) => {
+  if (connection.browserOnline === false) {
     return { online: false, reason: null };
+  }
+  if (!online) {
+    return connection.hadServer
+      ? { online: false, reconnecting: true, reason: 'chat.banner.server' }
+      : { online: false, reason: null };
   }
   if (reach.needsLogin) {
     return { online: false, reason: 'header.telegramSignIn' };
   }
+  if (connection.reconnecting) {
+    return {
+      online: false,
+      reconnecting: true,
+      reason: 'chat.banner.server',
+    };
+  }
   if (reach.offline) {
     return { online: false, reason: 'header.telegramOffline' };
+  }
+  if (reach.reconnecting) {
+    return {
+      online: false,
+      reconnecting: true,
+      reason: 'chat.banner.telegram',
+    };
   }
   return { online: true, reason: null };
 };
@@ -73,18 +96,37 @@ const openTelegramConnection = () =>
     })
   );
 
-/** The header's Online/Offline; Offline for Telegram says why, and opens it. */
+/** Global status; a Telegram sign-in failure links to its connection. */
 export const ModeBadge = ({ online, api = defaultApi }) => {
   const t = useT();
+  const hadServer = useRef(false);
+  if (online) {
+    hadServer.current = true;
+  }
+  const connection = {
+    hadServer: hadServer.current,
+    reconnecting: useServerReconnecting(),
+    browserOnline: useBrowserOnline(),
+  };
   const badge = badgeOf(
     online,
-    useTelegramReach(api, { enabled: Boolean(online) })
+    useTelegramReach(api, { enabled: Boolean(online) }),
+    connection
   );
-  if (!badge.reason) {
+  if (!badge.reason || badge.reconnecting) {
     return el(
       'span',
-      { className: `mode-badge ${badge.online ? 'online' : 'offline'}` },
-      badge.online ? t('header.online') : t('header.offline')
+      {
+        className: `mode-badge ${badge.reconnecting ? 'reconnecting' : badge.online ? 'online' : 'offline'}`,
+        role: 'status',
+        'aria-live': 'polite',
+        title: badge.reason ? t(badge.reason) : undefined,
+      },
+      badge.reconnecting
+        ? t('header.reconnecting')
+        : badge.online
+          ? t('header.online')
+          : t('header.offline')
     );
   }
   return el(

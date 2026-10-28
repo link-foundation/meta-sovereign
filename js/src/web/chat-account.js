@@ -55,7 +55,11 @@ export const ChatAccountNotice = ({ state }) => {
   }
   return el(
     'div',
-    { className: 'chat-banner', role: 'status', 'data-banner': 'sign-in' },
+    {
+      className: 'chat-account-notice',
+      role: 'status',
+      'data-banner': 'sign-in',
+    },
     [
       el(
         'span',

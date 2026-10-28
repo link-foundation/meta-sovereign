@@ -682,6 +682,27 @@ export const createDefaultSender = ({
     apiSend: adapterSend,
     browserSend: (draft) => {
       refuseAutomatedWeb(draft);
+      // A plain browser send cannot preserve these message semantics.
+      // Refuse rather than silently turning a reply into a normal message.
+      if (
+        draft.replyTo ||
+        draft.replyQuote ||
+        draft.topic ||
+        draft.sendAs ||
+        draft.scheduleDate ||
+        draft.allowPaidStars ||
+        draft.silent ||
+        draft.effect ||
+        draft.noWebpage ||
+        draft.invertMedia ||
+        draft.previewUrl ||
+        draft.previewSize
+      ) {
+        throw codedError(
+          'this message requires the network API to preserve its reply and send options',
+          'unsupported-send-options'
+        );
+      }
       return browserFor().send({
         source: draft.source,
         chat: draft.chat,

@@ -17,10 +17,27 @@ import { json } from './util.js';
 
 const LEVELS = new Set(['error', 'warn', 'info', 'debug']);
 const EVENT = /^[a-z][a-z0-9_]{0,59}$/;
-const KEY = /^[a-z][a-z0-9_]{0,39}$/;
+const KEY = /^[a-z][a-zA-Z0-9_]{0,39}$/;
 const MAX_BODY = 16 * 1024;
 const PER_MINUTE = 60;
 const STACK_LINES = 8;
+const IDENTIFIERS = [
+  'source',
+  'chat',
+  'clientId',
+  'reason',
+  'from',
+  'to',
+  'code',
+];
+const identifiersOf = (body) =>
+  Object.fromEntries(
+    IDENTIFIERS.filter(
+      (key) =>
+        typeof body[key] === 'string' &&
+        /^[a-zA-Z0-9_.:+-]{1,100}$/.test(body[key])
+    ).map((key) => [key, body[key]])
+  );
 
 const cut = (value, size) =>
   typeof value === 'string' && value ? value.slice(0, size) : null;
@@ -51,6 +68,7 @@ export const clientEntry = (body) => {
   }
   return {
     ...countsOf(body),
+    ...identifiersOf(body),
     level: LEVELS.has(body.level) ? body.level : 'info',
     event: `client_${body.event}`,
     error: cut(body.error, 300),

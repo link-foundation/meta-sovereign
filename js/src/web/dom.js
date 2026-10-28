@@ -4,6 +4,7 @@
 // back to the local browser store when offline.
 
 import { reportApiFailure } from './api-errors.js';
+import { trackServerStream } from './server-transport.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
@@ -1024,7 +1025,9 @@ const rawApi = {
       origin ? new URL('/api/events', origin).toString() : '/api/events'
     );
     const source = new Source(url);
+    const transport = trackServerStream();
     source.addEventListener('ready', () => {
+      transport.state('open');
       onState('open');
       // Opened again after the server restarted: maybe a new build.
       follow?.check();
@@ -1036,8 +1039,14 @@ const rawApi = {
         // A malformed frame: skip it, the next reload fixes the view.
       }
     });
-    source.addEventListener('error', () => onState('closed'));
-    return () => source.close();
+    source.addEventListener('error', () => {
+      transport.state('closed');
+      onState('closed');
+    });
+    return () => {
+      source.close();
+      transport.close();
+    };
   },
   /**
    * New incoming messages of every Telegram account the server runs

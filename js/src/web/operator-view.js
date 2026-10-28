@@ -11,6 +11,8 @@ import { useOperatorScope } from './operator-prefs.js';
 import { postponeOperatorChat, useOperatorOrder } from './operator-order.js';
 import { PageLoading } from './spinner.js';
 import { Icon } from './icons.js';
+import { useOperatorWork, finishOperatorWork } from './operator-work.js';
+import { traceClient } from './client-log.js';
 import {
   completeOperatorChat,
   needsAttention,
@@ -32,10 +34,20 @@ const useOperator = (api, t) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [scope] = useOperatorScope();
-  const [order, setOrder] = useOperatorOrder(state.all, state.loading);
-  const queue = operatorQueue(state.all, handled, scope, order);
+  const work = useOperatorWork();
+  const [order, setOrder] = useOperatorOrder(state.all, state.loading, work);
+  const queue = operatorQueue(state.all, handled, scope, order, work);
   const latest = useRef(null);
-  const unread = useOperatorUnread(api, state, queue);
+  const unread = useOperatorUnread(api, state, queue, work);
+  useEffect(() => {
+    if (unread.current && work[unread.current.key]) {
+      traceClient(api, 'operator_retained', {
+        chat: unread.current.chat,
+        unread: unread.current.unread,
+        queued: queue.length,
+      });
+    }
+  }, [api, unread.current?.key, unread.current?.unread]);
   latest.current = { state, queue, order, busy: busy || !unread.current };
   useEffect(() => {
     if (unread.current && appNavigation().snapshot().view === 'operator') {
@@ -67,6 +79,12 @@ const useOperator = (api, t) => {
     if (following && following.key !== now.current?.key) {
       latest.current.busy = true;
       setOrder(postponeOperatorChat(latest.current.order, now.current.key));
+      traceClient(api, 'operator_next', {
+        from: now.current.key,
+        to: following.key,
+        unread: now.current.unread,
+        queued: items.length,
+      });
       navigateApp({ view: 'operator', anchor: operatorHash(following.key) });
       now.select(following.key);
       setError(null);
@@ -81,8 +99,17 @@ const useOperator = (api, t) => {
     setBusy(true);
     setError(null);
     const snapshot = now.current;
+    traceClient(api, 'operator_done_start', {
+      chat: snapshot.chat,
+      unread: snapshot.unread,
+    });
     try {
       await completeOperatorChat(api, snapshot, now.messages);
+      finishOperatorWork(snapshot.key);
+      traceClient(api, 'operator_done_result', {
+        chat: snapshot.chat,
+        success: true,
+      });
       setHandled((before) =>
         new Map(before).set(snapshot.key, operatorRevision(snapshot))
       );
@@ -92,6 +119,10 @@ const useOperator = (api, t) => {
       now.select(following?.key ?? '');
       now.refresh();
     } catch {
+      traceClient(api, 'operator_done_result', {
+        chat: snapshot.chat,
+        success: false,
+      });
       setError(t('operator.failed'));
     } finally {
       setBusy(false);

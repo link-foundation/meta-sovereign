@@ -903,6 +903,7 @@ const postAsUser = async (
         text,
         clientId,
         maxLength,
+        log: env.log,
         replyTo,
         replyQuote,
         topic,

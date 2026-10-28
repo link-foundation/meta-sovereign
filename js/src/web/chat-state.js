@@ -396,57 +396,6 @@ const useReading = (api, current, links, topicRead = null, autoRead = true) => {
   };
 };
 
-const DOWN_AFTER_MS = 3000;
-
-const useOnline = () => {
-  const read = () => globalThis.navigator?.onLine !== false;
-  const [online, setOnline] = useState(read);
-  useEffect(() => {
-    const update = () => setOnline(read());
-    globalThis.addEventListener?.('online', update);
-    globalThis.addEventListener?.('offline', update);
-    return () => {
-      globalThis.removeEventListener?.('online', update);
-      globalThis.removeEventListener?.('offline', update);
-    };
-  }, []);
-  return online;
-};
-
-/**
- * What the connection banner says, if anything: no network, the local
- * server's event stream gone for more than 3 s after it was open (a
- * restart, sleep), or Telegram reconnecting.
- */
-const useConnectionBanner = (live, telegram) => {
-  const online = useOnline();
-  const [down, setDown] = useState(false);
-  const opened = useRef(false);
-  useEffect(() => {
-    if (live) {
-      opened.current = true;
-      setDown(false);
-      return undefined;
-    }
-    if (!opened.current) {
-      return undefined;
-    }
-    const id = globalThis.setTimeout(() => setDown(true), DOWN_AFTER_MS);
-    return () => globalThis.clearTimeout(id);
-  }, [live]);
-  if (!online) {
-    return 'offline';
-  }
-  if (down) {
-    return 'server';
-  }
-  return telegram?.connected &&
-    telegram.connection &&
-    telegram.connection !== 'connected'
-    ? 'telegram'
-    : null;
-};
-
 export const runNotice = (result) => {
   if (result.code || result.status === 'failed') {
     return { kind: 'failed', error: result.error ?? result.code };
@@ -1096,7 +1045,6 @@ export const useChatState = (
     readMax,
     autoRead
   );
-  const banner = useConnectionBanner(live, telegram);
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
   // Voice transcriptions the server learned (R-Y175).
@@ -1109,7 +1057,6 @@ export const useChatState = (
     retryLoad: retry,
     addLinks: add,
     live,
-    banner,
     telegram,
     all,
     chats,

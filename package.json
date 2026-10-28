@@ -377,7 +377,9 @@
     "test:e2e:loading": "node js/tests/e2e-loading-browser.mjs",
     "test:e2e:loading:webkit": "E2E_BROWSER=webkit node js/tests/e2e-loading-browser.mjs",
     "test:e2e:media-loading": "node js/tests/e2e-media-loading-browser.mjs",
-    "test:e2e:media-loading:webkit": "E2E_BROWSER=webkit node js/tests/e2e-media-loading-browser.mjs"
+    "test:e2e:media-loading:webkit": "E2E_BROWSER=webkit node js/tests/e2e-media-loading-browser.mjs",
+    "test:e2e:operator-replies": "node js/tests/e2e-operator-replies-browser.mjs",
+    "test:e2e:operator-replies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-operator-replies-browser.mjs"
   },
   "keywords": [
     "personal-crm",

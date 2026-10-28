@@ -67,7 +67,7 @@ import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
 import { ConversationHeader } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
-import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
+import { Busy, ChatListSkeleton } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import {
   appTarget,
@@ -783,25 +783,6 @@ const ChatLoadingOrError = ({ t, state }) =>
       })
     : el(ChatLoading, { t });
 
-/** No network, the local server restarting, Telegram reconnecting. */
-const ConnectionBanner = ({ banner }) => {
-  const t = useT();
-  return banner
-    ? el(
-        'div',
-        {
-          className: 'chat-banner',
-          role: 'status',
-          'data-banner': banner,
-        },
-        [
-          el(Spinner, { key: 's' }),
-          el('span', { key: 't' }, t(`chat.banner.${banner}`)),
-        ]
-      )
-    : null;
-};
-
 // Reply bar shown above the input when user chose to reply.
 const ReplyBar = ({ replyTo, onClear }) => {
   const t = useT();
@@ -1339,7 +1320,6 @@ const Conversation = ({
           info: state.info,
           live: state.joinRequests,
         }),
-        el(ConnectionBanner, { key: 'b', banner: state.banner }),
         el(ChatAccountNotice, { key: 'account', state }),
         el(FailedBar, { key: 'failed', composer: state.composer }),
         el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),

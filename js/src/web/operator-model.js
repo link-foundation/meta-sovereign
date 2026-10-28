@@ -2,8 +2,13 @@ import { networkMessageId, sortChats } from './chat-model.js';
 import { DEFAULT_OPERATOR_SCOPE } from './operator-prefs.js';
 
 export const needsAttention = (chat) => Number(chat.unread) > 0;
-export const operatorEligible = (chat, scope = DEFAULT_OPERATOR_SCOPE) =>
-  needsAttention(chat) && Boolean(scope[chat.bot ? 'bot' : chat.kind]);
+export const operatorEligible = (
+  chat,
+  scope = DEFAULT_OPERATOR_SCOPE,
+  retained = false
+) =>
+  (needsAttention(chat) || retained) &&
+  Boolean(scope[chat.bot ? 'bot' : chat.kind]);
 export const operatorRevision = (chat) =>
   `${chat.last?.message?.id ?? ''}:${chat.unread}:${Boolean(chat.marked)}`;
 
@@ -12,13 +17,14 @@ export const operatorQueue = (
   chats = [],
   handled = new Map(),
   scope,
-  order = []
+  order = [],
+  work = {}
 ) => {
   const postponed = new Map(order.map((key, index) => [key, index]));
   return sortChats(
     chats.filter(
       (chat) =>
-        operatorEligible(chat, scope) &&
+        operatorEligible(chat, scope, Boolean(work[chat.key])) &&
         handled.get(chat.key) !== operatorRevision(chat)
     ),
     'oldest'

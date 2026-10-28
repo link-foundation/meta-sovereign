@@ -1,4 +1,5 @@
 import { readOperatorScope } from '../src/web/operator-prefs.js';
+import { readOperatorWork } from '../src/web/operator-work.js';
 import {
   postponeOperatorChat,
   readOperatorOrder,
@@ -27,6 +28,34 @@ const chat = (id, unread, extra = {}) => ({
     message: { id: `msg:telegram:${id}:20` },
   },
   ...extra,
+});
+
+test('opened Operator work survives zero unread updates until Done, with matching badges and postponed order', () => {
+  const items = [chat(1, 0), chat(2, 0), chat(3, 2), chat(4, 0)];
+  const work = { 'telegram:1': { unread: 1 }, 'telegram:2': { unread: 2 } };
+  const keys = operatorQueue(
+    items,
+    new Map(),
+    undefined,
+    ['telegram:1'],
+    work
+  ).map((c) => c.key);
+  assert.deepEqual(keys, ['telegram:2', 'telegram:3', 'telegram:1']);
+  assert.deepEqual(navigationCounts(items, 0, undefined, work), {
+    chat: 2,
+    operator: 3,
+    calls: 0,
+  });
+  assert.equal(
+    keys.includes('telegram:4'),
+    false,
+    'zero-unread work is never newly admitted'
+  );
+  assert.deepEqual(
+    readOperatorWork({ getItem: () => JSON.stringify(work) }, 1),
+    work
+  );
+  assert.deepEqual(readOperatorWork({ getItem: () => '{bad' }, 1), {});
 });
 
 test('Next postpones unread work behind every other card; Done never jumps back to skipped work early', () => {

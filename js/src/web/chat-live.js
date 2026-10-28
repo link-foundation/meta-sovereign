@@ -39,6 +39,7 @@ import {
 } from './chat-outbox.js';
 import { sendAsField } from './chat-send-as.js';
 import { useEditMode } from './chat-edit-mode.js';
+import { traceClient } from './client-log.js';
 
 /** Shared directory: reopening a view shows its last good snapshot immediately. */
 export const useLiveLinks = (api, tick) => {
@@ -75,7 +76,23 @@ const previewOf = (item) =>
   );
 
 // One send's answer; a thrown error is a failure like any other.
+const sendTrace = (item) => ({
+  source: item.source,
+  chat: item.chat,
+  clientId: item.clientId,
+  replyTo: item.replyTo ?? 0,
+  quoted: Boolean(item.replyQuote),
+  attempt: item.attempts ?? 0,
+});
+const recordSendResult = (api, trace, result) =>
+  traceClient(api, 'send_result', {
+    ...trace,
+    success: result?.status === 'sent' || result?.status === 'stored',
+    code: result?.code ?? result?.status ?? 'no-answer',
+  });
 const sendResult = async (api, item) => {
+  const trace = sendTrace(item);
+  traceClient(api, 'send_start', trace);
   try {
     const result = await api.sendMessage({
       source: item.source,
@@ -91,8 +108,14 @@ const sendResult = async (api, item) => {
       ...(item.effect ? { effect: item.effect } : {}),
       ...previewOf(item),
     });
+    recordSendResult(api, trace, result);
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
+    traceClient(api, 'send_result', {
+      ...trace,
+      success: false,
+      code: 'network',
+    });
     return { status: 'failed', error: error.message };
   }
 };
@@ -392,7 +415,17 @@ export const useComposer = ({
   const box = useDraftBox({ api, current, cloud, storage });
   const key = current?.key ?? null;
   // replyTo: { msgId, senderName, text } set by Reply action; cleared on send.
-  const [replyTo, setReplyTo] = useState(null);
+  const [replyTargets, setReplyTargets] = useState({});
+  const replyTo = replyTargets[key] ?? null;
+  const setReplyTo = (reply) => {
+    setReplyTargets((before) => ({ ...before, [key]: reply }));
+    traceClient(api, reply ? 'reply_selected' : 'reply_cleared', {
+      chat: current?.chat,
+      source: current?.source,
+      replyTo: reply?.msgId ?? 0,
+      quoted: Boolean(reply?.quoteText),
+    });
+  };
   // The link preview bar's choice for the next send (R-Y145).
   const previewChoice = useRef(null);
   // Editing a message in the box (R-Y146).

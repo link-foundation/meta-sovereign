@@ -35,6 +35,7 @@ export const ru = {
   'header.systemDefault': 'Системный',
   'header.online': 'Онлайн',
   'header.offline': 'Оффлайн',
+  'header.reconnecting': 'Переподключение',
   'header.telegramOffline':
     'Telegram какое-то время недоступен; попытки продолжаются. Открыть подключение Telegram',
   'header.telegramSignIn': 'Telegram завершил этот сеанс; войдите снова',
@@ -90,7 +91,7 @@ export const ru = {
   'common.queue': 'В очередь',
   'common.evaluate': 'Выполнить',
   'common.infer': 'Вывести',
-  'operator.remaining': 'Непрочитанных диалогов осталось: {count}',
+  'operator.remaining': 'Диалогов в очереди осталось: {count}',
   'operator.empty': 'Нет непрочитанных диалогов',
   'operator.emptyHint':
     'Новые непрочитанные диалоги появятся здесь автоматически.',
@@ -101,7 +102,7 @@ export const ru = {
     'Непрочитанных сообщений во всех папках, кроме чатов без уведомлений: {count}',
   'nav.unread.calls': 'Непросмотренных пропущенных вызовов: {count}',
   'nav.unread.operator':
-    'Бесед с непрочитанными сообщениями во всех папках: {count}',
+    'Незавершённых диалогов Оператора во всех папках: {count}',
   'nav.unreadCount': 'Непрочитанных: {count}',
   'marketplace.apiNote':
     'Дополнительный доступ к API и архивам. Вход через браузер и профили находятся выше, в разделе «Рабочие аккаунты».',

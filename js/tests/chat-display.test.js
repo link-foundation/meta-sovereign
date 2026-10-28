@@ -293,6 +293,9 @@ test('the page’s errors reach the log as their shape only', () => {
     error: 'x'.repeat(1000),
     stack: 'Error\n    at f (http://127.0.0.1:8787/app.min.js:1:2)',
     view: 'chat',
+    chat: '42',
+    clientId: 'draft-123',
+    replyTo: 7,
     text: 'what the user read',
     count: 3,
     nested: { a: 1 },
@@ -301,6 +304,9 @@ test('the page’s errors reach the log as their shape only', () => {
   assert.equal(entry.error.length, 300);
   assert.equal(entry.stack, 'Error\n    at f (/app.min.js:1:2)');
   assert.equal(entry.count, 3);
+  assert.equal(entry.chat, '42');
+  assert.equal(entry.clientId, 'draft-123');
+  assert.equal(entry.replyTo, 7);
   assert.equal('text' in entry, false);
   assert.equal('nested' in entry, false);
   assert.equal(clientEntry({ event: 'Bad Name' }), null);
