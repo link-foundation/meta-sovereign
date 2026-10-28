@@ -929,9 +929,14 @@ jobs:
           persist-credentials: false
       - name: Set up Swift
         if: runner.os == 'macOS'
-        uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a # v2.4.0
-        with:
-          swift-version: '6.4.1'
+        run: |
+          curl --fail --location --silent --show-error https://download.swift.org/swiftly/darwin/swiftly-1.2.0.pkg -o "$RUNNER_TEMP/swiftly.pkg"
+          echo "a1b48692b00ea6902957423473c87bee7c7f3e18c015a4a09317102f6820b987  $RUNNER_TEMP/swiftly.pkg" | shasum -a 256 --check
+          installer -pkg "$RUNNER_TEMP/swiftly.pkg" -target CurrentUserHomeDirectory
+          "$HOME/.swiftly/bin/swiftly" init --skip-install --assume-yes --no-modify-profile
+          . "$HOME/.swiftly/env.sh"
+          swiftly install 6.4.1 --use --assume-yes
+          echo "$HOME/.swiftly/bin" >> "$GITHUB_PATH"
       - name: Type-check Apple SDK helpers without accessing personal data
         if: runner.os == 'macOS'
         run: |
