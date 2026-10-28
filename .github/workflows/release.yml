@@ -387,6 +387,10 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Install reviewed native dependency scripts (Deno)
+        if: matrix.runtime == 'deno'
+        run: deno install
+
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'
         # Deno requires --allow-all for private Windows named pipes. Tests
@@ -509,9 +513,10 @@ jobs:
         run: npx playwright install --with-deps "$BROWSER"
       - run: npm run build:web
       - name: Run browser checks
+        id: browser-checks
         run: node js/scripts/run-browser-checks.mjs
       - name: Preserve browser diagnostics
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: browser-${{ matrix.browser }}

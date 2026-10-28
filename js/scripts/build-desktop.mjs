@@ -15,7 +15,7 @@
 //   npm run desktop:build -- --linux --x64
 //   npm run desktop:build -- --mac --x64 --arm64 -c.mac.notarize=false
 //
-// electron-builder must be installed (`npm i --no-save electron-builder@^26`).
+// electron-builder comes from the committed lockfile (`npm ci`).
 // The Electron version comes from META_SOVEREIGN_ELECTRON_VERSION, an
 // installed `electron` package, or the newest release matching the
 // `electron` peer range (resolved with `npm view`).

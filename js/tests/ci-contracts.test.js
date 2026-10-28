@@ -106,3 +106,13 @@ test('workflow policy detects mutable matrix runners and unbounded auxiliary job
     []
   );
 });
+
+test('committed dependency tree contains no deprecated registry packages', () => {
+  const lock = JSON.parse(
+    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
+  );
+  const deprecated = Object.entries(lock.packages)
+    .filter(([, info]) => info.deprecated)
+    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
+  assert.deepEqual(deprecated, []);
+});
