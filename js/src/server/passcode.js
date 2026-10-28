@@ -201,6 +201,10 @@ export const createPasscodeLock = ({
       unlocked = unlocked || result.ok;
       return result;
     },
+    // Private worker handoff: the host already verified the previous lock state.
+    inheritUnlock: () => {
+      unlocked = true;
+    },
     // Turn on (nothing set yet) or change (`current` asked for first).
     set: async ({ passcode, current }) => {
       if (!file) {

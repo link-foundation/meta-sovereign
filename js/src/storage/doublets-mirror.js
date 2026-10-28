@@ -31,14 +31,25 @@ const heapLimitMb = () =>
   Math.round(getHeapStatistics().heap_size_limit / 2 ** 20);
 
 /** Write the snapshot of `from` (a `.lino` log) to `to` in a worker. */
-export const snapshotInWorker = (from, to) =>
+export const snapshotInWorker = (from, to, { signal } = {}) =>
   new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(signal.reason);
+      return;
+    }
     const worker = new Worker(WORKER_URL, {
       workerData: { from, to },
       // A worker's own default heap is smaller than the server's; a large
       // store's snapshot needs as much as the server may use.
       resourceLimits: { maxOldGenerationSizeMb: heapLimitMb() },
     });
+    const abort = () => {
+      Promise.resolve(worker.terminate()).then(
+        () => reject(signal.reason),
+        reject
+      );
+    };
+    signal?.addEventListener('abort', abort, { once: true });
     let result = null;
     worker.once('message', (message) => {
       result = message;
@@ -49,7 +60,10 @@ export const snapshotInWorker = (from, to) =>
     });
     worker.once('error', reject);
     worker.once('exit', (code) => {
-      if (result) {
+      signal?.removeEventListener('abort', abort);
+      if (signal?.aborted) {
+        reject(signal.reason);
+      } else if (result) {
         resolve(result);
       } else {
         reject(new Error(`doublets snapshot worker exited with ${code}`));
@@ -194,6 +208,7 @@ export const createDoubletsMirror = async (
     spaceCheck,
   }
 ) => {
+  const lifetime = new AbortController();
   // The new file is as large as the old one (or, the first time, about as
   // large as the log): without that much free plus a margin, skip it
   // rather than fill the disk the log needs (R-Z14).
@@ -212,10 +227,14 @@ export const createDoubletsMirror = async (
         onEvent(skippedEvent('snapshot_skipped', space));
         return { links: 0, bytes: 0, skipped: true };
       }
-      return snapshot(text.filePath, filePath);
+      return snapshot(text.filePath, filePath, { signal: lifetime.signal });
     },
     minIntervalMs,
-    onError,
+    onError: (error) => {
+      if (!lifetime.signal.aborted) {
+        onError(error);
+      }
+    },
     clock,
   });
   const stale = async () => {
@@ -246,6 +265,15 @@ export const createDoubletsMirror = async (
     /** Write the snapshot now (after the log) and wait for it. */
     flush: () => snapshots.now(),
     close: () => snapshots.close(),
+    /** Handoff keeps the durable text log; abandon only its rebuildable mirror. */
+    async cancelSnapshot() {
+      lifetime.abort();
+      await snapshots.close().catch((error) => {
+        if (error !== lifetime.signal.reason) {
+          throw error;
+        }
+      });
+    },
     /** A snapshot older than the log is written again, in the background. */
     async refresh() {
       const behind = await stale();

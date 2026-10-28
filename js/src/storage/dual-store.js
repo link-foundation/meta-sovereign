@@ -22,6 +22,9 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createLinoTextStore } from './lino-store.js';
 import { createDoubletsMirror } from './doublets-mirror.js';
+import { managedDualStore } from './dual-handoff.js';
+import { verifyCheckpoint } from './lino-handoff.js';
+import { CURRENT_SCHEMA } from './migrations/index.js';
 import { acquireStoreLock } from './store-lock.js';
 import { DIR_MODE, ensurePrivateDir, sweepTemp, tighten } from './durable.js';
 import {
@@ -237,28 +240,53 @@ export const openDualStore = async (
       onError,
       onEvent,
     });
-    return {
-      ...createDualStore({ binary, text }),
+    return managedDualStore({
+      dir,
+      text,
+      binary,
+      lock,
       schema,
-      migration: schema.migrated,
-      corruptLines: text.corruptLines,
-      // What a backup streams, and the flush of just the log (R-Z16).
-      logFile: text.filePath,
-      flushLog: () => text.flush(),
-      async close() {
-        try {
-          await binary.close();
-        } finally {
-          try {
-            await text.flush();
-          } finally {
-            lock.release();
-          }
-        }
-      },
-    };
+      access: (binary, text) => createDualStore({ binary, text }),
+      onError,
+      onEvent,
+    });
   } catch (error) {
     lock.release();
     throw error;
   }
+};
+
+/** Warm a replacement without a writer lock or any changes to the live log. */
+export const openWarmDualStore = async (
+  dir,
+  checkpoint,
+  { onError, onEvent } = {}
+) => {
+  const file = path.join(dir, 'data.lino');
+  verifyCheckpoint(await fs.stat(file), checkpoint);
+  const text = await createLinoTextStore(file, {
+    readOnly: true,
+    readLimit: checkpoint.bytes,
+  });
+  verifyCheckpoint(await fs.stat(file), checkpoint);
+  const schema = await checkReadOnly({ text });
+  if (
+    checkpoint.schema !== CURRENT_SCHEMA ||
+    (schema.version !== 0 && schema.version !== CURRENT_SCHEMA) ||
+    text.needsRewrite()
+  ) {
+    throw Object.assign(
+      new Error('a live upgrade needs the same storage schema'),
+      { code: 'STORE_MIGRATION_REQUIRED' }
+    );
+  }
+  schema.version = CURRENT_SCHEMA;
+  return managedDualStore({
+    dir,
+    text,
+    schema,
+    access: (binary, text) => createDualStore({ binary, text }),
+    onError,
+    onEvent,
+  });
 };

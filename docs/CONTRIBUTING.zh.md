@@ -1,5 +1,7 @@
 # 参与贡献 meta-sovereign (languages: [en](CONTRIBUTING.md) • zh • [hi](CONTRIBUTING.hi.md) • [ru](CONTRIBUTING.ru.md))
 
+本地只运行与修改相关的指定测试。完整测试、压力测试和运行时/浏览器矩阵由推送后的 GitHub CI/CD 执行。不要在正在使用的电脑上运行完整的 `npm test` 或未筛选的 `bun test`。
+
 ## 开发流程
 
 1. Fork 仓库并 clone 到本地。
@@ -43,9 +45,9 @@ bun run lint:fix
 运行时兼容。
 
 ```bash
-bun test
-npm test
-deno test --allow-read
+# Local: specific test files only
+node --test --test-concurrency=1 js/tests/rolling-host.test.js
+# Full suite: GitHub CI/CD after push
 ```
 
 ## Changesets 版本管理
@@ -107,7 +109,7 @@ git push
 6. **通过计数而非内容查看运行中的应用。** 通过状态（`/api/telegram/status`）和日志行数检查运行中的服务器；调试时绝不打印用户的消息、联系人或凭据。
 7. **每个网络只问一次。** 先读存储，只向网络请求缺少的内容，并通过账户的优先级队列（R-Y24、R-Y25）；保留网络提供的全部信息（R-Y28）。
 8. **第三方代码是参考，而非依赖。** 我们借鉴的开源客户端列在 [CHAT-REFERENCES.zh.md](CHAT-REFERENCES.zh.md) 中；下载的副本只读——绝不构建、安装或运行。
-9. **质量关卡保持开启。** 提交前 `npm run check`（无警告的 ESLint、Prettier、重复检测）和 `npm test` 必须通过；超出复杂度或长度限制的函数要拆分，而不是豁免。修改 Web 应用后重新构建 `js/src/web/app.min.js`（`npm run build:web`）。
+9. **质量关卡保持开启。** 本地检查修改的文件并运行指定测试。推送后在 GitHub CI/CD 查看完整检查和测试；不要在用户电脑上运行完整测试。拆分超过复杂度或长度限制的函数。修改 Web 应用后重新构建 `js/src/web/app.min.js`（`npm run build:web`）。
 10. **为其用户服务的本地应用。** meta-sovereign 是开源的，运行在用户自己的机器上、使用用户自己的账户、为用户的便利：它只在用户要求时、按用户要求的方式行动，并遵守每个网络允许的节奏。
 11. **浏览器通过 browser-commander 启动，不显示自动化提示条。** 应用打开的浏览器，以及检查改动时用来查看网页应用的浏览器，都由 [browser-commander](https://github.com/link-foundation/browser-commander) 以默认方式启动（像人一样启动已安装的 Chrome）：绝不使用会让 Chrome 显示"受自动测试软件控制"或"不受支持的命令行标记"提示条的开关（`--enable-automation`、`--disable-blink-features=AutomationControlled`）。browser-commander 本身出现这种提示条时，向其仓库报告。
 12. **数据形状的变化必须附带迁移。** 若某项改动改变了任何数据的存储方式（字段、id、日期格式），请在 `js/src/storage/migrations/` 中添加带编号的迁移模块并提高 `CURRENT_SCHEMA`（R-Z17）：幂等、不联网，并附带旧形状存储的夹具测试、幂等测试、dry-run 计数以及 [DATA-MIGRATIONS.zh.md](DATA-MIGRATIONS.zh.md) 中的一行。缺少时注册表守卫测试会失败。

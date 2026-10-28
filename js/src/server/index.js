@@ -58,6 +58,8 @@ import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
+import { createRequestGate } from './request-gate.js';
+import { createRuntimeLifecycle } from './runtime-lifecycle.js';
 import {
   getSource as getSourceDefault,
   liveOptionsFrom,
@@ -125,7 +127,6 @@ import { listenLocal } from './local-tls.js';
 import { handlePullRoutes, pullContext } from './routes-pull.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
-import { registerDefaultHandlers } from './handlers-bootstrap.js';
 import {
   classifyOrigin,
   corsContext,
@@ -355,13 +356,15 @@ const automationContext = (
   const autopilot = createAutopilot({ store, runner, log: say });
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
-  const recovered = recoverOutbox(store).catch((error) =>
-    say({
-      level: 'warn',
-      event: 'outbox_recover_failed',
-      error: error.message,
-    })
-  );
+  const recover = () =>
+    recoverOutbox(store).catch((error) =>
+      say({
+        level: 'warn',
+        event: 'outbox_recover_failed',
+        error: error.message,
+      })
+    );
+  const recovered = automations.deferRecovery ? null : recover();
   if (automations.scheduler !== false) {
     // Started once the port is really ours (R-Z1): a second `serve` on a
     // busy port must not run automation on the same store.
@@ -369,7 +372,7 @@ const automationContext = (
       scheduler.start();
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
-      recovered
+      (recovered ?? recover())
         .then(() => autopilot.resume())
         .catch((error) =>
           say({
@@ -476,10 +479,6 @@ const telegramContext = (store, log, account, extra = {}, later = []) => {
     telegramExtras: runtime,
   };
 };
-
-// Stop the services that were started (errors are not the caller's).
-const stopAll = (...services) =>
-  services.forEach((service) => service?.stop().catch(() => {}));
 
 // `telegram` sends and types through the connected account; every other
 // network keeps its adapter.
@@ -703,10 +702,10 @@ const initStore = async ({
 
 // The HTTP server: each request is logged, and routed (./account-scope.js
 // picks the Telegram account it is for).
-const createHttpServer = (store, ctx, log) =>
+const createHttpServer = (store, ctx, log) => {
   // A big export uploaded over Wi-Fi takes longer than Node's default 5
   // minutes to arrive (R-Z23); headers still time out at Node's 60 s.
-  http.createServer({ requestTimeout: UPLOAD_TIMEOUT_MS }, (req, res) => {
+  const dispatch = (req, res) => {
     const start = Date.now();
     res.on('finish', () => {
       log?.({
@@ -718,7 +717,7 @@ const createHttpServer = (store, ctx, log) =>
         duration_ms: Date.now() - start,
       });
     });
-    route(store, req, res, ctx).catch((err) => {
+    return route(store, req, res, ctx).catch((err) => {
       log?.({
         level: 'error',
         event: 'http_error',
@@ -735,7 +734,20 @@ const createHttpServer = (store, ctx, log) =>
       ];
       json(res, status, body);
     });
+  };
+  const gate = createRequestGate(dispatch, ctx.front);
+  const server = http.createServer(
+    { requestTimeout: UPLOAD_TIMEOUT_MS },
+    gate.handle
+  );
+  server.requestGate = gate;
+  server.prependListener('upgrade', (req, socket) => {
+    if (!gate.authorize(req)) {
+      socket.destroy();
+    }
   });
+  return server;
+};
 
 // A port that cannot be listened on, told so that a person can act on it.
 const listenFailure = (error, port) =>
@@ -788,8 +800,9 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
 
 // The browser sender signs in to the web apps in profiles inside the store
 // (owner only), the same ones "Sign in to WhatsApp Web" opens (R-Z9).
-const withStoreProfiles = (automations = {}, storeDir) => ({
+const withStoreProfiles = (automations = {}, storeDir, front) => ({
   ...automations,
+  ...(front?.warming ? { deferRecovery: true } : {}),
   browser: {
     profileDirFor: (source) => profileDirIn(storeDir, source),
     ...automations.browser,
@@ -815,6 +828,15 @@ const automationFor = (store, automations, log, telegramAccount, later) =>
     accountSources(telegramAccount),
     later
   );
+
+const logFlusher = (store) => store?.flushLog;
+const applyServerAddress = (ctx, listening, front, activate) => {
+  ctx.tls = front?.tls ?? listening.tls;
+  ctx.port = front?.port ?? listening.listener.address().port;
+  if (!front?.warming) {
+    activate();
+  }
+};
 
 export const startServer = async ({
   port = 0,
@@ -860,6 +882,8 @@ export const startServer = async ({
   diskFree,
   pulls,
   backups,
+  // Private rolling-worker options; the public listener remains in its host.
+  front,
 } = {}) => {
   const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
     providedStore,
@@ -870,7 +894,7 @@ export const startServer = async ({
   });
   // Services that run in the background start only after the port is ours.
   const later = [];
-  automations = withStoreProfiles(automations, storeDir);
+  automations = withStoreProfiles(automations, storeDir, front);
   const chatIndex = createChatIndex(store);
   const telegramAccount = telegramAccountFor(
     store,
@@ -885,6 +909,7 @@ export const startServer = async ({
     later
   );
   const ctx = {
+    front,
     archiveDir: resolvedArchiveDir,
     sync: null,
     signaling: null,
@@ -923,9 +948,16 @@ export const startServer = async ({
   Object.assign(ctx, backgroundJobs({ ctx, store, log, later, backups }));
   const server = createHttpServer(store, ctx, log);
   const sockets = trackSockets(server);
-  const bus = enableHandlers
-    ? registerDefaultHandlers(store, { browser: () => ctx.send })
-    : null;
+  const lifecycle = createRuntimeLifecycle({
+    server,
+    ctx,
+    store,
+    later,
+    enableHandlers,
+    sockets,
+    flush,
+    flushLog: logFlusher(providedStore),
+  });
   const { wsHandle, signaling } = attachSockets(server, ctx, store, {
     enableSync,
     node,
@@ -935,7 +967,7 @@ export const startServer = async ({
     sockets,
     { port, storeDir, tls, log },
     async () => {
-      bus?.close();
+      lifecycle.bus?.close();
       wsHandle?.close();
       signaling?.close();
       ctx.replies.close().catch(() => {});
@@ -943,40 +975,23 @@ export const startServer = async ({
       await flush().catch(() => {});
     }
   );
-  ctx.tls = listening.tls;
-  ctx.port = listening.listener.address().port;
-  later.forEach((start) => start());
+  applyServerAddress(ctx, listening, front, lifecycle.activate);
   return {
-    port: ctx.port,
+    port: listening.listener.address().port,
     tls: ctx.tls,
     store,
-    bus,
+    bus: lifecycle.bus,
     sync: wsHandle,
     signaling,
     archiveDir: resolvedArchiveDir,
     allowOrigins: ctx.allowOrigins,
     uiUrl: ctx.uiUrl,
     localUi: ctx.localUi,
-    close: () =>
-      new Promise((resolve) => {
-        bus?.close();
-        ctx.replies.close().catch(() => {});
-        ctx.closeAutomations().catch(() => {});
-        const jobsDone = Promise.allSettled([
-          ctx.stopJobs(),
-          ctx.marketplaceSessions?.stop(),
-        ]);
-        ctx.chatIndex.close();
-        stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
-        wsHandle?.close();
-        signaling?.close();
-        listening.closeFront();
-        server.close(() => Promise.resolve(jobsDone).then(resolve, resolve));
-        for (const socket of sockets) {
-          socket.destroy();
-        }
-      })
-        // The binary snapshot is written on an interval: write it now.
-        .then(() => flush().catch(() => {})),
+    activate: lifecycle.activate,
+    drain: server.requestGate.drain,
+    passcodeState: () => ctx.passcode.status(),
+    inheritUnlock: () => ctx.passcode.inheritUnlock(),
+    close: (options) =>
+      lifecycle.close(listening, { wsHandle, signaling }, options),
   };
 };

@@ -37,6 +37,7 @@ import {
 } from './durable.js';
 import { enoughSpace, skippedEvent } from './disk-space.js';
 import { createWriteQueue, storeError, writeFailed } from './write-queue.js';
+import { replayLogTail } from './lino-handoff.js';
 
 const legacyNodeToLink = (node) => {
   const [id, ...tokens] = node.tokens;
@@ -182,7 +183,7 @@ const createInterner = () => {
 // The live links of a record log, read a line at a time: a large store
 // is never held as one string, and a superseded record is dropped as
 // soon as a later one replaces it.
-const streamRecords = async (filePath) => {
+const streamRecords = async (filePath, readLimit) => {
   const byId = new Map();
   const sizes = new Map(); // id -> its live line's length
   const intern = createInterner();
@@ -190,7 +191,10 @@ const streamRecords = async (filePath) => {
   let chars = 0; // of the whole file, superseded lines too
   let open = false;
   const bad = createBadLines();
-  const input = createReadStream(filePath, { encoding: 'utf8' });
+  const input = createReadStream(filePath, {
+    encoding: 'utf8',
+    ...(readLimit > 0 ? { end: readLimit - 1 } : {}),
+  });
   const reader = createInterface({ input, crlfDelay: Infinity });
   for await (const line of reader) {
     chars += line.length + 1;
@@ -235,7 +239,7 @@ const streamRecords = async (filePath) => {
     const handle = await fs.open(filePath, 'r');
     try {
       const last = Buffer.alloc(1);
-      await handle.read(last, 0, 1, statResult.size - 1);
+      await handle.read(last, 0, 1, (readLimit ?? statResult.size) - 1);
       open = last[0] !== 0x0a;
     } finally {
       await handle.close();
@@ -347,7 +351,7 @@ export const forEachLiveRecord = async (filePath, onRecord) => {
 };
 
 /** The live links of a `.lino` file, and how its lines stand. */
-export const readLinoFile = async (filePath) => {
+export const readLinoFile = async (filePath, { readLimit } = {}) => {
   let first;
   try {
     first = await firstLine(filePath);
@@ -380,7 +384,16 @@ export const readLinoFile = async (filePath) => {
     const chars = text.length;
     return { live, lines: records.length, legacy: false, open, chars, bad };
   }
-  return streamRecords(filePath);
+  if (readLimit === 0) {
+    return {
+      live: [],
+      lines: 0,
+      legacy: false,
+      open: false,
+      bad: createBadLines(),
+    };
+  }
+  return streamRecords(filePath, readLimit);
 };
 
 // Write every link to a temp file in chunks, flush it to disk, swap it
@@ -618,6 +631,38 @@ const readOnlyError = () =>
     code: 'STORE_READ_ONLY',
   });
 
+const textHandoff = ({ filePath, mem, tally, mode }) => ({
+  freeze: () => {
+    mode.readOnly = true;
+  },
+  resumeWrites: () => {
+    mode.readOnly = false;
+  },
+  async promote(checkpoint) {
+    if (!mode.readOnly) {
+      throw Object.assign(new Error('the store already admits writes'), {
+        code: 'STORE_HANDOFF_INVALID',
+      });
+    }
+    const next = await replayLogTail(
+      filePath,
+      checkpoint,
+      async (record, size) => {
+        if (isTombstoneRecord(record)) {
+          await mem.delete(record.id);
+          tally.removed(record.id, size);
+        } else {
+          await mem.put(record);
+          tally.wrote(record.id, size);
+        }
+      }
+    );
+    await tighten(filePath);
+    mode.readOnly = false;
+    return next;
+  },
+});
+
 export const createLinoTextStore = async (
   filePath,
   {
@@ -625,6 +670,7 @@ export const createLinoTextStore = async (
     compactBytes = COMPACT_BYTES,
     syncMs = SYNC_MS,
     readOnly = false,
+    readLimit,
     onCorrupt = () => {},
     // `{ level, event, ... }`: degraded, recovered, compaction_skipped (R-Z14).
     onEvent = () => {},
@@ -635,8 +681,9 @@ export const createLinoTextStore = async (
     rename, // injectable fs.rename (R-Z19)
   } = {}
 ) => {
+  const mode = { readOnly };
   const mem = createMemoryStore();
-  const loaded = await readLinoFile(filePath);
+  const loaded = await readLinoFile(filePath, { readLimit });
   await mem.putMany(loaded.live);
   const tally = createTally(loaded, { compactAfter, compactBytes });
   const bad = loaded.bad;
@@ -738,7 +785,7 @@ export const createLinoTextStore = async (
     await enqueue(compact).catch(compactionFailed(onEvent));
   }
   const guard = () => {
-    if (readOnly) {
+    if (mode.readOnly) {
       throw readOnlyError();
     }
     wq.guard();
@@ -746,6 +793,7 @@ export const createLinoTextStore = async (
 
   return {
     ...mem,
+    ...textHandoff({ filePath, mem, tally, mode }),
     async put(link) {
       guard();
       const out = await mem.put(link);

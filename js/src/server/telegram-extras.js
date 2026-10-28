@@ -305,14 +305,16 @@ export const createExtraRuntime = ({
     return starting.get(slot);
   };
 
-  const stopSlot = async (slot) => {
+  const stopSlot = async (slot, { handoff = false } = {}) => {
     const entry = entries.get(slot);
     entries.delete(slot);
     messages.detach(slot);
     if (entry) {
       await entry.account?.stop?.().catch(() => {});
       entry.chatIndex.close();
-      await entry.own.flush?.().catch(() => {});
+      await (handoff ? entry.own.flushLog?.() : entry.own.flush?.())?.catch(
+        () => {}
+      );
     }
   };
 
@@ -360,8 +362,10 @@ export const createExtraRuntime = ({
     /** `listener(event)` for each new incoming message of any account. */
     watch: messages.watch,
     /** Stop every running extra account (the server is closing). */
-    stop: async () => {
-      await Promise.all([...entries.keys()].map(stopSlot));
+    stop: async (options) => {
+      await Promise.all(
+        [...entries.keys()].map((slot) => stopSlot(slot, options))
+      );
     },
   };
 };

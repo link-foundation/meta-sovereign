@@ -16,6 +16,10 @@
 import { defaultStoreDir, resolveUserStore } from '../storage/app-directory.js';
 import path from 'node:path';
 import { maybeOpenHostedApp } from './browser-open.js';
+import {
+  upgradeRunningServer,
+  startRollingCliServer,
+} from './rolling-serve.js';
 import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
@@ -94,6 +98,7 @@ Commands:
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
                 on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
+                repeat serve after updating: the current worker serves while its replacement prepares
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
 ${TRUST_HELP}
 ${CONTACTS_HELP}
@@ -237,6 +242,10 @@ const logAddresses = (handle, log) => {
 
 const serveCmd = async (args, log) => {
   const storeDir = args.store ?? defaultStoreDir();
+  const repeated = await repeatServe(args, storeDir, log);
+  if (repeated !== null) {
+    return repeated;
+  }
   // Verbose logging is on by default: every request, event and error is
   // written to a file in the app folder (and echoed here), so the root
   // cause of any issue is always on disk. `--quiet-logs` opts out.
@@ -255,12 +264,13 @@ const serveCmd = async (args, log) => {
     if (args.foreground !== false) {
       await setupLocalCertificate(args, log);
     }
-    handle = await startServer({
+    const options = {
       port: Number(args.port ?? 8787),
       storeDir,
       ...(serverLog ? { log: serverLog.log } : {}),
       ...serveOptions(args),
-    });
+    };
+    handle = await createServeHandle(args, options);
   } catch (error) {
     // A busy port (or any start failure) ends here with a message, a
     // non-zero exit and nothing left running (R-Z1).
@@ -290,6 +300,34 @@ const serveCmd = async (args, log) => {
     process.once('SIGTERM', stop);
   });
   return 0;
+};
+
+const createServeHandle = (args, options) =>
+  args.foreground === false
+    ? startServer(options)
+    : startRollingCliServer({
+        storeDir: options.storeDir,
+        port: options.port,
+        options: serveOptions(args),
+        log: options.log ?? (() => {}),
+      });
+
+const repeatServe = async (args, storeDir, log) => {
+  if (args.foreground === false) {
+    return null;
+  }
+  try {
+    const running = await upgradeRunningServer({ args, storeDir, log });
+    if (!running) {
+      return null;
+    }
+    logAddresses(running, log);
+    maybeOpenHostedApp(args, running, log);
+    return 0;
+  } catch (error) {
+    log(`cannot upgrade the server: ${error.message}`);
+    return 1;
+  }
 };
 
 const sourcesCmd = async (_args, log) => {

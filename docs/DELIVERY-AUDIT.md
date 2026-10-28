@@ -45,3 +45,5 @@ The [Operator reply incident](OPERATOR-REPLIES.md) fixes dropped reply/send opti
 # Continuous recovery follow-up
 
 The live-store profile, metadata-query fixes, automatic read retries, persistent app-wide outbox, browser-only preference and toolbar alignment are documented with browser evidence in [Connection recovery](CONNECTION-RECOVERY.md).
+
+The default CLI now uses a stable listener with prepared application workers, exclusive writer handoff, rollback and crash recovery. See [rolling upgrade behavior and initial adoption](ROLLING-SERVER.md). Full suites run in GitHub CI/CD; local validation targets the changed components only.

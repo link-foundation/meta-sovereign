@@ -53,6 +53,8 @@ npm install
 node js/bin/meta-sovereign.js serve
 ```
 
+更新后，在原主进程保持运行时再次执行 `serve`：旧版本在新版本预热时继续服务，随后移交唯一写入权限，保留公共端口和证书。失败时自动回退。旧的单进程安装需要首次重启才能启用此架构。[滚动升级说明](docs/ROLLING-SERVER.md)。
+
 包发布到 npm 之后，`npx -y meta-sovereign serve`（或 `npm install -g meta-sovereign && meta-sovereign serve`）才会可用。在此之前，不想装工具链的话可以使用桌面 app（见上文）。
 
 两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；服务器现在也在同一端口上提供 HTTPS 服务，并使用专为 localhost 颁发的自签名证书。运行一次 `node js/bin/meta-sovereign.js trust`（macOS：将证书添加到 login keychain；其他系统：打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust` 并按提示操作，之后托管 app 在 Safari 中即可直接连接服务器。信任之前，提示会显示服务器地址及 **信任服务器**（<https://127.0.0.1:8787/trust>）链接；仅当显式启用 localhost 界面时才显示其链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS。Safari 通过受信任的本地 HTTPS API 使用托管应用；localhost 界面是可选的。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。

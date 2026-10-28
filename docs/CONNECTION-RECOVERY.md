@@ -9,3 +9,5 @@ The unlocked app owns one durable outbox across all sections. Moving from Chat o
 Connection history survives reloads. After a server or Telegram has connected, a temporary outage shows the global yellow Reconnecting badge and keeps the existing screen; it does not recommend first-time browser-only setup. **Settings → Connection recovery → Offer browser-only mode after connecting a server or Telegram** explicitly enables that offer. It defaults off. A new browser with no previous connection still receives setup guidance.
 
 `e2e-recovery-browser.mjs` blocks the fixture server, queues a message, changes sections, restores the server and verifies exactly one send with the same client ID. It tests the browser-only setting, repeated read failures that recover without a button, and the chat toolbar's common center and control height. The tests use a temporary store and fake sender, never personal conversations.
+
+[Rolling server upgrades](ROLLING-SERVER.md) keep the public listener active while the installed replacement warms up. Repeated `serve` commands use the private host control socket; failed replacements leave the working version available.

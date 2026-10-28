@@ -1,5 +1,7 @@
 # meta-sovereign में योगदान (languages: [en](CONTRIBUTING.md) • [zh](CONTRIBUTING.zh.md) • hi • [ru](CONTRIBUTING.ru.md))
 
+स्थानीय मशीन पर केवल बदलाव से जुड़े विशिष्ट टेस्ट चलाएँ। पूरा टेस्ट सूट, stress tests और runtime/browser matrices push के बाद GitHub CI/CD में चलाएँ। उपयोग में चल रही मशीन पर पूरा `npm test` या बिना फ़िल्टर वाला `bun test` न चलाएँ।
+
 ## Development Workflow
 
 1. Repository fork करें और अपना fork clone करें।
@@ -44,9 +46,9 @@ Tests critical paths cover करें, Node.js/Bun/Deno पर चलें, �
 style से cross-runtime compatible रहें।
 
 ```bash
-bun test
-npm test
-deno test --allow-read
+# Local: specific test files only
+node --test --test-concurrency=1 js/tests/rolling-host.test.js
+# Full suite: GitHub CI/CD after push
 ```
 
 ## Changesets से Version Management
@@ -110,7 +112,7 @@ git push
 6. **चलते app को गिनती से देखें, सामग्री से नहीं।** चलते server को उसके status (`/api/telegram/status`) और log lines की गिनती से जाँचें; debugging में user के संदेश, contacts या credentials print न करें।
 7. **हर network से एक बार पूछें।** पहले store, network से केवल जो नहीं है, account की priority queue से (R-Y24, R-Y25); network ने जो बताया सब रखें (R-Y28)।
 8. **दूसरों का code reference है, dependency नहीं।** जिन open-source clients से हम सीखते हैं वे [CHAT-REFERENCES.hi.md](CHAT-REFERENCES.hi.md) में हैं; download की गई copies केवल पढ़ी जाती हैं — कभी build, install या run नहीं।
-9. **Quality gates चालू रहते हैं।** Commit से पहले `npm run check` (बिना warnings के ESLint, Prettier, duplication) और `npm test` पास हों; complexity या length limit से बड़ा function छूट नहीं पाता, बँटता है। Web app बदलने के बाद `js/src/web/app.min.js` फिर build करें (`npm run build:web`)।
+9. **Quality gates चालू रहें।** स्थानीय रूप से बदली हुई फ़ाइलें और विशिष्ट टेस्ट जाँचें। पूरे checks और tests push के बाद GitHub CI/CD में चलाएँ; उपयोगकर्ता की मशीन पर पूरा सूट न चलाएँ। सीमा से बड़ी functions बाँटें; web बदलाव पर `js/src/web/app.min.js` फिर build करें (`npm run build:web`)।
 10. **अपने user के लिए local app।** meta-sovereign open source है और user की अपनी machine पर, उसके अपने accounts के साथ, उसकी सुविधा के लिए चलता है: यह तभी और वैसे ही काम करता है जैसे user कहे, हर network की अनुमति वाली गति से।
 11. **Browsers browser-commander से, automation bars के बिना।** App जो browser खोलता है, और बदलाव जाँचते समय web app देखने वाला browser, [browser-commander](https://github.com/link-foundation/browser-commander) के default launch से शुरू होता है (installed Chrome वैसे जैसे कोई व्यक्ति उसे खोलता है): कभी ऐसे switch के साथ नहीं जिससे Chrome "controlled by automated test software" या "unsupported command-line flag" bar दिखाए (`--enable-automation`, `--disable-blink-features=AutomationControlled`)। browser-commander में ही ऐसा bar दिखे तो उसके repository में report किया जाता है।
 12. **डेटा के आकार में बदलाव के साथ माइग्रेशन आता है।** अगर कोई बदलाव किसी चीज़ के संग्रहण का तरीक़ा बदलता है (फ़ील्ड, id, तारीख़ का प्रारूप), तो `js/src/storage/migrations/` में क्रमांकित माइग्रेशन मॉड्यूल जोड़ें और `CURRENT_SCHEMA` बढ़ाएँ (R-Z17): idempotent, नेटवर्क के बिना, पुराने आकार के स्टोर पर फ़िक्स्चर टेस्ट, idempotency टेस्ट, dry-run गिनती और [DATA-MIGRATIONS.hi.md](DATA-MIGRATIONS.hi.md) में एक पंक्ति के साथ। कुछ छूटे तो रजिस्ट्री का गार्ड टेस्ट विफल होता है।

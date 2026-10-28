@@ -56,10 +56,13 @@ const lockedError = (dir, pid) =>
 const held = new Map(); // lock file -> { count, release }
 
 /** Take the lock of the store in `dir`; resolves to `{ release }`. */
-export const acquireStoreLock = async (dir) => {
+export const acquireStoreLock = async (dir, { exclusive = false } = {}) => {
   const file = path.join(dir, LOCK_FILE);
   const mine = held.get(file);
   if (mine) {
+    if (exclusive) {
+      throw lockedError(dir, process.pid);
+    }
     mine.count += 1;
     return { release: mine.release };
   }
