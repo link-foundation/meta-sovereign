@@ -57,5 +57,5 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 
 - [x] F26: reproduce fake dependency-graph fixture notices becoming real Actions annotations; inject a captured/asserted reporter in the existing test while retaining real production notices; ten helper cases and lint pass.
 
-- [x] F27: collect current failed-head logs/artifacts/feedback; reproduce reopened-page policy drift and actual WebKit navigation diagnostic; centralize context observation, preserve genuine errors and capture surviving pages. Seven regressions, 14 contracts, real WebKit contrast and focused Chromium history scenario pass.
+- [x] F27: collect current failed-head logs/artifacts/feedback; reproduce reopened-page policy drift and actual WebKit navigation diagnostic; centralize context observation, preserve genuine errors and capture surviving pages. Eight regressions, 14 contracts, real WebKit contrast and focused Chromium history scenario pass.
 - [ ] Verify all current-head contexts after F27, preserve diagnostics, refresh main/feedback, update PR and mark ready.

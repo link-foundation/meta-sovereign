@@ -4,13 +4,19 @@
 // unhandled rejection (e.g. TypeError: Load failed) still fails the test.
 import path from 'node:path';
 
-const handledWebKitFetch = (message, engine, base) => {
-  if (engine !== 'webkit') {
+const handledWebKitFetch = (error, engine, base) => {
+  // Playwright parses this native console diagnostic at the first colon,
+  // putting its prefix and scheme in Error.name. Ordinary application
+  // exceptions with identical message text must still fail.
+  if (
+    engine !== 'webkit' ||
+    !/^Fetch API cannot load https?$/.test(error.name)
+  ) {
     return false;
   }
   const match =
-    /^(?:Error: )?Fetch API cannot load (.+) due to access control checks\.?$/.exec(
-      message
+    /^Fetch API cannot load (.+) due to access control checks\.?$/.exec(
+      String(error)
     );
   if (!match) {
     return false;
@@ -30,7 +36,7 @@ export const watchChatPages = (context, { errors, engine, base, trace }) => {
   const watch = (page) => {
     page.on('pageerror', (error) => {
       const message = String(error);
-      if (handledWebKitFetch(message, engine, base)) {
+      if (handledWebKitFetch(error, engine, base)) {
         trace?.('handled WebKit same-origin fetch diagnostic');
       } else {
         errors.push(message);

@@ -7,8 +7,15 @@ import {
 } from './helpers/e2e-page-errors.mjs';
 
 const base = 'http://127.0.0.1:49743';
-const accessError = (url = `${base}/api/status?probe=1`) =>
-  new Error(`Fetch API cannot load ${url} due to access control checks.`);
+const accessError = (url = `${base}/api/status?probe=1`) => {
+  // Match the actual Error.name/message split captured by the WebKit probe.
+  const scheme = /^https?:/.exec(url)?.[0].slice(0, -1) ?? 'http';
+  const error = new Error(
+    `${url.replace(/^https?:(?:\/\/| \/)/, '/')} due to access control checks.`
+  );
+  error.name = `Fetch API cannot load ${scheme}`;
+  return error;
+};
 const fixture = (options = {}) => {
   const context = new EventEmitter();
   const pages = [];
@@ -30,7 +37,7 @@ test('reopened pages apply the same WebKit policy and retain genuine errors', ()
   first.emit('pageerror', accessError());
   first.emit(
     'pageerror',
-    `Fetch API cannot load http: /127.0.0.1:49743/api/status?probe=1 due to access control checks.`
+    accessError('http: /127.0.0.1:49743/api/status?probe=1')
   );
   const reopened = newPage();
   reopened.emit('pageerror', accessError());
@@ -119,4 +126,20 @@ test('failure screenshot uses reopened pages and continues after a capture fails
   assert.equal(captures.length, 1);
   assert.match(captures[0], /ms-e2e-history-webkit-1\.png$/);
   assert.deepEqual(reports, ['[e2e-history] screenshot failed: page vanished']);
+});
+
+test('genuine exceptions using native diagnostic text still fail', () => {
+  const { first, errors } = fixture();
+  const failures = [
+    new Error(
+      `Fetch API cannot load ${base}/api/status?probe=1 due to access control checks.`
+    ),
+    new TypeError(
+      `Fetch API cannot load http: /127.0.0.1:49743/api/status?probe=1 due to access control checks.`
+    ),
+  ];
+  for (const error of failures) {
+    first.emit('pageerror', error);
+  }
+  assert.deepEqual(errors, failures.map(String));
 });
