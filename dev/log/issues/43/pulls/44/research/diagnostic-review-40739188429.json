@@ -1,0 +1,45 @@
+{
+  "source": "ci-logs/workflow-40739188429.log",
+  "hits": [
+    {
+      "line": 296,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Resolve release\tResolve tag and decide what to do\t2026-10-28T17:53:05.2186855Z ^[[36;1m    echo \"::error::Cannot verify the validated desktop source; this is not a superseded run.\"^[[0m"
+    },
+    {
+      "line": 324,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Resolve release\tResolve tag and decide what to do\t2026-10-28T17:53:05.2196639Z ^[[36;1m  echo \"::warning::npm publishing failed; building the desktop release for $tag anyway\"^[[0m"
+    },
+    {
+      "line": 329,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Resolve release\tResolve tag and decide what to do\t2026-10-28T17:53:05.2198901Z ^[[36;1m  echo \"::error::release $tag does not exist\"^[[0m"
+    },
+    {
+      "line": 621,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build (macos)\tResolve Electron version\t2026-10-28T17:54:10.2467790Z ^[[36;1m  echo \"::error::Invalid Electron version from registry\"^[[0m"
+    },
+    {
+      "line": 1752,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build (linux-x64)\tResolve Electron version\t2026-10-28T18:00:51.5085835Z ^[[36;1m  echo \"::error::Invalid Electron version from registry\"^[[0m"
+    },
+    {
+      "line": 2628,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build (windows-arm64)\tResolve Electron version\t2026-10-28T18:01:03.3853383Z ^[[36;1m  echo \"::error::Invalid Electron version from registry\"^[[0m"
+    },
+    {
+      "line": 3231,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build (linux-arm64)\tResolve Electron version\t2026-10-28T17:59:34.1946875Z ^[[36;1m  echo \"::error::Invalid Electron version from registry\"^[[0m"
+    },
+    {
+      "line": 4031,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build (windows-x64)\tResolve Electron version\t2026-10-28T17:55:31.8686470Z ^[[36;1m  echo \"::error::Invalid Electron version from registry\"^[[0m"
+    }
+  ]
+}

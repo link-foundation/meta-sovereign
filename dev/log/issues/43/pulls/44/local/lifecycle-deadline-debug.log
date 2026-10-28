@@ -1,0 +1,18 @@
+[lifecycle] close_started after 1 ms (1 owned connections)
+[lifecycle] jobs_stopped after 4 ms (1 owned connections)
+[lifecycle] http_closed after 6 ms (1 owned connections)
+[lifecycle] flush_started after 6 ms (1 owned connections)
+[fixture:http-lifecycle] flush_pending
+[fixture:http-lifecycle] socket_closed
+[lifecycle] close_finished after 10 ms (0 owned connections)
+▶ http server lifecycle
+  ✔ tears down idle keep-alive sockets during shutdown (60.236255ms)
+✔ http server lifecycle (63.454808ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 796.364533

@@ -370,6 +370,8 @@ jobs:
 
       - name: Run tests (Node.js)
         if: matrix.runtime == 'node'
+        env:
+          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
         run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
 
       - name: Setup Bun

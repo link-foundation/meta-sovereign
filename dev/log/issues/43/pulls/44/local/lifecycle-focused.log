@@ -1,0 +1,31 @@
+✔ tcp fixture closes while its client is unfinished (44.182142ms)
+✔ http fixture closes while its client is unfinished (24.19532ms)
+▶ http server lifecycle
+  ✔ tears down idle keep-alive sockets during shutdown (67.662236ms)
+✔ http server lifecycle (70.042295ms)
+▶ http server
+  ✔ round-trips a link via HTTP (361.50801ms)
+  ✔ exposes /sources (608.236628ms)
+  ✔ serves the SPA shell at / (329.20222ms)
+  ✔ exposes derived API routes (224.617206ms)
+  ✔ mounts browser-safe sibling modules under /storage and /handlers (204.169686ms)
+✔ http server (1738.148478ms)
+▶ email server routes
+  ✔ proxies email pull/send through local server fallback routes (218.926631ms)
+✔ email server routes (219.894207ms)
+▶ http server observability
+  ✔ exposes /metrics in Prometheus exposition format (276.751248ms)
+  ✔ writes JSON access logs when log option is provided (226.825714ms)
+  ✔ emits Content-Security-Policy + hardening headers on every response (241.726588ms)
+✔ http server observability (746.713922ms)
+▶ static asset caching
+  ✔ makes browsers revalidate SPA assets so updates are never stale (234.903341ms)
+✔ static asset caching (236.024923ms)
+ℹ tests 13
+ℹ suites 5
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4874.836029

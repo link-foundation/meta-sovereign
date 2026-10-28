@@ -1,0 +1,28 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/334138855056ad719862d1cfd18e7218c43076ca/.github",
+      "start_line": 207,
+      "start_column": null,
+      "end_line": 207,
+      "end_column": null,
+      "annotation_level": "warning",
+      "title": "",
+      "message": "Timed out waiting for analysis to finish processing. Continuing.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/334138855056ad719862d1cfd18e7218c43076ca/.github",
+      "start_line": 862,
+      "start_column": null,
+      "end_line": 862,
+      "end_column": null,
+      "annotation_level": "warning",
+      "title": "",
+      "message": "Cannot retrieve the full diff because there are too many (300) changed files in the pull request.",
+      "raw_details": ""
+    }
+  ]
+]

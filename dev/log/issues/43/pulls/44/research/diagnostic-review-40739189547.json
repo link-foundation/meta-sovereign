@@ -1,0 +1,135 @@
+{
+  "source": "ci-logs/workflow-40739189547.log",
+  "hits": [
+    {
+      "line": 197,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Release credential preflight\tRequire every release prerequisite\t2026-10-28T17:57:24.9378859Z ^[[36;1m  echo \"::error::Release preflight failed. Review every prerequisite above; administrator setup is required before a main release can build.\"^[[0m"
+    },
+    {
+      "line": 1331,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Dependency security audit\tRun taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b\t2026-10-28T18:00:06.4733564Z ^[[36;1m  printf '::error::install-action: %s\\n' \"$*\"^[[0m"
+    },
+    {
+      "line": 11736,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:23.1413294Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 11737,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:23.1416594Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 12114,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:24.1900138Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 12115,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:24.1902697Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 12521,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:26.0223118Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 12522,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (javascript-typescript)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:26.0226460Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 17218,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:47.5824114Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 17219,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:47.5826144Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 17596,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:48.6052095Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 17597,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:48.6055153Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 18001,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:51.0827271Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 18002,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (rust)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:51.0830609Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 19035,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:46.6706931Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 19036,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:46.6708761Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 19413,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:47.7447799Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 19414,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:47.7450738Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 19820,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:50.3630992Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 19821,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (python)\tRun github/codeql-action/init@v4\t2026-10-28T18:07:50.3632784Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 20897,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:25.1945265Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 20898,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:25.1947132Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 21275,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:26.1932781Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 21276,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:26.1934781Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    },
+    {
+      "line": 21680,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:27.8262159Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\","
+    },
+    {
+      "line": 21681,
+      "category": "CodeQL schema describes unused deprecated options",
+      "text": "CodeQL (actions)\tRun github/codeql-action/init@v4\t2026-10-28T18:08:27.8263984Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\","
+    }
+  ]
+}

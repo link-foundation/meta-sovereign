@@ -1,6 +1,6 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/.github/workflows/workflows.yml
 +++ .github/workflows/release.yml
-@@ -1,174 +1,1172 @@
+@@ -1,174 +1,1174 @@
 -name: Workflows
 +name: Checks and release
  
@@ -413,6 +413,8 @@
 +
 +      - name: Run tests (Node.js)
 +        if: matrix.runtime == 'node'
++        env:
++          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
 +        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
 +
 +      - name: Setup Bun

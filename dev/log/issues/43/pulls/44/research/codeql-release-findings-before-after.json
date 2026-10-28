@@ -1,0 +1,17 @@
+{
+  "old_count": 52,
+  "new_count": 50,
+  "removed": [
+    [
+      "js/incomplete-sanitization",
+      "[[\"js/scripts/version-and-commit.mjs\", 263]]",
+      "This does not escape backslash characters in the input."
+    ],
+    [
+      "js/incomplete-url-substring-sanitization",
+      "[[\"js/scripts/format-release-notes.mjs\", 95]]",
+      "'[img.shields.io](1)' can be anywhere in the URL, and arbitrary hosts may come before or after it."
+    ]
+  ],
+  "added": []
+}

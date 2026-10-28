@@ -393,7 +393,7 @@
      if: github.event_name == 'pull_request' && needs.detect-changes.outputs.any-code-changed == 'true'
      steps:
        - uses: actions/checkout@v7
-@@ -262,978 +215,944 @@
+@@ -262,978 +215,946 @@
            persist-credentials: false
            fetch-depth: 0
  
@@ -558,6 +558,8 @@
 +
 +      - name: Run tests (Node.js)
 +        if: matrix.runtime == 'node'
++        env:
++          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
 +        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
 +
 +      - name: Setup Bun
@@ -2287,7 +2289,7 @@
            delete-branch: true
            title: 'chore: manual ${{ github.event.inputs.bump_type }} release'
            body: |
-@@ -1247,140 +1166,7 @@
+@@ -1247,140 +1168,7 @@
              - **Triggered by:** @${{ github.actor }}
  
              ### Next Steps

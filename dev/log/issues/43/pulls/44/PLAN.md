@@ -47,3 +47,6 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 - [x] F22: preserve failed standalone CodeQL context despite four successful workflows, reproduce both release-script defects, repair literal message handling and exact badge identity, verify 13 relevant Node tests, compare existing upstream repair without duplicate reports.
 - [x] F23: reproduce and repair missing commit-wide service-check evidence with a finite offline two-page annotation regression; retain full SARIF and every existing GitHub alert without claiming a zero-alert product audit.
 - [ ] Require every fresh PR check context, including standalone CodeQL, to pass on the final head before readiness.
+
+- [x] F24: preserve Windows Node whole-lifecycle timeout, reproduce a false idle-socket attribution with a held flush, retain socket deadlines and final persistence, add default-off shutdown-stage tracing and four-language docs; pass 13 relevant server/fixture tests, 14 CI contracts and workflow lint.
+- [ ] Verify every required context on the post-F24 head, review current artifacts/logs, refresh main/feedback and mark ready only after the complete matrix passes.

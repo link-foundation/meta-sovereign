@@ -230,7 +230,7 @@
       "IMAGE",
       "VERSION"
     ],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/js/.github/workflows/release.yml.diff"
   },
@@ -260,7 +260,7 @@
     "local_counterpart": ".github/workflows/release.yml",
     "functions": [],
     "environment": [],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/js/.github/workflows/workflows.yml.diff"
   },
@@ -3293,7 +3293,7 @@
       "DOCKERHUB_IMAGE",
       "RELEASE_VERSION"
     ],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/rust/.github/workflows/release.yml.diff"
   },
@@ -3325,7 +3325,7 @@
     "local_counterpart": ".github/workflows/release.yml",
     "functions": [],
     "environment": [],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/rust/.github/workflows/workflows.yml.diff"
   },
@@ -5499,7 +5499,7 @@
       "IMAGE",
       "VERSION"
     ],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/python/.github/workflows/release.yml.diff"
   },
@@ -5529,7 +5529,7 @@
     "local_counterpart": ".github/workflows/release.yml",
     "functions": [],
     "environment": [],
-    "local_sha256": "d0050db39478b981e3ee0c1ee8e0cb6226ad0e27531a4a1c0abd3db713e90a24",
+    "local_sha256": "9ea475a68f437cec8bdf70d3415b2850bf13fe0a52b0104e8afb54669b830854",
     "identical": false,
     "diff": "comparison/python/.github/workflows/workflows.yml.diff"
   },

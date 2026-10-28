@@ -51,7 +51,7 @@
  
  permissions:
    contents: read
-@@ -26,137 +40,1133 @@
+@@ -26,137 +40,1135 @@
    GIT_CONFIG_COUNT: '1'
    GIT_CONFIG_KEY_0: init.defaultBranch
    GIT_CONFIG_VALUE_0: main
@@ -433,6 +433,8 @@
 +
 +      - name: Run tests (Node.js)
 +        if: matrix.runtime == 'node'
++        env:
++          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
 +        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
 +
 +      - name: Setup Bun

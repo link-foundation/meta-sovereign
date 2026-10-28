@@ -1,0 +1,8 @@
+
+/tmp/gh-issue-solver-1793191206670/js/tests/server.test.js
+  63:19  error  'setTimeout' is not defined    no-undef
+  66:9   error  'clearTimeout' is not defined  no-undef
+  70:9   error  'clearTimeout' is not defined  no-undef
+
+✖ 3 problems (3 errors, 0 warnings)
+

@@ -1,0 +1,22 @@
+✔ browser failures cannot become a green release (89.895808ms)
+✔ every Rust documentation path rejects warnings (51.21072ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (65.881404ms)
+✔ mandatory browser runner classifies: all checks passed (174.048622ms)
+✔ mandatory browser runner classifies: SKIP: playwright not installed (144.680284ms)
+✔ mandatory browser runner classifies: SKIP: playwright is not installed (156.376069ms)
+✔ mandatory browser runner classifies: SKIP: no Playwright browser is installed (194.379435ms)
+✔ mandatory browser runner classifies: webkit not installed, skipped (200.779431ms)
+✔ mandatory browser runner classifies: SKIP: set RUN_BROWSER_E2E=1 to run (194.345339ms)
+✔ syntax checking finds malformed nested JavaScript (174.412461ms)
+✔ missing lychee report fails instead of claiming all links archived (124.862719ms)
+✔ workflow policy detects mutable matrix runners and unbounded auxiliary jobs (7.784891ms)
+✔ committed dependency tree contains no deprecated registry packages (8.963039ms)
+✔ standalone shell lint selects maintained scripts without reference evidence (135.840585ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1999.630427

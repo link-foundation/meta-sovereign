@@ -380,7 +380,7 @@
          run: npm run lint
  
        - name: Check formatting
-@@ -271,718 +293,838 @@
+@@ -271,718 +293,840 @@
  
        - name: Check code duplication
          run: npm run check:duplication
@@ -496,6 +496,8 @@
          if: matrix.runtime == 'node'
 -        shell: bash
 -        run: bash scripts/run-with-budget-warning.sh 300 "Node.js test suite" npm test
++        env:
++          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
 +        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
  
        - name: Setup Bun
@@ -1745,7 +1747,7 @@
  
        - name: Setup Node.js
          uses: actions/setup-node@v7
-@@ -990,13 +1132,13 @@
+@@ -990,13 +1134,13 @@
            node-version: '24.x'
  
        - name: Install dependencies
@@ -1763,7 +1765,7 @@
  
        - name: Format changeset with Prettier
          run: |
-@@ -1006,11 +1148,9 @@
+@@ -1006,11 +1150,9 @@
            echo "Formatted changeset files"
  
        - name: Create Pull Request
@@ -1778,7 +1780,7 @@
            commit-message: 'chore: add changeset for manual ${{ github.event.inputs.bump_type }} release'
            branch: changeset-manual-release-${{ github.run_id }}
            delete-branch: true
-@@ -1030,49 +1170,3 @@
+@@ -1030,49 +1172,3 @@
              2. Merge this PR to main
              3. The automated release workflow will create a version PR
              4. Merge the version PR to publish to npm and create a GitHub release
