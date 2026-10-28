@@ -57,7 +57,7 @@ const makeBus = () => {
   };
 };
 
-const makeFakeRtc = (channelStore) =>
+const makeFakeRtc = (channelStore, { autoOpen = true } = {}) =>
   class FakeRtcPeerConnection {
     constructor() {
       this.localDescription = null;
@@ -92,10 +92,12 @@ const makeFakeRtc = (channelStore) =>
       // Delay just enough for the answer-side ondatachannel to also
       // wire its listeners — mimics real RTC where both onopens fire
       // after the negotiation completes.
-      setTimeout(() => {
-        channel.readyState = 'open';
-        channel.onopen?.();
-      }, 5);
+      if (autoOpen) {
+        setTimeout(() => {
+          channel.readyState = 'open';
+          channel.onopen?.();
+        }, 5);
+      }
       return channel;
     }
     async createOffer() {
@@ -134,8 +136,10 @@ const makeFakeRtc = (channelStore) =>
         }
         setTimeout(() => {
           this.ondatachannel?.({ channel: incoming });
-          incoming.readyState = 'open';
-          incoming.onopen?.();
+          if (autoOpen) {
+            incoming.readyState = 'open';
+            incoming.onopen?.();
+          }
         }, 0);
       }
     }
@@ -202,7 +206,7 @@ test('two webrtc transports exchange messages over the data channel', async () =
 test('webrtc transport queues sends until the data channel opens', async () => {
   const bus = makeBus();
   const channels = [];
-  const Rtc = makeFakeRtc(channels);
+  const Rtc = makeFakeRtc(channels, { autoOpen: false });
   const sa = signalingChannel(bus.connect('a'));
   const sb = signalingChannel(bus.connect('b'));
 
@@ -221,6 +225,18 @@ test('webrtc transport queues sends until the data channel opens', async () => {
   });
   const seenB = [];
   tB.onMessage((m) => seenB.push(m));
+
+  await waitFor(
+    () => channels.length === 2 && channels.every((c) => c.onmessage)
+  );
+  assert.equal(seenB.length, 0, 'connecting channels retain the queued send');
+  // Open both fake endpoints only after their message listeners exist.
+  // Timers can otherwise flush the initiator before the receiver is wired
+  // on loaded CI runners, unlike real RTC's buffered delivery.
+  channels.forEach((channel) => {
+    channel.readyState = 'open';
+  });
+  channels.forEach((channel) => channel.onopen?.());
 
   await waitFor(() => seenB.length > 0);
 
