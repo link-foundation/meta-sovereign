@@ -31,6 +31,25 @@ test('browser failures cannot become a green release', () => {
   assert.ok(jobs.release.needs.includes('pipeline-status'));
 });
 
+test('every Rust documentation path rejects warnings', () => {
+  const flow = workflow('release.yml');
+  let checked = 0;
+  for (const job of Object.values(flow.jobs)) {
+    for (const step of job.steps || []) {
+      if (!step.run?.includes('cargo doc ')) {
+        continue;
+      }
+      const flags =
+        step.env?.RUSTDOCFLAGS ??
+        job.env?.RUSTDOCFLAGS ??
+        flow.env?.RUSTDOCFLAGS;
+      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
+      checked++;
+    }
+  }
+  assert.equal(checked, 3, 'Check and both release documentation paths');
+});
+
 test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
   for (const name of readdirSync(path.join(root, '.github/workflows'))) {
     if (!name.endsWith('.yml')) {

@@ -52,6 +52,9 @@ test(
         await writeFile(join(cwd, file), '// original\n');
       }
       git('init', '-q');
+      // This owned fixture writes LF files. Do not inherit the Windows
+      // runner's global conversion policy or modify the user's Git settings.
+      git('config', 'core.autocrlf', 'false');
       git('add', '.');
       git(
         '-c',
