@@ -795,6 +795,11 @@ jobs:
         run: zizmor --offline --format plain .github/workflows
       - name: Check pipeline gate and browser coverage
         run: node js/scripts/check-ci-workflows.mjs
+      - name: Verify preserved investigation evidence
+        run: |
+          python3 -B experiments/issue43-evidence-bundle-test.py
+          python3 -B experiments/issue43-review-ci-test.py
+          python3 -B experiments/issue43-evidence-bundle.py verify
       - run: node --test --test-concurrency=1 js/tests/ci-*.test.js
 
   dependency-audit:

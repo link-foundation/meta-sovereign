@@ -1,7 +1,0 @@
-{
-  "version": "0.9.4",
-  "dependencies": {
-    "rimraf": "~2.6.2",
-    "mkdirp": "^0.5.1"
-  }
-}

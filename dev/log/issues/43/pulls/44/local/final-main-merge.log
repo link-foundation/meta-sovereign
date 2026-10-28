@@ -1,5 +1,0 @@
-Merge made by the 'ort' strategy.
- js/src/storage/message-versions.js | 16 +++++++++-------
- js/tests/message-versions.test.js  |  6 +++---
- js/tests/store-append.test.js      | 25 ++++++++++++++++---------
- 3 files changed, 28 insertions(+), 19 deletions(-)

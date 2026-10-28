@@ -14,8 +14,8 @@ Objective: implement and verify every issue requirement in this PR, preserving e
 - [x] Add a changeset/release trigger where appropriate; commit useful atomic steps and push only the prepared branch.
 - [x] Report reproducible shared defects to relevant template/upstream projects, including workarounds and code suggestions.
 - [x] Update PR title/body with reproduction, fixes, test evidence, limitations and `Fixes #43`.
-- [ ] Review fresh CI by timestamp/SHA; preserve logs from failures and fix actual errors until required checks pass.
-- [ ] Merge latest default branch if needed, review full PR diff for regressions, verify clean tree, refresh feedback and mark PR ready.
+- [x] Review fresh CI by timestamp/SHA; preserve logs from failures and fix actual errors until required checks pass. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
+- [x] Merge latest default branch if needed, review full PR diff for regressions, verify clean tree, refresh feedback and mark PR ready. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
 
 Constraints: no full local suite or stress tests; no real user accounts/data in tests; no merges to main; no rewrites of history; memory budget 2.92 GiB shared (Rust jobs=1 if needed). Read files over 1500 lines in chunks. Preserve long output as files, wait for running commands, and never treat passing CI as proof of unmet criteria.
 
@@ -37,16 +37,22 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 - [x] Merge main `fbf377b` without conflicts; retain single-write storage failure semantics and pass 19 focused message-version/store-append cases. Windows Deno verifies all 3279 tests after teardown/warning fixes; no runtime case is deferred.
 
 - [x] Preserve F19 native WebKit missing-card failure, repair the proven diagnostic gap, retain a focused phone reproduction selector, and verify the phone sequence through Playwright MCP without claiming the historical cause.
-- [ ] Review new source `6526815` native WebKit diagnostics and all required CI; preserve failures and continue any proven fix.
+- [x] Review new source `6526815` native WebKit diagnostics and all required CI; preserve failures and continue any proven fix. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
 
 - [x] Forward-merge main release `a58fdab` (0.55.0), retain the pending patch changeset, reproduce four false-green browser skip variants and fix their common gate. Fourteen Node contracts and six selected Deno cases pass.
 
 - [x] F21: preserve all three post-archive Bun failures; reproduce foreign test discovery with bounded owned sentinels, scope the actual Bun configuration to js/tests, verify 15 focused Bun contracts, refresh pinned comparisons and report shared template defect as issue 269.
-- [ ] Verify the complete post-F21 runtime/browser/native matrix on the final source and record the fresh run links in PR 44.
+- [x] Verify the complete post-F21 runtime/browser/native matrix on the final source and record the fresh run links in PR 44. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
 
 - [x] F22: preserve failed standalone CodeQL context despite four successful workflows, reproduce both release-script defects, repair literal message handling and exact badge identity, verify 13 relevant Node tests, compare existing upstream repair without duplicate reports.
 - [x] F23: reproduce and repair missing commit-wide service-check evidence with a finite offline two-page annotation regression; retain full SARIF and every existing GitHub alert without claiming a zero-alert product audit.
-- [ ] Require every fresh PR check context, including standalone CodeQL, to pass on the final head before readiness.
+- [x] Require every fresh PR check context, including standalone CodeQL, to pass on the final head before readiness. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
 
 - [x] F24: preserve Windows Node whole-lifecycle timeout, reproduce a false idle-socket attribution with a held flush, retain socket deadlines and final persistence, add default-off shutdown-stage tracing and four-language docs; pass 13 relevant server/fixture tests, 14 CI contracts and workflow lint.
-- [ ] Verify every required context on the post-F24 head, review current artifacts/logs, refresh main/feedback and mark ready only after the complete matrix passes.
+- [x] Verify every required context on the post-F24 head, review current artifacts/logs, refresh main/feedback and mark ready only after the complete matrix passes. Verified on `fd7c359`; F25 annotation cleanup is tracked separately below.
+
+- [x] Final `fd7c359` runtime, browser and native matrix passes, but annotation review finds four CodeQL comparison-limit warnings despite successful Actions/service contexts.
+- [x] F25: reproduce the actual 2664-file comparison failure before changing layout; preserve all raw evidence in a deterministic, checksummed, restorable bundle and keep human reports/screenshot directly accessible.
+- [ ] Verify the converted layout, exact archive round trip, focused checks and every fresh CI annotation before readiness.
+
+- [x] F26: reproduce fake dependency-graph fixture notices becoming real Actions annotations; inject a captured/asserted reporter in the existing test while retaining real production notices; ten helper cases and lint pass.

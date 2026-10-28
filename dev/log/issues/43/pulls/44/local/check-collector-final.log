@@ -1,7 +1,0 @@
-Commit fixture-sha: 1 checks; non-passing: ['CodeQL: failure']
-Pending 17 fixture-sha
-.
-----------------------------------------------------------------------
-Ran 1 test in 0.007s
-
-OK

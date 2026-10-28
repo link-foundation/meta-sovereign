@@ -1,7 +1,0 @@
-4 packages have install scripts not yet covered by allowScripts:
-  better-sqlite3@13.0.3 (install: node-gyp rebuild)
-  electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
-  esbuild@0.28.2 (postinstall: node install.js)
-  node-pty@1.1.0 (install: node-gyp rebuild)
-
-Run `npm install-scripts approve <pkg>` to allow, or `npm install-scripts deny <pkg>` to deny.

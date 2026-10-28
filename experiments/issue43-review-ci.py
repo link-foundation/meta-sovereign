@@ -29,8 +29,21 @@ def review(run_id):
                 category = 'REVIEW'
             hits.append({'line': number, 'category': category, 'text': line.rstrip()})
     target = DEST / f'research/diagnostic-review-{run_id}.json'
-    target.write_text(json.dumps({'source': str(source.relative_to(DEST)), 'hits': hits}, indent=2) + '\n')
-    print(f'{run_id}: {len(hits)} diagnostic matches; {sum(hit["category"] == "REVIEW" for hit in hits)} require review')
+    run = json.loads((DEST / f'github/run-{run_id}.json').read_text())
+    checks = json.loads((DEST / f'github/commit-{run["head_sha"]}-check-runs.json').read_text())
+    annotations = []
+    for check in checks:
+        if not check.get('output', {}).get('annotations_count'):
+            continue
+        pages = json.loads((DEST / f'github/annotations/{check["id"]}.json').read_text())
+        for page in pages:
+            annotations.extend(dict(row, check_id=check['id'], check_name=check['name']) for row in page)
+    warnings = [row for row in annotations if row['annotation_level'] in ('warning', 'failure')]
+    report = {'source': str(source.relative_to(DEST)), 'hits': hits,
+              'annotations': annotations, 'warning_or_failure_annotations': warnings}
+    target.write_text(json.dumps(report, indent=2) + '\n')
+    print(f'{run_id}: {len(hits)} diagnostic matches; {sum(hit["category"] == "REVIEW" for hit in hits)} require review; {len(warnings)} warning/failure check annotations')
+    return report
 
 
 def artifacts():
@@ -51,6 +64,9 @@ def artifacts():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('run_id', nargs='*', type=int)
-    for run in parser.parse_args().run_id:
-        review(run)
+    parser.add_argument('--strict', action='store_true', help='Fail on warning/failure annotations or unclassified diagnostic text')
+    args = parser.parse_args()
+    reports = [review(run) for run in args.run_id]
     artifacts()
+    if args.strict and any(report['warning_or_failure_annotations'] or any(hit['category'] == 'REVIEW' for hit in report['hits']) for report in reports):
+        raise SystemExit('CI diagnostics require investigation; review saved reports')

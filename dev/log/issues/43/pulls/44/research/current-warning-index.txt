@@ -1,5 +1,0 @@
-workflow-40701906023.log:592:Build (linux-x64)	Build desktop app	2026-10-28T14:02:31.5629990Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-workflow-40701906023.log:889:Build (windows-x64)	Build desktop app	2026-10-28T14:03:41.1718592Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-workflow-40701906023.log:1269:Build (windows-arm64)	Build desktop app	2026-10-28T14:06:53.7367324Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-workflow-40701906023.log:1619:Build (linux-arm64)	Build desktop app	2026-10-28T14:02:44.1761773Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-workflow-40701906023.log:1933:Build (macos)	Build desktop app	2026-10-28T14:02:25.1584860Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.

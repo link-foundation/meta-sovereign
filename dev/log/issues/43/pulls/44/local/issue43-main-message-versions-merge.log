@@ -1,6 +1,0 @@
-Auto-merging .github/workflows/release.yml
-CONFLICT (content): Merge conflict in .github/workflows/release.yml
-Auto-merging js/src/web/app.min.js
-CONFLICT (content): Merge conflict in js/src/web/app.min.js
-Auto-merging package.json
-Automatic merge failed; fix conflicts and then commit the result.

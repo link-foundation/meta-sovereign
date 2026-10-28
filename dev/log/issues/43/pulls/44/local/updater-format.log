@@ -1,8 +1,0 @@
-experiments/issue43-updater-alias.mjs 102ms
-experiments/issue43-cifrante.mjs 62ms
-js/scripts/validate-desktop-updater.mjs 24ms
-js/scripts/prepare-desktop.mjs 66ms (unchanged)
-js/tests/desktop-packaging.test.js 73ms (unchanged)
-js/tests/secret-chat-protocol.test.js 149ms (unchanged)
-.github/workflows/desktop-release.yml 94ms (unchanged)
-.github/workflows/release.yml 138ms (unchanged)

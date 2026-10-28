@@ -1,7 +1,0 @@
-
-> meta-sovereign@0.53.4 test:pack
-> node js/tests/pack-smoke.mjs
-
-[pack-smoke] packed meta-sovereign-0.53.4.tgz: 911 files, 3408936 bytes
-[pack-smoke] npx started the packed server on http://127.0.0.1:42423
-[pack-smoke] PASS: the packed server defaults to GitHub Pages with a local HTTPS API
