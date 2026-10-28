@@ -236,3 +236,15 @@ test('Ubuntu browser fixtures permit Chromium user-namespace sandboxing', () => 
   );
   assert.equal(steps[setup].if, "runner.os == 'Linux'");
 });
+
+test('browser jobs install Chromium for the cross-origin Pages fixture in either matrix lane', () => {
+  const steps = workflow('release.yml').jobs['e2e-browser'].steps;
+  const install = steps.find(({ name }) => name === 'Install the browser');
+  // e2e-pages always compares the server and hosted copies in Chromium,
+  // even while the rest of the matrix lane exercises WebKit.
+  assert.match(
+    install.run,
+    /playwright install --with-deps chromium "\$BROWSER"/
+  );
+  assert.equal(install.env.BROWSER, '${{ matrix.browser }}');
+});

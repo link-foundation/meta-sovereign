@@ -11,19 +11,20 @@ test('mobile wrapper invokes the declared Capacitor CLI without resolving anothe
   try {
     const bin = join(fixture, 'bin');
     await mkdir(bin);
-    // Fake npm records arguments; no network or real native project is used.
+    // npm and the mobile launcher are Node entry points, including when this
+    // regression runs under Bun or Deno. No network/native project is used.
     const script = 'console.log(JSON.stringify(process.argv.slice(2)))';
     const executable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     await writeFile(
       join(bin, executable),
       process.platform === 'win32'
-        ? `@"${process.execPath}" "%~dp0record.cjs" %*\r\n`
-        : `#!${process.execPath}\n${script}\n`,
+        ? '@node "%~dp0record.cjs" %*\r\n'
+        : `#!/usr/bin/env node\n${script}\n`,
       { mode: 0o755 }
     );
     await writeFile(join(bin, 'record.cjs'), script);
     const result = spawnSync(
-      process.execPath,
+      'node',
       [resolve('js/scripts/mobile-platform.mjs'), 'sync'],
       {
         cwd: fixture,

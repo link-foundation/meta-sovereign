@@ -542,9 +542,10 @@ jobs:
       - name: Install the browser
         env:
           BROWSER: ${{ matrix.browser }}
-        run: npx playwright install --with-deps "$BROWSER"
+        # The Pages fixture always uses Chromium, including in the WebKit lane.
+        run: npx playwright install --with-deps chromium "$BROWSER"
       # Browser Commander launches Chrome directly with its sandbox enabled.
-      # Match the Pages fixture setup on Ubuntu 24.04.
+      # Match the Pages fixture setup on supported Ubuntu runners.
       - name: Let Chromium sandbox itself
         if: runner.os == 'Linux'
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
@@ -943,7 +944,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           swiftc -typecheck js/src/server/local-key-enclave.swift
-          swiftc -typecheck js/src/sources/system-contacts.swift
+          swiftc -parse-as-library -typecheck js/src/sources/system-contacts.swift
       - name: Build both Docker services from the committed lockfile
         if: runner.os == 'Linux'
         run: docker compose -f docker/docker-compose.yml build
