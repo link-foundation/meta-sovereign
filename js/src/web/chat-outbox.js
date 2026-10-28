@@ -16,6 +16,8 @@
 //     resumes the queue with the same clientIds (the server and Telegram
 //     drop a repeat) and keeps what was typed.
 
+import { isConnectionFailure } from './request-policy.js';
+
 export const OUTBOX_KEY = 'metaSovereignOutbox';
 export const DRAFTS_KEY = 'metaSovereignDrafts';
 
@@ -25,9 +27,6 @@ const MAX_RETRY_MS = 60_000;
 const SEND_FAILED_TRIES = 4;
 // Telegram can ask to wait for hours; past this the user decides.
 const MAX_FLOOD_WAIT_S = 300;
-
-// Failures that pass by themselves.
-const PASSING = new Set(['network', 'no-answer']);
 
 /** The wait before try number `attempts + 1`: 1 s, 2 s, 4 s … 60 s. */
 export const retryDelay = (attempts) =>
@@ -65,7 +64,7 @@ export const afterFailure = (item, result, now = Date.now()) => {
       ? failed(item, result)
       : waiting(item, result, attempts, now + (seconds + 1) * 1000);
   }
-  if (PASSING.has(code)) {
+  if (isConnectionFailure(code)) {
     return waiting(item, result, attempts, now + retryDelay(attempts));
   }
   if (code === 'send-failed' && attempts < SEND_FAILED_TRIES) {
@@ -76,7 +75,7 @@ export const afterFailure = (item, result, now = Date.now()) => {
 
 /** A failure that waits only for the network (tried again when online). */
 export const waitsForNetwork = (item) =>
-  item.status === 'waiting' && PASSING.has(item.code);
+  item.status === 'waiting' && isConnectionFailure(item.code);
 
 /**
  * The messages queued behind a failed one fail with it (Matrix): they

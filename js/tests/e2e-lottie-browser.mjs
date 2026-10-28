@@ -173,6 +173,9 @@ await page.route('**/api/telegram/media?*', (route) =>
 );
 await page.route('**/api/telegram/file?*', (route) => {
   asked.files += 1;
+  if (asked.files === 1) {
+    return route.fulfill({ status: 503, body: 'restarting' });
+  }
   return route.fulfill({
     status: 200,
     contentType: 'application/x-tgsticker',
@@ -241,7 +244,10 @@ try {
     'the picture gives way once it draws'
   );
   assert(await turning(sticker), 'the chat sticker moves');
-  assert(asked.files === 1, `the file asked once: ${asked.files}`);
+  assert(
+    asked.files === 2,
+    `the interrupted animation recovers: ${asked.files}`
+  );
 
   // The panel's animated stickers play the same.
   await page.locator('[data-action="emoji"]').click();

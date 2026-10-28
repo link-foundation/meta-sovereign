@@ -212,13 +212,19 @@ await finish(async () => {
   await page.locator('.person-panel-head button').click();
   broken = true;
   await page.reload();
-  await image().locator('[data-media-loading="failed"]').waitFor();
+  await image().locator('[data-media-loading="loading"]').waitFor();
+  await until(
+    () =>
+      image()
+        .locator('img')
+        .evaluate((node) => node.complete && node.naturalWidth === 0),
+    'interrupted media attempt'
+  );
   assert(
-    (await image().locator('.spinner').count()) === 0,
-    'failed media never spins forever'
+    (await image().locator('[data-action="media-retry"]').count()) === 0,
+    'media recovery requires no manual retry'
   );
   broken = false;
-  await image().locator('[data-action="media-retry"]').click();
   await image().locator('[data-media-loading]').waitFor({ state: 'detached' });
   await playerSteps();
   await page.setViewportSize({ width: 390, height: 844 });

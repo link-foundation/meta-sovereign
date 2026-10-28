@@ -120,7 +120,11 @@ const sendResult = async (api, item) => {
       success: false,
       code: 'network',
     });
-    return { status: 'failed', error: error.message };
+    return {
+      status: 'failed',
+      code: error?.code ?? 'network',
+      error: error.message,
+    };
   }
 };
 

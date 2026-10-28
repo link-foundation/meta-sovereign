@@ -445,6 +445,7 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
             active: false,
             failed: true,
             small: true,
+            retry: source.retry,
           })
         : null,
       el(TranscribeButton, { key: 'words', state: words }),

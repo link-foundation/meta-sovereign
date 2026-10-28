@@ -1,12 +1,11 @@
-// A server refusal never goes unseen (R-Z12). Every answer in the uniform
-// `{ ok: false, error, code }` shape is logged to the console once per
-// distinct error; a user-triggered (non-GET) request that fails with a
-// systemic code also raises a localised toast, so a failed send or save is
-// never a silent empty panel. Background reads stay quiet on the page.
+// Actionable server refusals are logged once and shown to their owner.
+// Transport interruptions are recovery diagnostics, never error toasts.
+// POST-based readers have the same quiet loading behavior as GET readers.
 
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { PageLoading } from './spinner.js';
+import { isConnectionFailure, isReadRequest } from './request-policy.js';
 
 const el = React.createElement;
 
@@ -35,11 +34,6 @@ export const KNOWN_CODES = [
 // Never a toast: a feature probe or a chat that cannot do it is explained
 // inline by the panel that asked. Codes outside KNOWN_CODES are the panels'.
 const INLINE_ONLY = new Set(['unsupported', 'unsupported-chat']);
-// This read-only POST also supplies the background missed-call badge.
-const READ_POSTS = new Set([
-  '/api/telegram/calls',
-  '/api/telegram/dialog-state',
-]);
 
 const seen = new Set();
 
@@ -70,13 +64,14 @@ export const reportApiFailure = ({ path, method = 'GET', status, data }) => {
   const key = `${method} ${path} ${failure.code} ${failure.error}`;
   if (!seen.has(key)) {
     seen.add(key);
-    globalThis.console?.warn?.(
+    const log = isConnectionFailure(failure.code) ? 'debug' : 'warn';
+    globalThis.console?.[log]?.(
       `[meta-sovereign] ${method} ${path} failed (${status}): ${failure.code} ${failure.error}`.trim()
     );
   }
   if (
-    method !== 'GET' &&
-    !READ_POSTS.has(path) &&
+    !isReadRequest(path, method) &&
+    !isConnectionFailure(failure.code) &&
     KNOWN_CODES.includes(failure.code) &&
     !INLINE_ONLY.has(failure.code)
   ) {
@@ -95,7 +90,11 @@ export const ApiErrorToast = () => {
   const t = useT();
   const [shown, setShown] = useState(null);
   useEffect(() => {
-    const on = (event) => setShown(event.detail);
+    const on = (event) => {
+      if (!isConnectionFailure(event.detail?.code)) {
+        setShown(event.detail);
+      }
+    };
     globalThis.addEventListener?.(API_ERROR_EVENT, on);
     return () => globalThis.removeEventListener?.(API_ERROR_EVENT, on);
   }, []);
@@ -131,7 +130,8 @@ export const logOnce = (what, error) => {
   const key = `${what} ${String(error?.message ?? error)}`;
   if (!seen.has(key)) {
     seen.add(key);
-    globalThis.console?.warn?.(`[meta-sovereign] ${key}`);
+    const level = isConnectionFailure(error?.code) ? 'debug' : 'warn';
+    globalThis.console?.[level]?.(`[meta-sovereign] ${key}`);
   }
 };
 

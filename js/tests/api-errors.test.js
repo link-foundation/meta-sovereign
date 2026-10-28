@@ -1,7 +1,5 @@
-// R-Z12: a server refusal is never swallowed. The uniform `{ok:false,error,
-// code}` answer is logged once per distinct error, raises a localised toast
-// for a user-triggered request with a systemic code, and a list that cannot
-// load shows why with a retry button instead of loading forever.
+// Action failures remain visible; interrupted reads keep loading and transient
+// connection recovery never raises a global error toast or manual retry.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -47,7 +45,7 @@ test('a missed-call badge read is logged without a mutation error toast', () => 
       status: 503,
       data: { ok: false, code: 'network', error: 'temporarily unavailable' },
     });
-    assert.equal(spy.warned.length, 1);
+    assert.equal(spy.warned.length, 0, 'ordinary reconnects are not warnings');
     assert.equal(spy.events.length, 0);
   } finally {
     spy.stop();
@@ -164,6 +162,46 @@ test('logOnce logs a background failure once per distinct message', () => {
     logOnce('poll', new Error('other'));
     assert.equal(spy.warned.length, 2);
     assert.equal(API_ERROR_EVENT, 'ms-api-error');
+  } finally {
+    spy.stop();
+  }
+});
+
+test('temporary connection failures never raise error toasts, including POST reads and queued sends', () => {
+  const spy = watch();
+  try {
+    for (const path of [
+      '/api/telegram/history',
+      '/api/telegram/profile',
+      '/api/telegram/calls',
+      '/api/message/send',
+    ]) {
+      for (const code of ['network', 'no-answer', 'timeout', 'reconnecting']) {
+        reportApiFailure({
+          path,
+          method: 'POST',
+          status: 502,
+          data: { ok: false, code, error: 'interrupted' },
+        });
+      }
+    }
+    assert.equal(spy.events.length, 0);
+    assert.equal(
+      spy.warned.length,
+      0,
+      'normal transport recovery is diagnostic, not a warning'
+    );
+    reportApiFailure({
+      path: '/api/telegram/history',
+      method: 'POST',
+      status: 500,
+      data: { ok: false, code: 'internal', error: 'retrying read' },
+    });
+    assert.equal(
+      spy.events.length,
+      0,
+      'POST read errors belong to their loading region'
+    );
   } finally {
     spy.stop();
   }
