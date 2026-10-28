@@ -41,6 +41,17 @@ test('release guard compares committed Git trees and rejects source or dependenc
       [...(globalThis.Deno ? ['run', '-A'] : []), guard, validated, 'HEAD'],
       { cwd, encoding: 'utf8' }
     );
+  const assessFile = join(cwd, '.git', 'assess-release.mjs');
+  writeFileSync(
+    assessFile,
+    `import { isReleaseSuperseded } from ${JSON.stringify(new URL('../scripts/validated-release-tree.mjs', import.meta.url).href)};\nconsole.log(isReleaseSuperseded(process.argv[2], 'HEAD'));\n`
+  );
+  const assess = (validated = base) =>
+    spawnSync(
+      process.execPath,
+      [...(globalThis.Deno ? ['run', '-A'] : []), assessFile, validated],
+      { cwd, encoding: 'utf8' }
+    );
   put('package.json', { version: '1.0.1', dependencies: { fixture: '1.0.0' } });
   put('package-lock.json', {
     version: '1.0.1',
@@ -49,10 +60,12 @@ test('release guard compares committed Git trees and rejects source or dependenc
   writeFileSync(join(cwd, 'CHANGELOG.md'), 'A release');
   commit();
   assert.equal(check().status, 0);
+  assert.equal(assess().stdout.trim(), 'false');
   put('package.json', { version: '1.0.2', dependencies: { fixture: '2.0.0' } });
   commit();
   assert.match(check().stderr, /Package configuration changed/);
   assert.equal(check().status, 2);
+  assert.equal(assess().stdout.trim(), 'true');
   git('restore', '--source', base, 'package.json');
   writeFileSync(join(cwd, 'source.js'), 'export const value = 2;');
   commit();
@@ -61,4 +74,7 @@ test('release guard compares committed Git trees and rejects source or dependenc
   const unknown = check('missing-validated-commit');
   assert.equal(unknown.status, 1);
   assert.match(unknown.stderr, /fatal/);
+  const unknownAssessment = assess('missing-validated-commit');
+  assert.notEqual(unknownAssessment.status, 0);
+  assert.match(unknownAssessment.stderr, /fatal/);
 });

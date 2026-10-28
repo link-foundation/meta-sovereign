@@ -771,7 +771,7 @@ jobs:
       - name: actionlint, ShellCheck and pyflakes
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
       - name: ShellCheck standalone scripts and hooks
-        run: git ls-files -z '*.sh' '.husky/*' | xargs -0 docker run --rm -v "$PWD:/repo" -w /repo --entrypoint shellcheck rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 --shell=bash
+        run: git ls-files -z -- '*.sh' '.husky/*' ':(exclude)dev/log/**' ':(exclude)docs/case-studies/**' | xargs -0 docker run --rm -v "$PWD:/repo" -w /repo --entrypoint shellcheck rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 --shell=bash
       - name: Install pinned workflow security scanner
         run: pipx install zizmor==1.30.1
       - name: Workflow security audit (offline deterministic policy)

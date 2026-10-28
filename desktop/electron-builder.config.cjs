@@ -18,7 +18,6 @@
 // against `--projectDir` (the staged app), not this file.
 
 const path = require('node:path');
-const { pathToFileURL } = require('node:url');
 
 const ROOT = path.resolve(__dirname, '..');
 const PREFIX = 'meta-sovereign-desktop';
@@ -46,15 +45,7 @@ module.exports = {
   asar: true,
   // The app has no native modules; electron-updater is pure JS.
   nativeModules: { npmRebuild: false },
-  // arm64 CI installs native FPM; v27 config replaces USE_SYSTEM_FPM.
-  toolsets: process.env.META_SOVEREIGN_FPM_DIR
-    ? {
-        fpm: {
-          url: pathToFileURL(path.resolve(process.env.META_SOVEREIGN_FPM_DIR))
-            .href,
-        },
-      }
-    : {},
+  // v27 includes checksummed native FPM bundles for Linux x64 and arm64.
   directories: {
     output: path.join(ROOT, 'dist', 'desktop', 'release'),
     buildResources: path.join(ROOT, 'desktop'),

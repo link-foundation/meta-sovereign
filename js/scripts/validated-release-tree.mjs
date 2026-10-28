@@ -45,6 +45,17 @@ export function assertValidatedReleaseTree(base, head = 'HEAD') {
   }
   return files;
 }
+export function isReleaseSuperseded(base, head) {
+  try {
+    assertValidatedReleaseTree(base, head);
+    return false;
+  } catch (error) {
+    if (error instanceof ReleaseTreeChangedError) {
+      return true;
+    }
+    throw error;
+  }
+}
 if (
   process.argv[1] &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)

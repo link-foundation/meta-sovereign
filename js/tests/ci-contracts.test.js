@@ -116,3 +116,31 @@ test('committed dependency tree contains no deprecated registry packages', () =>
     .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
   assert.deepEqual(deprecated, []);
 });
+
+test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
+  const cwd = fixture(t);
+  const files = [
+    'js/scripts/check.sh',
+    '.husky/pre-commit',
+    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
+    'docs/case-studies/example/data/reference.sh',
+  ];
+  for (const file of files) {
+    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
+    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
+  }
+  spawnSync('git', ['add', '.'], { cwd });
+  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
+    ({ name }) => name === 'ShellCheck standalone scripts and hooks'
+  );
+  const selection = step.run.split(' | xargs')[0];
+  const result = spawnSync('bash', ['-c', selection], {
+    cwd,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(
+    result.stdout.split('\0').filter(Boolean).sort(),
+    files.slice(0, 2).sort()
+  );
+});

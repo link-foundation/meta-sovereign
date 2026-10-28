@@ -22,7 +22,10 @@
  */
 
 import { readFileSync, appendFileSync, readdirSync } from 'fs';
-import { assertValidatedReleaseTree } from './validated-release-tree.mjs';
+import {
+  assertValidatedReleaseTree,
+  isReleaseSuperseded,
+} from './validated-release-tree.mjs';
 
 import {
   getJsRoot,
@@ -189,11 +192,9 @@ async function main() {
     const remoteHead = remoteHeadResult.stdout.trim();
 
     if (localHead !== remoteHead) {
-      try {
-        assertValidatedReleaseTree(localHead, remoteHead);
-      } catch (error) {
+      if (isReleaseSuperseded(localHead, remoteHead)) {
         console.log(
-          `::notice::Release superseded by newer source on main: ${error.message}`
+          `::notice::Release superseded by newer source on main: ${localHead} -> ${remoteHead}`
         );
         setOutput('version_committed', 'false');
         return;

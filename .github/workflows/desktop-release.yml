@@ -248,15 +248,6 @@ jobs:
           echo "Electron $version (peer range $range)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Install fpm (Linux arm64)
-        if: matrix.name == 'linux-arm64'
-        # electron-builder's bundled fpm is x86_64-only.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ruby ruby-dev rpm
-          sudo gem install --no-document fpm
-          echo "META_SOVEREIGN_FPM_DIR=$(dirname "$(command -v fpm)")" >> "$GITHUB_ENV"
-
       - name: Build web bundle
         run: npm run build:web
 
