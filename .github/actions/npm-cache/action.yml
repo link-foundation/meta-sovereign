@@ -16,10 +16,10 @@ runs:
       uses: actions/cache/restore@v6.1.0
       with:
         path: ${{ steps.path.outputs.path }}
-        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}-${{ github.ref }}
     - name: Restore and save downloads as the designated writer
       if: inputs.write == 'true'
       uses: actions/cache@v6.1.0
       with:
         path: ${{ steps.path.outputs.path }}
-        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}-${{ github.ref }}
