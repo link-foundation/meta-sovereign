@@ -81,6 +81,8 @@ Each row inventories prose requirements as well as the detected-ecosystem list. 
 
 No upstream report substitutes for an unmet local acceptance criterion. Current PR and default-branch CI results are recorded separately in VALIDATION.md. [WEBKIT.md](WEBKIT.md) distinguishes observed failures from rejected hypotheses and records primary upstream research.
 
+- Bun pipeline early rejection can race destination file opening and failed-backup cleanup: https://github.com/oven-sh/bun/issues/47277. The standalone bounded reproduction and shared durable-writer repair are documented in [POST-MERGE.md](POST-MERGE.md).
+
 ## Default-branch follow-up
 
 All final PR workflows passed, but the merged main-only release exposed lockfile drift during version synchronization. [POST-MERGE.md](POST-MERGE.md) records the exact failure, reproducing regression, repair in both release paths and the outstanding delivery constraint. Issue 50 remains incomplete until the corrected default-branch release passes. The supplemental `release-evidence.tar.gz` retains final PR and failed main logs separately from the earlier snapshot.

@@ -183,14 +183,19 @@ export const writeStreamDurable = async (file, ...streams) => {
   const dir = path.dirname(file);
   await ensurePrivateDir(dir);
   const tmp = `${file}.${process.pid}.tmp`;
+  const output = createWriteStream(tmp, { flags: 'w', mode: FILE_MODE });
+  // A pipeline containing an async-generator stage can reject before Bun's
+  // destination has closed. Observe close before starting it, so a pending
+  // file open cannot recreate the temp after failure cleanup has unlinked it.
+  const closed = new Promise((resolve) => output.once('close', resolve));
   try {
-    await pipeline(
-      ...streams,
-      createWriteStream(tmp, { flags: 'w', mode: FILE_MODE })
-    );
+    await pipeline(...streams, output);
+    await closed;
     await fsyncFile(tmp);
     await renameDurable(tmp, file);
   } catch (error) {
+    output.destroy();
+    await closed;
     await fs.unlink(tmp).catch(() => {});
     throw error;
   }
