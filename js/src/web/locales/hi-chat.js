@@ -21,6 +21,7 @@ export const hiChat = {
   'chat.about.open': 'इस व्यक्ति के बारे में',
   'chat.about.title': '{name} के बारे में',
   'chat.marks.mentions': 'अपठित उल्लेख',
+  'chat.marks.retry': 'संदेश तक नहीं पहुँच सके। फिर कोशिश करें।',
   'chat.marks.reactions': 'अपठित प्रतिक्रियाएँ',
   'chat.about.openTelegramWeb': 'Telegram Web में खोलें',
   'chat.about.openTelegram': 'Telegram में खोलें',

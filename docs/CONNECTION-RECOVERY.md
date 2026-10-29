@@ -1,5 +1,27 @@
 # Connection recovery and foreground responsiveness
 
+## Provider and stream recovery
+
+The header shares one status location, while diagnostics distinguish a local
+server outage from a disconnected provider. A failed provider request is not
+proof that the local API is down. Telegram clients cached after a physical
+disconnect are replaced through one shared connection attempt. Late connection
+events from an older client cannot overwrite the active client's state.
+Explicit disconnected send refusals retain their outbox idempotency key and
+continue retrying; uncertain send outcomes keep their existing safeguards.
+Optional Telegram message-limit configuration waits at most one second before
+using the normal limit, and a late result remains reusable.
+
+The main event stream emits named heartbeats every 25 seconds. Its client
+watchdog replaces a stream after 60 seconds without activity, or gives a
+CONNECTING stream ten seconds of native recovery before replacing it. Repeated
+errors cannot keep postponing that deadline. All listeners and timers close
+with their owning page. A page cancelling an HTTP request is not logged as a
+worker outage; actual interrupted worker requests include their method and
+route for diagnosis.
+
+## Preserved content and continuous recovery
+
 The live 2026-10-28 investigation found automation and draft reads repeatedly copying every record in the saved archive before filtering. A CPU profile showed these copies and garbage collection dominating request handling. Automation definitions, pending drafts, run history, saved lists/audiences and audience-sync metadata now pass their filter into the store, so only matching records are copied. The regression refuses unfiltered queries on these automation paths. HTTP/2 account event streams also omit HTTP/1 connection headers.
 
 Read failures keep loading automatically. Shared view readers retry after 1, 2, 5, 10 and then every 30 seconds, without an attempt limit. Each reader has one pending attempt. Returning to a failed view or regaining connectivity can wake it immediately; unmounting removes view retry timers and ignores late responses. Shared in-flight reads remain coalesced until they complete, are explicitly cancelled or their server binding closes. The conversation directory keeps its existing continuous retry loop and last successful snapshot. Initial failures use the centered loading region; a failed refresh retains the content already on screen. Operator keeps its card and toolbar instead of adding error panels above them.

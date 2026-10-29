@@ -21,6 +21,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import { isTelegramConnectionError } from './telegram-connection-error.js';
 
 import {
   apiEntities,
@@ -145,6 +146,9 @@ const otherSendError = (error) => {
 
 /** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
 export const sendError = (error) =>
+  (isTelegramConnectionError(error)
+    ? codeError('telegram-reconnect', errorText(error))
+    : null) ??
   refusedSendAs(errorText(error)) ??
   refusedPaid(errorText(error)) ??
   otherSendError(error);

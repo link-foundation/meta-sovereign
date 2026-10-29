@@ -186,6 +186,31 @@ const catchUpWith = (store, { timers = manualTimers(), resync } = {}) => {
   return { catchUp, handled, resyncs, states, timers };
 };
 
+test('catch-up ignores late connection events from a replaced client', async () => {
+  const store = createMemoryStore();
+  const old = fakeClient([{ pts: 10, qts: 0, date: 100, seq: 1 }]);
+  const current = fakeClient([
+    { className: 'updates.DifferenceEmpty', date: 100, seq: 1 },
+  ]);
+  const { catchUp, states } = catchUpWith(store);
+  try {
+    await catchUp.attach(old, { id: 1 });
+    await catchUp.attach(current, { id: 1 });
+    const before = states.length;
+    old.handlers.forEach((handler) => handler({ state: 0 }));
+    assert.equal(states.length, before);
+    assert.equal(states.at(-1), 1);
+    current.handlers.forEach((handler) => handler({ state: 0 }));
+    assert.equal(
+      states.at(-1),
+      0,
+      'the current connection still reports its actual state'
+    );
+  } finally {
+    await catchUp.stop();
+  }
+});
+
 const message = (id, text) => ({
   className: 'Message',
   id,

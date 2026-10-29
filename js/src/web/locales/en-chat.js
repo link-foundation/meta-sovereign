@@ -20,6 +20,7 @@ export const enChat = {
   'chat.about.open': 'About this person',
   'chat.about.title': 'About {name}',
   'chat.marks.mentions': 'Unread mentions',
+  'chat.marks.retry': 'Could not reach the message. Try again.',
   'chat.marks.reactions': 'Unread reactions',
   'chat.about.openTelegramWeb': 'Open in Telegram Web',
   'chat.about.openTelegram': 'Open in Telegram',

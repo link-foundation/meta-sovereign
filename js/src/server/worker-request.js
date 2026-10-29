@@ -53,10 +53,15 @@ export const relayWorkerRequest = async ({
       await forward({ req, res, worker, agent, headers, cleanHeaders });
       return;
     } catch (error) {
+      if (signal.aborted || res.destroyed) {
+        return; // A page cancelling its own request is not a worker outage.
+      }
       log({
         level: 'debug',
         event: 'worker_request_interrupted',
         code: error.code,
+        method: req.method,
+        path: new URL(req.url, 'http://local').pathname,
       });
       if (!isRead(req) || res.headersSent || res.destroyed) {
         throw error;

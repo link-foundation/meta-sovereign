@@ -667,7 +667,8 @@ main[data-view='chat'] > .web-mode-banner {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .is-found .bubble {
+  .is-found .bubble,
+  .is-found.bubble {
     animation: none;
     outline: 2px solid var(--chat-accent);
   }
@@ -968,6 +969,8 @@ main[data-view='chat'] > .web-mode-banner {
   white-space: nowrap;
   vertical-align: baseline;
   pointer-events: none;
+  align-items: center;
+  gap: 0.3rem;
 }
 .bubble.inline-time > .bubble-time {
   position: absolute;
@@ -988,6 +991,28 @@ main[data-view='chat'] > .web-mode-banner {
 }
 .bubble-status {
   display: inline-flex;
+  align-items: center;
+  flex: none;
+  line-height: 1;
+}
+.bubble-status-spacer {
+  display: inline-block;
+  width: 14px;
+  flex: none;
+}
+.chat-mark[aria-busy='true'] {
+  position: relative;
+}
+.chat-mark[aria-busy='true'] > .icon {
+  visibility: hidden;
+}
+.chat-mark[aria-busy='true']::before {
+  position: absolute;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  left: calc(50% - 0.5rem);
+  top: calc(50% - 0.5rem);
 }
 .bubble-status.read {
   color: var(--chat-accent);
@@ -3794,10 +3819,12 @@ button.primary .recommended-tag {
   -webkit-user-select: none;
   user-select: none;
 }
-.chat-column.is-selecting .bubble-row.is-selected {
+.chat-column.is-selecting .bubble-row.is-selected,
+.chat-column .bubble-row.is-context-target {
   isolation: isolate;
 }
-.chat-column.is-selecting .bubble-row.is-selected::before {
+.chat-column.is-selecting .bubble-row.is-selected::before,
+.chat-column .bubble-row.is-context-target::before {
   /* Fill the row as well as its gutters. Each row owns only the gap
      above it. One rectangle avoids clipped-shadow seams and stacking. */
   content: '';

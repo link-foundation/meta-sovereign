@@ -7,6 +7,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { networkMessageId } from './chat-model.js';
+import { createUnreadNavigator } from './chat-mark-navigation.js';
+import { traceClient } from './client-log.js';
+import { activeAccount } from './telegram-account-scope.js';
 
 const el = React.createElement;
 const KINDS = [
@@ -15,48 +19,63 @@ const KINDS = [
 ];
 
 /** `next(kind)` goes to the next unread mark; `busy` while it does. */
-export const useUnreadMarks = (api, current, { scrollTo }) => {
-  const queues = useRef({ mentions: [], reactions: [] });
+export const useUnreadMarks = (api, current, { scrollTo, messages = [] }) => {
   const [busy, setBusy] = useState(null);
+  const [error, setError] = useState(null);
+  const latest = useRef(null);
+  latest.current = { scrollTo, messages, current };
   const chat = current?.source === 'telegram' ? current.chat : null;
+  const account = activeAccount();
+  const owner = useRef(null);
   useEffect(() => {
-    queues.current = { mentions: [], reactions: [] };
+    const navigation = createUnreadNavigator({
+      api,
+      chat,
+      scrollTo: async (id) => {
+        const shown = await latest.current.scrollTo(id);
+        traceClient(api, 'unread_jump', {
+          source: 'telegram',
+          chat: String(chat),
+          to: id,
+          success: Boolean(shown),
+        });
+        return shown;
+      },
+      count: (kind) => Number(latest.current.current?.[kind] ?? 0),
+      localIds: (kind) =>
+        kind === 'mentions'
+          ? latest.current.messages
+              .filter(
+                (message) =>
+                  message.sender !== 'me' &&
+                  message.raw?.mentioned &&
+                  message.raw?.mediaUnread
+              )
+              .map(networkMessageId)
+          : [],
+      onBusy: setBusy,
+      onError: setError,
+    });
+    owner.current = { api, chat, account, navigation };
     setBusy(null);
-  }, [chat]);
-
-  const fill = async (kind) => {
-    if (queues.current[kind].length === 0) {
-      const answer = await api.telegramUnreadMarks({ chat, kind });
-      queues.current[kind] = [...(answer?.ids ?? [])];
-    }
-    return queues.current[kind];
-  };
-
-  const next = async (kind) => {
-    if (!chat || busy || typeof api?.telegramUnreadMarks !== 'function') {
-      return;
-    }
-    setBusy(kind);
-    try {
-      const queue = await fill(kind);
-      const id = queue.shift();
-      const last = queue.length === 0;
-      if (id === undefined) {
-        // Telegram has none left: its count was behind.
-        await api.telegramReadMarks?.({ chat, kind, ids: [], last: true });
-        return;
+    setError(null);
+    return () => {
+      navigation.stop();
+      if (owner.current?.navigation === navigation) {
+        owner.current = null;
       }
-      const key = `msg:telegram:${chat}:${id}`;
-      await scrollTo(key);
-      await api.telegramReadMarks?.({ chat, kind, ids: [id], last });
-    } finally {
-      setBusy(null);
-    }
-  };
-  return { next, busy };
+    };
+  }, [api, chat, account]);
+  const next = (kind) =>
+    owner.current?.api === api &&
+    owner.current?.chat === chat &&
+    owner.current?.account === account
+      ? owner.current.navigation.next(kind)
+      : Promise.resolve(false);
+  return { next, busy, error };
 };
 
-const Mark = ({ kind, icon, label, count, busy, onClick }) => {
+const Mark = ({ kind, icon, label, count, busy, error, onClick }) => {
   const t = useT();
   return el(
     'button',
@@ -65,7 +84,9 @@ const Mark = ({ kind, icon, label, count, busy, onClick }) => {
       className: busy ? 'chat-mark busy' : 'chat-mark',
       'data-action': `next-${kind}`,
       'aria-label': `${t(label)}: ${count}`,
-      title: t(label),
+      title: error ? `${t(label)} · ${t('chat.marks.retry')}` : t(label),
+      disabled: busy,
+      'aria-busy': busy,
       onClick,
     },
     [
@@ -94,6 +115,7 @@ export const UnreadMarks = ({ current, marks, raised }) => {
         ...mark,
         count: Number(current[mark.kind]),
         busy: marks.busy === mark.kind,
+        error: marks.error,
         onClick: () => marks.next(mark.kind),
       })
     )

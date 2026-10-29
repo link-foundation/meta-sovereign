@@ -11,6 +11,7 @@ export const openServerEvents = (
     target = globalThis,
     signal,
     delays = [1000, 2000, 5000, 10000, 30000],
+    watchdogMs = 0,
   } = {}
 ) => {
   if (signal?.aborted) {
@@ -20,6 +21,19 @@ export const openServerEvents = (
   let stopped = false;
   let timer = null;
   let attempts = 0;
+  let stalled = false;
+  let watchdog = null;
+  const watch = (ms = watchdogMs) => {
+    clock.clearTimeout(watchdog);
+    if (ms > 0 && !stopped) {
+      watchdog = clock.setTimeout(() => {
+        watchdog = null;
+        if (!stopped) {
+          open();
+        }
+      }, ms);
+    }
+  };
   const open = () => {
     if (stopped) {
       return;
@@ -28,6 +42,8 @@ export const openServerEvents = (
     timer = null;
     source?.close();
     source = new Source(url);
+    stalled = false;
+    watch();
     const current = source;
     for (const [name, handler] of Object.entries(handlers)) {
       current.addEventListener(name, (event) => {
@@ -37,11 +53,30 @@ export const openServerEvents = (
       });
     }
     const healthy = () => {
+      if (stopped || current !== source) {
+        return;
+      }
       attempts = 0;
+      stalled = false;
+      watch();
     };
     current.addEventListener('ready', healthy);
     current.addEventListener('message', healthy);
+    current.addEventListener('link', healthy);
+    current.addEventListener('heartbeat', healthy);
     current.addEventListener('error', () => {
+      if (
+        !stopped &&
+        current === source &&
+        current.readyState === 0 &&
+        watchdogMs &&
+        !stalled
+      ) {
+        // Give native reconnect a chance, then replace a CONNECTING source
+        // which Safari otherwise can leave stalled indefinitely.
+        stalled = true;
+        watch(Math.min(watchdogMs, 10000));
+      }
       if (
         stopped ||
         current !== source ||
@@ -50,6 +85,7 @@ export const openServerEvents = (
       ) {
         return;
       }
+      clock.clearTimeout(watchdog);
       timer = clock.setTimeout(
         open,
         delays[Math.min(attempts++, delays.length - 1)]
@@ -64,6 +100,7 @@ export const openServerEvents = (
   const stop = () => {
     stopped = true;
     clock.clearTimeout(timer);
+    clock.clearTimeout(watchdog);
     source?.close();
     target.removeEventListener?.(READ_RECOVERED_EVENT, wake);
     target.removeEventListener?.('online', wake);

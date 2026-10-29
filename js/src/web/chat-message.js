@@ -1,3 +1,4 @@
+import { BubbleFooter } from './chat-message-meta.js';
 // Chat message rendering: photos, documents, replies, forwards, reactions,
 // service lines, context menus.  Imported by chat-view.js.
 //
@@ -29,7 +30,6 @@ import { Icon } from './icons.js';
 import { failureText, isPaidFailure } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
-import { EffectBadge } from './chat-effects.js';
 import { WebPreview } from './chat-webpage.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
@@ -50,7 +50,6 @@ import { RichMessage } from './chat-rich-message.js';
 import { emailBubble } from './chat-email-body.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { CommentsBar } from './chat-comments-bar.js';
-import { ViewCount } from './chat-views.js';
 import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { useRowReactions } from './chat-quick-reaction.js';
@@ -992,43 +991,6 @@ const ShownText = ({ parts, message, api }) => {
   });
 };
 
-// Time row: "edited · 12:34 ✓"
-const BubbleFooter = ({ parts, message, time, t, spacer = false, api, mine }) =>
-  el(
-    'span',
-    {
-      className: spacer ? 'bubble-time-spacer' : 'bubble-time',
-      ...(spacer ? { 'aria-hidden': 'true' } : {}),
-    },
-    [
-      parts.edited
-        ? el('span', { key: 'e', className: 'bubble-edited' }, t('chat.edited'))
-        : null,
-      parts.ttl > 0
-        ? el(
-            'span',
-            {
-              key: 'ttl',
-              className: 'bubble-ttl',
-              'data-message-ttl': parts.ttl,
-              title: t('chat.ttl.message'),
-            },
-            el(Icon, { name: 'timer', size: 11 })
-          )
-        : null,
-      parts.effect
-        ? spacer
-          ? el('span', { key: 'fx', className: 'bubble-effect' }, '✨')
-          : el(EffectBadge, { key: 'fx', id: parts.effect, message, api, mine })
-        : null,
-      el(ViewCount, { key: 'views', message, api, track: !spacer }),
-      `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
-      message.delivery
-        ? el(DeliveryIcon, { key: 'd', status: message.delivery })
-        : null,
-    ]
-  );
-
 // Inner contents of one bubble div.
 const BubbleContent = ({
   parts,
@@ -1291,7 +1253,12 @@ export const MessageBubble = ({
     'div',
     {
       ref: row,
-      ...rowProps(mine, leaving, run, { selecting, selected, id: message.id }),
+      ...rowProps(mine, leaving, run, {
+        selecting,
+        selected,
+        context: Boolean(menu),
+        id: message.id,
+      }),
       ...handlers,
     },
     [
@@ -1393,49 +1360,25 @@ const rowProps = (
   mine,
   leaving,
   run = {},
-  { selecting, selected, id } = {}
+  { selecting, selected, context, id } = {}
 ) => ({
   className: [
     'bubble-row',
     leaving ? 'is-leaving' : null,
     selecting ? 'is-selectable' : null,
     selected ? 'is-selected' : null,
+    context ? 'is-context-target' : null,
   ]
     .filter(Boolean)
     .join(' '),
   ...(selecting ? { 'aria-selected': selected ? 'true' : 'false' } : {}),
+  ...(context ? { 'data-context-target': id } : {}),
   ...(leaving ? {} : { 'data-row': id }),
   'data-mine': mine ? 'true' : undefined,
   'data-run-first': run.first === false ? undefined : 'true',
   'data-run-last': run.last === false ? undefined : 'true',
   ...(leaving ? { 'data-leaving': 'true', 'aria-hidden': 'true' } : {}),
 });
-
-// Delivery icon (clock, ✓, ✓✓, !).
-const DELIVERY_ICON = {
-  sending: 'clock',
-  waiting: 'clock',
-  stored: 'clock',
-  sent: 'check',
-  read: 'check-double',
-  failed: 'alert',
-};
-
-const DeliveryIcon = ({ status }) => {
-  const t = useT();
-  const label = t(`chat.delivery.${status}`);
-  return el(
-    'span',
-    {
-      className: `bubble-status ${status}`,
-      'data-delivery': status,
-      title: label,
-      role: 'img',
-      'aria-label': label,
-    },
-    el(Icon, { name: DELIVERY_ICON[status] ?? 'check', size: 14 })
-  );
-};
 
 // Retry / Delete for failed or waiting outbox messages.
 const BubbleActionsInner = ({ message, composer }) => {

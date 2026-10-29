@@ -195,6 +195,14 @@ try {
   // One message's menu, in Desktop's order.
   await rightClick(2);
   assert(
+    (await page.locator(`[data-context-target="${idOf(2)}"]`).count()) === 1,
+    'the menu visibly targets exactly the clicked message'
+  );
+  assert(
+    (await top()) === null,
+    'context targeting does not enter persistent bulk selection'
+  );
+  assert(
     JSON.stringify(await menu()) ===
       JSON.stringify([
         'reply',
@@ -210,6 +218,10 @@ try {
   );
   await page.keyboard.press('Escape');
   await pause();
+  assert(
+    (await page.locator('[data-context-target]').count()) === 0,
+    'dismissal clears the temporary context highlight'
+  );
   // Safari selects the word under a right-click; Telegram does not.
   assert(
     (await page.evaluate(() => String(globalThis.getSelection()))) === '',

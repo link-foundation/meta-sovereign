@@ -18,6 +18,7 @@
  */
 
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { isTelegramConnectionError } from './telegram-connection-error.js';
 import { actionNamesOf } from './telegram-service-names.js';
 
 const SOURCE = 'telegram';
@@ -213,10 +214,7 @@ export const floodSeconds = (error) => {
 // waits for it — 1 s, 2 s, 4 s, 8 s — instead of failing (R-Y75), as
 // Telegram's apps queue requests until they are connected again.
 const DISCONNECTED_RETRIES = 4;
-export const isDisconnected = (error) =>
-  /while disconnected|not connected|connection (?:was )?closed/i.test(
-    String(error?.message ?? error ?? '')
-  );
+export const isDisconnected = isTelegramConnectionError;
 
 const floodError = (retryAfter) =>
   Object.assign(new Error('Telegram asked to wait'), {

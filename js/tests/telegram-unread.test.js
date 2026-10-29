@@ -122,11 +122,21 @@ test('a seen mark is read, and the last one reads the whole list', async () => {
   await t.store.put(
     readLink('-5', { inboxMaxId: 40, unreadMentions: 3, unreadReactions: 2 })
   );
+  await t.store.put({
+    id: 'msg:telegram:-5:12',
+    body: 'mention',
+    raw: { mentioned: true, mediaUnread: true },
+  });
   await t.marks.readMarks({ chat: '-5', kind: 'mentions', ids: [12] });
   assert.equal(t.sent[0].className, 'messages.ReadMessageContents');
   assert.deepEqual(t.sent[0].id, [12]);
   assert.equal(t.observed[0].className, 'UpdateReadMessagesContents');
   assert.equal((await t.store.get(readLinkId('-5'))).unreadMentions, 2);
+  assert.equal(
+    (await t.store.get('msg:telegram:-5:12')).raw.mediaUnread,
+    false,
+    'the local flag cannot create a phantom unread mention after acknowledgement'
+  );
 
   await t.marks.readMarks({
     chat: '-5',
@@ -150,6 +160,18 @@ test('a seen mark is read, and the last one reads the whole list', async () => {
     false
   );
   assert.equal(t.sent.length, before, 'nothing to read, nothing asked');
+});
+
+test('an authoritative empty marks page reconciles a stale counter without marking contents read', async () => {
+  const fixture = await setup({ messages: [], count: 0 });
+  await fixture.store.put(readLink('-5', { unreadMentions: 1 }));
+  assert.deepEqual(
+    (await fixture.marks.marks({ chat: '-5', kind: 'mentions' })).ids,
+    []
+  );
+  assert.equal((await fixture.store.get(readLinkId('-5'))).unreadMentions, 0);
+  assert.equal(fixture.sent.length, 1);
+  assert.equal(fixture.sent[0].className, 'messages.GetUnreadMentions');
 });
 
 const call = async (account, method, path, body) => {

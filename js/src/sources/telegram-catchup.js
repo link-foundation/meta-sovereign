@@ -478,9 +478,12 @@ export const createTelegramCatchUp = ({
     onConnection(1);
     counter.reset();
     if (typeof next?.addEventHandler === 'function') {
-      next.addEventHandler(observe);
+      next.addEventHandler((update) => client === next && observe(update));
     }
     const saved = await store.get(TELEGRAM_STATE_ID);
+    if (client !== next) {
+      return;
+    }
     counter.set(
       saved && saved.account === account && Number.isFinite(saved.pts)
         ? saved

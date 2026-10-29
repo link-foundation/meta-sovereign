@@ -71,6 +71,7 @@ const askAt = async (api, current, ms) => {
 };
 
 const FLASH_MS = 1600;
+const flashes = new WeakMap();
 const SHOW_TRIES = 20;
 
 const SETTLE_MS = 160;
@@ -98,12 +99,24 @@ const showMessage = (id, { instant = false } = {}) => {
   if (!node) {
     return false;
   }
-  node.scrollIntoView?.({
-    block: 'center',
-    behavior: instant ? 'auto' : 'smooth',
-  });
+  if (!seen(node)) {
+    node.scrollIntoView?.({
+      block: 'center',
+      behavior: instant ? 'auto' : 'smooth',
+    });
+  }
+  globalThis.clearTimeout(flashes.get(node));
+  node.classList?.remove('is-found');
+  // Restart the brief highlight even when the same visible target is clicked.
+  void node.offsetWidth;
   node.classList?.add('is-found');
-  globalThis.setTimeout(() => node.classList?.remove('is-found'), FLASH_MS);
+  flashes.set(
+    node,
+    globalThis.setTimeout(() => {
+      node.classList?.remove('is-found');
+      flashes.delete(node);
+    }, FLASH_MS)
+  );
   return true;
 };
 

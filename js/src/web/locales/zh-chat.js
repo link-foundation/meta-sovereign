@@ -19,6 +19,7 @@ export const zhChat = {
   'chat.about.open': '关于此人',
   'chat.about.title': '关于 {name}',
   'chat.marks.mentions': '未读提及',
+  'chat.marks.retry': '无法定位消息，请重试。',
   'chat.marks.reactions': '未读回应',
   'chat.about.openTelegramWeb': '在 Telegram 网页版中打开',
   'chat.about.openTelegram': '在 Telegram 中打开',

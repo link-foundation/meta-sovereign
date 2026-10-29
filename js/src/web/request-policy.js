@@ -46,6 +46,8 @@ export const isConnectionFailure = (code) =>
     'timeout',
     'server-starting',
     'reconnecting',
+    'telegram-reconnect',
+    'telegram-stuck',
   ].includes(code);
 
 export const retryableReadResponse = async (response) => {

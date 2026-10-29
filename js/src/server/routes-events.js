@@ -5,7 +5,7 @@
  *
  *   event: link    data: { type: 'put', link }  |  { type: 'delete', id }
  *   event: ready   once, when the stream is open
- *   : ping         a comment every 25 s keeps proxies from closing it
+ *   event: heartbeat  every 25 s, also lets the client detect a stalled stream
  *
  * A page that stops reading (a sleeping tab, a dead connection) is cut
  * off once `MAX_BUFFERED` bytes wait for it, instead of the server
@@ -105,7 +105,7 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
     );
   });
   const heartbeat = globalThis.setInterval(
-    () => res.write(': ping\n\n'),
+    () => res.write(frame('heartbeat', { at: new Date().toISOString() })),
     HEARTBEAT_MS
   );
   heartbeat.unref?.();

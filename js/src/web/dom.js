@@ -1028,13 +1028,17 @@ const rawApi = {
             /* Skip malformed frames; the next refresh catches up. */
           }
         },
+        heartbeat: () => {
+          transport.state('open');
+          client.reached?.();
+        },
         error: () => {
           interrupted = true;
           transport.state('closed');
           onState('closed');
         },
       },
-      { Source, signal: pageLifetime }
+      { Source, signal: pageLifetime, watchdogMs: 60000 }
     );
     return () => {
       stop();

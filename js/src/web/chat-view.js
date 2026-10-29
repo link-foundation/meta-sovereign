@@ -549,6 +549,7 @@ const Stream = ({ state, api, actions }) => {
   });
   const marks = useUnreadMarks(api, state.current, {
     scrollTo: (id) => onScrollTo(id),
+    messages: shown,
   });
   const alone =
     Boolean(state.current.personal) || state.current.kind === 'channel';

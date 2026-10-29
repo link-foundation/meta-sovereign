@@ -20,6 +20,7 @@ export const ruChat = {
   'chat.about.open': 'Об этом человеке',
   'chat.about.title': 'О собеседнике: {name}',
   'chat.marks.mentions': 'Непрочитанные упоминания',
+  'chat.marks.retry': 'Не удалось перейти к сообщению. Повторите попытку.',
   'chat.marks.reactions': 'Непрочитанные реакции',
   'chat.about.openTelegramWeb': 'Открыть в Telegram Web',
   'chat.about.openTelegram': 'Открыть в Telegram',

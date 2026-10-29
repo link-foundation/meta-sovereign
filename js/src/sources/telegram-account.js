@@ -29,6 +29,7 @@
  */
 
 import { createDialogState } from './telegram-dialog-state.js';
+import { messageLengthMax } from './telegram-message-limit.js';
 import { buildMessageLink } from './link.js';
 import { personLink } from './live-links.js';
 import { accountOf, gramjsClientFactory } from './telegram-mtproto.js';
@@ -59,12 +60,7 @@ import {
   repairSenders,
   rereadUnsupported,
 } from './telegram-repair.js';
-import {
-  MAX_MESSAGE_LENGTH,
-  sendError,
-  sendText,
-  formattedParts,
-} from './telegram-send.js';
+import { sendError, sendText, formattedParts } from './telegram-send.js';
 import { rawEntities } from './telegram-format.js';
 import {
   paidField,
@@ -452,13 +448,17 @@ export const createUserConnection = ({
   };
   const disconnect = async () => {
     generation += 1;
+    opening = null;
     const current = connection;
     connection = null;
     await end(current?.client);
   };
   const connect = async (creds, key) => {
+    const mine = generation + 1;
     await disconnect();
-    const mine = generation;
+    if (mine !== generation) {
+      throw codeError('telegram-reconnect', 'the connection was dropped');
+    }
     const client = await clientFactory({
       apiId: creds.apiId,
       apiHash: creds.apiHash,
@@ -489,7 +489,11 @@ export const createUserConnection = ({
       );
     }
     const key = `${creds.apiId}:${creds.session}`;
-    if (connection?.key === key) {
+    if (
+      connection?.key === key &&
+      connection.client.connected !== false &&
+      connection.client.disconnected !== true
+    ) {
       return connection;
     }
     if (opening?.key !== key) {
@@ -842,22 +846,6 @@ const sentLink = (
   return Object.keys(raw).length > 0 ? { ...known, raw } : known;
 };
 
-// Telegram's message length limit (help.getConfig), once per client.
-const lengthLimits = new WeakMap();
-const messageLengthMax = async (client, Api) => {
-  if (!lengthLimits.has(client)) {
-    const ask =
-      Api?.help?.GetConfig && typeof client.invoke === 'function'
-        ? client
-            .invoke(new Api.help.GetConfig())
-            .then((config) => Number(config?.messageLengthMax) || null)
-            .catch(() => null)
-        : Promise.resolve(null);
-    lengthLimits.set(client, ask);
-  }
-  return (await lengthLimits.get(client)) ?? MAX_MESSAGE_LENGTH;
-};
-
 // Send as the user: exactly once (random_id), formatted, long text in
 // parts; returns the network's links for what was sent.
 const postAsUser = async (
@@ -878,6 +866,10 @@ const postAsUser = async (
     effect,
   }
 ) => {
+  const { Api, helpers } = await env.importer().catch(() => ({}));
+  const first = await env.connection.open(creds);
+  const maxLength = await messageLengthMax(first.client, Api);
+  // Configuration may finish after recovery replaced its connection.
   const { client: own } = await env.connection.open(creds);
   // Sent as another identity (R-Y141).
   const client = await withSendAs(env, own, sendAs, allowPaidStars).catch(
@@ -885,8 +877,6 @@ const postAsUser = async (
       throw sendError(error);
     }
   );
-  const { Api, helpers } = await env.importer().catch(() => ({}));
-  const maxLength = await messageLengthMax(client, Api);
   const release = env.live.expectOwn({
     chat,
     clientId,

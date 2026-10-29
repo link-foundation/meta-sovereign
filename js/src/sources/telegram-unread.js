@@ -31,6 +31,13 @@ const cleanIds = (ids) =>
   [...new Set((ids ?? []).map(Number))]
     .filter((id) => Number.isInteger(id) && id > 0)
     .slice(0, MARK_PAGE);
+const liveMessages = (result) =>
+  (result?.messages ?? []).filter(
+    (message) =>
+      message &&
+      message.id !== undefined &&
+      message.className !== 'MessageEmpty'
+  );
 
 /**
  * `env`: the account's (store, connection, queue, importer, catchUp,
@@ -55,8 +62,7 @@ export const createUnreadMarks = (env, { userClient, write }) => {
   };
 
   const marks = async ({ chat, kind } = {}) => {
-    const client = chat && FIELD[kind] ? await userClient() : null;
-    if (!client) {
+    if (!chat || !FIELD[kind]) {
       return { ok: false, supported: false, ids: [] };
     }
     const { Api } = await env.importer();
@@ -66,25 +72,37 @@ export const createUnreadMarks = (env, { userClient, write }) => {
         ? Api.messages.GetUnreadMentions
         : Api.messages.GetUnreadReactions;
     const started = Date.now();
-    const result = await env.queue.run(`marks:${kind}:${target}`, 'view', () =>
-      env.connection.withPeer(client, target, (peer) =>
-        client.invoke(
-          new Request({
-            peer,
-            offsetId: 0,
-            addOffset: 0,
-            limit: MARK_PAGE,
-            maxId: 0,
-            minId: 0,
-          })
-        )
-      )
+    const result = await env.queue.run(
+      `marks:${kind}:${target}`,
+      'view',
+      async () => {
+        const client = await userClient();
+        if (!client) {
+          return null;
+        }
+        return env.connection.withPeer(client, target, (peer) =>
+          client.invoke(
+            new Request({
+              peer,
+              offsetId: 0,
+              addOffset: 0,
+              limit: MARK_PAGE,
+              maxId: 0,
+              minId: 0,
+            })
+          )
+        );
+      }
     );
-    const messages = (result?.messages ?? []).filter(
-      (m) => m && m.id !== undefined && m.className !== 'MessageEmpty'
-    );
+    if (!result) {
+      return { ok: false, supported: false, ids: [] };
+    }
+    const messages = liveMessages(result);
     await write(target, messages);
     const ids = messages.map((m) => Number(m.id)).sort((a, b) => a - b);
+    if (!ids.length && Number(result?.count ?? 0) === 0) {
+      await lower(target, kind, 0, true);
+    }
     env.log?.({
       event: 'telegram_unread_marks',
       kind,
@@ -126,23 +144,40 @@ export const createUnreadMarks = (env, { userClient, write }) => {
 
   const readMarks = async ({ chat, kind, ids, last = false } = {}) => {
     const wanted = cleanIds(ids);
-    const client =
-      chat && FIELD[kind] && (wanted.length > 0 || last)
-        ? await userClient()
-        : null;
-    if (!client) {
+    if (!chat || !FIELD[kind] || (!wanted.length && !last)) {
       return { ok: false, supported: false };
     }
     const { Api } = await env.importer();
     const target = String(chat);
-    await env.queue.run(`marks-read:${kind}:${target}`, 'view', async () => {
-      if (wanted.length > 0) {
-        await readContents(client, Api, target, wanted);
+    const read = await env.queue.run(
+      `marks-read:${kind}:${target}`,
+      'view',
+      async () => {
+        const client = await userClient();
+        if (!client) {
+          return false;
+        }
+        if (wanted.length > 0) {
+          await readContents(client, Api, target, wanted);
+        }
+        if (last) {
+          await readAll(client, Api, target, kind);
+        }
+        return true;
       }
-      if (last) {
-        await readAll(client, Api, target, kind);
+    );
+    if (!read) {
+      return { ok: false, supported: false };
+    }
+    for (const id of wanted) {
+      const message = await store.get(`msg:telegram:${target}:${id}`);
+      if (kind === 'mentions' && message?.raw?.mediaUnread) {
+        await store.put({
+          ...message,
+          raw: { ...message.raw, mediaUnread: false },
+        });
       }
-    });
+    }
     await lower(target, kind, wanted.length, last);
     return { ok: true, read: wanted.length, last: Boolean(last) };
   };
