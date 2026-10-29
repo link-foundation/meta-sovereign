@@ -22,6 +22,7 @@ individual runs and overlap; they must not be added as unique test totals.
 | Deliberate catastrophic-regex fixture | Existing fixed 5001-character input retained through the VM-limited matcher | `regex-budget-final.log`: the named timeout regression passes in about 110 ms; no uncontrolled direct match |
 | Complete CodeQL coverage and safe error summaries | `codeql-follow-up-before.log`: 3 failures for missing documentation-only PR coverage, stack-string disclosure and arbitrary JSON error stringification; API snapshots separately establish the absent scheduled PR trigger | `codeql-follow-up-after.log`: 12 workflow/security/redaction tests plus the existing JSON error-contract test pass; corrected changed-file lint passes in `codeql-follow-up-lint.log` |
 | Greeting emoji compatibility | `greeting-emoji-before.log`: wave-plus-addressee regression fails against the first linear scanner | `greeting-emoji-after.log`: all 38 greeting/security tests pass, including direct pattern tests, English/Russian addressees and the bounded rejection probe; lint and rebuilt bundle pass |
+| Transitive Telegram storage initialization | `telegram-warning-trace.log`: actual store2 getter stack; `telegram-storage-before.log`: two failures (getter read and native warning) | `telegram-storage-consumers.log`: 104 relevant tests pass without warnings; `telegram-storage-disk-roundtrip.log`: both regressions pass with original disk constructor identity and actual write/reopen; changed-file lint passes |
 
 The adversarial greeting child uses finite input, a 96 MiB V8 heap, a 512 KiB
 stack and a two-second child deadline. Broad backup-memory regression remains CI
@@ -49,6 +50,7 @@ runs. These failures were diagnosed from executed output, not stale badges:
 | 40820084958 / 1a0274ef | `ci-logs/40820084958-attempt1.log:2434`: three fragments before the consolidation commit; same policy, now repaired. |
 | 40820204785 / 01ac7d3 | `ci-logs/01ac7d3-deno.log:5919`: null storage; `01ac7d3-chromium.log:1162`: incorrect `asked.split` assertion on an array; `01ac7d3-codeql.log:1898–1899`: the strict new gate rejects one deliberate adversarial test. Fixed selector/assertion; restored the original timeout fixture and audited its exact source hash. |
 | 40823528729 / 9f0749d4 | `ci-logs/40823528729-attempt1.log:11502–11504`: scheduled JavaScript SARIF rejects a surviving stack-trace flow through safeMessage's string branch. Full SARIF artifact 12875292804 and compact analysis retained. Minimal stack-string/JSON-error regressions fail first, then pass with the shared summary boundary. |
+| 40827010880 / 6576ca4b | `ci-logs/40827010880-attempt1.log:405–408`: the RFC Editor's canonical info URL repeatedly redirects to itself, then returns 502/timeouts. Strict gate correctly fails. Full link artifact, HTTP probes and immutable upstream worker source retained. All four email translations use the verified 200 direct HTML URL; `rfc8621-docs-format.log` passes. Upstream #577 distinguishes observed CI reproduction from later local success. |
 
 The CodeQL bot inline review was read and answered at
 [discussion_r4408929705](https://github.com/link-foundation/meta-sovereign/pull/53#discussion_r4408929705).
@@ -91,6 +93,20 @@ before PR 53 is marked ready. Final run URLs and the validated SHA are recorded
 on the live PR, avoiding an endless cycle in which archiving a run creates
 another commit needing its own run. The archive is a dated collection, not a
 claim about future workflow status.
+
+The final collection extends through the available logs at `6576ca4b`, including
+the intervening superseded runs, successful desktop/Pages/security jobs and the
+failed RFC link run. Both CodeQL families and their aggregate succeed at that
+head (`metadata/final-head-codeql-check.json`). The broad Checks and release run
+40827010970 subsequently completes successfully, including WebKit, and its full
+log is retained. That passing run still contains 21 transitive storage warnings;
+the subsequent trace, reproducing regressions and lazy-session repair are also
+archived. Links remains failed at that head; the RFC document fix and
+refreshed evidence require all five workflows and the aggregate
+CodeQL check to pass again at the final pushed SHA. Those final results belong
+on the live PR, after the archive's cutoff.
+The final Node logs are additionally inspected for remaining storage warnings;
+workflow success alone did not close that requirement.
 
 ## Completion boundaries
 

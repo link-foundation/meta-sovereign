@@ -34,6 +34,13 @@ greeting compatibility repairs each have a failing/passing regression. Complete
 diff review found the latter before finalization. The last checkbox is
 deliberately pending in this immutable snapshot: final-head CI and readiness
 are recorded on the live PR after the evidence commit, as VALIDATION.md explains.
+The collection also preserves the later RFC self-redirect failure, direct-format
+HTTP probes, upstream report #577 and the repair in all four email translations.
+All final-head workflows must pass again before readiness.
+Passing workflow logs were also searched for executed warnings: 21 remaining
+transitive storage warnings led to a focused trace, two failing regressions,
+lazy session exports, 104 passing consumers and two upstream reports. Final logs
+must confirm those warnings are absent, alongside the workflow verdicts.
 
 Collection started 2026-10-29. Initial branch head:
 `b22541e5603e5a9fdcc69f4cb151d90062d1e9a6`; issue's main head:

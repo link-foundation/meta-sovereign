@@ -15,6 +15,14 @@ the first-line, credential-redacted summary boundary. The failed scheduled audit
 and its complete SARIF are preserved alongside the successful verification.
 Compatibility regressions also preserve safe SVG drawings and wave-plus-addressee
 greetings while retaining the parser and bounded-matching security repairs.
+Later link CI exposed an intermittent RFC Editor self-redirect. The complete
+failure and HTTP probes are preserved, all four email translations use the
+verified direct HTML document, and upstream report #577 records the evidence
+without claiming the unproven internal server cause.
+Raw-log review also traced 21 surviving Node storage warnings to teleproto's eager
+disk-driver import. Lazy session exports now avoid unused browser storage while
+preserving the original disk session's write/reopen behavior. Two failing-first
+regressions and 104 passing consumer tests accompany both upstream reports.
 
 - [Analysis and timeline](ANALYSIS.md): causes, alternatives, chosen fixes and warning disposition.
 - [Requirement inventory](REQUIREMENTS.md): each issue and execution requirement mapped to evidence.

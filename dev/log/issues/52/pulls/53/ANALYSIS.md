@@ -39,6 +39,10 @@ before classifying a problem.
 | 05:27:43 | Manually dispatch the scheduled audit on 9f0749d4. Uploading its missing categories clears the aggregate check, but the strict local SARIF verdict correctly rejects a remaining thrown-string stack path. |
 | 05:39:42 | Push 1868964c with reproducing regressions, safe first-line error summaries and automatic PR coverage for both CodeQL configuration families. Five workflows now run automatically. |
 | After 05:39:42 | All five workflows at 1868964c complete successfully, along with the aggregate CodeQL check covering all eight baseline configurations. Diff review also finds/restores wave-plus-addressee compatibility before the final evidence push. |
+| 06:04:19 | Push 6576ca4b with the smaller, fully verified XZ evidence format. Both CodeQL families and their aggregate succeed again. |
+| 06:09:47–06:11:48 | Links run 40827010880 records 11–15 repeated RFC 8621 canonical self-redirects, then 502/timeouts. The preceding run passed; this is new intermittent external evidence, not a reason to weaken the gate. |
+| After 06:14 | Local direct RFC HTML/text requests return 200 without redirects. Update all four email documentation translations and report the observed redirect chain upstream as ietf-tools/red #577. The local extensionless request eventually returns 200, so internal production cause remains unproven. |
+| During final log review | Although Checks run 40827010970 passes, its three Node lanes retain 21 Web Storage warnings. A focused trace identifies teleproto's eager StoreSession → store2 import. Two new regressions fail first; lazy session exports remove the unused initialization. All 104 focused consumers and an actual disk-session reopen pass without warnings. |
 
 The release failure follows dependency updates in PR 51, but npm's re-resolution
 operation is the root cause. Relaxing the strict tree guard would publish a
@@ -152,6 +156,33 @@ round-trip test fails first; both selectors now capture storage once and choose
 the in-memory driver when it is absent. Existing offline CV/serverFetch tests
 also pass after the fix. Browser-only persistence behavior remains covered in CI.
 
+The final raw-log review, rather than the passing badge, finds another 21 warnings
+at `6576ca4b` (seven per Node OS). For example,
+`ci-logs/40827010970-attempt1.log:59965` precedes the rich-message tests; the other
+six Linux instances are at 60459, 60776, 60788, 60835, 60862 and 61020. A focused
+`node --trace-warnings` run proves these come from `store2/dist/store2.js:264`,
+loaded by teleproto's eager `sessions/index.js` → `StoreSession` import. These are
+not remaining direct preference reads. try/catch cannot prevent a getter warning.
+
+Suppressing all experimental warnings would conceal unrelated diagnostics;
+configuring a global storage file would introduce unnecessary persistence. Node's
+`--no-experimental-webstorage` is a verified headless-process workaround, but
+changes that process's feature availability. The chosen compatibility adapter
+instead exposes teleproto 1.232.0's same four session exports as lazy getters in
+its existing CommonJS cache before loading the client. The app's StringSession
+does not load the unused disk driver. The original constructors, globals,
+dependency files and warning handlers remain intact. Explicit StoreSession use
+still loads the real implementation, with a disk write/reopen regression.
+Existing schema, rich-message and account consumers use the shared import path.
+
+`validation/telegram-storage-before.log` has two actual failures: one unwanted
+getter read and the native warning. `telegram-storage-consumers.log` records all
+104 relevant tests passing without warnings; the expanded disk-identity/reopen
+check also passes. No runtime/browser matrix runs locally. Reports
+[teleproto #53](https://github.com/sanyok12345/teleproto/issues/53) and
+[store2 #131](https://github.com/nbubna/store/issues/131) include minimal direct
+imports, trace, workarounds and upstream lazy-loading/descriptor-check proposals.
+
 ### Desktop evidence and observable skips
 
 The original fallback was correctly blocked by the failed version commit
@@ -183,6 +214,35 @@ This preserves remote history without any force push. Success output is emitted
 only after a confirmed push. A real local bare-remote rehearsal verifies metadata
 recomputation, source supersession and policy refusal, rather than only mocking Git.
 
+### Intermittent external RFC canonical redirect loop
+
+`ci-logs/40827010880-attempt1.log:405–408` records the extensionless RFC 8621
+URL redirecting to `/info/rfc8621/`, followed by repeated 301 redirects to that
+identical URL. One reference ends in 502; three time out. Lines 636, 661 and 677
+show the existing strict unresolved-link verdict. An archived Wayback copy does
+not convert these failures into passes. All four maintained email pages contain
+the same reference, so repair all translations together.
+
+The observable cause is the remote redirect chain. The edge/origin mechanism is
+not proven: a later local request eventually succeeds, whereas explicit `.html`
+and `.txt` requests return 200 immediately without redirects. Source review at
+`5d5e4ec6e7e6214f54c0366d264e74fd4fc1144f` finds the intended extensionless
+redirect in `worker/src/blobs.ts`, an origin fallback for canonical info pages,
+and per-edge redirect caching in `staleWhileRevalidate`. These are investigation
+points, not proof of the deployed origin's faulty rule. Headers, status results,
+source excerpts and the complete failed log are archived under `research/`.
+
+Options are to ignore the URL, increase retries, choose another mirror, or link
+directly to the same publisher's document format. The last preserves the original
+source and is verified by an actual HTTP 200. No exclusion, accepted error code,
+retry increase or weakened link check is introduced. The existing verbose CI
+redirect output already exposes the failure. Upstream report
+[ietf-tools/red #577](https://github.com/ietf-tools/red/issues/577) includes a
+bounded reproduction, explicit intermittency limits, workarounds and suggestions
+for default-off edge diagnostics, a self-redirect cache guard, origin-rule repair
+and GET/HEAD/canonical-chain regression coverage. Fixing external infrastructure
+is not a required sub-issue; the downstream references are repaired here.
+
 ## Remaining diagnostics: ownership and disposition
 
 | Original diagnostic | Cause and action |
@@ -208,6 +268,7 @@ not claim to have fixed upstream's bundled dependency or GitHub runner internals
 - [RE2](https://github.com/google/re2/blob/main/README.md) guarantees bounded matching complexity but excludes lookarounds/backreferences. It is not a compatible replacement for the existing general regex API; replacing that API would be a separate feature decision, not silently escaping user expressions.
 - [Node CLI warning controls](https://nodejs.org/api/cli.html#--disable-warningcode-or-type) support the single-code deployment workaround. A broad `NODE_NO_WARNINGS` or shared process flag would conceal unrelated failures and is not used.
 - [OpenSSL rehash](https://docs.openssl.org/master/man1/openssl-rehash/) explains the one-certificate-per-file requirement behind the managed certificate-bundle warning.
+- [RFC Editor website launch](https://www.ietf.org/blog/rfc-editor-website-launch/) and the [IETF Tools June update](https://notes.ietf.org/p/tools-update-202606) identify the new site's issue tracker. The RFC Editor's explicit [RFC 8621 HTML document](https://www.rfc-editor.org/rfc/rfc8621.html) supplies the verified direct document URL. The launch itself does not establish the cause of October's intermittent redirect loop.
 
 Plans were executed in dependency order: preserve original evidence; add failing
 regressions; repair versioning/observability; enforce SARIF and resolve findings;
