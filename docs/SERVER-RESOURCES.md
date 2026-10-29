@@ -28,15 +28,21 @@ A fall in RSS alone does not establish that a leak has disappeared.
 - Packed records keep cold-field references in two fixed slots instead of a
   per-record hash map. Metadata copies skip cold fields before reading values
   and copy directly, avoiding temporary entry arrays and shape churn during
-  loading. Forcing fast V8 properties for heterogeneous records increased the
-  production heap and was reverted; a small uniform fixture did not predict
-  that archive's behavior. Startup adopts its private packed records directly.
+  loading. A native-property-layout experiment did not improve the measured
+  live heap and was reverted; object-shape checks are not a heap census.
+  Startup adopts its private packed records directly.
   None of these in-memory changes discards messages or changes the disk format.
 - A packed raw payload also keeps its media type as a tiny private summary.
   Live poll updates that name only a poll ID, and unsupported-media repairs,
   reject unrelated messages using that summary. They must not inflate every
   message in the archive to find a few matching media items. Public mutable
   copies read their actual payload, so edits cannot leave a stale media type.
+  Type names are explicitly copied and shared in a bounded cache. A decoded
+  provider name can be a substring of a much larger input chunk: retaining it
+  directly would keep that reader allocation alive after its raw data was
+  packed. Low-rate production sampling identified this retention path; a small
+  synthetic Node fixture checks actual string ownership without using a real
+  archive or taking a production heap dump.
 - Forum topic IDs are summarized while packing too. Chat-index startup projects
   only its small metadata fields and the summarized topic; it does not create
   full public record copies or inflate every provider payload to read reply

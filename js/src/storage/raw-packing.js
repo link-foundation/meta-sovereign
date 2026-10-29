@@ -121,6 +121,26 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
   let bodyUtf16Bytes = 0;
   let childIdUtf16Bytes = 0;
   let tokenUtf16Bytes = 0;
+  const mediaTypes = new Map();
+  const mediaType = (raw) => {
+    const type = raw?.media?.className;
+    if (typeof type !== 'string') {
+      return undefined;
+    }
+    const known = mediaTypes.get(type);
+    if (known !== undefined) {
+      return known;
+    }
+    // A decoded name may be a slice of an entire reader chunk. Copy through
+    // bytes so the summary cannot keep that chunk after raw is serialized.
+    // UTF-16 preserves every JS code unit, including unmatched surrogates.
+    const owned = Buffer.from(type, 'utf16le').toString('utf16le');
+    if (mediaTypes.size >= 256) {
+      mediaTypes.clear();
+    }
+    mediaTypes.set(owned, owned);
+    return owned;
+  };
   const stringBytes = (values) =>
     Array.isArray(values)
       ? values.reduce(
@@ -159,7 +179,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
         bytes: owned,
         compressed: smaller,
         original: data.length,
-        mediaType: field === 'raw' ? link[field].media?.className : undefined,
+        mediaType: field === 'raw' ? mediaType(link[field]) : undefined,
         topic: field === 'raw' ? topicOfMessage(link) : undefined,
       };
     }

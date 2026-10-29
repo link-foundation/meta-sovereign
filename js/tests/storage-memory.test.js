@@ -1,4 +1,6 @@
 import { test } from 'node:test';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
@@ -27,6 +29,22 @@ const raw = () => ({
   flag: false,
   nullable: null,
 });
+
+test(
+  'media summary strings own their storage instead of pinning reader chunks',
+  { skip: Boolean(process.versions.bun || process.versions.deno) },
+  () => {
+    execFileSync(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL('./helpers/media-summary-ownership.mjs', import.meta.url)
+        ),
+      ],
+      { timeout: 10_000, stdio: 'pipe' }
+    );
+  }
+);
 
 test('startup string deduplication stays bounded without changing records or cold payloads', () => {
   const intern = createInterner({ coldPayloads: true, maxStrings: 4 });
@@ -188,6 +206,16 @@ test('cold media metadata follows replacement and public payload mutation', () =
   delete copy.raw;
   assert.equal(rawMediaTypeOf(copy), undefined);
   assert.equal(rawMediaTypeOf(null), undefined);
+  const unusual = 'MessageMedia\ud800Type';
+  const exact = packing.retain({
+    id: 'msg:unusual-media-type',
+    raw: { media: { className: unusual }, text: 'large '.repeat(100) },
+  });
+  assert.equal(
+    rawMediaTypeOf(exact),
+    unusual,
+    'media names preserve UTF-16 exactly'
+  );
 });
 
 test('wide packed records preserve all metadata without decoding cold fields', () => {
