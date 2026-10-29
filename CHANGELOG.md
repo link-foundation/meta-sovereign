@@ -1,5 +1,17 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.0
+
+### Major Changes
+
+- Combine saved deleted and edited message controls into one aligned row in Chat and Operator. Keep the general Unread folder next to All, second from the selected edge, with a remembered start/end preference that defaults to the end.
+
+  Update dependencies and toolchains across npm, Rust, Docker, mobile and CI (issue #50; R-Z33). Require Node 26.12.1, use npm 12.2.1 and Rust 1.99.1/edition 2024, keep Capacitor and Electron launchers aligned with their declared peer versions, and retain reviewed packaging compatibility fixes.
+
+  R-Z34: Preserve the validated dependency graph during both release version bumps, rehearse release scripts before publication, reject missing desktop evidence and unresolved CodeQL findings, complete PR scan configurations, prevent stack disclosure in error summaries, harden markup and greeting parsing, avoid server-side browser storage warnings, and serialize publishing across workflows.
+
+  R-Z32: Make CI failures block releases, check complete PR changes, isolate the large backup regression, preserve package/browser diagnostics and harden release tooling and dependencies.
+
 ## 0.55.0
 
 ### Minor Changes
