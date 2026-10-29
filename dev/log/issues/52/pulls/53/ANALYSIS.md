@@ -193,6 +193,7 @@ recomputation, source supersession and policy refusal, rather than only mocking 
 | esbuild `4.2mb` size marker | Informational size output. Bundle build and package/browser checks are still required; no false build failure inferred from the glyph. |
 | Skipped release/publish jobs on a PR | Expected event guards: PRs build/check without external publishing credentials. Main preflight remains strict and actionable. |
 | Older branch run cancellation | Expected cancellation of superseded read-only checks; compare timestamp and head SHA before treating it as a regression. Active writers retain cancellation protection. |
+| Evidence push file-size warning at b7b355cd | The expanded gzip archive reached 64,844,879 bytes, above GitHub's recommended 50 MiB file size. A finite, 512 MiB-limited probe compressed the identical tar to 31,038,748 bytes with standard-library XZ. The builder adopts that format, retains every member/digest, enforces the size threshold and verifies extraction before commit. Original push output and compression measurements are retained in `validation/`. |
 
 These classifications are based on original executed output, not absence of a red
 badge. The action deprecation uses a documented temporary workaround; this PR does

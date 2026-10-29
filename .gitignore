@@ -184,7 +184,7 @@ dev/log/issues/50/pulls/51/local/*
 !dev/log/issues/50/pulls/51/local/node-before.png
 !dev/log/issues/50/pulls/51/local/node-after.png
 
-# Issue 52: full logs, API snapshots and all template files are in evidence.tar.gz.
+# Issue 52: full logs, API snapshots and template files are in the evidence archive.
 dev/log/issues/52/pulls/53/ci-logs/
 dev/log/issues/52/pulls/53/metadata/
 dev/log/issues/52/pulls/53/artifacts/

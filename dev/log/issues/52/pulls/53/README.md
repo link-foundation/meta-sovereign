@@ -26,7 +26,7 @@ greetings while retaining the parser and bounded-matching security repairs.
 
 ## Evidence archive
 
-`evidence.tar.gz` contains the unabridged logs, API responses, downloaded diagnostic
+`evidence.tar.xz` contains the unabridged logs, API responses, downloaded diagnostic
 artifacts, immutable template source trees, complete per-file comparisons, SARIF,
 and local before/after checks. `evidence-files.sha256` inventories every member;
 `evidence.sha256` verifies the bundle and inventory. Raw directories are ignored
@@ -37,7 +37,7 @@ Extract into a temporary directory, then verify from there:
 
 ```sh
 mkdir /tmp/issue52-evidence
-tar -xzf dev/log/issues/52/pulls/53/evidence.tar.gz -C /tmp/issue52-evidence
+tar -xJf dev/log/issues/52/pulls/53/evidence.tar.xz -C /tmp/issue52-evidence
 (cd /tmp/issue52-evidence && sha256sum -c /path/to/evidence-files.sha256)
 ```
 
@@ -47,6 +47,12 @@ are not diagnostic logs: their complete API metadata (size, digest, artifact URL
 is retained; browser/CodeQL/docs diagnostics are downloaded. All six cited run
 logs and all available completed branch-run logs are retained. Active-run
 snapshots are labeled with timestamps and SHAs, never treated as completed passes.
+
+The expanded gzip collection triggered GitHub's 50 MiB recommended-file-size
+warning. A finite, 512 MiB-limited experiment reduced the same tar from 64,844,879
+bytes to 31,038,748 bytes using standard-library XZ. The builder now uses that
+streaming format, checks the size before replacement and still verifies every
+uncompressed member. Commit history preserves the original gzip evidence.
 
 Reusable collectors and bounded probes live in `experiments/issue-52/`:
 `collect.py`, `compare.py`, `probe-lockfile.py`, `rehearse-release.mjs`,
