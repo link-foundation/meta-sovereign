@@ -849,6 +849,7 @@ jobs:
           python3 -B experiments/issue43-evidence-bundle-test.py
           python3 -B experiments/issue43-review-ci-test.py
           python3 -B experiments/issue43-evidence-bundle.py verify
+          python3 -B experiments/issue-52/archive.py --verify
       - run: node --test --test-concurrency=1 js/tests/ci-*.test.js
       - name: Rehearse both release modes without dependency resolution
         run: |

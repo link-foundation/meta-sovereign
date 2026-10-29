@@ -19,7 +19,7 @@ Package checks separate cold-cache installation from startup and preserve `artif
 Optional diagnostics are off by default:
 
 - Set repository variable `CI_BROWSER_DEBUG=1` for Playwright API traces in CI.
-- Set `CISCRIPTS_DEBUG=1`, or enable GitHub runner/step debugging, for CI helper export/loading details.
+- Set `CI_SCRIPTS_DEBUG=1`, or enable GitHub runner/step debugging, for CI helper export/loading details.
 - Set `PACK_SMOKE_VERBOSE=1` for package install/start diagnostics.
 
 Use fixture data for verbose probes. Never log session strings, tokens, user messages or credentials.
@@ -27,6 +27,12 @@ Use fixture data for verbose probes. Never log session strings, tokens, user mes
 ## Publication prerequisites and recovery
 
 The publishing jobs wait for the terminal pipeline gate. Read-only checks cancel superseded runs; release writes are serialized without cancellation. Before versioning or publishing, the tree guard allows only version/changelog/changeset metadata to advance beyond the validated commit. New source or dependency edits require a new validated run.
+
+Both version modes update only the lockfile's two root version fields; they never resolve dependencies during a release. Workflow checks run `node experiments/issue-52/rehearse-release.mjs` offline against isolated root and nested packages. `CI_SCRIPTS_DEBUG=1` also reports the old/new lock version and package count. The desktop fallback rejects missing or incomplete upstream job evidence and annotates blocked packaging. The [issue 52 audit](../dev/log/issues/52/pulls/53/README.md) records the reproduced failure, template comparison and externally controlled warnings.
+
+Every external writer uses the same repository/main concurrency group without cancellation. Read-only jobs cancel only their superseded counterpart, including matrix identity. A lost version-push race refetches main, verifies source identity and recomputes metadata, at most three times; ruleset/authentication failures fail immediately. The offline `rehearse-push.mjs` fixture exercises real local Git remotes without publishing.
+
+Both release and scheduled CodeQL paths require valid SARIF and fail on every unresolved finding. The two intentional regex cases are reviewed by exact rule/path/line and whole-file SHA256, with named regressions; changing the source invalidates the exception. Reports are retained on failure. HTML import/CV/SVG processing uses the pinned streaming parser, while CV writes accept only canonical own fields. The Pages deploy action has a temporary step-only `DEP0040` filter for its known bundled dependency; other warnings remain visible. Remove it when upstream rebuilds the action with the repaired dependency.
 
 Trusted npm publishing needs Node 26.12.1 and the pinned npm 12.2.1, `id-token: write`, and a trusted publisher for `link-foundation/meta-sovereign`, workflow `release.yml`. A package administrator must bootstrap the package/publisher in npm when needed. Never replace a refused token exchange with an unchecked publish attempt.
 

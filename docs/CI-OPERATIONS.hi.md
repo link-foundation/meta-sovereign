@@ -16,7 +16,7 @@ R-Z32 के अनुसार प्रकाशित स्रोत की 
 
 पैकेज जाँच खाली cache वाली स्थापना और startup को अलग करती है। npm लॉग तथा प्रक्रिया का अंतिम output `artifacts/pack/` में हैं। ब्राउज़र के प्रत्येक suite का लॉग और `summary.json`, `artifacts/browser/` में हैं। Wayback की प्रति मूल टूटी लिंक को सफल नहीं बनाती; स्रोत लिंक सुधारें। गायब या गलत रिपोर्ट भी त्रुटि है।
 
-विस्तृत निदान मूल रूप से बंद है। repository variable `CI_BROWSER_DEBUG=1` Playwright trace देता है; `CISCRIPTS_DEBUG=1` या GitHub runner/step debugging helper loading दिखाता है; `PACK_SMOKE_VERBOSE=1` पैकेज स्थापना/startup दिखाता है। केवल नकली डेटा लें; token, session, निजी संदेश या credentials कभी लॉग न करें।
+विस्तृत निदान मूल रूप से बंद है। repository variable `CI_BROWSER_DEBUG=1` Playwright trace देता है; `CI_SCRIPTS_DEBUG=1` या GitHub runner/step debugging helper loading दिखाता है; `PACK_SMOKE_VERBOSE=1` पैकेज स्थापना/startup दिखाता है। केवल नकली डेटा लें; token, session, निजी संदेश या credentials कभी लॉग न करें।
 
 ## प्रकाशन की शर्तें और recovery
 
@@ -49,3 +49,9 @@ GitHub test fixtures teardown पर अपने सभी connections बं�
 GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-26-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
 
 GitHub, serverFetch, archive/WhatsApp/marketplace routes, स्थानीय Pages और mail protocols के सभी अपने network fixtures एक ही socket-tracking shutdown helper उपयोग करते हैं। Rust documentation जाँच और दोनों release paths में warnings पर विफल होती है (`RUSTDOCFLAGS=-D warnings`)। अस्थायी Git fixtures उपयोगकर्ता की settings बदले बिना अपनी LF policy तय करते हैं।
+
+दोनों रिलीज़ मोड केवल lockfile के दो मूल version बदलते हैं। CI में `node experiments/issue-52/rehearse-release.mjs` root और nested package का offline परीक्षण करता है। `CI_SCRIPTS_DEBUG=1` version और package संख्या दिखाता है। Desktop अधूरे upstream परिणाम अस्वीकार करता है और रुकने की सूचना देता है। [issue 52 का ऑडिट](../dev/log/issues/52/pulls/53/README.md) देखें।
+
+बाहरी स्थिति बदलने वाले सभी जॉब बिना रद्द किए एक ही repository/main concurrency समूह का उपयोग करते हैं। केवल पढ़ने वाली जाँचें मैट्रिक्स पहचान सहित अपने पुराने संस्करण को रद्द करती हैं। संस्करण push में टकराव होने पर main फिर लाकर स्रोत की पहचान जाँची जाती है और मेटाडेटा दोबारा बनाया जाता है; अधिकतम तीन प्रयास। नियम या प्रमाणीकरण की त्रुटि तुरंत विफल होती है। अलग `rehearse-push.mjs` परीक्षण बिना प्रकाशन के वास्तविक स्थानीय Git remote जाँचता है।
+
+रिलीज़ और निर्धारित CodeQL दोनों में वैध SARIF आवश्यक है और हर अनसुलझे निष्कर्ष पर विफलता होती है। जानबूझकर रखे गए दो regex मामलों की समीक्षा नियम, पथ, पंक्ति और पूरे फ़ाइल के SHA256 तथा नामित प्रतिगमन परीक्षण से जुड़ी है; स्रोत बदलने पर अपवाद अमान्य होता है। विफलता में भी रिपोर्ट सुरक्षित रहती है। HTML आयात, CV और SVG के लिए पिन किया गया streaming parser है; CV लेखन केवल मान्य स्वयं के फ़ील्ड स्वीकार करता है। Pages की ज्ञात bundled dependency के लिए केवल उसके deploy चरण में अस्थायी `DEP0040` फ़िल्टर है; अन्य चेतावनियाँ दिखती हैं। upstream action ठीक करके दोबारा बनाए जाने पर इसे हटाएँ।
