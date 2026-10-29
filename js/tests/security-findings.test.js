@@ -7,6 +7,10 @@ import { applyFlatChanges } from '../src/cv/diff.js';
 import { safeMessage } from '../src/server/redact.js';
 import { json } from '../src/server/util.js';
 import { sanitizeSvg } from '../src/sources/telegram-wallpapers.js';
+import {
+  detectGreetingLanguage,
+  greetingPatterns,
+} from '../src/greetings/detect.js';
 
 test('CV writes accept only canonical sections and fields', () => {
   const cv = emptyCv();
@@ -97,6 +101,15 @@ test('SVG sanitization preserves safe text, filters and inline drawing styles', 
   assert.match(clean, /fill="green"/);
   assert.doesNotMatch(clean, /fill="blue"/);
   assert.match(clean, /stroke-width="2"/);
+});
+
+test('linear greeting detection preserves emoji tokens and addressees', () => {
+  for (const pattern of Object.values(greetingPatterns)) {
+    assert.equal(pattern.test('👋!'), true);
+  }
+  assert.equal(detectGreetingLanguage('👋 there!'), 'en');
+  assert.equal(detectGreetingLanguage('👋 вам!'), 'ru');
+  assert.equal(detectGreetingLanguage('🙂 there!'), null);
 });
 
 test(

@@ -24,7 +24,13 @@ const whole = (words, tail = '') => {
       let count = 0;
       while (at < text.length) {
         separators.lastIndex = at;
-        at += separators.exec(text)[0].length;
+        const separator = separators.exec(text)[0];
+        // A wave is a greeting token even though Unicode classifies it as
+        // a separator. Retain emoji-only pattern tests and emoji + addressee.
+        if (greetingEmoji.some((emoji) => separator.includes(emoji))) {
+          count += 1;
+        }
+        at += separator.length;
         if (at === text.length) {
           break;
         }
