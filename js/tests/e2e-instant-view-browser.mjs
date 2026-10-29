@@ -217,7 +217,7 @@ const steps = async () => {
   await page.locator('a.msg-link', { hasText: 'wrapped' }).first().click();
   await reader.locator('h1').waitFor({ timeout: 5000 });
   assert(
-    asked.split(/\s+/).some((word) => word === 'https://a.test/wrapped'),
+    asked.some((url) => url === 'https://a.test/wrapped'),
     'wrapped url asked'
   );
   await page.keyboard.press('Escape');

@@ -125,9 +125,10 @@ const createBestSnapshotDriver = (key = SNAPSHOT_KEY) => {
       // fall through
     }
   }
-  if (typeof getLocalStorage() !== 'undefined') {
+  const localStorage = getLocalStorage();
+  if (localStorage) {
     try {
-      return createLocalStorageDriver(getLocalStorage(), key);
+      return createLocalStorageDriver(localStorage, key);
     } catch {
       // fall through
     }
@@ -278,12 +279,10 @@ export const pickBrowserDriver = ({ suffix = '' } = {}) => {
       // fall through
     }
   }
-  if (typeof getLocalStorage() !== 'undefined') {
+  const localStorage = getLocalStorage();
+  if (localStorage) {
     try {
-      return createLocalStorageDriver(
-        getLocalStorage(),
-        `${SNAPSHOT_KEY}${suffix}`
-      );
+      return createLocalStorageDriver(localStorage, `${SNAPSHOT_KEY}${suffix}`);
     } catch {
       // fall through
     }

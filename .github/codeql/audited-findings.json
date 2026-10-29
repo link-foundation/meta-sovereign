@@ -6,5 +6,13 @@
     "sha256": "9f05b51214216a2cf7be0483ed7b961a10ea3d7c334efaa433153bfc967f0ea1",
     "reason": "The documented API intentionally accepts complete user-written regular expressions, not literal search text. Compilation is capped at 500 characters and matching at 10000 characters; risky server matches have a 50 ms VM budget. Escaping the expression would remove the feature. This exception applies only to this exact construction and whole-file digest.",
     "test": "js/tests/server-hardening.test.js: regex: pattern length and input size are capped, a runaway match is cut off"
+  },
+  {
+    "rule": "js/redos",
+    "path": "js/tests/server-hardening.test.js",
+    "line": "assert.equal(safeTest(/(a+)+$/, `${'a'.repeat(5000)}b`), false);",
+    "sha256": "56e02dde5fe88c584732c529c891a14d7a2d2a104cb275ce05f604462993e76a",
+    "reason": "This regression deliberately supplies a catastrophic expression to safeTest, never directly to RegExp.test. The fixed 5001-character fixture verifies that the existing server VM stops matching within its 50 ms budget. Removing this input would remove the timeout regression. Only this exact assertion and whole-file digest are accepted.",
+    "test": "js/tests/server-hardening.test.js: regex: pattern length and input size are capped, a runaway match is cut off"
   }
 ]
