@@ -76,6 +76,11 @@ Counters describe live retained records, not total allocation churn or a full
 heap census. The health probe does not scan the archive, build autocomplete,
 force collection or take a heap dump.
 
+Retention also reports UTF-16 byte estimates for message bodies, child IDs and
+tokens. They count retained string contents, including repeated/shared values,
+and exclude object/array overhead. They are attribution bounds rather than an
+exact V8 heap census, maintained on writes without scanning the archive.
+
 `telegram_backfill_memory_full` records memory measurements when history
 downloads pause at the existing heap threshold. `store_snapshot_written` records
 snapshot duration and output size. RSS includes all worker threads; heap figures

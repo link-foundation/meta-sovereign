@@ -118,6 +118,17 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
   let bytes = 0;
   let unpackedBytes = 0;
   let allocatedBytes = 0;
+  let bodyUtf16Bytes = 0;
+  let childIdUtf16Bytes = 0;
+  let tokenUtf16Bytes = 0;
+  const stringBytes = (values) =>
+    Array.isArray(values)
+      ? values.reduce(
+          (sum, value) =>
+            sum + (typeof value === 'string' ? value.length * 2 : 0),
+          0
+        )
+      : 0;
   const pack = (link) => {
     if (packed.has(link) && !exposed.has(link)) {
       return link;
@@ -158,6 +169,13 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
     );
   };
   const account = (link, by) => {
+    if (!link) {
+      return;
+    }
+    bodyUtf16Bytes +=
+      by * (typeof link.body === 'string' ? link.body.length * 2 : 0);
+    childIdUtf16Bytes += by * stringBytes(link.children);
+    tokenUtf16Bytes += by * stringBytes(link.tokens);
     const payloads = packed.get(link);
     if (!payloads) {
       return;
@@ -187,6 +205,9 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       allocatedBytes,
       unpackedBytes,
       decodedPayloadsCached: 0,
+      bodyUtf16Bytes,
+      childIdUtf16Bytes,
+      tokenUtf16Bytes,
     }),
   };
 };

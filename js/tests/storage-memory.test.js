@@ -108,7 +108,7 @@ test('cold payloads round-trip, remain opaque to metadata scans, and release on 
   }
   assert.deepEqual(
     packing.stats(),
-    first,
+    { ...first, bodyUtf16Bytes: 'edit 99'.length * 2 },
     'rewrites retain only the current payload'
   );
   const ids = [];
@@ -129,6 +129,9 @@ test('cold payloads round-trip, remain opaque to metadata scans, and release on 
     allocatedBytes: 0,
     unpackedBytes: 0,
     decodedPayloadsCached: 0,
+    bodyUtf16Bytes: 0,
+    childIdUtf16Bytes: 0,
+    tokenUtf16Bytes: 0,
   });
 });
 
