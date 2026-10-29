@@ -114,10 +114,9 @@ test('cancelled snapshots clean up and stale cleanup preserves a live owner', as
       [live]
     );
     assert.deepEqual(snapshotMemory(), []);
-    await assert.rejects(
-      snapshotInWorker(dir, path.join(dir, 'data.bin')),
-      /directory|EISDIR/i
-    );
+    // An invalid path type fails consistently on every OS, unlike opening
+    // a directory (which different filesystems permit or reject).
+    await assert.rejects(snapshotInWorker(42, path.join(dir, 'data.bin')));
     assert.deepEqual(
       (await readdir(dir)).filter((name) => name.startsWith('.snapshot-db-')),
       [live]
