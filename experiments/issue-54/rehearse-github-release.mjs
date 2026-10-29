@@ -44,6 +44,11 @@ globalThis.fetch = async () => {
   console.log(`PROBE ${status}`);
   return { status, ok: status === 200, json: async () => release };
 };
+function prPages(args, pages) {
+  return JSON.stringify(
+    args.includes('--paginate') && args.includes('--slurp') ? pages : pages[0]
+  );
+}
 register('gh', async ({ args, stdin }) => {
   console.log(`GH ${JSON.stringify(args)}`);
   if (args.includes('POST')) {
@@ -63,15 +68,29 @@ register('gh', async ({ args, stdin }) => {
     }
     if (scenario === 'notes-multi') {
       const number = args[1].includes('abcdef123') ? 10 : 20;
+      const prs = [
+        { number: 99, title: 'chore: version packages' },
+        { number, title: 'Actual change' },
+      ];
       return {
         code: 0,
-        stdout: JSON.stringify([
-          { number: 99, title: 'chore: version packages' },
-          { number, title: 'Actual change' },
+        stdout: prPages(args, [prs]),
+      };
+    }
+    if (scenario === 'notes-pages') {
+      const firstPage = Array.from({ length: 30 }, (_, index) => ({
+        number: index + 1,
+        title: 'Actual change',
+      }));
+      return {
+        code: 0,
+        stdout: prPages(args, [
+          firstPage,
+          [{ number: 31, title: 'Later page' }],
         ]),
       };
     }
-    return { code: 0, stdout: '[]' };
+    return { code: 0, stdout: prPages(args, [[]]) };
   }
   return status === 200
     ? {

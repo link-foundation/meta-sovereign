@@ -86,6 +86,17 @@ test(
 );
 
 test(
+  'release enrichment includes PRs beyond the first API page',
+  { timeout: 15000 },
+  () => {
+    const result = rehearse('notes-pages', 200);
+    assert.equal(result.status, 0, result.output);
+    const payload = JSON.parse(result.stdout.match(/^PATCH (.+)$/m)[1]);
+    assert.match(payload.body, /#30, #31/);
+  }
+);
+
+test(
   'large formatted notes remain bounded, linked and idempotent',
   { timeout: 15000 },
   () => {

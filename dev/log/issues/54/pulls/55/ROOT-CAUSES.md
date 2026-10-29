@@ -26,7 +26,7 @@ Alternative: [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-uti
 
 The API response is JSON-decoded before formatting. Replacing literal `\\n`, deleting quotes/indentation and splitting on `---` modified code examples, Windows paths and later changesets. The defect is deterministic and independent of GitHub availability.
 
-Plan applied: preserve the original body verbatim and append related-PR metadata/badge using JSON stdin. Extract all unique changelog commit hashes and retain every related non-version PR, rather than selecting the first one. Regressions compare exact Markdown prefixes, literal escapes, quotation marks, horizontal rules and multiple PRs. Current upstream JavaScript already contains some body-preservation/all-PR improvements; those are reused as policy, not reported as newly undiscovered upstream bugs.
+Plan applied: preserve the original body verbatim and append related-PR metadata/badge using JSON stdin. Extract all unique changelog commit hashes and retain every related non-version PR, rather than selecting the first one. Paginate and validate every response page so results beyond GitHub's first 30 entries are retained too. Regressions compare exact Markdown prefixes, literal escapes, quotation marks, horizontal rules, multiple PRs and a second response page. Current upstream JavaScript already contains some body-preservation/all-PR improvements; those are reused as policy, not reported as newly undiscovered upstream bugs.
 
 ## 5. Large notes fail or lose their completion marker
 

@@ -118,12 +118,17 @@ try {
   for (const commit of commitHashes) {
     console.log(`ℹ️ Looking up PRs for commit ${commit}`);
     const prResult =
-      await $`gh api repos/${repository}/commits/${commit}/pulls`.run({
-        capture: true,
-      });
-    const prs = JSON.parse(prResult.stdout);
+      await $`gh api repos/${repository}/commits/${commit}/pulls --paginate --slurp`.run(
+        {
+          capture: true,
+        }
+      );
+    const pages = JSON.parse(prResult.stdout);
+    if (!Array.isArray(pages) || pages.some((page) => !Array.isArray(page))) {
+      throw new Error(`Invalid PR pages for commit ${commit}`);
+    }
+    const prs = pages.flat();
     if (
-      !Array.isArray(prs) ||
       prs.some(
         (pr) =>
           !Number.isInteger(pr.number) ||
