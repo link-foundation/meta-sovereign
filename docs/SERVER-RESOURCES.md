@@ -26,11 +26,12 @@ A fall in RSS alone does not establish that a leak has disappeared.
   A public read copy materializes a field on first use, preserving normal
   assignment and nested mutation on that copy without changing the store.
 - Packed records keep cold-field references in two fixed slots instead of a
-  per-record hash map. Metadata copies use native object construction, retaining
-  compact V8 property slots for wide records instead of property hash tables.
-  Copies skip cold fields before reading values. These changes reduce retained
-  bookkeeping without adding compression work, discarding messages or changing
-  the on-disk format. Startup adopts its private packed records directly.
+  per-record hash map. Metadata copies skip cold fields before reading values
+  and copy directly, avoiding temporary entry arrays and shape churn during
+  loading. Forcing fast V8 properties for heterogeneous records increased the
+  production heap and was reverted; a small uniform fixture did not predict
+  that archive's behavior. Startup adopts its private packed records directly.
+  None of these in-memory changes discards messages or changes the disk format.
 - A packed raw payload also keeps its media type as a tiny private summary.
   Live poll updates that name only a poll ID, and unsupported-media repairs,
   reject unrelated messages using that summary. They must not inflate every

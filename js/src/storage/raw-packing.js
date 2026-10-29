@@ -84,14 +84,20 @@ const copyPacked = (link, payloads = packed.get(link), visible = false) => {
     return { ...link };
   }
   const heldFields = payloadFields(payloads);
-  // Repeated property assignment turns wide metadata records into V8 hash
-  // tables. Native construction keeps compact property slots and shared shapes.
-  // Skip cold fields before reading values so copying never expands a payload.
-  const out = Object.fromEntries(
-    Object.keys(link)
-      .filter((key) => !heldFields.includes(key))
-      .map((key) => [key, link[key]])
-  );
+  // Copy directly: constructing entry arrays and forcing fast shapes for every
+  // heterogeneous archive record increased the loaded heap in production.
+  // Skip cold fields before reading values, and treat __proto__ as plain data.
+  const out = {};
+  for (const key of Object.keys(link)) {
+    if (heldFields.includes(key)) {
+      continue;
+    }
+    if (key === '__proto__') {
+      plainField(out, key, link[key]);
+    } else {
+      out[key] = link[key];
+    }
+  }
   packed.set(out, payloads);
   if (visible) {
     exposed.add(out);
