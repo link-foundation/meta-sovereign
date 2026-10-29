@@ -47,6 +47,8 @@ const uploads = [];
 const account = {
   status: async () => ({ connected: true, kind: 'user' }),
   stop: async () => {},
+  uploadProgress: () => ({ ok: true, progress: 0.4 }),
+  media: async () => ({ buffer: PNG, mimeType: 'image/png' }),
   receiveUpload: async (stream, { name }) => {
     let size = 0;
     for await (const chunk of stream) {
@@ -77,6 +79,15 @@ const base = `http://127.0.0.1:${handle.port}`;
 const browser = await browserType.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
 const errors = [];
+const progressReads = [];
+page.on('response', async (response) => {
+  if (response.url().includes('/upload-progress')) {
+    progressReads.push({
+      status: response.status(),
+      body: await response.text().catch(() => ''),
+    });
+  }
+});
 page.on('pageerror', (e) => errors.push(String(e)));
 
 await page.route('**/api/telegram/status', (route) =>
@@ -100,9 +111,40 @@ await page.route('**/api/telegram/history', (route) =>
   })
 );
 const sends = [];
-await page.route('**/api/telegram/send-files', (route) => {
+await page.route('**/api/telegram/send-files', async (route) => {
   sends.push(JSON.parse(route.request().postData() ?? '{}'));
-  route.fulfill({
+  await new Promise((resolve) => globalThis.setTimeout(resolve, 900));
+  if (sends.at(-1).asPhoto) {
+    await store.put({
+      id: `msg:telegram:${CHAT}:2`,
+      source: 'telegram',
+      chat: CHAT,
+      chatType: 'user',
+      sender: 'me',
+      body: sends.at(-1).caption,
+      timestamp: new Date().toISOString(),
+      raw: {
+        id: 2,
+        out: true,
+        media: {
+          className: 'MessageMediaPhoto',
+          photo: {
+            id: '1',
+            sizes: [
+              {
+                className: 'PhotoSize',
+                type: 'm',
+                w: 120,
+                h: 120,
+                size: PNG.length,
+              },
+            ],
+          },
+        },
+      },
+    });
+  }
+  await route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ ok: true, chat: CHAT, ids: [2, 3] }),
@@ -190,6 +232,12 @@ try {
   assert((await title()) === 'Send 2 files', `title: ${await title()}`);
   await page.click('[data-action="attach-send"]');
   await until(() => sends.length === 1, 'sent');
+  await page.waitForFunction(
+    () =>
+      document.querySelector('.attach-progress')?.textContent.includes('40%'),
+    null,
+    { timeout: 5000 }
+  );
   assert(
     uploads.length === 2 && uploads.every((u) => u.size === PNG.length),
     `uploads: ${JSON.stringify(uploads)}`
@@ -238,12 +286,77 @@ try {
     `dropped: ${JSON.stringify(sends[1])}`
   );
   console.log('[e2e-attach] a dropped picture: sent as a photo by Enter');
+  await page.waitForSelector('.attach-dialog', { state: 'detached' });
+
+  // A new tall message follows the bottom before paint; older history and
+  // media reflow must not strand it above the floating composer.
+  await page.waitForSelector(
+    '[data-message="msg:telegram:555:2"] .bubble-photo'
+  );
+  await page.waitForFunction(() => {
+    const image = document.querySelector(
+      '[data-message="msg:telegram:555:2"] img.bubble-photo-img'
+    );
+    return image?.complete && image.naturalWidth > 0;
+  });
+  for (let i = 3; i <= 14; i += 1) {
+    await store.put({
+      id: `msg:telegram:${CHAT}:${i}`,
+      source: 'telegram',
+      chat: CHAT,
+      chatType: 'user',
+      chatName: 'Fake Dave',
+      sender: 'me',
+      body: `fixture ${i}\n${'line\n'.repeat(3)}`,
+      timestamp: new Date(Date.now() + i * 1000).toISOString(),
+      raw: { id: i, out: true },
+    });
+  }
+  await page.waitForSelector('[data-message="msg:telegram:555:14"]');
+  await page.waitForFunction(() => {
+    const box = document.querySelector('.chat-scroll');
+    return box.scrollHeight - box.scrollTop - box.clientHeight < 2;
+  });
+
+  // All composer popovers see the chat backdrop. An ancestor blur would
+  // create a backdrop root and leave their transparent panel unblurred.
+  await page.evaluate(
+    () => (document.documentElement.dataset.effects = 'full')
+  );
+  await page.click('[data-action="emoji"]');
+  await page.waitForSelector('.emoji-panel');
+  const frosted = await page.evaluate(() => {
+    const composer = document.querySelector('.chat-composer');
+    const blur = (style) => style.backdropFilter || style.webkitBackdropFilter;
+    return {
+      parent: blur(globalThis.getComputedStyle(composer)),
+      surface: blur(globalThis.getComputedStyle(composer, '::before')),
+      panel: blur(
+        globalThis.getComputedStyle(document.querySelector('.emoji-panel'))
+      ),
+    };
+  });
+  assert(
+    frosted.parent === 'none' &&
+      frosted.surface.includes('blur') &&
+      frosted.panel.includes('blur'),
+    `popover blur: ${JSON.stringify(frosted)}`
+  );
+  console.log(
+    '[e2e-attach] provider progress, bottom following and consistent popover blur'
+  );
 
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log(`[e2e-attach] OK (${engine})`);
 } catch (error) {
   failed = true;
   console.error(`[e2e-attach] FAIL (${engine}): ${error.message}`);
+  console.error(
+    JSON.stringify({
+      progressReads,
+      progressText: await page.locator('.attach-progress').allTextContents(),
+    })
+  );
 } finally {
   await browser.close();
   await handle.close();

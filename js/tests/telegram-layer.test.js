@@ -149,6 +149,29 @@ const unsupported = (chat, id) => ({
   raw: { id, media: { className: 'MessageMediaUnsupported' } },
 });
 
+test('media missing inherited type tags is repaired alongside unsupported media', async () => {
+  const store = createMemoryStore();
+  const broken = {
+    ...unsupported('42', 7),
+    raw: { media: { photo: { id: '1' } } },
+  };
+  await store.put(broken);
+  const asked = [];
+  await store.put({ id: 'msg:telegram:42:8', chat: '42', raw: null });
+  await rereadUnsupported(store, {
+    layer: LAYER,
+    rev: 3,
+    refresh: async ({ ids }) => {
+      asked.push(...ids);
+      await store.put({
+        ...broken,
+        raw: { media: { className: 'MessageMediaPhoto' } },
+      });
+    },
+  });
+  assert.deepEqual(asked, [7]);
+});
+
 test('what was stored as unsupported is read again once, a chat at a time', async () => {
   const store = createMemoryStore();
   for (const link of [

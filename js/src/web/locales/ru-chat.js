@@ -208,6 +208,8 @@ export const ruChat = {
   'chat.attach.add': 'Добавить',
   'chat.attach.remove': 'Убрать',
   'chat.attach.sending': 'Отправка… {percent}%',
+  'chat.attach.uploading': 'Загрузка… {percent}%',
+  'chat.attach.confirming': 'Ожидание подтверждения Telegram…',
   'chat.attach.drop': 'Перетащите файлы сюда, чтобы отправить',
   'chat.attach.file': 'Файл',
   'chat.attach.poll': 'Опрос',

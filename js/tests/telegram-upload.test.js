@@ -29,7 +29,7 @@ class CustomFile {
   }
 }
 
-const setup = ({ fail = null } = {}) => {
+const setup = ({ fail = null, onTransfer = () => {} } = {}) => {
   const store = createMemoryStore();
   const sent = [];
   let next = 100;
@@ -44,6 +44,12 @@ const setup = ({ fail = null } = {}) => {
   const client = {
     sendFile: async (peer, options) => {
       const files = [options.file].flat();
+      for (const _file of files) {
+        for (const part of [0, 0.5, 1]) {
+          options.progressCallback?.(part);
+          onTransfer();
+        }
+      }
       sent.push({
         peer,
         ...options,
@@ -101,6 +107,21 @@ const setup = ({ fail = null } = {}) => {
   };
   return { store, sent, actions, up };
 };
+
+test('provider progress follows actual bytes across files and disappears after completion', async () => {
+  const seen = [];
+  const { actions, up } = setup({
+    onTransfer: () => seen.push(actions.uploadProgress({ tokens }).progress),
+  });
+  const tokens = [
+    await up('one.jpg', '1234567890'),
+    await up('two.jpg', '1234567890'.repeat(3)),
+  ];
+  assert.equal(actions.uploadProgress({ tokens }).progress, 0);
+  await actions.sendFiles({ chat: '42', tokens });
+  assert.deepEqual(seen, [0, 0.125, 0.25, 0.25, 0.625, 1]);
+  assert.equal(actions.uploadProgress({ tokens }).ok, false);
+});
 
 test('a photo goes as a photo with its caption and reply; stored; file removed (R-Y99)', async () => {
   const { store, sent, actions, up } = setup();

@@ -28,6 +28,7 @@ import { createInterface } from 'node:readline';
 import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
 import { createRawPacking } from './raw-packing.js';
+import { createPayloadFile } from './payload-file.js';
 import { parseLino } from './lino.js';
 import {
   FILE_MODE,
@@ -201,7 +202,12 @@ export const createInterner = ({
 // The live links of a record log, read a line at a time: a large store
 // is never held as one string, and a superseded record is dropped as
 // soon as a later one replaces it.
-const streamRecords = async (filePath, readLimit, retain) => {
+const streamRecords = async (
+  filePath,
+  readLimit,
+  retain,
+  discard = () => {}
+) => {
   const byId = new Map();
   const sizes = new Map(); // id -> its live line's length
   const intern = createInterner({ coldPayloads: retain !== identity });
@@ -232,11 +238,13 @@ const streamRecords = async (filePath, readLimit, retain) => {
       continue;
     }
     if (isTombstoneRecord(record)) {
+      discard(byId.get(record.id));
       byId.delete(record.id);
       sizes.delete(record.id);
     } else {
       // The key a copy too: a slice of its line would keep the line.
       const id = ownCopy(record.id);
+      discard(byId.get(id));
       byId.set(id, retain(intern(record)));
       sizes.set(id, line.length + 1);
     }
@@ -389,7 +397,7 @@ export const forEachLiveRecord = async (
 /** The live links of a `.lino` file, and how its lines stand. */
 export const readLinoFile = async (
   filePath,
-  { readLimit, retain = identity } = {}
+  { readLimit, retain = identity, discard } = {}
 ) => {
   let first;
   try {
@@ -432,7 +440,7 @@ export const readLinoFile = async (
       bad: createBadLines(),
     };
   }
-  return streamRecords(filePath, readLimit, retain);
+  return streamRecords(filePath, readLimit, retain, discard);
 };
 
 // Write every link to a temp file in chunks, flush it to disk, swap it
@@ -708,18 +716,26 @@ const textHandoff = ({ filePath, mem, tally, mode }) => ({
 });
 
 const loadRetained = async (filePath, readLimit) => {
-  const packing = createRawPacking();
+  const packing = createRawPacking({
+    payloadFile: createPayloadFile(path.dirname(filePath)),
+  });
   const mem = createMemoryStore({
     retain: packing.retain,
     release: packing.release,
     copy: packing.copy,
   });
-  const loaded = await readLinoFile(filePath, {
-    readLimit,
-    retain: packing.pack,
-  });
-  await mem.putMany(loaded.live);
-  return { packing, mem, loaded };
+  try {
+    const loaded = await readLinoFile(filePath, {
+      readLimit,
+      retain: packing.pack,
+      discard: packing.discard,
+    });
+    await mem.putMany(loaded.live);
+    return { packing, mem, loaded };
+  } catch (error) {
+    packing.close();
+    throw error;
+  }
 };
 
 export const createLinoTextStore = async (
@@ -851,6 +867,7 @@ export const createLinoTextStore = async (
   return {
     ...mem,
     memoryStats: packing.stats,
+    close: packing.close,
     ...textHandoff({ filePath, mem, tally, mode }),
     async put(link) {
       guard();

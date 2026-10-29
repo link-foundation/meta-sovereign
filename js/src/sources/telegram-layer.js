@@ -27,7 +27,9 @@ export const LAYER = 232;
  * after a first trial of it) makes the re-read run once more. Bump it
  * whenever layer-N.tl is regenerated.
  */
-export const SCHEMA_REV = 2;
+// Revision 3 also repairs media serialized without prototype type tags by
+// earlier teleproto adapters; it does not change Telegram's wire schema.
+export const SCHEMA_REV = 3;
 
 const SCHEMA = new URL(`./telegram-api/layer-${LAYER}.tl`, import.meta.url);
 

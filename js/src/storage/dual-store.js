@@ -146,6 +146,7 @@ const readOnlyStore = (text, schema) => ({
   corruptLines: text.corruptLines,
   health: () => ({ degraded: false, queuedBytes: 0, error: null }),
   readOnly: true,
+  close: text.close,
   logFile: text.filePath, // streamed by a backup (R-Z16)
 });
 

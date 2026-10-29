@@ -125,6 +125,7 @@ export const managedDualStore = ({
         try {
           await text.flush();
         } finally {
+          text.close?.();
           lock?.release();
           lock = null;
         }

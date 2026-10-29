@@ -7,6 +7,8 @@ import { topicOfMessage } from '../web/forum-topics.js';
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
 const exposed = new WeakSet();
+const mediaName = (raw) =>
+  raw?.media?.className ?? (raw?.media ? 'MessageMediaMissingType' : undefined);
 // A poll update can name only the poll, not its message. Its lookup must reject
 // other media without inflating every archived provider payload. Public copies
 // still read their current, mutable raw field instead of a stale summary.
@@ -14,7 +16,7 @@ export const rawMediaTypeOf = (link) => {
   const payload = packed.get(link)?.raw;
   return payload && !exposed.has(link)
     ? payload.mediaType
-    : link?.raw?.media?.className;
+    : mediaName(link?.raw);
 };
 // Chat indexing needs the forum topic, never the whole provider payload.
 export const storedMessageTopic = (link) => {
@@ -24,9 +26,20 @@ export const storedMessageTopic = (link) => {
 // There are only two possible cold fields. Fixed slots avoid a Map and its
 // backing hash table on every retained message or edit-history record.
 const payloadFields = (payloads) => fields.filter((field) => payloads[field]);
+const payloadBytes = (value) =>
+  value.file ? value.file.read(value.bytes) : value.bytes;
+const ownPayload = (bytes, file) => {
+  if (file) {
+    return file.write(bytes);
+  }
+  const owned = Buffer.allocUnsafeSlow(bytes.length);
+  owned.set(bytes);
+  return owned;
+};
 const read = (owner, field) => {
   const value = packed.get(owner)?.[field];
-  const bytes = value.compressed ? inflateRawSync(value.bytes) : value.bytes;
+  const data = payloadBytes(value);
+  const bytes = value.compressed ? inflateRawSync(data) : data;
   return deserialize(bytes);
 };
 const getters = Object.fromEntries(
@@ -84,6 +97,21 @@ const copyPacked = (link, payloads = packed.get(link), visible = false) => {
     return { ...link };
   }
   const heldFields = payloadFields(payloads);
+  if (visible) {
+    // A returned record stays usable after deletion, cache-slot reuse or
+    // store close. Only matching read copies take bytes out of the file.
+    payloads = Object.fromEntries(
+      heldFields.map((field) => {
+        const value = payloads[field];
+        return [
+          field,
+          value.file
+            ? { ...value, bytes: Buffer.from(payloadBytes(value)), file: null }
+            : value,
+        ];
+      })
+    );
+  }
   // Copy directly: constructing entry arrays and forcing fast shapes for every
   // heterogeneous archive record increased the loaded heap in production.
   // Skip cold fields before reading values, and treat __proto__ as plain data.
@@ -113,7 +141,10 @@ const copyPacked = (link, payloads = packed.get(link), visible = false) => {
   return out;
 };
 
-export const createRawPacking = ({ minBytes = 256 } = {}) => {
+export const createRawPacking = ({
+  minBytes = 256,
+  payloadFile = null,
+} = {}) => {
   let records = 0;
   let bytes = 0;
   let unpackedBytes = 0;
@@ -123,7 +154,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
   let tokenUtf16Bytes = 0;
   const mediaTypes = new Map();
   const mediaType = (raw) => {
-    const type = raw?.media?.className;
+    const type = mediaName(raw);
     if (typeof type !== 'string') {
       return undefined;
     }
@@ -173,10 +204,10 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       const selected = smaller ? compressed : data;
       // zlib slices can pin a 16 KiB slab for a 100-byte result. Retained
       // records need exact-sized backing stores, independent of buffer pools.
-      const owned = Buffer.allocUnsafeSlow(selected.length);
-      owned.set(selected);
+      const owned = ownPayload(selected, payloadFile);
       payloads[field] = {
         bytes: owned,
+        file: payloadFile,
         compressed: smaller,
         original: data.length,
         mediaType: field === 'raw' ? mediaType(link[field]) : undefined,
@@ -203,9 +234,12 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
     records += by;
     for (const field of payloadFields(payloads)) {
       const value = payloads[field];
+      if (value.file) {
+        value.file[by > 0 ? 'retain' : 'release'](value.bytes);
+      }
       bytes += by * value.bytes.length;
       unpackedBytes += by * value.original;
-      allocatedBytes += by * value.bytes.buffer.byteLength;
+      allocatedBytes += by * (value.bytes.buffer?.byteLength ?? 0);
     }
   };
   return {
@@ -219,6 +253,14 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       return out;
     },
     release: (link) => account(link, -1),
+    discard(link) {
+      const payloads = packed.get(link);
+      for (const field of payloads ? payloadFields(payloads) : []) {
+        const value = payloads[field];
+        value.file?.release(value.bytes);
+      }
+    },
+    close: () => payloadFile?.close(),
     stats: () => ({
       packedRecords: records,
       packedBytes: bytes,
@@ -228,6 +270,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       bodyUtf16Bytes,
       childIdUtf16Bytes,
       tokenUtf16Bytes,
+      ...(payloadFile ? { payloadCache: payloadFile.stats() } : {}),
     }),
   };
 };

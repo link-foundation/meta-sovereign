@@ -16,6 +16,26 @@ import { rawMediaTypeOf } from '../storage/raw-packing.js';
 
 const SOURCE = 'telegram';
 const MARKER = 'repair:telegram:senders-v1';
+const needsMediaRepair = (link) =>
+  link?.id?.startsWith(`msg:${SOURCE}:`) &&
+  !link.deleted &&
+  ['MessageMediaUnsupported', 'MessageMediaMissingType'].includes(
+    rawMediaTypeOf(link)
+  );
+const mediaRepairList = async (store) => {
+  const out = [];
+  if (store.scan) {
+    await store.scan(
+      needsMediaRepair,
+      100,
+      (batch) => out.push(...batch),
+      (link) => ({ id: link.id, chat: link.chat })
+    );
+  } else {
+    out.push(...(await store.query(needsMediaRepair)));
+  }
+  return out;
+};
 
 const isGroupMessage = (l) =>
   l?.id?.startsWith(`msg:${SOURCE}:`) &&
@@ -169,12 +189,7 @@ export const rereadUnsupported = async (
     return 0;
   }
   const started = Date.now();
-  const links = await store.query(
-    (l) =>
-      l?.id?.startsWith(`msg:${SOURCE}:`) &&
-      !l.deleted &&
-      rawMediaTypeOf(l) === 'MessageMediaUnsupported'
-  );
+  const links = await mediaRepairList(store);
   const byChat = new Map();
   for (const l of links) {
     const id = Number(l.id.split(':').pop());
@@ -188,14 +203,7 @@ export const rereadUnsupported = async (
     priority,
     wait
   );
-  const left = (
-    await store.query(
-      (l) =>
-        l?.id?.startsWith(`msg:${SOURCE}:`) &&
-        !l.deleted &&
-        rawMediaTypeOf(l) === 'MessageMediaUnsupported'
-    )
-  ).length;
+  const left = (await mediaRepairList(store)).length;
   if (failed === 0) {
     await store.put({
       id: marker,

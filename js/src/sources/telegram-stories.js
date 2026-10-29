@@ -25,7 +25,13 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { bigSize, locationOf, pickSize, readCache } from './telegram-media.js';
+import {
+  downloadBytes,
+  downloadSize,
+  locationOf,
+  pickSize,
+  readCache,
+} from './telegram-media.js';
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 
 const CODES = {
@@ -316,12 +322,11 @@ const createStoryMedia = (env, userClient, dir) => {
     if (!picture) {
       return null;
     }
-    const size = Number(picture.file.size ?? 0);
     const buffer = await c.client.downloadFile(
       locationOf(c.Api, c.helpers, picture),
       {
         dcId: Number(picture.file.dcId),
-        fileSize: bigSize(c.helpers, size || MAX_VIDEO),
+        ...downloadSize(c.helpers, downloadBytes(picture.file, picture.thumb)),
       }
     );
     return buffer?.length

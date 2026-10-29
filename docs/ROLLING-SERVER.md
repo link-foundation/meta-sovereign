@@ -10,6 +10,10 @@ Repeated early worker crashes use increasing restart delays, capped at 30 second
 
 Prepared code snapshots and the control socket live under `<store>/runtime/`. Source files are hashed and verified before activation. The control socket is private to the OS user; executable paths and lifecycle controls are never accepted through the browser HTTP API. The data log, accounts, media, sessions and existing local TLS identity remain in the same application folder.
 
+Cold provider payloads use a disposable file cache rather than retaining a native
+buffer for every archived message. See [archive memory](ARCHIVE-MEMORY.md) for its
+lifetime, memory diagnostics and the distinction between heap and process memory.
+
 Deno worker launches disable runtime lockfile writes so they cannot modify a verified release snapshot. On Windows, Deno requires `--allow-all` to use the private named-pipe control channel; start the CLI with `deno run --allow-all js/bin/meta-sovereign.js serve`.
 
 This covers application-worker upgrades with a compatible store schema. An incompatible replacement is refused while the working version remains available. Changing the public TLS listener configuration, stopping the host, or rebooting the OS still requires a host restart. An installation already running the older single-process launcher needs one initial restart to adopt the stable host; subsequent `serve` upgrades use the rolling path. Warm-up temporarily requires memory for both archive readers.

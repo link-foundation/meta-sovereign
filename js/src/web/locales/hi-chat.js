@@ -208,6 +208,8 @@ export const hiChat = {
   'chat.attach.add': 'जोड़ें',
   'chat.attach.remove': 'हटाएँ',
   'chat.attach.sending': 'भेजा जा रहा है… {percent}%',
+  'chat.attach.uploading': 'अपलोड हो रहा है… {percent}%',
+  'chat.attach.confirming': 'Telegram की पुष्टि की प्रतीक्षा…',
   'chat.attach.drop': 'भेजने के लिए फ़ाइलें यहाँ छोड़ें',
   'chat.attach.file': 'फ़ाइल',
   'chat.attach.poll': 'पोल',

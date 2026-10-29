@@ -195,6 +195,8 @@ export const zhChat = {
   'chat.attach.add': '添加',
   'chat.attach.remove': '移除',
   'chat.attach.sending': '正在发送… {percent}%',
+  'chat.attach.uploading': '上传中… {percent}%',
+  'chat.attach.confirming': '正在等待 Telegram 确认…',
   'chat.attach.drop': '将文件拖放到此处发送',
   'chat.attach.file': '文件',
   'chat.attach.poll': '投票',

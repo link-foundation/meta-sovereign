@@ -17,7 +17,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { pickSize } from './telegram-media.js';
+import { pickSize, downloadBytes, downloadSize } from './telegram-media.js';
 import { connect, formatOf, runIn, sniff } from './telegram-stickers.js';
 
 const MAX_IDS = 200;
@@ -112,7 +112,7 @@ const pictureOf = (doc) => {
     return { thumb: '', size: Number(doc.size) };
   }
   const thumb = pickSize(doc.thumbs ?? [], 'm');
-  return thumb ? { thumb, size: MAX_PICTURE } : null;
+  return thumb ? { thumb, size: downloadBytes(doc, thumb) } : null;
 };
 
 const location = (c, doc, thumb) =>
@@ -127,7 +127,7 @@ const download = (env, c, name, doc, thumb, size) =>
   runIn(env, `file:custom-emoji:${name}`, async () => {
     const buffer = await c.client.downloadFile(location(c, doc, thumb), {
       dcId: Number(doc.dcId),
-      fileSize: c.helpers.returnBigInt(String(Math.max(1, size))),
+      ...downloadSize(c.helpers, size),
     });
     return buffer?.length ? Buffer.from(buffer) : null;
   });

@@ -15,6 +15,7 @@ import { sendAsField } from './chat-send-as.js';
 import { PhotoEditor } from './chat-photo-editor.js';
 import { isEdited, isEditable } from './photo-editor-model.js';
 import { RemoveMenu } from './chat-attach-bots.js';
+import { transferAttachments } from './attachment-transfer.js';
 
 const el = React.createElement;
 
@@ -58,26 +59,6 @@ export const canAttach = (state, api) =>
   state.current?.source === 'telegram' &&
   state.telegram?.kind === 'user' &&
   typeof api?.telegramUpload === 'function';
-
-// Each file up, then all of them to Telegram; `onProgress(0…1)` overall.
-const upload = async (api, items, onProgress) => {
-  const total = items.reduce((sum, item) => sum + (item.file.size || 1), 0);
-  let done = 0;
-  const tokens = [];
-  for (const item of items) {
-    const size = item.file.size || 1;
-    const answer = await api.telegramUpload(item.file, {
-      onProgress: (part) => onProgress((done + part * size) / total),
-    });
-    if (!answer?.token) {
-      return { error: answer?.error ?? 'upload failed', code: answer?.code };
-    }
-    done += size;
-    onProgress(done / total);
-    tokens.push(answer.token);
-  }
-  return { tokens };
-};
 
 // The message the files answer, when one is chosen (or the forum topic's
 // first, R-Y122).
@@ -160,24 +141,31 @@ export const useAttach = ({ state, api }) => {
     if (chosen.length === 0 || progress !== null) {
       return;
     }
-    setProgress(0);
-    const up = await upload(api, chosen, setProgress);
-    const answer = up.tokens
-      ? await api.telegramSendFiles({
+    setProgress({ stage: 'uploading', value: 0 });
+    let answer;
+    try {
+      answer = await transferAttachments(
+        api,
+        chosen,
+        {
           chat: String(current.chat),
-          tokens: up.tokens,
           caption: caption.trim(),
           asPhoto,
           group,
           ...replyOf(composer),
           ...when,
           ...sendAsField(current.chat),
-        })
-      : up;
+        },
+        setProgress
+      );
+    } catch (error) {
+      answer = { error: error.message, code: error.code };
+    }
     if (answer?.ok) {
       composer?.setText?.('');
       composer?.clearReplyTo?.();
       close();
+      state.refresh?.();
       return;
     }
     failed(answer);
@@ -506,12 +494,19 @@ const Progress = ({ progress, t }) =>
     el(
       'div',
       { key: 'bar', className: 'attach-progress-bar' },
-      el('span', { style: { width: `${Math.round(progress * 100)}%` } })
+      el('span', {
+        style: { width: `${Math.round((progress.value ?? 0) * 100)}%` },
+      })
     ),
     el(
       'span',
       { key: 't', className: 'attach-progress-text' },
-      t('chat.attach.sending', { percent: Math.round(progress * 100) })
+      t(
+        progress.stage === 'confirming' || progress.value === null
+          ? 'chat.attach.confirming'
+          : `chat.attach.${progress.stage}`,
+        { percent: Math.floor((progress.value ?? 0) * 100) }
+      )
     ),
   ]);
 

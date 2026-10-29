@@ -35,7 +35,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { pickSize } from './telegram-media.js';
+import { pickSize, downloadBytes, downloadSize } from './telegram-media.js';
 import { withSendAs } from './telegram-send-as-client.js';
 import { DICE, randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { createStickerSearch } from './telegram-sticker-search.js';
@@ -124,7 +124,7 @@ const pictureOf = (doc) => {
     return { doc, thumb: '', size: Number(doc.size) };
   }
   const thumb = pickSize(doc.thumbs ?? [], 'm');
-  return thumb ? { doc, thumb, size: MAX_PICTURE } : null;
+  return thumb ? { doc, thumb, size: downloadBytes(doc, thumb) } : null;
 };
 
 /** The picture's type, from its first bytes. */
@@ -383,7 +383,7 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
     runIn(env, `file:sticker:${name}`, async () => {
       const buffer = await c.client.downloadFile(location, {
         dcId: Number(dcId),
-        fileSize: c.helpers.returnBigInt(String(Math.max(1, size))),
+        ...downloadSize(c.helpers, size),
       });
       return buffer?.length ? Buffer.from(buffer) : null;
     });
@@ -440,7 +440,7 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
       `set-${id}`,
       location,
       set.thumbDcId,
-      MAX_PICTURE
+      undefined // InputStickerSetThumb does not select a particular size.
     );
     const mimeType = buffer ? sniff(buffer) : '';
     return mimeType.startsWith('image/') ? { buffer, mimeType } : null;

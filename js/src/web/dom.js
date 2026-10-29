@@ -1268,6 +1268,8 @@ const rawApi = {
     (await serverPostReport('/api/telegram/send-files', body).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for files' },
+  telegramUploadProgress: (body = {}) =>
+    serverPostReport('/api/telegram/upload-progress', body),
 
   // A voice message (R-Y108): its upload's token, length in seconds and
   // waveform → { ok, ids }.

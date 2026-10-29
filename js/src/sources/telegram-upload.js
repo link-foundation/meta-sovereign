@@ -216,8 +216,13 @@ const voiceSent = async ({ env, client, dialogOf, tools }, target, fileOf) => {
 // as one goes as a file.
 const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
   const files = batch.files.map((f) => new CustomFile(f.name, f.size, f.path));
-  const send = (photo) =>
-    client.sendFile(peer, {
+  const send = (photo) => {
+    let index = 0;
+    let last = 0;
+    for (const file of batch.files) {
+      file.transfer.value = 0;
+    }
+    return client.sendFile(peer, {
       file: files.length === 1 ? files[0] : files,
       caption: options.caption,
       forceDocument: !photo,
@@ -227,7 +232,16 @@ const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
       ...(options.silent ? { silent: true } : {}),
       ...(options.scheduleDate ? { scheduleDate: options.scheduleDate } : {}),
       workers: 4,
+      progressCallback: (value) => {
+        const part = Math.max(0, Math.min(1, Number(value) || 0));
+        if (part < last && index < batch.files.length - 1) {
+          index += 1;
+        }
+        batch.files[index].transfer.value = part;
+        last = part;
+      },
     });
+  };
   try {
     return await send(batch.photo);
   } catch (error) {
@@ -274,6 +288,19 @@ const scheduledNote = (env, scheduleDate, chat) => {
   }
   env.actions?.scheduledChanged?.(chat);
   return { scheduled: true };
+};
+
+const progressOfUploads = (uploads, tokens = []) => {
+  const files = tokens.map((token) => uploads.get(token));
+  if (!files.length || files.some((file) => !file)) {
+    return { ok: false };
+  }
+  const total = files.reduce((sum, file) => sum + (file.size || 1), 0);
+  const sent = files.reduce(
+    (sum, file) => sum + (file.size || 1) * file.transfer.value,
+    0
+  );
+  return { ok: true, progress: sent / total };
 };
 
 /**
@@ -328,6 +355,7 @@ export const createFileSender = (
       name: safeName(name),
       size,
       at: now(),
+      transfer: { value: 0 },
     });
     return { ok: true, token, name: safeName(name), size };
   };
@@ -431,6 +459,7 @@ export const createFileSender = (
   // `held`: the uploads, for an action that sends one itself (R-Y129).
   return {
     receiveUpload,
+    uploadProgress: ({ tokens } = {}) => progressOfUploads(uploads, tokens),
     sendFiles,
     sendVoice,
     sendRound,

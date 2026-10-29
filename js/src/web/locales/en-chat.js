@@ -208,6 +208,8 @@ export const enChat = {
   'chat.attach.add': 'Add',
   'chat.attach.remove': 'Remove',
   'chat.attach.sending': 'Sending… {percent}%',
+  'chat.attach.uploading': 'Uploading… {percent}%',
+  'chat.attach.confirming': 'Waiting for Telegram confirmation…',
   'chat.attach.drop': 'Drop files here to send them',
   'chat.attach.file': 'File',
   'chat.attach.poll': 'Poll',

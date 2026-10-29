@@ -91,35 +91,55 @@ export const useOlder = (box, state) => {
   return check;
 };
 
-// A page added above keeps what the user reads where it was: the
-// distance to the bottom stays the same.
+// Anchor an existing row when older history is prepended. Keeping the
+// distance to the bottom also counts new messages appended below, and
+// mistakes a trimmed window for a prepend: both yank the reader away.
 export const useKeepPlace = (box, state) => {
-  const fromBottom = useRef(0);
-  const first = useRef({ key: null, id: null });
-  useLayoutEffect(() => {
+  const before = useRef(null);
+  const remember = () => {
     const node = box.current;
-    if (!node || typeof node.scrollHeight !== 'number') {
+    if (!node) {
       return;
     }
-    const key = state.current?.key ?? null;
-    const id = state.messages[0]?.id ?? null;
-    if (
-      first.current.key === key &&
-      first.current.id !== null &&
-      first.current.id !== id &&
-      node.scrollHeight > 0
-    ) {
-      node.scrollTop = node.scrollHeight - fromBottom.current;
-    }
-    first.current = { key, id };
-    fromBottom.current = node.scrollHeight - node.scrollTop;
-  });
-  return () => {
-    const node = box.current;
-    if (node) {
-      fromBottom.current = node.scrollHeight - node.scrollTop;
-    }
+    const row = [...node.querySelectorAll('[data-message]')].find(
+      (item) =>
+        item.getBoundingClientRect().bottom > node.getBoundingClientRect().top
+    );
+    before.current = {
+      key: state.current?.key,
+      view: state.history?.view,
+      first: state.messages[0]?.id,
+      row: row?.dataset.message,
+      top: row?.getBoundingClientRect().top,
+      near:
+        node.scrollHeight - node.scrollTop - node.clientHeight < NEAR_BOTTOM_PX,
+    };
   };
+  useLayoutEffect(() => {
+    const node = box.current;
+    if (!node) {
+      return;
+    }
+    const saved = before.current;
+    if (
+      saved &&
+      saved.key === state.current?.key &&
+      saved.view === state.history?.view &&
+      saved.first !== state.messages[0]?.id &&
+      state.messages.some((m) => m.id === saved.first)
+    ) {
+      const row = [...node.querySelectorAll('[data-message]')].find(
+        (item) => item.dataset.message === saved.row
+      );
+      if (saved.near) {
+        node.scrollTop = node.scrollHeight;
+      } else if (row && Number.isFinite(saved.top)) {
+        node.scrollTop += row.getBoundingClientRect().top - saved.top;
+      }
+    }
+    remember();
+  });
+  return remember;
 };
 
 // A compact marker inside the message list, never a header bar. Background
@@ -195,7 +215,7 @@ export const useFollow = (state) => {
     near.current = false;
     setUnseen(0);
   };
-  useEffect(() => {
+  useLayoutEffect(() => {
     const key = state.current?.key;
     const before = seen.current;
     seen.current = {
@@ -211,7 +231,9 @@ export const useFollow = (state) => {
     const justSent = last?.sender === 'me' && Boolean(last?.pending);
     // The unread line may come with the chat's first page, just after.
     const lineWanted = opened || waitLine.current;
-    waitLine.current = opened && !line.current;
+    // Wait only for this chat's initial page. An already read conversation
+    // must not suddenly jump to a newly created unread divider much later.
+    waitLine.current = lineWanted && !line.current && count === 0;
     const move = followMove({
       opened,
       line: lineWanted && Boolean(line.current),

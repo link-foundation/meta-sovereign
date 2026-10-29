@@ -611,6 +611,12 @@ const slimRich = (rich) => {
 
 function objectOf(value, depth, seen) {
   const out = {};
+  // Teleproto keeps TL type tags on the prototype (GramJS owned them).
+  // The stored JSON must name every nested constructor, including media,
+  // photo sizes and document attributes, without persisting client caches.
+  if (typeof value.className === 'string') {
+    out.className = value.className;
+  }
   for (const [key, item] of Object.entries(value)) {
     if (
       key.startsWith('_') ||

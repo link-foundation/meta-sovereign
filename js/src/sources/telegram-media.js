@@ -53,6 +53,21 @@ const bytesOf = (value) => {
 const sizeBytes = (s) =>
   Array.isArray(s?.sizes) ? Math.max(...s.sizes) : Number(s?.size ?? 0);
 
+// fileSize is an exact transfer length, not a maximum. Teleproto checks
+// every part against it; an estimated limit makes a valid last part fail.
+export const downloadBytes = (file, thumb = '') => {
+  const size = thumb
+    ? sizeBytes(
+        [...(file?.sizes ?? []), ...(file?.thumbs ?? [])].find(
+          (s) => s.type === thumb
+        )
+      )
+    : Number(file?.size ?? 0);
+  return size > 0 ? size : undefined;
+};
+export const downloadSize = (helpers, size) =>
+  Number(size) > 0 ? { fileSize: bigSize(helpers, size) } : {};
+
 // Downloadable sizes (not the inline stripped one) and their type.
 const realSizes = (sizes = []) =>
   sizes.filter(
@@ -219,7 +234,7 @@ export const createMediaReader = ({
       locationOf(Api, helpers, picture),
       {
         dcId: Number(picture.file.dcId),
-        fileSize: bigSize(helpers, MAX_BYTES),
+        ...downloadSize(helpers, downloadBytes(picture.file, picture.thumb)),
       }
     );
     return buffer?.length ? Buffer.from(buffer) : null;

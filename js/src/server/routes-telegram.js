@@ -842,6 +842,11 @@ const POSTS = {
     ];
   },
   // Files and photos uploaded before (R-Y99).
+  'upload-progress': async (account, body) =>
+    validFiles({ ...body, chat: '1' }) &&
+    typeof account.uploadProgress === 'function'
+      ? [200, account.uploadProgress({ tokens: body.tokens })]
+      : [400, { error: 'valid upload tokens required', code: 'bad-request' }],
   'send-files': async (account, body) => {
     const tokens = body.tokens;
     const replyTo = Number(body.replyTo);

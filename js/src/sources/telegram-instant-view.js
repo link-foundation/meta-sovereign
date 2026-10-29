@@ -20,7 +20,8 @@ import { runIn, connected, failureOf } from './telegram-stickers.js';
 import {
   pickSize,
   locationOf,
-  bigSize,
+  downloadBytes,
+  downloadSize,
   documentPicture,
 } from './telegram-media.js';
 import { createWholeFiles } from './telegram-instant-view-whole.js';
@@ -167,10 +168,10 @@ export const createInstantView = (env, context) => {
       () =>
         c.client.downloadFile(locationOf(c.Api, c.helpers, picture), {
           dcId: Number(file.dcId),
-          fileSize: bigSize(c.helpers, MAX_BYTES),
+          ...downloadSize(c.helpers, downloadBytes(file, picture.thumb)),
         })
     );
-    return buffer?.length
+    return buffer?.length && buffer.length <= MAX_BYTES
       ? { buffer: Buffer.from(buffer), mimeType: picture.mimeType }
       : null;
   };
