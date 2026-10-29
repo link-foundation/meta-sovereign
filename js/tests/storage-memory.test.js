@@ -139,6 +139,39 @@ test('startup adopts private packed records without a second metadata copy', () 
   assert.equal(packing.stats().packedBytes, 0);
 });
 
+test('wide packed records preserve all metadata without decoding cold fields', () => {
+  const packing = createRawPacking();
+  const original = Object.fromEntries([
+    ['id', 'msg:wide'],
+    ...Array.from({ length: 40 }, (_, i) => [`metadata${i}`, `value${i}`]),
+    ['constructor', 'metadata constructor'],
+    ['toString', 'metadata toString'],
+    ['__proto__', 'metadata prototype'],
+    ['raw', raw()],
+    ['snapshot', { body: 'previous version '.repeat(100) }],
+  ]);
+  const held = packing.retain(original);
+  const copy = packing.copy(held);
+  assert.equal(Object.getPrototypeOf(held), Object.prototype);
+  assert.deepEqual(Object.keys(copy), Object.keys(original));
+  for (const key of Object.keys(original).filter(
+    (field) => !['raw', 'snapshot'].includes(field)
+  )) {
+    assert.equal(copy[key], original[key]);
+  }
+  for (const field of ['raw', 'snapshot']) {
+    assert.equal(
+      typeof Object.getOwnPropertyDescriptor(copy, field).get,
+      'function'
+    );
+    assert.deepEqual(copy[field], original[field]);
+  }
+  assert.deepEqual(copy, original);
+  assert.equal(packing.stats().decodedPayloadsCached, 0);
+  packing.release(held);
+  assert.equal(packing.stats().packedRecords, 0);
+});
+
 test('streamed binary packets match the existing format with bounded chunks', async () => {
   for (const width of [1, 2, 4, 8]) {
     const packet = {

@@ -25,6 +25,12 @@ A fall in RSS alone does not establish that a leak has disappeared.
   returned record never expands its provider data unless that field is used.
   A public read copy materializes a field on first use, preserving normal
   assignment and nested mutation on that copy without changing the store.
+- Packed records keep cold-field references in two fixed slots instead of a
+  per-record hash map. Metadata copies use native object construction, retaining
+  compact V8 property slots for wide records instead of property hash tables.
+  Copies skip cold fields before reading values. These changes reduce retained
+  bookkeeping without adding compression work, discarding messages or changing
+  the on-disk format. Startup adopts its private packed records directly.
 - Startup interns metadata strings without retaining a second set of strings
   from packed payloads. Compaction writes batches instead of expanding all cold
   payloads before writing. Status/contact aggregation and reply bootstrap scan

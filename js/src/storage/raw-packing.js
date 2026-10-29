@@ -6,8 +6,11 @@ import { deflateRawSync, inflateRawSync } from 'node:zlib';
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
 const exposed = new WeakSet();
+// There are only two possible cold fields. Fixed slots avoid a Map and its
+// backing hash table on every retained message or edit-history record.
+const payloadFields = (payloads) => fields.filter((field) => payloads[field]);
 const read = (owner, field) => {
-  const value = packed.get(owner)?.get(field);
+  const value = packed.get(owner)?.[field];
   const bytes = value.compressed ? inflateRawSync(value.bytes) : value.bytes;
   return deserialize(bytes);
 };
@@ -36,7 +39,7 @@ const publicGetters = Object.fromEntries(
       const payloads = packed.get(this);
       plainField(this, field, value);
       if (
-        [...payloads.keys()].every(
+        payloadFields(payloads).every(
           (key) => !Object.getOwnPropertyDescriptor(this, key)?.get
         )
       ) {
@@ -50,7 +53,7 @@ const setters = Object.fromEntries(
   fields.map((field) => [
     field,
     function (value) {
-      for (const key of packed.get(this).keys()) {
+      for (const key of payloadFields(packed.get(this))) {
         if (!Object.hasOwn(this, key)) {
           continue;
         }
@@ -65,17 +68,20 @@ const copyPacked = (link, payloads = packed.get(link), visible = false) => {
   if (!payloads) {
     return { ...link };
   }
-  const out = {};
-  for (const key of Object.keys(link)) {
-    if (!payloads.has(key)) {
-      out[key] = link[key];
-    }
-  }
+  const heldFields = payloadFields(payloads);
+  // Repeated property assignment turns wide metadata records into V8 hash
+  // tables. Native construction keeps compact property slots and shared shapes.
+  // Skip cold fields before reading values so copying never expands a payload.
+  const out = Object.fromEntries(
+    Object.keys(link)
+      .filter((key) => !heldFields.includes(key))
+      .map((key) => [key, link[key]])
+  );
   packed.set(out, payloads);
   if (visible) {
     exposed.add(out);
   }
-  for (const field of payloads.keys()) {
+  for (const field of heldFields) {
     Object.defineProperty(out, field, {
       enumerable: true,
       configurable: true,
@@ -95,7 +101,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
     if (packed.has(link) && !exposed.has(link)) {
       return link;
     }
-    const payloads = new Map();
+    const payloads = { raw: undefined, snapshot: undefined };
     for (const field of fields) {
       if (!link[field] || typeof link[field] !== 'object') {
         continue;
@@ -117,13 +123,16 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       // records need exact-sized backing stores, independent of buffer pools.
       const owned = Buffer.allocUnsafeSlow(selected.length);
       owned.set(selected);
-      payloads.set(field, {
+      payloads[field] = {
         bytes: owned,
         compressed: smaller,
         original: data.length,
-      });
+      };
     }
-    return copyPacked(link, payloads.size ? payloads : undefined);
+    return copyPacked(
+      link,
+      payloads.raw || payloads.snapshot ? payloads : undefined
+    );
   };
   const account = (link, by) => {
     const payloads = packed.get(link);
@@ -131,7 +140,8 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
       return;
     }
     records += by;
-    for (const value of payloads.values()) {
+    for (const field of payloadFields(payloads)) {
+      const value = payloads[field];
       bytes += by * value.bytes.length;
       unpackedBytes += by * value.original;
       allocatedBytes += by * value.bytes.buffer.byteLength;
