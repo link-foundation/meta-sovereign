@@ -7,7 +7,7 @@
  * This script:
  * 1. Detects the JavaScript package root (supports both single-language and multi-language repos)
  * 2. Runs `changeset version` to update package versions
- * 3. Runs `npm install` to synchronize package-lock.json with the new versions
+ * 3. Updates only root version metadata in the committed lockfile
  *
  * Configuration:
  * - CLI: --js-root <path> to explicitly set JavaScript root
@@ -19,13 +19,13 @@
  *
  * Addresses issues documented in:
  * - Issue #21: Supporting both single and multi-language repository structures
- * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
  * - Reference: link-assistant/agent PR #114 (configurable package root)
  */
 
 import { getJsRoot, needsCd, parseJsRootConfig } from './js-paths.mjs';
 
 import { loadCommandStream } from './use-module.mjs';
+import { syncLockfileVersion } from './sync-lockfile-version.mjs';
 
 // Import command-stream for shell command execution
 const { $ } = await loadCommandStream();
@@ -43,22 +43,15 @@ try {
 
   // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
   if (needsCd({ jsRoot })) {
-    await $`cd ${jsRoot} && npx changeset version`;
+    await $`cd ${jsRoot} && npx --no-install changeset version`;
     process.chdir(originalCwd);
   } else {
-    await $`npx changeset version`;
+    await $`npx --no-install changeset version`;
   }
 
   console.log('\nSynchronizing package-lock.json...');
 
-  // Use --legacy-peer-deps to handle peer dependency conflicts
-  // This addresses npm ERESOLVE errors documented in issue #111 / PR #112
-  if (needsCd({ jsRoot })) {
-    await $`cd ${jsRoot} && npm install --package-lock-only --legacy-peer-deps`;
-    process.chdir(originalCwd);
-  } else {
-    await $`npm install --package-lock-only --legacy-peer-deps`;
-  }
+  syncLockfileVersion({ jsRoot });
 
   console.log('\n✅ Version bump complete with synchronized package-lock.json');
 } catch (error) {
