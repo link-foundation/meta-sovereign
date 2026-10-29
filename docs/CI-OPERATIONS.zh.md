@@ -62,4 +62,4 @@ GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版
 
 [Issue 54 审计](../dev/log/issues/54/pulls/55/README.md)保存了六次指定运行和完整模板文件树。版本更新后，GitHub 发布创建与补充步骤将本地引用解析为精确的提交 SHA；缺失必需发布、API 拒绝或未知响应都会在写入前失败。说明保留全部 changeset 章节、围栏代码示例、字面转义和相关 PR 链接；大文本遵循 UTF-8 字节上限并附带完整 changelog 的不可变链接。npm 缓存使用者仅恢复，每个 workflow/ref/平台键只有指定写入者。所有 setup-node 步骤显式关闭隐式包管理器缓存。CI 验证证据归档的校验和。
 
-工作流审计也检查复合 action 和 Dependabot。同仓库 action 使用 GitHub 的 `$/...` 语法；常规依赖版本等待七天，安全更新不受此延迟影响。
+工作流审计也检查复合 action 和 Dependabot。同仓库 action 使用 GitHub 的 `$/...` 语法；常规依赖版本等待七天，安全更新不受此延迟影响。 固定的 actionlint 1.7.12 尚不支持该语法；针对确切引用的兼容例外关联上游 issue 711，并验证真实错误仍会失败。

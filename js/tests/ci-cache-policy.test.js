@@ -11,6 +11,14 @@ test('npm caching has explicit writers instead of implicit setup-node saves', ()
     const workflow = parse(readFileSync(new URL(name, directory), 'utf8'));
     for (const [jobName, job] of Object.entries(workflow.jobs)) {
       for (const step of job.steps || []) {
+        if (step.uses?.includes('/.github/actions/npm-cache')) {
+          assert.equal(step.uses, '$/.github/actions/npm-cache');
+          assert.doesNotThrow(() =>
+            readFileSync(
+              new URL(`../../${step.uses.slice(2)}/action.yml`, import.meta.url)
+            )
+          );
+        }
         if (step.uses?.startsWith('actions/setup-node@')) {
           assert.equal(
             step.with?.['package-manager-cache'],

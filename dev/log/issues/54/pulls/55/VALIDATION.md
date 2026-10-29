@@ -16,6 +16,7 @@ The following logs are archived under `validation/`. Tests invoke real helpers w
 | cache-after.log / cache-release-after.log | Cache/writer policies and related release regressions pass. |
 | cache-ref-before.log / cache-ref-after.log | Cross-ref cache identity fails before repair; both cache policies and both existing writer policies pass afterward (4 tests). |
 | zizmor-after.log / zizmor-final.log | Full `.github` scan reproduces 5 Dependabot cooldown findings; pinned zizmor 1.31.1 passes after configuration fixes. Earlier CI self-repository errors are preserved in the failed-job API log. |
+| actionlint-self-before.log / actionlint-self-after.log / actionlint-compatibility.log | Real pinned Docker checker reproduces 11 valid-syntax false positives; the narrow compatibility fix passes. Unknown references and real ShellCheck errors still fail. |
 | fenced-notes-after.log | Minimum fenced-heading regression passes. |
 | template-fenced-notes.log | Executed JavaScript and Python template functions both reproduce fenced-heading truncation. |
 | template-formatter-403.log | Actual upstream JavaScript formatter exits zero on simulated HTTP 403. |
