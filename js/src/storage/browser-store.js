@@ -1,3 +1,5 @@
+import { getLocalStorage } from './local-storage.js';
+
 /**
  * Browser-side links store for offline-first operation.
  *
@@ -40,7 +42,7 @@ export const createInMemoryDriver = () => {
 };
 
 export const createLocalStorageDriver = (
-  storage = globalThis.localStorage,
+  storage = getLocalStorage(),
   key = SNAPSHOT_KEY
 ) => ({
   async load() {
@@ -123,9 +125,10 @@ const createBestSnapshotDriver = (key = SNAPSHOT_KEY) => {
       // fall through
     }
   }
-  if (typeof globalThis.localStorage !== 'undefined') {
+  const localStorage = getLocalStorage();
+  if (localStorage) {
     try {
-      return createLocalStorageDriver(globalThis.localStorage, key);
+      return createLocalStorageDriver(localStorage, key);
     } catch {
       // fall through
     }
@@ -276,12 +279,10 @@ export const pickBrowserDriver = ({ suffix = '' } = {}) => {
       // fall through
     }
   }
-  if (typeof globalThis.localStorage !== 'undefined') {
+  const localStorage = getLocalStorage();
+  if (localStorage) {
     try {
-      return createLocalStorageDriver(
-        globalThis.localStorage,
-        `${SNAPSHOT_KEY}${suffix}`
-      );
+      return createLocalStorageDriver(localStorage, `${SNAPSHOT_KEY}${suffix}`);
     } catch {
       // fall through
     }

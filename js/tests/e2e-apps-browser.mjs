@@ -291,7 +291,8 @@ const similarBots = async () => {
   assert(calls['bot-similar'].length === asked, 'not asked for a person');
 };
 
-const appFrame = () => page.frames().find((f) => f.url().startsWith(ORIGIN));
+const appFrame = () =>
+  page.frames().find((f) => new URL(f.url()).origin === ORIGIN);
 const gotType = async (type) =>
   (
     (await appFrame()

@@ -29,6 +29,9 @@ export const TOLERATED_FAILED_STEPS = Object.freeze(['Publish to npm']);
  * @returns {{build: boolean, reason: string}}
  */
 export const desktopReleaseGate = (jobs) => {
+  if (!Array.isArray(jobs) || jobs.length === 0) {
+    return { build: false, reason: 'no upstream job results received' };
+  }
   const failedJobs = jobs.filter(
     (job) => job.conclusion !== 'success' && job.conclusion !== 'skipped'
   );
@@ -56,11 +59,29 @@ export const desktopReleaseGate = (jobs) => {
 };
 
 /** `gh api --paginate` concatenates one `{total_count, jobs}` per page. */
-export const parseJobPages = (text) =>
-  String(text)
-    .split(/(?<=\})\s*(?=\{"total_count")/)
+export const parseJobPages = (text) => {
+  const pages = String(text)
+    .split(/(?<=\})\s*(?=\{\s*"total_count")/)
     .filter((page) => page.trim())
-    .flatMap((page) => JSON.parse(page).jobs ?? []);
+    .map((page) => JSON.parse(page));
+  const count = pages[0]?.total_count;
+  if (
+    !Number.isInteger(count) ||
+    count <= 0 ||
+    pages.some(
+      (page) => page.total_count !== count || !Array.isArray(page.jobs)
+    )
+  ) {
+    throw new Error('Missing or invalid upstream job evidence');
+  }
+  const jobs = pages.flatMap((page) => page.jobs);
+  if (jobs.length !== count) {
+    throw new Error(
+      `Incomplete upstream job evidence: received ${jobs.length} of ${count}`
+    );
+  }
+  return jobs;
+};
 
 if (
   process.argv[1] &&

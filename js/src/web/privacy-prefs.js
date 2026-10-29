@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Things other people would see, as the user chose in Settings.
 //
 // Sharing "typing…" is a write to the other service (the person you
@@ -12,7 +14,7 @@ import { useState } from 'react';
 
 export const SHARE_TYPING_KEY = 'metaSovereignShareTyping';
 
-export const readShareTyping = (storage = globalThis.localStorage) => {
+export const readShareTyping = (storage = getLocalStorage()) => {
   try {
     return storage?.getItem(SHARE_TYPING_KEY) === 'on';
   } catch {
@@ -20,7 +22,7 @@ export const readShareTyping = (storage = globalThis.localStorage) => {
   }
 };
 
-export const writeShareTyping = (on, storage = globalThis.localStorage) => {
+export const writeShareTyping = (on, storage = getLocalStorage()) => {
   try {
     if (on) {
       storage?.setItem(SHARE_TYPING_KEY, 'on');
@@ -45,7 +47,7 @@ export const useShareTyping = () => {
 
 export const READ_RECEIPTS_KEY = 'metaSovereignReadReceipts';
 
-export const readReadReceipts = (storage = globalThis.localStorage) => {
+export const readReadReceipts = (storage = getLocalStorage()) => {
   try {
     return storage?.getItem(READ_RECEIPTS_KEY) !== 'off';
   } catch {
@@ -53,7 +55,7 @@ export const readReadReceipts = (storage = globalThis.localStorage) => {
   }
 };
 
-export const writeReadReceipts = (on, storage = globalThis.localStorage) => {
+export const writeReadReceipts = (on, storage = getLocalStorage()) => {
   try {
     if (on) {
       storage?.removeItem(READ_RECEIPTS_KEY);

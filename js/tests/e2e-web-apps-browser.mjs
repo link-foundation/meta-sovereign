@@ -175,7 +175,8 @@ const open = async (chat) => {
   await page.locator(`[data-chat="telegram:${chat}"]`).click();
   await box.waitFor({ timeout: 15000 });
 };
-const appFrame = () => page.frames().find((f) => f.url().startsWith(ORIGIN));
+const appFrame = () =>
+  page.frames().find((f) => new URL(f.url()).origin === ORIGIN);
 const got = async () =>
   (await appFrame()
     ?.evaluate(() => window.got)
@@ -217,7 +218,7 @@ const menuApp = async () => {
       !sandbox.includes('allow-top-navigation'),
     `sandbox: ${sandbox}`
   );
-  assert((await frame.getAttribute('src')).startsWith(ORIGIN), 'src');
+  assert(new URL(await frame.getAttribute('src')).origin === ORIGIN, 'src');
   await panel
     .locator('.web-app-loading')
     .waitFor({ state: 'detached', timeout: 5000 });
@@ -450,11 +451,11 @@ const unavailableApp = async () => {
     'an unavailable app never spins forever'
   );
   assert(
-    (
+    new URL(
       await panel
         .locator('[data-action="web-app-browser"]')
         .getAttribute('href')
-    ).startsWith(ORIGIN),
+    ).origin === ORIGIN,
     'manual browser fallback retains the launch destination'
   );
   await page.unroute(`${ORIGIN}/menu**`);

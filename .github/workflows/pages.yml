@@ -28,6 +28,9 @@ env:
 
 jobs:
   build:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-build-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Build SPA bundle
     runs-on: ubuntu-26.04
     # Typical run: ~30s (esbuild + copy). 10min cap matches the
@@ -71,7 +74,7 @@ jobs:
 
   deploy:
     concurrency:
-      group: pages-deploy
+      group: main-writer-${{ github.repository }}-main
       cancel-in-progress: false
     permissions:
       pages: write
@@ -94,6 +97,11 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5.0.1
+        # Official v5 still bundles punycode through @actions/artifact.
+        # Remove when actions/deploy-pages#434/#413 ships a rebuilt bundle.
+        # Match the audited template workaround; retain all other warnings.
+        env:
+          NODE_OPTIONS: --disable-warning=DEP0040
 
       - name: Smoke-test the deployed bundle
         env:
@@ -124,6 +132,9 @@ jobs:
   # made-up chat) and work like the copy the server serves itself
   # (js/tests/e2e-pages.mjs).
   e2e-deployed:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-e2e-deployed-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: E2E against the deployed site
     if: github.event_name != 'pull_request'
     needs: deploy
@@ -175,6 +186,9 @@ jobs:
   # The same check on a pull request, against the bundle built from it
   # and served from its own origin, as Pages would.
   e2e-bundle:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-e2e-bundle-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: E2E against the built bundle
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-26.04

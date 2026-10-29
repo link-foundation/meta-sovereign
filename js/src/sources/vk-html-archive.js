@@ -1,3 +1,10 @@
+import {
+  parseHtml,
+  findAll,
+  hasClass,
+  textOf as nodeText,
+} from './archive/text.js';
+
 /**
  * VK's own "Request your data" archive (R-Z8): `messages/<peer>/messages<N>.html`
  * pages, 50 messages each. VK ships them as Windows-1251 HTML. The page of
@@ -69,34 +76,14 @@ const MONTHS = {
   december: 11,
 };
 
-const ENTITIES = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-};
-
-const decodeEntities = (text) =>
-  text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name) => {
-    if (name[0] === '#') {
-      const code =
-        name[1].toLowerCase() === 'x'
-          ? Number.parseInt(name.slice(2), 16)
-          : Number(name.slice(1));
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
-    }
-    return ENTITIES[name.toLowerCase()] ?? whole;
-  });
-
-const textOf = (html) =>
-  decodeEntities(
-    html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<[^>]*>/g, '')
-      .replace(/[ \t]+\n/g, '\n')
-  ).trim();
+const isClass = (name) => (node) => hasClass(node, [name]);
+const firstClass = (node, name) => findAll(node, isClass(name))[0];
+const textOf = (node) =>
+  node
+    ? nodeText(node)
+        .replace(/[ \t]+\n/g, '\n')
+        .trim()
+    : '';
 
 /** HTML bytes to text: Windows-1251 as VK ships it, else UTF-8. */
 export const decodeVkHtml = (bytes) => {
@@ -189,43 +176,39 @@ const attachmentOf = (description, url) => {
     : { type: description.toLowerCase().slice(0, 40) || 'attachment' };
 };
 
-const attachmentsOf = (html) =>
-  [
-    ...html.matchAll(
-      /<div class="attachment__description">([\s\S]*?)<\/div>\s*(?:<a class="attachment__link" href="([^"]*)")?/g
-    ),
-  ].map((m) => attachmentOf(textOf(m[1]), m[2] ? decodeEntities(m[2]) : null));
+const attachmentsOf = (node) =>
+  findAll(node, isClass('attachment')).map((attachment) => {
+    const description = firstClass(attachment, 'attachment__description');
+    const link = firstClass(attachment, 'attachment__link');
+    return attachmentOf(textOf(description), link?.attrs.href);
+  });
 
-const messageOf = (html) => {
-  const id = /data-id="(-?\d+)"/.exec(html)?.[1];
-  const header = /<div class="message__header">([\s\S]*?)<\/div>/.exec(
-    html
-  )?.[1];
+const messageOf = (node) => {
+  const id = node.attrs['data-id'];
+  const header = firstClass(node, 'message__header');
   if (!header) {
     return null;
   }
-  const afterHeader = html.slice(html.indexOf(header) + header.length);
-  const kludges = afterHeader.indexOf('<div class="kludges">');
-  const bodyHtml = (
-    kludges < 0 ? afterHeader : afterHeader.slice(0, kludges)
-  ).replace(/^\s*<\/div>/, '');
   const plain = textOf(header);
   const stamp = DATE_RE.exec(plain);
-  const name = (stamp ? plain.slice(0, stamp.index) : plain).replace(
-    /[,\s]+$/,
-    ''
+  const name = (stamp ? plain.slice(0, stamp.index) : plain)
+    .trim()
+    .replace(/,$/, '')
+    .trim();
+  const fromId = idFromHref(
+    findAll(header, (n) => n.tag === 'a')[0]?.attrs.href
   );
-  const fromId = idFromHref(/href="([^"]*)"/.exec(header)?.[1]);
   const date = parseVkArchiveDate(plain);
-  const own = /^(вы|you)$/i.test(name);
-  const attachments = attachmentsOf(afterHeader);
+  const attachments = attachmentsOf(node);
   return {
-    ...(id ? { id: Number(id) } : {}),
+    ...(id && /^-?\d+$/.test(id) ? { id: Number(id) } : {}),
     from_id: fromId ?? name,
     from_name: name || null,
     date,
-    text: textOf(bodyHtml),
-    ...(own ? { out: 1 } : {}),
+    text: nodeText(node, (n) =>
+      hasClass(n, ['message__header', 'kludges'])
+    ).trim(),
+    ...(/^(вы|you)$/i.test(name) ? { out: 1 } : {}),
     ...(/\((ред\.|edited)\)/i.test(plain) && date ? { update_time: date } : {}),
     ...(attachments.length > 0 ? { attachments } : {}),
   };
@@ -247,15 +230,11 @@ export const peerFromArchivePath = (name) => {
  * id (from the folder name); the chat's title is the page header's link text.
  */
 export const parseVkHtmlPage = (html, { peer = null } = {}) => {
-  const parts = html.split(/<div class="message"[^>]*?(?=\sdata-id)/).slice(1);
-  const chunks = parts.length > 0 ? parts : [];
-  const messages = chunks
-    .map((chunk) => messageOf(chunk))
+  const root = parseHtml(html);
+  const messages = findAll(root, isClass('message'))
+    .map(messageOf)
     .filter((msg) => msg && (msg.text || msg.attachments));
-  const title = textOf(
-    /<div class="page_block_header[^"]*">([\s\S]*?)<\/div>/.exec(html)?.[1] ??
-      ''
-  );
+  const title = textOf(firstClass(root, 'page_block_header'));
   return {
     conversations: [
       {

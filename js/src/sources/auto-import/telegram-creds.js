@@ -200,16 +200,20 @@ export const parseEnv = (text) => {
     if (!line || line.startsWith('#')) {
       continue;
     }
-    const match = /^(?:export\s+)?([A-Za-z0-9_.]+)\s*=\s*(.*)$/.exec(line);
-    if (!match) {
+    const equal = line.indexOf('=');
+    const key = line
+      .slice(0, equal)
+      .replace(/^export\s+/, '')
+      .trim();
+    if (equal < 0 || !/^[A-Za-z0-9_.]+$/.test(key)) {
       continue;
     }
-    let value = match[2].trim();
+    let value = line.slice(equal + 1).trim();
     const quote = value[0];
     if ((quote === '"' || quote === "'") && value.endsWith(quote)) {
       value = value.slice(1, -1);
     }
-    out.push({ key: match[1], value });
+    out.push({ key, value });
   }
   return out;
 };

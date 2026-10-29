@@ -246,7 +246,12 @@ export const applyFlatChanges = (cv, changes = []) => {
     }
     const [section, field] = path.split('.');
     if (MAP_SECTIONS[section]?.includes(field)) {
-      next[section][field] = value;
+      Object.defineProperty(next[section], field, {
+        value,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
   for (const group of records.values()) {

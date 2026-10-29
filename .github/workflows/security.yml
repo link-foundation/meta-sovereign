@@ -1,5 +1,11 @@
 name: Scheduled security audit
 on:
+  # Main has this configuration family as well as release.yml. GitHub's
+  # baseline and aggregate PR check need both, including docs-only changes.
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
@@ -11,6 +17,9 @@ env:
   GIT_CONFIG_VALUE_0: main
 jobs:
   dependencies:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-dependencies-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Audit installed npm dependencies and Cargo.lock
     runs-on: ubuntu-26.04
     timeout-minutes: 15
@@ -33,6 +42,9 @@ jobs:
       - run: cargo audit --file rust/Cargo.lock --deny warnings
 
   codeql:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-codeql-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -54,8 +66,26 @@ jobs:
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
       - uses: github/codeql-action/analyze@v4.39.1
+        with:
+          output: artifacts/codeql
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '26.12.1'
+          package-manager-cache: false
+      - name: Reject unresolved CodeQL findings
+        run: node js/scripts/check-codeql-results.mjs artifacts/codeql
+      - name: Preserve CodeQL reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: codeql-${{ matrix.language }}
+          path: artifacts/codeql
+          if-no-files-found: error
 
   pipeline-status:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-pipeline-status-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Security pipeline status
     runs-on: ubuntu-26.04
     timeout-minutes: 5

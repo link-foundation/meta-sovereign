@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Newbie-friendly connection guides for every nav surface (issue #10).
 //
 // `connectionGuides` maps each navigation surface to the providers that
@@ -1116,7 +1118,7 @@ export const applyLocalServerOverride = (origin, { storage, reload } = {}) => {
   if (!origin) {
     return false;
   }
-  saveServerOverride(origin, storage ?? globalThis.localStorage);
+  saveServerOverride(origin, storage ?? getLocalStorage());
   if (typeof reload === 'function') {
     reload();
   } else if (globalThis.location?.reload) {

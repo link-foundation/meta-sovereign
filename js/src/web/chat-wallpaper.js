@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Chat backgrounds (R-Y155; learned, never copied), as Telegram Desktop's
 // "Chat background":
 // - Settings lists what Telegram offers (images, patterns over colours,
@@ -30,7 +32,7 @@ const MAX_SIDE = 1600;
 
 const read = () => {
   try {
-    const raw = globalThis.localStorage?.getItem(BACKGROUND_KEY);
+    const raw = getLocalStorage()?.getItem(BACKGROUND_KEY);
     return raw ? cleanChoice(JSON.parse(raw)) : NONE;
   } catch {
     // Storage can be disabled, or hold something that is not ours.
@@ -40,7 +42,7 @@ const read = () => {
 
 const write = (choice) => {
   try {
-    globalThis.localStorage?.setItem(BACKGROUND_KEY, JSON.stringify(choice));
+    getLocalStorage()?.setItem(BACKGROUND_KEY, JSON.stringify(choice));
   } catch {
     // See read(): the choice then lasts until the page closes.
   }

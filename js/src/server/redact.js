@@ -56,5 +56,16 @@ export const redact = (text) => {
   return out;
 };
 
-/** `error.message` made safe to log or store. */
-export const safeMessage = (error) => redact(String(error?.message ?? error));
+/** A credential-redacted summary, without frames from string-thrown stacks. */
+export const safeMessage = (error) => {
+  const message =
+    typeof error?.message === 'string'
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : 'unknown error';
+  // Upstream libraries can throw a stack string or put it in `message`.
+  // Responses and stored summaries need only its first line; private logs
+  // can retain structured, credential-redacted diagnostic fields separately.
+  return redact(message.split(/\r?\n/, 1)[0]);
+};

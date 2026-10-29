@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Interface scale and message text size, as Telegram Desktop's Settings →
 // Advanced → Interface scale and Chat Settings → Message text size have
 // them (R-Y192; learned, never copied): Auto, 100, 110, 125, 150, 175 or
@@ -84,7 +86,7 @@ export const keyDirection = (event) => {
 export const chatFontSize = (textSize) =>
   textSize === null ? null : `${textSize / 16}rem`;
 
-export const readUiScale = (storage = globalThis.localStorage) => {
+export const readUiScale = (storage = getLocalStorage()) => {
   try {
     return settingsFrom(JSON.parse(storage?.getItem(UI_SCALE_KEY)));
   } catch {
@@ -92,7 +94,7 @@ export const readUiScale = (storage = globalThis.localStorage) => {
   }
 };
 
-export const writeUiScale = (settings, storage = globalThis.localStorage) => {
+export const writeUiScale = (settings, storage = getLocalStorage()) => {
   try {
     storage?.setItem(UI_SCALE_KEY, JSON.stringify(settings));
   } catch {

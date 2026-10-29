@@ -9,38 +9,36 @@
  * noise.
  */
 
-const ENTITIES = {
-  '&nbsp;': ' ',
-  '&amp;': '&',
-  '&lt;': '<',
-  '&gt;': '>',
-  '&quot;': '"',
-  '&#39;': "'",
-  '&mdash;': '—',
-  '&ndash;': '–',
-};
+import { visitHtml } from '../../markup/parse.js';
+import { decodeEntities } from '../../sources/archive/text.js';
 
-/** Convert a rich-text fragment into readable plain text. */
+/** Convert rich text into plain text without synthesizing tags by deletion. */
 export const stripHtml = (input) => {
-  if (!input) {
-    return '';
-  }
-  return (
-    String(input)
-      .replace(/<\s*(br|\/p|\/li|\/div|\/h[1-6])\s*\/?\s*>/gi, '\n')
-      .replace(/<li[^>]*>/gi, '- ')
-      .replace(/<[^>]+>/g, '')
-      // A capture truncated mid-tag would otherwise leak a stray '<'.
-      .replace(/<[^>]*$/, '')
-      .replace(
-        /&[a-z#0-9]+;/gi,
-        (entity) => ENTITIES[entity.toLowerCase()] ?? ' '
-      )
-      .split('\n')
-      .map((line) => line.replace(/[ \t\u00a0]+/g, ' ').trim())
-      .filter((line) => line.length > 0)
-      .join('\n')
-  );
+  const chunks = [];
+  visitHtml(input, {
+    ontext: (text) => chunks.push(decodeEntities(text)),
+    onopentag(tag) {
+      if (tag === 'br') {
+        chunks.push('\n');
+      }
+      if (tag === 'li') {
+        chunks.push('- ');
+      }
+    },
+    onclosetag(tag) {
+      if (
+        ['p', 'li', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)
+      ) {
+        chunks.push('\n');
+      }
+    },
+  });
+  return chunks
+    .join('')
+    .split('\n')
+    .map((line) => line.replace(/[ \t\u00a0]+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\n');
 };
 
 const MONTHS = {

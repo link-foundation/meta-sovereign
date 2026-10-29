@@ -17,6 +17,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import { sanitizeSvg } from '../markup/svg.js';
 import { bigSize, locationOf, pickSize, readCache } from './telegram-media.js';
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 
@@ -94,60 +95,8 @@ export const wallpaperPage = (wp) => {
   };
 };
 
-// Elements dropped with everything inside them.
-const DROPPED =
-  'script|foreignObject|style|iframe|object|embed|animate|animateMotion|animateTransform|set|image|audio|video|canvas|handler|listener';
-
-const ATTRIBUTE = String.raw`("[^"]*"|'[^']*'|[^\s>]+)`;
-
-// An href that is not a `#id` of the file itself is dropped.
-const keepLocalHref = (all, name, raw) => {
-  const value = String(raw)
-    .replace(/^["']|["']$/g, '')
-    .trim();
-  return value.startsWith('#') ? all : '';
-};
-
-/**
- * A pattern wallpaper's SVG made safe to show: no scripts, foreign
- * objects, styles, animations, images or links; no event attributes;
- * no reference but to the file itself (`#id`); no doctype or entities.
- */
-export const sanitizeSvg = (source) => {
-  let svg = String(source)
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<\?[\s\S]*?\?>/g, '')
-    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '')
-    .replace(/<!(DOCTYPE|ENTITY|ELEMENT|ATTLIST)[^>]*>/gi, '');
-  const pair = new RegExp(
-    `<(${DROPPED})\\b[^>]*?(?:/>|>[\\s\\S]*?</\\1\\s*>)`,
-    'gi'
-  );
-  let before;
-  do {
-    before = svg;
-    svg = svg.replace(pair, '');
-  } while (svg !== before);
-  // An opening tag left without its end is dropped too.
-  svg = svg.replace(new RegExp(`<(${DROPPED})\\b[^>]*>`, 'gi'), '');
-  // A link keeps what it holds (the drawing) but is no link.
-  svg = svg.replace(/<\/?a\b[^>]*>/gi, '');
-  svg = svg
-    .replace(
-      new RegExp(`\\s(on[a-z]+|formaction|srcdoc)\\s*=\\s*${ATTRIBUTE}`, 'gi'),
-      ''
-    )
-    .replace(
-      new RegExp(`\\s((?:xlink:)?href|src)\\s*=\\s*${ATTRIBUTE}`, 'gi'),
-      keepLocalHref
-    )
-    .replace(/\sstyle\s*=\s*("[^"]*"|'[^']*')/gi, (all, value) =>
-      /url\(|expression|javascript|@import/i.test(value) ? '' : all
-    )
-    .replace(/(javascript|vbscript|data)\s*:/gi, '');
-  const start = svg.search(/<svg\b/i);
-  return start < 0 ? '' : svg.slice(start).trim();
-};
+// Kept as a public export for callers and regression tests.
+export { sanitizeSvg } from '../markup/svg.js';
 
 /** A pattern document's bytes (gzip or plain SVG) as safe SVG bytes. */
 export const patternSvg = (buffer) => {

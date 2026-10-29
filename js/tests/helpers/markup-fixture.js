@@ -242,10 +242,12 @@ const listHtml = (platformId, step) => {
 const scalarHtml = (platformId, step) => {
   const text = fixtureText(platformId, step.path);
   if (step.attribute) {
-    return htmlForSelector(`${step.selector.split(',')[0]}`, {
+    const html = htmlForSelector(`${step.selector.split(',')[0]}`, {
       text: null,
       inner: '',
-    }).replace('>', ` ${step.attribute}="${escapeHtml(text)}">`);
+    });
+    const at = html.indexOf('>');
+    return `${html.slice(0, at)} ${step.attribute}="${escapeHtml(text)}"${html.slice(at)}`;
   }
   return htmlForSelector(step.selector, { text });
 };

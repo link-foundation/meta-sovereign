@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Recording a round video, as Telegram Desktop does (R-Y150; learned,
 // never copied): beside the microphone, a switch changes it to a camera.
 // The camera records a square crop of its picture (getUserMedia video
@@ -88,16 +90,14 @@ export const canRecordRound = (state, api) =>
 // The remembered mode, 'voice' or 'round'; storage may be unavailable.
 const savedMode = () => {
   try {
-    return globalThis.localStorage?.getItem(MODE_KEY) === 'round'
-      ? 'round'
-      : 'voice';
+    return getLocalStorage()?.getItem(MODE_KEY) === 'round' ? 'round' : 'voice';
   } catch {
     return 'voice';
   }
 };
 const saveMode = (mode) => {
   try {
-    globalThis.localStorage?.setItem(MODE_KEY, mode);
+    getLocalStorage()?.setItem(MODE_KEY, mode);
   } catch {
     // Not remembered; fine.
   }

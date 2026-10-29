@@ -73,8 +73,14 @@ const localServerRequired = (protocol, method) =>
     { protocol }
   );
 
-const rootUrl = (baseUrl, fallback) =>
-  String(baseUrl ?? fallback).replace(/\/+$/, '');
+const rootUrl = (baseUrl, fallback) => {
+  const value = String(baseUrl ?? fallback);
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+};
 
 // An HTTP failure with its status, so a caller can tell "slow down" apart.
 const call = async (...args) => {

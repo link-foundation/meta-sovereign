@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // What the translate bar keeps on the page (R-Y213; learned, never
 // copied): per device whether whole chats are offered for translation and
 // which languages are never offered; in memory which chats are shown
@@ -18,7 +20,7 @@ export const translateChatsOn = () => readPref(TRANSLATE_CHATS_KEY, false);
 export const setTranslateChats = (on) => writePref(TRANSLATE_CHATS_KEY, on);
 
 /** The language codes never offered for translation on this device. */
-export const skippedLanguages = (storage = globalThis.localStorage) => {
+export const skippedLanguages = (storage = getLocalStorage()) => {
   try {
     const list = JSON.parse(storage?.getItem(SKIP_LANGUAGES_KEY) ?? '[]');
     return Array.isArray(list)
@@ -39,7 +41,7 @@ const changed = () => globalThis.dispatchEvent?.(new CustomEvent(EVENT));
 /** Redraws the component when the store changes. */
 export const useTranslateStore = () => useRedrawOn(EVENT);
 
-export const skipLanguage = (code, storage = globalThis.localStorage) => {
+export const skipLanguage = (code, storage = getLocalStorage()) => {
   shown.clear();
   failed.clear();
   const list = skippedLanguages(storage);

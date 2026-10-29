@@ -144,10 +144,13 @@ export const assignPath = (cv, path, value, { durationField = null } = {}) => {
     return cv;
   }
   const [section, field] = path.split('.');
-  if (MAP_SECTIONS[section] && field) {
-    cv[section][field] = BOOLEAN_FIELDS.has(field)
-      ? toBoolean(value)
-      : clean(value);
+  if (MAP_SECTIONS[section]?.includes(field)) {
+    Object.defineProperty(cv[section], field, {
+      value: BOOLEAN_FIELDS.has(field) ? toBoolean(value) : clean(value),
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
     return cv;
   }
   if (LIST_SECTIONS[section]) {
@@ -176,7 +179,7 @@ export const valueAtPath = (cv, path) => {
     return cv?.[indexed.section]?.[0]?.[indexed.field] ?? '';
   }
   const [section, field] = path.split('.');
-  if (MAP_SECTIONS[section] && field) {
+  if (MAP_SECTIONS[section]?.includes(field)) {
     return cv?.[section]?.[field] ?? '';
   }
   return cv?.[section] ?? null;
@@ -498,8 +501,18 @@ export const mergeCv = (cv, patch, sections) => {
     }
     if (MAP_SECTIONS[section]) {
       for (const [field, entry] of Object.entries(value)) {
-        if (entry !== '' && entry !== null && entry !== undefined) {
-          cv[section][field] = entry;
+        if (
+          MAP_SECTIONS[section].includes(field) &&
+          entry !== '' &&
+          entry !== null &&
+          entry !== undefined
+        ) {
+          Object.defineProperty(cv[section], field, {
+            value: entry,
+            writable: true,
+            enumerable: true,
+            configurable: true,
+          });
         }
       }
     } else if (Array.isArray(value) && value.length > 0) {

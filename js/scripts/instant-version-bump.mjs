@@ -12,12 +12,10 @@
  *
  * Uses link-foundation libraries:
  * - Lockfile-installed release dependencies (npm ci)
- * - command-stream: Modern shell command execution with streaming support
  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
  *
  * Addresses issues documented in:
  * - Issue #21: Supporting both single and multi-language repository structures
- * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
  * - Reference: link-assistant/agent PR #114 (configurable package root)
  */
 
@@ -32,10 +30,11 @@ import {
 } from './js-paths.mjs';
 
 import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+import { syncLockfileVersion } from './sync-lockfile-version.mjs';
 
 // Import link-foundation libraries
-const { $ } = await loadCommandStream();
 const { makeConfig } = await loadLinoArguments();
+const { $ } = await loadCommandStream();
 
 // Parse CLI arguments using lino-arguments
 const config = makeConfig({
@@ -146,15 +145,7 @@ try {
   // Synchronize package-lock.json
   console.log('\nSynchronizing package-lock.json...');
 
-  // Use --legacy-peer-deps to handle peer dependency conflicts
-  // This addresses npm ERESOLVE errors documented in issue #111 / PR #112
-  // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
-  if (needsCd({ jsRoot })) {
-    await $`cd ${jsRoot} && npm install --package-lock-only --legacy-peer-deps`;
-    process.chdir(originalCwd);
-  } else {
-    await $`npm install --package-lock-only --legacy-peer-deps`;
-  }
+  syncLockfileVersion({ jsRoot });
 
   console.log('\n✅ Instant version bump complete');
   console.log(`Version: ${oldVersion} → ${newVersion}`);

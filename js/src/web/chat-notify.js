@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Notifications of new messages, as Telegram Desktop gives them (R-Y134):
 // a message that comes in to a chat that is not muted shows the system's
 // notification — the chat's name, the sender and the text (or only "New
@@ -32,7 +34,7 @@ export const NOTIFY_PREVIEW_KEY = 'metaSovereignNotifyPreview';
 export const TITLE_COUNT_KEY = 'metaSovereignTitleCount';
 
 /** A choice kept in localStorage as 'on' or 'off'; `fallback` otherwise. */
-export const readPref = (key, fallback, storage = globalThis.localStorage) => {
+export const readPref = (key, fallback, storage = getLocalStorage()) => {
   try {
     const kept = storage?.getItem(key);
     return kept === 'on' || (kept !== 'off' && fallback);
@@ -41,7 +43,7 @@ export const readPref = (key, fallback, storage = globalThis.localStorage) => {
   }
 };
 
-export const writePref = (key, on, storage = globalThis.localStorage) => {
+export const writePref = (key, on, storage = getLocalStorage()) => {
   try {
     storage?.setItem(key, on ? 'on' : 'off');
   } catch {

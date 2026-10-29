@@ -16,7 +16,7 @@ R-Z32 要求验证实际发布的源码，并保留失败诊断。[issue 43 调�
 
 包检查将空缓存安装与启动分开；npm 日志和子进程最后的输出保存在 `artifacts/pack/`。浏览器各套件日志及 `summary.json` 保存在 `artifacts/browser/`。Wayback 存档仅提供修复建议，不会把失效的源链接变为成功。缺失或格式错误的报告也会失败。
 
-详细诊断默认关闭。仓库变量 `CI_BROWSER_DEBUG=1` 启用 Playwright API 跟踪；`CISCRIPTS_DEBUG=1` 或 GitHub runner/step 调试显示辅助模块加载信息；`PACK_SMOKE_VERBOSE=1` 显示包安装与启动诊断。只使用测试数据，切勿记录 token、会话、用户消息或凭据。
+详细诊断默认关闭。仓库变量 `CI_BROWSER_DEBUG=1` 启用 Playwright API 跟踪；`CI_SCRIPTS_DEBUG=1` 或 GitHub runner/step 调试显示辅助模块加载信息；`PACK_SMOKE_VERBOSE=1` 显示包安装与启动诊断。只使用测试数据，切勿记录 token、会话、用户消息或凭据。
 
 ## 发布前提与恢复
 
@@ -49,3 +49,11 @@ GitHub 测试 fixture 在清理时关闭其拥有的所有连接，包括 keep-a
 GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-26-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。
 
 所有自有网络 fixture 共用跟踪 socket 的关闭 helper，覆盖 GitHub、serverFetch、archive/WhatsApp/marketplace 路由、本地 Pages 和邮件协议。Rust 文档在检查和两条发布路径中均拒绝警告（`RUSTDOCFLAGS=-D warnings`）。临时 Git fixture 设置自己的 LF 策略，不修改用户设置。
+
+两个发布模式仅更新锁文件的两个根版本字段，不重新解析依赖。CI 使用 `node experiments/issue-52/rehearse-release.mjs` 离线验证根目录和嵌套包。`CI_SCRIPTS_DEBUG=1` 显示版本和包数量。桌面发布拒绝不完整的上游任务结果，并明确显示阻止原因。参见 [issue 52 审计](../dev/log/issues/52/pulls/53/README.md)。
+
+所有写入外部状态的任务共用仓库/main 并发组，且不会被取消。只读检查仅取消相同任务的过期运行，矩阵标识也参与分组。版本推送发生竞争时重新获取 main、验证源码一致并重新计算元数据，最多三次；规则和认证错误立即失败。隔离的 `rehearse-push.mjs` 通过真实本地 Git 远端验证这些行为，不执行发布。
+
+发布和定时 CodeQL 都要求有效 SARIF，任何未解决结果都会失败。两个有意保留的正则用例通过规则、路径、原始行、整个文件的 SHA256 和指定回归测试审核；源码变更会使例外失效。失败时仍保存报告。HTML 导入、CV 和 SVG 使用固定版本的流式解析器；CV 写入仅允许规范自有字段。Pages 已知捆绑依赖的临时 `DEP0040` 过滤仅限部署步骤，其他警告仍可见；上游修复并重新构建 action 后应删除过滤。
+
+两个 CodeQL 工作流系列也会扫描所有面向 main 的 PR，包括仅修改文档的 PR，以便 GitHub 比较全部基线配置。除工作流任务外，还应检查 CodeQL 汇总结果。错误响应和保存的错误摘要只保留已隐藏凭据的消息首行，抛出的堆栈字符串以及任意对象的字符串转换都不能泄露堆栈帧。

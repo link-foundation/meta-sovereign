@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 import { useSyncExternalStore } from 'react';
 
 export const OPERATOR_SCOPE_KEY = 'metaSovereignOperatorScope';
@@ -7,7 +9,7 @@ export const DEFAULT_OPERATOR_SCOPE = Object.freeze({
   group: false,
   channel: false,
 });
-export const readOperatorScope = (storage = globalThis.localStorage) => {
+export const readOperatorScope = (storage = getLocalStorage()) => {
   try {
     const stored = JSON.parse(storage?.getItem(OPERATOR_SCOPE_KEY) ?? 'null');
     return Object.fromEntries(
@@ -47,7 +49,7 @@ export const setOperatorScope = (kind, enabled) => {
   }
   state = { ...snapshot(), [kind]: Boolean(enabled) };
   try {
-    globalThis.localStorage?.setItem(OPERATOR_SCOPE_KEY, JSON.stringify(state));
+    getLocalStorage()?.setItem(OPERATOR_SCOPE_KEY, JSON.stringify(state));
   } catch {
     // Keep the choice for this visit when browser storage is unavailable.
   }

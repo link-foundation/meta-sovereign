@@ -36,7 +36,11 @@ import {
 } from './js-paths.mjs';
 
 import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
-import { commitReleaseVersion } from './version-and-commit-helpers.mjs';
+import {
+  commitReleaseVersion,
+  retryVersionPush,
+} from './version-and-commit-helpers.mjs';
+import { execCommandSync } from './command-process.mjs';
 
 // Import link-foundation libraries
 const { $ } = await loadCommandStream();
@@ -174,115 +178,124 @@ async function getVersion(source = 'local') {
   return JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
 }
 
-async function main() {
-  try {
-    // Configure git
-    await $`git config user.name "github-actions[bot]"`;
-    await $`git config user.email "github-actions[bot]@users.noreply.github.com"`;
+async function prepareAndPushVersion() {
+  // Configure git
+  await $`git config user.name "github-actions[bot]"`;
+  await $`git config user.email "github-actions[bot]@users.noreply.github.com"`;
 
-    // Check if remote main has advanced (handles re-runs after partial success)
-    console.log('Checking for remote changes...');
-    await $`git fetch origin main`;
+  // Check if remote main has advanced (handles re-runs after partial success)
+  console.log('Checking for remote changes...');
+  await $`git fetch origin main`;
 
-    const localHeadResult = await $`git rev-parse HEAD`.run({ capture: true });
-    const localHead = localHeadResult.stdout.trim();
+  const localHeadResult = await $`git rev-parse HEAD`.run({ capture: true });
+  const localHead = localHeadResult.stdout.trim();
 
-    const remoteHeadResult = await $`git rev-parse origin/main`.run({
+  const remoteHeadResult = await $`git rev-parse origin/main`.run({
+    capture: true,
+  });
+  const remoteHead = remoteHeadResult.stdout.trim();
+
+  if (localHead !== remoteHead) {
+    if (isReleaseSuperseded(localHead, remoteHead)) {
+      console.log(
+        `::notice::Release superseded by newer source on main: ${localHead} -> ${remoteHead}`
+      );
+      setOutput('version_committed', 'false');
+      return;
+    }
+    // Re-runs may resume a version-only commit, but must use its actual tree.
+    await $`git checkout -B main origin/main`;
+    const localVersion = JSON.parse(
+      readFileSync(getPackageJsonPath({ jsRoot }), 'utf8')
+    ).version;
+    if (countChangesets() === 0) {
+      setOutput('version_committed', 'false');
+      setOutput('already_released', 'true');
+      setOutput('new_version', localVersion);
+      return;
+    }
+  }
+
+  // Get current version before bump
+  const oldVersion = await getVersion();
+  console.log(`Current version: ${oldVersion}`);
+
+  if (mode === 'instant') {
+    console.log('Running instant version bump...');
+    // Run instant version bump script
+    // Pass --js-root to ensure consistent path handling
+    // Rely on command-stream's auto-quoting for proper argument handling
+    if (description) {
+      await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --description ${description} --js-root ${jsRoot}`;
+    } else {
+      await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --js-root ${jsRoot}`;
+    }
+  } else {
+    console.log('Running changeset version...');
+    // Run changeset version to bump versions and update CHANGELOG
+    // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
+    if (needsCd({ jsRoot })) {
+      await $`cd ${jsRoot} && npm run changeset:version`;
+      process.chdir(originalCwd);
+    } else {
+      await $`npm run changeset:version`;
+    }
+  }
+
+  // Get new version after bump
+  const newVersion = await getVersion();
+  console.log(`New version: ${newVersion}`);
+  setOutput('new_version', newVersion);
+
+  // Check if there are changes to commit
+  const statusResult = await $`git status --porcelain`.run({ capture: true });
+  const status = statusResult.stdout.trim();
+
+  if (status) {
+    console.log('Changes detected, committing...');
+
+    // Stage all changes (package.json, package-lock.json, CHANGELOG.md, deleted changesets)
+    await $`git add -- package.json package-lock.json CHANGELOG.md .changeset`;
+    // Reject accidental dependency/config edits before creating a release commit.
+    const staged = await $`git diff --cached --name-only`.run({
       capture: true,
     });
-    const remoteHead = remoteHeadResult.stdout.trim();
+    console.log(`Staged release metadata: ${staged.stdout}`);
 
-    if (localHead !== remoteHead) {
-      if (isReleaseSuperseded(localHead, remoteHead)) {
-        console.log(
-          `::notice::Release superseded by newer source on main: ${localHead} -> ${remoteHead}`
-        );
-        setOutput('version_committed', 'false');
-        return;
-      }
-      // Re-runs may resume a version-only commit, but must use its actual tree.
-      await $`git checkout -B main origin/main`;
-      const localVersion = JSON.parse(
-        readFileSync(getPackageJsonPath({ jsRoot }), 'utf8')
-      ).version;
-      if (countChangesets() === 0) {
-        setOutput('version_committed', 'false');
-        setOutput('already_released', 'true');
-        setOutput('new_version', localVersion);
-        return;
-      }
+    // Commit with version number as message
+    await commitReleaseVersion($, newVersion);
+    assertValidatedReleaseTree(localHead, 'HEAD');
+
+    // Only a confirmed non-fast-forward re-enters preparation. It fetches
+    // main, verifies its source against this validated tree and recomputes
+    // all version/changelog metadata; policy/auth failures remain errors.
+    const pushed = execCommandSync(
+      'git',
+      ['push', 'origin', 'HEAD:refs/heads/main'],
+      { encoding: 'utf8' }
+    );
+    if (pushed) {
+      console.log(pushed);
     }
 
-    // Get current version before bump
-    const oldVersion = await getVersion();
-    console.log(`Current version: ${oldVersion}`);
+    console.log('\u2705 Version bump committed and pushed to main');
+    setOutput('version_committed', 'true');
+  } else {
+    console.log('No changes to commit');
+    setOutput('version_committed', 'false');
+  }
+}
 
-    if (mode === 'instant') {
-      console.log('Running instant version bump...');
-      // Run instant version bump script
-      // Pass --js-root to ensure consistent path handling
-      // Rely on command-stream's auto-quoting for proper argument handling
-      if (description) {
-        await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --description ${description} --js-root ${jsRoot}`;
-      } else {
-        await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --js-root ${jsRoot}`;
-      }
-    } else {
-      console.log('Running changeset version...');
-      // Run changeset version to bump versions and update CHANGELOG
-      // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
-      if (needsCd({ jsRoot })) {
-        await $`cd ${jsRoot} && npm run changeset:version`;
-        process.chdir(originalCwd);
-      } else {
-        await $`npm run changeset:version`;
-      }
-    }
-
-    // Get new version after bump
-    const newVersion = await getVersion();
-    console.log(`New version: ${newVersion}`);
-    setOutput('new_version', newVersion);
-
-    // Check if there are changes to commit
-    const statusResult = await $`git status --porcelain`.run({ capture: true });
-    const status = statusResult.stdout.trim();
-
-    if (status) {
-      console.log('Changes detected, committing...');
-
-      // Stage all changes (package.json, package-lock.json, CHANGELOG.md, deleted changesets)
-      await $`git add -- package.json package-lock.json CHANGELOG.md .changeset`;
-      // Reject accidental dependency/config edits before creating a release commit.
-      const staged = await $`git diff --cached --name-only`.run({
-        capture: true,
-      });
-      console.log(`Staged release metadata: ${staged.stdout}`);
-
-      // Commit with version number as message
-      await commitReleaseVersion($, newVersion);
-      assertValidatedReleaseTree(localHead, 'HEAD');
-
-      // Push directly to main
-      try {
-        await $`git push origin HEAD:refs/heads/main`;
-      } catch (error) {
-        throw new Error(
-          'Release push refused. Check branch rules/token write access; a concurrent main update must be validated by its own run. No policy refusal is retried.',
-          { cause: error }
-        );
-      }
-
-      console.log('\u2705 Version bump committed and pushed to main');
-      setOutput('version_committed', 'true');
-    } else {
-      console.log('No changes to commit');
-      setOutput('version_committed', 'false');
-    }
+async function main() {
+  try {
+    await retryVersionPush(prepareAndPushVersion);
   } catch (error) {
     // Restore cwd on error
     process.chdir(originalCwd);
     console.error('Error:', error.message);
+    if (error.stderr) {
+      console.error(String(error.stderr).trim());
+    }
     process.exit(1);
   }
 }

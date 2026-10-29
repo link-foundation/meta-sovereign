@@ -73,9 +73,6 @@ export const archiveChatId = (name) => {
   return `name:${stableHash(folded || 'unknown')}`;
 };
 
-const NAMED_FILE =
-  /^whatsapp[\s_-]*chat(?:\s+(?:with|mit|con|avec|com)\b|\s*[-–])\s*(.+)$/i;
-
 /**
  * The chat name in an export's file name: "WhatsApp Chat with Anna.txt",
  * "WhatsApp Chat - Anna.zip"; `_chat.txt` has none.
@@ -89,6 +86,8 @@ export const chatNameFromFile = (fileName) => {
   if (!base || /^_chat$/i.test(base)) {
     return null;
   }
-  const named = NAMED_FILE.exec(base);
-  return (named ? named[1] : base).trim() || null;
+  const prefix = /^whatsapp[\s_-]*chat/i.exec(base);
+  const rest = prefix ? base.slice(prefix[0].length) : '';
+  const separator = /^(?:\s+(?:with|mit|con|avec|com)\b|\s*[-–])/i.exec(rest);
+  return (separator ? rest.slice(separator[0].length) : base).trim() || null;
 };

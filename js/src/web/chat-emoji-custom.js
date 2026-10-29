@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Custom emoji in the emoji panel, as Telegram Desktop's offers them
 // (R-Y214; learned, never copied): a section for the group's own emoji pack
 // ("Group emoji", first, inside that group), one for each custom emoji set
@@ -35,7 +37,7 @@ export const withRecentCustom = (recent, item) =>
     .slice(0, RECENT_MAX);
 
 /** What `key` of this device's storage holds (JSON), or null. */
-export const storedJson = (key, storage = globalThis.localStorage) => {
+export const storedJson = (key, storage = getLocalStorage()) => {
   try {
     return JSON.parse(storage?.getItem(key) ?? 'null');
   } catch {
@@ -44,7 +46,7 @@ export const storedJson = (key, storage = globalThis.localStorage) => {
 };
 
 /** `value` saved under `key` on this device; private mode forgets it. */
-export const saveJson = (key, value, storage = globalThis.localStorage) => {
+export const saveJson = (key, value, storage = getLocalStorage()) => {
   try {
     storage?.setItem(key, JSON.stringify(value));
   } catch {

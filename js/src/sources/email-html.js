@@ -11,6 +11,8 @@
  * mailto or tel. The plain-text form of a mail is made from the same tree.
  */
 
+import { visitHtml } from '../markup/parse.js';
+
 const SKIP_CONTENT = new Set([
   'script',
   'style',
@@ -173,19 +175,6 @@ export const decodeEntities = (text) =>
     }
   );
 
-const TOKEN =
-  /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>|<![^>]*>|<\?[^>]*>/g;
-const ATTR =
-  /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
-
-const attributes = (source) => {
-  const out = {};
-  for (const m of String(source ?? '').matchAll(ATTR)) {
-    out[m[1].toLowerCase()] = decodeEntities(m[2] ?? m[3] ?? m[4] ?? '');
-  }
-  return out;
-};
-
 const SAFE_HREF = /^(?:https?:|mailto:|tel:)/i;
 
 /** An address the page may open, or null. */
@@ -299,33 +288,42 @@ const keptTag = (tag) => {
 };
 
 const feed = (builder, html) => {
-  let last = 0;
-  TOKEN.lastIndex = 0;
-  for (let m = TOKEN.exec(html); m; m = TOKEN.exec(html)) {
-    builder.text(html.slice(last, m.index));
-    last = TOKEN.lastIndex;
-    const tag = m[2]?.toLowerCase();
-    if (!tag) {
-      continue;
-    }
-    if (SKIP_CONTENT.has(tag) && !m[1]) {
-      const end = html.toLowerCase().indexOf(`</${tag}`, last);
-      const closeAt = end < 0 ? -1 : html.indexOf('>', end);
-      last = closeAt < 0 ? html.length : closeAt + 1;
-      TOKEN.lastIndex = last;
-      continue;
-    }
-    const kept = keptTag(tag);
-    if (!kept) {
-      continue;
-    }
-    if (m[1]) {
-      builder.close(kept);
-    } else {
-      builder.open(kept, attributes(m[3]));
-    }
-  }
-  builder.text(html.slice(last));
+  let skipped = 0;
+  visitHtml(html, {
+    ontext(text) {
+      if (!skipped) {
+        builder.text(text);
+      }
+    },
+    onopentag(tag, attrs) {
+      if (skipped || SKIP_CONTENT.has(tag)) {
+        skipped += 1;
+        return;
+      }
+      const kept = keptTag(tag);
+      if (kept) {
+        builder.open(
+          kept,
+          Object.fromEntries(
+            Object.entries(attrs).map(([key, value]) => [
+              key,
+              decodeEntities(value),
+            ])
+          )
+        );
+      }
+    },
+    onclosetag(tag) {
+      if (skipped) {
+        skipped -= 1;
+        return;
+      }
+      const kept = keptTag(tag);
+      if (kept) {
+        builder.close(kept);
+      }
+    },
+  });
 };
 
 // ---- Plain text from the tree ---------------------------------------------
@@ -387,17 +385,25 @@ const tidy = (text) =>
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-const regexText = (html) =>
-  decodeEntities(
-    String(html ?? '')
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<br\s*\/?>|<\/(?:p|div|li|tr|h\d)>/gi, '\n')
-      .replace(/<[^>]+>/g, ' ')
-  )
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n\s+/g, '\n')
-    .trim();
+// Overflow still uses the same tokenizer and content exclusions; no second
+// regex sanitizer with subtly different handling of malformed closing tags.
+const plainText = (html) => {
+  const chunks = [];
+  const line = (tag) => {
+    if (BLOCKS.has(tag) || tag === 'br') {
+      chunks.push('\n');
+    }
+  };
+  feed(
+    {
+      text: (raw) => chunks.push(decodeEntities(raw)),
+      open: line,
+      close: line,
+    },
+    html
+  );
+  return tidy(chunks.join('').replace(/[ \t]+/g, ' '));
+};
 
 /**
  * `{ tree, text }`: the safe tree of `html` (null when it is too big to
@@ -407,7 +413,7 @@ export const htmlToSafe = (html) => {
   const builder = makeBuilder();
   feed(builder, String(html ?? ''));
   if (builder.over()) {
-    return { tree: null, text: regexText(html) };
+    return { tree: null, text: plainText(html) };
   }
   const text = tidy(linesOf(builder.root.c, { bullet: '•' }));
   return { tree: builder.root.c, text };

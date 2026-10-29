@@ -5,7 +5,7 @@
  * Tests validate-changeset.mjs and merge-changesets.mjs functionality
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import {
@@ -46,10 +46,10 @@ function runTest(name, testFn) {
   }
 }
 
-function execCommand(command, options = {}) {
+function execCommand(args, options = {}) {
   try {
     return {
-      output: execSync(command, {
+      output: execFileSync(process.execPath, args, {
         encoding: 'utf8',
         stdio: 'pipe',
         cwd: projectRoot,
@@ -78,9 +78,7 @@ runTest('validate-changeset.mjs exists', () => {
 
 // Test 2: Syntax check
 runTest('validate-changeset.mjs syntax check', () => {
-  const { output, exitCode } = execCommand(
-    `node --check ${validateChangesetPath}`
-  );
+  const { output, exitCode } = execCommand(['--check', validateChangesetPath]);
   if (exitCode !== 0) {
     throw new Error(`Syntax error: ${output}`);
   }
@@ -89,7 +87,7 @@ runTest('validate-changeset.mjs syntax check', () => {
 // Test 3: Script runs without crashing (fallback mode)
 runTest('validate-changeset.mjs runs in fallback mode', () => {
   // Without git diff context, it falls back to checking all changesets
-  const { output } = execCommand(`node ${validateChangesetPath}`);
+  const { output } = execCommand([validateChangesetPath]);
   // Should either pass (if there's exactly one changeset) or fail (if not)
   // But should not crash with an exception
   if (
@@ -113,9 +111,7 @@ runTest('merge-changesets.mjs exists', () => {
 
 // Test 5: Syntax check
 runTest('merge-changesets.mjs syntax check', () => {
-  const { output, exitCode } = execCommand(
-    `node --check ${mergeChangesetsPath}`
-  );
+  const { output, exitCode } = execCommand(['--check', mergeChangesetsPath]);
   if (exitCode !== 0) {
     throw new Error(`Syntax error: ${output}`);
   }
@@ -166,12 +162,15 @@ runTest('merge-changesets.mjs combines multiple changesets', () => {
     createChangeset('first-change.md', 'patch', 'First change description');
 
     // Wait a bit to ensure different mtime
-    execSync('sleep 0.1');
+    execFileSync(process.execPath, [
+      '-e',
+      'Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100)',
+    ]);
 
     createChangeset('second-change.md', 'minor', 'Second change description');
 
     // Run merge script in test directory
-    const { output, exitCode } = execCommand(`node ${mergeChangesetsPath}`, {
+    const { output, exitCode } = execCommand([mergeChangesetsPath], {
       cwd: testDir,
     });
 
@@ -216,7 +215,7 @@ runTest('merge-changesets.mjs uses highest bump type (major)', () => {
     createChangeset('major-change.md', 'major', 'Major change');
     createChangeset('minor-change.md', 'minor', 'Minor change');
 
-    const { output, exitCode } = execCommand(`node ${mergeChangesetsPath}`, {
+    const { output, exitCode } = execCommand([mergeChangesetsPath], {
       cwd: testDir,
     });
 
@@ -238,7 +237,7 @@ runTest('merge-changesets.mjs skips with single changeset', () => {
   try {
     createChangeset('only-change.md', 'patch', 'Only change');
 
-    const { output, exitCode } = execCommand(`node ${mergeChangesetsPath}`, {
+    const { output, exitCode } = execCommand([mergeChangesetsPath], {
       cwd: testDir,
     });
 
@@ -266,7 +265,7 @@ runTest('merge-changesets.mjs skips with single changeset', () => {
 runTest('merge-changesets.mjs skips with no changesets', () => {
   setupTestEnvironment();
   try {
-    const { output, exitCode } = execCommand(`node ${mergeChangesetsPath}`, {
+    const { output, exitCode } = execCommand([mergeChangesetsPath], {
       cwd: testDir,
     });
 
@@ -286,7 +285,7 @@ runTest('merge-changesets.mjs skips with no changesets', () => {
 runTest('validate-changeset.mjs format validation', () => {
   // This test verifies the script can be imported and has expected functions
   // Actual validation is tested through integration
-  const { exitCode } = execCommand(`node --check ${validateChangesetPath}`);
+  const { exitCode } = execCommand(['--check', validateChangesetPath]);
   if (exitCode !== 0) {
     throw new Error('Script has syntax errors');
   }

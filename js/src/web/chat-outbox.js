@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // The composer's outbox, without React: what happens to a message after
 // Send, as Telegram, Signal and Element do it (docs/CHAT-REFERENCES.md,
 // "Sending exactly once" and "Failures and retries"):
@@ -149,7 +151,7 @@ export const restoreOutbox = (saved) =>
 
 const storageOf = (storage) => {
   try {
-    return storage ?? globalThis.localStorage ?? null;
+    return storage ?? getLocalStorage() ?? null;
   } catch {
     return null; // storage blocked (private window, site data off)
   }

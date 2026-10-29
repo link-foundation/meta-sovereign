@@ -4,6 +4,8 @@
  * eslint complexity budget.
  */
 
+import { safeMessage } from './redact.js';
+
 // JSON.stringify throws on a BigInt ("Do not know how to serialize a
 // BigInt"), which some upstream libraries (GramJS account ids) hand us —
 // render those as strings so one stray BigInt can never fail a response.
@@ -28,12 +30,8 @@ const CODE_BY_STATUS = {
   503: 'unavailable',
 };
 
-const errorText = (given, status) => {
-  if (typeof given === 'string' && given) {
-    return given;
-  }
-  return given ? String(given) : `request failed (${status})`;
-};
+const errorText = (given, status) =>
+  given ? safeMessage(given) : `request failed (${status})`;
 
 const failureBody = (status, body) => ({
   ...body,

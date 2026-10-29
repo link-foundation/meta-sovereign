@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Automatic download of media, as Telegram Desktop's Settings → Advanced →
 // Automatic media download has it (R-Y181; learned, never copied): for
 // private chats, groups and channels separately — photos on or off, videos
@@ -63,7 +65,7 @@ export const settingsFrom = (raw) => {
   };
 };
 
-export const readAutoDownload = (storage = globalThis.localStorage) => {
+export const readAutoDownload = (storage = getLocalStorage()) => {
   try {
     return settingsFrom(JSON.parse(storage?.getItem(AUTO_DOWNLOAD_KEY)));
   } catch {
@@ -71,10 +73,7 @@ export const readAutoDownload = (storage = globalThis.localStorage) => {
   }
 };
 
-export const writeAutoDownload = (
-  settings,
-  storage = globalThis.localStorage
-) => {
+export const writeAutoDownload = (settings, storage = getLocalStorage()) => {
   try {
     storage?.setItem(AUTO_DOWNLOAD_KEY, JSON.stringify(settings));
   } catch {

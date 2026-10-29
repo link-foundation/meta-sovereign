@@ -115,7 +115,7 @@ test('scan lists every browser with per-service counts and access errors', async
   assert.equal(fullDiskAccess.required, false);
   // Counting only: no cookie values were read.
   assert.ok(calls.every((c) => !c.readBrowserCookies));
-  assert.ok(calls[0].listCookieSources.includes('telegram.org'));
+  assert.ok(calls[0].listCookieSources.some((host) => host === 'telegram.org'));
 });
 
 test('import keeps only the services’ own cookies, privately, until used', async () => {

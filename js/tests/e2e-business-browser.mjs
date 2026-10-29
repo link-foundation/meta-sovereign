@@ -645,7 +645,8 @@ const profileSteps = async () => {
   const place = page.locator('.person-panel [data-business="location"]');
   assert((await text(place)).includes('1 Market Street'), 'the address');
   assert(
-    (await place.getAttribute('href')).includes('openstreetmap.org'),
+    new URL(await place.getAttribute('href')).hostname ===
+      'www.openstreetmap.org',
     'the map link'
   );
   // A business that is closed.

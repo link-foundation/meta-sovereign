@@ -3,21 +3,49 @@
  *
  * A greeting is a message that carries nothing but a "hi": `Привет!`,
  * `hello there`, `你好`, `नमस्ते`, `xin chào`, a waving-hand emoji, or a
- * sticker from the greeting catalogue. The Russian pattern is ported
- * verbatim from konard/vk-bot `triggers/greeting.js` (public domain),
+ * sticker from the greeting catalogue. The Russian pattern is adapted
+ * from konard/vk-bot `triggers/greeting.js` (public domain),
  * where it has been answering real VK dialogs; the other languages
  * follow the same shape — the whole message must be greeting words,
  * optional addressees ("тебе", "everyone") and punctuation, so
  * "hi, can you review my PR?" is a question, not a greeting.
  */
 
-const NOT_LETTER = '[^\\p{L}]*';
-
-const whole = (words, tail = '') =>
-  new RegExp(
-    `^${NOT_LETTER}((${words})${NOT_LETTER})+(${NOT_LETTER}(${tail}))?${NOT_LETTER}$`,
-    'ui'
-  );
+// Each token is consumed once. Repeating the entire regex used to let
+// backtracking partition a run of q's or punctuation exponentially.
+const whole = (words, tail = '') => {
+  const word = new RegExp(`(?:${words})`, 'iuy');
+  const suffix = new RegExp(`^(?:${tail})[^\\p{L}]*$`, 'iu');
+  const separators = /[^\p{L}]*/uy;
+  return {
+    test(input) {
+      const text = String(input);
+      let at = 0;
+      let count = 0;
+      while (at < text.length) {
+        separators.lastIndex = at;
+        const separator = separators.exec(text)[0];
+        // A wave is a greeting token even though Unicode classifies it as
+        // a separator. Retain emoji-only pattern tests and emoji + addressee.
+        if (greetingEmoji.some((emoji) => separator.includes(emoji))) {
+          count += 1;
+        }
+        at += separator.length;
+        if (at === text.length) {
+          break;
+        }
+        word.lastIndex = at;
+        const match = word.exec(text);
+        if (!match) {
+          return count > 0 && suffix.test(text.slice(at));
+        }
+        at += match[0].length;
+        count += 1;
+      }
+      return count > 0;
+    },
+  };
+};
 
 /** Waving and greeting gestures; every pattern below accepts them too. */
 export const greetingEmoji = ['👋', '🖐', '🖖', '🙋', '🤚', '✋', '🙌'];
@@ -29,10 +57,12 @@ const EMOJI = greetingEmoji.join('|');
  * detected language can pick the matching reply text later.
  */
 export const greetingPatterns = {
-  // konard/vk-bot greetingRegex, unchanged apart from being split out.
-  ru: /^[^\p{L}]*((трям|🖖|👋|🖐|мо[иё] приветстви[ея]|салам|салют|з?д[ао]ров[ао]?|ку|q+|шалом|хай|хэллоу|йоу?|привет(ствую|ики?)?|здрав?с(твуй|ь)?(те)?|дд|((день|вечер)[^\p{L}]+)?добр(ый([^\p{L}]*(день|вечер))?|ое[^\p{L}]*утро|ой[^\p{L}]*ночи|ого[^\p{L}]*времени[^\p{L}]*суток))[^\p{L}]*)+([^\p{L}]*(тебе|вам))?[^\p{L}]*$/iu,
+  ru: whole(
+    `${EMOJI}|трям|мо[иё] приветстви[ея]|салам|салют|з?д[ао]ров[ао]?|ку|q+|шалом|хай|хэллоу|йоу?|привет(ствую|ики?)?|здрав?с(твуй|ь)?(те)?|дд|((день|вечер)[^\\p{L}]+)?добр(ый([^\\p{L}]*(день|вечер))?|ое[^\\p{L}]*утро|ой[^\\p{L}]*ночи|ого[^\\p{L}]*времени[^\\p{L}]*суток)`,
+    'тебе|вам'
+  ),
   en: whole(
-    `${EMOJI}|hi+|hello+|helo|hey+|heya|hiya|howdy|yo|sup|greetings|hallo|good[^\\p{L}]*(morning|afternoon|evening|day)|what'?s[^\\p{L}]*up`,
+    `${EMOJI}|hiya|hi+|hello+|helo|heya|hey+|howdy|yo|sup|greetings|hallo|good[^\\p{L}]*(morning|afternoon|evening|day)|what'?s[^\\p{L}]*up`,
     'there|all|everyone|everybody|guys|folks|friend|mate'
   ),
   zh: whole(

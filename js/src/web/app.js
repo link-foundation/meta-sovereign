@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // meta-sovereign web UI. React owns the shell and every view, while
 // ./dom.js keeps the offline-first storage, discovery, WebRTC sync,
 // and server fallback contracts stable.
@@ -119,7 +121,7 @@ const App = () => {
       return;
     }
     decided.current = true;
-    if (shouldAutoOpen(readPreference(globalThis.localStorage), connected)) {
+    if (shouldAutoOpen(readPreference(getLocalStorage()), connected)) {
       setTutorialOpen(true);
     }
   }, [connected]);

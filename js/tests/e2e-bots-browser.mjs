@@ -235,7 +235,9 @@ try {
   const ask = page.locator('[data-bot-dialog="url"]');
   await ask.waitFor({ timeout: 5000 });
   assert(
-    (await ask.textContent()).includes('https://example.org/page'),
+    (await ask.textContent())
+      .split(/\s+/)
+      .some((word) => word === 'https://example.org/page'),
     'the link shown'
   );
   assert(

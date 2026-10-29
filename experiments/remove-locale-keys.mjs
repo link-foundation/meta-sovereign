@@ -4,7 +4,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-const pattern = new RegExp(process.argv[2]);
+import { safeRegExp, safeTest } from '../js/src/patterns/safe-regex.js';
+
+const pattern = safeRegExp(process.argv[2], '');
 const dir = path.resolve('js/src/web/locales');
 const start = /^ {2}'([^']+)':/;
 const boundary = /^( {2}'[^']+':| {2}\/\/|};)/;
@@ -17,7 +19,7 @@ for (const name of ['en.js', 'ru.js', 'zh.js', 'hi.js']) {
   for (const line of lines) {
     const m = line.match(start);
     if (m) {
-      skipping = pattern.test(m[1]);
+      skipping = safeTest(pattern, m[1]);
       removed += skipping ? 1 : 0;
     } else if (boundary.test(line)) {
       skipping = false;

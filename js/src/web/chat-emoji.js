@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 /**
  * The emoji panel by the message box, as Telegram Desktop's (R-Y104;
  * learned, never copied): the smiley button opens it above the box; the
@@ -270,7 +272,7 @@ export const tonedForm = (emoji, tone) => {
 };
 
 /** The remembered tones, `{ base: 1-5 }`. */
-export const readTones = (storage = globalThis.localStorage) => {
+export const readTones = (storage = getLocalStorage()) => {
   try {
     const saved = JSON.parse(storage?.getItem(TONES_KEY) ?? 'null');
     const tones = {};
@@ -290,7 +292,7 @@ export const rememberTone = (
   tones,
   base,
   tone,
-  storage = globalThis.localStorage
+  storage = getLocalStorage()
 ) => {
   const next = { ...tones };
   delete next[base];
@@ -803,7 +805,7 @@ const EmojiTab = ({
 
 const readTab = () => {
   try {
-    return globalThis.localStorage?.getItem(TAB_KEY) || 'emoji';
+    return getLocalStorage()?.getItem(TAB_KEY) || 'emoji';
   } catch {
     return 'emoji';
   }
@@ -811,7 +813,7 @@ const readTab = () => {
 
 const saveTab = (key) => {
   try {
-    globalThis.localStorage?.setItem(TAB_KEY, key);
+    getLocalStorage()?.setItem(TAB_KEY, key);
   } catch {
     // Private mode: the emoji tab next time.
   }

@@ -17,6 +17,7 @@
 
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { visitHtml } from '../markup/parse.js';
 
 /** Events a run can emit, in the order a healthy run produces them. */
 export const TELEMETRY_EVENTS = [
@@ -35,7 +36,8 @@ export const TELEMETRY_EVENTS = [
   'run.finish',
 ];
 
-const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
+const EMAIL_TOKEN = /[\w.+@-]+/g;
+const EMAIL = /^[\w.+-]+@[\w-]+\.[\w.-]+$/;
 const PHONE = /(?:\+\d[\d\s()-]{7,}\d)/g;
 const TOKEN = /\b(?:[A-Za-z0-9_-]{24,})\b/g;
 
@@ -48,7 +50,7 @@ export const redactText = (value) => {
     return value;
   }
   return value
-    .replace(EMAIL, '<email>')
+    .replace(EMAIL_TOKEN, (token) => (EMAIL.test(token) ? '<email>' : token))
     .replace(PHONE, '<phone>')
     .replace(TOKEN, '<token>');
 };
@@ -95,10 +97,29 @@ const countMatches = (html, pattern) => (html.match(pattern) ?? []).length;
  */
 export const fingerprintMarkup = (html, context = {}) => {
   const markup = typeof html === 'string' ? html : '';
-  const structure = markup
-    .replace(/>[^<]*</g, '><')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const chunks = [];
+  let at = 0;
+  while (at < markup.length) {
+    const end = markup.indexOf('>', at);
+    if (end < 0) {
+      chunks.push(markup.slice(at));
+      break;
+    }
+    chunks.push(markup.slice(at, end + 1));
+    const next = markup.indexOf('<', end + 1);
+    if (next < 0) {
+      chunks.push(markup.slice(end + 1));
+      break;
+    }
+    at = next;
+  }
+  const structure = chunks.join('').replace(/\s+/g, ' ').trim();
+  let nodes = 0;
+  visitHtml(markup, {
+    onopentag() {
+      nodes += 1;
+    },
+  });
   const attributes = [
     ...new Set(
       (markup.match(/\sdata-(?:qa|test|testid|automation)="[^"]*"/g) ?? []).map(
@@ -109,7 +130,7 @@ export const fingerprintMarkup = (html, context = {}) => {
   return {
     hash: fnv1a(structure),
     length: markup.length,
-    nodes: countMatches(markup, /<[a-zA-Z][^>]*>/g),
+    nodes,
     forms: countMatches(markup, /<form\b/gi),
     inputs: countMatches(markup, /<(?:input|textarea|select)\b/gi),
     buttons: countMatches(markup, /<button\b/gi),

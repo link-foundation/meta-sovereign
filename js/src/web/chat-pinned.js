@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // The pinned message bar and its list, as Telegram Desktop has them
 // (R-Y166; learned, never copied): the bar over the messages shows the
 // newest pinned message and, with more than one pinned, a list button that
@@ -25,7 +27,7 @@ export const hiddenKey = (chatKey, topic = null) =>
   `${STORE}${chatKey}${topic ? `#${topic}` : ''}`;
 
 /** The pinned id hidden under `key`, or null. */
-export const readHidden = (key, storage = globalThis.localStorage) => {
+export const readHidden = (key, storage = getLocalStorage()) => {
   try {
     return storage?.getItem(key) ?? null;
   } catch {
@@ -34,7 +36,7 @@ export const readHidden = (key, storage = globalThis.localStorage) => {
 };
 
 /** Remembers `id` as the hidden pinned message under `key`. */
-export const writeHidden = (key, id, storage = globalThis.localStorage) => {
+export const writeHidden = (key, id, storage = getLocalStorage()) => {
   try {
     storage?.setItem(key, String(id));
   } catch {

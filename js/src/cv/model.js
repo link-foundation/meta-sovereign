@@ -12,7 +12,7 @@
 import { formatLino, parseLino } from '../storage/lino.js';
 
 /** Scalar sections: a flat map of named string/boolean values. */
-export const MAP_SECTIONS = {
+export const MAP_SECTIONS = Object.assign(Object.create(null), {
   basics: [
     'name',
     'headline',
@@ -31,13 +31,15 @@ export const MAP_SECTIONS = {
     'relocation',
     'remote',
   ],
-};
+});
 
 /** Plain string lists. */
-export const LIST_SECTIONS = { skills: 'skill' };
+export const LIST_SECTIONS = Object.assign(Object.create(null), {
+  skills: 'skill',
+});
 
 /** Repeated records: an ordered list of field maps. */
-export const RECORD_SECTIONS = {
+export const RECORD_SECTIONS = Object.assign(Object.create(null), {
   languages: { item: 'language', fields: ['name', 'level'] },
   experience: {
     item: 'position',
@@ -58,7 +60,7 @@ export const RECORD_SECTIONS = {
     key: ['institution', 'degree', 'start'],
   },
   links: { item: 'link', fields: ['label', 'url'], key: ['url'] },
-};
+});
 
 /** Fields stored as booleans rather than strings. */
 export const BOOLEAN_FIELDS = new Set(['current', 'relocation', 'remote']);

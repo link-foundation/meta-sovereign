@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Draggable column dividers, with keyboard controls and saved widths.
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
@@ -20,7 +22,7 @@ export const PanelDivider = ({
   const key = `meta-sovereign.panel.${name}`;
   const [width, setWidth] = useState(() => {
     try {
-      const stored = Number(globalThis.localStorage?.getItem(key));
+      const stored = Number(getLocalStorage()?.getItem(key));
       return stored ? clamp(stored, min, max) : initial;
     } catch {
       return initial;
@@ -33,7 +35,7 @@ export const PanelDivider = ({
       : node.current?.parentElement;
     panel?.style.setProperty(variable, `${width}px`);
     try {
-      globalThis.localStorage?.setItem(key, String(width));
+      getLocalStorage()?.setItem(key, String(width));
     } catch {
       /* session only */
     }
