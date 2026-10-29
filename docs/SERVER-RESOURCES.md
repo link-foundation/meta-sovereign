@@ -40,8 +40,10 @@ A fall in RSS alone does not establish that a leak has disappeared.
   only its small metadata fields and the summarized topic; it does not create
   full public record copies or inflate every provider payload to read reply
   headers. Existing forum routing, deleted entries and edit counts are retained.
-- Startup interns metadata strings without retaining a second set of strings
-  from packed payloads. Compaction writes batches instead of expanding all cold
+- Startup deduplicates metadata strings in a bounded 50,000-string rolling
+  window. Unique IDs, including superseded/deleted records, cannot grow that
+  temporary cache with the whole log. Cold payloads bypass the cache entirely.
+  Compaction writes batches instead of expanding all cold
   payloads before writing. Status/contact aggregation and reply bootstrap scan
   metadata without decoding provider payloads. Other derived routes omit cold
   payloads from their working copies.

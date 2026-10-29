@@ -152,8 +152,21 @@ const INTERN_MAX = 64;
 // every line of the file in memory; this is a copy of its own.
 const ownCopy = (text) => (text.length < 13 ? text : ` ${text}`.slice(1));
 const identity = (link) => link;
-const createInterner = ({ coldPayloads = false } = {}) => {
+// A large log contains millions of unique IDs as well as repeated metadata.
+// Keep a rolling window: a deduplication cache must not become a second index
+// of every unique string encountered, including superseded/deleted records.
+export const createInterner = ({
+  coldPayloads = false,
+  maxStrings = 50_000,
+} = {}) => {
   const seen = new Map();
+  const remember = (value) => {
+    if (seen.size >= maxStrings) {
+      seen.clear();
+    }
+    seen.set(value, value);
+    return value;
+  };
   const intern = (value) => {
     if (typeof value === 'string') {
       if (value.length > INTERN_MAX) {
@@ -163,9 +176,7 @@ const createInterner = ({ coldPayloads = false } = {}) => {
       if (known !== undefined) {
         return known;
       }
-      const own = ownCopy(value);
-      seen.set(own, own);
-      return own;
+      return remember(ownCopy(value));
     }
     if (Array.isArray(value)) {
       return value.map(intern);
@@ -184,7 +195,7 @@ const createInterner = ({ coldPayloads = false } = {}) => {
     }
     return value;
   };
-  return intern;
+  return Object.assign(intern, { cachedStrings: () => seen.size });
 };
 
 // The live links of a record log, read a line at a time: a large store

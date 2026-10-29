@@ -16,13 +16,37 @@ import {
   linksArchivePackets,
 } from '../src/storage/doublets-archive.js';
 import { createWorkBudget } from '../src/storage/work-budget.js';
-import { createLinoTextStore } from '../src/storage/lino-store.js';
+import {
+  createInterner,
+  createLinoTextStore,
+} from '../src/storage/lino-store.js';
 
 const raw = () => ({
   media: { caption: 'A repeated provider payload. '.repeat(400) },
   entities: [{ offset: 0, length: 5 }],
   flag: false,
   nullable: null,
+});
+
+test('startup string deduplication stays bounded without changing records or cold payloads', () => {
+  const intern = createInterner({ coldPayloads: true, maxStrings: 4 });
+  const provider = raw();
+  for (let i = 0; i < 20; i += 1) {
+    const record = {
+      id: `msg:fixture:${i}`,
+      tokens: ['message', 'fixture', String(i)],
+      body: `body ${i}`,
+      timestamp: '2026-10-29T20:00:00Z',
+      raw: provider,
+      snapshot: { body: `previous ${i}` },
+    };
+    const copied = intern(record);
+    assert.deepEqual(copied, record);
+    assert.notEqual(copied, record);
+    assert.equal(copied.raw, provider);
+    assert.equal(copied.snapshot, record.snapshot);
+    assert.ok(intern.cachedStrings() <= 4);
+  }
 });
 
 test('packed file records survive compaction and restart without changing archived payloads', async () => {
