@@ -31,6 +31,7 @@
 export const createMemoryStore = ({
   retain = (link) => ({ ...link }),
   release = () => {},
+  copy = (link) => ({ ...link }),
 } = {}) => {
   const data = new Map();
   const handlers = new Set();
@@ -56,7 +57,7 @@ export const createMemoryStore = ({
     },
     async get(id) {
       const v = data.get(id);
-      return v ? { ...v } : null;
+      return v ? copy(v) : null;
     },
     async delete(id) {
       const existed = data.has(id);
@@ -75,7 +76,7 @@ export const createMemoryStore = ({
       const out = [];
       for (const link of data.values()) {
         if (!filter || filter(link)) {
-          out.push({ ...link });
+          out.push(copy(link));
         }
       }
       return out;
@@ -93,7 +94,7 @@ export const createMemoryStore = ({
      * `onBatch` are safe (a link written again keeps its place). Resolves
      * to how many links were looked at.
      */
-    async scan(filter, batchSize, onBatch, project = (link) => ({ ...link })) {
+    async scan(filter, batchSize, onBatch, project = copy) {
       let batch = [];
       let looked = 0;
       for (const link of data.values()) {

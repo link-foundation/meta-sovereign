@@ -18,9 +18,13 @@ A fall in RSS alone does not establish that a leak has disappeared.
 - The file-backed text store retains large `raw` and `snapshot` objects as
   serialized bytes, with fast compression when beneficial. Each buffer owns its
   exact backing allocation; a tiny compressed result cannot pin a large slab.
-  Reads deserialize on demand without caching decoded payloads. Replacement and
+  Reads deserialize on demand; retained store records never cache decoded payloads. Replacement and
   deletion release the previous record. These bytes are private in-memory data,
   not a new disk format. The text log and binary archive remain compatible.
+  Query copies also keep payloads deferred: reading metadata or filtering a
+  returned record never expands its provider data unless that field is used.
+  A public read copy materializes a field on first use, preserving normal
+  assignment and nested mutation on that copy without changing the store.
 - Startup interns metadata strings without retaining a second set of strings
   from packed payloads. Compaction writes batches instead of expanding all cold
   payloads before writing. Status/contact aggregation and reply bootstrap scan

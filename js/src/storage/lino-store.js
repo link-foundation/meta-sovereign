@@ -701,6 +701,7 @@ const loadRetained = async (filePath, readLimit) => {
   const mem = createMemoryStore({
     retain: packing.retain,
     release: packing.release,
+    copy: packing.copy,
   });
   const loaded = await readLinoFile(filePath, {
     readLimit,

@@ -5,6 +5,7 @@ import { deflateRawSync, inflateRawSync } from 'node:zlib';
 
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
+const exposed = new WeakSet();
 const read = (owner, field) => {
   const value = packed.get(owner)?.get(field);
   const bytes = value.compressed ? inflateRawSync(value.bytes) : value.bytes;
@@ -18,6 +19,72 @@ const getters = Object.fromEntries(
     },
   ])
 );
+const plainField = (owner, field, value) =>
+  Object.defineProperty(owner, field, {
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value,
+  });
+// Public read copies behave like ordinary mutable records after a payload is
+// first used. The retained store record never caches that decoded value.
+const publicGetters = Object.fromEntries(
+  fields.map((field) => [
+    field,
+    function () {
+      const value = read(this, field);
+      const payloads = packed.get(this);
+      plainField(this, field, value);
+      if (
+        [...payloads.keys()].every(
+          (key) => !Object.getOwnPropertyDescriptor(this, key)?.get
+        )
+      ) {
+        packed.delete(this);
+      }
+      return value;
+    },
+  ])
+);
+const setters = Object.fromEntries(
+  fields.map((field) => [
+    field,
+    function (value) {
+      for (const key of packed.get(this).keys()) {
+        if (!Object.hasOwn(this, key)) {
+          continue;
+        }
+        const next = key === field ? value : this[key];
+        plainField(this, key, next);
+      }
+      packed.delete(this);
+    },
+  ])
+);
+const copyPacked = (link, payloads = packed.get(link), visible = false) => {
+  if (!payloads) {
+    return { ...link };
+  }
+  const out = {};
+  for (const key of Object.keys(link)) {
+    if (!payloads.has(key)) {
+      out[key] = link[key];
+    }
+  }
+  packed.set(out, payloads);
+  if (visible) {
+    exposed.add(out);
+  }
+  for (const field of payloads.keys()) {
+    Object.defineProperty(out, field, {
+      enumerable: true,
+      configurable: true,
+      get: (visible ? publicGetters : getters)[field],
+      set: setters[field],
+    });
+  }
+  return out;
+};
 
 export const createRawPacking = ({ minBytes = 256 } = {}) => {
   let records = 0;
@@ -25,7 +92,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
   let unpackedBytes = 0;
   let allocatedBytes = 0;
   const pack = (link) => {
-    if (packed.has(link)) {
+    if (packed.has(link) && !exposed.has(link)) {
       return link;
     }
     const payloads = new Map();
@@ -56,18 +123,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
         original: data.length,
       });
     }
-    const out = { ...link };
-    if (payloads.size) {
-      packed.set(out, payloads);
-      for (const field of payloads.keys()) {
-        Object.defineProperty(out, field, {
-          enumerable: true,
-          configurable: true,
-          get: getters[field],
-        });
-      }
-    }
-    return out;
+    return copyPacked(link, payloads.size ? payloads : undefined);
   };
   const account = (link, by) => {
     const payloads = packed.get(link);
@@ -83,8 +139,10 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
   };
   return {
     pack,
+    copy: (link) => copyPacked(link, packed.get(link), true),
     retain(link) {
-      const out = pack(link);
+      const out =
+        packed.has(link) && !exposed.has(link) ? copyPacked(link) : pack(link);
       account(out, 1);
       return out;
     },

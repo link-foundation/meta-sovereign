@@ -36,6 +36,15 @@ test('packed file records survive compaction and restart without changing archiv
     await first.flush();
     const loaded = await createLinoTextStore(file);
     assert.equal(loaded.memoryStats().packedRecords, 2);
+    const deferred = await loaded.query();
+    assert.equal(
+      typeof Object.getOwnPropertyDescriptor(deferred[0], 'raw').get,
+      'function'
+    );
+    assert.deepEqual(deferred[0].raw, current.raw);
+    await loaded.put(deferred[0]);
+    deferred[0].body = 'caller mutation';
+    assert.equal((await loaded.get(current.id)).body, current.body);
     assert.deepEqual(await loaded.query(), [current, version]);
     await loaded.compact();
     await loaded.flush();
@@ -94,6 +103,31 @@ test('cold payloads round-trip, remain opaque to metadata scans, and release on 
     unpackedBytes: 0,
     decodedPayloadsCached: 0,
   });
+});
+
+test('deferred read copies preserve payload assignment and nested mutation without changing the store', async () => {
+  const packing = createRawPacking();
+  const store = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+    copy: packing.copy,
+  });
+  const original = {
+    id: 'msg:mutable',
+    raw: raw(),
+    snapshot: { body: 'old'.repeat(1000) },
+  };
+  await store.put(original);
+  const record = await store.get(original.id);
+  record.raw.media.caption = 'changed locally';
+  assert.equal(record.raw.media.caption, 'changed locally');
+  assert.deepEqual((await store.get(original.id)).raw, original.raw);
+  record.raw = { replacement: true };
+  await store.put(record);
+  assert.deepEqual((await store.get(original.id)).raw, { replacement: true });
+  assert.deepEqual((await store.get(original.id)).snapshot, original.snapshot);
+  record.body = 'after put';
+  assert.equal((await store.get(original.id)).body, undefined);
 });
 
 test('streamed binary packets match the existing format with bounded chunks', async () => {

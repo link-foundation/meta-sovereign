@@ -189,8 +189,7 @@ const handlePurgeTombstones = async (store, req, res) => {
   const olderThan = body.olderThan
     ? new Date(body.olderThan).toISOString()
     : null;
-  const all = await store.query();
-  const targets = all.filter((l) => {
+  const targets = await store.query((l) => {
     if (!isTombstone(l)) {
       return false;
     }
@@ -224,12 +223,7 @@ const handlePrefixedPut = async (store, req, res, prefix, kind) => {
 };
 
 const handlePrefixedGet = async (store, res, prefix) => {
-  const all = await store.query();
-  json(
-    res,
-    200,
-    all.filter((l) => l.id?.startsWith(`${prefix}:`))
-  );
+  json(res, 200, await store.query((l) => l.id?.startsWith(`${prefix}:`)));
   return true;
 };
 
