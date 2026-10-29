@@ -15,6 +15,8 @@
  */
 
 import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+import { probeGitHubRelease } from './github-release-state.mjs';
+import { resolveReleaseCommit } from './github-release-content.mjs';
 
 // Import link-foundation libraries
 const { $ } = await loadCommandStream();
@@ -61,24 +63,18 @@ if (!version || !repository || !commitSha) {
 const tag = `${tagPrefix}${version}`;
 
 try {
-  // Get the release ID for this version
-  let releaseId = '';
-  try {
-    const result =
-      await $`gh api "repos/${repository}/releases/tags/${tag}" --jq '.id'`.run(
-        { capture: true }
-      );
-    releaseId = result.stdout.trim();
-  } catch {
-    console.log(`\u26A0\uFE0F Could not find release for ${tag}`);
-    process.exit(0);
+  const release = await probeGitHubRelease(repository, tag);
+  if (!release) {
+    throw new Error(`Required GitHub release ${tag} is missing`);
   }
 
+  const releaseId = String(release.id);
+  const resolvedCommit = resolveReleaseCommit(commitSha);
   if (releaseId) {
     console.log(`Formatting release notes for ${tag}...`);
     // Pass the trigger commit SHA for PR detection
     // This allows proper PR lookup even if the changelog doesn't have a commit hash
-    await $`node js/scripts/format-release-notes.mjs --release-id "${releaseId}" --release-version "${tag}" --repository "${repository}" --commit-sha "${commitSha}"`;
+    await $`node js/scripts/format-release-notes.mjs --release-id "${releaseId}" --release-version "${tag}" --repository "${repository}" --commit-sha "${resolvedCommit}"`;
     console.log(`\u2705 Formatted release notes for ${tag}`);
   }
 } catch (error) {

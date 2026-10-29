@@ -6,3 +6,15 @@ self-hosted-runner:
     - ubuntu-26.04
     - ubuntu-26.04-arm
     - windows-11-vs2026-arm
+
+# actionlint 1.7.12 predates GitHub's supported self-repository syntax.
+# Ignore only this known action's syntax diagnostic, in its two callers.
+# Remove when https://github.com/rhysd/actionlint/issues/711 is released.
+# ci-cache-policy verifies that these references use the exact existing action.
+paths:
+  .github/workflows/pages.yml:
+    ignore:
+      - 'specifying action "\$/\.github/actions/npm-cache" in invalid format because ref is missing'
+  .github/workflows/release.yml:
+    ignore:
+      - 'specifying action "\$/\.github/actions/npm-cache" in invalid format because ref is missing'

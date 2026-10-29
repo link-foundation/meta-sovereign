@@ -1,0 +1,25 @@
+name: Shared npm cache
+description: Restore npm downloads; only a designated job saves each workflow/platform key.
+inputs:
+  write:
+    description: Designate the single writer for this workflow and runner OS/architecture.
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - name: Locate npm download cache
+      id: path
+      shell: bash
+      run: echo "path=$(npm config get cache)" >> "$GITHUB_OUTPUT"
+    - name: Restore downloads without a competing save
+      if: inputs.write != 'true'
+      uses: actions/cache/restore@v6.1.0
+      with:
+        path: ${{ steps.path.outputs.path }}
+        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}-${{ github.ref }}
+    - name: Restore and save downloads as the designated writer
+      if: inputs.write == 'true'
+      uses: actions/cache@v6.1.0
+      with:
+        path: ${{ steps.path.outputs.path }}
+        key: ${{ github.workflow }}-npm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}-${{ github.ref }}
