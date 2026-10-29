@@ -34,6 +34,11 @@ before classifying a problem.
 | 04:07:16 | Issue 52 created with those six runs. |
 | During PR 53 | Minimal reproductions establish peer pruning, missing-job acceptance, storage getter evaluation, unsafe parser/prototype paths, and writer-policy gaps. Atomic fixes and upstream reports follow. |
 | 04:52:54 | Head 01ac7d3 starts CI. The new SARIF gate rejects a remaining intentional adversarial test; runtime/browser checks expose two implementation mistakes. Both are reproduced/corrected before the next push. See VALIDATION.md. |
+| 05:07:24 | All four automatic workflows at cdd2c7d8 eventually pass, but the separate aggregate CodeQL check remains neutral: four scheduled-workflow configurations are missing from PR coverage. Workflow success alone is insufficient evidence. |
+| 05:24:58 | All four automatic workflows at 9f0749d4 eventually pass, including the safe SVG compatibility repair and archive verification. |
+| 05:27:43 | Manually dispatch the scheduled audit on 9f0749d4. Uploading its missing categories clears the aggregate check, but the strict local SARIF verdict correctly rejects a remaining thrown-string stack path. |
+| 05:39:42 | Push 1868964c with reproducing regressions, safe first-line error summaries and automatic PR coverage for both CodeQL configuration families. Five workflows now run automatically. |
+| After 05:39:42 | All five workflows at 1868964c complete successfully, along with the aggregate CodeQL check covering all eight baseline configurations. Diff review also finds/restores wave-plus-addressee compatibility before the final evidence push. |
 
 The release failure follows dependency updates in PR 51, but npm's re-resolution
 operation is the root cause. Relaxing the strict tree guard would publish a
@@ -89,6 +94,49 @@ CV, greeting, wallpaper and client tests remain required. Self-review added a co
 regression for safe SVG text/filter/inline drawing styles: canonical presentation
 attributes preserve them while escaped/external resource CSS stays rejected. See CODEQL-FINDINGS.md.
 
+Complete diff review also found that the first linear greeting scanner skipped
+wave emoji as punctuation, losing the existing wave-plus-addressee behavior.
+A failing `👋 there!` regression establishes the compatibility problem. Counting
+recognized wave gestures as greeting tokens restores all five direct pattern
+contracts and English/Russian addressees while retaining one-pass consumption.
+The existing greeting consumers and bounded rejection probe pass together:
+`validation/greeting-emoji-after.log` records 38 passing tests. Non-greeting
+emoji plus an addressee remains rejected.
+
+### Missing PR configurations and a remaining stack-string path
+
+The separate aggregate CodeQL check is not a workflow job. At cdd2c7d8 it reports
+four missing `security.yml` language categories; a snapshot during the manual
+9f0749d4 audit still reports one. Main has both release and scheduled categories,
+but the scheduled workflow had no PR trigger. All three template security
+workflows already include that trigger. Adopt their coverage here and explicitly
+allow documentation-only PRs through the release CodeQL condition, retaining
+prerequisite failure/cancellation guards and all four languages in each family.
+Renaming categories or deleting baseline analyses would discard useful evidence.
+
+The manual scheduled JavaScript scan has a different extraction context from
+the dependency-installed release scan. Its unabridged SARIF shows a surviving
+flow from `routes-backup.js:87` through `safeMessage`'s string branch to
+`util.js:57`. `ci-logs/40823528729-attempt1.log:11502–11504` records the strict
+gate's rejection. This establishes the path; the different extraction context
+explains why running only one configuration was insufficient, without claiming
+that CodeQL guarantees identical result sets for both environments.
+
+The first repair rejected arbitrary objects but retained string-thrown stacks.
+Separately, JSON error normalization still invoked arbitrary `toString` methods.
+The new minimal tests fail on an ordinary two-line stack string and an object
+whose `toString` throws. The shared summary now extracts only the first message
+line and redacts credentials; JSON errors use that same boundary. Actual
+`Error.message`, string errors, CRLF stacks and existing status/code behavior are
+covered. Private structured logs can retain redacted diagnostic fields. No rule
+or new finding is exempted. See `validation/codeql-follow-up-before.log` and
+`validation/codeql-follow-up-after.log` for the failing/passing runs.
+
+The aggregate becoming successful after an upload did not override the failed
+SARIF verdict. Both complete configuration coverage and the strict verdict are
+necessary. Final verification checks all five workflows and the aggregate result
+at the same head SHA.
+
 ### Storage warnings and the fallback correction
 
 The main runtime logs contain 42 Node warnings (14 per OS) for initializing the
@@ -141,6 +189,7 @@ recomputation, source supersession and policy refusal, rather than only mocking 
 | --- | --- |
 | Pages DEP0040, `ci-logs/40790628783-attempt1.log:1127` | One warning from `actions/deploy-pages@v5.0.1` bundled punycode dependency. Latest upstream release still contains it. Existing upstream reports #413/#434 are linked in UPSTREAM.md with reproduction and rebuild suggestion. Match the JS/Rust template workaround: suppress only `DEP0040` on this single deployment step using Node's code-specific flag. A regression proves unrelated warnings/deprecations remain visible. Remove the flag after the action bundle is repaired. |
 | Managed Dependabot OpenSSL rehash warning, `ci-logs/40790638881-attempt1.log:65` | `ca-certificates.crt` is an aggregate trust bundle; OpenSSL rehash expects one certificate/CRL per file and skips that bundle while processing individual certs. The update succeeds. This is managed infrastructure outside repository workflow code, not a package/update failure; do not split/delete the trust bundle or suppress runner logs. |
+| GitHub runner capacity/migration notices | Original release annotations contain three macOS ARM capacity notices; the managed Dependabot run announces the `ubuntu-latest` migration. These are platform scheduling/image notices, not failed tests. Maintained jobs use explicit supported runner labels; macOS native jobs and all desktop targets pass in follow-up CI. Keep native coverage and preserve the notices rather than treating them as application warnings to suppress. Full annotation JSON is archived for each run. |
 | esbuild `4.2mb` size marker | Informational size output. Bundle build and package/browser checks are still required; no false build failure inferred from the glyph. |
 | Skipped release/publish jobs on a PR | Expected event guards: PRs build/check without external publishing credentials. Main preflight remains strict and actionable. |
 | Older branch run cancellation | Expected cancellation of superseded read-only checks; compare timestamp and head SHA before treating it as a regression. Active writers retain cancellation protection. |
@@ -153,6 +202,7 @@ not claim to have fixed upstream's bundled dependency or GitHub runner internals
 
 - [npm legacy-peer-deps](https://docs.npmjs.com/cli/using-npm/config/#legacy-peer-deps) documents ignored peer constraints when constructing a tree, consistent with the reproduced pruning. Existing Changesets stays responsible for versions/changelogs; the new helper only synchronizes existing metadata.
 - [CodeQL analyze inputs](https://github.com/github/codeql-action/blob/main/analyze/action.yml) expose SARIF output; local parsing adds the missing verdict. The existing gate in konard/konard.github.io PR 32 was studied; its source snapshot is archived as `research/reference-codeql-gate.mjs`.
+- [GitHub workflow configuration](https://docs.github.com/en/code-security/reference/code-scanning/workflow-configuration-options) explains PR scanning and categories derived from workflow/action/matrix identity. The [CodeQL stack-exposure query](https://github.com/github/codeql/blob/main/javascript/ql/lib/semmle/javascript/security/dataflow/StackTraceExposureQuery.qll) distinguishes message-property reads from stack propagation. The real thrown-string reproduction supports the first-line repair independently of the analyzer.
 - [htmlparser2](https://github.com/fb55/htmlparser2) exposes streaming token callbacks and XML mode. Exact-pinned 12.0.0 is reused for import, CV and restricted SVG paths, with the existing browser bundle rebuilt. This avoids inventing another HTML tokenizer. Its documentation recommends parse5 for strict HTML5 compliance; the import paths need event parsing rather than full browser DOM layout. Cheerio's DOM/query layer is unnecessary for the streaming cases.
 - [RE2](https://github.com/google/re2/blob/main/README.md) guarantees bounded matching complexity but excludes lookarounds/backreferences. It is not a compatible replacement for the existing general regex API; replacing that API would be a separate feature decision, not silently escaping user expressions.
 - [Node CLI warning controls](https://nodejs.org/api/cli.html#--disable-warningcode-or-type) support the single-code deployment workaround. A broad `NODE_NO_WARNINGS` or shared process flag would conceal unrelated failures and is not used.

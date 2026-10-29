@@ -27,9 +27,12 @@ evidence here, and leave a clean, ready pull request with passing CI.
       all comments, update PR title/body with reproductions, tests and Fixes #52,
       verify clean tree, and mark PR 53 ready without merging.
 
-Archive cutoff: all four workflows pass at `cdd2c7d8`. The final safe-SVG
-compatibility change has its own failing/passing regression. The last checkbox
-is deliberately pending in this immutable snapshot: final-head CI and readiness
+The archive includes the original six runs, development failures, the missing
+CodeQL configurations and failed scheduled scan discovered during final review,
+and successful verification of both scan families at `1868964c`. Safe-SVG and
+greeting compatibility repairs each have a failing/passing regression. Complete
+diff review found the latter before finalization. The last checkbox is
+deliberately pending in this immutable snapshot: final-head CI and readiness
 are recorded on the live PR after the evidence commit, as VALIDATION.md explains.
 
 Collection started 2026-10-29. Initial branch head:

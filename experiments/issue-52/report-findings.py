@@ -39,7 +39,7 @@ def resolution(alert):
     if number == 15:
         return 'Experiment subprocesses use execFileSync(process.execPath, argument arrays), preserving literal environment arguments without shell interpolation.'
     if number == 14:
-        return 'Shared redact safeMessage no longer stringifies arbitrary error objects that can expose a stack; util response callers inherit the fix.'
+        return 'Shared safeMessage and JSON error normalization reject arbitrary stringification and retain only the credential-redacted first message line, including string-thrown stacks. The scheduled scan exposed the remaining string branch after the first repair; the additional failing/passing regression and full SARIF are archived.'
     if number in [13, 12, 11]:
         return 'CV canonical field allowlists, null-prototype maps and defined own properties reject prototype/unknown paths; valid plan/diff/application fixtures remain.'
     if number == 10:

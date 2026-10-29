@@ -60,18 +60,23 @@ def runs(label, cited=False):
                 with destination.open('wb') as stream:
                     subprocess.run(['gh', 'api', f'repos/{REPO}/actions/artifacts/{artifact["id"]}/zip'], stdout=stream, check=True)
         log = OUT / 'ci-logs' / f'{prefix}.log'
+        jobs_path = OUT / 'metadata' / f'{prefix}-jobs.json'
+        annotations_path = OUT / 'metadata' / f'{prefix}-annotations.json'
+        # A manually preserved full log does not imply that job/annotation
+        # evidence was collected. Resume each independent part separately.
+        if not jobs_path.exists() or not annotations_path.exists():
+            pages = gh_json(f'repos/{REPO}/actions/runs/{run["id"]}/jobs?per_page=100', True)
+            jobs = [job for page in pages for job in page['jobs']]
+            save(jobs_path, jobs)
+            annotations = []
+            for job in jobs:
+                if job.get('check_run_url'):
+                    endpoint = job['check_run_url'].replace('https://api.github.com/', '') + '/annotations?per_page=100'
+                    for page in gh_json(endpoint, True):
+                        annotations.extend(dict(annotation, job_name=job['name']) for annotation in page)
+            save(annotations_path, annotations)
         if log.exists() and log.stat().st_size > 1000:
             continue
-        pages = gh_json(f'repos/{REPO}/actions/runs/{run["id"]}/jobs?per_page=100', True)
-        jobs = [job for page in pages for job in page['jobs']]
-        save(OUT / 'metadata' / f'{prefix}-jobs.json', jobs)
-        annotations = []
-        for job in jobs:
-            if job.get('check_run_url'):
-                endpoint = job['check_run_url'].replace('https://api.github.com/', '') + '/annotations?per_page=100'
-                for page in gh_json(endpoint, True):
-                    annotations.extend(dict(annotation, job_name=job['name']) for annotation in page)
-        save(OUT / 'metadata' / f'{prefix}-annotations.json', annotations)
         with log.open('wb') as stream:
             result = subprocess.run(['gh', 'run', 'view', str(run['id']), '--repo', REPO,
                                      '--attempt', str(attempt), '--log'], stdout=stream,

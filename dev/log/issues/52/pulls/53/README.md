@@ -9,6 +9,12 @@ evidence accepted as success, repeated Node Web Storage warnings, and incomplete
 cross-workflow writer serialization/retry policy. These paths have fixes and
 regressions in this PR. The two intentional regex constructs remain covered by
 explicit, whole-file-hash-pinned audit decisions; queries remain enabled.
+Final review also caught missing PR CodeQL configurations and a surviving thrown-
+string stack path. Both workflow families now run on PRs, and JSON errors share
+the first-line, credential-redacted summary boundary. The failed scheduled audit
+and its complete SARIF are preserved alongside the successful verification.
+Compatibility regressions also preserve safe SVG drawings and wave-plus-addressee
+greetings while retaining the parser and bounded-matching security repairs.
 
 - [Analysis and timeline](ANALYSIS.md): causes, alternatives, chosen fixes and warning disposition.
 - [Requirement inventory](REQUIREMENTS.md): each issue and execution requirement mapped to evidence.
