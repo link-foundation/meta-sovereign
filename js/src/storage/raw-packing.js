@@ -6,6 +6,15 @@ import { deflateRawSync, inflateRawSync } from 'node:zlib';
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
 const exposed = new WeakSet();
+// A poll update can name only the poll, not its message. Its lookup must reject
+// other media without inflating every archived provider payload. Public copies
+// still read their current, mutable raw field instead of a stale summary.
+export const rawMediaTypeOf = (link) => {
+  const payload = packed.get(link)?.raw;
+  return payload && !exposed.has(link)
+    ? payload.mediaType
+    : link?.raw?.media?.className;
+};
 // There are only two possible cold fields. Fixed slots avoid a Map and its
 // backing hash table on every retained message or edit-history record.
 const payloadFields = (payloads) => fields.filter((field) => payloads[field]);
@@ -127,6 +136,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
         bytes: owned,
         compressed: smaller,
         original: data.length,
+        mediaType: field === 'raw' ? link[field].media?.className : undefined,
       };
     }
     return copyPacked(

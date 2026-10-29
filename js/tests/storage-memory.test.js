@@ -4,7 +4,10 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { createRawPacking } from '../src/storage/raw-packing.js';
+import {
+  createRawPacking,
+  rawMediaTypeOf,
+} from '../src/storage/raw-packing.js';
 import { packetChunks } from '../src/storage/binary-packet-stream.js';
 import { encodePacket, externalRef } from '../src/storage/binary-packet.js';
 import {
@@ -137,6 +140,27 @@ test('startup adopts private packed records without a second metadata copy', () 
   assert.equal(packing.stats().packedRecords, 1);
   packing.release(record);
   assert.equal(packing.stats().packedBytes, 0);
+});
+
+test('cold media metadata follows replacement and public payload mutation', () => {
+  const packing = createRawPacking();
+  const input = {
+    id: 'msg:metadata',
+    raw: {
+      media: { className: 'MessageMediaPoll', text: 'large '.repeat(100) },
+    },
+  };
+  const held = packing.retain(input);
+  assert.equal(rawMediaTypeOf(held), 'MessageMediaPoll');
+  const copy = packing.copy(held);
+  copy.raw.media.className = 'MessageMediaPhoto';
+  assert.equal(rawMediaTypeOf(copy), 'MessageMediaPhoto');
+  assert.equal(rawMediaTypeOf(held), 'MessageMediaPoll');
+  const replaced = packing.retain(copy);
+  assert.equal(rawMediaTypeOf(replaced), 'MessageMediaPhoto');
+  delete copy.raw;
+  assert.equal(rawMediaTypeOf(copy), undefined);
+  assert.equal(rawMediaTypeOf(null), undefined);
 });
 
 test('wide packed records preserve all metadata without decoding cold fields', () => {

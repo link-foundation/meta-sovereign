@@ -12,6 +12,7 @@
 
 import { unreachableChat } from './telegram-backfill.js';
 import { peerChatId } from './telegram-updates.js';
+import { rawMediaTypeOf } from '../storage/raw-packing.js';
 
 const SOURCE = 'telegram';
 const MARKER = 'repair:telegram:senders-v1';
@@ -172,7 +173,7 @@ export const rereadUnsupported = async (
     (l) =>
       l?.id?.startsWith(`msg:${SOURCE}:`) &&
       !l.deleted &&
-      l.raw?.media?.className === 'MessageMediaUnsupported'
+      rawMediaTypeOf(l) === 'MessageMediaUnsupported'
   );
   const byChat = new Map();
   for (const l of links) {
@@ -192,7 +193,7 @@ export const rereadUnsupported = async (
       (l) =>
         l?.id?.startsWith(`msg:${SOURCE}:`) &&
         !l.deleted &&
-        l.raw?.media?.className === 'MessageMediaUnsupported'
+        rawMediaTypeOf(l) === 'MessageMediaUnsupported'
     )
   ).length;
   if (failed === 0) {

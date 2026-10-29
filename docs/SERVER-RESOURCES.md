@@ -31,6 +31,11 @@ A fall in RSS alone does not establish that a leak has disappeared.
   Copies skip cold fields before reading values. These changes reduce retained
   bookkeeping without adding compression work, discarding messages or changing
   the on-disk format. Startup adopts its private packed records directly.
+- A packed raw payload also keeps its media type as a tiny private summary.
+  Live poll updates that name only a poll ID, and unsupported-media repairs,
+  reject unrelated messages using that summary. They must not inflate every
+  message in the archive to find a few matching media items. Public mutable
+  copies read their actual payload, so edits cannot leave a stale media type.
 - Startup interns metadata strings without retaining a second set of strings
   from packed payloads. Compaction writes batches instead of expanding all cold
   payloads before writing. Status/contact aggregation and reply bootstrap scan

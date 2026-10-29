@@ -24,6 +24,7 @@
  */
 
 import { peerChatId } from './telegram-updates.js';
+import { rawMediaTypeOf } from '../storage/raw-packing.js';
 import { withSendAs } from './telegram-send-as-client.js';
 import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
 
@@ -72,7 +73,7 @@ export const mergePollResults = (before, next) => {
 
 const isPollOf = (pollId) => (l) =>
   l?.id?.startsWith(`msg:${SOURCE}:`) &&
-  l.raw?.media?.className === 'MessageMediaPoll' &&
+  rawMediaTypeOf(l) === 'MessageMediaPoll' &&
   text(l.raw.media.poll?.id) === pollId;
 
 /** Write a poll effect; true when a stored message changed. */

@@ -17,6 +17,7 @@ import {
   pollWriter,
 } from '../src/sources/telegram-polls.js';
 import { createMemoryStore } from '../src/storage/universal.js';
+import { createRawPacking } from '../src/storage/raw-packing.js';
 import { handleTelegramRoutes } from '../src/server/routes-telegram.js';
 import {
   canRetract,
@@ -158,6 +159,42 @@ test('the poll writer finds the poll by message, else by its id', async () => {
   assert.equal(
     (await store.get('msg:telegram:42:3')).raw.media.poll.closed,
     true
+  );
+});
+
+test('an unnamed poll update never decodes unrelated archived media', async () => {
+  const packing = createRawPacking();
+  const store = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+    copy: packing.copy,
+  });
+  const photo = packing.pack({
+    id: 'msg:telegram:42:1',
+    source: 'telegram',
+    raw: {
+      media: { className: 'MessageMediaPhoto', caption: 'large '.repeat(100) },
+    },
+  });
+  Object.defineProperty(photo, 'raw', {
+    enumerable: true,
+    configurable: true,
+    get() {
+      return assert.fail('a poll lookup expanded an unrelated cold payload');
+    },
+  });
+  await store.put(photo);
+  await store.put(pollMessage('42', 3, storedPoll({ id: '6' })));
+  assert.equal(
+    await pollWriter(store, {
+      pollId: '6',
+      results: { totalVoters: 7, results: [] },
+    }),
+    true
+  );
+  assert.equal(
+    (await store.get('msg:telegram:42:3')).raw.media.results.totalVoters,
+    7
   );
 });
 
