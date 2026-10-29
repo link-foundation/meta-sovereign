@@ -2,6 +2,7 @@
 // replacing/deleting a record releases its only retained packed reference.
 import { serialize, deserialize } from 'node:v8';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
+import { topicOfMessage } from '../web/forum-topics.js';
 
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
@@ -14,6 +15,11 @@ export const rawMediaTypeOf = (link) => {
   return payload && !exposed.has(link)
     ? payload.mediaType
     : link?.raw?.media?.className;
+};
+// Chat indexing needs the forum topic, never the whole provider payload.
+export const storedMessageTopic = (link) => {
+  const payload = packed.get(link)?.raw;
+  return payload && !exposed.has(link) ? payload.topic : topicOfMessage(link);
 };
 // There are only two possible cold fields. Fixed slots avoid a Map and its
 // backing hash table on every retained message or edit-history record.
@@ -137,6 +143,7 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
         compressed: smaller,
         original: data.length,
         mediaType: field === 'raw' ? link[field].media?.className : undefined,
+        topic: field === 'raw' ? topicOfMessage(link) : undefined,
       };
     }
     return copyPacked(

@@ -21,6 +21,7 @@
 
 import { chatKey, networkMessageId } from '../web/chat-model.js';
 import { isTombstone } from '../storage/soft-delete.js';
+import { storedMessageTopic } from '../storage/raw-packing.js';
 import { splitTopicKey, topicOfMessage } from '../web/forum-topics.js';
 
 const isMessage = (link) =>
@@ -111,7 +112,15 @@ const boundsOf = async (store, sorted, range, limit) => {
 const indexStoreMessages = async (store, add) => {
   const indexBatch = (links) => links.forEach(add);
   if (store.scan) {
-    await store.scan(isMessage, 500, indexBatch);
+    await store.scan(isMessage, 500, indexBatch, (link) => ({
+      id: link.id,
+      source: link.source,
+      chat: link.chat,
+      timestamp: link.timestamp,
+      topic: storedMessageTopic(link),
+      deleted: isTombstone(link),
+      versionCount: link.versionCount,
+    }));
   } else {
     indexBatch(await store.query(isMessage));
   }

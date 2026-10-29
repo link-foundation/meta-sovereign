@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { wrapSecretStore } from '../src/storage/secret-store.js';
 import { handleDerivedRoutes } from '../src/server/routes-derived.js';
+import { createRawPacking } from '../src/storage/raw-packing.js';
+import { createChatIndex } from '../src/server/chat-index.js';
 
 const route = async (store, path) => {
   let result;
@@ -76,4 +78,64 @@ test('encrypted-store streaming preserves secret filtering and arbitrary project
     (link) => link.id
   );
   assert.deepEqual(ids.sort(), ['plain:one', 'secret:one']);
+});
+
+test('chat-index bootstrap preserves topics and history using metadata only', async () => {
+  const packing = createRawPacking();
+  let reading = false;
+  const store = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+    copy: (link) => {
+      assert.ok(reading, 'bootstrap must not copy entire message records');
+      return packing.copy(link);
+    },
+  });
+  const chat = 'telegram:-1005';
+  const fixtures = [
+    { id: 11, raw: { replyTo: { forumTopic: true, replyToTopId: 7 } } },
+    {
+      id: 12,
+      raw: { id: 12, action: { className: 'MessageActionTopicCreate' } },
+    },
+    { id: 13, topic: 7, deleted: true, versionCount: 2, raw: {} },
+  ];
+  for (const fixture of fixtures) {
+    const record = packing.pack({
+      ...fixture,
+      id: `msg:${chat}:${fixture.id}`,
+      source: 'telegram',
+      chat: '-1005',
+      timestamp: `2026-10-29T12:00:${fixture.id}Z`,
+      raw: { ...fixture.raw, text: 'cold payload '.repeat(100) },
+    });
+    Object.defineProperty(record, 'raw', {
+      enumerable: true,
+      configurable: true,
+      get() {
+        return assert.fail('bootstrap decoded a cold payload');
+      },
+    });
+    await store.put(record);
+  }
+  const index = createChatIndex(store);
+  try {
+    await index.ready();
+    assert.equal(index.count(chat), 2);
+    assert.deepEqual(await index.deleted(chat), [`msg:${chat}:13`]);
+    assert.deepEqual(await index.edited(`${chat}#topic:7`), [`msg:${chat}:13`]);
+    reading = true;
+    for (const [topic, id] of [
+      [7, 11],
+      [12, 12],
+    ]) {
+      const page = await index.page(`${chat}#topic:${topic}`);
+      assert.deepEqual(
+        page.messages.map((link) => link.id),
+        [`msg:${chat}:${id}`]
+      );
+    }
+  } finally {
+    index.close();
+  }
 });

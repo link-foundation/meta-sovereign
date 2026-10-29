@@ -36,6 +36,10 @@ A fall in RSS alone does not establish that a leak has disappeared.
   reject unrelated messages using that summary. They must not inflate every
   message in the archive to find a few matching media items. Public mutable
   copies read their actual payload, so edits cannot leave a stale media type.
+- Forum topic IDs are summarized while packing too. Chat-index startup projects
+  only its small metadata fields and the summarized topic; it does not create
+  full public record copies or inflate every provider payload to read reply
+  headers. Existing forum routing, deleted entries and edit counts are retained.
 - Startup interns metadata strings without retaining a second set of strings
   from packed payloads. Compaction writes batches instead of expanding all cold
   payloads before writing. Status/contact aggregation and reply bootstrap scan
