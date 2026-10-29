@@ -332,15 +332,36 @@ const useReadMarker = (
   );
 };
 
+const boundaryRead = (current, inboxMaxId, last) =>
+  (!current?.topic && current?.unread === 0) ||
+  (last !== null && inboxMaxId >= last);
+
 /**
- * The "Unread messages" line stays where it was when the chat was
- * opened (Telegram, Element): reading the chat moves the count, not the
- * line, until the user opens the chat again.
+ * Capture the opening unread boundary, as Telegram does. Partial reads
+ * must not move it through the list, but a fully read boundary is retired:
+ * later live messages must not resurrect an old opening divider.
  */
-const useUnreadLine = (current, inboxMaxId, loaded) => {
-  const at = useRef({ key: null, after: 0 });
+const useUnreadLine = (current, inboxMaxId, loaded, messages) => {
+  const at = useRef({ key: null, after: null, last: null });
   if (loaded && at.current.key !== (current?.key ?? null)) {
-    at.current = { key: current?.key ?? null, after: inboxMaxId };
+    at.current = {
+      key: current?.key ?? null,
+      after: current?.unread > 0 || current?.topic ? inboxMaxId : null,
+      last: null,
+    };
+  }
+  if (at.current.after !== null) {
+    const incoming = messages.findLast(
+      (m) =>
+        m.sender !== 'me' &&
+        !m.pending &&
+        !m.ephemeral &&
+        (networkMessageId(m) ?? 0) > at.current.after
+    );
+    at.current.last ??= incoming ? networkMessageId(incoming) : null;
+    if (boundaryRead(current, inboxMaxId, at.current.last)) {
+      at.current.after = null;
+    }
   }
   return at.current.after;
 };
@@ -380,7 +401,14 @@ const useOtherReadMarker = (api, current, enabled = readReadReceipts) => {
 // and the unread line.
 // `topicRead`: where an open forum topic is read up to (R-Y122); the
 // chat's own marker otherwise.
-const useReading = (api, current, links, topicRead = null, autoRead = true) => {
+const useReading = (
+  api,
+  current,
+  links,
+  topicRead = null,
+  autoRead = true,
+  messages = []
+) => {
   const chatRead = current
     ? readInboxUpTo(links ?? [], splitTopicKey(current.key).key)
     : 0;
@@ -389,7 +417,7 @@ const useReading = (api, current, links, topicRead = null, autoRead = true) => {
   useOtherReadMarker(api, current, enabled);
   return {
     seen: useReadMarker(api, current, inboxMaxId, enabled),
-    unreadAfter: useUnreadLine(current, inboxMaxId, links !== null),
+    unreadAfter: useUnreadLine(current, inboxMaxId, links !== null, messages),
   };
 };
 
@@ -1037,7 +1065,8 @@ export const useChatState = (
     viewed,
     links,
     readMax,
-    autoRead
+    autoRead,
+    messages
   );
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });

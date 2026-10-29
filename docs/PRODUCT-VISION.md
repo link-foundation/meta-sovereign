@@ -55,6 +55,12 @@ implementation into this repository.
 - Operator keeps the current card until **Done**. **Next** postpones it without
   acknowledging messages. Its defaults target unread private conversations
   with people; other item types are explicit settings.
+- Reserve only the floating composer's actual height beneath messages, with a
+  small consistent gap. Replies, suggestions, pane resizing and interface scale
+  must not create a blank footer or cover the last message. Preserve a reader's
+  position away from the live tail. An opening unread divider stays in place
+  during partial reads, then retires when those messages are confirmed read;
+  new live arrivals must not revive that old divider.
 - Preserve keyboard access, visible focus, readable contrast and reduced-motion
   behavior through themes, pane widths and screen sizes. Reuse common components
   so the same rules apply throughout the app.

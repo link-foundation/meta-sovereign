@@ -7,6 +7,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Spinner } from './spinner.js';
 import { Icon } from './icons.js';
+import { useComposerSpace } from './chat-composer-space.js';
 
 const el = React.createElement;
 
@@ -111,6 +112,7 @@ export const useKeepPlace = (box, state) => {
       first: state.messages[0]?.id,
       row: row?.dataset.message,
       top: row?.getBoundingClientRect().top,
+      unreadLine: state.unreadLine,
       near:
         node.scrollHeight - node.scrollTop - node.clientHeight < NEAR_BOTTOM_PX,
     };
@@ -125,8 +127,9 @@ export const useKeepPlace = (box, state) => {
       saved &&
       saved.key === state.current?.key &&
       saved.view === state.history?.view &&
-      saved.first !== state.messages[0]?.id &&
-      state.messages.some((m) => m.id === saved.first)
+      ((saved.first !== state.messages[0]?.id &&
+        state.messages.some((m) => m.id === saved.first)) ||
+        (saved.unreadLine && !state.unreadLine))
     ) {
       const row = [...node.querySelectorAll('[data-message]')].find(
         (item) => item.dataset.message === saved.row
@@ -188,6 +191,8 @@ export const useFollow = (state) => {
   const end = useRef(null);
   const line = useRef(null);
   const near = useRef(true);
+  useComposerSpace(box, near);
+  const dimensions = useRef(null);
   const seen = useRef({ key: null, last: null, known: null });
   const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
@@ -271,6 +276,17 @@ export const useFollow = (state) => {
     if (!node) {
       return;
     }
+    const size = [node.clientWidth, node.clientHeight];
+    // A layout change can emit scroll before ResizeObserver runs. Do not
+    // mistake that for the reader scrolling away from the live tail.
+    if (
+      near.current &&
+      dimensions.current &&
+      size.some((n, i) => n !== dimensions.current[i])
+    ) {
+      bottom();
+    }
+    dimensions.current = size;
     const below = node.scrollHeight - node.scrollTop - node.clientHeight;
     near.current = below < NEAR_BOTTOM_PX;
     // Telegram offers the way down once a screen is above the end.

@@ -248,6 +248,18 @@ was shown before acknowledging an unread mark.
   [`FAB_THRESHOLD`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/components/middle/hooks/useScrollHooks.ts#L20).
 - Element keeps the unread divider fixed while the room is open
   ([`RoomTimelineViewModel`](https://github.com/element-hq/element-web/blob/fc4d45cce130f3dce0d824ecef87bd948bcef842/apps/web/src/viewmodels/room/timeline/RoomTimelineViewModel.ts#L303)).
+- Telegram Web A derives the message list's bottom reserve from the composer
+  ([`MessageList.scss`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/components/middle/MessageList.scss#L11)),
+  and captures its opening unread boundary when messages first load
+  ([`MessageList.tsx`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/components/middle/MessageList.tsx#L487)).
+  Telegram for macOS also captures that boundary once and omits it if the
+  opening read index already reaches the last message
+  ([`ChatController.swift`](https://github.com/TelegramMessenger/telegram-macos/blob/e18830989542a063dd66c5bdc4dbe6a70cbbd175/packages/ChatUI/Sources/ChatUI/ChatController.swift#L3488)).
+  Reviewed 2026-10-30. These clients retain an opening marker independently of
+  later reads; our requested behavior additionally retires it once the opening
+  unread messages are confirmed read. Later live arrivals do not resurrect it.
+  Our shared Chat/Operator clearance measures the floating composer rather
+  than reserving a fixed oversized footer. No upstream implementation was copied.
 
 ### Full-width message selection and context-menu coverage (2026-10-28)
 

@@ -907,7 +907,7 @@ main[data-view='chat'] > .web-mode-banner {
   /* History anchoring is handled once by chat-follow, including in Safari. */
   overflow-anchor: none;
   /* Always reserve the check gutter, so selecting never moves bubbles. */
-  padding: 1rem 2.75rem 9rem;
+  padding: 1rem 2.75rem max(1rem, var(--chat-composer-space, 0px));
 }
 .chat-column {
   display: flex;
