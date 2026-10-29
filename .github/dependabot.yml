@@ -1,9 +1,13 @@
 version: 2
+# Give routine versions time to expose supply-chain incidents. Dependabot
+# security updates bypass cooldowns and retain their existing behavior.
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       development:
         dependency-type: development
@@ -15,17 +19,25 @@ updates:
       - /rust/crates/meta-sovereign-wasm
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   # Python experiments use only the standard library; Swift uses Apple SDKs.
   # Add pip/swift entries only when a dependency manifest is introduced.
   - package-ecosystem: docker
     directory: /docker
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   - package-ecosystem: docker-compose
     directory: /docker
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

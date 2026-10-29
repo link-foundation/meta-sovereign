@@ -63,3 +63,9 @@ GitHub test fixtures close every owned connection during teardown, including per
 Node and WebKit use the pinned native `macos-26-intel` runner pool after repeated GitHub macOS ARM allocation failures. Bun, Deno and desktop packaging retain macOS ARM coverage. All nine runtime/OS combinations and both browser gates remain required; queued jobs never count as successful checks.
 
 All owned network fixtures use the same socket-tracking shutdown helper, including GitHub, serverFetch, archive/WhatsApp/marketplace routes, local Pages and mail protocols. Rust documentation rejects warnings in the check and both release paths (`RUSTDOCFLAGS=-D warnings`). Temporary Git fixtures set their own LF policy without changing user settings.
+
+## Release content and npm caches
+
+The [issue 54 audit](../dev/log/issues/54/pulls/55/README.md) preserves the six cited runs and complete template trees. GitHub release creation and enrichment resolve local refs after versioning to the exact commit SHA; required missing releases and unknown/refused API lookups fail before mutation. Notes preserve every changeset section, fenced examples, literal escapes and related PR links, with a UTF-8 budget and immutable full-changelog link for large bodies. Explicit npm cache consumers restore only; one designated writer owns each workflow/ref/platform key. Every setup-node step disables implicit package-manager caching. The evidence archive is checksummed and verified in workflow checks.
+
+The workflow audit also scans composite actions and Dependabot. Same-repository actions use GitHub’s `$/...` syntax; routine dependency versions wait seven days, while security updates bypass this cooldown.
