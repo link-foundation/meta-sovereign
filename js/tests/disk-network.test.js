@@ -105,10 +105,9 @@ test('cancelled snapshots clean up and stale cleanup preserves a live owner', as
     const pending = snapshotInWorker(log, path.join(dir, 'data.bin'), {
       signal: controller.signal,
     });
-    globalThis.setTimeout(
-      () => controller.abort(new Error('fixture cancellation')),
-      10
-    );
+    // Cancel deterministically during asynchronous workspace setup; worker
+    // startup speed must not decide this fixture's result.
+    controller.abort(new Error('fixture cancellation'));
     await assert.rejects(pending, /fixture cancellation/);
     assert.deepEqual(
       (await readdir(dir)).filter((name) => name.startsWith('.snapshot-db-')),
