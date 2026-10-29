@@ -320,15 +320,13 @@ const recordOf = (line) => {
   }
 };
 
-const livePositions = async (handle, size, yieldWork) => {
-  const last = new Map();
+const livePositions = async (handle, size, yieldWork, positions) => {
+  const last = positions ?? new Map();
   let at = 0;
   let first = true;
   for await (const line of linesOf(handle, size)) {
     at += 1;
-    if (at % 256 === 0) {
-      await yieldWork();
-    }
+    await yieldWork();
     if (first && line.trim().length > 0) {
       first = false;
       if (!isRecordLine(line)) {
@@ -343,6 +341,9 @@ const livePositions = async (handle, size, yieldWork) => {
       // keep every line in memory (the snapshot worker ran out of it).
       last.set(ownCopy(record.id), at);
     }
+  }
+  if (positions) {
+    return positions.finish();
   }
   const wanted = new Set(last.values());
   last.clear();
@@ -359,7 +360,7 @@ const livePositions = async (handle, size, yieldWork) => {
 export const forEachLiveRecord = async (
   filePath,
   onRecord,
-  { yieldWork = async () => {} } = {}
+  { yieldWork = async () => {}, positions, onPhase = () => {} } = {}
 ) => {
   let handle;
   try {
@@ -372,17 +373,17 @@ export const forEachLiveRecord = async (
   }
   try {
     const { size, mtime } = await handle.stat();
-    const wanted = await livePositions(handle, size, yieldWork);
+    onPhase('positions');
+    const wanted = await livePositions(handle, size, yieldWork, positions);
     if (!wanted) {
       return null;
     }
     let links = 0;
+    onPhase('encoding');
     let at = 0;
     for await (const line of linesOf(handle, size)) {
       at += 1;
-      if (at % 256 === 0) {
-        await yieldWork();
-      }
+      await yieldWork();
       if (wanted.has(at)) {
         onRecord(recordOf(line));
         links += 1;

@@ -22,6 +22,9 @@ import path from 'node:path';
 import { getHeapStatistics } from 'node:v8';
 import { Worker } from 'node:worker_threads';
 import { enoughSpace, skippedEvent } from './disk-space.js';
+import { sqliteRuntime } from './disk-network.js';
+import { trackSnapshot } from './snapshot-memory.js';
+import { sweepSnapshotWorkspaces } from './snapshot-workspace.js';
 
 const MIN_INTERVAL_MS = 60_000;
 
@@ -31,45 +34,82 @@ const heapLimitMb = () =>
   Math.round(getHeapStatistics().heap_size_limit / 2 ** 20);
 
 /** Write the snapshot of `from` (a `.lino` log) to `to` in a worker. */
-export const snapshotInWorker = (from, to, { signal } = {}) =>
-  new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(signal.reason);
-      return;
-    }
-    const worker = new Worker(WORKER_URL, {
-      workerData: { from, to },
-      // A worker's own default heap is smaller than the server's; a large
-      // store's snapshot needs as much as the server may use.
-      resourceLimits: { maxOldGenerationSizeMb: heapLimitMb() },
-    });
-    const abort = () => {
-      Promise.resolve(worker.terminate()).then(
-        () => reject(signal.reason),
-        reject
-      );
-    };
-    signal?.addEventListener('abort', abort, { once: true });
-    let result = null;
-    worker.once('message', (message) => {
-      result = message;
-      // The message follows the durable rename. Deno's worker compatibility
-      // layer can keep its port alive without emitting an exit event.
-      resolve(message);
-      Promise.resolve(worker.terminate()).catch(() => {});
-    });
-    worker.once('error', reject);
-    worker.once('exit', (code) => {
-      signal?.removeEventListener('abort', abort);
+export const snapshotInWorker = async (from, to, { signal } = {}) => {
+  if (signal?.aborted) {
+    throw signal.reason;
+  }
+  const disk = Boolean(await sqliteRuntime());
+  await sweepSnapshotWorkspaces(path.dirname(to));
+  const folder = disk
+    ? await fs.mkdtemp(
+        path.join(path.dirname(to), `.snapshot-db-${process.pid}-`)
+      )
+    : null;
+  let memory = null;
+  try {
+    return await new Promise((resolve, reject) => {
       if (signal?.aborted) {
         reject(signal.reason);
-      } else if (result) {
-        resolve(result);
-      } else {
-        reject(new Error(`doublets snapshot worker exited with ${code}`));
+        return;
       }
+      const worker = new Worker(WORKER_URL, {
+        workerData: {
+          from,
+          to,
+          diskFile: folder ? path.join(folder, 'network.sqlite') : null,
+        },
+        // Disk-backed indexes leave only bounded caches and the current record
+        // on the worker heap. Older runtimes use the existing memory encoder.
+        resourceLimits: { maxOldGenerationSizeMb: disk ? 512 : heapLimitMb() },
+      });
+      memory = trackSnapshot(worker.threadId, disk ? 'disk' : 'memory');
+      const abort = () => {
+        Promise.resolve(worker.terminate()).then(
+          () => reject(signal.reason),
+          reject
+        );
+      };
+      signal?.addEventListener('abort', abort, { once: true });
+      let result = null;
+      let failure = null;
+      worker.on('message', (message) => {
+        if (message.progress) {
+          memory.update(message);
+          return;
+        }
+        result = message;
+        // The message follows the durable rename. Deno's worker compatibility
+        // layer can keep its port alive without emitting an exit event.
+        Promise.resolve(worker.terminate()).then(
+          () => resolve(message),
+          reject
+        );
+      });
+      worker.once('error', (error) => {
+        failure = error;
+        Promise.resolve(worker.terminate()).then(() => reject(error), reject);
+      });
+      worker.once('exit', (code) => {
+        memory.stop();
+        signal?.removeEventListener('abort', abort);
+        if (signal?.aborted) {
+          reject(signal.reason);
+        } else if (result) {
+          resolve(result);
+        } else {
+          reject(
+            failure ?? new Error(`doublets snapshot worker exited with ${code}`)
+          );
+        }
+      });
     });
-  });
+  } finally {
+    memory?.stop();
+    if (folder) {
+      await fs.rm(folder, { recursive: true, force: true });
+    }
+  }
+};
 
 // In whole milliseconds: the snapshot is dated to the millisecond.
 const mtimeOf = async (file) => {
@@ -221,7 +261,13 @@ export const createDoubletsMirror = async (
     (async () => {
       const size = (await fs.stat(filePath).catch(() => null))?.size;
       const log = (await fs.stat(text.filePath).catch(() => null))?.size ?? 0;
-      return enoughSpace(path.dirname(filePath), size ?? log, measureFree);
+      // The disposable disk index and the new archive coexist with the old
+      // snapshot. Reserve workspace too; the durable log must keep room.
+      return enoughSpace(
+        path.dirname(filePath),
+        (size ?? log) + 3 * log,
+        measureFree
+      );
     });
   const snapshots = createSnapshots({
     // Let the old rolling worker retire before starting another large heap.
@@ -247,6 +293,7 @@ export const createDoubletsMirror = async (
         durationMs: Date.now() - started,
         links: result?.links,
         bytes: result?.bytes,
+        engine: result?.engine,
       });
       return result;
     },

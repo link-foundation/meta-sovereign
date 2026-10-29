@@ -41,6 +41,13 @@ const shapesOf = async (sections, yieldWork) => {
   const shapes = [];
   let rows = 0;
   for (const section of sections) {
+    if (
+      Number.isInteger(section.minArity) &&
+      Number.isInteger(section.maxArity)
+    ) {
+      shapes.push({ min: section.minArity, max: section.maxArity });
+      continue;
+    }
     let min = Infinity;
     let max = 0;
     for (const row of section.links) {

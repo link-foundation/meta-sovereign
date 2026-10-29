@@ -16,12 +16,23 @@ format do not change; this cache is rebuilt from the log and is not a backup.
 payload bytes and `retention.payloadCache` (file span, resident write buffer,
 entry count). `packedBytes` is serialized content size; `allocatedBytes` counts
 retained payload buffers, excluding the shared write buffer reported separately.
-Heap figures do not include a snapshot worker's isolate. On macOS RSS omits
+`backgroundSnapshots` reports each snapshot worker's engine, phase and latest
+memory counters separately. Main heap figures exclude worker isolates. On macOS RSS omits
 compressed/swapped memory; compare the process's physical footprint as well.
 
 Large archives still require memory for message metadata and indexes. Binary
-snapshots also build an associative network in a paced worker, so snapshot
-working memory can exceed the idle baseline. Do not infer whole-process memory
-from the main heap alone. Profile changes with focused synthetic fixtures;
+snapshots use a temporary SQLite workspace for the associative network,
+deduplication and live-record positions, with a 16 MiB page-cache target and
+bounded lookup caches. The worker has a 512 MiB heap limit; file buffering is
+bounded separately, and names stream without arrays per character. The output
+is the same link-cli binary archive. The workspace is removed on completion or
+cancellation; later runs reclaim crash leftovers only when their owner is gone.
+Record processing yields frequently to keep background CPU use low.
+
+This path uses the runtime's built-in SQLite (Node with `node:sqlite`, modern
+Deno, or `bun:sqlite`). Older runtimes without it retain the compatible in-memory
+snapshot encoder and can require substantially more memory; diagnostics report
+`engine: memory` for that fallback. Current Node 24 uses the disk path by default.
+Do not infer whole-process memory from the main heap alone. Profile changes with focused synthetic fixtures;
 large archive and memory regression checks belong in GitHub CI, not on a user's
 machine.
