@@ -130,6 +130,15 @@ test('deferred read copies preserve payload assignment and nested mutation witho
   assert.equal((await store.get(original.id)).body, undefined);
 });
 
+test('startup adopts private packed records without a second metadata copy', () => {
+  const packing = createRawPacking();
+  const record = packing.pack({ id: 'msg:startup', raw: raw() });
+  assert.equal(packing.retain(record), record);
+  assert.equal(packing.stats().packedRecords, 1);
+  packing.release(record);
+  assert.equal(packing.stats().packedBytes, 0);
+});
+
 test('streamed binary packets match the existing format with bounded chunks', async () => {
   for (const width of [1, 2, 4, 8]) {
     const packet = {

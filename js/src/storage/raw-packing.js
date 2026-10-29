@@ -141,8 +141,9 @@ export const createRawPacking = ({ minBytes = 256 } = {}) => {
     pack,
     copy: (link) => copyPacked(link, packed.get(link), true),
     retain(link) {
-      const out =
-        packed.has(link) && !exposed.has(link) ? copyPacked(link) : pack(link);
+      // Startup's private packed records can be adopted directly. Public read
+      // copies are marked exposed and pack() always copies them before storing.
+      const out = pack(link);
       account(out, 1);
       return out;
     },
