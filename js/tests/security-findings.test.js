@@ -47,6 +47,23 @@ test('SVG sanitization rejects escaped CSS resource loads', () => {
   assert.doesNotMatch(clean, /private\.test|\\72/);
 });
 
+test('SVG sanitization preserves safe text, filters and inline drawing styles', () => {
+  const clean = sanitizeSvg(
+    '<svg><defs><filter id="soft"><feGaussianBlur stdDeviation="2"/></filter></defs><text x="4" style="fill:red;font-size:12;filter:url(#soft)">Hello</text><path fill="blue" style="fill:green;stroke-width:2"/></svg>'
+  );
+  assert.match(clean, /<text[^>]*>Hello<\/text>/);
+  assert.match(
+    clean,
+    /<filter id="soft"><feGaussianBlur stdDeviation="2"\/><\/filter>/
+  );
+  assert.match(clean, /fill="red"/);
+  assert.match(clean, /font-size="12"/);
+  assert.match(clean, /filter="url\(#soft\)"/);
+  assert.match(clean, /fill="green"/);
+  assert.doesNotMatch(clean, /fill="blue"/);
+  assert.match(clean, /stroke-width="2"/);
+});
+
 test(
   'greeting rejection completes within a bounded subprocess',
   { skip: Boolean(globalThis.Bun || globalThis.Deno) },
