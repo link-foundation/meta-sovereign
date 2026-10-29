@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.2
+
+### Patch Changes
+
+- fe28eeb: Reduce server heap retention by packing cold provider payloads, streaming compaction and binary snapshots, and bounding autocomplete history and context. Pace background snapshots, avoid payload copies in metadata scans, and expose constant-cost memory diagnostics.
+
 ## 1.0.1
 
 ### Patch Changes
