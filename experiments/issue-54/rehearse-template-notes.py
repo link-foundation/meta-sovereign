@@ -29,3 +29,10 @@ with tempfile.TemporaryDirectory(prefix='issue54-notes-') as directory:
     print(repr(actual))
     assert actual == expected_truncation, 'Python reference changed: recheck the upstream report'
 print('JS/Python both truncate inside the fenced example; no network or publish used.')
+example = '### Patch Changes\n\n- abcdef123: real change\n\n```md\n- deadbeef: example\n```'
+code = f'''import {{ buildReleaseDescription }} from {str((js / 'scripts/format-release-notes-helpers.mjs').as_uri())!r};
+console.log(JSON.stringify(buildReleaseDescription({example!r}).commitHashes));
+'''
+result = subprocess.check_output(['node', '--input-type=module', '-e', code], text=True)
+assert json.loads(result) == ['abcdef123', 'deadbeef']
+print('JavaScript also treats a fenced example as commit metadata:', result.strip())

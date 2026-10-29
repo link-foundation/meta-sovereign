@@ -97,6 +97,20 @@ test(
 );
 
 test(
+  'release enrichment ignores commit-shaped examples in code blocks',
+  { timeout: 15000 },
+  () => {
+    const result = rehearse('notes-fenced', 200);
+    assert.equal(result.status, 0, result.output);
+    const payload = JSON.parse(result.stdout.match(/^PATCH (.+)$/m)[1]);
+    assert.match(payload.body, /- deadbeef: example, not a release commit/);
+    assert.match(payload.body, / {4}- badc0de: indented example/);
+    assert.ok(!result.stdout.includes('/commits/deadbeef/'));
+    assert.ok(!result.stdout.includes('/commits/badc0de/'));
+  }
+);
+
+test(
   'large formatted notes remain bounded, linked and idempotent',
   { timeout: 15000 },
   () => {

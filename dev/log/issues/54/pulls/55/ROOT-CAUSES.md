@@ -20,6 +20,8 @@ The old interpolated regex treated dots as wildcards, accepted version prefixes 
 
 Plan applied: exact version heading comparison, preserve all lower-level headings, stop at the next real level-two heading, and track backtick/tilde fences. A missing version is an error rather than generic success. Regressions exercise CRLF, prefix collisions, regex metacharacters, empty entries, multiple sections, both fence kinds and a requested version that occurs only inside a fence. JavaScript/Python template parsers were executed against the same fenced example and truncate it; the equivalent Rust scanner has the same source-level boundary error. All three received reports with workarounds and code suggestions.
 
+The same fence scanner is shared by commit metadata extraction. Otherwise a code example such as `- deadbeef: example` would become an API lookup, produce a real 404, and block formatting of valid notes. A failing-before CLI regression demonstrates that failure; fenced and indented examples are now preserved without being treated as commits.
+
 Alternative: [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-util-from-markdown) provides a maintained CommonMark AST and source positions. A general changelog editor should use such a parser. This helper reads the project's standard Changesets level-two version format and needs a small bounded scanner; adding an AST dependency to release bootstrap is unnecessary for the reproduced cases. This is not a promise to parse arbitrary Markdown release conventions.
 
 ## 4. Formatter corrupts already-decoded Markdown

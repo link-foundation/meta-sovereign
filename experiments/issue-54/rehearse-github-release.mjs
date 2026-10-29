@@ -29,9 +29,11 @@ writeFileSync('package.json', '{"name":"fixture","version":"1.2.3"}');
 const notes =
   scenario === 'notes-multi'
     ? '- abcdef123: First change\n\n- fedcba321: Second change'
-    : scenario === 'notes-large'
-      ? '🙂'.repeat(16000)
-      : '### Patch Changes\n\n- Keep `C:\\new` and quotes: "done"\n\n---\n\nMore detail.';
+    : scenario === 'notes-fenced'
+      ? 'Example:\n\n```md\n- deadbeef: example, not a release commit\n```\n\n    - badc0de: indented example'
+      : scenario === 'notes-large'
+        ? '🙂'.repeat(16000)
+        : '### Patch Changes\n\n- Keep `C:\\new` and quotes: "done"\n\n---\n\nMore detail.';
 writeFileSync(
   'CHANGELOG.md',
   `# Fixture\n\n## 1.2.30\n\nWRONG VERSION\n\n## 1.2.3\n\n${notes}\n\n## 1.2.2\n\nOLD VERSION\n`
@@ -48,6 +50,12 @@ function prPages(args, pages) {
   return JSON.stringify(
     args.includes('--paginate') && args.includes('--slurp') ? pages : pages[0]
   );
+}
+function fixturePrLookup(args) {
+  if (args[1].includes('deadbeef') || args[1].includes('badc0de')) {
+    return { code: 1, stderr: 'HTTP 404: example is not a commit' };
+  }
+  return { code: 0, stdout: prPages(args, [[]]) };
 }
 register('gh', async ({ args, stdin }) => {
   console.log(`GH ${JSON.stringify(args)}`);
@@ -90,7 +98,7 @@ register('gh', async ({ args, stdin }) => {
         ]),
       };
     }
-    return { code: 0, stdout: prPages(args, [[]]) };
+    return fixturePrLookup(args);
   }
   return status === 200
     ? {

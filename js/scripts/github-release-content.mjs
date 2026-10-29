@@ -16,12 +16,7 @@ export function resolveReleaseCommit(ref = 'HEAD') {
   return sha;
 }
 
-// Compare complete headings, not a version interpolated into a regex (1.2.3
-// also matched 1.2.30). Markdown subheadings remain part of the release body.
-export function extractReleaseNotes(changelog, version) {
-  const lines = changelog.split(/\r?\n/);
-  let start = -1;
-  let end = lines.length;
+function* outsideCodeFences(lines) {
   let fence = null;
   for (const [index, line] of lines.entries()) {
     const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
@@ -37,9 +32,31 @@ export function extractReleaseNotes(changelog, version) {
       }
       continue;
     }
-    if (fence) {
-      continue;
+    if (!fence) {
+      yield [index, line];
     }
+  }
+}
+
+// Changesets commit bullets are metadata; code examples are not API targets.
+export function extractReleaseCommits(body) {
+  const commits = new Set();
+  for (const [, line] of outsideCodeFences(body.split(/\r?\n/))) {
+    const match = line.match(/^ {0,3}- ([a-f0-9]{7,64}): /);
+    if (match) {
+      commits.add(match[1]);
+    }
+  }
+  return [...commits];
+}
+
+// Compare complete headings, not a version interpolated into a regex (1.2.3
+// also matched 1.2.30). Markdown subheadings remain part of the release body.
+export function extractReleaseNotes(changelog, version) {
+  const lines = changelog.split(/\r?\n/);
+  let start = -1;
+  let end = lines.length;
+  for (const [index, line] of outsideCodeFences(lines)) {
     if (start < 0 && line.trimEnd() === `## ${version}`) {
       start = index;
     } else if (start >= 0 && line.startsWith('## ')) {

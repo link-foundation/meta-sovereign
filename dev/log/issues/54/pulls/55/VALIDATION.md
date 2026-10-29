@@ -12,6 +12,7 @@ The following logs are archived under `validation/`. Tests invoke real helpers w
 | fenced-notes-before.log | Fenced version heading truncates the release before the scanner repair. |
 | notes-after.log | All 10 release-focused tests pass after the repairs, including CLI status matrices and Unicode/body preservation. |
 | pr-pagination-before.log / pr-pagination-after.log | A 31st related PR is lost before pagination; all 11 release tests pass afterward, including the second API page. |
+| fenced-commit-before.log / fenced-commit-after.log | Commit-shaped code examples wrongly trigger a refused lookup before repair; all 12 release tests pass after sharing the fence scanner with metadata extraction. |
 | release-after.log | 23 focused release/helper tests pass at the initial implementation checkpoint. |
 | cache-after.log / cache-release-after.log | Cache/writer policies and related release regressions pass. |
 | cache-ref-before.log / cache-ref-after.log | Cross-ref cache identity fails before repair; both cache policies and both existing writer policies pass afterward (4 tests). |

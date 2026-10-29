@@ -22,6 +22,7 @@
  */
 
 import {
+  extractReleaseCommits,
   limitReleaseNotes,
   resolveReleaseCommit,
 } from './github-release-content.mjs';
@@ -104,13 +105,7 @@ try {
 
   // The API already returns decoded JSON. Preserve Markdown, quotes, code
   // escapes and every changeset section; formatting only adds metadata.
-  const commitHashes = [
-    ...new Set(
-      [...currentBody.matchAll(/^\s*- ([a-f0-9]{7,64}): /gm)].map(
-        (match) => match[1]
-      )
-    ),
-  ];
+  const commitHashes = extractReleaseCommits(currentBody);
   if (commitHashes.length === 0 && passedCommitSha) {
     commitHashes.push(resolveReleaseCommit(passedCommitSha));
   }
