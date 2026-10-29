@@ -43,6 +43,12 @@ Focused verification: the new bounded regression passes under Bun and Node; the 
 
 Existing Bun issues 44770 and 45724 describe different pipeline hangs. After reviewing them, the early-rejection/file-open race was reported with the executed standalone reproduction, affected versions, local workaround and proposed lifecycle correction in [oven-sh/bun#47277](https://github.com/oven-sh/bun/issues/47277). This report does not claim to have traced Bun's internal implementation.
 
+## Final runtime currency refresh
+
+Official Node distributions include 26.13.0, released October 28, while the npm wrapper dist-tag differs (24.22.2 observed October 29). The original npm-only runtime inventory missed this release. All workflow pins, both Docker tags/digests, the package engine and regenerated root lock metadata, mobile instructions and all four UI/documentation locales now require 26.13.0. The generated web bundle is rebuilt. No historical test logs are rewritten.
+
+The official release notes describe an LTS metadata transition with no code changes from 26.12.1. The verified official Linux binary passes 39 focused tests covering CI contracts, download copy, release guards and durable-stream cleanup; release tests also pass with the separately pinned npm 12.2.1. The refreshed 519-name npm inventory has zero lookup errors and unchanged library releases, and npm's lock-only refresh reports zero vulnerabilities. The final download page is verified with Playwright MCP on an isolated fixture; `local/node-after.png` now shows 26.13.0. Its three console resource errors are the isolated static fixture's missing favicon, not application exceptions. Full builds and runtime/browser matrices remain CI work.
+
 ## Outstanding delivery constraint
 
 PR 51 is already merged. The tested correction remains on the authorized `issue-50-d289f94d6edd` branch. A merged GitHub pull request cannot integrate another commit. Opening a follow-up PR would depart from the user's explicit single-PR requirement, so that exception requires authorization. No second PR or direct main push is implicit in this report. Default-branch release success, publication and completion of issue 50 remain unverified until the correction is integrated and the resulting main workflows pass.

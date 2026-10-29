@@ -1,6 +1,7 @@
 """Snapshot live npm metadata for every locked and declared dependency."""
 import concurrent.futures
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -62,7 +63,7 @@ for tree in trees:
             for name, constraint in package.get(section, {}).items():
                 parents.setdefault(name, set()).add(f"{parent}: {constraint}")
 lines = ['# npm registry inventory', '',
-         'Live registry latest dist-tags captured on 2026-10-28. Includes every platform-specific, optional and nested root lock entry, plus a fresh lock-only resolution of all optional peers with the production desktop override. Before versions for previously unlocked peer transitives are marked new/tool; their parent ranges are recorded. The optional-peer snapshot and zero-vulnerability audit are in the evidence archive.', '',
+         f'Live registry latest dist-tags captured on {datetime.now(timezone.utc):%Y-%m-%d}. Includes every platform-specific, optional and nested root lock entry, plus a fresh lock-only resolution of all optional peers with the production desktop override. Before versions for previously unlocked peer transitives are marked new/tool; their parent ranges are recorded. The optional-peer snapshot and zero-vulnerability audit are in the evidence archive.', '',
          '| Dependency | Before | After | Registry latest | Decision / parent constraints |',
          '| --- | --- | --- | --- | --- |']
 manifest_now = json.loads((ROOT / 'package.json').read_text())
@@ -80,8 +81,11 @@ for name, data in results.items():
         if '27.0.0-alpha' in after or '10.0.0-alpha' in after:
             reason = 'Newer v27 prerelease retained: stable v26 contains deprecated packages; upstream electron-builder issue 10016. ' + constraints
     if name in ['npm', 'node']:
-        after = '12.2.1' if name == 'npm' else '26.12.1'
+        after = (manifest_now['packageManager'].split('@', 1)[1] if name == 'npm'
+                 else manifest_now['engines']['node'].removeprefix('>='))
         reason = 'Toolchain pinned across workflows and Docker.'
+        if name == 'node' and after != latest:
+            reason += ' Official Node distribution is newer than the npm wrapper dist-tag; see TOOLS.md and preserved official dist metadata.'
     if name == 'npm-check-updates':
         after = latest
         reason = 'One-off upgrade tool used for this investigation; not a runtime dependency.'

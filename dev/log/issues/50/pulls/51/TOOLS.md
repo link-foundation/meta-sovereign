@@ -1,6 +1,6 @@
 # Actions and toolchain inventory
 
-Registry/API observations captured 2026-10-28. Original pins are from main d48a32f. Every use in all five workflows is covered; action subpaths share their repository release. Raw metadata is in the evidence archive.
+Original registry/API observations captured 2026-10-28; npm, official Node distributions, Docker manifests and tool/action metadata refreshed 2026-10-29. Original pins are from main d48a32f. Every use in all five workflows is covered; action subpaths share their repository release. Raw metadata is in the evidence archive.
 
 | Action | Before | After | Current release / decision |
 | --- | --- | --- | --- |
@@ -25,7 +25,7 @@ Registry/API observations captured 2026-10-28. Original pins are from main d48a3
 
 | Tool / ecosystem | Before | After | Live latest / source and decision |
 | --- | --- | --- | --- |
-| Node | engine >=20; CI 24.21.0; Docker 24-alpine | >=26.12.1; all CI and images 26.12.1 | npm registry node latest 26.12.1; 27 alpha excluded |
+| Node | engine >=20; CI 24.21.0; Docker 24-alpine | >=26.13.0; all CI and images 26.13.0 | Official nodejs.org dist index latest v26.13.0 (2026-10-28, Lithium LTS); npm wrapper latest 24.22.2 observed 2026-10-29 is a different publication channel; 27 alpha excluded |
 | npm | runner bundled; minimum 11.5.1 for OIDC | packageManager and CI/image bootstrap 12.2.1 | npm registry latest 12.2.1 |
 | Rust | implicit stable; edition 2021; resolver 2 | 1.99.1, edition 2024, resolver 3 | static.rust-lang.org channel-rust-stable.toml |
 | Rust local core/server/wasm crates | 0.17.0 | 0.17.0 | Internal path dependencies, no registry releases; zero third-party crates. cargo update yields identical Cargo.lock. |
@@ -40,7 +40,7 @@ Registry/API observations captured 2026-10-28. Original pins are from main d48a3
 | actionlint | 1.7.12 image sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 | same digest | GitHub v1.7.12 and Docker registry current digest; narrow current-label config pending upstream #682 |
 | ShellCheck | provided by actionlint image | current image, ShellCheck 0.11.0 | koalaman/shellcheck latest v0.11.0; shares the verified image digest above |
 | lychee checker | action default | 0.24.2 via current action | lycheeverse/lychee latest lychee-v0.24.2; action release v2.9.0 selects this version |
-| Node Docker image (both services) | node:24-alpine, floating | node:26.12.1-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797 | Docker Hub current manifest list; both copies identical; npm lock install failure no longer silently falls back |
+| Node Docker image (both services) | node:24-alpine, floating | node:26.13.0-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 | Docker Hub current manifest list; both copies identical; npm lock install failure no longer silently falls back |
 | Compose | two local Dockerfile build contexts | same services, current bases | No external compose image pins or remote dependencies |
 | Linux hosted runners | Ubuntu 24.04 x64/ARM | Ubuntu 26.04 x64/ARM | runner-images generally available labels; security sandbox setup preserved |
 | macOS hosted runners | macOS 15 ARM / 15 Intel | macOS 26 ARM / 26 Intel | current GA runner-images; Xcode 27 label is preview, excluded |
@@ -50,3 +50,5 @@ Registry/API observations captured 2026-10-28. Original pins are from main d48a3
 ## Version channels and retained upstream constraints
 
 Root npm declarations and every transitive/optional/native lock entry are in [NPM.md](NPM.md). `npm update` refreshes compatible lock entries after npm-check-updates changes declarations, including peers that ncu skips by default. Parent-owned incompatible ranges are recorded individually rather than overridden across unknown API/ABI boundaries. Electron-builder 27 alpha is deliberately newer than stable 26 and avoids its deprecated dependency chain. Electron-updater uses registry `latest` 6.8.11; the alternate v26 channel publishes 6.8.12, while next 7 alpha still carries lodash.isequal. The project follows the declared latest channel, with the existing tested scoped alias until upstream #10016 ships a replacement. No security finding justifies a forced incompatible override.
+
+The [Node 26.13.0 release notes](https://nodejs.org/en/blog/release/v26.13.0) identify only the LTS metadata transition from 26.12.1; no code or API migration is required for this minor bump. The official distribution index, release notes, SHASUMS and both Docker manifest/digest observations are preserved in the supplemental evidence. The Linux x64 archive used for focused verification matches SHA256 `d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997`. The npm `node` wrapper dist-tag is not the authoritative language release index.

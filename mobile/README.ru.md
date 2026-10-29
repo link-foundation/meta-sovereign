@@ -17,7 +17,7 @@ directory в сгенерированные iOS или Android native projects.
   Android project и открывает его в Android Studio.
 
 Wrapper читает диапазон версий Capacitor CLI из `package.json` (сейчас
-`@capacitor/cli@^8.6.0`). Используйте Node.js 26.12.1 или новее.
+`@capacitor/cli@^8.6.0`). Используйте Node.js 26.13.0 или новее.
 
 WebView загружает `discovery-shell.js` перед React bundle. Native code
 или launch URLs могут передать LAN server candidates через

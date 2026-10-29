@@ -8,7 +8,7 @@ const version = execCommandSync(npm, ['--version'], {
 const [major, minor, patch] = version.split('.').map(Number);
 if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) {
   throw new Error(
-    `npm ${version} cannot use trusted publishing. Select the pinned Node 26.12.1 and npm 12.2.1 toolchain.`
+    `npm ${version} cannot use trusted publishing. Select the pinned Node 26.13.0 and npm 12.2.1 toolchain.`
   );
 }
 console.log(`npm ${version} supports OIDC trusted publishing`);

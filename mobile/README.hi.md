@@ -17,7 +17,7 @@ Commands:
   करता है और उसे Android Studio में खोलता है।
 
 Wrapper `package.json` से Capacitor CLI range पढ़ता है (वर्तमान में
-`@capacitor/cli@^8.6.0`)। Node.js 26.12.1 या नया संस्करण इस्तेमाल करें।
+`@capacitor/cli@^8.6.0`)। Node.js 26.13.0 या नया संस्करण इस्तेमाल करें।
 
 WebView React bundle से पहले `discovery-shell.js` load करता है। Native
 code या launch URL LAN server candidates को

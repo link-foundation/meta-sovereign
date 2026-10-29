@@ -223,7 +223,7 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 файл выгрузки или вставленный текст). На странице сервиса это две
 вкладки, а адрес (`#conn-<service>` или `#conn-<service>/manual`)
 сохраняет открытую вкладку после перезагрузки. **Импорту через браузер**
-нужен JS server (`meta-sovereign serve`, Node.js 26.12.1 или новее) на этом
+нужен JS server (`meta-sovereign serve`, Node.js 26.13.0 или новее) на этом
 же компьютере; он
 управляет Chrome через
 [browser-commander](https://github.com/link-foundation/browser-commander).

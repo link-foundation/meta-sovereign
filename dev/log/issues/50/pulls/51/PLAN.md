@@ -24,7 +24,9 @@ Objective: fully update all dependencies and toolchains, fix regressions from me
 - [ ] Integrate the verified PR through GitHub and verify every applicable default-branch workflow; preserve its exact SHA and results.
 - [x] Preserve and investigate main release failure 40790628774 at dc30f00a; reproduce legacy-peer lockfile pruning before repairing both versioners.
 - [x] Verify focused regression and guard tests (7 passed) and both actual release entry points in disposable fixtures; retain the strict release guard.
-- [ ] Commit and push the repair on the original authorized branch; resolve the single-PR delivery constraint before opening a second PR.
+- [x] Commit and push the release repair (2f248948) and Bun cleanup repair (fe810031) on the original authorized branch.
+- [ ] Resolve the single-PR delivery constraint before opening a second PR.
+- [ ] Verify the final Node 26.13.0 source in fresh remote CI; preserve exact SHA/run evidence.
 - [ ] Integrate the repair through an authorized PR, verify main release and desktop publication, and close issue 50 only after all acceptance criteria pass.
 
 Resource rules: no full suite, stress tests, or browser/runtime matrices locally. Rust builds sequentially with CARGO_BUILD_JOBS=1 and reduced debug if needed. Stop repeating memory-killed builds and use CI. Save large output to logs; read files above 1500 lines in bounded chunks. Keep experiment scripts in experiments/. Wait for every background command before finishing.

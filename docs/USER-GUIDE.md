@@ -298,7 +298,7 @@ connect: **Import with browser** (recommended) and **Enter manually**
 them as two tabs, and its address (`#conn-<service>` or
 `#conn-<service>/manual`) keeps the open tab across reloads.
 **Import with browser**
-needs the JS server (`meta-sovereign serve`, Node.js 26.12.1 or newer)
+needs the JS server (`meta-sovereign serve`, Node.js 26.13.0 or newer)
 on the same computer;
 the server drives Chrome through
 [browser-commander](https://github.com/link-foundation/browser-commander).

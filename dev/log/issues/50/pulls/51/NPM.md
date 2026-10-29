@@ -1,6 +1,6 @@
 # npm registry inventory
 
-Live registry latest dist-tags captured on 2026-10-28. Includes every platform-specific, optional and nested root lock entry, plus a fresh lock-only resolution of all optional peers with the production desktop override. Before versions for previously unlocked peer transitives are marked new/tool; their parent ranges are recorded. The optional-peer snapshot and zero-vulnerability audit are in the evidence archive.
+Live registry latest dist-tags captured on 2026-10-29. Includes every platform-specific, optional and nested root lock entry, plus a fresh lock-only resolution of all optional peers with the production desktop override. Before versions for previously unlocked peer transitives are marked new/tool; their parent ranges are recorded. The optional-peer snapshot and zero-vulnerability audit are in the evidence archive.
 
 | Dependency | Before | After | Registry latest | Decision / parent constraints |
 | --- | --- | --- | --- | --- |
@@ -375,7 +375,7 @@ Live registry latest dist-tags captured on 2026-10-28. Includes every platform-s
 | ms | 2.1.3 | 2.1.3 | 2.1.3 | Current latest. |
 | native-run | new/tool | 2.0.3 | 2.0.3 | Current latest. |
 | natural-compare | 1.4.0 | 1.4.0 | 1.4.0 | Current latest. |
-| node | new/tool | 26.12.1 | 26.12.1 | Toolchain pinned across workflows and Docker. |
+| node | new/tool | 26.13.0 | 24.22.2 | Toolchain pinned across workflows and Docker. Official Node distribution is newer than the npm wrapper dist-tag; see TOOLS.md and preserved official dist metadata. |
 | node-abi | 4.40.0 | 4.40.0 | 4.40.0 | Current latest. |
 | node-addon-api | 7.1.1, 8.9.2 | 7.1.1, 8.9.2 | 8.9.2 | Parent constraints retain these versions; incompatible overrides would change upstream APIs without an upstream migration. better-sqlite3: ^8.0.0; node-pty: ^7.1.0 |
 | node-api-version | 0.2.1 | 0.2.1 | 0.2.1 | Current latest. |

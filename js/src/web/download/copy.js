@@ -42,7 +42,7 @@ export const COPY = Object.freeze({
     openWebApp: 'Open the web app',
     serverTitle: 'Unlock every feature with a local server',
     serverBody:
-      'Install Node.js 26.12.1 or newer and start the server. The web app finds it at http://127.0.0.1:8787 and switches to the full feature set.',
+      'Install Node.js 26.13.0 or newer and start the server. The web app finds it at http://127.0.0.1:8787 and switches to the full feature set.',
     serverGithubNote:
       'If npm answers 404 (the package is not published yet), run it straight from GitHub:',
     safariNote:
@@ -103,7 +103,7 @@ export const COPY = Object.freeze({
     openWebApp: 'Открыть веб-приложение',
     serverTitle: 'Все функции с локальным сервером',
     serverBody:
-      'Установите Node.js 26.12.1 или новее и запустите сервер. Веб-приложение найдёт его по адресу http://127.0.0.1:8787 и включит все функции.',
+      'Установите Node.js 26.13.0 или новее и запустите сервер. Веб-приложение найдёт его по адресу http://127.0.0.1:8787 и включит все функции.',
     serverGithubNote:
       'Если npm отвечает 404 (пакет ещё не опубликован), запустите прямо из GitHub:',
     safariNote:
@@ -164,7 +164,7 @@ export const COPY = Object.freeze({
     openWebApp: '打开网页应用',
     serverTitle: '运行本地服务器以解锁全部功能',
     serverBody:
-      '安装 Node.js 26.12.1 或更高版本并启动服务器。网页应用会在 http://127.0.0.1:8787 找到它并启用全部功能。',
+      '安装 Node.js 26.13.0 或更高版本并启动服务器。网页应用会在 http://127.0.0.1:8787 找到它并启用全部功能。',
     serverGithubNote:
       '如果 npm 返回 404（软件包尚未发布），可直接从 GitHub 运行：',
     safariNote:
@@ -225,7 +225,7 @@ export const COPY = Object.freeze({
     openWebApp: 'वेब ऐप खोलें',
     serverTitle: 'लोकल सर्वर से सभी सुविधाएँ पाएँ',
     serverBody:
-      'Node.js 26.12.1 या नया संस्करण इंस्टॉल करें और सर्वर शुरू करें। वेब ऐप उसे http://127.0.0.1:8787 पर ढूँढ लेता है और सभी सुविधाएँ चालू कर देता है।',
+      'Node.js 26.13.0 या नया संस्करण इंस्टॉल करें और सर्वर शुरू करें। वेब ऐप उसे http://127.0.0.1:8787 पर ढूँढ लेता है और सभी सुविधाएँ चालू कर देता है।',
     serverGithubNote:
       'अगर npm 404 देता है (पैकेज अभी प्रकाशित नहीं हुआ है), तो सीधे GitHub से चलाएँ:',
     safariNote:

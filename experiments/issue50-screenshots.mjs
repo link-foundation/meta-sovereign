@@ -13,7 +13,7 @@ await mkdir(output, { recursive: true });
 let before = true;
 const oldCopy = execFileSync(
   'git',
-  ['show', 'origin/main:js/src/web/download/copy.js'],
+  ['show', 'd48a32f:js/src/web/download/copy.js'],
   { cwd: root }
 );
 const mime = {
@@ -58,7 +58,7 @@ try {
   for (const state of ['before', 'after']) {
     before = state === 'before';
     await page.goto(`http://127.0.0.1:${server.address().port}/?lang=en`);
-    const expected = before ? /Node\.js 20 or newer/ : /Node\.js 26\.12\.1/;
+    const expected = before ? /Node\.js 20 or newer/ : /Node\.js 26\.13\.0/;
     const text = page.getByText(expected).first();
     await text.waitFor();
     await text.scrollIntoViewIfNeeded();
