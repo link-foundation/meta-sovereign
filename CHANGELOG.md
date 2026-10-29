@@ -1,5 +1,15 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.6
+
+### Patch Changes
+
+- c7eb154: Build binary snapshots with disk-backed deduplication and live-position indexes on runtimes with built-in SQLite, cap the worker heap and pace record processing more frequently.
+
+  Finalize Bun's prepared statements when closing an encoder so temporary database handles are released immediately on Windows.
+
+  Fit message-list clearance to the floating composer's actual height in Chat and Operator, preserve the reading position during composer changes, and retire stale unread dividers after the opening messages are fully read.
+
 ## 1.0.5
 
 ### Patch Changes
