@@ -15,6 +15,11 @@
 
 import { readFileSync } from 'fs';
 import { probeGitHubRelease } from './github-release-state.mjs';
+import {
+  extractReleaseNotes,
+  limitReleaseNotes,
+  resolveReleaseCommit,
+} from './github-release-content.mjs';
 
 import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
 
@@ -41,7 +46,7 @@ const config = makeConfig({
         type: 'string',
         default: getenv('TARGET_COMMITISH', ''),
         describe:
-          'Commit the tag points at when it does not exist yet (default: the default branch)',
+          'Commit the tag points at when it does not exist yet (default: the checked-out commit)',
       })
       .option('tag-prefix', {
         type: 'string',
@@ -65,33 +70,20 @@ const tag = `${tagPrefix}${version}`;
 
 console.log(`Creating GitHub release for ${tag}...`);
 
-// Idempotent: the desktop release workflow (issue #37) creates the
-// release when npm publishing is unavailable, and the npm release path
-// must not fail when it later publishes the same version.
-const existing = await probeGitHubRelease(repository, tag);
-if (existing) {
-  console.log(`\u2705 GitHub release ${tag} already exists, skipping`);
-  process.exit(0);
-}
-
 try {
+  // Idempotent: the desktop release workflow (issue #37) creates the
+  // release when npm publishing is unavailable, and the npm release path
+  // must not fail when it later publishes the same version.
+  const existing = await probeGitHubRelease(repository, tag);
+  if (existing) {
+    console.log(`\u2705 GitHub release ${tag} already exists, skipping`);
+    process.exit(0);
+  }
+
   // Read CHANGELOG.md
   const changelog = readFileSync('./CHANGELOG.md', 'utf8');
 
-  // Extract changelog entry for this version
-  // Read from CHANGELOG.md between this version header and the next version header
-  const versionHeaderRegex = new RegExp(`## ${version}[\\s\\S]*?(?=## \\d|$)`);
-  const match = changelog.match(versionHeaderRegex);
-
-  let releaseNotes = '';
-  if (match) {
-    // Remove the version header itself and trim
-    releaseNotes = match[0].replace(`## ${version}`, '').trim();
-  }
-
-  if (!releaseNotes) {
-    releaseNotes = `Release ${version}`;
-  }
+  const releaseNotes = extractReleaseNotes(changelog, version);
 
   // Create release using GitHub API with JSON input
   // This avoids shell escaping issues that occur when passing text via command-line arguments
@@ -99,8 +91,8 @@ try {
   const payload = JSON.stringify({
     tag_name: tag,
     name: tag,
-    body: releaseNotes,
-    ...(target ? { target_commitish: target } : {}),
+    body: limitReleaseNotes(releaseNotes, repository, tag),
+    target_commitish: resolveReleaseCommit(target || 'HEAD'),
   });
 
   await $`gh api repos/${repository}/releases -X POST --input -`.run({

@@ -55,6 +55,7 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/validated-release-tree.mjs'
       - 'js/scripts/github-release-state.mjs'
       - 'js/scripts/create-github-release.mjs'
+      - 'js/scripts/github-release-content.mjs'
       - 'js/electron/**'
       - 'js/scripts/build-desktop.mjs'
       - 'js/scripts/desktop-release-gate.mjs'
