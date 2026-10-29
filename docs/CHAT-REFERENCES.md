@@ -37,6 +37,36 @@ The research behind these links, with the full notes, is in
 
 ## By topic
 
+### Visual style and configurability: T3 Code
+
+Our [product vision](PRODUCT-VISION.md) prefers T3 Code for styling and
+configuration patterns, while Telegram remains the reference for core messaging
+interactions. T3 Code is [pingdotgg/t3code](https://github.com/pingdotgg/t3code),
+MIT licensed; source read at
+[`08a463e`](https://github.com/pingdotgg/t3code/tree/08a463e29976617134de01e9341f898bc881d0eb)
+on 2026-10-30. These are design lessons, not imported implementation:
+
+- [AppearanceSettingsPanel](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/settings/AppearanceSettingsPanel.tsx): grouped/searchable appearance controls, contrast adjustment and explicit reset actions.
+- [TypographySettings](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/settings/TypographySettings.tsx): separately configurable text roles and typography.
+- [themePalette](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/themePalette.ts): semantic appearance tokens rather than unrelated hard-coded control colors.
+- [sidebar primitives](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/ui/sidebar.tsx): reusable navigation controls and consistent layout states.
+
+### Context targeting, selection and message navigation
+
+Telegram Web A source rechecked at
+[`6002824`](https://github.com/Ajaxy/telegram-tt/tree/6002824b6532f3d913997ce496d9ab5f9b86bc22)
+on 2026-10-30:
+
+- [useContextMenuHandlers](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/hooks/useContextMenuHandlers.ts): a menu has an explicit open/close lifecycle and target.
+- [MessageContextMenu](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/message/MessageContextMenu.tsx): ordinary message actions include an explicit Select action.
+- [useFocusMessageListElement](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/message/hooks/useFocusMessageListElement.ts): coordinate focus with message-list updates.
+- [MessageMeta.scss](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/message/MessageMeta.scss): keep timestamp and delivery metadata in a defined layout.
+
+Our shared Chat/Operator implementation keeps a temporary context-target
+background separate from persistent multi-selection, reserves message metadata
+space without showing a second status icon, and confirms a navigation target
+was shown before acknowledging an unread mark.
+
 ### Sending exactly once (an id per message, reused on every retry)
 
 - Telegram Web K makes a 64-bit random id per message:

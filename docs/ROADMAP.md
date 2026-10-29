@@ -2,6 +2,11 @@
 
 ## Who meta-sovereign is for
 
+The [product vision and UI guidance](PRODUCT-VISION.md) defines our direction:
+T3 Code for visual style and configurability, Telegram for baseline messaging
+features and interactions across providers. The status tables below describe
+current implementation separately from that target.
+
 meta-sovereign represents **a person or an organisation online**. One owner connects the accounts they speak through — Telegram, VK, WhatsApp, Facebook and Instagram, X, LinkedIn, email, GitHub, Upwork, PeoplePerHour and job boards — and works every conversation from one app that runs on their own machine. The data stays theirs: a local store, encrypted backups, no cloud in between.
 
 The same inbox, contacts and automations serve four kinds of work:

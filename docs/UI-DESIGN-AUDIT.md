@@ -8,6 +8,8 @@ can preserve in tests and code review.
 
 References:
 
+- [Product vision and UI guidance](PRODUCT-VISION.md): prefer T3 Code for visual style and configurability, and Telegram for baseline messaging behavior across providers. [Pinned source references](CHAT-REFERENCES.md) explain the comparisons; the platform accessibility guidance below complements this direction.
+
 - Apple Human Interface Guidelines: <https://developer.apple.com/design/human-interface-guidelines/>
 - Google Material Design accessibility guidance: <https://m1.material.io/usability/accessibility.html>
 - Microsoft Fluent 2 accessibility guidance: <https://fluent2.microsoft.design/accessibility>

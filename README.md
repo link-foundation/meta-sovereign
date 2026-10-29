@@ -6,6 +6,12 @@ meta-sovereign represents **a person or an organisation online**. Connect Telegr
 
 ### Built for
 
+Our [product vision](docs/PRODUCT-VISION.md) takes UI styling and configurability
+lessons from [T3 Code](https://github.com/pingdotgg/t3code), and uses Telegram
+clients as the baseline for familiar messaging features across providers.
+[Source references and inspiration](docs/CHAT-REFERENCES.md) record the comparisons;
+the feature matrix describes what is currently supported.
+
 | Who / what        | How meta-sovereign helps                                                                                                                                      |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Individuals**   | All your chats in one place, reconnect with people gone quiet, remember what was said (facts), one CV on every job site.                                      |

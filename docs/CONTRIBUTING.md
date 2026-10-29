@@ -13,6 +13,16 @@
 
 ## Code Standards
 
+### Product and UI direction
+
+Follow [Product vision and UI guidance](PRODUCT-VISION.md): T3 Code is the
+preferred reference for visual style and configurability; Telegram clients set
+the baseline for common messaging interactions across providers. Check the
+relevant [source references](CHAT-REFERENCES.md) before changing those behaviors,
+reuse shared components and validate the affected Chat and Operator paths.
+The vision describes the target; provider feature matrices document current
+capabilities and limitations.
+
 ### File Size Limits
 
 **Maximum 1500 lines per file** (enforced via ESLint `max-lines` rule and CI `check-file-line-limits` job).
