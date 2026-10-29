@@ -16,6 +16,12 @@ The initial issue and PR snapshots contain no additional comments or required su
 | 07:58:54–07:59:07 | Prepared placeholder branch/PR is created. Initial docs-only checks do not validate the later implementation. |
 | 08:11:28 | First implementation commit `64428d1` triggers fresh branch checks. |
 | 08:17:22 | Cache policy commit `cd91295` triggers replacement checks. Superseded read-only runs may be cancelled; cancellation is never counted as a passing result for the replacement SHA. |
+| 08:26:37 | `11e0bf9c` starts Checks **40842161874**. Zizmor exposes 11 workspace-relative self-action references; the full failed job log is preserved. |
+| 08:47:08 | `6b6685da` starts Checks **40844647863**. GitHub resolves and executes the secure self-repository action, but the older actionlint rejects its syntax. The documented upstream gap is reproduced and fixed with an exact-reference/path compatibility exception and genuine-failure controls. |
+| 08:53:13 | `d38c43b8` starts replacement checks, including the pagination repair. All early gates, including both workflow linters, pass; later source review adds protection against commit-shaped code examples. |
+| 08:59:29 | `78789d74` starts the complete final implementation checks. Its full SHA and final workflow results are recorded in VALIDATION.md; earlier cancelled runs cannot validate this source. |
+| 09:18:35 | The final required browser job, WebKit, completes successfully. Both browsers, all nine runtime/OS combinations and all five desktop build targets have now passed. |
+| 09:18:54–09:18:55 | Pipeline status passes and Checks **40846140276** concludes successfully. All five workflows on `78789d74` are successful: 49 passing checks and six expected main-only publication/deployment skips. |
 
 Raw evidence: `metadata/RUN-attempt1.json`, `*-jobs.json`, `*-annotations.json` and `ci-logs/RUN-attempt1.log` inside the archive. The original failure is at **40834621624-attempt1.log:77696–77703**, with the HTTP 422 response at **77700–77702**. The cache reservation collisions appear at lines **19247, 32508, 58223, 76837** in that same log. Dependabot's certificate-bundle warning is at **40790638881-attempt1.log:65**.
 

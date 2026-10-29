@@ -15,7 +15,7 @@ The wider audit also reproduced release-note loss, wrong-version extraction, suc
 
 ## Evidence layout and restoration
 
-`evidence.tar.xz` contains the collected `github/`, `metadata/`, `ci-logs/`, `artifacts/`, `templates/`, `comparison/`, `research/` and `validation/` directories. Raw directories are ignored to keep the PR reviewable; the archive, inventory and reports are committed. `evidence-files.sha256` inventories every member; `evidence.sha256` authenticates both the archive and inventory. Diagnostic ZIPs remain byte-for-byte downloads. Installer binaries are not logs: their artifact names, sizes, digests and URLs are preserved instead of downloading executable publication outputs.
+`evidence.tar.xz` contains the collected `github/`, `metadata/`, `ci-logs/`, `artifacts/`, `templates/`, `comparison/`, `research/` and `validation/` directories. Raw directories are ignored to keep the PR reviewable; the archive, inventory and reports are committed. `evidence-files.sha256` inventories every member; `evidence.sha256` verifies the integrity of both the archive and inventory. Diagnostic ZIPs remain byte-for-byte downloads. Installer binaries are not logs: their artifact names, sizes, digests and URLs are preserved instead of downloading executable publication outputs.
 
 ```sh
 python3 -B experiments/issue-54/archive.py --verify
@@ -28,6 +28,8 @@ sha256sum -c evidence-files.sha256
 `experiments/issue-54/collect.py --cited --label LABEL` refreshes the six cited runs and every branch run, paginating run/job/annotation/artifact APIs. `--templates` collects new immutable template snapshots; do not use it when reproducing this recorded comparison. `compare.py` rebuilds inventories and complete text diffs against the materialized snapshots. `archive.py` uses streaming compression and verifies every extracted file. Run it after collectors finish, with its output log outside the directories being archived.
 
 One superseded desktop run, 40840372676, was cancelled before runner allocation (`runner_id=0`, no steps). GitHub returns an empty log ZIP; the original empty ZIP and job metadata are retained rather than inventing an execution log. Other superseded runs retain their available partial logs. All six issue-cited runs have complete logs.
+
+The committed archive ends at the fully passing implementation commit `78789d7451e34a2856f3ab47de42255bb1737e34` (49 passing checks, six expected publication/deployment skips). The final evidence commit is checked separately; its exact SHA and completed CI links are recorded in the PR description. Its logs are collected locally after completion, since a commit cannot contain its own future CI logs.
 
 No required sub-issues, issue comments, PR conversations, inline reviews or review submissions existed at initial collection. Their empty API responses are retained; upstream reports below are findings, not unfinished prerequisites delegated out of this PR.
 

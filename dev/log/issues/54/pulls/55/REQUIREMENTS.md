@@ -4,7 +4,7 @@ All issue prose, language recommendations, linked practices and later feedback w
 
 | ID | Requirement | Implementation / evidence |
 | --- | --- | --- |
-| 54-1 | Check all false positives, false negatives, warnings and errors, including all six cited workflows. | Full run/job/annotation/log/artifact collection; ROOT-CAUSES findings 1–8; strict lookup outcomes, exact headings and cache ownership regressions. All cited workflows have individual dispositions in TIMELINE.md. |
+| 54-1 | Check all false positives, false negatives, warnings and errors, including all six cited workflows. | Full run/job/annotation/log/artifact collection; ROOT-CAUSES findings 1–9; strict lookup outcomes, exact headings and cache ownership regressions. All cited workflows have individual dispositions in TIMELINE.md. |
 | 54-2 | Compare the complete JavaScript template tree, including every workflow and helper, not only matching files. | Immutable 0a3957d tree: 544 entries / 482 blobs; all-template-files.json, per-file digest/disposition inventory, complete text counterpart diffs, CI-ROLES.md and TEMPLATE-COMPARISON.md. |
 | 54-3 | Compare the complete Rust template tree and apply relevant practices. | Immutable 0ece2cf tree: 241 entries / 202 blobs; same artifacts; native crate checks/warnings, desktop resolution and language-specific publication applicability recorded. |
 | 54-4 | Compare the complete Python template tree and apply relevant practices. | Immutable 317c243 tree: 132 entries / 121 blobs; same artifacts; Python script compilation and workflow ShellCheck/pyflakes retained, no fictional PyPI product introduced. |
