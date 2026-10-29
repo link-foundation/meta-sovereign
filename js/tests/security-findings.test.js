@@ -5,6 +5,7 @@ import { emptyCv, isCvPath } from '../src/cv/model.js';
 import { assignPath, mergeCv } from '../src/cv/runner.js';
 import { applyFlatChanges } from '../src/cv/diff.js';
 import { safeMessage } from '../src/server/redact.js';
+import { json } from '../src/server/util.js';
 import { sanitizeSvg } from '../src/sources/telegram-wallpapers.js';
 
 test('CV writes accept only canonical sections and fields', () => {
@@ -38,6 +39,40 @@ test('error answers never stringify an arbitrary thrown object', () => {
   assert.equal(safeMessage(thrown), 'unknown error');
   assert.equal(safeMessage(new Error('read failed')), 'read failed');
   assert.equal(safeMessage('read failed'), 'read failed');
+});
+
+test('error messages never expose frames from a thrown stack string', () => {
+  const stack = 'read failed\n    at /private/server.js:1:2';
+  assert.equal(safeMessage(stack), 'read failed');
+  assert.equal(safeMessage(new Error(stack)), 'read failed');
+  assert.equal(
+    safeMessage('read failed\r\n    at private.js:1:2'),
+    'read failed'
+  );
+});
+
+test('JSON error answers use the same safe message boundary', () => {
+  const responses = [];
+  const res = {
+    writeHead() {},
+    end(body) {
+      responses.push(JSON.parse(body));
+    },
+  };
+  const dangerous = {
+    toString() {
+      throw new Error('must not stringify');
+    },
+  };
+  json(res, 500, { error: dangerous });
+  json(res, 502, { error: new Error('read failed\n    at private.js:1:2') });
+  json(res, 400, { error: 'Bearer secret123\n    at private.js:1:2' });
+  assert.deepEqual(
+    responses.map((body) => body.error),
+    ['unknown error', 'read failed', 'Bearer <redacted>']
+  );
+  assert.equal(responses[0].code, 'internal');
+  assert.equal(responses[0].ok, false);
 });
 
 test('SVG sanitization rejects escaped CSS resource loads', () => {

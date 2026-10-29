@@ -1,5 +1,9 @@
 name: Scheduled security audit
 on:
+  # Main has this configuration family as well as release.yml. GitHub's
+  # aggregate PR check needs both, including documentation-only changes.
+  pull_request:
+    branches: [main]
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
