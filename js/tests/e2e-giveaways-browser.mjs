@@ -189,7 +189,10 @@ await finish(async () => {
   );
   const won = await details.textContent();
   assert(won.includes('Ann Lee'), `winner names: ${won}`);
-  assert(won.includes('https://t.me/giftcode/abc123'), `prize link: ${won}`);
+  assert(
+    won.split(/\s+/).some((word) => word === 'https://t.me/giftcode/abc123'),
+    `prize link: ${won}`
+  );
   assert(won.includes('1 of 2 prizes claimed'), `claimed: ${won}`);
   await details.locator('[data-action="close"]').click();
   await details.waitFor({ state: 'detached' });

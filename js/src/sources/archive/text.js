@@ -2,6 +2,8 @@
  * Text repairs shared by the data-archive importers (R-Z10).
  */
 
+import { visitHtml } from '../../markup/parse.js';
+
 const FFFD = '�';
 
 /**
@@ -130,48 +132,36 @@ export const decodeEntities = (text) =>
     return ENTITIES[code.toLowerCase()] ?? whole;
   });
 
-const VOID = new Set(['br', 'img', 'hr', 'input', 'meta', 'link']);
-const TOKEN =
-  /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>|([^<]+)/g;
-const ATTRIBUTE = /([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-
-const attributesOf = (source) => {
-  const attrs = {};
-  for (const a of source.matchAll(ATTRIBUTE)) {
-    attrs[a[1].toLowerCase()] = decodeEntities(a[2] ?? a[3]);
-  }
-  return attrs;
-};
-
 /**
- * A tiny HTML reader for the data exports (no dependency): a tree of
+ * HTML reader for the data exports: a tree of
  * `{tag, attrs, children}` and text strings. Tolerant: stray end tags
  * are ignored, unclosed tags are closed at the end.
  */
 export const parseHtml = (html) => {
   const root = { tag: 'root', attrs: {}, children: [] };
   const stack = [root];
-  for (const m of html.matchAll(TOKEN)) {
-    const top = stack.at(-1);
-    if (m[4] !== undefined) {
-      top.children.push(decodeEntities(m[4]));
-    } else if (m[2] && m[1]) {
-      const at = stack.map((n) => n.tag).lastIndexOf(m[2].toLowerCase());
-      if (at > 0) {
-        stack.length = at;
-      }
-    } else if (m[2]) {
+  visitHtml(html, {
+    ontext(text) {
+      stack.at(-1).children.push(decodeEntities(text));
+    },
+    onopentag(tag, attrs) {
       const node = {
-        tag: m[2].toLowerCase(),
-        attrs: attributesOf(m[3]),
+        tag,
+        attrs: Object.fromEntries(
+          Object.entries(attrs).map(([key, value]) => [
+            key,
+            decodeEntities(value),
+          ])
+        ),
         children: [],
       };
-      top.children.push(node);
-      if (!VOID.has(node.tag) && !m[3].trimEnd().endsWith('/')) {
-        stack.push(node);
-      }
-    }
-  }
+      stack.at(-1).children.push(node);
+      stack.push(node);
+    },
+    onclosetag() {
+      stack.pop();
+    },
+  });
   return root;
 };
 

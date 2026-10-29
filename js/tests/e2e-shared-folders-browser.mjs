@@ -267,7 +267,9 @@ const shareSteps = async () => {
   );
   const made = share.locator('[data-slug="NewSlug12345"]');
   assert(
-    (await made.textContent()).includes('https://t.me/addlist/NewSlug12345'),
+    (await made.textContent())
+      .split(/\s+/)
+      .some((word) => word === 'https://t.me/addlist/NewSlug12345'),
     'the link is listed'
   );
 

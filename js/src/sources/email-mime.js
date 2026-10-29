@@ -39,7 +39,7 @@ export const utf8Bytes = (text) => new globalThis.TextEncoder().encode(text);
 /** `text` decoded from `bytes` as `label`; unknown labels read as UTF-8. */
 export const decodeCharset = (bytes, label = 'utf-8') => {
   const name = String(label ?? 'utf-8')
-    .replace(/\*.*$/, '')
+    .split('*', 1)[0]
     .trim()
     .replace(/^"|"$/g, '')
     .toLowerCase();
@@ -116,7 +116,7 @@ export const decodeHeaderValue = (value) => {
   for (let i = 0; i < words.length;) {
     const first = words[i];
     let end = first.index + first[0].length;
-    const charset = first[1].replace(/\*.*$/, '').toLowerCase();
+    const charset = first[1].split('*', 1)[0].toLowerCase();
     const chunks = [wordBytes(first[2], first[3])];
     let j = i + 1;
     // Adjacent words of one charset are one run: a character may be
@@ -124,7 +124,7 @@ export const decodeHeaderValue = (value) => {
     while (
       j < words.length &&
       /^\s*$/.test(text.slice(end, words[j].index)) &&
-      words[j][1].replace(/\*.*$/, '').toLowerCase() === charset
+      words[j][1].split('*', 1)[0].toLowerCase() === charset
     ) {
       chunks.push(wordBytes(words[j][2], words[j][3]));
       end = words[j].index + words[j][0].length;
@@ -312,7 +312,10 @@ export const parseAddressList = (value) =>
     .map((part) => {
       const trimmed = decodeHeaderValue(part.trim());
       const match = trimmed.match(/<([^<>@\s]+@[^<>\s]+)>/);
-      const loose = trimmed.match(/([^<>\s,]+@[^<>\s,]+)/);
+      const token = trimmed
+        .split(/[<>\s,]+/)
+        .find((part) => part.includes('@'));
+      const loose = token ? [token, token] : null;
       const address = match?.[1] ?? loose?.[1] ?? trimmed;
       const name = trimmed
         .replace(match?.[0] ?? loose?.[0] ?? address, '')

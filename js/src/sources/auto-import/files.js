@@ -236,7 +236,14 @@ export const extractVisibleMessages = (cfg) => {
 };
 
 // WhatsApp's "[12:34, 10/12/2026] Alice: " prefix.
-const META = /^\[([^\]]+)\]\s*(.*?):\s*$/;
+const metaOf = (value) => {
+  const text = String(value ?? '').trim();
+  const end = text.indexOf(']');
+  if (!text.startsWith('[') || end < 2 || !text.endsWith(':')) {
+    return null;
+  }
+  return [text, text.slice(1, end), text.slice(end + 1, -1).trim()];
+};
 
 const isoOrUndefined = (value) => {
   const date = value ? new Date(value) : null;
@@ -246,7 +253,7 @@ const isoOrUndefined = (value) => {
 /** Map page-extracted rows to message links (without storing them). */
 export const scrapedRowsToLinks = (provider, rows) =>
   rows.map((row) => {
-    const meta = row.meta ? META.exec(row.meta) : null;
+    const meta = row.meta ? metaOf(row.meta) : null;
     const sender = meta && row.sender !== 'me' ? meta[2] : row.sender;
     return buildMessageLink({
       source: provider,

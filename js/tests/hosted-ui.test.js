@@ -103,7 +103,7 @@ test('by default, / opens GitHub Pages and only the API is served locally', asyn
 test('a hosted copy named by hand may use the server, unless none may', async () => {
   const fork = 'https://someone.github.io';
   await withServer({ uiUrl: `${fork}/meta-sovereign/` }, async (base, h) => {
-    assert.ok(h.allowOrigins.includes(fork));
+    assert.ok(h.allowOrigins.some((origin) => new URL(origin).origin === fork));
     const answer = await fetch(`${base}/api/status`, {
       headers: { origin: fork },
     });

@@ -404,6 +404,7 @@
     "node": ">=26.12.1"
   },
   "dependencies": {
+    "htmlparser2": "12.0.0",
     "links-notation": "^0.27.1",
     "lino-objects-codec": "^0.9.3"
   },

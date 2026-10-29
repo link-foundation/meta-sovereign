@@ -216,7 +216,10 @@ const steps = async () => {
   // A t.me/iv link opens it for the page it wraps.
   await page.locator('a.msg-link', { hasText: 'wrapped' }).first().click();
   await reader.locator('h1').waitFor({ timeout: 5000 });
-  assert(asked.includes('https://a.test/wrapped'), 'wrapped url asked');
+  assert(
+    asked.split(/\s+/).some((word) => word === 'https://a.test/wrapped'),
+    'wrapped url asked'
+  );
   await page.keyboard.press('Escape');
   await reader.waitFor({ state: 'detached', timeout: 5000 });
 

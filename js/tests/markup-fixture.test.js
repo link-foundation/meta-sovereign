@@ -106,7 +106,10 @@ describe('markup generation', () => {
     // not be escaped — except for `<`, which JSON escapes itself.
     expect(html).toContain('\\u003c');
     expect(html).not.toContain('&quot;');
-    const raw = html.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+    const raw = html.slice(
+      html.indexOf('>') + 1,
+      html.lastIndexOf('</script>')
+    );
     expect(JSON.parse(raw).user.title).toBe('Anna <b>');
   });
 

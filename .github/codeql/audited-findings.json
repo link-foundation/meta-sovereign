@@ -1,0 +1,10 @@
+[
+  {
+    "rule": "js/regex-injection",
+    "path": "js/src/patterns/safe-regex.js",
+    "line": "return new RegExp(text, flags);",
+    "sha256": "9f05b51214216a2cf7be0483ed7b961a10ea3d7c334efaa433153bfc967f0ea1",
+    "reason": "The documented API intentionally accepts complete user-written regular expressions, not literal search text. Compilation is capped at 500 characters and matching at 10000 characters; risky server matches have a 50 ms VM budget. Escaping the expression would remove the feature. This exception applies only to this exact construction and whole-file digest.",
+    "test": "js/tests/server-hardening.test.js: regex: pattern length and input size are capped, a runaway match is cut off"
+  }
+]

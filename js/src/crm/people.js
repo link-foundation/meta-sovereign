@@ -744,8 +744,9 @@ export const formatAudienceSpec = (spec) => {
     });
     return parts.join(` ${SYMBOLS[spec.kind]} `);
   }
-  if (!Object.hasOwn(FORMATTERS, spec?.kind ?? '')) {
+  const kind = spec?.kind ?? '';
+  if (typeof kind !== 'string' || !Object.hasOwn(FORMATTERS, kind)) {
     throw new Error(`unknown audience kind "${spec?.kind}"`);
   }
-  return FORMATTERS[spec.kind](spec);
+  return FORMATTERS[kind](spec);
 };

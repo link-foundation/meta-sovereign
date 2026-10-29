@@ -57,4 +57,11 @@ export const redact = (text) => {
 };
 
 /** `error.message` made safe to log or store. */
-export const safeMessage = (error) => redact(String(error?.message ?? error));
+export const safeMessage = (error) =>
+  redact(
+    typeof error?.message === 'string'
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : 'unknown error'
+  );
