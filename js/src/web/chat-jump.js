@@ -85,10 +85,24 @@ const rowOf = (id) => {
 };
 
 // Whether a row is in its stream's view.
+const contentBottom = (scroller, fallback) => {
+  const composer = scroller
+    .closest?.('.chat-main')
+    ?.querySelector?.('.chat-composer')
+    ?.getBoundingClientRect?.();
+  return Math.min(fallback, composer?.top ?? fallback);
+};
 const seen = (node) => {
-  const box = node?.closest?.('.chat-scroll')?.getBoundingClientRect?.();
+  const scroller = node?.closest?.('.chat-scroll');
+  const box = scroller?.getBoundingClientRect?.();
   const row = node?.getBoundingClientRect?.();
-  return Boolean(box && row) && row.bottom > box.top && row.top < box.bottom;
+  if (!box || !row) {
+    return false;
+  }
+  const bottom = contentBottom(scroller, box.bottom);
+  return row.bottom - row.top > bottom - box.top
+    ? row.bottom > box.top && row.top < bottom
+    : row.top >= box.top && row.bottom <= bottom;
 };
 
 // Where a message is: its row (or its album's), in the middle, flashed;
