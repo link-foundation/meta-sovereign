@@ -248,7 +248,13 @@ export const createDiskNetwork = async (
       return packetsFor(groups, length, linkRows, nameRows);
     },
     close() {
-      db.close();
+      // Bun's default close leaves .prepare() handles alive until GC.
+      // Finalize them now so Windows can remove the temporary database.
+      if (process.versions.bun) {
+        db.close(true);
+      } else {
+        db.close();
+      }
     },
   };
 };
