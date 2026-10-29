@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.5
+
+### Patch Changes
+
+- cf91ab4: Keep cold archive payloads in a bounded temporary file cache, preserve Telegram media type tags, track actual provider upload progress, and stabilize chat scrolling and popover blur.
+
 ## 1.0.4
 
 ### Patch Changes
