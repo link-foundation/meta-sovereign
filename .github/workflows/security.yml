@@ -98,6 +98,8 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: '26.12.1'
+          package-manager-cache: false
+
       - name: Use pinned npm
         run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
