@@ -17,7 +17,6 @@
  *
  * Addresses issues documented in:
  * - Issue #21: Supporting both single and multi-language repository structures
- * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
  * - Reference: link-assistant/agent PR #114 (configurable package root)
  */
 

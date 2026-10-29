@@ -18,9 +18,13 @@ Objective: fully update all dependencies and toolchains, fix regressions from me
 - [x] Run focused local tests and required lint/format checks with limited concurrency; preserve logs. Full suites/build/browser matrices run in CI only per AGENTS.md. Keep test fixture servers isolated.
 - [x] Run applicable security audits and resolve findings, new deprecations, and compatibility issues.
 - [x] Add release changeset; commit independent useful steps and push only the prepared branch.
-- [ ] Review fresh CI for exact latest SHA, download every failed run, fix root causes, repeat focused checks.
-- [ ] Review gh pr diff, preserve existing features, ensure current main is included, update PR title/body with reproduction/validation/closing keyword.
-- [ ] Verify clean tree, all requirements mapped to evidence, CI green; mark PR 51 ready.
+- [x] Review final PR CI for exact latest SHA; all five workflows passed at a07bac8f.
+- [x] Review gh pr diff, preserve existing features, ensure current main is included, update PR title/body with reproduction/validation/closing keyword.
+- [x] Verify clean tree and PR CI green; mark PR 51 ready.
 - [ ] Integrate the verified PR through GitHub and verify every applicable default-branch workflow; preserve its exact SHA and results.
+- [x] Preserve and investigate main release failure 40790628774 at dc30f00a; reproduce legacy-peer lockfile pruning before repairing both versioners.
+- [x] Verify focused regression and guard tests (7 passed) and both actual release entry points in disposable fixtures; retain the strict release guard.
+- [ ] Commit and push the repair on the original authorized branch; resolve the single-PR delivery constraint before opening a second PR.
+- [ ] Integrate the repair through an authorized PR, verify main release and desktop publication, and close issue 50 only after all acceptance criteria pass.
 
 Resource rules: no full suite, stress tests, or browser/runtime matrices locally. Rust builds sequentially with CARGO_BUILD_JOBS=1 and reduced debug if needed. Stop repeating memory-killed builds and use CI. Save large output to logs; read files above 1500 lines in bounded chunks. Keep experiment scripts in experiments/. Wait for every background command before finishing.

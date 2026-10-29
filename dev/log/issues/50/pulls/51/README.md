@@ -81,6 +81,10 @@ Each row inventories prose requirements as well as the detected-ecosystem list. 
 
 No upstream report substitutes for an unmet local acceptance criterion. Current PR and default-branch CI results are recorded separately in VALIDATION.md. [WEBKIT.md](WEBKIT.md) distinguishes observed failures from rejected hypotheses and records primary upstream research.
 
+## Default-branch follow-up
+
+All final PR workflows passed, but the merged main-only release exposed lockfile drift during version synchronization. [POST-MERGE.md](POST-MERGE.md) records the exact failure, reproducing regression, repair in both release paths and the outstanding delivery constraint. Issue 50 remains incomplete until the corrected default-branch release passes. The supplemental `release-evidence.tar.gz` retains final PR and failed main logs separately from the earlier snapshot.
+
 ## Preserved data and reproducibility
 
 Readable inventories and requirement analysis live beside a checksummed archive, keeping the PR reviewable. The archive contains full issue/feedback snapshots, registry responses, migration sources, failed and cancelled CI logs, local reproductions, and security audit JSON. evidence-files.sha256 hashes every raw file; evidence.sha256 hashes both that manifest and the archive. The screenshots remain directly visible. Restore from the repository root:
