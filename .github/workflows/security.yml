@@ -11,6 +11,9 @@ env:
   GIT_CONFIG_VALUE_0: main
 jobs:
   dependencies:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-dependencies-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Audit installed npm dependencies and Cargo.lock
     runs-on: ubuntu-26.04
     timeout-minutes: 15
@@ -33,6 +36,9 @@ jobs:
       - run: cargo audit --file rust/Cargo.lock --deny warnings
 
   codeql:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-codeql-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -71,6 +77,9 @@ jobs:
           if-no-files-found: error
 
   pipeline-status:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-pipeline-status-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Security pipeline status
     runs-on: ubuntu-26.04
     timeout-minutes: 5

@@ -75,6 +75,9 @@ jobs:
         run: node js/scripts/detect-code-changes.mjs
 
   release-preflight:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-release-preflight-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Release credential preflight
     runs-on: ubuntu-26.04
     timeout-minutes: 5
@@ -771,6 +774,9 @@ jobs:
           if-no-files-found: error
 
   backup-memory:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-backup-memory-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Backup memory regression (200k links)
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -804,6 +810,9 @@ jobs:
         run: node --max-old-space-size=384 --test --test-name-pattern='200k-link' js/tests/backup-stream.test.js
 
   workflow-lint:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-workflow-lint-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Workflow, shell and pipeline contracts
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -845,6 +854,9 @@ jobs:
         run: node experiments/issue-52/rehearse-release.mjs
 
   dependency-audit:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-dependency-audit-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Dependency security audit
     runs-on: ubuntu-26.04
     timeout-minutes: 15
@@ -869,6 +881,9 @@ jobs:
       - run: cargo audit --file rust/Cargo.lock --deny warnings
 
   codeql:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-codeql-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: CodeQL (${{ matrix.language }})
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -919,6 +934,9 @@ jobs:
           if-no-files-found: error
 
   dependency-review:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-dependency-review-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Review dependency changes
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -934,6 +952,9 @@ jobs:
           comment-summary-in-pr: never
 
   native-and-container:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-native-and-container-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Native helpers and containers (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -970,6 +991,9 @@ jobs:
         run: docker compose -f docker/docker-compose.yml build
 
   pipeline-status:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-pipeline-status-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Pipeline status
     runs-on: ubuntu-26.04
     timeout-minutes: 5
@@ -1014,7 +1038,7 @@ jobs:
   # Release - only runs on main after tests pass (for push events)
   release:
     concurrency:
-      group: release-main
+      group: main-writer-${{ github.repository }}-main
       cancel-in-progress: false
     name: Release
     # Cap publish work (changeset merge, version commit, npm publish,
@@ -1131,7 +1155,7 @@ jobs:
   # only allows one workflow file to be registered as a trusted publisher
   instant-release:
     concurrency:
-      group: release-main
+      group: main-writer-${{ github.repository }}-main
       cancel-in-progress: false
     name: Instant Release
     needs: [pipeline-status, release-preflight]
@@ -1227,7 +1251,7 @@ jobs:
   # Manual Changeset PR - creates a pull request with the changeset for review
   changeset-pr:
     concurrency:
-      group: release-main
+      group: main-writer-${{ github.repository }}-main
       cancel-in-progress: false
     name: Create Changeset PR
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_mode == 'changeset-pr'

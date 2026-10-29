@@ -38,6 +38,9 @@ env:
 
 jobs:
   link-checker:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-link-checker-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Check Links
     runs-on: ubuntu-26.04
     # Typical run: ~8s with the cache hit. Cap at 10min so a slow

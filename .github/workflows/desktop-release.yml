@@ -65,10 +65,6 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/validate-desktop-assets.mjs'
       - 'js/src/web/download/downloads.js'
 
-concurrency:
-  group: desktop-release-${{ github.event.pull_request.number || 'main' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 permissions:
   contents: read
 
@@ -79,6 +75,9 @@ env:
 
 jobs:
   resolve:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-resolve-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Resolve release
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -186,6 +185,9 @@ jobs:
           echo "publish=true" >> "$GITHUB_OUTPUT"
 
   build:
+    concurrency:
+      group: check-${{ github.workflow }}-${{ github.ref }}-build-${{ strategy.job-index || 0 }}
+      cancel-in-progress: true
     name: Build (${{ matrix.name }})
     defaults:
       run:
@@ -434,6 +436,9 @@ jobs:
           retention-days: 14
 
   publish:
+    concurrency:
+      group: main-writer-${{ github.repository }}-main
+      cancel-in-progress: false
     name: Publish to release
     needs: [resolve, build]
     if: needs.resolve.outputs.publish == 'true'
