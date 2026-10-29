@@ -95,12 +95,24 @@ export const stageServerRelease = async ({
   storeDir,
   sourceRoot = PACKAGE_ROOT,
 }) => {
+  const startedAt = Date.now();
+  const trace = (stage, count) => {
+    if (process.env.MS_RELEASE_DEBUG === '1') {
+      console.error(
+        `[release] ${stage} after ${Date.now() - startedAt} ms (${count} files)`
+      );
+    }
+  };
   const files = await runtimeFiles(sourceRoot);
+  trace('enumerated', files.length);
   const build = await digest(sourceRoot, files);
+  trace('hashed', files.length);
   const root = path.join(releaseDirectory(storeDir), build);
   const release = { build, entry: path.join(root, 'js/bin/server-worker.js') };
   if (await fs.stat(root).catch(() => null)) {
-    return verifyRelease(storeDir, release);
+    const verified = await verifyRelease(storeDir, release);
+    trace('reused_verified', files.length);
+    return verified;
   }
   const temp = `${root}.preparing-${process.pid}-${randomBytes(4).toString('hex')}`;
   await fs.mkdir(temp, { recursive: true, mode: 0o700 });
@@ -113,6 +125,7 @@ export const stageServerRelease = async ({
       });
       await fs.copyFile(path.join(sourceRoot, name), destination);
     }
+    trace('copied', files.length);
     if ((await digest(temp, files)) !== build) {
       throw new Error(
         'server files changed while preparing the release; retry with the current version'
@@ -134,6 +147,7 @@ export const stageServerRelease = async ({
       }
       await verifyRelease(storeDir, release);
     });
+    trace('ready', files.length);
     return release;
   } finally {
     await fs.rm(temp, { recursive: true, force: true });

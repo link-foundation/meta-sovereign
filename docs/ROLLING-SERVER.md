@@ -12,6 +12,8 @@ Prepared code snapshots and the control socket live under `<store>/runtime/`. So
 
 Deno worker launches disable runtime lockfile writes so they cannot modify a verified release snapshot. On Windows, Deno requires `--allow-all` to use the private named-pipe control channel; start the CLI with `deno run --allow-all js/bin/meta-sovereign.js serve`.
 
+For slow release preparation, set `MS_RELEASE_DEBUG=1`. It prints elapsed times and file counts for enumeration, hashing, copying and verification to stderr, without account data or store paths. It is off by default. The CLI's `meta-sovereign listening on ...` announcement follows worker initialization and durable control metadata, so automation can use it as the readiness signal.
+
 This covers application-worker upgrades with a compatible store schema. An incompatible replacement is refused while the working version remains available. Changing the public TLS listener configuration, stopping the host, or rebooting the OS still requires a host restart. An installation already running the older single-process launcher needs one initial restart to adopt the stable host; subsequent `serve` upgrades use the rolling path. Warm-up temporarily requires memory for both archive readers.
 
 Focused regression tests are `rolling-host.test.js`, `rolling-cli.test.js` and `store-handoff.test.js`. They check writes during warm-up, lock ownership, rollback, crash recovery, unlock state, release integrity, private control permissions, CLI reuse and a verified TLS/HTTP/2 connection across the switch. Tests use temporary fixture stores. Run the full suite in GitHub CI/CD; use only focused tests locally.

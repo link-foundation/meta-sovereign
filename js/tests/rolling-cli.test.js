@@ -5,7 +5,6 @@ import { mkdtemp, rm, readFile, stat, appendFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setTimeout as sleep } from 'node:timers/promises';
 import {
   controlAddress,
   requestServerControl,
@@ -34,40 +33,56 @@ const invoke = (dir, ...extra) => {
     { stdio: ['ignore', 'pipe', 'pipe'] }
   );
   let output = '';
+  let listening;
+  const ready = new Promise((resolve) => {
+    listening = resolve;
+  });
+  const deadline = setTimeout(() => child.kill('SIGTERM'), 30_000);
+  ready.then(() => clearTimeout(deadline));
   child.stdout.on('data', (chunk) => {
     output += String(chunk);
+    if (/meta-sovereign listening on http:\/\/127\.0\.0\.1:\d+/.test(output)) {
+      listening();
+    }
   });
   child.stderr.on('data', (chunk) => {
     output += String(chunk);
   });
+  child.once('error', (error) => {
+    output += `${error.stack}\n`;
+  });
   const ended = new Promise((resolve) =>
-    child.once('exit', (code) => resolve({ code, output }))
+    child.once('close', (code, signal) => {
+      clearTimeout(deadline);
+      resolve({ code, signal, output });
+    })
   );
-  return { child, ended };
+  return {
+    child,
+    ended,
+    waitUntilReady: () =>
+      Promise.race([
+        ready,
+        ended.then(({ code, signal, output }) => {
+          throw new Error(
+            `CLI exited before readiness (code=${code}, signal=${signal}):\n${output}`
+          );
+        }),
+      ]),
+  };
 };
-const statusWhenReady = async (dir) => {
-  for (let i = 0; i < 200; i += 1) {
-    try {
-      return await requestServerControl(
-        dir,
-        { operation: 'status' },
-        { timeoutMs: 1000 }
-      );
-    } catch (error) {
-      if (!['ENOENT', 'ECONNREFUSED'].includes(error.code)) {
-        throw error;
-      }
-    }
-    await sleep(50);
-  }
-  throw new Error('CLI host did not start');
-};
+const status = (dir) =>
+  requestServerControl(dir, { operation: 'status' }, { timeoutMs: 1000 });
 
 test('default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
   const first = invoke(dir);
+  // The CLI announces readiness only after staging, worker initialization and
+  // control metadata persistence. Observe that event instead of guessing how
+  // many filesystem operations a cold Windows runner can finish in 10 seconds.
   try {
-    const initial = await statusWhenReady(dir);
+    await first.waitUntilReady();
+    const initial = await status(dir);
     const info = JSON.parse(
       await readFile(path.join(dir, 'runtime/server.json'), 'utf8')
     );
@@ -78,11 +93,11 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
     const second = await invoke(dir).ended;
     assert.equal(second.code, 0, second.output);
     assert.match(second.output, /already running/);
-    assert.equal((await statusWhenReady(dir)).pid, initial.pid);
+    assert.equal((await status(dir)).pid, initial.pid);
     const updated = await invoke(dir, '--local-ui=true').ended;
     assert.equal(updated.code, 0, updated.output);
     assert.match(updated.output, /server upgraded/);
-    const next = await statusWhenReady(dir);
+    const next = await status(dir);
     assert.notEqual(next.pid, initial.pid);
     assert.equal(next.port, initial.port);
     assert.equal(next.localUi, true);
@@ -106,6 +121,25 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test(
+  'CLI readiness includes startup errors instead of polling an exited child',
+  { timeout: 30_000 },
+  async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
+    const invalid = invoke(dir, '--port=invalid');
+    try {
+      await assert.rejects(
+        invalid.waitUntilReady(),
+        /CLI exited before readiness \(code=1, signal=.*\):[\s\S]*cannot start the server:/
+      );
+    } finally {
+      invalid.child.kill('SIGTERM');
+      await invalid.ended;
+      await rm(dir, { recursive: true, force: true });
+    }
+  }
+);
 
 test('prepared release snapshots reject changed worker code', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-release-'));

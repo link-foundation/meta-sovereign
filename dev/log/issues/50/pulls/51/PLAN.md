@@ -27,6 +27,9 @@ Objective: fully update all dependencies and toolchains, fix regressions from me
 - [x] Commit and push the release repair (2f248948) and Bun cleanup repair (fe810031) on the original authorized branch.
 - [ ] Resolve the single-PR delivery constraint before opening a second PR.
 - [ ] Verify the final Node 26.13.0 source in fresh remote CI; preserve exact SHA/run evidence.
+- [x] Preserve final-source run 40796238163 and its Deno/Windows failure; reproduce the ten-second fixture limit with one finite delayed copy, then use the actual readiness signal and retain all control assertions.
+- [x] Verify five focused CLI/control tests and failing-before/passing-after cold-filesystem experiments; add default-off staging timing traces and preserve child failure output.
+- [ ] Verify the new exact-source repair in CI, including Windows/Deno, both browsers and every runtime/OS lane.
 - [ ] Integrate the repair through an authorized PR, verify main release and desktop publication, and close issue 50 only after all acceptance criteria pass.
 
 Resource rules: no full suite, stress tests, or browser/runtime matrices locally. Rust builds sequentially with CARGO_BUILD_JOBS=1 and reduced debug if needed. Stop repeating memory-killed builds and use CI. Save large output to logs; read files above 1500 lines in bounded chunks. Keep experiment scripts in experiments/. Wait for every background command before finishing.

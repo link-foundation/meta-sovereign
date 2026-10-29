@@ -419,6 +419,7 @@ jobs:
         # remain isolated in fixture stores and never use personal accounts.
         env:
           CI_CRYPTO_DIAGNOSTICS: ${{ runner.os == 'Windows' && '1' || '0' }}
+          MS_RELEASE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
           RUST_BACKTRACE: '1'
         run: |
           if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
