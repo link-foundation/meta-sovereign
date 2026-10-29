@@ -901,9 +901,9 @@ jobs:
         version-check,
         workflow-lint,
       ]
-    # Every baseline configuration must report on PRs, even documentation-only
-    # ones; keep the prerequisite failure/cancellation guards intact.
-    if: "!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request')"
+    # Refresh the same baseline on every main push and PR, including docs-only
+    # changes; keep the prerequisite failure/cancellation guards intact.
+    if: "!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || github.event_name == 'push')"
     permissions:
       actions: read
       contents: read

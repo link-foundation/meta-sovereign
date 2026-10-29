@@ -1,7 +1,9 @@
 name: Scheduled security audit
 on:
   # Main has this configuration family as well as release.yml. GitHub's
-  # aggregate PR check needs both, including documentation-only changes.
+  # baseline and aggregate PR check need both, including docs-only changes.
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   schedule:

@@ -11,6 +11,25 @@ const workflow = (name) =>
     )
   );
 
+for (const name of ['release', 'security']) {
+  test(`${name} refreshes the CodeQL default-branch baseline on every main push`, () => {
+    const flow = workflow(name);
+    assert.ok(
+      Object.hasOwn(flow.on, 'push'),
+      `${name}: default-branch push trigger`
+    );
+    assert.deepEqual(flow.on.push.branches, ['main']);
+    assert.equal(flow.on.push.paths, undefined);
+    assert.equal(flow.on.push['paths-ignore'], undefined);
+    if (flow.jobs.codeql.if) {
+      assert.ok(
+        flow.jobs.codeql.if.includes("github.event_name == 'push'"),
+        `${name}: documentation-only pushes refresh the same baseline`
+      );
+    }
+  });
+}
+
 test('every main CodeQL configuration also analyzes pull requests', () => {
   for (const name of ['release', 'security']) {
     const flow = workflow(name);
