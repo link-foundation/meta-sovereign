@@ -35,6 +35,19 @@ test('release body limits preserve UTF-8 and point at the complete tagged notes'
   );
 });
 
+test('release extraction preserves version headings inside fenced examples', () => {
+  const body =
+    'Example:\n\n```md\n## 9.9.9\n```\n\n~~~md\n## 8.8.8\n~~~\n\nRemaining details.';
+  assert.equal(
+    extractReleaseNotes(`## 1.2.3\n\n${body}\n\n## 1.2.2\nold`, '1.2.3'),
+    body
+  );
+  assert.throws(
+    () => extractReleaseNotes('```md\n## 1.2.3\nexample only\n```', '1.2.3'),
+    /no entry/
+  );
+});
+
 const fixture = fileURLToPath(
   new URL(
     '../../experiments/issue-54/rehearse-github-release.mjs',

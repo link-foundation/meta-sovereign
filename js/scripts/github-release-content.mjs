@@ -20,15 +20,39 @@ export function resolveReleaseCommit(ref = 'HEAD') {
 // also matched 1.2.30). Markdown subheadings remain part of the release body.
 export function extractReleaseNotes(changelog, version) {
   const lines = changelog.split(/\r?\n/);
-  const start = lines.findIndex((line) => line.trimEnd() === `## ${version}`);
+  let start = -1;
+  let end = lines.length;
+  let fence = null;
+  for (const [index, line] of lines.entries()) {
+    const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (marker) {
+      if (!fence) {
+        fence = marker[1];
+      } else if (
+        marker[1][0] === fence[0] &&
+        marker[1].length >= fence.length &&
+        !marker[2].trim()
+      ) {
+        fence = null;
+      }
+      continue;
+    }
+    if (fence) {
+      continue;
+    }
+    if (start < 0 && line.trimEnd() === `## ${version}`) {
+      start = index;
+    } else if (start >= 0 && line.startsWith('## ')) {
+      end = index;
+      break;
+    }
+  }
   if (start < 0) {
     throw new Error(`CHANGELOG.md has no entry for release ${version}`);
   }
-  const remaining = lines.slice(start + 1);
-  const end = remaining.findIndex((line) => line.startsWith('## '));
   return (
-    remaining
-      .slice(0, end < 0 ? undefined : end)
+    lines
+      .slice(start + 1, end)
       .join('\n')
       .trim() || `Release ${version}`
   );

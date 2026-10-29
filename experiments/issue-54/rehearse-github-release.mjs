@@ -3,9 +3,10 @@ import { register } from 'command-stream';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const [scenario, statusText = '404'] = process.argv.slice(2);
+const [scenario, statusText = '404', entryPath] = process.argv.slice(2);
 const status = Number(statusText);
 const directory = mkdtempSync(join(tmpdir(), 'ms-github-release-'));
 const originalDirectory = process.cwd();
@@ -91,7 +92,9 @@ const script =
     : scenario === 'format'
       ? 'format-github-release'
       : 'format-release-notes';
-const entry = new URL(`../../js/scripts/${script}.mjs`, import.meta.url);
+const entry = entryPath
+  ? pathToFileURL(resolve(originalDirectory, entryPath))
+  : new URL(`../../js/scripts/${script}.mjs`, import.meta.url);
 process.env.VERSION = scenario.startsWith('notes') ? 'v1.2.3' : '1.2.3';
 process.env.REPOSITORY = 'fixture/repo';
 process.env.TARGET_COMMITISH = 'HEAD';
@@ -99,6 +102,6 @@ process.env.COMMIT_SHA = 'HEAD';
 process.env.RELEASE_ID = '123';
 process.env.GH_TOKEN = '';
 process.env.GITHUB_TOKEN = '';
-process.argv = [process.execPath, entry.pathname];
+process.argv = [process.execPath, fileURLToPath(entry)];
 console.log(`EXPECTED_SHA ${sha}`);
 await import(entry.href);
