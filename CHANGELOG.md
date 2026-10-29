@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.4
+
+### Patch Changes
+
+- 07b6008: Detach and share cached media type names so small provider summaries cannot retain large file-reader buffers after the raw payload is packed. Add a small synthetic ownership regression to prevent the memory retention from returning.
+
 ## 1.0.3
 
 ### Patch Changes
