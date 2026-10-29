@@ -265,10 +265,13 @@ test('only an https page in a plain browser looks for the picture', () => {
 test('status is worked out once until the store changes', async () => {
   await withServer({}, async (base, h) => {
     let reads = 0;
-    const query = h.store.query.bind(h.store);
-    h.store.query = (...args) => {
+    const scan = h.store.scan.bind(h.store);
+    h.store.scan = (...args) => {
       reads += 1;
-      return query(...args);
+      return scan(...args);
+    };
+    h.store.query = () => {
+      throw new Error('status must stream metadata');
     };
     const status = async () => (await fetch(`${base}/api/status`)).json();
     const [a, b] = await Promise.all([status(), status()]);
