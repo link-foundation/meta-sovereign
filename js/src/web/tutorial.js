@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Tutorial overlay for the SPA (issue #10).
 //
 // Headline goals (R-M9 .. R-M12):
@@ -284,7 +286,7 @@ export const writeCompletedPreference = (storage) =>
   writePreference(storage, { off: true, completed: true, at: Date.now() });
 
 // Returns a small controller object: { isOff, dismiss, complete, reopen }.
-export const useTutorialPreference = (storage = globalThis.localStorage) => {
+export const useTutorialPreference = (storage = getLocalStorage()) => {
   const [pref, setPref] = useState(() => readPreference(storage));
   const setPreference = (next) => {
     setPref(next);
@@ -547,10 +549,7 @@ export const placeMatches = (route, place) =>
 // returns to *their* choice — never swaps Telegram for Email.
 const PROVIDER_ID = /^[a-z0-9-]{1,40}(\/manual)?$/;
 
-export const rememberProvider = (
-  provider,
-  storage = globalThis.localStorage
-) => {
+export const rememberProvider = (provider, storage = getLocalStorage()) => {
   if (!provider || !PROVIDER_ID.test(provider)) {
     return;
   }
@@ -561,7 +560,7 @@ export const rememberProvider = (
   }
 };
 
-export const rememberedProvider = (storage = globalThis.localStorage) => {
+export const rememberedProvider = (storage = getLocalStorage()) => {
   try {
     const provider = storage?.getItem(TUTORIAL_PROVIDER_KEY);
     return provider && PROVIDER_ID.test(provider) ? provider : null;
@@ -1267,7 +1266,7 @@ const TutorialLayer = ({
 export const TutorialOverlay = ({
   open,
   steps = defaultSteps,
-  storage = globalThis.localStorage,
+  storage = getLocalStorage(),
   onClose,
   onDismiss,
   onComplete,

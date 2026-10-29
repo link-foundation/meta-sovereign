@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 /**
  * Server autodiscovery for the SPA.
  *
@@ -138,7 +140,7 @@ const buildCandidateList = (origin, storage, candidates) => {
 
 export const discoverServer = async ({
   fetchImpl = globalThis.fetch,
-  storage = globalThis.localStorage,
+  storage = getLocalStorage(),
   origin = globalThis.location?.origin,
   candidates = [],
   signal,
@@ -167,10 +169,7 @@ export const discoverServer = async ({
   return null;
 };
 
-export const saveServerOverride = (
-  origin,
-  storage = globalThis.localStorage
-) => {
+export const saveServerOverride = (origin, storage = getLocalStorage()) => {
   try {
     storage.setItem(STORAGE_KEY, origin);
   } catch {
@@ -178,7 +177,7 @@ export const saveServerOverride = (
   }
 };
 
-export const clearServerOverride = (storage = globalThis.localStorage) => {
+export const clearServerOverride = (storage = getLocalStorage()) => {
   try {
     storage.removeItem(STORAGE_KEY);
   } catch {

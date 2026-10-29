@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Internationalisation core (issue #18). ~150 LOC, zero runtime
 // dependencies. The SPA-wide `t()` function takes a key and an
 // optional placeholder map and returns the translated string in the
@@ -68,8 +70,7 @@ const browserPreferences = (navigator) => {
 // `env` lets tests inject a navigator + storage without touching the
 // real (often read-only in Node/Deno) `globalThis` slots.
 export const detectInitialLocale = (env = {}) => {
-  const storage =
-    'storage' in env ? env.storage : (globalThis.localStorage ?? null);
+  const storage = 'storage' in env ? env.storage : (getLocalStorage() ?? null);
   const navigator =
     'navigator' in env ? env.navigator : (globalThis.navigator ?? null);
   try {
@@ -170,7 +171,7 @@ export const useLocale = () => {
   const setLocale = (next) => {
     const matched = matchTag(next) || DEFAULT_LOCALE;
     try {
-      globalThis.localStorage?.setItem(LOCALE_STORAGE_KEY, matched);
+      getLocalStorage()?.setItem(LOCALE_STORAGE_KEY, matched);
     } catch {
       // See detectInitialLocale().
     }
@@ -179,7 +180,7 @@ export const useLocale = () => {
 
   const clearLocale = () => {
     try {
-      globalThis.localStorage?.removeItem(LOCALE_STORAGE_KEY);
+      getLocalStorage()?.removeItem(LOCALE_STORAGE_KEY);
     } catch {
       // See detectInitialLocale().
     }

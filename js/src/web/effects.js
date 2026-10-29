@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Reduced visual effects (R-Z21): on a machine that renders slowly (a
 // browser without a GPU, software compositing) the frosted-glass blur
 // and the tutorial's page-sized dim can make every frame take seconds,
@@ -92,7 +94,7 @@ export const probeFrames = ({
 
 const read = (key) => {
   try {
-    return globalThis.localStorage?.getItem(key) ?? null;
+    return getLocalStorage()?.getItem(key) ?? null;
   } catch {
     // Storage can be disabled in restricted browser contexts.
     return null;
@@ -101,7 +103,7 @@ const read = (key) => {
 
 const write = (key, value) => {
   try {
-    globalThis.localStorage?.setItem(key, value);
+    getLocalStorage()?.setItem(key, value);
   } catch {
     // See read().
   }

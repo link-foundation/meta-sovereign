@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 import { useSyncExternalStore } from 'react';
 
 export const BROWSER_ONLY_KEY = 'metaSovereignOfferBrowserOnly';
@@ -6,14 +8,14 @@ export const TELEGRAM_CONNECTED_KEY = 'metaSovereignTelegramConnectedBefore';
 const CHANGED = 'ms-connection-preferences';
 const read = (key) => {
   try {
-    return globalThis.localStorage?.getItem(key) === 'true';
+    return getLocalStorage()?.getItem(key) === 'true';
   } catch {
     return false;
   }
 };
 const write = (key, value) => {
   try {
-    globalThis.localStorage?.setItem(key, String(value));
+    getLocalStorage()?.setItem(key, String(value));
   } catch {
     /* Connection recovery still works when browser storage is disabled. */
   }

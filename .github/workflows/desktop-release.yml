@@ -163,6 +163,7 @@ jobs:
             gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" --paginate \
               | node js/scripts/desktop-release-gate.mjs > gate.txt
             if ! grep -qx 'build=true' gate.txt; then
+              echo "::notice::Desktop packaging blocked by failed upstream validation or versioning. See the release gate reason in this step's log; no installers were built or published."
               echo "build=false" >> "$GITHUB_OUTPUT"
               echo "publish=false" >> "$GITHUB_OUTPUT"
               exit 0
@@ -176,7 +177,7 @@ jobs:
             exit 1
           fi
           if node --input-type=module -e 'import fs from "node:fs"; const release = JSON.parse(fs.readFileSync("release-state.json")); process.exit(release?.assets.some(a => a.name === "SHA256SUMS.txt") ? 0 : 1)'; then
-            echo "Release $tag already has desktop assets; nothing to do"
+            echo "::notice::Release $tag already has desktop assets; nothing to do"
             echo "build=false" >> "$GITHUB_OUTPUT"
             echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0

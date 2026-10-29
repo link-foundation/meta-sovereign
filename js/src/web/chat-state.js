@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // State behind the chat screen (issue #31 / PR #34): the chat list and
 // search, the composer with message-to-message suggestions, typing status
 // both ways, the chat's automation menu and its pending drafts. All data
@@ -612,10 +614,7 @@ const SORT_KEY = 'meta-sovereign.chat.sort';
 const useRemembered = (
   key,
   options,
-  {
-    storage = globalThis.localStorage,
-    accept = (v) => options.includes(v),
-  } = {}
+  { storage = getLocalStorage(), accept = (v) => options.includes(v) } = {}
 ) => {
   const read = () => {
     try {

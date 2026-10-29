@@ -23,6 +23,9 @@ const job = (name, conclusion, failedStep) => ({
 const TESTS = job('Test (node on ubuntu-latest)', 'success');
 
 describe('desktopReleaseGate', () => {
+  it('blocks when no upstream job results were received', () => {
+    expect(desktopReleaseGate([]).build).toBe(false);
+  });
   it('builds after a fully green run', () => {
     expect(desktopReleaseGate([TESTS, job('Release', 'success')]).build).toBe(
       true
@@ -59,6 +62,16 @@ describe('desktopReleaseGate', () => {
 });
 
 describe('parseJobPages', () => {
+  it('rejects missing, empty and incomplete API evidence', () => {
+    for (const text of [
+      '',
+      '{}',
+      '{"total_count":0,"jobs":[]}',
+      '{"total_count":2,"jobs":[{"name":"one"}]}',
+    ]) {
+      expect(() => parseJobPages(text)).toThrow();
+    }
+  });
   it('joins the pages `gh api --paginate` prints back to back', () => {
     const page = (names) =>
       JSON.stringify({

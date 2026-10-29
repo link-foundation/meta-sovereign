@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Cloud themes (R-Y209; learned, never copied), as Telegram Desktop's
 // Settings → Chat Settings lists them:
 // - the user's themes and Telegram's are cards drawn from their colours
@@ -29,7 +31,7 @@ const el = React.createElement;
 
 const read = () => {
   try {
-    const raw = globalThis.localStorage?.getItem(CLOUD_THEME_KEY);
+    const raw = getLocalStorage()?.getItem(CLOUD_THEME_KEY);
     return raw ? cleanChoice(JSON.parse(raw)) : null;
   } catch {
     // Storage can be disabled, or hold something that is not ours.
@@ -40,9 +42,9 @@ const read = () => {
 const write = (choice) => {
   try {
     if (choice) {
-      globalThis.localStorage?.setItem(CLOUD_THEME_KEY, JSON.stringify(choice));
+      getLocalStorage()?.setItem(CLOUD_THEME_KEY, JSON.stringify(choice));
     } else {
-      globalThis.localStorage?.removeItem(CLOUD_THEME_KEY);
+      getLocalStorage()?.removeItem(CLOUD_THEME_KEY);
     }
   } catch {
     // See read(): the choice then lasts until the page closes.

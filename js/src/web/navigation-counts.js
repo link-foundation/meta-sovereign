@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Menu badges share the queue's unread rules. Calls acknowledge the missed
 // call notifications when their section is opened, independently of chat reads.
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
@@ -62,9 +64,7 @@ export const navigationCounts = (chats, missed = 0, scope, work = {}) => ({
 const seenKey = () => `meta-sovereign.calls.seen.${activeAccount()}`;
 const readSeen = () => {
   try {
-    const value = JSON.parse(
-      globalThis.localStorage?.getItem(seenKey()) ?? 'null'
-    );
+    const value = JSON.parse(getLocalStorage()?.getItem(seenKey()) ?? 'null');
     if (Number.isFinite(value?.at) && Array.isArray(value.ids)) {
       return value;
     }
@@ -140,7 +140,7 @@ export const useNavigationCounts = (api, active) => {
       const value = { at, ids };
       setSeen(value);
       try {
-        globalThis.localStorage?.setItem(seenKey(), JSON.stringify(value));
+        getLocalStorage()?.setItem(seenKey(), JSON.stringify(value));
       } catch {
         /* The acknowledgement still lasts for this page. */
       }

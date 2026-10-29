@@ -1,3 +1,5 @@
+import { getLocalStorage } from '../storage/local-storage.js';
+
 // Appearance (issue #31 / PR #34): a theme mode and a skin, chosen in
 // Settings and kept in localStorage.
 //
@@ -33,7 +35,7 @@ export const resolveTheme = (mode, { prefersDark = false, hour = 12 } = {}) => {
 
 const read = (key) => {
   try {
-    return globalThis.localStorage?.getItem(key) ?? null;
+    return getLocalStorage()?.getItem(key) ?? null;
   } catch {
     // Storage can be disabled in restricted browser contexts.
     return null;
@@ -42,7 +44,7 @@ const read = (key) => {
 
 const write = (key, value) => {
   try {
-    globalThis.localStorage?.setItem(key, value);
+    getLocalStorage()?.setItem(key, value);
   } catch {
     // See read().
   }
