@@ -1,5 +1,13 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.0.3
+
+### Patch Changes
+
+- Reduce server record bookkeeping with fixed cold-payload slots and bound startup metadata-string deduplication. Build chat indexes from compact metadata, and reject unrelated media in live poll updates and repairs without decoding their archived provider payloads. Preserve deferred reads, message history and the existing archive format.
+
+  Recover disconnected Telegram clients and stalled event streams, keep optional send metadata from blocking messages, fix duplicate pending-delivery icons, and make unread navigation confirm its target before acknowledging it. Highlight context-menu targets without changing bulk selection. Document T3 Code as the visual/configuration reference and Telegram as the common messaging baseline across providers.
+
 ## 1.0.2
 
 ### Patch Changes
