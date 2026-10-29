@@ -16,6 +16,7 @@
 import { readFileSync } from 'node:fs';
 import Module, { createRequire } from 'node:module';
 import { configureTelegramCrypto } from './telegram-runtime.js';
+import { deferTelegramDiskSession } from './telegram-session-loader.js';
 
 export const LAYER = 232;
 
@@ -185,7 +186,9 @@ export const importTelegram = async () => {
   installTelegramLayer();
   // Use the same CommonJS registry as the reader and layer probe. Deno's
   // npm import map can otherwise load a second copy with unpatched classes.
-  const telegram = createRequire(import.meta.url)('teleproto');
+  const require = createRequire(import.meta.url);
+  deferTelegramDiskSession(require);
+  const telegram = require('teleproto');
   try {
     skipPeerlessDialogs(telegram.Api);
     skipCommunities(telegram.Api, readFileSync(SCHEMA, 'utf8'));

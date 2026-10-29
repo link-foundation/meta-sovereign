@@ -9,14 +9,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { runModuleScript } from './helpers/run-module-script.js';
 import { readFileSync, readdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
 
 import { schemaToTl, tdlibToTl, tlLine } from '../scripts/telegram-schema.mjs';
-import { LAYER } from '../src/sources/telegram-layer.js';
+import { LAYER, importTelegram } from '../src/sources/telegram-layer.js';
 import { rereadUnsupported } from '../src/sources/telegram-repair.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 
-const require = createRequire(import.meta.url);
 const SOURCES = new URL('../src/sources/', import.meta.url);
 const shipped = () =>
   readFileSync(new URL(`telegram-api/layer-${LAYER}.tl`, SOURCES), 'utf8');
@@ -95,8 +93,8 @@ test("TDLib's schema becomes the same TL, without TDLib's own calls", () => {
   ]);
 });
 
-test('the maintained client has the current polls, checklists and vote methods', () => {
-  const { Api } = require('teleproto');
+test('the maintained client has the current polls, checklists and vote methods', async () => {
+  const { Api } = await importTelegram();
   assert.equal(Api.MessageMediaPoll.CONSTRUCTOR_ID.toString(16), '773f4e66');
   assert.equal(typeof Api.MessageMediaToDo, 'function');
   assert.equal(typeof Api.messages.SendVote, 'function');
@@ -127,8 +125,8 @@ test('GramJS loads at the current layer, before anything else loads it', () => {
   assert.equal(got.todo, 'function');
 });
 
-test('every Api method and class our Telegram code names exists', () => {
-  const { Api } = require('teleproto');
+test('every Api method and class our Telegram code names exists', async () => {
+  const { Api } = await importTelegram();
   const known = (name) =>
     name.split('.').reduce((value, key) => value?.[key], Api);
   const missing = [];
