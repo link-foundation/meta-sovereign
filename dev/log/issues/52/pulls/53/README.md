@@ -23,6 +23,9 @@ Raw-log review also traced 21 surviving Node storage warnings to teleproto's eag
 disk-driver import. Lazy session exports now avoid unused browser storage while
 preserving the original disk session's write/reopen behavior. Two failing-first
 regressions and 104 passing consumer tests accompany both upstream reports.
+The all-workflow warning audit also repairs the security family's missing main
+push trigger and the release family's documentation-only baseline skip, using
+the same push coverage already present in all three reference templates.
 
 - [Analysis and timeline](ANALYSIS.md): causes, alternatives, chosen fixes and warning disposition.
 - [Requirement inventory](REQUIREMENTS.md): each issue and execution requirement mapped to evidence.

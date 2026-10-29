@@ -43,6 +43,7 @@ before classifying a problem.
 | 06:09:47–06:11:48 | Links run 40827010880 records 11–15 repeated RFC 8621 canonical self-redirects, then 502/timeouts. The preceding run passed; this is new intermittent external evidence, not a reason to weaken the gate. |
 | After 06:14 | Local direct RFC HTML/text requests return 200 without redirects. Update all four email documentation translations and report the observed redirect chain upstream as ietf-tools/red #577. The local extensionless request eventually returns 200, so internal production cause remains unproven. |
 | During final log review | Although Checks run 40827010970 passes, its three Node lanes retain 21 Web Storage warnings. A focused trace identifies teleproto's eager StoreSession → store2 import. Two new regressions fail first; lazy session exports remove the unused initialization. All 104 focused consumers and an actual disk-session reopen pass without warnings. |
+| After 06:47:09 | Push a7da60e3; the corrected RFC links pass. Reviewing every other workflow's warning output also finds four missing-push-hook warnings in the security CodeQL family. Two new regressions identify the absent main trigger and documentation-only release baseline skip; both are repaired before final readiness. |
 
 The release failure follows dependency updates in PR 51, but npm's re-resolution
 operation is the root cause. Relaxing the strict tree guard would publish a
@@ -140,6 +141,31 @@ The aggregate becoming successful after an upload did not override the failed
 SARIF verdict. Both complete configuration coverage and the strict verdict are
 necessary. Final verification checks all five workflows and the aggregate result
 at the same head SHA.
+
+### Complete default-branch CodeQL baselines
+
+The additional warning audit covers every workflow, rather than only runtime
+tests. `ci-logs/40827010991-attempt1.log` lines 927, 2693, 4659 and 6579 contain
+one missing `on.push` warning per security language. CodeQL Action v4.39.1's
+`src/workflow.ts:191–200` explicitly produces this warning when a workflow has
+a PR trigger without push/workflow_call. The exact source is preserved in
+`research/codeql-workflow-v4.39.1.ts`. The newly added PR coverage exposed an
+existing scheduled-only configuration: PR analysis does not replace default-
+branch push analysis. GitHub documents their distinct purposes in
+[workflow configuration options](https://docs.github.com/en/code-security/reference/code-scanning/workflow-configuration-options).
+
+Both configuration families now refresh on every main push. The security
+workflow gains the same main trigger already present in all three reference
+templates. The release CodeQL condition also explicitly permits push events,
+so documentation-only updates cannot leave that baseline stale. Existing PR,
+schedule, manual, dependency and failure/cancellation behavior remains intact;
+no warning is filtered and no extra publication is authorized. Two minimal
+tests fail against the previous workflow definitions, then all 11 relevant
+workflow/verdict/queue/warning regressions pass (`codeql-push-before.log` and
+`codeql-push-after.log`). Final CI must show both complete configuration
+families and no missing-hook warnings. This is a downstream integration gap;
+the reference templates already implement the requested trigger, so no new
+upstream defect report is warranted.
 
 ### Storage warnings and the fallback correction
 

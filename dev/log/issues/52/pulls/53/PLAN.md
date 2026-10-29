@@ -41,6 +41,10 @@ Passing workflow logs were also searched for executed warnings: 21 remaining
 transitive storage warnings led to a focused trace, two failing regressions,
 lazy session exports, 104 passing consumers and two upstream reports. Final logs
 must confirm those warnings are absent, alongside the workflow verdicts.
+The audit also covers every other workflow: four missing-push-hook warnings
+lead to main-push coverage for both CodeQL families, including documentation-
+only changes. Two new regressions fail first; all 11 relevant checks then pass.
+Final exact-head logs must contain neither storage nor missing-hook warnings.
 
 Collection started 2026-10-29. Initial branch head:
 `b22541e5603e5a9fdcc69f4cb151d90062d1e9a6`; issue's main head:

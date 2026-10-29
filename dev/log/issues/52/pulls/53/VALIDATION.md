@@ -23,6 +23,7 @@ individual runs and overlap; they must not be added as unique test totals.
 | Complete CodeQL coverage and safe error summaries | `codeql-follow-up-before.log`: 3 failures for missing documentation-only PR coverage, stack-string disclosure and arbitrary JSON error stringification; API snapshots separately establish the absent scheduled PR trigger | `codeql-follow-up-after.log`: 12 workflow/security/redaction tests plus the existing JSON error-contract test pass; corrected changed-file lint passes in `codeql-follow-up-lint.log` |
 | Greeting emoji compatibility | `greeting-emoji-before.log`: wave-plus-addressee regression fails against the first linear scanner | `greeting-emoji-after.log`: all 38 greeting/security tests pass, including direct pattern tests, English/Russian addressees and the bounded rejection probe; lint and rebuilt bundle pass |
 | Transitive Telegram storage initialization | `telegram-warning-trace.log`: actual store2 getter stack; `telegram-storage-before.log`: two failures (getter read and native warning) | `telegram-storage-consumers.log`: 104 relevant tests pass without warnings; `telegram-storage-disk-roundtrip.log`: both regressions pass with original disk constructor identity and actual write/reopen; changed-file lint passes |
+| Default-branch CodeQL configuration coverage | `codeql-push-before.log`: two failures for missing security push trigger and documentation-only release skip; four actual diagnostic locations in `pre-final-other-warning-index.log` | `codeql-push-after.log`: all 11 relevant workflow, SARIF, queue and warning tests pass; changed-file lint and format pass |
 
 The adversarial greeting child uses finite input, a 96 MiB V8 heap, a 512 KiB
 stack and a two-second child deadline. Broad backup-memory regression remains CI
@@ -107,6 +108,12 @@ CodeQL check to pass again at the final pushed SHA. Those final results belong
 on the live PR, after the archive's cutoff.
 The final Node logs are additionally inspected for remaining storage warnings;
 workflow success alone did not close that requirement.
+The same audit across the other workflows finds four security CodeQL missing-
+push-hook warnings at that head. Exact source confirms the cause; both families
+now refresh on every main push, including documentation-only changes. The
+final raw-log audit covers all five workflows and must also show these warnings
+absent. The RFC correction has already passed at a7da60e3; final exact-head
+verification is still required after the baseline-trigger adjustment.
 
 ## Completion boundaries
 
