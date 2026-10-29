@@ -11,7 +11,9 @@ import { safeRegExpOrNull } from '../patterns/safe-regex.js';
 import { extractFacts } from '../facts/index.js';
 import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
-import { aggregateContacts } from './aggregate.js';
+import { aggregateContacts, createContactAggregation } from './aggregate.js';
+import { scanLinks, lightLinks } from './store-scan.js';
+import { memoryHealth } from './memory-health.js';
 import { diskHealth } from '../storage/disk-space.js';
 import {
   CURRENT_SCHEMA,
@@ -19,20 +21,56 @@ import {
   versionOf,
 } from '../storage/migrations/index.js';
 
-const computeStatus = (all, diffs) => ({
-  links: all.length,
-  messages: all.filter((l) => l.id?.startsWith('msg:')).length,
-  patterns: all.filter((l) => l.id?.startsWith('pattern:')).length,
-  graphs: all.filter((l) => l.id?.startsWith('graph:')).length,
-  replies: all.filter((l) => l.id?.startsWith('reply:')).length,
-  contacts: aggregateContacts(all, { people: true }).length,
-  chats: new Set(
-    all
-      .filter((l) => l.id?.startsWith('msg:'))
-      .map((m) => `${m.source}:${m.chat}`)
-  ).size,
-  verifyDiffs: diffs.length,
-});
+const computeStatus = async (store) => {
+  const counts = { links: 0, messages: 0, patterns: 0, graphs: 0, replies: 0 };
+  const contacts = new Set();
+  const chats = new Set();
+  await scanLinks(store, undefined, (batch) => {
+    for (const link of batch) {
+      counts.links += 1;
+      for (const [prefix, field] of [
+        ['msg:', 'messages'],
+        ['pattern:', 'patterns'],
+        ['graph:', 'graphs'],
+        ['reply:', 'replies'],
+      ]) {
+        if (link.id?.startsWith(prefix)) {
+          counts[field] += 1;
+        }
+      }
+      if (link.id?.startsWith('msg:')) {
+        chats.add(`${link.source}:${link.chat}`);
+        if (link.sender && link.sender !== 'me') {
+          contacts.add(link.sender);
+        }
+      }
+      if (link.id?.startsWith('person:') && link.user && link.source) {
+        contacts.add(String(link.user));
+      }
+    }
+  });
+  return {
+    ...counts,
+    contacts: contacts.size,
+    chats: chats.size,
+    verifyDiffs: ((await store.verify?.()) ?? []).length,
+  };
+};
+
+const contactsFromStore = async (store) => {
+  const aggregation = createContactAggregation();
+  await scanLinks(
+    store,
+    (link) => link.id?.startsWith('msg:'),
+    (batch) => batch.forEach(aggregation.message)
+  );
+  await scanLinks(
+    store,
+    (link) => link.id?.startsWith('person:'),
+    (batch) => batch.forEach(aggregation.person)
+  );
+  return aggregation.result();
+};
 
 const completionsFor = (links, prefix, me, limit) => {
   const lower = String(prefix ?? '').toLowerCase();
@@ -56,7 +94,7 @@ const completionsFor = (links, prefix, me, limit) => {
 };
 
 const facts = async (store) => {
-  const all = await store.query();
+  const all = await lightLinks(store);
   const messages = all.filter((l) => l.id?.startsWith('msg:'));
   const patterns = all
     .filter((l) => l.id?.startsWith('pattern:'))
@@ -99,10 +137,7 @@ const cachedStatus = (store) => {
   const revision = entry.revision;
   entry.pending = (async () => {
     try {
-      const value = computeStatus(
-        await store.query(),
-        (await store.verify?.()) ?? []
-      );
+      const value = await computeStatus(store);
       if (entry.revision === revision) {
         entry.value = value;
       }
@@ -115,27 +150,26 @@ const cachedStatus = (store) => {
 };
 
 const HANDLERS = {
-  '/api/contacts': async (store) =>
-    aggregateContacts(await store.query(), { people: true }),
+  '/api/contacts': contactsFromStore,
   '/api/status': async (store, url) =>
     url.searchParams.get('probe') === '1'
       ? { service: 'meta-sovereign', discovery: true }
       : { service: 'meta-sovereign', ...(await cachedStatus(store)) },
   '/api/autocomplete': async (store, url) =>
     completionsFor(
-      await store.query(),
+      await lightLinks(store),
       url.searchParams.get('q') ?? '',
       url.searchParams.get('me') ?? 'me',
       Number(url.searchParams.get('limit') ?? 10)
     ),
   '/api/audience': async (store, url) =>
     aggregateContacts(
-      evalAudience(await store.query(), url.searchParams.get('q') ?? '')
+      evalAudience(await lightLinks(store), url.searchParams.get('q') ?? '')
     ),
   '/api/facts': async (store) => facts(store),
   '/api/search': async (store, url) =>
     localSearch(
-      { query: async () => store.query() },
+      { query: async () => lightLinks(store) },
       {
         query: url.searchParams.get('q') ?? '',
         min: Number(url.searchParams.get('min') ?? 0.2),
@@ -155,6 +189,7 @@ const HANDLERS = {
       time: new Date().toISOString(),
       disk: await diskHealth(ctx.storeDir ?? '.', ctx.diskFree),
       store: { degraded, queuedBytes },
+      memory: memoryHealth(store),
       // The data schema this store is at and the one this build writes (R-Z17).
       schema: {
         version: schema?.version ?? versionOf(await store.get(SCHEMA_ID)),

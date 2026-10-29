@@ -27,6 +27,7 @@ import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
+import { createRawPacking } from './raw-packing.js';
 import { parseLino } from './lino.js';
 import {
   FILE_MODE,
@@ -150,7 +151,8 @@ const INTERN_MAX = 64;
 // A decoded string can be a slice of its whole line, which would keep
 // every line of the file in memory; this is a copy of its own.
 const ownCopy = (text) => (text.length < 13 ? text : ` ${text}`.slice(1));
-const createInterner = () => {
+const identity = (link) => link;
+const createInterner = ({ coldPayloads = false } = {}) => {
   const seen = new Map();
   const intern = (value) => {
     if (typeof value === 'string') {
@@ -171,7 +173,12 @@ const createInterner = () => {
     if (value && typeof value === 'object') {
       const out = {};
       for (const key of Object.keys(value)) {
-        out[key] = intern(value[key]);
+        // Packed payloads are serialized immediately. Interning their unique
+        // strings would retain another archive-sized set until loading ends.
+        out[key] =
+          coldPayloads && (key === 'raw' || key === 'snapshot')
+            ? value[key]
+            : intern(value[key]);
       }
       return out;
     }
@@ -183,10 +190,10 @@ const createInterner = () => {
 // The live links of a record log, read a line at a time: a large store
 // is never held as one string, and a superseded record is dropped as
 // soon as a later one replaces it.
-const streamRecords = async (filePath, readLimit) => {
+const streamRecords = async (filePath, readLimit, retain) => {
   const byId = new Map();
   const sizes = new Map(); // id -> its live line's length
-  const intern = createInterner();
+  const intern = createInterner({ coldPayloads: retain !== identity });
   let lines = 0;
   let chars = 0; // of the whole file, superseded lines too
   let open = false;
@@ -219,7 +226,7 @@ const streamRecords = async (filePath, readLimit) => {
     } else {
       // The key a copy too: a slice of its line would keep the line.
       const id = ownCopy(record.id);
-      byId.set(id, intern(record));
+      byId.set(id, retain(intern(record)));
       sizes.set(id, line.length + 1);
     }
   }
@@ -294,6 +301,35 @@ const recordOf = (line) => {
   }
 };
 
+const livePositions = async (handle, size, yieldWork) => {
+  const last = new Map();
+  let at = 0;
+  let first = true;
+  for await (const line of linesOf(handle, size)) {
+    at += 1;
+    if (at % 256 === 0) {
+      await yieldWork();
+    }
+    if (first && line.trim().length > 0) {
+      first = false;
+      if (!isRecordLine(line)) {
+        return null;
+      }
+    }
+    const record = recordOf(line);
+    if (record && isTombstoneRecord(record)) {
+      last.delete(record.id);
+    } else if (record) {
+      // A copy: the id as decoded is a slice of its line, and would
+      // keep every line in memory (the snapshot worker ran out of it).
+      last.set(ownCopy(record.id), at);
+    }
+  }
+  const wanted = new Set(last.values());
+  last.clear();
+  return wanted;
+};
+
 /**
  * Each live link of a record log, handed to `onRecord` one at a time in
  * the order of its last write, never all held at once: a first pass
@@ -301,7 +337,11 @@ const recordOf = (line) => {
  * those. Resolves to `{ links, mtime }` (`mtime` of the log as read), or
  * null for a log in the legacy format (read it with `readLinoFile`).
  */
-export const forEachLiveRecord = async (filePath, onRecord) => {
+export const forEachLiveRecord = async (
+  filePath,
+  onRecord,
+  { yieldWork = async () => {} } = {}
+) => {
   let handle;
   try {
     handle = await fs.open(filePath, 'r');
@@ -313,32 +353,17 @@ export const forEachLiveRecord = async (filePath, onRecord) => {
   }
   try {
     const { size, mtime } = await handle.stat();
-    const last = new Map();
-    let at = 0;
-    let first = true;
-    for await (const line of linesOf(handle, size)) {
-      at += 1;
-      if (first && line.trim().length > 0) {
-        first = false;
-        if (!isRecordLine(line)) {
-          return null;
-        }
-      }
-      const record = recordOf(line);
-      if (record && isTombstoneRecord(record)) {
-        last.delete(record.id);
-      } else if (record) {
-        // A copy: the id as decoded is a slice of its line, and would
-        // keep every line in memory (the snapshot worker ran out of it).
-        last.set(ownCopy(record.id), at);
-      }
+    const wanted = await livePositions(handle, size, yieldWork);
+    if (!wanted) {
+      return null;
     }
-    const wanted = new Set(last.values());
-    last.clear();
     let links = 0;
-    at = 0;
+    let at = 0;
     for await (const line of linesOf(handle, size)) {
       at += 1;
+      if (at % 256 === 0) {
+        await yieldWork();
+      }
       if (wanted.has(at)) {
         onRecord(recordOf(line));
         links += 1;
@@ -351,7 +376,10 @@ export const forEachLiveRecord = async (filePath, onRecord) => {
 };
 
 /** The live links of a `.lino` file, and how its lines stand. */
-export const readLinoFile = async (filePath, { readLimit } = {}) => {
+export const readLinoFile = async (
+  filePath,
+  { readLimit, retain = identity } = {}
+) => {
   let first;
   try {
     first = await firstLine(filePath);
@@ -393,21 +421,26 @@ export const readLinoFile = async (filePath, { readLimit } = {}) => {
       bad: createBadLines(),
     };
   }
-  return streamRecords(filePath, readLimit);
+  return streamRecords(filePath, readLimit, retain);
 };
 
 // Write every link to a temp file in chunks, flush it to disk, swap it
 // in, and flush the directory: after a power cut the file is the old log
 // or the whole new one, never an empty or half-written one (R-Z2).
-const rewriteFile = async (filePath, links, rename) => {
+const rewriteFile = async (filePath, store, rename) => {
   await fs.mkdir(path.dirname(filePath), { recursive: true, mode: 0o700 });
   const tmp = `${filePath}.${process.pid}.tmp`;
   try {
     const handle = await fs.open(tmp, 'w', FILE_MODE);
     try {
-      for (let at = 0; at < links.length; at += CHUNK) {
-        await handle.write(formatLinoRecords(links.slice(at, at + CHUNK)));
-      }
+      await store.scan(
+        undefined,
+        CHUNK,
+        async (batch) => {
+          await handle.write(formatLinoRecords(batch));
+        },
+        identity
+      );
       await handle.sync();
     } finally {
       await handle.close();
@@ -552,7 +585,7 @@ const compactLog = async ({
     bad.lines = [];
     bad.count = 0;
   }
-  await rewriteFile(filePath, await mem.query(), rename);
+  await rewriteFile(filePath, mem, rename);
   return { skipped: false };
 };
 
@@ -663,6 +696,20 @@ const textHandoff = ({ filePath, mem, tally, mode }) => ({
   },
 });
 
+const loadRetained = async (filePath, readLimit) => {
+  const packing = createRawPacking();
+  const mem = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+  });
+  const loaded = await readLinoFile(filePath, {
+    readLimit,
+    retain: packing.pack,
+  });
+  await mem.putMany(loaded.live);
+  return { packing, mem, loaded };
+};
+
 export const createLinoTextStore = async (
   filePath,
   {
@@ -682,9 +729,7 @@ export const createLinoTextStore = async (
   } = {}
 ) => {
   const mode = { readOnly };
-  const mem = createMemoryStore();
-  const loaded = await readLinoFile(filePath, { readLimit });
-  await mem.putMany(loaded.live);
+  const { packing, mem, loaded } = await loadRetained(filePath, readLimit);
   const tally = createTally(loaded, { compactAfter, compactBytes });
   const bad = loaded.bad;
   loaded.live = null;
@@ -793,6 +838,7 @@ export const createLinoTextStore = async (
 
   return {
     ...mem,
+    memoryStats: packing.stats,
     ...textHandoff({ filePath, mem, tally, mode }),
     async put(link) {
       guard();

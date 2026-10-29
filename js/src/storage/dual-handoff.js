@@ -51,6 +51,7 @@ export const managedDualStore = ({
         'query',
         'scan',
         'size',
+        'memoryStats',
         'subscribe',
         'flush',
         'health',

@@ -66,7 +66,9 @@ export const createDualStore = ({ binary, text }) => ({
   async query(filter) {
     return binary.query(filter);
   },
-  scan: (filter, size, onBatch) => binary.scan?.(filter, size, onBatch),
+  scan: (filter, size, onBatch, project) =>
+    binary.scan?.(filter, size, onBatch, project),
+  memoryStats: () => text.memoryStats?.() ?? null,
   size: () => binary.size?.(),
   subscribe(h) {
     return binary.subscribe(h);

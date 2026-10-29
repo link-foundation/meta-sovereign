@@ -7,15 +7,25 @@
  */
 
 import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { parentPort, threadId, workerData } from 'node:worker_threads';
-import { writeFileDurable } from './durable.js';
+import { Readable } from 'node:stream';
+import {
+  writeStreamDurable,
+  fsyncFile,
+  renameDurable,
+  fsyncDir,
+} from './durable.js';
 import { forEachLiveRecord, readLinoFile } from './lino-store.js';
 import {
   createNetworkEncoder,
-  encodeLinksArchive,
+  linksArchivePackets,
 } from './doublets-archive.js';
+import { packetChunks } from './binary-packet-stream.js';
+import { createWorkBudget } from './work-budget.js';
 
 const { from, to } = workerData;
+const yieldWork = createWorkBudget();
 
 // The network of the log's live links, encoded as they are read: the
 // store is never held decoded here as well (it did not fit beside the
@@ -23,7 +33,9 @@ const { from, to } = workerData;
 // is small, and read whole.
 const networkOf = async (file) => {
   const encoder = createNetworkEncoder();
-  const read = await forEachLiveRecord(file, (record) => encoder.add(record));
+  const read = await forEachLiveRecord(file, (record) => encoder.add(record), {
+    yieldWork,
+  });
   if (read) {
     return { ...read, network: encoder.finish() };
   }
@@ -40,7 +52,15 @@ const { links, mtime, network } = await networkOf(from);
 if (mtime === null) {
   parentPort.postMessage({ links: 0, bytes: 0 });
 } else {
-  const bytes = encodeLinksArchive(network);
+  let bytes = 0;
+  const chunks = async function* () {
+    for (const packet of linksArchivePackets(network)) {
+      for await (const chunk of packetChunks(packet, { yieldWork })) {
+        bytes += chunk.length;
+        yield chunk;
+      }
+    }
+  };
   // One temp file per worker: two stores over one folder may snapshot at
   // the same time, and must not rename each other's file away.
   // Flushed before the rename, and the folder after it (R-Z2).
@@ -48,9 +68,15 @@ if (mtime === null) {
   // in whole milliseconds, and Deno turns seconds into a time rounding down,
   // which would leave the snapshot a millisecond older than its log.
   const at = mtime.getTime() / 1000 + 0.0005;
-  await writeFileDurable(to, bytes, {
-    utime: [at, at],
-    tag: `.${threadId}.snapshot`,
-  });
-  parentPort.postMessage({ links, bytes: bytes.length });
+  const staged = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
+  try {
+    await writeStreamDurable(staged, Readable.from(chunks()));
+    await fs.utimes(staged, at, at);
+    await fsyncFile(staged);
+    await renameDurable(staged, to);
+    await fsyncDir(path.dirname(to));
+  } finally {
+    await fs.unlink(staged).catch(() => {});
+  }
+  parentPort.postMessage({ links, bytes });
 }

@@ -108,6 +108,15 @@ const boundsOf = async (store, sorted, range, limit) => {
   return [Math.max(0, end - limit), end];
 };
 
+const indexStoreMessages = async (store, add) => {
+  const indexBatch = (links) => links.forEach(add);
+  if (store.scan) {
+    await store.scan(isMessage, 500, indexBatch);
+  } else {
+    indexBatch(await store.query(isMessage));
+  }
+};
+
 export const createChatIndex = (store) => {
   const chats = new Map(); // key -> { entries: Map, sorted, head }
   const listeners = new Set();
@@ -190,9 +199,7 @@ export const createChatIndex = (store) => {
   const unsubscribe = store.subscribe?.(onChange) ?? (() => {});
 
   const ready = (async () => {
-    for (const link of await store.query(isMessage)) {
-      add(link);
-    }
+    await indexStoreMessages(store, add);
     loaded = true;
   })();
 

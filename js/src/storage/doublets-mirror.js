@@ -102,12 +102,15 @@ const createSnapshots = ({
   minIntervalMs,
   onError,
   clock = REAL_CLOCK,
+  initialDelayMs = 0,
 }) => {
   let timer = null;
   let inFlight = null;
   let queued = null;
   let wanted = false;
-  let lastAt = 0;
+  let lastAt = initialDelayMs
+    ? clock.now() - minIntervalMs + initialDelayMs
+    : 0;
   let lastCost = 0;
   let failures = 0;
   let closed = false;
@@ -203,6 +206,7 @@ export const createDoubletsMirror = async (
     onEvent = () => {},
     measureFree,
     clock,
+    initialDelayMs,
     // The file system calls behind the free-space check; a test on a
     // virtual clock replaces them so no real I/O sits inside its schedule.
     spaceCheck,
@@ -220,6 +224,12 @@ export const createDoubletsMirror = async (
       return enoughSpace(path.dirname(filePath), size ?? log, measureFree);
     });
   const snapshots = createSnapshots({
+    // Let the old rolling worker retire before starting another large heap.
+    initialDelayMs:
+      initialDelayMs ??
+      ((await fs.stat(text.filePath).catch(() => null))?.size > 64 * 1024 ** 2
+        ? minIntervalMs
+        : 0),
     run: async () => {
       await text.flush(); // every write so far is in the log
       const space = await spaceFor();
@@ -227,7 +237,18 @@ export const createDoubletsMirror = async (
         onEvent(skippedEvent('snapshot_skipped', space));
         return { links: 0, bytes: 0, skipped: true };
       }
-      return snapshot(text.filePath, filePath, { signal: lifetime.signal });
+      const started = Date.now();
+      const result = await snapshot(text.filePath, filePath, {
+        signal: lifetime.signal,
+      });
+      onEvent({
+        level: 'debug',
+        event: 'store_snapshot_written',
+        durationMs: Date.now() - started,
+        links: result?.links,
+        bytes: result?.bytes,
+      });
+      return result;
     },
     minIntervalMs,
     onError: (error) => {
@@ -247,7 +268,8 @@ export const createDoubletsMirror = async (
     mirrors: text,
     get: (id) => text.get(id),
     query: (filter) => text.query(filter),
-    scan: (filter, size, onBatch) => text.scan(filter, size, onBatch),
+    scan: (filter, size, onBatch, project) =>
+      text.scan(filter, size, onBatch, project),
     size: () => text.size(),
     subscribe: (handler) => text.subscribe(handler),
     async put(link) {

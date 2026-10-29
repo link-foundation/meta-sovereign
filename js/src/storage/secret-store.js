@@ -62,6 +62,7 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
     logFile: inner.logFile,
     flushLog: inner.flushLog,
     size: inner.size ? () => inner.size() : undefined,
+    memoryStats: inner.memoryStats ? () => inner.memoryStats() : undefined,
     async put(link) {
       if (isSecret(link)) {
         const sealed = sealLink(link, passphrase);
@@ -93,6 +94,38 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
         l.id.startsWith(SECRET_PREFIX) && l.enc ? openLink(l, passphrase) : l
       );
       return filter ? opened.filter(filter) : opened;
+    },
+    async scan(filter, size, onBatch, project = (link) => ({ ...link })) {
+      if (!inner.scan) {
+        const all = await this.query(filter);
+        for (let at = 0; at < all.length; at += size) {
+          await onBatch(all.slice(at, at + size).map(project));
+        }
+        return all.length;
+      }
+      return inner.scan(
+        (link) => isSecret(link) || !filter || filter(link),
+        size,
+        async (batch) => {
+          const out = [];
+          for (const item of batch) {
+            const link =
+              item.secret && item.value.enc
+                ? openLink(item.value, passphrase)
+                : item.value;
+            if (!item.secret || !filter || filter(link)) {
+              out.push(item.secret ? project(link) : link);
+            }
+          }
+          if (out.length) {
+            await onBatch(out);
+          }
+        },
+        (link) => ({
+          secret: isSecret(link),
+          value: isSecret(link) ? link : project(link),
+        })
+      );
     },
     subscribe(handler) {
       return inner.subscribe((event) => {

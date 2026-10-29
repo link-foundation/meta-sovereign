@@ -37,6 +37,13 @@ export const BACKFILL_HEAP_SHARE = 0.7;
 export const heapNearlyFull = (stats = getHeapStatistics()) =>
   stats.used_heap_size > BACKFILL_HEAP_SHARE * stats.heap_size_limit;
 
+const memoryPressureEvent = () => ({
+  level: 'warn',
+  event: 'telegram_backfill_memory_full',
+  ...process.memoryUsage(),
+  heapLimit: getHeapStatistics().heap_size_limit,
+});
+
 // What the background download covers, in order.
 export const BACKFILL_ORDER = Object.freeze(['private', 'group']);
 
@@ -235,7 +242,7 @@ export const createBackfill = ({
     }
     if (memoryFull()) {
       if (!waitedForMemory) {
-        log({ level: 'warn', event: 'telegram_backfill_memory_full' });
+        log(memoryPressureEvent());
       }
       waitedForMemory = true;
       progress = { ...progress, phase: 'memory' };

@@ -81,6 +81,27 @@ const fakeText = () => ({
   flush: async () => {},
 });
 
+test('startup snapshot delay lets a retiring worker leave, while explicit flush stays immediate', async () => {
+  const clock = virtualClock();
+  let runs = 0;
+  const mirror = await createDoubletsMirror('/nonexistent/data.bin', {
+    text: fakeText(),
+    clock,
+    initialDelayMs: 60,
+    minIntervalMs: 60,
+    spaceCheck: async () => ({ ok: true }),
+    snapshot: async () => ({ links: ++runs }),
+  });
+  await mirror.put({ id: 'a' });
+  await clock.advance(59);
+  assert.equal(runs, 0);
+  await clock.advance(1);
+  assert.equal(runs, 1);
+  await mirror.put({ id: 'b' });
+  assert.deepEqual(await mirror.flush(), { links: 2 });
+  await mirror.close();
+});
+
 test('closing waits for an active snapshot and cancels deferred writes before a folder can move', async () => {
   const clock = virtualClock();
   let finish;

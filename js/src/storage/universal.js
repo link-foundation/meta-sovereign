@@ -28,7 +28,10 @@
  * @property {(handler: (event: {type: string, link: Link}) => void) => () => void} subscribe
  */
 
-export const createMemoryStore = () => {
+export const createMemoryStore = ({
+  retain = (link) => ({ ...link }),
+  release = () => {},
+} = {}) => {
   const data = new Map();
   const handlers = new Set();
   const emit = (event) => handlers.forEach((h) => h(event));
@@ -37,7 +40,9 @@ export const createMemoryStore = () => {
     if (!link || typeof link.id !== 'string') {
       throw new Error('link.id is required');
     }
-    data.set(link.id, { ...link });
+    const held = retain(link);
+    release(data.get(link.id));
+    data.set(link.id, held);
     emit({ type: 'put', link });
     return link;
   };
@@ -57,6 +62,7 @@ export const createMemoryStore = () => {
       const existed = data.has(id);
       const link = data.get(id);
       data.delete(id);
+      release(link);
       if (existed) {
         emit({ type: 'delete', link });
       }
@@ -87,13 +93,13 @@ export const createMemoryStore = () => {
      * `onBatch` are safe (a link written again keeps its place). Resolves
      * to how many links were looked at.
      */
-    async scan(filter, batchSize, onBatch) {
+    async scan(filter, batchSize, onBatch, project = (link) => ({ ...link })) {
       let batch = [];
       let looked = 0;
       for (const link of data.values()) {
         looked += 1;
         if (!filter || filter(link)) {
-          batch.push({ ...link });
+          batch.push(project(link));
           if (batch.length >= batchSize) {
             const full = batch;
             batch = [];

@@ -245,6 +245,12 @@ const namesPacket = (names) => {
   return { external: true, sections };
 };
 
+/** Packet descriptors usable by either the byte encoder or streaming writer. */
+export const linksArchivePackets = ({ links, names }) => [
+  linksPacket(links),
+  namesPacket(names),
+];
+
 /**
  * Write a raw network — `links` as `[source, target]` rows (address =
  * row index + 1) and `names` as `Map(name → address)` — in the link-cli

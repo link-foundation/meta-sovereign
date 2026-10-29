@@ -80,7 +80,7 @@ const addPerson = (entry, person) => {
   }
 };
 
-export const aggregateContacts = (links, { people = false } = {}) => {
+export const createContactAggregation = () => {
   const byContact = new Map();
   const entryFor = (id) => {
     if (!byContact.has(id)) {
@@ -88,27 +88,39 @@ export const aggregateContacts = (links, { people = false } = {}) => {
     }
     return byContact.get(id);
   };
-  for (const m of links) {
+  const message = (m) => {
     if (m.id?.startsWith('msg:') && m.sender && m.sender !== OWNER) {
       addMessage(entryFor(m.sender), m);
     }
-  }
-  if (people) {
-    for (const p of links) {
-      if (p.id?.startsWith('person:') && p.user && p.source) {
-        addPerson(entryFor(String(p.user)), p);
-      }
+  };
+  const person = (p) => {
+    if (p.id?.startsWith('person:') && p.user && p.source) {
+      addPerson(entryFor(String(p.user)), p);
     }
+  };
+  return {
+    message,
+    person,
+    result: () =>
+      [...byContact.values()]
+        .map((c) => ({
+          ...c,
+          networks: [...c.networks],
+          chats: [...c.chats],
+        }))
+        .sort(
+          (a, b) =>
+            (b.lastSeen ?? '').localeCompare(a.lastSeen ?? '') ||
+            String(a.name ?? a.id).localeCompare(String(b.name ?? b.id))
+        ),
+  };
+};
+
+export const aggregateContacts = (links, { people = false } = {}) => {
+  const aggregation = createContactAggregation();
+  links.forEach(aggregation.message);
+  if (people) {
+    links.forEach(aggregation.person);
   }
-  return [...byContact.values()]
-    .map((c) => ({
-      ...c,
-      networks: [...c.networks],
-      chats: [...c.chats],
-    }))
-    .sort(
-      (a, b) =>
-        (b.lastSeen ?? '').localeCompare(a.lastSeen ?? '') ||
-        String(a.name ?? a.id).localeCompare(String(b.name ?? b.id))
-    );
+  return aggregation.result();
 };

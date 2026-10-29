@@ -24,13 +24,15 @@
 
 import { detectSelfIds } from '../crm/reengage.js';
 import { buildReplyIndex, DEFAULT_REPLY_WINDOW_MS } from './reply-graph.js';
+import { createReplyHistory } from './reply-history.js';
+import { createReplyContext } from './reply-context.js';
 
 const isMessage = (l) =>
   l?.id?.startsWith('msg:') &&
   typeof l.body === 'string' &&
   !l.service &&
   !l.deleted;
-const chatKey = (source, chat) => `${source}\u0000${chat}`;
+const isMessageEvent = (event) => event?.link?.id?.startsWith('msg:');
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Messages kept for clients catching up; further behind, a whole model.
 const CHANGES_KEPT = 5000;
@@ -48,6 +50,30 @@ const clientKeep = (now, windowMs) => ({
   perContext: 8,
   last: (m) => now - Date.parse(m.timestamp ?? '') <= windowMs,
 });
+const serviceStats = (index, history, context, mirror, error) => ({
+  ...index.stats(),
+  history: history.stats(),
+  context: context.stats(),
+  mirror,
+  ...(error ? { mirrorError: error } : {}),
+});
+const autocompleteFromContext = async (
+  index,
+  context,
+  { source, chat, lastMessage, typed = '', limit = 8 }
+) => {
+  if (source && chat !== undefined && lastMessage === undefined) {
+    await context.ensure(source, chat);
+  }
+  const last =
+    lastMessage ??
+    (source && chat !== undefined ? context.toAnswer(source, chat) : '');
+  return {
+    ...index.autocomplete({ lastMessage: last, typed, limit }),
+    lastMessage: last,
+    backend: 'memory',
+  };
+};
 // What a client learns from a message.
 const learnable = (m) =>
   Object.fromEntries(
@@ -103,9 +129,6 @@ const createChangeLog = (now) => {
   };
 };
 
-const later = (a, b) =>
-  String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? '')) >= 0;
-
 /**
  * Create a reply service over `store`. `self` lists the owner's sender
  * ids (detected from the history when empty); `clink` is an optional
@@ -120,6 +143,7 @@ export const createReplyService = ({
   windowMs = DEFAULT_REPLY_WINDOW_MS,
   now = () => Date.now(),
   log = () => {},
+  historyBudget,
 } = {}) => {
   let index = null;
   let building = null;
@@ -127,36 +151,20 @@ export const createReplyService = ({
   // The last message that is not ours in each chat — the one to answer
   // — and the last message of any side: once we answered, there is
   // nothing to answer.
-  const lastIncoming = new Map();
-  const lastAny = new Map();
+  const context = createReplyContext({
+    isSelf: (sender) => isSelf(sender),
+    now,
+    windowMs,
+    store,
+    filter: isMessage,
+    project: learnable,
+  });
   let mirror = clink?.available ? 'off' : 'unavailable';
   const learned = createChangeLog(now);
   let selfList = [];
   let mirrorError = null;
-
-  const keepLater = (map, key, m) => {
-    const known = map.get(key);
-    if (!known || later(m, known)) {
-      map.set(key, m);
-    }
-  };
-  const remember = (m) => {
-    const key = chatKey(m.source, m.chat);
-    keepLater(lastAny, key, m);
-    if (!isSelf(m.sender)) {
-      keepLater(lastIncoming, key, m);
-    }
-  };
-
-  // The message to answer in a chat: its last one, when it is not ours
-  // and not long past answering.
-  const toAnswer = (source, chat) => {
-    const key = chatKey(source, chat);
-    const last = lastAny.get(key);
-    const at = Date.parse(last?.timestamp ?? '');
-    const stale = Number.isFinite(at) && now() - at > windowMs;
-    return last && !isSelf(last.sender) && !stale ? last.body : '';
-  };
+  const history = createReplyHistory({ store, self, budget: historyBudget });
+  let additions = 0;
 
   const openMirror = () => {
     if (!clink?.available || !index) {
@@ -176,15 +184,17 @@ export const createReplyService = ({
   };
 
   const buildIndex = async () => {
-    const messages = (await store.query()).filter(isMessage);
+    await history.seed(isMessage, learnable);
+    const messages = history.values();
     const selfIds = detectSelfIds(messages, self);
     isSelf = (sender) => selfIds.has(String(sender));
     selfList = [...selfIds];
-    lastIncoming.clear();
-    lastAny.clear();
+    history.setSelf(selfIds);
+    context.clear();
     learned.reset();
+    additions = 0;
     index = buildReplyIndex(messages, { isSelf, wordsFrom });
-    messages.forEach(remember);
+    messages.forEach(context.remember);
     openMirror();
     return index;
   };
@@ -200,17 +210,34 @@ export const createReplyService = ({
   };
 
   const unsubscribe = store.subscribe?.((event) => {
-    if (!isMessage(event?.link) || !index) {
+    if (!isMessageEvent(event) || !history.seeded) {
       return;
     }
-    if (event.type === 'delete') {
+    if (event.type === 'delete' || !isMessage(event.link)) {
       // Counts cannot be taken back one by one; relearn on next use.
+      index = null;
+      history.remove(event.link.id);
+      return;
+    }
+    const message = learnable(event.link);
+    const previous = history.get(message.id);
+    const retained = history.put(message);
+    context.remember(message);
+    if (previous?.body === message.body) {
+      return;
+    }
+    if (previous && !retained) {
+      index = null;
+    }
+    if (!retained || !index) {
+      return;
+    }
+    learned.add(message);
+    if (previous || ++additions >= 512) {
       index = null;
       return;
     }
-    remember(event.link);
-    learned.add(event.link);
-    const pair = index.observe(event.link);
+    const pair = index.observe(message);
     if (pair && mirror === 'ready') {
       clink.learn(pair).catch((error) => {
         log({ event: 'reply_mirror_error', error: error.message });
@@ -223,32 +250,20 @@ export const createReplyService = ({
     /** The last incoming message in a chat, or `null`. */
     async lastIncoming({ source, chat }) {
       await ready();
-      return lastIncoming.get(chatKey(source, chat)) ?? null;
+      await context.ensure(source, chat);
+      return context.incoming(source, chat);
     },
     /**
      * Suggestions (./reply-graph.js `autocomplete`). `lastMessage`
      * defaults, when `source` and `chat` are given, to the chat's last
      * message if it is the other side's — none once we answered it.
      */
-    async autocomplete({ source, chat, lastMessage, typed = '', limit = 8 }) {
-      const idx = await ready();
-      const last =
-        lastMessage ??
-        (source && chat !== undefined ? toAnswer(source, chat) : '');
-      return {
-        ...idx.autocomplete({ lastMessage: last, typed, limit }),
-        lastMessage: last,
-        backend: 'memory',
-      };
+    async autocomplete(options) {
+      return autocompleteFromContext(await ready(), context, options);
     },
     /** Index size and the link-cli mirror's state. */
     async stats() {
-      const idx = await ready();
-      return {
-        ...idx.stats(),
-        mirror,
-        ...(mirrorError ? { mirrorError } : {}),
-      };
+      return serviceStats(await ready(), history, context, mirror, mirrorError);
     },
     /**
      * The model for a client: `{ version, self, links }`, or — given the
@@ -275,6 +290,11 @@ export const createReplyService = ({
     },
     async close() {
       unsubscribe?.();
+      await building?.catch(() => {});
+      index = null;
+      history.clear();
+      context.clear();
+      learned.reset();
       await clink?.close?.();
     },
   };
