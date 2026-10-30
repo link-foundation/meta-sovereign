@@ -1,5 +1,14 @@
 # Loading, media and Operator queue behavior
 
+Measured progress uses the same bounded value for the painted bar, text and
+accessibility state. Transfer percentages never round up to 100% before the bytes
+are complete, and bar animations cannot lag behind a numeric label. Attachment,
+export and boost meters share a fill with visible track contrast across themes.
+Unknown totals use an indeterminate indicator, with no invented 5% value;
+confirmed completion fills the bar. Indeterminate animation respects reduced
+motion. A 0% poll result has no filled bar. Transfer and confirmation stages
+remain separate: a completed byte transfer is not proof of message delivery.
+
 Conversation facts and question/answer summaries refresh without clearing the
 last successful result. The About panel identifies partial history and links
 topic continuations and friendship agreements to their source messages. Context

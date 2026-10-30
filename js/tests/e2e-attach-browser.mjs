@@ -17,6 +17,7 @@ import path from 'node:path';
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, browserOf } from './helpers/e2e-chat.mjs';
+import { assertProgress } from './helpers/e2e-progress.mjs';
 
 const { engine, browserType } = await browserOf('attach');
 
@@ -47,7 +48,7 @@ const uploads = [];
 const account = {
   status: async () => ({ connected: true, kind: 'user' }),
   stop: async () => {},
-  uploadProgress: () => ({ ok: true, progress: 0.4 }),
+  uploadProgress: () => ({ ok: true, progress: 0.687 }),
   media: async () => ({ buffer: PNG, mimeType: 'image/png' }),
   receiveUpload: async (stream, { name }) => {
     let size = 0;
@@ -111,9 +112,16 @@ await page.route('**/api/telegram/history', (route) =>
   })
 );
 const sends = [];
+let releaseFirstSend;
 await page.route('**/api/telegram/send-files', async (route) => {
   sends.push(JSON.parse(route.request().postData() ?? '{}'));
-  await new Promise((resolve) => globalThis.setTimeout(resolve, 900));
+  if (sends.length === 1) {
+    await new Promise((resolve) => {
+      releaseFirstSend = resolve;
+    });
+  } else {
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 900));
+  }
   if (sends.at(-1).asPhoto) {
     await store.put({
       id: `msg:telegram:${CHAT}:2`,
@@ -174,7 +182,9 @@ const fileEvent = (kind) =>
         new globalThis.File([bytes], `${kind}.png`, { type: 'image/png' })
       );
       if (kind === 'pasted') {
-        const box = document.querySelector('.chat-composer textarea');
+        const box = globalThis.document.querySelector(
+          '.chat-composer textarea'
+        );
         const event = new globalThis.Event('paste', {
           bubbles: true,
           cancelable: true,
@@ -183,7 +193,7 @@ const fileEvent = (kind) =>
         box.dispatchEvent(event);
         return;
       }
-      const target = document.querySelector('.chat-scroll');
+      const target = globalThis.document.querySelector('.chat-scroll');
       for (const type of ['dragenter', 'dragover', 'drop']) {
         const event = new globalThis.Event(type, {
           bubbles: true,
@@ -234,10 +244,14 @@ try {
   await until(() => sends.length === 1, 'sent');
   await page.waitForFunction(
     () =>
-      document.querySelector('.attach-progress')?.textContent.includes('40%'),
+      globalThis.document
+        .querySelector('.attach-progress')
+        ?.textContent.includes('68%'),
     null,
     { timeout: 5000 }
   );
+  await assertProgress(page.locator('.attach-progress-bar'), 68);
+  releaseFirstSend();
   assert(
     uploads.length === 2 && uploads.every((u) => u.size === PNG.length),
     `uploads: ${JSON.stringify(uploads)}`
@@ -294,7 +308,7 @@ try {
     '[data-message="msg:telegram:555:2"] .bubble-photo'
   );
   await page.waitForFunction(() => {
-    const image = document.querySelector(
+    const image = globalThis.document.querySelector(
       '[data-message="msg:telegram:555:2"] img.bubble-photo-img'
     );
     return image?.complete && image.naturalWidth > 0;
@@ -314,25 +328,27 @@ try {
   }
   await page.waitForSelector('[data-message="msg:telegram:555:14"]');
   await page.waitForFunction(() => {
-    const box = document.querySelector('.chat-scroll');
+    const box = globalThis.document.querySelector('.chat-scroll');
     return box.scrollHeight - box.scrollTop - box.clientHeight < 2;
   });
 
   // All composer popovers see the chat backdrop. An ancestor blur would
   // create a backdrop root and leave their transparent panel unblurred.
   await page.evaluate(
-    () => (document.documentElement.dataset.effects = 'full')
+    () => (globalThis.document.documentElement.dataset.effects = 'full')
   );
   await page.click('[data-action="emoji"]');
   await page.waitForSelector('.emoji-panel');
   const frosted = await page.evaluate(() => {
-    const composer = document.querySelector('.chat-composer');
+    const composer = globalThis.document.querySelector('.chat-composer');
     const blur = (style) => style.backdropFilter || style.webkitBackdropFilter;
     return {
       parent: blur(globalThis.getComputedStyle(composer)),
       surface: blur(globalThis.getComputedStyle(composer, '::before')),
       panel: blur(
-        globalThis.getComputedStyle(document.querySelector('.emoji-panel'))
+        globalThis.getComputedStyle(
+          globalThis.document.querySelector('.emoji-panel')
+        )
       ),
     };
   });

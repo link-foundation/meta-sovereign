@@ -143,7 +143,7 @@ const ResultRow = ({ a, share, poll }) =>
       { key: 'b', className: 'poll-bar-track' },
       el('span', {
         className: 'poll-bar',
-        style: { width: `${Math.max(share, 1)}%` },
+        style: { width: `${share}%` },
       })
     ),
   ]);

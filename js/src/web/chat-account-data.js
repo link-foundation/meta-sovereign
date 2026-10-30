@@ -12,6 +12,7 @@ import { useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 import { Field, FormDialog } from './chat-create.js';
 import { sizeText } from './chat-export.js';
+import { ProgressBar, countPercent } from './progress-bar.js';
 
 const el = React.createElement;
 
@@ -101,9 +102,7 @@ export const dataFormReady = (form) => {
 
 /** 0..100 of the chats done, or null while the chat list is unknown. */
 export const chatsPercent = (job) =>
-  job?.chatsTotal > 0
-    ? Math.min(100, Math.round((job.chatsDone / job.chatsTotal) * 100))
-    : null;
+  countPercent(job?.chatsDone, job?.chatsTotal);
 
 const running = (job) =>
   job?.state === 'running' || job?.state === 'cancelling';
@@ -364,21 +363,13 @@ const DataProgress = ({ job, t }) => {
       { key: 's', 'data-export': 'state' },
       t(`dataExport.state.${job.state}`)
     ),
-    el(
-      'div',
-      {
-        key: 'bar',
-        className: 'export-bar',
-        role: 'progressbar',
-        'aria-valuemin': 0,
-        'aria-valuemax': 100,
-        'aria-valuenow': percent ?? undefined,
-      },
-      el('div', {
-        className: 'export-bar-fill',
-        style: { width: `${percent ?? (job.state === 'done' ? 100 : 5)}%` },
-      })
-    ),
+    el(ProgressBar, {
+      key: 'bar',
+      className: 'export-bar',
+      fillClassName: 'export-bar-fill',
+      percent: job.state === 'done' ? 100 : percent,
+      label: t(`dataExport.state.${job.state}`),
+    }),
     el(
       'p',
       { key: 'p', 'data-export': 'phase' },
@@ -550,6 +541,6 @@ export const ExportDataDialog = ({ api, close }) => {
         ]),
       ])
     ),
-    document.body
+    globalThis.document.body
   );
 };

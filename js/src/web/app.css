@@ -7,6 +7,8 @@
   --text: #e6edf3;
   --text-muted: #c9d1d9;
   --text-subtle: #9198a1;
+  --progress-fill: var(--text);
+  --progress-track: var(--bg-active);
   --accent: #238636;
   --accent-fill: #238636;
   --accent-bg: #1f6feb33;
@@ -4707,7 +4709,6 @@ img[data-media-ready='false'] {
   height: 100%;
   border-radius: 2px;
   background: var(--chat-accent, var(--link));
-  transition: width 0.3s ease;
 }
 .poll-answer.correct .poll-bar {
   background: #3fb950;
@@ -5092,18 +5093,37 @@ button[aria-busy='true']::before {
   gap: 0.6rem;
   font-size: 0.85rem;
 }
-.attach-progress-bar {
-  flex: 1;
+.progress-track {
   height: 4px;
   border-radius: 2px;
-  background: var(--bg-active);
+  background: var(--progress-track);
   overflow: hidden;
 }
-.attach-progress-bar span {
+.progress-fill {
   display: block;
   height: 100%;
-  background: var(--accent-fill, var(--chat-accent));
-  transition: width 0.2s;
+  background: var(--progress-fill);
+}
+.progress-track[data-progress='indeterminate'] > .progress-fill {
+  width: 35%;
+  animation: progress-travel 1.2s ease-in-out infinite;
+}
+@keyframes progress-travel {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(286%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-track[data-progress='indeterminate'] > .progress-fill {
+    animation: none;
+    transform: translateX(93%);
+  }
+}
+.attach-progress-bar {
+  flex: 1;
 }
 .chat-drop {
   position: absolute;
@@ -7203,7 +7223,7 @@ button[aria-busy='true']::before {
   height: 3px;
   overflow: hidden;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.55);
 }
 .story-bar > i {
   display: block;
@@ -9124,13 +9144,6 @@ span.bubble-effect {
 .boosts-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--bg-active);
-  overflow: hidden;
-}
-.boosts-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent-fill, var(--chat-accent));
 }
 .boosts-link {
   display: flex;
@@ -10618,13 +10631,6 @@ span.bubble-effect {
 .export-bar {
   height: 8px;
   border-radius: 4px;
-  background: var(--border);
-  overflow: hidden;
-}
-.export-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.3s ease;
 }
 
 .paid-earnings,

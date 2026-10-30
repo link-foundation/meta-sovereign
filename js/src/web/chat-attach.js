@@ -16,6 +16,7 @@ import { PhotoEditor } from './chat-photo-editor.js';
 import { isEdited, isEditable } from './photo-editor-model.js';
 import { RemoveMenu } from './chat-attach-bots.js';
 import { transferAttachments } from './attachment-transfer.js';
+import { ProgressBar, transferPercent } from './progress-bar.js';
 
 const el = React.createElement;
 
@@ -489,26 +490,24 @@ const Check = ({ name, checked, onChange, label }) =>
     el('span', { key: 'l' }, label),
   ]);
 
-const Progress = ({ progress, t }) =>
-  el('div', { className: 'attach-progress', role: 'status' }, [
-    el(
-      'div',
-      { key: 'bar', className: 'attach-progress-bar' },
-      el('span', {
-        style: { width: `${Math.round((progress.value ?? 0) * 100)}%` },
-      })
-    ),
-    el(
-      'span',
-      { key: 't', className: 'attach-progress-text' },
-      t(
-        progress.stage === 'confirming' || progress.value === null
-          ? 'chat.attach.confirming'
-          : `chat.attach.${progress.stage}`,
-        { percent: Math.floor((progress.value ?? 0) * 100) }
-      )
-    ),
+const Progress = ({ progress, t }) => {
+  const percent = transferPercent(progress.value);
+  const label = t(
+    progress.stage === 'confirming'
+      ? 'chat.attach.confirming'
+      : `chat.attach.${progress.stage}${percent === null ? 'Unknown' : ''}`,
+    { percent }
+  );
+  return el('div', { className: 'attach-progress', role: 'status' }, [
+    el(ProgressBar, {
+      key: 'bar',
+      className: 'attach-progress-bar',
+      percent,
+      label,
+    }),
+    el('span', { key: 't', className: 'attach-progress-text' }, label),
   ]);
+};
 
 /** The send box: what goes, the caption, how, and Send. */
 // `sendProps`: the Send button's menu (./chat-schedule.js, R-Y102).

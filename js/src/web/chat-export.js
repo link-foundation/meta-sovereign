@@ -14,6 +14,7 @@ import { useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 import { Icon } from './icons.js';
 import { TranslationSwitch } from './chat-translation-switch.js';
+import { ProgressBar, countPercent } from './progress-bar.js';
 
 const el = React.createElement;
 
@@ -80,10 +81,7 @@ export const sizeText = (bytes) => {
 };
 
 /** 0..100 when the total is known, else null. */
-export const percentOf = (job) =>
-  job?.total > 0
-    ? Math.min(100, Math.round((job.messages / job.total) * 100))
-    : null;
+export const percentOf = (job) => countPercent(job?.messages, job?.total);
 
 export const isRunning = (job) =>
   job?.state === 'running' || job?.state === 'cancelling';
@@ -251,21 +249,13 @@ const Progress = ({ job, t }) => {
       { key: 's', 'data-export': 'state' },
       t(`chat.export.state.${job.state}`)
     ),
-    el(
-      'div',
-      {
-        key: 'bar',
-        className: 'export-bar',
-        role: 'progressbar',
-        'aria-valuemin': 0,
-        'aria-valuemax': 100,
-        'aria-valuenow': percent ?? undefined,
-      },
-      el('div', {
-        className: 'export-bar-fill',
-        style: { width: `${percent ?? (job.state === 'done' ? 100 : 5)}%` },
-      })
-    ),
+    el(ProgressBar, {
+      key: 'bar',
+      className: 'export-bar',
+      fillClassName: 'export-bar-fill',
+      percent: job.state === 'done' ? 100 : percent,
+      label: t(`chat.export.state.${job.state}`),
+    }),
     el(
       'p',
       { key: 'm', 'data-export': 'messages' },
@@ -451,7 +441,7 @@ export const ExportDialog = ({ api, chat, onClose }) => {
         ]),
       ])
     ),
-    document.body
+    globalThis.document.body
   );
 };
 

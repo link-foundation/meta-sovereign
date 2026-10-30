@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { Frame } from './chat-readers.js';
+import { ProgressBar, countPercent } from './progress-bar.js';
 
 const el = React.createElement;
 
@@ -35,7 +36,7 @@ export const progressOf = (status) => {
   return {
     have: status.boosts,
     need: status.nextLevelBoosts,
-    percent: Math.min(100, Math.round((have / span) * 100)),
+    percent: countPercent(have, span),
   };
 };
 
@@ -161,18 +162,15 @@ const Level = ({ status, t }) => {
         : t('chat.boosts.count', { count: status.boosts })
     ),
     progress
-      ? el(
-          'div',
-          {
-            key: 'p',
-            className: 'boosts-bar',
-            role: 'progressbar',
-            'aria-valuemin': 0,
-            'aria-valuemax': 100,
-            'aria-valuenow': progress.percent,
-          },
-          el('span', { style: { width: `${progress.percent}%` } })
-        )
+      ? el(ProgressBar, {
+          key: 'p',
+          className: 'boosts-bar',
+          percent: progress.percent,
+          label: t('chat.boosts.progress', {
+            have: progress.have,
+            need: progress.need,
+          }),
+        })
       : null,
   ]);
 };
