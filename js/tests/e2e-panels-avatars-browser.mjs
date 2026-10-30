@@ -18,6 +18,8 @@ await store.putMany(
 );
 const { page, base, until, finish } = await openChatApp('panels-avatars', {
   store,
+  // Headless Chromium otherwise disables the native scrollbar being tested.
+  launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] },
 });
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');

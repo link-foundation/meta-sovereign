@@ -57,6 +57,7 @@ export const openChatApp = async (
     send = async () => ({ via: 'fake' }),
     telegramAccount = false,
     secure = false,
+    launchOptions = {},
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -81,7 +82,10 @@ export const openChatApp = async (
     ...serverOptions,
   });
   const base = `${secure ? 'https' : 'http'}://127.0.0.1:${handle.port}`;
-  const browser = await browserType.launch({ headless: true });
+  const browser = await browserType.launch({
+    headless: true,
+    ...launchOptions,
+  });
   const context = await browser.newContext({
     viewport: { width: 1200, height: 800 },
     ignoreHTTPSErrors: secure,
