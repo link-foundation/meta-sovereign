@@ -75,6 +75,10 @@ implementation into this repository.
   predictions visibly. Never present a generated continuation or its word
   frequency as a sentence the user previously sent. Keep multiline drafts
   visible up to the composer's height limit before scrolling their contents.
+  Suggestions remain previews until an option is explicitly activated. Tab
+  navigates focus; it never accepts the first suggestion. Omit word completions
+  that save fewer than three letters of typing and predictions after a finished
+  sentence. Keep user-written and saved drafts intact through suggestion updates.
 
 ## Review and evidence
 

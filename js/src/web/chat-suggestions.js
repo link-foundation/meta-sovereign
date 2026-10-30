@@ -23,7 +23,19 @@ const Suggestion = ({ suggestion: s, composer, t }) => {
       'data-rule': s.rule,
       'aria-label': word ? provenance : s.text,
       title: word ? `${provenance}\n\n${s.text}` : `${s.text}\n\n${provenance}`,
-      onClick: () => composer.setText(s.text),
+      onClick: (event) => {
+        const input = event.currentTarget
+          .closest('form')
+          ?.querySelector('textarea');
+        composer.setText(s.text);
+        globalThis.requestAnimationFrame(() => {
+          if (input?.isConnected) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+            input.scrollTop = input.scrollHeight;
+          }
+        });
+      },
     },
     el(MiddleEllipsis, { text: label })
   );

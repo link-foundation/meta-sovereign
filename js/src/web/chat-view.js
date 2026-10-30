@@ -996,7 +996,6 @@ const Composer = ({ state, api, keys }) => {
     if (event.defaultPrevented || formatShortcut(event, typeText)) {
       return;
     }
-    const first = suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
     if (
@@ -1008,9 +1007,6 @@ const Composer = ({ state, api, keys }) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       composer.send();
-    } else if (event.key === 'Tab' && first && !event.shiftKey) {
-      event.preventDefault();
-      composer.setText(first.text);
     }
   };
   const form = el(

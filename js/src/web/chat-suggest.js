@@ -50,13 +50,13 @@ export const useSuggestionsFor = (suggester, text, fallback = NONE) => {
     };
   }, [suggester?.key, text, loaded]);
   if (!suggester) {
-    return mergeSuggestions(fallback, null);
+    return mergeSuggestions(fallback, null, { typed: text });
   }
   const same = remote?.key === suggester.key && remote?.text === text;
   if (!loaded) {
     // Before the copy is loaded the server's answer shows, the last one
     // until the next arrives.
-    return mergeSuggestions(null, same ? remote.result : null);
+    return mergeSuggestions(null, same ? remote.result : null, { typed: text });
   }
-  return mergeSuggestions(local, same ? remote.result : null);
+  return mergeSuggestions(local, same ? remote.result : null, { typed: text });
 };

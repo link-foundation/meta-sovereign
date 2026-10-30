@@ -17,18 +17,16 @@ const endings = [
 ];
 const candidates = endings.map((end) => `${prefix}${end}`);
 const wordModel = buildReplyIndex(
-  [
-    'И начнем обсуждение.',
-    'Я подготовлю материалы.',
-    'А затем договоримся.',
-  ].map((body, n) => ({
-    id: `msg:telegram:999:${n}`,
-    source: 'telegram',
-    chat: '999',
-    sender: 'me',
-    body,
-    timestamp: new Date(1700000000000 + n * 1000).toISOString(),
-  }))
+  ['Подготовим материалы.', 'Обсудим детали.', 'Согласуем время.'].map(
+    (body, n) => ({
+      id: `msg:telegram:999:${n}`,
+      source: 'telegram',
+      chat: '999',
+      sender: 'me',
+      body,
+      timestamp: new Date(1700000000000 + n * 1000).toISOString(),
+    })
+  )
 );
 const { page, base, until, finish } = await openChatApp('suggestion-labels', {
   store,
@@ -38,10 +36,26 @@ await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
 });
+const queries = [];
 await page.route('**/api/suggest?*', (route) => {
   const typed = new URL(route.request().url()).searchParams.get('typed') ?? '';
+  queries.push(typed);
   if (typed.includes('\n')) {
-    return fulfil(route, wordModel.autocomplete({ typed }));
+    const result = wordModel.autocomplete({ typed });
+    // An older server can still return low-value predictions; the UI must filter them.
+    return fulfil(route, {
+      ...result,
+      suggestions: [
+        ...['И', 'Я', 'А'].map((word) => ({
+          kind: 'word',
+          text: `${typed} ${word}`,
+          word,
+          insert: ` ${word}`,
+          count: 100,
+        })),
+        ...result.suggestions,
+      ],
+    });
   }
   return fulfil(route, {
     stage: 'message',
@@ -104,11 +118,41 @@ const fitted = async () => {
   return items;
 };
 
+const previewOnly = async (box) => {
+  const first = page.locator('.suggestions button').first();
+  await first.hover();
+  await first.focus();
+  assert(
+    (await box.inputValue()) === 'При',
+    'hover and focus do not select a suggestion'
+  );
+  await box.press('Tab');
+  assert(
+    (await box.inputValue()) === 'При',
+    'Tab never fills the first suggestion'
+  );
+  assert(
+    await box.evaluate((node) => node !== globalThis.document.activeElement),
+    'Tab moves focus normally'
+  );
+  await box.press('Shift+Tab');
+  assert(
+    (await box.inputValue()) === 'При',
+    'reverse focus navigation keeps the draft'
+  );
+};
+
 await finish(async () => {
   await page.goto(`${base}/#chat=telegram:555`);
   const box = page.locator('.chat-composer textarea');
+  await box.waitFor();
+  assert(
+    (await box.inputValue()) === '',
+    'loading suggestions never prefills an empty composer'
+  );
   await box.fill('При');
   const desktop = await fitted();
+  await previewOnly(box);
   await page.setViewportSize({ width: 390, height: 844 });
   const phone = await fitted();
   assert(
@@ -134,6 +178,21 @@ await finish(async () => {
   );
   const draft = 'Привет\nМожешь помочь с настройкой учебного проекта?';
   await box.fill(draft);
+  await until(
+    () => queries.includes(draft),
+    'finished sentence receives server predictions'
+  );
+  await page.waitForTimeout(100);
+  assert(
+    (await page.locator('.suggestions button').count()) === 0,
+    'a finished sentence has no random word strip'
+  );
+  assert(
+    (await box.inputValue()) === draft,
+    'a late suggestion response preserves the draft'
+  );
+  const nextSentence = `${draft} `;
+  await box.fill(nextSentence);
   const words = page.locator('.suggestion-words button');
   await until(
     async () => (await words.count()) === 3,
@@ -141,8 +200,8 @@ await finish(async () => {
   );
   assert(
     JSON.stringify(await words.allTextContents()) ===
-      JSON.stringify(['И', 'Я', 'А']),
-    'only next words are shown, not invented sent messages'
+      JSON.stringify(['Подготовим', 'Обсудим', 'Согласуем']),
+    'only useful words survive, including when the server returns single letters'
   );
   assert(
     (await page.locator('.suggestion-kind').textContent()) === 'Next word',
@@ -167,23 +226,56 @@ await finish(async () => {
   }
   await words.first().click();
   assert(
-    (await box.inputValue()) === `${draft} И`,
+    (await box.inputValue()) === `${nextSentence}Подготовим`,
     'next-word choice preserves the entire draft'
   );
-  await box.fill(draft);
+  await box.fill(nextSentence);
   await until(
     async () => (await words.count()) === 3,
     'word suggestions return'
   );
   await box.press('Tab');
   assert(
-    (await box.inputValue()) === `${draft} И`,
-    'Tab accepts the same next-word prediction'
+    (await box.inputValue()) === nextSentence,
+    'Tab does not accept a word prediction'
+  );
+  await words.first().focus();
+  await words.first().press('Enter');
+  assert(
+    (await box.inputValue()) === `${nextSentence}Подготовим`,
+    'Enter on a focused option explicitly selects it'
+  );
+  await until(
+    () =>
+      box.evaluate(
+        (node) =>
+          node === globalThis.document.activeElement &&
+          node.selectionStart === node.value.length
+      ),
+    'explicit selection returns focus and the caret to the draft'
+  );
+  await box.fill(nextSentence);
+  await until(
+    async () => (await words.count()) === 3,
+    'word choices return for Space activation'
+  );
+  await words.nth(1).focus();
+  await words.nth(1).press('Space');
+  assert(
+    (await box.inputValue()) === `${nextSentence}Обсудим`,
+    'Space on a focused option explicitly selects it'
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await until(
-    () => box.evaluate((node) => node.scrollHeight <= node.clientHeight + 1),
-    'phone wrapping shows the draft'
+    () =>
+      box.evaluate((node) => {
+        const maximum = parseFloat(globalThis.getComputedStyle(node).maxHeight);
+        return (
+          node.scrollHeight <= node.clientHeight + 1 ||
+          Math.abs(node.offsetHeight - maximum) < 1
+        );
+      }),
+    'phone wrapping grows to fit or reaches the scrollable height limit'
   );
   await box.fill('Hello');
   await until(

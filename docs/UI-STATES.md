@@ -20,8 +20,14 @@ Generated next-word predictions occupy a separate compact **Next word** strip.
 Each chip shows the predicted word; its tooltip and accessible name identify it
 as a prediction. A word-model frequency must never be shown as a use count for
 the constructed full sentence. The historical reply/message choices keep their
-full-message previews and actual use counts. Clicking or pressing Tab on a word
-choice preserves the complete draft and applies that prediction. Multiline
+full-message previews and actual use counts. Suggestions never change an empty
+or typed draft when they load, refresh, receive focus or are hovered. Tab and
+Shift+Tab move focus without inserting a suggestion. Clicking an option, or
+pressing Enter/Space on its focused button, explicitly applies it. Word
+completions must add at least three letters or digits; one- and two-letter
+predictions and nearly finished words are omitted. A completed sentence has no
+word strip until the user starts the next sentence with whitespace or text.
+The browser applies the same filter to older server responses. Multiline
 drafts grow the composer to its height limit, including after restore, suggestion
 selection and pane resizing; the remainder scrolls inside the input.
 

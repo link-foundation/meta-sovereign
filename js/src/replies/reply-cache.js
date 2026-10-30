@@ -22,6 +22,7 @@ import {
   createReplyIndex,
   normalizeMessage,
 } from './reply-graph.js';
+import { usefulSuggestion } from './suggestion-quality.js';
 
 const MODEL_ID = 'reply-model';
 // Links learned per task while loading: a long task would stall typing.
@@ -295,13 +296,13 @@ export const createReplyCache = ({
  * in order, then the words — the copy's, or the server's when it knows
  * none — three at most, as the strip shows them.
  */
-export const mergeSuggestions = (local, remote, { limit = 8 } = {}) => {
+export const mergeSuggestions = (local, remote, { limit = 8, typed } = {}) => {
   const base = local ?? remote ?? { stage: 'none', suggestions: [] };
   const seen = new Set();
   const unique = (list) =>
     list.filter((suggestion) => {
       const key = normalizeMessage(suggestion.text);
-      if (!key || seen.has(key)) {
+      if (!key || seen.has(key) || !usefulSuggestion(suggestion, typed)) {
         return false;
       }
       seen.add(key);
@@ -316,7 +317,9 @@ export const mergeSuggestions = (local, remote, { limit = 8 } = {}) => {
     ...wholeItems.filter((s) => s.kind === 'context'),
     ...wholeItems.filter((s) => s.kind !== 'context'),
   ]).slice(0, limit);
-  const knownWords = localItems.filter((s) => s.kind === 'word');
+  const knownWords = localItems.filter(
+    (s) => s.kind === 'word' && usefulSuggestion(s, typed)
+  );
   const words = unique(
     knownWords.length
       ? knownWords

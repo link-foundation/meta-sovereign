@@ -145,13 +145,13 @@ test('generated next words are not claimed as historical whole messages', () => 
   ];
   const index = buildReplyIndex(sent.map((body, n) => msg('1', 'me', body, n)));
   const copy = createReplyIndex().fromLinks(index.modelLinks());
-  const typed = 'Привет\nМожешь помочь с настройкой учебного проекта?';
+  const typed = 'Привет\nМожешь помочь с настройкой учебного проекта? ';
   for (const model of [index, copy]) {
     const result = model.autocomplete({ typed });
     assert.equal(result.stage, 'word');
     assert.deepEqual(
       result.suggestions.map((s) => s.word),
-      ['И', 'Я', 'А']
+      ['Начнем', 'Обсуждение', 'Подготовлю']
     );
     for (const s of result.suggestions) {
       assert.equal(s.kind, 'word');
@@ -159,6 +159,11 @@ test('generated next words are not claimed as historical whole messages', () => 
       assert.ok(!sent.includes(s.text));
     }
     assert.deepEqual(model.suggestMessages(typed), []);
+    assert.deepEqual(
+      model.suggestWords(typed.trimEnd()),
+      [],
+      'a finished sentence has no word strip'
+    );
   }
 });
 
@@ -180,16 +185,14 @@ test('word-by-word stays inside a sentence and spells words as used in one', () 
   assert.ok(!next.includes('Отлично') && !next.includes('А'));
   // Mid-sentence words keep their lower case, names their capital…
   const later = index.suggestWords('Отлично, спасибо ').map((s) => s.word);
-  assert.ok(later.includes('а') && !later.includes('А'));
+  assert.ok(
+    !later.includes('а') && !later.includes('А'),
+    'single-letter words are not useful completions'
+  );
   assert.equal(index.suggestWords('Привет ')[0].word, 'Ане');
   // …and after a full stop the sentence openers come first, capitalised.
-  assert.deepEqual(
-    index
-      .suggestWords('Хорошо. ')
-      .map((s) => s.word)
-      .slice(0, 2),
-    ['Отлично', 'А']
-  );
+  assert.equal(index.suggestWords('Хорошо. ')[0].word, 'Отлично');
+  assert.ok(!index.suggestWords('Хорошо. ').some((s) => s.word === 'А'));
 });
 
 test('words come from both sides of a conversation, ours weighing more', () => {

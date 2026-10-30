@@ -19,13 +19,20 @@ export const useComposerHeight = (box, text, enabled = true) => {
     };
     fit();
     let width = node.clientWidth;
+    let frame;
     const observer = new globalThis.ResizeObserver(() => {
       if (width !== node.clientWidth) {
         width = node.clientWidth;
-        fit();
+        // Resizing the observed input during observer delivery can loop in
+        // WebKit. Apply wrapping changes in the next animation frame instead.
+        globalThis.cancelAnimationFrame(frame);
+        frame = globalThis.requestAnimationFrame(fit);
       }
     });
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      globalThis.cancelAnimationFrame(frame);
+    };
   }, [box, text, enabled]);
 };

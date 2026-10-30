@@ -94,7 +94,7 @@ const suggestions = async (ctx, options) => {
     ...mergeSuggestions(
       base,
       { suggestions: contextual.suggestions },
-      { limit: options.limit }
+      { limit: options.limit, typed: options.typed }
     ),
     context: contextual.context,
   };

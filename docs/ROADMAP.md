@@ -53,7 +53,7 @@ This file maps each scenario to its **critical paths**: what works today, what i
 | Segment leads                          | Ready   | R-D2, R-X13, R-Z7 | Audience specs (`friends:vk & chat:vk:… - list:blocked`), saved lists and audiences, chat and community members kept fresh daily.                                   |
 | Reach out one by one at scale          | Ready   | R-D3, R-Z3        | Mass-personal outreach: a personal text per contact, preview of who gets what and why the rest are left out, at most once, paced, daily caps, quiet hours, opt-out. |
 | Follow up                              | Ready   | R-X\*             | Automations by schedule or on a matching reply: "not again for N days", "who wrote last", "only chats where you wrote too".                                         |
-| Answer fast                            | Ready   | R-C\*             | Reply suggestions while typing (Tab takes one), patterns and reply variations, the Operator queue.                                                                  |
+| Answer fast                            | Ready   | R-C\*             | Reply suggestions while typing (click to select; Tab moves focus), patterns and reply variations, the Operator queue.                                               |
 | Pipeline stages, reminders, deal value | Planned | —                 | Next, item 5.                                                                                                                                                       |
 | LinkedIn as a sales channel            | Partial | R-Z4, R-Z10       | Messages go through the LinkedIn web app (unverified selectors); `messages.csv` import; Connections are not imported yet.                                           |
 

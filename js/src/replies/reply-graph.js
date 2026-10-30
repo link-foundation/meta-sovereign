@@ -32,6 +32,11 @@
  * into a doublets database for the CLI and the server.
  */
 
+import {
+  usefulSuggestion,
+  wordPredictionAllowed,
+} from './suggestion-quality.js';
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Default for "how late can an answer be and still be an answer". */
@@ -255,6 +260,9 @@ const createWordModel = () => {
      */
     suggest(typed, limit) {
       const text = String(typed ?? '');
+      if (!wordPredictionAllowed(text)) {
+        return [];
+      }
       const tokens = tokenizeWords(sentences(text).at(-1));
       const partial = /[\p{L}\p{N}'’-]$/u.test(text)
         ? (tokens.pop() ?? '')
@@ -276,8 +284,16 @@ const createWordModel = () => {
           ) {
             continue;
           }
-          seen.add(w);
           const spelled = mostUsed(spellings.get(w), w);
+          if (
+            !usefulSuggestion({
+              kind: 'word',
+              insert: spelled.slice(partial.length),
+            })
+          ) {
+            continue;
+          }
+          seen.add(w);
           out.push(
             wordSuggestion({
               text,
