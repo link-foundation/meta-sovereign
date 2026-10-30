@@ -395,7 +395,7 @@ test('an avatar Telegram asks to wait for is not remembered as missing', async (
     peers: { input: async () => null },
     retryMs: 0,
   });
-  assert.equal(await reader.read({ peer: '9' }), null);
+  assert.equal(await reader.read({ peer: '9' }), undefined);
   assert.equal((await reader.read({ peer: '9' })).buffer.toString(), 'jpeg');
 });
 
@@ -440,13 +440,13 @@ test('a group member\'s avatar is read by their message, and a failure is no "no
     }),
   });
   const ask = () => reader.read({ peer: '11', chat: '-100', msg: '42' });
-  assert.equal(await ask(), null, 'the first try fails');
+  assert.equal(await ask(), undefined, 'the first try remains retryable');
   await assert.rejects(
     stat(path.join(dir, 'avatars', '11-s.none')),
     'a failure is not remembered as "no photo"'
   );
   broken = false;
-  assert.equal(await ask(), null, 'and is not retried at once');
+  assert.equal(await ask(), undefined, 'and is not retried at once');
   assert.equal(asked.length, 1);
 
   const fresh = createAvatarReader({

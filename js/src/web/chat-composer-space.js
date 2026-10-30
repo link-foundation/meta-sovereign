@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 
 // The floating composer can change height for replies, suggestions and
 // previews. Reserve only the space it actually covers, in both chat surfaces.
-export const useComposerSpace = (box, following) => {
+export const useComposerSpace = (box, following, report) => {
   useLayoutEffect(() => {
     const node = box.current;
     const main = node?.closest('.chat-main');
@@ -34,6 +34,7 @@ export const useComposerSpace = (box, following) => {
             )
           )
         : 0;
+      report?.('viewport');
       if (space === reserved) {
         return;
       }
@@ -60,5 +61,5 @@ export const useComposerSpace = (box, following) => {
       children?.disconnect();
       node.style.removeProperty('--chat-composer-space');
     };
-  }, [box, following]);
+  }, [box, following, report]);
 };

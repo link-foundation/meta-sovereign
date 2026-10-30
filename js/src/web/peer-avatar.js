@@ -224,6 +224,7 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
       rememberPhoto(key, url);
       return;
     }
+    photos.delete(key);
     if (attempt < RETRY_DELAYS_MS.length) {
       globalThis.clearTimeout(retry.current);
       retry.current = globalThis.setTimeout(
@@ -291,6 +292,7 @@ export const PeerAvatar = ({
             decoding: 'async',
             draggable: false,
             'data-media-retrying': retrying ? 'true' : 'false',
+            'data-media-fallback': 'initials',
             className: shown ? 'shown' : undefined,
             onLoad: () => {
               done();

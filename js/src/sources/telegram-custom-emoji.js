@@ -19,13 +19,19 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pickSize, downloadBytes, downloadSize } from './telegram-media.js';
 import { connect, formatOf, runIn, sniff } from './telegram-stickers.js';
+import { floodSeconds, isDisconnected } from './telegram-history.js';
 
 const MAX_IDS = 200;
+const MAX_DOCUMENTS = 1024;
 const BATCH_MS = 25;
 const MAX_PICTURE = 512 * 1024;
 const MAX_VIDEO = 4 * 1024 * 1024;
 const ID = /^\d{1,20}$/;
 const TYPE = /^(image\/|video\/|application\/x-tgsticker$)/;
+const failureCode = (error) =>
+  String(
+    error?.errorMessage ?? error?.code ?? error?.name ?? 'download-failed'
+  ).slice(0, 60);
 
 const text = (value) =>
   value === null || value === undefined ? '' : String(value.value ?? value);
@@ -79,6 +85,9 @@ const createDocuments = (env, userClient, delay) => {
         docs.set(text(doc.id), doc);
       }
     }
+    while (docs.size > MAX_DOCUMENTS) {
+      docs.delete(docs.keys().next().value);
+    }
   };
 
   const open = () => {
@@ -94,7 +103,10 @@ const createDocuments = (env, userClient, delay) => {
 
   const lookup = async (id) => {
     if (docs.has(id)) {
-      return docs.get(id);
+      const doc = docs.get(id);
+      docs.delete(id);
+      docs.set(id, doc);
+      return doc;
     }
     if (!batch || batch.sent || batch.ids.size >= MAX_IDS) {
       batch = open();
@@ -164,6 +176,33 @@ export const createCustomEmoji = (
   { delay = BATCH_MS } = {}
 ) => {
   const documents = createDocuments(env, userClient, delay);
+  const inFlight = new Map();
+  const load = async (key, full) => {
+    const started = Date.now();
+    try {
+      const got = await fetchFresh(key, full);
+      env.log?.({
+        event: 'telegram_custom_emoji',
+        full,
+        duration_ms: Date.now() - started,
+        bytes: got?.buffer?.length ?? 0,
+        pending: inFlight.size,
+      });
+      return got;
+    } catch (error) {
+      const retrying = isDisconnected(error) || floodSeconds(error) > 0;
+      env.log?.({
+        level: retrying ? 'info' : 'warn',
+        event: retrying
+          ? 'telegram_custom_emoji_retrying'
+          : 'telegram_custom_emoji_failed',
+        full,
+        duration_ms: Date.now() - started,
+        code: failureCode(error),
+      });
+      throw error;
+    }
+  };
 
   const fetchFresh = async (id, full, retry = true) => {
     const doc = await documents.lookup(id);
@@ -182,11 +221,7 @@ export const createCustomEmoji = (
     }
   };
 
-  const customEmojiPicture = async ({ id, full = false } = {}) => {
-    const key = String(id ?? '');
-    if (!ID.test(key) || !mediaDir) {
-      return null;
-    }
+  const read = async (key, full) => {
     const name = `${key}${full ? '-full' : ''}`;
     const file = path.join(mediaDir, 'custom-emoji', name);
     const cached = await readCache(file);
@@ -194,7 +229,7 @@ export const createCustomEmoji = (
     if (cached && TYPE.test(type)) {
       return { buffer: cached, mimeType: type };
     }
-    const got = await fetchFresh(key, full);
+    const got = await load(key, full);
     if (!got?.buffer) {
       return null;
     }
@@ -202,6 +237,23 @@ export const createCustomEmoji = (
     await fs.writeFile(file, got.buffer);
     await fs.writeFile(`${file}.type`, got.mimeType);
     return got;
+  };
+
+  const customEmojiPicture = ({ id, full = false } = {}) => {
+    const key = String(id ?? '');
+    if (!ID.test(key) || !mediaDir) {
+      return Promise.resolve(null);
+    }
+    const name = `${key}:${Boolean(full)}`;
+    // Share disk checks, document lookups, downloads and cache writes, even
+    // when the same emoji appears in several rows or a retry arrives early.
+    if (!inFlight.has(name)) {
+      inFlight.set(
+        name,
+        read(key, full).finally(() => inFlight.delete(name))
+      );
+    }
+    return inFlight.get(name);
   };
 
   return { customEmojiPicture };

@@ -149,10 +149,18 @@ const handleCustomEmoji = async (account, req, res, ctx) => {
   if (!/^\d{1,20}$/.test(query.get('id') ?? '')) {
     return json(res, 400, { error: 'bad id' }) ?? true;
   }
-  const result = await account.customEmojiPicture({
-    id: query.get('id'),
-    full: query.get('full') === '1',
-  });
+  const reading = Promise.resolve().then(() =>
+    account.customEmojiPicture({
+      id: query.get('id'),
+      full: query.get('full') === '1',
+    })
+  );
+  const result = await answerSoon(reading, AVATAR_WAIT_MS);
+  if (result === LATER) {
+    res.setHeader('retry-after', '3');
+    res.setHeader('cache-control', 'no-store');
+    return json(res, 503, { error: 'loading' }) ?? true;
+  }
   if (!result?.buffer) {
     return json(res, 404, { error: 'no picture' }) ?? true;
   }
@@ -311,7 +319,7 @@ const answerSoon = (promise, ms) => {
   const later = new Promise((resolve) => {
     timer = globalThis.setTimeout(() => resolve(LATER), ms);
   });
-  return Promise.race([promise.catch(() => null), later]).finally(() =>
+  return Promise.race([promise, later]).finally(() =>
     globalThis.clearTimeout(timer)
   );
 };
@@ -334,7 +342,7 @@ const handleAvatar = async (account, req, res, ctx) => {
     })
   );
   const result = await answerSoon(reading, AVATAR_WAIT_MS);
-  if (result === LATER) {
+  if (result === LATER || result === undefined) {
     // Still downloading: the browser's few connections are not held
     // for it (they would hold up the chat); the page asks again soon.
     res.setHeader('retry-after', '3');

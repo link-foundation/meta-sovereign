@@ -61,12 +61,13 @@ export const installClientLog = ({
   if (!target?.addEventListener || typeof send !== 'function') {
     return () => {};
   }
-  const seen = new Set();
+  const seen = new Map();
   let windowStart = 0;
   let used = 0;
   const report = (entry) => {
     const key = `${entry.event}:${entry.error}`;
-    if (seen.has(key)) {
+    const at = now();
+    if (at - (seen.get(key) ?? -Infinity) < 60_000) {
       return;
     }
     if (now() - windowStart >= 60_000) {
@@ -77,19 +78,32 @@ export const installClientLog = ({
     if (used > PER_MINUTE) {
       return;
     }
-    seen.add(key);
+    seen.delete(key);
+    seen.set(key, at);
+    if (seen.size > 128) {
+      seen.delete(seen.keys().next().value);
+    }
     Promise.resolve()
       .then(() => send(entry))
       .catch(() => {});
   };
   let failed = null;
+  let failedTimer = null;
   const sendFailed = () => {
+    if (!failed) {
+      return;
+    }
     const count =
       (failed.avatar ?? 0) + (failed.media ?? 0) + (failed.file ?? 0);
     const retrying = count > 0 && failed.retrying === count;
+    const fallback = count > 0 && failed.fallback === count;
     const entry = {
-      level: retrying ? 'info' : 'warn',
-      event: retrying ? 'media_retrying' : 'media_failed',
+      level: retrying || fallback ? 'info' : 'warn',
+      event: fallback
+        ? 'media_fallback'
+        : retrying
+          ? 'media_retrying'
+          : 'media_failed',
       view: view(),
       ...failed,
     };
@@ -106,13 +120,18 @@ export const installClientLog = ({
     }
     if (!failed) {
       failed = {};
-      globalThis.setTimeout(sendFailed, MEDIA_EVERY_MS);
+      failedTimer = globalThis.setTimeout(sendFailed, MEDIA_EVERY_MS);
     }
     failed[route] = (failed[route] ?? 0) + 1;
     if (event.target.dataset?.mediaRetrying === 'true') {
       failed.retrying = (failed.retrying ?? 0) + 1;
     }
-    failed.cors = (failed.cors ?? 0) + (event.target.crossOrigin ? 1 : 0);
+    if (event.target.dataset?.mediaFallback) {
+      failed.fallback = (failed.fallback ?? 0) + 1;
+    }
+    // crossOrigin describes the request mode, not the cause of failure.
+    failed.corsRequested =
+      (failed.corsRequested ?? 0) + (event.target.crossOrigin ? 1 : 0);
   };
   const onError = (event) =>
     report(errorEntry('error', event?.error ?? event?.message, view()));
@@ -122,6 +141,8 @@ export const installClientLog = ({
   target.addEventListener('error', onResourceError, true);
   target.addEventListener('unhandledrejection', onRejection);
   return () => {
+    globalThis.clearTimeout(failedTimer);
+    failed = null;
     target.removeEventListener('error', onError);
     target.removeEventListener('error', onResourceError, true);
     target.removeEventListener('unhandledrejection', onRejection);

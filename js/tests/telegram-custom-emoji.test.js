@@ -75,6 +75,23 @@ const make = (client, mediaDir) =>
     { delay: 60 }
   );
 
+test('parallel retries share the complete custom emoji read and disk write', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-custom-emoji-shared-'));
+  try {
+    const log = [];
+    const emoji = make(fakeClient(log), dir);
+    const reads = await Promise.all(
+      Array.from({ length: 4 }, () =>
+        emoji.customEmojiPicture({ id: '2', full: true })
+      )
+    );
+    assert.equal(log.filter(([event]) => event === 'download').length, 1);
+    assert.ok(reads.every((item) => item === reads[0]));
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('ids asked close together are one request, each document kept (R-Y120)', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-custom-emoji-'));
   try {
@@ -183,7 +200,9 @@ const get = async (route, account) => {
   req.headers = { host: '127.0.0.1:8787', 'sec-fetch-site': 'same-origin' };
   const res = {
     headers: {},
-    setHeader() {},
+    setHeader(name, value) {
+      this.headers[name] = value;
+    },
     writeHead(status, headers) {
       this.status = status;
       Object.assign(this.headers, headers ?? {});
@@ -198,6 +217,39 @@ const get = async (route, account) => {
   });
   return res;
 };
+
+test('slow custom emoji reads release HTTP connections and recover without a false 404', async () => {
+  let complete;
+  const pending = new Promise((resolve) => {
+    complete = resolve;
+  });
+  const account = { customEmojiPicture: () => pending };
+  const waiting = await get('/api/telegram/custom-emoji?id=2&full=1', account);
+  assert.equal(waiting.status, 503);
+  assert.equal(waiting.headers['cache-control'], 'no-store');
+  assert.equal(waiting.headers['retry-after'], '3');
+  complete({ buffer: WEBP, mimeType: 'image/webp' });
+  const ready = await get('/api/telegram/custom-emoji?id=2&full=1', account);
+  assert.equal(ready.status, 200);
+});
+
+test('avatar interruptions are retryable while a confirmed missing photo is cached', async () => {
+  const waiting = await get('/api/telegram/avatar?peer=2', {
+    avatar: async () => undefined,
+  });
+  assert.equal(waiting.status, 503);
+  assert.equal(waiting.headers['cache-control'], 'no-store');
+  const missing = await get('/api/telegram/avatar?peer=2', {
+    avatar: async () => null,
+  });
+  assert.equal(missing.status, 404);
+  const failed = await get('/api/telegram/avatar?peer=2', {
+    avatar: async () => {
+      throw new Error('fixture connection failure');
+    },
+  });
+  assert.equal(failed.status, 502, 'a real failure is not cached as no photo');
+});
 
 test('the custom emoji route (R-Y120)', async () => {
   const seen = [];

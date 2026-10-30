@@ -213,6 +213,17 @@ test('older messages above are not counted as new ones below', () => {
     followMove({ opened: false, line: false, near: false, added: 0 }),
     null
   );
+  assert.equal(
+    followMove({
+      opened: false,
+      line: false,
+      near: false,
+      added: 0,
+      sent: true,
+    }),
+    'end',
+    'a confirmed draft send follows even when the echo already arrived'
+  );
 });
 
 test('the server serves chat heads, pages and links without messages', async () => {

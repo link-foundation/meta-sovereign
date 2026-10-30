@@ -175,7 +175,7 @@ test('pictures that do not load are counted in the log, not named', async () => 
         view: 'chat',
         avatar: 2,
         media: 1,
-        cors: 2,
+        corsRequested: 2,
       },
     ]);
     listeners['error:capture']({
@@ -195,6 +195,27 @@ test('pictures that do not load are counted in the log, not named', async () => 
     await Promise.resolve();
     assert.equal(sent[2].level, 'warn', 'terminal failures still surface');
     assert.equal(sent[2].event, 'media_failed');
+    listeners['error:capture']({
+      target: {
+        src: `${SERVER}/api/telegram/avatar?peer=10`,
+        crossOrigin: 'anonymous',
+        dataset: { mediaFallback: 'initials' },
+      },
+    });
+    timers[3]();
+    await Promise.resolve();
+    assert.equal(
+      sent[3].level,
+      'info',
+      'a usable initials fallback is not a broken message'
+    );
+    assert.equal(sent[3].event, 'media_fallback');
+    assert.equal(
+      sent[3].cors,
+      undefined,
+      'request mode does not prove a CORS failure'
+    );
+    assert.equal(sent[3].corsRequested, 1);
     stop();
   } finally {
     globalThis.setTimeout = realSetTimeout;

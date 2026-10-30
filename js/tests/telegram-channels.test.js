@@ -88,7 +88,7 @@ test('channel updates move the channel’s own number', () => {
   assert.equal(channelStep({ className: 'UpdateNewMessage', pts: 3 }), null);
 });
 
-const channelSync = (store, { invoke, now = () => 0, isGroup = true }) => {
+const channelSync = (store, { invoke, now = () => 0, isGroup = true, log }) => {
   const handled = [];
   const requests = [];
   const sync = createChannelSync({
@@ -105,9 +105,37 @@ const channelSync = (store, { invoke, now = () => 0, isGroup = true }) => {
     client: async () => ({ invoke }),
     importer,
     now,
+    log,
   });
   return { sync, handled, requests };
 };
+
+test('catch-up distinguishes reconnect recovery from unexpected failures', async () => {
+  const events = [];
+  let clock = 0;
+  let error = new Error(
+    'Cannot send requests while disconnected. Please connect first.'
+  );
+  const { sync } = channelSync(createMemoryStore(), {
+    invoke: async () => {
+      throw error;
+    },
+    now: () => clock,
+    log: (entry) => events.push(entry),
+  });
+  await sync.seed('-1005', 10);
+  clock = 61_000;
+  const update = { className: 'UpdateChannelTooLong', channelId: 5 };
+  await sync.observe(update);
+  assert.equal(events[0].level, 'info');
+  assert.equal(events[0].event, 'telegram_channel_catch_up_retrying');
+  error = new Error('fixture malformed response');
+  clock += 61_000;
+  await sync.observe(update);
+  assert.equal(events[1].level, 'warn');
+  assert.equal(events[1].event, 'telegram_channel_catch_up_failed');
+  await sync.flush();
+});
 
 test('a channel’s gap is caught up from its number, once a minute (R-Y35)', async () => {
   const store = createMemoryStore();

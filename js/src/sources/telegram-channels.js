@@ -24,6 +24,7 @@ import {
   historyLink,
   historyLinkId,
   floodSeconds,
+  isDisconnected,
 } from './telegram-history.js';
 import { peerChatId } from './telegram-updates.js';
 import { entitiesOf } from './telegram-catchup.js';
@@ -99,12 +100,15 @@ const cover = async ({ store, now }, chat, ids, gap) => {
 
 const channelWarn = (log) => (error) => {
   const waiting = error?.code === 'flood-wait' || floodSeconds(error) > 0;
+  const reconnecting = isDisconnected(error);
   log({
-    level: waiting ? 'info' : 'warn',
+    level: waiting || reconnecting ? 'info' : 'warn',
     event: waiting
       ? 'telegram_channel_catch_up_waits'
-      : 'telegram_channel_catch_up_failed',
-    code: error?.code ?? null,
+      : reconnecting
+        ? 'telegram_channel_catch_up_retrying'
+        : 'telegram_channel_catch_up_failed',
+    code: error?.code ?? (reconnecting ? 'reconnecting' : null),
     error: error?.message,
   });
 };

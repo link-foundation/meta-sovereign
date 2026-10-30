@@ -656,6 +656,7 @@ export const draftActionNotice = (action, result) => {
 };
 
 const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
+  const [sent, setSent] = useState(null);
   const [drafts, setDrafts] = useLoaded(
     () =>
       current ? api.drafts({ source: current.source, chat: current.chat }) : [],
@@ -665,8 +666,30 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
   const view = useDraftPresentation(drafts, setDrafts, current, setNotice);
   const following = useNextChat(api, current, show);
   const act = async (action, draft) => {
-    const result = await api.draftAction(action, draft);
+    const trace = {
+      reason: action,
+      source: draft.source,
+      chat: String(draft.chat),
+    };
+    traceClient(api, 'draft_action_start', trace);
+    let result;
+    try {
+      result = await api.draftAction(action, draft);
+    } catch (error) {
+      traceClient(api, 'draft_action_result', {
+        ...trace,
+        success: false,
+        code: 'request-failed',
+      });
+      after({ kind: 'failed', error: error?.message ?? 'no-answer' });
+      return { status: 'failed' };
+    }
     const notice = draftActionNotice(action, result);
+    traceClient(api, 'draft_action_result', {
+      ...trace,
+      success: notice?.kind !== 'failed',
+      code: result?.status ?? (result?.id ? 'draft' : 'no-answer'),
+    });
     if (notice?.kind === 'failed') {
       after(notice);
       return result;
@@ -675,6 +698,9 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
       view.forget(draft.id);
       setDrafts((all) => all.map((d) => (d.id === result.id ? result : d)));
       return result;
+    }
+    if (action === 'send') {
+      setSent({ key: chatKey(draft.source, draft.chat) });
     }
     view.forget(draft.id);
     after(notice);
@@ -688,6 +714,7 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
   };
   return {
     ...view,
+    sent,
     act,
     reset,
     next: following.next,

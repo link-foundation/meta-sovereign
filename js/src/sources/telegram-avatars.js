@@ -193,10 +193,10 @@ export const createAvatarReader = ({
       const code = String(error.errorMessage ?? error.message ?? '');
       done(0, { level: 'warn', failed: code.slice(0, 60) });
       failedAt.set(base, Date.now());
-      return null;
+      return undefined;
     }
     if (buffer === undefined) {
-      return null;
+      return undefined;
     }
     await fs.mkdir(avatarDir, { recursive: true });
     if (!buffer?.length) {
@@ -232,7 +232,7 @@ export const createAvatarReader = ({
       return kept;
     }
     if (Date.now() - (failedAt.get(base) ?? -Infinity) < retryMs) {
-      return null;
+      return undefined;
     }
     if (!inFlight.has(base)) {
       inFlight.set(

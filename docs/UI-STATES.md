@@ -31,6 +31,14 @@ client ID. A local preview keeps a clock or failure indicator; only provider
 acknowledgement replaces it with confirmed content. Scheduled messages remain
 outside the live directory until sent, except when they fail.
 
+An explicitly confirmed automation send follows its outgoing message in the
+current conversation, including when the provider echo arrived before the draft
+was removed. Background arrivals preserve a reader's place. Floating-composer
+clearance also applies to native focus/scroll navigation. Transition diagnostics
+record only scroll dimensions, composer reserve, message/draft counts and follow
+decisions. A settled overlap at the live tail is a warning; reading older history
+is not. No message text or DOM content is logged.
+
 Deleted-account status is distinct from deleted messages. Stored account flags
 survive chat summaries, including cleared conversations. The list, Chat/Operator
 header and profile use a muted deleted-user icon and localized label instead of
@@ -38,6 +46,21 @@ a numeric fallback name or a misleading last-seen status. An unnamed live
 Telegram user remains distinct from a deleted one. Profiles label the numeric
 identifier **Telegram user ID**, with a copy control; IDs are never inferred to
 be phone numbers. Deleted identities do not repeatedly request an avatar.
+
+Avatar transport interruptions return an uncached retryable response; only a
+confirmed absence returns a cacheable 404. An initials fallback is recorded as
+such, and a CORS request mode is never labeled as evidence of a CORS failure.
+Recurring script errors can be reported again after a minute, with bounded
+deduplication storage and the existing rate limit. Resource-log timers stop when
+the page listener is removed. Channel reconnects are recovery diagnostics while
+unexpected catch-up failures retain their warnings. Resource-pressure warnings
+remain enabled; they are not suppressed as UI noise.
+
+Custom-emoji reads share their disk check, download and cache write per variant.
+The document cache holds at most 1024 entries. A slow download continues on the
+server while its HTTP request returns a retryable, uncached loading response,
+leaving browser connections available for sends and navigation. Cache-miss logs
+record duration, bytes, variant and pending count without document identifiers.
 
 Uncached message pictures and expired-reference refreshes use foreground queue
 priority while retaining the account's pacing and flood holds. Concurrent reads

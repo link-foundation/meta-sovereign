@@ -19,7 +19,10 @@ await store.putMany(
 const { page, base, until, finish } = await openChatApp('panels-avatars', {
   store,
   // Headless Chromium otherwise disables the native scrollbar being tested.
-  launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] },
+  launchOptions: {
+    ignoreDefaultArgs: ['--hide-scrollbars'],
+    env: { ...process.env, GTK_OVERLAY_SCROLLING: '0' },
+  },
 });
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
@@ -143,7 +146,7 @@ const scrollbarSteps = async () => {
       'link[rel="stylesheet"]'
     ).sheet;
     for (const rule of [
-      '.chat-list { overflow-y: scroll; scrollbar-gutter: stable; }',
+      '.chat-list { overflow-y: scroll; scrollbar-gutter: stable; scrollbar-width: auto; }',
       '.chat-list::-webkit-scrollbar { width: 14px; }',
       '.chat-list::-webkit-scrollbar-thumb { background: #888; }',
     ]) {
@@ -163,6 +166,18 @@ const scrollbarSteps = async () => {
     'scrollbar and resize hit areas do not overlap'
   );
   const width = (await page.locator('.chat-sidebar').boundingBox()).width;
+  console.log(
+    '[e2e-panels-avatars] scrollbar',
+    await list.evaluate((node) => ({
+      inset: node.offsetWidth - node.clientWidth,
+      scrollHeight: node.scrollHeight,
+      clientHeight: node.clientHeight,
+      width: globalThis.getComputedStyle(node).scrollbarWidth,
+    }))
+  );
+  // GTK overlay scrollbars reveal their interactive track after pointer entry.
+  await page.mouse.move(bar.x + bar.width - 3, bar.y + bar.height / 2);
+  await page.waitForTimeout(200);
   await page.mouse.click(bar.x + bar.width - 3, bar.y + bar.height - 25);
   await until(
     () => list.evaluate((node) => node.scrollTop > 0),

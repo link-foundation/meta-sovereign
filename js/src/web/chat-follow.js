@@ -8,6 +8,7 @@ import { useT } from './i18n.js';
 import { Spinner } from './spinner.js';
 import { Icon } from './icons.js';
 import { useComposerSpace } from './chat-composer-space.js';
+import { useLayoutTrace } from './chat-layout-trace.js';
 
 const el = React.createElement;
 
@@ -16,6 +17,13 @@ const NEAR_BOTTOM_PX = 80;
 // One message across its life: a queued one and the link it becomes
 // share the `clientId`.
 const identity = (message) => message?.clientId ?? message?.id ?? null;
+const sentToEnd = (request, before, key, opened) =>
+  !opened && request?.key === key && before.sent !== request;
+const revealSentHistory = (state, sent) => {
+  if (sent && state.history?.detached) {
+    state.history.toNewest?.();
+  }
+};
 
 /**
  * How many messages follow the one that was last (all when unknown).
@@ -46,16 +54,17 @@ export const followMove = ({
   near,
   added,
   justSent,
+  sent = false,
   detached = false,
 }) => {
   if (line) {
     return 'line';
   }
   // A chat opened far back (R-Y106) is read where it is: no following.
-  if (detached && !opened && !justSent) {
+  if (detached && !opened && !justSent && !sent) {
     return null;
   }
-  if (opened || near || (added > 0 && justSent)) {
+  if (opened || near || sent || (added > 0 && justSent)) {
     return 'end';
   }
   return added > 0 ? 'count' : null;
@@ -186,20 +195,22 @@ export const OlderRow = ({ history }) => {
 // is already there or just sent something; otherwise new messages wait
 // below a "new messages" button instead of yanking the view away from
 // what the user is reading.
-export const useFollow = (state) => {
+export const useFollow = (state, api) => {
   const box = useRef(null);
   const end = useRef(null);
   const line = useRef(null);
   const near = useRef(true);
-  useComposerSpace(box, near);
+  const report = useLayoutTrace(api, box, state, near);
+  useComposerSpace(box, near, report);
   const dimensions = useRef(null);
-  const seen = useRef({ key: null, last: null, known: null });
+  const seen = useRef({ key: null, last: null, known: null, sent: null });
   const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
   const [away, setAway] = useState(false);
   const count = state.messages.length;
   const last = state.messages.at(-1);
   const lastId = identity(last);
+  const sentRequest = state.drafts?.sent;
   // To the very bottom, past the padding the floating composer covers
   // (`scrollIntoView` on the last bubble would leave it underneath).
   const bottom = () => {
@@ -227,6 +238,7 @@ export const useFollow = (state) => {
       key,
       last: lastId,
       known: new Set(state.messages.map(identity)),
+      sent: sentRequest,
     };
     const opened = before.key !== key;
     // Older pages come in above: only what follows the last one is new.
@@ -239,12 +251,15 @@ export const useFollow = (state) => {
     // Wait only for this chat's initial page. An already read conversation
     // must not suddenly jump to a newly created unread divider much later.
     waitLine.current = lineWanted && !line.current && count === 0;
+    const sent = sentToEnd(sentRequest, before, key, opened);
+    revealSentHistory(state, sent);
     const move = followMove({
       opened,
       line: lineWanted && Boolean(line.current),
       near: near.current,
       added,
       justSent,
+      sent,
       detached: state.history?.detached,
     });
     if (move === 'line') {
@@ -254,7 +269,8 @@ export const useFollow = (state) => {
     } else if (move === 'count') {
       setUnseen((n) => n + added);
     }
-  }, [count, lastId, state.current?.key]);
+    report(move ?? 'keep');
+  }, [count, lastId, state.current?.key, sentRequest]);
   // A bubble that grows (a failure's actions, a late link preview) keeps
   // the end in view when the user was there.
   useEffect(() => {

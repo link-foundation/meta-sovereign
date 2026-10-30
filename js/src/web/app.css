@@ -944,6 +944,7 @@ main[data-view='chat'] > .web-mode-banner {
   overflow-anchor: none;
   /* Always reserve the check gutter, so selecting never moves bubbles. */
   padding: 1rem 2.75rem max(1rem, var(--chat-composer-space, 0px));
+  scroll-padding-bottom: max(1rem, var(--chat-composer-space, 0px));
 }
 .chat-column {
   display: flex;

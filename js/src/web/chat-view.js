@@ -513,7 +513,7 @@ export const messageRuns = (messages) => {
 
 const Stream = ({ state, api, actions }) => {
   const { onAction, menuFor, selection } = actions;
-  const follow = useFollow(state);
+  const follow = useFollow(state, api);
   const keep = useKeepPlace(follow.box, state);
   const older = useOlder(follow.box, state);
   const newer = useNewer(follow.box, state.history);

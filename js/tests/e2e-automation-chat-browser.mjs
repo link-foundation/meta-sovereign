@@ -22,8 +22,20 @@ for (const chat of ['111', '222']) {
     });
   }
 }
+await store.putMany(
+  Array.from({ length: 24 }, (_, i) => ({
+    id: `msg:telegram:111:${i + 3}`,
+    source: 'telegram',
+    chat: '111',
+    chatType: 'personal_chat',
+    chatName: 'Fixture 111',
+    sender: '111',
+    body: `Earlier fixture ${i}\n${'A line of history.\n'.repeat(3)}`,
+    timestamp: new Date(Date.now() - (30 - i) * 60_000).toISOString(),
+  }))
+);
 const sent = [];
-const { page, base, finish } = await openChatApp('automation-chat', {
+const { page, base, until, finish } = await openChatApp('automation-chat', {
   store,
   send: async (draft) => {
     sent.push(draft);
@@ -31,6 +43,7 @@ const { page, base, finish } = await openChatApp('automation-chat', {
   },
 });
 const requests = [];
+const layouts = [];
 let fail = false;
 let failedAction = null;
 await page.route('**/api/automations/run', async (route) => {
@@ -45,6 +58,12 @@ await page.route('**/api/automations/drafts/*', (route) =>
     : route.continue()
 );
 page.on('request', (request) => {
+  if (request.url().endsWith('/api/client-log')) {
+    const entry = request.postDataJSON();
+    if (entry.event === 'chat_layout') {
+      layouts.push(entry);
+    }
+  }
   if (request.url().endsWith('/api/automations/run')) {
     requests.push(request.postDataJSON());
   }
@@ -191,9 +210,70 @@ const refusedDraftAction = async () => {
   assert(sent.length === 0, 'refused actions never deliver');
 };
 
+const sentLayout = async () => {
+  await page.route('**/api/automations/next', (route) =>
+    fulfil(route, {
+      draft: { source: 'telegram', chat: '222', name: 'Fixture 222' },
+    })
+  );
+  await page.locator('[data-chat="telegram:111"]').click();
+  await openMenu();
+  await testButton().click();
+  await page.locator('.draft-card').waitFor();
+  await page
+    .locator('.draft-card textarea')
+    .fill(`Sent fixture\n\n${'A multiline confirmed message.\n'.repeat(5)}`);
+  await page.locator('.chat-scroll').evaluate((node) => {
+    node.scrollTop = 0;
+  });
+  await page
+    .locator('[data-action="draft-send"]')
+    .evaluate((node) => node.click());
+  const row = page.locator('.bubble-row').filter({ hasText: 'Sent fixture' });
+  await row.waitFor();
+  await page.locator('.draft-card').waitFor({ state: 'detached' });
+  await page.locator('[data-notice="draft-send"]').waitFor();
+  await page.locator('.chat-notice.next-chat').waitFor();
+  await until(async () => {
+    const gap = await row.evaluate((node) => {
+      const composer = globalThis.document.querySelector('.chat-composer');
+      return (
+        composer.getBoundingClientRect().top -
+        node.getBoundingClientRect().bottom
+      );
+    });
+    return gap >= 6 && gap <= 12;
+  }, 'sent automation message stays above the composer after preview removal');
+  assert(sent.length === 1, 'explicit Send delivers exactly once');
+  await until(
+    () => layouts.some((entry) => entry.messages === 27 && entry.following),
+    'settled send geometry is recorded'
+  );
+  assert(
+    !layouts.some((entry) => entry.level === 'warn'),
+    'normal reading and sent messages do not produce false overlap warnings'
+  );
+  await page.locator('.chat-notice.next-chat .icon-btn').click();
+  await page.locator('[data-notice="draft-send"] .icon-btn').click();
+  const composer = page.locator('.chat-composer textarea');
+  await composer.focus();
+  await composer.fill('A new draft\n'.repeat(6));
+  await composer.fill('');
+  await until(async () => {
+    const gap = await row.evaluate(
+      (node) =>
+        globalThis.document
+          .querySelector('.chat-composer')
+          .getBoundingClientRect().top - node.getBoundingClientRect().bottom
+    );
+    return gap >= 6 && gap <= 12;
+  }, 'clearing banners and changing composer height keep the confirmed send visible');
+};
+
 await finish(async () => {
   await initialTest();
   await closeAndReopen();
   await refusedDraftAction();
   await failedAndLateResults();
+  await sentLayout();
 });
