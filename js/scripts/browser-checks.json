@@ -30,6 +30,7 @@
   "chat-loading",
   "chat-layout",
   "chat-empty",
+  "suggestion-labels",
   "automation-chat",
   "conversation-context",
   "calls",

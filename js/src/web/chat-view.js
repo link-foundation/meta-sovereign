@@ -65,6 +65,7 @@ import { useMessageLinks } from './chat-link-open.js';
 import { TagSearchHost } from './chat-tags.js';
 import { InstantViewHost } from './chat-instant-view.js';
 import { EmptyConversation } from './chat-empty.js';
+import { MiddleEllipsis } from './middle-ellipsis.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
@@ -707,14 +708,16 @@ const Suggestions = ({ suggest, composer }) => {
           key: s.text,
           type: 'button',
           className: 'chip',
-          title:
+          'aria-label': s.text,
+          title: `${s.text}\n\n${
             s.kind === 'context'
               ? t('chat.suggest.context')
-              : t('chat.suggest.count', { count: s.count ?? 0 }),
+              : t('chat.suggest.count', { count: s.count ?? 0 })
+          }`,
           'data-rule': s.rule,
           onClick: () => composer.setText(s.text),
         },
-        s.text
+        el(MiddleEllipsis, { text: s.text })
       )
     )
   );

@@ -83,6 +83,31 @@ test('suggestions remove duplicates within either source and across reply/word t
 
 const INPUTS = ['', 'При', 'Зд', 'Как ваши ', 'Как ваши д', 'Хор'];
 
+test('long suggestions deduplicate full messages while retaining different endings', () => {
+  const prefix = 'Привет! Хотел обсудить помощь с новым проектом. '.repeat(6);
+  const first = `${prefix}Встречаемся в понедельник?`;
+  const second = `${prefix}Встречаемся во вторник?`;
+  const third = `${prefix}Встречаемся в среду?`;
+  const local = {
+    suggestions: [
+      { kind: 'message', text: first },
+      { kind: 'message', text: first },
+      { kind: 'message', text: second },
+    ],
+  };
+  const remote = {
+    suggestions: [
+      { kind: 'reply', text: first.toUpperCase().replaceAll('!', ',') },
+      { kind: 'message', text: second },
+      { kind: 'message', text: third },
+    ],
+  };
+  assert.deepEqual(
+    mergeSuggestions(local, remote).suggestions.map((s) => s.text),
+    [first, second, third]
+  );
+});
+
 test('the whole index goes out as links and comes back the same', () => {
   const links = HISTORY();
   const index = buildReplyIndex(links);

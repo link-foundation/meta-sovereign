@@ -7,6 +7,15 @@ claim there are no messages. The composer remains the action, keeps typing focus
 and has room for suggestion chips. A draft or business introduction replaces
 the generic empty state. See the pinned [reference review](CHAT-REFERENCES.md#empty-conversations-and-composer-clearance).
 
+Long composer suggestions shorten in the middle so both the beginning and the
+ending remain visible. Their previews adapt to pane width and typography without
+splitting emoji or combining characters. Hover and accessible names expose the
+complete message; choosing a suggestion fills the composer with its full text.
+Chat and Operator use the same control. Deduplication compares normalized full
+messages across browser/server suggestions, preserving choices with different
+endings. The focused `e2e-suggestion-labels-browser.mjs` fixture checks resizing,
+duplicate filtering, full insertion and short labels with synthetic messages.
+
 Measured progress uses the same bounded value for the painted bar, text and
 accessibility state. Transfer percentages never round up to 100% before the bytes
 are complete, and bar animations cannot lag behind a numeric label. Attachment,

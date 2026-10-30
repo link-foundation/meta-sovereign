@@ -231,6 +231,16 @@ const screenState = (overrides = {}) => {
   };
 };
 
+test('suggestions expose complete messages even when their visible labels are shortened', () => {
+  const html = render(screenState());
+  assert.match(html, /class="chip" aria-label="Привет! Как дела\?"/);
+  assert.match(html, /title="Привет! Как дела\?[\s\S]*?Used 3 times/);
+  assert.match(
+    html,
+    /class="middle-ellipsis" data-full-text="Привет! Как дела\?" aria-hidden="true"/
+  );
+});
+
 test('empty conversations have one dedicated state in Chat and Operator, without redundant actions', () => {
   for (const embedded of [false, true]) {
     const html = renderToStaticMarkup(
@@ -332,7 +342,7 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   assert.match(html, /href="https:\/\/vk.com\/im\?sel=101"/);
   assert.match(html, /1 draft is ready below/);
   assert.match(html, /data-stage="reply"/);
-  assert.match(html, /title="Used 3 times"/);
+  assert.match(html, /title="Привет! Как дела\?\n\nUsed 3 times"/);
   assert.match(html, /class="bubble out[ "]/);
   assert.match(html, /class="bubble in[ "]/);
 });

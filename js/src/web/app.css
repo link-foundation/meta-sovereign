@@ -1592,10 +1592,27 @@ a.button {
   flex-wrap: wrap;
   gap: 0.3rem;
 }
-/* A long suggestion ends in "…" (Safari does not cut a flex chip's text). */
+/* Keep both ends of long suggestions visible, including in narrow panes. */
 .suggestions .chip {
-  display: inline-block;
+  min-width: 0;
   line-height: 2rem;
+}
+.middle-ellipsis {
+  display: inline-grid;
+  min-width: 0;
+  text-align: start;
+  white-space: pre;
+}
+.middle-ellipsis::before,
+.middle-ellipsis > span {
+  grid-area: 1 / 1;
+  min-width: 0;
+  overflow: hidden;
+}
+/* Full text sets the chip's natural width so resizing can expand it again. */
+.middle-ellipsis::before {
+  content: attr(data-full-text);
+  visibility: hidden;
 }
 .chip {
   display: inline-flex;
