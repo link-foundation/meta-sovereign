@@ -1,5 +1,12 @@
 # Loading, media and Operator queue behavior
 
+An empty conversation uses a centered icon, title and muted helper in the usable
+pane above the measured floating composer, in both Chat and Operator. Loading
+and retry markers use that same region; active history requests do not also
+claim there are no messages. The composer remains the action, keeps typing focus
+and has room for suggestion chips. A draft or business introduction replaces
+the generic empty state. See the pinned [reference review](CHAT-REFERENCES.md#empty-conversations-and-composer-clearance).
+
 Measured progress uses the same bounded value for the painted bar, text and
 accessibility state. Transfer percentages never round up to 100% before the bytes
 are complete, and bar animations cannot lag behind a numeric label. Attachment,

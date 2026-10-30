@@ -161,7 +161,9 @@ export const hiChat = {
   'chat.automation.running': 'तैयार किया जा रहा है…',
   'chat.automation.run': 'शर्तों के साथ चलाएँ',
   'chat.automation.confirmAuto': '"{name}" अभी {count} संदेश भेजेगा। भेजें?',
-  'chat.empty': 'इस चैट में अभी कोई संदेश नहीं है।',
+  'chat.empty': 'अभी कोई संदेश नहीं',
+  'chat.emptyHint': 'बातचीत शुरू करने के लिए नीचे अपना पहला संदेश लिखें।',
+  'chat.emptyWaiting': 'नए संदेश आने पर यहाँ दिखाई देंगे।',
   'chat.delivery.sending': 'भेजा जा रहा है…',
   'chat.delivery.stored':
     'केवल इस ब्राउज़र में सहेजा गया: सर्वर उपलब्ध नहीं था, इसलिए नहीं भेजा गया',

@@ -391,7 +391,9 @@
     "test:e2e:automation-chat": "node js/tests/e2e-automation-chat-browser.mjs",
     "test:e2e:automation-chat:webkit": "E2E_BROWSER=webkit node js/tests/e2e-automation-chat-browser.mjs",
     "test:e2e:progress": "node js/tests/e2e-progress-browser.mjs",
-    "test:e2e:progress:webkit": "E2E_BROWSER=webkit node js/tests/e2e-progress-browser.mjs"
+    "test:e2e:progress:webkit": "E2E_BROWSER=webkit node js/tests/e2e-progress-browser.mjs",
+    "test:e2e:chat-empty": "node js/tests/e2e-chat-empty-browser.mjs",
+    "test:e2e:chat-empty:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-empty-browser.mjs"
   },
   "keywords": [
     "personal-crm",

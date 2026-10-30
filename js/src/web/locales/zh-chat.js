@@ -154,7 +154,9 @@ export const zhChat = {
   'chat.automation.run': '按条件运行',
   'chat.automation.confirmAuto':
     '“{name}”现在将发送 {count} 条消息。要发送吗？',
-  'chat.empty': '此聊天中还没有消息。',
+  'chat.empty': '暂无消息',
+  'chat.emptyHint': '在下方写下第一条消息，开始对话。',
+  'chat.emptyWaiting': '新消息将在这里显示。',
   'chat.delivery.sending': '正在发送…',
   'chat.delivery.stored': '仅保存在此浏览器中：无法连接服务器，因此未发送',
   'chat.delivery.sent': '已发送',

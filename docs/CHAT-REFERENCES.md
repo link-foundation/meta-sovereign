@@ -51,6 +51,19 @@ on 2026-10-30. These are design lessons, not imported implementation:
 - [themePalette](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/themePalette.ts): semantic appearance tokens rather than unrelated hard-coded control colors.
 - [sidebar primitives](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/ui/sidebar.tsx): reusable navigation controls and consistent layout states.
 
+### Empty conversations and composer clearance
+
+Reviewed at the pinned T3 Code and Telegram Web A commits on 2026-10-30:
+
+- T3 Code's [empty-state primitives](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/ui/empty.tsx) group a centered title, muted description and compact optional icon with consistent spacing.
+- T3 Code's [ChatView](https://github.com/pingdotgg/t3code/blob/08a463e29976617134de01e9341f898bc881d0eb/apps/web/src/components/ChatView.tsx) passes the reserved composer height to the empty placeholder and suppresses it during detail loading.
+- Telegram Web A's [MessageListAccountInfo](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/MessageListAccountInfo.tsx) distinguishes loading, empty text and available account/bot information; its [styles](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/MessageListAccountInfo.module.scss) provide a dedicated conversation-area layout.
+
+Our original implementation centers a quiet icon/title/helper group in the
+available Chat/Operator pane above the measured composer. It keeps typing and
+suggestions usable, uses the same region for loading, and preserves business
+introductions. No reference implementation was copied.
+
 ### Context targeting, selection and message navigation
 
 Telegram Web A source rechecked at

@@ -161,7 +161,9 @@ export const ruChat = {
   'chat.automation.run': 'Запустить с условиями',
   'chat.automation.confirmAuto':
     '«{name}» отправит {count, plural, one {# сообщение} few {# сообщения} other {# сообщений}} сейчас. Отправить?',
-  'chat.empty': 'В этом чате пока нет сообщений.',
+  'chat.empty': 'Пока нет сообщений',
+  'chat.emptyHint': 'Напишите первое сообщение ниже, чтобы начать разговор.',
+  'chat.emptyWaiting': 'Новые сообщения появятся здесь.',
   'chat.delivery.sending': 'Отправляется…',
   'chat.delivery.stored':
     'Сохранено только в этом браузере: сервер был недоступен, сообщение не отправлено',

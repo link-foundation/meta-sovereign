@@ -231,6 +231,45 @@ const screenState = (overrides = {}) => {
   };
 };
 
+test('empty conversations have one dedicated state in Chat and Operator, without redundant actions', () => {
+  for (const embedded of [false, true]) {
+    const html = renderToStaticMarkup(
+      React.createElement(ChatScreen, {
+        embedded,
+        state: screenState({
+          messages: [],
+          drafts: { drafts: [] },
+          history: { complete: true },
+        }),
+      })
+    );
+    assert.match(html, /class="chat-scroll is-empty"/);
+    assert.match(html, /class="chat-empty-title"/);
+    assert.match(html, /Write your first message below/);
+    const empty = html.slice(
+      html.indexOf('class="chat-empty"'),
+      html.indexOf('class="chat-composer"')
+    );
+    assert.doesNotMatch(empty, /<button/);
+  }
+});
+
+test('pending history and visible drafts do not claim that a conversation is empty', () => {
+  for (const history of [
+    { initialLoading: true },
+    { loading: true },
+    { retryAt: 123, retryCode: 'network' },
+  ]) {
+    const html = render(
+      screenState({ messages: [], drafts: { drafts: [] }, history })
+    );
+    assert.match(html, /data-chat-state="loading"/);
+    assert.doesNotMatch(html, /chat-empty-title/);
+  }
+  const withDraft = render(screenState({ messages: [] }));
+  assert.doesNotMatch(withDraft, /chat-empty-title|chat-scroll is-empty/);
+});
+
 test('Chat and Operator never render loading panels in any history phase', () => {
   const histories = [
     { incomplete: true, older: true },

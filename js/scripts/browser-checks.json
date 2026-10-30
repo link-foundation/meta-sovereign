@@ -29,6 +29,7 @@
   "contacts-directory",
   "chat-loading",
   "chat-layout",
+  "chat-empty",
   "automation-chat",
   "conversation-context",
   "calls",

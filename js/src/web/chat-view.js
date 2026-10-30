@@ -64,7 +64,7 @@ import { replyRefOf, useChatActions } from './chat-actions.js';
 import { useMessageLinks } from './chat-link-open.js';
 import { TagSearchHost } from './chat-tags.js';
 import { InstantViewHost } from './chat-instant-view.js';
-import { BusinessIntro } from './chat-business-profile.js';
+import { EmptyConversation } from './chat-empty.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
@@ -496,7 +496,6 @@ export const messageRuns = (messages) => {
 
 const Stream = ({ state, api, actions }) => {
   const { onAction, menuFor, selection } = actions;
-  const t = useT();
   const follow = useFollow(state);
   const keep = useKeepPlace(follow.box, state);
   const older = useOlder(follow.box, state);
@@ -525,6 +524,7 @@ const Stream = ({ state, api, actions }) => {
   const shownById = new Map(shown.map((m) => [m.id, m]));
   // An album is one row (./chat-album.js).
   const messages = groupAlbums(shown);
+  const empty = messages.length === 0 && state.drafts.drafts.length === 0;
   const msgById = {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
@@ -551,7 +551,7 @@ const Stream = ({ state, api, actions }) => {
     'div',
     {
       key: 'scroll',
-      className: 'chat-scroll',
+      className: `chat-scroll${empty ? ' is-empty' : ''}`,
       ref: follow.box,
       onScroll,
       ...drag,
@@ -569,7 +569,7 @@ const Stream = ({ state, api, actions }) => {
             : 'chat-column',
         },
         [
-          el(OlderRow, { key: 'older', history: state.history }),
+          empty ? null : el(OlderRow, { key: 'older', history: state.history }),
           ...messages.flatMap((message) => [
             breaks.has(message.id)
               ? el(DayPill, {
@@ -610,12 +610,12 @@ const Stream = ({ state, api, actions }) => {
               autopilot: state.autopilot,
             })
           ),
-          messages.length === 0
-            ? el(BusinessIntro, {
+          empty
+            ? el(EmptyConversation, {
                 key: 'empty',
                 api,
                 chat: state.current,
-                fallback: el('p', { className: 'meta' }, t('chat.empty')),
+                history: state.history,
               })
             : null,
           el('div', { key: 'end', ref: follow.end }),

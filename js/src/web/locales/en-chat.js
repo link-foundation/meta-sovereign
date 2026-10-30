@@ -162,7 +162,9 @@ export const enChat = {
   'chat.automation.run': 'Run with its conditions',
   'chat.automation.confirmAuto':
     '"{name}" will send {count, plural, one {# message} other {# messages}} now. Send?',
-  'chat.empty': 'No messages in this chat yet.',
+  'chat.empty': 'No messages yet',
+  'chat.emptyHint': 'Write your first message below to start the conversation.',
+  'chat.emptyWaiting': 'Messages will appear here when they arrive.',
   'chat.delivery.sending': 'Sending…',
   'chat.delivery.stored':
     'Saved in this browser only: no server was reachable, so it was not sent',
