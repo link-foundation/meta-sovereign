@@ -158,6 +158,7 @@ export const hiChat = {
   'chat.automation.none':
     'चैट में अभी कोई स्वचालन उपलब्ध नहीं है। स्वचालन में किसी एक में "चैट मेनू" ट्रिगर जोड़ें।',
   'chat.automation.test': 'इस चैट में परखें',
+  'chat.automation.running': 'तैयार किया जा रहा है…',
   'chat.automation.run': 'शर्तों के साथ चलाएँ',
   'chat.automation.confirmAuto': '"{name}" अभी {count} संदेश भेजेगा। भेजें?',
   'chat.empty': 'इस चैट में अभी कोई संदेश नहीं है।',
@@ -494,6 +495,7 @@ export const hiChat = {
   'chat.form.formal': 'औपचारिक ("вы")',
   'chat.draft.title': '"{name}" का मसौदा · {form}',
   'chat.draft.text': 'संदेश',
+  'chat.draft.close': 'ड्राफ़्ट बंद करें',
   'chat.draft.send': 'भेजें',
   'chat.draft.switchTo': '{form} में बदलें',
   'chat.draft.open': 'चैट खोलें',

@@ -1290,13 +1290,25 @@ main[data-view='chat'] > .web-mode-banner {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  align-self: flex-end;
-  /* Wide enough for all five actions on one line. */
-  width: min(36rem, 100%);
+  align-self: stretch;
+  width: 100%;
   padding: 0.75rem;
-  border: 1px dashed var(--chat-accent);
+  border: 1px solid var(--border);
   border-radius: var(--bubble-radius);
   background: var(--bg-elev);
+}
+.draft-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--control-gap);
+}
+.draft-card-header > .meta {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.draft-card-header > button {
+  flex: none;
 }
 .draft-card .row {
   display: flex;

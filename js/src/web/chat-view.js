@@ -13,6 +13,8 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { AutomationRunButton } from './chat-automation-button.js';
+import { useAutomationDismiss } from './chat-automation-dismiss.js';
 import { TranslateBar } from './chat-translate-bar.js';
 import { VoiceChatBar } from './chat-voice-chat.js';
 import {
@@ -199,6 +201,7 @@ const AutomationMenuToggle = ({ menu, activeCount, t }) =>
       type: 'button',
       className: 'chat-menu-toggle',
       'aria-expanded': menu.open ? 'true' : 'false',
+      'aria-busy': Boolean(menu.running),
       'data-action': 'chat-automations',
       'aria-label': t('chat.automations'),
       title: t('chat.automations'),
@@ -226,11 +229,12 @@ const AutomationMenuToggle = ({ menu, activeCount, t }) =>
   );
 
 const AutomationMenu = ({ menu, autopilot }) => {
+  const box = useAutomationDismiss(menu.open, menu.close ?? menu.toggle);
   const t = useT();
   const activeCount = menu.automations.filter(
     (item) => autopilot?.stateFor?.(item.id)?.on
   ).length;
-  return el('div', { className: 'chat-menu' }, [
+  return el('div', { className: 'chat-menu', ref: box }, [
     el(AutomationMenuToggle, { key: 'toggle', menu, activeCount, t }),
     menu.open
       ? el(
@@ -294,30 +298,18 @@ const AutomationMenu = ({ menu, autopilot }) => {
                         sentence(t(`automations.mode.${a.mode}`))
                       ),
                     ]),
-                    el(
-                      'button',
-                      {
-                        key: 'test',
-                        type: 'button',
-                        role: 'menuitem',
-                        'data-action': 'chat-automation-test',
-                        'data-automation': a.id,
-                        onClick: () => menu.run(a, { test: true }),
-                      },
-                      t('chat.automation.test')
-                    ),
-                    el(
-                      'button',
-                      {
-                        key: 'run',
-                        type: 'button',
-                        role: 'menuitem',
-                        'data-action': 'chat-automation-run',
-                        'data-automation': a.id,
-                        onClick: () => menu.run(a, { test: false }),
-                      },
-                      t('chat.automation.run')
-                    ),
+                    el(AutomationRunButton, {
+                      key: 'test',
+                      menu,
+                      automation: a,
+                      test: true,
+                    }),
+                    el(AutomationRunButton, {
+                      key: 'run',
+                      menu,
+                      automation: a,
+                      test: false,
+                    }),
                     apOn
                       ? el(
                           'button',

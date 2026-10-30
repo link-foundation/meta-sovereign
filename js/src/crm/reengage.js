@@ -112,35 +112,44 @@ const chatKind = (source, chat, messages) => {
  * owner — in a pile of 1:1 dialogs only the owner appears in all of
  * them — but only when that sender appears in at least two.
  */
-export const detectSelfIds = (messages, explicit = []) => {
+export const collectSelfIds = (explicit = []) => {
   const ids = new Set(['me', ...explicit.map(String).filter(Boolean)]);
-  if (explicit.length > 0) {
-    return ids;
-  }
   const chatsBySender = new Map();
-  for (const m of messages) {
-    if (!m.sender) {
-      continue;
-    }
-    const key = `${m.source}\u0000${m.sender}`;
-    const chats = chatsBySender.get(key) ?? new Set();
-    chats.add(String(m.chat));
-    chatsBySender.set(key, chats);
+  return {
+    add(m) {
+      if (explicit.length || !m.sender) {
+        return;
+      }
+      const key = `${m.source}\u0000${m.sender}`;
+      const chats = chatsBySender.get(key) ?? new Set();
+      chats.add(String(m.chat));
+      chatsBySender.set(key, chats);
+    },
+    finish() {
+      const best = new Map();
+      for (const [key, chats] of chatsBySender) {
+        const [source, sender] = key.split('\u0000');
+        const current = best.get(source);
+        if (!current || chats.size > current.count) {
+          best.set(source, { sender, count: chats.size });
+        }
+      }
+      for (const { sender, count } of best.values()) {
+        if (count >= 2) {
+          ids.add(sender);
+        }
+      }
+      return ids;
+    },
+  };
+};
+
+export const detectSelfIds = (messages, explicit = []) => {
+  const collector = collectSelfIds(explicit);
+  for (const message of messages) {
+    collector.add(message);
   }
-  const best = new Map();
-  for (const [key, chats] of chatsBySender) {
-    const [source, sender] = key.split('\u0000');
-    const current = best.get(source);
-    if (!current || chats.size > current.count) {
-      best.set(source, { sender, count: chats.size });
-    }
-  }
-  for (const { sender, count } of best.values()) {
-    if (count >= 2) {
-      ids.add(sender);
-    }
-  }
-  return ids;
+  return collector.finish();
 };
 
 /** Messages grouped per `<source>:<chat>` conversation. */

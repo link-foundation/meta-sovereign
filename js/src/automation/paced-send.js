@@ -22,7 +22,10 @@ export const createPacedSender =
   async (automation, drafts) => {
     const { pacing } = automation;
     const already = sentToday(
-      await store.query(),
+      await store.query(
+        (link) =>
+          link?.id?.startsWith(RUN_PREFIX) || link?.id?.startsWith('outbox:')
+      ),
       automation,
       clock().getTime()
     );

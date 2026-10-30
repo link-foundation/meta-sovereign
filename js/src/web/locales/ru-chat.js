@@ -157,6 +157,7 @@ export const ruChat = {
   'chat.automation.none':
     'В чатах пока нет автоматизаций. Добавьте триггер «меню чата» в разделе «Автоматизация».',
   'chat.automation.test': 'Проверить в этом чате',
+  'chat.automation.running': 'Подготовка…',
   'chat.automation.run': 'Запустить с условиями',
   'chat.automation.confirmAuto':
     '«{name}» отправит {count, plural, one {# сообщение} few {# сообщения} other {# сообщений}} сейчас. Отправить?',
@@ -499,6 +500,7 @@ export const ruChat = {
   'chat.form.formal': 'на «вы»',
   'chat.draft.title': 'Черновик от «{name}» · {form}',
   'chat.draft.text': 'Сообщение',
+  'chat.draft.close': 'Закрыть черновик',
   'chat.draft.send': 'Отправить',
   'chat.draft.switchTo': 'Переключить {form}',
   'chat.draft.open': 'Открыть чат',

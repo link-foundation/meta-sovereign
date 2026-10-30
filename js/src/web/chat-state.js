@@ -14,6 +14,8 @@ import {
 } from './app-route.js';
 import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
+import { traceClient } from './client-log.js';
+import { useDraftPresentation } from './chat-draft-state.js';
 import {
   useCallback,
   useEffect,
@@ -421,45 +423,102 @@ const useReading = (
   };
 };
 
+const runFailed = (result) =>
+  !result ||
+  result.code ||
+  result.error ||
+  result.ok === false ||
+  (result.httpStatus ?? 0) >= 400 ||
+  result.status === 'failed';
+
 export const runNotice = (result) => {
-  if (result.code || result.status === 'failed') {
-    return { kind: 'failed', error: result.error ?? result.code };
+  if (runFailed(result)) {
+    return {
+      kind: 'failed',
+      error: result?.error ?? result?.code ?? 'no-answer',
+    };
   }
-  if (result.queued) {
+  if (Array.isArray(result.queued)) {
     return {
       kind: result.queued.length ? 'queued' : 'nothing',
       count: result.queued.length,
       reason: result.excluded?.[0]?.reason ?? null,
     };
   }
+  if (!Array.isArray(result.results)) {
+    return { kind: 'failed', error: 'no-answer' };
+  }
   const sent = (result.results ?? []).filter((r) => r.status === 'sent');
   return { kind: 'sent-auto', count: sent.length };
 };
 
-const useAutomationMenu = ({ api, current, confirm, t, after }) => {
+const traceAutomationResult = (api, target, test, started, result) =>
+  traceClient(api, 'automation_run_result', {
+    chat: target.chat,
+    test,
+    queued: result?.queued?.length ?? 0,
+    failed: Boolean(runFailed(result)),
+    durationMs: Date.now() - started,
+  });
+
+const useAutomationMenu = ({ api, current, confirm, t, after, drafts }) => {
   const [automations] = useLoaded(() => api.automations(), [api], []);
   const [open, setOpen] = useState(false);
+  const [running, setRunning] = useState(null);
+  const pending = useRef(false);
+  const latest = useRef(current);
+  latest.current = current;
   const run = async (automation, { test }) => {
-    setOpen(false);
-    const result = await api.runAutomation({
-      automation: automation.id,
-      trigger: 'chat-menu',
-      test,
-      targets: [{ source: current.source, chat: current.chat }],
-      // Auto mode: confirm the planned message(s) before they go out.
-      ask: (answer) =>
-        confirm(
-          t('chat.automation.confirmAuto', {
-            name: automation.name,
-            count: answer.preview?.drafts?.length ?? 0,
-          })
-        ),
-    });
-    if (result?.cancelled) {
+    if (pending.current || !current) {
       return null;
     }
-    after(runNotice(result ?? { code: 'no-answer' }));
-    return result;
+    const target = current;
+    pending.current = true;
+    setRunning({ id: automation.id, test });
+    const started = Date.now();
+    traceClient(api, 'automation_run_start', {
+      source: target.source,
+      chat: target.chat,
+      automation: automation.id,
+      test,
+    });
+    try {
+      const result = await api.runAutomation({
+        automation: automation.id,
+        trigger: 'chat-menu',
+        test,
+        targets: [{ source: target.source, chat: target.chat }],
+        // Auto mode: confirm the planned message(s) before they go out.
+        ask: (answer) =>
+          confirm(
+            t('chat.automation.confirmAuto', {
+              name: automation.name,
+              count: answer.preview?.drafts?.length ?? 0,
+            })
+          ),
+      });
+      traceAutomationResult(api, target, test, started, result);
+      if (!result?.cancelled && latest.current?.key === target.key) {
+        drafts.present(result?.queued ?? []);
+        after(runNotice(result));
+      }
+      return result;
+    } catch (error) {
+      traceClient(api, 'automation_run_error', {
+        chat: target.chat,
+        code: error.code ?? 'internal',
+      });
+      if (latest.current?.key === target.key) {
+        after({ kind: 'failed', error: error.message });
+      }
+      return null;
+    } finally {
+      pending.current = false;
+      setRunning(null);
+      if (latest.current?.key === target.key) {
+        setOpen(false);
+      }
+    }
   };
   return {
     automations: chatMenuAutomations(automations).map((a) =>
@@ -467,7 +526,9 @@ const useAutomationMenu = ({ api, current, confirm, t, after }) => {
     ),
     open,
     toggle: () => setOpen((v) => !v),
+    close: () => setOpen(false),
     run,
+    running,
   };
 };
 
@@ -521,17 +582,19 @@ const failedNotice = (result) => ({
   error: result.error ?? result.code,
 });
 
-const useDrafts = ({ api, current, tick, after, show }) => {
+const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
   const [drafts, setDrafts] = useLoaded(
     () =>
       current ? api.drafts({ source: current.source, chat: current.chat }) : [],
     [api, current?.key, tick],
     []
   );
+  const view = useDraftPresentation(drafts, setDrafts, current, setNotice);
   const following = useNextChat(api, current, show);
   const act = async (action, draft) => {
     const result = await api.draftAction(action, draft);
     if (action === 'form' && result?.id) {
+      view.forget(draft.id);
       setDrafts((all) => all.map((d) => (d.id === result.id ? result : d)));
       return result;
     }
@@ -539,6 +602,7 @@ const useDrafts = ({ api, current, tick, after, show }) => {
       after(failedNotice(result));
       return result;
     }
+    view.forget(draft.id);
     after({ kind: `draft-${action}` });
     await following.look(draft);
     return result;
@@ -548,12 +612,9 @@ const useDrafts = ({ api, current, tick, after, show }) => {
     await api.resetEdit?.(draft.automation);
     return act('form', draft);
   };
-  const edit = (id, text) =>
-    setDrafts((all) => all.map((d) => (d.id === id ? { ...d, text } : d)));
   return {
-    drafts: drafts ?? [],
+    ...view,
     act,
-    edit,
     reset,
     next: following.next,
     openNext: following.open,
@@ -1074,6 +1135,7 @@ export const useChatState = (
   useTranscriptFeed(links);
   // How far a chat's history export is (R-Y186).
   useExportFeed(links);
+  const drafts = useDrafts({ api, current, tick, after, show, setNotice });
   return {
     loading: links === null,
     loadError: failed,
@@ -1128,8 +1190,8 @@ export const useChatState = (
     }),
     composer,
     suggester: useSuggester(api, current, messages, links),
-    menu: useAutomationMenu({ api, current, confirm, t, after }),
-    drafts: useDrafts({ api, current, tick, after, show }),
+    menu: useAutomationMenu({ api, current, confirm, t, after, drafts }),
+    drafts,
     autopilot: useAutopilot({
       api,
       links,

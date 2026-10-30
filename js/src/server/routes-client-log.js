@@ -22,6 +22,7 @@ const MAX_BODY = 16 * 1024;
 const PER_MINUTE = 60;
 const STACK_LINES = 8;
 const IDENTIFIERS = [
+  'automation',
   'source',
   'chat',
   'clientId',

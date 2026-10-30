@@ -158,6 +158,7 @@ export const enChat = {
   'chat.automation.none':
     'No automation is offered in chats yet. Add the "chat menu" trigger to one under Automation.',
   'chat.automation.test': 'Test in this chat',
+  'chat.automation.running': 'Preparing…',
   'chat.automation.run': 'Run with its conditions',
   'chat.automation.confirmAuto':
     '"{name}" will send {count, plural, one {# message} other {# messages}} now. Send?',
@@ -493,6 +494,7 @@ export const enChat = {
   'chat.form.formal': 'formal ("вы")',
   'chat.draft.title': 'Draft from {name} · {form}',
   'chat.draft.text': 'Message',
+  'chat.draft.close': 'Close draft',
   'chat.draft.send': 'Send',
   'chat.draft.switchTo': 'Switch to {form}',
   'chat.draft.open': 'Open chat',

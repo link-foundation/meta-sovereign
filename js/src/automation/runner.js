@@ -25,6 +25,8 @@ import { nextChatOperations } from './next-chat.js';
 import { recordOutcome } from './record-outcome.js';
 import { createPacedSender } from './paced-send.js';
 import { guardedSend, outboxKey } from './outbox.js';
+import { planningRecords } from './planning-store.js';
+import { createAutomationRun } from './run-automation.js';
 import {
   AUTOMATION_PREFIX,
   RUN_PREFIX,
@@ -46,6 +48,7 @@ import {
 } from './drafts.js';
 
 export { ConfirmationRequiredError };
+export { stillConfirmed } from './run-automation.js';
 
 const pick = (object, keys) =>
   Object.fromEntries(keys.map((key) => [key, object[key]]));
@@ -86,13 +89,18 @@ export const createAutomationRunner = ({
     return withEdit(automation, await store.get(editId(automation)));
   };
 
-  const plan = async (automation, options = {}) =>
-    planAutomation(await store.query(), automation, {
+  const plan = async (automation, options = {}) => {
+    const data = await planningRecords(store, {
+      targets: options.targets,
+      self,
+    });
+    return planAutomation(data.records, automation, {
       ...pick(options, ['targets', 'test', 'limit']),
       now: options.now ?? clock().getTime(),
-      self,
+      self: data.self,
       resolveAudience,
     });
+  };
 
   const showTyping = async (automation, draft) => {
     if (!automation.pacing.typing) {
@@ -192,36 +200,15 @@ export const createAutomationRunner = ({
      *     confirmed. `confirmed` is the exact list of drafts they saw
      *     (from the preview); only those still due are sent.
      */
-    async run(automationOrId, options = {}) {
-      const automation = await load(automationOrId);
-      const trigger = options.trigger ?? 'manual';
-      const planned = await plan(automation, options);
-      const byUser = ['manual', 'chat-menu'].includes(trigger);
-      if (automation.mode === 'safe' || !byUser) {
-        return {
-          ...planned,
-          trigger,
-          queued: await queue(automation, planned.drafts),
-        };
-      }
-      if (!Array.isArray(options.confirmed)) {
-        throw new ConfirmationRequiredError(
-          'auto mode sends messages; confirm the previewed drafts first'
-        );
-      }
-      const outcome = await sendPaced(
-        automation,
-        stillConfirmed(planned.drafts, options.confirmed)
-      );
-      await store.put({
-        id: `${STATE_PREFIX}${automationKey(automation)}`,
-        tokens: ['automation-state', automationKey(automation)],
-        automation: automation.id,
-        lastRunAt: nowIso(),
-        lastTrigger: trigger,
-      });
-      return { ...planned, trigger, ...outcome };
-    },
+    run: createAutomationRun({
+      store,
+      load,
+      plan,
+      queue,
+      sendPaced,
+      nowIso,
+      log,
+    }),
     ...draftOperations({ store, load, deliver, nowIso, afterSend }),
     ...methods,
     /** Every ledger record, newest first. */
@@ -234,14 +221,6 @@ export const createAutomationRunner = ({
       );
     },
   };
-};
-
-// Drafts both confirmed by the user (same chat, same text) and still
-// planned now — so nothing unconfirmed and nothing twice is sent.
-const draftKey = (d) => `${d.source}\u0000${d.chat}\u0000${d.text}`;
-export const stillConfirmed = (planned, confirmed) => {
-  const ok = new Set(confirmed.map(draftKey));
-  return planned.filter((draft) => ok.has(draftKey(draft)));
 };
 
 // Only the automations are read (and copied), not the whole store.

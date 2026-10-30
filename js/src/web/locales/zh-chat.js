@@ -150,6 +150,7 @@ export const zhChat = {
   'chat.automation.none':
     '聊天中还没有可用的自动化。请在“自动化”中为某个自动化添加“聊天菜单”触发器。',
   'chat.automation.test': '在此聊天中测试',
+  'chat.automation.running': '正在准备…',
   'chat.automation.run': '按条件运行',
   'chat.automation.confirmAuto':
     '“{name}”现在将发送 {count} 条消息。要发送吗？',
@@ -467,6 +468,7 @@ export const zhChat = {
   'chat.form.formal': '正式（“вы”）',
   'chat.draft.title': '来自“{name}”的草稿 · {form}',
   'chat.draft.text': '消息',
+  'chat.draft.close': '关闭草稿',
   'chat.draft.send': '发送',
   'chat.draft.switchTo': '切换为{form}',
   'chat.draft.open': '打开聊天',

@@ -11,6 +11,7 @@ import { Icon } from './icons.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { isTelegramWebUrl } from '../sources/telegram-chat-url.js';
+import { useDraftFocus } from './chat-draft-focus.js';
 
 const el = React.createElement;
 
@@ -55,6 +56,7 @@ const useWorking = () => {
 };
 
 export const DraftCard = ({ draft, drafts, autopilot }) => {
+  const box = useDraftFocus(draft, drafts);
   const t = useT();
   const other = draft.form === 'formal' ? 'informal' : 'formal';
   const [working, run] = useWorking();
@@ -82,16 +84,34 @@ export const DraftCard = ({ draft, drafts, autopilot }) => {
     'div',
     {
       className: 'draft-card',
+      ref: box,
+      tabIndex: -1,
       'data-draft': draft.id,
       'data-form': draft.form,
     },
     [
-      el('p', { key: 'h', className: 'meta' }, [
-        t('chat.draft.title', {
-          name: presetName(t, draft.automationName ?? draft.automation),
-          form: t(FORM_KEYS[draft.form] ?? FORM_KEYS.informal),
-        }),
-        draft.edited ? ` · ${t('chat.draft.edited')}` : null,
+      el('div', { key: 'header', className: 'draft-card-header' }, [
+        el('p', { key: 'h', className: 'meta' }, [
+          t('chat.draft.title', {
+            name: presetName(t, draft.automationName ?? draft.automation),
+            form: t(FORM_KEYS[draft.form] ?? FORM_KEYS.informal),
+          }),
+          draft.edited ? ` · ${t('chat.draft.edited')}` : null,
+        ]),
+        el(
+          'button',
+          {
+            key: 'close',
+            type: 'button',
+            className: 'icon-btn',
+            'data-action': 'draft-close',
+            'aria-label': t('chat.draft.close'),
+            title: t('chat.draft.close'),
+            disabled: working !== null,
+            onClick: () => drafts.dismiss(draft.id),
+          },
+          el(Icon, { name: 'close', size: 16 })
+        ),
       ]),
       el('textarea', {
         key: 'text',

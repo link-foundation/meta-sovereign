@@ -91,6 +91,27 @@ test('offline: presets, a chat-menu test, and a draft settled locally', async ()
   );
 });
 
+test('an interrupted server test cannot create an invisible browser-only draft', async () => {
+  const store = await seeded();
+  const api = createAutomationApi({
+    store,
+    remote: {
+      ...offline,
+      confirmed: async (_path, _body, _ask, options) =>
+        options?.network
+          ? { status: 'failed', code: 'network', error: 'fixture interruption' }
+          : null,
+    },
+  });
+  const result = await api.runAutomation({
+    automation: 'job-search',
+    test: true,
+    targets: [{ source: 'vk', chat: '103' }],
+  });
+  assert.equal(result.code, 'network');
+  assert.deepEqual(await api.drafts(), []);
+});
+
 test('offline: auto mode refuses, the composer stores, typing shows', async () => {
   const store = await seeded();
   const api = createAutomationApi({ remote: offline, store });

@@ -9,6 +9,7 @@ import {
   AUTOMATION_PREFIX,
   DRAFT_PREFIX,
   automationKey,
+  draftId,
   automationPresets,
   normalizeAutomation,
   redraftWithForm,
@@ -90,6 +91,61 @@ export const queueDrafts = async (store, automation, drafts, at) => {
     });
   }
   return drafts;
+};
+
+// Revealing an existing preview is a read, so it needs no archive planning.
+export const existingTestResult = async (store, automation, options, at) => {
+  if (automation.mode !== 'safe' || !options.test || !options.targets?.length) {
+    return null;
+  }
+  const ids = new Set(
+    options.targets.map((target) => draftId(automation, target))
+  );
+  const queued = [];
+  for (const id of ids) {
+    const draft = await store.get(id);
+    if (draft?.status !== 'pending') {
+      return null;
+    }
+    queued.push(draft);
+  }
+  return {
+    automation: automation.id,
+    name: automation.name,
+    mode: automation.mode,
+    generatedAt: at,
+    total: queued.length,
+    drafts: queued,
+    excluded: [],
+    queued,
+    reused: true,
+  };
+};
+
+// Re-testing a chat opens its pending draft rather than silently doing
+// nothing or overwriting text the user already edited. Other exclusions stay.
+export const pendingTestDrafts = async (store, automation, plan, options) => {
+  if (!options.test || !Array.isArray(options.targets)) {
+    return [];
+  }
+  const pending = new Set(
+    plan.excluded
+      .filter((item) => item.reason === 'draft-pending')
+      .map((item) => item.key)
+  );
+  const found = [];
+  for (const target of options.targets) {
+    if (pending.has(`${target.source}:${target.chat}`)) {
+      const draft = await store.get(draftId(automation, target));
+      if (
+        draft?.status === 'pending' &&
+        !found.some((item) => item.id === draft.id)
+      ) {
+        found.push(draft);
+      }
+    }
+  }
+  return found;
 };
 
 /** What the user can do with a pending safe-mode draft. */

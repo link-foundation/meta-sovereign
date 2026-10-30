@@ -24,6 +24,8 @@ import {
   draftOperations,
   loadAutomation,
   queueDrafts,
+  pendingTestDrafts,
+  existingTestResult,
 } from '../automation/drafts.js';
 import {
   AUDIENCE_PREFIX,
@@ -35,6 +37,7 @@ import {
   searchPeople,
 } from '../crm/people.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
+import { planningRecords } from '../automation/planning-store.js';
 
 const SERVER_REQUIRED = Object.freeze({
   status: 'failed',
@@ -89,11 +92,14 @@ export const outgoingMessage = (
 const localAutomations = (store) => {
   const load = (automation) => loadAutomation(store, automation);
   const nowIso = () => new Date().toISOString();
-  const plan = async (automation, options = {}) =>
-    planAutomation(await store.query(), await load(automation), {
+  const plan = async (automation, options = {}) => {
+    const data = await planningRecords(store, options);
+    return planAutomation(data.records, await load(automation), {
       ...options,
+      self: data.self,
       resolveAudience,
     });
+  };
   return {
     plan,
     async run(automation, options = {}) {
@@ -101,11 +107,24 @@ const localAutomations = (store) => {
       if (loaded.mode !== 'safe') {
         return { ...SERVER_REQUIRED, error: 'auto mode needs the server' };
       }
+      const existing = await existingTestResult(
+        store,
+        loaded,
+        options,
+        nowIso()
+      );
+      if (existing) {
+        return { ...existing, trigger: options.trigger ?? 'manual' };
+      }
       const planned = await plan(loaded, options);
+      const pending = await pendingTestDrafts(store, loaded, planned, options);
       return {
         ...planned,
         trigger: options.trigger ?? 'manual',
-        queued: await queueDrafts(store, loaded, planned.drafts, nowIso()),
+        queued: [
+          ...(await queueDrafts(store, loaded, planned.drafts, nowIso())),
+          ...pending,
+        ],
       };
     },
     ...draftOperations({
@@ -160,7 +179,8 @@ const automationCalls = ({ remote, store, local }) => ({
         (await remote.confirmed(
           '/api/automations/run',
           { automation, ...options },
-          ask
+          ask,
+          { network: true }
         )) ??
         // Without a server auto mode answers "server required".
         local.run(automation, options)
