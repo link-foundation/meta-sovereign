@@ -36,3 +36,21 @@ snapshot encoder and can require substantially more memory; diagnostics report
 Do not infer whole-process memory from the main heap alone. Profile changes with focused synthetic fixtures;
 large archive and memory regression checks belong in GitHub CI, not on a user's
 machine.
+
+Rolling workers record `server_resources` every 30 seconds using process
+counters, with PID, build, upgrade phase, interval CPU percentage, RSS and peak
+RSS, heap usage/limit, external buffers, event-loop utilization and background
+snapshot memory. Sustained CPU pressure or high memory emits
+`server_resource_high`; returning below the thresholds emits
+`server_resource_recovered`. Warm-up, ready, active and standby transitions are
+recorded separately. These diagnostics do not scan the archive, take heap dumps
+or keep a retiring worker alive. They use the existing rotated server log;
+diagnostics attached to an already running process may use `logs/resources.log`.
+
+A rolling upgrade temporarily has two archive indexes in different processes.
+Use PID and phase to distinguish that overlap from growth in one active worker.
+Once the replacement is active, its predecessor is retired. Explicit chat
+automation tests plan from lightweight summaries and only the requested chats'
+text; a repeated test with an existing pending preview does not scan history at
+all. This avoids detaching every packed provider payload into a second full
+archive copy just to prepare a draft.

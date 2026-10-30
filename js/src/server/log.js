@@ -134,6 +134,7 @@ export const jsonLog = ({
  */
 export const createServerLog = async ({
   storeDir,
+  fileName = 'meta-sovereign.log',
   toStdout = true,
   maxBytes = MAX_BYTES,
   keep = KEEP_FILES,
@@ -142,7 +143,7 @@ export const createServerLog = async ({
   const dir = path.join(storeDir ?? defaultStoreDir(), 'logs');
   await mkdir(dir, { recursive: true, mode: 0o700 });
   await chmod(dir, 0o700).catch(() => {});
-  const file = path.join(dir, 'meta-sovereign.log');
+  const file = path.join(dir, path.basename(fileName));
   let size = sizeOf(file);
   if (size >= maxBytes) {
     rotate(file, keep);
