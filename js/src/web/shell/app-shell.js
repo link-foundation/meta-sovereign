@@ -234,7 +234,11 @@ const PermanentDrawer = ({ active, onSelect, t, counts }) =>
         min: 160,
         max: 420,
       }),
-      ...renderNavButtons(t, active, onSelect, 'drawer', navItems, counts),
+      el(
+        'div',
+        { key: 'items', className: 'permanent-drawer-items' },
+        renderNavButtons(t, active, onSelect, 'drawer', navItems, counts)
+      ),
     ]
   );
 

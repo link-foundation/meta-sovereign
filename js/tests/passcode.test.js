@@ -135,6 +135,7 @@ const call = (base, method, route, body) =>
 
 const serve = async (dir) =>
   startServer({
+    localUi: true,
     port: 0,
     storeDir: dir,
     enableSync: false,

@@ -84,6 +84,10 @@ was shown before acknowledging an unread mark.
 
 Source reviewed on 2026-10-31:
 
+- Telegram Web A's [Avatar](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/common/Avatar.tsx)
+  uses available media or a stable initials/special-identity fallback. Our
+  original avatar renderer preloads nearby rows, preserves completed images on
+  remount and uses initials while an uncached photo is unavailable.
 - Telegram Web A's [ChatList](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/left/main/ChatList.tsx#L192)
   renders `viewportIds` within the full ordered list, preserves total scroll
   height and memoizes the list component. Rendering work follows the viewport.

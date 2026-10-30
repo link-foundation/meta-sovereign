@@ -68,6 +68,24 @@ test('photos take at most a few of the browser connections at a time', () => {
   free.forEach((release) => release());
 });
 
+test('visible avatars precede queued read-ahead without adding download slots', () => {
+  const started = [];
+  const held = Array.from({ length: AVATAR_SLOTS }, () => takeSlot(() => {}));
+  const preload = takeSlot(() => started.push('nearby'), 0);
+  let priority = 0;
+  const visible = takeSlot(
+    () => started.push('visible'),
+    () => priority
+  );
+  priority = 1; // Scrolled into view after joining the read-ahead queue.
+  held[0]();
+  assert.deepEqual(started, ['visible']);
+  visible();
+  assert.deepEqual(started, ['visible', 'nearby']);
+  preload();
+  held.forEach((release) => release());
+});
+
 test('the About panel opens the chat in Telegram', () => {
   const url = (chat, extra = {}) =>
     telegramChatUrl({ source: 'telegram', chat, ...extra });

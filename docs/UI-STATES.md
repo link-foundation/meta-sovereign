@@ -10,6 +10,18 @@ reach unmounted rows, and pinned drag indices refer to the full pinned order.
 History prefetch observes actual row visibility; a hidden phone sidebar does not
 enqueue background reads.
 
+Resize handles occupy their own 8px gutters in the chat list, navigation drawer
+and profile. Scrollable content ends before the handle's hit area. The navigation
+drawer scrolls its inner items rather than its resize handle. Mouse scrollbar
+clicks, pointer resizing and keyboard resizing remain separate interactions.
+
+Avatar read-ahead covers one nearby scroll viewport with at most two uncached
+loads at once; visible identities precede queued read-ahead. Granted images load
+eagerly because visibility has already been checked. Completed avatars remain
+visible when virtual rows remount. Initials are the quiet fallback during a cold
+load or interruption, without repeated avatar spinners. The account-scoped URL
+cache retains at most 512 entries; the server and HTTP cache retain image bytes.
+
 Sending updates the composer, pending bubble and directory preview immediately.
 The outbox remains responsible for persistence, ordering, retries and its stable
 client ID. A local preview keeps a clock or failure indicator; only provider

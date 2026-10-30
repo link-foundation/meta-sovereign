@@ -10,13 +10,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { avatarFor } from './chat-model.js';
 import { peerColorClass } from './peer-color.js';
 import { mediaSrc } from './media-src.js';
-import { MediaLoading } from './media-loading.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
+import { activeAccount } from './telegram-account-scope.js';
 
 const el = React.createElement;
 
 // key → url (loaded), false (none) — for the page's lifetime.
 const photos = new Map();
+const PHOTO_CACHE_LIMIT = 512;
+const rememberPhoto = (key, value) => {
+  photos.delete(key);
+  photos.set(key, value);
+  if (photos.size > PHOTO_CACHE_LIMIT) {
+    photos.delete(photos.keys().next().value);
+  }
+};
 // A photo that did not load (still downloading on the server, which
 // answers at once rather than hold one of the browser's few
 // connections) is asked again after these waits, then given up. A
@@ -24,7 +32,8 @@ const photos = new Map();
 // minutes (R-Y68).
 const RETRY_DELAYS_MS = [3000, 10_000, 30_000, 60_000, 120_000, 300_000];
 
-const photoKey = (source, peer, size) => `${source}:${peer}:${size}`;
+const photoKey = (source, peer, size) =>
+  `${activeAccount()}:${source}:${peer}:${size}`;
 
 // The browser has six connections to the server: a hundred photos asked
 // at once took them all, and the About panel, a send or a page of
@@ -32,9 +41,22 @@ const photoKey = (source, peer, size) => `${source}:${peer}:${size}`;
 // time, those on screen; one already loaded (cached) is not held back.
 export const AVATAR_SLOTS = 2;
 const slots = { busy: 0, waiting: [] };
+const startNext = () => {
+  let best = 0;
+  let rank = -Infinity;
+  slots.waiting.forEach((entry, at) => {
+    const priority =
+      typeof entry.priority === 'function' ? entry.priority() : entry.priority;
+    if (priority > rank) {
+      rank = priority;
+      best = at;
+    }
+  });
+  slots.waiting.splice(best, 1)[0]?.begin();
+};
 
 /** Run `start` once a slot is free; returns a function that gives it up. */
-export const takeSlot = (start) => {
+export const takeSlot = (start, priority = 0) => {
   let state = 'waiting';
   const begin = () => {
     state = 'held';
@@ -44,21 +66,21 @@ export const takeSlot = (start) => {
   if (slots.busy < AVATAR_SLOTS) {
     begin();
   } else {
-    slots.waiting.push(begin);
+    slots.waiting.push({ begin, priority });
   }
   return () => {
     if (state === 'waiting') {
-      slots.waiting = slots.waiting.filter((next) => next !== begin);
+      slots.waiting = slots.waiting.filter((next) => next.begin !== begin);
     } else if (state === 'held') {
       slots.busy -= 1;
-      slots.waiting.shift()?.();
+      startNext();
     }
     state = 'done';
   };
 };
 
 // Whether `url` may be loaded: at once when cached, else once the
-// avatar is on screen and a slot is free. `done()` frees the slot.
+// avatar approaches the viewport and a slot is free. `done()` frees the slot.
 const useSlot = (box, url, cached) => {
   const [granted, setGranted] = useState(cached);
   const free = useRef(() => {});
@@ -68,18 +90,36 @@ const useSlot = (box, url, cached) => {
       return undefined;
     }
     let release = () => {};
+    const priority = () => {
+      const root = box.current?.closest('.chat-list, .chat-scroll');
+      const viewport = root?.getBoundingClientRect() ?? {
+        top: 0,
+        bottom: globalThis.innerHeight,
+      };
+      const rect = box.current?.getBoundingClientRect();
+      const visible =
+        rect && rect.bottom > viewport.top && rect.top < viewport.bottom;
+      return visible ? 1 : 0;
+    };
     const ask = () => {
-      release = takeSlot(() => setGranted(true));
+      release = takeSlot(() => setGranted(true), priority);
     };
     const Observer = globalThis.IntersectionObserver;
     let observer = null;
     if (typeof Observer === 'function' && box.current) {
-      observer = new Observer((entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          observer.disconnect();
-          ask();
-        }
-      });
+      const root = box.current.closest('.chat-list, .chat-scroll');
+      observer = new Observer(
+        (entries) => {
+          if (
+            entries.some((e) => e.isIntersecting) &&
+            (!root || root.clientHeight > 0)
+          ) {
+            observer.disconnect();
+            ask();
+          }
+        },
+        { root, rootMargin: `${root?.clientHeight || 160}px 0px` }
+      );
       observer.observe(box.current);
     } else {
       ask();
@@ -147,7 +187,11 @@ const withTry = (url, attempt) =>
 
 const usePhoto = (api, { source, peer, size, chat, msg }) => {
   const key = photoKey(source, peer, size);
-  const [url, setUrl] = useState(() => photos.get(key) || null);
+  const [photo, setPhoto] = useState(() => ({
+    key,
+    url: photos.get(key) || null,
+  }));
+  const url = photo.key === key ? photo.url : photos.get(key) || null;
   const [attempt, setAttempt] = useState(0);
   const returned = useBackOnline(api);
   useEffect(() => setAttempt(0), [key, returned]);
@@ -156,17 +200,20 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
   useEffect(() => {
     const known = photos.get(key);
     if (known !== undefined) {
-      setUrl(known || null);
+      setPhoto({ key, url: known || null });
       return undefined;
     }
     if (!canAsk(api, source, peer)) {
-      setUrl(null);
+      setPhoto({ key, url: null });
       return undefined;
     }
     let active = true;
     api
       .telegramAvatarUrl({ peer, size, chat, msg })
-      .then((next) => active && setUrl(withTry(next ?? null, attempt)))
+      .then(
+        (next) =>
+          active && setPhoto({ key, url: withTry(next ?? null, attempt) })
+      )
       .catch(() => {});
     return () => {
       active = false;
@@ -174,7 +221,7 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
   }, [api, key, attempt, returned]);
   const settle = (ok) => {
     if (ok) {
-      photos.set(key, url);
+      rememberPhoto(key, url);
       return;
     }
     if (attempt < RETRY_DELAYS_MS.length) {
@@ -185,13 +232,10 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
       );
       return;
     }
-    photos.set(key, false);
+    rememberPhoto(key, false);
   };
   return [url, settle, attempt < RETRY_DELAYS_MS.length];
 };
-
-const photoPending = (url, granted, shown, failed) =>
-  Boolean(url && granted && !shown && !failed);
 
 /**
  * `<span class="{className} peer-avatar peer-color-N">` with initials,
@@ -222,11 +266,9 @@ export const PeerAvatar = ({
   const cached =
     Boolean(url) && photos.get(photoKey(source, peer, size)) === url;
   const [granted, done] = useSlot(box, url, cached);
-  const [shown, setShown] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [shown, setShown] = useState(cached);
   useEffect(() => {
-    setShown(false);
-    setFailed(false);
+    setShown(cached);
   }, [url]);
   return el(
     'span',
@@ -238,20 +280,18 @@ export const PeerAvatar = ({
     },
     [
       el('span', { key: 'i', className: 'peer-avatar-initials' }, initials),
-      el(MediaLoading, {
-        key: 'loading',
-        active: photoPending(url, granted, shown, failed),
-      }),
       url && granted
         ? el('img', {
             key: 'p',
             ...mediaSrc(url),
             alt: '',
-            loading: 'lazy',
+            // Visibility and concurrency are already bounded above. Native
+            // lazy loading would defer the overscan until it was too late.
+            loading: 'eager',
             decoding: 'async',
             draggable: false,
             'data-media-retrying': retrying ? 'true' : 'false',
-            className: shown ? 'shown' : undefined,
+            className: cached || shown ? 'shown' : undefined,
             onLoad: () => {
               done();
               remember(true);
@@ -260,7 +300,6 @@ export const PeerAvatar = ({
             onError: () => {
               done();
               remember(false);
-              setFailed(true);
               setShown(false);
             },
           })

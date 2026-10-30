@@ -20,6 +20,7 @@
      the sticky drawer, rail and full-height chat measure against. */
   --control-h: 2.25rem;
   --control-gap: 0.5rem;
+  --panel-divider-width: 8px;
   --control-pad: 0.4rem 0.9rem;
   --radius: 8px;
   --topbar-h: 3.5rem;
@@ -325,6 +326,7 @@ main[data-view='chat'] > .web-mode-banner {
   min-height: 0;
   background: var(--chat-sidebar);
   border-right: 1px solid var(--border);
+  padding-right: var(--panel-divider-width);
 }
 .chat-sidebar-head {
   display: flex;
@@ -719,6 +721,7 @@ main[data-view='chat'] > .web-mode-banner {
   border-left: 1px solid var(--border);
   background: var(--chat-sidebar);
   box-shadow: -4px 0 16px rgb(0 0 0 / 12%);
+  padding-left: var(--panel-divider-width);
 }
 /* Wide enough: the messages make room for it instead of going under. */
 @media (min-width: 900px) {
@@ -1703,6 +1706,10 @@ a.button {
   }
   .chat-sidebar {
     border-right: 0;
+    padding-right: 0;
+  }
+  .chat-sidebar > .panel-divider {
+    display: none;
   }
   .chat-shell[data-pane='list'] .chat-main,
   .chat-shell[data-pane='chat']:has(.chat-main) .chat-sidebar {
@@ -3019,10 +3026,18 @@ button.primary .recommended-tag {
   flex: none;
   width: 232px;
   height: calc(100dvh - var(--topbar-h));
-  padding: 0.5rem;
-  gap: 0.125rem;
-  overflow-y: auto;
+  padding-right: var(--panel-divider-width);
+  overflow: hidden;
   border-width: 0 1px 0 0;
+}
+.permanent-drawer-items {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0.125rem;
+  padding: 0.5rem;
+  overflow-y: auto;
 }
 .permanent-drawer .nav-item {
   display: flex;
@@ -13416,12 +13431,12 @@ audio.remote-player {
   align-items: center;
 }
 
-/* Saved column widths, with a visible handle on hover or keyboard focus. */
+/* Handles occupy dedicated gutters; adjacent native scrollbars stay clickable. */
 .panel-divider {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 8px;
+  width: var(--panel-divider-width);
   z-index: 15;
   cursor: col-resize;
   touch-action: none;
@@ -13496,6 +13511,9 @@ audio.remote-player {
 @media (max-width: 640px) {
   .panel-divider {
     display: none;
+  }
+  .person-panel {
+    padding-left: 0;
   }
   .chat-shell {
     grid-template-columns: minmax(0, 1fr);
