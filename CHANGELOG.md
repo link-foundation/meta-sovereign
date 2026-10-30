@@ -1,5 +1,19 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.1.0
+
+### Minor Changes
+
+- 0b055d1: R-Z36: derive evidence-backed conversation facts, reciprocal friendship,
+  questions and reply-thread context; offer localized follow-ups from selected
+  answers without sending or marking read. Add default-on persistent learning
+  controls, bounded projected-history analysis, edit invalidation and isolated
+  knowledge/preferences/reply models for extra Telegram accounts.
+
+  Reduce archive heap retention by deriving standard message token/child arrays
+  on read, preserving custom arrays and durable data. Include storage retention
+  counters in periodic resource diagnostics.
+
 ## 1.0.7
 
 ### Patch Changes
