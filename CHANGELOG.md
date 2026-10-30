@@ -1,5 +1,14 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.1.1
+
+### Patch Changes
+
+- b6b2c1d: Keep upload bar geometry, percentage labels and accessibility values identical.
+  Use shared high-contrast meters for attachments, exports and boosts, explicit
+  indeterminate states for unknown totals, and no fill for zero-percent polls.
+  Preserve visible progress across themes and reduced-motion settings.
+
 ## 1.1.0
 
 ### Minor Changes
