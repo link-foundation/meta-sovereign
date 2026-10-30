@@ -12,7 +12,11 @@ import { enFolders } from './en-folders.js';
 import { enTranscribe } from './en-transcribe.js';
 import { enGithub } from './en-github.js';
 
+import { enConversation } from './en-conversation.js';
+
 export const en = {
+  ...enConversation,
+
   'nav.calls': 'Calls',
   'panels.hint': 'Drag to resize. Double-click or press Enter to reset.',
   'panels.navigation': 'Resize navigation',

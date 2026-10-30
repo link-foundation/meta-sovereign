@@ -6,7 +6,7 @@
 // `/api/people/learned`, which learns from the stored history and reads
 // the rest of it first when it is not all stored yet.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import {
@@ -46,39 +46,55 @@ import { InviteLinksActions } from './chat-invite-links.js';
 import { PersonalChannelCard } from './chat-person-extras.js';
 import { PaidEarnings } from './chat-paid-earnings.js';
 import { BusinessProfile } from './chat-business-profile.js';
+import { PersonContext } from './person-context.js';
+import { readConversationSettings } from './conversation-prefs.js';
+import { createRetryingRead } from './read-retry.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
 
 /** What the server learned about the open chat's person, or null. */
-export const usePersonLearned = (api, key, open) => {
+export const usePersonLearned = (api, key, open, revision) => {
   const [learned, setLearned] = useState(null);
+  const shownKey = useRef(key);
   useEffect(() => {
-    setLearned(null);
-    if (!open || !key || typeof api?.peopleLearned !== 'function') {
+    if (shownKey.current !== key) {
+      setLearned(null);
+      shownKey.current = key;
+    }
+    if (
+      !open ||
+      !key ||
+      typeof api?.peopleLearned !== 'function' ||
+      !readConversationSettings().enabled
+    ) {
       return undefined;
     }
-    let active = true;
     let timer = null;
-    const read = () =>
-      api
-        .peopleLearned(key)
-        .then((next) => {
-          if (!active || !next || next.error) {
-            return;
-          }
+    const read = createRetryingRead(
+      async () => {
+        const next = await api.peopleLearned(key);
+        if (!next || next.error) {
+          throw new Error(next?.error ?? 'conversation unavailable');
+        }
+        return next;
+      },
+      {
+        accept(next) {
           setLearned(next);
-          if (next.complete === false) {
-            timer = globalThis.setTimeout(read, AGAIN_MS);
+          if (next.complete === false && !next.disabled) {
+            timer = globalThis.setTimeout(read.refresh, AGAIN_MS);
           }
-        })
-        .catch(() => {});
-    read();
+        },
+        failed: () => {},
+      }
+    );
+    read.refresh();
     return () => {
-      active = false;
+      read.stop();
       globalThis.clearTimeout(timer);
     };
-  }, [api, key, open]);
+  }, [api, key, open, revision]);
   return learned;
 };
 
@@ -117,7 +133,9 @@ const Work = ({ work, t }) =>
                 t(`chat.about.kind.${fact.kind}`)
               ),
               ' ',
-              fact.value,
+              fact.negated
+                ? t('chat.about.negated', { value: fact.value })
+                : fact.value,
             ])
           )
       )
@@ -201,12 +219,51 @@ const Asked = ({ asked, t }) =>
       )
     : el('p', { className: 'meta' }, t('chat.about.none'));
 
-const Body = ({ learned, t, dateTime }) => {
+const LearnedFacts = ({ learned, t, dateTime }) => {
+  if (learned.settings?.facts === false) {
+    return null;
+  }
+  return [
+    el(Section, { key: 'ad', title: t('chat.about.address') }, [
+      el(Address, { key: 'x', address: learned.address, t, dateTime }),
+    ]),
+    el(Section, { key: 'w', title: t('chat.about.work') }, [
+      el(Work, { key: 'x', work: learned.work, t }),
+    ]),
+    el(Section, { key: 'ac', title: t('chat.about.accounts') }, [
+      el(Accounts, { key: 'x', accounts: learned.accounts, t }),
+    ]),
+  ];
+};
+const LearnedQuestions = ({ learned, t }) => {
+  if (learned.settings?.questions === false) {
+    return null;
+  }
+  return [
+    el(Section, { key: 'q', title: t('chat.about.asked') }, [
+      el(Asked, { key: 'x', asked: learned.asked, t }),
+    ]),
+    learned.theirAsked?.length
+      ? el(Section, { key: 'their-q', title: t('chat.about.theirAsked') }, [
+          el(Asked, { key: 'x', asked: learned.theirAsked, t }),
+        ])
+      : null,
+  ];
+};
+
+const Body = ({ learned, t, dateTime, onGo }) => {
+  if (!readConversationSettings().enabled || learned?.disabled) {
+    return el(
+      'p',
+      { className: 'meta person-learning-disabled' },
+      t('chat.about.learningDisabled')
+    );
+  }
   if (!learned) {
     return el(PageLoading, { label: t('chat.about.loading') });
   }
   return [
-    learned.complete === false
+    learned.complete === false && learned.loadingHistory !== false
       ? el(
           Busy,
           { key: 'm' },
@@ -217,18 +274,12 @@ const Body = ({ learned, t, dateTime }) => {
           { key: 'm', className: 'meta' },
           t('chat.about.messages', { count: learned.messages })
         ),
-    el(Section, { key: 'ad', title: t('chat.about.address') }, [
-      el(Address, { key: 'x', address: learned.address, t, dateTime }),
-    ]),
-    el(Section, { key: 'w', title: t('chat.about.work') }, [
-      el(Work, { key: 'x', work: learned.work, t }),
-    ]),
-    el(Section, { key: 'ac', title: t('chat.about.accounts') }, [
-      el(Accounts, { key: 'x', accounts: learned.accounts, t }),
-    ]),
-    el(Section, { key: 'q', title: t('chat.about.asked') }, [
-      el(Asked, { key: 'x', asked: learned.asked, t }),
-    ]),
+    learned.truncated
+      ? el('p', { key: 'partial', className: 'meta' }, t('chat.about.partial'))
+      : null,
+    el(PersonContext, { key: 'context', learned, t, onGo }),
+    el(LearnedFacts, { key: 'facts', learned, t, dateTime }),
+    el(LearnedQuestions, { key: 'questions', learned, t }),
   ];
 };
 
@@ -280,6 +331,7 @@ export const PersonPanel = ({
   info = null,
   username,
   lastId,
+  revision,
   onClose,
   onGo,
   onOpenChat,
@@ -288,7 +340,7 @@ export const PersonPanel = ({
   const t = useT();
   const { dateTime } = useDates();
   const personal = Boolean(chat?.personal);
-  const learned = usePersonLearned(api, chat?.key, personal);
+  const learned = usePersonLearned(api, chat?.key, personal, revision);
   const title = personal
     ? t('chat.about.title', { name: chat?.name ?? '' })
     : t('chat.about.chatInfo');
@@ -373,7 +425,7 @@ export const PersonPanel = ({
         el(BotAttachRow, { key: 'ba', api, chat, info }),
         el(SimilarBots, { key: 'sb', api, chat, info, onOpenChat }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
-        personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
+        personal ? el(Body, { key: 'l', learned, t, dateTime, onGo }) : null,
       ]),
       el(OpenInTelegram, {
         key: 'f',

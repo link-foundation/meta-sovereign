@@ -64,6 +64,13 @@ implementation into this repository.
 - Preserve keyboard access, visible focus, readable contrast and reduced-motion
   behavior through themes, pane widths and screen sizes. Reuse common components
   so the same rules apply throughout the app.
+- Learn conversation context from source-backed facts, reciprocal agreements,
+  questions and explicit reply threads across providers. Distinguish observed
+  usage, confirmed answers, negative answers and uncertainty. Suggestions may
+  continue an earlier topic and must avoid re-asking for a known profile. These
+  read-only rules default on with persistent opt-outs; selecting a suggestion
+  only fills the composer. Keep analysis bounded and expose evidence and partial
+  history. See [conversation learning](CONVERSATION-LEARNING.md).
 
 ## Review and evidence
 

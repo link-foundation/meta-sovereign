@@ -24,6 +24,7 @@ import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
 import { createAvailability } from './server-availability.js';
 import { createRecoveringRequest } from './request-recovery.js';
+import { conversationQuery } from '../crm/conversation-policy.js';
 
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
@@ -88,12 +89,27 @@ const replyCacheOf = (driver, fetchOrLocal) =>
       ),
   });
 
-const suggestParams = ({ source, chat, lastMessage, typed, limit }) => {
-  const params = new URLSearchParams({ typed, limit: String(limit) });
+const suggestParams = ({
+  source,
+  chat,
+  lastMessage,
+  typed,
+  limit,
+  replyTo,
+  locale,
+  settings,
+}) => {
+  const params = new URLSearchParams({
+    typed,
+    limit: String(limit),
+    ...conversationQuery(settings),
+  });
   for (const [key, value] of Object.entries({
     source,
     chat,
     last: lastMessage,
+    replyTo,
+    locale,
   })) {
     if (value !== undefined && value !== null) {
       params.set(key, String(value));
@@ -148,6 +164,36 @@ const localWrites = (store) => ({
     };
     await store.put(link);
     return link;
+  },
+});
+
+const suggestionCalls = (fetchOrLocal, replies, replyCache) => ({
+  replyCache,
+  async suggest({
+    source,
+    chat,
+    lastMessage,
+    typed = '',
+    limit = 8,
+    replyTo,
+    locale,
+    settings,
+  } = {}) {
+    const params = suggestParams({
+      source,
+      chat,
+      lastMessage,
+      typed,
+      limit,
+      replyTo,
+      locale,
+      settings,
+    });
+    return fetchOrLocal(
+      `/api/suggest?${params}`,
+      () => replies().autocomplete({ source, chat, lastMessage, typed, limit }),
+      { recover: false }
+    );
   },
 });
 
@@ -301,16 +347,7 @@ export const createOfflineClient = ({
      * Message-to-message autocomplete: whole replies we used for the
      * chat's last incoming message, then word by word over `typed`.
      */
-    replyCache,
-    async suggest({ source, chat, lastMessage, typed = '', limit = 8 } = {}) {
-      const params = suggestParams({ source, chat, lastMessage, typed, limit });
-      return fetchOrLocal(
-        `/api/suggest?${params}`,
-        () =>
-          replies().autocomplete({ source, chat, lastMessage, typed, limit }),
-        { recover: false }
-      );
-    },
+    ...suggestionCalls(fetchOrLocal, replies, replyCache),
     async contacts() {
       return fetchOrLocal('/api/contacts', () => computeContacts(store));
     },

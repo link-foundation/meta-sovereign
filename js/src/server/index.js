@@ -122,6 +122,7 @@ import { createPasscodeLock } from './passcode.js';
 import { gateLocked, handlePasscodeRoutes } from './routes-passcode.js';
 import { createClientLogRoute } from './routes-client-log.js';
 import { createLearnedRoute } from './routes-learned.js';
+import { createConversationKnowledge } from './conversation-knowledge.js';
 import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
@@ -939,6 +940,7 @@ export const startServer = async ({
       later
     ),
     chatIndex,
+    knowledge: createConversationKnowledge({ store, index: chatIndex, log }),
     ...pullContext(store, log, pulls, later, emailPoll),
   };
   Object.assign(ctx, backgroundJobs({ ctx, store, log, later, backups }));

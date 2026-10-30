@@ -11,6 +11,12 @@ const entriesOf = (checkpoints) =>
     checkpoint,
   ]);
 
+const retentionOf = (stores) =>
+  [...stores].map(([account, store]) => ({
+    account,
+    retention: store.memoryStats?.() ?? null,
+  }));
+
 const openOwnedStore = async (dir, checkpoint, log) =>
   checkpoint
     ? openWarmDualStore(dir, checkpoint, {
@@ -103,6 +109,7 @@ export const createRollingWorker = async ({
     get port() {
       return handle.port;
     },
+    resourceStats: () => retentionOf(stores),
     prepare: async () => {
       const result = {};
       for (const [slot, store] of stores) {

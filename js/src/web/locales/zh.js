@@ -12,7 +12,11 @@ import { zhFolders } from './zh-folders.js';
 import { zhTranscribe } from './zh-transcribe.js';
 import { zhGithub } from './zh-github.js';
 
+import { zhConversation } from './zh-conversation.js';
+
 export const zh = {
+  ...zhConversation,
+
   'nav.calls': '通话',
   'panels.hint': '拖动以调整宽度，双击或按 Enter 重置。',
   'panels.navigation': '调整导航宽度',

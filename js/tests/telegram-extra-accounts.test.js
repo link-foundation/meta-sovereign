@@ -30,6 +30,8 @@ import {
   switchAccount,
 } from '../src/web/chat-accounts-live.js';
 import { saveExtraAccount } from '../src/sources/telegram-accounts.js';
+import { acquaintanceConversation } from './helpers/conversation-fixture.js';
+import { CONVERSATION_SETTINGS_ID } from '../src/crm/conversation-policy.js';
 
 const secret = (name, value) => ({
   id: `secret:telegram:${name}`,
@@ -145,7 +147,6 @@ test('only account paths carry an account; the rest are never given one', () => 
     ['/api/telegram/accounts-events', 'GET'],
     ['/api/automations', 'GET'],
     ['/api/people', 'GET'],
-    ['/api/suggest?typed=a', 'GET'],
     ['/links', 'PUT'],
     ['/links/abc', 'DELETE'],
   ]) {
@@ -153,6 +154,10 @@ test('only account paths carry an account; the rest are never given one', () => 
     assert.equal(scopedForExtra(url.split('?')[0], method), false, url);
   }
   assert.equal(scopedForExtra('/api/send', 'POST'), true);
+  assert.equal(scopedForExtra('/api/suggest', 'GET'), true);
+  assert.equal(scopedForExtra('/api/suggest/model', 'GET'), true);
+  assert.equal(scopedForExtra('/api/people/learned', 'GET'), true);
+  assert.equal(scopedForExtra('/api/people/learning-settings', 'POST'), true);
   assert.equal(scopedForExtra('/api/message/edit', 'POST'), true);
   assert.equal(scopedForExtra('/links', 'GET'), true);
 });
@@ -344,6 +349,49 @@ const serverWithTwo = async () => {
     sent1,
   };
 };
+
+test('conversation knowledge, preferences and suggestion models stay in the selected account', async () => {
+  const s = await serverWithTwo();
+  try {
+    await s.store.put({
+      id: 'msg:telegram:777:1',
+      source: 'telegram',
+      chat: '777',
+      sender: '777',
+      body: 'primary-only context',
+      timestamp: new Date().toISOString(),
+    });
+    await s.two.putMany(acquaintanceConversation());
+    const get = async (route) => (await call(s.base, route)).json();
+    const home = await get('/api/people/learned?key=telegram:111&cached=1');
+    const own = await get(
+      '/api/people/learned?key=telegram:111&cached=1&telegramAccount=2'
+    );
+    assert.equal(home.messages, 0);
+    assert.equal(own.messages, 19);
+    assert.equal(own.relationships[0].status, 'agreed');
+    const reply = await get(
+      '/api/suggest?source=telegram&chat=111&replyTo=4&telegramAccount=2'
+    );
+    assert(reply.suggestions.some((item) => item.rule === 'work.projects'));
+    const model = await get('/api/suggest/model?telegramAccount=2');
+    assert(!JSON.stringify(model).includes('primary-only'));
+    assert(
+      JSON.stringify(await get('/api/suggest/model')).includes('primary-only')
+    );
+    const saved = await call(
+      s.base,
+      '/api/people/learning-settings?telegramAccount=2',
+      postBody({ enabled: false })
+    );
+    assert.equal(saved.status, 200);
+    assert.equal((await s.two.get(CONVERSATION_SETTINGS_ID)).enabled, false);
+    assert.equal(await s.store.get(CONVERSATION_SETTINGS_ID), null);
+    assert.equal((await get('/api/people/learning-settings')).enabled, true);
+  } finally {
+    await s.handle.close();
+  }
+});
 
 test('requests name their account: links, chats and status come from that account only', async () => {
   const s = await serverWithTwo();
@@ -685,7 +733,7 @@ test('signed-in extra accounts start with the server, and not otherwise', async 
       automations: { scheduler: false },
     });
     for (let i = 0; i < 40 && log.length === 0; i += 1) {
-      await new Promise((r) => setTimeout(r, 25));
+      await new Promise((r) => globalThis.setTimeout(r, 25));
     }
     assert.deepEqual(log, [2]);
     await second.close();

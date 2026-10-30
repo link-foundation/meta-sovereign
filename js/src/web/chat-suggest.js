@@ -31,7 +31,7 @@ export const useSuggestionsFor = (suggester, text, fallback = NONE) => {
   const loaded = local !== null;
   useEffect(() => {
     // Nothing typed: the copy's typical replies are all there is.
-    if (!suggester || (loaded && !text.trim())) {
+    if (!suggester || (loaded && !text.trim() && !suggester.contextual)) {
       return undefined;
     }
     let live = true;

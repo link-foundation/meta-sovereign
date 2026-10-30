@@ -3,6 +3,10 @@
 import { serialize, deserialize } from 'node:v8';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { topicOfMessage } from '../web/forum-topics.js';
+import {
+  deriveMessageStructure,
+  derivedStructureBytes,
+} from './message-structure.js';
 
 const fields = ['raw', 'snapshot'];
 const packed = new WeakMap();
@@ -152,6 +156,7 @@ export const createRawPacking = ({
   let bodyUtf16Bytes = 0;
   let childIdUtf16Bytes = 0;
   let tokenUtf16Bytes = 0;
+  let structuralUtf16BytesAvoided = 0;
   const mediaTypes = new Map();
   const mediaType = (raw) => {
     const type = mediaName(raw);
@@ -214,9 +219,8 @@ export const createRawPacking = ({
         topic: field === 'raw' ? topicOfMessage(link) : undefined,
       };
     }
-    return copyPacked(
-      link,
-      payloads.raw || payloads.snapshot ? payloads : undefined
+    return deriveMessageStructure(
+      copyPacked(link, payloads.raw || payloads.snapshot ? payloads : undefined)
     );
   };
   const account = (link, by) => {
@@ -227,6 +231,7 @@ export const createRawPacking = ({
       by * (typeof link.body === 'string' ? link.body.length * 2 : 0);
     childIdUtf16Bytes += by * stringBytes(link.children);
     tokenUtf16Bytes += by * stringBytes(link.tokens);
+    structuralUtf16BytesAvoided += by * derivedStructureBytes(link);
     const payloads = packed.get(link);
     if (!payloads) {
       return;
@@ -270,6 +275,7 @@ export const createRawPacking = ({
       bodyUtf16Bytes,
       childIdUtf16Bytes,
       tokenUtf16Bytes,
+      ...(structuralUtf16BytesAvoided ? { structuralUtf16BytesAvoided } : {}),
       ...(payloadFile ? { payloadCache: payloadFile.stats() } : {}),
     }),
   };

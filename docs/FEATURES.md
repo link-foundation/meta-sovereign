@@ -20,6 +20,10 @@ Telegram is the reference network and its matrix is below. Every other network h
 
 The app also supports local address-book imports outside the Telegram matrix: macOS Contacts (including synced iCloud accounts) and vCard files, with preview, OS permission and duplicate handling. The Contacts directory refreshes during sync and counts people without messages. See [contact imports](CONTACTS-IMPORT.md) and R-Z26.
 
+## Conversation understanding across providers
+
+The shared About panel extracts work and address facts, shared profiles, reciprocal friendship agreements, both sides’ questions and explicit topic continuations from stored personal conversations. Selected replies can offer localized contextual follow-ups; suggestions only fill the composer. Learning defaults on with persistent opt-outs. This is rule-based and bounded to cached history, with evidence and partial-history states; it does not claim general language understanding or external identity verification. See [conversation learning](CONVERSATION-LEARNING.md) and R-Z36.
+
 ## Scope now
 
 The priority now is complete display of every message in private chats, groups and channels. Exotic features stay parked and are listed here to come back to later. Only features reachable through the API (MTProto, layer 232, via the `telegram` package) or through the network's web app in a browser are implemented; what only the official apps can do is marked "Not accessible".

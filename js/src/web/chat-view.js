@@ -707,7 +707,11 @@ const Suggestions = ({ suggest, composer }) => {
           key: s.text,
           type: 'button',
           className: 'chip',
-          title: t('chat.suggest.count', { count: s.count ?? 0 }),
+          title:
+            s.kind === 'context'
+              ? t('chat.suggest.context')
+              : t('chat.suggest.count', { count: s.count ?? 0 }),
+          'data-rule': s.rule,
           onClick: () => composer.setText(s.text),
         },
         s.text
@@ -1185,6 +1189,13 @@ const ChatTop = ({ state, api, onBack, saved, forumView, call, actions }) => {
           key: `about:${chat.key}`,
           api,
           chat,
+          revision: JSON.stringify(
+            state.messages.map((message) => [
+              message.id,
+              message.body,
+              message.replyTo,
+            ])
+          ),
           info: state.info ?? null,
           username: state.info?.username ?? null,
           onOpenChat: (target) => state.openAt?.(target),

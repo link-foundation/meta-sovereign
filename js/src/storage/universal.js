@@ -22,7 +22,7 @@
  * @property {(link: Link) => Promise<Link>} put
  * @property {(links: Link[]) => Promise<Link[]>} [putMany] bulk put; file
  *   backed stores write once for the whole batch
- * @property {(id: string) => Promise<Link | null>} get
+ * @property {(id: string, project?: (link: Link) => unknown) => Promise<Link | null>} get
  * @property {(id: string) => Promise<boolean>} delete
  * @property {(filter?: (l: Link) => boolean) => Promise<Link[]>} query
  * @property {(handler: (event: {type: string, link: Link}) => void) => () => void} subscribe
@@ -55,9 +55,11 @@ export const createMemoryStore = ({
     async putMany(links) {
       return links.map(put);
     },
-    async get(id) {
+    // A projection reads retained metadata without detaching cold payloads,
+    // as scan's projection does. It must not mutate the stored record.
+    async get(id, project = copy) {
       const v = data.get(id);
-      return v ? copy(v) : null;
+      return v ? project(v) : null;
     },
     async delete(id) {
       const existed = data.has(id);

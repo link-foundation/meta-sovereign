@@ -29,6 +29,7 @@
   "chat-loading",
   "chat-layout",
   "automation-chat",
+  "conversation-context",
   "calls",
   "operator",
   "operator-replies",

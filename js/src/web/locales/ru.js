@@ -11,7 +11,11 @@ import { ruFolders } from './ru-folders.js';
 import { ruTranscribe } from './ru-transcribe.js';
 import { ruGithub } from './ru-github.js';
 
+import { ruConversation } from './ru-conversation.js';
+
 export const ru = {
+  ...ruConversation,
+
   'nav.calls': 'Звонки',
   'panels.hint':
     'Перетащите для изменения ширины. Двойной щелчок или Enter — сброс.',

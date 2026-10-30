@@ -47,7 +47,10 @@ input.on('line', (line) => {
           log: (entry) => send({ type: 'log', entry }),
           phase: 'warming',
           build,
-          extra: () => ({ backgroundSnapshots: snapshotMemory() }),
+          extra: () => ({
+            backgroundSnapshots: snapshotMemory(),
+            stores: worker?.resourceStats?.() ?? [],
+          }),
         });
         worker = await createRollingWorker({
           ...body,

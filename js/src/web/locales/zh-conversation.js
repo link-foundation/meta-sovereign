@@ -1,0 +1,25 @@
+export const zhConversation = {
+  'settings.conversation.title': '对话理解',
+  'settings.conversation.hint':
+    '在本地分析已保存的对话，默认开启。建议只会填入输入框，不会自动发送。',
+  'settings.conversation.enabled': '启用对话理解',
+  'settings.conversation.facts': '了解工作、关系、账号和称呼方式',
+  'settings.conversation.questions': '记录问题与回答',
+  'settings.conversation.suggestions': '根据上下文建议后续消息',
+  'settings.conversation.saveFailed':
+    '已保存在此浏览器中，暂时无法保存到服务器。',
+  'chat.about.context': '对话上下文',
+  'chat.about.learningDisabled': '已在设置中关闭对话理解。',
+  'chat.about.evidence': '在对话中查看',
+  'chat.about.partial': '此摘要基于已保存历史中的有限片段。',
+  'chat.about.negated': '不是{value}',
+  'chat.about.theirAsked': '对方的问题',
+  'chat.about.relationship.friendship.agreed': '已同意成为朋友',
+  'chat.about.topic.work': '工作',
+  'chat.about.topic.accounts': '账号与个人资料',
+  'chat.about.topic.friendship': '认识与关系',
+  'chat.about.topic.address': '称呼方式',
+  'chat.about.topic.location': '地点',
+  'chat.about.topic.meeting': '交谈安排',
+  'chat.suggest.context': '根据对话上下文建议后续消息',
+};

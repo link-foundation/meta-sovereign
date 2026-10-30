@@ -45,6 +45,8 @@ import {
 } from '../sources/telegram-accounts.js';
 import { PROXY_ID } from '../sources/telegram-proxy.js';
 import { createChatIndex } from './chat-index.js';
+import { createConversationKnowledge } from './conversation-knowledge.js';
+import { createReplyService } from '../replies/reply-service.js';
 
 const FRESH_MS = 2 * 60_000;
 
@@ -83,7 +85,8 @@ export const borrowSecrets = (own, home, slot) => {
   return new Proxy(own, {
     get(target, prop) {
       if (prop === 'get') {
-        return async (id) => (await borrowed(id)) ?? target.get(id);
+        return async (id, project) =>
+          (await borrowed(id)) ?? target.get(id, project);
       }
       const value = Reflect.get(target, prop, target);
       return typeof value === 'function' ? value.bind(target) : value;
@@ -314,6 +317,8 @@ export const createExtraRuntime = ({
     if (entry) {
       await entry.account?.stop?.().catch(() => {});
       entry.chatIndex.close();
+      entry.knowledge?.close();
+      await entry.replies?.close().catch(() => {});
       await (handoff ? entry.own.flushLog?.() : entry.own.flush?.())?.catch(
         () => {}
       );
@@ -389,6 +394,12 @@ export const scopedContext = (ctx, entry) => {
         telegramAccounts: null,
         telegramExtras: null,
         chatIndex: entry.chatIndex,
+        replies: (entry.replies ??= createReplyService({ store: entry.store })),
+        knowledge: (entry.knowledge ??= createConversationKnowledge({
+          store: entry.store,
+          index: entry.chatIndex,
+          log: ctx.log,
+        })),
         storeDir: entry.dir,
         send: entry.send,
         setTyping: entry.setTyping,

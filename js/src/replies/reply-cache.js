@@ -264,11 +264,18 @@ export const createReplyCache = ({
      * Suggestions as the server gives them (./reply-graph.js
      * `autocomplete`), or null before the copy is loaded.
      */
-    autocomplete({ source, chat, hint = null, typed = '', limit = 8 }) {
+    autocomplete({
+      source,
+      chat,
+      hint = null,
+      typed = '',
+      limit = 8,
+      lastMessage: given,
+    }) {
       if (!index) {
         return null;
       }
-      const lastMessage = toAnswer(source, chat, hint);
+      const lastMessage = given ?? toAnswer(source, chat, hint);
       return {
         ...index.autocomplete({ lastMessage, typed, limit }),
         lastMessage,
@@ -302,9 +309,13 @@ export const mergeSuggestions = (local, remote, { limit = 8 } = {}) => {
     });
   const localItems = local?.suggestions ?? [];
   const remoteItems = remote?.suggestions ?? [];
-  const whole = unique(
-    [...localItems, ...remoteItems].filter((s) => s.kind !== 'word')
-  ).slice(0, limit);
+  const wholeItems = [...localItems, ...remoteItems].filter(
+    (s) => s.kind !== 'word'
+  );
+  const whole = unique([
+    ...wholeItems.filter((s) => s.kind === 'context'),
+    ...wholeItems.filter((s) => s.kind !== 'context'),
+  ]).slice(0, limit);
   const knownWords = localItems.filter((s) => s.kind === 'word');
   const words = unique(
     knownWords.length

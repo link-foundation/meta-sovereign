@@ -83,6 +83,8 @@
     "test:e2e:round-video": "node js/tests/e2e-round-video-browser.mjs",
     "test:e2e:hashtags": "node js/tests/e2e-hashtags-browser.mjs",
     "test:e2e:reply-return": "node js/tests/e2e-reply-return-browser.mjs",
+    "test:e2e:conversation-context": "node js/tests/e2e-conversation-context-browser.mjs",
+    "test:e2e:conversation-context:webkit": "E2E_BROWSER=webkit node js/tests/e2e-conversation-context-browser.mjs",
     "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",

@@ -15,42 +15,19 @@
  * logged, never what was said.
  */
 
-import { learnConversation } from '../crm/person-learn.js';
+import { createConversationKnowledge } from './conversation-knowledge.js';
+import {
+  CONVERSATION_SETTINGS_ID,
+  conversationSettings,
+  requestedConversationSettings,
+} from '../crm/conversation-policy.js';
 import { historyLinkId } from '../sources/telegram-history.js';
-import { chatKind } from '../web/chat-model.js';
-import { json } from './util.js';
+import { json, readBody, bodyFailure } from './util.js';
 
-const PAGE = 500;
-const MAX_MESSAGES = 20_000;
 const MAX_QUESTIONS = 200;
-
 const splitKey = (key) => {
   const at = key.indexOf(':');
   return at > 0 ? { source: key.slice(0, at), chat: key.slice(at + 1) } : null;
-};
-
-// The whole stored conversation, oldest first.
-const conversation = async (index, key) => {
-  const pages = [];
-  let before = null;
-  let total = 0;
-  for (;;) {
-    const { messages, more } = await index.page(key, { before, limit: PAGE });
-    pages.unshift(messages);
-    total += messages.length;
-    if (!more || messages.length === 0 || total >= MAX_MESSAGES) {
-      return pages.flat();
-    }
-    before = messages[0].id;
-  }
-};
-
-const isPersonal = (messages) => {
-  const people = new Set(
-    messages.map((m) => m.sender).filter((s) => s && s !== 'me')
-  );
-  const type = messages.find((m) => m.chatType)?.chatType ?? null;
-  return chatKind(type, people.size) === 'private';
 };
 
 // Telegram: whether the store holds the chat to its first message; if
@@ -96,6 +73,8 @@ const withGitHub = (ctx, accounts, person) =>
 
 const shaped = (learned) => ({
   address: learned.address,
+  relationships: learned.relationships,
+  summary: learned.summary,
   work: learned.work,
   asked: learned.asked.map(({ text, wordings, asked, answered, latest }) => ({
     text,
@@ -105,59 +84,96 @@ const shaped = (learned) => ({
     answer: latest.answer,
     intent: latest.intent,
   })),
+  theirAsked: learned.theirAsked.map(
+    ({ text, wordings, asked, answered, latest }) => ({
+      text,
+      wordings,
+      asked,
+      answered,
+      answer: latest.answer,
+      intent: latest.intent,
+    })
+  ),
   questions: learned.questions.slice(-MAX_QUESTIONS),
   accounts: learned.accounts,
 });
 
-// What was learned, by number only (for the log).
-const countsOf = (learned) =>
-  learned
-    ? {
-        questions: learned.questions.length,
-        groups: learned.asked.length,
-        work: learned.work.length,
-        accounts: learned.accounts.length,
-        address: learned.address.basis,
-      }
-    : {};
+const readSettings = async (store) =>
+  conversationSettings((await store.get(CONVERSATION_SETTINGS_ID)) ?? {});
 
-export const createLearnedRoute = ({ now = Date.now } = {}) => {
-  const kept = new Map(); // key → { mark, result }
-
-  const learn = async (ctx, key, where) => {
-    const index = ctx.chatIndex;
-    // The newest message (which also waits for the index to load) and
-    // the count say whether the chat changed since it was learned.
-    const { messages: newest } = await index.page(key, { limit: 1 });
-    const mark = `${index.count(key)}:${newest[0]?.id ?? ''}`;
-    const hit = kept.get(key);
-    if (hit?.mark === mark) {
-      return hit.result;
+const saveSettings = async (store, req, res) => {
+  try {
+    const body = await readBody(req, { allowEmpty: false });
+    const valid = Object.entries(body).every(
+      ([key, value]) =>
+        Object.hasOwn(conversationSettings(), key) && typeof value === 'boolean'
+    );
+    if (!valid) {
+      return (
+        json(res, 400, { error: 'learning settings must be booleans' }) ?? true
+      );
     }
-    const started = now();
-    const messages = await conversation(index, key);
-    const personal = isPersonal(messages);
-    const learned = personal ? learnConversation(messages) : null;
-    const result = {
-      key,
-      personal,
-      messages: messages.length,
-      name: personal ? nameIn(messages) : null,
-      ...(learned ? shaped(learned) : { accounts: [] }),
-    };
-    kept.set(key, { mark, result });
-    ctx.log?.({
-      ...countsOf(learned),
-      event: 'people_learned',
-      messages: messages.length,
-      personal,
-      duration_ms: now() - started,
-      source: where.source,
+    const settings = conversationSettings({
+      ...(await readSettings(store)),
+      ...body,
     });
-    return result;
+    await store.put({
+      id: CONVERSATION_SETTINGS_ID,
+      tokens: ['conversation-learning', 'settings'],
+      ...settings,
+    });
+    return json(res, 200, settings) ?? true;
+  } catch (error) {
+    const failure = bodyFailure(error);
+    if (!failure) {
+      throw error;
+    }
+    return json(res, ...failure) ?? true;
+  }
+};
+const settingsRoute = async (store, req, res) => {
+  if (req.method === 'GET') {
+    return json(res, 200, await readSettings(store)) ?? true;
+  }
+  if (req.method === 'POST') {
+    return saveSettings(store, req, res);
+  }
+  return false;
+};
+const learnedResult = (key, found, index) => ({
+  key,
+  personal: found.personal,
+  disabled: found.disabled ?? false,
+  messages: found.messages.length,
+  total: index.count(key),
+  truncated: found.truncated,
+  settings: found.policy,
+  name: found.personal ? nameIn(found.messages) : null,
+  ...shaped(found.learned),
+});
+const enrich = async (store, ctx, where, result, cached) => {
+  const complete = cached
+    ? ((await store.get(historyLinkId(where.chat)))?.complete ?? null)
+    : await completeness(store, ctx, where);
+  const person =
+    result.personal && !cached
+      ? await personOf(ctx, where, result.name)
+      : { name: null, username: null };
+  return {
+    ...result,
+    complete,
+    loadingHistory: !cached && complete === false,
+    accounts: cached
+      ? result.accounts
+      : await withGitHub(ctx, result.accounts, person),
   };
+};
 
-  return async (store, req, res, p, url, ctx) => {
+export const createLearnedRoute =
+  () => async (store, req, res, p, url, ctx) => {
+    if (p === '/api/people/learning-settings') {
+      return settingsRoute(store, req, res);
+    }
     if (p !== '/api/people/learned' || req.method !== 'GET') {
       return false;
     }
@@ -166,17 +182,18 @@ export const createLearnedRoute = ({ now = Date.now } = {}) => {
     if (!where || !ctx.chatIndex) {
       return json(res, 400, { error: 'key is required' }) ?? true;
     }
-    const result = await learn(ctx, key, where);
-    const complete = await completeness(store, ctx, where);
-    const person = result.personal
-      ? await personOf(ctx, where, result.name)
-      : { name: null, username: null };
+    ctx.knowledge ??= createConversationKnowledge({
+      store,
+      index: ctx.chatIndex,
+      log: ctx.log,
+    });
+    const found = await ctx.knowledge.get(
+      key,
+      requestedConversationSettings(url.searchParams)
+    );
+    const result = learnedResult(key, found, ctx.chatIndex);
+    const cached = url.searchParams.get('cached') === '1' || found.disabled;
     return (
-      json(res, 200, {
-        ...result,
-        complete,
-        accounts: await withGitHub(ctx, result.accounts, person),
-      }) ?? true
+      json(res, 200, await enrich(store, ctx, where, result, cached)) ?? true
     );
   };
-};

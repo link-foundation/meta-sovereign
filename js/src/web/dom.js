@@ -39,9 +39,10 @@ import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
 import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
+import { createConversationApi } from './conversation-api.js';
 
 export const h = (tag, attrs = {}, children = []) => {
-  const el = document.createElement(tag);
+  const el = globalThis.document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === 'on') {
       for (const [evt, fn] of Object.entries(v)) {
@@ -59,7 +60,9 @@ export const h = (tag, attrs = {}, children = []) => {
     if (c === null || c === undefined) {
       continue;
     }
-    el.append(typeof c === 'string' ? document.createTextNode(c) : c);
+    el.append(
+      typeof c === 'string' ? globalThis.document.createTextNode(c) : c
+    );
   }
   return el;
 };
@@ -97,7 +100,7 @@ const openMigratedStore = async (suffix) => {
     }
     globalThis.msSchemaTooNew = true; // for a banner that mounts later
     globalThis.dispatchEvent?.(
-      new CustomEvent('ms-schema-too-new', { detail: error.message })
+      new globalThis.CustomEvent('ms-schema-too-new', { detail: error.message })
     );
     return createBrowserStore();
   }
@@ -1443,12 +1446,11 @@ const rawApi = {
       body: JSON.stringify(entry),
     }).catch(() => null),
   // What a personal conversation tells about the person (R-Y50).
-  peopleLearned: async (key) =>
-    key
-      ? ((await serverFetch(
-          `/api/people/learned?key=${encodeURIComponent(key)}`
-        ).catch(() => null)) ?? null)
-      : null,
+  ...createConversationApi({
+    get: serverFetch,
+    post: serverPostReport,
+    saveLocal: (record) => api.put(record),
+  }),
   // Unread @ and ♥ of a chat: which messages, and that they were seen.
   telegramUnreadMarks: async ({ chat, kind }) =>
     (await serverFetch(

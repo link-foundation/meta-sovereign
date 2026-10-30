@@ -1,5 +1,15 @@
 # Loading, media and Operator queue behavior
 
+Conversation facts and question/answer summaries refresh without clearing the
+last successful result. The About panel identifies partial history and links
+topic continuations and friendship agreements to their source messages. Context
+suggestions use the selected reply target, including an older answer, and are
+labeled as context rather than historical usage counts. Their action fills the
+composer only. Settings exposes default-on, persistent learning controls; the
+disabled state replaces the derived panel without deleting source messages.
+These rules apply to Chat and Operator; see
+[conversation learning](CONVERSATION-LEARNING.md).
+
 Page loaders occupy the available view below the header/navigation. A pane loader occupies its content pane. Operator retains its toolbar during initial directory loading and candidate validation, then places its empty state in the same remaining region. Calls follows the same rule for its loading and empty list. Inline action progress stays with the action; chat history uses its compact in-list marker. Profile actions use consistent gaps and widths, including controls rendered by separate components.
 
 The header has one connection badge in every section: Online, yellow Reconnecting while a previously connected local server or Telegram transport is reconnecting, or Offline when no server has been found or the browser is offline. Telegram being unreachable for a minute also shows Offline with its reason; an expired session links to sign in. Existing event streams supply transport state without opening extra connections. Reconnecting notices never occupy conversation content; history and media show progress only for their own loads.

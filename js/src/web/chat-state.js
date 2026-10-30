@@ -77,6 +77,10 @@ import {
 } from './chat-folders.js';
 import { tagMap } from './chat-folder-tags.js';
 import { usePublishChatFeed } from './navigation-counts.js';
+import { conversationSuggestions } from '../crm/conversation-context.js';
+import { useConversationSettings } from './conversation-prefs.js';
+import { useLocaleContext } from './i18n.js';
+import { mergeSuggestions } from '../replies/reply-cache.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -152,7 +156,10 @@ const newestShown = (messages) =>
  * from the server, which keeps every rare reply. The copy loads once,
  * and asks the server what it learned whenever links arrive.
  */
-const useSuggester = (api, current, messages, links) => {
+const useSuggester = (api, current, messages, links, composer) => {
+  const replyTo = composer.replyTo;
+  const { settings } = useConversationSettings(api);
+  const { locale } = useLocaleContext();
   const [cache, setCache] = useState(null);
   useEffect(() => {
     let live = true;
@@ -183,25 +190,78 @@ const useSuggester = (api, current, messages, links) => {
     cache?.nudge();
   }, [cache, heard]);
   const hint = newestShown(messages);
+  const conversation = useMemo(
+    () =>
+      messages.filter(
+        (message) =>
+          message.source === current?.source &&
+          String(message.chat) === String(current?.chat)
+      ),
+    [messages, current?.key]
+  );
+  const contextual = useMemo(
+    () =>
+      current?.personal
+        ? conversationSuggestions(conversation, {
+            replyTo: replyTo?.msgId,
+            settings,
+            locale,
+          })
+        : { suggestions: [] },
+    [conversation, replyTo?.msgId, settings, locale, current?.personal]
+  );
+  const contextKey = JSON.stringify([
+    current?.key,
+    replyTo?.msgId,
+    locale,
+    settings,
+    conversation.map((message) => [message.id, message.body, message.replyTo]),
+  ]);
   return useMemo(
     () => ({
-      key: current?.key ?? null,
+      key: contextKey,
       revision,
+      contextual: Boolean(
+        current?.personal && settings.enabled && settings.suggestions
+      ),
       local: (typed) =>
-        current && cache?.ready()
-          ? cache.autocomplete({
-              source: current.source,
-              chat: current.chat,
-              hint,
-              typed,
-            })
+        current && (cache?.ready() || contextual.suggestions.length)
+          ? mergeSuggestions(
+              cache?.ready()
+                ? cache.autocomplete({
+                    source: current.source,
+                    chat: current.chat,
+                    hint,
+                    typed,
+                    ...(replyTo
+                      ? { lastMessage: contextual.context?.anchorText ?? '' }
+                      : {}),
+                  })
+                : null,
+              {
+                suggestions: contextual.suggestions.filter(
+                  (suggestion) =>
+                    !typed.trim() ||
+                    suggestion.text
+                      .toLocaleLowerCase()
+                      .startsWith(typed.trim().toLocaleLowerCase())
+                ),
+              }
+            )
           : null,
       remote: (typed) =>
         current
-          ? api.suggest({ source: current.source, chat: current.chat, typed })
+          ? api.suggest({
+              source: current.source,
+              chat: current.chat,
+              typed,
+              replyTo: replyTo?.msgId,
+              locale,
+              settings,
+            })
           : Promise.resolve(null),
     }),
-    [api, cache, revision, current?.key, hint]
+    [api, cache, revision, current?.key, hint, contextKey, contextual]
   );
 };
 
@@ -1201,7 +1261,7 @@ export const useChatState = (
       names: senderNames([...replyTargets.values(), ...messages]),
     }),
     composer,
-    suggester: useSuggester(api, current, messages, links),
+    suggester: useSuggester(api, current, messages, links, composer),
     menu: useAutomationMenu({ api, current, confirm, t, after, drafts }),
     drafts,
     autopilot: useAutopilot({

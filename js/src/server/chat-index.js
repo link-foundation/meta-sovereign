@@ -140,6 +140,7 @@ export const createChatIndex = (store) => {
         head: null,
         gone: new Set(),
         edited: new Map(),
+        revision: 0,
       };
       chats.set(key, chat);
     }
@@ -152,6 +153,7 @@ export const createChatIndex = (store) => {
     if (!chat.entries.delete(id)) {
       return;
     }
+    chat.revision += 1;
     chat.sorted = null;
     if (chat.head?.id === id) {
       chat.head = newestOf(chat.entries);
@@ -161,6 +163,7 @@ export const createChatIndex = (store) => {
   /** Index one message; `'old'` when it is a new one older than the head. */
   const add = (link) => {
     const chat = chatOf(chatKey(link.source, link.chat));
+    chat.revision += 1;
     const known = chat.entries.has(link.id);
     if (isTombstone(link)) {
       remove(chat, link.id);
@@ -212,8 +215,8 @@ export const createChatIndex = (store) => {
     loaded = true;
   })();
 
-  const linksOf = async (entries) =>
-    (await Promise.all(entries.map((e) => store.get(e.id)))).filter(
+  const linksOf = async (entries, project) =>
+    (await Promise.all(entries.map((e) => store.get(e.id, project)))).filter(
       (link) => link && !isTombstone(link)
     );
 
@@ -272,7 +275,7 @@ export const createChatIndex = (store) => {
       const limit = range.limit ?? 50;
       const [start, end, target] = await boundsOf(store, sorted, range, limit);
       return {
-        messages: await linksOf(sorted.slice(start, end)),
+        messages: await linksOf(sorted.slice(start, end), range.project),
         more: start > 0,
         newer: end < sorted.length,
         ...(range.at || range.around ? { target } : {}),
@@ -294,6 +297,7 @@ export const createChatIndex = (store) => {
     },
     /** How many messages of a chat the store holds. */
     count: (key) => chats.get(key)?.entries.size ?? 0,
+    revision: (key) => chats.get(key)?.revision ?? 0,
     close: () => unsubscribe(),
   };
 };

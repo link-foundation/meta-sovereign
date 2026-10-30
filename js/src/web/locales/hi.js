@@ -12,7 +12,11 @@ import { hiFolders } from './hi-folders.js';
 import { hiTranscribe } from './hi-transcribe.js';
 import { hiGithub } from './hi-github.js';
 
+import { hiConversation } from './hi-conversation.js';
+
 export const hi = {
+  ...hiConversation,
+
   'nav.calls': 'कॉल',
   'panels.hint':
     'चौड़ाई बदलने के लिए खींचें। रीसेट के लिए डबल क्लिक या Enter दबाएँ।',

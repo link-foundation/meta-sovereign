@@ -25,6 +25,7 @@ import { useStoriesEnabled } from './stories-pref.js';
 import { useOperatorScope } from './operator-prefs.js';
 import { useBrowserOnlyOffer } from './connection-prefs.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
+import { ConversationSettings } from './settings-conversation.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -295,7 +296,7 @@ export const SettingsView = () => {
   const appearance = useAppearance();
   const navigate = () => {
     globalThis.dispatchEvent?.(
-      new CustomEvent('meta-sovereign:navigate', {
+      new globalThis.CustomEvent('meta-sovereign:navigate', {
         detail: { view: 'connections', anchor: '' },
       })
     );
@@ -320,6 +321,7 @@ export const SettingsView = () => {
     el(StoriesSettings, { key: 'stories' }),
     el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
+    el(ConversationSettings, { key: 'conversation', api }),
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),

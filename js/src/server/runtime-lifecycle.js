@@ -38,6 +38,7 @@ export const createRuntimeLifecycle = ({
     ctx.replies.close().catch(() => {});
     ctx.closeAutomations().catch(() => {});
     ctx.chatIndex.close();
+    ctx.knowledge?.close();
     return Promise.allSettled([
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),

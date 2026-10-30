@@ -28,8 +28,15 @@ const ALWAYS_GET = [
   /^\/api\/contacts$/,
   /^\/api\/typing$/,
   /^\/api\/message\/supports$/,
+  /^\/api\/people\/(learned|learning-settings)$/,
+  /^\/api\/suggest(?:\/(model|stats))?$/,
 ];
-const POSTS = [/^\/api\/send$/, /^\/api\/typing$/, /^\/api\/message\//];
+const POSTS = [
+  /^\/api\/send$/,
+  /^\/api\/typing$/,
+  /^\/api\/message\//,
+  /^\/api\/people\/learning-settings$/,
+];
 
 /** Whether a request of this path and method may be for an extra account. */
 export const scopedForExtra = (path, method = 'GET') => {

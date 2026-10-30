@@ -55,8 +55,8 @@ export const createDualStore = ({ binary, text }) => ({
     await (text.putMany ? text.putMany(links) : putEach(text, links));
     return links;
   },
-  async get(id) {
-    return binary.get(id);
+  async get(id, project) {
+    return binary.get(id, project);
   },
   async delete(id) {
     const a = await binary.delete(id);
@@ -133,7 +133,7 @@ export const createDualStore = ({ binary, text }) => ({
 const readOnlyStore = (text, schema) => ({
   schema,
   migration: null,
-  get: (id) => text.get(id),
+  get: (id, project) => text.get(id, project),
   query: (filter) => text.query(filter),
   subscribe: (handler) => text.subscribe(handler),
   put: text.put,
