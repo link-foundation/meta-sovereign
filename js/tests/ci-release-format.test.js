@@ -37,7 +37,15 @@ test(
   { timeout: 10000 },
   async (t) => {
     const cwd = mkdtempSync(join(tmpdir(), 'ms-release-message-'));
-    t.after(() => rmSync(cwd, { recursive: true, force: true }));
+    // Git/filesystem cleanup can briefly race removal on macOS runners.
+    t.after(() =>
+      rmSync(cwd, {
+        recursive: true,
+        force: true,
+        maxRetries: 5,
+        retryDelay: 50,
+      })
+    );
     const git = (...args) =>
       execFileSync('git', args, {
         cwd,
