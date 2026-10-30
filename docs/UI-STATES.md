@@ -10,10 +10,13 @@ reach unmounted rows, and pinned drag indices refer to the full pinned order.
 History prefetch observes actual row visibility; a hidden phone sidebar does not
 enqueue background reads.
 
-Resize handles occupy their own 8px gutters in the chat list, navigation drawer
-and profile. Scrollable content ends before the handle's hit area. The navigation
-drawer scrolls its inner items rather than its resize handle. Mouse scrollbar
-clicks, pointer resizing and keyboard resizing remain separate interactions.
+Chat-list and navigation resize handles extend 8px beyond the sidebar's right
+edge, leaving its full content width and native scrollbar available. The hit area
+is transparent until hovered, keyboard-focused or dragged; revealing it never
+changes panel geometry or reserves spacing. The profile's left handle retains
+its own gutter beside its controls. The navigation drawer scrolls its inner items
+rather than its resize handle. Mouse scrollbar clicks, pointer resizing and
+keyboard resizing remain separate interactions.
 
 Avatar read-ahead covers one nearby scroll viewport with at most two uncached
 loads at once; visible identities precede queued read-ahead. Granted images load

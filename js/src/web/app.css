@@ -321,12 +321,13 @@ main[data-view='chat'] > .web-mode-banner {
 }
 .chat-sidebar {
   position: relative;
+  /* Keep the outside handle above the conversation's container layer. */
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
   background: var(--chat-sidebar);
   border-right: 1px solid var(--border);
-  padding-right: var(--panel-divider-width);
 }
 .chat-sidebar-head {
   display: flex;
@@ -1706,7 +1707,6 @@ a.button {
   }
   .chat-sidebar {
     border-right: 0;
-    padding-right: 0;
   }
   .chat-sidebar > .panel-divider {
     display: none;
@@ -3019,6 +3019,7 @@ button.primary .recommended-tag {
    sticks under the header and scrolls on its own. */
 .permanent-drawer {
   position: sticky;
+  z-index: 2;
   top: var(--topbar-h);
   align-self: flex-start;
   display: flex;
@@ -3026,8 +3027,6 @@ button.primary .recommended-tag {
   flex: none;
   width: 232px;
   height: calc(100dvh - var(--topbar-h));
-  padding-right: var(--panel-divider-width);
-  overflow: hidden;
   border-width: 0 1px 0 0;
 }
 .permanent-drawer-items {
@@ -13431,7 +13430,8 @@ audio.remote-player {
   align-items: center;
 }
 
-/* Handles occupy dedicated gutters; adjacent native scrollbars stay clickable. */
+/* Right handles extend beyond the panel edge without taking content space.
+   Their transparent hit areas leave native sidebar scrollbars clickable. */
 .panel-divider {
   position: absolute;
   top: 0;
@@ -13442,7 +13442,7 @@ audio.remote-player {
   touch-action: none;
 }
 .panel-divider.on-right {
-  right: 0;
+  left: 100%;
 }
 .panel-divider.on-left {
   left: 0;
