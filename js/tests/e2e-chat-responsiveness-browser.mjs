@@ -47,9 +47,34 @@ await page.route('**/api/telegram/chat-info*', async (route) => {
   return fulfil(route, { kind: 'user', title: null });
 });
 
+let prefetched = 0;
+page.on('request', (request) => {
+  if (
+    request.url().endsWith('/api/telegram/history') &&
+    request.postDataJSON()?.priority === 'prefetch'
+  ) {
+    prefetched++;
+  }
+});
 await finish(async () => {
   try {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${base}/#chat=telegram:1`);
+    await page.locator('[data-row="msg:telegram:1:1"]').waitFor();
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() =>
+            globalThis.requestAnimationFrame(resolve)
+          )
+        )
+    );
+    assert(prefetched === 0, 'hidden phone sidebar does not prefetch chats');
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await until(
+      () => prefetched > 0,
+      'visible directory prefetches nearby chats'
+    );
     const list = page.locator('.chat-list');
     const rows = list.locator('[data-chat]');
     await rows.first().waitFor();

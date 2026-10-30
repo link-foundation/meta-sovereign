@@ -7,6 +7,8 @@ memoization. The list mounts the viewport and one screen of overscan on either
 side, with measured chat/heading heights and spacer rows; scrolling does not
 accumulate DOM nodes, avatar observers or media elements. Keyboard focus can
 reach unmounted rows, and pinned drag indices refer to the full pinned order.
+History prefetch observes actual row visibility; a hidden phone sidebar does not
+enqueue background reads.
 
 Sending updates the composer, pending bubble and directory preview immediately.
 The outbox remains responsible for persistence, ordering, retries and its stable

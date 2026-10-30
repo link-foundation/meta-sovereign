@@ -129,12 +129,38 @@ const useViewport = (root, box, resetKey) => {
 
 // Prefetch only the mounted viewport and overscan, never every archived chat.
 const useVisibleChats = (root, entries, prefetch) => {
-  useLayoutEffect(() => {
-    for (const entry of entries) {
-      if (entry.chat) {
-        prefetch?.(entry.chat);
-      }
+  useEffect(() => {
+    const list = root.current;
+    if (!list || !prefetch) {
+      return undefined;
     }
+    const chats = new Map(
+      entries
+        .filter((entry) => entry.chat)
+        .map((entry) => [entry.key, entry.chat])
+    );
+    const Observer = globalThis.IntersectionObserver;
+    if (typeof Observer !== 'function') {
+      if (list.clientHeight > 0) {
+        chats.forEach(prefetch);
+      }
+      return undefined;
+    }
+    const observer = new Observer(
+      (visible) => {
+        for (const entry of visible) {
+          const chat = chats.get(entry.target.dataset.chat);
+          if (entry.isIntersecting && chat) {
+            prefetch(chat);
+          }
+        }
+      },
+      { root: list, rootMargin: '100% 0px' }
+    );
+    list
+      .querySelectorAll('.chat-list-window [data-chat]')
+      .forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
   }, [root, entries, prefetch]);
 };
 
