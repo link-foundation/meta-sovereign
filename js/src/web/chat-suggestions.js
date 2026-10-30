@@ -1,4 +1,5 @@
 import React from 'react';
+import { flushSync } from 'react-dom';
 import { useT } from './i18n.js';
 import { MiddleEllipsis } from './middle-ellipsis.js';
 
@@ -27,14 +28,14 @@ const Suggestion = ({ suggestion: s, composer, t }) => {
         const input = event.currentTarget
           .closest('form')
           ?.querySelector('textarea');
-        composer.setText(s.text);
-        globalThis.requestAnimationFrame(() => {
-          if (input?.isConnected) {
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-            input.scrollTop = input.scrollHeight;
-          }
-        });
+        // Finish this explicit insertion before placing the caret. Deferring
+        // selection to another frame can steal the user's next text selection.
+        flushSync(() => composer.setText(s.text));
+        if (input?.isConnected) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+          input.scrollTop = input.scrollHeight;
+        }
       },
     },
     el(MiddleEllipsis, { text: label })

@@ -142,6 +142,31 @@ const previewOnly = async (box) => {
   );
 };
 
+const selectSuggestion = async (box) => {
+  assert(
+    await page
+      .locator('.suggestions button')
+      .nth(1)
+      .evaluate((button) => {
+        button.focus();
+        button.click();
+        const input = globalThis.document.querySelector(
+          '.chat-composer textarea'
+        );
+        return (
+          input === globalThis.document.activeElement &&
+          input.selectionStart === input.value.length &&
+          input.selectionEnd === input.value.length
+        );
+      }),
+    'explicit selection focuses the composer and sets its caret immediately'
+  );
+  assert(
+    (await box.inputValue()) === candidates[1],
+    'click inserts the complete message'
+  );
+};
+
 await finish(async () => {
   await page.goto(`${base}/#chat=telegram:555`);
   const box = page.locator('.chat-composer textarea');
@@ -171,13 +196,13 @@ await finish(async () => {
   if (process.env.E2E_SHOT) {
     await page.screenshot({ path: process.env.E2E_SHOT });
   }
-  await page.locator('.suggestions button').nth(1).click();
-  assert(
-    (await box.inputValue()) === candidates[1],
-    'click inserts the complete message'
-  );
+  await selectSuggestion(box);
   const draft = 'Привет\nМожешь помочь с настройкой учебного проекта?';
   await box.fill(draft);
+  assert(
+    (await box.inputValue()) === draft,
+    'the next edit replaces the selection without a delayed caret jump'
+  );
   await until(
     () => queries.includes(draft),
     'finished sentence receives server predictions'
