@@ -1,5 +1,25 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.1.4
+
+### Patch Changes
+
+- Keep composer suggestions as previews until explicitly selected. Restore normal
+  Tab focus navigation, filter word completions that save fewer than three letters,
+  and omit word predictions after a finished sentence. Apply the same quality rules
+  to cached browser suggestions and older server responses in Chat and Operator.
+  Schedule composer resizing outside ResizeObserver delivery to avoid WebKit loops.
+
+  Prioritize opened Telegram photos and their expired-reference refreshes, share
+  concurrent download work, and log queue/download/refresh timings. Show deleted
+  accounts consistently in Chat and Operator, distinguish unnamed live users, and
+  move numeric Telegram user IDs into labeled, copyable profile details. Keep empty
+  composers compact beside a narrow profile panel.
+
+  Distinguish generated next-word predictions from previously sent messages in Chat
+  and Operator. Show compact, labeled word choices without misleading full-message
+  use counts, and grow the composer so multiline drafts are visible.
+
 ## 1.1.3
 
 ### Patch Changes
