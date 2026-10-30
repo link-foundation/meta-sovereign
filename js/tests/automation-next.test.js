@@ -152,12 +152,14 @@ test('a failed send says what to do next', () => {
 
 // Runs the autopilot until it is off; returns its final state.
 const settled = async (store, automation) => {
-  for (let i = 0; i < 200; i += 1) {
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
     const state = await store.get(autopilotId(automation));
     if (state && !state.on) {
       return state;
     }
-    await new Promise((resolve) => setImmediate(resolve));
+    // Planning deliberately yields to timers between archive batches.
+    await new Promise((resolve) => setTimeout(resolve, 5));
   }
   throw new Error('the autopilot did not finish');
 };

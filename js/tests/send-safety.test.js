@@ -377,12 +377,14 @@ test('two overlapping runs send each chat once and count the daily cap together'
 // ---- 3. autopilot ---------------------------------------------------
 
 const settledState = async (store, automation) => {
-  for (let i = 0; i < 300; i += 1) {
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
     const state = await store.get(autopilotId(automation));
     if (state && !state.on) {
       return state;
     }
-    await new Promise((resolve) => setImmediate(resolve));
+    // A real deadline permits paced planning on every supported runtime.
+    await new Promise((resolve) => setTimeout(resolve, 5));
   }
   throw new Error('the autopilot did not finish');
 };
