@@ -576,11 +576,22 @@ const useNextChat = (api, current, show) => {
   return { next, look, open, dismiss: () => setNext(null) };
 };
 
-const failedNotice = (result) => ({
-  kind: 'failed',
-  code: result.code ?? null,
-  error: result.error ?? result.code,
-});
+export const draftActionNotice = (action, result) => {
+  const complete =
+    action === 'form'
+      ? Boolean(result?.id)
+      : result?.status === (action === 'skip' ? 'skipped' : 'sent');
+  if (runFailed(result) || !complete) {
+    const code =
+      result?.code ?? (result?.status === 'unknown' ? 'unknown-send' : null);
+    return {
+      kind: 'failed',
+      code,
+      error: result?.error ?? code ?? 'no-answer',
+    };
+  }
+  return action === 'form' ? null : { kind: `draft-${action}` };
+};
 
 const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
   const [drafts, setDrafts] = useLoaded(
@@ -593,17 +604,18 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
   const following = useNextChat(api, current, show);
   const act = async (action, draft) => {
     const result = await api.draftAction(action, draft);
+    const notice = draftActionNotice(action, result);
+    if (notice?.kind === 'failed') {
+      after(notice);
+      return result;
+    }
     if (action === 'form' && result?.id) {
       view.forget(draft.id);
       setDrafts((all) => all.map((d) => (d.id === result.id ? result : d)));
       return result;
     }
-    if (result?.status === 'failed') {
-      after(failedNotice(result));
-      return result;
-    }
     view.forget(draft.id);
-    after({ kind: `draft-${action}` });
+    after(notice);
     await following.look(draft);
     return result;
   };

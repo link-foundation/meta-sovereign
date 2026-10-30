@@ -205,7 +205,8 @@ const automationCalls = ({ remote, store, local }) => ({
       const answer = await remote.confirmed(
         `/api/automations/drafts/${action}`,
         body,
-        () => true
+        () => true,
+        { network: true }
       );
       if (answer) {
         return answer;

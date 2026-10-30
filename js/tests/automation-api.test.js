@@ -112,6 +112,34 @@ test('an interrupted server test cannot create an invisible browser-only draft',
   assert.deepEqual(await api.drafts(), []);
 });
 
+test('interrupted draft actions cannot settle or change only the browser copy', async () => {
+  const store = await seeded();
+  const localApi = createAutomationApi({ remote: offline, store });
+  const run = await localApi.runAutomation({
+    automation: 'job-search',
+    test: true,
+    targets: [{ source: 'vk', chat: '103' }],
+  });
+  const draft = await store.get(run.queued[0].id);
+  const api = createAutomationApi({
+    store,
+    remote: {
+      ...offline,
+      confirmed: async (_path, _body, _ask, options) =>
+        options?.network
+          ? { status: 'failed', code: 'network', error: 'fixture interruption' }
+          : null,
+    },
+  });
+  for (const action of ['send', 'form', 'mark', 'skip']) {
+    assert.equal(
+      (await api.draftAction(action, { ...draft, form: 'formal' })).code,
+      'network'
+    );
+    assert.deepEqual(await store.get(draft.id), draft);
+  }
+});
+
 test('offline: auto mode refuses, the composer stores, typing shows', async () => {
   const store = await seeded();
   const api = createAutomationApi({ remote: offline, store });

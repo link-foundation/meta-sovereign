@@ -32,12 +32,18 @@ const { page, base, finish } = await openChatApp('automation-chat', {
 });
 const requests = [];
 let fail = false;
+let failedAction = null;
 await page.route('**/api/automations/run', async (route) => {
   await new Promise((resolve) => globalThis.setTimeout(resolve, 400));
   return fail
     ? fulfil(route, { error: 'fixture planning failure' }, 503)
     : route.continue();
 });
+await page.route('**/api/automations/drafts/*', (route) =>
+  route.request().url().endsWith(`/${failedAction}`)
+    ? fulfil(route, { error: 'fixture draft refusal' }, 503)
+    : route.continue()
+);
 page.on('request', (request) => {
   if (request.url().endsWith('/api/automations/run')) {
     requests.push(request.postDataJSON());
@@ -130,7 +136,10 @@ const failedAndLateResults = async () => {
   fail = true;
   await openMenu();
   await testButton().click();
-  await page.locator('[data-notice="failed"]').waitFor();
+  await page
+    .locator('[data-notice="failed"]')
+    .filter({ hasText: 'fixture planning failure' })
+    .waitFor();
   assert(
     (await page.locator('[data-notice="failed"]').textContent()).includes(
       'fixture planning failure'
@@ -150,8 +159,41 @@ const failedAndLateResults = async () => {
   assert(sent.length === 0, 'late results never send');
 };
 
+const refusedDraftAction = async () => {
+  for (const action of ['send', 'form', 'mark', 'skip']) {
+    failedAction = action;
+    await page.locator(`[data-action="draft-${action}"]`).click();
+    await page.waitForFunction(
+      (name) =>
+        document.querySelector(`[data-action="draft-${name}"]`)?.disabled ===
+        false,
+      action
+    );
+    await page.waitForFunction(() =>
+      document
+        .querySelector('[data-notice="failed"]')
+        ?.textContent.includes('fixture draft refusal')
+    );
+    assert(
+      (await page.locator('.draft-card textarea').inputValue()) ===
+        'My unsent edit',
+      'refused actions retain the unsent edit'
+    );
+    const pending = await store.query((link) =>
+      link.id.startsWith('automation-draft:')
+    );
+    assert(
+      pending.length === 1 && pending[0].status === 'pending',
+      'the preview remains pending after a refusal'
+    );
+  }
+  failedAction = null;
+  assert(sent.length === 0, 'refused actions never deliver');
+};
+
 await finish(async () => {
   await initialTest();
   await closeAndReopen();
+  await refusedDraftAction();
   await failedAndLateResults();
 });

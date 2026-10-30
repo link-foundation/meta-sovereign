@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createAutomationRunner } from '../src/automation/runner.js';
 import { draftId } from '../src/automation/automations.js';
-import { runNotice } from '../src/web/chat-state.js';
+import { draftActionNotice, runNotice } from '../src/web/chat-state.js';
 
 const message = (chat, sender, id) => ({
   id: `msg:telegram:${chat}:${id}`,
@@ -110,4 +110,29 @@ test('a server refusal or malformed automation response never looks like a succe
   assert.equal(runNotice({}).kind, 'failed');
   assert.equal(runNotice(null).kind, 'failed');
   assert.equal(runNotice({ queued: [] }).kind, 'nothing');
+});
+
+test('draft actions require confirmed outcomes and keep uncertain sends distinct', () => {
+  for (const action of ['send', 'form', 'mark', 'skip']) {
+    for (const result of [
+      null,
+      {},
+      { error: 'fixture refusal', httpStatus: 503 },
+    ]) {
+      assert.equal(draftActionNotice(action, result).kind, 'failed');
+    }
+  }
+  assert.equal(
+    draftActionNotice('send', { status: 'unknown' }).code,
+    'unknown-send'
+  );
+  assert.equal(
+    draftActionNotice('send', { status: 'sent' }).kind,
+    'draft-send'
+  );
+  assert.equal(
+    draftActionNotice('skip', { status: 'skipped' }).kind,
+    'draft-skip'
+  );
+  assert.equal(draftActionNotice('form', { id: 'fixture-draft' }), null);
 });
