@@ -1,5 +1,14 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.1.3
+
+### Patch Changes
+
+- 4202cc3: Show both ends of long Chat and Operator suggestions with a responsive middle
+  ellipsis, full-message tooltips and accessible names. Preserve complete text when
+  choosing a suggestion, with regression coverage for duplicate filtering and
+  distinct long-message endings.
+
 ## 1.1.2
 
 ### Patch Changes
