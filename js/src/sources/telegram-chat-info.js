@@ -391,6 +391,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
   const { online = false, lastSeen } = statusOf(user.status);
   return {
     kind: 'user',
+    ...(user.deleted ? { deletedAccount: true } : {}),
     title: nameOf(user),
     members: 1,
     online,

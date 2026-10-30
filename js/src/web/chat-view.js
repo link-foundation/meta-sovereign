@@ -67,6 +67,11 @@ import { InstantViewHost } from './chat-instant-view.js';
 import { EmptyConversation } from './chat-empty.js';
 import { Suggestions } from './chat-suggestions.js';
 import { useComposerHeight } from './chat-composer-height.js';
+import {
+  accountDeleted,
+  chatDisplayName,
+  DeletedAccountBadge,
+} from './chat-identity.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
@@ -348,6 +353,9 @@ const AutomationMenu = ({ menu, autopilot }) => {
 // Under the name: who is typing, else Telegram's members and online, a
 // person's last seen, else the network and how many wrote here.
 const subtitleOf = (t, state, chatTime) => {
+  if (accountDeleted(state.current, state.info)) {
+    return t('chat.account.deleted');
+  }
   const chat = state.current;
   const line = infoLine(t, state.info, { kind: chat.kind, chatTime });
   const source = networkName(t, chat.source);
@@ -415,10 +423,17 @@ const Header = ({
       },
       el(Icon, { name: 'back' })
     ),
-    el(ChatAvatar, { key: 'a', api, chat }),
+    el(ChatAvatar, {
+      key: 'a',
+      api,
+      chat: accountDeleted(chat, state.info)
+        ? { ...chat, deletedAccount: true }
+        : chat,
+    }),
     el('div', { key: 't', className: 'chat-header-title' }, [
       el('div', { key: 'n', className: 'chat-title-row' }, [
-        el('strong', { key: 'n' }, chat.name),
+        el('strong', { key: 'n' }, chatDisplayName(chat, t, state.info)),
+        el(DeletedAccountBadge, { key: 'deleted', chat, info: state.info }),
         isBirthdayToday(state.info?.birthday)
           ? el(
               'span',

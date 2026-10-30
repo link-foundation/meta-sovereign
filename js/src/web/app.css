@@ -578,6 +578,13 @@ main[data-view='chat'] > .web-mode-banner {
   min-width: 0;
 }
 @container conversation (max-width: 650px) {
+  .chat-main:has(> .person-panel) > .chat-composer .chat-composer-row {
+    flex-wrap: wrap;
+  }
+  .chat-main:has(> .person-panel) > .chat-composer textarea {
+    flex-basis: 100%;
+    order: -1;
+  }
   .chat-header-slot,
   .chat-header,
   .person-panel {
@@ -1435,6 +1442,8 @@ a.button {
   align-items: flex-end;
 }
 .chat-composer textarea {
+  flex: 1;
+  min-width: 0;
   resize: none;
   min-height: 2.4rem;
   max-height: 10rem;
@@ -8495,6 +8504,42 @@ span.bubble-effect {
   align-items: center;
   justify-content: center;
   margin-top: 0.4rem;
+}
+.account-deleted-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--text-muted);
+}
+.avatar.deleted-account-avatar {
+  background: var(--bg-active);
+  color: var(--text-muted);
+}
+.profile-user-id {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.profile-user-id dt {
+  color: var(--text-muted);
+}
+.profile-user-id dd {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  margin: 0;
+}
+.profile-user-id code {
+  user-select: all;
+  overflow-wrap: anywhere;
 }
 .profile-name-row .profile-name {
   margin-top: 0;

@@ -15,6 +15,11 @@ export const useComposerHeight = (box, text, enabled = true) => {
       const border =
         parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
       node.style.height = 'auto';
+      if (!node.value) {
+        // A wrapping placeholder is not draft content, particularly beside
+        // an open profile in a narrow conversation pane.
+        return;
+      }
       node.style.height = `${node.scrollHeight + (style.boxSizing === 'border-box' ? border : -padding)}px`;
     };
     fit();

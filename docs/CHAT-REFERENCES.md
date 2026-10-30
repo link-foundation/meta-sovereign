@@ -198,6 +198,21 @@ was shown before acknowledging an unread mark.
   TDLib [`FILE_REFERENCE_`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/FileReferenceManager.cpp#L61), Telegram Web A [`downloadMedia`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/media.ts#L29).
   Ours: `js/src/sources/telegram-media.js` (R-Y36).
 
+The [official file-reference documentation](https://core.telegram.org/api/file-references)
+was checked again on 2026-10-31: an expired reference is refreshed from its
+source message. Our picture reader shares concurrent refreshes, reuses a newer
+stored reference and gives opened media foreground priority without changing
+request-rate limits.
+
+### Deleted accounts and numeric identities
+
+Telegram's [User schema](https://core.telegram.org/constructor/user) separates
+`id`, `phone` and the explicit `deleted` flag (reviewed 2026-10-31). Missing names
+and long-ago status alone do not establish account deletion. Our adapters retain
+`deletedAccount` for safety; the same flag now drives a shared list/header/profile
+identity. The raw numeric ID has a labeled, copyable profile row. Existing
+messages remain available. This uses protocol facts and original UI code.
+
 ### Marking incoming messages as read
 
 - TDLib reads only while the chat is open:

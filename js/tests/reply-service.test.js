@@ -77,8 +77,10 @@ test('while typing, our whole messages come first, then words', async () => {
   });
   assert.equal(out.stage, 'message');
   assert.equal(out.suggestions[0].text, 'Здравствуйте!');
-  const words = await service.autocomplete({ typed: 'Прив' });
+  const words = await service.autocomplete({ typed: 'При' });
   assert.ok(words.suggestions.some((s) => s.kind === 'word'));
+  const nearlyTyped = await service.autocomplete({ typed: 'Прив' });
+  assert.ok(nearlyTyped.suggestions.every((s) => s.kind !== 'word'));
   await service.close();
 });
 

@@ -364,6 +364,13 @@ const ICONS = {
     ['path', { d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' }],
     ['circle', { cx: 12, cy: 7, r: 4 }],
   ],
+  'user-x': [
+    ['circle', { cx: 9, cy: 7, r: 4 }],
+    [
+      'path',
+      { d: 'M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M18 7l4 4m0-4-4 4' },
+    ],
+  ],
   // Lucide reply, pencil, copy, link, forward, circle-check, trash-2:
   // the message menu and the selection bar (R-Y67).
   reply: [

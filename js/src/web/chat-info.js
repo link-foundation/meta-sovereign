@@ -45,6 +45,9 @@ export const infoLine = (t, info, { kind, chatTime }) => {
     return null;
   }
   if (info.kind === 'user') {
+    if (info.deletedAccount) {
+      return t('chat.account.deleted');
+    }
     if (info.bot) {
       return t('chat.info.bot');
     }

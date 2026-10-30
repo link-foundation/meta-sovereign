@@ -361,7 +361,7 @@ test('a picture is downloaded once, from the stored message', async (t) => {
   assert.equal(downloads[0].location.id, 'big:111');
   assert.equal(downloads[0].location.thumbSize, 'm');
   assert.equal(downloads[0].params.dcId, 2);
-  assert.equal(keys[0].priority, 'list');
+  assert.equal(keys[0].priority, 'view');
   const again = await reader.read({ chat: '-1007', id: 4, size: 'm' });
   assert.equal(again.buffer.toString(), 'jpeg-bytes');
   assert.equal(downloads.length, 1, 'the second time comes from disk');
@@ -459,5 +459,5 @@ test('an expired file reference reads the message again, once', async (t) => {
   });
   const got = await reader.read({ chat: '42', id: 4 });
   assert.equal(got.buffer.toString(), 'ok');
-  assert.deepEqual(refreshed, [{ chat: '42', ids: [4], priority: 'list' }]);
+  assert.deepEqual(refreshed, [{ chat: '42', ids: [4], priority: 'view' }]);
 });

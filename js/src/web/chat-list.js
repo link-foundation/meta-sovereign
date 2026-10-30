@@ -13,18 +13,35 @@ import { mediaLabel } from './chat-message.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { FolderTags } from './chat-folder-tags.js';
+import {
+  accountDeleted,
+  chatDisplayName,
+  DeletedAccountBadge,
+} from './chat-identity.js';
 
 const el = React.createElement;
 
 // A chat's photo, else its initials on its Telegram colour.
-export const ChatAvatar = ({ api, chat, size = 's' }) =>
-  el(PeerAvatar, {
+export const ChatAvatar = ({ api, chat, size = 's' }) => {
+  const t = useT();
+  if (accountDeleted(chat)) {
+    return el(
+      'span',
+      {
+        className: 'avatar peer-avatar deleted-account-avatar',
+        'aria-hidden': true,
+      },
+      el(Icon, { name: 'user-x', size: size === 'b' ? 40 : 22 })
+    );
+  }
+  return el(PeerAvatar, {
     api,
     source: chat.source,
     peer: String(chat.chat ?? ''),
-    name: chat.name,
+    name: chatDisplayName(chat, t),
     size,
   });
+};
 
 // What the list says of the newest message, as Telegram does (R-Y68):
 // who wrote it in a group ("You" for the user's own), then its text, or
@@ -244,7 +261,12 @@ export const ChatItem = ({
       el('span', { key: 'b', className: 'chat-item-body' }, [
         el('span', { key: 'top', className: 'chat-item-top' }, [
           el('span', { key: 'n', className: 'chat-item-name' }, [
-            el('span', { key: 'x', className: 'chat-item-title' }, chat.name),
+            el(
+              'span',
+              { key: 'x', className: 'chat-item-title' },
+              chatDisplayName(chat, t)
+            ),
+            el(DeletedAccountBadge, { key: 'deleted', chat }),
             chat.emojiStatus
               ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
               : null,

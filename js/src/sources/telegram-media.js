@@ -11,8 +11,8 @@
  *
  * Each picture is downloaded once: it is kept in the app folder
  * (`<store>/media/telegram/<chat>/<id>-<size>`) and served from there.
- * Downloads go through the account's queue at `list` priority — after
- * what the user scrolls to, before anything read ahead (R-Y34). Videos,
+ * Downloads go through the account's queue at `view` priority, alongside
+ * the conversation the user opened and before read-ahead (R-Y34). Videos,
  * voice notes and large files are never downloaded here.
  */
 
@@ -213,6 +213,53 @@ const validRequest = (chat, msg, part, rich) =>
   whole(part, 0, 9) &&
   (!rich || RICH_FILE.test(rich));
 
+const cachedPicture = async (file, fetch, log, now) => {
+  const started = now();
+  const timing = {
+    queue_ms: 0,
+    download_ms: 0,
+    refresh_ms: 0,
+    refreshed: false,
+  };
+  const cached = await readCache(file);
+  if (cached) {
+    const meta = await readCache(`${file}.type`);
+    log({
+      event: 'telegram_media',
+      cached: true,
+      bytes: cached.length,
+      duration_ms: now() - started,
+    });
+    return { buffer: cached, mimeType: meta?.toString() || 'image/jpeg' };
+  }
+  try {
+    const got = await fetch(timing);
+    if (!got?.buffer) {
+      return null;
+    }
+    await fs.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+    await fs.writeFile(file, got.buffer, { mode: 0o600 });
+    await fs.writeFile(`${file}.type`, got.mimeType, { mode: 0o600 });
+    log({
+      event: 'telegram_media',
+      cached: false,
+      bytes: got.buffer.length,
+      duration_ms: now() - started,
+      ...timing,
+    });
+    return got;
+  } catch (error) {
+    log({
+      level: 'warn',
+      event: 'telegram_media_failed',
+      code: error?.code ?? error?.errorMessage ?? 'download-failed',
+      duration_ms: now() - started,
+      ...timing,
+    });
+    throw error;
+  }
+};
+
 /**
  * `read({ chat, id, size })` → `{ buffer, mimeType }`, or null when the
  * message has no picture. `client()` is the connected GramJS client (or
@@ -227,7 +274,34 @@ export const createMediaReader = ({
   refresh,
   importer = importTelegram,
   log = () => {},
+  now = Date.now,
 }) => {
+  const inFlight = new Map();
+  const refreshes = new Map();
+  const request = (key, task, timing) => {
+    const queued = now();
+    return queue.run(key, 'view', async () => {
+      timing.queue_ms += now() - queued;
+      const started = now();
+      try {
+        return await task();
+      } finally {
+        timing.download_ms += now() - started;
+      }
+    });
+  };
+  const refreshOnce = (chat, id) => {
+    const key = `${chat}:${id}`;
+    if (!refreshes.has(key)) {
+      refreshes.set(
+        key,
+        Promise.resolve()
+          .then(() => refresh({ chat, ids: [id], priority: 'view' }))
+          .finally(() => refreshes.delete(key))
+      );
+    }
+    return refreshes.get(key);
+  };
   const download = async (client, picture) => {
     const { Api, helpers } = await importer();
     const buffer = await client.downloadFile(
@@ -240,7 +314,7 @@ export const createMediaReader = ({
     return buffer?.length ? Buffer.from(buffer) : null;
   };
 
-  const fetchPicture = async (chat, id, want, part, rich) => {
+  const fetchPicture = async (chat, id, want, part, rich, timing) => {
     const linkId = `msg:telegram:${chat}:${id}`;
     const picture = pictureOf((await store.get(linkId))?.raw, want, part, rich);
     const client = picture ? await clientOf() : null;
@@ -250,7 +324,7 @@ export const createMediaReader = ({
     const key = `media:${chat}:${id}:${picture.thumb}${part ? `:p${part}` : ''}${rich ? `:${rich}` : ''}`;
     try {
       return {
-        buffer: await queue.run(key, 'list', () => download(client, picture)),
+        buffer: await request(key, () => download(client, picture), timing),
         mimeType: picture.mimeType,
       };
     } catch (error) {
@@ -259,12 +333,25 @@ export const createMediaReader = ({
       }
       // The file reference is old: read the message again, then retry.
       log({ event: 'telegram_media_reference_expired' });
-      await refresh({ chat, ids: [id], priority: 'list' });
-      const fresh = pictureOf((await store.get(linkId))?.raw, want, part, rich);
+      const started = now();
+      timing.refreshed = true;
+      let fresh = pictureOf((await store.get(linkId))?.raw, want, part, rich);
+      if (
+        !fresh ||
+        bytesOf(fresh.file.fileReference).equals(
+          bytesOf(picture.file.fileReference)
+        )
+      ) {
+        await refreshOnce(chat, id);
+        fresh = pictureOf((await store.get(linkId))?.raw, want, part, rich);
+      }
+      timing.refresh_ms += now() - started;
       return fresh
         ? {
-            buffer: await queue.run(`${key}:again`, 'list', () =>
-              download(client, fresh)
+            buffer: await request(
+              `${key}:again`,
+              () => download(client, fresh),
+              timing
             ),
             mimeType: fresh.mimeType,
           }
@@ -288,19 +375,16 @@ export const createMediaReader = ({
       target,
       `${msg}-${want}${part ? `-p${part}` : ''}${tag}`
     );
-    const cached = await readCache(file);
-    if (cached) {
-      const meta = await readCache(`${file}.type`);
-      return { buffer: cached, mimeType: meta?.toString() || 'image/jpeg' };
+    if (!inFlight.has(file)) {
+      const pending = cachedPicture(
+        file,
+        (timing) => fetchPicture(target, msg, want, part, rich, timing),
+        log,
+        now
+      ).finally(() => inFlight.delete(file));
+      inFlight.set(file, pending);
     }
-    const got = await fetchPicture(target, msg, want, part, rich);
-    if (!got?.buffer) {
-      return null;
-    }
-    await fs.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
-    await fs.writeFile(file, got.buffer, { mode: 0o600 });
-    await fs.writeFile(`${file}.type`, got.mimeType, { mode: 0o600 });
-    return got;
+    return inFlight.get(file);
   };
 
   return { read };

@@ -172,10 +172,19 @@ await finish(async () => {
   }, 'learning is restored');
   await page.locator('button[data-view="operator"]').click();
   await page.locator('[data-operator-chat="telegram:111"]').waitFor();
+  // The earlier chosen suggestion can remain as a restored draft. This
+  // step tests context for an empty composer, not prefix-filtered results.
+  await page.locator('.operator-card .chat-composer textarea').fill('');
   await replyToAnswer();
   await page
     .locator('.operator-card .suggestions [data-rule="work.projects"]')
     .waitFor();
+  assert(
+    (await page
+      .locator('.operator-card .chat-composer textarea')
+      .inputValue()) === '',
+    'context suggestions do not prefill the draft'
+  );
   assert(sent === 0, 'neither analysis nor suggestions send messages');
   assert(
     (await store.get('read:telegram:111')).unreadCount === 7,

@@ -20,6 +20,13 @@ import { networkMessageId } from './chat-model.js';
 import { useEdited } from './chat-edit.js';
 import { ProfileFrame } from './chat-person-extras.js';
 import { CollectibleRows } from './chat-collectible.js';
+import {
+  accountDeleted,
+  identityChat,
+  chatDisplayName,
+  DeletedAccountBadge,
+  TelegramUserId,
+} from './chat-identity.js';
 
 const el = React.createElement;
 
@@ -102,20 +109,37 @@ export const useSharedList = (api, chat, kind) => {
   return { items: list.items, more: list.more, loading, next };
 };
 
+const profileStatus = (chat, info, t, chatTime) =>
+  accountDeleted(chat, info)
+    ? t('chat.account.deleted')
+    : info
+      ? infoLine(t, info, { kind: chat.kind, chatTime })
+      : '';
+const profileName = (chat, info, was, t) =>
+  accountDeleted(chat, info)
+    ? t('chat.account.deleted')
+    : (was.title ?? chatDisplayName(chat, t, info));
+
 /** The column's top: photo, name, status, @username, about text. */
 export const ProfileHead = ({ api, chat, info }) => {
   const t = useT();
   const was = useEdited(chat.key);
   const { chatTime } = useDates();
-  const status = info ? infoLine(t, info, { kind: chat.kind, chatTime }) : '';
+  const status = profileStatus(chat, info, t, chatTime);
   return el(ProfileFrame, { api, info }, [
-    el(ChatAvatar, { key: 'a', api, chat, size: 'b' }),
+    el(ChatAvatar, {
+      key: 'a',
+      api,
+      chat: identityChat(chat, info),
+      size: 'b',
+    }),
     el('div', { key: 'n', className: 'profile-name-row' }, [
       el(
         'strong',
         { key: 'n', className: 'profile-name' },
-        was.title ?? chat.name
+        profileName(chat, info, was, t)
       ),
+      el(DeletedAccountBadge, { key: 'deleted', chat, info }),
       chat.emojiStatus
         ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
         : null,
@@ -123,6 +147,7 @@ export const ProfileHead = ({ api, chat, info }) => {
     status
       ? el('span', { key: 's', className: 'meta profile-status' }, status)
       : null,
+    el(TelegramUserId, { key: 'id', chat }),
     // A collectible username is a button to Fragment's card (R-Y194).
     el(CollectibleRows, { key: 'cr', api, info }),
     info?.username && !info.collectible?.usernames?.includes(info.username)

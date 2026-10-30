@@ -208,6 +208,9 @@ const botIdentity = (head = {}, read = {}) =>
     ? { bot: true }
     : {};
 
+const deletedIdentity = (head, read) =>
+  head?.deletedAccount || read?.deletedAccount ? { deletedAccount: true } : {};
+
 const summarize = (key, messages, self, read = null, now = Date.now()) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -227,6 +230,7 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
       : people.size <= 1,
     kind: chatKind(last.chatType, people.size),
     ...botIdentity(last, read),
+    ...deletedIdentity(last, read),
     people: [...people],
     count: sorted.length,
     unread: unreadCount(sorted, read, self),
@@ -271,6 +275,7 @@ const clearedChat = (key, read, links, self, now) => {
       : kind === 'private',
     kind,
     ...botIdentity(read),
+    ...deletedIdentity(read),
     people: [],
     count: 0,
     unread: 0,

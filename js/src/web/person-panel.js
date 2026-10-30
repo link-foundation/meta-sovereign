@@ -49,6 +49,7 @@ import { BusinessProfile } from './chat-business-profile.js';
 import { PersonContext } from './person-context.js';
 import { readConversationSettings } from './conversation-prefs.js';
 import { createRetryingRead } from './read-retry.js';
+import { chatDisplayName } from './chat-identity.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -342,7 +343,7 @@ export const PersonPanel = ({
   const personal = Boolean(chat?.personal);
   const learned = usePersonLearned(api, chat?.key, personal, revision);
   const title = personal
-    ? t('chat.about.title', { name: chat?.name ?? '' })
+    ? t('chat.about.title', { name: chatDisplayName(chat, t, info) })
     : t('chat.about.chatInfo');
   return el(
     'aside',

@@ -1,5 +1,21 @@
 # Loading, media and Operator queue behavior
 
+Deleted-account status is distinct from deleted messages. Stored account flags
+survive chat summaries, including cleared conversations. The list, Chat/Operator
+header and profile use a muted deleted-user icon and localized label instead of
+a numeric fallback name or a misleading last-seen status. An unnamed live
+Telegram user remains distinct from a deleted one. Profiles label the numeric
+identifier **Telegram user ID**, with a copy control; IDs are never inferred to
+be phone numbers. Deleted identities do not repeatedly request an avatar.
+
+Uncached message pictures and expired-reference refreshes use foreground queue
+priority while retaining the account's pacing and flood holds. Concurrent reads
+share download/cache work, and picture sizes share an active reference refresh.
+Completed cache entries avoid Telegram entirely. Media diagnostics separate queue,
+download and reference-refresh durations, byte counts and cache hits without
+recording message contents or file references. Failed work releases its shared
+entry so automatic recovery can retry.
+
 An empty conversation uses a centered icon, title and muted helper in the usable
 pane above the measured floating composer, in both Chat and Operator. Loading
 and retry markers use that same region; active history requests do not also
