@@ -1589,8 +1589,23 @@ a.button {
 }
 .suggestions {
   display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.suggestion-messages,
+.suggestion-words {
+  display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
+  min-width: 0;
+}
+.suggestion-words {
+  align-items: center;
+}
+.suggestion-kind {
+  margin-inline-end: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }
 /* Keep both ends of long suggestions visible, including in narrow panes. */
 .suggestions .chip {

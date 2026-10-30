@@ -71,6 +71,10 @@ implementation into this repository.
   read-only rules default on with persistent opt-outs; selecting a suggestion
   only fills the composer. Keep analysis bounded and expose evidence and partial
   history. See [conversation learning](CONVERSATION-LEARNING.md).
+- Distinguish retrieved sent messages, context suggestions and generated word
+  predictions visibly. Never present a generated continuation or its word
+  frequency as a sentence the user previously sent. Keep multiline drafts
+  visible up to the composer's height limit before scrolling their contents.
 
 ## Review and evidence
 

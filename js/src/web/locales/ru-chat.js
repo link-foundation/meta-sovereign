@@ -543,6 +543,8 @@ export const ruChat = {
     'Не отправлено: {error}. Повторите, измените, отправьте сами или пропустите.',
   'chat.suggest.reply': 'Ваши прежние ответы на такое сообщение',
   'chat.suggest.word': 'Следующие слова из ваших переписок',
+  'chat.suggest.nextWord': 'Следующее слово',
+  'chat.suggest.prediction': 'Предсказание слова: {word}',
   'chat.suggest.message': 'Ваши прежние сообщения, которые начинаются так же',
   'chat.suggest.none': 'Подсказки',
   'chat.suggest.count': 'Использовано раз: {count}',

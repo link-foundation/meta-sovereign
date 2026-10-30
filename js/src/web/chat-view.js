@@ -65,7 +65,8 @@ import { useMessageLinks } from './chat-link-open.js';
 import { TagSearchHost } from './chat-tags.js';
 import { InstantViewHost } from './chat-instant-view.js';
 import { EmptyConversation } from './chat-empty.js';
-import { MiddleEllipsis } from './middle-ellipsis.js';
+import { Suggestions } from './chat-suggestions.js';
+import { useComposerHeight } from './chat-composer-height.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
@@ -688,41 +689,6 @@ const ScrollDown = ({ shown, count, onClick }) => {
   );
 };
 
-const Suggestions = ({ suggest, composer }) => {
-  const t = useT();
-  const { suggestions = [], stage } = suggest;
-  if (suggestions.length === 0) {
-    return null;
-  }
-  return el(
-    'div',
-    {
-      className: 'suggestions',
-      'data-stage': stage,
-      'aria-label': t(`chat.suggest.${stage}`),
-    },
-    suggestions.map((s) =>
-      el(
-        'button',
-        {
-          key: s.text,
-          type: 'button',
-          className: 'chip',
-          'aria-label': s.text,
-          title: `${s.text}\n\n${
-            s.kind === 'context'
-              ? t('chat.suggest.context')
-              : t('chat.suggest.count', { count: s.count ?? 0 })
-          }`,
-          'data-rule': s.rule,
-          onClick: () => composer.setText(s.text),
-        },
-        el(MiddleEllipsis, { text: s.text })
-      )
-    )
-  );
-};
-
 // Several messages not sent: deal with them at once (Element's bar).
 const FailedBar = ({ composer }) => {
   const t = useT();
@@ -1003,6 +969,7 @@ const Composer = ({ state, api, keys }) => {
   // Or, switched over, the camera: a round video (R-Y150).
   const round = useRoundVideo({ state, api });
   const recording = voice.recording || round.recording;
+  useComposerHeight(box, text, !recording);
   // Text selected in the box: the formatting bar (R-Y109).
   const format = useFormatBar({ box, setText: typeText });
   // A bot's keyboard under the box, and what it asks of it (R-Y110).

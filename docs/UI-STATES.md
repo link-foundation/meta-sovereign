@@ -16,6 +16,15 @@ messages across browser/server suggestions, preserving choices with different
 endings. The focused `e2e-suggestion-labels-browser.mjs` fixture checks resizing,
 duplicate filtering, full insertion and short labels with synthetic messages.
 
+Generated next-word predictions occupy a separate compact **Next word** strip.
+Each chip shows the predicted word; its tooltip and accessible name identify it
+as a prediction. A word-model frequency must never be shown as a use count for
+the constructed full sentence. The historical reply/message choices keep their
+full-message previews and actual use counts. Clicking or pressing Tab on a word
+choice preserves the complete draft and applies that prediction. Multiline
+drafts grow the composer to its height limit, including after restore, suggestion
+selection and pane resizing; the remainder scrolls inside the input.
+
 Measured progress uses the same bounded value for the painted bar, text and
 accessibility state. Transfer percentages never round up to 100% before the bytes
 are complete, and bar animations cannot lag behind a numeric label. Attachment,

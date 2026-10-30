@@ -1,5 +1,6 @@
 // Long suggestions expose both ends without changing their complete message.
 import { createMemoryStore } from '../src/storage/universal.js';
+import { buildReplyIndex } from '../src/replies/reply-graph.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 
 const store = createMemoryStore();
@@ -15,6 +16,20 @@ const endings = [
   'Встречаемся в среду?',
 ];
 const candidates = endings.map((end) => `${prefix}${end}`);
+const wordModel = buildReplyIndex(
+  [
+    'И начнем обсуждение.',
+    'Я подготовлю материалы.',
+    'А затем договоримся.',
+  ].map((body, n) => ({
+    id: `msg:telegram:999:${n}`,
+    source: 'telegram',
+    chat: '999',
+    sender: 'me',
+    body,
+    timestamp: new Date(1700000000000 + n * 1000).toISOString(),
+  }))
+);
 const { page, base, until, finish } = await openChatApp('suggestion-labels', {
   store,
 });
@@ -23,8 +38,12 @@ await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
 });
-await page.route('**/api/suggest?*', (route) =>
-  fulfil(route, {
+await page.route('**/api/suggest?*', (route) => {
+  const typed = new URL(route.request().url()).searchParams.get('typed') ?? '';
+  if (typed.includes('\n')) {
+    return fulfil(route, wordModel.autocomplete({ typed }));
+  }
+  return fulfil(route, {
     stage: 'message',
     suggestions: [
       ...candidates,
@@ -32,8 +51,8 @@ await page.route('**/api/suggest?*', (route) =>
       candidates[1].toUpperCase(),
       'Привет!',
     ].map((text) => ({ kind: 'message', text, count: 1 })),
-  })
-);
+  });
+});
 
 const labels = () =>
   page.locator('.suggestions button').evaluateAll((buttons) =>
@@ -112,6 +131,64 @@ await finish(async () => {
   assert(
     (await box.inputValue()) === candidates[1],
     'click inserts the complete message'
+  );
+  const draft = 'Привет\nМожешь помочь с настройкой учебного проекта?';
+  await box.fill(draft);
+  const words = page.locator('.suggestion-words button');
+  await until(
+    async () => (await words.count()) === 3,
+    'generated words have their own strip'
+  );
+  assert(
+    JSON.stringify(await words.allTextContents()) ===
+      JSON.stringify(['И', 'Я', 'А']),
+    'only next words are shown, not invented sent messages'
+  );
+  assert(
+    (await page.locator('.suggestion-kind').textContent()) === 'Next word',
+    'word provenance is visible'
+  );
+  assert(
+    (await page.locator('.suggestion-messages').count()) === 0,
+    'no historical sentence is invented'
+  );
+  assert(
+    !(await words.first().getAttribute('title')).includes('Used'),
+    'prediction frequency never claims the whole sentence was sent'
+  );
+  await until(
+    () => box.evaluate((node) => node.scrollHeight <= node.clientHeight + 1),
+    'multiline draft is visible'
+  );
+  if (process.env.E2E_SHOT) {
+    await page.screenshot({
+      path: process.env.E2E_SHOT.replace(/\.png$/, '-words.png'),
+    });
+  }
+  await words.first().click();
+  assert(
+    (await box.inputValue()) === `${draft} И`,
+    'next-word choice preserves the entire draft'
+  );
+  await box.fill(draft);
+  await until(
+    async () => (await words.count()) === 3,
+    'word suggestions return'
+  );
+  await box.press('Tab');
+  assert(
+    (await box.inputValue()) === `${draft} И`,
+    'Tab accepts the same next-word prediction'
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await until(
+    () => box.evaluate((node) => node.scrollHeight <= node.clientHeight + 1),
+    'phone wrapping shows the draft'
+  );
+  await box.fill('Hello');
+  await until(
+    () => box.evaluate((node) => node.clientHeight < 50),
+    'short drafts shrink back to one row'
   );
   assert(
     (await store.query((link) => link.id.startsWith('msg:'))).length === 0,

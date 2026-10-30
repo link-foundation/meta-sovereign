@@ -241,6 +241,31 @@ test('suggestions expose complete messages even when their visible labels are sh
   );
 });
 
+test('generated next words have a separate compact strip and no whole-message use count', () => {
+  const text = 'Hello! Could you help me with the project?';
+  const html = render(
+    screenState({
+      suggest: {
+        stage: 'word',
+        suggestions: [
+          {
+            kind: 'word',
+            text: `${text} And`,
+            word: 'And',
+            insert: ' And',
+            count: 100,
+          },
+        ],
+      },
+    })
+  );
+  assert.match(html, /class="suggestion-words" role="group"/);
+  assert.match(html, /class="suggestion-kind" aria-hidden="true">Next word/);
+  assert.match(html, /data-kind="word" aria-label="Word prediction: And"/);
+  assert.match(html, /data-full-text="And"/);
+  assert.doesNotMatch(html, /Used 100 times|data-full-text="Hello/);
+});
+
 test('empty conversations have one dedicated state in Chat and Operator, without redundant actions', () => {
   for (const embedded of [false, true]) {
     const html = renderToStaticMarkup(

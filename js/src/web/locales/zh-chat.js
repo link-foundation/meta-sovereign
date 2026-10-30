@@ -509,6 +509,8 @@ export const zhChat = {
   'chat.notice.failed': '未发送：{error}。请重试、编辑、自行发送或跳过。',
   'chat.suggest.reply': '你以前对这条消息的回复',
   'chat.suggest.word': '来自你的对话的下一个词',
+  'chat.suggest.nextWord': '下一个词',
+  'chat.suggest.prediction': '词语预测：{word}',
   'chat.suggest.message': '你以前发送过的、以此开头的消息',
   'chat.suggest.none': '建议',
   'chat.suggest.count': '使用过 {count} 次',

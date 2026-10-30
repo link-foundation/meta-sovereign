@@ -538,6 +538,8 @@ export const hiChat = {
     'नहीं भेजा गया: {error}। फिर कोशिश करें, बदलें, खुद भेजें या छोड़ें।',
   'chat.suggest.reply': 'इस संदेश पर आपके पिछले जवाब',
   'chat.suggest.word': 'आपकी बातचीत से अगले शब्द',
+  'chat.suggest.nextWord': 'अगला शब्द',
+  'chat.suggest.prediction': 'अगले शब्द का अनुमान: {word}',
   'chat.suggest.message': 'आपके पहले भेजे संदेश जो ऐसे ही शुरू होते हैं',
   'chat.suggest.none': 'सुझाव',
   'chat.suggest.count': '{count} बार इस्तेमाल',

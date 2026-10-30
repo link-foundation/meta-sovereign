@@ -137,6 +137,31 @@ test('autocomplete tries whole replies first, then words', () => {
   });
 });
 
+test('generated next words are not claimed as historical whole messages', () => {
+  const sent = [
+    'И начнем обсуждение.',
+    'Я подготовлю материалы.',
+    'А затем договоримся.',
+  ];
+  const index = buildReplyIndex(sent.map((body, n) => msg('1', 'me', body, n)));
+  const copy = createReplyIndex().fromLinks(index.modelLinks());
+  const typed = 'Привет\nМожешь помочь с настройкой учебного проекта?';
+  for (const model of [index, copy]) {
+    const result = model.autocomplete({ typed });
+    assert.equal(result.stage, 'word');
+    assert.deepEqual(
+      result.suggestions.map((s) => s.word),
+      ['И', 'Я', 'А']
+    );
+    for (const s of result.suggestions) {
+      assert.equal(s.kind, 'word');
+      assert.equal(s.text, `${typed}${s.insert}`);
+      assert.ok(!sent.includes(s.text));
+    }
+    assert.deepEqual(model.suggestMessages(typed), []);
+  }
+});
+
 test('word-by-word stays inside a sentence and spells words as used in one', () => {
   const index = createReplyIndex();
   for (const body of [

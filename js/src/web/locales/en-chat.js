@@ -538,6 +538,8 @@ export const enChat = {
     'Not sent: {error}. Retry, edit, send it yourself or skip.',
   'chat.suggest.reply': 'Replies you gave to this message before',
   'chat.suggest.word': 'Next words from your conversations',
+  'chat.suggest.nextWord': 'Next word',
+  'chat.suggest.prediction': 'Word prediction: {word}',
   'chat.suggest.message': 'Messages you sent before that start like this',
   'chat.suggest.none': 'Suggestions',
   'chat.suggest.count': 'Used {count, plural, one {once} other {# times}}',
