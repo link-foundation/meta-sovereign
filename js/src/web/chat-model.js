@@ -158,7 +158,8 @@ const lastAt = (chat) => Date.parse(chat?.last?.at ?? '') || 0;
  */
 export const sortChats = (chats = [], order = 'latest') => {
   if (order === 'oldest') {
-    return [...chats].sort((a, b) => lastAt(a) - lastAt(b));
+    const times = new Map(chats.map((chat) => [chat, lastAt(chat)]));
+    return [...chats].sort((a, b) => times.get(a) - times.get(b));
   }
   const pinned = chats
     .filter((c) => c.pinned > 0)
@@ -262,7 +263,7 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
 // A chat whose history was cleared (R-Y100): kept in the list, empty,
 // as Telegram keeps it, its time from when it was cleared. The read
 // link says so (`clearedAt`) and remembers the chat's name and type.
-const clearedChat = (key, read, links, self, now) => {
+const clearedChat = (key, read, person, self, now) => {
   const name = read.chatName ?? String(read.chat);
   const kind = chatKind(read.chatType, 1);
   const chat = {
@@ -289,17 +290,15 @@ const clearedChat = (key, read, links, self, now) => {
     search: fold(`${name}\n${read.chat}\n${read.source}`),
     empty: true,
   };
-  return named(chat, links);
+  return named(chat, person);
 };
 
 // A one-to-one chat with only our own messages (written from Contacts)
 // takes the person's name from their `person:` link.
-const named = (chat, links) => {
+const named = (chat, person) => {
   if (!chat.personal || chat.name !== chat.chat) {
     return chat;
   }
-  const id = `person:${chat.source}:${chat.chat}`;
-  const person = links.find((l) => l?.id === id);
   const name = person?.name ?? person?.handle;
   return name
     ? { ...chat, name, search: `${fold(name)}\n${chat.search}` }
@@ -308,59 +307,112 @@ const named = (chat, links) => {
 
 // A one-to-one chat shows the other person's emoji status (R-Y162): the
 // person's own link, else what their newest message carried.
-const withStatus = (chat, links, messages, self) => {
+const withStatus = (chat, person, messages, self) => {
   if (!chat.personal) {
     return chat;
   }
-  const person = links.find(
-    (l) => l?.id === `person:${chat.source}:${chat.chat}`
-  );
-  const other = [...messages].sort(byTime).findLast((m) => !isMine(m, self));
+  let other;
+  for (const message of messages) {
+    if (!isMine(message, self) && (!other || byTime(message, other) > 0)) {
+      other = message;
+    }
+  }
   const emojiStatus =
     statusOfLink(person, 'emoji') ?? statusOfLink(other, 'senderEmoji');
   return emojiStatus ? { ...chat, emojiStatus } : chat;
 };
 
-/**
- * One row per conversation, newest first. `query` matches the name, the
- * chat id, the network and any message in it.
- */
-export const summarizeChats = (
-  links = [],
-  { query = '', self = ['me'] } = {}
-) => {
+// Index related records once. Repeated person lookups used to scan the whole
+// directory for every private chat, making a refresh quadratic in chat count.
+const directoryParts = (links) => {
   const groups = new Map();
   const reads = new Map();
+  const people = new Map();
   for (const link of links) {
+    if (link?.id?.startsWith('person:')) {
+      people.set(link.id, link);
+    }
     if (link?.id?.startsWith('read:')) {
       reads.set(chatKey(link.source, link.chat), link);
     }
-    if (!isShownMessage(link)) {
-      continue;
+    if (isShownMessage(link)) {
+      const key = chatKey(link.source, link.chat);
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key).push(link);
     }
-    const key = chatKey(link.source, link.chat);
-    if (!groups.has(key)) {
+  }
+  for (const [key, read] of reads) {
+    if (read.clearedAt && !groups.has(key)) {
       groups.set(key, []);
     }
-    groups.get(key).push(link);
   }
-  const words = fold(query).split(/\s+/).filter(Boolean);
-  const cleared = [...reads.entries()]
-    .filter(([key, read]) => read.clearedAt && !groups.has(key))
-    .map(([key, read]) => clearedChat(key, read, links, self, Date.now()));
-  return [...groups.entries()]
-    .map(([key, messages]) =>
-      withStatus(
-        named(summarize(key, messages, self, reads.get(key)), links),
-        links,
-        messages,
-        self
-      )
-    )
-    .concat(cleared)
-    .filter((c) => words.every((w) => c.search.includes(w)))
-    .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
+  return { groups, reads, people };
 };
+
+export const searchChats = (chats, query = '') => {
+  const words = fold(query).split(/\s+/u).filter(Boolean);
+  return words.length
+    ? chats.filter((chat) => words.every((word) => chat.search.includes(word)))
+    : chats;
+};
+
+const sameSummaryInputs = (previous, messages, read, person, now) =>
+  previous &&
+  previous.read === read &&
+  previous.person === person &&
+  previous.chat.muted === mutedNow(read, now) &&
+  previous.messages.length === messages.length &&
+  previous.messages.every((message, at) => message === messages[at]);
+
+/** Retain unchanged chat objects across live marks, typing and other chats. */
+export const createChatSummarizer = () => {
+  let kept = new Map();
+  let chats = [];
+  let owner = '';
+  return (links = [], { query = '', self = ['me'], now = Date.now() } = {}) => {
+    const identity = JSON.stringify(self);
+    if (identity !== owner) {
+      kept = new Map();
+      owner = identity;
+    }
+    const { groups, reads, people } = directoryParts(links);
+    const next = new Map();
+    let changed = groups.size !== kept.size;
+    for (const [key, messages] of groups) {
+      const read = reads.get(key);
+      const head = messages[0] ?? read;
+      const person = people.get(`person:${head.source}:${head.chat}`);
+      const previous = kept.get(key);
+      if (sameSummaryInputs(previous, messages, read, person, now)) {
+        next.set(key, previous);
+        continue;
+      }
+      changed = true;
+      const chat = messages.length
+        ? withStatus(
+            named(summarize(key, messages, self, read, now), person),
+            person,
+            messages,
+            self
+          )
+        : clearedChat(key, read, person, self, now);
+      next.set(key, { messages, read, person, chat });
+    }
+    kept = next; // Removed conversations and their messages are released.
+    if (changed) {
+      chats = [...kept.values()]
+        .map((entry) => entry.chat)
+        .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
+    }
+    return searchChats(chats, query);
+  };
+};
+
+/** One row per conversation, newest first; query matches cached search text. */
+export const summarizeChats = (links = [], options = {}) =>
+  createChatSummarizer()(links, options);
 
 /** How far the other side has read our messages in a chat (0: unknown). */
 export const readUpTo = (links = [], key) =>

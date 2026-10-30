@@ -1,5 +1,19 @@
 # Loading, media and Operator queue behavior
 
+The chat directory indexes person records once per snapshot and reuses unchanged
+summaries across unrelated live events. Opening an existing chat and searching
+reuse that directory. Folder filtering and stable current callbacks preserve row
+memoization. The list mounts the viewport and one screen of overscan on either
+side, with measured chat/heading heights and spacer rows; scrolling does not
+accumulate DOM nodes, avatar observers or media elements. Keyboard focus can
+reach unmounted rows, and pinned drag indices refer to the full pinned order.
+
+Sending updates the composer, pending bubble and directory preview immediately.
+The outbox remains responsible for persistence, ordering, retries and its stable
+client ID. A local preview keeps a clock or failure indicator; only provider
+acknowledgement replaces it with confirmed content. Scheduled messages remain
+outside the live directory until sent, except when they fail.
+
 Deleted-account status is distinct from deleted messages. Stored account flags
 survive chat summaries, including cleared conversations. The list, Chat/Operator
 header and profile use a muted deleted-user icon and localized label instead of

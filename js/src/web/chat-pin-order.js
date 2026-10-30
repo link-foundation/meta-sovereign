@@ -117,8 +117,19 @@ export const usePinnedOrder = ({ state, api }) => {
     if (index < 0 || (e.pointerType === 'mouse' && e.button !== 0)) {
       return;
     }
+    const visible = [
+      ...(e.currentTarget
+        .closest('.chat-list')
+        ?.querySelectorAll('.chat-item[data-pinned]') ?? []),
+    ].map((row) => row.dataset.chat);
     beginPinGesture(e, e.currentTarget, (from, to) =>
-      latest.current(moveKey(nowRef.current, from, to))
+      latest.current(
+        moveKey(
+          nowRef.current,
+          nowRef.current.indexOf(visible[from]),
+          nowRef.current.indexOf(visible[to])
+        )
+      )
     );
   });
   return {

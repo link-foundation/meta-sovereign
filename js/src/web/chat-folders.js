@@ -93,9 +93,10 @@ export const folderMatcher = (folder, people = new Map()) => {
 export const chatsInFolder = (chats = [], folder, people = new Map()) => {
   const inside = folderMatcher(folder, people);
   const rank = new Map((folder.pinned ?? []).map((id, i) => [id, i + 1]));
-  return chats
-    .filter(inside)
-    .map((chat) => ({ ...chat, pinned: rank.get(String(chat.chat)) ?? 0 }));
+  return chats.filter(inside).map((chat) => {
+    const pinned = rank.get(String(chat.chat)) ?? 0;
+    return chat.pinned === pinned ? chat : { ...chat, pinned };
+  });
 };
 
 /** Chats with something unread that is not muted, as the tab counts. */

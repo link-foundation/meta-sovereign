@@ -39,7 +39,8 @@ import {
   networkMessageId,
   readInboxUpTo,
   senderNames,
-  summarizeChats,
+  createChatSummarizer,
+  searchChats,
   typingStatus,
 } from './chat-model.js';
 import { localizePreset } from './automations-model.js';
@@ -81,6 +82,7 @@ import { conversationSuggestions } from '../crm/conversation-context.js';
 import { useConversationSettings } from './conversation-prefs.js';
 import { useLocaleContext } from './i18n.js';
 import { mergeSuggestions } from '../replies/reply-cache.js';
+import { pendingChatPreviews } from './chat-pending-preview.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -938,8 +940,10 @@ const shownFilter = (filter, folders) => {
 };
 
 const useChatList = (links, target, query, folders = []) => {
+  const summarize = useMemo(() => createChatSummarizer(), []);
+  const directory = useMemo(() => summarize(links ?? []), [links, summarize]);
   const all = useMemo(() => {
-    const list = summarizeChats(links ?? []);
+    const list = directory;
     if (
       !target ||
       list.some((c) => c.key === chatKey(target.source, target.chat))
@@ -947,7 +951,7 @@ const useChatList = (links, target, query, folders = []) => {
       return list;
     }
     return [emptyChat(links ?? [], target), ...list];
-  }, [links, target]);
+  }, [directory, target, links]);
   const [remembered, setFilter] = useChatFilter();
   const [kindFilter, setKindFilter] = useRemembered(
     'meta-sovereign.chat.kind',
@@ -982,7 +986,7 @@ const useChatList = (links, target, query, folders = []) => {
           tabFolder
             ? chatsInFolder(all, tabFolder, people)
             : query
-              ? summarizeChats(links ?? [], { query })
+              ? searchChats(all, query)
               : folderChats(all, folder),
           kind
         ),
@@ -1116,6 +1120,12 @@ const useCurrentChat = (all, target, selectFirst) => {
   return [active, setActive, current];
 };
 
+const usePendingChatList = (chats, pending, sort) =>
+  useMemo(
+    () => pendingChatPreviews(chats, pending, sort),
+    [chats, pending, sort]
+  );
+
 export const useChatState = (
   api,
   {
@@ -1216,7 +1226,7 @@ export const useChatState = (
     live,
     telegram,
     all,
-    chats,
+    chats: usePendingChatList(chats, composer.pending, sort),
     total: all.length,
     chatName,
     // Whether a chat is in the list (a link to its message opens here).

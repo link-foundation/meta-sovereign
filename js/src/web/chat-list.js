@@ -193,6 +193,30 @@ const PreviewLine = ({ t, preview, draft }) =>
         ]
   );
 
+const PendingMark = ({ status, t }) => {
+  if (!status) {
+    return null;
+  }
+  const delivery =
+    status === 'failed'
+      ? 'failed'
+      : status === 'waiting'
+        ? 'waiting'
+        : 'sending';
+  const label = t(`chat.delivery.${delivery}`);
+  return el(
+    'span',
+    {
+      className: 'chat-item-pending',
+      'data-chat-delivery': delivery,
+      role: 'img',
+      'aria-label': label,
+      title: label,
+    },
+    el(Icon, { name: delivery === 'failed' ? 'alert' : 'clock', size: 13 })
+  );
+};
+
 // `story`: 'unread' or 'seen' when the peer has stories (a ring, R-Y140);
 // a click on the avatar then opens them (`onStory(peer)`, R-Y148).
 // `onPinDown(event, chat)` starts the drag of a pinned row (R-Y159).
@@ -285,11 +309,10 @@ export const ChatItem = ({
                 )
               : null,
           ]),
-          el(
-            'span',
-            { key: 't', className: 'chat-item-time' },
-            chatTime(chat.last.at)
-          ),
+          el('span', { key: 't', className: 'chat-item-time' }, [
+            el(PendingMark, { key: 'pending', status: chat.pendingStatus, t }),
+            chatTime(chat.last.at),
+          ]),
         ]),
         el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
           el(PreviewLine, { key: 'p', t, preview, draft }),

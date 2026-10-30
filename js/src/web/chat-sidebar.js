@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
-import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
+import { CHAT_FILTERS, CHAT_SORTS } from './chat-model.js';
 import { Notice } from './notice.js';
 import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
 import { ShortcutsButton } from './shortcuts.js';
@@ -31,6 +31,7 @@ import { AppsSection, useSearchFocus } from './chat-apps-search.js';
 import { TopPeersSection } from './chat-top-peers.js';
 import { useDraftsSync } from './chat-drafts-clear.js';
 import { useSelectedTab } from './chat-tab-scroll.js';
+import { VirtualChats, useListHandler } from './chat-list-window.js';
 
 const el = React.createElement;
 
@@ -227,83 +228,30 @@ const KindTabs = ({ state }) => {
       );
 };
 
-// Chats that show in the list (or are one screen away) are prefetched;
-// the list's end, one screen before it shows, reads its next page.
-const useListLoading = (list, state, shown) => {
-  const { chats, prefetch, moreChats, query } = state;
+// The directory's provider page is asked for when its end approaches.
+const useListLoading = (list, state) => {
+  const { moreChats, query, sort, chats } = state;
   useEffect(() => {
-    const Observer = globalThis.IntersectionObserver;
     const root = list.current;
-    if (typeof Observer !== 'function' || !root) {
+    const node = root?.querySelector('[data-more]');
+    if (!node || typeof globalThis.IntersectionObserver !== 'function') {
       return undefined;
     }
-    const byKey = new Map(chats.map((chat) => [chat.key, chat]));
-    const observer = new Observer(
+    const observer = new globalThis.IntersectionObserver(
       (entries) => {
-        for (const entry of entries.filter((e) => e.isIntersecting)) {
-          if (entry.target.dataset.more !== undefined) {
-            moreChats?.more();
-          } else {
-            const chat = byKey.get(entry.target.dataset.chat);
-            if (chat) {
-              prefetch?.(chat);
-            }
-          }
+        if (entries.some((entry) => entry.isIntersecting)) {
+          moreChats?.more();
         }
       },
       { root, rootMargin: '100% 0px' }
     );
-    for (const node of root.querySelectorAll('[data-chat], [data-more]')) {
-      observer.observe(node);
-    }
+    observer.observe(node);
     return () => observer.disconnect();
-  }, [chats, prefetch, moreChats?.more, moreChats?.available, query, shown]);
+  }, [moreChats?.more, moreChats?.available, query, sort, chats.length]);
 };
 
-// The list grows a page at a time as it is scrolled (R-Y71): thousands
-// of rows at once keep the browser busy for a long moment, and only a
-// screenful shows. The row past the last one shown asks for the next.
-const LIST_PAGE = 60;
-
-const useShownChats = (list, state) => {
-  const [shown, setShown] = useState(LIST_PAGE);
-  const { query, filter, kindFilter, folder, sort } = state;
-  useEffect(
-    () => setShown(LIST_PAGE),
-    [query, filter, kindFilter, folder, sort]
-  );
-  const more = shown < state.chats.length;
-  useEffect(() => {
-    const Observer = globalThis.IntersectionObserver;
-    const row = list.current?.querySelector('[data-grow]');
-    if (typeof Observer !== 'function' || !row) {
-      return undefined;
-    }
-    const observer = new Observer(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setShown((n) => n + LIST_PAGE);
-        }
-      },
-      { root: list.current, rootMargin: '100% 0px' }
-    );
-    observer.observe(row);
-    return () => observer.disconnect();
-  }, [shown, more]);
-  return { chats: more ? state.chats.slice(0, shown) : state.chats, more };
-};
-
-// The row after the last: the next page of those held, else the next
-// page from the server (while it says it has more).
-const listEnd = (t, state, more) => {
-  if (more) {
-    return el('div', {
-      key: 'grow',
-      className: 'chat-list-grow',
-      'data-grow': '',
-    });
-  }
-  return state.moreChats?.available && !state.query
+const listEnd = (t, state) =>
+  state.moreChats?.available && !state.query
     ? el(
         'p',
         {
@@ -322,10 +270,21 @@ const listEnd = (t, state, more) => {
         ]
       )
     : null;
-};
 
-// A row re-renders only when its chat, or whether it is open, changes.
-const ChatRow = React.memo(ChatItem);
+const sameTags = (a = [], b = []) =>
+  a === b ||
+  (a.length === b.length &&
+    a.every(
+      (tag, at) =>
+        tag.id === b[at].id &&
+        tag.title === b[at].title &&
+        tag.color === b[at].color
+    ));
+const ChatRow = React.memo(ChatItem, (a, b) =>
+  Object.keys(a).every((key) =>
+    key === 'tags' ? sameTags(a.tags, b.tags) : a[key] === b[key]
+  )
+);
 
 // A search across Telegram needs the user's account connected.
 const globalOn = (state) =>
@@ -383,18 +342,38 @@ const SidebarDivider = () =>
     max: 700,
   });
 
+const virtualProps = (state, root, chats, item, t) => ({
+  key: 'rows',
+  root,
+  chats,
+  sort: state.sort,
+  resetKey: JSON.stringify([
+    state.query,
+    state.filter,
+    state.kindFilter,
+    state.folder,
+    state.sort,
+  ]),
+  selected: state.current?.key,
+  item,
+  prefetch: state.prefetch,
+  t,
+});
+
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
   const pins = usePinnedOrder({ state, api });
   const listMenu = useChatListMenu({ state, api, pins });
-  const page = useShownChats(list, { ...state, chats: pins.chats });
-  useListLoading(list, state, page.chats.length);
+  useListLoading(list, state);
   const global = useGlobalSearch(api, state.query, globalOn(state));
   const focus = useSearchFocus();
   const [showStories] = useStoriesEnabled();
   const stories = useStories(api, globalOn(state) && showStories);
   const oldest = state.sort === 'oldest';
+  const onSelect = useListHandler(state.select);
+  const onMenu = useListHandler(listMenu.onMenu);
+  const onStory = useListHandler(stories.open);
   const item = (chat) =>
     el(ChatRow, {
       key: chat.key,
@@ -402,10 +381,10 @@ export const Sidebar = ({ state, api }) => {
       chat,
       story: stories.rings(chat),
       tags: state.tags?.get(chat.key),
-      onStory: stories.open,
+      onStory,
       active: chat.key === state.current?.key,
-      onSelect: state.select,
-      onMenu: listMenu.onMenu,
+      onSelect,
+      onMenu,
       onPinDown: pins.onPinDown,
     });
   const archived = state.folder === 'archive' && !state.query;
@@ -417,7 +396,7 @@ export const Sidebar = ({ state, api }) => {
           onOpen: () => state.setFolder('archive'),
         })
       : null;
-  const moreRow = listEnd(t, state, page.more);
+  const moreRow = listEnd(t, state);
   return el('aside', { className: 'chat-sidebar' }, [
     el(SidebarDivider, { key: 'resize' }),
     el('div', { key: 'h', className: 'chat-sidebar-head' }, [
@@ -505,16 +484,7 @@ export const Sidebar = ({ state, api }) => {
           : [
               // Oldest first needs every chat: the next page is read at once.
               oldest ? moreRow : null,
-              ...(oldest
-                ? groupChats(page.chats, Date.now(), state.sort).map(
-                    ({ group, chats }) =>
-                      el('section', { key: group, className: 'chat-group' }, [
-                        el('h3', { key: 'h' }, t(`chat.group.${group}`)),
-                        ...chats.map(item),
-                      ])
-                  )
-                : // Telegram's own order: the pinned, then the newest.
-                  page.chats.map(item)),
+              el(VirtualChats, virtualProps(state, list, pins.chats, item, t)),
               oldest ? null : moreRow,
             ]),
         el(GlobalResults, {

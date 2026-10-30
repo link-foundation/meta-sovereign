@@ -33,6 +33,12 @@ implementation into this repository.
 
 ## Interaction rules
 
+- Keep interactions local and immediate: selecting a cached chat, choosing a
+  folder, typing and queuing a message must not wait for a network response.
+  Show the outgoing bubble and directory preview as pending before delivery is
+  acknowledged. Keep long lists bounded to the viewport, reuse unchanged rows,
+  and index related records once instead of scanning the directory per row.
+  Preserve keyboard navigation, pinned order, date groups and interface scaling.
 - A context menu clearly highlights the message or album it acts on while the
   menu is open. Dismissal removes that temporary highlight. The menu includes
   **Select** to enter persistent multi-selection. A context-menu target and a

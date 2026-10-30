@@ -80,6 +80,24 @@ background separate from persistent multi-selection, reserves message metadata
 space without showing a second status icon, and confirms a navigation target
 was shown before acknowledging an unread mark.
 
+### Responsive directories and immediate send feedback
+
+Source reviewed on 2026-10-31:
+
+- Telegram Web A's [ChatList](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/left/main/ChatList.tsx#L192)
+  renders `viewportIds` within the full ordered list, preserves total scroll
+  height and memoizes the list component. Rendering work follows the viewport.
+- Its [sendMessageLocal](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/messages.ts#L375)
+  publishes a local outgoing message before the network send. Acknowledgement
+  later reconciles that local message with the provider's identity and state.
+
+Our original implementation indexes profile records once, retains unchanged
+chat summaries, measures viewport rows and headings, and keeps callbacks stable
+for memoized rows. Pending sends update the directory preview immediately while
+the durable outbox retains ordering and truthful delivery states. Focused checks
+count record visits and mounted rows and hold a send acknowledgement; they do
+not benchmark a live archive or run a local stress workload.
+
 ### Sending exactly once (an id per message, reused on every retry)
 
 - Telegram Web K makes a 64-bit random id per message:

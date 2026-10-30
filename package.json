@@ -397,7 +397,9 @@
     "test:e2e:suggestion-labels": "node js/tests/e2e-suggestion-labels-browser.mjs",
     "test:e2e:suggestion-labels:webkit": "E2E_BROWSER=webkit node js/tests/e2e-suggestion-labels-browser.mjs",
     "test:e2e:chat-identities": "node js/tests/e2e-chat-identities-browser.mjs",
-    "test:e2e:chat-identities:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-identities-browser.mjs"
+    "test:e2e:chat-identities:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-identities-browser.mjs",
+    "test:e2e:chat-responsiveness": "node js/tests/e2e-chat-responsiveness-browser.mjs",
+    "test:e2e:chat-responsiveness:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-responsiveness-browser.mjs"
   },
   "keywords": [
     "personal-crm",
