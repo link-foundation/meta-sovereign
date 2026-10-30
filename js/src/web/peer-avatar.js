@@ -291,7 +291,7 @@ export const PeerAvatar = ({
             decoding: 'async',
             draggable: false,
             'data-media-retrying': retrying ? 'true' : 'false',
-            className: cached || shown ? 'shown' : undefined,
+            className: shown ? 'shown' : undefined,
             onLoad: () => {
               done();
               remember(true);

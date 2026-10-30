@@ -29,10 +29,17 @@ const PNG = Buffer.from(
 );
 let active = 0;
 let peak = 0;
+let unavailablePeer = null;
 await page.route('**/api/telegram/avatar?**', async (route) => {
   peak = Math.max(peak, ++active);
   await new Promise((resolve) => setTimeout(resolve, 15));
-  await route.fulfill({ status: 200, contentType: 'image/png', body: PNG });
+  const unavailable =
+    new URL(route.request().url()).searchParams.get('peer') === unavailablePeer;
+  await route.fulfill({
+    status: unavailable ? 503 : 200,
+    contentType: 'image/png',
+    body: unavailable ? '' : PNG,
+  });
   active--;
 });
 await page.route('**/api/telegram/chat-info*', (route) =>
@@ -77,6 +84,19 @@ const avatarSteps = async () => {
     (await photo.getAttribute('class')) === 'shown',
     'completed avatar does not fade from a placeholder on remount'
   );
+  unavailablePeer = near.split(':').at(-1);
+  // Force a real failed refresh; a plain remount may reuse the browser's
+  // decoded image without making any HTTP request (the desired fast path).
+  await photo.evaluate((node) => {
+    node.src += '&fixture-failure=1';
+  });
+  await until(async () => {
+    const image = page.locator(`[data-chat="${near}"] .peer-avatar img`);
+    return (
+      (await image.count()) > 0 &&
+      (await image.getAttribute('class')) !== 'shown'
+    );
+  }, 'a failed reload falls back to initials rather than a broken image');
 };
 
 const scrollbarSteps = async () => {
