@@ -317,6 +317,12 @@ const AutomationMenu = ({ menu, autopilot }) => {
                       automation: a,
                       test: false,
                     }),
+                    el(AutomationRunButton, {
+                      key: 'find',
+                      menu,
+                      automation: a,
+                      find: true,
+                    }),
                     apOn
                       ? el(
                           'button',

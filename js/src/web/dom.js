@@ -223,7 +223,11 @@ const NO_ANSWER = Object.freeze({
   }),
 });
 
-const serverResponse = async (path, init, { network = false } = {}) => {
+const serverResponse = async (
+  path,
+  init,
+  { network = false, read = false } = {}
+) => {
   const { origin, requests } = await ensure();
   if (!origin) {
     return null;
@@ -239,7 +243,8 @@ const serverResponse = async (path, init, { network = false } = {}) => {
   );
   return requests
     .request(url, init ?? {}, {
-      retry: isReadRequest(path, init?.method),
+      // Mixed read/write endpoints opt in only for their read-only variant.
+      retry: read || isReadRequest(path, init?.method),
       json: true,
     })
     .then(announceLocked)
@@ -303,8 +308,10 @@ const serverPostReport = async (path, body, options) => {
   if (!data || data.error === 'unknown route') {
     return null;
   }
-  // A refusal is logged and toasted for the user's action (R-Z12).
-  reportApiFailure({ path, method: 'POST', status: response.status, data });
+  // Read panels own their feedback; mutation refusals retain the global toast.
+  if (!options?.read) {
+    reportApiFailure({ path, method: 'POST', status: response.status, data });
+  }
   return { ...data, httpStatus: response.status };
 };
 
@@ -470,7 +477,7 @@ export const serverPostConfirmed = async (path, body, ask, options) => {
 const remote = {
   get: (path) => serverFetch(path),
   post: (path, body) => postJson(path, body),
-  report: (path, body) => serverPostReport(path, body),
+  report: (path, body, options) => serverPostReport(path, body, options),
   // `{ network: true }`: a request that got no answer comes back as
   // `{ status: 'failed', code: 'network' }` instead of null ("no server").
   confirmed: (path, body, ask, options) =>

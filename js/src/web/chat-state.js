@@ -16,6 +16,7 @@ import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
 import { traceClient } from './client-log.js';
 import { useDraftPresentation } from './chat-draft-state.js';
+import { useFindMatchingChat } from './chat-automation-find.js';
 import {
   useCallback,
   useEffect,
@@ -523,13 +524,32 @@ const traceAutomationResult = (api, target, test, started, result) =>
     durationMs: Date.now() - started,
   });
 
-const useAutomationMenu = ({ api, current, confirm, t, after, drafts }) => {
+const useAutomationMenu = ({
+  api,
+  current,
+  confirm,
+  t,
+  after,
+  drafts,
+  show,
+}) => {
   const [automations] = useLoaded(() => api.automations(), [api], []);
   const [open, setOpen] = useState(false);
   const [running, setRunning] = useState(null);
   const pending = useRef(false);
   const latest = useRef(current);
   latest.current = current;
+  const find = useFindMatchingChat({
+    api,
+    current,
+    show,
+    after,
+    latest,
+    pending,
+    setRunning,
+    setOpen,
+    isFailure: runFailed,
+  });
   const run = async (automation, { test }) => {
     if (pending.current || !current) {
       return null;
@@ -590,6 +610,7 @@ const useAutomationMenu = ({ api, current, confirm, t, after, drafts }) => {
     toggle: () => setOpen((v) => !v),
     close: () => setOpen(false),
     run,
+    find,
     running,
   };
 };
@@ -1299,7 +1320,7 @@ export const useChatState = (
     }),
     composer,
     suggester: useSuggester(api, current, messages, links, composer),
-    menu: useAutomationMenu({ api, current, confirm, t, after, drafts }),
+    menu: useAutomationMenu({ api, current, confirm, t, after, drafts, show }),
     drafts,
     autopilot: useAutopilot({
       api,

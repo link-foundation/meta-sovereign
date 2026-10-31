@@ -158,6 +158,12 @@ export const enChat = {
   'chat.automation.none':
     'No automation is offered in chats yet. Add the "chat menu" trigger to one under Automation.',
   'chat.automation.test': 'Test in this chat',
+  'chat.automation.find': 'Find next matching chat',
+  'chat.automation.finding': 'Finding a match…',
+  'chat.automation.findHint':
+    'Check this automation’s conditions and open the next eligible chat without creating a draft or sending.',
+  'chat.automation.noMatch':
+    'No more chats match “{name}”. Search again to start over.',
   'chat.automation.running': 'Preparing…',
   'chat.automation.run': 'Run with its conditions',
   'chat.automation.confirmAuto':

@@ -150,6 +150,12 @@ export const zhChat = {
   'chat.automation.none':
     '聊天中还没有可用的自动化。请在“自动化”中为某个自动化添加“聊天菜单”触发器。',
   'chat.automation.test': '在此聊天中测试',
+  'chat.automation.find': '查找下一个符合条件的聊天',
+  'chat.automation.finding': '正在查找匹配的聊天…',
+  'chat.automation.findHint':
+    '检查此自动化的条件并打开下一个符合条件的聊天，不创建草稿或发送消息。',
+  'chat.automation.noMatch':
+    '没有更多符合“{name}”条件的聊天。再次搜索以重新开始。',
   'chat.automation.running': '正在准备…',
   'chat.automation.run': '按条件运行',
   'chat.automation.confirmAuto':

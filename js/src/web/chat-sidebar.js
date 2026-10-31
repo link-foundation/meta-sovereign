@@ -49,6 +49,7 @@ export const noticeInWords = (t, notice) => {
 export const NOTICE = {
   queued: 'chat.notice.queued',
   nothing: 'chat.notice.nothing',
+  'no-matching-chat': 'chat.automation.noMatch',
   'sent-auto': 'chat.notice.sentAuto',
   'draft-send': 'chat.notice.sent',
   'draft-mark': 'chat.notice.manual',

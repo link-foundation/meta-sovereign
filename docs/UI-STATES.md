@@ -39,6 +39,14 @@ record only scroll dimensions, composer reserve, message/draft counts and follow
 decisions. A settled overlap at the live tail is a warning; reading older history
 is not. No message text or DOM content is logged.
 
+Each Chat/Operator automation menu also offers **Find next matching chat**. It
+uses the normal eligibility planner with `queue: false`, including for automatic
+automations. It opens an eligible conversation without creating a draft, changing
+the run ledger or sending. Repeated searches skip the current and previously
+inspected chats for that automation; exhaustion is explicit and the next search
+can restart. Pending lookups disable duplicate actions. A failed lookup is not
+reported as no matches, and a late result cannot override manual navigation.
+
 Deleted-account status is distinct from deleted messages. Stored account flags
 survive chat summaries, including cleared conversations. The list, Chat/Operator
 header and profile use a muted deleted-user icon and localized label instead of

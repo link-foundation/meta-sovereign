@@ -7,7 +7,7 @@
 // needs the server (or, from the chat composer, is stored locally until
 // one syncs it).
 //
-// `remote` is `{ get(path), post(path, body), report(path, body),
+// `remote` is `{ get(path), post(path, body), report(path, body, options?),
 // confirmed(path, body, ask),
 // put(path, body), del(path) }` from ./dom.js; each answers null when no
 // server (or no such route) is there.
@@ -221,13 +221,14 @@ const automationCalls = ({ remote, store, local }) => ({
   /**
    * The next chat the automation fits after `exclude` (R-Y86); `queue`
    * writes its draft for the chat to show. Needs the server.
+   * Only the lookup may retry automatically; queuing remains a mutation.
    */
   nextDraft: async ({ automation, exclude = [], queue = false }) =>
-    (await remote.post('/api/automations/next', {
-      automation,
-      exclude,
-      queue,
-    })) ?? { draft: null, code: 'server-required' },
+    (await (remote.report ?? remote.post)(
+      '/api/automations/next',
+      { automation, exclude, queue },
+      { network: true, read: !queue }
+    )) ?? { draft: null, code: 'server-required' },
   /** Back to the automation's own text, the user's edit forgotten. */
   resetEdit: async (automation) =>
     remote.post('/api/automations/edit/reset', { automation }),

@@ -3,6 +3,12 @@
 // dictionary.
 
 export const ruChatMore = {
+  'chat.automation.find': 'Найти следующий подходящий чат',
+  'chat.automation.finding': 'Поиск подходящего чата…',
+  'chat.automation.findHint':
+    'Проверить условия автоматизации и открыть следующий подходящий чат, не создавая черновик и не отправляя сообщения.',
+  'chat.automation.noMatch':
+    'Больше нет чатов, подходящих для «{name}». Повторите поиск, чтобы начать заново.',
   'chat.admin.right.sendMessages': 'Отправлять сообщения',
   'chat.admin.right.sendMedia':
     'Отправлять медиа (фото, видео, файлы, музыку, голосовые, видеосообщения, стикеры и GIF, опросы)',

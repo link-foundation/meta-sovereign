@@ -112,6 +112,28 @@ test('an interrupted server test cannot create an invisible browser-only draft',
   assert.deepEqual(await api.drafts(), []);
 });
 
+test('next-chat inspection preserves planner errors and retries only the read-only variant', async () => {
+  const calls = [];
+  const failure = { error: 'fixture planner refusal', httpStatus: 422 };
+  const api = createAutomationApi({
+    store: createMemoryStore(),
+    remote: {
+      ...offline,
+      post: () => assert.fail('use the response-preserving request'),
+      report: async (path, body, options) => {
+        calls.push({ path, body, options });
+        return failure;
+      },
+    },
+  });
+  assert.deepEqual(await api.nextDraft({ automation: 'job-search' }), failure);
+  assert.deepEqual(calls[0].options, { read: true, network: true });
+  assert.equal(calls[0].body.queue, false);
+  await api.nextDraft({ automation: 'job-search', queue: true });
+  assert.deepEqual(calls[1].options, { read: false, network: true });
+  assert.equal(calls[1].body.queue, true);
+});
+
 test('interrupted draft actions cannot settle or change only the browser copy', async () => {
   const store = await seeded();
   const localApi = createAutomationApi({ remote: offline, store });

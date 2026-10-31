@@ -158,6 +158,12 @@ export const hiChat = {
   'chat.automation.none':
     'चैट में अभी कोई स्वचालन उपलब्ध नहीं है। स्वचालन में किसी एक में "चैट मेनू" ट्रिगर जोड़ें।',
   'chat.automation.test': 'इस चैट में परखें',
+  'chat.automation.find': 'अगली उपयुक्त चैट खोजें',
+  'chat.automation.finding': 'उपयुक्त चैट खोजी जा रही है…',
+  'chat.automation.findHint':
+    'इस ऑटोमेशन की शर्तें जाँचें और बिना ड्राफ़्ट बनाए या संदेश भेजे अगली उपयुक्त चैट खोलें।',
+  'chat.automation.noMatch':
+    '“{name}” के लिए और कोई उपयुक्त चैट नहीं है। फिर से शुरू करने के लिए दोबारा खोजें।',
   'chat.automation.running': 'तैयार किया जा रहा है…',
   'chat.automation.run': 'शर्तों के साथ चलाएँ',
   'chat.automation.confirmAuto': '"{name}" अभी {count} संदेश भेजेगा। भेजें?',
