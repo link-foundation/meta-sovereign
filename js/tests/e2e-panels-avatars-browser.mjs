@@ -35,11 +35,15 @@ const PNG = Buffer.from(
 let active = 0;
 let peak = 0;
 let unavailablePeer = null;
+let rejectedRefreshes = 0;
 await page.route('**/api/telegram/avatar?**', async (route) => {
   peak = Math.max(peak, ++active);
   await new Promise((resolve) => setTimeout(resolve, 15));
   const unavailable =
     new URL(route.request().url()).searchParams.get('peer') === unavailablePeer;
+  if (unavailable) {
+    rejectedRefreshes++;
+  }
   await route.fulfill({
     status: unavailable ? 503 : 200,
     contentType: 'image/png',
@@ -95,13 +99,18 @@ const avatarSteps = async () => {
   await photo.evaluate((node) => {
     node.src += '&fixture-failure=1';
   });
+  await until(() => rejectedRefreshes > 0, 'a real avatar refresh is refused');
   await until(async () => {
-    const image = page.locator(`[data-chat="${near}"] .peer-avatar img`);
+    const avatar = page.locator(`[data-chat="${near}"] .peer-avatar`);
     return (
-      (await image.count()) > 0 &&
-      (await image.getAttribute('class')) !== 'shown'
+      (await avatar.count()) > 0 &&
+      (await avatar
+        .locator('img.shown')
+        .evaluateAll((images) =>
+          images.every((node) => node.complete && node.naturalWidth > 0)
+        ))
     );
-  }, 'a failed reload falls back to initials rather than a broken image');
+  }, 'a failed refresh retains initials or a valid cached photo, never a visible broken image');
 };
 
 const rightEdgeSteps = async (panel, content, splitter) => {
