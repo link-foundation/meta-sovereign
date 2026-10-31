@@ -118,6 +118,16 @@ These changes address repeated CPU work and allocation churn. They do not by
 themselves establish that the large archive's retained metadata heap is small;
 continue checking deployed-worker resource counters and retained index costs.
 
+The history-library frequency pass yields between work slices, shares concurrent
+requests and reuses a recent result for thirty seconds during incoming updates.
+Greeting previews retain chat summaries instead of all messages. Automation
+projections omit generated child/token arrays as well as cold payloads.
+
+After the 2026-10-31 recovery correction, the live health endpoint again returned
+success with roughly 1.31 million records, a connected Telegram user session and
+no degraded writes. Its main heap remained around 2.7–3.0 GiB during initial
+observation; this is recovery evidence, not completion of metadata-memory work.
+
 ## Analysis request memory spikes
 
 On 2026-10-31 active workers aborted with `SIGABRT` and V8 heap-limit errors.

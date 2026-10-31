@@ -21,12 +21,14 @@ test('targeted planning never copies cold payloads or reads unrelated chat text 
     retain: (link) => {
       const saved = { ...link };
       if (link.id.startsWith('msg:')) {
-        Object.defineProperty(saved, 'raw', {
-          enumerable: true,
-          get() {
-            throw new Error('provider payload was read');
-          },
-        });
+        for (const field of ['raw', 'tokens', 'children']) {
+          Object.defineProperty(saved, field, {
+            enumerable: true,
+            get() {
+              throw new Error('provider payload was read');
+            },
+          });
+        }
         if (link.chat === '222') {
           Object.defineProperty(saved, 'body', {
             enumerable: true,

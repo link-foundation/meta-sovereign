@@ -18,6 +18,7 @@ import {
   vkIncomingGreetingStickerIds,
 } from './catalog.js';
 import { detectGreetingLanguage, isGreetingMessage } from './detect.js';
+import { createWorkBudget } from '../storage/work-budget.js';
 import {
   SETTINGS_ID,
   normalizeSettings,
@@ -170,10 +171,13 @@ const emptyChat = (link) => ({
  * @param {{me?: string|string[]}} [opts] sender ids that are the user
  *   (archives mark them `me`; live VK pulls carry the numeric id)
  */
-export const summarizeChats = (links, { me = null } = {}) => {
+export const createGreetingChatAggregation = ({ me = null } = {}) => {
   const mine = ownSenders(me);
   const chats = new Map();
-  for (const link of (links ?? []).filter(isChatMessage)) {
+  const add = (link) => {
+    if (!isChatMessage(link)) {
+      return;
+    }
     const key = `${link.source}:${link.chat}`;
     const chat = chats.get(key) ?? emptyChat(link);
     chat.unreachable ??= unreachableReason([link]);
@@ -187,8 +191,13 @@ export const summarizeChats = (links, { me = null } = {}) => {
       chat.lastOutgoing = outgoing;
     }
     chats.set(key, chat);
-  }
-  return [...chats.values()];
+  };
+  return { add, result: () => [...chats.values()] };
+};
+export const summarizeChats = (links, options) => {
+  const aggregation = createGreetingChatAggregation(options);
+  (links ?? []).forEach(aggregation.add);
+  return aggregation.result();
 };
 
 const randomIndex = (random, length) =>
@@ -340,6 +349,7 @@ const planEnvelope = ({ chat, mode, selection, now, random, rules }) => {
  */
 export const planGreetings = ({
   links,
+  summaries,
   mode = 'initiate',
   selection = defaultGreetingSelection(),
   greeted = [],
@@ -352,7 +362,7 @@ export const planGreetings = ({
   random = Math.random,
 } = {}) => {
   const greetedIds = new Set(greeted);
-  const chats = summarizeChats(links, { me }).filter(
+  const chats = greetingSummaries(summaries, links, me).filter(
     (chat) => !networks || networks.includes(chat.network)
   );
   const candidates =
@@ -368,6 +378,8 @@ export const planGreetings = ({
   }
   return { mode, envelopes };
 };
+const greetingSummaries = (summaries, links, me) =>
+  summaries ?? summarizeChats(links, { me });
 
 // WhatsApp is a business number (the Cloud API, with its 24-hour window)
 // only when its token and phone-number id are saved; otherwise it is the
@@ -388,16 +400,50 @@ const businessNetworks = async (store) =>
  * the saved selection and the greetings already sent. Shared by the
  * HTTP API and the CLI so both plan from the same state.
  */
-export const planFromStore = async (store, options = {}) =>
-  planGreetings({
+export const planFromStore = async (store, options = {}) => {
+  const aggregation = createGreetingChatAggregation(options);
+  const filter = (link) => link.id?.startsWith('msg:');
+  const project = (link) => {
+    const reason = unreachableReason([link]);
+    return {
+      id: link.id,
+      source: link.source,
+      chat: link.chat,
+      sender: link.sender,
+      timestamp: link.timestamp,
+      body: link.body,
+      sticker: link.sticker,
+      chatType: link.chatType,
+      blocked: reason === 'blocked',
+      bot: reason === 'bot',
+      left: reason === 'left',
+      deletedAccount: reason === 'deleted-account',
+    };
+  };
+  const yieldWork = createWorkBudget({ restMs: 0 });
+  if (store.scan) {
+    await store.scan(
+      filter,
+      500,
+      async (batch) => {
+        batch.forEach(aggregation.add);
+        await yieldWork();
+      },
+      project
+    );
+  } else {
+    (await store.query(filter)).map(project).forEach(aggregation.add);
+  }
+  return planGreetings({
     rules: {
       business: await businessNetworks(store),
       settings: normalizeSettings((await store.get(SETTINGS_ID)) ?? {}),
     },
     ...options,
-    links: await store.query((l) => l.id?.startsWith('msg:')),
+    summaries: aggregation.result(),
     selection: await loadGreetingSelection(store),
     greeted: (await store.query((l) => l.id?.startsWith('greeting:'))).map(
       (l) => l.id
     ),
   });
+};

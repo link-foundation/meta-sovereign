@@ -18,11 +18,16 @@ export const meaningfulWords = (text) => {
   const normalized = String(text ?? '')
     .normalize('NFKC')
     .toLowerCase();
-  const words = segmenter
-    ? [...segmenter.segment(normalized)]
-        .filter((one) => one.isWordLike)
-        .map((one) => one.segment)
-    : (normalized.match(/[\p{L}\p{M}]+/gu) ?? []);
+  const words = [];
+  if (segmenter) {
+    for (const one of segmenter.segment(normalized)) {
+      if (one.isWordLike) {
+        words.push(one.segment);
+      }
+    }
+  } else {
+    words.push(...(normalized.match(/[\p{L}\p{M}]+/gu) ?? []));
+  }
   return words.filter(
     (word) =>
       /\p{L}/u.test(word) &&
@@ -30,31 +35,46 @@ export const meaningfulWords = (text) => {
       (word.length >= 2 || /\p{Script=Han}/u.test(word))
   );
 };
-export const wordEligibility = (messages, minFrequency = 5) => {
+const wordCounter = (minFrequency) => {
   const frequency = new Map();
   const byMessage = new Map();
-  for (const message of messages) {
+  const add = (message) => {
     const words = meaningfulWords(message.body);
     byMessage.set(message.id, words);
     for (const word of words) {
       frequency.set(word, (frequency.get(word) ?? 0) + 1);
     }
-  }
-  const eligible = new Set(
-    messages
-      .filter((message) =>
-        byMessage
-          .get(message.id)
-          .some((word) => frequency.get(word) >= minFrequency)
-      )
-      .map((message) => message.id)
-  );
-  return {
-    eligible,
+  };
+  const finish = () => ({
+    eligible: new Set(
+      [...byMessage]
+        .filter(([, words]) =>
+          words.some((word) => frequency.get(word) >= minFrequency)
+        )
+        .map(([id]) => id)
+    ),
     words: [...frequency]
       .filter(([, count]) => count >= minFrequency)
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .slice(0, 100)
       .map(([word, count]) => ({ word, count })),
-  };
+  });
+  return { add, finish };
+};
+export const wordEligibility = (messages, minFrequency = 5) => {
+  const counter = wordCounter(minFrequency);
+  messages.forEach(counter.add);
+  return counter.finish();
+};
+export const wordEligibilityAsync = async (
+  messages,
+  minFrequency,
+  yieldWork
+) => {
+  const counter = wordCounter(minFrequency);
+  for (const message of messages) {
+    counter.add(message);
+    await yieldWork();
+  }
+  return counter.finish();
 };

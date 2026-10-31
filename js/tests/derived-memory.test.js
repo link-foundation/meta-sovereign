@@ -7,6 +7,7 @@ import { createRawPacking } from '../src/storage/raw-packing.js';
 import { createChatIndex } from '../src/server/chat-index.js';
 import { collectMetrics } from '../src/server/metrics.js';
 import { extractFacts } from '../src/facts/index.js';
+import { planFromStore, planGreetings } from '../src/greetings/plan.js';
 import {
   streamedAudience,
   streamedCompletions,
@@ -151,6 +152,57 @@ test('legacy analysis streams safe projections without raw payloads or structura
   const found = await streamedSearch(store, { query: 'Hello', min: 0.2 });
   assert.equal(found.length, 2);
   assert.equal(Object.hasOwn(found[0].link, 'raw'), false);
+});
+
+test('greeting previews retain chat summaries and preserve blocked contacts without archive copies', async () => {
+  const fixtures = [
+    {
+      id: 'msg:vk:7:1',
+      source: 'vk',
+      chat: '7',
+      sender: '7',
+      body: 'Hi!',
+      timestamp: 1000,
+    },
+    {
+      id: 'msg:vk:8:1',
+      source: 'vk',
+      chat: '8',
+      sender: '8',
+      body: 'Hi!',
+      timestamp: 1000,
+      blockedUs: true,
+    },
+  ];
+  const store = createMemoryStore({
+    retain: (link) => {
+      for (const field of ['raw', 'tokens', 'children']) {
+        Object.defineProperty(link, field, {
+          enumerable: true,
+          get: () => assert.fail(`preview expanded ${field}`),
+        });
+      }
+      return link;
+    },
+  });
+  for (const link of fixtures) {
+    await store.put({ ...link });
+  }
+  const query = store.query.bind(store);
+  store.query = (filter) =>
+    query((link) => {
+      const selected = filter(link);
+      assert.ok(
+        !selected || !link.id.startsWith('msg:'),
+        'copied archive message'
+      );
+      return selected;
+    });
+  const options = { mode: 'reply', random: () => 0 };
+  assert.deepEqual(
+    await planFromStore(store, options),
+    planGreetings({ links: fixtures, ...options })
+  );
 });
 test('encrypted-store streaming preserves secret filtering and arbitrary projections', async () => {
   const store = wrapSecretStore({

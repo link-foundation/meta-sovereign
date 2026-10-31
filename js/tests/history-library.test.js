@@ -4,7 +4,10 @@ import {
   wordEligibility,
   meaningfulWords,
 } from '../src/replies/meaningful-words.js';
-import { learnedLibrary } from '../src/replies/learned-library.js';
+import {
+  learnedLibrary,
+  learnedLibraryAsync,
+} from '../src/replies/learned-library.js';
 import { createReplyService } from '../src/replies/reply-service.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 
@@ -69,12 +72,35 @@ test('library shows observed variations, matching patterns and source-backed fac
   );
 });
 
+test('cooperative history discovery preserves evidence and lets other work run', async () => {
+  let workRan = false;
+  const otherWork = new Promise((resolve) =>
+    globalThis.setTimeout(() => {
+      workRan = true;
+      resolve();
+    }, 0)
+  );
+  const result = await learnedLibraryAsync(messages, {
+    isSelf: (s) => s === 'me',
+    yieldWork: () => otherWork,
+  });
+  assert.equal(workRan, true);
+  assert.deepEqual(
+    result,
+    learnedLibrary(messages, { isSelf: (s) => s === 'me' })
+  );
+});
+
 test('library reuses bounded history, updates with live writes and saves threshold', async () => {
   const store = createMemoryStore();
   await store.putMany(messages);
   const service = createReplyService({ store });
   try {
-    const first = await service.library();
+    const [first, concurrent] = await Promise.all([
+      service.library(),
+      service.library(),
+    ]);
+    assert.equal(concurrent, first, 'concurrent pages share one calculation');
     assert.equal(first.threshold, 5);
     assert.equal(first.eligible, 10);
     assert.equal(await service.library(), first, 'cached response reused');

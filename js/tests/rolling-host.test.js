@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile, readFile } from 'node:fs/promises';
+import {
+  mkdtemp,
+  rm,
+  writeFile,
+  readFile,
+  symlink,
+  realpath,
+} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +37,20 @@ test('an upgrade can replace a build that keeps failing recovery', async () => {
   try {
     const marker = path.join(dir, 'fixture-old-broken');
     const old = path.join(dir, 'old-worker.mjs');
+    // A Deno entry outside the package needs its own resolution context.
+    await writeFile(
+      path.join(dir, 'deno.json'),
+      JSON.stringify({ nodeModulesDir: 'manual' })
+    );
+    await writeFile(
+      path.join(dir, 'package.json'),
+      await readFile(new URL('../../package.json', import.meta.url))
+    );
+    await symlink(
+      await realpath(new URL('../../node_modules', import.meta.url)),
+      path.join(dir, 'node_modules'),
+      process.platform === 'win32' ? 'junction' : 'dir'
+    );
     const source = (await readFile(entry, 'utf8'))
       .replace(
         /from '(\.\.\/src\/[^']+)'/g,
@@ -54,6 +75,9 @@ test('an upgrade can replace a build that keeps failing recovery', async () => {
       options,
       release: { entry: old, build: 'broken-after-crash' },
       log: (event) => {
+        if (process.env.MS_ROLLING_DEBUG) {
+          console.log(JSON.stringify(event));
+        }
         if (event.event === 'server_recovery_retrying') {
           recoveryFailed();
         }

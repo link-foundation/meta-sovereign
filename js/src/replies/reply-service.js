@@ -22,7 +22,7 @@
  * model again when it is too far behind or the index was rebuilt.
  */
 
-import { learnedLibrary } from './learned-library.js';
+import { learnedLibraryAsync } from './learned-library.js';
 import { detectSelfIds } from '../crm/reengage.js';
 import { buildReplyIndex, DEFAULT_REPLY_WINDOW_MS } from './reply-graph.js';
 import { createReplyHistory } from './reply-history.js';
@@ -137,6 +137,8 @@ const factReader = (ready, history) => async () => {
 
 const createHistoryLibrary = ({ store, history, ready, isSelf, version }) => {
   let cache = null;
+  let pending = null;
+  let generation = 0;
   return {
     async saveLibraryThreshold(minFrequency) {
       await store.put({ id: 'library:settings', minFrequency });
@@ -148,23 +150,43 @@ const createHistoryLibrary = ({ store, history, ready, isSelf, version }) => {
         (await store.get('library:settings'))?.minFrequency ?? 5
       );
       const mark = `${version()}:${minFrequency}:${limit}`;
-      if (cache?.mark !== mark) {
-        cache = {
-          mark,
-          result: {
-            ...learnedLibrary(history.values(), {
-              isSelf,
-              minFrequency,
-              limit,
-            }),
-            coverage: history.stats(),
-          },
-        };
+      const settings = `${minFrequency}:${limit}`;
+      if (
+        cache?.settings === settings &&
+        (cache.mark === mark || Date.now() - cache.at < 30000)
+      ) {
+        return cache.result;
       }
-      return cache.result;
+      if (pending) {
+        await pending;
+        if (cache?.settings === settings) {
+          return cache.result;
+        }
+      }
+      const serial = generation;
+      pending = (async () => {
+        const result = {
+          ...(await learnedLibraryAsync(history.values(), {
+            isSelf,
+            minFrequency,
+            limit,
+          })),
+          coverage: history.stats(),
+        };
+        if (serial === generation) {
+          cache = { mark, settings, at: Date.now(), result };
+        }
+        return result;
+      })();
+      try {
+        return await pending;
+      } finally {
+        pending = null;
+      }
     },
     clearLibrary: () => {
       cache = null;
+      generation++;
     },
   };
 };

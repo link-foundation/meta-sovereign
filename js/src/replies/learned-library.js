@@ -1,4 +1,5 @@
-import { wordEligibility } from './meaningful-words.js';
+import { wordEligibility, wordEligibilityAsync } from './meaningful-words.js';
+import { createWorkBudget } from '../storage/work-budget.js';
 import { historyLibrary } from './history-library.js';
 import { normalizeMessage, extractReplyPairs } from './reply-graph.js';
 import { questionAnswers } from '../crm/conversation-questions.js';
@@ -29,11 +30,11 @@ const learnedFacts = (chats, eligible, isSelf, limit) => {
   return facts;
 };
 
-export const learnedLibrary = (
+const assembleLibrary = (
   messages,
-  { isSelf, minFrequency = 5, limit = 50 } = {}
+  { isSelf, minFrequency, limit },
+  { eligible, words }
 ) => {
-  const { eligible, words } = wordEligibility(messages, minFrequency);
   const eligibleBodies = new Set(
     messages.filter((m) => eligible.has(m.id)).map((m) => m.body)
   );
@@ -76,4 +77,22 @@ export const learnedLibrary = (
     considered: messages.length,
     eligible: eligible.size,
   };
+};
+export const learnedLibrary = (messages, options = {}) => {
+  const settings = { minFrequency: 5, limit: 50, ...options };
+  return assembleLibrary(
+    messages,
+    settings,
+    wordEligibility(messages, settings.minFrequency)
+  );
+};
+export const learnedLibraryAsync = async (messages, options = {}) => {
+  const settings = { minFrequency: 5, limit: 50, ...options };
+  const yieldWork = options.yieldWork ?? createWorkBudget({ restMs: 0 });
+  const eligibility = await wordEligibilityAsync(
+    messages,
+    settings.minFrequency,
+    yieldWork
+  );
+  return assembleLibrary(messages, settings, eligibility);
 };

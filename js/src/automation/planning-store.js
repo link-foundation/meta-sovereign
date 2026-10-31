@@ -8,7 +8,7 @@ const isMessage = (link) =>
 const summary = (link) => {
   const record = {};
   for (const key of Object.keys(link)) {
-    if (key !== 'raw' && key !== 'snapshot') {
+    if (!['raw', 'snapshot', 'tokens', 'children'].includes(key)) {
       Object.defineProperty(record, key, {
         value: link[key],
         enumerable: true,
