@@ -16,7 +16,10 @@ import { zhConversation } from './zh-conversation.js';
 
 import { zhFeedback } from './zh-feedback.js';
 
+import { zhStickers } from './zh-stickers.js';
+
 export const zh = {
+  ...zhStickers,
   ...zhFeedback,
   ...zhConversation,
 
@@ -90,7 +93,7 @@ export const zh = {
   'nav.short.cv': '简历同步',
   'nav.short.connections': '连接',
   'nav.cv': '简历同步',
-  'nav.greetings': '问候',
+  'nav.greetings': '贴纸',
   'nav.settings': '设置',
   'shell.primaryNavAria': '主导航',
   'shell.more': '更多',
@@ -341,7 +344,7 @@ export const zh = {
   'guide.cv.title': '简历同步',
   'guide.cv.body':
     '此界面通过真实的浏览器会话操作你在各招聘平台上的个人资料：读取每份简历，逐字段比较，只有在你应用同步时才会写入。请在本地服务器使用的浏览器配置文件中登录每个平台一次 — 这些平台大多没有可用的 API 密钥。',
-  'guide.greetings.title': '问候',
+  'guide.greetings.title': '贴纸',
   'guide.greetings.body':
     '像 konard/vk-bot 在 VK 上那样，用一句"你好"或问候贴纸批量开启对话。请先连接网络：实时列出贴纸和发送都会使用本地服务器保存的令牌。',
   'guide.settings.title': '设置',

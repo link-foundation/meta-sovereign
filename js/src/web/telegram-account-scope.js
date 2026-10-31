@@ -23,6 +23,7 @@ const ALWAYS_GET = [
   /^\/links(\/[^/]+)?$/,
   /^\/api\/chat\//,
   /^\/api\/feedback(?:\/|$)/,
+  /^\/api\/sticker-collections$/,
   /^\/api\/media\/history\//,
   /^\/api\/events$/,
   /^\/api\/status$/,
@@ -39,6 +40,7 @@ const POSTS = [
   /^\/api\/people\/learning-settings$/,
   /^\/api\/feedback\/(collect|settings)$/,
   /^\/api\/suggest\/library-settings$/,
+  /^\/api\/sticker-collections$/,
 ];
 
 /** Whether a request of this path and method may be for an extra account. */

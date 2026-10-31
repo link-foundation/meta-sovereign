@@ -16,7 +16,10 @@ import { enConversation } from './en-conversation.js';
 
 import { enFeedback } from './en-feedback.js';
 
+import { enStickers } from './en-stickers.js';
+
 export const en = {
+  ...enStickers,
   ...enFeedback,
   ...enConversation,
 
@@ -90,7 +93,7 @@ export const en = {
   'nav.short.cv': 'CV sync',
   'nav.short.connections': 'Connections',
   'nav.cv': 'CV sync',
-  'nav.greetings': 'Greetings',
+  'nav.greetings': 'Stickers',
   'nav.settings': 'Settings',
   'shell.primaryNavAria': 'Primary navigation',
   'shell.more': 'More',
@@ -352,7 +355,7 @@ export const en = {
   'guide.cv.title': 'CV synchronisation',
   'guide.cv.body':
     'This screen drives a real browser session over your job-platform profiles: it reads each CV, compares them field by field, and only writes when you apply a sync. Sign in to each platform once in the browser profile the local server uses — no API keys exist for most of these boards.',
-  'guide.greetings.title': 'Greetings',
+  'guide.greetings.title': 'Stickers',
   'guide.greetings.body':
     'Open dialogs in bulk with a "hi" or a greeting sticker, the way konard/vk-bot does on VK. Connect a network first: listing stickers live and sending use the tokens the local server keeps.',
   'guide.settings.title': 'Settings',

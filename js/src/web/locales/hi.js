@@ -16,7 +16,10 @@ import { hiConversation } from './hi-conversation.js';
 
 import { hiFeedback } from './hi-feedback.js';
 
+import { hiStickers } from './hi-stickers.js';
+
 export const hi = {
+  ...hiStickers,
   ...hiFeedback,
   ...hiConversation,
 
@@ -92,7 +95,7 @@ export const hi = {
   'nav.short.cv': 'CV सिंक',
   'nav.short.connections': 'कनेक्शन',
   'nav.cv': 'CV सिंक',
-  'nav.greetings': 'अभिवादन',
+  'nav.greetings': 'स्टिकर',
   'nav.settings': 'सेटिंग्स',
   'shell.primaryNavAria': 'मुख्य नेविगेशन',
   'shell.more': 'और',
@@ -353,7 +356,7 @@ export const hi = {
   'guide.cv.title': 'CV सिंक्रनाइज़ेशन',
   'guide.cv.body':
     'यह स्क्रीन आपके जॉब-प्लेटफ़ॉर्म प्रोफ़ाइलों पर एक वास्तविक ब्राउज़र सत्र चलाती है: यह हर CV को पढ़ती है, उनकी फ़ील्ड-दर-फ़ील्ड तुलना करती है, और तभी लिखती है जब आप सिंक लागू करते हैं। स्थानीय सर्वर जिस ब्राउज़र प्रोफ़ाइल का उपयोग करता है, उसमें हर प्लेटफ़ॉर्म पर एक बार साइन इन करें — इनमें से अधिकांश बोर्ड के लिए कोई API कुंजी मौजूद ही नहीं है।',
-  'guide.greetings.title': 'अभिवादन',
+  'guide.greetings.title': 'स्टिकर',
   'guide.greetings.body':
     'जैसे konard/vk-bot VK पर करता है, वैसे ही "हाय" या अभिवादन स्टिकर से एक साथ कई बातचीत शुरू करें। पहले कोई नेटवर्क जोड़ें: स्टिकर की लाइव सूची और भेजना, दोनों लोकल सर्वर में रखे टोकन का उपयोग करते हैं।',
   'guide.settings.title': 'सेटिंग्स',

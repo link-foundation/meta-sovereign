@@ -45,6 +45,7 @@ import { RemoveSetDialog } from './chat-sticker-box.js';
 import { sendAsField } from './chat-send-as.js';
 import { FeaturedSets } from './chat-sticker-trending.js';
 import { GroupSetSection, useGroupSets } from './chat-group-stickers.js';
+import { SavedStickerCollections } from './chat-sticker-collections.js';
 
 const el = React.createElement;
 
@@ -483,6 +484,7 @@ export const StickersTab = ({
     });
   }
   return el(React.Fragment, null, [
+    el(SavedStickerCollections, { key: 'collections', api, onSend, Grid }),
     search
       ? el(SearchBox, {
           key: 'q',

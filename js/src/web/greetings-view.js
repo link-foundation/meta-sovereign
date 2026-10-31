@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
 import { Busy } from './spinner.js';
+import { StickerCollections } from './sticker-collections.js';
 
 const el = React.createElement;
 
@@ -637,5 +638,18 @@ export const GreetingsScreen = ({ state }) => {
   ]);
 };
 
-export const GreetingsView = ({ api = defaultApi }) =>
-  el(GreetingsScreen, { state: useGreetingsState(api) });
+export const GreetingsView = ({ api = defaultApi }) => {
+  const t = useT();
+  const state = useGreetingsState(api);
+  return el('div', { className: 'col' }, [
+    el(StickerCollections, { key: 'collections', api }),
+    el(
+      'details',
+      { key: 'greetings', className: 'card', 'data-greeting-presets': '' },
+      [
+        el('summary', { key: 'summary' }, t('collections.sendGreetings')),
+        el(GreetingsScreen, { key: 'screen', state }),
+      ]
+    ),
+  ]);
+};

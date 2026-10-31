@@ -15,7 +15,10 @@ import { ruConversation } from './ru-conversation.js';
 
 import { ruFeedback } from './ru-feedback.js';
 
+import { ruStickers } from './ru-stickers.js';
+
 export const ru = {
+  ...ruStickers,
   ...ruFeedback,
   ...ruConversation,
 
@@ -90,7 +93,7 @@ export const ru = {
   'nav.short.cv': 'Резюме',
   'nav.short.connections': 'Аккаунты',
   'nav.cv': 'Синхронизация CV',
-  'nav.greetings': 'Приветствия',
+  'nav.greetings': 'Стикеры',
   'nav.settings': 'Настройки',
   'shell.primaryNavAria': 'Основная навигация',
   'shell.more': 'Ещё',
@@ -356,7 +359,7 @@ export const ru = {
   'guide.cv.title': 'Синхронизация резюме',
   'guide.cv.body':
     'Этот экран управляет настоящей сессией браузера в ваших профилях на площадках: он читает каждое резюме, сравнивает их поле за полем и записывает только тогда, когда вы применяете синхронизацию. Войдите на каждую площадку один раз в том профиле браузера, который использует локальный сервер, — API-ключей у большинства этих площадок просто нет.',
-  'guide.greetings.title': 'Приветствия',
+  'guide.greetings.title': 'Стикеры',
   'guide.greetings.body':
     'Начинайте диалоги пачкой: «привет» или приветственный стикер, как это делает konard/vk-bot во ВКонтакте. Сначала подключите сеть: живой список стикеров и отправка используют токены, которые хранит локальный сервер.',
   'guide.settings.title': 'Настройки',

@@ -37,6 +37,19 @@ The research behind these links, with the full notes, is in
 
 ## By topic
 
+### Sticker collections and provider identity
+
+Telegram's official API documents installed packs in
+[messages.getAllStickers](https://core.telegram.org/method/messages.getAllStickers)
+and emoji lookup in
+[messages.getStickers](https://core.telegram.org/method/messages.getStickers)
+(rechecked 2026-10-31). These expose catalogue metadata, not our application
+categories. The collection implementation groups by provider and category,
+uses explicit editable emoji/label heuristics, and preserves references needed
+to reload selected documents. User-session document IDs and Bot API file IDs
+remain distinct. Chat and Operator reuse the existing sticker picker/renderer;
+no external client implementation was copied.
+
 ### Visual style and configurability: T3 Code
 
 Our [product vision](PRODUCT-VISION.md) prefers T3 Code for styling and

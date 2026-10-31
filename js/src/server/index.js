@@ -97,6 +97,7 @@ import { createReplyService } from '../replies/reply-service.js';
 import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
+import { handleStickerCollections } from './routes-sticker-collections.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
@@ -607,6 +608,9 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   if (await handlePeopleRoutes(store, req, res, p, url)) {
+    return;
+  }
+  if (await handleStickerCollections(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleGreetingRoutes(store, req, res, p, url, ctx)) {

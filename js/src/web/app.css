@@ -13752,3 +13752,43 @@ main[data-view='operator']:has(> .operator-workspace) {
   align-items: stretch;
   justify-content: center;
 }
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+.collection-sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.collection-sticker.selected {
+  background: var(--bg-active);
+  border-color: var(--text);
+}
+.collection-sticker .sticker-picture,
+.collection-sticker > img {
+  width: 100%;
+  height: 96px;
+  object-fit: contain;
+}
+.collections-fields {
+  flex-wrap: wrap;
+  align-items: end;
+}
+.collections-fields > label {
+  flex: 1;
+  min-width: 140px;
+}
+.chat-sticker-collections {
+  padding: 0.4rem;
+}
+.collection-picker-items {
+  max-height: 200px;
+  overflow: auto;
+}

@@ -787,6 +787,7 @@ const stepConnectionsCredentialRoundtrip = async ({
   // Learned-history pages now show their own library instead of a false
   // connect-first prompt. The provider's manual route still deep-links.
   await page.click('button[data-view="connections"]');
+  await page.click('button[data-action="back-to-connections"]');
   await page.click(
     'button[data-action="open-connection-detail"][data-target-provider="telegram"]'
   );

@@ -407,7 +407,9 @@
     "test:e2e:feedback": "node js/tests/e2e-feedback-browser.mjs",
     "test:e2e:feedback:webkit": "E2E_BROWSER=webkit node js/tests/e2e-feedback-browser.mjs",
     "test:e2e:history-library": "node js/tests/e2e-history-library-browser.mjs",
-    "test:e2e:history-library:webkit": "E2E_BROWSER=webkit node js/tests/e2e-history-library-browser.mjs"
+    "test:e2e:history-library:webkit": "E2E_BROWSER=webkit node js/tests/e2e-history-library-browser.mjs",
+    "test:e2e:sticker-collections": "node js/tests/e2e-sticker-collections-browser.mjs",
+    "test:e2e:sticker-collections:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-collections-browser.mjs"
   },
   "keywords": [
     "personal-crm",

@@ -89,11 +89,19 @@ export const formatOf = (doc) => {
 };
 
 /** A document as the page's sticker or GIF. */
+const stickerOrigin = (doc) => {
+  const set = attribute(doc, 'DocumentAttributeSticker')?.stickerset;
+  if (set?.id) {
+    return { setId: text(set.id), setAccessHash: text(set.accessHash) };
+  }
+  return set?.shortName ? { shortName: String(set.shortName) } : {};
+};
 export const panelItem = (doc, kind = 'sticker') => {
   const size =
     attribute(doc, 'DocumentAttributeImageSize') ??
     attribute(doc, 'DocumentAttributeVideo');
   return {
+    ...stickerOrigin(doc),
     id: text(doc.id),
     kind,
     format: formatOf(doc),

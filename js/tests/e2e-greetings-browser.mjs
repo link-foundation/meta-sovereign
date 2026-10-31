@@ -202,6 +202,7 @@ const run = async () => {
     });
     await page.goto(base, { waitUntil: 'load' });
     await page.click('button[data-view="greetings"]');
+    await page.locator('[data-greeting-presets] summary').click();
 
     const firstVk = `[data-sticker="vk:${vkGreetingStickers[0].id}"] img`;
     await page.waitForSelector(firstVk, { timeout: 10000 });
