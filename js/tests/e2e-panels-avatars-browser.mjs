@@ -175,6 +175,9 @@ const scrollbarSteps = async () => {
     'scrollbar and resize hit areas do not overlap'
   );
   const width = (await page.locator('.chat-sidebar').boundingBox()).width;
+  const nativeInset = await list.evaluate(
+    (node) => node.offsetWidth - node.clientWidth
+  );
   console.log(
     '[e2e-panels-avatars] scrollbar',
     await list.evaluate((node) => ({
@@ -188,10 +191,35 @@ const scrollbarSteps = async () => {
   await page.mouse.move(bar.x + bar.width - 3, bar.y + bar.height / 2);
   await page.waitForTimeout(200);
   await page.mouse.click(bar.x + bar.width - 3, bar.y + bar.height - 25);
-  await until(
-    () => list.evaluate((node) => node.scrollTop > 0),
-    'mouse click on native scrollbar scrolls the chat list'
-  );
+  if (nativeInset > 0) {
+    await until(
+      () => list.evaluate((node) => node.scrollTop > 0),
+      'mouse click on native scrollbar scrolls the chat list'
+    );
+  } else {
+    // Headless WebKit on Linux exposes no native track (also visible in
+    // its CI screenshot). Check the actual pointer target and wheel path
+    // instead of claiming a click on a nonexistent track should scroll.
+    const target = await page.evaluate(
+      ({ x, y }) => {
+        const hit = globalThis.document.elementFromPoint(x, y);
+        return {
+          list: Boolean(hit?.closest('.chat-list')),
+          divider: Boolean(hit?.closest('[data-panel-divider]')),
+        };
+      },
+      { x: bar.x + bar.width - 3, y: bar.y + bar.height - 25 }
+    );
+    assert(
+      target.list && !target.divider,
+      'overlay scrollbar edge belongs to the list, never the resize handle'
+    );
+    await page.mouse.wheel(0, 300);
+    await until(
+      () => list.evaluate((node) => node.scrollTop > 0),
+      'mouse wheel scrolls the overlay-scrollbar list'
+    );
+  }
   assert(
     Math.abs(
       (await page.locator('.chat-sidebar').boundingBox()).width - width
