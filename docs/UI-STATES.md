@@ -66,6 +66,12 @@ be phone numbers. Deleted identities do not repeatedly request an avatar.
 Avatar transport interruptions return an uncached retryable response; only a
 confirmed absence returns a cacheable 404. An initials fallback is recorded as
 such, and a CORS request mode is never labeled as evidence of a CORS failure.
+Quoted thumbnails share the recovering media loader with photos and previews.
+The loader reconciles already decoded images and detects a native media request
+with no progress for 15 seconds. It releases stalled image requests and retries
+with bounded backoff; real progress renews the deadline. Suspended documents and
+native lazy images that have not requested bytes do not produce stall reports.
+Content-free diagnostics record the media kind and stall/recovery duration.
 Recurring script errors can be reported again after a minute, with bounded
 deduplication storage and the existing rate limit. Resource-log timers stop when
 the page listener is removed. Channel reconnects are recovery diagnostics while

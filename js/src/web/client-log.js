@@ -7,6 +7,7 @@
 // later: how many and whether loaded from another origin, never which.
 
 import { activeAccount } from './telegram-account-scope.js';
+import { MEDIA_LOAD_EVENT } from './media-watch.js';
 
 // Opt-in, local console diagnostics for navigation and pointer delivery.
 // No page content or credentials are included by callers.
@@ -137,14 +138,37 @@ export const installClientLog = ({
     report(errorEntry('error', event?.error ?? event?.message, view()));
   const onRejection = (event) =>
     report(errorEntry('unhandled_rejection', event?.reason, view()));
+  const onMediaLoad = ({ detail }) => {
+    if (!['stalled', 'recovered'].includes(detail?.phase)) {
+      return;
+    }
+    report({
+      level: 'debug',
+      event: `media_${detail.phase}`,
+      code: `${['avatar', 'media', 'file'].includes(detail.route) ? detail.route : 'other'}.${['img', 'audio', 'video'].includes(detail.kind) ? detail.kind : 'other'}`,
+      view: view(),
+      kind: ['img', 'audio', 'video'].includes(detail.kind)
+        ? detail.kind
+        : 'other',
+      route: ['avatar', 'media', 'file'].includes(detail.route)
+        ? detail.route
+        : 'other',
+      durationMs: Math.max(
+        0,
+        Math.min(Number(detail.durationMs) || 0, 86400000)
+      ),
+    });
+  };
   target.addEventListener('error', onError);
   target.addEventListener('error', onResourceError, true);
   target.addEventListener('unhandledrejection', onRejection);
+  target.addEventListener(MEDIA_LOAD_EVENT, onMediaLoad);
   return () => {
     globalThis.clearTimeout(failedTimer);
     failed = null;
     target.removeEventListener('error', onError);
     target.removeEventListener('error', onResourceError, true);
     target.removeEventListener('unhandledrejection', onRejection);
+    target.removeEventListener(MEDIA_LOAD_EVENT, onMediaLoad);
   };
 };

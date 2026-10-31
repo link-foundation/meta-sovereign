@@ -50,6 +50,7 @@ const PhotoImage = ({ src, preview, ready }) => {
   return shown
     ? el('img', {
         ...mediaSrc(shown),
+        ref: src ? ready.ref : undefined,
         onLoad: src ? ready.handlers.onLoad : undefined,
         onError: src ? ready.handlers.onError : undefined,
         'data-media-ready': src && !ready.ready ? 'false' : undefined,
@@ -245,6 +246,7 @@ export const PhotoViewer = ({
     [
       el('img', {
         key: 'img',
+        ref: ready.ref,
         ...mediaSrc(src),
         className: 'photo-viewer-img',
         ...ready.handlers,

@@ -25,7 +25,11 @@ import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { versionedMediaApi } from './message-version-media.js';
-import { LoadingImage } from './media-loading.js';
+import {
+  LoadingImage,
+  useMediaSource,
+  useMediaRetry,
+} from './media-loading.js';
 import { Icon } from './icons.js';
 import { failureText, isPaidFailure } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
@@ -169,37 +173,29 @@ export const quotedName = (t, replyRef, selfName) => {
 // server has it, blurred until then (Telegram's `EmbeddedMessage`).
 const QuoteThumb = ({ media, chat, msgId }) => {
   const { api } = useContext(QuoteContext);
-  const [sharp, setSharp] = useState(null);
   const pictured =
     media?.kind === 'photo' ||
     (media?.kind === 'document' &&
       (media.isVideo || media.isSticker) &&
       (media.hasThumb || media.isSticker));
-  useEffect(() => {
-    if (!pictured || !chat || !msgId || !api?.telegramMediaUrl) {
-      return undefined;
-    }
-    let active = true;
-    api
-      .telegramMediaUrl({ chat, id: msgId, size: 's' })
-      .then((url) => active && setSharp(url ?? null))
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [api, chat, msgId, pictured]);
+  const source = useMediaSource(
+    api,
+    'telegramMediaUrl',
+    { chat, id: msgId, size: 's' },
+    pictured && Boolean(chat && msgId)
+  );
+  useMediaRetry(pictured, source.failed, source.retry);
   if (!pictured) {
     return null;
   }
   const blurred = strippedJpegDataUrl(media.strippedB64);
-  const src = sharp ?? blurred;
+  const src = source.url ?? blurred;
   return src
     ? el(LoadingImage, {
         compact: true,
         className: `bubble-reply-thumb${media.isSticker ? ' is-sticker' : ''}`,
         ...mediaSrc(src),
         alt: '',
-        onError: () => setSharp(null),
       })
     : null;
 };

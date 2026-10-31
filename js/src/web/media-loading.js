@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Spinner } from './spinner.js';
 import { READ_RECOVERED_EVENT } from './read-retry.js';
+import { mediaLoadTrace, watchMediaElement } from './media-watch.js';
 
 const el = React.createElement;
 
@@ -44,15 +45,49 @@ export const useMediaSource = (api, method, args, enabled) => {
 
 export const useMediaReady = (src) => {
   const [settled, setSettled] = useState({ src: null, phase: 'loading' });
-  const element = useRef(null);
+  const [element, setElement] = useState(null);
+  const attach = useCallback((node) => setElement(node), []);
   const attempt = useRef(0);
+  const latest = useRef(src);
+  const stalledAt = useRef(null);
+  if (latest.current !== src) {
+    stalledAt.current = null;
+    attempt.current = 0;
+  }
+  latest.current = src;
   const phase = settled.src === src ? settled.phase : 'loading';
-  const set = (value) => setSettled({ src, phase: value });
+  const set = (value) => {
+    if (latest.current !== src) {
+      return;
+    }
+    if (value === 'ready' && stalledAt.current !== null) {
+      mediaLoadTrace(element, 'recovered', Date.now() - stalledAt.current);
+      stalledAt.current = null;
+    }
+    setSettled((old) =>
+      old.src === src && old.phase === value ? old : { src, phase: value }
+    );
+  };
+  useEffect(() => {
+    if (!src || !element || phase !== 'loading') {
+      return undefined;
+    }
+    const started = Date.now();
+    return watchMediaElement(element, {
+      ready: () => set('ready'),
+      stalled: () => {
+        stalledAt.current ??= started;
+        mediaLoadTrace(element, 'stalled', Date.now() - started);
+        set('failed');
+      },
+    });
+  }, [src, element, phase]);
   return {
+    ref: attach,
     ready: Boolean(src) && phase === 'ready',
     failed: Boolean(src) && phase === 'failed',
     retry: () => {
-      const node = element.current;
+      const node = element;
       if (!node || !src) {
         return;
       }
@@ -63,13 +98,14 @@ export const useMediaReady = (src) => {
         : `${src}${src.includes('?') ? '&' : '?'}mediaRetry=${attempt.current}`;
     },
     handlers: {
+      onLoadStart: (event) => attach(event.currentTarget),
       onLoad: () => set('ready'),
       onLoadedData: () => set('ready'),
       onCanPlay: () => set('ready'),
       onPlaying: () => set('ready'),
       onWaiting: () => set('loading'),
       onError: (event) => {
-        element.current = event?.currentTarget;
+        attach(event?.currentTarget);
         set('failed');
       },
     },
@@ -157,6 +193,7 @@ export const LoadingImage = ({
       el('img', {
         ...props,
         key: 'image',
+        ref: state.ref,
         src,
         className,
         'data-media-ready': state.ready ? 'true' : 'false',
@@ -189,6 +226,7 @@ export const LoadingPlayer = ({ as = 'video', src, onError, ...props }) => {
       ...props,
       ...state.handlers,
       key: 'player',
+      ref: state.ref,
       src,
       onLoadStart: () => props.preload !== 'none' && setStarted(true),
       onPlay: () => setStarted(true),

@@ -45,6 +45,18 @@ for (const [id, attribute] of [
   };
   await store.put(item);
 }
+await store.put({
+  id: 'msg:telegram:55:4',
+  source: 'telegram',
+  chat: '55',
+  chatName: 'Media fixture',
+  chatType: 'personal_chat',
+  sender: '55',
+  body: 'Reply with a preview',
+  replyTo: '55:1',
+  timestamp: new Date(1700000004000).toISOString(),
+  raw: { id: 4, replyTo: { replyToMsgId: 1 } },
+});
 const { page, base, until, finish } = await openChatApp('media-loading', {
   store,
 });
@@ -58,6 +70,13 @@ const PNG = Buffer.from(
 );
 let held = true;
 let broken = false;
+let quoteAttempts = 0;
+let releaseQuote = () => {};
+const mediaTraces = [];
+await page.route('**/api/client-log', async (route) => {
+  mediaTraces.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true });
+});
 const waiting = [];
 const release = () => waiting.splice(0).forEach((resume) => resume());
 const wav = Buffer.alloc(16044);
@@ -82,6 +101,16 @@ await page.route('**/api/telegram/file?**', async (route) => {
   return route.fulfill({ contentType: 'audio/wav', body: wav });
 });
 await page.route('**/api/telegram/media?**', async (route) => {
+  if (new URL(route.request().url()).searchParams.get('size') === 's') {
+    quoteAttempts += 1;
+    if (quoteAttempts === 1) {
+      await new Promise((resolve) => {
+        releaseQuote = resolve;
+      });
+      return route.abort().catch(() => {});
+    }
+    releaseQuote();
+  }
   if (held) {
     await new Promise((resolve) => waiting.push(resolve));
   }
@@ -143,6 +172,41 @@ const playerSteps = async () => {
   await audio
     .locator('[data-media-loading="loading"]')
     .waitFor({ state: 'detached' });
+};
+
+const quoteSteps = async () => {
+  const quote = page.locator('.bubble-reply');
+  await quote.scrollIntoViewIfNeeded();
+  await until(
+    () => quoteAttempts >= 2,
+    'stalled quoted image retries automatically',
+    25000
+  );
+  await quote.locator('[data-media-loading]').waitFor({ state: 'detached' });
+  assert(
+    await quote
+      .locator('img')
+      .evaluate((node) => node.complete && node.naturalWidth > 0),
+    'quoted image is decoded after retry'
+  );
+  await until(
+    () => mediaTraces.some((entry) => entry.event === 'media_recovered'),
+    'recovery timing recorded'
+  );
+  assert(
+    mediaTraces.some(
+      (entry) => entry.event === 'media_stalled' && entry.durationMs >= 14000
+    ),
+    'stalled native loads have real duration diagnostics'
+  );
+  const traces = mediaTraces.filter((entry) =>
+    ['media_stalled', 'media_recovered'].includes(entry.event)
+  );
+  assert(
+    !JSON.stringify(traces).includes('localhost') &&
+      !JSON.stringify(traces).includes('Reply with'),
+    'diagnostics omit URLs and conversation content'
+  );
 };
 
 await finish(async () => {
@@ -210,6 +274,7 @@ await finish(async () => {
     });
   }
   await page.locator('.person-panel-head button').click();
+  await quoteSteps();
   broken = true;
   await page.reload();
   await image().locator('[data-media-loading="loading"]').waitFor();
