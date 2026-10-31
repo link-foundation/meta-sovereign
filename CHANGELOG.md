@@ -1,5 +1,76 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 1.2.0
+
+### Minor Changes
+
+- Show Telegram sign-in requirements and broken/reconnecting transport states
+  before the saved-session flag, keeping Connections status accurate during recovery.
+
+  Keep confirmed automation sends above the composer and add bounded, content-free
+  layout diagnostics. Distinguish avatar fallback, transient recovery and genuine
+  failures in HTTP responses and logs. Share custom-emoji downloads, bound their
+  document cache and release browser connections while slow downloads continue.
+
+  Show only today's outstanding birthday reminders by default. Hide contacts
+  after confirmed birthday congratulations, including older wishes in the day's
+  stored history. Add Settings choices for tomorrow's birthdays and keeping
+  already congratulated contacts visible.
+
+  Keep history discovery cooperative and coalesce repeated requests. Stream
+  greeting previews into chat summaries and omit generated structural arrays
+  from automation planning. Give recovery fixtures a portable resolution context.
+
+  Keep the shared Chat/Operator live tail clear while typing, resizing the
+  composer or changing header height. Add own-message Feedback ranking, paged
+  reaction authors, durable profile evidence, background collection controls and
+  explicit provider limits. Show frequent patterns and reply variations from the
+  existing bounded history model on their respective pages.
+
+  Apply an explicitly chosen suggestion and restore the composer caret in the same
+  interaction, so a delayed cursor update cannot interfere with the next edit.
+
+  Add “Find next matching chat” to each chat-menu automation, using its real
+  conditions without queuing drafts or sending. Repeated searches skip inspected
+  chats and report exhaustion, lookup failures and progress clearly.
+
+  Apply fact-discovery eligibility and result limits before classifying questions,
+  preserving the complete answer context. Parse conversation timestamps once per
+  sort and append explicit-reply groups without repeatedly copying them.
+
+  Preserve migrated manual sticker choices, keep bot file IDs out of user-session
+  collections, and remove obsolete greeting choices when their collection is removed.
+
+  Pin transitive build dependencies to glob 14.0.2 and minimatch 11.0.1, resolving
+  [GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) and
+  [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249).
+
+  Rename Greetings navigation to Stickers and add editable provider/category
+  collections with Telegram user-session packs, emoji lookup, saved selections
+  and shared chat-picker access. Preserve legacy greeting presets and keep user
+  document IDs separate from Bot API file IDs. Correct provider-navigation e2e.
+
+  Recover quoted thumbnails and shared media loaders from native requests that
+  remain pending without an error. Reconcile cached decodes, retry stalled image
+  requests automatically, and log stall/recovery timing without media URLs or
+  conversation content.
+
+  Remove quadratic profile lookups from chat summaries, retain unchanged rows
+  across live updates and chat selection, and virtualize the chat directory with
+  measured spacing and keyboard access. Show queued sends in the list immediately
+  while keeping delivery acknowledgement separate from local feedback.
+
+  Keep resize handles outside chat and navigation sidebar edges, without reserved
+  spacing, so mouse clicks reach their scrollbars. Preload nearby avatars with
+  bounded concurrency, prioritize visible identities, and preserve completed
+  avatars across virtual-list remounts. Keep initials as a quiet fallback and
+  bound the account-scoped avatar URL cache.
+
+  Stream Telegram startup sender/forward repairs using sparse packed hints instead
+  of copying and decoding the archive. Yield background repair work and record
+  repair phases. Stream legacy analysis routes, preserve message workflow layout
+  diagnostics, and clean up mocked timers across test runtimes.
+
 ## 1.1.4
 
 ### Patch Changes
