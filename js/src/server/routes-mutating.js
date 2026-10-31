@@ -58,7 +58,10 @@ const listLinks = async (store, res, url) => {
   const idOf = (l) => String(l?.id ?? '');
   const all = await store.query(
     (l) =>
-      !(except === 'msg:' && idOf(l).startsWith('message-version:')) &&
+      !(
+        except === 'msg:' &&
+        /^(message-version|feedback-authors):/.test(idOf(l))
+      ) &&
       (!except || !idOf(l).startsWith(except)) &&
       (!prefix || idOf(l).startsWith(prefix))
   );

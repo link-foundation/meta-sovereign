@@ -27,7 +27,12 @@ export const parseAppRoute = (hash = '') => {
     return null;
   }
   const view = match[1];
-  const chat = splitChatAddress(new URLSearchParams(match[2]).get('chat'));
+  const params = new URLSearchParams(match[2]);
+  const chat = splitChatAddress(params.get('chat'));
+  const message = params.get('message');
+  if (chat && message?.startsWith('msg:')) {
+    chat.message = message;
+  }
   return { view, anchor, ...(chat ? { chat } : {}) };
 };
 

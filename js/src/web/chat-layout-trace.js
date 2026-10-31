@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 // archive reads. A real overlap at the live tail is a warning, not a read position.
 export const createLayoutTrace = (api) => {
   let previous = null;
+  let lastAt = -Infinity;
+  let flags = '';
   return {
     sample(node, fields) {
       const composer = node
@@ -37,6 +39,15 @@ export const createLayoutTrace = (api) => {
         return;
       }
       previous = key;
+      const nextFlags = `${geometry.following}:${geometry.overlap}`;
+      const changed = flags !== nextFlags;
+      flags = nextFlags;
+      // Rapid keystrokes can alternate composer heights. Keep transition and
+      // overlap evidence without exhausting the shared error-report budget.
+      if (!changed && Date.now() - lastAt < 5000) {
+        return;
+      }
+      lastAt = Date.now();
       traceClient(api, 'chat_layout', {
         ...geometry,
         level: geometry.overlap ? 'warn' : 'debug',

@@ -22,6 +22,7 @@ const GLOBAL_TELEGRAM = /^\/api\/telegram\/accounts(-|$)/;
 const ALWAYS_GET = [
   /^\/links(\/[^/]+)?$/,
   /^\/api\/chat\//,
+  /^\/api\/feedback(?:\/|$)/,
   /^\/api\/media\/history\//,
   /^\/api\/events$/,
   /^\/api\/status$/,
@@ -29,13 +30,15 @@ const ALWAYS_GET = [
   /^\/api\/typing$/,
   /^\/api\/message\/supports$/,
   /^\/api\/people\/(learned|learning-settings)$/,
-  /^\/api\/suggest(?:\/(model|stats))?$/,
+  /^\/api\/suggest(?:\/(model|stats|library))?$/,
 ];
 const POSTS = [
   /^\/api\/send$/,
   /^\/api\/typing$/,
   /^\/api\/message\//,
   /^\/api\/people\/learning-settings$/,
+  /^\/api\/feedback\/(collect|settings)$/,
+  /^\/api\/suggest\/library-settings$/,
 ];
 
 /** Whether a request of this path and method may be for an extra account. */

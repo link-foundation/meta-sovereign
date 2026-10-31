@@ -19,6 +19,9 @@ import { OperatorView } from './operator-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
 import { GreetingsView } from './greetings-view.js';
+import { HistoryLibrary } from './history-library.js';
+import { useProviderLiveState } from './provider-live-state.js';
+import { FeedbackView } from './feedback-view.js';
 import { navigateApp, backInApp } from './app-route.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
@@ -413,12 +416,10 @@ export const PatternsView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, (patterns) => {
-    if (!patterns || patterns.length === 0) {
-      return el(ConnectionGuide, { section: 'patterns' });
-    }
-    return el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (patterns) =>
+    el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('patterns.title')),
+      el(HistoryLibrary, { key: 'learned', api, kind: 'patterns' }),
       el('table', { key: 'table' }, [
         el('thead', { key: 'head' }, [
           el('tr', {}, [
@@ -492,8 +493,8 @@ export const PatternsView = () => {
       ]),
       el('div', { key: 'preview', className: 'meta' }, preview),
       el('pre', { key: 'out' }, output),
-    ]);
-  });
+    ])
+  );
 };
 
 export const RepliesView = () => {
@@ -517,12 +518,10 @@ export const RepliesView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, (groups) => {
-    if (!groups || groups.length === 0) {
-      return el(ConnectionGuide, { section: 'replies' });
-    }
-    return el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (groups) =>
+    el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('replies.title')),
+      el(HistoryLibrary, { key: 'learned', api, kind: 'replies' }),
       el(
         'div',
         { key: 'groups' },
@@ -562,8 +561,8 @@ export const RepliesView = () => {
         { key: 'save', type: 'button', className: 'primary', onClick: save },
         t('replies.saveGroup')
       ),
-    ]);
-  });
+    ])
+  );
 };
 
 export const FactsView = () => {
@@ -574,11 +573,9 @@ export const FactsView = () => {
   });
   return el(AsyncFrame, { state }, (facts) => {
     const factCount = facts?.facts?.length ?? 0;
-    if (factCount === 0) {
-      return el(ConnectionGuide, { section: 'facts' });
-    }
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('facts.title', { count: factCount })),
+      el(HistoryLibrary, { key: 'learned', api, kind: 'facts' }),
       ...Object.entries(facts.byAnswerer ?? {}).map(([answerer, list]) =>
         el('section', { key: answerer }, [
           el('h3', { key: 'h' }, answerer),
@@ -1152,6 +1149,7 @@ const useListScroll = (activeProviderId) => {
 // the saved `secret:*` links in so each provider card can classify itself
 // and each detail page can render credentials/import/probe controls.
 const ConnectionsView = () => {
+  const telegram = useProviderLiveState();
   const [refresh, setRefresh] = useState(0);
   const [place, setPlace] = useState(connectionPlace);
   const activeProviderId = place.provider;
@@ -1174,8 +1172,8 @@ const ConnectionsView = () => {
     const savedSecretIds = all
       .map((link) => link.id)
       .filter((id) => typeof id === 'string' && id.startsWith('secret:'));
-    return { savedSecretIds };
-  }, [linksState.value]);
+    return { savedSecretIds, telegram };
+  }, [linksState.value, telegram]);
   if (activeProviderId) {
     return el(ConnectionDetail, {
       providerId: activeProviderId,
@@ -1242,6 +1240,7 @@ export const views = {
   patterns: PatternsView,
   replies: RepliesView,
   facts: FactsView,
+  feedback: FeedbackView,
   audience: AudienceView,
   broadcast: BroadcastView,
   outreach: OutreachView,

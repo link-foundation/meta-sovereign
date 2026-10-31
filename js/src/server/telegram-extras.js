@@ -266,7 +266,7 @@ export const createExtraRuntime = ({
     const { store: opened, dir } = await open(slot);
     const own = withMessageVersions(opened);
     const store = borrowSecrets(own, home, slot);
-    const chatIndex = createChatIndex(store);
+    const chatIndex = createChatIndex(store, { log });
     const built = await build({
       store,
       slot,
@@ -317,6 +317,7 @@ export const createExtraRuntime = ({
     if (entry) {
       await entry.account?.stop?.().catch(() => {});
       entry.chatIndex.close();
+      await entry.chatIndex.feedback?.flush();
       entry.knowledge?.close();
       await entry.replies?.close().catch(() => {});
       await (handoff ? entry.own.flushLog?.() : entry.own.flush?.())?.catch(

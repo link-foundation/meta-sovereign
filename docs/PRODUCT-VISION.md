@@ -88,6 +88,19 @@ implementation into this repository.
 
 ## Review and evidence
 
+Facts, Replies and Patterns expose what was learned from collected history,
+without requiring manual definitions first. Start discovery with meaningful-word
+frequencies: five occurrences by default, configurable per account. Exclude
+function words; qualifying messages seed discovery. Answers remain evidence for
+qualifying questions. Never invent adjacency by removing intervening messages.
+Show the threshold, qualifying-message count and bounded history coverage.
+
+Feedback defaults to our own messages ranked by reactions. Preserve identified
+authors as evidence in profiles and offer private chat only for known addresses.
+Current counts and historical observations remain distinct. Hidden identities
+stay hidden; reactions alone do not establish beliefs or agreement. See
+[Feedback](FEEDBACK.md).
+
 For a UI or messaging change, compare the relevant source references, describe
 the intended behavior and verify the affected shared components. Treat spacing,
 loading, recovery, message targeting and data preservation as functional

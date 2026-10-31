@@ -96,6 +96,7 @@ import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
+import { handleFeedbackRoutes } from './routes-feedback.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
@@ -643,6 +644,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVersionRoutes(store, req, res, p, url, ctx),
     () => handleAudienceSyncRoute(store, req, res, p, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
+    () => handleFeedbackRoutes(store, req, res, p, url, ctx),
     () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
     () => handleDerivedRoutes(store, req, res, p, url, ctx),
   ]) {
@@ -892,7 +894,7 @@ export const startServer = async ({
   // Services that run in the background start only after the port is ours.
   const later = [];
   automations = withStoreProfiles(automations, storeDir, front);
-  const chatIndex = createChatIndex(store);
+  const chatIndex = createChatIndex(store, { log });
   const telegramAccount = telegramAccountFor(
     store,
     log,

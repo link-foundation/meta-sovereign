@@ -22,6 +22,7 @@
  * model again when it is too far behind or the index was rebuilt.
  */
 
+import { learnedLibrary } from './learned-library.js';
 import { detectSelfIds } from '../crm/reengage.js';
 import { buildReplyIndex, DEFAULT_REPLY_WINDOW_MS } from './reply-graph.js';
 import { createReplyHistory } from './reply-history.js';
@@ -129,6 +130,40 @@ const createChangeLog = (now) => {
   };
 };
 
+const createHistoryLibrary = ({ store, history, ready, isSelf, version }) => {
+  let cache = null;
+  return {
+    async saveLibraryThreshold(minFrequency) {
+      await store.put({ id: 'library:settings', minFrequency });
+      return { ok: true, minFrequency };
+    },
+    async library(limit = 50) {
+      await ready();
+      const minFrequency = Number(
+        (await store.get('library:settings'))?.minFrequency ?? 5
+      );
+      const mark = `${version()}:${minFrequency}:${limit}`;
+      if (cache?.mark !== mark) {
+        cache = {
+          mark,
+          result: {
+            ...learnedLibrary(history.values(), {
+              isSelf,
+              minFrequency,
+              limit,
+            }),
+            coverage: history.stats(),
+          },
+        };
+      }
+      return cache.result;
+    },
+    clearLibrary: () => {
+      cache = null;
+    },
+  };
+};
+
 /**
  * Create a reply service over `store`. `self` lists the owner's sender
  * ids (detected from the history when empty); `clink` is an optional
@@ -209,6 +244,14 @@ export const createReplyService = ({
     return building;
   };
 
+  const library = createHistoryLibrary({
+    store,
+    history,
+    ready,
+    isSelf: (sender) => isSelf(sender),
+    version: learned.version,
+  });
+
   const unsubscribe = store.subscribe?.((event) => {
     if (!isMessageEvent(event) || !history.seeded) {
       return;
@@ -284,14 +327,14 @@ export const createReplyService = ({
         links: idx.modelLinks(clientKeep(now(), windowMs)),
       };
     },
+    ...library,
     /** The reply graph as `reply-link:<n>` rows. */
-    async toLinks() {
-      return (await ready()).toLinks();
-    },
+    toLinks: async () => (await ready()).toLinks(),
     async close() {
       unsubscribe?.();
       await building?.catch(() => {});
       index = null;
+      library.clearLibrary();
       history.clear();
       context.clear();
       learned.reset();

@@ -18,7 +18,8 @@
 import { promisify } from 'node:util';
 import { gzip as gzipAsync } from 'node:zlib';
 import { formatLinoRecords } from '../storage/lino-store.js';
-import { json } from './util.js';
+import { json, readBody } from './util.js';
+import { isTrustedMutation } from './routes-auto-import.js';
 import { requestedConversationSettings } from '../crm/conversation-policy.js';
 import { mergeSuggestions } from '../replies/reply-cache.js';
 
@@ -100,9 +101,35 @@ const suggestions = async (ctx, options) => {
   };
 };
 
+const saveLibrarySettings = async (req, res, ctx) => {
+  if (!isTrustedMutation(req, ctx.allowOrigins)) {
+    return json(res, 403, { error: 'app origin required' }) ?? true;
+  }
+  const body = await readBody(req);
+  if (
+    !Number.isInteger(body.minFrequency) ||
+    body.minFrequency < 1 ||
+    body.minFrequency > 100
+  ) {
+    return (
+      json(res, 400, {
+        error: 'minFrequency must be an integer from 1 to 100',
+      }) ?? true
+    );
+  }
+  await ctx.replies.saveLibraryThreshold(body.minFrequency);
+  return json(res, 200, { ok: true, minFrequency: body.minFrequency }) ?? true;
+};
+
 export const handleSuggestRoutes = async (req, res, p, url, ctx) => {
+  if (p === '/api/suggest/library-settings' && req.method === 'POST') {
+    return saveLibrarySettings(req, res, ctx);
+  }
   if (req.method !== 'GET' || !ctx.replies) {
     return false;
+  }
+  if (p === '/api/suggest/library') {
+    return json(res, 200, await ctx.replies.library()) ?? true;
   }
   if (p === '/api/suggest/model' && ctx.replies.model) {
     return sendModel(req, res, url, ctx.replies);

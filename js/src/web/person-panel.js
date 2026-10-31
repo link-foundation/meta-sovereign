@@ -47,6 +47,7 @@ import { PersonalChannelCard } from './chat-person-extras.js';
 import { PaidEarnings } from './chat-paid-earnings.js';
 import { BusinessProfile } from './chat-business-profile.js';
 import { PersonContext } from './person-context.js';
+import { PersonReactions } from './person-reactions.js';
 import { readConversationSettings } from './conversation-prefs.js';
 import { createRetryingRead } from './read-retry.js';
 import { chatDisplayName } from './chat-identity.js';
@@ -427,6 +428,14 @@ export const PersonPanel = ({
         el(SimilarBots, { key: 'sb', api, chat, info, onOpenChat }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime, onGo }) : null,
+        personal
+          ? el(PersonReactions, {
+              key: 'reactions',
+              api,
+              source: chat.source,
+              peer: chat.chat,
+            })
+          : null,
       ]),
       el(OpenInTelegram, {
         key: 'f',

@@ -17,6 +17,7 @@ export const navItems = [
   ['patterns', 'nav.patterns'],
   ['replies', 'nav.replies'],
   ['facts', 'nav.facts'],
+  ['feedback', 'nav.feedback'],
   ['audience', 'nav.audience'],
   ['broadcast', 'nav.broadcast'],
   ['outreach', 'nav.outreach'],

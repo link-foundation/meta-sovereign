@@ -14,7 +14,10 @@ import { enGithub } from './en-github.js';
 
 import { enConversation } from './en-conversation.js';
 
+import { enFeedback } from './en-feedback.js';
+
 export const en = {
+  ...enFeedback,
   ...enConversation,
 
   'nav.calls': 'Calls',

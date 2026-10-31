@@ -20,6 +20,7 @@
 import { connect, runIn, failureOf } from './telegram-stickers.js';
 
 const CODES = {
+  BROADCAST_FORBIDDEN: 'authors-hidden',
   MSG_TOO_OLD: 'too-old',
   CHAT_TOO_BIG: 'too-big',
   MESSAGE_ID_INVALID: 'not-found',
@@ -103,12 +104,19 @@ const createReaders =
     }
   };
 
-const reactorOf = (one, names) => {
+const reactorOf = (one, names, users) => {
   const peer = peerId(one.peerId);
   const custom = one.reaction?.documentId;
+  if (!peer || one.anonymous) {
+    return null;
+  }
+  const user = users.get(peer);
   return {
     peer,
     name: names.get(peer) || peer,
+    kind: peer.startsWith('-') ? 'channel' : 'user',
+    username: user?.username ?? null,
+    deletedAccount: Boolean(user?.deleted),
     emoji: one.reaction?.emoticon ?? null,
     customEmojiId: custom === undefined ? null : textOf(custom),
     date: Number(one.date) * 1000,
@@ -136,8 +144,11 @@ const createReactors =
     const emoji = String(body.emoji ?? '');
     const offset = String(body.offset ?? '');
     try {
-      const answer = await runIn(
-        env,
+      const run = (key, use) =>
+        body.priority === 'prefetch' && env.queue
+          ? env.queue.run(key, 'prefetch', use)
+          : runIn(env, key, use);
+      const answer = await run(
         `reactors:${body.chat}:${body.id}:${emoji}:${offset}`,
         () =>
           env.connection.withPeer(c.client, body.chat, (peer) =>
@@ -155,9 +166,12 @@ const createReactors =
           )
       );
       const names = namesIn(answer ?? {});
-      const items = (answer?.reactions ?? []).map((one) =>
-        reactorOf(one, names)
+      const users = new Map(
+        (answer.users ?? []).map((user) => [textOf(user.id), user])
       );
+      const items = (answer?.reactions ?? [])
+        .map((one) => reactorOf(one, names, users))
+        .filter(Boolean);
       return {
         ok: true,
         count: Number(answer?.count ?? items.length),

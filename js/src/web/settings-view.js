@@ -27,6 +27,7 @@ import { useBrowserOnlyOffer } from './connection-prefs.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
+import { FeedbackSettings } from './settings-feedback.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -324,6 +325,7 @@ export const SettingsView = () => {
     el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
     el(ConversationSettings, { key: 'conversation', api }),
+    el(FeedbackSettings, { key: 'feedback', api }),
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),

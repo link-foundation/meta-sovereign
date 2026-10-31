@@ -18,6 +18,31 @@ import { dictionaries } from '../src/web/locales/index.js';
 import { renderInLocale } from './util-render.js';
 
 test('classifyConnectionState reports connected/not-connected/action-required', () => {
+  assert.equal(
+    classifyConnectionState(
+      { savedSecretIds: [], telegram: { connected: true, kind: 'user' } },
+      'telegram'
+    ),
+    'connected',
+    'server connection does not require exposing secrets to the browser'
+  );
+  assert.equal(
+    classifyConnectionState(
+      {
+        savedSecretIds: [],
+        telegram: { connected: false, kind: 'user', needsLogin: false },
+      },
+      'telegram'
+    ),
+    'reconnecting'
+  );
+  assert.equal(
+    classifyConnectionState(
+      { savedSecretIds: [], telegram: { needsLogin: true } },
+      'telegram'
+    ),
+    'action-required'
+  );
   // Saved credential → connected.
   assert.equal(
     classifyConnectionState(

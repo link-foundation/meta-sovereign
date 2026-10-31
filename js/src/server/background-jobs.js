@@ -17,6 +17,7 @@ import {
 } from 'node:timers';
 import { backupJobFor } from './backup-job.js';
 import { audienceSyncFor } from './audience-sync.js';
+import { feedbackWorkerFor } from './feedback-worker.js';
 import { safeMessage } from './redact.js';
 import { softCacheRetention as upworkRetention } from '../sources/upwork.js';
 import { softCacheRetention as pphRetention } from '../sources/peopleperhour.js';
@@ -77,6 +78,7 @@ export const backgroundJobs = ({ ctx, store, log, later, backups }) => {
     resolve: ctx.audienceSources,
   });
   const purge = cachePurgeFor({ store, log, later });
+  const feedback = feedbackWorkerFor({ store, ctx, log, later });
   return {
     // Returns a promise settled once a backup and the pulls in flight
     // have finished.
@@ -84,11 +86,16 @@ export const backgroundJobs = ({ ctx, store, log, later, backups }) => {
       const backupDone = backup.stopBackups();
       audience.stopAudienceSync();
       purge.stopCachePurge();
+      feedback.stopFeedback();
       // The other timers and pollers the server started with the port.
       ctx.autoImport?.close();
       ctx.whatsappSignIn?.stop().catch(() => {});
       const pullsDone = ctx.stopPulls?.();
-      return Promise.all([backupDone, pullsDone]).then(() => {});
+      return Promise.all([
+        backupDone,
+        pullsDone,
+        ctx.chatIndex.feedback?.flush(),
+      ]).then(() => {});
     },
   };
 };

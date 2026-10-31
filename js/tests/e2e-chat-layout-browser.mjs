@@ -88,6 +88,48 @@ const replyTo = async (row) => {
 };
 const clearReply = () => page.locator('.composer-reply-clear').click();
 
+const typingSteps = async (id, label) => {
+  const input = page.locator('.chat-composer textarea');
+  // A native caret/focus adjustment can leave the live tail within the old
+  // 80px threshold, but underneath the composer. Typing must reconcile it.
+  await toBottom();
+  await page.locator('.chat-scroll').evaluate((node) => {
+    node.scrollTop -= 48;
+    node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
+  });
+  await input.click();
+  await input.pressSequentially('Typing a reply', { delay: 15 });
+  await checkGap(id, `${label} typing`);
+  await input.fill('A multiline reply\n'.repeat(12));
+  await checkGap(id, `${label} multiline`);
+  await input.fill('Short');
+  await checkGap(id, `${label} contracted`);
+  // Header/status bars resize the viewport without changing bottom reserve.
+  await page.locator('.chat-main').evaluate((node) => {
+    const bar = document.createElement('div');
+    bar.className = 'fixture-header';
+    bar.style.cssText = 'height:48px;flex:none';
+    node.prepend(bar);
+  });
+  await checkGap(id, `${label} header expanded`);
+  await page.locator('.fixture-header').evaluate((node) => node.remove());
+  await checkGap(id, `${label} header removed`);
+  await input.fill('');
+  await checkGap(id, `${label} cleared`);
+  const anchor = await startReading();
+  await input.fill('Reading older history\n'.repeat(5));
+  await page.waitForTimeout(80);
+  const top = await page
+    .locator(`[data-row="${anchor.id}"]`)
+    .evaluate((node) => node.getBoundingClientRect().top);
+  assert(
+    Math.abs(top - anchor.top) < 2,
+    `${label} typing preserves reader position (${anchor.top} → ${top})`
+  );
+  await input.fill('');
+  await toBottom();
+};
+
 const geometrySteps = async () => {
   await page.goto(`${base}/#chat=telegram:555`);
   await lastRow(60).waitFor();
@@ -130,6 +172,7 @@ const geometrySteps = async () => {
   await checkGap(60, 'Phone width');
   await page.setViewportSize({ width: 1200, height: 800 });
   await checkGap(60, 'Desktop restored');
+  await typingSteps(60, 'Chat');
 };
 
 const dividerSteps = async () => {
@@ -208,6 +251,7 @@ const readAndOperatorSteps = async () => {
   await lastRow(62).waitFor();
   await toBottom();
   await checkGap(62, 'Operator');
+  await typingSteps(62, 'Operator');
   await page.locator('.chat-unread-line').waitFor();
   await page.waitForTimeout(700);
   assert(

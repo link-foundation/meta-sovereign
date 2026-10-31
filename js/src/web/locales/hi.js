@@ -14,7 +14,10 @@ import { hiGithub } from './hi-github.js';
 
 import { hiConversation } from './hi-conversation.js';
 
+import { hiFeedback } from './hi-feedback.js';
+
 export const hi = {
+  ...hiFeedback,
   ...hiConversation,
 
   'nav.calls': 'कॉल',

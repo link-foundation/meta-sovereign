@@ -19,6 +19,10 @@ import {
   applyLocalServerOverride,
 } from './connection-guides.js';
 import { useT } from './i18n.js';
+import {
+  useProviderLiveState,
+  telegramConnectionState,
+} from './provider-live-state.js';
 
 const el = React.createElement;
 
@@ -103,6 +107,7 @@ export const LocalServerHelp = () => {
 // page instead of repeating provider setup cards inline.
 export const ConnectionsConnectFirstCta = ({ providerId }) => {
   const t = useT();
+  const telegram = useProviderLiveState();
   const provider = providerId ? providerCatalogue[providerId] : null;
   const target = provider
     ? t('guide.openConnectionsTarget', {
@@ -117,6 +122,16 @@ export const ConnectionsConnectFirstCta = ({ providerId }) => {
       })
     );
   };
+  if (
+    providerId === 'telegram' &&
+    ['connected', 'reconnecting'].includes(telegramConnectionState(telegram))
+  ) {
+    return el(
+      'p',
+      { className: 'meta', 'data-provider-connected': 'telegram' },
+      t('library.connected')
+    );
+  }
   return el('div', { className: 'connection-guide-connect-first row' }, [
     el('p', { key: 'copy', className: 'meta' }, t('guide.connectFirstHint')),
     el(

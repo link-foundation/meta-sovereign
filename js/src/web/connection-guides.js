@@ -890,6 +890,14 @@ export const connectionGuides = {
     providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
     connectFirst: { providerId: 'telegram' },
   },
+  feedback: {
+    title: 'Feedback on your messages.',
+    titleKey: 'guide.feedback.title',
+    body: 'Rank your saved messages by received reactions and explore identified authors where the provider permits it.',
+    bodyKey: 'guide.feedback.body',
+    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'github'],
+    connectFirst: { providerId: 'telegram' },
+  },
   audience: {
     title: 'Build your first audience.',
     titleKey: 'guide.audience.title',

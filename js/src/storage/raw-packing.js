@@ -3,6 +3,7 @@
 import { serialize, deserialize } from 'node:v8';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { topicOfMessage } from '../web/forum-topics.js';
+import { rawReactionData, reactionData } from '../sources/reaction-data.js';
 import {
   deriveMessageStructure,
   derivedStructureBytes,
@@ -26,6 +27,15 @@ export const rawMediaTypeOf = (link) => {
 export const storedMessageTopic = (link) => {
   const payload = packed.get(link)?.raw;
   return payload && !exposed.has(link) ? payload.topic : topicOfMessage(link);
+};
+// Sparse reaction metadata is derived while packing, never by inflating an
+// archive's payloads just to open the Feedback view.
+export const storedReactions = (link) => {
+  const payload = packed.get(link)?.raw;
+  return payload &&
+    (!exposed.has(link) || Object.getOwnPropertyDescriptor(link, 'raw')?.get)
+    ? reactionData(link, payload.feedback ?? null)
+    : reactionData(link);
 };
 // There are only two possible cold fields. Fixed slots avoid a Map and its
 // backing hash table on every retained message or edit-history record.
@@ -185,6 +195,12 @@ export const createRawPacking = ({
           0
         )
       : 0;
+  const feedbackMetadata = (link, field) =>
+    field === 'raw' &&
+    (link.sender === 'me' || link.outgoing === true) &&
+    link[field]?.reactions
+      ? { feedback: rawReactionData(link[field]) }
+      : {};
   const pack = (link) => {
     if (packed.has(link) && !exposed.has(link)) {
       return link;
@@ -217,6 +233,7 @@ export const createRawPacking = ({
         original: data.length,
         mediaType: field === 'raw' ? mediaType(link[field]) : undefined,
         topic: field === 'raw' ? topicOfMessage(link) : undefined,
+        ...feedbackMetadata(link, field),
       };
     }
     return deriveMessageStructure(

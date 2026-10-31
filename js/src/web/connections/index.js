@@ -15,6 +15,7 @@
 // rendering the components.
 
 import React, { useEffect, useState } from 'react';
+import { telegramConnectionState } from '../provider-live-state.js';
 import { RecommendedHeader } from './recommended.js';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
@@ -125,6 +126,12 @@ const expectedSecretIds = (providerId) => {
 };
 
 export const classifyConnectionState = (status, providerId) => {
+  if (providerId === 'telegram') {
+    const live = telegramConnectionState(status?.telegram);
+    if (live) {
+      return live;
+    }
+  }
   // Naukri, VietnamWorks and TopCV publish no API, so there is no
   // credential to classify: the sign-in lives in the browser profile
   // the local server drives (issue #29).
@@ -148,6 +155,7 @@ export const classifyConnectionState = (status, providerId) => {
 };
 
 const STATE_LABEL_KEY = {
+  reconnecting: 'header.reconnecting',
   connected: 'connections.state.connected',
   'not-connected': 'connections.state.notConnected',
   'action-required': 'connections.state.actionRequired',
@@ -716,11 +724,16 @@ export const ProviderConnectionControls = ({
   providerId,
   provider,
   links = [],
+  status,
   refresh = async () => {},
 }) => {
   const t = useT();
   const credentials = credentialsFromLinks(provider, links);
+  const serverConnected =
+    providerId === 'telegram' &&
+    telegramConnectionState(status?.telegram) === 'connected';
   const ready =
+    serverConnected ||
     hasRequiredCredentials(provider, credentials) ||
     hasSavedCredentials(provider, links, credentials);
   return el(
@@ -740,7 +753,11 @@ export const ProviderConnectionControls = ({
             key: 'state',
             className: `meta provider-state ${ready ? 'ready' : 'not-ready'}`,
           },
-          ready ? t('settings.credentialsSaved') : t('settings.noCredentials')
+          serverConnected
+            ? t('connections.state.connected')
+            : ready
+              ? t('settings.credentialsSaved')
+              : t('settings.noCredentials')
         ),
       ]),
       el(ProviderCredentialsForm, {

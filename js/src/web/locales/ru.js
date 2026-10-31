@@ -13,7 +13,10 @@ import { ruGithub } from './ru-github.js';
 
 import { ruConversation } from './ru-conversation.js';
 
+import { ruFeedback } from './ru-feedback.js';
+
 export const ru = {
+  ...ruFeedback,
   ...ruConversation,
 
   'nav.calls': 'Звонки',

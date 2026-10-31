@@ -403,7 +403,11 @@
     "test:e2e:chat-responsiveness": "node js/tests/e2e-chat-responsiveness-browser.mjs",
     "test:e2e:chat-responsiveness:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-responsiveness-browser.mjs",
     "test:e2e:panels-avatars": "node js/tests/e2e-panels-avatars-browser.mjs",
-    "test:e2e:panels-avatars:webkit": "E2E_BROWSER=webkit node js/tests/e2e-panels-avatars-browser.mjs"
+    "test:e2e:panels-avatars:webkit": "E2E_BROWSER=webkit node js/tests/e2e-panels-avatars-browser.mjs",
+    "test:e2e:feedback": "node js/tests/e2e-feedback-browser.mjs",
+    "test:e2e:feedback:webkit": "E2E_BROWSER=webkit node js/tests/e2e-feedback-browser.mjs",
+    "test:e2e:history-library": "node js/tests/e2e-history-library-browser.mjs",
+    "test:e2e:history-library:webkit": "E2E_BROWSER=webkit node js/tests/e2e-history-library-browser.mjs"
   },
   "keywords": [
     "personal-crm",

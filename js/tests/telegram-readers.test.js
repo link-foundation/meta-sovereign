@@ -122,6 +122,9 @@ test('reactors: who reacted with what, by page', async () => {
   assert.deepEqual(got.items[0], {
     peer: '1',
     name: 'Ann',
+    kind: 'user',
+    username: null,
+    deletedAccount: false,
     emoji: '👍',
     customEmojiId: null,
     date: 10_000,

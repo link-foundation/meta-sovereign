@@ -40,6 +40,7 @@ import { bindPaid, guardApi, paidGate } from './paid-send.js';
 import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
+import { createFeedbackApi } from './feedback-api.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -553,6 +554,7 @@ const greetingsOffline = (networks) => ({
 });
 
 const rawApi = {
+  ...createFeedbackApi(remote),
   marketplaces: async () =>
     (await serverFetch('/api/marketplaces')) ?? {
       ok: false,
@@ -675,6 +677,13 @@ const rawApi = {
   // etc.). When offline they short-circuit to safe defaults so the
   // UI does not crash; views display "server required" cues elsewhere.
   sources: async () => (await serverFetch('/sources')) ?? [],
+  historyLibrary: () => serverFetch('/api/suggest/library'),
+  saveLibraryThreshold: (minFrequency) =>
+    serverPostReport(
+      '/api/suggest/library-settings',
+      { minFrequency },
+      { network: true }
+    ),
   patterns: async () => (await serverFetch('/api/patterns')) ?? [],
   putPattern: async (p) =>
     (await serverFetch('/api/patterns', {

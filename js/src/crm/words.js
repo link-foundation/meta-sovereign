@@ -75,9 +75,14 @@ export const stemsOf = (text, skip = new Set()) =>
 
 /** Shared stems over all stems: 1 the same, 0 nothing in common. */
 export const overlap = (a, b) => {
-  const union = new Set([...a, ...b]);
-  const shared = [...a].filter((stem) => b.has(stem)).length;
-  return union.size === 0 ? 0 : shared / union.size;
+  let shared = 0;
+  for (const stem of a) {
+    if (b.has(stem)) {
+      shared++;
+    }
+  }
+  const unionSize = a.size + b.size - shared;
+  return unionSize === 0 ? 0 : shared / unionSize;
 };
 
 /** The same words, in any order and with any punctuation between. */

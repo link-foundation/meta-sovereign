@@ -946,6 +946,71 @@ main[data-view='chat'] > .web-mode-banner {
   padding: 1rem 2.75rem max(1rem, var(--chat-composer-space, 0px));
   scroll-padding-bottom: max(1rem, var(--chat-composer-space, 0px));
 }
+
+.feedback-view {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: 1rem;
+}
+.feedback-filters,
+.feedback-card > .row,
+.feedback-reactions {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.feedback-filters > label {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+.feedback-card {
+  min-width: 0;
+}
+.feedback-card time {
+  margin-inline-start: auto;
+}
+.feedback-rank {
+  color: var(--muted);
+}
+.feedback-text,
+.reaction-evidence p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.feedback-people {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 1rem;
+}
+.feedback-person {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+.feedback-person-name {
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.feedback-emoji {
+  font-size: 1.5rem;
+}
+.reaction-evidence {
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.feedback-empty {
+  text-align: center;
+  padding: 2rem;
+}
+@media (max-width: 640px) {
+  .feedback-person {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+  .feedback-person > :last-child {
+    grid-column: 2;
+  }
+}
 .chat-column {
   display: flex;
   flex-direction: column;

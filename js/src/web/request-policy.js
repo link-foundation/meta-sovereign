@@ -28,6 +28,7 @@ const readPosts = new Set([
   '/api/automations/plan',
   '/api/audiences/resolve',
   '/api/greetings/stickers',
+  '/api/feedback/collect',
 ]);
 export const isReadRequest = (path, method = 'GET') => {
   if (['GET', 'HEAD'].includes(method.toUpperCase())) {

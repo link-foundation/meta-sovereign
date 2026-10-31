@@ -16,7 +16,7 @@
  */
 
 import { detectAddressForm } from './address-form.js';
-import { overlap, sameWords, stemsOf } from './words.js';
+import { overlap, wordsOf, stemsOf } from './words.js';
 import {
   confirmedProfession,
   learnRelationships,
@@ -393,30 +393,62 @@ const STOP_WORDS = new Set(
  * на вы", the same form asked for — or the same words, or mostly the
  * same word stems, read by the word grammar in ./words.js (R-Y57).
  */
-export const sameQuestion = (a, b) => {
-  const [ia, ib] = [intentOf(a), intentOf(b)];
-  if (ia === 'address' && ib === 'address') {
-    return proposalOf(String(a)) === proposalOf(String(b));
+const questionMeaning = (text) => {
+  const intent = intentOf(text);
+  return {
+    intent,
+    address: intent === 'address' ? proposalOf(String(text)) : null,
+    profession: intent === 'work' ? askedProfession(text) : null,
+    network: intent === 'accounts' ? accountNetwork(text) : null,
+    words: wordsOf(text).toSorted(),
+    stems: stemsOf(text, STOP_WORDS),
+  };
+};
+const samePreparedWords = (a, b) =>
+  a.length > 0 && a.length === b.length && a.every((word, i) => word === b[i]);
+const sameMeaning = (a, b) => {
+  if (a.intent === 'address' && b.intent === 'address') {
+    return a.address === b.address;
   }
-  if (ia && ib) {
+  if (a.intent && b.intent) {
     if (
-      ia === 'work' &&
-      Boolean(askedProfession(a)) !== Boolean(askedProfession(b))
+      a.intent === 'work' &&
+      Boolean(a.profession) !== Boolean(b.profession)
     ) {
       return false;
     }
-    if (ia === 'work' && askedProfession(a) && askedProfession(b)) {
-      return askedProfession(a).kind === askedProfession(b).kind;
+    if (a.intent === 'work' && a.profession && b.profession) {
+      return a.profession.kind === b.profession.kind;
     }
-    if (ia === 'accounts' && accountNetwork(a) && accountNetwork(b)) {
-      return accountNetwork(a) === accountNetwork(b);
+    if (a.intent === 'accounts' && a.network && b.network) {
+      return a.network === b.network;
     }
-    return ia === ib;
+    return a.intent === b.intent;
   }
   return (
-    sameWords(a, b) ||
-    overlap(stemsOf(a, STOP_WORDS), stemsOf(b, STOP_WORDS)) >= 0.6
+    samePreparedWords(a.words, b.words) || overlap(a.stems, b.stems) >= 0.6
   );
+};
+export const sameQuestion = (a, b) =>
+  sameMeaning(questionMeaning(a), questionMeaning(b));
+// One bounded analysis owns this cache. Repeated candidate comparisons must not
+// re-tokenize text and reconstruct intent/profession regular expressions.
+export const createQuestionMatcher = () => {
+  const meanings = new Map();
+  let comparisons = 0;
+  const meaning = (text) => {
+    if (!meanings.has(text)) {
+      meanings.set(text, questionMeaning(text));
+    }
+    return meanings.get(text);
+  };
+  return {
+    matches(a, b) {
+      comparisons++;
+      return sameMeaning(meaning(a), meaning(b));
+    },
+    stats: () => ({ prepared: meanings.size, comparisons }),
+  };
 };
 
 /**
@@ -425,9 +457,10 @@ export const sameQuestion = (a, b) => {
  */
 export const groupQuestions = (pairs = [], { by = 'me' } = {}) => {
   const groups = [];
+  const matcher = createQuestionMatcher();
   for (const pair of pairs.filter((p) => p.question.by === by)) {
     const group = groups.find((g) =>
-      sameQuestion(g.wordings.at(-1), pair.question.text)
+      matcher.matches(g.wordings.at(-1), pair.question.text)
     );
     const target = group ?? { wordings: [], asked: 0, answered: 0 };
     if (!group) {

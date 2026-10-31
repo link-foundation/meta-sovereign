@@ -1070,8 +1070,23 @@ const useChatList = (links, target, query, folders = []) => {
 // asks it to go to its newest, `toEnd` counting the asks, as in Desktop,
 // R-Y109), or from a search across Telegram (`openAt`, R-Y107) at a
 // message when one was found — `arrival` until the chat has gone to it.
-const useOpening = ({ show, current, setActive, setNotice, followHash }) => {
+const useOpening = ({
+  show,
+  current,
+  setActive,
+  setNotice,
+  followHash,
+  target,
+}) => {
   const [arrival, setArrival] = useState(null);
+  useEffect(() => {
+    if (target?.message) {
+      setArrival({
+        key: chatKey(target.source, target.chat),
+        id: target.message,
+      });
+    }
+  }, [target?.source, target?.chat, target?.message]);
   const [toEnd, setToEnd] = useState(0);
   return {
     select: (key) => {
@@ -1221,6 +1236,7 @@ export const useChatState = (
     setActive(chatKey(target.source, String(target.chat)));
   };
   const opening = useOpening({
+    target,
     show,
     current,
     setActive,
@@ -1247,9 +1263,8 @@ export const useChatState = (
     forum.topic
   );
   const info = useChatInfo(api, current);
-  const pinnedId = pinnedLinkId(info, current);
   const replyTargets = useReplyTargets(api, messages, known, history.window, [
-    pinnedId,
+    pinnedLinkId(info, current),
   ]);
   const { seen, unreadAfter } = useReading(
     api,
@@ -1309,7 +1324,7 @@ export const useChatState = (
     groupCall: callLinkOf(links, current),
     // A private call, live (R-Y196).
     privateCall: privateCallLinkOf(links),
-    pinned: pinnedOf(messages, pinnedId, replyTargets),
+    pinned: pinnedOf(messages, pinnedLinkId(info, current), replyTargets),
     ...opening,
     messages,
     replyTargets,

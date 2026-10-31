@@ -14,7 +14,10 @@ import { zhGithub } from './zh-github.js';
 
 import { zhConversation } from './zh-conversation.js';
 
+import { zhFeedback } from './zh-feedback.js';
+
 export const zh = {
+  ...zhFeedback,
   ...zhConversation,
 
   'nav.calls': '通话',

@@ -21,7 +21,11 @@
 
 import { chatKey, networkMessageId } from '../web/chat-model.js';
 import { isTombstone } from '../storage/soft-delete.js';
-import { storedMessageTopic } from '../storage/raw-packing.js';
+import { storedMessageTopic, storedReactions } from '../storage/raw-packing.js';
+import {
+  createFeedbackIndex,
+  FEEDBACK_AUTHORS_PREFIX,
+} from './feedback-index.js';
 import { splitTopicKey, topicOfMessage } from '../web/forum-topics.js';
 
 const isMessage = (link) =>
@@ -29,6 +33,20 @@ const isMessage = (link) =>
   link.id.startsWith('msg:') &&
   link.chat !== undefined &&
   link.chat !== null;
+const feedbackProjection = (link) => ({
+  id: link.id,
+  source: link.source,
+  chat: link.chat,
+  sender: link.sender,
+  timestamp: link.timestamp,
+  chatType: link.chatType,
+  outgoing: link.outgoing,
+  deleted: link.deleted,
+  feedback:
+    link.sender === 'me' || link.outgoing === true
+      ? (link.feedback ?? storedReactions(link))
+      : null,
+});
 
 const entryOf = (link) => ({
   id: link.id,
@@ -110,23 +128,75 @@ const boundsOf = async (store, sorted, range, limit) => {
 };
 
 const indexStoreMessages = async (store, add) => {
-  const indexBatch = (links) => links.forEach(add);
+  const indexBatch = (links) => links.forEach((link) => add(link));
   if (store.scan) {
-    await store.scan(isMessage, 500, indexBatch, (link) => ({
-      id: link.id,
-      source: link.source,
-      chat: link.chat,
-      timestamp: link.timestamp,
-      topic: storedMessageTopic(link),
-      deleted: isTombstone(link),
-      versionCount: link.versionCount,
-    }));
+    await store.scan(
+      (link) => isMessage(link) || link.id?.startsWith(FEEDBACK_AUTHORS_PREFIX),
+      500,
+      indexBatch,
+      (link) =>
+        link.id?.startsWith(FEEDBACK_AUTHORS_PREFIX)
+          ? link
+          : {
+              id: link.id,
+              source: link.source,
+              chat: link.chat,
+              timestamp: link.timestamp,
+              sender: link.sender,
+              outgoing: link.outgoing,
+              chatType: link.chatType,
+              feedback:
+                link.sender === 'me' || link.outgoing === true
+                  ? storedReactions(link)
+                  : null,
+              topic: storedMessageTopic(link),
+              deleted: isTombstone(link),
+              versionCount: link.versionCount,
+            }
+    );
   } else {
-    indexBatch(await store.query(isMessage));
+    indexBatch(
+      (
+        await store.query(
+          (link) =>
+            isMessage(link) || link.id?.startsWith(FEEDBACK_AUTHORS_PREFIX)
+        )
+      ).map((link) =>
+        isMessage(link)
+          ? {
+              ...feedbackProjection(link),
+              topic: storedMessageTopic(link),
+              versionCount: link.versionCount,
+            }
+          : link
+      )
+    );
   }
 };
 
-export const createChatIndex = (store) => {
+const sortedOf = (chat) => {
+  chat.sorted ??= [...chat.entries.values()].sort(order);
+  return chat.sorted;
+};
+
+// One topic's messages in order, kept until the chat changes.
+const topicSortedOf = (chat, topic) => {
+  const sorted = sortedOf(chat);
+  if (chat.topicsOf !== sorted) {
+    chat.topicsOf = sorted;
+    chat.topics = new Map();
+  }
+  if (!chat.topics.has(topic)) {
+    chat.topics.set(
+      topic,
+      sorted.filter((e) => e.topic === topic)
+    );
+  }
+  return chat.topics.get(topic);
+};
+
+export const createChatIndex = (store, { log } = {}) => {
+  const feedback = createFeedbackIndex(store, log);
   const chats = new Map(); // key -> { entries: Map, sorted, head }
   const listeners = new Set();
   let loaded = false;
@@ -161,7 +231,15 @@ export const createChatIndex = (store) => {
   };
 
   /** Index one message; `'old'` when it is a new one older than the head. */
-  const add = (link) => {
+  const add = (link, live = false) => {
+    feedback.observe(
+      isMessage(link) ? feedbackProjection(link) : link,
+      false,
+      live
+    );
+    if (!isMessage(link)) {
+      return 'update';
+    }
     const chat = chatOf(chatKey(link.source, link.chat));
     chat.revision += 1;
     const known = chat.entries.has(link.id);
@@ -196,12 +274,16 @@ export const createChatIndex = (store) => {
 
   const onChange = (event) => {
     const link = event?.link;
+    if (link?.id?.startsWith(FEEDBACK_AUTHORS_PREFIX)) {
+      feedback.observe(link, event.type === 'delete');
+    }
     let quiet = String(link?.id ?? '').startsWith('message-version:');
     if (isMessage(link)) {
       if (event.type === 'delete') {
+        feedback.observe(feedbackProjection(link), true, true);
         remove(chatOf(chatKey(link.source, link.chat)), link.id);
       } else {
-        quiet = add(link) === 'old' && loaded;
+        quiet = add(link, true) === 'old' && loaded;
       }
     }
     for (const listener of listeners) {
@@ -220,28 +302,8 @@ export const createChatIndex = (store) => {
       (link) => link && !isTombstone(link)
     );
 
-  const sortedOf = (chat) => {
-    chat.sorted ??= [...chat.entries.values()].sort(order);
-    return chat.sorted;
-  };
-
-  // One topic's messages in order, kept until the chat changes.
-  const topicSortedOf = (chat, topic) => {
-    const sorted = sortedOf(chat);
-    if (chat.topicsOf !== sorted) {
-      chat.topicsOf = sorted;
-      chat.topics = new Map();
-    }
-    if (!chat.topics.has(topic)) {
-      chat.topics.set(
-        topic,
-        sorted.filter((e) => e.topic === topic)
-      );
-    }
-    return chat.topics.get(topic);
-  };
-
   return {
+    feedback,
     ready: () => ready,
     /** The store's change feed, with `quiet` on history read ahead. */
     subscribe(listener) {
@@ -298,6 +360,9 @@ export const createChatIndex = (store) => {
     /** How many messages of a chat the store holds. */
     count: (key) => chats.get(key)?.entries.size ?? 0,
     revision: (key) => chats.get(key)?.revision ?? 0,
-    close: () => unsubscribe(),
+    close: () => {
+      unsubscribe();
+      feedback.close();
+    },
   };
 };

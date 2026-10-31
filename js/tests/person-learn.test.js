@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  createQuestionMatcher,
   addressFormOf,
   groupQuestions,
   intentOf,
@@ -179,4 +180,16 @@ test('our questions are grouped by meaning, the most asked first', () => {
   const all = learnConversation(messages);
   assert.equal(all.questions.length, 4);
   assert.equal(all.asked.length, 2);
+});
+
+test('question grouping prepares each wording once per analysis and releases its cache scope', () => {
+  const matcher = createQuestionMatcher();
+  for (let n = 0; n < 6; n++) {
+    assert.equal(matcher.matches('Ты программист?', 'Вы программист?'), true);
+  }
+  assert.deepEqual(matcher.stats(), { prepared: 2, comparisons: 6 });
+  assert.deepEqual(createQuestionMatcher().stats(), {
+    prepared: 0,
+    comparisons: 0,
+  });
 });

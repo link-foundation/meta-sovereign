@@ -98,3 +98,22 @@ snapshot scheduling. Run only the affected tests locally with concurrency one;
 full suites and runtime/browser matrices belong in GitHub CI. Retention bounds
 and a stable observation period reduce risk, but do not prove the absence of
 every possible memory leak.
+
+## Repeated conversation analysis
+
+Production request logs on 2026-10-31 showed repeated `people_learned` work on
+roughly 3,270 messages, taking about 1.8 seconds after changes. Question grouping
+compared each wording against prior groups and re-ran intent/profession regexes,
+word tokenization and stemming for every candidate comparison. It now prepares
+each distinct wording once in a cache owned by that one bounded analysis. Stem
+overlap counts its union without allocating another Set per comparison. The
+cache is not global and cannot retain conversations after analysis completes.
+Focused checks verify preparation counts and unchanged semantic distinctions.
+
+Frequent composer geometry changes also exhausted the shared client-log rate
+budget. Layout traces now coalesce rapid repeated geometry while preserving
+following/overlap transitions, so diagnostics do not crowd out actual failures.
+
+These changes address repeated CPU work and allocation churn. They do not by
+themselves establish that the large archive's retained metadata heap is small;
+continue checking deployed-worker resource counters and retained index costs.

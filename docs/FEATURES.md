@@ -272,3 +272,18 @@ Nothing is in progress now and nothing is parked.
 | Secret chats                                                            | 0         | 0       | 1      | 0             | 1       |
 | Exotic and new                                                          | 0         | 1       | 0      | 3             | 4       |
 | **Total**                                                               | **101**   | **17**  | **8**  | **8**         | **134** |
+
+## Feedback and learned-history review
+
+Feedback ranks our own saved messages by reactions, with provider/date/scope
+filters, bounded author pages, original-message navigation and profile evidence.
+Telegram author collection runs with the server even while the browser is
+closed. Anonymous broadcast reactions remain count-only. Other providers use
+normalized saved data; live adapter gaps are explicit in [Feedback](FEEDBACK.md).
+
+Patterns, Replies and Facts show results from the existing bounded history
+window alongside manual definitions. Discovery first counts meaningful words,
+excludes common function words, and defaults to a configurable frequency of
+five. Repeated observed reply variants, inferred patterns, qualifying Q&A
+facts and their source messages are visible. Counts describe the learning
+window, not an assertion that every archived message was processed.
