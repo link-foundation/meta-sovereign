@@ -189,8 +189,8 @@ test('forwards stored without their source are read again once, and named', asyn
   );
   assert.deepEqual(asked, Array(3).fill(['-1001', [1, 2], 'prefetch']));
   assert.deepEqual(waits, [21_000, 21_000], 'waited as Telegram asked');
-  assert.equal(logged[0].left, 0);
-  assert.equal(logged[0].failed, 0);
+  assert.equal(logged.at(-1).left, 0);
+  assert.equal(logged.at(-1).failed, 0);
   assert.equal(
     (await store.get('msg:telegram:-1001:1')).forwardedFrom.name,
     'AN-HOME'

@@ -7,6 +7,11 @@ import { createRawPacking } from '../src/storage/raw-packing.js';
 import { createChatIndex } from '../src/server/chat-index.js';
 import { collectMetrics } from '../src/server/metrics.js';
 import { extractFacts } from '../src/facts/index.js';
+import {
+  streamedAudience,
+  streamedCompletions,
+  streamedSearch,
+} from '../src/server/streamed-analysis.js';
 
 const route = async (store, path) => {
   let result;
@@ -103,6 +108,49 @@ test('manual fact extraction never joins unrelated chats and caps output', () =>
   );
   assert.equal(found.facts.length, 1);
   assert.equal(found.facts[0].answer, 'Actual answer');
+});
+
+test('legacy analysis streams safe projections without raw payloads or structural arrays', async () => {
+  const store = createMemoryStore({
+    retain: (link) => {
+      const held = { ...link };
+      for (const field of ['raw', 'tokens', 'children']) {
+        Object.defineProperty(held, field, {
+          get: () => assert.fail(`analysis expanded ${field}`),
+          enumerable: true,
+        });
+      }
+      return held;
+    },
+  });
+  await store.put({
+    id: 'msg:telegram:7:1',
+    source: 'telegram',
+    chat: '7',
+    chatType: 'personal_chat',
+    sender: 'me',
+    body: 'Hello world',
+    timestamp: '2026-10-30T00:00:00Z',
+  });
+  await store.put({
+    id: 'msg:telegram:7:2',
+    source: 'telegram',
+    chat: '7',
+    chatType: 'personal_chat',
+    sender: '7',
+    senderName: 'Alice',
+    body: 'Hello there',
+    timestamp: '2026-10-31T00:00:00Z',
+  });
+  store.query = () => assert.fail('whole-store query forbidden');
+  assert.deepEqual(await streamedCompletions(store, { prefix: 'Hello' }), [
+    'Hello world',
+  ]);
+  const audience = await streamedAudience(store, 'network:telegram');
+  assert.equal(audience[0].name, 'Alice');
+  const found = await streamedSearch(store, { query: 'Hello', min: 0.2 });
+  assert.equal(found.length, 2);
+  assert.equal(Object.hasOwn(found[0].link, 'raw'), false);
 });
 test('encrypted-store streaming preserves secret filtering and arbitrary projections', async () => {
   const store = wrapSecretStore({

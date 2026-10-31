@@ -26,12 +26,12 @@ import {
   AUDIENCE_PREFIX,
   LIST_PREFIX,
   audienceLink,
-  buildPeople,
   crossReference,
   listLink,
   resolveAudience,
   searchPeople,
 } from '../crm/people.js';
+import { scanPeople } from './people-scan.js';
 
 const selfFrom = (value) =>
   (Array.isArray(value) ? value : String(value ?? '').split(','))
@@ -39,9 +39,11 @@ const selfFrom = (value) =>
     .filter(Boolean);
 
 const peopleOf = async (store, url) =>
-  buildPeople(await store.query(), {
-    self: selfFrom(url.searchParams.get('self')),
-  });
+  (
+    await scanPeople(store, {
+      self: selfFrom(url.searchParams.get('self')),
+    })
+  ).index.people;
 
 const linksWith = async (store, prefix) =>
   store.query((l) => l?.id?.startsWith(prefix));
@@ -54,8 +56,14 @@ const saveAudience = async (store, body) => {
     name: body.name,
     spec: body.spec ?? body.text,
   });
-  const others = (await store.query()).filter((l) => l.id !== link.id);
-  const count = resolveAudience([...others, link], link.spec).length;
+  const { links, index, queryMatches } = await scanPeople(store, {
+    spec: link.spec,
+    replacement: link,
+  });
+  const count = resolveAudience(links, link.spec, {
+    index,
+    queryMatches,
+  }).length;
   await store.put(link);
   return { audience: link, count };
 };
@@ -67,9 +75,12 @@ const saveList = async (store, body) => {
 };
 
 const resolve = async (store, body) => {
-  const people = resolveAudience(await store.query(), body.spec ?? body.text, {
+  const spec = body.spec ?? body.text;
+  const { links, index, queryMatches } = await scanPeople(store, {
+    spec,
     self: selfFrom(body.self),
   });
+  const people = resolveAudience(links, spec, { index, queryMatches });
   const limit = Number(body.limit);
   return {
     count: people.length,

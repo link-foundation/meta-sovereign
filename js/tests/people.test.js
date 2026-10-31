@@ -21,6 +21,7 @@ import { buildMessageLink } from '../src/sources/link.js';
 import { memberLink, personLink } from '../src/sources/live-links.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { handlePeopleRoutes } from '../src/server/routes-people.js';
+import { scanPeople } from '../src/server/people-scan.js';
 
 // test-anywhere's toThrow does not check the error, so assert does.
 const expectError = (fn) => ({
@@ -86,6 +87,33 @@ const links = [
 const keysOf = (people) => people.map((p) => p.key).sort();
 const resolveKeys = (spec, extra = []) =>
   keysOf(resolveAudience([...links, ...extra], spec));
+
+it('streamed people and audience queries preserve the pure directory without archive copies', async () => {
+  const store = createMemoryStore();
+  for (const link of links) {
+    await store.put(link);
+  }
+  const query = store.query.bind(store);
+  store.query = (filter) => {
+    assert.equal(typeof filter, 'function', 'unbounded query');
+    return query((link) => {
+      const selected = filter(link);
+      assert.ok(!selected || !link.id.startsWith('msg:'), 'copied message');
+      return selected;
+    });
+  };
+  const spec = { kind: 'query', q: 'body:message AND network:vk' };
+  const {
+    index,
+    links: saved,
+    queryMatches,
+  } = await scanPeople(store, { spec });
+  assert.deepEqual(index.people, buildPeople(links));
+  assert.deepEqual(
+    resolveAudience(saved, spec, { index, queryMatches }),
+    resolveAudience(links, spec)
+  );
+});
 
 describe('people directory', () => {
   const { people, byKey, selfIds } = peopleIndex(links);

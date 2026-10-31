@@ -1,4 +1,5 @@
 // Streaming read-only projections avoid materializing every raw provider payload.
+import { createWorkBudget } from '../storage/work-budget.js';
 export const scanLinks = async (
   store,
   filter,
@@ -6,7 +7,16 @@ export const scanLinks = async (
   project = (link) => link
 ) => {
   if (store.scan) {
-    await store.scan(filter, 500, accept, project);
+    const yieldWork = createWorkBudget({ restMs: 0 });
+    await store.scan(
+      filter,
+      500,
+      async (batch) => {
+        await accept(batch);
+        await yieldWork();
+      },
+      project
+    );
   } else {
     await accept((await store.query(filter)).map(project));
   }

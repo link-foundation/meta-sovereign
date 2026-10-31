@@ -715,6 +715,19 @@ const createHttpServer = (store, ctx, log) => {
   // minutes to arrive (R-Z23); headers still time out at Node's 60 s.
   const dispatch = (req, res) => {
     const start = Date.now();
+    const pathname = (req.url ?? '').split('?')[0];
+    if (
+      /^\/api\/(people|audience|facts|search|autocomplete|greetings\/plan)(\/|$)/.test(
+        pathname
+      )
+    ) {
+      log?.({
+        level: 'debug',
+        event: 'http_analysis_started',
+        method: req.method,
+        path: pathname,
+      });
+    }
     res.on('finish', () => {
       log?.({
         event: 'http',

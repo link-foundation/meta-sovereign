@@ -11,8 +11,8 @@
  */
 
 import { unreachableChat } from './telegram-backfill.js';
-import { peerChatId } from './telegram-updates.js';
-import { rawMediaTypeOf } from '../storage/raw-packing.js';
+import { createWorkBudget } from '../storage/work-budget.js';
+import { rawMediaTypeOf, storedRepairInfo } from '../storage/raw-packing.js';
 
 const SOURCE = 'telegram';
 const MARKER = 'repair:telegram:senders-v1';
@@ -43,32 +43,24 @@ const isGroupMessage = (l) =>
   l.sender !== 'me';
 
 // Stored as the chat although `fromId` names someone else.
-const misattributed = (l) => {
-  if (!isGroupMessage(l) || String(l.sender) !== String(l.chat)) {
-    return false;
+const scanRepair = async (store, filter, project, accept) => {
+  const yieldWork = createWorkBudget();
+  if (store.scan) {
+    return store.scan(
+      filter,
+      100,
+      async (batch) => {
+        await accept(batch);
+        await yieldWork();
+      },
+      project
+    );
   }
-  const author = peerChatId(l.raw?.fromId);
-  return Boolean(author) && author !== String(l.chat);
-};
-
-/** Each sender's name: from the address book, else their messages. */
-const namesBySender = (links) => {
-  const names = new Map();
-  for (const l of links) {
-    if (l?.id?.startsWith(`person:${SOURCE}:`) && l.name) {
-      names.set(String(l.user), l.name);
-    }
+  const found = (await store.query(filter)).map(project);
+  for (let at = 0; at < found.length; at += 100) {
+    await accept(found.slice(at, at + 100));
+    await yieldWork();
   }
-  for (const l of links) {
-    if (
-      isGroupMessage(l) &&
-      l.senderName &&
-      String(l.sender) !== String(l.chat)
-    ) {
-      names.set(String(l.sender), names.get(String(l.sender)) ?? l.senderName);
-    }
-  }
-  return names;
 };
 
 /**
@@ -80,34 +72,86 @@ export const repairSenders = async (store, { log = () => {} } = {}) => {
     return 0;
   }
   const started = Date.now();
-  const links = await store.query(
-    (l) =>
-      l?.id?.startsWith(`msg:${SOURCE}:`) ||
-      l?.id?.startsWith(`person:${SOURCE}:`)
+  log?.({ event: 'telegram_repair_started', repair: 'senders' });
+  const names = new Map();
+  await scanRepair(
+    store,
+    (link) => link.id?.startsWith(`person:${SOURCE}:`),
+    (link) => ({ user: link.user, name: link.name }),
+    (batch) => {
+      for (const link of batch) {
+        if (link.name) {
+          names.set(String(link.user), link.name);
+        }
+      }
+    }
   );
-  const wrong = links.filter(misattributed);
-  const names = namesBySender(links);
-  for (const link of wrong) {
-    const sender = peerChatId(link.raw.fromId);
-    await store.put({
-      ...link,
-      sender,
-      senderName: names.get(sender) ?? null,
-    });
-  }
+  await scanRepair(
+    store,
+    isGroupMessage,
+    (link) => ({
+      sender: link.sender,
+      senderName: link.senderName,
+      chat: link.chat,
+    }),
+    (batch) => {
+      for (const link of batch) {
+        if (
+          link.senderName &&
+          String(link.sender) !== String(link.chat) &&
+          !names.has(String(link.sender))
+        ) {
+          names.set(String(link.sender), link.senderName);
+        }
+      }
+    }
+  );
+  let fixed = 0;
+  let named = 0;
+  let scanned = 0;
+  await scanRepair(
+    store,
+    isGroupMessage,
+    (link) => ({ id: link.id, sender: storedRepairInfo(link)?.sender }),
+    async (batch) => {
+      scanned += batch.length;
+      for (const candidate of batch) {
+        if (!candidate.sender) {
+          continue;
+        }
+        const link = await store.get(candidate.id);
+        if (!link || !isGroupMessage(link)) {
+          continue;
+        }
+        const sender = storedRepairInfo(link)?.sender;
+        if (!sender) {
+          continue;
+        }
+        await store.put({
+          ...link,
+          sender,
+          senderName: names.get(sender) ?? null,
+        });
+        fixed++;
+        if (names.has(sender)) {
+          named++;
+        }
+      }
+    }
+  );
   await store.put({
     id: MARKER,
-    fixed: wrong.length,
+    fixed,
     at: new Date().toISOString(),
   });
   log({
     event: 'telegram_repair_senders',
-    scanned: links.length,
-    fixed: wrong.length,
-    named: wrong.filter((l) => names.has(peerChatId(l.raw.fromId))).length,
+    scanned,
+    fixed,
+    named,
     duration_ms: Date.now() - started,
   });
-  return wrong.length;
+  return fixed;
 };
 
 // Each chat's messages, a hundred at a time: how many reads failed, and
@@ -228,13 +272,9 @@ export const rereadUnsupported = async (
 
 // A forward whose source the store cannot name: no name from Telegram,
 // none stored, and its channel, group or person not among the chats.
-const unnamedForward = (l, chats) => {
-  const fwd = l.raw?.fwdFrom;
-  if (!fwd || fwd.fromName || l.forwardedFrom?.name || l.deleted) {
-    return false;
-  }
-  const from = peerChatId(fwd.fromId);
-  return Boolean(from) && !chats.has(from);
+const forwardCandidate = (link, chats) => {
+  const from = storedRepairInfo(link)?.forward;
+  return from && !chats.has(from);
 };
 
 /**
@@ -254,32 +294,57 @@ export const nameForwards = async (
     return 0;
   }
   const started = Date.now();
-  const messages = await store.query((l) =>
-    l?.id?.startsWith(`msg:${SOURCE}:`)
+  log?.({ event: 'telegram_repair_started', repair: 'forward-names' });
+  const isTelegram = (link) => link.id?.startsWith(`msg:${SOURCE}:`);
+  const chats = new Set();
+  await scanRepair(
+    store,
+    isTelegram,
+    (link) => String(link.chat),
+    (batch) => batch.forEach((chat) => chats.add(chat))
   );
-  const chats = new Set(messages.map((l) => String(l.chat)));
-  const unnamed = (list) => list.filter((l) => unnamedForward(l, chats));
-  const links = unnamed(messages);
   const byChat = new Map();
-  for (const l of links) {
-    const id = Number(l.id.split(':').pop());
-    if (Number.isInteger(id) && id > 0) {
-      byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
+  let asked = 0;
+  await scanRepair(
+    store,
+    isTelegram,
+    (link) =>
+      forwardCandidate(link, chats) ? { id: link.id, chat: link.chat } : null,
+    (batch) => {
+      for (const link of batch) {
+        if (!link) {
+          continue;
+        }
+        const id = Number(link.id.split(':').pop());
+        if (Number.isInteger(id) && id > 0) {
+          const key = String(link.chat);
+          const ids = byChat.get(key) ?? [];
+          ids.push(id);
+          byChat.set(key, ids);
+          asked++;
+        }
+      }
     }
-  }
+  );
   const { failed, unreachable, reasons } = await readAgain(
     byChat,
     refresh,
     priority,
     wait
   );
-  const left = unnamed(
-    await store.query((l) => l?.id?.startsWith(`msg:${SOURCE}:`))
-  ).length;
+  let left = 0;
+  await scanRepair(
+    store,
+    isTelegram,
+    (link) => Boolean(forwardCandidate(link, chats)),
+    (batch) => {
+      left += batch.filter(Boolean).length;
+    }
+  );
   if (failed === 0) {
     await store.put({
       id: marker,
-      asked: links.length,
+      asked,
       left,
       at: new Date().toISOString(),
     });
@@ -287,12 +352,12 @@ export const nameForwards = async (
   log({
     event: 'telegram_repair_forward_names',
     chats: byChat.size,
-    asked: links.length,
+    asked,
     left,
     failed,
     reasons,
     unreachable,
     duration_ms: Date.now() - started,
   });
-  return links.length;
+  return asked;
 };

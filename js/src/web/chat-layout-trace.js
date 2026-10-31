@@ -39,7 +39,7 @@ export const createLayoutTrace = (api) => {
         return;
       }
       previous = key;
-      const nextFlags = `${geometry.following}:${geometry.overlap}`;
+      const nextFlags = `${geometry.following}:${geometry.overlap}:${geometry.messages}:${geometry.drafts}:${geometry.pending}`;
       const changed = flags !== nextFlags;
       flags = nextFlags;
       // Rapid keystrokes can alternate composer heights. Keep transition and

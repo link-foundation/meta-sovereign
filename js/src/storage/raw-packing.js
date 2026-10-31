@@ -37,6 +37,50 @@ export const storedReactions = (link) => {
     ? reactionData(link, payload.feedback ?? null)
     : reactionData(link);
 };
+const peerKey = (peer) => {
+  if (!peer) {
+    return null;
+  }
+  const text = (id) => String(id?.value ?? id);
+  if (peer.userId !== undefined) {
+    return text(peer.userId);
+  }
+  if (peer.channelId !== undefined) {
+    return `-100${text(peer.channelId)}`;
+  }
+  if (peer.chatId !== undefined) {
+    return `-${text(peer.chatId)}`;
+  }
+  return null;
+};
+const repairSender = (link, from) =>
+  link.chatType !== 'personal_chat' &&
+  link.sender !== 'me' &&
+  String(link.sender) === String(link.chat) &&
+  from !== String(link.chat)
+    ? from
+    : null;
+const repairInfo = (link, raw) => {
+  const from = peerKey(raw?.fromId);
+  const sender = repairSender(link, from);
+  const forward =
+    !link.deleted && !link.forwardedFrom?.name && !raw?.fwdFrom?.fromName
+      ? peerKey(raw?.fwdFrom?.fromId)
+      : null;
+  // Own any derived string, rather than retaining a substring of decoded input.
+  const own = (value) =>
+    value ? Buffer.from(value, 'utf16le').toString('utf16le') : null;
+  return sender || forward
+    ? { sender: own(sender), forward: own(forward) }
+    : null;
+};
+export const storedRepairInfo = (link) => {
+  const payload = packed.get(link)?.raw;
+  return payload &&
+    (!exposed.has(link) || Object.getOwnPropertyDescriptor(link, 'raw')?.get)
+    ? (payload.repair ?? null)
+    : repairInfo(link, link.raw);
+};
 // There are only two possible cold fields. Fixed slots avoid a Map and its
 // backing hash table on every retained message or edit-history record.
 const payloadFields = (payloads) => fields.filter((field) => payloads[field]);
@@ -201,6 +245,10 @@ export const createRawPacking = ({
     link[field]?.reactions
       ? { feedback: rawReactionData(link[field]) }
       : {};
+  const repairMetadata = (link, field) => {
+    const repair = field === 'raw' ? repairInfo(link, link.raw) : null;
+    return repair ? { repair } : {};
+  };
   const pack = (link) => {
     if (packed.has(link) && !exposed.has(link)) {
       return link;
@@ -234,6 +282,7 @@ export const createRawPacking = ({
         mediaType: field === 'raw' ? mediaType(link[field]) : undefined,
         topic: field === 'raw' ? topicOfMessage(link) : undefined,
         ...feedbackMetadata(link, field),
+        ...repairMetadata(link, field),
       };
     }
     return deriveMessageStructure(

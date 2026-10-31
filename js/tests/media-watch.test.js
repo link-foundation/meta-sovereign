@@ -39,6 +39,7 @@ test('already decoded images settle without depending on another load event', ()
 
 test('an image that never errors is released and retried after inactivity', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.after(() => t.mock.timers.reset());
   const node = image();
   let stalls = 0;
   const stop = watchMediaElement(
@@ -58,6 +59,7 @@ test('an image that never errors is released and retried after inactivity', (t) 
 
 test('progress renews the deadline; cleanup prevents later state changes', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.after(() => t.mock.timers.reset());
   const node = image();
   let stalls = 0;
   const stop = watchMediaElement(
@@ -76,6 +78,7 @@ test('progress renews the deadline; cleanup prevents later state changes', (t) =
 
 test('background tabs and native lazy images do not produce false stalls', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.after(() => t.mock.timers.reset());
   const node = image();
   const document = { visibilityState: 'hidden' };
   let stalls = 0;

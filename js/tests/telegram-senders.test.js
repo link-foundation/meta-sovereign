@@ -6,8 +6,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { telegramDialogLinks } from '../src/sources/telegram-account.js';
-import { repairSenders } from '../src/sources/telegram-repair.js';
+import { repairSenders, nameForwards } from '../src/sources/telegram-repair.js';
 import { messageSenderId } from '../src/sources/telegram-updates.js';
+import { createRawPacking } from '../src/storage/raw-packing.js';
+import { createMemoryStore } from '../src/storage/universal.js';
 
 const GROUP = '-1001234';
 
@@ -74,9 +76,96 @@ test('messages stored with their chat as sender are repaired once', async () => 
   assert.deepEqual([get(3).sender, get(3).senderName], ['43', 'Eve']);
   assert.equal(get(4).sender, GROUP);
   assert.equal(get(5).sender, GROUP);
-  assert.equal(events[0].event, 'telegram_repair_senders');
-  assert.equal(events[0].fixed, 2);
+  assert.equal(events.at(-1).event, 'telegram_repair_senders');
+  assert.equal(events.at(-1).fixed, 2);
   // Ran: the marker keeps it from running again.
   store.byId.set(get(2).id, { ...get(2), sender: GROUP });
   assert.equal(await repairSenders(store), 0);
+});
+
+test('sender repair uses sparse packed metadata and copies only records it changes', async () => {
+  const packing = createRawPacking();
+  let copies = 0;
+  const store = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+    copy: (link) => {
+      if (link.id.startsWith('msg:')) {
+        assert.equal(link.id, 'msg:telegram:-1005:2');
+        copies++;
+      }
+      return packing.copy(link);
+    },
+  });
+  for (let id = 1; id <= 3; id++) {
+    await store.put({
+      id: `msg:telegram:-1005:${id}`,
+      source: 'telegram',
+      chat: '-1005',
+      chatType: 'group',
+      sender: id === 2 ? '-1005' : '7',
+      senderName: id === 1 ? 'Alice' : null,
+      raw: { fromId: { userId: '7' }, message: 'cold '.repeat(200) },
+    });
+  }
+  store.query = () =>
+    assert.fail('repair must stream metadata rather than copy the archive');
+  assert.equal(await repairSenders(store), 1);
+  assert.equal(copies, 1);
+  assert.equal(
+    await store.get('msg:telegram:-1005:2', (link) => link.sender),
+    '7'
+  );
+});
+
+test('forward repair scans sparse summaries without copying or decoding unrelated payloads', async () => {
+  const packing = createRawPacking();
+  const store = createMemoryStore({
+    retain: packing.retain,
+    release: packing.release,
+    copy: () => assert.fail('no full archive copies'),
+  });
+  const original = {
+    id: 'msg:telegram:-1005:1',
+    source: 'telegram',
+    chat: '-1005',
+    chatType: 'group',
+    sender: '7',
+    raw: {
+      fwdFrom: { fromId: { channelId: '77' } },
+      text: 'cold '.repeat(200),
+    },
+  };
+  for (const record of [
+    original,
+    {
+      ...original,
+      id: 'msg:telegram:-1005:2',
+      raw: { text: 'cold '.repeat(200) },
+    },
+  ]) {
+    const held = packing.pack(record);
+    Object.defineProperty(held, 'raw', {
+      enumerable: true,
+      configurable: true,
+      get: () => assert.fail('private repair scan decoded provider data'),
+    });
+    await store.put(held);
+  }
+  store.query = () => assert.fail('must use projected scans');
+  let refreshed = 0;
+  assert.equal(
+    await nameForwards(store, {
+      refresh: async ({ ids }) => {
+        assert.deepEqual(ids, [1]);
+        refreshed++;
+        await store.put({
+          ...original,
+          forwardedFrom: { name: 'Known source' },
+        });
+      },
+    }),
+    1
+  );
+  assert.equal(refreshed, 1);
 });

@@ -242,6 +242,89 @@ export const peopleIndex = (links = [], { self = [] } = {}) => {
 /** One entry per `<source>:<user>`, most recently active first. */
 export const buildPeople = (links, opts) => peopleIndex(links, opts).people;
 
+// The server folds archive batches into people/chat counters, never retaining
+// the messages themselves. The pure array API above remains useful offline.
+export const createPeopleAggregation = (selfIds) => {
+  const dir = createDirectory(selfIds);
+  const chats = new Map();
+  const persons = [];
+  const message = (link) => {
+    const key = `${link.source}:${link.chat}`;
+    const chat = chats.get(key) ?? {
+      source: link.source,
+      chat: String(link.chat),
+      types: new Set(),
+      others: new Set(),
+      mine: 0,
+      theirs: 0,
+      lastMine: null,
+      lastTheirs: null,
+      name: null,
+    };
+    if (link.chatType) {
+      chat.types.add(link.chatType);
+    }
+    chat.name ??= link.chatName;
+    if (dir.isSelf(link.sender)) {
+      chat.mine++;
+      chat.lastMine = later(chat.lastMine, iso(link.timestamp));
+    } else if (link.sender) {
+      if (chat.others.size < 2) {
+        chat.others.add(link.sender);
+      }
+      chat.theirs++;
+      chat.lastTheirs = later(chat.lastTheirs, iso(link.timestamp));
+      const d = dir.get(link.source, link.sender);
+      d.chats.add(chat.chat);
+      d.groups.add(`chat:${chat.chat}`);
+      d.sent++;
+      d.lastSentAt = later(d.lastSentAt, iso(link.timestamp));
+      d.names.sender ??= link.senderName ?? undefined;
+    }
+    chats.set(key, chat);
+  };
+  const finish = () => {
+    for (const chat of chats.values()) {
+      const messages = [
+        ...[...chat.types].map((chatType) => ({ chatType })),
+        ...[...chat.others].map((sender) => ({ sender })),
+      ];
+      const partner = personalPartner({ ...chat, messages }, dir.isSelf);
+      if (partner === null) {
+        continue;
+      }
+      const d = dir.get(chat.source, partner);
+      if (d.personalChat !== null) {
+        continue;
+      }
+      d.personalChat = chat.chat;
+      d.chats.add(chat.chat);
+      d.minePersonal = chat.mine;
+      d.lastMineAt = chat.lastMine;
+      d.lastTheirsPersonal = chat.lastTheirs;
+      d.mutual = chat.mine > 0 && chat.theirs > 0;
+      d.names.chat = chat.name;
+    }
+    addPersons(dir, persons);
+    const people = [...dir.drafts.values()].map(finishPerson).sort(byRecent);
+    return { people, byKey: new Map(people.map((p) => [p.key, p])), selfIds };
+  };
+  return {
+    add(link) {
+      if (isMessage(link)) {
+        message(link);
+      } else if (hasPrefix('member:')(link)) {
+        addMembers(dir, [link]);
+      } else if (hasPrefix(LIST_PREFIX)(link)) {
+        addLists(dir, [link]);
+      } else if (hasPrefix('person:')(link)) {
+        persons.push(link);
+      }
+    },
+    finish,
+  };
+};
+
 /**
  * Likely same-person matches across networks: people on at least two
  * sources sharing a normalised name or handle (case, "ё" and
@@ -411,6 +494,9 @@ const RESOLVERS = {
   // The message DSL of `./audience.js`: whoever (but me) wrote a match.
   query: (ctx, spec) => {
     required(spec, 'q');
+    if (ctx.queryMatches) {
+      return ctx.queryMatches.get(spec.q) ?? new Set();
+    }
     return new Set(
       evalAudience(ctx.links, spec.q)
         .filter(
@@ -472,7 +558,10 @@ export const toAudienceSpec = (value) => {
  */
 export const resolveAudience = (links = [], spec, opts = {}) => {
   const index = opts.index ?? peopleIndex(links, opts);
-  const keys = evaluate({ ...index, links, trail: [] }, toAudienceSpec(spec));
+  const keys = evaluate(
+    { ...index, links, trail: [], queryMatches: opts.queryMatches },
+    toAudienceSpec(spec)
+  );
   return [
     ...index.people.filter((p) => keys.has(p.key)),
     ...[...keys].filter((k) => !index.byKey.has(k)).map(stubPerson),

@@ -1,3 +1,4 @@
+import { streamedAudience } from './streamed-analysis.js';
 /**
  * Mutating API routes: links CRUD, pattern persistence + inference,
  * graphs persistence + run, replies CRUD, profile + resume sync.
@@ -29,8 +30,6 @@ import {
   syncResume,
 } from '../broadcast/index.js';
 import { confirmed } from './confirmations.js';
-import { evalAudience } from '../crm/audience.js';
-import { aggregateContacts } from './aggregate.js';
 import {
   softDeleteLink,
   purgeLink,
@@ -448,9 +447,7 @@ const handleOutreach = async (store, req, res, p, ctx) => {
   const body = await readBody(req);
   const { query = '', text = '', networks = null, mode = 'preview' } = body;
   const makePlan = async () => {
-    const audience = aggregateContacts(
-      evalAudience(await store.query(), query)
-    );
+    const audience = await streamedAudience(store, query);
     return planOutreach({ audience, text, networks, mode });
   };
   if (mode !== 'queue') {

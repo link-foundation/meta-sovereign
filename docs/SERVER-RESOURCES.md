@@ -134,3 +134,17 @@ facts and reported coverage. Metrics stream IDs and counters instead of copying
 archive records. Fact pairing stays within a conversation. A fixture with
 throwing raw-payload getters and a forbidden whole-store query checks the safe
 paths; no production history is used by tests.
+
+Startup Telegram sender and forward-name repairs had a second whole-archive
+path: they queried all Telegram public records, detached their packed buffers,
+and inspected raw payloads in a retained array. The repair marker was only
+written on completion, so a crash caused the same allocation on every restart.
+Repairs now stream small projections; packing retains sparse sender/forward
+repair hints. Only changed records are fetched in full. Scans yield through a
+background work budget, and repair-start/completion events identify this phase.
+Fixtures forbid whole-store query/copy and unrelated raw decoding.
+
+Legacy autocomplete, simple audience/outreach evaluation and fuzzy search now
+stream projections too; search retains the best 100 results. Their scans yield
+to foreground work. Metrics stream IDs. These remove avoidable peak allocations
+without deleting archived content or raising the Node heap limit.

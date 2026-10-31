@@ -784,23 +784,14 @@ const stepConnectionsCredentialRoundtrip = async ({
     `connections: probe status meta should be idle before probing, got ${status}`
   );
 
-  // R-O7 deep-link: the "Connect first" CTA should dispatch
-  // meta-sovereign:navigate, switch us to connections, and scroll to
-  // #conn-telegram. The replies view shows this CTA reliably (no reply
-  // variation groups are seeded, so the empty ConnectionGuide renders),
-  // whereas the chat view only shows it when there are no chat heads and
-  // earlier steps seed messages to the server.
-  await page.click('button[data-view="replies"]');
-  await page.waitForSelector(
-    'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]',
-    { timeout: 5000 }
-  );
+  // Learned-history pages now show their own library instead of a false
+  // connect-first prompt. The provider's manual route still deep-links.
+  await page.click('button[data-view="connections"]');
   await page.click(
-    'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]'
+    'button[data-action="open-connection-detail"][data-target-provider="telegram"]'
   );
-  // The provider page opens on the recommended "Import with browser".
   await page.waitForSelector(
-    'section.connections-detail[data-provider-id="telegram"][data-mode="import"]',
+    'section.connections-detail[data-provider-id="telegram"][data-mode="manual"]',
     { timeout: 5000 }
   );
   const activeAfterCta = await page.$eval(
@@ -813,7 +804,7 @@ const stepConnectionsCredentialRoundtrip = async ({
   );
   const hash = await page.evaluate(() => window.location.hash);
   assert(
-    hash === '#conn-telegram',
+    hash === '#conn-telegram/manual',
     `connections: CTA did not set hash, got "${hash}"`
   );
 };
@@ -909,7 +900,7 @@ const ALL_STEPS = [
     requires: 'theme',
   },
   {
-    name: 'connections credential roundtrip + connect-first CTA',
+    name: 'connections credential roundtrip + provider navigation',
     fn: stepConnectionsCredentialRoundtrip,
   },
   {

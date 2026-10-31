@@ -33,6 +33,7 @@ export class RollingSupervisor {
     this.closed = false;
     this.timer = null;
     this.recovering = null;
+    this.recoveryRelease = null;
     this.rapidExits = 0;
     this.recoverAt = 0;
     this.stopping = new AbortController();
@@ -143,6 +144,14 @@ export class RollingSupervisor {
     return nextOptions;
   }
   async upgrade(release, changes = {}) {
+    if (this.recovering) {
+      this.validateOptions(changes);
+      this.recoveryRelease = release;
+      this.log({
+        event: 'server_recovery_update_requested',
+        build: release.build,
+      });
+    }
     await this.recovering;
     const nextOptions = this.validateOptions(changes);
     if (
@@ -259,7 +268,10 @@ export class RollingSupervisor {
           this.current = this.previous;
           this.previous = null;
         } else {
-          this.current = await this.boot(release);
+          this.current = await this.boot(this.recoveryRelease ?? release);
+          if (this.current.release.build === this.recoveryRelease?.build) {
+            this.recoveryRelease = null;
+          }
         }
         if (this.closed) {
           await this.current.client.close();

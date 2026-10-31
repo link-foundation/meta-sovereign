@@ -22,6 +22,63 @@ const options = {
   backups: { intervalHours: 0 },
 };
 
+test('an upgrade can replace a build that keeps failing recovery', async () => {
+  const dir = await mkdtemp(
+    path.join(os.tmpdir(), 'ms-rolling-recovery-update-')
+  );
+  let host;
+  try {
+    const marker = path.join(dir, 'fixture-old-broken');
+    const old = path.join(dir, 'old-worker.mjs');
+    const source = (await readFile(entry, 'utf8'))
+      .replace(
+        /from '(\.\.\/src\/[^']+)'/g,
+        (_whole, relative) =>
+          `from ${JSON.stringify(new URL(relative, new URL('../bin/server-worker.js', import.meta.url)).href)}`
+      )
+      .replace(
+        'worker = await createRollingWorker({',
+        `if (existsSync(${JSON.stringify(marker)})) throw new Error('fixture broken old build');\nworker = await createRollingWorker({`
+      );
+    await writeFile(
+      old,
+      `import {existsSync} from 'node:fs';\n${source.replace(/^#![^\n]*\n/, '')}`
+    );
+    let recoveryFailed;
+    const failure = new Promise((resolve) => {
+      recoveryFailed = resolve;
+    });
+    host = await startRollingServer({
+      port: 0,
+      storeDir: dir,
+      options,
+      release: { entry: old, build: 'broken-after-crash' },
+      log: (event) => {
+        if (event.event === 'server_recovery_retrying') {
+          recoveryFailed();
+        }
+      },
+    });
+    const base = `http://127.0.0.1:${host.port}`;
+    await fetch(`${base}/links`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: 'durable-before-crash', body: 'fixture' }),
+    });
+    await writeFile(marker, 'broken');
+    process.kill(host.status().pid, 'SIGKILL');
+    await failure;
+    await host.upgrade({ entry, build: 'corrected' });
+    assert.equal(host.status().build, 'corrected');
+    const response = await fetch(`${base}/links/durable-before-crash`);
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).body, 'fixture');
+  } finally {
+    await host?.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('a rolling upgrade serves during warm-up and preserves every acknowledged write; bad replacements leave the old version active', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-rolling-'));
   const logs = [];

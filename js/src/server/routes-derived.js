@@ -10,10 +10,13 @@ import { json } from './util.js';
 import { safeRegExpOrNull } from '../patterns/safe-regex.js';
 import { extractFacts } from '../facts/index.js';
 import { factHistory } from './fact-history.js';
-import { localSearch } from '../crm/index.js';
-import { evalAudience } from '../crm/audience.js';
-import { aggregateContacts, createContactAggregation } from './aggregate.js';
-import { scanLinks, lightLinks } from './store-scan.js';
+import { createContactAggregation } from './aggregate.js';
+import { scanLinks } from './store-scan.js';
+import {
+  streamedAudience,
+  streamedCompletions,
+  streamedSearch,
+} from './streamed-analysis.js';
 import { memoryHealth } from './memory-health.js';
 import { diskHealth } from '../storage/disk-space.js';
 import {
@@ -71,27 +74,6 @@ const contactsFromStore = async (store) => {
     (batch) => batch.forEach(aggregation.person)
   );
   return aggregation.result();
-};
-
-const completionsFor = (links, prefix, me, limit) => {
-  const lower = String(prefix ?? '').toLowerCase();
-  const seen = new Map();
-  const messages = links.filter(
-    (l) =>
-      l.id?.startsWith('msg:') && l.sender === me && typeof l.body === 'string'
-  );
-  for (const m of messages) {
-    if (!m.body.toLowerCase().startsWith(lower)) {
-      continue;
-    }
-    if (!seen.has(m.body) || (m.timestamp ?? '') > seen.get(m.body)) {
-      seen.set(m.body, m.timestamp ?? '');
-    }
-  }
-  return [...seen.entries()]
-    .sort((a, b) => String(b[1]).localeCompare(String(a[1])))
-    .slice(0, limit)
-    .map(([body]) => body);
 };
 
 const facts = async (store, ctx) => {
@@ -168,25 +150,22 @@ const HANDLERS = {
       ? { service: 'meta-sovereign', discovery: true }
       : { service: 'meta-sovereign', ...(await cachedStatus(store)) },
   '/api/autocomplete': async (store, url) =>
-    completionsFor(
-      await lightLinks(store),
-      url.searchParams.get('q') ?? '',
-      url.searchParams.get('me') ?? 'me',
-      Number(url.searchParams.get('limit') ?? 10)
-    ),
+    streamedCompletions(store, {
+      prefix: url.searchParams.get('q') ?? '',
+      me: url.searchParams.get('me') ?? 'me',
+      limit: Math.min(
+        100,
+        Math.max(1, Number(url.searchParams.get('limit') ?? 10) || 10)
+      ),
+    }),
   '/api/audience': async (store, url) =>
-    aggregateContacts(
-      evalAudience(await lightLinks(store), url.searchParams.get('q') ?? '')
-    ),
+    streamedAudience(store, url.searchParams.get('q') ?? ''),
   '/api/facts': async (store, _url, ctx) => facts(store, ctx),
   '/api/search': async (store, url) =>
-    localSearch(
-      { query: async () => lightLinks(store) },
-      {
-        query: url.searchParams.get('q') ?? '',
-        min: Number(url.searchParams.get('min') ?? 0.2),
-      }
-    ),
+    streamedSearch(store, {
+      query: url.searchParams.get('q') ?? '',
+      min: Number(url.searchParams.get('min') ?? 0.2),
+    }),
   // `disk` and `store` tell the page when new messages may not be saved
   // (R-Z14); `freeBytes` is null when the platform cannot say.
   '/api/health': async (store, _url, ctx = {}) => {
