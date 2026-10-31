@@ -36,6 +36,11 @@ test('default provider collections preserve legacy saved greeting choices', asyn
     selection: { stickers: [{ network: 'vk', id: '17', emoji: '👋' }] },
   });
   const result = await loadStickerCollections(store);
+  assert.equal(
+    result.collections.find((c) => c.source === 'vk').automatic,
+    false,
+    'saved manual choices must not expand on an unrelated collection save'
+  );
   assert(result.collections.some((c) => c.source === 'telegram'));
   assert.deepEqual(
     result.collections.find((c) => c.source === 'vk').stickers.map((s) => s.id),
@@ -110,6 +115,20 @@ test('greeting collections update compatible presets and keep Telegram document 
   assert.deepEqual(
     selection.stickers.map((item) => item.id),
     ['bot-file', '19']
+  );
+  const migrated = defaultStickerCollections(selection);
+  assert.equal(
+    migrated.find((c) => c.source === 'telegram').stickers.length,
+    0,
+    'Bot API file IDs are not user-session collection entries'
+  );
+  await saveStickerCollections(store, [row]);
+  assert.deepEqual(
+    (await store.get('greetings:selection')).selection.stickers.map(
+      (item) => item.id
+    ),
+    ['bot-file'],
+    'removing the VK greeting collection removes its greeting choices'
   );
 });
 test('saved Telegram references can be refreshed after restart without installing packs or sending', async () => {

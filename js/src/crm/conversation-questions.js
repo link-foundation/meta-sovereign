@@ -215,7 +215,33 @@ export const answerAfter = (sorted, index, isSelf) => {
 export const byTime = (messages) =>
   messages
     .filter((m) => m && typeof m.body === 'string')
-    .toSorted((a, b) => timeOf(a) - timeOf(b));
+    .map((message) => ({ message, at: timeOf(message) }))
+    .sort((a, b) => a.at - b.at)
+    .map(({ message }) => message);
+
+const answerFor = (sorted, index, replies, isSelf) => {
+  const message = sorted[index];
+  const direct = (replies.get(message.id) ?? []).filter(
+    (reply) =>
+      sideOf(reply, isSelf) !== sideOf(message, isSelf) &&
+      (!isQuestion(textOf(reply)) || affirmation(textOf(reply)) !== null)
+  );
+  return direct.length
+    ? joinedAnswer(direct.slice(0, ANSWER_PARTS), 'reply')
+    : answerAfter(sorted, index, isSelf);
+};
+const explicitReplies = (sorted) => {
+  const replies = new Map();
+  for (const message of sorted) {
+    const parent = repliedId(message);
+    if (parent) {
+      const list = replies.get(parent) ?? [];
+      list.push(message);
+      replies.set(parent, list);
+    }
+  }
+  return replies;
+};
 
 /**
  * Every question in the conversation with its answer (null when none
@@ -223,32 +249,31 @@ export const byTime = (messages) =>
  */
 export const questionAnswers = (
   messages = [],
-  { isSelf = (s) => s === 'me' } = {}
+  {
+    isSelf = (s) => s === 'me',
+    questionFilter = () => true,
+    limit = Infinity,
+    requireAnswer = false,
+  } = {}
 ) => {
   const sorted = byTime(messages);
   const pairs = [];
-  const replies = new Map();
-  for (const message of sorted) {
-    const parent = repliedId(message);
-    if (parent) {
-      replies.set(parent, [...(replies.get(parent) ?? []), message]);
+  const replies = explicitReplies(sorted);
+  for (const [index, message] of sorted.entries()) {
+    if (pairs.length >= limit) {
+      break;
     }
-  }
-  sorted.forEach((message, index) => {
-    if (isQuestion(textOf(message))) {
-      const direct = (replies.get(message.id) ?? []).filter(
-        (reply) =>
-          sideOf(reply, isSelf) !== sideOf(message, isSelf) &&
-          (!isQuestion(textOf(reply)) || affirmation(textOf(reply)) !== null)
-      );
+    if (questionFilter(message) && isQuestion(textOf(message))) {
+      const answer = answerFor(sorted, index, replies, isSelf);
+      if (requireAnswer && !answer) {
+        continue;
+      }
       pairs.push({
         question: asked(message, isSelf),
-        answer: direct.length
-          ? joinedAnswer(direct.slice(0, ANSWER_PARTS), 'reply')
-          : answerAfter(sorted, index, isSelf),
+        answer,
         intent: intentOf(textOf(message)),
       });
     }
-  });
+  }
   return pairs;
 };

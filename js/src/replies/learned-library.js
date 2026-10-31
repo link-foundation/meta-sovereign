@@ -7,10 +7,12 @@ import { questionAnswers } from '../crm/conversation-questions.js';
 const learnedFacts = (chats, eligible, isSelf, limit) => {
   const facts = [];
   for (const list of chats.values()) {
-    for (const pair of questionAnswers(list, { isSelf })) {
-      if (!eligible.has(pair.question.id) || !pair.answer) {
-        continue;
-      }
+    for (const pair of questionAnswers(list, {
+      isSelf,
+      questionFilter: (message) => eligible.has(message.id),
+      limit: limit - facts.length,
+      requireAnswer: true,
+    })) {
       facts.push({
         source: list[0].source,
         chat: String(list[0].chat),

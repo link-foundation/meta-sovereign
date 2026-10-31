@@ -65,8 +65,11 @@ export const defaultStickerCollections = (selection = {}) =>
     source,
     name: '',
     category: 'greeting',
-    automatic: true,
-    stickers: (selection.stickers ?? builtInGreetingStickers[source] ?? [])
+    automatic: source === 'telegram' || !selection.stickers,
+    stickers: (source === 'telegram'
+      ? []
+      : (selection.stickers ?? builtInGreetingStickers[source] ?? [])
+    )
       .filter((item) => item.network === source)
       .map((item) => collectionSticker(item, source)),
   }));
@@ -132,16 +135,20 @@ export const saveStickerCollections = async (store, input) => {
   const greeting = collections.filter(
     (row) => row.category === 'greeting' && row.source !== 'telegram'
   );
-  if (greeting.length) {
-    const sources = new Set(greeting.map((row) => row.source));
-    const selection = await loadGreetingSelection(store);
-    await saveGreetingSelection(store, {
-      ...selection,
-      stickers: [
-        ...selection.stickers.filter((item) => !sources.has(item.network)),
-        ...greeting.flatMap((row) => row.stickers),
-      ],
-    });
-  }
+  const sources = new Set(
+    stickerSources.filter((source) => source !== 'telegram')
+  );
+  const selection = await loadGreetingSelection(store);
+  await saveGreetingSelection(store, {
+    ...selection,
+    stickers: [
+      ...new Map(
+        [
+          ...selection.stickers.filter((item) => !sources.has(item.network)),
+          ...greeting.flatMap((row) => row.stickers),
+        ].map((item) => [stickerIdentity(item), item])
+      ).values(),
+    ],
+  });
   return { ok: true, collections };
 };

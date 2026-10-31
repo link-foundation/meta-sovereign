@@ -10,6 +10,7 @@ import {
 } from '../src/replies/learned-library.js';
 import { createReplyService } from '../src/replies/reply-service.js';
 import { createMemoryStore } from '../src/storage/universal.js';
+import { questionAnswers } from '../src/crm/conversation-questions.js';
 
 const messages = [];
 for (let n = 0; n < 5; n++) {
@@ -89,6 +90,49 @@ test('cooperative history discovery preserves evidence and lets other work run',
     result,
     learnedLibrary(messages, { isSelf: (s) => s === 'me' })
   );
+});
+
+test('fact discovery gates qualifying questions before work while preserving complete answer context', () => {
+  const base = {
+    source: 'telegram',
+    chat: '7',
+    timestamp: '2026-10-31T00:00:00Z',
+  };
+  const question = {
+    ...base,
+    id: 'msg:telegram:7:1',
+    sender: 'me',
+    body: 'Ты программист?',
+  };
+  const answer = {
+    ...base,
+    id: 'msg:telegram:7:2',
+    sender: '7',
+    body: 'Да, программист',
+    replyTo: question.id,
+  };
+  const ignored = {
+    ...base,
+    id: 'msg:telegram:7:3',
+    sender: 'me',
+    body: 'Other question?',
+  };
+  const seen = [];
+  const result = questionAnswers([question, answer, ignored], {
+    questionFilter: (message) => {
+      seen.push(message.id);
+      return message.id === question.id;
+    },
+    limit: 1,
+    requireAnswer: true,
+  });
+  assert.deepEqual(
+    seen,
+    [question.id],
+    'stop once the requested answered facts are found'
+  );
+  assert.equal(result[0].answer.text, answer.body);
+  assert.equal(result[0].answer.basis, 'reply');
 });
 
 test('library reuses bounded history, updates with live writes and saves threshold', async () => {
