@@ -130,6 +130,11 @@ const createChangeLog = (now) => {
   };
 };
 
+const factReader = (ready, history) => async () => {
+  await ready();
+  return history.values();
+};
+
 const createHistoryLibrary = ({ store, history, ready, isSelf, version }) => {
   let cache = null;
   return {
@@ -290,6 +295,7 @@ export const createReplyService = ({
 
   return {
     ready,
+    factMessages: factReader(ready, history),
     /** The last incoming message in a chat, or `null`. */
     async lastIncoming({ source, chat }) {
       await ready();

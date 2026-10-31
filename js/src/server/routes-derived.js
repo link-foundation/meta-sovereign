@@ -9,6 +9,7 @@
 import { json } from './util.js';
 import { safeRegExpOrNull } from '../patterns/safe-regex.js';
 import { extractFacts } from '../facts/index.js';
+import { factHistory } from './fact-history.js';
 import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts, createContactAggregation } from './aggregate.js';
@@ -93,11 +94,14 @@ const completionsFor = (links, prefix, me, limit) => {
     .map(([body]) => body);
 };
 
-const facts = async (store) => {
-  const all = await lightLinks(store);
-  const messages = all.filter((l) => l.id?.startsWith('msg:'));
-  const patterns = all
-    .filter((l) => l.id?.startsWith('pattern:'))
+const facts = async (store, ctx) => {
+  const saved = [];
+  await scanLinks(
+    store,
+    (link) => link.id?.startsWith('pattern:'),
+    (batch) => saved.push(...batch)
+  );
+  const patterns = saved
     .map((p2) => ({
       id: p2.id,
       regex:
@@ -106,7 +110,15 @@ const facts = async (store) => {
           : p2.regex,
     }))
     .filter((p2) => p2.regex);
-  return extractFacts(messages, patterns);
+  if (!patterns.length) {
+    return { facts: [], byAnswerer: {} };
+  }
+  return {
+    ...extractFacts(await factHistory(store, ctx), patterns.slice(0, 100), {
+      limit: 500,
+    }),
+    coverage: { bounded: true, maxFacts: 500, maxPatterns: 100 },
+  };
 };
 
 // Full statistics may take seconds on a large store. Discovery uses the
@@ -166,7 +178,7 @@ const HANDLERS = {
     aggregateContacts(
       evalAudience(await lightLinks(store), url.searchParams.get('q') ?? '')
     ),
-  '/api/facts': async (store) => facts(store),
+  '/api/facts': async (store, _url, ctx) => facts(store, ctx),
   '/api/search': async (store, url) =>
     localSearch(
       { query: async () => lightLinks(store) },

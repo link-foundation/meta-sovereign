@@ -117,3 +117,20 @@ following/overlap transitions, so diagnostics do not crowd out actual failures.
 These changes address repeated CPU work and allocation churn. They do not by
 themselves establish that the large archive's retained metadata heap is small;
 continue checking deployed-worker resource counters and retained index costs.
+
+## Analysis request memory spikes
+
+On 2026-10-31 active workers aborted with `SIGABRT` and V8 heap-limit errors.
+These were crashes, not upgrade shutdowns. A legacy `/api/facts` request built
+an array of every archive record's metadata, including regenerated child/token
+arrays, even when no manual patterns existed. Production logs recorded a
+seven-second request followed by memory failure. Metrics also requested public
+copies of the entire store, detaching packed provider bytes unnecessarily.
+
+Manual fact reads now check patterns first and return immediately when none
+exist. Configured patterns use the existing bounded reply-history window (or
+an explicitly bounded projection fallback), with up to 100 patterns and 500
+facts and reported coverage. Metrics stream IDs and counters instead of copying
+archive records. Fact pairing stays within a conversation. A fixture with
+throwing raw-payload getters and a forbidden whole-store query checks the safe
+paths; no production history is used by tests.

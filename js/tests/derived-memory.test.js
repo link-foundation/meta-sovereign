@@ -5,6 +5,8 @@ import { wrapSecretStore } from '../src/storage/secret-store.js';
 import { handleDerivedRoutes } from '../src/server/routes-derived.js';
 import { createRawPacking } from '../src/storage/raw-packing.js';
 import { createChatIndex } from '../src/server/chat-index.js';
+import { collectMetrics } from '../src/server/metrics.js';
+import { extractFacts } from '../src/facts/index.js';
 
 const route = async (store, path) => {
   let result;
@@ -61,6 +63,46 @@ test('status and contacts scan metadata without querying/materializing provider 
   const health = await route(store, '/api/health');
   assert.ok(health.memory.heapUsed > 0);
   assert.ok(health.memory.heapLimit > health.memory.heapUsed);
+  assert.deepEqual(
+    await route(store, '/api/facts'),
+    { facts: [], byAnswerer: {} },
+    'no patterns does not copy history'
+  );
+  const metrics = await collectMetrics(store);
+  assert(metrics.includes('meta_sovereign_links_total 3'));
+});
+
+test('manual fact extraction never joins unrelated chats and caps output', () => {
+  const messages = [
+    {
+      source: 'telegram',
+      chat: '1',
+      sender: 'me',
+      body: 'Question?',
+      timestamp: '2026-01-01T01:00:00Z',
+    },
+    {
+      source: 'telegram',
+      chat: '2',
+      sender: 'other',
+      body: 'Wrong answer',
+      timestamp: '2026-01-01T01:00:01Z',
+    },
+    {
+      source: 'telegram',
+      chat: '1',
+      sender: 'peer',
+      body: 'Actual answer',
+      timestamp: '2026-01-01T01:00:02Z',
+    },
+  ];
+  const found = extractFacts(
+    messages,
+    [{ id: 'pattern:q', regex: /Question/ }],
+    { limit: 1 }
+  );
+  assert.equal(found.facts.length, 1);
+  assert.equal(found.facts[0].answer, 'Actual answer');
 });
 test('encrypted-store streaming preserves secret filtering and arbitrary projections', async () => {
   const store = wrapSecretStore({
