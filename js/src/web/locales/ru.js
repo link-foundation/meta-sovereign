@@ -1105,6 +1105,11 @@ export const ru = {
   'settings.operator.group': 'Группы и групповые чаты',
   'settings.operator.channel': 'Каналы',
   'settings.stories.title': 'Истории',
+  'settings.birthdays.title': 'Напоминания о днях рождения',
+  'settings.birthdays.tomorrow': 'Показывать также завтрашние дни рождения',
+  'settings.birthdays.hideGreeted': 'Скрывать тех, кого уже поздравили сегодня',
+  'settings.birthdays.hint':
+    'По умолчанию видны только сегодняшние дни рождения, с которыми ещё не поздравили. Учитываются только отправленные поздравления, а не черновики и сообщения в очереди.',
   'settings.stories.show': 'Показывать истории',
   'settings.stories.hint':
     'По умолчанию выключено. Включает ленту историй, обводки аватаров и истории в профилях в этом браузере.',

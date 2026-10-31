@@ -1089,6 +1089,11 @@ export const en = {
   'settings.operator.group': 'Groups and group chats',
   'settings.operator.channel': 'Channels',
   'settings.stories.title': 'Stories',
+  'settings.birthdays.title': 'Birthday reminders',
+  'settings.birthdays.tomorrow': 'Also show tomorrow’s birthdays',
+  'settings.birthdays.hideGreeted': 'Hide people already congratulated today',
+  'settings.birthdays.hint':
+    'By default, show only today’s birthdays that still need a greeting. Only confirmed sent birthday wishes count; drafts and queued messages do not.',
   'settings.stories.show': 'Show stories',
   'settings.stories.hint':
     'Off by default. Enable the stories strip, avatar rings and profile stories in this browser.',

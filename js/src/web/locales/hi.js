@@ -1086,6 +1086,11 @@ export const hi = {
   'settings.operator.group': 'समूह और समूह चैट',
   'settings.operator.channel': 'चैनल',
   'settings.stories.title': 'स्टोरी',
+  'settings.birthdays.title': 'जन्मदिन के अनुस्मारक',
+  'settings.birthdays.tomorrow': 'कल के जन्मदिन भी दिखाएँ',
+  'settings.birthdays.hideGreeted': 'आज जिनको बधाई दे चुके हैं उन्हें छिपाएँ',
+  'settings.birthdays.hint':
+    'डिफ़ॉल्ट रूप से केवल आज के वे जन्मदिन दिखते हैं जिनकी बधाई अभी बाकी है। केवल भेजे जा चुके जन्मदिन संदेश गिने जाते हैं, ड्राफ़्ट या कतार के संदेश नहीं।',
   'settings.stories.show': 'स्टोरी दिखाएँ',
   'settings.stories.hint':
     'डिफ़ॉल्ट रूप से बंद। इस ब्राउज़र में स्टोरी पट्टी, अवतार रिंग और प्रोफ़ाइल स्टोरी चालू करें।',

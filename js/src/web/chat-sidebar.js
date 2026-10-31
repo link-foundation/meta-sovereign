@@ -313,10 +313,12 @@ const appsShown = (state, focus) =>
 const storiesHidden = (state, enabled = true) =>
   !enabled || Boolean(state.query) || state.folder === 'archive';
 
-// Contacts with a birthday today or soon (R-Y178), over the list.
+// Outstanding birthdays today; tomorrow is optional in Settings.
 const BirthdaysHost = ({ api, state }) =>
   el(BirthdaysBlock, {
     api,
+    chats: state.all,
+    messages: state.messages,
     enabled: globalOn(state) && !storiesHidden(state),
     onOpenChat: (target) => state.openAt?.(target),
   });

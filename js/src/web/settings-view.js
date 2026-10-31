@@ -26,6 +26,7 @@ import { useOperatorScope } from './operator-prefs.js';
 import { useBrowserOnlyOffer } from './connection-prefs.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
+import { BirthdaySettings } from './settings-birthdays.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -319,6 +320,7 @@ export const SettingsView = () => {
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
+    el(BirthdaySettings, { key: 'birthdays' }),
     el(ConnectionSettings, { key: 'connection' }),
     el(OperatorSettings, { key: 'operator' }),
     el(ConversationSettings, { key: 'conversation', api }),

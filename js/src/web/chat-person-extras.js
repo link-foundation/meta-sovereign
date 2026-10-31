@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
 import { ChatAvatar } from './chat-list.js';
+import { useBirthdayReminders } from './chat-birthday-reminders.js';
 import {
   ageOf,
   birthdayDate,
@@ -190,23 +191,16 @@ export const whenText = (t, days) => {
     : t('chat.birthdays.inDays', { count: days });
 };
 
-/** The Birthdays block of the chat list: contacts' birthdays soon. */
-export const BirthdaysBlock = ({ api, onOpenChat, enabled = true }) => {
+/** Today's outstanding birthday reminders; tomorrow is an explicit setting. */
+export const BirthdaysBlock = ({
+  api,
+  onOpenChat,
+  enabled = true,
+  chats,
+  messages,
+}) => {
   const t = useT();
-  const [list, setList] = useState([]);
-  useEffect(() => {
-    if (!enabled || typeof api?.telegramContactBirthdays !== 'function') {
-      return undefined;
-    }
-    let live = true;
-    api
-      .telegramContactBirthdays()
-      .then((a) => live && a?.ok && setList(a.birthdays ?? []))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [api, enabled]);
+  const list = useBirthdayReminders(api, enabled, chats, messages);
   if (list.length === 0) {
     return null;
   }

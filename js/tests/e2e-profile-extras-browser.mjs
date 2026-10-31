@@ -18,7 +18,17 @@ import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 
 const ANN = '42';
 const BOB = '43';
+const CAROL = '44';
+const EVE = '45';
 const today = new Date();
+const onDay = (offset) => {
+  const date = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + offset
+  );
+  return { day: date.getDate(), month: date.getMonth() + 1 };
+};
 const BIRTHDAY = {
   day: today.getDate(),
   month: today.getMonth() + 1,
@@ -28,6 +38,8 @@ const store = createMemoryStore();
 for (const [chat, name] of [
   [ANN, 'Ann Lee'],
   [BOB, 'Bob Ray'],
+  [CAROL, 'Carol Sun'],
+  [EVE, 'Eve Bell'],
 ]) {
   await store.put({
     id: `msg:telegram:${chat}:1`,
@@ -43,8 +55,42 @@ for (const [chat, name] of [
   });
 }
 
+// The greeting is no longer the head, but still dismisses the reminder.
+await store.put({
+  id: `msg:telegram:${EVE}:0`,
+  source: 'telegram',
+  chat: EVE,
+  sender: 'me',
+  chatName: 'Eve Bell',
+  chatType: 'private',
+  body: 'С днём рождения!',
+  timestamp: new Date(Date.now() - 120_000).toISOString(),
+});
 const { base, page, until, finish } = await openChatApp('profile-extras', {
   store,
+});
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+});
+let sentRoute = null;
+let releaseSend = null;
+await page.route('**/api/send', async (route) => {
+  sentRoute = route;
+  await new Promise((resolve) => {
+    releaseSend = resolve;
+  });
+  const link = {
+    id: `msg:telegram:${BOB}:5`,
+    source: 'telegram',
+    chat: BOB,
+    sender: 'me',
+    chatName: 'Bob Ray',
+    chatType: 'private',
+    body: 'Happy birthday!',
+    timestamp: new Date().toISOString(),
+  };
+  await store.put(link);
+  return fulfil(route, { status: 'sent', link });
 });
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
@@ -84,8 +130,10 @@ await page.route('**/api/telegram/contact-birthdays', (route) =>
   fulfil(route, {
     ok: true,
     birthdays: [
-      { chat: BOB, name: 'Bob Ray', day: 1, month: 1, days: 0 },
-      { chat: ANN, name: 'Ann Lee', day: 2, month: 1, days: 3 },
+      { chat: BOB, name: 'Bob Ray', ...onDay(0), days: 0 },
+      { chat: ANN, name: 'Ann Lee', ...onDay(3), days: 3 },
+      { chat: CAROL, name: 'Carol Sun', ...onDay(1), days: 1 },
+      { chat: EVE, name: 'Eve Bell', ...onDay(0), days: 0 },
     ],
   })
 );
@@ -142,7 +190,7 @@ for (const name of ['birthday-save', 'color-save', 'personal-channel-save']) {
   });
 }
 
-await finish(async () => {
+const birthdaySteps = async () => {
   await page.goto(`${base}/`);
 
   // The Birthdays block of the chat list.
@@ -153,8 +201,70 @@ await finish(async () => {
     blockText.includes('Bob Ray') && blockText.includes('Today'),
     `birthdays: ${blockText}`
   );
-  assert(blockText.includes('In 3 days'), `in 3 days: ${blockText}`);
+  assert(
+    !blockText.includes('In 3 days'),
+    `future birthdays hidden: ${blockText}`
+  );
 
+  await until(
+    async () =>
+      (await page.locator(`[data-birthday-chat="${EVE}"]`).count()) === 0,
+    'older sent wishes dismiss Eve'
+  );
+  assert(
+    (await page.locator(`[data-birthday-chat="${CAROL}"]`).count()) === 0,
+    'tomorrow hidden by default'
+  );
+  const settings = () => page.locator('button[data-view="settings"]').click();
+  const chats = () => page.locator('button[data-view="chat"]').click();
+  const tomorrow = () => page.locator('[data-action="birthdays-tomorrow"]');
+  const hideGreeted = () =>
+    page.locator('[data-action="birthdays-hide-greeted"]');
+  await settings();
+  assert(!(await tomorrow().isChecked()), 'tomorrow opt-in');
+  assert(await hideGreeted().isChecked(), 'greeted people hidden by default');
+  await tomorrow().check();
+  await hideGreeted().uncheck();
+  await chats();
+  await page.locator(`[data-birthday-chat="${CAROL}"]`).waitFor();
+  await page.locator(`[data-birthday-chat="${EVE}"]`).waitFor();
+  await settings();
+  assert(
+    await tomorrow().isChecked(),
+    'tomorrow preference survives navigation'
+  );
+  await tomorrow().uncheck();
+  await hideGreeted().check();
+  await chats();
+  await until(
+    async () =>
+      (await page.locator(`[data-birthday-chat="${EVE}"]`).count()) === 0,
+    'greeted hidden again'
+  );
+  await page.locator(`[data-birthday-chat="${BOB}"]`).click();
+  const composer = page.locator('.chat-composer textarea');
+  await composer.fill('Happy birthday!');
+  await composer.press('Enter');
+  await until(() => Boolean(sentRoute), 'fixture send in progress');
+  assert(
+    (await page.locator(`[data-birthday-chat="${BOB}"]`).count()) === 1,
+    'pending greeting keeps reminder'
+  );
+  releaseSend();
+  await until(
+    async () => (await page.locator('.birthdays-block').count()) === 0,
+    'sent greeting frees the whole reminder block'
+  );
+  await page.reload();
+  await page.locator(`[data-chat="telegram:${ANN}"]`).waitFor();
+  await until(
+    async () => (await page.locator('.birthdays-block').count()) === 0,
+    'sent wishes stay hidden after reload'
+  );
+};
+
+await finish(async () => {
+  await birthdaySteps();
   // A person: birthday with age, profile colour, personal channel, cake.
   await page.locator(`[data-chat="telegram:${ANN}"]`).click();
   if ((await page.locator('.person-panel').count()) === 0) {

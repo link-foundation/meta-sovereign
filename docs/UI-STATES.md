@@ -10,6 +10,14 @@ reach unmounted rows, and pinned drag indices refer to the full pinned order.
 History prefetch observes actual row visibility; a hidden phone sidebar does not
 enqueue background reads.
 
+Birthday reminders show only today by default and omit contacts already sent a
+birthday greeting during the viewer's local calendar day. Settings can include
+tomorrow or keep already congratulated contacts visible. Drafts, queued/failed
+sends, ordinary greetings and forwarded wishes never dismiss a reminder. The
+check reads only each birthday contact's stored messages back through today,
+one page at a time, and follows confirmed sends immediately. Empty reminder
+blocks reserve no space; local midnight refreshes dates and eligibility.
+
 Chat-list and navigation resize handles extend 8px beyond the sidebar's right
 edge, leaving its full content width and native scrollbar available. The hit area
 is transparent until hovered, keyboard-focused or dragged; revealing it never

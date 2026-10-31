@@ -1045,6 +1045,11 @@ export const zh = {
   'settings.operator.group': '群组和群聊',
   'settings.operator.channel': '频道',
   'settings.stories.title': '动态',
+  'settings.birthdays.title': '生日提醒',
+  'settings.birthdays.tomorrow': '同时显示明天的生日',
+  'settings.birthdays.hideGreeted': '隐藏今天已送上生日祝福的人',
+  'settings.birthdays.hint':
+    '默认只显示今天尚未祝福的生日。只有确认已发送的生日祝福才计入，草稿和排队中的消息不计入。',
   'settings.stories.show': '显示动态',
   'settings.stories.hint':
     '默认关闭。在此浏览器中启用动态栏、头像圆环和个人资料动态。',
