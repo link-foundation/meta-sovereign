@@ -20,6 +20,26 @@ import { renderInLocale } from './util-render.js';
 test('classifyConnectionState reports connected/not-connected/action-required', () => {
   assert.equal(
     classifyConnectionState(
+      { telegram: { connected: true, kind: 'user', needsLogin: true } },
+      'telegram'
+    ),
+    'action-required'
+  );
+  for (const status of [
+    { connection: 'broken' },
+    { connection: 'disconnected' },
+    { offline: true },
+  ]) {
+    assert.equal(
+      classifyConnectionState(
+        { telegram: { connected: true, kind: 'user', ...status } },
+        'telegram'
+      ),
+      'reconnecting'
+    );
+  }
+  assert.equal(
+    classifyConnectionState(
       { savedSecretIds: [], telegram: { connected: true, kind: 'user' } },
       'telegram'
     ),

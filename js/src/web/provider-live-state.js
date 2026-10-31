@@ -7,11 +7,18 @@ export const telegramConnectionState = (status) => {
   if (!status) {
     return null;
   }
-  if (status.connected) {
-    return 'connected';
-  }
   if (status.needsLogin) {
     return 'action-required';
+  }
+  if (
+    status.offline ||
+    status.reconnecting ||
+    ['broken', 'disconnected'].includes(status.connection)
+  ) {
+    return 'reconnecting';
+  }
+  if (status.connected) {
+    return 'connected';
   }
   if (status.account || status.kind === 'user' || status.reconnecting) {
     return 'reconnecting';
