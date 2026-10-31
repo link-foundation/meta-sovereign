@@ -197,7 +197,7 @@ const scrollbarSteps = async () => {
       'mouse click on native scrollbar scrolls the chat list'
     );
   } else {
-    // Headless WebKit on Linux exposes no native track (also visible in
+    // Overlay-scrollbar platforms expose no native track (also visible in
     // its CI screenshot). Check the actual pointer target and wheel path
     // instead of claiming a click on a nonexistent track should scroll.
     const target = await page.evaluate(
