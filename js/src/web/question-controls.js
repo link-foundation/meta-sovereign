@@ -345,7 +345,7 @@ const PreviewControls = ({
     ]),
     el(ProfileFields, { key: 'p', profile, set: setProfile }),
     el(AnswerContextFields, { key: 'contexts', contexts, set: setContexts }),
-    el(SalaryFields, { key: 'salary', salary, set: setSalary }),
+    el(SalaryFields, { key: 'salary', salary, set: setSalary, api }),
     el(AnswerEnvironmentFields, {
       key: 'environment',
       environment,

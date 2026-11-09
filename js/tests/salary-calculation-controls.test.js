@@ -53,6 +53,49 @@ const definition = {
 };
 
 test(
+  'a rate snapshot that expires during typing stops delivery before an outbox claim',
+  { timeout: 10000 },
+  async () => {
+    const store = createMemoryStore();
+    const automation = normalizeAutomation(definition);
+    await store.put(automation);
+    let time = Date.now();
+    await store.put({
+      id: 'msg:hh:1:1',
+      source: 'hh',
+      chat: '1',
+      sender: 'them',
+      body: question,
+      timestamp: new Date(time).toISOString(),
+    });
+    let sent = 0;
+    const runner = createAutomationRunner({
+      store,
+      self: ['me'],
+      clock: () => new Date(time),
+      sleep: async () => {
+        time += 9 * 86400000;
+      },
+      send: async () => {
+        sent++;
+        return { status: 'sent' };
+      },
+    });
+    const plan = await runner.plan(automation, {
+      targets: [{ source: 'hh', chat: '1' }],
+    });
+    assert.equal(plan.drafts[0].text, 'From $7 100 gross per month.');
+    const outcome = await runner.deliverDraft(automation, plan.drafts[0]);
+    assert.equal(outcome.code, 'answer-review-required');
+    assert.equal(sent, 0);
+    assert.deepEqual(
+      await store.query((link) => link.id?.startsWith('outbox:')),
+      []
+    );
+  }
+);
+
+test(
   'calculated salary round trips through saved UI, offline preview, CLI and both Lino APIs',
   { timeout: 20000 },
   async () => {

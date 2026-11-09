@@ -11,6 +11,7 @@ import {
   readAnswerPolicy,
   saveAnswerPolicy,
 } from '../automation/question-policy.js';
+import { salaryExchange } from '../automation/salary-exchange.js';
 
 const csv = (value) =>
   String(value ?? '')
@@ -110,7 +111,14 @@ const planInput = async (args, store) => {
 export const questionCommands = async ({ args, store, log }) => {
   const sub = args._[1] ?? 'list';
   let result;
-  if (sub === 'policy') {
+  if (sub === 'exchange') {
+    result = await salaryExchange(store, {
+      refresh: [true, 'true'].includes(args.refresh),
+      ...(args['max-age-days'] !== undefined
+        ? { maxAgeDays: Number(args['max-age-days']) }
+        : {}),
+    });
+  } else if (sub === 'policy') {
     result = { policy: await policyCommand(args, store) };
   } else if (sub === 'list') {
     result = { rules: await listAnswerRules(store) };
@@ -128,7 +136,7 @@ export const questionCommands = async ({ args, store, log }) => {
     });
   } else {
     throw new Error(
-      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]'
+      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

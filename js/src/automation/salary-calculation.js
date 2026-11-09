@@ -1,6 +1,6 @@
 // Pure calculations over explicitly configured schedules and rate snapshots.
 // Planning never performs network requests or assumes a jurisdiction's taxes.
-const DAY = 86400000;
+import { salaryExchangeFresh } from './salary-exchange-state.js';
 const bounded = (amount) =>
   Number.isFinite(amount) && amount > 0 && amount <= 1e12;
 const exchangeRate = (from, to, exchange, now) => {
@@ -16,13 +16,7 @@ const exchangeRate = (from, to, exchange, now) => {
   if (!rates.has(from) || !rates.has(to)) {
     return { missing: `salary_exchange_${from}_${to}` };
   }
-  const at = Date.parse(exchange.asOf);
-  const current = typeof now === 'number' ? now : Date.parse(now);
-  const age = (Number.isFinite(current) ? current : Date.now()) - at;
-  if (
-    age > exchange.maxAgeDays * DAY ||
-    age < -(exchange.source === 'cbr' ? DAY : 0)
-  ) {
+  if (!salaryExchangeFresh(exchange, now)) {
     return { missing: 'salary_exchange_stale' };
   }
   return {

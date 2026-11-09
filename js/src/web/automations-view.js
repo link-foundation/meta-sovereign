@@ -391,11 +391,18 @@ const audienceFields = ({ form, set, error, t, state }) => {
   ];
 };
 
-const messageFields = ({ form, set, error, t }) => {
+const messageFields = ({ form, set, error, t, state }) => {
   const p = { form, set, error };
   return [
     el(Fieldset, { key: 'what', legend: t('automations.section.message') }, [
-      el(AutomationActionFields, { ...p, key: 'action', Input, Choice, Check }),
+      el(AutomationActionFields, {
+        ...p,
+        key: 'action',
+        Input,
+        Choice,
+        Check,
+        api: state.api,
+      }),
     ]),
     el(Fieldset, { key: 'pace', legend: t('automations.section.pacing') }, [
       el(Input, {

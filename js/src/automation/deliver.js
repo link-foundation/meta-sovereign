@@ -27,6 +27,7 @@ export const createDelivery =
     if (draft.answer) {
       const valid = await validateAnswerDraft(store, automation, draft, {
         reviewed,
+        now: clock().getTime(),
       });
       if (!valid.ok) {
         log({

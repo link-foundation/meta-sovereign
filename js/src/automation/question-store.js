@@ -123,7 +123,7 @@ export const validateAnswerDraft = async (
   store,
   automation,
   draft,
-  { reviewed = false } = {}
+  { reviewed = false, now } = {}
 ) => {
   let latest;
   let unknownTime = false;
@@ -191,6 +191,7 @@ export const validateAnswerDraft = async (
     };
   }
   const fresh = await previewAnswer(store, {
+    now,
     question: latest.body,
     ...current.action,
     ...answerEnvironmentFromMessages(history.values(), latest),

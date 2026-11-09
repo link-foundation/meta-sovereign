@@ -4,6 +4,7 @@ import {
   SalaryField as Field,
   SalarySelect,
 } from './question-salary-inputs.js';
+import { SalaryExchangeFetch } from './question-salary-exchange-fetch.js';
 
 const el = React.createElement;
 const number = (value) => (value === '' ? undefined : Number(value));
@@ -172,7 +173,7 @@ const TaxFields = ({ kind, salary, patch }) => {
   ]);
 };
 
-const ExchangeFields = ({ salary, patch }) => {
+const ExchangeFields = ({ salary, patch, api }) => {
   const t = useT();
   const value = salary.exchange;
   const set = (change) => patch({ exchange: { ...value, ...change } });
@@ -195,6 +196,7 @@ const ExchangeFields = ({ salary, patch }) => {
       { key: 'hint', className: 'meta' },
       t('questions.salaryExchangeHint')
     ),
+    el(SalaryExchangeFetch, { key: 'fetch', api, exchange: value, patch }),
     value
       ? el('div', { key: 'config', className: 'col' }, [
           codeField(
@@ -289,10 +291,10 @@ const ExchangeFields = ({ salary, patch }) => {
   ]);
 };
 
-export const SalaryCalculationFields = ({ salary, patch }) =>
+export const SalaryCalculationFields = ({ salary, patch, api }) =>
   el('div', { className: 'col', 'data-salary-calculation': true }, [
     ...['personal', 'company'].map((kind) =>
       el(TaxFields, { key: kind, kind, salary, patch })
     ),
-    el(ExchangeFields, { key: 'exchange', salary, patch }),
+    el(ExchangeFields, { key: 'exchange', salary, patch, api }),
   ]);

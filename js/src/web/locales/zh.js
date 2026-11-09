@@ -1331,4 +1331,18 @@ export const zh = {
   'questions.salaryAddExchange': '配置汇率',
   'questions.salaryRemoveExchange': '删除汇率配置',
   'questions.salaryCalculationEvidence': '薪酬计算详情',
+  'questions.salaryFetchRates': '从俄罗斯央行刷新',
+  'questions.salaryUseCachedRates': '使用缓存汇率',
+  'questions.salaryRatesLoading': '正在加载汇率…',
+  'questions.salaryRates.updated': '已加载俄罗斯央行汇率（{date}）。',
+  'questions.salaryRates.cached': '已加载缓存汇率（{date}）。',
+  'questions.salaryRates.stale':
+    '{date} 的汇率已过期。计算所得的回答需要审核。',
+  'questions.salaryRates.unavailable':
+    '没有可用的已保存汇率。请手动输入或重试刷新。',
+  'questions.salaryRatesFallback':
+    '刷新未提供更新的有效汇率；现有已保存数据仍予保留。',
+  'questions.salaryRatesDraft': '汇率已应用于此草稿。',
+  'questions.salaryRatesChanged':
+    '汇率加载期间设置已更改。您的修改已保留；重试可替换它们。',
 };

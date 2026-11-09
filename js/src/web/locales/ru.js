@@ -1414,4 +1414,18 @@ export const ru = {
   'questions.salaryAddExchange': 'Настроить курсы валют',
   'questions.salaryRemoveExchange': 'Удалить курсы валют',
   'questions.salaryCalculationEvidence': 'Подробности расчёта зарплаты',
+  'questions.salaryFetchRates': 'Обновить с сайта Банка России',
+  'questions.salaryUseCachedRates': 'Использовать сохранённые курсы',
+  'questions.salaryRatesLoading': 'Загрузка курсов валют…',
+  'questions.salaryRates.updated': 'Загружены курсы Банка России ({date}).',
+  'questions.salaryRates.cached': 'Загружены сохранённые курсы ({date}).',
+  'questions.salaryRates.stale':
+    'Курсы на {date} устарели. Расчётные ответы требуют проверки.',
+  'questions.salaryRates.unavailable':
+    'Сохранённых курсов нет. Укажите курсы вручную или повторите обновление.',
+  'questions.salaryRatesFallback':
+    'Обновление не дало новых корректных курсов; имеющиеся сохранённые данные оставлены.',
+  'questions.salaryRatesDraft': 'Курсы применены к этому черновику.',
+  'questions.salaryRatesChanged':
+    'Настройки курсов изменились во время загрузки. Правки сохранены; повторите загрузку для замены.',
 };

@@ -80,7 +80,7 @@ const CurrencyFields = ({ entry, set, remove }) => {
   ]);
 };
 
-export const SalaryFields = ({ salary, set }) => {
+export const SalaryFields = ({ salary, set, api }) => {
   const t = useT();
   const value = salary ?? initial();
   const patch = (change) => set({ ...value, ...change });
@@ -199,6 +199,7 @@ export const SalaryFields = ({ salary, set }) => {
           ),
           el(SalaryCalculationFields, {
             key: 'calculation',
+            api,
             salary: value,
             patch,
           }),

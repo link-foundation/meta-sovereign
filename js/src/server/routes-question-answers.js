@@ -10,11 +10,15 @@ import {
   readAnswerPolicy,
   saveAnswerPolicy,
 } from '../automation/question-policy.js';
+import { salaryExchange } from '../automation/salary-exchange.js';
 
 const ROOT = '/api/automations/answers';
 export const questionAnswerRoute = async (store, req, res, path) => {
   if (path === `${ROOT}/policy`) {
     return policyRoute(store, req, res);
+  }
+  if (path === `${ROOT}/exchange`) {
+    return exchangeRoute(store, req, res);
   }
   if (req.method === 'GET' && path === ROOT) {
     json(res, 200, { rules: await listAnswerRules(store) });
@@ -45,6 +49,15 @@ export const questionAnswerRoute = async (store, req, res, path) => {
 const isSaveRoute = (method, path) =>
   (method === 'PUT' && path === ROOT) ||
   (method === 'POST' && path === `${ROOT}/save`);
+
+const exchangeRoute = async (store, req, res) => {
+  if (!['GET', 'POST'].includes(req.method)) {
+    return false;
+  }
+  const input = req.method === 'POST' ? await readBody(req) : {};
+  json(res, 200, await salaryExchange(store, input));
+  return true;
+};
 
 const policyRoute = async (store, req, res) => {
   if (req.method === 'GET') {

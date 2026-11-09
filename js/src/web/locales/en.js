@@ -1396,4 +1396,18 @@ export const en = {
   'questions.salaryAddExchange': 'Configure exchange rates',
   'questions.salaryRemoveExchange': 'Remove exchange rates',
   'questions.salaryCalculationEvidence': 'Salary calculation details',
+  'questions.salaryFetchRates': 'Refresh from Bank of Russia',
+  'questions.salaryUseCachedRates': 'Use cached rates',
+  'questions.salaryRatesLoading': 'Loading exchange rates…',
+  'questions.salaryRates.updated': 'Bank of Russia rates loaded ({date}).',
+  'questions.salaryRates.cached': 'Cached rates loaded ({date}).',
+  'questions.salaryRates.stale':
+    'Rates dated {date} are stale. Calculated answers require review.',
+  'questions.salaryRates.unavailable':
+    'No saved rates are available. Enter a snapshot or retry the refresh.',
+  'questions.salaryRatesFallback':
+    'Refresh did not provide newer valid rates; any available saved snapshot is retained.',
+  'questions.salaryRatesDraft': 'Rates are applied to this draft.',
+  'questions.salaryRatesChanged':
+    'Exchange settings changed while rates were loading. Your edits are kept; retry to replace them.',
 };

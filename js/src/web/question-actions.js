@@ -12,6 +12,7 @@ export const AutomationActionFields = ({
   Input,
   Choice,
   Check,
+  api,
 }) => {
   const t = useT();
   const p = { form, set, error };
@@ -53,6 +54,7 @@ export const AutomationActionFields = ({
           }),
           el(SalaryFields, {
             key: 'salary',
+            api,
             salary: form.salary,
             set: (salary) => set('salary', salary),
           }),

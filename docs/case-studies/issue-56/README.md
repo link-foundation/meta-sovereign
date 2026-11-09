@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [salary-exchange.md](salary-exchange.md) records explicit primary CBR refresh, normalized currency lots, dated cache recovery, clock-aware delivery expiry, CLI/Lino API/UI and browser evidence. Unattended refresh policy remains open.
+
 - [ci-package-startup.md](ci-package-startup.md) records a packed CLI health/output race, the preserved CI artifact and a bounded failing-before/passing-after regression. The packed installation remains a CI check.
 
 - [ci-node-macos.md](ci-node-macos.md) records repeated cold-run deadline cancellation and an individual startup assertion, two complete native Node shards and bounded startup diagnostics. The individual cause and exact-head rerun remain open.

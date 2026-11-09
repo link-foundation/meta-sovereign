@@ -2,6 +2,7 @@
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
+import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -404,6 +405,7 @@ const verifySalary = async (preview) => {
     .getByText('salary_currency: USD · Current question', { exact: true })
     .waitFor();
   await verifySalaryCalculation(preview, salary, currency, run, result);
+  await verifySalaryExchange({ page, salary, run, result });
   await page.setViewportSize({ width: 1200, height: 1100 });
   await salary.evaluate((element) =>
     element.scrollIntoView({ block: 'center' })

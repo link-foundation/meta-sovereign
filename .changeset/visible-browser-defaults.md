@@ -53,3 +53,5 @@ Advertise actual Telegram notification/account-event capabilities and check them
 Add explicitly selected progressive personal and company/payout salary calculations with owner-supplied annual bands, dated exchange snapshots, upward rounding and shared CLI/Lino API/UI controls. Keep missing or stale inputs reviewable, expose calculation evidence and stop delivery after tax/rate/method edits.
 
 Split cold macOS Node CI across two complete native shards without increasing deadlines or bypassing failures. Preserve startup assertion details before suite cancellation and add opt-in release preparation timings.
+
+Fetch bounded, dated Bank of Russia exchange rates on explicit request, normalize nominal lots and preserve a valid cache on refresh failure. Share CLI/Lino API/offline UI controls, keep edits during pending refreshes, expose stale/unavailable states and recheck rate expiry with the runner clock before sending. Introduce the empty cache through schema migration 0008 (R-AA1, R-Z17).

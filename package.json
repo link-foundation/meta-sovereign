@@ -436,6 +436,7 @@
     "node": ">=26.12.1"
   },
   "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
     "htmlparser2": "12.0.0",
     "links-notation": "^0.31.3",
     "lino-objects-codec": "^0.9.5",

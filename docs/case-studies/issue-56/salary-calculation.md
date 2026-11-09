@@ -32,4 +32,4 @@ The updated method/settings controls and independent company preview:
 
 ![Calculation controls at 390 pixels](https://github.com/link-foundation/meta-sovereign/blob/issue-56-2677debd3a31/docs/screenshots/issue-56-salary-calculation-mobile.png?raw=true)
 
-Remaining required work includes rate fetching/cache recovery, both-basis wording, contraction of learned salary literals into placeholders, advanced multilingual/conditional learning, real provider forms/buttons and the other issue-wide workstreams. This bounded step does not complete those criteria or the full CI verification gate.
+The follow-up [exchange-rate work](salary-exchange.md) implements explicit primary fetching and dated-cache recovery. Remaining required work includes unattended refresh policy, both-basis wording, contraction of learned salary literals into placeholders, advanced multilingual/conditional learning, real provider forms/buttons and the other issue-wide workstreams. This bounded step does not complete those criteria or the full CI verification gate.

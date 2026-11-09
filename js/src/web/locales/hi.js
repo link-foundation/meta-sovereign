@@ -1396,4 +1396,19 @@ export const hi = {
   'questions.salaryAddExchange': 'विनिमय दरें बनाएं',
   'questions.salaryRemoveExchange': 'विनिमय दरें हटाएं',
   'questions.salaryCalculationEvidence': 'वेतन गणना का विवरण',
+  'questions.salaryFetchRates': 'रूस के केंद्रीय बैंक से ताज़ा करें',
+  'questions.salaryUseCachedRates': 'सहेजी दरें इस्तेमाल करें',
+  'questions.salaryRatesLoading': 'विनिमय दरें लोड हो रही हैं…',
+  'questions.salaryRates.updated':
+    'रूस के केंद्रीय बैंक की दरें लोड हुईं ({date})।',
+  'questions.salaryRates.cached': 'सहेजी दरें लोड हुईं ({date})।',
+  'questions.salaryRates.stale':
+    '{date} की दरें पुरानी हैं। गणना वाले उत्तरों की समीक्षा ज़रूरी है।',
+  'questions.salaryRates.unavailable':
+    'कोई सहेजी दर उपलब्ध नहीं है। दरें भरें या दोबारा ताज़ा करें।',
+  'questions.salaryRatesFallback':
+    'ताज़ा करने से नई मान्य दरें नहीं मिलीं; उपलब्ध सहेजी दरें रखी गई हैं।',
+  'questions.salaryRatesDraft': 'दरें इस मसौदे में लागू हुई हैं।',
+  'questions.salaryRatesChanged':
+    'दरें लोड होते समय सेटिंग बदली। आपके बदलाव रखे गए हैं; उन्हें बदलने के लिए फिर कोशिश करें।',
 };

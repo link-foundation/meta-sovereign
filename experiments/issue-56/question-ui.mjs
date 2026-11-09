@@ -4,9 +4,23 @@ import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
+import { SALARY_EXCHANGE_ID } from '../../js/src/automation/salary-exchange-state.js';
 
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-question-ui-'));
 const store = createMemoryStore();
+if (process.env.QUESTION_UI_EXCHANGE === '1') {
+  await store.put({
+    id: SALARY_EXCHANGE_ID,
+    exchange: {
+      base: 'RUB',
+      rates: [{ code: 'USD', rate: 84.9048 }],
+      asOf: new Date().toISOString().slice(0, 10),
+      source: 'cbr',
+      maxAgeDays: 7,
+    },
+    fetchedAt: new Date().toISOString(),
+  });
+}
 for (const message of [
   { id: 1, sender: 'interviewer', body: 'Какой у вас опыт?' },
   { id: 2, sender: 'me', body: 'Пять лет в распределённых командах.' },
