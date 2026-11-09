@@ -96,7 +96,12 @@ const { id: _id, preset: _preset, ...rest } = preset;
 await save({ ...rest, id: QUICK, name: 'Quick hello', pacing: pacing(1500) });
 await save({ ...rest, id: SLOW, name: 'Slow hello', pacing: pacing(60_000) });
 
-const browser = await browserType.launch({ headless: true });
+const browser = await browserType.launch({
+  headless: true,
+  ...(process.env.E2E_EXECUTABLE_PATH
+    ? { executablePath: process.env.E2E_EXECUTABLE_PATH }
+    : {}),
+});
 const context = await browser.newContext({
   viewport: { width: 1200, height: 900 },
 });
@@ -168,26 +173,44 @@ try {
   const row = page.locator('li', {
     has: page.locator(`[data-automation="${QUICK}"]`),
   });
+  // Observe before clicking: the confirmed request and navigation can finish
+  // after a short-lived first selection. Node-side polling starts too late.
+  await page.evaluate(() => {
+    const opened = new Set();
+    const record = () => {
+      const active = globalThis.document.querySelector('.chat-item.active');
+      if (active) {
+        opened.add(active.getAttribute('data-chat'));
+      }
+    };
+    const observer = new globalThis.MutationObserver(record);
+    observer.observe(globalThis.document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'data-chat'],
+    });
+    globalThis.autopilotSelectionEvidence = { opened, observer };
+  });
   await row.locator('[data-action="autopilot-start"]').click();
 
   // Confirmed, it goes to the chats and opens each as it writes to it.
   await page.waitForSelector('.autopilot-bar', { timeout: 15000 });
   assert(confirms.length === 1, `asked once: ${confirms.length}`);
-  const opened = new Set();
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
-    const active = await page
-      .locator('.chat-item.active')
-      .getAttribute('data-chat')
-      .catch(() => null);
-    if (active) {
-      opened.add(active);
-    }
     if ((await autopilotState(QUICK))?.status === 'done') {
       break;
     }
     await page.waitForTimeout(150);
   }
+  const opened = new Set(
+    await page.evaluate(() => {
+      const { opened, observer } = globalThis.autopilotSelectionEvidence;
+      observer.disconnect();
+      return [...opened];
+    })
+  );
   const done = await autopilotState(QUICK);
   assert(done?.status === 'done', `done: ${JSON.stringify(done)}`);
   assert(
