@@ -117,7 +117,7 @@ test('CLI: migrate --status, --dry-run (writes nothing) and migrate', async () =
     out.join('\n'),
     /would run 0001-email-threads: scanned 4, changed 1/
   );
-  assert.match(out.at(-1), /1 links would change .*nothing was written/);
+  assert.match(out.at(-1), /2 links would change .*nothing was written/);
   assert.deepEqual(
     await fs.readdir(dir),
     ['data.lino'],
@@ -177,7 +177,7 @@ test('a backup records the schema; restoring an older one migrates it, a newer o
     JSON.stringify({ version: 1, links: [oldEmail, { id: 'b', tokens: [] }] })
   );
   const target = createMemoryStore();
-  assert.equal(await restoreBackup(target, oldFile), 2);
+  assert.equal(await restoreBackup(target, oldFile), 3); // mail, note, browser default
   assert.equal((await target.get('msg:email:m1')).chat, 'm1@x');
   assert.equal(
     await target.get(SCHEMA_ID),

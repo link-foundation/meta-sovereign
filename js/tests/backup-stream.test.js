@@ -197,9 +197,9 @@ test('an archive of the earlier format still restores', async () => {
     encryptBackup(JSON.stringify({ version: 1, links }), 'pp')
   );
   const a = createMemoryStore();
-  assert.equal(await restoreBackup(a, plain), 2);
+  assert.equal(await restoreBackup(a, plain), 3); // records + browser default
   const b = createMemoryStore();
-  assert.equal(await restoreBackup(b, enc, { passphrase: 'pp' }), 2);
+  assert.equal(await restoreBackup(b, enc, { passphrase: 'pp' }), 3);
   assert.equal((await b.get('msg:z:2')).body, 'body 2');
   assert.equal(await verifyBackup(plain), true);
   assert.equal(await verifyBackup(enc), true);

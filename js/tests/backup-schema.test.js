@@ -14,6 +14,7 @@ import { openDualStore } from '../src/storage/dual-store.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { makeBackup, restoreBackup } from '../src/storage/backup.js';
 import { scanArchive } from '../src/storage/backup-archive.js';
+import { browserPolicyId } from '../src/browser/policy.js';
 import {
   CURRENT_SCHEMA,
   SCHEMA_ID,
@@ -23,12 +24,14 @@ import {
 const tmp = (name) => fs.mkdtemp(path.join(os.tmpdir(), `ms-z16s-${name}-`));
 const old = { id: 'msg:old:1', tokens: ['msg'], deleted: true, text: 'gone' };
 
-// A store whose data and stamp are in the shapes of schema `CURRENT - 1`.
+// Tombstone normalization was introduced in schema 6. This fixture must stay
+// at schema 5 even when later, unrelated migrations are introduced.
+const OLD_SCHEMA = 5;
 const olderStore = async (dir) => {
   const store = await openDualStore(dir);
   await store.put(old);
   await store.put({ id: 'secret:telegram:session', tokens: [], value: 'S3' });
-  await store.put(schemaLink({ version: CURRENT_SCHEMA - 1 }));
+  await store.put(schemaLink({ version: OLD_SCHEMA }));
   return store;
 };
 
@@ -62,7 +65,7 @@ test('an older-schema backup restores and the store migrates on next open', asyn
   const made = await makeBackup(source, { archiveDir: path.join(dir, 'a') });
   source.close();
   const { manifest } = await scanArchive(made.file, {});
-  assert.equal(manifest.schema.version, CURRENT_SCHEMA - 1);
+  assert.equal(manifest.schema.version, OLD_SCHEMA);
 
   // Into an open store (already current): the stamp goes back, the records
   // come in as they were, the next open migrates them.
@@ -72,7 +75,7 @@ test('an older-schema backup restores and the store migrates on next open', asyn
   await target.put(schemaLink({ version: CURRENT_SCHEMA }));
   await restoreBackup(target, made.file);
   assert.equal((await target.get('msg:old:1')).deleted, true);
-  assert.equal((await target.get(SCHEMA_ID)).version, CURRENT_SCHEMA - 1);
+  assert.equal((await target.get(SCHEMA_ID)).version, OLD_SCHEMA);
   target.close();
   const reopened = await openDualStore(live);
   assert.equal((await reopened.get('msg:old:1')).deleted.by, 'unknown');
@@ -99,7 +102,8 @@ test('an old-format backup still restores, and a plain one has no secrets', asyn
   const file = path.join(dir, 'meta-sovereign-1.json');
   await fs.writeFile(file, JSON.stringify({ version: 1, links: [old] }));
   const target = createMemoryStore();
-  assert.equal(await restoreBackup(target, file), 1);
+  assert.equal(await restoreBackup(target, file), 2); // record + browser default
+  assert.equal((await target.get(browserPolicyId('default'))).headless, false);
   assert.equal((await target.get('msg:old:1')).deleted.by, 'unknown');
 
   const source = await olderStore(path.join(dir, 'src'));
