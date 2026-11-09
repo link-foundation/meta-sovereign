@@ -1,28 +1,13 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import {
+  SalaryField as Field,
+  SalaryCheck as Check,
+  SalarySelect,
+} from './question-salary-inputs.js';
+import { SalaryCalculationFields } from './question-salary-calculation-fields.js';
 
 const el = React.createElement;
-const Field = ({ label, value, change, ...props }) =>
-  el('label', { className: 'field' }, [
-    el('span', { key: 'l', className: 'field-label' }, label),
-    el('input', {
-      key: 'i',
-      'aria-label': label,
-      value: value ?? '',
-      onChange: (event) => change(event.target.value),
-      ...props,
-    }),
-  ]);
-const Check = ({ label, value, change }) =>
-  el('label', { className: 'check' }, [
-    el('input', {
-      key: 'i',
-      type: 'checkbox',
-      checked: value === true,
-      onChange: (event) => change(event.target.checked),
-    }),
-    ` ${label}`,
-  ]);
 const blankCurrency = () => ({ code: '', keywords: [], hourlyStep: 5 });
 const initial = () => ({
   enabled: false,
@@ -57,7 +42,17 @@ const CurrencyFields = ({ entry, set, remove }) => {
           keywordsText: value,
         }),
     }),
-    ...['net', 'gross', 'hourlyStep'].map((field) =>
+    el(SalarySelect, {
+      key: 'method',
+      label: t('questions.salaryMethod'),
+      value: entry.grossMethod ?? 'explicit',
+      change: (grossMethod) => set({ ...entry, grossMethod }),
+      options: ['explicit', 'personal', 'company'].map((method) => [
+        method,
+        t(`questions.salaryMethod.${method}`),
+      ]),
+    }),
+    ...['net', 'gross', 'grossStep', 'hourlyStep'].map((field) =>
       el(Field, {
         key: field,
         label: t(`questions.salary.${field}`),
@@ -65,6 +60,14 @@ const CurrencyFields = ({ entry, set, remove }) => {
         min: '0.000001',
         step: 'any',
         value: entry[field],
+        disabled:
+          field === 'gross' &&
+          entry.grossMethod &&
+          entry.grossMethod !== 'explicit',
+        placeholder:
+          field === 'grossStep'
+            ? String(entry.code === 'RUB' ? 10000 : 100)
+            : undefined,
         change: (value) =>
           set({ ...entry, [field]: value === '' ? undefined : Number(value) }),
       })
@@ -194,6 +197,11 @@ export const SalaryFields = ({ salary, set }) => {
             },
             t('questions.salaryAdd')
           ),
+          el(SalaryCalculationFields, {
+            key: 'calculation',
+            salary: value,
+            patch,
+          }),
           el(
             'button',
             { key: 'clear', type: 'button', onClick: () => set(undefined) },

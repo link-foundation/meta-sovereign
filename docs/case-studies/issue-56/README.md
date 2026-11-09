@@ -6,13 +6,15 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [salary-calculation.md](salary-calculation.md) records configurable progressive/company/payout calculations, dated rate snapshots, rounding-boundary and CLI/API/UI/delivery regressions, with production browser and MCP screenshots. Rate fetching/cache recovery and broader reference parity remain open.
+
 - [ci-profile-selection.md](ci-profile-selection.md) preserves the correction run's separate WebKit profile-selection failure and opt-in diagnostics. The focused local scenario passes; no unproven birthday fix or timeout increase is claimed.
 
 - [telegram-capabilities.md](telegram-capabilities.md) records unavailable notification/event requests from cached chat, explicit backend capabilities and recovery, with failing-before/passing-after API and browser evidence.
 
 - [ci-native-rejection.md](ci-native-rejection.md) records the exact-head Rust TCP reset, a deterministic bounded failing-before regression and staged-close correction. The correction run passes Rust and all nine runtime jobs, including the previously timed-out Node/macOS job.
 
-- [question-salary.md](question-salary.md) records independent configured targets, hourly rounding, related clarifications, unique range selection and CLI/API/UI/delivery regressions, with desktop/mobile screenshots. Remaining tax/FX and provider/form parity stay open.
+- [question-salary.md](question-salary.md) records independent configured targets, hourly rounding, related clarifications, unique range selection and CLI/API/UI/delivery regressions, with desktop/mobile screenshots. The calculation follow-up adds tax/FX math; rate fetching and full provider/form parity stay open.
 
 - 2026-11-09 09:28 UTC: issue created. Initial issue and PR snapshots, including all three PR feedback endpoints, are in `evidence/github/`. They returned no comments, reviews or required sub-issues at collection; finalization must refresh them.
 - Initial research pinned ten repositories, including all six feature references, browser-commander, link-cli, lino-rest-api and formal-ai. The complete downloaded metadata, commit/tree responses and READMEs are preserved in `data/reference-snapshots.tar.gz`, with per-file SHA-256 values in its adjacent manifest. Reference code is inspected outside the working tree and never executed.

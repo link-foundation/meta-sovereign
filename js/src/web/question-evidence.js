@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { SalaryCalculationEvidence } from './question-salary-evidence.js';
 
 const el = React.createElement;
 
@@ -56,6 +57,10 @@ export const AnswerEvidence = ({ answer }) => {
           ]
         )
       : null,
+    el(SalaryCalculationEvidence, {
+      key: 'calculation',
+      calculation: answer.salary?.calculation,
+    }),
     answer.rules?.length
       ? el('details', { key: 'evidence' }, [
           el('summary', { key: 'summary' }, t('questions.evidence')),

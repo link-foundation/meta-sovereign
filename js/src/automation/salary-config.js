@@ -1,5 +1,7 @@
-// Values are independent, owner-supplied monthly targets. Currency conversion
-// and tax calculations are never inferred from a different target.
+// Values are independent, owner-supplied monthly targets. Calculations require
+// an explicitly selected method and configured tax/rate snapshots.
+import { normalizeSalaryCalculation } from './salary-calculation-config.js';
+import { resolveSalaryAmount } from './salary-calculation.js';
 const fail = (message) => {
   throw new Error(`salary ${message}`);
 };
@@ -13,6 +15,19 @@ const positive = (value, field, max = 1e12) => {
     fail(`${field} must be a positive finite number up to ${max}`);
   }
   return value;
+};
+const grossSettings = (entry) => {
+  const result = {};
+  if (entry.grossMethod !== undefined) {
+    if (!['explicit', 'personal', 'company'].includes(entry.grossMethod)) {
+      fail('unknown gross calculation method');
+    }
+    result.grossMethod = entry.grossMethod;
+  }
+  if (entry.grossStep !== undefined) {
+    result.grossStep = positive(entry.grossStep, 'grossStep');
+  }
+  return result;
 };
 const currency = (entry) => {
   if (!/^[A-Z][A-Z0-9]{2,9}$/u.test(entry?.code ?? '')) {
@@ -41,7 +56,7 @@ const currency = (entry) => {
     entry.hourlyStep ?? (entry.code === 'RUB' ? 500 : 5),
     'hourlyStep'
   );
-  return result;
+  return { ...result, ...grossSettings(entry) };
 };
 export const normalizeSalary = (input) => {
   if (input === undefined || input === null) {
@@ -81,28 +96,11 @@ export const normalizeSalary = (input) => {
         ? null
         : positive(input.monthlyHours ?? 160, 'monthlyHours', 744),
     currencies,
+    ...normalizeSalaryCalculation(input),
   };
 };
-export const salaryAmount = (config, entry, basis, period) => {
-  if (
-    !['net', 'gross'].includes(basis) ||
-    !['month', 'hour'].includes(period)
-  ) {
-    return undefined;
-  }
-  const monthly = entry?.[basis];
-  if (!monthly || (period === 'hour' && !config.monthlyHours)) {
-    return undefined;
-  }
-  const amount =
-    period === 'hour'
-      ? Math.ceil(monthly / config.monthlyHours / entry.hourlyStep) *
-        entry.hourlyStep
-      : monthly;
-  return Number.isFinite(amount) && amount > 0 && amount <= 1e12
-    ? amount
-    : undefined;
-};
+export const salaryAmount = (config, entry, basis, period) =>
+  resolveSalaryAmount(config, entry, basis, period).amount;
 export const formatSalary = (amount, code) => {
   const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
     .format(amount)

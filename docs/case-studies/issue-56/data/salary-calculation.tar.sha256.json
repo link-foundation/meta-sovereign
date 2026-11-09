@@ -1,0 +1,17 @@
+{
+  "archive": "salary-calculation.tar.gz",
+  "files": {
+    "3eeb-checks-progress.json": "c7b6b18718a11ea7f5be81576457b1be6646aa507c2a8fd78ac55c541fb982c5",
+    "3eeb-runs-progress.json": "f86a2637fcef541d342d2c8043b7ee5f631de7a7c3f5b675b5a94f7f40a936f1",
+    "before.log": "8f9272321c99817df69c6961f662c111356e612d8650b26a617b9c17ab647a98",
+    "browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "build.log": "221b8ede16327bc85c47dba29ed86944367564b1c642ec22204ee480fa03a415",
+    "doc-format.log": "4d86cc18d6e62543e9ac9a53ae84eba15a90325c5dece004c1ddf7866507df3e",
+    "focused.log": "85dfd4068c2b7552c47ba014c1ac1faa7cc256f283ea78fea86d300089015f15",
+    "format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "format.log": "64a8b701b5a2903136a62bc7b0010fb01d557104024b058fd25f113e9950bae0",
+    "lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "mcp-console.log": "28bc7a9f123f09739d1654b4b8a855a184b01a6c9f139b3b3f37633e23420da1",
+    "mcp.json": "ce224b8b13347c7bd82a2b6f0beaa98127bd6586587ba3fe1eb3af9d937159df"
+  }
+}

@@ -1,8 +1,5 @@
-import {
-  normalizeSalary,
-  salaryAmount,
-  formatSalary,
-} from './salary-config.js';
+import { normalizeSalary, formatSalary } from './salary-config.js';
+import { resolveSalaryAmount } from './salary-calculation.js';
 import { salaryQuestion } from './salary-question.js';
 import { salaryOption } from './salary-options.js';
 import { rejectedAnswer } from './question-policy.js';
@@ -42,12 +39,28 @@ const salaryContexts = (previous, selection) => [
   ),
   selection.context,
 ];
+const salaryDetails = (selection, resolved) => ({
+  currency: selection.currency,
+  basis: selection.basis,
+  period: selection.period,
+  ...(resolved.amount ? { amount: resolved.amount } : {}),
+  ...(resolved.calculation ? { calculation: resolved.calculation } : {}),
+});
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(
     (item) => item.code === selection.currency
   );
-  const amount = salaryAmount(config, entry, selection.basis, selection.period);
-  const missing = amount ? [] : [missingField(selection, config, entry)];
+  const resolved = resolveSalaryAmount(
+    config,
+    entry,
+    selection.basis,
+    selection.period,
+    { now: input.now }
+  );
+  const { amount } = resolved;
+  const missing = amount
+    ? []
+    : [resolved.missing ?? missingField(selection, config, entry)];
   let text = amount
     ? wording(formatSalary(amount, entry.code), selection)
     : `{{${missing[0]}}}`;
@@ -67,12 +80,7 @@ const salaryResult = (question, input, previous, config, selection) => {
     missing,
     rules: [],
     contexts: salaryContexts(previous, selection),
-    salary: {
-      currency: selection.currency,
-      basis: selection.basis,
-      period: selection.period,
-      ...(amount ? { amount } : {}),
-    },
+    salary: salaryDetails(selection, resolved),
     ...(optionMismatch ? { optionMismatch: true } : {}),
   };
 };

@@ -256,6 +256,102 @@ const verifyMobile = async () => {
   }
 };
 
+const verifySalaryCalculation = async (
+  preview,
+  salary,
+  currency,
+  run,
+  result
+) => {
+  // Configure a calculation through the same visible controls used by saved actions.
+  // These are fixture rates supplied by the owner, not jurisdiction defaults.
+  await currency
+    .getByLabel('Gross amount method', { exact: true })
+    .selectOption('personal');
+  assert(
+    await currency
+      .getByLabel('Monthly gross amount', { exact: true })
+      .isDisabled(),
+    'selected calculation ignores the old explicit gross amount'
+  );
+  const tax = salary.locator('[data-salary-tax="personal"]');
+  await tax.locator(':scope > summary').click();
+  await tax
+    .getByRole('button', { name: 'Configure tax schedule', exact: true })
+    .click();
+  await tax.getByLabel('Personal tax currency', { exact: true }).fill('RUB');
+  const addBand = () =>
+    tax
+      .getByRole('button', { name: 'Add limited tax band', exact: true })
+      .click();
+  await addBand();
+  await addBand();
+  const bands = tax.locator('[data-salary-tax-band]');
+  for (const [index, limit, rate] of [
+    [0, '2400000', '13'],
+    [1, '5000000', '15'],
+    [2, null, '18'],
+  ]) {
+    if (limit) {
+      await bands
+        .nth(index)
+        .getByLabel('Annual gross upper limit', { exact: true })
+        .fill(limit);
+    }
+    await bands
+      .nth(index)
+      .getByLabel('Tax rate (%)', { exact: true })
+      .fill(rate);
+  }
+  await preview
+    .getByLabel('Question or pattern', { exact: true })
+    .fill('What salary in USD before taxes do you expect?');
+  await run();
+  await result
+    .getByText('Missing profile values: salary_exchange_USD_RUB', {
+      exact: true,
+    })
+    .waitFor();
+  await result
+    .getByText('Review required before automatic sending.', { exact: true })
+    .waitFor();
+  const exchange = salary.locator('[data-salary-exchange]');
+  await exchange.locator(':scope > summary').click();
+  await exchange
+    .getByRole('button', { name: 'Configure exchange rates', exact: true })
+    .click();
+  await exchange
+    .getByLabel('Exchange base currency', { exact: true })
+    .fill('RUB');
+  await exchange
+    .getByRole('button', { name: 'Add exchange rate', exact: true })
+    .click();
+  const rate = exchange.locator('[data-salary-exchange-rate]');
+  await rate.getByLabel('Currency code, e.g. USD', { exact: true }).fill('USD');
+  await rate
+    .getByLabel('Base units per one currency unit', { exact: true })
+    .fill('84.9048');
+  await run();
+  await result
+    .getByText('From $7 100 gross per month.', { exact: true })
+    .waitFor();
+  await result.getByText('Approved and complete.', { exact: true }).waitFor();
+  const calculation = result.locator('[data-salary-calculation-evidence]');
+  await calculation.locator(':scope > summary').click();
+  await calculation
+    .getByText('Progressive personal tax · 13% / 15% / 18%', { exact: true })
+    .waitFor();
+  await calculation
+    .getByText(
+      `Dated exchange rates: Owner-supplied rates · ${new Date().toISOString().slice(0, 10)} · RUB`,
+      { exact: true }
+    )
+    .waitFor();
+  // Keep the relevant settings and their result together for review.
+  await tax.locator(':scope > summary').click();
+  await exchange.locator(':scope > summary').click();
+};
+
 const verifySalary = async (preview) => {
   const salary = preview.locator('[data-answer-salary]');
   await salary.locator(':scope > summary').click();
@@ -307,6 +403,7 @@ const verifySalary = async (preview) => {
   await result
     .getByText('salary_currency: USD · Current question', { exact: true })
     .waitFor();
+  await verifySalaryCalculation(preview, salary, currency, run, result);
   await page.setViewportSize({ width: 1200, height: 1100 });
   await salary.evaluate((element) =>
     element.scrollIntoView({ block: 'center' })
@@ -458,8 +555,11 @@ await finish(async () => {
   );
   assert(
     persisted.action.salary.approved &&
-      persisted.action.salary.currencies[0].net === 6000,
-    'salary values and explicit approval persisted through the production API'
+      persisted.action.salary.currencies[0].net === 6000 &&
+      persisted.action.salary.currencies[0].grossMethod === 'personal' &&
+      persisted.action.salary.taxes.personal.bands.length === 3 &&
+      persisted.action.salary.exchange.rates[0].rate === 84.9048,
+    'salary targets, calculation, rate snapshot and explicit approval persisted through the production API'
   );
 
   await page.route('**/api/automations/answers/save', (route) =>
