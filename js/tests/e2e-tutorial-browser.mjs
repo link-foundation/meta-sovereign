@@ -366,6 +366,19 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
       g.target.height > room
         ? { ...seen, height: Math.min(seen.height, 40) }
         : seen;
+    if (overlaps(card, probe)) {
+      await screenshot(page, `${label}-${g.step}-overlap`);
+      if (process.env.CI_TUTORIAL_DEBUG === '1') {
+        console.log(
+          '[tutorial-overlap]',
+          await page.locator('.tutorial-step').evaluate((node) => ({
+            size: [node.offsetWidth, node.offsetHeight],
+            style: node.getAttribute('style'),
+            compact: node.dataset.compact,
+          }))
+        );
+      }
+    }
     check(
       !overlaps(card, probe),
       `${where}: card ${JSON.stringify(card)} covers target ${JSON.stringify(g.target)}`

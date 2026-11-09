@@ -33,7 +33,10 @@ const handledWebKitLoad = (error, engine, base) => {
 };
 
 /** Apply one policy to initial pages, reopened pages and popups. */
-export const watchChatPages = (context, { errors, engine, base, trace }) => {
+export const watchChatPages = (
+  context,
+  { errors, engine, base, trace, acceptDialog = () => false }
+) => {
   const watch = (page) => {
     page.on('pageerror', (error) => {
       const message = String(error);
@@ -44,6 +47,10 @@ export const watchChatPages = (context, { errors, engine, base, trace }) => {
       }
     });
     page.on('dialog', (dialog) => {
+      if (acceptDialog(dialog)) {
+        void dialog.accept().catch((error) => errors.push(String(error)));
+        return;
+      }
       errors.push(`browser dialog: ${dialog.message()}`);
       void dialog.dismiss().catch((error) => errors.push(String(error)));
     });

@@ -24,6 +24,7 @@ import { useProviderLiveState } from './provider-live-state.js';
 import { FeedbackView } from './feedback-view.js';
 import { BackupView } from './backup-view.js';
 import { BroadcastResult } from './broadcast-result.js';
+import { PublicationPanel } from './publication-panel.js';
 export { BackupView } from './backup-view.js';
 import { navigateApp, backInApp } from './app-route.js';
 import { navItems } from './nav-items.js';
@@ -722,6 +723,8 @@ export const BroadcastView = () => {
     }
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('broadcast.title')),
+      el(PublicationPanel, { key: 'publications', api: api.publications }),
+      el('h3', { key: 'legacy-title' }, t('publication.networkBroadcast')),
       el('textarea', {
         key: 'msg',
         rows: 4,

@@ -1143,19 +1143,27 @@ const overlayProps = ({ step, element, spotlight, waiting }) => ({
 // The card's measured size, kept up to date while it is on screen.
 const useCardSize = (cardRef, stepId) => {
   const [cardSize, setCardSize] = useState(null);
+  const measure = () => {
+    const card = cardRef.current;
+    if (!card) {
+      return;
+    }
+    setCardSize((prev) => {
+      const next = { width: card.offsetWidth, height: card.offsetHeight };
+      return prev && prev.width === next.width && prev.height === next.height
+        ? prev
+        : next;
+    });
+  };
+  // Collapsing the body changes the card during a React commit. Measure
+  // that commit before paint rather than waiting for ResizeObserver,
+  // which WebKit can deliver after the old dock has covered the target.
+  useIsomorphicLayoutEffect(measure);
   useIsomorphicLayoutEffect(() => {
     const card = cardRef.current;
     if (!card) {
       return undefined;
     }
-    const measure = () =>
-      setCardSize((prev) => {
-        const next = { width: card.offsetWidth, height: card.offsetHeight };
-        return prev && prev.width === next.width && prev.height === next.height
-          ? prev
-          : next;
-      });
-    measure();
     const Observer = globalThis.ResizeObserver;
     const observer = Observer ? new Observer(measure) : null;
     observer?.observe(card);

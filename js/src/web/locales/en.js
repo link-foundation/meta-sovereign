@@ -1,3 +1,4 @@
+import { enPublication } from './en-publication.js';
 import { enBrowser } from './en-browser.js';
 // English locale (issue #18). Source language — every other locale
 // dictionary mirrors this set of keys exactly. The parity test in
@@ -20,6 +21,7 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enPublication,
   'backup.schedule': 'Automatic recovery',
   'backup.scheduleHint':
     'Save these settings for scheduled and one-off backups. The first automatic backup runs after the chosen interval.',

@@ -1,3 +1,4 @@
+import { zhPublication } from './zh-publication.js';
 import { zhBrowser } from './zh-browser.js';
 // Simplified Chinese locale (issue #18). Keys must mirror ./en.js
 // exactly; the parity test in js/tests/i18n.test.js fails the build
@@ -20,6 +21,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhPublication,
   'backup.schedule': '自动恢复备份',
   'backup.scheduleHint':
     '保存后用于定时和手动备份。首次自动备份将在所选间隔后运行。',

@@ -6,6 +6,10 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [saved-publications.md](saved-publications.md) records saved Telegram/VK/X routing and credential modes, masked setup, exact confirmed plans, durable receipts/deletion and reload uncertainty through CLI/Lino API/UI, with focused tests and production browser/MCP images.
+
+- [ci-10d06262.md](ci-10d06262.md) preserves all five exact-head workflows and the WebKit short-viewport tutorial overlap, with a deterministic delayed-resize regression, before/after screenshots and synchronous card measurement correction.
+
 - [provider-publications.md](provider-publications.md) records VK wall ownership/lifecycle, Telegram HTML/plain bot and user-session formatting, checked receipts and uncertain transport failures, with 73 focused checks, real Chrome and an upstream CLI dispatch report.
 
 - [ci-2284c2f5.md](ci-2284c2f5.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for actual broadcast outcomes and interrupted-write recovery.

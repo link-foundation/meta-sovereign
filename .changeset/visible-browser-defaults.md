@@ -81,3 +81,7 @@ Persist actual aggregate and per-provider broadcast outcomes, use the real confi
 Support explicit X OAuth 1.0a, OAuth 2.0 user and read-only application credentials in the universal adapter. Sign final queries with Web Crypto, expose redacted configuration/identity checks, retain public-post IDs, require positive deletion receipts and report missing write receipts as uncertain. Keep optional request diagnostics free of credentials, destination IDs and draft text.
 
 Add distinct VK wall and Telegram publication/deletion adapters with explicit destinations and checked provider receipts. Keep actual credential permission errors, expose read-only identity probes and retain uncertain Bot API write outcomes. Share explicit Telegram HTML/plain formatting through bot and connected-user sends while preserving the composer's default markdown behavior.
+
+Save selected/all Telegram, VK and X publication destinations, separate credential modes and masked setup through CLI, default Lino API and Broadcast UI. Confirm exact plans, retain per-destination receipts and deletion history, stop uncertain/rate-limited batches and preserve pending requests across reload without automatic replay. Add default-off bounded metadata diagnostics.
+
+Remeasure tutorial cards before paint when their bodies collapse, preserving target clearance even when ResizeObserver delivery is delayed. Retain geometry diagnostics and failure screenshots with a deterministic short-viewport regression.

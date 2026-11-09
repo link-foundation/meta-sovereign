@@ -1,3 +1,4 @@
+import { ruPublication } from './ru-publication.js';
 import { ruBrowser } from './ru-browser.js';
 // Russian locale (issue #18). Keys must mirror ./en.js exactly; the
 // parity test in js/tests/i18n.test.js fails the build if they
@@ -19,6 +20,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruPublication,
   'backup.schedule': 'Автоматическое восстановление',
   'backup.scheduleHint':
     'Сохраните настройки для плановых и разовых копий. Первая автоматическая копия создаётся через выбранный интервал.',

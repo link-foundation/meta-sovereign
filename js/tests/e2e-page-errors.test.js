@@ -117,6 +117,24 @@ test('handled WebKit diagnostics have opt-in tracing', () => {
   assert.deepEqual(trace, ['handled WebKit same-origin network diagnostic']);
 });
 
+test('only explicitly expected confirmations are accepted', async () => {
+  const { first, errors } = fixture({
+    acceptDialog: (dialog) => dialog.message() === 'Delete recorded post?',
+  });
+  const accepted = [];
+  const dismissed = [];
+  for (const message of ['Delete recorded post?', 'Unexpected prompt']) {
+    first.emit('dialog', {
+      message: () => message,
+      accept: async () => accepted.push(message),
+      dismiss: async () => dismissed.push(message),
+    });
+  }
+  assert.deepEqual(accepted, ['Delete recorded post?']);
+  assert.deepEqual(dismissed, ['Unexpected prompt']);
+  assert.deepEqual(errors, ['browser dialog: Unexpected prompt']);
+});
+
 test('native WebKit display-form URLs retain the exact origin boundary', () => {
   const { newPage, errors } = fixture();
   const page = newPage();

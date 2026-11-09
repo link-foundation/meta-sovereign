@@ -60,6 +60,7 @@ export const openChatApp = async (
     secure = false,
     launchOptions = {},
     fileBackups = false,
+    acceptDialog,
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -101,6 +102,7 @@ export const openChatApp = async (
     errors,
     engine,
     base,
+    acceptDialog,
     trace:
       process.env.CI_BROWSER_DEBUG === '1'
         ? (event) => console.log(`[e2e-${name}] ${event}`)
