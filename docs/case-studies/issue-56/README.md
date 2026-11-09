@@ -63,3 +63,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Stored-archive learning](question-archive.md): full archive coverage, stable observed counts, bounded metadata/proposals and reviewable CLI/API/UI learning, with before/after/mobile evidence.
 
 - [Exact-head CI for 862af4ba](ci-862af4ba.md): all five workflows pass, including Windows storage, WebKit history and all four security languages.
+
+- [Signaling capabilities](sync-capabilities.md): actual listener status survives discovery, unavailable RTC is skipped and reset closes its owned peer/socket, with failing-before and browser evidence.

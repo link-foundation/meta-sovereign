@@ -89,6 +89,7 @@ const wrapBrowserWebSocket = (ws, wire, onError) => {
 export const attachWebRtcSync = ({
   store,
   origin,
+  capabilities,
   room = 'default',
   RTCPeerConnection = globalThis.RTCPeerConnection,
   WebSocketImpl = globalThis.WebSocket,
@@ -99,7 +100,11 @@ export const attachWebRtcSync = ({
   onError = (error) =>
     globalThis.console?.warn?.('WebRTC negotiation failed', error),
 } = {}) => {
-  if (!RTCPeerConnection || !WebSocketImpl) {
+  if (
+    capabilities?.webRtcSync === false ||
+    !RTCPeerConnection ||
+    !WebSocketImpl
+  ) {
     return null;
   }
   const wsUrl = (() => {

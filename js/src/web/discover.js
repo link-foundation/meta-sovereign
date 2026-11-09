@@ -22,7 +22,7 @@ import { createLinoFetch } from '../transport/fetch.js';
  *      reaches a server whose certificate it trusts (R-Y64).
  *   5. A list of LAN candidates if the page knows them (passed in).
  *
- * Returns `{ origin: string }` for the first reachable server, or
+ * Returns `{ origin: string, capabilities? }` for the first reachable server, or
  * `null` when none answered. Callers use `null` to mean "go fully
  * offline, only the local browser store is available".
  *
@@ -90,14 +90,20 @@ const probe = async (origin, fetchImpl, signal, timeout) => {
       json?.service === 'meta-sovereign' &&
       json?.code === 'locked'
     ) {
-      return true;
+      return {};
     }
     if (!res.ok) {
       return false;
     }
     // Do not attach to an unrelated JSON service on a common local port.
     // HTTPS authenticates the server; this identifies its wire protocol.
-    return identifiesServer(json);
+    return identifiesServer(json)
+      ? {
+          ...(json.capabilities && typeof json.capabilities === 'object'
+            ? { capabilities: json.capabilities }
+            : {}),
+        }
+      : false;
   } catch {
     return false;
   } finally {
@@ -163,8 +169,9 @@ export const discoverServer = async ({
       (scheme) => candidate === `${scheme}//127.0.0.1:${DEFAULT_PORTS[0]}`
     );
     const timeout = probeTimeoutMs ?? (primary ? 15_000 : 1500);
-    if (await probe(candidate, fetchImpl, signal, timeout)) {
-      return { origin: candidate };
+    const identified = await probe(candidate, fetchImpl, signal, timeout);
+    if (identified) {
+      return { origin: candidate, ...identified };
     }
   }
   return null;

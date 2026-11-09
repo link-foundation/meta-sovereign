@@ -145,10 +145,16 @@ const cachedStatus = (store) => {
 
 const HANDLERS = {
   '/api/contacts': contactsFromStore,
-  '/api/status': async (store, url) =>
-    url.searchParams.get('probe') === '1'
-      ? { service: 'meta-sovereign', discovery: true }
-      : { service: 'meta-sovereign', ...(await cachedStatus(store)) },
+  '/api/status': async (store, url, ctx = {}) => ({
+    service: 'meta-sovereign',
+    ...(url.searchParams.get('probe') === '1'
+      ? { discovery: true }
+      : await cachedStatus(store)),
+    capabilities: {
+      webSocketSync: Boolean(ctx.sync),
+      webRtcSync: Boolean(ctx.signaling),
+    },
+  }),
   '/api/autocomplete': async (store, url) =>
     streamedCompletions(store, {
       prefix: url.searchParams.get('q') ?? '',

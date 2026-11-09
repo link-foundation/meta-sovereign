@@ -22,6 +22,17 @@ for (const [id, sender, body] of [
   });
 }
 const { page, base, until, finish } = await openChatApp('questions', { store });
+const rtcConnections = [];
+page.on('websocket', (socket) => {
+  if (new URL(socket.url()).pathname === '/rtc') {
+    rtcConnections.push(socket.url());
+  }
+});
+const verifySyncCapability = () =>
+  assert(
+    rtcConnections.length === 0,
+    'the disabled signaling broker receives no connection during browser boot'
+  );
 const panel = page.locator('[data-question-controls]');
 const editor = panel.locator('[data-answer-rule]');
 const rules = () => store.query((link) => link.id?.startsWith('qa-rule:'));
@@ -610,4 +621,5 @@ await finish(async () => {
     'refused save retains the edit'
   );
   await verifyMobile();
+  verifySyncCapability();
 });

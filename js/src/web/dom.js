@@ -149,7 +149,8 @@ const boot = async () => {
   });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
-  // server relaying every byte (R-J7). Best-effort: a missing
+  // server relaying every byte (R-J7). Honor an explicitly disabled broker.
+  // Best-effort: a missing
   // RTCPeerConnection (older browsers) just skips this path. Only account
   // 1's: the peers are account 1's pages (R-Y202).
   const rtc =
@@ -157,6 +158,7 @@ const boot = async () => {
       ? attachWebRtcSync({
           store,
           origin: discovered.origin,
+          capabilities: discovered.capabilities,
           onError: (error) => {
             rawApi
               .clientLog({
@@ -205,8 +207,9 @@ const ensure = () => {
  */
 export const resetServerBinding = () => {
   bootPromise
-    ?.then(({ follow, client, requests }) => {
+    ?.then(({ follow, client, requests, rtc }) => {
       follow?.stop?.();
+      rtc?.close?.();
       client.close?.();
       requests.stop();
     })
