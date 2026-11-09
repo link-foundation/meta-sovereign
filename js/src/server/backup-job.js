@@ -13,6 +13,13 @@
  * disk skips the run (R-Z14) and the log says so.
  */
 import { createBackupScheduler } from '../storage/backup.js';
+import { recoveryFormats } from '../storage/recovery-dump.js';
+import {
+  readRecoverySettings,
+  saveRecoverySettings,
+  validateRecoverySettings,
+  MAX_RECOVERY_HOURS,
+} from '../storage/recovery-settings.js';
 
 const HOUR_MS = 3_600_000;
 export const DEFAULT_INTERVAL_HOURS = 24;
@@ -37,23 +44,44 @@ const number = (value, fallback, name, bad) => {
  */
 export const backupSettings = (options = {}, env = process.env) => {
   const invalid = [];
-  const hours = number(
+  let hours = number(
     options.intervalHours ?? env.MS_BACKUP_INTERVAL_HOURS,
     DEFAULT_INTERVAL_HOURS,
     'MS_BACKUP_INTERVAL_HOURS',
     invalid
   );
-  const keep = number(
+  let keep = number(
     options.keep ?? env.MS_BACKUP_KEEP,
     DEFAULT_KEEP,
     'MS_BACKUP_KEEP',
     invalid
   );
+  if (hours > MAX_RECOVERY_HOURS) {
+    invalid.push('MS_BACKUP_INTERVAL_HOURS');
+    hours = DEFAULT_INTERVAL_HOURS;
+  }
+  if (keep > 10_000) {
+    invalid.push('MS_BACKUP_KEEP');
+    keep = DEFAULT_KEEP;
+  }
   return {
-    intervalMs: Math.round(hours * HOUR_MS),
+    intervalMs: hours === 0 ? 0 : Math.max(1, Math.round(hours * HOUR_MS)),
     keep: Math.floor(keep),
     invalid,
   };
+};
+
+const formatsFor = (value, log) => {
+  try {
+    return recoveryFormats(value);
+  } catch {
+    log?.({
+      level: 'warn',
+      event: 'backup_setting_ignored',
+      names: ['MS_RECOVERY_FORMATS'],
+    });
+    return recoveryFormats();
+  }
 };
 
 /** The context part: `{ stopBackups }`; the timer starts with `later`. */
@@ -65,28 +93,88 @@ export const backupJobFor = ({ ctx, store, log, later, backups }) => {
     log?.({ level: 'warn', event: 'backup_setting_ignored', names: invalid });
   }
   let scheduler = null;
-  if (archiveDir && intervalMs > 0) {
-    later.push(() => {
+  let activated = false;
+  let stopped = false;
+  const defaults = {
+    intervalHours: intervalMs / HOUR_MS,
+    keep,
+    formats: formatsFor(
+      backups?.formats ?? process.env.MS_RECOVERY_FORMATS,
+      log
+    ),
+  };
+  let settings = defaults;
+  const reportError = (error) =>
+    log?.({
+      level: 'warn',
+      event: 'backup_failed',
+      code: error.code ?? null,
+      error: String(error.message).slice(0, 200),
+    });
+  // Startup options are explicit overrides; otherwise the persisted preference
+  // wins over environment/default values. Loading never starts a pre-listen job.
+  let changing = readRecoverySettings(store, defaults)
+    .then((saved) => {
+      settings = validateRecoverySettings({
+        ...saved,
+        ...(backups?.intervalHours !== undefined
+          ? { intervalHours: defaults.intervalHours }
+          : {}),
+        ...(backups?.keep !== undefined ? { keep: defaults.keep } : {}),
+        ...(backups?.formats !== undefined
+          ? { formats: defaults.formats }
+          : {}),
+      });
+    })
+    .catch(reportError);
+  const start = () => {
+    if (activated && !stopped && archiveDir && settings.intervalHours > 0) {
       scheduler = createBackupScheduler({
         store,
         archiveDir,
-        intervalMs,
-        keep,
+        intervalMs: Math.max(1, Math.round(settings.intervalHours * HOUR_MS)),
+        keep: settings.keep,
+        recoveryFormats: settings.formats,
         passphrase,
         measureFree,
         onEvent: (event) => log?.(event),
         onBackup: () => log?.({ level: 'info', event: 'backup_done' }),
         // Never the text of a secret: only the message the backup raised.
-        onError: (error) =>
-          log?.({
-            level: 'warn',
-            event: 'backup_failed',
-            code: error.code ?? null,
-            error: String(error.message).slice(0, 200),
-          }),
+        onError: reportError,
       });
+    }
+  };
+  later.push(() => {
+    activated = true;
+    changing = changing.then(start);
+  });
+  const get = async () => {
+    await changing;
+    return { available: Boolean(archiveDir), ...settings };
+  };
+  const save = (value) => {
+    const next = validateRecoverySettings(value);
+    const operation = changing.then(async () => {
+      if (stopped) {
+        throw new Error('server is stopping');
+      }
+      // Persist first; a failed write leaves the old schedule running.
+      await saveRecoverySettings(store, next);
+      await scheduler?.stop();
+      scheduler = null;
+      settings = next;
+      start();
+      return { available: Boolean(archiveDir), ...settings };
     });
-  }
+    changing = operation.catch(() => {});
+    return operation;
+  };
   // Resolves once a backup in flight has finished (and pruned).
-  return { stopBackups: () => scheduler?.stop() };
+  return {
+    recovery: { get, save },
+    stopBackups: () => {
+      stopped = true;
+      return changing.then(() => scheduler?.stop());
+    },
+  };
 };

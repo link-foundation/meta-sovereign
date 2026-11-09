@@ -12,7 +12,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { decodeLine, encodeLine } from '../lino-objects.js';
 import {
-  encodeWire,
+  encodeLinoValue,
   decodeWire,
   LINO_LINE,
   LINO_BINARY,
@@ -35,6 +35,9 @@ const invalid = (message = 'the recovery dump is damaged or incomplete') =>
   archiveError('BACKUP_INVALID', message);
 
 export const recoveryFormats = (value = RECOVERY_FORMATS) => {
+  if (value === 'none') {
+    return [];
+  }
   const list = Array.isArray(value) ? value : String(value).split(',');
   if (!list.every((format) => RECOVERY_FORMATS.includes(format))) {
     throw archiveError(
@@ -63,7 +66,7 @@ export const recoveryFormatOf = async (file) => {
 
 const packet = (value, format) => {
   const body = Buffer.from(
-    encodeWire(value, format === 'text' ? LINO_LINE : LINO_BINARY)
+    encodeLinoValue(value, format === 'text' ? LINO_LINE : LINO_BINARY)
   );
   if (body.length > MAX_DUMP_RECORD_BYTES) {
     throw invalid('a recovery record exceeds the 4 MiB limit');

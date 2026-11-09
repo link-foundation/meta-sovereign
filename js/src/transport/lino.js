@@ -93,6 +93,22 @@ const supported = (type, jsonCompatibility) => {
   }
 };
 
+// Storage/recovery callers retain the codec's undefined and nonfinite values.
+// Network callers use encodeWire below for the existing HTTP value semantics.
+export const encodeLinoValue = (obj, type = LINO_TEXT) => {
+  supported(type, false);
+  if (type === LINO_BINARY) {
+    // encodeText canonicalizes unary containers; preserve the typed AST instead.
+    return binary.encode(parser.parse(encodeCompact({ obj })));
+  }
+  if (type === LINO_LINE) {
+    return encodeLine({ obj });
+  }
+  return type === 'text/lino-compact'
+    ? encodeCompact({ obj })
+    : encode({ obj });
+};
+
 export const encodeWire = (
   value,
   type = LINO_TEXT,
@@ -101,19 +117,7 @@ export const encodeWire = (
   type = baseType(type);
   supported(type, jsonCompatibility);
   const obj = wireValue(value);
-  if (type === LINO_BINARY) {
-    // encodeText canonicalizes unary containers; preserve the typed AST instead.
-    return binary.encode(parser.parse(encodeCompact({ obj })));
-  }
-  if (type === JSON_MEDIA) {
-    return JSON.stringify(obj);
-  }
-  if (type === LINO_LINE) {
-    return encodeLine({ obj });
-  }
-  return type === 'text/lino-compact'
-    ? encodeCompact({ obj })
-    : encode({ obj });
+  return type === JSON_MEDIA ? JSON.stringify(obj) : encodeLinoValue(obj, type);
 };
 
 export const decodeWire = (

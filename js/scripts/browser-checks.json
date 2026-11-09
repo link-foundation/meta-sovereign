@@ -42,6 +42,7 @@
   "operator-replies",
   "message-versions",
   "recovery",
+  "backup",
   "navigation",
   "loading",
   "media-loading",

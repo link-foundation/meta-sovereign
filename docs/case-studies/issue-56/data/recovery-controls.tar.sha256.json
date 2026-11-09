@@ -1,0 +1,15 @@
+{
+  "archive": "recovery-controls.tar.gz",
+  "files": {
+    "recovery-browser-final.log": "edb525ecbff2f10a2209e349aafefb802abb0259a88762fb55799750bd53bb15",
+    "recovery-cli-lifetime-before.log": "083d94c206320eacff666c086010143824077d883ae26a84820cd1d0ebc2d233",
+    "recovery-controls-final.log": "b05a5eaff0083c467be5e8147703c9d87e485d363f20eaf89876ed391f6fe211",
+    "recovery-controls-test.log": "7c0ac995b2d8f8473a16202cc80ae1dcb5a7643b31f27e4c7de0e47b6cb6cae9",
+    "recovery-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recovery-locales.log": "ab0ef834f93c1f7ec7b695b5453e289f8f14e0d6899385e7cad8ff4fcc239761",
+    "recovery-types-after.log": "37f566215b7f16e79642e5e2489b03f0c8cc0aa29354fccfd18d023d3e3ac22f",
+    "recovery-types-before.log": "3f666bdb01890a8bbc2c4d4d9962a7dceb187ee0d846ac71b4872f5b66bc3a35",
+    "recovery-ui-build-final.log": "2ca6e201d84ce9d99d917b0db1e9958b09398082e70cd47cbb553b2b5131a76f",
+    "recovery-workflows.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c"
+  }
+}

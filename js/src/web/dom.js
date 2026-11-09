@@ -855,18 +855,26 @@ const rawApi = {
       confirm: true,
     })) ?? { ok: false, error: 'server required' },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
-  createBackup: async ({ passphrase = null, keep } = {}) =>
-    (await serverFetch('/api/backups', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ passphrase, ...(keep ? { keep } : {}) }),
-    })) ?? { error: 'server required for backups' },
+  recoverySettings: async () =>
+    (await serverFetch('/api/backups/settings')) ?? { available: false },
+  saveRecoverySettings: (settings) =>
+    serverPostReport('/api/backups/settings', settings, { network: true }),
+  createBackup: async ({ passphrase = null, keep, formats } = {}) =>
+    (await serverPostReport(
+      '/api/backups',
+      {
+        passphrase,
+        ...(keep !== undefined ? { keep } : {}),
+        ...(formats !== undefined ? { formats } : {}),
+      },
+      { network: true }
+    )) ?? { error: 'server required for backups' },
   restoreBackup: async (file, passphrase = null) =>
-    (await serverFetch('/api/backups/restore', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ file, passphrase }),
-    })) ?? { error: 'server required for restore' },
+    (await serverPostReport(
+      '/api/backups/restore',
+      { file, passphrase },
+      { network: true }
+    )) ?? { error: 'server required for restore' },
   // The GitHub inbox (R-Z11): GET when `body` is undefined, else POST. The
   // server's own answer, with its error code, is kept.
   githubInbox: async (route, body) => {

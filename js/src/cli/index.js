@@ -52,11 +52,20 @@ import {
   createVault,
 } from '../storage/index.js';
 import {
-  createBackup,
+  makeBackup,
   pruneBackups,
   restoreBackup,
   restoreBackupToDir,
 } from '../storage/backup.js';
+import {
+  recoveryFormats,
+  pruneRecoveryDumps,
+} from '../storage/recovery-dump.js';
+import {
+  readRecoverySettings,
+  saveRecoverySettings,
+  validateRecoverySettings,
+} from '../storage/recovery-settings.js';
 import { writeEncryptedExport } from '../storage/export-encrypted.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import {
@@ -94,10 +103,12 @@ const HELP = `meta-sovereign <command> [options]
 Commands:
   import        --source=<name> --file=<path> --store=<dir>
   export        --file=<path> --store=<dir>
-  backup        --store=<dir> --archive=<dir> [--keep=<n>]
-  restore       --file=<path> --store=<dir> [--replace]
+  backup        --store=<dir> --archive=<dir> [--keep=<n>] [--formats=text,binary] [--passphrase=<pp>]
+  backup-config [--store=<dir>] [--interval-hours=<h>] [--keep=<n>] [--formats=text,binary|none]
+  restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
+                [--backup-interval-hours=<h>] [--backup-keep=<n>] [--recovery-formats=text,binary|none]
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
                 on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
@@ -171,12 +182,70 @@ const exportCmd = async (args, log) => {
 
 const backupCmd = async (args, log) => {
   const store = await openReadOnly(args.store ?? defaultStoreDir());
-  const file = await createBackup(store, { archiveDir: args.archive });
-  if (args.keep) {
-    await pruneBackups({ archiveDir: args.archive, keep: Number(args.keep) });
+  try {
+    const settings = await readRecoverySettings(store);
+    const formats =
+      args.formats === 'none'
+        ? []
+        : recoveryFormats(args.formats ?? settings.formats);
+    const keep = Number(args.keep ?? settings.keep);
+    validateRecoverySettings({ ...settings, formats, keep });
+    const made = await makeBackup(store, {
+      archiveDir: args.archive,
+      passphrase: args.passphrase ?? null,
+      recoveryFormats: formats,
+    });
+    if (made.skipped) {
+      throw Object.assign(
+        new Error('not enough free disk space for a backup'),
+        { code: 'LOW_DISK' }
+      );
+    }
+    if (keep > 0) {
+      await pruneBackups({
+        archiveDir: args.archive,
+        keep,
+        passphrase: args.passphrase ?? null,
+      });
+      await pruneRecoveryDumps({ archiveDir: args.archive, keep });
+    }
+    log(`backup written to ${made.file}`);
+    for (const dump of made.recovery) {
+      log(
+        `${dump.format} recovery dump written to ${dump.file} (secret records excluded)`
+      );
+    }
+    return 0;
+  } finally {
+    await store.close?.();
   }
-  log(`backup written to ${file}`);
-  return 0;
+};
+
+const backupConfigCmd = async (args, log) => {
+  const changes = {
+    ...(args['interval-hours'] !== undefined
+      ? { intervalHours: Number(args['interval-hours']) }
+      : {}),
+    ...(args.keep !== undefined ? { keep: Number(args.keep) } : {}),
+    ...(args.formats !== undefined
+      ? {
+          formats: args.formats === 'none' ? [] : recoveryFormats(args.formats),
+        }
+      : {}),
+  };
+  const store = await (Object.keys(changes).length ? openStore : openReadOnly)(
+    args.store ?? defaultStoreDir()
+  );
+  try {
+    const before = await readRecoverySettings(store);
+    const settings = Object.keys(changes).length
+      ? await saveRecoverySettings(store, { ...before, ...changes })
+      : before;
+    log(JSON.stringify(settings, null, 2));
+    return 0;
+  } finally {
+    await store.close?.();
+  }
 };
 
 // Removes the local passcode's stored hash — the way out of a forgotten
@@ -199,19 +268,42 @@ const restoreCmd = async (args, log) => {
       args.store ?? defaultStoreDir(),
       {
         replace: true,
+        passphrase: args.passphrase ?? null,
       }
     );
     log(`replaced the store with ${n} records from ${args.file}`);
     return 0;
   }
   const store = await openStore(args.store ?? defaultStoreDir());
-  const n = await restoreBackup(store, args.file);
-  log(`restored ${n} links from ${args.file}`);
-  return 0;
+  try {
+    const n = await restoreBackup(store, args.file, {
+      passphrase: args.passphrase ?? null,
+    });
+    log(`restored ${n} links from ${args.file}`);
+    return 0;
+  } finally {
+    await store.close?.();
+  }
 };
 
 // What `serve` passes to the server besides its port, store and log.
 const serveOptions = (args) => ({
+  backups: {
+    ...(args['backup-interval-hours'] !== undefined
+      ? { intervalHours: Number(args['backup-interval-hours']) }
+      : {}),
+    ...(args['backup-keep'] !== undefined
+      ? { keep: Number(args['backup-keep']) }
+      : {}),
+    ...(args['recovery-formats'] !== undefined
+      ? {
+          formats:
+            args['recovery-formats'] === 'none'
+              ? []
+              : recoveryFormats(args['recovery-formats']),
+        }
+      : {}),
+  },
   // Hosted web origins allowed to use this server (issue #37); falls
   // back to MS_ALLOW_ORIGINS and then the built-in defaults.
   ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
@@ -873,6 +965,7 @@ const COMMANDS = {
   export: exportCmd,
   'export-encrypted': exportEncryptedCmd,
   backup: backupCmd,
+  'backup-config': backupConfigCmd,
   restore: restoreCmd,
   passcode: passcodeCmd,
   serve: serveCmd,

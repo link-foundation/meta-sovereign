@@ -20,6 +20,29 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  'backup.schedule': '自动恢复备份',
+  'backup.scheduleHint':
+    '保存后用于定时和手动备份。首次自动备份将在所选间隔后运行。',
+  'backup.hours': '间隔小时数（0 表示关闭）',
+  'backup.retention': '每种格式保留的份数（0 保留全部）',
+  'backup.formats': '独立恢复转储',
+  'backup.format.text': '文本 Lino 转储',
+  'backup.format.binary': '二进制 Lino 转储',
+  'backup.format.archive': '恢复归档',
+  'backup.save': '保存恢复设置',
+  'backup.saved': '恢复设置已保存。',
+  'backup.created': '备份已验证；已验证 {count} 份独立恢复转储。',
+  'backup.restored': '已恢复 {count} 条记录。',
+  'backup.working': '处理中…',
+  'backup.failed': '无法确认操作结果。重试前请检查文件列表。',
+  'backup.refused': '操作失败：{reason}',
+  'backup.empty': '尚无恢复文件。',
+  'backup.rawHint':
+    '独立转储始终排除秘密记录，即使归档已加密。文件仍包含其他数据，请妥善保管。',
+  'backup.unavailable':
+    '文件备份需要连接具有归档存储的服务器。连接受支持的服务器以配置恢复。',
+  'backup.restoreAsk':
+    '恢复 {file}？记录将合并到此服务器，并替换相同 ID 的记录。更改任何记录前会先验证整个文件。',
   ...zhBrowser,
   ...zhStickers,
   ...zhFeedback,

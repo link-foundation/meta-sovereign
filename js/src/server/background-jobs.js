@@ -80,6 +80,7 @@ export const backgroundJobs = ({ ctx, store, log, later, backups }) => {
   const purge = cachePurgeFor({ store, log, later });
   const feedback = feedbackWorkerFor({ store, ctx, log, later });
   return {
+    recovery: backup.recovery,
     // Returns a promise settled once a backup and the pulls in flight
     // have finished.
     stopJobs: () => {

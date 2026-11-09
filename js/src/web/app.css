@@ -13792,3 +13792,8 @@ main[data-view='operator']:has(> .operator-workspace) {
   max-height: 200px;
   overflow: auto;
 }
+
+/* Recovery file names remain readable on narrow mobile screens. */
+.backup-filename {
+  overflow-wrap: anywhere;
+}

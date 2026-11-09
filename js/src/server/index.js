@@ -626,14 +626,10 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   if (
-    await handleBackupRoutes(
-      store,
-      req,
-      res,
-      p,
-      ctx.archiveDir,
-      ctx.secretPassphrase
-    )
+    await handleBackupRoutes(store, req, res, p, ctx.archiveDir, {
+      fallbackPassphrase: ctx.secretPassphrase,
+      recovery: ctx.recovery,
+    })
   ) {
     return;
   }

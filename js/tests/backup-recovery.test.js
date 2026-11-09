@@ -51,6 +51,8 @@ test(
       text: 'Hello\n世界',
       amount: 1e18,
       nested: [null, { empty: [] }],
+      optional: undefined,
+      nonfinite: [NaN, Infinity, -Infinity],
     };
     await store.put(record);
     await store.put({

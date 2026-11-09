@@ -33,3 +33,5 @@ Preserve existing large Number values across readable Lino HTTP/sync, text store
 Negotiate readable/binary Links Notation on existing native Rust HTTP, WebSocket sync and signaling endpoints, with explicit legacy JSON opt-in, bounded typed codecs/queues, strict fragmented frames and per-recipient reencoding. Verify real production JavaScript/native interoperability in CI (R-AA16).
 
 Add independent streamed text and binary Lino recovery dump primitives with checked-before-write restore, secret exclusion, private durable writes, bounded packets and verified retention (R-AA17).
+
+Create both recovery dumps on the default server schedule, persist interval/retention/format choices across CLI, Lino API and Backup UI, and confirm restore results. Preserve stored nonfinite/undefined values independently of network normalization and release CLI restore writers before returning.

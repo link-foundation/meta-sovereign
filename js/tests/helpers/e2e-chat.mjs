@@ -59,6 +59,7 @@ export const openChatApp = async (
     telegramAccount = false,
     secure = false,
     launchOptions = {},
+    fileBackups = false,
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -70,6 +71,7 @@ export const openChatApp = async (
     port: 0,
     storeDir: dir,
     store,
+    ...(fileBackups ? { archiveDir: path.join(dir, 'archives') } : {}),
     enableSync: false,
     enableHandlers: false,
     telegramAccount,

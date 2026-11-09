@@ -20,6 +20,31 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  'backup.schedule': 'Automatic recovery',
+  'backup.scheduleHint':
+    'Save these settings for scheduled and one-off backups. The first automatic backup runs after the chosen interval.',
+  'backup.hours': 'Interval in hours (0 turns it off)',
+  'backup.retention': 'Copies of each format to keep (0 keeps all)',
+  'backup.formats': 'Independent recovery dumps',
+  'backup.format.text': 'Text Lino dump',
+  'backup.format.binary': 'Binary Lino dump',
+  'backup.format.archive': 'Recovery archive',
+  'backup.save': 'Save recovery settings',
+  'backup.saved': 'Recovery settings saved.',
+  'backup.created':
+    'Backup verified; {count} independent recovery dumps verified.',
+  'backup.restored': 'Restored {count} records.',
+  'backup.working': 'Working…',
+  'backup.failed':
+    'The operation could not be confirmed. Check the file list before retrying.',
+  'backup.refused': 'The operation failed: {reason}',
+  'backup.empty': 'No recovery files yet.',
+  'backup.rawHint':
+    'Independent dumps always exclude secret records, even when the archive is encrypted. They still contain your other data. Keep these files private.',
+  'backup.unavailable':
+    'File backups require a connected server with archive storage. Connect a supported server to configure recovery.',
+  'backup.restoreAsk':
+    'Restore {file}? Its records will merge into this server and replace records with the same IDs. The file is checked before any records change.',
   ...enBrowser,
   ...enStickers,
   ...enFeedback,

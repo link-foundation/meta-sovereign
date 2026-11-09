@@ -24,6 +24,11 @@ import {
   restoreBackup,
   pruneBackups,
 } from '../storage/backup.js';
+import {
+  isRecoveryFile,
+  recoveryFormats,
+  pruneRecoveryDumps,
+} from '../storage/recovery-dump.js';
 
 const listFiles = async (archiveDir) => {
   const entries = await fs.readdir(archiveDir).catch(() => []);
@@ -37,6 +42,11 @@ const listFiles = async (archiveDir) => {
         size: stat.size,
         mtime: stat.mtime.toISOString(),
         encrypted: f.endsWith('.enc'),
+        format: isRecoveryFile(f)
+          ? f.endsWith('.bin')
+            ? 'binary'
+            : 'text'
+          : 'archive',
       });
     }
   }
@@ -59,11 +69,31 @@ const handleList = async (res, archiveDir) => {
 // The passphrase typed on the page, else the server's own
 // MS_SECRET_PASSPHRASE: with one the archive is encrypted and holds the
 // secrets; without, it leaves them out and says so (R-Z2).
-const handleCreate = async (store, req, res, archiveDir, fallback) => {
+const handleCreate = async (
+  store,
+  req,
+  res,
+  archiveDir,
+  fallback,
+  recovery
+) => {
   const body = await readBody(req, { allowEmpty: false });
   const passphrase = body.passphrase || fallback || null;
+  let formats;
+  const settings = await recovery?.get();
+  const keep = body.keep ?? settings?.keep;
   try {
-    const made = await makeBackup(store, { archiveDir, passphrase });
+    formats = recoveryFormats(body.formats ?? settings?.formats);
+  } catch (error) {
+    json(res, 400, { ok: false, error: safeMessage(error), code: error.code });
+    return true;
+  }
+  try {
+    const made = await makeBackup(store, {
+      archiveDir,
+      passphrase,
+      recoveryFormats: formats,
+    });
     if (made.skipped) {
       // Fail closed and say why (R-Z14).
       json(res, 507, {
@@ -75,14 +105,19 @@ const handleCreate = async (store, req, res, archiveDir, fallback) => {
       });
       return true;
     }
-    if (typeof body.keep === 'number' && body.keep > 0) {
-      await pruneBackups({ archiveDir, keep: body.keep, passphrase });
+    if (typeof keep === 'number' && keep > 0) {
+      await pruneBackups({ archiveDir, keep, passphrase });
+      await pruneRecoveryDumps({ archiveDir, keep });
     }
     json(res, 200, {
       file: path.basename(made.file),
       links: made.links,
       secrets: made.secrets,
       secretsExcluded: made.secretsExcluded,
+      recovery: made.recovery.map((dump) => ({
+        ...dump,
+        file: path.basename(dump.file),
+      })),
     });
   } catch (error) {
     json(res, 500, {
@@ -125,14 +160,41 @@ const handleRestore = async (store, req, res, archiveDir, fallback) => {
   return true;
 };
 
+const handleSettings = async (req, res, recovery, archiveDir) => {
+  if (req.method === 'GET') {
+    json(res, 200, recovery ? await recovery.get() : { available: false });
+    return true;
+  }
+  if (req.method !== 'POST' || !archiveDir || !recovery) {
+    return false;
+  }
+  const body = await readBody(req, { allowEmpty: false });
+  try {
+    json(res, 200, { ok: true, settings: await recovery.save(body) });
+  } catch (error) {
+    const badSetting = ['BACKUP_SETTINGS', 'BACKUP_FORMAT'].includes(
+      error.code
+    );
+    json(res, badSetting ? 400 : 500, {
+      ok: false,
+      code: error.code ?? 'BACKUP_SETTINGS_FAILED',
+      error: safeMessage(error),
+    });
+  }
+  return true;
+};
+
 export const handleBackupRoutes = async (
   store,
   req,
   res,
   p,
   archiveDir,
-  fallbackPassphrase = null
+  { fallbackPassphrase = null, recovery = null } = {}
 ) => {
+  if (p === '/api/backups/settings') {
+    return handleSettings(req, res, recovery, archiveDir);
+  }
   if (!archiveDir) {
     return false;
   }
@@ -140,7 +202,14 @@ export const handleBackupRoutes = async (
     return handleList(res, archiveDir);
   }
   if (p === '/api/backups' && req.method === 'POST') {
-    return handleCreate(store, req, res, archiveDir, fallbackPassphrase);
+    return handleCreate(
+      store,
+      req,
+      res,
+      archiveDir,
+      fallbackPassphrase,
+      recovery
+    );
   }
   if (p === '/api/backups/restore' && req.method === 'POST') {
     return handleRestore(store, req, res, archiveDir, fallbackPassphrase);
