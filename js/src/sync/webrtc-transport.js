@@ -12,11 +12,13 @@
  * so `createPeer().connect(transport)` plugs straight in, mirroring
  * the loopback / TCP / WebSocket transports.
  *
- * The `signalingChannel` helper isolates the JSON-over-WS plumbing
+ * The `signalingChannel` helper isolates the typed signaling plumbing
  * from RTCPeerConnection so we can test the signaling logic in
  * Node without `wrtc`. The browser code wires the two together by
  * calling `createWebRtcTransport({ signaling, RTCPeerConnection })`.
  */
+
+import { syncWire, syncQueue } from './wire.js';
 
 const TYPE_OFFER = 'offer';
 const TYPE_ANSWER = 'answer';
@@ -82,28 +84,36 @@ export const createWebRtcTransport = ({
   initiator = false,
   rtcConfig = { iceServers: [] },
   channelLabel = 'meta-sovereign-sync',
+  format,
+  jsonCompatibility = false,
   onError = (error) =>
     globalThis.console?.warn?.('WebRTC negotiation failed', error),
 }) => {
+  const wire = syncWire({ format, jsonCompatibility });
   const pc = new RTCPeerConnection(rtcConfig);
   const recvHandlers = new Set();
-  const sendQueue = [];
+  const sendQueue = syncQueue();
   let dataChannel = null;
   let awaitingAnswer = false;
   let closed = false;
 
   const wireChannel = (channel) => {
+    if (channel.protocol !== wire.protocol) {
+      channel.close();
+      onError(new Error('unsupported WebRTC sync protocol'));
+      return;
+    }
     dataChannel = channel;
-    channel.onopen = () => {
-      while (sendQueue.length) {
-        channel.send(sendQueue.shift());
-      }
-    };
+    channel.binaryType = 'arraybuffer';
+    channel.onopen = () =>
+      sendQueue.drain((event) => channel.send(wire.encode(event)));
     channel.onmessage = (event) => {
       let parsed;
       try {
-        parsed = JSON.parse(event.data);
-      } catch {
+        parsed = wire.decode(event.data);
+      } catch (error) {
+        channel.close();
+        onError(error);
         return;
       }
       for (const h of recvHandlers) {
@@ -113,7 +123,9 @@ export const createWebRtcTransport = ({
   };
 
   if (initiator) {
-    wireChannel(pc.createDataChannel(channelLabel));
+    wireChannel(
+      pc.createDataChannel(channelLabel, { protocol: wire.protocol })
+    );
   } else {
     pc.ondatachannel = (event) => wireChannel(event.channel);
   }
@@ -170,7 +182,9 @@ export const createWebRtcTransport = ({
     awaitingAnswer = true;
     if (!dataChannel) {
       // Late initiation: open the data channel now if we deferred it.
-      wireChannel(pc.createDataChannel(channelLabel));
+      wireChannel(
+        pc.createDataChannel(channelLabel, { protocol: wire.protocol })
+      );
     }
     try {
       const offer = await pc.createOffer();
@@ -188,11 +202,14 @@ export const createWebRtcTransport = ({
 
   return {
     send: (event) => {
-      const text = JSON.stringify(event);
+      if (closed) {
+        throw new Error('WebRTC sync transport is closed');
+      }
+      const data = wire.encode(event);
       if (dataChannel?.readyState === 'open') {
-        dataChannel.send(text);
+        dataChannel.send(data);
       } else {
-        sendQueue.push(text);
+        sendQueue.push(event);
       }
     },
     onMessage: (h) => {
@@ -201,6 +218,7 @@ export const createWebRtcTransport = ({
     },
     close: () => {
       closed = true;
+      sendQueue.clear();
       offOffer();
       offAnswer();
       offIce();

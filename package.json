@@ -411,7 +411,8 @@
     "test:e2e:history-library:webkit": "E2E_BROWSER=webkit node js/tests/e2e-history-library-browser.mjs",
     "test:e2e:sticker-collections": "node js/tests/e2e-sticker-collections-browser.mjs",
     "test:e2e:sticker-collections:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-collections-browser.mjs",
-    "test:e2e:lino-events": "node js/tests/e2e-lino-events.mjs"
+    "test:e2e:lino-events": "node js/tests/e2e-lino-events.mjs",
+    "test:e2e:lino-sync": "node js/tests/e2e-lino-sync.mjs"
   },
   "keywords": [
     "personal-crm",

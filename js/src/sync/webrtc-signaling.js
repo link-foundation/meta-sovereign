@@ -7,7 +7,7 @@
  * on the http server so the SPA only needs one origin.
  *
  * Each WebSocket joins a *room* identified by a path query
- * (`?room=foo`). The broker fans every JSON frame to every other
+ * (`?room=foo`). The broker fans each negotiated Lino message to every other
  * peer in the same room. It is *not* a TURN server; once peers have
  * exchanged candidates they talk directly. The broker holds zero
  * application state — losing it just means new peers can't find
@@ -18,21 +18,35 @@ import {
   isWebSocketUpgrade,
   writeAcceptHandshake,
   encodeTextFrame,
+  encodeBinaryFrame,
+  encodePongFrame,
   createFrameReader,
   rejectForeignOrigin,
 } from './ws-frame.js';
 import { bunAttachSignaling } from './bun-server.js';
 
+import { negotiateSync } from './wire.js';
+
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
 
 export const attachSignaling = (
   server,
-  { path = '/rtc', verifyOrigin = null } = {}
+  { path = '/rtc', verifyOrigin = null, jsonCompatibility = false } = {}
 ) => {
   if (IS_BUN) {
-    return bunAttachSignaling(server, { path, verifyOrigin });
+    return bunAttachSignaling(server, {
+      path,
+      verifyOrigin,
+      jsonCompatibility,
+    });
   }
   const rooms = new Map();
+  const formats = new WeakMap();
+  const frameFor = (socket, event) => {
+    const wire = formats.get(socket);
+    const data = wire.encode(event);
+    return wire.binary ? encodeBinaryFrame(data) : encodeTextFrame(data);
+  };
 
   const join = (room, socket) => {
     if (!rooms.has(room)) {
@@ -63,36 +77,54 @@ export const attachSignaling = (
       return;
     }
     const room = url.searchParams.get('room') ?? 'default';
-    writeAcceptHandshake(socket, req);
+    const selected = negotiateSync(req.headers['sec-websocket-protocol'], {
+      jsonCompatibility,
+    });
+    if (!selected) {
+      socket.end('HTTP/1.1 406 Not Acceptable\r\nConnection: close\r\n\r\n');
+      return;
+    }
+    writeAcceptHandshake(socket, req, selected.protocol);
+    formats.set(socket, selected.wire);
     join(room, socket);
 
     // Notify the room the new peer arrived so existing peers can
     // initiate. We mark the announcement so peers can ignore their
     // own.
     const peerId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const announce = encodeTextFrame(
-      JSON.stringify({ type: 'peer-joined', peerId })
-    );
+    const announce = { type: 'peer-joined', peerId };
     for (const other of rooms.get(room)) {
       if (other !== socket) {
-        other.write(announce);
+        other.write(frameFor(other, announce));
       }
     }
 
-    const reader = createFrameReader({
-      onText: (text) => {
-        const frame = encodeTextFrame(text);
+    const receive = (data) => {
+      let event;
+      try {
+        event = selected.wire.decode(data);
+      } catch {
+        socket.destroy();
+        return;
+      }
+      try {
         for (const other of rooms.get(room) ?? []) {
           if (other !== socket) {
-            other.write(frame);
+            other.write(frameFor(other, event));
           }
         }
-      },
+      } catch {
+        socket.destroy();
+      }
+    };
+    const reader = createFrameReader({
+      onText: receive,
+      onBinary: receive,
       onClose: () => {
         leave(room, socket);
         socket.destroy();
       },
-      onPing: () => socket.write(Buffer.from([0x8a, 0x00])),
+      onPing: (payload) => socket.write(encodePongFrame(payload)),
     });
     socket.on('data', reader);
     socket.on('close', () => leave(room, socket));

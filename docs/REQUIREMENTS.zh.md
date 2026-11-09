@@ -21,7 +21,7 @@
 | R-AA13 | 无令牌或 API 受限时，各平台广泛使用 browser-commander。                                     | 未完成：须保留投递证据，避免重复。                                                                                           |
 | R-AA14 | 使用完整最新关联技术栈并更新全部依赖；复现并报告上游缺陷或缺失功能。                        | 部分完成：已更新直接依赖和工具；完整关联技术栈能力集成仍未完成。                                                             |
 | R-AA15 | 存储完整支持最新 link-cli。                                                                 | 未完成。                                                                                                                     |
-| R-AA16 | 默认 lino-rest-api；网页/服务端用文本和二进制 Links Notation；JSON 兼容默认关闭。           | 部分完成：JS 结构化 HTTP、浏览器 fetch/上传使用文本/二进制 Lino，JSON 显式启用。事件流使用 Lino 行；套接字和 Rust 仍未完成。 |
+| R-AA16 | 默认 lino-rest-api；网页/服务端用文本和二进制 Links Notation；JSON 兼容默认关闭。           | 部分完成：JS 结构化 HTTP、浏览器 fetch/上传使用文本/二进制 Lino，JSON 显式启用。事件流使用 Lino 行；WebSocket/WebRTC 协商文本/二进制 Lino。TCP 和 Rust 仍未完成。 |
 | R-AA17 | 定期可配置的文本/二进制恢复转储及可用恢复流程。                                             | 未完成：须审核备份并验证恢复。                                                                                               |
 | R-AA18 | 通用 React landing 和 /app 支持 Pages、可选本地服务器、Electron、Android、iOS。             | 未完成：须验证平台路径和缺口。                                                                                               |
 | R-AA19 | 提供真实 Apple Developer 部署说明；无账号的未签名 iOS/macOS 构建成功。                      | 未完成。                                                                                                                     |

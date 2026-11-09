@@ -66,10 +66,11 @@ const makeFakeRtc = (channelStore, { autoOpen = true } = {}) =>
       this.ondatachannel = null;
       this.iceCandidates = [];
     }
-    createDataChannel(label) {
+    createDataChannel(label, { protocol = '' } = {}) {
       const channel = {
         readyState: 'connecting',
         label,
+        protocol,
         peer: null,
         onopen: null,
         onmessage: null,
@@ -115,6 +116,7 @@ const makeFakeRtc = (channelStore, { autoOpen = true } = {}) =>
         const incoming = {
           readyState: 'connecting',
           label: 'meta-sovereign-sync',
+          protocol: channelStore.at(-1)?.protocol ?? '',
           peer: null,
           onopen: null,
           onmessage: null,
@@ -310,4 +312,90 @@ test('unexpected SDP failures are reported without an unhandled rejection', asyn
   await waitFor(() => errors.length > 0);
   assert.deepEqual(errors, ['invalid remote SDP']);
   transport.close();
+});
+
+test(
+  'binary WebRTC preserves typed values and advertises the Lino protocol',
+  { timeout: 3000 },
+  async () => {
+    const bus = makeBus();
+    const channels = [];
+    const Rtc = makeFakeRtc(channels, { autoOpen: false });
+    const errors = [];
+    const options = {
+      RTCPeerConnection: Rtc,
+      format: 'application/lino-binary',
+      onError: (error) => errors.push(error),
+    };
+    const a = createWebRtcTransport({
+      ...options,
+      signaling: signalingChannel(bus.connect('a')),
+      initiator: true,
+    });
+    const b = createWebRtcTransport({
+      ...options,
+      signaling: signalingChannel(bus.connect('b')),
+    });
+    try {
+      const seen = [];
+      b.onMessage((message) => seen.push(message));
+      const value = {
+        type: 'put',
+        link: {
+          id: 'l:🚀',
+          body: '你好\r\nПривет',
+          single: [true],
+          empty: [],
+          value: null,
+        },
+      };
+      a.send(value);
+      await waitFor(
+        () =>
+          channels.length === 2 &&
+          channels.every((channel) => channel.onmessage)
+      );
+      channels.forEach((channel) => {
+        channel.readyState = 'open';
+      });
+      channels.forEach((channel) => channel.onopen?.());
+      await waitFor(() => seen.length === 1);
+      assert.deepEqual(seen, [value]);
+      assert.ok(
+        channels.every(
+          (channel) =>
+            channel.protocol === 'meta-sovereign-sync.lino-binary.v2' &&
+            channel.binaryType === 'arraybuffer'
+        )
+      );
+      assert.deepEqual(errors, []);
+    } finally {
+      a.close();
+      b.close();
+    }
+  }
+);
+
+test('WebRTC refuses an unversioned data channel instead of accepting JSON', () => {
+  const errors = [];
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('a')),
+    RTCPeerConnection: makeFakeRtc([]),
+    onError: (error) => errors.push(error.message),
+  });
+  let closed = false;
+  try {
+    transport.pc.ondatachannel({
+      channel: {
+        protocol: '',
+        close: () => {
+          closed = true;
+        },
+      },
+    });
+    assert.equal(closed, true);
+    assert.deepEqual(errors, ['unsupported WebRTC sync protocol']);
+  } finally {
+    transport.close();
+  }
 });

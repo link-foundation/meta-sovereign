@@ -16,4 +16,6 @@ Keep electron-builder 27's update feeds compatible with stable electron-updater 
 
 Send live chat and multi-account notification events as single-line Lino records, require explicit JSON event compatibility, and keep reconnect, origin, filtering and backpressure behavior (R-AA16).
 
+Use negotiated text/binary Links Notation for JavaScript WebSocket sync, WebRTC signaling and data channels. Require explicit JSON compatibility, reject mismatched frames, and bound frames and pending queues (R-AA16).
+
 Keep Chat and Operator readers in place when a viewport resize and an upward scroll precede composer expansion; retain geometry diagnostics behind the existing browser debug opt-in.

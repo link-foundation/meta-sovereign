@@ -1,4 +1,5 @@
-// Isolated UI fixture: no accounts, real profiles, provider calls or sync.
+// Isolated UI fixture: temporary profiles, no accounts or provider calls.
+// ISSUE_56_SYNC=1 enables only the isolated local signaling/sync endpoints.
 // Run: xvfb-run -a node experiments/issue-56/browser-preferences-ui.mjs
 // The Playwright MCP attaches to the printed CDP endpoint for verification.
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -44,7 +45,7 @@ const server = await startServer({
   port: 0,
   localUi: true,
   enableHandlers: false,
-  enableSync: false,
+  enableSync: process.env.ISSUE_56_SYNC === '1',
   telegramAccount: false,
   automations: { scheduler: false },
 });

@@ -54,5 +54,6 @@
   "history-library",
   "sticker-collections",
   "browser-preferences",
-  "lino-events"
+  "lino-events",
+  "lino-sync"
 ]

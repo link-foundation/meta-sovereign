@@ -14,4 +14,6 @@ node js/bin/meta-sovereign.js serve --json-compatibility=true
 
 实时变更和 Telegram 账号通知流使用 `text/event-stream`，每个 data 字段包含一条 `text/lino-line` 记录。浏览器请求 `?format=lino-line`，也适用于启用兼容模式的服务端。编解码器转义消息中的换行。JSON 事件要求服务端启用兼容模式，否则 `?format=json` 返回 406。重连、Origin 检查、秘密过滤及慢客户端处理保持有效。
 
-R-AA16 尚未完成：套接字同步/信令及 Rust 后端仍需协议迁移和验证。仅 HTTP 修改不能证明原生服务端功能一致。参见[需求清单](REQUIREMENTS.zh.md)和[传输调查](case-studies/issue-56/lino-http.md)。
+JavaScript WebSocket 同步和 WebRTC 信令协商 `meta-sovereign-sync.lino.v2`（文本）或 `meta-sovereign-sync.lino-binary.v2`（二进制）。WebRTC 数据通道声明相同协议。客户端拒绝缺失或不匹配的选择。旧版 `meta-sovereign-sync.v1` JSON 要求双方显式启用兼容模式。未声明协议的连接默认使用文本 Lino；服务端显式启用兼容模式时使用旧版 JSON。消息和连接前队列均限制为 4 MiB；超大或无效入站帧会关闭连接。来源检查、房间隔离和秘密过滤保持有效。参见[同步调查](case-studies/issue-56/lino-sync.md)。
+
+R-AA16 尚未完成：TCP 同步及 Rust 后端仍需协议迁移和验证。原生服务端功能一致性仍待完成。参见[需求清单](REQUIREMENTS.zh.md)和 [HTTP 传输调查](case-studies/issue-56/lino-http.md)。

@@ -1,0 +1,25 @@
+{
+  "received": {
+    "id": "l:mcp-sync-56-fresh",
+    "tokens": [
+      "🚀",
+      "lino"
+    ],
+    "body": "你好\r\nПривет",
+    "single": [
+      true
+    ],
+    "empty": []
+  },
+  "secret": null,
+  "protocols": [
+    [
+      "meta-sovereign-sync.lino.v2"
+    ],
+    [
+      "meta-sovereign-sync.lino.v2"
+    ]
+  ],
+  "logs": [],
+  "deleted": true
+}

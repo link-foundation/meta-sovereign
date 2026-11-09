@@ -803,7 +803,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   const originAllowed = socketAllowed(ctx);
   const verifyOrigin = (req) =>
     server.requestGate.authorize(req) && originAllowed(req);
-  const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
+  const wsHandle = attachSyncWebSocket(server, {
+    path: '/ws',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   // Peers of another data schema are refused, with a log line (R-Z17).
   createPeer(store, {
     node,
@@ -818,7 +822,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
         message: error.message,
       }),
   }).connect(wsHandle.transport);
-  const signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
+  const signaling = attachSignaling(server, {
+    path: '/rtc',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   ctx.sync = wsHandle;
   ctx.signaling = signaling;
   return { wsHandle, signaling };

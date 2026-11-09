@@ -1,14 +1,13 @@
 /**
  * Browser-side WebRTC sync wiring.
  *
- * The SPA already replicates writes over `/ws` when a server is
- * reachable. This module adds a *peer-to-peer* WebRTC data channel
- * alongside that path so two browsers can talk without the server
- * relaying every message (R-J7).
+ * Browser stores replicate over a peer-to-peer WebRTC data channel.
+ * The server's `/rtc` endpoint relays signaling; application records
+ * travel directly between the browser stores (R-J7).
  *
  * Wire-up:
  *   1. Open a browser `WebSocket` to `/rtc?room=<room>` on the
- *      discovered server. The signaling broker fans JSON frames to
+ *      discovered server. The signaling broker fans negotiated Lino messages to
  *      everyone else in the same room.
  *   2. Wrap that WebSocket in a `signalingChannel` so SDP / ICE
  *      messages are typed.
@@ -37,15 +36,32 @@ import {
   createWebRtcTransport,
 } from '../sync/webrtc-transport.js';
 import { createPeer } from '../sync/peer.js';
+import { syncWire, syncQueue } from '../sync/wire.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 
-const wrapBrowserWebSocket = (ws) => {
+const wrapBrowserWebSocket = (ws, wire, onError) => {
+  const queue = syncQueue();
+  ws.binaryType = 'arraybuffer';
+  ws.addEventListener('open', () => {
+    if (ws.protocol !== wire.protocol) {
+      onError(new Error('signaling sync protocol was not negotiated'));
+      ws.close();
+      return;
+    }
+    queue.drain((event) => ws.send(wire.encode(event)));
+  });
+  ws.addEventListener('close', () => queue.clear());
+  ws.addEventListener('error', () =>
+    onError(new Error('signaling connection failed'))
+  );
   const handlers = new Set();
   ws.addEventListener('message', (event) => {
     let parsed;
     try {
-      parsed = JSON.parse(event.data);
-    } catch {
+      parsed = wire.decode(event.data);
+    } catch (error) {
+      onError(error);
+      ws.close(1003, 'invalid signaling message');
       return;
     }
     for (const h of handlers) {
@@ -54,11 +70,13 @@ const wrapBrowserWebSocket = (ws) => {
   });
   return {
     send(msg) {
-      const text = JSON.stringify(msg);
+      const data = wire.encode(msg);
       if (ws.readyState === ws.OPEN) {
-        ws.send(text);
+        ws.send(data);
+      } else if (ws.readyState === ws.CONNECTING) {
+        queue.push(msg);
       } else {
-        ws.addEventListener('open', () => ws.send(text), { once: true });
+        throw new Error('signaling connection is closed');
       }
     },
     onMessage(h) {
@@ -75,6 +93,8 @@ export const attachWebRtcSync = ({
   RTCPeerConnection = globalThis.RTCPeerConnection,
   WebSocketImpl = globalThis.WebSocket,
   rtcConfig = { iceServers: [] },
+  format,
+  jsonCompatibility = false,
   onMismatch = () => {},
   onError = (error) =>
     globalThis.console?.warn?.('WebRTC negotiation failed', error),
@@ -89,14 +109,17 @@ export const attachWebRtcSync = ({
     u.searchParams.set('room', room);
     return u.toString();
   })();
-  const ws = new WebSocketImpl(wsUrl);
-  const wsTransport = wrapBrowserWebSocket(ws);
+  const wire = syncWire({ format, jsonCompatibility });
+  const ws = new WebSocketImpl(wsUrl, wire.protocol);
+  const wsTransport = wrapBrowserWebSocket(ws, wire, onError);
   const signaling = signalingChannel(wsTransport);
   const transport = createWebRtcTransport({
     signaling,
     RTCPeerConnection,
     initiator: false,
     rtcConfig,
+    format,
+    jsonCompatibility,
     onError,
   });
   // Existing peers (us, until someone else joins) become initiator

@@ -14,6 +14,7 @@ import http from 'node:http';
 
 import { attachSignaling } from '../src/sync/webrtc-signaling.js';
 import { connectSyncWebSocket } from '../src/sync/index.js';
+import { LINO_BINARY } from '../src/transport/lino.js';
 
 const settle = () => new Promise((r) => setTimeout(r, 30));
 
@@ -68,6 +69,46 @@ test('signaling relays SDP frames between peers in same room', async () => {
   await b.close();
   await server.close();
 });
+
+test(
+  'signaling transcodes between text and binary peers',
+  { timeout: 5000 },
+  async () => {
+    const server = await startSignalingServer();
+    let a;
+    let b;
+    try {
+      a = await connectSyncWebSocket({
+        port: server.port,
+        path: '/rtc?room=mixed',
+      });
+      const joined = new Promise((resolve) => a.transport.onMessage(resolve));
+      b = await connectSyncWebSocket({
+        port: server.port,
+        path: '/rtc?room=mixed',
+        format: LINO_BINARY,
+      });
+      assert.equal((await joined).type, 'peer-joined');
+      const offer = {
+        type: 'offer',
+        sdp: 'v=0\r\ns=🚀 "typed"\r\n',
+        empty: [],
+        single: [true],
+      };
+      const received = new Promise((resolve) => b.transport.onMessage(resolve));
+      a.transport.send(offer);
+      assert.deepEqual(await received, offer);
+      const answer = { type: 'answer', sdp: 'v=0\r\ns=你好\r\n' };
+      const replied = new Promise((resolve) => a.transport.onMessage(resolve));
+      b.transport.send(answer);
+      assert.deepEqual(await replied, answer);
+    } finally {
+      await a?.close();
+      await b?.close();
+      await server.close();
+    }
+  }
+);
 
 test('rooms are isolated', async () => {
   const server = await startSignalingServer();

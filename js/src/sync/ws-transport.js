@@ -19,6 +19,9 @@ import {
   writeAcceptHandshake,
   encodeTextFrame,
   encodeClientTextFrame,
+  encodeBinaryFrame,
+  encodeClientBinaryFrame,
+  encodePongFrame,
   createFrameReader,
   rejectForeignOrigin,
   acceptKey,
@@ -26,26 +29,32 @@ import {
 import {
   bunAttachSyncWebSocket,
   bunStartSyncWebSocketListener,
-  bunConnectSyncWebSocket,
 } from './bun-server.js';
 
-const PROTOCOL = 'meta-sovereign-sync.v1';
+import { syncWire, negotiateSync, syncQueue } from './wire.js';
+import { connectNativeWebSocket } from './websocket-client.js';
 
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
 const IS_DENO = typeof globalThis.Deno !== 'undefined' && !IS_BUN;
-
-// Whether the server's handshake head carries our key's accept value. The
-// bytes after it are kept as bytes: frames the server sent right after the
-// handshake (queued messages, the schema hello) arrive in the same chunk,
-// and turning them into text would corrupt their headers (R-Z17).
-const acceptedBy = (head, expected) =>
-  head.toString('utf8').includes(`Sec-WebSocket-Accept: ${expected}`);
-
-const broadcast = (sockets, text) => {
-  const frame = encodeTextFrame(text);
-  for (const s of sockets) {
-    s.write(frame);
-  }
+const frameFor = (wire, event, client = false) => {
+  const data = wire.encode(event);
+  return wire.binary
+    ? (client ? encodeClientBinaryFrame : encodeBinaryFrame)(data)
+    : (client ? encodeClientTextFrame : encodeTextFrame)(data);
+};
+const acceptedBy = (head, expected, protocol) => {
+  const lines = head.toString('utf8').split('\r\n');
+  const headers = new Map(
+    lines.slice(1).map((line) => {
+      const colon = line.indexOf(':');
+      return [line.slice(0, colon).toLowerCase(), line.slice(colon + 1).trim()];
+    })
+  );
+  return (
+    /^HTTP\/1\.[01] 101(?: |$)/.test(lines[0]) &&
+    headers.get('sec-websocket-accept') === expected &&
+    headers.get('sec-websocket-protocol') === protocol
+  );
 };
 
 /**
@@ -55,14 +64,18 @@ const broadcast = (sockets, text) => {
  */
 export const attachSyncWebSocket = (
   server,
-  { path = '/ws', verifyOrigin = null } = {}
+  { path = '/ws', verifyOrigin = null, jsonCompatibility = false } = {}
 ) => {
   if (IS_BUN) {
-    return bunAttachSyncWebSocket(server, { path, verifyOrigin });
+    return bunAttachSyncWebSocket(server, {
+      path,
+      verifyOrigin,
+      jsonCompatibility,
+    });
   }
-  const sockets = new Set();
+  const sockets = new Map();
   const handlers = new Set();
-  const pending = [];
+  const pending = syncQueue();
 
   const onUpgrade = (req, socket) => {
     const reqPath = (req.url ?? '').split('?')[0];
@@ -84,31 +97,43 @@ export const attachSyncWebSocket = (
       socket.destroy();
       return;
     }
-    writeAcceptHandshake(socket, req);
-    sockets.add(socket);
-    while (pending.length) {
-      const text = pending.shift();
-      socket.write(encodeTextFrame(text));
+    const selected = negotiateSync(req.headers['sec-websocket-protocol'], {
+      jsonCompatibility,
+    });
+    if (!selected) {
+      socket.end('HTTP/1.1 406 Not Acceptable\r\nConnection: close\r\n\r\n');
+      return;
     }
+    const { wire, protocol } = selected;
+    writeAcceptHandshake(socket, req, protocol);
+    sockets.set(socket, wire);
+    try {
+      pending.drain((event) => socket.write(frameFor(wire, event)));
+    } catch {
+      sockets.delete(socket);
+      socket.destroy();
+      return;
+    }
+    const receive = (data) => {
+      let event;
+      try {
+        event = wire.decode(data);
+      } catch {
+        socket.destroy();
+        return;
+      }
+      for (const handler of handlers) {
+        handler(event);
+      }
+    };
     const reader = createFrameReader({
-      onText: (text) => {
-        try {
-          const event = JSON.parse(text);
-          for (const h of handlers) {
-            h(event);
-          }
-        } catch {
-          // ignore malformed frames; the protocol is fault-tolerant.
-        }
-      },
+      onText: receive,
+      onBinary: receive,
       onClose: () => {
         sockets.delete(socket);
         socket.destroy();
       },
-      onPing: () => {
-        // pong with empty payload (opcode 0xA, FIN, no mask)
-        socket.write(Buffer.from([0x8a, 0x00]));
-      },
+      onPing: (payload) => socket.write(encodePongFrame(payload)),
     });
     socket.on('data', reader);
     socket.on('close', () => sockets.delete(socket));
@@ -120,12 +145,13 @@ export const attachSyncWebSocket = (
   return {
     transport: {
       send: (event) => {
-        const text = JSON.stringify(event);
         if (sockets.size === 0) {
-          pending.push(text);
+          pending.push(event);
           return;
         }
-        broadcast(sockets, text);
+        for (const [socket, wire] of sockets) {
+          socket.write(frameFor(wire, event));
+        }
       },
       onMessage: (h) => {
         handlers.add(h);
@@ -134,7 +160,8 @@ export const attachSyncWebSocket = (
     },
     close: () => {
       server.removeListener('upgrade', onUpgrade);
-      for (const s of sockets) {
+      pending.clear();
+      for (const s of sockets.keys()) {
         s.destroy();
       }
       sockets.clear();
@@ -149,16 +176,20 @@ export const attachSyncWebSocket = (
  * a tiny http server and attaches the sync endpoint. Used by tests
  * and by the `meta-sovereign sync-ws-listen` CLI subcommand.
  */
-export const startSyncWebSocketListener = ({ port = 0, path = '/ws' } = {}) => {
+export const startSyncWebSocketListener = ({
+  port = 0,
+  path = '/ws',
+  jsonCompatibility = false,
+} = {}) => {
   if (IS_BUN) {
-    return bunStartSyncWebSocketListener({ port, path });
+    return bunStartSyncWebSocketListener({ port, path, jsonCompatibility });
   }
   return new Promise((resolve) => {
     const server = http.createServer((_req, res) => {
       res.writeHead(200, { 'content-type': 'text/plain' });
       res.end('meta-sovereign sync ws');
     });
-    const handle = attachSyncWebSocket(server, { path });
+    const handle = attachSyncWebSocket(server, { path, jsonCompatibility });
     server.listen(port, '127.0.0.1', () => {
       resolve({
         port: server.address().port,
@@ -183,65 +214,13 @@ export const connectSyncWebSocket = ({
   port,
   host = '127.0.0.1',
   path = '/ws',
+  ...options
 }) => {
-  if (IS_BUN) {
-    return bunConnectSyncWebSocket({ port, host, path });
-  }
-  if (IS_DENO && typeof globalThis.WebSocket === 'function') {
-    return new Promise((resolve, reject) => {
-      const handlers = new Set();
-      let settled = false;
-      const DenoWebSocket = globalThis.WebSocket;
-      const socket = new DenoWebSocket(`ws://${host}:${port}${path}`, PROTOCOL);
-      const fail = (err) => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        reject(err);
-      };
-      socket.addEventListener('open', () => {
-        settled = true;
-        resolve({
-          transport: {
-            send: (event) => {
-              socket.send(JSON.stringify(event));
-            },
-            onMessage: (h) => {
-              handlers.add(h);
-              return () => handlers.delete(h);
-            },
-          },
-          close: () =>
-            new Promise((r) => {
-              if (
-                socket.readyState === DenoWebSocket.CLOSING ||
-                socket.readyState === DenoWebSocket.CLOSED
-              ) {
-                r();
-                return;
-              }
-              socket.addEventListener('close', () => r(), { once: true });
-              socket.close();
-            }),
-        });
-      });
-      socket.addEventListener('message', (event) => {
-        try {
-          const parsed = JSON.parse(String(event.data));
-          for (const h of handlers) {
-            h(parsed);
-          }
-        } catch {
-          // ignore
-        }
-      });
-      socket.addEventListener('error', () =>
-        fail(new Error('websocket handshake rejected'))
-      );
-      socket.addEventListener('close', () =>
-        fail(new Error('websocket closed before handshake'))
-      );
+  const wire = syncWire(options);
+  if (IS_BUN || (IS_DENO && typeof globalThis.WebSocket === 'function')) {
+    return connectNativeWebSocket({
+      url: `ws://${host}:${port}${path}`,
+      ...options,
     });
   }
   return new Promise((resolve, reject) => {
@@ -266,7 +245,7 @@ export const connectSyncWebSocket = ({
           'Connection: Upgrade',
           `Sec-WebSocket-Key: ${key}`,
           'Sec-WebSocket-Version: 13',
-          `Sec-WebSocket-Protocol: ${PROTOCOL}`,
+          `Sec-WebSocket-Protocol: ${wire.protocol}`,
           '',
           '',
         ].join('\r\n')
@@ -274,26 +253,39 @@ export const connectSyncWebSocket = ({
       const expected = acceptKey(key);
       let handshake = Buffer.alloc(0);
       let upgraded = false;
+      const receive = (data) => {
+        let event;
+        try {
+          event = wire.decode(data);
+        } catch {
+          socket.destroy();
+          return;
+        }
+        for (const handler of handlers) {
+          handler(event);
+        }
+      };
       const reader = createFrameReader({
-        onText: (text) => {
-          try {
-            const event = JSON.parse(text);
-            for (const h of handlers) {
-              h(event);
-            }
-          } catch {
-            // ignore
-          }
-        },
+        onText: (text) => receive(text),
+        onBinary: (bytes) => receive(bytes),
+        onClose: () => socket.destroy(),
+        onPing: (payload) => socket.write(encodePongFrame(payload, true)),
       });
       socket.on('data', (chunk) => {
         if (!upgraded) {
           handshake = Buffer.concat([handshake, chunk]);
           const idx = handshake.indexOf('\r\n\r\n');
           if (idx === -1) {
+            if (handshake.length > 16 * 1024) {
+              fail(new Error('oversized websocket handshake'));
+              socket.destroy();
+            }
             return;
           }
-          if (!acceptedBy(handshake.subarray(0, idx), expected)) {
+          if (
+            idx > 16 * 1024 ||
+            !acceptedBy(handshake.subarray(0, idx), expected, wire.protocol)
+          ) {
             fail(new Error('websocket handshake rejected'));
             socket.destroy();
             return;
@@ -305,7 +297,10 @@ export const connectSyncWebSocket = ({
           resolve({
             transport: {
               send: (event) => {
-                socket.write(encodeClientTextFrame(JSON.stringify(event)));
+                if (socket.destroyed || socket.writableEnded) {
+                  throw new Error('websocket is closed');
+                }
+                socket.write(frameFor(wire, event, true));
               },
               onMessage: (h) => {
                 handlers.add(h);
@@ -314,12 +309,17 @@ export const connectSyncWebSocket = ({
             },
             close: () =>
               new Promise((r) => {
-                socket.end(() => r());
+                if (socket.destroyed) {
+                  r();
+                  return;
+                }
+                socket.once('close', r);
+                socket.destroy();
               }),
           });
           if (tail.length) {
             // After the caller had its turn to listen.
-            globalThis.setTimeout(() => reader(tail), 0);
+            globalThis.queueMicrotask(() => reader(tail));
           }
           return;
         }
