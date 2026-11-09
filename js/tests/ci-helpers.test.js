@@ -237,7 +237,12 @@ test('dependency graph preflight permits PR capability notices but fails main an
     /administrator/
   );
   await assert.rejects(
-    checkDependencyGraph(env, async () => ({ status: 500 })),
+    checkDependencyGraph(
+      env,
+      async () => ({ status: 500 }),
+      () => {},
+      async () => {}
+    ),
     /unknown/
   );
   assert.equal(
@@ -270,3 +275,83 @@ test('publish retries classify actual npm output, refusing authentication and un
   );
   assert.equal(publishFailureKind('exit 1'), 'unknown');
 });
+
+test(
+  'dependency graph preflight retries transient gateway errors without bypassing the result',
+  { timeout: 1000 },
+  async () => {
+    const { checkDependencyGraph } =
+      await import('../scripts/dependency-graph.mjs');
+    const env = {
+      GITHUB_REPOSITORY: 'owner/repo',
+      BASE_SHA: 'a',
+      HEAD_SHA: 'b',
+    };
+    let calls = 0;
+    const notices = [];
+    const delays = [];
+    const result = await checkDependencyGraph(
+      env,
+      async () => {
+        calls++;
+        return calls < 3 ? { status: 502, ok: false } : { ok: true };
+      },
+      (message) => notices.push(message),
+      async (ms) => delays.push(ms)
+    );
+    assert.equal(result, true);
+    assert.equal(calls, 3);
+    assert.deepEqual(delays, [1000, 2000]);
+    assert.equal(notices.length, 2);
+    assert.match(notices[0], /HTTP 502.*retry/);
+  }
+);
+
+test(
+  'dependency graph retry exhaustion and permanent errors remain failures',
+  { timeout: 1000 },
+  async () => {
+    const { checkDependencyGraph } =
+      await import('../scripts/dependency-graph.mjs');
+    const env = {
+      GITHUB_REPOSITORY: 'owner/repo',
+      BASE_SHA: 'a',
+      HEAD_SHA: 'b',
+    };
+    for (const [status, expected] of [
+      [502, 3],
+      [429, 3],
+      [401, 1],
+      [404, 1],
+    ]) {
+      let calls = 0;
+      await assert.rejects(
+        checkDependencyGraph(
+          env,
+          async () => {
+            calls++;
+            return { ok: false, status };
+          },
+          () => {},
+          async () => {}
+        ),
+        /state is unknown/
+      );
+      assert.equal(calls, expected);
+    }
+    let calls = 0;
+    await assert.rejects(
+      checkDependencyGraph(
+        env,
+        async () => {
+          calls++;
+          throw new Error('network fixture refusal');
+        },
+        () => {},
+        async () => {}
+      ),
+      /network fixture refusal/
+    );
+    assert.equal(calls, 3);
+  }
+);

@@ -39,3 +39,5 @@ Create both recovery dumps on the default server schedule, persist interval/rete
 Add shared scoped question-answer rules, bounded pattern matching, profile fields, provenance-based learning and reviewed/automatic answer planning through CLI, text/binary Lino API and the common UI. Recheck the actual question and current approval after typing, preserve unsaved edits on failure, and show review/provenance in Chat and Operator (R-AA1).
 
 Add explicit canonical answer corrections and equivalent questions, a persisted rejected-phrase policy and optional punctuation equivalence through CLI, default Lino API and UI. Learn unapproved facts from completed questionnaire summaries with zero observed sends; preserve new questions and recheck policy before automatic delivery.
+
+Retry transient GitHub dependency-comparison failures with a bounded three-attempt preflight while preserving failed unknown results and explicit main release setup errors.
