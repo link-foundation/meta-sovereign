@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-turns.md](question-turns.md) records bounded question-core matching, reminder ownership, greeting exclusion and insufficient-affirmative review, with failing-before tests and actual CLI/Lino API/production browser/MCP evidence.
+
 - [ci-41af6c6b.md](ci-41af6c6b.md) retains the superseded archive-learning run: 32 successful Checks jobs, cancelled WebKit/macOS packaging and the strict aggregate error, with complete logs and exact commit/timestamps.
 
 - [telegram-optional-capabilities.md](telegram-optional-capabilities.md) records unavailable reaction/login-domain reads in cached HH Operator, independent user-operation capabilities, 41 passing focused checks and a production browser regression with MCP before/after evidence.

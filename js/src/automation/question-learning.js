@@ -6,6 +6,14 @@ import { QA_RULE_PREFIX } from './question-answers.js';
 import { rejectedAnswer } from './question-policy.js';
 import { summaryAnswerPairs } from './question-summary.js';
 import { historyOrder } from '../replies/history-order.js';
+import {
+  questionCore,
+  isQuestionReminder,
+  isContinuationConsent,
+  isStandaloneGreeting,
+  sufficientAnswer,
+  debugQuestionTurn,
+} from './question-turns.js';
 
 const hash = (text) => {
   let result = 14695981039346656037n;
@@ -87,6 +95,37 @@ const usableQuestion = (message, isSelf) =>
   !message.service &&
   asksQuestion(message.body);
 
+const answerTarget = (question, prior, hasAnswers, message, isSelf) => {
+  if (hasAnswers || !prior || !usableAnswer(prior, message, isSelf)) {
+    return question;
+  }
+  const parent = repliedId(message);
+  return parent === prior.id ||
+    (!parent && !isContinuationConsent(message.body))
+    ? prior
+    : question;
+};
+const questionBeforeReminder = (
+  question,
+  prior,
+  hasAnswers,
+  message,
+  isSelf
+) => {
+  if (
+    hasAnswers ||
+    !usableQuestion(message, isSelf) ||
+    !isQuestionReminder(message.body)
+  ) {
+    return null;
+  }
+  const previous = prior ?? question;
+  return previous &&
+    Date.parse(message.timestamp) - Date.parse(previous.timestamp) <= 86400000
+    ? previous
+    : null;
+};
+
 const answerCollection = ({ policy, contract }) => {
   const learned = new Map();
   let bytes = 0;
@@ -98,7 +137,13 @@ const answerCollection = ({ policy, contract }) => {
     return next;
   };
   const add = (question, text, evidence, count = 1) => {
-    if (!reusable(text) || rejectedAnswer(text, policy)) {
+    question = questionCore(question);
+    if (
+      !reusable(text) ||
+      rejectedAnswer(text, policy) ||
+      !sufficientAnswer(question, text)
+    ) {
+      debugQuestionTurn('answer-excluded', { evidence });
       return;
     }
     text = contract(text);
@@ -143,8 +188,8 @@ const answerCollection = ({ policy, contract }) => {
   return { add, values: () => [...learned.values()] };
 };
 
-// One chronological conversation at a time; retain at most one question and
-// twenty outgoing bubbles. Counts are independent of the evidence display cap.
+// One chronological conversation at a time; retain a question, its immediate
+// reminder and twenty outgoing bubbles. No unrelated turn can bridge the pair.
 export const createAnswerLearner = ({
   self = ['me'],
   policy = {},
@@ -156,6 +201,7 @@ export const createAnswerLearner = ({
     self.includes(message.sender);
   const collection = answerCollection({ policy, contract });
   let question;
+  let priorQuestion;
   let answers = [];
   const finish = () => {
     if (question && answers.length) {
@@ -165,11 +211,31 @@ export const createAnswerLearner = ({
       addAlignedParts(question.body, text, evidence, collection.add);
     }
     question = null;
+    priorQuestion = null;
     answers = [];
   };
   return {
     accept(message) {
-      if (question && usableAnswer(question, message, isSelf)) {
+      const target = answerTarget(
+        question,
+        priorQuestion,
+        answers.length > 0,
+        message,
+        isSelf
+      );
+      if (target && usableAnswer(target, message, isSelf)) {
+        if (isStandaloneGreeting(message.body)) {
+          debugQuestionTurn('greeting-excluded', { message: message.id });
+          return;
+        }
+        if (target !== question) {
+          debugQuestionTurn('answer-before-reminder', {
+            question: target.id,
+            answer: message.id,
+          });
+        }
+        question = target;
+        priorQuestion = null;
         if (message.body?.trim()) {
           answers.push(message);
         }
@@ -178,6 +244,13 @@ export const createAnswerLearner = ({
         }
         return;
       }
+      const previous = questionBeforeReminder(
+        question,
+        priorQuestion,
+        answers.length > 0,
+        message,
+        isSelf
+      );
       finish();
       const summaries = incomingSummary(message, isSelf);
       if (summaries.length) {
@@ -186,6 +259,7 @@ export const createAnswerLearner = ({
         }
       } else if (usableQuestion(message, isSelf)) {
         question = message;
+        priorQuestion = previous;
       }
     },
     finishChat: finish,

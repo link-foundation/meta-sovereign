@@ -73,3 +73,5 @@ Advertise actual WebSocket/RTC listener availability during discovery, skip expl
 Check actual Telegram user-operation capabilities before background quick-reaction/login-domain reads and quick-reaction changes. Share descriptor-based notification preflight, distinguish unavailable from unreachable, and preserve older-server behavior.
 
 Share bounded English/Russian/Hindi/Chinese question and factual-request recognition between CRM and automation. Preserve Unicode combining marks and internal joiners in matching, prevent Hindi vowel-sign collisions from authorizing exact reuse, and keep additional questions out of template gaps.
+
+Preserve question identity across recognized acknowledgments and immediate continuation reminders. Exclude standalone greetings from learned answers, honor explicit reply IDs and original turn expiry, and require substantive answers to requests for details. Share bounded planning/learning behavior across CLI, both Lino APIs and the common UI, with optional identifier-only diagnostics.

@@ -10,6 +10,7 @@ import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
+import { questionCore, sufficientAnswer } from './question-turns.js';
 import {
   answerTemplateEnvironment,
   salaryTemplateEvidence,
@@ -136,7 +137,8 @@ const eligible = (rule, { source, chat }) =>
   (!rule.chats.length || rule.chats.includes(`${source}:${chat}`));
 
 const ruleMatch = (rule, question, approximate) => {
-  const patterns = [rule.question, ...rule.questions];
+  const patterns = [rule.question, ...rule.questions].map(questionCore);
+  question = questionCore(question);
   const kinds = patterns.map((pattern) => matchQuestion(pattern, question));
   const match = kinds.includes('exact')
     ? 'exact'
@@ -166,10 +168,19 @@ const templateNeedsReview = (value) =>
   value?.approved === false || value?.contextMismatch === true;
 const templateDetails = (salaryTemplates) =>
   salaryTemplates ? { salaryTemplates } : {};
+const usableVariant = (question, answer, canonical, context) => {
+  const text = render(answer.text, context.profile).text;
+  return (
+    (!canonical || answer.canonical) &&
+    sufficientAnswer(question, text) &&
+    !rejectedAnswer(text, context.policy)
+  );
+};
 
 const answerOne = (question, input) => {
-  const resolved = resolveAnswerContexts(question, input);
-  const environment = answerTemplateEnvironment(question, {
+  const core = questionCore(question);
+  const resolved = resolveAnswerContexts(core, input);
+  const environment = answerTemplateEnvironment(core, {
     ...input,
     profile: resolved.profile,
   });
@@ -189,13 +200,7 @@ const answerOne = (question, input) => {
     }
     const canonical = rule.answers.some((answer) => answer.canonical);
     for (const answer of rule.answers) {
-      if (
-        (canonical && !answer.canonical) ||
-        rejectedAnswer(
-          render(answer.text, context.profile).text,
-          context.policy
-        )
-      ) {
+      if (!usableVariant(core, answer, canonical, context)) {
         continue;
       }
       matches.push({ rule, answer, match: match ?? 'approximate', similarity });
@@ -293,9 +298,10 @@ export const planAnswer = (question, options = {}) => {
     parts: [],
   };
   let result = asksQuestion(question) ? answerOne(question, context) : empty;
-  const questions = splitQuestions(question);
+  const core = questionCore(question);
+  const questions = splitQuestions(core);
   if (questions.length <= 1) {
-    result = applySalaryAnswer(question, context, result);
+    result = applySalaryAnswer(core, context, result);
   }
   if (result.match === 'unanswered' && questions.length > 1) {
     const parts = questions.map((part) =>
@@ -332,5 +338,5 @@ export const planAnswer = (question, options = {}) => {
       };
     }
   }
-  return result;
+  return { ...result, question };
 };

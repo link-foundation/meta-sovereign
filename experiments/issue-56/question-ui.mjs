@@ -21,7 +21,7 @@ if (process.env.QUESTION_UI_EXCHANGE === '1') {
     fetchedAt: new Date().toISOString(),
   });
 }
-const messages =
+let messages =
   process.env.QUESTION_UI_LANGUAGE === '1'
     ? [
         { id: 1, sender: 'interviewer', body: 'आप कहाँ रहते हैं' },
@@ -34,6 +34,24 @@ const messages =
         { id: 2, sender: 'me', body: 'Пять лет в распределённых командах.' },
         { id: 3, sender: 'interviewer', body: 'Где вы живёте?' },
       ];
+if (process.env.QUESTION_UI_TURNS === '1') {
+  messages = [
+    {
+      id: 1,
+      sender: 'interviewer',
+      body: 'Расскажите о вашем опыте с Kubernetes.',
+    },
+    { id: 2, sender: 'interviewer', body: 'Мы можем продолжить наше общение?' },
+    { id: 3, sender: 'me', body: 'Здравствуйте!' },
+    { id: 4, sender: 'me', body: 'Да, сопровождал кластер из 12 узлов.' },
+    {
+      id: 5,
+      sender: 'interviewer',
+      body: 'Thanks for the details! Where do you live?',
+    },
+    { id: 6, sender: 'me', body: 'Vietnam' },
+  ];
+}
 for (const message of messages) {
   await store.put({
     ...message,

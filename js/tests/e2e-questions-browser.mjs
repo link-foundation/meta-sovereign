@@ -7,6 +7,7 @@ import { verifySalaryExchangePolicy } from './helpers/e2e-salary-exchange-policy
 import { verifySalaryBoth } from './helpers/e2e-salary-both.mjs';
 import { verifyQuestionSubstitution } from './helpers/e2e-question-substitution.mjs';
 import { verifyQuestionLanguage } from './helpers/e2e-question-language.mjs';
+import { verifyQuestionTurns } from './helpers/e2e-question-turns.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -471,17 +472,7 @@ const verifySubstitution = async (saved, preview) => {
     .click();
 };
 
-await finish(async () => {
-  await page.addInitScript(
-    ({ key, version }) =>
-      globalThis.localStorage.setItem(
-        key,
-        JSON.stringify({ off: true, v: version })
-      ),
-    { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
-  );
-  await showPanel();
-  const saved = await saveInitialRule();
+const verifyPersistedRule = async (saved) => {
   await page.reload();
   await panel.locator(':scope > summary').click();
   await panel
@@ -498,7 +489,20 @@ await finish(async () => {
       .inputValue()) === saved.questions[0],
     'equivalent question survives reload'
   );
+};
 
+await finish(async () => {
+  await page.addInitScript(
+    ({ key, version }) =>
+      globalThis.localStorage.setItem(
+        key,
+        JSON.stringify({ off: true, v: version })
+      ),
+    { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
+  );
+  await showPanel();
+  const saved = await saveInitialRule();
+  await verifyPersistedRule(saved);
   const preview = panel.locator('details').filter({
     has: page.locator(':scope > summary', { hasText: 'Preview answer' }),
   });
@@ -623,5 +627,6 @@ await finish(async () => {
   );
   await verifyMobile();
   await verifyQuestionLanguage({ page, panel, editor, preview, store, until });
+  await verifyQuestionTurns({ page, panel, editor, preview, store, until });
   verifySyncCapability();
 });
