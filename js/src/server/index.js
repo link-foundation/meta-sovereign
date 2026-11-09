@@ -74,6 +74,7 @@ import { bodyFailure, fail, json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleBrowserRoutes } from './routes-browser.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
@@ -327,7 +328,7 @@ const automationContext = (
       getSource,
       options: automations.options,
       optionsFor,
-      browser: automations.browser,
+      browser: { store, ...automations.browser },
       log: say,
     });
   const setTyping =
@@ -634,6 +635,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   for (const handle of [
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
+    () => handleBrowserRoutes(store, req, res, p, url, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),

@@ -18,6 +18,7 @@ import * as m0003 from './0003-vk-reactions-docs.js';
 import * as m0004 from './0004-github-external-ids.js';
 import * as m0005 from './0005-archive-ids.js';
 import * as m0006 from './0006-tombstones.js';
+import * as m0007 from './0007-browser-policy.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -26,10 +27,11 @@ export const MIGRATIONS = Object.freeze([
   m0004,
   m0005,
   m0006,
+  m0007,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 7;
 
 export {
   SCHEMA_ID,

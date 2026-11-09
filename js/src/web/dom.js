@@ -541,6 +541,10 @@ const AUTOMATION_CALLS = [
 ];
 
 const rawApi = {
+  browserPolicies: async () =>
+    (await serverFetch('/api/browser/policies')) ?? { available: false },
+  saveBrowserPolicy: async (policy) =>
+    serverPostReport('/api/browser/policies', policy, { network: true }),
   ...createFeedbackApi(remote),
   ...createStickerCollectionsApi({
     ...remote,

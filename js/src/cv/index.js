@@ -35,6 +35,7 @@ import {
 import { getCvPlatform, listCvPlatforms } from './platforms/index.js';
 import { createCvRunner } from './runner.js';
 import { openBrowserSession } from './browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 
 export {
   BROWSER_PACKAGES,
@@ -79,9 +80,18 @@ const withCommander = async (platform, options, fn) => {
     return fn(options.commander);
   }
   const open = options.openSession ?? openBrowserSession;
+  const policy = await resolveBrowserPolicy(options.store, {
+    platform: platform.id,
+    useCase: 'cv',
+    slot: options.browserSlot ?? 'main',
+    headless: options.headless,
+  });
   const session = await open({
     platform: platform.id,
-    headless: options.headless ?? false,
+    store: options.store,
+    slot: policy.slot,
+    useCase: 'cv',
+    headless: policy.headless,
     profileDir: options.profileDir ?? null,
     locale: options.locale ?? `${platform.locales[0]}-${platform.region}`,
     verbose: options.verbose ?? false,

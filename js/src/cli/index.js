@@ -24,6 +24,7 @@ import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
+import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
 import {
   AUTOMATION_HELP,
   createAutomationCommands,
@@ -133,6 +134,7 @@ ${AUTOMATION_HELP}
   vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
   vault-list    [--file=<path>]
 ${CV_HELP}
+${BROWSER_HELP}
 ${GREETINGS_HELP}
 ${MIGRATE_HELP}
   help          (also --help, -h)
@@ -862,6 +864,7 @@ const COMMANDS = {
   'vault-list': vaultListCmd,
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
   ...createCvCommands({ openStore }),
+  ...createBrowserCommands({ openStore, openReadOnly }),
   // Automations: plan, run and review drafts one by one (issue #31).
   ...createAutomationCommands({ openStore }),
   // Hi/hello and greeting-sticker openers (issue #35).

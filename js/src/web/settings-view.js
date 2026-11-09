@@ -28,6 +28,7 @@ import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
+import { BrowserSettings } from './settings-browser.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -319,6 +320,7 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    el(BrowserSettings, { key: 'browser', api }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),

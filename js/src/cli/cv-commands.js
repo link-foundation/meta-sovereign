@@ -29,9 +29,9 @@ import { confirmCli } from './confirm.js';
 
 export const CV_HELP = `  cv-platforms  [--json]
   cv-plan       --platform=<id> [--json]
-  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headless] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
+  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
   cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
-  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless] [--store=<dir>]
+  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--store=<dir>]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 
 /** `--platforms=a,b` (or repeated commas) — defaults to every platform. */
@@ -82,14 +82,25 @@ export const parseVars = (args) => {
 };
 
 const flagOff = (value) => value === false || value === 'false';
+const runHeadless = (args) => {
+  if (args.headed === true || args.headed === 'true') {
+    return false;
+  }
+  if (args.headless === undefined) {
+    return undefined;
+  }
+  if (![true, false, 'true', 'false'].includes(args.headless)) {
+    throw new Error('--headless must be true or false');
+  }
+  return args.headless === true || args.headless === 'true';
+};
 
 /** Options every live command shares. */
 const liveOptions = (args, store, extra) => ({
   store,
   vars: parseVars(args),
-  headless:
-    (args.headless === true || args.headless === 'true') &&
-    !(args.headed === true || args.headed === 'true'),
+  headless: runHeadless(args),
+  browserSlot: args['browser-slot'] ?? 'main',
   profileDir: args.profile ?? null,
   artifactDir: args.artifacts ?? null,
   save: !(args['no-save'] === true || flagOff(args.save)),

@@ -6,6 +6,7 @@ import { readAllCvs } from '../src/cv/index.js';
 import { createCvCommands } from '../src/cli/cv-commands.js';
 import { handleCvRoutes } from '../src/server/routes-cv.js';
 import { createMemoryStore } from '../src/storage/index.js';
+import { saveBrowserPolicy } from '../src/browser/policy.js';
 
 // Record launch options without opening a browser or accessing a profile.
 const recorder = () => {
@@ -20,6 +21,47 @@ const recorder = () => {
 };
 
 describe('visible browser defaults', () => {
+  it('uses persisted slot policy through both the CV CLI and API', async () => {
+    const store = createMemoryStore();
+    await saveBrowserPolicy(store, {
+      scope: 'slot',
+      key: 'hh/forms',
+      headless: true,
+    });
+    const capture = recorder();
+    const commands = createCvCommands({
+      openStore: async () => store,
+      live: { openSession: capture.openSession },
+    });
+    await commands['cv-read'](
+      { platforms: 'hh', 'browser-slot': 'forms' },
+      () => {}
+    );
+    const req = Readable.from([
+      Buffer.from(
+        JSON.stringify({
+          platforms: ['hh'],
+          browserSlot: 'forms',
+        })
+      ),
+    ]);
+    req.method = 'POST';
+    req.headers = {};
+    await handleCvRoutes(
+      store,
+      req,
+      { writeHead() {}, end() {} },
+      '/api/cv/read',
+      null,
+      { cvSessionFactory: capture.openSession }
+    );
+    expect(capture.launches.length).toBe(2);
+    for (const launch of capture.launches) {
+      expect(launch.headless).toBe(true);
+      expect(launch.slot).toBe('forms');
+    }
+  });
+
   it('starts the shared factory headed and preserves explicit headless mode', async () => {
     for (const headless of [undefined, true, false]) {
       let launched;

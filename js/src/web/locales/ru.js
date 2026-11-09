@@ -1,3 +1,4 @@
+import { ruBrowser } from './ru-browser.js';
 // Russian locale (issue #18). Keys must mirror ./en.js exactly; the
 // parity test in js/tests/i18n.test.js fails the build if they
 // drift. Reviewed against the Telegram Desktop ru.strings file
@@ -18,6 +19,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruBrowser,
   ...ruStickers,
   ...ruFeedback,
   ...ruConversation,

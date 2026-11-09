@@ -1,3 +1,4 @@
+import { hiBrowser } from './hi-browser.js';
 // Hindi locale (issue #18). Keys must mirror ./en.js exactly; the
 // parity test in js/tests/i18n.test.js fails the build if they
 // drift. Devanagari script renders correctly without bundled fonts on
@@ -19,6 +20,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiBrowser,
   ...hiStickers,
   ...hiFeedback,
   ...hiConversation,

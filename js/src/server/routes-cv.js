@@ -52,7 +52,8 @@ const platformIds = (value) => {
 const liveOptions = (store, body, ctx) => ({
   store,
   vars: body.vars ?? {},
-  headless: body.headless === true,
+  headless: body.headless,
+  browserSlot: body.browserSlot ?? 'main',
   profileDir: body.profileDir ?? null,
   artifactDir: body.artifactDir ?? ctx?.cvArtifactDir ?? null,
   save: body.save !== false,

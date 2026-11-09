@@ -1,0 +1,19 @@
+# Issue 56: unified automation and device architecture
+
+Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft implementation: <https://github.com/link-foundation/meta-sovereign/pull/57>.
+
+The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and canonical requirements R-AA1–R-AA25. The issue asks for complete feature parity with six reference projects, a shared configurable automation model, browser fallback, associative storage/transport, recovery and cross-device operation. Passing an isolated test does not complete those remaining criteria.
+
+## Evidence and chronology
+
+- 2026-11-09 09:28 UTC: issue created. Initial issue and PR snapshots, including all three PR feedback endpoints, are in `evidence/github/`. They returned no comments, reviews or required sub-issues at collection; finalization must refresh them.
+- Initial research pinned ten repositories, including all six feature references, browser-commander, link-cli, lino-rest-api and formal-ai. The complete downloaded metadata, commit/tree responses and READMEs are preserved in `data/reference-snapshots.tar.gz`, with per-file SHA-256 values in its adjacent manifest. Reference code is inspected outside the working tree and never executed.
+- The initial code review found independent headless defaults across five browser entry points. [browser-defaults.md](browser-defaults.md) records the failing-before/passing-after reproduction and first fix.
+- The next step added shared persistent visibility preferences and isolated slots. [browser-preferences.md](browser-preferences.md) contains implementation, test and visual evidence.
+- CI run [42595819230](https://github.com/link-foundation/meta-sovereign/actions/runs/42595819230), created 09:45:19 UTC for exact commit `76d16775e84303fecb38d11aedcdc585a0b63893`, failed formatting. Log lines 2203–2210 identify eight raw GitHub JSON snapshots; line 2211 reports formatting errors. The downstream checks were skipped, not passed. The snapshots were formatted in commit `3374762d`. Full logs and job metadata are in `data/ci-42595819230.tar.gz`; this diagnosis must be rechecked on the next pushed head.
+
+## Research and open analysis
+
+The source pins are retained in the research archive rather than assuming moving branches remain unchanged. A granular feature-to-implementation/test inventory is still required. The case study will expand each requirement's root cause, alternatives, selected approach, online evidence and validation as implementation proceeds. No unimplemented reference feature is presented as complete here.
+
+Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.py`; collection uses `experiments/issue-56/collect.py`. Archive creation verifies every file against its hash. The original JSON issue body remains readable in `evidence/github/issue-56.json`.

@@ -435,7 +435,15 @@ const startRoute = async (manager, req, res, ctx) => {
     return json(res, 503, { error: reason }) ?? true;
   }
   const body = await readBody(req);
-  return json(res, 202, manager.start(String(body.provider ?? ''))) ?? true;
+  return (
+    json(
+      res,
+      202,
+      manager.start(String(body.provider ?? ''), {
+        slot: body.browserSlot ?? 'main',
+      })
+    ) ?? true
+  );
 };
 
 const dispatch = async (store, req, res, p, ctx) => {

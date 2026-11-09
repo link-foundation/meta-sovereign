@@ -1,0 +1,19 @@
+▶ visible browser defaults
+  ✔ uses persisted slot policy through both the CV CLI and API (8.932203ms)
+  ✔ starts the shared factory headed and preserves explicit headless mode (13.275697ms)
+  ✔ does not override the default in the CV facade (0.538414ms)
+  ✔ uses headed CLI runs unless --headless is explicitly enabled (8.752949ms)
+  ✔ uses headed API runs and honors an explicit boolean override (6.129264ms)
+✔ visible browser defaults (39.809556ms)
+▶ persisted policy at browser launch boundaries
+  ✔ isolates active import slots, profiles and downloads and honors their policies (43.414371ms)
+  ✔ passes message slot visibility and its isolated profile to the session (3.239042ms)
+✔ persisted policy at browser launch boundaries (48.838839ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 886.262635

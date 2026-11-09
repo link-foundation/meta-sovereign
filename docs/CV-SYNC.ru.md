@@ -244,3 +244,19 @@ SPA отсылает к CLI.
 разойтись, а e2e проверяет именно поставляемый путь —
 `openBrowserSession` → browser-commander → runner → telemetry, — а не
 его mock.
+
+## Постоянные настройки браузера (R-AA2)
+
+Настройки → Автоматизация браузера задают значения для всех окон, сценария или пары сервис/слот. Приоритет: параметр запуска → слот → сценарий → значение по умолчанию → видимое окно. Наследование пропускает переопределение. Изменения действуют со следующего запуска. Вход по QR-коду остаётся видимым. Резюме, отправка сообщений, импорт и маркетплейсы используют единые правила. Ключи jobs/forms зарезервированы; их настройка сама по себе не запускает сценарий.
+
+Именованные слоты имеют отдельные постоянные профили; main сохраняет прежний путь. CLI резюме принимает `--browser-slot=forms`, API резюме и запуска импорта — `browserSlot`. Явный `--profile` задаёт точный каталог. Переносимые связи содержат только настройки, без cookie, профилей и учётных данных.
+
+```sh
+meta-sovereign browser-configure --scope=case --key=cv --mode=headless
+meta-sovereign browser-configure --scope=slot --key=hh/forms --mode=visible
+meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
+```
+
+`GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
+
+`POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`

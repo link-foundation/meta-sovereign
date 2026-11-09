@@ -33,7 +33,12 @@
 import { createHash } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { defaultProfileDir, openBrowserSession } from '../cv/browser.js';
+import {
+  defaultProfileDir,
+  openBrowserSession,
+  slotProfileDir,
+} from '../cv/browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 import { selectorCandidates } from '../cv/runner.js';
 import { createAdapterSender } from '../crm/reengage.js';
 import { WEB_UIS } from './web-uis.js';
@@ -393,19 +398,29 @@ export const createBrowserSender = ({
   input = 'type',
   loginTimeoutMs = 20000,
   pollMs = 250,
-  headless = false,
+  headless,
+  store = null,
+  slot = 'main',
   profileDirFor = defaultProfileDir,
   log = () => {},
   clock = () => new Date(),
 } = {}) => {
-  const open =
-    openSession ??
-    (({ source }) =>
-      openBrowserSession({
-        platform: source,
-        headless,
-        profileDir: profileDirFor(source),
-      }));
+  const open = async ({ source }) => {
+    const policy = await resolveBrowserPolicy(store, {
+      platform: source,
+      useCase: 'messages',
+      headless,
+      slot,
+    });
+    return (openSession ?? openBrowserSession)({
+      source,
+      platform: source,
+      useCase: 'messages',
+      slot,
+      headless: policy.headless,
+      profileDir: slotProfileDir(profileDirFor(source), slot),
+    });
+  };
   const pool = createSessionPool({ open, log });
 
   const uiFor = (source) => {
@@ -431,7 +446,7 @@ export const createBrowserSender = ({
     uiFor,
     waitFor,
     log,
-    profileDirFor,
+    profileDirFor: (source) => slotProfileDir(profileDirFor(source), slot),
   });
 
   const focusComposer = async (source, ui, commander) => {

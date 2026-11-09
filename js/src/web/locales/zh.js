@@ -1,3 +1,4 @@
+import { zhBrowser } from './zh-browser.js';
 // Simplified Chinese locale (issue #18). Keys must mirror ./en.js
 // exactly; the parity test in js/tests/i18n.test.js fails the build
 // if they drift. The issue uses the informal `ch` tag — the canonical
@@ -19,6 +20,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhBrowser,
   ...zhStickers,
   ...zhFeedback,
   ...zhConversation,

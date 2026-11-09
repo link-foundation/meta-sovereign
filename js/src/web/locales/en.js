@@ -1,3 +1,4 @@
+import { enBrowser } from './en-browser.js';
 // English locale (issue #18). Source language — every other locale
 // dictionary mirrors this set of keys exactly. The parity test in
 // js/tests/i18n.test.js fails the build if a locale is missing or
@@ -19,6 +20,7 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enBrowser,
   ...enStickers,
   ...enFeedback,
   ...enConversation,

@@ -1,0 +1,31 @@
+export const ruBrowser = {
+  'browser.title': 'Автоматизация браузера',
+  'browser.hint':
+    'Выберите, как подключённый сервер открывает окна браузера. Изменения действуют со следующего запуска. Приоритет: параметр запуска, слот, сценарий, значение по умолчанию.',
+  'browser.scope': 'Применить к',
+  'browser.scope.default': 'По умолчанию',
+  'browser.scope.case': 'Сценарий',
+  'browser.scope.slot': 'Слот браузера',
+  'browser.workflow': 'Сценарий',
+  'browser.case.general': 'Общий',
+  'browser.case.cv': 'Резюме',
+  'browser.case.messages': 'Сообщения',
+  'browser.case.auto-import': 'Импорт',
+  'browser.case.marketplace': 'Маркетплейс',
+  'browser.case.jobs': 'Отклики на вакансии',
+  'browser.case.forms': 'Формы',
+  'browser.platform': 'Идентификатор сервиса',
+  'browser.slot': 'Имя слота',
+  'browser.mode': 'Окно',
+  'browser.mode.visible': 'Видимое',
+  'browser.mode.headless': 'Скрытое (headless)',
+  'browser.mode.inherit': 'Наследовать настройку',
+  'browser.slotHint':
+    'Используйте строчные латинские буквы, цифры, дефис или подчёркивание. Слот main сохраняет текущий профиль; именованные слоты имеют отдельные сеансы входа. Вход по QR-коду открывает видимое окно.',
+  'browser.save': 'Сохранить настройку браузера',
+  'browser.saving': 'Сохранение…',
+  'browser.saved': 'Настройка браузера сохранена.',
+  'browser.failed':
+    'Не удалось сохранить настройку. Выбор сохранён в форме; повторите попытку.',
+  'browser.loading': 'Загрузка настроек браузера…',
+};

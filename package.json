@@ -47,6 +47,7 @@
     "test:e2e:archive-media:webkit": "E2E_BROWSER=webkit node js/tests/e2e-archive-media-browser.mjs",
     "test:e2e:email": "node js/tests/e2e-email-browser.mjs",
     "test:e2e:email:webkit": "E2E_BROWSER=webkit node js/tests/e2e-email-browser.mjs",
+    "test:e2e:browser-preferences": "node js/tests/e2e-browser-preferences.mjs",
     "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
     "test:e2e:greetings": "node js/tests/e2e-greetings-browser.mjs",
     "test:e2e:tutorial": "node js/tests/e2e-tutorial-browser.mjs",

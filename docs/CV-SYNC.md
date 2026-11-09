@@ -249,3 +249,19 @@ something: it derives the page from the plan's selectors, so a plan
 and its fixture cannot drift apart, and the e2e exercises the shipped
 path — `openBrowserSession` → browser-commander → runner → telemetry —
 rather than a mock of it.
+
+## Persistent browser preferences (R-AA2)
+
+Settings → Browser automation configures defaults, workflows and provider/slot pairs. Priority: explicit run option → slot → workflow → default → visible. Inherit skips a slot/workflow override. Changes apply to the next launch. Interactive QR sign-in stays visible. CV, message sending, imports and marketplace sessions share this resolver. The jobs/forms keys are reserved; setting them alone does not run a workflow.
+
+Named slots have separate persistent profiles; main keeps its existing path. CV CLI accepts `--browser-slot=forms`; CV API and import-start requests accept `browserSlot`. Explicit CV `--profile` supplies an exact directory. Portable links contain preferences only, without cookies, profiles or credentials.
+
+```sh
+meta-sovereign browser-configure --scope=case --key=cv --mode=headless
+meta-sovereign browser-configure --scope=slot --key=hh/forms --mode=visible
+meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
+```
+
+`GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
+
+`POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`
