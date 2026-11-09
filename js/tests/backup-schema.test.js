@@ -15,6 +15,7 @@ import { createMemoryStore } from '../src/storage/index.js';
 import { makeBackup, restoreBackup } from '../src/storage/backup.js';
 import { scanArchive } from '../src/storage/backup-archive.js';
 import { browserPolicyId } from '../src/browser/policy.js';
+import { SALARY_EXCHANGE_ID } from '../src/automation/salary-exchange-state.js';
 import {
   CURRENT_SCHEMA,
   SCHEMA_ID,
@@ -102,7 +103,12 @@ test('an old-format backup still restores, and a plain one has no secrets', asyn
   const file = path.join(dir, 'meta-sovereign-1.json');
   await fs.writeFile(file, JSON.stringify({ version: 1, links: [old] }));
   const target = createMemoryStore();
-  assert.equal(await restoreBackup(target, file), 2); // record + browser default
+  assert.equal(await restoreBackup(target, file), 3); // record + browser default + empty rates
+  assert.deepEqual(await target.get(SALARY_EXCHANGE_ID), {
+    id: SALARY_EXCHANGE_ID,
+    exchange: null,
+    fetchedAt: null,
+  });
   assert.equal((await target.get(browserPolicyId('default'))).headless, false);
   assert.equal((await target.get('msg:old:1')).deleted.by, 'unknown');
 
