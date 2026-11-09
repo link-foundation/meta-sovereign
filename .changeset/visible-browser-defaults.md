@@ -85,3 +85,5 @@ Add distinct VK wall and Telegram publication/deletion adapters with explicit de
 Save selected/all Telegram, VK and X publication destinations, separate credential modes and masked setup through CLI, default Lino API and Broadcast UI. Confirm exact plans, retain per-destination receipts and deletion history, stop uncertain/rate-limited batches and preserve pending requests across reload without automatic replay. Add default-off bounded metadata diagnostics.
 
 Remeasure tutorial cards before paint when their bodies collapse, preserving target clearance even when ResizeObserver delivery is delayed. Retain geometry diagnostics and failure screenshots with a deterministic short-viewport regression.
+
+Add shared active-conversation and migrated-group history exports, bounded linked Markdown/JSON parts, exact Telegram targets and a CLI that waits for output completion. Preserve HTML/JSON controls, distinguish overlapping peer IDs, display media failures and keep export media controls separated on mobile.

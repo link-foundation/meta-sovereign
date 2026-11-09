@@ -10783,7 +10783,10 @@ span.bubble-effect {
   overflow-y: auto;
 }
 .export-form,
-.export-progress {
+.export-progress,
+.export-scope {
+  display: grid;
+  gap: 0.6rem;
 }
 
 /* Giveaways, paid messages, channel auto-translation (R-Y184). */
@@ -10834,10 +10837,19 @@ span.bubble-effect {
   border-radius: var(--radius);
   padding: 0.4rem 0.7rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem 0.75rem;
 }
 .export-media .pin-dialog-option {
   margin: 0.2rem 0;
+  min-width: 0;
+}
+.export-media .pin-dialog-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.export-media input {
+  flex: 0 0 auto;
 }
 .export-field {
   display: flex;

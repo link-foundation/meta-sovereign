@@ -42,10 +42,18 @@ export const DEFAULT_FORM = Object.freeze({
   from: '',
   to: '',
   format: 'html',
+  scope: 'all',
+  gapHours: 4,
+  maxLines: 1500,
   folder: '',
 });
 
-const FORMATS = { html: ['html'], json: ['json'], both: ['html', 'json'] };
+const FORMATS = {
+  html: ['html'],
+  json: ['json'],
+  both: ['html', 'json'],
+  markdown: ['markdown'],
+};
 
 /** The request the server takes, from the dialog's fields. */
 export const requestOf = (chat, form) => ({
@@ -56,10 +64,26 @@ export const requestOf = (chat, form) => ({
   from: form.from || null,
   to: form.to || null,
   formats: FORMATS[form.format] ?? FORMATS.html,
+  scope: form.scope ?? 'all',
+  gapHours: Number(form.gapHours ?? 4),
+  maxLines: Number(form.maxLines ?? 1500),
   folder: form.folder.trim(),
 });
 
 /** Whether the fields can be sent (the server checks all of it again). */
+const windowReady = (form) => {
+  const gap = Number(form.gapHours ?? 4);
+  const lines = Number(form.maxLines ?? 1500);
+  return (
+    ['all', 'active'].includes(form.scope ?? 'all') &&
+    gap >= 0.01 &&
+    gap <= 168 &&
+    Number.isInteger(lines) &&
+    lines >= 32 &&
+    lines <= 1500
+  );
+};
+
 export const formReady = (form) => {
   const limit = Number(form.sizeLimitMb);
   return (
@@ -67,6 +91,7 @@ export const formReady = (form) => {
     Number.isInteger(limit) &&
     limit >= 1 &&
     limit <= 4000 &&
+    windowReady(form) &&
     (!form.from || !form.to || form.from <= form.to)
   );
 };
@@ -167,8 +192,68 @@ const MediaChecks = ({ form, set, t }) =>
     ),
   ]);
 
+const ScopeFields = ({ form, set, t }) =>
+  el('div', { className: 'export-scope' }, [
+    el(
+      Field,
+      { key: 'scope', name: 'scope', label: t('chat.export.scope') },
+      el(
+        'select',
+        {
+          key: 'i',
+          'data-field': 'scope',
+          value: form.scope,
+          onChange: (e) => set({ scope: e.target.value }),
+        },
+        ['all', 'active'].map((scope) =>
+          el(
+            'option',
+            { key: scope, value: scope },
+            t(`chat.export.scope.${scope}`)
+          )
+        )
+      )
+    ),
+    form.scope === 'active'
+      ? el(
+          Field,
+          { key: 'gap', name: 'gap', label: t('chat.export.gap') },
+          el('input', {
+            key: 'i',
+            type: 'number',
+            min: 0.01,
+            max: 168,
+            step: 0.01,
+            'data-field': 'gap',
+            value: form.gapHours,
+            onChange: (e) => set({ gapHours: e.target.value }),
+          })
+        )
+      : null,
+    form.scope === 'active'
+      ? el('p', { key: 'hint', className: 'meta' }, t('chat.export.gapHint'))
+      : null,
+    form.format === 'markdown'
+      ? el(
+          Field,
+          { key: 'lines', name: 'maxLines', label: t('chat.export.maxLines') },
+          el('input', {
+            key: 'i',
+            type: 'number',
+            min: 32,
+            max: 1500,
+            step: 1,
+            'data-field': 'maxLines',
+            value: form.maxLines,
+            onChange: (e) => set({ maxLines: e.target.value }),
+          })
+        )
+      : null,
+  ]);
+
 const Form = ({ form, set, t, busyOther }) =>
   el('div', { className: 'export-form' }, [
+    el(ScopeFields, { key: 'scope', form, set, t }),
     el(MediaChecks, { key: 'm', form, set, t }),
     el(Field, { key: 'limit', name: 'limit', label: t('chat.export.limit') }, [
       el('input', {
@@ -247,7 +332,11 @@ const Progress = ({ job, t }) => {
     el(
       'p',
       { key: 's', 'data-export': 'state' },
-      t(`chat.export.state.${job.state}`)
+      t(
+        job.state === 'running' && job.phase === 'locating'
+          ? 'chat.export.locating'
+          : `chat.export.state.${job.state}`
+      )
     ),
     el(ProgressBar, {
       key: 'bar',
@@ -277,6 +366,13 @@ const Progress = ({ job, t }) => {
           'p',
           { key: 'c', className: 'meta', 'data-export': 'current' },
           t('chat.export.current', { name: job.current })
+        )
+      : null,
+    job.failed > 0
+      ? el(
+          'p',
+          { key: 'failedFiles', role: 'status', 'data-export': 'failedFiles' },
+          t('chat.export.failedFiles', { count: job.failed })
         )
       : null,
     job.code
