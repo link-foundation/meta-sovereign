@@ -53,3 +53,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Both salary tax bases](salary-both.md): independently resolved and labeled amounts, 26 focused checks, actual-server browser evidence and current-value delivery guards.
 
 - [Configured placeholders](question-substitution.md): opt-in contact/salary contraction, current-value expansion, policy/context guards and CLI/Lino API/UI evidence.
+
+- [Operator history race](ci-operator-history.md): preserved CI artifact, deterministic late-effect regression and independent history navigation evidence.

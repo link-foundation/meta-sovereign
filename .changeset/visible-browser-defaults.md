@@ -61,3 +61,5 @@ Add an explicit automatic CBR exchange policy to saved salary settings, reuse fr
 Answer salary questions requesting both net and gross with independently resolved, labeled amounts and preserved calculation evidence. Missing/stale values and changes to either amount still stop automatic delivery.
 
 Add opt-in configured contact and salary placeholder contraction when saving or learning answers through CLI, both Lino APIs and UI. Expand current dated salary calculations with approval/context evidence; preserve ambiguous literals, canonical rejection checks and unchanged templates.
+
+Preserve newer eligible Operator Back/Forward destinations when a previous card effect finishes late, with deterministic route regression and opt-in browser history diagnostics.

@@ -52,6 +52,21 @@ const { base, page, until, finish } = await openChatApp('operator', {
     return { via: 'fake' };
   },
 });
+if (process.env.E2E_OPERATOR_TRACE === '1') {
+  await page.addInitScript(() => {
+    globalThis.metaSovereignDebug = true;
+    for (const type of ['popstate', 'hashchange']) {
+      globalThis.addEventListener(type, () =>
+        console.debug('[operator-history]', type, globalThis.location.hash)
+      );
+    }
+  });
+  page.on('console', (event) => {
+    if (/\[ms-debug\]|\[operator-history\]/u.test(event.text())) {
+      console.log(event.text());
+    }
+  });
+}
 let failRead = false;
 let failDirectory = true;
 await page.addInitScript(() => {
