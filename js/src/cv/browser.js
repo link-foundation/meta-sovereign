@@ -141,7 +141,7 @@ export const launchWithCommander = async ({
  *
  * @param {object} [options]
  * @param {string} [options.platform] platform id, used for the profile dir
- * @param {boolean} [options.headless] default true; sign-in runs want false
+ * @param {boolean} [options.headless] default false; opt in for unattended runs
  * @param {string} [options.profileDir] persistent user-data directory
  * @param {number} [options.slowMo] ms between actions (debugging)
  * @param {string} [options.locale] browser locale, e.g. `vi-VN`
@@ -152,7 +152,7 @@ export const launchWithCommander = async ({
  */
 export const openBrowserSession = async ({
   platform = 'shared',
-  headless = true,
+  headless = false,
   profileDir = null,
   slowMo = 0,
   locale = 'en-US',

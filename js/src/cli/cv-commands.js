@@ -29,9 +29,9 @@ import { confirmCli } from './confirm.js';
 
 export const CV_HELP = `  cv-platforms  [--json]
   cv-plan       --platform=<id> [--json]
-  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headed] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
+  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headless] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
   cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
-  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headed] [--store=<dir>]
+  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless] [--store=<dir>]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 
 /** `--platforms=a,b` (or repeated commas) — defaults to every platform. */
@@ -87,7 +87,9 @@ const flagOff = (value) => value === false || value === 'false';
 const liveOptions = (args, store, extra) => ({
   store,
   vars: parseVars(args),
-  headless: !(args.headed === true || args.headed === 'true'),
+  headless:
+    (args.headless === true || args.headless === 'true') &&
+    !(args.headed === true || args.headed === 'true'),
   profileDir: args.profile ?? null,
   artifactDir: args.artifacts ?? null,
   save: !(args['no-save'] === true || flagOff(args.save)),

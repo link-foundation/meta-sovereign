@@ -393,7 +393,7 @@ export const createBrowserSender = ({
   input = 'type',
   loginTimeoutMs = 20000,
   pollMs = 250,
-  headless = true,
+  headless = false,
   profileDirFor = defaultProfileDir,
   log = () => {},
   clock = () => new Date(),

@@ -81,7 +81,7 @@ const withCommander = async (platform, options, fn) => {
   const open = options.openSession ?? openBrowserSession;
   const session = await open({
     platform: platform.id,
-    headless: options.headless ?? true,
+    headless: options.headless ?? false,
     profileDir: options.profileDir ?? null,
     locale: options.locale ?? `${platform.locales[0]}-${platform.region}`,
     verbose: options.verbose ?? false,

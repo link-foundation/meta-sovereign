@@ -222,8 +222,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-The first `cv-read` for a platform opens a headed browser
-(`--headed`), the user signs in once, and the session is kept in a
+Every `cv-read` and live `cv-sync` opens a headed browser by default.
+Use `--headless` (or API `headless: true`) for an invisible run;
+`--headed` remains supported. The user signs in once, and the session is kept in a
 per-platform profile directory (`--profile=<dir>`). Subsequent runs
 reuse it. Credentials are never asked for, stored or transmitted by
 this repository.

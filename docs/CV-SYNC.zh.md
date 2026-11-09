@@ -200,7 +200,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-某个平台的第一次 `cv-read` 会打开可见浏览器（`--headed`），用户登录一次，
+每次 `cv-read` 和实时 `cv-sync` 默认都会打开可见浏览器。
+使用 `--headless`（或 API `headless: true`）选择无界面运行；
+仍支持 `--headed`。用户登录一次，
 session 保存在按平台区分的 profile 目录（`--profile=<dir>`）里，之后的运行
 会复用它。本仓库从不索取、保存或传输凭据。
 

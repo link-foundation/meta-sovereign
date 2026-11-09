@@ -217,8 +217,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-Первый `cv-read` для платформы открывает видимый браузер
-(`--headed`), пользователь входит один раз, и session остаётся в
+Каждый `cv-read` и живой `cv-sync` по умолчанию открывает видимый браузер.
+Для невидимого запуска укажите `--headless` (или API `headless: true`);
+`--headed` также поддерживается. Пользователь входит один раз, и session остаётся в
 отдельном для платформы profile directory (`--profile=<dir>`).
 Следующие запуски её переиспользуют. Пароли этот репозиторий никогда
 не спрашивает, не хранит и не передаёт.
