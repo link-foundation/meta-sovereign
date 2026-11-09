@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-df7c0c28.md](ci-df7c0c28.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for bounded question-turn matching and archive learning.
+
 - [broadcast-outcomes.md](broadcast-outcomes.md) records false sent/queue states, shared delivery accounting, actual confirmed UI, interrupted-write uncertainty and 47 focused checks with production browser/MCP before/after evidence.
 
 - [ci-23726697.md](ci-23726697.md) preserves all five successful workflows, every runtime and both browsers for the discovery fixture and multilingual recognition correction.
