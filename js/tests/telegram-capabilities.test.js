@@ -31,6 +31,9 @@ test(
     assert.deepEqual(status.capabilities, {
       notifySettings: false,
       accountEvents: false,
+      quickReaction: false,
+      quickReactionSet: false,
+      urlAuthDomains: false,
     });
   }
 );

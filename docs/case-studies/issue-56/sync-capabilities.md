@@ -12,4 +12,4 @@ Independent MCP repeats the actual Operator fixture with the corrected bundle: t
 
 ![After: Operator loaded without the unsupported RTC connection](https://github.com/link-foundation/meta-sovereign/blob/issue-56-2677debd3a31/docs/screenshots/issue-56-sync-capabilities-after.png?raw=true)
 
-This fixes advertised signaling availability, not general discovery, mobile feature or storage-placement parity. The same no-account fixture still requests unsupported Telegram quick-reaction and URL-auth-domain routes; these remain recorded under the broader capability work in [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57).
+This fixes advertised signaling availability. General discovery, mobile feature and storage-placement parity remain open. The same no-account fixture exposed unsupported Telegram quick-reaction and URL-auth-domain reads; the subsequent [optional-operation correction](telegram-optional-capabilities.md) verifies their suppression. Broader capability work remains unfinished in [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57).

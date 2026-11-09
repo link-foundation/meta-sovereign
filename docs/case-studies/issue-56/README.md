@@ -6,6 +6,10 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-41af6c6b.md](ci-41af6c6b.md) retains the superseded archive-learning run: 32 successful Checks jobs, cancelled WebKit/macOS packaging and the strict aggregate error, with complete logs and exact commit/timestamps.
+
+- [telegram-optional-capabilities.md](telegram-optional-capabilities.md) records unavailable reaction/login-domain reads in cached HH Operator, independent user-operation capabilities, 41 passing focused checks and a production browser regression with MCP before/after evidence.
+
 - [salary-exchange.md](salary-exchange.md) records explicit primary CBR refresh, normalized currency lots, dated cache recovery, clock-aware delivery expiry, CLI/Lino API/UI and browser evidence. Unattended refresh policy remains open.
 
 - [ci-package-startup.md](ci-package-startup.md) records a packed CLI health/output race, the preserved CI artifact and a bounded failing-before/passing-after regression. The packed installation remains a CI check.

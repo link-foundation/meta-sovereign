@@ -429,7 +429,10 @@ export const TELEGRAM_CALLS = {
   telegramSendAsSave: body('send-as-save'),
   // The recent calls list (R-Y163).
   telegramCalls: readBody('calls'),
-  telegramNotifySettings: readNone('notify-settings'),
+  telegramNotifySettings: {
+    ...readNone('notify-settings'),
+    capability: 'notifySettings',
+  },
   telegramNotifySettingsSet: body('notify-settings-set'),
   telegramNotifyChat: body('notify-chat'),
   telegramCommonChats: readBody('common-chats'),
@@ -509,7 +512,10 @@ export const TELEGRAM_CALLS = {
   // Bot login links and attachment-menu bots (R-Y201).
   telegramBotUrlAuth: readBody('bot-url-auth'),
   telegramBotUrlAccept: body('bot-url-accept'),
-  telegramUrlAuthDomains: readNone('url-auth-domains'),
+  telegramUrlAuthDomains: {
+    ...readNone('url-auth-domains'),
+    capability: 'urlAuthDomains',
+  },
   telegramAttachMenuBots: readNone('attach-menu-bots'),
   telegramAttachMenuBot: readBody('attach-menu-bot'),
   telegramAttachMenuToggle: body('attach-menu-toggle'),
@@ -534,8 +540,14 @@ export const TELEGRAM_CALLS = {
   telegramStickerFeaturedRead: body('sticker-featured-read'),
   telegramStickerRecentClear: none('sticker-recent-clear'),
   telegramStickerAttached: readBody('sticker-attached'),
-  telegramQuickReaction: readNone('quick-reaction'),
-  telegramQuickReactionSet: body('quick-reaction-set'),
+  telegramQuickReaction: {
+    ...readNone('quick-reaction'),
+    capability: 'quickReaction',
+  },
+  telegramQuickReactionSet: {
+    ...body('quick-reaction-set'),
+    capability: 'quickReactionSet',
+  },
   telegramCustomEmojiSearch: readBody('custom-emoji-search'),
   // The emoji panel's Premium flag and category groups (R-Y214).
   telegramEmojiPanelInfo: readBody('emoji-panel-info'),

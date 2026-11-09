@@ -32,17 +32,14 @@ import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 import { createGreetingApi } from './greetings-api.js';
-import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
+import { createTelegramCalls } from './telegram-call-api.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
 import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
-import {
-  openTelegramAccountEvents,
-  telegramFeatureAvailable,
-} from './telegram-capabilities.js';
+import { openTelegramAccountEvents } from './telegram-capabilities.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -506,14 +503,10 @@ const telegramPost = async (name, body) =>
 let automationApi = null;
 // Each plain Telegram call of the page (R-Y75 onwards) as a function: a
 // call that takes a body sends it, one that takes none always sends {}.
-const telegramCalls = Object.fromEntries(
-  Object.entries(TELEGRAM_CALLS).map(([name, call]) => [
-    name,
-    call.body
-      ? (body = {}) => telegramPost(call.route, body)
-      : () => telegramPost(call.route, {}),
-  ])
-);
+const telegramCalls = createTelegramCalls({
+  post: telegramPost,
+  readStatus: () => api.telegramStatus(),
+});
 
 const automationCall =
   (name) =>
@@ -585,18 +578,6 @@ const rawApi = {
     )) ?? { ok: false, code: 'server-required' },
   // Plain POSTs to /api/telegram/<route> (./dom-telegram-calls.js).
   ...telegramCalls,
-  telegramNotifySettings: async () => {
-    const status = await api.telegramStatus();
-    return telegramFeatureAvailable(status, 'notifySettings')
-      ? telegramPost('notify-settings', {})
-      : {
-          ok: false,
-          unsupported:
-            status.available === false ||
-            status.capabilities?.notifySettings === false,
-          offline: Boolean(status.offline),
-        };
-  },
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
     const { client } = await ensure();

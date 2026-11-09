@@ -98,7 +98,7 @@ const unavailableNotifications = async () => {
   const unsupported = [];
   const record = (request) => {
     if (
-      /\/api\/telegram\/(?:notify-settings|accounts-events)(?:\?|$)/.test(
+      /\/api\/telegram\/(?:notify-settings|accounts-events|quick-reaction|url-auth-domains)(?:\?|$)/.test(
         request.url()
       )
     ) {

@@ -69,3 +69,5 @@ Await owned Lino input closure after both early-return and full-stream reads, pr
 Learn reviewed answer proposals across the full stored message archive using bounded metadata and streamed turns. Preserve observed counts beyond the evidence display cap, refuse changed histories or capacity overflow before applying, and show archive coverage and proposal frequencies through shared CLI/Lino API/UI controls.
 
 Advertise actual WebSocket/RTC listener availability during discovery, skip explicitly unavailable signaling in browser startup and close RTC when resetting a server binding. Preserve older-server compatibility.
+
+Check actual Telegram user-operation capabilities before background quick-reaction/login-domain reads and quick-reaction changes. Share descriptor-based notification preflight, distinguish unavailable from unreachable, and preserve older-server behavior.
