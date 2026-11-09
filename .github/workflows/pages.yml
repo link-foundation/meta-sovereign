@@ -44,7 +44,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
@@ -52,7 +52,7 @@ jobs:
           write: 'true'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -152,13 +152,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -207,13 +207,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund

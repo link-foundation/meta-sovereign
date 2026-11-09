@@ -92,10 +92,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Check dependency review capability before building
         id: graph
@@ -224,13 +224,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -292,7 +292,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
@@ -300,7 +300,7 @@ jobs:
           write: 'true'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -381,7 +381,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
@@ -390,7 +390,7 @@ jobs:
           write: ${{ matrix.os != 'ubuntu-26.04' && 'true' || 'false' }}
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies (Node.js)
         if: matrix.runtime == 'node'
@@ -550,12 +550,12 @@ jobs:
         run: bash js/scripts/simulate-fresh-merge.sh
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - name: Install the browser
@@ -620,13 +620,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -765,13 +765,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -821,12 +821,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - name: Verify streaming memory bound and complete round trip
@@ -849,12 +849,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - uses: actions/setup-python@v7.1.0
@@ -867,7 +867,7 @@ jobs:
       - name: Compile standard-library Python utilities
         run: python -m compileall -q experiments
       - name: Install pinned workflow security scanner
-        run: python -m pip install --disable-pip-version-check zizmor==1.31.1
+        run: python -m pip install --disable-pip-version-check zizmor==1.32.0
       - name: Workflow security audit (offline deterministic policy)
         run: zizmor --offline --format plain .github
       - name: Check pipeline gate and browser coverage
@@ -900,14 +900,14 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - run: npm audit --package-lock-only --audit-level=low
-      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
@@ -945,17 +945,17 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@v4.39.1
+      - uses: github/codeql-action/init@v4.39.3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@v4.39.1
+      - uses: github/codeql-action/analyze@v4.39.3
         with:
           output: artifacts/codeql
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Reject unresolved CodeQL findings
         run: node js/scripts/check-codeql-results.mjs artifacts/codeql
@@ -1010,14 +1010,14 @@ jobs:
           installer -pkg "$RUNNER_TEMP/swiftly.pkg" -target CurrentUserHomeDirectory
           "$HOME/.swiftly/bin/swiftly" init --skip-install --assume-yes --no-modify-profile
           . "$HOME/.swiftly/env.sh"
-          swiftly install 6.4.1 --use --assume-yes
+          swiftly install 6.4.2 --use --assume-yes
           echo "$HOME/.swiftly/bin" >> "$GITHUB_PATH"
       - name: Type-check Apple SDK helpers without accessing personal data
         if: runner.os == 'macOS'
         run: |
           swift_compiler_version=$(swiftc --version)
           echo "$swift_compiler_version"
-          [[ "$swift_compiler_version" == *"Swift version 6.4.1 "* ]]
+          [[ "$swift_compiler_version" == *"Swift version 6.4.2 "* ]]
           swiftc -typecheck js/src/server/local-key-enclave.swift
           swiftc -parse-as-library -typecheck js/src/sources/system-contacts.swift
       - name: Build both Docker services from the committed lockfile
@@ -1060,11 +1060,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Require every selected check to pass
         env:
@@ -1103,12 +1103,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1217,12 +1217,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1306,11 +1306,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1329,7 +1329,7 @@ jobs:
           echo "Formatted changeset files"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore: add changeset for manual ${{ github.event.inputs.bump_type }} release'
