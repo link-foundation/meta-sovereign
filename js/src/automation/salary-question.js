@@ -52,7 +52,7 @@ export const salaryBasis = (text) => {
       text
     );
   const net = /\bnet\b|after\s+tax|take.home|на\s+руки|чистыми/iu.test(text);
-  return gross && net ? 'ambiguous' : gross ? 'gross' : net ? 'net' : null;
+  return gross && net ? 'both' : gross ? 'gross' : net ? 'net' : null;
 };
 export const salaryPeriod = (text) => {
   if (

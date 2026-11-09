@@ -49,3 +49,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 
 - [Automatic rate policy](salary-exchange-policy.md): shared cache-first preparation, bounded recovery, preserved snapshot defaults and CLI/API/UI evidence.
 - [Bounded CodeQL regression](ci-codeql-bounded-regression.md): exact-head all-job success, separate false-positive alert and verified audit evidence.
+
+- [Both salary tax bases](salary-both.md): independently resolved and labeled amounts, 26 focused checks, actual-server browser evidence and current-value delivery guards.

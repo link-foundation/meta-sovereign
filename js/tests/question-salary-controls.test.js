@@ -20,6 +20,7 @@ import {
 
 const question = 'What hourly rate in USD do you expect?';
 const salary = {
+  exchangeMode: 'snapshot',
   enabled: true,
   approved: true,
   defaultCurrency: 'USD',

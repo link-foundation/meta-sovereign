@@ -11,6 +11,36 @@ const wording = (value, selection) => {
   }
   return `From ${value} ${basis} per ${period === 'hour' ? 'hour' : 'month'}.`;
 };
+const resolvedWording = (resolved, selection) => {
+  if (!resolved.amounts) {
+    return wording(
+      formatSalary(resolved.amount, selection.currency),
+      selection
+    );
+  }
+  const gross = wording(
+    formatSalary(resolved.amounts.gross, selection.currency),
+    { ...selection, basis: 'gross' }
+  ).slice(0, -1);
+  const net = formatSalary(resolved.amounts.net, selection.currency);
+  return `${gross} (${net} ${selection.language === 'ru' ? 'на руки' : 'net'}).`;
+};
+const resolveSelection = (config, entry, selection, now) => {
+  const resolve = (basis) =>
+    resolveSalaryAmount(config, entry, basis, selection.period, { now });
+  if (selection.basis !== 'both') {
+    return resolve(selection.basis);
+  }
+  const net = resolve('net');
+  const gross = resolve('gross');
+  if (!net.amount || !gross.amount) {
+    return net.amount ? gross : net;
+  }
+  return {
+    amounts: { net: net.amount, gross: gross.amount },
+    ...(gross.calculation ? { calculation: gross.calculation } : {}),
+  };
+};
 const missingField = (selection, config, entry) => {
   if (!entry) {
     return 'salary_currency';
@@ -44,29 +74,27 @@ const salaryDetails = (selection, resolved) => ({
   basis: selection.basis,
   period: selection.period,
   ...(resolved.amount ? { amount: resolved.amount } : {}),
+  ...(resolved.amounts ? { amounts: resolved.amounts } : {}),
   ...(resolved.calculation ? { calculation: resolved.calculation } : {}),
 });
+const selectedOption = (choices, amount, selection, config) =>
+  amount ? (salaryOption(choices, amount, selection, config) ?? '') : '';
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(
     (item) => item.code === selection.currency
   );
-  const resolved = resolveSalaryAmount(
-    config,
-    entry,
-    selection.basis,
-    selection.period,
-    { now: input.now }
-  );
+  const resolved = resolveSelection(config, entry, selection, input.now);
   const { amount } = resolved;
-  const missing = amount
+  const hasAmount = Boolean(amount || resolved.amounts);
+  const missing = hasAmount
     ? []
     : [resolved.missing ?? missingField(selection, config, entry)];
-  let text = amount
-    ? wording(formatSalary(amount, entry.code), selection)
+  let text = hasAmount
+    ? resolvedWording(resolved, selection)
     : `{{${missing[0]}}}`;
   let optionMismatch = false;
-  if (amount && input.options?.length) {
-    text = salaryOption(input.options, amount, selection, config) ?? '';
+  if (hasAmount && input.options?.length) {
+    text = selectedOption(input.options, amount, selection, config);
     optionMismatch = !text;
   }
   const rejected = Boolean(rejectedAnswer(text, input.policy));

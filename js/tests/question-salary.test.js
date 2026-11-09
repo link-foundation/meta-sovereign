@@ -302,10 +302,9 @@ test('salary configuration rejects invalid hours, amounts, defaults and duplicat
   }
 });
 
-test('ambiguous periods, tax bases and rejected generated answers cannot become approved replies', () => {
+test('ambiguous periods and rejected generated answers cannot become approved replies', () => {
   for (const question of [
     'What hourly and monthly salary in USD do you expect?',
-    'What salary in USD net or gross do you expect?',
   ]) {
     const result = planAnswer(question, options);
     assert.equal(result.complete, false);

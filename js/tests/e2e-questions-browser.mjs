@@ -4,6 +4,7 @@ import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
 import { verifySalaryExchangePolicy } from './helpers/e2e-salary-exchange-policy.mjs';
+import { verifySalaryBoth } from './helpers/e2e-salary-both.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -408,6 +409,7 @@ const verifySalary = async (preview) => {
   await verifySalaryCalculation(preview, salary, currency, run, result);
   await verifySalaryExchange({ page, salary, run, result });
   await verifySalaryExchangePolicy({ page, salary, run, result, store });
+  await verifySalaryBoth({ page, preview, salary, run, result });
   await page.setViewportSize({ width: 1200, height: 1100 });
   await salary.evaluate((element) =>
     element.scrollIntoView({ block: 'center' })
