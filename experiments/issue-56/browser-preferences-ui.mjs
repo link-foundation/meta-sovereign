@@ -57,6 +57,7 @@ const stop = async () => {
 try {
   browser = await launchBrowser({
     engine: 'playwright',
+    channel: 'chrome',
     headless: false,
     userDataDir: path.join(dir, 'browser'),
     args: ['--no-sandbox', '--disable-background-networking'],

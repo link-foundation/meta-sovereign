@@ -1,8 +1,15 @@
 import { useLayoutEffect } from 'react';
+import { debugBrowser } from './client-log.js';
 
 // The floating composer can change height for replies, suggestions and
 // previews. Reserve only the space it actually covers, in both chat surfaces.
-export const useComposerSpace = (box, following, report) => {
+export const useComposerSpace = (
+  box,
+  following,
+  report,
+  dimensions,
+  editingTail
+) => {
   useLayoutEffect(() => {
     const node = box.current;
     const main = node?.closest('.chat-main');
@@ -42,15 +49,42 @@ export const useComposerSpace = (box, following, report) => {
       }
       // Growing or shrinking the composer follows only an existing live
       // tail. Reading older messages must keep the same viewport.
-      if (following.current) {
+      if (following.current || editingTail.current) {
+        following.current = true;
         node.scrollTop = node.scrollHeight;
+        // WebKit can clamp this position without delivering a separate
+        // scroll event before the next resize. Keep the gesture comparison
+        // in sync with every programmatic tail write.
+        dimensions.current = [
+          node.clientWidth,
+          node.clientHeight,
+          node.scrollTop,
+        ];
       }
+      editingTail.current = false;
     };
     // Mutating padding during observer delivery can leave a WebKit resize
     // notification undelivered. Measure once after all layout changes instead.
     const schedule = () => {
       globalThis.cancelAnimationFrame(frame);
       frame = globalThis.requestAnimationFrame(measure);
+    };
+    const edit = (event) => {
+      if (!event.target.closest?.('.chat-composer')) {
+        return;
+      }
+      // Remember intent before WebKit scrolls the caret. The resulting
+      // scroll can exceed the near-bottom threshold before our frame runs.
+      editingTail.current ||= following.current;
+      debugBrowser('chat_composer_follow', {
+        event: event.type,
+        following: following.current,
+        editingTail: editingTail.current,
+        top: node.scrollTop,
+        height: node.clientHeight,
+        contentHeight: node.scrollHeight,
+      });
+      schedule();
     };
     const Resize = globalThis.ResizeObserver;
     const resize = typeof Resize === 'function' ? new Resize(schedule) : null;
@@ -63,16 +97,19 @@ export const useComposerSpace = (box, following, report) => {
     children?.observe(main, { childList: true });
     // Native caret scrolling happens after input/focus. Reconcile the tail
     // after it, even for a single-line edit that does not resize the composer.
-    main.addEventListener('input', schedule);
-    main.addEventListener('focusin', schedule);
+    const edits = ['pointerdown', 'focusin', 'beforeinput', 'input'];
+    for (const event of edits) {
+      main.addEventListener(event, edit);
+    }
     measure();
     return () => {
       resize?.disconnect();
       children?.disconnect();
       globalThis.cancelAnimationFrame(frame);
-      main.removeEventListener('input', schedule);
-      main.removeEventListener('focusin', schedule);
+      for (const event of edits) {
+        main.removeEventListener(event, edit);
+      }
       node.style.removeProperty('--chat-composer-space');
     };
-  }, [box, following, report]);
+  }, [box, following, report, dimensions, editingTail]);
 };

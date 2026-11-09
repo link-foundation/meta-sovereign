@@ -201,9 +201,16 @@ export const useFollow = (state, api) => {
   const end = useRef(null);
   const line = useRef(null);
   const near = useRef(true);
-  const report = useLayoutTrace(api, box, state, near);
-  useComposerSpace(box, near, report);
   const dimensions = useRef(null);
+  const readerGesture = useRef(false);
+  const readerFrame = useRef(null);
+  const editingTail = useRef(false);
+  const report = useLayoutTrace(api, box, state, near);
+  useComposerSpace(box, near, report, dimensions, editingTail);
+  useEffect(
+    () => () => globalThis.cancelAnimationFrame(readerFrame.current),
+    []
+  );
   const seen = useRef({ key: null, last: null, known: null, sent: null });
   const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
@@ -218,6 +225,11 @@ export const useFollow = (state, api) => {
     const node = box.current;
     if (node && typeof node.scrollHeight === 'number') {
       node.scrollTop = node.scrollHeight;
+      dimensions.current = [
+        node.clientWidth,
+        node.clientHeight,
+        node.scrollTop,
+      ];
     } else {
       end.current?.scrollIntoView?.({ block: 'end' });
     }
@@ -288,7 +300,7 @@ export const useFollow = (state, api) => {
     observer.observe(column);
     return () => observer.disconnect();
   }, []);
-  const onScroll = () => {
+  const onScroll = (event) => {
     const node = box.current;
     if (!node) {
       return;
@@ -296,6 +308,11 @@ export const useFollow = (state, api) => {
     const size = [node.clientWidth, node.clientHeight];
     const previous = dimensions.current;
     const top = node.scrollTop;
+    const layoutScroll = event?.isTrusted === true && !readerGesture.current;
+    if (!layoutScroll) {
+      editingTail.current = false;
+    }
+    readerGesture.current = false;
     // A layout change can emit scroll before ResizeObserver runs. Do not
     // mistake that for the reader scrolling away from the live tail.
     if (
@@ -304,7 +321,7 @@ export const useFollow = (state, api) => {
       size.some((n, i) => n !== previous[i]) &&
       // A reader can scroll up before the resize observer has delivered.
       // Stale dimensions alone must not turn that gesture into a tail jump.
-      top >= previous[2] - 1
+      (layoutScroll || top >= previous[2] - 1)
     ) {
       bottom();
     }
@@ -314,9 +331,13 @@ export const useFollow = (state, api) => {
     debugBrowser('chat_scroll', {
       viewport: size,
       previousViewport: previous?.slice(0, 2),
+      previousTop: previous?.[2],
       top,
       correctedTop: node.scrollTop,
+      contentHeight: node.scrollHeight,
+      below,
       following: near.current,
+      layoutScroll,
     });
     // Telegram offers the way down once a screen is above the end.
     setAway(below > node.clientHeight / 2);
@@ -324,7 +345,28 @@ export const useFollow = (state, api) => {
       setUnseen(0);
     }
   };
-  return { box, end, line, unseen, away, onScroll, toEnd };
+  return {
+    box,
+    end,
+    line,
+    unseen,
+    away,
+    onScroll,
+    toEnd,
+    onReadGesture: (event) => {
+      if (event.type === 'pointermove' && !event.buttons) {
+        return;
+      }
+      readerGesture.current = true;
+      editingTail.current = false;
+      // A click without scrolling must not label an unrelated later resize
+      // as reader input. Scroll events precede this frame; drags refresh it.
+      globalThis.cancelAnimationFrame(readerFrame.current);
+      readerFrame.current = globalThis.requestAnimationFrame(() => {
+        readerGesture.current = false;
+      });
+    },
+  };
 };
 
 // Tells `seen(id)` the newest incoming message that is on screen (at

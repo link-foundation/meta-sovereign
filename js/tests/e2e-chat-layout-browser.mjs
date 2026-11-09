@@ -33,10 +33,29 @@ await store.put(read(30));
 const { page, base, until, finish } = await openChatApp('chat-layout', {
   store,
 });
-await page.addInitScript(() => {
+const debug = process.env.CI_BROWSER_DEBUG === '1';
+await page.addInitScript((debug) => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
   globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
-});
+  globalThis.metaSovereignDebug = debug;
+  if (debug) {
+    globalThis.__layoutTrace = [];
+    const original = globalThis.console.debug;
+    globalThis.console.debug = (...args) => {
+      if (
+        args[0] === '[ms-debug]' &&
+        ['chat_scroll', 'chat_composer_follow'].includes(args[1])
+      ) {
+        globalThis.__layoutTrace.push(`${args[1]} ${args[2]}`);
+        if (globalThis.__layoutTrace.length > 100) {
+          globalThis.__layoutTrace.shift();
+        }
+      } else {
+        original(...args);
+      }
+    };
+  }
+}, debug);
 const acknowledgements = [];
 await page.route('**/api/telegram/read', async (route) => {
   const request = requestBody(route.request());
@@ -53,6 +72,25 @@ const toBottom = () =>
     node.scrollTop = node.scrollHeight;
     node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
   });
+const settledScroll = async () => {
+  let previous;
+  let stable = 0;
+  await until(async () => {
+    const next = await page
+      .locator('.chat-scroll')
+      .evaluate((node) =>
+        [
+          node.clientWidth,
+          node.clientHeight,
+          node.scrollHeight,
+          node.scrollTop,
+        ].join(':')
+      );
+    stable = next === previous ? stable + 1 : 0;
+    previous = next;
+    return stable >= 2;
+  }, 'scroll geometry settles');
+};
 const startReading = (resize = false) =>
   page.locator('.chat-scroll').evaluate((node, resize) => {
     if (resize) {
@@ -86,13 +124,20 @@ const gap = (id) =>
     );
   }, id);
 const checkGap = async (id, label) => {
-  await until(
-    async () => {
-      const space = await gap(id);
-      return space >= 6 && space <= 12;
-    },
-    `${label}: last message stays just above composer (gap ${await gap(id)} px)`
-  );
+  try {
+    await until(
+      async () => {
+        const space = await gap(id);
+        return space >= 6 && space <= 12;
+      },
+      `${label}: last message stays just above composer (gap ${await gap(id)} px)`
+    );
+  } catch (error) {
+    if (debug) {
+      console.log(await page.evaluate(() => globalThis.__layoutTrace));
+    }
+    throw error;
+  }
 };
 const replyTo = async (row) => {
   await row.locator('.bubble-body').click({ button: 'right' });
@@ -106,11 +151,25 @@ const typingSteps = async (id, label) => {
   // A native caret/focus adjustment can leave the live tail within the old
   // 80px threshold, but underneath the composer. Typing must reconcile it.
   await toBottom();
+  await settledScroll();
+  await checkGap(id, `${label} settled tail`);
   await page.locator('.chat-scroll').evaluate((node) => {
     node.scrollTop -= 48;
     node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
   });
   await input.click();
+  // Model a native caret adjustment delivered after the input handler and
+  // before its animation frame. It must not turn a live tail into history.
+  await page.locator('.chat-main').evaluate((main) => {
+    main.addEventListener(
+      'input',
+      () => {
+        const node = main.querySelector('.chat-scroll');
+        node.scrollTop -= 112;
+      },
+      { once: true }
+    );
+  });
   await input.pressSequentially('Typing a reply', { delay: 15 });
   await checkGap(id, `${label} typing`);
   await input.fill('A multiline reply\n'.repeat(12));
@@ -149,6 +208,36 @@ const typingSteps = async (id, label) => {
   }
   await input.fill('');
   await toBottom();
+  // A real reader gesture also cancels pending caret reconciliation.
+  const scroll = page.locator('.chat-scroll');
+  await scroll.hover();
+  await page.mouse.wheel(0, -350);
+  await until(
+    () =>
+      scroll.evaluate(
+        (node) => node.scrollHeight - node.scrollTop - node.clientHeight > 250
+      ),
+    `${label} wheel enters older history`
+  );
+  await settledScroll();
+  const reader = await scroll.evaluate((node) => {
+    const row = [...node.querySelectorAll('[data-row]')].find(
+      (row) =>
+        row.getBoundingClientRect().top >= node.getBoundingClientRect().top
+    );
+    return { id: row.dataset.row, top: row.getBoundingClientRect().top };
+  });
+  await input.fill('Still reading older history\n'.repeat(5));
+  await page.waitForTimeout(80);
+  const readerTop = await page
+    .locator(`[data-row="${reader.id}"]`)
+    .evaluate((row) => row.getBoundingClientRect().top);
+  assert(
+    Math.abs(readerTop - reader.top) < 2,
+    `${label} wheel preserves reader position (${reader.top} → ${readerTop})`
+  );
+  await input.fill('');
+  await toBottom();
 };
 
 const geometrySteps = async () => {
@@ -181,11 +270,31 @@ const geometrySteps = async () => {
     Math.abs(top - anchor.top) < 2,
     'reply preserves the older-message viewport'
   );
-  await clearReply();
   await toBottom();
-
-  await page.evaluate(() => (document.documentElement.style.fontSize = '125%'));
+  // WebKit may coalesce the native scroll caused by a contracting composer
+  // with the next layout change. Model that ordering without depending on
+  // event delivery timing: tail writes must update their own geometry.
+  await page.locator('.chat-scroll').evaluate((node) => {
+    node.__holdScroll = (event) => event.stopImmediatePropagation();
+    document.addEventListener('scroll', node.__holdScroll, true);
+  });
+  await clearReply();
+  await checkGap(60, 'Contracted composer before scaling');
+  await page.locator('.chat-scroll').evaluate((node) => {
+    document.removeEventListener('scroll', node.__holdScroll, true);
+    delete node.__holdScroll;
+    document.documentElement.style.fontSize = '125%';
+    node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
+  });
   await checkGap(60, 'Scaled interface');
+  if (process.env.E2E_ARTIFACT_DIR) {
+    await page.screenshot({
+      path: path.join(
+        process.env.E2E_ARTIFACT_DIR,
+        'chat-layout-scaled-tail.png'
+      ),
+    });
+  }
   await page.evaluate(() =>
     document.documentElement.style.removeProperty('font-size')
   );

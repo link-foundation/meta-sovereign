@@ -525,8 +525,8 @@ const Stream = ({ state, api, actions }) => {
   const newer = useNewer(follow.box, state.history);
   useArrival(state);
   useSeen(follow.box, state.seen, state.messages);
-  const onScroll = () => {
-    follow.onScroll();
+  const onScroll = (event) => {
+    follow.onScroll(event);
     keep();
     older();
     newer();
@@ -577,6 +577,12 @@ const Stream = ({ state, api, actions }) => {
       className: `chat-scroll${empty ? ' is-empty' : ''}`,
       ref: follow.box,
       onScroll,
+      onWheelCapture: follow.onReadGesture,
+      onTouchStartCapture: follow.onReadGesture,
+      onTouchMoveCapture: follow.onReadGesture,
+      onPointerDownCapture: follow.onReadGesture,
+      onPointerMoveCapture: follow.onReadGesture,
+      onKeyDownCapture: follow.onReadGesture,
       ...drag,
     },
     [

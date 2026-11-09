@@ -26,3 +26,25 @@ Before, the reader has been returned to the tail:
 After, older messages remain in view while the composer grows:
 
 ![Operator preserves the reader's position](chat-layout-after.png)
+
+## WebKit coalesced layout and caret scrolls
+
+[Checks run 42610262130](https://github.com/link-foundation/meta-sovereign/actions/runs/42610262130) subsequently exposed a different ordering in WebKit: scaling the interface left the last message 1680.46875 pixels under the floating composer. A focused Linux WebKit reproduction captured a 1673-pixel distance from the tail. Its opt-in geometry trace shows the preceding composer contraction: the remembered scroll position is 5999, the actual clamped position is 5937, and the next layout changes the viewport before a separate contraction scroll is delivered. Comparing those positions alone incorrectly treats the native clamp as reading upward. Other native viewport changes can also reduce the position while increasing the content height.
+
+Every programmatic tail write now records its resulting viewport and position. The shared follow hook distinguishes native resize scrolls from explicit script scroll requests and reader wheel/touch/pointer/keyboard gestures. Gesture tracking expires on the next animation frame and refreshes during a drag, so an old click cannot misclassify a later resize. A composer edit remembers an existing following state until its frame reconciles native caret scrolling; a reader gesture or explicit scroll cancels that pending correction. Older history and actual user movement retain the upward-scroll guard.
+
+The expanded regression models a coalesced contraction and a 112-pixel caret adjustment between the input handler and its frame. The final test fails against the old committed bundle with `Chat typing` gap `-102.78125 px`; it passes with the correction. Both Chat and Operator also exercise a real wheel gesture, then expand a multiline draft while asserting a stable visible row. The test waits for stable viewport geometry before setting up its 48-pixel near-tail precondition and for the wheel animation to finish before measuring the reader's anchor. This avoids interpreting an unfinished resize or wheel animation as a product regression. Focused WebKit and Chromium checks pass; raw natural-failure, regression-before and after logs are in `data/layout-*.txt`. The full browser matrix remains in CI.
+
+Playwright MCP independently verified visible installed Chrome through browser-commander. After a caret displacement, the tail distance is zero. After a real wheel scroll, message 57 remains at exactly 262.90625 pixels while the multiline composer grows; no page errors were observed. Geometry evidence is in `data/layout-caret-mcp.json`. The reusable fixture explicitly selects installed Chrome to avoid another browser download. All fixture and MCP browsers were closed afterward.
+
+Scaled interface before and after:
+
+![WebKit loses the scaled tail](chat-layout-scaled-before.png)
+
+![Scaled tail stays above the composer](chat-layout-scaled-after.png)
+
+Caret adjustment before and after (the visible MCP fixture contains 62 messages):
+
+![Caret adjustment hides the last message](chat-layout-caret-before.png)
+
+![Visible browser restores the last message](chat-layout-caret-mcp-after.png)
