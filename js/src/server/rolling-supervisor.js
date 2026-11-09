@@ -61,7 +61,7 @@ export class RollingSupervisor {
       worker.readyAt = Date.now();
       return worker;
     } catch (error) {
-      client.discard();
+      await client.discard();
       throw error;
     }
   }
@@ -310,7 +310,17 @@ export class RollingSupervisor {
     clearTimeout(this.timer);
     this.target.close();
     await Promise.allSettled(
-      [...this.workers].map((worker) => worker.client.close())
+      [...this.workers].map((worker) =>
+        worker.client.close().catch((error) => {
+          this.log({
+            level: 'warn',
+            event: 'server_worker_shutdown_failed',
+            pid: worker.client.pid,
+            code: error.code,
+          });
+          return worker.client.discard();
+        })
+      )
     );
   }
 }

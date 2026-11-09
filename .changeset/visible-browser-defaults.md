@@ -18,4 +18,6 @@ Send live chat and multi-account notification events as single-line Lino records
 
 Use negotiated text/binary Links Notation for JavaScript WebSocket sync, WebRTC signaling and data channels. Require explicit JSON compatibility, reject mismatched frames, and bound frames and pending queues (R-AA16).
 
+Wait for rolling workers and their stdio to close before releasing shutdown ownership, including failed warm readers, so store cleanup cannot race worker disposal.
+
 Keep Chat and Operator readers in place when a viewport resize and an upward scroll precede composer expansion; retain geometry diagnostics behind the existing browser debug opt-in.
