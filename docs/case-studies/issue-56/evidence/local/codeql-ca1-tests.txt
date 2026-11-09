@@ -1,0 +1,12 @@
+✔ CodeQL gate fails closed on absent, malformed and incomplete evidence (7.85429ms)
+✔ CodeQL gate checks every file, run and severity, including failed tool invocations (7.278567ms)
+✔ audited false positives require an exact rule, path, source line and whole-file digest (7.412336ms)
+✔ regex: pattern length and input size are capped, a runaway match is cut off (105.120897ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1265.83491
