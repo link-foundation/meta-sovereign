@@ -12,6 +12,8 @@ import { createPasscodeCaller } from './passcode-request.js';
 import { messageVersionCalls } from './dom-message-versions.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { createRecoveringRequest } from './request-recovery.js';
+import { createLinoFetch } from '../transport/fetch.js';
+import { LINO_TEXT, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
@@ -126,8 +128,9 @@ const boot = async () => {
     ? {
         origin: discovered.origin,
         // The links and chat pages of the account this tab uses (R-Y202).
-        fetchImpl: (url, init) =>
-          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init),
+        fetchImpl: createLinoFetch((url, init) =>
+          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init)
+        ),
       }
     : null;
   const client = createOfflineClient({
@@ -166,7 +169,7 @@ const boot = async () => {
     bus,
     client,
     requests: createRecoveringRequest({
-      fetchImpl: (url, init) => globalThis.fetch(url, init),
+      fetchImpl: createLinoFetch((url, init) => globalThis.fetch(url, init)),
       reached: client.reached,
       failed: client.failed,
     }),
@@ -257,13 +260,13 @@ const announceLocked = (response) => {
 };
 
 // The local passcode (R-Y183): `op` is status, unlock, lock, set, remove or
-// auto-lock; the answer is the server's JSON with `httpStatus`, null offline.
+// auto-lock; the answer has `httpStatus`, null offline.
 const passcodeCall = createPasscodeCaller(ensure, announceLocked);
 
 const serverFetch = async (path, init) => {
   const response = await serverResponse(path, init);
   // "Online" does not mean "implements this route": the Rust backend
-  // answers routes it does not have with a 404 and a JSON error body
+  // answers routes it does not have with a 404 and a structured error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
   // with HTML. Both mean the same thing as being offline, so both
   // return null and let the caller's `??` default take over —
@@ -329,12 +332,16 @@ const uploadTo = async (path, file, { onProgress, signal } = {}) => {
     const xhr = new globalThis.XMLHttpRequest();
     xhr.open('POST', url);
     xhr.setRequestHeader('content-type', 'application/octet-stream');
+    xhr.setRequestHeader('accept', LINO_TEXT);
     xhr.upload.onprogress = (event) =>
       event.lengthComputable && onProgress?.(event.loaded / event.total);
     xhr.onload = () => {
       const data = (() => {
         try {
-          return JSON.parse(xhr.responseText);
+          return decodeWire(
+            xhr.responseText,
+            xhr.getResponseHeader('content-type')
+          );
         } catch {
           return null;
         }

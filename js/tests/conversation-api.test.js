@@ -4,7 +4,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { CONVERSATION_SETTINGS_ID } from '../src/crm/conversation-policy.js';
 import { acquaintanceConversation } from './helpers/conversation-fixture.js';
 

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for profile extras (R-Y178), as Telegram Desktop has
 // them: the profile card opens "Birthday, colours, personal channel" where
 // the birthday (day, month, optional year), the name colour and the
@@ -185,7 +186,7 @@ await page.route('**/api/telegram/emoji-statuses', (route) =>
 const writes = [];
 for (const name of ['birthday-save', 'color-save', 'personal-channel-save']) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    writes.push([name, route.request().postDataJSON()]);
+    writes.push([name, requestBody(route.request())]);
     return fulfil(route, { ok: true });
   });
 }

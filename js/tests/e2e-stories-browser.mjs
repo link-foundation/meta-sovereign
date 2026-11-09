@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for viewing stories (R-Y140), as Telegram Desktop
 // shows them: a strip above the chat list with a ring round the people
 // who have unread ones; a click opens the viewer at the first unread
@@ -143,18 +144,18 @@ await page.route('**/api/telegram/stories', (route) =>
   fulfil(route, {
     ok: true,
     // The hidden list (R-Y148) is empty here.
-    peers: route.request().postDataJSON()?.hidden ? [] : PEERS,
+    peers: requestBody(route.request())?.hidden ? [] : PEERS,
     state: 'S',
     more: false,
   })
 );
 await page.route('**/api/telegram/stories-peer', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   const peer = PEERS.find((p) => p.peer === chat);
   return fulfil(route, { ok: true, peer, stories: STORIES[chat] ?? [] });
 });
 await page.route('**/api/telegram/stories-read', (route) => {
-  const { chat, maxId } = route.request().postDataJSON();
+  const { chat, maxId } = requestBody(route.request());
   reads.push(`${chat}:${maxId}`);
   return fulfil(route, { ok: true });
 });

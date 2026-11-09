@@ -10,7 +10,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { MEDIA_NETWORKS, parseMediaPath } from '../src/server/routes-media.js';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');

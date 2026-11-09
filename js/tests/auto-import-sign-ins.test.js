@@ -19,7 +19,7 @@ import {
   FULL_DISK_ACCESS_URL,
 } from '../src/sources/auto-import/index.js';
 import { onDomains } from '../src/sources/auto-import/sign-ins.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { ConnectionsList } from '../src/web/connections/index.js';
 import { BrowserSignIns } from '../src/web/connections/browser-sign-ins.js';
 import {

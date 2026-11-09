@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Cached chats load automatically without adding panels above the messages.
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
@@ -59,7 +60,7 @@ const release = () => pendingReads.splice(0).forEach((resume) => resume());
 let requests = 0;
 let stage = 'pending';
 await page.route('**/api/telegram/history', async (route) => {
-  const request = route.request().postDataJSON();
+  const request = requestBody(route.request());
   if (request.chat === '43') {
     return fulfil(route, { written: 0, cached: true, complete: false });
   }

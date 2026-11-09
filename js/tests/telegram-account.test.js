@@ -292,7 +292,7 @@ test('a bot token is not polled in the background', async () => {
 });
 
 test('the server syncs, reports and sends through the connected account', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const store = createMemoryStore();
   await seed(store);
   const client = fakeClient();
@@ -340,7 +340,7 @@ test('the server syncs, reports and sends through the connected account', async 
 });
 
 test('without an account the status says not connected', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const server = await startServer({
     store: createMemoryStore(),
     enableSync: false,

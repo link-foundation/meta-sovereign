@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a bot's mini apps (R-Y168), as Telegram Desktop
 // opens them: the bot's menu button (with its text) opens a window with
 // the app in a sandboxed frame; the app says it is ready and shows its
@@ -126,7 +127,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(route, { chat, kind: 'user', title: 'Fake Bot', bot: true });
 });
 await page.route('**/api/telegram/bot-commands', (route) =>
@@ -134,7 +135,7 @@ await page.route('**/api/telegram/bot-commands', (route) =>
     ok: true,
     commands: [],
     menu:
-      String(route.request().postDataJSON()?.chat) === MENU
+      String(requestBody(route.request())?.chat) === MENU
         ? { kind: 'webapp', text: 'Open app', url: `${ORIGIN}/menu` }
         : { kind: 'default' },
   })
@@ -143,7 +144,7 @@ const opened = [];
 const sentData = [];
 let prolonged = 0;
 await page.route('**/api/telegram/web-app-open', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   opened.push(body);
   return fulfil(route, {
     ok: true,
@@ -160,7 +161,7 @@ await page.route('**/api/telegram/web-app-prolong', (route) => {
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/web-app-data', (route) => {
-  sentData.push(route.request().postDataJSON());
+  sentData.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 // The app's own origin: a page that is not this app's, no network.

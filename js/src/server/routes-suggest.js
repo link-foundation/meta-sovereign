@@ -19,6 +19,7 @@ import { promisify } from 'node:util';
 import { gzip as gzipAsync } from 'node:zlib';
 import { formatLinoRecords } from '../storage/lino-store.js';
 import { json, readBody } from './util.js';
+import { encodeWireResponse } from './wire.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { requestedConversationSettings } from '../crm/conversation-policy.js';
 import { mergeSuggestions } from '../replies/reply-cache.js';
@@ -26,15 +27,16 @@ import { mergeSuggestions } from '../replies/reply-cache.js';
 // The model is megabytes of text: sent compressed when the client takes
 // it, compressed off the event loop.
 const gzip = promisify(gzipAsync);
-const send = async (req, res, type, text) => {
+const send = async (req, res, type, text, status = 200) => {
   const zip = /\bgzip\b/.test(String(req.headers['accept-encoding'] ?? ''));
   const body = zip ? await gzip(text) : text;
   if (res.headersSent || res.writableEnded) {
     return true;
   }
-  res.writeHead(200, {
+  res.writeHead(status, {
     'content-type': type,
     'cache-control': 'no-store',
+    vary: 'Accept, Accept-Encoding',
     ...(zip ? { 'content-encoding': 'gzip' } : {}),
   });
   res.end(body);
@@ -52,7 +54,8 @@ const sendModel = async (req, res, url, replies) => {
       formatLinoRecords(model.links)
     );
   }
-  return send(req, res, 'application/json', JSON.stringify(model));
+  const wire = encodeWireResponse(res, 200, model);
+  return send(req, res, wire.type, wire.body, wire.status);
 };
 
 const suggestionOptions = (params, limit) => ({

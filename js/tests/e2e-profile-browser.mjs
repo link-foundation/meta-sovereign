@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the user's own Telegram profile (R-Y136), as
 // Telegram Desktop's Settings → My Account has it: a button by the chat
 // list's title opens a card with the photo, first and last name, bio with
@@ -41,7 +42,7 @@ await page.route('**/api/telegram/profile', (route) =>
 );
 const checks = [];
 await page.route('**/api/telegram/username-check', (route) => {
-  const { username } = route.request().postDataJSON();
+  const { username } = requestBody(route.request());
   checks.push(username);
   return fulfil(route, {
     ok: true,
@@ -50,19 +51,19 @@ await page.route('**/api/telegram/username-check', (route) => {
 });
 const saved = [];
 await page.route('**/api/telegram/profile-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   saved.push(['profile', body]);
   return body.lastName === 'Boom'
     ? fulfil(route, { ok: false, error: 'x', code: 'flood' })
     : fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/username-save', (route) => {
-  saved.push(['username', route.request().postDataJSON()]);
+  saved.push(['username', requestBody(route.request())]);
   return fulfil(route, { ok: true });
 });
 const photos = [];
 await page.route('**/api/telegram/profile-photo', (route) => {
-  photos.push(route.request().postDataJSON());
+  photos.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 let uploads = 0;

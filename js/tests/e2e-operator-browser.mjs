@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Unread conversations are Operator cards, with a real composer and no list.
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
@@ -64,7 +65,7 @@ await page.route(/\/links\?except=msg:/, (route) =>
 );
 const inspected = [];
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   inspected.push(chat);
   const current = summarizeChats(await store.query()).find(
     (item) => item.chat === chat
@@ -86,7 +87,7 @@ await page.route('**/api/telegram/dialog-state', async (route) => {
 });
 const reads = [];
 await page.route('**/api/telegram/read', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   reads.push(body);
   if (failRead) {
     return fulfil(route, { error: 'simulated failure' }, 502);

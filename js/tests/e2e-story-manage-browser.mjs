@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for managing one's own stories (R-Y210), as Telegram
 // Desktop has it: the viewer's ⋯ menu on one's own story offers "Edit
 // caption" and "Edit privacy" (the posting dialog's audiences, with the
@@ -90,13 +91,13 @@ await page.route('**/api/telegram/history', (route) =>
 await page.route('**/api/telegram/stories', (route) =>
   fulfil(route, {
     ok: true,
-    peers: route.request().postDataJSON()?.hidden ? [] : PEERS,
+    peers: requestBody(route.request())?.hidden ? [] : PEERS,
     state: 'S',
     more: false,
   })
 );
 await page.route('**/api/telegram/stories-peer', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     peer: PEERS.find((p) => p.peer === chat),
@@ -118,7 +119,7 @@ await page.route('**/api/telegram/chat-contacts', (route) =>
 const sent = { edit: [], link: [], pin: [], remove: [] };
 const record = (name, list, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     list.push(body);
     return fulfil(route, answer(body));
   });

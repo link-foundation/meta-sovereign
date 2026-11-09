@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the remaining story features (R-Y199), as Telegram
 // Desktop has them: "Stealth mode" in a story's menu (a dialog that says
 // what it hides, a Premium error shown as text, the time left while it is
@@ -90,14 +91,14 @@ await page.route('**/api/telegram/history', (route) =>
 await page.route('**/api/telegram/stories', (route) =>
   fulfil(route, {
     ok: true,
-    peers: route.request().postDataJSON()?.hidden ? [] : PEERS,
+    peers: requestBody(route.request())?.hidden ? [] : PEERS,
     state: 'S',
     more: false,
     stealth: { activeUntil: 0, cooldownUntil: 0 },
   })
 );
 await page.route('**/api/telegram/stories-peer', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   const peer = PEERS.find((p) => p.peer === chat);
   return fulfil(route, { ok: true, peer, stories: STORIES[chat] ?? [] });
 });
@@ -110,7 +111,7 @@ await page.route(/\/api\/telegram\/story\?/, (route) =>
 const sent = { stealth: [], report: [], fresh: [], views: [], reactions: [] };
 const record = (name, list, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     list.push(body);
     return fulfil(route, answer(body, list.length));
   });

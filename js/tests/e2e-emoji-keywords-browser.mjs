@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for emoji found by Telegram's words (R-Y117): with
 // the page in Russian, the emoji panel's search asks the server for
 // Telegram's Russian words once, puts their emoji first and the English
@@ -56,7 +57,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -78,7 +79,7 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/emoji-keywords', (route) => {
-  asked.push(route.request().postDataJSON());
+  asked.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     lang: 'ru',

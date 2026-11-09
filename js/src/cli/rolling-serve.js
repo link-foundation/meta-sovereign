@@ -11,6 +11,9 @@ const changesFrom = (args) => ({
     : {}),
   ...(args['ui-url'] !== undefined ? { uiUrl: args['ui-url'] } : {}),
   ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+  ...(args['json-compatibility'] !== undefined
+    ? { jsonCompatibility: String(args['json-compatibility']) === 'true' }
+    : {}),
   ...(args.tls !== undefined ? { tls: String(args.tls) !== 'false' } : {}),
 });
 

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { wrapSecretStore } from '../src/storage/secret-store.js';
 import { createPeer, loopback } from '../src/sync/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 describe('secret store encryption', () => {
   it('filtered reads avoid cloning unrelated messages and retain decrypted filtering', async () => {

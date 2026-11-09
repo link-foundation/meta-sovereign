@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { runCli } from '../src/cli/index.js';
 import { openDualStore } from '../src/storage/dual-store.js';
 import { createMemoryStore } from '../src/storage/universal.js';

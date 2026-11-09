@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for three of Telegram Desktop's ways (R-Y109): text
 // selected in the message box shows the formatting bar — its Underline
 // wraps the selection in <u>…</u>, as Ctrl/Cmd+U does, again takes it
@@ -64,7 +65,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -82,7 +83,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: true, complete: true, newest: false })
 );
 await page.route('**/api/telegram/history-at', (route) =>
-  fulfil(route, { ok: true, id: route.request().postDataJSON().id })
+  fulfil(route, { ok: true, id: requestBody(route.request()).id })
 );
 
 const until = async (check, what, ms = 10_000) => {

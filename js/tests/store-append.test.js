@@ -21,7 +21,7 @@ import {
   tombstoneRecord,
 } from '../src/storage/lino-store.js';
 import { CURRENT_SCHEMA, schemaLink } from '../src/storage/migrations/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { waitFor } from './helpers/wait-for.js';
 import { messageVersions } from '../src/storage/message-versions.js';
 

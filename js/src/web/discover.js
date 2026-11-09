@@ -1,4 +1,5 @@
 import { getLocalStorage } from '../storage/local-storage.js';
+import { createLinoFetch } from '../transport/fetch.js';
 
 /**
  * Server autodiscovery for the SPA.
@@ -139,7 +140,7 @@ const buildCandidateList = (origin, storage, candidates) => {
 };
 
 export const discoverServer = async ({
-  fetchImpl = globalThis.fetch,
+  fetchImpl = createLinoFetch((...args) => globalThis.fetch(...args)),
   storage = getLocalStorage(),
   origin = globalThis.location?.origin,
   candidates = [],

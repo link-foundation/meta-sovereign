@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a group's permissions, slow mode and recent actions
 // (R-Y133), as Telegram Desktop's admin screens: in the info column an
 // admin of a supergroup gets "Permissions" (toggles for what members may
@@ -64,11 +65,11 @@ await page.route('**/api/telegram/chat-permissions', (route) =>
   fulfil(route, { ok: true, rights, slowMode: 30, canEdit })
 );
 await page.route('**/api/telegram/chat-permissions-set', (route) => {
-  sets.push(route.request().postDataJSON());
+  sets.push(requestBody(route.request()));
   return fulfil(route, setReply);
 });
 await page.route('**/api/telegram/slow-mode', (route) => {
-  slows.push(route.request().postDataJSON());
+  slows.push(requestBody(route.request()));
   return fulfil(route, slowReply);
 });
 const event = (id, kind, extra = {}) => ({
@@ -80,7 +81,7 @@ const event = (id, kind, extra = {}) => ({
   ...extra,
 });
 await page.route('**/api/telegram/admin-log', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   logAsks.push(body);
   return fulfil(
     route,

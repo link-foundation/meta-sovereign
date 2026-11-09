@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a bot's commands (R-Y135), as Telegram Desktop
 // offers them: "/" at the start of the box lists the bot's commands
 // (/command in bold, its description), the list narrows as one types, Up
@@ -48,7 +49,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(
     route,
     chat === GROUP
@@ -65,7 +66,7 @@ const cmd = (command, description, bot, botName, username) => ({
   username,
 });
 await page.route('**/api/telegram/bot-commands', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   asked.push(chat);
   if (chat === GROUP) {
     return fulfil(route, {

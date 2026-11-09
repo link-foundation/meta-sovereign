@@ -18,12 +18,13 @@
  * are POST so they share the same-app check below.
  *
  * These routes start processes on the user's machine, so mutating calls
- * must come from the app: a JSON content type (cross-origin pages need a
+ * must come from the app: a structured Lino content type (cross-origin pages need a
  * CORS preflight, see ./cors.js) and an Origin that is absent, the
  * server's own, or on the CORS allow-list.
  */
 
 import { json, readBody } from './util.js';
+import { LINO_TYPES, mediaType } from '../transport/lino.js';
 import { classifyOrigin } from './cors.js';
 import {
   createAutoImportManager,
@@ -42,8 +43,10 @@ const JOB_ROUTE =
 // No Origin (CLI, curl), the SPA the server serves itself, or a page on
 // the CORS allow-list (the hosted app, the mobile WebViews).
 export const isTrustedMutation = (req, allowedOrigins = []) => {
-  const type = String(req.headers['content-type'] ?? '');
-  if (!type.toLowerCase().startsWith('application/json')) {
+  const type = mediaType(req.headers['content-type']);
+  const legacy =
+    type === 'application/json' && (req.lino?.jsonCompatibility ?? true);
+  if (!LINO_TYPES.includes(type) && !legacy) {
     return false;
   }
   return classifyOrigin(req, allowedOrigins) !== 'denied';

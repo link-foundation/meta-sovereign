@@ -1,0 +1,28 @@
+✔ browser requests use text/lino for writes, replies and clones (66.218202ms)
+✔ browser requests use application/lino-binary for writes, replies and clones (34.713143ms)
+✔ raw upload and download bytes retain their representation (1.315024ms)
+✔ unexpected JSON is rejected unless the client explicitly enables compatibility (2.247843ms)
+✔ streamed Lino replies retain progress, read recovery and mutation ownership (25.534754ms)
+✔ HTTP defaults to readable LINO and negotiates binary responses (249.469799ms)
+✔ text and binary writes round-trip and preserve origin checks (246.724589ms)
+✔ JSON, unacceptable responses and malformed bodies cannot mutate by default (22.028836ms)
+✔ explicit JSON compatibility preserves legacy clients (17.558257ms)
+✔ specific Accept exclusions override wildcards (10.292486ms)
+✔ default Lino requests retain object validation and streaming size limits (37.796955ms)
+✔ model downloads and client diagnostics use Lino at their custom boundaries (75.319727ms)
+✔ text/lino preserves typed values, Unicode and empty containers (12.822284ms)
+✔ application/lino-binary preserves typed values, Unicode and empty containers (60.227167ms)
+✔ text/lino-line preserves typed values, Unicode and empty containers (5.135208ms)
+✔ text/lino-compact preserves typed values, Unicode and empty containers (10.647228ms)
+✔ HTTP normalization preserves provider bigint IDs and dates (1.650579ms)
+✔ JSON compatibility requires explicit opt-in in both directions (1.330852ms)
+✔ response reader accepts text and binary and refuses unexpected JSON (83.866407ms)
+✔ malformed bytes and finite excessive nesting are rejected (2.82025ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2555.441001

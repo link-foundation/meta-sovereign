@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const daysAgo = (n) => new Date(Date.now() - n * DAY_MS).toISOString();
 let seq = 0;

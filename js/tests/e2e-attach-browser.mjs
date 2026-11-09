@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for sending files and photos (R-Y99): the paperclip
 // opens the system's file picker; the send box shows the pictures, takes
 // the message box's text as the caption, "Compress images" off makes
@@ -92,7 +93,7 @@ page.on('response', async (response) => {
 page.on('pageerror', (e) => errors.push(String(e)));
 
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({
@@ -105,7 +106,7 @@ await page.route('**/api/telegram/status', (route) =>
   })
 );
 await page.route('**/api/telegram/history', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ written: 0, cached: 0, complete: true }),
@@ -114,7 +115,7 @@ await page.route('**/api/telegram/history', (route) =>
 const sends = [];
 let releaseFirstSend;
 await page.route('**/api/telegram/send-files', async (route) => {
-  sends.push(JSON.parse(route.request().postData() ?? '{}'));
+  sends.push(requestBody(route.request()));
   if (sends.length === 1) {
     await new Promise((resolve) => {
       releaseFirstSend = resolve;
@@ -152,7 +153,7 @@ await page.route('**/api/telegram/send-files', async (route) => {
       },
     });
   }
-  await route.fulfill({
+  await fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ ok: true, chat: CHAT, ids: [2, 3] }),

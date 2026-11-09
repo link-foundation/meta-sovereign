@@ -9,7 +9,7 @@ import net from 'node:net';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { classifyOrigin, hostAllowed } from '../src/server/cors.js';
 import { json, readBody, MAX_JSON_BODY } from '../src/server/util.js';
 import { maskSecret } from '../src/server/secret-mask.js';

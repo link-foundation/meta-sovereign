@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for HTML5 bot games (R-Y190), as Telegram Desktop shows
 // them: a game message is a card (picture, title, description) under its
 // text; the bot's "Play" button asks the bot and the game's address opens
@@ -104,7 +105,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 );
 const pressed = [];
 await page.route('**/api/telegram/bot-callback', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   pressed.push(body);
   return fulfil(route, {
     ok: true,
@@ -118,7 +119,7 @@ await page.route('**/api/telegram/bot-callback', (route) => {
 });
 const asked = [];
 await page.route('**/api/telegram/game-scores', (route) => {
-  asked.push(route.request().postDataJSON());
+  asked.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     scores: [

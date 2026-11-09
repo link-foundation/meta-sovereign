@@ -23,6 +23,8 @@ export declare const startServer: (opts: {
   storeDir?: string;
   /** Serve the bundled web UI; defaults to false (GitHub Pages is the UI). */
   localUi?: boolean | string;
+  /** Opt in to legacy JSON HTTP requests/responses; false by default. */
+  jsonCompatibility?: boolean;
   /** Override the default GitHub Pages app URL. */
   uiUrl?: string;
   /** Inject a local system address-book reader; used only after an import request. */

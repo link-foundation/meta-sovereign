@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the sending extras and the live location viewer
 // (R-Y197), as Telegram Desktop has them: the Send button's menu offers
 // "Send when online" (schedule_date 0x7FFFFFFE, listed as "When online")
@@ -141,7 +142,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
   return fulfil(route, { chat, ...(INFO[chat] ?? INFO[DAVE]) });
 });
 await page.route('**/api/telegram/scheduled*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(route, { ok: true, chat, links: linksOf(chat) });
 });
 const mapLats = [];
@@ -156,11 +157,11 @@ await page.route('**/api/telegram/map*', (route) => {
 const stops = [];
 const updates = [];
 await page.route('**/api/telegram/stop-live-location', (route) => {
-  stops.push(route.request().postDataJSON());
+  stops.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/update-live-location', (route) => {
-  updates.push(route.request().postDataJSON());
+  updates.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 
@@ -186,7 +187,7 @@ await page.route('**/api/telegram/saved-dialogs', (route) =>
 );
 const reorders = [];
 await page.route('**/api/telegram/saved-reorder', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   reorders.push(body);
   pins = body.peers;
   return fulfil(route, { ok: true });

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Reload, history traversal and deep links share one route at every width.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { navItems } from '../src/web/nav-items.js';
@@ -44,7 +45,7 @@ await page.addInitScript(() => {
   });
 });
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     read: await store.get(`read:telegram:${chat}`),

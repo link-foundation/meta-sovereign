@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for logged-in websites (R-Y174), as Telegram Desktop's
 // Settings has it: next to the active sessions, "Websites" lists each site
 // with its domain, bot, browser, platform, IP, region and last-active
@@ -89,7 +90,7 @@ await page.route('**/api/telegram/web-sessions', (route) =>
 );
 const reset = [];
 await page.route('**/api/telegram/web-session-reset', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   reset.push(body);
   return body.hash === '13'
     ? fulfil(route, { ok: false, error: 'x', code: 'hash-invalid' })

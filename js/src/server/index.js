@@ -71,6 +71,7 @@ import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { createExtraRuntime, telegramChats } from './telegram-extras.js';
 import { accountScope } from './account-scope.js';
 import { bodyFailure, fail, json } from './util.js';
+import { bindWire, requestWireFailure } from './wire.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
@@ -580,6 +581,10 @@ const route = async (store, req, res, ctx) => {
   if (redirectLocalTls(req, res, url, ctx)) {
     return;
   }
+  const wireFailure = requestWireFailure(req);
+  if (wireFailure) {
+    return fail(res, ...wireFailure);
+  }
   if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }
@@ -765,7 +770,10 @@ const createHttpServer = (store, ctx, log) => {
   const gate = createRequestGate(dispatch, ctx.front);
   const server = http.createServer(
     { requestTimeout: UPLOAD_TIMEOUT_MS },
-    gate.handle
+    (req, res) => {
+      bindWire(req, res, ctx.jsonCompatibility);
+      return gate.handle(req, res);
+    }
   );
   server.requestGate = gate;
   server.prependListener('upgrade', (req, socket) => {
@@ -893,6 +901,8 @@ export const startServer = async ({
   // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
+  // Legacy JSON is an explicit opt-in. Normal servers speak text/binary LINO.
+  jsonCompatibility = process.env.MS_JSON_COMPATIBILITY === '1',
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
   tls,
   // diskFree: a test fake `(dir) => bytes|null` (R-Z14); backups:
@@ -928,6 +938,7 @@ export const startServer = async ({
   );
   const ctx = {
     front,
+    jsonCompatibility: jsonCompatibility === true,
     archiveDir: resolvedArchiveDir,
     sync: null,
     signaling: null,

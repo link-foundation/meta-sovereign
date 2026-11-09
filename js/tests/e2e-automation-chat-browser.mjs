@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // A real chat-menu test creates a visible draft without delivering a message.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -59,13 +60,13 @@ await page.route('**/api/automations/drafts/*', (route) =>
 );
 page.on('request', (request) => {
   if (request.url().endsWith('/api/client-log')) {
-    const entry = request.postDataJSON();
+    const entry = requestBody(request);
     if (entry.event === 'chat_layout') {
       layouts.push(entry);
     }
   }
   if (request.url().endsWith('/api/automations/run')) {
-    requests.push(request.postDataJSON());
+    requests.push(requestBody(request));
   }
 });
 await page.addInitScript(() => {

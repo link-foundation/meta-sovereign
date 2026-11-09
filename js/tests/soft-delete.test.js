@@ -11,7 +11,7 @@ import {
   bulkPurge,
   withSoftDelete,
 } from '../src/storage/soft-delete.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const fetchJson = async (url, init) => {
   const res = await fetch(url, init);

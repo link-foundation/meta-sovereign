@@ -1,3 +1,5 @@
+import { createLinoFetch } from '../src/transport/fetch.js';
+const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 // Real browser e2e for an automation's draft (R-Y85, R-Y86): run from
 // the chat header's menu it drafts a message in the chat; the user edits
 // it and sends it, and the next chat it fits is offered with the same

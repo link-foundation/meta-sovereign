@@ -9,7 +9,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { promises as fs } from 'node:fs';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createTelegramMtproto } from '../src/web/../sources/telegram-mtproto.js';
 import { createTelegramCreds } from '../src/web/../sources/auto-import/telegram-creds.js';
 import { readStoreText } from './util-store-text.js';

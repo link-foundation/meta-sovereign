@@ -6,7 +6,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { backupSettings } from '../src/server/backup-job.js';
 
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

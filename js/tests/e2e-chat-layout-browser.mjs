@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Shared chat geometry and opening unread boundaries, using only fixture data.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -37,7 +38,7 @@ await page.addInitScript(() => {
 });
 const acknowledgements = [];
 await page.route('**/api/telegram/read', async (route) => {
-  const request = route.request().postDataJSON();
+  const request = requestBody(route.request());
   acknowledgements.push(request);
   await store.put(read(request.maxId, 62));
   return fulfil(route, { ok: true });

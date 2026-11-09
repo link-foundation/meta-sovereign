@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a chat's auto-delete timer and Saved Messages by
 // chat (R-Y143), as Telegram Desktop has them: "Auto-delete messages…" in
 // the info column opens Off / 1 day / 1 week / 1 month (and "Other…"),
@@ -67,7 +68,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 let ttlReply = { ok: true };
 const ttls = [];
 await page.route('**/api/telegram/history-ttl', (route) => {
-  ttls.push(route.request().postDataJSON());
+  ttls.push(requestBody(route.request()));
   return fulfil(route, ttlReply);
 });
 
@@ -168,7 +169,7 @@ const asks = [];
 const deleted = [];
 const savedSteps = async () => {
   await page.route('**/api/telegram/saved-dialogs', (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     asks.push(body);
     return fulfil(
       route,
@@ -192,7 +193,7 @@ const savedSteps = async () => {
   });
   const histories = [];
   await page.route('**/api/telegram/saved-history', (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     histories.push(body);
     return fulfil(route, {
       ok: true,
@@ -212,7 +213,7 @@ const savedSteps = async () => {
   });
   let deleteReply = { ok: true };
   await page.route('**/api/telegram/saved-delete', (route) => {
-    deleted.push(route.request().postDataJSON());
+    deleted.push(requestBody(route.request()));
     return fulfil(route, deleteReply);
   });
 

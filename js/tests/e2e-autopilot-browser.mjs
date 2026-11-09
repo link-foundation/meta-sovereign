@@ -1,3 +1,5 @@
+import { createLinoFetch } from '../src/transport/fetch.js';
+const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 // Real browser e2e for the autopilot (R-Y87, R-Y91): started from the
 // Automations page it opens the chats as it writes to them; the chat
 // header's Automations menu starts and stops it too. Fake chats in a

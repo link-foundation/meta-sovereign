@@ -1,3 +1,5 @@
+import { createLinoFetch } from '../src/transport/fetch.js';
+const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 // Real browser e2e (R-J7). Drives the SPA in headless Chromium via
 // `browser-commander` + `playwright`.
 //

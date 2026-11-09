@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   audienceGroups,
   audienceSyncFor,

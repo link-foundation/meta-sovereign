@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for inline bots in the box (R-Y138), as Telegram
 // Desktop's: "@gif " shows the bot's hint, "@gif cats" a moment later its
 // pictures in a grid over the box, "Load more" asks the next page, Up and
@@ -67,7 +68,7 @@ const botRequests = [];
 const resultRequests = [];
 const sends = [];
 await page.route('**/api/telegram/inline-bot', (route) => {
-  const { username } = route.request().postDataJSON();
+  const { username } = requestBody(route.request());
   botRequests.push(username);
   return fulfil(
     route,
@@ -77,7 +78,7 @@ await page.route('**/api/telegram/inline-bot', (route) => {
   );
 });
 await page.route('**/api/telegram/inline-results', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   resultRequests.push(body);
   if (body.username === 'slow') {
     return fulfil(route, {
@@ -134,13 +135,13 @@ await page.route('**/api/telegram/inline-results', (route) => {
   );
 });
 await page.route('**/api/telegram/inline-send', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 
 const starts = [];
 await page.route('**/api/telegram/inline-start-bot', (route) => {
-  starts.push(route.request().postDataJSON());
+  starts.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: '72' });
 });
 

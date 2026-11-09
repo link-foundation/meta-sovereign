@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for paid messages (R-Y184), as Telegram Desktop has
 // them. In a chat that charges Stars per message the box says "N ⭐ per
 // message"; every send there (text, a long text in parts, a forward) first
@@ -101,39 +102,39 @@ await page.route('**/api/telegram/stars-status', (route) =>
   fulfil(route, { ok: true, balance })
 );
 await page.route('**/api/telegram/paid-price', (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   asked.push(chat);
   return fulfil(route, { ok: true, stars: PRICES[chat] ?? 0 });
 });
 await page.route('**/api/telegram/forward', (route) => {
-  forwards.push(route.request().postDataJSON());
+  forwards.push(requestBody(route.request()));
   return fulfil(route, { ok: true, forwarded: 1 });
 });
 await page.route('**/api/telegram/paid-revenue', (route) =>
   fulfil(route, {
     ok: true,
-    stars: route.request().postDataJSON().user === PAID ? 310 : 0,
+    stars: requestBody(route.request()).user === PAID ? 310 : 0,
   })
 );
 await page.route('**/api/telegram/paid-exception', (route) => {
-  exceptions.push(route.request().postDataJSON());
+  exceptions.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/paid-settings', (route) =>
   fulfil(route, { ok: true, stars: 0 })
 );
 await page.route('**/api/telegram/paid-settings-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   settingSaves.push(body);
   return fulfil(route, { ok: true, stars: body.stars });
 });
 await page.route('**/api/telegram/paid-price-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   priceSaves.push(body);
   return fulfil(route, { ok: true, stars: body.stars });
 });
 await page.route('**/api/telegram/chat-setting', (route) => {
-  setting.push(route.request().postDataJSON());
+  setting.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 // The privacy dialog's other parts, quiet here.

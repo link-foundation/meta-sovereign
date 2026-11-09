@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the statistics of channels and groups (R-Y167), as
 // Telegram Desktop shows them to admins: the info column offers
 // "Statistics" only when Telegram says the user can view them; the dialog
@@ -130,13 +131,13 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 });
 const statsAsks = [];
 await page.route('**/api/telegram/chat-stats', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   statsAsks.push(body);
   return fulfil(route, body.chat === GROUP ? MEGAGROUP : BROADCAST);
 });
 const graphAsks = [];
 await page.route('**/api/telegram/stats-graph', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   graphAsks.push(body);
   return fulfil(route, {
     ok: true,

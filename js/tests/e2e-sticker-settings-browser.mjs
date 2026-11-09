@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Settings → Stickers and emoji (R-Y169), as Telegram
 // Desktop has it: from "My Telegram profile" a dialog lists the installed
 // sticker sets in the user's order (custom emoji sets on a second tab).
@@ -77,7 +78,7 @@ await page.route('**/api/telegram/profile', (route) =>
 );
 const post = (name, handler) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     fake.asked.push([name, body]);
     return fulfil(route, handler(body));
   });

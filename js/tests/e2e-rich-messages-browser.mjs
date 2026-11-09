@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for rich messages (R-Y220): layer 232 lets a message
 // carry page blocks instead of text. In a group, a bot's message shows
 // headings, a folded "Thinking…" part, a formula, a task list, a quote, a
@@ -187,7 +188,7 @@ await page.route('**/api/telegram/media*', (route) => {
 });
 const pressed = [];
 await page.route('**/api/telegram/bot-callback', (route) => {
-  pressed.push(route.request().postDataJSON());
+  pressed.push(requestBody(route.request()));
   return fulfil(route, { ok: true, kind: 'none' });
 });
 

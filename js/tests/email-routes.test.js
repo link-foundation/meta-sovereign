@@ -9,7 +9,7 @@ import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { pullJobs } from '../src/server/routes-pull.js';
 import { createPullRunner } from '../src/sources/pull-runner.js';
 import { createAttachmentStore } from '../src/server/email-attachments.js';

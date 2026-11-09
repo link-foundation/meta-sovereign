@@ -2,6 +2,7 @@
 // Run in existing browser CI: RUN_BROWSER_E2E=1 npm run test:e2e:browser-preferences
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { decodeWire } from '../src/transport/lino.js';
 
 const { page, base, until, finish } = await openChatApp('browser-preferences', {
   store: createMemoryStore(),
@@ -38,12 +39,15 @@ await finish(async () => {
   await mode.selectOption('visible');
   await save.click();
   await saved();
-  const read = async () =>
-    (
-      await page.request.get(
-        `${base}/api/browser/policies?platform=hh&slot=forms&useCase=cv`
-      )
-    ).json();
+  const read = async () => {
+    const response = await page.request.get(
+      `${base}/api/browser/policies?platform=hh&slot=forms&useCase=cv`
+    );
+    return decodeWire(
+      await response.body(),
+      response.headers()['content-type']
+    );
+  };
   assert((await read()).resolved.headless === false, 'slot overrides workflow');
   await page.route('**/api/browser/policies', (route) =>
     route.request().method() === 'POST'
@@ -70,6 +74,40 @@ await finish(async () => {
   await save.click();
   await saved();
   assert((await read()).resolved.scope === 'case', 'inherit restores workflow');
+  // The upload-progress path uses XHR instead of fetch. Its raw bytes and
+  // structured Lino reply must work against the same default server.
+  const [uploaded, uploadResponse] = await Promise.all([
+    page.evaluate(async () => {
+      let progress = 0;
+      const file = new globalThis.File(
+        [
+          '[25.10.2026, 14:32:11] Fixture A: Hello\n[25.10.2026, 14:33:00] Fixture B: Reply',
+        ],
+        'fixture-chat.txt',
+        { type: 'text/plain' }
+      );
+      const result = await globalThis.__msApi.archiveUpload('whatsapp', file, {
+        onProgress: () => progress++,
+      });
+      return { result, progress };
+    }),
+    page.waitForResponse((response) =>
+      response.url().includes('/api/archive/upload')
+    ),
+  ]);
+  assert(
+    uploaded.result.imported === 2 && uploaded.progress > 0,
+    'XHR upload and progress'
+  );
+  assert(
+    uploadResponse.request().headers()['content-type'] ===
+      'application/octet-stream',
+    'raw upload bytes'
+  );
+  assert(
+    uploadResponse.headers()['content-type'].startsWith('text/lino'),
+    'Lino upload reply'
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   await panel.scrollIntoViewIfNeeded();
   assert(

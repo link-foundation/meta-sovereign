@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Small deterministic UI fixture: bounded rows and feedback before a held send.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -51,7 +52,7 @@ let prefetched = 0;
 page.on('request', (request) => {
   if (
     request.url().endsWith('/api/telegram/history') &&
-    request.postDataJSON()?.priority === 'prefetch'
+    requestBody(request)?.priority === 'prefetch'
   ) {
     prefetched++;
   }

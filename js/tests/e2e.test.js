@@ -11,7 +11,7 @@ import { describe, it, expect } from 'test-anywhere';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createBackup, restoreBackup } from '../src/storage/backup.js';
 import { createMemoryStore } from '../src/storage/index.js';
 

@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import {
   createTelegramMtproto,

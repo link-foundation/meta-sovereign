@@ -406,7 +406,7 @@ test("Telegram's errors become codes, never a browser retry", () => {
 // ---- the server: one send per draft, an event stream -----------------------
 
 const serverWith = async (send, store = createMemoryStore()) => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const server = await startServer({
     store,
     enableSync: false,

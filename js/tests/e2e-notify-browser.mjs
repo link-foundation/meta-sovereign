@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for notifications of new messages (R-Y134), as
 // Telegram Desktop gives them: a message that comes in (through the
 // server's event stream) to a chat that is not open shows a notification
@@ -82,7 +83,7 @@ await page.route('**/api/telegram/notify-settings', (route) =>
   fulfil(route, { ok: true, scopes, exceptions: [] })
 );
 await page.route('**/api/telegram/notify-settings-set', (route) => {
-  const { scope, ...change } = route.request().postDataJSON();
+  const { scope, ...change } = requestBody(route.request());
   Object.assign(scopes[scope], change);
   return fulfil(route, { ok: true, scope, ...scopes[scope] });
 });

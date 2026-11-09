@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for sending a gift (R-Y185), as Telegram Desktop's
 // "Send a gift": a person's info column has the button; it opens the
 // catalogue (prices, "Limited" with how many are left, "Sold out" that
@@ -49,7 +50,7 @@ await page.route('**/api/telegram/gift-catalogue', (route) => {
 const sends = [];
 let answer = { ok: false, error: 'price changed', code: 'price' };
 await page.route('**/api/telegram/gift-send', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, answer);
 });
 

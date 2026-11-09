@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for hashtags and live view counters (R-Y182), as
 // Telegram Desktop has them. A click on #tag in a message opens a search
 // for it in that chat, with "All chats" and "Public posts" beside it; a
@@ -79,7 +80,7 @@ await page.route('**/api/telegram/history', (route) =>
 
 const viewCalls = [];
 await page.route('**/api/telegram/message-views', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   viewCalls.push(body);
   const items = body.ids.map((id) =>
     body.increment
@@ -107,7 +108,7 @@ const found = (id, text) => ({
 });
 const searches = [];
 await page.route('**/api/telegram/search-tag', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   searches.push(body);
   const messages =
     body.scope === 'public' ? [] : [found(1, `${body.tag} elsewhere`)];

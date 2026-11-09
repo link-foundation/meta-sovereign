@@ -1,3 +1,5 @@
+import { createLinoFetch } from '../src/transport/fetch.js';
+const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 /**
  * Real-browser Greetings run (issue #35).
  *
@@ -165,6 +167,19 @@ const seed = async (store) => {
 const imageLoaded = (page, selector) =>
   page.$eval(selector, (img) => img.complete && img.naturalWidth > 0);
 
+const captureScreenshot = async (page) => {
+  if (process.env.GREETINGS_SCREENSHOT) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: process.env.GREETINGS_SCREENSHOT,
+      fullPage: true,
+    });
+    console.log(
+      `[e2e-greetings-browser] screenshot: ${process.env.GREETINGS_SCREENSHOT}`
+    );
+  }
+};
+
 const run = async () => {
   const store = createMemoryStore();
   await seed(store);
@@ -319,16 +334,7 @@ const run = async () => {
     assert(calls.length === 3, `the dry run sent nothing: ${calls.length}`);
     assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
 
-    if (process.env.GREETINGS_SCREENSHOT) {
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({
-        path: process.env.GREETINGS_SCREENSHOT,
-        fullPage: true,
-      });
-      console.log(
-        `[e2e-greetings-browser] screenshot: ${process.env.GREETINGS_SCREENSHOT}`
-      );
-    }
+    await captureScreenshot(page);
   } finally {
     await browser.close();
     await handle.close();

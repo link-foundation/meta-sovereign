@@ -11,7 +11,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 import { createPeer, vcTick, connectSyncWebSocket } from '../src/sync/index.js';

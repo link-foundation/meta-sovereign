@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Empty conversations share the loader's usable pane and preserve typing.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -29,13 +30,13 @@ await page.addInitScript(() => {
 let hold = true;
 const readers = [];
 await page.route('**/api/telegram/history', async (route) => {
-  if (hold && route.request().postDataJSON()?.chat === '555') {
+  if (hold && requestBody(route.request())?.chat === '555') {
     await new Promise((resolve) => readers.push(resolve));
   }
   return fulfil(route, { written: 0, cached: true, complete: true });
 });
 await page.route('**/api/telegram/business-profile', (route) => {
-  const business = route.request().postDataJSON()?.chat === '777';
+  const business = requestBody(route.request())?.chat === '777';
   return fulfil(route, {
     ok: true,
     intro: business

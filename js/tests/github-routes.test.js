@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { createGithubLive } from '../src/sources/github.js';
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { startFakeGithub } from './helpers/fake-github.mjs';
 
 const T0 = '2026-01-01T00:00:00Z';

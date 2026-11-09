@@ -13,7 +13,7 @@ import tls from 'node:tls';
 import os from 'node:os';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   canShareTlsPort,
   loadLocalTls,

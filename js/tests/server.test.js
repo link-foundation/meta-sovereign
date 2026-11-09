@@ -4,7 +4,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout, clearTimeout } from 'node:timers';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { waitFor } from './helpers/wait-for.js';
 

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Telegram Business (R-Y180), as Telegram Desktop's
 // Settings → Telegram Business has it: opening hours (days, a time zone,
 // Save sends the exact weekly list; a Premium refusal is words), the
@@ -73,7 +74,7 @@ const sent = {
   resolve: [],
 };
 const answer = (route, name, ok = { ok: true }) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent[name].push(body);
   if (refused.premium) {
     return fulfil(route, PREMIUM);
@@ -145,7 +146,7 @@ await page.route('**/api/telegram/business-links', (route) =>
   fulfil(route, { ok: true, links })
 );
 await page.route('**/api/telegram/business-link-create', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.create.push(body);
   const link = {
     slug: 'new1',
@@ -158,7 +159,7 @@ await page.route('**/api/telegram/business-link-create', (route) => {
   return fulfil(route, { ok: true, link });
 });
 await page.route('**/api/telegram/business-link-edit', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.edit.push(body);
   const link = {
     slug: body.slug,
@@ -171,13 +172,13 @@ await page.route('**/api/telegram/business-link-edit', (route) => {
   return fulfil(route, { ok: true, link });
 });
 await page.route('**/api/telegram/business-link-delete', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.remove.push(body);
   links = links.filter((l) => l.slug !== body.slug);
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/business-link-resolve', (route) => {
-  sent.resolve.push(route.request().postDataJSON());
+  sent.resolve.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     chat: SHOP,
@@ -211,7 +212,7 @@ await page.route('**/api/telegram/business-bot-set', (route) =>
   answer(route, 'bot')
 );
 await page.route('**/api/telegram/business-bot-remove', (route) => {
-  sent.disconnect.push(route.request().postDataJSON());
+  sent.disconnect.push(requestBody(route.request()));
   connectedBot = null;
   return fulfil(route, { ok: true, bot: null });
 });
@@ -264,7 +265,7 @@ const profile = (chat) => {
   return { ok: true, hours: null, location: null, intro: null };
 };
 await page.route('**/api/telegram/business-profile', (route) =>
-  fulfil(route, profile(route.request().postDataJSON().chat))
+  fulfil(route, profile(requestBody(route.request()).chat))
 );
 let barOf = {
   id: '500',
@@ -276,17 +277,17 @@ let barOf = {
 await page.route('**/api/telegram/business-bot-chat', (route) =>
   fulfil(route, {
     ok: true,
-    bar: route.request().postDataJSON().chat === NIGHT ? barOf : null,
+    bar: requestBody(route.request()).chat === NIGHT ? barOf : null,
   })
 );
 await page.route('**/api/telegram/business-bot-pause', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.pause.push(body);
   barOf = { ...barOf, paused: body.paused };
   return fulfil(route, { ok: true, paused: body.paused });
 });
 await page.route('**/api/telegram/business-bot-disable', (route) => {
-  sent.disable.push(route.request().postDataJSON());
+  sent.disable.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 
@@ -316,13 +317,13 @@ await page.route('**/api/telegram/folders-suggested', (route) =>
   fulfil(route, { ok: true, suggested: [] })
 );
 await page.route('**/api/telegram/folder-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.folder.push(body);
   folders = [...folders, { id: 5, ...body.folder }];
   return fulfil(route, { ok: true, id: 5 });
 });
 await page.route('**/api/telegram/folders-tags-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.tags.push(body);
   if (refused.premium) {
     return fulfil(route, PREMIUM);

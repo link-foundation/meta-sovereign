@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for emoji statuses (R-Y162), as Telegram Desktop shows
 // and sets them: a person's status is a small custom emoji after their
 // name in the chat list, the chat header, the person panel and, in a
@@ -68,7 +69,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(route, {
     chat,
     kind: chat === TEAM ? 'group' : 'user',
@@ -104,7 +105,7 @@ await page.route('**/api/telegram/emoji-statuses', (route) =>
 );
 const sets = [];
 await page.route('**/api/telegram/emoji-status-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sets.push(body);
   mine = body.documentId ? { id: body.documentId, until: body.until } : null;
   return fulfil(route, { ok: true });

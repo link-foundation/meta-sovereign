@@ -47,4 +47,5 @@ try {
   });
 } finally {
   await stop();
+  process.stdin.pause();
 }

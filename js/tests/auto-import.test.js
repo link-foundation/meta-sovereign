@@ -25,7 +25,7 @@ import {
   readZipEntries,
   scrapedRowsToLinks,
 } from '../src/sources/auto-import/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { isTrustedMutation } from '../src/server/routes-auto-import.js';
 import { ProviderAutoImport } from '../src/web/connections/index.js';
 import { providerCatalogue } from '../src/web/connection-guides.js';

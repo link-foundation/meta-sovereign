@@ -9,6 +9,7 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../src/server/index.js';
+import { fulfilWire } from './http-wire.mjs';
 import { watchChatPages, screenshotChatPages } from './e2e-page-errors.mjs';
 
 export const assert = (cond, msg) => {
@@ -19,7 +20,7 @@ export const assert = (cond, msg) => {
 
 /** A route answered with JSON. */
 export const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),

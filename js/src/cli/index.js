@@ -95,7 +95,7 @@ Commands:
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir> [--replace]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--quiet-logs]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
                 on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
@@ -216,6 +216,9 @@ const serveOptions = (args) => ({
   // enabled with `--local-ui=true` (R-Y58, R-Y59).
   ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
   ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+  ...(args['json-compatibility'] !== undefined
+    ? { jsonCompatibility: String(args['json-compatibility']) === 'true' }
+    : {}),
   // https beside http on the same port, for Safari (R-Y64).
   tls: String(args.tls ?? 'true') !== 'false' && process.env.MS_TLS !== 'off',
 });

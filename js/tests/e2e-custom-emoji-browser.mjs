@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for custom emoji in messages (R-Y120), as Telegram's
 // apps draw them: the message's picture replaces the fallback emoji
 // inline at the text's size, the fallback stays in the page so copying
@@ -72,7 +73,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
