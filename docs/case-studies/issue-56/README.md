@@ -57,3 +57,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Operator history race](ci-operator-history.md): preserved CI artifact, deterministic late-effect regression and independent history navigation evidence.
 
 - [Owned reader lifetime](ci-reader-lifetime.md): bounded actual-file reproduction, awaited descriptor cleanup and focused Node/Deno checks; exact Windows verification remains pending.
+
+- [CI for 9b718571](ci-9b718.md): six corrected fixture assertions, separate Windows/browser failures and an incomplete Python CodeQL matrix job, with raw logs.
