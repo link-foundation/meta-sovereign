@@ -196,6 +196,9 @@ await finish(async () => {
   } finally {
     for (const target of targets) {
       if (!target.isClosed()) {
+        // App update checks can fetch the intercepted bundle during teardown.
+        // Finish those callbacks before disposing their request context.
+        await target.unrouteAll({ behavior: 'wait' });
         await target.evaluate(() =>
           globalThis.__syncFixtureMedia
             ?.getTracks()
