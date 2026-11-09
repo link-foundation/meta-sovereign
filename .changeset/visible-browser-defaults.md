@@ -45,3 +45,5 @@ Retry transient GitHub dependency-comparison failures with a bounded three-attem
 Add configured answer context groups with question/conversation/vacancy precedence, disjoint profile values, ambiguity review and evidence through CLI, default text/binary Lino API and shared UI. Rebuild actual same-chat context and reread saved actions after typing; changed, disabled or deleted saved automations stop automatic delivery.
 
 Add independent configured salary targets, monthly/hourly conversion with upward rounding, related currency/tax-basis follow-ups and unique containing salary bands through CLI, default Lino API and shared editors. Missing or unapproved amounts require review; target, hours and approval changes are rechecked before queuing.
+
+Preserve native HTTP rejection responses when request data is unread by staging TCP closure with bounded draining; retain immediate validation and unchanged storage on rejected requests.

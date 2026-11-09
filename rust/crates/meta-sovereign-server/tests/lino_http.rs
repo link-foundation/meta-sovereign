@@ -115,6 +115,44 @@ fn media_failures_and_incomplete_bodies_never_mutate_the_store() {
 }
 
 #[test]
+fn early_rejections_preserve_the_response_with_unread_request_data() {
+    let server = serve(ServerOptions::default()).unwrap();
+    // Exceed read_head's buffer without approaching the request body limit.
+    // Closing with these bytes unread used to reset the TCP connection.
+    let body = vec![b'x'; 64 * 1024];
+    for (headers, length, status) in [
+        ("Content-Type: application/json\r\n", body.len(), 415),
+        (
+            "Content-Type: text/lino\r\nAccept: application/json\r\n",
+            body.len(),
+            406,
+        ),
+        ("Content-Type: text/lino\r\n", 16 * 1024 * 1024 + 1, 413),
+        (
+            "Content-Type: text/lino\r\nTransfer-Encoding: chunked\r\n",
+            body.len(),
+            400,
+        ),
+        (
+            "Content-Type: text/lino\r\nOrigin: https://invalid.example\r\n",
+            body.len(),
+            403,
+        ),
+        (
+            "Upgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Protocol: unsupported\r\n",
+            body.len(),
+            406,
+        ),
+    ] {
+        let reply = request(server.port(), "/links", headers, &body, length);
+        assert_eq!(reply.status, status, "{headers}");
+        Format::Text.decode(&reply.body).unwrap();
+    }
+    assert_eq!(server.state().query(), Vec::<Value>::new());
+    server.shutdown();
+}
+
+#[test]
 fn http_json_requires_opt_in_and_explicit_lino_still_wins() {
     let server = serve(ServerOptions {
         json_compatibility: true,

@@ -21,7 +21,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use crate::handlers;
 use crate::json::{self, Value};
@@ -398,12 +398,13 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
                     Format::Text,
                 ),
             );
+            close_after_rejection(&mut stream);
             return Ok(());
         }
     };
 
     if let Some(response) = request_boundary(&parsed, stream.local_addr()?.port()) {
-        return write_wire_response(&mut stream, response, &parsed, json_compatibility);
+        return reject_wire_response(&mut stream, response, &parsed, json_compatibility);
     }
 
     if is_websocket_upgrade(&parsed) {
@@ -414,7 +415,7 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
                 .map(String::as_str),
             json_compatibility,
         ) else {
-            return write_wire_response(
+            return reject_wire_response(
                 &mut stream,
                 wire::http::error(
                     406,
@@ -435,6 +436,7 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
             &mut stream,
             "HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n",
         );
+        close_after_rejection(&mut stream);
         return Ok(());
     }
 
@@ -445,7 +447,7 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         json_compatibility,
     );
     let fail = |stream: &mut TcpStream, status, code, message| {
-        write_wire_response(
+        reject_wire_response(
             stream,
             wire::http::error(status, code, message),
             &req,
@@ -554,6 +556,42 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         emit_json_log(&req.method, &req.path, status, duration_ms);
     }
     Ok(())
+}
+
+fn reject_wire_response(
+    stream: &mut TcpStream,
+    response: Response,
+    req: &Request,
+    compatibility: bool,
+) -> std::io::Result<()> {
+    write_wire_response(stream, response, req, compatibility)?;
+    close_after_rejection(stream);
+    Ok(())
+}
+
+fn close_after_rejection(stream: &mut TcpStream) {
+    // RFC 9112 section 9.6: closing with unread request data can send a TCP
+    // reset that discards the response. Half-close first, then briefly drain
+    // without trusting Content-Length or letting a slow sender hold a worker.
+    if stream.shutdown(Shutdown::Write).is_err() {
+        return;
+    }
+    let deadline = Instant::now() + Duration::from_millis(100);
+    let mut remaining = 64 * 1024;
+    let mut buf = [0u8; 4096];
+    while remaining > 0 {
+        let Some(wait) = deadline.checked_duration_since(Instant::now()) else {
+            break;
+        };
+        if wait.is_zero() || stream.set_read_timeout(Some(wait)).is_err() {
+            break;
+        }
+        let limit = remaining.min(buf.len());
+        match stream.read(&mut buf[..limit]) {
+            Ok(0) | Err(_) => break,
+            Ok(n) => remaining -= n,
+        }
+    }
 }
 
 fn write_wire_response(

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-native-rejection.md](ci-native-rejection.md) records the exact-head Rust TCP reset, a deterministic bounded failing-before regression and staged-close correction. It also records the separate Node/macOS job timeout that remains under investigation.
+
 - [question-salary.md](question-salary.md) records independent configured targets, hourly rounding, related clarifications, unique range selection and CLI/API/UI/delivery regressions, with desktop/mobile screenshots. Remaining tax/FX and provider/form parity stay open.
 
 - 2026-11-09 09:28 UTC: issue created. Initial issue and PR snapshots, including all three PR feedback endpoints, are in `evidence/github/`. They returned no comments, reviews or required sub-issues at collection; finalization must refresh them.
