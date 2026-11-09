@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [x-publishing-auth.md](x-publishing-auth.md) records ignored legacy credentials, app-only write refusal, receipt validation, universal OAuth signing and an upstream report, with 71 focused checks and real Chrome verification.
+
 - [ci-df7c0c28.md](ci-df7c0c28.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for bounded question-turn matching and archive learning.
 
 - [broadcast-outcomes.md](broadcast-outcomes.md) records false sent/queue states, shared delivery accounting, actual confirmed UI, interrupted-write uncertainty and 47 focused checks with production browser/MCP before/after evidence.
