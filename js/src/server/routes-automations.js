@@ -57,6 +57,7 @@ import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validEffect } from './routes-telegram-effects.js';
+import { questionAnswerRoute } from './routes-question-answers.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -558,6 +559,18 @@ const statusFor = (error) => {
 };
 
 export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
+  if (
+    p === '/api/automations/answers' ||
+    p.startsWith('/api/automations/answers/')
+  ) {
+    try {
+      return await questionAnswerRoute(store, req, res, p);
+    } catch (error) {
+      const [status, code] = statusFor(error);
+      fail(res, status, code, error.message);
+      return true;
+    }
+  }
   const get = req.method === 'GET' ? GET[p] : null;
   const post = req.method === 'POST' ? POST[p] : null;
   const isWrite = ['PUT', 'DELETE'].includes(req.method);

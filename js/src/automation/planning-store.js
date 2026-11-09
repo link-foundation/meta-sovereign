@@ -20,11 +20,14 @@ const summary = (link) => {
   return record;
 };
 
-export const planningRecords = async (store, { targets, self = [] } = {}) => {
+export const planningRecords = async (
+  store,
+  { targets, self = [], inferSelf = true } = {}
+) => {
   const wanted = Array.isArray(targets)
     ? new Set(targets.map((target) => `${target.source}:${target.chat}`))
     : null;
-  const owner = collectSelfIds(self);
+  const owner = collectSelfIds(inferSelf ? self : ['me', ...self]);
   const records = [];
   const project = (link) => {
     if (isMessage(link)) {
@@ -63,5 +66,17 @@ export const planningRecords = async (store, { targets, self = [] } = {}) => {
       records.push(summary(record));
     }
   }
-  return { records, self: [...owner.finish()] };
+  const ids = owner.finish();
+  if (!inferSelf) {
+    for (const message of records) {
+      if (
+        isMessage(message) &&
+        (message.outgoing === true || message.out === true) &&
+        message.sender
+      ) {
+        ids.add(message.sender);
+      }
+    }
+  }
+  return { records, self: [...ids] };
 };

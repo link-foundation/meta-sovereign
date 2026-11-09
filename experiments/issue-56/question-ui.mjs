@@ -1,0 +1,46 @@
+// Isolated Q/A UI fixture, no credentials or provider traffic. Newline closes.
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { startServer } from '../../js/src/server/index.js';
+import { createMemoryStore } from '../../js/src/storage/universal.js';
+
+const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-question-ui-'));
+const store = createMemoryStore();
+for (const message of [
+  { id: 1, sender: 'interviewer', body: 'Какой у вас опыт?' },
+  { id: 2, sender: 'me', body: 'Пять лет в распределённых командах.' },
+  { id: 3, sender: 'interviewer', body: 'Где вы живёте?' },
+]) {
+  await store.put({
+    ...message,
+    id: `msg:hh:1:${message.id}`,
+    source: 'hh',
+    chat: '1',
+    chatName: 'Interview fixture',
+    chatType: 'personal_chat',
+    timestamp: new Date(Date.UTC(2026, 10, 9, 10, 0, message.id)).toISOString(),
+  });
+}
+const server = await startServer({
+  store,
+  storeDir: dir,
+  port: 0,
+  localUi: true,
+  enableHandlers: false,
+  enableSync: false,
+  telegramAccount: false,
+  automations: { scheduler: false },
+});
+try {
+  console.log(JSON.stringify({ origin: `http://127.0.0.1:${server.port}` }));
+  await new Promise((resolve) => {
+    process.once('SIGTERM', resolve);
+    process.once('SIGINT', resolve);
+    process.stdin.once('data', resolve);
+  });
+} finally {
+  await server.close();
+  await rm(dir, { recursive: true, force: true });
+  process.stdin.pause();
+}

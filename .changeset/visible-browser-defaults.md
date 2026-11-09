@@ -35,3 +35,5 @@ Negotiate readable/binary Links Notation on existing native Rust HTTP, WebSocket
 Add independent streamed text and binary Lino recovery dump primitives with checked-before-write restore, secret exclusion, private durable writes, bounded packets and verified retention (R-AA17).
 
 Create both recovery dumps on the default server schedule, persist interval/retention/format choices across CLI, Lino API and Backup UI, and confirm restore results. Preserve stored nonfinite/undefined values independently of network normalization and release CLI restore writers before returning.
+
+Add shared scoped question-answer rules, bounded pattern matching, profile fields, provenance-based learning and reviewed/automatic answer planning through CLI, text/binary Lino API and the common UI. Recheck the actual question and current approval after typing, preserve unsaved edits on failure, and show review/provenance in Chat and Operator (R-AA1).

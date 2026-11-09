@@ -1,0 +1,170 @@
+# Reference feature inventory
+
+This is the implementation checklist for issue 56's six feature references. The source revisions and original repository/tree/README responses are preserved in `data/reference-snapshots.tar.gz`. References are read to understand behavior; their code is not copied or executed. A feature is complete only after CLI, API and UI controls and the relevant regression evidence are recorded. Existing related modules below identify integration points, not verified parity. Every unchecked row remains required work in PR 57.
+
+The first source pass covers the six READMEs, HH's forms/chat and CV requirements, Telegram's sending scripts and VK's trigger entry points. Additional source/test auditing continues alongside implementation; this inventory must expand when that audit reveals another behavior. It is not yet a certificate of exhaustive coverage.
+
+## Shared questions, answers and application forms
+
+HH's `README.md` sections “Answer Chats”, “Prefill External Forms” and “The Resume as .lino Files”, plus `docs/requirements/forms-and-chats.md`, define behavior that issue 56 explicitly extends to **every provider**. Current integration points are `replies/`, `crm/conversation-questions.js`, `patterns/`, `automation/`, shared Chat and Operator. The shared `answer-questions` action now provides the foundation described in [question-answers.md](question-answers.md). Partial evidence below does not complete the advanced reference behaviors or actual provider execution.
+
+| ID   | Required behavior                                                                                                                               | Implementation and verification                                                                                                                |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| QA01 | Recognize questions without punctuation, multilingual requests, and questions mixed with acknowledgments.                                       | [ ] Partial: shared punctuation-free English/Russian requests and existing recognition; wider multilingual audit remains.                      |
+| QA02 | Exact saved Q/A, frequency-ranked answer variants and approximate matches requiring review.                                                     | [ ] Partial: saved rules/variants, frequency ranking and approximate review; full-archive cumulative counts remain.                            |
+| QA03 | Reusable ordered-word templates with bounded `…` gaps and word suffix `*`; case folding and `ё` normalization.                                  | [ ] Implemented matcher and finite regressions in question-automation.test.js; provider workflow verification remains.                         |
+| QA04 | Reject a template match that adds another question, invitation, assignment, form, call or link.                                                 | [ ] Shared extra-intent regressions pass; advanced context/provider cases remain.                                                              |
+| QA05 | Substitute configured profile/contact placeholders; preserve missing values for review.                                                         | [ ] Partial: editable profile fields, missing-value review and shared rendering; contact/CV context remains.                                   |
+| QA06 | Learn only actual outgoing answers, deduplicate by source message IDs, join consecutive answer bubbles and retain provenance.                   | [ ] Partial: actual-turn learning, barriers, unique IDs and provenance; bounded-window coverage is disclosed.                                  |
+| QA07 | Bot summaries may teach factual answers with count zero; summaries do not themselves trigger a reply.                                           | [ ] Summary parser and eligibility evidence.                                                                                                   |
+| QA08 | Strip one-off apologies/irrelevant text from reusable knowledge; exclude private access URLs.                                                   | [ ] Partial: private URLs and unresolved placeholders rejected; reusable apology/irrelevance extraction remains.                               |
+| QA09 | Keep full multi-question pairs and split only aligned numbered/bulleted questions and answers; retain conditional subquestions and code blocks. | [ ] Partial: sequential numbered alignment, whole-pair retention and code protection; full bullet/conditional audit remains.                   |
+| QA10 | Assemble all component answers; contextual salary/contact assemblies remain reviewable.                                                         | [ ] Partial: all components assembled for review; salary/contact context remains.                                                              |
+| QA11 | Canonical approved replacements and punctuation variants combine counts only under configured equivalence; preserve transcripts.                | [ ] Reversible knowledge preferences.                                                                                                          |
+| QA12 | Track salary currency and net/gross independently of language, inherit only relevant recent context and never silently convert.                 | [ ] Context fixtures.                                                                                                                          |
+| QA13 | Use current salary targets over stale learned amounts; hourly conversion/rounding and ambiguous ranges require appropriate review.              | [ ] Configured salary policy.                                                                                                                  |
+| QA14 | Bot answers select exactly one offered option; delayed buttons, clear/retry and HH's generic chips are distinguished.                           | [ ] Partial: unique exact option matching; real delayed-button/retry/generic-chip execution remains.                                           |
+| QA15 | Choose only a unique containing salary band automatically; ties, conflicting net/gross and missing currency/amount stay open.                   | [ ] Range-selection fixtures.                                                                                                                  |
+| QA16 | Reminder questions and technical questions remain separate; requests for examples never become a generic “yes”.                                 | [ ] Contextual question identity.                                                                                                              |
+| QA17 | Closed chats remain read-only; acknowledgments/rejections/invitations have distinct configured policies.                                        | [ ] Shared capability and intent rules.                                                                                                        |
+| QA18 | Optional local model drafts use CV, conversation and saved answers; unknown personal facts are visibly unresolved.                              | [ ] Explicit configured model, no silent fallback.                                                                                             |
+| QA19 | Per-system/per-chat settings, draft/automatic modes, opt-outs and convenient CLI/API/UI controls.                                               | [ ] Partial: scoped rules and common editor/CLI/Lino API; provider-specific opt-outs and triggers require audit.                               |
+| QA20 | Drafts never overwrite owner edits; automatic sends reuse pacing, caps, delivery uncertainty and deduplication.                                 | [ ] Partial: reviewed drafts, current-turn/rule recheck after typing, guarded outbox and race regressions; full provider verification remains. |
+| QA21 | Generic accessible form reading handles labels, legends, placeholders, headings and iframes.                                                    | [ ] Browser form reader.                                                                                                                       |
+| QA22 | Prefill text, choice, checkbox, date and contact/time-zone fields using the same Q/A engine.                                                    | [ ] Shared form executor.                                                                                                                      |
+| QA23 | External Google/Yandex/multipage forms stay in isolated slots and never auto-submit; learn only confirmed final submission.                     | [ ] Submission watcher and negative cancellation cases.                                                                                        |
+| QA24 | Assignment links/repositories and notifications remain reviewable; incomplete assignment is not presented as completed.                         | [ ] Assignment workflow.                                                                                                                       |
+| QA25 | Field-by-field provenance report distinguishes exact, approximate, profile, model and unresolved answers.                                       | [ ] Exportable report across all control surfaces.                                                                                             |
+
+## HH job applications, messaging and CV
+
+Sources: HH `README.md`, `docs/requirements/forms-and-chats.md`, `docs/requirements/experience-sync.md` and the corresponding browser fixtures. Existing `sources/hh.js` is a limited API adapter; `cv/` and its browser plugin provide starting points, not the requested full workflows.
+
+| ID   | Required behavior                                                                                                                   | Implementation and verification                             |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| HH01 | Persistent headed login, isolated named cases/slots, manual login/CAPTCHA, configurable headless overrides and bounded diagnostics. | [ ] Policy foundation exists; workflow integration remains. |
+| HH02 | Search/filter/paginate vacancies; salary ordering and configurable resume selection.                                                | [ ] Search workflow.                                        |
+| HH03 | Full vacancy collection including expanded descriptions; successful-read cache keyed by vacancy ID.                                 | [ ] Collection and cache verification.                      |
+| HH04 | Preserve vacancy prose, separate required/preferred technologies, local alias statistics and evidence-based CV matching.            | [ ] Technology analysis.                                    |
+| HH05 | Skip already responded/viewed/configured vacancies, permanent skips and temporary/deferred questions; preserve user choices.        | [ ] Persistent/session policy distinctions.                 |
+| HH06 | Apply through browser forms/popups with cover letter, full description context, daily limits and confirmed delivery.                | [ ] Browser application executor.                           |
+| HH07 | Exact-only auto-submit after a configurable review delay; pause for ambiguity, new questions and CAPTCHA.                           | [ ] Application state machine.                              |
+| HH08 | Session-only no-questionnaire mode, pause/resume, deferred retries and test mode without polluting permanent skips.                 | [ ] Live controls and state fixtures.                       |
+| HH09 | Full web messaging, read/unread state and provider filters in combined Chat and Operator.                                           | [ ] Browser message/history adapter.                        |
+| HH10 | Watch unread chats one at a time; oldest-history learning and accurate partial-history coverage.                                    | [ ] Watch/import state machine.                             |
+| HH11 | Preserve rapidly changing DOM messages, edits and delivery states; verify chat identity before capture/send.                        | [ ] Navigation and mutation fixtures.                       |
+| HH12 | Export latest/specific/all resumes as PDF, RTF/DOC, HTML, Markdown, text, structured data and Lino.                                 | [ ] Export pipeline.                                        |
+| HH13 | Sanitized bilingual Lino excludes contact/salary/birth-date leaks and preserves company metadata and stable industry IDs.           | [ ] Privacy and round-trip fixtures.                        |
+| HH14 | Edit/add/copy/detach workplace records, About, dates, location, website and industries using localized dictionaries.                | [ ] Complete field editor.                                  |
+| HH15 | Protect shared-profile workplaces by copying for the target CV and separately reviewing deselection; never delete other CV data.    | [ ] Cross-CV regression.                                    |
+| HH16 | Verify exact record identity, block navigation over unsaved forms and preserve final owner edits at Save.                           | [ ] Browser-save watcher.                                   |
+| HH17 | Resume interrupted batches/checkpoints without repeating saves; distinguish cancel, validation failure and verified success.        | [ ] Idempotent reviewed queue.                              |
+| HH18 | Observe existing CV slots without clicking/navigating; refresh snapshots only after confirmed saves.                                | [ ] Passive watcher.                                        |
+| HH19 | Audit bilingual technologies from saved job evidence, canonical aliases, alphabetical order, deduplication and per-field coverage.  | [ ] Technology plan/review.                                 |
+| HH20 | Preserve biography, distinct products/versions and raw lists; ambiguous counterparts block review rather than disappear.            | [ ] Alias and matching fixtures.                            |
+| HH21 | Export/diff/sync HH and LinkedIn experience in both directions, matching company/time and preserving all fields.                    | [ ] Cross-provider experience workflow.                     |
+| HH22 | Optional configured translation providers, cached comparisons and invalid-output handling; reviewed target saves.                   | [ ] Translation adapter and provenance.                     |
+| HH23 | Sanitize optional published snapshots; keep private full exports/backups and pending plans intact.                                  | [ ] Explicit publication control.                           |
+
+## Broadcast
+
+Source: broadcast `README.md`, CLI entry point and provider modules. Existing `broadcast/` must be checked for each behavior and exposed consistently through server/UI.
+
+| ID   | Required behavior                                                                                           | Implementation and verification                      |
+| ---- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| BC01 | Send the same message to selected/all Telegram channels/groups, VK personal/community walls and X.          | [ ] Multi-target operation with independent results. |
+| BC02 | Telegram HTML formatting, Bot API preference and optional MTProto user login/2FA/session persistence.       | [ ] Authentication/format selection.                 |
+| BC03 | VK user/group token and destination distinctions with real write-permission errors.                         | [ ] Destination and capability controls.             |
+| BC04 | X supported user credentials, legacy OAuth signing and read-only bearer capability without claiming a post. | [ ] Authentication matrix.                           |
+| BC05 | Delete supported published posts and retain their provider identifiers.                                     | [ ] Lifecycle operations.                            |
+| BC06 | Connectivity/configuration test and configurable redacted diagnostics.                                      | [ ] CLI/API/UI diagnostics.                          |
+| BC07 | Environment/local configuration and interactive setup without leaking secrets.                              | [ ] Credential integration.                          |
+
+## Telegram history, contacts and greeting scripts
+
+Sources: telegram-bot README, `history-to-markdown.mjs`, `chat-users.mjs`, `add-chat-users-to-contacts.mjs`, `message-members.mjs`, `send-greeting-sticker.mjs` and `send-start.mjs`.
+
+| ID   | Required behavior                                                                                                       | Implementation and verification                  |
+| ---- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| TG01 | Active conversation export (default four-hour gap), complete history and unambiguous chat resolution.                   | [ ] Compare existing import/export controls.     |
+| TG02 | Markdown and structured history with media downloads, timestamps, identifiers and bounded 1500-line linked parts.       | [ ] Export parity.                               |
+| TG03 | Enumerate unique users from authors, service events, forwards, mentions, shared contacts and visible participants.      | [ ] Provenance-aware user extraction.            |
+| TG04 | Preview contact import by default; apply limits and exclude bots/deleted/fake/scam users.                               | [ ] Contact planner/executor.                    |
+| TG05 | Add contacts without phone numbers; phone sharing is a separate opt-in.                                                 | [ ] MTProto privacy assertion.                   |
+| TG06 | User credentials, phone/2FA and persistent sessions, legacy migration and clean timeout shutdown.                       | [ ] Existing login parity audit.                 |
+| TG07 | Send `/start` to a chosen bot.                                                                                          | [ ] Common send controls and CLI example.        |
+| TG08 | Collect featured/recent/mask/favorite stickers, cache usable documents and select hi/hello/wave greetings.              | [ ] Catalog coverage and safe cache refresh.     |
+| TG09 | Greet group participants privately, exclude self/verified/business/bot/deleted/fake/scam users and validate group type. | [ ] Recipient planner.                           |
+| TG10 | Greeting limit, 24-hour deduplication and paced sends; save progress only after acknowledged delivery.                  | [ ] Existing greetings/outbox integration audit. |
+
+## Follow / PR chat handling
+
+Source: follow README and command implementations. Provider adapters, common browser fallback and the outbox are integration points.
+
+| ID   | Required behavior                                                                                                      | Implementation and verification             |
+| ---- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| FL01 | Paginate VK group chats; filter by Telegram references and show title/ID/member count/latest messages/member details.  | [ ] Chat discovery/listing.                 |
+| FL02 | Extract public and private Telegram invite links from incoming messages and retain a clearable Lino cache.             | [ ] Link extraction and provenance.         |
+| FL03 | Join/list/leave Telegram public/private chats by username/link/ID.                                                     | [ ] Provider actions and capability UI.     |
+| FL04 | Persist user/2FA sessions and migrate legacy session configuration.                                                    | [ ] Existing auth parity audit.             |
+| FL05 | Follow with independently configurable mute and archive.                                                               | [ ] Common operation model.                 |
+| FL06 | Post a backlink into the source chat; optional incoming-history deletion only after confirmed successful post.         | [ ] Failure/uncertainty prevents deletion.  |
+| FL07 | Auto-loop rejected chats, refresh extracted links and stop at success/iteration limit.                                 | [ ] Bounded resumable runner.               |
+| FL08 | Retry only timeout failures with configured finite attempts and backoff; preserve rate-limit/permission/invite errors. | [ ] Deterministic retry fixtures.           |
+| FL09 | Same-system and cross-system PR workflows configurable through CLI/API/UI.                                             | [ ] Generalize provider-pair configuration. |
+
+## VK example automations
+
+Source: vk-bot `index.js`, all 24 `triggers/*.js`, standalone scripts, caches and trigger tests. Disabled examples are still features requested by issue 56; none should become silently enabled for existing accounts. Personal messages, identity/context checks and priority-friend exclusions must survive generalization.
+
+| ID   | Required behavior                                                                                                                | Implementation and verification                  |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| VK01 | Greeting text/sticker recognition and configurable response catalogs.                                                            | [ ] Shared Q/A/action integration.               |
+| VK02 | Gratitude responses with contextual variants.                                                                                    | [ ] Trigger parity audit.                        |
+| VK03 | Informal/formal “who are you” responses and learned address preference.                                                          | [ ] Reuse address-form model.                    |
+| VK04 | Acquaintance questions with daily cooldown.                                                                                      | [ ] Contextual preset.                           |
+| VK05 | Detect first greeting exchange and ask whether previously acquainted.                                                            | [ ] Turn-aware condition.                        |
+| VK06 | Follow up a negative acquaintance answer with sticker plus text in order.                                                        | [ ] Multi-action delivery.                       |
+| VK07 | Well-being and purpose questions with configurable answers.                                                                      | [ ] Shared Q/A presets.                          |
+| VK08 | Clarify an unspecified question only after the relevant outgoing turn.                                                           | [ ] Context guard.                               |
+| VK09 | Collect/deduplicate incoming attachment metadata.                                                                                | [ ] Existing media-store audit.                  |
+| VK10 | Online status schedule.                                                                                                          | [ ] Individually enabled provider action.        |
+| VK11 | Accept prioritized incoming friend requests, maintain friend cap and priority requests.                                          | [ ] Provider planner and acknowledgments.        |
+| VK12 | Delete banned/deleted friends while preserving priority friends.                                                                 | [ ] Explicit destructive-action policy.          |
+| VK13 | Cancel outgoing friend requests with limits and priority exclusions.                                                             | [ ] Provider planner.                            |
+| VK14 | React to cancelled friendships, avoid repeat prompts and optionally block after configured unanswered interval/unwritable state. | [ ] Persisted context and opt-in controls.       |
+| VK15 | Greet eligible friends using online/history/write-permission/cooldown/limit filters.                                             | [ ] Existing greeting planner audit.             |
+| VK16 | Ask about a configured topic after an eligible dormant conversation.                                                             | [ ] Template preset with provenance.             |
+| VK17 | Offer help after configured inactivity.                                                                                          | [ ] Existing reengagement audit.                 |
+| VK18 | Ask about shared music with appropriate history and attachments.                                                                 | [ ] Trigger/action audit.                        |
+| VK19 | Community wall invitations with attachments and optional owned-post replacement.                                                 | [ ] Confirmed-delete/post lifecycle.             |
+| VK20 | Send invitation posts to eligible friends, preserving deduplication and permission filters.                                      | [ ] Invitation planner.                          |
+| VK21 | Birthday greeting sticker/text/media variants with date-based deduplication.                                                     | [ ] Birthday job.                                |
+| VK22 | Clear configured local history above threshold, with provider deletion fallback and confirmed outcomes.                          | [ ] Explicit retention policy; no false success. |
+| VK23 | Accept the best suggestion, reject deactivated requests and inspect friends/requests/outgoing messages.                          | [ ] Standalone-script parity audit.              |
+| VK24 | Export history to Markdown; load/cache conversations and friend metadata.                                                        | [ ] Export/cache controls.                       |
+| VK25 | Enumerate/filter/download sticker packs, keywords and usable greeting IDs.                                                       | [ ] Catalog pipeline.                            |
+| VK26 | Persistent per-peer trigger state, live incoming history and typing/paced outgoing queue.                                        | [ ] Common runner integration.                   |
+
+## VK desktop
+
+Source: vk-bot-desktop README and its configuration/runner/release entry points. The desktop reference's acceptance policy differs from vk-bot's fixed request batch; expose the configured policy rather than conflating them.
+
+| ID   | Required behavior                                                                                                 | Implementation and verification                                    |
+| ---- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| VD01 | Local Electron execution without Docker; automatic required dependency preparation.                               | [ ] Desktop runner parity.                                         |
+| VD02 | Remote SSH execution with isolated Docker or screen process and truthful start/stop status.                       | [ ] Remote runner.                                                 |
+| VD03 | Independently enabled online/friend cleanup/invitation/birthday actions.                                          | [ ] Shared persisted job configuration.                            |
+| VD04 | Top-ten-percent request policy below friend capacity, mutual-only policy above it and priority-friend protection. | [ ] Policy fixtures.                                               |
+| VD05 | Configurable community/avatar/invitation text and birthday catalog.                                               | [ ] Convenient editor.                                             |
+| VD06 | One-window mode switching, start/stop, light/dark/automatic themes and English/Russian localization.              | [ ] Existing shell audit.                                          |
+| VD07 | Global/local Lino configuration with CLI overrides and protected secrets.                                         | [ ] Configuration precedence.                                      |
+| VD08 | Live redacted logs.                                                                                               | [ ] Shared diagnostics view.                                       |
+| VD09 | Unsigned macOS operation, five desktop artifacts, checksums/provenance and installation instructions.             | [ ] Existing packaging passes; runtime/instructions audit remains. |
+| VD10 | Landing release links reflect actual assets and never fabricate downloads.                                        | [ ] Pages/API integration.                                         |
+
+## Integration order and retained constraints
+
+Implement shared Q/A and policy records first, then provider execution and reviewed HH/CV workflows, then reference jobs and desktop controls. The universal React/device/storage workstreams in [PLAN.md](PLAN.md) remain separately required. No row is deferred by this ordering. Tests use isolated accounts/fixtures, actual protocol adapters and finite inputs; CI owns the full runtime/browser/platform matrices.
+
+Recent related merged PRs 55 and 51 were reviewed for repository conventions: retain one changeset, exact-commit CI evidence, truthful skipped checks, reviewed source pins, upstream reproducible reports and existing release integrity gates. Their source manifests are useful integration context; their passing checks do not verify this PR's new behavior.

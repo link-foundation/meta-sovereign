@@ -74,6 +74,10 @@ export const toForm = (input) => {
     lastFrom: c.lastFrom ?? 'any',
     networks: (c.networks ?? []).join(', '),
     form: a.action.form,
+    actionKind: a.action.kind,
+    ruleIds: (a.action.ruleIds ?? []).join(', '),
+    profile: { ...a.action.profile },
+    approximate: a.action.approximate !== false,
     informal: a.action.templates.informal ?? '',
     formal: a.action.templates.formal ?? '',
     dailyCap: numberText(p.dailyCap),
@@ -150,6 +154,14 @@ export const fromForm = (form, base = {}) => ({
   },
   action: {
     ...base.action,
+    kind: form.actionKind ?? base.action?.kind ?? 'send-template',
+    ...(form.actionKind === 'answer-questions'
+      ? {
+          ruleIds: csv(form.ruleIds),
+          profile: form.profile,
+          approximate: form.approximate,
+        }
+      : {}),
     form: form.form,
     templates: templatesFrom(form, base),
   },

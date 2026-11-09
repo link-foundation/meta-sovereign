@@ -8,6 +8,7 @@
 // out; people can be searched, picked and run on directly.
 
 import React from 'react';
+import { AnswerEvidence } from './question-evidence.js';
 import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
@@ -18,6 +19,8 @@ import { exclusionSummary } from './automations-model.js';
 import { PageLoading } from './spinner.js';
 import { SafetyPanel } from './automations-safety.js';
 import { autopilotText, useSecondsTo } from './chat-automation.js';
+import { AutomationActionFields } from './question-actions.js';
+import { QuestionControls } from './question-controls.js';
 
 const el = React.createElement;
 
@@ -392,31 +395,7 @@ const messageFields = ({ form, set, error, t }) => {
   const p = { form, set, error };
   return [
     el(Fieldset, { key: 'what', legend: t('automations.section.message') }, [
-      el(Choice, {
-        ...p,
-        key: 'f',
-        name: 'form',
-        label: t('automations.field.form'),
-        options: ['auto', 'informal', 'formal'].map((f) => [
-          f,
-          t(`automations.form.${f}`),
-        ]),
-      }),
-      el(Input, {
-        ...p,
-        key: 'i',
-        name: 'informal',
-        multiline: 6,
-        label: t('automations.form.informal'),
-      }),
-      el(Input, {
-        ...p,
-        key: 'o',
-        name: 'formal',
-        multiline: 6,
-        label: t('automations.form.formal'),
-        hint: t('automations.hint.template'),
-      }),
+      el(AutomationActionFields, { ...p, key: 'action', Input, Choice, Check }),
     ]),
     el(Fieldset, { key: 'pace', legend: t('automations.section.pacing') }, [
       el(Input, {
@@ -588,6 +567,7 @@ const PlanPreview = ({ runs }) => {
               } · ${t(`automations.form.${draft.form}`)}`
             ),
             el('blockquote', { key: 't' }, draft.text),
+            el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
           ])
         )
       ),
@@ -987,6 +967,11 @@ export const AutomationsScreen = ({ state }) => {
       el(AudiencesPanel, { key: 'aud', state }),
     ]),
     el(SafetyPanel, { key: 'safety', api: state.api }),
+    el(QuestionControls, {
+      key: 'questions',
+      api: state.api,
+      openAutomation: editor.open,
+    }),
   ]);
 };
 

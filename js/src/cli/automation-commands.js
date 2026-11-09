@@ -32,11 +32,14 @@ import {
 import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
+import { questionCommands } from './question-commands.js';
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.json> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
-                review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time`;
+                review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
+                answers: list | save [file.lino] | delete <id> | plan --question=<text> | learn [--apply]
+                answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--sources=hh,telegram] [--chats=hh:123]`;
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()
@@ -349,6 +352,7 @@ const summaryLine = (tally, left) =>
   `sent ${tally.sent}, skipped ${tally.skipped}, failed ${tally.failed}, left ${left}`;
 
 const SUBCOMMANDS = {
+  answers: questionCommands,
   list: listCmd,
   plan: planCmd,
   run: runCmd,

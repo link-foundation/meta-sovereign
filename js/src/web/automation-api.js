@@ -38,6 +38,7 @@ import {
 } from '../crm/people.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { planningRecords } from '../automation/planning-store.js';
+import { questionApi } from './question-api.js';
 
 const SERVER_REQUIRED = Object.freeze({
   status: 'failed',
@@ -93,8 +94,12 @@ const localAutomations = (store) => {
   const load = (automation) => loadAutomation(store, automation);
   const nowIso = () => new Date().toISOString();
   const plan = async (automation, options = {}) => {
-    const data = await planningRecords(store, options);
-    return planAutomation(data.records, await load(automation), {
+    const loaded = await load(automation);
+    const data = await planningRecords(store, {
+      ...options,
+      inferSelf: loaded.action.kind !== 'answer-questions',
+    });
+    return planAutomation(data.records, loaded, {
       ...options,
       self: data.self,
       resolveAudience,
@@ -416,6 +421,7 @@ export const createAutomationApi = ({ remote, store }) => {
   const local = localAutomations(store);
   return {
     ...automationCalls({ remote, store, local }),
+    ...questionApi({ remote, store }),
     ...chatCalls({ remote, store }),
     ...peopleCalls({ remote, store }),
   };

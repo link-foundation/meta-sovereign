@@ -1,0 +1,469 @@
+import React from 'react';
+import { useT } from './i18n.js';
+import { ProfileFields } from './question-actions.js';
+import { blankAutomation } from './automations-model.js';
+import { AnswerEvidence } from './question-evidence.js';
+
+const el = React.createElement;
+const isOpening = (event) =>
+  event.target === event.currentTarget && event.currentTarget.open;
+const csv = (value) =>
+  value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+const blank = () => ({
+  id: '',
+  question: '',
+  sources: [],
+  chats: [],
+  enabled: true,
+  answers: [{ text: '', count: 0, approved: false, evidence: [] }],
+});
+const Field = ({ label, value, change, rows, ...props }) =>
+  el('label', { className: 'field' }, [
+    el('span', { key: 'l', className: 'field-label' }, label),
+    el(rows ? 'textarea' : 'input', {
+      key: 'c',
+      'aria-label': label,
+      value,
+      rows,
+      onChange: (event) => change(event.target.value),
+      ...props,
+    }),
+  ]);
+
+const RuleEditor = ({ rule, set, disabled, save, remove }) => {
+  const t = useT();
+  const answer = (index, patch) =>
+    set({
+      ...rule,
+      answers: rule.answers.map((entry, at) =>
+        at === index ? { ...entry, ...patch } : entry
+      ),
+    });
+  return el(
+    'form',
+    {
+      className: 'col',
+      'data-answer-rule': true,
+      onSubmit: (event) => {
+        event.preventDefault();
+        save();
+      },
+    },
+    [
+      el(Field, {
+        key: 'q',
+        label: t('questions.question'),
+        value: rule.question,
+        change: (question) => set({ ...rule, question }),
+        rows: 3,
+        required: true,
+        maxLength: 6000,
+      }),
+      el('label', { key: 'enabled', className: 'check' }, [
+        el('input', {
+          key: 'i',
+          type: 'checkbox',
+          checked: rule.enabled,
+          onChange: (event) => set({ ...rule, enabled: event.target.checked }),
+        }),
+        ` ${t('questions.enabled')}`,
+      ]),
+      ...rule.answers.map((variant, index) =>
+        el('fieldset', { key: index, className: 'col' }, [
+          el(
+            'legend',
+            { key: 'l' },
+            t('questions.variant', { count: index + 1 })
+          ),
+          el(Field, {
+            key: 't',
+            label: t('questions.answer'),
+            value: variant.text,
+            change: (text) => answer(index, { text }),
+            rows: 4,
+            required: true,
+            maxLength: 12000,
+          }),
+          el('label', { key: 'a', className: 'check' }, [
+            el('input', {
+              key: 'i',
+              type: 'checkbox',
+              checked: variant.approved,
+              onChange: (event) =>
+                answer(index, { approved: event.target.checked }),
+            }),
+            ` ${t('questions.approved')}`,
+          ]),
+          el(
+            'small',
+            { key: 'f', className: 'meta' },
+            t('questions.frequency', { count: variant.count })
+          ),
+          variant.evidence?.length
+            ? el('details', { key: 'e' }, [
+                el('summary', { key: 's' }, t('questions.evidence')),
+                el(
+                  'ul',
+                  { key: 'l' },
+                  variant.evidence.map((id) => el('li', { key: id }, id))
+                ),
+              ])
+            : null,
+          rule.answers.length > 1
+            ? el(
+                'button',
+                {
+                  key: 'r',
+                  type: 'button',
+                  disabled,
+                  onClick: () =>
+                    set({
+                      ...rule,
+                      answers: rule.answers.filter((_, at) => at !== index),
+                    }),
+                },
+                t('questions.removeVariant')
+              )
+            : null,
+        ])
+      ),
+      el(
+        'button',
+        {
+          key: 'add',
+          type: 'button',
+          disabled: disabled || rule.answers.length >= 100,
+          onClick: () =>
+            set({
+              ...rule,
+              answers: [
+                ...rule.answers,
+                { text: '', count: 0, approved: false, evidence: [] },
+              ],
+            }),
+        },
+        t('questions.addVariant')
+      ),
+      el(Field, {
+        key: 's',
+        label: t('questions.sources'),
+        value: rule.sourcesText ?? rule.sources.join(', '),
+        change: (value) =>
+          set({ ...rule, sources: csv(value), sourcesText: value }),
+      }),
+      el(Field, {
+        key: 'c',
+        label: t('questions.chats'),
+        value: rule.chatsText ?? rule.chats.join(', '),
+        change: (value) =>
+          set({ ...rule, chats: csv(value), chatsText: value }),
+      }),
+      el('div', { key: 'actions', className: 'row' }, [
+        el(
+          'button',
+          { key: 'save', type: 'submit', disabled, className: 'primary' },
+          t('common.save')
+        ),
+        rule.id
+          ? el(
+              'button',
+              { key: 'delete', type: 'button', disabled, onClick: remove },
+              t('automations.delete')
+            )
+          : null,
+      ]),
+    ]
+  );
+};
+
+const AnswerPreview = ({ result }) => {
+  const t = useT();
+  if (!result) {
+    return null;
+  }
+  return el('div', { className: 'col', 'data-answer-preview': true }, [
+    el(AnswerEvidence, { key: 'evidence', answer: result }),
+    el('p', { key: 'r', className: 'meta' }, t('automations.plan.nothingSent')),
+    el(
+      'pre',
+      {
+        key: 'text',
+        style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+      },
+      result.text || t('questions.noAnswer')
+    ),
+  ]);
+};
+
+const LearnedAnswers = ({ busy, learned, learn }) => {
+  const t = useT();
+  return el('details', { key: 'learn' }, [
+    el('summary', { key: 's' }, t('questions.learn')),
+    el('p', { key: 'h', className: 'meta' }, t('questions.learnHint')),
+    el(
+      'button',
+      {
+        key: 'preview',
+        type: 'button',
+        disabled: busy,
+        onClick: () => learn(false),
+      },
+      t('questions.previewLearning')
+    ),
+    learned
+      ? el('div', { key: 'results', className: 'col' }, [
+          el(
+            'p',
+            { key: 'coverage' },
+            t('questions.coverage', {
+              retained: learned.coverage.retained,
+              seen: learned.coverage.seen,
+            })
+          ),
+          learned.coverage.limited
+            ? el(
+                'p',
+                { key: 'limit', className: 'meta' },
+                t('questions.partialHistory')
+              )
+            : null,
+          el(
+            'ul',
+            { key: 'list' },
+            learned.rules.map((entry) =>
+              el(
+                'li',
+                { key: entry.id },
+                `${entry.question} — ${entry.answers.length}`
+              )
+            )
+          ),
+          !learned.applied && learned.rules.length
+            ? el(
+                'button',
+                {
+                  key: 'apply',
+                  type: 'button',
+                  disabled: busy,
+                  onClick: () => learn(true),
+                },
+                t('questions.applyLearning')
+              )
+            : null,
+        ])
+      : null,
+  ]);
+};
+
+const PreviewControls = ({ busy, api, run, profile, setProfile }) => {
+  const t = useT();
+  const [question, setQuestion] = React.useState('');
+  const [source, setSource] = React.useState('');
+  const [chat, setChat] = React.useState('');
+  const [result, setResult] = React.useState(null);
+  return el('details', { key: 'preview' }, [
+    el('summary', { key: 's' }, t('questions.preview')),
+    el(Field, {
+      key: 'q',
+      label: t('questions.question'),
+      value: question,
+      change: setQuestion,
+      rows: 3,
+      maxLength: 6000,
+    }),
+    el('div', { key: 'scope', className: 'row' }, [
+      el(Field, {
+        key: 's',
+        label: t('questions.previewSource'),
+        value: source,
+        change: setSource,
+      }),
+      el(Field, {
+        key: 'c',
+        label: t('questions.previewChat'),
+        value: chat,
+        change: setChat,
+      }),
+    ]),
+    el(ProfileFields, { key: 'p', profile, set: setProfile }),
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        disabled: busy || !question.trim(),
+        onClick: () =>
+          run(async () =>
+            setResult(
+              await api.previewAnswer({ question, source, chat, profile })
+            )
+          ),
+      },
+      t('questions.preview')
+    ),
+    el(AnswerPreview, { key: 'r', result }),
+  ]);
+};
+
+const questionAutomation = (t, profile) => ({
+  ...blankAutomation(t('questions.automationName')),
+  conditions: {
+    silentDays: 0,
+    cooldownDays: 0,
+    mutual: false,
+    personal: false,
+    lastFrom: 'contact',
+  },
+  action: { kind: 'answer-questions', profile },
+});
+
+export const QuestionControls = ({ api, openAutomation }) => {
+  const t = useT();
+  const [rules, setRules] = React.useState([]);
+  const [rule, setRule] = React.useState(blank);
+  const [busy, setBusy] = React.useState(false);
+  const active = React.useRef(false);
+  const [error, setError] = React.useState('');
+  const [notice, setNotice] = React.useState('');
+  const [profile, setProfile] = React.useState({});
+  const [learned, setLearned] = React.useState(null);
+  const run = async (work) => {
+    if (active.current) {
+      return;
+    }
+    active.current = true;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      await work();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      active.current = false;
+      setBusy(false);
+    }
+  };
+  const reload = async () => setRules(await api.answerRules());
+  const save = () =>
+    run(async () => {
+      const id =
+        rule.id ||
+        `answer-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
+      const saved = await api.saveAnswerRule({ ...rule, id });
+      setRule(saved.rule);
+      await reload();
+      setNotice(t('questions.saved'));
+    });
+  const remove = () =>
+    run(async () => {
+      await api.deleteAnswerRule(rule.id);
+      setRule(blank());
+      await reload();
+      setNotice(t('questions.deleted'));
+    });
+  const learn = (apply) =>
+    run(async () => {
+      const answer = await api.learnAnswers({ apply });
+      setLearned(answer);
+      if (apply) {
+        await reload();
+        setNotice(t('questions.learned'));
+      }
+    });
+  return el(
+    'details',
+    {
+      className: 'card col',
+      'data-question-controls': true,
+      onToggle: (event) => {
+        if (isOpening(event) && api.answerRules) {
+          run(reload);
+        }
+      },
+    },
+    [
+      el('summary', { key: 's' }, t('questions.title')),
+      el('p', { key: 'intro', className: 'meta' }, t('questions.intro')),
+      error ? el('p', { key: 'error', role: 'alert' }, error) : null,
+      notice ? el('p', { key: 'notice', role: 'status' }, notice) : null,
+      busy
+        ? el('p', { key: 'busy', role: 'status' }, t('common.loading'))
+        : null,
+      el('div', { key: 'top', className: 'row' }, [
+        el(
+          'button',
+          {
+            key: 'new',
+            type: 'button',
+            disabled: busy,
+            onClick: () => {
+              setRule(blank());
+              setNotice('');
+            },
+          },
+          t('questions.new')
+        ),
+        el(
+          'button',
+          {
+            key: 'refresh',
+            type: 'button',
+            disabled: busy,
+            onClick: () => run(reload),
+          },
+          t('questions.refresh')
+        ),
+        el(
+          'button',
+          {
+            key: 'auto',
+            type: 'button',
+            disabled: busy,
+            onClick: () => openAutomation(questionAutomation(t, profile)),
+          },
+          t('questions.createAutomation')
+        ),
+      ]),
+      rules.length
+        ? el(
+            'ul',
+            { key: 'rules', className: 'automation-list' },
+            rules.map((entry) =>
+              el(
+                'li',
+                { key: entry.id },
+                el(
+                  'button',
+                  {
+                    type: 'button',
+                    disabled: busy,
+                    'aria-pressed': entry.id === rule.id,
+                    onClick: () => setRule(entry),
+                  },
+                  entry.question
+                )
+              )
+            )
+          )
+        : el('p', { key: 'empty', className: 'meta' }, t('questions.empty')),
+      el(
+        'fieldset',
+        { key: 'editor', disabled: busy },
+        el(RuleEditor, { rule, set: setRule, disabled: busy, save, remove })
+      ),
+      el(LearnedAnswers, { key: 'learn', busy, learned, learn }),
+      el(PreviewControls, {
+        key: 'preview',
+        busy,
+        api,
+        run,
+        profile,
+        setProfile,
+      }),
+    ]
+  );
+};

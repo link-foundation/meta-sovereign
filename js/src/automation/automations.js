@@ -52,6 +52,11 @@ import {
 
 import { OUTBOX_PREFIX } from './outbox.js';
 import {
+  normalizeAnswerAction,
+  planAnswer,
+  QA_RULE_PREFIX,
+} from './question-answers.js';
+import {
   SETTINGS_ID,
   normalizeSettings,
   optOutEntry,
@@ -141,8 +146,13 @@ const normalizeTrigger = (trigger) => {
 
 const normalizeAction = (action = {}) => {
   const kind = action.kind ?? 'send-template';
+  if (kind === 'answer-questions') {
+    return normalizeAnswerAction(action);
+  }
   if (kind !== 'send-template') {
-    throw new Error(`unknown action "${kind}"; known: send-template`);
+    throw new Error(
+      `unknown action "${kind}"; known: send-template, answer-questions`
+    );
   }
   const form = action.form ?? 'auto';
   if (!ADDRESS_CHOICES.includes(form)) {
@@ -504,6 +514,9 @@ export const draftFor = (automation, candidate, { isSelf, rules }) => {
 
 /** Re-render a draft in the other form when the user overrides it. */
 export const redraftWithForm = (automation, draft, form) => {
+  if (automation.action.kind === 'answer-questions') {
+    return { ...draft, form };
+  }
   const text = renderReengageText(
     templateFor(automation.action.templates, form),
     draft
@@ -538,13 +551,72 @@ const ledgerContext = (links, automation) => ({
   settings: normalizeSettings(links.find((l) => l?.id === SETTINGS_ID) ?? {}),
 });
 
-export const planAutomation = (links = [], input, options = {}) => {
-  const automation = plannedAutomation(input);
-  const now = toMs(options.now) ?? Number(options.now ?? Date.now());
+const answerDraft = (automation, candidate, { isSelf, answerRules }) => {
+  if (
+    candidate.messages.some(
+      (message) => !Number.isFinite(toMs(message.timestamp))
+    )
+  ) {
+    return { reason: 'question-turn-unavailable' };
+  }
+  const messages = candidate.messages.toSorted(
+    (a, b) => (toMs(a.timestamp) ?? 0) - (toMs(b.timestamp) ?? 0)
+  );
+  const latest = messages.at(-1);
+  if (latest?.service || latest?.deleted) {
+    return { reason: 'question-turn-unavailable' };
+  }
+  if (
+    !latest ||
+    isSelf(latest.sender) ||
+    latest.out === true ||
+    latest.outgoing === true
+  ) {
+    return { reason: 'question-already-answered' };
+  }
+  const answer = planAnswer(latest.body, {
+    rules: answerRules,
+    profile: automation.action.profile,
+    approximate: automation.action.approximate,
+    source: candidate.source,
+    chat: String(candidate.chat),
+    options: latest.answerOptions,
+  });
+  if (!answer.text) {
+    return { reason: 'question-unanswered', answer };
+  }
+  const { messages: _messages, ...summary } = candidate;
+  return {
+    draft: {
+      ...summary,
+      id: draftId(automation, candidate),
+      automation: automation.id,
+      automationName: automation.name,
+      form: 'neutral',
+      addressForm: { form: 'neutral', reason: 'answer' },
+      text: answer.text,
+      answer: { ...answer, message: latest.id },
+      edited: false,
+      prefill: prefillLinkFor({ ...candidate, text: answer.text }),
+    },
+  };
+};
+
+const selectedAnswerRules = (links, action) =>
+  links.filter(
+    (link) =>
+      link?.id?.startsWith(QA_RULE_PREFIX) &&
+      (!action.ruleIds?.length || action.ruleIds.includes(link.id))
+  );
+
+const planningContext = (links, automation, options, now) => {
   const { contacts, selfIds, isSelf } = findDormantContacts(links, {
     now,
     days: 0,
-    self: options.self ?? [],
+    self:
+      automation.action.kind === 'answer-questions'
+        ? ['me', ...(options.self ?? [])]
+        : (options.self ?? []),
     requireMutual: false,
   });
   const ctx = {
@@ -555,8 +627,21 @@ export const planAutomation = (links = [], input, options = {}) => {
     targets: options.targets ?? null,
     test: Boolean(options.test && options.targets),
     resolveAudience: options.resolveAudience ?? null,
+    answerRules: selectedAnswerRules(links, automation.action),
     ...ledgerContext(links, automation),
   };
+  return { ctx, selfIds, isSelf };
+};
+
+export const planAutomation = (links = [], input, options = {}) => {
+  const automation = plannedAutomation(input);
+  const now = toMs(options.now) ?? Number(options.now ?? Date.now());
+  const { ctx, selfIds, isSelf } = planningContext(
+    links,
+    automation,
+    options,
+    now
+  );
   const rules = [...defaultAddressRules, ...addressRulesFromPatterns(links)];
   const drafts = [];
   const excluded = [];
@@ -570,7 +655,20 @@ export const planAutomation = (links = [], input, options = {}) => {
     if (reason) {
       excluded.push({ key: candidate.key, name: candidate.name, reason });
     } else {
-      drafts.push(draftFor(automation, candidate, { isSelf, rules }));
+      if (automation.action.kind === 'answer-questions') {
+        const result = answerDraft(automation, candidate, ctx);
+        if (result.draft) {
+          drafts.push(result.draft);
+        } else {
+          excluded.push({
+            key: candidate.key,
+            name: candidate.name,
+            ...result,
+          });
+        }
+      } else {
+        drafts.push(draftFor(automation, candidate, { isSelf, rules }));
+      }
     }
   }
   const limit = Number(options.limit ?? automation.limit);
@@ -621,7 +719,9 @@ export const templateFromText = (text, draft = {}) => {
 
 /** The automation with the user's edited templates in place of its own. */
 export const withEdit = (automation, edit) =>
-  edit?.templates && Object.keys(edit.templates).length > 0
+  automation.action.kind === 'send-template' &&
+  edit?.templates &&
+  Object.keys(edit.templates).length > 0
     ? {
         ...automation,
         edited: Object.keys(edit.templates),
@@ -634,6 +734,9 @@ export const withEdit = (automation, edit) =>
 
 /** The edit link after the user sent `text` (null: nothing to keep). */
 export const editAfterSend = (automation, before, draft, text, at) => {
+  if (automation.action.kind === 'answer-questions') {
+    return null;
+  }
   const original = automation.action.templates;
   const rendered = renderReengageText(templateFor(original, draft.form), draft);
   const templates = { ...(before?.templates ?? {}) };

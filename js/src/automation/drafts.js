@@ -202,7 +202,7 @@ export const draftOperations = ({
       if (typeof text === 'string') {
         draft = { ...draft, text };
       }
-      const outcome = await deliver(automation, draft);
+      const outcome = await deliver(automation, draft, { reviewed: true });
       if (outcome.status === 'sent') {
         await store.delete(id);
         await afterSend(automation, draft);
