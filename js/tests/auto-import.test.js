@@ -458,7 +458,7 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
       headers: { 'content-type': 'text/plain' },
       body: '{"provider":"whatsapp"}',
     });
-    assert.equal(plain.status, 403);
+    assert.equal(plain.status, 415);
     assert.equal(calls.length, 0, 'no browser launched by rejected calls');
 
     const unknown = await post('/api/auto-import', { provider: 'myspace' });

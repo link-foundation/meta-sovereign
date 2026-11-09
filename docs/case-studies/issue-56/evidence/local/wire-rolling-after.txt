@@ -1,0 +1,11 @@
+✔ an upgrade can replace a build that keeps failing recovery (6903.104278ms)
+✔ a rolling upgrade serves during warm-up and preserves every acknowledged write; bad replacements leave the old version active (3950.781253ms)
+✔ a crashed replacement recovers through the cached previous worker and replays its acknowledged writes (2710.645765ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14120.496941

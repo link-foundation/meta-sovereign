@@ -87,7 +87,12 @@ describe('server CORS (issue #37)', () => {
       });
       expect(r.status).toBe(200);
       expect(r.headers.get('access-control-allow-origin')).toBe(PAGES);
-      expect(r.headers.get('vary')).toBe('Origin');
+      const varied = r.headers
+        .get('vary')
+        .split(',')
+        .map((name) => name.trim());
+      expect(varied.includes('Origin')).toBe(true);
+      expect(varied.includes('Accept')).toBe(true);
     });
   });
 

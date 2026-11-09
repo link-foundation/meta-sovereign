@@ -9,7 +9,7 @@
  *   1. Calls go to the *discovered* origin, not the page's origin —
  *      the SPA on GitHub Pages talks to a server on 127.0.0.1.
  *   2. A route the backend does not implement (the Rust server
- *      answers 404 with a JSON error body) resolves to the caller's
+ *      answers 404 with an error body) resolves to the caller's
  *      documented fallback, not to `{error: 'unknown route'}` being
  *      rendered as data.
  *   3. A route it does implement resolves to the parsed body.
@@ -21,31 +21,32 @@
 import { describe, it, expect } from 'test-anywhere';
 import http from 'node:http';
 import { fixtureServerClose } from './helpers/fixture-server.mjs';
+import { encodeWire } from '../src/transport/lino.js';
 
 const startStub = async () => {
   const seen = [];
   const server = http.createServer((req, res) => {
     seen.push(req.url);
-    const json = (status, body) => {
-      res.writeHead(status, { 'content-type': 'application/json' });
-      res.end(JSON.stringify(body));
+    const reply = (status, body) => {
+      res.writeHead(status, { 'content-type': 'text/lino' });
+      res.end(encodeWire(body));
     };
     if (new URL(req.url, 'http://test').pathname === '/api/status') {
-      json(200, { service: 'meta-sovereign', links: 0 });
+      reply(200, { service: 'meta-sovereign', links: 0 });
       return;
     }
     if (req.url === '/api/cv/stored') {
-      json(200, { entries: [{ platform: 'hh', capturedAt: 'now', cv: {} }] });
+      reply(200, { entries: [{ platform: 'hh', capturedAt: 'now', cv: {} }] });
       return;
     }
     if (req.url === '/api/automations/drafts/send') {
       // The adapter refused the message (issue #31): the reason must
       // reach the screen, not collapse into "server required".
-      json(502, { status: 'failed', error: 'blocked by privacy settings' });
+      reply(502, { status: 'failed', error: 'blocked by privacy settings' });
       return;
     }
     // Everything else behaves like the Rust server's catch-all.
-    json(404, { error: 'unknown route' });
+    reply(404, { error: 'unknown route' });
   });
   const close = fixtureServerClose(server, 'server-fetch');
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -75,7 +76,7 @@ describe('serverFetch talks to the discovered server', () => {
       // to a fallback).
       expect(stub.seen.includes('/api/cv/stored')).toBe(true);
 
-      // 2. A 404 with a JSON error body is a fallback, not data.
+      // 2. A 404 with a Lino error body is a fallback, not data.
       const platforms = await api.cvPlatforms();
       expect(Array.isArray(platforms)).toBe(true);
       expect(platforms.length).toBe(0);

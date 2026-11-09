@@ -141,6 +141,7 @@ describe('soft-delete (R-K1..R-K6)', () => {
       await fetchJson(`${base}/links/msg:x:1`, { method: 'DELETE' });
       const noConfirm = await fetchJson(`${base}/api/links/purge-tombstones`, {
         method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({}),
       });
       expect(noConfirm.status).toBe(400);

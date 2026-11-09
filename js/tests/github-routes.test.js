@@ -125,7 +125,7 @@ describe('R-Z11 /api/github routes', () => {
         { repos: [] },
         { 'content-type': 'text/plain' }
       );
-      assert.equal(plain.status, 403);
+      assert.equal(plain.status, 415);
       assert.equal(plain.body.ok, false);
     } finally {
       await done();

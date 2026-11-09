@@ -509,7 +509,9 @@ test('regex: pattern length and input size are capped, a runaway match is cut of
   assert.equal(safeTest(/needle/, 'a needle'), true);
   // Catastrophic backtracking returns false inside the budget.
   const started = Date.now();
-  assert.equal(safeTest(/(a+)+$/, `${'a'.repeat(5000)}b`), false);
+  // Construct stored patterns through the same bounded entry point as the
+  // graph and incoming-trigger paths, then exercise the VM time budget.
+  assert.equal(safeTest(safeRegExp('(a+)+$'), `${'a'.repeat(5000)}b`), false);
   assert.ok(Date.now() - started < 2000);
   const automation = {
     triggers: [{ kind: 'incoming', pattern: '(a+)+$', flags: 'i' }],

@@ -15,6 +15,9 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { startRollingServer } from '../src/server/rolling-host.js';
 import { canShareTlsPort } from '../src/server/local-tls.js';
 import { connect } from 'node:http2';
+import { createLinoFetch } from '../src/transport/fetch.js';
+
+const fetch = createLinoFetch(globalThis.fetch.bind(globalThis));
 
 const entry = fileURLToPath(
   new URL('../bin/server-worker.js', import.meta.url)
