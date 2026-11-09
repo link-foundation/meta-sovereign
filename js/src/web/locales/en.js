@@ -1300,4 +1300,17 @@ export const en = {
     'The latest turn is already outgoing',
   'automations.reason.question-turn-unavailable':
     'The latest turn cannot be used as a question',
+  'questions.aliases': 'Equivalent questions, one per line',
+  'questions.canonical': 'Use this correction instead of older variants',
+  'questions.policy': 'Answer reuse policy',
+  'questions.policyHint':
+    'Rejected phrases are excluded from learned and saved answers, including profile substitutions. Historical messages are preserved. Punctuation variants stay separate unless you choose to combine them.',
+  'questions.rejected': 'Rejected phrases, one per line',
+  'questions.punctuationEquivalent':
+    'Combine frequencies of answers differing only by final punctuation',
+  'questions.policySaved': 'Answer reuse policy saved.',
+  'questions.noReply': 'Completed answer summary; no reply needed.',
+  'questions.match.summary': 'Completed questionnaire summary',
+  'automations.reason.question-summary-complete':
+    'Completed questionnaire; no reply needed',
 };

@@ -39,7 +39,8 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
                 answers: list | save [file.lino] | delete <id> | plan --question=<text> | learn [--apply]
-                answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--sources=hh,telegram] [--chats=hh:123]`;
+                answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
+                answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]`;
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()

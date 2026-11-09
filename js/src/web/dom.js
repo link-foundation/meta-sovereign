@@ -519,6 +519,8 @@ const automationCall =
 // Issue #31 / PR #34: automations, their drafts, the composer's send and
 // typing status, people, lists and audiences — see ./automation-api.js.
 const AUTOMATION_CALLS = [
+  'answerPolicy',
+  'saveAnswerPolicy',
   'answerRules',
   'saveAnswerRule',
   'deleteAnswerRule',

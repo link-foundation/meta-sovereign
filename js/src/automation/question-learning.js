@@ -3,6 +3,8 @@
 import { repliedId } from '../crm/conversation-questions.js';
 import { asksQuestion, questionKey, splitQuestions } from './question-match.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
+import { rejectedAnswer } from './question-policy.js';
+import { summaryAnswerPairs } from './question-summary.js';
 
 const hash = (text) => {
   let result = 14695981039346656037n;
@@ -90,7 +92,21 @@ const addAlignedParts = (question, text, evidence, add) => {
   }
 };
 
-export const learnAnswerRules = (messages, { self = ['me'] } = {}) => {
+const incomingSummary = (message, isSelf) =>
+  !isSelf(message) && !message.deleted && !message.service
+    ? summaryAnswerPairs(message.body)
+    : [];
+
+const usableQuestion = (message, isSelf) =>
+  !isSelf(message) &&
+  !message.deleted &&
+  !message.service &&
+  asksQuestion(message.body);
+
+export const learnAnswerRules = (
+  messages,
+  { self = ['me'], policy = {} } = {}
+) => {
   const isSelf = (message) =>
     message.out === true ||
     message.outgoing === true ||
@@ -109,8 +125,8 @@ export const learnAnswerRules = (messages, { self = ['me'] } = {}) => {
     chats.set(key, list);
   }
   const learned = new Map();
-  const add = (question, text, evidence) => {
-    if (!reusable(text)) {
+  const add = (question, text, evidence, count = 1) => {
+    if (!reusable(text) || rejectedAnswer(text, policy)) {
       return;
     }
     const key = questionKey(question);
@@ -125,7 +141,7 @@ export const learnAnswerRules = (messages, { self = ['me'] } = {}) => {
     };
     const answer = group.answers.find((entry) => entry.text === text);
     if (answer) {
-      answer.count++;
+      answer.count += count;
       answer.evidence = [...new Set([...answer.evidence, ...evidence])].slice(
         0,
         100
@@ -133,7 +149,7 @@ export const learnAnswerRules = (messages, { self = ['me'] } = {}) => {
     } else if (group.answers.length < 100) {
       group.answers.push({
         text,
-        count: 1,
+        count,
         approved: false,
         evidence: [...evidence].slice(0, 100),
       });
@@ -153,12 +169,14 @@ export const learnAnswerRules = (messages, { self = ['me'] } = {}) => {
     );
     for (let i = 0; i < sorted.length; i++) {
       const question = sorted[i];
-      if (
-        isSelf(question) ||
-        question.deleted ||
-        question.service ||
-        !asksQuestion(question.body)
-      ) {
+      const summaries = incomingSummary(question, isSelf);
+      if (summaries.length) {
+        for (const pair of summaries) {
+          add(pair.question, pair.text, [question.id], 0);
+        }
+        continue;
+      }
+      if (!usableQuestion(question, isSelf)) {
         continue;
       }
       const answers = collectAnswers(sorted, i, isSelf);

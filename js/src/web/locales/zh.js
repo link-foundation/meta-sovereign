@@ -1239,4 +1239,15 @@ export const zh = {
   'automations.reason.question-unanswered': '最新问题没有保存的回答',
   'automations.reason.question-already-answered': '最新一轮已经发出',
   'automations.reason.question-turn-unavailable': '最新一轮不能用作问题',
+  'questions.aliases': '等价问题，每行一个',
+  'questions.canonical': '用此更正替代旧答案',
+  'questions.policy': '答案复用规则',
+  'questions.policyHint':
+    '拒绝的短语不会用于已保存或学习的答案，包括个人资料替换。历史消息保持不变。仅在您选择合并时才合并标点不同的答案。',
+  'questions.rejected': '拒绝的短语，每行一个',
+  'questions.punctuationEquivalent': '合并仅句末标点不同的答案次数',
+  'questions.policySaved': '答案复用规则已保存。',
+  'questions.noReply': '答案汇总已完成，无需回复。',
+  'questions.match.summary': '已完成的问卷汇总',
+  'automations.reason.question-summary-complete': '问卷已完成，无需回复',
 };

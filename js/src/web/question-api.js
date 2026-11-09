@@ -5,6 +5,10 @@ import {
   previewAnswer,
   learnSavedAnswers,
 } from '../automation/question-store.js';
+import {
+  readAnswerPolicy,
+  saveAnswerPolicy,
+} from '../automation/question-policy.js';
 
 export const questionApi = ({ remote, store }) => {
   const call = async (action, input, fallback, read = false) => {
@@ -21,6 +25,13 @@ export const questionApi = ({ remote, store }) => {
     return result ?? fallback();
   };
   return {
+    answerPolicy: async () =>
+      (await remote.get('/api/automations/answers/policy'))?.policy ??
+      readAnswerPolicy(store),
+    saveAnswerPolicy: async (policy) =>
+      call('policy', { policy }, async () => ({
+        policy: await saveAnswerPolicy(store, policy),
+      })),
     answerRules: async () =>
       (await remote.get('/api/automations/answers'))?.rules ??
       listAnswerRules(store),

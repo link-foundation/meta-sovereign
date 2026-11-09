@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { ProfileFields } from './question-actions.js';
 import { blankAutomation } from './automations-model.js';
 import { AnswerEvidence } from './question-evidence.js';
+import { AnswerPolicyControls } from './question-policy.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -15,6 +16,7 @@ const csv = (value) =>
 const blank = () => ({
   id: '',
   question: '',
+  questions: [],
   sources: [],
   chats: [],
   enabled: true,
@@ -32,6 +34,74 @@ const Field = ({ label, value, change, rows, ...props }) =>
       ...props,
     }),
   ]);
+
+const AnswerVariant = ({
+  variant,
+  index,
+  disabled,
+  change,
+  remove,
+  canRemove,
+}) => {
+  const t = useT();
+  return el('fieldset', { className: 'col' }, [
+    el('legend', { key: 'l' }, t('questions.variant', { count: index + 1 })),
+    el(Field, {
+      key: 't',
+      label: t('questions.answer'),
+      value: variant.text,
+      change: (text) => change({ text }),
+      rows: 4,
+      required: true,
+      maxLength: 12000,
+    }),
+    el('label', { key: 'a', className: 'check' }, [
+      el('input', {
+        key: 'i',
+        type: 'checkbox',
+        checked: variant.approved,
+        onChange: (event) => change({ approved: event.target.checked }),
+      }),
+      ` ${t('questions.approved')}`,
+    ]),
+    el('label', { key: 'canonical', className: 'check' }, [
+      el('input', {
+        key: 'i',
+        type: 'checkbox',
+        checked: variant.canonical === true,
+        onChange: (event) => change({ canonical: event.target.checked }),
+      }),
+      ` ${t('questions.canonical')}`,
+    ]),
+    el(
+      'small',
+      { key: 'f', className: 'meta' },
+      t('questions.frequency', { count: variant.count })
+    ),
+    variant.evidence?.length
+      ? el('details', { key: 'e' }, [
+          el('summary', { key: 's' }, t('questions.evidence')),
+          el(
+            'ul',
+            { key: 'l' },
+            variant.evidence.map((id) => el('li', { key: id }, id))
+          ),
+        ])
+      : null,
+    canRemove
+      ? el(
+          'button',
+          {
+            key: 'r',
+            type: 'button',
+            disabled,
+            onClick: remove,
+          },
+          t('questions.removeVariant')
+        )
+      : null,
+  ]);
+};
 
 const RuleEditor = ({ rule, set, disabled, save, remove }) => {
   const t = useT();
@@ -71,64 +141,32 @@ const RuleEditor = ({ rule, set, disabled, save, remove }) => {
         }),
         ` ${t('questions.enabled')}`,
       ]),
-      ...rule.answers.map((variant, index) =>
-        el('fieldset', { key: index, className: 'col' }, [
-          el(
-            'legend',
-            { key: 'l' },
-            t('questions.variant', { count: index + 1 })
-          ),
-          el(Field, {
-            key: 't',
-            label: t('questions.answer'),
-            value: variant.text,
-            change: (text) => answer(index, { text }),
-            rows: 4,
-            required: true,
-            maxLength: 12000,
+      el(Field, {
+        key: 'aliases',
+        label: t('questions.aliases'),
+        value: rule.questionsText ?? (rule.questions ?? []).join('\n'),
+        rows: 3,
+        change: (value) =>
+          set({
+            ...rule,
+            questions: value.split('\n').filter((line) => line.trim()),
+            questionsText: value,
           }),
-          el('label', { key: 'a', className: 'check' }, [
-            el('input', {
-              key: 'i',
-              type: 'checkbox',
-              checked: variant.approved,
-              onChange: (event) =>
-                answer(index, { approved: event.target.checked }),
+      }),
+      ...rule.answers.map((variant, index) =>
+        el(AnswerVariant, {
+          key: index,
+          variant,
+          index,
+          disabled,
+          change: (patch) => answer(index, patch),
+          canRemove: rule.answers.length > 1,
+          remove: () =>
+            set({
+              ...rule,
+              answers: rule.answers.filter((_, at) => at !== index),
             }),
-            ` ${t('questions.approved')}`,
-          ]),
-          el(
-            'small',
-            { key: 'f', className: 'meta' },
-            t('questions.frequency', { count: variant.count })
-          ),
-          variant.evidence?.length
-            ? el('details', { key: 'e' }, [
-                el('summary', { key: 's' }, t('questions.evidence')),
-                el(
-                  'ul',
-                  { key: 'l' },
-                  variant.evidence.map((id) => el('li', { key: id }, id))
-                ),
-              ])
-            : null,
-          rule.answers.length > 1
-            ? el(
-                'button',
-                {
-                  key: 'r',
-                  type: 'button',
-                  disabled,
-                  onClick: () =>
-                    set({
-                      ...rule,
-                      answers: rule.answers.filter((_, at) => at !== index),
-                    }),
-                },
-                t('questions.removeVariant')
-              )
-            : null,
-        ])
+        })
       ),
       el(
         'button',
@@ -193,7 +231,8 @@ const AnswerPreview = ({ result }) => {
         key: 'text',
         style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
       },
-      result.text || t('questions.noAnswer')
+      result.text ||
+        t(result.noReply ? 'questions.noReply' : 'questions.noAnswer')
     ),
   ]);
 };
@@ -456,6 +495,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
         el(RuleEditor, { rule, set: setRule, disabled: busy, save, remove })
       ),
       el(LearnedAnswers, { key: 'learn', busy, learned, learn }),
+      el(AnswerPolicyControls, { key: 'policy', api, busy, run }),
       el(PreviewControls, {
         key: 'preview',
         busy,

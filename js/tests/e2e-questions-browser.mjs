@@ -49,6 +49,129 @@ const verifyLearning = async (saved) => {
   );
 };
 
+const saveInitialRule = async () => {
+  await editor
+    .getByLabel('Question or pattern', { exact: true })
+    .fill('Где вы живете?');
+  await editor
+    .getByLabel('Equivalent questions, one per line')
+    .fill('В каком городе живете?');
+  await editor.getByLabel('Answer', { exact: true }).fill('Живу в {{city}}.');
+  await editor
+    .getByRole('checkbox', { name: 'Approved for automatic sending' })
+    .check();
+  await editor
+    .getByRole('checkbox', {
+      name: 'Use this correction instead of older variants',
+    })
+    .check();
+  await editor
+    .getByLabel('Providers, comma-separated')
+    .fill('hh, telegram, vk');
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await until(
+    async () => (await rules()).length === 1,
+    'rule saved through the production API'
+  );
+  const saved = (await rules())[0];
+  assert(
+    saved.answers[0].approved &&
+      saved.answers[0].canonical &&
+      saved.answers[0].count === 0,
+    'manual correction carries no invented frequency'
+  );
+  return saved;
+};
+
+const verifyPolicy = async () => {
+  const policy = panel.locator('[data-answer-policy]');
+  await policy.locator(':scope > summary').click();
+  const field = policy.getByLabel('Rejected phrases, one per line');
+  await field.fill('A rejected historical response.');
+  await policy
+    .getByRole('checkbox', {
+      name: 'Combine frequencies of answers differing only by final punctuation',
+    })
+    .check();
+  await policy.getByRole('button', { name: 'Save', exact: true }).click();
+  await policy
+    .getByText('Answer reuse policy saved.', { exact: true })
+    .waitFor();
+  assert(
+    (await store.get('qa-policy:reuse')).punctuationEquivalent,
+    'policy saved in shared store'
+  );
+  if (process.env.QUESTIONS_POLICY_SCREENSHOT) {
+    await page.setViewportSize({ width: 1200, height: 1100 });
+    await policy.evaluate((element) =>
+      element.scrollIntoView({ block: 'center' })
+    );
+    await page.screenshot({
+      path: process.env.QUESTIONS_POLICY_SCREENSHOT,
+      scale: 'css',
+    });
+  }
+  await page.route('**/api/automations/answers/policy', (route) =>
+    fulfil(route, { error: 'Policy fixture refusal', status: 'failed' }, 500)
+  );
+  await field.fill('Keep this rejection pending');
+  await policy.getByRole('button', { name: 'Save', exact: true }).click();
+  await panel
+    .getByRole('alert')
+    .filter({ hasText: 'Policy fixture refusal' })
+    .waitFor();
+  assert(
+    (await field.inputValue()) === 'Keep this rejection pending',
+    'failed policy save retains the edit'
+  );
+  assert(
+    (await store.get('qa-policy:reuse')).rejected[0] ===
+      'A rejected historical response.',
+    'failed policy save never changes stored policy'
+  );
+  await page.unroute('**/api/automations/answers/policy');
+};
+
+const verifyMobile = async () => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('.app-shell-compact').waitFor();
+  const layout = await page.evaluate(async () => {
+    // The responsive shell updates on resize; inspect its painted layout.
+    await new Promise((resolve) =>
+      globalThis.requestAnimationFrame(() =>
+        globalThis.requestAnimationFrame(resolve)
+      )
+    );
+    return {
+      width: globalThis.innerWidth,
+      scroll: document.documentElement.scrollWidth,
+      overflow: [...document.querySelectorAll('*')]
+        .filter(
+          (element) =>
+            element.getBoundingClientRect().right > globalThis.innerWidth + 1
+        )
+        .slice(0, 12)
+        .map((element) => ({
+          tag: element.tagName,
+          class: element.className,
+          width: element.getBoundingClientRect().width,
+          minWidth: globalThis.getComputedStyle(element).minWidth,
+        })),
+    };
+  });
+  assert(
+    layout.scroll <= layout.width,
+    `question controls fit a mobile viewport: ${JSON.stringify(layout)}`
+  );
+  if (process.env.QUESTIONS_MOBILE_SCREENSHOT) {
+    await editor.getByLabel('Answer', { exact: true }).scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: process.env.QUESTIONS_MOBILE_SCREENSHOT,
+      scale: 'css',
+    });
+  }
+};
+
 await finish(async () => {
   await page.addInitScript(
     ({ key, version }) =>
@@ -59,29 +182,7 @@ await finish(async () => {
     { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
   );
   await showPanel();
-  await editor
-    .getByLabel('Question or pattern', { exact: true })
-    .fill('Где вы живете?');
-  await editor.getByLabel('Answer', { exact: true }).fill('Живу в {{city}}.');
-  await editor
-    .getByRole('checkbox', {
-      name: 'Approved for automatic sending',
-      exact: false,
-    })
-    .check();
-  await editor
-    .getByLabel('Providers, comma-separated', { exact: false })
-    .fill('hh, telegram, vk');
-  await editor.getByRole('button', { name: 'Save', exact: true }).click();
-  await until(
-    async () => (await rules()).length === 1,
-    'rule saved through the production API'
-  );
-  const saved = (await rules())[0];
-  assert(
-    saved.answers[0].approved && saved.answers[0].count === 0,
-    'manual approval carries no invented frequency'
-  );
+  const saved = await saveInitialRule();
   await page.reload();
   await panel.locator(':scope > summary').click();
   await panel
@@ -91,6 +192,12 @@ await finish(async () => {
     (await editor.getByLabel('Answer', { exact: true }).inputValue()) ===
       saved.answers[0].text,
     'saved answer survives reload'
+  );
+  assert(
+    (await editor
+      .getByLabel('Equivalent questions, one per line')
+      .inputValue()) === saved.questions[0],
+    'equivalent question survives reload'
   );
 
   const preview = panel.locator('details').filter({
@@ -133,6 +240,7 @@ await finish(async () => {
   }
 
   await verifyLearning(saved);
+  await verifyPolicy();
 
   await panel
     .getByRole('button', { name: 'Create question automation', exact: true })
@@ -184,18 +292,5 @@ await finish(async () => {
       'Keep my unsaved edit',
     'refused save retains the edit'
   );
-  await page.setViewportSize({ width: 390, height: 844 });
-  assert(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
-    ),
-    'question controls fit a mobile viewport'
-  );
-  if (process.env.QUESTIONS_MOBILE_SCREENSHOT) {
-    await editor.getByLabel('Answer', { exact: true }).scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: process.env.QUESTIONS_MOBILE_SCREENSHOT,
-      scale: 'css',
-    });
-  }
+  await verifyMobile();
 });

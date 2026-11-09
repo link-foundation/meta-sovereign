@@ -7,6 +7,7 @@ import {
   planAnswer,
 } from './question-answers.js';
 import { learnAnswerRules } from './question-learning.js';
+import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
 
 export const answerRuleId = (id) => {
   if (typeof id !== 'string' || !id.trim() || id.length > 480) {
@@ -54,6 +55,14 @@ export const listAnswerRules = async (store) => {
 
 export const saveAnswerRule = async (store, input) => {
   const rule = normalizeAnswerRule({ ...input, id: answerRuleId(input?.id) });
+  const policy = await readAnswerPolicy(store);
+  if (
+    rule.answers.some(
+      (answer) => answer.canonical && rejectedAnswer(answer.text, policy)
+    )
+  ) {
+    throw new Error('canonical answer contains rejected content');
+  }
   if (
     !(await store.get(rule.id)) &&
     (await listAnswerRules(store)).length >= 1000
@@ -79,6 +88,7 @@ export const previewAnswer = async (store, input) => {
   return planAnswer(input.question, {
     ...input,
     ...action,
+    policy: await readAnswerPolicy(store),
     rules: action.ruleIds.length
       ? rules.filter((rule) => action.ruleIds.includes(rule.id))
       : rules,
@@ -224,7 +234,10 @@ export const learnSavedAnswers = async (
     throw new Error('self must be a list of identifiers');
   }
   const history = await learningHistory(store, self);
-  const proposed = learnAnswerRules(history.messages, { self: history.self });
+  const proposed = learnAnswerRules(history.messages, {
+    self: history.self,
+    policy: await readAnswerPolicy(store),
+  });
   const rules = [];
   for (const proposal of proposed) {
     const existing = await store.get(proposal.id);

@@ -6,9 +6,16 @@ import {
   previewAnswer,
   learnSavedAnswers,
 } from '../automation/question-store.js';
+import {
+  readAnswerPolicy,
+  saveAnswerPolicy,
+} from '../automation/question-policy.js';
 
 const ROOT = '/api/automations/answers';
 export const questionAnswerRoute = async (store, req, res, path) => {
+  if (path === `${ROOT}/policy`) {
+    return policyRoute(store, req, res);
+  }
   if (req.method === 'GET' && path === ROOT) {
     json(res, 200, { rules: await listAnswerRules(store) });
   } else if (isSaveRoute(req.method, path)) {
@@ -38,3 +45,17 @@ export const questionAnswerRoute = async (store, req, res, path) => {
 const isSaveRoute = (method, path) =>
   (method === 'PUT' && path === ROOT) ||
   (method === 'POST' && path === `${ROOT}/save`);
+
+const policyRoute = async (store, req, res) => {
+  if (req.method === 'GET') {
+    json(res, 200, { policy: await readAnswerPolicy(store) });
+  } else if (['PUT', 'POST'].includes(req.method)) {
+    const body = await readBody(req);
+    json(res, 200, {
+      policy: await saveAnswerPolicy(store, body.policy ?? body),
+    });
+  } else {
+    return false;
+  }
+  return true;
+};

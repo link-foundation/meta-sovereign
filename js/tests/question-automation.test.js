@@ -327,6 +327,7 @@ test('automatic sends recheck the latest turn and current approval', async () =>
     'revoked',
     'changed-answer',
     'service',
+    'rejected-policy',
   ]) {
     const store = createMemoryStore();
     const configured = normalizeAutomation({
@@ -371,6 +372,9 @@ test('automatic sends recheck the latest turn and current approval', async () =>
     }
     if (change === 'service') {
       await store.put(message('hh', 2, 'service', '', { service: true }));
+    }
+    if (change === 'rejected-policy') {
+      await store.put({ id: 'qa-policy:reuse', rejected: ['Вьетнам'] });
     }
     const outcome = await runner.deliverDraft(configured, plan.drafts[0]);
     assert.equal(outcome.status, 'failed', change);

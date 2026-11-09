@@ -189,6 +189,31 @@ test(
       assert.equal(preview.body.text, 'Живу в Nha Trang.');
       assert.equal(preview.body.requiresReview, false);
       assert.equal((await call('GET', '')).body.rules.length, 1);
+      assert.deepEqual((await call('GET', '/policy')).body.policy.rejected, []);
+      const policy = await call(
+        'PUT',
+        '/policy',
+        { rejected: ['Живу в Nha Trang.'], punctuationEquivalent: true },
+        LINO_BINARY
+      );
+      assert.equal(policy.body.policy.punctuationEquivalent, true);
+      assert.equal(
+        (
+          await call('POST', '/plan', {
+            question: rule.question,
+            profile: { city: 'Nha Trang' },
+          })
+        ).body.text,
+        ''
+      );
+      assert.equal(
+        (await call('POST', '/policy', { rejected: [null] })).status,
+        400
+      );
+      assert.equal(
+        (await call('GET', '/policy')).body.policy.rejected.length,
+        1
+      );
       const learning = await call('POST', '/learn', { apply: false });
       assert.equal(learning.body.applied, false);
       assert.equal(learning.body.rules.length, 1);

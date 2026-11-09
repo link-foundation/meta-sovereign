@@ -44,4 +44,4 @@ Before: the action editor exposed only generic templates. After: a shared questi
 
 ![Mobile rule editor retaining an unsaved answer after a refused save](../../screenshots/issue-56-questions-mobile.png)
 
-Advanced salary/context rules, bot-summary extraction, canonical replacements, optional local-model drafts, generic external forms and provider-specific bot/button/closed-chat execution remain explicit required work in the inventory. Existing provider capabilities are not expanded by a successful pure planner fixture.
+[Answer policy and summary handling](question-policy.md) now add explicit corrections/aliases, rejected wording, optional punctuation equivalence and bounded zero-count summary facts. Advanced salary/context rules, optional local-model drafts, generic external forms and provider-specific bot/button/closed-chat execution remain explicit required work in the inventory. Existing provider capabilities are not expanded by a successful pure planner fixture.

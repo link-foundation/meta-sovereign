@@ -56,6 +56,7 @@ import {
   planAnswer,
   QA_RULE_PREFIX,
 } from './question-answers.js';
+import { QA_POLICY_ID } from './question-policy.js';
 import {
   SETTINGS_ID,
   normalizeSettings,
@@ -551,7 +552,11 @@ const ledgerContext = (links, automation) => ({
   settings: normalizeSettings(links.find((l) => l?.id === SETTINGS_ID) ?? {}),
 });
 
-const answerDraft = (automation, candidate, { isSelf, answerRules }) => {
+const answerDraft = (
+  automation,
+  candidate,
+  { isSelf, answerRules, answerPolicy }
+) => {
   if (
     candidate.messages.some(
       (message) => !Number.isFinite(toMs(message.timestamp))
@@ -576,6 +581,7 @@ const answerDraft = (automation, candidate, { isSelf, answerRules }) => {
   }
   const answer = planAnswer(latest.body, {
     rules: answerRules,
+    policy: answerPolicy,
     profile: automation.action.profile,
     approximate: automation.action.approximate,
     source: candidate.source,
@@ -583,7 +589,12 @@ const answerDraft = (automation, candidate, { isSelf, answerRules }) => {
     options: latest.answerOptions,
   });
   if (!answer.text) {
-    return { reason: 'question-unanswered', answer };
+    return {
+      reason: answer.noReply
+        ? 'question-summary-complete'
+        : 'question-unanswered',
+      answer,
+    };
   }
   const { messages: _messages, ...summary } = candidate;
   return {
@@ -628,6 +639,7 @@ const planningContext = (links, automation, options, now) => {
     test: Boolean(options.test && options.targets),
     resolveAudience: options.resolveAudience ?? null,
     answerRules: selectedAnswerRules(links, automation.action),
+    answerPolicy: links.find((link) => link?.id === QA_POLICY_ID) ?? {},
     ...ledgerContext(links, automation),
   };
   return { ctx, selfIds, isSelf };

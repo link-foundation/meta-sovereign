@@ -15,9 +15,11 @@ export const AnswerEvidence = ({ answer }) => {
       'p',
       { key: 'state', className: 'meta' },
       t(
-        answer.requiresReview
-          ? 'questions.reviewRequired'
-          : 'questions.approvedComplete'
+        answer.noReply
+          ? 'questions.noReply'
+          : answer.requiresReview
+            ? 'questions.reviewRequired'
+            : 'questions.approvedComplete'
       )
     ),
     answer.missing?.length

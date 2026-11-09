@@ -6,17 +6,22 @@ import {
   splitQuestions,
   MAX_QUESTION_LENGTH,
 } from './question-match.js';
+import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
+import { completedAnswerSummary } from './question-summary.js';
 
 export const QA_RULE_PREFIX = 'qa-rule:';
 const MAX_ANSWER_LENGTH = 12000;
-const strings = (value, field) => {
+const strings = (value, field, maxLength = 500) => {
   if (value === undefined || value === null) {
     return [];
   }
   if (
     !Array.isArray(value) ||
     value.length > 100 ||
-    value.some((item) => typeof item !== 'string' || !item || item.length > 500)
+    value.some(
+      (item) =>
+        typeof item !== 'string' || !item.trim() || item.length > maxLength
+    )
   ) {
     throw new Error(`${field} must be a list of at most 100 nonempty strings`);
   }
@@ -62,13 +67,30 @@ export const normalizeAnswerRule = (input) => {
       text: answer.text,
       count,
       approved: answer.approved === true,
+      canonical: answer.canonical === true,
       evidence: strings(answer.evidence, 'answer evidence'),
     };
   });
+  if (
+    !Number.isSafeInteger(
+      answers.reduce((sum, answer) => sum + answer.count, 0)
+    )
+  ) {
+    throw new Error('combined answer frequency exceeds the safe integer limit');
+  }
+  const questions = strings(
+    input.questions,
+    'equivalent questions',
+    MAX_QUESTION_LENGTH
+  );
+  if (questions.some((question) => !questionKey(question))) {
+    throw new Error('equivalent questions must contain words');
+  }
   return {
     id: input.id,
     tokens: ['qa-rule'],
     question: input.question.trim(),
+    questions,
     enabled: input.enabled !== false,
     sources: strings(input.sources, 'sources'),
     chats: strings(input.chats, 'chats'),
@@ -127,29 +149,67 @@ const eligible = (rule, { source, chat }) =>
   (!rule.sources.length || rule.sources.includes(source)) &&
   (!rule.chats.length || rule.chats.includes(`${source}:${chat}`));
 
+const ruleMatch = (rule, question, approximate) => {
+  const patterns = [rule.question, ...rule.questions];
+  const kinds = patterns.map((pattern) => matchQuestion(pattern, question));
+  const match = kinds.includes('exact')
+    ? 'exact'
+    : kinds.includes('template')
+      ? 'template'
+      : null;
+  const similarity = match
+    ? 1
+    : approximate
+      ? Math.max(
+          ...patterns.map((pattern) => questionSimilarity(pattern, question))
+        )
+      : 0;
+  return { match, similarity };
+};
+
+const conflictingAnswer = (candidate, best, profile, text) =>
+  candidate.match === best.match &&
+  candidate.similarity === best.similarity &&
+  candidate.answer.approved === best.answer.approved &&
+  candidate.answer.canonical === best.answer.canonical &&
+  ((candidate.answer.canonical && best.answer.canonical) ||
+    candidate.answer.count === best.answer.count) &&
+  render(candidate.answer.text, profile).text !== text;
+
 const answerOne = (question, context) => {
-  const matches = [];
+  let matches = [];
   for (const rule of context.rules) {
     if (!eligible(rule, context)) {
       continue;
     }
-    const match = matchQuestion(rule.question, question);
-    const similarity = match
-      ? 1
-      : context.approximate
-        ? questionSimilarity(rule.question, question)
-        : 0;
+    const { match, similarity } = ruleMatch(
+      rule,
+      question,
+      context.approximate
+    );
     if (!match && similarity < 0.78) {
       continue;
     }
+    const canonical = rule.answers.some((answer) => answer.canonical);
     for (const answer of rule.answers) {
+      if (
+        (canonical && !answer.canonical) ||
+        rejectedAnswer(
+          render(answer.text, context.profile).text,
+          context.policy
+        )
+      ) {
+        continue;
+      }
       matches.push({ rule, answer, match: match ?? 'approximate', similarity });
     }
   }
+  matches = equivalentAnswerVariants(matches, context.policy);
   matches.sort(
     (a, b) =>
       Number(b.match === 'exact') - Number(a.match === 'exact') ||
       Number(a.match === 'approximate') - Number(b.match === 'approximate') ||
+      Number(b.answer.canonical) - Number(a.answer.canonical) ||
       b.similarity - a.similarity ||
       Number(b.answer.approved) - Number(a.answer.approved) ||
       b.answer.count - a.answer.count
@@ -167,13 +227,8 @@ const answerOne = (question, context) => {
   }
   const best = matches[0];
   const result = render(best.answer.text, context.profile);
-  const conflicting = matches.some(
-    (candidate) =>
-      candidate.match === best.match &&
-      candidate.similarity === best.similarity &&
-      candidate.answer.approved === best.answer.approved &&
-      candidate.answer.count === best.answer.count &&
-      render(candidate.answer.text, context.profile).text !== result.text
+  const conflicting = matches.some((candidate) =>
+    conflictingAnswer(candidate, best, context.profile, result.text)
   );
   return {
     question,
@@ -199,6 +254,19 @@ const answerOne = (question, context) => {
 
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
+  if (completedAnswerSummary(question)) {
+    return {
+      question,
+      text: '',
+      match: 'summary',
+      noReply: true,
+      complete: true,
+      requiresReview: false,
+      missing: [],
+      rules: [],
+      parts: [],
+    };
+  }
   const rules = (options.rules ?? []).slice(0, 1000).flatMap((rule) => {
     try {
       return [normalizeAnswerRule(rule)];
