@@ -18,11 +18,12 @@ import {
 
 export const LINO_TEXT = 'text/lino';
 export const LINO_BINARY = 'application/lino-binary';
+export const LINO_LINE = 'text/lino-line';
 export const JSON_MEDIA = 'application/json';
 export const LINO_TYPES = Object.freeze([
   LINO_TEXT,
   LINO_BINARY,
-  'text/lino-line',
+  LINO_LINE,
   'text/lino-compact',
 ]);
 // Preserve the archive endpoint's existing 64 MiB ceiling. Ordinary mutation
@@ -107,7 +108,7 @@ export const encodeWire = (
   if (type === JSON_MEDIA) {
     return JSON.stringify(obj);
   }
-  if (type === 'text/lino-line') {
+  if (type === LINO_LINE) {
     return encodeLine({ obj });
   }
   return type === 'text/lino-compact'
@@ -136,9 +137,7 @@ export const decodeWire = (
   }
   // Validate syntax and nesting before the object codec's recursive decoder.
   validateWireText(notation);
-  return type === 'text/lino-line'
-    ? decodeLine({ notation })
-    : decode({ notation });
+  return type === LINO_LINE ? decodeLine({ notation }) : decode({ notation });
 };
 
 export const readWireResponse = async (response, options) => {

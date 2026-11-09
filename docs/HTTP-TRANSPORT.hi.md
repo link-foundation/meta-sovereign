@@ -12,4 +12,6 @@ node js/bin/meta-sovereign.js serve --json-compatibility=true
 
 Library विकल्प `startServer({ jsonCompatibility: true })` और environment विकल्प `MS_JSON_COMPATIBILITY=1` है। इस mode में client `application/json` माँग सकता है; स्पष्ट Lino अनुरोध भी चलते हैं। नया browser client Lino इस्तेमाल करता है और डिफ़ॉल्ट रूप से अनपेक्षित JSON उत्तर अस्वीकार करता है। Provider APIs, downloaded files तथा raw media/archive uploads अपने प्रारूप रखते हैं।
 
-R-AA16 अभी अधूरा है: event streams, socket sync/signaling और Rust backend का protocol migration तथा verification बाकी है। केवल HTTP बदलाव native server parity सिद्ध नहीं करता। [आवश्यकता सूची](REQUIREMENTS.hi.md) और [परिवहन जाँच](case-studies/issue-56/lino-http.md) देखें।
+Live change तथा Telegram account notification streams में `text/event-stream` के हर data field में एक `text/lino-line` record होता है। Browser compatibility-enabled server पर भी `?format=lino-line` माँगता है। Codec संदेश के newline escape करता है। JSON events के लिए server compatibility mode आवश्यक है; इसके बिना `?format=json` पर 406 मिलता है। Reconnection, Origin जाँच, secret filtering और slow-client handling बनी रहती है।
+
+R-AA16 अभी अधूरा है: socket sync/signaling और Rust backend का protocol migration तथा verification बाकी है। केवल HTTP बदलाव native server parity सिद्ध नहीं करता। [आवश्यकता सूची](REQUIREMENTS.hi.md) और [परिवहन जाँच](case-studies/issue-56/lino-http.md) देखें।

@@ -13,7 +13,7 @@ import { messageVersionCalls } from './dom-message-versions.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { createRecoveringRequest } from './request-recovery.js';
 import { createLinoFetch } from '../transport/fetch.js';
-import { LINO_TEXT, decodeWire } from '../transport/lino.js';
+import { LINO_TEXT, LINO_LINE, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
@@ -976,7 +976,7 @@ const rawApi = {
       return () => {};
     }
     const url = scopedUrl(
-      origin ? new URL('/api/events', origin).toString() : '/api/events'
+      new URL('/api/events?format=lino-line', origin).toString()
     );
     const transport = trackServerStream();
     let interrupted = false;
@@ -997,7 +997,7 @@ const rawApi = {
         },
         link: (event) => {
           try {
-            onEvent(JSON.parse(event.data));
+            onEvent(decodeWire(event.data, LINO_LINE));
           } catch {
             /* Skip malformed frames; the next refresh catches up. */
           }
@@ -1031,13 +1031,13 @@ const rawApi = {
     if (!origin || typeof Source !== 'function') {
       return () => {};
     }
-    const path = '/api/telegram/accounts-events';
+    const path = '/api/telegram/accounts-events?format=lino-line';
     return openServerEvents(
       origin ? new URL(path, origin).toString() : path,
       {
         message: (event) => {
           try {
-            onEvent(JSON.parse(event.data));
+            onEvent(decodeWire(event.data, LINO_LINE));
           } catch {
             /* Skip malformed frames. */
           }

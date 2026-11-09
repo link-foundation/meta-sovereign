@@ -85,6 +85,9 @@ export const openChatApp = async (
   const base = `${secure ? 'https' : 'http'}://127.0.0.1:${handle.port}`;
   const browser = await browserType.launch({
     headless: true,
+    ...(process.env.E2E_EXECUTABLE_PATH
+      ? { executablePath: process.env.E2E_EXECUTABLE_PATH }
+      : {}),
     ...launchOptions,
   });
   const context = await browser.newContext({

@@ -1,0 +1,5 @@
+
+> meta-sovereign@1.2.0 test:e2e:lino-events
+> node js/tests/e2e-lino-events.mjs
+
+[e2e-lino-events] OK (chromium)

@@ -21,6 +21,7 @@
 
 import { classifyOrigin } from './cors.js';
 import { json } from './util.js';
+import { eventFrame, eventWireType } from './event-wire.js';
 
 export const EVENT_PREFIXES = Object.freeze([
   'msg:',
@@ -53,9 +54,6 @@ export const isStreamedId = (id) =>
 const HEARTBEAT_MS = 25_000;
 export const MAX_BUFFERED = 4 * 1024 * 1024;
 
-const frame = (event, data) =>
-  `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-
 export const handleEventRoutes = (store, req, res, p, ctx) => {
   if (p !== '/api/events' || req.method !== 'GET') {
     return false;
@@ -66,8 +64,19 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
   if (typeof store.subscribe !== 'function') {
     return json(res, 501, { error: 'this store has no change feed' }) ?? true;
   }
+  const type = eventWireType(req);
+  if (!type) {
+    return (
+      json(res, 406, {
+        error: 'use format=lino-line; JSON events require compatibility mode',
+        code: 'unsupported-event-format',
+      }) ?? true
+    );
+  }
+  const frame = (event, data) => eventFrame(event, data, type);
   res.writeHead(200, {
     'content-type': 'text/event-stream; charset=utf-8',
+    'x-lino-event-format': type,
     'cache-control': 'no-cache, no-transform',
     ...(req.httpVersionMajor === 2 ? {} : { connection: 'keep-alive' }),
     'x-accel-buffering': 'no',

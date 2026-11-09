@@ -12,4 +12,6 @@ node js/bin/meta-sovereign.js serve --json-compatibility=true
 
 库选项为 `startServer({ jsonCompatibility: true })`，环境变量为 `MS_JSON_COMPATIBILITY=1`。兼容模式允许客户端请求 `application/json`，显式 Lino 请求仍然有效。新浏览器客户端使用 Lino，默认拒绝意外的 JSON 响应。提供方 API、下载文件及原始媒体/归档上传保留各自格式。
 
-R-AA16 尚未完成：事件流、套接字同步/信令及 Rust 后端仍需协议迁移和验证。仅 HTTP 修改不能证明原生服务端功能一致。参见[需求清单](REQUIREMENTS.zh.md)和[传输调查](case-studies/issue-56/lino-http.md)。
+实时变更和 Telegram 账号通知流使用 `text/event-stream`，每个 data 字段包含一条 `text/lino-line` 记录。浏览器请求 `?format=lino-line`，也适用于启用兼容模式的服务端。编解码器转义消息中的换行。JSON 事件要求服务端启用兼容模式，否则 `?format=json` 返回 406。重连、Origin 检查、秘密过滤及慢客户端处理保持有效。
+
+R-AA16 尚未完成：套接字同步/信令及 Rust 后端仍需协议迁移和验证。仅 HTTP 修改不能证明原生服务端功能一致。参见[需求清单](REQUIREMENTS.zh.md)和[传输调查](case-studies/issue-56/lino-http.md)。
