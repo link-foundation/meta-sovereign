@@ -63,3 +63,5 @@ Answer salary questions requesting both net and gross with independently resolve
 Add opt-in configured contact and salary placeholder contraction when saving or learning answers through CLI, both Lino APIs and UI. Expand current dated salary calculations with approval/context evidence; preserve ambiguous literals, canonical rejection checks and unchanged templates.
 
 Preserve newer eligible Operator Back/Forward destinations when a previous card effect finishes late, with deterministic route regression and opt-in browser history diagnostics.
+
+Await owned Lino input closure after both early-return and full-stream reads, preserving read errors and preventing completed reads from retaining descriptors. Add opt-in storage lifetime diagnostics.

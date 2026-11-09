@@ -25,6 +25,7 @@
 import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
+import { ownedLines } from './read-lines.js';
 import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore } from './universal.js';
 import { createRawPacking } from './raw-packing.js';
@@ -219,8 +220,7 @@ const streamRecords = async (
     encoding: 'utf8',
     ...(readLimit > 0 ? { end: readLimit - 1 } : {}),
   });
-  const reader = createInterface({ input, crlfDelay: Infinity });
-  for await (const line of reader) {
+  for await (const line of ownedLines(input)) {
     chars += line.length + 1;
     if (!isRecordLine(line)) {
       noteBad(bad, line);
@@ -278,18 +278,12 @@ const streamRecords = async (
 // The first line that is not blank: the legacy format has no records.
 const firstLine = async (filePath) => {
   const input = createReadStream(filePath, { encoding: 'utf8' });
-  const reader = createInterface({ input, crlfDelay: Infinity });
-  try {
-    for await (const line of reader) {
-      if (line.trim().length > 0) {
-        return line;
-      }
+  for await (const line of ownedLines(input)) {
+    if (line.trim().length > 0) {
+      return line;
     }
-    return null;
-  } finally {
-    reader.close();
-    input.destroy();
   }
+  return null;
 };
 
 // The lines of the first `size` bytes of an open file (what was there
