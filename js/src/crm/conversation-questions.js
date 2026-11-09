@@ -6,6 +6,8 @@ import {
   linkRequest,
   affirmation,
 } from './conversation-rules.js';
+import { isQuestion } from './question-recognition.js';
+export { isQuestion } from './question-recognition.js';
 const DAY_MS = 24 * 60 * 60_000;
 const MAX_VALUE = 120;
 const ANSWER_PARTS = 3;
@@ -18,62 +20,6 @@ const textOf = (message) => String(message?.body ?? '').trim();
 const timeOf = (message) => Date.parse(message?.timestamp ?? '') || 0;
 const cut = (text, size = MAX_VALUE) =>
   text.length > size ? `${text.slice(0, size - 1)}…` : text;
-
-const startsWith = (source) => new RegExp(`^(?:${source})(?!${W})`, 'iu');
-
-const QUESTION_START = startsWith(
-  [
-    'как',
-    'что',
-    'чем',
-    'где',
-    'куда',
-    'откуда',
-    'когда',
-    'почему',
-    'зачем',
-    'кто',
-    'кем',
-    'какой',
-    'какая',
-    'какое',
-    'какие',
-    'сколько',
-    'можно',
-    'нельзя ли',
-    'не подскажете',
-    'подскажи',
-    'подскажите',
-    'how',
-    'what',
-    'where',
-    'when',
-    'why',
-    'who',
-    'which',
-    'do you',
-    'did you',
-    'are you',
-    'can you',
-    'could you',
-    'would you',
-    'is there',
-    'have you',
-  ].join('|')
-);
-
-/** Whether a message asks something. */
-export const isQuestion = (text) => {
-  const t = String(text ?? '').trim();
-  if (!t) {
-    return false;
-  }
-  if (/[?？]/u.test(t)) {
-    return true;
-  }
-  // "Как дела" asks without a mark; "Что ж, ладно." does not ask.
-  return t.length <= 120 && !/[.!]$/u.test(t) && QUESTION_START.test(t);
-};
 
 /**
  * What a question is about. Each is a list of phrases; the first that

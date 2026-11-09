@@ -69,3 +69,7 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Exact-head CI for 862af4ba](ci-862af4ba.md): all five workflows pass, including Windows storage, WebKit history and all four security languages.
 
 - [Signaling capabilities](sync-capabilities.md): actual listener status survives discovery, unavailable RTC is skipped and reset closes its owned peer/socket, with failing-before and browser evidence.
+
+- [Multilingual questions](question-language.md): one bounded recognizer, preserved Hindi vowel signs, 30 focused checks and CLI/Lino API/production browser/MCP evidence.
+
+- [CI for 9835c606](ci-9835c606.md): nine runtime jobs expose the same two stale discovery expectations; all other workflows and both browser engines pass. The focused fixture correction passes locally and awaits a new exact-head matrix.

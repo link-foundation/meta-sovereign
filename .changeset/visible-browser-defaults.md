@@ -71,3 +71,5 @@ Learn reviewed answer proposals across the full stored message archive using bou
 Advertise actual WebSocket/RTC listener availability during discovery, skip explicitly unavailable signaling in browser startup and close RTC when resetting a server binding. Preserve older-server compatibility.
 
 Check actual Telegram user-operation capabilities before background quick-reaction/login-domain reads and quick-reaction changes. Share descriptor-based notification preflight, distinguish unavailable from unreachable, and preserve older-server behavior.
+
+Share bounded English/Russian/Hindi/Chinese question and factual-request recognition between CRM and automation. Preserve Unicode combining marks and internal joiners in matching, prevent Hindi vowel-sign collisions from authorizing exact reuse, and keep additional questions out of template gaps.

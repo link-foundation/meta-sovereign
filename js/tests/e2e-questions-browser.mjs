@@ -6,6 +6,7 @@ import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
 import { verifySalaryExchangePolicy } from './helpers/e2e-salary-exchange-policy.mjs';
 import { verifySalaryBoth } from './helpers/e2e-salary-both.mjs';
 import { verifyQuestionSubstitution } from './helpers/e2e-question-substitution.mjs';
+import { verifyQuestionLanguage } from './helpers/e2e-question-language.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -621,5 +622,6 @@ await finish(async () => {
     'refused save retains the edit'
   );
   await verifyMobile();
+  await verifyQuestionLanguage({ page, panel, editor, preview, store, until });
   verifySyncCapability();
 });

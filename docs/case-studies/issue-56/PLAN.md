@@ -40,8 +40,17 @@ Objective: fully implement and verify every requirement of issue 56 and every re
 
 Initial evidence: no issue comments, PR conversation comments, inline comments, reviews or required sub-issues were returned at collection. These endpoints must be refreshed before finalization.
 
-Current focused work: stored-archive learning and signaling capability corrections are committed and pushed. Archive learning preserves counts beyond the evidence cap, refuses changed history/capacity overflow before applying and displays reviewable frequencies; see question-archive.md. All five workflows for exact commit 862af4ba pass; see ci-862af4ba.md. The subsequent archive run 41af6c6b is cancelled during WebKit after a newer push, with no failing test assertion in its retained logs; fresh 9835c606 CI remains under review. The remaining two observed Telegram startup requests now have explicit capability gating, 41 focused passing checks and a failing-before/passing-after production Chromium regression, plus independent MCP and screenshots. Next: commit this correction and continue advanced multilingual/form/provider inventory and implementation. All issue-wide workstreams remain open and PR 57 stays draft.
+Current focused work: Telegram optional-operation capabilities and the discovery fixture correction are committed. Shared bounded EN/RU/HI/ZH recognition and Unicode mark-preserving matching pass 30 focused checks, the production Chrome flow and independent MCP; see question-language.md. Run 9835c606 completed: both browsers and all other workflows pass, while nine runtime jobs fail the same two stale discovery assertions, now corrected locally; see ci-9835c606.md. Next: push these corrections, inspect exact-head CI and continue the advanced question/form/provider source inventory and implementation. All issue-wide workstreams remain open and PR 57 stays draft.
 
 Resolved diagnostic: no-Telegram cached chat advertised no capabilities yet started unsupported notification/account-event requests. Explicit status capabilities and shared browser gating now pass six targeted regressions, the existing notification browser flow and independent MCP against the actual no-account server; see telegram-capabilities.md. Full mobile/provider capability coverage remains open.
 
 Resolved diagnostic: the isolated no-sync fixture's unsupported RTC connection has three failing-before regressions, 12 passing discovery/capability checks, production Chromium and independent MCP verification. Actual listener capabilities now survive discovery and suppress the unavailable broker; see sync-capabilities.md. The subsequent optional-operation correction suppresses unavailable quick-reaction and URL-auth-domain requests; see telegram-optional-capabilities.md. Full mobile/provider availability remains open.
+
+## Current CI investigation protocol
+
+- [x] List five latest runs with creation times and head SHAs.
+- [x] Compare against the latest pushed commit before interpreting results.
+- [x] Download complete logs for every nonpassing runtime job and the final workflow.
+- [x] Read each failure section and report concrete errors with raw log line numbers.
+- [x] Reproduce the two discovery assertions locally and verify their fixture correction.
+- [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.

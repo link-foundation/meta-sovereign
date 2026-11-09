@@ -21,11 +21,20 @@ if (process.env.QUESTION_UI_EXCHANGE === '1') {
     fetchedAt: new Date().toISOString(),
   });
 }
-for (const message of [
-  { id: 1, sender: 'interviewer', body: 'Какой у вас опыт?' },
-  { id: 2, sender: 'me', body: 'Пять лет в распределённых командах.' },
-  { id: 3, sender: 'interviewer', body: 'Где вы живёте?' },
-]) {
+const messages =
+  process.env.QUESTION_UI_LANGUAGE === '1'
+    ? [
+        { id: 1, sender: 'interviewer', body: 'आप कहाँ रहते हैं' },
+        { id: 2, sender: 'me', body: 'वियतनाम' },
+        { id: 3, sender: 'interviewer', body: '请介绍您的经验' },
+        { id: 4, sender: 'me', body: '五年软件开发经验。' },
+      ]
+    : [
+        { id: 1, sender: 'interviewer', body: 'Какой у вас опыт?' },
+        { id: 2, sender: 'me', body: 'Пять лет в распределённых командах.' },
+        { id: 3, sender: 'interviewer', body: 'Где вы живёте?' },
+      ];
+for (const message of messages) {
   await store.put({
     ...message,
     id: `msg:hh:1:${message.id}`,

@@ -1,8 +1,11 @@
 // Provider-independent, bounded matching. Stored templates are data, never
 // executable regexes. Approximate matches are suggestions requiring review.
-import { isQuestion } from '../crm/conversation-questions.js';
+import {
+  isQuestion,
+  MAX_QUESTION_LENGTH,
+} from '../crm/question-recognition.js';
 
-export const MAX_QUESTION_LENGTH = 6000;
+export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
 const fold = (text) =>
   String(text ?? '')
@@ -11,24 +14,13 @@ const fold = (text) =>
     .replace(/ё/g, 'е');
 export const questionWords = (text) =>
   fold(text).match(
-    /[$€£₽₹¥]|\.?[\p{L}\p{N}]+(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}]+)+)?/gu
+    /[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?/gu
   ) ?? [];
 export const questionKey = (text) => questionWords(text).join(' ');
-const REQUEST =
-  /(?:^|[.!?]\s*)(?:please\s+(?:tell|share|describe|provide|send)|tell\s+(?:me|us)|describe\s+your|share\s+your)\b/iu;
-// JS's ASCII \b does not delimit Cyrillic. Use an explicit Unicode boundary.
-const REQUEST_RU =
-  /(?:^|[.!?]\s*)(?:расскажите|расскажи|укажите|укажи|напишите|напиши|пришлите|пришли|уточните|уточни|сообщите|сообщи|опишите|опиши|поделитесь|поделись)(?![\p{L}\p{N}])/iu;
-export const asksQuestion = (text) => {
-  const value = String(text ?? '').trim();
-  return (
-    value.length > 0 &&
-    value.length <= MAX_QUESTION_LENGTH &&
-    (isQuestion(value) || REQUEST.test(value) || REQUEST_RU.test(value))
-  );
-};
+export const asksQuestion = isQuestion;
 
 const extraIntent = (text) =>
+  asksQuestion(text) ||
   /[?？]|https?:|www\.|(?:^|\s)(?:когда|почему|сколько|какая|какие|пришлите|укажите|созвон|встреч|анкет|задани|приглаш|when|why|which|send|call|interview|form|assignment|invite)[\p{L}]*/iu.test(
     text
   );
@@ -88,7 +80,7 @@ export const matchQuestion = (pattern, text) => {
     fold(pattern)
       .replace(/\.\.\./gu, '…')
       .match(
-        /…|[$€£₽₹¥]|\.?[\p{L}\p{N}]+(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}]+)+)?\*?/gu
+        /…|[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?\*?/gu
       ) ?? [];
   const fixed = tokens.filter((token) => token !== '…').length;
   if (!fixed || tokens.length > MAX_WORDS) {
