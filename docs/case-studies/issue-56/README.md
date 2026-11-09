@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [provider-publications.md](provider-publications.md) records VK wall ownership/lifecycle, Telegram HTML/plain bot and user-session formatting, checked receipts and uncertain transport failures, with 73 focused checks, real Chrome and an upstream CLI dispatch report.
+
 - [ci-2284c2f5.md](ci-2284c2f5.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for actual broadcast outcomes and interrupted-write recovery.
 
 - [x-publishing-auth.md](x-publishing-auth.md) records ignored legacy credentials, app-only write refusal, receipt validation, universal OAuth signing and an upstream report, with 71 focused checks and real Chrome verification.

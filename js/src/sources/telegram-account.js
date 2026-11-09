@@ -854,6 +854,7 @@ const postAsUser = async (
   {
     chat,
     text,
+    format,
     clientId,
     replyTo,
     replyQuote = null,
@@ -880,7 +881,7 @@ const postAsUser = async (
   const release = env.live.expectOwn({
     chat,
     clientId,
-    texts: formattedParts(text, maxLength).map((part) => part.text),
+    texts: formattedParts(text, maxLength, format).map((part) => part.text),
   });
   let sent;
   try {
@@ -891,6 +892,7 @@ const postAsUser = async (
         helpers,
         peer,
         text,
+        format,
         clientId,
         maxLength,
         log: env.log,
@@ -950,6 +952,7 @@ const draftOptions = (draft) => {
   const replyTo = Number(draft.replyTo);
   const topic = Number(draft.topic);
   return {
+    ...(draft.format !== undefined ? { format: draft.format } : {}),
     replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
     // A forum topic it goes to (R-Y122).
     topic: Number.isInteger(topic) && topic > 0 ? topic : null,

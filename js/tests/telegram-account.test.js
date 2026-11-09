@@ -252,6 +252,29 @@ test('post sends as the user and returns the canonical link', async () => {
   assert.equal(result.link.sender, 'me');
 });
 
+test('the connected user account retains explicit publication format through the send path', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = fakeClient();
+  const sent = [];
+  client.sendMessage = async (peer, options) => {
+    sent.push({ peer, ...options });
+    return { id: sent.length };
+  };
+  const account = accountWith(store, client);
+  const result = await account.post({
+    chat: '42',
+    text: '<b>News</b>',
+    format: 'html',
+  });
+  assert.equal(result.link.body, 'News');
+  assert.equal(sent[0].message, 'News');
+  assert.equal(sent[0].formattingEntities[0].className, 'MessageEntityBold');
+  await account.post({ chat: '42', text: '**literal**', format: 'plain' });
+  assert.equal(sent[1].message, '**literal**');
+  assert.equal(sent[1].formattingEntities, undefined);
+});
+
 test('history pulls one chat on demand', async () => {
   const store = createMemoryStore();
   await seed(store);

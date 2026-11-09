@@ -23,11 +23,8 @@
 import { createHash } from 'node:crypto';
 import { isTelegramConnectionError } from './telegram-connection-error.js';
 
-import {
-  apiEntities,
-  parseFormatted,
-  sliceFormatted,
-} from './telegram-format.js';
+import { apiEntities, sliceFormatted } from './telegram-format.js';
+import { telegramPostFormat } from './telegram-post-format.js';
 
 export const MAX_MESSAGE_LENGTH = 4096;
 
@@ -74,8 +71,8 @@ export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) =>
  * (./telegram-format.js), then split at the limit, each part with its
  * own entities.
  */
-export const formattedParts = (typed, max = MAX_MESSAGE_LENGTH) => {
-  const formatted = parseFormatted(typed);
+export const formattedParts = (typed, max = MAX_MESSAGE_LENGTH, format) => {
+  const formatted = telegramPostFormat(typed, format);
   return sliceFormatted(formatted, splitRanges(formatted.text, max));
 };
 
@@ -376,6 +373,7 @@ export const sendText = async ({
   helpers,
   peer,
   text,
+  format,
   clientId,
   maxLength = MAX_MESSAGE_LENGTH,
   replyTo = null,
@@ -388,7 +386,7 @@ export const sendText = async ({
   onResult,
   log,
 }) => {
-  const parts = formattedParts(text, maxLength);
+  const parts = formattedParts(text, maxLength, format);
   recordSend(log, {
     clientId,
     replyTo,

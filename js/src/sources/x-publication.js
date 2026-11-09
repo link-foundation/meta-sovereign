@@ -1,13 +1,5 @@
-import { codedError, contentText, markSendOutcome } from './http.js';
-
-const unknownReceipt = (operation) =>
-  Object.assign(
-    markSendOutcome(
-      codedError(`X returned no ${operation} receipt`, 'send-unknown'),
-      { ambiguous: true }
-    ),
-    { outcome: 'unknown', fallback: false }
-  );
+import { codedError, contentText } from './http.js';
+import { unknownPublication } from './publication-receipt.js';
 
 export const createXPublications = ({ request, auth }) => ({
   authStatus: auth.status,
@@ -32,7 +24,7 @@ export const createXPublications = ({ request, auth }) => ({
       options
     );
     if (typeof raw?.data?.id !== 'string' || !raw.data.id.trim()) {
-      throw unknownReceipt('publication');
+      throw unknownPublication('X', 'publication');
     }
     return raw;
   },
@@ -47,7 +39,7 @@ export const createXPublications = ({ request, auth }) => ({
       throw codedError('X did not delete the post', 'not-deleted');
     }
     if (raw?.data?.deleted !== true) {
-      throw unknownReceipt('deletion');
+      throw unknownPublication('X', 'deletion');
     }
     return raw;
   },

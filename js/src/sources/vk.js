@@ -31,6 +31,7 @@ import {
 } from './http.js';
 import { contentSticker } from './sticker.js';
 import { vkMediaUrl } from './vk-hosts.js';
+import { createVkPublications } from './vk-publication.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 import {
@@ -757,6 +758,8 @@ export const VK_API_VERSION = '5.199';
 
 export const createVkLive = ({
   token = null,
+  tokenType = null,
+  ownerId = null,
   fetchImpl = globalThis.fetch,
   baseUrl = VK_API_BASE,
   apiVersion = VK_API_VERSION,
@@ -797,6 +800,7 @@ export const createVkLive = ({
 
   return {
     call,
+    ...createVkPublications({ call, token, tokenType, ownerId }),
     ...vkLiveAudience(call),
     ...vkLiveActions(call),
     async listChats(options = {}) {
