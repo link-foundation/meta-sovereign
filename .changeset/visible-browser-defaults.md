@@ -31,3 +31,5 @@ Release owned stores and await service cleanup after listener failure and shutdo
 Preserve existing large Number values across readable Lino HTTP/sync, text stores and recovery archives, while retaining numeric-looking string keys and values. Report the upstream object-codec defect with a finite reproduction.
 
 Negotiate readable/binary Links Notation on existing native Rust HTTP, WebSocket sync and signaling endpoints, with explicit legacy JSON opt-in, bounded typed codecs/queues, strict fragmented frames and per-recipient reencoding. Verify real production JavaScript/native interoperability in CI (R-AA16).
+
+Add independent streamed text and binary Lino recovery dump primitives with checked-before-write restore, secret exclusion, private durable writes, bounded packets and verified retention (R-AA17).

@@ -43,6 +43,14 @@ import {
 import { enoughSpace, skippedEvent } from './disk-space.js';
 import { acquireStoreLock } from './store-lock.js';
 import {
+  isRecoveryFile,
+  recoveryFormatOf,
+  recoveryFormats as normalizeRecoveryFormats,
+  scanRecoveryDump,
+  writeRecoveryDumps,
+  pruneRecoveryDumps,
+} from './recovery-dump.js';
+import {
   archiveContent,
   archiveError,
   archiveStages,
@@ -105,7 +113,12 @@ const stamp = (d = new Date()) =>
 
 /** Whether `name` is one of our archives (format 2 `.msbk`, or the old `.json`). */
 export const isBackupFile = (name) =>
-  /^meta-sovereign-.*\.(json|msbk)(\.enc)?$/.test(name);
+  /^meta-sovereign-.*\.(json|msbk)(\.enc)?$/.test(name) || isRecoveryFile(name);
+
+const scanBackup = async (file, options) =>
+  (await recoveryFormatOf(file))
+    ? scanRecoveryDump(file, options)
+    : scanArchive(file, options);
 
 // A second backup into one folder at the same time fails fast.
 const running = new Set();
@@ -139,6 +152,10 @@ export const verifyBackup = async (
   { passphrase = null, full = false } = {}
 ) => {
   try {
+    if (await recoveryFormatOf(file)) {
+      await scanRecoveryDump(file);
+      return true;
+    }
     if (await isArchiveFormat2(file)) {
       if (!full) {
         return await quickCheckArchive(file);
@@ -168,6 +185,7 @@ const confirmWritten = async (file, passphrase, stats) => {
     if (read.sha256 !== stats.sha256 || read.lines !== stats.lines) {
       throw new Error('content differs');
     }
+    return read;
   } catch (cause) {
     await fs.unlink(file).catch(() => {});
     throw Object.assign(new Error('the backup could not be read back'), {
@@ -200,13 +218,15 @@ export const makeBackup = async (
     onEvent = () => {},
     onProgress,
     measureFree,
+    recoveryFormats = [],
   }
 ) => {
+  const formats = normalizeRecoveryFormats(recoveryFormats);
   await ensurePrivateDir(archiveDir);
   await tighten(archiveDir, 0o700);
   const space = await enoughSpace(
     archiveDir,
-    await estimateBytes(store, passphrase),
+    (await estimateBytes(store, passphrase)) * (1 + formats.length * 5),
     measureFree
   );
   if (!space.ok) {
@@ -232,7 +252,18 @@ export const makeBackup = async (
       onProgress,
     });
     await writeStreamDurable(file, stream, ...archiveStages(passphrase));
-    await confirmWritten(file, passphrase, stats);
+    const checked = await confirmWritten(file, passphrase, stats);
+    const recovery = formats.length
+      ? await writeRecoveryDumps(file, {
+          formats,
+          passphrase,
+          manifest: {
+            createdAt: checked.manifest.createdAt,
+            schema: checked.manifest.schema ?? { version: 0 },
+          },
+          secretsExcluded: stats.secretsExcluded,
+        })
+      : [];
     return {
       file,
       links: stats.lines,
@@ -240,6 +271,7 @@ export const makeBackup = async (
       secretsExcluded: stats.secretsExcluded,
       bytes: (await fs.stat(file)).size,
       sha256: stats.sha256,
+      recovery,
     };
   } finally {
     running.delete(folder);
@@ -266,7 +298,9 @@ export const createBackup = async (store, options) => {
 export const pruneBackups = async ({ archiveDir, keep, passphrase = null }) => {
   await sweepTemp(archiveDir);
   const entries = await fs.readdir(archiveDir).catch(() => []);
-  const ours = entries.filter(isBackupFile).sort();
+  const ours = entries
+    .filter((name) => isBackupFile(name) && !isRecoveryFile(name))
+    .sort();
   const toDelete = ours.slice(0, Math.max(0, ours.length - keep));
   if (keep < 1 || toDelete.length === 0) {
     return [];
@@ -302,6 +336,7 @@ export const createBackupScheduler = ({
   // A nearly full disk skips the run and says so (R-Z14, wired by R-Z7).
   onEvent = () => {},
   measureFree,
+  recoveryFormats = [],
 }) => {
   if (!archiveDir || !intervalMs) {
     throw new Error(
@@ -322,12 +357,14 @@ export const createBackupScheduler = ({
         passphrase,
         onEvent,
         measureFree,
+        recoveryFormats,
       });
       if (made.skipped) {
         return;
       }
       if (keep > 0) {
         await pruneBackups({ archiveDir, keep, passphrase });
+        await pruneRecoveryDumps({ archiveDir, keep });
       }
       onBackup(made.file);
     } catch (err) {
@@ -471,7 +508,7 @@ const applyArchive = async (target, file, passphrase) => {
       batch = [];
     }
   };
-  await scanArchive(file, {
+  await scanBackup(file, {
     passphrase,
     onLine: async (line) => {
       const record = recordOfLine(line);
@@ -531,10 +568,10 @@ export const restoreBackup = async (
   file,
   { passphrase = null, onEvent = () => {} } = {}
 ) => {
-  if (!(await isArchiveFormat2(file))) {
+  if (!(await recoveryFormatOf(file)) && !(await isArchiveFormat2(file))) {
     return restoreLegacy(store, file, passphrase, onEvent);
   }
-  const { manifest } = await scanArchive(file, {
+  const { manifest } = await scanBackup(file, {
     passphrase,
     onLine: (line) => {
       recordOfLine(line);
@@ -562,7 +599,7 @@ const emitLine = async (out, line) => {
 // no secrets) the secrets of the log being replaced; end it when whole.
 const feedRestored = async (out, file, { passphrase, oldLog }) => {
   try {
-    const { manifest } = await scanArchive(file, {
+    const { manifest } = await scanBackup(file, {
       passphrase,
       onLine: (line) => emitLine(out, line),
     });
@@ -596,13 +633,13 @@ export const restoreBackupToDir = async (
   dir,
   { passphrase = null, replace = false } = {}
 ) => {
-  if (!(await isArchiveFormat2(file))) {
+  if (!(await recoveryFormatOf(file)) && !(await isArchiveFormat2(file))) {
     throw archiveError(
       'BACKUP_INVALID',
-      'only format 2 backups restore into a folder'
+      'only format 2 archives or Lino recovery dumps restore into a folder'
     );
   }
-  const checked = await scanArchive(file, { passphrase });
+  const checked = await scanBackup(file, { passphrase, onLine: recordOfLine });
   archiveSchema(checked.manifest);
   await ensurePrivateDir(dir);
   const lock = await acquireStoreLock(dir);
