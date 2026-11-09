@@ -6,6 +6,8 @@
     "artifact/pack-smoke.log": "752ee178cc3cde51ea8909cd431dd9be64c77501c2a5cbdfa91392a6608176ab",
     "e69e-checks-progress.json": "7d3c0fdca9c861e6f3f1a9c7297584ccd3cc6a9c777cfe8b07aede505cb7239c",
     "e69e-failed.log": "e107deac2a0b7f66fde161ef18f35b171364abb396828845d81bb5432a946aea",
+    "ed83-checks-progress.json": "b8817f2f43716b53627f294648ce3a72a0682be4682394f6569267f4f0965a64",
+    "ed83-package-success.log": "c8270332da56e25d1dd01ea163d8352d6497039146c9db214191fce06ba0552b",
     "package-startup-after.log": "277213025a778607aa097692b897b8eca41bf6fd23e567c2b7b26c9efe407c09",
     "package-startup-before.log": "85c9f38b78ae4dc8868aa85c490e141e3c638d50796a846acaf9f1562a0155fa",
     "package-startup-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
