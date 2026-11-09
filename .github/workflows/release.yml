@@ -325,11 +325,11 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-test-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
-    name: Test (${{ matrix.runtime }} on ${{ matrix.os }})
+    name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Typical run: 13–55s (deno on Windows can spike to ~2min on cold runners).
-    # 10min cap surfaces a hung test or flaky network well before the
-    # 6h GitHub default — the user wants flaky tests to fail fast.
+    # Retain the 10min deadline. Cold Intel macOS Node jobs can spend several
+    # minutes installing and then exceed it with the complete suite; split
+    # that target across two runners, keeping every test and its 30s limit.
     timeout-minutes: 10
     needs:
       [
@@ -357,6 +357,11 @@ jobs:
       matrix:
         os: [ubuntu-26.04, macos-26, windows-2025]
         runtime: [node, bun, deno]
+        # Exclude the original pair so include appends both shards instead
+        # of overwriting the first shard's added matrix properties.
+        exclude:
+          - os: macos-26
+            runtime: node
         # Retain all nine runtime/OS targets. Use the separate native Intel
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
@@ -364,6 +369,11 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
+            shard: 1/2
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 2/2
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -399,8 +409,8 @@ jobs:
       - name: Run tests (Node.js)
         if: matrix.runtime == 'node'
         env:
-          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
-        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
+          MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
+        run: node --test --test-concurrency=2 --test-timeout=30000 --test-shard=${{ matrix.shard || '1/1' }} js/tests/*.test.js
 
       - name: Setup Bun
         if: matrix.runtime == 'bun'

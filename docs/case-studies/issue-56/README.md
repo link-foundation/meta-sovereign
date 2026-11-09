@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-node-macos.md](ci-node-macos.md) records repeated cold-run deadline cancellation and an individual startup assertion, two complete native Node shards and bounded startup diagnostics. The individual cause and exact-head rerun remain open.
+
 - [salary-calculation.md](salary-calculation.md) records configurable progressive/company/payout calculations, dated rate snapshots, rounding-boundary and CLI/API/UI/delivery regressions, with production browser and MCP screenshots. Rate fetching/cache recovery and broader reference parity remain open.
 
 - [ci-profile-selection.md](ci-profile-selection.md) preserves the correction run's separate WebKit profile-selection failure and opt-in diagnostics. The focused local scenario passes; no unproven birthday fix or timeout increase is claimed.

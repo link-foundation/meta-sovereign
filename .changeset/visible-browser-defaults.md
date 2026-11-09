@@ -51,3 +51,5 @@ Preserve native HTTP rejection responses when request data is unread by staging 
 Advertise actual Telegram notification/account-event capabilities and check them before background requests. Suppress unsupported operations, recover capability changes and retain existing streams during transient status failures without tying extra accounts to primary sign-in.
 
 Add explicitly selected progressive personal and company/payout salary calculations with owner-supplied annual bands, dated exchange snapshots, upward rounding and shared CLI/Lino API/UI controls. Keep missing or stale inputs reviewable, expose calculation evidence and stop delivery after tax/rate/method edits.
+
+Split cold macOS Node CI across two complete native shards without increasing deadlines or bypassing failures. Preserve startup assertion details before suite cancellation and add opt-in release preparation timings.

@@ -95,12 +95,24 @@ export const stageServerRelease = async ({
   storeDir,
   sourceRoot = PACKAGE_ROOT,
 }) => {
+  const startedAt = Date.now();
   const files = await runtimeFiles(sourceRoot);
+  const trace = (stage) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[release] ${stage} after ${Date.now() - startedAt} ms (${files.length} files)`
+      );
+    }
+  };
+  trace('enumerated');
   const build = await digest(sourceRoot, files);
+  trace('hashed');
   const root = path.join(releaseDirectory(storeDir), build);
   const release = { build, entry: path.join(root, 'js/bin/server-worker.js') };
   if (await fs.stat(root).catch(() => null)) {
-    return verifyRelease(storeDir, release);
+    const verified = await verifyRelease(storeDir, release);
+    trace('existing_verified');
+    return verified;
   }
   const temp = `${root}.preparing-${process.pid}-${randomBytes(4).toString('hex')}`;
   await fs.mkdir(temp, { recursive: true, mode: 0o700 });
@@ -118,6 +130,7 @@ export const stageServerRelease = async ({
         'server files changed while preparing the release; retry with the current version'
       );
     }
+    trace('snapshot_verified');
     await fs.symlink(
       await dependencyDirectory(sourceRoot),
       path.join(temp, 'node_modules'),
@@ -134,6 +147,7 @@ export const stageServerRelease = async ({
       }
       await verifyRelease(storeDir, release);
     });
+    trace('snapshot_ready');
     return release;
   } finally {
     await fs.rm(temp, { recursive: true, force: true });

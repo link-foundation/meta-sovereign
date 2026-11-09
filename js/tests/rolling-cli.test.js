@@ -43,7 +43,7 @@ const invoke = (dir, ...extra) => {
   const ended = new Promise((resolve) =>
     child.once('exit', (code) => resolve({ code, output }))
   );
-  return { child, ended };
+  return { child, ended, output: () => output };
 };
 const statusWhenReady = async (dir) => {
   for (let i = 0; i < 200; i += 1) {
@@ -66,6 +66,7 @@ const statusWhenReady = async (dir) => {
 test('default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
   const first = invoke(dir);
+  let phase = 'initial host readiness';
   try {
     const initial = await statusWhenReady(dir);
     const info = JSON.parse(
@@ -75,10 +76,12 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
     if (process.platform !== 'win32') {
       assert.equal((await stat(controlAddress(dir))).mode & 0o777, 0o600);
     }
+    phase = 'repeated serve';
     const second = await invoke(dir).ended;
     assert.equal(second.code, 0, second.output);
     assert.match(second.output, /already running/);
     assert.equal((await statusWhenReady(dir)).pid, initial.pid);
+    phase = 'prepared UI upgrade';
     const updated = await invoke(dir, '--local-ui=true').ended;
     assert.equal(updated.code, 0, updated.output);
     assert.match(updated.output, /server upgraded/);
@@ -92,6 +95,7 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
         .hostPid,
       first.child.pid
     );
+    phase = 'control rejection and public listener';
     await assert.rejects(
       requestServerControl(dir, { operation: 'arbitrary-execution' }),
       /unknown/
@@ -100,6 +104,12 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
       (await fetch(`http://127.0.0.1:${next.port}/api/health`)).status,
       200
     );
+  } catch (error) {
+    // Report at file completion: the spec reporter otherwise delays the
+    // assertion stack until suite completion, which a job deadline can cut off.
+    console.error(`[rolling-cli] ${phase}: ${error.stack}`);
+    console.error(first.output().slice(-8192));
+    throw error;
   } finally {
     first.child.kill('SIGTERM');
     await first.ended;
