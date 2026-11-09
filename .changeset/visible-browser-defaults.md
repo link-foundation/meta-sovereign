@@ -55,3 +55,5 @@ Add explicitly selected progressive personal and company/payout salary calculati
 Split cold macOS Node CI across two complete native shards without increasing deadlines or bypassing failures. Preserve startup assertion details before suite cancellation and add opt-in release preparation timings.
 
 Fetch bounded, dated Bank of Russia exchange rates on explicit request, normalize nominal lots and preserve a valid cache on refresh failure. Share CLI/Lino API/offline UI controls, keep edits during pending refreshes, expose stale/unavailable states and recheck rate expiry with the runner clock before sending. Introduce the empty cache through schema migration 0008 (R-AA1, R-Z17).
+
+Add an explicit automatic CBR exchange policy to saved salary settings, reuse fresh shared rates, coalesce automatic refreshes and back off failed attempts. Preserve manual snapshot defaults through migration 0009, expose actual cache states in previews/Chat/Operator, and recheck current rates and the planning clock before delivery (R-AA1, R-Z17).

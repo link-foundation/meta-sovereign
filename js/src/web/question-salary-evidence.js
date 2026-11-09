@@ -25,3 +25,18 @@ export const SalaryCalculationEvidence = ({ calculation }) => {
       : null,
   ]);
 };
+
+export const SalaryExchangeEvidence = ({ state }) => {
+  const t = useT();
+  if (!state) {
+    return null;
+  }
+  return el(
+    'p',
+    { role: 'status', 'data-salary-automatic-rate': state.status },
+    [
+      t(`questions.salaryRates.${state.status}`, { date: state.asOf ?? '' }),
+      state.warning ? ` ${t('questions.salaryRatesFallback')}` : '',
+    ].join('')
+  );
+};

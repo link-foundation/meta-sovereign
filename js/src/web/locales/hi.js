@@ -1411,4 +1411,10 @@ export const hi = {
   'questions.salaryRatesDraft': 'दरें इस मसौदे में लागू हुई हैं।',
   'questions.salaryRatesChanged':
     'दरें लोड होते समय सेटिंग बदली। आपके बदलाव रखे गए हैं; उन्हें बदलने के लिए फिर कोशिश करें।',
+  'questions.salaryExchangeMode': 'विनिमय दर नीति',
+  'questions.salaryExchangeMode.snapshot': 'इस सहेजी दर का उपयोग करें',
+  'questions.salaryExchangeMode.cbr':
+    'रूस के केंद्रीय बैंक से अपने आप ताज़ा करें',
+  'questions.salaryExchangeModeHint':
+    'स्वचालित मोड ताज़ी सहेजी दरें लेता है और योजना से पहले अनुपलब्ध या पुरानी दरें ताज़ा करता है। अनुरोध विफल होने पर कैश की तारीख़ रहती है और पाँच मिनट बाद फिर प्रयास होता है। सहेजी दरें केवल स्नैपशॉट मोड में इस्तेमाल होती हैं।',
 };

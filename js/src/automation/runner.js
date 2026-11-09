@@ -25,6 +25,10 @@ import { nextChatOperations } from './next-chat.js';
 import { createPacedSender } from './paced-send.js';
 import { createDelivery } from './deliver.js';
 import { planningRecords } from './planning-store.js';
+import {
+  prepareSalaryExchange,
+  withSalaryExchangeEvidence,
+} from './salary-exchange-policy.js';
 import { createAutomationRun } from './run-automation.js';
 import {
   AUTOMATION_PREFIX,
@@ -94,12 +98,38 @@ export const createAutomationRunner = ({
       self,
       inferSelf: automation.action?.kind !== 'answer-questions',
     });
-    return planAutomation(data.records, automation, {
-      ...pick(options, ['targets', 'test', 'limit']),
-      now: options.now ?? clock().getTime(),
-      self: data.self,
-      resolveAudience,
-    });
+    const prepared = await prepareSalaryExchange(
+      store,
+      automation.action.salary,
+      {
+        now: () => options.now ?? clock().getTime(),
+      }
+    );
+    const planned = planAutomation(
+      data.records,
+      {
+        ...automation,
+        action: {
+          ...automation.action,
+          ...(prepared.salary ? { salary: prepared.salary } : {}),
+        },
+      },
+      {
+        ...pick(options, ['targets', 'test', 'limit']),
+        now: options.now ?? clock().getTime(),
+        self: data.self,
+        resolveAudience,
+      }
+    );
+    for (const draft of planned.drafts) {
+      if (draft.answer) {
+        draft.answer = withSalaryExchangeEvidence(
+          draft.answer,
+          prepared.rateState
+        );
+      }
+    }
+    return planned;
   };
 
   const showTyping = async (automation, draft) => {

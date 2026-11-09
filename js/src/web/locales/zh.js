@@ -1345,4 +1345,9 @@ export const zh = {
   'questions.salaryRatesDraft': '汇率已应用于此草稿。',
   'questions.salaryRatesChanged':
     '汇率加载期间设置已更改。您的修改已保留；重试可替换它们。',
+  'questions.salaryExchangeMode': '汇率策略',
+  'questions.salaryExchangeMode.snapshot': '使用此保存快照',
+  'questions.salaryExchangeMode.cbr': '自动从俄罗斯央行刷新',
+  'questions.salaryExchangeModeHint':
+    '自动模式使用未过期的缓存，并在规划前刷新缺失或过期的汇率。失败时保留缓存日期，五分钟后重试。仅快照模式使用保存的快照数值。',
 };

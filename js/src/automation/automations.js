@@ -557,7 +557,7 @@ const ledgerContext = (links, automation) => ({
 const answerDraft = (
   automation,
   candidate,
-  { isSelf, answerRules, answerPolicy, savedAutomation }
+  { isSelf, answerRules, answerPolicy, savedAutomation, now }
 ) => {
   if (
     candidate.messages.some(
@@ -580,6 +580,7 @@ const answerDraft = (
     return { reason: 'question-already-answered' };
   }
   const answer = planAnswer(latest.body, {
+    now,
     rules: answerRules,
     policy: answerPolicy,
     ...automation.action,

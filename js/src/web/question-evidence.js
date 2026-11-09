@@ -1,6 +1,9 @@
 import React from 'react';
 import { useT } from './i18n.js';
-import { SalaryCalculationEvidence } from './question-salary-evidence.js';
+import {
+  SalaryCalculationEvidence,
+  SalaryExchangeEvidence,
+} from './question-salary-evidence.js';
 
 const el = React.createElement;
 
@@ -57,6 +60,10 @@ export const AnswerEvidence = ({ answer }) => {
           ]
         )
       : null,
+    el(SalaryExchangeEvidence, {
+      key: 'rate-state',
+      state: answer.salaryExchange,
+    }),
     el(SalaryCalculationEvidence, {
       key: 'calculation',
       calculation: answer.salary?.calculation,

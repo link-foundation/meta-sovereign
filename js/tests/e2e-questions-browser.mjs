@@ -3,6 +3,7 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
+import { verifySalaryExchangePolicy } from './helpers/e2e-salary-exchange-policy.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -406,6 +407,7 @@ const verifySalary = async (preview) => {
     .waitFor();
   await verifySalaryCalculation(preview, salary, currency, run, result);
   await verifySalaryExchange({ page, salary, run, result });
+  await verifySalaryExchangePolicy({ page, salary, run, result, store });
   await page.setViewportSize({ width: 1200, height: 1100 });
   await salary.evaluate((element) =>
     element.scrollIntoView({ block: 'center' })
@@ -560,7 +562,8 @@ await finish(async () => {
       persisted.action.salary.currencies[0].net === 6000 &&
       persisted.action.salary.currencies[0].grossMethod === 'personal' &&
       persisted.action.salary.taxes.personal.bands.length === 3 &&
-      persisted.action.salary.exchange.rates[0].rate === 84.9048,
+      persisted.action.salary.exchange.rates[0].rate === 84.9048 &&
+      persisted.action.salary.exchangeMode === 'cbr',
     'salary targets, calculation, rate snapshot and explicit approval persisted through the production API'
   );
 

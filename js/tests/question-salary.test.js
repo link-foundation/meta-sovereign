@@ -7,6 +7,7 @@ import {
 } from '../src/automation/automations.js';
 
 const salary = {
+  exchangeMode: 'snapshot',
   enabled: true,
   approved: true,
   defaultCurrency: 'RUB',

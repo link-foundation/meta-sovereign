@@ -13,6 +13,10 @@ import {
 } from './question-answers.js';
 import { learnAnswerRules } from './question-learning.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
+import {
+  prepareSalaryExchange,
+  withSalaryExchangeEvidence,
+} from './salary-exchange-policy.js';
 
 export const answerRuleId = (id) => {
   if (typeof id !== 'string' || !id.trim() || id.length > 480) {
@@ -90,15 +94,20 @@ export const previewAnswer = async (store, input) => {
   }
   const rules = await listAnswerRules(store);
   const action = normalizeAnswerAction(input);
-  return planAnswer(input.question, {
+  const prepared = await prepareSalaryExchange(store, action.salary, {
+    now: () => input.now ?? Date.now(),
+  });
+  const answer = planAnswer(input.question, {
     ...input,
     ...action,
+    salary: prepared.salary,
     ...normalizeAnswerEnvironment(input),
     policy: await readAnswerPolicy(store),
     rules: action.ruleIds.length
       ? rules.filter((rule) => action.ruleIds.includes(rule.id))
       : rules,
   });
+  return withSalaryExchangeEvidence(answer, prepared.rateState);
 };
 
 const contextHistoryMessage = (message) => {

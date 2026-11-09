@@ -1,0 +1,26 @@
+{
+  "questions.salaryExchangeMode": {
+    "en": "Exchange-rate policy",
+    "ru": "Политика курсов валют",
+    "zh": "汇率策略",
+    "hi": "विनिमय दर नीति"
+  },
+  "questions.salaryExchangeMode.snapshot": {
+    "en": "Use this saved snapshot",
+    "ru": "Использовать сохранённый снимок",
+    "zh": "使用此保存快照",
+    "hi": "इस सहेजी दर का उपयोग करें"
+  },
+  "questions.salaryExchangeMode.cbr": {
+    "en": "Refresh automatically from Bank of Russia",
+    "ru": "Автоматически обновлять из Банка России",
+    "zh": "自动从俄罗斯央行刷新",
+    "hi": "रूस के केंद्रीय बैंक से अपने आप ताज़ा करें"
+  },
+  "questions.salaryExchangeModeHint": {
+    "en": "Automatic mode uses fresh cached rates and refreshes missing or stale rates before planning. Failed requests keep the dated cache and retry after five minutes. Saved snapshot values are used only in snapshot mode.",
+    "ru": "Автоматический режим использует свежий кэш и обновляет отсутствующие или устаревшие курсы перед планированием. При сбое сохраняется дата кэша, повтор — через пять минут. Сохранённый снимок используется только в режиме снимка.",
+    "zh": "自动模式使用未过期的缓存，并在规划前刷新缺失或过期的汇率。失败时保留缓存日期，五分钟后重试。仅快照模式使用保存的快照数值。",
+    "hi": "स्वचालित मोड ताज़ी सहेजी दरें लेता है और योजना से पहले अनुपलब्ध या पुरानी दरें ताज़ा करता है। अनुरोध विफल होने पर कैश की तारीख़ रहती है और पाँच मिनट बाद फिर प्रयास होता है। सहेजी दरें केवल स्नैपशॉट मोड में इस्तेमाल होती हैं।"
+  }
+}

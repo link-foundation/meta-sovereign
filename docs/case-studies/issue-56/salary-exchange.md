@@ -36,4 +36,4 @@ Updated refresh, stale recovery and mobile controls:
 
 ![Mobile exchange controls](https://github.com/link-foundation/meta-sovereign/blob/issue-56-2677debd3a31/docs/screenshots/issue-56-salary-exchange-mobile.png?raw=true)
 
-Unattended refresh policy, salary placeholder contraction, both-basis wording, full provider/form workflows and the other issue-wide workstreams remain required. Exact-head full CI remains a separate gate; this step does not complete issue 56.
+The [automatic policy follow-up](salary-exchange-policy.md) adds selected cache-first preparation. Salary placeholder contraction, both-basis wording, full provider/form workflows and the other issue-wide workstreams remain required. Exact-head full CI remains a separate gate; this step does not complete issue 56.

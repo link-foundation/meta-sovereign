@@ -1410,4 +1410,10 @@ export const en = {
   'questions.salaryRatesDraft': 'Rates are applied to this draft.',
   'questions.salaryRatesChanged':
     'Exchange settings changed while rates were loading. Your edits are kept; retry to replace them.',
+  'questions.salaryExchangeMode': 'Exchange-rate policy',
+  'questions.salaryExchangeMode.snapshot': 'Use this saved snapshot',
+  'questions.salaryExchangeMode.cbr':
+    'Refresh automatically from Bank of Russia',
+  'questions.salaryExchangeModeHint':
+    'Automatic mode uses fresh cached rates and refreshes missing or stale rates before planning. Failed requests keep the dated cache and retry after five minutes. Saved snapshot values are used only in snapshot mode.',
 };

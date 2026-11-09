@@ -119,7 +119,11 @@ export const normalizeSalaryExchange = (input) => {
   return { base, rates, asOf, source, maxAgeDays };
 };
 export const normalizeSalaryCalculation = (input) => {
-  const result = {};
+  const exchangeMode = input.exchangeMode ?? 'snapshot';
+  if (!['snapshot', 'cbr'].includes(exchangeMode)) {
+    fail('unknown exchange mode');
+  }
+  const result = { exchangeMode };
   if (input.exchange !== undefined && input.exchange !== null) {
     result.exchange = normalizeSalaryExchange(input.exchange);
   }

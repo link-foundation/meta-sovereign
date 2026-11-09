@@ -46,3 +46,6 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 The source pins are retained in the research archive rather than assuming moving branches remain unchanged. The [granular reference inventory](reference-feature-inventory.md) records the first source pass and partial implementation evidence; exhaustive source auditing and remaining feature verification are still required. The case study will expand each requirement's root cause, alternatives, selected approach, online evidence and validation as implementation proceeds. No unimplemented reference feature is presented as complete here.
 
 Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.py`; collection uses `experiments/issue-56/collect.py`. Archive creation verifies every file against its hash. The original JSON issue body remains readable in `evidence/github/issue-56.json`.
+
+- [Automatic rate policy](salary-exchange-policy.md): shared cache-first preparation, bounded recovery, preserved snapshot defaults and CLI/API/UI evidence.
+- [Bounded CodeQL regression](ci-codeql-bounded-regression.md): exact-head all-job success, separate false-positive alert and verified audit evidence.

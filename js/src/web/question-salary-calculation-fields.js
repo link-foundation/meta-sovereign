@@ -196,6 +196,21 @@ const ExchangeFields = ({ salary, patch, api }) => {
       { key: 'hint', className: 'meta' },
       t('questions.salaryExchangeHint')
     ),
+    el(SalarySelect, {
+      key: 'policy',
+      label: t('questions.salaryExchangeMode'),
+      value: salary.exchangeMode ?? 'snapshot',
+      change: (exchangeMode) => patch({ exchangeMode }),
+      options: ['snapshot', 'cbr'].map((mode) => [
+        mode,
+        t(`questions.salaryExchangeMode.${mode}`),
+      ]),
+    }),
+    el(
+      'p',
+      { key: 'policy-hint', className: 'meta' },
+      t('questions.salaryExchangeModeHint')
+    ),
     el(SalaryExchangeFetch, { key: 'fetch', api, exchange: value, patch }),
     value
       ? el('div', { key: 'config', className: 'col' }, [
