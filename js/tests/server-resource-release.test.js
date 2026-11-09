@@ -22,7 +22,7 @@ test(
   { timeout: 5000 },
   async () => {
     for (const handoff of [false, true]) {
-      const gates = Array.from({ length: 4 }, () => Promise.withResolvers());
+      const gates = Array.from({ length: 5 }, () => Promise.withResolvers());
       const stopped = gates.map((gate) => () => gate.promise);
       const events = [];
       const lifecycle = createRuntimeLifecycle({
@@ -34,6 +34,7 @@ test(
           chatIndex: { close() {} },
           stopJobs: stopped[2],
           telegramAccount: { stop: stopped[3] },
+          publications: { close: stopped[4] },
         },
         flush: () => events.push('flush'),
         flushLog: () => events.push('flush'),

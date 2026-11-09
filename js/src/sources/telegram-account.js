@@ -940,6 +940,7 @@ const postAsUser = async (
   return {
     ok: true,
     messageId: idText(sent.at(-1)?.id),
+    messageIds: sent.map((part) => idText(part.id)),
     chat,
     parts: sent.length,
     ...(sent.some((part) => part.duplicate) ? { duplicate: true } : {}),

@@ -35,6 +35,7 @@ export const createRuntimeLifecycle = ({
     server.requestGate.activate();
   };
   const stopRuntime = () => {
+    ctx.publicationsClosing = true;
     bus?.close();
     ctx.chatIndex.close();
     ctx.knowledge?.close();
@@ -43,6 +44,7 @@ export const createRuntimeLifecycle = ({
       ctx.closeAutomations(),
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),
+      ctx.publications?.close(),
     ]);
   };
   return {

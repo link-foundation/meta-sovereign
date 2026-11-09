@@ -32,6 +32,10 @@ import {
 import { confirmed } from './confirmations.js';
 import { broadcastOutcome } from '../broadcast/outcomes.js';
 import {
+  handlePublicationRoutes,
+  handleSavedBroadcast,
+} from './routes-publications.js';
+import {
   softDeleteLink,
   purgeLink,
   isTombstone,
@@ -411,6 +415,9 @@ const handleBroadcast = async (store, req, res, p, ctx) => {
     return false;
   }
   const request = await readBody(req);
+  if (request.targetIds !== undefined || request.all !== undefined) {
+    return handleSavedBroadcast(store, res, ctx, request);
+  }
   const text = String(request.text ?? '');
   const targets = (
     Array.isArray(request.networks) ? request.networks : []
@@ -775,6 +782,7 @@ const handleHardening = async (store, req, res, p, ctx) => {
 };
 
 export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
+  (await handlePublicationRoutes(store, req, res, p, url, ctx)) ||
   (await handleLinks(store, req, res, p, url)) ||
   (await handlePatterns(store, req, res, p)) ||
   (await handleGraphs(store, req, res, p)) ||

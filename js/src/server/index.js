@@ -874,6 +874,19 @@ const applyServerAddress = (ctx, listening, front, activate) => {
   }
 };
 
+const releaseBeforeListen =
+  ({ wsHandle, signaling, lifecycle, flush, releaseStore }) =>
+  async () => {
+    wsHandle?.close();
+    signaling?.close();
+    await lifecycle.stopRuntime();
+    try {
+      await flush().catch(() => {});
+    } finally {
+      await releaseStore();
+    }
+  };
+
 export const startServer = async ({
   port = 0,
   storeDir = defaultStoreDir(),
@@ -892,6 +905,7 @@ export const startServer = async ({
   replies,
   automations,
   greetings,
+  broadcasting,
   allowOrigins,
   autoImportLauncher,
   // Tests inject a fake `createSignIns()` and a fake MTProto (no real browsers
@@ -961,6 +975,7 @@ export const startServer = async ({
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),
+    broadcasting,
     storeDir,
     storeHealth,
     systemContactsReader,
@@ -1008,16 +1023,7 @@ export const startServer = async ({
     server,
     sockets,
     { port, storeDir, tls, log },
-    async () => {
-      wsHandle?.close();
-      signaling?.close();
-      await lifecycle.stopRuntime();
-      try {
-        await flush().catch(() => {});
-      } finally {
-        await releaseStore();
-      }
-    }
+    releaseBeforeListen({ wsHandle, signaling, lifecycle, flush, releaseStore })
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);
   return {

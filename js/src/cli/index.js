@@ -26,6 +26,10 @@ import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
 import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
 import {
+  BROADCAST_HELP,
+  createBroadcastCommands,
+} from './broadcast-commands.js';
+import {
   AUTOMATION_HELP,
   createAutomationCommands,
 } from './automation-commands.js';
@@ -150,6 +154,7 @@ ${AUTOMATION_HELP}
 ${CV_HELP}
 ${BROWSER_HELP}
 ${GREETINGS_HELP}
+${BROADCAST_HELP}
 ${MIGRATE_HELP}
   help          (also --help, -h)
   version       (also --version, -v)
@@ -1004,6 +1009,7 @@ const COMMANDS = {
   ...createAutomationCommands({ openStore }),
   // Hi/hello and greeting-sticker openers (issue #35).
   ...createGreetingCommands({ openStore }),
+  ...createBroadcastCommands({ openStore, openReadOnly }),
   // Let Safari trust the server's own certificate (R-Y64).
   ...createTrustCommands(),
   ...createContactCommands({ openStore }),
