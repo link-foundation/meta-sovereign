@@ -11,3 +11,5 @@ Refresh direct dependencies, the resolved dependency graph, CI tools and the pin
 Retain lazy Telegram session loading with the updated generated namespace, keep pre-tombstone backup fixtures pinned to schema 5, and remove redundant contact-slug regex quantifiers flagged by CodeQL.
 
 Use Lino REST for structured JavaScript HTTP requests and replies, negotiate readable or binary Links Notation, and require explicit opt-in for legacy JSON. Migrate browser fetch, upload progress, recovery and browser fixtures together; preserve provider protocols and raw file transfers (R-AA16).
+
+Keep electron-builder 27's update feeds compatible with stable electron-updater 6 and existing installations, with a regression using the builder's actual metadata validation (R-AA14, R-AA19).

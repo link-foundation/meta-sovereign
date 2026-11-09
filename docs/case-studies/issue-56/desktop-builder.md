@@ -1,0 +1,9 @@
+# Desktop CI compatibility after dependency updates
+
+[Desktop run 42603002416](https://github.com/link-foundation/meta-sovereign/actions/runs/42603002416), created 2026-11-09 10:42:59 UTC against `553bc47580ac8e83ec023f8d234bfe64ec34b081`, fails before packaging on all five build targets. The downloaded full log is preserved in `data/ci-desktop-42603002416.tar.gz` with its SHA-256 manifest. Lines 680, 967, 1253, 1628 and 1961 show the metadata gate: electron-updater 6.8.11 cannot satisfy the builder's new default compatibility range `>=7`.
+
+The dependency audit correctly found 6.8.11 as the current stable updater. The registry's `next` channel is 7.0.0-alpha.13. Advancing every installed client to a prerelease is unnecessary: the [builder's migration documentation](https://www.electron.build/docs/migration/v27-build-changes/#block-map-format-follows-electronupdatercompatibility) explicitly supports `electronUpdaterCompatibility: '>=6'`. This keeps block maps readable by both the staged stable updater and existing installations. Unsigned-manifest and Windows unsigned update settings remain explicit; no signing gate is disabled as part of this correction.
+
+The new `desktop-updater-compatibility.test.js` calls the installed builder's actual `electronUpdaterRequirements` and `checkMetadata` functions against the generated app manifest and all configured platform targets. It fails before the configuration change with the same incompatibility error, and passes afterward. It also proves the unconfigured defaults still fail and verifies that the resulting requirements use readable legacy block maps. This check downloads/builds nothing and does not load Electron.
+
+Before/after logs are in `evidence/local/desktop-updater-{before,after}.txt`. Full installer validation remains in the exact-commit desktop CI workflow. This correction does not by itself complete native/mobile packaging or Apple deployment requirements R-AA18–R-AA19.

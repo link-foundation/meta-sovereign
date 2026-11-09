@@ -53,6 +53,9 @@ module.exports = {
   fileOptions: { files: ['js/**/*', 'package.json', 'LICENSE', 'README.md'] },
   // Retain the existing updater-6 channel; this workflow has no manifest key.
   updateManifest: false,
+  // Keep feeds readable by the current stable updater and installed clients.
+  // Builder 27 otherwise assumes updater 7 and rejects our staged app.
+  electronUpdaterCompatibility: '>=6',
   publish: [
     {
       provider: 'github',
