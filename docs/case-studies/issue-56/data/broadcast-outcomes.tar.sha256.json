@@ -1,0 +1,29 @@
+{
+  "archive": "broadcast-outcomes.tar.gz",
+  "files": {
+    "broadcast-confirmation-before.log": "4da749006967f31285107ff52e2ea40a1232b7618c4f026b4405578d5dea60bf",
+    "broadcast-confirmation-lint.log": "df0e459c07fa77745d06b8cc90ae6cbc9ecca305d24c24c409a3f658fc72c2e7",
+    "broadcast-interrupted-before.log": "3d2a8ba6034966aacd152293b7a27252920ba8cfedf90a032b655ceec6a4478a",
+    "broadcast-outcomes-after.log": "ff2bfdc34124d41105c112e610718b97fe331cd8e206b7e12fc8bc041e667c85",
+    "broadcast-outcomes-all-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-outcomes-before.log": "6b15409a0292fc619b44a4c64abc39eed25ff5c84e0b22e0be3cf55ea674c720",
+    "broadcast-outcomes-browser-after.log": "f0900fc7082fd89764e57e375fac967fb50b6c47efb99d816238c3c3b86206ea",
+    "broadcast-outcomes-browser-final.log": "f0900fc7082fd89764e57e375fac967fb50b6c47efb99d816238c3c3b86206ea",
+    "broadcast-outcomes-browser-fixture-failure.log": "60760241fb7b692334be47f23a90a7e61c13167f0c051b2e9e42254a49cde649",
+    "broadcast-outcomes-browser-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-outcomes-build-final.log": "11bbea98a8a4ad08647368929ba2fbbd0ea78c776558319099d19d74a0e78ba6",
+    "broadcast-outcomes-build.log": "0c0b08640a5fce62ad2e61bddc8e94f3fbcb22341c8e9bd45cfa2e7babda0c66",
+    "broadcast-outcomes-docs-format.log": "e1dcccf4d15805483015cc1220e7efac696a12d23be33ee21a5c82809f4bef64",
+    "broadcast-outcomes-example.log": "8cb44972cfcaf5f576c2fd8d257f82014482b9251f59f5f9c7e6cd7dc75c1ca1",
+    "broadcast-outcomes-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-outcomes-final.log": "ad408dfe7a7d3662a8f968d80fda3e7e83e42b0b205d48b8e9a75f71fe8fb99b",
+    "broadcast-outcomes-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "broadcast-outcomes-source-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "broadcastAfterConsole.json": "147cf2b4f979e735d949ed5185ef12fab85150e9251d65069c987e591badddfc",
+    "broadcastAfterNetwork.json": "de8e5aa712f1a23cc05a132f078fe2e52292ae4de31268460d049408cae6ad19",
+    "broadcastAfterUi.json": "53d1d8f6700cc13721f9dd53298082335c20468bfc52d39545ec4be82e13fc69",
+    "broadcastBeforeInitial.json": "bdbbebed3899722b859ea7f46735a7f91e0628aadce227bb180f489e5e8a31b1",
+    "broadcastBeforeUi.json": "8d5761d2f38a6e53aed4215af507748585f0c90ffbf09b31a944db84335d4e22",
+    "interrupted-before.png": "2c305802e12832b687323c5a01667f35e33c4dd9b6735ab88da04f137d6ecce8"
+  }
+}

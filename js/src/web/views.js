@@ -23,6 +23,7 @@ import { HistoryLibrary } from './history-library.js';
 import { useProviderLiveState } from './provider-live-state.js';
 import { FeedbackView } from './feedback-view.js';
 import { BackupView } from './backup-view.js';
+import { BroadcastResult } from './broadcast-result.js';
 export { BackupView } from './backup-view.js';
 import { navigateApp, backInApp } from './app-route.js';
 import { navItems } from './nav-items.js';
@@ -699,12 +700,21 @@ export const BroadcastView = () => {
   const t = useT();
   const { state, selected, setSelected } = useSources();
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState('');
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
   const send = async () => {
-    const result = await api.broadcast(message, selected);
-    setStatus(
-      `queued ${result.id} to ${(result.networks ?? []).length} networks`
-    );
+    if (busy) {
+      return;
+    }
+    setBusy(true);
+    setResult(null);
+    try {
+      setResult(await api.broadcast(message, selected, () => true));
+    } catch (error) {
+      setResult({ status: 'failed', error: error.message });
+    } finally {
+      setBusy(false);
+    }
   };
   return el(AsyncFrame, { state }, (sources) => {
     if (!sources || sources.length === 0) {
@@ -728,10 +738,16 @@ export const BroadcastView = () => {
       }),
       el(
         'button',
-        { key: 'send', type: 'button', className: 'primary', onClick: send },
-        t('common.send')
+        {
+          key: 'send',
+          type: 'button',
+          className: 'primary',
+          onClick: send,
+          disabled: busy || !message.trim() || selected.length === 0,
+        },
+        t(busy ? 'broadcast.sending' : 'common.send')
       ),
-      el('div', { key: 'status' }, status),
+      el(BroadcastResult, { key: 'status', result }),
     ]);
   });
 };

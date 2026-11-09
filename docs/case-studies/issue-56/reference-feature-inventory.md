@@ -73,15 +73,15 @@ Sources: HH `README.md`, `docs/requirements/forms-and-chats.md`, `docs/requireme
 
 Source: broadcast `README.md`, CLI entry point and provider modules. Existing `broadcast/` must be checked for each behavior and exposed consistently through server/UI.
 
-| ID   | Required behavior                                                                                           | Implementation and verification                      |
-| ---- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| BC01 | Send the same message to selected/all Telegram channels/groups, VK personal/community walls and X.          | [ ] Multi-target operation with independent results. |
-| BC02 | Telegram HTML formatting, Bot API preference and optional MTProto user login/2FA/session persistence.       | [ ] Authentication/format selection.                 |
-| BC03 | VK user/group token and destination distinctions with real write-permission errors.                         | [ ] Destination and capability controls.             |
-| BC04 | X supported user credentials, legacy OAuth signing and read-only bearer capability without claiming a post. | [ ] Authentication matrix.                           |
-| BC05 | Delete supported published posts and retain their provider identifiers.                                     | [ ] Lifecycle operations.                            |
-| BC06 | Connectivity/configuration test and configurable redacted diagnostics.                                      | [ ] CLI/API/UI diagnostics.                          |
-| BC07 | Environment/local configuration and interactive setup without leaking secrets.                              | [ ] Credential integration.                          |
+| ID   | Required behavior                                                                                           | Implementation and verification                                                                                                                                      |
+| ---- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BC01 | Send the same message to selected/all Telegram channels/groups, VK personal/community walls and X.          | [ ] Shared actual delivery states/counts, confirmed UI and no retry after uncertainty verified; saved multi-target destinations remain open (broadcast-outcomes.md). |
+| BC02 | Telegram HTML formatting, Bot API preference and optional MTProto user login/2FA/session persistence.       | [ ] Authentication/format selection.                                                                                                                                 |
+| BC03 | VK user/group token and destination distinctions with real write-permission errors.                         | [ ] Destination and capability controls.                                                                                                                             |
+| BC04 | X supported user credentials, legacy OAuth signing and read-only bearer capability without claiming a post. | [ ] Authentication matrix.                                                                                                                                           |
+| BC05 | Delete supported published posts and retain their provider identifiers.                                     | [ ] Lifecycle operations.                                                                                                                                            |
+| BC06 | Connectivity/configuration test and configurable redacted diagnostics.                                      | [ ] Opt-in identifier/count-only broadcast outcome diagnostics added; complete CLI/API/UI configuration tests remain open.                                           |
+| BC07 | Environment/local configuration and interactive setup without leaking secrets.                              | [ ] Credential integration.                                                                                                                                          |
 
 ## Telegram history, contacts and greeting scripts
 

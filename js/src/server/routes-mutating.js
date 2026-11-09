@@ -30,6 +30,7 @@ import {
   syncResume,
 } from '../broadcast/index.js';
 import { confirmed } from './confirmations.js';
+import { broadcastOutcome } from '../broadcast/outcomes.js';
 import {
   softDeleteLink,
   purgeLink,
@@ -432,7 +433,7 @@ const handleBroadcast = async (store, req, res, p, ctx) => {
     body: text,
     networks: targets,
     timestamp: new Date().toISOString(),
-    status: 'sent',
+    ...broadcastOutcome(results),
     dispatched: true,
     results,
   };

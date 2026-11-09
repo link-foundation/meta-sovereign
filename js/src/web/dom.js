@@ -40,6 +40,7 @@ import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
+import { createBroadcastApi } from './broadcast-api.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -678,10 +679,7 @@ const rawApi = {
       ok: false,
       code: 'server-required',
     },
-  broadcast: async (text, networks) => {
-    const { client } = await ensure();
-    return client.broadcast({ text, networks });
-  },
+  broadcast: createBroadcastApi(serverPostConfirmed),
   // ---- thin server passthroughs (work only when online) -----------
   // These derive from richer server-side data (sources, patterns,
   // etc.). When offline they short-circuit to safe defaults so the

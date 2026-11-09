@@ -75,3 +75,5 @@ Check actual Telegram user-operation capabilities before background quick-reacti
 Share bounded English/Russian/Hindi/Chinese question and factual-request recognition between CRM and automation. Preserve Unicode combining marks and internal joiners in matching, prevent Hindi vowel-sign collisions from authorizing exact reuse, and keep additional questions out of template gaps.
 
 Preserve question identity across recognized acknowledgments and immediate continuation reminders. Exclude standalone greetings from learned answers, honor explicit reply IDs and original turn expiry, and require substantive answers to requests for details. Share bounded planning/learning behavior across CLI, both Lino APIs and the common UI, with optional identifier-only diagnostics.
+
+Persist actual aggregate and per-provider broadcast outcomes, use the real confirmed publishing API from the shared screen, preserve pending draft edits and avoid duplicate clicks. Report interrupted writes as uncertain without retrying, avoid fake offline queues and keep valid initial confirmation challenges out of application failure warnings.

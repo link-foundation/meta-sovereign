@@ -242,6 +242,19 @@ export const en = {
   'audience.queryPlaceholder': 'e.g. network:telegram AND chat:general',
   'audience.contactsCount': '{count} contacts',
   'broadcast.title': 'Broadcast',
+  'broadcast.sending': 'Sending…',
+  'broadcast.sent': 'Sent.',
+  'broadcast.partial':
+    'Sent to some destinations. Review the remaining results.',
+  'broadcast.failed': 'Not sent in this run.',
+  'broadcast.unknown':
+    'Delivery is uncertain. Check the destination before retrying.',
+  'broadcast.queued': 'Queued; delivery has not been confirmed.',
+  'broadcast.cancelled': 'Cancelled.',
+  'broadcast.unavailable':
+    'Connect a supported server to send. Nothing was queued.',
+  'broadcast.counts':
+    '{sent} sent · {failed} not sent · {unknown} uncertain · {queued} queued',
   'broadcast.placeholder': 'Message for every selected network',
   'outreach.title': 'Outreach',
   'outreach.hint':

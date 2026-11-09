@@ -244,6 +244,19 @@ export const ru = {
   'audience.queryPlaceholder': 'например, network:telegram AND chat:general',
   'audience.contactsCount': 'Контактов: {count}',
   'broadcast.title': 'Рассылка',
+  'broadcast.sending': 'Отправка…',
+  'broadcast.sent': 'Отправлено.',
+  'broadcast.partial':
+    'Отправлено в часть адресов. Проверьте остальные результаты.',
+  'broadcast.failed': 'В этом запуске не отправлено.',
+  'broadcast.unknown':
+    'Доставка не подтверждена. Проверьте адрес назначения перед повтором.',
+  'broadcast.queued': 'В очереди; доставка ещё не подтверждена.',
+  'broadcast.cancelled': 'Отменено.',
+  'broadcast.unavailable':
+    'Для отправки подключите поддерживаемый сервер. В очередь ничего не добавлено.',
+  'broadcast.counts':
+    '{sent} отправлено · {failed} не отправлено · {unknown} не подтверждено · {queued} в очереди',
   'broadcast.placeholder': 'Сообщение для всех выбранных сетей',
   'outreach.title': 'Точечная рассылка',
   'outreach.hint':

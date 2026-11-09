@@ -243,6 +243,18 @@ export const hi = {
   'audience.queryPlaceholder': 'जैसे network:telegram AND chat:general',
   'audience.contactsCount': '{count} संपर्क',
   'broadcast.title': 'प्रसारण',
+  'broadcast.sending': 'भेजा जा रहा है…',
+  'broadcast.sent': 'भेज दिया गया।',
+  'broadcast.partial': 'कुछ गंतव्यों पर भेजा गया। बाकी परिणाम देखें।',
+  'broadcast.failed': 'इस प्रयास में नहीं भेजा गया।',
+  'broadcast.unknown':
+    'डिलीवरी अनिश्चित है। फिर प्रयास करने से पहले गंतव्य जांचें।',
+  'broadcast.queued': 'कतार में; डिलीवरी की पुष्टि नहीं हुई है।',
+  'broadcast.cancelled': 'रद्द किया गया।',
+  'broadcast.unavailable':
+    'भेजने के लिए समर्थित सर्वर जोड़ें। कतार में कुछ नहीं जोड़ा गया।',
+  'broadcast.counts':
+    '{sent} भेजे · {failed} नहीं भेजे · {unknown} अनिश्चित · {queued} कतार में',
   'broadcast.placeholder': 'चुने गए सभी नेटवर्क के लिए संदेश',
   'outreach.title': 'पहुँच',
   'outreach.hint':
