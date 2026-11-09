@@ -1,0 +1,9 @@
+# Packed CLI readiness and output ordering
+
+[Checks run 42665951050](https://github.com/link-foundation/meta-sovereign/actions/runs/42665951050), created at 2026-11-09 17:34:33 UTC for `e69e726590d8aab0381ffa0409630a1d9513c7a4`, fails the package smoke test. The downloaded failure log, line 18, reports `serve does not print the hosted app address` at 17:40:00.576 UTC. The package artifact confirms that HTTP status first succeeds at 17:40:00.505. The test terminates the process after checking for output only 71 ms later. The unabridged artifact, metadata and focused checks are retained with verified hashes in `data/ci-package-startup.tar.gz`.
+
+The rolling host starts answering requests before `startRollingCliServer` finishes creating its control socket. `serveCmd` prints the app address after that function returns. Therefore HTTP readiness alone does not establish CLI startup completion. The immediate output assertion races that remaining startup work. The artifact ends before the address appears; it cannot establish how much longer startup would have taken.
+
+The existing bounded startup helper now accepts an additional readiness predicate. The packed smoke test requires both HTTP readiness and the expected hosted address within its existing thirty-second startup deadline. A missing address still fails explicitly; no assertion, deadline or failure gate is removed. The helper also continues to reject a stopped child or stalled HTTP request.
+
+A tiny regression answers HTTP immediately and announces the CLI only on the third poll. It fails on the previous helper, which returns on the first HTTP response. It passes with the correction and independently rejects an address that never appears. All fifteen CI helper tests and focused lint pass locally. The actual packed installation and remaining platform matrix stay in CI; their exact-head results must be reviewed before claiming package validation.

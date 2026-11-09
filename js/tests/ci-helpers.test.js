@@ -107,6 +107,44 @@ test('package startup fails promptly on child exit and hung health request', asy
   assert.ok(Date.now() - start < 1000);
 });
 
+test(
+  'packed startup waits for CLI output after HTTP readiness and rejects missing output',
+  { timeout: 2000 },
+  async () => {
+    let requests = 0;
+    let announced = false;
+    await waitForServer(
+      'http://fixture',
+      { exitCode: null },
+      {
+        deadlineMs: 1000,
+        intervalMs: 1,
+        request: async () => {
+          requests++;
+          announced = requests >= 3;
+          return { ok: true };
+        },
+        ready: () => announced,
+      }
+    );
+    assert.equal(announced, true);
+    assert.equal(requests, 3);
+    await assert.rejects(
+      waitForServer(
+        'http://fixture',
+        { exitCode: null },
+        {
+          deadlineMs: 30,
+          intervalMs: 1,
+          request: async () => ({ ok: true }),
+          ready: () => false,
+        }
+      ),
+      /CLI startup was not complete/
+    );
+  }
+);
+
 test('release metadata guard allows only version changes, never dependency edits', async () => {
   const { releaseMetadataPath, withoutReleaseVersion } =
     await import('../scripts/validated-release-tree.mjs');

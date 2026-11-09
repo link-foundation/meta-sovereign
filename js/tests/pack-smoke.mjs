@@ -229,6 +229,9 @@ const main = async () => {
     });
     await waitForServer(`${base}/api/status`, child, {
       headers: { origin: new URL(HOSTED_UI_URL).origin },
+      // The rolling host can answer before its control socket is created and
+      // the CLI announces the address. Both belong to the startup deadline.
+      ready: () => log.includes(`open the app → ${HOSTED_UI_URL}`),
     });
     if (spawnError) {
       throw spawnError;
