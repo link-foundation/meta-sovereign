@@ -1261,6 +1261,10 @@ export const ru = {
   'questions.ruleIdsHint':
     'Через запятую; оставьте пустым для всех включённых правил.',
   'questions.approximate': 'Предлагать приблизительные совпадения для проверки',
+  'questions.contract': 'Заменять заданные значения подстановками',
+  'questions.contractHint':
+    'При сохранении и обучении использовать профиль и зарплату из раздела «Предпросмотр ответа». Проверьте предложенные шаблоны перед одобрением.',
+  'questions.salaryTemplateEvidence': 'Значения зарплатных подстановок',
   'questions.profile': 'Значения профиля',
   'questions.fieldName': 'Имя поля, например city',
   'questions.addField': 'Добавить поле',

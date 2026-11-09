@@ -124,19 +124,29 @@ export const questionCommands = async ({ args, store, log }) => {
     result = { rules: await listAnswerRules(store) };
   } else if (sub === 'save') {
     const input = await answerInput(args);
-    result = { rule: await saveAnswerRule(store, input) };
+    const options = await planInput(args, store);
+    result = {
+      rule: await saveAnswerRule(store, {
+        ...options,
+        ...input,
+        contract:
+          input.contract === true || [true, 'true'].includes(args.contract),
+      }),
+    };
   } else if (sub === 'delete') {
     result = await deleteAnswerRule(store, args._[2] ?? args.id);
   } else if (sub === 'plan') {
     result = await previewAnswer(store, await planInput(args, store));
   } else if (sub === 'learn') {
     result = await learnSavedAnswers(store, {
+      ...(await planInput(args, store)),
       self: csv(args.self),
       apply: args.apply === true || args.apply === 'true',
+      contract: [true, 'true'].includes(args.contract),
     });
   } else {
     throw new Error(
-      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7]'
+      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

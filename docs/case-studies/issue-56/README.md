@@ -51,3 +51,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Bounded CodeQL regression](ci-codeql-bounded-regression.md): exact-head all-job success, separate false-positive alert and verified audit evidence.
 
 - [Both salary tax bases](salary-both.md): independently resolved and labeled amounts, 26 focused checks, actual-server browser evidence and current-value delivery guards.
+
+- [Configured placeholders](question-substitution.md): opt-in contact/salary contraction, current-value expansion, policy/context guards and CLI/Lino API/UI evidence.

@@ -1242,6 +1242,10 @@ export const hi = {
   'questions.ruleIdsHint':
     'कॉमा से अलग करें; सभी चालू नियमों के लिए खाली छोड़ें।',
   'questions.approximate': 'समीक्षा के लिए अनुमानित मिलान दिखाएँ',
+  'questions.contract': 'कॉन्फ़िगर किए मानों को प्लेसहोल्डर से बदलें',
+  'questions.contractHint':
+    'जवाब सहेजते या सीखते समय जवाब पूर्वावलोकन की प्रोफ़ाइल और वेतन सेटिंग इस्तेमाल करें। मंज़ूरी देने से पहले सुझाए टेम्प्लेट जाँचें।',
+  'questions.salaryTemplateEvidence': 'वेतन प्लेसहोल्डर मान',
   'questions.profile': 'प्रोफ़ाइल मान',
   'questions.fieldName': 'फ़ील्ड नाम, जैसे city',
   'questions.addField': 'फ़ील्ड जोड़ें',

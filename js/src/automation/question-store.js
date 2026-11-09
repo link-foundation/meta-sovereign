@@ -12,6 +12,9 @@ import {
   planAnswer,
 } from './question-answers.js';
 import { learnAnswerRules } from './question-learning.js';
+import { createAnswerContractor } from './question-contraction.js';
+import { answerTemplateEnvironment } from './salary-template.js';
+import { renderAnswer } from './question-profile.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
 import {
   prepareSalaryExchange,
@@ -62,11 +65,43 @@ export const listAnswerRules = async (store) => {
   return rules.sort((a, b) => a.question.localeCompare(b.question));
 };
 
+const contractionInput = async (store, input) =>
+  input.contract === true
+    ? {
+        ...input,
+        salary: (
+          await prepareSalaryExchange(store, input.salary, {
+            now: () => input.now ?? Date.now(),
+          })
+        ).salary,
+      }
+    : input;
+
 export const saveAnswerRule = async (store, input) => {
-  const rule = normalizeAnswerRule({ ...input, id: answerRuleId(input?.id) });
+  input = await contractionInput(store, input);
+  const normalized = normalizeAnswerRule({
+    ...input,
+    id: answerRuleId(input?.id),
+  });
+  const contract = createAnswerContractor(input);
+  const existing =
+    input.contract === true ? await store.get(normalized.id) : null;
+  const profile =
+    input.contract === true
+      ? answerTemplateEnvironment(normalized.question, input).profile
+      : {};
+  const rule = normalizeAnswerRule({
+    ...normalized,
+    answers: normalized.answers.map((answer) => {
+      const original = existing?.answers?.find(
+        (entry) => renderAnswer(entry.text, profile).text === answer.text
+      );
+      return { ...answer, text: original?.text ?? contract(answer.text) };
+    }),
+  });
   const policy = await readAnswerPolicy(store);
   if (
-    rule.answers.some(
+    [...normalized.answers, ...rule.answers].some(
       (answer) => answer.canonical && rejectedAnswer(answer.text, policy)
     )
   ) {
@@ -280,15 +315,17 @@ const mergeLearned = (existing, proposal) => ({
 // approval and never increments frequencies merely because it ran again.
 export const learnSavedAnswers = async (
   store,
-  { self = [], apply = false } = {}
+  { self = [], apply = false, ...options } = {}
 ) => {
   if (!Array.isArray(self) || self.some((id) => typeof id !== 'string')) {
     throw new Error('self must be a list of identifiers');
   }
   const history = await learningHistory(store, self);
+  options = await contractionInput(store, options);
   const proposed = learnAnswerRules(history.messages, {
     self: history.self,
     policy: await readAnswerPolicy(store),
+    contract: createAnswerContractor(options),
   });
   const rules = [];
   for (const proposal of proposed) {

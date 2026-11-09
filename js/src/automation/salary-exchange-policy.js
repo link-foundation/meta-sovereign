@@ -65,6 +65,9 @@ export const prepareSalaryExchange = async (
 };
 
 export const withSalaryExchangeEvidence = (answer, rateState) =>
-  rateState && (answer.salary || answer.parts?.some((part) => part.salary))
+  rateState &&
+  (answer.salary ||
+    answer.salaryTemplates ||
+    answer.parts?.some((part) => part.salary || part.salaryTemplates))
     ? { ...answer, salaryExchange: rateState }
     : answer;

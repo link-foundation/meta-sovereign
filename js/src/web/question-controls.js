@@ -278,11 +278,22 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
             'ul',
             { key: 'list' },
             learned.rules.map((entry) =>
-              el(
-                'li',
-                { key: entry.id },
-                `${entry.question} — ${entry.answers.length}`
-              )
+              el('li', { key: entry.id }, [
+                el('strong', { key: 'question' }, entry.question),
+                ...entry.answers.map((answer, index) =>
+                  el(
+                    'pre',
+                    {
+                      key: index,
+                      style: {
+                        whiteSpace: 'pre-wrap',
+                        overflowWrap: 'anywhere',
+                      },
+                    },
+                    answer.text
+                  )
+                ),
+              ])
             )
           ),
           !learned.applied && learned.rules.length
@@ -414,6 +425,25 @@ const QuestionToolbar = ({ busy, create, refresh, newRule }) => {
   ]);
 };
 
+const ContractControl = ({ value, set, busy }) => {
+  const t = useT();
+  return el('div', { className: 'col' }, [
+    el('label', { key: 'label', className: 'row' }, [
+      el('input', {
+        key: 'input',
+        type: 'checkbox',
+        checked: value,
+        disabled: busy,
+        onChange: (event) => set(event.target.checked),
+      }),
+      t('questions.contract'),
+    ]),
+    value
+      ? el('p', { key: 'hint', className: 'meta' }, t('questions.contractHint'))
+      : null,
+  ]);
+};
+
 export const QuestionControls = ({ api, openAutomation }) => {
   const t = useT();
   const [rules, setRules] = React.useState([]);
@@ -425,6 +455,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const [profile, setProfile] = React.useState({});
   const [contexts, setContexts] = React.useState([]);
   const [salary, setSalary] = React.useState(undefined);
+  const [contract, setContract] = React.useState(false);
   const [learned, setLearned] = React.useState(null);
   const run = async (work) => {
     if (active.current) {
@@ -449,7 +480,12 @@ export const QuestionControls = ({ api, openAutomation }) => {
       const id =
         rule.id ||
         `answer-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
-      const saved = await api.saveAnswerRule({ ...rule, id });
+      const saved = await api.saveAnswerRule({
+        ...rule,
+        id,
+        contract,
+        ...(contract ? { profile, salary } : {}),
+      });
       setRule(saved.rule);
       await reload();
       setNotice(t('questions.saved'));
@@ -463,7 +499,11 @@ export const QuestionControls = ({ api, openAutomation }) => {
     });
   const learn = (apply) =>
     run(async () => {
-      const answer = await api.learnAnswers({ apply });
+      const answer = await api.learnAnswers({
+        apply,
+        contract,
+        ...(contract ? { profile, salary } : {}),
+      });
       setLearned(answer);
       if (apply) {
         await reload();
@@ -484,6 +524,12 @@ export const QuestionControls = ({ api, openAutomation }) => {
     [
       el('summary', { key: 's' }, t('questions.title')),
       el('p', { key: 'intro', className: 'meta' }, t('questions.intro')),
+      el(ContractControl, {
+        key: 'contract',
+        value: contract,
+        set: setContract,
+        busy,
+      }),
       error ? el('p', { key: 'error', role: 'alert' }, error) : null,
       notice ? el('p', { key: 'notice', role: 'status' }, notice) : null,
       busy

@@ -1191,6 +1191,10 @@ export const zh = {
   'questions.ruleIds': '回答规则 ID',
   'questions.ruleIdsHint': '用逗号分隔；留空则使用所有启用的规则。',
   'questions.approximate': '提供近似匹配以供审核',
+  'questions.contract': '将已配置的值替换为占位符',
+  'questions.contractHint':
+    '保存或学习回答时，使用“预览回答”中的资料和薪资设置。批准前请检查建议的模板。',
+  'questions.salaryTemplateEvidence': '薪资占位符值',
   'questions.profile': '资料值',
   'questions.fieldName': '字段名，例如 city',
   'questions.addField': '添加字段',

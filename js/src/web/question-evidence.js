@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import {
   SalaryCalculationEvidence,
   SalaryExchangeEvidence,
+  SalaryTemplateEvidence,
 } from './question-salary-evidence.js';
 
 const el = React.createElement;
@@ -67,6 +68,10 @@ export const AnswerEvidence = ({ answer }) => {
     el(SalaryCalculationEvidence, {
       key: 'calculation',
       calculation: answer.salary?.calculation,
+    }),
+    el(SalaryTemplateEvidence, {
+      key: 'salary-templates',
+      value: answer.salaryTemplates,
     }),
     answer.rules?.length
       ? el('details', { key: 'evidence' }, [

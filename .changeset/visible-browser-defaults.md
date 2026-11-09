@@ -59,3 +59,5 @@ Fetch bounded, dated Bank of Russia exchange rates on explicit request, normaliz
 Add an explicit automatic CBR exchange policy to saved salary settings, reuse fresh shared rates, coalesce automatic refreshes and back off failed attempts. Preserve manual snapshot defaults through migration 0009, expose actual cache states in previews/Chat/Operator, and recheck current rates and the planning clock before delivery (R-AA1, R-Z17).
 
 Answer salary questions requesting both net and gross with independently resolved, labeled amounts and preserved calculation evidence. Missing/stale values and changes to either amount still stop automatic delivery.
+
+Add opt-in configured contact and salary placeholder contraction when saving or learning answers through CLI, both Lino APIs and UI. Expand current dated salary calculations with approval/context evidence; preserve ambiguous literals, canonical rejection checks and unchanged templates.

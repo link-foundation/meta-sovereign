@@ -124,9 +124,10 @@ export const applySalaryAnswer = (question, input, previous) => {
   // A personal explanation belongs to its author; changing the numeric target
   // cannot silently approve stale details in that explanation.
   if (previous.text && !plainPay(previous.text)) {
-    return /\d/u.test(previous.text)
-      ? { ...previous, requiresReview: true }
-      : previous;
+    const literal = previous.salaryTemplates
+      ? previous.salaryTemplates.literalNumbers
+      : /\d/u.test(previous.text);
+    return literal ? { ...previous, requiresReview: true } : previous;
   }
   return salaryResult(question, input, previous, config, selection);
 };

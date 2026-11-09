@@ -1246,6 +1246,10 @@ export const en = {
   'questions.ruleIdsHint':
     'Comma-separated; leave empty to use every enabled rule.',
   'questions.approximate': 'Offer approximate matches for review',
+  'questions.contract': 'Replace configured values with placeholders',
+  'questions.contractHint':
+    'Use the profile and salary settings under Preview answer when saving or learning answers. Review the proposed templates before approving them.',
+  'questions.salaryTemplateEvidence': 'Salary placeholder values',
   'questions.profile': 'Profile values',
   'questions.fieldName': 'Field name, e.g. city',
   'questions.addField': 'Add field',

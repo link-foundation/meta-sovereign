@@ -1,8 +1,31 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { formatSalary } from '../automation/salary-config.js';
 
 const el = React.createElement;
 const percent = (rate) => `${Number((rate * 100).toFixed(10))}%`;
+export const SalaryTemplateEvidence = ({ value }) => {
+  const t = useT();
+  if (!value) {
+    return null;
+  }
+  return el('details', { 'data-salary-template-evidence': true }, [
+    el('summary', { key: 'summary' }, t('questions.salaryTemplateEvidence')),
+    ...value.fields.map((field) =>
+      el('div', { key: field.key, className: 'col' }, [
+        el(
+          'p',
+          { key: 'value', style: { overflowWrap: 'anywhere' } },
+          `${field.key}: ${field.amount ? formatSalary(field.amount, field.currency) : field.missing}`
+        ),
+        el(SalaryCalculationEvidence, {
+          key: 'calculation',
+          calculation: field.calculation,
+        }),
+      ])
+    ),
+  ]);
+};
 export const SalaryCalculationEvidence = ({ calculation }) => {
   const t = useT();
   if (!calculation) {

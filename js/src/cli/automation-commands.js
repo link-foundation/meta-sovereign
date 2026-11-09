@@ -39,7 +39,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
-                answers: list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply]
+                answers: list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id]
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)`;

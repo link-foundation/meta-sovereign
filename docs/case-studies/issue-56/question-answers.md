@@ -22,7 +22,9 @@ The normal `automations` CLI exposes `answers list`, `answers save [file.lino]`,
 
 ```sh
 meta-sovereign automations answers save --id=location --question='Где вы живете?' --answer='Живу в {{city}}.' --approved --sources=hh,telegram,vk
-meta-sovereign automations answers plan --question='Где вы живете?' --source=hh --profile='(city "Nha Trang")'
+meta-sovereign automations answers plan --question='Где вы живете?' --source=hh --profile='(
+  city "Nha Trang"
+)'
 meta-sovereign automations answers learn --self=me
 ```
 

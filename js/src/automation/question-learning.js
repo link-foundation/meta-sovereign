@@ -105,7 +105,7 @@ const usableQuestion = (message, isSelf) =>
 
 export const learnAnswerRules = (
   messages,
-  { self = ['me'], policy = {} } = {}
+  { self = ['me'], policy = {}, contract = (text) => text } = {}
 ) => {
   const isSelf = (message) =>
     message.out === true ||
@@ -129,6 +129,7 @@ export const learnAnswerRules = (
     if (!reusable(text) || rejectedAnswer(text, policy)) {
       return;
     }
+    text = contract(text);
     const key = questionKey(question);
     const group = learned.get(key) ?? {
       id: `${QA_RULE_PREFIX}${hash(key)}`,

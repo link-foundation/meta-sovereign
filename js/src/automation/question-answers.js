@@ -11,6 +11,10 @@ import { completedAnswerSummary } from './question-summary.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
 import {
+  answerTemplateEnvironment,
+  salaryTemplateEvidence,
+} from './salary-template.js';
+import {
   normalizeAnswerProfile,
   renderAnswer as render,
 } from './question-profile.js';
@@ -158,9 +162,18 @@ const conflictingAnswer = (candidate, best, profile, text) =>
     candidate.answer.count === best.answer.count) &&
   render(candidate.answer.text, profile).text !== text;
 
+const templateNeedsReview = (value) =>
+  value?.approved === false || value?.contextMismatch === true;
+const templateDetails = (salaryTemplates) =>
+  salaryTemplates ? { salaryTemplates } : {};
+
 const answerOne = (question, input) => {
   const resolved = resolveAnswerContexts(question, input);
-  const context = { ...input, profile: resolved.profile };
+  const environment = answerTemplateEnvironment(question, {
+    ...input,
+    profile: resolved.profile,
+  });
+  const context = { ...input, profile: environment.profile };
   let matches = [];
   for (const rule of context.rules) {
     if (!eligible(rule, context)) {
@@ -211,6 +224,7 @@ const answerOne = (question, input) => {
   }
   const best = matches[0];
   const result = render(best.answer.text, context.profile);
+  const salaryTemplates = salaryTemplateEvidence(best.answer.text, environment);
   const conflicting = matches.some((candidate) =>
     conflictingAnswer(candidate, best, context.profile, result.text)
   );
@@ -218,11 +232,13 @@ const answerOne = (question, input) => {
     question,
     contexts: resolved.contexts,
     ...result,
+    ...templateDetails(salaryTemplates),
     match: best.match,
     complete: result.missing.length === 0,
     requiresReview:
       best.match === 'approximate' ||
       !best.answer.approved ||
+      templateNeedsReview(salaryTemplates) ||
       conflicting ||
       result.missing.length > 0,
     rules: [best.rule.id],

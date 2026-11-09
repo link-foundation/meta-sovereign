@@ -5,6 +5,7 @@ import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
 import { verifySalaryExchangePolicy } from './helpers/e2e-salary-exchange-policy.mjs';
 import { verifySalaryBoth } from './helpers/e2e-salary-both.mjs';
+import { verifyQuestionSubstitution } from './helpers/e2e-question-substitution.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -440,6 +441,20 @@ const verifySalary = async (preview) => {
   await page.locator('.app-shell-compact').waitFor({ state: 'detached' });
 };
 
+const verifySubstitution = async (saved, preview) => {
+  await verifyQuestionSubstitution({
+    page,
+    panel,
+    preview,
+    editor,
+    store,
+    until,
+  });
+  await panel
+    .getByRole('button', { name: saved.question, exact: true })
+    .click();
+};
+
 await finish(async () => {
   await page.addInitScript(
     ({ key, version }) =>
@@ -511,6 +526,7 @@ await finish(async () => {
   await verifyLearning(saved);
   await verifyPolicy();
   await verifySalary(preview);
+  await verifySubstitution(saved, preview);
 
   await panel
     .getByRole('button', { name: 'Create question automation', exact: true })
