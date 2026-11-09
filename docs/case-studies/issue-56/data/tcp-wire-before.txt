@@ -1,0 +1,32 @@
+✖ TCP defaults to versioned Lino and delivers queued snapshots after selection (20.113801ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 198.602397
+
+✖ failing tests:
+
+test at js/tests/lino-sync-tcp.test.js:34:32
+✖ TCP defaults to versioned Lino and delivers queued snapshots after selection (20.113801ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '{"type":"put","link":{"id":"l:tcp","body":"changed after send","single":[true],"empty":[]}}\n'
+  - 'meta-sovereign-sync.lino.v2\n'
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-sync-tcp.test.js:47:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{"type":"put","link":{"id":"l:tcp","body":"changed after send","single":[true],"empty":[]}}\n',
+    expected: 'meta-sovereign-sync.lino.v2\n',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+Confirmed: the old adapter emits JSON and retains a mutable queued event.

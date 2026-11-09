@@ -16,4 +16,6 @@ node js/bin/meta-sovereign.js serve --json-compatibility=true
 
 JavaScript WebSocket 同步和 WebRTC 信令协商 `meta-sovereign-sync.lino.v2`（文本）或 `meta-sovereign-sync.lino-binary.v2`（二进制）。WebRTC 数据通道声明相同协议。客户端拒绝缺失或不匹配的选择。旧版 `meta-sovereign-sync.v1` JSON 要求双方显式启用兼容模式。未声明协议的连接默认使用文本 Lino；服务端显式启用兼容模式时使用旧版 JSON。消息和连接前队列均限制为 4 MiB；超大或无效入站帧会关闭连接。来源检查、房间隔离和秘密过滤保持有效。参见[同步调查](case-studies/issue-56/lino-sync.md)。
 
-R-AA16 尚未完成：TCP 同步及 Rust 后端仍需协议迁移和验证。原生服务端功能一致性仍待完成。参见[需求清单](REQUIREMENTS.zh.md)和 [HTTP 传输调查](case-studies/issue-56/lino-http.md)。
+JavaScript TCP 同步使用相同的版本化协议。双方先发送配置的协议名和换行，再发送由四字节无符号大端字节长度及所选 Lino 正文组成的记录。默认文本格式；双方通过 `--sync-format=binary` 选择二进制（库选项：`format: 'application/lino-binary'`）。不会自动回退。记录及队列限制为 4 MiB，协议前缀为 128 字节，握手为 10 秒。旧版换行 JSON 要求双方使用 `--sync-format=json --json-compatibility=true`。监听器仍仅绑定回环地址。CLI 同步命令持续运行直到中断，然后关闭连接、刷写并释放存储。
+
+R-AA16 尚未完成：Rust 后端仍需协议迁移和验证。原生服务端功能一致性仍待完成。参见[需求清单](REQUIREMENTS.zh.md)和 [HTTP 传输调查](case-studies/issue-56/lino-http.md)。

@@ -86,6 +86,8 @@ import { runGraph } from '../automation/index.js';
 import { planOutreach } from '../broadcast/index.js';
 import { foundOnPort } from '../server/hosted-ui.js';
 import { DEFAULT_PORTS } from '../web/discover.js';
+import { LINO_TEXT, LINO_BINARY, JSON_MEDIA } from '../transport/lino.js';
+import { syncWire } from '../sync/wire.js';
 
 const HELP = `meta-sovereign <command> [options]
 
@@ -123,8 +125,9 @@ ${CONTACTS_HELP}
   replies       [--store=<dir>]
   profile       [--name=<n>] [--bio=<b>] [--store=<dir>]
   resume        [--title=<t>] [--body=<b>] [--store=<dir>]
-  sync-listen   [--port=<n>] [--store=<dir>]
-  sync-connect  --port=<n> [--host=<h>] [--store=<dir>]
+  sync-listen   [--port=<n>] [--store=<dir>] [--sync-format=lino|binary|json]
+  sync-connect  --port=<n> [--host=<h>] [--store=<dir>] [--sync-format=lino|binary|json]
+                JSON sync also requires --json-compatibility=true on both ends
   outreach      --query=<expr> --text=<msg> [--reply=<reply:id>] [--networks=t,vk] [--mode=preview|queue] [--store=<dir>]
 ${AUTOMATION_HELP}
   export-encrypted --file=<path> --passphrase=<pp> [--store=<dir>]
@@ -691,37 +694,73 @@ const resumeCmd = async (args, log) => {
   return 0;
 };
 
-const syncListenCmd = async (args, log) => {
-  const store = await openStore(args.store ?? defaultStoreDir());
-  const peer = createPeer(store, {
-    node: 'cli-listener',
-    schemaVersion: CURRENT_SCHEMA,
-    hub: true,
-    onMismatch: (error) => log(error.message),
-  });
-  const handle = await startSyncListener({ port: Number(args.port ?? 0) });
-  peer.connect(handle.transport);
-  log(`sync listener on tcp://127.0.0.1:${handle.port}`);
-  return 0;
+const syncOptions = (args) => {
+  const formats = { lino: LINO_TEXT, binary: LINO_BINARY, json: JSON_MEDIA };
+  const format = formats[args['sync-format'] ?? 'lino'];
+  if (!format) {
+    throw new Error('Unsupported --sync-format; use lino, binary or json');
+  }
+  const options = {
+    format,
+    jsonCompatibility: String(args['json-compatibility']) === 'true',
+  };
+  syncWire(options);
+  return options;
 };
 
-const syncConnectCmd = async (args, log) => {
+const waitForSyncStop = (handle, announce) =>
+  new Promise((resolve) => {
+    const stop = () => {
+      process.off('SIGINT', stop);
+      process.off('SIGTERM', stop);
+      resolve();
+    };
+    process.once('SIGINT', stop);
+    process.once('SIGTERM', stop);
+    handle.closed?.then(stop);
+    announce();
+  });
+
+const syncCmd = async (args, log, listen) => {
+  const options = syncOptions(args);
   const store = await openStore(args.store ?? defaultStoreDir());
-  const peer = createPeer(store, {
-    node: 'cli-client',
-    schemaVersion: CURRENT_SCHEMA,
-    onMismatch: (error) => log(error.message),
-  });
-  const client = await connectSyncPeer({
-    port: Number(args.port),
-    host: args.host ?? '127.0.0.1',
-  });
-  peer.connect(client.transport);
-  log(
-    `sync client connected to tcp://${args.host ?? '127.0.0.1'}:${args.port}`
-  );
-  return 0;
+  let handle;
+  let off;
+  try {
+    const peer = createPeer(store, {
+      node: listen ? 'cli-listener' : 'cli-client',
+      schemaVersion: CURRENT_SCHEMA,
+      hub: listen,
+      onMismatch: (error) => log(error.message),
+    });
+    handle = listen
+      ? await startSyncListener({ port: Number(args.port ?? 0), ...options })
+      : await connectSyncPeer({
+          port: Number(args.port),
+          host: args.host ?? '127.0.0.1',
+          ...options,
+        });
+    off = peer.connect(handle.transport);
+    await waitForSyncStop(handle, () =>
+      log(
+        listen
+          ? `sync listener on tcp://127.0.0.1:${handle.port}`
+          : `sync client connected to tcp://${args.host ?? '127.0.0.1'}:${args.port}`
+      )
+    );
+    return 0;
+  } finally {
+    off?.();
+    try {
+      await handle?.close();
+    } finally {
+      await store.close();
+    }
+  }
 };
+
+const syncListenCmd = (args, log) => syncCmd(args, log, true);
+const syncConnectCmd = (args, log) => syncCmd(args, log, false);
 
 const outreachCmd = async (args, log) => {
   const store = await openStore(args.store ?? defaultStoreDir());
