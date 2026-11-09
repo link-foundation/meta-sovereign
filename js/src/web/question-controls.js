@@ -281,17 +281,24 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
               el('li', { key: entry.id }, [
                 el('strong', { key: 'question' }, entry.question),
                 ...entry.answers.map((answer, index) =>
-                  el(
-                    'pre',
-                    {
-                      key: index,
-                      style: {
-                        whiteSpace: 'pre-wrap',
-                        overflowWrap: 'anywhere',
+                  el('div', { key: index }, [
+                    el(
+                      'small',
+                      { key: 'count', className: 'meta' },
+                      t('questions.frequency', { count: answer.count })
+                    ),
+                    el(
+                      'pre',
+                      {
+                        key: 'text',
+                        style: {
+                          whiteSpace: 'pre-wrap',
+                          overflowWrap: 'anywhere',
+                        },
                       },
-                    },
-                    answer.text
-                  )
+                      answer.text
+                    ),
+                  ])
                 ),
               ])
             )

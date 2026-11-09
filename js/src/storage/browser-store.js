@@ -357,20 +357,20 @@ export const createBrowserStore = async ({
       }
       return links;
     },
-    async get(id) {
+    async get(id, project = cloneLink) {
       const v = data.get(id);
-      return v ? cloneLink(v) : null;
+      return v ? project(v) : null;
     },
     /** How many links are held (R-Z17). */
     size: () => data.size,
     /** The matching links in batches of copies (the migration runner, R-Z17). */
-    async scan(filter, batchSize, onBatch) {
+    async scan(filter, batchSize, onBatch, project = cloneLink) {
       let batch = [];
       let looked = 0;
       for (const link of [...data.values()]) {
         looked += 1;
         if (!filter || filter(link)) {
-          batch.push(cloneLink(link));
+          batch.push(project(link));
           if (batch.length >= batchSize) {
             const full = batch;
             batch = [];

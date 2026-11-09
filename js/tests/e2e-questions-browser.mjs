@@ -41,6 +41,10 @@ const verifyLearning = async (saved) => {
   await panel
     .getByRole('button', { name: 'Save proposals for review', exact: true })
     .waitFor();
+  await panel
+    .getByText('Archived messages inspected: 2 of 2.', { exact: true })
+    .waitFor();
+  await panel.getByText('Observed answer turns: 1', { exact: true }).waitFor();
   assert((await rules()).length === 1, 'learning preview never writes');
   await panel
     .getByRole('button', { name: 'Save proposals for review', exact: true })

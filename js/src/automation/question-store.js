@@ -11,7 +11,7 @@ import {
   QA_RULE_PREFIX,
   planAnswer,
 } from './question-answers.js';
-import { learnAnswerRules } from './question-learning.js';
+import { archiveReadGuard, learnArchivedAnswers } from './question-archive.js';
 import { createAnswerContractor } from './question-contraction.js';
 import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
@@ -253,58 +253,6 @@ export const validateAnswerDraft = async (
   return { ok: true };
 };
 
-// Recent derived window, never a replacement for the durable archive. The
-// response exposes coverage; truncated bodies remain turn barriers.
-const learningHistory = async (store, self) => {
-  const history = createBoundedHistory({ maxChars: 12000 });
-  let seen = 0;
-  await scan(
-    store,
-    (link) => link?.id?.startsWith('msg:'),
-    (batch) => {
-      for (const message of batch) {
-        seen++;
-        history.add(message);
-      }
-    },
-    (link) => ({
-      id: link.id,
-      source: link.source,
-      chat: link.chat,
-      sender: link.sender,
-      body:
-        typeof link.body === 'string' && link.body.length <= 12000
-          ? link.body
-          : '',
-      timestamp: link.timestamp,
-      replyTo: link.replyTo,
-      deleted: link.deleted,
-      service:
-        link.service ||
-        typeof link.body !== 'string' ||
-        link.body.length > 12000,
-      pending: link.pending,
-      failed: link.failed,
-      delivery: link.delivery,
-      status: link.status,
-      out: link.out,
-      outgoing: link.outgoing,
-    })
-  );
-  const stats = history.stats();
-  return {
-    messages: history.values(),
-    self: [...new Set(['me', ...self])],
-    coverage: {
-      seen,
-      retained: stats.messages,
-      limited: seen > stats.messages,
-      maxMessages: stats.maxMessages,
-      maxBytes: stats.maxBytes,
-    },
-  };
-};
-
 const mergeLearned = (existing, proposal) => ({
   ...proposal,
   ...existing,
@@ -313,22 +261,22 @@ const mergeLearned = (existing, proposal) => ({
 
 // Learning produces reviewable proposals by default. Applying never grants
 // approval and never increments frequencies merely because it ran again.
-export const learnSavedAnswers = async (
+const collectSavedAnswers = async (
   store,
-  { self = [], apply = false, ...options } = {}
+  { self = [], apply = false, ...options } = {},
+  checkArchive
 ) => {
   if (!Array.isArray(self) || self.some((id) => typeof id !== 'string')) {
     throw new Error('self must be a list of identifiers');
   }
-  const history = await learningHistory(store, self);
   options = await contractionInput(store, options);
-  const proposed = learnAnswerRules(history.messages, {
-    self: history.self,
+  const learned = await learnArchivedAnswers(store, {
+    self: [...new Set(['me', ...self])],
     policy: await readAnswerPolicy(store),
     contract: createAnswerContractor(options),
   });
   const rules = [];
-  for (const proposal of proposed) {
+  for (const proposal of learned.rules) {
     const existing = await store.get(proposal.id);
     const merged = mergeLearned(existing, proposal);
     for (const answer of proposal.answers) {
@@ -345,10 +293,15 @@ export const learnSavedAnswers = async (
         };
       } else if (merged.answers.length < 100) {
         merged.answers.push(answer);
+      } else {
+        throw new Error(
+          'answer variant limit (100) exceeded; no proposals applied'
+        );
       }
     }
     rules.push(normalizeAnswerRule(merged));
   }
+  checkArchive();
   if (apply === true) {
     const existing = await listAnswerRules(store);
     if (new Set([...existing, ...rules].map((rule) => rule.id)).size > 1000) {
@@ -356,9 +309,19 @@ export const learnSavedAnswers = async (
         'answer rule limit (1000) exceeded; no proposals applied'
       );
     }
+    checkArchive();
     for (const rule of rules) {
       await store.put(rule);
     }
   }
-  return { rules, applied: apply === true, coverage: history.coverage };
+  return { rules, applied: apply === true, coverage: learned.coverage };
+};
+
+export const learnSavedAnswers = async (store, input = {}) => {
+  const guard = archiveReadGuard(store);
+  try {
+    return await collectSavedAnswers(store, input, guard.check);
+  } finally {
+    guard.close();
+  }
 };

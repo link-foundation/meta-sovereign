@@ -9,3 +9,5 @@ Both early-return and complete-stream readers now use an owned iterator that clo
 Three focused lifetime regressions verify early return, EOF and error cleanup. Those cases and the two existing warm-handoff cases pass in Node and Deno on Linux. Four small existing append/reopen/legacy-record cases also pass, as do focused lint and formatting. The actual-file probe now records `{finished:false,readerClosed:false,fd:20}` while cleanup is held, then completes after closure. Full runtime matrices remain in CI; Linux success is not presented as Windows verification.
 
 The raw Windows job log, finite probe, failing-before/passing-after logs and focused results are retained in `data/reader-lifetime.tar.gz`, with verified per-file hashes. Exact-head Windows CI remains a delivery gate for [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+Subsequent verification: the exact `862af4ba` Windows Deno, Node and Bun jobs all pass, along with the complete runtime matrix. See [the retained results](ci-862af4ba.md). The original error did not identify its file; this confirms the correction without asserting an unobserved Windows lock path.

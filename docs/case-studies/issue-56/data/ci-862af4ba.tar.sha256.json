@@ -1,0 +1,8 @@
+{
+  "archive": "ci-862af4ba.tar.gz",
+  "files": {
+    "checks-jobs.json": "1ce10243abbeb40e659ae48b98c7698d30b46947a1f8d3a0457064d6a43d928c",
+    "security-jobs.json": "14a6401e267e4a9d9eb16ce3fe45f309a9f2c7a275d65a5e0eac69d2aafd0660",
+    "workflows.json": "2290aef0b7a9c3738d34821ee274587c08cd5533a116076428fd6926b301025e"
+  }
+}

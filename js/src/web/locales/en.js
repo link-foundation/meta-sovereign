@@ -1274,14 +1274,14 @@ export const en = {
   'questions.automationName': 'Answer incoming questions',
   'questions.learn': 'Learn from conversations',
   'questions.learnHint':
-    'Only actual outgoing answers in complete turns become proposals. Applying keeps them unapproved. Frequencies describe the retained history window, not the entire archive.',
+    'Learn from all messages saved on this device. Actual outgoing answers in complete turns contribute to frequencies; quoted summaries add no uses. Proposals remain unapproved.',
   'questions.previewLearning': 'Preview learned answers',
   'questions.applyLearning': 'Save proposals for review',
   'questions.learned':
     'Proposals saved. Review each answer before approving it.',
-  'questions.coverage': 'History retained: {retained} of {seen} messages.',
+  'questions.coverage': 'Archived messages inspected: {retained} of {seen}.',
   'questions.partialHistory':
-    'Partial history: older messages are outside this bounded learning window.',
+    'Some conversations lack reliable timestamps and were excluded. Learning covers saved messages; it does not download missing provider history.',
   'questions.preview': 'Preview answer',
   'questions.previewSource': 'Provider for preview',
   'questions.previewChat': 'Chat for preview',

@@ -5,6 +5,7 @@ import { asksQuestion, questionKey, splitQuestions } from './question-match.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
 import { rejectedAnswer } from './question-policy.js';
 import { summaryAnswerPairs } from './question-summary.js';
+import { historyOrder } from '../replies/history-order.js';
 
 const hash = (text) => {
   let result = 14695981039346656037n;
@@ -49,33 +50,16 @@ const undelivered = (message) =>
     message.delivery ?? message.status
   );
 
-const collectAnswers = (sorted, index, isSelf) => {
-  const answers = [];
-  for (let j = index + 1; j < sorted.length; j++) {
-    const next = sorted[j];
-    if (
-      !isSelf(next) ||
-      next.deleted ||
-      next.service ||
-      next.pending ||
-      next.failed ||
-      asksQuestion(next.body) ||
-      undelivered(next) ||
-      Date.parse(next.timestamp) - Date.parse(sorted[index].timestamp) >
-        86400000 ||
-      (repliedId(next) && repliedId(next) !== sorted[index].id)
-    ) {
-      break;
-    }
-    if (next.body?.trim()) {
-      answers.push(next);
-    }
-    if (answers.length === 20) {
-      break;
-    }
-  }
-  return answers;
-};
+const usableAnswer = (question, next, isSelf) =>
+  isSelf(next) &&
+  !next.deleted &&
+  !next.service &&
+  !next.pending &&
+  !next.failed &&
+  !asksQuestion(next.body) &&
+  !undelivered(next) &&
+  Date.parse(next.timestamp) - Date.parse(question.timestamp) <= 86400000 &&
+  (!repliedId(next) || repliedId(next) === question.id);
 
 const addAlignedParts = (question, text, evidence, add) => {
   const questions = splitQuestions(question);
@@ -103,28 +87,16 @@ const usableQuestion = (message, isSelf) =>
   !message.service &&
   asksQuestion(message.body);
 
-export const learnAnswerRules = (
-  messages,
-  { self = ['me'], policy = {}, contract = (text) => text } = {}
-) => {
-  const isSelf = (message) =>
-    message.out === true ||
-    message.outgoing === true ||
-    self.includes(message.sender);
-  const unique = new Map(
-    messages
-      .filter((message) => message?.id)
-      .map((message) => [message.id, message])
-  );
-  const chats = new Map();
-  for (const message of unique.values()) {
-    // Keep all intervening messages. A service/deleted record breaks adjacency.
-    const key = `${message.source}:${message.chat}`;
-    const list = chats.get(key) ?? [];
-    list.push(message);
-    chats.set(key, list);
-  }
+const answerCollection = ({ policy, contract }) => {
   const learned = new Map();
+  let bytes = 0;
+  const retainEvidence = (prior, incoming) => {
+    const next = [...new Set([...prior, ...incoming])].slice(0, 100);
+    bytes += next
+      .slice(prior.length)
+      .reduce((size, id) => size + id.length * 2 + 32, 0);
+    return next;
+  };
   const add = (question, text, evidence, count = 1) => {
     if (!reusable(text) || rejectedAnswer(text, policy)) {
       return;
@@ -143,20 +115,98 @@ export const learnAnswerRules = (
     const answer = group.answers.find((entry) => entry.text === text);
     if (answer) {
       answer.count += count;
-      answer.evidence = [...new Set([...answer.evidence, ...evidence])].slice(
-        0,
-        100
-      );
-    } else if (group.answers.length < 100) {
+      answer.evidence = retainEvidence(answer.evidence, evidence);
+    } else {
+      bytes += (question.length + text.length) * 2 + 256;
+      if (learned.size >= 1000 && !learned.has(key)) {
+        throw new Error(
+          'answer rule limit (1000) exceeded; no proposals applied'
+        );
+      }
+      if (group.answers.length >= 100) {
+        throw new Error(
+          'learned answer capacity exceeded; no proposals applied'
+        );
+      }
       group.answers.push({
         text,
         count,
         approved: false,
-        evidence: [...evidence].slice(0, 100),
+        evidence: retainEvidence([], evidence),
       });
+    }
+    if (bytes > 8 * 1024 ** 2) {
+      throw new Error('learned answer capacity exceeded; no proposals applied');
     }
     learned.set(key, group);
   };
+  return { add, values: () => [...learned.values()] };
+};
+
+// One chronological conversation at a time; retain at most one question and
+// twenty outgoing bubbles. Counts are independent of the evidence display cap.
+export const createAnswerLearner = ({
+  self = ['me'],
+  policy = {},
+  contract = (text) => text,
+} = {}) => {
+  const isSelf = (message) =>
+    message.out === true ||
+    message.outgoing === true ||
+    self.includes(message.sender);
+  const collection = answerCollection({ policy, contract });
+  let question;
+  let answers = [];
+  const finish = () => {
+    if (question && answers.length) {
+      const text = answers.map((answer) => answer.body.trim()).join('\n');
+      const evidence = answers.map((answer) => answer.id);
+      collection.add(question.body.trim(), text, evidence);
+      addAlignedParts(question.body, text, evidence, collection.add);
+    }
+    question = null;
+    answers = [];
+  };
+  return {
+    accept(message) {
+      if (question && usableAnswer(question, message, isSelf)) {
+        if (message.body?.trim()) {
+          answers.push(message);
+        }
+        if (answers.length === 20) {
+          finish();
+        }
+        return;
+      }
+      finish();
+      const summaries = incomingSummary(message, isSelf);
+      if (summaries.length) {
+        for (const pair of summaries) {
+          collection.add(pair.question, pair.text, [message.id], 0);
+        }
+      } else if (usableQuestion(message, isSelf)) {
+        question = message;
+      }
+    },
+    finishChat: finish,
+    rules: () => collection.values(),
+  };
+};
+
+export const learnAnswerRules = (messages, options = {}) => {
+  const unique = new Map(
+    messages
+      .filter((message) => message?.id)
+      .map((message) => [message.id, message])
+  );
+  const chats = new Map();
+  for (const message of unique.values()) {
+    const key = JSON.stringify([message.source, message.chat]);
+    const list = chats.get(key) ?? [];
+    list.push(message);
+    chats.set(key, list);
+  }
+  const learner = createAnswerLearner(options);
   for (const list of chats.values()) {
     // Missing chronology cannot establish adjacency. Keep service records,
     // including those without a body, so they cannot disappear between turns.
@@ -165,30 +215,10 @@ export const learnAnswerRules = (
     ) {
       continue;
     }
-    const sorted = [...list].sort(
-      (a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp)
-    );
-    for (let i = 0; i < sorted.length; i++) {
-      const question = sorted[i];
-      const summaries = incomingSummary(question, isSelf);
-      if (summaries.length) {
-        for (const pair of summaries) {
-          add(pair.question, pair.text, [question.id], 0);
-        }
-        continue;
-      }
-      if (!usableQuestion(question, isSelf)) {
-        continue;
-      }
-      const answers = collectAnswers(sorted, i, isSelf);
-      if (!answers.length) {
-        continue;
-      }
-      const text = answers.map((answer) => answer.body.trim()).join('\n');
-      const evidence = answers.map((answer) => answer.id);
-      add(question.body.trim(), text, evidence);
-      addAlignedParts(question.body, text, evidence, add);
+    for (const message of [...list].sort(historyOrder)) {
+      learner.accept(message);
     }
+    learner.finishChat();
   }
-  return [...learned.values()];
+  return learner.rules();
 };

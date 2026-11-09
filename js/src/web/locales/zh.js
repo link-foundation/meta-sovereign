@@ -1218,12 +1218,13 @@ export const zh = {
   'questions.automationName': '回答收到的问题',
   'questions.learn': '从对话中学习',
   'questions.learnHint':
-    '仅从完整轮次中实际发出的回答生成建议。保存后仍未批准。频率反映保留的历史窗口，而非整个档案。',
+    '从此设备保存的所有消息中学习。仅完整轮次中实际发出的回答计入频率；摘要引用不增加次数。建议仍需批准。',
   'questions.previewLearning': '预览学到的回答',
   'questions.applyLearning': '保存建议以供审核',
   'questions.learned': '建议已保存。请先检查每个回答，再批准。',
-  'questions.coverage': '保留的历史：{retained} / {seen} 条消息。',
-  'questions.partialHistory': '历史不完整：较早的消息不在此有界学习窗口中。',
+  'questions.coverage': '已检查的存档消息：{retained} / {seen}。',
+  'questions.partialHistory':
+    '部分对话缺少可靠时间戳，已排除。学习仅使用已保存的消息，不会下载服务商缺失的历史。',
   'questions.preview': '预览回答',
   'questions.previewSource': '预览服务商',
   'questions.previewChat': '预览聊天',

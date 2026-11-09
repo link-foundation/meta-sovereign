@@ -56,6 +56,10 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 
 - [Operator history race](ci-operator-history.md): preserved CI artifact, deterministic late-effect regression and independent history navigation evidence.
 
-- [Owned reader lifetime](ci-reader-lifetime.md): bounded actual-file reproduction, awaited descriptor cleanup and focused Node/Deno checks; exact Windows verification remains pending.
+- [Owned reader lifetime](ci-reader-lifetime.md): bounded actual-file reproduction, awaited descriptor cleanup and focused Node/Deno checks; the subsequent exact-head Windows matrix passes; see ci-862af4ba.md.
 
 - [CI for 9b718571](ci-9b718.md): six corrected fixture assertions, separate Windows/browser failures and an incomplete Python CodeQL matrix job, with raw logs.
+
+- [Stored-archive learning](question-archive.md): full archive coverage, stable observed counts, bounded metadata/proposals and reviewable CLI/API/UI learning, with before/after/mobile evidence.
+
+- [Exact-head CI for 862af4ba](ci-862af4ba.md): all five workflows pass, including Windows storage, WebKit history and all four security languages.
