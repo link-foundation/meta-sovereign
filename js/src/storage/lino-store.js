@@ -25,7 +25,7 @@
 import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
-import { decodeLine, encodeLine } from 'lino-objects-codec';
+import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore } from './universal.js';
 import { createRawPacking } from './raw-packing.js';
 import { createPayloadFile } from './payload-file.js';

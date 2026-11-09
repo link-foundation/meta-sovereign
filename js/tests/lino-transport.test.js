@@ -1,5 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { encodeWireResponse } from '../src/server/wire.js';
+import {
+  formatLinoRecords,
+  parseLinoRecords,
+} from '../src/storage/lino-store.js';
+import { createMemoryStore } from '../src/storage/universal.js';
+import { createBackup, restoreBackup } from '../src/storage/backup.js';
 import {
   LINO_TYPES,
   LINO_TEXT,
@@ -25,6 +35,41 @@ for (const type of LINO_TYPES) {
     assert.deepEqual(decodeWire(encoded, `${type}; charset=utf-8`), value);
   });
 }
+
+test('wire and HTTP replies preserve large numbers and numeric-looking keys', () => {
+  const value = {
+    positive: 1e18,
+    negative: -9007199254740992,
+    1000000000000000000: '1000000000000000000',
+    nested: [9007199254740992, [null], { count: 1000000000000000100 }],
+  };
+  for (const type of LINO_TYPES) {
+    assert.deepEqual(decodeWire(encodeWire(value, type), type), value, type);
+    const reply = encodeWireResponse({ lino: { type } }, 200, value);
+    assert.deepEqual(decodeWire(reply.body, type), value, `HTTP ${type}`);
+  }
+  assert.deepEqual(parseLinoRecords(formatLinoRecords([value])), [value]);
+});
+
+test(
+  'recovery archives preserve unsafe integer Number values',
+  { timeout: 10_000 },
+  async (t) => {
+    const archiveDir = await mkdtemp(join(tmpdir(), 'ms-lino-numbers-'));
+    t.after(() => rm(archiveDir, { recursive: true, force: true }));
+    const value = {
+      id: 'numeric:fixture',
+      count: 1e18,
+      nested: [-9007199254740992],
+    };
+    const source = createMemoryStore();
+    await source.put(value);
+    const file = await createBackup(source, { archiveDir });
+    const restored = createMemoryStore();
+    assert.equal(await restoreBackup(restored, file), 1);
+    assert.deepEqual(await restored.get(value.id), value);
+  }
+);
 
 test('HTTP normalization preserves provider bigint IDs and dates', () => {
   const encoded = encodeWire({

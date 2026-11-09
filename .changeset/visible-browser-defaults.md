@@ -27,3 +27,5 @@ Preserve the Chat/Operator live tail across coalesced WebKit layout and caret sc
 Use versioned, bounded text/binary Lino records for TCP sync with explicit legacy JSON mode. Keep sync CLI commands alive for replication and close connections and stores on shutdown (R-AA16).
 
 Release owned stores and await service cleanup after listener failure and shutdown. Close snapshot SQLite handles before reporting completion, preserving caller ownership of injected stores.
+
+Preserve existing large Number values across readable Lino HTTP/sync, text stores and recovery archives, while retaining numeric-looking string keys and values. Report the upstream object-codec defect with a finite reproduction.

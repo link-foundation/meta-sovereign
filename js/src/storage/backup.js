@@ -23,7 +23,7 @@ import {
   createCipheriv,
   createDecipheriv,
 } from 'node:crypto';
-import { decodeLine, encodeLine } from 'lino-objects-codec';
+import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore, putAll } from './universal.js';
 import {
   CURRENT_SCHEMA,

@@ -6,6 +6,7 @@ import {
   parseAccept,
   negotiateMediaType,
 } from 'lino-rest-api';
+import { preserveReadableNumbers } from '../lino-objects.js';
 import {
   LINO_TEXT,
   LINO_BINARY,
@@ -112,10 +113,12 @@ export const encodeWireResponse = (res, status, value) => {
       error: 'no acceptable response representation',
     };
   }
-  const body =
-    type === LINO_BINARY
-      ? encodeWire(value, type)
-      : encodeFor(wireValue(value), type);
+  const obj = wireValue(value);
+  let body =
+    type === LINO_BINARY ? encodeWire(obj, type) : encodeFor(obj, type);
+  if (type === LINO_TEXT || type === 'text/lino-line') {
+    body = preserveReadableNumbers(obj, body);
+  }
   return { status, type, body };
 };
 

@@ -7,7 +7,7 @@ import {
   decode,
   decodeLine,
   decodeCompact,
-} from 'lino-objects-codec';
+} from '../lino-objects.js';
 import {
   BinaryLinoCodec,
   BinaryLinoOptions,

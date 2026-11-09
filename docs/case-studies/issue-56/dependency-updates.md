@@ -19,3 +19,11 @@ The published Lino REST codec rejects binary media types. A separate minimal che
 ## Focused validation
 
 After updating the lockfile and sharing parser/codec versions, 24 focused storage, pattern, browser-policy launch and release-lockfile tests passed with one test process and a 384 MiB heap limit. The bounded binary probe passed both typed round-trips. The web bundle rebuilt in 1.1 seconds. Changed JavaScript passed ESLint and formatting. Full runtime, browser and native/container builds remain assigned to existing CI for the pushed commit.
+
+## Readable numeric values
+
+Cross-language vectors exposed a separate upstream 0.9.5 defect: readable and single-line encoders write an unsafe integer Number such as `1e18` as a bare integer, while their reader deliberately preserves that token as a string. This loses the type of an already-existing Number, independently of precision lost before serialization. The finite offline reproduction and proposed `formatNumber` correction are in [object-codec issue 81](https://github.com/link-foundation/lino-objects-codec/issues/81); its exact source body and probe remain in `experiments/issue-56/`.
+
+A shared local adapter writes these rare Number values in exponent notation with explicit readable container markers. Ordinary values keep the upstream layout. HTTP replies still use Lino REST; its readable output receives the same correction. Portable fetch/sync, text-store records and recovery archives share this adapter, preserving numeric-looking string keys/values. Compact and binary typed encoding retain their existing paths.
+
+The new regression fails against the old encoder and passes afterward. Ten focused transport tests pass with concurrency one and a 192 MiB heap, including a real small archive backup/restore and text-record round-trip. `data/lino-numbers-{before,after,upstream}.txt` preserves the observed failure, corrected checks and upstream reproduction. Full runtime and browser coverage remains in CI.
