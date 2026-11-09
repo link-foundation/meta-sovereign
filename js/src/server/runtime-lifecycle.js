@@ -19,6 +19,7 @@ export const createRuntimeLifecycle = ({
   sockets,
   flush,
   flushLog,
+  releaseStore,
 }) => {
   let bus = null;
   let started = false;
@@ -35,11 +36,11 @@ export const createRuntimeLifecycle = ({
   };
   const stopRuntime = () => {
     bus?.close();
-    ctx.replies.close().catch(() => {});
-    ctx.closeAutomations().catch(() => {});
     ctx.chatIndex.close();
     ctx.knowledge?.close();
     return Promise.allSettled([
+      ctx.replies.close(),
+      ctx.closeAutomations(),
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),
     ]);
@@ -80,13 +81,14 @@ export const createRuntimeLifecycle = ({
           socket.destroy();
         }
       })
-        .then(() => (handoff ? accountsDone : jobsDone))
+        .then(() => Promise.all([accountsDone, jobsDone]))
         .then(() => {
           trace('flush_started');
           return Promise.resolve(handoff ? flushLog?.() : flush()).catch(
             () => {}
           );
         })
+        .finally(() => releaseStore?.())
         .then((result) => {
           trace('close_finished');
           return result;

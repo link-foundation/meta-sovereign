@@ -25,3 +25,5 @@ Keep Chat and Operator readers in place when a viewport resize and an upward scr
 Preserve the Chat/Operator live tail across coalesced WebKit layout and caret scrolls, while explicit reader gestures cancel pending composer corrections.
 
 Use versioned, bounded text/binary Lino records for TCP sync with explicit legacy JSON mode. Keep sync CLI commands alive for replication and close connections and stores on shutdown (R-AA16).
+
+Release owned stores and await service cleanup after listener failure and shutdown. Close snapshot SQLite handles before reporting completion, preserving caller ownership of injected stores.

@@ -1,0 +1,36 @@
+✖ a failed listener releases its owned store and awaits reply cleanup (149.627586ms)
+✖ normal close releases owned stores while injected stores retain caller ownership (97.399378ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1250.523292
+
+✖ failing tests:
+
+test at js/tests/server-resource-release.test.js:18:1
+✖ a failed listener releases its owned store and awaits reply cleanup (149.627586ms)
+  Error: the store /tmp/ms-start-release-uUhrhx is in use by process 31867 (is "meta-sovereign serve" running?). Stop it first, or use another --store; read-only commands (export, cv-read) still work.
+      at lockedError (file:///tmp/gh-issue-solver-1794216540735/js/src/storage/store-lock.js:49:5)
+      at acquireStoreLock (file:///tmp/gh-issue-solver-1794216540735/js/src/storage/store-lock.js:64:13)
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/server-resource-release.test.js:40:24)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    code: 'STORE_LOCKED',
+    pid: 31867
+  }
+
+test at js/tests/server-resource-release.test.js:50:1
+✖ normal close releases owned stores while injected stores retain caller ownership (97.399378ms)
+  Error: the store /tmp/ms-close-release-sjNKN3 is in use by process 31867 (is "meta-sovereign serve" running?). Stop it first, or use another --store; read-only commands (export, cv-read) still work.
+      at lockedError (file:///tmp/gh-issue-solver-1794216540735/js/src/storage/store-lock.js:49:5)
+      at acquireStoreLock (file:///tmp/gh-issue-solver-1794216540735/js/src/storage/store-lock.js:64:13)
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/server-resource-release.test.js:56:24)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'STORE_LOCKED',
+    pid: 31867
+  }

@@ -707,6 +707,12 @@ const initStore = async ({
   const flush = async () => {
     await unwrapped.flush?.();
   };
+  // An injected store belongs to its caller (including the rolling host).
+  const releaseStore = async () => {
+    if (!providedStore) {
+      await unwrapped.close?.();
+    }
+  };
   if (secretPassphrase) {
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
   }
@@ -716,7 +722,7 @@ const initStore = async ({
     ...(unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 }),
     schema: unwrapped.schema ?? null,
   });
-  return { store, resolvedArchiveDir, flush, storeHealth };
+  return { store, resolvedArchiveDir, flush, releaseStore, storeHealth };
 };
 
 // The HTTP server: each request is logged, and routed (./account-scope.js
@@ -921,13 +927,14 @@ export const startServer = async ({
   // Private rolling-worker options; the public listener remains in its host.
   front,
 } = {}) => {
-  const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
-    providedStore,
-    storeDir,
-    archiveDir,
-    secretPassphrase,
-    log,
-  });
+  const { store, resolvedArchiveDir, flush, releaseStore, storeHealth } =
+    await initStore({
+      providedStore,
+      storeDir,
+      archiveDir,
+      secretPassphrase,
+      log,
+    });
   // Services that run in the background start only after the port is ours.
   const later = [];
   automations = withStoreProfiles(automations, storeDir, front);
@@ -994,6 +1001,7 @@ export const startServer = async ({
     enableHandlers,
     sockets,
     flush,
+    releaseStore,
     flushLog: logFlusher(providedStore),
   });
   const { wsHandle, signaling } = attachSockets(server, ctx, store, {
@@ -1005,12 +1013,14 @@ export const startServer = async ({
     sockets,
     { port, storeDir, tls, log },
     async () => {
-      lifecycle.bus?.close();
       wsHandle?.close();
       signaling?.close();
-      ctx.replies.close().catch(() => {});
-      ctx.chatIndex.close();
-      await flush().catch(() => {});
+      await lifecycle.stopRuntime();
+      try {
+        await flush().catch(() => {});
+      } finally {
+        await releaseStore();
+      }
     }
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);

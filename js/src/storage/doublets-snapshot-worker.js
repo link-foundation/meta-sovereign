@@ -68,10 +68,11 @@ const networkOf = async (file) => {
 // The snapshot is dated as the log it was read from, so a later append
 // leaves it older than the log (and it is written again). No log (no
 // links stored yet, or removed meanwhile): nothing to snapshot.
+let result;
 try {
   const { links, mtime, network } = await networkOf(from);
   if (mtime === null) {
-    parentPort.postMessage({ links: 0, bytes: 0 });
+    result = { links: 0, bytes: 0 };
   } else {
     stage = 'writing';
     let bytes = 0;
@@ -101,13 +102,16 @@ try {
     } finally {
       await fs.unlink(staged).catch(() => {});
     }
-    parentPort.postMessage({
+    result = {
       links,
       bytes,
       engine: workerData.diskFile ? 'disk' : 'memory',
-    });
+    };
   }
 } finally {
   globalThis.clearInterval(report);
-  encoder.close?.();
+  await encoder.close?.();
 }
+// The parent may terminate this worker as soon as it receives the result.
+// Release SQLite handles first, so Windows can remove the workspace then.
+parentPort.postMessage(result);

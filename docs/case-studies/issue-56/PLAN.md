@@ -39,3 +39,5 @@ Objective: fully implement and verify every requirement of issue 56 and every re
 - [ ] Mark PR 57 ready only after all acceptance criteria are implemented and verified; keep native goal active until then.
 
 Initial evidence: no issue comments, PR conversation comments, inline comments, reviews or required sub-issues were returned at collection. These endpoints must be refreshed before finalization.
+
+Current focused work: complete native Rust text/binary Lino HTTP and socket parity (codec golden vectors drafted); verify the Windows-Deno listener cleanup correction in exact-head CI. The remaining product workstreams above stay open.
