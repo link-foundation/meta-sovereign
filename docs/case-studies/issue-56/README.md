@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-2284c2f5.md](ci-2284c2f5.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for actual broadcast outcomes and interrupted-write recovery.
+
 - [x-publishing-auth.md](x-publishing-auth.md) records ignored legacy credentials, app-only write refusal, receipt validation, universal OAuth signing and an upstream report, with 71 focused checks and real Chrome verification.
 
 - [ci-df7c0c28.md](ci-df7c0c28.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for bounded question-turn matching and archive learning.
