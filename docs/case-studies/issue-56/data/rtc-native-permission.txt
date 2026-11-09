@@ -1,0 +1,32 @@
+{
+  "engine": "webkit",
+  "permission": true,
+  "capture": false,
+  "error": "native RTC loopback timeout",
+  "trace": [
+    {
+      "peer": "a",
+      "event": "ice",
+      "candidate": true
+    },
+    {
+      "peer": "b",
+      "event": "ice",
+      "candidate": true
+    },
+    {
+      "peer": "a",
+      "event": "ice",
+      "candidate": false
+    },
+    {
+      "peer": "b",
+      "event": "ice",
+      "candidate": false
+    }
+  ],
+  "states": [
+    "new",
+    "new"
+  ]
+}

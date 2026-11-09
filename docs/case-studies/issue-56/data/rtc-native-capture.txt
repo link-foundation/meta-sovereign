@@ -1,0 +1,51 @@
+{
+  "engine": "webkit",
+  "capture": true,
+  "value": "native fixture 🚀",
+  "trace": [
+    {
+      "peer": "a",
+      "event": "ice",
+      "candidate": true
+    },
+    {
+      "peer": "b",
+      "event": "ice",
+      "candidate": true
+    },
+    {
+      "peer": "b",
+      "event": "connection",
+      "state": "connecting"
+    },
+    {
+      "peer": "a",
+      "event": "connection",
+      "state": "connecting"
+    },
+    {
+      "peer": "b",
+      "event": "ice",
+      "candidate": false
+    },
+    {
+      "peer": "a",
+      "event": "ice",
+      "candidate": false
+    },
+    {
+      "peer": "b",
+      "event": "connection",
+      "state": "connected"
+    },
+    {
+      "peer": "a",
+      "event": "connection",
+      "state": "connected"
+    }
+  ],
+  "states": [
+    "connected",
+    "connected"
+  ]
+}
