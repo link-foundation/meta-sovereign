@@ -72,7 +72,51 @@ const { base, page, until, finish } = await openChatApp('profile-extras', {
 });
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+  globalThis.metaSovereignDebug = true;
+  globalThis.profileSelectionTrace = [];
+  const record = (event) => {
+    const trace = globalThis.profileSelectionTrace;
+    trace.push({
+      type: event.type,
+      row: event.target?.closest?.('[data-chat]')?.dataset.chat ?? null,
+      hash: globalThis.location.hash,
+    });
+    if (trace.length > 40) {
+      trace.shift();
+    }
+  };
+  for (const type of ['pointerdown', 'click', 'hashchange']) {
+    globalThis.addEventListener(type, record, true);
+  }
 });
+page.on('console', (message) => {
+  if (message.text().startsWith('[ms-debug] chat-')) {
+    console.log(`[profile-selection] ${message.text()}`);
+  }
+});
+
+const selectedChat = async (chat) => {
+  try {
+    await until(
+      async () =>
+        (await page
+          .locator(`[data-chat="telegram:${chat}"][aria-current="true"]`)
+          .count()) === 1,
+      `selected Telegram chat ${chat}`
+    );
+  } catch (error) {
+    const state = await page.evaluate(() => ({
+      hash: globalThis.location.hash,
+      selected: globalThis.document.querySelector(
+        '[data-chat][aria-current="true"]'
+      )?.dataset.chat,
+      trace: globalThis.profileSelectionTrace,
+    }));
+    throw new Error(`${error.message}: ${JSON.stringify(state)}`, {
+      cause: error,
+    });
+  }
+};
 let sentRoute = null;
 let releaseSend = null;
 await page.route('**/api/send', async (route) => {
@@ -268,6 +312,7 @@ await finish(async () => {
   await birthdaySteps();
   // A person: birthday with age, profile colour, personal channel, cake.
   await page.locator(`[data-chat="telegram:${ANN}"]`).click();
+  await selectedChat(ANN);
   if ((await page.locator('.person-panel').count()) === 0) {
     await page.locator('[data-action="chat-about"]').click();
   }

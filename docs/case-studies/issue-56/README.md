@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-profile-selection.md](ci-profile-selection.md) preserves the correction run's separate WebKit profile-selection failure and opt-in diagnostics. The focused local scenario passes; no unproven birthday fix or timeout increase is claimed.
+
 - [telegram-capabilities.md](telegram-capabilities.md) records unavailable notification/event requests from cached chat, explicit backend capabilities and recovery, with failing-before/passing-after API and browser evidence.
 
 - [ci-native-rejection.md](ci-native-rejection.md) records the exact-head Rust TCP reset, a deterministic bounded failing-before regression and staged-close correction. The correction run passes Rust and all nine runtime jobs, including the previously timed-out Node/macOS job.
