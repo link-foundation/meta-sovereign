@@ -194,8 +194,8 @@ const traceFailure = async (page, selector) => {
               complete: image.complete,
               naturalWidth: image.naturalWidth,
               rect: image.getBoundingClientRect().toJSON(),
-              display: getComputedStyle(image).display,
-              visibility: getComputedStyle(image).visibility,
+              display: window.getComputedStyle(image).display,
+              visibility: window.getComputedStyle(image).visibility,
             }
           : null,
       };
