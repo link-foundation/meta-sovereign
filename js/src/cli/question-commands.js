@@ -17,11 +17,17 @@ const csv = (value) =>
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+const readAnswerFile = async (file) => {
+  if ((await fs.stat(file)).size > 4 * 1024 ** 2) {
+    throw new Error('answer configuration exceeds 4 MiB');
+  }
+  const text = await fs.readFile(file, 'utf8');
+  return file.endsWith('.json') ? JSON.parse(text) : decodeWire(text);
+};
 const answerInput = async (args) => {
   const file = args._[2];
   if (file) {
-    const text = await fs.readFile(file, 'utf8');
-    return file.endsWith('.json') ? JSON.parse(text) : decodeWire(text);
+    return readAnswerFile(file);
   } else {
     return {
       id: args.id,
@@ -62,6 +68,45 @@ const policyCommand = async (args, store) => {
   return current;
 };
 
+const planOverrides = (args) => ({
+  ...(args['rule-ids'] !== undefined || args.ruleIds !== undefined
+    ? { ruleIds: csv(args['rule-ids'] ?? args.ruleIds) }
+    : {}),
+  ...(args.profile ? { profile: decodeWire(args.profile) } : {}),
+  ...(args.approximate === undefined
+    ? {}
+    : {
+        approximate: args.approximate !== 'false' && args.approximate !== false,
+      }),
+});
+
+const planInput = async (args, store) => {
+  if (args.config && args.automation) {
+    throw new Error(
+      'choose either --config or --automation for an answer preview'
+    );
+  }
+  let input = {};
+  if (args.config) {
+    const saved = await readAnswerFile(args.config);
+    input = { ...saved, ...(saved.action ?? {}) };
+  } else if (args.automation) {
+    const id = String(args.automation).replace(/^automation:/u, '');
+    const saved = await store.get(`automation:${id}`);
+    if (saved?.action?.kind !== 'answer-questions') {
+      throw new Error('answer preview requires a saved question automation');
+    }
+    input = saved.action;
+  }
+  return {
+    ...input,
+    question: args.question ?? args._[2] ?? input.question,
+    source: args.source ?? input.source,
+    chat: args.chat ?? input.chat,
+    ...planOverrides(args),
+  };
+};
+
 export const questionCommands = async ({ args, store, log }) => {
   const sub = args._[1] ?? 'list';
   let result;
@@ -75,14 +120,7 @@ export const questionCommands = async ({ args, store, log }) => {
   } else if (sub === 'delete') {
     result = await deleteAnswerRule(store, args._[2] ?? args.id);
   } else if (sub === 'plan') {
-    result = await previewAnswer(store, {
-      question: args.question ?? args._[2],
-      source: args.source,
-      chat: args.chat,
-      ruleIds: csv(args['rule-ids'] ?? args.ruleIds),
-      profile: args.profile ? decodeWire(args.profile) : {},
-      approximate: args.approximate !== 'false' && args.approximate !== false,
-    });
+    result = await previewAnswer(store, await planInput(args, store));
   } else if (sub === 'learn') {
     result = await learnSavedAnswers(store, {
       self: csv(args.self),
@@ -90,7 +128,7 @@ export const questionCommands = async ({ args, store, log }) => {
     });
   } else {
     throw new Error(
-      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> | learn [--apply] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]'
+      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

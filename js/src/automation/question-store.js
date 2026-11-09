@@ -1,5 +1,10 @@
 // Shared persisted answer knowledge for the CLI, server and offline editor.
 import { createBoundedHistory } from '../replies/bounded-history.js';
+import { historyOrder } from '../replies/history-order.js';
+import {
+  answerEnvironmentFromMessages,
+  normalizeAnswerEnvironment,
+} from './question-context.js';
 import {
   normalizeAnswerRule,
   normalizeAnswerAction,
@@ -88,12 +93,29 @@ export const previewAnswer = async (store, input) => {
   return planAnswer(input.question, {
     ...input,
     ...action,
+    ...normalizeAnswerEnvironment(input),
     policy: await readAnswerPolicy(store),
     rules: action.ruleIds.length
       ? rules.filter((rule) => action.ruleIds.includes(rule.id))
       : rules,
   });
 };
+
+const contextHistoryMessage = (message) => {
+  const valid = typeof message.body === 'string' && message.body.length <= 6000;
+  return {
+    ...message,
+    body: valid ? message.body : '',
+    service: message.service || !valid,
+  };
+};
+
+const sameQuestion = (latest, draft) =>
+  latest &&
+  !latest.deleted &&
+  !latest.service &&
+  latest.id === draft.answer.message &&
+  latest.body === draft.answer.question;
 
 // Recheck the actual latest turn and current approvals immediately before an
 // automatic send. A newer/edited question or changed rule invalidates a plan.
@@ -105,6 +127,11 @@ export const validateAnswerDraft = async (
 ) => {
   let latest;
   let unknownTime = false;
+  const history = createBoundedHistory({
+    maxMessages: 21,
+    maxBytes: 300000,
+    maxChars: 6000,
+  });
   await scan(
     store,
     (link) =>
@@ -117,13 +144,21 @@ export const validateAnswerDraft = async (
         if (!Number.isFinite(at)) {
           unknownTime = true;
         }
-        if (!latest || at >= Date.parse(latest.timestamp)) {
+        history.add(contextHistoryMessage(message));
+        if (!latest || historyOrder(message, latest) > 0) {
           latest = message;
         }
       }
     },
     (link) => ({
       id: link.id,
+      source: link.source,
+      chat: link.chat,
+      pending: link.pending,
+      failed: link.failed,
+      delivery: link.delivery,
+      status: link.status,
+      answerContext: link.answerContext,
       body: link.body,
       timestamp: link.timestamp,
       deleted: link.deleted,
@@ -131,14 +166,7 @@ export const validateAnswerDraft = async (
       answerOptions: link.answerOptions,
     })
   );
-  if (
-    unknownTime ||
-    !latest ||
-    latest.deleted ||
-    latest.service ||
-    latest.id !== draft.answer.message ||
-    latest.body !== draft.answer.question
-  ) {
+  if (unknownTime || !sameQuestion(latest, draft)) {
     return {
       ok: false,
       code: 'answer-changed',
@@ -149,9 +177,23 @@ export const validateAnswerDraft = async (
   if (reviewed) {
     return { ok: true };
   }
+  const saved = await store.get(automation.id);
+  const current = saved ?? automation;
+  if (
+    (!saved && draft.answer.savedAutomation) ||
+    current.enabled === false ||
+    current.action?.kind !== 'answer-questions'
+  ) {
+    return {
+      ok: false,
+      code: 'answer-review-required',
+      error: 'The question automation changed; review before sending',
+    };
+  }
   const fresh = await previewAnswer(store, {
     question: latest.body,
-    ...automation.action,
+    ...current.action,
+    ...answerEnvironmentFromMessages(history.values(), latest),
     source: draft.source,
     chat: String(draft.chat),
     options: latest.answerOptions,

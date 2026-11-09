@@ -36,6 +36,26 @@ export const AnswerEvidence = ({ answer }) => {
           t('questions.frequency', { count: answer.count })
         )
       : null,
+    answer.contexts?.length
+      ? el(
+          'details',
+          { key: 'contexts', 'data-answer-context-evidence': true },
+          [
+            el('summary', { key: 'summary' }, t('questions.contextEvidence')),
+            el(
+              'ul',
+              { key: 'values', style: { overflowWrap: 'anywhere' } },
+              answer.contexts.map((entry) =>
+                el(
+                  'li',
+                  { key: entry.key },
+                  `${entry.key}: ${entry.choice ?? t('questions.contextNoDefault')} · ${t(`questions.contextSource.${entry.source}`)}${entry.evidence ? ` · ${entry.evidence}` : ''}`
+                )
+              )
+            ),
+          ]
+        )
+      : null,
     answer.rules?.length
       ? el('details', { key: 'evidence' }, [
           el('summary', { key: 'summary' }, t('questions.evidence')),

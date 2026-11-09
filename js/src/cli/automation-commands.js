@@ -13,7 +13,7 @@
  *   time; each is sent only after the user answers `y`, and can be
  *   edited, switched to the other "ты"/"вы" form, marked as sent by
  *   hand, or skipped.
- * - `automations drafts | history | save <file.json> | delete <id>`.
+ * - `automations drafts | history | save <file.lino> | delete <id>`.
  *
  * `--chat=vk:101,telegram:5` narrows a plan or run to chosen chats (what
  * the chat menu does); with `--test` the conditions are ignored there.
@@ -21,6 +21,7 @@
 
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
+import { decodeWire } from '../transport/lino.js';
 import { createInterface } from 'node:readline/promises';
 import { getSource } from '../sources/index.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
@@ -34,11 +35,11 @@ import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
 import { questionCommands } from './question-commands.js';
 
-export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.json> | delete <id>
+export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
-                answers: list | save [file.lino] | delete <id> | plan --question=<text> | learn [--apply]
+                answers: list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply]
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]`;
 
@@ -253,10 +254,14 @@ const historyCmd = async ({ args, runner, log }) => {
 const saveCmd = async ({ args, store, log }) => {
   const file = args._[1] ?? args.file;
   if (!file) {
-    throw new Error('automations save <file.json>');
+    throw new Error('automations save <file.lino>');
   }
+  if ((await fs.stat(file)).size > 4 * 1024 ** 2) {
+    throw new Error('automation configuration exceeds 4 MiB');
+  }
+  const text = await fs.readFile(file, 'utf8');
   const automation = normalizeAutomation(
-    JSON.parse(await fs.readFile(file, 'utf8'))
+    file.endsWith('.json') ? JSON.parse(text) : decodeWire(text)
   );
   await store.put(automation);
   log(`saved ${automation.id}`);

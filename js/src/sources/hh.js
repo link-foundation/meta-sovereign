@@ -8,6 +8,7 @@
  */
 
 import { buildMessageLink } from './link.js';
+import { hhAnswerContext } from './hh-context.js';
 import {
   authHeaders,
   threadTarget,
@@ -37,8 +38,9 @@ const negotiationChat = (message, negotiation) =>
 
 const negotiationToLinks = (negotiation) => {
   const records = negotiationMessages(negotiation);
-  return records.map((message) =>
-    buildMessageLink({
+  return records.map((message) => ({
+    ...hhAnswerContext(message.vacancy ?? negotiation.vacancy),
+    ...buildMessageLink({
       source: SOURCE,
       externalId: String(message.id ?? negotiation.id),
       sender: negotiationSender(message, negotiation),
@@ -49,8 +51,8 @@ const negotiationToLinks = (negotiation) => {
         message.createdAt ??
         negotiation.created_at ??
         null,
-    })
-  );
+    }),
+  }));
 };
 
 export const hhNegotiationsToLinks = (payload) => {
@@ -131,16 +133,17 @@ export const hhSource = {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
     const out = [];
     for (const m of obj.negotiations ?? []) {
-      out.push(
-        buildMessageLink({
+      out.push({
+        ...hhAnswerContext(m.vacancy),
+        ...buildMessageLink({
           source: SOURCE,
           externalId: String(m.id),
           sender: m.author?.id ?? 'unknown',
           chat: `vacancy:${m.vacancy?.id}`,
           body: m.text ?? '',
           timestamp: m.created_at,
-        })
-      );
+        }),
+      });
     }
     return out;
   },

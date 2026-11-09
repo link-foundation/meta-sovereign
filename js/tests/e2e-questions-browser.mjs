@@ -132,6 +132,90 @@ const verifyPolicy = async () => {
   await page.unroute('**/api/automations/answers/policy');
 };
 
+const verifyContexts = async (preview) => {
+  const contexts = preview.locator('[data-answer-contexts]');
+  await contexts.locator(':scope > summary').click();
+  await contexts
+    .getByRole('button', { name: 'Add context group', exact: true })
+    .click();
+  const group = contexts.locator('[data-context-group]');
+  await group
+    .getByLabel('Context field, e.g. currency', { exact: true })
+    .fill('location');
+  const configure = async (index, id, keyword, city) => {
+    const choice = group.locator('[data-context-choice]').nth(index);
+    await choice.getByLabel('Choice value, e.g. USD', { exact: true }).fill(id);
+    await choice
+      .getByLabel('Words that select this choice, one per line', {
+        exact: true,
+      })
+      .fill(keyword);
+    const fields = choice.locator('[data-answer-profile]');
+    await fields
+      .getByLabel('Field name, e.g. city', { exact: true })
+      .fill('city');
+    await fields
+      .getByRole('button', { name: 'Add field', exact: true })
+      .click();
+    await fields.getByLabel('city', { exact: true }).fill(city);
+  };
+  await configure(0, 'home', 'home', 'Hanoi');
+  await group
+    .getByRole('button', { name: 'Add context choice', exact: true })
+    .click();
+  await configure(1, 'remote', 'remote', 'Da Nang');
+  await group
+    .getByLabel('Default when context is absent', { exact: true })
+    .selectOption('home');
+  await preview
+    .getByRole('button', { name: 'Preview answer', exact: true })
+    .click();
+  await preview
+    .locator('[data-answer-preview]')
+    .getByText('Живу в Hanoi.', { exact: true })
+    .waitFor();
+  const environment = preview.locator('[data-answer-environment]');
+  await environment.locator(':scope > summary').click();
+  await environment
+    .getByLabel('Recent messages, newest first, one per line', { exact: true })
+    .fill('This is a remote role.');
+  await preview
+    .getByRole('button', { name: 'Preview answer', exact: true })
+    .click();
+  await preview
+    .locator('[data-answer-preview]')
+    .getByText('Живу в Da Nang.', { exact: true })
+    .waitFor();
+  const evidence = preview.locator('[data-answer-context-evidence]');
+  await evidence.locator(':scope > summary').click();
+  await evidence
+    .getByText('location: remote · Recent conversation', { exact: true })
+    .waitFor();
+  if (process.env.QUESTIONS_CONTEXT_SCREENSHOT) {
+    await page.setViewportSize({ width: 1200, height: 1100 });
+    await environment.evaluate((element) =>
+      element.scrollIntoView({ block: 'center' })
+    );
+    await page.screenshot({
+      path: process.env.QUESTIONS_CONTEXT_SCREENSHOT,
+      scale: 'css',
+    });
+  }
+  if (process.env.QUESTIONS_CONTEXT_MOBILE_SCREENSHOT) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.app-shell-compact').waitFor();
+    await contexts.evaluate((element) =>
+      element.scrollIntoView({ block: 'start' })
+    );
+    await page.screenshot({
+      path: process.env.QUESTIONS_CONTEXT_MOBILE_SCREENSHOT,
+      scale: 'css',
+    });
+    await page.setViewportSize({ width: 1200, height: 1100 });
+    await page.locator('.app-shell-compact').waitFor({ state: 'detached' });
+  }
+};
+
 const verifyMobile = async () => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('.app-shell-compact').waitFor();
@@ -239,6 +323,7 @@ await finish(async () => {
     });
   }
 
+  await verifyContexts(preview);
   await verifyLearning(saved);
   await verifyPolicy();
 
@@ -255,9 +340,18 @@ await finish(async () => {
   assert(
     (await automation
       .locator('[data-answer-profile]')
+      .last()
       .getByLabel('city', { exact: true })
       .inputValue()) === 'Nha Trang',
     'profile carried into editable action'
+  );
+  const actionContexts = automation.locator('[data-answer-contexts]');
+  await actionContexts.locator(':scope > summary').click();
+  assert(
+    (await actionContexts
+      .getByLabel('Context field, e.g. currency', { exact: true })
+      .inputValue()) === 'location',
+    'context groups carried into the editable action'
   );
   await automation.getByRole('button', { name: 'Save', exact: true }).click();
   await until(
@@ -270,6 +364,15 @@ await finish(async () => {
         )
       ).length === 1,
     'question automation saved'
+  );
+  const [persisted] = await store.query(
+    (link) =>
+      link.id?.startsWith('automation:') &&
+      link.action?.kind === 'answer-questions'
+  );
+  assert(
+    persisted.action.contexts[0].choices[1].profile.city === 'Da Nang',
+    'context profile choices persisted through the production API'
   );
 
   await page.route('**/api/automations/answers/save', (route) =>

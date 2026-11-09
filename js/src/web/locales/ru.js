@@ -1329,4 +1329,33 @@ export const ru = {
   'questions.match.summary': 'Итог заполненного опроса',
   'automations.reason.question-summary-complete':
     'Опрос завершён; ответ не требуется',
+  'questions.contexts': 'Значения по контексту',
+  'questions.contextHint':
+    'Задайте слова для выбора значений профиля по валюте, формату работы или другому контексту. Приоритет: вопрос, недавняя беседа, оплата в вакансии, описание вакансии, ваше значение по умолчанию. Отсутствующие значения не подменяются.',
+  'questions.contextGroup': 'Группа контекста',
+  'questions.contextKey': 'Поле контекста, например currency',
+  'questions.contextChoice': 'Вариант контекста',
+  'questions.contextChoiceId': 'Значение варианта, например USD',
+  'questions.contextKeywords': 'Слова для выбора варианта, по одному в строке',
+  'questions.contextDefault': 'Значение при отсутствии контекста',
+  'questions.contextNoDefault': 'Требовать контекст',
+  'questions.contextAddGroup': 'Добавить группу контекста',
+  'questions.contextRemoveGroup': 'Удалить группу контекста',
+  'questions.contextAddChoice': 'Добавить вариант контекста',
+  'questions.contextRemoveChoice': 'Удалить вариант контекста',
+  'questions.contextPreview': 'Беседа и вакансия для предпросмотра',
+  'questions.contextPreviewHint':
+    'Эти поля используются только для предпросмотра. При отправке используются реальная беседа и привязанный контекст вакансии.',
+  'questions.contextRecent':
+    'Недавние сообщения, от новых к старым, по одному в строке',
+  'questions.contextPay': 'Контекст оплаты в вакансии',
+  'questions.contextDescription': 'Описание вакансии',
+  'questions.contextEvidence': 'Почему выбраны эти значения',
+  'questions.contextSource.question': 'Текущий вопрос',
+  'questions.contextSource.conversation': 'Недавняя беседа',
+  'questions.contextSource.vacancy-pay': 'Оплата в вакансии',
+  'questions.contextSource.vacancy-description': 'Описание вакансии',
+  'questions.contextSource.default': 'Заданное значение по умолчанию',
+  'questions.contextSource.missing': 'Контекст недоступен',
+  'questions.contextSource.ambiguous': 'Неоднозначный контекст',
 };

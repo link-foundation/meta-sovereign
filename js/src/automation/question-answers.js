@@ -8,6 +8,14 @@ import {
 } from './question-match.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import { completedAnswerSummary } from './question-summary.js';
+import {
+  normalizeAnswerProfile,
+  renderAnswer as render,
+} from './question-profile.js';
+import {
+  normalizeAnswerContexts,
+  resolveAnswerContexts,
+} from './question-context.js';
 
 export const QA_RULE_PREFIX = 'qa-rule:';
 const MAX_ANSWER_LENGTH = 12000;
@@ -99,49 +107,18 @@ export const normalizeAnswerRule = (input) => {
 };
 
 export const normalizeAnswerAction = (action) => {
-  const profile = action.profile ?? {};
-  if (
-    !profile ||
-    typeof profile !== 'object' ||
-    Array.isArray(profile) ||
-    Object.keys(profile).length > 100
-  ) {
-    throw new Error('answer profile must contain at most 100 fields');
-  }
-  for (const [key, value] of Object.entries(profile)) {
-    if (
-      !/^[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/u.test(key) ||
-      typeof value !== 'string' ||
-      value.length > 2000
-    ) {
-      throw new Error('invalid answer profile field');
-    }
-  }
+  const profile = normalizeAnswerProfile(action.profile);
   return {
     kind: 'answer-questions',
     ruleIds: strings(action.ruleIds, 'ruleIds'),
-    profile: { ...profile },
+    profile,
+    contexts: normalizeAnswerContexts(action.contexts),
     approximate: action.approximate !== false,
     // Generic draft/editor controls can inspect these without treating Q/A
     // edits as the next contact's reusable reengagement template.
     form: 'auto',
     templates: {},
   };
-};
-
-const render = (text, profile) => {
-  const missing = [];
-  const rendered = text.replace(
-    /\{\{([a-zA-Z][a-zA-Z0-9_.-]{0,63})\}\}/gu,
-    (placeholder, key) => {
-      if (!Object.hasOwn(profile, key) || !String(profile[key]).trim()) {
-        missing.push(key);
-        return placeholder;
-      }
-      return String(profile[key]);
-    }
-  );
-  return { text: rendered, missing: [...new Set(missing)] };
 };
 
 const eligible = (rule, { source, chat }) =>
@@ -176,7 +153,9 @@ const conflictingAnswer = (candidate, best, profile, text) =>
     candidate.answer.count === best.answer.count) &&
   render(candidate.answer.text, profile).text !== text;
 
-const answerOne = (question, context) => {
+const answerOne = (question, input) => {
+  const resolved = resolveAnswerContexts(question, input);
+  const context = { ...input, profile: resolved.profile };
   let matches = [];
   for (const rule of context.rules) {
     if (!eligible(rule, context)) {
@@ -232,6 +211,7 @@ const answerOne = (question, context) => {
   );
   return {
     question,
+    contexts: resolved.contexts,
     ...result,
     match: best.match,
     complete: result.missing.length === 0,
@@ -274,7 +254,13 @@ export const planAnswer = (question, options = {}) => {
       return [];
     }
   });
-  const context = { profile: {}, approximate: true, ...options, rules };
+  const context = {
+    profile: {},
+    approximate: true,
+    ...options,
+    contexts: normalizeAnswerContexts(options.contexts),
+    rules,
+  };
   if (!asksQuestion(question)) {
     return {
       question,

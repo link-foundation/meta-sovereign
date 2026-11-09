@@ -57,6 +57,8 @@ import {
   QA_RULE_PREFIX,
 } from './question-answers.js';
 import { QA_POLICY_ID } from './question-policy.js';
+import { answerEnvironmentFromMessages } from './question-context.js';
+import { historyOrder } from '../replies/history-order.js';
 import {
   SETTINGS_ID,
   normalizeSettings,
@@ -555,7 +557,7 @@ const ledgerContext = (links, automation) => ({
 const answerDraft = (
   automation,
   candidate,
-  { isSelf, answerRules, answerPolicy }
+  { isSelf, answerRules, answerPolicy, savedAutomation }
 ) => {
   if (
     candidate.messages.some(
@@ -564,9 +566,7 @@ const answerDraft = (
   ) {
     return { reason: 'question-turn-unavailable' };
   }
-  const messages = candidate.messages.toSorted(
-    (a, b) => (toMs(a.timestamp) ?? 0) - (toMs(b.timestamp) ?? 0)
-  );
+  const messages = candidate.messages.toSorted(historyOrder);
   const latest = messages.at(-1);
   if (latest?.service || latest?.deleted) {
     return { reason: 'question-turn-unavailable' };
@@ -582,8 +582,8 @@ const answerDraft = (
   const answer = planAnswer(latest.body, {
     rules: answerRules,
     policy: answerPolicy,
-    profile: automation.action.profile,
-    approximate: automation.action.approximate,
+    ...automation.action,
+    ...answerEnvironmentFromMessages(messages, latest),
     source: candidate.source,
     chat: String(candidate.chat),
     options: latest.answerOptions,
@@ -606,7 +606,7 @@ const answerDraft = (
       form: 'neutral',
       addressForm: { form: 'neutral', reason: 'answer' },
       text: answer.text,
-      answer: { ...answer, message: latest.id },
+      answer: { ...answer, message: latest.id, savedAutomation },
       edited: false,
       prefill: prefillLinkFor({ ...candidate, text: answer.text }),
     },
@@ -640,6 +640,7 @@ const planningContext = (links, automation, options, now) => {
     resolveAudience: options.resolveAudience ?? null,
     answerRules: selectedAnswerRules(links, automation.action),
     answerPolicy: links.find((link) => link?.id === QA_POLICY_ID) ?? {},
+    savedAutomation: links.some((link) => link?.id === automation.id),
     ...ledgerContext(links, automation),
   };
   return { ctx, selfIds, isSelf };

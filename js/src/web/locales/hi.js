@@ -1310,4 +1310,34 @@ export const hi = {
   'questions.match.summary': 'पूरी की गई प्रश्नावली का सारांश',
   'automations.reason.question-summary-complete':
     'प्रश्नावली पूरी है; जवाब आवश्यक नहीं',
+  'questions.contexts': 'संदर्भ के मान',
+  'questions.contextHint':
+    'मुद्रा, काम करने के तरीके या अन्य संदर्भ के लिए प्रोफ़ाइल मान चुनने वाले शब्द सेट करें। प्राथमिकता: प्रश्न, हाल की बातचीत, नौकरी का वेतन, विवरण और आपका डिफ़ॉल्ट। अनुपलब्ध मान भरे नहीं जाते।',
+  'questions.contextGroup': 'संदर्भ समूह',
+  'questions.contextKey': 'संदर्भ फ़ील्ड, जैसे currency',
+  'questions.contextChoice': 'संदर्भ विकल्प',
+  'questions.contextChoiceId': 'विकल्प का मान, जैसे USD',
+  'questions.contextKeywords':
+    'यह विकल्प चुनने वाले शब्द, प्रत्येक पंक्ति में एक',
+  'questions.contextDefault': 'संदर्भ न होने पर डिफ़ॉल्ट',
+  'questions.contextNoDefault': 'संदर्भ आवश्यक है',
+  'questions.contextAddGroup': 'संदर्भ समूह जोड़ें',
+  'questions.contextRemoveGroup': 'संदर्भ समूह हटाएँ',
+  'questions.contextAddChoice': 'संदर्भ विकल्प जोड़ें',
+  'questions.contextRemoveChoice': 'संदर्भ विकल्प हटाएँ',
+  'questions.contextPreview': 'पूर्वावलोकन के लिए बातचीत और नौकरी',
+  'questions.contextPreviewHint':
+    'ये फ़ील्ड केवल इस पूर्वावलोकन के लिए हैं। भेजते समय वास्तविक बातचीत और उससे जुड़ी नौकरी का संदर्भ उपयोग होता है।',
+  'questions.contextRecent':
+    'हाल के संदेश, सबसे नया पहले, प्रत्येक पंक्ति में एक',
+  'questions.contextPay': 'नौकरी के वेतन का संदर्भ',
+  'questions.contextDescription': 'नौकरी का विवरण',
+  'questions.contextEvidence': 'ये मान क्यों चुने गए',
+  'questions.contextSource.question': 'वर्तमान प्रश्न',
+  'questions.contextSource.conversation': 'हाल की बातचीत',
+  'questions.contextSource.vacancy-pay': 'नौकरी का वेतन',
+  'questions.contextSource.vacancy-description': 'नौकरी का विवरण',
+  'questions.contextSource.default': 'सेट किया गया डिफ़ॉल्ट',
+  'questions.contextSource.missing': 'संदर्भ उपलब्ध नहीं है',
+  'questions.contextSource.ambiguous': 'संदर्भ अस्पष्ट है',
 };

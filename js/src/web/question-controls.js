@@ -1,6 +1,10 @@
 import React from 'react';
 import { useT } from './i18n.js';
-import { ProfileFields } from './question-actions.js';
+import { ProfileFields } from './question-profile-fields.js';
+import {
+  AnswerContextFields,
+  AnswerEnvironmentFields,
+} from './question-context-fields.js';
 import { blankAutomation } from './automations-model.js';
 import { AnswerEvidence } from './question-evidence.js';
 import { AnswerPolicyControls } from './question-policy.js';
@@ -297,12 +301,21 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
   ]);
 };
 
-const PreviewControls = ({ busy, api, run, profile, setProfile }) => {
+const PreviewControls = ({
+  busy,
+  api,
+  run,
+  profile,
+  setProfile,
+  contexts,
+  setContexts,
+}) => {
   const t = useT();
   const [question, setQuestion] = React.useState('');
   const [source, setSource] = React.useState('');
   const [chat, setChat] = React.useState('');
   const [result, setResult] = React.useState(null);
+  const [environment, setEnvironment] = React.useState({});
   return el('details', { key: 'preview' }, [
     el('summary', { key: 's' }, t('questions.preview')),
     el(Field, {
@@ -328,6 +341,12 @@ const PreviewControls = ({ busy, api, run, profile, setProfile }) => {
       }),
     ]),
     el(ProfileFields, { key: 'p', profile, set: setProfile }),
+    el(AnswerContextFields, { key: 'contexts', contexts, set: setContexts }),
+    el(AnswerEnvironmentFields, {
+      key: 'environment',
+      environment,
+      set: setEnvironment,
+    }),
     el(
       'button',
       {
@@ -337,7 +356,17 @@ const PreviewControls = ({ busy, api, run, profile, setProfile }) => {
         onClick: () =>
           run(async () =>
             setResult(
-              await api.previewAnswer({ question, source, chat, profile })
+              await api.previewAnswer({
+                question,
+                source,
+                chat,
+                profile,
+                contexts,
+                recent: (environment.recentText ?? '')
+                  .split('\n')
+                  .filter((line) => line.trim()),
+                vacancy: environment.vacancy,
+              })
             )
           ),
       },
@@ -347,7 +376,7 @@ const PreviewControls = ({ busy, api, run, profile, setProfile }) => {
   ]);
 };
 
-const questionAutomation = (t, profile) => ({
+const questionAutomation = (t, profile, contexts) => ({
   ...blankAutomation(t('questions.automationName')),
   conditions: {
     silentDays: 0,
@@ -356,8 +385,29 @@ const questionAutomation = (t, profile) => ({
     personal: false,
     lastFrom: 'contact',
   },
-  action: { kind: 'answer-questions', profile },
+  action: { kind: 'answer-questions', profile, contexts },
 });
+
+const QuestionToolbar = ({ busy, create, refresh, newRule }) => {
+  const t = useT();
+  return el('div', { className: 'row' }, [
+    el(
+      'button',
+      { key: 'new', type: 'button', disabled: busy, onClick: newRule },
+      t('questions.new')
+    ),
+    el(
+      'button',
+      { key: 'refresh', type: 'button', disabled: busy, onClick: refresh },
+      t('questions.refresh')
+    ),
+    el(
+      'button',
+      { key: 'auto', type: 'button', disabled: busy, onClick: create },
+      t('questions.createAutomation')
+    ),
+  ]);
+};
 
 export const QuestionControls = ({ api, openAutomation }) => {
   const t = useT();
@@ -368,6 +418,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const [error, setError] = React.useState('');
   const [notice, setNotice] = React.useState('');
   const [profile, setProfile] = React.useState({});
+  const [contexts, setContexts] = React.useState([]);
   const [learned, setLearned] = React.useState(null);
   const run = async (work) => {
     if (active.current) {
@@ -432,41 +483,16 @@ export const QuestionControls = ({ api, openAutomation }) => {
       busy
         ? el('p', { key: 'busy', role: 'status' }, t('common.loading'))
         : null,
-      el('div', { key: 'top', className: 'row' }, [
-        el(
-          'button',
-          {
-            key: 'new',
-            type: 'button',
-            disabled: busy,
-            onClick: () => {
-              setRule(blank());
-              setNotice('');
-            },
-          },
-          t('questions.new')
-        ),
-        el(
-          'button',
-          {
-            key: 'refresh',
-            type: 'button',
-            disabled: busy,
-            onClick: () => run(reload),
-          },
-          t('questions.refresh')
-        ),
-        el(
-          'button',
-          {
-            key: 'auto',
-            type: 'button',
-            disabled: busy,
-            onClick: () => openAutomation(questionAutomation(t, profile)),
-          },
-          t('questions.createAutomation')
-        ),
-      ]),
+      el(QuestionToolbar, {
+        key: 'top',
+        busy,
+        newRule: () => {
+          setRule(blank());
+          setNotice('');
+        },
+        refresh: () => run(reload),
+        create: () => openAutomation(questionAutomation(t, profile, contexts)),
+      }),
       rules.length
         ? el(
             'ul',
@@ -503,6 +529,8 @@ export const QuestionControls = ({ api, openAutomation }) => {
         run,
         profile,
         setProfile,
+        contexts,
+        setContexts,
       }),
     ]
   );

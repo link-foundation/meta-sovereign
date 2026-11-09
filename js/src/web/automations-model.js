@@ -77,6 +77,7 @@ export const toForm = (input) => {
     actionKind: a.action.kind,
     ruleIds: (a.action.ruleIds ?? []).join(', '),
     profile: { ...a.action.profile },
+    contexts: a.action.contexts ?? [],
     approximate: a.action.approximate !== false,
     informal: a.action.templates.informal ?? '',
     formal: a.action.templates.formal ?? '',
@@ -159,6 +160,7 @@ export const fromForm = (form, base = {}) => ({
       ? {
           ruleIds: csv(form.ruleIds),
           profile: form.profile,
+          contexts: form.contexts ?? [],
           approximate: form.approximate,
         }
       : {}),
