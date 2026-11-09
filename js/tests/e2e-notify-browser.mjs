@@ -94,6 +94,49 @@ const notes = () =>
   );
 const hash = () => page.evaluate(() => globalThis.location.hash);
 
+const unavailableNotifications = async () => {
+  const unsupported = [];
+  const record = (request) => {
+    if (
+      /\/api\/telegram\/(?:notify-settings|accounts-events)(?:\?|$)/.test(
+        request.url()
+      )
+    ) {
+      unsupported.push(request.url());
+    }
+  };
+  const noTelegram = (route) =>
+    fulfil(route, {
+      connected: false,
+      available: false,
+      capabilities: { notifySettings: false, accountEvents: false },
+    });
+  page.on('request', record);
+  await page.route('**/api/telegram/status', noTelegram);
+  try {
+    await page.goto(`${base}/#chat=telegram:${ANN}`);
+    await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
+    const turnOff = page.getByRole('button', { name: 'Turn off tutorial' });
+    if (await turnOff.isVisible()) {
+      await turnOff.click();
+    }
+    // Allow the mount effects and their asynchronous status preflights to settle.
+    await page.waitForTimeout(250);
+    if (process.env.TELEGRAM_CAPABILITIES_SCREENSHOT) {
+      await page.screenshot({
+        path: process.env.TELEGRAM_CAPABILITIES_SCREENSHOT,
+      });
+    }
+    assert(
+      unsupported.length === 0,
+      `unavailable Telegram features requested: ${unsupported.join(', ')}`
+    );
+  } finally {
+    page.off('request', record);
+    await page.unroute('**/api/telegram/status', noTelegram);
+  }
+};
+
 const telegramRules = async () => {
   // Telegram's settings (R-Y157): Groups are off, so a new group message
   // raises no notification while a private one still does.
@@ -134,6 +177,7 @@ const telegramRules = async () => {
 };
 
 await finish(async () => {
+  await unavailableNotifications();
   await page.goto(`${base}/#chat=telegram:${ANN}`);
   await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
   await page.locator(`[data-chat="telegram:${BOB}"]`).waitFor();

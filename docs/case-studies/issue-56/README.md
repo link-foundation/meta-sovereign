@@ -6,7 +6,9 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [ci-native-rejection.md](ci-native-rejection.md) records the exact-head Rust TCP reset, a deterministic bounded failing-before regression and staged-close correction. It also records the separate Node/macOS job timeout that remains under investigation.
+- [telegram-capabilities.md](telegram-capabilities.md) records unavailable notification/event requests from cached chat, explicit backend capabilities and recovery, with failing-before/passing-after API and browser evidence.
+
+- [ci-native-rejection.md](ci-native-rejection.md) records the exact-head Rust TCP reset, a deterministic bounded failing-before regression and staged-close correction. The correction run passes Rust and all nine runtime jobs, including the previously timed-out Node/macOS job.
 
 - [question-salary.md](question-salary.md) records independent configured targets, hourly rounding, related clarifications, unique range selection and CLI/API/UI/delivery regressions, with desktop/mobile screenshots. Remaining tax/FX and provider/form parity stay open.
 

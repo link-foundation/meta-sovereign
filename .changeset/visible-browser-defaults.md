@@ -47,3 +47,5 @@ Add configured answer context groups with question/conversation/vacancy preceden
 Add independent configured salary targets, monthly/hourly conversion with upward rounding, related currency/tax-basis follow-ups and unique containing salary bands through CLI, default Lino API and shared editors. Missing or unapproved amounts require review; target, hours and approval changes are rechecked before queuing.
 
 Preserve native HTTP rejection responses when request data is unread by staging TCP closure with bounded draining; retain immediate validation and unchanged storage on rejected requests.
+
+Advertise actual Telegram notification/account-event capabilities and check them before background requests. Suppress unsupported operations, recover capability changes and retain existing streams during transient status failures without tying extra accounts to primary sign-in.

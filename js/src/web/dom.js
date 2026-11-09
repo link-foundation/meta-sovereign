@@ -39,6 +39,10 @@ import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
+import {
+  openTelegramAccountEvents,
+  telegramFeatureAvailable,
+} from './telegram-capabilities.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -577,6 +581,18 @@ const rawApi = {
     )) ?? { ok: false, code: 'server-required' },
   // Plain POSTs to /api/telegram/<route> (./dom-telegram-calls.js).
   ...telegramCalls,
+  telegramNotifySettings: async () => {
+    const status = await api.telegramStatus();
+    return telegramFeatureAvailable(status, 'notifySettings')
+      ? telegramPost('notify-settings', {})
+      : {
+          ok: false,
+          unsupported:
+            status.available === false ||
+            status.capabilities?.notifySettings === false,
+          offline: Boolean(status.offline),
+        };
+  },
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
     const { client } = await ensure();
@@ -1042,24 +1058,10 @@ const rawApi = {
    */
   telegramAccountsEvents: async (onEvent) => {
     const { origin } = await ensure();
-    const Source = globalThis.EventSource;
-    if (!origin || typeof Source !== 'function') {
-      return () => {};
-    }
-    const path = '/api/telegram/accounts-events?format=lino-line';
-    return openServerEvents(
-      origin ? new URL(path, origin).toString() : path,
-      {
-        message: (event) => {
-          try {
-            onEvent(decodeWire(event.data, LINO_LINE));
-          } catch {
-            /* Skip malformed frames. */
-          }
-        },
-      },
-      { Source, signal: pageLifetime }
-    );
+    return openTelegramAccountEvents(origin, onEvent, {
+      readStatus: () => api.telegramStatus(),
+      signal: pageLifetime,
+    });
   },
   // Mark a chat read up to a message on Telegram, and save its draft
   // there, so the phone and other apps show the same.
