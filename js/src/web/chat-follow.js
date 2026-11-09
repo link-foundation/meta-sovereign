@@ -9,6 +9,7 @@ import { Spinner } from './spinner.js';
 import { Icon } from './icons.js';
 import { useComposerSpace } from './chat-composer-space.js';
 import { useLayoutTrace } from './chat-layout-trace.js';
+import { debugBrowser } from './client-log.js';
 
 const el = React.createElement;
 
@@ -293,18 +294,30 @@ export const useFollow = (state, api) => {
       return;
     }
     const size = [node.clientWidth, node.clientHeight];
+    const previous = dimensions.current;
+    const top = node.scrollTop;
     // A layout change can emit scroll before ResizeObserver runs. Do not
     // mistake that for the reader scrolling away from the live tail.
     if (
       near.current &&
-      dimensions.current &&
-      size.some((n, i) => n !== dimensions.current[i])
+      previous &&
+      size.some((n, i) => n !== previous[i]) &&
+      // A reader can scroll up before the resize observer has delivered.
+      // Stale dimensions alone must not turn that gesture into a tail jump.
+      top >= previous[2] - 1
     ) {
       bottom();
     }
-    dimensions.current = size;
+    dimensions.current = [...size, node.scrollTop];
     const below = node.scrollHeight - node.scrollTop - node.clientHeight;
     near.current = below < NEAR_BOTTOM_PX;
+    debugBrowser('chat_scroll', {
+      viewport: size,
+      previousViewport: previous?.slice(0, 2),
+      top,
+      correctedTop: node.scrollTop,
+      following: near.current,
+    });
     // Telegram offers the way down once a screen is above the end.
     setAway(below > node.clientHeight / 2);
     if (near.current) {

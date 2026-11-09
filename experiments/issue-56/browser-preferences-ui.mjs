@@ -7,11 +7,39 @@ import path from 'node:path';
 import { launchBrowser } from 'browser-commander';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/index.js';
+import { encodeWire } from '../../js/src/transport/lino.js';
 
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-issue56-ui-'));
 let browser;
+const store = createMemoryStore();
+const layout = process.env.ISSUE_56_CHAT_LAYOUT === '1';
+if (layout) {
+  for (let id = 1; id <= 62; id += 1) {
+    await store.put({
+      id: `msg:telegram:555:${id}`,
+      source: 'telegram',
+      chat: '555',
+      chatName: 'Layout fixture',
+      chatType: 'personal_chat',
+      sender: '555',
+      senderName: 'Fixture',
+      body: `Message ${id}\n${'A line of fixture text.\n'.repeat(3)}`,
+      timestamp: new Date(1700000000000 + id * 1000).toISOString(),
+      raw: { id },
+    });
+  }
+  await store.put({
+    id: 'read:telegram:555',
+    kind: 'read',
+    source: 'telegram',
+    chat: '555',
+    inboxMaxId: 61,
+    unreadCount: 1,
+    unreadTopId: 62,
+  });
+}
 const server = await startServer({
-  store: createMemoryStore(),
+  store,
   storeDir: dir,
   port: 0,
   localUi: true,
@@ -39,7 +67,42 @@ try {
       : route.abort()
   );
   console.log(JSON.stringify({ origin, cdpEndpoint: browser.cdpEndpoint }));
-  await browser.page.goto(`${origin}/#settings`);
+  if (layout) {
+    await browser.page.addInitScript(() => {
+      globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
+      globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
+      globalThis.metaSovereignDebug = true;
+    });
+    await browser.page.route('**/api/telegram/status', (route) =>
+      route.fulfill({
+        contentType: 'text/lino',
+        body: encodeWire({
+          connected: true,
+          kind: 'user',
+          offline: false,
+          needsLogin: false,
+        }),
+      })
+    );
+    await browser.page.route('**/api/telegram/dialog-state', async (route) =>
+      route.fulfill({
+        contentType: 'text/lino',
+        body: encodeWire({
+          ok: true,
+          read: await store.get('read:telegram:555'),
+        }),
+      })
+    );
+    await browser.page.route('**/api/telegram/history', (route) =>
+      route.fulfill({
+        contentType: 'text/lino',
+        body: encodeWire({ written: 0, cached: true, complete: true }),
+      })
+    );
+  }
+  await browser.page.goto(
+    `${origin}/#${layout ? 'chat=telegram:555' : 'settings'}`
+  );
   await new Promise((resolve) => {
     process.once('SIGTERM', resolve);
     process.once('SIGINT', resolve);

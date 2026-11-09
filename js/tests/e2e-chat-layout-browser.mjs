@@ -1,4 +1,5 @@
 import { requestBody } from './helpers/http-wire.mjs';
+import path from 'node:path';
 // Shared chat geometry and opening unread boundaries, using only fixture data.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -52,8 +53,19 @@ const toBottom = () =>
     node.scrollTop = node.scrollHeight;
     node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
   });
-const startReading = () =>
-  page.locator('.chat-scroll').evaluate((node) => {
+const startReading = (resize = false) =>
+  page.locator('.chat-scroll').evaluate((node, resize) => {
+    if (resize) {
+      // Resize and start reading before observer delivery, as when a status
+      // bar disappears while the reader scrolls. The last scroll records the
+      // smaller viewport; the next one is reader intent, not layout drift.
+      const bar = document.createElement('div');
+      bar.style.cssText = 'height:48px;flex:none';
+      node.parentElement.prepend(bar);
+      node.scrollTop = node.scrollHeight;
+      node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
+      bar.remove();
+    }
     node.scrollTop -= 350;
     node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
     const row = [...node.querySelectorAll('[data-row]')].find(
@@ -61,7 +73,7 @@ const startReading = () =>
         row.getBoundingClientRect().top >= node.getBoundingClientRect().top
     );
     return { id: row.dataset.row, top: row.getBoundingClientRect().top };
-  });
+  }, resize);
 const gap = (id) =>
   page.evaluate((id) => {
     const composer = document.querySelector('.chat-composer');
@@ -117,7 +129,7 @@ const typingSteps = async (id, label) => {
   await checkGap(id, `${label} header removed`);
   await input.fill('');
   await checkGap(id, `${label} cleared`);
-  const anchor = await startReading();
+  const anchor = await startReading(true);
   await input.fill('Reading older history\n'.repeat(5));
   await page.waitForTimeout(80);
   const top = await page
@@ -127,6 +139,14 @@ const typingSteps = async (id, label) => {
     Math.abs(top - anchor.top) < 2,
     `${label} typing preserves reader position (${anchor.top} → ${top})`
   );
+  if (process.env.E2E_ARTIFACT_DIR) {
+    await page.screenshot({
+      path: path.join(
+        process.env.E2E_ARTIFACT_DIR,
+        `chat-layout-${label.toLowerCase()}-reading.png`
+      ),
+    });
+  }
   await input.fill('');
   await toBottom();
 };

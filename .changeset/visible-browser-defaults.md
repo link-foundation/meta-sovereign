@@ -15,3 +15,5 @@ Use Lino REST for structured JavaScript HTTP requests and replies, negotiate rea
 Keep electron-builder 27's update feeds compatible with stable electron-updater 6 and existing installations, with a regression using the builder's actual metadata validation (R-AA14, R-AA19).
 
 Send live chat and multi-account notification events as single-line Lino records, require explicit JSON event compatibility, and keep reconnect, origin, filtering and backpressure behavior (R-AA16).
+
+Keep Chat and Operator readers in place when a viewport resize and an upward scroll precede composer expansion; retain geometry diagnostics behind the existing browser debug opt-in.
