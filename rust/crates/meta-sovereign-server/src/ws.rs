@@ -1,137 +1,213 @@
-//! RFC 6455 WebSocket framing — pure-`std` Rust mirror of
-//! `js/src/sync/ws-frame.js`.
-//!
-//! Only the subset the SPA exercises is implemented:
-//!   - single-fragment text frames up to 4 GiB,
-//!   - server-side decode of masked client frames,
-//!   - server-side encode of unmasked text frames,
-//!   - close (0x8) and ping (0x9) opcodes (pong replies).
-//!
-//! Hand-rolled SHA-1 + Base64 keep the dependency surface at zero —
-//! the handshake takes the client's `Sec-WebSocket-Key`, appends the
-//! magic GUID, hashes, then base64-encodes the digest.
+//! Bounded RFC 6455 framing for native text/binary sync and signaling.
+//! Handshake SHA-1 is required by RFC 6455 and is not used for authentication.
+use crate::wire::socket::MAX_SYNC_BYTES;
 
 const GUID: &str = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-/// Compute the `Sec-WebSocket-Accept` value for a given client key.
 pub fn accept_key(client_key: &str) -> String {
     let mut input = String::with_capacity(client_key.len() + GUID.len());
     input.push_str(client_key);
     input.push_str(GUID);
-    let digest = sha1(input.as_bytes());
-    base64_encode(&digest)
+    base64_encode(&sha1(input.as_bytes()))
 }
 
-/// Encode `text` as a single unmasked text frame (server -> client).
-pub fn encode_text_frame(text: &str) -> Vec<u8> {
-    let payload = text.as_bytes();
+fn encode_frame(opcode: u8, payload: &[u8]) -> Vec<u8> {
     let len = payload.len();
-    let mut out = Vec::with_capacity(2 + 8 + len);
-    out.push(0x81); // FIN + text opcode
+    let mut out = Vec::with_capacity(10 + len);
+    out.push(0x80 | opcode);
     if len < 126 {
         out.push(len as u8);
-    } else if len < 0x10000 {
+    } else if len <= u16::MAX as usize {
         out.push(126);
-        out.push(((len >> 8) & 0xff) as u8);
-        out.push((len & 0xff) as u8);
+        out.extend_from_slice(&(len as u16).to_be_bytes());
     } else {
         out.push(127);
-        let l64 = len as u64;
-        for i in (0..8).rev() {
-            out.push(((l64 >> (i * 8)) & 0xff) as u8);
-        }
+        out.extend_from_slice(&(len as u64).to_be_bytes());
     }
     out.extend_from_slice(payload);
     out
 }
 
-/// Pong reply for a ping. Empty payload, no mask, FIN set.
+pub fn encode_text_frame(text: &str) -> Vec<u8> {
+    encode_frame(1, text.as_bytes())
+}
+pub fn encode_binary_frame(bytes: &[u8]) -> Vec<u8> {
+    encode_frame(2, bytes)
+}
 pub fn encode_pong_frame() -> [u8; 2] {
-    [0x8a, 0x00]
+    [0x8a, 0]
+}
+pub fn encode_pong_payload(bytes: &[u8]) -> Vec<u8> {
+    encode_frame(10, bytes)
+}
+pub fn encode_close_frame(code: u16) -> Vec<u8> {
+    encode_frame(8, &code.to_be_bytes())
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Frame {
     Text(String),
+    Binary(Vec<u8>),
     Ping(Vec<u8>),
     Pong(Vec<u8>),
     Close,
+    Invalid(u16),
 }
 
-/// Streaming frame reader. Feed chunks of bytes via [`FrameReader::push`]
-/// and call [`FrameReader::next_frame`] until it returns `None` to drain
-/// all fully-received frames.
+/// A streaming message reader with bounded fragments and fatal protocol errors.
 #[derive(Default)]
 pub struct FrameReader {
     buf: Vec<u8>,
+    fragment: Option<(u8, Vec<u8>)>,
+    require_mask: bool,
+    failed: bool,
+    error: Option<u16>,
 }
 
 impl FrameReader {
     pub fn new() -> Self {
         Self::default()
     }
-
-    pub fn push(&mut self, chunk: &[u8]) {
-        self.buf.extend_from_slice(chunk);
+    /// A server must require masks on every client frame.
+    pub fn client() -> Self {
+        Self {
+            require_mask: true,
+            ..Self::default()
+        }
     }
-
+    fn fail(&mut self, code: u16) {
+        self.failed = true;
+        self.error = Some(code);
+        self.buf.clear();
+        self.fragment = None;
+    }
+    pub fn push(&mut self, chunk: &[u8]) {
+        if self.failed {
+            return;
+        }
+        // The connection reads 4 KiB chunks; allow a completed maximum-sized
+        // frame and the start of its successor without an unbounded buffer.
+        if self.buf.len().saturating_add(chunk.len()) > MAX_SYNC_BYTES + 8192 + 14 {
+            self.fail(1009);
+        } else {
+            self.buf.extend_from_slice(chunk);
+        }
+    }
     pub fn next_frame(&mut self) -> Option<Frame> {
+        if let Some(code) = self.error.take() {
+            return Some(Frame::Invalid(code));
+        }
+        if self.failed {
+            return None;
+        }
         loop {
             if self.buf.len() < 2 {
                 return None;
             }
-            let opcode = self.buf[0] & 0x0f;
-            let masked = (self.buf[1] & 0x80) != 0;
-            let short_len = (self.buf[1] & 0x7f) as usize;
-            let (payload_len, header_len) = if short_len < 126 {
-                (short_len, 2usize)
-            } else if short_len == 126 {
-                if self.buf.len() < 4 {
-                    return None;
+            let fin = self.buf[0] & 0x80 != 0;
+            let opcode = self.buf[0] & 15;
+            let masked = self.buf[1] & 0x80 != 0;
+            if self.buf[0] & 0x70 != 0
+                || (self.require_mask && !masked)
+                || !matches!(opcode, 0 | 1 | 2 | 8 | 9 | 10)
+                || (opcode >= 8 && !fin)
+                || (opcode == 0 && self.fragment.is_none())
+                || (matches!(opcode, 1 | 2) && self.fragment.is_some())
+            {
+                self.fail(1002);
+                return self.next_frame();
+            }
+            let short = self.buf[1] & 127;
+            let (length, header) = match short {
+                126 => {
+                    if self.buf.len() < 4 {
+                        return None;
+                    }
+                    (u16::from_be_bytes([self.buf[2], self.buf[3]]) as u64, 4)
                 }
-                let len = ((self.buf[2] as usize) << 8) | self.buf[3] as usize;
-                (len, 4)
-            } else {
-                if self.buf.len() < 10 {
-                    return None;
+                127 => {
+                    if self.buf.len() < 10 {
+                        return None;
+                    }
+                    (u64::from_be_bytes(self.buf[2..10].try_into().unwrap()), 10)
                 }
-                // We treat the upper 32 bits as zero; the SPA never
-                // sends frames anywhere near 4 GiB.
-                let len = ((self.buf[6] as usize) << 24)
-                    | ((self.buf[7] as usize) << 16)
-                    | ((self.buf[8] as usize) << 8)
-                    | (self.buf[9] as usize);
-                (len, 10)
+                n => (u64::from(n), 2),
             };
-            let mask_len = if masked { 4 } else { 0 };
-            let total = header_len + mask_len + payload_len;
+            if length > MAX_SYNC_BYTES as u64
+                || self.fragment.as_ref().is_some_and(|(_, bytes)| {
+                    opcode == 0 && bytes.len() as u64 + length > MAX_SYNC_BYTES as u64
+                })
+            {
+                self.fail(1009);
+                return self.next_frame();
+            }
+            if (opcode >= 8 && length > 125)
+                || (short == 126 && length < 126)
+                || (short == 127 && length <= u16::MAX as u64)
+            {
+                self.fail(1002);
+                return self.next_frame();
+            }
+            let length = length as usize;
+            let start = header + if masked { 4 } else { 0 };
+            let total = start + length;
             if self.buf.len() < total {
                 return None;
             }
-            let mut payload = vec![0u8; payload_len];
+            let mut payload = self.buf[start..total].to_vec();
             if masked {
-                let mask = &self.buf[header_len..header_len + 4];
-                for (i, b) in self.buf[header_len + 4..header_len + 4 + payload_len]
-                    .iter()
-                    .enumerate()
-                {
-                    payload[i] = b ^ mask[i % 4];
+                let mask = &self.buf[header..header + 4];
+                for (i, byte) in payload.iter_mut().enumerate() {
+                    *byte ^= mask[i % 4];
                 }
-            } else {
-                payload.copy_from_slice(&self.buf[header_len..header_len + payload_len]);
             }
             self.buf.drain(..total);
             match opcode {
-                0x1 => {
-                    let text = String::from_utf8_lossy(&payload).into_owned();
-                    return Some(Frame::Text(text));
+                8 => {
+                    if payload.len() == 1 {
+                        self.fail(1002);
+                        return self.next_frame();
+                    }
+                    if payload.len() >= 2 {
+                        let code = u16::from_be_bytes([payload[0], payload[1]]);
+                        if !(1000..=4999).contains(&code)
+                            || matches!(code, 1004 | 1005 | 1006 | 1015)
+                            || (1016..=2999).contains(&code)
+                        {
+                            self.fail(1002);
+                            return self.next_frame();
+                        }
+                    }
+                    if payload.len() > 2 && std::str::from_utf8(&payload[2..]).is_err() {
+                        self.fail(1007);
+                        return self.next_frame();
+                    }
+                    return Some(Frame::Close);
                 }
-                0x8 => return Some(Frame::Close),
-                0x9 => return Some(Frame::Ping(payload)),
-                0xA => return Some(Frame::Pong(payload)),
-                // Continuations and other opcodes are not produced by
-                // the SPA. Skip silently and look for the next frame.
-                _ => continue,
+                9 => return Some(Frame::Ping(payload)),
+                10 => return Some(Frame::Pong(payload)),
+                _ => {}
+            }
+            let (kind, bytes) = if opcode == 0 {
+                let (kind, mut bytes) = self.fragment.take().unwrap();
+                bytes.extend_from_slice(&payload);
+                (kind, bytes)
+            } else {
+                (opcode, payload)
+            };
+            if !fin {
+                self.fragment = Some((kind, bytes));
+                continue;
+            }
+            if kind == 2 {
+                return Some(Frame::Binary(bytes));
+            }
+            match String::from_utf8(bytes) {
+                Ok(text) => return Some(Frame::Text(text)),
+                Err(_) => {
+                    self.fail(1007);
+                    return self.next_frame();
+                }
             }
         }
     }
@@ -211,7 +287,7 @@ fn sha1(data: &[u8]) -> [u8; 20] {
 
 const B64: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-fn base64_encode(data: &[u8]) -> String {
+pub(crate) fn base64_encode(data: &[u8]) -> String {
     let mut out = String::with_capacity(data.len().div_ceil(3) * 4);
     let mut i = 0;
     while i + 3 <= data.len() {
@@ -242,6 +318,44 @@ fn base64_encode(data: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn malformed_headers_fail_before_any_payload_allocation() {
+        for bytes in [
+            vec![0x82, 127, 0, 0, 0, 1, 0, 0, 0, 0],
+            vec![0x82, 127, 0, 0, 0, 0, 0, 64, 0, 1],
+            vec![0xc1, 0],
+            vec![0x80, 0],
+            vec![0x09, 0],
+            vec![0x81, 1, 0xff],
+            vec![0x88, 1, 0],
+            vec![0x88, 2, 0x03, 0xed],
+        ] {
+            let mut reader = FrameReader::new();
+            reader.push(&bytes);
+            assert!(
+                matches!(reader.next_frame(), Some(Frame::Invalid(_))),
+                "{bytes:?}"
+            );
+            reader.push(&encode_text_frame("ignored"));
+            assert!(reader.next_frame().is_none());
+            assert!(reader.buf.is_empty());
+        }
+        let mut server = FrameReader::client();
+        server.push(&encode_text_frame("unmasked client"));
+        assert_eq!(server.next_frame(), Some(Frame::Invalid(1002)));
+    }
+
+    #[test]
+    fn fragmented_unicode_binary_and_interleaved_ping_preserve_bytes() {
+        let mut reader = FrameReader::new();
+        reader.push(&[0x01, 2, 0xf0, 0x9f, 0x89, 1, 42, 0x80, 2, 0x9a, 0x80]);
+        assert_eq!(reader.next_frame(), Some(Frame::Ping(vec![42])));
+        assert_eq!(reader.next_frame(), Some(Frame::Text("🚀".into())));
+        reader.push(&encode_binary_frame(&[0, 255, 128]));
+        assert_eq!(reader.next_frame(), Some(Frame::Binary(vec![0, 255, 128])));
+        assert!(reader.next_frame().is_none());
+    }
 
     #[test]
     fn known_accept_key() {

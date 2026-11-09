@@ -18,16 +18,19 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Write};
 use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 use crate::handlers;
+use crate::json::{self, Value};
 use crate::routes::{MetricsCtx, StaticRoot, dispatch};
 use crate::signaling::Signaling;
 use crate::state::ServerState;
-use crate::ws::{Frame, FrameReader, accept_key, encode_pong_frame, encode_text_frame};
+use crate::wire::socket::{MAX_SYNC_BYTES, SocketWire, SocketWriter};
+use crate::wire::{self, Format};
+use crate::ws::{Frame, FrameReader, accept_key, encode_close_frame, encode_pong_payload};
 
 const MAX_HEAD_BYTES: usize = 64 * 1024;
 const MAX_BODY_BYTES: usize = 16 * 1024 * 1024;
@@ -160,16 +163,17 @@ pub struct ServerOptions {
     pub port: u16,
     pub static_root: Option<PathBuf>,
     pub log_format: LogFormat,
+    /// Legacy JSON is disabled unless explicitly requested.
+    pub json_compatibility: bool,
 }
 
 pub struct ServerHandle {
     addr: SocketAddr,
     stop: Arc<AtomicBool>,
     state: Arc<ServerState>,
-    sync_peers: Arc<AtomicUsize>,
     signaling: Signaling,
     ws_outgoing: WsSender,
-    ws_incoming: Arc<Mutex<Vec<String>>>,
+    ws_incoming: Arc<Mutex<SyncInbox>>,
 }
 
 impl ServerHandle {
@@ -183,19 +187,26 @@ impl ServerHandle {
         &self.signaling
     }
     pub fn ws_peer_count(&self) -> usize {
-        self.sync_peers.load(Ordering::SeqCst)
+        self.ws_outgoing.count()
     }
-    /// Send a sync event to every connected /ws peer.
-    pub fn ws_broadcast(&self, text: &str) {
-        self.ws_outgoing.broadcast(text);
+    /// Accept an internal JSON-shaped event and encode it in each /ws peer's
+    /// negotiated representation. This API does not enable JSON on the wire.
+    pub fn ws_broadcast(&self, text: &str) -> std::io::Result<()> {
+        let value = Format::Json
+            .decode(text.as_bytes())
+            .map_err(std::io::Error::other)?;
+        self.ws_outgoing.broadcast(&value)
     }
-    /// Drain JSON sync events received from /ws clients.
+    /// Drain received /ws values as internal JSON strings for existing callers.
     pub fn ws_drain(&self) -> Vec<String> {
         let mut g = self.ws_incoming.lock().expect("incoming poisoned");
-        std::mem::take(&mut *g)
+        g.bytes = 0;
+        std::mem::take(&mut g.events)
     }
     pub fn shutdown(&self) {
         self.stop.store(true, Ordering::SeqCst);
+        self.ws_outgoing.close();
+        self.signaling.close();
         // Wake the accept loop with a connect.
         let _ = TcpStream::connect(self.addr);
     }
@@ -203,49 +214,94 @@ impl ServerHandle {
 
 #[derive(Clone, Default)]
 struct WsSender {
-    sockets: Arc<Mutex<Vec<TcpStream>>>,
-    pending: Arc<Mutex<Vec<String>>>,
+    sockets: Arc<Mutex<Vec<SyncSocket>>>,
+    pending: Arc<Mutex<PendingSync>>,
+}
+
+struct SyncSocket {
+    socket: SocketWriter,
+    wire: SocketWire,
+}
+#[derive(Default)]
+struct PendingSync {
+    events: Vec<Value>,
+    bytes: usize,
+}
+#[derive(Default)]
+struct SyncInbox {
+    events: Vec<String>,
+    bytes: usize,
+}
+
+impl SyncInbox {
+    fn push(&mut self, value: Value) -> std::io::Result<()> {
+        let text = json::encode(&value);
+        if self.bytes.saturating_add(text.len()) > MAX_SYNC_BYTES {
+            return Err(std::io::Error::other("incoming sync queue exceeds 4 MiB"));
+        }
+        self.bytes += text.len();
+        self.events.push(text);
+        Ok(())
+    }
 }
 
 impl WsSender {
-    fn add(&self, s: TcpStream) {
+    fn add(&self, socket: SocketWriter, wire: SocketWire) -> std::io::Result<()> {
         let mut g = self.sockets.lock().expect("ws sockets poisoned");
-        g.push(s);
         let mut p = self.pending.lock().expect("ws pending poisoned");
-        let pending = std::mem::take(&mut *p);
-        drop(p);
-        if !pending.is_empty() {
-            let last = g.last_mut().expect("just pushed");
-            for text in pending {
-                let frame = encode_text_frame(&text);
-                let _ = last.write_all(&frame);
-            }
+        for value in &p.events {
+            socket.write(&wire.frame(value)?)?;
         }
+        *p = PendingSync::default();
+        g.push(SyncSocket { socket, wire });
+        Ok(())
     }
     fn drop_socket(&self, target: &TcpStream) {
         let mut g = self.sockets.lock().expect("ws sockets poisoned");
         let target_addr = target.peer_addr().ok();
-        g.retain(|s| s.peer_addr().ok() != target_addr);
+        g.retain(|s| s.socket.peer_addr().ok() != target_addr);
     }
-    fn broadcast(&self, text: &str) {
+    fn broadcast(&self, value: &Value) -> std::io::Result<()> {
+        let canonical = SocketWire::negotiate(None, false).unwrap().frame(value)?;
         let mut g = self.sockets.lock().expect("ws sockets poisoned");
         if g.is_empty() {
-            self.pending
-                .lock()
-                .expect("ws pending poisoned")
-                .push(text.to_string());
-            return;
+            let mut pending = self.pending.lock().expect("ws pending poisoned");
+            if pending.bytes.saturating_add(canonical.len()) > MAX_SYNC_BYTES {
+                return Err(std::io::Error::other("pending sync queue exceeds 4 MiB"));
+            }
+            pending.bytes += canonical.len();
+            pending.events.push(value.clone());
+            return Ok(());
         }
-        let frame = encode_text_frame(text);
-        let mut dead = Vec::new();
-        for (i, s) in g.iter_mut().enumerate() {
-            if s.write_all(&frame).is_err() {
-                dead.push(i);
+        let mut frames = Vec::new();
+        for peer in g.iter() {
+            if !frames.iter().any(|(format, _)| *format == peer.wire.format) {
+                frames.push((peer.wire.format, peer.wire.frame(value)?));
             }
         }
-        for i in dead.into_iter().rev() {
-            g.remove(i);
+        let mut failure = None;
+        g.retain_mut(|peer| {
+            let frame = &frames
+                .iter()
+                .find(|(format, _)| *format == peer.wire.format)
+                .unwrap()
+                .1;
+            if let Err(error) = peer.socket.write(frame) {
+                peer.socket.shutdown();
+                failure = Some(error);
+                false
+            } else {
+                true
+            }
+        });
+        failure.map_or(Ok(()), Err)
+    }
+    fn close(&self) {
+        let mut peers = self.sockets.lock().expect("ws sockets poisoned");
+        for peer in peers.drain(..) {
+            peer.socket.shutdown();
         }
+        *self.pending.lock().expect("ws pending poisoned") = PendingSync::default();
     }
     fn count(&self) -> usize {
         self.sockets.lock().expect("ws sockets poisoned").len()
@@ -259,16 +315,15 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
     let state = Arc::new(ServerState::new());
     let static_root = Arc::new(StaticRoot::new(opts.static_root.clone()));
     let signaling = Signaling::new();
-    let sync_peers = Arc::new(AtomicUsize::new(0));
     let ws_outgoing = WsSender::default();
-    let ws_incoming = Arc::new(Mutex::new(Vec::new()));
+    let ws_incoming = Arc::new(Mutex::new(SyncInbox::default()));
     let log_format = opts.log_format;
+    let json_compatibility = opts.json_compatibility;
 
     let stop_l = Arc::clone(&stop);
     let state_l = Arc::clone(&state);
     let static_l = Arc::clone(&static_root);
     let signaling_l = signaling.clone();
-    let peers_l = Arc::clone(&sync_peers);
     let ws_out_l = ws_outgoing.clone();
     let ws_in_l = Arc::clone(&ws_incoming);
 
@@ -287,23 +342,21 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
                     state: Arc::clone(&state_l),
                     root: Arc::clone(&static_l),
                     signaling: signaling_l.clone(),
-                    sync_peers: Arc::clone(&peers_l),
                     ws_outgoing: ws_out_l.clone(),
                     ws_incoming: Arc::clone(&ws_in_l),
                     log_format,
+                    json_compatibility,
                 };
                 thread::spawn(move || {
                     let _ = handle_connection(stream, ctx);
                 });
             }
         })?;
-    sync_peers.store(ws_outgoing.count(), Ordering::SeqCst);
 
     Ok(ServerHandle {
         addr,
         stop,
         state,
-        sync_peers,
         signaling,
         ws_outgoing,
         ws_incoming,
@@ -314,10 +367,10 @@ struct ConnectionCtx {
     state: Arc<ServerState>,
     root: Arc<StaticRoot>,
     signaling: Signaling,
-    sync_peers: Arc<AtomicUsize>,
     ws_outgoing: WsSender,
-    ws_incoming: Arc<Mutex<Vec<String>>>,
+    ws_incoming: Arc<Mutex<SyncInbox>>,
     log_format: LogFormat,
+    json_compatibility: bool,
 }
 
 fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Result<()> {
@@ -325,10 +378,10 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         state,
         root,
         signaling,
-        sync_peers,
         ws_outgoing,
         ws_incoming,
         log_format,
+        json_compatibility,
     } = ctx;
     let _ = stream.set_read_timeout(Some(Duration::from_secs(60)));
     let (head, leftover) = match read_head(&mut stream)? {
@@ -340,22 +393,43 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         None => {
             let _ = write_response(
                 &mut stream,
-                &Response::json(400, "{\"error\":\"bad request\"}"),
+                &wire::http::encode_response(
+                    wire::http::error(400, "bad-request", "bad request"),
+                    Format::Text,
+                ),
             );
             return Ok(());
         }
     };
 
     if let Some(response) = request_boundary(&parsed, stream.local_addr()?.port()) {
-        return write_response(&mut stream, &response);
+        return write_wire_response(&mut stream, response, &parsed, json_compatibility);
     }
 
     if is_websocket_upgrade(&parsed) {
+        let Some(wire) = SocketWire::negotiate(
+            parsed
+                .headers
+                .get("sec-websocket-protocol")
+                .map(String::as_str),
+            json_compatibility,
+        ) else {
+            return write_wire_response(
+                &mut stream,
+                wire::http::error(
+                    406,
+                    "unsupported-protocol",
+                    "offer a supported Lino sync protocol",
+                ),
+                &parsed,
+                json_compatibility,
+            );
+        };
         if parsed.path == "/ws" {
-            return upgrade_ws(stream, &parsed, sync_peers, ws_outgoing, ws_incoming);
+            return upgrade_ws(stream, &parsed, ws_outgoing, ws_incoming, wire, &leftover);
         }
         if parsed.path == "/rtc" {
-            return upgrade_rtc(stream, &parsed, signaling);
+            return upgrade_rtc(stream, &parsed, signaling, wire, &leftover);
         }
         let _ = write_raw(
             &mut stream,
@@ -366,7 +440,68 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
 
     let started = std::time::Instant::now();
     let mut req = parsed;
+    let format = wire::http::select(
+        req.headers.get("accept").map(String::as_str),
+        json_compatibility,
+    );
+    let fail = |stream: &mut TcpStream, status, code, message| {
+        write_wire_response(
+            stream,
+            wire::http::error(status, code, message),
+            &req,
+            json_compatibility,
+        )
+    };
+    if format.is_none() && !matches!(req.method.as_str(), "GET" | "HEAD") {
+        return fail(
+            &mut stream,
+            406,
+            "not-acceptable",
+            "no acceptable response representation",
+        );
+    }
+    if req.headers.contains_key("transfer-encoding")
+        || (req.headers.contains_key("content-length") && content_length(&req.headers).is_none())
+    {
+        return fail(
+            &mut stream,
+            400,
+            "bad-length",
+            "a valid Content-Length is required; transfer encoding is unsupported",
+        );
+    }
     let need = content_length(&req.headers).unwrap_or(0);
+    if need > MAX_BODY_BYTES {
+        return fail(
+            &mut stream,
+            413,
+            "too-large",
+            "request body exceeds the server limit",
+        );
+    }
+    if need > 0 {
+        let default = if json_compatibility {
+            Format::Json
+        } else {
+            Format::Text
+        };
+        if Format::from_media(
+            req.headers
+                .get("content-type")
+                .map(String::as_str)
+                .unwrap_or(default.media()),
+            json_compatibility,
+        )
+        .is_err()
+        {
+            return fail(
+                &mut stream,
+                415,
+                "unsupported-media",
+                "use text/lino or application/lino-binary",
+            );
+        }
+    }
     let mut body = leftover;
     while body.len() < need && body.len() < MAX_BODY_BYTES {
         let mut buf = [0u8; 8192];
@@ -376,27 +511,74 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         }
         body.extend_from_slice(&buf[..n]);
     }
-    body.truncate(need.min(MAX_BODY_BYTES));
+    if body.len() < need {
+        return fail(
+            &mut stream,
+            400,
+            "incomplete-body",
+            "request body ended before Content-Length",
+        );
+    }
+    body.truncate(need);
     req.body = body;
+    if let Err(error) = wire::http::decode_request(&mut req, json_compatibility) {
+        return write_wire_response(
+            &mut stream,
+            wire::http::error(400, "bad-lino", &error),
+            &req,
+            json_compatibility,
+        );
+    }
 
     let metrics_ctx = MetricsCtx {
-        ws_peers: sync_peers.load(Ordering::SeqCst),
+        ws_peers: ws_outgoing.count(),
         rtc_rooms: signaling.rooms().len(),
     };
-    let mut response = dispatch(&state, &root, &req, metrics_ctx);
-    response.headers.push(("vary".into(), "Origin".into()));
-    if req.headers.get("origin").map(String::as_str) == Some(PAGES_ORIGIN) {
+    let response = dispatch(&state, &root, &req, metrics_ctx);
+    let response = if format.is_none()
+        && response.headers.iter().any(|(key, value)| {
+            key.eq_ignore_ascii_case("content-type") && value.starts_with("application/json")
+        }) {
+        wire::http::error(
+            406,
+            "not-acceptable",
+            "no acceptable response representation",
+        )
+    } else {
         response
-            .headers
-            .push(("access-control-allow-origin".into(), PAGES_ORIGIN.into()));
-    }
+    };
     let status = response.status;
-    write_response(&mut stream, &response)?;
+    write_wire_response(&mut stream, response, &req, json_compatibility)?;
     if log_format == LogFormat::Json {
         let duration_ms = started.elapsed().as_millis();
         emit_json_log(&req.method, &req.path, status, duration_ms);
     }
     Ok(())
+}
+
+fn write_wire_response(
+    stream: &mut TcpStream,
+    response: Response,
+    req: &Request,
+    compatibility: bool,
+) -> std::io::Result<()> {
+    let format = wire::http::select(req.headers.get("accept").map(String::as_str), compatibility)
+        .unwrap_or(Format::Text);
+    let mut response = wire::http::encode_response(response, format);
+    response
+        .headers
+        .push(("vary".into(), "Origin, Accept".into()));
+    if req.headers.get("origin").map(String::as_str) == Some(PAGES_ORIGIN)
+        && !response
+            .headers
+            .iter()
+            .any(|(key, _)| key.eq_ignore_ascii_case("access-control-allow-origin"))
+    {
+        response
+            .headers
+            .push(("access-control-allow-origin".into(), PAGES_ORIGIN.into()));
+    }
+    write_response(stream, &response)
 }
 
 fn emit_json_log(method: &str, path: &str, status: u16, duration_ms: u128) {
@@ -472,7 +654,12 @@ fn read_head(stream: &mut TcpStream) -> std::io::Result<Option<(String, Vec<u8>)
         }
         buf.extend_from_slice(&tmp[..n]);
         if let Some(idx) = find_subseq(&buf, b"\r\n\r\n") {
-            let head = String::from_utf8_lossy(&buf[..idx]).into_owned();
+            if idx > MAX_HEAD_BYTES {
+                return Ok(None);
+            }
+            let Ok(head) = String::from_utf8(buf[..idx].to_vec()) else {
+                return Ok(None);
+            };
             let leftover = buf[idx + 4..].to_vec();
             return Ok(Some((head, leftover)));
         }
@@ -505,6 +692,11 @@ fn parse_request(head: &str) -> Option<Request> {
     let mut headers = BTreeMap::new();
     for line in lines {
         if let Some((k, v)) = line.split_once(':') {
+            if k.trim().eq_ignore_ascii_case("content-length")
+                && headers.contains_key("content-length")
+            {
+                return None;
+            }
             headers.insert(k.trim().to_ascii_lowercase(), v.trim().to_string());
         }
     }
@@ -553,102 +745,112 @@ fn is_websocket_upgrade(req: &Request) -> bool {
         && req.headers.contains_key("sec-websocket-key")
 }
 
-fn write_handshake(stream: &mut TcpStream, req: &Request) -> std::io::Result<()> {
+fn write_handshake(stream: &mut TcpStream, req: &Request, wire: SocketWire) -> std::io::Result<()> {
     let key = req
         .headers
         .get("sec-websocket-key")
         .map(String::as_str)
         .unwrap_or("");
     let accept = accept_key(key);
+    let protocol = if wire.protocol.is_empty() {
+        String::new()
+    } else {
+        format!("Sec-WebSocket-Protocol: {}\r\n", wire.protocol)
+    };
     let resp = format!(
-        "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {accept}\r\n\r\n"
+        "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: {accept}\r\n{protocol}\r\n"
     );
+    stream.set_write_timeout(Some(Duration::from_secs(5)))?;
     stream.write_all(resp.as_bytes())
+}
+
+fn read_socket(
+    stream: &mut TcpStream,
+    writer: &SocketWriter,
+    initial: &[u8],
+    wire: SocketWire,
+    mut receive: impl FnMut(Value) -> std::io::Result<()>,
+) -> std::io::Result<()> {
+    let mut reader = FrameReader::client();
+    reader.push(initial);
+    stream.set_read_timeout(None)?;
+    let mut chunk = [0u8; 4096];
+    loop {
+        while let Some(frame) = reader.next_frame() {
+            let close = match frame {
+                Frame::Text(_) | Frame::Binary(_) => match wire.decode(frame) {
+                    Ok(value) => {
+                        if receive(value).is_ok() {
+                            None
+                        } else {
+                            Some(1009)
+                        }
+                    }
+                    Err(_) => Some(1003),
+                },
+                Frame::Ping(bytes) => {
+                    writer.write(&encode_pong_payload(&bytes))?;
+                    None
+                }
+                Frame::Pong(_) => None,
+                Frame::Close => Some(1000),
+                Frame::Invalid(code) => Some(code),
+            };
+            if let Some(code) = close {
+                if code != 1000 && std::env::var("MS_SYNC_DEBUG").as_deref() == Ok("1") {
+                    eprintln!("[sync] rejected_frame close_code={code}");
+                }
+                let _ = writer.write(&encode_close_frame(code));
+                let _ = stream.shutdown(Shutdown::Both);
+                return Ok(());
+            }
+        }
+        let n = stream.read(&mut chunk)?;
+        if n == 0 {
+            return Ok(());
+        }
+        reader.push(&chunk[..n]);
+    }
 }
 
 fn upgrade_ws(
     mut stream: TcpStream,
     req: &Request,
-    sync_peers: Arc<AtomicUsize>,
     ws_outgoing: WsSender,
-    ws_incoming: Arc<Mutex<Vec<String>>>,
+    ws_incoming: Arc<Mutex<SyncInbox>>,
+    wire: SocketWire,
+    initial: &[u8],
 ) -> std::io::Result<()> {
-    write_handshake(&mut stream, req)?;
-    let writer = stream.try_clone()?;
-    ws_outgoing.add(writer);
-    sync_peers.store(ws_outgoing.count(), Ordering::SeqCst);
-
-    let mut reader = FrameReader::new();
-    let mut chunk = [0u8; 4096];
-    let _ = stream.set_read_timeout(None);
-    loop {
-        let n = match stream.read(&mut chunk) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(_) => break,
-        };
-        reader.push(&chunk[..n]);
-        loop {
-            match reader.next_frame() {
-                Some(Frame::Text(t)) => {
-                    ws_incoming.lock().expect("incoming poisoned").push(t);
-                }
-                Some(Frame::Ping(_)) => {
-                    let _ = stream.write_all(&encode_pong_frame());
-                }
-                Some(Frame::Pong(_)) => {}
-                Some(Frame::Close) => {
-                    let _ = stream.shutdown(Shutdown::Both);
-                    ws_outgoing.drop_socket(&stream);
-                    sync_peers.store(ws_outgoing.count(), Ordering::SeqCst);
-                    return Ok(());
-                }
-                None => break,
-            }
-        }
-    }
+    write_handshake(&mut stream, req, wire)?;
+    let writer = SocketWriter::new(stream.try_clone()?);
+    ws_outgoing.add(writer.clone(), wire)?;
+    let result = read_socket(&mut stream, &writer, initial, wire, |value| {
+        ws_incoming.lock().expect("incoming poisoned").push(value)
+    });
     ws_outgoing.drop_socket(&stream);
-    sync_peers.store(ws_outgoing.count(), Ordering::SeqCst);
-    Ok(())
+    result
 }
 
-fn upgrade_rtc(mut stream: TcpStream, req: &Request, signaling: Signaling) -> std::io::Result<()> {
-    write_handshake(&mut stream, req)?;
+fn upgrade_rtc(
+    mut stream: TcpStream,
+    req: &Request,
+    signaling: Signaling,
+    wire: SocketWire,
+    initial: &[u8],
+) -> std::io::Result<()> {
+    write_handshake(&mut stream, req, wire)?;
     let room = req
         .query
         .get("room")
         .cloned()
         .unwrap_or_else(|| "default".to_string());
-    let writer = stream.try_clone()?;
-    let peer_id = signaling.join(&room, writer);
-    let mut reader = FrameReader::new();
-    let mut chunk = [0u8; 4096];
-    let _ = stream.set_read_timeout(None);
-    loop {
-        let n = match stream.read(&mut chunk) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(_) => break,
-        };
-        reader.push(&chunk[..n]);
-        loop {
-            match reader.next_frame() {
-                Some(Frame::Text(t)) => signaling.relay(&room, peer_id, &t),
-                Some(Frame::Ping(_)) => {
-                    let _ = stream.write_all(&encode_pong_frame());
-                }
-                Some(Frame::Pong(_)) => {}
-                Some(Frame::Close) => {
-                    signaling.leave(&room, peer_id);
-                    let _ = stream.shutdown(Shutdown::Both);
-                    return Ok(());
-                }
-                None => break,
-            }
-        }
-    }
+    let writer = SocketWriter::new(stream.try_clone()?);
+    let peer_id = signaling.join_wire(&room, writer.clone(), wire);
+    let result = read_socket(&mut stream, &writer, initial, wire, |value| {
+        signaling.relay_value(&room, peer_id, &value)
+    });
     signaling.leave(&room, peer_id);
-    Ok(())
+    result
 }
 
 fn write_raw(stream: &mut TcpStream, raw: &str) -> std::io::Result<()> {
@@ -728,6 +930,9 @@ fn status_reason(code: u16) -> &'static str {
         403 => "Forbidden",
         404 => "Not Found",
         405 => "Method Not Allowed",
+        406 => "Not Acceptable",
+        413 => "Content Too Large",
+        415 => "Unsupported Media Type",
         421 => "Misdirected Request",
         500 => "Internal Server Error",
         _ => "OK",
@@ -737,6 +942,21 @@ fn status_reason(code: u16) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn disconnected_and_incoming_sync_queues_have_finite_byte_limits() {
+        let sender = WsSender::default();
+        let value = Value::Object([("body".into(), Value::String("x".repeat(512 * 1024)))].into());
+        let mut inbox = SyncInbox::default();
+        for _ in 0..7 {
+            sender.broadcast(&value).unwrap();
+            inbox.push(value.clone()).unwrap();
+        }
+        assert!(sender.broadcast(&value).is_err());
+        assert!(inbox.push(value).is_err());
+        sender.close();
+        assert_eq!(sender.pending.lock().unwrap().bytes, 0);
+    }
 
     #[test]
     fn parses_simple_request() {

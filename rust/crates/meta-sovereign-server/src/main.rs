@@ -1,4 +1,4 @@
-//! `meta-sovereign-rs` — pure-Rust drop-in for `js/bin/meta-sovereign serve`.
+//! `meta-sovereign-rs` — native Rust HTTP and sync server.
 //!
 //! Usage:
 //!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web]
@@ -17,6 +17,7 @@ use meta_sovereign_server::{LogFormat, ServerOptions, serve};
 fn parse_args() -> ServerOptions {
     let mut port: u16 = 8787;
     let mut web: Option<PathBuf> = None;
+    let mut json_compatibility = std::env::var("MS_JSON_COMPATIBILITY").as_deref() == Ok("1");
     let mut log_format = match std::env::var("MS_LOG_FORMAT").ok().as_deref() {
         Some("json") => LogFormat::Json,
         _ => LogFormat::None,
@@ -34,6 +35,7 @@ fn parse_args() -> ServerOptions {
             "--web" => {
                 web = args.next().map(PathBuf::from);
             }
+            "--json-compatibility" => json_compatibility = true,
             "--log" => {
                 log_format = match args.next().as_deref() {
                     Some("json") => LogFormat::Json,
@@ -63,6 +65,7 @@ fn parse_args() -> ServerOptions {
         port,
         static_root: web,
         log_format,
+        json_compatibility,
     }
 }
 
@@ -76,9 +79,11 @@ fn print_help() {
     eprintln!("  --port <port>   TCP port to listen on (default 8787)");
     eprintln!("  --web <dir>     directory containing the SPA assets");
     eprintln!("  --log <fmt>     access log format: \"json\" (default: none)");
+    eprintln!("  --json-compatibility  explicitly enable legacy JSON wire transport");
     eprintln!();
     eprintln!("ENVIRONMENT:");
     eprintln!("  MS_LOG_FORMAT   sets default --log when unset on CLI");
+    eprintln!("  MS_JSON_COMPATIBILITY=1 enables legacy JSON wire transport");
 }
 
 fn main() {

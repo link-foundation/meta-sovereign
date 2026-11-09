@@ -29,7 +29,7 @@ While adding the binary-client regression, awaiting a raw TCP half-close left an
 
 The selected subprotocol follows the [WebSocket protocol negotiation contract](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-WebSocket-Protocol); framing follows [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.html). Binary browser channels use the documented [RTCDataChannel binaryType](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/binaryType). Bun's implementation uses its [native upgrade data and headers](https://bun.com/docs/runtime/http/websockets), preserving the registered endpoint's configuration.
 
-R-AA16 remains unfinished until Rust transport parity is implemented and verified. Mesh discovery, reconnection/replication placement and the rest of issue 56 have separate acceptance criteria; passing these transport checks does not complete them.
+The subsequent [native migration](lino-native.md) implements and locally verifies Lino on existing Rust HTTP/socket endpoints. Exact-head CI and complete native feature parity remain open. Mesh discovery, reconnection/replication placement and the rest of issue 56 have separate acceptance criteria; passing these transport checks does not complete them.
 
 ## TCP framing and CLI lifecycle
 

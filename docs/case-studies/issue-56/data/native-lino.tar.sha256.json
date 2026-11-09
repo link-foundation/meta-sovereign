@@ -1,0 +1,18 @@
+{
+  "archive": "native-lino.tar.gz",
+  "files": {
+    "native-build-after.log": "6494ad6f3430331503d61a454323cbc8e6e9fcfb87c3c660c65c92b0fa36d176",
+    "native-clippy.log": "ef5eabc9d2346292be7df5e2ad938c89fe0aba988aa2497f7ce056233ab46593",
+    "native-frames-after.log": "d710d1f682cb94aca790f71304945438c923683597f11304530e3ad938fd44e7",
+    "native-frames-final.log": "3693cb8a7e789f1a957768b9b1d633cea9f303f17043df89acb9eb942b0a9b39",
+    "native-http-before.log": "a38114d31d661a084b2397588a9d0815f0672bd63272908c5ea13b5b025389ef",
+    "native-http-boundary-final.log": "c3aeb988c8aa4221e68c69f3ccb3eabb07eceb422ba2b19555553b507c1ae8dc",
+    "native-js-interop.log": "52d9c1992b8cdd7741b110f41b6f4c4304665fd0976222d7cbbb3f087dd940d4",
+    "native-null-before.log": "fe86569b8e9f438329667428e03198905463f2f4a9fe95b805e23ac2945e69a2",
+    "native-queues-after.log": "9e77b3fb0e8f7901d38b0327083869c421701c3f412a53532eba6f56f2359ef7",
+    "native-sockets-before.log": "b4ac3045ce278fe915907df940cc6eaf772524c4b78f67311af7aa96214d8254",
+    "native-sockets-final.log": "6eb9ca80d5cb8c20d2659b89c9066c6603911945e2f4c344b96711ff040e5823",
+    "native-wire-final.log": "3050d531e0bf09b87f839bd95928b1c7032af74439499739d3d8e14b67737987",
+    "native-wire-focused.log": "229caba84dea6f2544f692581b1cb22305d06ec9406a029d2871f98313a811c1"
+  }
+}

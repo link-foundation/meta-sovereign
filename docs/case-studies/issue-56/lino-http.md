@@ -20,4 +20,4 @@ Existing route-unit fixtures without a real server policy retain their former JS
 
 ![Settings loaded and saved through the default Lino HTTP server](lino-http-browser.png)
 
-This completes the structured JavaScript HTTP boundary only. SSE event payloads, socket sync/signaling, the Rust protocol and full associative-stack capability integration remain unfinished criteria. They must be implemented and verified before R-AA16 or issue 56 is complete.
+This step completed the structured JavaScript HTTP boundary only. Subsequent [event](lino-events.md), [socket/TCP](lino-sync.md) and [native](lino-native.md) work covers the other existing transport paths. Exact-head verification, full native feature parity and associative-stack capability integration remain tracked separately; these checks do not complete issue 56.

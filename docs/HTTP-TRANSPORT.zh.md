@@ -18,4 +18,4 @@ JavaScript WebSocket 同步和 WebRTC 信令协商 `meta-sovereign-sync.lino.v2`
 
 JavaScript TCP 同步使用相同的版本化协议。双方先发送配置的协议名和换行，再发送由四字节无符号大端字节长度及所选 Lino 正文组成的记录。默认文本格式；双方通过 `--sync-format=binary` 选择二进制（库选项：`format: 'application/lino-binary'`）。不会自动回退。记录及队列限制为 4 MiB，协议前缀为 128 字节，握手为 10 秒。旧版换行 JSON 要求双方使用 `--sync-format=json --json-compatibility=true`。监听器仍仅绑定回环地址。CLI 同步命令持续运行直到中断，然后关闭连接、刷写并释放存储。
 
-R-AA16 尚未完成：Rust 后端仍需协议迁移和验证。原生服务端功能一致性仍待完成。参见[需求清单](REQUIREMENTS.zh.md)和 [HTTP 传输调查](case-studies/issue-56/lino-http.md)。
+原生 Rust 服务现有端点现已使用相同的四种 HTTP 表示，以及版本化文本/二进制 WebSocket 同步和信令协议。它使用官方 Rust `links-notation` 解析器和二进制编解码器；JavaScript HTTP 仍以 Lino REST 为边界。JSON 必须通过 `ServerOptions { json_compatibility: true, ..Default::default() }`、`meta-sovereign-rs serve --json-compatibility` 或 `MS_JSON_COMPATIBILITY=1` 显式启用。HTTP 请求体上限为 16 MiB，解码器为 64 MiB，套接字消息及队列为 4 MiB。支持分片 Unicode、控制帧及按接收方格式重新编码；无效帧会关闭连接。`MS_SYNC_DEBUG=1` 仅记录拒绝代码，不记录消息内容。监听仍限于 loopback。R-AA16 验证和原生功能完整对等仍未完成；参见[原生调查](case-studies/issue-56/lino-native.md)及[需求](REQUIREMENTS.zh.md)。

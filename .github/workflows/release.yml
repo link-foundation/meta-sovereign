@@ -495,6 +495,25 @@ jobs:
       - name: cargo test
         run: cargo test --manifest-path rust/Cargo.toml --workspace
 
+      - name: Setup Node.js for native wire interoperability
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+
+      - uses: $/.github/actions/npm-cache
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
+      - name: Install JavaScript wire codecs
+        run: npm ci --no-audit --no-fund
+
+      - name: Check production JavaScript against the native server
+        run: |
+          cargo build --manifest-path rust/Cargo.toml -p meta-sovereign-server --bin meta-sovereign-rs
+          node experiments/issue-56/native-lino-interop.mjs rust/target/debug/meta-sovereign-rs
+
   # === BROWSER E2E (R-Z6) ===
   # A representative set of the `test:e2e:*` scripts in chromium: the SPA
   # smoke test, the chat basics, rich and service messages, ephemeral

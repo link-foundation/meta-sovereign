@@ -1,7 +1,6 @@
-//! End-to-end checks that prove the Rust server speaks the same wire
-//! protocol the SPA expects. We boot the server on a random port,
-//! drive raw TCP requests against it, and assert the responses match
-//! what `js/src/web/discover.js` and the SPA route layer expect.
+//! Existing endpoint and boundary checks with explicit legacy JSON opt-in.
+//! Default Lino and negotiated sockets are covered in lino_http.rs and
+//! lino_sockets.rs. Tests boot an isolated random-port server and drive TCP.
 
 use std::io::{Read, Write};
 use std::net::TcpStream;
@@ -79,6 +78,7 @@ fn local_server_boundary_restricts_http_and_socket_origins() {
 #[test]
 fn sources_endpoint_lists_known_networks() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -113,6 +113,7 @@ fn sources_endpoint_lists_known_networks() {
 #[test]
 fn status_endpoint_returns_object_for_discover() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -132,6 +133,7 @@ fn status_endpoint_returns_object_for_discover() {
 #[test]
 fn put_link_then_get_round_trips() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -160,6 +162,7 @@ fn put_link_then_get_round_trips() {
 #[test]
 fn pattern_infer_returns_regex_and_flags() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -181,6 +184,7 @@ fn pattern_infer_returns_regex_and_flags() {
 #[test]
 fn email_pull_imports_and_send_queues_over_http() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -222,6 +226,7 @@ fn email_pull_imports_and_send_queues_over_http() {
 #[test]
 fn unknown_route_returns_404() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -238,6 +243,7 @@ fn unknown_route_returns_404() {
 #[test]
 fn websocket_handshake_succeeds_on_ws_path() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -269,6 +275,7 @@ fn websocket_handshake_succeeds_on_ws_path() {
 #[test]
 fn webrtc_signaling_relays_between_two_peers() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -397,6 +404,7 @@ fn read_one_text_frame(stream: &mut TcpStream) -> String {
 #[test]
 fn ws_broadcast_sends_to_connected_peer() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -405,7 +413,7 @@ fn ws_broadcast_sends_to_connected_peer() {
     let mut s = open_ws(h.port(), "/ws");
     // Give the server a moment to register the socket.
     std::thread::sleep(Duration::from_millis(150));
-    h.ws_broadcast("{\"hello\":\"world\"}");
+    h.ws_broadcast("{\"hello\":\"world\"}").unwrap();
     let frame = read_one_text_frame(&mut s);
     assert_eq!(frame, "{\"hello\":\"world\"}");
     h.shutdown();
@@ -414,6 +422,7 @@ fn ws_broadcast_sends_to_connected_peer() {
 #[test]
 fn ws_drain_collects_inbound_frames() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -436,6 +445,7 @@ fn static_serve_returns_index_when_root_is_set() {
     std::fs::write(dir.join("index.html"), b"<html>hi</html>").unwrap();
     std::fs::write(dir.join("app.js"), b"console.log(1)").unwrap();
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: Some(dir.clone()),
         ..Default::default()
@@ -458,6 +468,7 @@ fn static_serve_returns_index_when_root_is_set() {
 #[test]
 fn responses_include_csp_and_hardening_headers() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()
@@ -490,6 +501,7 @@ fn responses_include_csp_and_hardening_headers() {
 #[test]
 fn metrics_endpoint_emits_prometheus_exposition() {
     let h = serve(ServerOptions {
+        json_compatibility: true,
         port: 0,
         static_root: None,
         ..Default::default()

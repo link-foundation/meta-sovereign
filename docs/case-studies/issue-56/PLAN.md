@@ -40,4 +40,4 @@ Objective: fully implement and verify every requirement of issue 56 and every re
 
 Initial evidence: no issue comments, PR conversation comments, inline comments, reviews or required sub-issues were returned at collection. These endpoints must be refreshed before finalization.
 
-Current focused work: complete native Rust text/binary Lino HTTP and socket parity (codec golden vectors drafted); verify the Windows-Deno listener cleanup correction in exact-head CI. The remaining product workstreams above stay open.
+Current focused work: native Rust text/binary HTTP and socket migration is implemented with 84 production-JavaScript golden records and real cross-language checks; push and verify exact-head CI. The readable-number defect is corrected across wire/text/recovery encoding and reported upstream. The Windows-Deno cleanup correction and both browser engines pass on exact commit `2a51e2d`. Next, complete scheduled text/binary recovery dumps and the granular six-project feature inventory. The remaining product workstreams above stay open.
