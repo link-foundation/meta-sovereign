@@ -1358,4 +1358,24 @@ export const ru = {
   'questions.contextSource.default': 'Заданное значение по умолчанию',
   'questions.contextSource.missing': 'Контекст недоступен',
   'questions.contextSource.ambiguous': 'Неоднозначный контекст',
+  'questions.salaryTitle': 'Зарплатные ожидания',
+  'questions.salaryHint':
+    'Задайте месячные суммы на руки и до вычета налогов отдельно для каждой валюты. Почасовая ставка округляется вверх с учётом часов и шага. Отсутствующие суммы требуют проверки. Конвертация валют и расчёт налогов не предполагаются.',
+  'questions.salaryEnabled': 'Использовать заданные зарплатные ожидания',
+  'questions.salaryApproved':
+    'Разрешить автоматическую отправку полных ответов о зарплате',
+  'questions.salaryHours':
+    'Часы работы в месяц (пусто — без почасовых ответов)',
+  'questions.salaryDefault': 'Валюта зарплаты по умолчанию',
+  'questions.salaryBasis': 'Налоговая база по умолчанию',
+  'questions.salaryCurrency': 'Валюта зарплаты',
+  'questions.salaryCode': 'Код валюты, например USD',
+  'questions.salaryKeywords': 'Слова для валюты через запятую',
+  'questions.salary.net': 'Месячная сумма на руки',
+  'questions.salary.gross': 'Месячная сумма до вычета налогов',
+  'questions.salary.hourlyStep': 'Шаг округления почасовой ставки',
+  'questions.salaryAdd': 'Добавить валюту зарплаты',
+  'questions.salaryRemove': 'Удалить валюту зарплаты',
+  'questions.salaryClear': 'Удалить настройки зарплаты',
+  'questions.match.salary': 'Заданные зарплатные ожидания',
 };

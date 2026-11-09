@@ -2,6 +2,7 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { ProfileFields } from './question-profile-fields.js';
 import { AnswerContextFields } from './question-context-fields.js';
+import { SalaryFields } from './question-salary-fields.js';
 
 const el = React.createElement;
 export const AutomationActionFields = ({
@@ -49,6 +50,11 @@ export const AutomationActionFields = ({
             key: 'contexts',
             contexts: form.contexts,
             set: (contexts) => set('contexts', contexts),
+          }),
+          el(SalaryFields, {
+            key: 'salary',
+            salary: form.salary,
+            set: (salary) => set('salary', salary),
           }),
           el(ProfileFields, {
             key: 'profile',

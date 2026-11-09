@@ -256,6 +256,87 @@ const verifyMobile = async () => {
   }
 };
 
+const verifySalary = async (preview) => {
+  const salary = preview.locator('[data-answer-salary]');
+  await salary.locator(':scope > summary').click();
+  await salary
+    .getByRole('checkbox', {
+      name: 'Use configured salary targets',
+      exact: true,
+    })
+    .check();
+  const currency = salary.locator('[data-salary-currency]');
+  await currency
+    .getByLabel('Currency code, e.g. USD', { exact: true })
+    .fill('USD');
+  await currency
+    .getByLabel('Currency words, comma-separated', { exact: true })
+    .fill('USD, $');
+  await currency.getByLabel('Monthly net amount', { exact: true }).fill('6000');
+  await currency
+    .getByLabel('Monthly gross amount', { exact: true })
+    .fill('7100');
+  await salary
+    .getByLabel('Default salary currency', { exact: true })
+    .selectOption('USD');
+  await preview
+    .getByLabel('Question or pattern', { exact: true })
+    .fill('What hourly rate in USD do you expect?');
+  const result = preview.locator('[data-answer-preview]');
+  const run = () =>
+    preview
+      .getByRole('button', { name: 'Preview answer', exact: true })
+      .click();
+  await run();
+  await result.getByText('From $40 net per hour.', { exact: true }).waitFor();
+  await result
+    .getByText('Review required before automatic sending.', { exact: true })
+    .waitFor();
+  await salary
+    .getByRole('checkbox', {
+      name: 'Approve complete salary answers for automatic sending',
+      exact: true,
+    })
+    .check();
+  await run();
+  await result.getByText('Approved and complete.', { exact: true }).waitFor();
+  const evidence = result.locator('[data-answer-context-evidence]');
+  if ((await evidence.getAttribute('open')) === null) {
+    await evidence.locator(':scope > summary').click();
+  }
+  await result
+    .getByText('salary_currency: USD · Current question', { exact: true })
+    .waitFor();
+  await page.setViewportSize({ width: 1200, height: 1100 });
+  await salary.evaluate((element) =>
+    element.scrollIntoView({ block: 'center' })
+  );
+  if (process.env.QUESTIONS_SALARY_SCREENSHOT) {
+    await page.screenshot({
+      path: process.env.QUESTIONS_SALARY_SCREENSHOT,
+      scale: 'css',
+    });
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('.app-shell-compact').waitFor();
+  await currency.evaluate((element) =>
+    element.scrollIntoView({ block: 'start' })
+  );
+  const size = await page.evaluate(() => ({
+    width: globalThis.innerWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  assert(size.width === size.scroll, 'salary controls fit the mobile viewport');
+  if (process.env.QUESTIONS_SALARY_MOBILE_SCREENSHOT) {
+    await page.screenshot({
+      path: process.env.QUESTIONS_SALARY_MOBILE_SCREENSHOT,
+      scale: 'css',
+    });
+  }
+  await page.setViewportSize({ width: 1200, height: 1100 });
+  await page.locator('.app-shell-compact').waitFor({ state: 'detached' });
+};
+
 await finish(async () => {
   await page.addInitScript(
     ({ key, version }) =>
@@ -326,6 +407,7 @@ await finish(async () => {
   await verifyContexts(preview);
   await verifyLearning(saved);
   await verifyPolicy();
+  await verifySalary(preview);
 
   await panel
     .getByRole('button', { name: 'Create question automation', exact: true })
@@ -373,6 +455,11 @@ await finish(async () => {
   assert(
     persisted.action.contexts[0].choices[1].profile.city === 'Da Nang',
     'context profile choices persisted through the production API'
+  );
+  assert(
+    persisted.action.salary.approved &&
+      persisted.action.salary.currencies[0].net === 6000,
+    'salary values and explicit approval persisted through the production API'
   );
 
   await page.route('**/api/automations/answers/save', (route) =>

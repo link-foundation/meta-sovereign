@@ -1341,4 +1341,24 @@ export const en = {
   'questions.contextSource.default': 'Configured default',
   'questions.contextSource.missing': 'Context unavailable',
   'questions.contextSource.ambiguous': 'Ambiguous context',
+  'questions.salaryTitle': 'Salary targets',
+  'questions.salaryHint':
+    'Enter separate monthly net and gross amounts for each currency. Hourly rates round up using your hours and rounding step. Missing amounts require review. No currency conversion or tax calculation is assumed.',
+  'questions.salaryEnabled': 'Use configured salary targets',
+  'questions.salaryApproved':
+    'Approve complete salary answers for automatic sending',
+  'questions.salaryHours':
+    'Work hours per month (empty disables hourly answers)',
+  'questions.salaryDefault': 'Default salary currency',
+  'questions.salaryBasis': 'Default tax basis',
+  'questions.salaryCurrency': 'Salary currency',
+  'questions.salaryCode': 'Currency code, e.g. USD',
+  'questions.salaryKeywords': 'Currency words, comma-separated',
+  'questions.salary.net': 'Monthly net amount',
+  'questions.salary.gross': 'Monthly gross amount',
+  'questions.salary.hourlyStep': 'Hourly rounding step',
+  'questions.salaryAdd': 'Add salary currency',
+  'questions.salaryRemove': 'Remove salary currency',
+  'questions.salaryClear': 'Remove salary settings',
+  'questions.match.salary': 'Configured salary target',
 };

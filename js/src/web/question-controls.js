@@ -1,6 +1,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { ProfileFields } from './question-profile-fields.js';
+import { SalaryFields } from './question-salary-fields.js';
 import {
   AnswerContextFields,
   AnswerEnvironmentFields,
@@ -309,6 +310,8 @@ const PreviewControls = ({
   setProfile,
   contexts,
   setContexts,
+  salary,
+  setSalary,
 }) => {
   const t = useT();
   const [question, setQuestion] = React.useState('');
@@ -342,6 +345,7 @@ const PreviewControls = ({
     ]),
     el(ProfileFields, { key: 'p', profile, set: setProfile }),
     el(AnswerContextFields, { key: 'contexts', contexts, set: setContexts }),
+    el(SalaryFields, { key: 'salary', salary, set: setSalary }),
     el(AnswerEnvironmentFields, {
       key: 'environment',
       environment,
@@ -362,6 +366,7 @@ const PreviewControls = ({
                 chat,
                 profile,
                 contexts,
+                salary,
                 recent: (environment.recentText ?? '')
                   .split('\n')
                   .filter((line) => line.trim()),
@@ -376,7 +381,7 @@ const PreviewControls = ({
   ]);
 };
 
-const questionAutomation = (t, profile, contexts) => ({
+const questionAutomation = (t, profile, contexts, salary) => ({
   ...blankAutomation(t('questions.automationName')),
   conditions: {
     silentDays: 0,
@@ -385,7 +390,7 @@ const questionAutomation = (t, profile, contexts) => ({
     personal: false,
     lastFrom: 'contact',
   },
-  action: { kind: 'answer-questions', profile, contexts },
+  action: { kind: 'answer-questions', profile, contexts, salary },
 });
 
 const QuestionToolbar = ({ busy, create, refresh, newRule }) => {
@@ -419,6 +424,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const [notice, setNotice] = React.useState('');
   const [profile, setProfile] = React.useState({});
   const [contexts, setContexts] = React.useState([]);
+  const [salary, setSalary] = React.useState(undefined);
   const [learned, setLearned] = React.useState(null);
   const run = async (work) => {
     if (active.current) {
@@ -491,7 +497,8 @@ export const QuestionControls = ({ api, openAutomation }) => {
           setNotice('');
         },
         refresh: () => run(reload),
-        create: () => openAutomation(questionAutomation(t, profile, contexts)),
+        create: () =>
+          openAutomation(questionAutomation(t, profile, contexts, salary)),
       }),
       rules.length
         ? el(
@@ -531,6 +538,8 @@ export const QuestionControls = ({ api, openAutomation }) => {
         setProfile,
         contexts,
         setContexts,
+        salary,
+        setSalary,
       }),
     ]
   );

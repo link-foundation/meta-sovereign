@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-salary.md](question-salary.md) records independent configured targets, hourly rounding, related clarifications, unique range selection and CLI/API/UI/delivery regressions, with desktop/mobile screenshots. Remaining tax/FX and provider/form parity stay open.
+
 - 2026-11-09 09:28 UTC: issue created. Initial issue and PR snapshots, including all three PR feedback endpoints, are in `evidence/github/`. They returned no comments, reviews or required sub-issues at collection; finalization must refresh them.
 - Initial research pinned ten repositories, including all six feature references, browser-commander, link-cli, lino-rest-api and formal-ai. The complete downloaded metadata, commit/tree responses and READMEs are preserved in `data/reference-snapshots.tar.gz`, with per-file SHA-256 values in its adjacent manifest. Reference code is inspected outside the working tree and never executed.
 - The initial code review found independent headless defaults across five browser entry points. [browser-defaults.md](browser-defaults.md) records the failing-before/passing-after reproduction and first fix.

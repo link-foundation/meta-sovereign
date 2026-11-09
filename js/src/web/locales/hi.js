@@ -1340,4 +1340,24 @@ export const hi = {
   'questions.contextSource.default': 'सेट किया गया डिफ़ॉल्ट',
   'questions.contextSource.missing': 'संदर्भ उपलब्ध नहीं है',
   'questions.contextSource.ambiguous': 'संदर्भ अस्पष्ट है',
+  'questions.salaryTitle': 'वेतन लक्ष्य',
+  'questions.salaryHint':
+    'हर मुद्रा में मासिक कर के बाद और कर से पहले की राशि अलग दें। घंटे की दर आपके घंटों और पूर्णांकन चरण से ऊपर गोल होगी। अनुपलब्ध राशि की समीक्षा ज़रूरी है। मुद्रा या कर की गणना अपने आप नहीं होती।',
+  'questions.salaryEnabled': 'निर्धारित वेतन लक्ष्य उपयोग करें',
+  'questions.salaryApproved':
+    'पूर्ण वेतन उत्तरों को स्वतः भेजने की मंज़ूरी दें',
+  'questions.salaryHours':
+    'मासिक कार्य घंटे (खाली रखने पर प्रति घंटे उत्तर बंद)',
+  'questions.salaryDefault': 'डिफ़ॉल्ट वेतन मुद्रा',
+  'questions.salaryBasis': 'डिफ़ॉल्ट कर आधार',
+  'questions.salaryCurrency': 'वेतन मुद्रा',
+  'questions.salaryCode': 'मुद्रा कोड, जैसे USD',
+  'questions.salaryKeywords': 'मुद्रा के शब्द, अल्पविराम से अलग',
+  'questions.salary.net': 'मासिक कर के बाद की राशि',
+  'questions.salary.gross': 'मासिक कर से पहले की राशि',
+  'questions.salary.hourlyStep': 'प्रति घंटे पूर्णांकन चरण',
+  'questions.salaryAdd': 'वेतन मुद्रा जोड़ें',
+  'questions.salaryRemove': 'वेतन मुद्रा हटाएं',
+  'questions.salaryClear': 'वेतन सेटिंग हटाएं',
+  'questions.match.salary': 'निर्धारित वेतन लक्ष्य',
 };

@@ -8,6 +8,8 @@ import {
 } from './question-match.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { normalizeSalary } from './salary-config.js';
+import { applySalaryAnswer } from './question-salary.js';
 import {
   normalizeAnswerProfile,
   renderAnswer as render,
@@ -113,6 +115,9 @@ export const normalizeAnswerAction = (action) => {
     ruleIds: strings(action.ruleIds, 'ruleIds'),
     profile,
     contexts: normalizeAnswerContexts(action.contexts),
+    ...(action.salary === undefined || action.salary === null
+      ? {}
+      : { salary: normalizeSalary(action.salary) }),
     approximate: action.approximate !== false,
     // Generic draft/editor controls can inspect these without treating Q/A
     // edits as the next contact's reusable reengagement template.
@@ -261,22 +266,25 @@ export const planAnswer = (question, options = {}) => {
     contexts: normalizeAnswerContexts(options.contexts),
     rules,
   };
-  if (!asksQuestion(question)) {
-    return {
-      question,
-      text: '',
-      match: 'unanswered',
-      complete: false,
-      requiresReview: true,
-      missing: [],
-      rules: [],
-      parts: [],
-    };
-  }
-  let result = answerOne(question, context);
+  const empty = {
+    question,
+    text: '',
+    match: 'unanswered',
+    complete: false,
+    requiresReview: true,
+    missing: [],
+    rules: [],
+    parts: [],
+  };
+  let result = asksQuestion(question) ? answerOne(question, context) : empty;
   const questions = splitQuestions(question);
+  if (questions.length <= 1) {
+    result = applySalaryAnswer(question, context, result);
+  }
   if (result.match === 'unanswered' && questions.length > 1) {
-    const parts = questions.map((part) => answerOne(part, context));
+    const parts = questions.map((part) =>
+      applySalaryAnswer(part, context, answerOne(part, context))
+    );
     result = {
       question,
       text: parts

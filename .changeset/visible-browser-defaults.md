@@ -43,3 +43,5 @@ Add explicit canonical answer corrections and equivalent questions, a persisted 
 Retry transient GitHub dependency-comparison failures with a bounded three-attempt preflight while preserving failed unknown results and explicit main release setup errors.
 
 Add configured answer context groups with question/conversation/vacancy precedence, disjoint profile values, ambiguity review and evidence through CLI, default text/binary Lino API and shared UI. Rebuild actual same-chat context and reread saved actions after typing; changed, disabled or deleted saved automations stop automatic delivery.
+
+Add independent configured salary targets, monthly/hourly conversion with upward rounding, related currency/tax-basis follow-ups and unique containing salary bands through CLI, default Lino API and shared editors. Missing or unapproved amounts require review; target, hours and approval changes are rechecked before queuing.
