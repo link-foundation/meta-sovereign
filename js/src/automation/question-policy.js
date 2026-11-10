@@ -1,4 +1,5 @@
 import { questionWords } from './question-match.js';
+import { writeAnswerKnowledge } from './question-knowledge.js';
 
 export const QA_POLICY_ID = 'qa-policy:reuse';
 export const normalizeAnswerPolicy = (input = {}) => {
@@ -44,11 +45,19 @@ export const rejectedAnswer = (text, policy = {}) => {
 export const readAnswerPolicy = async (store) =>
   normalizeAnswerPolicy((await store.get(QA_POLICY_ID)) ?? {});
 
-export const saveAnswerPolicy = async (store, input) => {
-  const policy = normalizeAnswerPolicy(input);
-  await store.put(policy);
-  return policy;
-};
+export const saveAnswerPolicy = (store, input) =>
+  writeAnswerKnowledge(store, async () => {
+    const policy = normalizeAnswerPolicy(input);
+    await store.put(policy);
+    return policy;
+  });
+
+export const updateAnswerPolicy = (store, update) =>
+  writeAnswerKnowledge(store, async () => {
+    const policy = normalizeAnswerPolicy(update(await readAnswerPolicy(store)));
+    await store.put(policy);
+    return policy;
+  });
 
 export const equivalentAnswerVariants = (matches, policy = {}) => {
   if (!policy.punctuationEquivalent) {

@@ -1,5 +1,8 @@
 import { historyOrder } from '../replies/history-order.js';
 import { createAnswerLearner } from './question-learning.js';
+import { QA_RULE_PREFIX } from './question-answers.js';
+import { QA_POLICY_ID } from './question-policy.js';
+import { debugQuestionTurn } from './question-turns.js';
 
 const MAX_INDEX_BYTES = 64 * 1024 ** 2;
 const chatKey = (message) =>
@@ -69,12 +72,23 @@ export const indexAnswerArchive = async (store, maxBytes = MAX_INDEX_BYTES) => {
 
 export const archiveReadGuard = (store) => {
   let changed = false;
+  let knowledgeChanged = false;
   const stop = store.subscribe?.((event) => {
-    changed ||= event.link?.id?.startsWith('msg:') === true;
+    const id = event.link?.id;
+    changed ||= id?.startsWith('msg:') === true;
+    knowledgeChanged ||=
+      id === QA_POLICY_ID || id?.startsWith(QA_RULE_PREFIX) === true;
   });
   return {
     check() {
+      if (knowledgeChanged) {
+        debugQuestionTurn('learning-invalidated', { kind: 'knowledge' });
+        throw new Error(
+          'answer knowledge changed during learning; retry before applying'
+        );
+      }
       if (changed) {
+        debugQuestionTurn('learning-invalidated', { kind: 'archive' });
         throw new Error(
           'archive changed during learning; retry before applying'
         );

@@ -11,8 +11,15 @@ import { verifyQuestionTurns } from './helpers/e2e-question-turns.mjs';
 import { verifyQuestionLists } from './helpers/e2e-question-lists.mjs';
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
+import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
 
 const store = createMemoryStore();
+const reading = { beforeGet: null };
+const get = store.get;
+store.get = async (id, project) => {
+  await reading.beforeGet?.(id);
+  return get(id, project);
+};
 for (const [id, sender, body] of [
   [1, 'them', 'Какой у вас опыт?'],
   [2, 'me', 'Пять лет.'],
@@ -634,5 +641,6 @@ await finish(async () => {
   await verifyQuestionLists({ page, panel, store, until });
   await verifyQuestionSummary({ page, panel, store, until });
   await verifyQuestionCorrections({ page, panel, store });
+  await verifyQuestionConcurrency({ panel, store, until, reading });
   verifySyncCapability();
 });

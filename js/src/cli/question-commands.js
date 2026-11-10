@@ -10,6 +10,7 @@ import {
 import {
   readAnswerPolicy,
   saveAnswerPolicy,
+  updateAnswerPolicy,
 } from '../automation/question-policy.js';
 import { salaryExchange } from '../automation/salary-exchange.js';
 
@@ -48,14 +49,13 @@ const answerInput = async (args) => {
 };
 
 const policyCommand = async (args, store) => {
-  const current = await readAnswerPolicy(store);
   if (args._[2]) {
     return saveAnswerPolicy(store, await answerInput(args));
   }
   const clear =
     args['clear-rejected'] === true || args['clear-rejected'] === 'true';
   if (args.reject || clear || args['punctuation-equivalent'] !== undefined) {
-    return saveAnswerPolicy(store, {
+    return updateAnswerPolicy(store, (current) => ({
       ...current,
       rejected: clear
         ? []
@@ -64,9 +64,9 @@ const policyCommand = async (args, store) => {
         args['punctuation-equivalent'] === undefined
           ? current.punctuationEquivalent
           : ['true', true].includes(args['punctuation-equivalent']),
-    });
+    }));
   }
-  return current;
+  return readAnswerPolicy(store);
 };
 
 const planOverrides = (args) => ({

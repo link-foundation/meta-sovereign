@@ -16,6 +16,8 @@ import { createAnswerContractor } from './question-contraction.js';
 import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
+import { writeAnswerKnowledge } from './question-knowledge.js';
+import { debugQuestionTurn } from './question-turns.js';
 import {
   prepareSalaryExchange,
   withSalaryExchangeEvidence,
@@ -48,8 +50,9 @@ const scan = async (store, select, consume, project = (link) => link) => {
   }
 };
 
-export const listAnswerRules = async (store) => {
+const readAnswerRules = async (store, maxBytes = Infinity) => {
   const rules = [];
+  let bytes = 0;
   await scan(
     store,
     (link) => link?.id?.startsWith(QA_RULE_PREFIX),
@@ -58,12 +61,23 @@ export const listAnswerRules = async (store) => {
         if (rules.length >= 1000) {
           throw new Error('answer rule limit (1000) exceeded');
         }
-        rules.push(normalizeAnswerRule(rule));
+        const normalized = normalizeAnswerRule(rule);
+        if (Number.isFinite(maxBytes)) {
+          bytes += JSON.stringify(normalized).length * 2;
+          if (bytes > maxBytes) {
+            throw new Error(
+              'answer knowledge capacity exceeded; no proposals applied'
+            );
+          }
+        }
+        rules.push(normalized);
       }
     }
   );
   return rules.sort((a, b) => a.question.localeCompare(b.question));
 };
+
+export const listAnswerRules = (store) => readAnswerRules(store);
 
 const contractionInput = async (store, input) =>
   input.contract === true
@@ -77,7 +91,7 @@ const contractionInput = async (store, input) =>
       }
     : input;
 
-export const saveAnswerRule = async (store, input) => {
+const writeAnswerRule = async (store, input) => {
   input = await contractionInput(store, input);
   const normalized = normalizeAnswerRule({
     ...input,
@@ -117,11 +131,15 @@ export const saveAnswerRule = async (store, input) => {
   return rule;
 };
 
-export const deleteAnswerRule = async (store, id) => {
-  const key = answerRuleId(id);
-  await store.delete(key);
-  return { deleted: key };
-};
+export const saveAnswerRule = (store, input) =>
+  writeAnswerKnowledge(store, () => writeAnswerRule(store, input));
+
+export const deleteAnswerRule = (store, id) =>
+  writeAnswerKnowledge(store, async () => {
+    const key = answerRuleId(id);
+    await store.delete(key);
+    return { deleted: key };
+  });
 
 export const previewAnswer = async (store, input) => {
   if (typeof input.question !== 'string' || input.question.length > 6000) {
@@ -259,6 +277,23 @@ const mergeLearned = (existing, proposal) => ({
   answers: [...(existing?.answers ?? [])],
 });
 
+const readAnswerKnowledge = async (store) => ({
+  policy: await readAnswerPolicy(store),
+  rules: await readAnswerRules(store, 8 * 1024 ** 2),
+});
+
+const unchangedKnowledge = async (store, snapshot, checkArchive) => {
+  checkArchive();
+  const current = await readAnswerKnowledge(store);
+  checkArchive();
+  if (JSON.stringify(current) !== snapshot) {
+    debugQuestionTurn('learning-invalidated', { kind: 'knowledge-snapshot' });
+    throw new Error(
+      'answer knowledge changed during learning; retry before applying'
+    );
+  }
+};
+
 // Learning produces reviewable proposals by default. Applying never grants
 // approval and never increments frequencies merely because it ran again.
 const collectSavedAnswers = async (
@@ -270,16 +305,19 @@ const collectSavedAnswers = async (
     throw new Error('self must be a list of identifiers');
   }
   options = await contractionInput(store, options);
+  const knowledge = await readAnswerKnowledge(store);
+  const snapshot = JSON.stringify(knowledge);
+  const saved = new Map(knowledge.rules.map((rule) => [rule.id, rule]));
   const learned = await learnArchivedAnswers(store, {
     self: [...new Set(['me', ...self])],
-    policy: await readAnswerPolicy(store),
+    policy: knowledge.policy,
     contract: createAnswerContractor(options),
     profile: options.profile,
-    rules: await listAnswerRules(store),
+    rules: knowledge.rules,
   });
   const rules = [];
   for (const proposal of learned.rules) {
-    const existing = await store.get(proposal.id);
+    const existing = saved.get(proposal.id);
     const merged = mergeLearned(existing, proposal);
     for (const answer of proposal.answers) {
       const prior = merged.answers.find((entry) => entry.text === answer.text);
@@ -305,16 +343,21 @@ const collectSavedAnswers = async (
   }
   checkArchive();
   if (apply === true) {
-    const existing = await listAnswerRules(store);
-    if (new Set([...existing, ...rules].map((rule) => rule.id)).size > 1000) {
+    if (
+      new Set([...saved.keys(), ...rules.map((rule) => rule.id)]).size > 1000
+    ) {
       throw new Error(
         'answer rule limit (1000) exceeded; no proposals applied'
       );
     }
-    checkArchive();
-    for (const rule of rules) {
-      await store.put(rule);
-    }
+    await writeAnswerKnowledge(store, async () => {
+      await unchangedKnowledge(store, snapshot, checkArchive);
+      for (const rule of rules) {
+        await store.put(rule);
+      }
+    });
+  } else {
+    await unchangedKnowledge(store, snapshot, checkArchive);
   }
   return { rules, applied: apply === true, coverage: learned.coverage };
 };

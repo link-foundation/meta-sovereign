@@ -143,3 +143,5 @@ Apply explicit owner answer corrections across saved and learned rule IDs, prese
 Wait for snapshot cancellation cleanup acknowledgement before releasing handoff ownership or removing encoder workspaces; retain cleanup failures and optional lifecycle diagnostics.
 
 Wait for initial export defaults before editing the destination, preventing late responses from inserting the default path into a requested folder.
+
+Invalidate stale learned answers when rules or reuse policy change, preserve concurrent owner edits with a shared writer queue, and retain simultaneous CLI rejection additions with bounded knowledge snapshots.
