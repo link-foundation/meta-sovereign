@@ -60,6 +60,15 @@ const startKnowledgeBridge = (store) => {
   return bridge;
 };
 
+const checkPlanning = (stopping, planning) => {
+  if (stopping) {
+    throw failure('form-stopped', 'Form planning is stopping.');
+  }
+  if (planning.size) {
+    throw failure('form-busy', 'Another form answer plan is still running.');
+  }
+};
+
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
   store,
@@ -68,15 +77,18 @@ export const createFormReader = ({
   deadlineMs = 60000,
   review = {},
   reportWriter,
+  modelRunner,
 } = {}) => {
   let active = null;
   let stopping = false;
   const planning = new Set();
+  const modelAbort = new AbortController();
   const bridge = startKnowledgeBridge(store);
   const reviews = createFormSessions({
     store,
     openSession,
     reportWriter,
+    modelRunner,
     ...review,
     ready: bridge,
   });
@@ -95,22 +107,17 @@ export const createFormReader = ({
     historyReview: reviews.history,
     detachReviews: async () => {
       stopping = true;
+      modelAbort.abort();
+      await Promise.allSettled(planning);
       return detachReader(reviews, bridge);
     },
     capabilities: () => formCapabilities(availability),
     async plan(input = {}) {
-      if (stopping) {
-        throw failure('form-stopped', 'Form planning is stopping.');
-      }
-      if (planning.size) {
-        throw failure(
-          'form-busy',
-          'Another form answer plan is still running.'
-        );
-      }
-      const task = planFormAnswers(store, input).then((result) =>
-        withFormReportFile(reportWriter, result)
-      );
+      checkPlanning(stopping, planning);
+      const task = planFormAnswers(store, input, {
+        runner: modelRunner,
+        signal: modelAbort.signal,
+      }).then((result) => withFormReportFile(reportWriter, result));
       planning.add(task);
       try {
         return await task;
@@ -204,6 +211,7 @@ export const createFormReader = ({
     },
     async stop() {
       stopping = true;
+      modelAbort.abort();
       await stopReader(reviews, planning, active, bridge);
     },
   };

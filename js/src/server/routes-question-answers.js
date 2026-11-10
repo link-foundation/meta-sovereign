@@ -1,10 +1,13 @@
 import { json, readBody } from './util.js';
 import { questionProfilesRoute } from './routes-question-profiles.js';
 import {
+  answerModelRoute,
+  answerModelPreviewRoute,
+} from './routes-answer-model.js';
+import {
   listAnswerRules,
   saveAnswerRule,
   deleteAnswerRule,
-  previewAnswer,
   learnSavedAnswers,
 } from '../automation/question-store.js';
 import {
@@ -20,7 +23,10 @@ import {
 const ROOT = '/api/automations/answers';
 const isProfilesRoute = (path) =>
   path === `${ROOT}/profiles` || path.startsWith(`${ROOT}/profiles/`);
-export const questionAnswerRoute = async (store, req, res, path) => {
+export const questionAnswerRoute = async (store, req, res, path, url, ctx) => {
+  if (path === `${ROOT}/model`) {
+    return answerModelRoute(store, req, res, ctx);
+  }
   if (isProfilesRoute(path)) {
     return questionProfilesRoute(store, req, res, path);
   }
@@ -39,12 +45,12 @@ export const questionAnswerRoute = async (store, req, res, path) => {
     const body = await readBody(req);
     json(res, 200, { rule: await saveAnswerRule(store, body.rule ?? body) });
   } else if (req.method === 'POST' && path === `${ROOT}/plan`) {
-    json(res, 200, await previewAnswer(store, await readBody(req)));
+    return answerModelPreviewRoute(store, req, res, ctx);
   } else if (req.method === 'POST' && path === `${ROOT}/learn`) {
     json(res, 200, await learnSavedAnswers(store, await readBody(req)));
   } else if (req.method === 'POST' && path === `${ROOT}/delete`) {
     json(res, 200, await deleteAnswerRule(store, (await readBody(req)).id));
-  } else if (req.method === 'DELETE' && path.startsWith(`${ROOT}/`)) {
+  } else if (isDeleteRoute(req.method, path)) {
     json(
       res,
       200,
@@ -58,6 +64,9 @@ export const questionAnswerRoute = async (store, req, res, path) => {
   }
   return true;
 };
+
+const isDeleteRoute = (method, path) =>
+  method === 'DELETE' && path.startsWith(`${ROOT}/`);
 
 const isSaveRoute = (method, path) =>
   (method === 'PUT' && path === ROOT) ||

@@ -48,6 +48,7 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
               salary: body.salary,
               vacancy: body.vacancy,
               recent: body.recent,
+              modelDraft: body.modelDraft,
             })
           : await ctx.forms.read({
               url: body.url,

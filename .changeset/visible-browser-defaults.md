@@ -187,3 +187,5 @@ Save one configured PDF résumé for reviewed reuse through CLI, Lino, offline s
 Keep the tutorial's required service button visible above browser chrome and clear of its card. Coordinate reveal retries with the actual control so a later section scroll cannot hide it again.
 
 Accept positional or Lino form URL batches without the four-form ceiling. Save owner-selected review capacity through CLI, trusted Lino and localized Forms controls; serialize reservations and optimistic settings, retain stale drafts and active owners, and start batch browsers sequentially with explicit per-slot failures.
+
+Add optional revisioned Claude Code draft configuration and per-plan opt-in across CLI, trusted Lino and shared localized Questions/Forms controls. Use selected stored CV and bounded approved context, visible missing-fact clarification, frozen-context reviewed application and owned process cancellation without replaying model requests.

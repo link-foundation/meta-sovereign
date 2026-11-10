@@ -69,6 +69,7 @@ export const createReviewLifecycle = ({
       record.disposal = null;
     }
     record.cancelled ??= 'form-session-closed';
+    record.operationAbort?.abort();
     record.state = 'closing';
     timers.clearTimeout(record.idleTimer);
     record.closing = (async () => {
@@ -105,6 +106,7 @@ export const createReviewLifecycle = ({
     record.idleTimer.unref?.();
   };
   const run = async (record, operation) => {
+    record.operationAbort = new AbortController();
     const timer = timers.setTimeout(() => {
       record.cancelled = 'form-timeout';
       close(record.id).catch(() => {});
@@ -122,6 +124,7 @@ export const createReviewLifecycle = ({
       throw error;
     } finally {
       timers.clearTimeout(timer);
+      record.operationAbort = null;
     }
   };
   const stop = async () => {

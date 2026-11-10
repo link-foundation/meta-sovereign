@@ -7,9 +7,11 @@ import { createFormReportWriter } from '../forms/report-file.js';
 import { formReportOutput } from '../forms/report-markdown.js';
 import { browserName } from '../browser/policy.js';
 import { reviewCapacityValue } from '../forms/review-capacity.js';
+import { modelDraftFlag } from './answer-model-commands.js';
+import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const sources = [
     args.urls !== undefined,
@@ -210,6 +212,9 @@ const reviewLines = async ({
   }
 };
 
+const reviewModel = (runner) =>
+  runner ? { draft: runner, stop: async () => {} } : createLocalAnswerModel();
+
 export const createFormReviewCommands = ({
   openStore,
   reviewInput = () =>
@@ -219,15 +224,18 @@ export const createFormReviewCommands = ({
   'forms-review': async (args, log) => {
     const output = formReportOutput(args.format);
     const forms = inputs(args);
+    const modelDraft = modelDraftFlag(args['model-draft']);
     const capacity = requestedCapacity(args, forms.length);
     const file = args['resume-pdf']
       ? await loadResumePdf(args['resume-pdf'])
       : null;
     const store = await openStore(args.store ?? defaultStoreDir());
+    const model = reviewModel(options.modelRunner);
     const reader = createFormReader({
       store,
       reportWriter: createFormReportWriter(),
       ...options,
+      modelRunner: model.draft,
     });
     let stream;
     const plans = new Map();
@@ -279,6 +287,7 @@ export const createFormReviewCommands = ({
           plans,
           profileId: args['profile-id'] ?? '',
           approximate: ![false, 'false'].includes(args.approximate),
+          modelDraft,
         },
         isCancelled: () => cancelled,
         log,
@@ -302,7 +311,11 @@ export const createFormReviewCommands = ({
           log(JSON.stringify(await reader.detachReviews()));
         }
       } finally {
-        await store.close?.();
+        try {
+          await model.stop();
+        } finally {
+          await store.close?.();
+        }
       }
     }
   },

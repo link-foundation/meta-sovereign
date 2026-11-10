@@ -8,6 +8,10 @@ import {
 } from './question-context-fields.js';
 import { blankAutomation } from './automations-model.js';
 import { AnswerEvidence } from './question-evidence.js';
+import {
+  AnswerModelSettings,
+  ModelDraftControl,
+} from './answer-model-settings.js';
 import { AnswerPolicyControls } from './question-policy.js';
 
 const el = React.createElement;
@@ -339,6 +343,7 @@ const PreviewControls = ({
   const [chat, setChat] = React.useState('');
   const [result, setResult] = React.useState(null);
   const [environment, setEnvironment] = React.useState({});
+  const [modelDraft, setModelDraft] = React.useState(false);
   return el('details', { key: 'preview' }, [
     el('summary', { key: 's' }, t('questions.preview')),
     el(Field, {
@@ -379,6 +384,15 @@ const PreviewControls = ({
       environment,
       set: setEnvironment,
     }),
+    el(ModelDraftControl, {
+      key: 'model',
+      value: modelDraft,
+      busy,
+      set: (value) => {
+        setModelDraft(value);
+        setResult(null);
+      },
+    }),
     el(
       'button',
       {
@@ -390,6 +404,7 @@ const PreviewControls = ({
             setResult(
               await api.previewAnswer({
                 question,
+                modelDraft,
                 source,
                 chat,
                 profile,
@@ -575,6 +590,9 @@ export const QuestionControls = ({ api, openAutomation }) => {
       ),
       el(LearnedAnswers, { key: 'learn', busy, learned, learn }),
       el(AnswerPolicyControls, { key: 'policy', api, busy, run }),
+      api.answerModel
+        ? el(AnswerModelSettings, { key: 'model', api, busy, run })
+        : null,
       el(PreviewControls, {
         key: 'preview',
         busy,

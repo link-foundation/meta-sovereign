@@ -11,6 +11,7 @@ import { FormChoiceInspection } from './form-choice-disclosure.js';
 import { FormReportDownloads, FormReportFile } from './form-report-download.js';
 import { FormReviewJournal } from './form-review-journal.js';
 import { FormResumeSettings } from './form-resume-settings.js';
+import { FormModelSettings } from './answer-model-settings.js';
 export { downloadFormReport } from './form-report-download.js';
 
 const el = React.createElement;
@@ -241,6 +242,26 @@ const FormReportView = ({ report, plan, ...props }) =>
         ? el(FormInspectionReport, { report: plan ?? report })
         : null;
 
+const FormSettings = ({ api, busy, setBusy, setPlan }) =>
+  el(React.Fragment, null, [
+    el(FormModelSettings, {
+      key: 'model',
+      api,
+      busy,
+      setBusy,
+      onChanged: () => setPlan(null),
+    }),
+    api.formsResume
+      ? el(FormResumeSettings, {
+          key: 'resume',
+          api,
+          busy,
+          setBusy,
+          onChanged: () => setPlan(null),
+        })
+      : null,
+  ]);
+
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
   const [url, setUrl] = useState('');
@@ -282,15 +303,7 @@ export const FormsView = ({ api = defaultApi }) => {
     [
       el('h1', { key: 'title' }, t('forms.title')),
       el('p', { key: 'hint', className: 'meta' }, t('forms.hint')),
-      api.formsResume
-        ? el(FormResumeSettings, {
-            key: 'resume',
-            api,
-            busy,
-            setBusy,
-            onChanged: () => setPlan(null),
-          })
-        : null,
+      el(FormSettings, { key: 'settings', api, busy, setBusy, setPlan }),
       capability === null
         ? el(Busy, { key: 'loading' }, t('forms.loading'))
         : null,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { AnswerModelStatus } from './answer-model-settings.js';
 
 const el = React.createElement;
 const AnswerEvidence = ({ evidence }) => {
@@ -22,6 +23,19 @@ const proposedValue = (answer, t) =>
   answer.proposal?.checked === undefined
     ? (answer.proposal?.option ?? answer.proposal?.value)
     : t(answer.proposal.checked ? 'forms.checked' : 'forms.unchecked');
+const ModelUnresolvedText = ({ answer }) =>
+  answer.source === 'model' && !answer.proposal && answer.text
+    ? el(
+        'p',
+        {
+          key: 'draft',
+          'data-form-model-draft': '',
+          style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+        },
+        answer.text
+      )
+    : null;
+
 export const FormAnswer = ({ answer }) => {
   const t = useT();
   if (!answer) {
@@ -46,6 +60,7 @@ export const FormAnswer = ({ answer }) => {
           source: t(`forms.plan.source.${answer.source}`),
         })
       ),
+      el(ModelUnresolvedText, { key: 'draft', answer }),
       answer.effects?.length
         ? el(
             'p',
@@ -130,11 +145,13 @@ export const FormPlanSummary = ({ planning }) => {
             })
           )
         : null,
-      el(
-        'p',
-        { key: 'model', className: 'meta' },
-        t('forms.plan.modelUnavailable')
-      ),
+      planning.model?.state
+        ? el(AnswerModelStatus, { key: 'model', model: planning.model })
+        : el(
+            'p',
+            { key: 'model', className: 'meta' },
+            t('forms.plan.modelUnavailable')
+          ),
     ]
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { ModelDraftControl } from './answer-model-settings.js';
 
 const el = React.createElement;
 const errorKey = (code) =>
@@ -49,6 +50,7 @@ export const FormPlanControls = ({
   const t = useT();
   const [profileId, setProfileId] = useState('');
   const [approximate, setApproximate] = useState(true);
+  const [modelDraft, setModelDraft] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [probe, setProbe] = useState(0);
@@ -71,8 +73,14 @@ export const FormPlanControls = ({
             id: report.reviewSession.id,
             profileId,
             approximate,
+            modelDraft,
           })
-        : await api.formsPlan({ inspection: report, profileId, approximate });
+        : await api.formsPlan({
+            inspection: report,
+            profileId,
+            approximate,
+            modelDraft,
+          });
       if (!value?.ok || value.mode !== 'answer-plan') {
         setError(value?.code ?? 'form-plan-failed');
       } else {
@@ -165,6 +173,12 @@ export const FormPlanControls = ({
       },
       t(loading ? 'forms.plan.planning' : 'forms.plan.action')
     ),
+    el(ModelDraftControl, {
+      key: 'model',
+      value: modelDraft,
+      busy,
+      set: (value) => changed(setModelDraft, value),
+    }),
     error
       ? el(
           'p',

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-model-drafts.md](forms-model-drafts.md) adds optional bounded Claude Code drafts from a selected CV, profile, recent context and approved answers. Reviewed application freezes context, preserves unknown-fact clarification and makes no second model call. Seventy-one Node/Deno checks, production Chromium and independent MCP pass; live provider calls and automatic chat/provider workflows remain unverified or unfinished.
+
 - [forms-review-capacity.md](forms-review-capacity.md) removes arbitrary batch/browser ceilings, adds saved revision-checked capacity through CLI/Lino/localized UI and preserves sequential startup and owner edits. Forty-seven Node checks, 47 Deno tests, production Chromium and independent MCP pass. Automatic prefilling and every other unchecked issue criterion remain required.
 
 - [ci-tutorial-control.md](ci-tutorial-control.md) traces an intermittent WebKit offscreen Email button to missing viewport checks and conflicting reveal destinations. Failing-before unit/browser evidence, 44 Node/Deno checks, focused WebKit and independent MCP verification are retained.

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { AnswerModelStatus } from './answer-model-settings.js';
 import {
   SalaryCalculationEvidence,
   SalaryExchangeEvidence,
@@ -15,6 +16,7 @@ export const AnswerEvidence = ({ answer }) => {
     return null;
   }
   return el('div', { className: 'col', 'data-answer-evidence': true }, [
+    el(AnswerModelStatus, { key: 'model', model: answer.model }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
     el(
       'p',
@@ -74,7 +76,7 @@ export const AnswerEvidence = ({ answer }) => {
       key: 'salary-templates',
       value: answer.salaryTemplates,
     }),
-    answer.rules?.length
+    answer.rules?.length || answer.evidence?.length
       ? el('details', { key: 'evidence' }, [
           el('summary', { key: 'summary' }, t('questions.evidence')),
           el(

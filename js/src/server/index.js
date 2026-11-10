@@ -78,6 +78,7 @@ import { handleCvRoutes } from './routes-cv.js';
 import { handleBrowserRoutes } from './routes-browser.js';
 import { handleFormRoutes } from './routes-forms.js';
 import { createFormReader } from '../forms/reader.js';
+import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { createFormReportWriter } from '../forms/report-file.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
@@ -899,6 +900,11 @@ const serverForms = (store, options) =>
     ...options,
   });
 
+const modelContext = (store, forms, service = createLocalAnswerModel()) => ({
+  answerModel: service,
+  forms: serverForms(store, { modelRunner: service.draft, ...forms }),
+});
+
 export const startServer = async ({
   port = 0,
   storeDir = defaultStoreDir(),
@@ -913,6 +919,7 @@ export const startServer = async ({
   emailPoll,
   cv = {},
   forms,
+  answerModel,
   // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
   // setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   replies,
@@ -986,7 +993,7 @@ export const startServer = async ({
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
-    forms: serverForms(store, forms),
+    ...modelContext(store, forms, answerModel),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),

@@ -358,6 +358,19 @@ const checkReviewOwner = (owner) => {
   }
 };
 
+const readReviewReport = async ({ record, filling, check, reportWriter }) => {
+  await filling.clear(record);
+  const report = await inspectCurrentFormSession(record.browser, {
+    check: () => check(record),
+  });
+  record.title = report.title;
+  return captureReport(reportWriter, record, 'read', {
+    ...report,
+    browserSlot: record.slot,
+    policy: record.browser.policy ?? null,
+  });
+};
+
 export const createFormSessions = ({
   store,
   openSession = openBrowserSession,
@@ -371,6 +384,7 @@ export const createFormSessions = ({
   autoCapture = true,
   learn = true,
   learning = {},
+  modelRunner,
   ready,
 } = {}) => {
   reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture, learn });
@@ -388,7 +402,12 @@ export const createFormSessions = ({
     timers,
   });
   const { get, check, close, run, touch } = owner;
-  const filling = createReviewedPrefill({ store, now, ...prefill });
+  const filling = createReviewedPrefill({
+    store,
+    now,
+    modelRunner,
+    ...prefill,
+  });
   const open = async (input = {}) => {
     checkReviewOwner(owner);
     const { url, slot } = reviewInput(input);
@@ -493,18 +512,9 @@ export const createFormSessions = ({
       reviewSession: identity(get(id)),
     }),
     read: async (id) => {
-      const report = await operate(id, async (record) => {
-        await filling.clear(record);
-        const report = await inspectCurrentFormSession(record.browser, {
-          check: () => check(record),
-        });
-        record.title = report.title;
-        return captureReport(reportWriter, record, 'read', {
-          ...report,
-          browserSlot: record.slot,
-          policy: record.browser.policy ?? null,
-        });
-      });
+      const report = await operate(id, (record) =>
+        readReviewReport({ record, filling, check, reportWriter })
+      );
       return { ...report, reviewSession: identity(get(id)) };
     },
   };

@@ -32,6 +32,11 @@ export declare const startServer: (opts: {
   emailLiveFactory?: (config: unknown) => unknown;
   /** Periodic pull of a connected mailbox; `false` turns it off. */
   emailPoll?: false | { intervalMs?: number; firstMs?: number };
+  /** Optional local draft service; default launches tool-free Claude Code on explicit opt-in. */
+  answerModel?: {
+    draft: (input: unknown) => Promise<unknown>;
+    stop?: () => Promise<void>;
+  };
   cv?: {
     commander?: unknown;
     sessionFactory?: (options?: unknown) => unknown;

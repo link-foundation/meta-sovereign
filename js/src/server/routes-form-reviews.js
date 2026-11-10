@@ -24,6 +24,7 @@ const actions = {
       id: body.id,
       profileId: body.profileId,
       approximate: body.approximate,
+      modelDraft: body.modelDraft,
     }),
   apply: (forms, body) =>
     forms.applyReview({

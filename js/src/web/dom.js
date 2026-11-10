@@ -43,6 +43,7 @@ import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
 import { createPublicationApi } from './publication-api.js';
+import { AUTOMATION_CALLS } from './dom-automation-calls.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -529,67 +530,6 @@ const automationCall =
     automationApi ??= createAutomationApi({ remote, store });
     return automationApi[name](...args);
   };
-
-// Issue #31 / PR #34: automations, their drafts, the composer's send and
-// typing status, people, lists and audiences — see ./automation-api.js.
-const AUTOMATION_CALLS = [
-  'followChats',
-  'followChatDetails',
-  'followDiscoveryCancel',
-  'followTelegramList',
-  'followTelegramPreview',
-  'followTelegramApply',
-  'followTelegramCancel',
-  'followBacklinkPreview',
-  'followBacklinkApply',
-  'followBacklinkList',
-  'followBacklinkStatus',
-  'followBacklinkResume',
-  'followBacklinkCancel',
-  'followLinks',
-  'extractFollowLinks',
-  'clearFollowLinks',
-  'salaryExchange',
-  'answerPolicy',
-  'saveAnswerPolicy',
-  'answerRules',
-  'saveAnswerRule',
-  'deleteAnswerRule',
-  'previewAnswer',
-  'answerProfileSources',
-  'extractAnswerProfile',
-  'answerProfiles',
-  'readAnswerProfile',
-  'saveAnswerProfile',
-  'deleteAnswerProfile',
-  'learnAnswers',
-  'automations',
-  'saveAutomation',
-  'deleteAutomation',
-  'planAutomation',
-  'runAutomation',
-  'drafts',
-  'draftAction',
-  'nextDraft',
-  'resetEdit',
-  'autopilots',
-  'autopilot',
-  'automationHistory',
-  'outbox',
-  'resolveOutbox',
-  'safetySettings',
-  'saveSafetySettings',
-  'sendMessage',
-  'setTyping',
-  'typing',
-  'people',
-  'audiences',
-  'saveAudience',
-  'deleteAudience',
-  'resolveAudience',
-  'lists',
-  'saveList',
-];
 
 const rawApi = {
   browserPolicies: async () =>

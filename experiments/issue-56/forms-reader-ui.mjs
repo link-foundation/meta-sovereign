@@ -8,10 +8,19 @@ import { startFormsFixture } from './forms-reader-fixture.mjs';
 import { controlFormMonitorFixture } from './forms-monitor-control.mjs';
 import { saveConfiguredResume } from '../../js/src/forms/configured-resume.js';
 import { syntheticResumePdf } from './forms-resume-fixture.mjs';
+import {
+  seedModelAnswers,
+  modelRunnerFixture,
+} from './forms-model-fixture.mjs';
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
+const modelCalls = [];
+const modelMode = process.env.FORMS_MODEL_MCP === '1';
+if (modelMode) {
+  await seedModelAnswers(store);
+}
 if (process.env.FORMS_RESUME_MCP === '1') {
   await saveConfiguredResume(store, {
     file: {
@@ -32,6 +41,14 @@ try {
     enableSync: false,
     enableHandlers: false,
     automations: { scheduler: false },
+    ...(modelMode
+      ? {
+          answerModel: {
+            draft: modelRunnerFixture(modelCalls),
+            stop: async () => {},
+          },
+        }
+      : {}),
     forms: {
       review: {
         learning: {
@@ -146,7 +163,7 @@ try {
                 );
               }
             }
-            if (new URL(page.url()).pathname === '/prefill') {
+            if (['/prefill', '/model'].includes(new URL(page.url()).pathname)) {
               read.values = await page.evaluate(() =>
                 Object.fromEntries(
                   Array.from(
@@ -178,8 +195,9 @@ try {
   console.log(
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
-      form:
-        process.env.FORMS_RESUME_MCP === '1'
+      form: modelMode
+        ? fixture.url.replace('/application', '/model')
+        : process.env.FORMS_RESUME_MCP === '1'
           ? fixture.url.replace('/application', '/upload')
           : process.env.FORMS_LEARNING_MCP === '1'
             ? fixture.url.replace('/application', '/learning')
@@ -214,6 +232,7 @@ try {
   console.log(
     JSON.stringify({
       reads,
+      ...(modelMode ? { modelCalls: modelCalls.length } : {}),
       submissions: fixture.submits,
       requests: fixture.requests,
     })

@@ -1,5 +1,6 @@
 // Shared persisted answer knowledge for the CLI, server and offline editor.
 import { createBoundedHistory } from '../replies/bounded-history.js';
+import { modelAnswerPreview } from './answer-model-preview.js';
 import { historyOrder } from '../replies/history-order.js';
 import {
   answerEnvironmentFromMessages,
@@ -176,13 +177,23 @@ export const prepareAnswerPreview = async (
   return { context, rateState: prepared.rateState };
 };
 
-export const previewAnswer = async (store, input) => {
+export const previewAnswer = async (store, input, modelOptions = {}) => {
   if (typeof input.question !== 'string' || input.question.length > 6000) {
     throw new Error('question must be text of at most 6000 characters');
   }
-  const prepared = await prepareAnswerPreview(store, input);
+  const prepared = await prepareAnswerPreview(
+    store,
+    input,
+    input.modelDraft ? { maxBytes: 512 * 1024 } : {}
+  );
   return withSalaryExchangeEvidence(
-    planAnswer(input.question, prepared.context),
+    await modelAnswerPreview(
+      store,
+      input,
+      planAnswer(input.question, prepared.context),
+      prepared.context,
+      modelOptions
+    ),
     prepared.rateState
   );
 };

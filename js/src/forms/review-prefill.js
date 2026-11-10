@@ -24,6 +24,7 @@ export const createReviewedPrefill = ({
   inspect = inspectCurrentFormSession,
   capture = captureReviewTargets,
   write = writeReviewTarget,
+  modelRunner,
 } = {}) => {
   const clear = async (record) => {
     const state = record.reviewPlan;
@@ -31,6 +32,15 @@ export const createReviewedPrefill = ({
     await state?.targets.dispose();
   };
   const plan = async (record, input, check) => {
+    if (
+      input.modelDraft !== undefined &&
+      typeof input.modelDraft !== 'boolean'
+    ) {
+      throw failure(
+        'answer-model-config',
+        'Model draft opt-in must be a boolean.'
+      );
+    }
     await clear(record);
     let snapshot;
     const inspection = await inspect(record.browser, {
@@ -42,9 +52,17 @@ export const createReviewedPrefill = ({
     const options = {
       profileId: input.profileId ?? '',
       approximate: input.approximate !== false,
+      modelDraft: input.modelDraft === true,
     };
     const proposed = withRadioReview(
-      await planFormAnswers(store, { inspection, ...options })
+      await planFormAnswers(
+        store,
+        { inspection, ...options },
+        {
+          runner: modelRunner,
+          signal: record.operationAbort?.signal,
+        }
+      )
     );
     const resume = await configuredResume(store);
     check();
@@ -110,10 +128,14 @@ export const createReviewedPrefill = ({
     const fresh = () => inspect(record.browser, { check });
     const guard = async () => {
       const current = withRadioReview(
-        await planFormAnswers(store, {
-          inspection: state.inspection,
-          ...state.options,
-        })
+        await planFormAnswers(
+          store,
+          {
+            inspection: state.inspection,
+            ...state.options,
+          },
+          { frozen: state.proposed }
+        )
       );
       if (answerKey(current) !== answerKey(state.proposed)) {
         throw failure(

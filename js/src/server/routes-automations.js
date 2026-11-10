@@ -552,6 +552,9 @@ const handleWrite = async (store, req, res, p) => {
 };
 
 const statusFor = (error) => {
+  if (error.code?.startsWith('answer-model-')) {
+    return [error.code === 'answer-model-changed' ? 409 : 400, error.code];
+  }
   if (error.code === 'confirm-required') {
     return [400, error.code];
   }

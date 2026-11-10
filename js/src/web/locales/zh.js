@@ -1,3 +1,4 @@
+import { zhAnswerModel } from './zh-answer-model.js';
 import { zhForms } from './zh-forms.js';
 import { zhSharedProfile } from './zh-shared-profile.js';
 import { zhProfileImport } from './zh-profile-import.js';
@@ -30,6 +31,7 @@ import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
   ...zhForms,
+  ...zhAnswerModel,
   ...zhSharedProfile,
   ...zhProfileImport,
   ...zhChatRemoval,

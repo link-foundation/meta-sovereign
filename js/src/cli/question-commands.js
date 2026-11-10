@@ -1,5 +1,10 @@
 import { promises as fs } from 'node:fs';
 import { namedProfileCommand } from './question-profile-commands.js';
+import {
+  answerModelCommand,
+  modelDraftFlag,
+  withAnswerModel,
+} from './answer-model-commands.js';
 import { decodeWire, encodeLinoValue } from '../transport/lino.js';
 import {
   listAnswerRules,
@@ -75,6 +80,9 @@ const policyCommand = async (args, store) => {
 };
 
 const planOverrides = (args) => ({
+  ...(args['model-draft'] === undefined
+    ? {}
+    : { modelDraft: modelDraftFlag(args['model-draft']) }),
   ...(args['rule-ids'] !== undefined || args.ruleIds !== undefined
     ? { ruleIds: csv(args['rule-ids'] ?? args.ruleIds) }
     : {}),
@@ -141,6 +149,7 @@ export const questionCommands = async ({ args, store, log }) => {
   let result;
   const reads = {
     profiles: () => namedProfileCommand(args, store),
+    model: () => answerModelCommand(args, store),
     'profile-sources': () => listAnswerProfileSources(store),
     profile: () => profileCommand(args, store),
   };
@@ -171,7 +180,9 @@ export const questionCommands = async ({ args, store, log }) => {
   } else if (sub === 'delete') {
     result = await deleteAnswerRule(store, args._[2] ?? args.id);
   } else if (sub === 'plan') {
-    result = await previewAnswer(store, await planInput(args, store));
+    result = await withAnswerModel(null, async (runner) =>
+      previewAnswer(store, await planInput(args, store), { runner })
+    );
   } else if (sub === 'learn') {
     result = await learnSavedAnswers(store, {
       ...(await planInput(args, store)),
@@ -181,7 +192,7 @@ export const questionCommands = async ({ args, store, log }) => {
     });
   } else {
     throw new Error(
-      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
+      'answers expects model show | model save --enabled=true|false --revision=<revision|null> [--cv=cv:id] [--model=id] | list | save [file.lino] | delete <id> | plan --question=<text> [--model-draft] [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

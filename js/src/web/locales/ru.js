@@ -1,3 +1,4 @@
+import { ruAnswerModel } from './ru-answer-model.js';
 import { ruForms } from './ru-forms.js';
 import { ruSharedProfile } from './ru-shared-profile.js';
 import { ruProfileImport } from './ru-profile-import.js';
@@ -29,6 +30,7 @@ import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
   ...ruForms,
+  ...ruAnswerModel,
   ...ruSharedProfile,
   ...ruProfileImport,
   ...ruChatRemoval,

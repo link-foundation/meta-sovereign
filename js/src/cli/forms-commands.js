@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import { modelDraftFlag, withAnswerModel } from './answer-model-commands.js';
 import { decodeWire } from '../transport/lino.js';
 import { createFormReader, planFormAnswers } from '../forms/reader.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
@@ -21,7 +22,7 @@ import {
 } from './forms-resume-commands.js';
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--source=<provider>] [--chat=<id>] [--store=<dir>]
+  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
 ${FORMS_REVIEW_HELP}
 ${FORMS_WATCHERS_HELP}
 ${FORMS_RESUME_HELP}`;
@@ -42,14 +43,23 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
     const inspection = JSON.parse(raw);
     const store = await openStore(args.store ?? defaultStoreDir());
     try {
-      const report = await planFormAnswers(store, {
-        inspection,
-        profileId: args['profile-id'],
-        profile: args.profile ? decodeWire(args.profile) : undefined,
-        approximate: ![false, 'false'].includes(args.approximate),
-        source: args.source,
-        chat: args.chat,
-      });
+      const report = await withAnswerModel(
+        readerOptions.modelRunner,
+        (runner) =>
+          planFormAnswers(
+            store,
+            {
+              inspection,
+              profileId: args['profile-id'],
+              profile: args.profile ? decodeWire(args.profile) : undefined,
+              approximate: ![false, 'false'].includes(args.approximate),
+              source: args.source,
+              chat: args.chat,
+              modelDraft: modelDraftFlag(args['model-draft']),
+            },
+            { runner }
+          )
+      );
       const writer =
         readerOptions.reportWriter === undefined
           ? createFormReportWriter()

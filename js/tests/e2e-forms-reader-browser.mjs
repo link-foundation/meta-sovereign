@@ -1,3 +1,5 @@
+import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
+import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
@@ -23,11 +25,16 @@ const fixture = await startFormsFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
 const owned = [];
+const modelCalls = [];
 let app;
 try {
   app = await openChatApp('forms-reader', {
     store,
     serverOptions: {
+      answerModel: {
+        draft: modelRunnerFixture(modelCalls),
+        stop: async () => {},
+      },
       forms: {
         review: {
           learn: process.env.FORMS_LEARNING_BEFORE !== '1',
@@ -243,6 +250,10 @@ const verifyLimits = async (page) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_MODEL_ONLY === '1') {
+    await verifyFormModelUi({ ...app, owned, fixture, store, modelCalls });
+    return true;
+  }
   if (process.env.FORMS_CAPACITY_ONLY === '1') {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -250,13 +261,15 @@ const verifyCustomOnly = async ({ page, until }) => {
     return true;
   }
   if (
-    process.env.FORMS_CUSTOM_ONLY === '1' ||
-    process.env.FORMS_CHOICES_ONLY === '1' ||
-    process.env.FORMS_UPLOAD_ONLY === '1' ||
-    process.env.FORMS_CONFIGURED_RESUME_ONLY === '1' ||
-    process.env.FORMS_JOURNAL_ONLY === '1' ||
-    process.env.FORMS_MONITOR_ONLY === '1' ||
-    process.env.FORMS_LEARNING_ONLY === '1'
+    [
+      'CUSTOM',
+      'CHOICES',
+      'UPLOAD',
+      'CONFIGURED_RESUME',
+      'JOURNAL',
+      'MONITOR',
+      'LEARNING',
+    ].some((name) => process.env[`FORMS_${name}_ONLY`] === '1')
   ) {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -400,8 +413,9 @@ await app.finish(async () => {
       verifyFormMonitorUi,
       verifyFormLearningUi,
       verifyFormCapacityUi,
+      verifyFormModelUi,
     ]) {
-      await verify({ page, base, owned, fixture, until, store });
+      await verify({ page, base, owned, fixture, until, store, modelCalls });
     }
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
@@ -424,6 +438,7 @@ if (
   process.env.E2E_BROWSER !== 'webkit' &&
   process.env.FORMS_LEARNING_ONLY !== '1' &&
   process.env.FORMS_CAPACITY_ONLY !== '1' &&
+  process.env.FORMS_MODEL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');

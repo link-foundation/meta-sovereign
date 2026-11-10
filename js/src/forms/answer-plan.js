@@ -4,6 +4,7 @@ import { withSalaryExchangeEvidence } from '../automation/salary-exchange-policy
 import { validateFormInspection } from './plan-validation.js';
 import { formProfileFields } from './profile-fields.js';
 import { proposalFor } from './proposals.js';
+import { formModelDrafts } from './model-drafts.js';
 
 const emptyAnswer = (reason) => ({
   source: 'unresolved',
@@ -148,7 +149,7 @@ const planField = (field, fields, prepared) => {
 };
 
 /** Read-only proposals from one bounded knowledge snapshot; never opens a browser. */
-export const planFormAnswers = async (store, input = {}) => {
+export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
   const inspection = validateFormInspection(input.inspection);
   const prepared = await prepareAnswerPreview(
     store,
@@ -160,9 +161,16 @@ export const planFormAnswers = async (store, input = {}) => {
     { maxBytes: 4 * 1024 ** 2 }
   );
   prepared.context.matchBudget = { remaining: 4 * 1024 ** 2, exhausted: false };
-  const fields = inspection.fields.map((field) =>
+  const deterministic = inspection.fields.map((field) =>
     planField(field, inspection.fields, prepared)
   );
+  const { fields, model } = await formModelDrafts({
+    store,
+    input,
+    fields: deterministic,
+    context: prepared.context,
+    ...modelOptions,
+  });
   return {
     ...inspection,
     mode: 'answer-plan',
@@ -175,7 +183,7 @@ export const planFormAnswers = async (store, input = {}) => {
       proposed: fields.filter((field) => field.answer.proposal).length,
       unresolved: fields.filter((field) => !field.answer.proposal).length,
       preserved: fields.filter((field) => field.answer.preserveCurrent).length,
-      model: { available: false, used: false },
+      model,
       limited: fields.filter(
         (field) => field.answer.reason === 'planning-limit'
       ).length,
