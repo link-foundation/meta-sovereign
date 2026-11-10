@@ -69,6 +69,11 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
   let phase = 'initial host readiness';
   try {
     const initial = await statusWhenReady(dir);
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-cli] initial host ready\n${first.output().slice(-8192)}`
+      );
+    }
     const info = JSON.parse(
       await readFile(path.join(dir, 'runtime/server.json'), 'utf8')
     );

@@ -21,7 +21,9 @@ const ANN = '42';
 const BOB = '43';
 const CAROL = '44';
 const EVE = '45';
-const today = new Date();
+// Keep browser dates and fixture history on one fixed calendar day. A real
+// clock just after midnight made the "two minutes ago" wish belong to yesterday.
+const today = new Date(2026, 10, 10, 12);
 const onDay = (offset) => {
   const date = new Date(
     today.getFullYear(),
@@ -51,7 +53,7 @@ for (const [chat, name] of [
     sender: chat,
     senderName: name,
     body: 'hello',
-    timestamp: new Date(Date.now() - 60_000).toISOString(),
+    timestamp: new Date(today.getTime() - 60_000).toISOString(),
     raw: { id: 1 },
   });
 }
@@ -65,11 +67,12 @@ await store.put({
   chatName: 'Eve Bell',
   chatType: 'private',
   body: 'С днём рождения!',
-  timestamp: new Date(Date.now() - 120_000).toISOString(),
+  timestamp: new Date(today.getTime() - 120_000).toISOString(),
 });
 const { base, page, until, finish } = await openChatApp('profile-extras', {
   store,
 });
+await page.clock.setFixedTime(today);
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
   globalThis.metaSovereignDebug = true;
@@ -132,7 +135,7 @@ await page.route('**/api/send', async (route) => {
     chatName: 'Bob Ray',
     chatType: 'private',
     body: 'Happy birthday!',
-    timestamp: new Date().toISOString(),
+    timestamp: today.toISOString(),
   };
   await store.put(link);
   return fulfil(route, { status: 'sent', link });

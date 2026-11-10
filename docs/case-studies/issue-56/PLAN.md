@@ -54,5 +54,6 @@ Resolved diagnostic: the isolated no-sync fixture's unsupported RTC connection h
 - [x] Read each failure section and report concrete errors with raw log line numbers.
 - [x] Reproduce the earlier discovery assertions locally and verify their fixture correction.
 - [x] Preserve 124a2234 Windows Deno and WebKit failures with exact SHA/timestamps.
-- [ ] Diagnose Windows rolling-host startup and WebKit older-wishes selection before any timing changes.
+- [ ] Diagnose Windows rolling-host startup before any timing changes.
+- [x] Reproduce WebKit older-wishes failure at midnight and fix the isolated browser/fixture clock; see ci-124a2234.md.
 - [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.
