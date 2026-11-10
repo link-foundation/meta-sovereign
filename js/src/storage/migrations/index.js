@@ -21,6 +21,7 @@ import * as m0006 from './0006-tombstones.js';
 import * as m0007 from './0007-browser-policy.js';
 import * as m0008 from './0008-salary-exchange.js';
 import * as m0009 from './0009-salary-exchange-policy.js';
+import * as m0010 from './0010-hh-message-metadata.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -32,10 +33,11 @@ export const MIGRATIONS = Object.freeze([
   m0007,
   m0008,
   m0009,
+  m0010,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 9;
+export const CURRENT_SCHEMA = 10;
 
 export {
   SCHEMA_ID,

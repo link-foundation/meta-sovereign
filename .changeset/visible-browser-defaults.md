@@ -151,3 +151,5 @@ Extract reviewable profile fields from explicit contact text and selected saved 
 Add named reusable answer profiles with revision-checked CLI/Lino/offline/UI controls, live resolution across linked automations, explicit local overrides, source evidence and profile-change guards during learning and final delivery.
 
 Import legacy contacts.lino as read-only reviewed profile drafts through CLI, text/binary Lino and the shared local/central profile editors. Preserve lists, duplicate alternatives, source locations, current values and failed/newer edits; require explicit selection and a separate save, and explain unsupported or private fields without echoing rejected values.
+
+Preserve actual HH nested history, documented applicant direction, application barriers, reply ownership and edit evidence through shared live/archive normalization. Keep repeated-import counts stable and recover missing saved metadata offline with schema migration 0010 (R-AA1, R-Z17).

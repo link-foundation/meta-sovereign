@@ -227,7 +227,7 @@ test('hh attaches only actual bounded vacancy text and excludes HTML attributes 
     { salary: { currency: 'USD' } },
   ]) {
     const [row] = hhNegotiationsToLinks({
-      items: [{ id: '1', vacancy: invalid }],
+      items: [{ id: '1', text: question, vacancy: invalid }],
     });
     assert.equal(row.answerContext, undefined);
   }

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [hh-history-learning.md](hh-history-learning.md) verifies shared HH nested-message normalization, actual applicant direction, application barriers, stable repeated-import counts, edit versions and offline metadata migration through CLI/Lino/offline/UI. Thirty-six Node checks, thirteen Deno checks, integrated Chromium and independent MCP pass; full provider history retrieval remains open.
+
 - [question-profile-legacy.md](question-profile-legacy.md) verifies reviewed contacts.lino import, preserved lists and duplicate alternatives, current values, source locations, bounded refusals, separate saving and local overrides through CLI/Lino/offline/shared editors. Seventy-three Node checks, seven Deno checks, the existing production questions browser flow and independent MCP pass. This completes the inventoried QA05 mechanism; broader provider/form requirements remain open.
 
 - [question-shared-profile.md](question-shared-profile.md) verifies revision-checked named profiles, current values across linked automations, local overrides, missing references and learning/typing races through CLI/Lino/offline/shared UI, 81 focused Node checks, nine Deno checks and Chromium/MCP desktop/mobile evidence. Legacy contact import remains required.

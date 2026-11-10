@@ -15,6 +15,10 @@ import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mj
 import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
 import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
+import {
+  verifyHhHistory,
+  resetHhHistoryFixture,
+} from './helpers/e2e-hh-history.mjs';
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -653,4 +657,7 @@ await finish(async () => {
   await verifyQuestionSharedProfile({ page, base, store });
   await verifyQuestionLegacyProfile({ page, base, store });
   verifySyncCapability();
+  // The final provider fixture has its own transcript and saved-rule baseline.
+  await resetHhHistoryFixture(store);
+  await verifyHhHistory({ page, base, store, until });
 });

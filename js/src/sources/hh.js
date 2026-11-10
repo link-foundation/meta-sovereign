@@ -7,8 +7,7 @@
  * resume endpoints with injectable fetch/baseUrl for tests.
  */
 
-import { buildMessageLink } from './link.js';
-import { hhAnswerContext } from './hh-context.js';
+import { normalizeHhMessages } from './hh-messages.js';
 import {
   authHeaders,
   threadTarget,
@@ -20,45 +19,7 @@ import {
 
 const SOURCE = 'hh';
 
-const negotiationMessages = (negotiation) => {
-  const messages = negotiation.messages?.items ?? negotiation.messages ?? [];
-  return messages.length > 0 ? messages : [negotiation];
-};
-
-const negotiationSender = (message, negotiation) =>
-  String(
-    message.author?.id ?? message.from ?? negotiation.employer?.id ?? 'unknown'
-  );
-
-const negotiationChat = (message, negotiation) =>
-  String(
-    negotiation.id ??
-      `vacancy:${message.vacancy?.id ?? negotiation.vacancy?.id ?? 'unknown'}`
-  );
-
-const negotiationToLinks = (negotiation) => {
-  const records = negotiationMessages(negotiation);
-  return records.map((message) => ({
-    ...hhAnswerContext(message.vacancy ?? negotiation.vacancy),
-    ...buildMessageLink({
-      source: SOURCE,
-      externalId: String(message.id ?? negotiation.id),
-      sender: negotiationSender(message, negotiation),
-      chat: negotiationChat(message, negotiation),
-      body: message.text ?? message.message ?? negotiation.text ?? '',
-      timestamp:
-        message.created_at ??
-        message.createdAt ??
-        negotiation.created_at ??
-        null,
-    }),
-  }));
-};
-
-export const hhNegotiationsToLinks = (payload) => {
-  const items = payload?.items ?? payload?.negotiations ?? [];
-  return items.flatMap(negotiationToLinks);
-};
+export const hhNegotiationsToLinks = (payload) => normalizeHhMessages(payload);
 
 export const createHhLive = ({
   token = null,
@@ -131,21 +92,7 @@ export const hhSource = {
   name: SOURCE,
   async parseArchive(archive) {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    const out = [];
-    for (const m of obj.negotiations ?? []) {
-      out.push({
-        ...hhAnswerContext(m.vacancy),
-        ...buildMessageLink({
-          source: SOURCE,
-          externalId: String(m.id),
-          sender: m.author?.id ?? 'unknown',
-          chat: `vacancy:${m.vacancy?.id}`,
-          body: m.text ?? '',
-          timestamp: m.created_at,
-        }),
-      });
-    }
-    return out;
+    return normalizeHhMessages(obj, { legacyFlat: true });
   },
   live,
   syncResume: (resume, options) => live.syncResume(resume, options),
