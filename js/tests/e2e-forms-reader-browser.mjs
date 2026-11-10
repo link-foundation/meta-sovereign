@@ -250,6 +250,26 @@ const verifyLimits = async (page) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
+    await page.locator('[data-form-slot]').fill('application-2');
+    await page.locator('[data-form-url]').fill(fixture.url);
+    for (const verify of [
+      verifyFormLearningUi,
+      verifyFormCapacityUi,
+      verifyFormModelUi,
+    ]) {
+      await verify({ ...app, owned, fixture, store, modelCalls });
+    }
+    assert(
+      fixture.submits === 1 && owned.every((record) => record.closed),
+      'only learning submits once and every browser closes'
+    );
+    console.log(
+      '[forms-post-learning]',
+      JSON.stringify({ submits: fixture.submits, closed: owned.length })
+    );
+    return true;
+  }
   if (process.env.FORMS_MODEL_ONLY === '1') {
     await verifyFormModelUi({ ...app, owned, fixture, store, modelCalls });
     return true;
@@ -437,6 +457,7 @@ await app.finish(async () => {
 if (
   process.env.E2E_BROWSER !== 'webkit' &&
   process.env.FORMS_LEARNING_ONLY !== '1' &&
+  process.env.FORMS_POST_LEARNING_ONLY !== '1' &&
   process.env.FORMS_CAPACITY_ONLY !== '1' &&
   process.env.FORMS_MODEL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'

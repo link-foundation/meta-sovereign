@@ -17,6 +17,7 @@ export const verifyFormCapacityUi = async ({
   until,
 }) => {
   const initialCount = owned.length;
+  const initialSubmits = fixture.submits;
   const input = page.locator('[data-form-capacity-value]');
   if (process.env.FORMS_CAPACITY_BEFORE === '1') {
     await page.locator('[data-form-reviews]').scrollIntoViewIfNeeded();
@@ -109,8 +110,8 @@ export const verifyFormCapacityUi = async ({
     'capacity fixture closed'
   );
   assert(
-    owner.closed && fixture.submits === 0,
-    'browser cleanup without submissions'
+    owner.closed && fixture.submits === initialSubmits,
+    'capacity closes its browser without adding submissions'
   );
   console.log(
     '[forms-capacity]',
@@ -121,7 +122,7 @@ export const verifyFormCapacityUi = async ({
       staleInput: '19',
       ownerPreserved: true,
       closed: owner.closed,
-      submits: fixture.submits,
+      submits: fixture.submits - initialSubmits,
     })
   );
 };

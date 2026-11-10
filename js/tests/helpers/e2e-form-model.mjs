@@ -97,6 +97,7 @@ export const verifyFormModelUi = async ({
   store,
   modelCalls,
 }) => {
+  const initialSubmits = fixture.submits;
   await configureModel({ page, store, until });
   await page
     .locator('[data-form-url]')
@@ -178,8 +179,8 @@ export const verifyFormModelUi = async ({
     'model review closed'
   );
   assert(
-    owner.closed && fixture.submits === 0,
-    'model review cleanup without submission'
+    owner.closed && fixture.submits === initialSubmits,
+    'model review closes its browser without adding submissions'
   );
   console.log(
     '[forms-model]',
@@ -190,7 +191,7 @@ export const verifyFormModelUi = async ({
       stalePreserved: true,
       ownerPreserved: true,
       closed: owner.closed,
-      submits: fixture.submits,
+      submits: fixture.submits - initialSubmits,
     })
   );
 };

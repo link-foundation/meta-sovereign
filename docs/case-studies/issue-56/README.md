@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-forms-submission-counter.md](ci-forms-submission-counter.md) reproduces the shared reader fixture's lifetime-counter assumption. Learning still submits once; later capacity and model checks verify zero additional submissions and closed browsers. Focused failing-before/passing-after Chromium and complete hosted-job evidence are retained.
+
 - [forms-model-drafts.md](forms-model-drafts.md) adds optional bounded Claude Code drafts from a selected CV, profile, recent context and approved answers. Reviewed application freezes context, preserves unknown-fact clarification and makes no second model call. Seventy-one Node/Deno checks, production Chromium and independent MCP pass; live provider calls and automatic chat/provider workflows remain unverified or unfinished.
 
 - [forms-review-capacity.md](forms-review-capacity.md) removes arbitrary batch/browser ceilings, adds saved revision-checked capacity through CLI/Lino/localized UI and preserves sequential startup and owner edits. Forty-seven Node checks, 47 Deno tests, production Chromium and independent MCP pass. Automatic prefilling and every other unchecked issue criterion remain required.
