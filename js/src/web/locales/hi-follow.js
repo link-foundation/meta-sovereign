@@ -1,4 +1,41 @@
 export const hiFollow = {
+  'followChats.title': 'Follow: VK समूह खोजें',
+  'followChats.hint':
+    'जुड़े सर्वर से VK समूह पढ़ें। पृष्ठ में अन्य वार्तालाप भी होते हैं, इसलिए फ़िल्टर किया गया खाली पृष्ठ अंतिम पृष्ठ नहीं भी हो सकता। Telegram संकेत शीर्षक के संबंधित शब्द या नवीनतम संदेश के पहचाने गए लिंक हैं; यहाँ पुराने इतिहास की खोज नहीं होती। प्रदाता की पहुँच अनुमतियाँ लागू रहती हैं।',
+  'followChats.scope': 'VK समूह खोज',
+  'followChats.limit': 'प्रदाता के हर पृष्ठ पर वार्तालाप',
+  'followChats.telegramOnly': 'केवल Telegram संकेत वाले समूह',
+  'followChats.load': 'समूह चैट लोड करें',
+  'followChats.details': 'सदस्य और हाल के संदेश दिखाएँ',
+  'followChats.page':
+    'प्रदाता ऑफ़सेट {offset} · {scanned} रिकॉर्ड मिले · कुल {total}',
+  'followChats.empty': 'इस पृष्ठ पर कोई मेल खाता समूह नहीं है।',
+  'followChats.previous': 'पिछले वार्तालाप',
+  'followChats.next': 'अगले वार्तालाप',
+  'followChats.previousMembers': 'पिछले सदस्य',
+  'followChats.nextMembers': 'अगले सदस्य',
+  'followChats.partial':
+    'VK ने बताए कुल तक पहुँचने से पहले रिकॉर्ड लौटाना रोक दिया। कवरेज अभी अधूरी है।',
+  'followChats.members': 'समूह के सदस्य',
+  'followChats.messages': 'नवीनतम संदेश (सीमित पूर्वावलोकन)',
+  'followChats.messageIdentity': 'संदेश {id} · प्रेषक {sender}',
+  'followChats.memberCount': '{count} सदस्य',
+  'followChats.owner': 'मालिक',
+  'followChats.admin': 'व्यवस्थापक',
+  'followChats.untitled': 'बिना शीर्षक का समूह',
+  'followChats.unknown': 'अज्ञात',
+  'followChats.not-connected':
+    'समूह लोड करने के लिए इस सर्वर पर VK जोड़ें। पुराने परिणाम सुरक्षित हैं।',
+  'followChats.follow-server-required':
+    'समूह खोजने के लिए VK वाला सर्वर जोड़ें।',
+  'followChats.unsupported':
+    'यहाँ इस प्रदाता के लिए लाइव समूह खोज उपलब्ध नहीं है।',
+  'followChats.captcha':
+    'VK को कैप्चा चाहिए। दोबारा लोड करने से पहले कनेक्शन में इसे हल करें।',
+  'followChats.rate-limited':
+    'VK अनुरोध सीमित कर रहा है। पुराने परिणाम सुरक्षित हैं; दोबारा लोड करने से पहले प्रतीक्षा करें।',
+  'followChats.failed':
+    'समूह खोज की पुष्टि नहीं हो सकी। पुराने परिणाम सुरक्षित हैं। दोबारा लोड करने से पहले कनेक्शन और प्रदाता अनुमतियाँ जाँचें।',
   'follow.title': 'Follow: Telegram लिंक खोजें',
   'follow.hint':
     'सभी प्रदाताओं के कैश किए गए प्राप्त संदेशों से लिंक निकालें। हर संदर्भ में स्रोत संदेश रहता है। लिंक पहचानने से पहुँच की पुष्टि या चैट में शामिल होने की कार्रवाई नहीं होती। जुड़े हुए सर्वर का कैश उपयोग होता है; सर्वर कॉन्फ़िगर न हो तो इस ब्राउज़र का संग्रह उपयोग होता है।',

@@ -1,4 +1,38 @@
 export const zhFollow = {
+  'followChats.title': 'Follow：发现 VK 群组',
+  'followChats.hint':
+    '通过已连接的服务器读取 VK 群组。平台分页包含其他会话类型，因此筛选后空白的页面也可能有下一页。Telegram 线索指标题中的 Telegram 相关词语或最新消息中识别出的链接；此处不搜索旧历史。仍受平台访问权限限制。',
+  'followChats.scope': 'VK 群组发现',
+  'followChats.limit': '每个平台页面的会话数',
+  'followChats.telegramOnly': '仅显示有 Telegram 线索的群组',
+  'followChats.load': '加载群聊',
+  'followChats.details': '显示成员和最近消息',
+  'followChats.page':
+    '平台偏移量 {offset} · 返回 {scanned} 条记录 · 总计 {total}',
+  'followChats.empty': '本页没有匹配的群组。',
+  'followChats.previous': '上一页会话',
+  'followChats.next': '下一页会话',
+  'followChats.previousMembers': '上一页成员',
+  'followChats.nextMembers': '下一页成员',
+  'followChats.partial':
+    'VK 在达到所报告总数之前停止返回记录。覆盖范围仍不完整。',
+  'followChats.members': '群组成员',
+  'followChats.messages': '最新消息（有限预览）',
+  'followChats.messageIdentity': '消息 {id} · 发送者 {sender}',
+  'followChats.memberCount': '{count} 位成员',
+  'followChats.owner': '群主',
+  'followChats.admin': '管理员',
+  'followChats.untitled': '未命名群组',
+  'followChats.unknown': '未知',
+  'followChats.not-connected':
+    '请在此服务器连接 VK 后加载群组。已有结果已保留。',
+  'followChats.follow-server-required': '请连接配置了 VK 的服务器以发现群组。',
+  'followChats.unsupported': '此处不支持该平台的实时群组发现。',
+  'followChats.captcha':
+    'VK 要求验证码。请先在连接设置中完成验证，再重新加载。',
+  'followChats.rate-limited': 'VK 限制了请求。已有结果已保留；请稍后再加载。',
+  'followChats.failed':
+    '无法确认群组发现结果。已有结果已保留。重新加载前请检查连接和平台权限。',
   'follow.title': 'Follow：发现 Telegram 链接',
   'follow.hint':
     '从各平台已缓存的接收消息中提取链接。每条记录保留来源消息。识别链接不会验证访问权限或加入聊天。 使用已连接服务器的缓存；未配置服务器时，使用此浏览器的存储。',

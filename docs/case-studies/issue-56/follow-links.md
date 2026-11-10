@@ -8,7 +8,7 @@ provider, chat, sender, message ID and timestamp. The same URL in two messages
 keeps both provenances; aliases within one message collapse to one reference.
 
 This completes extraction and clearable caching, not the remaining Follow
-workflow. FL01 and FL03–FL09 still require discovery, provider operations,
+workflow. FL01 is covered in [group discovery](follow-chats.md); FL03–FL09 still require provider operations,
 session migration auditing and the reviewed resumable cross-provider runner.
 Recognizing a link never claims membership, access or delivery.
 

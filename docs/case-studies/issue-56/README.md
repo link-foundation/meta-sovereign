@@ -111,4 +111,6 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI investigation for 675e65e8](ci-675e65e8.md): exact failure, full logs and focused WebKit selection-observation correction.
 
 - [Follow link discovery and persisted cache](follow-links.md): FL02 CLI/Lino API/shared React controls, provenance, partial coverage and failure recovery.
+- [Follow VK group discovery](follow-chats.md): FL01 bounded provider pagination, Telegram hints, member details and recent messages through CLI/Lino API/shared React controls.
+- [Follow fixture secret scan](ci-follow-fixture.md): exact-head failure evidence and preserved URL user-information rejection.
 - [Requirements formatting CI investigation](ci-requirements-format.md): exact-SHA failure and replacement run.

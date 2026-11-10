@@ -569,7 +569,7 @@ export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
   const feature = featureRoute(p);
   if (feature) {
     try {
-      return await feature(store, req, res, p, url);
+      return await feature(store, req, res, p, url, ctx);
     } catch (error) {
       const [status, code] = statusFor(error);
       fail(res, status, code, error.message);

@@ -109,3 +109,5 @@ Add participant-only private group greetings through CLI, Lino API and shared Re
 Require positive Telegram text receipts before reporting success. Preserve missing, duplicate and partial outcomes as uncertain, stop remaining message parts and avoid browser fallback or automatic replay. Show localized failure guidance and accurate accessibility labels in shared Chat and Operator bubbles and the conversation directory.
 
 Add incoming Telegram-link discovery with typed candidates, source-message provenance and a filtered clearable Lino cache through CLI, default Lino API and shared React controls. Exclude outgoing messages, expose scan limits, preserve cache location through server failures and retain source messages during clearing.
+
+Add bounded live VK group discovery, title/latest-message Telegram filters, paged member details and recent-message previews through CLI, default text/binary Lino API and shared React controls. Preserve raw provider pagination and partial coverage, keep credentials on the server and retain loaded results after failed reads.

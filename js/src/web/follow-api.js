@@ -15,7 +15,7 @@ export const followApi = ({ remote, store }) => {
   };
   const request = async (action, input, read = false) => {
     const path = read
-      ? `/api/automations/follow?${new URLSearchParams(input)}`
+      ? `/api/automations/follow${action === 'links' ? '' : `/${action}`}?${new URLSearchParams(input)}`
       : `/api/automations/follow/${action}`;
     if (!remote.request) {
       return checked(
@@ -44,7 +44,9 @@ export const followApi = ({ remote, store }) => {
       throw Object.assign(
         new Error('Follow cache response could not be confirmed'),
         {
-          code: 'follow-cache-response',
+          code: ['chats', 'details'].includes(action)
+            ? 'follow-provider-response'
+            : 'follow-cache-response',
         }
       );
     }
@@ -52,7 +54,25 @@ export const followApi = ({ remote, store }) => {
   };
   const write = async (action, input, fallback) =>
     (await request(action, input)) ?? fallback(store, input);
+  const discover = async (action, input) => {
+    const result = await request(action, input, true);
+    if (!result) {
+      throw Object.assign(
+        new Error('Connect a server with VK to discover group chats'),
+        { code: 'follow-server-required' }
+      );
+    }
+    if (!validResult(action, result)) {
+      throw Object.assign(
+        new Error('Follow discovery response could not be confirmed'),
+        { code: 'follow-provider-response' }
+      );
+    }
+    return result;
+  };
   return {
+    followChats: (input = {}) => discover('chats', input),
+    followChatDetails: (input = {}) => discover('details', input),
     followLinks: async (input = {}) =>
       (await request('links', input, true)) ?? listFollowLinks(store, input),
     extractFollowLinks: (input = {}) =>
@@ -61,12 +81,38 @@ export const followApi = ({ remote, store }) => {
   };
 };
 
-const validResult = (action, data) => {
-  if (action === 'links') {
-    return Array.isArray(data?.links) && Number.isSafeInteger(data.total);
-  }
-  return action === 'clear'
-    ? Number.isSafeInteger(data?.cleared)
-    : Number.isSafeInteger(data?.added) &&
-        Number.isSafeInteger(data?.coverage?.scanned);
+const nonnegative = (value) => Number.isSafeInteger(value) && value >= 0;
+const validPage = (page) =>
+  Boolean(page) &&
+  nonnegative(page.offset) &&
+  nonnegative(page.scanned) &&
+  nonnegative(page.limit) &&
+  page.limit > 0 &&
+  page.scanned <= page.limit &&
+  (page.total === null || nonnegative(page.total)) &&
+  typeof page.complete === 'boolean' &&
+  typeof page.more === 'boolean' &&
+  (page.more
+    ? nonnegative(page.nextOffset) && page.nextOffset > page.offset
+    : page.nextOffset === null);
+const validChat = (chat) =>
+  typeof chat?.chat === 'string' &&
+  chat.source === 'vk' &&
+  typeof chat.title === 'string';
+const validRows = (rows, check) => Array.isArray(rows) && rows.every(check);
+const validators = {
+  chats: (data) => validRows(data?.chats, validChat) && validPage(data?.page),
+  details: (data) =>
+    validChat(data?.chat) &&
+    validRows(data?.members, (row) => typeof row?.id === 'string') &&
+    validRows(data?.messages, (row) => typeof row?.text === 'string') &&
+    validPage(data?.memberPage) &&
+    validPage(data?.messagePage),
+  links: (data) =>
+    Array.isArray(data?.links) && Number.isSafeInteger(data.total),
+  clear: (data) => Number.isSafeInteger(data?.cleared),
+  extract: (data) =>
+    Number.isSafeInteger(data?.added) &&
+    Number.isSafeInteger(data?.coverage?.scanned),
 };
+const validResult = (action, data) => validators[action](data);

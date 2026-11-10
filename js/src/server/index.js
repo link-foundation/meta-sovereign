@@ -80,6 +80,7 @@ import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
+import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { handlePeopleRoutes } from './routes-people.js';
 import { handleContactsImport } from './routes-contacts-import.js';
 import {
@@ -907,6 +908,7 @@ export const startServer = async ({
   greetings,
   broadcasting,
   allowOrigins,
+  follow,
   autoImportLauncher,
   // Tests inject a fake `createSignIns()` and a fake MTProto (no real browsers
   // or network are used).
@@ -977,6 +979,7 @@ export const startServer = async ({
     ...greetingContext(greetings),
     broadcasting,
     storeDir,
+    followDiscovery: createFollowDiscovery({ store, ...follow }),
     storeHealth,
     systemContactsReader,
     diskFree,

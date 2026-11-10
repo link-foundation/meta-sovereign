@@ -22,6 +22,7 @@ import { autopilotText, useSecondsTo } from './chat-automation.js';
 import { AutomationActionFields } from './question-actions.js';
 import { QuestionControls } from './question-controls.js';
 import { FollowControls } from './follow-controls.js';
+import { FollowChatsControls } from './follow-chats-controls.js';
 
 const el = React.createElement;
 
@@ -976,6 +977,7 @@ export const AutomationsScreen = ({ state }) => {
     ]),
     el(SafetyPanel, { key: 'safety', api: state.api }),
     el(FollowControls, { key: 'follow', api: state.api }),
+    el(FollowChatsControls, { key: 'followChats', api: state.api }),
     el(QuestionControls, {
       key: 'questions',
       api: state.api,

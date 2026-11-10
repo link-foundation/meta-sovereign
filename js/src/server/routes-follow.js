@@ -6,7 +6,54 @@ import {
 } from '../follow/link-cache.js';
 
 const ROOT = '/api/automations/follow';
-export const followRoute = async (store, req, res, path, url) => {
+const discoveryResponse = async (ctx, action, input, res) => {
+  try {
+    json(res, 200, await ctx.followDiscovery[action](input));
+  } catch (error) {
+    const known = [
+      'not-connected',
+      'unsupported',
+      'captcha',
+      'rate-limited',
+      'timeout',
+      'bad-request',
+    ];
+    const code = known.includes(error.code)
+      ? error.code
+      : error.code === 'follow-provider-response'
+        ? error.code
+        : 'follow-provider-error';
+    const status =
+      code === 'unsupported'
+        ? 404
+        : code === 'rate-limited'
+          ? 429
+          : ['not-connected', 'captcha'].includes(code)
+            ? 409
+            : 400;
+    json(res, status, {
+      code,
+      error: 'Follow group discovery could not be completed',
+      ...(Number.isSafeInteger(error.vkCode)
+        ? { providerCode: error.vkCode }
+        : {}),
+    });
+  }
+};
+export const followRoute = async (store, req, res, path, url, ctx) => {
+  const read = {
+    [`${ROOT}/chats`]: 'chats',
+    [`${ROOT}/details`]: 'details',
+  }[path];
+  if (req.method === 'GET' && read) {
+    await discoveryResponse(
+      ctx,
+      read,
+      Object.fromEntries(url.searchParams),
+      res
+    );
+    return true;
+  }
   if (req.method === 'GET' && path === ROOT) {
     json(
       res,
