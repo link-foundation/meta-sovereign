@@ -17,8 +17,8 @@ const emptyAnswer = (reason) => ({
   proposal: null,
 });
 const groupKey = (field) =>
-  field.type === 'radio' && field.tag === 'input' && field.radioGroup?.id
-    ? `${field.frame}:native:${field.radioGroup.id}`
+  field.type === 'radio' && field.radioGroup?.id
+    ? `${field.frame}:radio:${field.radioGroup.id}`
     : field.group?.id
       ? `${field.frame}:${field.group.id}:${field.type === 'radio' ? (field.name ?? '') : ''}`
       : null;

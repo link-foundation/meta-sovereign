@@ -3,6 +3,7 @@ import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
 import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
 import { verifyFormRadioUi } from './helpers/e2e-form-radio.mjs';
+import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -207,7 +208,9 @@ const verifyLimits = async (page) => {
         '<fieldset><legend>Work arrangement</legend><label>Remote<input type="radio" name="two"></label></fieldset>' +
         '<label>Tools<select multiple><option selected>Rust</option></select></label>' +
         '<label>Mixed<input type="checkbox" id="mixed"></label>' +
-        '<div contenteditable="true" aria-label="Recent experience">Reviewed text</div>'
+        '<div contenteditable="true" aria-label="Recent experience">Reviewed text</div>' +
+        '<input type="password" role="combobox" aria-label="Password" value="omitted">' +
+        '<div aria-disabled="true"><div role="checkbox" aria-label="Disabled group" aria-checked="false">Disabled</div></div>'
     );
     await probe.locator('#mixed').evaluate((control) => {
       control.indeterminate = true;
@@ -217,12 +220,29 @@ const verifyLimits = async (page) => {
       states.fields[0].group.id !== states.fields[1].group.id &&
         states.fields[2].multiple &&
         states.fields[3].indeterminate &&
-        states.fields[4].type === 'contenteditable',
+        states.fields[4].type === 'contenteditable' &&
+        states.fields[5].type === 'password' &&
+        states.fields[5].value === null &&
+        states.fields[6].disabled,
       'duplicate group labels and native mixed/multiple/editable states stay distinct'
     );
   } finally {
     await probe.close();
   }
+};
+
+const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_CUSTOM_ONLY === '1') {
+    await page.locator('[data-form-slot]').fill('application-2');
+    await page.locator('[data-form-url]').fill(fixture.url);
+    await until(
+      () => page.locator('[data-action="open-form-review"]').isEnabled(),
+      'Forms custom browser capability'
+    );
+    await verifyFormCustomUi({ page, owned, fixture });
+    return true;
+  }
+  return false;
 };
 
 await app.finish(async () => {
@@ -241,6 +261,9 @@ await app.finish(async () => {
       return;
     }
     await nav.click();
+    if (await verifyCustomOnly(app)) {
+      return;
+    }
     await page.locator('[data-form-slot]').fill('bad slot');
     assert(
       await page
@@ -324,6 +347,7 @@ await app.finish(async () => {
     await verifyFormReviewUi({ page, owned, fixture, until });
     await verifyFormPrefillUi({ page, owned, fixture });
     await verifyFormRadioUi({ page, owned, fixture });
+    await verifyFormCustomUi({ page, owned, fixture });
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );

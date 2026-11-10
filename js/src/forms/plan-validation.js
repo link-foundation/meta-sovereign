@@ -27,7 +27,14 @@ const option = (value) =>
   value &&
   text(value.label, 2000) &&
   text(value.value, 2000) &&
-  typeof value.disabled === 'boolean';
+  typeof value.disabled === 'boolean' &&
+  (value.index === undefined ||
+    (Number.isInteger(value.index) &&
+      value.index >= 0 &&
+      value.index < 10000)) &&
+  ['visible', 'clickable', 'selected'].every(
+    (key) => value[key] === undefined || typeof value[key] === 'boolean'
+  );
 const validState = (field) =>
   ['required', 'disabled', 'readOnly'].every(
     (key) => typeof field[key] === 'boolean'
@@ -48,6 +55,14 @@ const validRadioGroup = (group) =>
     group.size > 0 &&
     group.size <= 2000 &&
     typeof group.complete === 'boolean');
+const validCustomState = (field) =>
+  (field.optionsComplete === undefined ||
+    typeof field.optionsComplete === 'boolean') &&
+  (field.displayValue === undefined || text(field.displayValue, 10000)) &&
+  (!field.custom ||
+    ['editable', 'clickable', 'checkedKnown'].every(
+      (key) => typeof field.custom[key] === 'boolean'
+    ));
 const validField = (field, frames) =>
   field &&
   id(field.id) &&
@@ -58,6 +73,7 @@ const validField = (field, frames) =>
   text(field.description ?? '', 2000) &&
   validState(field) &&
   validRadioGroup(field.radioGroup) &&
+  validCustomState(field) &&
   list(field.options, 100, option);
 const validFrame = (frame) =>
   frame &&

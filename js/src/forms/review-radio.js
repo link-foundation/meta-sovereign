@@ -1,16 +1,16 @@
-const nativeRadio = (field) => field.tag === 'input' && field.type === 'radio';
+const reviewedRadio = (field) => field.type === 'radio';
 const groupKey = (field) => `${field.frame}:${field.radioGroup?.id}`;
 
 const reviewedPeers = (field, fields) => {
   if (
-    !nativeRadio(field) ||
+    !reviewedRadio(field) ||
     field.answer?.proposal?.checked !== true ||
     !field.radioGroup?.complete
   ) {
     return null;
   }
   const peers = fields.filter(
-    (entry) => nativeRadio(entry) && groupKey(entry) === groupKey(field)
+    (entry) => reviewedRadio(entry) && groupKey(entry) === groupKey(field)
   );
   if (
     peers.length !== field.radioGroup.size ||
@@ -20,6 +20,8 @@ const reviewedPeers = (field, fields) => {
         entry.readOnly ||
         entry.indeterminate ||
         entry.valueOmitted ||
+        (entry.tag !== 'input' &&
+          (!entry.custom?.clickable || !entry.custom.checkedKnown)) ||
         entry.radioGroup.size !== peers.length ||
         !entry.radioGroup.complete ||
         entry.answer?.proposal?.checked !== (entry.id === field.id)
@@ -30,7 +32,7 @@ const reviewedPeers = (field, fields) => {
   return peers;
 };
 
-/** Review the complete native group, including the option a browser will clear. */
+/** Review the complete group, including the option a browser or widget clears. */
 export const withRadioReview = (plan) => ({
   ...plan,
   fields: plan.fields.map((field) => {

@@ -49,6 +49,32 @@ try {
           commander,
           policy: { headless: true },
           async close() {
+            if (new URL(page.url()).pathname === '/custom') {
+              read.customFrames = [];
+              for (const frame of page.frames()) {
+                read.customFrames.push(
+                  await frame.evaluate(() =>
+                    Object.fromEntries(
+                      Array.from(
+                        globalThis.document.querySelectorAll('[id][role]')
+                      ).map((node) => [
+                        node.id,
+                        {
+                          role: node.getAttribute('role'),
+                          checked: node.getAttribute('aria-checked'),
+                          value: node.value ?? node.textContent.trim(),
+                          selected: Array.from(
+                            node.querySelectorAll(
+                              '[role="option"][aria-selected="true"]'
+                            )
+                          ).map((option) => option.getAttribute('data-value')),
+                        },
+                      ])
+                    )
+                  )
+                );
+              }
+            }
             if (new URL(page.url()).pathname === '/radio') {
               read.radioFrames = [];
               for (const frame of page.frames()) {

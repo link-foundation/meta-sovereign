@@ -37,6 +37,38 @@ export const readFormDocument = ({
     return { membership, complete };
   };
   const radios = collectRadios();
+  const collectAriaRadios = () => {
+    const membership = new Map();
+    const owners = new Map();
+    let count = 0;
+    for (const node of doc.querySelectorAll('[role="radio"]')) {
+      if (++count > 2000) {
+        reasons.add('control-scan-limit');
+        break;
+      }
+      const owner = node.parentElement?.closest('[role="radiogroup"]');
+      if (!owner || node.matches('input') || node.querySelector('input')) {
+        continue;
+      }
+      if (!owners.has(owner)) {
+        owners.set(owner, {
+          id: `aria-radio-group-${count}`,
+          size: 0,
+          complete: !owner.hasAttribute('aria-owns'),
+        });
+      }
+      const group = owners.get(owner);
+      group.size++;
+      membership.set(node, group);
+    }
+    if (count > 2000) {
+      for (const group of owners.values()) {
+        group.complete = false;
+      }
+    }
+    return membership;
+  };
+  const ariaRadios = collectAriaRadios();
   const clip = (value) => {
     const text = String(value ?? '')
       .replace(/\s+/gu, ' ')
@@ -169,10 +201,12 @@ export const readFormDocument = ({
     if (!(
       node.tagName === 'SELECT' || ['listbox', 'combobox'].includes(type)
     )) {
-      return [];
+      return { options: [] };
     }
-    const owned = attr(node, 'aria-controls')
+    const references = attr(node, 'aria-controls')
       .split(/\s+/u)
+      .filter(Boolean);
+    const owned = references
       .slice(0, 10)
       .map((id) => doc.getElementById(id))
       .filter(Boolean);
@@ -188,6 +222,7 @@ export const readFormDocument = ({
         reasons.add('option-limit');
         break;
       }
+      const custom = node.tagName !== 'SELECT';
       options.push({
         label: clip(option.label || option.textContent),
         value: clip(
@@ -197,13 +232,32 @@ export const readFormDocument = ({
           option.selected === true || attr(option, 'aria-selected') === 'true',
         disabled:
           option.matches(':disabled') ||
-          attr(option, 'aria-disabled') === 'true',
+          Boolean(option.closest('[aria-disabled="true"]')),
+        ...(custom
+          ? {
+              index: Array.from(
+                doc.querySelectorAll('[role="option"]')
+              ).indexOf(option),
+              visible: visible(option),
+              clickable: !option.closest(
+                'a[href],button:not([type="button"]),input'
+              ),
+            }
+          : {}),
       });
     }
     if (type === 'combobox' && options.length === 0) {
       reasons.add('unexpanded-options');
     }
-    return options;
+    return {
+      options,
+      ...(node.tagName !== 'SELECT'
+        ? {
+            optionsComplete:
+              choices.size <= maxOptions && references.length === owned.length,
+          }
+        : {}),
+    };
   };
   const checkedOf = (node, type) => {
     if (!['checkbox', 'radio'].includes(type)) {
@@ -230,9 +284,11 @@ export const readFormDocument = ({
       required:
         node.required === true || attr(node, 'aria-required') === 'true',
       disabled:
-        node.matches(':disabled') || attr(node, 'aria-disabled') === 'true',
+        node.matches(':disabled') ||
+        Boolean(node.closest('[aria-disabled="true"]')),
       readOnly:
-        node.readOnly === true || attr(node, 'aria-readonly') === 'true',
+        node.readOnly === true ||
+        Boolean(node.closest('[aria-readonly="true"]')),
       value: value?.slice(0, 10000) ?? null,
       checked: checkedOf(node, type),
       valueOmitted: sensitive ? type : null,
@@ -267,23 +323,43 @@ export const readFormDocument = ({
       label: label.text,
       labelSource: label.source,
       group,
-      ...(radios.membership.has(node)
+      ...(radios.membership.has(node) || ariaRadios.has(node)
         ? {
             radioGroup: {
-              ...radios.membership.get(node),
-              complete: radios.complete,
+              ...(radios.membership.get(node) ?? ariaRadios.get(node)),
+              ...(radios.membership.has(node)
+                ? { complete: radios.complete }
+                : {}),
             },
           }
         : {}),
       heading: nearbyHeading,
       description: refs(node, 'aria-describedby'),
       ...stateOf(node, type),
-      options: optionsOf(node, type),
+      ...optionsOf(node, type),
+      ...(!['input', 'textarea', 'select'].includes(node.tagName.toLowerCase())
+        ? {
+            custom: {
+              editable: node.isContentEditable,
+              clickable: !node.closest(
+                'a[href],button:not([type="button"]),input'
+              ),
+              checkedKnown: ['true', 'false'].includes(
+                attr(node, 'aria-checked')
+              ),
+            },
+          }
+        : {}),
     };
   };
+  const inputType = (node) =>
+    attr(node, 'role') === 'combobox' &&
+    ['text', 'search', 'email', 'tel', 'url'].includes(node.type)
+      ? 'combobox'
+      : String(node.type).toLowerCase();
   const typeOf = (node) =>
     node.tagName === 'INPUT'
-      ? String(node.type).toLowerCase()
+      ? inputType(node)
       : attr(node, 'role') ||
         (node.isContentEditable
           ? 'contenteditable'
@@ -293,6 +369,31 @@ export const readFormDocument = ({
   const fields = [];
   let examined = 0;
   let excluded = 0;
+  const collectControlledLists = () => {
+    const controlledLists = new Set();
+    for (const combo of doc.querySelectorAll(
+      '[role="combobox"][aria-controls]'
+    )) {
+      for (const id of attr(combo, 'aria-controls')
+        .split(/\s+/u)
+        .slice(0, 10)) {
+        controlledLists.add(doc.getElementById(id));
+      }
+    }
+    return controlledLists;
+  };
+  const controlledLists = collectControlledLists();
+  const wrappedControl = (node, tag) =>
+    !['input', 'textarea', 'select'].includes(tag) &&
+    node.querySelector('input,textarea,select');
+  const selectedValue = (field) => {
+    if (field.optionsComplete !== undefined) {
+      const selected = field.options.filter((option) => option.selected);
+      field.displayValue = field.value;
+      field.value = selected.length === 1 ? selected[0].value : '';
+    }
+    return field;
+  };
   for (const node of doc.querySelectorAll(selector)) {
     if (++examined > 2000) {
       reasons.add('control-scan-limit');
@@ -300,6 +401,10 @@ export const readFormDocument = ({
     }
     const tag = node.tagName.toLowerCase();
     const type = typeOf(node);
+    // A controlled popup is part of its combobox whether open or closed.
+    if (controlledLists.has(node)) {
+      continue;
+    }
     if (
       ['hidden', 'submit', 'reset', 'button', 'image'].includes(type) ||
       !visible(node)
@@ -308,21 +413,19 @@ export const readFormDocument = ({
       continue;
     }
     // ARIA wrappers around native inputs are represented by their actual controls.
-    if (
-      !['input', 'textarea', 'select'].includes(tag) &&
-      node.querySelector('input,textarea,select')
-    ) {
+    if (wrappedControl(node, tag)) {
       continue;
     }
     if (fields.length >= maxFields) {
       reasons.add('field-limit');
       break;
     }
-    fields.push({
+    const field = {
       id: `field-${fields.length + 1}`,
       index: examined - 1,
       ...readField(node, type),
-    });
+    };
+    fields.push(selectedValue(field));
   }
   // Shadow DOM needs its own reader. Never represent an opaque custom element
   // as proof that the entire questionnaire was inspected.

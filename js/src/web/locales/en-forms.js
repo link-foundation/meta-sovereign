@@ -182,7 +182,7 @@ export const enForms = {
     'The review operation could not be confirmed. Your URL and report are kept. Refresh sessions before trying again.',
   'forms.fill.title': 'Review selected changes',
   'forms.fill.hint':
-    'Select fields below, then apply only those proposals. Text fields, native single selects, checkboxes and complete radio groups are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
+    'Select fields below, then apply only those proposals. Text fields, native controls and exposed ARIA checkboxes, complete radio groups and single choices are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
   'forms.fill.select': 'Apply this proposal',
   'forms.fill.count': '{count} selected · maximum {limit}',
   'forms.fill.replace':

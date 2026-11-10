@@ -59,11 +59,22 @@ const verifyReadback = (before, after, field, proposal) => {
   const updated = expected.fields.find((item) => item.id === field.id);
   if (proposal.checked === undefined) {
     updated.value = proposal.value;
-    if (updated.tag === 'select') {
-      updated.options = updated.options.map((option) => ({
+    if (['select', 'listbox', 'combobox'].includes(updated.type)) {
+      updated.options = updated.options.map((option, index) => ({
         ...option,
         selected: option.value === proposal.value,
+        ...(option.visible === true && changed.options[index]?.visible === false
+          ? { visible: false }
+          : {}),
       }));
+      if (
+        updated.optionsComplete !== undefined &&
+        ['', updated.displayValue, proposal.value, proposal.option].includes(
+          changed.displayValue
+        )
+      ) {
+        updated.displayValue = changed.displayValue;
+      }
     }
   } else {
     updated.checked = proposal.checked;

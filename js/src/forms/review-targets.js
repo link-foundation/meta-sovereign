@@ -1,6 +1,12 @@
 import { formFailure as failure } from './options.js';
 import { formDocumentIdentity } from './read-document.js';
 import { reviewTargetFields } from './review-radio.js';
+import {
+  customReviewField,
+  customChoice,
+  customOptionAtIndex,
+  customOptionBound,
+} from './review-custom.js';
 
 export const reviewSnapshotKey = (report) =>
   JSON.stringify([report.url, report.title, report.fields, report.frames]);
@@ -39,7 +45,8 @@ export const writableReviewField = (field) => {
       ).length === 1) ||
     field.tag === 'textarea' ||
     field.type === 'contenteditable' ||
-    nativeReviewInput(field)
+    nativeReviewInput(field) ||
+    customReviewField(field)
   );
 };
 
@@ -56,12 +63,17 @@ const stillBound = (node, index) =>
 /** Private element handles bind this plan to these exact documents and controls. */
 export const captureReviewTargets = async (snapshot, fields) => {
   const targets = new Map();
+  const choices = new Map();
   const boundFields = reviewTargetFields(fields, writableReviewField);
   const dispose = async () => {
     for (const handle of targets.values()) {
       await handle.dispose().catch(() => {});
     }
     targets.clear();
+    for (const handle of choices.values()) {
+      await handle.dispose().catch(() => {});
+    }
+    choices.clear();
   };
   try {
     for (const field of boundFields) {
@@ -78,6 +90,22 @@ export const captureReviewTargets = async (snapshot, fields) => {
         );
       }
       targets.set(field.id, element);
+      const option = customChoice(field);
+      if (option) {
+        const optionHandle = await entry[0].evaluateHandle(
+          customOptionAtIndex,
+          option.index
+        );
+        const optionElement = optionHandle.asElement();
+        if (!optionElement) {
+          await optionHandle.dispose();
+          throw failure(
+            'form-changed',
+            'A reviewed option is no longer available.'
+          );
+        }
+        choices.set(field.id, optionElement);
+      }
     }
   } catch (error) {
     await dispose();
@@ -85,7 +113,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
   }
   return {
     dispose,
-    get: (id) => targets.get(id),
+    get: (id) => choices.get(id) ?? targets.get(id),
     async check() {
       for (const [frame, previous] of snapshot.handles) {
         const current = await frame.evaluate(formDocumentIdentity);
@@ -106,6 +134,19 @@ export const captureReviewTargets = async (snapshot, fields) => {
             'A reviewed control was replaced. Plan its current page again.'
           );
         }
+        const option = customChoice(field);
+        if (
+          option &&
+          !(await choices.get(field.id).evaluate(customOptionBound, {
+            index: option.index,
+            controlIndex: field.index,
+          }))
+        ) {
+          throw failure(
+            'form-changed',
+            'A reviewed option was replaced or moved.'
+          );
+        }
       }
     },
   };
@@ -113,7 +154,12 @@ export const captureReviewTargets = async (snapshot, fields) => {
 
 export const writeReviewTarget = async (browser, handle, field) => {
   const proposal = field.answer.proposal;
-  if (field.tag === 'select') {
+  if (
+    customChoice(field) ||
+    (field.tag !== 'input' && ['checkbox', 'radio'].includes(field.type))
+  ) {
+    await handle.click({ timeout: 5000 });
+  } else if (field.tag === 'select') {
     // Commander has no selectOption or frame/element-targeted checkbox API.
     await handle.selectOption(proposal.value, { timeout: 5000 });
   } else if (['checkbox', 'radio'].includes(field.type)) {
