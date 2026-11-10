@@ -48,6 +48,8 @@ Resolved diagnostic: the isolated no-sync fixture's unsupported RTC connection h
 
 ## Current CI investigation protocol
 
+TG06 lifecycle audit: five failing-before regressions now pass with temporary-client destruction, no late cancelled credential publication, explicit expiry, fresh code/2FA prompts and awaited server shutdown. All 34 focused login checks pass; see telegram-login.md. CLI and complete migration/UI verification remain open, so TG06 is not checked off.
+
 - [x] List five latest runs with creation times and head SHAs.
 - [x] Compare against the latest pushed commit before interpreting results.
 - [x] Download complete logs for every nonpassing runtime job and the final workflow.

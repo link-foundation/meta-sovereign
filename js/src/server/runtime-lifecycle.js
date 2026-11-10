@@ -1,4 +1,5 @@
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
+import { closeTelegramLogins } from './telegram-login-registry.js';
 
 const stopAccounts = (ctx, handoff) =>
   Promise.allSettled(
@@ -45,6 +46,7 @@ export const createRuntimeLifecycle = ({
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),
       ctx.publications?.close(),
+      closeTelegramLogins(ctx),
     ]);
   };
   return {

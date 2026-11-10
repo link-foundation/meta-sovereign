@@ -13,6 +13,7 @@ import { startServer } from './helpers/legacy-server.js';
 import { createTelegramMtproto } from '../src/web/../sources/telegram-mtproto.js';
 import { createTelegramCreds } from '../src/web/../sources/auto-import/telegram-creds.js';
 import { readStoreText } from './util-store-text.js';
+import { createMemoryStore } from '../src/storage/universal.js';
 import { post, postJson } from './util-http.js';
 
 const tmpDir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-tg-login-'));
@@ -161,3 +162,117 @@ test('finder phone-login: Connect starts the sign-in, inline code finishes it', 
     await handle.close();
   }
 });
+
+test(
+  'login clients are closed on startup failure and server shutdown',
+  { timeout: 3000 },
+  async () => {
+    const storeDir = await tmpDir();
+    const store = createMemoryStore();
+    const clients = [fakeClient(), fakeClient()];
+    const destroyed = [0, 0];
+    clients[0].start = async () => {
+      throw new Error('PHONE_NUMBER_INVALID');
+    };
+    clients.forEach((client, i) => {
+      client.destroy = async () => {
+        destroyed[i]++;
+      };
+    });
+    const { handle, base } = await startTgServer(storeDir, {
+      store,
+      enableHandlers: false,
+      telegramMtproto: createTelegramMtproto({
+        clientFactory: async () => clients.shift(),
+      }),
+    });
+    try {
+      const path = '/api/auto-import/telegram/login/start';
+      const credentials = {
+        apiId: 2040,
+        apiHash: 'hash',
+        phone: '+15551234567',
+      };
+      const failed = await post(base, path, credentials);
+      assert.equal(failed.status, 400);
+      assert.match((await failed.json()).error, /PHONE_NUMBER_INVALID/);
+      assert.deepEqual(destroyed, [1, 0]);
+      const started = await postJson(base, path, credentials);
+      assert.equal(started.needs, 'code');
+      await handle.close();
+      assert.deepEqual(destroyed, [1, 1]);
+      assert.equal(await store.get('secret:telegram:user-session'), null);
+    } finally {
+      await handle.close();
+      await fs.rm(storeDir, { recursive: true, force: true });
+    }
+  }
+);
+
+test(
+  'cancel while getMe is pending never stores a late session',
+  { timeout: 3000 },
+  async () => {
+    const storeDir = await tmpDir();
+    const store = createMemoryStore();
+    let resolveAccount;
+    let entered;
+    const account = new Promise((resolve) => {
+      resolveAccount = resolve;
+    });
+    const reading = new Promise((resolve) => {
+      entered = resolve;
+    });
+    let destroyed = 0;
+    const client = fakeClient();
+    client.start = async ({ phoneCode }) => {
+      await phoneCode();
+    };
+    client.getMe = () => {
+      entered();
+      return account;
+    };
+    client.destroy = async () => {
+      destroyed++;
+    };
+    const { handle, base } = await startTgServer(storeDir, {
+      store,
+      enableHandlers: false,
+      telegramMtproto: createTelegramMtproto({
+        clientFactory: async () => client,
+      }),
+    });
+    try {
+      const path = '/api/auto-import/telegram/login';
+      const started = await postJson(base, `${path}/start`, {
+        apiId: 2040,
+        apiHash: 'hash',
+        phone: '+15551234567',
+      });
+      const submitted = post(base, `${path}/code`, {
+        id: started.id,
+        code: '12345',
+      });
+      await reading;
+      assert.deepEqual(
+        await postJson(base, `${path}/cancel`, { id: started.id }),
+        { cancelled: true }
+      );
+      resolveAccount({ id: 99, username: 'late' });
+      const reply = await submitted;
+      assert.equal(reply.status, 400);
+      assert.match((await reply.json()).error, /cancelled/);
+      assert.equal(await store.get('secret:telegram:user-session'), null);
+      assert.equal(destroyed, 1);
+      assert.equal(
+        (await post(base, `${path}/code`, { id: started.id, code: '12345' }))
+          .status,
+        404
+      );
+    } finally {
+      resolveAccount({ id: 99 });
+      await handle.close();
+      await fs.rm(storeDir, { recursive: true, force: true });
+    }
+  }
+);

@@ -1,0 +1,12 @@
+{
+  "archive": "telegram-login.tar.gz",
+  "files": {
+    "ci-logs/checks-42726623365-lint-job.log": "1691b91cac4a9ef60c478cb599e5705a2aad82064dd405cb91107bc136c457b3",
+    "ci-logs/ci-aab-ledger-format.log": "d33859d27b19cbdf08817bf949d02154eb6166c0f2c8fe3ad8e4f179918d176d",
+    "ci-logs/telegram-login-lifecycle-before.log": "87d671137176f26edf2a1a4da003b680809c2f58a48ab6baf8feb19f8b0246dc",
+    "ci-logs/telegram-login-lifecycle-final.log": "89613729e8e6ca32571b04a0222999cc7736d739f725549a6761dd7f25bd4d41",
+    "ci-logs/telegram-login-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/issue-56/collect-login-evidence.py": "7ed5c13cec022502d4d0799080f9432ad678d3e1ad46b080a124c24c487af513",
+    "metadata.json": "ace68ffc4260cde361dfa105596e69c8a64a05e855afd5496efcf8c750cbd4f4"
+  }
+}

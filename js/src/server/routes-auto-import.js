@@ -35,6 +35,12 @@ import {
 } from '../sources/auto-import/index.js';
 import { createTelegramMtproto } from '../sources/telegram-mtproto.js';
 import { accountSlot, saveExtraAccount } from '../sources/telegram-accounts.js';
+import {
+  beginTelegramLogin,
+  closeTelegramLogin,
+  findTelegramLogin,
+  trackTelegramLogin,
+} from './telegram-login-registry.js';
 
 const PREFIX = '/api/auto-import';
 const JOB_ROUTE =
@@ -61,9 +67,11 @@ const signInsFor = (ctx) => {
 // client is lazy-loaded, so a machine without GramJS still runs — the
 // finder then groups user sessions by phone instead of by @username.
 const mtprotoFor = (ctx) => {
-  ctx.telegramMtproto ??= createTelegramMtproto(
-    ctx.telegramMtprotoOptions ?? {}
-  );
+  ctx.telegramMtproto ??= createTelegramMtproto({
+    log: ctx.log,
+    debug: process.env.MS_TELEGRAM_LOGIN_DEBUG === '1',
+    ...(ctx.telegramMtprotoOptions ?? {}),
+  });
   return ctx.telegramMtproto;
 };
 
@@ -233,8 +241,6 @@ const telegramRoute = async (store, req, res, ctx, action) => {
 const TELEGRAM_LOGIN_ROUTE =
   /^\/api\/auto-import\/telegram\/login\/(start|code|password|cancel|qr-start|qr-status|qr-cancel)$/;
 
-const loginsFor = (ctx) => (ctx.telegramLogins ??= new Map());
-
 const saveUserSession = async (store, apiId, apiHash, session) => {
   const stamp = new Date().toISOString();
   const put = (id, tokens, value) =>
@@ -258,21 +264,29 @@ const saveUserSession = async (store, apiId, apiHash, session) => {
 
 // Turn a controller's current state into the response, saving the session
 // and dropping the controller once the sign-in is complete.
-const loginReply = async (store, logins, id, login, meta) => {
+const loginReply = async (store, ctx, id, login, meta) => {
+  if (findTelegramLogin(ctx, id)?.login !== login) {
+    throw Object.assign(new Error('login expired or cancelled'), {
+      status: 404,
+    });
+  }
   if (login.state === 'done') {
     // An extra account (R-Y198) is kept under its own namespaced keys;
     // account 1 is saved exactly as before.
-    if (meta.slot > 1) {
-      await saveExtraAccount(store, meta.slot, {
-        apiId: meta.apiId,
-        apiHash: meta.apiHash,
-        session: login.session,
-        account: login.account,
-      });
-    } else {
-      await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+    try {
+      if (meta.slot > 1) {
+        await saveExtraAccount(store, meta.slot, {
+          apiId: meta.apiId,
+          apiHash: meta.apiHash,
+          session: login.session,
+          account: login.account,
+        });
+      } else {
+        await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+      }
+    } finally {
+      await closeTelegramLogin(ctx, id);
     }
-    logins.delete(id);
     return meta.slot > 1
       ? { done: true, account: login.account, extra: meta.slot }
       : { done: true, account: login.account };
@@ -315,11 +329,14 @@ const startLogin = async (store, body, ctx) => {
   }
   const slot = await loginSlot(body, ctx);
   const login = await mtprotoFor(ctx).createLogin({ apiId, apiHash, phone });
-  await login.ready();
-  const id = `tg-login-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const logins = loginsFor(ctx);
-  logins.set(id, { login, apiId, apiHash, slot });
-  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
+  const id = await trackTelegramLogin(ctx, { login, apiId, apiHash, slot });
+  try {
+    await login.ready();
+  } catch (error) {
+    await closeTelegramLogin(ctx, id).catch(() => {});
+    throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
+  }
+  return loginReply(store, ctx, id, login, { apiId, apiHash, slot });
 };
 
 // Sign in by QR code (R-Y203): qr-start shows a code, qr-status (polled)
@@ -339,16 +356,19 @@ const startQrLoginRoute = async (store, body, ctx) => {
   }
   const slot = await loginSlot(body, ctx);
   const login = await mtprotoFor(ctx).createQrLogin({ apiId, apiHash });
-  const id = `tg-login-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const logins = loginsFor(ctx);
-  logins.set(id, { login, apiId, apiHash, slot, qr: true });
-  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
+  const id = await trackTelegramLogin(ctx, {
+    login,
+    apiId,
+    apiHash,
+    slot,
+    qr: true,
+  });
+  return loginReply(store, ctx, id, login, { apiId, apiHash, slot });
 };
 
 const qrStatusRoute = async (store, body, ctx) => {
-  const logins = loginsFor(ctx);
   const id = String(body.id ?? '');
-  const entry = LOGIN_ID.test(id) ? logins.get(id) : null;
+  const entry = LOGIN_ID.test(id) ? findTelegramLogin(ctx, id) : null;
   if (!entry?.qr) {
     throw Object.assign(new Error('no such QR login (it may have expired)'), {
       status: 404,
@@ -358,16 +378,15 @@ const qrStatusRoute = async (store, body, ctx) => {
   try {
     await login.status();
   } catch (error) {
-    logins.delete(id);
-    await login.cancel().catch(() => {});
+    await closeTelegramLogin(ctx, id).catch(() => {});
     throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
   }
-  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
+  return loginReply(store, ctx, id, login, { apiId, apiHash, slot });
 };
 
 const continueLogin = async (store, action, body, ctx) => {
-  const logins = loginsFor(ctx);
-  const entry = logins.get(String(body.id ?? ''));
+  const id = String(body.id ?? '');
+  const entry = findTelegramLogin(ctx, id);
   if (!entry) {
     throw Object.assign(new Error('no such login (it may have expired)'), {
       status: 404,
@@ -375,32 +394,33 @@ const continueLogin = async (store, action, body, ctx) => {
   }
   const { login, apiId, apiHash, slot } = entry;
   if (action === 'cancel') {
-    await login.cancel();
-    logins.delete(body.id);
+    await closeTelegramLogin(ctx, id);
     return { cancelled: true };
   }
-  if (action === 'code') {
-    if (!login.submitCode) {
-      throw badLogin('a QR login has no code step');
+  try {
+    if (action === 'code') {
+      if (!login.submitCode) {
+        throw badLogin('a QR login has no code step');
+      }
+      await login.submitCode(body.code);
+    } else {
+      await login.submitPassword(body.password);
     }
-    await login.submitCode(body.code);
-  } else if (entry.qr) {
-    // A wrong 2-Step password is the user's to fix, not a server error.
-    await login.submitPassword(body.password).catch((error) => {
-      throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
-    });
-  } else {
-    await login.submitPassword(body.password);
+  } catch (error) {
+    if (['error', 'cancelled'].includes(login.state)) {
+      await closeTelegramLogin(ctx, id).catch(() => {});
+    }
+    throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
   }
-  return loginReply(store, logins, body.id, login, { apiId, apiHash, slot });
+  return loginReply(store, ctx, id, login, { apiId, apiHash, slot });
 };
 
 const loginStep = (store, action, body, ctx) => {
   if (action === 'start') {
-    return startLogin(store, body, ctx);
+    return beginTelegramLogin(ctx, () => startLogin(store, body, ctx));
   }
   if (action === 'qr-start') {
-    return startQrLoginRoute(store, body, ctx);
+    return beginTelegramLogin(ctx, () => startQrLoginRoute(store, body, ctx));
   }
   if (action === 'qr-status') {
     return qrStatusRoute(store, body, ctx);

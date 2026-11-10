@@ -23,21 +23,30 @@
  * session, the password.
  */
 
-const deferred = () => {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
-};
-
-const sleep = (ms) => new Promise((r) => globalThis.setTimeout(r, ms));
+import {
+  createLoginLifetime,
+  deferredLoginInput,
+  waitForLogin,
+} from './telegram-login-lifecycle.js';
 
 /** The URL a phone scans: the token as base64url. */
 export const loginUrl = (token) =>
   `tg://login?token=${Buffer.from(token).toString('base64url')}`;
+
+const qrLifetime = (client, ctrl, options) =>
+  createLoginLifetime(client, {
+    ...options,
+    onStop: (error) => {
+      ctrl.cancelled = true;
+      ctrl.state = error.code === 'LOGIN_CANCELLED' ? 'cancelled' : 'error';
+      ctrl.error = error;
+      ctrl.url = null;
+      ctrl.expires = 0;
+      ctrl.account = null;
+      ctrl.session = null;
+      ctrl.password?.reject(error);
+    },
+  });
 
 /**
  * Start a QR sign-in on `client` (a GramJS-like client, not yet connected).
@@ -57,6 +66,9 @@ export const startQrLogin = async ({
   margin = 2000,
   maxAge = 25000,
   pollMs = 25,
+  timeoutMs = 300_000,
+  debug = false,
+  log,
 }) => {
   const ctrl = {
     state: 'qr',
@@ -70,53 +82,70 @@ export const startQrLogin = async ({
     cancelled: false,
   };
   let inflight = null;
+  const lifetime = qrLifetime(client, ctrl, { timeoutMs, debug, log });
+
+  const fail = async (error) => {
+    if (!lifetime.stopped) {
+      await lifetime.stop(error);
+    }
+  };
 
   const finish = async (user) => {
-    ctrl.session = client.session.save();
-    ctrl.account = accountOf(user);
+    lifetime.check();
+    const session = client.session.save();
+    const account = accountOf(user);
+    await lifetime.close();
+    lifetime.check();
+    ctrl.session = session;
+    ctrl.account = account;
+    ctrl.url = null;
+    ctrl.expires = 0;
     ctrl.state = 'done';
-    await client.disconnect?.();
   };
 
   // 2-Step Verification: GramJS asks for the password through a callback;
   // a wrong one comes back to onError and is asked for again.
   const askPassword = () => {
     ctrl.state = 'password';
-    client
-      .signInWithPassword(
-        { apiId: Number(apiId), apiHash },
-        {
-          password: async () => {
-            ctrl.state = 'password';
-            ctrl.password = deferred();
-            return ctrl.password.promise;
-          },
-          onError: async (error) => {
-            ctrl.error = error;
-            return ctrl.cancelled;
-          },
-        }
+    lifetime
+      .run(() =>
+        client.signInWithPassword(
+          { apiId: Number(apiId), apiHash },
+          {
+            password: async () => {
+              lifetime.check();
+              ctrl.password = deferredLoginInput();
+              ctrl.state = 'password';
+              return lifetime.run(() => ctrl.password.promise);
+            },
+            onError: async (error) => {
+              ctrl.error = error;
+              return ctrl.cancelled;
+            },
+          }
+        )
       )
       .then(finish)
-      .catch((error) => {
-        ctrl.error = ctrl.error ?? error;
-        ctrl.state = 'error';
-      });
+      .catch(fail)
+      .catch(() => {});
   };
 
   const exchange = async (request) => {
-    const answer = await client.invoke(request);
+    const answer = await lifetime.run(() => client.invoke(request));
+    lifetime.check();
     if (answer?.className !== 'auth.LoginTokenMigrateTo') {
       return answer;
     }
     // The account lives on another data centre: go there, import the token.
-    await client._switchDC(answer.dcId);
-    return client.invoke(
-      new Api.auth.ImportLoginToken({ token: answer.token })
+    await lifetime.run(() => client._switchDC(answer.dcId));
+    lifetime.check();
+    return lifetime.run(() =>
+      client.invoke(new Api.auth.ImportLoginToken({ token: answer.token }))
     );
   };
 
   const apply = async (answer) => {
+    lifetime.check();
     if (answer?.className === 'auth.LoginToken') {
       ctrl.url = loginUrl(answer.token);
       ctrl.expires = Number(answer.expires);
@@ -141,11 +170,13 @@ export const startQrLogin = async ({
           )
         );
       } catch (error) {
-        if (error?.errorMessage === 'SESSION_PASSWORD_NEEDED') {
+        if (
+          !lifetime.stopped &&
+          error?.errorMessage === 'SESSION_PASSWORD_NEEDED'
+        ) {
           askPassword();
         } else {
-          ctrl.error = error;
-          ctrl.state = 'error';
+          await fail(error);
         }
       } finally {
         inflight = null;
@@ -158,48 +189,34 @@ export const startQrLogin = async ({
     ctrl.url === null ||
     now() >= Math.min(ctrl.expires * 1000 - margin, ctrl.fetchedAt + maxAge);
 
-  const fail = async (error) => {
-    await client.disconnect?.();
+  try {
+    await lifetime.run(() => client.connect());
+    client.addEventHandler?.((update) => {
+      // The phone confirmed: the next export answers with the account.
+      if (update?.className === 'UpdateLoginToken' && ctrl.state === 'qr') {
+        refresh()
+          .catch(fail)
+          .catch(() => {});
+      }
+    });
+    await refresh();
+    lifetime.check();
+  } catch (error) {
+    await fail(error);
     throw error;
-  };
-
-  await client.connect();
-  client.addEventHandler?.((update) => {
-    // The phone confirmed: the next export answers with the account.
-    if (update?.className === 'UpdateLoginToken' && ctrl.state === 'qr') {
-      refresh();
-    }
-  });
-  await refresh();
-  if (ctrl.state === 'error') {
-    return fail(ctrl.error);
   }
 
   return controllerOf({
     ctrl,
-    client,
+    lifetime,
     refresh,
     stale,
     pending: () => inflight,
-    settle: settleFor(ctrl, now, pollMs),
+    settle: (want) => waitForLogin(ctrl, lifetime, want, pollMs),
   });
 };
 
-// Wait while the state is `want`; a wrong password is thrown once.
-const settleFor = (ctrl, now, pollMs) => async (want) => {
-  const deadline = now() + 60000;
-  while (ctrl.state === want && now() < deadline) {
-    await sleep(pollMs);
-  }
-  if (ctrl.error) {
-    const error = ctrl.error;
-    ctrl.error = null;
-    throw error;
-  }
-  return ctrl.state;
-};
-
-const controllerOf = ({ ctrl, client, refresh, stale, pending, settle }) => ({
+const controllerOf = ({ ctrl, lifetime, refresh, stale, pending, settle }) => ({
   get state() {
     return ctrl.state;
   },
@@ -217,6 +234,7 @@ const controllerOf = ({ ctrl, client, refresh, stale, pending, settle }) => ({
   },
   // One poll: renew an expiring code, wait for an export in flight.
   async status() {
+    lifetime.check();
     if (ctrl.state === 'qr' && stale()) {
       await refresh();
     } else if (pending()) {
@@ -237,8 +255,6 @@ const controllerOf = ({ ctrl, client, refresh, stale, pending, settle }) => ({
     return settle('checking');
   },
   async cancel() {
-    ctrl.cancelled = true;
-    ctrl.password?.reject(new Error('cancelled'));
-    await client.disconnect?.();
+    await (ctrl.state === 'done' ? lifetime.close() : lifetime.stop());
   },
 });
