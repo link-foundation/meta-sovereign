@@ -23,6 +23,11 @@ try {
     enableHandlers: false,
     automations: { scheduler: false },
     forms: {
+      review: {
+        learning: {
+          stableMs: process.env.FORMS_LEARNING_MCP === '1' ? 800 : 60000,
+        },
+      },
       availability: async () => ({
         available: true,
         missing: [],
@@ -164,13 +169,23 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_MONITOR_MCP === '1'
-          ? fixture.url.replace('/application', '/monitor')
-          : fixture.url,
+        process.env.FORMS_LEARNING_MCP === '1'
+          ? fixture.url.replace('/application', '/learning')
+          : process.env.FORMS_MONITOR_MCP === '1'
+            ? fixture.url.replace('/application', '/monitor')
+            : fixture.url,
     })
   );
-  if (process.env.FORMS_MONITOR_MCP === '1') {
-    await controlFormMonitorFixture({ browsers, store, fixture });
+  if (
+    process.env.FORMS_MONITOR_MCP === '1' ||
+    process.env.FORMS_LEARNING_MCP === '1'
+  ) {
+    await controlFormMonitorFixture({
+      browsers,
+      store,
+      fixture,
+      learning: process.env.FORMS_LEARNING_MCP === '1',
+    });
   } else {
     await new Promise((resolve) => {
       process.stdin.once('data', resolve);

@@ -8,6 +8,7 @@ const actions = {
       browserSlot: body.browserSlot,
       headless: body.headless,
       autoCapture: body.autoCapture,
+      learn: body.learn,
     }),
   read: (forms, body) => forms.readReview(body.id),
   history: (forms, body) => forms.historyReview(body.id),

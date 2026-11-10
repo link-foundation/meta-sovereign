@@ -1,6 +1,7 @@
 /** Passive per-document capture. Serialized with the shared bounded reader. */
-export const observeFormDocument = (read, binding) => {
+export const observeFormDocument = (read, binding, learning) => {
   const doc = globalThis.document;
+  const evidence = learning?.();
   let timer;
   let pending = false;
   let latest;
@@ -37,7 +38,14 @@ export const observeFormDocument = (read, binding) => {
     globalThis.clearTimeout(timer);
     try {
       const snapshot = read({ maxFields: 200, maxOptions: 100 });
-      const key = JSON.stringify(snapshot);
+      if (evidence) {
+        snapshot.learning = evidence.read(snapshot);
+      }
+      // Observation time changes on every read; only content and new evidence
+      // should create another checkpoint.
+      const key = JSON.stringify(snapshot, (name, value) =>
+        name === 'at' ? undefined : value
+      );
       const identity = key.length > 2 * 1024 ** 2 ? 'oversized' : key;
       if (identity === last) {
         if (urgent && latest) {
@@ -66,6 +74,10 @@ export const observeFormDocument = (read, binding) => {
   // Read before a click handler can remove this page's questions. No click is
   // synthesized, prevented or interpreted as a successful submission.
   doc.addEventListener('click', () => capture(true), {
+    capture: true,
+    passive: true,
+  });
+  doc.addEventListener('submit', () => capture(true), {
     capture: true,
     passive: true,
   });

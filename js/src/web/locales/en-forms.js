@@ -1,14 +1,35 @@
 export const enForms = {
+  'forms.learning.observed':
+    'Actual answers considered (including skipped answers)',
+  'forms.learning.enable': 'Learn answers from planned pages',
+  'forms.learning.scope':
+    'After planning each page, save reusable answers as unapproved proposals after observed submission completion or an owner edit stays unchanged for one minute. Unchanged prefills are not learned before submission. Turning off capture also turns off learning.',
+  'forms.learning.waiting-plan':
+    'Learning is ready. Plan this page to select the questions to watch.',
+  'forms.learning.watching':
+    'Learning is on · {tracked} tracked answers · {saved} proposals saved · {skipped} skipped · {omitted} omitted · {failed} failures.',
+  'forms.learning.disabled': 'Answer learning is off.',
+  'forms.learning.incomplete':
+    'Learning paused because capture was incomplete. Plan the current page again; earlier uncaptured answers cannot be learned.',
+  'forms.learning.failed':
+    'Learning paused after repeated failures. Review the stored answers and plan again to retry.',
+  'forms.learning.stopped': 'Answer learning stopped.',
+  'forms.learning.result':
+    '{kind}: {saved} unapproved proposals saved · {skipped} skipped.',
+  'forms.learning.kind.observed-submission': 'Observed submission completion',
+  'forms.learning.kind.stable-owner-edit': 'Owner edit stable for one minute',
+  'forms.journal.action.learn': 'Learn answers',
+
   'forms.monitor.capture': 'Capture pages automatically',
   'forms.monitor.scope':
     'Capture visible questions and current values while you edit or open later pages. This does not confirm submission or learn answers.',
   'forms.monitor.active':
-    '{captured} automatic captures · {omitted} omitted · {failed} failures. Answer learning is off.',
+    '{captured} automatic captures · {omitted} omitted · {failed} failures.',
   'forms.monitor.disabled':
     'Automatic capture is off. Read each page to keep a checkpoint.',
   'forms.monitor.unavailable':
     'Automatic capture is unavailable. Read each page to keep a checkpoint.',
-  'forms.monitor.stopped': 'Automatic capture stopped. Answer learning is off.',
+  'forms.monitor.stopped': 'Automatic capture stopped.',
   'forms.navigation.next':
     'A Next control is visible. Open the next page in the review browser, then read and plan its current questions.',
   'forms.reason.other-documents-not-sampled':

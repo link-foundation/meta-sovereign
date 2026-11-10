@@ -23,6 +23,7 @@ import {
   resolveStoredAnswerProfile,
 } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
+import { mergeObservedAnswers } from './question-merge.js';
 import {
   prepareSalaryExchange,
   withSalaryExchangeEvidence,
@@ -319,12 +320,6 @@ const validateCurrentAnswer = async (
   return { ok: true };
 };
 
-const mergeLearned = (existing, proposal) => ({
-  ...proposal,
-  ...existing,
-  answers: [...(existing?.answers ?? [])],
-});
-
 const readAnswerKnowledge = async (store, profileId) => ({
   policy: await readAnswerPolicy(store),
   rules: await readAnswerRules(store, 8 * 1024 ** 2),
@@ -368,41 +363,13 @@ const collectSavedAnswers = async (
     profile: options.profile,
     rules: knowledge.rules,
   });
-  const rules = [];
-  for (const proposal of learned.rules) {
-    const existing = saved.get(proposal.id);
-    const merged = mergeLearned(existing, proposal);
-    for (const answer of proposal.answers) {
-      const prior = merged.answers.find((entry) => entry.text === answer.text);
-      if (prior) {
-        const at = merged.answers.indexOf(prior);
-        merged.answers[at] = {
-          ...prior,
-          count: Math.max(prior.count, answer.count),
-          evidence: [...new Set([...prior.evidence, ...answer.evidence])].slice(
-            0,
-            100
-          ),
-        };
-      } else if (merged.answers.length < 100) {
-        merged.answers.push(answer);
-      } else {
-        throw new Error(
-          'answer variant limit (100) exceeded; no proposals applied'
-        );
-      }
-    }
-    rules.push(normalizeAnswerRule(merged));
-  }
+  const rules = mergeObservedAnswers(
+    saved,
+    learned.rules,
+    apply ? 1000 : Infinity
+  );
   checkArchive();
   if (apply === true) {
-    if (
-      new Set([...saved.keys(), ...rules.map((rule) => rule.id)]).size > 1000
-    ) {
-      throw new Error(
-        'answer rule limit (1000) exceeded; no proposals applied'
-      );
-    }
     await writeAnswerKnowledge(store, async () => {
       await unchangedKnowledge(
         store,

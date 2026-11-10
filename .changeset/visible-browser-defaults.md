@@ -175,3 +175,5 @@ Attach an explicitly chosen PDF résumé to a reviewed native field through CLI,
 Retain bounded captured form checkpoints across explicit reads, plans and verified actions. Add CLI/Lino/localized read-only history, Markdown downloads and private unique saved provenance reports; show retention omissions and disk failures separately from actual browser outcomes, and await pending writes during shutdown.
 
 Capture visible form documents automatically during owned reviews, including owner edits immediately before Next. Add CLI/API/localized opt-out and capture status, bound callbacks and frames, exclude hidden/sensitive values and await accepted writes on close. Preserve the existing answer-plan download filename.
+
+Learn unapproved actual answers from explicitly planned pages in owned form reviews after observed submission completion or a stable one-minute owner edit. Share CLI/API/localized opt-out, current knowledge and contact guards, bounded lifecycle, actual-answer journal evidence and honest partial-write/report failure states.

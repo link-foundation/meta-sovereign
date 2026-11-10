@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useT } from './i18n.js';
 import { FormMonitorStatus } from './form-monitor-status.js';
+import { FormLearningStatus } from './form-learning-status.js';
 
 const el = React.createElement;
 const errorKey = (code) =>
@@ -121,6 +122,10 @@ const ReviewCard = ({ session, busy, run }) => {
         t('forms.review.expires', { time: session.idleExpiresAt })
       ),
       el(FormMonitorStatus, { key: 'monitor', monitoring: session.monitoring }),
+      el(FormLearningStatus, {
+        key: 'learning',
+        learning: session.answerLearning,
+      }),
       ...['Read', 'History', 'Focus', 'Close'].map((action) =>
         el(
           'button',
@@ -147,6 +152,7 @@ export const FormReviewControls = (props) => {
   const t = useT();
   const controls = useReviewControls(props);
   const [autoCapture, setAutoCapture] = useState(true);
+  const [learn, setLearn] = useState(true);
   return el('section', { className: 'card col', 'data-form-reviews': '' }, [
     el('h2', { key: 'title' }, t('forms.review.title')),
     el('p', { key: 'hint', className: 'meta' }, t('forms.review.hint')),
@@ -166,6 +172,22 @@ export const FormReviewControls = (props) => {
       { key: 'captureScope', className: 'meta' },
       t('forms.monitor.scope')
     ),
+    el('label', { key: 'learn', className: 'row' }, [
+      el('input', {
+        key: 'input',
+        type: 'checkbox',
+        checked: autoCapture && learn,
+        disabled: busy || !autoCapture,
+        'data-form-learn': '',
+        onChange: (event) => setLearn(event.target.checked),
+      }),
+      t('forms.learning.enable'),
+    ]),
+    el(
+      'p',
+      { key: 'learnScope', className: 'meta' },
+      t('forms.learning.scope')
+    ),
     el(
       'button',
       {
@@ -175,7 +197,12 @@ export const FormReviewControls = (props) => {
         'data-action': 'open-form-review',
         'aria-busy': controls.operation === 'Open',
         onClick: () =>
-          controls.run('Open', { url, browserSlot: slot, autoCapture }),
+          controls.run('Open', {
+            url,
+            browserSlot: slot,
+            autoCapture,
+            learn: autoCapture && learn,
+          }),
       },
       t(
         controls.operation === 'Open'

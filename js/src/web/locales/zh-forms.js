@@ -1,12 +1,31 @@
 export const zhForms = {
+  'forms.learning.observed': '已考虑的实际答案（包括跳过的答案）',
+  'forms.learning.enable': '从已规划的页面学习答案',
+  'forms.learning.scope':
+    '规划每一页后，在观察到提交完成或用户修改保持一分钟不变时，将可重复使用的答案保存为未批准的建议。未修改的预填答案不会在提交前学习。关闭捕获也会关闭学习。',
+  'forms.learning.waiting-plan': '学习已就绪。请规划此页面以选择要观察的问题。',
+  'forms.learning.watching':
+    '学习已开启 · {tracked} 个答案 · 已保存 {saved} 个建议 · 跳过 {skipped} 个 · 遗漏 {omitted} 个 · {failed} 次失败。',
+  'forms.learning.disabled': '答案学习已关闭。',
+  'forms.learning.incomplete':
+    '由于捕获不完整，学习已暂停。请重新规划当前页面；先前未捕获的答案无法学习。',
+  'forms.learning.failed':
+    '多次失败后学习已暂停。请检查保存的答案并重新规划以重试。',
+  'forms.learning.stopped': '答案学习已停止。',
+  'forms.learning.result':
+    '{kind}：已保存 {saved} 个未批准建议 · 跳过 {skipped} 个。',
+  'forms.learning.kind.observed-submission': '观察到提交完成',
+  'forms.learning.kind.stable-owner-edit': '用户修改已保持一分钟不变',
+  'forms.journal.action.learn': '学习答案',
+
   'forms.monitor.capture': '自动捕获页面',
   'forms.monitor.scope':
     '编辑或打开后续页面时，捕获可见问题和当前值。这不能确认已提交，也不会学习答案。',
   'forms.monitor.active':
-    '自动捕获 {captured} 次 · 省略 {omitted} 次 · 失败 {failed} 次。答案学习已关闭。',
+    '自动捕获 {captured} 次 · 省略 {omitted} 次 · 失败 {failed} 次。',
   'forms.monitor.disabled': '自动捕获已关闭。请读取每个页面以保留快照。',
   'forms.monitor.unavailable': '自动捕获不可用。请读取每个页面以保留快照。',
-  'forms.monitor.stopped': '自动捕获已停止。答案学习已关闭。',
+  'forms.monitor.stopped': '自动捕获已停止。',
   'forms.navigation.next':
     '检测到“下一页”控件。请在表单浏览器中打开下一页，然后读取并规划当前问题。',
   'forms.reason.other-documents-not-sampled':

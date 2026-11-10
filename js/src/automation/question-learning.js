@@ -191,6 +191,33 @@ const answerCollection = ({ policy, contract, correction }) => {
   return { add, values: () => [...learned.values()] };
 };
 
+// Explicitly paired observations (for example reviewed form fields) share the
+// same privacy, contact contraction, rejection and correction guards as chats.
+export const createAnswerPairLearner = ({
+  policy = {},
+  contract = (text) => text,
+  rules = [],
+  profile = {},
+} = {}) => {
+  const collection = answerCollection({
+    policy,
+    contract,
+    correction: createAnswerCorrectionGuard(rules, {
+      policy,
+      contract,
+      profile,
+    }),
+  });
+  return {
+    values: collection.values,
+    add(question, text, evidence, count = 1, context = {}) {
+      if (!answerAsksQuestion(text)) {
+        collection.add(question, text, evidence, count, context);
+      }
+    },
+  };
+};
+
 // One chronological conversation at a time; retain a question, its immediate
 // reminder and twenty outgoing bubbles. No unrelated turn can bridge the pair.
 export const createAnswerLearner = ({

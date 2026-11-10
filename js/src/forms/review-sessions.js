@@ -8,6 +8,8 @@ import { createReviewedPrefill } from './review-prefill.js';
 import { createFormJournal, formReportSnapshot } from './review-journal.js';
 import { persistFormReport } from './report-file.js';
 import { createFormMonitor } from './review-monitor.js';
+import { createFormLearning } from './review-learning.js';
+import { learnFormAnswerPairs } from './answer-learning.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
@@ -30,6 +32,7 @@ const identity = (record) => {
     lastUsedAt: new Date(record.lastUsedAt).toISOString(),
     idleExpiresAt: new Date(record.lastUsedAt + record.idleMs).toISOString(),
     activityTracking: record.activityTracking,
+    answerLearning: record.learning?.status(),
     monitoring: record.monitor?.status() ?? {
       state: 'unavailable',
       learning: false,
@@ -39,7 +42,7 @@ const identity = (record) => {
 };
 
 const reviewInput = (input) => {
-  for (const key of ['headless', 'autoCapture']) {
+  for (const key of ['headless', 'autoCapture', 'learn']) {
     if (input[key] !== undefined && typeof input[key] !== 'boolean') {
       throw failure('form-options', `${key} must be a boolean.`);
     }
@@ -50,12 +53,19 @@ const reviewInput = (input) => {
   };
 };
 
-const reviewLimits = ({ maxSessions, idleMs, deadlineMs, autoCapture }) => {
+const reviewLimits = ({
+  maxSessions,
+  idleMs,
+  deadlineMs,
+  autoCapture,
+  learn,
+}) => {
   if (
     !bounded(maxSessions, 16) ||
     !bounded(idleMs, 24 * 60 * 60 * 1000) ||
     !bounded(deadlineMs, 300000) ||
-    typeof autoCapture !== 'boolean'
+    typeof autoCapture !== 'boolean' ||
+    typeof learn !== 'boolean'
   ) {
     throw failure('form-options', 'Use finite form review limits.');
   }
@@ -114,10 +124,15 @@ const launchReviewBrowser = async ({
     page: record.browser.page,
     id: record.id,
     slot: record.slot,
-    enabled: record.autoCapture,
+    enabled: record.autoCapture || record.learn,
     capture: (report) => captureReport(reportWriter, record, 'observe', report),
     trace: record.browser.trace,
+    observed: record.learn ? record.learning.observe : undefined,
+    incomplete: (reason) => record.learning.incomplete(reason),
   });
+  if (record.learn && record.monitor.status().state !== 'active') {
+    record.learning.incomplete('capture-unavailable');
+  }
   owner.check(record);
   await record.browser.commander.goto({
     url: record.url,
@@ -127,6 +142,77 @@ const launchReviewBrowser = async ({
   owner.check(record);
   record.state = 'open';
 };
+
+const reviewLearning = ({
+  record,
+  now,
+  timers,
+  check,
+  store,
+  reportWriter,
+  learning,
+}) =>
+  createFormLearning({
+    ...learning,
+    enabled: record.learn,
+    now,
+    timers,
+    trace: (event) => record.browser?.trace?.(event),
+    read: () =>
+      record.cancelled || record.task
+        ? null
+        : inspectCurrentFormSession(record.browser, {
+            check: () => check(record),
+          }),
+    save: async (pairs, options) => {
+      const learned = await learnFormAnswerPairs(store, pairs, options);
+      const result = await captureReport(reportWriter, record, 'learn', {
+        state: 'learned-proposals',
+        report: options.report,
+        learning: {
+          ...learned,
+          kind: options.kind,
+          pairs: pairs.map(({ question, text, evidence, url }) => ({
+            question,
+            text,
+            evidence,
+            url,
+          })),
+        },
+      });
+      return { ...learned, reportFile: result.reportFile };
+    },
+  });
+
+const reviewAction =
+  ({ operate, filling, reportWriter, get, check }, action) =>
+  async (input) => {
+    const result = await operate(input.id, async (record) => {
+      const proposed = record.reviewPlan?.proposed;
+      const result = await captureReport(
+        reportWriter,
+        record,
+        action,
+        await filling[action](record, input, () => check(record)),
+        proposed
+      );
+      if (action === 'plan') {
+        if (record.monitor.status().state === 'active') {
+          record.learning.arm(result, record.reviewPlan?.options);
+        } else {
+          record.learning.incomplete('capture-unavailable');
+        }
+      }
+      if (action === 'apply') {
+        record.learning.applied(result);
+      }
+      return result;
+    });
+    return globalThis.structuredClone({
+      ...result,
+      reviewSession: identity(get(input.id)),
+    });
+  };
 
 /** Owned open browsers, separate from transient inspection and application slots. */
 export const createFormSessions = ({
@@ -140,8 +226,10 @@ export const createFormSessions = ({
   prefill = {},
   reportWriter,
   autoCapture = true,
+  learn = true,
+  learning = {},
 } = {}) => {
-  reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture });
+  reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture, learn });
   const records = new Map();
   const owner = createReviewLifecycle({
     records,
@@ -180,8 +268,21 @@ export const createFormSessions = ({
       idleMs,
       activityTracking: false,
       autoCapture: input.autoCapture ?? autoCapture,
+      learn:
+        (input.learn ?? learn) &&
+        (input.autoCapture ?? autoCapture) &&
+        Boolean(store),
       journal: createFormJournal(),
     };
+    record.learning = reviewLearning({
+      record,
+      now,
+      timers,
+      check,
+      store,
+      reportWriter,
+      learning,
+    });
     records.set(record.id, record);
     record.task = run(record, () =>
       launchReviewBrowser({
@@ -221,22 +322,8 @@ export const createFormSessions = ({
       record.task = null;
     }
   };
-  const reviewAction = (action) => async (input) => {
-    const result = await operate(input.id, async (record) => {
-      const proposed = record.reviewPlan?.proposed;
-      return captureReport(
-        reportWriter,
-        record,
-        action,
-        await filling[action](record, input, () => check(record)),
-        proposed
-      );
-    });
-    return globalThis.structuredClone({
-      ...result,
-      reviewSession: identity(get(input.id)),
-    });
-  };
+  const action = (name) =>
+    reviewAction({ operate, filling, reportWriter, get, check }, name);
   return {
     open,
     close,
@@ -251,13 +338,14 @@ export const createFormSessions = ({
       await operate(id, focusBrowser);
       return { ok: true, session: identity(get(id)) };
     },
-    plan: reviewAction('plan'),
-    apply: reviewAction('apply'),
-    attach: reviewAction('attach'),
-    disclose: reviewAction('disclose'),
+    plan: action('plan'),
+    apply: action('apply'),
+    attach: action('attach'),
+    disclose: action('disclose'),
     history: async (id) => ({
       ...(await operate(id, (record) => record.journal.read())),
       monitoring: get(id).monitor?.status(),
+      answerLearning: get(id).learning?.status(),
       reviewSession: identity(get(id)),
     }),
     read: async (id) => {

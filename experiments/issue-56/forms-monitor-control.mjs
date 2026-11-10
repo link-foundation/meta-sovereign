@@ -1,11 +1,29 @@
 import { createInterface } from 'node:readline';
 import { listAnswerRules } from '../../js/src/automation/question-store.js';
 
+const learningAction = async (action, page) => {
+  if (action === 'edit') {
+    await page
+      .locator('[name="learningAnswer"]')
+      .fill('MCP owner builds resilient storage; contact ada@example.test');
+  } else if (action === 'next') {
+    await page.locator('#next').click();
+    await page.waitForURL('**/learning?page=2');
+  } else if (action === 'submit') {
+    await page
+      .locator('[name="learningAnswer"]')
+      .fill('MCP owner can start after the notice period');
+    await page.getByRole('button', { name: 'Gửi', exact: true }).click();
+    await page.getByRole('status').waitFor();
+  }
+};
+
 /** Explicit fixture-only stdin actions simulate owner edits in the owned browser. */
 export const controlFormMonitorFixture = async ({
   browsers,
   store,
   fixture,
+  learning = false,
 }) => {
   const rules = JSON.stringify(await listAnswerRules(store));
   const input = createInterface({ input: process.stdin, terminal: false });
@@ -17,10 +35,26 @@ export const controlFormMonitorFixture = async ({
       if (command.trim() === 'quit') {
         break;
       }
-      if (command.trim() !== 'next') {
+      const action = command.trim();
+      if (
+        !['next', ...(learning ? ['edit', 'submit', 'state'] : [])].includes(
+          action
+        )
+      ) {
         continue;
       }
       const page = [...browsers].at(-1)?.contexts()[0]?.pages()[0];
+      if (learning && page) {
+        await learningAction(action, page);
+        console.log(
+          JSON.stringify({
+            action,
+            rules: await listAnswerRules(store),
+            submissions: fixture.submits,
+          })
+        );
+        continue;
+      }
       if (
         page &&
         new URL(page.url()).pathname === '/monitor' &&

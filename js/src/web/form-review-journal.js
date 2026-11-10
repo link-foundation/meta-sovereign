@@ -5,6 +5,10 @@ import { FormApplicationResult } from './form-reviewed-plan.js';
 import { FormChoiceResult } from './form-choice-disclosure.js';
 import { FormResumeUploadResult } from './form-resume-upload.js';
 import { FormMonitorStatus } from './form-monitor-status.js';
+import {
+  FormLearningStatus,
+  FormLearningOutcome,
+} from './form-learning-status.js';
 
 const el = React.createElement;
 const FormJournalOutcome = ({ checkpoint }) => {
@@ -17,6 +21,7 @@ const FormJournalOutcome = ({ checkpoint }) => {
   }[checkpoint.action];
   return el('div', { className: 'col' }, [
     result && Component ? el(Component, { key: 'outcome', result }) : null,
+    el(FormLearningOutcome, { key: 'learning', learning: result?.learning }),
     checkpoint.report.observation === 'last-reviewed-snapshot'
       ? el('p', { key: 'previous', role: 'note' }, t('forms.journal.previous'))
       : null,
@@ -35,6 +40,10 @@ export const FormReviewJournal = ({ report, Report }) => {
       el('h2', { key: 'title' }, t('forms.journal.title')),
       el('p', { key: 'scope', role: 'note' }, t('forms.journal.scope')),
       el(FormMonitorStatus, { key: 'monitor', monitoring: report.monitoring }),
+      el(FormLearningStatus, {
+        key: 'learning',
+        learning: report.answerLearning,
+      }),
       el(
         'p',
         { key: 'count', role: 'status' },

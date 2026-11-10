@@ -274,6 +274,17 @@ test(
           autoCapture: 'false',
         });
         assert.equal(refused.code, 'form-options');
+        const noLearning = await http.post('open', {
+          url: env.report.url,
+          learn: false,
+        });
+        assert.equal(noLearning.session.answerLearning.state, 'disabled');
+        await http.post('close', { id: noLearning.session.id });
+        assert.equal(
+          (await http.post('open', { url: env.report.url, learn: 'false' }))
+            .code,
+          'form-options'
+        );
       } finally {
         await http.server.close();
       }
@@ -297,6 +308,14 @@ test(
       /capture-pages/
     );
     assert.equal(stores, 0);
+    await assert.rejects(
+      cli['forms-review'](
+        { url: env.report.url, 'no-learn': 'invalid' },
+        () => {}
+      ),
+      /no-learn/
+    );
+    assert.equal(stores, 0);
     const output = [];
     assert.equal(
       await cli['forms-review'](
@@ -306,5 +325,14 @@ test(
       0
     );
     assert.equal(output[0].session.monitoring.state, 'disabled');
+    const disabled = [];
+    assert.equal(
+      await cli['forms-review'](
+        { url: env.report.url, 'no-learn': true },
+        (line) => disabled.push(JSON.parse(line))
+      ),
+      0
+    );
+    assert.equal(disabled[0].session.answerLearning.state, 'disabled');
   }
 );

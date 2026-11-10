@@ -8,6 +8,7 @@ import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
 import { verifyFormMonitorUi } from './helpers/e2e-form-monitor.mjs';
+import { verifyFormLearningUi } from './helpers/e2e-form-learning.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -26,6 +27,10 @@ try {
     store,
     serverOptions: {
       forms: {
+        review: {
+          learn: process.env.FORMS_LEARNING_BEFORE !== '1',
+          learning: { stableMs: 800 },
+        },
         availability: async () => ({
           available: true,
           missing: [],
@@ -241,7 +246,8 @@ const verifyCustomOnly = async ({ page, until }) => {
     process.env.FORMS_CHOICES_ONLY === '1' ||
     process.env.FORMS_UPLOAD_ONLY === '1' ||
     process.env.FORMS_JOURNAL_ONLY === '1' ||
-    process.env.FORMS_MONITOR_ONLY === '1'
+    process.env.FORMS_MONITOR_ONLY === '1' ||
+    process.env.FORMS_LEARNING_ONLY === '1'
   ) {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -250,15 +256,17 @@ const verifyCustomOnly = async ({ page, until }) => {
       'Forms custom browser capability'
     );
     await (
-      process.env.FORMS_MONITOR_ONLY === '1'
-        ? verifyFormMonitorUi
-        : process.env.FORMS_JOURNAL_ONLY === '1'
-          ? verifyFormJournalUi
-          : process.env.FORMS_UPLOAD_ONLY === '1'
-            ? verifyFormUploadUi
-            : process.env.FORMS_CHOICES_ONLY === '1'
-              ? verifyFormChoicesUi
-              : verifyFormCustomUi
+      process.env.FORMS_LEARNING_ONLY === '1'
+        ? verifyFormLearningUi
+        : process.env.FORMS_MONITOR_ONLY === '1'
+          ? verifyFormMonitorUi
+          : process.env.FORMS_JOURNAL_ONLY === '1'
+            ? verifyFormJournalUi
+            : process.env.FORMS_UPLOAD_ONLY === '1'
+              ? verifyFormUploadUi
+              : process.env.FORMS_CHOICES_ONLY === '1'
+                ? verifyFormChoicesUi
+                : verifyFormCustomUi
     )({ page, owned, fixture, until, store });
     return true;
   }
@@ -376,6 +384,7 @@ await app.finish(async () => {
       verifyFormUploadUi,
       verifyFormJournalUi,
       verifyFormMonitorUi,
+      verifyFormLearningUi,
     ]) {
       await verify({ page, owned, fixture, until, store });
     }

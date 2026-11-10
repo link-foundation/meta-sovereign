@@ -4,13 +4,17 @@ import { runInNewContext } from 'node:vm';
 import React from 'react';
 import { observeFormDocument } from '../src/forms/monitor-document.js';
 import { FormMonitorStatus } from '../src/web/form-monitor-status.js';
+import {
+  FormLearningStatus,
+  FormLearningOutcome,
+} from '../src/web/form-learning-status.js';
 import { FormInspectionReport } from '../src/web/forms-view.js';
 import { FormReviewJournal } from '../src/web/form-review-journal.js';
 import { FormReviewControls } from '../src/web/form-review-controls.js';
 import { availableLocales } from '../src/web/i18n.js';
 import { renderInLocale } from './util-render.js';
 
-const documentHarness = () => {
+const documentHarness = (learning = false) => {
   const events = new Map();
   const scheduled = new Map();
   const captures = [];
@@ -35,13 +39,14 @@ const documentHarness = () => {
       return sequence;
     },
     read: () => ({ fields: [{ value }] }),
+    learning: () => ({ read: () => ({ at: ++sequence, edits: 0, intent: 0 }) }),
     capture: (snapshot) => {
       captures.push(snapshot);
       return pending;
     },
   };
   runInNewContext(
-    `(${observeFormDocument.toString()})(read, 'capture')`,
+    `(${observeFormDocument.toString()})(read, 'capture', ${learning ? 'learning' : 'undefined'})`,
     context
   );
   return {
@@ -59,6 +64,17 @@ const documentHarness = () => {
     },
   };
 };
+
+test('learning timestamps do not create duplicate captures for unchanged clicks', () => {
+  const document = documentHarness(true);
+  try {
+    document.next();
+    document.next();
+    assert.equal(document.captures.length, 1);
+  } finally {
+    document.release();
+  }
+});
 
 test(
   'Next sends the owner edit before replacing a document even while an earlier capture awaits acknowledgement',
@@ -143,6 +159,39 @@ test('capture states, opt-out, observed Next and passive journal omissions are t
             },
           })
         ),
+        ...[
+          'waiting-plan',
+          'watching',
+          'disabled',
+          'incomplete',
+          'failed',
+          'stopped',
+        ].map((state) =>
+          React.createElement(FormLearningStatus, {
+            key: `learn:${state}`,
+            learning: {
+              state,
+              tracked: 2,
+              saved: 1,
+              failed: 0,
+              omitted: 0,
+              skipped: 1,
+            },
+          })
+        ),
+        ...['observed-submission', 'stable-owner-edit'].map((kind) =>
+          React.createElement(FormLearningOutcome, {
+            key: kind,
+            learning: {
+              kind,
+              saved: 1,
+              skipped: 1,
+              pairs: [
+                { question: '<Question>', text: '<script>canary</script>' },
+              ],
+            },
+          })
+        ),
         React.createElement(FormInspectionReport, { key: 'report', report }),
         React.createElement(FormReviewJournal, {
           key: 'journal',
@@ -173,6 +222,8 @@ test('capture states, opt-out, observed Next and passive journal omissions are t
       `all capture messages translated in ${locale.id}`
     );
     assert(html.includes('data-form-auto-capture=""'));
+    assert(html.includes('data-form-learn=""'));
+    assert(!html.includes('<script>canary</script>'));
     assert(html.includes('data-form-next-page=""'));
     assert(html.includes('data-form-monitor="active"'));
     assert(html.includes('data-form-checkpoint="1"'));

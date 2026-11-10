@@ -2,6 +2,7 @@ import { readFormDocument, formFrameVisible } from './read-document.js';
 import { observeFormDocument } from './monitor-document.js';
 import { validateFormInspection } from './plan-validation.js';
 import { formUrl } from './options.js';
+import { observeFormLearning } from './monitor-learning-document.js';
 
 const messageSize = (value) => {
   try {
@@ -33,7 +34,12 @@ const frameVisible = async (frame, page) => {
 };
 
 const monitorReport = (snapshot, id, slot) => {
-  const { fields, documentTime: _time, ...document } = snapshot;
+  const {
+    fields,
+    documentTime: _time,
+    learning: _learning,
+    ...document
+  } = snapshot;
   const report = {
     ok: true,
     version: 1,
@@ -69,6 +75,8 @@ export const createFormMonitor = async ({
   enabled = true,
   capture,
   trace,
+  observed,
+  incomplete,
 }) => {
   const status = {
     state: enabled ? 'unavailable' : 'disabled',
@@ -82,14 +90,28 @@ export const createFormMonitor = async ({
   let queued = 0;
   let frameCount = 0;
   const frames = new WeakMap();
-  const failed = (error) => {
+  const responses = new WeakMap();
+  const response = (value) => {
+    try {
+      if (value.request().isNavigationRequest()) {
+        responses.set(value.frame(), value.status());
+      }
+    } catch {
+      /* Detached responses have no current document. */
+    }
+  };
+  const failed = (error, invalid = true) => {
     status.failed++;
+    if (invalid) {
+      incomplete?.(error.code ?? 'capture-failed');
+    }
     trace?.({ event: 'monitor-capture-failed', code: error.code ?? 'capture' });
   };
   const controls = {
     status: () => ({ ...status }),
     async stop() {
       stopped = true;
+      page?.off?.('response', response);
       await pending;
       if (status.state === 'active') {
         status.state = 'stopped';
@@ -110,6 +132,7 @@ export const createFormMonitor = async ({
       messageSize(snapshot) > 2 * 1024 ** 2
     ) {
       status.omitted++;
+      incomplete?.('capture-omitted');
       return;
     }
     queued++;
@@ -121,14 +144,21 @@ export const createFormMonitor = async ({
         if (!frames.has(frame)) {
           if (frameCount >= 10) {
             status.omitted++;
+            incomplete?.('frame-limit');
             return;
           }
           frames.set(frame, `monitor-frame-${++frameCount}`);
         }
         const report = monitorReport(snapshot, frames.get(frame), slot);
         const captured = await capture(report);
+        await observed?.(report, {
+          ...snapshot.learning,
+          documentTime: snapshot.documentTime,
+          frame: frames.get(frame),
+          responseStatus: responses.get(frame),
+        });
         if (captured?.reportFile?.state === 'failed') {
-          failed({ code: 'form-report-write' });
+          failed({ code: 'form-report-write' }, false);
         }
         status.captured++;
       })
@@ -139,9 +169,10 @@ export const createFormMonitor = async ({
     return pending;
   };
   try {
+    page.on?.('response', response);
     await page.exposeBinding(binding, receive);
     await page.addInitScript({
-      content: `(${observeFormDocument.toString()})(${readFormDocument.toString()}, ${JSON.stringify(binding)});`,
+      content: `(${observeFormDocument.toString()})(${readFormDocument.toString()}, ${JSON.stringify(binding)}, ${observed ? observeFormLearning.toString() : 'undefined'});`,
     });
     status.state = 'active';
   } catch (error) {

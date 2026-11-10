@@ -119,7 +119,10 @@ export const formReportMarkdown = (report) =>
         report.monitoring
           ? line('Automatic capture', json(report.monitoring))
           : '',
-        'Explicit reads, plans, verified actions and enabled automatic captures are retained within the journal limits. Pages and edits between captures may be missing. This report does not establish submission or learned answers.\n',
+        report.answerLearning
+          ? line('Answer learning', json(report.answerLearning))
+          : '',
+        'Explicit reads, plans, verified actions and enabled automatic captures are retained within the journal limits. Pages and edits between captures may be missing. Learning outcomes record unapproved proposals and observed completion evidence. They do not establish a provider delivery receipt.\n',
         ...report.checkpoints.flatMap((entry) => [
           `# Checkpoint ${entry.sequence}: ${escaped(entry.action)}\n`,
           line('Checkpoint captured', entry.capturedAt),

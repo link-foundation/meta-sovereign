@@ -29,6 +29,7 @@ export const formReportSnapshot = (result, proposed) => {
             receipts: result.receipts,
             fieldId: result.fieldId,
             file: result.file,
+            learning: result.learning,
           },
         }
       : {}),

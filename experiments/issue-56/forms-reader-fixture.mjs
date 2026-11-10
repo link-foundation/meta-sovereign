@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { learningFixtureHtml } from './forms-learning-fixture.mjs';
 import {
   monitorFixtureHtml,
   monitorChildHtml,
@@ -59,6 +60,15 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/learning')) {
+      res.end(
+        learningFixtureHtml(
+          new URL(req.url, 'http://fixture.test').searchParams.get('page') ===
+            '2'
+        )
+      );
+      return;
+    }
     if (req.url.startsWith('/monitor')) {
       res.end(
         monitorFixtureHtml(
