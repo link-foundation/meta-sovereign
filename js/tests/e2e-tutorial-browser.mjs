@@ -303,7 +303,11 @@ const assertClickable = async (page, label, selector) => {
     }, selector);
   // The card may still be settling (it checks again after layout).
   let hit = await read();
-  for (let i = 0; i < 12 && hit.onCard; i += 1) {
+  for (
+    let i = 0;
+    i < 12 && (!hit.found || hit.onCard || hit.offScreen);
+    i += 1
+  ) {
     await page.waitForTimeout(250);
     hit = await read();
   }

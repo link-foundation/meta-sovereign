@@ -78,6 +78,12 @@ const scrollInto = (element, band, block) => {
   }
 };
 
+const visibleControl = (rect, viewport, chromeBottom) =>
+  rect.top >= chromeBottom &&
+  rect.top + rect.height <= viewport.height &&
+  rect.left >= 0 &&
+  rect.left + rect.width <= viewport.width;
+
 /**
  * One check: 'clear' when the target (and the control the step names
  * inside it, `mustShow`) is where the card leaves it, else it scrolls
@@ -89,8 +95,12 @@ export const clearOnce = (element, cardNode, viewport, mustShow = '') => {
   const control = mustShow ? element.querySelector(mustShow) : null;
   const ok = () => {
     const card = boxOf(cardNode);
-    const covered = control && intersects(card, boxOf(control));
-    return placedClear(boxOf(element), card, band, viewport) && !covered;
+    const required = control && boxOf(control);
+    const controlReady =
+      !required ||
+      (visibleControl(required, viewport, chrome?.bottom ?? 0) &&
+        !intersects(card, required));
+    return placedClear(boxOf(element), card, band, viewport) && controlReady;
   };
   if (ok()) {
     return 'clear';
@@ -101,7 +111,15 @@ export const clearOnce = (element, cardNode, viewport, mustShow = '') => {
   if (control && !ok()) {
     scrollInto(control, band, 'nearest');
   }
-  return ok() ? 'scrolled' : 'stuck';
+  const result = ok() ? 'scrolled' : 'stuck';
+  if (globalThis.metaSovereignDebug === true) {
+    globalThis.console?.debug?.('[tutorial-clear]', {
+      result,
+      controlTop: control ? Math.round(boxOf(control).top) : null,
+      viewportHeight: viewport.height,
+    });
+  }
+  return result;
 };
 
 /**

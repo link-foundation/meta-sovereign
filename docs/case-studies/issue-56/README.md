@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-tutorial-control.md](ci-tutorial-control.md) traces an intermittent WebKit offscreen Email button to missing viewport checks and conflicting reveal destinations. Failing-before unit/browser evidence, 44 Node/Deno checks, focused WebKit and independent MCP verification are retained.
+
 - [forms-configured-resume.md](forms-configured-resume.md) verifies one saved PDF reused through CLI/Lino/local/shared Forms controls, plan-bound revisions, actual byte readback and unavailable-status recovery. Forty-six focused Node/Deno checks, production Chromium and independent MCP desktop/mobile pass. Complete automatic/provider workflows and every other unchecked criterion remain required.
 
 - [forms-answer-learning.md](forms-answer-learning.md) verifies actual planned-page answers learned as unapproved proposals after observed submission completion or a one-minute owner edit. Thirty-nine focused Node checks, eighteen Deno checks, production Chromium and independent MCP desktop/mobile pass. Contact and current-policy guards, native gesture evidence, queued live readback, bounded retries, lifecycle and inspectable journal evidence are retained. Detached watchers and every other unchecked criterion remain required.

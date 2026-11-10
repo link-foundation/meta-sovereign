@@ -118,7 +118,8 @@ export const defaultSteps = [
     connecting: true,
     tutorialId: 'connections:list',
     // The first service stays clear of the card (R-Z22).
-    mustShow: '[data-tutorial-id="connections:email"]',
+    mustShow:
+      '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]',
     route: { view: 'connections', detail: false },
     completeAt: { view: 'connections', detail: true },
     titleKey: 'tutorial.connections.title',
@@ -1202,9 +1203,14 @@ const TutorialLayer = ({
 
   useAdvanceOn(step.advanceOn, onAdvance);
   useCompleteOnConnect(Boolean(step.completeOnConnect), onAdvance);
+  // The reveal retries and clearance pass must agree on the actual control.
+  // Revealing a tall section again could scroll its required button away.
+  const revealElement = step.mustShow
+    ? (element?.querySelector(step.mustShow) ?? element)
+    : element;
   useRevealTarget(
     step.id,
-    element,
+    revealElement,
     cardSize ? cardSize.height + GAP + MARGIN : 0
   );
   useTourKeys(cardRef, { onNext: next, onBack, onDismiss });

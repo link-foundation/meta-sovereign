@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { openChatApp, assert } from './helpers/e2e-chat.mjs';
+import { verifyRequiredTutorialControl } from './helpers/e2e-tutorial-control.mjs';
 
 const { page, base, until, finish } = await openChatApp(
   'tutorial-card-resize',
@@ -13,12 +14,22 @@ const { page, base, until, finish } = await openChatApp(
 await page.unroute('**/api/telegram/status');
 await page.setViewportSize({ width: 1280, height: 560 });
 await page.addInitScript(() => {
+  const requiredControl =
+    globalThis.location.search.includes('tutorial-control=1');
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
   globalThis.localStorage.setItem(
     'metaSovereignTutorial',
-    JSON.stringify({ v: 5, stepId: 'setup' })
+    JSON.stringify({ v: 5, stepId: requiredControl ? 'pick' : 'setup' })
   );
   globalThis.localStorage.setItem('metaSovereignTutorialProvider', 'email');
+  if (requiredControl) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent =
+        '[data-tutorial-id="connections:email"]{margin-top:650px !important}';
+      document.head.append(style);
+    });
+  }
   const Observer = globalThis.ResizeObserver;
   globalThis.ResizeObserver = class extends Observer {
     constructor(callback) {
@@ -37,6 +48,10 @@ await page.addInitScript(() => {
 });
 
 await finish(async () => {
+  if (process.env.TUTORIAL_CONTROL_ONLY === '1') {
+    await verifyRequiredTutorialControl({ page, base });
+    return;
+  }
   await page.goto(`${base}/#conn-email/manual`);
   const card = page.locator('[data-tutorial-step="setup"]');
   await card.waitFor();
@@ -80,4 +95,5 @@ await finish(async () => {
       c.left >= t.right,
     'collapsed card clears the smaller import panel'
   );
+  await verifyRequiredTutorialControl({ page, base });
 });

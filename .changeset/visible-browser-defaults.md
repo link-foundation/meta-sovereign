@@ -183,3 +183,5 @@ Coordinate observed form-answer proposals through the active store writer, with 
 Keep default-on per-slot form-answer watchers alive after CLI quit/EOF, reconnect without navigating over owner edits, preserve bounded private action/learning history and expose status/history/Stop with explicit cleanup and the existing unapproved-proposal policy.
 
 Save one configured PDF résumé for reviewed reuse through CLI, Lino, offline storage and shared localized Forms controls. Bind the reviewed revision, verify actual attachment bytes, serialize replacement and retain cached recovery without replay. Preserve refused status reads as unavailable with explicit Reload.
+
+Keep the tutorial's required service button visible above browser chrome and clear of its card. Coordinate reveal retries with the actual control so a later section scroll cannot hide it again.
