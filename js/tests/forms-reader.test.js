@@ -60,11 +60,14 @@ test('form URLs reject scripts, local files, relative paths and embedded credent
       opened++;
     },
   });
+  const credentialUrl = new URL('https://example.test');
+  credentialUrl.username = 'synthetic-user';
+  credentialUrl.password = 'synthetic-password';
   for (const url of [
     'javascript:alert(1)',
     'file:///tmp/private',
     '/form',
-    'https://user:secret@example.test',
+    credentialUrl.href,
     'bad',
   ]) {
     await assert.rejects(reader.read({ url }), { code: 'form-url' });

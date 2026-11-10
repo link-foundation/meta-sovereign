@@ -40,3 +40,7 @@ Phone:
 ![Forms on a 390px phone](../../screenshots/issue-56-forms-reader-mobile.png)
 
 The [evidence archive](data/forms-reader.tar.gz) and [verified manifest](data/forms-reader.tar.sha256.json) preserve reproduction, focused checks, browser results, MCP observations and source hashes. Synthetic cross-origin coverage does not establish authenticated Google/Yandex or complete multipage parity. Those workflows and every other open issue criterion remain unfinished in the draft PR.
+
+## Hosted credential-fixture correction
+
+For commit `7c18eee621c0ff3b000813ebfffd15bb44ab3254`, [Checks run 42828514405](https://github.com/link-foundation/meta-sovereign/actions/runs/42828514405) failed only the lint/format aggregate: its secret scanner interpreted a synthetic embedded-credential rejection URL as a stored BasicAuth credential. Preserved log lines 13035–13041 identify `js/tests/forms-reader.test.js:67`. The test now constructs its synthetic username and password through `URL` properties, retains the same rejection-before-launch assertion and passes both its focused regression and a scan of the changed file. Pages, desktop, broken links and the scheduled security audit passed for that exact commit. This correction does not establish a passing replacement run until CI executes the next commit.
