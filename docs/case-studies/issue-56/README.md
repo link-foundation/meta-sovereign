@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-link-answers.md](forms-link-answers.md) reproduces saved boolean text being offered for link requests and verifies specific/combined/missing contacts across saved and model proposals. Forty-five Node/Deno checks, production Chromium and independent MCP confirm actual link readback, preserved owner content and zero submissions.
+
 - [forms-plain-drafts.md](forms-plain-drafts.md) reproduces literal Markdown in model proposals and verifies bounded conversion before planning/writes. Eighteen Node/Deno checks, production Chromium and independent MCP preserve URLs/code, exact choices, owner input, frozen application and zero submissions.
 
 - [ci-forms-submission-counter.md](ci-forms-submission-counter.md) reproduces the shared reader fixture's lifetime-counter assumption. Learning still submits once; later capacity and model checks verify zero additional submissions and closed browsers. Focused failing-before/passing-after Chromium and complete hosted-job evidence are retained.

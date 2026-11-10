@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Route form link requests to the requested résumé, GitHub or LinkedIn contacts, retain missing contacts for review and offer all available links for combined requests. Reject saved/model boolean wording and links for another provider while preserving owner input and ordinary boolean questions.
+
 Own Telegram phone/QR authorization clients through success, error, cancellation, timeout and server shutdown. Destroy temporary clients, prevent late cancelled results from saving credentials, bound pending sign-ins and accept fresh code/2FA retries. Keep lifecycle diagnostics disabled by default.
 
 Add masked terminal phone/2FA sign-in and explicit read-only legacy string-session import. Verify imported account identity before replacing credentials, preserve source files, bound input and deadlines, and release clients before closing the store on success, Ctrl+C, EOF or failure.

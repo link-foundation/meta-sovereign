@@ -1,0 +1,30 @@
+{
+  "archive": "forms-link-answers.tar.gz",
+  "files": {
+    "ci-logs/forms-links-before.log": "fd6fd8fe8f1f872e1d622a37bf4a1afc1523b2c4cf12a84e1a791b446928e672",
+    "ci-logs/forms-links-browser-after.log": "2dbc3c2f4be0012e8522fb81508dbcfef31e0aaef0f082317602cba2c12a9467",
+    "ci-logs/forms-links-browser-before.log": "b599525698afdbacb17355f418057ab33c426e2134d6dac4cdef3c9da600d606",
+    "ci-logs/forms-links-build.log": "34814f29349eafb4784cab650d2647b1b2e850f18c4c44e5047a81091be57831",
+    "ci-logs/forms-links-current-runs.json": "05339debf24959b1989caeb469f4f5b1a6b2224717c1f55962a6083d22c24a15",
+    "ci-logs/forms-links-deno.log": "ffe8df54c41139a19ea7c1207e922794cac4579522503ba1bb250e13a40bfc27",
+    "ci-logs/forms-links-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/forms-links-identity-parent-ci.json": "65b2de756e818dae9352dd51dfc0c3704f16a9c49f671683eabf6863c10a2342",
+    "ci-logs/forms-links-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-links-mcp-server.log": "c20772ade03132b656535bd96c537b3f77fba5e60a5adfcacc5908bd9da34cc5",
+    "ci-logs/forms-links-mcp.json": "2d0bc7b81cd123229d48e7bf483c519b2762c6ef8dc66abea24f3cb1edae46ba",
+    "ci-logs/forms-links-tests.log": "a24a824e3c7a5285a513d8e89ea89c775842eb302a14af60d825b52ab190c9ba",
+    "docs/case-studies/issue-56/forms-link-answers.md": "11c834635b0ae3c842a44a2c566444e28cfcf71c0f34cf73ac412ca5ac00fa44",
+    "experiments/issue-56/collect-form-links.py": "66d511ccaa8ef22ee3d1f3fc945aa71e21b721f12db9427a67d97b0759e89642",
+    "experiments/issue-56/forms-links-fixture.mjs": "ae31fd21e61739343f7183ef130b15d08d74e4bdb5c6516109d3763c28bb7b3c",
+    "experiments/issue-56/forms-reader-fixture.mjs": "c0ca8e7f2c857e321213fcb1b4bab2ba1e921d1158af86551930faa575506ad1",
+    "experiments/issue-56/forms-reader-ui.mjs": "07578cfbabbd0e3032683ca300081737696f79b659437fbc7ea44779b6d6b0bf",
+    "js/src/forms/link-answers.js": "9dc698819e1ee4760bf34f8eccbbe771254a1849051259a378e80439cb6c69f7",
+    "js/src/forms/model-drafts.js": "06c03b5e5d52a85ef1adb1dd6424c349b80ef1a6351893b325442dc55342439e",
+    "js/src/forms/profile-fields.js": "4a3ec71de80789c5d69f0c9484605d3f113be6c98c74dbcce780cf0db474df37",
+    "js/src/forms/proposals.js": "c512d09808ea683f033d13733c464518e6ec97a216ae5ae432b05f62526ad70a",
+    "js/tests/e2e-forms-reader-browser.mjs": "db92ddddb741f1005ee6dd0aa2950b23f0fc1f1c237229a837ffbad5eb72e721",
+    "js/tests/forms-link-answers.test.js": "5a64b4e6d3b0f0efbb883d6de0cd77cf069da35286d21518ae3b33b8bfe5ce4d",
+    "js/tests/helpers/e2e-form-links.mjs": "74c19772562d79370d79239aad2b8a0c8f874c5c5b07cea1214b6671dc74cd8e",
+    "metadata.json": "a467b3b92aec94534dcde117b4e2a375fe05bd5aab5f931f9c76eaf5ae3d5c00"
+  }
+}

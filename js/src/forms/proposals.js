@@ -1,4 +1,5 @@
 import { questionKey } from '../automation/question-match.js';
+import { validFormLinkAnswer } from './link-answers.js';
 
 const matchingChoice = (text, options) => {
   const matches = options.filter(
@@ -82,6 +83,7 @@ const textProposal = (field, answer) => {
     return { value: String(answer.salary.amount) };
   }
   return textTypes.has(field.type) &&
+    validFormLinkAnswer(field, answer.text) &&
     (!formats[field.type] || formats[field.type](answer.text))
     ? { value: answer.text }
     : null;

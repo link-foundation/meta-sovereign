@@ -74,7 +74,12 @@ const modelField = (field, fields, draft, model) => {
   const proposal = proposalFor(field, answer, choicesFor(field, fields));
   return {
     ...field,
-    answer: { ...answer, proposal, complete: Boolean(proposal) },
+    answer: {
+      ...answer,
+      proposal,
+      complete: Boolean(proposal),
+      reason: answer.complete && !proposal ? 'field-format' : answer.reason,
+    },
   };
 };
 

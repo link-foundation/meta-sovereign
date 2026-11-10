@@ -1,5 +1,7 @@
 import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
 import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
+import { verifyFormLinksUi } from './helpers/e2e-form-links.mjs';
+import { seedLinkAnswers } from '../../experiments/issue-56/forms-links-fixture.mjs';
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
@@ -27,6 +29,7 @@ import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
+await seedLinkAnswers(store);
 const owned = [];
 const modelCalls = [];
 let app;
@@ -256,6 +259,10 @@ const verifyLimits = async (page) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_LINKS_ONLY === '1') {
+    await verifyFormLinksUi({ ...app, owned, fixture });
+    return true;
+  }
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -444,6 +451,7 @@ await app.finish(async () => {
       verifyFormLearningUi,
       verifyFormCapacityUi,
       verifyFormModelUi,
+      verifyFormLinksUi,
     ]) {
       await verify({ page, base, owned, fixture, until, store, modelCalls });
     }
@@ -470,6 +478,7 @@ if (
   process.env.FORMS_POST_LEARNING_ONLY !== '1' &&
   process.env.FORMS_CAPACITY_ONLY !== '1' &&
   process.env.FORMS_MODEL_ONLY !== '1' &&
+  process.env.FORMS_LINKS_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
