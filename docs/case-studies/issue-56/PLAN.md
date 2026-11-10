@@ -73,3 +73,5 @@ TG06 lifecycle audit: five failing-before regressions now pass with temporary-cl
 - [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.
 
 Resolved CI fixture regression: f5091260 passed every runtime and auxiliary workflow but both browser jobs found two matching greeting disclosure headings. Direct-child selectors preserve both original workflows, now passing sequentially in Chromium after a failing-before reproduction. See ci-greeting-panel-selectors.md; the current exact-head full matrix remains required.
+
+FL02: shared incoming Telegram-link extraction, source-message provenance, typed candidates and filtered clearable Lino caching now pass 12 focused Follow and 25 locale checks, production Chromium and independent MCP desktop/mobile. A failing-before empty-response regression prevents switching from a failed server to the browser cache. See follow-links.md. Continue FL01 and FL03–FL09, every other open workstream and exact-head CI; PR 57 remains draft and unmerged. The 230f1805 formatting failure is corrected in f49ea3e5; see ci-requirements-format.md.

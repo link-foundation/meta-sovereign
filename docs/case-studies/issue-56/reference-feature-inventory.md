@@ -104,17 +104,17 @@ Sources: telegram-bot README, `history-to-markdown.mjs`, `chat-users.mjs`, `add-
 
 Source: follow README and command implementations. Provider adapters, common browser fallback and the outbox are integration points.
 
-| ID   | Required behavior                                                                                                      | Implementation and verification             |
-| ---- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| FL01 | Paginate VK group chats; filter by Telegram references and show title/ID/member count/latest messages/member details.  | [ ] Chat discovery/listing.                 |
-| FL02 | Extract public and private Telegram invite links from incoming messages and retain a clearable Lino cache.             | [ ] Link extraction and provenance.         |
-| FL03 | Join/list/leave Telegram public/private chats by username/link/ID.                                                     | [ ] Provider actions and capability UI.     |
-| FL04 | Persist user/2FA sessions and migrate legacy session configuration.                                                    | [ ] Existing auth parity audit.             |
-| FL05 | Follow with independently configurable mute and archive.                                                               | [ ] Common operation model.                 |
-| FL06 | Post a backlink into the source chat; optional incoming-history deletion only after confirmed successful post.         | [ ] Failure/uncertainty prevents deletion.  |
-| FL07 | Auto-loop rejected chats, refresh extracted links and stop at success/iteration limit.                                 | [ ] Bounded resumable runner.               |
-| FL08 | Retry only timeout failures with configured finite attempts and backoff; preserve rate-limit/permission/invite errors. | [ ] Deterministic retry fixtures.           |
-| FL09 | Same-system and cross-system PR workflows configurable through CLI/API/UI.                                             | [ ] Generalize provider-pair configuration. |
+| ID   | Required behavior                                                                                                      | Implementation and verification                                                                                                        |
+| ---- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| FL01 | Paginate VK group chats; filter by Telegram references and show title/ID/member count/latest messages/member details.  | [ ] Chat discovery/listing.                                                                                                            |
+| FL02 | Extract public and private Telegram invite links from incoming messages and retain a clearable Lino cache.             | [x] Shared CLI/Lino API/React extraction, typed candidates, message provenance, limits and clearable persisted cache; follow-links.md. |
+| FL03 | Join/list/leave Telegram public/private chats by username/link/ID.                                                     | [ ] Provider actions and capability UI.                                                                                                |
+| FL04 | Persist user/2FA sessions and migrate legacy session configuration.                                                    | [ ] Existing auth parity audit.                                                                                                        |
+| FL05 | Follow with independently configurable mute and archive.                                                               | [ ] Common operation model.                                                                                                            |
+| FL06 | Post a backlink into the source chat; optional incoming-history deletion only after confirmed successful post.         | [ ] Failure/uncertainty prevents deletion.                                                                                             |
+| FL07 | Auto-loop rejected chats, refresh extracted links and stop at success/iteration limit.                                 | [ ] Bounded resumable runner.                                                                                                          |
+| FL08 | Retry only timeout failures with configured finite attempts and backoff; preserve rate-limit/permission/invite errors. | [ ] Deterministic retry fixtures.                                                                                                      |
+| FL09 | Same-system and cross-system PR workflows configurable through CLI/API/UI.                                             | [ ] Generalize provider-pair configuration.                                                                                            |
 
 ## VK example automations
 

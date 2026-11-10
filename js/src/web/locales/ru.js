@@ -1,3 +1,4 @@
+import { ruFollow } from './ru-follow.js';
 import { ruTelegramGreetings } from './ru-telegram-greetings.js';
 import { ruChatUsers } from './ru-chat-users.js';
 import { ruPublication } from './ru-publication.js';
@@ -22,6 +23,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruFollow,
   ...ruTelegramGreetings,
   ...ruChatUsers,
   ...ruPublication,

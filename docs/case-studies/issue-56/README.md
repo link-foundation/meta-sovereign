@@ -109,3 +109,6 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI for 9835c606](ci-9835c606.md): nine runtime jobs expose the same two stale discovery expectations; all other workflows and both browser engines pass. The focused fixture correction passes locally and awaits a new exact-head matrix.
 
 - [CI investigation for 675e65e8](ci-675e65e8.md): exact failure, full logs and focused WebKit selection-observation correction.
+
+- [Follow link discovery and persisted cache](follow-links.md): FL02 CLI/Lino API/shared React controls, provenance, partial coverage and failure recovery.
+- [Requirements formatting CI investigation](ci-requirements-format.md): exact-SHA failure and replacement run.

@@ -39,6 +39,7 @@ import {
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { planningRecords } from '../automation/planning-store.js';
 import { questionApi } from './question-api.js';
+import { followApi } from './follow-api.js';
 
 const SERVER_REQUIRED = Object.freeze({
   status: 'failed',
@@ -422,6 +423,7 @@ export const createAutomationApi = ({ remote, store }) => {
   return {
     ...automationCalls({ remote, store, local }),
     ...questionApi({ remote, store }),
+    ...followApi({ remote, store }),
     ...chatCalls({ remote, store }),
     ...peopleCalls({ remote, store }),
   };

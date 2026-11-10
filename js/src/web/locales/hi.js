@@ -1,3 +1,4 @@
+import { hiFollow } from './hi-follow.js';
 import { hiTelegramGreetings } from './hi-telegram-greetings.js';
 import { hiChatUsers } from './hi-chat-users.js';
 import { hiPublication } from './hi-publication.js';
@@ -23,6 +24,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiFollow,
   ...hiTelegramGreetings,
   ...hiChatUsers,
   ...hiPublication,

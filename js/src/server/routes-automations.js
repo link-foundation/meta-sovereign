@@ -58,6 +58,7 @@ import { validSchedule } from '../sources/telegram-scheduled.js';
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validEffect } from './routes-telegram-effects.js';
 import { questionAnswerRoute } from './routes-question-answers.js';
+import { followRoute } from './routes-follow.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -558,13 +559,17 @@ const statusFor = (error) => {
   return bodyFailure(error) ? [error.status, error.code] : [400, 'bad-request'];
 };
 
+const featureRoute = (path) =>
+  [
+    ['/api/automations/answers', questionAnswerRoute],
+    ['/api/automations/follow', followRoute],
+  ].find(([root]) => path === root || path.startsWith(`${root}/`))?.[1];
+
 export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
-  if (
-    p === '/api/automations/answers' ||
-    p.startsWith('/api/automations/answers/')
-  ) {
+  const feature = featureRoute(p);
+  if (feature) {
     try {
-      return await questionAnswerRoute(store, req, res, p);
+      return await feature(store, req, res, p, url);
     } catch (error) {
       const [status, code] = statusFor(error);
       fail(res, status, code, error.message);

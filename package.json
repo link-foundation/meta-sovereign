@@ -426,7 +426,8 @@
     "test:e2e:telegram-greeting-catalog": "node js/tests/e2e-telegram-greeting-catalog-browser.mjs",
     "test:e2e:telegram-greeting-send": "node js/tests/e2e-telegram-greeting-send-browser.mjs",
     "test:e2e:telegram-group-greetings": "node js/tests/e2e-telegram-group-greetings-browser.mjs",
-    "test:e2e:telegram-text-receipts": "node js/tests/e2e-telegram-text-receipts-browser.mjs"
+    "test:e2e:telegram-text-receipts": "node js/tests/e2e-telegram-text-receipts-browser.mjs",
+    "test:e2e:follow-links": "node js/tests/e2e-follow-links-browser.mjs"
   },
   "keywords": [
     "personal-crm",

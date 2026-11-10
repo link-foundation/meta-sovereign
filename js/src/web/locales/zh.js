@@ -1,3 +1,4 @@
+import { zhFollow } from './zh-follow.js';
 import { zhTelegramGreetings } from './zh-telegram-greetings.js';
 import { zhChatUsers } from './zh-chat-users.js';
 import { zhPublication } from './zh-publication.js';
@@ -23,6 +24,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhFollow,
   ...zhTelegramGreetings,
   ...zhChatUsers,
   ...zhPublication,

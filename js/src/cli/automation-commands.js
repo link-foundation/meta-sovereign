@@ -34,6 +34,7 @@ import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
 import { questionCommands } from './question-commands.js';
+import { followCommands } from './follow-commands.js';
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
@@ -42,7 +43,9 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers: list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id]
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
-                answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)`;
+                answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
+                follow: links | extract | clear [--source=<provider>] [--chat=<id>] [--self=<id,id>] [--limit=<n>] [--offset=<n>]
+                follow extract: scans cached incoming messages; --limit=0 scans the whole cached archive`;
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()
@@ -359,6 +362,7 @@ const summaryLine = (tally, left) =>
   `sent ${tally.sent}, skipped ${tally.skipped}, failed ${tally.failed}, left ${left}`;
 
 const SUBCOMMANDS = {
+  follow: followCommands,
   answers: questionCommands,
   list: listCmd,
   plan: planCmd,

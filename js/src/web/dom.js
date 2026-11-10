@@ -485,6 +485,7 @@ export const serverPostConfirmed = async (path, body, ask, options) => {
 
 /** The server bridge for ./automation-api.js; null means "no server". */
 const remote = {
+  request: serverResponse,
   get: (path) => serverFetch(path),
   post: (path, body) => postJson(path, body),
   report: (path, body, options) => serverPostReport(path, body, options),
@@ -521,6 +522,9 @@ const automationCall =
 // Issue #31 / PR #34: automations, their drafts, the composer's send and
 // typing status, people, lists and audiences — see ./automation-api.js.
 const AUTOMATION_CALLS = [
+  'followLinks',
+  'extractFollowLinks',
+  'clearFollowLinks',
   'salaryExchange',
   'answerPolicy',
   'saveAnswerPolicy',
