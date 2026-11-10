@@ -14044,3 +14044,35 @@ main[data-view='operator']:has(> .operator-workspace) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Form reports use the same cards and controls as the other shared surfaces. */
+.forms-view {
+  max-width: 60rem;
+}
+.forms-view > form {
+  max-width: 42rem;
+}
+.forms-view input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.forms-report {
+  overflow-wrap: anywhere;
+}
+.form-fields {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.form-field {
+  min-width: 0;
+}
+.form-field h3 {
+  margin-top: 0;
+}
+.form-current-value {
+  white-space: pre-wrap;
+}

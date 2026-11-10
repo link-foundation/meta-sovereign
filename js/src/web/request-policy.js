@@ -35,6 +35,7 @@ const readPosts = new Set([
 // These provider reads own an explicit finite retry budget and cancellation.
 // Connection recovery must return their exhausted timeout to the caller.
 const boundedProviderReads = new Set([
+  '/api/forms/read',
   '/api/automations/follow/chats',
   '/api/automations/follow/details',
   '/api/automations/follow/telegram',

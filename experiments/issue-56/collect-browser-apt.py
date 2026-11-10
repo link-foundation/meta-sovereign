@@ -4,7 +4,6 @@ import gzip
 import hashlib
 import io
 import json
-import subprocess
 import tarfile
 
 root = Path(__file__).resolve().parents[2]
@@ -25,11 +24,12 @@ assert not (root / 'ci-logs/browser-apt-lint.log').read_text()
 assert 'fail 1' in (root / 'ci-logs/browser-apt-mirrorlist-before.log').read_text()
 assert 'pass 25' in (root / 'ci-logs/browser-apt-mirrorlist-after.log').read_text()
 assert not (root / 'ci-logs/browser-apt-mirrorlist-lint.log').read_text()
-changed = subprocess.check_output(
-    ['git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
-    cwd=root).decode().split('\0')
-sources = sorted(set(name for name in changed if name and
-                     not name.startswith('docs/case-studies/issue-56/data/')))
+sources = ['docs/case-studies/issue-56/ci-browser-apt.md',
+           'experiments/issue-56/collect-browser-apt.py',
+           'js/scripts/prepare-browser-apt.mjs', 'js/tests/ci-browser-apt.test.js']
+hosted = (root / 'ci-logs/browser-apt-mirrorlist-pages-42822720570.log').read_text()
+assert 'Browser APT sources updated: 1' in hosted
+assert 'https://archive.ubuntu.com/ubuntu' in hosted
 metadata = {
     'preceding_head': '364463ec039dbcc20d1f30fe6da1fbbd050f06e6',
     'references': ['https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/',
@@ -44,7 +44,8 @@ metadata = {
                'hosted_mirrorlist_before': 'fails: zero updated files',
                'hosted_mirrorlist_after': 25},
     'hosted_e280197a': 'All workflows pass; Pages line 245 updates zero sources and line 258 reads unhandled apt-mirrors.txt. Healthy transfers are not proof of the original helper.',
-    'limits': 'Synthetic local APT fixtures only. Exact new-head hosted downloads and browser assertions remain required; no timeout increase or passing-CI claim.',
+    'hosted_4ed3f9c58': 'Pages 42822720570 passes: one changed source at line 246, primary HTTPS indexes 263-266 and actual package transfers from 460; 139 MB in 37 seconds at 645.',
+    'limits': 'Synthetic local APT fixtures and exact 4ed3f9c58 hosted verification. Later current-head browser assertions remain required; no timeout increase.',
 }
 archive = root / 'docs/case-studies/issue-56/data/browser-apt.tar.gz'
 with archive.open('wb') as raw:

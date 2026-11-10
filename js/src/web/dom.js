@@ -807,6 +807,19 @@ const rawApi = {
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
   cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
+  formsCapabilities: async () =>
+    (await serverFetch('/api/forms/capabilities')) ?? {
+      available: false,
+      reason: 'server-required',
+      read: false,
+      fill: false,
+      submit: false,
+    },
+  formsRead: async (options) =>
+    (await serverPostReport('/api/forms/read', options, { network: true })) ?? {
+      ok: false,
+      code: 'server-required',
+    },
   cvPlan: async (platform) =>
     (await serverFetch(
       `/api/cv/plan?platform=${encodeURIComponent(platform)}`

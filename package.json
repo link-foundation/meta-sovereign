@@ -34,6 +34,7 @@
     "./handlers": "./js/src/handlers/index.js",
     "./cv": "./js/src/cv/index.js",
     "./cv/platforms": "./js/src/cv/platforms/index.js",
+    "./forms": "./js/src/forms/reader.js",
     "./cli": "./js/src/cli/index.js",
     "./server": "./js/src/server/index.js"
   },
@@ -267,6 +268,8 @@
     "test:e2e:quick-replies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-quick-replies-browser.mjs",
     "test:e2e:apps": "node js/tests/e2e-apps-browser.mjs",
     "test:e2e:apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-apps-browser.mjs",
+    "test:e2e:forms-reader": "node js/tests/e2e-forms-reader-browser.mjs",
+    "test:e2e:forms-reader:webkit": "E2E_BROWSER=webkit node js/tests/e2e-forms-reader-browser.mjs",
     "test:e2e:web-apps": "node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:web-apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:bot-login": "node js/tests/e2e-bot-login-browser.mjs",

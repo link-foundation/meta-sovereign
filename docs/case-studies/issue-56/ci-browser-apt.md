@@ -69,3 +69,7 @@ failure logs, the passing-but-unmodified hosted log, pinned runner source, run t
 deadlines, browser coverage and failure gates are unchanged. Exact new-head
 hosted CI must still verify the setup improvement and all browser assertions;
 this study does not claim that pending checks pass.
+
+## Hosted mirror-list correction confirmed
+
+The replacement [Pages run 42822720570](https://github.com/link-foundation/meta-sovereign/actions/runs/42822720570), created at 2026-11-10 13:14:33 UTC for `4ed3f9c58c31e7f0495b3df8882ab6a01c7da610`, passes. Its complete preserved log reports one updated source at line 246, retains the mirror-list indirection at line 259, reads primary HTTPS archive indexes at lines 263–266 and downloads actual packages from that archive from line 460 onward. Line 645 reports 139 MB in 37 seconds. Unlike the earlier passing run, this directly verifies that the hosted configuration changed. It does not remove the need to check later application assertions and the exact current-head matrix.

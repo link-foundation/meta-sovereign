@@ -249,7 +249,7 @@ test('browser jobs install Chromium for the cross-origin Pages fixture in either
   assert.equal(install.env.BROWSER, '${{ matrix.browser }}');
 });
 
-test('the inbox history flow runs in both mandatory browser lanes', () => {
+test('inbox history and form inspection run in both mandatory browser lanes', () => {
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
   );
@@ -259,4 +259,7 @@ test('the inbox history flow runs in both mandatory browser lanes', () => {
   assert.ok(checks.includes('inbox-pull'));
   assert.match(scripts['test:e2e:inbox-pull'], /e2e-inbox-pull-browser/);
   assert.match(scripts['test:e2e:inbox-pull:webkit'], /E2E_BROWSER=webkit/);
+  assert.ok(checks.includes('forms-reader'));
+  assert.match(scripts['test:e2e:forms-reader'], /e2e-forms-reader-browser/);
+  assert.match(scripts['test:e2e:forms-reader:webkit'], /E2E_BROWSER=webkit/);
 });

@@ -155,3 +155,5 @@ Import legacy contacts.lino as read-only reviewed profile drafts through CLI, te
 Preserve actual HH nested history, documented applicant direction, application barriers, reply ownership and edit evidence through shared live/archive normalization. Keep repeated-import counts stable and recover missing saved metadata offline with schema migration 0010 (R-AA1, R-Z17).
 
 Read current HH common-chat history with bounded account-bound continuation, accurate available-window coverage and shared CLI/Lino/manual UI controls. Preserve actual participant direction in Chat/Operator and require matching write permission and positive receipts for modern text replies; retain explicit legacy negotiation compatibility.
+
+Add bounded read-only form inspection through CLI, text/binary Lino API and shared four-language UI. Preserve accessible label/group/option evidence, current values, partial coverage and report export; refuse navigation changes, protect sensitive getters and own transient browsers through failure and shutdown.

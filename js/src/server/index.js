@@ -76,6 +76,8 @@ import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
 import { handleBrowserRoutes } from './routes-browser.js';
+import { handleFormRoutes } from './routes-forms.js';
+import { createFormReader } from '../forms/reader.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
@@ -638,6 +640,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleBrowserRoutes(store, req, res, p, url, ctx),
+    () => handleFormRoutes(req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
@@ -901,6 +904,7 @@ export const startServer = async ({
   emailLiveFactory = null,
   emailPoll,
   cv = {},
+  forms,
   // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
   // setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   replies,
@@ -974,6 +978,7 @@ export const startServer = async ({
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
+    forms: createFormReader({ store, ...forms }),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),

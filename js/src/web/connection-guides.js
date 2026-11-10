@@ -990,6 +990,13 @@ export const connectionGuides = {
     providers: ['linkedin', 'hh', 'naukri', 'vietnamworks', 'topcv'],
     connectFirst: { providerId: 'linkedin' },
   },
+  forms: {
+    title: 'Form inspection',
+    titleKey: 'forms.title',
+    body: 'Read visible questions and current values in an isolated browser slot. Inspection leaves answers unchanged and closes its browser when finished.',
+    bodyKey: 'forms.hint',
+    providers: [],
+  },
   greetings: {
     title: 'Greetings',
     titleKey: 'guide.greetings.title',

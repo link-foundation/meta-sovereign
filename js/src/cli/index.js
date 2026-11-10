@@ -41,6 +41,7 @@ import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
 import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
+import { FORMS_HELP, createFormsCommands } from './forms-commands.js';
 import {
   BROADCAST_HELP,
   createBroadcastCommands,
@@ -173,6 +174,7 @@ ${AUTOMATION_HELP}
   vault-list    [--file=<path>]
 ${CV_HELP}
 ${BROWSER_HELP}
+${FORMS_HELP}
 ${GREETINGS_HELP}
 ${BROADCAST_HELP}
 ${MIGRATE_HELP}
@@ -1033,6 +1035,7 @@ const COMMANDS = {
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
   ...createCvCommands({ openStore }),
   ...createBrowserCommands({ openStore, openReadOnly }),
+  ...createFormsCommands({ openStore }),
   // Automations: plan, run and review drafts one by one (issue #31).
   ...createAutomationCommands({ openStore }),
   // Hi/hello and greeting-sticker openers (issue #35).

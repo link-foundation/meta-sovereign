@@ -18,6 +18,7 @@ import { ChatView } from './chat-view.js';
 import { OperatorView } from './operator-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
+import { FormsView } from './forms-view.js';
 import { GreetingsView } from './greetings-view.js';
 import { HistoryLibrary } from './history-library.js';
 import { useProviderLiveState } from './provider-live-state.js';
@@ -1158,6 +1159,7 @@ export const views = {
   status: StatusView,
   connections: ConnectionsView,
   cv: CvView,
+  forms: FormsView,
   greetings: GreetingsView,
   settings: SettingsView,
 };

@@ -2,6 +2,8 @@
 
 Objective: fully implement and verify every requirement of issue 56 and every required sub-issue in this single PR. Keep unmet criteria explicitly unfinished and keep the PR unmerged.
 
+Verified QA21/QA25 foundation: bounded read-only native/ARIA form snapshots, current values, options and cross-origin frames now share CLI, text/binary Lino API and four-language React controls. The 73 focused Node checks, 13 Deno checks, production Chromium flow and independent MCP desktop/mobile evidence pass; see [form inspection](forms-reader.md). Next: reuse the existing Q/A engine for field-by-field answer plans and provenance, then reviewed prefilling, persistent review slots and confirmed/stable-edit learning. A reader alone does not complete those criteria; all other unchecked issue requirements remain required.
+
 ## Research and requirements
 
 - [x] Verify prepared branch and clean starting state; read contributor and product guidance.

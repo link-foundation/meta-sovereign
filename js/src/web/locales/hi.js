@@ -1,3 +1,4 @@
+import { hiForms } from './hi-forms.js';
 import { hiSharedProfile } from './hi-shared-profile.js';
 import { hiProfileImport } from './hi-profile-import.js';
 import { hiChatRemoval } from './hi-chat-removal.js';
@@ -28,6 +29,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiForms,
   ...hiSharedProfile,
   ...hiProfileImport,
   ...hiChatRemoval,
