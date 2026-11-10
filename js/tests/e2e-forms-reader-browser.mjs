@@ -16,7 +16,10 @@ import { verifyFormCapacityUi } from './helpers/e2e-form-capacity.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
-import { startFormsFixture } from '../../experiments/issue-56/forms-reader-fixture.mjs';
+import {
+  startFormsFixture,
+  driftFormDocumentClock,
+} from '../../experiments/issue-56/forms-reader-fixture.mjs';
 import { readFormDocument } from '../src/forms/read-document.js';
 import { readFile } from 'node:fs/promises';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
@@ -53,6 +56,9 @@ try {
           );
           const context = await app.page.context().browser().newContext();
           const page = await context.newPage();
+          if (process.env.FORMS_DOCUMENT_CLOCK_DRIFT === '1') {
+            await page.addInitScript(driftFormDocumentClock);
+          }
           const commander = makeBrowserCommander({
             page,
             enableNetworkTracking: false,
@@ -270,6 +276,10 @@ const verifyCustomOnly = async ({ page, until }) => {
     );
     return true;
   }
+  if (process.env.FORMS_PREFILL_ONLY === '1') {
+    await verifyFormPrefillUi({ page, owned, fixture });
+    return true;
+  }
   if (process.env.FORMS_MODEL_ONLY === '1') {
     await verifyFormModelUi({ ...app, owned, fixture, store, modelCalls });
     return true;
@@ -460,6 +470,7 @@ if (
   process.env.FORMS_POST_LEARNING_ONLY !== '1' &&
   process.env.FORMS_CAPACITY_ONLY !== '1' &&
   process.env.FORMS_MODEL_ONLY !== '1' &&
+  process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');

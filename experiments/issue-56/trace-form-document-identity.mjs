@@ -23,7 +23,7 @@ try {
         target: 'commander',
         fn: options.fn.name,
         url: value.url,
-        documentTime: value.documentTime,
+        documentKey: value.documentKey,
         fields: value.fields?.length,
       })
     );
@@ -38,7 +38,7 @@ try {
           target: 'frame',
           fn: fn.name,
           url: value?.url,
-          documentTime: value?.documentTime,
+          documentKey: value?.documentKey,
           fields: value?.fields?.length,
         })
       );

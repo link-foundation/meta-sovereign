@@ -147,3 +147,13 @@ for(const name of ['password','resume'])Object.defineProperty(document.querySele
     },
   };
 };
+
+// Deterministic same-document drift, shared by the browser regression and MCP.
+export const driftFormDocumentClock = () => {
+  const origin = globalThis.performance.timeOrigin;
+  let reads = 0;
+  Object.defineProperty(globalThis.performance, 'timeOrigin', {
+    configurable: true,
+    get: () => origin + ++reads,
+  });
+};

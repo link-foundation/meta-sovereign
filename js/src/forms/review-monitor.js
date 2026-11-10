@@ -36,7 +36,7 @@ const frameVisible = async (frame, page) => {
 const monitorReport = (snapshot, id, slot) => {
   const {
     fields,
-    documentTime: _time,
+    documentKey: _documentKey,
     learning: _learning,
     ...document
   } = snapshot;
@@ -154,7 +154,7 @@ export const createFormMonitor = async ({
         const captured = await capture(report);
         await observed?.(report, {
           ...snapshot.learning,
-          documentTime: snapshot.documentTime,
+          documentKey: snapshot.documentKey,
           frame: frames.get(frame),
           responseStatus: responses.get(frame),
         });

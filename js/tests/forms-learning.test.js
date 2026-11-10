@@ -76,7 +76,7 @@ const fixture = (options = {}) => {
     ...options,
   });
   const evidence = (extra = {}) => ({
-    documentTime: 1,
+    documentKey: 'fixture-document-1',
     frame: 'monitor-frame-1',
     edits: 0,
     editedAt: 0,

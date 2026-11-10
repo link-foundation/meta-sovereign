@@ -31,7 +31,7 @@ const snapshot = () => ({
   url: 'https://example.test/questions',
   title: 'Page 1',
   fields: [],
-  documentTime: 1,
+  documentKey: 'fixture-document-1',
   reasons: [],
   navigation: { nextPage: true, limited: false },
 });
@@ -141,7 +141,7 @@ test(
     assert.deepEqual(traces, [
       { event: 'monitor-capture-failed', code: 'form-url' },
     ]);
-    assert(!JSON.stringify(reports).includes('documentTime'));
+    assert(!JSON.stringify(reports).includes('documentKey'));
     assert(page.script.content.includes('MutationObserver'));
     await capture.stop();
     await page.receive({ frame: page }, snapshot());

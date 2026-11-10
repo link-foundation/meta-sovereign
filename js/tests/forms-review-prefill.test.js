@@ -81,7 +81,7 @@ const environment = async () => {
       goto: async () => {},
       evaluate: async () => ({
         ...globalThis.structuredClone(report),
-        documentTime: 1,
+        documentKey: 'fixture-document-1',
         reasons: [],
       }),
     },

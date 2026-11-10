@@ -25,7 +25,7 @@ const deferred = () => {
 };
 const snapshot = () => ({
   url: 'https://example.test/form',
-  documentTime: 1,
+  documentKey: 'fixture-document-1',
   title: 'Fixture',
   fields: [],
   excluded: 0,
@@ -182,7 +182,7 @@ test('navigation during a snapshot is refused and failed reads release the slot'
   let calls = 0;
   browser.commander.evaluate = async () => ({
     ...snapshot(),
-    documentTime: ++calls,
+    documentKey: `fixture-document-${++calls}`,
   });
   const reader = createFormReader({ openSession: async () => browser });
   await assert.rejects(reader.read({ url: snapshot().url }), {
@@ -228,7 +228,10 @@ test('optional inspection tracing identifies changed documents without recording
   const events = [];
   browser.trace = (event) => events.push(event);
   const main = {
-    evaluate: async () => ({ ...snapshot(), documentTime: 2 }),
+    evaluate: async () => ({
+      ...snapshot(),
+      documentKey: 'fixture-document-2',
+    }),
   };
   browser.page = { mainFrame: () => main, frames: () => [main] };
   await assert.rejects(inspectFormSession(browser, { url: snapshot().url }), {
@@ -238,8 +241,8 @@ test('optional inspection tracing identifies changed documents without recording
     {
       event: 'document-changed',
       frame: 'frame-1',
-      previous: { url: snapshot().url, documentTime: 1 },
-      current: { url: snapshot().url, documentTime: 2 },
+      previous: { url: snapshot().url, documentKey: 'fixture-document-1' },
+      current: { url: snapshot().url, documentKey: 'fixture-document-2' },
     },
     { event: 'document-check-failed', frame: 'frame-1', code: 'form-changed' },
   ]);

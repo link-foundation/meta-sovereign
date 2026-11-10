@@ -5,7 +5,7 @@ const validEvidence = (value) =>
   ['edits', 'intent'].every(
     (key) => Number.isSafeInteger(value[key]) && value[key] >= 0
   ) &&
-  ['at', 'editedAt', 'documentTime'].every(
+  ['at', 'editedAt'].every(
     (key) => Number.isFinite(value[key]) && value[key] >= 0
   ) &&
   ['confirmation', 'responseUrl'].every(
@@ -21,6 +21,9 @@ const validEvidence = (value) =>
       Number.isFinite(change.at) &&
       change.at >= 0
   ) &&
+  typeof value.documentKey === 'string' &&
+  value.documentKey.length > 0 &&
+  value.documentKey.length <= 64 &&
   typeof value.frame === 'string';
 
 const updateObserved = (entry, pair, evidence, time) => {
@@ -351,7 +354,7 @@ class FormLearning {
     this.state.tracked = this.entries.size;
   }
   rememberIntent(evidence) {
-    const key = `${evidence.frame}:${evidence.documentTime}`;
+    const key = `${evidence.frame}:${evidence.documentKey}`;
     if (evidence.intent <= (this.intents.get(key) ?? 0)) {
       return;
     }

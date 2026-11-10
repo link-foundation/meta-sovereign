@@ -1,6 +1,6 @@
 import { formFailure as failure } from './options.js';
 import { resumeUploadField } from './resume-upload.js';
-import { formDocumentIdentity } from './read-document.js';
+import { readFormDocument } from './read-document.js';
 import { reviewTargetFields } from './review-radio.js';
 import {
   customReviewField,
@@ -129,17 +129,19 @@ export const captureReviewTargets = async (
     control: (id) => targets.get(id),
     async check() {
       for (const [frame, previous] of snapshot.handles) {
-        const current = await frame.evaluate(formDocumentIdentity);
+        const current = await frame.evaluate(readFormDocument, {
+          identityOnly: true,
+        });
         if (
           current.url !== previous.url ||
-          current.documentTime !== previous.documentTime
+          current.documentKey !== previous.documentKey
         ) {
           trace?.({
             event: 'target-document-changed',
             frame: previous.id,
             urlChanged: current.url !== previous.url,
-            previousTime: previous.documentTime,
-            currentTime: current.documentTime,
+            previousKey: previous.documentKey,
+            currentKey: current.documentKey,
           });
           throw failure(
             'form-changed',

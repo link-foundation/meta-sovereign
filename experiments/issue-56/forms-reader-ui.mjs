@@ -4,7 +4,10 @@ import { chromium } from 'playwright';
 import { makeBrowserCommander } from 'browser-commander';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
-import { startFormsFixture } from './forms-reader-fixture.mjs';
+import {
+  startFormsFixture,
+  driftFormDocumentClock,
+} from './forms-reader-fixture.mjs';
 import { controlFormMonitorFixture } from './forms-monitor-control.mjs';
 import { saveConfiguredResume } from '../../js/src/forms/configured-resume.js';
 import { syntheticResumePdf } from './forms-resume-fixture.mjs';
@@ -69,6 +72,9 @@ try {
         });
         browsers.add(browser);
         const page = await browser.newPage();
+        if (process.env.FORMS_DOCUMENT_CLOCK_DRIFT === '1') {
+          await page.addInitScript(driftFormDocumentClock);
+        }
         const commander = makeBrowserCommander({
           page,
           enableNetworkTracking: false,

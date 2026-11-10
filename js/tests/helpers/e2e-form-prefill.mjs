@@ -1,3 +1,4 @@
+import { driftFormDocumentClock } from '../../../experiments/issue-56/forms-reader-fixture.mjs';
 import { decodeWire } from '../../src/transport/lino.js';
 import { assert } from './e2e-chat.mjs';
 
@@ -27,12 +28,17 @@ const planLive = async (page) => {
   return result;
 };
 const capture = async (page) => {
-  if (process.env.FORMS_PREFILL_SCREENSHOTS !== '1') {
+  if (
+    process.env.FORMS_PREFILL_SCREENSHOTS !== '1' &&
+    process.env.FORMS_IDENTITY_SCREENSHOTS !== '1'
+  ) {
     return;
   }
+  const prefix =
+    process.env.FORMS_IDENTITY_SCREENSHOTS === '1' ? 'identity' : 'prefill';
   await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: 'docs/screenshots/issue-56-forms-prefill-after.png',
+    path: `docs/screenshots/issue-56-forms-${prefix}-after.png`,
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
@@ -43,7 +49,7 @@ const capture = async (page) => {
     'reviewed changes fit phone width'
   );
   await page.screenshot({
-    path: 'docs/screenshots/issue-56-forms-prefill-mobile.png',
+    path: `docs/screenshots/issue-56-forms-${prefix}-mobile.png`,
   });
   await page.setViewportSize({ width: 1200, height: 800 });
 };
@@ -67,6 +73,15 @@ const verifyLostResponse = async (page, owner, plan) => {
   });
   await page.locator('[data-action="apply-form-plan"]').click();
   await page.locator('[data-form-fill-error]').waitFor();
+  if (
+    process.env.FORMS_IDENTITY_SCREENSHOTS === '1' &&
+    forwarded.state !== 'applied'
+  ) {
+    await page.locator('[data-form-fill-error]').scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-forms-identity-before.png',
+    });
+  }
   assert(
     requests === 1 && forwarded.state === 'applied',
     'lost response never triggers an implicit repeated application'
@@ -113,6 +128,7 @@ const verifyLostResponse = async (page, owner, plan) => {
 };
 
 export const verifyFormPrefillUi = async ({ page, owned, fixture }) => {
+  const initialSubmits = fixture.submits;
   await page
     .locator('[data-form-url]')
     .fill(fixture.url.replace('/application', '/prefill'));
@@ -123,7 +139,17 @@ export const verifyFormPrefillUi = async ({ page, owned, fixture }) => {
   const owner = owned.at(-1);
   const read = replyFor(page, 'read');
   await page.locator('[data-review-action="read"]').click();
-  await decoded(await read);
+  const readResult = await decoded(await read);
+  if (process.env.FORMS_IDENTITY_SCREENSHOTS === '1' && !readResult.ok) {
+    await page.locator('[data-form-review]').scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-forms-identity-before.png',
+    });
+  }
+  assert(
+    readResult.ok,
+    'clock drift does not refuse the current form document'
+  );
   await page
     .locator('[data-form-profile]')
     .selectOption('qa-profile:forms-fixture');
@@ -169,6 +195,11 @@ export const verifyFormPrefillUi = async ({ page, owned, fixture }) => {
     'stale form refuses before a write'
   );
   plan = await planLive(page);
+  // A clock adjustment inside the same document must not consume its plan.
+  // This deterministic regression also runs in the normal hosted browser path.
+  for (const frame of owner.page.frames()) {
+    await frame.evaluate(driftFormDocumentClock);
+  }
   await verifyLostResponse(page, owner, plan);
   plan = await planLive(page);
   await select(page, plan, ['email']);
@@ -183,7 +214,16 @@ export const verifyFormPrefillUi = async ({ page, owned, fixture }) => {
   await page.locator('[data-review-action="close"]').click();
   await page.locator('[data-form-review]').waitFor({ state: 'detached' });
   assert(
-    owner.closed && fixture.submits === 0,
+    owner.closed && fixture.submits === initialSubmits,
     'reviewed prefilling closes its browser without submitting'
+  );
+  console.log(
+    '[forms-prefill]',
+    JSON.stringify({
+      recoveredReceipts: 6,
+      sameUrlReloadRefused: true,
+      closed: owner.closed,
+      submits: fixture.submits - initialSubmits,
+    })
   );
 };

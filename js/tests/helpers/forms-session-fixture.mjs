@@ -32,7 +32,7 @@ export const reviewBrowser = () => {
       },
       evaluate: async () => ({
         url: currentUrl,
-        documentTime: 1,
+        documentKey: 'fixture-document-1',
         title: 'Current page',
         fields: [],
         excluded: 0,

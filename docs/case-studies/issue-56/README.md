@@ -191,3 +191,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Reviewed Follow backlinks](follow-backlinks.md): FL06 VK-source CLI/Lino API/React workflow, full-window monitoring, durable recovery, acknowledged incoming cleanup and timeout-only read retries, with regression and desktop/mobile evidence.
 
 - [Detached form watchers](forms-detached-watchers.md): real CLI exit, exact-slot reuse, full-minute answer learning, active-writer coordination, bounded saved history and explicit cleanup.
+
+- [Stable form document identity](ci-form-document-identity.md): exact WebKit clock-drift evidence, deterministic failing-before regression, guarded lost-response recovery and same-URL reload refusal.

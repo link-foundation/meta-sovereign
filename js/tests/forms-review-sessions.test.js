@@ -166,7 +166,13 @@ test(
     item.commander.evaluate = async () => {
       started.resolve();
       await held.promise;
-      return { url, documentTime: 1, title: '', fields: [], reasons: [] };
+      return {
+        url,
+        documentKey: 'fixture-document-1',
+        title: '',
+        fields: [],
+        reasons: [],
+      };
     };
     const reading = assert.rejects(reader.readReview(session.id), {
       code: 'form-session-closed',

@@ -1,13 +1,12 @@
 import { formFailure as failure, formUrl } from './options.js';
-import {
-  readFormDocument,
-  formDocumentIdentity,
-  formFrameVisible,
-} from './read-document.js';
+import { readFormDocument, formFrameVisible } from './read-document.js';
 
 const sameDocument = (a, b) =>
-  a.url === b.url && a.documentTime === b.documentTime;
-const identity = ({ url, documentTime }) => ({ url, documentTime });
+  typeof a.documentKey === 'string' &&
+  a.documentKey.length > 0 &&
+  a.url === b.url &&
+  a.documentKey === b.documentKey;
+const identity = ({ url, documentKey }) => ({ url, documentKey });
 
 const readChildFrame = async (frame, parent, maxFields) => {
   let element;
@@ -72,7 +71,9 @@ const readFrames = async (page, main, check) => {
 const assertCurrentDocuments = async (commander, handles, main, trace) => {
   for (const [frame, document] of handles) {
     try {
-      const current = await frame.evaluate(formDocumentIdentity);
+      const current = await frame.evaluate(readFormDocument, {
+        identityOnly: true,
+      });
       if (!sameDocument(document, current)) {
         trace?.({
           event: 'document-changed',
@@ -99,7 +100,10 @@ const assertCurrentDocuments = async (commander, handles, main, trace) => {
           );
     }
   }
-  const current = await commander.evaluate({ fn: formDocumentIdentity });
+  const current = await commander.evaluate({
+    fn: readFormDocument,
+    args: [{ identityOnly: true }],
+  });
   if (!sameDocument(main, current)) {
     trace?.({
       event: 'document-changed',
@@ -154,7 +158,7 @@ export const inspectCurrentFormSession = async (
       nextPage: frames.some((frame) => frame.navigation?.nextPage),
       limited: frames.some((frame) => frame.navigation?.limited),
     },
-    frames: frames.map(({ fields, documentTime: _documentTime, ...frame }) => ({
+    frames: frames.map(({ fields, documentKey: _documentKey, ...frame }) => ({
       ...frame,
       fieldCount: fields.length,
     })),

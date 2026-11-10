@@ -191,3 +191,5 @@ Accept positional or Lino form URL batches without the four-form ceiling. Save o
 Add optional revisioned Claude Code draft configuration and per-plan opt-in across CLI, trusted Lino and shared localized Questions/Forms controls. Use selected stored CV and bounded approved context, visible missing-fact clarification, frozen-context reviewed application and owned process cancellation without replaying model requests.
 
 Convert bounded model drafts to plain text before question/form proposals and writes. Preserve literal code, URLs, exact offered choices and owner content, and recheck rejection policy after conversion.
+
+Bind reviewed form snapshots, automatic capture and learning to stable document tokens instead of drifting browser clocks; retain real navigation and control-replacement refusals.
