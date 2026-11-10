@@ -6,6 +6,7 @@ import { FormAnswer, FormPlanSummary } from './forms-answer.js';
 import { FormPlanControls } from './forms-plan-controls.js';
 import { FormReviewControls } from './form-review-controls.js';
 import { FormReviewedPlan } from './form-reviewed-plan.js';
+import { FormChoiceInspection } from './form-choice-disclosure.js';
 
 const el = React.createElement;
 const display = (value) =>
@@ -24,7 +25,7 @@ export const downloadFormReport = (report) => {
   globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);
 };
 
-const Field = ({ field, selected, onSelect, busy }) => {
+const Field = ({ field, selected, onSelect, onDisclose, busy }) => {
   const t = useT();
   const flags = ['required', 'disabled', 'readOnly'].filter(
     (key) => field[key]
@@ -87,6 +88,7 @@ const Field = ({ field, selected, onSelect, busy }) => {
             })
       ),
       el(FormAnswer, { key: 'answer', answer: field.answer }),
+      el(FormChoiceInspection, { key: 'choices', field, onDisclose, busy }),
       field.options.length
         ? el(
             'ul',
@@ -104,7 +106,13 @@ const Field = ({ field, selected, onSelect, busy }) => {
   );
 };
 
-export const FormInspectionReport = ({ report, selected, onSelect, busy }) => {
+export const FormInspectionReport = ({
+  report,
+  selected,
+  onSelect,
+  onDisclose,
+  busy,
+}) => {
   const t = useT();
   const reasons = [
     ...new Set([
@@ -160,6 +168,7 @@ export const FormInspectionReport = ({ report, selected, onSelect, busy }) => {
                 field,
                 selected: selected?.includes(field.id),
                 onSelect,
+                onDisclose,
                 busy,
               })
             )

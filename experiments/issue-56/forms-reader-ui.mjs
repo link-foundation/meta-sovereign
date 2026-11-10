@@ -49,7 +49,9 @@ try {
           commander,
           policy: { headless: true },
           async close() {
-            if (new URL(page.url()).pathname === '/custom') {
+            if (
+              ['/custom', '/choices'].includes(new URL(page.url()).pathname)
+            ) {
               read.customFrames = [];
               for (const frame of page.frames()) {
                 read.customFrames.push(

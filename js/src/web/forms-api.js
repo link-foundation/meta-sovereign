@@ -26,12 +26,18 @@ export const createFormsApi = ({ get, report }) => ({
       code: 'server-required',
     },
   ...Object.fromEntries(
-    ['Open', 'Read', 'Focus', 'Close', 'Plan', 'Apply'].map((action) => [
-      `forms${action}Review`,
-      async (options) =>
-        (await report(`/api/forms/sessions/${action.toLowerCase()}`, options, {
-          network: true,
-        })) ?? { ok: false, code: 'server-required' },
-    ])
+    ['Open', 'Read', 'Focus', 'Close', 'Plan', 'Apply', 'Disclose'].map(
+      (action) => [
+        `forms${action}Review`,
+        async (options) =>
+          (await report(
+            `/api/forms/sessions/${action.toLowerCase()}`,
+            options,
+            {
+              network: true,
+            }
+          )) ?? { ok: false, code: 'server-required' },
+      ]
+    )
   ),
 });

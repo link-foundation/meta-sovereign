@@ -6,6 +6,7 @@ import {
   customChoice,
   customOptionAtIndex,
   customOptionBound,
+  expandableReviewField,
 } from './review-custom.js';
 
 export const reviewSnapshotKey = (report) =>
@@ -64,7 +65,10 @@ const stillBound = (node, index) =>
 export const captureReviewTargets = async (snapshot, fields) => {
   const targets = new Map();
   const choices = new Map();
-  const boundFields = reviewTargetFields(fields, writableReviewField);
+  const boundFields = reviewTargetFields(
+    fields,
+    (field) => writableReviewField(field) || expandableReviewField(field)
+  );
   const dispose = async () => {
     for (const handle of targets.values()) {
       await handle.dispose().catch(() => {});
@@ -114,6 +118,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
   return {
     dispose,
     get: (id) => choices.get(id) ?? targets.get(id),
+    control: (id) => targets.get(id),
     async check() {
       for (const [frame, previous] of snapshot.handles) {
         const current = await frame.evaluate(formDocumentIdentity);

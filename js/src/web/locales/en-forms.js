@@ -181,6 +181,13 @@ export const enForms = {
   'forms.review.error.form-review-failed':
     'The review operation could not be confirmed. Your URL and report are kept. Refresh sessions before trying again.',
   'forms.fill.title': 'Review selected changes',
+  'forms.choices.inspect': 'Open choices for inspection',
+  'forms.choices.opened':
+    'Choices are open and inspected. Create a new answer plan for this page before applying changes.',
+  'forms.choices.uncertain':
+    'The choice inspection could not be confirmed. Inspect the browser and create a new plan before making changes. {code}',
+  'forms.choices.refused':
+    'Choice inspection was refused before clicking. Create a new plan for the current page. {code}',
   'forms.fill.hint':
     'Select fields below, then apply only those proposals. Text fields, native controls and exposed ARIA checkboxes, complete radio groups and single choices are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
   'forms.fill.select': 'Apply this proposal',

@@ -60,6 +60,13 @@ const verifyReadback = (before, after, field, proposal) => {
   if (proposal.checked === undefined) {
     updated.value = proposal.value;
     if (['select', 'listbox', 'combobox'].includes(updated.type)) {
+      if (
+        updated.optionsExpanded === true &&
+        changed.optionsExpanded === false
+      ) {
+        updated.optionsExpanded = false;
+        updated.optionsDisclosure = changed.optionsDisclosure;
+      }
       updated.options = updated.options.map((option, index) => ({
         ...option,
         selected: option.value === proposal.value,

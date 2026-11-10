@@ -6,6 +6,7 @@ import { renderInLocale } from './util-render.js';
 import { FormAnswer, FormPlanSummary } from '../src/web/forms-answer.js';
 import { availableLocales } from '../src/web/i18n.js';
 import { FormReviewControls } from '../src/web/form-review-controls.js';
+import { FormChoiceResult } from '../src/web/form-choice-disclosure.js';
 import {
   FormReviewedPlan,
   FormApplicationResult,
@@ -217,6 +218,19 @@ test('reviewed changes start unselected and report confirmed, partial and uncert
       assert.match(rendered, /&lt;Office&gt;/);
       assert.match(rendered, /data-form-effect-receipt="uncertain"/);
       assert.match(rendered, new RegExp(`data-form-application="${state}"`));
+    }
+    for (const state of ['opened', 'refused', 'uncertain']) {
+      const rendered = renderInLocale(
+        locale.id,
+        React.createElement(FormChoiceResult, {
+          result: { state, code: '<form-changed>' },
+        })
+      );
+      assert(
+        !rendered.includes('forms.'),
+        `translated choice ${state} for ${locale.id}`
+      );
+      assert.match(rendered, new RegExp(`data-form-choices="${state}"`));
     }
   }
 });

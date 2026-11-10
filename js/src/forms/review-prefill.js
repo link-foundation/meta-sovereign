@@ -9,6 +9,8 @@ import {
 } from './review-targets.js';
 import { selectedReviewFields, applyReviewedFields } from './review-apply.js';
 import { withRadioReview } from './review-radio.js';
+import { expandableReviewField } from './review-custom.js';
+import { discloseReviewedOptions } from './review-disclosure.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
@@ -68,6 +70,7 @@ export const createReviewedPrefill = ({
           answer: {
             ...field.answer,
             applySupported: writableReviewField(field),
+            inspectOptionsSupported: expandableReviewField(field),
           },
         })),
         reviewPlan: {
@@ -124,5 +127,11 @@ export const createReviewedPrefill = ({
       await state.targets.dispose();
     }
   };
-  return { plan, apply, clear };
+  return {
+    plan,
+    apply,
+    clear,
+    disclose: (record, input, check) =>
+      discloseReviewedOptions({ record, input, check, inspect, now }),
+  };
 };

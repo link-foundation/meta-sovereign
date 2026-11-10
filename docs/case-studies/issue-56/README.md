@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-reviewed-choices.md](forms-reviewed-choices.md) verifies explicit one-click inspection of supported closed and lazy comboboxes, consumed-plan guards and fresh-plan selected application across two origins. Thirty Node checks, ten Deno checks, production Chromium and independent MCP desktop/mobile pass; actual choice readback and zero submissions are retained. Uploads, models, accumulated pages, learning and assignments remain open.
+
 - [forms-reviewed-custom.md](forms-reviewed-custom.md) verifies exposed ARIA textboxes, checkboxes, complete radio groups and single choices with private option ownership and actual selected-state readback. Sixty focused Node checks, twenty-four Deno checks, production Chromium and independent MCP desktop/mobile pass; six selected fields and one cleared peer are confirmed with zero submissions. Unknown menus, uploads, models, accumulated pages, learning and assignments remain open.
 
 - [forms-reviewed-radios.md](forms-reviewed-radios.md) verifies actual native groups, disclosed clearing, affected-answer replacement permission and verified peer receipts through CLI/Lino/localized UI. Fifty-five focused Node checks, nineteen Deno checks and Chromium/MCP desktop/mobile pass. The later custom-control unit extends this foundation; models, accumulated pages and learning remain open.

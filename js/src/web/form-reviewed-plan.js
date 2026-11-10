@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useT } from './i18n.js';
+import {
+  useFormChoiceDisclosure,
+  FormChoiceResult,
+} from './form-choice-disclosure.js';
 
 const el = React.createElement;
 export const FormApplicationResult = ({ result }) => {
@@ -64,6 +68,8 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
   const [replaceExisting, setReplace] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const disclosure = useFormChoiceDisclosure({ api, plan, busy, setBusy });
+  const consumed = Boolean(result) || disclosure.attempted;
   const select = (id, checked) => {
     setSelected((current) =>
       checked
@@ -73,7 +79,7 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
     setError(null);
   };
   const apply = async () => {
-    if (busy || result) {
+    if (busy || consumed) {
       return;
     }
     setBusy(true);
@@ -118,7 +124,7 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
             key: 'input',
             type: 'checkbox',
             checked: replaceExisting,
-            disabled: busy || Boolean(result),
+            disabled: busy || consumed,
             'data-form-replace': '',
             onChange: (event) => setReplace(event.target.checked),
           }),
@@ -129,7 +135,7 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
           {
             key: 'apply',
             type: 'button',
-            disabled: busy || invalid || Boolean(result),
+            disabled: busy || invalid || consumed,
             'data-action': 'apply-form-plan',
             onClick: apply,
           },
@@ -148,13 +154,15 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
             )
           : null,
         result ? el(FormApplicationResult, { key: 'result', result }) : null,
+        el(FormChoiceResult, { key: 'choices', result: disclosure.result }),
       ]
     ),
     el(Report, {
       key: 'report',
-      report: result?.report ?? plan,
+      report: disclosure.result?.report ?? result?.report ?? plan,
       selected,
-      onSelect: result ? null : select,
+      onSelect: consumed ? null : select,
+      onDisclose: consumed ? null : disclosure.open,
       busy,
     }),
   ]);

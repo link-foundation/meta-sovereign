@@ -1,5 +1,12 @@
 const choiceType = (field) => ['listbox', 'combobox'].includes(field.type);
 
+export const expandableReviewField = (field) =>
+  field.type === 'combobox' &&
+  field.optionsDisclosure === true &&
+  !field.disabled &&
+  !field.readOnly &&
+  !field.valueOmitted;
+
 export const customChoice = (field) => {
   if (
     !choiceType(field) ||

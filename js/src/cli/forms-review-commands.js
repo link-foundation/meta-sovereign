@@ -39,10 +39,10 @@ const command = async (reader, line, options) => {
     .sessions.find((entry) => entry.browserSlot === slot);
   if (
     !session ||
-    !['read', 'focus', 'close', 'plan', 'apply'].includes(action)
+    !['read', 'focus', 'close', 'plan', 'apply', 'disclose'].includes(action)
   ) {
     throw new Error(
-      'Use list, read/plan/focus/close <slot>, apply <slot> <plan-id> <field-id,...> [replace] or quit.'
+      'Use list, read/plan/focus/close <slot>, disclose <slot> <plan-id> <field-id>, apply <slot> <plan-id> <field-id,...> [replace] or quit.'
     );
   }
   if (action === 'plan') {
@@ -55,6 +55,9 @@ const command = async (reader, line, options) => {
       fields: fieldIds?.split(','),
       replaceExisting: replace === 'replace',
     });
+  }
+  if (action === 'disclose') {
+    return reader.discloseReview({ id: session.id, planId, fieldId: fieldIds });
   }
   return reader[`${action}Review`](session.id);
 };
@@ -94,6 +97,7 @@ export const createFormReviewCommands = ({
             'close <slot>',
             'plan <slot>',
             'apply <slot> <plan-id> <field-id,...> [replace]',
+            'disclose <slot> <plan-id> <field-id>',
             'quit',
           ],
           note: 'Review browsers stay open until closed, idle expiry, quit or process shutdown. Plan and explicitly select fields to apply; forms are never submitted.',

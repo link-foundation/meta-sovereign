@@ -157,6 +157,13 @@ export const zhForms = {
   'forms.review.error.form-review-failed':
     '无法确认审核操作。URL 和报告已保留。重试前请刷新会话。',
   'forms.fill.title': '审核所选更改',
+  'forms.choices.inspect': '打开选项以供检查',
+  'forms.choices.opened':
+    '选项已打开并读取。应用更改前，请为当前页面创建新的答案计划。',
+  'forms.choices.uncertain':
+    '无法确认选项检查结果。更改前请检查浏览器并创建新计划。{code}',
+  'forms.choices.refused':
+    '选项检查在点击前被拒绝。请为当前页面创建新计划。{code}',
   'forms.fill.hint':
     '在下方选择字段，仅应用选中的建议。支持文本字段、原生控件以及已显示的 ARIA 复选框、完整单选按钮组和单选选项。替换现有答案需要明确允许。提交和下一步由您操作；网站可能会在编辑时保存更改。',
   'forms.fill.select': '应用此建议',

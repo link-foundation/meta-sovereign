@@ -203,6 +203,15 @@ export const createFormSessions = ({
         reviewSession: identity(get(input.id)),
       });
     },
+    disclose: async (input) => {
+      const result = await operate(input.id, (record) =>
+        filling.disclose(record, input, () => check(record))
+      );
+      return globalThis.structuredClone({
+        ...result,
+        reviewSession: identity(get(input.id)),
+      });
+    },
     read: async (id) => {
       const report = await operate(id, async (record) => {
         await filling.clear(record);

@@ -2,6 +2,10 @@ import { createServer } from 'node:http';
 import { prefillFixtureHtml } from './forms-prefill-fixture.mjs';
 import { radioFixtureHtml, radioChildHtml } from './forms-radio-fixture.mjs';
 import { customFixtureHtml, customChildHtml } from './forms-custom-fixture.mjs';
+import {
+  choicesFixtureHtml,
+  choicesChildHtml,
+} from './forms-choices-fixture.mjs';
 
 const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire</title>
 <label for="city">City and time zone</label><input id="city" value="Nha Trang, UTC+7">
@@ -16,6 +20,10 @@ export const startFormsFixture = async () => {
   const child = createServer((req, res) => {
     requests.push({ server: 'child', method: req.method, url: req.url });
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/choices')) {
+      res.end(choicesChildHtml);
+      return;
+    }
     if (req.url.startsWith('/custom')) {
       res.end(customChildHtml);
       return;
@@ -38,6 +46,10 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/choices')) {
+      res.end(choicesFixtureHtml(childBase));
+      return;
+    }
     if (req.url.startsWith('/radio')) {
       res.end(radioFixtureHtml(childBase));
       return;

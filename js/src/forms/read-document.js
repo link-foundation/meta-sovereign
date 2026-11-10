@@ -394,6 +394,21 @@ export const readFormDocument = ({
     }
     return field;
   };
+  const disclosureState = (node, type) =>
+    type === 'combobox'
+      ? {
+          optionsExpanded: ['true', 'false'].includes(
+            attr(node, 'aria-expanded')
+          )
+            ? attr(node, 'aria-expanded') === 'true'
+            : null,
+          optionsDisclosure:
+            attr(node, 'aria-expanded') === 'false' &&
+            ['', 'listbox'].includes(attr(node, 'aria-haspopup')) &&
+            !node.closest('a[href],button:not([type="button"])') &&
+            (!node.closest('input') || node.tagName === 'INPUT'),
+        }
+      : {};
   for (const node of doc.querySelectorAll(selector)) {
     if (++examined > 2000) {
       reasons.add('control-scan-limit');
@@ -424,6 +439,7 @@ export const readFormDocument = ({
       id: `field-${fields.length + 1}`,
       index: examined - 1,
       ...readField(node, type),
+      ...disclosureState(node, type),
     };
     fields.push(selectedValue(field));
   }

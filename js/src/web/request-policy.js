@@ -43,6 +43,7 @@ const boundedProviderReads = new Set([
   '/api/forms/sessions/close',
   '/api/forms/sessions/plan',
   '/api/forms/sessions/apply',
+  '/api/forms/sessions/disclose',
   '/api/automations/follow/chats',
   '/api/automations/follow/details',
   '/api/automations/follow/telegram',

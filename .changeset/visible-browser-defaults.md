@@ -167,3 +167,5 @@ Apply explicitly selected reviewed native text, single-select and checkbox form 
 Extend selected native form review to complete radio groups, disclosing implicit clearing and requiring replacement permission for affected existing answers. Bind all peers, verify their resulting checked states, preserve unrelated form/frame groups and retain explicit applied or uncertain peer receipts across CLI, Lino and all four UI languages.
 
 Extend selected-only form review to exposed ARIA textboxes, checkboxes, complete radio groups and single-choice listboxes/comboboxes with bound option targets and verified readback.
+
+Add explicit, single-click inspection for supported closed and lazy form comboboxes through CLI, Lino and localized review controls. Consume held plans, preserve uncertain/refused states and cached response recovery without repeating clicks, and require fresh review before applying exposed choices.

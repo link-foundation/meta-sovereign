@@ -28,6 +28,7 @@ export const createFormReader = ({
     focusReview: reviews.focus,
     planReview: reviews.plan,
     applyReview: reviews.apply,
+    discloseReview: reviews.disclose,
     async capabilities() {
       const status = await availability();
       return {
@@ -36,6 +37,7 @@ export const createFormReader = ({
         plan: true,
         review: status.available,
         fill: status.available,
+        inspectChoices: status.available,
         fillScope: 'reviewed-native-and-exposed-aria-controls',
         submit: false,
         scope: 'visible-current-pages',

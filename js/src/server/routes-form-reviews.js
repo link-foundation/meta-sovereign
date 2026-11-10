@@ -24,6 +24,12 @@ const actions = {
       fields: body.fields,
       replaceExisting: body.replaceExisting,
     }),
+  disclose: (forms, body) =>
+    forms.discloseReview({
+      id: body.id,
+      planId: body.planId,
+      fieldId: body.fieldId,
+    }),
 };
 export const handleFormReviewRoutes = async (req, res, p, ctx) => {
   if (p === '/api/forms/sessions' && req.method === 'GET') {

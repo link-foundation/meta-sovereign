@@ -56,6 +56,11 @@ const validRadioGroup = (group) =>
     group.size <= 2000 &&
     typeof group.complete === 'boolean');
 const validCustomState = (field) =>
+  (field.optionsDisclosure === undefined ||
+    typeof field.optionsDisclosure === 'boolean') &&
+  (field.optionsExpanded === undefined ||
+    field.optionsExpanded === null ||
+    typeof field.optionsExpanded === 'boolean') &&
   (field.optionsComplete === undefined ||
     typeof field.optionsComplete === 'boolean') &&
   (field.displayValue === undefined || text(field.displayValue, 10000)) &&
