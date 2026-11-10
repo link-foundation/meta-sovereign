@@ -1,0 +1,33 @@
+{
+  "archive": "legacy-follow-sessions.tar.gz",
+  "files": {
+    "ci-logs/legacy-follow-before-browser.log": "d45632bcb82b3e175f1c9d5c167c83be6cc6c4c501167dc28cccbd073302fd2a",
+    "ci-logs/legacy-follow-before-cli.log": "2798d54c1d98ae534712658c4965ab05b49fcacd06adf5d41f75f3e9c86d9896",
+    "ci-logs/legacy-follow-before-finder.log": "f9ab7ce58c88f54bb7db1887d658bc49195c50ee9e161807bc03c32a712befc8",
+    "ci-logs/legacy-follow-before-routes.log": "46547b9a8d0a00da28275aea8831e38e6f0b20815d661c8730b6bd4ba7d29c31",
+    "ci-logs/legacy-follow-browser.log": "14837e19f1244645891a6102a7248d0ecfe4bb084577e06666fb8d6f0d091172",
+    "ci-logs/legacy-follow-bundle.log": "b528a6de2a522f4f6185ac85065c5c25bfb7e1b25676924e1f12d483474aab24",
+    "ci-logs/legacy-follow-diff-core.log": "2f85d3e9349fc5729f0b390d1ae63f06ec5861832e423fd00e405bbc0b53f68c",
+    "ci-logs/legacy-follow-diff-finder.log": "973b41b83167b4a09132825b1a268d8059f42718698cb6cacf009ed4d8049a3b",
+    "ci-logs/legacy-follow-existing-login-browser.log": "6aec909f3565cba266e5c81378953657c0e643122a91542ef66ad99cbab9c3cd",
+    "ci-logs/legacy-follow-final-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/legacy-follow-format.log": "07d6d3a61a5b2c9f4b54883df119f78408a74a6883ef9073653ca42b701b902d",
+    "ci-logs/legacy-follow-lines.log": "8b320d438eccdf3fdc206862a4f2a65bd8f065dbb2780f59d38a60936d8f96bd",
+    "ci-logs/legacy-follow-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/legacy-follow-locales.log": "4db2078b24864a563735fd19362fddf293ba7500ad018192c04e846b6816b380",
+    "ci-logs/legacy-follow-mcp.log": "6e9d1a815ebe5b499ef1bcc0450e9c505c375b933695a1a957c6372228a7dec3",
+    "ci-logs/legacy-follow-platform-file.log": "c85c4bddd1f49cd83a027505beccf8ffeb9ccf61dfc01989dcd32e6d012a9948",
+    "ci-logs/legacy-follow-regression.log": "673aed0711c0bf831a1ee821659fed84b42411f86af0d4dd76478c7693e2f33b",
+    "ci-logs/legacy-follow-restored-tests.log": "5a08eaabe45826058308906d05000043fd6f25f644ae152b79514ce775b62e69",
+    "ci-logs/legacy-follow-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/legacy-follow-tests-draft.log": "f14d350c279fde6c82d32b7a9dd44816db21204e41f6a8c6b22a3213646ae8c8",
+    "ci-logs/legacy-follow-tests.log": "36c9c09e64cadab53706e24faff2fdc22706bb108dc022dcf1f4737da6c0fc4a",
+    "ci-logs/legacy-follow-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/legacy-follow-latest-runs.json": "72b4b4db8b7eb5407b8f1b6e369e451b75c3f666b82c167906b6b3a01221dc96",
+    "ci-logs/legacy-follow-5cc-run.json": "0027427af2cde7329cb06ce3f096759386fa8fadcc29fe15abd5bf2e0181e7e6",
+    "ci-logs/ci-follow-2ccb4b45-42760324383.log": "dc9f1f32c8a3ab4a0c312c06a86e88ab805860d52bc30226e4a9f9c80788d9a4",
+    "experiments/issue-56/legacy-follow-regression.py": "9eb21eb52596bdba89b6ad72290fa256b4f1febb8bd6380714c11bf125204537",
+    "experiments/issue-56/collect-legacy-follow-evidence.py": "54548931adcd1168251efe4ef5c278ccda7f4a23871e16a93cfecc3c1d24a223",
+    "metadata.json": "4d336235b9454a03b8772b8bee0681a0dd3686f23fce8392c1c80e568e8d126f"
+  }
+}

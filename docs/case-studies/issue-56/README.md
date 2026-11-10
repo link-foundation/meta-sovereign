@@ -6,12 +6,14 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [legacy-follow-sessions.md](legacy-follow-sessions.md) verifies FL04 literal Follow configuration migration, fresh user identity checks before replacement, masked finder responses and shutdown ownership through CLI/Lino API/shared UI, with focused regressions and production Chromium/MCP before/after/mobile evidence.
+
 - [shared-leave-receipts.md](shared-leave-receipts.md) records exact legacy leave/destroy acknowledgements, preserved partial results/history and shared SDK retry disabling, 80 focused checks, failing-before regressions and production Chromium/MCP before/after/mobile evidence. Broader FL08 ownership and replay policies remain open.
-- [follow-telegram.md](follow-telegram.md) records bounded Telegram listing, exact one-use join/leave plans and independent mute/archive outcomes through CLI/Lino API/React controls, durable uncertainty protection, SDK serialization, focused regressions and production Chromium/MCP desktop/mobile evidence. Shared leave corrections are verified below; FL04/FL06–FL09 remain open.
+- [follow-telegram.md](follow-telegram.md) records bounded Telegram listing, exact one-use join/leave plans and independent mute/archive outcomes through CLI/Lino API/React controls, durable uncertainty protection, SDK serialization, focused regressions and production Chromium/MCP desktop/mobile evidence. Shared leave and FL04 migration are verified separately; FL06–FL09 remain open.
 
 - [ci-membership-locale.md](ci-membership-locale.md) preserves the membership head's 1,501-line Russian dictionary failure and extraction of unchanged invite translations, with 25 passing locale checks and strict lint.
 
-- [telegram-membership-receipts.md](telegram-membership-receipts.md) records peek/membership distinction, direct/wrapped join receipts, pending/web-view/unknown outcomes, acknowledged mute/archive changes and shared dialog recovery, with six failing-before regressions, 60 focused checks and production browser/MCP screenshots. The complete Follow membership/preferences workflow remains open.
+- [telegram-membership-receipts.md](telegram-membership-receipts.md) records peek/membership distinction, direct/wrapped join receipts, pending/web-view/unknown outcomes, acknowledged mute/archive changes and shared dialog recovery, with six failing-before regressions, 60 focused checks and production browser/MCP screenshots. The complete Follow membership/preferences workflow is verified in follow-telegram.md and shared-leave-receipts.md.
 
 - [ci-greeting-panel-selectors.md](ci-greeting-panel-selectors.md) preserves exact-head browser strict-selector failures caused by the new nested panel, with a failing-before reproduction and both corrected Chromium workflows.
 

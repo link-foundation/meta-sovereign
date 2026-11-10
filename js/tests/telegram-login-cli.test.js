@@ -9,6 +9,7 @@ import { readTelegramCredentials } from '../src/sources/telegram-account.js';
 import { createTelegramLoginCommands } from '../src/cli/telegram-login-commands.js';
 import { askTerminalSecret } from '../src/cli/secret-prompt.js';
 import { PassThrough, Writable } from 'node:stream';
+import { decodeWire } from '../src/transport/lino.js';
 
 const HASH = '0123456789abcdef0123456789abcdef';
 const SESSION = `1${'Ab9Zx'.repeat(14)}`;
@@ -72,7 +73,7 @@ const setup = (options = {}) => {
     store,
     events,
     lines,
-    log: (line) => lines.push(JSON.parse(line)),
+    log: (line) => lines.push(decodeWire(line)),
     builds: () => built,
   };
 };
@@ -118,6 +119,32 @@ test(
     ]) {
       assert.ok(!output.includes(secret), 'private value leaked');
     }
+  }
+);
+
+test(
+  'CLI phone login accepts the original Follow environment aliases',
+  { timeout: 3000 },
+  async () => {
+    const answers = ['right-code', 'right-password'];
+    const fixture = setup({
+      env: {
+        TELEGRAM_USER_BOT_API_ID: environment.TELEGRAM_API_ID,
+        TELEGRAM_USER_BOT_API_HASH: HASH,
+        TELEGRAM_USER_BOT_PHONE: environment.TELEGRAM_PHONE,
+      },
+      ask: async (label) => {
+        assert.match(label, /code|password/);
+        return answers.shift();
+      },
+    });
+    assert.equal(await fixture.commands['telegram-login']({}, fixture.log), 0);
+    assert.equal(fixture.lines.at(-1).ok, true);
+    assert.equal(
+      (await readTelegramCredentials(fixture.store)).session,
+      SESSION
+    );
+    assert.deepEqual(fixture.events, ['destroy', 'store-close']);
   }
 );
 

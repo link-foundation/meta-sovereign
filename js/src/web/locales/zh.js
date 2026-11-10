@@ -523,6 +523,8 @@ export const zh = {
   'telegramSessions.less': '收起',
   'telegramSessions.signIn': '登录',
   'telegramSessions.connected': '已连接',
+  'telegramSessions.unconfirmed':
+    '会话导入尚未确认。已保留原有连接；请检查 Telegram 后重试。',
 
   // 通过 MTProto(GramJS)登录你的 Telegram 用户账号,与 konard/telegram-bot 一致。
   'telegramLogin.title': '用你的 Telegram 账号登录',

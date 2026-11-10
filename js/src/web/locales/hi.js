@@ -545,6 +545,8 @@ export const hi = {
   'telegramSessions.less': 'कम दिखाएँ',
   'telegramSessions.signIn': 'साइन इन करें',
   'telegramSessions.connected': 'कनेक्ट हो गया',
+  'telegramSessions.unconfirmed':
+    'सेशन आयात की पुष्टि नहीं हुई। आपका पिछला कनेक्शन सुरक्षित है; Telegram जाँचकर फिर प्रयास करें।',
 
   // MTProto (GramJS) के ज़रिये अपने Telegram यूज़र खाते में साइन इन, konard/telegram-bot की तरह।
   'telegramLogin.title': 'अपने Telegram खाते से लॉग इन करें',

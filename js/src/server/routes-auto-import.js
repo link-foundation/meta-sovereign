@@ -81,7 +81,10 @@ const telegramCredsFor = (ctx) => {
     dataDir: ctx.storeDir,
     // Verify a discovered session -> real account when GramJS is present.
     mtproto: (opts) =>
-      Promise.resolve({ getMe: () => mtprotoFor(ctx).identify(opts) }),
+      Promise.resolve({
+        getMe: () =>
+          beginTelegramLogin(ctx, () => mtprotoFor(ctx).identify(opts)),
+      }),
   });
   return ctx.telegramCreds;
 };
@@ -201,6 +204,21 @@ const extraConnected = (ctx, slot) => {
 
 const TELEGRAM_ROUTE = /^\/api\/auto-import\/telegram\/(scan|identify|use)$/;
 
+const connectDiscovered = async (store, ctx, creds, id) => {
+  const result = await creds.use(id, { store });
+  if (result.needsLogin) {
+    const context = await creds.loginContext(id);
+    const login = await startLogin(store, context ?? {}, ctx);
+    ctx.log?.({ event: 'telegram_creds_use', kind: 'user-password' });
+    return { ...login, needsLogin: true };
+  }
+  ctx.log?.({ event: 'telegram_creds_use', kind: result.kind });
+  if (result.ok === true) {
+    accountConnected(ctx);
+  }
+  return result;
+};
+
 // Find the user's own Telegram sign-ins (bot tokens and user sessions)
 // scattered across their repositories, group them by account, and connect
 // the chosen one. Values stay on this computer; the responses carry only
@@ -217,20 +235,9 @@ const telegramRoute = async (store, req, res, ctx, action) => {
     return json(res, 200, await creds.identify(body.ids ?? null)) ?? true;
   }
   const id = String(body.id ?? '');
-  const result = await creds.use(id, { store });
-  // A phone & password credential has no session yet: start the interactive
-  // MTProto sign-in from its stored api_id/api_hash/phone and hand the UI
-  // the next step (a login code), exactly like the manual login form.
-  if (result.needsLogin) {
-    const context = await creds.loginContext(id);
-    const login = await startLogin(store, context ?? {}, ctx);
-    ctx.log?.({ event: 'telegram_creds_use', kind: 'user-password' });
-    return json(res, 200, { ...login, needsLogin: true }) ?? true;
-  }
-  ctx.log?.({ event: 'telegram_creds_use', kind: result.kind });
-  if (result.ok !== false) {
-    accountConnected(ctx);
-  }
+  const result = await beginTelegramLogin(ctx, () =>
+    connectDiscovered(store, ctx, creds, id)
+  );
   return json(res, 200, result) ?? true;
 };
 

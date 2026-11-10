@@ -282,7 +282,25 @@ const AccountGroup = ({
 // The scan dedupes every discovered credential, checks each one is still
 // live, resolves user sessions to their phone/@username, and groups them by
 // account — so the list shows one connectable entry per real sign-in.
+const useDiscoveredSession = async (id) => {
+  try {
+    return await api.telegramSessions('use', { id });
+  } catch {
+    return null;
+  }
+};
+const discoveryError = (result, t) => {
+  if (result?.error) {
+    return result.error;
+  }
+  return result?.ok === true || result?.needsLogin === true
+    ? ''
+    : t('telegramSessions.unconfirmed');
+};
+
 const useFinder = (onConnected) => {
+  const t = useT();
+  const connecting = useRef(false);
   const owner = useTelegramLoginOwner();
   const [groups, setGroups] = useState(null);
   const [busy, setBusy] = useState('');
@@ -318,16 +336,22 @@ const useFinder = (onConnected) => {
   };
 
   const use = async (id) => {
+    if (connecting.current) {
+      return;
+    }
+    connecting.current = true;
     const ticket = owner.ticket();
     setBusy(id);
     setError('');
-    const result = await api.telegramSessions('use', { id });
-    if (!owner.take(ticket, result.needsLogin ? result.id : null)) {
+    const result = await useDiscoveredSession(id);
+    connecting.current = false;
+    if (!owner.take(ticket, result?.needsLogin ? result.id : null)) {
       return;
     }
     setBusy('');
-    if (result?.error) {
-      setError(result.error);
+    const failure = discoveryError(result, t);
+    if (failure) {
+      setError(failure);
       return;
     }
     // A phone & password login: reveal the inline code/2FA step, keeping

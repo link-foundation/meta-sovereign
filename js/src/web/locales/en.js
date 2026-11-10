@@ -548,6 +548,8 @@ export const en = {
   'telegramSessions.less': 'Show less',
   'telegramSessions.signIn': 'Sign in',
   'telegramSessions.connected': 'Connected',
+  'telegramSessions.unconfirmed':
+    'The session import was not confirmed. Your previous connection is retained; check Telegram and try again.',
 
   // Sign in to a Telegram user account over MTProto (GramJS), like konard/telegram-bot.
   'telegramLogin.title': 'Log in with your Telegram account',

@@ -2,7 +2,7 @@
 
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft PR: <https://github.com/link-foundation/meta-sovereign/pull/57>.
 
-Follow now lists Telegram groups/channels and previews exact-account joins, leaves and independently chosen mute/archive settings through CLI, default text/binary Lino API and common React Automation controls. The [shared leave correction](shared-leave-receipts.md) completes the existing Chat/Operator acknowledgement paths required by FL03. FL03/FL05 are verified; FL04 and FL06–FL09 remain required, and issue-wide delivery is unfinished.
+Follow now lists Telegram groups/channels and previews exact-account joins, leaves and independently chosen mute/archive settings through CLI, default text/binary Lino API and common React Automation controls. The [shared leave correction](shared-leave-receipts.md) completes the existing Chat/Operator acknowledgement paths required by FL03. FL03/FL05 are verified; FL04 migration is verified in [legacy-follow-sessions.md](legacy-follow-sessions.md). FL06–FL09 remain required, and issue-wide delivery is unfinished.
 
 ## Reproduce and inspect
 

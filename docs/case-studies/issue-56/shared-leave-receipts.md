@@ -2,7 +2,7 @@
 
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft PR: <https://github.com/link-foundation/meta-sovereign/pull/57>.
 
-FL03's existing Chat/Operator removal and inactive-channel controls now require actual Telegram acknowledgements. Together with the reviewed Follow CLI/Lino API/React workflow in [follow-telegram.md](follow-telegram.md), this completes FL03. FL04, FL06–FL09 and every other unchecked issue-wide criterion remain required; PR 57 stays draft and unmerged.
+FL03's existing Chat/Operator removal and inactive-channel controls now require actual Telegram acknowledgements. Together with the reviewed Follow CLI/Lino API/React workflow in [follow-telegram.md](follow-telegram.md), this completes FL03. FL04 migration is verified in [legacy-follow-sessions.md](legacy-follow-sessions.md). FL06–FL09 and every other unchecked issue-wide criterion remain required; PR 57 stays draft and unmerged.
 
 ## Reproduction and root cause
 

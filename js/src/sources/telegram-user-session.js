@@ -1,6 +1,6 @@
-import { open } from 'node:fs/promises';
 import { putAll } from '../storage/universal.js';
 import { loginError } from './telegram-login-lifecycle.js';
+import { readLegacyTelegramText } from './telegram-legacy-config.js';
 
 export const saveTelegramUserSession = async (
   store,
@@ -23,38 +23,19 @@ export const saveTelegramUserSession = async (
 // Explicit legacy-file import is read-only and bounded, even if the file
 // grows after stat. SQLite/Telethon and binary files are not string sessions.
 export const readLegacyTelegramSession = async (file) => {
-  const handle = await open(file, 'r');
   try {
-    const stat = await handle.stat();
-    if (!stat.isFile() || stat.size > 65_536) {
-      throw loginError(
-        'SESSION_FILE',
-        'expected a string-session file up to 64 KiB'
-      );
-    }
-    const bytes = Buffer.alloc(65_537);
-    let offset = 0;
-    while (offset < bytes.length) {
-      const { bytesRead } = await handle.read(
-        bytes,
-        offset,
-        bytes.length - offset,
-        null
-      );
-      if (!bytesRead) {
-        break;
-      }
-      offset += bytesRead;
-    }
-    const session = bytes.subarray(0, offset).toString('utf8').trim();
-    if (offset > 65_536 || !/^[A-Za-z0-9+/=_-]{40,}$/.test(session)) {
-      throw loginError(
-        'SESSION_FILE',
-        'expected a saved MTProto string session'
-      );
+    const session = (await readLegacyTelegramText(file)).trim();
+    if (!/^[A-Za-z0-9+/=_-]{40,}$/.test(session)) {
+      throw new Error('invalid session');
     }
     return session;
-  } finally {
-    await handle.close();
+  } catch (error) {
+    if (['ENOENT', 'EACCES', 'EPERM'].includes(error.code)) {
+      throw error;
+    }
+    throw loginError(
+      'SESSION_FILE',
+      'expected a saved MTProto string session up to 64 KiB'
+    );
   }
 };

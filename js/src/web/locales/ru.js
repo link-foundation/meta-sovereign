@@ -552,6 +552,8 @@ export const ru = {
   'telegramSessions.less': 'Свернуть',
   'telegramSessions.signIn': 'Войти',
   'telegramSessions.connected': 'Подключено',
+  'telegramSessions.unconfirmed':
+    'Импорт сессии не подтверждён. Прежнее подключение сохранено; проверьте Telegram и повторите попытку.',
 
   // Вход в пользовательский аккаунт Telegram через MTProto (GramJS), как в konard/telegram-bot.
   'telegramLogin.title': 'Войти в свой аккаунт Telegram',

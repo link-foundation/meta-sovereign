@@ -11,11 +11,15 @@ import {
   saveTelegramUserSession,
 } from '../sources/telegram-user-session.js';
 import { askTerminalSecret } from './secret-prompt.js';
+import { readLegacyTelegramConfig } from '../sources/telegram-legacy-config.js';
+import { encodeLinoValue } from '../transport/lino.js';
 
 export const TELEGRAM_LOGIN_HELP = `  telegram-login [--api-id=<id>] [--store=<dir>]
   telegram-session-import --file=<legacy-string-session-file> [--api-id=<id>] [--store=<dir>]
+  telegram-session-import --env-file=<legacy-follow-env-file> [--store=<dir>]
                 API hash and phone use TELEGRAM_API_HASH/TELEGRAM_PHONE or masked terminal prompts.
-                API ID also accepts TELEGRAM_API_ID; code/2FA prompts are masked. Sessions stay in the store.`;
+                API ID also accepts TELEGRAM_API_ID; code/2FA prompts are masked. Sessions stay in the store.
+                Follow TELEGRAM_USER_BOT_* aliases are accepted. Output is Lino; --json requests JSON.`;
 
 const safeCode = (error) => {
   const knownMessage =
@@ -33,11 +37,13 @@ const apiCredentials = async (store, args, env, ask, signal) => {
   const apiId = String(
     args['api-id'] ??
       env.TELEGRAM_API_ID ??
+      env.TELEGRAM_USER_BOT_API_ID ??
       (await saved('api-id')) ??
       (await ask('Telegram API ID', { signal }))
   ).trim();
   const apiHash = String(
     env.TELEGRAM_API_HASH ??
+      env.TELEGRAM_USER_BOT_API_HASH ??
       (await saved('api-hash')) ??
       (await ask('Telegram API hash', { signal }))
   ).trim();
@@ -63,7 +69,9 @@ const interactiveLogin = async ({
   log,
 }) => {
   const phone = String(
-    env.TELEGRAM_PHONE ?? (await ask('Telegram phone number', { signal }))
+    env.TELEGRAM_PHONE ??
+      env.TELEGRAM_USER_BOT_PHONE ??
+      (await ask('Telegram phone number', { signal }))
   ).trim();
   if (!/^\+?[0-9][0-9 ()-]{4,31}$/.test(phone)) {
     throw loginError('PHONE_NUMBER_INVALID', 'a phone number is required');
@@ -93,13 +101,47 @@ const interactiveLogin = async ({
       if (!['code', 'password'].includes(state)) {
         throw error;
       }
-      log(JSON.stringify({ ok: false, retry: true, code: safeCode(error) }));
+      log({ ok: false, retry: true, code: safeCode(error) });
     }
   }
   if (state !== 'done') {
     throw loginError('LOGIN_RETRY_LIMIT', 'too many login attempts');
   }
   return { session: login.session, account: login.account };
+};
+
+const invalidArguments = (args, importing) => {
+  if (
+    ['api-hash', 'phone', 'code', 'password', 'session'].some(
+      (key) => args[key] !== undefined
+    )
+  ) {
+    return true;
+  }
+  if (!importing) {
+    return args['env-file'] !== undefined;
+  }
+  const sources = ['file', 'env-file'].filter((key) => args[key] !== undefined);
+  return sources.length !== 1 || typeof args[sources[0]] !== 'string';
+};
+const credentialsFor = async (importing, store, args, env, ask, signal) => {
+  if (importing && args['env-file'] !== undefined) {
+    if (args['api-id'] !== undefined) {
+      throw loginError(
+        'BAD_REQUEST',
+        'env import uses its saved API credentials'
+      );
+    }
+    return readLegacyTelegramConfig(args['env-file']);
+  }
+  return apiCredentials(store, args, env, ask, signal);
+};
+const importSession = async (mtproto, credentials, args, signal) => {
+  const session =
+    credentials.session ?? (await readLegacyTelegramSession(args.file));
+  signal.throwIfAborted();
+  const account = await mtproto.identify({ ...credentials, session });
+  return { session, account };
 };
 
 export const createTelegramLoginCommands = ({
@@ -114,13 +156,10 @@ export const createTelegramLoginCommands = ({
     }),
 } = {}) => {
   const run = (importing) => async (args, log) => {
-    if (
-      (importing && typeof args.file !== 'string') ||
-      ['api-hash', 'phone', 'code', 'password', 'session'].some(
-        (key) => args[key] !== undefined
-      )
-    ) {
-      log(JSON.stringify({ ok: false, code: 'BAD_REQUEST' }));
+    const emit = (result) =>
+      log(args.json ? JSON.stringify(result) : encodeLinoValue(result));
+    if (invalidArguments(args, importing)) {
+      emit({ ok: false, code: 'BAD_REQUEST' });
       return 1;
     }
     const controller = new AbortController();
@@ -140,7 +179,8 @@ export const createTelegramLoginCommands = ({
     process.once('SIGTERM', cancel);
     try {
       store = await openStore(args.store ?? defaultStoreDir());
-      const credentials = await apiCredentials(
+      const credentials = await credentialsFor(
+        importing,
         store,
         args,
         env,
@@ -149,12 +189,7 @@ export const createTelegramLoginCommands = ({
       );
       const mtproto = createMtproto(store);
       const result = importing
-        ? await (async () => {
-            const session = await readLegacyTelegramSession(args.file);
-            controller.signal.throwIfAborted();
-            const account = await mtproto.identify({ ...credentials, session });
-            return { session, account };
-          })()
+        ? await importSession(mtproto, credentials, args, controller.signal)
         : await interactiveLogin({
             mtproto,
             credentials,
@@ -164,7 +199,7 @@ export const createTelegramLoginCommands = ({
             setLogin: (value) => {
               login = value;
             },
-            log,
+            log: emit,
           });
       controller.signal.throwIfAborted();
       if (!result.session || !/^[1-9]\d{0,19}$/.test(result.account?.id)) {
@@ -174,21 +209,17 @@ export const createTelegramLoginCommands = ({
         ...credentials,
         session: result.session,
       });
-      log(
-        JSON.stringify({
-          ok: true,
-          imported: importing,
-          account: publicAccount(result.account),
-        })
-      );
+      emit({
+        ok: true,
+        imported: importing,
+        account: publicAccount(result.account),
+      });
       return 0;
     } catch (error) {
-      log(
-        JSON.stringify({
-          ok: false,
-          code: safeCode(controller.signal.reason ?? error),
-        })
-      );
+      emit({
+        ok: false,
+        code: safeCode(controller.signal.reason ?? error),
+      });
       return 1;
     } finally {
       globalThis.clearTimeout(timer);

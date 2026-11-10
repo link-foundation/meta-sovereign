@@ -37,8 +37,26 @@ account before replacing the saved primary session. Identification has a
 Command output contains status/error codes and public account ID/username,
 never the session, API hash, phone, code or password.
 
+To migrate Follow's saved `.env` without loading it into your shell:
+
+```sh
+meta-sovereign telegram-session-import --env-file=/path/to/follow/.env --store=/path/to/store
+```
+
+This accepts `TELEGRAM_USER_BOT_API_ID`, `TELEGRAM_USER_BOT_API_HASH`,
+`TELEGRAM_USER_BOT_PHONE` and `TELEGRAM_USER_SESSION`, as well as the canonical
+Telegram aliases. Values may be quoted and have trailing comments; conflicting
+aliases, substitutions, invalid UTF-8 and oversized files are refused. The file
+is read literally and remains unchanged. The same API/phone aliases also work
+with `telegram-login` when supplied through the environment. Command results
+use readable Links Notation by default; add `--json` for explicit JSON output.
+
 The existing **Find Telegram sessions on this computer** panel also discovers
-legacy credentials read-only and lets you choose an account to connect. A phone
+legacy credentials read-only and lets you choose an account to connect. Connect
+verifies a user session again before replacing saved credentials. Failed or
+unavailable verification, or an account that changed since scanning, retains
+the existing connection; scan again to review a changed account. Phone numbers
+are masked in both entry and group responses. A phone
 credential without a reusable session continues through the same code/2FA API.
 The default Lino routes are `/api/auto-import/telegram/login/start`, `code`,
 `password`, `cancel`, `qr-start`, `qr-status` and `qr-cancel`. Clients must retain

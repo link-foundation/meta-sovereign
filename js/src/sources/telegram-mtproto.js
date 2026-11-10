@@ -24,7 +24,7 @@ import { importTelegram } from './telegram-layer.js';
 import { proxyOptions } from './telegram-proxy.js';
 import { startQrLogin } from './telegram-qr-login.js';
 import { startPhoneLogin } from './telegram-phone-login.js';
-import { createLoginLifetime } from './telegram-login-lifecycle.js';
+import { createLoginLifetime, loginError } from './telegram-login-lifecycle.js';
 
 // GramJS returns the id as a BigInt (or a big-integer object) and camelCase
 // names; normalize the id to a plain string so it survives JSON.stringify
@@ -98,7 +98,14 @@ export const createTelegramMtproto = ({
     });
     try {
       await lifetime.run(() => client.connect());
-      return accountOf(await lifetime.run(() => client.getMe()));
+      const me = await lifetime.run(() => client.getMe());
+      if (!/^[1-9]\d{0,19}$/.test(idOf(me) ?? '') || me?.bot || me?.deleted) {
+        throw loginError(
+          'LOGIN_IDENTITY',
+          'Telegram did not verify a user account'
+        );
+      }
+      return accountOf(me);
     } finally {
       await lifetime.close();
     }
