@@ -18,7 +18,7 @@ export const verifyQuestionSharedProfile = async ({ page, base, store }) => {
     question: 'What is your email?',
     answers: [{ text: '{{email}}', approved: true, canonical: true }],
   });
-  await page.goto(`${base}/#/automation`);
+  await page.goto(`${base}/?profile-check=shared#/automation`);
   const panel = page.locator('[data-question-controls]');
   await panel.locator(':scope > summary').click();
   const preview = panel.locator('details').filter({

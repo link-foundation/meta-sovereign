@@ -2,6 +2,7 @@
 import { cvFromLino } from '../cv/model.js';
 import { normalizeAnswerProfile } from './question-profile.js';
 import { debugQuestionTurn } from './question-turns.js';
+import { fromLegacyContacts } from './question-profile-legacy.js';
 
 const MAX_TEXT = 64000;
 const CV_ID = /^cv:[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$/u;
@@ -50,7 +51,9 @@ const publicUrl = (value) => {
     return null;
   }
 };
-const validValue = (key, value) => {
+const validValue = (key, value) =>
+  value.split('\n').every((line) => validSingleValue(key, line));
+const validSingleValue = (key, value) => {
   if (
     /\{\{|\}\}/u.test(value) ||
     [...value].some(
@@ -205,10 +208,13 @@ export const listAnswerProfileSources = async (store) => {
   return { sources: sources.sort((a, b) => a.id.localeCompare(b.id)) };
 };
 
-export const extractAnswerProfile = async (store, input = {}) => {
-  const profile = normalizeAnswerProfile(input.profile);
+const sourceInput = (input) => {
   const text = input.text ?? '';
   const cvId = input.cvId ?? '';
+  const format = input.format ?? 'text';
+  if (!['text', 'contacts-lino'].includes(format)) {
+    throw new Error('profile source format must be text or contacts-lino');
+  }
   if (typeof text !== 'string' || text.length > MAX_TEXT) {
     throw new Error(
       'profile source text must contain at most 64000 characters'
@@ -220,6 +226,12 @@ export const extractAnswerProfile = async (store, input = {}) => {
   if (!cvId && !text.trim()) {
     throw new Error('select a CV or provide owner contact text');
   }
+  return { text, cvId, format };
+};
+
+export const extractAnswerProfile = async (store, input = {}) => {
+  const profile = normalizeAnswerProfile(input.profile);
+  const { text, cvId, format } = sourceInput(input);
   const { values, skipped, add } = collector();
   if (cvId) {
     const link = await store.get(cvId);
@@ -228,7 +240,11 @@ export const extractAnswerProfile = async (store, input = {}) => {
     }
     fromCv(link, add);
   }
-  fromText(text, add);
+  if (format === 'contacts-lino') {
+    fromLegacyContacts(text, add, skipped);
+  } else {
+    fromText(text, add);
+  }
   const fields = [...values].map(([key, candidates]) => {
     const current = profile[key];
     const conflict =

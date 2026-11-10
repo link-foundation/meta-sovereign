@@ -149,3 +149,5 @@ Invalidate stale learned answers when rules or reuse policy change, preserve con
 Extract reviewable profile fields from explicit contact text and selected saved CVs through CLI, text/binary Lino and offline/shared UI. Preserve conflicts, field evidence and newer edits, and apply only explicitly selected draft values (R-AA1).
 
 Add named reusable answer profiles with revision-checked CLI/Lino/offline/UI controls, live resolution across linked automations, explicit local overrides, source evidence and profile-change guards during learning and final delivery.
+
+Import legacy contacts.lino as read-only reviewed profile drafts through CLI, text/binary Lino and the shared local/central profile editors. Preserve lists, duplicate alternatives, source locations, current values and failed/newer edits; require explicit selection and a separate save, and explain unsupported or private fields without echoing rejected values.

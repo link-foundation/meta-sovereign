@@ -8,7 +8,9 @@ export const verifyQuestionSubstitution = async ({
   store,
   until,
 }) => {
-  const fields = preview.locator(':scope > [data-answer-profile]');
+  const fields = preview.locator(
+    ':scope > [data-answer-profile] > [data-profile-values]'
+  );
   await fields
     .getByLabel('Field name, e.g. city', { exact: true })
     .fill('email');

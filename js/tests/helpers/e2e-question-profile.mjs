@@ -15,7 +15,7 @@ export const verifyQuestionProfile = async ({
   }
   await store.put(profileCv);
   const fields = preview.locator(':scope > [data-answer-profile]');
-  const importer = fields.locator('[data-profile-import]');
+  const importer = fields.locator(':scope > [data-profile-import]');
   await importer.locator(':scope > summary').click();
   await importer
     .getByRole('button', { name: 'Load saved CVs', exact: true })
@@ -85,7 +85,7 @@ export const verifyQuestionProfile = async ({
     .click();
   await importer
     .getByText(
-      'Selected fields added to this draft. Save the automation to retain them.',
+      'Selected fields added to this draft. Save the draft to retain them.',
       { exact: true }
     )
     .waitFor();
@@ -140,7 +140,7 @@ const verifyAutomationProfile = async ({ page, panel }) => {
     'the new automation keeps the question action'
   );
   const fields = form.locator('[data-answer-profile]');
-  const importer = fields.locator('[data-profile-import]');
+  const importer = fields.locator(':scope > [data-profile-import]');
   await importer.locator(':scope > summary').click();
   await importer
     .getByLabel('Your contact details', { exact: true })

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-profile-legacy.md](question-profile-legacy.md) verifies reviewed contacts.lino import, preserved lists and duplicate alternatives, current values, source locations, bounded refusals, separate saving and local overrides through CLI/Lino/offline/shared editors. Seventy-three Node checks, seven Deno checks, the existing production questions browser flow and independent MCP pass. This completes the inventoried QA05 mechanism; broader provider/form requirements remain open.
+
 - [question-shared-profile.md](question-shared-profile.md) verifies revision-checked named profiles, current values across linked automations, local overrides, missing references and learning/typing races through CLI/Lino/offline/shared UI, 81 focused Node checks, nine Deno checks and Chromium/MCP desktop/mobile evidence. Legacy contact import remains required.
 
 - [ci-snapshot-cancellation.md](ci-snapshot-cancellation.md) preserves the exact Windows/Deno handoff failure, a failing-before cancellation ownership regression, cooperative cleanup acknowledgement, 17 Node/eight Deno focused checks and negative local descriptor probes. Exact Windows handle attribution and new-head CI remain required.

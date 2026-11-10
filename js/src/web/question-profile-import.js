@@ -7,6 +7,7 @@ export const ProfileImport = ({ api, profile, set, disabled = false }) => {
   const [sources, setSources] = React.useState([]);
   const [cvId, setCvId] = React.useState('');
   const [text, setText] = React.useState('');
+  const [format, setFormat] = React.useState('text');
   const [draft, setDraft] = React.useState(null);
   const [selected, setSelected] = React.useState({});
   const [busy, setBusy] = React.useState(false);
@@ -14,7 +15,7 @@ export const ProfileImport = ({ api, profile, set, disabled = false }) => {
   const [notice, setNotice] = React.useState('');
   const active = React.useRef(false);
   const current = React.useRef('');
-  current.current = JSON.stringify({ cvId, text, profile });
+  current.current = JSON.stringify({ cvId, text, format, profile });
   const clear = () => {
     setDraft(null);
     setSelected({});
@@ -41,7 +42,12 @@ export const ProfileImport = ({ api, profile, set, disabled = false }) => {
     run(async () => {
       const basis = current.current;
       clear();
-      const result = await api.extractAnswerProfile({ cvId, text, profile });
+      const result = await api.extractAnswerProfile({
+        cvId,
+        text,
+        format,
+        profile,
+      });
       if (current.current !== basis) {
         throw new Error(t('questions.importChanged'));
       }
@@ -97,6 +103,8 @@ export const ProfileImport = ({ api, profile, set, disabled = false }) => {
           setCvId,
           text,
           setText,
+          format,
+          setFormat,
           clear,
         }),
         el(
@@ -194,15 +202,7 @@ const ProfileDraft = ({ draft, selected, setSelected, apply }) => {
               ),
             ])
           ),
-          draft.skipped.length
-            ? el(
-                'p',
-                { key: 'skipped', className: 'meta' },
-                t('questions.importSkipped', {
-                  count: draft.skipped.length,
-                })
-              )
-            : null,
+          el(SkippedProfileFields, { key: 'skipped', skipped: draft.skipped }),
           el(
             'button',
             {
@@ -220,16 +220,64 @@ const ProfileDraft = ({ draft, selected, setSelected, apply }) => {
     : null;
 };
 
+const SkippedProfileFields = ({ skipped }) => {
+  const t = useT();
+  return skipped.length
+    ? el('details', { 'data-profile-skipped': true }, [
+        el(
+          'summary',
+          { key: 'summary' },
+          t('questions.importSkipped', { count: skipped.length })
+        ),
+        el(
+          'ul',
+          { key: 'items' },
+          skipped.map((entry, index) =>
+            el(
+              'li',
+              { key: index },
+              `${entry.key ?? '—'} · ${entry.evidence?.source ?? ''} · ${entry.evidence?.path ?? ''} · ${t(`questions.importSkip.${entry.reason}`)}`
+            )
+          )
+        ),
+      ])
+    : null;
+};
+
 const ProfileSourceInput = ({
   sources,
   cvId,
   setCvId,
   text,
   setText,
+  format,
+  setFormat,
   clear,
 }) => {
   const t = useT();
   return el(React.Fragment, null, [
+    el('label', { key: 'format', className: 'field' }, [
+      el('span', { key: 'label' }, t('questions.importFormat')),
+      el(
+        'select',
+        {
+          key: 'input',
+          'aria-label': t('questions.importFormat'),
+          value: format,
+          onChange: (event) => {
+            setFormat(event.target.value);
+            clear();
+          },
+        },
+        ['text', 'contacts-lino'].map((value) =>
+          el(
+            'option',
+            { key: value, value },
+            t(`questions.importFormat.${value}`)
+          )
+        )
+      ),
+    ]),
     el('label', { key: 'cv', className: 'field' }, [
       el(
         'span',

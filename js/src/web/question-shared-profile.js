@@ -1,11 +1,12 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { ProfileValues } from './question-profile-values.js';
+import { ProfileImport } from './question-profile-import.js';
 
 const el = React.createElement;
 const blank = () => ({ id: '', name: '', values: {} });
 
-const SharedProfileEditor = ({ draft, set, busy, save, remove }) => {
+const SharedProfileEditor = ({ api, draft, set, busy, save, remove }) => {
   const t = useT();
   return el(
     'fieldset',
@@ -24,6 +25,13 @@ const SharedProfileEditor = ({ draft, set, busy, save, remove }) => {
           }),
         ])
       ),
+      el(ProfileImport, {
+        key: 'import',
+        api,
+        profile: draft.values,
+        set: (values) => set({ ...draft, values }),
+        disabled: busy,
+      }),
       el(ProfileValues, {
         key: 'values',
         profile: draft.values,
@@ -199,6 +207,7 @@ export const SharedProfile = ({ api, profileId, setProfileId, disabled }) => {
     ),
     el(SharedProfileEditor, {
       key: 'editor',
+      api,
       draft,
       set: setDraft,
       busy: busy || disabled,

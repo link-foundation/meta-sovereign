@@ -131,6 +131,7 @@ const profileCommand = async (args, store) => {
         : `cv:${args.cv}`
       : undefined,
     text,
+    format: args.format,
     profile: args.profile ? decodeWire(args.profile) : undefined,
   });
 };

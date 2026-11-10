@@ -28,8 +28,8 @@ the owner reviews it. No default profile is selected automatically.
 
 The reference remains `konard/hh-job-application-automation` at
 `fa0991b8c2d0896fb3b4be6c69947f0590094b15`; its contact source/tests informed
-the behavior without copying code. Importing that repository's legacy
-`contacts.lino` is still required work after this named-profile mechanism.
+the behavior without copying code. The following [legacy contact import step](question-profile-legacy.md) adds
+reviewed import of that repository's flat `contacts.lino` format.
 
 ## CLI, negotiated API and shared editors
 

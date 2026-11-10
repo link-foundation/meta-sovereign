@@ -14,6 +14,7 @@ import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mj
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
 import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
+import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -183,7 +184,9 @@ const verifyContexts = async (preview) => {
         exact: true,
       })
       .fill(keyword);
-    const fields = choice.locator('[data-answer-profile]');
+    const fields = choice.locator(
+      '[data-answer-profile] > [data-profile-values]'
+    );
     await fields
       .getByLabel('Field name, e.g. city', { exact: true })
       .fill('city');
@@ -529,7 +532,9 @@ await finish(async () => {
   await preview
     .getByText('Missing profile values: city', { exact: true })
     .waitFor();
-  const profile = preview.locator('[data-answer-profile]');
+  const profile = preview.locator(
+    ':scope > [data-answer-profile] > [data-profile-values]'
+  );
   await profile
     .getByRole('textbox', { name: 'Field name, e.g. city' })
     .fill('city');
@@ -646,5 +651,6 @@ await finish(async () => {
   await verifyQuestionConcurrency({ panel, store, until, reading });
   await verifyQuestionProfile({ page, panel, preview, store });
   await verifyQuestionSharedProfile({ page, base, store });
+  await verifyQuestionLegacyProfile({ page, base, store });
   verifySyncCapability();
 });
