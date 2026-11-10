@@ -101,3 +101,5 @@ Save selected/all Telegram, VK and X publication destinations, separate credenti
 Remeasure tutorial cards before paint when their bodies collapse, preserving target clearance even when ResizeObserver delivery is delayed. Retain geometry diagnostics and failure screenshots with a deterministic short-viewport regression.
 
 Add shared active-conversation and migrated-group history exports, bounded linked Markdown/JSON parts, exact Telegram targets and a CLI that waits for output completion. Preserve HTML/JSON controls, distinguish overlapping peer IDs, display media failures and keep export media controls separated on mobile.
+
+Add reviewed bot startup and chosen-target cached greeting sends through shared CLI, Lino API and React controls. Confirm exact account, typed destination and immutable one-use plans, require Telegram message receipts, preserve uncertain outcomes across restarts and enforce rolling 24-hour greeting deduplication. Recheck active clients and refreshed peers before writing, retain drafts on recovery and await owned cancellation/shutdown work.

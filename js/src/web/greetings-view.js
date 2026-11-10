@@ -15,7 +15,7 @@ import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
 import { Busy } from './spinner.js';
 import { StickerCollections } from './sticker-collections.js';
-import { TelegramGreetingCatalog } from './telegram-greeting-catalog.js';
+import { TelegramGreetingTools } from './telegram-greeting-tools.js';
 
 const el = React.createElement;
 
@@ -648,7 +648,7 @@ export const GreetingsView = ({ api = defaultApi }) => {
       { key: 'telegram-catalog', className: 'card', 'data-catalog-panel': '' },
       [
         el('summary', { key: 'summary' }, t('telegram.catalog.title')),
-        el(TelegramGreetingCatalog, { key: 'catalog', api }),
+        el(TelegramGreetingTools, { key: 'catalog', api }),
       ]
     ),
     el(StickerCollections, { key: 'collections', api }),

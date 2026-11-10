@@ -525,7 +525,7 @@ const sendRequest = (c, doc, peer, draft) =>
 
 // A sticker or GIF sent as it is; Telegram's answer to the live handler.
 const createSender = (env, { userClient, apply }, lists) => {
-  const sendDocument = async (draft = {}) => {
+  const sendDocument = async (draft = {}, guard = null) => {
     const target = String(draft.chat ?? '');
     const key = String(draft.id ?? '');
     if (!lists.known(key) || !target) {
@@ -545,7 +545,10 @@ const createSender = (env, { userClient, apply }, lists) => {
       );
       const result = await lists.withDoc(key, (doc) =>
         env.connection.withPeer(client, target, async (peer) => {
-          const request = sendRequest(c, doc, peer, draft);
+          // Reviewed automation rechecks its account and exact target after
+          // reconnecting or renewing a file reference, before every attempt.
+          const checked = guard ? await guard(c) : peer;
+          const request = sendRequest(c, doc, checked, draft);
           const answer = await client.invoke(request);
           messageId = messageReceipt(answer, request);
           return answer;

@@ -495,6 +495,18 @@ export const TELEGRAM_CALLS = {
     ...none('greeting-stickers-cancel'),
     capability: 'greetingStickersRefresh',
   },
+  telegramGreetingSendPreview: {
+    ...readBody('greeting-send-preview'),
+    capability: 'greetingSendPreview',
+  },
+  telegramGreetingSendApply: {
+    ...body('greeting-send-apply'),
+    capability: 'greetingSendPreview',
+  },
+  telegramGreetingSendCancel: {
+    ...none('greeting-send-cancel'),
+    capability: 'greetingSendPreview',
+  },
   telegramChatUsersStatus: {
     ...readBody('chat-users-status'),
     capability: 'chatUsersStart',

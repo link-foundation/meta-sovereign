@@ -3,9 +3,9 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../js/src/server/index.js';
-import { greetingStickerFixture } from '../../js/tests/helpers/greeting-stickers-fakes.mjs';
+import { greetingSendFixture } from '../../js/tests/helpers/greeting-send-fakes.mjs';
 
-const fixture = greetingStickerFixture({
+const fixture = await greetingSendFixture({
   now: () => Date.UTC(2026, 10, 10, 12),
 });
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-greeting-ui-'));
@@ -19,6 +19,7 @@ const handle = await startServer({
   automations: { scheduler: false },
   telegramAccount: {
     ...fixture.catalog,
+    ...fixture.actions,
     stickerPanel: async () => ({ ok: true, recent: [], faved: [], sets: [] }),
     stickerSearch: async () => ({ ok: true, stickers: [], sets: [] }),
     callsList: async () => ({ ok: true, calls: [], next: null }),
@@ -27,7 +28,10 @@ const handle = await startServer({
       kind: 'user',
       account: { username: 'owner' },
     }),
-    stop: fixture.env.greetingStickersStop,
+    stop: async () => {
+      await fixture.env.greetingSendStop();
+      await fixture.env.greetingStickersStop();
+    },
   },
 });
 console.log(JSON.stringify({ origin: `http://127.0.0.1:${handle.port}` }));

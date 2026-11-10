@@ -1,4 +1,57 @@
 export const ruTelegramGreetings = {
+  'telegram.greeting.title': 'Отправить одно приветствие в Telegram',
+  'telegram.greeting.note':
+    'Проверьте аккаунт, адресата и сообщение перед отправкой. Стикеры-приветствия ограничены одним за последние 24 часа в каждом чате.',
+  'telegram.greeting.userRequired':
+    'Подключите пользовательский аккаунт Telegram к серверу с поддержкой подтверждённой отправки приветствий.',
+  'telegram.greeting.target':
+    'Точное имя пользователя, ID чата или ссылка Telegram',
+  'telegram.greeting.operation': 'Сообщение',
+  'telegram.greeting.operation.greeting-sticker': 'Стикер-приветствие',
+  'telegram.greeting.operation.bot-start': 'Запустить бота (/start)',
+  'telegram.greeting.random':
+    'Приветствие выбирается из кэша при предпросмотре. Можно выбрать стикер ниже.',
+  'telegram.greeting.useRandom': 'Выбрать случайно при предпросмотре',
+  'telegram.greeting.chosen': 'Стикер: {sticker}',
+  'telegram.greeting.preview': 'Предпросмотр сообщения',
+  'telegram.greeting.send': 'Отправить это сообщение',
+  'telegram.greeting.review': 'Аккаунт {owner} → {target}',
+  'telegram.greeting.expires': 'Предпросмотр действует до: {at}',
+  'telegram.greeting.busy': 'Ожидание Telegram…',
+  'telegram.greeting.reload': 'Проверить подключение для приветствий',
+  'telegram.greeting.result.sent': 'Telegram подтвердил сообщение {id}.',
+  'telegram.greeting.result.failed':
+    'Сообщение не отправлено. Проверьте адресата и подключение перед новым предпросмотром.',
+  'telegram.greeting.result.unknown':
+    'Доставка не подтверждена. Проверьте чат и укажите результат в исходящих перед новой отправкой.',
+  'telegram.greeting.result.skipped':
+    'Этот чат уже получил приветствие за последние 24 часа. Ничего не отправлено.',
+  'telegram.greeting.error.bad-request':
+    'Проверьте точного адресата и выбранный стикер.',
+  'telegram.greeting.error.busy': 'Приветствие уже отправляется.',
+  'telegram.greeting.error.stopped':
+    'Аккаунт останавливается. Подключитесь заново.',
+  'telegram.greeting.error.cancelled':
+    'Предпросмотр или отправка отменены до доставки.',
+  'telegram.greeting.error.plan-expired':
+    'Предпросмотр истёк или уже использован. Создайте новый.',
+  'telegram.greeting.error.account-changed':
+    'Аккаунт изменился. Проверьте новый предпросмотр.',
+  'telegram.greeting.error.target-changed':
+    'Адресат изменился после предпросмотра. Проверьте его заново.',
+  'telegram.greeting.error.bot-required':
+    'Для /start выберите доступного бота Telegram.',
+  'telegram.greeting.error.target-unavailable': 'Этот адресат недоступен.',
+  'telegram.greeting.error.sticker-unavailable':
+    'Приветствие недоступно в кэше аккаунта. Обновите кэш или выберите другой стикер.',
+  'telegram.greeting.error.user-account-required':
+    'Подключите пользовательский аккаунт Telegram.',
+  'telegram.greeting.error.already-greeted':
+    'Этот чат уже получил приветствие за последние 24 часа.',
+  'telegram.greeting.error.previous-outcome-unknown':
+    'Результат предыдущей отправки неизвестен. Проверьте чат и укажите результат в исходящих.',
+  'telegram.greeting.error.unavailable':
+    'Не удалось выполнить запрос. Адресат и выбранный стикер сохранены.',
   'telegram.catalog.title': 'Стикеры-приветствия Telegram',
   'telegram.catalog.note':
     'Найдите стикеры для подключённого аккаунта. Обновление читает рекомендуемые наборы, маски, недавние и избранные стикеры. Сообщения не отправляются.',

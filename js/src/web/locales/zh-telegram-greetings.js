@@ -1,4 +1,47 @@
 export const zhTelegramGreetings = {
+  'telegram.greeting.title': '发送一条 Telegram 问候',
+  'telegram.greeting.note':
+    '发送前预览确切的账号、目标和消息。每个聊天在滚动的 24 小时内仅发送一次问候贴纸。',
+  'telegram.greeting.userRequired':
+    '请将 Telegram 用户账号连接到支持预览后发送问候的服务器。',
+  'telegram.greeting.target': '确切的用户名、聊天 ID 或 Telegram 链接',
+  'telegram.greeting.operation': '消息',
+  'telegram.greeting.operation.greeting-sticker': '问候贴纸',
+  'telegram.greeting.operation.bot-start': '启动机器人（/start）',
+  'telegram.greeting.random': '预览时从缓存中选择问候。也可以在下方选择贴纸。',
+  'telegram.greeting.useRandom': '预览时随机选择',
+  'telegram.greeting.chosen': '贴纸：{sticker}',
+  'telegram.greeting.preview': '预览消息',
+  'telegram.greeting.send': '发送此消息',
+  'telegram.greeting.review': '账号 {owner} → {target}',
+  'telegram.greeting.expires': '预览过期时间：{at}',
+  'telegram.greeting.busy': '正在等待 Telegram…',
+  'telegram.greeting.reload': '检查问候连接',
+  'telegram.greeting.result.sent': 'Telegram 已确认消息 {id}。',
+  'telegram.greeting.result.failed': '消息未发送。再次预览前请检查目标和连接。',
+  'telegram.greeting.result.unknown':
+    '发送结果不确定。再次发送前请检查聊天并在发件箱中确认结果。',
+  'telegram.greeting.result.skipped':
+    '过去 24 小时内已向此聊天发送问候。未发送任何消息。',
+  'telegram.greeting.error.bad-request': '请检查确切目标和所选贴纸。',
+  'telegram.greeting.error.busy': '正在发送一条问候。',
+  'telegram.greeting.error.stopped': '账号正在停止。请重新连接后继续。',
+  'telegram.greeting.error.cancelled': '预览或发送已在投递前取消。',
+  'telegram.greeting.error.plan-expired': '此预览已过期或已使用。请重新预览。',
+  'telegram.greeting.error.account-changed': '账号已更改。请检查新的预览。',
+  'telegram.greeting.error.target-changed': '预览后目标已更改。请重新检查。',
+  'telegram.greeting.error.bot-required':
+    '请为 /start 选择可用的 Telegram 机器人。',
+  'telegram.greeting.error.target-unavailable': '此目标不可用。',
+  'telegram.greeting.error.sticker-unavailable':
+    '账号缓存中没有此问候。请刷新或选择其他贴纸。',
+  'telegram.greeting.error.user-account-required':
+    '继续前请连接 Telegram 用户账号。',
+  'telegram.greeting.error.already-greeted':
+    '过去 24 小时内已向此聊天发送问候。',
+  'telegram.greeting.error.previous-outcome-unknown':
+    '之前的发送结果未确认。请检查聊天并在发件箱中确认。',
+  'telegram.greeting.error.unavailable': '无法完成请求。目标和贴纸选择已保留。',
   'telegram.catalog.title': 'Telegram 问候贴纸',
   'telegram.catalog.note':
     '为已连接的账号查找问候贴纸。刷新会读取精选、面具、最近和收藏的贴纸，不会发送消息。',

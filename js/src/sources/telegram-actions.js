@@ -149,6 +149,7 @@ import { createInstantView } from './telegram-instant-view.js';
 import { createHistoryExport } from './telegram-export.js';
 import { createChatUsers } from './telegram-chat-users.js';
 import { createGreetingStickers } from './telegram-greeting-stickers.js';
+import { createGreetingSends } from './telegram-greeting-send.js';
 import { createAccountData } from './telegram-account-data.js';
 import { createPhoneChange } from './telegram-phone-change.js';
 import { createDrafts } from './telegram-drafts.js';
@@ -548,6 +549,11 @@ const chatActions = (env, context) => {
     ...createChatlists(env, context),
     ...stickers,
     ...greetingStickers,
+    ...createGreetingSends(env, {
+      ...context,
+      greetingSticker,
+      sendDocument: stickers.sendDocument,
+    }),
     ...createStickerSets(env, { ...context, stickers: stickerLists }),
     ...createContactsEdit(env, context),
     ...createContactsActions(env, context),

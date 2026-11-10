@@ -1,4 +1,56 @@
 export const hiTelegramGreetings = {
+  'telegram.greeting.title': 'एक Telegram अभिवादन भेजें',
+  'telegram.greeting.note':
+    'भेजने से पहले सही खाते, लक्ष्य और संदेश का पूर्वावलोकन करें। हर चैट में पिछले 24 घंटों में केवल एक अभिवादन स्टिकर भेजा जाता है।',
+  'telegram.greeting.userRequired':
+    'समीक्षा के बाद अभिवादन भेजने वाले सर्वर से Telegram उपयोगकर्ता खाता जोड़ें।',
+  'telegram.greeting.target': 'सटीक उपयोगकर्ता नाम, चैट ID या Telegram लिंक',
+  'telegram.greeting.operation': 'संदेश',
+  'telegram.greeting.operation.greeting-sticker': 'अभिवादन स्टिकर',
+  'telegram.greeting.operation.bot-start': 'बॉट शुरू करें (/start)',
+  'telegram.greeting.random':
+    'पूर्वावलोकन के समय कैश से अभिवादन चुना जाएगा। नीचे से स्टिकर भी चुन सकते हैं।',
+  'telegram.greeting.useRandom': 'पूर्वावलोकन के समय यादृच्छिक चुनें',
+  'telegram.greeting.chosen': 'स्टिकर: {sticker}',
+  'telegram.greeting.preview': 'संदेश का पूर्वावलोकन',
+  'telegram.greeting.send': 'यह संदेश भेजें',
+  'telegram.greeting.review': 'खाता {owner} → {target}',
+  'telegram.greeting.expires': 'पूर्वावलोकन की समय सीमा: {at}',
+  'telegram.greeting.busy': 'Telegram की प्रतीक्षा हो रही है…',
+  'telegram.greeting.reload': 'अभिवादन कनेक्शन जाँचें',
+  'telegram.greeting.result.sent': 'Telegram ने संदेश {id} की पुष्टि की।',
+  'telegram.greeting.result.failed':
+    'संदेश नहीं भेजा गया। दोबारा पूर्वावलोकन से पहले लक्ष्य और कनेक्शन जाँचें।',
+  'telegram.greeting.result.unknown':
+    'डिलीवरी अनिश्चित है। फिर भेजने से पहले चैट जाँचें और आउटबॉक्स में परिणाम तय करें।',
+  'telegram.greeting.result.skipped':
+    'इस चैट में पिछले 24 घंटों में अभिवादन भेजा गया था। कुछ नहीं भेजा गया।',
+  'telegram.greeting.error.bad-request':
+    'सटीक लक्ष्य और चुना हुआ स्टिकर जाँचें।',
+  'telegram.greeting.error.busy': 'एक अभिवादन पहले से भेजा जा रहा है।',
+  'telegram.greeting.error.stopped':
+    'खाता बंद हो रहा है। आगे बढ़ने से पहले फिर जोड़ें।',
+  'telegram.greeting.error.cancelled':
+    'डिलीवरी से पहले पूर्वावलोकन या भेजना रद्द कर दिया गया।',
+  'telegram.greeting.error.plan-expired':
+    'पूर्वावलोकन की समय सीमा समाप्त है या इसका उपयोग हो चुका है। दोबारा पूर्वावलोकन करें।',
+  'telegram.greeting.error.account-changed':
+    'खाता बदल गया है। नए पूर्वावलोकन की समीक्षा करें।',
+  'telegram.greeting.error.target-changed':
+    'पूर्वावलोकन के बाद लक्ष्य बदल गया है। फिर जाँचें।',
+  'telegram.greeting.error.bot-required':
+    '/start के लिए उपलब्ध Telegram बॉट चुनें।',
+  'telegram.greeting.error.target-unavailable': 'यह लक्ष्य उपलब्ध नहीं है।',
+  'telegram.greeting.error.sticker-unavailable':
+    'यह अभिवादन खाते के कैश में नहीं है। कैश ताज़ा करें या दूसरा स्टिकर चुनें।',
+  'telegram.greeting.error.user-account-required':
+    'आगे बढ़ने से पहले Telegram उपयोगकर्ता खाता जोड़ें।',
+  'telegram.greeting.error.already-greeted':
+    'इस चैट में पिछले 24 घंटों में अभिवादन भेजा गया था।',
+  'telegram.greeting.error.previous-outcome-unknown':
+    'पिछले भेजने का परिणाम अनिश्चित है। चैट जाँचें और आउटबॉक्स में परिणाम तय करें।',
+  'telegram.greeting.error.unavailable':
+    'अनुरोध पूरा नहीं हुआ। आपका लक्ष्य और स्टिकर चयन सुरक्षित है।',
   'telegram.catalog.title': 'Telegram अभिवादन स्टिकर',
   'telegram.catalog.note':
     'जुड़े हुए खाते के लिए अभिवादन स्टिकर खोजें। रीफ़्रेश चुनिंदा सेट, मास्क, हाल के और पसंदीदा स्टिकर पढ़ता है। यह संदेश नहीं भेजता।',

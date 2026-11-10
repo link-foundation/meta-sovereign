@@ -1,9 +1,9 @@
 # Telegram bot and group greeting audit (TG07–TG10)
 
 Work remains in progress in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
-Bot startup, chosen-target greeting delivery, participant planning and paced
-delivery remain unfinished. Sticker discovery has a shared account implementation,
-CLI, default Lino routes and common React catalog controls.
+Bot startup and chosen-target greeting delivery now share reviewed account plans
+through the CLI, default Lino routes and common React controls (TG07/TG08).
+Participant planning and paced group delivery (TG09/TG10) remain unfinished.
 
 The secret-free logs, installed-SDK probe and source hashes are preserved in
 [the evidence archive](data/telegram-greetings.tar.gz), with verified per-file
@@ -79,8 +79,8 @@ Focused catalog verification adds 19 passing checks across
 `telegram-greeting-stickers.test.js`, `telegram-greeting-stickers-cli.test.js`
 and `telegram-greeting-stickers-api.test.js`. The API test uses the production
 server, both Lino encodings and origin checks with SDK fakes. No live Telegram
-requests or full local runtime/browser matrix is used. Chosen-target delivery,
-bot startup and participant greeting acceptance criteria remain open.
+requests or full local runtime/browser matrix is used. The subsequent send slice
+below completes chosen-target delivery and bot startup; group criteria remain open.
 
 The combined catalog and existing capability/account-action checks pass all
 40 cases with concurrency one and a ten-second per-test timeout. Strict lint
@@ -92,9 +92,9 @@ The Stickers screen now exposes explicit refresh limits, cache age, greeting
 filtering, pages and per-source coverage. Opening the panel reads the cache;
 it does not start discovery or send anything. Running refreshes can be stopped.
 Cancelled, failed and incomplete reads remain distinct, with the previous cache
-available. The component is reusable in the upcoming recipient planner, including
-greeting-only selection callbacks; that planner and sending controls are still
-unfinished. Account changes remount the component. Unsupported accounts lose the
+available. The component exposes greeting-only selection callbacks, now used by
+the reviewed single-target sender below. The group planner remains unfinished.
+Account changes remount the component. Unsupported accounts lose the
 cached presentation and refresh controls, while a connection check can recover.
 Late unmounted reads cannot replace a newer presentation or release its busy lock.
 Cache dates follow the selected interface language. All four locales include
@@ -139,3 +139,82 @@ Mobile controls and results:
 ![Mobile controls](telegram-catalog-mobile.png)
 
 ![Mobile cached results](telegram-catalog-mobile-results.png)
+
+## Reviewed bot startup and chosen-target sends
+
+The previous catalog had no chosen-target send controls. The shared Stickers panel
+now previews the connected account, exact typed Telegram destination and either
+`/start` or a frozen cached greeting document. Previewing only reads. Explicit
+confirmation consumes the five-minute plan once; changes to the target invalidate
+the local preview. Bot startup requires an actual bot. Greeting targets include
+users, basic groups and channels without conflating their overlapping numeric IDs.
+
+```sh
+# These commands only preview. Use a real configured account and chosen target.
+meta-sovereign telegram-bot-start --chat=@chosen_bot
+meta-sovereign telegram-greeting-stickers --refresh=true
+meta-sovereign telegram-greet --chat=@chosen_public_chat
+# Explicit --confirm=true previews and sends that same reviewed plan once.
+```
+
+The `greeting-send-preview`, `greeting-send-apply` and `greeting-send-cancel`
+routes use the actual user-account capability and support both Lino encodings.
+The CLI, route and UI call the same account implementation. The sender rechecks
+account identity, destination kind, input peer and cancellation immediately before
+each provider write, including expired-reference renewal. A replaced active client
+cannot send using the old session. Cancellation and shutdown own pending reads
+and await any write already in flight. No write is automatically replayed.
+
+A durable intent is saved before the outbox write. Concurrent plans, a restart,
+missing acknowledgements and unfinished writes cannot bypass an unresolved outcome.
+Only a positive Telegram message receipt records success. An explicit RPC refusal
+is a failed send; a read timeout before the RPC is a definite non-send; an ambiguous
+write or missing receipt remains uncertain. A local projection failure after an
+acknowledgement preserves success. The shared Outbox can resolve an uncertain
+outcome after the user checks Telegram. A successful greeting blocks another to
+the same account/destination for a rolling 24 hours, including across midnight.
+Bot startup has separate intents and does not use this greeting cooldown.
+
+Verification uses bounded SDK fixtures, never a live Telegram write:
+
+- The two sender-guard regressions fail before the fix and pass after it: a
+  denied guard previously still sent, and a refreshed peer was ignored.
+- 53 focused backend/CLI/API/receipt/capability/catalog checks pass serially with
+  ten-second test timeouts. They cover immutable plans, account/peer changes,
+  receipt loss, persistence failures, cross-factory concurrency and shutdown.
+- 45 shared send-model/Greetings/translation checks pass. Another 57 existing
+  account/action/sticker/send-as checks pass unchanged.
+- Strict changed-code lint, formatting and the production web bundle pass.
+- The registered production Chromium test fails against the preceding bundle
+  because send controls are absent, then passes with reviewed group/user/bot
+  targets, acknowledgements, cooldown, uncertainty, recovery and a 390-pixel view.
+- Independent Playwright MCP verifies preview, explicit acknowledged send and
+  bot preview in an isolated production server. Browser and fixture are closed.
+
+```sh
+node --test --test-concurrency=1 --test-timeout=10000 \
+  js/tests/telegram-greeting-send.test.js \
+  js/tests/telegram-greeting-send-cli.test.js \
+  js/tests/telegram-greeting-send-api.test.js \
+  js/tests/telegram-sticker-send-guard.test.js
+RUN_BROWSER_E2E=1 npm run test:e2e:telegram-greeting-send
+```
+
+Before, cached catalog without send controls:
+
+![Before send controls](screenshots/telegram-greeting-send-before.png)
+
+After, exact destination and document awaiting confirmation:
+
+![Reviewed greeting](screenshots/telegram-greeting-send-preview.png)
+
+Only a positive receipt displays acknowledged delivery:
+
+![Acknowledged greeting](screenshots/telegram-greeting-send-acknowledged.png)
+
+Mobile bot preview retains the exact account and destination:
+
+![Mobile bot preview](screenshots/telegram-greeting-send-mobile-preview.png)
+
+TG09 participant eligibility and TG10 group limits, pacing and acknowledged
+progress remain open. The complete runtime/browser matrix remains CI work.

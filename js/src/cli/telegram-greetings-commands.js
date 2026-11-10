@@ -1,13 +1,18 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import {
+  TELEGRAM_GREETING_SEND_HELP,
+  createTelegramGreetingSendCommands,
+} from './telegram-greeting-send-commands.js';
+import {
   stickerRefreshOptions,
   stickerPageOptions,
 } from '../sources/telegram-greeting-stickers-shape.js';
 
 export const TELEGRAM_GREETINGS_HELP = `  telegram-greeting-stickers [--refresh=true] [--max-sets=1000] [--max-documents=10000]
                 [--greetings-only=false] [--offset=0] [--limit=100] [--store=<dir>]
-                Reads the connected user's cache. Refresh discovers featured, mask, recent and favourite stickers; it sends nothing.`;
+                Reads the connected user's cache. Refresh discovers featured, mask, recent and favourite stickers; it sends nothing.
+${TELEGRAM_GREETING_SEND_HELP}`;
 const bool = (value) =>
   [undefined, true, false, 'true', 'false'].includes(value);
 const on = (value) => value === true || value === 'true';
@@ -47,6 +52,7 @@ export const createTelegramGreetingCommands = ({
   createAccount = createTelegramAccount,
   sleep = (ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms)),
 } = {}) => ({
+  ...createTelegramGreetingSendCommands({ openStore, createAccount }),
   'telegram-greeting-stickers': async (args, log) => {
     const request = greetingCatalogRequest(args);
     if (!request) {

@@ -13916,6 +13916,20 @@ main[data-view='operator']:has(> .operator-workspace) {
   min-width: 0;
   box-sizing: border-box;
 }
+.telegram-greeting-send-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.telegram-greeting-send-form input,
+.telegram-greeting-send-form select {
+  width: 100%;
+  min-width: 0;
+}
+[data-greeting-send-preview] {
+  overflow-wrap: anywhere;
+}
 .telegram-greeting-items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));

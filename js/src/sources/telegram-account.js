@@ -1324,10 +1324,10 @@ const connectionRecorder = (store) => {
 const stopReaders = async (env) => {
   await env.channels.flush().catch(() => {});
   await env.catchUp.stop();
+  await env.greetingSendStop?.();
   await env.chatUsersStop?.();
   await env.greetingStickersStop?.();
 };
-
 export const createTelegramAccount = ({
   store,
   // The saved connection proxy is read whenever a client is built (R-Y192).

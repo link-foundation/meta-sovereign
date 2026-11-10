@@ -36,6 +36,7 @@ test(
       urlAuthDomains: false,
       chatUsersStart: false,
       greetingStickersRefresh: false,
+      greetingSendPreview: false,
     });
   }
 );
