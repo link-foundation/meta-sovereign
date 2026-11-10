@@ -141,7 +141,7 @@ ${TELEGRAM_USERS_HELP}
 ${TELEGRAM_GREETINGS_HELP}
 ${TELEGRAM_LOGIN_HELP}
   sources
-  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
+  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--max-requests=<n>] [--restart-history] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
   github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
   github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>
@@ -478,35 +478,43 @@ const rawEmailTransport = (args, protocol) =>
 
 const sourcePullCmd = async (args, log) => {
   const store = await openStore(args.store ?? defaultStoreDir());
-  const protocol = args.protocol;
-  const result = await pullLiveInto(store, args.source, {
-    protocol,
-    provider: args.provider,
-    baseUrl: args['base-url'],
-    accountId: args['account-id'],
-    userId: args['user-id'],
-    mailboxId: args['mailbox-id'],
-    mailbox: args.mailbox,
-    label: args.label,
-    query: args.query,
-    owner: args.owner,
-    repo: args.repo,
-    state: args.state,
-    stage: args.stage,
-    perspective: args.perspective,
-    jobId: args['job-id'],
-    contractId: args['contract-id'],
-    proposalId: args['proposal-id'],
-    roomId: args['room-id'],
-    organizationId: args['organization-id'],
-    token: args.token,
-    transport: rawEmailTransport(args, protocol),
-    offset: args.offset ? Number(args.offset) : undefined,
-    limit: args.limit ? Number(args.limit) : undefined,
-    timeout: args.timeout ? Number(args.timeout) : undefined,
-  });
-  log(JSON.stringify(result, null, 2));
-  return 0;
+  try {
+    const protocol = args.protocol;
+    const result = await pullLiveInto(store, args.source, {
+      protocol,
+      provider: args.provider,
+      baseUrl: args['base-url'],
+      accountId: args['account-id'],
+      userId: args['user-id'],
+      mailboxId: args['mailbox-id'],
+      mailbox: args.mailbox,
+      label: args.label,
+      query: args.query,
+      owner: args.owner,
+      repo: args.repo,
+      state: args.state,
+      stage: args.stage,
+      perspective: args.perspective,
+      jobId: args['job-id'],
+      contractId: args['contract-id'],
+      proposalId: args['proposal-id'],
+      roomId: args['room-id'],
+      organizationId: args['organization-id'],
+      token: args.token,
+      transport: rawEmailTransport(args, protocol),
+      offset: args.offset ? Number(args.offset) : undefined,
+      limit: args.limit ? Number(args.limit) : undefined,
+      maxRequests: args['max-requests']
+        ? Number(args['max-requests'])
+        : undefined,
+      restartHistory: args['restart-history'] === true,
+      timeout: args.timeout ? Number(args.timeout) : undefined,
+    });
+    log(JSON.stringify(result, null, 2));
+    return 0;
+  } finally {
+    await store.close();
+  }
 };
 
 const emailSendCmd = async (args, log) => {

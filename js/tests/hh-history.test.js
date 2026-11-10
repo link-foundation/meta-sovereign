@@ -188,7 +188,7 @@ test('the live HH adapter uses the same observed-message normalization', async (
       );
     },
   });
-  const pulled = await live.pullMessages();
+  const pulled = await live.pullMessages({ protocol: 'negotiations' });
   assert.equal(reads, 1);
   assert.equal(pulled.links.length, 4);
   assert.equal(pulled.links[1].outgoing, true);

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [hh-common-history.md](hh-common-history.md) verifies current HH API pagination, durable bounded continuation, honest coverage, actual message direction, shared CLI/Lino/UI controls and guarded text receipts. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass; browser/unread and wider provider parity remain open.
+
 - [ci-browser-apt.md](ci-browser-apt.md) investigates repeated Pages setup cancellations, preserves complete download logs and verifies a narrowly scoped Ubuntu archive correction with 23 focused checks. Hosted new-head validation remains required.
 
 - [hh-history-learning.md](hh-history-learning.md) verifies shared HH nested-message normalization, actual applicant direction, application barriers, stable repeated-import counts, edit versions and offline metadata migration through CLI/Lino/offline/UI. Thirty-six Node checks, thirteen Deno checks, integrated Chromium and independent MCP pass; full provider history retrieval remains open.

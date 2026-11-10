@@ -823,11 +823,11 @@ export const zh = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': '导入 hh.ru 沟通归档',
   'connections.hh.archive.hint':
-    '打开 https://hh.ru/applicant/negotiations,使用 JSON 导出,保存文件并在此加载。',
+    '导入您已获取的、包含实际沟通消息的 JSON 文件。仅有沟通列表不包含消息历史。如需在线历史，请输入 API 令牌并选择立即获取。',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': '连接 hh.ru API',
   'connections.hh.api.hint':
-    '在 https://dev.hh.ru/ 注册应用,运行 OAuth2 客户端凭证或授权码流程,把访问令牌粘贴为 "secret:hh:token"。',
+    '在 https://dev.hh.ru/ 注册应用，通过 OAuth 授权您的 HH 账户，并在下方粘贴用户访问令牌。聊天访问取决于应用和账户权限。',
   'connections.hh.fields.token.label': '访问令牌',
   'connections.hh.errorHints.401':
     'hh.ru 拒绝了令牌。请通过 https://dev.hh.ru/ 的应用刷新。',

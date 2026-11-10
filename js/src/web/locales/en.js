@@ -856,11 +856,11 @@ export const en = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': 'Import an hh.ru negotiations archive',
   'connections.hh.archive.hint':
-    'Open https://hh.ru/applicant/negotiations, use the JSON export, save the file and load it here.',
+    'Import a JSON file containing actual negotiation messages that you have already obtained. A negotiation list alone contains no message history. For live history, enter an API token and choose Fetch now.',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': 'Connect the hh.ru API',
   'connections.hh.api.hint':
-    'Register an app at https://dev.hh.ru/, run the OAuth2 client-credentials/authorisation-code flow and paste the access token as "secret:hh:token".',
+    'Register an app at https://dev.hh.ru/, authorize your HH account with OAuth and paste the user access token below. Chat access depends on app and account permissions.',
   'connections.hh.fields.token.label': 'Access token',
   'connections.hh.errorHints.401':
     'hh.ru rejected the token. Refresh it via your app at https://dev.hh.ru/.',

@@ -869,11 +869,11 @@ export const ru = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': 'Импорт архива откликов hh.ru',
   'connections.hh.archive.hint':
-    'Откройте https://hh.ru/applicant/negotiations, используйте JSON-экспорт, сохраните файл и загрузите его сюда.',
+    'Загрузите уже полученный JSON-файл с самими сообщениями переговоров. Один список переговоров не содержит истории сообщений. Для чтения через API введите токен и нажмите «Загрузить сейчас».',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': 'Подключите API hh.ru',
   'connections.hh.api.hint':
-    'Зарегистрируйте приложение на https://dev.hh.ru/, выполните OAuth2 client-credentials/authorization-code и вставьте access token как «secret:hh:token».',
+    'Зарегистрируйте приложение на https://dev.hh.ru/, авторизуйте свой аккаунт HH через OAuth и вставьте пользовательский токен ниже. Доступ к чатам зависит от прав приложения и аккаунта.',
   'connections.hh.fields.token.label': 'Токен доступа',
   'connections.hh.errorHints.401':
     'hh.ru отклонил токен. Обновите его через своё приложение на https://dev.hh.ru/.',

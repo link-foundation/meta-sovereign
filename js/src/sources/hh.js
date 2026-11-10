@@ -1,13 +1,14 @@
 /**
  * hh.ru source adapter (R-E8).
  *
- * Wraps the official hh.ru API (https://api.hh.ru) for resume
- * read/write and message threads on vacancy responses. Archive import
- * accepts pre-fetched JSON; the live adapter talks to negotiations and
- * resume endpoints with injectable fetch/baseUrl for tests.
+ * Uses the official common-chat API for current history and replies.
+ * Deprecated negotiation reads remain an explicit compatibility protocol.
+ * Resume changes use the browser CV plan, not an invented API endpoint.
  */
 
 import { normalizeHhMessages } from './hh-messages.js';
+import { pullHhChats } from './hh-chats.js';
+import { sendHhChat } from './hh-chat-send.js';
 import {
   authHeaders,
   threadTarget,
@@ -36,7 +37,25 @@ export const createHhLive = ({
 
   return {
     async pullMessages(options = {}) {
-      const raw = await requestJson(fetchImpl, `${baseUrl}/negotiations`, {
+      const apiBase = (options.baseUrl ?? baseUrl).replace(/\/$/u, '');
+      if (!options.protocol || options.protocol === 'chats') {
+        return pullHhChats({
+          origin: new URL(apiBase).href,
+          options,
+          read: (path, search) =>
+            requestJson(fetchImpl, `${apiBase}${path}`, {
+              headers: headers(options.token),
+              search,
+              timeoutMs: options.timeout,
+            }),
+        });
+      }
+      if (options.protocol !== 'negotiations') {
+        throw unsupportedError(
+          'HH history protocol must be chats or negotiations'
+        );
+      }
+      const raw = await requestJson(fetchImpl, `${apiBase}/negotiations`, {
         headers: headers(options.token),
         search: {
           page: options.page ?? options.offset,
@@ -64,6 +83,20 @@ export const createHhLive = ({
       }
       if (!text) {
         throw new Error('hh message text is required');
+      }
+      if (
+        typeof negotiationId === 'string' &&
+        negotiationId.startsWith('chat:')
+      ) {
+        return sendHhChat({
+          fetchImpl,
+          baseUrl: options.baseUrl ?? baseUrl,
+          headers: headers(options.token),
+          content,
+          options,
+          chatId: negotiationId.slice(5),
+          text,
+        });
       }
       return requestJson(
         fetchImpl,

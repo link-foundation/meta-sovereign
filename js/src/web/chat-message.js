@@ -42,7 +42,7 @@ import { statusOfLink } from './emoji-status-model.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { useTranslated } from './translate-store.js';
-import { menuItems } from './chat-selection.js';
+import { menuItems, isMine } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import { GameCard } from './chat-games.js';
 import { MediaAudio, MediaCard, MediaFile, MediaVideo } from './chat-media.js';
@@ -1211,7 +1211,7 @@ export const MessageBubble = ({
   const [menu, setMenu] = useState(null);
   const row = useRef(null);
   const bubble = useRef(null);
-  const mine = message.sender === 'me';
+  const mine = isMine(message);
   const leaving = useLeavingRow(row, message);
   const revision = message.versionHead;
   const mediaApi = useMemo(
@@ -1313,8 +1313,7 @@ const withKeyboard = (bubble, message, onAction) =>
         'div',
         {
           key: 'bub',
-          className:
-            message.sender === 'me' ? 'bubble-stack out' : 'bubble-stack in',
+          className: isMine(message) ? 'bubble-stack out' : 'bubble-stack in',
         },
         [bubble, el(InlineKeyboard, { key: 'kb', message, onAction })]
       )

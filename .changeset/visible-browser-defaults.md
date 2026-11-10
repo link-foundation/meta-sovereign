@@ -153,3 +153,5 @@ Add named reusable answer profiles with revision-checked CLI/Lino/offline/UI con
 Import legacy contacts.lino as read-only reviewed profile drafts through CLI, text/binary Lino and the shared local/central profile editors. Preserve lists, duplicate alternatives, source locations, current values and failed/newer edits; require explicit selection and a separate save, and explain unsupported or private fields without echoing rejected values.
 
 Preserve actual HH nested history, documented applicant direction, application barriers, reply ownership and edit evidence through shared live/archive normalization. Keep repeated-import counts stable and recover missing saved metadata offline with schema migration 0010 (R-AA1, R-Z17).
+
+Read current HH common-chat history with bounded account-bound continuation, accurate available-window coverage and shared CLI/Lino/manual UI controls. Preserve actual participant direction in Chat/Operator and require matching write permission and positive receipts for modern text replies; retain explicit legacy negotiation compatibility.

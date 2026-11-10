@@ -854,11 +854,11 @@ export const hi = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': 'hh.ru वार्तालाप संग्रह आयात करें',
   'connections.hh.archive.hint':
-    'https://hh.ru/applicant/negotiations खोलें, JSON निर्यात का उपयोग करें, फ़ाइल सहेजें और यहाँ लोड करें।',
+    'पहले से प्राप्त वार्तालाप के वास्तविक संदेशों वाली JSON फ़ाइल आयात करें। केवल वार्तालाप सूची में संदेश इतिहास नहीं होता। लाइव इतिहास के लिए API टोकन भरें और अभी लाएँ चुनें।',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': 'hh.ru API जोड़ें',
   'connections.hh.api.hint':
-    'https://dev.hh.ru/ पर ऐप पंजीकृत करें, OAuth2 client-credentials/authorisation-code प्रवाह चलाएँ और एक्सेस टोकन को "secret:hh:token" के रूप में चिपकाएँ।',
+    'https://dev.hh.ru/ पर ऐप पंजीकृत करें, OAuth से अपने HH खाते को अधिकृत करें और नीचे उपयोगकर्ता एक्सेस टोकन भरें। चैट पहुँच ऐप और खाते की अनुमतियों पर निर्भर है।',
   'connections.hh.fields.token.label': 'एक्सेस टोकन',
   'connections.hh.errorHints.401':
     'hh.ru ने टोकन अस्वीकृत किया। https://dev.hh.ru/ पर अपने ऐप के माध्यम से रिफ़्रेश करें।',

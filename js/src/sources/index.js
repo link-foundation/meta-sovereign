@@ -262,7 +262,7 @@ const pullApiInto = async (store, source, options = {}) => {
   const given = Object.fromEntries(
     Object.entries(options).filter(([, value]) => value !== undefined)
   );
-  const result = await live.pullMessages({ ...saved, ...given, token });
+  const result = await live.pullMessages({ ...saved, ...given, token, store });
   const links = result.links ?? [];
   await putAll(
     store,
@@ -270,10 +270,14 @@ const pullApiInto = async (store, source, options = {}) => {
   );
   // What the pull remembers is written once the links are stored (R-Z5).
   await result.afterStore?.();
-  return {
-    source,
-    imported: links.length,
-    nextOffset: result.nextOffset ?? null,
-    rawCount: result.rawCount ?? links.length,
-  };
+  return apiPullResult(source, links, result);
 };
+
+const apiPullResult = (source, links, result) => ({
+  source,
+  imported: links.length,
+  nextOffset: result.nextOffset ?? null,
+  rawCount: result.rawCount ?? links.length,
+  ...(result.history ? { history: result.history } : {}),
+  ...(result.nextCursor ? { nextCursor: result.nextCursor } : {}),
+});
