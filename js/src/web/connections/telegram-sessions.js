@@ -13,6 +13,7 @@ import { useT } from '../i18n.js';
 import { Icon } from '../icons.js';
 import { RecommendedHeader } from './recommended.js';
 import { QrPanel, useQrPolling } from './telegram-qr-login.js';
+import { useTelegramLoginOwner } from './telegram-login-owner.js';
 
 const el = React.createElement;
 
@@ -282,6 +283,7 @@ const AccountGroup = ({
 // live, resolves user sessions to their phone/@username, and groups them by
 // account — so the list shows one connectable entry per real sign-in.
 const useFinder = (onConnected) => {
+  const owner = useTelegramLoginOwner();
   const [groups, setGroups] = useState(null);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
@@ -296,11 +298,16 @@ const useFinder = (onConnected) => {
     setLogins((all) => ({ ...all, [id]: { ...all[id], ...next } }));
 
   const find = async () => {
+    owner.reset();
+    const ticket = owner.ticket();
     setBusy('scan');
     setError('');
     setLogins({});
     setConnected({});
     const scan = await api.telegramSessions('scan');
+    if (!owner.current(ticket)) {
+      return;
+    }
     setBusy('');
     setScanned(true);
     if (scan?.error) {
@@ -311,9 +318,13 @@ const useFinder = (onConnected) => {
   };
 
   const use = async (id) => {
+    const ticket = owner.ticket();
     setBusy(id);
     setError('');
     const result = await api.telegramSessions('use', { id });
+    if (!owner.take(ticket, result.needsLogin ? result.id : null)) {
+      return;
+    }
     setBusy('');
     if (result?.error) {
       setError(result.error);
@@ -339,6 +350,7 @@ const useFinder = (onConnected) => {
   const field = (id, key, value) => patch(id, { [key]: value });
 
   const submit = async (id) => {
+    const ticket = owner.ticket();
     const login = logins[id] ?? {};
     setBusy(id);
     const action = login.needs === 'password' ? 'password' : 'code';
@@ -347,12 +359,16 @@ const useFinder = (onConnected) => {
       code: login.code,
       password: login.password,
     });
+    if (!owner.take(ticket, result.id)) {
+      return;
+    }
     setBusy('');
     if (result?.error) {
       patch(id, { error: result.error });
       return;
     }
     if (result.done) {
+      owner.release(login.loginId);
       setLogins((all) => {
         const next = { ...all };
         delete next[id];
@@ -363,7 +379,12 @@ const useFinder = (onConnected) => {
       await onConnected?.();
       return;
     }
-    patch(id, { needs: result.needs ?? 'code', error: '' });
+    patch(id, {
+      needs: result.needs ?? 'code',
+      code: '',
+      password: '',
+      error: '',
+    });
   };
 
   return {
@@ -388,6 +409,7 @@ const LoginField = ({ id, type, value, onChange, placeholder }) =>
   el(CredentialField, { id, type, value, placeholder, onChange });
 
 const useTelegramLogin = (onConnected, slot = 1) => {
+  const owner = useTelegramLoginOwner();
   const [form, setForm] = useState({
     apiId: '',
     apiHash: '',
@@ -415,6 +437,9 @@ const useTelegramLogin = (onConnected, slot = 1) => {
       idRef.current = result.id;
     }
     if (result.done) {
+      owner.release(idRef.current);
+      idRef.current = null;
+      setForm({ apiId: '', apiHash: '', phone: '', code: '', password: '' });
       setNeeds('done');
       setAccount(result.account);
       announceConnected();
@@ -426,20 +451,30 @@ const useTelegramLogin = (onConnected, slot = 1) => {
       setNeeds('qr');
       return;
     }
+    setForm((f) => ({ ...f, code: '', password: '' }));
     setNeeds(result.needs ?? 'code');
   };
 
   const run = async (action, body) => {
+    const ticket = owner.ticket();
     setBusy(true);
     setError('');
     const result = await api.telegramLogin(action, body);
+    if (!owner.take(ticket, result.id)) {
+      return;
+    }
     setBusy(false);
     apply(result);
   };
 
   // The QR code is renewed by the server; a failure ends the wait.
-  useQrPolling(needs === 'qr' ? idRef.current : null, (result) => {
+  useQrPolling(needs === 'qr' ? idRef.current : null, (result, id) => {
+    if (id !== idRef.current) {
+      return;
+    }
     if (result?.error) {
+      owner.reset();
+      idRef.current = null;
       setError(result.error);
       setNeeds('start');
       setQr(null);
@@ -449,9 +484,10 @@ const useTelegramLogin = (onConnected, slot = 1) => {
   });
 
   const chooseMode = (next) => {
-    if (needs === 'qr' && idRef.current) {
-      api.telegramLogin('qr-cancel', { id: idRef.current });
-    }
+    owner.reset();
+    idRef.current = null;
+    setBusy(false);
+    setForm((f) => ({ ...f, code: '', password: '' }));
     setMode(next);
     setNeeds('start');
     setQr(null);

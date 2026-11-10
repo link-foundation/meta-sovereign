@@ -46,4 +46,9 @@ the returned login ID for subsequent steps. Server shutdown cancels and awaits
 pending sign-ins. `MS_TELEGRAM_LOGIN_DEBUG=1` enables phase-only diagnostics;
 it is disabled by default.
 
+Changing the login mode, leaving the form or rescanning discovered credentials
+cancels its pending authorization. Late responses cannot replace the selected
+flow. Accepted code/password steps clear those inputs; successful sign-in clears
+the form and shows the confirmed account.
+
 See [implementation and validation evidence](case-studies/issue-56/telegram-login.md).

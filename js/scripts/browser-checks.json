@@ -16,6 +16,8 @@
   "instant-view",
   "account-data",
   "accounts",
+  "telegram-login",
+  "qr-login",
   "offline",
   "email",
   "greetings",

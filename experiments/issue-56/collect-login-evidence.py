@@ -18,6 +18,17 @@ files = [
     "ci-logs/telegram-login-cli-terminal-before.log",
     "ci-logs/telegram-login-cli-final.log",
     "ci-logs/telegram-login-cli-lint.log",
+    "ci-logs/telegram-login-complete.log",
+    "ci-logs/telegram-login-ui-before.log",
+    "ci-logs/telegram-login-ui-after.log",
+    "ci-logs/telegram-login-ui-owner.log",
+    "ci-logs/telegram-login-ui-lint.log",
+    "ci-logs/telegram-login-ui-build.log",
+    "ci-logs/telegram-login-qr-ui.log",
+    "ci-logs/telegram-login-mcp-final.json",
+    "ci-logs/checks-42727686505-deno-windows-job.log",
+    "ci-logs/checks-42727686505-webkit-job.log",
+    "experiments/issue-56/telegram-login-ui.mjs",
     "experiments/issue-56/collect-login-evidence.py",
 ]
 for relative in files:
@@ -41,6 +52,12 @@ sources = [
     "js/src/sources/telegram-user-session.js",
     "js/tests/telegram-login-cli.test.js",
     "js/tests/telegram-storage-loading.test.js",
+    "js/src/web/connections/telegram-login-owner.js",
+    "js/src/web/connections/telegram-sessions.js",
+    "js/src/web/connections/telegram-qr-login.js",
+    "js/tests/telegram-login-owner.test.js",
+    "js/tests/e2e-telegram-login-browser.mjs",
+    "js/tests/helpers/telegram-login-fakes.mjs",
 ]
 metadata = {
     "base": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
@@ -51,7 +68,7 @@ metadata = {
         name: hashlib.sha256((root / "node_modules/teleproto" / name).read_bytes()).hexdigest()
         for name in ["client/TelegramBaseClient.js", "client/methods/auth.js", "sessions/StringSession.js"]
     },
-    "checks": {"baseline": "five lifecycle failures; terminal Ctrl+C wrong outcome", "focused": "34 lifecycle and 15 CLI/route/SDK checks passed (route checks overlap)", "lint": "passed"},
+    "checks": {"baseline": "five lifecycle failures; terminal Ctrl+C wrong outcome; stale QR UI", "focused": "48 checks passed; production Chrome phone/finder and existing QR browser flows; independent MCP desktop/mobile", "lint": "passed"},
     "limits": "Fake clients only; no live Telegram authorization or full local runtime matrix.",
 }
 (destination / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")

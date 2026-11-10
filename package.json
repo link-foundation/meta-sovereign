@@ -421,7 +421,8 @@
     "test:e2e:lino-sync": "node js/tests/e2e-lino-sync.mjs",
     "test:e2e:questions": "node js/tests/e2e-questions-browser.mjs",
     "test:e2e:questions:webkit": "E2E_BROWSER=webkit node js/tests/e2e-questions-browser.mjs",
-    "test:e2e:chat-users": "node js/tests/e2e-chat-users-browser.mjs"
+    "test:e2e:chat-users": "node js/tests/e2e-chat-users-browser.mjs",
+    "test:e2e:telegram-login": "node js/tests/e2e-telegram-login-browser.mjs"
   },
   "keywords": [
     "personal-crm",

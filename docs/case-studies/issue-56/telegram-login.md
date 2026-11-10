@@ -52,7 +52,45 @@ and string-address sessions offline. All **15 CLI, route and SDK checks pass**,
 including retry, cancellation, invalid files and private-output assertions.
 See [terminal usage](../../TELEGRAM-LOGIN.md).
 
-TG06 remains **unfinished** pending complete migration/UI verification.
+The production browser regression also fails before the UI correction: start
+QR sign-in, switch to phone while the request is pending, then release the QR
+response. The page incorrectly shows a QR panel in phone mode. A shared login
+owner now invalidates prior mode/scan responses, cancels late controller IDs
+even after unmount, and retains cancellation ownership through 2FA. Finder
+rescans cancel pending inline sign-ins. Accepted steps clear entered codes and
+passwords; completion clears the credential form. Successful controllers are
+released before navigation so saved authorization is preserved.
+
+The complete focused group passes **48 checks**, concurrency one. Production
+Chrome verifies the failing-before race, mode/unmount cancellation, wrong/right
+code and password retries, actual extra-account persistence, read-only legacy
+finder import, rescan cleanup and inline 2FA. The existing QR renewal/success
+browser flow also passes. Both flows are now registered in the existing
+Chromium/WebKit CI matrix; other engines are left to CI. Independent MCP uses
+actual routes for primary login, legacy import and inline 2FA. Desktop/mobile
+screenshots show confirmed state, zero remaining private inputs and a 390-pixel
+document fitting its viewport. Direct Connections navigation has no application
+errors or failed API responses; the fixture favicon is missing. An earlier
+cached-chat navigation exposes additional unsupported optional-provider reads,
+recorded separately as open issue-wide capability work. All browsers, servers
+and temporary credentials are closed after verification.
+
+Before (late QR replaces the chosen phone flow):
+
+![Stale QR response](telegram-login-ui-before.png)
+
+After (phone flow and inputs remain available):
+
+![Chosen phone flow preserved](telegram-login-ui-after.png)
+
+Independent verification:
+
+![Primary login and legacy import](telegram-login-mcp-after.png)
+
+![Mobile legacy and inline login confirmations](telegram-login-mcp-mobile.png)
+
+TG06's CLI/API/UI login, persistence, legacy migration and bounded shutdown
+criteria are now implemented and covered by these isolated regressions.
 TG07–TG10 and the other issue-wide requirements remain open;
 [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and
 unmerged.
