@@ -269,7 +269,7 @@ const ProfileSourceInput = ({
             clear();
           },
         },
-        ['text', 'contacts-lino'].map((value) =>
+        ['text', 'resume-markdown', 'contacts-lino'].map((value) =>
           el(
             'option',
             { key: value, value },

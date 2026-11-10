@@ -2,6 +2,7 @@ export const enProfileImport = {
   'questions.importProfile': 'Import profile fields',
   'questions.importFormat': 'Contact text format',
   'questions.importFormat.text': 'Contact text',
+  'questions.importFormat.resume-markdown': 'Résumé Markdown',
   'questions.importFormat.contacts-lino': 'Legacy contacts.lino',
   'questions.importSkip.invalid-or-private': 'Invalid or private value',
   'questions.importSkip.unsupported-structure-or-unquoted-colon':
@@ -11,7 +12,7 @@ export const enProfileImport = {
   'questions.importSkip.invalid-field-name': 'Use a valid profile field name',
   'questions.importSkip.missing-value': 'No value under this field',
   'questions.importHint':
-    'Choose your stored CV and/or paste your own contact details. Select Legacy contacts.lino for an old key/value contact file. Review each field and select the values to add to this draft. Save this draft separately to retain them.',
+    'Choose your stored CV and/or paste your own contact details. Select Résumé Markdown for an exported CV, or Legacy contacts.lino for an old contact file. Review each field and select the values to add to this draft. Save this draft separately to retain them.',
   'questions.importLoadSources': 'Load saved CVs',
   'questions.importCv': 'Saved CV snapshot',
   'questions.importNoCv': 'Use contact text only',

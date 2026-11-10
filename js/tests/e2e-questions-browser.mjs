@@ -13,6 +13,7 @@ import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
 import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
+import { verifyResumeProfile } from './helpers/e2e-resume-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
 import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
 import {
@@ -510,7 +511,7 @@ const verifyPersistedRule = async (saved) => {
   );
 };
 
-await finish(async () => {
+const prepareQuestionPage = async () => {
   await page.addInitScript(
     ({ key, version }) =>
       globalThis.localStorage.setItem(
@@ -520,6 +521,21 @@ await finish(async () => {
     { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
   );
   await showPanel();
+};
+
+const verifyProfileControls = async (preview) => {
+  await verifyQuestionProfile({ page, panel, preview, store });
+  await verifyQuestionSharedProfile({ page, base, store });
+  await verifyQuestionLegacyProfile({ page, base, store });
+  await verifyResumeProfile({ page, base, panel, store });
+};
+
+await finish(async () => {
+  await prepareQuestionPage();
+  if (process.env.RESUME_PROFILE_ONLY === '1') {
+    await verifyResumeProfile({ page, base, panel, store });
+    return;
+  }
   const saved = await saveInitialRule();
   await verifyPersistedRule(saved);
   const preview = panel.locator('details').filter({
@@ -653,9 +669,7 @@ await finish(async () => {
   await verifyQuestionSummary({ page, panel, store, until });
   await verifyQuestionCorrections({ page, panel, store });
   await verifyQuestionConcurrency({ panel, store, until, reading });
-  await verifyQuestionProfile({ page, panel, preview, store });
-  await verifyQuestionSharedProfile({ page, base, store });
-  await verifyQuestionLegacyProfile({ page, base, store });
+  await verifyProfileControls(preview);
   verifySyncCapability();
   // The final provider fixture has its own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);

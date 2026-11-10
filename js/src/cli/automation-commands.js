@@ -48,7 +48,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
                 answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]
                 answers profiles import [id] --file=contacts.lino [--json] (read-only draft)
-                answers profile-sources | profile [--cv=<platform|cv:id>] [--text=<owner contacts>|--text-file=<path>] [--format=text|contacts-lino] [--profile=<lino>] [--json] (read-only draft)
+                answers profile-sources | profile [--cv=<platform|cv:id>] [--text=<owner contacts>|--text-file=<path>] [--format=text|resume-markdown|contacts-lino] [--profile=<lino>] [--json] (read-only draft)
                 follow: links | extract | clear [--source=<provider>] [--chat=<id>] [--self=<id,id>] [--limit=<n>] [--offset=<n>]
                 follow extract: scans cached incoming messages; --limit=0 scans the whole cached archive
                 follow chats: [--source=vk] [--telegram-only] [--limit=50] [--offset=0]

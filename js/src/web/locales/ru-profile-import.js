@@ -1,6 +1,7 @@
 export const ruProfileImport = {
   'questions.importFormat': 'Формат контактов',
   'questions.importFormat.text': 'Текст контактов',
+  'questions.importFormat.resume-markdown': 'Резюме в Markdown',
   'questions.importFormat.contacts-lino': 'Прежний contacts.lino',
   'questions.importSkip.invalid-or-private':
     'Недопустимое или приватное значение',
@@ -13,7 +14,7 @@ export const ruProfileImport = {
   'questions.importSkip.missing-value': 'Под полем нет значения',
   'questions.importProfile': 'Импорт полей профиля',
   'questions.importHint':
-    'Выберите сохранённое резюме и/или вставьте свои контакты. Для старого файла выберите формат contacts.lino. Проверьте каждое поле и выберите значения для черновика. Сохраните черновик отдельно.',
+    'Выберите сохранённое резюме и/или вставьте свои контакты. Для экспортированного резюме выберите Markdown, для старого файла контактов — contacts.lino. Проверьте каждое поле и выберите значения для черновика. Сохраните черновик отдельно.',
   'questions.importLoadSources': 'Загрузить сохранённые резюме',
   'questions.importCv': 'Снимок резюме',
   'questions.importNoCv': 'Только текст контактов',

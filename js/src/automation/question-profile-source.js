@@ -3,6 +3,13 @@ import { cvFromLino } from '../cv/model.js';
 import { normalizeAnswerProfile } from './question-profile.js';
 import { debugQuestionTurn } from './question-turns.js';
 import { fromLegacyContacts } from './question-profile-legacy.js';
+import { fromProfileText, profileLabelKey } from './question-profile-text.js';
+import {
+  publicProfileUrl as publicUrl,
+  profileUrlKey,
+  profileBirthDate,
+  collectProfileGithub,
+} from './question-profile-contact-values.js';
 
 const MAX_TEXT = 64000;
 const CV_ID = /^cv:[a-zA-Z0-9][a-zA-Z0-9_.-]{0,79}$/u;
@@ -10,47 +17,6 @@ const capturedAt = (link) =>
   typeof link.capturedAt === 'string' && link.capturedAt.length <= 80
     ? link.capturedAt
     : null;
-const labels = {
-  name: ['name', 'full name', 'имя', 'фио', 'नाम', '姓名'],
-  email: ['email', 'e-mail', 'почта', 'электронная почта', 'ईमेल', '邮箱'],
-  phone: ['phone', 'telephone', 'телефон', 'फ़ोन', 'फोन', '电话'],
-  telegram: ['telegram', 'телеграм', 'टेलीग्राम', '电报'],
-  linkedin: ['linkedin'],
-  location: [
-    'location',
-    'city',
-    'город',
-    'местоположение',
-    'शहर',
-    '所在地',
-    '城市',
-  ],
-  website: ['website', 'portfolio', 'сайт', 'портфолио', 'वेबसाइट', '网站'],
-  headline: ['headline', 'profession', 'профессия', 'पेशा', '职业'],
-  summary: ['summary', 'about', 'о себе', 'परिचय', '简介'],
-};
-const keyForLabel = (label) =>
-  Object.entries(labels).find(([, names]) =>
-    names.includes(label.toLowerCase().trim())
-  )?.[0];
-
-const publicUrl = (value) => {
-  try {
-    const url = new URL(value);
-    const pathname = decodeURIComponent(url.pathname);
-    return ['https:', 'http:'].includes(url.protocol) &&
-      !url.username &&
-      !url.password &&
-      !url.search &&
-      !url.hash &&
-      !/\/(?:private|invite|joinchat)(?:\/|$)|^\/\+/iu.test(pathname) &&
-      !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
-      ? url
-      : null;
-  } catch {
-    return null;
-  }
-};
 const validValue = (key, value) =>
   value.split('\n').every((line) => validSingleValue(key, line));
 const validSingleValue = (key, value) => {
@@ -77,7 +43,7 @@ const validSingleValue = (key, value) => {
       /^\d{7,15}$/u.test(value.replace(/\D/gu, ''))
     );
   }
-  return ['website', 'linkedin', 'telegram'].includes(key)
+  return ['website', 'linkedin', 'telegram', 'github', 'resume'].includes(key)
     ? validContactUrl(key, value)
     : true;
 };
@@ -86,9 +52,14 @@ const validContactUrl = (key, value) => {
   if (key === 'telegram' && /^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/u.test(value)) {
     return true;
   }
-  const url = publicUrl(value);
+  const url = publicUrl(
+    key === 'github' && !value.includes('://') ? `https://${value}` : value
+  );
   if (!url) {
     return false;
+  }
+  if (key === 'github') {
+    return profileUrlKey(url.href) === 'github';
   }
   if (key === 'linkedin') {
     return (
@@ -112,49 +83,32 @@ const collector = () => {
     if (raw === undefined || raw === null || raw === '') {
       return;
     }
-    const value = typeof raw === 'string' ? raw.trim() : '';
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    const value = key === 'birthDate' ? profileBirthDate(text) : text;
+    const sources = Array.isArray(evidence) ? evidence : [evidence];
     if (!value || value.length > 2000 || !validValue(key, value)) {
-      skipped.push({ key, evidence, reason: 'invalid-or-private' });
+      skipped.push(
+        ...sources.map((source) => ({
+          key,
+          evidence: source,
+          reason: 'invalid-or-private',
+        }))
+      );
       return;
     }
     const candidates = values.get(key) ?? [];
     const existing = candidates.find((entry) => entry.value === value);
     if (existing) {
-      existing.evidence.push(evidence);
+      existing.evidence.push(...sources);
     } else {
       if (candidates.length >= 20) {
         throw new Error('profile source has more than 20 variants per field');
       }
-      candidates.push({ value, evidence: [evidence] });
+      candidates.push({ value, evidence: sources });
     }
     values.set(key, candidates);
   };
   return { values, skipped, add };
-};
-
-const fromText = (text, add) => {
-  for (const [index, line] of text.split(/\r?\n/u).entries()) {
-    const labeled = line.match(/^\s*([^:：=]{1,50})\s*[:：=]\s*(.+)$/u);
-    const evidence = { source: 'text', path: `line:${index + 1}` };
-    const key = labeled && keyForLabel(labeled[1]);
-    if (key) {
-      add(key, labeled[2], evidence);
-      continue;
-    }
-    for (const token of line.split(/[\s<>;,]+/u)) {
-      const value = token.replace(/[),.;]+$/u, '');
-      if (/^[^@]+@[^@]+\.[^@]+$/u.test(value)) {
-        add('email', value, evidence);
-      }
-      const host = publicUrl(value)?.hostname ?? '';
-      if (/^(?:www\.)?linkedin\.com$/iu.test(host)) {
-        add('linkedin', value, evidence);
-      }
-      if (/^(?:www\.)?(?:t\.me|telegram\.me)$/iu.test(host)) {
-        add('telegram', value, evidence);
-      }
-    }
-  }
 };
 
 const fromCv = (link, add) => {
@@ -178,8 +132,12 @@ const fromCv = (link, add) => {
     'phone',
     'location',
     'website',
+    'birthDate',
   ]) {
     add(key, cv.basics?.[key], evidence(`basics.${key}`));
+  }
+  if (profileUrlKey(link.url) === 'resume') {
+    add('resume', link.url, evidence('url'));
   }
   cvSkills(cv, add, evidence);
   cvLinks(cv, add, evidence);
@@ -212,8 +170,10 @@ const sourceInput = (input) => {
   const text = input.text ?? '';
   const cvId = input.cvId ?? '';
   const format = input.format ?? 'text';
-  if (!['text', 'contacts-lino'].includes(format)) {
-    throw new Error('profile source format must be text or contacts-lino');
+  if (!['text', 'contacts-lino', 'resume-markdown'].includes(format)) {
+    throw new Error(
+      'profile source format must be text, contacts-lino or resume-markdown'
+    );
   }
   if (typeof text !== 'string' || text.length > MAX_TEXT) {
     throw new Error(
@@ -243,7 +203,7 @@ export const extractAnswerProfile = async (store, input = {}) => {
   if (format === 'contacts-lino') {
     fromLegacyContacts(text, add, skipped);
   } else {
-    fromText(text, add);
+    fromProfileText(text, add, format);
   }
   const fields = [...values].map(([key, candidates]) => {
     const current = profile[key];
@@ -279,19 +239,22 @@ const cvSkills = (cv, add, evidence) => {
   }
 };
 
+const cvLinkKey = (entry) => {
+  const label = profileLabelKey(entry?.label);
+  return ['github', 'linkedin', 'telegram', 'resume'].includes(label)
+    ? label
+    : (profileUrlKey(entry?.url) ?? 'website');
+};
+
 const cvLinks = (cv, add, evidence) => {
   if (cv.links !== undefined) {
     if (!Array.isArray(cv.links) || cv.links.length > 100) {
       throw new Error('CV links must contain at most 100 entries');
     }
+    const github = collectProfileGithub(add);
     for (const [index, entry] of cv.links.entries()) {
-      const host = publicUrl(entry?.url)?.hostname ?? '';
-      const key = /^(?:www\.)?linkedin\.com$/iu.test(host)
-        ? 'linkedin'
-        : /^(?:www\.)?(?:t\.me|telegram\.me)$/iu.test(host)
-          ? 'telegram'
-          : 'website';
-      add(key, entry?.url, evidence(`links.${index}.url`));
+      github.add(cvLinkKey(entry), entry?.url, evidence(`links.${index}.url`));
     }
+    github.finish();
   }
 };

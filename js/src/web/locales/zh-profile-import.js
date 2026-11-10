@@ -1,6 +1,7 @@
 export const zhProfileImport = {
   'questions.importFormat': '联系人文本格式',
   'questions.importFormat.text': '联系人文本',
+  'questions.importFormat.resume-markdown': 'Markdown 简历',
   'questions.importFormat.contacts-lino': '旧版 contacts.lino',
   'questions.importSkip.invalid-or-private': '无效或私密值',
   'questions.importSkip.unsupported-structure-or-unquoted-colon':
@@ -10,7 +11,7 @@ export const zhProfileImport = {
   'questions.importSkip.missing-value': '此字段下没有值',
   'questions.importProfile': '导入资料字段',
   'questions.importHint':
-    '选择已保存的简历和／或粘贴您自己的联系方式。旧文件请选择 contacts.lino 格式。检查每个字段，选择要加入草稿的值，再单独保存草稿。',
+    '选择已保存的简历和／或粘贴您自己的联系方式。导出的简历请选择 Markdown，旧联系方式文件请选择 contacts.lino。检查每个字段，选择要加入草稿的值，再单独保存草稿。',
   'questions.importLoadSources': '加载已保存简历',
   'questions.importCv': '已保存的简历快照',
   'questions.importNoCv': '仅使用联系方式文本',

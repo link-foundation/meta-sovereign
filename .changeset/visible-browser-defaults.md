@@ -195,3 +195,5 @@ Add optional revisioned Claude Code draft configuration and per-plan opt-in acro
 Convert bounded model drafts to plain text before question/form proposals and writes. Preserve literal code, URLs, exact offered choices and owner content, and recheck rejection policy after conversion.
 
 Bind reviewed form snapshots, automatic capture and learning to stable document tokens instead of drifting browser clocks; retain real navigation and control-replacement refusals.
+
+Import reviewed contact headers from exported résumé Markdown and retain canonical CV birth dates, public résumé URLs and GitHub lists. Share source evidence, current-value conflicts, explicit field selection and separate saving across CLI, text/binary Lino, offline and localized profile editors.

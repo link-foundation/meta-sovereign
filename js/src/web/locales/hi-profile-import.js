@@ -1,6 +1,7 @@
 export const hiProfileImport = {
   'questions.importFormat': 'संपर्क पाठ का प्रारूप',
   'questions.importFormat.text': 'संपर्क पाठ',
+  'questions.importFormat.resume-markdown': 'Markdown में CV',
   'questions.importFormat.contacts-lino': 'पुराना contacts.lino',
   'questions.importSkip.invalid-or-private': 'अमान्य या निजी मान',
   'questions.importSkip.unsupported-structure-or-unquoted-colon':
@@ -11,7 +12,7 @@ export const hiProfileImport = {
   'questions.importSkip.missing-value': 'इस फ़ील्ड के नीचे कोई मान नहीं है',
   'questions.importProfile': 'प्रोफ़ाइल फ़ील्ड आयात करें',
   'questions.importHint':
-    'अपना सहेजा हुआ CV चुनें और/या अपने संपर्क विवरण पेस्ट करें। पुरानी फ़ाइल के लिए contacts.lino प्रारूप चुनें। हर फ़ील्ड की समीक्षा करें और मसौदे के लिए मान चुनें। मसौदा अलग से सहेजें।',
+    'अपना सहेजा हुआ CV चुनें और/या अपने संपर्क विवरण पेस्ट करें। निर्यात किए CV के लिए Markdown और पुरानी संपर्क फ़ाइल के लिए contacts.lino चुनें। हर फ़ील्ड की समीक्षा करें और मसौदे के लिए मान चुनें। मसौदा अलग से सहेजें।',
   'questions.importLoadSources': 'सहेजे हुए CV लोड करें',
   'questions.importCv': 'सहेजा हुआ CV स्नैपशॉट',
   'questions.importNoCv': 'केवल संपर्क पाठ',
