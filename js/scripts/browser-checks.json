@@ -65,6 +65,7 @@
   "history-library",
   "export",
   "chat-users",
+  "telegram-group-greetings",
   "sticker-collections",
   "browser-preferences",
   "lino-events",

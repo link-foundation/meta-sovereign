@@ -511,6 +511,18 @@ export const TELEGRAM_CALLS = {
     ...readBody('chat-users-status'),
     capability: 'chatUsersStart',
   },
+  telegramChatUsersGreetingsStart: {
+    ...body('chat-users-greetings-start'),
+    capability: 'chatUsersGreetingsStart',
+  },
+  telegramChatUsersGreetingsPreview: {
+    ...readBody('chat-users-greetings-preview'),
+    capability: 'chatUsersGreetingsStart',
+  },
+  telegramChatUsersGreetingsApply: {
+    ...body('chat-users-greetings-apply'),
+    capability: 'chatUsersGreetingsStart',
+  },
   telegramChatUsersCancel: {
     ...none('chat-users-cancel'),
     capability: 'chatUsersStart',

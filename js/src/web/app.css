@@ -13927,7 +13927,8 @@ main[data-view='operator']:has(> .operator-workspace) {
   width: 100%;
   min-width: 0;
 }
-[data-greeting-send-preview] {
+[data-greeting-send-preview],
+[data-telegram-group-greetings] {
   overflow-wrap: anywhere;
 }
 .telegram-greeting-items {

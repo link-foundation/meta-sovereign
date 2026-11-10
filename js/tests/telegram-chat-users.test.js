@@ -387,7 +387,7 @@ test('cancel waits for an active contact receipt and never starts the next user'
   assert.equal(stopped, false);
   assert.equal(
     (await fixture.account.chatUsersStart({ chat: '-44' })).code,
-    'busy'
+    'stopped'
   );
   release();
   await stopping;
@@ -454,7 +454,7 @@ test('API routes validate before provider calls and advertise only implemented u
 
 test('CLI validates before opening storage, defaults to preview and closes after the job', async () => {
   assert.equal(usersCommandRequest({ chat: '-44', apply: 'yes' }), null);
-  const fixture = usersFixture();
+  let fixture = usersFixture();
   const order = [];
   const reports = [];
   const commands = createTelegramUsersCommands({
@@ -480,6 +480,8 @@ test('CLI validates before opening storage, defaults to preview and closes after
   assert.equal(sends(fixture).length, 0);
   assert.deepEqual(order, ['account-stop', 'store-close']);
   reports.length = 0;
+  // A real second CLI invocation constructs a fresh account after shutdown.
+  fixture = usersFixture();
   assert.equal(
     await commands['telegram-chat-contacts'](
       { chat: '-44', apply: 'true', limit: '1' },

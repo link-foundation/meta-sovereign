@@ -1,6 +1,10 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import {
+  createTelegramGroupGreetingCommands,
+  TELEGRAM_GROUP_GREETING_HELP,
+} from './telegram-group-greeting-commands.js';
+import {
   TELEGRAM_GREETING_SEND_HELP,
   createTelegramGreetingSendCommands,
 } from './telegram-greeting-send-commands.js';
@@ -12,7 +16,8 @@ import {
 export const TELEGRAM_GREETINGS_HELP = `  telegram-greeting-stickers [--refresh=true] [--max-sets=1000] [--max-documents=10000]
                 [--greetings-only=false] [--offset=0] [--limit=100] [--store=<dir>]
                 Reads the connected user's cache. Refresh discovers featured, mask, recent and favourite stickers; it sends nothing.
-${TELEGRAM_GREETING_SEND_HELP}`;
+${TELEGRAM_GREETING_SEND_HELP}
+${TELEGRAM_GROUP_GREETING_HELP}`;
 const bool = (value) =>
   [undefined, true, false, 'true', 'false'].includes(value);
 const on = (value) => value === true || value === 'true';
@@ -53,6 +58,7 @@ export const createTelegramGreetingCommands = ({
   sleep = (ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms)),
 } = {}) => ({
   ...createTelegramGreetingSendCommands({ openStore, createAccount }),
+  ...createTelegramGroupGreetingCommands({ openStore, createAccount, sleep }),
   'telegram-greeting-stickers': async (args, log) => {
     const request = greetingCatalogRequest(args);
     if (!request) {

@@ -1,4 +1,50 @@
 export const hiTelegramGreetings = {
+  'telegram.group.title': 'समूह के सदस्यों को निजी अभिवादन भेजें',
+  'telegram.group.note':
+    'पहले स्कैन और समीक्षा करें। आप, बॉट, हटाए गए, नकली, ठग, सत्यापित और दिखाई देने वाली व्यावसायिक जानकारी वाले खाते बाहर रहते हैं। व्यावसायिक जाँच उपलब्ध न हो तो सदस्य बाहर रहता है। हर व्यक्ति को 24 घंटे में एक पुष्ट अभिवादन; अनिश्चित परिणाम पर अगली कोशिश रुकती है।',
+  'telegram.group.target': 'समूह का सटीक उपयोगकर्ता नाम, ID या Telegram लिंक',
+  'telegram.group.participantsLimit': 'सदस्य स्कैन सीमा (0: सभी उपलब्ध)',
+  'telegram.group.limit': 'अभिवादन सीमा (0: सभी पात्र)',
+  'telegram.group.delayMs': 'प्राप्तकर्ताओं के बीच विराम (मिलीसेकंड)',
+  'telegram.group.scan': 'समूह के सदस्य स्कैन करें',
+  'telegram.group.preview': 'निजी अभिवादन का पूर्वावलोकन',
+  'telegram.group.apply': '{count} निजी अभिवादन भेजें',
+  'telegram.group.planDelay':
+    'प्राप्तकर्ताओं के बीच {seconds} सेकंड का विराम। पहली विफल या अनिश्चित भेजाई पर रुकता है।',
+  'telegram.group.sample':
+    'समीक्षित सूची के पहले 100 प्राप्तकर्ता दिखाए गए हैं।',
+  'telegram.group.processed': '{total} में से {count} प्राप्तकर्ता संसाधित',
+  'telegram.group.checkingBusiness':
+    'दिखाई देने वाली व्यावसायिक जानकारी जाँची जा रही है…',
+  'telegram.group.nextAt': 'अगला प्राप्तकर्ता {at} के बाद',
+  'telegram.group.stopped': 'बैच रुक गया। नए स्कैन से पहले परिणाम देखें।',
+  'telegram.group.uncertain':
+    'सर्वर का उत्तर खो गया। दोबारा कोशिश से पहले कार्य ताज़ा करें और Telegram व आउटबॉक्स जाँचें। अनुरोध अपने आप दोहराया नहीं जाएगा।',
+  'telegram.group.unavailable':
+    'कार्य पूरा नहीं हुआ। कनेक्शन और कार्य के परिणाम जाँचें।',
+  'telegram.group.result.sent': 'Telegram ने पुष्टि की',
+  'telegram.group.result.failed': 'नहीं भेजा गया',
+  'telegram.group.result.unknown': 'परिणाम अनिश्चित',
+  'telegram.group.result.skipped': 'छोड़ा गया',
+  'telegram.group.reason.verified': 'सत्यापित खाता',
+  'telegram.group.reason.business': 'व्यावसायिक खाता',
+  'telegram.group.reason.business-unavailable': 'व्यावसायिक जानकारी अनुपलब्ध',
+  'telegram.group.reason.not-participant': 'स्कैन किए सदस्यों में नहीं',
+  'telegram.group.reason.group-required':
+    'उपयोगकर्ता या प्रसारण चैनल के बजाय उपलब्ध समूह या सुपरग्रुप चुनें।',
+  'telegram.group.reason.group-scan-required':
+    'पहले इस समूह के सदस्यों का स्कैन पूरा करें।',
+  'telegram.group.reason.preview-expired':
+    'पूर्वावलोकन समाप्त या स्कैन बदल गया। नया चयन जाँचें।',
+  'telegram.group.reason.account-changed':
+    'जुड़ा खाता बदल गया। दोबारा स्कैन और समीक्षा करें।',
+  'telegram.group.reason.target-changed':
+    'समूह या प्राप्तकर्ता बदल गया। दोबारा स्कैन और समीक्षा करें।',
+  'telegram.group.reason.recipient-ineligible':
+    'प्राप्तकर्ता अब पात्र नहीं है।',
+  'telegram.group.reason.already-greeted':
+    'पिछले 24 घंटों में अभिवादन भेजा गया',
+  'telegram.group.reason.previous-outcome-unknown': 'पिछला परिणाम अनसुलझा है',
   'telegram.greeting.title': 'एक Telegram अभिवादन भेजें',
   'telegram.greeting.note':
     'भेजने से पहले सही खाते, लक्ष्य और संदेश का पूर्वावलोकन करें। हर चैट में पिछले 24 घंटों में केवल एक अभिवादन स्टिकर भेजा जाता है।',

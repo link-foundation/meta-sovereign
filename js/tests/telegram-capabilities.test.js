@@ -35,6 +35,7 @@ test(
       quickReactionSet: false,
       urlAuthDomains: false,
       chatUsersStart: false,
+      chatUsersGreetingsStart: false,
       greetingStickersRefresh: false,
       greetingSendPreview: false,
     });

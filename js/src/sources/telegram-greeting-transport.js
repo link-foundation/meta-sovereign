@@ -25,6 +25,7 @@ const verifiedPeer = async (env, context, c, plan, stopped) => {
   if (target.chat !== plan.target.chat || target.kind !== plan.target.kind) {
     throw greetingFailure('target-changed');
   }
+  await context.checkGreetingTarget?.(c, entity, plan);
   const peer = await c.client.getInputEntity(entity);
   if (!greetingInputMatches(peer, target)) {
     throw greetingFailure('target-changed');
@@ -51,6 +52,9 @@ const checkedPeer = async (...args) => {
       'target-unavailable',
       'stopped',
       'cancelled',
+      'group-required',
+      'recipient-ineligible',
+      'business-unavailable',
     ];
     throw greetingFailure(
       known.includes(error.code) ? error.code : 'read-failed'
@@ -119,6 +123,9 @@ export const sendGreeting = async (env, context, plan, draft, stopped) => {
         'target-unavailable',
         'unknown-sticker',
         'read-failed',
+        'group-required',
+        'recipient-ineligible',
+        'business-unavailable',
       ]);
       if (!definite.has(error.code)) {
         error.ambiguous = true;

@@ -1,5 +1,7 @@
 import { runIn } from './telegram-stickers.js';
 import { userKey, userProfile } from './telegram-chat-users-shape.js';
+import { greetingGroup } from './telegram-group-greeting-shape.js';
+import { greetingFailure, greetingTarget } from './telegram-greeting-target.js';
 
 // All reads use the existing account queue. A capped, interrupted or forbidden
 // source is explicitly described as partial, never as complete membership.
@@ -63,10 +65,20 @@ const resolve = async (r, value) => {
   return null;
 };
 
+const validateGroup = (entity, job) => {
+  if (
+    job.options.greetingGroup &&
+    (!greetingGroup(entity) ||
+      greetingTarget(entity, 'greeting-sticker').chat !== job.chat)
+  ) {
+    throw greetingFailure('group-required');
+  }
+};
 export const scanChatUsers = async (r) => {
   const entity = await runIn(r.env, `chat-users:${r.job.id}:peer`, () =>
     r.c.client.getEntity(r.c.helpers.returnBigInt(r.job.chat))
   );
+  validateGroup(entity, r.job);
   r.job.title = String(entity.title ?? entity.username ?? r.job.chat);
   const me = await runIn(r.env, `chat-users:${r.job.id}:me`, () =>
     r.c.client.getMe()

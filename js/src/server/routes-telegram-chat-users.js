@@ -5,6 +5,7 @@ import {
 } from '../sources/telegram-chat-users-shape.js';
 import { exportTarget } from '../sources/telegram-export-target.js';
 import { greetingSendRequest } from '../sources/telegram-greeting-target.js';
+import { groupGreetingOptions } from '../sources/telegram-group-greeting-shape.js';
 import {
   stickerRefreshOptions,
   stickerPageOptions,
@@ -27,6 +28,20 @@ const route =
     return [200, await account[method](body)];
   };
 export const CHAT_USERS_POSTS = {
+  'chat-users-greetings-start': route('chatUsersGreetingsStart', (body) =>
+    Boolean(
+      exportTarget(body.chat) && scanOptions({ ...body, messagesLimit: 0 })
+    )
+  ),
+  'chat-users-greetings-preview': route(
+    'chatUsersGreetingsPreview',
+    (body) =>
+      typeof body.jobId === 'string' && Boolean(groupGreetingOptions(body))
+  ),
+  'chat-users-greetings-apply': route(
+    'chatUsersGreetingsApply',
+    (body) => body.confirm === true && typeof body.planId === 'string'
+  ),
   'greeting-send-preview': route('greetingSendPreview', (body) =>
     Boolean(greetingSendRequest(body))
   ),

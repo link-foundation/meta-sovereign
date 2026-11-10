@@ -4,6 +4,7 @@ import { Busy } from './spinner.js';
 import { activeAccount } from './telegram-account-scope.js';
 import { TelegramGreetingCatalog } from './telegram-greeting-catalog.js';
 import { createGreetingSendModel } from './telegram-greeting-send-model.js';
+import { TelegramGroupGreetings } from './telegram-group-greetings.js';
 
 const el = React.createElement;
 const button = (name, label, use, disabled = false) =>
@@ -199,6 +200,7 @@ const GreetingTools = ({ api }) => {
         )
       : null,
     button('reload', t('telegram.greeting.reload'), model.load, busy),
+    el(TelegramGroupGreetings, { key: 'group', api, sticker: draft.sticker }),
     el(TelegramGreetingCatalog, {
       key: 'catalog',
       api,

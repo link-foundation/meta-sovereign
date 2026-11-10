@@ -1,4 +1,43 @@
 export const zhTelegramGreetings = {
+  'telegram.group.title': '私信问候群组成员',
+  'telegram.group.note':
+    '先扫描并审核。排除自己、机器人、已删除、假冒、诈骗、已认证及具有可见商业资料的账户。无法检查商业资料的账户也会排除。每人 24 小时内最多一次已确认问候；不确定结果会阻止再次尝试。',
+  'telegram.group.target': '准确的群组用户名、ID 或 Telegram 链接',
+  'telegram.group.participantsLimit': '成员扫描上限（0：全部可用成员）',
+  'telegram.group.limit': '问候上限（0：全部符合条件者）',
+  'telegram.group.delayMs': '收件人之间的间隔（毫秒）',
+  'telegram.group.scan': '扫描群组成员',
+  'telegram.group.preview': '预览私信问候',
+  'telegram.group.apply': '发送 {count} 条私信问候',
+  'telegram.group.planDelay':
+    '收件人间隔：{seconds} 秒。首次失败或结果不确定时停止。',
+  'telegram.group.sample': '显示审核列表中的前 100 位收件人。',
+  'telegram.group.processed': '已处理 {count} / {total} 位收件人',
+  'telegram.group.checkingBusiness': '正在检查可见商业资料…',
+  'telegram.group.nextAt': '下一位收件人：{at} 之后',
+  'telegram.group.stopped': '批次已停止。重新扫描前请查看结果。',
+  'telegram.group.uncertain':
+    '服务器响应丢失。再次尝试前请刷新任务并检查 Telegram 和发件箱。此请求不会自动重放。',
+  'telegram.group.unavailable': '操作未完成。请检查连接及任务结果。',
+  'telegram.group.result.sent': 'Telegram 已确认',
+  'telegram.group.result.failed': '未发送',
+  'telegram.group.result.unknown': '结果不确定',
+  'telegram.group.result.skipped': '已跳过',
+  'telegram.group.reason.verified': '已认证账户',
+  'telegram.group.reason.business': '商业账户',
+  'telegram.group.reason.business-unavailable': '商业资料不可用',
+  'telegram.group.reason.not-participant': '不在已扫描成员中',
+  'telegram.group.reason.group-required':
+    '请选择可访问的群组或超级群组，而非用户或广播频道。',
+  'telegram.group.reason.group-scan-required': '请先完成该群组的成员扫描。',
+  'telegram.group.reason.preview-expired':
+    '预览已过期或扫描已更改。请重新审核。',
+  'telegram.group.reason.account-changed': '连接账户已更改。请重新扫描和审核。',
+  'telegram.group.reason.target-changed':
+    '群组或收件人已更改。请重新扫描和审核。',
+  'telegram.group.reason.recipient-ineligible': '该收件人已不符合条件。',
+  'telegram.group.reason.already-greeted': '过去 24 小时内已问候',
+  'telegram.group.reason.previous-outcome-unknown': '上次结果尚未解决',
   'telegram.greeting.title': '发送一条 Telegram 问候',
   'telegram.greeting.note':
     '发送前预览确切的账号、目标和消息。每个聊天在滚动的 24 小时内仅发送一次问候贴纸。',

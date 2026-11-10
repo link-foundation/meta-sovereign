@@ -11,10 +11,10 @@ import {
   createUsersRuntime,
   usersJob,
   usersJobSnapshot,
-  usersErrorCode,
   scanCoverage,
 } from './telegram-chat-users-runtime.js';
 import { createUsersPlans } from './telegram-chat-users-plans.js';
+import { createGroupGreetings } from './telegram-group-greetings.js';
 
 const BAD = { ok: false, code: 'bad-request' };
 const listPage = (values, offset, limit) => {
@@ -67,7 +67,11 @@ const usersStatus =
       };
     }
     const all = await env.store.query(
-      (link) => link.kind === 'telegram-contact-result' && link.jobId === job.id
+      (link) =>
+        link.kind ===
+          (job.kind === 'greetings'
+            ? 'telegram-greeting-result'
+            : 'telegram-contact-result') && link.jobId === job.id
     );
     return {
       ok: true,
@@ -86,18 +90,16 @@ const scanStart =
     if (!chat || !options) {
       return BAD;
     }
-    if (runtime.busy()) {
-      return { ok: false, code: 'busy' };
-    }
-    runtime.state.starting = true;
-    try {
+    return runtime.start(async (ensure) => {
       const c = await connect(env, userClient);
+      ensure();
       if (!c) {
         return { ok: false, supported: false, code: 'user-account-required' };
       }
       const resolved = await runIn(env, `chat-users:resolve:${chat}`, () =>
         resolveExportTarget(c.client, { chat })
       );
+      ensure();
       runtime.state.collection = createUserCollection();
       plans.clear();
       runtime.state.job = usersJob(now, 'scan', resolved.chat, options, {
@@ -106,17 +108,10 @@ const scanStart =
         coverage: scanCoverage(options),
       });
       await runtime.publish();
+      ensure();
       runtime.run(c, scanChatUsers);
       return { ok: true, job: usersJobSnapshot(runtime.state.job) };
-    } catch (error) {
-      if (runtime.state.job?.state === 'running') {
-        runtime.state.job.state = 'failed';
-        runtime.state.job.code = usersErrorCode(error);
-      }
-      return { ok: false, code: usersErrorCode(error) };
-    } finally {
-      runtime.state.starting = false;
-    }
+    });
   };
 const contactsApply =
   (env, userClient, runtime, plans, now) =>
@@ -124,16 +119,13 @@ const contactsApply =
     if (body.confirm !== true || typeof body.planId !== 'string') {
       return BAD;
     }
-    if (runtime.busy()) {
-      return { ok: false, code: 'busy' };
-    }
-    const plan = plans.consume(body.planId);
-    if (!plan) {
-      return { ok: false, code: 'preview-expired' };
-    }
-    runtime.state.starting = true;
-    try {
+    return runtime.start(async (ensure) => {
+      const plan = plans.consume(body.planId);
+      if (!plan) {
+        return { ok: false, code: 'preview-expired' };
+      }
       const c = await connect(env, userClient);
+      ensure();
       if (!c) {
         return { ok: false, code: 'user-account-required' };
       }
@@ -144,26 +136,21 @@ const contactsApply =
         coverage: {},
       });
       await runtime.publish();
+      ensure();
       runtime.run(c, addChatContacts, { plan });
       return { ok: true, job: usersJobSnapshot(runtime.state.job) };
-    } catch (error) {
-      if (runtime.state.job?.state === 'running') {
-        runtime.state.job.state = 'failed';
-        runtime.state.job.code = usersErrorCode(error);
-      }
-      return { ok: false, code: usersErrorCode(error) };
-    } finally {
-      runtime.state.starting = false;
-    }
+    });
   };
 export const createChatUsers = (
   env,
-  { userClient },
+  context,
   { now = () => Date.now() } = {}
 ) => {
   const runtime = createUsersRuntime(env, now);
   const plans = createUsersPlans(runtime, now);
+  const { userClient } = context;
   return {
+    ...createGroupGreetings(env, context, runtime, plans, now),
     chatUsersStart: scanStart(env, userClient, runtime, plans, now),
     chatUsersCancel: runtime.cancel,
     chatUsersContactsPreview: plans.preview,

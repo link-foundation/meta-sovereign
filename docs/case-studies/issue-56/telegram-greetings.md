@@ -3,7 +3,8 @@
 Work remains in progress in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Bot startup and chosen-target greeting delivery now share reviewed account plans
 through the CLI, default Lino routes and common React controls (TG07/TG08).
-Participant planning and paced group delivery (TG09/TG10) remain unfinished.
+Participant planning and paced group delivery (TG09/TG10) are verified in the
+follow-up [group greeting evidence](telegram-group-greetings.md).
 
 The secret-free logs, installed-SDK probe and source hashes are preserved in
 [the evidence archive](data/telegram-greetings.tar.gz), with verified per-file
@@ -80,7 +81,8 @@ Focused catalog verification adds 19 passing checks across
 and `telegram-greeting-stickers-api.test.js`. The API test uses the production
 server, both Lino encodings and origin checks with SDK fakes. No live Telegram
 requests or full local runtime/browser matrix is used. The subsequent send slice
-below completes chosen-target delivery and bot startup; group criteria remain open.
+below completes chosen-target delivery and bot startup; the linked group follow-up
+completes participant planning and paced private sends.
 
 The combined catalog and existing capability/account-action checks pass all
 40 cases with concurrency one and a ten-second per-test timeout. Strict lint
@@ -93,7 +95,7 @@ filtering, pages and per-source coverage. Opening the panel reads the cache;
 it does not start discovery or send anything. Running refreshes can be stopped.
 Cancelled, failed and incomplete reads remain distinct, with the previous cache
 available. The component exposes greeting-only selection callbacks, now used by
-the reviewed single-target sender below. The group planner remains unfinished.
+the reviewed single-target sender below and the linked group planner.
 Account changes remount the component. Unsupported accounts lose the
 cached presentation and refresh controls, while a connection check can recover.
 Late unmounted reads cannot replace a newer presentation or release its busy lock.
@@ -217,4 +219,5 @@ Mobile bot preview retains the exact account and destination:
 ![Mobile bot preview](screenshots/telegram-greeting-send-mobile-preview.png)
 
 TG09 participant eligibility and TG10 group limits, pacing and acknowledged
-progress remain open. The complete runtime/browser matrix remains CI work.
+progress are verified in [the group follow-up](telegram-group-greetings.md).
+The complete runtime/browser matrix remains CI work.

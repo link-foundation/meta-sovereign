@@ -1,4 +1,52 @@
 export const ruTelegramGreetings = {
+  'telegram.group.title': 'Лично приветствовать участников группы',
+  'telegram.group.note':
+    'Сначала соберите и проверьте список. Исключаются вы, боты, удалённые, поддельные, мошеннические, проверенные аккаунты и аккаунты с видимыми бизнес-данными. Непроверенные бизнес-профили исключаются. Подтверждённое приветствие — не чаще раза в 24 часа; неопределённый исход блокирует повтор.',
+  'telegram.group.target': 'Точное имя, ID или ссылка группы Telegram',
+  'telegram.group.participantsLimit':
+    'Лимит сбора участников (0: все доступные)',
+  'telegram.group.limit': 'Лимит приветствий (0: все подходящие)',
+  'telegram.group.delayMs': 'Пауза между получателями (миллисекунды)',
+  'telegram.group.scan': 'Собрать участников группы',
+  'telegram.group.preview': 'Проверить личные приветствия',
+  'telegram.group.apply': 'Отправить {count} личных приветствий',
+  'telegram.group.planDelay':
+    'Пауза между получателями: {seconds} с. Остановка при первой неудачной или неопределённой отправке.',
+  'telegram.group.sample':
+    'Показаны первые 100 получателей из проверенного списка.',
+  'telegram.group.processed': 'Обработано {count} из {total} получателей',
+  'telegram.group.checkingBusiness': 'Проверка видимых бизнес-профилей…',
+  'telegram.group.nextAt': 'Следующий получатель после {at}',
+  'telegram.group.stopped':
+    'Рассылка остановлена. Проверьте результаты перед новым сбором.',
+  'telegram.group.uncertain':
+    'Ответ сервера потерян. Обновите задание и проверьте Telegram и исходящие перед новой попыткой. Запрос не будет повторён автоматически.',
+  'telegram.group.unavailable':
+    'Операция не завершена. Проверьте соединение и результаты задания.',
+  'telegram.group.result.sent': 'Подтверждено Telegram',
+  'telegram.group.result.failed': 'Не отправлено',
+  'telegram.group.result.unknown': 'Исход неопределён',
+  'telegram.group.result.skipped': 'Пропущено',
+  'telegram.group.reason.verified': 'Проверенный аккаунт',
+  'telegram.group.reason.business': 'Бизнес-аккаунт',
+  'telegram.group.reason.business-unavailable': 'Бизнес-профиль недоступен',
+  'telegram.group.reason.not-participant': 'Нет в собранном списке участников',
+  'telegram.group.reason.group-required':
+    'Выберите доступную группу или супергруппу вместо пользователя или вещательного канала.',
+  'telegram.group.reason.group-scan-required':
+    'Сначала завершите сбор участников этой группы.',
+  'telegram.group.reason.preview-expired':
+    'Срок проверки истёк или список изменился. Проверьте новый выбор.',
+  'telegram.group.reason.account-changed':
+    'Аккаунт изменился. Повторите сбор и проверку.',
+  'telegram.group.reason.target-changed':
+    'Группа или получатель изменились. Повторите сбор и проверку.',
+  'telegram.group.reason.recipient-ineligible':
+    'Получатель больше не подходит.',
+  'telegram.group.reason.already-greeted':
+    'Уже приветствовали за последние 24 часа',
+  'telegram.group.reason.previous-outcome-unknown':
+    'Предыдущий исход не выяснен',
   'telegram.greeting.title': 'Отправить одно приветствие в Telegram',
   'telegram.greeting.note':
     'Проверьте аккаунт, адресата и сообщение перед отправкой. Стикеры-приветствия ограничены одним за последние 24 часа в каждом чате.',

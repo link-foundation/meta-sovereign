@@ -1,4 +1,50 @@
 export const enTelegramGreetings = {
+  'telegram.group.title': 'Greet group participants privately',
+  'telegram.group.note':
+    'Scan and review first. Excludes yourself, bots, deleted, fake, scam, verified and visible business accounts. Unavailable business checks stay excluded. Acknowledged greetings are limited to one per person in 24 hours; uncertain outcomes block another attempt.',
+  'telegram.group.target': 'Exact group username, ID or Telegram link',
+  'telegram.group.participantsLimit':
+    'Participant scan limit (0: all available)',
+  'telegram.group.limit': 'Greeting limit (0: all eligible)',
+  'telegram.group.delayMs': 'Pause between recipients (milliseconds)',
+  'telegram.group.scan': 'Scan group participants',
+  'telegram.group.preview': 'Preview private greetings',
+  'telegram.group.apply': 'Send {count} private greetings',
+  'telegram.group.planDelay':
+    'Pause: {seconds} seconds between recipients. Stops on the first failed or uncertain send.',
+  'telegram.group.sample': 'The first 100 reviewed recipients are shown.',
+  'telegram.group.processed': 'Processed {count} of {total} recipients',
+  'telegram.group.checkingBusiness': 'Checking visible business profiles…',
+  'telegram.group.nextAt': 'Next recipient after {at}',
+  'telegram.group.stopped':
+    'The batch stopped. Review its results before starting a new scan.',
+  'telegram.group.uncertain':
+    'The server response was lost. Refresh the job and check Telegram/Outbox before another attempt. This request will not be replayed.',
+  'telegram.group.unavailable':
+    'The operation could not be completed. Check the connection and job results.',
+  'telegram.group.result.sent': 'Acknowledged by Telegram',
+  'telegram.group.result.failed': 'Not sent',
+  'telegram.group.result.unknown': 'Outcome uncertain',
+  'telegram.group.result.skipped': 'Skipped',
+  'telegram.group.reason.verified': 'Verified account',
+  'telegram.group.reason.business': 'Business account',
+  'telegram.group.reason.business-unavailable': 'Business profile unavailable',
+  'telegram.group.reason.not-participant': 'Not a scanned participant',
+  'telegram.group.reason.group-required':
+    'Choose an accessible group or supergroup, rather than a user or broadcast channel.',
+  'telegram.group.reason.group-scan-required':
+    'Complete a participant scan for this group first.',
+  'telegram.group.reason.preview-expired':
+    'The preview expired or its scan changed. Review a new selection.',
+  'telegram.group.reason.account-changed':
+    'The connected account changed. Scan and review again.',
+  'telegram.group.reason.target-changed':
+    'The group or recipient changed. Scan and review again.',
+  'telegram.group.reason.recipient-ineligible':
+    'The recipient is no longer eligible.',
+  'telegram.group.reason.already-greeted': 'Greeted in the last 24 hours',
+  'telegram.group.reason.previous-outcome-unknown':
+    'Previous outcome unresolved',
   'telegram.greeting.title': 'Send one Telegram greeting',
   'telegram.greeting.note':
     'Preview the exact account, target and message before sending. Greeting stickers have a rolling 24-hour limit per chat.',

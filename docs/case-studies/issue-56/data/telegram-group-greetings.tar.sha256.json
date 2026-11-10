@@ -1,0 +1,19 @@
+{
+  "archive": "telegram-group-greetings.tar.gz",
+  "files": {
+    "ci-logs/telegram-chat-users-startup-before.log": "50ca877e36455c01c979f5803acce9e7ee7ca4e2f61953850ecab545304e5be4",
+    "ci-logs/telegram-group-greetings-focused-test.log": "6e0e6f783d2642fd1c3c0cfaa1311739678cd2dd70c8f14ecc0dc3529eea1899",
+    "ci-logs/telegram-group-greetings-ui-test.log": "a296a6ac923bbbf437c8f9656ba0ded84f27d06c4551058b358e02a44d922a6b",
+    "ci-logs/telegram-group-greetings-integration-test.log": "9e954101f40750ea0e7008b06b4a68f8dca022fe0fd9ce09146918c9b2414ad6",
+    "ci-logs/telegram-group-greetings-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-group-greetings-final-format.log": "a1c8aac41e118cc0661087320edd5f8e4583669b2978bb460c49fbc54ce2613f",
+    "ci-logs/telegram-group-greetings-build-web.log": "e18ec6d97cfac020c0d76cae084731f5b6303501c12d08597232d8d459868f5d",
+    "ci-logs/telegram-group-greetings-browser-before.log": "de6c4f7310691f4dc77504a80c9b18c8e310e08174c760d6ca4c31f159fdf231",
+    "ci-logs/telegram-group-greetings-browser-after.log": "a524ea71218f06a8ac73a5cadebf2f32b3311d464a6debfa511e264aeed9bcc2",
+    "experiments/issue-56/replay-users-startup-before.py": "8bbec554c4371251f8d06351e5e3186e1605ed173fae3a5cc66149b83f964be6",
+    "experiments/issue-56/telegram-group-greeting-ui.mjs": "42383791fe58165a2850ecd0895c9ce355d6fdc1eceb0e17edc275f92f560080",
+    "experiments/issue-56/collect-group-greeting-evidence.py": "2cf3422d91fac25b1617f7dc10051500690647673ac6d7b4a38dcf348286fd0b",
+    "experiments/issue-56/update-group-greeting-ledger.py": "2e1d16cda32176c1a6639ef7ed31a5668f83854c549ec42b56039cadddacdc75",
+    "metadata.json": "28cae010fe6f87eb22503a3cce95c2064e9fa5d3e54a2b8c65c2f7f025d6637d"
+  }
+}

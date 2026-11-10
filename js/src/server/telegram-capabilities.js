@@ -3,6 +3,7 @@ const OPTIONAL_USER_OPERATIONS = [
   'quickReactionSet',
   'urlAuthDomains',
   'chatUsersStart',
+  'chatUsersGreetingsStart',
   'greetingStickersRefresh',
   'greetingSendPreview',
 ];

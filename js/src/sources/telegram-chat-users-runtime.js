@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { createUsersStartup } from './telegram-chat-users-startup.js';
 
 export const activeUsersJob = (job) =>
   ['running', 'cancelling'].includes(job?.state);
@@ -84,6 +85,7 @@ export const createUsersRuntime = (env, now) => {
       });
     }
   };
+  const startup = createUsersStartup(state, publish, usersErrorCode);
   const run = (c, use, extra = {}) => {
     controller = new AbortController();
     const { job, collection } = state;
@@ -125,6 +127,7 @@ export const createUsersRuntime = (env, now) => {
     });
   };
   const cancel = async () => {
+    startup.invalidate();
     if (activeUsersJob(state.job)) {
       state.job.state = 'cancelling';
       controller?.abort();
@@ -133,7 +136,9 @@ export const createUsersRuntime = (env, now) => {
     return { ok: true, job: usersJobSnapshot(state.job) };
   };
   env.chatUsersStop = async () => {
+    const closing = startup.close();
     await cancel().catch(() => {});
+    await closing;
     await running;
   };
   return {
@@ -141,6 +146,7 @@ export const createUsersRuntime = (env, now) => {
     publish,
     run,
     cancel,
+    start: startup.start,
     busy: () => state.starting || activeUsersJob(state.job),
   };
 };
