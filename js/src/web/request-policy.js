@@ -37,6 +37,10 @@ const readPosts = new Set([
 const boundedProviderReads = new Set([
   '/api/forms/read',
   '/api/forms/plan',
+  '/api/forms/sessions/open',
+  '/api/forms/sessions/read',
+  '/api/forms/sessions/focus',
+  '/api/forms/sessions/close',
   '/api/automations/follow/chats',
   '/api/automations/follow/details',
   '/api/automations/follow/telegram',

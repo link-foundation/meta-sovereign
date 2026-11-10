@@ -159,3 +159,5 @@ Read current HH common-chat history with bounded account-bound continuation, acc
 Add bounded read-only form inspection through CLI, text/binary Lino API and shared four-language UI. Preserve accessible label/group/option evidence, current values, partial coverage and report export; refuse navigation changes, protect sensitive getters and own transient browsers through failure and shutdown.
 
 Plan form answers through CLI, text/binary Lino and the shared four-language UI using the current named profile, scoped approved answers and salary rules. Show actual provenance, similarity, unresolved reasons and current values, export reviewable proposals, bound matching work and retain issued planning tasks through shutdown.
+
+Keep isolated form review browsers open across owner edits and manually opened next pages. Share CLI, text/binary Lino and localized controls for open/read/focus/close, enforce finite ownership and 24-hour activity expiry, and retain failed cleanup for explicit retry.

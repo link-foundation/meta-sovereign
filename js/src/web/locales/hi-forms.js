@@ -135,4 +135,46 @@ export const hiForms = {
     'इन उत्तरों की योजना के लिए सर्वर से जुड़ें।',
   'forms.plan.error.form-plan-failed':
     'उत्तर की योजना नहीं बनी। निरीक्षण, विकल्प और पिछली योजना सुरक्षित हैं; तैयार होने पर फिर प्रयास करें।',
+  'forms.review.title': 'समीक्षा ब्राउज़र',
+  'forms.review.hint':
+    'समीक्षा के लिए सर्वर पर ब्राउज़र खुला रखें। उसी ब्राउज़र में साइन-इन, CAPTCHA और अगले पृष्ठ खोलें, फिर वर्तमान पृष्ठ पढ़ें। 24 घंटे गतिविधि न होने या सर्वर बंद होने पर सत्र बंद हो जाते हैं। ये नियंत्रण उत्तर नहीं बदलते और कभी सबमिट नहीं करते।',
+  'forms.review.open': 'समीक्षा के लिए खोलें',
+  'forms.review.opening': 'खोल रहे हैं…',
+  'forms.review.refresh': 'सत्र ताज़ा करें',
+  'forms.review.loading': 'समीक्षा सत्र लोड हो रहे हैं…',
+  'forms.review.count': '{limit} में से {count} समीक्षा सत्र खुले हैं',
+  'forms.review.read': 'वर्तमान पृष्ठ पढ़ें',
+  'forms.review.focus': 'ब्राउज़र दिखाएँ',
+  'forms.review.close': 'ब्राउज़र बंद करें',
+  'forms.review.headless':
+    'ब्राउज़र बिना दिखाई देने वाली विंडो के चल रहा है। नया सत्र खोलने से पहले फ़ॉर्म की दृश्यता सेटिंग बदलें।',
+  'forms.review.headed': 'सर्वर पर दिखाई देने वाला ब्राउज़र',
+  'forms.review.visibilityPending': 'ब्राउज़र की दृश्यता जाँच रहे हैं…',
+  'forms.review.expires': '{time} तक उपयोग न होने पर बंद होगा',
+  'forms.review.state.opening': 'खुल रहा है',
+  'forms.review.state.open': 'समीक्षा के लिए खुला',
+  'forms.review.state.closing': 'बंद हो रहा है',
+  'forms.review.state.close-failed': 'बंद होना पुष्ट नहीं हुआ',
+  'forms.review.error.form-slot-in-use':
+    'यह समीक्षा स्लॉट पहले से खुला है। उसके नियंत्रण उपयोग करें या दूसरा स्लॉट चुनें।',
+  'forms.review.error.form-session-limit':
+    'दूसरा खोलने से पहले समीक्षा ब्राउज़र बंद करें।',
+  'forms.review.error.form-session-missing':
+    'यह समीक्षा सत्र अब उपलब्ध नहीं है। सूची ताज़ा करें।',
+  'forms.review.error.form-session-closed':
+    'ब्राउज़र बंद हो गया। नया समीक्षा सत्र खोलें।',
+  'forms.review.error.form-close-failed':
+    'ब्राउज़र की सफ़ाई पुष्ट नहीं हुई। सत्र सूची में रखें और बंद करने का फिर प्रयास करें।',
+  'forms.review.error.form-focus-unavailable':
+    'यह ब्राउज़र समीक्षा विंडो नहीं दिखा सकता।',
+  'forms.review.error.form-busy':
+    'दूसरी समीक्षा क्रिया चल रही है। उसके पूरा होने तक प्रतीक्षा करें।',
+  'forms.review.error.form-timeout':
+    'समीक्षा की समय सीमा पूरी हुई। सत्र ताज़ा करें और तैयार होने पर फिर प्रयास करें।',
+  'forms.review.error.form-stopped':
+    'समीक्षा बंद हो रही है। उपलब्ध सर्वर से जुड़ें।',
+  'forms.review.error.server-required':
+    'समीक्षा ब्राउज़र प्रबंधित करने के लिए सर्वर से जुड़ें।',
+  'forms.review.error.form-review-failed':
+    'समीक्षा क्रिया की पुष्टि नहीं हुई। URL और रिपोर्ट सुरक्षित हैं। फिर प्रयास करने से पहले सत्र ताज़ा करें।',
 };

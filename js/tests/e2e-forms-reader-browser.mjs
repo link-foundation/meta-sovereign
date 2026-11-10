@@ -1,5 +1,6 @@
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
+import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -25,7 +26,8 @@ try {
         }),
         openSession: async (options) => {
           assert(
-            options.useCase === 'forms' && options.slot === 'application-2',
+            options.useCase === 'forms' &&
+              ['application-2', 'application-3'].includes(options.slot),
             'shared Forms slot/policy'
           );
           const context = await app.page.context().browser().newContext();
@@ -36,7 +38,18 @@ try {
             enableNavigationManager: false,
             enableDialogManager: false,
           });
-          const record = { options, closed: false, events: [] };
+          const record = {
+            options,
+            page,
+            navigation: [],
+            closed: false,
+            events: [],
+          };
+          const goto = commander.goto.bind(commander);
+          commander.goto = (input) => {
+            record.navigation.push(input.url);
+            return goto(input);
+          };
           owned.push(record);
           return {
             page,
@@ -297,6 +310,7 @@ await app.finish(async () => {
       });
     }
     await verifyLimits(page);
+    await verifyFormReviewUi({ page, owned, fixture, until });
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );

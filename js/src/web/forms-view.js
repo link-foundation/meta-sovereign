@@ -4,6 +4,7 @@ import { useT } from './i18n.js';
 import { Busy } from './spinner.js';
 import { FormAnswer, FormPlanSummary } from './forms-answer.js';
 import { FormPlanControls } from './forms-plan-controls.js';
+import { FormReviewControls } from './form-review-controls.js';
 
 const el = React.createElement;
 const display = (value) =>
@@ -160,17 +161,8 @@ const readErrorKey = (error) =>
     ? error
     : 'form-read-failed';
 
-export const FormsView = ({ api = defaultApi }) => {
-  const t = useT();
-  const [url, setUrl] = useState('');
-  const [slot, setSlot] = useState('forms');
+const useFormCapability = (api, probe) => {
   const [capability, setCapability] = useState(null);
-  const [probe, setProbe] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [reading, setReading] = useState(false);
-  const [error, setError] = useState(null);
-  const [report, setReport] = useState(null);
-  const [plan, setPlan] = useState(null);
   useEffect(() => {
     let current = true;
     Promise.resolve()
@@ -191,6 +183,20 @@ export const FormsView = ({ api = defaultApi }) => {
       current = false;
     };
   }, [api, probe]);
+  return [capability, setCapability];
+};
+
+export const FormsView = ({ api = defaultApi }) => {
+  const t = useT();
+  const [url, setUrl] = useState('');
+  const [slot, setSlot] = useState('forms');
+  const [probe, setProbe] = useState(0);
+  const [capability, setCapability] = useFormCapability(api, probe);
+  const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(false);
+  const [error, setError] = useState(null);
+  const [report, setReport] = useState(null);
+  const [plan, setPlan] = useState(null);
   const read = async (event) => {
     event.preventDefault();
     if (busy) {
@@ -287,6 +293,19 @@ export const FormsView = ({ api = defaultApi }) => {
             t(`forms.error.${errorKey}`)
           )
         : null,
+      el(FormReviewControls, {
+        key: 'reviews',
+        api,
+        url,
+        slot,
+        available: capability?.review,
+        busy,
+        setBusy,
+        onReport: (value) => {
+          setReport(value);
+          setPlan(null);
+        },
+      }),
       report
         ? el(FormPlanControls, {
             key: report.capturedAt,

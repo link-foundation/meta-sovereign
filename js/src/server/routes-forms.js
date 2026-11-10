@@ -1,8 +1,10 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
+import { handleFormReviewRoutes } from './routes-form-reviews.js';
 
 export const handleFormRoutes = async (req, res, p, ctx) => {
   if (
+    !p.startsWith('/api/forms/sessions') &&
     !['/api/forms/capabilities', '/api/forms/read', '/api/forms/plan'].includes(
       p
     )
@@ -10,6 +12,9 @@ export const handleFormRoutes = async (req, res, p, ctx) => {
     return false;
   }
   try {
+    if (await handleFormReviewRoutes(req, res, p, ctx)) {
+      return true;
+    }
     if (p.endsWith('/capabilities') && req.method === 'GET') {
       json(res, 200, await ctx.forms.capabilities());
     } else if (
@@ -54,7 +59,9 @@ export const handleFormRoutes = async (req, res, p, ctx) => {
     const status =
       error.code === 'browser-unavailable'
         ? 503
-        : error.code === 'form-busy'
+        : ['form-busy', 'form-slot-in-use', 'form-session-limit'].includes(
+              error.code
+            )
           ? 409
           : 400;
     json(res, status, {

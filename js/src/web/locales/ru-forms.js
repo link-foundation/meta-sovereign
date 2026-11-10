@@ -136,4 +136,46 @@ export const ruForms = {
     'Подключите сервер для подготовки ответов.',
   'forms.plan.error.form-plan-failed':
     'Не удалось подготовить ответы. Отчёт, настройки и предыдущие предложения сохранены; повторите попытку.',
+  'forms.review.title': 'Браузеры для проверки',
+  'forms.review.hint':
+    'Оставьте браузер на сервере открытым для проверки. Пройдите вход, CAPTCHA и следующие страницы в этом браузере, затем прочитайте текущую страницу. Сессии закрываются через 24 часа без активности или при остановке сервера. Эти элементы не меняют ответы и ничего не отправляют.',
+  'forms.review.open': 'Открыть для проверки',
+  'forms.review.opening': 'Открываем…',
+  'forms.review.refresh': 'Обновить сессии',
+  'forms.review.loading': 'Загрузка сессий проверки…',
+  'forms.review.count': 'Открыто сессий: {count} из {limit}',
+  'forms.review.read': 'Прочитать текущую страницу',
+  'forms.review.focus': 'Показать браузер',
+  'forms.review.close': 'Закрыть браузер',
+  'forms.review.headless':
+    'Браузер работает без видимого окна. Перед открытием новой сессии измените настройки видимости форм.',
+  'forms.review.headed': 'Видимый браузер на сервере',
+  'forms.review.visibilityPending': 'Проверяем видимость браузера…',
+  'forms.review.expires': 'Закроется без активности до {time}',
+  'forms.review.state.opening': 'Открывается',
+  'forms.review.state.open': 'Открыт для проверки',
+  'forms.review.state.closing': 'Закрывается',
+  'forms.review.state.close-failed': 'Закрытие не подтверждено',
+  'forms.review.error.form-slot-in-use':
+    'Этот слот уже открыт. Используйте его элементы управления или выберите другой.',
+  'forms.review.error.form-session-limit':
+    'Закройте браузер проверки перед открытием нового.',
+  'forms.review.error.form-session-missing':
+    'Эта сессия больше недоступна. Обновите список.',
+  'forms.review.error.form-session-closed':
+    'Браузер закрыт. Откройте новую сессию проверки.',
+  'forms.review.error.form-close-failed':
+    'Очистка браузера не подтверждена. Сохраните сессию в списке и повторите закрытие.',
+  'forms.review.error.form-focus-unavailable':
+    'Этот браузер не может показать окно проверки.',
+  'forms.review.error.form-busy':
+    'Другая операция проверки ещё выполняется. Дождитесь её окончания.',
+  'forms.review.error.form-timeout':
+    'Время проверки истекло. Обновите список и повторите, когда будете готовы.',
+  'forms.review.error.form-stopped':
+    'Проверка останавливается. Подключите доступный сервер.',
+  'forms.review.error.server-required':
+    'Подключите сервер для управления браузерами проверки.',
+  'forms.review.error.form-review-failed':
+    'Операцию проверки не удалось подтвердить. URL и отчёт сохранены. Перед повтором обновите список.',
 };

@@ -5,6 +5,7 @@ import { FormInspectionReport } from '../src/web/forms-view.js';
 import { renderInLocale } from './util-render.js';
 import { FormAnswer, FormPlanSummary } from '../src/web/forms-answer.js';
 import { availableLocales } from '../src/web/i18n.js';
+import { FormReviewControls } from '../src/web/form-review-controls.js';
 
 test('form reports explain partial coverage, escaped values and omitted contents in every locale', () => {
   const report = {
@@ -125,5 +126,29 @@ test('answer proposal provenance, limits and recovery wording exist in every loc
     assert(html.includes('&lt;Saved question&gt;'));
     assert(html.includes('85%'));
     assert(html.includes('Reviewed proposal'));
+  }
+});
+
+test('review controls explain ownership, activity expiry and unchanged answers in every locale', () => {
+  for (const locale of availableLocales) {
+    const html = renderInLocale(
+      locale.id,
+      React.createElement(FormReviewControls, {
+        api: {},
+        busy: false,
+        available: true,
+        url: 'https://example.test/form',
+        slot: 'form-1',
+        setBusy: () => {},
+        onReport: () => {},
+      })
+    );
+    assert(
+      !html.includes('forms.'),
+      `translated review controls for ${locale.id}`
+    );
+    assert(html.includes('data-form-reviews'));
+    assert(html.includes('data-action="open-form-review"'));
+    assert(html.includes('24'));
   }
 });

@@ -134,4 +134,46 @@ export const enForms = {
   'forms.plan.error.server-required': 'Connect a server to plan these answers.',
   'forms.plan.error.form-plan-failed':
     'Answers could not be planned. Your inspection, choices and last plan are kept; retry when ready.',
+  'forms.review.title': 'Review browsers',
+  'forms.review.hint':
+    'Keep a browser open on the server for review. Handle sign-in, CAPTCHA and later pages in that browser, then read its current page. Review sessions close after 24 hours without activity or when the server stops. These controls leave answers unchanged and never submit.',
+  'forms.review.open': 'Open for review',
+  'forms.review.opening': 'Opening…',
+  'forms.review.refresh': 'Refresh sessions',
+  'forms.review.loading': 'Loading review sessions…',
+  'forms.review.count': '{count} of {limit} review sessions open',
+  'forms.review.read': 'Read current page',
+  'forms.review.focus': 'Show browser',
+  'forms.review.close': 'Close browser',
+  'forms.review.headless':
+    'Browser runs without a visible window. Change Forms visibility settings before opening a new session.',
+  'forms.review.headed': 'Visible browser on the server',
+  'forms.review.visibilityPending': 'Checking browser visibility…',
+  'forms.review.expires': 'Closes if unused until {time}',
+  'forms.review.state.opening': 'Opening',
+  'forms.review.state.open': 'Open for review',
+  'forms.review.state.closing': 'Closing',
+  'forms.review.state.close-failed': 'Close not confirmed',
+  'forms.review.error.form-slot-in-use':
+    'That review slot is already open. Use its controls or choose another slot.',
+  'forms.review.error.form-session-limit':
+    'Close a review browser before opening another.',
+  'forms.review.error.form-session-missing':
+    'This review session is no longer available. Refresh the list.',
+  'forms.review.error.form-session-closed':
+    'The browser closed. Open a new review session.',
+  'forms.review.error.form-close-failed':
+    'Browser cleanup was not confirmed. Keep this session in the list and retry closing it.',
+  'forms.review.error.form-focus-unavailable':
+    'This browser cannot show a review window.',
+  'forms.review.error.form-busy':
+    'Another review operation is running. Wait for it to finish.',
+  'forms.review.error.form-timeout':
+    'Review reached its time limit. Refresh sessions and retry when ready.',
+  'forms.review.error.form-stopped':
+    'Review is stopping. Connect an available server.',
+  'forms.review.error.server-required':
+    'Connect a server to manage review browsers.',
+  'forms.review.error.form-review-failed':
+    'The review operation could not be confirmed. Your URL and report are kept. Refresh sessions before trying again.',
 };

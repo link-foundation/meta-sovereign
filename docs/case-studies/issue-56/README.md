@@ -6,7 +6,11 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [forms-reader.md](forms-reader.md) verifies bounded accessible native/ARIA and cross-origin form inspection through CLI, text/binary Lino API and shared four-language UI. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass. Planning, prefilling, persistent review and learning remain open.
+- [forms-review-sessions.md](forms-review-sessions.md) verifies persistent isolated read-only browsers, owner edits and manually opened next pages, activity expiry, failed-close recovery and owned shutdown through CLI/Lino/shared UI. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass. Reviewed prefilling and multipage/submission/edit learning remain open.
+
+- [forms-answer-plan.md](forms-answer-plan.md) verifies shared field proposals using current owner profiles, approved answers and salary rules, with actual provenance, preserved current values and export. Model generation and reviewed prefilling remain open.
+
+- [forms-reader.md](forms-reader.md) verifies bounded accessible native/ARIA and cross-origin form inspection through CLI, text/binary Lino API and shared four-language UI. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass. The later planning and review-session units above extend this foundation; prefilling and learning remain open.
 
 - [hh-common-history.md](hh-common-history.md) verifies current HH API pagination, durable bounded continuation, honest coverage, actual message direction, shared CLI/Lino/UI controls and guarded text receipts. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass; browser/unread and wider provider parity remain open.
 

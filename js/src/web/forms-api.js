@@ -6,6 +6,7 @@ export const createFormsApi = ({ get, report }) => ({
       reason: 'server-required',
       read: false,
       plan: false,
+      review: false,
       fill: false,
       submit: false,
     },
@@ -19,4 +20,18 @@ export const createFormsApi = ({ get, report }) => ({
       ok: false,
       code: 'server-required',
     },
+  formsReviews: async () =>
+    (await get('/api/forms/sessions')) ?? {
+      ok: false,
+      code: 'server-required',
+    },
+  ...Object.fromEntries(
+    ['Open', 'Read', 'Focus', 'Close'].map((action) => [
+      `forms${action}Review`,
+      async (options) =>
+        (await report(`/api/forms/sessions/${action.toLowerCase()}`, options, {
+          network: true,
+        })) ?? { ok: false, code: 'server-required' },
+    ])
+  ),
 });

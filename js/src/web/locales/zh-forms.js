@@ -114,4 +114,41 @@ export const zhForms = {
   'forms.plan.error.server-required': '请连接服务器以生成答案建议。',
   'forms.plan.error.form-plan-failed':
     '无法生成答案建议。检查报告、选项和上次建议已保留；准备好后请重试。',
+  'forms.review.title': '审核浏览器',
+  'forms.review.hint':
+    '在服务器上保留浏览器以供审核。在该浏览器中完成登录、CAPTCHA 或打开下一页，然后读取当前页面。会话在闲置 24 小时或服务器停止时关闭。这些控件保留答案原样，且不会提交。',
+  'forms.review.open': '打开供审核',
+  'forms.review.opening': '正在打开…',
+  'forms.review.refresh': '刷新会话',
+  'forms.review.loading': '正在加载审核会话…',
+  'forms.review.count': '已打开 {count} 个审核会话，上限 {limit}',
+  'forms.review.read': '读取当前页面',
+  'forms.review.focus': '显示浏览器',
+  'forms.review.close': '关闭浏览器',
+  'forms.review.headless':
+    '浏览器正在无可见窗口的模式下运行。打开新会话前请更改表单可见性设置。',
+  'forms.review.headed': '服务器上的可见浏览器',
+  'forms.review.visibilityPending': '正在检查浏览器可见性…',
+  'forms.review.expires': '若一直闲置，将于 {time} 关闭',
+  'forms.review.state.opening': '正在打开',
+  'forms.review.state.open': '已打开供审核',
+  'forms.review.state.closing': '正在关闭',
+  'forms.review.state.close-failed': '尚未确认关闭',
+  'forms.review.error.form-slot-in-use':
+    '此审核槽位已经打开。请使用其控件或选择其他槽位。',
+  'forms.review.error.form-session-limit':
+    '请先关闭一个审核浏览器，再打开新会话。',
+  'forms.review.error.form-session-missing': '此审核会话已不可用。请刷新列表。',
+  'forms.review.error.form-session-closed':
+    '浏览器已关闭。请打开新的审核会话。',
+  'forms.review.error.form-close-failed':
+    '尚未确认浏览器清理。请在列表中保留此会话并重试关闭。',
+  'forms.review.error.form-focus-unavailable': '此浏览器无法显示审核窗口。',
+  'forms.review.error.form-busy': '另一审核操作仍在进行。请等待完成。',
+  'forms.review.error.form-timeout':
+    '审核已达到时限。请刷新会话，准备好后重试。',
+  'forms.review.error.form-stopped': '审核正在停止。请连接可用的服务器。',
+  'forms.review.error.server-required': '请连接服务器以管理审核浏览器。',
+  'forms.review.error.form-review-failed':
+    '无法确认审核操作。URL 和报告已保留。重试前请刷新会话。',
 };

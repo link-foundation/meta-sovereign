@@ -1,4 +1,4 @@
-// Isolated MCP fixture: synthetic forms, transient browsers, no account or scheduler.
+// Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
 import { seedFormAnswers } from './forms-plan-fixture.mjs';
 import { chromium } from 'playwright';
 import { makeBrowserCommander } from 'browser-commander';

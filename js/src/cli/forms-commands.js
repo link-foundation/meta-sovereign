@@ -2,11 +2,17 @@ import { promises as fs } from 'node:fs';
 import { decodeWire } from '../transport/lino.js';
 import { createFormReader, planFormAnswers } from '../forms/reader.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
+import {
+  createFormReviewCommands,
+  FORMS_REVIEW_HELP,
+} from './forms-review-commands.js';
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--source=<provider>] [--chat=<id>] [--store=<dir>]`;
+  forms-plan    --file=<inspection.json> [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--source=<provider>] [--chat=<id>] [--store=<dir>]
+${FORMS_REVIEW_HELP}`;
 
 export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
+  ...createFormReviewCommands({ openStore, ...readerOptions }),
   'forms-plan': async (args, log) => {
     if (!args.file || (await fs.stat(args.file)).size > 4 * 1024 ** 2) {
       throw new Error('--file requires an inspection JSON file up to 4 MiB');
