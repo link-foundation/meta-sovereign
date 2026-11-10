@@ -1,4 +1,5 @@
 // Isolated MCP fixture: synthetic forms, transient browsers, no account or scheduler.
+import { seedFormAnswers } from './forms-plan-fixture.mjs';
 import { chromium } from 'playwright';
 import { makeBrowserCommander } from 'browser-commander';
 import { startServer } from '../../js/src/server/index.js';
@@ -6,12 +7,14 @@ import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { startFormsFixture } from './forms-reader-fixture.mjs';
 
 const fixture = await startFormsFixture();
+const store = createMemoryStore();
+await seedFormAnswers(store);
 const browsers = new Set();
 const reads = [];
 let server;
 try {
   server = await startServer({
-    store: createMemoryStore(),
+    store,
     port: 0,
     localUi: true,
     telegramAccount: false,

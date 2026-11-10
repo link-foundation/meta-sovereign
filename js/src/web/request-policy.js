@@ -36,6 +36,7 @@ const readPosts = new Set([
 // Connection recovery must return their exhausted timeout to the caller.
 const boundedProviderReads = new Set([
   '/api/forms/read',
+  '/api/forms/plan',
   '/api/automations/follow/chats',
   '/api/automations/follow/details',
   '/api/automations/follow/telegram',

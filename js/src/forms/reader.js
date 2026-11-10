@@ -1,5 +1,8 @@
 import { openBrowserSession, browserAvailability } from '../cv/browser.js';
 import { browserName } from '../browser/policy.js';
+import { planFormAnswers } from './answer-plan.js';
+
+export { planFormAnswers } from './answer-plan.js';
 import {
   readFormDocument,
   formDocumentIdentity,
@@ -170,16 +173,36 @@ export const createFormReader = ({
 } = {}) => {
   let active = null;
   let stopping = false;
+  const planning = new Set();
   return {
     async capabilities() {
       const status = await availability();
       return {
         ...status,
         read: status.available,
+        plan: true,
         fill: false,
         submit: false,
         scope: 'visible-current-pages',
       };
+    },
+    async plan(input = {}) {
+      if (stopping) {
+        throw failure('form-stopped', 'Form planning is stopping.');
+      }
+      if (planning.size) {
+        throw failure(
+          'form-busy',
+          'Another form answer plan is still running.'
+        );
+      }
+      const task = planFormAnswers(store, input);
+      planning.add(task);
+      try {
+        return await task;
+      } finally {
+        planning.delete(task);
+      }
     },
     async read(options = {}) {
       if (stopping) {
@@ -267,9 +290,10 @@ export const createFormReader = ({
     async stop() {
       stopping = true;
       const task = active;
-      if (task) {
-        await Promise.allSettled([task.cancel(), task.done]);
-      }
+      await Promise.allSettled([
+        ...planning,
+        ...(task ? [task.cancel(), task.done] : []),
+      ]);
     },
   };
 };

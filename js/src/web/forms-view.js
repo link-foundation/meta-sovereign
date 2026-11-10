@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
 import { Busy } from './spinner.js';
+import { FormAnswer, FormPlanSummary } from './forms-answer.js';
+import { FormPlanControls } from './forms-plan-controls.js';
 
 const el = React.createElement;
 const display = (value) =>
@@ -15,7 +17,7 @@ export const downloadFormReport = (report) => {
   );
   const anchor = globalThis.document.createElement('a');
   anchor.href = href;
-  anchor.download = `form-inspection-${report.capturedAt.replace(/[:.]/gu, '-')}.json`;
+  anchor.download = `form-${report.mode === 'answer-plan' ? 'plan' : 'inspection'}-${report.capturedAt.replace(/[:.]/gu, '-')}.json`;
   anchor.click();
   globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);
 };
@@ -62,12 +64,14 @@ const Field = ({ field }) => {
         field.valueOmitted
           ? t('forms.omitted', { type: field.valueOmitted })
           : t('forms.value', {
-              value:
-                field.checked === null
+              value: field.indeterminate
+                ? t('forms.mixed')
+                : field.checked === null
                   ? display(field.value)
                   : t(field.checked ? 'forms.checked' : 'forms.unchecked'),
             })
       ),
+      el(FormAnswer, { key: 'answer', answer: field.answer }),
       field.options.length
         ? el(
             'ul',
@@ -108,6 +112,7 @@ export const FormInspectionReport = ({ report }) => {
         })
       ),
       el('p', { key: 'scope', className: 'meta' }, t('forms.scope')),
+      el(FormPlanSummary, { key: 'plan', planning: report.planning }),
       report.coverage === 'partial'
         ? el('div', { key: 'partial', role: 'note' }, [
             el('p', { key: 'hint' }, t('forms.partial')),
@@ -141,6 +146,20 @@ export const FormInspectionReport = ({ report }) => {
   );
 };
 
+const readErrorKey = (error) =>
+  [
+    'form-url',
+    'form-busy',
+    'form-changed',
+    'form-timeout',
+    'form-stopped',
+    'browser-unavailable',
+    'bad-browser-policy',
+    'server-required',
+  ].includes(error)
+    ? error
+    : 'form-read-failed';
+
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
   const [url, setUrl] = useState('');
@@ -148,8 +167,10 @@ export const FormsView = ({ api = defaultApi }) => {
   const [capability, setCapability] = useState(null);
   const [probe, setProbe] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [reading, setReading] = useState(false);
   const [error, setError] = useState(null);
   const [report, setReport] = useState(null);
+  const [plan, setPlan] = useState(null);
   useEffect(() => {
     let current = true;
     Promise.resolve()
@@ -157,7 +178,7 @@ export const FormsView = ({ api = defaultApi }) => {
       .then(
         (value) => {
           if (current) {
-            setCapability(value?.available ? value : { available: false });
+            setCapability(value ?? { available: false });
           }
         },
         () => {
@@ -176,6 +197,7 @@ export const FormsView = ({ api = defaultApi }) => {
       return;
     }
     setBusy(true);
+    setReading(true);
     setError(null);
     try {
       const value = await api.formsRead({ url, browserSlot: slot });
@@ -183,25 +205,16 @@ export const FormsView = ({ api = defaultApi }) => {
         setError(value?.code ?? 'form-read-failed');
       } else {
         setReport(value);
+        setPlan(null);
       }
     } catch (error) {
       setError(error.code ?? 'form-read-failed');
     } finally {
       setBusy(false);
+      setReading(false);
     }
   };
-  const errorKey = [
-    'form-url',
-    'form-busy',
-    'form-changed',
-    'form-timeout',
-    'form-stopped',
-    'browser-unavailable',
-    'bad-browser-policy',
-    'server-required',
-  ].includes(error)
-    ? error
-    : 'form-read-failed';
+  const errorKey = readErrorKey(error);
   return el(
     'section',
     { className: 'col forms-view', 'data-view-content': 'forms' },
@@ -261,10 +274,10 @@ export const FormsView = ({ api = defaultApi }) => {
             type: 'submit',
             className: 'primary',
             disabled: busy || !capability?.available,
-            'aria-busy': busy,
+            'aria-busy': reading,
             'data-action': 'read-form',
           },
-          t(busy ? 'forms.reading' : 'forms.read')
+          t(reading ? 'forms.reading' : 'forms.read')
         ),
       ]),
       error
@@ -274,7 +287,20 @@ export const FormsView = ({ api = defaultApi }) => {
             t(`forms.error.${errorKey}`)
           )
         : null,
-      report ? el(FormInspectionReport, { key: 'report', report }) : null,
+      report
+        ? el(FormPlanControls, {
+            key: report.capturedAt,
+            api,
+            report,
+            available: capability?.plan,
+            busy,
+            setBusy,
+            onPlan: setPlan,
+          })
+        : null,
+      report
+        ? el(FormInspectionReport, { key: 'report', report: plan ?? report })
+        : null,
     ]
   );
 };

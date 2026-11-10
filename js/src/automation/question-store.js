@@ -148,11 +148,13 @@ export const deleteAnswerRule = (store, id) =>
     return { deleted: key };
   });
 
-export const previewAnswer = async (store, input) => {
-  if (typeof input.question !== 'string' || input.question.length > 6000) {
-    throw new Error('question must be text of at most 6000 characters');
-  }
-  const rules = await listAnswerRules(store);
+// Read knowledge once when a bounded batch (such as a form) shares a context.
+export const prepareAnswerPreview = async (
+  store,
+  input = {},
+  { maxBytes = Infinity } = {}
+) => {
+  const rules = await readAnswerRules(store, maxBytes);
   const action = await resolveStoredAnswerProfile(
     store,
     normalizeAnswerAction(input)
@@ -160,7 +162,7 @@ export const previewAnswer = async (store, input) => {
   const prepared = await prepareSalaryExchange(store, action.salary, {
     now: () => input.now ?? Date.now(),
   });
-  const answer = planAnswer(input.question, {
+  const context = {
     ...input,
     ...action,
     salary: prepared.salary,
@@ -169,8 +171,19 @@ export const previewAnswer = async (store, input) => {
     rules: action.ruleIds.length
       ? rules.filter((rule) => action.ruleIds.includes(rule.id))
       : rules,
-  });
-  return withSalaryExchangeEvidence(answer, prepared.rateState);
+  };
+  return { context, rateState: prepared.rateState };
+};
+
+export const previewAnswer = async (store, input) => {
+  if (typeof input.question !== 'string' || input.question.length > 6000) {
+    throw new Error('question must be text of at most 6000 characters');
+  }
+  const prepared = await prepareAnswerPreview(store, input);
+  return withSalaryExchangeEvidence(
+    planAnswer(input.question, prepared.context),
+    prepared.rateState
+  );
 };
 
 const contextHistoryMessage = (message) => {

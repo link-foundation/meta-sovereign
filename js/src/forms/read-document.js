@@ -8,6 +8,7 @@ export const readFormDocument = ({
 } = {}) => {
   const doc = globalThis.document;
   const reasons = new Set();
+  const groups = new Map();
   const clip = (value) => {
     const text = String(value ?? '')
       .replace(/\s+/gu, ' ')
@@ -127,7 +128,11 @@ export const readFormDocument = ({
     const legend = Array.from(parent.children).find(
       (child) => child.tagName === 'LEGEND'
     );
+    if (!groups.has(parent)) {
+      groups.set(parent, `group-${groups.size + 1}`);
+    }
     return {
+      id: groups.get(parent),
       label: name?.text || clip(legend?.textContent),
       source: name?.source || (legend ? 'legend' : 'unlabelled'),
     };
@@ -172,9 +177,16 @@ export const readFormDocument = ({
     }
     return options;
   };
+  const checkedOf = (node, type) => {
+    if (!['checkbox', 'radio'].includes(type)) {
+      return null;
+    }
+    return node.tagName === 'INPUT'
+      ? node.checked
+      : attr(node, 'aria-checked') === 'true';
+  };
   const stateOf = (node, type) => {
     const sensitive = ['password', 'file'].includes(type);
-    const choice = ['checkbox', 'radio'].includes(type);
     const value = sensitive
       ? null
       : String(
@@ -194,12 +206,12 @@ export const readFormDocument = ({
       readOnly:
         node.readOnly === true || attr(node, 'aria-readonly') === 'true',
       value: value?.slice(0, 10000) ?? null,
-      checked: choice
-        ? node.tagName === 'INPUT'
-          ? node.checked
-          : attr(node, 'aria-checked') === 'true'
-        : null,
+      checked: checkedOf(node, type),
       valueOmitted: sensitive ? type : null,
+      multiple:
+        node.multiple === true || attr(node, 'aria-multiselectable') === 'true',
+      indeterminate:
+        node.indeterminate === true || attr(node, 'aria-checked') === 'mixed',
     };
   };
   const readField = (node, type) => {
@@ -236,7 +248,10 @@ export const readFormDocument = ({
   const typeOf = (node) =>
     node.tagName === 'INPUT'
       ? String(node.type).toLowerCase()
-      : attr(node, 'role') || node.tagName.toLowerCase();
+      : attr(node, 'role') ||
+        (node.isContentEditable
+          ? 'contenteditable'
+          : node.tagName.toLowerCase());
   const selector =
     'input,textarea,select,[role="textbox"],[role="combobox"],[role="checkbox"],[role="radio"],[role="listbox"],[contenteditable="true"]';
   const fields = [];

@@ -138,7 +138,7 @@ export const normalizeAnswerAction = (action) => {
   };
 };
 
-const ruleMatch = (rule, question, approximate) => {
+const ruleMatch = (rule, question, approximate, budget) => {
   const patterns = [rule.question, ...rule.questions].map(questionCore);
   question = questionCore(question);
   const kinds = patterns.map((pattern) => matchQuestion(pattern, question));
@@ -151,7 +151,9 @@ const ruleMatch = (rule, question, approximate) => {
     ? 1
     : approximate
       ? Math.max(
-          ...patterns.map((pattern) => questionSimilarity(pattern, question))
+          ...patterns.map((pattern) =>
+            questionSimilarity(pattern, question, budget)
+          )
         )
       : 0;
   return { match, similarity };
@@ -196,7 +198,8 @@ const answerOne = (question, input) => {
     const { match, similarity } = ruleMatch(
       rule,
       question,
-      context.approximate
+      context.approximate,
+      context.matchBudget
     );
     if (!match && similarity < 0.78) {
       continue;
@@ -245,6 +248,7 @@ const answerOne = (question, input) => {
     ...result,
     ...templateDetails(salaryTemplates),
     match: best.match,
+    similarity: best.similarity,
     complete: result.missing.length === 0,
     requiresReview:
       best.match === 'approximate' ||
@@ -266,7 +270,7 @@ const answerOne = (question, input) => {
 
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
-  if (completedAnswerSummary(question)) {
+  if (options.questionMode !== 'field' && completedAnswerSummary(question)) {
     return {
       question,
       text: '',
@@ -303,7 +307,10 @@ export const planAnswer = (question, options = {}) => {
     rules: [],
     parts: [],
   };
-  let result = asksQuestion(question) ? answerOne(question, context) : empty;
+  let result =
+    options.questionMode === 'field' || asksQuestion(question)
+      ? answerOne(question, context)
+      : empty;
   const core = questionCore(question);
   const questions = splitQuestions(core);
   if (questions.length <= 1) {

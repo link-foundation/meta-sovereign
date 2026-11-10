@@ -1,9 +1,42 @@
-import { createFormReader } from '../forms/reader.js';
+import { promises as fs } from 'node:fs';
+import { decodeWire } from '../transport/lino.js';
+import { createFormReader, planFormAnswers } from '../forms/reader.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 
-export const FORMS_HELP = `  forms-read    --url=<http-url> [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]`;
+export const FORMS_HELP = `  forms-read    --url=<http-url> [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
+  forms-plan    --file=<inspection.json> [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--source=<provider>] [--chat=<id>] [--store=<dir>]`;
 
 export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
+  'forms-plan': async (args, log) => {
+    if (!args.file || (await fs.stat(args.file)).size > 4 * 1024 ** 2) {
+      throw new Error('--file requires an inspection JSON file up to 4 MiB');
+    }
+    const raw = await fs.readFile(args.file, 'utf8');
+    if (Buffer.byteLength(raw) > 4 * 1024 ** 2) {
+      throw new Error('inspection file exceeds 4 MiB');
+    }
+    const inspection = JSON.parse(raw);
+    const store = await openStore(args.store ?? defaultStoreDir());
+    try {
+      log(
+        JSON.stringify(
+          await planFormAnswers(store, {
+            inspection,
+            profileId: args['profile-id'],
+            profile: args.profile ? decodeWire(args.profile) : undefined,
+            approximate: ![false, 'false'].includes(args.approximate),
+            source: args.source,
+            chat: args.chat,
+          }),
+          null,
+          2
+        )
+      );
+      return 0;
+    } finally {
+      await store.close?.();
+    }
+  },
   'forms-read': async (args, log) => {
     if (
       args.headless !== undefined &&

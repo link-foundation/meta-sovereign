@@ -28,6 +28,7 @@ export const ruForms = {
   'forms.disabled': 'Недоступно',
   'forms.readOnly': 'Только чтение',
   'forms.value': 'Текущее значение: {value}',
+  'forms.mixed': 'Смешанный выбор',
   'forms.checked': 'Выбрано',
   'forms.unchecked': 'Не выбрано',
   'forms.omitted': 'Содержимое поля {type} не читалось.',
@@ -75,4 +76,64 @@ export const ruForms = {
     'Для чтения анкеты подключите сервер с автоматизацией браузера.',
   'forms.error.form-read-failed':
     'Не удалось прочитать анкету. Адрес и последний отчёт сохранены; проверьте страницу и повторите.',
+  'forms.plan.title': 'Предложения ответов',
+  'forms.plan.hint':
+    'Подготовьте предложения для каждого поля по сохранённым ответам и выбранному профилю владельца.',
+  'forms.plan.reloadProfiles': 'Обновить профили',
+  'forms.plan.profile': 'Профиль владельца',
+  'forms.plan.savedOnly': 'Только сохранённые ответы',
+  'forms.plan.profilesLoading': 'Загрузка профилей…',
+  'forms.plan.profilesFailed':
+    'Не удалось загрузить профили. Сохранённые ответы доступны.',
+  'forms.plan.approximate':
+    'Предлагать похожие сохранённые вопросы для проверки',
+  'forms.plan.action': 'Предложить ответы',
+  'forms.plan.planning': 'Подготовка…',
+  'forms.plan.proposal': 'Предложение: {value}',
+  'forms.plan.unresolved': 'Нужен ответ',
+  'forms.plan.source': 'Источник ответа: {source}',
+  'forms.plan.similarity': 'Сходство вопросов: {percent}%',
+  'forms.plan.missing': 'Не хватает значений профиля: {keys}',
+  'forms.plan.keys': 'Использованы значения профиля: {keys}',
+  'forms.plan.rule': 'Сохранённый вопрос: {question}',
+  'forms.plan.evidence': 'Подтверждение: {source}',
+  'forms.plan.count':
+    'Предложений: {proposed} · Без ответа: {unresolved} · Сохранено текущих значений: {preserved}',
+  'forms.plan.review':
+    'Проверьте каждое предложение. Подготовка не меняет форму, не отправляет и не запоминает ответы.',
+  'forms.plan.profileSource': 'Профиль: {name} · версия {revision}',
+  'forms.plan.modelUnavailable':
+    'Предложения модели пока недоступны в этом планировщике.',
+  'forms.plan.source.profile': 'Профиль владельца',
+  'forms.plan.source.exact': 'Точный сохранённый вопрос',
+  'forms.plan.source.template': 'Шаблон сохранённого вопроса',
+  'forms.plan.source.approximate': 'Похожий сохранённый вопрос',
+  'forms.plan.source.salary': 'Настройки зарплаты',
+  'forms.plan.source.assembled': 'Объединённые сохранённые ответы',
+  'forms.plan.source.unresolved': 'Нет подходящего ответа',
+  'forms.plan.reason.protected-field':
+    'Поле защищено или имеет смешанное состояние; изменение не предложено.',
+  'forms.plan.reason.missing-label':
+    'Для предложения ответа нужна понятная подпись вопроса.',
+  'forms.plan.reason.missing-profile': 'В профиле не хватает нужных значений.',
+  'forms.plan.reason.choice-mismatch':
+    'Ответ не указывает ровно один доступный вариант.',
+  'forms.plan.reason.field-format':
+    'Проверьте соответствие ответа формату или вариантам поля.',
+  'forms.plan.reason.no-answer': 'Подходящий сохранённый ответ не найден.',
+  'forms.plan.reason.current-value':
+    'Текущее значение сохранено. Сравните его с предложением.',
+  'forms.plan.reason.review': 'Проверьте предложение перед изменением формы.',
+  'forms.plan.reason.planning-limit':
+    'Достигнут предел сопоставления. Поле осталось без ответа.',
+  'forms.plan.error.form-report':
+    'Прочитайте текущую форму заново, чтобы получить действительную отчётную копию.',
+  'forms.plan.error.answer-profile-missing':
+    'Выбранный профиль отсутствует. Обновите список и выберите другой.',
+  'forms.plan.error.form-stopped':
+    'Подготовка остановлена. Повторите на доступном сервере.',
+  'forms.plan.error.server-required':
+    'Подключите сервер для подготовки ответов.',
+  'forms.plan.error.form-plan-failed':
+    'Не удалось подготовить ответы. Отчёт, настройки и предыдущие предложения сохранены; повторите попытку.',
 };

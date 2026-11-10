@@ -1,3 +1,5 @@
+import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
+import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -7,11 +9,13 @@ import { readFile } from 'node:fs/promises';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 
 const fixture = await startFormsFixture();
+const store = createMemoryStore();
+await seedFormAnswers(store);
 const owned = [];
 let app;
 try {
   app = await openChatApp('forms-reader', {
-    store: createMemoryStore(),
+    store,
     serverOptions: {
       forms: {
         availability: async () => ({
@@ -174,6 +178,24 @@ const verifyLimits = async (page) => {
         options.reasons.includes('custom-elements'),
       'bounded values/options and custom coverage'
     );
+    await probe.setContent(
+      '<fieldset><legend>Work arrangement</legend><label>Remote<input type="radio" name="one"></label></fieldset>' +
+        '<fieldset><legend>Work arrangement</legend><label>Remote<input type="radio" name="two"></label></fieldset>' +
+        '<label>Tools<select multiple><option selected>Rust</option></select></label>' +
+        '<label>Mixed<input type="checkbox" id="mixed"></label>' +
+        '<div contenteditable="true" aria-label="Recent experience">Reviewed text</div>'
+    );
+    await probe.locator('#mixed').evaluate((control) => {
+      control.indeterminate = true;
+    });
+    const states = await probe.evaluate(readFormDocument, {});
+    assert(
+      states.fields[0].group.id !== states.fields[1].group.id &&
+        states.fields[2].multiple &&
+        states.fields[3].indeterminate &&
+        states.fields[4].type === 'contenteditable',
+      'duplicate group labels and native mixed/multiple/editable states stay distinct'
+    );
   } finally {
     await probe.close();
   }
@@ -236,6 +258,7 @@ await app.finish(async () => {
         exported.mode === 'read-only',
       'download contains the actual snapshot'
     );
+    await verifyFormPlanUi({ page, report, owned });
     await page.locator('[data-form-report]').scrollIntoViewIfNeeded();
     if (process.env.FORMS_READER_SCREENSHOTS === '1') {
       await page.screenshot({

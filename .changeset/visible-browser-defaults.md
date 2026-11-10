@@ -157,3 +157,5 @@ Preserve actual HH nested history, documented applicant direction, application b
 Read current HH common-chat history with bounded account-bound continuation, accurate available-window coverage and shared CLI/Lino/manual UI controls. Preserve actual participant direction in Chat/Operator and require matching write permission and positive receipts for modern text replies; retain explicit legacy negotiation compatibility.
 
 Add bounded read-only form inspection through CLI, text/binary Lino API and shared four-language UI. Preserve accessible label/group/option evidence, current values, partial coverage and report export; refuse navigation changes, protect sensitive getters and own transient browsers through failure and shutdown.
+
+Plan form answers through CLI, text/binary Lino and the shared four-language UI using the current named profile, scoped approved answers and salary rules. Show actual provenance, similarity, unresolved reasons and current values, export reviewable proposals, bound matching work and retain issued planning tasks through shutdown.

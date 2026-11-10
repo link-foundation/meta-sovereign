@@ -190,7 +190,7 @@ export const salaryQuestion = (text, config, input) => {
   const environment = normalizeAnswerEnvironment(input);
   const previous = anchor(environment);
   const followup = !direct(text);
-  if (!followup && !asksQuestion(text)) {
+  if (!followup && input.questionMode !== 'field' && !asksQuestion(text)) {
     return null;
   }
   const period = salaryPeriod(text);

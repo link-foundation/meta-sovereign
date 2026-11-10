@@ -41,6 +41,7 @@ import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
+import { createFormsApi } from './forms-api.js';
 import { createPublicationApi } from './publication-api.js';
 
 export const h = (tag, attrs = {}, children = []) => {
@@ -807,19 +808,7 @@ const rawApi = {
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
   cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
-  formsCapabilities: async () =>
-    (await serverFetch('/api/forms/capabilities')) ?? {
-      available: false,
-      reason: 'server-required',
-      read: false,
-      fill: false,
-      submit: false,
-    },
-  formsRead: async (options) =>
-    (await serverPostReport('/api/forms/read', options, { network: true })) ?? {
-      ok: false,
-      code: 'server-required',
-    },
+  ...createFormsApi({ get: serverFetch, report: serverPostReport }),
   cvPlan: async (platform) =>
     (await serverFetch(
       `/api/cv/plan?platform=${encodeURIComponent(platform)}`

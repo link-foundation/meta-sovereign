@@ -28,6 +28,7 @@ export const hiForms = {
   'forms.disabled': 'अक्षम',
   'forms.readOnly': 'केवल पढ़ने के लिए',
   'forms.value': 'मौजूदा मान: {value}',
+  'forms.mixed': 'मिश्रित चयन',
   'forms.checked': 'चुना गया',
   'forms.unchecked': 'नहीं चुना गया',
   'forms.omitted': '{type} फ़ील्ड की सामग्री नहीं पढ़ी गई।',
@@ -74,4 +75,64 @@ export const hiForms = {
     'फ़ॉर्म पढ़ने के लिए ब्राउज़र स्वचालन वाले सर्वर से जुड़ें।',
   'forms.error.form-read-failed':
     'फ़ॉर्म पढ़ा नहीं जा सका। URL और पिछली रिपोर्ट सुरक्षित हैं; पृष्ठ जाँचकर फिर प्रयास करें।',
+  'forms.plan.title': 'उत्तर के प्रस्ताव',
+  'forms.plan.hint':
+    'सहेजे गए उत्तरों और वैकल्पिक मालिक प्रोफ़ाइल से हर फ़ील्ड के लिए प्रस्ताव तैयार करें।',
+  'forms.plan.reloadProfiles': 'प्रोफ़ाइल फिर लोड करें',
+  'forms.plan.profile': 'मालिक की प्रोफ़ाइल',
+  'forms.plan.savedOnly': 'केवल सहेजे गए उत्तर',
+  'forms.plan.profilesLoading': 'प्रोफ़ाइल लोड हो रही हैं…',
+  'forms.plan.profilesFailed':
+    'प्रोफ़ाइल लोड नहीं हुईं। सहेजे गए उत्तर उपलब्ध हैं।',
+  'forms.plan.approximate':
+    'समीक्षा के लिए मिलते-जुलते सहेजे गए प्रश्न शामिल करें',
+  'forms.plan.action': 'उत्तर की योजना बनाएँ',
+  'forms.plan.planning': 'योजना बन रही है…',
+  'forms.plan.proposal': 'प्रस्ताव: {value}',
+  'forms.plan.unresolved': 'उत्तर आवश्यक है',
+  'forms.plan.source': 'उत्तर का स्रोत: {source}',
+  'forms.plan.similarity': 'प्रश्न की समानता: {percent}%',
+  'forms.plan.missing': 'प्रोफ़ाइल में अनुपलब्ध मान: {keys}',
+  'forms.plan.keys': 'इस्तेमाल किए गए प्रोफ़ाइल मान: {keys}',
+  'forms.plan.rule': 'सहेजा गया प्रश्न: {question}',
+  'forms.plan.evidence': 'प्रमाण: {source}',
+  'forms.plan.count':
+    '{proposed} प्रस्ताव · {unresolved} अनसुलझे · {preserved} मौजूदा मान सुरक्षित',
+  'forms.plan.review':
+    'हर प्रस्ताव की समीक्षा करें। योजना से फ़ॉर्म नहीं बदलता, उत्तर भेजे या सीखे नहीं जाते।',
+  'forms.plan.profileSource': 'प्रोफ़ाइल: {name} · संस्करण {revision}',
+  'forms.plan.modelUnavailable':
+    'इस योजनाकार में मॉडल के सुझाव उपलब्ध नहीं हैं।',
+  'forms.plan.source.profile': 'मालिक की प्रोफ़ाइल',
+  'forms.plan.source.exact': 'बिल्कुल समान सहेजा गया प्रश्न',
+  'forms.plan.source.template': 'सहेजे गए प्रश्न का टेम्पलेट',
+  'forms.plan.source.approximate': 'मिलता-जुलता सहेजा गया प्रश्न',
+  'forms.plan.source.salary': 'वेतन की सेटिंग',
+  'forms.plan.source.assembled': 'संयुक्त सहेजे गए उत्तर',
+  'forms.plan.source.unresolved': 'कोई उपयोग योग्य उत्तर नहीं',
+  'forms.plan.reason.protected-field':
+    'यह फ़ील्ड सुरक्षित है या मिश्रित स्थिति में है; बदलाव का प्रस्ताव नहीं है।',
+  'forms.plan.reason.missing-label':
+    'उत्तर का प्रस्ताव देने से पहले स्पष्ट प्रश्न लेबल चाहिए।',
+  'forms.plan.reason.missing-profile': 'ज़रूरी प्रोफ़ाइल मान उपलब्ध नहीं हैं।',
+  'forms.plan.reason.choice-mismatch':
+    'उत्तर से ठीक एक उपलब्ध विकल्प नहीं मिलता।',
+  'forms.plan.reason.field-format':
+    'इस फ़ील्ड के प्रारूप या विकल्पों के लिए उत्तर की समीक्षा चाहिए।',
+  'forms.plan.reason.no-answer': 'कोई उपयोग योग्य सहेजा गया उत्तर नहीं मिला।',
+  'forms.plan.reason.current-value':
+    'मौजूदा मान सुरक्षित है। उसे प्रस्ताव से मिलाएँ।',
+  'forms.plan.reason.review': 'बदलाव करने से पहले इस प्रस्ताव की समीक्षा करें।',
+  'forms.plan.reason.planning-limit':
+    'मिलान की सीमा पूरी हुई। यह फ़ील्ड अनसुलझा है।',
+  'forms.plan.error.form-report':
+    'मान्य निरीक्षण रिपोर्ट के लिए मौजूदा फ़ॉर्म फिर पढ़ें।',
+  'forms.plan.error.answer-profile-missing':
+    'चुनी गई प्रोफ़ाइल नहीं मिली। सूची फिर लोड करके दूसरी चुनें।',
+  'forms.plan.error.form-stopped':
+    'योजना रुक गई। उपलब्ध सर्वर पर फिर प्रयास करें।',
+  'forms.plan.error.server-required':
+    'इन उत्तरों की योजना के लिए सर्वर से जुड़ें।',
+  'forms.plan.error.form-plan-failed':
+    'उत्तर की योजना नहीं बनी। निरीक्षण, विकल्प और पिछली योजना सुरक्षित हैं; तैयार होने पर फिर प्रयास करें।',
 };

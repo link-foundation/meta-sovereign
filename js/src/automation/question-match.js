@@ -108,11 +108,21 @@ export const matchQuestion = (pattern, text) => {
 };
 
 /** Ordered token similarity; its result never qualifies for automatic reuse. */
-export const questionSimilarity = (left, right) => {
+export const questionSimilarity = (left, right, budget) => {
   const a = questionWords(left);
   const b = questionWords(right);
   if (!a.length || !b.length || a.length > MAX_WORDS || b.length > MAX_WORDS) {
     return 0;
+  }
+  // Optional shared batch budget. Exhaustion leaves approximate answers for
+  // explicit review; standalone/chat matching keeps its existing behavior.
+  if (budget) {
+    const cost = a.length * b.length;
+    if (cost > budget.remaining) {
+      budget.exhausted = true;
+      return 0;
+    }
+    budget.remaining -= cost;
   }
   let previous = new Uint16Array(b.length + 1);
   for (const word of a) {
