@@ -1,5 +1,7 @@
 /** Explicit form actions preserve server refusals and never retry invisibly. */
-export const createFormsApi = ({ get, report }) => ({
+import { createFormResumeApi } from './form-resume-api.js';
+export const createFormsApi = ({ get, getResume, report, local }) => ({
+  ...createFormResumeApi({ get, getResume, report, local }),
   formsCapabilities: async () =>
     (await get('/api/forms/capabilities')) ?? {
       available: false,

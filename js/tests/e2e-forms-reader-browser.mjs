@@ -4,6 +4,7 @@ import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
 import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
 import { verifyFormRadioUi } from './helpers/e2e-form-radio.mjs';
 import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
+import { verifyFormConfiguredResumeUi } from './helpers/e2e-form-configured-resume.mjs';
 import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
@@ -245,6 +246,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     process.env.FORMS_CUSTOM_ONLY === '1' ||
     process.env.FORMS_CHOICES_ONLY === '1' ||
     process.env.FORMS_UPLOAD_ONLY === '1' ||
+    process.env.FORMS_CONFIGURED_RESUME_ONLY === '1' ||
     process.env.FORMS_JOURNAL_ONLY === '1' ||
     process.env.FORMS_MONITOR_ONLY === '1' ||
     process.env.FORMS_LEARNING_ONLY === '1'
@@ -256,17 +258,19 @@ const verifyCustomOnly = async ({ page, until }) => {
       'Forms custom browser capability'
     );
     await (
-      process.env.FORMS_LEARNING_ONLY === '1'
-        ? verifyFormLearningUi
-        : process.env.FORMS_MONITOR_ONLY === '1'
-          ? verifyFormMonitorUi
-          : process.env.FORMS_JOURNAL_ONLY === '1'
-            ? verifyFormJournalUi
-            : process.env.FORMS_UPLOAD_ONLY === '1'
-              ? verifyFormUploadUi
-              : process.env.FORMS_CHOICES_ONLY === '1'
-                ? verifyFormChoicesUi
-                : verifyFormCustomUi
+      process.env.FORMS_CONFIGURED_RESUME_ONLY === '1'
+        ? verifyFormConfiguredResumeUi
+        : process.env.FORMS_LEARNING_ONLY === '1'
+          ? verifyFormLearningUi
+          : process.env.FORMS_MONITOR_ONLY === '1'
+            ? verifyFormMonitorUi
+            : process.env.FORMS_JOURNAL_ONLY === '1'
+              ? verifyFormJournalUi
+              : process.env.FORMS_UPLOAD_ONLY === '1'
+                ? verifyFormUploadUi
+                : process.env.FORMS_CHOICES_ONLY === '1'
+                  ? verifyFormChoicesUi
+                  : verifyFormCustomUi
     )({ page, owned, fixture, until, store });
     return true;
   }
@@ -382,6 +386,7 @@ await app.finish(async () => {
       verifyFormCustomUi,
       verifyFormChoicesUi,
       verifyFormUploadUi,
+      verifyFormConfiguredResumeUi,
       verifyFormJournalUi,
       verifyFormMonitorUi,
       verifyFormLearningUi,
@@ -407,7 +412,8 @@ await app.finish(async () => {
 // CDP watchers use Chromium; the shared form reader is checked in both engines.
 if (
   process.env.E2E_BROWSER !== 'webkit' &&
-  process.env.FORMS_LEARNING_ONLY !== '1'
+  process.env.FORMS_LEARNING_ONLY !== '1' &&
+  process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');
 }

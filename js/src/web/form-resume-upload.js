@@ -26,7 +26,7 @@ export const useFormResumeUpload = ({ api, plan, busy, setBusy }) => {
       mounted.current = false;
     };
   }, []);
-  const attach = async (fieldId, file, replaceExisting) => {
+  const attach = async (fieldId, file, replaceExisting, resumeRevision) => {
     if (busy || attempted) {
       return;
     }
@@ -34,7 +34,9 @@ export const useFormResumeUpload = ({ api, plan, busy, setBusy }) => {
     setAttempted(true);
     let issued = false;
     try {
-      const encoded = await encodeResumeFile(file);
+      const selected = resumeRevision
+        ? { resumeRevision }
+        : { file: await encodeResumeFile(file) };
       if (!mounted.current) {
         return;
       }
@@ -43,7 +45,7 @@ export const useFormResumeUpload = ({ api, plan, busy, setBusy }) => {
         id: plan.reviewPlan.sessionId,
         planId: plan.reviewPlan.id,
         fieldId,
-        file: encoded,
+        ...selected,
         replaceExisting,
       });
       setResult(
@@ -77,7 +79,7 @@ export const FormResumeUploadResult = ({ result }) => {
     : null;
 };
 
-export const FormResumeUpload = ({ field, onAttach, busy }) => {
+export const FormResumeUpload = ({ field, onAttach, busy, resume }) => {
   const t = useT();
   const [file, setFile] = useState(null);
   const [replace, setReplace] = useState(false);
@@ -119,6 +121,19 @@ export const FormResumeUpload = ({ field, onAttach, busy }) => {
           }),
           t('forms.upload.replace'),
         ])
+      : null,
+    resume
+      ? el(
+          'button',
+          {
+            key: 'saved',
+            type: 'button',
+            'data-form-attach-saved': field.id,
+            disabled: busy || Boolean(field.upload.files.length && !replace),
+            onClick: () => onAttach(field.id, null, replace, resume.revision),
+          },
+          t('forms.resume.attach', resume)
+        )
       : null,
     el(
       'button',

@@ -1,4 +1,18 @@
 export const zhForms = {
+  'forms.resume.title': '已保存的 PDF 简历',
+  'forms.resume.hint':
+    '将一份 PDF 保存到私人存储中以便重复使用。每份表单仍需明确执行附件操作；保存不会将文件上传到表单。',
+  'forms.resume.loading': '正在加载已保存的 PDF…',
+  'forms.resume.saved': '{name} · {size} 字节',
+  'forms.resume.empty': '尚未保存 PDF。',
+  'forms.resume.save': '保存所选 PDF',
+  'forms.resume.delete': '删除已保存的 PDF',
+  'forms.resume.reload': '重新加载 PDF 信息',
+  'forms.resume.changed': '已保存的 PDF 已更改。请重新加载并检查新计划。',
+  'forms.resume.error': '无法更新已保存的 PDF（{code}）。重试前请重新加载。',
+  'forms.resume.attach': '附加已保存的 PDF：{name} · {size} 字节',
+  'forms.resume.unknown': '无法获取已保存 PDF 的状态。',
+
   'forms.learning.observed': '已考虑的实际答案（包括跳过的答案）',
   'forms.learning.enable': '从已规划的页面学习答案',
   'forms.learning.scope':

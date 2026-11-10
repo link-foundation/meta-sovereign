@@ -181,3 +181,5 @@ Learn unapproved actual answers from explicitly planned pages in owned form revi
 Coordinate observed form-answer proposals through the active store writer, with bounded private Lino messages, current policy checks and live-answer guards before each write.
 
 Keep default-on per-slot form-answer watchers alive after CLI quit/EOF, reconnect without navigating over owner edits, preserve bounded private action/learning history and expose status/history/Stop with explicit cleanup and the existing unapproved-proposal policy.
+
+Save one configured PDF résumé for reviewed reuse through CLI, Lino, offline storage and shared localized Forms controls. Bind the reviewed revision, verify actual attachment bytes, serialize replacement and retain cached recovery without replay. Preserve refused status reads as unavailable with explicit Reload.

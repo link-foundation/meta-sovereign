@@ -6,10 +6,20 @@ import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { startFormsFixture } from './forms-reader-fixture.mjs';
 import { controlFormMonitorFixture } from './forms-monitor-control.mjs';
+import { saveConfiguredResume } from '../../js/src/forms/configured-resume.js';
+import { syntheticResumePdf } from './forms-resume-fixture.mjs';
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
+if (process.env.FORMS_RESUME_MCP === '1') {
+  await saveConfiguredResume(store, {
+    file: {
+      name: 'synthetic-resume.pdf',
+      data: syntheticResumePdf().toString('base64'),
+    },
+  });
+}
 const browsers = new Set();
 const reads = [];
 let server;
@@ -169,11 +179,13 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_LEARNING_MCP === '1'
-          ? fixture.url.replace('/application', '/learning')
-          : process.env.FORMS_MONITOR_MCP === '1'
-            ? fixture.url.replace('/application', '/monitor')
-            : fixture.url,
+        process.env.FORMS_RESUME_MCP === '1'
+          ? fixture.url.replace('/application', '/upload')
+          : process.env.FORMS_LEARNING_MCP === '1'
+            ? fixture.url.replace('/application', '/learning')
+            : process.env.FORMS_MONITOR_MCP === '1'
+              ? fixture.url.replace('/application', '/monitor')
+              : fixture.url,
     })
   );
   if (

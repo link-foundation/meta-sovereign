@@ -13,6 +13,7 @@ import { expandableReviewField } from './review-custom.js';
 import { attachReviewedResume } from './review-upload.js';
 import { resumeUploadField } from './resume-upload.js';
 import { discloseReviewedOptions } from './review-disclosure.js';
+import { configuredResume } from './configured-resume.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
@@ -45,6 +46,7 @@ export const createReviewedPrefill = ({
     const proposed = withRadioReview(
       await planFormAnswers(store, { inspection, ...options })
     );
+    const resume = await configuredResume(store);
     check();
     const targets = await capture(snapshot, proposed.fields, {
       trace: record.browser.trace,
@@ -62,6 +64,7 @@ export const createReviewedPrefill = ({
         id: globalThis.crypto.randomUUID(),
         inspection,
         proposed,
+        resume,
         targets,
         options,
         expiresAt: now() + 600000,
@@ -83,6 +86,7 @@ export const createReviewedPrefill = ({
           sessionId: record.id,
           expiresAt: new Date(state.expiresAt).toISOString(),
           maxSelected: 25,
+          resume,
         },
       };
     } catch (error) {
@@ -137,7 +141,7 @@ export const createReviewedPrefill = ({
     apply,
     clear,
     attach: (record, input, check) =>
-      attachReviewedResume({ record, input, check, inspect, now }),
+      attachReviewedResume({ record, input, check, inspect, now, store }),
     disclose: (record, input, check) =>
       discloseReviewedOptions({ record, input, check, inspect, now }),
   };

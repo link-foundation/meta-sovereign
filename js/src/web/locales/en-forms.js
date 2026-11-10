@@ -1,4 +1,20 @@
 export const enForms = {
+  'forms.resume.title': 'Saved PDF résumé',
+  'forms.resume.hint':
+    'Save one PDF in your private store for reuse. Each form still requires an explicit attachment; saving does not upload it to a form.',
+  'forms.resume.loading': 'Loading saved PDF…',
+  'forms.resume.saved': '{name} · {size} bytes',
+  'forms.resume.empty': 'No PDF is saved.',
+  'forms.resume.save': 'Save selected PDF',
+  'forms.resume.delete': 'Forget saved PDF',
+  'forms.resume.reload': 'Reload saved PDF',
+  'forms.resume.changed':
+    'The saved PDF changed. Reload it and review a new plan.',
+  'forms.resume.error':
+    'Could not update the saved PDF ({code}). Reload before retrying.',
+  'forms.resume.attach': 'Attach saved PDF: {name} · {size} bytes',
+  'forms.resume.unknown': 'Saved PDF status is unavailable.',
+
   'forms.learning.observed':
     'Actual answers considered (including skipped answers)',
   'forms.learning.enable': 'Learn answers from planned pages',

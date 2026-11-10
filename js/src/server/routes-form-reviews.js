@@ -33,6 +33,7 @@ const actions = {
       planId: body.planId,
       fieldId: body.fieldId,
       file: body.file,
+      resumeRevision: body.resumeRevision,
       replaceExisting: body.replaceExisting,
     }),
   disclose: (forms, body) =>

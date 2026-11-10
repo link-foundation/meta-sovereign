@@ -1,4 +1,20 @@
 export const hiForms = {
+  'forms.resume.title': 'सहेजा गया PDF बायोडाटा',
+  'forms.resume.hint':
+    'दोबारा उपयोग के लिए अपने निजी संग्रह में एक PDF सहेजें। हर फ़ॉर्म में उसे स्पष्ट रूप से संलग्न करना होगा; सहेजने से वह फ़ॉर्म पर अपलोड नहीं होता।',
+  'forms.resume.loading': 'सहेजा गया PDF लोड हो रहा है…',
+  'forms.resume.saved': '{name} · {size} बाइट',
+  'forms.resume.empty': 'कोई PDF सहेजा नहीं गया है।',
+  'forms.resume.save': 'चुना गया PDF सहेजें',
+  'forms.resume.delete': 'सहेजा गया PDF हटाएँ',
+  'forms.resume.reload': 'सहेजे गए PDF की जानकारी फिर लोड करें',
+  'forms.resume.changed':
+    'सहेजा गया PDF बदल गया है। जानकारी फिर लोड करें और नई योजना की समीक्षा करें।',
+  'forms.resume.error':
+    'सहेजा गया PDF अपडेट नहीं हो सका ({code})। दोबारा प्रयास से पहले जानकारी फिर लोड करें।',
+  'forms.resume.attach': 'सहेजा गया PDF संलग्न करें: {name} · {size} बाइट',
+  'forms.resume.unknown': 'सहेजे गए PDF की स्थिति उपलब्ध नहीं है।',
+
   'forms.learning.observed':
     'विचार किए गए वास्तविक उत्तर (छोड़े गए उत्तरों सहित)',
   'forms.learning.enable': 'योजनाबद्ध पृष्ठों के उत्तर सीखें',

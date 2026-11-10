@@ -1,4 +1,20 @@
 export const ruForms = {
+  'forms.resume.title': 'Сохранённое резюме PDF',
+  'forms.resume.hint':
+    'Сохраните один PDF в личном хранилище для повторного использования. Для каждой формы требуется явное прикрепление; сохранение не загружает файл в форму.',
+  'forms.resume.loading': 'Загрузка сохранённого PDF…',
+  'forms.resume.saved': '{name} · {size} байт',
+  'forms.resume.empty': 'PDF не сохранён.',
+  'forms.resume.save': 'Сохранить выбранный PDF',
+  'forms.resume.delete': 'Удалить сохранённый PDF',
+  'forms.resume.reload': 'Обновить сведения о PDF',
+  'forms.resume.changed':
+    'Сохранённый PDF изменился. Обновите сведения и просмотрите новый план.',
+  'forms.resume.error':
+    'Не удалось обновить сохранённый PDF ({code}). Перед повтором обновите сведения.',
+  'forms.resume.attach': 'Прикрепить сохранённый PDF: {name} · {size} байт',
+  'forms.resume.unknown': 'Статус сохранённого PDF недоступен.',
+
   'forms.learning.observed':
     'Рассмотренные фактические ответы (включая пропущенные)',
   'forms.learning.enable': 'Учиться по ответам на спланированных страницах',

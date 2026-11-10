@@ -295,6 +295,16 @@ const serverFetch = async (path, init) => {
   return response.json().catch(() => null);
 };
 
+// A refused saved-file read is unknown, rather than an empty local selection.
+const serverReadReport = async (path) => {
+  const response = await serverResponse(path, {}, { network: true });
+  if (!response) {
+    return null;
+  }
+  const result = await response.json().catch(() => null);
+  return result ?? { ok: false, code: 'server-read-unconfirmed' };
+};
+
 /**
  * POST that keeps the server's own answer on an error status — a
  * draft send that the network refused (502) must show *why*. A
@@ -808,7 +818,12 @@ const rawApi = {
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
   cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
-  ...createFormsApi({ get: serverFetch, report: serverPostReport }),
+  ...createFormsApi({
+    get: serverFetch,
+    getResume: serverReadReport,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+  }),
   cvPlan: async (platform) =>
     (await serverFetch(
       `/api/cv/plan?platform=${encodeURIComponent(platform)}`

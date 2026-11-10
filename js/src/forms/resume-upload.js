@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
-import { formFailure as failure } from './options.js';
+import { decodeResumePdf, pdfMetadata } from './resume-data.js';
+export { MAX_RESUME_BYTES } from './resume-data.js';
 
-export const MAX_RESUME_BYTES = 8 * 1024 ** 2;
 const acceptsPdf = (accept) =>
   !accept.trim() ||
   accept
@@ -26,33 +26,14 @@ export const resumeUploadField = (field) =>
   );
 
 export const resumePdf = (file) => {
-  if (
-    !file ||
-    typeof file.name !== 'string' ||
-    !/^[^/\\\p{Cc}]{1,120}\.pdf$/iu.test(file.name) ||
-    typeof file.data !== 'string' ||
-    !file.data ||
-    file.data.length > Math.ceil(MAX_RESUME_BYTES / 3) * 4
-  ) {
-    throw failure('form-upload-file', 'Choose a PDF résumé of at most 8 MiB.');
-  }
-  const buffer = Buffer.from(file.data, 'base64');
-  if (
-    buffer.toString('base64') !== file.data ||
-    buffer.length > MAX_RESUME_BYTES ||
-    !buffer.subarray(0, 8).toString('ascii').startsWith('%PDF-') ||
-    !buffer.subarray(-8192).includes(Buffer.from('%%EOF'))
-  ) {
-    throw failure('form-upload-file', 'Choose a PDF résumé of at most 8 MiB.');
-  }
+  const buffer = Buffer.from(decodeResumePdf(file));
   return {
     buffer,
-    metadata: {
-      name: file.name,
-      size: buffer.length,
-      type: 'application/pdf',
-      sha256: createHash('sha256').update(buffer).digest('hex'),
-    },
+    metadata: pdfMetadata(
+      file,
+      buffer,
+      createHash('sha256').update(buffer).digest('hex')
+    ),
   };
 };
 

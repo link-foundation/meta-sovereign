@@ -1,6 +1,7 @@
 import { formFailure as failure } from './options.js';
 import { reviewSnapshotKey } from './review-targets.js';
 import { performReviewedEffect } from './review-effect.js';
+import { withConfiguredResume } from './configured-resume.js';
 import {
   resumePdf,
   resumeUploadField,
@@ -53,18 +54,13 @@ const unchangedFields = (before, after, fieldId, metadata) => {
 };
 
 /** Consume one reviewed attachment before issue; keep actual outcomes without replay. */
-export const attachReviewedResume = async ({
-  record,
-  input,
-  check,
-  inspect,
-  now,
-}) => {
+const attachResume = async ({ record, input, check, inspect, now }) => {
   const pdf = resumePdf(input.file);
   const cached = record.lastUpload;
   if (cached?.planId === input.planId) {
     if (
       cached.fieldId !== input.fieldId ||
+      cached.resumeRevision !== input.resumeRevision ||
       JSON.stringify(cached.file) !== JSON.stringify(pdf.metadata)
     ) {
       throw failure(
@@ -113,7 +109,44 @@ export const attachReviewedResume = async ({
     planId: state.id,
     fieldId: field.id,
     file: pdf.metadata,
+    ...(input.resumeRevision ? { resumeRevision: input.resumeRevision } : {}),
     ...result,
   };
   return record.lastUpload;
+};
+
+export const attachReviewedResume = async (options) => {
+  const { record, input, store } = options;
+  if (input.resumeRevision === undefined) {
+    return attachResume(options);
+  }
+  if (input.file) {
+    throw failure(
+      'form-upload-file',
+      'Choose either a saved résumé or a selected file.'
+    );
+  }
+  const cached = record.lastUpload;
+  if (cached?.planId === input.planId) {
+    if (
+      cached.fieldId !== input.fieldId ||
+      cached.resumeRevision !== input.resumeRevision
+    ) {
+      throw failure(
+        'form-upload-conflict',
+        'This plan already attempted a different attachment.'
+      );
+    }
+    return cached;
+  }
+  const { state } = uploadPlan(record, input, options.now);
+  if (!state.resume || state.resume.revision !== input.resumeRevision) {
+    throw failure(
+      'form-resume-changed',
+      'Plan the current page to review this saved PDF.'
+    );
+  }
+  return withConfiguredResume(store, input.resumeRevision, (file) =>
+    attachResume({ ...options, input: { ...input, file } })
+  );
 };

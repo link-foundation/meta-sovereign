@@ -75,7 +75,12 @@ const command = async (reader, line, options) => {
     );
   }
   if (action === 'plan') {
-    return reader.planReview({ id: session.id, ...options });
+    const result = await reader.planReview({ id: session.id, ...options });
+    options.plans.set(slot, {
+      id: result.reviewPlan.id,
+      resume: result.reviewPlan.resume,
+    });
+    return result;
   }
   if (action === 'apply') {
     return reader.applyReview({
@@ -90,7 +95,14 @@ const command = async (reader, line, options) => {
       id: session.id,
       planId,
       fieldId: fieldIds,
-      file: options.file,
+      ...(options.file
+        ? { file: options.file }
+        : {
+            resumeRevision:
+              options.plans.get(slot)?.id === planId
+                ? options.plans.get(slot).resume?.revision
+                : undefined,
+          }),
       replaceExisting: replace === 'replace',
     });
   }
@@ -125,6 +137,7 @@ export const createFormReviewCommands = ({
       ...options,
     });
     let stream;
+    const plans = new Map();
     let cancelled = false;
     let stopping;
     const cancel = () => {
@@ -165,6 +178,7 @@ export const createFormReviewCommands = ({
         try {
           const result = await command(reader, line, {
             file,
+            plans,
             profileId: args['profile-id'] ?? '',
             approximate: ![false, 'false'].includes(args.approximate),
           });

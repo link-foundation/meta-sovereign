@@ -641,7 +641,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleBrowserRoutes(store, req, res, p, url, ctx),
-    () => handleFormRoutes(req, res, p, ctx),
+    () => handleFormRoutes(store, req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),

@@ -10,13 +10,22 @@ import { FormResumeUpload } from './form-resume-upload.js';
 import { FormChoiceInspection } from './form-choice-disclosure.js';
 import { FormReportDownloads, FormReportFile } from './form-report-download.js';
 import { FormReviewJournal } from './form-review-journal.js';
+import { FormResumeSettings } from './form-resume-settings.js';
 export { downloadFormReport } from './form-report-download.js';
 
 const el = React.createElement;
 const display = (value) =>
   value === null || value === '' ? '—' : String(value);
 
-const Field = ({ field, selected, onSelect, onDisclose, onAttach, busy }) => {
+const Field = ({
+  field,
+  selected,
+  onSelect,
+  onDisclose,
+  onAttach,
+  busy,
+  resume,
+}) => {
   const t = useT();
   const flags = ['required', 'disabled', 'readOnly'].filter(
     (key) => field[key]
@@ -83,7 +92,7 @@ const Field = ({ field, selected, onSelect, onDisclose, onAttach, busy }) => {
         answer: field.answer ?? field.plannedAnswer,
       }),
       el(FormChoiceInspection, { key: 'choices', field, onDisclose, busy }),
-      el(FormResumeUpload, { key: 'upload', field, onAttach, busy }),
+      el(FormResumeUpload, { key: 'upload', field, onAttach, busy, resume }),
       field.options.length
         ? el(
             'ul',
@@ -166,6 +175,7 @@ export const FormInspectionReport = ({
                 onDisclose,
                 onAttach,
                 busy,
+                resume: report.reviewPlan?.resume,
               })
             )
           )
@@ -272,6 +282,15 @@ export const FormsView = ({ api = defaultApi }) => {
     [
       el('h1', { key: 'title' }, t('forms.title')),
       el('p', { key: 'hint', className: 'meta' }, t('forms.hint')),
+      api.formsResume
+        ? el(FormResumeSettings, {
+            key: 'resume',
+            api,
+            busy,
+            setBusy,
+            onChanged: () => setPlan(null),
+          })
+        : null,
       capability === null
         ? el(Busy, { key: 'loading' }, t('forms.loading'))
         : null,

@@ -1,17 +1,23 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { handleFormReviewRoutes } from './routes-form-reviews.js';
+import { handleFormResumeRoutes } from './routes-form-resume.js';
 
-export const handleFormRoutes = async (req, res, p, ctx) => {
-  if (
-    !p.startsWith('/api/forms/sessions') &&
-    !['/api/forms/capabilities', '/api/forms/read', '/api/forms/plan'].includes(
-      p
-    )
-  ) {
+const isFormPath = (path) =>
+  path.startsWith('/api/forms/sessions') ||
+  path.startsWith('/api/forms/resume') ||
+  ['/api/forms/capabilities', '/api/forms/read', '/api/forms/plan'].includes(
+    path
+  );
+
+export const handleFormRoutes = async (store, req, res, p, ctx) => {
+  if (!isFormPath(p)) {
     return false;
   }
   try {
+    if (await handleFormResumeRoutes(store, req, res, p, ctx)) {
+      return true;
+    }
     if (await handleFormReviewRoutes(req, res, p, ctx)) {
       return true;
     }
