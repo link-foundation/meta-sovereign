@@ -78,11 +78,12 @@ await finish(async () => {
     );
     assert(await f.unchanged(), 'source file remains unchanged');
     await page.setViewportSize({ width: 390, height: 844 });
-    assert(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      'mobile finder fits'
+    await until(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth <= globalThis.innerWidth
+        ),
+      'mobile finder fits after responsive layout settles'
     );
   } finally {
     await f.close();
