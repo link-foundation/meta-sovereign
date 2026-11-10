@@ -147,3 +147,5 @@ Wait for initial export defaults before editing the destination, preventing late
 Invalidate stale learned answers when rules or reuse policy change, preserve concurrent owner edits with a shared writer queue, and retain simultaneous CLI rejection additions with bounded knowledge snapshots.
 
 Extract reviewable profile fields from explicit contact text and selected saved CVs through CLI, text/binary Lino and offline/shared UI. Preserve conflicts, field evidence and newer edits, and apply only explicitly selected draft values (R-AA1).
+
+Add named reusable answer profiles with revision-checked CLI/Lino/offline/UI controls, live resolution across linked automations, explicit local overrides, source evidence and profile-change guards during learning and final delivery.

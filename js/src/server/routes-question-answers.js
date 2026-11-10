@@ -1,4 +1,5 @@
 import { json, readBody } from './util.js';
+import { questionProfilesRoute } from './routes-question-profiles.js';
 import {
   listAnswerRules,
   saveAnswerRule,
@@ -17,7 +18,12 @@ import {
 } from '../automation/question-profile-source.js';
 
 const ROOT = '/api/automations/answers';
+const isProfilesRoute = (path) =>
+  path === `${ROOT}/profiles` || path.startsWith(`${ROOT}/profiles/`);
 export const questionAnswerRoute = async (store, req, res, path) => {
+  if (isProfilesRoute(path)) {
+    return questionProfilesRoute(store, req, res, path);
+  }
   const handlers = {
     [`${ROOT}/policy`]: policyRoute,
     [`${ROOT}/exchange`]: exchangeRoute,

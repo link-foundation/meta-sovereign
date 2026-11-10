@@ -17,6 +17,11 @@ import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
+import {
+  readAnswerProfile,
+  resolveAnswerProfile,
+  resolveStoredAnswerProfile,
+} from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
 import {
   prepareSalaryExchange,
@@ -79,17 +84,19 @@ const readAnswerRules = async (store, maxBytes = Infinity) => {
 
 export const listAnswerRules = (store) => readAnswerRules(store);
 
-const contractionInput = async (store, input) =>
-  input.contract === true
-    ? {
-        ...input,
-        salary: (
-          await prepareSalaryExchange(store, input.salary, {
-            now: () => input.now ?? Date.now(),
-          })
-        ).salary,
-      }
-    : input;
+const contractionInput = async (store, input, resolved = false) => {
+  if (input.contract !== true) {
+    return input;
+  }
+  return {
+    ...(resolved ? input : await resolveStoredAnswerProfile(store, input)),
+    salary: (
+      await prepareSalaryExchange(store, input.salary, {
+        now: () => input.now ?? Date.now(),
+      })
+    ).salary,
+  };
+};
 
 const writeAnswerRule = async (store, input) => {
   input = await contractionInput(store, input);
@@ -146,7 +153,10 @@ export const previewAnswer = async (store, input) => {
     throw new Error('question must be text of at most 6000 characters');
   }
   const rules = await listAnswerRules(store);
-  const action = normalizeAnswerAction(input);
+  const action = await resolveStoredAnswerProfile(
+    store,
+    normalizeAnswerAction(input)
+  );
   const prepared = await prepareSalaryExchange(store, action.salary, {
     now: () => input.now ?? Date.now(),
   });
@@ -252,16 +262,41 @@ export const validateAnswerDraft = async (
       error: 'The question automation changed; review before sending',
     };
   }
-  const fresh = await previewAnswer(store, {
-    now,
-    question: latest.body,
-    ...current.action,
-    ...answerEnvironmentFromMessages(history.values(), latest),
-    source: draft.source,
-    chat: String(draft.chat),
-    options: latest.answerOptions,
-  });
-  if (fresh.text !== draft.text || !fresh.complete || fresh.requiresReview) {
+  return validateCurrentAnswer(store, current, draft, latest, history, now);
+};
+
+const validateCurrentAnswer = async (
+  store,
+  current,
+  draft,
+  latest,
+  history,
+  now
+) => {
+  let fresh;
+  try {
+    fresh = await previewAnswer(store, {
+      now,
+      question: latest.body,
+      ...current.action,
+      ...answerEnvironmentFromMessages(history.values(), latest),
+      source: draft.source,
+      chat: String(draft.chat),
+      options: latest.answerOptions,
+    });
+  } catch (error) {
+    if (error.code !== 'answer-profile-missing') {
+      throw error;
+    }
+    return { ok: false, code: 'answer-review-required', error: error.message };
+  }
+  if (
+    fresh.text !== draft.text ||
+    !fresh.complete ||
+    fresh.requiresReview ||
+    JSON.stringify(fresh.profileSource) !==
+      JSON.stringify(draft.answer.profileSource)
+  ) {
     return {
       ok: false,
       code: 'answer-review-required',
@@ -277,14 +312,15 @@ const mergeLearned = (existing, proposal) => ({
   answers: [...(existing?.answers ?? [])],
 });
 
-const readAnswerKnowledge = async (store) => ({
+const readAnswerKnowledge = async (store, profileId) => ({
   policy: await readAnswerPolicy(store),
   rules: await readAnswerRules(store, 8 * 1024 ** 2),
+  ...(profileId ? { profile: await readAnswerProfile(store, profileId) } : {}),
 });
 
-const unchangedKnowledge = async (store, snapshot, checkArchive) => {
+const unchangedKnowledge = async (store, snapshot, checkArchive, profileId) => {
   checkArchive();
-  const current = await readAnswerKnowledge(store);
+  const current = await readAnswerKnowledge(store, profileId);
   checkArchive();
   if (JSON.stringify(current) !== snapshot) {
     debugQuestionTurn('learning-invalidated', { kind: 'knowledge-snapshot' });
@@ -304,9 +340,13 @@ const collectSavedAnswers = async (
   if (!Array.isArray(self) || self.some((id) => typeof id !== 'string')) {
     throw new Error('self must be a list of identifiers');
   }
-  options = await contractionInput(store, options);
-  const knowledge = await readAnswerKnowledge(store);
+  const knowledge = await readAnswerKnowledge(store, options.profileId);
   const snapshot = JSON.stringify(knowledge);
+  options = await contractionInput(
+    store,
+    resolveAnswerProfile(options, knowledge.profile),
+    true
+  );
   const saved = new Map(knowledge.rules.map((rule) => [rule.id, rule]));
   const learned = await learnArchivedAnswers(store, {
     self: [...new Set(['me', ...self])],
@@ -351,13 +391,18 @@ const collectSavedAnswers = async (
       );
     }
     await writeAnswerKnowledge(store, async () => {
-      await unchangedKnowledge(store, snapshot, checkArchive);
+      await unchangedKnowledge(
+        store,
+        snapshot,
+        checkArchive,
+        options.profileId
+      );
       for (const rule of rules) {
         await store.put(rule);
       }
     });
   } else {
-    await unchangedKnowledge(store, snapshot, checkArchive);
+    await unchangedKnowledge(store, snapshot, checkArchive, options.profileId);
   }
   return { rules, applied: apply === true, coverage: learned.coverage };
 };

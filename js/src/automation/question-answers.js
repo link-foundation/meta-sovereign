@@ -12,6 +12,7 @@ import {
   createAnswerCorrectionGuard,
 } from './question-corrections.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
 import { questionCore, sufficientAnswer } from './question-turns.js';
@@ -119,10 +120,12 @@ export const normalizeAnswerRule = (input) => {
 
 export const normalizeAnswerAction = (action) => {
   const profile = normalizeAnswerProfile(action.profile);
+  const profileId = optionalAnswerProfileId(action.profileId);
   return {
     kind: 'answer-questions',
     ruleIds: strings(action.ruleIds, 'ruleIds'),
     profile,
+    ...(profileId ? { profileId } : {}),
     contexts: normalizeAnswerContexts(action.contexts),
     ...(action.salary === undefined || action.salary === null
       ? {}
@@ -344,5 +347,9 @@ export const planAnswer = (question, options = {}) => {
       };
     }
   }
-  return { ...result, question };
+  return {
+    ...result,
+    question,
+    ...(options.profileSource ? { profileSource: options.profileSource } : {}),
+  };
 };

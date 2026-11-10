@@ -326,6 +326,8 @@ const PreviewControls = ({
   run,
   profile,
   setProfile,
+  profileId,
+  setProfileId,
   contexts,
   setContexts,
   salary,
@@ -365,6 +367,8 @@ const PreviewControls = ({
       key: 'p',
       profile,
       set: setProfile,
+      profileId,
+      setProfileId,
       api,
       disabled: busy,
     }),
@@ -389,6 +393,7 @@ const PreviewControls = ({
                 source,
                 chat,
                 profile,
+                profileId,
                 contexts,
                 salary,
                 recent: (environment.recentText ?? '')
@@ -405,7 +410,7 @@ const PreviewControls = ({
   ]);
 };
 
-const questionAutomation = (t, profile, contexts, salary) => ({
+const questionAutomation = (t, profile, contexts, salary, profileId) => ({
   ...blankAutomation(t('questions.automationName')),
   conditions: {
     silentDays: 0,
@@ -414,7 +419,7 @@ const questionAutomation = (t, profile, contexts, salary) => ({
     personal: false,
     lastFrom: 'contact',
   },
-  action: { kind: 'answer-questions', profile, contexts, salary },
+  action: { kind: 'answer-questions', profile, profileId, contexts, salary },
 });
 
 const QuestionToolbar = ({ busy, create, refresh, newRule }) => {
@@ -466,6 +471,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const [error, setError] = React.useState('');
   const [notice, setNotice] = React.useState('');
   const [profile, setProfile] = React.useState({});
+  const [profileId, setProfileId] = React.useState('');
   const [contexts, setContexts] = React.useState([]);
   const [salary, setSalary] = React.useState(undefined);
   const [contract, setContract] = React.useState(false);
@@ -497,7 +503,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
         ...rule,
         id,
         contract,
-        ...(contract ? { profile, salary } : {}),
+        ...(contract ? { profile, profileId, salary } : {}),
       });
       setRule(saved.rule);
       await reload();
@@ -515,7 +521,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
       const answer = await api.learnAnswers({
         apply,
         contract,
-        ...(contract ? { profile, salary } : {}),
+        ...(contract ? { profile, profileId, salary } : {}),
       });
       setLearned(answer);
       if (apply) {
@@ -557,30 +563,11 @@ export const QuestionControls = ({ api, openAutomation }) => {
         },
         refresh: () => run(reload),
         create: () =>
-          openAutomation(questionAutomation(t, profile, contexts, salary)),
+          openAutomation(
+            questionAutomation(t, profile, contexts, salary, profileId)
+          ),
       }),
-      rules.length
-        ? el(
-            'ul',
-            { key: 'rules', className: 'automation-list' },
-            rules.map((entry) =>
-              el(
-                'li',
-                { key: entry.id },
-                el(
-                  'button',
-                  {
-                    type: 'button',
-                    disabled: busy,
-                    'aria-pressed': entry.id === rule.id,
-                    onClick: () => setRule(entry),
-                  },
-                  entry.question
-                )
-              )
-            )
-          )
-        : el('p', { key: 'empty', className: 'meta' }, t('questions.empty')),
+      el(SavedAnswerList, { key: 'rules', rules, rule, busy, setRule }),
       el(
         'fieldset',
         { key: 'editor', disabled: busy },
@@ -595,6 +582,8 @@ export const QuestionControls = ({ api, openAutomation }) => {
         run,
         profile,
         setProfile,
+        profileId,
+        setProfileId,
         contexts,
         setContexts,
         salary,
@@ -602,4 +591,30 @@ export const QuestionControls = ({ api, openAutomation }) => {
       }),
     ]
   );
+};
+
+const SavedAnswerList = ({ rules, rule, busy, setRule }) => {
+  const t = useT();
+  return rules.length
+    ? el(
+        'ul',
+        { key: 'rules', className: 'automation-list' },
+        rules.map((entry) =>
+          el(
+            'li',
+            { key: entry.id },
+            el(
+              'button',
+              {
+                type: 'button',
+                disabled: busy,
+                'aria-pressed': entry.id === rule.id,
+                onClick: () => setRule(entry),
+              },
+              entry.question
+            )
+          )
+        )
+      )
+    : el('p', { key: 'empty', className: 'meta' }, t('questions.empty'));
 };

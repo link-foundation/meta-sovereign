@@ -2,6 +2,7 @@ import { historyOrder } from '../replies/history-order.js';
 import { createAnswerLearner } from './question-learning.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
 import { QA_POLICY_ID } from './question-policy.js';
+import { QA_PROFILE_PREFIX } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
 
 const MAX_INDEX_BYTES = 64 * 1024 ** 2;
@@ -77,7 +78,9 @@ export const archiveReadGuard = (store) => {
     const id = event.link?.id;
     changed ||= id?.startsWith('msg:') === true;
     knowledgeChanged ||=
-      id === QA_POLICY_ID || id?.startsWith(QA_RULE_PREFIX) === true;
+      id === QA_POLICY_ID ||
+      id?.startsWith(QA_RULE_PREFIX) === true ||
+      id?.startsWith(QA_PROFILE_PREFIX) === true;
   });
   return {
     check() {

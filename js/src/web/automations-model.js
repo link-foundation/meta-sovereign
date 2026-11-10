@@ -77,6 +77,7 @@ export const toForm = (input) => {
     actionKind: a.action.kind,
     ruleIds: (a.action.ruleIds ?? []).join(', '),
     profile: { ...a.action.profile },
+    profileId: a.action.profileId ?? '',
     contexts: a.action.contexts ?? [],
     salary: a.action.salary,
     approximate: a.action.approximate !== false,
@@ -161,6 +162,7 @@ export const fromForm = (form, base = {}) => ({
       ? {
           ruleIds: csv(form.ruleIds),
           profile: form.profile,
+          profileId: form.profileId,
           contexts: form.contexts ?? [],
           salary: form.salary,
           approximate: form.approximate,

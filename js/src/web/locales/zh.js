@@ -1,3 +1,4 @@
+import { zhSharedProfile } from './zh-shared-profile.js';
 import { zhProfileImport } from './zh-profile-import.js';
 import { zhChatRemoval } from './zh-chat-removal.js';
 import { zhFollowTelegram } from './zh-follow-telegram.js';
@@ -27,6 +28,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhSharedProfile,
   ...zhProfileImport,
   ...zhChatRemoval,
   ...zhFollow,

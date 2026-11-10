@@ -14,6 +14,7 @@ import {
   extractAnswerProfile,
   listAnswerProfileSources,
 } from '../automation/question-profile-source.js';
+import { questionProfilesApi } from './question-profiles-api.js';
 
 const validProfileCandidate = (candidate) =>
   typeof candidate?.value === 'string' &&
@@ -42,6 +43,7 @@ export const questionApi = ({ remote, store }) => {
     return result ?? fallback();
   };
   return {
+    ...questionProfilesApi({ remote, store }),
     answerProfileSources: async () => {
       const result = await remote.get(
         '/api/automations/answers/profile-sources'

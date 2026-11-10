@@ -57,6 +57,7 @@ import {
   QA_RULE_PREFIX,
 } from './question-answers.js';
 import { QA_POLICY_ID } from './question-policy.js';
+import { resolveAnswerProfile } from './question-profiles.js';
 import { answerEnvironmentFromMessages } from './question-context.js';
 import { historyOrder } from '../replies/history-order.js';
 import {
@@ -649,6 +650,12 @@ const planningContext = (links, automation, options, now) => {
 
 export const planAutomation = (links = [], input, options = {}) => {
   const automation = plannedAutomation(input);
+  if (automation.action.kind === 'answer-questions') {
+    automation.action = resolveAnswerProfile(
+      automation.action,
+      links.find((link) => link?.id === automation.action.profileId)
+    );
+  }
   const now = toMs(options.now) ?? Number(options.now ?? Date.now());
   const { ctx, selfIds, isSelf } = planningContext(
     links,

@@ -34,6 +34,7 @@ export const AnswerEvidence = ({ answer }) => {
           t('questions.missing', { fields: answer.missing.join(', ') })
         )
       : null,
+    el(ProfileEvidence, { key: 'profile', source: answer.profileSource }),
     Number.isSafeInteger(answer.count)
       ? el(
           'small',
@@ -86,4 +87,27 @@ export const AnswerEvidence = ({ answer }) => {
         ])
       : null,
   ]);
+};
+
+const ProfileEvidence = ({ source }) => {
+  const t = useT();
+  return source
+    ? el('details', { key: 'profile', 'data-profile-evidence': true }, [
+        el('summary', { key: 'summary' }, t('questions.sharedEvidence')),
+        el(
+          'p',
+          { key: 'source', style: { overflowWrap: 'anywhere' } },
+          `${source.name} · ${source.id} · ${source.updatedAt} · ${source.revision}`
+        ),
+        source.overriddenKeys?.length
+          ? el(
+              'p',
+              { key: 'overrides' },
+              t('questions.sharedOverriddenKeys', {
+                fields: source.overriddenKeys.join(', '),
+              })
+            )
+          : null,
+      ])
+    : null;
 };

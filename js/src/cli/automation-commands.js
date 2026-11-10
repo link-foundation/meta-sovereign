@@ -45,6 +45,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
+                answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]
                 answers profile-sources | profile [--cv=<platform|cv:id>] [--text=<owner contacts>|--text-file=<path>] [--profile=<lino>] [--json] (read-only draft)
                 follow: links | extract | clear [--source=<provider>] [--chat=<id>] [--self=<id,id>] [--limit=<n>] [--offset=<n>]
                 follow extract: scans cached incoming messages; --limit=0 scans the whole cached archive

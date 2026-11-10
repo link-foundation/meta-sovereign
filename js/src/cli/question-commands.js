@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import { namedProfileCommand } from './question-profile-commands.js';
 import { decodeWire, encodeLinoValue } from '../transport/lino.js';
 import {
   listAnswerRules,
@@ -78,6 +79,9 @@ const planOverrides = (args) => ({
     ? { ruleIds: csv(args['rule-ids'] ?? args.ruleIds) }
     : {}),
   ...(args.profile ? { profile: decodeWire(args.profile) } : {}),
+  ...(args['profile-id'] !== undefined
+    ? { profileId: args['profile-id'] }
+    : {}),
   ...(args.approximate === undefined
     ? {}
     : {
@@ -135,6 +139,7 @@ export const questionCommands = async ({ args, store, log }) => {
   const sub = args._[1] ?? 'list';
   let result;
   const reads = {
+    profiles: () => namedProfileCommand(args, store),
     'profile-sources': () => listAnswerProfileSources(store),
     profile: () => profileCommand(args, store),
   };

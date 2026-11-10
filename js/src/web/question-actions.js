@@ -63,6 +63,8 @@ export const AutomationActionFields = ({
             api,
             profile: form.profile,
             set: (profile) => set('profile', profile),
+            profileId: form.profileId,
+            setProfileId: (profileId) => set('profileId', profileId),
           }),
         ]
       : [
