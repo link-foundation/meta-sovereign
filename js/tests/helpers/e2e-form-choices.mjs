@@ -1,19 +1,13 @@
-import { decodeWire } from '../../src/transport/lino.js';
+import {
+  responseFor,
+  decoded,
+  planCurrent,
+  captureFormReview,
+} from './e2e-form-review.mjs';
 import { assert } from './e2e-chat.mjs';
 
-const responseFor = (page, action) =>
-  page.waitForResponse((response) =>
-    response.url().endsWith(`/api/forms/sessions/${action}`)
-  );
-const decoded = async (response) =>
-  decodeWire(await response.body(), response.headers()['content-type']);
 const chosen = (report, id) =>
   report.fields.find((field) => field.nativeId === id);
-const planCurrent = async (page) => {
-  const pending = responseFor(page, 'plan');
-  await page.locator('[data-action="plan-form"]').click();
-  return decoded(await pending);
-};
 const openChoices = async (page, field) => {
   const pending = responseFor(page, 'disclose');
   await page.locator(`[data-form-disclose="${field.id}"]`).click();
@@ -112,22 +106,7 @@ export const verifyFormChoicesUi = async ({ page, owned, fixture }) => {
     'unselected answer remains unchanged'
   );
   if (process.env.FORMS_CHOICES_SCREENSHOTS === '1') {
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-choices-after.png',
-    });
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    assert(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      'choice inspection fits phone width'
-    );
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-choices-mobile.png',
-    });
-    await page.setViewportSize({ width: 1200, height: 800 });
+    await captureFormReview(page, 'choices');
   }
   plan = await planCurrent(page);
   await owner.page

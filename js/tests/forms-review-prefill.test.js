@@ -6,14 +6,9 @@ import { createFormReader } from '../src/forms/reader.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { saveAnswerProfile } from '../src/automation/question-profiles.js';
 import { saveAnswerRule } from '../src/automation/question-store.js';
-import { startServer } from '../src/server/index.js';
+import { formReviewHttp } from './helpers/forms-review-http.mjs';
 import { createFormsCommands } from '../src/cli/forms-commands.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { isReadRequest } from '../src/web/request-policy.js';
 import { writableReviewField } from '../src/forms/review-targets.js';
 import { reviewTargetFields } from '../src/forms/review-radio.js';
@@ -616,26 +611,7 @@ test(
     for (const media of [LINO_TEXT, LINO_BINARY]) {
       const env = await environment();
       await env.reader.stop();
-      const server = await startServer({
-        ...env.options,
-        port: 0,
-        localUi: false,
-        enableSync: false,
-        enableHandlers: false,
-        telegramAccount: false,
-        automations: { scheduler: false },
-        forms: { ...env.options },
-        log: null,
-      });
-      const base = `http://127.0.0.1:${server.port}`;
-      const post = async (action, body, headers = {}) =>
-        readWireResponse(
-          await fetch(`${base}/api/forms/sessions/${action}`, {
-            method: 'POST',
-            headers: { 'content-type': media, accept: media, ...headers },
-            body: encodeWire(body, media),
-          })
-        );
+      const { server, base, post } = await formReviewHttp(env.options, media);
       try {
         const opened = await post('open', { url: env.report.url });
         const plan = await post('plan', {

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-forms-effects.md](ci-forms-effects.md) traces the hosted 6.51% duplication failure and consolidates guarded form effects and isolated HTTP/browser fixtures without relaxing validation.
+
 - [ci-links-concurrency.md](ci-links-concurrency.md) preserves three changing GitHub 503 failures and reduces request concurrency without accepting failures or excluding references. Exact-head hosted verification remains required.
 
 - [forms-reviewed-upload.md](forms-reviewed-upload.md) verifies chosen PDF attachment with actual byte hashes, replacement permission, consumed plans and no replay across CLI/Lino/shared UI. Eighteen focused Node and twelve Deno checks, production Chromium, a focused WebKit custom-control check and independent MCP desktop/mobile pass. Configured résumé selection, models, accumulated pages and learning remain open.

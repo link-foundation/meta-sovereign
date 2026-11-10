@@ -1,5 +1,6 @@
 import { formFailure as failure } from './options.js';
 import { reviewSnapshotKey } from './review-targets.js';
+import { performReviewedEffect } from './review-effect.js';
 import {
   resumePdf,
   resumeUploadField,
@@ -75,52 +76,37 @@ export const attachReviewedResume = async ({
   }
   const { state, field } = uploadPlan(record, input, now);
   record.reviewPlan = null;
-  let issued = false;
-  let report = null;
-  let result;
-  try {
-    await state.targets.check();
-    report = await inspect(record.browser, { check });
-    if (reviewSnapshotKey(report) !== reviewSnapshotKey(state.inspection)) {
-      throw failure(
-        'form-changed',
-        'The form changed. Plan its current page again.'
-      );
-    }
-    await state.targets.check();
-    check();
-    const target = state.targets.control(field.id);
-    issued = true;
-    await target.setInputFiles(
-      {
-        name: pdf.metadata.name,
-        mimeType: pdf.metadata.type,
-        buffer: pdf.buffer,
-      },
-      { timeout: 5000 }
-    );
-    check();
-    await state.targets.check();
-    const actual = await target.evaluate(readUploadedPdf);
-    check();
-    report = await inspect(record.browser, { check });
-    result = {
-      state:
-        JSON.stringify(actual) === JSON.stringify(pdf.metadata) &&
-        unchangedFields(state.inspection, report, field.id, pdf.metadata)
-          ? 'attached'
-          : 'uncertain',
-      report,
-    };
-  } catch (error) {
-    result = {
-      state: issued ? 'uncertain' : 'refused',
-      code: error.code ?? 'form-upload-unknown',
-      report: issued ? null : report,
-    };
-  } finally {
-    await state.targets.dispose();
-  }
+  const result = await performReviewedEffect({
+    record,
+    state,
+    check,
+    inspect,
+    unknownCode: 'form-upload-unknown',
+    issue: () =>
+      state.targets.control(field.id).setInputFiles(
+        {
+          name: pdf.metadata.name,
+          mimeType: pdf.metadata.type,
+          buffer: pdf.buffer,
+        },
+        { timeout: 5000 }
+      ),
+    readback: async () => {
+      const actual = await state.targets
+        .control(field.id)
+        .evaluate(readUploadedPdf);
+      check();
+      const report = await inspect(record.browser, { check });
+      return {
+        state:
+          JSON.stringify(actual) === JSON.stringify(pdf.metadata) &&
+          unchangedFields(state.inspection, report, field.id, pdf.metadata)
+            ? 'attached'
+            : 'uncertain',
+        report,
+      };
+    },
+  });
   record.lastUpload = {
     ok: true,
     mode: 'upload-result',

@@ -1,20 +1,14 @@
-import { decodeWire } from '../../src/transport/lino.js';
+import {
+  responseFor,
+  decoded,
+  planCurrent,
+  captureFormReview,
+} from './e2e-form-review.mjs';
 import { assert } from './e2e-chat.mjs';
 import { resumePdf } from '../../src/forms/resume-upload.js';
 import { syntheticResumePdf } from '../../../experiments/issue-56/forms-resume-fixture.mjs';
 
-const responseFor = (page, action) =>
-  page.waitForResponse((response) =>
-    response.url().endsWith(`/api/forms/sessions/${action}`)
-  );
-const decoded = async (response) =>
-  decodeWire(await response.body(), response.headers()['content-type']);
 const field = (plan, id) => plan.fields.find((item) => item.nativeId === id);
-const planCurrent = async (page) => {
-  const pending = responseFor(page, 'plan');
-  await page.locator('[data-action="plan-form"]').click();
-  return decoded(await pending);
-};
 const attach = async (page, plan, id, file) => {
   const current = field(plan, id);
   await page.locator(`[data-form-resume="${current.id}"]`).setInputFiles(file);
@@ -117,22 +111,7 @@ export const verifyFormUploadUi = async ({ page, owned, fixture }) => {
     'portrait untouched'
   );
   if (process.env.FORMS_UPLOAD_SCREENSHOTS === '1') {
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-upload-after.png',
-    });
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    assert(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      'PDF review fits phone width'
-    );
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-upload-mobile.png',
-    });
-    await page.setViewportSize({ width: 1200, height: 800 });
+    await captureFormReview(page, 'upload');
   }
   plan = await planCurrent(page);
   await owner.page

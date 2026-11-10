@@ -1,6 +1,6 @@
 import { formFailure as failure } from './options.js';
 import { expandableReviewField } from './review-custom.js';
-import { reviewSnapshotKey } from './review-targets.js';
+import { performReviewedEffect } from './review-effect.js';
 
 const unchangedAnswers = (before, after, fieldId) => {
   if (before.fields.length !== after.fields.length) {
@@ -62,40 +62,23 @@ export const discloseReviewedOptions = async ({
   }
   const { state, field } = disclosurePlan(record, input, now);
   record.reviewPlan = null;
-  let issued = false;
-  let report = null;
-  let result;
-  try {
-    await state.targets.check();
-    report = await inspect(record.browser, { check });
-    if (reviewSnapshotKey(report) !== reviewSnapshotKey(state.inspection)) {
-      throw failure(
-        'form-changed',
-        'The reviewed form changed. Plan the current page again.'
-      );
-    }
-    await state.targets.check();
-    check();
-    issued = true;
-    await state.targets.control(field.id).click({ timeout: 5000 });
-    check();
-    await state.targets.check();
-    report = await inspect(record.browser, { check });
-    const current = report.fields.find((item) => item.id === field.id);
-    const opened =
-      current?.optionsExpanded === true &&
-      current.options.some((option) => option.visible) &&
-      unchangedAnswers(state.inspection, report, field.id);
-    result = { state: opened ? 'opened' : 'uncertain', report };
-  } catch (error) {
-    result = {
-      state: issued ? 'uncertain' : 'refused',
-      code: error.code ?? 'form-choices-unknown',
-      report: issued ? null : report,
-    };
-  } finally {
-    await state.targets.dispose();
-  }
+  const result = await performReviewedEffect({
+    record,
+    state,
+    check,
+    inspect,
+    unknownCode: 'form-choices-unknown',
+    issue: () => state.targets.control(field.id).click({ timeout: 5000 }),
+    readback: async () => {
+      const report = await inspect(record.browser, { check });
+      const current = report.fields.find((item) => item.id === field.id);
+      const opened =
+        current?.optionsExpanded === true &&
+        current.options.some((option) => option.visible) &&
+        unchangedAnswers(state.inspection, report, field.id);
+      return { state: opened ? 'opened' : 'uncertain', report };
+    },
+  });
   record.lastDisclosure = {
     ok: true,
     mode: 'choices-result',

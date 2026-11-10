@@ -1,19 +1,13 @@
-import { decodeWire } from '../../src/transport/lino.js';
+import {
+  responseFor,
+  decoded,
+  planCurrent as currentPlan,
+  captureFormReview,
+} from './e2e-form-review.mjs';
 import { assert } from './e2e-chat.mjs';
 
-const responseFor = (page, action) =>
-  page.waitForResponse((response) =>
-    response.url().endsWith(`/api/forms/sessions/${action}`)
-  );
-const decoded = async (response) =>
-  decodeWire(await response.body(), response.headers()['content-type']);
 const chosen = (report, id) =>
   report.fields.find((field) => field.nativeId === id);
-const currentPlan = async (page) => {
-  const response = responseFor(page, 'plan');
-  await page.locator('[data-action="plan-form"]').click();
-  return decoded(await response);
-};
 
 const verifyCustomReadback = (result) => {
   assert(
@@ -90,22 +84,7 @@ export const verifyFormCustomUi = async ({ page, owned, fixture }) => {
   );
   verifyCustomReadback(result);
   if (process.env.FORMS_CUSTOM_SCREENSHOTS === '1') {
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-custom-after.png',
-    });
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator('[data-form-fill]').scrollIntoViewIfNeeded();
-    assert(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      'custom receipts fit phone width'
-    );
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-custom-mobile.png',
-    });
-    await page.setViewportSize({ width: 1200, height: 800 });
+    await captureFormReview(page, 'custom');
   }
   await owner.page.locator('#custom-language').evaluate((node) => {
     for (const option of node.children) {
