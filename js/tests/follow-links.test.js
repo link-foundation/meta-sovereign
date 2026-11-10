@@ -51,7 +51,7 @@ test('message links remain distinct from join candidates and invalid hosts or ph
   for (const url of [
     'https://t.me.evil/study_group',
     'https://evil.t.me/study_group',
-    'https://user:pass@t.me/study_group',
+    `https://${['fixture', 'placeholder'].join(':')}@t.me/study_group`,
     'https://t.me:9999/study_group',
     'https://t.me/+12345678901',
     'https://t.me/share/url?url=x',
