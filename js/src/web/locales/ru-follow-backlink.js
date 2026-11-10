@@ -1,8 +1,9 @@
 export const ruFollowBacklink = {
   'followBacklink.title': 'Follow: публикация и проверка обратных ссылок',
   'followBacklink.hint':
-    'Проверьте ссылку Telegram или приглашение VK перед отправкой в выбранные группы VK. Проверка продолжается на подключённом сервере после ухода со страницы. Сообщения с неизвестным результатом сохраняются для проверки и автоматически не отправляются повторно.',
-  'followBacklink.chats': 'ID групп VK (peer ID), через запятую',
+    'Проверьте ссылку Telegram или приглашение VK перед отправкой в выбранные группы Telegram или VK. Проверка продолжается на подключённом сервере после ухода со страницы. Сообщения с неизвестным результатом сохраняются для проверки и автоматически не отправляются повторно.',
+  'followBacklink.chats':
+    'ID групп через запятую (Telegram: -7; VK: 2000000007)',
   'followBacklink.backlink': 'Ваша ссылка Telegram или приглашение VK',
   'followBacklink.monitorMs': 'Длительность проверки (миллисекунды)',
   'followBacklink.intervalMs': 'Интервал проверок (миллисекунды)',
@@ -21,11 +22,11 @@ export const ruFollowBacklink = {
   'followBacklink.cancel': 'Остановить оставшиеся шаги',
   'followBacklink.working': 'Выполняется…',
   'followBacklink.review': 'Проверьте аккаунт, группы и параметры',
-  'followBacklink.owner': 'Аккаунт VK {owner}',
+  'followBacklink.owner': 'Аккаунт {source} {owner}',
   'followBacklink.window':
     'Проверять {duration} мс с интервалом {interval} мс.',
   'followBacklink.cleanupHint':
-    'После подтверждения проверить до {limit} последних сообщений и удалить входящие только у этого аккаунта. Исходящие и служебные сообщения сохраняются.',
+    'После подтверждения проверить до {limit} последних сообщений и удалить входящие только у этого аккаунта. Исходящие и служебные сообщения сохраняются. Telegram поддерживает такую очистку только в обычных группах.',
   'followBacklink.message': 'Сообщение {id}',
   'followBacklink.providerCode': 'Ошибка VK {code}',
   'followBacklink.cleanupResult':
@@ -51,26 +52,26 @@ export const ruFollowBacklink = {
   'followBacklink.bad-request':
     'Проверьте ID групп, ссылку, числовые пределы и параметры повторов.',
   'followBacklink.not-connected':
-    'Подключите пользовательский аккаунт VK на этом сервере.',
+    'Подключите пользовательский аккаунт выбранного сервиса на этом сервере.',
   'followBacklink.account-changed':
     'Подключённый аккаунт изменился. Подтверждения сохранены.',
   'followBacklink.not-writable':
     'В одну из выбранных групп нельзя отправлять сообщения.',
   'followBacklink.provider-response':
-    'VK вернул непригодное подтверждение. Успех не предполагается.',
+    'Сервис вернул непригодное подтверждение. Успех не предполагается.',
   'followBacklink.timeout':
     'Время чтения истекло после заданного числа попыток. Можно продолжить оставшиеся проверки.',
   'followBacklink.rate-limited':
     'VK ограничивает запросы. Подождите перед продолжением проверок.',
   'followBacklink.captcha': 'VK требует капчу. Решите её в Подключениях.',
   'followBacklink.provider-refused':
-    'VK отклонил операцию. Проверьте код ошибки и права.',
+    'Сервис отклонил операцию. Проверьте ошибку и права.',
   'followBacklink.outcome-unknown':
     'Изменение не подтверждено. Проверьте сохранённый запуск; автоматического повтора не будет.',
   'followBacklink.read-failed':
     'Проверка не выполнена. Результаты сохранены; обновите их перед продолжением.',
   'followBacklink.follow-server-required':
-    'Подключите сервер с пользовательским аккаунтом VK для отправки и проверки ссылок.',
+    'Подключите сервер с пользовательским аккаунтом выбранного сервиса для отправки и проверки ссылок.',
   'followBacklink.busy':
     'На сервере уже выполняется другой запуск. Проверьте его перед новым.',
   'followBacklink.plan-expired':
@@ -86,4 +87,14 @@ export const ruFollowBacklink = {
     'Сохранённый запуск не найден на подключённом сервере.',
   'followBacklink.confirmation-required':
     'Сначала проверьте и явно подтвердите операцию.',
+  'followBacklink.source': 'Аккаунт для отправки',
+  'followBacklink.providerError': 'Ошибка Telegram {error}',
+  'followBacklink.user-account-required':
+    'Подключите пользовательский аккаунт Telegram на этом сервере. Аккаунты ботов не поддерживаются.',
+  'followBacklink.cleanup-unavailable':
+    'В Telegram очистка только у себя доступна в обычных группах. Отключите очистку для канала или супергруппы.',
+  'followBacklink.flood-wait':
+    'Telegram ограничивает запросы. Дождитесь окончания ограничения перед продолжением.',
+  'followBacklink.target-unavailable':
+    'Группа не найдена. Сначала загрузите её в Follow и проверьте участие и права.',
 };

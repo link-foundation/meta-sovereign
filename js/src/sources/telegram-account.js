@@ -1320,6 +1320,7 @@ const connectionRecorder = (store) => {
 };
 
 const stopReaders = async (env) => {
+  await env.followBacklinkStop?.();
   await env.followTelegramStop?.();
   await env.channels.flush().catch(() => {});
   await env.catchUp.stop();

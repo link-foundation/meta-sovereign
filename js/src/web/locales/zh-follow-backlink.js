@@ -1,8 +1,8 @@
 export const zhFollowBacklink = {
   'followBacklink.title': 'Follow：发布并检查回链',
   'followBacklink.hint':
-    '先审核 Telegram 或 VK 邀请链接，再发布到选定的 VK 群组。离开页面后，已连接的服务器会继续检查。结果不明的帖子将保留供核查，绝不会自动重发。',
-  'followBacklink.chats': 'VK 群组 peer ID，以逗号分隔',
+    '先审核 Telegram 或 VK 邀请链接，再发布到选定的 Telegram 或 VK 群组。离开页面后，已连接的服务器会继续检查。结果不明的帖子将保留供核查，绝不会自动重发。',
+  'followBacklink.chats': '群组 ID，以逗号分隔（Telegram：-7；VK：2000000007）',
   'followBacklink.backlink': '您的 Telegram 或 VK 邀请链接',
   'followBacklink.monitorMs': '检查时长（毫秒）',
   'followBacklink.intervalMs': '检查间隔（毫秒）',
@@ -20,10 +20,10 @@ export const zhFollowBacklink = {
   'followBacklink.cancel': '停止剩余步骤',
   'followBacklink.working': '处理中…',
   'followBacklink.review': '审核具体账号、群组和设置',
-  'followBacklink.owner': 'VK 账号 {owner}',
+  'followBacklink.owner': '{source} 账号 {owner}',
   'followBacklink.window': '检查 {duration} 毫秒；每 {interval} 毫秒核查一次。',
   'followBacklink.cleanupHint':
-    '确认回链仍存在后，检查最多 {limit} 条最近消息，并仅为此账号删除收到的消息。保留已发消息和服务消息。',
+    '确认回链仍存在后，检查最多 {limit} 条最近消息，并仅为此账号删除收到的消息。保留已发消息和服务消息。Telegram 仅在普通群组支持这种清理。',
   'followBacklink.message': '消息 {id}',
   'followBacklink.providerCode': 'VK 错误 {code}',
   'followBacklink.cleanupResult': '清理：{status}；已确认删除 {count} 条。',
@@ -45,21 +45,21 @@ export const zhFollowBacklink = {
   'followBacklink.survived': '检查期结束后仍存在',
   'followBacklink.skipped': '已跳过',
   'followBacklink.bad-request': '请检查群组 ID、邀请链接、数值范围和重试设置。',
-  'followBacklink.not-connected': '请在此服务器连接 VK 用户账号。',
+  'followBacklink.not-connected': '请在此服务器连接所选平台的用户账号。',
   'followBacklink.account-changed': '已连接账号发生变化。已保留现有确认记录。',
   'followBacklink.not-writable': '其中一个选定群组无法发布消息。',
-  'followBacklink.provider-response': 'VK 返回的确认记录不可用，无法认定成功。',
+  'followBacklink.provider-response':
+    '平台返回的确认记录不可用，无法认定成功。',
   'followBacklink.timeout':
     '配置的尝试次数后读取仍超时。可继续剩余的安全检查。',
   'followBacklink.rate-limited': 'VK 正在限制请求。请稍后再继续检查。',
   'followBacklink.captcha': 'VK 要求验证码。请在连接设置中完成。',
-  'followBacklink.provider-refused':
-    'VK 拒绝了此操作。请查看平台错误码和权限。',
+  'followBacklink.provider-refused': '平台拒绝了此操作。请查看错误和权限。',
   'followBacklink.outcome-unknown':
     '无法确认写入结果。请核查已保存任务；系统不会自动重放。',
   'followBacklink.read-failed': '检查失败。已保留结果；继续前请刷新。',
   'followBacklink.follow-server-required':
-    '请连接已登录 VK 用户账号的服务器，以发布和检查链接。',
+    '请连接已登录所选平台用户账号的服务器，以发布和检查链接。',
   'followBacklink.busy': '此服务器已有回链任务运行。请先检查该任务。',
   'followBacklink.plan-expired': '此次审核已过期或已使用。请重新审核设置。',
   'followBacklink.not-running': '此任务当前未在此处运行。请刷新已保存结果。',
@@ -69,4 +69,14 @@ export const zhFollowBacklink = {
   'followBacklink.stopped': '服务器正在关闭；已保留确认记录。',
   'followBacklink.not-found': '在已连接服务器上找不到此保存任务。',
   'followBacklink.confirmation-required': '请先审核并明确确认此操作。',
+  'followBacklink.source': '用于发布的账号',
+  'followBacklink.providerError': 'Telegram 错误 {error}',
+  'followBacklink.user-account-required':
+    '请在此服务器连接 Telegram 用户账号。机器人账号无法执行此流程。',
+  'followBacklink.cleanup-unavailable':
+    'Telegram 仅在普通群组支持只为自己清理。请为频道或超级群组关闭清理。',
+  'followBacklink.flood-wait':
+    'Telegram 正在限制请求。请等待平台限制结束后再继续。',
+  'followBacklink.target-unavailable':
+    '无法找到群组。请先在 Follow 中加载，并检查成员资格和权限。',
 };

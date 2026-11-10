@@ -63,6 +63,8 @@ export const createBacklinkOperations = ({
         chat: row.chat,
         backlink: job.config.backlink,
         key: row.key,
+        cancelled,
+        read,
       });
       if (result?.chat !== row.chat || !publicationId(result.id)) {
         throw backlinkFailure('outcome-unknown');
@@ -77,6 +79,7 @@ export const createBacklinkOperations = ({
       const failure = backlinkError(error, { write: true });
       const refused =
         failure.providerCode !== undefined ||
+        failure.providerError !== undefined ||
         [
           'cancelled',
           'account-changed',
@@ -105,6 +108,7 @@ export const createBacklinkOperations = ({
     row.checkedAt = now();
     delete row.code;
     delete row.providerCode;
+    delete row.providerError;
     if (result.state === 'removed') {
       row.status = 'rejected';
       try {

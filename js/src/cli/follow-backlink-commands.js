@@ -1,5 +1,6 @@
 import { createFollowBacklinks } from '../follow/backlinks.js';
 import { encodeLinoValue } from '../transport/lino.js';
+import { createTelegramAccount } from '../sources/telegram-account.js';
 
 const flag = (value) => {
   if (value === undefined || value === false || value === 'false') {
@@ -36,11 +37,18 @@ const configOf = (args) => ({
     maxDelayMs: number(args['retry-max-delay-ms']),
   },
 });
+const exitCode = (result, interrupted) =>
+  interrupted ||
+  result.ok === false ||
+  (result.status && result.status !== 'confirmed')
+    ? 1
+    : 0;
 export const followBacklinkCommands = async ({
   args,
   store,
   log,
   followBacklinks,
+  createAccount = createTelegramAccount,
 }) => {
   const action = args._[2] ?? 'list';
   if (!['post', 'list', 'status', 'resume', 'cancel'].includes(action)) {
@@ -48,7 +56,14 @@ export const followBacklinkCommands = async ({
       'follow backlinks expects post | list | status | resume | cancel'
     );
   }
-  const service = followBacklinks ?? createFollowBacklinks({ store });
+  let account;
+  const service =
+    followBacklinks ??
+    createFollowBacklinks({
+      store,
+      telegramAccount: () =>
+        (account ??= createAccount({ store, pollMs: 0, backfillMs: 0 })),
+    });
   let jobId;
   let interrupted = false;
   const cancel = () => {
@@ -83,14 +98,11 @@ export const followBacklinkCommands = async ({
       result = await service.status({ jobId });
     }
     log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));
-    return interrupted ||
-      result.ok === false ||
-      (result.status && result.status !== 'confirmed')
-      ? 1
-      : 0;
+    return exitCode(result, interrupted);
   } finally {
     process.removeListener('SIGINT', cancel);
     process.removeListener('SIGTERM', cancel);
     await service.stop();
+    await account?.stop?.();
   }
 };

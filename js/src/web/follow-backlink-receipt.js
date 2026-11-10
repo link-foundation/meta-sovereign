@@ -1,8 +1,11 @@
 const integer = (n, min, max) =>
   Number.isSafeInteger(n) && n >= min && n <= max;
 const id = (value) => typeof value === 'string' && /^[1-9]\d*$/u.test(value);
-const chat = (value) =>
-  typeof value === 'string' && integer(Number(value), 2000000001, 2147483647);
+const chat = (value, source) =>
+  typeof value === 'string' &&
+  (source === 'telegram'
+    ? /^-[1-9]\d{0,23}$/u.test(value)
+    : integer(Number(value), 2000000001, 2147483647));
 const states = new Set([
   'ready',
   'sending',
@@ -42,10 +45,10 @@ const cleanup = (value) => {
       value.confirmed.length === value.ids.length)
   );
 };
-const row = (value) => {
+const row = (value, source) => {
   if (
     !value ||
-    !chat(value.chat) ||
+    !chat(value.chat, source) ||
     typeof value.title !== 'string' ||
     !states.has(value.status)
   ) {
@@ -61,11 +64,11 @@ const row = (value) => {
       integer(value.checks, 0, Number.MAX_SAFE_INTEGER))
   );
 };
-export const backlinkRowsReceipt = (value) =>
+export const backlinkRowsReceipt = (value, source = 'vk') =>
   Array.isArray(value) &&
   value.length > 0 &&
   value.length <= 100 &&
-  value.every(row) &&
+  value.every((v) => row(v, source)) &&
   new Set(value.map((v) => v.chat)).size === value.length;
 const timing = (value) =>
   integer(value.monitorMs, 1000, 3600000) &&
@@ -77,14 +80,15 @@ const timing = (value) =>
   integer(value.retry?.maxDelayMs, value.retry.delayMs, 300000);
 export const backlinkConfigReceipt = (value) =>
   value &&
-  value.source === 'vk' &&
+  ['vk', 'telegram'].includes(value.source) &&
   ['telegram', 'vk'].includes(value.targetSource) &&
   typeof value.backlink === 'string' &&
   value.backlink.length <= 2048 &&
   Array.isArray(value.chats) &&
   value.chats.length > 0 &&
   value.chats.length <= 100 &&
-  value.chats.every(chat) &&
+  value.chats.every((v) => chat(v, value.source)) &&
+  new Set(value.chats).size === value.chats.length &&
   typeof value.deleteIncoming === 'boolean' &&
   timing(value);
 export const backlinkJobReceipt = (value) => {
@@ -95,7 +99,7 @@ export const backlinkJobReceipt = (value) => {
     !statuses.has(value.status) ||
     !id(value.owner) ||
     !backlinkConfigReceipt(value.config) ||
-    !backlinkRowsReceipt(value.rows)
+    !backlinkRowsReceipt(value.rows, value.config.source)
   ) {
     return false;
   }

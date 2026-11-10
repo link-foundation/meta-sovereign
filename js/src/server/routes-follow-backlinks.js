@@ -31,6 +31,7 @@ const serviceOf = (store, ctx) => {
   }
   ctx.followBacklinks ??= createFollowBacklinks({
     store,
+    telegramAccount: () => ctx.telegramAccount,
     ...ctx.followBacklinkOptions,
     trace: (event) => {
       if (process.env.MS_FOLLOW_DEBUG === '1') {

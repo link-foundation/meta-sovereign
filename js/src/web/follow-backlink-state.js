@@ -1,6 +1,7 @@
 import React from 'react';
 
 const defaults = {
+  source: 'vk',
   chats: '',
   backlink: '',
   monitorMs: '200000',
@@ -13,7 +14,7 @@ const defaults = {
   retryMaxDelayMs: '2000',
 };
 const inputOf = (form) => ({
-  source: 'vk',
+  source: form.source,
   chats: form.chats
     .split(',')
     .map((s) => s.trim())
@@ -38,7 +39,7 @@ export const useFollowBacklink = (api) => {
   const [plan, setPlan] = React.useState(null);
   const [job, setJob] = React.useState(null);
   const [history, setHistory] = React.useState(null);
-  const [error, setError] = React.useState('');
+  const [error, setError] = React.useState(null);
   const [busy, setBusy] = React.useState(false);
   const running = React.useRef(false);
   const owned = React.useRef(null);
@@ -67,7 +68,7 @@ export const useFollowBacklink = (api) => {
         }
       } catch (e) {
         if (!stopped) {
-          setError(e.code ?? 'read-failed');
+          setError(e);
         }
       }
     }, 2000);
@@ -85,7 +86,7 @@ export const useFollowBacklink = (api) => {
     owned.current = null;
     setPlan(null);
     setForm((before) => ({ ...before, [key]: value }));
-    setError('');
+    setError(null);
   };
   const request = async (action, id) => {
     if (action === 'preview') {
@@ -118,7 +119,7 @@ export const useFollowBacklink = (api) => {
     const version = generation.current;
     running.current = true;
     setBusy(true);
-    setError('');
+    setError(null);
     try {
       const answer = await request(action, id);
       if (version === generation.current) {
@@ -135,7 +136,7 @@ export const useFollowBacklink = (api) => {
       }
     } catch (e) {
       if (version === generation.current) {
-        setError(e.code ?? 'read-failed');
+        setError(e);
       }
     } finally {
       running.current = false;

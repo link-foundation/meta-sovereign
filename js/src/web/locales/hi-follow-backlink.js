@@ -1,8 +1,9 @@
 export const hiFollowBacklink = {
   'followBacklink.title': 'Follow: लिंक पोस्ट और जाँचें',
   'followBacklink.hint':
-    'चुने गए VK समूहों में भेजने से पहले Telegram या VK आमंत्रण लिंक की समीक्षा करें। इस पृष्ठ से जाने पर भी जुड़े सर्वर पर जाँच जारी रहती है। अनिश्चित पोस्ट जाँच के लिए रखी जाती हैं और अपने आप दोबारा नहीं भेजी जातीं।',
-  'followBacklink.chats': 'VK समूह peer ID, अल्पविराम से अलग',
+    'चुने गए Telegram या VK समूहों में भेजने से पहले Telegram या VK आमंत्रण लिंक की समीक्षा करें। इस पृष्ठ से जाने पर भी जुड़े सर्वर पर जाँच जारी रहती है। अनिश्चित पोस्ट जाँच के लिए रखी जाती हैं और अपने आप दोबारा नहीं भेजी जातीं।',
+  'followBacklink.chats':
+    'समूह ID, अल्पविराम से अलग (Telegram: -7; VK: 2000000007)',
   'followBacklink.backlink': 'आपका Telegram या VK आमंत्रण लिंक',
   'followBacklink.monitorMs': 'जाँच अवधि (मिलीसेकंड)',
   'followBacklink.intervalMs': 'जाँच अंतराल (मिलीसेकंड)',
@@ -21,11 +22,11 @@ export const hiFollowBacklink = {
   'followBacklink.cancel': 'शेष चरण रोकें',
   'followBacklink.working': 'कार्य जारी है…',
   'followBacklink.review': 'सटीक खाता, समूह और सेटिंग जाँचें',
-  'followBacklink.owner': 'VK खाता {owner}',
+  'followBacklink.owner': '{source} खाता {owner}',
   'followBacklink.window':
     '{duration} मिलीसेकंड तक जाँचें; अंतराल {interval} मिलीसेकंड।',
   'followBacklink.cleanupHint':
-    'सफल जाँच के बाद अधिकतम {limit} हाल के संदेश देखें और आने वाले संदेश केवल इस खाते के लिए मिटाएँ। भेजे गए और सेवा संदेश रखे जाते हैं।',
+    'सफल जाँच के बाद अधिकतम {limit} हाल के संदेश देखें और आने वाले संदेश केवल इस खाते के लिए मिटाएँ। भेजे गए और सेवा संदेश रखे जाते हैं। Telegram में यह सफ़ाई केवल सामान्य समूहों में उपलब्ध है।',
   'followBacklink.message': 'संदेश {id}',
   'followBacklink.providerCode': 'VK त्रुटि {code}',
   'followBacklink.cleanupResult':
@@ -50,13 +51,14 @@ export const hiFollowBacklink = {
   'followBacklink.skipped': 'छोड़ा गया',
   'followBacklink.bad-request':
     'समूह ID, आमंत्रण लिंक, संख्यात्मक सीमा और पुनः प्रयास सेटिंग जाँचें।',
-  'followBacklink.not-connected': 'इस सर्वर पर VK उपयोगकर्ता खाता जोड़ें।',
+  'followBacklink.not-connected':
+    'इस सर्वर पर चुने हुए प्लेटफ़ॉर्म का उपयोगकर्ता खाता जोड़ें।',
   'followBacklink.account-changed':
     'जुड़ा खाता बदल गया। मौजूदा रसीदें रखी गई हैं।',
   'followBacklink.not-writable':
     'चुने गए किसी समूह में पोस्ट करने की अनुमति नहीं है।',
   'followBacklink.provider-response':
-    'VK की रसीद उपयोग योग्य नहीं है। सफलता नहीं मानी गई।',
+    'प्लेटफ़ॉर्म की रसीद उपयोग योग्य नहीं है। सफलता नहीं मानी गई।',
   'followBacklink.timeout':
     'तय प्रयासों के बाद पढ़ने की समय सीमा समाप्त हुई। शेष सुरक्षित जाँच जारी रख सकते हैं।',
   'followBacklink.rate-limited':
@@ -64,13 +66,13 @@ export const hiFollowBacklink = {
   'followBacklink.captcha':
     'VK को कैप्चा चाहिए। Connections में इसे पूरा करें।',
   'followBacklink.provider-refused':
-    'VK ने कार्य अस्वीकार किया। प्लेटफ़ॉर्म कोड और अनुमतियाँ जाँचें।',
+    'प्लेटफ़ॉर्म ने कार्य अस्वीकार किया। त्रुटि और अनुमतियाँ जाँचें।',
   'followBacklink.outcome-unknown':
     'लिखने की पुष्टि नहीं हुई। सहेजा रन जाँचें; अपने आप दोबारा नहीं भेजा जाएगा।',
   'followBacklink.read-failed':
     'जाँच असफल रही। सहेजे परिणाम रखे गए हैं; आगे बढ़ने से पहले ताज़ा करें।',
   'followBacklink.follow-server-required':
-    'लिंक पोस्ट और जाँचने के लिए VK उपयोगकर्ता खाते वाला सर्वर जोड़ें।',
+    'लिंक पोस्ट और जाँचने के लिए चुने हुए प्लेटफ़ॉर्म के उपयोगकर्ता खाते वाला सर्वर जोड़ें।',
   'followBacklink.busy':
     'इस सर्वर पर दूसरा लिंक रन चल रहा है। नया शुरू करने से पहले उसे जाँचें।',
   'followBacklink.plan-expired':
@@ -85,4 +87,14 @@ export const hiFollowBacklink = {
   'followBacklink.not-found': 'जुड़े सर्वर पर यह सहेजा रन नहीं मिला।',
   'followBacklink.confirmation-required':
     'पहले कार्य की समीक्षा करके स्पष्ट पुष्टि करें।',
+  'followBacklink.source': 'पोस्ट भेजने वाला खाता',
+  'followBacklink.providerError': 'Telegram त्रुटि {error}',
+  'followBacklink.user-account-required':
+    'इस सर्वर पर Telegram उपयोगकर्ता खाता जोड़ें। बॉट खाते यह कार्य नहीं कर सकते।',
+  'followBacklink.cleanup-unavailable':
+    'Telegram में केवल अपने लिए सफ़ाई सामान्य समूहों में उपलब्ध है। चैनल या सुपरग्रुप के लिए सफ़ाई बंद करें।',
+  'followBacklink.flood-wait':
+    'Telegram अनुरोध सीमित कर रहा है। जारी रखने से पहले प्लेटफ़ॉर्म की प्रतीक्षा अवधि पूरी होने दें।',
+  'followBacklink.target-unavailable':
+    'समूह नहीं मिला। पहले Follow में उसे लोड करें और सदस्यता व अनुमतियाँ जाँचें।',
 };

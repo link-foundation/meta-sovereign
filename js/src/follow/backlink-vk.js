@@ -67,6 +67,7 @@ export const createBacklinkVk = async ({
         chat: peer,
         title: String(conversation.chat_settings?.title ?? '').slice(0, 256),
         canWrite: [true, 1].includes(conversation.can_write?.allowed),
+        canCleanup: true,
       };
     },
     async post({ chat, backlink, key }) {

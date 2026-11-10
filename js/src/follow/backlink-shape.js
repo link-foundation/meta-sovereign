@@ -1,5 +1,5 @@
 import { parseTelegramLink } from './telegram-links.js';
-import { followRetryPolicy } from './retry.js';
+import { followRetryPolicy, followTimeout } from './retry.js';
 
 export const backlinkFailure = (code) =>
   Object.assign(new Error(code), { code });
@@ -10,8 +10,17 @@ export const backlinkInteger = (value, fallback, min, max) => {
   }
   return n;
 };
-export const backlinkPeer = (value) => {
+export const backlinkPeer = (value, source = 'vk') => {
   const text = String(value ?? '');
+  if (source === 'telegram') {
+    if (
+      (typeof value !== 'string' && !Number.isSafeInteger(value)) ||
+      !/^-[1-9]\d{0,23}$/u.test(text)
+    ) {
+      throw backlinkFailure('bad-request');
+    }
+    return text;
+  }
   const n = /^\d{1,10}$/.test(text) ? Number(text) : NaN;
   if (n <= 2000000000 || n > 2147483647) {
     throw backlinkFailure('bad-request');
@@ -47,7 +56,8 @@ export const backlinkConfig = (body = {}) => {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     throw backlinkFailure('bad-request');
   }
-  if ((body.source ?? 'vk') !== 'vk') {
+  const source = body.source ?? 'vk';
+  if (!['vk', 'telegram'].includes(source)) {
     throw backlinkFailure('unsupported');
   }
   if (
@@ -59,11 +69,13 @@ export const backlinkConfig = (body = {}) => {
   ) {
     throw backlinkFailure('bad-request');
   }
-  const chats = [...new Set(body.chats.map(backlinkPeer))];
+  const chats = [
+    ...new Set(body.chats.map((chat) => backlinkPeer(chat, source))),
+  ];
   const target = backlinkUrl(body.backlink);
   const monitorMs = backlinkInteger(body.monitorMs, 200000, 1000, 3600000);
   return {
-    source: 'vk',
+    source,
     targetSource: target.source,
     chats,
     backlink: target.url,
@@ -78,36 +90,71 @@ export const backlinkConfig = (body = {}) => {
 
 // Public failures contain provider codes, never raw messages, request bodies,
 // access tokens or captcha URLs. Preserve a refusal separately from uncertainty.
+const known = new Set([
+  'bad-request',
+  'unsupported',
+  'not-connected',
+  'user-account-required',
+  'cleanup-unavailable',
+  'account-changed',
+  'target-changed',
+  'target-unavailable',
+  'not-writable',
+  'provider-response',
+  'timeout',
+  'cancelled',
+  'stopped',
+  'busy',
+  'plan-expired',
+  'not-found',
+  'confirmation-required',
+  'outcome-unknown',
+]);
+const telegramError = (error) => {
+  const waitKind =
+    {
+      FloodWaitError: 'FLOOD_WAIT',
+      SlowModeWaitError: 'SLOWMODE_WAIT',
+      FloodTestPhoneWaitError: 'FLOOD_TEST_PHONE_WAIT',
+    }[error?.constructor?.name] ?? 'FLOOD_WAIT';
+  const rpc =
+    error?.errorMessage === 'FLOOD' &&
+    Number.isSafeInteger(error.seconds) &&
+    error.seconds >= 0 &&
+    error.seconds <= 31536000
+      ? `${waitKind}_${error.seconds}`
+      : error?.errorMessage;
+  const refused =
+    typeof rpc === 'string' &&
+    /^[A-Z][A-Z0-9_]{0,95}$/u.test(rpc) &&
+    !/TIMEOUT|INTERNAL|RPC_CALL_FAIL|WORKER_BUSY/u.test(rpc) &&
+    !(Number(error.code) >= 500);
+  return refused
+    ? {
+        code: /^(?:FLOOD|SLOWMODE_WAIT)(?:_|$)/u.test(rpc)
+          ? 'flood-wait'
+          : 'provider-refused',
+        providerError: rpc,
+      }
+    : null;
+};
+const vkError = (code) =>
+  code === 6 ? 'rate-limited' : code === 14 ? 'captcha' : 'provider-refused';
 export const backlinkError = (error, { write = false } = {}) => {
-  const vkCode = Number.isSafeInteger(error?.vkCode) ? error.vkCode : null;
-  const known = new Set([
-    'bad-request',
-    'unsupported',
-    'not-connected',
-    'account-changed',
-    'target-changed',
-    'not-writable',
-    'provider-response',
-    'timeout',
-    'cancelled',
-    'stopped',
-    'busy',
-    'plan-expired',
-    'not-found',
-    'confirmation-required',
-    'outcome-unknown',
-  ]);
+  if (Number.isSafeInteger(error?.vkCode)) {
+    return { code: vkError(error.vkCode), providerCode: error.vkCode };
+  }
+  const refusal = telegramError(error);
+  if (refusal) {
+    return refusal;
+  }
   const code =
-    vkCode !== null
-      ? vkCode === 6
-        ? 'rate-limited'
-        : vkCode === 14
-          ? 'captcha'
-          : 'provider-refused'
+    followTimeout(error) && !write
+      ? 'timeout'
       : known.has(error?.code)
         ? error.code
         : write
           ? 'outcome-unknown'
           : 'read-failed';
-  return { code, ...(vkCode === null ? {} : { providerCode: vkCode }) };
+  return { code };
 };

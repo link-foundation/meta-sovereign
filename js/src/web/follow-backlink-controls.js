@@ -19,15 +19,36 @@ const action = (key, state, t, id) =>
 const field = (key, state, t) => {
   const checkbox = key === 'deleteIncoming';
   const text = ['chats', 'backlink'].includes(key);
-  const input = el('input', {
+  const props = {
     key: 'input',
-    type: checkbox ? 'checkbox' : text ? 'text' : 'number',
+    type:
+      key === 'source'
+        ? undefined
+        : checkbox
+          ? 'checkbox'
+          : text
+            ? 'text'
+            : 'number',
     ...(checkbox ? { checked: state.form[key] } : { value: state.form[key] }),
     disabled: state.busy,
     'data-follow-backlink-field': key,
     onChange: (event) =>
       state.change(key, checkbox ? event.target.checked : event.target.value),
-  });
+  };
+  const input =
+    key === 'source'
+      ? el(
+          'select',
+          props,
+          ['vk', 'telegram'].map((source) =>
+            el(
+              'option',
+              { key: source, value: source },
+              source === 'vk' ? 'VK' : 'Telegram'
+            )
+          )
+        )
+      : el('input', props);
   return el(
     'label',
     { key, className: checkbox ? 'check' : 'field' },
@@ -46,7 +67,14 @@ const status = (key, t) => {
     : translated;
 };
 const summary = (value, t) => [
-  el('p', { key: 'owner' }, t('followBacklink.owner', { owner: value.owner })),
+  el(
+    'p',
+    { key: 'owner' },
+    t('followBacklink.owner', {
+      owner: value.owner,
+      source: value.config.source === 'vk' ? 'VK' : 'Telegram',
+    })
+  ),
   el(
     'code',
     { key: 'link', style: { overflowWrap: 'anywhere' } },
@@ -68,6 +96,20 @@ const summary = (value, t) => [
       )
     : null,
 ];
+const provider = (value, t) =>
+  value?.providerError
+    ? el(
+        'code',
+        { key: 'providerError' },
+        t('followBacklink.providerError', { error: value.providerError })
+      )
+    : value?.providerCode !== undefined
+      ? el(
+          'code',
+          { key: 'providerCode' },
+          t('followBacklink.providerCode', { code: value.providerCode })
+        )
+      : null;
 const rows = (value, t) =>
   el(
     'ul',
@@ -82,13 +124,7 @@ const rows = (value, t) =>
         ),
         row.skipRetry ? el('p', { key: 'skip' }, label('skipNotice', t)) : null,
         row.code ? el('p', { key: 'error' }, status(row.code, t)) : null,
-        row.providerCode
-          ? el(
-              'code',
-              { key: 'provider' },
-              t('followBacklink.providerCode', { code: row.providerCode })
-            )
-          : null,
+        provider(row, t),
         row.cleanup
           ? el(
               'p',
@@ -110,6 +146,7 @@ export const FollowBacklinkControls = ({ api }) => {
     el('summary', { key: 'title' }, label('title', t)),
     el('p', { key: 'hint', className: 'meta' }, label('hint', t)),
     ...[
+      'source',
       'chats',
       'backlink',
       'monitorMs',
@@ -130,7 +167,14 @@ export const FollowBacklinkControls = ({ api }) => {
       ? el('p', { key: 'busy', role: 'status' }, label('working', t))
       : null,
     state.error
-      ? el('p', { key: 'error', role: 'alert' }, status(state.error, t))
+      ? el('div', { key: 'error', role: 'alert' }, [
+          el(
+            'p',
+            { key: 'message' },
+            status(state.error.code ?? 'read-failed', t)
+          ),
+          provider(state.error, t),
+        ])
       : null,
     state.plan
       ? el(

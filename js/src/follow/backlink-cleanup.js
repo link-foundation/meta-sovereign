@@ -29,7 +29,9 @@ const projectDeleted = async (store, job, row, ids) => {
       String(link.chat) === row.chat &&
       !link.outgoing &&
       !link.out &&
-      link.raw?.out === 0 &&
+      (job.config.source === 'vk'
+        ? link.raw?.out === 0
+        : link.raw?.out !== true) &&
       !link.service &&
       confirmed.has(String(link.raw?.id ?? link.messageId)),
     32,
@@ -103,7 +105,12 @@ export const createBacklinkCleanup = ({
       throw backlinkFailure('cancelled');
     }
     try {
-      const result = await adapter.deleteIncoming({ chat: row.chat, ids });
+      const result = await adapter.deleteIncoming({
+        chat: row.chat,
+        ids,
+        cancelled,
+        read,
+      });
       const confirmed = Array.isArray(result?.confirmed)
         ? [...new Set(result.confirmed.filter((id) => ids.includes(id)))]
         : [];

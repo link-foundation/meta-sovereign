@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { createBacklinkVk } from './backlink-vk.js';
+import { createBacklinkProvider } from './backlink-provider.js';
 import { backlinkError, backlinkFailure } from './backlink-shape.js';
 import { loadBacklinkJob, listBacklinkJobs } from './backlink-records.js';
 import { createBacklinkPreview } from './backlink-preview.js';
@@ -30,7 +30,9 @@ const drain = async (pending) => {
 };
 export const createFollowBacklinks = ({
   store,
-  provider = () => createBacklinkVk({ store }),
+  telegramAccount,
+  provider = (source) =>
+    createBacklinkProvider({ store, telegramAccount }, source),
   now = Date.now,
   sleep = wait,
   trace = () => {},

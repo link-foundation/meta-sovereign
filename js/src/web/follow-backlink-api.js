@@ -10,7 +10,9 @@ const preview = (value) =>
   Number.isFinite(value.expiresAt) &&
   typeof value.owner === 'string' &&
   config(value.config) &&
-  rows(value.rows) &&
+  rows(value.rows, value.config.source) &&
+  value.rows.length === value.config.chats.length &&
+  value.rows.every((row) => value.config.chats.includes(row.chat)) &&
   value.rows.every((row) => row.status === 'ready');
 const page = (value) =>
   Array.isArray(value?.jobs) &&
@@ -36,6 +38,17 @@ const valid = (action, value, input) => {
   return job(value) && (action === 'apply' || value.id === input.jobId);
 };
 const failure = (code) => Object.assign(new Error(code), { code });
+const remoteFailure = (value) =>
+  Object.assign(
+    failure(value.code),
+    Number.isSafeInteger(value.providerCode)
+      ? { providerCode: value.providerCode }
+      : {},
+    typeof value.providerError === 'string' &&
+      /^[A-Z][A-Z0-9_]{0,95}$/u.test(value.providerError)
+      ? { providerError: value.providerError }
+      : {}
+  );
 export const followBacklinkApi = ({ remote }) => {
   const request = async (action, input = {}) => {
     const read = action === 'list' || action === 'status';
@@ -69,12 +82,7 @@ export const followBacklinkApi = ({ remote }) => {
       );
     }
     if (value.ok === false) {
-      throw Object.assign(
-        failure(value.code),
-        Number.isSafeInteger(value.providerCode)
-          ? { providerCode: value.providerCode }
-          : {}
-      );
+      throw remoteFailure(value);
     }
     return value;
   };

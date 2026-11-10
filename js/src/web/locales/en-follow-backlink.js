@@ -1,8 +1,9 @@
 export const enFollowBacklink = {
   'followBacklink.title': 'Follow: post and monitor backlinks',
   'followBacklink.hint':
-    'Review a Telegram or VK invite link before posting it to selected VK groups. Monitoring continues on the connected server when you leave this page. Uncertain posts are kept for inspection and are never automatically sent again.',
-  'followBacklink.chats': 'VK group peer IDs, separated by commas',
+    'Review a Telegram or VK invite link before posting it to selected Telegram or VK groups. Monitoring continues on the connected server when you leave this page. Uncertain posts are kept for inspection and are never automatically sent again.',
+  'followBacklink.chats':
+    'Group IDs, separated by commas (Telegram: -7; VK: 2000000007)',
   'followBacklink.backlink': 'Your Telegram or VK invite link',
   'followBacklink.monitorMs': 'Monitoring duration (milliseconds)',
   'followBacklink.intervalMs': 'Check interval (milliseconds)',
@@ -22,11 +23,11 @@ export const enFollowBacklink = {
   'followBacklink.cancel': 'Stop remaining steps',
   'followBacklink.working': 'Working…',
   'followBacklink.review': 'Review the exact account, groups and settings',
-  'followBacklink.owner': 'VK account {owner}',
+  'followBacklink.owner': '{source} account {owner}',
   'followBacklink.window':
     'Monitor for {duration} ms; check every {interval} ms.',
   'followBacklink.cleanupHint':
-    'After survival is confirmed, inspect up to {limit} recent messages and delete incoming messages for this account only. Outgoing and service messages are kept.',
+    'After survival is confirmed, inspect up to {limit} recent messages and delete incoming messages for this account only. Outgoing and service messages are kept. Telegram supports this cleanup in basic groups only.',
   'followBacklink.message': 'Message {id}',
   'followBacklink.providerCode': 'VK error {code}',
   'followBacklink.cleanupResult':
@@ -51,26 +52,27 @@ export const enFollowBacklink = {
   'followBacklink.skipped': 'Skipped',
   'followBacklink.bad-request':
     'Check group IDs, invite link, numeric bounds and retry settings.',
-  'followBacklink.not-connected': 'Connect a VK user account on this server.',
+  'followBacklink.not-connected':
+    'Connect the selected provider’s user account on this server.',
   'followBacklink.account-changed':
     'The connected account changed. Existing receipts are kept.',
   'followBacklink.not-writable':
     'Posting is unavailable in one of the selected groups.',
   'followBacklink.provider-response':
-    'VK returned an unusable receipt. No success is assumed.',
+    'The provider returned an unusable receipt. No success is assumed.',
   'followBacklink.timeout':
     'The read timed out after the configured attempts. You can resume safe remaining checks.',
   'followBacklink.rate-limited':
     'VK is limiting requests. Wait before resuming checks.',
   'followBacklink.captcha': 'VK requires a captcha. Resolve it in Connections.',
   'followBacklink.provider-refused':
-    'VK refused this operation. Review the provider code and permissions.',
+    'The provider refused this operation. Review its error and permissions.',
   'followBacklink.outcome-unknown':
     'A write could not be confirmed. Inspect the saved run; it will not be automatically replayed.',
   'followBacklink.read-failed':
     'The check failed. Saved results are kept; refresh before further action.',
   'followBacklink.follow-server-required':
-    'Connect a server with a VK user account to post and monitor links.',
+    'Connect a server with the selected provider’s user account to post and monitor links.',
   'followBacklink.busy':
     'Another backlink run is active on this server. Inspect it before starting another.',
   'followBacklink.plan-expired':
@@ -86,4 +88,14 @@ export const enFollowBacklink = {
     'This saved run was not found on the connected server.',
   'followBacklink.confirmation-required':
     'Review and explicitly confirm the operation first.',
+  'followBacklink.source': 'Account used to post',
+  'followBacklink.providerError': 'Telegram error {error}',
+  'followBacklink.user-account-required':
+    'Connect a Telegram user account on this server; bot accounts cannot run this workflow.',
+  'followBacklink.cleanup-unavailable':
+    'Telegram offers local-only cleanup in basic groups. Disable cleanup for a channel or supergroup.',
+  'followBacklink.flood-wait':
+    'Telegram is limiting requests. Wait for the provider’s flood restriction before resuming.',
+  'followBacklink.target-unavailable':
+    'The group could not be resolved. Load it in Follow first and check its membership and permissions.',
 };

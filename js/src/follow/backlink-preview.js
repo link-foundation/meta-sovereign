@@ -2,6 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { backlinkConfig, backlinkFailure } from './backlink-shape.js';
 import { withFollowRetry } from './retry.js';
 const copy = (value) => globalThis.structuredClone(value);
+const checkCapabilities = (target, config) => {
+  if (target.canWrite !== true) {
+    throw backlinkFailure('not-writable');
+  }
+  if (config.deleteIncoming && target.canCleanup === false) {
+    throw backlinkFailure('cleanup-unavailable');
+  }
+};
 export const createBacklinkPreview = ({
   provider,
   plans,
@@ -33,9 +41,7 @@ export const createBacklinkPreview = ({
       if (target.owner !== owner) {
         throw backlinkFailure('account-changed');
       }
-      if (target.canWrite !== true) {
-        throw backlinkFailure('not-writable');
-      }
+      checkCapabilities(target, config);
       rows.push({
         chat,
         title: String(target.title ?? '').slice(0, 256),

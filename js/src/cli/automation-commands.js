@@ -51,7 +51,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 follow details: --chat=<VK peer or local chat ID> [--member-offset=0] [--member-limit=50] [--message-limit=10]
                 follow telegram list: [--limit=40] [--cursor=<next>]
                 follow telegram join | leave | preferences: --target=<username|signed-id|Telegram-link> [--mute=true|false] [--archive=true|false] [--confirm=true]
-                follow backlinks post: --chats=<VK-peer,...> --backlink=<Telegram-or-VK-invite> [--monitor-ms=200000] [--interval-ms=30000] [--delay-ms=0] [--delete-incoming=false] [--history-limit=200] [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] [--confirm=true]
+                follow backlinks post: [--source=vk|telegram] --chats=<signed-Telegram-ID-or-VK-peer,...> --backlink=<Telegram-or-VK-invite> [--monitor-ms=200000] [--interval-ms=30000] [--delay-ms=0] [--delete-incoming=false] [--history-limit=200] [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] [--confirm=true]
                 follow backlinks list | status | resume | cancel: [--job-id=<saved-id>] [--limit=20] [--offset=0] [--confirm=true]
                 Telegram operations preview by default; leave preserves history. Confirmation applies the frozen plan once.`;
 

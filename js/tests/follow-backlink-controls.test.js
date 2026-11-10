@@ -183,6 +183,7 @@ test('common controls expose all timing, cleanup and retry settings in every sup
     );
     assert.match(html, /data-follow-backlinks/);
     for (const key of [
+      'source',
       'chats',
       'backlink',
       'monitorMs',

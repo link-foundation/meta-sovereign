@@ -114,7 +114,7 @@ Source: follow README and command implementations. Provider adapters, common bro
 | FL06 | Post a backlink into the source chat; optional incoming-history deletion only after confirmed successful post.         | [x] Reviewed VK-source backlinks, full-window survival and optional acknowledged incoming cleanup through CLI/Lino API/shared UI; follow-backlinks.md.          |
 | FL07 | Auto-loop rejected chats, refresh extracted links and stop at success/iteration limit.                                 | [ ] Bounded resumable runner.                                                                                                                                   |
 | FL08 | Retry only timeout failures with configured finite attempts and backoff; preserve rate-limit/permission/invite errors. | [ ] Backlink reads have finite timeout-only backoff; broader Telegram/client cleanup and retry parity remain required; follow-backlinks.md.                     |
-| FL09 | Same-system and cross-system PR workflows configurable through CLI/API/UI.                                             | [ ] Generalize provider-pair configuration.                                                                                                                     |
+| FL09 | Same-system and cross-system PR workflows configurable through CLI/API/UI.                                             | [ ] Reviewed VK/Telegram source-to-target backlinks now share CLI/Lino API/UI; complete provider-pair auto-loop remains required; telegram-backlinks.md.        |
 
 ## VK example automations
 

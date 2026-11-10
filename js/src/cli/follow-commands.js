@@ -28,7 +28,13 @@ export const followCommands = async ({
   followBacklinks,
 }) => {
   if (args._[1] === 'backlinks') {
-    return followBacklinkCommands({ args, store, log, followBacklinks });
+    return followBacklinkCommands({
+      args,
+      store,
+      log,
+      followBacklinks,
+      createAccount,
+    });
   }
   if (args._[1] === 'telegram') {
     return followTelegramCommands({ args, store, log, createAccount });
