@@ -15,10 +15,16 @@ names = sorted(str(path.relative_to(root)) for path in
 names += ['ci-logs/hh-history-pages-42812224902.log',
           'ci-logs/hh-history-pages-jobs.json',
           'ci-logs/shared-profile-pages-42804967429.log',
-          'experiments/issue-56/collect-browser-apt.py']
+          'experiments/issue-56/collect-browser-apt.py',
+          'ci-logs/hh-common-pages-42816515218.log',
+          'ci-logs/hh-common-current-runs.json',
+          'ci-logs/browser-apt-mirrorlist-reference.sh']
 assert 'prepare before apt' in (root / 'ci-logs/browser-apt-before.log').read_text()
 assert 'pass 23' in (root / 'ci-logs/browser-apt-after.log').read_text()
 assert not (root / 'ci-logs/browser-apt-lint.log').read_text()
+assert 'fail 1' in (root / 'ci-logs/browser-apt-mirrorlist-before.log').read_text()
+assert 'pass 25' in (root / 'ci-logs/browser-apt-mirrorlist-after.log').read_text()
+assert not (root / 'ci-logs/browser-apt-mirrorlist-lint.log').read_text()
 changed = subprocess.check_output(
     ['git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
     cwd=root).decode().split('\0')
@@ -27,12 +33,17 @@ sources = sorted(set(name for name in changed if name and
 metadata = {
     'preceding_head': '364463ec039dbcc20d1f30fe6da1fbbd050f06e6',
     'references': ['https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/package-archive/',
-                   'https://playwright.dev/docs/ci'],
+                   'https://playwright.dev/docs/ci',
+                   'https://github.com/actions/runner-images/blob/741e4eb8ef5f51698d730ac16ede65cadb067522/images/ubuntu/scripts/build/configure-apt-sources.sh',
+                   'https://manpages.debian.org/unstable/apt/apt-transport-mirror.1.en.html'],
     'checked': '2026-11-10',
     'sources': {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                 for name in sources},
     'checks': {'before': 'workflow regression fails', 'focused': 23,
-               'lint': 'pass', 'workflow_policy': 'pass'},
+               'lint': 'pass', 'workflow_policy': 'pass',
+               'hosted_mirrorlist_before': 'fails: zero updated files',
+               'hosted_mirrorlist_after': 25},
+    'hosted_e280197a': 'All workflows pass; Pages line 245 updates zero sources and line 258 reads unhandled apt-mirrors.txt. Healthy transfers are not proof of the original helper.',
     'limits': 'Synthetic local APT fixtures only. Exact new-head hosted downloads and browser assertions remain required; no timeout increase or passing-CI claim.',
 }
 archive = root / 'docs/case-studies/issue-56/data/browser-apt.tar.gz'

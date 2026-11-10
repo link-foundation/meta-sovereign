@@ -23,6 +23,9 @@ export const prepareBrowserApt = async (directory = '/etc/apt') => {
   );
   const sources = [
     'sources.list',
+    // Hosted Ubuntu runners route active sources through mirror+file: here.
+    // Preserve the mirror metadata and source indirection while changing URL.
+    'apt-mirrors.txt',
     ...extra
       .filter((name) => /\.(?:list|sources)$/u.test(name))
       .map((name) => join('sources.list.d', name)),

@@ -25,18 +25,34 @@ installation and switches the observed slow Azure mirror to the primary HTTPS
 archive. This is a targeted routing correction, not proof that every future
 archive transfer will be fast.
 
+## Hosted verification exposed an incomplete correction
+
+All five workflows passed on `e280197a`, but the complete Pages log for
+[42816515218](https://github.com/link-foundation/meta-sovereign/actions/runs/42816515218)
+shows **zero updated source files at line 245**. Line 258 loads
+`file:/etc/apt/apt-mirrors.txt`; lines 262–265 still use Azure. Line 644 fetches
+139 MB in nine seconds. This was a healthy transfer from the unchanged mirror,
+not evidence that the original helper changed the hosted configuration.
+
+The pinned [runner image configuration](https://github.com/actions/runner-images/blob/741e4eb8ef5f51698d730ac16ede65cadb067522/images/ubuntu/scripts/build/configure-apt-sources.sh)
+creates this mirror-list file with tab-separated priorities and points both
+legacy and deb822 sources at it. The [APT mirror transport manual](https://manpages.debian.org/unstable/apt/apt-transport-mirror.1.en.html)
+describes URI lines, optional metadata and priority ordering. Both primary
+sources were checked on 2026-11-10. A temporary-file regression matching that
+format fails on the earlier helper: expected one changed file, received zero.
+
 ## Change and verification
 
 `js/scripts/prepare-browser-apt.mjs` changes only complete Azure Ubuntu archive
-URLs in active `.list` and `.sources` files. It preserves suites, components,
-signature keys, security sources and other repositories. Missing legacy files
+URLs in active `.list` and `.sources` files and the hosted `apt-mirrors.txt`. It preserves suites, components,
+signature keys, security sources, mirror priorities, source indirection and other repositories. Missing legacy files
 are harmless, repeat execution changes nothing, and other filesystem errors
 fail setup. All three Linux browser dependency installs run preparation before
 Playwright. The macOS lane skips it.
 
 The workflow regression fails before the change because Pages installs
-dependencies without preparing the archive. Twenty-three focused checks now
-pass, covering both source formats, unrelated repositories, ignored backup
+dependencies without preparing the archive. The initial correction passed 23 focused checks. The mirror-list correction
+passes 25 focused checks, including the reproducing case, covering both source formats, unrelated repositories, ignored backup
 files, idempotence, missing legacy files and existing workflow contracts.
 Changed-code strict lint and the workflow-policy checker pass. Local checks
 use synthetic temporary source files; the user's APT configuration is never
@@ -49,7 +65,7 @@ NODE_OPTIONS=--max-old-space-size=384 node js/scripts/check-ci-workflows.mjs
 
 The [evidence archive](data/browser-apt.tar.gz) and
 [verified manifest](data/browser-apt.tar.sha256.json) contain both complete
-failure logs, run timestamps/SHAs, focused results and source hashes. Job
+failure logs, the passing-but-unmodified hosted log, pinned runner source, run timestamps/SHAs, focused results and source hashes. Job
 deadlines, browser coverage and failure gates are unchanged. Exact new-head
 hosted CI must still verify the setup improvement and all browser assertions;
 this study does not claim that pending checks pass.

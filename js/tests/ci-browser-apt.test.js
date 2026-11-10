@@ -105,3 +105,38 @@ test('browser apt preparation tolerates absent legacy files without creating rep
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('browser apt preparation rewrites the hosted mirror list and preserves priorities and source indirection', async () => {
+  const { prepareBrowserApt } =
+    await import('../scripts/prepare-browser-apt.mjs');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ms-browser-apt-mirrors-'));
+  const mirrors = [
+    '# hosted runner archive selection',
+    'http://azure.archive.ubuntu.com/ubuntu/\tpriority:1',
+    'https://archive.ubuntu.com/ubuntu/\tpriority:2',
+    'https://security.ubuntu.com/ubuntu/\tpriority:3',
+    'https://azure.archive.ubuntu.com.example/ubuntu/\tpriority:4',
+    '',
+  ].join('\n');
+  const source =
+    'deb mirror+file:/etc/apt/apt-mirrors.txt resolute main universe\n';
+  try {
+    await writeFile(path.join(root, 'apt-mirrors.txt'), mirrors);
+    await writeFile(path.join(root, 'sources.list'), source);
+    assert.equal(await prepareBrowserApt(root), 1);
+    assert.equal(
+      await readFile(path.join(root, 'apt-mirrors.txt'), 'utf8'),
+      mirrors.replace(
+        'http://azure.archive.ubuntu.com/ubuntu/',
+        'https://archive.ubuntu.com/ubuntu/'
+      )
+    );
+    assert.equal(
+      await readFile(path.join(root, 'sources.list'), 'utf8'),
+      source
+    );
+    assert.equal(await prepareBrowserApt(root), 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
