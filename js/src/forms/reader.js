@@ -5,6 +5,8 @@ import { formFailure as failure, formUrl } from './options.js';
 import { inspectFormSession } from './inspection.js';
 import { createFormSessions } from './review-sessions.js';
 import { withFormReportFile } from './report-file.js';
+import path from 'node:path';
+import { createFormKnowledgeBridge } from './knowledge-bridge.js';
 export { planFormAnswers } from './answer-plan.js';
 export { formUrl } from './options.js';
 export { inspectFormSession, inspectCurrentFormSession } from './inspection.js';
@@ -25,6 +27,20 @@ const formCapabilities = async (availability) => {
   };
 };
 
+const stopReader = async (reviews, planning, task, bridge) => {
+  const reviewed = reviews.stop();
+  await Promise.allSettled([
+    reviewed,
+    ...planning,
+    ...(task ? [task.cancel(), task.done] : []),
+  ]);
+  try {
+    await reviewed;
+  } finally {
+    await (await bridge)?.close();
+  }
+};
+
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
   store,
@@ -37,6 +53,13 @@ export const createFormReader = ({
   let active = null;
   let stopping = false;
   const planning = new Set();
+  const bridge = store?.logFile
+    ? createFormKnowledgeBridge({
+        store,
+        directory: path.dirname(store.logFile),
+      })
+    : Promise.resolve(null);
+  bridge.catch(() => {});
   const reviews = createFormSessions({
     store,
     openSession,
@@ -44,7 +67,10 @@ export const createFormReader = ({
     ...review,
   });
   return {
-    openReview: reviews.open,
+    openReview: async (input) => {
+      await bridge;
+      return reviews.open(input);
+    },
     closeReview: reviews.close,
     listReviews: reviews.list,
     readReview: reviews.read,
@@ -161,14 +187,7 @@ export const createFormReader = ({
     },
     async stop() {
       stopping = true;
-      const task = active;
-      const reviewed = reviews.stop();
-      await Promise.allSettled([
-        reviewed,
-        ...planning,
-        ...(task ? [task.cancel(), task.done] : []),
-      ]);
-      await reviewed;
+      await stopReader(reviews, planning, active, bridge);
     },
   };
 };
