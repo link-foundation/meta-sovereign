@@ -48,7 +48,10 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 follow: links | extract | clear [--source=<provider>] [--chat=<id>] [--self=<id,id>] [--limit=<n>] [--offset=<n>]
                 follow extract: scans cached incoming messages; --limit=0 scans the whole cached archive
                 follow chats: [--source=vk] [--telegram-only] [--limit=50] [--offset=0]
-                follow details: --chat=<VK peer or local chat ID> [--member-offset=0] [--member-limit=50] [--message-limit=10]`;
+                follow details: --chat=<VK peer or local chat ID> [--member-offset=0] [--member-limit=50] [--message-limit=10]
+                follow telegram list: [--limit=40] [--cursor=<next>]
+                follow telegram join | leave | preferences: --target=<username|signed-id|Telegram-link> [--mute=true|false] [--archive=true|false] [--confirm=true]
+                Telegram operations preview by default; leave preserves history. Confirmation applies the frozen plan once.`;
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()
@@ -414,6 +417,7 @@ const automationsCmd = async (args, log, deps) => {
       // y/N before sending (tests answer it; otherwise the terminal).
       confirmAsk: deps.confirm ?? null,
       followDiscovery: deps.followDiscovery ?? createFollowDiscovery({ store }),
+      createAccount: deps.createAccount,
     });
   } finally {
     await close();

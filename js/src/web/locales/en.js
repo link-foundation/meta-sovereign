@@ -1,3 +1,4 @@
+import { enFollowTelegram } from './en-follow-telegram.js';
 import { enFollow } from './en-follow.js';
 import { enTelegramGreetings } from './en-telegram-greetings.js';
 import { enChatUsers } from './en-chat-users.js';
@@ -25,6 +26,7 @@ import { enStickers } from './en-stickers.js';
 
 export const en = {
   ...enFollow,
+  ...enFollowTelegram,
   ...enTelegramGreetings,
   ...enChatUsers,
   ...enPublication,

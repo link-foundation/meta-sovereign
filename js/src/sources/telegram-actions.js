@@ -150,6 +150,7 @@ import { createHistoryExport } from './telegram-export.js';
 import { createChatUsers } from './telegram-chat-users.js';
 import { createGreetingStickers } from './telegram-greeting-stickers.js';
 import { createGreetingSends } from './telegram-greeting-send.js';
+import { createFollowTelegram } from './telegram-follow.js';
 import { createAccountData } from './telegram-account-data.js';
 import { createPhoneChange } from './telegram-phone-change.js';
 import { createDrafts } from './telegram-drafts.js';
@@ -538,6 +539,7 @@ const chatActions = (env, context) => {
   return {
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
+    ...createFollowTelegram(env, context),
     ...createChatSearch(env, context),
     ...createGlobalSearch(env, context),
     ...files,

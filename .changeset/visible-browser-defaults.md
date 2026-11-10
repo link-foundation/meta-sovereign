@@ -113,3 +113,5 @@ Add incoming Telegram-link discovery with typed candidates, source-message prove
 Add bounded live VK group discovery, title/latest-message Telegram filters, paged member details and recent-message previews through CLI, default text/binary Lino API and shared React controls. Preserve raw provider pagination and partial coverage, keep credentials on the server and retain loaded results after failed reads.
 
 Distinguish Telegram invite preview access from membership, require exact join receipts and mute/archive acknowledgements, preserve uncertain and bot web-view outcomes, and keep localized shared dialogs from repeating unconfirmed joins. Omit unavailable member counts and add default-off receipt diagnostics.
+
+Add bounded Telegram group/channel listing and reviewed one-use Follow join/leave plans with independent mute/archive controls through CLI, text/binary Lino API and shared React UI. Flush durable intents before writes, block uncertain replay after restart, disable SDK write retries, preserve partial acknowledgements and history, scope preview dismissal and own cancellation/shutdown results.

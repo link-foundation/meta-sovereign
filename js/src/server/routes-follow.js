@@ -1,4 +1,5 @@
 import { json, readBody } from './util.js';
+import { followTelegramRoute } from './routes-follow-telegram.js';
 import {
   extractFollowLinks,
   listFollowLinks,
@@ -41,6 +42,9 @@ const discoveryResponse = async (ctx, action, input, res) => {
   }
 };
 export const followRoute = async (store, req, res, path, url, ctx) => {
+  if (await followTelegramRoute(ctx, req, res, path, url)) {
+    return true;
+  }
   const read = {
     [`${ROOT}/chats`]: 'chats',
     [`${ROOT}/details`]: 'details',

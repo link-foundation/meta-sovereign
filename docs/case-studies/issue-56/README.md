@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [follow-telegram.md](follow-telegram.md) records bounded Telegram listing, exact one-use join/leave plans and independent mute/archive outcomes through CLI/Lino API/React controls, durable uncertainty protection, SDK serialization, focused regressions and production Chromium/MCP desktop/mobile evidence. Existing shared leave acknowledgements and FL04/FL06–FL09 remain open.
+
 - [ci-membership-locale.md](ci-membership-locale.md) preserves the membership head's 1,501-line Russian dictionary failure and extraction of unchanged invite translations, with 25 passing locale checks and strict lint.
 
 - [telegram-membership-receipts.md](telegram-membership-receipts.md) records peek/membership distinction, direct/wrapped join receipts, pending/web-view/unknown outcomes, acknowledged mute/archive changes and shared dialog recovery, with six failing-before regressions, 60 focused checks and production browser/MCP screenshots. The complete Follow membership/preferences workflow remains open.
