@@ -252,7 +252,7 @@ const sentLayout = async () => {
   );
   assert(
     !layouts.some((entry) => entry.level === 'warn'),
-    'normal reading and sent messages do not produce false overlap warnings'
+    `normal reading and sent messages do not produce false overlap warnings: ${JSON.stringify(layouts.filter((entry) => entry.level === 'warn'))}`
   );
   await page.locator('.chat-notice.next-chat .icon-btn').click();
   await page.locator('[data-notice="draft-send"] .icon-btn').click();
