@@ -4,6 +4,7 @@ import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 
 export const modelQuestion = 'Describe your background';
 export const modelText = 'I build accessible browser interfaces.';
+export const modelMarkdownText = '**I build accessible browser interfaces.**';
 export const seedModelAnswers = async (store) => {
   await store.put({
     id: 'cv:model-fixture',
@@ -32,7 +33,7 @@ export const modelRunnerFixture = (calls) => async (input) => {
   return {
     drafts: prompt.questions.map(({ id, question }) => ({
       id,
-      text: question === modelQuestion ? modelText : '',
+      text: question === modelQuestion ? modelMarkdownText : '',
       missing:
         question === modelQuestion
           ? []

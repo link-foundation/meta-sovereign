@@ -7,13 +7,16 @@ import {
 import { saveAnswerModel } from '../../src/automation/answer-model-config.js';
 
 const capture = async (page, name, selector = '[data-form-plan-summary]') => {
-  if (process.env.FORMS_MODEL_SCREENSHOTS === '1') {
+  if (
+    process.env.FORMS_MODEL_SCREENSHOTS === '1' ||
+    process.env.FORMS_PLAIN_SCREENSHOTS === '1'
+  ) {
     await page
       .locator(selector)
       .evaluate((element) => element.scrollIntoView({ block: 'start' }));
     await page.evaluate(() => globalThis.scrollBy(0, -72));
     await page.screenshot({
-      path: `docs/screenshots/issue-56-forms-model-${name}.png`,
+      path: `docs/screenshots/issue-56-forms-${process.env.FORMS_PLAIN_SCREENSHOTS === '1' ? 'plain' : 'model'}-${name}.png`,
     });
   }
 };
@@ -119,6 +122,15 @@ export const verifyFormModelUi = async ({
   const plan = await planCurrent(page);
   const drafted = plan.fields.find((field) => field.name === 'background');
   const unknown = plan.fields.find((field) => field.name === 'starting');
+  if (process.env.FORMS_PLAIN_BEFORE === '1') {
+    await page
+      .locator(`[data-form-field="${drafted.id}"]`)
+      .evaluate((element) => element.scrollIntoView({ block: 'start' }));
+    await page.evaluate(() => globalThis.scrollBy(0, -72));
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-forms-plain-before.png',
+    });
+  }
   assert(
     drafted.answer.source === 'model' &&
       drafted.answer.proposal.value === modelText,

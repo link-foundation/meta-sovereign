@@ -1,0 +1,31 @@
+{
+  "archive": "forms-plain-drafts.tar.gz",
+  "files": {
+    "ci-logs/forms-capacity-webkit-130147210202.log": "1d6c4217a2af7818f2526876da86572fe3887e10a88798885fc6fde263e9776e",
+    "ci-logs/forms-model-lint-130164660346.log": "67a83babff6a9837d6475e9aa03fc011718d8aad296e7c64a1416471a862d108",
+    "ci-logs/forms-plain-before.log": "032cb5f8553f8f6def5f6f9ec447c2f785c22a3f33492bd00938aa316dc3251c",
+    "ci-logs/forms-plain-browser-after.log": "d8ab94e310ce51d8101714b8d4289acb4f42209590fcaaa27f6575a9556b77ce",
+    "ci-logs/forms-plain-browser-before.log": "a36866502f02781537e6382685f9157570bc8028487dc930fdfbd751eeb4d903",
+    "ci-logs/forms-plain-build.log": "1baea074c83279e53959f0eae39d92137108e8e3ad6708f6a252dd1ce159a800",
+    "ci-logs/forms-plain-capacity-parent-ci.json": "8a9b52704f1157c18d264c6df1ffd1e07c172bc0d48a0f42e6bc81a815848b2e",
+    "ci-logs/forms-plain-current-runs.json": "648010bb7d71b55aee015ec43e6b9f3f04d81eff0b74bb44f3220e1ce0b4211d",
+    "ci-logs/forms-plain-deno.log": "816c8696de60a3bb2b03245c133a3b4555826ed3db4b53224f21e0c8e7fc9697",
+    "ci-logs/forms-plain-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/forms-plain-format-final.log": "539acab7b3963395ffbdae9941a039f9bdba7c13aa6f9a0ba82d03f0bcaa0260",
+    "ci-logs/forms-plain-format.log": "9f3ad6eb181bc25444fdab4e6b1dd4aca1c866019f2f349481a6e1fa01d0e1d9",
+    "ci-logs/forms-plain-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-plain-mcp.json": "9f0b3ab58678898387991561c629e8085d1d30e0571deac84963b642ac658055",
+    "ci-logs/forms-plain-model-parent-ci.json": "19ade495466c3b88c3ab6896a362e1e1590632ae7130c636c38af2a893a2a456",
+    "ci-logs/forms-plain-requirements-format.log": "b0bea6ab5022d822e45de64a3d345fca0c2e025850d37adc69fe297aa6f4d8f1",
+    "ci-logs/forms-plain-tests.log": "adba6a24f7c0faf2badf851681ee69957bcf6565c242b6a2a653abb5d4d87241",
+    "docs/case-studies/issue-56/forms-plain-drafts.md": "50f64e4fea0e3a5d01304b56751e02209ffd364096767ed986bbead5d38eff8d",
+    "experiments/issue-56/collect-form-plain.py": "ffd3bf07560fa9353697993a32aa34dc85f4e3962ea82751731ad053800562d0",
+    "experiments/issue-56/forms-model-fixture.mjs": "745b2a81554bb773b9f0a50b0b0992449814532799e6dd7faed59357b9ddd1b9",
+    "experiments/issue-56/forms-plain-baseline.py": "dead75a026d72d39c950ec04a8475abfe6ab9102a71f542850f7617aec6ee084",
+    "js/src/automation/answer-model-drafts.js": "b2bf08b7668e0651105801ae04202897971de468afd06a9cca93e89b4fe28b87",
+    "js/src/automation/answer-plain-text.js": "6be13eff91d1d2fdf147832c195f003350fb3cb7c6099a8b6967ad27e91e0bcd",
+    "js/tests/answer-plain-text.test.js": "64328620a0fc65257541cf6e5d2324b033e2242e9f58d5dfd01d2aeb8b08a766",
+    "js/tests/helpers/e2e-form-model.mjs": "298dae464e3a9355b6328938d8730375ad9d58c56a3af286f5db0d5f607a21cb",
+    "metadata.json": "e90e733df82d3b6c763c3775aad2795e4b66d1bd04e74aa459d51fe5cdb36ba1"
+  }
+}

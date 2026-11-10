@@ -1,6 +1,7 @@
 import { rejectedAnswer } from './question-policy.js';
 import { answerModelFailure } from './answer-model-config.js';
 import { modelContextEvidence } from './answer-model-context.js';
+import { plainAnswerText } from './answer-plain-text.js';
 
 export const ANSWER_MODEL_SCHEMA = {
   type: 'object',
@@ -51,6 +52,26 @@ const strings = (list, limit) =>
     (value) =>
       typeof value === 'string' && value.trim() && value.length <= limit
   );
+const plainDraft = (draft, requests, policy) => {
+  const request = requests.find((item) => item.id === draft.id);
+  // An offered label can itself contain literal Markdown characters. Preserve
+  // that exact label; free prose is always converted before policy/readback.
+  const text = request.options?.includes(draft.text.trim())
+    ? draft.text.trim()
+    : plainAnswerText(draft.text);
+  const missing = draft.missing.map(plainAnswerText);
+  if (
+    (!text && !missing.length) ||
+    missing.some((fact) => !fact) ||
+    rejectedAnswer(text, policy)
+  ) {
+    throw answerModelFailure(
+      'answer-model-response',
+      'The plain draft is empty or rejected.'
+    );
+  }
+  return { ...draft, text, missing };
+};
 const validateDrafts = (result, requests, evidence, policy) => {
   if (
     !result ||
@@ -85,15 +106,13 @@ const validateDrafts = (result, requests, evidence, policy) => {
         'The draft model returned an invalid or rejected answer.'
       );
     }
+    const { text, missing } = plainDraft(draft, requests, policy);
     ids.add(draft.id);
     return {
       id: draft.id,
-      missing: draft.missing,
+      missing,
       evidence: draft.evidence,
-      text: [
-        draft.text.trim(),
-        ...draft.missing.map((fact) => `[clarify: ${fact}]`),
-      ]
+      text: [text, ...missing.map((fact) => `[clarify: ${fact}]`)]
         .filter(Boolean)
         .join('\n'),
     };

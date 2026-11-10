@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-plain-drafts.md](forms-plain-drafts.md) reproduces literal Markdown in model proposals and verifies bounded conversion before planning/writes. Eighteen Node/Deno checks, production Chromium and independent MCP preserve URLs/code, exact choices, owner input, frozen application and zero submissions.
+
 - [ci-forms-submission-counter.md](ci-forms-submission-counter.md) reproduces the shared reader fixture's lifetime-counter assumption. Learning still submits once; later capacity and model checks verify zero additional submissions and closed browsers. Focused failing-before/passing-after Chromium and complete hosted-job evidence are retained.
 
 - [forms-model-drafts.md](forms-model-drafts.md) adds optional bounded Claude Code drafts from a selected CV, profile, recent context and approved answers. Reviewed application freezes context, preserves unknown-fact clarification and makes no second model call. Seventy-one Node/Deno checks, production Chromium and independent MCP pass; live provider calls and automatic chat/provider workflows remain unverified or unfinished.
