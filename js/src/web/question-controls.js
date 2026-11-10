@@ -590,7 +590,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
       ),
       el(LearnedAnswers, { key: 'learn', busy, learned, learn }),
       el(AnswerPolicyControls, { key: 'policy', api, busy, run }),
-      api.answerModel
+      api?.answerModel
         ? el(AnswerModelSettings, { key: 'model', api, busy, run })
         : null,
       el(PreviewControls, {
