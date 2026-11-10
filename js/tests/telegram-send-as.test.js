@@ -6,6 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { messageAck } from './helpers/telegram-message-ack.mjs';
 
 import { createSendAs } from '../src/sources/telegram-send-as.js';
 import { withSendAs } from '../src/sources/telegram-send-as-client.js';
@@ -290,7 +291,9 @@ test('a sticker or GIF is sent as the chosen identity', async () => {
             set: { id: -7n, accessHash: 70n, title: 'Cats', count: 1 },
             documents: [doc(2)],
           }
-        : true;
+        : request.className === 'messages.SendMedia'
+          ? messageAck(request)
+          : true;
     },
     getInputEntity: async () => 'input-as',
   };

@@ -30,6 +30,8 @@ Wait for rolling workers and their stdio to close before releasing shutdown owne
 
 Keep Chat and Operator readers in place when a viewport resize and an upward scroll precede composer expansion; retain geometry diagnostics behind the existing browser debug opt-in.
 
+Require a positive Telegram message receipt before reporting sticker or GIF delivery. Retain confirmed message IDs, mark missing receipts uncertain and preserve acknowledged sends when local projection needs recovery.
+
 Preserve the Chat/Operator live tail across coalesced WebKit layout and caret scrolls, while explicit reader gestures cancel pending composer corrections.
 
 Use versioned, bounded text/binary Lino records for TCP sync with explicit legacy JSON mode. Keep sync CLI commands alive for replication and close connections and stores on shutdown (R-AA16).

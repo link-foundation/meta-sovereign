@@ -40,6 +40,10 @@ import { withSendAs } from './telegram-send-as-client.js';
 import { DICE, randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { createStickerSearch } from './telegram-sticker-search.js';
 import { createInlineBots } from './telegram-inline-bots.js';
+import {
+  messageReceipt,
+  missingMessageReceipt,
+} from './telegram-message-receipt.js';
 
 const LISTS_MS = 10 * 60_000;
 const SET_MS = 60 * 60_000;
@@ -531,6 +535,7 @@ const createSender = (env, { userClient, apply }, lists) => {
     if (!c) {
       return { ok: false, supported: false };
     }
+    let messageId;
     try {
       const client = await withSendAs(
         env,
@@ -539,12 +544,25 @@ const createSender = (env, { userClient, apply }, lists) => {
         draft.allowPaidStars
       );
       const result = await lists.withDoc(key, (doc) =>
-        env.connection.withPeer(client, target, (peer) =>
-          client.invoke(sendRequest(c, doc, peer, draft))
-        )
+        env.connection.withPeer(client, target, async (peer) => {
+          const request = sendRequest(c, doc, peer, draft);
+          const answer = await client.invoke(request);
+          messageId = messageReceipt(answer, request);
+          return answer;
+        })
       );
+      if (!messageId) {
+        throw missingMessageReceipt();
+      }
       if (result && typeof result === 'object') {
-        await apply(c.client, result);
+        // A local projection failure cannot undo Telegram's receipt. The live
+        // catch-up repairs stored messages independently.
+        await apply(c.client, result).catch(() => {
+          env.log?.({
+            level: 'debug',
+            event: 'telegram_sent_projection_failed',
+          });
+        });
       }
     } catch (error) {
       throw sendError(error);
@@ -552,9 +570,9 @@ const createSender = (env, { userClient, apply }, lists) => {
     lists.sent();
     if (draft.scheduleDate) {
       env.actions?.scheduledChanged?.(target);
-      return { ok: true, chat: target, scheduled: true };
+      return { ok: true, chat: target, messageId, scheduled: true };
     }
-    return { ok: true, chat: target };
+    return { ok: true, chat: target, messageId };
   };
   return sendDocument;
 };

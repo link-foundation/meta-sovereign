@@ -8,6 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { messageAck } from './helpers/telegram-message-ack.mjs';
 import { Readable } from 'node:stream';
 
 import { createStickers } from '../src/sources/telegram-stickers.js';
@@ -203,12 +204,12 @@ test("GIFs found by Telegram's @gif bot, a page at a time, and sent", async () =
                 { className: 'BotInlineMediaResult', document: gif(12) },
               ],
             },
-      SendMedia: () => {
+      SendMedia: (request) => {
         if (expire) {
           expire = false;
           throw telegramError(400, 'FILE_REFERENCE_EXPIRED');
         }
-        return null;
+        return messageAck(request);
       },
     })
   );

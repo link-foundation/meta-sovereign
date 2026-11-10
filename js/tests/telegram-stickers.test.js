@@ -19,6 +19,7 @@ import {
   sniff,
 } from '../src/sources/telegram-stickers.js';
 import { handleTelegramRoutes } from '../src/server/routes-telegram.js';
+import { messageAck } from './helpers/telegram-message-ack.mjs';
 
 const named = (className) =>
   class {
@@ -134,7 +135,7 @@ const fakeClient = (log, { expireOnce = false } = {}) => {
             });
           }
           log.push(request);
-          return { className: 'Updates', updates: [] };
+          return messageAck(request, 25);
         default:
           throw new Error(`unexpected ${request.className}`);
       }
@@ -160,6 +161,46 @@ const make = (client, extra = {}) =>
     },
     { now: extra.now ?? (() => 0) }
   );
+
+test('a resolved sticker call without a message receipt remains uncertain', async () => {
+  for (const answer of [
+    null,
+    true,
+    {},
+    { className: 'Updates', updates: [] },
+  ]) {
+    const client = fakeClient([]);
+    const invoke = client.invoke;
+    client.invoke = (request) =>
+      request.className === 'SendMedia'
+        ? Promise.resolve(answer)
+        : invoke(request);
+    const stickers = make(client);
+    await stickers.stickerPanel();
+    await assert.rejects(stickers.sendDocument({ chat: '42', id: '1' }), {
+      code: 'send-unknown',
+    });
+  }
+});
+
+test('local projection failure preserves an acknowledged sticker send', async () => {
+  const log = [];
+  const stickers = make(fakeClient([]), {
+    apply: async () => {
+      throw new Error('projection unavailable');
+    },
+    env: { log: (entry) => log.push(entry) },
+  });
+  await stickers.stickerPanel();
+  assert.deepEqual(await stickers.sendDocument({ chat: '42', id: '1' }), {
+    ok: true,
+    chat: '42',
+    messageId: '25',
+  });
+  assert.deepEqual(log, [
+    { level: 'debug', event: 'telegram_sent_projection_failed' },
+  ]);
+});
 
 test('the panel, a set and the saved GIFs, each asked once (R-Y105)', async () => {
   const log = [];
@@ -274,7 +315,7 @@ test('a sticker sent as it is, its reference asked again once (R-Y105)', async (
     silent: true,
     clientId: 'c1',
   });
-  assert.deepEqual(answer, { ok: true, chat: '42' });
+  assert.deepEqual(answer, { ok: true, chat: '42', messageId: '25' });
   const request = log.find((e) => e?.className === 'SendMedia');
   assert.equal(request.media.id.id, 1n);
   assert.equal(request.message, '');
