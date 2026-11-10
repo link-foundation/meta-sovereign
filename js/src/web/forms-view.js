@@ -8,23 +8,13 @@ import { FormReviewControls } from './form-review-controls.js';
 import { FormReviewedPlan } from './form-reviewed-plan.js';
 import { FormResumeUpload } from './form-resume-upload.js';
 import { FormChoiceInspection } from './form-choice-disclosure.js';
+import { FormReportDownloads, FormReportFile } from './form-report-download.js';
+import { FormReviewJournal } from './form-review-journal.js';
+export { downloadFormReport } from './form-report-download.js';
 
 const el = React.createElement;
 const display = (value) =>
   value === null || value === '' ? '—' : String(value);
-
-export const downloadFormReport = (report) => {
-  const href = URL.createObjectURL(
-    new globalThis.Blob([JSON.stringify(report, null, 2)], {
-      type: 'application/json',
-    })
-  );
-  const anchor = globalThis.document.createElement('a');
-  anchor.href = href;
-  anchor.download = `form-${report.mode === 'answer-plan' ? 'plan' : 'inspection'}-${report.capturedAt.replace(/[:.]/gu, '-')}.json`;
-  anchor.click();
-  globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);
-};
 
 const Field = ({ field, selected, onSelect, onDisclose, onAttach, busy }) => {
   const t = useT();
@@ -88,7 +78,10 @@ const Field = ({ field, selected, onSelect, onDisclose, onAttach, busy }) => {
                   : t(field.checked ? 'forms.checked' : 'forms.unchecked'),
             })
       ),
-      el(FormAnswer, { key: 'answer', answer: field.answer }),
+      el(FormAnswer, {
+        key: 'answer',
+        answer: field.answer ?? field.plannedAnswer,
+      }),
       el(FormChoiceInspection, { key: 'choices', field, onDisclose, busy }),
       el(FormResumeUpload, { key: 'upload', field, onAttach, busy }),
       field.options.length
@@ -151,16 +144,8 @@ export const FormInspectionReport = ({
             ),
           ])
         : null,
-      el(
-        'button',
-        {
-          key: 'download',
-          type: 'button',
-          onClick: () => downloadFormReport(report),
-          'data-action': 'download-form-report',
-        },
-        t('forms.download')
-      ),
+      el(FormReportDownloads, { key: 'download', report }),
+      el(FormReportFile, { key: 'file', file: report.reportFile }),
       report.fields.length
         ? el(
             'ol',
@@ -222,16 +207,22 @@ const useFormCapability = (api, probe) => {
 };
 
 const FormReportView = ({ report, plan, ...props }) =>
-  plan?.reviewPlan
-    ? el(FormReviewedPlan, {
-        ...props,
-        key: plan.reviewPlan.id,
-        plan,
+  report?.mode === 'review-journal'
+    ? el(FormReviewJournal, {
+        key: report.capturedAt,
+        report,
         Report: FormInspectionReport,
       })
-    : report
-      ? el(FormInspectionReport, { report: plan ?? report })
-      : null;
+    : plan?.reviewPlan
+      ? el(FormReviewedPlan, {
+          ...props,
+          key: plan.reviewPlan.id,
+          plan,
+          Report: FormInspectionReport,
+        })
+      : report
+        ? el(FormInspectionReport, { report: plan ?? report })
+        : null;
 
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
@@ -353,7 +344,7 @@ export const FormsView = ({ api = defaultApi }) => {
           setPlan(null);
         },
       }),
-      report
+      report && report.mode !== 'review-journal'
         ? el(FormPlanControls, {
             key: report.capturedAt,
             api,

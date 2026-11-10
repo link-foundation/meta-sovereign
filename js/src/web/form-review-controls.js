@@ -60,7 +60,7 @@ const useReviewControls = ({ api, setBusy, onReport }) => {
       const result = await api[`forms${action}Review`](body);
       if (!result?.ok) {
         setError(result?.code ?? 'form-review-failed');
-      } else if (action === 'Read') {
+      } else if (['Read', 'History'].includes(action)) {
         onReport(result);
       }
       const value = await api.formsReviews();
@@ -119,7 +119,7 @@ const ReviewCard = ({ session, busy, run }) => {
         { key: 'expiry', className: 'meta' },
         t('forms.review.expires', { time: session.idleExpiresAt })
       ),
-      ...['Read', 'Focus', 'Close'].map((action) =>
+      ...['Read', 'History', 'Focus', 'Close'].map((action) =>
         el(
           'button',
           {

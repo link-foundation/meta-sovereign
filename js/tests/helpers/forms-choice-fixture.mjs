@@ -3,7 +3,7 @@ import { createMemoryStore } from '../../src/storage/universal.js';
 import { createFormReader } from '../../src/forms/reader.js';
 import { seedFormAnswers } from '../../../experiments/issue-56/forms-plan-fixture.mjs';
 
-export const formChoiceEnvironment = async () => {
+export const formChoiceEnvironment = async ({ reportWriter } = {}) => {
   const store = createMemoryStore();
   const profile = await seedFormAnswers(store);
   const field = {
@@ -62,6 +62,7 @@ export const formChoiceEnvironment = async () => {
   page.isClosed = () => false;
   const options = {
     store,
+    reportWriter,
     availability: async () => ({ available: true }),
     openSession: async () => ({
       page,

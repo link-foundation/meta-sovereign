@@ -4,9 +4,26 @@ import { planFormAnswers } from './answer-plan.js';
 import { formFailure as failure, formUrl } from './options.js';
 import { inspectFormSession } from './inspection.js';
 import { createFormSessions } from './review-sessions.js';
+import { withFormReportFile } from './report-file.js';
 export { planFormAnswers } from './answer-plan.js';
 export { formUrl } from './options.js';
 export { inspectFormSession, inspectCurrentFormSession } from './inspection.js';
+
+const formCapabilities = async (availability) => {
+  const status = await availability();
+  return {
+    ...status,
+    read: status.available,
+    plan: true,
+    review: status.available,
+    fill: status.available,
+    inspectChoices: status.available,
+    attachResume: status.available,
+    fillScope: 'reviewed-native-and-exposed-aria-controls',
+    submit: false,
+    scope: 'visible-current-pages',
+  };
+};
 
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
@@ -15,11 +32,17 @@ export const createFormReader = ({
   availability = browserAvailability,
   deadlineMs = 60000,
   review = {},
+  reportWriter,
 } = {}) => {
   let active = null;
   let stopping = false;
   const planning = new Set();
-  const reviews = createFormSessions({ store, openSession, ...review });
+  const reviews = createFormSessions({
+    store,
+    openSession,
+    reportWriter,
+    ...review,
+  });
   return {
     openReview: reviews.open,
     closeReview: reviews.close,
@@ -30,21 +53,8 @@ export const createFormReader = ({
     applyReview: reviews.apply,
     discloseReview: reviews.disclose,
     attachReview: reviews.attach,
-    async capabilities() {
-      const status = await availability();
-      return {
-        ...status,
-        read: status.available,
-        plan: true,
-        review: status.available,
-        fill: status.available,
-        inspectChoices: status.available,
-        attachResume: status.available,
-        fillScope: 'reviewed-native-and-exposed-aria-controls',
-        submit: false,
-        scope: 'visible-current-pages',
-      };
-    },
+    historyReview: reviews.history,
+    capabilities: () => formCapabilities(availability),
     async plan(input = {}) {
       if (stopping) {
         throw failure('form-stopped', 'Form planning is stopping.');
@@ -55,7 +65,9 @@ export const createFormReader = ({
           'Another form answer plan is still running.'
         );
       }
-      const task = planFormAnswers(store, input);
+      const task = planFormAnswers(store, input).then((result) =>
+        withFormReportFile(reportWriter, result)
+      );
       planning.add(task);
       try {
         return await task;
@@ -122,11 +134,12 @@ export const createFormReader = ({
             headless: options.headless,
           });
           check();
-          return {
+          const report = {
             ...(await inspectFormSession(session, { url, check })),
             browserSlot: slot,
             policy: session.policy ?? null,
           };
+          return await withFormReportFile(reportWriter, report);
         } catch (error) {
           check();
           throw error;

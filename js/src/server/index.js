@@ -78,6 +78,7 @@ import { handleCvRoutes } from './routes-cv.js';
 import { handleBrowserRoutes } from './routes-browser.js';
 import { handleFormRoutes } from './routes-forms.js';
 import { createFormReader } from '../forms/reader.js';
+import { createFormReportWriter } from '../forms/report-file.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
@@ -891,6 +892,13 @@ const releaseBeforeListen =
     }
   };
 
+const serverForms = (store, options) =>
+  createFormReader({
+    store,
+    reportWriter: createFormReportWriter(),
+    ...options,
+  });
+
 export const startServer = async ({
   port = 0,
   storeDir = defaultStoreDir(),
@@ -978,7 +986,7 @@ export const startServer = async ({
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
-    forms: createFormReader({ store, ...forms }),
+    forms: serverForms(store, forms),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),

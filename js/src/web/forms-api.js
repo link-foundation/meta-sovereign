@@ -29,6 +29,7 @@ export const createFormsApi = ({ get, report }) => ({
     [
       'Open',
       'Read',
+      'History',
       'Focus',
       'Close',
       'Plan',

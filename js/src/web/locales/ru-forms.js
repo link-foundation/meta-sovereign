@@ -1,4 +1,23 @@
 export const ruForms = {
+  'forms.journal.previous':
+    'Не удалось прочитать страницу после действия. Здесь показан последний проверенный снимок; текущее значение не подтверждено.',
+  'forms.downloadMarkdown': 'Скачать Markdown',
+  'forms.reportSaved': 'Отчёт Markdown сохранён: {path}',
+  'forms.reportFailed':
+    'Не удалось сохранить отчёт Markdown. Скачайте копию, чтобы сохранить этот отчёт.',
+  'forms.review.history': 'Сохранённые страницы',
+  'forms.journal.title': 'Снимки страниц формы',
+  'forms.journal.scope':
+    'Это снимки явного чтения, планирования и проверенных действий в открытом сеансе. Страницы или правки между снимками могут отсутствовать. Число снимков ограничено; они хранятся до закрытия сеанса и не подтверждают отправку или обучение.',
+  'forms.journal.count':
+    'Снимков: {count} · пропущено из-за ограничений: {omitted}',
+  'forms.journal.entry': '{action} · полей: {fields} · {time}',
+  'forms.journal.inspect': 'Показать снимок',
+  'forms.journal.action.read': 'Чтение',
+  'forms.journal.action.plan': 'Планирование',
+  'forms.journal.action.apply': 'Заполнение',
+  'forms.journal.action.attach': 'Прикрепление PDF',
+  'forms.journal.action.disclose': 'Просмотр вариантов',
   'forms.fill.unavailable':
     'Проверьте это поле в браузере формы; здесь изменение недоступно.',
   'forms.fill.radioChanges': 'Этот вариант также снимает выбор: {fields}.',

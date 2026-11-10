@@ -1,4 +1,23 @@
 export const enForms = {
+  'forms.journal.previous':
+    'The page could not be read after this action. This checkpoint shows the last reviewed snapshot, not a confirmed current value.',
+  'forms.downloadMarkdown': 'Download Markdown',
+  'forms.reportSaved': 'Markdown report saved: {path}',
+  'forms.reportFailed':
+    'The Markdown report could not be saved. Download a copy to keep this report.',
+  'forms.review.history': 'Captured pages',
+  'forms.journal.title': 'Captured form pages',
+  'forms.journal.scope':
+    'These are snapshots from explicit reads, plans and verified actions in this open session. Pages or edits between captures may be missing. Captures are bounded, kept until this session closes and do not prove submission or learning.',
+  'forms.journal.count':
+    '{count} retained checkpoints · {omitted} omitted by retention limits',
+  'forms.journal.entry': '{action} · {fields} fields · {time}',
+  'forms.journal.inspect': 'Show snapshot',
+  'forms.journal.action.read': 'Read',
+  'forms.journal.action.plan': 'Plan',
+  'forms.journal.action.apply': 'Apply',
+  'forms.journal.action.attach': 'Attach PDF',
+  'forms.journal.action.disclose': 'Inspect choices',
   'forms.fill.unavailable':
     'Review this field in the form browser; no change is available here.',
   'forms.fill.radioChanges': 'This option also clears: {fields}.',

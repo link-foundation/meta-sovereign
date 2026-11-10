@@ -5,6 +5,8 @@ import { formFailure as failure, formUrl } from './options.js';
 import { inspectCurrentFormSession } from './inspection.js';
 import { trackReviewActivity } from './review-activity.js';
 import { createReviewedPrefill } from './review-prefill.js';
+import { createFormJournal, formReportSnapshot } from './review-journal.js';
+import { persistFormReport } from './report-file.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
@@ -42,6 +44,16 @@ const focusBrowser = async (record) => {
     );
   }
   await record.browser.page.bringToFront();
+};
+
+const captureReport = async (writer, record, action, result, proposed) => {
+  if (record.journal.capture(action, result, proposed) && writer) {
+    result.reportFile = await persistFormReport(
+      writer,
+      formReportSnapshot(result, proposed)
+    );
+  }
+  return result;
 };
 
 const launchReviewBrowser = async ({
@@ -89,6 +101,7 @@ export const createFormSessions = ({
   now = () => Date.now(),
   timers = globalThis,
   prefill = {},
+  reportWriter,
 } = {}) => {
   if (
     !bounded(maxSessions, 16) ||
@@ -138,6 +151,7 @@ export const createFormSessions = ({
       lastUsedAt: now(),
       idleMs,
       activityTracking: false,
+      journal: createFormJournal(),
     };
     records.set(record.id, record);
     record.task = run(record, () =>
@@ -172,9 +186,16 @@ export const createFormSessions = ({
     }
   };
   const reviewAction = (action) => async (input) => {
-    const result = await operate(input.id, (record) =>
-      filling[action](record, input, () => check(record))
-    );
+    const result = await operate(input.id, async (record) => {
+      const proposed = record.reviewPlan?.proposed;
+      return captureReport(
+        reportWriter,
+        record,
+        action,
+        await filling[action](record, input, () => check(record)),
+        proposed
+      );
+    });
     return globalThis.structuredClone({
       ...result,
       reviewSession: identity(get(input.id)),
@@ -198,6 +219,10 @@ export const createFormSessions = ({
     apply: reviewAction('apply'),
     attach: reviewAction('attach'),
     disclose: reviewAction('disclose'),
+    history: async (id) => ({
+      ...(await operate(id, (record) => record.journal.read())),
+      reviewSession: identity(get(id)),
+    }),
     read: async (id) => {
       const report = await operate(id, async (record) => {
         await filling.clear(record);
@@ -205,11 +230,11 @@ export const createFormSessions = ({
           check: () => check(record),
         });
         record.title = report.title;
-        return {
+        return captureReport(reportWriter, record, 'read', {
           ...report,
           browserSlot: record.slot,
           policy: record.browser.policy ?? null,
-        };
+        });
       });
       return { ...report, reviewSession: identity(get(id)) };
     },

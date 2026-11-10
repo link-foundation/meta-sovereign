@@ -1,4 +1,23 @@
 export const hiForms = {
+  'forms.journal.previous':
+    'इस कार्रवाई के बाद पृष्ठ पढ़ा नहीं जा सका। यह चेकपॉइंट अंतिम समीक्षा किया गया स्नैपशॉट दिखाता है; वर्तमान मान की पुष्टि नहीं हुई है।',
+  'forms.downloadMarkdown': 'Markdown डाउनलोड करें',
+  'forms.reportSaved': 'Markdown रिपोर्ट सहेजी गई: {path}',
+  'forms.reportFailed':
+    'Markdown रिपोर्ट सहेजी नहीं जा सकी। रिपोर्ट रखने के लिए एक प्रति डाउनलोड करें।',
+  'forms.review.history': 'कैप्चर किए पृष्ठ',
+  'forms.journal.title': 'फ़ॉर्म के कैप्चर किए पृष्ठ',
+  'forms.journal.scope':
+    'ये स्नैपशॉट खुले सत्र में स्पष्ट रूप से पढ़ने, योजना बनाने और सत्यापित कार्रवाइयों से हैं। कैप्चर के बीच के पृष्ठ या संपादन छूट सकते हैं। स्नैपशॉट की संख्या सीमित है और वे सत्र बंद होने तक रहते हैं; वे सबमिशन या सीखने की पुष्टि नहीं करते।',
+  'forms.journal.count':
+    '{count} स्नैपशॉट रखे गए · सीमा के कारण {omitted} छूटे',
+  'forms.journal.entry': '{action} · {fields} फ़ील्ड · {time}',
+  'forms.journal.inspect': 'स्नैपशॉट देखें',
+  'forms.journal.action.read': 'पढ़ना',
+  'forms.journal.action.plan': 'योजना',
+  'forms.journal.action.apply': 'भरना',
+  'forms.journal.action.attach': 'PDF जोड़ना',
+  'forms.journal.action.disclose': 'विकल्प देखना',
   'forms.fill.unavailable':
     'इस फ़ील्ड की समीक्षा फ़ॉर्म ब्राउज़र में करें; यहाँ बदलाव उपलब्ध नहीं है।',
   'forms.fill.radioChanges': 'यह विकल्प इनका चयन भी हटाता है: {fields}।',

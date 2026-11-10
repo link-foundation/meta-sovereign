@@ -3,8 +3,8 @@ import { formChoiceEnvironment } from './forms-choice-fixture.mjs';
 import { resumePdf } from '../../src/forms/resume-upload.js';
 import { syntheticResumePdf } from '../../../experiments/issue-56/forms-resume-fixture.mjs';
 
-export const formUploadEnvironment = async () => {
-  const base = await formChoiceEnvironment();
+export const formUploadEnvironment = async (settings) => {
+  const base = await formChoiceEnvironment(settings);
   await base.reader.stop();
   const { field, report } = base;
   for (const key of [

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-review-journal.md](forms-review-journal.md) verifies bounded captured-page history, saved Markdown provenance, retention omissions, separate file failures, recovery without replay and read-only historical UI through CLI/Lino/four languages. Focused Node/Deno, production Chromium and independent MCP evidence are retained. Automatic page capture and submission/stable-edit learning remain required.
+
 - [ci-forms-effects.md](ci-forms-effects.md) traces the hosted 6.51% duplication failure and consolidates guarded form effects and isolated HTTP/browser fixtures without relaxing validation.
 
 - [ci-links-concurrency.md](ci-links-concurrency.md) preserves three changing GitHub 503 failures and reduces request concurrency without accepting failures or excluding references. Exact-head hosted verification remains required.

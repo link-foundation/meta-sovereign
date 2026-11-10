@@ -9,6 +9,7 @@ const actions = {
       headless: body.headless,
     }),
   read: (forms, body) => forms.readReview(body.id),
+  history: (forms, body) => forms.historyReview(body.id),
   focus: (forms, body) => forms.focusReview(body.id),
   close: (forms, body) => forms.closeReview(body.id),
   plan: (forms, body) =>

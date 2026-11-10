@@ -1,4 +1,21 @@
 export const zhForms = {
+  'forms.journal.previous':
+    '操作后无法读取页面。此检查点显示上一次审阅的快照，不能确认当前值。',
+  'forms.downloadMarkdown': '下载 Markdown',
+  'forms.reportSaved': 'Markdown 报告已保存：{path}',
+  'forms.reportFailed': '无法保存 Markdown 报告。请下载副本以保留报告。',
+  'forms.review.history': '已捕获页面',
+  'forms.journal.title': '已捕获的表单页面',
+  'forms.journal.scope':
+    '这些快照来自当前会话中明确执行的读取、规划和已验证操作。两次捕获之间的页面或编辑可能缺失。快照数量有限，仅保留到会话关闭，不能证明已提交或已学习答案。',
+  'forms.journal.count': '保留 {count} 个快照 · 因保留上限省略 {omitted} 个',
+  'forms.journal.entry': '{action} · {fields} 个字段 · {time}',
+  'forms.journal.inspect': '查看快照',
+  'forms.journal.action.read': '读取',
+  'forms.journal.action.plan': '规划',
+  'forms.journal.action.apply': '填写',
+  'forms.journal.action.attach': '附加 PDF',
+  'forms.journal.action.disclose': '查看选项',
   'forms.fill.unavailable': '请在表单浏览器中检查此字段；此处无法更改。',
   'forms.fill.radioChanges': '此选项还会取消选择：{fields}。',
   'forms.fill.radioReceipt': '{field} → 未选择：{status}',

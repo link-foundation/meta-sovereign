@@ -6,6 +6,7 @@ import { verifyFormRadioUi } from './helpers/e2e-form-radio.mjs';
 import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
 import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
+import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -237,7 +238,8 @@ const verifyCustomOnly = async ({ page, until }) => {
   if (
     process.env.FORMS_CUSTOM_ONLY === '1' ||
     process.env.FORMS_CHOICES_ONLY === '1' ||
-    process.env.FORMS_UPLOAD_ONLY === '1'
+    process.env.FORMS_UPLOAD_ONLY === '1' ||
+    process.env.FORMS_JOURNAL_ONLY === '1'
   ) {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -246,11 +248,13 @@ const verifyCustomOnly = async ({ page, until }) => {
       'Forms custom browser capability'
     );
     await (
-      process.env.FORMS_UPLOAD_ONLY === '1'
-        ? verifyFormUploadUi
-        : process.env.FORMS_CHOICES_ONLY === '1'
-          ? verifyFormChoicesUi
-          : verifyFormCustomUi
+      process.env.FORMS_JOURNAL_ONLY === '1'
+        ? verifyFormJournalUi
+        : process.env.FORMS_UPLOAD_ONLY === '1'
+          ? verifyFormUploadUi
+          : process.env.FORMS_CHOICES_ONLY === '1'
+            ? verifyFormChoicesUi
+            : verifyFormCustomUi
     )({ page, owned, fixture });
     return true;
   }
@@ -356,12 +360,17 @@ await app.finish(async () => {
       });
     }
     await verifyLimits(page);
-    await verifyFormReviewUi({ page, owned, fixture, until });
-    await verifyFormPrefillUi({ page, owned, fixture });
-    await verifyFormRadioUi({ page, owned, fixture });
-    await verifyFormCustomUi({ page, owned, fixture });
-    await verifyFormChoicesUi({ page, owned, fixture });
-    await verifyFormUploadUi({ page, owned, fixture });
+    for (const verify of [
+      verifyFormReviewUi,
+      verifyFormPrefillUi,
+      verifyFormRadioUi,
+      verifyFormCustomUi,
+      verifyFormChoicesUi,
+      verifyFormUploadUi,
+      verifyFormJournalUi,
+    ]) {
+      await verify({ page, owned, fixture, until });
+    }
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );

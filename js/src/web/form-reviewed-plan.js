@@ -11,8 +11,12 @@ import {
 } from './form-resume-upload.js';
 
 const el = React.createElement;
-const latestReport = (plan, results) =>
-  results.find((result) => result?.report)?.report ?? plan;
+const latestReport = (plan, results) => {
+  const latest = results.find(Boolean);
+  return latest
+    ? { ...(latest.report ?? plan), reportFile: latest.reportFile }
+    : plan;
+};
 const FormApplicationError = ({ error }) => {
   const t = useT();
   return error
