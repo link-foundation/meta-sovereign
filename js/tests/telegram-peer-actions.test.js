@@ -83,7 +83,7 @@ test('block and unblock send the peer', async () => {
 });
 
 test('add contact: the typed name, the privacy exception, no phone', async () => {
-  const { actions, log } = make(() => ({}));
+  const { actions, log } = make(() => ({ className: 'Updates' }));
   const answer = await actions.peerContact({
     chat: '42',
     add: true,
@@ -105,7 +105,7 @@ test('add contact: the typed name, the privacy exception, no phone', async () =>
 });
 
 test('delete contact sends the user in a vector', async () => {
-  const { actions, log } = make(() => ({}));
+  const { actions, log } = make(() => ({ className: 'Updates' }));
   assert.deepEqual(await actions.peerContact({ chat: '42', add: false }), {
     ok: true,
     contact: false,

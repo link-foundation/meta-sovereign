@@ -13905,3 +13905,85 @@ main[data-view='operator']:has(> .operator-workspace) {
   display: block;
   margin: 0.35rem 0;
 }
+
+/* Shared Chat/Operator user extraction and contact previews. */
+.chat-users-dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+  width: min(680px, 94vw);
+  display: grid;
+  gap: 12px;
+}
+.chat-users-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  margin: 12px 0;
+  border: 0;
+  padding: 0;
+}
+.chat-users-options legend {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.chat-users-dialog .export-field {
+  display: grid;
+  gap: 6px;
+}
+.chat-users-dialog input[type='number'] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.chat-users-dialog .pin-dialog-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.chat-users-dialog .pin-dialog-option input {
+  flex: 0 0 auto;
+}
+.chat-users-plan {
+  border-inline-start: 3px solid currentColor;
+  padding-inline-start: 12px;
+  display: grid;
+  gap: 8px;
+}
+.chat-users-list {
+  overflow-wrap: anywhere;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+.chat-users-list ul {
+  list-style: none;
+  padding: 0;
+}
+.chat-users-list li {
+  margin: 10px 0;
+}
+.chat-users-list small {
+  display: block;
+}
+.chat-users-dialog .delete-dialog-btns {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chat-users-dialog :is(h3, p, ul, .pin-dialog-option) {
+  margin-block: 0;
+}
+.chat-users-dialog ul:empty {
+  display: none;
+}
+.chat-users-dialog [data-users='progress'] {
+  display: grid;
+  gap: 8px;
+}
+.chat-users-options > :is(p, button, .pin-dialog-option, .chat-users-plan) {
+  grid-column: 1 / -1;
+}
+@media (max-width: 480px) {
+  .chat-users-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,3 +1,4 @@
+import { ruChatUsers } from './ru-chat-users.js';
 import { ruPublication } from './ru-publication.js';
 import { ruBrowser } from './ru-browser.js';
 // Russian locale (issue #18). Keys must mirror ./en.js exactly; the
@@ -20,6 +21,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruChatUsers,
   ...ruPublication,
   'backup.schedule': 'Автоматическое восстановление',
   'backup.scheduleHint':

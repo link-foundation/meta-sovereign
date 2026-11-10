@@ -34,6 +34,7 @@ test(
       quickReaction: false,
       quickReactionSet: false,
       urlAuthDomains: false,
+      chatUsersStart: false,
     });
   }
 );

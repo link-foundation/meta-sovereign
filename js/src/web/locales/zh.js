@@ -1,3 +1,4 @@
+import { zhChatUsers } from './zh-chat-users.js';
 import { zhPublication } from './zh-publication.js';
 import { zhBrowser } from './zh-browser.js';
 // Simplified Chinese locale (issue #18). Keys must mirror ./en.js
@@ -21,6 +22,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhChatUsers,
   ...zhPublication,
   'backup.schedule': '自动恢复备份',
   'backup.scheduleHint':

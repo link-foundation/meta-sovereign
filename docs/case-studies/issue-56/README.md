@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [telegram-users.md](telegram-users.md) records provenance-aware participant/history scans, read-only contact previews, separate phone-sharing consent and durable uncertain-write protection through CLI/Lino API/Chat/Operator, with focused regressions and desktop/mobile browser evidence.
+
 - [telegram-export.md](telegram-export.md) records exact chat selection, active/complete migrated history, bounded linked Markdown/JSON, actual media, cancellation and mobile spacing through CLI/Lino API/shared Chat/Operator controls, with baseline regressions, Chrome and MCP screenshots.
 
 - [saved-publications.md](saved-publications.md) records saved Telegram/VK/X routing and credential modes, masked setup, exact confirmed plans, durable receipts/deletion and reload uncertainty through CLI/Lino API/UI, with focused tests and production browser/MCP images.

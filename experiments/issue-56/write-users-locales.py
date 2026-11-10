@@ -1,0 +1,85 @@
+from pathlib import Path
+import json
+rows = {
+ 'title': ['Users and contacts','Пользователи и контакты','用户与联系人','उपयोगकर्ता और संपर्क'],
+ 'open': ['Users and contacts…','Пользователи и контакты…','用户与联系人…','उपयोगकर्ता और संपर्क…'],
+ 'note': ['Visible participants and history references may cover only part of this chat. Review the results before adding contacts.','Видимые участники и ссылки из истории могут охватывать лишь часть чата. Проверьте результат перед добавлением контактов.','可见成员和历史消息中的引用可能仅涵盖此聊天的部分用户。添加联系人前请检查结果。','दिखने वाले सदस्य और इतिहास के संदर्भ इस चैट के कुछ ही उपयोगकर्ताओं को शामिल कर सकते हैं। संपर्क जोड़ने से पहले परिणाम जाँचें।'],
+ 'scan':['Scan users','Поиск пользователей','扫描用户','उपयोगकर्ता खोजें'],
+ 'participantsLimit':['Participant limit (0: all available)','Лимит участников (0: все доступные)','成员上限（0：所有可用成员）','सदस्य सीमा (0: सभी उपलब्ध)'],
+ 'messagesLimit':['Message limit (0: skip history)','Лимит сообщений (0: без истории)','消息上限（0：跳过历史）','संदेश सीमा (0: इतिहास छोड़ें)'],
+ 'scanHint':['Limits bound the scan; an inaccessible member list can still be supplemented by history.','Лимиты ограничивают поиск; недоступный список участников можно дополнить историей.','扫描受上限限制；成员列表不可访问时仍可从历史消息补充。','सीमाएँ खोज को नियंत्रित करती हैं; सदस्य सूची उपलब्ध न हो तो इतिहास से जानकारी मिल सकती है।'],
+ 'start':['Start scan','Начать поиск','开始扫描','खोज शुरू करें'],
+ 'contacts':['Add contacts','Добавить контакты','添加联系人','संपर्क जोड़ें'],
+ 'limit':['Contact limit (0: all eligible)','Лимит контактов (0: все подходящие)','联系人上限（0：所有符合条件者）','संपर्क सीमा (0: सभी योग्य)'],
+ 'delayMs':['Pause between contacts (milliseconds)','Пауза между контактами (миллисекунды)','添加联系人间隔（毫秒）','संपर्कों के बीच विराम (मिलीसेकंड)'],
+ 'includeExisting':['Include existing contacts','Включить существующие контакты','包含已有联系人','मौजूदा संपर्क शामिल करें'],
+ 'sharePhone':['Allow these people to see my phone number','Разрешить этим людям видеть мой номер телефона','允许这些人查看我的电话号码','इन लोगों को मेरा फ़ोन नंबर देखने दें'],
+ 'preview':['Preview contacts','Предпросмотр контактов','预览联系人','संपर्कों का पूर्वावलोकन'],
+ 'selected':['Selected {count} of {eligible} eligible people.','Выбрано {count} из {eligible} подходящих пользователей.','已选择 {count} 人，共 {eligible} 人符合条件。','{eligible} योग्य लोगों में से {count} चुने गए।'],
+ 'phoneOn':['Phone sharing is enabled for this selection.','Для выбранных пользователей включён доступ к номеру.','已为所选用户启用电话号码共享。','चुने गए लोगों के लिए फ़ोन साझा करना चालू है।'],
+ 'phoneOff':['Your phone number will not be shared.','Ваш номер телефона не будет раскрыт.','不会共享您的电话号码。','आपका फ़ोन नंबर साझा नहीं होगा।'],
+ 'expiry':['This preview expires in five minutes and can be applied once.','Предпросмотр действует пять минут и применяется один раз.','此预览五分钟后过期，仅可应用一次。','यह पूर्वावलोकन पाँच मिनट में समाप्त होगा और एक बार लागू हो सकता है।'],
+ 'apply':['Add {count} contacts','Добавить контакты: {count}','添加 {count} 位联系人','{count} संपर्क जोड़ें'],
+ 'participants':['Participants','Участники','成员','सदस्य'],
+ 'messages':['Messages','Сообщения','消息','संदेश'],
+ 'disabled':['Skipped','Пропущено','已跳过','छोड़ा गया'],
+ 'complete':['Complete','Полностью','完整','पूर्ण'],
+ 'partial':['Partial coverage','Частичный охват','部分覆盖','आंशिक जानकारी'],
+ 'readDenied':['Unavailable or interrupted','Недоступно или прервано','不可用或已中断','अनुपलब्ध या बाधित'],
+ 'found':['{count} unique users found','Найдено уникальных пользователей: {count}','找到 {count} 位唯一用户','{count} अलग उपयोगकर्ता मिले'],
+ 'processed':['Processed {count} of {total} contacts','Обработано контактов: {count} из {total}','已处理 {count} 位联系人，共 {total} 位','{total} में से {count} संपर्क संसाधित'],
+ 'wait':['Telegram requested a pause of {seconds} seconds.','Telegram запросил паузу на {seconds} с.','Telegram 要求暂停 {seconds} 秒。','Telegram ने {seconds} सेकंड का विराम माँगा है।'],
+ 'jobFailed':['The operation could not finish. Review the saved results before trying again.','Не удалось завершить операцию. Проверьте сохранённые результаты перед повтором.','操作未能完成。重试前请检查已保存的结果。','कार्रवाई पूरी नहीं हुई। फिर कोशिश करने से पहले सहेजे गए परिणाम जाँचें।'],
+ 'unresolvedMentions':['{count} username references could not be resolved.','Не удалось определить пользователей по упоминаниям: {count}.','无法解析 {count} 个用户名引用。','{count} उपयोगकर्ता नाम संदर्भ पहचाने नहीं जा सके।'],
+ 'other':['Another chat has the latest scan or contact job.','Последняя задача относится к другому чату.','最新的扫描或联系人任务属于另一个聊天。','नवीनतम खोज या संपर्क कार्य दूसरी चैट का है।'],
+ 'previous':['Previous users','Предыдущие пользователи','上一页用户','पिछले उपयोगकर्ता'],
+ 'next':['Next users','Следующие пользователи','下一页用户','अगले उपयोगकर्ता'],
+ 'download':['Download full JSON report','Скачать полный отчёт JSON','下载完整 JSON 报告','पूरी JSON रिपोर्ट डाउनलोड करें'],
+ 'cancel':['Stop this job','Остановить задачу','停止此任务','यह कार्य रोकें'],
+ 'state.running':['Working…','Выполняется…','处理中…','काम जारी है…'],
+ 'state.cancelling':['Stopping after the current request…','Остановка после текущего запроса…','当前请求结束后停止…','वर्तमान अनुरोध के बाद रोका जा रहा है…'],
+ 'state.cancelled':['Stopped; partial results are saved.','Остановлено; частичные результаты сохранены.','已停止；部分结果已保存。','रोक दिया गया; आंशिक परिणाम सहेजे गए हैं।'],
+ 'state.done':['Finished','Завершено','已完成','पूरा हुआ'],
+ 'state.partial':['Stopped; review the results before continuing.','Приостановлено; проверьте результаты перед продолжением.','已停止；继续前请检查结果。','रुका हुआ; आगे बढ़ने से पहले परिणाम जाँचें।'],
+ 'state.failed':['Could not finish','Не удалось завершить','未能完成','पूरा नहीं हो सका'],
+ 'result.added':['Added','Добавлен','已添加','जोड़ा गया'],
+ 'result.skipped':['Skipped','Пропущен','已跳过','छोड़ा गया'],
+ 'result.failed':['Refused or not attempted','Отклонён или не отправлен','被拒绝或未尝试','अस्वीकृत या प्रयास नहीं किया'],
+ 'result.unknown':['Outcome unknown — check Telegram before retrying','Результат неизвестен — проверьте Telegram перед повтором','结果未知 — 重试前请检查 Telegram','परिणाम अज्ञात — दोबारा कोशिश से पहले Telegram जाँचें'],
+ 'result.refused':['Not attempted','Не отправлен','未尝试','प्रयास नहीं किया'],
+ 'skip.unresolved':['Unresolved identities','Неопределённые пользователи','未解析的身份','अज्ञात पहचान'],
+ 'skip.self':['Your account','Ваш аккаунт','您的账号','आपका खाता'],
+ 'skip.bot':['Bots','Боты','机器人','बॉट'],
+ 'skip.deleted':['Deleted users','Удалённые пользователи','已删除用户','हटाए गए उपयोगकर्ता'],
+ 'skip.fake':['Marked fake','Помечены как фальшивые','标记为虚假','नकली चिह्नित'],
+ 'skip.scam':['Marked scam','Помечены как мошенники','标记为诈骗','धोखाधड़ी चिह्नित'],
+ 'skip.support':['Support accounts','Аккаунты поддержки','支持账号','सहायता खाते'],
+ 'skip.already-contact':['Existing contacts','Существующие контакты','已有联系人','मौजूदा संपर्क'],
+ 'source.participant':['Visible participant','Видимый участник','可见成员','दिखने वाला सदस्य'],
+ 'source.author':['Message author','Автор сообщения','消息作者','संदेश लेखक'],
+ 'source.service:members':['Member service event','Событие участия','成员服务事件','सदस्य सेवा घटना'],
+ 'source.service:removed':['Removal service event','Событие удаления','移除服务事件','हटाने की सेवा घटना'],
+ 'source.service:joined':['Join service event','Событие вступления','加入服务事件','जुड़ने की सेवा घटना'],
+ 'source.forward':['Forwarded author','Автор пересылки','转发作者','अग्रेषित संदेश लेखक'],
+ 'source.mention':['User mention','Упоминание пользователя','用户提及','उपयोगकर्ता उल्लेख'],
+ 'source.mention:username':['Username mention','Упоминание имени пользователя','用户名提及','उपयोगकर्ता नाम उल्लेख'],
+ 'source.shared-contact':['Shared contact','Отправленный контакт','分享的联系人','साझा किया गया संपर्क'],
+ 'source.resolved':['Resolved profile','Определённый профиль','已解析的资料','पहचानी गई प्रोफ़ाइल'],
+ 'error.offline':['The server is unavailable. Reconnect to check progress.','Сервер недоступен. Подключитесь снова для проверки состояния.','服务器不可用。重新连接以检查进度。','सर्वर उपलब्ध नहीं है। प्रगति जाँचने के लिए फिर जुड़ें।'],
+ 'error.preview-expired':['Preview expired. Scan and preview again.','Предпросмотр устарел. Повторите поиск и предпросмотр.','预览已过期。请重新扫描并预览。','पूर्वावलोकन समाप्त हुआ। फिर खोजें और पूर्वावलोकन करें।'],
+ 'error.busy':['Another job is still running.','Другая задача ещё выполняется.','另一个任务仍在运行。','दूसरा कार्य अभी चल रहा है।'],
+ 'error.scan-required':['Finish a fresh scan before previewing contacts.','Завершите новый поиск перед предпросмотром контактов.','预览联系人前请完成新的扫描。','संपर्क पूर्वावलोकन से पहले नई खोज पूरी करें।'],
+ 'error.bad-request':['Check the limits and try again.','Проверьте лимиты и повторите попытку.','请检查上限后重试。','सीमाएँ जाँचें और फिर कोशिश करें।'],
+}
+for i, locale in enumerate(['en','ru','zh','hi']):
+    values = { 'chat.users.'+key: value[i] for key,value in rows.items() }
+    name = locale+'ChatUsers'
+    p=Path(f'js/src/web/locales/{locale}-chat-users.js')
+    p.write_text('export const '+name+' = '+json.dumps(values, ensure_ascii=False, indent=2)+';\n')
+    p=Path(f'js/src/web/locales/{locale}.js')
+    s=p.read_text()
+    imp=f"import {{ {name} }} from './{locale}-chat-users.js';\n"
+    if imp not in s:
+        s=imp+s
+        s=s.replace(f'export const {locale} = {{', f'export const {locale} = {{\n  ...{name},')
+    p.write_text(s)

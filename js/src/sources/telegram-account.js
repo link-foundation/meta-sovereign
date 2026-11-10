@@ -1321,6 +1321,12 @@ const connectionRecorder = (store) => {
   };
 };
 
+const stopReaders = async (env) => {
+  await env.channels.flush().catch(() => {});
+  await env.catchUp.stop();
+  await env.chatUsersStop?.();
+};
+
 export const createTelegramAccount = ({
   store,
   // The saved connection proxy is read whenever a client is built (R-Y192).
@@ -1474,8 +1480,7 @@ export const createTelegramAccount = ({
     globalThis.clearInterval(timer);
     timer = null;
     backfill.stop();
-    await env.channels.flush().catch(() => {});
-    await catchUp.stop();
+    await stopReaders(env);
     await connection.disconnect();
   };
 

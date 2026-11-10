@@ -22,6 +22,10 @@ import {
 } from './rolling-serve.js';
 import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
 import {
+  TELEGRAM_USERS_HELP,
+  createTelegramUsersCommands,
+} from './telegram-users-commands.js';
+import {
   TELEGRAM_EXPORT_HELP,
   createTelegramExportCommands,
 } from './telegram-export-commands.js';
@@ -125,6 +129,7 @@ Commands:
 ${TRUST_HELP}
 ${CONTACTS_HELP}
 ${TELEGRAM_EXPORT_HELP}
+${TELEGRAM_USERS_HELP}
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
@@ -1019,6 +1024,7 @@ const COMMANDS = {
   ...createTrustCommands(),
   ...createContactCommands({ openStore }),
   ...createTelegramExportCommands({ openStore }),
+  ...createTelegramUsersCommands({ openStore }),
   // Bring a store to the current data schema, or look first (R-Z17).
   ...createMigrateCommands(),
   help: async (_a, log) => {

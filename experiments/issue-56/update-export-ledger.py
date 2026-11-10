@@ -12,7 +12,7 @@ for suffix, addition in updates.items():
     path = root / f"docs/REQUIREMENTS{suffix}.md"
     lines = path.read_text().splitlines()
     for index, line in enumerate(lines):
-        if line.startswith("| R-AA7 "):
+        if line.startswith("| R-AA8 "):
             cells = line.split("|")
             if "telegram-export.md" not in cells[3]:
                 cells[3] = f"{cells[3].rstrip()} {addition} "

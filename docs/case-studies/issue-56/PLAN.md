@@ -40,7 +40,7 @@ Objective: fully implement and verify every requirement of issue 56 and every re
 
 Initial evidence: no issue comments, PR conversation comments, inline comments, reviews or required sub-issues were returned at collection. These endpoints must be refreshed before finalization.
 
-Current focused work: TG01–TG02 exact chat selection, complete/migrated history, active conversation discovery and bounded linked Markdown/JSON with media now share CLI/default Lino API/Chat/Operator controls; see telegram-export.md. Twelve new and twelve existing focused checks, production Chrome, independent MCP and failing-before migration/mobile comparisons pass. Saved publication controls and the tutorial measurement correction remain preserved. The exact-head f42c4c46 CI has passed all four auxiliary workflows and every completed Checks job; WebKit is still running at collection. Continue TG03–TG10 user/contact/login/greeting audit and implementation, follow/VK workflows, and all remaining question/HH/device criteria. Every issue-wide workstream stays open and PR 57 stays draft.
+Current focused work: TG01–TG05 now cover exact/migrated/active history export, provenance-aware user scans and reviewed no-phone contact import through CLI/default Lino API/shared Chat/Operator. The user/contact slice passes 63 focused checks, production Chrome and independent MCP desktop/mobile review; see telegram-users.md. Immutable plans, actual receipts, cancellation and durable uncertain-write protection are covered. All five workflows for f42c4c46 passed. Export head 124a2234 passes four auxiliary workflows but Checks fails Windows Deno initial rolling-host readiness and WebKit profile-extras older sent birthday wishes. Complete workflow/job logs and browser artifacts are preserved; investigate root causes and verify the next exact head. Continue TG06–TG10 and every remaining issue-wide workstream. PR 57 stays draft and unmerged.
 
 Resolved diagnostic: no-Telegram cached chat advertised no capabilities yet started unsupported notification/account-event requests. Explicit status capabilities and shared browser gating now pass six targeted regressions, the existing notification browser flow and independent MCP against the actual no-account server; see telegram-capabilities.md. Full mobile/provider capability coverage remains open.
 
@@ -52,5 +52,7 @@ Resolved diagnostic: the isolated no-sync fixture's unsupported RTC connection h
 - [x] Compare against the latest pushed commit before interpreting results.
 - [x] Download complete logs for every nonpassing runtime job and the final workflow.
 - [x] Read each failure section and report concrete errors with raw log line numbers.
-- [x] Reproduce the two discovery assertions locally and verify their fixture correction.
+- [x] Reproduce the earlier discovery assertions locally and verify their fixture correction.
+- [x] Preserve 124a2234 Windows Deno and WebKit failures with exact SHA/timestamps.
+- [ ] Diagnose Windows rolling-host startup and WebKit older-wishes selection before any timing changes.
 - [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.

@@ -1,3 +1,4 @@
+import { hiChatUsers } from './hi-chat-users.js';
 import { hiPublication } from './hi-publication.js';
 import { hiBrowser } from './hi-browser.js';
 // Hindi locale (issue #18). Keys must mirror ./en.js exactly; the
@@ -21,6 +22,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiChatUsers,
   ...hiPublication,
   'backup.schedule': 'स्वचालित पुनर्प्राप्ति',
   'backup.scheduleHint':

@@ -479,6 +479,26 @@ export const TELEGRAM_CALLS = {
   // Exporting a chat's history to a folder (R-Y186): the default folder and
   // the running export, start ({ chat, media, sizeLimitMb, from, to,
   // formats, folder }), status, cancel, and the folder shown.
+  telegramChatUsersStart: {
+    ...body('chat-users-start'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersStatus: {
+    ...readBody('chat-users-status'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersCancel: {
+    ...none('chat-users-cancel'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersContactsPreview: {
+    ...readBody('chat-users-contacts-preview'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersContactsApply: {
+    ...body('chat-users-contacts-apply'),
+    capability: 'chatUsersStart',
+  },
   telegramExportDefaults: readNone('export-defaults'),
   telegramExportStart: body('export-start'),
   telegramExportStatus: readNone('export-status'),

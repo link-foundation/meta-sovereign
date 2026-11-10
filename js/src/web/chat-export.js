@@ -14,6 +14,8 @@ import { useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 import { Icon } from './icons.js';
 import { TranslationSwitch } from './chat-translation-switch.js';
+import { ChatUsersDialog } from './chat-users.js';
+import { useChatUsersCapability } from './chat-users-state.js';
 import { ProgressBar, countPercent } from './progress-bar.js';
 
 const el = React.createElement;
@@ -552,6 +554,8 @@ export const ExportMenu = ({ api, chat, info }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState(false);
+  const [users, setUsers] = useState(false);
+  const usersAvailable = useChatUsersCapability(api, chat);
   useEffect(() => {
     if (!open) {
       return undefined;
@@ -596,6 +600,23 @@ export const ExportMenu = ({ api, chat, info }) => {
             },
             t('chat.export.open')
           ),
+          usersAvailable
+            ? el(
+                'button',
+                {
+                  key: 'users',
+                  type: 'button',
+                  role: 'menuitem',
+                  className: 'chat-more-item',
+                  'data-action': 'users-open',
+                  onClick: () => {
+                    setOpen(false);
+                    setUsers(true);
+                  },
+                },
+                t('chat.users.open')
+              )
+            : null,
           // "Do not translate this chat" (R-Y209).
           el(TranslationSwitch, {
             key: 'tr',
@@ -605,6 +626,14 @@ export const ExportMenu = ({ api, chat, info }) => {
             done: () => setOpen(false),
           }),
         ])
+      : null,
+    users
+      ? el(ChatUsersDialog, {
+          key: `users:${chat.chat}`,
+          api,
+          chat,
+          onClose: () => setUsers(false),
+        })
       : null,
     dialog
       ? el(ExportDialog, {
