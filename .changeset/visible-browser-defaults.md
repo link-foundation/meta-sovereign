@@ -139,3 +139,5 @@ Learn aligned multiline questionnaire answers while retaining complete pairs, co
 Learn bounded recruiter handover layouts with four-language labels and zero-count unapproved provenance. Keep new tasks, incomplete code and ambiguous summaries open for review (R-AA1).
 
 Apply explicit owner answer corrections across saved and learned rule IDs, preserve observed counts and message versions, and exclude decoded private access paths from reusable knowledge (R-AA1).
+
+Wait for snapshot cancellation cleanup acknowledgement before releasing handoff ownership or removing encoder workspaces; retain cleanup failures and optional lifecycle diagnostics.

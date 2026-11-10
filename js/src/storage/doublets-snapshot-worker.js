@@ -26,42 +26,52 @@ import { createWorkBudget } from './work-budget.js';
 import { createDiskNetwork } from './disk-network.js';
 
 const { from, to } = workerData;
-const yieldWork = createWorkBudget();
-const encoder = workerData.diskFile
-  ? await createDiskNetwork(workerData.diskFile)
-  : createNetworkEncoder();
-if (!encoder) {
-  throw new Error('snapshot SQLite runtime unavailable');
-}
+const cancellation = new AbortController();
+const cancel = (message) => {
+  if (message?.type === 'snapshot-cancel') {
+    cancellation.abort();
+  }
+};
+parentPort.on('message', cancel);
+const checkCancellation = () => cancellation.signal.throwIfAborted();
+const budget = createWorkBudget();
+const yieldWork = async () => {
+  checkCancellation();
+  await budget();
+  checkCancellation();
+};
+let encoder;
+let report;
 let stage = 'opening';
-const report = globalThis.setInterval(() => {
-  const { heapUsed, heapTotal, external, arrayBuffers } = process.memoryUsage();
-  parentPort.postMessage({
-    progress: true,
-    stage,
-    memory: { heapUsed, heapTotal, external, arrayBuffers },
-  });
-}, 5000);
-report.unref?.();
 
 // The network of the log's live links, encoded as they are read: the
 // store is never held decoded here as well (it did not fit beside the
 // encoding once the log passed a gigabyte). A log in the legacy format
 // is small, and read whole.
 const networkOf = async (file) => {
-  const read = await forEachLiveRecord(file, (record) => encoder.add(record), {
-    yieldWork,
-    positions: encoder.positions,
-    onPhase: (next) => {
-      stage = next;
+  const read = await forEachLiveRecord(
+    file,
+    (record) => {
+      checkCancellation();
+      encoder.add(record);
     },
-  });
+    {
+      yieldWork,
+      positions: encoder.positions,
+      onPhase: (next) => {
+        stage = next;
+      },
+    }
+  );
   if (read) {
     return { ...read, network: encoder.finish?.() };
   }
   const { mtime } = await fs.stat(file);
   const { live } = await readLinoFile(file);
-  live.forEach((record) => encoder.add(record));
+  for (const record of live) {
+    await yieldWork();
+    encoder.add(record);
+  }
   return { links: live.length, mtime, network: encoder.finish?.() };
 };
 
@@ -69,17 +79,40 @@ const networkOf = async (file) => {
 // leaves it older than the log (and it is written again). No log (no
 // links stored yet, or removed meanwhile): nothing to snapshot.
 let result;
+let failure;
 try {
+  checkCancellation();
+  encoder = workerData.diskFile
+    ? await createDiskNetwork(workerData.diskFile)
+    : createNetworkEncoder();
+  if (!encoder) {
+    throw new Error('snapshot SQLite runtime unavailable');
+  }
+  checkCancellation();
+  const reportMemory = () => {
+    const { heapUsed, heapTotal, external, arrayBuffers } =
+      process.memoryUsage();
+    parentPort.postMessage({
+      progress: true,
+      stage,
+      memory: { heapUsed, heapTotal, external, arrayBuffers },
+    });
+  };
+  reportMemory();
+  report = globalThis.setInterval(reportMemory, 5000);
+  report.unref?.();
   const { links, mtime, network } = await networkOf(from);
   if (mtime === null) {
     result = { links: 0, bytes: 0 };
   } else {
+    checkCancellation();
     stage = 'writing';
     let bytes = 0;
     const chunks = async function* () {
       for (const packet of encoder.packets?.() ??
         linksArchivePackets(network)) {
         for await (const chunk of packetChunks(packet, { yieldWork })) {
+          checkCancellation();
           bytes += chunk.length;
           yield chunk;
         }
@@ -95,8 +128,10 @@ try {
     const staged = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
     try {
       await writeStreamDurable(staged, Readable.from(chunks()));
+      checkCancellation();
       await fs.utimes(staged, at, at);
       await fsyncFile(staged);
+      checkCancellation();
       await renameDurable(staged, to);
       await fsyncDir(path.dirname(to));
     } finally {
@@ -108,10 +143,29 @@ try {
       engine: workerData.diskFile ? 'disk' : 'memory',
     };
   }
+} catch (error) {
+  failure = error;
 } finally {
   globalThis.clearInterval(report);
-  await encoder.close?.();
+  try {
+    await encoder?.close?.();
+  } catch (error) {
+    failure = error;
+  }
+  parentPort.removeListener('message', cancel);
 }
 // The parent may terminate this worker as soon as it receives the result.
 // Release SQLite handles first, so Windows can remove the workspace then.
-parentPort.postMessage(result);
+parentPort.postMessage(
+  failure && failure !== cancellation.signal.reason
+    ? {
+        error: {
+          name: failure.name,
+          message: failure.message,
+          code: failure.code,
+        },
+      }
+    : cancellation.signal.aborted
+      ? { cancelled: true }
+      : result
+);
