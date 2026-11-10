@@ -250,12 +250,35 @@ const markdownRun = async () => {
 
 const failedMediaRun = async () => {
   failDownloads = true;
-  await openDialog();
+  const defaultsRequested = Promise.withResolvers();
+  const defaultsReady = Promise.withResolvers();
+  const defaultsRoute = async (route) => {
+    defaultsRequested.resolve();
+    await defaultsReady.promise;
+    await route.continue();
+  };
+  const endpoint = '**/api/telegram/export-defaults';
+  await page.route(endpoint, defaultsRoute);
+  try {
+    await openDialog();
+    await defaultsRequested.promise;
+    assert(
+      await dialog.locator('[data-field="folder"]').isDisabled(),
+      'a late default folder cannot interrupt editing the destination'
+    );
+  } finally {
+    defaultsReady.resolve();
+    await page.unroute(endpoint, defaultsRoute);
+  }
   const out = path.join(root, 'failed-media');
   await dialog.locator('[data-field="scope"]').selectOption('active');
   await dialog.locator('[data-field="format"]').selectOption('markdown');
   await typeFolder(out);
   await dialog.locator('[data-state="done"]').waitFor({ timeout: 8000 });
+  assert(
+    (await account.exportStatus()).job.folder === out,
+    'delayed defaults preserve the exact requested destination'
+  );
   assert(
     (await text('[data-export="failedFiles"]')).includes('1'),
     'failed media count is visible'

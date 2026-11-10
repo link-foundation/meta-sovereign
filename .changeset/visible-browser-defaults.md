@@ -141,3 +141,5 @@ Learn bounded recruiter handover layouts with four-language labels and zero-coun
 Apply explicit owner answer corrections across saved and learned rule IDs, preserve observed counts and message versions, and exclude decoded private access paths from reusable knowledge (R-AA1).
 
 Wait for snapshot cancellation cleanup acknowledgement before releasing handoff ownership or removing encoder workspaces; retain cleanup failures and optional lifecycle diagnostics.
+
+Wait for initial export defaults before editing the destination, preventing late responses from inserting the default path into a requested folder.

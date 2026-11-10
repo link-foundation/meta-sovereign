@@ -1,0 +1,19 @@
+{
+  "archive": "ci-export-defaults.tar.gz",
+  "files": {
+    "ci-logs/ci-export-defaults-after.log": "9eaf581d7981cb6e93637af6344f45fc78b6195b888348b3a8243b95d79050cc",
+    "ci-logs/ci-export-defaults-before.log": "473c007d85fde5f363485e71999f5a678116422e60c7d73252b15f67bcc2119f",
+    "ci-logs/ci-export-defaults-build.log": "a6a422154fa86bcce5a0cca24d50293cc347bc672e0ef7a48fdcc1150b8a58a8",
+    "ci-logs/ci-export-defaults-ci-excerpt.log": "0cbbbbb5edbc8c2512e3c79d46d84d790481ad071fbd0563baec6663655687df",
+    "ci-logs/ci-export-defaults-current-runs.json": "518e7ed5bb92e3339bbcde5d2a3a99d3ae59cdbef15d8646d66a8c3e936c9337",
+    "ci-logs/ci-export-defaults-doc-format.log": "7ea7ac2d3134ce7e07b2786a5c0ff7ddacbedbaa91cf608cb39b5d34653156f1",
+    "ci-logs/ci-export-defaults-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-export-defaults-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-export-defaults-mcp.log": "f4b289c2ce5b93412babc64f7bbfdb8d14a43768937d26a89e4ff1e4f6ffeeca",
+    "ci-logs/ci-export-defaults-node.log": "550b194f81c4cea75033a97ca1e903437c189ceed6ac2922dbd99dbc277d82bd",
+    "ci-logs/ci-export-defaults-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-export-defaults-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/issue-56/collect-ci-export-defaults.py": "dd03bc8a59ca3ecd3081a4b4af38b25c3d1cb7ee34158280b2883d55689c454e",
+    "metadata.json": "cadf0cf7ef4dec4c6ed3887f83939c85d9204d1790ec69a700064cdcc06bdebc"
+  }
+}

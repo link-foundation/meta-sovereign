@@ -253,7 +253,7 @@ const ScopeFields = ({ form, set, t }) =>
       : null,
   ]);
 
-const Form = ({ form, set, t, busyOther }) =>
+const Form = ({ form, set, t, busyOther, folderReady }) =>
   el('div', { className: 'export-form' }, [
     el(ScopeFields, { key: 'scope', form, set, t }),
     el(MediaChecks, { key: 'm', form, set, t }),
@@ -317,6 +317,7 @@ const Form = ({ form, set, t, busyOther }) =>
           type: 'text',
           spellCheck: false,
           'data-field': 'folder',
+          disabled: !folderReady,
           value: form.folder,
           onChange: (e) => set({ folder: e.target.value }),
         }),
@@ -482,7 +483,14 @@ export const ExportDialog = ({ api, chat, onClose }) => {
         el('h3', { key: 'h' }, t('chat.export.title')),
         showing
           ? el(Progress, { key: 'p', job, t })
-          : el(Form, { key: 'f', form, set, t, busyOther: other }),
+          : el(Form, {
+              key: 'f',
+              form,
+              set,
+              t,
+              busyOther: other,
+              folderReady: asked,
+            }),
         !showing && error
           ? el('p', { key: 'e', role: 'alert' }, errorText(t, error))
           : null,

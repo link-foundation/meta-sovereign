@@ -8,6 +8,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [ci-snapshot-cancellation.md](ci-snapshot-cancellation.md) preserves the exact Windows/Deno handoff failure, a failing-before cancellation ownership regression, cooperative cleanup acknowledgement, 17 Node/eight Deno focused checks and negative local descriptor probes. Exact Windows handle attribution and new-head CI remain required.
 
+- [ci-export-defaults.md](ci-export-defaults.md) traces the Chromium CI destination race to a late defaults response and verifies the loading fix with a failing-before regression, exact output files, 32 focused tests and before/after screenshots.
 - [question-corrections.md](question-corrections.md) verifies explicit owner corrections across rule IDs, excluded mixed historical wording, preserved real counts/versions and decoded private paths through 47 focused checks and CLI/Lino/UI/browser evidence. General fact extraction, concurrent knowledge edits and live imports remain required.
 
 - [question-summary.md](question-summary.md) verifies actual recruiter handovers, four-language labels, zero-count facts and conservative no-reply classification through 42 focused checks, CLI/Lino/shared UI and production Chromium/MCP evidence. Live provider imports remain required.
