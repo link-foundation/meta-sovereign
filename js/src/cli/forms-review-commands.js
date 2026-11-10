@@ -4,7 +4,7 @@ import { decodeWire } from '../transport/lino.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--browser-slot=<name>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const urls = args.urls ? decodeWire(args.urls) : [args.url];
   if (!Array.isArray(urls) || !urls.length || urls.length > 4) {
@@ -29,18 +29,32 @@ const inputs = (args) => {
         : [true, 'true'].includes(args.headless),
   }));
 };
-const command = async (reader, line) => {
-  const [action, slot] = line.trim().split(/\s+/u);
+const command = async (reader, line, options) => {
+  const [action, slot, planId, fieldIds, replace] = line.trim().split(/\s+/u);
   if (action === 'list') {
     return reader.listReviews();
   }
   const session = reader
     .listReviews()
     .sessions.find((entry) => entry.browserSlot === slot);
-  if (!session || !['read', 'focus', 'close'].includes(action)) {
+  if (
+    !session ||
+    !['read', 'focus', 'close', 'plan', 'apply'].includes(action)
+  ) {
     throw new Error(
-      'Use list, read <slot>, focus <slot>, close <slot> or quit.'
+      'Use list, read/plan/focus/close <slot>, apply <slot> <plan-id> <field-id,...> [replace] or quit.'
     );
+  }
+  if (action === 'plan') {
+    return reader.planReview({ id: session.id, ...options });
+  }
+  if (action === 'apply') {
+    return reader.applyReview({
+      id: session.id,
+      planId,
+      fields: fieldIds?.split(','),
+      replaceExisting: replace === 'replace',
+    });
   }
   return reader[`${action}Review`](session.id);
 };
@@ -78,9 +92,11 @@ export const createFormReviewCommands = ({
             'read <slot>',
             'focus <slot>',
             'close <slot>',
+            'plan <slot>',
+            'apply <slot> <plan-id> <field-id,...> [replace]',
             'quit',
           ],
-          note: 'Review browsers stay open until closed, idle expiry, quit or process shutdown. No answers are filled or submitted.',
+          note: 'Review browsers stay open until closed, idle expiry, quit or process shutdown. Plan and explicitly select fields to apply; forms are never submitted.',
         })
       );
       stream = reviewInput();
@@ -89,7 +105,14 @@ export const createFormReviewCommands = ({
           break;
         }
         try {
-          log(JSON.stringify(await command(reader, line)));
+          log(
+            JSON.stringify(
+              await command(reader, line, {
+                profileId: args['profile-id'] ?? '',
+                approximate: ![false, 'false'].includes(args.approximate),
+              })
+            )
+          );
         } catch (error) {
           log(
             JSON.stringify({

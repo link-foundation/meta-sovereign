@@ -66,11 +66,13 @@ export const FormPlanControls = ({
     setLoading(true);
     setError(null);
     try {
-      const value = await api.formsPlan({
-        inspection: report,
-        profileId,
-        approximate,
-      });
+      const value = report.reviewSession
+        ? await api.formsPlanReview({
+            id: report.reviewSession.id,
+            profileId,
+            approximate,
+          })
+        : await api.formsPlan({ inspection: report, profileId, approximate });
       if (!value?.ok || value.mode !== 'answer-plan') {
         setError(value?.code ?? 'form-plan-failed');
       } else {

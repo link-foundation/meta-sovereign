@@ -223,6 +223,28 @@ test('an unreadable child is partial, while a detached captured child invalidate
   });
 });
 
+test('optional inspection tracing identifies changed documents without recording field answers', async () => {
+  const browser = session();
+  const events = [];
+  browser.trace = (event) => events.push(event);
+  const main = {
+    evaluate: async () => ({ ...snapshot(), documentTime: 2 }),
+  };
+  browser.page = { mainFrame: () => main, frames: () => [main] };
+  await assert.rejects(inspectFormSession(browser, { url: snapshot().url }), {
+    code: 'form-changed',
+  });
+  assert.deepEqual(events, [
+    {
+      event: 'document-changed',
+      frame: 'frame-1',
+      previous: { url: snapshot().url, documentTime: 1 },
+      current: { url: snapshot().url, documentTime: 2 },
+    },
+    { event: 'document-check-failed', frame: 'frame-1', code: 'form-changed' },
+  ]);
+});
+
 test('Forms CLI reports the shared snapshot and closes both browser and store on failure', async () => {
   const browser = session();
   let closed = 0;
@@ -358,7 +380,12 @@ test(
         await fetch(`${base}/api/forms/capabilities`)
       );
       assert.equal(capabilities.read, true);
-      assert.equal(capabilities.fill, false);
+      assert.equal(capabilities.fill, true);
+      assert.equal(
+        capabilities.fillScope,
+        'reviewed-native-text-select-checkbox'
+      );
+      assert.equal(capabilities.submit, false);
       for (const type of [LINO_TEXT, LINO_BINARY]) {
         const response = await fetch(`${base}/api/forms/read`, {
           method: 'POST',

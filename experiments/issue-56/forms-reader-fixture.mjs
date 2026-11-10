@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { prefillFixtureHtml } from './forms-prefill-fixture.mjs';
 
 const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire</title>
 <label for="city">City and time zone</label><input id="city" value="Nha Trang, UTC+7">
@@ -13,7 +14,11 @@ export const startFormsFixture = async () => {
   const child = createServer((req, res) => {
     requests.push({ server: 'child', method: req.method, url: req.url });
     res.setHeader('content-type', 'text/html');
-    res.end(frameHtml);
+    res.end(
+      req.url.startsWith('/prefill')
+        ? frameHtml.replace('value="Nha Trang, UTC+7"', 'value=""')
+        : frameHtml
+    );
   });
   await new Promise((resolve) => child.listen(0, '127.0.0.1', resolve));
   const childBase = `http://127.0.0.1:${child.address().port}`;
@@ -23,6 +28,10 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/prefill')) {
+      res.end(prefillFixtureHtml(childBase));
+      return;
+    }
     res.end(`<!doctype html><html lang="en"><title>Application questionnaire</title>
 <style>body{font:16px system-ui;max-width:640px;margin:24px}label,input,textarea,select{display:block;margin:8px 0}iframe{width:100%;height:240px}</style>
 <form action="/submit" method="post">

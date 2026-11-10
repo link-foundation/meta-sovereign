@@ -11,6 +11,19 @@ const actions = {
   read: (forms, body) => forms.readReview(body.id),
   focus: (forms, body) => forms.focusReview(body.id),
   close: (forms, body) => forms.closeReview(body.id),
+  plan: (forms, body) =>
+    forms.planReview({
+      id: body.id,
+      profileId: body.profileId,
+      approximate: body.approximate,
+    }),
+  apply: (forms, body) =>
+    forms.applyReview({
+      id: body.id,
+      planId: body.planId,
+      fields: body.fields,
+      replaceExisting: body.replaceExisting,
+    }),
 };
 export const handleFormReviewRoutes = async (req, res, p, ctx) => {
   if (p === '/api/forms/sessions' && req.method === 'GET') {

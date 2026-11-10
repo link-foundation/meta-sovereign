@@ -1,6 +1,7 @@
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
+import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -54,6 +55,11 @@ try {
           return {
             page,
             commander,
+            trace:
+              process.env.CI || process.env.CI_BROWSER_DEBUG === '1'
+                ? (event) =>
+                    console.log('[forms-inspection]', JSON.stringify(event))
+                : undefined,
             policy: { headless: true },
             async close() {
               for (const frame of page.frames()) {
@@ -61,9 +67,10 @@ try {
                   ...(await frame.evaluate(() => globalThis.events ?? []))
                 );
               }
-              record.values = await page
-                .locator('[name="experience"]')
-                .inputValue();
+              const experience = page.locator('[name="experience"]');
+              record.values = (await experience.count())
+                ? await experience.inputValue()
+                : null;
               await commander.destroy();
               await context.close();
               record.closed = true;
@@ -86,6 +93,9 @@ await app.page.addInitScript(
   }
 );
 const verifyReport = (report) => {
+  if (!report.ok) {
+    console.error('[forms-fixture-report]', JSON.stringify(report));
+  }
   assert(
     report.ok && report.fields.length === 15 && report.frames.length === 2,
     'native, ARIA and cross-origin fields share one report'
@@ -311,6 +321,7 @@ await app.finish(async () => {
     }
     await verifyLimits(page);
     await verifyFormReviewUi({ page, owned, fixture, until });
+    await verifyFormPrefillUi({ page, owned, fixture });
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );

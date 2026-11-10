@@ -4,6 +4,7 @@ import { openBrowserSession } from '../cv/browser.js';
 import { formFailure as failure, formUrl } from './options.js';
 import { inspectCurrentFormSession } from './inspection.js';
 import { trackReviewActivity } from './review-activity.js';
+import { createReviewedPrefill } from './review-prefill.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
@@ -43,6 +44,41 @@ const focusBrowser = async (record) => {
   await record.browser.page.bringToFront();
 };
 
+const launchReviewBrowser = async ({
+  record,
+  openSession,
+  store,
+  input,
+  owner,
+}) => {
+  record.browser = await openSession({
+    store,
+    platform: 'forms-review',
+    useCase: 'forms',
+    slot: record.slot,
+    headless: input.headless,
+  });
+  owner.check(record);
+  record.browser.page?.once?.('close', () => {
+    Promise.resolve()
+      .then(() => owner.close(record.id))
+      .catch(() => {});
+  });
+  record.activityTracking = await trackReviewActivity(
+    record.browser.page,
+    record.id,
+    () => owner.touch(record)
+  );
+  owner.check(record);
+  await record.browser.commander.goto({
+    url: record.url,
+    waitUntil: 'domcontentloaded',
+    timeout: 30000,
+  });
+  owner.check(record);
+  record.state = 'open';
+};
+
 /** Owned open browsers, separate from transient inspection and application slots. */
 export const createFormSessions = ({
   store,
@@ -52,6 +88,7 @@ export const createFormSessions = ({
   deadlineMs = 60000,
   now = () => Date.now(),
   timers = globalThis,
+  prefill = {},
 } = {}) => {
   if (
     !bounded(maxSessions, 16) ||
@@ -69,6 +106,7 @@ export const createFormSessions = ({
     timers,
   });
   const { get, check, close, run, touch } = owner;
+  const filling = createReviewedPrefill({ store, now, ...prefill });
   const open = async (input = {}) => {
     if (owner.isStopping()) {
       throw failure('form-stopped', 'Form review is stopping.');
@@ -102,34 +140,9 @@ export const createFormSessions = ({
       activityTracking: false,
     };
     records.set(record.id, record);
-    record.task = run(record, async () => {
-      record.browser = await openSession({
-        store,
-        platform: 'forms-review',
-        useCase: 'forms',
-        slot,
-        headless: input.headless,
-      });
-      check(record);
-      record.browser.page?.once?.('close', () => {
-        if (records.has(record.id)) {
-          close(record.id).catch(() => {});
-        }
-      });
-      record.activityTracking = await trackReviewActivity(
-        record.browser.page,
-        record.id,
-        () => touch(record)
-      );
-      check(record);
-      await record.browser.commander.goto({
-        url,
-        waitUntil: 'domcontentloaded',
-        timeout: 30000,
-      });
-      check(record);
-      record.state = 'open';
-    });
+    record.task = run(record, () =>
+      launchReviewBrowser({ record, openSession, store, input, owner })
+    );
     try {
       await record.task;
     } catch (error) {
@@ -172,8 +185,27 @@ export const createFormSessions = ({
       await operate(id, focusBrowser);
       return { ok: true, session: identity(get(id)) };
     },
+    plan: async (input) => {
+      const result = await operate(input.id, (record) =>
+        filling.plan(record, input, () => check(record))
+      );
+      return globalThis.structuredClone({
+        ...result,
+        reviewSession: identity(get(input.id)),
+      });
+    },
+    apply: async (input) => {
+      const result = await operate(input.id, (record) =>
+        filling.apply(record, input, () => check(record))
+      );
+      return globalThis.structuredClone({
+        ...result,
+        reviewSession: identity(get(input.id)),
+      });
+    },
     read: async (id) => {
       const report = await operate(id, async (record) => {
+        await filling.clear(record);
         const report = await inspectCurrentFormSession(record.browser, {
           check: () => check(record),
         });

@@ -1,4 +1,6 @@
 export const zhForms = {
+  'forms.fill.existing':
+    '选中的字段已有答案。请先检查，再允许替换或取消选择该字段。',
   'nav.forms': '表单',
   'forms.title': '检查表单',
   'forms.hint':
@@ -151,4 +153,27 @@ export const zhForms = {
   'forms.review.error.server-required': '请连接服务器以管理审核浏览器。',
   'forms.review.error.form-review-failed':
     '无法确认审核操作。URL 和报告已保留。重试前请刷新会话。',
+  'forms.fill.title': '审核所选更改',
+  'forms.fill.hint':
+    '在下方选择字段，仅应用选中的建议。支持文本字段、原生单选下拉框和复选框。替换现有答案需要明确允许。提交和下一步由您操作；网站可能会在编辑时保存更改。',
+  'forms.fill.select': '应用此建议',
+  'forms.fill.count': '已选 {count} 项 · 最多 {limit} 项',
+  'forms.fill.replace': '替换所选字段中的现有答案',
+  'forms.fill.apply': '应用所选更改',
+  'forms.fill.error':
+    '尚未确认结果（{code}）。已保留选择。重试同一计划以获取记录；已执行的操作不会再次执行。',
+  'forms.fill.state.applied':
+    '所有所选更改均已确认。发送前请在表单浏览器中审核。',
+  'forms.fill.state.partial':
+    '部分更改已确认。请检查当前页面，并为剩余字段创建新计划。',
+  'forms.fill.state.uncertain':
+    '某次更改尝试的结果不确定。再次规划前请检查浏览器和当前报告。',
+  'forms.fill.state.refused':
+    '在更改字段之前已拒绝操作。请读取当前页面并创建新计划。',
+  'forms.fill.refusal': '原因：{code}',
+  'forms.fill.receipt': '{field}：{status}',
+  'forms.fill.receipt.applied': '已应用并读回确认',
+  'forms.fill.receipt.unchanged': '已一致，未更改',
+  'forms.fill.receipt.uncertain': '结果不确定',
+  'forms.fill.receipt.not-attempted': '未尝试',
 };

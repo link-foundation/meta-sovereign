@@ -26,6 +26,8 @@ export const createFormReader = ({
     listReviews: reviews.list,
     readReview: reviews.read,
     focusReview: reviews.focus,
+    planReview: reviews.plan,
+    applyReview: reviews.apply,
     async capabilities() {
       const status = await availability();
       return {
@@ -33,7 +35,8 @@ export const createFormReader = ({
         read: status.available,
         plan: true,
         review: status.available,
-        fill: false,
+        fill: status.available,
+        fillScope: 'reviewed-native-text-select-checkbox',
         submit: false,
         scope: 'visible-current-pages',
       };

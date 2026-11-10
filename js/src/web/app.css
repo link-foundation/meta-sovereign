@@ -14052,10 +14052,14 @@ main[data-view='operator']:has(> .operator-workspace) {
 .forms-view > form {
   max-width: 42rem;
 }
-.forms-view input {
+.forms-view input:not([type='checkbox'], [type='radio']) {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
+}
+.forms-view label:has(> input[type='checkbox']) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
 }
 .forms-report {
   overflow-wrap: anywhere;

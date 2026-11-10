@@ -176,4 +176,29 @@ export const enForms = {
     'Connect a server to manage review browsers.',
   'forms.review.error.form-review-failed':
     'The review operation could not be confirmed. Your URL and report are kept. Refresh sessions before trying again.',
+  'forms.fill.title': 'Review selected changes',
+  'forms.fill.hint':
+    'Select fields below, then apply only those proposals. Text fields, single native selects and checkboxes are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
+  'forms.fill.select': 'Apply this proposal',
+  'forms.fill.count': '{count} selected · maximum {limit}',
+  'forms.fill.replace': 'Replace existing answers in selected fields',
+  'forms.fill.existing':
+    'A selected field already has an answer. Review it, then allow replacement or deselect that field.',
+  'forms.fill.apply': 'Apply selected changes',
+  'forms.fill.error':
+    'No confirmed result ({code}). Your selection is kept. Retry the same plan to recover its receipt; an existing application will not run again.',
+  'forms.fill.state.applied':
+    'All selected changes were confirmed. Review the form in its browser before sending it.',
+  'forms.fill.state.partial':
+    'Some selected changes were confirmed. Review the current page and create a new plan for remaining fields.',
+  'forms.fill.state.uncertain':
+    'The result of an attempted change is uncertain. Inspect the browser and current report before planning again.',
+  'forms.fill.state.refused':
+    'Changes were refused before a field was changed. Read the current page and create a new plan.',
+  'forms.fill.refusal': 'Reason: {code}',
+  'forms.fill.receipt': '{field}: {status}',
+  'forms.fill.receipt.applied': 'Applied and read back',
+  'forms.fill.receipt.unchanged': 'Already matched; unchanged',
+  'forms.fill.receipt.uncertain': 'Result uncertain',
+  'forms.fill.receipt.not-attempted': 'Not attempted',
 };

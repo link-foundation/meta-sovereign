@@ -6,6 +6,10 @@ import { renderInLocale } from './util-render.js';
 import { FormAnswer, FormPlanSummary } from '../src/web/forms-answer.js';
 import { availableLocales } from '../src/web/i18n.js';
 import { FormReviewControls } from '../src/web/form-review-controls.js';
+import {
+  FormReviewedPlan,
+  FormApplicationResult,
+} from '../src/web/form-reviewed-plan.js';
 
 test('form reports explain partial coverage, escaped values and omitted contents in every locale', () => {
   const report = {
@@ -150,5 +154,50 @@ test('review controls explain ownership, activity expiry and unchanged answers i
     assert(html.includes('data-form-reviews'));
     assert(html.includes('data-action="open-form-review"'));
     assert(html.includes('24'));
+  }
+});
+
+test('reviewed changes start unselected and report confirmed, partial and uncertain results in every locale', () => {
+  for (const locale of availableLocales) {
+    const html = renderInLocale(
+      locale.id,
+      React.createElement(FormReviewedPlan, {
+        api: {},
+        plan: { fields: [], reviewPlan: { maxSelected: 25 } },
+        busy: false,
+        setBusy: () => {},
+        Report: () => null,
+      })
+    );
+    assert(
+      !html.includes('forms.'),
+      `translated prefill controls for ${locale.id}`
+    );
+    assert.match(html, /data-form-replace=""/);
+    assert(!html.includes('checked=""'));
+    assert.match(html, /disabled="" data-action="apply-form-plan"/);
+    for (const state of ['applied', 'partial', 'uncertain', 'refused']) {
+      const rendered = renderInLocale(
+        locale.id,
+        React.createElement(FormApplicationResult, {
+          result: {
+            state,
+            code: 'form-changed',
+            receipts: [
+              'applied',
+              'unchanged',
+              'uncertain',
+              'not-attempted',
+            ].map((status) => ({ fieldId: `<${status}>`, status })),
+          },
+        })
+      );
+      assert(
+        !rendered.includes('forms.'),
+        `translated ${state} result for ${locale.id}`
+      );
+      assert.match(rendered, /&lt;applied&gt;/);
+      assert.match(rendered, new RegExp(`data-form-application="${state}"`));
+    }
   }
 });

@@ -181,6 +181,30 @@ test('form labels reuse scoped, exact and approximate saved answers with source 
   );
 });
 
+test('contact words in boolean controls use saved choices rather than owner contact values', async () => {
+  const store = createMemoryStore();
+  const owner = await saveAnswerProfile(store, {
+    id: 'owner',
+    name: 'Owner',
+    values: { email: 'ada@example.test', github: 'https://github.com/example' },
+  });
+  await saveAnswerRule(store, rule('updates', 'Receive email updates', 'Yes'));
+  await saveAnswerRule(store, rule('github', 'GitHub', 'No'));
+  const result = await plan(
+    store,
+    [
+      field('Receive email updates', { type: 'checkbox' }),
+      field('GitHub', { type: 'checkbox' }),
+    ],
+    { profileId: owner.id }
+  );
+  assert.deepEqual(
+    result.fields.map((entry) => entry.answer.proposal),
+    [{ checked: true }, { checked: false }]
+  );
+  assert(result.fields.every((entry) => entry.answer.source === 'exact'));
+});
+
 test('choices are unique and enabled, radio groups stay separate, and multiple checkboxes require explicit selected labels', async () => {
   const store = createMemoryStore();
   await saveAnswerRule(

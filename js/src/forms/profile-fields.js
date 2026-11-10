@@ -67,23 +67,22 @@ const nameFields = (keys, label) => {
   ];
 };
 
+// Boolean controls ask for a decision, and another person's details are not
+// evidence about the owner. Leave these to the ordinary saved-answer planner.
+const excludedProfileField = (field, text, group) =>
+  ['checkbox', 'radio'].includes(field.type) ||
+  /^(do |have |are |can |is |did |вы используете|есть ли|是否|क्या)/u.test(
+    text.trim()
+  ) ||
+  /company|employer|reference|компани|работодател|рекомендател|雇主|公司|संदर्भ|कंपनी/u.test(
+    `${text} ${group}`
+  );
+
 /** Explicit contact labels only; the report always requires owner review. */
 export const formProfileFields = (field, profile) => {
   const text = ` ${questionKey(field.label)} `;
   const group = questionKey(field.group?.label ?? '');
-  if (
-    /^(do |have |are |can |is |did |вы используете|есть ли|是否|क्या)/u.test(
-      text.trim()
-    )
-  ) {
-    return [];
-  }
-  // A reference/employer's details are not evidence about the owner.
-  if (
-    /company|employer|reference|компани|работодател|рекомендател|雇主|公司|संदर्भ|कंपनी/u.test(
-      `${text} ${group}`
-    )
-  ) {
+  if (excludedProfileField(field, text, group)) {
     return [];
   }
   const keys = normalized

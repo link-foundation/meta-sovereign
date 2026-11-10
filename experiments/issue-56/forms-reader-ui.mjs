@@ -49,6 +49,20 @@ try {
           commander,
           policy: { headless: true },
           async close() {
+            if (new URL(page.url()).pathname === '/prefill') {
+              read.values = await page.evaluate(() =>
+                Object.fromEntries(
+                  Array.from(
+                    globalThis.document.querySelectorAll(
+                      'input,select,textarea'
+                    )
+                  ).map((node) => [
+                    node.name,
+                    node.type === 'checkbox' ? node.checked : node.value,
+                  ])
+                )
+              );
+            }
             for (const frame of page.frames()) {
               read.events.push(
                 ...(await frame.evaluate(() => globalThis.events ?? []))

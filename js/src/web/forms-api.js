@@ -1,4 +1,4 @@
-/** Explicit read-only actions preserve server refusals and never retry invisibly. */
+/** Explicit form actions preserve server refusals and never retry invisibly. */
 export const createFormsApi = ({ get, report }) => ({
   formsCapabilities: async () =>
     (await get('/api/forms/capabilities')) ?? {
@@ -26,7 +26,7 @@ export const createFormsApi = ({ get, report }) => ({
       code: 'server-required',
     },
   ...Object.fromEntries(
-    ['Open', 'Read', 'Focus', 'Close'].map((action) => [
+    ['Open', 'Read', 'Focus', 'Close', 'Plan', 'Apply'].map((action) => [
       `forms${action}Review`,
       async (options) =>
         (await report(`/api/forms/sessions/${action.toLowerCase()}`, options, {

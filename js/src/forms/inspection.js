@@ -7,6 +7,7 @@ import {
 
 const sameDocument = (a, b) =>
   a.url === b.url && a.documentTime === b.documentTime;
+const identity = ({ url, documentTime }) => ({ url, documentTime });
 
 const readChildFrame = async (frame, parent, maxFields) => {
   let element;
@@ -68,16 +69,28 @@ const readFrames = async (page, main, check) => {
   return { frames, omissions, handles };
 };
 
-const assertCurrentDocuments = async (commander, handles, main) => {
+const assertCurrentDocuments = async (commander, handles, main, trace) => {
   for (const [frame, document] of handles) {
     try {
-      if (!sameDocument(document, await frame.evaluate(formDocumentIdentity))) {
+      const current = await frame.evaluate(formDocumentIdentity);
+      if (!sameDocument(document, current)) {
+        trace?.({
+          event: 'document-changed',
+          frame: document.id,
+          previous: identity(document),
+          current: identity(current),
+        });
         throw failure(
           'form-changed',
           'The form navigated during inspection. Read its current page again.'
         );
       }
     } catch (error) {
+      trace?.({
+        event: 'document-check-failed',
+        frame: document.id,
+        code: error.code ?? 'frame-unavailable',
+      });
       throw error.code
         ? error
         : failure(
@@ -88,6 +101,12 @@ const assertCurrentDocuments = async (commander, handles, main) => {
   }
   const current = await commander.evaluate({ fn: formDocumentIdentity });
   if (!sameDocument(main, current)) {
+    trace?.({
+      event: 'document-changed',
+      frame: 'commander',
+      previous: identity(main),
+      current: identity(current),
+    });
     throw failure(
       'form-changed',
       'The form navigated during inspection. Read its current page again.'
@@ -98,7 +117,7 @@ const assertCurrentDocuments = async (commander, handles, main) => {
 /** One snapshot, never clicks, fills, submits, or learns an answer. */
 export const inspectCurrentFormSession = async (
   session,
-  { check = () => {} } = {}
+  { check = () => {}, onSnapshot, trace = session.trace } = {}
 ) => {
   const { commander, page } = session;
   check();
@@ -109,8 +128,9 @@ export const inspectCurrentFormSession = async (
   formUrl(main.url);
   check();
   const { frames, omissions, handles } = await readFrames(page, main, check);
-  await assertCurrentDocuments(commander, handles, main);
+  await assertCurrentDocuments(commander, handles, main, trace);
   check();
+  onSnapshot?.({ frames, handles });
   return {
     ok: true,
     version: 1,

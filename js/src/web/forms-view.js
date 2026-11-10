@@ -5,6 +5,7 @@ import { Busy } from './spinner.js';
 import { FormAnswer, FormPlanSummary } from './forms-answer.js';
 import { FormPlanControls } from './forms-plan-controls.js';
 import { FormReviewControls } from './form-review-controls.js';
+import { FormReviewedPlan } from './form-reviewed-plan.js';
 
 const el = React.createElement;
 const display = (value) =>
@@ -23,7 +24,7 @@ export const downloadFormReport = (report) => {
   globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);
 };
 
-const Field = ({ field }) => {
+const Field = ({ field, selected, onSelect, busy }) => {
   const t = useT();
   const flags = ['required', 'disabled', 'readOnly'].filter(
     (key) => field[key]
@@ -33,6 +34,19 @@ const Field = ({ field }) => {
     { className: 'card form-field', 'data-form-field': field.id },
     [
       el('h3', { key: 'label' }, field.label || t('forms.unlabelled')),
+      onSelect && field.answer?.applySupported
+        ? el('label', { key: 'select', className: 'row' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: selected,
+              disabled: busy,
+              'data-form-select': field.id,
+              onChange: (event) => onSelect(field.id, event.target.checked),
+            }),
+            t('forms.fill.select'),
+          ])
+        : null,
       field.group?.label
         ? el(
             'p',
@@ -90,7 +104,7 @@ const Field = ({ field }) => {
   );
 };
 
-export const FormInspectionReport = ({ report }) => {
+export const FormInspectionReport = ({ report, selected, onSelect, busy }) => {
   const t = useT();
   const reasons = [
     ...new Set([
@@ -140,7 +154,15 @@ export const FormInspectionReport = ({ report }) => {
         ? el(
             'ol',
             { key: 'fields', className: 'form-fields' },
-            report.fields.map((field) => el(Field, { key: field.id, field }))
+            report.fields.map((field) =>
+              el(Field, {
+                key: field.id,
+                field,
+                selected: selected?.includes(field.id),
+                onSelect,
+                busy,
+              })
+            )
           )
         : el('p', { key: 'empty' }, t('forms.empty')),
     ]
@@ -185,6 +207,18 @@ const useFormCapability = (api, probe) => {
   }, [api, probe]);
   return [capability, setCapability];
 };
+
+const FormReportView = ({ report, plan, ...props }) =>
+  plan?.reviewPlan
+    ? el(FormReviewedPlan, {
+        ...props,
+        key: plan.reviewPlan.id,
+        plan,
+        Report: FormInspectionReport,
+      })
+    : report
+      ? el(FormInspectionReport, { report: plan ?? report })
+      : null;
 
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
@@ -317,9 +351,7 @@ export const FormsView = ({ api = defaultApi }) => {
             onPlan: setPlan,
           })
         : null,
-      report
-        ? el(FormInspectionReport, { key: 'report', report: plan ?? report })
-        : null,
+      el(FormReportView, { key: 'report', report, plan, api, busy, setBusy }),
     ]
   );
 };

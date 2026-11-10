@@ -18,6 +18,7 @@ export const seedFormAnswers = async (store) => {
     ['arrangement', 'Work arrangement', 'Remote'],
     ['language', 'Preferred language', 'English'],
     ['availability', 'Availability', '2027-01-15'],
+    ['newsletter', 'Receive email updates', 'Yes'],
   ]) {
     await saveAnswerRule(store, {
       id,
