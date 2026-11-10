@@ -5,13 +5,28 @@ import { loadResumePdf } from './forms-resume-file.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createFormReportWriter } from '../forms/report-file.js';
 import { formReportOutput } from '../forms/report-markdown.js';
+import { browserName } from '../browser/policy.js';
+import { reviewCapacityValue } from '../forms/review-capacity.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
-  const urls = args.urls ? decodeWire(args.urls) : [args.url];
-  if (!Array.isArray(urls) || !urls.length || urls.length > 4) {
-    throw new Error('Review one to four form URLs at a time.');
+  const sources = [
+    args.urls !== undefined,
+    args.url !== undefined,
+    Boolean(args._?.length),
+  ];
+  if (sources.filter(Boolean).length !== 1) {
+    throw new Error('Use positional URLs, --url or --urls.');
+  }
+  const urls =
+    args.urls !== undefined
+      ? decodeWire(args.urls)
+      : args.url !== undefined
+        ? [args.url]
+        : args._;
+  if (!Array.isArray(urls) || !urls.length) {
+    throw new Error('Supply one or more form URLs.');
   }
   if (
     args.headless !== undefined &&
@@ -33,10 +48,11 @@ const inputs = (args) => {
   }
   return urls.map((url, i) => ({
     url: formUrl(url),
-    browserSlot:
+    browserSlot: browserName(
       urls.length === 1
         ? (args['browser-slot'] ?? 'form-1')
-        : `${args['browser-slot'] ?? 'form'}-${i + 1}`,
+        : `${args['browser-slot'] ?? 'form'}-${i + 1}`
+    ),
     headless: [true, 'true'].includes(args.headed)
       ? false
       : args.headless === undefined
@@ -118,6 +134,82 @@ const reviewOutput = (result, output, format) =>
     ? output(result)
     : JSON.stringify(result);
 
+const requestedCapacity = (args, count) => {
+  const capacity =
+    args['max-sessions'] === undefined
+      ? null
+      : reviewCapacityValue(
+          typeof args['max-sessions'] === 'string'
+            ? Number(args['max-sessions'])
+            : args['max-sessions']
+        );
+  if (capacity !== null && count > capacity) {
+    throw new Error('Review capacity must accommodate every requested form.');
+  }
+  return capacity;
+};
+
+const openReviews = async (reader, forms, capacity, log, isCancelled) => {
+  let failed = false;
+  const limits = await reader.reviewCapacity();
+  if (capacity !== null || forms.length > limits.maxSessions) {
+    await reader.configureReviewCapacity({
+      maxSessions: capacity ?? forms.length,
+      revision: limits.revision,
+    });
+  }
+  for (const form of forms) {
+    if (isCancelled()) {
+      break;
+    }
+    try {
+      log(JSON.stringify(await reader.openReview(form)));
+    } catch (error) {
+      if (isCancelled()) {
+        break;
+      }
+      failed = true;
+      log(
+        JSON.stringify({
+          ok: false,
+          browserSlot: form.browserSlot,
+          code: error.code ?? 'form-review-failed',
+          error: error.message,
+        })
+      );
+    }
+  }
+  return failed;
+};
+
+const reviewLines = async ({
+  reader,
+  stream,
+  settings,
+  isCancelled,
+  log,
+  output,
+  format,
+}) => {
+  for await (const line of stream) {
+    if (isCancelled() || line.trim() === 'quit') {
+      break;
+    }
+    try {
+      const result = await command(reader, line, settings);
+      log(reviewOutput(result, output, format));
+    } catch (error) {
+      log(
+        JSON.stringify({
+          ok: false,
+          code: error.code ?? 'form-review-failed',
+          error: error.message,
+        })
+      );
+    }
+  }
+};
+
 export const createFormReviewCommands = ({
   openStore,
   reviewInput = () =>
@@ -127,6 +219,7 @@ export const createFormReviewCommands = ({
   'forms-review': async (args, log) => {
     const output = formReportOutput(args.format);
     const forms = inputs(args);
+    const capacity = requestedCapacity(args, forms.length);
     const file = args['resume-pdf']
       ? await loadResumePdf(args['resume-pdf'])
       : null;
@@ -149,8 +242,15 @@ export const createFormReviewCommands = ({
     process.once('SIGINT', cancel);
     process.once('SIGTERM', cancel);
     try {
-      for (const form of forms) {
-        log(JSON.stringify(await reader.openReview(form)));
+      const failed = await openReviews(
+        reader,
+        forms,
+        capacity,
+        log,
+        () => cancelled
+      );
+      if (cancelled) {
+        return 130;
       }
       log(
         JSON.stringify({
@@ -171,29 +271,26 @@ export const createFormReviewCommands = ({
         })
       );
       stream = reviewInput();
-      for await (const line of stream) {
-        if (cancelled || line.trim() === 'quit') {
-          break;
-        }
-        try {
-          const result = await command(reader, line, {
-            file,
-            plans,
-            profileId: args['profile-id'] ?? '',
-            approximate: ![false, 'false'].includes(args.approximate),
-          });
-          log(reviewOutput(result, output, args.format));
-        } catch (error) {
-          log(
-            JSON.stringify({
-              ok: false,
-              code: error.code ?? 'form-review-failed',
-              error: error.message,
-            })
-          );
-        }
+      await reviewLines({
+        reader,
+        stream,
+        settings: {
+          file,
+          plans,
+          profileId: args['profile-id'] ?? '',
+          approximate: ![false, 'false'].includes(args.approximate),
+        },
+        isCancelled: () => cancelled,
+        log,
+        output,
+        format: args.format,
+      });
+      return cancelled ? 130 : failed ? 1 : 0;
+    } catch (error) {
+      if (cancelled) {
+        return 130;
       }
-      return cancelled ? 130 : 0;
+      throw error;
     } finally {
       process.removeListener('SIGINT', cancel);
       process.removeListener('SIGTERM', cancel);

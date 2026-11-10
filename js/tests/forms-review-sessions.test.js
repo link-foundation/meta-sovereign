@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EventEmitter } from 'node:events';
 import { setImmediate } from 'node:timers';
 import { createFormReader } from '../src/forms/reader.js';
 import { createFormSessions } from '../src/forms/review-sessions.js';
@@ -15,6 +14,7 @@ import {
   readWireResponse,
 } from '../src/transport/lino.js';
 import { isReadRequest } from '../src/web/request-policy.js';
+import { reviewBrowser, reviewUrl } from './helpers/forms-session-fixture.mjs';
 
 const deferred = () => {
   let resolve;
@@ -23,51 +23,8 @@ const deferred = () => {
   });
   return { promise, resolve };
 };
-const url = 'https://example.test/form';
-const browser = () => {
-  const calls = [];
-  const page = new EventEmitter();
-  let currentUrl = url;
-  let closed = false;
-  page.url = () => currentUrl;
-  page.isClosed = () => closed;
-  page.bringToFront = async () => {
-    calls.push(['focus']);
-  };
-  page.exposeBinding = async (name, callback) => {
-    if (name.startsWith('__formActivity_')) {
-      page.activity = callback;
-    }
-  };
-  page.addInitScript = async () => {};
-  return {
-    calls,
-    page,
-    policy: { headless: false },
-    navigate: (value) => {
-      currentUrl = value;
-    },
-    commander: {
-      goto: async (options) => {
-        currentUrl = options.url;
-        calls.push(['goto', options.url]);
-      },
-      evaluate: async () => ({
-        url: currentUrl,
-        documentTime: 1,
-        title: 'Current page',
-        fields: [],
-        excluded: 0,
-        reasons: [],
-      }),
-    },
-    close: async () => {
-      calls.push(['close']);
-      closed = true;
-      page.emit('close');
-    },
-  };
-};
+const url = reviewUrl;
+const browser = reviewBrowser;
 const review = (openSession, options = {}) =>
   createFormReader({
     store: createMemoryStore(),
@@ -95,6 +52,7 @@ test(
     const opening = assert.rejects(sessions.open({ url }), {
       code: 'form-session-closed',
     });
+    await tick();
     const id = sessions.list().sessions[0].id;
     const closing = sessions.close(id);
     ready.resolve();
@@ -178,6 +136,7 @@ test(
     const opening = assert.rejects(open(reader), {
       code: 'form-session-closed',
     });
+    await tick();
     const id = reader.listReviews().sessions[0].id;
     let done = false;
     const close = reader.closeReview(id).then(() => {
@@ -303,6 +262,7 @@ test(
     const item = browser();
     const reader = review(() => launch.promise, { timers });
     const opening = assert.rejects(open(reader), { code: 'form-timeout' });
+    await tick();
     expire();
     launch.resolve(item);
     await opening;

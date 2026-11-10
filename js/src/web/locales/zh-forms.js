@@ -1,4 +1,16 @@
 export const zhForms = {
+  'forms.capacity.label': '此处控制的审核浏览器上限',
+  'forms.capacity.hint':
+    '保存在此存储中。每个控制器默认为四个；请按服务器资源设置容量。分离的观察器单独列出。提高上限不会启动浏览器。',
+  'forms.capacity.save': '保存浏览器容量',
+  'forms.review.error.form-capacity-invalid': '请使用正整数设置浏览器容量。',
+  'forms.review.error.form-capacity-changed':
+    '浏览器容量已更改。请刷新会话后再保存。',
+  'forms.review.error.form-capacity-in-use':
+    '请先关闭审核浏览器，再将容量降至当前占用数量以下。',
+  'forms.review.error.form-capacity-unavailable':
+    '无法在此存储中保存浏览器容量。',
+
   'forms.resume.title': '已保存的 PDF 简历',
   'forms.resume.hint':
     '将一份 PDF 保存到私人存储中以便重复使用。每份表单仍需明确执行附件操作；保存不会将文件上传到表单。',

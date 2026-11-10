@@ -38,6 +38,7 @@ export const createFormsApi = ({ get, getResume, report, local }) => ({
       'Apply',
       'Disclose',
       'Attach',
+      'Capacity',
     ].map((action) => [
       `forms${action}Review`,
       async (options) =>

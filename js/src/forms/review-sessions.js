@@ -12,6 +12,10 @@ import { createFormLearning } from './review-learning.js';
 import { learnFormAnswerPairs } from './answer-learning.js';
 import path from 'node:path';
 import { startFormWatcher } from './watcher-client.js';
+import {
+  createReviewCapacity,
+  reviewCapacityValue,
+} from './review-capacity.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
@@ -66,8 +70,8 @@ const reviewLimits = ({
   autoCapture,
   learn,
 }) => {
+  reviewCapacityValue(maxSessions);
   if (
-    !bounded(maxSessions, 16) ||
     !bounded(idleMs, 24 * 60 * 60 * 1000) ||
     !bounded(deadlineMs, 300000) ||
     typeof autoCapture !== 'boolean' ||
@@ -338,6 +342,22 @@ const checkCapacity = (records, slot, maxSessions) => {
   }
 };
 
+const finishReviews = async (owner, capacity, method) => {
+  const results = await Promise.allSettled([owner[method](), capacity.stop()]);
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      throw result.reason;
+    }
+  }
+  return results[0].value;
+};
+
+const checkReviewOwner = (owner) => {
+  if (owner.isStopping()) {
+    throw failure('form-stopped', 'Form review is stopping.');
+  }
+};
+
 export const createFormSessions = ({
   store,
   openSession = openBrowserSession,
@@ -355,6 +375,11 @@ export const createFormSessions = ({
 } = {}) => {
   reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture, learn });
   const records = new Map();
+  const capacity = createReviewCapacity({
+    store,
+    defaultLimit: maxSessions,
+    count: () => records.size,
+  });
   const owner = createReviewLifecycle({
     records,
     idleMs,
@@ -365,31 +390,33 @@ export const createFormSessions = ({
   const { get, check, close, run, touch } = owner;
   const filling = createReviewedPrefill({ store, now, ...prefill });
   const open = async (input = {}) => {
-    if (owner.isStopping()) {
-      throw failure('form-stopped', 'Form review is stopping.');
-    }
+    checkReviewOwner(owner);
     const { url, slot } = reviewInput(input);
-    checkCapacity(records, slot, maxSessions);
-    const record = newReviewRecord({
-      input,
-      url,
-      slot,
-      now,
-      idleMs,
-      autoCapture,
-      learn,
-      store,
+    const record = await capacity.reserve((limit) => {
+      checkReviewOwner(owner);
+      checkCapacity(records, slot, limit);
+      const record = newReviewRecord({
+        input,
+        url,
+        slot,
+        now,
+        idleMs,
+        autoCapture,
+        learn,
+        store,
+      });
+      record.learning = reviewLearning({
+        record,
+        now,
+        timers,
+        check,
+        store,
+        reportWriter,
+        learning,
+      });
+      records.set(record.id, record);
+      return record;
     });
-    record.learning = reviewLearning({
-      record,
-      now,
-      timers,
-      check,
-      store,
-      reportWriter,
-      learning,
-    });
-    records.set(record.id, record);
     record.task = run(record, () =>
       launchReviewBrowser({
         record,
@@ -405,7 +432,9 @@ export const createFormSessions = ({
       await record.task;
     } catch (error) {
       // Ownership survives a failed close; the owner can explicitly retry it.
-      await close(record.id);
+      if (records.has(record.id)) {
+        await close(record.id);
+      }
       throw error;
     } finally {
       record.task = null;
@@ -441,12 +470,14 @@ export const createFormSessions = ({
   return {
     open,
     close,
-    stop: owner.stop,
-    detach: owner.detach,
+    stop: () => finishReviews(owner, capacity, 'stop'),
+    detach: () => finishReviews(owner, capacity, 'detach'),
+    capacity: capacity.read,
+    configureCapacity: capacity.configure,
     list: () => ({
       ok: true,
       sessions: [...records.values()].map(identity),
-      maxSessions,
+      ...capacity.current(),
       idleMs,
     }),
     focus: async (id) => {

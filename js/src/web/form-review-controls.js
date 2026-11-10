@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useT } from './i18n.js';
 import { FormMonitorStatus } from './form-monitor-status.js';
 import { FormLearningStatus } from './form-learning-status.js';
+import { FormReviewCapacity } from './form-review-capacity.js';
 
 const el = React.createElement;
 const errorKey = (code) =>
@@ -15,6 +16,10 @@ const errorKey = (code) =>
     'form-busy',
     'form-timeout',
     'form-stopped',
+    'form-capacity-invalid',
+    'form-capacity-changed',
+    'form-capacity-in-use',
+    'form-capacity-unavailable',
     'server-required',
   ].includes(code)
     ? code
@@ -39,12 +44,14 @@ const useReviewControls = ({ api, setBusy, onReport }) => {
               setListing(value);
               setError(null);
             } else {
+              setListing(null);
               setError(value?.code ?? 'form-review-failed');
             }
           }
         },
         () => {
           if (current && ticket === generation.current) {
+            setListing(null);
             setError('form-review-failed');
           }
         }
@@ -62,6 +69,7 @@ const useReviewControls = ({ api, setBusy, onReport }) => {
       const result = await api[`forms${action}Review`](body);
       if (!result?.ok) {
         setError(result?.code ?? 'form-review-failed');
+        return;
       } else if (['Read', 'History'].includes(action)) {
         onReport(result);
       }
@@ -69,6 +77,7 @@ const useReviewControls = ({ api, setBusy, onReport }) => {
       if (validList(value)) {
         setListing(value);
       } else {
+        setListing(null);
         setError(value?.code ?? 'form-review-failed');
       }
     } catch (failure) {
@@ -156,6 +165,12 @@ export const FormReviewControls = (props) => {
   return el('section', { className: 'card col', 'data-form-reviews': '' }, [
     el('h2', { key: 'title' }, t('forms.review.title')),
     el('p', { key: 'hint', className: 'meta' }, t('forms.review.hint')),
+    el(FormReviewCapacity, {
+      key: 'capacity',
+      listing: controls.listing,
+      busy,
+      run: controls.run,
+    }),
     el('label', { key: 'capture', className: 'row' }, [
       el('input', {
         key: 'input',

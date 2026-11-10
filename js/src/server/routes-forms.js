@@ -65,9 +65,13 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
     const status =
       error.code === 'browser-unavailable'
         ? 503
-        : ['form-busy', 'form-slot-in-use', 'form-session-limit'].includes(
-              error.code
-            )
+        : [
+              'form-busy',
+              'form-slot-in-use',
+              'form-session-limit',
+              'form-capacity-changed',
+              'form-capacity-in-use',
+            ].includes(error.code)
           ? 409
           : 400;
     json(res, status, {

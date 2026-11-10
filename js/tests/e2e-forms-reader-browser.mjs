@@ -10,6 +10,7 @@ import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
 import { verifyFormMonitorUi } from './helpers/e2e-form-monitor.mjs';
 import { verifyFormLearningUi } from './helpers/e2e-form-learning.mjs';
+import { verifyFormCapacityUi } from './helpers/e2e-form-capacity.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -242,6 +243,12 @@ const verifyLimits = async (page) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
+  if (process.env.FORMS_CAPACITY_ONLY === '1') {
+    await page.locator('[data-form-slot]').fill('application-2');
+    await page.locator('[data-form-url]').fill(fixture.url);
+    await verifyFormCapacityUi({ page, base: app.base, owned, fixture, until });
+    return true;
+  }
   if (
     process.env.FORMS_CUSTOM_ONLY === '1' ||
     process.env.FORMS_CHOICES_ONLY === '1' ||
@@ -369,7 +376,9 @@ await app.finish(async () => {
     await page.locator('.forms-view h1').scrollIntoViewIfNeeded();
     assert(
       await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
+        () =>
+          globalThis.document.documentElement.scrollWidth <=
+          globalThis.innerWidth
       ),
       'form report fits phone viewport'
     );
@@ -390,8 +399,9 @@ await app.finish(async () => {
       verifyFormJournalUi,
       verifyFormMonitorUi,
       verifyFormLearningUi,
+      verifyFormCapacityUi,
     ]) {
-      await verify({ page, owned, fixture, until, store });
+      await verify({ page, base, owned, fixture, until, store });
     }
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
@@ -413,6 +423,7 @@ await app.finish(async () => {
 if (
   process.env.E2E_BROWSER !== 'webkit' &&
   process.env.FORMS_LEARNING_ONLY !== '1' &&
+  process.env.FORMS_CAPACITY_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');

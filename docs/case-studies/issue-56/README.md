@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-review-capacity.md](forms-review-capacity.md) removes arbitrary batch/browser ceilings, adds saved revision-checked capacity through CLI/Lino/localized UI and preserves sequential startup and owner edits. Forty-seven Node checks, 47 Deno tests, production Chromium and independent MCP pass. Automatic prefilling and every other unchecked issue criterion remain required.
+
 - [ci-tutorial-control.md](ci-tutorial-control.md) traces an intermittent WebKit offscreen Email button to missing viewport checks and conflicting reveal destinations. Failing-before unit/browser evidence, 44 Node/Deno checks, focused WebKit and independent MCP verification are retained.
 
 - [forms-configured-resume.md](forms-configured-resume.md) verifies one saved PDF reused through CLI/Lino/local/shared Forms controls, plan-bound revisions, actual byte readback and unavailable-status recovery. Forty-six focused Node/Deno checks, production Chromium and independent MCP desktop/mobile pass. Complete automatic/provider workflows and every other unchecked criterion remain required.

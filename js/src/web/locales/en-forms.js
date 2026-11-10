@@ -1,4 +1,17 @@
 export const enForms = {
+  'forms.capacity.label': 'Maximum review browsers controlled here',
+  'forms.capacity.hint':
+    'Saved in this store. Four per controller by default; choose a capacity that fits this server. Detached watchers are listed separately. Increasing capacity does not launch browsers.',
+  'forms.capacity.save': 'Save browser capacity',
+  'forms.review.error.form-capacity-invalid':
+    'Use a positive whole number for browser capacity.',
+  'forms.review.error.form-capacity-changed':
+    'Browser capacity changed. Refresh sessions before saving again.',
+  'forms.review.error.form-capacity-in-use':
+    'Close review browsers before reducing capacity below the number currently owned.',
+  'forms.review.error.form-capacity-unavailable':
+    'Browser capacity could not be saved in this store.',
+
   'forms.resume.title': 'Saved PDF résumé',
   'forms.resume.hint':
     'Save one PDF in your private store for reuse. Each form still requires an explicit attachment; saving does not upload it to a form.',

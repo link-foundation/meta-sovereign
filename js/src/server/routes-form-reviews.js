@@ -2,6 +2,11 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 
 const actions = {
+  capacity: (forms, body) =>
+    forms.configureReviewCapacity({
+      maxSessions: body.maxSessions,
+      revision: body.revision,
+    }),
   open: (forms, body) =>
     forms.openReview({
       url: body.url,
@@ -45,6 +50,7 @@ const actions = {
 };
 export const handleFormReviewRoutes = async (req, res, p, ctx) => {
   if (p === '/api/forms/sessions' && req.method === 'GET') {
+    await ctx.forms.reviewCapacity();
     json(res, 200, ctx.forms.listReviews());
     return true;
   }

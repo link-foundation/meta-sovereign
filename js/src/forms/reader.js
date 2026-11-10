@@ -84,6 +84,8 @@ export const createFormReader = ({
     openReview: reviews.open,
     closeReview: reviews.close,
     listReviews: reviews.list,
+    reviewCapacity: reviews.capacity,
+    configureReviewCapacity: reviews.configureCapacity,
     readReview: reviews.read,
     focusReview: reviews.focus,
     planReview: reviews.plan,
