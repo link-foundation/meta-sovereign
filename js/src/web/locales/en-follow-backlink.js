@@ -21,6 +21,9 @@ export const enFollowBacklink = {
   'followBacklink.status': 'Refresh result',
   'followBacklink.resume': 'Resume remaining safe steps',
   'followBacklink.cancel': 'Stop remaining steps',
+  'followBacklink.stopPreview': 'Stop review',
+  'followBacklink.cancel-failed':
+    'The stop request was not confirmed. The review may still be running; try again.',
   'followBacklink.working': 'Working…',
   'followBacklink.review': 'Review the exact account, groups and settings',
   'followBacklink.owner': '{source} account {owner}',

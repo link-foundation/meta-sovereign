@@ -20,6 +20,9 @@ export const ruFollowBacklink = {
   'followBacklink.status': 'Обновить результат',
   'followBacklink.resume': 'Продолжить оставшиеся безопасные шаги',
   'followBacklink.cancel': 'Остановить оставшиеся шаги',
+  'followBacklink.stopPreview': 'Остановить проверку',
+  'followBacklink.cancel-failed':
+    'Остановка не подтверждена. Проверка может продолжаться; попробуйте ещё раз.',
   'followBacklink.working': 'Выполняется…',
   'followBacklink.review': 'Проверьте аккаунт, группы и параметры',
   'followBacklink.owner': 'Аккаунт {source} {owner}',

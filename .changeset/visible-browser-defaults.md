@@ -131,3 +131,5 @@ Preserve sanitized Telegram timeout and flood-wait details through automatic Fol
 Expose validated finite timeout-only Follow read retries through CLI, text/binary Lino API and shared React controls. Freeze policies into Telegram reviews, scope cancellation to owned operations, wake cancelled backoffs, drain discovery during shutdown and prevent HTTP recovery from repeating an exhausted provider budget.
 
 Recheck exact incoming VK messages and bound account before optional Follow cleanup. Apply configured finite read retries and cancellation after the provider limiter while preserving single-call deletion receipts, durable uncertainty and shutdown ownership.
+
+Allow pending Follow backlink reviews to be stopped by request ID through CLI, text/binary Lino API and shared localized React controls. Wake cancelled retry delays, retain ownership of issued reads through shutdown, prevent late plans and recover clearly from unconfirmed stop requests.

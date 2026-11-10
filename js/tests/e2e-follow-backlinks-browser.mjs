@@ -1,5 +1,6 @@
 // Production bundle, server and default Lino; only VK's external HTTP is faked.
 import { followBacklinksFixture } from './helpers/follow-backlinks.mjs';
+import { followReadWait } from '../src/follow/read-policy.js';
 import { readWireResponse } from '../src/transport/lino.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 
@@ -41,6 +42,79 @@ page.on('response', async (response) => {
     // A failed response body is diagnosed by the UI and captured screenshot.
   }
 });
+const verifyPreviewStop = async (card, field, action) => {
+  const before = f.calls.length;
+  f.state.before = (call) => {
+    if (call.method === 'users.get') {
+      throw Object.assign(new Error('fixture timeout'), { code: 'ETIMEDOUT' });
+    }
+  };
+  f.state.sleep = followReadWait;
+  await field('retryDelayMs').fill('60000');
+  await field('retryMaxDelayMs').fill('60000');
+  await action('preview').click();
+  const stop = action('stop-preview');
+  await stop.waitFor({ timeout: 3000 });
+  await until(() => f.calls.length > before, 'review reached its first read');
+  await page.route('**/api/automations/follow/backlinks/cancel', (route) =>
+    fulfil(route, {})
+  );
+  await stop.click();
+  await card
+    .getByRole('alert')
+    .getByText(
+      'The stop request was not confirmed. The review may still be running; try again.'
+    )
+    .waitFor();
+  assert(await stop.isEnabled(), 'failed cancellation keeps Stop available');
+  await page.unroute('**/api/automations/follow/backlinks/cancel');
+  await stop.click();
+  await card
+    .getByRole('alert')
+    .getByText(
+      'Remaining steps stopped; issued writes retain their actual result.'
+    )
+    .waitFor();
+  assert(
+    f.calls.length === before + 1,
+    'Stop prevents a second provider attempt'
+  );
+  assert(
+    (await card.locator('[data-follow-backlink-plan]').count()) === 0,
+    'cancelled preview cannot publish a review'
+  );
+  await action('preview').click();
+  await stop.waitFor();
+  await until(
+    () => f.calls.length === before + 2,
+    'second review reached its read'
+  );
+  const cancelled = page.waitForResponse(
+    (response) =>
+      response.url().endsWith('/api/automations/follow/backlinks/cancel') &&
+      response.status() === 200
+  );
+  await page.goto(`${base}/#/patterns`);
+  const response = await cancelled;
+  const body = await readWireResponse(
+    new globalThis.Response(response.request().postDataBuffer(), {
+      headers: response.request().headers(),
+    })
+  );
+  assert(
+    typeof body.requestId === 'string' && !body.planId && !body.jobId,
+    'unmount cancels only its pending read'
+  );
+  f.state.before = undefined;
+  f.state.sleep = undefined;
+  await page.goto(`${base}/#/automation`);
+  await card.locator('summary').click();
+  await field('chats').fill('2000000007');
+  await field('backlink').fill('https://t.me/study_group');
+  await field('retryDelayMs').fill('100');
+  await field('retryMaxDelayMs').fill('2000');
+};
+
 await finish(async () => {
   try {
     await page.goto(`${base}/#/automation`);
@@ -53,6 +127,7 @@ await finish(async () => {
     const job = card.locator('[data-follow-backlink-job]');
     await field('chats').fill('2000000007');
     await field('backlink').fill('https://t.me/study_group');
+    await verifyPreviewStop(card, field, action);
     await field('monitorMs').fill('2000');
     await field('intervalMs').fill('1000');
     await field('deleteIncoming').check();

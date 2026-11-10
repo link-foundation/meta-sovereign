@@ -73,6 +73,11 @@ export const useFollowBacklink = (api) => {
     () => () => {
       generation.current += 1;
       dismiss(owned.current);
+      if (running.current?.action === 'preview') {
+        api
+          .followBacklinkCancel({ requestId: running.current.requestId })
+          .catch(() => {});
+      }
     },
     [api]
   );
@@ -109,12 +114,12 @@ export const useFollowBacklink = (api) => {
     setForm((before) => ({ ...before, [key]: value }));
     setError(null);
   };
-  const request = async (action, id) => {
+  const request = async (action, id, requestId) => {
     if (action === 'preview') {
       await dismiss(owned.current);
       owned.current = null;
       setPlan(null);
-      return api.followBacklinkPreview(inputOf(form));
+      return api.followBacklinkPreview({ ...inputOf(form), requestId });
     }
     if (action === 'apply') {
       const planId = owned.current;
@@ -138,11 +143,12 @@ export const useFollowBacklink = (api) => {
       return;
     }
     const version = generation.current;
-    running.current = true;
+    const requestId = globalThis.crypto.randomUUID();
+    running.current = { action, requestId };
     setBusy(true);
     setError(null);
     try {
-      const answer = await request(action, id);
+      const answer = await request(action, id, requestId);
       if (version === generation.current) {
         if (action === 'preview') {
           owned.current = answer.planId;
@@ -166,5 +172,26 @@ export const useFollowBacklink = (api) => {
       }
     }
   };
-  return { form, plan, job, history, error, busy, change, perform };
+  const stopPreview = async () => {
+    if (running.current?.action !== 'preview') {
+      return;
+    }
+    try {
+      await api.followBacklinkCancel({ requestId: running.current.requestId });
+    } catch {
+      setError({ code: 'cancel-failed' });
+    }
+  };
+  return {
+    form,
+    plan,
+    job,
+    history,
+    error,
+    busy,
+    change,
+    perform,
+    stopPreview,
+    previewing: running.current?.action === 'preview',
+  };
 };

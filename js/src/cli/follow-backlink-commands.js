@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { createFollowBacklinks } from '../follow/backlinks.js';
 import { encodeLinoValue } from '../transport/lino.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
@@ -58,6 +59,10 @@ const exitCode = (result, interrupted) =>
   (result.status && result.status !== 'confirmed')
     ? 1
     : 0;
+const interruptedPreview = (error, interrupted, jobId) =>
+  interrupted && !jobId && ['cancelled', 'stopped'].includes(error.code);
+const printResult = (log, args, result) =>
+  log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));
 export const followBacklinkCommands = async ({
   args,
   store,
@@ -79,20 +84,19 @@ export const followBacklinkCommands = async ({
       telegramAccount: () =>
         (account ??= createAccount({ store, pollMs: 0, backfillMs: 0 })),
     });
+  const requestId = randomUUID();
   let jobId;
   let interrupted = false;
   const cancel = () => {
     interrupted = true;
-    if (jobId) {
-      service.cancel({ jobId }).catch(() => {});
-    }
+    service.cancel(jobId ? { jobId } : { requestId }).catch(() => {});
   };
   process.once('SIGINT', cancel);
   process.once('SIGTERM', cancel);
   try {
     let result;
     if (action === 'post') {
-      result = await service.preview(configOf(args));
+      result = await service.preview({ ...configOf(args), requestId });
       if (flag(args.confirm) && !interrupted) {
         result = await service.apply({ planId: result.planId, confirm: true });
       }
@@ -112,8 +116,15 @@ export const followBacklinkCommands = async ({
       await service.idle();
       result = await service.status({ jobId });
     }
-    log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));
+    printResult(log, args, result);
     return exitCode(result, interrupted);
+  } catch (error) {
+    if (!interruptedPreview(error, interrupted, jobId)) {
+      throw error;
+    }
+    const result = { ok: false, code: 'cancelled' };
+    printResult(log, args, result);
+    return 1;
   } finally {
     process.removeListener('SIGINT', cancel);
     process.removeListener('SIGTERM', cancel);

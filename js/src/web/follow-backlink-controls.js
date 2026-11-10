@@ -168,6 +168,24 @@ const rows = (value, t) =>
     )
   );
 
+const reviewActions = (state, t) =>
+  el('div', { key: 'actions', className: 'row', style: { flexWrap: 'wrap' } }, [
+    action('preview', state, t),
+    action('list', state, t),
+    state.busy && state.previewing
+      ? el(
+          'button',
+          {
+            key: 'stop-preview',
+            type: 'button',
+            'data-follow-backlink-action': 'stop-preview',
+            onClick: state.stopPreview,
+          },
+          label('stopPreview', t)
+        )
+      : null,
+  ]);
+
 export const FollowBacklinkControls = ({ api }) => {
   const t = useT();
   const state = useFollowBacklink(api);
@@ -201,11 +219,7 @@ export const FollowBacklinkControls = ({ api }) => {
       'retryDelayMs',
       'retryMaxDelayMs',
     ].map((key) => field(key, state, t)),
-    el(
-      'div',
-      { key: 'actions', className: 'row', style: { flexWrap: 'wrap' } },
-      [action('preview', state, t), action('list', state, t)]
-    ),
+    reviewActions(state, t),
     state.busy
       ? el('p', { key: 'busy', role: 'status' }, label('working', t))
       : null,

@@ -18,6 +18,8 @@ export const zhFollowBacklink = {
   'followBacklink.status': '刷新结果',
   'followBacklink.resume': '继续剩余的安全步骤',
   'followBacklink.cancel': '停止剩余步骤',
+  'followBacklink.stopPreview': '停止预览',
+  'followBacklink.cancel-failed': '停止请求未确认。预览可能仍在运行，请重试。',
   'followBacklink.working': '处理中…',
   'followBacklink.review': '审核具体账号、群组和设置',
   'followBacklink.owner': '{source} 账号 {owner}',

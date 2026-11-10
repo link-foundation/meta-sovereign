@@ -1,7 +1,6 @@
 import { previewAutoFollow } from './auto-preview.js';
 import { randomUUID } from 'node:crypto';
 import { backlinkConfig, backlinkFailure } from './backlink-shape.js';
-import { withFollowRetry } from './retry.js';
 const copy = (value) => globalThis.structuredClone(value);
 const checkCapabilities = (target, config) => {
   if (target.canWrite !== true) {
@@ -11,27 +10,14 @@ const checkCapabilities = (target, config) => {
     throw backlinkFailure('cleanup-unavailable');
   }
 };
-export const createBacklinkPreview = ({
-  provider,
-  joining,
-  plans,
-  now,
-  sleep,
-  trace,
-  stopped,
-}) => {
-  const preview = async (body) => {
+export const createBacklinkPreview = ({ provider, joining, plans, now }) => {
+  const preview = async (body, { read, cancelled }) => {
     const config = backlinkConfig(body);
     const adapter = await provider(config.source);
     const rows = [];
     let owner;
     for (const chat of config.chats) {
-      const target = await withFollowRetry(() => adapter.describe(chat), {
-        policy: config.retry,
-        sleep,
-        cancelled: stopped,
-        trace,
-      });
+      const target = await read(() => adapter.describe(chat));
       if (
         target?.chat !== chat ||
         typeof target.owner !== 'string' ||
@@ -50,8 +36,8 @@ export const createBacklinkPreview = ({
         status: 'ready',
       });
     }
-    if (stopped()) {
-      throw backlinkFailure('stopped');
+    if (cancelled()) {
+      throw backlinkFailure('cancelled');
     }
     for (const [id, old] of plans) {
       if (old.expiresAt <= now()) {
@@ -72,16 +58,10 @@ export const createBacklinkPreview = ({
       joining,
       adapter,
       plan,
-      read: (use) =>
-        withFollowRetry(use, {
-          policy: config.retry,
-          sleep,
-          cancelled: stopped,
-          trace,
-        }),
+      read,
     });
-    if (stopped()) {
-      throw backlinkFailure('stopped');
+    if (cancelled()) {
+      throw backlinkFailure('cancelled');
     }
     plans.set(plan.planId, plan);
     return { ok: true, ...copy(plan) };

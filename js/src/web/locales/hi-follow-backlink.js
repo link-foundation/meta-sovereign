@@ -20,6 +20,9 @@ export const hiFollowBacklink = {
   'followBacklink.status': 'परिणाम ताज़ा करें',
   'followBacklink.resume': 'शेष सुरक्षित चरण जारी रखें',
   'followBacklink.cancel': 'शेष चरण रोकें',
+  'followBacklink.stopPreview': 'समीक्षा रोकें',
+  'followBacklink.cancel-failed':
+    'रोकने का अनुरोध पुष्ट नहीं हुआ। समीक्षा अभी भी चल सकती है; फिर प्रयास करें।',
   'followBacklink.working': 'कार्य जारी है…',
   'followBacklink.review': 'सटीक खाता, समूह और सेटिंग जाँचें',
   'followBacklink.owner': '{source} खाता {owner}',

@@ -6,6 +6,7 @@ import { createBacklinkPreview } from './backlink-preview.js';
 import { saveBacklink } from './backlink-journal.js';
 import { createAutoBacklinkWorker } from './auto-worker.js';
 import { createFollowJoining } from './joining.js';
+import { createFollowReadOperations } from './read-operations.js';
 
 const PREFIX = 'follow-backlink-job:';
 const locks = new WeakSet();
@@ -49,7 +50,7 @@ export const createFollowBacklinks = ({
   const plans = new Map();
   const pending = new Set();
   const controls = new Map();
-  const lifetime = new globalThis.AbortController();
+  const previewReads = createFollowReadOperations({ sleep, trace });
   let stopped = false;
   const owned = (use) => {
     const task = Promise.resolve().then(() => {
@@ -118,12 +119,10 @@ export const createFollowBacklinks = ({
     provider,
     plans,
     now,
-    sleep: (ms) => sleep(ms, lifetime.signal),
-    trace,
-    stopped: () => stopped,
   });
   return {
-    preview: (body) => owned(() => preview(body)),
+    preview: (body) =>
+      owned(() => previewReads.run(body, (control) => preview(body, control))),
     apply: (body = {}) =>
       owned(async () => {
         if (body.confirm !== true) {
@@ -155,6 +154,9 @@ export const createFollowBacklinks = ({
       }),
     cancel: (body = {}) =>
       owned(async () => {
+        if (body.requestId !== undefined) {
+          return previewReads.cancel(body);
+        }
         if (body.planId !== undefined) {
           plans.delete(body.planId);
           return { ok: true };
@@ -172,12 +174,12 @@ export const createFollowBacklinks = ({
     },
     async stop() {
       stopped = true;
-      lifetime.abort();
+      const previewDone = previewReads.stop();
       plans.clear();
       for (const control of controls.values()) {
         control.abort();
       }
-      await drain(pending);
+      await Promise.all([previewDone, drain(pending)]);
     },
   };
 };
