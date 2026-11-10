@@ -11,14 +11,21 @@ import {
   saveAnswerPolicy,
 } from '../automation/question-policy.js';
 import { salaryExchange } from '../automation/salary-exchange.js';
+import {
+  extractAnswerProfile,
+  listAnswerProfileSources,
+} from '../automation/question-profile-source.js';
 
 const ROOT = '/api/automations/answers';
 export const questionAnswerRoute = async (store, req, res, path) => {
-  if (path === `${ROOT}/policy`) {
-    return policyRoute(store, req, res);
-  }
-  if (path === `${ROOT}/exchange`) {
-    return exchangeRoute(store, req, res);
+  const handlers = {
+    [`${ROOT}/policy`]: policyRoute,
+    [`${ROOT}/exchange`]: exchangeRoute,
+    [`${ROOT}/profile`]: profileRoute,
+    [`${ROOT}/profile-sources`]: profileRoute,
+  };
+  if (handlers[path]) {
+    return handlers[path](store, req, res, path);
   }
   if (req.method === 'GET' && path === ROOT) {
     json(res, 200, { rules: await listAnswerRules(store) });
@@ -67,6 +74,17 @@ const policyRoute = async (store, req, res) => {
     json(res, 200, {
       policy: await saveAnswerPolicy(store, body.policy ?? body),
     });
+  } else {
+    return false;
+  }
+  return true;
+};
+
+const profileRoute = async (store, req, res, path) => {
+  if (path === `${ROOT}/profile` && req.method === 'POST') {
+    json(res, 200, await extractAnswerProfile(store, await readBody(req)));
+  } else if (path === `${ROOT}/profile-sources` && req.method === 'GET') {
+    json(res, 200, await listAnswerProfileSources(store));
   } else {
     return false;
   }

@@ -13,6 +13,10 @@ import {
   updateAnswerPolicy,
 } from '../automation/question-policy.js';
 import { salaryExchange } from '../automation/salary-exchange.js';
+import {
+  extractAnswerProfile,
+  listAnswerProfileSources,
+} from '../automation/question-profile-source.js';
 
 const csv = (value) =>
   String(value ?? '')
@@ -108,10 +112,35 @@ const planInput = async (args, store) => {
   };
 };
 
+const profileCommand = async (args, store) => {
+  let text = args.text ?? '';
+  if (args['text-file']) {
+    if ((await fs.stat(args['text-file'])).size > 256000) {
+      throw new Error('profile text file exceeds 256000 bytes');
+    }
+    text = await fs.readFile(args['text-file'], 'utf8');
+  }
+  return extractAnswerProfile(store, {
+    cvId: args.cv
+      ? String(args.cv).startsWith('cv:')
+        ? args.cv
+        : `cv:${args.cv}`
+      : undefined,
+    text,
+    profile: args.profile ? decodeWire(args.profile) : undefined,
+  });
+};
+
 export const questionCommands = async ({ args, store, log }) => {
   const sub = args._[1] ?? 'list';
   let result;
-  if (sub === 'exchange') {
+  const reads = {
+    'profile-sources': () => listAnswerProfileSources(store),
+    profile: () => profileCommand(args, store),
+  };
+  if (Object.hasOwn(reads, sub)) {
+    result = await reads[sub]();
+  } else if (sub === 'exchange') {
     result = await salaryExchange(store, {
       refresh: [true, 'true'].includes(args.refresh),
       ...(args['max-age-days'] !== undefined
@@ -146,7 +175,7 @@ export const questionCommands = async ({ args, store, log }) => {
     });
   } else {
     throw new Error(
-      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7]'
+      'answers expects list | save [file.lino] | delete <id> | plan --question=<text> [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

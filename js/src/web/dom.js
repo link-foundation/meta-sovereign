@@ -545,6 +545,8 @@ const AUTOMATION_CALLS = [
   'saveAnswerRule',
   'deleteAnswerRule',
   'previewAnswer',
+  'answerProfileSources',
+  'extractAnswerProfile',
   'learnAnswers',
   'automations',
   'saveAutomation',

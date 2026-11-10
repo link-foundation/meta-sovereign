@@ -60,6 +60,7 @@ export const AutomationActionFields = ({
           }),
           el(ProfileFields, {
             key: 'profile',
+            api,
             profile: form.profile,
             set: (profile) => set('profile', profile),
           }),

@@ -12,6 +12,7 @@ import { verifyQuestionLists } from './helpers/e2e-question-lists.mjs';
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
+import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -642,5 +643,6 @@ await finish(async () => {
   await verifyQuestionSummary({ page, panel, store, until });
   await verifyQuestionCorrections({ page, panel, store });
   await verifyQuestionConcurrency({ panel, store, until, reading });
+  await verifyQuestionProfile({ page, panel, preview, store });
   verifySyncCapability();
 });

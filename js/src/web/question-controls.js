@@ -361,7 +361,13 @@ const PreviewControls = ({
         change: setChat,
       }),
     ]),
-    el(ProfileFields, { key: 'p', profile, set: setProfile }),
+    el(ProfileFields, {
+      key: 'p',
+      profile,
+      set: setProfile,
+      api,
+      disabled: busy,
+    }),
     el(AnswerContextFields, { key: 'contexts', contexts, set: setContexts }),
     el(SalaryFields, { key: 'salary', salary, set: setSalary, api }),
     el(AnswerEnvironmentFields, {

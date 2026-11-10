@@ -1,14 +1,18 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { ProfileImport } from './question-profile-import.js';
 
 const el = React.createElement;
-export const ProfileFields = ({ profile = {}, set }) => {
+export const ProfileFields = ({ profile = {}, set, api, disabled = false }) => {
   const t = useT();
   const [newKey, setNewKey] = React.useState('');
   return el('div', { className: 'col', 'data-answer-profile': true }, [
     el('strong', { key: 'h' }, t('questions.profile')),
+    api?.extractAnswerProfile
+      ? el(ProfileImport, { key: 'import', api, profile, set, disabled })
+      : null,
     ...Object.entries(profile).map(([key, value]) =>
-      el('div', { key, className: 'field' }, [
+      el('div', { key: `field:${key}`, className: 'field' }, [
         el('span', { key: 'l', className: 'field-label' }, key),
         el('textarea', {
           key: 'v',
