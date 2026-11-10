@@ -1,0 +1,123 @@
+[
+  {
+    "name": "messages.getChatPreview",
+    "access_token_type": ["user"],
+    "parameters": [
+      {
+        "name": "peer_id",
+        "type": "integer",
+        "format": "int64"
+      },
+      {
+        "name": "link",
+        "description": "Invitation link.",
+        "type": "string"
+      },
+      {
+        "name": "fields",
+        "description": "Profile fields to return.",
+        "type": "array",
+        "items": {
+          "$ref": "../users/objects.json#/definitions/users_fields"
+        }
+      }
+    ],
+    "responses": {
+      "response": {
+        "$ref": "../messages/responses.json#/definitions/messages_getChatPreview_response"
+      }
+    },
+    "errors": [
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_chat_user_no_access"
+      },
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_deny_send"
+      }
+    ]
+  },
+  {
+    "name": "messages.getConversationsById",
+    "description": "Returns conversations by their IDs",
+    "access_token_type": ["user", "group"],
+    "parameters": [
+      {
+        "name": "peer_ids",
+        "description": "Destination IDs. \"For user: 'User ID', e.g. '12345'. For chat: '2000000000' + 'chat_id', e.g. '2000000001'. For community: '- community ID', e.g. '-12345'. \"",
+        "type": "array",
+        "required": true,
+        "items": {
+          "type": "integer",
+          "format": "int64",
+          "entity": "peer"
+        },
+        "maxItems": 100
+      },
+      {
+        "name": "extended",
+        "description": "Return extended properties",
+        "type": "boolean"
+      },
+      {
+        "name": "fields",
+        "description": "Profile and communities fields to return.",
+        "type": "array",
+        "items": {
+          "$ref": "../base/objects.json#/definitions/base_user_group_fields"
+        }
+      },
+      {
+        "name": "group_id",
+        "description": "Group ID (for group messages with group access token)",
+        "type": "integer",
+        "format": "int64",
+        "minimum": 0,
+        "entity": "owner"
+      }
+    ],
+    "responses": {
+      "response": {
+        "$ref": "../messages/responses.json#/definitions/messages_getConversationsById_response"
+      },
+      "extendedResponse": {
+        "$ref": "../messages/responses.json#/definitions/messages_getConversationsById_extended_response"
+      }
+    },
+    "errors": [
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_chat_not_exist"
+      },
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_chat_user_no_access"
+      },
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_contact_not_found"
+      }
+    ]
+  },
+  {
+    "name": "messages.joinChatByInviteLink",
+    "access_token_type": ["user"],
+    "parameters": [
+      {
+        "name": "link",
+        "description": "Invitation link.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "responses": {
+      "response": {
+        "$ref": "../messages/responses.json#/definitions/messages_joinChatByInviteLink_response"
+      }
+    },
+    "errors": [
+      {
+        "$ref": "../errors.json#/errors/api_error_messages_chat_user_no_access"
+      },
+      {
+        "$ref": "../errors.json#/errors/api_error_limits"
+      }
+    ]
+  }
+]

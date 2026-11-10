@@ -54,6 +54,9 @@ export const recoverBacklinkRow = async (store, plan, row) => {
   const recovered = {
     ...globalThis.structuredClone(old.row),
     title: row.title,
+    ...(plan.config.autoFollow
+      ? { following: row.following, round: row.round, attempts: row.attempts }
+      : {}),
   };
   if (recovered.cleanup?.status === 'sending') {
     recovered.cleanup.status = 'unknown';

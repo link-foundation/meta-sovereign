@@ -97,4 +97,39 @@ export const ruFollowBacklink = {
     'Telegram ограничивает запросы. Дождитесь окончания ограничения перед продолжением.',
   'followBacklink.target-unavailable':
     'Группа не найдена. Сначала загрузите её в Follow и проверьте участие и права.',
+  'followBacklink.autoFollow':
+    'Автоматически подписываться по входящим ссылкам перед публикацией',
+  'followBacklink.maxRetries': 'Максимум повторов удалённых публикаций (0–10)',
+  'followBacklink.maxLinks': 'Максимум разных ссылок на чат за раунд (1–100)',
+  'followBacklink.joinDelayMs': 'Пауза после обработки ссылки (миллисекунды)',
+  'followBacklink.followMute': 'Отключать уведомления в чатах Telegram',
+  'followBacklink.followArchive': 'Архивировать чаты Telegram после вступления',
+  'followBacklink.autoPolicy':
+    'Подписка через {source}, аккаунт {owner}. В каждом раунде: до {messages} последних сообщений и до {links} разных входящих ссылок на чат. Повторяются только удалённые публикации, до {retries} раз. Перед повтором ссылки считываются заново в этих пределах.',
+  'followBacklink.autoPreferences':
+    'Чаты Telegram после вступления: без уведомлений — {mute}; в архив — {archive}.',
+  'followBacklink.autoVkPreferences':
+    'Только вступление в VK. Уведомления и архив VK этот процесс не меняет.',
+  'followBacklink.followLimited':
+    'Достигнут заданный предел: могут оставаться более старые сообщения или дополнительные ссылки.',
+  'followBacklink.followingResult':
+    'Подписка подтверждена: {confirmed}/{total} ссылок.',
+  'followBacklink.previousAttempts':
+    'Предыдущие удалённые публикации ({count})',
+  'followBacklink.round':
+    'Раунд публикации {round}; сохранено удалённых публикаций: {previous}.',
+  'followBacklink.inviteTarget':
+    'Приглашение; ID будет доступен после вступления',
+  'followBacklink.fromMessage': 'Найдено во входящем сообщении {id}',
+  'followBacklink.enabled': 'вкл.',
+  'followBacklink.disabled': 'выкл.',
+  'followBacklink.follow-incomplete':
+    'Подписка подтверждена не полностью. Проверьте каждый этап перед продолжением; новая обратная ссылка в этот чат ещё не отправлена.',
+  'followBacklink.preferences-unavailable':
+    'Эти настройки подписки недоступны у выбранного сервиса.',
+  'followBacklink.retry-limit':
+    'Достигнут заданный предел повторов. Удалённые публикации сохранены и не считаются успешными.',
+  'followBacklink.wait-notice':
+    'Оставшиеся удалённые публикации исключены из-за уведомления об ожидании или предела повторов.',
+  'followBacklink.pending': 'Ожидается одобрение вступления',
 };

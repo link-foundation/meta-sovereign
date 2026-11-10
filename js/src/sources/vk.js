@@ -768,8 +768,15 @@ export const createVkLive = ({
   limiter = createRateLimiter({ perSecond: requestsPerSecond }),
   sleep,
 } = {}) => {
-  const once = async (method, params, accessToken, requestOptions = {}) => {
+  const once = async (
+    method,
+    params,
+    accessToken,
+    requestOptions = {},
+    beforeIssue
+  ) => {
     await limiter.wait();
+    await beforeIssue?.();
     const body = new URLSearchParams({
       ...compact(params),
       access_token: accessToken,
@@ -804,13 +811,19 @@ export const createVkLive = ({
     // Follow owns its finite timeout policy and must observe rate/permission
     // refusals without the general adapter's error-6 retry. Reads use POST on
     // VK too: explicitly mark them so a timeout remains a read failure.
-    callOnce(method, params = {}, { write = true } = {}) {
+    callOnce(method, params = {}, { write = true, beforeIssue } = {}) {
       const accessToken = resolveOption(
         token,
         'VK_ACCESS_TOKEN',
         'VK access token'
       );
-      return once(method, params, accessToken, { write, retries: 0 });
+      return once(
+        method,
+        params,
+        accessToken,
+        { write, retries: 0 },
+        beforeIssue
+      );
     },
     ...createVkPublications({ call, token, tokenType, ownerId }),
     ...vkLiveAudience(call),

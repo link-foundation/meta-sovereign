@@ -1,3 +1,4 @@
+import { automaticReceipt } from './follow-auto-receipt.js';
 import {
   backlinkJobReceipt as job,
   backlinkConfigReceipt as config,
@@ -13,7 +14,8 @@ const preview = (value) =>
   rows(value.rows, value.config.source) &&
   value.rows.length === value.config.chats.length &&
   value.rows.every((row) => value.config.chats.includes(row.chat)) &&
-  value.rows.every((row) => row.status === 'ready');
+  value.rows.every((row) => row.status === 'ready') &&
+  automaticReceipt(value);
 const page = (value) =>
   Array.isArray(value?.jobs) &&
   value.jobs.length <= 100 &&

@@ -74,7 +74,9 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
       });
     });
   };
-  const apply = async (body, version) => {
+  const apply = async (body, version, outsideCancelled) => {
+    const cancelledHere = () =>
+      cancelled(version) || (outsideCancelled?.() ? 'cancelled' : null);
     if (body.confirm !== true || typeof body.planId !== 'string') {
       throw followFailure('bad-request');
     }
@@ -91,8 +93,8 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
     let current = plan;
     try {
       for (const phase of phasesOf(plan)) {
-        if (cancelled(version)) {
-          results.push({ phase, status: 'failed', code: cancelled(version) });
+        if (cancelledHere()) {
+          results.push({ phase, status: 'failed', code: cancelledHere() });
           break;
         }
         let result;
@@ -102,7 +104,7 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
             context,
             current,
             phase,
-            () => cancelled(version),
+            cancelledHere,
             now
           );
         } catch (error) {
@@ -139,8 +141,8 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
       ),
     followTelegramPreview: (body = {}) =>
       owned((version) => preview(body, version)),
-    followTelegramApply: (body = {}) =>
-      owned((version) => apply(body, version)),
+    followTelegramApply: (body = {}, options = {}) =>
+      owned((version) => apply(body, version, options.cancelled)),
     followTelegramCancel: runtime.cancel,
   };
 };

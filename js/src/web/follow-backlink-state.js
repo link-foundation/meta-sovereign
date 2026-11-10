@@ -8,6 +8,12 @@ const defaults = {
   intervalMs: '30000',
   delayMs: '0',
   deleteIncoming: false,
+  autoFollow: false,
+  maxRetries: '10',
+  maxLinks: '100',
+  joinDelayMs: '1000',
+  followMute: true,
+  followArchive: true,
   historyLimit: '200',
   attempts: '3',
   retryDelayMs: '100',
@@ -27,6 +33,21 @@ const inputOf = (form) => ({
     ])
   ),
   deleteIncoming: form.deleteIncoming,
+  ...(form.autoFollow
+    ? {
+        autoFollow: {
+          maxRetries: Number(form.maxRetries),
+          maxLinks: Number(form.maxLinks),
+          joinDelayMs: Number(form.joinDelayMs),
+          ...(form.backlink
+            .trim()
+            .toLowerCase()
+            .startsWith('https://vk.me/join/')
+            ? { mute: false, archive: false }
+            : { mute: form.followMute, archive: form.followArchive }),
+        },
+      }
+    : {}),
   retry: {
     attempts: Number(form.attempts),
     delayMs: Number(form.retryDelayMs),

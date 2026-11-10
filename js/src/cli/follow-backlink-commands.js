@@ -31,6 +31,21 @@ const configOf = (args) => ({
   delayMs: number(args['delay-ms']),
   historyLimit: number(args['history-limit']),
   deleteIncoming: flag(args['delete-incoming']),
+  ...(flag(args['auto-follow'])
+    ? {
+        autoFollow: {
+          maxRetries: number(args['max-retries']),
+          maxLinks: number(args['max-links']),
+          joinDelayMs: number(args['join-delay-ms']),
+          ...(args['follow-mute'] === undefined
+            ? {}
+            : { mute: flag(args['follow-mute']) }),
+          ...(args['follow-archive'] === undefined
+            ? {}
+            : { archive: flag(args['follow-archive']) }),
+        },
+      }
+    : {}),
   retry: {
     attempts: number(args.attempts),
     delayMs: number(args['retry-delay-ms']),

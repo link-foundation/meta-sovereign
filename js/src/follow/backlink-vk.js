@@ -1,5 +1,5 @@
-import { createVkLive } from '../sources/vk.js';
-import { liveOptionsFrom } from '../sources/index.js';
+import { createFollowVkCalls } from './vk-calls.js';
+import { incomingFollowLinks } from './incoming-links.js';
 import { vkRandomId } from '../sources/vk-limits.js';
 import { publicationId } from '../sources/publication-receipt.js';
 import { backlinkFailure, backlinkPeer } from './backlink-shape.js';
@@ -30,38 +30,17 @@ const messages = (value, chat, limit) => {
 
 // This adapter intentionally uses only single calls. The workflow owns timeout
 // retries; VK rate limits and permissions must reach its receipts unchanged.
-export const createBacklinkVk = async ({
-  store,
-  liveFactory = createVkLive,
-  ...options
-}) => {
-  const credentials = await liveOptionsFrom(store, 'vk');
-  if (!credentials.token) {
-    throw backlinkFailure('not-connected');
-  }
-  const live = liveFactory({ ...options, ...credentials });
-  if (typeof live.callOnce !== 'function') {
-    throw backlinkFailure('unsupported');
-  }
-  const call = async (method, params, write = false) => {
-    const fresh = await liveOptionsFrom(store, 'vk');
-    if (fresh.token !== credentials.token) {
-      throw backlinkFailure('account-changed');
-    }
-    return live.callOnce(method, params, { write });
-  };
+export const createBacklinkVk = async (options) => {
+  const { call, identity } = await createFollowVkCalls(options);
   return {
     async describe(chat) {
       const peer = backlinkPeer(chat);
-      const users = await call('users.get', {});
-      const owner = users?.length === 1 ? publicationId(users[0]?.id) : null;
-      if (!owner || users[0].deactivated) {
-        throw responseFailure();
-      }
+      const owner = await identity();
       const result = await call('messages.getConversationsById', {
         peer_ids: peer,
       });
       const conversation = conversationOf(result, peer);
+      await identity();
       return {
         owner,
         chat: peer,
@@ -70,7 +49,8 @@ export const createBacklinkVk = async ({
         canCleanup: true,
       };
     },
-    async post({ chat, backlink, key }) {
+    async post({ chat, backlink, key, cancelled, read = (use) => use() }) {
+      await read(identity);
       const result = await call(
         'messages.send',
         {
@@ -78,7 +58,8 @@ export const createBacklinkVk = async ({
           message: backlink,
           random_id: vkRandomId(key),
         },
-        true
+        true,
+        { cancelled }
       );
       const id = publicationId(result);
       if (!id) {
@@ -121,6 +102,21 @@ export const createBacklinkVk = async ({
             row.text.slice(0, 8192)
           )
       );
+    },
+    async links({ chat, targetSource, historyLimit, maxLinks }) {
+      const rows = messages(
+        await call('messages.getHistory', {
+          peer_id: backlinkPeer(chat),
+          count: historyLimit,
+        }),
+        chat,
+        historyLimit
+      );
+      return incomingFollowLinks(rows, {
+        source: 'vk',
+        targetSource,
+        maxLinks,
+      });
     },
     async incoming({ chat, limit }) {
       const rows = messages(

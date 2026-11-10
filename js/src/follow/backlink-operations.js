@@ -51,7 +51,7 @@ export const createBacklinkOperations = ({
     }
     await fresh(row, true);
     row.status = 'sending';
-    row.key = `${job.id}:${row.chat}`;
+    row.key = `${job.id}:${row.chat}${row.round ? `:round:${row.round}` : ''}`;
     await remember(row);
     // No replay of an ambiguous send. The stable key is retained in the intent
     // for provider-side reconciliation, including a crash before this receipt.

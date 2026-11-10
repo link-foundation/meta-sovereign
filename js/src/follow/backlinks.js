@@ -4,7 +4,8 @@ import { backlinkError, backlinkFailure } from './backlink-shape.js';
 import { loadBacklinkJob, listBacklinkJobs } from './backlink-records.js';
 import { createBacklinkPreview } from './backlink-preview.js';
 import { saveBacklink } from './backlink-journal.js';
-import { createBacklinkWorker } from './backlink-worker.js';
+import { createAutoBacklinkWorker } from './auto-worker.js';
+import { createFollowJoining } from './joining.js';
 
 const PREFIX = 'follow-backlink-job:';
 const locks = new WeakSet();
@@ -28,11 +29,19 @@ const drain = async (pending) => {
     await Promise.allSettled([...pending]);
   }
 };
+const newBacklinkJob = (data, now) => ({
+  ...data,
+  id: `${PREFIX}${randomUUID()}`,
+  kind: 'follow-backlink-job',
+  status: 'queued',
+  createdAt: now,
+});
 export const createFollowBacklinks = ({
   store,
   telegramAccount,
   provider = (source) =>
     createBacklinkProvider({ store, telegramAccount }, source),
+  joining = (source) => createFollowJoining({ store, telegramAccount }, source),
   now = Date.now,
   sleep = wait,
   trace = () => {},
@@ -71,7 +80,8 @@ export const createFollowBacklinks = ({
       }
       job.status = 'queued';
       await saveBacklink(store, job);
-      const run = createBacklinkWorker({
+      const run = createAutoBacklinkWorker({
+        joining,
         store,
         adapter,
         job,
@@ -104,6 +114,7 @@ export const createFollowBacklinks = ({
     }
   };
   const preview = createBacklinkPreview({
+    joining,
     provider,
     plans,
     now,
@@ -127,13 +138,7 @@ export const createFollowBacklinks = ({
           throw backlinkFailure('plan-expired');
         }
         const { planId: _planId, expiresAt: _expires, ...data } = copy(plan);
-        return launch({
-          ...data,
-          id: `${PREFIX}${randomUUID()}`,
-          kind: 'follow-backlink-job',
-          status: 'queued',
-          createdAt: now(),
-        });
+        return launch(newBacklinkJob(data, now()));
       }),
     status: (body) => owned(() => loadBacklinkJob(store, body)),
     list: (body) => owned(() => listBacklinkJobs(store, body)),

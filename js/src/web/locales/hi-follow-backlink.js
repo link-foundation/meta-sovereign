@@ -97,4 +97,37 @@ export const hiFollowBacklink = {
     'Telegram अनुरोध सीमित कर रहा है। जारी रखने से पहले प्लेटफ़ॉर्म की प्रतीक्षा अवधि पूरी होने दें।',
   'followBacklink.target-unavailable':
     'समूह नहीं मिला। पहले Follow में उसे लोड करें और सदस्यता व अनुमतियाँ जाँचें।',
+  'followBacklink.autoFollow':
+    'पोस्ट करने से पहले आने वाले लिंक से अपने आप जुड़ें',
+  'followBacklink.maxRetries': 'हटाई गई पोस्ट के अधिकतम पुनः प्रयास (0–10)',
+  'followBacklink.maxLinks': 'प्रति चैट और चरण में अधिकतम अलग लिंक (1–100)',
+  'followBacklink.joinDelayMs': 'हर लिंक से जुड़ने के बाद विराम (मिलीसेकंड)',
+  'followBacklink.followMute': 'जुड़ी Telegram चैट की सूचनाएँ बंद करें',
+  'followBacklink.followArchive': 'जुड़ी Telegram चैट को संग्रह में रखें',
+  'followBacklink.autoPolicy':
+    '{source} खाता {owner} से जुड़ें। हर चरण में प्रति चैट अधिकतम {messages} हाल के संदेश पढ़ें और {links} अलग आने वाले लिंक से जुड़ें। केवल हटाई गई पोस्ट को अधिकतम {retries} बार दोहराएँ। हर पुनः प्रयास में इन्हीं सीमाओं में नए लिंक पढ़े जाते हैं।',
+  'followBacklink.autoPreferences':
+    'जुड़ी Telegram चैट: सूचनाएँ बंद {mute}; संग्रह {archive}।',
+  'followBacklink.autoVkPreferences':
+    'केवल VK सदस्यता। यह प्रक्रिया VK की सूचनाएँ या संग्रह नहीं बदलती।',
+  'followBacklink.followLimited':
+    'तय सीमा पूरी हुई; पुराने संदेश या अतिरिक्त लिंक बाकी हो सकते हैं।',
+  'followBacklink.followingResult':
+    'जुड़ने की पुष्टि: {confirmed}/{total} लिंक।',
+  'followBacklink.previousAttempts': 'पहले हटाई गई पोस्ट ({count})',
+  'followBacklink.round':
+    'पोस्ट चरण {round}; पिछली {previous} हटाई गई पोस्ट सुरक्षित हैं।',
+  'followBacklink.inviteTarget': 'निमंत्रण लक्ष्य; जुड़ने के बाद ID मिलेगी',
+  'followBacklink.fromMessage': 'आने वाले संदेश {id} में मिला',
+  'followBacklink.enabled': 'चालू',
+  'followBacklink.disabled': 'बंद',
+  'followBacklink.follow-incomplete':
+    'जुड़ने की पूरी पुष्टि नहीं हुई। जारी रखने से पहले हर कदम जाँचें; इस चैट में अभी बैकलिंक पोस्ट नहीं हुई है।',
+  'followBacklink.preferences-unavailable':
+    'इस प्रदाता पर सदस्यता की ये सेटिंग उपलब्ध नहीं हैं।',
+  'followBacklink.retry-limit':
+    'तय पुनः प्रयास सीमा पूरी हुई। हटाई गई पोस्ट दिखाई देती हैं और सफल नहीं गिनी जातीं।',
+  'followBacklink.wait-notice':
+    'बाकी हटाई गई पोस्ट प्रतीक्षा सूचना या पुनः प्रयास सीमा के कारण बाहर हैं।',
+  'followBacklink.pending': 'सदस्यता अनुमोदन की प्रतीक्षा',
 };

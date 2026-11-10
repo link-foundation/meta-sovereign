@@ -1,3 +1,4 @@
+import { autoFollowConfig } from './auto-shape.js';
 import { parseTelegramLink } from './telegram-links.js';
 import { followRetryPolicy, followTimeout } from './retry.js';
 
@@ -74,6 +75,7 @@ export const backlinkConfig = (body = {}) => {
   ];
   const target = backlinkUrl(body.backlink);
   const monitorMs = backlinkInteger(body.monitorMs, 200000, 1000, 3600000);
+  const autoFollow = autoFollowConfig(body.autoFollow, target.source);
   return {
     source,
     targetSource: target.source,
@@ -85,6 +87,7 @@ export const backlinkConfig = (body = {}) => {
     deleteIncoming: body.deleteIncoming === true,
     historyLimit: backlinkInteger(body.historyLimit, 200, 1, 200),
     retry: followRetryPolicy(body.retry),
+    ...(autoFollow ? { autoFollow } : {}),
   };
 };
 
@@ -99,6 +102,8 @@ const known = new Set([
   'account-changed',
   'target-changed',
   'target-unavailable',
+  'preferences-unavailable',
+  'follow-incomplete',
   'not-writable',
   'provider-response',
   'timeout',

@@ -1,3 +1,5 @@
+import { autoConfigReceipt, automaticReceipt } from './follow-auto-receipt.js';
+
 const integer = (n, min, max) =>
   Number.isSafeInteger(n) && n >= min && n <= max;
 const id = (value) => typeof value === 'string' && /^[1-9]\d*$/u.test(value);
@@ -90,7 +92,8 @@ export const backlinkConfigReceipt = (value) =>
   value.chats.every((v) => chat(v, value.source)) &&
   new Set(value.chats).size === value.chats.length &&
   typeof value.deleteIncoming === 'boolean' &&
-  timing(value);
+  timing(value) &&
+  autoConfigReceipt(value.autoFollow, value.targetSource);
 export const backlinkJobReceipt = (value) => {
   if (
     !value ||
@@ -99,7 +102,8 @@ export const backlinkJobReceipt = (value) => {
     !statuses.has(value.status) ||
     !id(value.owner) ||
     !backlinkConfigReceipt(value.config) ||
-    !backlinkRowsReceipt(value.rows, value.config.source)
+    !backlinkRowsReceipt(value.rows, value.config.source) ||
+    !automaticReceipt(value)
   ) {
     return false;
   }

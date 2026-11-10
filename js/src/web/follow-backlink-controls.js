@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { automaticReview } from './follow-auto-controls.js';
 import { useFollowBacklink } from './follow-backlink-state.js';
 
 const el = React.createElement;
@@ -17,7 +18,12 @@ const action = (key, state, t, id) =>
     label(key, t)
   );
 const field = (key, state, t) => {
-  const checkbox = key === 'deleteIncoming';
+  const checkbox = [
+    'deleteIncoming',
+    'autoFollow',
+    'followMute',
+    'followArchive',
+  ].includes(key);
   const text = ['chats', 'backlink'].includes(key);
   const props = {
     key: 'input',
@@ -88,6 +94,7 @@ const summary = (value, t) => [
       interval: value.config.intervalMs,
     })
   ),
+  ...automaticReview(value, t),
   value.config.deleteIncoming
     ? el(
         'p',
@@ -122,6 +129,28 @@ const rows = (value, t) =>
           { key: 'status' },
           `${status(row.status, t)}${row.messageId ? ` · ${t('followBacklink.message', { id: row.messageId })}` : ''}`
         ),
+        row.round || row.attempts?.length
+          ? el(
+              'p',
+              { key: 'round' },
+              t('followBacklink.round', {
+                round: (row.round ?? 0) + 1,
+                previous: row.attempts?.length ?? 0,
+              })
+            )
+          : null,
+        row.following
+          ? el(
+              'p',
+              { key: 'following' },
+              t('followBacklink.followingResult', {
+                confirmed: row.following.links.filter(
+                  (link) => link.status === 'confirmed'
+                ).length,
+                total: row.following.links.length,
+              })
+            )
+          : null,
         row.skipRetry ? el('p', { key: 'skip' }, label('skipNotice', t)) : null,
         row.code ? el('p', { key: 'error' }, status(row.code, t)) : null,
         provider(row, t),
@@ -147,6 +176,20 @@ export const FollowBacklinkControls = ({ api }) => {
     el('p', { key: 'hint', className: 'meta' }, label('hint', t)),
     ...[
       'source',
+      'autoFollow',
+      ...(state.form.autoFollow
+        ? [
+            'maxRetries',
+            'maxLinks',
+            'joinDelayMs',
+            ...(!state.form.backlink
+              .trim()
+              .toLowerCase()
+              .startsWith('https://vk.me/join/')
+              ? ['followMute', 'followArchive']
+              : []),
+          ]
+        : []),
       'chats',
       'backlink',
       'monitorMs',

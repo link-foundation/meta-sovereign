@@ -79,4 +79,34 @@ export const zhFollowBacklink = {
     'Telegram 正在限制请求。请等待平台限制结束后再继续。',
   'followBacklink.target-unavailable':
     '无法找到群组。请先在 Follow 中加载，并检查成员资格和权限。',
+  'followBacklink.autoFollow': '发帖前自动加入收到的链接所指向的群聊',
+  'followBacklink.maxRetries': '已删除帖子的最大重试次数（0–10）',
+  'followBacklink.maxLinks': '每轮每个群聊的不同链接上限（1–100）',
+  'followBacklink.joinDelayMs': '处理每个链接后的间隔（毫秒）',
+  'followBacklink.followMute': '将加入的 Telegram 群聊静音',
+  'followBacklink.followArchive': '归档加入的 Telegram 群聊',
+  'followBacklink.autoPolicy':
+    '使用 {source} 账号 {owner} 加入群聊。每轮每个群聊最多读取 {messages} 条近期消息，处理 {links} 个不同的收到链接。只有已删除的帖子可以重试，最多 {retries} 次。每次重试都在这些限制内重新读取链接。',
+  'followBacklink.autoPreferences':
+    '加入的 Telegram 群聊：静音 {mute}；归档 {archive}。',
+  'followBacklink.autoVkPreferences':
+    '仅处理 VK 群聊成员资格。此流程不更改 VK 通知或归档设置。',
+  'followBacklink.followLimited':
+    '已达到设置的上限，可能还有更早的消息或其他链接。',
+  'followBacklink.followingResult': '已确认加入：{confirmed}/{total} 个链接。',
+  'followBacklink.previousAttempts': '先前被移除的发布（{count}）',
+  'followBacklink.round':
+    '发帖轮次 {round}；保留了 {previous} 条被删除的帖子。',
+  'followBacklink.inviteTarget': '邀请目标；加入后才可获取 ID',
+  'followBacklink.fromMessage': '来自收到的消息 {id}',
+  'followBacklink.enabled': '开启',
+  'followBacklink.disabled': '关闭',
+  'followBacklink.follow-incomplete':
+    '尚未完全确认加入。继续前请检查每个步骤；此群聊还未发布新回链。',
+  'followBacklink.preferences-unavailable': '此提供商不支持这些成员设置。',
+  'followBacklink.retry-limit':
+    '已达到设置的重试上限。被删除的帖子仍然保留，不计为成功。',
+  'followBacklink.wait-notice':
+    '剩余被删除的帖子因等待通知或重试上限而不再重试。',
+  'followBacklink.pending': '等待加入审批',
 };

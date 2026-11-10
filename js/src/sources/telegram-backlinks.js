@@ -1,3 +1,4 @@
+import { incomingFollowLinks } from '../follow/incoming-links.js';
 import { createTelegramBacklinkRuntime } from './telegram-backlink-runtime.js';
 import {
   telegramBacklinkTarget,
@@ -10,6 +11,24 @@ import { randomIdOf } from './telegram-send.js';
 import { messageReceipt } from './telegram-message-receipt.js';
 import { backlinkFailure, backlinkInteger } from '../follow/backlink-shape.js';
 import { telegramOperationUpdates } from './telegram-membership-receipt.js';
+
+const readIncomingLinks = async (
+  env,
+  c,
+  { chat, targetSource, historyLimit, maxLinks }
+) => {
+  const target = await telegramBacklinkTarget(env, c, chat);
+  const rows = await telegramBacklinkHistory(
+    c,
+    target,
+    backlinkInteger(historyLimit, 200, 1, 200)
+  );
+  return incomingFollowLinks(rows, {
+    source: 'telegram',
+    targetSource,
+    maxLinks,
+  });
+};
 
 export const createTelegramBacklinks = (env, context) => {
   const runtime = createTelegramBacklinkRuntime(env, context);
@@ -82,6 +101,7 @@ export const createTelegramBacklinks = (env, context) => {
             };
           }),
         retryNotice: () => Promise.resolve(false),
+        links: (options) => run((c) => readIncomingLinks(env, c, options)),
         incoming: ({ chat, limit }) =>
           run(async (c) => {
             const target = await telegramBacklinkTarget(env, c, chat);

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [auto-follow.md](auto-follow.md) verifies FL07/FL09 bounded automatic rounds across all Telegram/VK provider pairs through CLI/Lino API/shared UI, current membership and independent Telegram preferences, fresh rejected-chat scans, durable unknown-write protection, real Lino recovery, 80 focused checks and browser/MCP desktop/mobile evidence. Broader FL08 remains open.
+
 - [telegram-backlinks.md](telegram-backlinks.md) records reviewed Telegram/VK source and target pairs, real SDK serialization, exact survival receipts, basic-group local-only cleanup readback, explicit channel/supergroup limits and production Chromium/MCP desktop/mobile evidence. Complete FL07/FL09 automation and broader FL08 remain open.
 
 - [legacy-follow-sessions.md](legacy-follow-sessions.md) verifies FL04 literal Follow configuration migration, fresh user identity checks before replacement, masked finder responses and shutdown ownership through CLI/Lino API/shared UI, with focused regressions and production Chromium/MCP before/after/mobile evidence.

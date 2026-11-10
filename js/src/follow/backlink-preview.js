@@ -1,3 +1,4 @@
+import { previewAutoFollow } from './auto-preview.js';
 import { randomUUID } from 'node:crypto';
 import { backlinkConfig, backlinkFailure } from './backlink-shape.js';
 import { withFollowRetry } from './retry.js';
@@ -12,6 +13,7 @@ const checkCapabilities = (target, config) => {
 };
 export const createBacklinkPreview = ({
   provider,
+  joining,
   plans,
   now,
   sleep,
@@ -66,6 +68,21 @@ export const createBacklinkPreview = ({
       rows,
       expiresAt: now() + 300000,
     };
+    await previewAutoFollow({
+      joining,
+      adapter,
+      plan,
+      read: (use) =>
+        withFollowRetry(use, {
+          policy: config.retry,
+          sleep,
+          cancelled: stopped,
+          trace,
+        }),
+    });
+    if (stopped()) {
+      throw backlinkFailure('stopped');
+    }
     plans.set(plan.planId, plan);
     return { ok: true, ...copy(plan) };
   };

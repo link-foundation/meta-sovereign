@@ -98,4 +98,40 @@ export const enFollowBacklink = {
     'Telegram is limiting requests. Wait for the provider’s flood restriction before resuming.',
   'followBacklink.target-unavailable':
     'The group could not be resolved. Load it in Follow first and check its membership and permissions.',
+  'followBacklink.autoFollow':
+    'Automatically follow incoming links before posting',
+  'followBacklink.maxRetries': 'Maximum retries for removed posts (0–10)',
+  'followBacklink.maxLinks':
+    'Maximum distinct links per chat and round (1–100)',
+  'followBacklink.joinDelayMs':
+    'Delay after following each link (milliseconds)',
+  'followBacklink.followMute': 'Mute joined Telegram chats',
+  'followBacklink.followArchive': 'Archive joined Telegram chats',
+  'followBacklink.autoPolicy':
+    'Follow with {source} account {owner}. Read up to {messages} recent messages and follow up to {links} distinct incoming links per chat in each round. Only removed posts may be repeated, up to {retries} times. Each retry scans fresh links within these limits.',
+  'followBacklink.autoPreferences':
+    'Joined Telegram chats: mute {mute}; archive {archive}.',
+  'followBacklink.autoVkPreferences':
+    'VK membership only. This workflow does not change VK notifications or archive settings.',
+  'followBacklink.followLimited':
+    'This scan reached a configured bound; older messages or additional links may remain.',
+  'followBacklink.followingResult':
+    'Following confirmed: {confirmed}/{total} links.',
+  'followBacklink.previousAttempts': 'Prior removed posts ({count})',
+  'followBacklink.round':
+    'Posting round {round}; {previous} removed posts retained.',
+  'followBacklink.inviteTarget':
+    'Invitation target; ID available after joining',
+  'followBacklink.fromMessage': 'Found in incoming message {id}',
+  'followBacklink.enabled': 'on',
+  'followBacklink.disabled': 'off',
+  'followBacklink.follow-incomplete':
+    'Following is not fully confirmed. Inspect each step before resuming; no backlink is posted for this chat yet.',
+  'followBacklink.preferences-unavailable':
+    'These membership preferences are unavailable for this provider.',
+  'followBacklink.retry-limit':
+    'The configured retry limit was reached. Removed posts remain visible and are not counted as successful.',
+  'followBacklink.wait-notice':
+    'Remaining removed posts are excluded by a wait notice or the configured retry limit.',
+  'followBacklink.pending': 'Waiting for membership approval',
 };
