@@ -25,6 +25,7 @@ import {
 import { readFormDocument } from '../src/forms/read-document.js';
 import { readFile } from 'node:fs/promises';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
+import { traceBrowserInputs } from './helpers/e2e-input-trace.mjs';
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
@@ -114,6 +115,10 @@ try {
   throw error;
 }
 
+await traceBrowserInputs(
+  app.page,
+  '[data-answer-model-settings] input, [data-answer-model-settings] button'
+);
 await app.page.addInitScript(
   ({ key, value }) => globalThis.localStorage.setItem(key, value),
   {

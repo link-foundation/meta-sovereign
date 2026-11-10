@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-response-confirmation.md](question-response-confirmation.md) reproduces a malformed save response crashing the question editor and preserves edits through validated save/list/delete receipts. Eighteen Node/Deno checks, seven compatibility checks, focused WebKit and independent MCP desktop/phone evidence pass. Three earlier hosted input/navigation failures remain unexplained, with bounded diagnostics added.
+
 - [ci-optional-model-render.md](ci-optional-model-render.md) identifies seven hosted Automation/Autopilot render failures caused by an absent optional API. The existing regression reproduces locally; the two affected files pass all 16 checks in Node and Deno after the guard. Separate browser failures remain under investigation.
 
 - [resume-profile-import.md](resume-profile-import.md) reproduces missing birth-date/résumé contacts and misclassified GitHub links. Explicit Markdown/CV extraction passes 56 Node/Deno checks, production Chromium and independent MCP with source evidence, separate selection/saving and desktop/phone screenshots. Automatic source discovery and complete provider filling remain required.

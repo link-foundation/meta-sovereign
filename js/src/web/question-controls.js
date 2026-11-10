@@ -13,6 +13,7 @@ import {
   ModelDraftControl,
 } from './answer-model-settings.js';
 import { AnswerPolicyControls } from './question-policy.js';
+import { debugBrowser } from './client-log.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -39,7 +40,10 @@ const Field = ({ label, value, change, rows, ...props }) =>
       'aria-label': label,
       value,
       rows,
-      onChange: (event) => change(event.target.value),
+      onChange: (event) => {
+        debugBrowser('question-input', { length: event.target.value.length });
+        change(event.target.value);
+      },
       ...props,
     }),
   ]);
@@ -511,6 +515,9 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const reload = async () => setRules(await api.answerRules());
   const save = () =>
     run(async () => {
+      debugBrowser('question-save', {
+        lengths: rule.answers.map((answer) => answer.text.length),
+      });
       const id =
         rule.id ||
         `answer-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;

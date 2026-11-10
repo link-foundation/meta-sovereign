@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { debugBrowser } from './client-log.js';
 
 const el = React.createElement;
 export const ModelDraftControl = ({ value, set, busy }) => {
@@ -38,8 +39,13 @@ export const AnswerModelStatus = ({ model }) => {
 
 const ModelFields = ({ draft, setDraft, sources, disabled }) => {
   const t = useT();
-  const update = (key, value) =>
+  const update = (key, value) => {
+    debugBrowser('model-input', {
+      field: key,
+      length: typeof value === 'string' ? value.length : null,
+    });
     setDraft((current) => ({ ...current, [key]: value }));
+  };
   return el('fieldset', { disabled, className: 'col' }, [
     el('label', { key: 'enabled', className: 'row' }, [
       el('input', {
@@ -119,11 +125,16 @@ export const AnswerModelSettings = ({
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     let current = true;
+    debugBrowser('model-load', { probe });
     setLoading(true);
     Promise.all([api.answerModel(), api.answerProfileSources()])
       .then(
         ([result, cvs]) => {
           if (current) {
+            debugBrowser('model-loaded', {
+              probe,
+              length: result.settings.model.length,
+            });
             setDraft(result.settings);
             setSources(cvs.sources);
             setError(null);
@@ -151,14 +162,17 @@ export const AnswerModelSettings = ({
         return;
       }
       try {
+        debugBrowser('model-save', { length: draft.model.length });
         const result = await api.saveAnswerModel({
           ...draft,
           timeoutMs: Number(draft.timeoutMs),
         });
+        debugBrowser('model-saved', { length: result.settings.model.length });
         setDraft(result.settings);
         setSaved(true);
         onChanged();
       } catch (failure) {
+        debugBrowser('model-refused', { code: failure.code });
         setError(failure.code ?? 'answer-model-unconfirmed');
       }
     });

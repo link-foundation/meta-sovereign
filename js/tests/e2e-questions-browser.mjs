@@ -16,6 +16,7 @@ import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
 import { verifyResumeProfile } from './helpers/e2e-resume-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
 import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
+import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
 import {
   verifyHhHistory,
   resetHhHistoryFixture,
@@ -42,6 +43,10 @@ for (const [id, sender, body] of [
   });
 }
 const { page, base, until, finish } = await openChatApp('questions', { store });
+await traceBrowserInputs(
+  page,
+  '[data-answer-rule] textarea, [data-answer-rule] button'
+);
 const rtcConnections = [];
 page.on('websocket', (socket) => {
   if (new URL(socket.url()).pathname === '/rtc') {
@@ -530,6 +535,58 @@ const verifyProfileControls = async (preview) => {
   await verifyResumeProfile({ page, base, panel, store });
 };
 
+const verifyRefusedSave = async (saved) => {
+  await page.route('**/api/automations/answers/save', (route) =>
+    fulfil(route, { error: 'Answer fixture refusal', status: 'failed' }, 500)
+  );
+  await editor
+    .getByLabel('Answer', { exact: true })
+    .fill('Keep my unsaved edit');
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await panel
+    .getByRole('alert')
+    .filter({ hasText: 'Answer fixture refusal' })
+    .waitFor();
+  assert(
+    (await store.get(saved.id)).answers[0].text === saved.answers[0].text,
+    'refused save never changes stored rule'
+  );
+  assert(
+    (await editor.getByLabel('Answer', { exact: true }).inputValue()) ===
+      'Keep my unsaved edit',
+    `refused save retains the edit: ${JSON.stringify(await inputTrace(page))}`
+  );
+  const cases = [
+    {
+      body: ['error', 'Malformed refusal', 'status', 'failed'],
+      status: 500,
+      error: 'Answer operation was not confirmed.',
+    },
+    { body: {}, status: 200, error: 'Answer rule save was not confirmed.' },
+    {
+      body: { rule: { ...saved, id: 'qa-rule:wrong' } },
+      status: 200,
+      error: 'Answer rule save was not confirmed.',
+    },
+  ];
+  for (const [index, fixture] of cases.entries()) {
+    await page.unroute('**/api/automations/answers/save');
+    await page.route('**/api/automations/answers/save', (route) =>
+      fulfil(route, fixture.body, fixture.status)
+    );
+    const text = `Keep my unconfirmed edit ${index}`;
+    await editor.getByLabel('Answer', { exact: true }).fill(text);
+    await editor.getByRole('button', { name: 'Save', exact: true }).click();
+    await panel.getByRole('alert').filter({ hasText: fixture.error }).waitFor();
+    assert(
+      (await editor.getByLabel('Answer', { exact: true }).inputValue()) ===
+        text &&
+        (await store.get(saved.id)).answers[0].text === saved.answers[0].text,
+      `unconfirmed save preserves the editor and store: ${JSON.stringify(await inputTrace(page))}`
+    );
+  }
+};
+
 await finish(async () => {
   await prepareQuestionPage();
   if (process.env.RESUME_PROFILE_ONLY === '1') {
@@ -538,6 +595,10 @@ await finish(async () => {
   }
   const saved = await saveInitialRule();
   await verifyPersistedRule(saved);
+  if (process.env.QUESTIONS_REFUSAL_ONLY === '1') {
+    await verifyRefusedSave(saved);
+    return;
+  }
   const preview = panel.locator('details').filter({
     has: page.locator(':scope > summary', { hasText: 'Preview answer' }),
   });
@@ -642,26 +703,7 @@ await finish(async () => {
     'salary targets, calculation, rate snapshot and explicit approval persisted through the production API'
   );
 
-  await page.route('**/api/automations/answers/save', (route) =>
-    fulfil(route, { error: 'Answer fixture refusal', status: 'failed' }, 500)
-  );
-  await editor
-    .getByLabel('Answer', { exact: true })
-    .fill('Keep my unsaved edit');
-  await editor.getByRole('button', { name: 'Save', exact: true }).click();
-  await panel
-    .getByRole('alert')
-    .filter({ hasText: 'Answer fixture refusal' })
-    .waitFor();
-  assert(
-    (await store.get(saved.id)).answers[0].text === saved.answers[0].text,
-    'refused save never changes stored rule'
-  );
-  assert(
-    (await editor.getByLabel('Answer', { exact: true }).inputValue()) ===
-      'Keep my unsaved edit',
-    'refused save retains the edit'
-  );
+  await verifyRefusedSave(saved);
   await verifyMobile();
   await verifyQuestionLanguage({ page, panel, editor, preview, store, until });
   await verifyQuestionTurns({ page, panel, editor, preview, store, until });

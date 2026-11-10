@@ -1,10 +1,12 @@
 import {
   listAnswerRules,
+  answerRuleId,
   saveAnswerRule,
   deleteAnswerRule,
   previewAnswer,
   learnSavedAnswers,
 } from '../automation/question-store.js';
+import { normalizeAnswerRule } from '../automation/question-answers.js';
 import {
   readAnswerPolicy,
   saveAnswerPolicy,
@@ -29,6 +31,44 @@ const validProfileField = (field) =>
   Array.isArray(field.candidates) &&
   field.candidates.every(validProfileCandidate);
 
+const checkAnswerResponse = (result) => {
+  if (
+    !result ||
+    typeof result !== 'object' ||
+    Array.isArray(result) ||
+    result.error ||
+    result.status === 'failed' ||
+    result.ok === false ||
+    result.httpStatus >= 400
+  ) {
+    throw Object.assign(
+      new Error(result?.error ?? 'Answer operation was not confirmed.'),
+      { code: result?.code ?? 'answer-unconfirmed' }
+    );
+  }
+};
+
+const confirmedRule = (result, input) => {
+  let rule;
+  try {
+    rule = normalizeAnswerRule(result?.rule);
+  } catch {
+    throw new Error('Answer rule save was not confirmed.');
+  }
+  const expected = normalizeAnswerRule({
+    ...input,
+    id: answerRuleId(input.id),
+  });
+  if (
+    rule.id !== expected.id ||
+    (input.contract !== true &&
+      JSON.stringify(rule) !== JSON.stringify(expected))
+  ) {
+    throw new Error('Answer rule save was not confirmed.');
+  }
+  return { ...result, rule };
+};
+
 export const questionApi = ({ remote, store }) => {
   const call = async (action, input, fallback, read = false) => {
     const result = await (remote.report ?? remote.post)(
@@ -36,12 +76,9 @@ export const questionApi = ({ remote, store }) => {
       input,
       { network: true, read }
     );
-    if (result?.error || result?.status === 'failed') {
-      throw Object.assign(new Error(result.error ?? result.code), {
-        code: result.code,
-      });
-    }
-    return result ?? fallback();
+    const answer = result ?? (await fallback());
+    checkAnswerResponse(answer);
+    return answer;
   };
   return {
     ...questionProfilesApi({ remote, store }),
@@ -93,15 +130,33 @@ export const questionApi = ({ remote, store }) => {
       call('policy', { policy }, async () => ({
         policy: await saveAnswerPolicy(store, policy),
       })),
-    answerRules: async () =>
-      (await remote.get('/api/automations/answers'))?.rules ??
-      listAnswerRules(store),
+    answerRules: async () => {
+      const result = await remote.get('/api/automations/answers');
+      if (result === null || result === undefined) {
+        return listAnswerRules(store);
+      }
+      checkAnswerResponse(result);
+      if (!Array.isArray(result.rules) || result.rules.length > 1000) {
+        throw new Error('Answer rule list was not confirmed.');
+      }
+      return result.rules.map(normalizeAnswerRule);
+    },
     saveAnswerRule: async (rule) =>
-      call('save', { rule }, async () => ({
-        rule: await saveAnswerRule(store, rule),
-      })),
-    deleteAnswerRule: async (id) =>
-      call('delete', { id }, () => deleteAnswerRule(store, id)),
+      confirmedRule(
+        await call('save', { rule }, async () => ({
+          rule: await saveAnswerRule(store, rule),
+        })),
+        rule
+      ),
+    deleteAnswerRule: async (id) => {
+      const result = await call('delete', { id }, () =>
+        deleteAnswerRule(store, id)
+      );
+      if (result.deleted !== answerRuleId(id)) {
+        throw new Error('Answer rule deletion was not confirmed.');
+      }
+      return result;
+    },
     previewAnswer: async (input) =>
       call('plan', input, () => previewAnswer(store, input), !input.modelDraft),
     learnAnswers: async (input = {}) =>

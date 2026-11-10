@@ -1,5 +1,6 @@
 // Section routes coexist with the original chat and provider deep links.
 import { navItems } from './nav-items.js';
+import { debugBrowser } from './client-log.js';
 
 export const APP_ROUTE_KEY = 'metaSovereignNavigation';
 const VIEWS = new Set(navItems.map(([view]) => view));
@@ -139,6 +140,7 @@ export const createAppNavigation = (env = globalThis) => {
     notify();
   };
   const go = ({ view, anchor } = {}, { replace = false } = {}) => {
+    debugBrowser('navigation-go', { from: route.view, to: view });
     if (!VIEWS.has(view)) {
       return;
     }

@@ -3,6 +3,7 @@ import { requestBody } from './helpers/http-wire.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { navItems } from '../src/web/nav-items.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
 
 const store = createMemoryStore();
 for (const chat of ['111', '222']) {
@@ -29,6 +30,7 @@ for (const chat of ['111', '222']) {
 const { page, base, until, finish } = await openChatApp('navigation', {
   store,
 });
+await traceBrowserInputs(page, 'button[data-view]');
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
   globalThis.__visitedViews = [];
@@ -54,7 +56,16 @@ await page.route('**/api/telegram/dialog-state', async (route) => {
 const selected = (view) => page.locator(`main[data-view="${view}"]`).waitFor();
 const pick = async (view) => {
   await page.locator(`button[data-view="${view}"]`).click();
-  await selected(view);
+  try {
+    await selected(view);
+  } catch (error) {
+    throw new Error(
+      `${error.message}: ${JSON.stringify(await inputTrace(page))}`,
+      {
+        cause: error,
+      }
+    );
+  }
   if (view === 'operator') {
     await page.locator('[data-operator-chat]').waitFor();
   }
@@ -169,6 +180,12 @@ const scrollSteps = async () => {
 };
 
 await finish(async () => {
+  if (process.env.NAVIGATION_SCROLL_ONLY === '1') {
+    await page.goto(`${base}/#/settings`);
+    await selected('settings');
+    await scrollSteps();
+    return;
+  }
   await page.goto(base);
   await everySection();
   await historySteps();

@@ -5,6 +5,7 @@ import {
   modelText,
 } from '../../../experiments/issue-56/forms-model-fixture.mjs';
 import { saveAnswerModel } from '../../src/automation/answer-model-config.js';
+import { inputTrace } from './e2e-input-trace.mjs';
 
 const capture = async (page, name, selector = '[data-form-plan-summary]') => {
   if (
@@ -44,8 +45,10 @@ const configureModel = async ({ page, store, until }) => {
   await page.locator('[data-save-answer-model]').click();
   const saved = (await decoded(await pending)).settings;
   assert(
-    saved.cvId === 'cv:model-fixture' && saved.enabled,
-    'explicit CV settings acknowledged'
+    saved.cvId === 'cv:model-fixture' &&
+      saved.enabled &&
+      saved.model === 'fixture-model',
+    `explicit CV and model settings acknowledged: ${JSON.stringify(await inputTrace(page))}`
   );
   await page.reload();
   await panel.locator('summary').click();
