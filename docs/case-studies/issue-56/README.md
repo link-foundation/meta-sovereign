@@ -6,7 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [follow-telegram.md](follow-telegram.md) records bounded Telegram listing, exact one-use join/leave plans and independent mute/archive outcomes through CLI/Lino API/React controls, durable uncertainty protection, SDK serialization, focused regressions and production Chromium/MCP desktop/mobile evidence. Existing shared leave acknowledgements and FL04/FL06–FL09 remain open.
+- [shared-leave-receipts.md](shared-leave-receipts.md) records exact legacy leave/destroy acknowledgements, preserved partial results/history and shared SDK retry disabling, 80 focused checks, failing-before regressions and production Chromium/MCP before/after/mobile evidence. Broader FL08 ownership and replay policies remain open.
+- [follow-telegram.md](follow-telegram.md) records bounded Telegram listing, exact one-use join/leave plans and independent mute/archive outcomes through CLI/Lino API/React controls, durable uncertainty protection, SDK serialization, focused regressions and production Chromium/MCP desktop/mobile evidence. Shared leave corrections are verified below; FL04/FL06–FL09 remain open.
 
 - [ci-membership-locale.md](ci-membership-locale.md) preserves the membership head's 1,501-line Russian dictionary failure and extraction of unchanged invite translations, with 25 passing locale checks and strict lint.
 

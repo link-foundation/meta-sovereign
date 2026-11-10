@@ -15,6 +15,7 @@ import {
   telegramJoinedReceipt,
   telegramWriteFailure,
   traceTelegramMembership,
+  invokeTelegramWrite,
 } from './telegram-membership-receipt.js';
 
 const CODES = {
@@ -83,7 +84,10 @@ export const createSimilarChannels = (env, { userClient, apply }) => {
       async (c) => {
         const answer = await runIn(env, `similar-join:${chat}`, () =>
           env.connection.withPeer(c.client, chat, (peer) =>
-            c.client.invoke(new c.Api.channels.JoinChannel({ channel: peer }))
+            invokeTelegramWrite(
+              c.client,
+              new c.Api.channels.JoinChannel({ channel: peer })
+            )
           )
         );
         const receipt = telegramJoinedReceipt(answer, chat);

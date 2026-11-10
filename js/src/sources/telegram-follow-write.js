@@ -12,6 +12,8 @@ import {
 import {
   telegramJoinedReceipt,
   telegramOperationUpdates,
+  telegramLeftUpdates,
+  invokeTelegramWrite,
   traceTelegramMembership,
 } from './telegram-membership-receipt.js';
 import { journalFollowPhase } from './telegram-follow-journal.js';
@@ -47,29 +49,6 @@ const explicitFailure = (error, issued) => {
     USER_ALREADY_PARTICIPANT: 'membership-changed',
   };
   return { status: 'failed', code: codes[rpc] ?? 'provider-refused' };
-};
-const leaveAcknowledged = (answer, target, owner) => {
-  const updates = telegramOperationUpdates(answer);
-  const id = target.chat.slice(target.kind === 'Channel' ? 4 : 1);
-  return updates &&
-    (updates.chats.some(
-      (chat) =>
-        followKind(chat) === target.kind &&
-        followText(chat.id) === id &&
-        chat.left === true
-    ) ||
-      updates.updates.some(
-        (u) =>
-          (target.kind === 'Channel' &&
-            followKind(u) === 'UpdateChannel' &&
-            followText(u.channelId) === id) ||
-          (target.kind === 'Chat' &&
-            followKind(u) === 'UpdateChatParticipantDelete' &&
-            followText(u.chatId) === id &&
-            followText(u.userId) === owner)
-      ))
-    ? updates
-    : null;
 };
 const requestOf = (c, fresh, plan, phase) => {
   const { Api } = c;
@@ -135,7 +114,7 @@ const receiptOf = (answer, plan, phase, target) => {
     phase === 'mute'
       ? null
       : phase === 'membership'
-        ? leaveAcknowledged(answer, target, plan.owner)
+        ? telegramLeftUpdates(answer, target.chat, plan.owner, target.kind)
         : telegramOperationUpdates(answer);
   return (phase === 'mute' ? answer === true : Boolean(updates))
     ? { status: 'confirmed', chat: target.chat, updates }
@@ -196,10 +175,7 @@ const prepare = async (env, context, plan, phase, cancelled, now) => {
         }
         const request = requestOf(c, latest, plan, phase);
         issued = true;
-        const answer = await c.client.invoke(request, undefined, {
-          maxRetryCount: 0,
-          floodSleepThreshold: 0,
-        });
+        const answer = await invokeTelegramWrite(c.client, request);
         const receipt = receiptOf(answer, plan, phase, latest.target);
         traceTelegramMembership(env, `follow-${phase}`, {
           ok: receipt.status === 'confirmed',

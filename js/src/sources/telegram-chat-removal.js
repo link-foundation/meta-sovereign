@@ -26,6 +26,7 @@
  */
 
 import { markDeleted as tombstone } from '../storage/soft-delete.js';
+import { requestChatRemoval } from './telegram-chat-removal-requests.js';
 
 const SOURCE = 'telegram';
 export const REMOVAL_ACTIONS = Object.freeze([
@@ -34,7 +35,6 @@ export const REMOVAL_ACTIONS = Object.freeze([
   'leave',
   'destroy',
 ]);
-const MAX_ROUNDS = 100;
 
 const kindOf = (chat) => {
   const id = String(chat);
@@ -62,82 +62,6 @@ export const removalAllowed = (chat, action) => {
  * live handler.
  */
 export const createChatRemoval = (env, { userClient, apply }) => {
-  // messages.deleteHistory until Telegram says nothing is left.
-  const deleteHistory = async (client, Api, peer, { justClear, revoke }) => {
-    for (let round = 0; round < MAX_ROUNDS; round += 1) {
-      const affected = await client.invoke(
-        new Api.messages.DeleteHistory({
-          peer,
-          maxId: 0,
-          justClear,
-          revoke,
-        })
-      );
-      env.catchUp?.observeResult(affected);
-      if (!(Number(affected?.offset) > 0)) {
-        return;
-      }
-    }
-  };
-
-  // The newest message the chat is known to have.
-  const newestId = async (chat) => {
-    const read = (await env.store.get(`read:${SOURCE}:${chat}`)) ?? {};
-    const prefix = `msg:${SOURCE}:${chat}:`;
-    const stored = await env.store.query((link) => link.id.startsWith(prefix));
-    return Math.max(
-      Number(read.unreadTopId ?? 0) || 0,
-      ...stored.map((link) => Number(link.id.slice(prefix.length)) || 0)
-    );
-  };
-
-  const askChannel = async (client, Api, peer, { action, chat }) => {
-    if (action === 'destroy') {
-      return client.invoke(new Api.channels.DeleteChannel({ channel: peer }));
-    }
-    if (action === 'leave') {
-      return client.invoke(new Api.channels.LeaveChannel({ channel: peer }));
-    }
-    return client.invoke(
-      new Api.channels.DeleteHistory({
-        channel: peer,
-        maxId: await newestId(chat),
-        forEveryone: false,
-      })
-    );
-  };
-
-  const ask = async (client, Api, peer, { action, chat, revoke }) => {
-    const kind = kindOf(chat);
-    if (kind === 'channel') {
-      return askChannel(client, Api, peer, { action, chat });
-    }
-    if (kind === 'group' && action === 'destroy') {
-      const { helpers } = await env.importer();
-      return client.invoke(
-        new Api.messages.DeleteChat({
-          chatId: helpers.returnBigInt(String(chat).slice(1)),
-        })
-      );
-    }
-    if (kind === 'group' && action === 'leave') {
-      const { helpers } = await env.importer();
-      const left = await client.invoke(
-        new Api.messages.DeleteChatUser({
-          chatId: helpers.returnBigInt(String(chat).slice(1)),
-          userId: new Api.InputUserSelf(),
-          revokeHistory: false,
-        })
-      );
-      await apply(client, left);
-    }
-    await deleteHistory(client, Api, peer, {
-      justClear: action === 'clear',
-      revoke: kind === 'personal' && Boolean(revoke),
-    });
-    return null;
-  };
-
   // The chat's stored messages, marked deleted: off the screens at once.
   const forget = async (chat) => {
     const prefix = `msg:${SOURCE}:${chat}:`;
@@ -187,13 +111,18 @@ export const createChatRemoval = (env, { userClient, apply }) => {
     if (!client) {
       return { ok: false, supported: false };
     }
-    const { Api } = await env.importer();
+    const { Api, helpers } = await env.importer();
     const target = String(chat);
     const answer = await env.connection.withPeer(client, target, (peer) =>
-      ask(client, Api, peer, { action, chat: target, revoke })
+      requestChatRemoval(
+        env,
+        { client, Api, helpers },
+        { peer, action, chat: target, revoke },
+        apply
+      )
     );
-    if (answer && typeof answer === 'object') {
-      await apply(client, answer);
+    if (answer?.ok !== true) {
+      return answer;
     }
     const stored = await forget(target);
     await markCleared(target, action, stored);

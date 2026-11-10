@@ -20,6 +20,7 @@
 import {
   telegramOperationUpdates,
   traceTelegramMembership,
+  invokeTelegramWrite,
 } from './telegram-membership-receipt.js';
 
 const SOURCE = 'telegram';
@@ -127,7 +128,8 @@ export const createDialogActions = (env, { userClient, apply }) => {
         new Api.messages.ToggleDialogPin({ peer, pinned: action === 'pin' })
       );
     } else if (action === 'mute' || action === 'unmute') {
-      return client.invoke(
+      return invokeTelegramWrite(
+        client,
         new Api.account.UpdateNotifySettings({
           peer: new Api.InputNotifyPeer({ peer }),
           settings: new Api.InputPeerNotifySettings({ muteUntil }),
@@ -136,7 +138,8 @@ export const createDialogActions = (env, { userClient, apply }) => {
     } else if (action === 'archive' || action === 'unarchive') {
       const input =
         typeof peer === 'object' ? peer : await client.getInputEntity(peer);
-      return client.invoke(
+      return invokeTelegramWrite(
+        client,
         new Api.folders.EditPeerFolders({
           folderPeers: [
             new Api.InputFolderPeer({

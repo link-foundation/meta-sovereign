@@ -19,6 +19,7 @@ import {
   telegramJoinedReceipt,
   telegramWriteFailure,
   traceTelegramMembership,
+  invokeTelegramWrite,
 } from './telegram-membership-receipt.js';
 
 export const INVITE_HASH = /^[A-Za-z0-9_-]{8,64}$/;
@@ -112,7 +113,10 @@ const createJoiner =
       telegramWriteFailure(failure),
       async (c) => {
         const answer = await runIn(env, `invite:join:${hash}`, () =>
-          c.client.invoke(new c.Api.messages.ImportChatInvite({ hash }))
+          invokeTelegramWrite(
+            c.client,
+            new c.Api.messages.ImportChatInvite({ hash })
+          )
         );
         const receipt = telegramJoinedReceipt(answer);
         traceTelegramMembership(env, 'invite-join', receipt);

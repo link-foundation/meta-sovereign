@@ -17,9 +17,11 @@ export const membershipFixture = async (reply) => {
   const store = createMemoryStore();
   const calls = [];
   const applied = [];
+  const rpcOptions = [];
   const client = {
-    invoke: async (request) => {
+    invoke: async (request, _dc, options) => {
       calls.push(request);
+      rpcOptions.push(options);
       return reply(request);
     },
     getInputEntity: async (peer) => peer,
@@ -50,6 +52,7 @@ export const membershipFixture = async (reply) => {
     store,
     calls,
     applied,
+    rpcOptions,
     actions: {
       ...createInvites(env, context),
       ...createSimilarChannels(env, context),

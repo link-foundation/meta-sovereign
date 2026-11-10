@@ -430,7 +430,8 @@
     "test:e2e:follow-links": "node js/tests/e2e-follow-links-browser.mjs",
     "test:e2e:follow-chats": "node js/tests/e2e-follow-chats-browser.mjs",
     "test:e2e:membership-receipts": "node js/tests/e2e-membership-receipts-browser.mjs",
-    "test:e2e:follow-telegram": "node js/tests/e2e-follow-telegram-browser.mjs"
+    "test:e2e:follow-telegram": "node js/tests/e2e-follow-telegram-browser.mjs",
+    "test:e2e:shared-leave": "node js/tests/e2e-shared-leave-browser.mjs"
   },
   "keywords": [
     "personal-crm",

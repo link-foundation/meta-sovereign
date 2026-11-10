@@ -4,6 +4,18 @@ import {
   membershipFixture,
   memberUpdates,
 } from './helpers/telegram-membership.mjs';
+import { telegramLeftUpdates } from '../src/sources/telegram-membership-receipt.js';
+
+test('typed basic-group receipts remain distinct from channel-like signed IDs', () => {
+  const answer = {
+    className: 'Updates',
+    users: [],
+    chats: [{ className: 'Chat', id: 10077n, left: true }],
+    updates: [],
+  };
+  assert.equal(telegramLeftUpdates(answer, '-10077', '1', 'Chat'), answer);
+  assert.equal(telegramLeftUpdates(answer, '-10077', '1', 'Channel'), null);
+});
 
 test('temporary invite preview access is not membership and retains a join preview', async () => {
   const f = await membershipFixture(() => ({
@@ -140,4 +152,41 @@ test('lost join responses remain uncertain and explicit approval requests remain
       assert.deepEqual(f.applied, []);
     }
   }
+});
+
+test('structured internal and server errors retain uncertain membership', async () => {
+  for (const errorMessage of ['TIMEOUT', 'INTERNAL', 'RPC_CALL_FAIL']) {
+    const f = await membershipFixture(() => {
+      throw Object.assign(new Error('private transport detail'), {
+        errorMessage,
+        code: 500,
+      });
+    });
+    for (const method of ['joinChatInvite', 'similarJoin']) {
+      const answer = await f.actions[method]({
+        hash: 'FreshHash123',
+        chat: '-1007',
+      });
+      assert.equal(answer.ok, false);
+      assert.equal(answer.code, 'outcome-unknown');
+    }
+    assert.deepEqual(f.applied, []);
+  }
+});
+
+test('shared join and preference writes disable SDK automatic retries', async () => {
+  const f = await membershipFixture((r) =>
+    r.className === 'account.UpdateNotifySettings' ? true : memberUpdates()
+  );
+  await f.actions.joinChatInvite({ hash: 'FreshHash123' });
+  await f.actions.similarJoin({ chat: '-1007' });
+  await f.actions.dialogAction({ chat: '-1007', action: 'mute' });
+  await f.actions.dialogAction({ chat: '-1007', action: 'archive' });
+  assert.equal(f.rpcOptions.length, 4);
+  assert.ok(
+    f.rpcOptions.every(
+      (options) =>
+        options?.maxRetryCount === 0 && options.floodSleepThreshold === 0
+    )
+  );
 });

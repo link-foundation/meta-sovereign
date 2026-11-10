@@ -4,10 +4,11 @@
 // "Leave". Nothing is left until the button is pressed, and only the
 // ticked channels are.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { LIMIT_EVENT } from './chat-invite.js';
+import { inactiveLeaveOutcome } from './chat-removal-result.js';
 
 const el = React.createElement;
 
@@ -43,12 +44,13 @@ const useInactive = (api) => {
   return [state, setState];
 };
 
-const Item = ({ t, locale, channel, ticked, toggle }) =>
+const Item = ({ t, locale, channel, ticked, toggle, disabled }) =>
   el('label', { className: 'limit-row', 'data-limit-chat': channel.chat }, [
     el('input', {
       key: 'c',
       type: 'checkbox',
       checked: ticked,
+      disabled,
       onChange: () => toggle(channel.chat),
     }),
     el('span', { key: 't', className: 'limit-title' }, channel.title),
@@ -67,28 +69,45 @@ export const InactiveChannels = ({ api, onClose, onLeft }) => {
   const [chosen, setChosen] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [blocked, setBlocked] = useState([]);
+  const active = useRef(false);
   const toggle = (chat) =>
     setChosen((now) =>
       now.includes(chat) ? now.filter((x) => x !== chat) : [...now, chat]
     );
   const leave = async () => {
-    if (chosen.length === 0) {
+    const requested = chosen.filter((id) => !blocked.includes(id));
+    if (active.current || requested.length === 0) {
       return;
     }
+    active.current = true;
     setBusy(true);
+    setError(null);
     const answer = await api
-      .telegramLeaveChannels({ chats: chosen })
+      .telegramLeaveChannels({ chats: requested })
       .catch(() => null);
+    const result = inactiveLeaveOutcome(answer, requested);
+    active.current = false;
     setBusy(false);
-    if (answer?.ok) {
+    if (result.left.length > 0) {
       setState((now) => ({
         ...now,
-        channels: now.channels.filter((c) => !chosen.includes(c.chat)),
+        channels: now.channels.filter((c) => !result.left.includes(c.chat)),
       }));
-      onLeft?.(answer.left ?? chosen);
+      onLeft?.(result.left);
+    }
+    setChosen((now) => now.filter((id) => !result.left.includes(id)));
+    setBlocked((now) => [...new Set([...now, ...result.blocked])]);
+    if (result.complete) {
       onClose();
     } else {
-      setError(t('chat.limit.err.failed'));
+      setError(
+        t(
+          result.unknown
+            ? 'chat.removal.inactiveUnknown'
+            : 'chat.removal.inactivePartial'
+        )
+      );
     }
   };
   let body = el('p', { className: 'meta' }, t('chat.limit.loading'));
@@ -109,6 +128,7 @@ export const InactiveChannels = ({ api, onClose, onLeft }) => {
                 channel,
                 ticked: chosen.includes(channel.chat),
                 toggle,
+                disabled: busy || blocked.includes(channel.chat),
               })
             )
           );
@@ -121,7 +141,7 @@ export const InactiveChannels = ({ api, onClose, onLeft }) => {
       onClose,
       onSubmit: leave,
       submit: t('chat.limit.leave'),
-      busy: busy || chosen.length === 0,
+      busy: busy || chosen.every((id) => blocked.includes(id)),
       error,
     },
     [el('p', { key: 'p' }, t('chat.limit.body')), el('div', { key: 'b' }, body)]

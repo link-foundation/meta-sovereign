@@ -115,3 +115,5 @@ Add bounded live VK group discovery, title/latest-message Telegram filters, page
 Distinguish Telegram invite preview access from membership, require exact join receipts and mute/archive acknowledgements, preserve uncertain and bot web-view outcomes, and keep localized shared dialogs from repeating unconfirmed joins. Omit unavailable member counts and add default-off receipt diagnostics.
 
 Add bounded Telegram group/channel listing and reviewed one-use Follow join/leave plans with independent mute/archive controls through CLI, text/binary Lino API and shared React UI. Flush durable intents before writes, block uncertain replay after restart, disable SDK write retries, preserve partial acknowledgements and history, scope preview dismissal and own cancellation/shutdown results.
+
+Require exact Telegram leave/destroy acknowledgements before local removal or history cleanup. Preserve partial batch receipts and confirmed membership through uncertain cleanup, retain unconfirmed selections/history in shared dialogs, block synchronous duplicate or uncertain repeats, and disable SDK retries for shared membership/preference writes.

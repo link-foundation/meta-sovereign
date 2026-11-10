@@ -17,7 +17,10 @@ export const traceTelegramMembership = (env, operation, receipt) => {
   }
 };
 export const telegramWriteFailure = (fallback) => (error) =>
-  typeof error?.errorMessage === 'string' && error.errorMessage
+  typeof error?.errorMessage === 'string' &&
+  error.errorMessage &&
+  !/TIMEOUT|INTERNAL|RPC_CALL_FAIL|WORKER_BUSY/.test(error.errorMessage) &&
+  !(Number(error.code) >= 500)
     ? fallback(error)
     : { ok: false, code: 'outcome-unknown' };
 export const telegramOperationUpdates = (answer) => {
@@ -58,3 +61,42 @@ export const telegramJoinedReceipt = (answer, expected = null) => {
     ? { ok: true, chat, updates }
     : { ok: false, code: 'outcome-unknown' };
 };
+
+/** A leave receipt must identify the requested peer and, for a user
+ * deletion update, this account. Unrelated Updates prove no membership change. */
+export const telegramLeftUpdates = (
+  answer,
+  chat,
+  owner = null,
+  peerKind = null
+) => {
+  const updates = telegramOperationUpdates(answer);
+  const channel = peerKind
+    ? peerKind === 'Channel'
+    : String(chat).startsWith('-100');
+  const id = String(chat).slice(channel ? 4 : 1);
+  const left =
+    updates &&
+    (updates.chats.some(
+      (peer) =>
+        kind(peer) === (channel ? 'Channel' : 'Chat') &&
+        text(peer.id) === id &&
+        peer.left === true
+    ) ||
+      updates.updates.some((update) =>
+        channel
+          ? kind(update) === 'UpdateChannel' && text(update.channelId) === id
+          : kind(update) === 'UpdateChatParticipantDelete' &&
+            text(update.chatId) === id &&
+            owner !== null &&
+            text(update.userId) === owner
+      ));
+  return left ? updates : null;
+};
+
+/** SDK retry defaults may repeat an uncertain write without caller consent. */
+export const invokeTelegramWrite = (client, request) =>
+  client.invoke(request, undefined, {
+    maxRetryCount: 0,
+    floodSleepThreshold: 0,
+  });

@@ -2,7 +2,7 @@
 
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft PR: <https://github.com/link-foundation/meta-sovereign/pull/57>.
 
-Follow now lists Telegram groups/channels and previews exact-account joins, leaves and independently chosen mute/archive settings through CLI, default text/binary Lino API and common React Automation controls. This is an implementation slice: FL03's existing shared leave paths still need acknowledgement corrections, FL04 and FL06–FL09 remain required, and issue-wide delivery is unfinished.
+Follow now lists Telegram groups/channels and previews exact-account joins, leaves and independently chosen mute/archive settings through CLI, default text/binary Lino API and common React Automation controls. The [shared leave correction](shared-leave-receipts.md) completes the existing Chat/Operator acknowledgement paths required by FL03. FL03/FL05 are verified; FL04 and FL06–FL09 remain required, and issue-wide delivery is unfinished.
 
 ## Reproduce and inspect
 
@@ -47,4 +47,4 @@ The first browser draft correctly failed because the common browser API omitted 
 
 ![Mobile: reviewed membership-only leave](screenshots/follow-telegram-mobile.png)
 
-Evidence: [archive](data/follow-telegram.tar.gz), [manifest](data/follow-telegram.tar.sha256.json). Reusable fixture: `experiments/issue-56/follow-telegram-ui.mjs`. Reference behavior was learned from pinned `konard/follow` commit `af8fbb80cec26a7b5b205c93314372d1d92cec1f` and its recent PRs; upstream implementations were neither executed nor copied. Telegram's [dialog pagination](https://core.telegram.org/method/messages.getDialogs), [partial dialog response](https://core.telegram.org/constructor/messages.dialogsSlice) and [basic-group removal update](https://core.telegram.org/constructor/updateChatParticipantDelete) establish raw offsets and exact leave receipts. Existing shared Chat/Operator removal paths and every other unmet criterion remain required; PR 57 stays draft and unmerged.
+Evidence: [archive](data/follow-telegram.tar.gz), [manifest](data/follow-telegram.tar.sha256.json). Reusable fixture: `experiments/issue-56/follow-telegram-ui.mjs`. Reference behavior was learned from pinned `konard/follow` commit `af8fbb80cec26a7b5b205c93314372d1d92cec1f` and its recent PRs; upstream implementations were neither executed nor copied. Telegram's [dialog pagination](https://core.telegram.org/method/messages.getDialogs), [partial dialog response](https://core.telegram.org/constructor/messages.dialogsSlice) and [basic-group removal update](https://core.telegram.org/constructor/updateChatParticipantDelete) establish raw offsets and exact leave receipts. Shared Chat/Operator removal receipts are verified separately in [shared-leave-receipts.md](shared-leave-receipts.md). Every other unmet criterion remains required; PR 57 stays draft and unmerged.
