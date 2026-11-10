@@ -7,7 +7,7 @@ import { createFormReportWriter } from '../forms/report-file.js';
 import { formReportOutput } from '../forms/report-markdown.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--format=json|markdown] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--format=json|markdown] [--capture-pages=false] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const urls = args.urls ? decodeWire(args.urls) : [args.url];
   if (!Array.isArray(urls) || !urls.length || urls.length > 4) {
@@ -18,6 +18,12 @@ const inputs = (args) => {
     ![true, false, 'true', 'false'].includes(args.headless)
   ) {
     throw new Error('--headless must be true or false');
+  }
+  if (
+    args['capture-pages'] !== undefined &&
+    ![true, false, 'true', 'false'].includes(args['capture-pages'])
+  ) {
+    throw new Error('--capture-pages must be true or false');
   }
   return urls.map((url, i) => ({
     url: formUrl(url),
@@ -30,6 +36,10 @@ const inputs = (args) => {
       : args.headless === undefined
         ? undefined
         : [true, 'true'].includes(args.headless),
+    autoCapture:
+      args['capture-pages'] === undefined
+        ? undefined
+        : [true, 'true'].includes(args['capture-pages']),
   }));
 };
 const command = async (reader, line, options) => {

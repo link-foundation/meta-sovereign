@@ -17,7 +17,29 @@ const download = async (page, format) => {
   };
 };
 
+const captureMobile = async (page) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .locator('[data-form-journal] > h2')
+    .evaluate((heading) => heading.scrollIntoView({ block: 'center' }));
+  assert(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+    ),
+    'captured pages fit phone width'
+  );
+  if (process.env.FORMS_JOURNAL_SCREENSHOTS === '1') {
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-forms-journal-mobile.png',
+    });
+  }
+};
+
 export const verifyFormJournalUi = async ({ page, owned, fixture }) => {
+  const autoCapture = page.locator('[data-form-auto-capture]');
+  if (await autoCapture.count()) {
+    await autoCapture.uncheck();
+  }
   await page
     .locator('[data-form-url]')
     .fill(fixture.url.replace('/application', '/prefill'));
@@ -117,21 +139,7 @@ export const verifyFormJournalUi = async ({ page, owned, fixture }) => {
       path: 'docs/screenshots/issue-56-forms-journal-after.png',
     });
   }
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page
-    .locator('[data-form-journal] > h2')
-    .evaluate((heading) => heading.scrollIntoView({ block: 'center' }));
-  assert(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
-    ),
-    'captured pages fit phone width'
-  );
-  if (process.env.FORMS_JOURNAL_SCREENSHOTS === '1') {
-    await page.screenshot({
-      path: 'docs/screenshots/issue-56-forms-journal-mobile.png',
-    });
-  }
+  await captureMobile(page);
   pending = responseFor(page, 'close');
   await page.locator('[data-review-action="close"]').click();
   await decoded(await pending);

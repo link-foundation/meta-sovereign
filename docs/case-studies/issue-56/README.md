@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-automatic-capture.md](forms-automatic-capture.md) verifies default-on passive document capture across fast owner navigation, bounded work, honest omission/failure states, opt-out controls and unchanged answer knowledge. Focused Node/Deno, production Chromium and independent MCP desktop/mobile evidence are retained. Confirmed/stable-edit learning and detached watchers remain required.
+
 - [forms-review-journal.md](forms-review-journal.md) verifies bounded captured-page history, saved Markdown provenance, retention omissions, separate file failures, recovery without replay and read-only historical UI through CLI/Lino/four languages. Focused Node/Deno, production Chromium and independent MCP evidence are retained. Automatic page capture and submission/stable-edit learning remain required.
 
 - [ci-forms-effects.md](ci-forms-effects.md) traces the hosted 6.51% duplication failure and consolidates guarded form effects and isolated HTTP/browser fixtures without relaxing validation.

@@ -1,4 +1,8 @@
 import { createServer } from 'node:http';
+import {
+  monitorFixtureHtml,
+  monitorChildHtml,
+} from './forms-monitor-fixture.mjs';
 import { uploadFixtureHtml, uploadChildHtml } from './forms-resume-fixture.mjs';
 import { prefillFixtureHtml } from './forms-prefill-fixture.mjs';
 import { radioFixtureHtml, radioChildHtml } from './forms-radio-fixture.mjs';
@@ -21,6 +25,10 @@ export const startFormsFixture = async () => {
   const child = createServer((req, res) => {
     requests.push({ server: 'child', method: req.method, url: req.url });
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/monitor')) {
+      res.end(monitorChildHtml(req.url.includes('hidden')));
+      return;
+    }
     if (req.url.startsWith('/upload')) {
       res.end(uploadChildHtml);
       return;
@@ -51,6 +59,16 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/monitor')) {
+      res.end(
+        monitorFixtureHtml(
+          childBase,
+          new URL(req.url, 'http://fixture.test').searchParams.get('page') ===
+            '2'
+        )
+      );
+      return;
+    }
     if (req.url.startsWith('/upload')) {
       res.end(uploadFixtureHtml(childBase));
       return;

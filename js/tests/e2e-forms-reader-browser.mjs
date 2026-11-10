@@ -7,6 +7,7 @@ import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
 import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
+import { verifyFormMonitorUi } from './helpers/e2e-form-monitor.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -239,7 +240,8 @@ const verifyCustomOnly = async ({ page, until }) => {
     process.env.FORMS_CUSTOM_ONLY === '1' ||
     process.env.FORMS_CHOICES_ONLY === '1' ||
     process.env.FORMS_UPLOAD_ONLY === '1' ||
-    process.env.FORMS_JOURNAL_ONLY === '1'
+    process.env.FORMS_JOURNAL_ONLY === '1' ||
+    process.env.FORMS_MONITOR_ONLY === '1'
   ) {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
@@ -248,14 +250,16 @@ const verifyCustomOnly = async ({ page, until }) => {
       'Forms custom browser capability'
     );
     await (
-      process.env.FORMS_JOURNAL_ONLY === '1'
-        ? verifyFormJournalUi
-        : process.env.FORMS_UPLOAD_ONLY === '1'
-          ? verifyFormUploadUi
-          : process.env.FORMS_CHOICES_ONLY === '1'
-            ? verifyFormChoicesUi
-            : verifyFormCustomUi
-    )({ page, owned, fixture });
+      process.env.FORMS_MONITOR_ONLY === '1'
+        ? verifyFormMonitorUi
+        : process.env.FORMS_JOURNAL_ONLY === '1'
+          ? verifyFormJournalUi
+          : process.env.FORMS_UPLOAD_ONLY === '1'
+            ? verifyFormUploadUi
+            : process.env.FORMS_CHOICES_ONLY === '1'
+              ? verifyFormChoicesUi
+              : verifyFormCustomUi
+    )({ page, owned, fixture, until, store });
     return true;
   }
   return false;
@@ -322,6 +326,9 @@ await app.finish(async () => {
       'download contains the actual snapshot'
     );
     await verifyFormPlanUi({ page, report, owned });
+    if (process.env.FORMS_PLAN_ONLY === '1') {
+      return;
+    }
     await page.locator('[data-form-report]').scrollIntoViewIfNeeded();
     if (process.env.FORMS_READER_SCREENSHOTS === '1') {
       await page.screenshot({
@@ -368,8 +375,9 @@ await app.finish(async () => {
       verifyFormChoicesUi,
       verifyFormUploadUi,
       verifyFormJournalUi,
+      verifyFormMonitorUi,
     ]) {
-      await verify({ page, owned, fixture, until });
+      await verify({ page, owned, fixture, until, store });
     }
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })

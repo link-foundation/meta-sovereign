@@ -1,4 +1,17 @@
 export const zhForms = {
+  'forms.monitor.capture': '自动捕获页面',
+  'forms.monitor.scope':
+    '编辑或打开后续页面时，捕获可见问题和当前值。这不能确认已提交，也不会学习答案。',
+  'forms.monitor.active':
+    '自动捕获 {captured} 次 · 省略 {omitted} 次 · 失败 {failed} 次。答案学习已关闭。',
+  'forms.monitor.disabled': '自动捕获已关闭。请读取每个页面以保留快照。',
+  'forms.monitor.unavailable': '自动捕获不可用。请读取每个页面以保留快照。',
+  'forms.monitor.stopped': '自动捕获已停止。答案学习已关闭。',
+  'forms.navigation.next':
+    '检测到“下一页”控件。请在表单浏览器中打开下一页，然后读取并规划当前问题。',
+  'forms.reason.other-documents-not-sampled':
+    '此自动快照仅包含一个文档；其他框架未在同一时刻读取。',
+  'forms.journal.action.observe': '自动捕获',
   'forms.journal.previous':
     '操作后无法读取页面。此检查点显示上一次审阅的快照，不能确认当前值。',
   'forms.downloadMarkdown': '下载 Markdown',
@@ -7,7 +20,7 @@ export const zhForms = {
   'forms.review.history': '已捕获页面',
   'forms.journal.title': '已捕获的表单页面',
   'forms.journal.scope':
-    '这些快照来自当前会话中明确执行的读取、规划和已验证操作。两次捕获之间的页面或编辑可能缺失。快照数量有限，仅保留到会话关闭，不能证明已提交或已学习答案。',
+    '这些内容来自当前会话中的明确读取、规划、已验证操作和已启用的自动捕获。捕获之间的页面或编辑可能缺失。日志有数量和大小限制，保留到会话关闭；导出的报告仍会保留。快照不能证明已提交或已学习答案。',
   'forms.journal.count': '保留 {count} 个快照 · 因保留上限省略 {omitted} 个',
   'forms.journal.entry': '{action} · {fields} 个字段 · {time}',
   'forms.journal.inspect': '查看快照',

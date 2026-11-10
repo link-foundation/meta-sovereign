@@ -173,3 +173,5 @@ Add explicit, single-click inspection for supported closed and lazy form combobo
 Attach an explicitly chosen PDF résumé to a reviewed native field through CLI, text/binary Lino and localized Forms controls. Require separate permission to replace existing files, consume plans before issue, verify actual SHA-256 bytes and preserve uncertain outcomes without automatic retries. Keep document/control guards and optional diagnostic tracing.
 
 Retain bounded captured form checkpoints across explicit reads, plans and verified actions. Add CLI/Lino/localized read-only history, Markdown downloads and private unique saved provenance reports; show retention omissions and disk failures separately from actual browser outcomes, and await pending writes during shutdown.
+
+Capture visible form documents automatically during owned reviews, including owner edits immediately before Next. Add CLI/API/localized opt-out and capture status, bound callbacks and frames, exclude hidden/sensitive values and await accepted writes on close. Preserve the existing answer-plan download filename.

@@ -131,6 +131,13 @@ export const FormInspectionReport = ({
         })
       ),
       el('p', { key: 'scope', className: 'meta' }, t('forms.scope')),
+      report.navigation?.nextPage
+        ? el(
+            'p',
+            { key: 'next', role: 'note', 'data-form-next-page': '' },
+            t('forms.navigation.next')
+          )
+        : null,
       el(FormPlanSummary, { key: 'plan', planning: report.planning }),
       report.coverage === 'partial'
         ? el('div', { key: 'partial', role: 'note' }, [

@@ -4,6 +4,7 @@ import { FormReportDownloads } from './form-report-download.js';
 import { FormApplicationResult } from './form-reviewed-plan.js';
 import { FormChoiceResult } from './form-choice-disclosure.js';
 import { FormResumeUploadResult } from './form-resume-upload.js';
+import { FormMonitorStatus } from './form-monitor-status.js';
 
 const el = React.createElement;
 const FormJournalOutcome = ({ checkpoint }) => {
@@ -33,6 +34,7 @@ export const FormReviewJournal = ({ report, Report }) => {
     [
       el('h2', { key: 'title' }, t('forms.journal.title')),
       el('p', { key: 'scope', role: 'note' }, t('forms.journal.scope')),
+      el(FormMonitorStatus, { key: 'monitor', monitoring: report.monitoring }),
       el(
         'p',
         { key: 'count', role: 'status' },

@@ -1,4 +1,19 @@
 export const enForms = {
+  'forms.monitor.capture': 'Capture pages automatically',
+  'forms.monitor.scope':
+    'Capture visible questions and current values while you edit or open later pages. This does not confirm submission or learn answers.',
+  'forms.monitor.active':
+    '{captured} automatic captures · {omitted} omitted · {failed} failures. Answer learning is off.',
+  'forms.monitor.disabled':
+    'Automatic capture is off. Read each page to keep a checkpoint.',
+  'forms.monitor.unavailable':
+    'Automatic capture is unavailable. Read each page to keep a checkpoint.',
+  'forms.monitor.stopped': 'Automatic capture stopped. Answer learning is off.',
+  'forms.navigation.next':
+    'A Next control is visible. Open the next page in the review browser, then read and plan its current questions.',
+  'forms.reason.other-documents-not-sampled':
+    'This automatic checkpoint covers one document; other frames were not read at the same instant.',
+  'forms.journal.action.observe': 'Automatic capture',
   'forms.journal.previous':
     'The page could not be read after this action. This checkpoint shows the last reviewed snapshot, not a confirmed current value.',
   'forms.downloadMarkdown': 'Download Markdown',
@@ -8,7 +23,7 @@ export const enForms = {
   'forms.review.history': 'Captured pages',
   'forms.journal.title': 'Captured form pages',
   'forms.journal.scope':
-    'These are snapshots from explicit reads, plans and verified actions in this open session. Pages or edits between captures may be missing. Captures are bounded, kept until this session closes and do not prove submission or learning.',
+    'These are explicit reads, plans, verified actions and enabled automatic captures in this open session. Pages or edits between captures may be missing. The bounded journal lasts until this session closes; exported reports remain saved. Captures do not prove submission or learning.',
   'forms.journal.count':
     '{count} retained checkpoints · {omitted} omitted by retention limits',
   'forms.journal.entry': '{action} · {fields} fields · {time}',

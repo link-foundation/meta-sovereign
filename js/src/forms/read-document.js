@@ -392,6 +392,30 @@ export const readFormDocument = ({
           : node.tagName.toLowerCase());
   const selector =
     'input,textarea,select,[role="textbox"],[role="combobox"],[role="checkbox"],[role="radio"],[role="listbox"],[contenteditable="true"]';
+  const readNavigation = () => {
+    const navigation = { nextPage: false, limited: false };
+    let buttons = 0;
+    for (const node of doc.querySelectorAll(
+      'button,[role="button"],input[type="button"],input[type="submit"]'
+    )) {
+      if (++buttons > 200) {
+        navigation.limited = true;
+        break;
+      }
+      const name = clip(
+        attr(node, 'aria-label') || node.value || node.textContent
+      );
+      if (
+        visible(node) &&
+        /^(?:next(?: page)?|далее|следующая(?: страница)?|下一页|继续|अगला(?: पृष्ठ)?|tiếp theo|suivant|weiter)\s*[→›»]?$/iu.test(
+          name
+        )
+      ) {
+        navigation.nextPage = true;
+      }
+    }
+    return navigation;
+  };
   const fields = [];
   let examined = 0;
   let excluded = 0;
@@ -489,6 +513,7 @@ export const readFormDocument = ({
     excluded,
     reasons: [...reasons],
     scope: 'visible-current-document',
+    navigation: readNavigation(),
   };
 };
 

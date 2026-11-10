@@ -95,6 +95,9 @@ const inspectionMarkdown = (report) =>
     report.reviewPlan ? line('Review plan', report.reviewPlan.id) : '',
     report.outcome ? line('Action outcome', json(report.outcome)) : '',
     report.observation ? line('Observation', report.observation) : '',
+    report.navigation
+      ? line('Observed page navigation', json(report.navigation))
+      : '',
     report.planning
       ? line('Model availability / use', json(report.planning.model))
       : '',
@@ -113,7 +116,10 @@ export const formReportMarkdown = (report) =>
         line('Captured', report.capturedAt),
         line('Scope / coverage', `${report.scope} / ${report.coverage}`),
         line('Omitted checkpoints', report.omittedCheckpoints),
-        'Only explicitly read, planned or verified action snapshots are retained. Pages and edits between captures may be missing. This report does not establish submission or learned answers.\n',
+        report.monitoring
+          ? line('Automatic capture', json(report.monitoring))
+          : '',
+        'Explicit reads, plans, verified actions and enabled automatic captures are retained within the journal limits. Pages and edits between captures may be missing. This report does not establish submission or learned answers.\n',
         ...report.checkpoints.flatMap((entry) => [
           `# Checkpoint ${entry.sequence}: ${escaped(entry.action)}\n`,
           line('Checkpoint captured', entry.capturedAt),

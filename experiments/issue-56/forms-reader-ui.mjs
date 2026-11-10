@@ -5,6 +5,7 @@ import { makeBrowserCommander } from 'browser-commander';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { startFormsFixture } from './forms-reader-fixture.mjs';
+import { controlFormMonitorFixture } from './forms-monitor-control.mjs';
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
@@ -162,14 +163,21 @@ try {
   console.log(
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
-      form: fixture.url,
+      form:
+        process.env.FORMS_MONITOR_MCP === '1'
+          ? fixture.url.replace('/application', '/monitor')
+          : fixture.url,
     })
   );
-  await new Promise((resolve) => {
-    process.stdin.once('data', resolve);
-    process.once('SIGINT', resolve);
-    process.once('SIGTERM', resolve);
-  });
+  if (process.env.FORMS_MONITOR_MCP === '1') {
+    await controlFormMonitorFixture({ browsers, store, fixture });
+  } else {
+    await new Promise((resolve) => {
+      process.stdin.once('data', resolve);
+      process.once('SIGINT', resolve);
+      process.once('SIGTERM', resolve);
+    });
+  }
 } finally {
   await server?.close();
   for (const browser of browsers) {

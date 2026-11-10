@@ -7,6 +7,7 @@ import { trackReviewActivity } from './review-activity.js';
 import { createReviewedPrefill } from './review-prefill.js';
 import { createFormJournal, formReportSnapshot } from './review-journal.js';
 import { persistFormReport } from './report-file.js';
+import { createFormMonitor } from './review-monitor.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
@@ -29,8 +30,35 @@ const identity = (record) => {
     lastUsedAt: new Date(record.lastUsedAt).toISOString(),
     idleExpiresAt: new Date(record.lastUsedAt + record.idleMs).toISOString(),
     activityTracking: record.activityTracking,
+    monitoring: record.monitor?.status() ?? {
+      state: 'unavailable',
+      learning: false,
+    },
     error: record.error ?? null,
   };
+};
+
+const reviewInput = (input) => {
+  for (const key of ['headless', 'autoCapture']) {
+    if (input[key] !== undefined && typeof input[key] !== 'boolean') {
+      throw failure('form-options', `${key} must be a boolean.`);
+    }
+  }
+  return {
+    url: formUrl(input.url),
+    slot: browserName(input.browserSlot ?? 'form-1'),
+  };
+};
+
+const reviewLimits = ({ maxSessions, idleMs, deadlineMs, autoCapture }) => {
+  if (
+    !bounded(maxSessions, 16) ||
+    !bounded(idleMs, 24 * 60 * 60 * 1000) ||
+    !bounded(deadlineMs, 300000) ||
+    typeof autoCapture !== 'boolean'
+  ) {
+    throw failure('form-options', 'Use finite form review limits.');
+  }
 };
 
 const focusBrowser = async (record) => {
@@ -62,6 +90,7 @@ const launchReviewBrowser = async ({
   store,
   input,
   owner,
+  reportWriter,
 }) => {
   record.browser = await openSession({
     store,
@@ -81,6 +110,14 @@ const launchReviewBrowser = async ({
     record.id,
     () => owner.touch(record)
   );
+  record.monitor = await createFormMonitor({
+    page: record.browser.page,
+    id: record.id,
+    slot: record.slot,
+    enabled: record.autoCapture,
+    capture: (report) => captureReport(reportWriter, record, 'observe', report),
+    trace: record.browser.trace,
+  });
   owner.check(record);
   await record.browser.commander.goto({
     url: record.url,
@@ -102,14 +139,9 @@ export const createFormSessions = ({
   timers = globalThis,
   prefill = {},
   reportWriter,
+  autoCapture = true,
 } = {}) => {
-  if (
-    !bounded(maxSessions, 16) ||
-    !bounded(idleMs, 24 * 60 * 60 * 1000) ||
-    !bounded(deadlineMs, 300000)
-  ) {
-    throw failure('form-options', 'Use finite form review limits.');
-  }
+  reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture });
   const records = new Map();
   const owner = createReviewLifecycle({
     records,
@@ -124,11 +156,7 @@ export const createFormSessions = ({
     if (owner.isStopping()) {
       throw failure('form-stopped', 'Form review is stopping.');
     }
-    const url = formUrl(input.url);
-    const slot = browserName(input.browserSlot ?? 'form-1');
-    if (input.headless !== undefined && typeof input.headless !== 'boolean') {
-      throw failure('form-options', 'headless must be a boolean.');
-    }
+    const { url, slot } = reviewInput(input);
     if ([...records.values()].some((record) => record.slot === slot)) {
       throw failure(
         'form-slot-in-use',
@@ -151,11 +179,19 @@ export const createFormSessions = ({
       lastUsedAt: now(),
       idleMs,
       activityTracking: false,
+      autoCapture: input.autoCapture ?? autoCapture,
       journal: createFormJournal(),
     };
     records.set(record.id, record);
     record.task = run(record, () =>
-      launchReviewBrowser({ record, openSession, store, input, owner })
+      launchReviewBrowser({
+        record,
+        openSession,
+        store,
+        input,
+        owner,
+        reportWriter,
+      })
     );
     try {
       await record.task;
@@ -221,6 +257,7 @@ export const createFormSessions = ({
     disclose: reviewAction('disclose'),
     history: async (id) => ({
       ...(await operate(id, (record) => record.journal.read())),
+      monitoring: get(id).monitor?.status(),
       reviewSession: identity(get(id)),
     }),
     read: async (id) => {

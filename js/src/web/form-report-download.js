@@ -12,7 +12,9 @@ export const downloadFormReport = (report, format = 'json') => {
   );
   const anchor = globalThis.document.createElement('a');
   anchor.href = href;
-  const name = report.mode === 'read-only' ? 'inspection' : report.mode;
+  const name =
+    { 'read-only': 'inspection', 'answer-plan': 'plan' }[report.mode] ??
+    report.mode;
   anchor.download = `form-${name}-${report.capturedAt.replace(/[:.]/gu, '-')}.${markdown ? 'md' : 'json'}`;
   anchor.click();
   globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);

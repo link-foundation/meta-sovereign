@@ -3,7 +3,10 @@ import { createMemoryStore } from '../../src/storage/universal.js';
 import { createFormReader } from '../../src/forms/reader.js';
 import { seedFormAnswers } from '../../../experiments/issue-56/forms-plan-fixture.mjs';
 
-export const formChoiceEnvironment = async ({ reportWriter } = {}) => {
+export const formChoiceEnvironment = async ({
+  reportWriter,
+  monitor = false,
+} = {}) => {
   const store = createMemoryStore();
   const profile = await seedFormAnswers(store);
   const field = {
@@ -60,6 +63,12 @@ export const formChoiceEnvironment = async ({ reportWriter } = {}) => {
   let disposed = 0;
   const page = new EventEmitter();
   page.isClosed = () => false;
+  const bindings = new Map();
+  if (monitor) {
+    page.mainFrame = () => page;
+    page.exposeBinding = async (name, callback) => bindings.set(name, callback);
+    page.addInitScript = async () => {};
+  }
   const options = {
     store,
     reportWriter,
@@ -116,6 +125,16 @@ export const formChoiceEnvironment = async ({ reportWriter } = {}) => {
     report,
     field,
     hooks,
+    emitCapture: () =>
+      [...bindings].find(([name]) => name.startsWith('__formMonitor_'))?.[1]?.(
+        { frame: page },
+        globalThis.structuredClone({
+          ...report.frames[0],
+          title: report.title,
+          navigation: { nextPage: true, limited: false },
+          fields: report.fields,
+        })
+      ),
     plan,
     disclose,
     get clicks() {

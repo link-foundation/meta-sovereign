@@ -28,4 +28,6 @@ The [evidence archive](data/forms-review-journal.tar.gz) and [manifest](data/for
 
 ## Remaining required scope
 
+The subsequent [automatic capture unit](forms-automatic-capture.md) adds default-on passive snapshots within owned sessions. The limits and remaining scope below describe this earlier commit.
+
 This is the captured-history and Markdown-report foundation for reference requirements B11/B12 and inventory QA21/QA25. It does not capture every page automatically or establish submission. Default-on detached per-slot watchers, confirmed-submission learning across pages, stable owner-edit learning, configured résumé selection, optional models, assignments and complete provider parity remain required. These criteria and the wider issue remain unfinished; PR 57 remains draft and unmerged.

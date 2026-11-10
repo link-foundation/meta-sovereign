@@ -7,6 +7,7 @@ const actions = {
       url: body.url,
       browserSlot: body.browserSlot,
       headless: body.headless,
+      autoCapture: body.autoCapture,
     }),
   read: (forms, body) => forms.readReview(body.id),
   history: (forms, body) => forms.historyReview(body.id),

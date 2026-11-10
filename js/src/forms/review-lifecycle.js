@@ -31,9 +31,10 @@ export const createReviewLifecycle = ({
   };
   const dispose = (record) =>
     record.browser
-      ? (record.disposal ??= Promise.resolve().then(() =>
-          record.browser.close()
-        ))
+      ? (record.disposal ??= Promise.resolve().then(async () => {
+          await record.monitor?.stop();
+          await record.browser.close();
+        }))
       : Promise.resolve();
   const close = (id) => {
     const record = get(id);

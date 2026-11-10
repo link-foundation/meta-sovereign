@@ -150,6 +150,10 @@ export const inspectCurrentFormSession = async (
         frame: frame.id,
       }))
     ),
+    navigation: {
+      nextPage: frames.some((frame) => frame.navigation?.nextPage),
+      limited: frames.some((frame) => frame.navigation?.limited),
+    },
     frames: frames.map(({ fields, documentTime: _documentTime, ...frame }) => ({
       ...frame,
       fieldCount: fields.length,

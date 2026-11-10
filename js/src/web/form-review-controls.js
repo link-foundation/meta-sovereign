@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useT } from './i18n.js';
+import { FormMonitorStatus } from './form-monitor-status.js';
 
 const el = React.createElement;
 const errorKey = (code) =>
@@ -119,6 +120,7 @@ const ReviewCard = ({ session, busy, run }) => {
         { key: 'expiry', className: 'meta' },
         t('forms.review.expires', { time: session.idleExpiresAt })
       ),
+      el(FormMonitorStatus, { key: 'monitor', monitoring: session.monitoring }),
       ...['Read', 'History', 'Focus', 'Close'].map((action) =>
         el(
           'button',
@@ -144,9 +146,26 @@ export const FormReviewControls = (props) => {
   const { url, slot, busy, available } = props;
   const t = useT();
   const controls = useReviewControls(props);
+  const [autoCapture, setAutoCapture] = useState(true);
   return el('section', { className: 'card col', 'data-form-reviews': '' }, [
     el('h2', { key: 'title' }, t('forms.review.title')),
     el('p', { key: 'hint', className: 'meta' }, t('forms.review.hint')),
+    el('label', { key: 'capture', className: 'row' }, [
+      el('input', {
+        key: 'input',
+        type: 'checkbox',
+        checked: autoCapture,
+        disabled: busy,
+        'data-form-auto-capture': '',
+        onChange: (event) => setAutoCapture(event.target.checked),
+      }),
+      t('forms.monitor.capture'),
+    ]),
+    el(
+      'p',
+      { key: 'captureScope', className: 'meta' },
+      t('forms.monitor.scope')
+    ),
     el(
       'button',
       {
@@ -155,7 +174,8 @@ export const FormReviewControls = (props) => {
         disabled: busy || !available || !url || !controls.listing,
         'data-action': 'open-form-review',
         'aria-busy': controls.operation === 'Open',
-        onClick: () => controls.run('Open', { url, browserSlot: slot }),
+        onClick: () =>
+          controls.run('Open', { url, browserSlot: slot, autoCapture }),
       },
       t(
         controls.operation === 'Open'

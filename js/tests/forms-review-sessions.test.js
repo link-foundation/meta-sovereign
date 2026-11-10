@@ -33,8 +33,10 @@ const browser = () => {
   page.bringToFront = async () => {
     calls.push(['focus']);
   };
-  page.exposeBinding = async (_name, callback) => {
-    page.activity = callback;
+  page.exposeBinding = async (name, callback) => {
+    if (name.startsWith('__formActivity_')) {
+      page.activity = callback;
+    }
   };
   page.addInitScript = async () => {};
   return {
