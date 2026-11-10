@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [telegram-text-receipts.md](telegram-text-receipts.md) records shared receipt validation, durable uncertain text sends, localized Chat/Operator recovery and directory labels, with 50 focused core checks, 22 UI checks and before/after browser evidence. [ci-checkout-fccb2648.md](ci-checkout-fccb2648.md) preserves the unrelated macOS checkout cancellation.
+
 - [ci-catalog-signals.md](ci-catalog-signals.md) preserves the exact-head Windows Deno catalog cancellation failure, pinned runtime source and platform-aware SIGINT/SIGTERM test correction. Nine focused Node/Deno checks pass; the Windows CI rerun remains required.
 
 - [telegram-group-greetings.md](telegram-group-greetings.md) records participant-only private greetings, visible business/account exclusions, frozen per-person review, limits, pacing, shared 24-hour/uncertain-write protection and acknowledged progress through CLI/Lino API/common UI. It includes failing-before startup regressions, focused compatibility checks and production browser/MCP desktop/mobile evidence.

@@ -907,6 +907,9 @@ const postAsUser = async (
       })
     );
   } catch (error) {
+    if (error?.duplicate) {
+      env.catchUp?.run('duplicate').catch(() => {});
+    }
     throw sendError(error);
   } finally {
     release();
@@ -920,11 +923,6 @@ const postAsUser = async (
     // Held by Telegram, not in the chat: its scheduled ones (R-Y102).
     env.actions?.scheduledChanged?.(chat);
     return { ok: true, scheduled: true, chat, parts: sent.length, links: [] };
-  }
-  if (sent.some((part) => part.duplicate)) {
-    // An earlier try got through but its answer was lost: the catch-up
-    // brings that message in.
-    env.catchUp?.run('duplicate').catch(() => {});
   }
   const at = new Date(env.now());
   const links = sent

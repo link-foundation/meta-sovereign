@@ -66,6 +66,7 @@
   "export",
   "chat-users",
   "telegram-group-greetings",
+  "telegram-text-receipts",
   "sticker-collections",
   "browser-preferences",
   "lino-events",

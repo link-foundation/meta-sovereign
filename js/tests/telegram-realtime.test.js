@@ -349,7 +349,7 @@ test('the random_id is stable per draft and part', () => {
   assert.notEqual(randomIdOf('c1', 0, helpers), randomIdOf('c2', 0, helpers));
 });
 
-test('a repeated random_id counts as already sent', async () => {
+test('a repeated random_id without a receipt stays uncertain and Telegram deduplicates it', async () => {
   const seen = new Set();
   class SendMessage {
     constructor(args) {
@@ -377,8 +377,10 @@ test('a repeated random_id counts as already sent', async () => {
   assert.deepEqual(first, [
     { id: 1, date: 1, text: 'a *b* _c_', entities: [] },
   ]);
-  const again = await sendText({ ...args, text: 'a *b* _c_' });
-  assert.equal(again[0].duplicate, true);
+  await assert.rejects(sendText({ ...args, text: 'a *b* _c_' }), {
+    code: 'send-unknown',
+    duplicate: true,
+  });
   assert.equal(seen.size, 1, 'Telegram got it once');
 });
 

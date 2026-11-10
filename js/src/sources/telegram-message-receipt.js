@@ -23,6 +23,16 @@ export const missingMessageReceipt = () =>
     fallback: false,
   });
 
+// Library-only clients have already decoded the send response into a message.
+// They still must provide a valid server ID rather than a resolved void value.
+export const libraryMessageReceipt = (message) => {
+  const id = messageId(message?.id);
+  if (!id) {
+    throw missingMessageReceipt();
+  }
+  return { id: Number(id), date: message.date ?? null };
+};
+
 export const messageReceipt = (answer, request) => {
   if (answer?.className === 'UpdateShortSentMessage' && messageId(answer.id)) {
     return messageId(answer.id);

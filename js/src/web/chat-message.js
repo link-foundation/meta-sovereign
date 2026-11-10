@@ -31,7 +31,7 @@ import {
   useMediaRetry,
 } from './media-loading.js';
 import { Icon } from './icons.js';
-import { failureText, isPaidFailure } from './chat-failure.js';
+import { failureText } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
 import { WebPreview } from './chat-webpage.js';
@@ -1381,13 +1381,7 @@ const BubbleActionsInner = ({ message, composer }) => {
   const t = useT();
   if (message.delivery === 'failed') {
     return el('div', { className: 'bubble-failed', role: 'alert' }, [
-      el(
-        'span',
-        { key: 'why' },
-        isPaidFailure(message.code)
-          ? failureText(t, message)
-          : (message.error ?? t('chat.failure.other', { error: '' }))
-      ),
+      el('span', { key: 'why' }, failureText(t, message)),
       el(
         'button',
         {

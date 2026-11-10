@@ -252,6 +252,31 @@ test('post sends as the user and returns the canonical link', async () => {
   assert.equal(result.link.sender, 'me');
 });
 
+test('the account never returns a sent link for a missing library receipt', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = fakeClient();
+  client.sendMessage = async (peer, { message }) => {
+    client.calls.sent.push({ peer, message });
+    return {};
+  };
+  const account = accountWith(store, client);
+  try {
+    await assert.rejects(
+      account.post({ chat: '42', text: 'still uncertain' }),
+      {
+        code: 'send-unknown',
+        ambiguous: true,
+        fallback: false,
+      }
+    );
+    assert.equal(client.calls.sent.length, 1);
+    assert.equal(await store.get('msg:telegram:42:null'), null);
+  } finally {
+    await account.stop();
+  }
+});
+
 test('the connected user account retains explicit publication format through the send path', async () => {
   const store = createMemoryStore();
   await seed(store);
