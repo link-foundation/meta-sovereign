@@ -10,6 +10,8 @@ import {
 import { selectedReviewFields, applyReviewedFields } from './review-apply.js';
 import { withRadioReview } from './review-radio.js';
 import { expandableReviewField } from './review-custom.js';
+import { attachReviewedResume } from './review-upload.js';
+import { resumeUploadField } from './resume-upload.js';
 import { discloseReviewedOptions } from './review-disclosure.js';
 
 const answerKey = (plan) =>
@@ -44,7 +46,9 @@ export const createReviewedPrefill = ({
       await planFormAnswers(store, { inspection, ...options })
     );
     check();
-    const targets = await capture(snapshot, proposed.fields);
+    const targets = await capture(snapshot, proposed.fields, {
+      trace: record.browser.trace,
+    });
     try {
       await targets.check();
       const current = await inspect(record.browser, { check });
@@ -71,6 +75,7 @@ export const createReviewedPrefill = ({
             ...field.answer,
             applySupported: writableReviewField(field),
             inspectOptionsSupported: expandableReviewField(field),
+            uploadSupported: resumeUploadField(field),
           },
         })),
         reviewPlan: {
@@ -131,6 +136,8 @@ export const createReviewedPrefill = ({
     plan,
     apply,
     clear,
+    attach: (record, input, check) =>
+      attachReviewedResume({ record, input, check, inspect, now }),
     disclose: (record, input, check) =>
       discloseReviewedOptions({ record, input, check, inspect, now }),
   };

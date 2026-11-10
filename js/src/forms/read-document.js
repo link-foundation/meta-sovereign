@@ -298,6 +298,31 @@ export const readFormDocument = ({
         node.indeterminate === true || attr(node, 'aria-checked') === 'mixed',
     };
   };
+  const uploadState = (node, type) => {
+    if (type !== 'file') {
+      return {};
+    }
+    const list = node.files;
+    const files = [];
+    for (let index = 0; index < Math.min(list?.length ?? 0, 10); index++) {
+      files.push(list[index]);
+    }
+    return {
+      upload: {
+        accept: clip(attr(node, 'accept')),
+        directory:
+          node.hasAttribute('webkitdirectory') ||
+          node.hasAttribute('directory'),
+        complete: (list?.length ?? 0) <= 10,
+        files: files.slice(0, 10).map((file) => ({
+          name: file.name.slice(0, 240),
+          size: file.size,
+          type: file.type.slice(0, 120),
+          lastModified: file.lastModified,
+        })),
+      },
+    };
+  };
   const readField = (node, type) => {
     const group = groupOf(node);
     const nearbyHeading = heading(node);
@@ -336,6 +361,7 @@ export const readFormDocument = ({
       heading: nearbyHeading,
       description: refs(node, 'aria-describedby'),
       ...stateOf(node, type),
+      ...uploadState(node, type),
       ...optionsOf(node, type),
       ...(!['input', 'textarea', 'select'].includes(node.tagName.toLowerCase())
         ? {

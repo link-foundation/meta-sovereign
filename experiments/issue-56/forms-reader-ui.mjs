@@ -49,6 +49,40 @@ try {
           commander,
           policy: { headless: true },
           async close() {
+            if (new URL(page.url()).pathname === '/upload') {
+              read.uploadFrames = [];
+              for (const frame of page.frames()) {
+                read.uploadFrames.push(
+                  await frame.evaluate(async () => {
+                    const fields = {};
+                    for (const node of globalThis.document.querySelectorAll(
+                      'input[id]'
+                    )) {
+                      fields[node.id] =
+                        node.type === 'file'
+                          ? await Promise.all(
+                              Array.from(node.files).map(async (file) => ({
+                                name: file.name,
+                                size: file.size,
+                                type: file.type,
+                                sha256: Array.from(
+                                  new Uint8Array(
+                                    await globalThis.crypto.subtle.digest(
+                                      'SHA-256',
+                                      await file.arrayBuffer()
+                                    )
+                                  ),
+                                  (byte) => byte.toString(16).padStart(2, '0')
+                                ).join(''),
+                              }))
+                            )
+                          : node.value;
+                    }
+                    return fields;
+                  })
+                );
+              }
+            }
             if (
               ['/custom', '/choices'].includes(new URL(page.url()).pathname)
             ) {

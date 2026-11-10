@@ -24,6 +24,14 @@ const actions = {
       fields: body.fields,
       replaceExisting: body.replaceExisting,
     }),
+  attach: (forms, body) =>
+    forms.attachReview({
+      id: body.id,
+      planId: body.planId,
+      fieldId: body.fieldId,
+      file: body.file,
+      replaceExisting: body.replaceExisting,
+    }),
   disclose: (forms, body) =>
     forms.discloseReview({
       id: body.id,
@@ -58,7 +66,12 @@ export const handleFormReviewRoutes = async (req, res, p, ctx) => {
     json(
       res,
       200,
-      await actions[action](ctx.forms, await readBody(req, { limit: 8192 }))
+      await actions[action](
+        ctx.forms,
+        await readBody(req, {
+          limit: action === 'attach' ? 12 * 1024 ** 2 : 8192,
+        })
+      )
     );
   }
   return true;

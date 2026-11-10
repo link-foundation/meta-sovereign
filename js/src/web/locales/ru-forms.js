@@ -215,4 +215,16 @@ export const ruForms = {
   'forms.fill.receipt.unchanged': 'Уже совпадает; без изменений',
   'forms.fill.receipt.uncertain': 'Результат неизвестен',
   'forms.fill.receipt.not-attempted': 'Попытки не было',
+  'forms.upload.hint':
+    'Выберите PDF-резюме для этого поля (не более 8 МиБ). Сайт может загрузить его сразу. Проверьте форму перед отправкой; после вложения нужен новый план ответов.',
+  'forms.upload.choose': 'Резюме в PDF',
+  'forms.upload.selected': 'Выбрано: {name} · {size} байт',
+  'forms.upload.replace': 'Разрешить замену уже прикреплённого файла',
+  'forms.upload.attach': 'Прикрепить выбранный PDF',
+  'forms.upload.attached':
+    'Файл {name} прикреплён, содержимое проверено. Для следующих изменений создайте новый план.',
+  'forms.upload.uncertain':
+    'Не удалось подтвердить вложение ({code}). Проверьте форму перед повторной попыткой.',
+  'forms.upload.refused':
+    'Прикрепление не выполнялось ({code}). Создайте план текущей страницы.',
 };

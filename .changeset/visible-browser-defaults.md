@@ -169,3 +169,5 @@ Extend selected native form review to complete radio groups, disclosing implicit
 Extend selected-only form review to exposed ARIA textboxes, checkboxes, complete radio groups and single-choice listboxes/comboboxes with bound option targets and verified readback.
 
 Add explicit, single-click inspection for supported closed and lazy form comboboxes through CLI, Lino and localized review controls. Consume held plans, preserve uncertain/refused states and cached response recovery without repeating clicks, and require fresh review before applying exposed choices.
+
+Attach an explicitly chosen PDF résumé to a reviewed native field through CLI, text/binary Lino and localized Forms controls. Require separate permission to replace existing files, consume plans before issue, verify actual SHA-256 bytes and preserve uncertain outcomes without automatic retries. Keep document/control guards and optional diagnostic tracing.

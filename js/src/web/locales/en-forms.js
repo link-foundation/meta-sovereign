@@ -213,4 +213,16 @@ export const enForms = {
   'forms.fill.receipt.unchanged': 'Already matched; unchanged',
   'forms.fill.receipt.uncertain': 'Result uncertain',
   'forms.fill.receipt.not-attempted': 'Not attempted',
+  'forms.upload.hint':
+    'Choose the PDF résumé to attach to this field (maximum 8 MiB). The site may upload it immediately. Review the form before sending; a fresh answer plan is required after attachment.',
+  'forms.upload.choose': 'PDF résumé',
+  'forms.upload.selected': 'Selected: {name} · {size} bytes',
+  'forms.upload.replace': 'Allow replacing the currently attached file',
+  'forms.upload.attach': 'Attach selected PDF',
+  'forms.upload.attached':
+    '{name} was attached and its contents verified. Review a fresh plan before making other changes.',
+  'forms.upload.uncertain':
+    'Attachment could not be confirmed ({code}). Check the actual form before trying again.',
+  'forms.upload.refused':
+    'No attachment was issued ({code}). Plan the current page again.',
 };

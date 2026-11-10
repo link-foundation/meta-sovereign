@@ -214,4 +214,16 @@ export const hiForms = {
   'forms.fill.receipt.unchanged': 'पहले से समान; नहीं बदला',
   'forms.fill.receipt.uncertain': 'परिणाम अनिश्चित',
   'forms.fill.receipt.not-attempted': 'प्रयास नहीं हुआ',
+  'forms.upload.hint':
+    'इस फ़ील्ड के लिए PDF जीवनवृत्त चुनें (अधिकतम 8 MiB)। साइट उसे तुरंत अपलोड कर सकती है। भेजने से पहले फ़ॉर्म जाँचें; संलग्न करने के बाद नई उत्तर योजना चाहिए।',
+  'forms.upload.choose': 'PDF जीवनवृत्त',
+  'forms.upload.selected': 'चुना गया: {name} · {size} बाइट',
+  'forms.upload.replace': 'वर्तमान संलग्न फ़ाइल बदलने की अनुमति दें',
+  'forms.upload.attach': 'चुना गया PDF संलग्न करें',
+  'forms.upload.attached':
+    '{name} संलग्न हुआ और सामग्री सत्यापित हुई। अन्य बदलावों के लिए नई योजना की समीक्षा करें।',
+  'forms.upload.uncertain':
+    'संलग्न होने की पुष्टि नहीं हुई ({code})। दोबारा प्रयास से पहले वास्तविक फ़ॉर्म जाँचें।',
+  'forms.upload.refused':
+    'संलग्न करने का प्रयास नहीं हुआ ({code})। वर्तमान पृष्ठ की नई योजना बनाएँ।',
 };

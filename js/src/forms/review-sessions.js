@@ -171,6 +171,15 @@ export const createFormSessions = ({
       record.task = null;
     }
   };
+  const reviewAction = (action) => async (input) => {
+    const result = await operate(input.id, (record) =>
+      filling[action](record, input, () => check(record))
+    );
+    return globalThis.structuredClone({
+      ...result,
+      reviewSession: identity(get(input.id)),
+    });
+  };
   return {
     open,
     close,
@@ -185,33 +194,10 @@ export const createFormSessions = ({
       await operate(id, focusBrowser);
       return { ok: true, session: identity(get(id)) };
     },
-    plan: async (input) => {
-      const result = await operate(input.id, (record) =>
-        filling.plan(record, input, () => check(record))
-      );
-      return globalThis.structuredClone({
-        ...result,
-        reviewSession: identity(get(input.id)),
-      });
-    },
-    apply: async (input) => {
-      const result = await operate(input.id, (record) =>
-        filling.apply(record, input, () => check(record))
-      );
-      return globalThis.structuredClone({
-        ...result,
-        reviewSession: identity(get(input.id)),
-      });
-    },
-    disclose: async (input) => {
-      const result = await operate(input.id, (record) =>
-        filling.disclose(record, input, () => check(record))
-      );
-      return globalThis.structuredClone({
-        ...result,
-        reviewSession: identity(get(input.id)),
-      });
-    },
+    plan: reviewAction('plan'),
+    apply: reviewAction('apply'),
+    attach: reviewAction('attach'),
+    disclose: reviewAction('disclose'),
     read: async (id) => {
       const report = await operate(id, async (record) => {
         await filling.clear(record);

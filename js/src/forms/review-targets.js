@@ -1,4 +1,5 @@
 import { formFailure as failure } from './options.js';
+import { resumeUploadField } from './resume-upload.js';
 import { formDocumentIdentity } from './read-document.js';
 import { reviewTargetFields } from './review-radio.js';
 import {
@@ -62,12 +63,19 @@ const stillBound = (node, index) =>
   )[index] === node;
 
 /** Private element handles bind this plan to these exact documents and controls. */
-export const captureReviewTargets = async (snapshot, fields) => {
+export const captureReviewTargets = async (
+  snapshot,
+  fields,
+  { trace } = {}
+) => {
   const targets = new Map();
   const choices = new Map();
   const boundFields = reviewTargetFields(
     fields,
-    (field) => writableReviewField(field) || expandableReviewField(field)
+    (field) =>
+      writableReviewField(field) ||
+      expandableReviewField(field) ||
+      resumeUploadField(field)
   );
   const dispose = async () => {
     for (const handle of targets.values()) {
@@ -126,6 +134,13 @@ export const captureReviewTargets = async (snapshot, fields) => {
           current.url !== previous.url ||
           current.documentTime !== previous.documentTime
         ) {
+          trace?.({
+            event: 'target-document-changed',
+            frame: previous.id,
+            urlChanged: current.url !== previous.url,
+            previousTime: previous.documentTime,
+            currentTime: current.documentTime,
+          });
           throw failure(
             'form-changed',
             'A reviewed document has changed. Plan its current page again.'
@@ -134,6 +149,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
       }
       for (const field of boundFields) {
         if (!(await targets.get(field.id).evaluate(stillBound, field.index))) {
+          trace?.({ event: 'target-control-changed', field: field.id });
           throw failure(
             'form-changed',
             'A reviewed control was replaced. Plan its current page again.'
@@ -147,6 +163,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
             controlIndex: field.index,
           }))
         ) {
+          trace?.({ event: 'target-option-changed', field: field.id });
           throw failure(
             'form-changed',
             'A reviewed option was replaced or moved.'

@@ -68,6 +68,25 @@ const validCustomState = (field) =>
     ['editable', 'clickable', 'checkedKnown'].every(
       (key) => typeof field.custom[key] === 'boolean'
     ));
+const validUpload = (upload) =>
+  upload === undefined ||
+  Boolean(
+    upload &&
+    text(upload.accept, 2000) &&
+    typeof upload.directory === 'boolean' &&
+    typeof upload.complete === 'boolean' &&
+    list(
+      upload.files,
+      10,
+      (file) =>
+        file &&
+        text(file.name, 240) &&
+        text(file.type, 120) &&
+        Number.isSafeInteger(file.size) &&
+        file.size >= 0 &&
+        Number.isFinite(file.lastModified)
+    )
+  );
 const validField = (field, frames) =>
   field &&
   id(field.id) &&
@@ -79,6 +98,7 @@ const validField = (field, frames) =>
   validState(field) &&
   validRadioGroup(field.radioGroup) &&
   validCustomState(field) &&
+  validUpload(field.upload) &&
   list(field.options, 100, option);
 const validFrame = (frame) =>
   frame &&

@@ -11,6 +11,13 @@ const populated = (field) =>
     ? field.checked === true
     : field.value !== null && field.value !== '';
 
+const traceApplicationFailure = (record, error) =>
+  record.browser?.trace?.({
+    event: 'application-failed',
+    code: error.code ?? 'form-write-uncertain',
+    message: error.message,
+  });
+
 export const selectedReviewFields = (plan, input) => {
   const ids = input.fields;
   if (
@@ -177,6 +184,7 @@ export const applyReviewedFields = async ({
     result.ok = true;
     result.state = 'applied';
   } catch (error) {
+    traceApplicationFailure(record, error);
     result.code = error.code ?? 'form-write-uncertain';
     result.state = result.receipts.some(
       (receipt) => receipt.status === 'uncertain'

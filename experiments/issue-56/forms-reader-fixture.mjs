@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { uploadFixtureHtml, uploadChildHtml } from './forms-resume-fixture.mjs';
 import { prefillFixtureHtml } from './forms-prefill-fixture.mjs';
 import { radioFixtureHtml, radioChildHtml } from './forms-radio-fixture.mjs';
 import { customFixtureHtml, customChildHtml } from './forms-custom-fixture.mjs';
@@ -20,6 +21,10 @@ export const startFormsFixture = async () => {
   const child = createServer((req, res) => {
     requests.push({ server: 'child', method: req.method, url: req.url });
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/upload')) {
+      res.end(uploadChildHtml);
+      return;
+    }
     if (req.url.startsWith('/choices')) {
       res.end(choicesChildHtml);
       return;
@@ -46,6 +51,10 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/upload')) {
+      res.end(uploadFixtureHtml(childBase));
+      return;
+    }
     if (req.url.startsWith('/choices')) {
       res.end(choicesFixtureHtml(childBase));
       return;

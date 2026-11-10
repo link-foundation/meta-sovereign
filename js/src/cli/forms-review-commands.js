@@ -1,10 +1,11 @@
 import { createInterface } from 'node:readline';
 import { createFormReader, formUrl } from '../forms/reader.js';
 import { decodeWire } from '../transport/lino.js';
+import { loadResumePdf } from './forms-resume-file.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--browser-slot=<name>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  --url=<http-url> | --urls=<Lino-list> [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const urls = args.urls ? decodeWire(args.urls) : [args.url];
   if (!Array.isArray(urls) || !urls.length || urls.length > 4) {
@@ -39,10 +40,12 @@ const command = async (reader, line, options) => {
     .sessions.find((entry) => entry.browserSlot === slot);
   if (
     !session ||
-    !['read', 'focus', 'close', 'plan', 'apply', 'disclose'].includes(action)
+    !['read', 'focus', 'close', 'plan', 'apply', 'disclose', 'attach'].includes(
+      action
+    )
   ) {
     throw new Error(
-      'Use list, read/plan/focus/close <slot>, disclose <slot> <plan-id> <field-id>, apply <slot> <plan-id> <field-id,...> [replace] or quit.'
+      'Use list, read/plan/focus/close <slot>, disclose <slot> <plan-id> <field-id>, attach <slot> <plan-id> <field-id> [replace], apply <slot> <plan-id> <field-id,...> [replace] or quit.'
     );
   }
   if (action === 'plan') {
@@ -53,6 +56,15 @@ const command = async (reader, line, options) => {
       id: session.id,
       planId,
       fields: fieldIds?.split(','),
+      replaceExisting: replace === 'replace',
+    });
+  }
+  if (action === 'attach') {
+    return reader.attachReview({
+      id: session.id,
+      planId,
+      fieldId: fieldIds,
+      file: options.file,
       replaceExisting: replace === 'replace',
     });
   }
@@ -70,6 +82,9 @@ export const createFormReviewCommands = ({
 }) => ({
   'forms-review': async (args, log) => {
     const forms = inputs(args);
+    const file = args['resume-pdf']
+      ? await loadResumePdf(args['resume-pdf'])
+      : null;
     const store = await openStore(args.store ?? defaultStoreDir());
     const reader = createFormReader({ store, ...options });
     let stream;
@@ -98,6 +113,7 @@ export const createFormReviewCommands = ({
             'plan <slot>',
             'apply <slot> <plan-id> <field-id,...> [replace]',
             'disclose <slot> <plan-id> <field-id>',
+            'attach <slot> <plan-id> <field-id> [replace]',
             'quit',
           ],
           note: 'Review browsers stay open until closed, idle expiry, quit or process shutdown. Plan and explicitly select fields to apply; forms are never submitted.',
@@ -112,6 +128,7 @@ export const createFormReviewCommands = ({
           log(
             JSON.stringify(
               await command(reader, line, {
+                file,
                 profileId: args['profile-id'] ?? '',
                 approximate: ![false, 'false'].includes(args.approximate),
               })

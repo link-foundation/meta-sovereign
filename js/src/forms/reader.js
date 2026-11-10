@@ -29,6 +29,7 @@ export const createFormReader = ({
     planReview: reviews.plan,
     applyReview: reviews.apply,
     discloseReview: reviews.disclose,
+    attachReview: reviews.attach,
     async capabilities() {
       const status = await availability();
       return {
@@ -38,6 +39,7 @@ export const createFormReader = ({
         review: status.available,
         fill: status.available,
         inspectChoices: status.available,
+        attachResume: status.available,
         fillScope: 'reviewed-native-and-exposed-aria-controls',
         submit: false,
         scope: 'visible-current-pages',

@@ -6,6 +6,10 @@ import { renderInLocale } from './util-render.js';
 import { FormAnswer, FormPlanSummary } from '../src/web/forms-answer.js';
 import { availableLocales } from '../src/web/i18n.js';
 import { FormReviewControls } from '../src/web/form-review-controls.js';
+import {
+  FormResumeUpload,
+  FormResumeUploadResult,
+} from '../src/web/form-resume-upload.js';
 import { FormChoiceResult } from '../src/web/form-choice-disclosure.js';
 import {
   FormReviewedPlan,
@@ -232,5 +236,39 @@ test('reviewed changes start unselected and report confirmed, partial and uncert
       );
       assert.match(rendered, new RegExp(`data-form-choices="${state}"`));
     }
+  }
+});
+
+test('PDF review and actual attachment states are translated in every locale', () => {
+  for (const locale of availableLocales) {
+    const html = renderInLocale(
+      locale.id,
+      React.createElement('div', null, [
+        React.createElement(FormResumeUpload, {
+          key: 'control',
+          field: {
+            id: 'f',
+            answer: { uploadSupported: true },
+            upload: { files: [{ name: 'existing.pdf' }] },
+          },
+          onAttach: () => {},
+          busy: false,
+        }),
+        ...['attached', 'uncertain', 'refused'].map((state) =>
+          React.createElement(FormResumeUploadResult, {
+            key: state,
+            result: {
+              state,
+              file: { name: '<resume>.pdf' },
+              code: 'fixture-code',
+            },
+          })
+        ),
+      ])
+    );
+    assert(!html.includes('forms.'), `translated PDF review for ${locale.id}`);
+    assert(html.includes('data-form-resume-replace'));
+    assert(html.includes('&lt;resume&gt;.pdf'));
+    assert(html.includes('disabled=""'));
   }
 });

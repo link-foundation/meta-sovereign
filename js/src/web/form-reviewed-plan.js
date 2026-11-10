@@ -5,7 +5,31 @@ import {
   FormChoiceResult,
 } from './form-choice-disclosure.js';
 
+import {
+  useFormResumeUpload,
+  FormResumeUploadResult,
+} from './form-resume-upload.js';
+
 const el = React.createElement;
+const latestReport = (plan, results) =>
+  results.find((result) => result?.report)?.report ?? plan;
+const FormApplicationError = ({ error }) => {
+  const t = useT();
+  return error
+    ? el(
+        'p',
+        { role: 'alert', 'data-form-fill-error': error },
+        t(
+          error === 'form-existing-value'
+            ? 'forms.fill.existing'
+            : 'forms.fill.error',
+          {
+            code: error,
+          }
+        )
+      )
+    : null;
+};
 export const FormApplicationResult = ({ result }) => {
   const t = useT();
   return el(
@@ -69,7 +93,8 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const disclosure = useFormChoiceDisclosure({ api, plan, busy, setBusy });
-  const consumed = Boolean(result) || disclosure.attempted;
+  const upload = useFormResumeUpload({ api, plan, busy, setBusy });
+  const consumed = Boolean(result) || disclosure.attempted || upload.attempted;
   const select = (id, checked) => {
     setSelected((current) =>
       checked
@@ -141,28 +166,19 @@ export const FormReviewedPlan = ({ api, plan, busy, setBusy, Report }) => {
           },
           t('forms.fill.apply')
         ),
-        error
-          ? el(
-              'p',
-              { key: 'error', role: 'alert', 'data-form-fill-error': error },
-              t(
-                error === 'form-existing-value'
-                  ? 'forms.fill.existing'
-                  : 'forms.fill.error',
-                { code: error }
-              )
-            )
-          : null,
+        el(FormApplicationError, { key: 'error', error }),
         result ? el(FormApplicationResult, { key: 'result', result }) : null,
         el(FormChoiceResult, { key: 'choices', result: disclosure.result }),
+        el(FormResumeUploadResult, { key: 'upload', result: upload.result }),
       ]
     ),
     el(Report, {
       key: 'report',
-      report: disclosure.result?.report ?? result?.report ?? plan,
+      report: latestReport(plan, [upload.result, disclosure.result, result]),
       selected,
       onSelect: consumed ? null : select,
       onDisclose: consumed ? null : disclosure.open,
+      onAttach: consumed ? null : upload.attach,
       busy,
     }),
   ]);

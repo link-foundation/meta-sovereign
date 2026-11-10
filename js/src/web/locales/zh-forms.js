@@ -186,4 +186,14 @@ export const zhForms = {
   'forms.fill.receipt.unchanged': '已一致，未更改',
   'forms.fill.receipt.uncertain': '结果不确定',
   'forms.fill.receipt.not-attempted': '未尝试',
+  'forms.upload.hint':
+    '选择要附加到此字段的 PDF 简历（最大 8 MiB）。网站可能立即上传。发送前请检查表单；附加后须重新生成答案计划。',
+  'forms.upload.choose': 'PDF 简历',
+  'forms.upload.selected': '已选择：{name} · {size} 字节',
+  'forms.upload.replace': '允许替换当前附件',
+  'forms.upload.attach': '附加所选 PDF',
+  'forms.upload.attached':
+    '已附加 {name} 并验证其内容。进行其他更改前请审核新计划。',
+  'forms.upload.uncertain': '无法确认附件（{code}）。重试前请检查实际表单。',
+  'forms.upload.refused': '未执行附件操作（{code}）。请重新规划当前页面。',
 };
