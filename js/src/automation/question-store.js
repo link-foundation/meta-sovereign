@@ -274,6 +274,8 @@ const collectSavedAnswers = async (
     self: [...new Set(['me', ...self])],
     policy: await readAnswerPolicy(store),
     contract: createAnswerContractor(options),
+    profile: options.profile,
+    rules: await listAnswerRules(store),
   });
   const rules = [];
   for (const proposal of learned.rules) {

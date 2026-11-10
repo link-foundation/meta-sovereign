@@ -7,6 +7,10 @@ import {
   MAX_QUESTION_LENGTH,
 } from './question-match.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
+import {
+  answerRuleEligible,
+  createAnswerCorrectionGuard,
+} from './question-corrections.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
@@ -131,11 +135,6 @@ export const normalizeAnswerAction = (action) => {
   };
 };
 
-const eligible = (rule, { source, chat }) =>
-  rule.enabled &&
-  (!rule.sources.length || rule.sources.includes(source)) &&
-  (!rule.chats.length || rule.chats.includes(`${source}:${chat}`));
-
 const ruleMatch = (rule, question, approximate) => {
   const patterns = [rule.question, ...rule.questions].map(questionCore);
   question = questionCore(question);
@@ -185,9 +184,10 @@ const answerOne = (question, input) => {
     profile: resolved.profile,
   });
   const context = { ...input, profile: environment.profile };
+  const correction = createAnswerCorrectionGuard(context.rules, context);
   let matches = [];
   for (const rule of context.rules) {
-    if (!eligible(rule, context)) {
+    if (!answerRuleEligible(rule, context)) {
       continue;
     }
     const { match, similarity } = ruleMatch(
@@ -200,7 +200,10 @@ const answerOne = (question, input) => {
     }
     const canonical = rule.answers.some((answer) => answer.canonical);
     for (const answer of rule.answers) {
-      if (!usableVariant(core, answer, canonical, context)) {
+      if (
+        !usableVariant(core, answer, canonical, context) ||
+        !correction(core, answer.text, context)
+      ) {
         continue;
       }
       matches.push({ rule, answer, match: match ?? 'approximate', similarity });

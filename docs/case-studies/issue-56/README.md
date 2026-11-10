@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-corrections.md](question-corrections.md) verifies explicit owner corrections across rule IDs, excluded mixed historical wording, preserved real counts/versions and decoded private paths through 47 focused checks and CLI/Lino/UI/browser evidence. General fact extraction, concurrent knowledge edits and live imports remain required.
+
 - [question-summary.md](question-summary.md) verifies actual recruiter handovers, four-language labels, zero-count facts and conservative no-reply classification through 42 focused checks, CLI/Lino/shared UI and production Chromium/MCP evidence. Live provider imports remain required.
 - [question-lists.md](question-lists.md) verifies whole questionnaires, conditional/code-preserving aligned parts, private incoming link exclusion and reviewed assembly through CLI/Lino API/shared UI, 53 focused checks and production Chromium/MCP desktop/mobile evidence. Live provider imports and the wider question/form requirements remain required.
 

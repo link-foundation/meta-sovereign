@@ -5,10 +5,18 @@ import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { questionnaireMessages } from './question-lists-fixture.mjs';
 import { summaryMessage } from './question-summary-fixture.mjs';
+import {
+  correctionMessages,
+  correctedRules,
+} from './question-corrections-fixture.mjs';
 
 const store = createMemoryStore();
 const messages =
-  process.argv[2] === 'summary' ? [summaryMessage()] : questionnaireMessages();
+  process.argv[2] === 'summary'
+    ? [summaryMessage()]
+    : process.argv[2] === 'corrections'
+      ? [...correctedRules, ...correctionMessages()]
+      : questionnaireMessages();
 for (const message of messages) {
   await store.put(message);
 }

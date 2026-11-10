@@ -137,3 +137,5 @@ Allow pending Follow backlink reviews to be stopped by request ID through CLI, t
 Learn aligned multiline questionnaire answers while retaining complete pairs, conditional subquestions, instructions and fenced code. Preserve original source counts and transcripts, require review for assembled answers, and exclude private access links in incoming questions from reusable knowledge.
 
 Learn bounded recruiter handover layouts with four-language labels and zero-count unapproved provenance. Keep new tasks, incomplete code and ambiguous summaries open for review (R-AA1).
+
+Apply explicit owner answer corrections across saved and learned rule IDs, preserve observed counts and message versions, and exclude decoded private access paths from reusable knowledge (R-AA1).

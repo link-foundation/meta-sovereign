@@ -10,6 +10,7 @@ import { verifyQuestionLanguage } from './helpers/e2e-question-language.mjs';
 import { verifyQuestionTurns } from './helpers/e2e-question-turns.mjs';
 import { verifyQuestionLists } from './helpers/e2e-question-lists.mjs';
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
+import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 
 const store = createMemoryStore();
 for (const [id, sender, body] of [
@@ -632,5 +633,6 @@ await finish(async () => {
   await verifyQuestionTurns({ page, panel, editor, preview, store, until });
   await verifyQuestionLists({ page, panel, store, until });
   await verifyQuestionSummary({ page, panel, store, until });
+  await verifyQuestionCorrections({ page, panel, store });
   verifySyncCapability();
 });

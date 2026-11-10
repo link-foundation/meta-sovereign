@@ -7,6 +7,7 @@ import { rejectedAnswer } from './question-policy.js';
 import { summaryAnswerPairs } from './question-summary.js';
 import { historyOrder } from '../replies/history-order.js';
 import { questionProse, splitNumberedAnswers } from './question-lists.js';
+import { createAnswerCorrectionGuard } from './question-corrections.js';
 import {
   questionCore,
   isQuestionReminder,
@@ -29,8 +30,10 @@ const hash = (text) => {
 const privateUrl = (text) => {
   for (const [raw] of text.matchAll(/(?:https?|tg):\/\/[^\s<>]+/giu)) {
     let url;
+    let pathname;
     try {
       url = new URL(raw);
+      pathname = decodeURIComponent(url.pathname);
     } catch {
       return true;
     }
@@ -38,7 +41,7 @@ const privateUrl = (text) => {
       url.protocol === 'tg:' ||
       url.username ||
       url.password ||
-      /\/(?:invite|joinchat)(?:\/|$)|^\/\+/iu.test(url.pathname) ||
+      /\/(?:private|invite|joinchat)(?:\/|$)|^\/\+/iu.test(pathname) ||
       /(?:token|key|access|auth|invite|signature|secret|session|code)/iu.test(
         [...url.searchParams.keys()].join(' ')
       ) ||
@@ -124,7 +127,7 @@ const questionBeforeReminder = (
     : null;
 };
 
-const answerCollection = ({ policy, contract }) => {
+const answerCollection = ({ policy, contract, correction }) => {
   const learned = new Map();
   let bytes = 0;
   const retainEvidence = (prior, incoming) => {
@@ -134,12 +137,13 @@ const answerCollection = ({ policy, contract }) => {
       .reduce((size, id) => size + id.length * 2 + 32, 0);
     return next;
   };
-  const add = (question, text, evidence, count = 1) => {
+  const add = (question, text, evidence, count = 1, context = {}) => {
     question = questionCore(question);
     if (
       !reusable(text) ||
       privateUrl(question) ||
       rejectedAnswer(text, policy) ||
+      !correction(question, text, context) ||
       !sufficientAnswer(question, text)
     ) {
       debugQuestionTurn('answer-excluded', { evidence });
@@ -193,12 +197,19 @@ export const createAnswerLearner = ({
   self = ['me'],
   policy = {},
   contract = (text) => text,
+  rules = [],
+  profile = {},
 } = {}) => {
   const isSelf = (message) =>
     message.out === true ||
     message.outgoing === true ||
     self.includes(message.sender);
-  const collection = answerCollection({ policy, contract });
+  const correction = createAnswerCorrectionGuard(rules, {
+    policy,
+    contract,
+    profile,
+  });
+  const collection = answerCollection({ policy, contract, correction });
   let question;
   let priorQuestion;
   let answers = [];
@@ -206,8 +217,10 @@ export const createAnswerLearner = ({
     if (question && answers.length) {
       const text = answers.map((answer) => answer.body.trim()).join('\n');
       const evidence = answers.map((answer) => answer.id);
-      collection.add(question.body.trim(), text, evidence);
-      addAlignedParts(question.body, text, evidence, collection.add);
+      collection.add(question.body.trim(), text, evidence, 1, question);
+      addAlignedParts(question.body, text, evidence, (part, answer, ids) =>
+        collection.add(part, answer, ids, 1, question)
+      );
     }
     question = null;
     priorQuestion = null;
@@ -254,7 +267,7 @@ export const createAnswerLearner = ({
       const summaries = incomingSummary(message, isSelf);
       if (summaries.length) {
         for (const pair of summaries) {
-          collection.add(pair.question, pair.text, [message.id], 0);
+          collection.add(pair.question, pair.text, [message.id], 0, message);
         }
       } else if (usableQuestion(message, isSelf)) {
         question = message;
