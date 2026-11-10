@@ -135,3 +135,5 @@ Recheck exact incoming VK messages and bound account before optional Follow clea
 Allow pending Follow backlink reviews to be stopped by request ID through CLI, text/binary Lino API and shared localized React controls. Wake cancelled retry delays, retain ownership of issued reads through shutdown, prevent late plans and recover clearly from unconfirmed stop requests.
 
 Learn aligned multiline questionnaire answers while retaining complete pairs, conditional subquestions, instructions and fenced code. Preserve original source counts and transcripts, require review for assembled answers, and exclude private access links in incoming questions from reusable knowledge.
+
+Learn bounded recruiter handover layouts with four-language labels and zero-count unapproved provenance. Keep new tasks, incomplete code and ambiguous summaries open for review (R-AA1).

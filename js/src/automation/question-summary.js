@@ -1,55 +1,72 @@
 import { asksQuestion } from './question-match.js';
+import { questionProse } from './question-lists.js';
+import {
+  cleanSummaryLine,
+  summaryHeader,
+  employerQuestions,
+  noEmployerQuestions,
+  readSummaryPair,
+} from './question-summary-layout.js';
 
-const HEADER =
-  /^(?:ваши ответы|итоги (?:опроса|беседы|собеседования)|your answers|(?:interview |conversation )?summary)\s*[:：]?$/iu;
-const clean = (text) =>
-  text
-    .trim()
-    .replace(/^[-•*]\s*/u, '')
-    .replace(/^\*{1,2}|\*{1,2}$/gu, '')
-    .trim();
-
-const summaryPair = (line, nextLine) => {
-  const inline = line.match(/^(.{1,3000}?[?？])\s*[:：—-]\s*(.+)$/u);
-  const separate = line.match(/^(?:вопрос|question)\s*[:：]\s*(.+)$/iu);
-  const next =
-    separate && nextLine?.match(/^(?:ответ|answer)\s*[:：]\s*(.+)$/iu);
-  const question = inline?.[1] ?? (next ? separate[1] : undefined);
-  const answer = inline?.[2] ?? next?.[1];
-  if (!question || !answer || !asksQuestion(question) || asksQuestion(answer)) {
-    return null;
+const footerEnd = (lines, index, explicit) => {
+  const line = cleanSummaryLine(lines[index]);
+  if (!line || (explicit && noEmployerQuestions(line))) {
+    return index + 1;
   }
-  return {
-    pair: { question: clean(question), text: clean(answer) },
-    separate: Boolean(next),
-  };
+  if (
+    explicit &&
+    employerQuestions(line) &&
+    noEmployerQuestions(cleanSummaryLine(lines[index + 1] ?? ''))
+  ) {
+    return index + 2;
+  }
+  return null;
 };
 
-/** Parse bounded, explicitly marked bot handovers without discarding new tasks. */
+const consumeSummaryLine = (state, lines, index) => {
+  const skipped = footerEnd(lines, index, state.explicit);
+  if (skipped !== null) {
+    return skipped;
+  }
+  const parsed = readSummaryPair(lines, index);
+  if (!parsed?.closed) {
+    // Unknown text may contain a new task. An unfinished code block also owns
+    // its remaining lines, which must never be reparsed as quoted facts.
+    state.complete = false;
+    return parsed?.end ?? index + 1;
+  }
+  state.count++;
+  state.recognized ||= asksQuestion(parsed.pair.question);
+  if (state.count <= 20 && !asksQuestion(questionProse(parsed.pair.text))) {
+    state.pairs.push(parsed.pair);
+  }
+  state.complete &&= state.count <= 20;
+  return parsed.end;
+};
+
+/** Bounded marked handovers, or complete multi-pair unmarked summaries. */
 const parseSummary = (text) => {
   if (typeof text !== 'string' || text.length > 12000) {
     return { pairs: [], complete: false };
   }
-  const lines = text.split('\n').map(clean).filter(Boolean);
-  if (!lines.length || !HEADER.test(lines[0])) {
+  const lines = text.trim().split('\n');
+  const state = {
+    explicit: summaryHeader(cleanSummaryLine(lines[0] ?? '')),
+    pairs: [],
+    count: 0,
+    complete: true,
+    recognized: false,
+  };
+  for (let index = state.explicit ? 1 : 0; index < lines.length;) {
+    index = consumeSummaryLine(state, lines, index);
+  }
+  if (
+    !state.explicit &&
+    (!state.complete || state.count < 2 || !state.recognized)
+  ) {
     return { pairs: [], complete: false };
   }
-  const pairs = [];
-  let complete = true;
-  for (let i = 1; i < lines.length; i++) {
-    const parsed = summaryPair(lines[i], lines[i + 1]);
-    if (pairs.length < 20 && parsed) {
-      pairs.push(parsed.pair);
-      if (parsed.separate) {
-        i++;
-      }
-    } else {
-      // Unparsed text may contain a new task or question. It must remain visible
-      // for review instead of being dismissed as a completed questionnaire.
-      complete = false;
-    }
-  }
-  return { pairs, complete: complete && pairs.length > 0 };
+  return { pairs: state.pairs, complete: state.complete && state.count > 0 };
 };
 
 export const summaryAnswerPairs = (text) => parseSummary(text).pairs;

@@ -4,9 +4,12 @@ import path from 'node:path';
 import { startServer } from '../../js/src/server/index.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { questionnaireMessages } from './question-lists-fixture.mjs';
+import { summaryMessage } from './question-summary-fixture.mjs';
 
 const store = createMemoryStore();
-for (const message of questionnaireMessages()) {
+const messages =
+  process.argv[2] === 'summary' ? [summaryMessage()] : questionnaireMessages();
+for (const message of messages) {
   await store.put(message);
 }
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-question-lists-ui-'));
