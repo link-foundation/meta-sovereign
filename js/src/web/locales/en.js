@@ -29,6 +29,7 @@ export const en = {
   ...enChatRemoval,
   ...enFollow,
   ...enFollowTelegram,
+  ...enFollowBacklink,
   ...enTelegramGreetings,
   ...enChatUsers,
   ...enPublication,
@@ -1448,3 +1449,4 @@ export const en = {
   'questions.salaryExchangeModeHint':
     'Automatic mode uses fresh cached rates and refreshes missing or stale rates before planning. Failed requests keep the dated cache and retry after five minutes. Saved snapshot values are used only in snapshot mode.',
 };
+import { enFollowBacklink } from './en-follow-backlink.js';

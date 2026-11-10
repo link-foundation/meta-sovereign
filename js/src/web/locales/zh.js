@@ -29,6 +29,7 @@ export const zh = {
   ...zhChatRemoval,
   ...zhFollow,
   ...zhFollowTelegram,
+  ...zhFollowBacklink,
   ...zhTelegramGreetings,
   ...zhChatUsers,
   ...zhPublication,
@@ -1380,3 +1381,4 @@ export const zh = {
   'questions.salaryExchangeModeHint':
     '自动模式使用未过期的缓存，并在规划前刷新缺失或过期的汇率。失败时保留缓存日期，五分钟后重试。仅快照模式使用保存的快照数值。',
 };
+import { zhFollowBacklink } from './zh-follow-backlink.js';

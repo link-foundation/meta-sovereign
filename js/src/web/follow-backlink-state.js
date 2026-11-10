@@ -1,0 +1,148 @@
+import React from 'react';
+
+const defaults = {
+  chats: '',
+  backlink: '',
+  monitorMs: '200000',
+  intervalMs: '30000',
+  delayMs: '0',
+  deleteIncoming: false,
+  historyLimit: '200',
+  attempts: '3',
+  retryDelayMs: '100',
+  retryMaxDelayMs: '2000',
+};
+const inputOf = (form) => ({
+  source: 'vk',
+  chats: form.chats
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+  backlink: form.backlink,
+  ...Object.fromEntries(
+    ['monitorMs', 'intervalMs', 'delayMs', 'historyLimit'].map((key) => [
+      key,
+      Number(form[key]),
+    ])
+  ),
+  deleteIncoming: form.deleteIncoming,
+  retry: {
+    attempts: Number(form.attempts),
+    delayMs: Number(form.retryDelayMs),
+    maxDelayMs: Number(form.retryMaxDelayMs),
+  },
+});
+
+export const useFollowBacklink = (api) => {
+  const [form, setForm] = React.useState(defaults);
+  const [plan, setPlan] = React.useState(null);
+  const [job, setJob] = React.useState(null);
+  const [history, setHistory] = React.useState(null);
+  const [error, setError] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const running = React.useRef(false);
+  const owned = React.useRef(null);
+  const generation = React.useRef(0);
+  const dismiss = (planId) =>
+    planId
+      ? api.followBacklinkCancel({ planId }).catch(() => {})
+      : Promise.resolve();
+  React.useEffect(
+    () => () => {
+      generation.current += 1;
+      dismiss(owned.current);
+    },
+    [api]
+  );
+  React.useEffect(() => {
+    if (!job || !['queued', 'running'].includes(job.status)) {
+      return undefined;
+    }
+    let stopped = false;
+    const timer = globalThis.setTimeout(async () => {
+      try {
+        const next = await api.followBacklinkStatus({ jobId: job.id });
+        if (!stopped) {
+          setJob(next);
+        }
+      } catch (e) {
+        if (!stopped) {
+          setError(e.code ?? 'read-failed');
+        }
+      }
+    }, 2000);
+    return () => {
+      stopped = true;
+      globalThis.clearTimeout(timer);
+    };
+  }, [api, job]);
+  const change = (key, value) => {
+    if (running.current) {
+      return;
+    }
+    generation.current += 1;
+    dismiss(owned.current);
+    owned.current = null;
+    setPlan(null);
+    setForm((before) => ({ ...before, [key]: value }));
+    setError('');
+  };
+  const request = async (action, id) => {
+    if (action === 'preview') {
+      await dismiss(owned.current);
+      owned.current = null;
+      setPlan(null);
+      return api.followBacklinkPreview(inputOf(form));
+    }
+    if (action === 'apply') {
+      const planId = owned.current;
+      owned.current = null;
+      setPlan(null);
+      return api.followBacklinkApply({ planId, confirm: true });
+    }
+    if (action === 'list') {
+      return api.followBacklinkList({ limit: 20, offset: id ?? 0 });
+    }
+    if (action === 'resume') {
+      return api.followBacklinkResume({ jobId: job.id, confirm: true });
+    }
+    if (action === 'cancel') {
+      await api.followBacklinkCancel({ jobId: job.id });
+    }
+    return api.followBacklinkStatus({ jobId: id ?? job.id });
+  };
+  const perform = async (action, id) => {
+    if (running.current || (action === 'apply' && !owned.current)) {
+      return;
+    }
+    const version = generation.current;
+    running.current = true;
+    setBusy(true);
+    setError('');
+    try {
+      const answer = await request(action, id);
+      if (version === generation.current) {
+        if (action === 'preview') {
+          owned.current = answer.planId;
+          setPlan(answer);
+        } else if (action === 'list') {
+          setHistory(answer);
+        } else {
+          setJob(answer);
+        }
+      } else if (action === 'preview') {
+        dismiss(answer.planId);
+      }
+    } catch (e) {
+      if (version === generation.current) {
+        setError(e.code ?? 'read-failed');
+      }
+    } finally {
+      running.current = false;
+      if (version === generation.current) {
+        setBusy(false);
+      }
+    }
+  };
+  return { form, plan, job, history, error, busy, change, perform };
+};

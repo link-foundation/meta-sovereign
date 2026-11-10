@@ -28,6 +28,7 @@ export const ru = {
   ...ruChatRemoval,
   ...ruFollow,
   ...ruFollowTelegram,
+  ...ruFollowBacklink,
   ...ruTelegramGreetings,
   ...ruChatUsers,
   ...ruPublication,
@@ -1464,3 +1465,4 @@ export const ru = {
   'questions.salaryExchangeModeHint':
     'Автоматический режим использует свежий кэш и обновляет отсутствующие или устаревшие курсы перед планированием. При сбое сохраняется дата кэша, повтор — через пять минут. Сохранённый снимок используется только в режиме снимка.',
 };
+import { ruFollowBacklink } from './ru-follow-backlink.js';

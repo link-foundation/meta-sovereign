@@ -24,6 +24,7 @@ import { QuestionControls } from './question-controls.js';
 import { FollowControls } from './follow-controls.js';
 import { FollowChatsControls } from './follow-chats-controls.js';
 import { FollowTelegramControls } from './follow-telegram-controls.js';
+import { FollowBacklinkControls } from './follow-backlink-controls.js';
 
 const el = React.createElement;
 
@@ -980,6 +981,7 @@ export const AutomationsScreen = ({ state }) => {
     el(FollowControls, { key: 'follow', api: state.api }),
     el(FollowChatsControls, { key: 'followChats', api: state.api }),
     el(FollowTelegramControls, { key: 'followTelegram', api: state.api }),
+    el(FollowBacklinkControls, { key: 'followBacklinks', api: state.api }),
     el(QuestionControls, {
       key: 'questions',
       api: state.api,

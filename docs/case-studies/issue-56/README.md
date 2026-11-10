@@ -123,3 +123,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Follow VK group discovery](follow-chats.md): FL01 bounded provider pagination, Telegram hints, member details and recent messages through CLI/Lino API/shared React controls.
 - [Follow fixture secret scan](ci-follow-fixture.md): exact-head failure evidence and preserved URL user-information rejection.
 - [Requirements formatting CI investigation](ci-requirements-format.md): exact-SHA failure and replacement run.
+
+- [Reviewed Follow backlinks](follow-backlinks.md): FL06 VK-source CLI/Lino API/React workflow, full-window monitoring, durable recovery, acknowledged incoming cleanup and timeout-only read retries, with regression and desktop/mobile evidence.

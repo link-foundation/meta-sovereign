@@ -37,6 +37,7 @@ export const createRuntimeLifecycle = ({
   };
   const stopRuntime = () => {
     ctx.publicationsClosing = true;
+    ctx.followClosing = true;
     bus?.close();
     ctx.chatIndex.close();
     ctx.knowledge?.close();
@@ -46,6 +47,7 @@ export const createRuntimeLifecycle = ({
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),
       ctx.publications?.close(),
+      ctx.followBacklinks?.stop(),
       closeTelegramLogins(ctx),
     ]);
   };

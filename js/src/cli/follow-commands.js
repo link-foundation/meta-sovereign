@@ -1,5 +1,6 @@
 import { encodeLinoValue } from '../transport/lino.js';
 import { followTelegramCommands } from './follow-telegram-commands.js';
+import { followBacklinkCommands } from './follow-backlink-commands.js';
 import {
   extractFollowLinks,
   listFollowLinks,
@@ -24,7 +25,11 @@ export const followCommands = async ({
   log,
   followDiscovery,
   createAccount,
+  followBacklinks,
 }) => {
+  if (args._[1] === 'backlinks') {
+    return followBacklinkCommands({ args, store, log, followBacklinks });
+  }
   if (args._[1] === 'telegram') {
     return followTelegramCommands({ args, store, log, createAccount });
   }

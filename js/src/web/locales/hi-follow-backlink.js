@@ -1,0 +1,88 @@
+export const hiFollowBacklink = {
+  'followBacklink.title': 'Follow: लिंक पोस्ट और जाँचें',
+  'followBacklink.hint':
+    'चुने गए VK समूहों में भेजने से पहले Telegram या VK आमंत्रण लिंक की समीक्षा करें। इस पृष्ठ से जाने पर भी जुड़े सर्वर पर जाँच जारी रहती है। अनिश्चित पोस्ट जाँच के लिए रखी जाती हैं और अपने आप दोबारा नहीं भेजी जातीं।',
+  'followBacklink.chats': 'VK समूह peer ID, अल्पविराम से अलग',
+  'followBacklink.backlink': 'आपका Telegram या VK आमंत्रण लिंक',
+  'followBacklink.monitorMs': 'जाँच अवधि (मिलीसेकंड)',
+  'followBacklink.intervalMs': 'जाँच अंतराल (मिलीसेकंड)',
+  'followBacklink.delayMs': 'पोस्ट के बीच विराम (मिलीसेकंड)',
+  'followBacklink.deleteIncoming':
+    'सफल जाँच के बाद आने वाले संदेश केवल मेरे लिए मिटाएँ',
+  'followBacklink.historyLimit': 'सफ़ाई के लिए हाल के संदेशों की सीमा (1–200)',
+  'followBacklink.attempts': 'पढ़ने में समय सीमा पर प्रयास (1–10)',
+  'followBacklink.retryDelayMs': 'पहले पुनः प्रयास का विराम (मिलीसेकंड)',
+  'followBacklink.retryMaxDelayMs': 'अधिकतम पुनः प्रयास विराम (मिलीसेकंड)',
+  'followBacklink.preview': 'पोस्ट की समीक्षा करें',
+  'followBacklink.apply': 'इन पोस्ट और सफ़ाई सेटिंग की पुष्टि करें',
+  'followBacklink.list': 'सहेजे गए रन लोड करें',
+  'followBacklink.status': 'परिणाम ताज़ा करें',
+  'followBacklink.resume': 'शेष सुरक्षित चरण जारी रखें',
+  'followBacklink.cancel': 'शेष चरण रोकें',
+  'followBacklink.working': 'कार्य जारी है…',
+  'followBacklink.review': 'सटीक खाता, समूह और सेटिंग जाँचें',
+  'followBacklink.owner': 'VK खाता {owner}',
+  'followBacklink.window':
+    '{duration} मिलीसेकंड तक जाँचें; अंतराल {interval} मिलीसेकंड।',
+  'followBacklink.cleanupHint':
+    'सफल जाँच के बाद अधिकतम {limit} हाल के संदेश देखें और आने वाले संदेश केवल इस खाते के लिए मिटाएँ। भेजे गए और सेवा संदेश रखे जाते हैं।',
+  'followBacklink.message': 'संदेश {id}',
+  'followBacklink.providerCode': 'VK त्रुटि {code}',
+  'followBacklink.cleanupResult':
+    'सफ़ाई: {status}; {count} हटाने की पुष्टि हुई।',
+  'followBacklink.skipNotice':
+    'हाल की चैट सूचना पाँच अन्य लिंक की प्रतीक्षा करने को कहती है। हटाई गई पोस्ट अपने आप दोबारा नहीं भेजी जाएगी।',
+  'followBacklink.history':
+    '{count} सहेजे गए रन। दोबारा पोस्ट करने से पहले मौजूदा रन देखें।',
+  'followBacklink.next': 'अगले सहेजे गए रन',
+  'followBacklink.queued': 'कतार में',
+  'followBacklink.running': 'पोस्ट या जाँच जारी है',
+  'followBacklink.paused': 'रुका हुआ; पुष्ट रसीदें रखी गई हैं',
+  'followBacklink.confirmed': 'पुष्ट',
+  'followBacklink.rejected': 'पोस्ट हटा दी गई',
+  'followBacklink.unknown': 'परिणाम अनिश्चित; आगे बढ़ने से पहले जाँचें',
+  'followBacklink.failed':
+    'कार्य असफल रहा। सहेजी रसीदें रखी गई हैं; कनेक्शन और अनुमतियाँ जाँचें।',
+  'followBacklink.ready': 'समीक्षा के लिए तैयार',
+  'followBacklink.sending': 'भेजने का अनुरोध जारी; पुष्टि की प्रतीक्षा',
+  'followBacklink.monitoring': 'डिलीवरी पुष्ट; पोस्ट बने रहने की जाँच जारी',
+  'followBacklink.survived': 'जाँच अवधि के बाद भी मौजूद',
+  'followBacklink.skipped': 'छोड़ा गया',
+  'followBacklink.bad-request':
+    'समूह ID, आमंत्रण लिंक, संख्यात्मक सीमा और पुनः प्रयास सेटिंग जाँचें।',
+  'followBacklink.not-connected': 'इस सर्वर पर VK उपयोगकर्ता खाता जोड़ें।',
+  'followBacklink.account-changed':
+    'जुड़ा खाता बदल गया। मौजूदा रसीदें रखी गई हैं।',
+  'followBacklink.not-writable':
+    'चुने गए किसी समूह में पोस्ट करने की अनुमति नहीं है।',
+  'followBacklink.provider-response':
+    'VK की रसीद उपयोग योग्य नहीं है। सफलता नहीं मानी गई।',
+  'followBacklink.timeout':
+    'तय प्रयासों के बाद पढ़ने की समय सीमा समाप्त हुई। शेष सुरक्षित जाँच जारी रख सकते हैं।',
+  'followBacklink.rate-limited':
+    'VK अनुरोध सीमित कर रहा है। जाँच जारी करने से पहले प्रतीक्षा करें।',
+  'followBacklink.captcha':
+    'VK को कैप्चा चाहिए। Connections में इसे पूरा करें।',
+  'followBacklink.provider-refused':
+    'VK ने कार्य अस्वीकार किया। प्लेटफ़ॉर्म कोड और अनुमतियाँ जाँचें।',
+  'followBacklink.outcome-unknown':
+    'लिखने की पुष्टि नहीं हुई। सहेजा रन जाँचें; अपने आप दोबारा नहीं भेजा जाएगा।',
+  'followBacklink.read-failed':
+    'जाँच असफल रही। सहेजे परिणाम रखे गए हैं; आगे बढ़ने से पहले ताज़ा करें।',
+  'followBacklink.follow-server-required':
+    'लिंक पोस्ट और जाँचने के लिए VK उपयोगकर्ता खाते वाला सर्वर जोड़ें।',
+  'followBacklink.busy':
+    'इस सर्वर पर दूसरा लिंक रन चल रहा है। नया शुरू करने से पहले उसे जाँचें।',
+  'followBacklink.plan-expired':
+    'यह समीक्षा समाप्त हो गई या पहले उपयोग हुई। सेटिंग दोबारा जाँचें।',
+  'followBacklink.not-running':
+    'यह रन यहाँ सक्रिय नहीं है। इसका सहेजा परिणाम ताज़ा करें।',
+  'followBacklink.unsupported':
+    'यह प्लेटफ़ॉर्म या कनेक्शन इस प्रक्रिया का समर्थन नहीं करता।',
+  'followBacklink.cancelled':
+    'शेष चरण रुक गए; जारी अनुरोधों के वास्तविक परिणाम रखे गए हैं।',
+  'followBacklink.stopped': 'सर्वर बंद हो रहा है; सहेजी रसीदें रखी गई हैं।',
+  'followBacklink.not-found': 'जुड़े सर्वर पर यह सहेजा रन नहीं मिला।',
+  'followBacklink.confirmation-required':
+    'पहले कार्य की समीक्षा करके स्पष्ट पुष्टि करें।',
+};

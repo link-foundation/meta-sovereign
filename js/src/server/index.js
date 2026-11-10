@@ -980,6 +980,7 @@ export const startServer = async ({
     broadcasting,
     storeDir,
     followDiscovery: createFollowDiscovery({ store, ...follow }),
+    followBacklinkOptions: follow?.backlinks,
     storeHealth,
     systemContactsReader,
     diskFree,

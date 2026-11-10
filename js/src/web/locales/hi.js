@@ -29,6 +29,7 @@ export const hi = {
   ...hiChatRemoval,
   ...hiFollow,
   ...hiFollowTelegram,
+  ...hiFollowBacklink,
   ...hiTelegramGreetings,
   ...hiChatUsers,
   ...hiPublication,
@@ -1448,3 +1449,4 @@ export const hi = {
   'questions.salaryExchangeModeHint':
     'स्वचालित मोड ताज़ी सहेजी दरें लेता है और योजना से पहले अनुपलब्ध या पुरानी दरें ताज़ा करता है। अनुरोध विफल होने पर कैश की तारीख़ रहती है और पाँच मिनट बाद फिर प्रयास होता है। सहेजी दरें केवल स्नैपशॉट मोड में इस्तेमाल होती हैं।',
 };
+import { hiFollowBacklink } from './hi-follow-backlink.js';
