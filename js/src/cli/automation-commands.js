@@ -51,6 +51,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 follow details: --chat=<VK peer or local chat ID> [--member-offset=0] [--member-limit=50] [--message-limit=10]
                 follow telegram list: [--limit=40] [--cursor=<next>]
                 follow telegram join | leave | preferences: --target=<username|signed-id|Telegram-link> [--mute=true|false] [--archive=true|false] [--confirm=true]
+                follow chats | details | telegram: [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] (timeout reads only; total attempts include the first call)
                 follow backlinks post: [--source=vk|telegram] --chats=<signed-Telegram-ID-or-VK-peer,...> --backlink=<Telegram-or-VK-invite> [--monitor-ms=200000] [--interval-ms=30000] [--delay-ms=0] [--delete-incoming=false] [--history-limit=200] [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] [--confirm=true]
                 follow backlinks post --auto-follow=true: [--max-retries=10] [--max-links=100] [--join-delay-ms=1000] [--follow-mute=true] [--follow-archive=true] (Telegram preferences; VK joins do not change them)
                 follow backlinks list | status | resume | cancel: [--job-id=<saved-id>] [--limit=20] [--offset=0] [--confirm=true]
@@ -410,6 +411,8 @@ const automationsCmd = async (args, log, deps) => {
   }
   const store = await deps.openStore(args.store ?? defaultStoreDir());
   const { runner, close } = runnerFor(store, args, deps);
+  const followDiscovery =
+    deps.followDiscovery ?? createFollowDiscovery({ store });
   try {
     return await handler({
       args,
@@ -419,11 +422,14 @@ const automationsCmd = async (args, log, deps) => {
       ask: deps.ask ?? defaultAsk,
       // y/N before sending (tests answer it; otherwise the terminal).
       confirmAsk: deps.confirm ?? null,
-      followDiscovery: deps.followDiscovery ?? createFollowDiscovery({ store }),
+      followDiscovery,
       createAccount: deps.createAccount,
       followBacklinks: deps.followBacklinks,
     });
   } finally {
+    if (!deps.followDiscovery) {
+      await followDiscovery.stop();
+    }
     await close();
   }
 };

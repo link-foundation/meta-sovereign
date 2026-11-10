@@ -1,4 +1,5 @@
 import { parseTelegramLink } from '../follow/telegram-links.js';
+import { followReadPolicy } from '../follow/read-policy.js';
 
 export const followFailure = (code) => Object.assign(new Error(code), { code });
 export const followText = (value) => String(value?.value ?? value ?? '');
@@ -79,7 +80,7 @@ export const followRequest = (body = {}) => {
   ) {
     throw followFailure('bad-request');
   }
-  return { selector, operation, options };
+  return { selector, operation, options, retry: followReadPolicy(body) };
 };
 export const followSameTarget = (before, after) =>
   before.chat === after.chat &&

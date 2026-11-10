@@ -127,3 +127,5 @@ Extend reviewed backlinks to Telegram-source basic groups, channels and supergro
 Add optional reviewed automatic Follow rounds for all Telegram/VK provider pairs through CLI, text/binary Lino API and shared localized controls. Follow bounded incoming links before posting, confirm membership and independent Telegram preferences, retry only positively removed chats with fresh scans and distinct keys, preserve prior receipts and durable uncertainty, and drain cancellation through final provider request boundaries.
 
 Preserve sanitized Telegram timeout and flood-wait details through automatic Follow. Apply its finite read backoff to final prewrite checks, disable hidden SDK read retries and use fresh typed identity/entity requests while keeping issued membership and preference writes single-call.
+
+Expose validated finite timeout-only Follow read retries through CLI, text/binary Lino API and shared React controls. Freeze policies into Telegram reviews, scope cancellation to owned operations, wake cancelled backoffs, drain discovery during shutdown and prevent HTTP recovery from repeating an exhausted provider budget.

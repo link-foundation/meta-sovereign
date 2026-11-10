@@ -233,7 +233,10 @@ test('numeric Telegram targets propagate explicit lookup errors without SDK enti
       f.state.read = () => {
         throw followRpcError('TIMEOUT', 503);
       };
-      const result = await f.actions.followTelegramPreview({ target });
+      const result = await f.actions.followTelegramPreview({
+        target,
+        retry: { attempts: 1 },
+      });
       assert.deepEqual(result, { ok: false, code: 'timeout' });
       assert.deepEqual(
         f.calls.slice(start).map((r) => r.className),

@@ -1,4 +1,23 @@
 export const enFollow = {
+  'followRead.title': 'Read timeout retries',
+  'followRead.hint':
+    'Only timed-out reads retry. Provider refusals and uncertain writes are never automatically repeated. Total attempts include the first call.',
+  'followRead.attempts': 'Total read attempts (1–10)',
+  'followRead.retryDelayMs': 'Initial retry delay (ms)',
+  'followRead.retryMaxDelayMs': 'Maximum retry delay (ms)',
+  'followRead.summary':
+    'Reads: up to {attempts} attempts · initial delay {delay} ms · maximum {max} ms',
+  'followRead.stop': 'Stop reading or remaining steps',
+  'followChats.timeout':
+    'The read timed out after the configured attempts. Saved results are kept.',
+  'followChats.bad-request':
+    'Enter valid read limits: 1–10 attempts, delay 0–60000 ms, maximum 0–300000 ms and at least the initial delay.',
+  'followChats.cancelled': 'Cancelled; no further reads were attempted.',
+  'followChats.stopped': 'Stopped; no further reads were attempted.',
+  'followChats.account-changed':
+    'The connected account changed. Load again with the current account.',
+  'followChats.cancel-failed':
+    'The stop request failed. The current read may still complete.',
   'followChats.title': 'Follow: discover VK groups',
   'followChats.hint':
     'Read groups from VK through the connected server. Pages include other conversation types, so an empty filtered page can have a next page. Telegram hints match Telegram words in titles or recognized links in the latest message; older history is not searched here. Provider permissions still apply.',

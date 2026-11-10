@@ -48,6 +48,7 @@ export const createRuntimeLifecycle = ({
       ctx.marketplaceSessions?.stop(),
       ctx.publications?.close(),
       ctx.followBacklinks?.stop(),
+      ctx.followDiscovery?.stop(),
       closeTelegramLogins(ctx),
     ]);
   };

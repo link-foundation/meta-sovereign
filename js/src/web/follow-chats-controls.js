@@ -1,8 +1,14 @@
 import React from 'react';
+import {
+  FollowReadControls,
+  initialFollowReadForm,
+  followReadFormPolicy,
+} from './follow-read-controls.js';
 import { useT } from './i18n.js';
 
 const el = React.createElement;
 const useDiscovery = (api) => {
+  const [retryForm, setRetryForm] = React.useState(initialFollowReadForm);
   const [limit, setLimit] = React.useState('25');
   const [telegramOnly, setTelegramOnly] = React.useState(false);
   const [data, setData] = React.useState(null);
@@ -14,27 +20,41 @@ const useDiscovery = (api) => {
   React.useEffect(
     () => () => {
       turn.current++;
+      if (running.current) {
+        api
+          .followDiscoveryCancel({ requestId: running.current })
+          .catch(() => {});
+      }
     },
-    []
+    [api]
   );
   const perform = async (action, input) => {
     if (running.current) {
       return;
     }
-    running.current = true;
+    const requestId = globalThis.crypto.randomUUID();
+    running.current = requestId;
     const generation = ++turn.current;
     setBusy(true);
     setError('');
     try {
+      const retry = followReadFormPolicy(retryForm);
       const result =
         action === 'chats'
           ? await api.followChats({
               source: 'vk',
+              retry,
+              requestId,
               limit,
               telegramOnly,
               ...input,
             })
-          : await api.followChatDetails({ source: 'vk', ...input });
+          : await api.followChatDetails({
+              source: 'vk',
+              retry,
+              requestId,
+              ...input,
+            });
       if (generation !== turn.current) {
         return;
       }
@@ -67,6 +87,13 @@ const useDiscovery = (api) => {
   };
   return {
     limit,
+    retryForm,
+    changeRetry: (key, value) =>
+      change(setRetryForm, { ...retryForm, [key]: value }),
+    stop: () =>
+      api
+        .followDiscoveryCancel({ requestId: running.current })
+        .catch(() => setError('cancel-failed')),
     telegramOnly,
     data,
     details,
@@ -245,6 +272,12 @@ const errorKey = (code) => {
       'unsupported',
       'captcha',
       'rate-limited',
+      'timeout',
+      'bad-request',
+      'cancelled',
+      'stopped',
+      'account-changed',
+      'cancel-failed',
     ].includes(code)
   ) {
     return code;
@@ -265,10 +298,29 @@ export const FollowChatsControls = ({ api }) => {
     ),
     el('div', { key: 'c', className: 'col', 'aria-busy': state.busy }, [
       el('p', { key: 'h', className: 'meta' }, t('followChats.hint')),
+      el(FollowReadControls, {
+        key: 'retry',
+        form: state.retryForm,
+        change: state.changeRetry,
+        busy: state.busy,
+        t,
+      }),
       el(Fields, { key: 'f', state, t }),
       button('load', () => state.perform('chats', { offset: 0 })),
       state.busy
         ? el('p', { key: 'busy', role: 'status' }, t('follow.working'))
+        : null,
+      state.busy
+        ? el(
+            'button',
+            {
+              key: 'stop',
+              type: 'button',
+              'data-follow-chats-action': 'stop',
+              onClick: state.stop,
+            },
+            t('followRead.stop')
+          )
         : null,
       state.error
         ? el(

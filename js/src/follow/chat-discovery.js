@@ -1,5 +1,6 @@
 import { createVkLive } from '../sources/vk.js';
-import { liveOptionsFrom } from '../sources/index.js';
+import { createFollowVkCalls } from './vk-calls.js';
+import { createFollowReadOperations } from './read-operations.js';
 import { extractTelegramLinks } from './telegram-links.js';
 
 const GROUP_BASE = 2000000000;
@@ -148,91 +149,101 @@ const memberRows = (response) => {
 export const createFollowDiscovery = ({
   store,
   liveFactory = createVkLive,
+  sleep,
+  trace,
   ...options
 }) => {
   let cached;
-  const live = async () => {
-    const credentials = await liveOptionsFrom(store, 'vk');
-    if (!credentials.token) {
-      throw fail(
-        'not-connected',
-        'Connect VK on this server to discover group chats'
-      );
-    }
-    if (cached?.token !== credentials.token) {
-      cached = {
-        token: credentials.token,
-        value: liveFactory({ ...options, ...credentials }),
-      };
-    }
-    return cached.value;
+  const operations = createFollowReadOperations({ sleep, trace });
+  const live = async ({ read, cancelled }) => {
+    const api = await createFollowVkCalls({
+      store,
+      ...options,
+      liveFactory: (credentials) => {
+        if (cached?.token !== credentials.token) {
+          cached = {
+            token: credentials.token,
+            value: liveFactory(credentials),
+          };
+        }
+        return cached.value;
+      },
+    });
+    return {
+      call: (method, params) =>
+        read(() => api.call(method, params, false, { cancelled })),
+    };
   };
   return {
-    async chats(input = {}) {
-      vkSource(input);
-      const offset = integer(input.offset, 0, 0, 1000000000);
-      const limit = integer(input.limit, 50, 1, 200);
-      const telegramOnly = boolean(input.telegramOnly);
-      const response = await (
-        await live()
-      ).call('messages.getConversations', {
-        count: limit,
-        offset,
-        filter: 'all',
-        extended: 1,
-        fields: 'screen_name',
-      });
-      const page = pageOf(response, offset, limit);
-      const chats = response.items
-        .map(chatOf)
-        .filter((chat) => chat && (!telegramOnly || chat.telegramHints));
-      return {
-        source: 'vk',
-        chats,
-        page,
-        filter: telegramOnly ? 'title-or-latest-message' : 'group-chats',
-      };
-    },
-    async details(input = {}) {
-      vkSource(input);
-      const peer = peerOf(input.chat);
-      const memberOffset = integer(input.memberOffset, 0, 0, 1000000000);
-      const memberLimit = integer(input.memberLimit, 50, 1, 200);
-      const messageLimit = integer(input.messageLimit, 10, 1, 100);
-      const api = await live();
-      const response = await api.call('messages.getConversationsById', {
-        peer_ids: peer,
-        extended: 1,
-      });
-      const chat = chatOf(response?.items?.[0]);
-      if (!chat || chat.chat !== String(peer)) {
-        throw fail(
-          'follow-provider-response',
-          'VK did not return the requested group'
-        );
-      }
-      const members = await api.call('messages.getConversationMembers', {
-        peer_id: peer,
-        offset: memberOffset,
-        count: memberLimit,
-        extended: 1,
-        fields: 'first_name,last_name,screen_name',
-      });
-      const memberPage = pageOf(members, memberOffset, memberLimit);
-      const history = await api.call('messages.getHistory', {
-        peer_id: peer,
-        count: messageLimit,
-        offset: 0,
-      });
-      const messagePage = pageOf(history, 0, messageLimit);
-      return {
-        source: 'vk',
-        chat,
-        members: memberRows(members),
-        memberPage,
-        messages: history.items.map(latestOf),
-        messagePage,
-      };
-    },
+    cancel: operations.cancel,
+    stop: operations.stop,
+    chats: (input = {}) =>
+      operations.run(input, async (control) => {
+        vkSource(input);
+        const offset = integer(input.offset, 0, 0, 1000000000);
+        const limit = integer(input.limit, 50, 1, 200);
+        const telegramOnly = boolean(input.telegramOnly);
+        const response = await (
+          await live(control)
+        ).call('messages.getConversations', {
+          count: limit,
+          offset,
+          filter: 'all',
+          extended: 1,
+          fields: 'screen_name',
+        });
+        const page = pageOf(response, offset, limit);
+        const chats = response.items
+          .map(chatOf)
+          .filter((chat) => chat && (!telegramOnly || chat.telegramHints));
+        return {
+          source: 'vk',
+          chats,
+          page,
+          filter: telegramOnly ? 'title-or-latest-message' : 'group-chats',
+        };
+      }),
+    details: (input = {}) =>
+      operations.run(input, async (control) => {
+        vkSource(input);
+        const peer = peerOf(input.chat);
+        const memberOffset = integer(input.memberOffset, 0, 0, 1000000000);
+        const memberLimit = integer(input.memberLimit, 50, 1, 200);
+        const messageLimit = integer(input.messageLimit, 10, 1, 100);
+        const api = await live(control);
+        const response = await api.call('messages.getConversationsById', {
+          peer_ids: peer,
+          extended: 1,
+        });
+        const chat = chatOf(response?.items?.[0]);
+        if (!chat || chat.chat !== String(peer)) {
+          throw fail(
+            'follow-provider-response',
+            'VK did not return the requested group'
+          );
+        }
+        const members = await api.call('messages.getConversationMembers', {
+          peer_id: peer,
+          offset: memberOffset,
+          count: memberLimit,
+          extended: 1,
+          fields: 'first_name,last_name,screen_name',
+        });
+        const memberPage = pageOf(members, memberOffset, memberLimit);
+        const history = await api.call('messages.getHistory', {
+          peer_id: peer,
+          count: messageLimit,
+          offset: 0,
+        });
+        const messagePage = pageOf(history, 0, messageLimit);
+        return {
+          source: 'vk',
+          chat,
+          members: memberRows(members),
+          memberPage,
+          messages: history.items.map(latestOf),
+          messagePage,
+        };
+      }),
   };
 };

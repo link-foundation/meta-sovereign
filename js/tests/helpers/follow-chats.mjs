@@ -88,7 +88,12 @@ export const followChatsFixture = async () => {
   const options = {
     liveFactory: () => {
       state.factories++;
-      return { call };
+      return {
+        callOnce: async (method, params, options) => {
+          await options.beforeIssue();
+          return call(method, params);
+        },
+      };
     },
   };
   return {

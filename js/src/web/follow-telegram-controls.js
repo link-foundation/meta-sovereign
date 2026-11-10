@@ -1,4 +1,5 @@
 import React from 'react';
+import { FollowReadControls } from './follow-read-controls.js';
 import { useT } from './i18n.js';
 import { useFollowTelegram } from './follow-telegram-state.js';
 
@@ -101,6 +102,15 @@ const Plan = ({ state, t }) => {
                   : valueText(plan.options.archive, t),
             })
           ),
+      el(
+        'p',
+        { key: 'retry', className: 'meta' },
+        t('followRead.summary', {
+          attempts: plan.retry?.attempts ?? 3,
+          delay: plan.retry?.delayMs ?? 100,
+          max: plan.retry?.maxDelayMs ?? 2000,
+        })
+      ),
       plan.target.requestNeeded
         ? el('p', { key: 'request' }, t('followTelegram.approvalHint'))
         : null,
@@ -170,6 +180,13 @@ export const FollowTelegramControls = ({ api }) => {
   return el('details', { className: 'card col', 'data-follow-telegram': '' }, [
     el('summary', { key: 's' }, t('followTelegram.title')),
     el('p', { key: 'hint', className: 'meta' }, t('followTelegram.hint')),
+    el(FollowReadControls, {
+      key: 'retry',
+      form: state.form,
+      change: state.change,
+      busy: state.busy,
+      t,
+    }),
     el(
       'fieldset',
       {
@@ -287,7 +304,7 @@ export const FollowTelegramControls = ({ api }) => {
     state.busy
       ? el('p', { key: 'busy', role: 'status' }, t('followTelegram.working'))
       : null,
-    state.applying
+    state.busy
       ? el(
           'button',
           {

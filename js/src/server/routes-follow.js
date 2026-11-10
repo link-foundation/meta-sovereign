@@ -1,6 +1,7 @@
 import { json, readBody } from './util.js';
 import { followTelegramRoute } from './routes-follow-telegram.js';
 import { followBacklinkRoute } from './routes-follow-backlinks.js';
+import { followTimeout } from '../follow/retry.js';
 import {
   extractFollowLinks,
   listFollowLinks,
@@ -19,12 +20,18 @@ const discoveryResponse = async (ctx, action, input, res) => {
       'rate-limited',
       'timeout',
       'bad-request',
+      'cancelled',
+      'stopped',
+      'busy',
+      'account-changed',
     ];
-    const code = known.includes(error.code)
-      ? error.code
-      : error.code === 'follow-provider-response'
+    const code = followTimeout(error)
+      ? 'timeout'
+      : known.includes(error.code)
         ? error.code
-        : 'follow-provider-error';
+        : error.code === 'follow-provider-response'
+          ? error.code
+          : 'follow-provider-error';
     const status =
       code === 'unsupported'
         ? 404
@@ -47,6 +54,10 @@ export const followRoute = async (store, req, res, path, url, ctx) => {
     return true;
   }
   if (await followTelegramRoute(ctx, req, res, path, url)) {
+    return true;
+  }
+  if (req.method === 'POST' && path === `${ROOT}/discovery/cancel`) {
+    await discoveryResponse(ctx, 'cancel', await readBody(req), res);
     return true;
   }
   const read = {

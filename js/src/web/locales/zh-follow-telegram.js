@@ -1,4 +1,8 @@
 export const zhFollowTelegram = {
+  'followTelegram.timeout':
+    '达到配置的尝试次数后读取仍超时。已保存的结果将保留。',
+  'followTelegram.bad-request':
+    '请输入有效范围：1–10 次尝试，延迟 0–60000 毫秒，最大延迟 0–300000 毫秒且不小于首次延迟。',
   'followTelegram.title': 'Follow：Telegram 成员资格与偏好',
   'followTelegram.hint':
     '列出你的群组和频道，或解析用户名、带符号的聊天 ID 或 Telegram 链接。预览仅读取数据。确认后仅对预览中的账号、目标和选项执行一次。私密消息链接不是邀请。待审批和不确定的结果均不算加入成功。',

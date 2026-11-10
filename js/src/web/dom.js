@@ -524,6 +524,7 @@ const automationCall =
 const AUTOMATION_CALLS = [
   'followChats',
   'followChatDetails',
+  'followDiscoveryCancel',
   'followTelegramList',
   'followTelegramPreview',
   'followTelegramApply',

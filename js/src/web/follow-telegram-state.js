@@ -1,6 +1,11 @@
 import React from 'react';
+import {
+  initialFollowReadForm,
+  followReadFormPolicy,
+} from './follow-read-controls.js';
 
 const previewInput = (form) => ({
+  retry: followReadFormPolicy(form),
   target: form.target,
   operation: form.operation,
   ...(form.operation === 'leave'
@@ -14,6 +19,7 @@ const previewInput = (form) => ({
 });
 export const useFollowTelegram = (api) => {
   const [form, setForm] = React.useState({
+    ...initialFollowReadForm,
     target: '',
     operation: 'join',
     mute: 'true',
@@ -36,8 +42,10 @@ export const useFollowTelegram = (api) => {
     () => () => {
       generation.current++;
       dismiss(owned.current);
-      if (running.current === 'apply') {
-        api.followTelegramCancel().catch(() => {});
+      if (running.current) {
+        api
+          .followTelegramCancel({ requestId: running.current.requestId })
+          .catch(() => {});
       }
     },
     [api]
@@ -54,22 +62,31 @@ export const useFollowTelegram = (api) => {
     setResult(null);
     setError('');
   };
-  const request = async (action, input) => {
+  const request = async (action, input, requestId) => {
     if (action === 'list') {
-      return api.followTelegramList({ limit: form.limit, ...input });
+      return api.followTelegramList({
+        limit: form.limit,
+        retry: followReadFormPolicy(form),
+        ...input,
+        requestId,
+      });
     }
     if (action === 'preview') {
       await dismiss(owned.current);
       owned.current = null;
       setResult(null);
       setPlan(null);
-      return api.followTelegramPreview(previewInput(form));
+      return api.followTelegramPreview({ ...previewInput(form), requestId });
     }
     if (action === 'apply') {
       const current = plan;
       setPlan(null);
       owned.current = null;
-      return api.followTelegramApply({ planId: current.planId, confirm: true });
+      return api.followTelegramApply({
+        planId: current.planId,
+        confirm: true,
+        requestId,
+      });
     }
     const answer = await api.followTelegramCancel({ planId: owned.current });
     owned.current = null;
@@ -92,12 +109,13 @@ export const useFollowTelegram = (api) => {
     if (running.current) {
       return;
     }
-    running.current = action;
+    const requestId = globalThis.crypto.randomUUID();
+    running.current = { action, requestId };
     const version = ++generation.current;
     setBusy(true);
     setError('');
     try {
-      const answer = await request(action, input);
+      const answer = await request(action, input, requestId);
       if (version !== generation.current) {
         if (action === 'preview') {
           dismiss(answer.planId);
@@ -120,7 +138,7 @@ export const useFollowTelegram = (api) => {
   };
   const stop = async () => {
     try {
-      await api.followTelegramCancel();
+      await api.followTelegramCancel({ requestId: running.current?.requestId });
     } catch {
       setError('cancel-failed');
     }
@@ -135,6 +153,6 @@ export const useFollowTelegram = (api) => {
     busy,
     perform,
     stop,
-    applying: running.current === 'apply',
+    applying: running.current?.action === 'apply',
   };
 };

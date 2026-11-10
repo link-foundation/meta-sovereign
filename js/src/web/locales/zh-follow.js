@@ -1,4 +1,20 @@
 export const zhFollow = {
+  'followRead.title': '读取超时重试',
+  'followRead.hint':
+    '仅重试超时的读取。服务拒绝和结果不确定的写入绝不会自动重复。总尝试次数包含首次调用。',
+  'followRead.attempts': '读取总尝试次数（1–10）',
+  'followRead.retryDelayMs': '首次重试延迟（毫秒）',
+  'followRead.retryMaxDelayMs': '最大重试延迟（毫秒）',
+  'followRead.summary':
+    '读取：最多 {attempts} 次尝试 · 首次延迟 {delay} 毫秒 · 最大 {max} 毫秒',
+  'followRead.stop': '停止读取或后续步骤',
+  'followChats.timeout': '达到配置的尝试次数后读取仍超时。已保存的结果将保留。',
+  'followChats.bad-request':
+    '请输入有效范围：1–10 次尝试，延迟 0–60000 毫秒，最大延迟 0–300000 毫秒且不小于首次延迟。',
+  'followChats.cancelled': '已取消；未再发起读取。',
+  'followChats.stopped': '已停止；未再发起读取。',
+  'followChats.account-changed': '连接的账号已更改。请使用当前账号重新加载。',
+  'followChats.cancel-failed': '停止请求失败。当前读取仍可能完成。',
   'followChats.title': 'Follow：发现 VK 群组',
   'followChats.hint':
     '通过已连接的服务器读取 VK 群组。平台分页包含其他会话类型，因此筛选后空白的页面也可能有下一页。Telegram 线索指标题中的 Telegram 相关词语或最新消息中识别出的链接；此处不搜索旧历史。仍受平台访问权限限制。',

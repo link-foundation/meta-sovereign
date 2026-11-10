@@ -1,4 +1,8 @@
 export const enFollowTelegram = {
+  'followTelegram.timeout':
+    'The read timed out after the configured attempts. Saved results are kept.',
+  'followTelegram.bad-request':
+    'Enter valid read limits: 1–10 attempts, delay 0–60000 ms, maximum 0–300000 ms and at least the initial delay.',
   'followTelegram.title': 'Follow: Telegram membership and preferences',
   'followTelegram.hint':
     'List your groups and channels, or resolve a username, signed chat ID or Telegram link. Preview reads only. Apply confirms the exact account, target and options once. A private message link grants no invitation. Pending approvals and uncertain results never count as joined.',

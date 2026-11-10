@@ -32,7 +32,17 @@ const readPosts = new Set([
   '/api/broadcast/test',
   '/api/broadcast/preview',
 ]);
+// These provider reads own an explicit finite retry budget and cancellation.
+// Connection recovery must return their exhausted timeout to the caller.
+const boundedProviderReads = new Set([
+  '/api/automations/follow/chats',
+  '/api/automations/follow/details',
+  '/api/automations/follow/telegram',
+]);
 export const isReadRequest = (path, method = 'GET') => {
+  if (boundedProviderReads.has(new URL(path, 'http://local').pathname)) {
+    return false;
+  }
   if (['GET', 'HEAD'].includes(method.toUpperCase())) {
     return true;
   }

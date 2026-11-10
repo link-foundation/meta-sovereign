@@ -3,7 +3,7 @@ import { followChatsFixture } from './helpers/follow-chats.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 
 const f = await followChatsFixture();
-const { page, base, finish } = await openChatApp('follow-chats', f);
+const { page, base, finish, until } = await openChatApp('follow-chats', f);
 page.setDefaultTimeout(10000);
 await page.addInitScript(
   ({ key, version }) => {
@@ -24,6 +24,32 @@ await finish(async () => {
     f.calls.length === 0,
     'opening the panel does not start provider reads'
   );
+  const retry = (name) => panel.locator(`[data-follow-read-field="${name}"]`);
+  await retry('attempts').fill('2');
+  await retry('retryDelayMs').fill('0');
+  await retry('retryMaxDelayMs').fill('0');
+  f.state.error = Object.assign(new Error('private diagnostic'), {
+    code: 'ETIMEDOUT',
+  });
+  await action('load').click();
+  await panel
+    .getByRole('alert')
+    .filter({ hasText: 'The read timed out' })
+    .waitFor();
+  assert(f.calls.length === 2, 'VK UI uses the configured finite read budget');
+  await retry('retryDelayMs').fill('60000');
+  await retry('retryMaxDelayMs').fill('300000');
+  await action('load').click();
+  await until(() => f.calls.length === 3, 'first VK read before stop');
+  await action('stop').click();
+  await panel.getByRole('alert').filter({ hasText: 'Cancelled' }).waitFor();
+  assert(
+    f.calls.length === 3,
+    'VK stop wakes a long delay without another request'
+  );
+  f.state.error = null;
+  await retry('retryDelayMs').fill('0');
+  await retry('retryMaxDelayMs').fill('0');
   await panel.getByLabel('Conversations per provider page').fill('2');
   await panel.getByLabel('Only groups with Telegram hints').check();
   await action('load').click();

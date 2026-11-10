@@ -1,4 +1,5 @@
 import { createTelegramAccount } from '../sources/telegram-account.js';
+import { followReadCliPolicy } from '../follow/read-policy.js';
 import { encodeLinoValue } from '../transport/lino.js';
 
 const bool = (value) => {
@@ -32,6 +33,7 @@ export const followTelegramCommands = async ({
           mute: bool(args.mute),
           archive: bool(args.archive),
         };
+  input.retry = followReadCliPolicy(args);
   let account;
   let interrupted = false;
   const cancel = () => {

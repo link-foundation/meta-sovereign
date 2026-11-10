@@ -1,3 +1,4 @@
+import { followReadCliPolicy } from '../follow/read-policy.js';
 import { encodeLinoValue } from '../transport/lino.js';
 import { followTelegramCommands } from './follow-telegram-commands.js';
 import { followBacklinkCommands } from './follow-backlink-commands.js';
@@ -51,13 +52,28 @@ export const followCommands = async ({
   };
   const sub = args._[1] ?? 'links';
   if (sub === 'chats' || sub === 'details') {
-    const result = await followDiscovery[sub]({
-      ...input,
-      ...discoveryArgs(args),
-    });
-    log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));
-    return 0;
+    const retry = followReadCliPolicy(args);
+    const cancel = () => {
+      followDiscovery.cancel?.().catch(() => {});
+    };
+    process.once('SIGINT', cancel);
+    process.once('SIGTERM', cancel);
+    try {
+      const result = await followDiscovery[sub]({
+        ...input,
+        ...discoveryArgs(args),
+        retry,
+      });
+      log(
+        args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result)
+      );
+      return 0;
+    } finally {
+      process.removeListener('SIGINT', cancel);
+      process.removeListener('SIGTERM', cancel);
+    }
   }
+
   const actions = {
     links: listFollowLinks,
     extract: extractFollowLinks,

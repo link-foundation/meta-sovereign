@@ -27,11 +27,14 @@ export const createFollowJoining = async (
   return {
     preview: async (url, preferences) => ({
       ...accepted(
-        await account.followTelegramPreview({
-          operation: 'join',
-          target: url,
-          ...preferences,
-        })
+        await account.followTelegramPreview(
+          {
+            operation: 'join',
+            target: url,
+            ...preferences,
+          },
+          { read: (use) => use() }
+        )
       ),
       source: 'telegram',
       url,

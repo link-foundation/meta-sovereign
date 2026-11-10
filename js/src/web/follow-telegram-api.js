@@ -1,3 +1,5 @@
+import { followRetryPolicy } from '../follow/retry.js';
+import { followReadQuery } from '../follow/read-policy.js';
 const positive = (value) =>
   typeof value === 'string' && /^[1-9]\d{0,19}$/.test(value);
 const chatId = (value) =>
@@ -54,8 +56,21 @@ const validList = (value) =>
   value.chats.length <= 100 &&
   value.chats.every((row) => target(row) && row.chat !== null && row.member) &&
   validPage(value.page, value.chats.length);
+const validRetry = (retry) => {
+  try {
+    return (
+      retry &&
+      Object.entries(followRetryPolicy(retry)).every(
+        ([key, value]) => retry[key] === value
+      )
+    );
+  } catch {
+    return false;
+  }
+};
 const validPreview = (value) =>
   positive(value.owner) &&
+  validRetry(value.retry) &&
   target(value.target) &&
   typeof value.planId === 'string' &&
   value.planId.length > 0 &&
@@ -98,7 +113,7 @@ const failure = (code) => Object.assign(new Error(code), { code });
 export const followTelegramApi = ({ remote }) => {
   const request = async (action, input = {}) => {
     const read = action === 'list';
-    const path = `/api/automations/follow/telegram${read ? `?${new URLSearchParams(input)}` : `/${action}`}`;
+    const path = `/api/automations/follow/telegram${read ? `?${followReadQuery(input)}` : `/${action}`}`;
     let value;
     if (remote.request) {
       const response = await remote.request(

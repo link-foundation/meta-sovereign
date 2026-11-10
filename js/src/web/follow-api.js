@@ -1,3 +1,4 @@
+import { followReadQuery } from '../follow/read-policy.js';
 import {
   extractFollowLinks,
   listFollowLinks,
@@ -15,7 +16,7 @@ export const followApi = ({ remote, store }) => {
   };
   const request = async (action, input, read = false) => {
     const path = read
-      ? `/api/automations/follow${action === 'links' ? '' : `/${action}`}?${new URLSearchParams(input)}`
+      ? `/api/automations/follow${action === 'links' ? '' : `/${action}`}?${['chats', 'details'].includes(action) ? followReadQuery(input) : new URLSearchParams(input)}`
       : `/api/automations/follow/${action}`;
     if (!remote.request) {
       return checked(
@@ -71,6 +72,20 @@ export const followApi = ({ remote, store }) => {
     return result;
   };
   return {
+    followDiscoveryCancel: async (input = {}) => {
+      const result = await request('discovery/cancel', input);
+      if (result?.ok !== true) {
+        throw Object.assign(
+          new Error('Discovery cancellation could not be confirmed'),
+          {
+            code: result
+              ? 'follow-provider-response'
+              : 'follow-server-required',
+          }
+        );
+      }
+      return result;
+    },
     followChats: (input = {}) => discover('chats', input),
     followChatDetails: (input = {}) => discover('details', input),
     followLinks: async (input = {}) =>
@@ -101,6 +116,7 @@ const validChat = (chat) =>
   typeof chat.title === 'string';
 const validRows = (rows, check) => Array.isArray(rows) && rows.every(check);
 const validators = {
+  'discovery/cancel': (data) => data?.ok === true,
   chats: (data) => validRows(data?.chats, validChat) && validPage(data?.page),
   details: (data) =>
     validChat(data?.chat) &&

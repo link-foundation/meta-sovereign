@@ -6,7 +6,7 @@ import {
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 
 const f = followTelegramFixture();
-const { page, base, finish } = await openChatApp('follow-telegram', {
+const { page, base, finish, until } = await openChatApp('follow-telegram', {
   store: f.store,
   telegramAccount: f.account,
 });
@@ -26,10 +26,63 @@ const action = (name) =>
   panel.locator(`[data-follow-telegram-action="${name}"]`);
 const field = (name) => panel.locator(`[data-follow-telegram-field="${name}"]`);
 const result = panel.locator('[data-follow-telegram-result]');
+const retry = (name) => panel.locator(`[data-follow-read-field="${name}"]`);
+const verifyReadControls = async () => {
+  await retry('attempts').fill('2');
+  await retry('retryDelayMs').fill('0');
+  await retry('retryMaxDelayMs').fill('0');
+  let attempts = 0;
+  f.state.read = (request) => {
+    if (request.className === 'messages.GetDialogs') {
+      attempts++;
+      throw Object.assign(new Error('private timeout diagnostic'), {
+        code: 'ETIMEDOUT',
+      });
+    }
+  };
+  await action('list').click();
+  await panel
+    .getByRole('alert')
+    .filter({ hasText: 'The read timed out' })
+    .waitFor();
+  assert(
+    attempts === 2,
+    'UI attempt budget reaches the single-attempt provider boundary'
+  );
+  attempts = 0;
+  await retry('retryDelayMs').fill('60000');
+  await retry('retryMaxDelayMs').fill('300000');
+  await action('list').click();
+  await until(() => attempts === 1, 'first read before cancellation');
+  await action('stop').click();
+  await panel.getByRole('alert').filter({ hasText: 'Cancelled' }).waitFor();
+  assert(
+    attempts === 1,
+    'scoped stop wakes a long retry delay without another RPC'
+  );
+  f.state.read = null;
+  await retry('retryDelayMs').fill('0');
+  await retry('retryMaxDelayMs').fill('0');
+};
+const verifyReviewedPolicy = async () => {
+  await panel
+    .getByText('Reads: up to 2 attempts · initial delay 0 ms · maximum 0 ms', {
+      exact: true,
+    })
+    .waitFor();
+  await retry('attempts').fill('1');
+  assert(
+    (await panel.locator('[data-follow-telegram-plan]').count()) === 0,
+    'changing the read policy discards the reviewed operation'
+  );
+  await action('preview').click();
+  await panel.locator('[data-follow-telegram-plan]').waitFor();
+};
 await finish(async () => {
   await page.goto(`${base}/#/automation`);
   await panel.locator(':scope > summary').click();
   assert(f.calls.length === 0, 'opening never starts provider reads');
+  await verifyReadControls();
   await action('list').click();
   await panel.locator('[data-follow-telegram-chat="-1007"]').waitFor();
   assert(f.writes.length === 0, 'listing is read-only');
@@ -37,6 +90,7 @@ await finish(async () => {
   await field('target').fill('study_group');
   await action('preview').click();
   await panel.locator('[data-follow-telegram-plan]').waitFor();
+  await verifyReviewedPolicy();
   assert(f.writes.length === 0, 'preview is read-only');
   await action('apply').evaluate((button) => {
     button.click();
