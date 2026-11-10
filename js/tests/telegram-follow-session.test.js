@@ -398,7 +398,7 @@ test(
       entered = resolve;
     });
     let closing;
-    let using;
+    let importing;
     try {
       const scan = await routeRequest(f, ctx, 'scan', { roots: [f.root] });
       assert.equal(scan.status, 200);
@@ -407,7 +407,7 @@ test(
         entered();
         await gate;
       };
-      using = routeRequest(f, ctx, 'use', { id });
+      importing = routeRequest(f, ctx, 'use', { id });
       await started;
       let stopped = false;
       closing = closeTelegramLogins(ctx).then(() => {
@@ -421,14 +421,14 @@ test(
       );
       assert.equal((await routeRequest(f, ctx, 'use', { id })).status, 409);
       release();
-      assert.equal((await using).body.ok, true);
+      assert.equal((await importing).body.ok, true);
       await closing;
       assert.ok(f.state.clients.every((c) => c.closed));
       assert.equal(ctx.telegramLoginStarts.size, 0);
       assert.ok(await f.unchanged());
     } finally {
       release();
-      await using;
+      await importing;
       await closing;
       await f.close();
     }
@@ -475,9 +475,9 @@ test(
       },
     };
     let closing;
-    let using;
+    let importing;
     try {
-      using = routeRequest(f, ctx, 'use', { id: 'phone' });
+      importing = routeRequest(f, ctx, 'use', { id: 'phone' });
       await started;
       let stopped = false;
       closing = closeTelegramLogins(ctx).then(() => {
@@ -486,7 +486,7 @@ test(
       await setImmediate();
       assert.equal(stopped, false);
       release();
-      assert.equal((await using).status, 409);
+      assert.equal((await importing).status, 409);
       await closing;
       assert.equal(cancelled, 1);
       assert.equal(
@@ -495,7 +495,7 @@ test(
       );
     } finally {
       release();
-      await using;
+      await importing;
       await closing;
       await f.close();
     }

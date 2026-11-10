@@ -111,7 +111,9 @@ await finish(async () => {
     await action('apply').click();
     await until(
       async () =>
-        (await job.textContent()).includes('https://vk.me/join/own_invite'),
+        (await job
+          .getByText('https://vk.me/join/own_invite', { exact: true })
+          .count()) > 0,
       'new VK receipt replaces previous run'
     );
     await job
