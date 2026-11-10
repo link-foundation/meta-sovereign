@@ -1,3 +1,4 @@
+import { zhTelegramGreetings } from './zh-telegram-greetings.js';
 import { zhChatUsers } from './zh-chat-users.js';
 import { zhPublication } from './zh-publication.js';
 import { zhBrowser } from './zh-browser.js';
@@ -22,6 +23,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhTelegramGreetings,
   ...zhChatUsers,
   ...zhPublication,
   'backup.schedule': '自动恢复备份',

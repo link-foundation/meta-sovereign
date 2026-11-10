@@ -1,3 +1,4 @@
+import { ruTelegramGreetings } from './ru-telegram-greetings.js';
 import { ruChatUsers } from './ru-chat-users.js';
 import { ruPublication } from './ru-publication.js';
 import { ruBrowser } from './ru-browser.js';
@@ -21,6 +22,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruTelegramGreetings,
   ...ruChatUsers,
   ...ruPublication,
   'backup.schedule': 'Автоматическое восстановление',

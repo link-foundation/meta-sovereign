@@ -1,3 +1,4 @@
+import { hiTelegramGreetings } from './hi-telegram-greetings.js';
 import { hiChatUsers } from './hi-chat-users.js';
 import { hiPublication } from './hi-publication.js';
 import { hiBrowser } from './hi-browser.js';
@@ -22,6 +23,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiTelegramGreetings,
   ...hiChatUsers,
   ...hiPublication,
   'backup.schedule': 'स्वचालित पुनर्प्राप्ति',

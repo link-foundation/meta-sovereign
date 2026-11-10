@@ -1,3 +1,4 @@
+import { enTelegramGreetings } from './en-telegram-greetings.js';
 import { enChatUsers } from './en-chat-users.js';
 import { enPublication } from './en-publication.js';
 import { enBrowser } from './en-browser.js';
@@ -22,6 +23,7 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enTelegramGreetings,
   ...enChatUsers,
   ...enPublication,
   'backup.schedule': 'Automatic recovery',

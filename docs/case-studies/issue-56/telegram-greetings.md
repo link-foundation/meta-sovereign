@@ -1,9 +1,9 @@
 # Telegram bot and group greeting audit (TG07–TG10)
 
 Work remains in progress in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
-Bot startup, participant planning and paced delivery remain unfinished. Sticker
-discovery has a shared account implementation, CLI and default Lino routes;
-its common UI and browser verification are still required.
+Bot startup, chosen-target greeting delivery, participant planning and paced
+delivery remain unfinished. Sticker discovery has a shared account implementation,
+CLI, default Lino routes and common React catalog controls.
 
 The secret-free logs, installed-SDK probe and source hashes are preserved in
 [the evidence archive](data/telegram-greetings.tar.gz), with verified per-file
@@ -79,9 +79,63 @@ Focused catalog verification adds 19 passing checks across
 `telegram-greeting-stickers.test.js`, `telegram-greeting-stickers-cli.test.js`
 and `telegram-greeting-stickers-api.test.js`. The API test uses the production
 server, both Lino encodings and origin checks with SDK fakes. No live Telegram
-requests or full local runtime/browser matrix is used. The catalog UI, bot
-startup and participant greeting acceptance criteria remain open.
+requests or full local runtime/browser matrix is used. Chosen-target delivery,
+bot startup and participant greeting acceptance criteria remain open.
 
 The combined catalog and existing capability/account-action checks pass all
 40 cases with concurrency one and a ten-second per-test timeout. Strict lint
 passes for changed JavaScript, and the production web bundle builds successfully.
+
+## Common catalog controls
+
+The Stickers screen now exposes explicit refresh limits, cache age, greeting
+filtering, pages and per-source coverage. Opening the panel reads the cache;
+it does not start discovery or send anything. Running refreshes can be stopped.
+Cancelled, failed and incomplete reads remain distinct, with the previous cache
+available. The component is reusable in the upcoming recipient planner, including
+greeting-only selection callbacks; that planner and sending controls are still
+unfinished. Account changes remount the component. Unsupported accounts lose the
+cached presentation and refresh controls, while a connection check can recover.
+Late unmounted reads cannot replace a newer presentation or release its busy lock.
+Cache dates follow the selected interface language. All four locales include
+the new controls and recovery messages.
+
+The model, existing Greetings and translation checks pass 44 focused cases.
+The new production Chromium flow first fails on the preceding bundle because
+`[data-catalog-panel] summary` is absent. After the change it passes against the
+actual server and default readable Lino transport: 105 bounded fixture documents,
+100-item pages, non-greeting filtering, invalid limits, partial cache merging,
+cancellation during an active request, failed-source coverage, reload recovery,
+unsupported-account gating and a 390-pixel viewport. No `SendMedia` call occurs.
+The filter check awaits its completed read, since a failed read must preserve
+the last successful filter. The deliberately held request is released in cleanup
+even if an assertion fails. The test is registered in existing browser CI;
+the full Chromium/WebKit matrix remains CI work.
+
+```sh
+node --test --test-concurrency=1 --test-timeout=10000 \
+  js/tests/telegram-greeting-catalog-model.test.js \
+  js/tests/i18n.test.js js/tests/greetings-web.test.js
+RUN_BROWSER_E2E=1 npm run test:e2e:telegram-greeting-catalog
+```
+
+Independent Playwright MCP uses `experiments/issue-56/telegram-greeting-ui.mjs`,
+an isolated production server and bounded SDK fixture. It confirms four usable
+documents, complete coverage, explicit refresh and mobile layout without external
+Telegram calls. External VK thumbnail requests receive a tiny fixture image.
+The browser and fixture server are closed afterward. The tiles show document
+emoji/identity summaries; they do not claim to display the actual sticker artwork.
+
+Before, no account discovery controls:
+
+![Before catalog controls](telegram-catalog-before.png)
+
+After, explicit cache refresh and source coverage:
+
+![After catalog controls](telegram-catalog-after.png)
+
+Mobile controls and results:
+
+![Mobile controls](telegram-catalog-mobile.png)
+
+![Mobile cached results](telegram-catalog-mobile-results.png)
