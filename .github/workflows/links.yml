@@ -66,7 +66,10 @@ jobs:
             --no-progress
             --cache
             --max-cache-age 1d
+            --cache-exclude-status '408,429,500..600'
+            --max-concurrency 4
             --max-retries 3
+            --retry-wait-time 2
             --timeout 30
             --exclude-path docs/case-studies
             --exclude-path dev/log
