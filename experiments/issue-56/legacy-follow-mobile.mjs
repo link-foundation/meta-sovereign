@@ -85,7 +85,7 @@ await finish(async () => {
     console.log(
       'resize-immediate',
       await page.evaluate(() => ({
-        width: innerWidth,
+        width: globalThis.innerWidth,
         scroll: document.documentElement.scrollWidth,
         overflow: [...document.querySelectorAll('body *')]
           .map((e) => ({
@@ -94,20 +94,22 @@ await finish(async () => {
             text: e.textContent?.slice(0, 160),
             right: e.getBoundingClientRect().right,
           }))
-          .filter((e) => e.right > innerWidth + 1)
+          .filter((e) => e.right > globalThis.innerWidth + 1)
           .slice(-20),
       }))
     );
     await page.evaluate(
       () =>
         new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve))
+          globalThis.requestAnimationFrame(() =>
+            globalThis.requestAnimationFrame(resolve)
+          )
         )
     );
     console.log(
       'resize-settled',
       await page.evaluate(() => ({
-        width: innerWidth,
+        width: globalThis.innerWidth,
         scroll: document.documentElement.scrollWidth,
       }))
     );

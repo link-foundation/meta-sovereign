@@ -51,3 +51,9 @@ Evidence: [archive](data/follow-backlinks.tar.gz), [verified manifest](data/foll
 ## CI investigation accompanying this slice
 
 The preceding exact-head `4b3dc3e2` workflows were created at 2026-11-10 05:52:29 UTC. Four workflows pass. [Checks 42764827897](https://github.com/link-foundation/meta-sovereign/actions/runs/42764827897) fails the legacy session browser's immediate mobile-width assertion in Chromium and WebKit at complete-log lines 20,150 and 22,494. The isolated `legacy-follow-mobile.mjs` experiment measures 401 pixels immediately after resizing to 390, then 390 after two animation frames in the unchanged application. Commit `d3305841` uses the existing finite condition waiter for settled responsive layout; its focused production Chromium rerun passes. This does not relax persistent-overflow detection. The complete failed workflow and four superseded cancelled `1c8fbe4d` workflows are preserved. Neither those cancellations nor earlier successful heads verify the new commit.
+
+CI follow-up: Checks [42770414315](https://github.com/link-foundation/meta-sovereign/actions/runs/42770414315)
+on `333493c9` failed only its lint gate: the saved mobile investigation used
+unqualified browser globals (`ci-logs/checks-42770414315.log`, lines 1383–1387).
+The experiment now uses `globalThis`; its focused strict ESLint check passes.
+The complete downloaded workflow log remains available in the local CI evidence.
