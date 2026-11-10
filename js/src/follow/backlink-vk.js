@@ -28,6 +28,52 @@ const messages = (value, chat, limit) => {
   return value.items;
 };
 
+const deleteIncoming =
+  (call, identity) =>
+  async ({ chat, ids, cancelled, read = (use) => use() }) => {
+    const peer = backlinkPeer(chat);
+    if (
+      !Array.isArray(ids) ||
+      !ids.length ||
+      ids.length > 200 ||
+      ids.some((id) => typeof id !== 'string' || publicationId(id) !== id) ||
+      new Set(ids).size !== ids.length
+    ) {
+      throw backlinkFailure('bad-request');
+    }
+    // The earlier history scan is only a candidate list. Re-read exact IDs
+    // before deletion so outgoing, service or changed-peer rows cannot pass.
+    const rows = messages(
+      await read(() =>
+        call('messages.getById', { message_ids: ids.join(',') })
+      ),
+      peer,
+      ids.length
+    );
+    if (
+      rows.length !== ids.length ||
+      new Set(rows.map((row) => String(row.id))).size !== ids.length ||
+      rows.some(
+        (row) =>
+          !ids.includes(String(row.id)) ||
+          row.out !== 0 ||
+          row.action ||
+          [true, 1].includes(row.deleted) ||
+          [true, 1].includes(row.is_unavailable)
+      )
+    ) {
+      throw responseFailure();
+    }
+    await read(identity);
+    const result = await call(
+      'messages.delete',
+      { peer_id: peer, message_ids: ids.join(','), delete_for_all: 0 },
+      true,
+      { cancelled }
+    );
+    return { confirmed: ids.filter((id) => result?.[id] === 1) };
+  };
+
 // This adapter intentionally uses only single calls. The workflow owns timeout
 // retries; VK rate limits and permissions must reach its receipts unchanged.
 export const createBacklinkVk = async (options) => {
@@ -131,27 +177,6 @@ export const createBacklinkVk = async (options) => {
         .filter((row) => row.out === 0 && !row.action)
         .map((row) => String(row.id));
     },
-    async deleteIncoming({ chat, ids }) {
-      if (
-        !Array.isArray(ids) ||
-        !ids.length ||
-        ids.length > 200 ||
-        ids.some((id) => !publicationId(id))
-      ) {
-        throw backlinkFailure('bad-request');
-      }
-      const result = await call(
-        'messages.delete',
-        {
-          peer_id: backlinkPeer(chat),
-          message_ids: ids.join(','),
-          delete_for_all: 0,
-        },
-        true
-      );
-      return {
-        confirmed: ids.filter((id) => result?.[id] === 1),
-      };
-    },
+    deleteIncoming: deleteIncoming(call, identity),
   };
 };

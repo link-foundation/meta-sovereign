@@ -129,3 +129,5 @@ Add optional reviewed automatic Follow rounds for all Telegram/VK provider pairs
 Preserve sanitized Telegram timeout and flood-wait details through automatic Follow. Apply its finite read backoff to final prewrite checks, disable hidden SDK read retries and use fresh typed identity/entity requests while keeping issued membership and preference writes single-call.
 
 Expose validated finite timeout-only Follow read retries through CLI, text/binary Lino API and shared React controls. Freeze policies into Telegram reviews, scope cancellation to owned operations, wake cancelled backoffs, drain discovery during shutdown and prevent HTTP recovery from repeating an exhausted provider budget.
+
+Recheck exact incoming VK messages and bound account before optional Follow cleanup. Apply configured finite read retries and cancellation after the provider limiter while preserving single-call deletion receipts, durable uncertainty and shutdown ownership.

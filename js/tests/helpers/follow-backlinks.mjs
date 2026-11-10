@@ -52,6 +52,9 @@ export const followBacklinksFixture = async ({
     writable: true,
     nextId: 100,
     delivered: new Map(),
+    incoming: new Map(
+      incoming('2000000007').map((row) => [String(row.id), row])
+    ),
     removed: false,
     skipNotice: false,
   };
@@ -87,10 +90,18 @@ export const followBacklinksFixture = async ({
       response = id;
     } else if (method === 'messages.getById') {
       response = {
-        items: state.removed ? [] : [state.delivered.get(params.message_ids)],
+        items: state.removed
+          ? []
+          : params.message_ids
+              .split(',')
+              .map((id) => state.delivered.get(id) ?? state.incoming.get(id))
+              .filter(Boolean),
       };
     } else if (method === 'messages.getHistory') {
       response = { items: incoming(params.peer_id) };
+      state.incoming = new Map(
+        response.items.map((row) => [String(row.id), row])
+      );
       if (state.skipNotice) {
         response.items[0].text = 'ещё НЕ прошло 5 чужих ссылок';
       }
@@ -112,7 +123,7 @@ export const followBacklinksFixture = async ({
       liveFactory: (options) =>
         createVkLive({
           ...options,
-          limiter: { wait: async () => {} },
+          limiter: { wait: async () => state.wait?.() },
           fetchImpl,
         }),
     });
