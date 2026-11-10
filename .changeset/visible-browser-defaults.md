@@ -4,6 +4,8 @@
 
 Own Telegram phone/QR authorization clients through success, error, cancellation, timeout and server shutdown. Destroy temporary clients, prevent late cancelled results from saving credentials, bound pending sign-ins and accept fresh code/2FA retries. Keep lifecycle diagnostics disabled by default.
 
+Add masked terminal phone/2FA sign-in and explicit read-only legacy string-session import. Verify imported account identity before replacing credentials, preserve source files, bound input and deadlines, and release clients before closing the store on success, Ctrl+C, EOF or failure.
+
 Add provenance-aware Telegram user scans and reviewed contact import through CLI, default Lino API and shared Chat/Operator controls. Keep incomplete coverage visible, phone sharing off, selections immutable and one-use, and uncertain writes protected across fresh plans and restarts. Require actual receipts for individual contact changes as well.
 
 Start shared browser sessions, CV reads/syncs and browser-based messaging with visible windows by default (R-AA2). Keep explicit `--headless` and API/library headless overrides for unattended operation.

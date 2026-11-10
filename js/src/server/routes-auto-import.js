@@ -34,6 +34,7 @@ import {
   probeBrowserAutomation,
 } from '../sources/auto-import/index.js';
 import { createTelegramMtproto } from '../sources/telegram-mtproto.js';
+import { saveTelegramUserSession } from '../sources/telegram-user-session.js';
 import { accountSlot, saveExtraAccount } from '../sources/telegram-accounts.js';
 import {
   beginTelegramLogin,
@@ -241,27 +242,6 @@ const telegramRoute = async (store, req, res, ctx, action) => {
 const TELEGRAM_LOGIN_ROUTE =
   /^\/api\/auto-import\/telegram\/login\/(start|code|password|cancel|qr-start|qr-status|qr-cancel)$/;
 
-const saveUserSession = async (store, apiId, apiHash, session) => {
-  const stamp = new Date().toISOString();
-  const put = (id, tokens, value) =>
-    store.put({ id, tokens, value, updated: stamp });
-  await put(
-    'secret:telegram:user-session',
-    ['secret', 'telegram', 'user-session'],
-    session
-  );
-  await put(
-    'secret:telegram:api-id',
-    ['secret', 'telegram', 'api-id'],
-    String(apiId)
-  );
-  await put(
-    'secret:telegram:api-hash',
-    ['secret', 'telegram', 'api-hash'],
-    apiHash
-  );
-};
-
 // Turn a controller's current state into the response, saving the session
 // and dropping the controller once the sign-in is complete.
 const loginReply = async (store, ctx, id, login, meta) => {
@@ -282,7 +262,11 @@ const loginReply = async (store, ctx, id, login, meta) => {
           account: login.account,
         });
       } else {
-        await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+        await saveTelegramUserSession(store, {
+          apiId: meta.apiId,
+          apiHash: meta.apiHash,
+          session: login.session,
+        });
       }
     } finally {
       await closeTelegramLogin(ctx, id);

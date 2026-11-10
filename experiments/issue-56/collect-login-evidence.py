@@ -15,6 +15,9 @@ files = [
     "ci-logs/telegram-login-lint-final.log",
     "ci-logs/checks-42726623365-lint-job.log",
     "ci-logs/ci-aab-ledger-format.log",
+    "ci-logs/telegram-login-cli-terminal-before.log",
+    "ci-logs/telegram-login-cli-final.log",
+    "ci-logs/telegram-login-cli-lint.log",
     "experiments/issue-56/collect-login-evidence.py",
 ]
 for relative in files:
@@ -33,6 +36,11 @@ sources = [
     "js/tests/telegram-login-lifecycle.test.js",
     "js/tests/telegram-login-registry.test.js",
     "js/tests/telegram-login-route.test.js",
+    "js/src/cli/secret-prompt.js",
+    "js/src/cli/telegram-login-commands.js",
+    "js/src/sources/telegram-user-session.js",
+    "js/tests/telegram-login-cli.test.js",
+    "js/tests/telegram-storage-loading.test.js",
 ]
 metadata = {
     "base": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
@@ -41,9 +49,9 @@ metadata = {
     "sources": {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sources},
     "sdkSources": {
         name: hashlib.sha256((root / "node_modules/teleproto" / name).read_bytes()).hexdigest()
-        for name in ["client/TelegramBaseClient.js", "client/methods/auth.js"]
+        for name in ["client/TelegramBaseClient.js", "client/methods/auth.js", "sessions/StringSession.js"]
     },
-    "checks": {"baseline": "five failures", "focused": "34 passed", "lint": "passed"},
+    "checks": {"baseline": "five lifecycle failures; terminal Ctrl+C wrong outcome", "focused": "34 lifecycle and 15 CLI/route/SDK checks passed (route checks overlap)", "lint": "passed"},
     "limits": "Fake clients only; no live Telegram authorization or full local runtime matrix.",
 }
 (destination / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")

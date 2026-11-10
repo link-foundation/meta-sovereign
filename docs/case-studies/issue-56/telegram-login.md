@@ -40,7 +40,19 @@ temporary servers/stores; no real account is contacted. Evidence and installed
 SDK/source hashes are in `data/telegram-login.tar.gz`, independently checked by
 the adjacent SHA-256 manifest. CI remains responsible for other runtimes.
 
-TG06 remains **unfinished** pending the CLI surface and complete migration/UI
-verification. TG07–TG10 and the other issue-wide requirements remain open;
+The terminal now shares that lifecycle through `telegram-login` and
+`telegram-session-import`. Inputs are masked, secret arguments are rejected,
+SIGINT/SIGTERM and the five-minute lifetime cancel pending prompts, and client
+cleanup precedes store closure. A failing-before prompt regression catches
+Ctrl+C's generic abort outcome; the fix also settles EOF and restores raw mode.
+Legacy-file reads are bounded and read-only. The account is verified before
+credentials replace an existing session; failed verification preserves it.
+The installed SDK independently loads and resaves synthetic old GramJS IPv4
+and string-address sessions offline. All **15 CLI, route and SDK checks pass**,
+including retry, cancellation, invalid files and private-output assertions.
+See [terminal usage](../../TELEGRAM-LOGIN.md).
+
+TG06 remains **unfinished** pending complete migration/UI verification.
+TG07–TG10 and the other issue-wide requirements remain open;
 [PR 57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and
 unmerged.
