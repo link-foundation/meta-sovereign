@@ -11,6 +11,11 @@
  */
 
 import { connected, runIn, failureOf } from './telegram-stickers.js';
+import {
+  telegramJoinedReceipt,
+  telegramWriteFailure,
+  traceTelegramMembership,
+} from './telegram-membership-receipt.js';
 
 const CODES = {
   CHANNEL_INVALID: 'not-found',
@@ -39,7 +44,7 @@ export const similarOf = (raw) =>
       }
     : null;
 
-export const createSimilarChannels = (env, { userClient }) => {
+export const createSimilarChannels = (env, { userClient, apply }) => {
   const kept = new Map(); // chat -> { at, channels }
   const now = env.now ?? Date.now;
 
@@ -71,14 +76,25 @@ export const createSimilarChannels = (env, { userClient }) => {
     if (!CHANNEL.test(chat)) {
       return BAD;
     }
-    return connected(env, userClient, failure, async (c) => {
-      await runIn(env, `similar-join:${chat}`, () =>
-        env.connection.withPeer(c.client, chat, (peer) =>
-          c.client.invoke(new c.Api.channels.JoinChannel({ channel: peer }))
-        )
-      );
-      return { ok: true, chat };
-    });
+    return connected(
+      env,
+      userClient,
+      telegramWriteFailure(failure),
+      async (c) => {
+        const answer = await runIn(env, `similar-join:${chat}`, () =>
+          env.connection.withPeer(c.client, chat, (peer) =>
+            c.client.invoke(new c.Api.channels.JoinChannel({ channel: peer }))
+          )
+        );
+        const receipt = telegramJoinedReceipt(answer, chat);
+        traceTelegramMembership(env, 'public-join', receipt);
+        if (!receipt.ok) {
+          return receipt;
+        }
+        await apply(c.client, receipt.updates);
+        return { ok: true, chat };
+      }
+    );
   };
 
   return { similarChannels, similarJoin };

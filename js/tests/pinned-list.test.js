@@ -74,6 +74,7 @@ const make = (answer) => {
   };
   const context = {
     userClient: async () => client,
+    apply: async () => {},
     dialogOf: async (chat) => ({ id: chat }),
     tools: {
       toLinks: (dialog, messages) =>
@@ -140,7 +141,11 @@ test('pinned errors become codes and bad bodies are refused', async () => {
 test('similar channels: only channels listed, kept, joined on request', async () => {
   const { env, context, log } = make((request) =>
     request.className === 'JoinChannel'
-      ? {}
+      ? {
+          className: 'Updates',
+          updates: [],
+          chats: [{ className: 'Channel', id: 77n }],
+        }
       : {
           chats: [
             {

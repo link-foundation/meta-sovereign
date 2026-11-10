@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [telegram-membership-receipts.md](telegram-membership-receipts.md) records peek/membership distinction, direct/wrapped join receipts, pending/web-view/unknown outcomes, acknowledged mute/archive changes and shared dialog recovery, with six failing-before regressions, 60 focused checks and production browser/MCP screenshots. The complete Follow membership/preferences workflow remains open.
+
 - [ci-greeting-panel-selectors.md](ci-greeting-panel-selectors.md) preserves exact-head browser strict-selector failures caused by the new nested panel, with a failing-before reproduction and both corrected Chromium workflows.
 
 - [telegram-text-receipts.md](telegram-text-receipts.md) records shared receipt validation, durable uncertain text sends, localized Chat/Operator recovery and directory labels, with 50 focused core checks, 22 UI checks and before/after browser evidence. [ci-checkout-fccb2648.md](ci-checkout-fccb2648.md) preserves the unrelated macOS checkout cancellation.

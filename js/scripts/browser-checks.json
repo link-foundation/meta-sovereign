@@ -69,6 +69,7 @@
   "telegram-text-receipts",
   "follow-links",
   "follow-chats",
+  "membership-receipts",
   "sticker-collections",
   "browser-preferences",
   "lino-events",

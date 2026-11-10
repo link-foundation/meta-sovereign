@@ -111,3 +111,5 @@ Require positive Telegram text receipts before reporting success. Preserve missi
 Add incoming Telegram-link discovery with typed candidates, source-message provenance and a filtered clearable Lino cache through CLI, default Lino API and shared React controls. Exclude outgoing messages, expose scan limits, preserve cache location through server failures and retain source messages during clearing.
 
 Add bounded live VK group discovery, title/latest-message Telegram filters, paged member details and recent-message previews through CLI, default text/binary Lino API and shared React controls. Preserve raw provider pagination and partial coverage, keep credentials on the server and retain loaded results after failed reads.
+
+Distinguish Telegram invite preview access from membership, require exact join receipts and mute/archive acknowledgements, preserve uncertain and bot web-view outcomes, and keep localized shared dialogs from repeating unconfirmed joins. Omit unavailable member counts and add default-off receipt diagnostics.

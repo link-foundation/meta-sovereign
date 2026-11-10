@@ -15,6 +15,11 @@
  */
 
 import { runIn, connected, failureOf } from './telegram-stickers.js';
+import {
+  telegramJoinedReceipt,
+  telegramWriteFailure,
+  traceTelegramMembership,
+} from './telegram-membership-receipt.js';
 
 export const INVITE_HASH = /^[A-Za-z0-9_-]{8,64}$/;
 
@@ -34,6 +39,10 @@ const failure = failureOf(CODES);
 const BAD_HASH = { ok: false, error: 'invite-invalid', code: 'invite-invalid' };
 
 const textOf = (value) => String(value?.value ?? value);
+const memberCount = (chat) =>
+  Number.isInteger(chat.participantsCount) && chat.participantsCount >= 0
+    ? chat.participantsCount
+    : null;
 
 // The chat's address in the list: a channel's marked id, a group's.
 export const markedId = (chat) =>
@@ -43,10 +52,13 @@ export const markedId = (chat) =>
 
 const describe = (found) => {
   if (
-    (found.className === 'ChatInviteAlready' ||
-      found.className === 'ChatInvitePeek') &&
-    found.chat
+    !['ChatInvite', 'ChatInviteAlready', 'ChatInvitePeek'].includes(
+      found.className
+    )
   ) {
+    return { ok: false, code: 'failed' };
+  }
+  if (found.className === 'ChatInviteAlready' && found.chat) {
     return {
       ok: true,
       already: true,
@@ -54,17 +66,20 @@ const describe = (found) => {
       title: found.chat.title ?? '',
     };
   }
+  // Peek grants temporary read access; it does not add the user to the chat.
+  const preview =
+    found.className === 'ChatInvitePeek' ? (found.chat ?? {}) : found;
   return {
     ok: true,
     already: false,
     invite: {
-      title: found.title ?? '',
-      about: found.about ?? '',
-      members: Number(found.participantsCount ?? 0),
-      channel: Boolean(found.channel),
-      broadcast: Boolean(found.broadcast),
-      megagroup: Boolean(found.megagroup),
-      requestNeeded: Boolean(found.requestNeeded),
+      title: preview.title ?? '',
+      about: preview.about ?? '',
+      members: memberCount(preview),
+      channel: Boolean(preview.channel || preview.className === 'Channel'),
+      broadcast: Boolean(preview.broadcast),
+      megagroup: Boolean(preview.megagroup),
+      requestNeeded: Boolean(preview.requestNeeded || preview.joinRequest),
     },
   };
 };
@@ -91,19 +106,23 @@ const createJoiner =
     if (!INVITE_HASH.test(hash)) {
       return BAD_HASH;
     }
-    return connected(env, userClient, failure, async (c) => {
-      const answer = await runIn(env, `invite:join:${hash}`, () =>
-        c.client.invoke(new c.Api.messages.ImportChatInvite({ hash }))
-      );
-      // Layer 232 wraps the updates (R-Y220): chatInviteJoinResultOk; a
-      // web-view result (a bot asks first) has none.
-      const result = answer?.updates ?? (answer?.queryId ? null : answer);
-      if (result && typeof result === 'object') {
-        await apply(c.client, result);
+    return connected(
+      env,
+      userClient,
+      telegramWriteFailure(failure),
+      async (c) => {
+        const answer = await runIn(env, `invite:join:${hash}`, () =>
+          c.client.invoke(new c.Api.messages.ImportChatInvite({ hash }))
+        );
+        const receipt = telegramJoinedReceipt(answer);
+        traceTelegramMembership(env, 'invite-join', receipt);
+        if (!receipt.ok) {
+          return receipt;
+        }
+        await apply(c.client, receipt.updates);
+        return { ok: true, chat: receipt.chat };
       }
-      const chat = (result?.chats ?? []).find(Boolean);
-      return { ok: true, ...(chat ? { chat: markedId(chat) } : {}) };
-    });
+    );
   };
 
 const createRevoker =

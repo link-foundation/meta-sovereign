@@ -317,6 +317,10 @@ export const enChat = {
   'chat.invite.err.chat-full': 'This group is full.',
   'chat.invite.err.too-many-chats':
     'You have joined too many groups and channels.',
+  'chat.invite.err.outcome-unknown':
+    'Telegram did not confirm the result. Check your membership before trying again.',
+  'chat.invite.err.join-web-view-required':
+    'This invite requires a bot web view. Complete it in a supported Telegram client, then check your membership.',
   'chat.invite.err.failed': 'Something went wrong. Try again.',
   'chat.members.title': 'Members',
   'chat.members.owner': 'owner',
