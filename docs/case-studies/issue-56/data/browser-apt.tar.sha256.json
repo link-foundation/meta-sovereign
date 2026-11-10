@@ -1,0 +1,19 @@
+{
+  "archive": "browser-apt.tar.gz",
+  "files": {
+    "ci-logs/browser-apt-after.log": "5761141bc3cb50959839ce20bcf7813469f587b7004f29b9c74f95d37968fad1",
+    "ci-logs/browser-apt-before.log": "7125a687f98d54e1018036fd638879ec49dd3481c0852c1a4b7bf702dfb5df43",
+    "ci-logs/browser-apt-current-runs.json": "3cb47853dd474e938eec48cd9ecc7e6918854f6726d3a0ab17ac059fbaa97567",
+    "ci-logs/browser-apt-doc-format.log": "9be569bbf62193a883947907d36927bc612d0e2529d87c4c7934b198eefe4422",
+    "ci-logs/browser-apt-existing-tests.log": "706671806904be15be08301eddb894850c474f8da95ff0058a9e338c3cd1ac50",
+    "ci-logs/browser-apt-format.log": "7a24aa757d6a4fbf6379d4cfe00f6bc2efbf3a7b23d44f3a9faa22b85db7a3fc",
+    "ci-logs/browser-apt-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/browser-apt-previous-checks.json": "316def2c146e45b74c48b146e7f8aea03a086578fdfd9e2c365457f6c3f603b5",
+    "ci-logs/browser-apt-workflows.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/hh-history-pages-42812224902.log": "35fe9849302fe69314aec841a95b24c08b9eb2a6c26742fc06af252248acd935",
+    "ci-logs/hh-history-pages-jobs.json": "c8147ef279ca715661689a6d97d841e03df8a17099fb562835fd571cb6c06f16",
+    "ci-logs/shared-profile-pages-42804967429.log": "2dd971858e689e327f214b6d24bbc4b9e35371a0a40e7db92c020230967233f9",
+    "experiments/issue-56/collect-browser-apt.py": "b649118e9cdc0a880efb50a7d83318c276069fc9b6e15f0511437123a31983f0",
+    "metadata.json": "88caf99f6e555f1fa23596762345d5e24d0c601d11861deb6dda2e02d8b7e27b"
+  }
+}

@@ -588,6 +588,9 @@ jobs:
         run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
+      - name: Use the primary Ubuntu archive for browser dependencies
+        if: runner.os == 'Linux'
+        run: sudo node js/scripts/prepare-browser-apt.mjs
       - name: Install the browser
         env:
           BROWSER: ${{ matrix.browser }}
