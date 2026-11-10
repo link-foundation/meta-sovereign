@@ -6,6 +6,7 @@ import { QA_RULE_PREFIX } from './question-answers.js';
 import { rejectedAnswer } from './question-policy.js';
 import { summaryAnswerPairs } from './question-summary.js';
 import { historyOrder } from '../replies/history-order.js';
+import { questionProse, splitNumberedAnswers } from './question-lists.js';
 import {
   questionCore,
   isQuestionReminder,
@@ -57,6 +58,10 @@ const undelivered = (message) =>
   ['pending', 'sending', 'failed', 'unknown'].includes(
     message.delivery ?? message.status
   );
+const answerAsksQuestion = (text) => {
+  const prose = questionProse(text);
+  return prose === null || asksQuestion(prose);
+};
 
 const usableAnswer = (question, next, isSelf) =>
   isSelf(next) &&
@@ -64,23 +69,16 @@ const usableAnswer = (question, next, isSelf) =>
   !next.service &&
   !next.pending &&
   !next.failed &&
-  !asksQuestion(next.body) &&
+  !answerAsksQuestion(next.body) &&
   !undelivered(next) &&
   Date.parse(next.timestamp) - Date.parse(question.timestamp) <= 86400000 &&
   (!repliedId(next) || repliedId(next) === question.id);
 
 const addAlignedParts = (question, text, evidence, add) => {
   const questions = splitQuestions(question);
-  const parts = text
-    .split('\n')
-    .filter((line) => line.trim())
-    .map((line) => line.match(/^\s*(\d{1,2})[.)]\s+(.+)$/u));
-  if (
-    questions.length > 1 &&
-    parts.length === questions.length &&
-    parts.every((part, index) => part && Number(part[1]) === index + 1)
-  ) {
-    questions.forEach((part, index) => add(part, parts[index][2], evidence));
+  const parts = splitNumberedAnswers(text);
+  if (questions.length > 1 && parts?.length === questions.length) {
+    questions.forEach((part, index) => add(part, parts[index], evidence));
   }
 };
 
@@ -140,6 +138,7 @@ const answerCollection = ({ policy, contract }) => {
     question = questionCore(question);
     if (
       !reusable(text) ||
+      privateUrl(question) ||
       rejectedAnswer(text, policy) ||
       !sufficientAnswer(question, text)
     ) {

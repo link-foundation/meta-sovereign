@@ -4,6 +4,7 @@ import {
   isQuestion,
   MAX_QUESTION_LENGTH,
 } from '../crm/question-recognition.js';
+import { splitQuestionBlocks } from './question-lists.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
@@ -127,24 +128,4 @@ export const questionSimilarity = (left, right) => {
   return (2 * previous[b.length]) / (a.length + b.length);
 };
 
-/** Split only explicit aligned lists; code and conditional paragraphs stay whole. */
-export const splitQuestions = (text) => {
-  const value = String(text ?? '').trim();
-  if (value.length > MAX_QUESTION_LENGTH || value.includes('```')) {
-    return [value];
-  }
-  const lines = value.split('\n').filter((line) => line.trim());
-  if (lines.length < 2 || lines.length > 20) {
-    return [value];
-  }
-  const parts = lines.map((line) =>
-    line.match(/^\s*(?:(\d{1,2})[.)]|([-•]))\s+(.+)$/u)
-  );
-  return parts.every(
-    (part, index) =>
-      part &&
-      (part[1] ? Number(part[1]) === index + 1 : part[2] === parts[0]?.[2])
-  ) && parts.every((part) => asksQuestion(part[3]))
-    ? parts.map((part) => part[3].trim())
-    : [value];
-};
+export const splitQuestions = splitQuestionBlocks;

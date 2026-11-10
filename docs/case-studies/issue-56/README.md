@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-lists.md](question-lists.md) verifies whole questionnaires, conditional/code-preserving aligned parts, private incoming link exclusion and reviewed assembly through CLI/Lino API/shared UI, 53 focused checks and production Chromium/MCP desktop/mobile evidence. Live provider imports and the wider question/form requirements remain required.
+
 - [follow-preview-cancellation.md](follow-preview-cancellation.md) closes FL08 pending-review cancellation with five failing-before regressions, 103 focused checks, 13 policy checks, three production Chromium flows and independent MCP desktop/mobile evidence. Together with [follow-vk-cleanup.md](follow-vk-cleanup.md), [follow-read-policy.md](follow-read-policy.md) and the linked earlier studies, the inventoried FL01–FL09 behaviors are verified. Other unchecked issue-wide work remains required. Earlier entries below describe their state at that point in the chronology.
 
 - [auto-follow.md](auto-follow.md) verifies FL07/FL09 bounded automatic rounds across all Telegram/VK provider pairs through CLI/Lino API/shared UI, current membership and independent Telegram preferences, fresh rejected-chat scans, durable unknown-write protection, real Lino recovery, 80 focused checks and browser/MCP desktop/mobile evidence. Broader FL08 remains open.

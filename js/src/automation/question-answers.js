@@ -303,7 +303,10 @@ export const planAnswer = (question, options = {}) => {
   if (questions.length <= 1) {
     result = applySalaryAnswer(core, context, result);
   }
-  if (result.match === 'unanswered' && questions.length > 1) {
+  if (
+    ['unanswered', 'approximate'].includes(result.match) &&
+    questions.length > 1
+  ) {
     const parts = questions.map((part) =>
       applySalaryAnswer(part, context, answerOne(part, context))
     );
