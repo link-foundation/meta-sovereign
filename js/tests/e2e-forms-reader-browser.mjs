@@ -403,3 +403,11 @@ await app.finish(async () => {
     await fixture.close();
   }
 });
+
+// CDP watchers use Chromium; the shared form reader is checked in both engines.
+if (
+  process.env.E2E_BROWSER !== 'webkit' &&
+  process.env.FORMS_LEARNING_ONLY !== '1'
+) {
+  await import('./e2e-forms-watcher-browser.mjs');
+}

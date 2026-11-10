@@ -154,7 +154,7 @@ export const createFormReviewCommands = ({
             'attach <slot> <plan-id> <field-id> [replace]',
             'quit',
           ],
-          note: 'Review browsers stay open until closed, idle expiry, quit or process shutdown. Plan and explicitly select fields to apply; forms are never submitted.',
+          note: 'Close stops a review browser and its watcher. Durable learning watchers remain open after quit or end of input, and close after 24 idle hours. Plan and explicitly select fields to apply; forms are never submitted.',
         })
       );
       stream = reviewInput();
@@ -185,7 +185,11 @@ export const createFormReviewCommands = ({
       process.removeListener('SIGTERM', cancel);
       stream?.close?.();
       try {
-        await (stopping ?? reader.stop());
+        if (stopping) {
+          await stopping;
+        } else {
+          log(JSON.stringify(await reader.detachReviews()));
+        }
       } finally {
         await store.close?.();
       }

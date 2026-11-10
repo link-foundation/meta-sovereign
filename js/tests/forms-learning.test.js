@@ -507,3 +507,66 @@ test(
     }
   }
 );
+
+test(
+  'review operations pause automatic learning, then resume the stable baseline without learning application changes',
+  { timeout: 5000 },
+  async () => {
+    const env = fixture();
+    try {
+      env.arm('Prefill');
+      await env.observe('Owner changed this', 1, {
+        edits: 1,
+        editedAt: env.now(),
+      });
+      await env.learning.pause(true);
+      await env.advance(60000);
+      assert.equal(env.saved.length, 0);
+      await env.learning.pause(false);
+      await env.advance(1);
+      assert.equal(env.saved.length, 1);
+    } finally {
+      await env.learning.stop();
+    }
+  }
+);
+
+test(
+  'temporary store-owner contention delays retries without disabling the watcher or claiming a saved answer',
+  { timeout: 5000 },
+  async () => {
+    let busy = true;
+    const env = fixture({
+      save: async (pairs, options) => {
+        await options.check();
+        if (busy) {
+          throw Object.assign(new Error('writer busy'), {
+            code: 'form-store-busy',
+          });
+        }
+        return { saved: pairs.length, skipped: 0 };
+      },
+    });
+    try {
+      env.arm();
+      await env.observe('Owner answer waits for its writer', 1, {
+        edits: 1,
+        editedAt: env.now(),
+      });
+      await env.advance(60000);
+      for (let attempt = 0; attempt < 4; attempt++) {
+        await env.advance(5000);
+      }
+      assert.equal(env.learning.status().state, 'watching');
+      assert.equal(env.learning.status().saved, 0);
+      assert.equal(env.learning.status().failed, 0);
+      assert.equal(env.learning.status().error, 'form-store-busy');
+      busy = false;
+      await env.advance(5000);
+      assert.equal(env.learning.status().saved, 1);
+      assert.equal(env.learning.status().error, null);
+    } finally {
+      await env.learning.stop();
+    }
+  }
+);

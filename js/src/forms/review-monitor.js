@@ -77,6 +77,7 @@ export const createFormMonitor = async ({
   trace,
   observed,
   incomplete,
+  initializeCurrent = false,
 }) => {
   const status = {
     state: enabled ? 'unavailable' : 'disabled',
@@ -171,9 +172,15 @@ export const createFormMonitor = async ({
   try {
     page.on?.('response', response);
     await page.exposeBinding(binding, receive);
-    await page.addInitScript({
-      content: `(${observeFormDocument.toString()})(${readFormDocument.toString()}, ${JSON.stringify(binding)}, ${observed ? observeFormLearning.toString() : 'undefined'});`,
-    });
+    const content = `(${observeFormDocument.toString()})(${readFormDocument.toString()}, ${JSON.stringify(binding)}, ${observed ? observeFormLearning.toString() : 'undefined'});`;
+    await page.addInitScript({ content });
+    if (initializeCurrent) {
+      for (const frame of page.frames()) {
+        if (frame.url() !== 'about:blank') {
+          await frame.evaluate(content);
+        }
+      }
+    }
     status.state = 'active';
   } catch (error) {
     stopped = true;

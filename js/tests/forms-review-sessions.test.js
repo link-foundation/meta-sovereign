@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { setImmediate } from 'node:timers';
 import { createFormReader } from '../src/forms/reader.js';
+import { createFormSessions } from '../src/forms/review-sessions.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createFormsCommands } from '../src/cli/forms-commands.js';
 import { startServer } from '../src/server/index.js';
@@ -76,6 +77,33 @@ const review = (openSession, options = {}) =>
 const open = (reader, slot = 'form-1') =>
   reader.openReview({ url, browserSlot: slot });
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+test(
+  'Close owns bridge startup before any browser is launched',
+  { timeout: 5000 },
+  async () => {
+    const ready = deferred();
+    let launched = false;
+    const sessions = createFormSessions({
+      store: createMemoryStore(),
+      ready: ready.promise,
+      openSession: async () => {
+        launched = true;
+        return browser();
+      },
+    });
+    const opening = assert.rejects(sessions.open({ url }), {
+      code: 'form-session-closed',
+    });
+    const id = sessions.list().sessions[0].id;
+    const closing = sessions.close(id);
+    ready.resolve();
+    await Promise.all([opening, closing]);
+    assert.equal(launched, false);
+    assert.equal(sessions.list().sessions.length, 0);
+    await sessions.stop();
+  }
+);
 
 test(
   'three independent review slots stay open; rereads preserve the current page without navigation',

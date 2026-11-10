@@ -40,6 +40,25 @@ const stopReader = async (reviews, planning, task, bridge) => {
     await (await bridge)?.close();
   }
 };
+const detachReader = async (reviews, bridge) => {
+  try {
+    return await reviews.detach();
+  } finally {
+    await (await bridge)?.close();
+  }
+};
+
+const startKnowledgeBridge = (store) => {
+  if (!store?.logFile) {
+    return null;
+  }
+  const bridge = createFormKnowledgeBridge({
+    store,
+    directory: path.dirname(store.logFile),
+  });
+  bridge.catch(() => {});
+  return bridge;
+};
 
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
@@ -53,24 +72,16 @@ export const createFormReader = ({
   let active = null;
   let stopping = false;
   const planning = new Set();
-  const bridge = store?.logFile
-    ? createFormKnowledgeBridge({
-        store,
-        directory: path.dirname(store.logFile),
-      })
-    : Promise.resolve(null);
-  bridge.catch(() => {});
+  const bridge = startKnowledgeBridge(store);
   const reviews = createFormSessions({
     store,
     openSession,
     reportWriter,
     ...review,
+    ready: bridge,
   });
   return {
-    openReview: async (input) => {
-      await bridge;
-      return reviews.open(input);
-    },
+    openReview: reviews.open,
     closeReview: reviews.close,
     listReviews: reviews.list,
     readReview: reviews.read,
@@ -80,6 +91,10 @@ export const createFormReader = ({
     discloseReview: reviews.disclose,
     attachReview: reviews.attach,
     historyReview: reviews.history,
+    detachReviews: async () => {
+      stopping = true;
+      return detachReader(reviews, bridge);
+    },
     capabilities: () => formCapabilities(availability),
     async plan(input = {}) {
       if (stopping) {

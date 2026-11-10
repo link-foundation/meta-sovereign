@@ -94,6 +94,7 @@ class FormLearning {
     this.intents = new Map();
     this.profileId = '';
     this.stopped = false;
+    this.paused = false;
     this.pending = Promise.resolve();
     this.bytes = 0;
     this.stablePending = false;
@@ -101,6 +102,11 @@ class FormLearning {
     this.failures = 0;
   }
   failure(error) {
+    if (error.code === 'form-store-busy') {
+      this.state.error = error.code;
+      this.retryAt = this.now() + 5000;
+      return;
+    }
     this.state.failed++;
     if (error.partial?.saved) {
       this.state.saved += error.partial.saved;
@@ -132,6 +138,7 @@ class FormLearning {
     const unchanged = () => {
       if (
         this.stopped ||
+        this.paused ||
         this.profileId !== profileId ||
         selected.some(
           (entry, index) =>
@@ -181,7 +188,7 @@ class FormLearning {
     }
   }
   async stable() {
-    if (this.stopped) {
+    if (this.stopped || this.paused) {
       return;
     }
     const due = [...this.entries.values()].filter(
@@ -219,6 +226,7 @@ class FormLearning {
     );
     if (
       this.stopped ||
+      this.paused ||
       this.stablePending ||
       this.state.state !== 'watching' ||
       !candidates.length
@@ -290,6 +298,7 @@ class FormLearning {
     }
     this.state.tracked = this.entries.size;
     this.state.state = 'watching';
+    this.state.error = null;
     this.failures = 0;
     this.schedule();
   }
@@ -360,6 +369,7 @@ class FormLearning {
     if (
       !this.enabled ||
       this.stopped ||
+      this.paused ||
       !validEvidence(evidence) ||
       this.state.state !== 'watching'
     ) {
@@ -405,6 +415,15 @@ class FormLearning {
     await this.pending;
     if (this.enabled) {
       this.state.state = 'stopped';
+    }
+  }
+  async pause(value) {
+    this.paused = value;
+    this.timers.clearTimeout(this.timer);
+    if (value) {
+      await this.pending;
+    } else {
+      this.schedule();
     }
   }
 }

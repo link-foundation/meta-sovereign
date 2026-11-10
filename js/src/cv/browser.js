@@ -18,6 +18,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { browserName, resolveBrowserPolicy } from '../browser/policy.js';
+import { launchPersistentBrowser } from './persistent-browser.js';
 
 /** Packages a live run needs, in the order we report them. */
 export const BROWSER_PACKAGES = ['browser-commander', 'playwright'];
@@ -127,7 +128,20 @@ export const launchWithCommander = async ({
   slowMo,
   locale,
   verbose = false,
+  persistent = false,
+  idleMs = 24 * 60 * 60 * 1000,
 }) => {
+  if (persistent) {
+    return launchPersistentBrowser({
+      bc,
+      profileDir,
+      idleMs,
+      headless,
+      slowMo,
+      verbose,
+      args: [`--lang=${locale}`],
+    });
+  }
   const session = await bc.launchBrowser({
     engine: 'playwright',
     headless,
@@ -172,6 +186,8 @@ export const openBrowserSession = async ({
   verbose = false,
   importers = {},
   launcher = null,
+  persistent = false,
+  idleMs,
 } = {}) => {
   const policy = await resolveBrowserPolicy(store, {
     platform,
@@ -202,8 +218,14 @@ export const openBrowserSession = async ({
           slowMo,
           locale,
           verbose,
+          persistent,
+          idleMs,
         });
       })();
+  return wrapBrowserSession({ bc, session, policy, verbose });
+};
+
+const wrapBrowserSession = ({ bc, session, policy, verbose }) => {
   const commander = bc.makeBrowserCommander({
     page: session.page,
     verbose,
@@ -218,6 +240,18 @@ export const openBrowserSession = async ({
     page: session.page,
     context: session.context ?? null,
     policy,
+    persistent: session.persistent,
+    ...(session.detach
+      ? {
+          detach: async () => {
+            try {
+              await commander.destroy?.();
+            } finally {
+              await session.detach();
+            }
+          },
+        }
+      : {}),
     async close() {
       try {
         await commander.destroy?.();

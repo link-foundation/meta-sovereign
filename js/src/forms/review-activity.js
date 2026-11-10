@@ -17,12 +17,22 @@ const observeActivity = (binding) => {
   }
 };
 
-export const trackReviewActivity = async (page, id, touched) => {
+export const trackReviewActivity = async (
+  page,
+  id,
+  touched,
+  { initializeCurrent = false } = {}
+) => {
   if (!page?.exposeBinding || !page?.addInitScript) {
     return false;
   }
   const binding = `__formActivity_${id.replaceAll('-', '')}`;
   await page.exposeBinding(binding, touched);
   await page.addInitScript(observeActivity, binding);
+  if (initializeCurrent) {
+    for (const frame of page.frames()) {
+      await frame.evaluate(observeActivity, binding);
+    }
+  }
   return true;
 };

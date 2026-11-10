@@ -207,7 +207,7 @@ test(
               },
             }
           ),
-          { code: 'ENOENT' }
+          { code: 'form-store-busy' }
         );
         assert.deepEqual(await listAnswerRules(store), []);
       } finally {

@@ -4,7 +4,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { once } from 'node:events';
+import { once, EventEmitter } from 'node:events';
 import { createFormChannel } from '../src/forms/local-channel.js';
 import { encodeWire, decodeWire } from '../src/transport/lino.js';
 import {
@@ -20,19 +20,35 @@ const frame = (value) => {
   return Buffer.concat([prefix, bytes]);
 };
 
+test('a complete response received before disconnect remains readable', async () => {
+  const socket = new EventEmitter();
+  socket.setTimeout = () => {};
+  const channel = createFormChannel(socket);
+  socket.emit('data', frame({ result: { state: 'stopping' } }));
+  socket.emit('close');
+  assert.deepEqual(await channel.next(), { result: { state: 'stopping' } });
+  await assert.rejects(channel.next(), /connection closed/);
+});
+
 test(
   'fragmented and coalesced Lino frames decode independently; oversized frames close without allocating their declared body',
   { timeout: 5000 },
   async () => {
     let received;
+    let accepted;
+    const ready = new Promise((resolve) => {
+      accepted = resolve;
+    });
     const server = net.createServer((socket) => {
       received = createFormChannel(socket);
+      accepted();
     });
     server.listen(0, '127.0.0.1');
     await once(server, 'listening');
     const socket = net.connect(server.address().port, '127.0.0.1');
     socket.on('error', () => {});
     await once(socket, 'connect');
+    await ready;
     try {
       const one = frame({ text: 'Owner response नमस्ते' });
       const two = frame({ type: 'checked', ok: true });

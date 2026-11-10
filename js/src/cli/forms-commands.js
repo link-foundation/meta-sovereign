@@ -11,12 +11,18 @@ import {
   createFormReviewCommands,
   FORMS_REVIEW_HELP,
 } from './forms-review-commands.js';
+import {
+  FORMS_WATCHERS_HELP,
+  formWatcherCommands,
+} from './forms-watcher-commands.js';
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
   forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--source=<provider>] [--chat=<id>] [--store=<dir>]
-${FORMS_REVIEW_HELP}`;
+${FORMS_REVIEW_HELP}
+${FORMS_WATCHERS_HELP}`;
 
 export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
+  ...formWatcherCommands,
   ...createFormReviewCommands({ openStore, ...readerOptions }),
   'forms-plan': async (args, log) => {
     const output = formReportOutput(args.format);

@@ -262,4 +262,10 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.ok(checks.includes('forms-reader'));
   assert.match(scripts['test:e2e:forms-reader'], /e2e-forms-reader-browser/);
   assert.match(scripts['test:e2e:forms-reader:webkit'], /E2E_BROWSER=webkit/);
+  assert.match(scripts['test:e2e:forms-watchers'], /e2e-forms-watcher-browser/);
+  const reader = readFileSync(
+    path.join(root, 'js/tests/e2e-forms-reader-browser.mjs'),
+    'utf8'
+  );
+  assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
 });

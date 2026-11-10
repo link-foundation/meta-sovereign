@@ -179,3 +179,5 @@ Capture visible form documents automatically during owned reviews, including own
 Learn unapproved actual answers from explicitly planned pages in owned form reviews after observed submission completion or a stable one-minute owner edit. Share CLI/API/localized opt-out, current knowledge and contact guards, bounded lifecycle, actual-answer journal evidence and honest partial-write/report failure states.
 
 Coordinate observed form-answer proposals through the active store writer, with bounded private Lino messages, current policy checks and live-answer guards before each write.
+
+Keep default-on per-slot form-answer watchers alive after CLI quit/EOF, reconnect without navigating over owner edits, preserve bounded private action/learning history and expose status/history/Stop with explicit cleanup and the existing unapproved-proposal policy.

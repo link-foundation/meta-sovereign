@@ -80,11 +80,11 @@ export const createFormChannel = (socket, { timeoutMs = 15000 } = {}) => {
       });
     },
     next() {
-      if (closed) {
-        return Promise.reject(closed);
-      }
       if (queue.length) {
         return Promise.resolve(queue.shift());
+      }
+      if (closed) {
+        return Promise.reject(closed);
       }
       if (waiting) {
         return Promise.reject(

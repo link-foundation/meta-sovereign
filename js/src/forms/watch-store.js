@@ -4,6 +4,24 @@ import { openDualStore } from '../storage/dual-store.js';
 import { learnFormAnswerPairs } from './answer-learning.js';
 import { requestFormKnowledge } from './knowledge-bridge.js';
 
+const requestOwner = async (...args) => {
+  try {
+    return await requestFormKnowledge(...args);
+  } catch (error) {
+    if (
+      ['ENOENT', 'ECONNREFUSED', 'ECONNRESET', 'EPIPE'].includes(error.code)
+    ) {
+      throw Object.assign(
+        new Error(
+          'The current store writer is temporarily unavailable to this watcher.'
+        ),
+        { code: 'form-store-busy' }
+      );
+    }
+    throw error;
+  }
+};
+
 const ownerPid = async (directory) => {
   const file = path.join(directory, 'data.lock');
   const text = await fs
@@ -50,7 +68,7 @@ const save = async (
 ) => {
   const pid = await ownerPid(directory);
   if (pid) {
-    return requestFormKnowledge(directory, pid, pairs, options);
+    return requestOwner(directory, pid, pairs, options);
   }
   let store;
   try {
@@ -59,7 +77,7 @@ const save = async (
     if (error.code !== 'STORE_LOCKED') {
       throw error;
     }
-    return requestFormKnowledge(directory, error.pid, pairs, options);
+    return requestOwner(directory, error.pid, pairs, options);
   }
   let result;
   try {

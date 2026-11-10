@@ -10,9 +10,14 @@ import { persistFormReport } from './report-file.js';
 import { createFormMonitor } from './review-monitor.js';
 import { createFormLearning } from './review-learning.js';
 import { learnFormAnswerPairs } from './answer-learning.js';
+import path from 'node:path';
+import { startFormWatcher } from './watcher-client.js';
 
 const bounded = (value, max) =>
   Number.isInteger(value) && value > 0 && value <= max;
+const idleExpiry = (record) =>
+  record.learning?.watcher?.().idleExpiresAt ??
+  new Date(record.lastUsedAt + record.idleMs).toISOString();
 const identity = (record) => {
   let url = record.url;
   try {
@@ -30,9 +35,10 @@ const identity = (record) => {
     headless: record.browser?.policy?.headless ?? null,
     openedAt: new Date(record.openedAt).toISOString(),
     lastUsedAt: new Date(record.lastUsedAt).toISOString(),
-    idleExpiresAt: new Date(record.lastUsedAt + record.idleMs).toISOString(),
+    idleExpiresAt: idleExpiry(record),
     activityTracking: record.activityTracking,
     answerLearning: record.learning?.status(),
+    watcher: record.learning?.watcher?.(),
     monitoring: record.monitor?.status() ?? {
       state: 'unavailable',
       learning: false,
@@ -85,6 +91,16 @@ const focusBrowser = async (record) => {
 };
 
 const captureReport = async (writer, record, action, result, proposed) => {
+  if (record.learning?.detached && action !== 'observe') {
+    await record.learning
+      .capture(action, formReportSnapshot(result, proposed))
+      .catch(() => {
+        result.watcherJournal = {
+          state: 'failed',
+          code: 'form-watcher-journal',
+        };
+      });
+  }
   if (record.journal.capture(action, result, proposed) && writer) {
     result.reportFile = await persistFormReport(
       writer,
@@ -94,27 +110,43 @@ const captureReport = async (writer, record, action, result, proposed) => {
   return result;
 };
 
-const launchReviewBrowser = async ({
-  record,
-  openSession,
-  store,
-  input,
-  owner,
-  reportWriter,
-}) => {
-  record.browser = await openSession({
-    store,
-    platform: 'forms-review',
-    useCase: 'forms',
-    slot: record.slot,
-    headless: input.headless,
-  });
-  owner.check(record);
-  record.browser.page?.once?.('close', () => {
-    Promise.resolve()
-      .then(() => owner.close(record.id))
-      .catch(() => {});
-  });
+const reviewHistory = async (record) => {
+  const history = record.learning.detached
+    ? await record.learning.history().catch(() => ({
+        ...record.journal.read(),
+        watcherJournal: { state: 'failed', code: 'form-watcher-journal' },
+      }))
+    : record.journal.read();
+  return {
+    ...history,
+    monitoring: history.monitoring ?? record.monitor?.status(),
+    answerLearning: history.answerLearning ?? record.learning?.status(),
+  };
+};
+
+const attachLearningWatcher = async (record, store) => {
+  if (record.learn && store?.logFile && record.browser.persistent) {
+    const watcher = await startFormWatcher({
+      directory: path.dirname(store.logFile),
+      slot: record.slot,
+      id: record.id,
+      browser: record.browser.persistent,
+      idleMs: record.idleMs,
+    });
+    await record.learning.stop();
+    record.learning = watcher;
+  }
+};
+
+const attachReviewObservation = async (record, owner, reportWriter) => {
+  if (record.learning.detached) {
+    record.activityTracking = true;
+    record.monitor = {
+      status: record.learning.monitoring,
+      stop: async () => {},
+    };
+    return;
+  }
   record.activityTracking = await trackReviewActivity(
     record.browser.page,
     record.id,
@@ -133,12 +165,58 @@ const launchReviewBrowser = async ({
   if (record.learn && record.monitor.status().state !== 'active') {
     record.learning.incomplete('capture-unavailable');
   }
-  owner.check(record);
-  await record.browser.commander.goto({
-    url: record.url,
-    waitUntil: 'domcontentloaded',
-    timeout: 30000,
+};
+
+const launchReviewBrowser = async ({
+  record,
+  openSession,
+  store,
+  input,
+  owner,
+  reportWriter,
+  ready,
+}) => {
+  if (ready) {
+    await ready;
+    owner.check(record);
+  }
+  record.browser = await openSession({
+    store,
+    platform: 'forms-review',
+    useCase: 'forms',
+    slot: record.slot,
+    headless: input.headless,
+    persistent: record.learn && Boolean(store?.logFile),
+    idleMs: record.idleMs,
+    ...(store?.logFile
+      ? {
+          profileDir: path.join(
+            path.dirname(store.logFile),
+            'browser-profiles',
+            'forms-review',
+            record.slot
+          ),
+        }
+      : {}),
   });
+  owner.check(record);
+  await attachLearningWatcher(record, store);
+  record.browser.page?.once?.('close', () => {
+    Promise.resolve()
+      .then(() => owner.close(record.id))
+      .catch(() => {});
+  });
+  await attachReviewObservation(record, owner, reportWriter);
+  owner.check(record);
+  if (record.learning.reused) {
+    record.url = formUrl(record.browser.page.url());
+  } else {
+    await record.browser.commander.goto({
+      url: record.url,
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
+  }
   owner.check(record);
   record.state = 'open';
 };
@@ -197,14 +275,17 @@ const reviewAction =
         proposed
       );
       if (action === 'plan') {
-        if (record.monitor.status().state === 'active') {
-          record.learning.arm(result, record.reviewPlan?.options);
+        if (
+          record.learning.detached ||
+          record.monitor.status().state === 'active'
+        ) {
+          await record.learning.arm(result, record.reviewPlan?.options);
         } else {
           record.learning.incomplete('capture-unavailable');
         }
       }
       if (action === 'apply') {
-        record.learning.applied(result);
+        await record.learning.applied(result);
       }
       return result;
     });
@@ -215,6 +296,48 @@ const reviewAction =
   };
 
 /** Owned open browsers, separate from transient inspection and application slots. */
+const newReviewRecord = ({
+  input,
+  url,
+  slot,
+  now,
+  idleMs,
+  autoCapture,
+  learn,
+  store,
+}) => ({
+  id: globalThis.crypto.randomUUID(),
+  slot,
+  url,
+  title: '',
+  state: 'opening',
+  openedAt: now(),
+  lastUsedAt: now(),
+  idleMs,
+  activityTracking: false,
+  autoCapture: input.autoCapture ?? autoCapture,
+  learn:
+    (input.learn ?? learn) &&
+    (input.autoCapture ?? autoCapture) &&
+    Boolean(store),
+  journal: createFormJournal(),
+});
+
+const checkCapacity = (records, slot, maxSessions) => {
+  if ([...records.values()].some((record) => record.slot === slot)) {
+    throw failure(
+      'form-slot-in-use',
+      'That review slot is already owned. Focus it or choose another slot.'
+    );
+  }
+  if (records.size >= maxSessions) {
+    throw failure(
+      'form-session-limit',
+      'Close a review session before opening another.'
+    );
+  }
+};
+
 export const createFormSessions = ({
   store,
   openSession = openBrowserSession,
@@ -228,6 +351,7 @@ export const createFormSessions = ({
   autoCapture = true,
   learn = true,
   learning = {},
+  ready,
 } = {}) => {
   reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture, learn });
   const records = new Map();
@@ -245,35 +369,17 @@ export const createFormSessions = ({
       throw failure('form-stopped', 'Form review is stopping.');
     }
     const { url, slot } = reviewInput(input);
-    if ([...records.values()].some((record) => record.slot === slot)) {
-      throw failure(
-        'form-slot-in-use',
-        'That review slot is already owned. Focus it or choose another slot.'
-      );
-    }
-    if (records.size >= maxSessions) {
-      throw failure(
-        'form-session-limit',
-        'Close a review session before opening another.'
-      );
-    }
-    const record = {
-      id: globalThis.crypto.randomUUID(),
-      slot,
+    checkCapacity(records, slot, maxSessions);
+    const record = newReviewRecord({
+      input,
       url,
-      title: '',
-      state: 'opening',
-      openedAt: now(),
-      lastUsedAt: now(),
+      slot,
+      now,
       idleMs,
-      activityTracking: false,
-      autoCapture: input.autoCapture ?? autoCapture,
-      learn:
-        (input.learn ?? learn) &&
-        (input.autoCapture ?? autoCapture) &&
-        Boolean(store),
-      journal: createFormJournal(),
-    };
+      autoCapture,
+      learn,
+      store,
+    });
     record.learning = reviewLearning({
       record,
       now,
@@ -292,6 +398,7 @@ export const createFormSessions = ({
         input,
         owner,
         reportWriter,
+        ready,
       })
     );
     try {
@@ -315,7 +422,14 @@ export const createFormSessions = ({
       );
     }
     touch(record);
-    record.task = run(record, () => operation(record));
+    record.task = run(record, async () => {
+      await record.learning.pause?.(true);
+      try {
+        return await operation(record);
+      } finally {
+        await record.learning.pause?.(false);
+      }
+    });
     try {
       return await record.task;
     } finally {
@@ -328,6 +442,7 @@ export const createFormSessions = ({
     open,
     close,
     stop: owner.stop,
+    detach: owner.detach,
     list: () => ({
       ok: true,
       sessions: [...records.values()].map(identity),
@@ -343,9 +458,7 @@ export const createFormSessions = ({
     attach: action('attach'),
     disclose: action('disclose'),
     history: async (id) => ({
-      ...(await operate(id, (record) => record.journal.read())),
-      monitoring: get(id).monitor?.status(),
-      answerLearning: get(id).learning?.status(),
+      ...(await operate(id, reviewHistory)),
       reviewSession: identity(get(id)),
     }),
     read: async (id) => {

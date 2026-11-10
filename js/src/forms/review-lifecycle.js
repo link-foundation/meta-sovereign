@@ -1,5 +1,28 @@
 import { formFailure as failure } from './options.js';
 
+const detachRecord = async (records, record, timers) => {
+  if (record.task || record.closing) {
+    throw failure('form-busy', 'A form operation still owns this session.');
+  }
+  timers.clearTimeout(record.idleTimer);
+  await record.monitor?.stop();
+  await record.learning.detach();
+  records.delete(record.id);
+  try {
+    await record.browser.detach();
+  } catch (error) {
+    records.set(record.id, record);
+    throw error;
+  }
+  return {
+    id: record.id,
+    browserSlot: record.slot,
+    state: 'detached',
+    answerLearning: record.learning.status(),
+    watcher: record.learning.watcher(),
+  };
+};
+
 export const createReviewLifecycle = ({
   records,
   idleMs,
@@ -73,6 +96,9 @@ export const createReviewLifecycle = ({
     }
     record.lastUsedAt = now();
     timers.clearTimeout(record.idleTimer);
+    if (record.learning?.detached) {
+      return;
+    }
     record.idleTimer = timers.setTimeout(() => {
       close(record.id).catch(() => {});
     }, idleMs);
@@ -109,5 +135,26 @@ export const createReviewLifecycle = ({
       );
     }
   };
-  return { get, check, close, run, touch, stop, isStopping: () => stopping };
+  const detach = async () => {
+    stopping = true;
+    const detached = [];
+    for (const record of [...records.values()]) {
+      if (!record.learning?.detached || !record.browser?.detach) {
+        await close(record.id);
+        continue;
+      }
+      detached.push(await detachRecord(records, record, timers));
+    }
+    return { ok: true, sessions: detached };
+  };
+  return {
+    get,
+    check,
+    close,
+    run,
+    touch,
+    stop,
+    detach,
+    isStopping: () => stopping,
+  };
 };
