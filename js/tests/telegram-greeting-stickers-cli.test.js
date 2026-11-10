@@ -90,34 +90,40 @@ test('catalog CLI waits for explicit refresh and reports incomplete coverage as 
   }
 });
 
-test('SIGTERM cancels a catalog refresh and awaits cleanup with a nonzero exit', async () => {
-  const events = [];
-  const output = [];
-  const commands = createTelegramGreetingCommands({
-    openStore: async () => ({ close: async () => events.push('close') }),
-    createAccount: () => ({
-      greetingStickersRefresh: async () => {
-        process.emit('SIGTERM');
-        return { ok: true, job: { id: 'job' } };
-      },
-      greetingStickersCancel: async () => events.push('cancel'),
-      greetingStickersStatus: async () => ({
-        ok: true,
-        job: { id: 'job', state: 'cancelled' },
+// Deno's Node compatibility layer ignores SIGTERM listeners on Windows.
+// Exercise the terminal's supported Ctrl+C there; POSIX also checks SIGTERM.
+const interruptSignals =
+  process.platform === 'win32' ? ['SIGINT'] : ['SIGINT', 'SIGTERM'];
+for (const signal of interruptSignals) {
+  test(`${signal} cancels a catalog refresh and awaits cleanup with a nonzero exit`, async () => {
+    const events = [];
+    const output = [];
+    const commands = createTelegramGreetingCommands({
+      openStore: async () => ({ close: async () => events.push('close') }),
+      createAccount: () => ({
+        greetingStickersRefresh: async () => {
+          process.emit(signal);
+          return { ok: true, job: { id: 'job' } };
+        },
+        greetingStickersCancel: async () => events.push('cancel'),
+        greetingStickersStatus: async () => ({
+          ok: true,
+          job: { id: 'job', state: 'cancelled' },
+        }),
+        stop: async () => events.push('stop'),
       }),
-      stop: async () => events.push('stop'),
-    }),
+    });
+    assert.equal(
+      await commands['telegram-greeting-stickers']({ refresh: true }, (line) =>
+        output.push(line)
+      ),
+      1
+    );
+    assert.ok(events.includes('cancel'));
+    assert.deepEqual(events.slice(-2), ['stop', 'close']);
+    assert.equal(JSON.parse(output[0]).job.state, 'cancelled');
   });
-  assert.equal(
-    await commands['telegram-greeting-stickers']({ refresh: true }, (line) =>
-      output.push(line)
-    ),
-    1
-  );
-  assert.ok(events.includes('cancel'));
-  assert.deepEqual(events.slice(-2), ['stop', 'close']);
-  assert.equal(JSON.parse(output[0]).job.state, 'cancelled');
-});
+}
 
 test('catalog CLI retains cleanup when reading status fails', async () => {
   const events = [];

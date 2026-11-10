@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-catalog-signals.md](ci-catalog-signals.md) preserves the exact-head Windows Deno catalog cancellation failure, pinned runtime source and platform-aware SIGINT/SIGTERM test correction. Nine focused Node/Deno checks pass; the Windows CI rerun remains required.
+
 - [telegram-greetings.md](telegram-greetings.md) records positive sticker receipts, the account-scoped greeting catalog and reviewed chosen-target/bot sends through CLI/Lino API/common UI, with focused regressions, production browser/MCP desktop/mobile evidence and the upstream mask-list shape report. Participant planning and paced group greeting workflows remain unfinished.
 
 - [ci-124a2234.md](ci-124a2234.md) preserves the export head's Windows Deno startup failure and midnight WebKit birthday-fixture boundary, with an actual CI image, deterministic failing/passing calendar experiment and focused startup diagnostics. Windows latency remains under investigation.
