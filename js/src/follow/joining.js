@@ -5,7 +5,7 @@ const accepted = (answer) => {
   if (answer?.ok === false) {
     throw Object.assign(
       backlinkFailure(answer.code ?? 'read-failed'),
-      answer.providerError ? { providerError: answer.providerError } : {}
+      answer.providerError ? { errorMessage: answer.providerError } : {}
     );
   }
   return answer;
@@ -36,14 +36,14 @@ export const createFollowJoining = async (
       source: 'telegram',
       url,
     }),
-    apply: async (review, { cancelled }) => {
+    apply: async (review, { cancelled, read }) => {
       if (cancelled()) {
         await account.followTelegramCancel?.({ planId: review.planId });
         throw backlinkFailure('cancelled');
       }
       return account.followTelegramApply(
         { planId: review.planId, confirm: true },
-        { cancelled }
+        { cancelled, read }
       );
     },
     discard: (review) =>

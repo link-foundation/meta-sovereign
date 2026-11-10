@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { connect, runIn } from './telegram-stickers.js';
-import { greetingStickerOwner } from './telegram-greeting-stickers-cache.js';
+import { runIn } from './telegram-stickers.js';
+import {
+  connectFollowTelegram,
+  readFollowTelegramOwner,
+} from './telegram-follow-client.js';
+import { backlinkError } from '../follow/backlink-shape.js';
 import { followFailure } from './telegram-follow-shape.js';
 
 const known = new Set([
@@ -19,9 +23,11 @@ const known = new Set([
   'not-member',
   'pagination-stalled',
 ]);
+export const followError = (error) =>
+  known.has(error?.code) ? { code: error.code } : backlinkError(error);
 export const followReadFailure = (error) => ({
   ok: false,
-  code: known.has(error?.code) ? error.code : 'read-failed',
+  ...followError(error),
 });
 export const createFollowRuntime = (env, context) => {
   const plans = new Map();
@@ -45,10 +51,7 @@ export const createFollowRuntime = (env, context) => {
     return task;
   };
   const connectedRead = async (version, use) => {
-    const c = await connect(env, context.userClient);
-    if (!c) {
-      throw followFailure('user-account-required');
-    }
+    const c = await connectFollowTelegram(env, context);
     let actual;
     let queuedError;
     // Own the complete queued read, including identity checks, after a deadline.
@@ -57,13 +60,13 @@ export const createFollowRuntime = (env, context) => {
         if (cancelled(version)) {
           throw followFailure(cancelled(version));
         }
-        const owner = await greetingStickerOwner({}, c);
+        const owner = await readFollowTelegramOwner(c);
         const result = await use(c, owner);
         if (cancelled(version)) {
           throw followFailure(cancelled(version));
         }
         if (
-          (await greetingStickerOwner({}, c)) !== owner ||
+          (await readFollowTelegramOwner(c)) !== owner ||
           (await context.userClient()) !== c.client
         ) {
           throw followFailure('account-changed');

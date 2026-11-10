@@ -75,6 +75,7 @@ export const followAutoFixture = async ({ store } = {}) => {
     member.state.entity = {
       className: 'Channel',
       id: state.id,
+      accessHash: 10n,
       title: name,
       username: name,
       megagroup: true,

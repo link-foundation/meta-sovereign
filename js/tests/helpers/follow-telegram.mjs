@@ -29,12 +29,16 @@ const fakeApi = () => ({
     'GetPeerDialogs',
     'GetDialogs',
     'DeleteChatUser',
+    'GetChats',
   ]),
   channels: methods('channels', [
     'GetParticipant',
     'JoinChannel',
     'LeaveChannel',
+    'GetChannels',
   ]),
+  users: methods('users', ['GetUsers']),
+  contacts: methods('contacts', ['ResolveUsername']),
   account: methods('account', ['UpdateNotifySettings']),
   folders: methods('folders', ['EditPeerFolders']),
   ...Object.fromEntries(
@@ -46,6 +50,11 @@ const fakeApi = () => ({
       'InputNotifyPeer',
       'InputPeerNotifySettings',
       'InputFolderPeer',
+      'InputPeerChat',
+      'InputPeerChannel',
+      'InputPeerUser',
+      'InputChannel',
+      'InputUser',
     ].map((name) => [name, named(name)])
   ),
 });
@@ -65,6 +74,66 @@ const fixtureClient = (state, calls, writes) => {
     notifySettings: { muteUntil: state.muted ? 2147483647 : 0 },
     folderId: state.archived ? 1 : 0,
   });
+  const read = async (request, name) => {
+    if (state.read && name !== 'GetUsers') {
+      const answer = await state.read(request);
+      if (answer !== undefined) {
+        return answer;
+      }
+    }
+    if (name === 'GetUsers') {
+      if (request.id[0].className === 'InputUser') {
+        return [
+          { className: 'User', id: request.id[0].userId, accessHash: 10n },
+        ];
+      }
+      const me = await client.getMe();
+      return [{ className: 'User', ...me }];
+    }
+    if (['ResolveUsername', 'GetChats', 'GetChannels'].includes(name)) {
+      const entity = await client.getEntity(
+        name === 'ResolveUsername' ? `@${request.username}` : state.entity.id
+      );
+      return { chats: [entity], peer: peer() };
+    }
+    if (name === 'GetParticipant') {
+      if (!state.member) {
+        throw followRpcError('USER_NOT_PARTICIPANT');
+      }
+      return {
+        participant: {
+          className: 'ChannelParticipantSelf',
+          userId: state.owner,
+        },
+      };
+    }
+    if (name === 'GetPeerDialogs') {
+      return { dialogs: [dialog()] };
+    }
+    if (name === 'CheckChatInvite') {
+      return state.member
+        ? { className: 'ChatInviteAlready', chat: state.entity }
+        : state.peek
+          ? {
+              className: 'ChatInvitePeek',
+              chat: state.entity,
+              expires: 2000000000,
+            }
+          : {
+              className: 'ChatInvite',
+              title: state.entity.title,
+              channel: state.entity.className === 'Channel',
+              megagroup: true,
+            };
+    }
+    return {
+      className: 'messages.Dialogs',
+      chats: [state.entity],
+      users: [],
+      dialogs: [dialog()],
+      messages: [{ id: 10, peerId: peer(), date: 123 }],
+    };
+  };
   const client = {
     getMe: async () => {
       await state.beforeMe?.();
@@ -98,51 +167,13 @@ const fixtureClient = (state, calls, writes) => {
           'GetPeerDialogs',
           'CheckChatInvite',
           'GetDialogs',
+          'GetUsers',
+          'ResolveUsername',
+          'GetChats',
+          'GetChannels',
         ].includes(name)
       ) {
-        if (state.read) {
-          const answer = await state.read(request);
-          if (answer !== undefined) {
-            return answer;
-          }
-        }
-        if (name === 'GetParticipant') {
-          if (!state.member) {
-            throw followRpcError('USER_NOT_PARTICIPANT');
-          }
-          return {
-            participant: {
-              className: 'ChannelParticipantSelf',
-              userId: state.owner,
-            },
-          };
-        }
-        if (name === 'GetPeerDialogs') {
-          return { dialogs: [dialog()] };
-        }
-        if (name === 'CheckChatInvite') {
-          return state.member
-            ? { className: 'ChatInviteAlready', chat: state.entity }
-            : state.peek
-              ? {
-                  className: 'ChatInvitePeek',
-                  chat: state.entity,
-                  expires: 2000000000,
-                }
-              : {
-                  className: 'ChatInvite',
-                  title: state.entity.title,
-                  channel: state.entity.className === 'Channel',
-                  megagroup: true,
-                };
-        }
-        return {
-          className: 'messages.Dialogs',
-          chats: [state.entity],
-          users: [],
-          dialogs: [dialog()],
-          messages: [{ id: 10, peerId: peer(), date: 123 }],
-        };
+        return read(request, name);
       }
       writes.push(request);
       if (state.reply) {
@@ -185,6 +216,7 @@ export const followTelegramFixture = ({
     entity: {
       className: 'Channel',
       id: 7n,
+      accessHash: 10n,
       title: 'Study circle',
       username: 'study_group',
       megagroup: true,

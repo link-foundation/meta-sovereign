@@ -1,8 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import {
-  createFollowRuntime,
-  followReadFailure,
-} from './telegram-follow-runtime.js';
+import { createFollowRuntime, followError } from './telegram-follow-runtime.js';
 import {
   followFailure,
   followRequest,
@@ -74,7 +71,11 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
       });
     });
   };
-  const apply = async (body, version, outsideCancelled) => {
+  const apply = async (
+    body,
+    version,
+    { cancelled: outsideCancelled, read } = {}
+  ) => {
     const cancelledHere = () =>
       cancelled(version) || (outsideCancelled?.() ? 'cancelled' : null);
     if (body.confirm !== true || typeof body.planId !== 'string') {
@@ -105,10 +106,10 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
             current,
             phase,
             cancelledHere,
-            now
+            { now, read }
           );
         } catch (error) {
-          result = { status: 'failed', code: followReadFailure(error).code };
+          result = { status: 'failed', ...followError(error) };
         }
         results.push({ phase, ...result });
         if (!['confirmed', 'skipped'].includes(result.status)) {
@@ -142,7 +143,7 @@ export const createFollowTelegram = (env, context, { now = Date.now } = {}) => {
     followTelegramPreview: (body = {}) =>
       owned((version) => preview(body, version)),
     followTelegramApply: (body = {}, options = {}) =>
-      owned((version) => apply(body, version, options.cancelled)),
+      owned((version) => apply(body, version, options)),
     followTelegramCancel: runtime.cancel,
   };
 };

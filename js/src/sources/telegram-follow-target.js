@@ -11,7 +11,7 @@ const membership = async (c, entity, peer) => {
     return !entity.left;
   }
   try {
-    const answer = await c.client.invoke(
+    const answer = await c.invoke(
       new c.Api.channels.GetParticipant({
         channel: peer,
         participant: new c.Api.InputPeerSelf(),
@@ -49,7 +49,7 @@ const membership = async (c, entity, peer) => {
   }
 };
 const preferences = async (c, peer, chat, now) => {
-  const answer = await c.client.invoke(
+  const answer = await c.invoke(
     new c.Api.messages.GetPeerDialogs({
       peers: [new c.Api.InputDialogPeer({ peer })],
     })
@@ -76,14 +76,12 @@ const fromEntity = async (c, selector, now) => {
     selector.kind === 'private-message'
       ? `-100${selector.channel}`
       : selector.chat;
-  const entity = await c.client.getEntity(
-    requested ? c.helpers.returnBigInt(requested) : `@${selector.username}`
-  );
+  const entity = await c.entity(selector);
   const target = followEntity(entity);
   if (requested && target.chat !== requested) {
     throw followFailure('target-changed');
   }
-  const peer = await c.client.getInputEntity(entity);
+  const peer = c.peerFrom(entity);
   if (followPeerChat(peer) !== target.chat) {
     throw followFailure('target-changed');
   }
@@ -94,13 +92,13 @@ const fromEntity = async (c, selector, now) => {
   return { target: { ...target, member, ...state }, peer };
 };
 const fromInvite = async (c, selector, now) => {
-  const answer = await c.client.invoke(
+  const answer = await c.invoke(
     new c.Api.messages.CheckChatInvite({ hash: selector.invite })
   );
   const kind = followKind(answer);
   if (kind === 'ChatInviteAlready') {
     const target = followEntity(answer.chat);
-    const peer = await c.client.getInputEntity(answer.chat);
+    const peer = c.peerFrom(answer.chat);
     if (followPeerChat(peer) !== target.chat) {
       throw followFailure('target-changed');
     }

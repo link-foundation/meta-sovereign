@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { connect, runIn } from './telegram-stickers.js';
-import { greetingStickerOwner } from './telegram-greeting-stickers-cache.js';
+import { runIn } from './telegram-stickers.js';
+import {
+  connectFollowTelegram,
+  readFollowTelegramOwner,
+} from './telegram-follow-client.js';
 import { resolveFollowTarget } from './telegram-follow-target.js';
 import {
   followFailure,
@@ -18,11 +21,12 @@ import {
 } from './telegram-membership-receipt.js';
 import { journalFollowPhase } from './telegram-follow-journal.js';
 import { MUTE_FOREVER } from './telegram-dialogs.js';
-import { followReadFailure } from './telegram-follow-runtime.js';
+import { followError } from './telegram-follow-runtime.js';
+import { backlinkError } from '../follow/backlink-shape.js';
 
 const explicitFailure = (error, issued) => {
   if (!issued) {
-    return { status: 'failed', code: followReadFailure(error).code };
+    return { status: 'failed', ...followError(error) };
   }
   const rpc = error?.errorMessage;
   if (rpc === 'INVITE_REQUEST_SENT') {
@@ -35,8 +39,9 @@ const explicitFailure = (error, issued) => {
   ) {
     return { status: 'unknown', code: 'outcome-unknown' };
   }
-  if (/^FLOOD_(?:PREMIUM_)?WAIT_\d+$/.test(rpc)) {
-    return { status: 'failed', code: 'flood-wait' };
+  const refusal = backlinkError(error, { write: true });
+  if (refusal.code === 'flood-wait') {
+    return { status: 'failed', ...refusal };
   }
   const codes = {
     INVITE_HASH_EXPIRED: 'invite-expired',
@@ -48,7 +53,11 @@ const explicitFailure = (error, issued) => {
     USER_CREATOR: 'owner-cannot-leave',
     USER_ALREADY_PARTICIPANT: 'membership-changed',
   };
-  return { status: 'failed', code: codes[rpc] ?? 'provider-refused' };
+  return {
+    status: 'failed',
+    ...refusal,
+    code: codes[rpc] ?? 'provider-refused',
+  };
 };
 const requestOf = (c, fresh, plan, phase) => {
   const { Api } = c;
@@ -120,16 +129,13 @@ const receiptOf = (answer, plan, phase, target) => {
     ? { status: 'confirmed', chat: target.chat, updates }
     : { status: 'unknown', code: 'outcome-unknown' };
 };
-const prepare = async (env, context, plan, phase, cancelled, now) => {
-  const c = await connect(env, context.userClient);
-  if (!c) {
-    throw followFailure('user-account-required');
-  }
+const prepare = async (env, context, plan, phase, cancelled, { now, read }) => {
+  const c = await connectFollowTelegram(env, context, read);
   if (cancelled()) {
     throw followFailure(cancelled());
   }
   // This phase owns the serial account queue; do not enqueue a nested read.
-  if ((await greetingStickerOwner({}, c)) !== plan.owner) {
+  if ((await readFollowTelegramOwner(c)) !== plan.owner) {
     throw followFailure('account-changed');
   }
   const fresh = await resolveFollowTarget(c, plan.selector, now);
@@ -158,7 +164,7 @@ const prepare = async (env, context, plan, phase, cancelled, now) => {
           throw followFailure('target-changed');
         }
         if (
-          (await greetingStickerOwner({}, c)) !== plan.owner ||
+          (await readFollowTelegramOwner(c)) !== plan.owner ||
           (await context.userClient()) !== c.client
         ) {
           throw followFailure('account-changed');
@@ -205,7 +211,7 @@ export const writeFollowPhase = async (
   plan,
   phase,
   cancelled,
-  now
+  options
 ) => {
   let actual;
   const queued = await runIn(env, `follow:write:${randomUUID()}`, () => {
@@ -215,12 +221,12 @@ export const writeFollowPhase = async (
       phase,
       async () => {
         try {
-          return await prepare(env, context, plan, phase, cancelled, now);
+          return await prepare(env, context, plan, phase, cancelled, options);
         } catch (error) {
           return { result: explicitFailure(error, false) };
         }
       },
-      now
+      options.now
     ).catch(() => ({ status: 'failed', code: 'storage-unavailable' }));
     return actual;
   }).catch(() => ({ status: 'unknown', code: 'outcome-unknown' }));

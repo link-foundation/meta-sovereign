@@ -53,9 +53,10 @@ test('listing performs one bounded raw request, includes archive preferences and
   assert.equal(result.chats[0].chat, '-1007');
   assert.equal(result.chats[0].archived, true);
   assert.equal(result.page.complete, true);
-  assert.equal(f.calls.length, 1);
-  assert.equal(f.calls[0].limit, 2);
-  assert.equal(f.calls[0].folderId, undefined, 'all folders are requested');
+  const requests = f.calls.filter((r) => r.className === 'messages.GetDialogs');
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].limit, 2);
+  assert.equal(requests[0].folderId, undefined, 'all folders are requested');
   assert.equal(f.writes.length, 0);
 });
 test('raw pagination advances through private-only pages and binds exact peer/date offsets to the account', async () => {
@@ -94,16 +95,20 @@ test('raw pagination advances through private-only pages and binds exact peer/da
       .ok,
     true
   );
-  assert.equal(f.calls[1].offsetPeer.userId, '4');
-  assert.equal(f.calls[1].offsetDate, 123);
-  assert.equal(f.calls[1].offsetId, 9);
-  assert.equal(f.calls[1].excludePinned, true);
+  const requests = f.calls.filter((r) => r.className === 'messages.GetDialogs');
+  assert.equal(String(requests[1].offsetPeer.userId), '4');
+  assert.equal(requests[1].offsetDate, 123);
+  assert.equal(requests[1].offsetId, 9);
+  assert.equal(requests[1].excludePinned, true);
   f.state.owner = '2';
   assert.equal(
     (await f.actions.followTelegramList({ cursor: first.page.next })).code,
     'account-changed'
   );
-  assert.equal(f.calls.length, 2);
+  assert.equal(
+    f.calls.filter((r) => r.className === 'messages.GetDialogs').length,
+    2
+  );
 });
 test('empty slices with a positive count and unavailable cursors retain partial coverage; malformed responses fail', async () => {
   const f = followTelegramFixture();
@@ -453,7 +458,7 @@ test('intent flush failures prevent RPCs; invitation receipts must match the pre
   assert.equal(other.writes.length, 1);
 });
 
-test('installed SDK resolves and serializes every Follow write with hidden retries disabled', async () => {
+test('installed SDK resolves and serializes every Follow read and write with hidden retries disabled', async () => {
   const { importTelegram } = await import('../src/sources/telegram-layer.js');
   const sdk = await importTelegram();
   const f = followTelegramFixture();
@@ -478,6 +483,7 @@ test('installed SDK resolves and serializes every Follow write with hidden retri
       errors.push(`${request.className}: ${error.message}`);
       throw error;
     }
+    assert.ok(options, 'every read and write disables SDK retries');
     if (options) {
       assert.equal(dc, undefined);
       assert.equal(options.maxRetryCount, 0);
@@ -496,12 +502,17 @@ test('installed SDK resolves and serializes every Follow write with hidden retri
     (await apply(f, await planFor(f, { operation: 'leave' }))).ok,
     true
   );
-  assert.deepEqual(serialized, [
-    'channels.JoinChannel',
-    'account.UpdateNotifySettings',
-    'folders.EditPeerFolders',
-    'channels.LeaveChannel',
-  ]);
+  assert.ok(serialized.includes('contacts.ResolveUsername'));
+  assert.ok(serialized.includes('users.GetUsers'));
+  assert.deepEqual(
+    f.writes.map((r) => r.className),
+    [
+      'channels.JoinChannel',
+      'account.UpdateNotifySettings',
+      'folders.EditPeerFolders',
+      'channels.LeaveChannel',
+    ]
+  );
   f.state.entity = { className: 'Chat', id: 7n, title: 'Basic circle' };
   const basic = await apply(
     f,
@@ -513,10 +524,10 @@ test('installed SDK resolves and serializes every Follow write with hidden retri
     await planFor(f, { target: '-7', operation: 'leave' })
   );
   assert.equal(left.ok, true, JSON.stringify({ left, errors }));
-  assert.deepEqual(serialized.slice(4), [
-    'messages.ImportChatInvite',
-    'messages.DeleteChatUser',
-  ]);
+  assert.deepEqual(
+    f.writes.slice(4).map((r) => r.className),
+    ['messages.ImportChatInvite', 'messages.DeleteChatUser']
+  );
 });
 
 test('restricted participants remain members while kicked or view-banned participants do not', async () => {

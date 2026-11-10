@@ -144,7 +144,7 @@ const entitiesOf = (chats) => {
 };
 const cursorPeer = async (c, cursor) => {
   const offsetPeer = cursor?.peer
-    ? await c.client.getInputEntity(c.helpers.returnBigInt(cursor.peer))
+    ? await c.peer(cursor.peer)
     : new c.Api.InputPeerEmpty();
   if (cursor?.peer && peerAddress(offsetPeer) !== cursor.peer) {
     throw followFailure('target-changed');
@@ -163,7 +163,7 @@ export const listFollowTelegram = async (
   }
   const cursor = cursorOf(body.cursor, owner);
   const offsetPeer = await cursorPeer(c, cursor);
-  const answer = await c.client.invoke(
+  const answer = await c.invoke(
     new c.Api.messages.GetDialogs({
       limit,
       offsetId: cursor?.id ?? 0,
