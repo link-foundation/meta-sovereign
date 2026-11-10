@@ -40,6 +40,14 @@ const validState = (field) =>
   [null, 'password', 'file'].includes(field.valueOmitted) &&
   (!field.group ||
     (text(field.group.label, 2000) && text(field.group.id ?? '', 120)));
+const validRadioGroup = (group) =>
+  group === undefined ||
+  (group &&
+    id(group.id) &&
+    Number.isInteger(group.size) &&
+    group.size > 0 &&
+    group.size <= 2000 &&
+    typeof group.complete === 'boolean');
 const validField = (field, frames) =>
   field &&
   id(field.id) &&
@@ -49,6 +57,7 @@ const validField = (field, frames) =>
   text(field.type, 40) &&
   text(field.description ?? '', 2000) &&
   validState(field) &&
+  validRadioGroup(field.radioGroup) &&
   list(field.options, 100, option);
 const validFrame = (frame) =>
   frame &&

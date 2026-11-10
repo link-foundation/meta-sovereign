@@ -49,6 +49,25 @@ try {
           commander,
           policy: { headless: true },
           async close() {
+            if (new URL(page.url()).pathname === '/radio') {
+              read.radioFrames = [];
+              for (const frame of page.frames()) {
+                read.radioFrames.push(
+                  await frame.evaluate(() =>
+                    Array.from(
+                      globalThis.document.querySelectorAll(
+                        'input[type="radio"]'
+                      )
+                    ).map((node) => ({
+                      id: node.id,
+                      name: node.name,
+                      form: node.form?.id ?? '',
+                      checked: node.checked,
+                    }))
+                  )
+                );
+              }
+            }
             if (new URL(page.url()).pathname === '/prefill') {
               read.values = await page.evaluate(() =>
                 Object.fromEntries(

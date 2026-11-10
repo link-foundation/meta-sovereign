@@ -26,10 +26,31 @@ export const FormApplicationResult = ({ result }) => {
               key: receipt.fieldId,
               'data-form-receipt': receipt.status,
             },
-            t('forms.fill.receipt', {
-              field: receipt.label || receipt.fieldId,
-              status: t(`forms.fill.receipt.${receipt.status}`),
-            })
+            [
+              t('forms.fill.receipt', {
+                field: receipt.label || receipt.fieldId,
+                status: t(`forms.fill.receipt.${receipt.status}`),
+              }),
+              receipt.effects?.length
+                ? el(
+                    'ul',
+                    { key: 'effects' },
+                    receipt.effects.map((effect) =>
+                      el(
+                        'li',
+                        {
+                          key: effect.fieldId,
+                          'data-form-effect-receipt': effect.status,
+                        },
+                        t('forms.fill.radioReceipt', {
+                          field: effect.label || effect.fieldId,
+                          status: t(`forms.fill.receipt.${effect.status}`),
+                        })
+                      )
+                    )
+                  )
+                : null,
+            ]
           )
         )
       ),

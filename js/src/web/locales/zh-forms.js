@@ -1,6 +1,9 @@
 export const zhForms = {
+  'forms.fill.unavailable': '请在表单浏览器中检查此字段；此处无法更改。',
+  'forms.fill.radioChanges': '此选项还会取消选择：{fields}。',
+  'forms.fill.radioReceipt': '{field} → 未选择：{status}',
   'forms.fill.existing':
-    '选中的字段已有答案。请先检查，再允许替换或取消选择该字段。',
+    '现有答案将被更改。请检查所选更改，再允许替换或取消选择该字段。',
   'nav.forms': '表单',
   'forms.title': '检查表单',
   'forms.hint':
@@ -155,10 +158,10 @@ export const zhForms = {
     '无法确认审核操作。URL 和报告已保留。重试前请刷新会话。',
   'forms.fill.title': '审核所选更改',
   'forms.fill.hint':
-    '在下方选择字段，仅应用选中的建议。支持文本字段、原生单选下拉框和复选框。替换现有答案需要明确允许。提交和下一步由您操作；网站可能会在编辑时保存更改。',
+    '在下方选择字段，仅应用选中的建议。支持文本字段、原生单选下拉框、复选框和完整读取的单选按钮组。替换现有答案需要明确允许。提交和下一步由您操作；网站可能会在编辑时保存更改。',
   'forms.fill.select': '应用此建议',
   'forms.fill.count': '已选 {count} 项 · 最多 {limit} 项',
-  'forms.fill.replace': '替换所选字段中的现有答案',
+  'forms.fill.replace': '允许替换所选更改影响的现有答案',
   'forms.fill.apply': '应用所选更改',
   'forms.fill.error':
     '尚未确认结果（{code}）。已保留选择。重试同一计划以获取记录；已执行的操作不会再次执行。',

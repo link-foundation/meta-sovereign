@@ -36,7 +36,7 @@ export const createFormReader = ({
         plan: true,
         review: status.available,
         fill: status.available,
-        fillScope: 'reviewed-native-text-select-checkbox',
+        fillScope: 'reviewed-native-text-select-checkbox-radio',
         submit: false,
         scope: 'visible-current-pages',
       };

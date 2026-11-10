@@ -46,6 +46,24 @@ export const FormAnswer = ({ answer }) => {
           source: t(`forms.plan.source.${answer.source}`),
         })
       ),
+      answer.effects?.length
+        ? el(
+            'p',
+            { key: 'effects', 'data-form-radio-effects': '' },
+            t('forms.fill.radioChanges', {
+              fields: answer.effects
+                .map((effect) => effect.label || effect.fieldId)
+                .join(', '),
+            })
+          )
+        : null,
+      answer.applySupported === false
+        ? el(
+            'p',
+            { key: 'unavailable', className: 'meta' },
+            t('forms.fill.unavailable')
+          )
+        : null,
       Number.isFinite(answer.similarity)
         ? el(
             'p',

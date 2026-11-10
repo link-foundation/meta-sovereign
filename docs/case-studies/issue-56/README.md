@@ -6,7 +6,9 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [forms-reviewed-prefill.md](forms-reviewed-prefill.md) verifies selected native text/select/checkbox writes with actual readback, explicit replacement, stale-page/knowledge guards and same-plan receipt recovery through CLI/Lino/shared UI. Fifty focused Node checks, fifteen Deno checks and Chromium/MCP desktop/mobile pass. Radio/custom controls, models and multipage/submission/edit learning remain open.
+- [forms-reviewed-radios.md](forms-reviewed-radios.md) verifies actual native groups, disclosed clearing, affected-answer replacement permission and verified peer receipts through CLI/Lino/localized UI. Fifty-five focused Node checks, nineteen Deno checks and Chromium/MCP desktop/mobile pass. Custom controls, models, accumulated pages and learning remain open.
+
+- [forms-reviewed-prefill.md](forms-reviewed-prefill.md) verifies selected native text/select/checkbox writes with actual readback, explicit replacement, stale-page/knowledge guards and same-plan receipt recovery through CLI/Lino/shared UI. Fifty-one focused Node checks, fifteen Deno checks and Chromium/MCP desktop/mobile pass. The later radio unit extends this foundation; custom controls, models and multipage/submission/edit learning remain open.
 
 - [forms-review-sessions.md](forms-review-sessions.md) verifies persistent isolated read-only browsers, owner edits and manually opened next pages, activity expiry, failed-close recovery and owned shutdown through CLI/Lino/shared UI. Focused Node/Deno, production Chromium and independent MCP desktop/mobile pass. Reviewed prefilling and multipage/submission/edit learning remain open.
 

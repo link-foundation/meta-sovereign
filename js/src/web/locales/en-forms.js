@@ -1,4 +1,8 @@
 export const enForms = {
+  'forms.fill.unavailable':
+    'Review this field in the form browser; no change is available here.',
+  'forms.fill.radioChanges': 'This option also clears: {fields}.',
+  'forms.fill.radioReceipt': '{field} → Not selected: {status}',
   'nav.forms': 'Forms',
   'forms.title': 'Form inspection',
   'forms.hint':
@@ -178,12 +182,13 @@ export const enForms = {
     'The review operation could not be confirmed. Your URL and report are kept. Refresh sessions before trying again.',
   'forms.fill.title': 'Review selected changes',
   'forms.fill.hint':
-    'Select fields below, then apply only those proposals. Text fields, single native selects and checkboxes are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
+    'Select fields below, then apply only those proposals. Text fields, native single selects, checkboxes and complete radio groups are supported. Existing answers require explicit replacement. Submit and Next are left to you; sites may save changes as you edit.',
   'forms.fill.select': 'Apply this proposal',
   'forms.fill.count': '{count} selected · maximum {limit}',
-  'forms.fill.replace': 'Replace existing answers in selected fields',
+  'forms.fill.replace':
+    'Allow replacing existing answers affected by selected changes',
   'forms.fill.existing':
-    'A selected field already has an answer. Review it, then allow replacement or deselect that field.',
+    'An existing answer would change. Review the selected changes, then allow replacement or deselect the field.',
   'forms.fill.apply': 'Apply selected changes',
   'forms.fill.error':
     'No confirmed result ({code}). Your selection is kept. Retry the same plan to recover its receipt; an existing application will not run again.',

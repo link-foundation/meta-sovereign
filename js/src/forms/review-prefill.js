@@ -8,6 +8,7 @@ import {
   writeReviewTarget,
 } from './review-targets.js';
 import { selectedReviewFields, applyReviewedFields } from './review-apply.js';
+import { withRadioReview } from './review-radio.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
@@ -37,7 +38,9 @@ export const createReviewedPrefill = ({
       profileId: input.profileId ?? '',
       approximate: input.approximate !== false,
     };
-    const proposed = await planFormAnswers(store, { inspection, ...options });
+    const proposed = withRadioReview(
+      await planFormAnswers(store, { inspection, ...options })
+    );
     check();
     const targets = await capture(snapshot, proposed.fields);
     try {
@@ -94,10 +97,12 @@ export const createReviewedPrefill = ({
     record.reviewPlan = null;
     const fresh = () => inspect(record.browser, { check });
     const guard = async () => {
-      const current = await planFormAnswers(store, {
-        inspection: state.inspection,
-        ...state.options,
-      });
+      const current = withRadioReview(
+        await planFormAnswers(store, {
+          inspection: state.inspection,
+          ...state.options,
+        })
+      );
       if (answerKey(current) !== answerKey(state.proposed)) {
         throw failure(
           'form-answers-changed',

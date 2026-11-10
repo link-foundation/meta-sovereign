@@ -9,6 +9,34 @@ export const readFormDocument = ({
   const doc = globalThis.document;
   const reasons = new Set();
   const groups = new Map();
+  // Native exclusivity follows form owner and exact name, across fieldsets.
+  // Include hidden/disabled peers in the count so a partial group cannot fill.
+  const collectRadios = () => {
+    const owners = new Map();
+    const membership = new Map();
+    let count = 0;
+    let complete = true;
+    for (const node of doc.querySelectorAll('input[type="radio"]')) {
+      if (++count > 2000) {
+        complete = false;
+        reasons.add('control-scan-limit');
+        break;
+      }
+      if (!owners.has(node.form)) {
+        owners.set(node.form, new Map());
+      }
+      const named = owners.get(node.form);
+      const key = node.name || node;
+      if (!named.has(key)) {
+        named.set(key, { id: `radio-group-${count}`, size: 0 });
+      }
+      const group = named.get(key);
+      group.size++;
+      membership.set(node, group);
+    }
+    return { membership, complete };
+  };
+  const radios = collectRadios();
   const clip = (value) => {
     const text = String(value ?? '')
       .replace(/\s+/gu, ' ')
@@ -239,6 +267,14 @@ export const readFormDocument = ({
       label: label.text,
       labelSource: label.source,
       group,
+      ...(radios.membership.has(node)
+        ? {
+            radioGroup: {
+              ...radios.membership.get(node),
+              complete: radios.complete,
+            },
+          }
+        : {}),
       heading: nearbyHeading,
       description: refs(node, 'aria-describedby'),
       ...stateOf(node, type),

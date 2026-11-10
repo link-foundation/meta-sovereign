@@ -16,6 +16,7 @@ import {
 } from '../src/transport/lino.js';
 import { isReadRequest } from '../src/web/request-policy.js';
 import { writableReviewField } from '../src/forms/review-targets.js';
+import { reviewTargetFields } from '../src/forms/review-radio.js';
 
 const field = (id, label, extra = {}) => ({
   id: `frame-1:${id}`,
@@ -162,6 +163,187 @@ const environment = async () => {
     },
   };
 };
+
+const radioEnvironment = async () => {
+  const env = await environment();
+  await saveAnswerRule(env.store, {
+    id: 'arrangement',
+    question: 'Work arrangement',
+    answers: [{ text: 'Remote', approved: true, count: 1 }],
+  });
+  const radio = (id, label, checked, groupId = 'native-one') =>
+    field(id, label, {
+      type: 'radio',
+      name: 'arrangement',
+      value: label.toLowerCase(),
+      checked,
+      group: { id: `fieldset-${id}`, label: 'Work arrangement' },
+      radioGroup: { id: groupId, size: 2, complete: true },
+    });
+  env.report.fields = [
+    radio('remote', 'Remote', false),
+    radio('office', 'Office', true),
+    radio('other-remote', 'Remote', false, 'native-two'),
+    radio('other-office', 'Office', true, 'native-two'),
+  ];
+  env.hooks.write = (chosen) => {
+    for (const peer of env.report.fields.filter(
+      (entry) => entry.radioGroup.id === chosen.radioGroup.id
+    )) {
+      peer.checked = peer.id === chosen.id;
+    }
+  };
+  return env;
+};
+
+test(
+  'native radio review includes implicit clearing and requires replacement permission for the peer',
+  { timeout: 5000 },
+  async (t) => {
+    const env = await radioEnvironment();
+    t.after(() => env.reader.stop());
+    const plan = await env.plan();
+    assert.equal(plan.fields[0].answer.applySupported, true);
+    assert.equal(plan.fields[1].answer.applySupported, false);
+    assert.deepEqual(plan.fields[0].answer.effects, [
+      { fieldId: 'frame-1:office', label: 'Office', checked: false },
+    ]);
+    assert.deepEqual(
+      reviewTargetFields(plan.fields, writableReviewField).map(
+        (entry) => entry.id
+      ),
+      [
+        'frame-1:remote',
+        'frame-1:office',
+        'frame-1:other-remote',
+        'frame-1:other-office',
+      ]
+    );
+    await assert.rejects(env.apply(plan, ['frame-1:remote']), {
+      code: 'form-existing-value',
+    });
+    await assert.rejects(
+      env.apply(plan, ['frame-1:office'], { replaceExisting: true }),
+      { code: 'form-selection' }
+    );
+    const result = await env.apply(plan, ['frame-1:remote'], {
+      replaceExisting: true,
+    });
+    assert.equal(result.state, 'applied');
+    assert.deepEqual(result.receipts[0].effects, [
+      {
+        fieldId: 'frame-1:office',
+        label: 'Office',
+        checked: false,
+        status: 'applied',
+      },
+    ]);
+    assert.deepEqual(
+      env.report.fields.map((entry) => entry.checked),
+      [true, false, false, true]
+    );
+    assert.deepEqual(env.writes, ['frame-1:remote']);
+    assert.deepEqual(
+      (await env.apply(plan, ['frame-1:remote'])).receipts,
+      result.receipts
+    );
+    assert.equal(env.writes.length, 1);
+  }
+);
+
+test(
+  'native radio groups with missing, protected, inconsistent or unread peers stay unavailable',
+  { timeout: 5000 },
+  async (t) => {
+    const env = await radioEnvironment();
+    t.after(() => env.reader.stop());
+    const baseline = globalThis.structuredClone(env.report.fields);
+    for (const change of [
+      (fields) => {
+        fields[0].radioGroup.size = 3;
+      },
+      (fields) => {
+        fields[1].radioGroup.complete = false;
+      },
+      (fields) => {
+        fields[1].disabled = true;
+      },
+      (fields) => {
+        fields[1].group.label = 'Different unanswered question';
+      },
+      (fields) => {
+        fields[1].frame = 'frame-2';
+      },
+    ]) {
+      env.report.fields = globalThis.structuredClone(baseline);
+      change(env.report.fields);
+      if (env.report.fields[1].frame === 'frame-2') {
+        env.report.frames.push({
+          id: 'frame-2',
+          parent: 'frame-1',
+          url: env.report.url,
+          reasons: [],
+        });
+      }
+      const plan = await env.plan();
+      assert.equal(plan.fields[0].answer.applySupported, false);
+      await assert.rejects(
+        env.apply(plan, ['frame-1:remote'], { replaceExisting: true }),
+        { code: 'form-selection' }
+      );
+    }
+    assert.deepEqual(env.writes, []);
+  }
+);
+
+test(
+  'native radio readback checks cleared peers and stops on any unrelated group change',
+  { timeout: 5000 },
+  async (t) => {
+    const env = await radioEnvironment();
+    t.after(() => env.reader.stop());
+    let plan = await env.plan();
+    env.hooks.write = () => {
+      env.report.fields[0].checked = true;
+    };
+    let result = await env.apply(
+      plan,
+      ['frame-1:remote', 'frame-1:other-remote'],
+      { replaceExisting: true }
+    );
+    assert.equal(result.state, 'uncertain');
+    assert.equal(result.code, 'form-changed');
+    assert.equal(result.receipts[0].effects[0].status, 'uncertain');
+    assert.equal(result.receipts[1].status, 'not-attempted');
+    assert.equal(env.writes.length, 1);
+    env.report.fields[0].checked = false;
+    plan = await env.plan();
+    env.report.fields[1].checked = false;
+    result = await env.apply(plan, ['frame-1:remote'], {
+      replaceExisting: true,
+    });
+    assert.equal(result.state, 'refused');
+    assert.equal(result.code, 'form-changed');
+    assert.equal(env.writes.length, 1);
+  }
+);
+
+test(
+  'native radio options already selected need no write or replacement permission',
+  { timeout: 5000 },
+  async (t) => {
+    const env = await radioEnvironment();
+    t.after(() => env.reader.stop());
+    env.report.fields[0].checked = true;
+    env.report.fields[1].checked = false;
+    const plan = await env.plan();
+    assert.deepEqual(plan.fields[0].answer.effects, []);
+    const result = await env.apply(plan, ['frame-1:remote']);
+    assert.equal(result.state, 'applied');
+    assert.equal(result.receipts[0].status, 'unchanged');
+    assert.deepEqual(env.writes, []);
+  }
+);
 
 test(
   'review plans never write; selected-only changes require explicit existing-answer replacement and return readback',

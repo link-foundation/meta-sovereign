@@ -383,7 +383,7 @@ test(
       assert.equal(capabilities.fill, true);
       assert.equal(
         capabilities.fillScope,
-        'reviewed-native-text-select-checkbox'
+        'reviewed-native-text-select-checkbox-radio'
       );
       assert.equal(capabilities.submit, false);
       for (const type of [LINO_TEXT, LINO_BINARY]) {

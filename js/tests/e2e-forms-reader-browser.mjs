@@ -2,6 +2,7 @@ import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.m
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
 import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
+import { verifyFormRadioUi } from './helpers/e2e-form-radio.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
 import { makeBrowserCommander } from 'browser-commander';
@@ -322,6 +323,7 @@ await app.finish(async () => {
     await verifyLimits(page);
     await verifyFormReviewUi({ page, owned, fixture, until });
     await verifyFormPrefillUi({ page, owned, fixture });
+    await verifyFormRadioUi({ page, owned, fixture });
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );

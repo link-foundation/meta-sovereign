@@ -121,6 +121,10 @@ test('answer proposal provenance, limits and recovery wording exist in every loc
               profileKeys: ['name'],
               rules: [{ id: 'qa-rule:test', question: '<Saved question>' }],
               evidence: ['reviewed source'],
+              applySupported: false,
+              effects: [
+                { fieldId: 'office', label: '<Office>', checked: false },
+              ],
             },
           })
         ),
@@ -130,6 +134,8 @@ test('answer proposal provenance, limits and recovery wording exist in every loc
     assert(html.includes('&lt;Saved question&gt;'));
     assert(html.includes('85%'));
     assert(html.includes('Reviewed proposal'));
+    assert(html.includes('data-form-radio-effects'));
+    assert(html.includes('&lt;Office&gt;'));
   }
 });
 
@@ -188,7 +194,18 @@ test('reviewed changes start unselected and report confirmed, partial and uncert
               'unchanged',
               'uncertain',
               'not-attempted',
-            ].map((status) => ({ fieldId: `<${status}>`, status })),
+            ].map((status) => ({
+              fieldId: `<${status}>`,
+              status,
+              effects: [
+                {
+                  fieldId: 'office',
+                  label: '<Office>',
+                  checked: false,
+                  status,
+                },
+              ],
+            })),
           },
         })
       );
@@ -197,6 +214,8 @@ test('reviewed changes start unselected and report confirmed, partial and uncert
         `translated ${state} result for ${locale.id}`
       );
       assert.match(rendered, /&lt;applied&gt;/);
+      assert.match(rendered, /&lt;Office&gt;/);
+      assert.match(rendered, /data-form-effect-receipt="uncertain"/);
       assert.match(rendered, new RegExp(`data-form-application="${state}"`));
     }
   }

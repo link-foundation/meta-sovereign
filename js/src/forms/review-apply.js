@@ -35,10 +35,13 @@ export const selectedReviewFields = (plan, input) => {
   const changes = fields.filter(
     (field) => !proposalMatches(field, field.answer.proposal)
   );
-  if (changes.some(populated) && input.replaceExisting !== true) {
+  if (
+    changes.some((field) => populated(field) || field.answer.effects?.length) &&
+    input.replaceExisting !== true
+  ) {
     throw failure(
       'form-existing-value',
-      'Explicitly allow replacement of selected existing answers.'
+      'Allow replacement of existing answers affected by the selected changes.'
     );
   }
   return fields;
@@ -64,6 +67,10 @@ const verifyReadback = (before, after, field, proposal) => {
     }
   } else {
     updated.checked = proposal.checked;
+    for (const id of field.answer.radioPeers ?? []) {
+      expected.fields.find((entry) => entry.id === id).checked =
+        id === field.id;
+    }
   }
   if (reviewSnapshotKey(expected) !== reviewSnapshotKey(after)) {
     throw failure(
@@ -92,6 +99,14 @@ export const applyReviewedFields = async ({
       fieldId: field.id,
       label: field.label || field.id,
       status: 'not-attempted',
+      ...(field.answer.effects?.length
+        ? {
+            effects: field.answer.effects.map((effect) => ({
+              ...effect,
+              status: 'not-attempted',
+            })),
+          }
+        : {}),
     })),
     report: state.inspection,
   };
@@ -125,12 +140,18 @@ export const applyReviewedFields = async ({
         continue;
       }
       receipt.status = 'uncertain';
+      for (const effect of receipt.effects ?? []) {
+        effect.status = 'uncertain';
+      }
       await write(record.browser, state.targets.get(field.id), field);
       check();
       const after = await fresh();
       result.report = after;
       verifyReadback(expected, after, field, field.answer.proposal);
       receipt.status = 'applied';
+      for (const effect of receipt.effects ?? []) {
+        effect.status = 'applied';
+      }
       expected = after;
     }
     await guard();

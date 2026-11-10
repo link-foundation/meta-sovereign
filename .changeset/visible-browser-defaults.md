@@ -163,3 +163,5 @@ Plan form answers through CLI, text/binary Lino and the shared four-language UI 
 Keep isolated form review browsers open across owner edits and manually opened next pages. Share CLI, text/binary Lino and localized controls for open/read/focus/close, enforce finite ownership and 24-hour activity expiry, and retain failed cleanup for explicit retry.
 
 Apply explicitly selected reviewed native text, single-select and checkbox form proposals through the same CLI/Lino/shared UI service. Bind document/control identities, recheck owner edits and current knowledge, require explicit existing-answer replacement, retain actual per-field readback receipts and recover lost replies without replay. Keep Submit/Next under owner control and correct boolean contact-label matching and checkbox layout.
+
+Extend selected native form review to complete radio groups, disclosing implicit clearing and requiring replacement permission for affected existing answers. Bind all peers, verify their resulting checked states, preserve unrelated form/frame groups and retain explicit applied or uncertain peer receipts across CLI, Lino and all four UI languages.

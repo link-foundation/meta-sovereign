@@ -1,8 +1,25 @@
 import { formFailure as failure } from './options.js';
 import { formDocumentIdentity } from './read-document.js';
+import { reviewTargetFields } from './review-radio.js';
 
 export const reviewSnapshotKey = (report) =>
   JSON.stringify([report.url, report.title, report.fields, report.frames]);
+
+const nativeReviewInput = (field) =>
+  field.tag === 'input' &&
+  ([
+    'text',
+    'search',
+    'email',
+    'url',
+    'tel',
+    'number',
+    'date',
+    'checkbox',
+  ].includes(field.type) ||
+    (field.type === 'radio' &&
+      field.answer.proposal.checked === true &&
+      field.answer.radioPeers?.length > 0));
 
 export const writableReviewField = (field) => {
   if (
@@ -22,17 +39,7 @@ export const writableReviewField = (field) => {
       ).length === 1) ||
     field.tag === 'textarea' ||
     field.type === 'contenteditable' ||
-    (field.tag === 'input' &&
-      [
-        'text',
-        'search',
-        'email',
-        'url',
-        'tel',
-        'number',
-        'date',
-        'checkbox',
-      ].includes(field.type))
+    nativeReviewInput(field)
   );
 };
 
@@ -49,6 +56,7 @@ const stillBound = (node, index) =>
 /** Private element handles bind this plan to these exact documents and controls. */
 export const captureReviewTargets = async (snapshot, fields) => {
   const targets = new Map();
+  const boundFields = reviewTargetFields(fields, writableReviewField);
   const dispose = async () => {
     for (const handle of targets.values()) {
       await handle.dispose().catch(() => {});
@@ -56,7 +64,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
     targets.clear();
   };
   try {
-    for (const field of fields.filter(writableReviewField)) {
+    for (const field of boundFields) {
       const entry = [...snapshot.handles].find(
         ([, doc]) => doc.id === field.frame
       );
@@ -91,7 +99,7 @@ export const captureReviewTargets = async (snapshot, fields) => {
           );
         }
       }
-      for (const field of fields.filter(writableReviewField)) {
+      for (const field of boundFields) {
         if (!(await targets.get(field.id).evaluate(stillBound, field.index))) {
           throw failure(
             'form-changed',
