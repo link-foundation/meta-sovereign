@@ -483,6 +483,18 @@ export const TELEGRAM_CALLS = {
     ...body('chat-users-start'),
     capability: 'chatUsersStart',
   },
+  telegramGreetingStickersRefresh: {
+    ...body('greeting-stickers-refresh'),
+    capability: 'greetingStickersRefresh',
+  },
+  telegramGreetingStickersStatus: {
+    ...readBody('greeting-stickers-status'),
+    capability: 'greetingStickersRefresh',
+  },
+  telegramGreetingStickersCancel: {
+    ...none('greeting-stickers-cancel'),
+    capability: 'greetingStickersRefresh',
+  },
   telegramChatUsersStatus: {
     ...readBody('chat-users-status'),
     capability: 'chatUsersStart',

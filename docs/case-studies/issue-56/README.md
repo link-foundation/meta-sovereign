@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [telegram-greetings.md](telegram-greetings.md) records positive sticker delivery receipts and the account-scoped greeting catalog/CLI/Lino API, with focused regressions and the upstream mask-list shape report. Shared catalog UI, bot startup and group greeting workflows remain unfinished.
+
 - [ci-124a2234.md](ci-124a2234.md) preserves the export head's Windows Deno startup failure and midnight WebKit birthday-fixture boundary, with an actual CI image, deterministic failing/passing calendar experiment and focused startup diagnostics. Windows latency remains under investigation.
 
 - [telegram-users.md](telegram-users.md) records provenance-aware participant/history scans, read-only contact previews, separate phone-sharing consent and durable uncertain-write protection through CLI/Lino API/Chat/Operator, with focused regressions and desktop/mobile browser evidence.

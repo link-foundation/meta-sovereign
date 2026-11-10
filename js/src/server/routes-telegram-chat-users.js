@@ -4,6 +4,10 @@ import {
   contactOptions,
 } from '../sources/telegram-chat-users-shape.js';
 import { exportTarget } from '../sources/telegram-export-target.js';
+import {
+  stickerRefreshOptions,
+  stickerPageOptions,
+} from '../sources/telegram-greeting-stickers-shape.js';
 
 const route =
   (method, valid) =>
@@ -22,6 +26,13 @@ const route =
     return [200, await account[method](body)];
   };
 export const CHAT_USERS_POSTS = {
+  'greeting-stickers-refresh': route('greetingStickersRefresh', (body) =>
+    Boolean(stickerRefreshOptions(body))
+  ),
+  'greeting-stickers-status': route('greetingStickersStatus', (body) =>
+    Boolean(stickerPageOptions(body))
+  ),
+  'greeting-stickers-cancel': route('greetingStickersCancel', () => true),
   'chat-users-start': route('chatUsersStart', (body) =>
     Boolean(exportTarget(body.chat) && scanOptions(body))
   ),

@@ -3,6 +3,7 @@ const OPTIONAL_USER_OPERATIONS = [
   'quickReactionSet',
   'urlAuthDomains',
   'chatUsersStart',
+  'greetingStickersRefresh',
 ];
 const optionalCapabilities = (account) =>
   Object.fromEntries(

@@ -1,0 +1,16 @@
+{
+  "archive": "telegram-greetings.tar.gz",
+  "files": {
+    "ci-logs/telegram-greeting-catalog-final-format.log": "3aeb30bffbfab0e979b7da497fa59a8c96059b7f6b9006b575c34cf564a6e065",
+    "ci-logs/telegram-greeting-catalog-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-greeting-catalog-final-test.log": "f830c2aa1c8a4b73852c9224394bc642c04902380944523419b4257bb60935ff",
+    "ci-logs/telegram-greetings-receipt-after.log": "898c098d41ea618b715ce435e821c7c67cc7b2c7d230a2b474ad3404e6970641",
+    "ci-logs/telegram-greetings-receipt-before.log": "463f5c404c0cd28a66d0b5517ff9d8e426eac7ddbb77a9d483d5c6c52f6dbe28",
+    "ci-logs/telegram-greetings-receipt-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-mask-shape.json": "4e833be1eed587111008eae8e95d1588eef788a913eddba32db767609e1e85fb",
+    "ci-logs/telegram-mask-upstream-issue.txt": "a76f479652a41a42790945a1389328833d1b21870e503fe60e49b708c4e116cc",
+    "experiments/issue-56/collect-greeting-evidence.py": "a85485da6cc5ca43d4e2f8b9772c5a8f1969d8cdb81f94a3ecdcbacff61409d7",
+    "experiments/issue-56/telegram-mask-shape.mjs": "bdd47f53b825457a9a0bc2c0d8ab4d7c7a5af5d737272934b89f394a1aa29c03",
+    "metadata.json": "fa41402baf3eb3f18847cd334ce5c7f1f744b054f3c5e1fbfb2564cb63186fe3"
+  }
+}

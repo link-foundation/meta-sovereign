@@ -32,6 +32,8 @@ Keep Chat and Operator readers in place when a viewport resize and an upward scr
 
 Require a positive Telegram message receipt before reporting sticker or GIF delivery. Retain confirmed message IDs, mark missing receipts uncertain and preserve acknowledged sends when local projection needs recovery.
 
+Add explicit account-scoped Telegram greeting sticker discovery through CLI and default text/binary Lino APIs. Resolve mask and featured sets, cache usable documents, report incomplete coverage, preserve the cache after failed/cancelled refreshes and refresh expired references from their origin.
+
 Preserve the Chat/Operator live tail across coalesced WebKit layout and caret scrolls, while explicit reader gestures cancel pending composer corrections.
 
 Use versioned, bounded text/binary Lino records for TCP sync with explicit legacy JSON mode. Keep sync CLI commands alive for replication and close connections and stores on shutdown (R-AA16).

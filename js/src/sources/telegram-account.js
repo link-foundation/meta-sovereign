@@ -1325,6 +1325,7 @@ const stopReaders = async (env) => {
   await env.channels.flush().catch(() => {});
   await env.catchUp.stop();
   await env.chatUsersStop?.();
+  await env.greetingStickersStop?.();
 };
 
 export const createTelegramAccount = ({
