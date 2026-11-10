@@ -58,7 +58,7 @@ const items = panel.locator('[data-catalog-items] li');
 await finish(async () => {
   try {
     await page.goto(`${base}/#/greetings`);
-    await page.locator('[data-catalog-panel] summary').click();
+    await page.locator('[data-catalog-panel] > summary').click();
     await button('refresh').waitFor();
     assert(fixture.calls.length === 0, 'opening only reads the cache');
     await field('maxSets').fill('0');
@@ -139,7 +139,7 @@ await finish(async () => {
     );
     failed = false;
     await page.reload();
-    await page.locator('[data-catalog-panel] summary').click();
+    await page.locator('[data-catalog-panel] > summary').click();
     await panel.locator('[data-catalog-count]').waitFor();
     assert(
       (await panel.locator('[data-catalog-count]').textContent()).includes(

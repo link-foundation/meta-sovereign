@@ -41,7 +41,7 @@ const button = (name) => panel.locator(`[data-greeting-send-action="${name}"]`);
 const field = (name) => panel.locator(`[data-greeting-send-field="${name}"]`);
 await finish(async () => {
   await page.goto(`${base}/#/greetings`);
-  await page.locator('[data-catalog-panel] summary').click();
+  await page.locator('[data-catalog-panel] > summary').click();
   await field('chat').waitFor();
   assert(fixture.sends().length === 0, 'opening cannot send');
   await panel.locator('[data-catalog-action="11"]').click();

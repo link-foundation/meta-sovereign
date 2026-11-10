@@ -71,3 +71,5 @@ TG06 lifecycle audit: five failing-before regressions now pass with temporary-cl
 - [ ] Diagnose Windows rolling-host startup before any timing changes.
 - [x] Reproduce WebKit older-wishes failure at midnight and fix the isolated browser/fixture clock; see ci-124a2234.md.
 - [ ] Push and review the new exact-head matrix; preserve any new nonpassing evidence.
+
+Resolved CI fixture regression: f5091260 passed every runtime and auxiliary workflow but both browser jobs found two matching greeting disclosure headings. Direct-child selectors preserve both original workflows, now passing sequentially in Chromium after a failing-before reproduction. See ci-greeting-panel-selectors.md; the current exact-head full matrix remains required.
