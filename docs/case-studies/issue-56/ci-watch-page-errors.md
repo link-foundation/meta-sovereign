@@ -14,3 +14,5 @@ NODE_OPTIONS=--max-old-space-size=384 node --test --test-concurrency=1 --test-ti
 ```
 
 The [evidence archive](data/ci-watch-page-errors.tar.gz) and [manifest](data/ci-watch-page-errors.tar.sha256.json) preserve the full hosted job log, exact SHA/timestamps, actual parent fixture, deterministic replay and focused checks. New-head hosted CI, notice history learning, full unread orchestration and every unchecked issue requirement remain required. [PR57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and unmerged.
+
+Integration review separately caught the initial notice scenario registration passing a standalone Browser to a helper requiring a page/store. Its six existing cases now run in the shared Questions fixture. One contract fails against the actual preceding registration; all eighteen CI contracts pass in Node and Deno after correction. The archive retains both entry points before/after and the routing logs. This does not change a browser deadline or remove coverage.

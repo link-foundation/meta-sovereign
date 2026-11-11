@@ -1,6 +1,7 @@
 // Production Q/A controls with an isolated store and no provider sends.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { verifyQuestionMatching } from './helpers/e2e-question-matching.mjs';
+import { verifyQuestionNotices } from './helpers/e2e-question-notices.mjs';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
@@ -605,6 +606,13 @@ const verifyRefusedSave = async (saved) => {
   }
 };
 
+const verifyProviderHistoryAndNotices = async () => {
+  // These final scenarios use their own transcript and saved-rule baseline.
+  await resetHhHistoryFixture(store);
+  await verifyHhHistory({ page, base, store, until });
+  await verifyQuestionNotices({ page, base, store, until });
+};
+
 await finish(async () => {
   await prepareQuestionPage();
   if (process.env.QUESTIONS_MATCHING_ONLY === '1') {
@@ -736,7 +744,5 @@ await finish(async () => {
   await verifyProfileControls(preview);
   verifySyncCapability();
   await verifyQuestionMatching({ page, panel, store, until });
-  // The final provider fixture has its own transcript and saved-rule baseline.
-  await resetHhHistoryFixture(store);
-  await verifyHhHistory({ page, base, store, until });
+  await verifyProviderHistoryAndNotices();
 });

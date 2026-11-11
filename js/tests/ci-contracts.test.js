@@ -317,6 +317,18 @@ test('question provider and control scenarios have separate mandatory browser bu
   };
   assert.equal(checks.filter((name) => name === 'questions').length, 1);
   assert.match(questions, /await verifyHhHistory\(/u);
+  assert.match(
+    questions,
+    /await verifyQuestionNotices\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
+  );
+  assert.doesNotMatch(
+    readFileSync(
+      path.join(root, 'js/tests/e2e-question-controls-browser.mjs'),
+      'utf8'
+    ),
+    /\bverifyQuestionNotices\b/u,
+    'notice review needs the shared page/store fixture, not a Browser'
+  );
   for (const [name, scenarios] of Object.entries(groups)) {
     assert.equal(checks.filter((check) => check === name).length, 1, name);
     const command = scripts[`test:e2e:${name}`];
