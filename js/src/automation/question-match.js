@@ -5,6 +5,7 @@ import {
   MAX_QUESTION_LENGTH,
 } from '../crm/question-recognition.js';
 import { splitQuestionBlocks } from './question-lists.js';
+import { sameQuestionSubjects } from './question-subjects.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
@@ -62,9 +63,10 @@ const invalidInputs = (pattern, text) =>
   typeof text !== 'string' ||
   pattern.length > MAX_QUESTION_LENGTH ||
   text.length > MAX_QUESTION_LENGTH;
-const extraQuestionMarks = (pattern, text) =>
+const invalidTemplateExpansion = (pattern, text) =>
   (text.match(/[?？]/gu)?.length ?? 0) >
-  (pattern.match(/[?？]/gu)?.length ?? 0);
+    (pattern.match(/[?？]/gu)?.length ?? 0) ||
+  !sameQuestionSubjects(pattern, text);
 
 export const matchQuestion = (pattern, text) => {
   if (invalidInputs(pattern, text)) {
@@ -88,7 +90,7 @@ export const matchQuestion = (pattern, text) => {
     return null;
   }
   // Reject new question punctuation even if punctuation normalization hides it.
-  if (extraQuestionMarks(pattern, text)) {
+  if (invalidTemplateExpansion(pattern, text)) {
     return null;
   }
   const maxGap = Math.min(40, fixed * 3);
@@ -112,6 +114,9 @@ export const questionSimilarity = (left, right, budget) => {
   const a = questionWords(left);
   const b = questionWords(right);
   if (!a.length || !b.length || a.length > MAX_WORDS || b.length > MAX_WORDS) {
+    return 0;
+  }
+  if (!sameQuestionSubjects(left, right)) {
     return 0;
   }
   // Optional shared batch budget. Exhaustion leaves approximate answers for

@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-subjects.md](forms-subjects.md) reproduces Go answers offered for C# questions at 92% similarity. Shared subject checks preserve technology/currency/employment distinctions and owner aliases; 33 Node/Deno checks, production Chromium and independent MCP verify one actual field receipt, preserved owner input and zero submissions.
+
 - [forms-timezone.md](forms-timezone.md) reproduces missing configured time zones for city/МСК/UTC labels and verifies combined/separate proposals, missing-value review and source evidence. Thirty-seven Node/Deno checks, production Chromium and independent MCP confirm four actual field receipts, preserved owner input and zero submissions.
 
 - [question-response-confirmation.md](question-response-confirmation.md) reproduces a malformed save response crashing the question editor and preserves edits through validated save/list/delete receipts. Eighteen Node/Deno checks, seven compatibility checks, focused WebKit and independent MCP desktop/phone evidence pass. Three earlier hosted input/navigation failures remain unexplained, with bounded diagnostics added.
