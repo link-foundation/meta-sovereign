@@ -218,3 +218,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI: preserve saved-answer automation scope](ci-chat-turn-opt-in.md) — nine identical hosted runtime failures, unchanged reproducing regression and explicit opt-in in planning/validation.
 
 - [CI: synthetic credential fixture](ci-assignment-secret-fixture.md) — exact-head secret-scan reproduction, preserved rejection assertion and completed parent workflow evidence.
+
+- [CI: assignment planning fixtures](ci-assignment-plan-fixtures.md) — nine exact-head runtime logs and restored capacity/acquired-store assertions.

@@ -344,6 +344,7 @@ test('oversized stored answer knowledge refuses rather than applying a partial s
   const large = rule('qa-rule:large', 'Question', 'x'.repeat(12000));
   large.answers = Array.from({ length: 100 }, () => large.answers[0]);
   const store = {
+    get: async () => null,
     scan: async (_select, _size, consume) =>
       consume([large, { ...large, id: 'qa-rule:large2' }]),
   };
@@ -354,13 +355,17 @@ test('Forms planning CLI closes its store after successful and rejected input wi
   const dir = await mkdtemp(join(tmpdir(), 'forms-plan-'));
   const store = createMemoryStore();
   let closed = 0;
+  let opened = 0;
   const commands = createFormsCommands({
-    openStore: async () => ({
-      ...store,
-      close: async () => {
-        closed++;
-      },
-    }),
+    openStore: async () => {
+      opened++;
+      return {
+        ...store,
+        close: async () => {
+          closed++;
+        },
+      };
+    },
     openSession: () => assert.fail('planning never opens a browser'),
   });
   try {
@@ -383,7 +388,12 @@ test('Forms planning CLI closes its store after successful and rejected input wi
       commands['forms-plan']({ file }, () => {}),
       { code: 'form-report' }
     );
-    assert.equal(closed, 2);
+    assert.equal(
+      opened,
+      1,
+      'invalid inspection is rejected before opening a store'
+    );
+    assert.equal(closed, opened, 'every acquired store is closed');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
