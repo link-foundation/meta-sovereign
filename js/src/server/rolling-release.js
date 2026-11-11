@@ -125,6 +125,7 @@ export const stageServerRelease = async ({
       });
       await fs.copyFile(path.join(sourceRoot, name), destination);
     }
+    trace('snapshot_copied');
     if ((await digest(temp, files)) !== build) {
       throw new Error(
         'server files changed while preparing the release; retry with the current version'

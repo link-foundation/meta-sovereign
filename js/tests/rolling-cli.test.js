@@ -48,12 +48,13 @@ const invoke = (dir, ...extra) => {
 test('default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
   const first = invoke(dir);
+  const started = globalThis.performance.now();
   let phase = 'initial host readiness';
   try {
     const initial = await statusWhenReady(dir);
     if (process.env.MS_LIFECYCLE_DEBUG === '1') {
       console.error(
-        `[rolling-cli] initial host ready\n${first.output().slice(-8192)}`
+        `[rolling-cli] initial host ready after ${Math.round(globalThis.performance.now() - started)} ms\n${first.output().slice(-8192)}`
       );
     }
     const info = JSON.parse(
@@ -94,7 +95,9 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
   } catch (error) {
     // Report at file completion: the spec reporter otherwise delays the
     // assertion stack until suite completion, which a job deadline can cut off.
-    console.error(`[rolling-cli] ${phase}: ${error.stack}`);
+    console.error(
+      `[rolling-cli] ${phase} after ${Math.round(globalThis.performance.now() - started)} ms: ${error.stack}`
+    );
     console.error(first.output().slice(-8192));
     throw error;
   } finally {
