@@ -1,4 +1,8 @@
 /* global document, window, Event, HTMLTextAreaElement, HTMLInputElement */
+import {
+  watchChoiceView,
+  revealChoiceReply,
+} from './browser-choice-visibility.js';
 
 /** Page-local ownership and one-use event guards. Never returns composer text. */
 export const createChoiceContext = (input, read) => {
@@ -70,6 +74,7 @@ export const createChoiceContext = (input, read) => {
     return !valueOf(node);
   };
   const clean = (attempt) => {
+    watchChoiceView(attempt, true);
     attempt.node.removeAttribute('data-meta-answer-choice');
     for (const type of ['pointerdown', 'mousedown', 'click']) {
       document.removeEventListener(type, attempt.guard, true);
@@ -191,6 +196,7 @@ export const armChoiceClick = (input, context) => {
     attempt.clicked ||= event.type === 'click';
   };
   attempt.node.setAttribute('data-meta-answer-choice', token);
+  watchChoiceView(attempt);
   for (const type of ['pointerdown', 'mousedown', 'click']) {
     document.addEventListener(type, attempt.guard, true);
   }
@@ -227,8 +233,16 @@ export const readChoiceReceipt = (input, context) => {
     clean(attempt);
   }
   if (confirmed) {
+    if (!attempt.confirmed) {
+      attempt.reveal = revealChoiceReply(
+        input.spec,
+        attempt,
+        current,
+        matches[0]
+      );
+    }
     attempt.confirmed = true;
-    return { sent: true, messageId: matches[0].id };
+    return { sent: true, messageId: matches[0].id, reveal: attempt.reveal };
   }
   if (input.finish && !attempt.allowed && attempt.blocked) {
     state.attempts.delete(attempt.reservation);

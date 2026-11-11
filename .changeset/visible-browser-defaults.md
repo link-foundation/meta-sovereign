@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Reveal confirmed native-choice replies once in ordinary and reversed panes while preserving owner activity, drafts and conversation selection. Keep viewport visibility separate from delivery receipts and retain confirmed outcomes if revealing fails.
+
 Reduce immutable server preparation filesystem work by creating each destination directory once and copying at most four files concurrently. Drain issued writes before failed-preparation cleanup, retain complete digest verification and keep existing startup deadlines.
 
 Plan every bounded pending message through shared archived/browser answer controls, independently of model opt-in. Preserve unresolved earlier requests through completed summaries, guard strict native choices, prefill complete approved turns without sending, refuse oversized model batches and recheck queued current knowledge.

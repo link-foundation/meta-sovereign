@@ -1,4 +1,8 @@
 import { randomBytes } from 'node:crypto';
+import {
+  watchChoiceView,
+  revealChoiceReply,
+} from './browser-choice-visibility.js';
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
   readBrowserChoices,
@@ -33,6 +37,8 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const watchChoiceView = (${watchChoiceView.toString()});
+  const revealChoiceReply = (${revealChoiceReply.toString()});
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
