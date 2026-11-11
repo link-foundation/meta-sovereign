@@ -1,5 +1,7 @@
 # Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1: explicit passive-notice rules now share CLI, text/binary Lino, offline storage and four-language review controls. Text replies require review; approved unambiguous exact/pattern no-reply markers never become outbound text. [Focused tests and before/after browser evidence](case-studies/issue-56/question-notices.md) cover this step. History learning, generalized templates and guarded unread automation remain required.
+
 R-AA1: an explicitly started finite HH current-chat watch now shares foreground CLI, text/binary Lino and localized Chat/Operator/Questions controls. It waits for native choices, preserves owner drafts, never automatically sends free text, drains Stop/shutdown and recovers saved status without resuming. [Focused Node/Deno, production Chromium and independent MCP evidence](case-studies/issue-56/question-watch.md) covers the synthetic provider. All-unread orchestration and live provider parity remain required.
 
 R-AA1: the built-in HH adapter now reads an explicit numeric web chat on the main page or in one trusted visible application frame. Native choices preserve owner drafts and require outgoing receipts; API UUIDs are never guessed. [HH frame evidence](case-studies/issue-56/hh-browser-choices.md) covers isolated browser checks. Shared execution controls, durable recovery across reloads, summary recovery and full provider workflows remain required.

@@ -48,6 +48,7 @@ const answerInput = async (args) => {
   } else {
     return {
       id: args.id,
+      ...(args.kind === undefined ? {} : { kind: args.kind }),
       question: args.question,
       sources: csv(args.sources),
       chats: csv(args.chats),

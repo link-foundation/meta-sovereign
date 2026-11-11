@@ -34,6 +34,17 @@ export const ruQuestions = {
   'questions.fieldName': 'Имя поля, например city',
   'questions.addField': 'Добавить поле',
   'questions.removeField': 'Удалить поле',
+  'questions.ruleKind': 'Тип правила',
+  'questions.ruleKind.question': 'Вопрос или поле формы',
+  'questions.ruleKind.notice': 'Информационное сообщение',
+  'questions.noticeHint':
+    'Только информационные сообщения; вопросы, просьбы, приглашения, отказы и ссылки обрабатываются отдельно. Текст ответа требует проверки. Для сообщения без ответа укажите [без ответа] и отметьте правило проверенным.',
+  'questions.noticeApproved':
+    'Правило проверено (текст ответа всё равно требует проверки)',
+  'questions.noticeReview':
+    'Совпадение с сохранённым сообщением. Текст ответа требует проверки; предпросмотр ничего не отправляет.',
+  'questions.noticeNoReplyReview':
+    'Предложено оставить сообщение без ответа. Сначала проверьте и одобрите сохранённое правило.',
   'questions.question': 'Вопрос или шаблон',
   'questions.answer': 'Ответ',
   'questions.variant': 'Вариант {count}',
@@ -93,7 +104,9 @@ export const ruQuestions = {
   'questions.punctuationEquivalent':
     'Объединять частоты ответов, различающихся только конечной пунктуацией',
   'questions.policySaved': 'Правила использования ответов сохранены.',
-  'questions.noReply': 'Итог ответов получен; ответ не требуется.',
+  'automations.reason.notice-no-reply':
+    'Сохранённое сообщение; ответ не требуется',
+  'questions.noReply': 'Ответ не требуется.',
   'questions.match.summary': 'Итог заполненного опроса',
   'automations.reason.question-summary-complete':
     'Опрос завершён; ответ не требуется',

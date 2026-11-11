@@ -60,6 +60,13 @@ export const AnswerEvidence = ({ answer }) => {
     el(AnswerParts, { key: 'parts', parts: answer.parts }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
     el('p', { key: 'state', className: 'meta' }, t(answerStatusKey(answer))),
+    answer.notice
+      ? el(
+          'p',
+          { key: 'notice', className: 'meta', 'data-notice-evidence': true },
+          t('questions.noticeReview')
+        )
+      : null,
     el(AcceptedSummaryEvidence, {
       key: 'summary-proof',
       value: answer.acceptedSummary,

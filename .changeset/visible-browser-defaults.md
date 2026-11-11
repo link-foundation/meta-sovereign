@@ -241,3 +241,5 @@ Avoid unused stdin pipes for assignment commands without payloads so an early ch
 Flush durable outgoing reservations before provider dispatch so grouped text-store writes cannot leave a duplicate window after a process interruption. Refuse dispatch when that flush fails.
 
 Add explicitly started finite HH current-chat answer watches through foreground CLI, text/binary Lino and shared localized Chat, Operator and Questions controls. Wait for native options, preserve owner drafts, never automatically send free text, and drain Stop/shutdown while retaining uncertain reservations and recovering saved status without resuming automation.
+
+Add explicit passive-notice rules through CLI, Lino, offline storage and localized review controls. Keep text replies under review and approved no-reply markers out of outbound messages.

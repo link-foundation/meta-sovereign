@@ -1307,6 +1307,17 @@ export const en = {
   'questions.fieldName': 'Field name, e.g. city',
   'questions.addField': 'Add field',
   'questions.removeField': 'Remove field',
+  'questions.ruleKind': 'Rule type',
+  'questions.ruleKind.question': 'Question or form field',
+  'questions.ruleKind.notice': 'Passive notice',
+  'questions.noticeHint':
+    'For passive notices only; questions, requests, invitations, rejections and links stay separate. Text replies require review. Use [без ответа] as the answer for a notice that needs no reply, then mark the rule reviewed.',
+  'questions.noticeApproved':
+    'Reviewed notice rule (text replies still require review)',
+  'questions.noticeReview':
+    'Saved notice match. Text replies require review; this preview sends nothing.',
+  'questions.noticeNoReplyReview':
+    'Proposed no-reply notice. Review and approve its saved rule first.',
   'questions.question': 'Question or pattern',
   'questions.answer': 'Answer',
   'questions.variant': 'Variant {count}',
@@ -1366,7 +1377,8 @@ export const en = {
   'questions.punctuationEquivalent':
     'Combine frequencies of answers differing only by final punctuation',
   'questions.policySaved': 'Answer reuse policy saved.',
-  'questions.noReply': 'Completed answer summary; no reply needed.',
+  'automations.reason.notice-no-reply': 'Saved notice; no reply needed',
+  'questions.noReply': 'No reply needed.',
   'questions.match.summary': 'Completed questionnaire summary',
   'automations.reason.question-summary-complete':
     'Completed questionnaire; no reply needed',

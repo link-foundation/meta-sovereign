@@ -1301,6 +1301,17 @@ export const hi = {
   'questions.fieldName': 'फ़ील्ड नाम, जैसे city',
   'questions.addField': 'फ़ील्ड जोड़ें',
   'questions.removeField': 'फ़ील्ड हटाएँ',
+  'questions.ruleKind': 'नियम का प्रकार',
+  'questions.ruleKind.question': 'प्रश्न या फ़ॉर्म फ़ील्ड',
+  'questions.ruleKind.notice': 'सूचनात्मक संदेश',
+  'questions.noticeHint':
+    'केवल सूचनात्मक संदेशों के लिए; प्रश्न, अनुरोध, आमंत्रण, अस्वीकृति और लिंक अलग रहते हैं। उत्तर की समीक्षा ज़रूरी है। उत्तर न देने के लिए [без ответа] लिखें और नियम को समीक्षित चिह्नित करें।',
+  'questions.noticeApproved':
+    'समीक्षित सूचना नियम (उत्तर की समीक्षा फिर भी ज़रूरी है)',
+  'questions.noticeReview':
+    'सहेजी गई सूचना मिली। उत्तर की समीक्षा ज़रूरी है; यह पूर्वावलोकन कुछ नहीं भेजता।',
+  'questions.noticeNoReplyReview':
+    'उत्तर न देने का प्रस्ताव है। पहले सहेजे गए नियम की समीक्षा और स्वीकृति दें।',
   'questions.question': 'सवाल या पैटर्न',
   'questions.answer': 'जवाब',
   'questions.variant': 'विकल्प {count}',
@@ -1361,7 +1372,8 @@ export const hi = {
   'questions.punctuationEquivalent':
     'केवल अंतिम विराम चिह्न में अलग उत्तरों की गिनती जोड़ें',
   'questions.policySaved': 'उत्तर दोबारा उपयोग करने के नियम सहेजे गए।',
-  'questions.noReply': 'उत्तर सारांश पूरा है; जवाब आवश्यक नहीं।',
+  'automations.reason.notice-no-reply': 'सहेजी गई सूचना; जवाब आवश्यक नहीं',
+  'questions.noReply': 'जवाब आवश्यक नहीं।',
   'questions.match.summary': 'पूरी की गई प्रश्नावली का सारांश',
   'automations.reason.question-summary-complete':
     'प्रश्नावली पूरी है; जवाब आवश्यक नहीं',

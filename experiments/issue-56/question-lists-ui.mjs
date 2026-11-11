@@ -9,14 +9,17 @@ import {
   correctionMessages,
   correctedRules,
 } from './question-corrections-fixture.mjs';
+import { noticeRule, noticeMessage } from './notice-fixture.mjs';
 
 const store = createMemoryStore();
 const messages =
   process.argv[2] === 'summary'
     ? [summaryMessage()]
-    : process.argv[2] === 'corrections'
-      ? [...correctedRules, ...correctionMessages()]
-      : questionnaireMessages();
+    : process.argv[2] === 'notices'
+      ? [noticeRule(), noticeMessage()]
+      : process.argv[2] === 'corrections'
+        ? [...correctedRules, ...correctionMessages()]
+        : questionnaireMessages();
 for (const message of messages) {
   await store.put(message);
 }

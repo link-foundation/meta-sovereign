@@ -14,6 +14,12 @@ import {
 import { applyAcceptedSummaryChoice } from './question-summary-choice.js';
 import { completedAnswerSummary } from './question-summary.js';
 import {
+  matchNotice,
+  noticeSimilarity,
+  noticeRuleProperties,
+  applyNoticeAnswer,
+} from './question-notices.js';
+import {
   normalizeQuestionMatching,
   normalizeMatchPage,
   rankedMatchPage,
@@ -117,6 +123,7 @@ export const normalizeAnswerRule = (input) => {
   return {
     id: input.id,
     tokens: ['qa-rule'],
+    ...noticeRuleProperties(input, questions),
     question: input.question.trim(),
     questions,
     enabled: input.enabled !== false,
@@ -167,7 +174,10 @@ const ruleMatch = (rule, question, context) => {
   question = core(question);
   const candidates = [rule.question, ...rule.questions].map((pattern) => {
     const normalized = core(pattern);
-    const match = matchContextualQuestion(normalized, question, rule, context);
+    const match =
+      rule.kind === 'notice'
+        ? matchNotice(pattern, question, context.matching)
+        : matchContextualQuestion(normalized, question, rule, context);
     return { pattern, normalized, match, similarity: match ? 1 : 0 };
   });
   const known =
@@ -178,12 +188,9 @@ const ruleMatch = (rule, question, context) => {
   }
   if (context.approximate) {
     for (const candidate of candidates) {
-      candidate.similarity = questionSimilarity(
-        candidate.normalized,
-        question,
-        context.matchBudget,
-        context.matching
-      );
+      candidate.similarity = (
+        rule.kind === 'notice' ? noticeSimilarity : questionSimilarity
+      )(candidate.normalized, question, context.matchBudget, context.matching);
     }
   }
   candidates.sort(
@@ -217,6 +224,10 @@ const usableVariant = (question, answer, canonical, context) => {
   );
 };
 
+const ruleApplies = (rule, context) =>
+  (rule.kind === 'notice') === (context.notice === true) &&
+  answerRuleEligible(rule, context);
+
 const answerOne = (question, input) => {
   const core = questionCore(question, {
     preserveCase: input.matching.caseSensitive,
@@ -230,7 +241,7 @@ const answerOne = (question, input) => {
   const correction = createAnswerCorrectionGuard(context.rules, context);
   let matches = [];
   for (const rule of context.rules) {
-    if (!answerRuleEligible(rule, context)) {
+    if (!ruleApplies(rule, context)) {
       continue;
     }
     const { match, similarity, pattern } = ruleMatch(rule, question, context);
@@ -288,31 +299,36 @@ const answerOne = (question, input) => {
   const conflicting = matches.some((candidate) =>
     conflictingAnswer(candidate, best, context.profile, result.text)
   );
-  return {
-    question,
-    contexts: resolved.contexts,
-    ...result,
-    ...templateDetails(salaryTemplates),
-    match: best.match,
-    similarity: best.similarity,
-    complete: result.missing.length === 0,
-    requiresReview:
-      best.match === 'approximate' ||
-      !best.answer.approved ||
-      templateNeedsReview(salaryTemplates) ||
-      conflicting ||
-      result.missing.length > 0,
-    rules: [best.rule.id],
-    count: best.answer.count,
-    evidence: best.answer.evidence,
-    ...inspection,
-    alternatives: matches.slice(0, 8).map(({ rule, answer, match }) => ({
-      rule: rule.id,
-      text: render(answer.text, context.profile).text,
-      match,
-      count: answer.count,
-    })),
-  };
+  return applyNoticeAnswer(
+    {
+      question,
+      contexts: resolved.contexts,
+      ...result,
+      ...templateDetails(salaryTemplates),
+      match: best.match,
+      similarity: best.similarity,
+      complete: result.missing.length === 0,
+      requiresReview:
+        best.match === 'approximate' ||
+        !best.answer.approved ||
+        templateNeedsReview(salaryTemplates) ||
+        conflicting ||
+        result.missing.length > 0,
+      rules: [best.rule.id],
+      count: best.answer.count,
+      evidence: best.answer.evidence,
+      ...inspection,
+      alternatives: matches.slice(0, 8).map(({ rule, answer, match }) => ({
+        rule: rule.id,
+        text: render(answer.text, context.profile).text,
+        match,
+        count: answer.count,
+      })),
+    },
+    context.notice,
+    best,
+    conflicting
+  );
 };
 
 const answerContext = (options, rules) => ({
@@ -355,22 +371,29 @@ export const planAnswer = (question, options = {}) => {
     }
   });
   const context = answerContext(options, rules);
-  const empty = {
-    question,
-    text: '',
-    match: 'unanswered',
-    complete: false,
-    requiresReview: true,
-    missing: [],
-    rules: [],
-    parts: [],
-  };
-  let result =
-    options.questionMode === 'field' ||
-    choices.strictOptions ||
-    asksQuestion(question)
-      ? answerOne(question, context)
-      : empty;
+  if (
+    options.questionMode !== 'field' &&
+    !choices.strictOptions &&
+    !asksQuestion(question)
+  ) {
+    const notice = answerOne(question, {
+      ...context,
+      notice: true,
+      matchBudget: context.matchBudget ?? {
+        remaining: 4 * 1024 ** 2,
+        exhausted: false,
+      },
+    });
+    return {
+      parts: [],
+      ...notice,
+      question,
+      ...(options.profileSource
+        ? { profileSource: options.profileSource }
+        : {}),
+    };
+  }
+  let result = answerOne(question, context);
   const core = questionCore(question, {
     preserveCase: context.matching.caseSensitive,
   });

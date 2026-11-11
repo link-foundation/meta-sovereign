@@ -20,6 +20,7 @@ import {
 } from './question-matching-fields.js';
 import { QuestionMatchResults } from './question-match-results.js';
 import { BrowserAnswerControls } from './question-browser-controls.js';
+import { NoticeRuleFields } from './question-notice-fields.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -56,6 +57,7 @@ const Field = ({ label, value, change, rows, ...props }) =>
 
 const AnswerVariant = ({
   variant,
+  notice,
   index,
   disabled,
   change,
@@ -81,7 +83,7 @@ const AnswerVariant = ({
         checked: variant.approved,
         onChange: (event) => change({ approved: event.target.checked }),
       }),
-      ` ${t('questions.approved')}`,
+      ` ${t(notice ? 'questions.noticeApproved' : 'questions.approved')}`,
     ]),
     el('label', { key: 'canonical', className: 'check' }, [
       el('input', {
@@ -142,6 +144,7 @@ const RuleEditor = ({ rule, set, disabled, save, remove }) => {
       },
     },
     [
+      el(NoticeRuleFields, { key: 'kind', rule, set, disabled }),
       el(Field, {
         key: 'q',
         label: t('questions.question'),
@@ -176,6 +179,7 @@ const RuleEditor = ({ rule, set, disabled, save, remove }) => {
         el(AnswerVariant, {
           key: index,
           variant,
+          notice: rule.kind === 'notice',
           index,
           disabled,
           change: (patch) => answer(index, patch),
@@ -251,7 +255,13 @@ const AnswerPreview = ({ result, busy, page }) => {
         style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
       },
       result.text ||
-        t(result.noReply ? 'questions.noReply' : 'questions.noAnswer')
+        t(
+          result.noReply
+            ? 'questions.noReply'
+            : result.noReplyProposed
+              ? 'questions.noticeNoReplyReview'
+              : 'questions.noAnswer'
+        )
     ),
     el(QuestionMatchResults, {
       key: 'matches',
@@ -645,9 +655,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
       }),
       error ? el('p', { key: 'error', role: 'alert' }, error) : null,
       notice ? el('p', { key: 'notice', role: 'status' }, notice) : null,
-      busy
-        ? el('p', { key: 'busy', role: 'status' }, t('common.loading'))
-        : null,
+      busy && el('p', { key: 'busy', role: 'status' }, t('common.loading')),
       el(QuestionToolbar, {
         key: 'top',
         busy,

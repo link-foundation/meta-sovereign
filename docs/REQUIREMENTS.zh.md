@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1：显式被动通知规则现已支持 CLI、文本/二进制 Lino、离线存储和四种语言的审核控件。文本回复需要审核；已批准且无歧义的不回复标记绝不会作为消息发送。[测试及前后截图](case-studies/issue-56/question-notices.md)验证了这一阶段。历史学习、模板泛化和受保护的未读聊天自动处理仍须完成。
+
 R-AA1：显式启动、有限时长的 HH 当前聊天观察器现通过前台 CLI、文本/二进制 Lino 及本地化 Chat/Operator/Questions 共用控件提供。它等待原生选项，保留所有者草稿，不自动发送自由文本，停止时等待当前操作完成，恢复时仅读取已保存状态而不重启自动操作。[Node/Deno、Chromium 及独立 MCP 证据](case-studies/issue-56/question-watch.md)使用合成提供商。所有未读聊天的编排及真实提供商验证仍待完成。
 
 R-AA1：内置 HH 适配器现在读取明确指定的数字网页聊天，可位于主页面或唯一可信且可见的申请框架中。原生选项保留用户草稿并要求发出消息回执；不会猜测 API UUID 对应关系。[HH 框架证据](case-studies/issue-56/hh-browser-choices.md)来自隔离浏览器测试。共享执行控件、重新加载后的持久恢复、摘要恢复和完整提供商流程仍须完成。

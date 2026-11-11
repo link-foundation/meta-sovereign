@@ -4,7 +4,7 @@ import { answerModelFailure } from './answer-model-config.js';
 import { answerChoiceState, applyAnswerChoices } from './question-options.js';
 
 const unresolvedRequests = (answer, input) => {
-  if (answer.noReply) {
+  if (answer.noReply || answer.noReplyProposed) {
     return [];
   }
   if (answer.parts?.length && !input.options?.length) {

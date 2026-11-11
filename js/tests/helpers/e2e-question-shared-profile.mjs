@@ -4,6 +4,7 @@ import {
   readAnswerProfile,
 } from '../../src/automation/question-profiles.js';
 import { assert, fulfil } from './e2e-chat.mjs';
+import { openQuestionPreview } from './question-preview.mjs';
 
 const button = (root, name) => root.getByRole('button', { name, exact: true });
 const addEmail = async (root, value) => {
@@ -19,12 +20,7 @@ export const verifyQuestionSharedProfile = async ({ page, base, store }) => {
     answers: [{ text: '{{email}}', approved: true, canonical: true }],
   });
   await page.goto(`${base}/?profile-check=shared#/automation`);
-  const panel = page.locator('[data-question-controls]');
-  await panel.locator(':scope > summary').click();
-  const preview = panel.locator('details').filter({
-    has: page.locator(':scope > summary', { hasText: /^Preview answer$/u }),
-  });
-  await preview.locator(':scope > summary').click();
+  const { panel, preview } = await openQuestionPreview(page);
   const fields = preview.locator(':scope > [data-answer-profile]');
   const shared = fields.locator('[data-shared-profile]');
   await shared.locator(':scope > summary').click();

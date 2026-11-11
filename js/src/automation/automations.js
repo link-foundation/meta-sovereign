@@ -605,7 +605,9 @@ const answerDraft = (
   ) {
     return {
       reason: answer.noReply
-        ? 'question-summary-complete'
+        ? answer.notice
+          ? 'notice-no-reply'
+          : 'question-summary-complete'
         : 'question-unanswered',
       answer,
     };
