@@ -25,13 +25,22 @@ export const traceBrowserScenario = async (group, scenario, work) => {
 };
 
 /** Standalone bounded CI groups; every scenario retains its own fixture cleanup. */
-export const runBrowserScenarios = async (group, scenarios) => {
+export const runBrowserScenarios = async (
+  group,
+  scenarios,
+  { nativeFocus = false } = {}
+) => {
   const { engine, browserType } = await browserOf(group);
+  // The headless shell reports both tabs focused. Native focus checks need
+  // the full Chromium binary already installed by the browser CI lane.
+  const executablePath =
+    process.env.E2E_EXECUTABLE_PATH ||
+    (nativeFocus && engine === 'chromium'
+      ? browserType.executablePath()
+      : undefined);
   const browser = await browserType.launch({
     headless: true,
-    ...(process.env.E2E_EXECUTABLE_PATH
-      ? { executablePath: process.env.E2E_EXECUTABLE_PATH }
-      : {}),
+    ...(executablePath ? { executablePath } : {}),
   });
   try {
     for (const verify of scenarios) {
