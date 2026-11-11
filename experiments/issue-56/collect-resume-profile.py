@@ -1,10 +1,7 @@
 """Validate and preserve the explicit résumé-contact import evidence."""
-import hashlib
 import json
+from evidence_bundle import bundle
 from pathlib import Path
-import runpy
-import shutil
-from tempfile import TemporaryDirectory
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -51,21 +48,10 @@ sources.extend(f'ci-logs/resume-profile-{suffix}' for suffix in [
 sources.extend(f'ci-logs/question-profile-reference/{name}.mjs' for name in [
     'resume-export', 'resume-export-dom', 'form-prefill',
 ])
-write_archive = runpy.run_path(str(root / 'experiments/issue-56/archive-evidence.py'))['archive']
-with TemporaryDirectory(prefix='resume-profile-') as temporary:
-    staged = Path(temporary)
-    for source in sources:
-        target = staged / source
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / source, target)
-    metadata = {
-        'preceding_head': '07ca5e138b028dfff67b94a46bf7c5f0a553130d',
-        'reference_commit': 'fa0991b8c2d0896fb3b4be6c69947f0590094b15',
-        'node_checks': 56, 'deno_checks': 56, 'mcp': receipt, 'server': server,
-        'screenshots': {
-            image.name: hashlib.sha256(image.read_bytes()).hexdigest()
-            for image in sorted((root / 'docs/screenshots').glob('issue-56-resume-profile-*.png'))
-        },
-    }
-    (staged / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
-    write_archive(staged, root / 'docs/case-studies/issue-56/data/resume-profile-import.tar.gz')
+metadata = {
+    'preceding_head': '07ca5e138b028dfff67b94a46bf7c5f0a553130d',
+    'reference_commit': 'fa0991b8c2d0896fb3b4be6c69947f0590094b15',
+    'node_checks': 56, 'deno_checks': 56, 'mcp': receipt, 'server': server,
+}
+bundle(root, sources, 'docs/case-studies/issue-56/data/resume-profile-import.tar.gz',
+       metadata, 'issue-56-resume-profile-*.png')

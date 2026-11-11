@@ -1,10 +1,7 @@
 """Retain finite synthetic model evidence with the shared verified archive writer."""
-import hashlib
 import json
+from evidence_bundle import bundle
 from pathlib import Path
-import runpy
-import shutil
-import tempfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -41,21 +38,11 @@ names += ['ci-logs/question-summary-reference-requirements.md',
           'experiments/issue-56/archive-evidence.py',
           'docs/case-studies/issue-56/forms-model-drafts.md']
 names += (logs / 'forms-model-changed-code.txt').read_text().splitlines()
-destination = root / 'docs/case-studies/issue-56/data/forms-model-drafts.tar.gz'
-write_archive = runpy.run_path(str(root / 'experiments/issue-56/archive-evidence.py'))['archive']
-with tempfile.TemporaryDirectory(prefix='forms-model-evidence-') as temporary:
-    stage = Path(temporary)
-    for name in sorted(set(names)):
-        copied = stage / name
-        copied.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / name, copied)
-    metadata = {
-        'date': '2026-11-10', 'preceding_head': '60eb49c5b60b7626b6c1c45c949ac260774ca86a',
-        'node_checks': 71, 'deno_tests': 71,
-        'browser': receipt, 'mcp': mcp, 'live_provider_verified': False,
-        'remaining': 'Automatic chat drafts, complete provider forms and all other unchecked issue criteria remain required',
-        'screenshots': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                        for p in sorted((root / 'docs/screenshots').glob('issue-56-forms-model-*.png'))},
-    }
-    (stage / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
-    write_archive(stage, destination)
+metadata = {
+    'date': '2026-11-10', 'preceding_head': '60eb49c5b60b7626b6c1c45c949ac260774ca86a',
+    'node_checks': 71, 'deno_tests': 71,
+    'browser': receipt, 'mcp': mcp, 'live_provider_verified': False,
+    'remaining': 'Automatic chat drafts, complete provider forms and all other unchecked issue criteria remain required',
+}
+bundle(root, names, 'docs/case-studies/issue-56/data/forms-model-drafts.tar.gz',
+       metadata, 'issue-56-forms-model-*.png')

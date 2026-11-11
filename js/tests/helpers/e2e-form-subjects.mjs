@@ -1,37 +1,27 @@
 import { assert } from './e2e-chat.mjs';
-import { responseFor, decoded, planCurrent } from './e2e-form-review.mjs';
-
-const capture = async (page, id, name) => {
-  if (process.env.FORMS_SUBJECTS_SCREENSHOTS !== '1') {
-    return;
-  }
-  await page
-    .locator(`[data-form-field="${id}"]`)
-    .evaluate((element) => element.scrollIntoView({ block: 'start' }));
-  await page.evaluate(() => globalThis.scrollBy(0, -72));
-  await page.screenshot({
-    path: `docs/screenshots/issue-56-forms-subjects-${name}.png`,
-  });
-};
+import {
+  responseFor,
+  decoded,
+  openFormPlan,
+  captureFormField,
+} from './e2e-form-review.mjs';
 
 export const verifyFormSubjectsUi = async ({ page, owned, fixture, until }) => {
   const initialSubmits = fixture.submits;
-  await page
-    .locator('[data-form-url]')
-    .fill(fixture.url.replace('/application', '/subjects'));
-  await page.locator('[data-form-slot]').fill('application-2');
-  let pending = responseFor(page, 'open');
-  await page.locator('[data-action="open-form-review"]').click();
-  await decoded(await pending);
+  const plan = await openFormPlan(
+    page,
+    fixture.url.replace('/application', '/subjects'),
+    ''
+  );
   const owner = owned.at(-1);
-  pending = responseFor(page, 'read');
-  await page.locator('[data-review-action="read"]').click();
-  assert((await decoded(await pending)).ok, 'subject form read');
-  await page.locator('[data-form-profile]').selectOption('');
-  const plan = await planCurrent(page);
   const byName = (name) => plan.fields.find((field) => field.name === name);
   if (process.env.FORMS_SUBJECTS_BEFORE === '1') {
-    await capture(page, byName('wrongTechnology').id, 'before');
+    await captureFormField(
+      page,
+      byName('wrongTechnology').id,
+      'before',
+      'subjects'
+    );
   }
   assert(
     byName('wrongTechnology').answer.proposal === null,
@@ -53,7 +43,12 @@ export const verifyFormSubjectsUi = async ({ page, owned, fixture, until }) => {
   await page
     .locator(`[data-form-select="${byName('rightTechnology').id}"]`)
     .check();
-  await capture(page, byName('wrongTechnology').id, 'after');
+  await captureFormField(
+    page,
+    byName('wrongTechnology').id,
+    'after',
+    'subjects'
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   assert(
     await page.evaluate(
@@ -61,9 +56,14 @@ export const verifyFormSubjectsUi = async ({ page, owned, fixture, until }) => {
     ),
     'subject review fits a phone'
   );
-  await capture(page, byName('wrongTechnology').id, 'mobile');
+  await captureFormField(
+    page,
+    byName('wrongTechnology').id,
+    'mobile',
+    'subjects'
+  );
   await page.setViewportSize({ width: 1200, height: 800 });
-  pending = responseFor(page, 'apply');
+  let pending = responseFor(page, 'apply');
   await page.locator('[data-action="apply-form-plan"]').click();
   const applied = await decoded(await pending);
   assert(

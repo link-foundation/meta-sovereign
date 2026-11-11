@@ -1,11 +1,7 @@
 """Preserve finite shared-subject regressions and actual browser evidence."""
-import hashlib
 import json
+from evidence_bundle import bundle
 from pathlib import Path
-import runpy
-import shutil
-import subprocess
-import tempfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -43,22 +39,10 @@ names += [
     'docs/case-studies/issue-56/forms-subjects.md',
     'ci-logs/forms-timezone-reference-requirements.md', 'ci-logs/forms-timezone-reference-head.json',
 ]
-write_archive = runpy.run_path(str(root / 'experiments/issue-56/archive-evidence.py'))['archive']
-with tempfile.TemporaryDirectory(prefix='form-subject-evidence-') as temporary:
-    stage = Path(temporary)
-    for name in names:
-        target = stage / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / name, target)
-    target = stage / 'before/js/src/automation/question-match.js'
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(subprocess.check_output(['git', 'show', '5d0f67b0:js/src/automation/question-match.js'], cwd=root))
-    metadata = {
-        'date': '2026-11-11', 'preceding_head': '5d0f67b00ceb9d57c3aed7c0d77b68a12e41d82d',
-        'node_checks': 33, 'deno_tests': 33, 'browser': browser, 'mcp': mcp, 'actual_values': server,
-        'remaining': 'Broader rewording similarity, complete form/provider parity and every unchecked issue criterion remain required.',
-        'screenshots': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                        for p in sorted((root / 'docs/screenshots').glob('issue-56-forms-subjects-*.png'))},
-    }
-    (stage / 'metadata.json').write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + '\n')
-    write_archive(stage, root / 'docs/case-studies/issue-56/data/forms-subjects.tar.gz')
+metadata = {
+    'date': '2026-11-11', 'preceding_head': '5d0f67b00ceb9d57c3aed7c0d77b68a12e41d82d',
+    'node_checks': 33, 'deno_tests': 33, 'browser': browser, 'mcp': mcp, 'actual_values': server,
+    'remaining': 'Broader rewording similarity, complete form/provider parity and every unchecked issue criterion remain required.',
+}
+bundle(root, names, 'docs/case-studies/issue-56/data/forms-subjects.tar.gz',
+       metadata, 'issue-56-forms-subjects-*.png', before={'js/src/automation/question-match.js': '5d0f67b0'})

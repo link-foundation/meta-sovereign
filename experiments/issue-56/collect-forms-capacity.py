@@ -1,10 +1,7 @@
 """Retain bounded capacity evidence with the shared verified archive writer."""
-import hashlib
 import json
+from evidence_bundle import bundle
 from pathlib import Path
-import runpy
-import shutil
-import tempfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -33,21 +30,11 @@ names += ['ci-logs/question-summary-reference-requirements.md',
           'experiments/issue-56/archive-evidence.py',
           'docs/case-studies/issue-56/forms-review-capacity.md']
 names += (logs / 'forms-capacity-changed-code.txt').read_text().splitlines()
-destination = root / 'docs/case-studies/issue-56/data/forms-review-capacity.tar.gz'
-write_archive = runpy.run_path(str(root / 'experiments/issue-56/archive-evidence.py'))['archive']
-with tempfile.TemporaryDirectory(prefix='forms-capacity-evidence-') as temporary:
-    stage = Path(temporary)
-    for name in sorted(set(names)):
-        copied = stage / name
-        copied.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / name, copied)
-    metadata = {
-        'date': '2026-11-10', 'preceding_head': '482784609a3143c623a3b3875b71d89448618f32',
-        'node_checks': 47, 'deno_tests': 47,
-        'browser': receipt, 'mcp': mcp,
-        'remaining': 'B1 automatic prefill and all other unchecked issue-wide criteria remain required',
-        'screenshots': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                        for p in sorted((root / 'docs/screenshots').glob('issue-56-forms-capacity-*.png'))},
-    }
-    (stage / 'metadata.json').write_text(json.dumps(metadata, indent=2) + '\n')
-    write_archive(stage, destination)
+metadata = {
+    'date': '2026-11-10', 'preceding_head': '482784609a3143c623a3b3875b71d89448618f32',
+    'node_checks': 47, 'deno_tests': 47,
+    'browser': receipt, 'mcp': mcp,
+    'remaining': 'B1 automatic prefill and all other unchecked issue-wide criteria remain required',
+}
+bundle(root, names, 'docs/case-studies/issue-56/data/forms-review-capacity.tar.gz',
+       metadata, 'issue-56-forms-capacity-*.png')

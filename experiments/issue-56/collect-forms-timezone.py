@@ -1,11 +1,7 @@
 """Archive finite city/time-zone regressions and exact browser readback evidence."""
-import hashlib
 import json
+from evidence_bundle import bundle
 from pathlib import Path
-import runpy
-import shutil
-import subprocess
-import tempfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -47,23 +43,10 @@ names += [
     'experiments/issue-56/forms-timezone-mcp.mjs', 'experiments/issue-56/collect-forms-timezone.py',
     'docs/case-studies/issue-56/forms-timezone.md',
 ]
-write_archive = runpy.run_path(str(root / 'experiments/issue-56/archive-evidence.py'))['archive']
-with tempfile.TemporaryDirectory(prefix='form-place-evidence-') as temporary:
-    stage = Path(temporary)
-    for name in names:
-        target = stage / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / name, target)
-    for name in ['js/src/forms/profile-fields.js', 'js/src/automation/question-profile-text.js']:
-        target = stage / 'before' / name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(subprocess.check_output(['git', 'show', f'75da379b:{name}'], cwd=root))
-    metadata = {
-        'date': '2026-11-11', 'preceding_head': '75da379be6fa183509fd5fcfe962df88de2a2990',
-        'node_checks': 37, 'deno_tests': 37, 'browser': browser, 'mcp': mcp,
-        'actual_values': server, 'remaining': 'Automatic source discovery/filling, complete provider parity and every unchecked issue criterion remain required.',
-        'screenshots': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                        for p in sorted((root / 'docs/screenshots').glob('issue-56-forms-timezone-*.png'))},
-    }
-    (stage / 'metadata.json').write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + '\n')
-    write_archive(stage, root / 'docs/case-studies/issue-56/data/forms-timezone.tar.gz')
+metadata = {
+    'date': '2026-11-11', 'preceding_head': '75da379be6fa183509fd5fcfe962df88de2a2990',
+    'node_checks': 37, 'deno_tests': 37, 'browser': browser, 'mcp': mcp,
+    'actual_values': server, 'remaining': 'Automatic source discovery/filling, complete provider parity and every unchecked issue criterion remain required.',
+}
+bundle(root, names, 'docs/case-studies/issue-56/data/forms-timezone.tar.gz',
+       metadata, 'issue-56-forms-timezone-*.png', before={name: '75da379b' for name in ['js/src/forms/profile-fields.js', 'js/src/automation/question-profile-text.js']})
