@@ -188,7 +188,7 @@ test('failed command stderr stays bounded and private for fixture diagnostics', 
   await assert.rejects(
     runAssignmentCommand(process.execPath, [
       '-e',
-      "process.stderr.write('fixture-private-error');process.exit(2)",
+      "process.stderr.write('fixture-private-error');process.exitCode=2",
     ]),
     (error) => {
       assert.equal(error.code, 'assignment-command');

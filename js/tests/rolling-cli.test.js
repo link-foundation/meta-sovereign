@@ -41,7 +41,7 @@ const invoke = (dir, ...extra) => {
     output += String(chunk);
   });
   const ended = new Promise((resolve) =>
-    child.once('exit', (code) => resolve({ code, output }))
+    child.once('close', (code) => resolve({ code, output }))
   );
   return { child, ended, output: () => output };
 };

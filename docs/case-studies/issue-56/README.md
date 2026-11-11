@@ -226,3 +226,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI: assignment planning fixtures](ci-assignment-plan-fixtures.md) — nine exact-head runtime logs and restored capacity/acquired-store assertions.
 
 - [CI: macOS Node shard deadline](ci-macos-shards.md) — actual ten-minute cancellation, passing companion shard, complete coverage across three runners and focused failure propagation.
+
+[CLI output completion and exact-head CI failures](ci-cli-output.md) preserves finite regressions, passing targeted checks and the remaining Git investigation.
