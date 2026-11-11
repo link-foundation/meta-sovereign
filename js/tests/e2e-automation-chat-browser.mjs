@@ -2,6 +2,7 @@ import { requestBody } from './helpers/http-wire.mjs';
 // A real chat-menu test creates a visible draft without delivering a message.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { verifyLayoutObserver } from './helpers/e2e-layout-observer.mjs';
 
 const store = createMemoryStore();
 for (const chat of ['111', '222']) {
@@ -277,4 +278,5 @@ await finish(async () => {
   await refusedDraftAction();
   await failedAndLateResults();
   await sentLayout();
+  await verifyLayoutObserver(page.context().browser());
 });

@@ -234,3 +234,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 [Exact assignment publication proof](ci-assignment-source-proof.md) records the CodeQL review and stronger complete-payload assertion.
 
 [Provider choice primitives](provider-choices.md) adds native selection receipts, strict metadata and private draft ownership for configured browser adapters. Built-in provider workflows remain open.
+
+[WebKit layout observer diagnostics](ci-layout-observer.md) reproduces the pre-observer warning with the actual parent hook while preserving warnings for persistent overlaps.

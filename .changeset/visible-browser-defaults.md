@@ -217,3 +217,5 @@ Let CLI commands drain queued output before exiting with their returned status, 
 Keep unavailable strict bot options pending without model/free-text fallback. Bind exact selected labels and strict state to reviewed delivery, preserve generic suggestions as separate context, and refuse ordinary text sends that require an actual option click (R-AA1).
 
 Add shared provider choice inspection, guarded native option clicks with positive message receipts, strict direct-send routing and private automatic-draft ownership; refuse unsupported or uncertain choices without text fallback (R-AA1).
+
+Confirm suspected chat layout overlaps after ResizeObserver tail correction, retaining persistent warnings and current reading state across Chat and Operator.
