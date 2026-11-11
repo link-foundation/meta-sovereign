@@ -4,6 +4,10 @@ import {
   prefillBrowserAnswer,
   selectBrowserAnswer,
 } from './browser-choices.js';
+import {
+  checkedTextReply,
+  sendBrowserTextReply,
+} from './browser-text-reply.js';
 
 const failure = () =>
   Object.assign(new Error('The watched provider page changed or closed.'), {
@@ -80,6 +84,16 @@ export const openBrowserAnswerWatch = async ({
           pollMs,
         });
       }),
+    replyText: (expected, text, verify) => {
+      const frozen = checkedTextReply(ui, target, expected, text);
+      return run(async () => {
+        await verifyCurrent(verify);
+        return sendBrowserTextReply(document, ui, target, frozen, text, {
+          receiptMs,
+          pollMs,
+        });
+      });
+    },
     close() {
       closing ??= (async () => {
         closed = true;

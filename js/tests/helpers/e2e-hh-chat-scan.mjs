@@ -19,6 +19,7 @@ const withFixture = async (
     isRead = ({ fn }) => fn === extractChats,
     onRead,
     onMove,
+    choiceReceiptMs = 10000,
   } = {},
   run
 ) => {
@@ -57,6 +58,7 @@ const withFixture = async (
   const sender = createBrowserSender({
     loginTimeoutMs: 500,
     pollMs: 10,
+    choiceReceiptMs,
     openSession: async () => ({
       commander,
       page,

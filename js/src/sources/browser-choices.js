@@ -16,16 +16,29 @@ import {
   prefillChoiceDraft,
   armChoiceClick,
   readChoiceReceipt,
+  matchingChoiceReplies,
   releaseChoiceClick,
 } from './browser-choice-controller.js';
 import { answerChoiceState } from '../automation/question-options.js';
 import { checkedPendingMessages } from '../automation/question-pending-plan.js';
-import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import {
+  resolveBrowserChoiceDocument,
+  browserFrameVisible,
+} from './browser-choice-document.js';
 import { openBrowserAnswerWatch } from './browser-answer-watch.js';
 import {
   browserPendingTurn,
   checkedBrowserPendingTurn,
 } from './browser-pending-turn.js';
+import {
+  armBrowserReply,
+  browserReplyAdmission,
+} from './browser-reply-guard.js';
+import {
+  armTextReply,
+  textReplyButtons,
+  textReplyOpen,
+} from './browser-text-controller.js';
 
 // Only these application functions become code. Provider strings remain args.
 const methods = {
@@ -33,12 +46,19 @@ const methods = {
   history: readChoiceHistory,
   prefill: prefillChoiceDraft,
   arm: armChoiceClick,
+  armText: armTextReply,
   receipt: readChoiceReceipt,
   release: releaseChoiceClick,
 };
 const source = `(input) => {
   const watchChoiceView = (${watchChoiceView.toString()});
   const revealChoiceReply = (${revealChoiceReply.toString()});
+  const browserFrameVisible = (${browserFrameVisible.toString()});
+  const browserReplyAdmission = (${browserReplyAdmission.toString()});
+  const matchingChoiceReplies = (${matchingChoiceReplies.toString()});
+  const armBrowserReply = (${armBrowserReply.toString()});
+  const textReplyButtons = (${textReplyButtons.toString()});
+  const textReplyOpen = (${textReplyOpen.toString()});
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
@@ -87,6 +107,7 @@ export const browserChoiceSpec = (ui) => {
     location: ui.location,
     messages: ui.messages,
     composer: ui.composer,
+    ...(ui.textReply ? { textReply: ui.textReply } : {}),
   };
 };
 
@@ -255,10 +276,39 @@ export const selectBrowserAnswer = async (
   }
   const expected = expectedQuestion(draft, target);
   const spec = browserChoiceSpec(ui);
-  const token = randomBytes(16).toString('hex');
-  const input = { spec, expected, token, option: draft.answer.option };
+  const result = await dispatchBrowserReply(
+    commander,
+    {
+      spec,
+      expected,
+      option: draft.answer.option,
+    },
+    { receiptMs, pollMs }
+  );
+  return {
+    via: 'browser',
+    source: draft.source,
+    chat: String(target),
+    messageId: result.messageId,
+    option: draft.answer.option,
+  };
+};
+
+/** Both reply modes need one guarded dispatch and a distinct outgoing bubble. */
+export const dispatchBrowserReply = async (
+  commander,
+  request,
+  { receiptMs, pollMs }
+) => {
+  if (!validWait(receiptMs, pollMs)) {
+    throw failure('bad-draft');
+  }
+  const input = { ...request, token: randomBytes(16).toString('hex') };
   try {
-    const armed = await evaluate(commander, { ...input, operation: 'arm' });
+    const armed = await evaluate(commander, {
+      ...input,
+      operation: input.text === undefined ? 'arm' : 'armText',
+    });
     if (!armed.armed) {
       throw failure(armed.code);
     }
@@ -287,13 +337,7 @@ export const selectBrowserAnswer = async (
         throw failure('send-unknown');
       }
       if (result.sent) {
-        return {
-          via: 'browser',
-          source: draft.source,
-          chat: String(target),
-          messageId: result.messageId,
-          option: draft.answer.option,
-        };
+        return result;
       }
       if (finish) {
         throw failure(result.code);

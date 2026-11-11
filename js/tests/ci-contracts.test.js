@@ -308,6 +308,8 @@ test('question provider and control scenarios have separate mandatory browser bu
   );
   const groups = {
     'question-providers': ['verifyProviderChoices', 'verifyHhChoices'],
+    'question-text-replies': ['verifyTextReplyControls'],
+    'question-text-guards': ['verifyTextReplyGuards'],
     'question-chat-lists': ['verifyHhChatList', 'verifyHhChatScan'],
     'question-controls': [
       'verifyQuestionBrowserControls',

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add explicit frozen-turn HH text replies with shared native-choice reservations, owner draft and closed-chat guards, verified outgoing receipts and drained shutdown. Keep uncertain sends reserved and ordinary HH text sends unavailable. Background acknowledgement/rejection orchestration remains unfinished.
+
 Retain the hosted browser runner's Azure archive fallback while preferring the primary Ubuntu mirror, preserving signed sources, security entries and mirror metadata.
 
 Add bounded HH conversation history traversal with overlap-based chronology, explicit application-start completeness, owner draft/reading-anchor preservation and drained cancellation. Keep incomplete histories and guarded background text delivery separate.

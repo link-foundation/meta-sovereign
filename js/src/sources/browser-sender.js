@@ -52,6 +52,7 @@ import {
 } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
+import { createBrowserTextActions } from './browser-text-reply.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -431,6 +432,17 @@ const choiceSources = (platforms) =>
     .filter(([, ui]) => ui.choices && ui.location)
     .map(([id, ui]) => ({ id, name: ui.name ?? id }));
 
+const browserUiFor = (platforms) => (source) => {
+  const ui = platforms[source];
+  if (!ui) {
+    throw codedError(
+      `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
+      'unsupported-source'
+    );
+  }
+  return ui;
+};
+
 const composerFocus = (waitFor) => async (source, ui, commander) => {
   const composer = await waitFor(commander, ui.composer);
   if (!composer) {
@@ -497,16 +509,7 @@ export const createBrowserSender = ({
   };
   const pool = createSessionPool({ open, log });
 
-  const uiFor = (source) => {
-    const ui = platforms[source];
-    if (!ui) {
-      throw codedError(
-        `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
-        'unsupported-source'
-      );
-    }
-    return ui;
-  };
+  const uiFor = browserUiFor(platforms);
 
   const waitFor = (commander, want, extra = {}) =>
     waitForAny(commander, want, {
@@ -544,12 +547,19 @@ export const createBrowserSender = ({
     pollMs,
   });
   const scans = createBrowserChatScans({ uiFor, inList, inChat });
+  const texts = createBrowserTextActions({
+    uiFor,
+    inChat,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
 
   return {
     platforms,
     ...actions,
     ...choices,
     ...scans,
+    ...texts,
     choiceSources: () => choiceSources(platforms),
     answerWatchSources: () =>
       choiceSources(platforms).filter(({ id }) => platforms[id].documents),
@@ -628,6 +638,7 @@ export const createBrowserSender = ({
     /** Close every page that was opened. */
     close: async () => {
       await scans.closeChatScans();
+      await texts.closeTextReplies();
       await choices.closeAnswerWatches();
       await pool.closeAll();
     },
@@ -842,6 +853,7 @@ export const createDefaultSender = ({
     readRecent: (params) => browserFor().readRecent(params),
     readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
     prefillAnswer: (params) => browserFor().prefillAnswer(params),
+    replyText: (params) => browserFor().replyText(params),
     choiceSources: () => browserFor().choiceSources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),

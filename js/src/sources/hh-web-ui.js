@@ -70,6 +70,11 @@ export const HH_WEB_UI = {
   documents: { ownerOrigins: origins, ancestorOrigins: origins, maxFrames: 32 },
   chatScan: { pathPattern: '^/chat/?$' },
   historyScan: { startAtService: true },
+  textReply: {
+    send: 'button[data-qa*="send"]',
+    closedText:
+      'работодатель отключил переписку|переписка будет доступна после приглашения|(?:chat|conversation) (?:is |has been )?closed|(?:messaging|correspondence) (?:is |has been )?disabled',
+  },
   choices: {
     group:
       '[class*="buttons-wrapper"], [class*="reply-options"], [data-qa*="answer-options"], [data-qa*="question-options"]',

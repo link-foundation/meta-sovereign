@@ -3,6 +3,7 @@ import {
   watchChoiceView,
   revealChoiceReply,
 } from './browser-choice-visibility.js';
+import { armBrowserReply } from './browser-reply-guard.js';
 
 /** Page-local ownership and one-use event guards. Never returns composer text. */
 export const createChoiceContext = (input, read) => {
@@ -35,11 +36,14 @@ export const createChoiceContext = (input, read) => {
       JSON.stringify(expected.answerOptions);
   const valueOf = (node) =>
     node ? String('value' in node ? node.value : (node.textContent ?? '')) : '';
+  const writable = (node) =>
+    Boolean(node) &&
+    !node.matches(
+      ':disabled,[disabled],[readonly],[inert],[aria-disabled="true"],[aria-readonly="true"]'
+    ) &&
+    !node.closest('[inert],[aria-disabled="true"]');
   const write = (node, value) => {
-    if (
-      node.matches(':disabled,[readonly],[inert]') ||
-      node.closest('[inert]')
-    ) {
+    if (!writable(node)) {
       return false;
     }
     const prototype =
@@ -68,14 +72,38 @@ export const createChoiceContext = (input, read) => {
       owner.identity === ownershipIdentity(current) &&
       valueOf(node) === owner.text
     ) {
+      const attempt = state.attempts.get(identity(current));
+      if (attempt?.allowed && !attempt.confirmed) {
+        return false;
+      }
       state.owners.delete(node);
       return write(node, '');
     }
     return !valueOf(node);
   };
+  const own = (current, text) => {
+    const node = current.composer;
+    const owner = { identity: ownershipIdentity(current), text };
+    state.owners.set(node, owner);
+    if (!state.observed.has(node)) {
+      state.observed.add(node);
+      node.addEventListener('input', () => {
+        if (!state.writing) {
+          state.owners.delete(node);
+        }
+      });
+    }
+    return owner;
+  };
   const clean = (attempt) => {
+    attempt.clearDraft?.();
     watchChoiceView(attempt, true);
     attempt.node.removeAttribute('data-meta-answer-choice');
+    for (const node of document.querySelectorAll('[data-meta-answer-choice]')) {
+      if (node.getAttribute('data-meta-answer-choice') === attempt.token) {
+        node.removeAttribute('data-meta-answer-choice');
+      }
+    }
     for (const type of ['pointerdown', 'mousedown', 'click']) {
       document.removeEventListener(type, attempt.guard, true);
     }
@@ -87,6 +115,8 @@ export const createChoiceContext = (input, read) => {
     ownershipIdentity,
     same,
     valueOf,
+    writable,
+    own,
     write,
     clearOwned,
     clean,
@@ -110,7 +140,7 @@ export const readChoicePublic = (_input, context) => {
 };
 
 export const prefillChoiceDraft = (input, context) => {
-  const { snapshot, same, valueOf, write, state, ownershipIdentity } = context;
+  const { snapshot, same, valueOf, write, own } = context;
   const current = snapshot();
   if (
     !same(current) ||
@@ -124,26 +154,15 @@ export const prefillChoiceDraft = (input, context) => {
   if (!write(node, input.text)) {
     return { code: 'answer-prefill-unverified' };
   }
-  state.owners.set(node, {
-    identity: ownershipIdentity(current),
-    text: input.text,
-  });
-  if (!state.observed.has(node)) {
-    state.observed.add(node);
-    node.addEventListener('input', () => {
-      if (!state.writing) {
-        state.owners.delete(node);
-      }
-    });
-  }
+  own(current, input.text);
   return same(snapshot())
     ? { prefilled: true }
     : { code: 'answer-prefill-unverified' };
 };
 
 export const armChoiceClick = (input, context) => {
-  const { token, option } = input;
-  const { snapshot, same, clearOwned, state, identity, valueOf } = context;
+  const { option } = input;
+  const { snapshot, same, clearOwned, valueOf } = context;
   const current = snapshot();
   const candidates =
     current.controls?.filter(
@@ -155,80 +174,45 @@ export const armChoiceClick = (input, context) => {
   if (!clearOwned(current)) {
     return { code: 'answer-draft-preserved' };
   }
-  const reservation = identity(current);
-  if (state.attempts.has(reservation)) {
-    return { code: 'send-in-doubt' };
-  }
-  if (state.attempts.size >= 32) {
-    const completed = [...state.attempts].find(
-      ([_key, attempt]) => attempt.confirmed
-    );
-    if (!completed) {
-      return { code: 'answer-choice-capacity' };
-    }
-    state.attempts.delete(completed[0]);
-  }
-  const attempt = {
-    node: candidates[0],
-    token,
-    reservation,
-    before: current.messages.map((row) => row.id),
-    allowed: false,
-    clicked: false,
-  };
-  attempt.guard = (event) => {
-    if (event.target !== attempt.node && !attempt.node.contains(event.target)) {
-      return;
-    }
-    const fresh = snapshot();
-    const valid =
+  return armBrowserReply(
+    input,
+    context,
+    current,
+    candidates[0],
+    (fresh, attempt) =>
       same(fresh) &&
       fresh.controls.includes(attempt.node) &&
-      !valueOf(fresh.composer) &&
-      !attempt.clicked;
-    if (!valid) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      attempt.blocked = true;
-      return;
-    }
-    attempt.allowed = true;
-    attempt.clicked ||= event.type === 'click';
-  };
-  attempt.node.setAttribute('data-meta-answer-choice', token);
-  watchChoiceView(attempt);
-  for (const type of ['pointerdown', 'mousedown', 'click']) {
-    document.addEventListener(type, attempt.guard, true);
-  }
-  state.attempts.set(reservation, attempt);
-  return { armed: true, selector: `[data-meta-answer-choice="${token}"]` };
+      !valueOf(fresh.composer)
+  );
+};
+
+export const matchingChoiceReplies = (input, current, attempt) => {
+  const { expected, option } = input;
+  const questionIndex =
+    current.messages?.findIndex((row) => row.id === expected.question.id) ?? -1;
+  const matchesReply = (row) =>
+    row.outgoing &&
+    !row.service &&
+    !attempt.before.includes(row.id) &&
+    row.body === (option ?? input.text);
+  return !current.code && current.chat === expected.chat && questionIndex >= 0
+    ? current.messages.slice(questionIndex + 1).filter(matchesReply)
+    : [];
 };
 
 export const readChoiceReceipt = (input, context) => {
-  const { token, expected, option } = input;
   const { state, snapshot, clean } = context;
   const attempt = [...state.attempts.values()].find(
-    (entry) => entry.token === token
+    (entry) => entry.token === input.token
   );
   if (!attempt) {
     return { code: 'send-unknown' };
   }
   const current = snapshot();
-  const questionIndex =
-    current.messages?.findIndex((row) => row.id === expected.question.id) ?? -1;
-  const matches =
-    !current.code && current.chat === expected.chat && questionIndex >= 0
-      ? current.messages
-          .slice(questionIndex + 1)
-          .filter(
-            (row) =>
-              row.outgoing &&
-              !row.service &&
-              !attempt.before.includes(row.id) &&
-              row.body === option
-          )
-      : [];
-  const confirmed = attempt.allowed && matches.length === 1;
+  const matches = matchingChoiceReplies(input, current, attempt);
+  const confirmed =
+    (input.text === undefined ? attempt.allowed : attempt.clicked) &&
+    matches.length === 1;
   if (confirmed || input.finish) {
     clean(attempt);
   }
@@ -246,7 +230,13 @@ export const readChoiceReceipt = (input, context) => {
   }
   if (input.finish && !attempt.allowed && attempt.blocked) {
     state.attempts.delete(attempt.reservation);
-    return { code: 'answer-choice-changed', dispatched: false };
+    return {
+      code:
+        input.text === undefined
+          ? 'answer-choice-changed'
+          : 'answer-text-changed',
+      dispatched: false,
+    };
   }
   return { code: 'send-unknown', blocked: Boolean(attempt.blocked) };
 };
