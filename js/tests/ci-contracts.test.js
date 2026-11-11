@@ -325,6 +325,10 @@ test('question provider and control scenarios have separate mandatory browser bu
   assert.match(questions, /await verifyHhHistory\(/u);
   assert.match(
     questions,
+    /await verifyQuestionDisclosures\(\{ page, base \}\)/u
+  );
+  assert.match(
+    questions,
     /await verifyQuestionNotices\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
   );
   assert.match(

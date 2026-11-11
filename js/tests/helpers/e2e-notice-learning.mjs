@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { assert } from './e2e-chat.mjs';
+import { openQuestionDisclosure } from './question-preview.mjs';
 import {
   noticeTurn,
   archivedNoticeTurns,
@@ -61,10 +62,10 @@ export const verifyNoticeLearning = async ({
   await page.setViewportSize({ width: 1180, height: 950 });
   await page.goto(`${base}/?notice-learning=1#/automation`);
   const panel = page.locator('[data-question-controls]');
-  await panel.locator(':scope > summary').click();
+  await openQuestionDisclosure(panel);
   const summary = panel.getByText('Learn from conversations', { exact: true });
-  await summary.click();
   const learner = summary.locator('..');
+  await openQuestionDisclosure(learner);
   const preview = () =>
     learner
       .getByRole('button', { name: 'Preview learned answers', exact: true })

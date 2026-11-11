@@ -1,6 +1,7 @@
 import { assert } from './e2e-chat.mjs';
 import { hhHistoryFixture } from '../../../experiments/issue-56/hh-history-fixture.mjs';
 import { importInto } from '../../src/sources/index.js';
+import { openQuestionDisclosure } from './question-preview.mjs';
 
 export const resetHhHistoryFixture = async (store) => {
   for (const link of await store.query((link) =>
@@ -20,13 +21,13 @@ export const verifyHhHistory = async ({
 }) => {
   await page.goto(`${base}/?history-check=hh#/automation`);
   const panel = page.locator('[data-question-controls]');
-  await panel.locator(':scope > summary').click();
+  await openQuestionDisclosure(panel);
   const learner = panel.locator('details').filter({
     has: page
       .locator(':scope > summary')
       .getByText('Learn from conversations', { exact: true }),
   });
-  await learner.locator(':scope > summary').click();
+  await openQuestionDisclosure(learner);
   await learner
     .getByRole('button', { name: 'Preview learned answers', exact: true })
     .click();

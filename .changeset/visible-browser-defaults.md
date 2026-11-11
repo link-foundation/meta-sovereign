@@ -267,3 +267,5 @@ Retain default-off root disclosure diagnostics for unresolved hosted Questions o
 Load the selected serve command before unrelated provider/command modules, keeping the rolling host independent of the worker's full server graph. Preserve shared argument/store/error behavior, TLS, logs, upgrades and readiness deadlines, with default-off import phase diagnostics.
 
 Give the unchanged HH history browser scenario its own mandatory Chromium/WebKit group, retaining every list/scan case and the existing subprocess/job deadlines. Reject omitted and duplicate scenario registrations.
+
+Keep native Questions disclosures open when browser fixtures revisit an identical fragment URL, preserving drafts and mandatory consecutive notice-learning coverage. Refresh the production UI bundle from the current localized source; retain actual-parent failures, bounded final-phase diagnostics and desktop/phone visual evidence (R-Z32, R-AA1).

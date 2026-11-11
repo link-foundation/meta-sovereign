@@ -25,6 +25,8 @@ import {
   inputTrace,
 } from './helpers/e2e-input-trace.mjs';
 import { traceBrowserScenario } from './helpers/e2e-browser-scenarios.mjs';
+import { openQuestionDisclosure } from './helpers/question-preview.mjs';
+import { verifyQuestionDisclosures } from './helpers/e2e-question-disclosures.mjs';
 import {
   verifyHhHistory,
   resetHhHistoryFixture,
@@ -73,7 +75,7 @@ const rules = () => store.query((link) => link.id?.startsWith('qa-rule:'));
 const showPanel = async () => {
   try {
     await page.goto(`${base}/#/automation`);
-    await panel.locator(':scope > summary').click();
+    await openQuestionDisclosure(panel);
     await editor.waitFor();
   } finally {
     console.log(
@@ -619,10 +621,21 @@ const verifyRefusedSave = async (saved) => {
 const verifyProviderHistoryAndNotices = async () => {
   // These final scenarios use their own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
-  await verifyHhHistory({ page, base, store, until });
-  await verifyQuestionNotices({ page, base, store, until });
-  await verifyNoticeLearning({ page, base, store, until });
-  await verifyNoticeLearning({ page, base, store, until, patterns: true });
+  await traceBrowserScenario('questions', 'hh-history-learning', async () => {
+    await verifyHhHistory({ page, base, store, until });
+  });
+  await traceBrowserScenario('questions', 'notice-review', async () => {
+    await verifyQuestionNotices({ page, base, store, until });
+  });
+  await traceBrowserScenario('questions', 'notice-learning', async () => {
+    await verifyNoticeLearning({ page, base, store, until });
+  });
+  await traceBrowserScenario('questions', 'notice-patterns', async () => {
+    await verifyNoticeLearning({ page, base, store, until, patterns: true });
+  });
+  await traceBrowserScenario('questions', 'disclosure-reuse', async () => {
+    await verifyQuestionDisclosures({ page, base });
+  });
 };
 
 await finish(async () => {
