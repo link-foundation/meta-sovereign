@@ -103,6 +103,10 @@ for (const [message, expected] of [
       readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
     );
     writeFileSync(
+      path.join(scripts, 'browser-check-shards.mjs'),
+      readFileSync(path.join(root, 'js/scripts/browser-check-shards.mjs'))
+    );
+    writeFileSync(
       path.join(scripts, 'browser-checks.json'),
       JSON.stringify(checks)
     );
@@ -312,7 +316,8 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-text-guards': ['verifyTextReplyGuards'],
     'question-text-controls': ['verifyQuestionTextControls'],
     'question-chat-lists': ['verifyHhChatList', 'verifyHhChatScan'],
-    'question-history': ['verifyConversationHistory', 'verifyInactiveHistory'],
+    'question-history': ['verifyConversationHistory'],
+    'question-inactive-history': ['verifyInactiveHistory'],
     'question-controls': [
       'verifyQuestionBrowserControls',
       'verifySummaryChoices',

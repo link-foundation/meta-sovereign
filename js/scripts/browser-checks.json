@@ -60,6 +60,7 @@
   "question-text-guards",
   "question-chat-lists",
   "question-history",
+  "question-inactive-history",
   "question-controls",
   "question-text-controls",
   "navigation",

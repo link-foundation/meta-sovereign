@@ -3,6 +3,7 @@ import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { openChatApp } from '../../js/tests/helpers/e2e-chat.mjs';
 import { verifyNoticeLearning } from '../../js/tests/helpers/e2e-notice-learning.mjs';
 import { verifyQuestionDisclosures } from '../../js/tests/helpers/e2e-question-disclosures.mjs';
+import { openQuestionPreview } from '../../js/tests/helpers/question-preview.mjs';
 import {
   traceBrowserInputs,
   traceBrowserDetails,
@@ -34,6 +35,15 @@ await finish(async () => {
         '[question-preview-reuse]',
         JSON.stringify(await verifyQuestionDisclosures(fixture))
       );
+      if (process.env.QUESTION_DISCLOSURE_SCREENSHOT) {
+        const { preview } = await openQuestionPreview(page);
+        await preview
+          .getByLabel('Question or pattern', { exact: true })
+          .scrollIntoViewIfNeeded();
+        await page.screenshot({
+          path: process.env.QUESTION_DISCLOSURE_SCREENSHOT,
+        });
+      }
       return;
     }
     const url = `${base}/?notice-learning=1#/automation`;

@@ -542,7 +542,7 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-e2e-browser-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
-    name: Browser e2e (${{ matrix.browser }})
+    name: Browser e2e (${{ matrix.browser }}, shard ${{ matrix.shard }}/4)
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
     needs:
@@ -561,6 +561,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        browser: [chromium, webkit]
+        shard: [1, 2, 3, 4]
         include:
           - browser: chromium
             runner: ubuntu-26.04
@@ -569,6 +571,7 @@ jobs:
     env:
       RUN_BROWSER_E2E: '1'
       E2E_BROWSER: ${{ matrix.browser }}
+      E2E_SHARD: ${{ matrix.shard }}/4
       E2E_ENGINES: ${{ matrix.browser }}
       E2E_SAFARI: '0'
       E2E_ARTIFACT_DIR: artifacts/browser
@@ -615,7 +618,7 @@ jobs:
         if: ${{ !cancelled() && steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '' }}
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: browser-${{ matrix.browser }}
+          name: browser-${{ matrix.browser }}-${{ matrix.shard }}
           path: artifacts/browser/
           if-no-files-found: error
           retention-days: 14

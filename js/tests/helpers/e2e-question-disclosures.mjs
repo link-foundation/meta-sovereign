@@ -8,7 +8,11 @@ export const verifyQuestionDisclosures = async ({ page, base }) => {
   const question = preview.getByLabel('Question or pattern', { exact: true });
   await question.fill('Retain this unsaved preview question.');
   const document = await page.evaluateHandle(() => globalThis.document);
-  await page.goto(url);
+  // Follow the existing fragment as an owner would. WebKit's page.goto can
+  // reload even an identical URL; a full reload does not preserve local drafts.
+  await page.evaluate((next) => {
+    globalThis.location.href = next;
+  }, url);
   assert(
     await document.evaluate((previous) => previous === globalThis.document),
     'identical fragment URL retains the real browser document'

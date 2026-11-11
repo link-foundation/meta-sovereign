@@ -275,3 +275,5 @@ Add explicitly confirmed frozen-turn text replies to the shared persistent quest
 Expose reviewed text replies in the shared localized Questions, Chat and Operator controls. Preserve exact-review drafts across reload, lock uncertain/submitted replies, recover status without replay and show text delivery receipts accurately. Keep native choices, owner drafts, prefill and unsupported capabilities protected; add a separate mandatory Chromium/WebKit UI scenario with before/after and independent MCP evidence.
 
 Read bounded history through an already owned inactive HH watch without launching or navigating. Use real Chromium focus and outer/child ownership, settle delayed scroll events, restore the original inactive view on cancellation/Stop and yield to returning owners. Refuse unavailable native focus explicitly; background reply and unread orchestration remain unfinished.
+
+Preserve unsaved disclosure checks through native fragment navigation in WebKit. Partition all mandatory browser checks across four disjoint CI shards per engine with unchanged deadlines and separate inactive-history coverage; retain failure propagation and per-shard diagnostics.

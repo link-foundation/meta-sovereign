@@ -3,9 +3,12 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-const checks = JSON.parse(
+import { partitionBrowserChecks } from './browser-check-shards.mjs';
+const registered = JSON.parse(
   readFileSync(new URL('./browser-checks.json', import.meta.url))
 );
+const shard = process.env.E2E_SHARD || '';
+const checks = partitionBrowserChecks(registered, shard);
 const dir = process.env.E2E_ARTIFACT_DIR || 'artifacts/browser';
 mkdirSync(dir, { recursive: true });
 const failures = [];
@@ -54,7 +57,17 @@ for (const name of checks) {
 }
 writeFileSync(
   path.join(dir, 'summary.json'),
-  JSON.stringify({ engine: process.env.E2E_BROWSER, checks, failures }, null, 2)
+  JSON.stringify(
+    {
+      engine: process.env.E2E_BROWSER,
+      shard,
+      totalChecks: registered.length,
+      checks,
+      failures,
+    },
+    null,
+    2
+  )
 );
 if (failures.length) {
   console.error(`Browser checks failed: ${failures.join(', ')}`);
