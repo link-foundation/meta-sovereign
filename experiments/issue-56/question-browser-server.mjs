@@ -116,6 +116,25 @@ export const questionBrowserServer = async (browser) => {
   };
 };
 
+export const questionBrowserControlServer = (fixture) =>
+  createServer(async (req, res) => {
+    try {
+      const url = new URL(req.url, 'http://127.0.0.1');
+      let result;
+      if (url.pathname === '/reset') {
+        result = await fixture.reset(Object.fromEntries(url.searchParams));
+      } else {
+        result = await fixture.stats();
+      }
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify(result));
+    } catch {
+      res.statusCode = 500;
+      res.setHeader('content-type', 'text/plain; charset=utf-8');
+      res.end('Fixture request failed.');
+    }
+  });
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
@@ -128,22 +147,7 @@ if (
     args: ['--disable-dev-shm-usage'],
   });
   const fixture = await questionBrowserServer(browser);
-  const controls = createServer(async (req, res) => {
-    try {
-      const url = new URL(req.url, 'http://127.0.0.1');
-      let result;
-      if (url.pathname === '/reset') {
-        result = await fixture.reset(Object.fromEntries(url.searchParams));
-      } else {
-        result = await fixture.stats();
-      }
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify(result));
-    } catch (error) {
-      res.statusCode = 500;
-      res.end(error.message);
-    }
-  });
+  const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));
   console.log(
     JSON.stringify({
