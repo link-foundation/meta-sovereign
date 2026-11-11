@@ -440,6 +440,8 @@
     "test:e2e:question-history:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-history-browser.mjs",
     "test:e2e:question-controls": "node js/tests/e2e-question-controls-browser.mjs",
     "test:e2e:question-controls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-controls-browser.mjs",
+    "test:e2e:question-text-controls": "node js/tests/e2e-question-text-controls-browser.mjs",
+    "test:e2e:question-text-controls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-text-controls-browser.mjs",
     "test:e2e:chat-users": "node js/tests/e2e-chat-users-browser.mjs",
     "test:e2e:telegram-login": "node js/tests/e2e-telegram-login-browser.mjs",
     "test:e2e:telegram-greeting-catalog": "node js/tests/e2e-telegram-greeting-catalog-browser.mjs",

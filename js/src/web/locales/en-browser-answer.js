@@ -1,4 +1,21 @@
 export const enBrowserAnswer = {
+  'browserText.title': 'Reviewed text reply',
+  'browserText.draft': 'Reply text',
+  'browserText.hint':
+    'Review every pending message before sending. The provider input must be empty; delivery requires a new outgoing receipt.',
+  'browserText.send': 'Send reviewed text reply',
+  'browserText.recover': 'Recover reply status',
+  'browserText.sending':
+    'The reply is in progress. Recover its status before another action.',
+  'browserText.sent': 'The provider confirmed this text reply.',
+  'browserText.unknown':
+    'The reply may have arrived. Check the provider chat and resolve it in the outbox; no automatic retry will run.',
+  'browserText.failed':
+    'The reply was refused. Read the current question before trying again.',
+  'browserText.unconfirmed':
+    'Waiting for the reply receipt. If interrupted, recover server status before another send.',
+  'browserText.ownerDraft':
+    'The provider input contains a draft. Review it there before sending a text reply.',
   'browserAnswer.latestAfterCompleted':
     'Earlier completed summaries or approved notices need no reply. The choice applies to the latest message.',
   'questions.match.pending-turn': 'Answers to pending messages',
@@ -14,7 +31,7 @@ export const enBrowserAnswer = {
 
   'browserAnswer.title': 'Provider browser answers',
   'browserAnswer.hint':
-    'Read the selected provider chat, review its current question and send one exact offered option. Existing drafts stay protected. Status recovery never repeats a selection.',
+    'Read the selected provider chat and review every pending message. Send one offered option, or review a text reply when supported. Existing drafts stay protected. Status recovery never sends again.',
   'browserAnswer.source': 'Provider',
   'browserAnswer.chat': 'Web-chat reference',
   'browserAnswer.url': 'Application page URL (optional)',

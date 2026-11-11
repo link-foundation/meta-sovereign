@@ -4,6 +4,7 @@ import { useT } from './i18n.js';
 import { getLocalStorage } from '../storage/local-storage.js';
 import { BrowserAnswerWatchControls } from './question-browser-watch-controls.js';
 import { BrowserPendingTurn } from './question-browser-pending.js';
+import { BrowserTextAnswer } from './question-browser-text-controls.js';
 
 const el = React.createElement;
 const remember = (key, id) => {
@@ -36,6 +37,8 @@ const BrowserAnswerAction = ({
   setOption,
   blocked,
   select,
+  reply,
+  textAvailable,
   run,
   api,
   receive,
@@ -80,25 +83,33 @@ const BrowserAnswerAction = ({
           t('browserAnswer.select', { option: option || '…' })
         ),
       ])
-    : el(
-        'button',
-        {
-          type: 'button',
-          disabled:
-            blocked ||
-            !result.plan?.complete ||
-            !result.plan?.text ||
-            result.hasDraft ||
-            result.prefilled,
-          onClick: () =>
-            run(async () =>
-              receive(await api.prefillBrowserAnswer({ id: result.id }))
-            ),
-        },
-        t(
-          result.prefilled ? 'browserAnswer.prefilled' : 'browserAnswer.prefill'
-        )
-      );
+    : el('div', { className: 'col' }, [
+        el(
+          'button',
+          {
+            key: 'prefill',
+            type: 'button',
+            disabled:
+              blocked ||
+              !result.plan?.complete ||
+              !result.plan?.text ||
+              result.hasDraft ||
+              result.prefilled,
+            onClick: () =>
+              run(async () =>
+                receive(await api.prefillBrowserAnswer({ id: result.id }))
+              ),
+          },
+          t(
+            result.prefilled
+              ? 'browserAnswer.prefilled'
+              : 'browserAnswer.prefill'
+          )
+        ),
+        textAvailable
+          ? el(BrowserTextAnswer, { key: result.id, result, blocked, reply })
+          : null,
+      ]);
 };
 
 const BrowserAnswerTarget = ({
@@ -173,6 +184,15 @@ const reviewBlocked = (result, busy, pending) =>
   result.question.outgoing ||
   ['sending', 'sent', 'unknown'].includes(result.status);
 
+const reviewStatusKey = (result) => {
+  if (result.outbox?.resolvedBy === 'user') {
+    return `browserAnswer.${result.status === 'sent' ? 'markedSent' : result.status}`;
+  }
+  const prefix =
+    result.outbox?.answerType === 'text' ? 'browserText' : 'browserAnswer';
+  return `${prefix}.${result.status}`;
+};
+
 const BrowserAnswerReview = ({
   result,
   option,
@@ -180,6 +200,8 @@ const BrowserAnswerReview = ({
   busy,
   pending,
   select,
+  reply,
+  textAvailable,
   run,
   api,
   receive,
@@ -210,9 +232,7 @@ const BrowserAnswerReview = ({
           role: 'status',
           'data-browser-answer-status': result.status,
         },
-        t(
-          `browserAnswer.${result.outbox?.resolvedBy === 'user' && result.status === 'sent' ? 'markedSent' : result.status}`
-        )
+        t(reviewStatusKey(result))
       ),
       result.outbox?.receipt
         ? el(
@@ -225,7 +245,11 @@ const BrowserAnswerReview = ({
         ? el(
             'p',
             { key: 'pendingResponse', role: 'status' },
-            t('browserAnswer.unconfirmed')
+            t(
+              result.strictOptions
+                ? 'browserAnswer.unconfirmed'
+                : 'browserText.unconfirmed'
+            )
           )
         : null,
       result.question.outgoing
@@ -239,7 +263,11 @@ const BrowserAnswerReview = ({
         ? el(
             'p',
             { key: 'owner', className: 'meta' },
-            t('browserAnswer.ownerDraft')
+            t(
+              result.strictOptions
+                ? 'browserAnswer.ownerDraft'
+                : 'browserText.ownerDraft'
+            )
           )
         : null,
       result.expired
@@ -268,6 +296,8 @@ const BrowserAnswerReview = ({
         setOption,
         blocked,
         select,
+        reply,
+        textAvailable,
         run,
         api,
         receive,
@@ -283,7 +313,9 @@ const BrowserAnswerReview = ({
               receive(await api.browserAnswerStatus({ id: result.id }))
             ),
         },
-        t('browserAnswer.recover')
+        t(
+          result.strictOptions ? 'browserAnswer.recover' : 'browserText.recover'
+        )
       ),
     ]
   );
@@ -363,10 +395,10 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       setBusy(false);
     }
   };
-  const select = (input) =>
+  const submit = (method, input) =>
     run(async () => {
       setPending(true);
-      receive(await api.selectBrowserAnswer(input));
+      receive(await api[method](input));
     });
   const load = () =>
     loadBrowserAnswer(api, key, receive, {
@@ -437,7 +469,12 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         setOption,
         busy: busy || watchActive,
         pending,
-        select,
+        select: (input) => submit('selectBrowserAnswer', input),
+        reply: (input) => submit('replyBrowserText', input),
+        textAvailable:
+          caps?.textSources?.some(
+            (entry) => entry.id === result?.target.source
+          ) && typeof api.replyBrowserText === 'function',
         run,
         api,
         receive,

@@ -1,4 +1,19 @@
 export const zhBrowserAnswer = {
+  'browserText.title': '已审阅的文本回复',
+  'browserText.draft': '回复文本',
+  'browserText.hint':
+    '发送前请审阅每条待回复消息。服务方输入框必须为空；新的发出消息回执才表示送达。',
+  'browserText.send': '发送已审阅的文本回复',
+  'browserText.recover': '恢复回复状态',
+  'browserText.sending': '回复正在发送。执行其他操作前请恢复其状态。',
+  'browserText.sent': '服务方已确认此文本回复。',
+  'browserText.unknown':
+    '回复可能已送达。请检查服务方聊天并在发件箱中处理；不会自动重试。',
+  'browserText.failed': '回复被拒绝。再次尝试前请读取当前问题。',
+  'browserText.unconfirmed':
+    '正在等待回复回执。若中断，请在再次发送前恢复服务器状态。',
+  'browserText.ownerDraft':
+    '服务方输入框中已有草稿。发送文本回复前请先在那里审阅。',
   'browserAnswer.latestAfterCompleted':
     '之前已完成的摘要或已批准无需回复的通知不需要答复。选项仅适用于最新消息。',
   'questions.match.pending-turn': '待回复消息的答案',
@@ -23,7 +38,7 @@ export const zhBrowserAnswer = {
 
   'browserAnswer.title': '服务浏览器答复',
   'browserAnswer.hint':
-    '读取所选服务的聊天，核对当前问题，并发送一个现有选项。已有草稿会保留。恢复状态不会再次选择。',
+    '读取所选服务的聊天并核对所有待回复消息。发送一个现有选项，或在服务支持时审核文本回复。已有草稿会保留。恢复状态不会再次发送。',
   'browserAnswer.source': '服务',
   'browserAnswer.chat': '网页聊天引用',
   'browserAnswer.url': '申请页面 URL（可选）',

@@ -63,3 +63,31 @@ export const questionBrowserFixture = async (options = {}) => {
   };
 };
 export const browserTarget = { source: 'hh', chat: 'https://hh.ru/chat/7' };
+
+export const seedQuestionBrowserRead = (store) =>
+  store.put({
+    id: 'read:hh:7',
+    tokens: ['read', 'hh', '7'],
+    kind: 'read',
+    source: 'hh',
+    chat: '7',
+    inboxMaxId: 100,
+    unreadTopId: 101,
+    unreadCount: 1,
+  });
+
+/** Match the disposable provider fixture with a visible, unread bot chat. */
+export const seedQuestionBrowserChat = async ({ store, state }) => {
+  await store.put({
+    id: 'msg:hh:7:101',
+    tokens: ['message', 'hh', '7'],
+    source: 'hh',
+    chat: '7',
+    chatName: 'Employer bot fixture',
+    chatType: 'bot',
+    sender: 'recruiter',
+    body: state.snapshot.question.body,
+    timestamp: new Date().toISOString(),
+  });
+  await seedQuestionBrowserRead(store);
+};

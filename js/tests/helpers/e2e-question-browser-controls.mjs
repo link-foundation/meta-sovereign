@@ -1,14 +1,7 @@
-import { watchFixturePages } from './e2e-page-errors.mjs';
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
-import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
+import { questionBrowserUi } from './question-browser-ui.mjs';
 import { verifyBrowserPendingTurn } from './e2e-browser-pending-turn.mjs';
 import { verifyQuestionPendingPlan } from './e2e-question-pending-plan.mjs';
-import {
-  TUTORIAL_STORAGE_KEY,
-  TUTORIAL_VERSION,
-} from '../../src/web/tutorial.js';
 
 const verifyCurrentReview = async ({
   fixture,
@@ -255,75 +248,8 @@ export const verifyQuestionBrowserControls = async (
     wholeTurnOnly = false,
   } = {}
 ) => {
-  const fixture = await questionBrowserServer(browser);
-  const context = await browser.newContext({
-    viewport: { width: 1180, height: 950 },
-  });
-  const page = await context.newPage();
-  const errors = [];
-  watchFixturePages(context, browser, fixture.base, errors);
-  await page.addInitScript(
-    ({ key, version }) => {
-      globalThis.localStorage.setItem(
-        key,
-        JSON.stringify({ off: true, v: version })
-      );
-      globalThis.localStorage.setItem('metaSovereignLocale', 'en');
-      globalThis.localStorage.setItem(
-        'metaSovereignOperatorScope',
-        JSON.stringify({
-          private: true,
-          bot: true,
-          group: false,
-          channel: false,
-        })
-      );
-    },
-    { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
-  );
-  const panel = page.locator('[data-question-controls]');
-  let controls = panel.locator('[data-browser-answer-controls]');
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await page.screenshot({ path: join(screenshots, `${name}.png`) });
-    }
-  };
-  let navigation = 0;
-  const open = async () => {
-    navigation++;
-    await page.goto(
-      `${fixture.base}/?browser-review=${navigation}#/automation`
-    );
-    await panel.locator(':scope > summary').click();
-  };
-  const readCurrent = async () => {
-    const review = controls.locator('[data-browser-answer-review]');
-    const previous = (await review.count())
-      ? await review.getAttribute('data-browser-answer-review')
-      : null;
-    await controls.locator('[data-browser-answer-inspect]').click();
-    await controls
-      .locator(
-        previous
-          ? `[data-browser-answer-review]:not([data-browser-answer-review="${previous}"])`
-          : '[data-browser-answer-review]'
-      )
-      .waitFor();
-  };
-  const inspect = async () => {
-    await controls.locator(':scope > summary').click();
-    await controls.getByLabel('Web-chat reference', { exact: true }).fill('7');
-    await readCurrent();
-  };
-  const status = (value) =>
-    controls.locator(`[data-browser-answer-status="${value}"]`);
-  let cases = 0;
-  const run = async (name, work) => {
-    await work();
-    cases++;
-    console.log(`[question-browser] PASS ${name}`);
-  };
+  const scenario = await questionBrowserUi(browser, { screenshots });
+  const { fixture, page, controls, shot, open, readCurrent } = scenario;
   try {
     await open();
     if (before && !pendingOnly && !wholeTurnOnly) {
@@ -335,39 +261,22 @@ export const verifyQuestionBrowserControls = async (
       assert.equal(response.status(), 404);
       return { before: true, missingControls: true, missingRoute: true };
     }
-    const scenario = {
-      fixture,
-      page,
-      controls,
-      run,
-      inspect,
-      readCurrent,
-      status,
-      shot,
-      open,
-      setControls: (value) => {
-        controls = value;
-      },
-    };
     if (pendingOnly || wholeTurnOnly) {
       await (
         wholeTurnOnly ? verifyQuestionPendingPlan : verifyBrowserPendingTurn
       )(scenario, { before });
-      assert.deepEqual(errors, []);
-      return { cases, before, pageErrors: errors, liveProvider: false };
+      return { ...scenario.result(), before };
     }
     await verifyCurrentReview(scenario);
     await verifyBrowserPendingTurn({ ...scenario, inspect: readCurrent });
     await verifyQuestionPendingPlan({ ...scenario, inspect: readCurrent });
     await verifyRecovery(scenario);
     await verifySurfaces(scenario);
-    assert.deepEqual(errors, []);
-    return { cases, pageErrors: errors, liveProvider: false };
+    return scenario.result();
   } catch (error) {
     await shot('failed');
     throw error;
   } finally {
-    await context.close();
-    await fixture.close();
+    await scenario.close();
   }
 };

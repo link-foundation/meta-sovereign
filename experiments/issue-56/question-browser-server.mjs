@@ -3,7 +3,11 @@ import { pathToFileURL } from 'node:url';
 import { makeBrowserCommander } from 'browser-commander';
 import { createDefaultSender } from '../../js/src/sources/browser-sender.js';
 import { startServer } from '../../js/src/server/index.js';
-import { questionBrowserFixture } from './question-browser-fixture.mjs';
+import {
+  questionBrowserFixture,
+  seedQuestionBrowserChat,
+  seedQuestionBrowserRead,
+} from './question-browser-fixture.mjs';
 import { summaryChoiceMessage } from './summary-choice-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
@@ -43,27 +47,7 @@ export const questionBrowserServer = async (
     await setSummary();
   }
 
-  await env.store.put({
-    id: 'msg:hh:7:101',
-    tokens: ['message', 'hh', '7'],
-    source: 'hh',
-    chat: '7',
-    chatName: 'Employer bot fixture',
-    chatType: 'bot',
-    sender: 'recruiter',
-    body: env.state.snapshot.question.body,
-    timestamp: new Date().toISOString(),
-  });
-  await env.store.put({
-    id: 'read:hh:7',
-    tokens: ['read', 'hh', '7'],
-    kind: 'read',
-    source: 'hh',
-    chat: '7',
-    inboxMaxId: 100,
-    unreadTopId: 101,
-    unreadCount: 1,
-  });
+  await seedQuestionBrowserChat(env);
   const context = await browser.newContext({
     viewport: { width: 1000, height: 800 },
   });
@@ -117,16 +101,7 @@ export const questionBrowserServer = async (
   const reset = async (next = {}) => {
     mode = { id: String(Number(mode.id) + 100), ...next };
     await page.goto('https://hh.ru/chat/7');
-    await env.store.put({
-      id: 'read:hh:7',
-      tokens: ['read', 'hh', '7'],
-      kind: 'read',
-      source: 'hh',
-      chat: '7',
-      inboxMaxId: 100,
-      unreadTopId: 101,
-      unreadCount: 1,
-    });
+    await seedQuestionBrowserRead(env.store);
     return mode;
   };
   await reset({ id: '101' });

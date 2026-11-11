@@ -33,6 +33,7 @@ export const AUTOMATION_CALLS = [
   'inspectBrowserAnswer',
   'prefillBrowserAnswer',
   'selectBrowserAnswer',
+  'replyBrowserText',
   'browserAnswerStatus',
   'answerProfileSources',
   'extractAnswerProfile',
