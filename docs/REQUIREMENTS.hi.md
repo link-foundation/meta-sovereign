@@ -1,5 +1,7 @@
 # Requirements (languages: [en](REQUIREMENTS.md) • [zh](REQUIREMENTS.zh.md) • hi • [ru](REQUIREMENTS.ru.md))
 
+R-AA6: समीक्षा के बाद असाइनमेंट repository और अंग्रेज़ी issue प्रकाशित करने के CLI, text/binary Lino और साझा UI नियंत्रण हैं। वर्तमान template/history, HH vacancy संबंध, लिखित परिणाम के निर्देश और अनिश्चित लेखन की पुनर्प्राप्ति Node/Deno तथा Chromium/MCP में सत्यापित हैं; देखें [असाइनमेंट प्रकाशन](case-studies/issue-56/assignment-publication.md)। असाइनमेंट पूरा करना, पूर्ण handoff/सूचनाएँ और वास्तविक provider/model निष्पादन अधूरे हैं।
+
 ## AA. पूरी cross-system integration (issue 56)
 
 PR 57 में मूल परियोजनाओं के सभी व्यवहार CLI/API/UI पर सत्यापित होने तक ये मानदंड खुले हैं। आंशिक समर्थन पूर्णता नहीं है। प्रमाण: [issue 56 योजना](case-studies/issue-56/PLAN.md)।

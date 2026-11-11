@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { FormAssignmentPublisher } from './form-assignment-publisher.js';
 const el = React.createElement;
 
 export const FormAssignmentStatus = ({ assignment }) => {
@@ -38,6 +39,7 @@ export const FormAssignmentControl = ({
   busy,
   setBusy,
   onLinked,
+  publishing,
 }) => {
   const t = useT();
   const [repository, setRepository] = useState(
@@ -76,6 +78,17 @@ export const FormAssignmentControl = ({
     el(FormAssignmentStatus, { key: 'status', assignment }),
     el('p', { key: 'hint', className: 'meta' }, t('forms.assignment.hint')),
     el('p', { key: 'scope', className: 'meta' }, t('forms.assignment.scope')),
+    publishing && api.draftFormAssignment && api.publishFormAssignment
+      ? el(FormAssignmentPublisher, {
+          key: 'publisher',
+          api,
+          inspection,
+          assignment,
+          busy,
+          setBusy,
+          onLinked,
+        })
+      : null,
     api.registerFormAssignment
       ? el('form', { key: 'form', className: 'col', onSubmit: submit }, [
           el('label', { key: 'url', className: 'col' }, [

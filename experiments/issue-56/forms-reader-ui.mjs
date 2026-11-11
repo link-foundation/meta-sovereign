@@ -1,5 +1,6 @@
 // Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
 import { seedFormPay } from './forms-pay-fixture.mjs';
+import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
 import {
   seedAssignmentAnswers,
   verifyAssignmentFixture,
@@ -54,8 +55,24 @@ const captureAutomaticFrames = async (page, read) => {
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
+const publication =
+  process.env.ASSIGNMENT_PUBLICATION_MCP === '1'
+    ? await assignmentPublisherFixture()
+    : null;
+if (publication) {
+  const writeIssue = publication.github.writeIssue;
+  let loseResponse = true;
+  publication.github.writeIssue = async (...args) => {
+    const result = await writeIssue(...args);
+    if (loseResponse) {
+      loseResponse = false;
+      throw new Error('Synthetic lost issue response');
+    }
+    return result;
+  };
+}
 await seedFormAnswers(store);
-if (process.env.FORMS_ASSIGNMENT_MCP === '1') {
+if (process.env.FORMS_ASSIGNMENT_MCP === '1' || publication) {
   await seedAssignmentAnswers(store);
 }
 if (process.env.FORMS_MATCHING_MCP === '1') {
@@ -101,15 +118,16 @@ try {
     enableSync: false,
     enableHandlers: false,
     automations: { scheduler: false },
-    ...(modelMode
+    ...(modelMode || publication
       ? {
           answerModel: {
-            draft: modelRunnerFixture(modelCalls),
+            draft: publication?.modelRunner ?? modelRunnerFixture(modelCalls),
             stop: async () => {},
           },
         }
       : {}),
     forms: {
+      ...(publication ? { assignmentGithub: publication.github } : {}),
       verifyAssignmentRepository: verifyAssignmentFixture,
       review: {
         learning: {
@@ -272,7 +290,7 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_ASSIGNMENT_MCP === '1'
+        process.env.FORMS_ASSIGNMENT_MCP === '1' || publication
           ? fixture.url.replace('/application', '/assignment')
           : process.env.FORMS_CAPTCHA_MCP === '1'
             ? fixture.url.replace('/application', '/captcha')
@@ -323,6 +341,7 @@ try {
   }
 } finally {
   await server?.close();
+  await publication?.publisher.stop();
   for (const browser of browsers) {
     await browser.close();
   }
@@ -331,6 +350,17 @@ try {
     JSON.stringify({
       reads,
       ...(modelMode ? { modelCalls: modelCalls.length } : {}),
+      ...(publication
+        ? {
+            publication: {
+              calls: publication.state.calls,
+              modelCalls: publication.state.modelCalls.length,
+              repositories: publication.state.repository ? 1 : 0,
+              issues: publication.state.issues.length,
+              pipeline: publication.state.pipeline,
+            },
+          }
+        : {}),
       submissions: fixture.submits,
       requests: fixture.requests,
     })

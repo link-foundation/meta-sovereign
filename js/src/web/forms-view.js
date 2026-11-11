@@ -290,6 +290,58 @@ const AssignmentSection = ({
     : null;
 };
 
+const FormReadFields = ({
+  url,
+  setUrl,
+  slot,
+  setSlot,
+  busy,
+  reading,
+  capability,
+  read,
+}) => {
+  const t = useT();
+  return el('form', { key: 'form', className: 'col', onSubmit: read }, [
+    el('label', { key: 'url', className: 'col' }, [
+      t('forms.url'),
+      el('input', {
+        key: 'input',
+        type: 'url',
+        required: true,
+        value: url,
+        onChange: (event) => setUrl(event.target.value),
+        'data-form-url': '',
+        disabled: busy,
+      }),
+    ]),
+    el('label', { key: 'slot', className: 'col' }, [
+      t('forms.slot'),
+      el('input', {
+        key: 'input',
+        required: true,
+        pattern: '[a-z0-9_\\-]{1,64}',
+        value: slot,
+        onChange: (event) => setSlot(event.target.value),
+        'data-form-slot': '',
+        disabled: busy,
+      }),
+    ]),
+    el('p', { key: 'slotHint', className: 'meta' }, t('forms.slotHint')),
+    el(
+      'button',
+      {
+        key: 'read',
+        type: 'submit',
+        className: 'primary',
+        disabled: busy || !capability?.available,
+        'aria-busy': reading,
+        'data-action': 'read-form',
+      },
+      t(reading ? 'forms.reading' : 'forms.read')
+    ),
+  ]);
+};
+
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
   const [url, setUrl] = useState('');
@@ -353,45 +405,17 @@ export const FormsView = ({ api = defaultApi }) => {
             ),
           ])
         : null,
-      el('form', { key: 'form', className: 'col', onSubmit: read }, [
-        el('label', { key: 'url', className: 'col' }, [
-          t('forms.url'),
-          el('input', {
-            key: 'input',
-            type: 'url',
-            required: true,
-            value: url,
-            onChange: (event) => setUrl(event.target.value),
-            'data-form-url': '',
-            disabled: busy,
-          }),
-        ]),
-        el('label', { key: 'slot', className: 'col' }, [
-          t('forms.slot'),
-          el('input', {
-            key: 'input',
-            required: true,
-            pattern: '[a-z0-9_\\-]{1,64}',
-            value: slot,
-            onChange: (event) => setSlot(event.target.value),
-            'data-form-slot': '',
-            disabled: busy,
-          }),
-        ]),
-        el('p', { key: 'slotHint', className: 'meta' }, t('forms.slotHint')),
-        el(
-          'button',
-          {
-            key: 'read',
-            type: 'submit',
-            className: 'primary',
-            disabled: busy || !capability?.available,
-            'aria-busy': reading,
-            'data-action': 'read-form',
-          },
-          t(reading ? 'forms.reading' : 'forms.read')
-        ),
-      ]),
+      el(FormReadFields, {
+        key: 'form',
+        url,
+        setUrl,
+        slot,
+        setSlot,
+        busy,
+        reading,
+        capability,
+        read,
+      }),
       error
         ? el(
             'p',
@@ -427,6 +451,7 @@ export const FormsView = ({ api = defaultApi }) => {
         : null,
       el(AssignmentSection, {
         key: 'assignment',
+        publishing: capability?.assignmentPublish === true,
         api,
         report,
         plan,

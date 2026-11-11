@@ -1,4 +1,6 @@
+import { enAssignment } from './en-assignment.js';
 export const enForms = {
+  ...enAssignment,
   'forms.assignment.title': 'Test assignment repository',
   'forms.assignment.needs-repository':
     'Create the assignment repository before prefilling any answers or attaching files.',

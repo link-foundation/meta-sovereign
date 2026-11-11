@@ -1,4 +1,6 @@
+import { hiAssignment } from './hi-assignment.js';
 export const hiForms = {
+  ...hiAssignment,
   'forms.assignment.title': 'परीक्षण कार्य का रिपॉजिटरी',
   'forms.assignment.needs-repository':
     'उत्तर भरने या फ़ाइल जोड़ने से पहले कार्य का रिपॉजिटरी बनाएँ।',

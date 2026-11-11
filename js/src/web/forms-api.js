@@ -1,9 +1,17 @@
 /** Explicit form actions preserve server refusals and never retry invisibly. */
 import { registerFormAssignment } from './form-assignment-api.js';
 import { createFormResumeApi } from './form-resume-api.js';
+import {
+  draftFormAssignment,
+  publishFormAssignment,
+  restoreFormAssignment,
+} from './form-assignment-publisher-api.js';
 export const createFormsApi = ({ get, getResume, report, local }) => ({
   ...createFormResumeApi({ get, getResume, report, local }),
   registerFormAssignment: (input) => registerFormAssignment(report, input),
+  draftFormAssignment: (input) => draftFormAssignment(report, input),
+  restoreFormAssignment: (input) => restoreFormAssignment(report, input),
+  publishFormAssignment: (draft) => publishFormAssignment(report, draft),
   formsCapabilities: async () =>
     (await get('/api/forms/capabilities')) ?? {
       available: false,

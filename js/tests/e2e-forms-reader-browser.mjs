@@ -1,4 +1,6 @@
 import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
+import { verifyAssignmentPublicationUi } from './helpers/e2e-assignment-publication.mjs';
+import { assignmentPublisherFixture } from '../../experiments/issue-56/assignment-publisher-fixture.mjs';
 import { verifyFormAssignmentUi } from './helpers/e2e-form-assignment.mjs';
 import { verifyAssignmentFixture } from '../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
@@ -47,16 +49,32 @@ await seedSubjectAnswers(store);
 await seedFormPay(store);
 const owned = [];
 const modelCalls = [];
+const publication = await assignmentPublisherFixture();
+const formModel = modelRunnerFixture(modelCalls);
+const writeAssignmentIssue = publication.github.writeIssue;
+let loseAssignmentIssueResponse = true;
+publication.github.writeIssue = async (...args) => {
+  const issue = await writeAssignmentIssue(...args);
+  if (loseAssignmentIssueResponse) {
+    loseAssignmentIssueResponse = false;
+    throw new Error('Synthetic lost issue response');
+  }
+  return issue;
+};
 let app;
 try {
   app = await openChatApp('forms-reader', {
     store,
     serverOptions: {
       answerModel: {
-        draft: modelRunnerFixture(modelCalls),
+        draft: (input) =>
+          input.schema.properties.deliverable
+            ? publication.modelRunner(input)
+            : formModel(input),
         stop: async () => {},
       },
       forms: {
+        assignmentGithub: publication.github,
         verifyAssignmentRepository: verifyAssignmentFixture,
         review: {
           learn: process.env.FORMS_LEARNING_BEFORE !== '1',
@@ -279,7 +297,7 @@ const verifyLimits = async (page) => {
 };
 
 const formGroups = {
-  'forms-assignment': [verifyFormAssignmentUi],
+  'forms-assignment': [verifyFormAssignmentUi, verifyAssignmentPublicationUi],
   'forms-learning': [
     verifyFormJournalUi,
     verifyFormMonitorUi,
@@ -302,7 +320,7 @@ const runFormChecks = async (checks) => {
   for (const verify of checks) {
     const started = Date.now();
     console.log('[forms-scenario]', verify.name, 'started');
-    await verify({ ...app, owned, fixture, store, modelCalls });
+    await verify({ ...app, owned, fixture, store, modelCalls, publication });
     console.log('[forms-scenario]', verify.name, Date.now() - started);
   }
 };
@@ -325,6 +343,7 @@ const verifyGroupOnly = async ({ page }) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['PUBLICATION', verifyAssignmentPublicationUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
@@ -335,7 +354,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['LINKS', verifyFormLinksUi],
   ].find(([name]) => process.env[`FORMS_${name}_ONLY`] === '1');
   if (contactScenario) {
-    await contactScenario[1]({ ...app, owned, fixture, store });
+    await contactScenario[1]({ ...app, owned, fixture, store, publication });
     return true;
   }
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
@@ -535,6 +554,7 @@ await app.finish(async () => {
       )
       .waitFor();
   } finally {
+    await publication.publisher.stop();
     await fixture.close();
   }
 });
@@ -555,6 +575,7 @@ if (
   process.env.FORMS_CAPTCHA_ONLY !== '1' &&
   process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
+  process.env.FORMS_PUBLICATION_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');

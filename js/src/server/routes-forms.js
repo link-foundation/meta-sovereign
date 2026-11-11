@@ -2,24 +2,27 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { handleFormReviewRoutes } from './routes-form-reviews.js';
 import { handleFormResumeRoutes } from './routes-form-resume.js';
+import { handleAssignmentPublicationRoutes } from './routes-assignment-publication.js';
 
 const isFormPath = (path) =>
   path.startsWith('/api/forms/sessions') ||
   path.startsWith('/api/forms/resume') ||
-  path === '/api/forms/assignment/repository' ||
+  path.startsWith('/api/forms/assignment/') ||
   ['/api/forms/capabilities', '/api/forms/read', '/api/forms/plan'].includes(
     path
   );
+
+const handleSpecializedRoutes = async (store, req, res, path, ctx) =>
+  (await handleAssignmentPublicationRoutes(req, res, path, ctx)) ||
+  (await handleFormResumeRoutes(store, req, res, path, ctx)) ||
+  (await handleFormReviewRoutes(req, res, path, ctx));
 
 export const handleFormRoutes = async (store, req, res, p, ctx) => {
   if (!isFormPath(p)) {
     return false;
   }
   try {
-    if (await handleFormResumeRoutes(store, req, res, p, ctx)) {
-      return true;
-    }
-    if (await handleFormReviewRoutes(req, res, p, ctx)) {
+    if (await handleSpecializedRoutes(store, req, res, p, ctx)) {
       return true;
     }
     if (p.endsWith('/capabilities') && req.method === 'GET') {

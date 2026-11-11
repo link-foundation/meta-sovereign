@@ -1,4 +1,6 @@
+import { ruAssignment } from './ru-assignment.js';
 export const ruForms = {
+  ...ruAssignment,
   'forms.assignment.title': 'Репозиторий тестового задания',
   'forms.assignment.needs-repository':
     'Создайте репозиторий задания до заполнения ответов и прикрепления файлов.',

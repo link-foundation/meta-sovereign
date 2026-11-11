@@ -1,4 +1,5 @@
 import { createReviewLifecycle } from './review-lifecycle.js';
+import { rememberAssignmentRedirect } from '../assignments/vacancy-association.js';
 import { browserName } from '../browser/policy.js';
 import { openBrowserSession } from '../cv/browser.js';
 import { formFailure as failure, formUrl } from './options.js';
@@ -231,6 +232,12 @@ const launchReviewBrowser = async ({
   }
   owner.check(record);
   record.state = 'open';
+  await rememberAssignmentRedirect(
+    store,
+    record.url,
+    record.browser.page?.url?.()
+  );
+  owner.check(record);
 };
 
 const reviewLearning = ({

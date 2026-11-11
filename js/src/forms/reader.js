@@ -8,6 +8,8 @@ import { withFormReportFile } from './report-file.js';
 import path from 'node:path';
 import { createFormKnowledgeBridge } from './knowledge-bridge.js';
 import { createAssignmentRepositoryService } from './assignment-service.js';
+import { createAssignmentPublisher } from '../assignments/service.js';
+import { rememberAssignmentRedirect } from '../assignments/vacancy-association.js';
 export { planFormAnswers } from './answer-plan.js';
 export { formUrl } from './options.js';
 export { inspectFormSession, inspectCurrentFormSession } from './inspection.js';
@@ -26,6 +28,7 @@ const formCapabilities = async (availability) => {
     fillScope: 'reviewed-native-and-exposed-aria-controls',
     prefillScope: 'supported-empty-current-page-controls',
     submit: false,
+    assignmentPublish: true,
     scope: 'visible-current-pages',
   };
 };
@@ -89,6 +92,35 @@ const reviewReaderApi = (reviews) => ({
   historyReview: reviews.history,
 });
 
+const assignmentServices = ({
+  store,
+  modelRunner,
+  verifyAssignmentRepository,
+  assignmentGithub,
+  readAssignmentVacancy,
+}) => {
+  const assignments = createAssignmentRepositoryService({
+    store,
+    verifyRepository: verifyAssignmentRepository,
+  });
+  const publisher = createAssignmentPublisher({
+    store,
+    modelRunner,
+    github: assignmentGithub,
+    readVacancy: readAssignmentVacancy,
+  });
+  return { assignments, publisher };
+};
+
+const readerOptions = (options) => {
+  const url = formUrl(options.url);
+  const slot = browserName(options.browserSlot ?? 'forms');
+  if (options.headless !== undefined && typeof options.headless !== 'boolean') {
+    throw failure('form-options', 'headless must be a boolean.');
+  }
+  return { url, slot };
+};
+
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
   store,
@@ -99,10 +131,15 @@ export const createFormReader = ({
   reportWriter,
   modelRunner,
   verifyAssignmentRepository,
+  assignmentGithub,
+  readAssignmentVacancy,
 } = {}) => {
-  const assignments = createAssignmentRepositoryService({
+  const { assignments, publisher } = assignmentServices({
     store,
-    verifyRepository: verifyAssignmentRepository,
+    modelRunner,
+    verifyAssignmentRepository,
+    assignmentGithub,
+    readAssignmentVacancy,
   });
   let active = null;
   let stopping = false;
@@ -119,11 +156,15 @@ export const createFormReader = ({
   });
   return {
     registerAssignmentRepository: assignments.register,
+    draftAssignment: publisher.draft,
+    restoreAssignment: publisher.restore,
+    publishAssignment: publisher.publish,
     ...reviewReaderApi(reviews),
     detachReviews: async () => {
       stopping = true;
       modelAbort.abort();
       await assignments.stop();
+      await publisher.stop();
       await Promise.allSettled(planning);
       return detachReader(reviews, bridge);
     },
@@ -148,14 +189,7 @@ export const createFormReader = ({
       if (active) {
         throw failure('form-busy', 'Another form inspection is still running.');
       }
-      const url = formUrl(options.url);
-      const slot = browserName(options.browserSlot ?? 'forms');
-      if (
-        options.headless !== undefined &&
-        typeof options.headless !== 'boolean'
-      ) {
-        throw failure('form-options', 'headless must be a boolean.');
-      }
+      const { url, slot } = readerOptions(options);
       let session;
       let closing;
       let cancelled = false;
@@ -205,6 +239,7 @@ export const createFormReader = ({
             browserSlot: slot,
             policy: session.policy ?? null,
           };
+          await rememberAssignmentRedirect(store, url, report.url);
           return await withFormReportFile(reportWriter, report);
         } catch (error) {
           check();
@@ -229,6 +264,7 @@ export const createFormReader = ({
       stopping = true;
       modelAbort.abort();
       await assignments.stop();
+      await publisher.stop();
       await stopReader(reviews, planning, active, bridge);
     },
   };

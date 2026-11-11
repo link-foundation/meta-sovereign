@@ -6,7 +6,9 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [forms-assignment-prerequisite.md](forms-assignment-prerequisite.md) verifies the private whole-form hold, revision-bound GitHub existence check, protected owner input and actual selected-only readback through CLI/Lino/UI/browser/MCP. Automatic repository/issue publishing, templates, vacancy association and written deliverables remain required.
+- [assignment-publication.md](assignment-publication.md) verifies reviewed English issues, current template selection/history, vacancy associations and durable publication recovery through CLI/Lino/UI. Focused Node/Deno, production Chromium and independent MCP preserve one creation, actual readback, the whole-form hold and zero submissions.
+
+- [forms-assignment-prerequisite.md](forms-assignment-prerequisite.md) verifies the private whole-form hold, revision-bound GitHub existence check, protected owner input and actual selected-only readback through CLI/Lino/UI/browser/MCP. The later assignment-publication study extends this prerequisite with reviewed publishing and written-deliverable instructions.
 
 - [forms-captcha.md](forms-captcha.md) verifies a bounded manual owner wait, challenge-data exclusion, read-only status recovery, guarded resumption and cancellation. Focused Node/Deno, production Chromium and independent MCP capture zero challenge reads, one verified answer and zero submissions. Full authenticated challenge/provider parity remains required.
 - [forms-automatic-controls.md](forms-automatic-controls.md) verifies the shared UI prefill action, actual field/PDF results and frozen-request recovery after a lost response and profile change. Forty-three Node/Deno checks, production Chromium and independent desktop/phone MCP pass; complete provider workflows remain required.

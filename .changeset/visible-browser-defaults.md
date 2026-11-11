@@ -207,3 +207,5 @@ Preserve identified technology, currency and employment subjects across shared c
 Draft unresolved parts of consecutive unanswered employer messages with the configured optional model. Preserve saved answers and owner edits, bind model output to current conversation and knowledge, and require review before delivery across CLI, Lino and shared Chat/Operator controls.
 
 Hold every answer and PDF attachment when a form requires a test-assignment repository. Keep a private assignment revision across pages, verify existing GitHub repository identity before saving its link, and share guarded CLI, Lino and four-language controls (R-AA1).
+
+Add reviewed test-assignment repository and English issue publication through CLI, text/binary Lino and shared four-language Forms controls. Read current CI templates, retain template history and owner files, associate actual HH vacancy evidence, and recover durable uncertain writes without duplicate creation or premature form release.

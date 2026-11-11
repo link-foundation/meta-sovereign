@@ -1,4 +1,6 @@
+import { zhAssignment } from './zh-assignment.js';
 export const zhForms = {
+  ...zhAssignment,
   'forms.assignment.title': '测试任务仓库',
   'forms.assignment.needs-repository':
     '填写任何答案或附加文件前，请先创建任务仓库。',
