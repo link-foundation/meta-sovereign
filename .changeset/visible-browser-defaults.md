@@ -225,3 +225,5 @@ Add the built-in explicit HH web-chat choice adapter with trusted visible main/a
 Share reviewed browser question inspection, owned prefill, exact native selection and read-only recovery across CLI, text/binary Lino and localized Chat/Operator/Questions controls. Persist positive receipts and one durable question reservation across manual and automated answers, preserving unknown outcomes through reload and restart.
 
 Recover a unique native answer option from a completed incoming bot summary for the same question across stored chats. Preserve approved exact choices, corrections, rejection policy, zero-count unapproved learning and review on conflicts or bounded scans; revalidate evidence before delivery and expose the source through CLI, Lino and shared browser controls.
+
+Avoid unused stdin pipes for assignment commands without payloads so an early child exit cannot falsely refuse successful Git operations. Preserve exact payload writes, real input failures and default-off private diagnostics.

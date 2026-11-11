@@ -80,7 +80,7 @@ job 130438063259 lines 2600–2603, with equivalent Windows/macOS failures.
 The isolated control module above removes that unnecessary import.
 Ubuntu Node job 130438063887 lines 5943–5954 separately reports
 `assignment-input` from the command stdin error handler during template-history
-setup. That independently observed process-input race still requires correction;
+setup. That independently observed process-input race is corrected in the subsequent [stdin unit](ci-assignment-stdin.md);
 passing summary checks do not resolve it. Complete failed job logs, metadata,
 source snapshots, reproduction and screenshot hashes are retained in the
 [hashed evidence bundle](data/summary-choice.tar.sha256.json).

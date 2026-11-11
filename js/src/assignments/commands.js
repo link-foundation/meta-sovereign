@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import childProcess from 'node:child_process';
 import { assignmentFailure } from './validation.js';
 import { debugQuestionTurn } from '../automation/question-turns.js';
 
@@ -18,6 +18,7 @@ export const runAssignmentCommand = (command, args, options = {}) =>
     let stdoutBytes = 0;
     let stderrBytes = 0;
     let stderr = '';
+    let inputFailure = null;
     const terminate = (code) => {
       refusal ??= assignmentFailure(
         code,
@@ -28,7 +29,7 @@ export const runAssignmentCommand = (command, args, options = {}) =>
       }
       if (windows) {
         killer ??= new Promise((done) => {
-          const task = spawn(
+          const task = childProcess.spawn(
             'taskkill',
             ['/PID', String(child.pid), '/T', '/F'],
             {
@@ -49,7 +50,7 @@ export const runAssignmentCommand = (command, args, options = {}) =>
     };
     const abort = () => terminate('stopped');
     try {
-      child = spawn(command, args, {
+      child = childProcess.spawn(command, args, {
         cwd,
         shell: false,
         detached: !windows,
@@ -59,7 +60,8 @@ export const runAssignmentCommand = (command, args, options = {}) =>
           GIT_TERMINAL_PROMPT: '0',
           GCM_INTERACTIVE: 'never',
         },
-        stdio: ['pipe', 'pipe', 'pipe'],
+        // Commands without payloads never own a pipe that can race their exit.
+        stdio: [input === '' ? 'ignore' : 'pipe', 'pipe', 'pipe'],
       });
     } catch {
       reject(
@@ -98,7 +100,10 @@ export const runAssignmentCommand = (command, args, options = {}) =>
         'The assignment command is unavailable.'
       );
     });
-    child.stdin.on('error', () => terminate('input'));
+    child.stdin?.on('error', (error) => {
+      inputFailure = String(error.code ?? 'unknown').slice(0, 80);
+      terminate('input');
+    });
     child.once('close', async (code) => {
       globalThis.clearTimeout(timer);
       signal?.removeEventListener('abort', abort);
@@ -116,11 +121,12 @@ export const runAssignmentCommand = (command, args, options = {}) =>
           refusal: error.code,
           stdoutBytes,
           stderrBytes,
+          inputFailure,
         });
         reject(error);
       } else {
         resolve({ stdout });
       }
     });
-    child.stdin.end(input);
+    child.stdin?.end(input);
   });
