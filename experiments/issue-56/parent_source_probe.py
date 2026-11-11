@@ -3,7 +3,7 @@ import os
 import subprocess
 
 
-def verify_parent(root, parent, prefix, test, pattern, ui):
+def verify_parent(root, parent, prefix, test, pattern='.', ui=None):
     paths = subprocess.check_output(
         ['git', 'diff', parent, '--name-only', '--', 'js/src'],
         cwd=root, text=True).splitlines()
@@ -29,9 +29,11 @@ def verify_parent(root, parent, prefix, test, pattern, ui):
             f'--test-name-pattern={pattern}', test], check=False)
         if result.returncode != 1:
             raise RuntimeError(f'Expected parent assertion failure, got {result.returncode}')
-        run('before-build', ['node', 'js/scripts/build-web.mjs'])
-        run('before-ui', ['node', ui, '--before'])
+        if ui:
+            run('before-build', ['node', 'js/scripts/build-web.mjs'])
+            run('before-ui', ['node', ui, '--before'])
     finally:
         for path, content in current.items():
             (root / path).write_bytes(content)
-        run('restored-build', ['node', 'js/scripts/build-web.mjs'])
+        if ui:
+            run('restored-build', ['node', 'js/scripts/build-web.mjs'])

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Reduce immutable server preparation filesystem work by creating each destination directory once and copying at most four files concurrently. Drain issued writes before failed-preparation cleanup, retain complete digest verification and keep existing startup deadlines.
+
 Plan every bounded pending message through shared archived/browser answer controls, independently of model opt-in. Preserve unresolved earlier requests through completed summaries, guard strict native choices, prefill complete approved turns without sending, refuse oversized model batches and recheck queued current knowledge.
 
 Retain complete bounded rendered pending incoming turns and actual owner/service boundaries in browser reviews, CLI/Lino and shared Questions/Chat/Operator/watch controls. Refuse held prefills and native selections after earlier edits or manual replies, including late pointer dispatch, and keep multi-message automatic watches for manual review. Preserve explicit unknown earlier-history coverage and latest-question durable reservations.
