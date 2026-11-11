@@ -440,6 +440,8 @@
     "test:e2e:question-history:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-history-browser.mjs",
     "test:e2e:question-inactive-text": "node js/tests/e2e-question-inactive-text-browser.mjs",
     "test:e2e:question-inactive-text:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-inactive-text-browser.mjs",
+    "test:e2e:question-notice-policy": "node js/tests/e2e-question-notice-policy-browser.mjs",
+    "test:e2e:question-notice-policy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-notice-policy-browser.mjs",
     "test:e2e:question-inactive-history": "node js/tests/e2e-question-inactive-history-browser.mjs",
     "test:e2e:question-inactive-history:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-inactive-history-browser.mjs",
     "test:e2e:question-controls": "node js/tests/e2e-question-controls-browser.mjs",

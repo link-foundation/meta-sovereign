@@ -34,6 +34,7 @@ import {
 } from './telegram-export-commands.js';
 import { promises as fs } from 'node:fs';
 import { runCliCommand } from './command-runner.js';
+import { versionCmd } from './version-command.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
 import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
 import { FORMS_HELP, createFormsCommands } from './forms-commands.js';
@@ -895,12 +896,7 @@ const COMMANDS = {
     log(HELP);
     return 0;
   },
-  // The published package's version, read from its package.json.
-  version: async (_a, log) => {
-    const pkg = new URL('../../../package.json', import.meta.url);
-    log(JSON.parse(await fs.readFile(pkg, 'utf8')).version);
-    return 0;
-  },
+  version: versionCmd,
 };
 
 // Conventional flags that package managers and users try first.

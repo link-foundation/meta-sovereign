@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 export const probeClinkFailure = async ({
@@ -13,7 +13,7 @@ export const probeClinkFailure = async ({
   dropQuery = true,
   debug = '1',
 } = {}) => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-clink-cleanup-'));
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-clink-# cleanup-'));
   const preload = path.join(dir, 'drop-query.mjs');
   await writeFile(
     preload,
@@ -37,7 +37,7 @@ net.Socket.prototype.write = function (chunk, ...args) {
     'node',
     [
       '--import',
-      preload,
+      pathToFileURL(preload).href,
       '--test',
       '--test-concurrency=1',
       '--test-name-pattern=startClinkServer serialises',

@@ -18,6 +18,19 @@ const source = (file) =>
   readFileSync(new URL(`../scripts/${file}`, import.meta.url));
 const registry = JSON.parse(source('browser-checks.json'));
 
+test('every registered browser check resolves to an existing direct Node entry', () => {
+  const root = new URL('../../', import.meta.url);
+  const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));
+  for (const name of registry) {
+    const command =
+      name === 'browser'
+        ? 'node js/tests/e2e-browser-spa.mjs'
+        : scripts[`test:e2e:${name}`];
+    assert.match(command || '', /^node [\w./-]+\.mjs$/u, name);
+    assert.ok(existsSync(new URL(command.slice(5), root)), name);
+  }
+});
+
 test('both mandatory browser engines retain each registered check once within unchanged budgets', () => {
   const job = parse(
     readFileSync(

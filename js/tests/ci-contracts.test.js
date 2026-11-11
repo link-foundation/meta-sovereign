@@ -319,6 +319,10 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-history': ['verifyConversationHistory'],
     'question-inactive-history': ['verifyInactiveHistory'],
     'question-inactive-text': ['verifyInactiveText'],
+    'question-notice-policy': [
+      'verifyNoticePolicies',
+      'verifyNoticePolicyControls',
+    ],
     'question-controls': [
       'verifyQuestionBrowserControls',
       'verifySummaryChoices',

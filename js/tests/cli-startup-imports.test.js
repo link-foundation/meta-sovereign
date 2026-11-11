@@ -2,6 +2,44 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+test(
+  'version aliases need no provider or ordinary command graph',
+  {
+    timeout: 10000,
+    skip: Boolean(process.versions.bun || process.versions.deno),
+  },
+  () => {
+    const probe = fileURLToPath(
+      new URL(
+        '../../experiments/issue-56/cli-version-imports.mjs',
+        import.meta.url
+      )
+    );
+    const result = JSON.parse(
+      execFileSync(process.execPath, [probe], {
+        encoding: 'utf8',
+        timeout: 5000,
+      })
+    );
+    const { version } = JSON.parse(
+      readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+    );
+    assert.deepEqual(result.codes, [0, 0, 0]);
+    assert.deepEqual(result.output, [version, version, version]);
+    assert.deepEqual(
+      result.modules.filter(
+        (name) =>
+          name.startsWith('sources/') ||
+          name === 'server/index.js' ||
+          name === 'cli/commands.js'
+      ),
+      [],
+      'version imported unrelated command/provider code'
+    );
+  }
+);
 
 test(
   'serve admission leaves provider and ordinary command modules to their consumers',

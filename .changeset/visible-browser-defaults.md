@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Pass reconnect fixture preloads as file URLs, select version aliases before loading provider commands, and retain CLI output/exit behavior with default-off admission timings and owned test-child cleanup. Restore mandatory notice browser commands, validate every registered browser entry and escape generated MCP fixture data.
+
 Add separate default-review notice policies and an explicit inactive current-chat HH watch with complete-history/open-employer guards, exact approved acknowledgement replies, once-per-chat configured rejection replies, durable shared reservations and full provider receipts. Share CLI/Lino/offline/four-language controls, retain unknown holds and restart refusal, and preserve native checkbox layout.
 
 Run native inactive-history focus fixtures in full Chromium, keeping the headless shell for other groups and preserving production ownership guards, executable overrides and existing deadlines.

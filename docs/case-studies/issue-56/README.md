@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [ci-windows-cli.md](ci-windows-cli.md) preserves actual Windows preload/CLI failures and notice browser/CodeQL failures, reproduces six parent regressions, selects version commands without provider imports and retains deadlines with bounded diagnostics. Focused local checks pass; hosted confirmation and every unchecked product criterion remain required.
+
 - [notice-policy.md](notice-policy.md) verifies separate default-review acknowledgement/rejection/invitation policies, explicit inactive current-chat HH delivery, complete-history and vacancy guards, flushed shared/per-chat reservations, full receipts and Lino restart holds through CLI/Lino/four-language controls. Focused native and independent MCP evidence is retained; cross-chat/unread/live/provider parity remains required.
 
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft implementation: <https://github.com/link-foundation/meta-sovereign/pull/57>.

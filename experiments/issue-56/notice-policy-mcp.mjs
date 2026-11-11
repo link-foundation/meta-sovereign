@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
+import { mcpInspectionCode } from './mcp-inspection-code.mjs';
 
 // Independent MCP inspection of the actual shared React controls. The tiny
 // server uses a synthetic provider: native dispatch is tested separately.
@@ -141,5 +142,9 @@ const fixture = JSON.parse(
 );
 await writeFile(
   'ci-logs/notice-policy-mcp-code.js',
-  `async (page) => (${inspect.toString()})(page, ${JSON.stringify({ ...fixture, screenshots: '/tmp/gh-issue-solver-1794216540735/docs/screenshots/issue-56-notice-policy' })})`
+  mcpInspectionCode(inspect, {
+    ...fixture,
+    screenshots:
+      '/tmp/gh-issue-solver-1794216540735/docs/screenshots/issue-56-notice-policy',
+  })
 );
