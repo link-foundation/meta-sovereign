@@ -12,6 +12,7 @@ export const questionBrowserRoute = async (req, res, path, ctx) => {
     [`${ROOT}/inspect`]: 'inspect',
     [`${ROOT}/prefill`]: 'prefill',
     [`${ROOT}/select`]: 'select',
+    [`${ROOT}/reply-text`]: 'replyText',
     [`${ROOT}/status`]: 'status',
     [`${ROOT}/watch-start`]: 'watchStart',
     [`${ROOT}/watch-status`]: 'watchStatus',

@@ -1,18 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAutomationCommands } from '../src/cli/automation-commands.js';
 import { questionBrowserApi } from '../src/web/question-browser-api.js';
-import { startServer } from '../src/server/index.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import {
   questionBrowserFixture,
   browserTarget,
 } from '../../experiments/issue-56/question-browser-fixture.mjs';
+import {
+  questionBrowserCli,
+  questionBrowserHttp,
+} from '../../experiments/issue-56/question-browser-clients.mjs';
 import { pendingSnapshot } from '../../experiments/issue-56/pending-turn-fixture.mjs';
 
 const inputFor = (review) => ({ id: review.id, option: 'Yes', confirm: true });
@@ -20,26 +17,7 @@ const inputFor = (review) => ({ id: review.id, option: 'Yes', confirm: true });
 test('CLI exposes current choices, confirmed selection and read-only durable recovery', async () => {
   const env = await questionBrowserFixture();
   env.state.snapshot = pendingSnapshot();
-  const cli = createAutomationCommands({
-    openStore: async () => env.store,
-    send: env.send,
-  });
-  const output = [];
-  const call = async (action, extra = {}) => {
-    const code = await cli.automations(
-      {
-        _: ['answers', 'browser', action],
-        json: true,
-        now: env.state.now.toISOString(),
-        ...extra,
-      },
-      (line) => output.push(line)
-    );
-    return {
-      code,
-      value: code === 0 ? JSON.parse(output.at(-1)) : output.at(-1),
-    };
-  };
+  const call = questionBrowserCli(env);
   assert.equal((await call('show')).value.available, true);
   assert.equal(env.state.reads.length, 0);
   const review = (await call('inspect', browserTarget)).value;
@@ -69,30 +47,7 @@ test(
   async () => {
     const env = await questionBrowserFixture();
     env.state.snapshot = pendingSnapshot();
-    const server = await startServer({
-      store: env.store,
-      port: 0,
-      localUi: false,
-      enableSync: false,
-      enableHandlers: false,
-      telegramAccount: false,
-      automations: { scheduler: false, send: env.send },
-      log: null,
-    });
-    const call = async (action, input, type = LINO_TEXT, extra = {}) => {
-      const response = await fetch(
-        `http://127.0.0.1:${server.port}/api/automations/answers/browser${action ? `/${action}` : ''}`,
-        {
-          method: input ? 'POST' : 'GET',
-          headers: { accept: type, 'content-type': type, ...extra },
-          ...(input ? { body: encodeWire(input, type) } : {}),
-        }
-      );
-      return {
-        status: response.status,
-        body: await readWireResponse(response),
-      };
-    };
+    const { server, call } = await questionBrowserHttp(env);
     try {
       assert.equal((await call('')).body.available, true);
       assert.equal(env.state.reads.length, 0);

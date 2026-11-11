@@ -6,6 +6,7 @@ import { startServer } from '../../js/src/server/index.js';
 import { questionBrowserFixture } from './question-browser-fixture.mjs';
 import { summaryChoiceMessage } from './summary-choice-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
+import { textReplyHtml } from './text-reply-fixture.mjs';
 
 /** Private, disposable production server and routed provider; no live account. */
 export const questionBrowserServer = async (
@@ -78,7 +79,7 @@ export const questionBrowserServer = async (
     }
     return route.fulfill({
       contentType: 'text/html',
-      body: `${hhChoiceHtml.replaceAll(
+      body: `${(mode.freeText ? textReplyHtml : hhChoiceHtml).replaceAll(
         'message-101',
         `message-${mode.id}`
       )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`,

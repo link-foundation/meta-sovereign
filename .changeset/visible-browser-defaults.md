@@ -269,3 +269,5 @@ Load the selected serve command before unrelated provider/command modules, keepi
 Give the unchanged HH history browser scenario its own mandatory Chromium/WebKit group, retaining every list/scan case and the existing subprocess/job deadlines. Reject omitted and duplicate scenario registrations.
 
 Keep native Questions disclosures open when browser fixtures revisit an identical fragment URL, preserving drafts and mandatory consecutive notice-learning coverage. Refresh the production UI bundle from the current localized source; retain actual-parent failures, bounded final-phase diagnostics and desktop/phone visual evidence (R-Z32, R-AA1).
+
+Add explicitly confirmed frozen-turn text replies to the shared persistent question service, CLI, text/binary Lino and checked browser client. Reserve the same question as native choices, flush before dispatch, retain complete bounded text receipts and block uncertain or repeated sends across reviews and store reopen. Visible shared controls and automatic background text workflows remain separate required work.

@@ -86,6 +86,41 @@ export const browserChoiceReceipt = (result, draft) => {
   };
 };
 
+/** Text receipts bind the full reviewed body, including text beyond the log preview. */
+export const browserTextReceipt = (result, draft) => {
+  if (!boundedBrowserText(draft.text, 12000)) {
+    return null;
+  }
+  const receipt = browserChoiceReceipt(
+    { ...result, option: result?.text },
+    draft
+  );
+  if (!receipt) {
+    return null;
+  }
+  const { option, ...identity } = receipt;
+  return { ...identity, text: option };
+};
+
+export const browserAnswerReceipt = (result, draft) =>
+  draft.answer?.textReply
+    ? browserTextReceipt(result, draft)
+    : draft.answer?.strictOptions
+      ? browserChoiceReceipt(result, draft)
+      : null;
+
+/** Shared server/client validation of a persisted positive provider receipt. */
+export const browserReviewReceipt = (outbox, snapshot, target) => {
+  const draft = { source: target.source, chat: snapshot.chat };
+  if (outbox?.answerType === 'text') {
+    return browserTextReceipt(outbox.receipt, { ...draft, text: outbox.text });
+  }
+  const option = outbox?.receipt?.option;
+  return snapshot.answerOptions.filter((value) => value === option).length === 1
+    ? browserChoiceReceipt(outbox?.receipt, { ...draft, text: option })
+    : null;
+};
+
 export const browserChoiceDraft = (record, option = '') => {
   const { target, snapshot } = record;
   const message = `msg:${target.source}:${snapshot.chat}:${snapshot.question.id}`;

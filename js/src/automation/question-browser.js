@@ -3,6 +3,7 @@ import { previewAnswer } from './question-store.js';
 import { guardedSend, outboxId } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { createQuestionBrowserWatches } from './question-browser-watch.js';
+import { createBrowserTextReview } from './question-browser-text.js';
 import { normalizeAnswerAction } from './question-answers.js';
 import { normalizeAnswerEnvironment } from './question-context.js';
 import {
@@ -10,7 +11,7 @@ import {
   browserChoiceDraft,
   checkedBrowserChoiceReceipt,
   checkBrowserQuestion,
-  browserChoiceReceipt,
+  browserReviewReceipt,
   validChoiceSources,
 } from './question-browser-state.js';
 
@@ -58,6 +59,28 @@ const readRecord = async (store, input) => {
   return record;
 };
 
+const extraBrowserCapabilities = (send, sources, available) => {
+  const extra = {};
+  if (!available) {
+    return extra;
+  }
+  for (const [key, action, reader] of [
+    ['watchSources', 'openAnswerWatch', 'answerWatchSources'],
+    ['textSources', 'replyText', 'textReplySources'],
+  ]) {
+    const candidates =
+      typeof send[action] === 'function' ? (send[reader]?.() ?? []) : [];
+    if (
+      validChoiceSources(candidates) &&
+      candidates.length &&
+      candidates.every(({ id }) => sources.some((source) => source.id === id))
+    ) {
+      extra[key] = candidates;
+    }
+  }
+  return extra;
+};
+
 const browserCapabilities = (send) => {
   const sources =
     typeof send?.choiceSources === 'function' ? send.choiceSources() : [];
@@ -67,16 +90,10 @@ const browserCapabilities = (send) => {
     typeof send === 'function' &&
     typeof send.readAnswerChoices === 'function' &&
     typeof send.prefillAnswer === 'function';
-  const watchSources =
-    available && typeof send?.openAnswerWatch === 'function'
-      ? (send.answerWatchSources?.() ?? [])
-      : [];
   return {
     available,
     sources: available ? sources : [],
-    ...(validChoiceSources(watchSources) && watchSources.length
-      ? { watchSources }
-      : {}),
+    ...extraBrowserCapabilities(send, sources, available),
   };
 };
 
@@ -87,17 +104,11 @@ const browserReviewStatus = async (store, clock, input) => {
   if (
     outbox?.status === 'sent' &&
     outbox.resolvedBy !== 'user' &&
-    (!browserChoiceReceipt(
-      outbox.receipt,
-      browserChoiceDraft(record, outbox.receipt?.option)
-    ) ||
-      record.snapshot.answerOptions.filter(
-        (option) => option === outbox.receipt?.option
-      ).length !== 1)
+    !browserReviewReceipt(outbox, record.snapshot, record.target)
   ) {
     throw failure(
       'question-browser-receipt-missing',
-      'The saved selection receipt is unavailable; inspect the provider chat before resolving this outbox entry.'
+      'The saved answer receipt is unavailable; inspect the provider chat before resolving this outbox entry.'
     );
   }
   return globalThis.structuredClone({
@@ -265,6 +276,15 @@ export const createQuestionBrowser = ({
     intervalMs: watchIntervalMs,
   });
   const actions = {
+    replyText: createBrowserTextReview({
+      store,
+      send,
+      clock,
+      log,
+      status,
+      capabilities,
+      freshReview: (input) => freshReview(store, clock, input),
+    }),
     ...createReviewActions({
       store,
       send,

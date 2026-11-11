@@ -432,6 +432,12 @@ const choiceSources = (platforms) =>
     .filter(([, ui]) => ui.choices && ui.location)
     .map(([id, ui]) => ({ id, name: ui.name ?? id }));
 
+const textReplySources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return ui.documents && ui.textReply?.send && ui.textReply.closedText;
+  });
+
 const browserUiFor = (platforms) => (source) => {
   const ui = platforms[source];
   if (!ui) {
@@ -561,6 +567,7 @@ export const createBrowserSender = ({
     ...scans,
     ...texts,
     choiceSources: () => choiceSources(platforms),
+    textReplySources: () => textReplySources(platforms),
     answerWatchSources: () =>
       choiceSources(platforms).filter(({ id }) => platforms[id].documents),
 
@@ -855,6 +862,7 @@ export const createDefaultSender = ({
     prefillAnswer: (params) => browserFor().prefillAnswer(params),
     replyText: (params) => browserFor().replyText(params),
     choiceSources: () => browserFor().choiceSources?.() ?? [],
+    textReplySources: () => browserFor().textReplySources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),

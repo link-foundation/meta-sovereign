@@ -3,14 +3,8 @@ import assert from 'node:assert/strict';
 import { questionBrowserApi } from '../src/web/question-browser-api.js';
 import { questionWatchCommand } from '../src/cli/question-watch-commands.js';
 import { createAutomationCommands } from '../src/cli/automation-commands.js';
-import { startServer } from '../src/server/index.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-  decodeWire,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY, decodeWire } from '../src/transport/lino.js';
+import { questionBrowserHttp } from '../../experiments/issue-56/question-browser-clients.mjs';
 import { questionWatchFixture } from '../../experiments/issue-56/question-watch-fixture.mjs';
 
 test('watch API writes once and recovers only by the same request ID', async () => {
@@ -120,30 +114,7 @@ test(
   { timeout: 15000 },
   async () => {
     const env = await questionWatchFixture();
-    const server = await startServer({
-      store: env.store,
-      port: 0,
-      localUi: false,
-      enableSync: false,
-      enableHandlers: false,
-      telegramAccount: false,
-      automations: { scheduler: false, send: env.send },
-      log: null,
-    });
-    const call = async (action, input, type = LINO_TEXT, headers = {}) => {
-      const response = await fetch(
-        `http://127.0.0.1:${server.port}/api/automations/answers/browser/${action}`,
-        {
-          method: 'POST',
-          headers: { accept: type, 'content-type': type, ...headers },
-          body: encodeWire(input, type),
-        }
-      );
-      return {
-        status: response.status,
-        body: await readWireResponse(response),
-      };
-    };
+    const { server, call } = await questionBrowserHttp(env);
     try {
       const review = await call('inspect', {
         source: 'hh',

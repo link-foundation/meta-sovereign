@@ -19,6 +19,12 @@ export const questionBrowserCommand = async (
         ...(args['browser-url'] ? { browserUrl: args['browser-url'] } : {}),
       }),
     prefill: () => browser.prefill({ id: args.id }),
+    'reply-text': () =>
+      browser.replyText({
+        id: args.id,
+        text: args.text,
+        confirm: [true, 'true'].includes(args.confirm),
+      }),
     select: () =>
       browser.select({
         id: args.id,
@@ -32,7 +38,7 @@ export const questionBrowserCommand = async (
   };
   if (!Object.hasOwn(actions, action)) {
     throw new Error(
-      'answers browser expects show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review> | watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] | watch-status --watch-id=<id> | watch-stop --watch-id=<id>'
+      'answers browser expects show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | reply-text --id=<review> --text=<reviewed-reply> --confirm=true | status --id=<review> | watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] | watch-status --watch-id=<id> | watch-stop --watch-id=<id>'
     );
   }
   return actions[action]();

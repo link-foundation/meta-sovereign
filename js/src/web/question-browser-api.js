@@ -2,7 +2,7 @@ import {
   browserReviewId,
   browserWatchId,
   checkBrowserQuestion,
-  browserChoiceReceipt,
+  browserReviewReceipt,
   boundedBrowserText,
   validChoiceSources,
   checkBrowserWatchReceipt,
@@ -17,16 +17,7 @@ const failure = (value) =>
   );
 const checkReceipt = (value) => {
   if (value.status === 'sent' && value.outbox?.resolvedBy !== 'user') {
-    const receipt = value.outbox?.receipt;
-    if (
-      !browserChoiceReceipt(receipt, {
-        source: value.target.source,
-        chat: value.chat,
-        text: receipt?.option,
-      }) ||
-      value.answerOptions.filter((option) => option === receipt.option)
-        .length !== 1
-    ) {
+    if (!browserReviewReceipt(value.outbox, value, value.target)) {
       throw failure({ code: 'question-browser-receipt-missing' });
     }
   }
@@ -131,20 +122,23 @@ export const questionBrowserApi = ({ remote }) => {
       if (result.available && !result.sources.length) {
         throw failure(result);
       }
-      if (
-        result.watchSources !== undefined &&
-        (!validChoiceSources(result.watchSources) ||
-          result.watchSources.some(
-            ({ id }) => !result.sources.some((source) => source.id === id)
-          ))
-      ) {
-        throw failure(result);
+      for (const sources of [result.watchSources, result.textSources]) {
+        if (
+          sources !== undefined &&
+          (!validChoiceSources(sources) ||
+            sources.some(
+              ({ id }) => !result.sources.some((source) => source.id === id)
+            ))
+        ) {
+          throw failure(result);
+        }
       }
       return result;
     },
     inspectBrowserAnswer: (input) => call('inspect', input),
     prefillBrowserAnswer: (input) => call('prefill', input),
     selectBrowserAnswer: (input) => call('select', input),
+    replyBrowserText: (input) => call('reply-text', input),
     browserAnswerStatus: (input) => call('status', input),
     startBrowserAnswerWatch: (input) => watch('start', input),
     browserAnswerWatchStatus: (input) => watch('status', input),
