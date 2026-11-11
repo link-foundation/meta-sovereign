@@ -5,6 +5,7 @@ import { formFailure as failure, formUrl } from './options.js';
 import { inspectCurrentFormSession } from './inspection.js';
 import { trackReviewActivity } from './review-activity.js';
 import { createReviewedPrefill } from './review-prefill.js';
+import { prefillFormReview } from './automatic-prefill.js';
 import { createFormJournal, formReportSnapshot } from './review-journal.js';
 import { persistFormReport } from './report-file.js';
 import { createFormMonitor } from './review-monitor.js';
@@ -270,28 +271,45 @@ const reviewAction =
   ({ operate, filling, reportWriter, get, check }, action) =>
   async (input) => {
     const result = await operate(input.id, async (record) => {
-      const proposed = record.reviewPlan?.proposed;
-      const result = await captureReport(
+      const perform = async (name, options, arm = true) => {
+        const proposed = record.reviewPlan?.proposed;
+        const result = await captureReport(
+          reportWriter,
+          record,
+          name === 'applyEmpty' ? 'apply' : name,
+          await filling[name](record, options, () => check(record)),
+          proposed
+        );
+        if (name === 'plan' && arm) {
+          if (
+            record.learning.detached ||
+            record.monitor.status().state === 'active'
+          ) {
+            await record.learning.arm(result, record.reviewPlan?.options);
+          } else {
+            record.learning.incomplete('capture-unavailable');
+          }
+        }
+        if (['apply', 'applyEmpty'].includes(name)) {
+          await record.learning.applied(result);
+        }
+        return result;
+      };
+      if (action !== 'prefill') {
+        return perform(action, input);
+      }
+      return captureReport(
         reportWriter,
         record,
         action,
-        await filling[action](record, input, () => check(record)),
-        proposed
+        await prefillFormReview({
+          record,
+          input,
+          perform,
+          filling,
+          check: () => check(record),
+        })
       );
-      if (action === 'plan') {
-        if (
-          record.learning.detached ||
-          record.monitor.status().state === 'active'
-        ) {
-          await record.learning.arm(result, record.reviewPlan?.options);
-        } else {
-          record.learning.incomplete('capture-unavailable');
-        }
-      }
-      if (action === 'apply') {
-        await record.learning.applied(result);
-      }
-      return result;
     });
     return globalThis.structuredClone({
       ...result,
@@ -505,6 +523,7 @@ export const createFormSessions = ({
     },
     plan: action('plan'),
     apply: action('apply'),
+    prefill: action('prefill'),
     attach: action('attach'),
     disclose: action('disclose'),
     history: async (id) => ({

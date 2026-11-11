@@ -1,5 +1,6 @@
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
+import { verifyFormAutomaticUi } from './helpers/e2e-form-automatic.mjs';
 import { verifyFormPayUi } from './helpers/e2e-form-pay.mjs';
 import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
 import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
@@ -275,6 +276,7 @@ const verifyLimits = async (page) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],
     ['PAY', verifyFormPayUi],
     ['SUBJECTS', verifyFormSubjectsUi],
@@ -478,6 +480,7 @@ await app.finish(async () => {
       verifyFormSubjectsUi,
       verifyFormPayUi,
       verifyFormMatchingUi,
+      verifyFormAutomaticUi,
     ]) {
       await verify({ page, base, owned, fixture, until, store, modelCalls });
     }
@@ -509,6 +512,7 @@ if (
   process.env.FORMS_SUBJECTS_ONLY !== '1' &&
   process.env.FORMS_PAY_ONLY !== '1' &&
   process.env.FORMS_MATCHING_ONLY !== '1' &&
+  process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {

@@ -1,6 +1,7 @@
 // Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
 import { seedFormPay } from './forms-pay-fixture.mjs';
 import { seedMatchingAnswers } from './question-matching-fixture.mjs';
+import { automaticControlValues } from './forms-automatic-fixture.mjs';
 import { seedFormAnswers } from './forms-plan-fixture.mjs';
 import { seedLinkAnswers } from './forms-links-fixture.mjs';
 import { seedFormPlace } from './forms-timezone-fixture.mjs';
@@ -20,6 +21,14 @@ import {
   seedModelAnswers,
   modelRunnerFixture,
 } from './forms-model-fixture.mjs';
+
+const captureAutomaticFrames = async (page, read) => {
+  if (new URL(page.url()).pathname === '/automatic') {
+    read.automaticFrames = await Promise.all(
+      page.frames().map((frame) => frame.evaluate(automaticControlValues))
+    );
+  }
+};
 
 const fixture = await startFormsFixture();
 const store = createMemoryStore();
@@ -44,7 +53,10 @@ const modelMode = process.env.FORMS_MODEL_MCP === '1';
 if (modelMode) {
   await seedModelAnswers(store);
 }
-if (process.env.FORMS_RESUME_MCP === '1') {
+if (
+  process.env.FORMS_RESUME_MCP === '1' ||
+  process.env.FORMS_AUTOMATIC_MCP === '1'
+) {
   await saveConfiguredResume(store, {
     file: {
       name: 'synthetic-resume.pdf',
@@ -108,6 +120,7 @@ try {
           commander,
           policy: { headless: true },
           async close() {
+            await captureAutomaticFrames(page, read);
             if (new URL(page.url()).pathname === '/upload') {
               read.uploadFrames = [];
               for (const frame of page.frames()) {
@@ -198,6 +211,7 @@ try {
                 '/subjects',
                 '/pay',
                 '/matching',
+                '/automatic',
               ].includes(new URL(page.url()).pathname)
             ) {
               read.values = await page.evaluate(() =>
@@ -232,25 +246,27 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_MATCHING_MCP === '1'
-          ? fixture.url.replace('/application', '/matching')
-          : process.env.FORMS_PAY_MCP === '1'
-            ? fixture.url.replace('/application', '/pay')
-            : process.env.FORMS_SUBJECTS_MCP === '1'
-              ? fixture.url.replace('/application', '/subjects')
-              : process.env.FORMS_TIMEZONE_MCP === '1'
-                ? fixture.url.replace('/application', '/timezone')
-                : process.env.FORMS_LINKS_MCP === '1'
-                  ? fixture.url.replace('/application', '/links')
-                  : modelMode
-                    ? fixture.url.replace('/application', '/model')
-                    : process.env.FORMS_RESUME_MCP === '1'
-                      ? fixture.url.replace('/application', '/upload')
-                      : process.env.FORMS_LEARNING_MCP === '1'
-                        ? fixture.url.replace('/application', '/learning')
-                        : process.env.FORMS_MONITOR_MCP === '1'
-                          ? fixture.url.replace('/application', '/monitor')
-                          : fixture.url,
+        process.env.FORMS_AUTOMATIC_MCP === '1'
+          ? fixture.url.replace('/application', '/automatic')
+          : process.env.FORMS_MATCHING_MCP === '1'
+            ? fixture.url.replace('/application', '/matching')
+            : process.env.FORMS_PAY_MCP === '1'
+              ? fixture.url.replace('/application', '/pay')
+              : process.env.FORMS_SUBJECTS_MCP === '1'
+                ? fixture.url.replace('/application', '/subjects')
+                : process.env.FORMS_TIMEZONE_MCP === '1'
+                  ? fixture.url.replace('/application', '/timezone')
+                  : process.env.FORMS_LINKS_MCP === '1'
+                    ? fixture.url.replace('/application', '/links')
+                    : modelMode
+                      ? fixture.url.replace('/application', '/model')
+                      : process.env.FORMS_RESUME_MCP === '1'
+                        ? fixture.url.replace('/application', '/upload')
+                        : process.env.FORMS_LEARNING_MCP === '1'
+                          ? fixture.url.replace('/application', '/learning')
+                          : process.env.FORMS_MONITOR_MCP === '1'
+                            ? fixture.url.replace('/application', '/monitor')
+                            : fixture.url,
     })
   );
   if (

@@ -36,6 +36,7 @@ export const createFormsApi = ({ get, getResume, report, local }) => ({
       'Close',
       'Plan',
       'Apply',
+      'Prefill',
       'Disclose',
       'Attach',
       'Capacity',

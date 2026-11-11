@@ -1,5 +1,9 @@
 import { payFixtureHtml } from './forms-pay-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
+import {
+  automaticFixtureHtml,
+  automaticChildHtml,
+} from './forms-automatic-fixture.mjs';
 import { createServer } from 'node:http';
 import { modelFixtureHtml } from './forms-model-fixture.mjs';
 import { linksFixtureHtml } from './forms-links-fixture.mjs';
@@ -26,12 +30,25 @@ const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire<
 <div role="radio" tabindex="0" aria-label="Office" aria-checked="false">Office</div></div>
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
 
+const simplePages = {
+  '/matching': matchingFixtureHtml,
+  '/pay': payFixtureHtml,
+  '/subjects': subjectFixtureHtml,
+  '/timezone': timezoneFixtureHtml,
+  '/links': linksFixtureHtml,
+  '/model': modelFixtureHtml,
+};
+
 export const startFormsFixture = async () => {
   const requests = [];
   let submits = 0;
   const child = createServer((req, res) => {
     requests.push({ server: 'child', method: req.method, url: req.url });
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/automatic')) {
+      res.end(automaticChildHtml);
+      return;
+    }
     if (req.url.startsWith('/monitor')) {
       res.end(monitorChildHtml(req.url.includes('hidden')));
       return;
@@ -66,28 +83,21 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
-    if (req.url.startsWith('/matching')) {
-      res.end(matchingFixtureHtml);
+    if (req.url.startsWith('/automatic')) {
+      res.end(
+        automaticFixtureHtml(
+          childBase,
+          new URL(req.url, 'http://fixture.test').searchParams.get('page') ===
+            '2'
+        )
+      );
       return;
     }
-    if (req.url.startsWith('/pay')) {
-      res.end(payFixtureHtml);
-      return;
-    }
-    if (req.url.startsWith('/subjects')) {
-      res.end(subjectFixtureHtml);
-      return;
-    }
-    if (req.url.startsWith('/timezone')) {
-      res.end(timezoneFixtureHtml);
-      return;
-    }
-    if (req.url.startsWith('/links')) {
-      res.end(linksFixtureHtml);
-      return;
-    }
-    if (req.url.startsWith('/model')) {
-      res.end(modelFixtureHtml);
+    const simple = Object.entries(simplePages).find(([path]) =>
+      req.url.startsWith(path)
+    );
+    if (simple) {
+      res.end(simple[1]);
       return;
     }
     if (req.url.startsWith('/learning')) {

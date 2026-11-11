@@ -14,6 +14,7 @@ import { attachReviewedResume } from './review-upload.js';
 import { resumeUploadField } from './resume-upload.js';
 import { discloseReviewedOptions } from './review-disclosure.js';
 import { configuredResume } from './configured-resume.js';
+import { automaticReviewFields } from './automatic-prefill.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
@@ -116,7 +117,7 @@ export const createReviewedPrefill = ({
       throw error;
     }
   };
-  const apply = async (record, input, check) => {
+  const apply = async (record, input, check, select = selectedReviewFields) => {
     if (record.lastApplication?.planId === input.planId) {
       return record.lastApplication;
     }
@@ -127,7 +128,7 @@ export const createReviewedPrefill = ({
         'Plan the current page again before applying answers.'
       );
     }
-    const fields = selectedReviewFields(state.proposed, input);
+    const fields = select(state.proposed, input);
     record.reviewPlan = null;
     const fresh = () => inspect(record.browser, { check });
     const guard = async () => {
@@ -165,6 +166,8 @@ export const createReviewedPrefill = ({
   return {
     plan,
     apply,
+    applyEmpty: (record, input, check) =>
+      apply(record, input, check, automaticReviewFields),
     clear,
     attach: (record, input, check) =>
       attachReviewedResume({ record, input, check, inspect, now, store }),

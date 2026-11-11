@@ -30,6 +30,21 @@ export const formReportSnapshot = (result, proposed) => {
             fieldId: result.fieldId,
             file: result.file,
             learning: result.learning,
+            ...(result.mode === 'prefill-result'
+              ? {
+                  requestId: result.requestId,
+                  complete: result.complete,
+                  requiresReview: result.requiresReview,
+                  submissionAttempted: result.submissionAttempted,
+                  unresolved: result.unresolved,
+                  uploads: result.uploads.map(
+                    ({ report: _report, reviewSession: _session, ...upload }) =>
+                      upload
+                  ),
+                  nextPage: result.nextPage,
+                  note: result.note,
+                }
+              : {}),
           },
         }
       : {}),

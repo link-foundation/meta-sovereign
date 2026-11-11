@@ -4,6 +4,11 @@
 
 ### Minor Changes
 
+- Add explicit automatic current-page prefilling to multi-URL form reviews and
+  owned Lino sessions. Preserve owner answers, verify configured or selected PDFs,
+  retain provenance and recover receipts without repeating writes. Keep page
+  navigation and form submission under owner control.
+
 - Add configurable question similarity/case and paged ranked-match inspection
   across CLI, Lino, automation and Forms controls. Preserve subject guards,
   configured context templates and owner answers. Prevent model reloads from

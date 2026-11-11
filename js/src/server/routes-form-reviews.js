@@ -1,6 +1,16 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 
+const answerOptions = (body) => ({
+  id: body.id,
+  profileId: body.profileId,
+  approximate: body.approximate,
+  matching: body.matching,
+  modelDraft: body.modelDraft,
+  salary: body.salary,
+  vacancy: body.vacancy,
+});
+
 const actions = {
   capacity: (forms, body) =>
     forms.configureReviewCapacity({
@@ -19,22 +29,19 @@ const actions = {
   history: (forms, body) => forms.historyReview(body.id),
   focus: (forms, body) => forms.focusReview(body.id),
   close: (forms, body) => forms.closeReview(body.id),
-  plan: (forms, body) =>
-    forms.planReview({
-      id: body.id,
-      profileId: body.profileId,
-      approximate: body.approximate,
-      matching: body.matching,
-      modelDraft: body.modelDraft,
-      salary: body.salary,
-      vacancy: body.vacancy,
-    }),
+  plan: (forms, body) => forms.planReview(answerOptions(body)),
   apply: (forms, body) =>
     forms.applyReview({
       id: body.id,
       planId: body.planId,
       fields: body.fields,
       replaceExisting: body.replaceExisting,
+    }),
+  prefill: (forms, body) =>
+    forms.prefillReview({
+      ...answerOptions(body),
+      requestId: body.requestId,
+      file: body.file,
     }),
   attach: (forms, body) =>
     forms.attachReview({
@@ -83,7 +90,7 @@ export const handleFormReviewRoutes = async (req, res, p, ctx) => {
       await actions[action](
         ctx.forms,
         await readBody(req, {
-          limit: action === 'attach' ? 12 * 1024 ** 2 : 8192,
+          limit: ['attach', 'prefill'].includes(action) ? 12 * 1024 ** 2 : 8192,
         })
       )
     );

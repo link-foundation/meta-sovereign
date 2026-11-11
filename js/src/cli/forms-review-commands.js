@@ -10,9 +10,10 @@ import { browserName } from '../browser/policy.js';
 import { reviewCapacityValue } from '../forms/review-capacity.js';
 import { modelDraftFlag } from './answer-model-commands.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
+import { formReportSnapshot } from '../forms/review-journal.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--prefill] [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const sources = [
     args.urls !== undefined,
@@ -87,10 +88,11 @@ const command = async (reader, line, options) => {
       'apply',
       'disclose',
       'attach',
+      'prefill',
     ].includes(action)
   ) {
     throw new Error(
-      'Use list, read/history/plan/focus/close <slot>, disclose <slot> <plan-id> <field-id>, attach <slot> <plan-id> <field-id> [replace], apply <slot> <plan-id> <field-id,...> [replace] or quit.'
+      'Use list, read/history/plan/prefill/focus/close <slot>, disclose <slot> <plan-id> <field-id>, attach <slot> <plan-id> <field-id> [replace], apply <slot> <plan-id> <field-id,...> [replace] or quit.'
     );
   }
   if (action === 'plan') {
@@ -100,6 +102,13 @@ const command = async (reader, line, options) => {
       resume: result.reviewPlan.resume,
     });
     return result;
+  }
+  if (action === 'prefill') {
+    return reader.prefillReview({
+      ...options,
+      id: session.id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
   if (action === 'apply') {
     return reader.applyReview({
@@ -132,10 +141,12 @@ const command = async (reader, line, options) => {
 };
 
 const reviewOutput = (result, output, format) =>
-  format === 'markdown' &&
-  ['read-only', 'answer-plan', 'review-journal'].includes(result.mode)
-    ? output(result)
-    : JSON.stringify(result);
+  format === 'markdown' && result.mode === 'prefill-result' && result.report
+    ? output(formReportSnapshot(result))
+    : format === 'markdown' &&
+        ['read-only', 'answer-plan', 'review-journal'].includes(result.mode)
+      ? output(result)
+      : JSON.stringify(result);
 
 const requestedCapacity = (args, count) => {
   const capacity =
@@ -152,7 +163,14 @@ const requestedCapacity = (args, count) => {
   return capacity;
 };
 
-const openReviews = async (reader, forms, capacity, log, isCancelled) => {
+const openReviews = async (
+  reader,
+  forms,
+  capacity,
+  log,
+  isCancelled,
+  automatic
+) => {
   let failed = false;
   const limits = await reader.reviewCapacity();
   if (capacity !== null || forms.length > limits.maxSessions) {
@@ -166,7 +184,17 @@ const openReviews = async (reader, forms, capacity, log, isCancelled) => {
       break;
     }
     try {
-      log(JSON.stringify(await reader.openReview(form)));
+      const opened = await reader.openReview(form);
+      log(JSON.stringify(opened));
+      if (automatic.enabled && !isCancelled()) {
+        const result = await reader.prefillReview({
+          ...automatic.settings,
+          id: opened.session.id,
+          requestId: globalThis.crypto.randomUUID(),
+        });
+        log(reviewOutput(result, automatic.output, automatic.format));
+        failed ||= !result.ok;
+      }
     } catch (error) {
       if (isCancelled()) {
         break;
@@ -216,6 +244,22 @@ const reviewLines = async ({
 const reviewModel = (runner) =>
   runner ? { draft: runner, stop: async () => {} } : createLocalAnswerModel();
 
+const prefillFlag = (value) => {
+  if (value !== undefined && ![true, false, 'true', 'false'].includes(value)) {
+    throw new Error('--prefill must be true or false');
+  }
+  return [true, 'true'].includes(value);
+};
+const reviewSettings = (args, file, modelDraft) => ({
+  file,
+  profileId: args['profile-id'] ?? '',
+  salary: args.salary ? decodeWire(args.salary) : undefined,
+  vacancy: args.vacancy ? decodeWire(args.vacancy) : undefined,
+  approximate: ![false, 'false'].includes(args.approximate),
+  ...questionMatchingFlags(args),
+  modelDraft,
+});
+
 export const createFormReviewCommands = ({
   openStore,
   reviewInput = () =>
@@ -226,10 +270,12 @@ export const createFormReviewCommands = ({
     const output = formReportOutput(args.format);
     const forms = inputs(args);
     const modelDraft = modelDraftFlag(args['model-draft']);
+    const automatic = prefillFlag(args.prefill);
     const capacity = requestedCapacity(args, forms.length);
     const file = args['resume-pdf']
       ? await loadResumePdf(args['resume-pdf'])
       : null;
+    const settings = reviewSettings(args, file, modelDraft);
     const store = await openStore(args.store ?? defaultStoreDir());
     const model = reviewModel(options.modelRunner);
     const reader = createFormReader({
@@ -256,7 +302,13 @@ export const createFormReviewCommands = ({
         forms,
         capacity,
         log,
-        () => cancelled
+        () => cancelled,
+        {
+          enabled: automatic,
+          settings,
+          output,
+          format: args.format,
+        }
       );
       if (cancelled) {
         return 130;
@@ -271,12 +323,13 @@ export const createFormReviewCommands = ({
             'focus <slot>',
             'close <slot>',
             'plan <slot>',
+            'prefill <slot>',
             'apply <slot> <plan-id> <field-id,...> [replace]',
             'disclose <slot> <plan-id> <field-id>',
             'attach <slot> <plan-id> <field-id> [replace]',
             'quit',
           ],
-          note: 'Close stops a review browser and its watcher. Durable learning watchers remain open after quit or end of input, and close after 24 idle hours. Plan and explicitly select fields to apply; forms are never submitted.',
+          note: 'Close stops a review browser and its watcher. Durable learning watchers remain open after quit or end of input, and close after 24 idle hours. Prefill fills supported empty answers and the selected or configured PDF. Review answers and navigate later pages yourself. Forms are never submitted.',
         })
       );
       stream = reviewInput();
@@ -284,14 +337,8 @@ export const createFormReviewCommands = ({
         reader,
         stream,
         settings: {
-          file,
+          ...settings,
           plans,
-          profileId: args['profile-id'] ?? '',
-          salary: args.salary ? decodeWire(args.salary) : undefined,
-          vacancy: args.vacancy ? decodeWire(args.vacancy) : undefined,
-          approximate: ![false, 'false'].includes(args.approximate),
-          ...questionMatchingFlags(args),
-          modelDraft,
         },
         isCancelled: () => cancelled,
         log,
