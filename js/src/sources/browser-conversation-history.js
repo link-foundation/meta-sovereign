@@ -34,17 +34,20 @@ export const mergeConversationWindow = (known, incoming) => {
   return [...incoming.slice(0, shared), ...known];
 };
 
-const releaseConversation = async (control, pause, waitMs) => {
+const releaseConversation = async (control, pause, waitMs, verifyCurrent) => {
   let restored = false;
-  let restore = false;
+  let restore;
   try {
+    await verifyCurrent?.();
     restore = (await control('status')).state === 'ready';
     if (restore) {
       await control('restore', { restore: true });
       await pause(waitMs);
+      await verifyCurrent?.();
       restore = (await control('status')).state === 'ready';
     }
   } catch {
+    restore = false;
     // A previous frame may still be alive after its owner navigated away.
   }
   try {
@@ -126,6 +129,7 @@ export const scanBrowserConversation = async (
     idAttribute: ui.messages.idAttribute,
     composer: ui.composer,
     scope: 'history',
+    inactiveToken: options.inactiveToken,
   });
   const started = now();
   const observed = conversationTracker(settings, ui, now);
@@ -138,6 +142,7 @@ export const scanBrowserConversation = async (
     if (now() - started >= settings.budgetMs) {
       stopped('time-limit');
     }
+    await options.verifyCurrent?.();
     const state = await control(operation, extra);
     if (state.state !== 'ready') {
       stopped(state.state);
@@ -174,7 +179,12 @@ export const scanBrowserConversation = async (
         ? 'document-changed'
         : 'read-failed');
   } finally {
-    restored = await releaseConversation(control, pause, settings.waitMs);
+    restored = await releaseConversation(
+      control,
+      pause,
+      settings.waitMs,
+      options.verifyRestore ?? options.verifyCurrent
+    );
   }
   const result = observed.result(reason, restored);
   if (process.env.MS_BROWSER_HISTORY_DEBUG === '1') {

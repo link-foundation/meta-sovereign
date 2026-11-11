@@ -195,6 +195,28 @@ test('cancellation during settling performs no subsequent history read', async (
   assert.equal(result.restored, true);
 });
 
+test('an inactive owner returning after a read prevents accepting or restoring the window', async () => {
+  let active = false;
+  const value = fixture({
+    hook: () => {
+      active = true;
+    },
+  });
+  const result = await run(value, {
+    verifyCurrent: async () => {
+      if (active) {
+        throw Object.assign(new Error('Owner returned'), {
+          historyReason: 'owner-active',
+        });
+      }
+    },
+  });
+  assert.equal(result.coverage.reason, 'owner-active');
+  assert.deepEqual(result.rows, []);
+  assert.equal(result.restored, false);
+  assert.deepEqual(value.releases, [false]);
+});
+
 test('public conversation scanner validates bounds and capability without launching', async () => {
   let launches = 0;
   const sender = createBrowserSender({

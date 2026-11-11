@@ -8,6 +8,9 @@ import {
   checkedTextReply,
   sendBrowserTextReply,
 } from './browser-text-reply.js';
+import { withInactiveBrowserView } from './browser-inactive-view.js';
+import { scanBrowserConversation } from './browser-conversation-history.js';
+import { normalizeChatScanOptions } from './browser-scan-options.js';
 
 const failure = () =>
   Object.assign(new Error('The watched provider page changed or closed.'), {
@@ -49,7 +52,9 @@ export const openBrowserAnswerWatch = async ({
   const verifyCurrent = async (verify) => {
     await verify?.();
     if (closed || changed) {
-      throw failure();
+      throw Object.assign(failure(), {
+        historyReason: closed ? 'cancelled' : 'document-changed',
+      });
     }
   };
   const run = (work) => {
@@ -71,6 +76,28 @@ export const openBrowserAnswerWatch = async ({
   };
   return {
     read: () => run(() => readBrowserAnswerChoices(document, ui, target)),
+    readInactiveHistory: (options = {}) => {
+      normalizeChatScanOptions(options);
+      if (!ui.historyScan) {
+        throw Object.assign(new Error('Conversation history is unavailable.'), {
+          code: 'unsupported-action',
+          fallback: false,
+        });
+      }
+      return run(() =>
+        withInactiveBrowserView(document, async (inactive, token) =>
+          scanBrowserConversation(document, ui, target, {
+            ...options,
+            inactiveToken: token,
+            verifyRestore: inactive,
+            verifyCurrent: async () => {
+              await verifyCurrent();
+              await inactive();
+            },
+          })
+        )
+      );
+    },
     prefill: (expected, text, verify) =>
       run(async () => {
         await verifyCurrent(verify);

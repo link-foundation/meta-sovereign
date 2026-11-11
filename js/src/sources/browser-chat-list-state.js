@@ -3,6 +3,12 @@ import { browserFrameVisible } from './browser-choice-document.js';
 
 const scrollOwnerActive = (state) =>
   state.interrupted ||
+  (state.inactiveToken &&
+    (window[Symbol.for('meta-sovereign.browser-inactive-view.v1')]?.token !==
+      state.inactiveToken ||
+      window[Symbol.for('meta-sovereign.browser-inactive-view.v1')]
+        .interrupted ||
+      document.hasFocus())) ||
   (state.drafts ?? []).some(
     ([node, value]) => !node.isConnected || node.value !== value
   ) ||
@@ -59,7 +65,10 @@ const scrollRoot = (cell) => {
   return root ?? document.scrollingElement;
 };
 
-const openScroll = ({ token, item, composer, idAttribute, scope }, visible) => {
+const openScroll = (
+  { token, item, composer, idAttribute, scope, inactiveToken },
+  visible
+) => {
   const history = scope === 'history';
   const cell = [...document.querySelectorAll(item)].find(visible);
   const root = scrollRoot(cell);
@@ -77,6 +86,7 @@ const openScroll = ({ token, item, composer, idAttribute, scope }, visible) => {
   }
   const state = {
     token,
+    inactiveToken,
     root,
     visible,
     original: root.scrollTop,
@@ -111,7 +121,21 @@ const openScroll = ({ token, item, composer, idAttribute, scope }, visible) => {
       passive: true,
     });
   }
+  state.scroll = (event) => {
+    if (
+      event.target === root ||
+      (root === document.scrollingElement && event.target === document)
+    ) {
+      state.pendingScroll = false;
+    }
+  };
+  document.addEventListener('scroll', state.scroll, {
+    capture: true,
+    passive: true,
+  });
+  const previous = root.scrollTop;
   root.scrollTop = history && !state.reversed ? root.scrollHeight : 0;
+  state.pendingScroll = previous !== root.scrollTop;
   return state;
 };
 
@@ -139,6 +163,7 @@ const browserScrollState = (
       : 'meta-sovereign.browser-chat-list.v1'
   );
   const release = (state) => {
+    document.removeEventListener('scroll', state.scroll, true);
     for (const type of state.events) {
       document.removeEventListener(type, state.mark, true);
     }
@@ -159,7 +184,9 @@ const browserScrollState = (
       return { state: 'changed' };
     }
     if (operation === 'move') {
+      const previous = state.root.scrollTop;
       state.root.scrollTop = top;
+      state.pendingScroll = previous !== state.root.scrollTop;
     }
     const { scrollTop, scrollHeight, clientHeight } = state.root;
     if (clientHeight <= 0 || !Number.isFinite(scrollHeight)) {
@@ -172,6 +199,7 @@ const browserScrollState = (
       view: clientHeight,
       bottom: scrollTop + clientHeight >= scrollHeight - 2,
       loading: Boolean(
+        state.pendingScroll ||
         state.root.querySelector('[aria-busy="true"], [role="progressbar"]')
       ),
       ...(history
@@ -187,6 +215,9 @@ const browserScrollState = (
   if (operation === 'open') {
     if (window[key]) {
       return { state: 'busy' };
+    }
+    if (scrollOwnerActive({ inactiveToken: input.inactiveToken })) {
+      return { state: 'owner-active' };
     }
     const state = openScroll(input, visible);
     if (state.refused) {

@@ -1,4 +1,5 @@
 /* global document, window, getComputedStyle, crypto */
+import { prepareBrowserInactiveView } from './browser-inactive-view.js';
 
 const failure = () =>
   Object.assign(
@@ -143,7 +144,25 @@ const resolveBrowserDocument = async (
       throw failure();
     }
   };
+  const ownerFrame = page.mainFrame();
   return {
+    async prepareInactiveView() {
+      await assertCurrent();
+      await prepareBrowserInactiveView(page);
+      await assertCurrent();
+    },
+    async evaluateOwner({ fn, args = [] }) {
+      if (args.length > 1) {
+        throw failure();
+      }
+      if (args[0]?.operation === 'release') {
+        return ownerFrame.evaluate(fn, args[0]);
+      }
+      await assertCurrent();
+      const result = await ownerFrame.evaluate(fn, args[0]);
+      await assertCurrent();
+      return result;
+    },
     async evaluate({ fn, args = [] }) {
       if (args.length > 1) {
         throw failure();
