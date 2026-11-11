@@ -265,3 +265,5 @@ Learn unapproved passive-notice replies from actual delivered owner turns, prese
 Retain default-off root disclosure diagnostics for unresolved hosted Questions opening failures; keep complete pending-turn context and finite-watch regression checks aligned with actual guarded behavior (R-Z32, R-AA1).
 
 Load the selected serve command before unrelated provider/command modules, keeping the rolling host independent of the worker's full server graph. Preserve shared argument/store/error behavior, TLS, logs, upgrades and readiness deadlines, with default-off import phase diagnostics.
+
+Give the unchanged HH history browser scenario its own mandatory Chromium/WebKit group, retaining every list/scan case and the existing subprocess/job deadlines. Reject omitted and duplicate scenario registrations.

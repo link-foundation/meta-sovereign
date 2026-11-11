@@ -436,6 +436,8 @@
     "test:e2e:question-text-guards:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-text-guards-browser.mjs",
     "test:e2e:question-chat-lists": "node js/tests/e2e-question-chat-lists-browser.mjs",
     "test:e2e:question-chat-lists:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-chat-lists-browser.mjs",
+    "test:e2e:question-history": "node js/tests/e2e-question-history-browser.mjs",
+    "test:e2e:question-history:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-history-browser.mjs",
     "test:e2e:question-controls": "node js/tests/e2e-question-controls-browser.mjs",
     "test:e2e:question-controls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-controls-browser.mjs",
     "test:e2e:chat-users": "node js/tests/e2e-chat-users-browser.mjs",

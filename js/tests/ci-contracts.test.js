@@ -311,6 +311,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-text-replies': ['verifyTextReplyControls'],
     'question-text-guards': ['verifyTextReplyGuards'],
     'question-chat-lists': ['verifyHhChatList', 'verifyHhChatScan'],
+    'question-history': ['verifyConversationHistory'],
     'question-controls': [
       'verifyQuestionBrowserControls',
       'verifySummaryChoices',
@@ -318,6 +319,9 @@ test('question provider and control scenarios have separate mandatory browser bu
     ],
   };
   assert.equal(checks.filter((name) => name === 'questions').length, 1);
+  const groupSources = Object.keys(groups).map((name) =>
+    readFileSync(path.join(root, `js/tests/e2e-${name}-browser.mjs`), 'utf8')
+  );
   assert.match(questions, /await verifyHhHistory\(/u);
   assert.match(
     questions,
@@ -358,6 +362,11 @@ test('question provider and control scenarios have separate mandatory browser bu
     const registered = entry.slice(entry.indexOf('await runBrowserScenarios('));
     for (const scenario of scenarios) {
       assert.match(registered, new RegExp(`\\b${scenario}\\b`, 'u'));
+      assert.equal(
+        groupSources.filter((source) => source.includes(scenario)).length,
+        1,
+        `${scenario} runs in exactly one bounded group`
+      );
       assert.ok(
         !questions.includes(scenario),
         `${scenario} runs only in its group`
