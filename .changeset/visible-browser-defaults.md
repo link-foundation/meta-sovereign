@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Retain the hosted browser runner's Azure archive fallback while preferring the primary Ubuntu mirror, preserving signed sources, security entries and mirror metadata.
+
 Add bounded HH conversation history traversal with overlap-based chronology, explicit application-start completeness, owner draft/reading-anchor preservation and drained cancellation. Keep incomplete histories and guarded background text delivery separate.
 
 Reveal confirmed native-choice replies once in ordinary and reversed panes while preserving owner activity, drafts and conversation selection. Keep viewport visibility separate from delivery receipts and retain confirmed outcomes if revealing fails.

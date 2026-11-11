@@ -1,0 +1,31 @@
+{
+  "archive": "apt-fallback.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "ee54fb4096c95060bef53cf78a0cb5b329570bcdc578ab66ac5d8cc5e067ec57",
+    "before/js/scripts/prepare-browser-apt.mjs": "1b0547b5a87301e2382aa0d69b2847c34ef8076d458a71e997011323278d73a5",
+    "ci-logs/apt-fallback-after.log": "ed90e1854169446816c73e6d7bec97e25b42d54c5a1ad399fe72b39ba895850a",
+    "ci-logs/apt-fallback-before.log": "904a6beec4eeca49bf325fc6db63eaeadef47aca83e723a1ab3356544b4eef4a",
+    "ci-logs/apt-fallback-changeset.log": "f5436785643b9bac8032508037f2383ac7076bec54c98a3465fa94aa305874b1",
+    "ci-logs/apt-fallback-current-runs.json": "fac261349bd7a81dd5da3e10ebdc87c8a39577d58d7ec57349f84cd299b7ad1f",
+    "ci-logs/apt-fallback-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/apt-fallback-format.log": "72eb155680711ce7b3f46c99e5f2d7f69585e39b788329f893467e0fa855c339",
+    "ci-logs/apt-fallback-latest-runs.json": "6cc6d89c03726c8b7a8e59bf155608352468e0692db7572b31806896b4138564",
+    "ci-logs/apt-fallback-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/apt-fallback-manual.html": "836bfa4eb9f6a15cceaa3d0439ccd775694925bef37fc8f4bf922bbe1bbbae5e",
+    "ci-logs/apt-fallback-runner-source.sh": "90b1cde55a1daacb8b65efd19faa3a1fe61c24353c3fef829da2104ff6be5f16",
+    "ci-logs/apt-fallback-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/apt-fallback-workflow.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/conversation-history-parent-chromium.log": "7848a61501ad81bbd29c460a7de83290d473a39bfdf1aae68eacc348cb85ac10",
+    "ci-logs/conversation-history-parent-ci-latest.json": "1c1b401ea4a6fa90d165e98c3bbd47889fe21e1f38893a79cb9d965e2566e7c1",
+    "ci-logs/conversation-history-parent-pages.log": "559ee6fb979370ae8c408ef70ffb1e77de87e25f808162240f0209c39f92c5f8",
+    "ci-logs/conversation-history-parent-webkit.log": "06b89002a065858cc959b33763e4b751d79e9d7456308074de28fa5fbd095b78",
+    "docs/case-studies/issue-56/PLAN.md": "605fd7d815747449169682f594ddb810a24a63dec8bea386d453dd5392daffa6",
+    "docs/case-studies/issue-56/ci-apt-fallback.md": "79d66ab6dce04743aa98f044e44a6e7691b9b953c266630a2c656ac68a7d6828",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-apt-fallback.py": "deeb258d2598c622aaf10ad7f1b932eaedc268ebeabd33e22f343abdd5f4f326",
+    "experiments/issue-56/evidence_bundle.py": "7a8f4f26810b49fdef7b6c8b6b8091ca2912cb74f4fa7f75a85051cfc5bba74b",
+    "js/scripts/prepare-browser-apt.mjs": "f043f147b90a55311cd5518e760782dc53ab13f0dbe19f8ed12d6d25f14cda04",
+    "js/tests/ci-browser-apt.test.js": "eaebfc93fa6475b9b56ab9ee8a828e34f492ce5fbee617b69ea2ee3bdd6e5a69",
+    "metadata.json": "82a139183e1a5d24b6cedf3d25dd3fd38d1fe755839081a96c4dc9b670f8fec1"
+  }
+}

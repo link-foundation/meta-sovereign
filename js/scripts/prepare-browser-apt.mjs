@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Hosted Azure mirror stalls have consumed the Pages job before browser tests.
-// Change only that mirror; keep suites, signature keys and security sources.
+// Prefer the primary archive without removing the runner's mirror failover.
+// Keep suites, signature keys, security sources and unrelated repositories.
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +17,48 @@ const optional = async (operation, fallback) => {
   }
 };
 
+const mirrorEntry = (line) => {
+  const uri =
+    /^(https?:\/\/(azure\.)?archive\.ubuntu\.com\/ubuntu\/?)(?=\s|$)/u.exec(
+      line
+    );
+  const priority = /(?:^|\s)priority:(\d+)(?=\s|$)/u.exec(line);
+  const value = Number(priority?.[1]);
+  return uri && priority && Number.isSafeInteger(value)
+    ? { line, azure: Boolean(uri[2]), priority: value }
+    : null;
+};
+
+const preferPrimaryMirror = (before) => {
+  const entries = before.split('\n').map(mirrorEntry).filter(Boolean);
+  const priority = (azure) =>
+    Math.min(
+      ...entries
+        .filter((entry) => entry.azure === azure)
+        .map((entry) => entry.priority)
+    );
+  const azure = priority(true);
+  const primary = priority(false);
+  if (
+    !Number.isFinite(azure) ||
+    !Number.isFinite(primary) ||
+    primary <= azure
+  ) {
+    return before;
+  }
+  return before
+    .split('\n')
+    .map((line) => {
+      const entry = mirrorEntry(line);
+      const old = entry?.azure ? azure : primary;
+      const next = entry?.azure ? primary : azure;
+      return entry?.priority === old
+        ? line.replace(/(\spriority:)\d+(?=\s|$)/u, `$1${next}`)
+        : line;
+    })
+    .join('\n');
+};
+
 export const prepareBrowserApt = async (directory = '/etc/apt') => {
   const extra = await optional(
     () => readdir(join(directory, 'sources.list.d')),
@@ -24,7 +67,7 @@ export const prepareBrowserApt = async (directory = '/etc/apt') => {
   const sources = [
     'sources.list',
     // Hosted Ubuntu runners route active sources through mirror+file: here.
-    // Preserve the mirror metadata and source indirection while changing URL.
+    // Retain both archive URLs; change only their preference when recognized.
     'apt-mirrors.txt',
     ...extra
       .filter((name) => /\.(?:list|sources)$/u.test(name))
@@ -37,10 +80,13 @@ export const prepareBrowserApt = async (directory = '/etc/apt') => {
     if (before === null) {
       continue;
     }
-    const after = before.replace(
-      /(^|\s)https?:\/\/azure\.archive\.ubuntu\.com\/ubuntu(?=\/?(?:\s|$))/gu,
-      '$1https://archive.ubuntu.com/ubuntu'
-    );
+    const after =
+      name === 'apt-mirrors.txt'
+        ? preferPrimaryMirror(before)
+        : before.replace(
+            /(^|\s)https?:\/\/azure\.archive\.ubuntu\.com\/ubuntu(?=\/?(?:\s|$))/gu,
+            '$1https://archive.ubuntu.com/ubuntu'
+          );
     if (after !== before) {
       await writeFile(file, after);
       changed++;

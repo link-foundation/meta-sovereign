@@ -106,7 +106,7 @@ test('browser apt preparation tolerates absent legacy files without creating rep
   }
 });
 
-test('browser apt preparation rewrites the hosted mirror list and preserves priorities and source indirection', async () => {
+test('browser apt preparation prefers the primary mirror while retaining Azure failover and source indirection', async () => {
   const { prepareBrowserApt } =
     await import('../scripts/prepare-browser-apt.mjs');
   const root = await mkdtemp(path.join(os.tmpdir(), 'ms-browser-apt-mirrors-'));
@@ -126,16 +126,51 @@ test('browser apt preparation rewrites the hosted mirror list and preserves prio
     assert.equal(await prepareBrowserApt(root), 1);
     assert.equal(
       await readFile(path.join(root, 'apt-mirrors.txt'), 'utf8'),
-      mirrors.replace(
-        'http://azure.archive.ubuntu.com/ubuntu/',
-        'https://archive.ubuntu.com/ubuntu/'
-      )
+      mirrors
+        .replace('priority:1', 'priority:2')
+        .replace(
+          'https://archive.ubuntu.com/ubuntu/\tpriority:2',
+          'https://archive.ubuntu.com/ubuntu/\tpriority:1'
+        )
     );
     assert.equal(
       await readFile(path.join(root, 'sources.list'), 'utf8'),
       source
     );
     assert.equal(await prepareBrowserApt(root), 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('browser apt mirror priorities retain metadata and leave incomplete or already preferred lists unchanged', async () => {
+  const { prepareBrowserApt } =
+    await import('../scripts/prepare-browser-apt.mjs');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ms-browser-apt-order-'));
+  const azure = 'http://azure.archive.ubuntu.com/ubuntu/';
+  const primary = 'https://archive.ubuntu.com/ubuntu/';
+  const mirrors = `${azure}\tarch:amd64 priority:5 suite:resolute\n${primary}\tpriority:9 arch:amd64\n`;
+  try {
+    for (const [before, expected] of [
+      [
+        mirrors,
+        mirrors
+          .replace('priority:5', 'priority:9')
+          .replace(`${primary}\tpriority:9`, `${primary}\tpriority:5`),
+      ],
+      [`${azure}\tpriority:2\n${primary}\tpriority:1\n`, null],
+      [`${azure}\tpriority:1\n`, null],
+      [`${azure}\n${primary}\n`, null],
+      [`${azure}\tpriority:invalid\n${primary}\tpriority:2\n`, null],
+    ]) {
+      await writeFile(path.join(root, 'apt-mirrors.txt'), before);
+      assert.equal(await prepareBrowserApt(root), expected === null ? 0 : 1);
+      assert.equal(
+        await readFile(path.join(root, 'apt-mirrors.txt'), 'utf8'),
+        expected ?? before
+      );
+      assert.equal(await prepareBrowserApt(root), 0);
+    }
   } finally {
     await rm(root, { recursive: true, force: true });
   }
