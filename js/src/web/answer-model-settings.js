@@ -216,7 +216,10 @@ export const AnswerModelSettings = ({
             type: 'button',
             disabled: busy || loading,
             'data-reload-answer-model': '',
-            onClick: () => setProbe((value) => value + 1),
+            onClick: () => {
+              setLoading(true);
+              setProbe((value) => value + 1);
+            },
           },
           t('answerModel.reload')
         ),

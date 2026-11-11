@@ -31,7 +31,7 @@ const POLITE =
   /^(?:(?:расскажите|скажите|подскажите|уточните)\s*,?\s*(?:пожалуйста\s*,?\s*)?|please\s+(?:tell|share with)\s+(?:me|us)\s+)(?=(?:был[аи]? ли|есть ли|в каких|как|где|когда|почему|что|чем|сколько|how|where|when|why|what|which)\s)/iu;
 
 /** Strip known padding only if the remainder still asks a complete question. */
-export const questionCore = (input) => {
+export const questionCore = (input, { preserveCase = false } = {}) => {
   const original = String(input ?? '').trim();
   if (original.length > MAX_QUESTION_LENGTH) {
     return original;
@@ -49,7 +49,9 @@ export const questionCore = (input) => {
   }
   return core === original || !core
     ? original
-    : core[0].toUpperCase() + core.slice(1);
+    : preserveCase
+      ? core
+      : core[0].toUpperCase() + core.slice(1);
 };
 
 // Anchored whole-message reminders cannot hide an appended new task.

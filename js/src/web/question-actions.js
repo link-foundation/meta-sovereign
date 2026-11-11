@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { ProfileFields } from './question-profile-fields.js';
 import { AnswerContextFields } from './question-context-fields.js';
 import { SalaryFields } from './question-salary-fields.js';
+import { QuestionMatchingFields } from './question-matching-fields.js';
 
 const el = React.createElement;
 export const AutomationActionFields = ({
@@ -51,6 +52,11 @@ export const AutomationActionFields = ({
             key: 'contexts',
             contexts: form.contexts,
             set: (contexts) => set('contexts', contexts),
+          }),
+          el(QuestionMatchingFields, {
+            key: 'matching',
+            matching: form.matching,
+            set: (matching) => set('matching', matching),
           }),
           el(SalaryFields, {
             key: 'salary',

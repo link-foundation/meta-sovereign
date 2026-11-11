@@ -9,16 +9,19 @@ import { sameQuestionSubjects } from './question-subjects.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
-const fold = (text) =>
-  String(text ?? '')
+const fold = (text, { caseSensitive = false } = {}) => {
+  const value = String(text ?? '')
     .normalize('NFKC')
-    .toLowerCase()
-    .replace(/ё/g, 'е');
-export const questionWords = (text) =>
-  fold(text).match(
+    .replace(/ё/g, 'е')
+    .replace(/Ё/g, 'Е');
+  return caseSensitive ? value : value.toLowerCase();
+};
+export const questionWords = (text, options) =>
+  fold(text, options).match(
     /[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?/gu
   ) ?? [];
-export const questionKey = (text) => questionWords(text).join(' ');
+export const questionKey = (text, options) =>
+  questionWords(text, options).join(' ');
 export const asksQuestion = isQuestion;
 
 const extraIntent = (text) =>
@@ -63,24 +66,24 @@ const invalidInputs = (pattern, text) =>
   typeof text !== 'string' ||
   pattern.length > MAX_QUESTION_LENGTH ||
   text.length > MAX_QUESTION_LENGTH;
-const invalidTemplateExpansion = (pattern, text) =>
+const invalidTemplateExpansion = (pattern, text, options) =>
   (text.match(/[?？]/gu)?.length ?? 0) >
     (pattern.match(/[?？]/gu)?.length ?? 0) ||
-  !sameQuestionSubjects(pattern, text);
+  !(options?.templateSubjects ?? sameQuestionSubjects)(pattern, text);
 
-export const matchQuestion = (pattern, text) => {
+export const matchQuestion = (pattern, text, options) => {
   if (invalidInputs(pattern, text)) {
     return null;
   }
-  const input = questionWords(text);
+  const input = questionWords(text, options);
   if (!input.length || input.length > MAX_WORDS) {
     return null;
   }
   if (!/…|\*|\.\.\./u.test(pattern)) {
-    return questionKey(pattern) === input.join(' ') ? 'exact' : null;
+    return questionKey(pattern, options) === input.join(' ') ? 'exact' : null;
   }
   const tokens =
-    fold(pattern)
+    fold(pattern, options)
       .replace(/\.\.\./gu, '…')
       .match(
         /…|[$€£₽₹¥]|\.?[\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*(?:[+#]{1,2}|(?:[./:@_-][\p{L}\p{N}][\p{L}\p{M}\p{N}\u200c\u200d]*)+)?\*?/gu
@@ -90,7 +93,7 @@ export const matchQuestion = (pattern, text) => {
     return null;
   }
   // Reject new question punctuation even if punctuation normalization hides it.
-  if (invalidTemplateExpansion(pattern, text)) {
+  if (invalidTemplateExpansion(pattern, text, options)) {
     return null;
   }
   const maxGap = Math.min(40, fixed * 3);
@@ -110,9 +113,9 @@ export const matchQuestion = (pattern, text) => {
 };
 
 /** Ordered token similarity; its result never qualifies for automatic reuse. */
-export const questionSimilarity = (left, right, budget) => {
-  const a = questionWords(left);
-  const b = questionWords(right);
+export const questionSimilarity = (left, right, budget, options) => {
+  const a = questionWords(left, options);
+  const b = questionWords(right, options);
   if (!a.length || !b.length || a.length > MAX_WORDS || b.length > MAX_WORDS) {
     return 0;
   }

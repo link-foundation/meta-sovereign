@@ -1,6 +1,6 @@
 // An explicit correction limits reuse for that question. It does not rewrite
 // the transcript, extract new facts or turn corrected text into observed sends.
-import { matchQuestion } from './question-match.js';
+import { matchContextualQuestion } from './question-context-match.js';
 import { questionCore } from './question-turns.js';
 import { renderAnswer } from './question-profile.js';
 import { rejectedAnswer } from './question-policy.js';
@@ -12,8 +12,16 @@ export const answerRuleEligible = (rule, { source, chat } = {}) =>
 
 export const createAnswerCorrectionGuard = (
   rules = [],
-  { policy = {}, profile = {}, contract = (text) => text } = {}
+  {
+    policy = {},
+    profile = {},
+    contract = (text) => text,
+    matching,
+    contexts,
+  } = {}
 ) => {
+  const core = (text) =>
+    questionCore(text, { preserveCase: matching?.caseSensitive === true });
   const identity = (text) => {
     const value = contract(text).trim();
     return policy.punctuationEquivalent
@@ -24,7 +32,7 @@ export const createAnswerCorrectionGuard = (
     .filter((rule) => rule.answers.some((answer) => answer.canonical))
     .map((rule) => ({
       rule,
-      questions: [rule.question, ...(rule.questions ?? [])].map(questionCore),
+      questions: [rule.question, ...(rule.questions ?? [])].map(core),
       answers: new Set(
         rule.answers
           .filter((answer) => answer.canonical)
@@ -38,15 +46,20 @@ export const createAnswerCorrectionGuard = (
       ),
     }));
   return (question, text, context = {}) => {
-    const core = questionCore(question);
-    const matching = corrections.filter(
+    const normalized = core(question);
+    const applicable = corrections.filter(
       (entry) =>
         answerRuleEligible(entry.rule, context) &&
-        entry.questions.some((pattern) => matchQuestion(pattern, core))
+        entry.questions.some((pattern) =>
+          matchContextualQuestion(pattern, normalized, entry.rule, {
+            matching,
+            contexts,
+          })
+        )
     );
     return (
-      !matching.length ||
-      matching.some((entry) => entry.answers.has(identity(text)))
+      !applicable.length ||
+      applicable.some((entry) => entry.answers.has(identity(text)))
     );
   };
 };

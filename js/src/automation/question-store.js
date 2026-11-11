@@ -184,7 +184,11 @@ export const previewAnswer = async (store, input, modelOptions = {}) => {
   const prepared = await prepareAnswerPreview(
     store,
     input,
-    input.modelDraft ? { maxBytes: 512 * 1024 } : {}
+    input.modelDraft
+      ? { maxBytes: 512 * 1024 }
+      : input.matchPage !== undefined
+        ? { maxBytes: 4 * 1024 ** 2 }
+        : {}
   );
   return withSalaryExchangeEvidence(
     await modelAnswerPreview(

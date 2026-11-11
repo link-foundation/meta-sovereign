@@ -33,9 +33,36 @@ const configureModel = async ({ page, store, until }) => {
     return;
   }
   await panel.locator('summary').click();
-  await page.locator('[data-reload-answer-model]').click();
   const name = page.locator('[data-answer-model-name]');
+  let release;
+  let started;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  const began = new Promise((resolve) => {
+    started = resolve;
+  });
+  const route = async (request) => {
+    if (request.request().method() === 'GET') {
+      started();
+      await gate;
+    }
+    await request.continue();
+  };
+  await page.route('**/api/automations/answers/model', route);
+  try {
+    await page.locator('[data-reload-answer-model]').click();
+    await began;
+    assert(await name.isDisabled(), 'pending model reload disables edits');
+    assert(
+      await page.locator('[data-save-answer-model]').isDisabled(),
+      'pending model reload cannot save'
+    );
+  } finally {
+    release();
+  }
   await until(() => name.isEnabled(), 'model configuration loaded');
+  await page.unroute('**/api/automations/answers/model', route);
   await name.fill('fixture-model');
   let pending = page.waitForResponse(
     (response) =>
@@ -56,6 +83,12 @@ const configureModel = async ({ page, store, until }) => {
     async () => (await name.inputValue()) === 'fixture-model',
     'model configuration survives reload'
   );
+  if (process.env.FORMS_MODEL_RELOAD_SCREENSHOTS === '1') {
+    await panel.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/screenshots/issue-56-model-reload-after.png',
+    });
+  }
   await saveAnswerModel(store, { ...saved, model: 'external-fixture-model' });
   await name.fill('Owner edited model');
   pending = page.waitForResponse(

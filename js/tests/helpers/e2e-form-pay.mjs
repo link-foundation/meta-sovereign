@@ -1,9 +1,12 @@
 import { assert } from './e2e-chat.mjs';
 import {
-  responseFor,
-  decoded,
+  applyCurrent,
+  assertAppliedReceipts,
+  formControlValues,
+  closeFormReview,
   openFormPlan,
   captureFormField,
+  captureFormFieldLayouts,
 } from './e2e-form-review.mjs';
 import { formPayAnswer } from '../../../experiments/issue-56/forms-pay-fixture.mjs';
 
@@ -41,31 +44,10 @@ export const verifyFormPayUi = async ({ page, owned, fixture, until }) => {
     'owner pay answer remains protected'
   );
   await page.locator(`[data-form-select="${byName('hourly').id}"]`).check();
-  await captureFormField(page, byName('hourly').id, 'after', 'pay');
-  await page.setViewportSize({ width: 390, height: 844 });
-  assert(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
-    ),
-    'pay guidance fits a phone'
-  );
-  await captureFormField(page, byName('hourly').id, 'mobile', 'pay');
-  await page.setViewportSize({ width: 1200, height: 800 });
-  let pending = responseFor(page, 'apply');
-  await page.locator('[data-action="apply-form-plan"]').click();
-  const applied = await decoded(await pending);
-  assert(
-    applied.receipts.filter((entry) => entry.status === 'applied').length === 1,
-    'one actual pay readback receipt'
-  );
-  const values = await owner.page.evaluate(() =>
-    Object.fromEntries(
-      [...document.querySelectorAll('textarea')].map((node) => [
-        node.name,
-        node.value,
-      ])
-    )
-  );
+  await captureFormFieldLayouts(page, byName('hourly').id, 'pay');
+  const applied = await applyCurrent(page);
+  assertAppliedReceipts(applied, 1, 'one actual pay readback receipt');
+  const values = await formControlValues(owner.page);
   assert(
     values.hourly === formPayAnswer &&
       values.monthly === '' &&
@@ -73,13 +55,7 @@ export const verifyFormPayUi = async ({ page, owned, fixture, until }) => {
       values.technical === '',
     'only the selected pay answer changes'
   );
-  pending = responseFor(page, 'close');
-  await page.locator('[data-review-action="close"]').click();
-  await decoded(await pending);
-  await until(
-    async () => (await page.locator('[data-form-review]').count()) === 0,
-    'pay review closed'
-  );
+  await closeFormReview(page, until, 'pay review closed');
   assert(
     owner.closed && fixture.submits === submits,
     'pay browser closes with zero submissions'

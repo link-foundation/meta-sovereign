@@ -81,6 +81,7 @@ export const toForm = (input) => {
     contexts: a.action.contexts ?? [],
     salary: a.action.salary,
     approximate: a.action.approximate !== false,
+    matching: a.action.matching,
     informal: a.action.templates.informal ?? '',
     formal: a.action.templates.formal ?? '',
     dailyCap: numberText(p.dailyCap),
@@ -166,6 +167,7 @@ export const fromForm = (form, base = {}) => ({
           contexts: form.contexts ?? [],
           salary: form.salary,
           approximate: form.approximate,
+          matching: form.matching,
         }
       : {}),
     form: form.form,

@@ -1296,6 +1296,21 @@ export const ru = {
   'questions.ruleIds': 'Идентификаторы правил ответов',
   'questions.ruleIdsHint':
     'Через запятую; оставьте пустым для всех включённых правил.',
+  'questions.matchingSettings': 'Сопоставление вопросов',
+  'questions.matchingThreshold': 'Минимальное сходство (%)',
+  'questions.matchingCase': 'Учитывать регистр букв',
+  'questions.matchingHint':
+    'Приблизительные совпадения всегда требуют проверки. Ограничения по теме, контексту и отклонённым ответам сохраняются.',
+  'questions.matchingInvalid': 'Укажите сходство от 0 до 100.',
+  'questions.inspectMatches': 'Показать все подходящие совпадения',
+  'questions.matchesTitle': 'Совпадения по сходству',
+  'questions.matchesRange': 'Совпадения {start}–{end} из {total}',
+  'questions.matchesPartial':
+    'Достигнут предел сопоставления. Список неполный.',
+  'questions.matchScore': 'Сходство: {score}%',
+  'questions.matchSelected': 'Выбрано для этого черновика',
+  'questions.matchesPrevious': 'Предыдущие совпадения',
+  'questions.matchesNext': 'Следующие совпадения',
   'questions.approximate': 'Предлагать приблизительные совпадения для проверки',
   'questions.contract': 'Заменять заданные значения подстановками',
   'questions.contractHint':

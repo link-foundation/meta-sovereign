@@ -1,9 +1,12 @@
 import { assert } from './e2e-chat.mjs';
 import {
-  responseFor,
-  decoded,
+  applyCurrent,
+  assertAppliedReceipts,
+  formControlValues,
+  closeFormReview,
   openFormPlan,
   captureFormField,
+  captureFormFieldLayouts,
 } from './e2e-form-review.mjs';
 import { formPlace } from '../../../experiments/issue-56/forms-timezone-fixture.mjs';
 
@@ -43,33 +46,14 @@ export const verifyFormTimezoneUi = async ({ page, owned, fixture, until }) => {
   for (const name of ['cityMsk', 'cityUtc', 'zoneOnly', 'cityOnly']) {
     await page.locator(`[data-form-select="${byName(name).id}"]`).check();
   }
-  await captureFormField(page, byName('cityMsk').id, 'after', 'timezone');
-  await page.setViewportSize({ width: 390, height: 844 });
-  assert(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
-    ),
-    'city and time-zone proposals fit a phone'
-  );
-  await captureFormField(page, byName('cityMsk').id, 'mobile', 'timezone');
-  await page.setViewportSize({ width: 1200, height: 800 });
-  let pending = responseFor(page, 'apply');
-  await page.locator('[data-action="apply-form-plan"]').click();
-  const applied = await decoded(await pending);
-  assert(
-    applied.state === 'applied' &&
-      applied.receipts.filter((receipt) => receipt.status === 'applied')
-        .length === 4,
+  await captureFormFieldLayouts(page, byName('cityMsk').id, 'timezone');
+  const applied = await applyCurrent(page);
+  assertAppliedReceipts(
+    applied,
+    4,
     'four place values have actual readback receipts'
   );
-  const values = await owner.page.evaluate(() =>
-    Object.fromEntries(
-      [...document.querySelectorAll('input,textarea')].map((node) => [
-        node.name,
-        node.value,
-      ])
-    )
-  );
+  const values = await formControlValues(owner.page);
   assert(
     values.cityMsk === combined &&
       values.cityUtc === combined &&
@@ -79,13 +63,7 @@ export const verifyFormTimezoneUi = async ({ page, owned, fixture, until }) => {
       values.technical === '',
     'actual place values match while owner input and unresolved answers are preserved'
   );
-  pending = responseFor(page, 'close');
-  await page.locator('[data-review-action="close"]').click();
-  await decoded(await pending);
-  await until(
-    async () => (await page.locator('[data-form-review]').count()) === 0,
-    'time-zone review closed'
-  );
+  await closeFormReview(page, until, 'time-zone review closed');
   assert(
     owner.closed && fixture.submits === initialSubmits,
     'time-zone browser closes without submitting'

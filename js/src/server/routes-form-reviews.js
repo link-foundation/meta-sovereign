@@ -24,6 +24,7 @@ const actions = {
       id: body.id,
       profileId: body.profileId,
       approximate: body.approximate,
+      matching: body.matching,
       modelDraft: body.modelDraft,
       salary: body.salary,
       vacancy: body.vacancy,

@@ -59,3 +59,53 @@ export const captureFormField = async (page, id, name, scenario) => {
     path: `docs/screenshots/issue-56-forms-${scenario}-${name}.png`,
   });
 };
+
+/** Apply the current selection and retain the server's readback receipts. */
+export const applyCurrent = async (page) => {
+  const pending = responseFor(page, 'apply');
+  await page.locator('[data-action="apply-form-plan"]').click();
+  return decoded(await pending);
+};
+
+/** Inspect the real owned form, independently of the proposed answer. */
+export const formControlValues = (page) =>
+  page.evaluate(() =>
+    Object.fromEntries(
+      [...document.querySelectorAll('input,textarea')].map((node) => [
+        node.name,
+        node.value,
+      ])
+    )
+  );
+
+export const closeFormReview = async (page, until, message) => {
+  const pending = responseFor(page, 'close');
+  await page.locator('[data-review-action="close"]').click();
+  await decoded(await pending);
+  await until(
+    async () => (await page.locator('[data-form-review]').count()) === 0,
+    message
+  );
+};
+
+/** Capture the selected field at the desktop and phone review sizes. */
+export const captureFormFieldLayouts = async (page, id, scenario) => {
+  await captureFormField(page, id, 'after', scenario);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+    ),
+    `${scenario} review fits phone width`
+  );
+  await captureFormField(page, id, 'mobile', scenario);
+  await page.setViewportSize({ width: 1200, height: 800 });
+};
+
+export const assertAppliedReceipts = (result, count, message) =>
+  assert(
+    result.state === 'applied' &&
+      result.receipts.filter((receipt) => receipt.status === 'applied')
+        .length === count,
+    message
+  );

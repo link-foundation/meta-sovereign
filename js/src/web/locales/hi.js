@@ -1276,6 +1276,20 @@ export const hi = {
   'questions.ruleIds': 'जवाब नियम की आईडी',
   'questions.ruleIdsHint':
     'कॉमा से अलग करें; सभी चालू नियमों के लिए खाली छोड़ें।',
+  'questions.matchingSettings': 'प्रश्न मिलान',
+  'questions.matchingThreshold': 'न्यूनतम समानता (%)',
+  'questions.matchingCase': 'अक्षरों का केस मिलाएँ',
+  'questions.matchingHint':
+    'अनुमानित मिलान की हमेशा समीक्षा आवश्यक है। विषय, दायरे और अस्वीकृत उत्तरों के नियम लागू रहते हैं।',
+  'questions.matchingInvalid': '0 से 100 के बीच समानता दर्ज करें।',
+  'questions.inspectMatches': 'सभी योग्य मिलान देखें',
+  'questions.matchesTitle': 'क्रमबद्ध मिलान',
+  'questions.matchesRange': 'कुल {total} में से {start}–{end} मिलान',
+  'questions.matchesPartial': 'मिलान की सीमा पूरी हुई। यह सूची अधूरी है।',
+  'questions.matchScore': 'समानता: {score}%',
+  'questions.matchSelected': 'इस मसौदे के लिए चुना गया',
+  'questions.matchesPrevious': 'पिछले मिलान',
+  'questions.matchesNext': 'अगले मिलान',
   'questions.approximate': 'समीक्षा के लिए अनुमानित मिलान दिखाएँ',
   'questions.contract': 'कॉन्फ़िगर किए मानों को प्लेसहोल्डर से बदलें',
   'questions.contractHint':

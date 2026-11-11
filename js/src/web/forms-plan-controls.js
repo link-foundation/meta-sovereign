@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { ModelDraftControl } from './answer-model-settings.js';
+import {
+  QuestionMatchingFields,
+  validQuestionMatching,
+} from './question-matching-fields.js';
 
 const el = React.createElement;
 const errorKey = (code) =>
@@ -50,6 +54,7 @@ export const FormPlanControls = ({
   const t = useT();
   const [profileId, setProfileId] = useState('');
   const [approximate, setApproximate] = useState(true);
+  const [matching, setMatching] = useState(undefined);
   const [modelDraft, setModelDraft] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -68,19 +73,13 @@ export const FormPlanControls = ({
     setLoading(true);
     setError(null);
     try {
+      const input = { profileId, approximate, matching, modelDraft };
       const value = report.reviewSession
         ? await api.formsPlanReview({
             id: report.reviewSession.id,
-            profileId,
-            approximate,
-            modelDraft,
+            ...input,
           })
-        : await api.formsPlan({
-            inspection: report,
-            profileId,
-            approximate,
-            modelDraft,
-          });
+        : await api.formsPlan({ inspection: report, ...input });
       if (!value?.ok || value.mode !== 'answer-plan') {
         setError(value?.code ?? 'form-plan-failed');
       } else {
@@ -166,13 +165,19 @@ export const FormPlanControls = ({
       {
         key: 'plan',
         type: 'button',
-        disabled: busy || !available,
+        disabled: busy || !available || !validQuestionMatching(matching),
         'data-action': 'plan-form',
         'aria-busy': loading,
         onClick: plan,
       },
       t(loading ? 'forms.plan.planning' : 'forms.plan.action')
     ),
+    el(QuestionMatchingFields, {
+      key: 'matching',
+      matching,
+      disabled: busy,
+      set: (value) => changed(setMatching, value),
+    }),
     el(ModelDraftControl, {
       key: 'model',
       value: modelDraft,

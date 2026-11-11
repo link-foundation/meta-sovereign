@@ -6,6 +6,9 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-matching-options.md](question-matching-options.md) verifies configurable thresholds/case and all eligible ranked candidates through CLI, both Lino formats and shared controls. Forty-five Node/Deno checks, 21 compatibility checks, production Chromium and independent MCP confirm pagination, guards, one actual form receipt and preserved owner content.
+- [ci-c3912720.md](ci-c3912720.md) traces the existing context regressions, model reload edit race and Bun/macOS failed-backup cleanup race to exact hosted logs. Focused Node/Deno/Bun and Chromium/MCP evidence verifies the changes; complete new-head CI remains required.
+
 - [forms-pay-guidance.md](forms-pay-guidance.md) verifies lower vacancy minimums, visible form-introduction priority and a separate comfortable hourly rate. Thirty-seven Node/Deno checks, CLI/both Lino transports and production Chromium/MCP confirm one reviewed actual field, preserved owner content and zero submissions; complete provider discovery remains required.
 - [forms-subjects.md](forms-subjects.md) reproduces Go answers offered for C# questions at 92% similarity. Shared subject checks preserve technology/currency/employment distinctions and owner aliases; 33 Node/Deno checks, production Chromium and independent MCP verify one actual field receipt, preserved owner input and zero submissions.
 

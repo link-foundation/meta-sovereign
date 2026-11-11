@@ -127,6 +127,38 @@ test('context switching clears unavailable fields and ambiguity needs evidence',
   );
 });
 
+test('context templates span only configured variable choices and retain literal subjects', () => {
+  const asked = 'What salary in USD?';
+  assert.equal(
+    planAnswer(asked, { ...options, contexts: [] }).match,
+    'unanswered'
+  );
+  assert.equal(
+    planAnswer(asked, {
+      ...options,
+      rules: [{ ...rule, answers: [{ text: '450000 ₽', approved: true }] }],
+    }).match,
+    'unanswered'
+  );
+  assert.equal(
+    planAnswer('What salary in RUB?', {
+      ...options,
+      rules: [{ ...rule, question: 'What salary in USD …?' }],
+    }).match,
+    'unanswered'
+  );
+  const corrected = {
+    ...rule,
+    answers: [
+      { text: '{{salary}} in {{currency}}', approved: true, canonical: true },
+    ],
+  };
+  assert.equal(
+    planAnswer(asked, { ...options, rules: [corrected] }).text,
+    '$6000 in USD'
+  );
+});
+
 test('conversation context is chat scoped and stops at unrelated questions and unusable turns', () => {
   for (const source of ['hh', 'telegram', 'vk', 'email', 'whatsapp']) {
     const messages = [

@@ -4,6 +4,11 @@
 
 ### Minor Changes
 
+- Add configurable question similarity/case and paged ranked-match inspection
+  across CLI, Lino, automation and Forms controls. Preserve subject guards,
+  configured context templates and owner answers. Prevent model reloads from
+  overwriting edits and failed backup streams from leaving temporary files.
+
 - Add reviewed vacancy/form minimum-pay guidance with a separate comfortable rate,
   visible introduction priority, per-frame context and explicit source evidence.
   Preserve owner answers and exclude vacancy-specific pay from reusable learning.

@@ -20,6 +20,7 @@ const answerKey = (plan) =>
 const planOptions = (input) => ({
   profileId: input.profileId ?? '',
   approximate: input.approximate !== false,
+  matching: input.matching,
   modelDraft: input.modelDraft === true,
   salary: input.salary,
   vacancy: input.vacancy,

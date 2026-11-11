@@ -14,6 +14,11 @@ import {
 } from './answer-model-settings.js';
 import { AnswerPolicyControls } from './question-policy.js';
 import { debugBrowser } from './client-log.js';
+import {
+  QuestionMatchingFields,
+  validQuestionMatching,
+} from './question-matching-fields.js';
+import { QuestionMatchResults } from './question-match-results.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -230,7 +235,7 @@ const RuleEditor = ({ rule, set, disabled, save, remove }) => {
   );
 };
 
-const AnswerPreview = ({ result }) => {
+const AnswerPreview = ({ result, busy, page }) => {
   const t = useT();
   if (!result) {
     return null;
@@ -247,6 +252,12 @@ const AnswerPreview = ({ result }) => {
       result.text ||
         t(result.noReply ? 'questions.noReply' : 'questions.noAnswer')
     ),
+    el(QuestionMatchResults, {
+      key: 'matches',
+      results: result.matchResults,
+      busy,
+      page,
+    }),
   ]);
 };
 
@@ -340,6 +351,8 @@ const PreviewControls = ({
   setContexts,
   salary,
   setSalary,
+  matching,
+  setMatching,
 }) => {
   const t = useT();
   const [question, setQuestion] = React.useState('');
@@ -348,6 +361,40 @@ const PreviewControls = ({
   const [result, setResult] = React.useState(null);
   const [environment, setEnvironment] = React.useState({});
   const [modelDraft, setModelDraft] = React.useState(false);
+  const [inspectMatches, setInspectMatches] = React.useState(false);
+  const lastInput = React.useRef(null);
+  const request = (offset = 0, next = false) =>
+    run(async () => {
+      const input = next
+        ? lastInput.current
+        : {
+            question,
+            modelDraft,
+            source,
+            chat,
+            profile,
+            profileId,
+            contexts,
+            salary,
+            matching,
+            recent: (environment.recentText ?? '')
+              .split('\n')
+              .filter((line) => line.trim()),
+            vacancy: environment.vacancy,
+            ...(inspectMatches ? { matchPage: { offset: 0, limit: 10 } } : {}),
+          };
+      const proposed = await api.previewAnswer({
+        ...input,
+        ...(next ? { modelDraft: false } : {}),
+        ...(input.matchPage
+          ? { matchPage: { ...input.matchPage, offset } }
+          : {}),
+      });
+      lastInput.current = input;
+      setResult((previous) =>
+        next ? { ...previous, matchResults: proposed.matchResults } : proposed
+      );
+    });
   return el('details', { key: 'preview' }, [
     el('summary', { key: 's' }, t('questions.preview')),
     el(Field, {
@@ -383,6 +430,28 @@ const PreviewControls = ({
     }),
     el(AnswerContextFields, { key: 'contexts', contexts, set: setContexts }),
     el(SalaryFields, { key: 'salary', salary, set: setSalary, api }),
+    el(QuestionMatchingFields, {
+      key: 'matching',
+      matching,
+      disabled: busy,
+      set: (value) => {
+        setMatching(value);
+        setResult(null);
+      },
+    }),
+    el('label', { key: 'inspect', className: 'check' }, [
+      el('input', {
+        key: 'input',
+        type: 'checkbox',
+        checked: inspectMatches,
+        disabled: busy,
+        onChange: (event) => {
+          setInspectMatches(event.target.checked);
+          setResult(null);
+        },
+      }),
+      t('questions.inspectMatches'),
+    ]),
     el(AnswerEnvironmentFields, {
       key: 'environment',
       environment,
@@ -402,34 +471,28 @@ const PreviewControls = ({
       {
         key: 'b',
         type: 'button',
-        disabled: busy || !question.trim(),
-        onClick: () =>
-          run(async () =>
-            setResult(
-              await api.previewAnswer({
-                question,
-                modelDraft,
-                source,
-                chat,
-                profile,
-                profileId,
-                contexts,
-                salary,
-                recent: (environment.recentText ?? '')
-                  .split('\n')
-                  .filter((line) => line.trim()),
-                vacancy: environment.vacancy,
-              })
-            )
-          ),
+        disabled: busy || !question.trim() || !validQuestionMatching(matching),
+        onClick: () => request(),
       },
       t('questions.preview')
     ),
-    el(AnswerPreview, { key: 'r', result }),
+    el(AnswerPreview, {
+      key: 'r',
+      result,
+      busy,
+      page: (offset) => request(offset, true),
+    }),
   ]);
 };
 
-const questionAutomation = (t, profile, contexts, salary, profileId) => ({
+const questionAutomation = (
+  t,
+  profile,
+  contexts,
+  salary,
+  profileId,
+  matching
+) => ({
   ...blankAutomation(t('questions.automationName')),
   conditions: {
     silentDays: 0,
@@ -438,7 +501,14 @@ const questionAutomation = (t, profile, contexts, salary, profileId) => ({
     personal: false,
     lastFrom: 'contact',
   },
-  action: { kind: 'answer-questions', profile, profileId, contexts, salary },
+  action: {
+    kind: 'answer-questions',
+    profile,
+    profileId,
+    contexts,
+    salary,
+    matching,
+  },
 });
 
 const QuestionToolbar = ({ busy, create, refresh, newRule }) => {
@@ -493,6 +563,7 @@ export const QuestionControls = ({ api, openAutomation }) => {
   const [profileId, setProfileId] = React.useState('');
   const [contexts, setContexts] = React.useState([]);
   const [salary, setSalary] = React.useState(undefined);
+  const [matching, setMatching] = React.useState(undefined);
   const [contract, setContract] = React.useState(false);
   const [learned, setLearned] = React.useState(null);
   const run = async (work) => {
@@ -586,7 +657,14 @@ export const QuestionControls = ({ api, openAutomation }) => {
         refresh: () => run(reload),
         create: () =>
           openAutomation(
-            questionAutomation(t, profile, contexts, salary, profileId)
+            questionAutomation(
+              t,
+              profile,
+              contexts,
+              salary,
+              profileId,
+              matching
+            )
           ),
       }),
       el(SavedAnswerList, { key: 'rules', rules, rule, busy, setRule }),
@@ -613,6 +691,8 @@ export const QuestionControls = ({ api, openAutomation }) => {
         setContexts,
         salary,
         setSalary,
+        matching,
+        setMatching,
       }),
     ]
   );

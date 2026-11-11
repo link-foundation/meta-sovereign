@@ -41,6 +41,7 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
               profileId: body.profileId,
               profile: body.profile,
               approximate: body.approximate,
+              matching: body.matching,
               source: body.source,
               chat: body.chat,
               ruleIds: body.ruleIds,

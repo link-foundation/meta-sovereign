@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import { questionMatchingFlags } from './question-matching-flags.js';
 import { modelDraftFlag, withAnswerModel } from './answer-model-commands.js';
 import { decodeWire } from '../transport/lino.js';
 import { createFormReader, planFormAnswers } from '../forms/reader.js';
@@ -22,7 +23,7 @@ import {
 } from './forms-resume-commands.js';
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
+  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
 ${FORMS_REVIEW_HELP}
 ${FORMS_WATCHERS_HELP}
 ${FORMS_RESUME_HELP}`;
@@ -50,6 +51,7 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
             store,
             {
               inspection,
+              ...questionMatchingFlags(args),
               profileId: args['profile-id'],
               profile: args.profile ? decodeWire(args.profile) : undefined,
               approximate: ![false, 'false'].includes(args.approximate),

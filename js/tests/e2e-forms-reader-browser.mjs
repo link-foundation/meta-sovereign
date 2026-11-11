@@ -1,4 +1,5 @@
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
+import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
 import { verifyFormPayUi } from './helpers/e2e-form-pay.mjs';
 import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
 import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
@@ -274,13 +275,14 @@ const verifyLimits = async (page) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['MATCHING', verifyFormMatchingUi],
     ['PAY', verifyFormPayUi],
     ['SUBJECTS', verifyFormSubjectsUi],
     ['TIMEZONE', verifyFormTimezoneUi],
     ['LINKS', verifyFormLinksUi],
   ].find(([name]) => process.env[`FORMS_${name}_ONLY`] === '1');
   if (contactScenario) {
-    await contactScenario[1]({ ...app, owned, fixture });
+    await contactScenario[1]({ ...app, owned, fixture, store });
     return true;
   }
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
@@ -475,6 +477,7 @@ await app.finish(async () => {
       verifyFormTimezoneUi,
       verifyFormSubjectsUi,
       verifyFormPayUi,
+      verifyFormMatchingUi,
     ]) {
       await verify({ page, base, owned, fixture, until, store, modelCalls });
     }
@@ -505,6 +508,7 @@ if (
   process.env.FORMS_TIMEZONE_ONLY !== '1' &&
   process.env.FORMS_SUBJECTS_ONLY !== '1' &&
   process.env.FORMS_PAY_ONLY !== '1' &&
+  process.env.FORMS_MATCHING_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {

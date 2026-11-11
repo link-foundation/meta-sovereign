@@ -1,9 +1,12 @@
 import { assert } from './e2e-chat.mjs';
 import {
-  responseFor,
-  decoded,
+  applyCurrent,
+  assertAppliedReceipts,
+  formControlValues,
+  closeFormReview,
   openFormPlan,
   captureFormField,
+  captureFormFieldLayouts,
 } from './e2e-form-review.mjs';
 
 export const verifyFormSubjectsUi = async ({ page, owned, fixture, until }) => {
@@ -43,56 +46,21 @@ export const verifyFormSubjectsUi = async ({ page, owned, fixture, until }) => {
   await page
     .locator(`[data-form-select="${byName('rightTechnology').id}"]`)
     .check();
-  await captureFormField(
-    page,
-    byName('wrongTechnology').id,
-    'after',
-    'subjects'
-  );
-  await page.setViewportSize({ width: 390, height: 844 });
-  assert(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
-    ),
-    'subject review fits a phone'
-  );
-  await captureFormField(
-    page,
-    byName('wrongTechnology').id,
-    'mobile',
-    'subjects'
-  );
-  await page.setViewportSize({ width: 1200, height: 800 });
-  let pending = responseFor(page, 'apply');
-  await page.locator('[data-action="apply-form-plan"]').click();
-  const applied = await decoded(await pending);
-  assert(
-    applied.state === 'applied' &&
-      applied.receipts.filter((receipt) => receipt.status === 'applied')
-        .length === 1,
+  await captureFormFieldLayouts(page, byName('wrongTechnology').id, 'subjects');
+  const applied = await applyCurrent(page);
+  assertAppliedReceipts(
+    applied,
+    1,
     'one actual field receipt confirms the chosen alias'
   );
-  const values = await owner.page.evaluate(() =>
-    Object.fromEntries(
-      [...document.querySelectorAll('textarea')].map((node) => [
-        node.name,
-        node.value,
-      ])
-    )
-  );
+  const values = await formControlValues(owner.page);
   assert(
     values.wrongTechnology === '' &&
       values.rightTechnology === 'Three years building Go services' &&
       values.ownerTechnology === 'Owner keeps this answer',
     'actual controls preserve unresolved and owner values'
   );
-  pending = responseFor(page, 'close');
-  await page.locator('[data-review-action="close"]').click();
-  await decoded(await pending);
-  await until(
-    async () => (await page.locator('[data-form-review]').count()) === 0,
-    'subject review closed'
-  );
+  await closeFormReview(page, until, 'subject review closed');
   assert(
     owner.closed && fixture.submits === initialSubmits,
     'subject browser closes without submitting'

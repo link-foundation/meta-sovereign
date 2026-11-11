@@ -1,5 +1,13 @@
 import { assert } from './e2e-chat.mjs';
-import { responseFor, decoded, planCurrent } from './e2e-form-review.mjs';
+import {
+  responseFor,
+  decoded,
+  planCurrent,
+  applyCurrent,
+  assertAppliedReceipts,
+  formControlValues,
+  closeFormReview,
+} from './e2e-form-review.mjs';
 import { formLinks } from '../../../experiments/issue-56/forms-links-fixture.mjs';
 
 const capture = async (page, field, name) => {
@@ -73,23 +81,9 @@ export const verifyFormLinksUi = async ({ page, owned, fixture, until }) => {
   );
   await capture(page, byName('linkedinLink'), 'mobile');
   await page.setViewportSize({ width: 1200, height: 800 });
-  pending = responseFor(page, 'apply');
-  await page.locator('[data-action="apply-form-plan"]').click();
-  const applied = await decoded(await pending);
-  assert(
-    applied.state === 'applied' &&
-      applied.receipts.filter((receipt) => receipt.status === 'applied')
-        .length === 2,
-    'two links have actual readback receipts'
-  );
-  const values = await owner.page.evaluate(() =>
-    Object.fromEntries(
-      Array.from(document.querySelectorAll('input,textarea')).map((node) => [
-        node.name,
-        node.value,
-      ])
-    )
-  );
+  const applied = await applyCurrent(page);
+  assertAppliedReceipts(applied, 2, 'two links have actual readback receipts');
+  const values = await formControlValues(owner.page);
   assert(
     values.resumeLink === formLinks.resume &&
       values.githubLink === formLinks.github &&
@@ -97,13 +91,7 @@ export const verifyFormLinksUi = async ({ page, owned, fixture, until }) => {
       values.allLinks === 'Owner keeps this answer',
     'actual fields contain only reviewed links and preserve owner input'
   );
-  pending = responseFor(page, 'close');
-  await page.locator('[data-review-action="close"]').click();
-  await decoded(await pending);
-  await until(
-    async () => (await page.locator('[data-form-review]').count()) === 0,
-    'link review closed'
-  );
+  await closeFormReview(page, until, 'link review closed');
   assert(
     owner.closed && fixture.submits === initialSubmits,
     'link browser closes without submitting'

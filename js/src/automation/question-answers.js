@@ -1,17 +1,22 @@
 import {
   asksQuestion,
-  matchQuestion,
   questionKey,
   questionSimilarity,
   splitQuestions,
   MAX_QUESTION_LENGTH,
 } from './question-match.js';
+import { matchContextualQuestion } from './question-context-match.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import {
   answerRuleEligible,
   createAnswerCorrectionGuard,
 } from './question-corrections.js';
 import { completedAnswerSummary } from './question-summary.js';
+import {
+  normalizeQuestionMatching,
+  normalizeMatchPage,
+  rankedMatchPage,
+} from './question-matching-options.js';
 import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
@@ -131,6 +136,9 @@ export const normalizeAnswerAction = (action) => {
       ? {}
       : { salary: normalizeSalary(action.salary) }),
     approximate: action.approximate !== false,
+    ...(action.matching === undefined
+      ? {}
+      : { matching: normalizeQuestionMatching(action.matching) }),
     // Generic draft/editor controls can inspect these without treating Q/A
     // edits as the next contact's reusable reengagement template.
     form: 'auto',
@@ -138,25 +146,38 @@ export const normalizeAnswerAction = (action) => {
   };
 };
 
-const ruleMatch = (rule, question, approximate, budget) => {
-  const patterns = [rule.question, ...rule.questions].map(questionCore);
-  question = questionCore(question);
-  const kinds = patterns.map((pattern) => matchQuestion(pattern, question));
-  const match = kinds.includes('exact')
-    ? 'exact'
-    : kinds.includes('template')
-      ? 'template'
-      : null;
-  const similarity = match
-    ? 1
-    : approximate
-      ? Math.max(
-          ...patterns.map((pattern) =>
-            questionSimilarity(pattern, question, budget)
-          )
-        )
-      : 0;
-  return { match, similarity };
+const ruleMatch = (rule, question, context) => {
+  const core = (text) =>
+    questionCore(text, { preserveCase: context.matching.caseSensitive });
+  question = core(question);
+  const candidates = [rule.question, ...rule.questions].map((pattern) => {
+    const normalized = core(pattern);
+    const match = matchContextualQuestion(normalized, question, rule, context);
+    return { pattern, normalized, match, similarity: match ? 1 : 0 };
+  });
+  const known =
+    candidates.find((entry) => entry.match === 'exact') ??
+    candidates.find((entry) => entry.match === 'template');
+  if (known) {
+    return known;
+  }
+  if (context.approximate) {
+    for (const candidate of candidates) {
+      candidate.similarity = questionSimilarity(
+        candidate.normalized,
+        question,
+        context.matchBudget,
+        context.matching
+      );
+    }
+  }
+  candidates.sort(
+    (a, b) =>
+      Number(b.match === 'exact') - Number(a.match === 'exact') ||
+      Number(b.match === 'template') - Number(a.match === 'template') ||
+      b.similarity - a.similarity
+  );
+  return candidates[0];
 };
 
 const conflictingAnswer = (candidate, best, profile, text) =>
@@ -182,7 +203,9 @@ const usableVariant = (question, answer, canonical, context) => {
 };
 
 const answerOne = (question, input) => {
-  const core = questionCore(question);
+  const core = questionCore(question, {
+    preserveCase: input.matching.caseSensitive,
+  });
   const resolved = resolveAnswerContexts(core, input);
   const environment = answerTemplateEnvironment(core, {
     ...input,
@@ -195,13 +218,11 @@ const answerOne = (question, input) => {
     if (!answerRuleEligible(rule, context)) {
       continue;
     }
-    const { match, similarity } = ruleMatch(
-      rule,
-      question,
-      context.approximate,
-      context.matchBudget
-    );
-    if (!match && similarity < 0.78) {
+    const { match, similarity, pattern } = ruleMatch(rule, question, context);
+    if (
+      !match &&
+      (similarity <= 0 || similarity < context.matching.threshold)
+    ) {
       continue;
     }
     const canonical = rule.answers.some((answer) => answer.canonical);
@@ -212,7 +233,13 @@ const answerOne = (question, input) => {
       ) {
         continue;
       }
-      matches.push({ rule, answer, match: match ?? 'approximate', similarity });
+      matches.push({
+        rule,
+        answer,
+        pattern,
+        match: match ?? 'approximate',
+        similarity,
+      });
     }
   }
   matches = equivalentAnswerVariants(matches, context.policy);
@@ -223,8 +250,11 @@ const answerOne = (question, input) => {
       Number(b.answer.canonical) - Number(a.answer.canonical) ||
       b.similarity - a.similarity ||
       Number(b.answer.approved) - Number(a.answer.approved) ||
-      b.answer.count - a.answer.count
+      b.answer.count - a.answer.count ||
+      a.rule.id.localeCompare(b.rule.id) ||
+      a.answer.text.localeCompare(b.answer.text)
   );
+  const inspection = rankedMatchPage(matches, context);
   if (!matches.length) {
     return {
       question,
@@ -234,6 +264,7 @@ const answerOne = (question, input) => {
       requiresReview: true,
       missing: [],
       rules: [],
+      ...inspection,
     };
   }
   const best = matches[0];
@@ -259,6 +290,7 @@ const answerOne = (question, input) => {
     rules: [best.rule.id],
     count: best.answer.count,
     evidence: best.answer.evidence,
+    ...inspection,
     alternatives: matches.slice(0, 8).map(({ rule, answer, match }) => ({
       rule: rule.id,
       text: render(answer.text, context.profile).text,
@@ -267,6 +299,22 @@ const answerOne = (question, input) => {
     })),
   };
 };
+
+const answerContext = (options, rules) => ({
+  profile: {},
+  approximate: true,
+  ...options,
+  matching: normalizeQuestionMatching(options.matching),
+  matchPage: normalizeMatchPage(options.matchPage),
+  matchBudget:
+    options.matchBudget ??
+    (options.matchPage === undefined
+      ? undefined
+      : { remaining: 4 * 1024 ** 2, exhausted: false }),
+  matchRulesLimited: (options.rules?.length ?? 0) > 1000,
+  contexts: normalizeAnswerContexts(options.contexts),
+  rules,
+});
 
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
@@ -290,13 +338,7 @@ export const planAnswer = (question, options = {}) => {
       return [];
     }
   });
-  const context = {
-    profile: {},
-    approximate: true,
-    ...options,
-    contexts: normalizeAnswerContexts(options.contexts),
-    rules,
-  };
+  const context = answerContext(options, rules);
   const empty = {
     question,
     text: '',
@@ -311,7 +353,9 @@ export const planAnswer = (question, options = {}) => {
     options.questionMode === 'field' || asksQuestion(question)
       ? answerOne(question, context)
       : empty;
-  const core = questionCore(question);
+  const core = questionCore(question, {
+    preserveCase: context.matching.caseSensitive,
+  });
   const questions = splitQuestions(core);
   if (questions.length <= 1) {
     result = applySalaryAnswer(core, context, result);
@@ -324,6 +368,7 @@ export const planAnswer = (question, options = {}) => {
       applySalaryAnswer(part, context, answerOne(part, context))
     );
     result = {
+      ...result,
       question,
       text: parts
         .map((part, i) => `${i + 1}. ${part.text || `{{answer:${i + 1}}}`}`)

@@ -1281,6 +1281,21 @@ export const en = {
   'questions.ruleIds': 'Answer rule IDs',
   'questions.ruleIdsHint':
     'Comma-separated; leave empty to use every enabled rule.',
+  'questions.matchingSettings': 'Question matching',
+  'questions.matchingThreshold': 'Minimum similarity (%)',
+  'questions.matchingCase': 'Match letter case',
+  'questions.matchingHint':
+    'Approximate matches always require review. Subject, scope and rejected-answer rules still apply.',
+  'questions.matchingInvalid': 'Enter a similarity from 0 to 100.',
+  'questions.inspectMatches': 'Inspect all eligible matches',
+  'questions.matchesTitle': 'Ranked matches',
+  'questions.matchesRange': 'Matches {start}–{end} of {total}',
+  'questions.matchesPartial':
+    'The matching limit was reached. This list is incomplete.',
+  'questions.matchScore': 'Similarity: {score}%',
+  'questions.matchSelected': 'Selected for this draft',
+  'questions.matchesPrevious': 'Previous matches',
+  'questions.matchesNext': 'Next matches',
   'questions.approximate': 'Offer approximate matches for review',
   'questions.contract': 'Replace configured values with placeholders',
   'questions.contractHint':
