@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Dispose failed clink startup children and drain queued queries on close without reopening connections. Preserve original reconnect-test failures through unconditional fixture cleanup and opt-in content-free CI phase diagnostics.
+
 Add explicit frozen-turn HH text replies with shared native-choice reservations, owner draft and closed-chat guards, verified outgoing receipts and drained shutdown. Keep uncertain sends reserved and ordinary HH text sends unavailable. Background acknowledgement/rejection orchestration remains unfinished.
 
 Retain the hosted browser runner's Azure archive fallback while preferring the primary Ubuntu mirror, preserving signed sources, security entries and mirror metadata.

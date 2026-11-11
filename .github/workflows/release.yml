@@ -414,6 +414,7 @@ jobs:
         if: matrix.runtime == 'node'
         env:
           MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
+          MS_CLINK_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
         run: node --test --test-concurrency=2 --test-timeout=30000 --test-shard=${{ matrix.shard || '1/1' }} js/tests/*.test.js
 
       - name: Setup Bun
