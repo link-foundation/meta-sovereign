@@ -440,7 +440,7 @@
     "@secretlint/secretlint-rule-preset-recommend": "13.1.0",
     "command-stream": "2.6.0",
     "cross-spawn": "7.0.6",
-    "electron-builder": "27.0.0-alpha.13",
+    "electron-builder": "27.0.0-alpha.14",
     "esbuild": "^0.28.2",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
