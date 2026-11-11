@@ -228,3 +228,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI: macOS Node shard deadline](ci-macos-shards.md) — actual ten-minute cancellation, passing companion shard, complete coverage across three runners and focused failure propagation.
 
 [CLI output completion and exact-head CI failures](ci-cli-output.md) preserves finite regressions, passing targeted checks and the remaining Git investigation.
+
+[Exact assignment publication proof](ci-assignment-source-proof.md) records the CodeQL review and stronger complete-payload assertion.

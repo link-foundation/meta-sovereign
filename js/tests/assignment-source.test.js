@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createAssignmentPublisher } from '../src/assignments/service.js';
 import { createAssignmentSourceReader } from '../src/assignments/source-reader.js';
 import { assignmentSourceReceipt } from '../src/assignments/source.js';
+import { assignmentIssueMarker } from '../src/assignments/records.js';
 import { createFormsApi } from '../src/web/forms-api.js';
 import {
   assignmentPublisherFixture,
@@ -104,7 +105,12 @@ test('restore and publication use the frozen private source without a second rea
   assert.equal((await env.publisher.publish({ draftId: draft.id })).ok, true);
   assert.deepEqual(env.reads, [sourceUrl]);
   assert.equal(env.state.modelCalls.length, 1);
-  assert.ok(!JSON.stringify(env.state.issues).includes(sourceUrl));
+  assert.equal(env.state.issues.length, 1);
+  assert.equal(env.state.issues[0].title, draft.title);
+  assert.equal(
+    env.state.issues[0].body,
+    `${draft.body}\n\n${await assignmentIssueMarker(draft.assignmentId, draft.target)}`
+  );
 });
 
 test('changed private instruction text prevents restoration and GitHub writes', async (t) => {
