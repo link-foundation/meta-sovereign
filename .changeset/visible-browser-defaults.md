@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Regenerate bounded review-only notice patterns from related actual delivered-reply observations. Preserve original counts, approval decisions and owner aliases; generated patterns cannot authorize no-reply or expand canonical corrections without explicit adoption. Share pattern review through CLI, offline storage, text/binary Lino and four-language controls (R-AA1).
+
 Keep native HH application letters, including empty bubbles, as service barriers in browser history. Separate history reads from owned-draft reconciliation, exclude applications from learned answers and native delivery receipts, and refuse stale application answer plans. Add opt-in count-only history diagnostics.
 
 Add bounded HH virtual chat-list scans with trusted document/frame ownership, unique observed identities, explicit incomplete provider coverage and guarded scroll restoration. Cancel queued scans before browser acquisition, drain active scans on shutdown, exclude unrelated container rows and preserve actual zero unread counts.

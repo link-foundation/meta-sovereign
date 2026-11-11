@@ -325,6 +325,10 @@ test('question provider and control scenarios have separate mandatory browser bu
     questions,
     /await verifyNoticeLearning\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
   );
+  assert.match(
+    questions,
+    /await verifyNoticeLearning\(\{\s*page,\s*base,\s*store,\s*until,\s*patterns: true\s*\}\)/u
+  );
   assert.doesNotMatch(
     readFileSync(
       path.join(root, 'js/tests/e2e-question-controls-browser.mjs'),

@@ -24,6 +24,13 @@ export const noticeTurn = ({
 export const archivedNoticeTurns = () =>
   ['hh', 'vk'].flatMap((source) => noticeTurn({ source }));
 
+export const noticePatternVariant =
+  'We have received the application and will review your experiences.';
+export const noticePatternUnseen =
+  'We have received a detailed application and will review your experience.';
+export const noticePattern =
+  'we have received … application and will review your experience*';
+
 export const translatedNotices = [
   [
     'Мы рассмотрим ваше резюме и опыт.',

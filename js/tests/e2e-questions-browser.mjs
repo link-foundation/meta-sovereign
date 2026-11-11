@@ -613,6 +613,7 @@ const verifyProviderHistoryAndNotices = async () => {
   await verifyHhHistory({ page, base, store, until });
   await verifyQuestionNotices({ page, base, store, until });
   await verifyNoticeLearning({ page, base, store, until });
+  await verifyNoticeLearning({ page, base, store, until, patterns: true });
 };
 
 await finish(async () => {

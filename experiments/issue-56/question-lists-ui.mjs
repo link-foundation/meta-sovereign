@@ -10,19 +10,24 @@ import {
   correctedRules,
 } from './question-corrections-fixture.mjs';
 import { noticeRule, noticeMessage } from './notice-fixture.mjs';
-import { archivedNoticeTurns } from './notice-learning-fixture.mjs';
+import {
+  archivedNoticeTurns,
+  noticeTurn,
+  noticePatternVariant,
+} from './notice-learning-fixture.mjs';
 
 const store = createMemoryStore();
-const messages =
-  process.argv[2] === 'summary'
-    ? [summaryMessage()]
-    : process.argv[2] === 'notice-learning'
-      ? archivedNoticeTurns()
-      : process.argv[2] === 'notices'
-        ? [noticeRule(), noticeMessage()]
-        : process.argv[2] === 'corrections'
-          ? [...correctedRules, ...correctionMessages()]
-          : questionnaireMessages();
+const fixtures = {
+  summary: () => [summaryMessage()],
+  'notice-learning': archivedNoticeTurns,
+  'notice-patterns': () => [
+    ...archivedNoticeTurns(),
+    ...noticeTurn({ chat: 'variant', question: noticePatternVariant }),
+  ],
+  notices: () => [noticeRule(), noticeMessage()],
+  corrections: () => [...correctedRules, ...correctionMessages()],
+};
+const messages = (fixtures[process.argv[2]] ?? questionnaireMessages)();
 for (const message of messages) {
   await store.put(message);
 }

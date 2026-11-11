@@ -8,6 +8,7 @@ import { summaryAnswerPairs } from './question-summary.js';
 import { historyOrder } from '../replies/history-order.js';
 import { questionProse, splitNumberedAnswers } from './question-lists.js';
 import { createAnswerCorrectionGuard } from './question-corrections.js';
+import { withNoticePatterns } from './notice-pattern-learning.js';
 import {
   noticeCore,
   passiveNotice,
@@ -214,7 +215,7 @@ const answerCollection = ({ policy, contract, correction }) => {
     }
     learned.set(key, group);
   };
-  return { add, values: () => [...learned.values()] };
+  return { add, values: () => withNoticePatterns([...learned.values()]) };
 };
 
 // Explicitly paired observations (for example reviewed form fields) share the

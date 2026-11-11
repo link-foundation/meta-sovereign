@@ -1304,6 +1304,9 @@ export const hi = {
   'questions.ruleKind': 'नियम का प्रकार',
   'questions.ruleKind.question': 'प्रश्न या फ़ॉर्म फ़ील्ड',
   'questions.ruleKind.notice': 'सूचनात्मक संदेश',
+  'questions.learnedNoticePatterns': 'सीखे गए सूचना पैटर्न',
+  'questions.learnedNoticePatternsHint':
+    'इन पैटर्न को समान संदेशों में जोड़ने से पहले समीक्षा करें। नए अवलोकन सूची को दोबारा बनाते हैं; सीखे गए पैटर्न से मेल खाने पर हमेशा समीक्षा आवश्यक है।',
   'questions.noticeHint':
     'केवल सूचनात्मक संदेशों के लिए; प्रश्न, अनुरोध, आमंत्रण, अस्वीकृति और लिंक अलग रहते हैं। उत्तर की समीक्षा ज़रूरी है। उत्तर न देने के लिए [без ответа] लिखें और नियम को समीक्षित चिह्नित करें।',
   'questions.noticeApproved':

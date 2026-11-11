@@ -8,7 +8,11 @@ import {
 } from './question-match.js';
 
 export const NO_NOTICE_REPLY = '[без ответа]';
-export const noticeRuleProperties = (input, questions) => {
+export const noticeRuleProperties = (
+  input,
+  questions,
+  learnedPatterns = []
+) => {
   if (
     input.kind !== undefined &&
     !['question', 'notice'].includes(input.kind)
@@ -27,7 +31,24 @@ export const noticeRuleProperties = (input, questions) => {
   ) {
     throw new Error('the no-reply marker requires a notice rule');
   }
-  return input.kind === 'notice' ? { kind: 'notice' } : {};
+  if (learnedPatterns.length && input.kind !== 'notice') {
+    throw new Error('learned patterns require a notice rule');
+  }
+  if (
+    learnedPatterns.some(
+      (pattern) => !passiveNotice(pattern) || !/…|\*|\.{3}/u.test(pattern)
+    )
+  ) {
+    throw new Error(
+      'learned notice patterns require passive ordered-word templates'
+    );
+  }
+  return input.kind === 'notice'
+    ? {
+        kind: 'notice',
+        ...(input.learnedPatterns === undefined ? {} : { learnedPatterns }),
+      }
+    : {};
 };
 
 export const applyNoticeAnswer = (result, notice, best, conflicting) => {
@@ -37,6 +58,7 @@ export const applyNoticeAnswer = (result, notice, best, conflicting) => {
   const noReply = best.answer.text.trim() === NO_NOTICE_REPLY;
   const ready =
     noReply &&
+    !best.learned &&
     best.answer.approved &&
     !conflicting &&
     (best.match === 'exact' ||
@@ -44,6 +66,7 @@ export const applyNoticeAnswer = (result, notice, best, conflicting) => {
   return {
     ...result,
     notice: true,
+    ...(best.learned ? { learnedPattern: true } : {}),
     requiresReview: result.requiresReview || !ready,
     ...(noReply ? { text: '', noReply: ready, noReplyProposed: true } : {}),
   };

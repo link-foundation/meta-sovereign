@@ -1,34 +1,41 @@
 """Preserve actual-parent notice learning failures and focused verification."""
 from pathlib import Path
 import subprocess
+import sys
 from evidence_bundle import bundle
 
 root = Path(__file__).resolve().parents[2]
-assert 'fail 1' in (root / 'ci-logs/notice-learning-before-node.log').read_text()
-assert 'missingNoticeLearning' in (root / 'ci-logs/notice-learning-before-ui.log').read_text()
-assert 'pass 51' in (root / 'ci-logs/notice-learning-node.log').read_text()
-assert '51 passed | 0 failed' in (root / 'ci-logs/notice-learning-deno.log').read_text()
-assert '"cases":3,"providerSends":0' in (root / 'ci-logs/notice-learning-after-ui.log').read_text()
-assert not (root / 'ci-logs/notice-learning-lint.log').read_text()
+patterns = '--patterns' in sys.argv
+prefix = 'notice-patterns' if patterns else 'notice-learning'
+parent = 'bd871352' if patterns else '66a1949f'
+checks = 67 if patterns else 51
+log = lambda name: (root / f'ci-logs/{prefix}-{name}.log').read_text()
+assert 'fail 1' in log('before-node')
+assert ('missingNoticePatterns' if patterns else 'missingNoticeLearning') in log('before-ui')
+assert f'pass {checks}' in log('node')
+assert f'{checks} passed | 0 failed' in log('deno')
+assert '"cases":3,"providerSends":0' in log('after-ui')
+assert not log('lint')
 changed = subprocess.check_output([
     'git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
     cwd=root).decode().split('\0')
 sources = [name for name in changed if name and not name.startswith(
     'docs/case-studies/issue-56/data/')]
-logs = [str(path.relative_to(root)) for path in (root / 'ci-logs').glob('notice-learning-*')
+logs = [str(path.relative_to(root)) for path in (root / 'ci-logs').glob(f'{prefix}-*')
         if path.is_file() and path.suffix in ('.log', '.json', '.png')
         and not path.name.endswith(('-commit.log', '-push.log', '-archive.log', '-pr.log'))]
 bundle(root, [*sources, *logs,
     'js/src/automation/question-store.js',
     'js/src/automation/question-notices.js',
     'experiments/issue-56/notice-fixture.mjs',
-], 'docs/case-studies/issue-56/data/notice-learning.tar.gz', {
-    'parent': '66a1949fb3e497060b68924f8be7559e6d3b0238',
-    'node': 51, 'deno': 51, 'chromium_cases': 3, 'provider_sends': 0,
-    'mcp': 'actual count 2, one proposal, saving, desktop and 390px layout',
-    'remaining': 'Generalized patterns, complete pending-turn/activity guards, automatic acknowledgements/rejections, unread orchestration and all unchecked issue criteria.',
-}, 'notice-learning-*.png', before={
-    name: '66a1949f' for name in [
+], f'docs/case-studies/issue-56/data/{prefix}.tar.gz', {
+    'parent': parent,
+    'node': checks, 'deno': checks, 'chromium_cases': 3, 'provider_sends': 0,
+    'mcp': 'actual count 2, pattern review and saving, desktop and 390px layout'
+        if patterns else 'actual count 2, one proposal, saving, desktop and 390px layout',
+    'remaining': 'Complete pending-turn/activity guards, automatic acknowledgements/rejections, unread orchestration and all unchecked issue criteria.',
+}, f'{prefix}-*.png', before={
+    name: parent for name in [
         'js/src/automation/question-learning.js',
         'js/src/automation/question-corrections.js',
         'js/src/web/question-controls.js',

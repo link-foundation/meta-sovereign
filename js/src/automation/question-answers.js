@@ -117,13 +117,18 @@ export const normalizeAnswerRule = (input) => {
     'equivalent questions',
     MAX_QUESTION_LENGTH
   );
+  const learnedPatterns = strings(
+    input.learnedPatterns,
+    'learned notice patterns',
+    MAX_QUESTION_LENGTH
+  );
   if (questions.some((question) => !questionKey(question))) {
     throw new Error('equivalent questions must contain words');
   }
   return {
     id: input.id,
     tokens: ['qa-rule'],
-    ...noticeRuleProperties(input, questions),
+    ...noticeRuleProperties(input, questions, learnedPatterns),
     question: input.question.trim(),
     questions,
     enabled: input.enabled !== false,
@@ -172,13 +177,30 @@ const ruleMatch = (rule, question, context) => {
   const core = (text) =>
     questionCore(text, { preserveCase: context.matching.caseSensitive });
   question = core(question);
-  const candidates = [rule.question, ...rule.questions].map((pattern) => {
+  const patterns = [rule.question, ...rule.questions].map((pattern) => ({
+    pattern,
+  }));
+  if (rule.kind === 'notice') {
+    patterns.push(
+      ...(rule.learnedPatterns ?? []).map((pattern) => ({
+        pattern,
+        learned: true,
+      }))
+    );
+  }
+  const candidates = patterns.map(({ pattern, learned }) => {
     const normalized = core(pattern);
     const match =
       rule.kind === 'notice'
         ? matchNotice(pattern, question, context.matching)
         : matchContextualQuestion(normalized, question, rule, context);
-    return { pattern, normalized, match, similarity: match ? 1 : 0 };
+    return {
+      pattern,
+      normalized,
+      match,
+      similarity: match ? 1 : 0,
+      ...(learned ? { learned: true } : {}),
+    };
   });
   const known =
     candidates.find((entry) => entry.match === 'exact') ??
@@ -244,7 +266,11 @@ const answerOne = (question, input) => {
     if (!ruleApplies(rule, context)) {
       continue;
     }
-    const { match, similarity, pattern } = ruleMatch(rule, question, context);
+    const { match, similarity, pattern, learned } = ruleMatch(
+      rule,
+      question,
+      context
+    );
     if (
       !match &&
       (similarity <= 0 || similarity < context.matching.threshold)
@@ -265,6 +291,7 @@ const answerOne = (question, input) => {
         pattern,
         match: match ?? 'approximate',
         similarity,
+        learned,
       });
     }
   }

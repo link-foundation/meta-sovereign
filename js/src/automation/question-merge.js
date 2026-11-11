@@ -7,6 +7,15 @@ export const mergeObservedAnswers = (saved, proposals, maxRules = 1000) => {
     const merged = {
       ...proposal,
       ...existing,
+      kind: (existing ?? proposal).kind ?? 'question',
+      ...(proposal.kind === 'notice'
+        ? {
+            learnedPatterns:
+              (existing ?? proposal).kind === 'notice'
+                ? (proposal.learnedPatterns ?? [])
+                : [],
+          }
+        : {}),
       answers: [...(existing?.answers ?? [])],
     };
     for (const answer of proposal.answers) {

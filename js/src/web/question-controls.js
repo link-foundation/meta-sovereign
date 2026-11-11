@@ -20,7 +20,10 @@ import {
 } from './question-matching-fields.js';
 import { QuestionMatchResults } from './question-match-results.js';
 import { BrowserAnswerControls } from './question-browser-controls.js';
-import { NoticeRuleFields } from './question-notice-fields.js';
+import {
+  NoticeRuleFields,
+  LearnedNoticePatterns,
+} from './question-notice-fields.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -317,6 +320,10 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
                   )
                 ),
                 el('strong', { key: 'question' }, entry.question),
+                el(LearnedNoticePatterns, {
+                  key: 'patterns',
+                  patterns: entry.learnedPatterns,
+                }),
                 ...entry.answers.map((answer, index) =>
                   el('div', { key: index }, [
                     el(

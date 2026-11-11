@@ -1251,6 +1251,9 @@ export const zh = {
   'questions.ruleKind': '规则类型',
   'questions.ruleKind.question': '问题或表单字段',
   'questions.ruleKind.notice': '通知消息',
+  'questions.learnedNoticePatterns': '学习到的通知模式',
+  'questions.learnedNoticePatternsHint':
+    '将这些模式添加为等效消息前请先审核。新观察会重新生成此列表；匹配学习模式始终需要审核。',
   'questions.noticeHint':
     '仅用于通知消息；问题、请求、邀请、拒绝和链接单独处理。回复文本需要审核。无需回复时，将答案设为 [без ответа]，再标记规则已审核。',
   'questions.noticeApproved': '已审核通知规则（回复文本仍需审核）',

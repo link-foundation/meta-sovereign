@@ -5,9 +5,11 @@ import subprocess
 import sys
 
 root = Path(__file__).resolve().parents[2]
-learning = '--learning' in sys.argv
-prefix = 'notice-learning' if learning else 'notices'
-parent = ('66a1949fb3e497060b68924f8be7559e6d3b0238' if learning else
+patterns = '--patterns' in sys.argv
+learning = patterns or '--learning' in sys.argv
+prefix = 'notice-patterns' if patterns else 'notice-learning' if learning else 'notices'
+parent = ('bd8713521c710300ef387460df3e780ae8c10f01' if patterns else
+          '66a1949fb3e497060b68924f8be7559e6d3b0238' if learning else
           'e172fd11a6f8dea07b8528051374e498871b21ab')
 paths = subprocess.check_output(
     ['git', 'diff', '--name-only', '--', 'js/src'], cwd=root, text=True
@@ -31,8 +33,10 @@ try:
             ['git', 'show', f'{parent}:{path}'], cwd=root))
     result = run(f'{prefix}-before-node.log', [
         'node', '--test', '--test-concurrency=1', '--test-timeout=20000',
-        '--test-name-pattern=' + ('actual notice replies learn' if learning else
+        '--test-name-pattern=' + ('actual related notices regenerate' if patterns else
+                                'actual notice replies learn' if learning else
                                 'reviewed notice replies'),
+        'js/tests/notice-pattern-learning.test.js' if patterns else
         'js/tests/question-notice-learning.test.js' if learning else
         'js/tests/question-notices.test.js'], check=False)
     if result.returncode != 1:
@@ -40,7 +44,8 @@ try:
     run(f'{prefix}-before-build.log', ['node', 'js/scripts/build-web.mjs'])
     run(f'{prefix}-before-ui.log', [
         'node', 'experiments/issue-56/notices-ui.mjs', '--before',
-        *(['--learning'] if learning else [])])
+        *(['--learning'] if learning else []),
+        *(['--patterns'] if patterns else [])])
 finally:
     for path, content in current.items():
         (root / path).write_bytes(content)

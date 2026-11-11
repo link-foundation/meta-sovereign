@@ -34,6 +34,7 @@ await fixture.finish(async () => {
     ...fixture,
     store,
     before: process.argv.includes('--before'),
+    patterns: process.argv.includes('--patterns'),
     screenshots: process.env.NOTICE_SCREENSHOTS,
   });
   assert(sends === 0, 'notice review issues zero provider sends');

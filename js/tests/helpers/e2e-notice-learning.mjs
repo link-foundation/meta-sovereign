@@ -4,20 +4,15 @@ import { assert } from './e2e-chat.mjs';
 import {
   noticeTurn,
   archivedNoticeTurns,
+  noticePatternVariant,
+  noticePattern,
 } from '../../../experiments/issue-56/notice-learning-fixture.mjs';
 import {
   noticeText,
   noticeReply,
 } from '../../../experiments/issue-56/notice-fixture.mjs';
 
-export const verifyNoticeLearning = async ({
-  page,
-  base,
-  store,
-  until,
-  screenshots,
-  before = false,
-}) => {
+const seedNoticeLearning = async (store, patterns) => {
   for (const entry of await store.query((entry) =>
     /^(?:msg:|qa-rule:)/u.test(entry.id)
   )) {
@@ -26,12 +21,43 @@ export const verifyNoticeLearning = async ({
   for (const message of archivedNoticeTurns()) {
     await store.put(message);
   }
+  if (patterns) {
+    for (const message of noticeTurn({
+      chat: 'variant',
+      question: noticePatternVariant,
+    })) {
+      await store.put(message);
+    }
+  }
   await store.put(
     noticeTurn({
       chat: 'silent',
       question: 'We will review your details tomorrow.',
     })[0]
   );
+};
+const verifyMissingProposal = async (learner, patterns, shot) => {
+  const selector = patterns ? '[data-learned-notice-patterns]' : 'li';
+  assert(
+    (await learner.locator(selector).count()) === 0,
+    'parent omits learned notice proposals'
+  );
+  await shot('before');
+  return patterns
+    ? { before: true, missingNoticePatterns: true }
+    : { before: true, missingNoticeLearning: true };
+};
+
+export const verifyNoticeLearning = async ({
+  page,
+  base,
+  store,
+  until,
+  screenshots,
+  before = false,
+  patterns = false,
+}) => {
+  await seedNoticeLearning(store, patterns);
   await page.setViewportSize({ width: 1180, height: 950 });
   await page.goto(`${base}/?notice-learning=1#/automation`);
   const panel = page.locator('[data-question-controls]');
@@ -49,24 +75,25 @@ export const verifyNoticeLearning = async ({
       await mkdir(screenshots, { recursive: true });
       await learner.scrollIntoViewIfNeeded();
       await page.screenshot({
-        path: join(screenshots, `notice-learning-${name}.png`),
+        path: join(
+          screenshots,
+          `notice-${patterns ? 'patterns' : 'learning'}-${name}.png`
+        ),
       });
     }
   };
   await preview();
   await learner
-    .getByText('Archived messages inspected: 5 of 5.', { exact: true })
+    .getByText(
+      `Archived messages inspected: ${patterns ? 7 : 5} of ${patterns ? 7 : 5}.`,
+      { exact: true }
+    )
     .waitFor();
   if (before) {
-    assert(
-      (await learner.locator('li').count()) === 0,
-      'parent omits actual notice replies'
-    );
-    await shot('before');
-    return { before: true, missingNoticeLearning: true };
+    return verifyMissingProposal(learner, patterns, shot);
   }
   const proposal = learner
-    .locator('li')
+    .locator(':scope > div > ul > li')
     .filter({ has: page.getByText(noticeText, { exact: true }) });
   await proposal.getByText(noticeReply, { exact: true }).waitFor();
   await proposal.getByText('Passive notice', { exact: true }).waitFor();
@@ -81,9 +108,15 @@ export const verifyNoticeLearning = async ({
   await proposal
     .getByText('Observed answer turns: 2', { exact: true })
     .waitFor();
+  if (patterns) {
+    const generated = proposal.locator('[data-learned-notice-patterns]');
+    await generated.locator('summary').click();
+    await generated.getByText(noticePattern, { exact: true }).waitFor();
+  }
   assert((await rules()).length === 0, 'preview leaves knowledge unchanged');
   assert(
-    (await learner.locator('li').count()) === 1,
+    (await learner.locator(':scope > div > ul > li').count()) ===
+      (patterns ? 2 : 1),
     'owner silence creates no rule'
   );
   await shot('desktop');
@@ -91,14 +124,14 @@ export const verifyNoticeLearning = async ({
     .getByRole('button', { name: 'Save proposals for review', exact: true })
     .click();
   await until(
-    async () => (await rules()).length === 1,
+    async () => (await rules()).length === (patterns ? 2 : 1),
     'actual notice proposal persisted'
   );
   await preview();
   await proposal
     .getByText('Observed answer turns: 2', { exact: true })
     .waitFor();
-  const [saved] = await rules();
+  const saved = (await rules()).find((rule) => rule.question === noticeText);
   assert(
     saved.kind === 'notice' &&
       saved.answers[0].count === 2 &&
@@ -121,6 +154,15 @@ export const verifyNoticeLearning = async ({
       'notice',
     'learned record opens as a notice'
   );
+  if (patterns) {
+    assert(
+      saved.learnedPatterns.includes(noticePattern),
+      'generated pattern persisted separately from owner aliases'
+    );
+    const generated = editor.locator('[data-learned-notice-patterns]');
+    await generated.locator('summary').click();
+    await generated.getByText(noticePattern, { exact: true }).waitFor();
+  }
   assert(
     !(await editor
       .getByRole('checkbox', {

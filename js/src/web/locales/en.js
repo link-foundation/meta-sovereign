@@ -1310,6 +1310,9 @@ export const en = {
   'questions.ruleKind': 'Rule type',
   'questions.ruleKind.question': 'Question or form field',
   'questions.ruleKind.notice': 'Passive notice',
+  'questions.learnedNoticePatterns': 'Learned notice patterns',
+  'questions.learnedNoticePatternsHint':
+    'Review these patterns before adding them as equivalent messages. New observations regenerate this list; matching a learned pattern always requires review.',
   'questions.noticeHint':
     'For passive notices only; questions, requests, invitations, rejections and links stay separate. Text replies require review. Use [без ответа] as the answer for a notice that needs no reply, then mark the rule reviewed.',
   'questions.noticeApproved':
