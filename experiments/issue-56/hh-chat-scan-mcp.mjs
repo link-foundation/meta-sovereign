@@ -1,45 +1,15 @@
 /** Bundle the current scanner for the MCP VM; no package/build output is changed. */
 import { writeFile } from 'node:fs/promises';
-import { build } from 'esbuild';
+import { mcpChatScanBundle } from './mcp-chat-scan-bundle.mjs';
 import { HH_WEB_UI } from '../../js/src/sources/hh-web-ui.js';
 import { hhChatScanHtml } from './hh-chat-scan-fixture.mjs';
 
-const result = await build({
-  stdin: {
-    contents:
-      "export { scanBrowserChatList } from './js/src/sources/browser-chat-scan.js';",
-    resolveDir: process.cwd(),
-  },
-  bundle: true,
-  write: false,
-  format: 'iife',
-  globalName: 'chatScanContract',
-  plugins: [
-    {
-      name: 'finite-mcp-adapters',
-      setup(builder) {
-        builder.onResolve({ filter: /^node:/ }, (args) => ({
-          path: args.path,
-          namespace: 'finite-mcp',
-        }));
-        builder.onLoad(
-          { filter: /.*/, namespace: 'finite-mcp' },
-          ({ path }) => ({
-            contents:
-              path === 'node:crypto'
-                ? "export const randomUUID = () => 'independent-mcp-scan';"
-                : 'export const setTimeout = () => { throw new Error("Use the injected MCP pause"); };',
-          })
-        );
-      },
-    },
-  ],
-});
+const bundle = await mcpChatScanBundle();
 await writeFile(
   'ci-logs/hh-chat-scan-mcp-script.mjs',
   `async (page) => {
   const process = {env: {}};
-  ${result.outputFiles[0].text}
+  ${bundle}
   await page.route('**/*', route => route.fulfill({contentType:'text/html',body:${JSON.stringify(hhChatScanHtml())}}));
   await page.goto('https://hh.ru/chat');
   const document = {evaluate: ({fn,args}) => page.evaluate(fn,args[0])};

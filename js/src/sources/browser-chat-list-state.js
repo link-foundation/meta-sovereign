@@ -57,7 +57,7 @@ const historyAnchor = (root, cells, idAttribute) => {
   );
 };
 
-const scrollRoot = (cell) => {
+export const browserChatScrollRoot = (cell) => {
   let root = cell?.parentElement;
   while (root && !/^(?:auto|scroll)$/.test(getComputedStyle(root).overflowY)) {
     root = root.parentElement;
@@ -71,7 +71,7 @@ const openScroll = (
 ) => {
   const history = scope === 'history';
   const cell = [...document.querySelectorAll(item)].find(visible);
-  const root = scrollRoot(cell);
+  const root = browserChatScrollRoot(cell);
   if (!root || !cell) {
     return { refused: 'unavailable' };
   }
@@ -241,7 +241,7 @@ export const browserChatListState = new Function(`return (input) => {
   const scrollOwnerActive = (${scrollOwnerActive.toString()});
   const restoreScroll = (${restoreScroll.toString()});
   const historyAnchor = (${historyAnchor.toString()});
-  const scrollRoot = (${scrollRoot.toString()});
+  const browserChatScrollRoot = (${browserChatScrollRoot.toString()});
   const openScroll = (${openScroll.toString()});
   return (${browserScrollState.toString()})(input, visible, openScroll, restoreScroll, scrollOwnerActive);
 }`)();

@@ -4,6 +4,8 @@ This is the implementation checklist for issue 56's six feature references. The 
 
 The first source pass covers the six READMEs, HH's forms/chat and CV requirements, Telegram's sending scripts and VK's trigger entry points. Additional source/test auditing continues alongside implementation; this inventory must expand when that audit reveals another behavior. It is not yet a certificate of exhaustive coverage.
 
+The HH browser scanner now explicitly selects all/unread conversations through the actual nested native control and restores the original filter/list position while owned. Two actual-parent regressions, focused Node/Deno, native Chromium and independent MCP evidence are in [filter ownership](chat-filter.md). This internal primitive leaves HH09, HH10 and QA17 unchecked: cross-chat state restoration, persistent unread orchestration, shared public controls and live-provider verification remain required.
+
 ## Shared questions, answers and application forms
 
 Archived and rendered browser turns now share bounded per-message planning independently of model opt-in. Completed summaries and approved no-reply notices do not mask earlier requests; strict automatic selection waits for earlier actionable messages, while all-approved free-text turns may be prefilled without sending. Queued current-knowledge and full pending-context checks remain enforced. CLI, both Lino formats and shared Questions/Chat/Operator/watch controls are covered in [whole-turn evidence](whole-turn.md), alongside [rendered context](pending-turn.md). Complete provider history, activity ownership, inactive acknowledgements/rejections and unread orchestration remain required.

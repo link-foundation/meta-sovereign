@@ -24,7 +24,12 @@ export const browserInactiveView = ({ operation, token }) => {
       'input',
     ];
     state.mark = (event) => {
-      if (!event.isTrusted && event === state.ownedInput) {
+      if (
+        (!event.isTrusted && event === state.ownedInput) ||
+        (state.ownedFilterControl &&
+          event.type === 'input' &&
+          event.target === state.ownedFilterControl)
+      ) {
         return;
       }
       if (event.isTrusted || event.type === 'input') {

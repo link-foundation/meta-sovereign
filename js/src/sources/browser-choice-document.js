@@ -77,6 +77,11 @@ const inList = (frame, ui) =>
   trusted(frame.url(), ui.location.origins) &&
   new RegExp(ui.chatScan.pathPattern).test(new URL(frame.url()).pathname);
 
+const listIdentitySelector = (ui) =>
+  [ui.chats.item, ui.chatScan.unreadFilter?.fallback]
+    .filter(Boolean)
+    .join(', ');
+
 const chooseDocument = async (page, ui, target, list = false) => {
   if (!page || !trusted(page.url(), ui.documents.ownerOrigins)) {
     throw failure();
@@ -97,7 +102,7 @@ const chooseDocument = async (page, ui, target, list = false) => {
     throw failure();
   }
   const candidates = [];
-  const selector = list ? ui.chats.item : ui.messages.item;
+  const selector = list ? listIdentitySelector(ui) : ui.messages.item;
   for (const frame of frames) {
     const matching = list ? inList(frame, ui) : inChat(frame, ui, target);
     if (matching && (await visibleFrame(frame, main, ui))) {

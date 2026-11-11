@@ -16,6 +16,11 @@ test('public scanner validates capability, bounds and cancellation before launch
         code: 'bad-chat-scan',
       });
     }
+    for (const unreadOnly of [null, 1, 'true', 'false']) {
+      await assert.rejects(sender.scanChats({ source: 'hh', unreadOnly }), {
+        code: 'bad-chat-scan',
+      });
+    }
     const controller = new AbortController();
     controller.abort();
     await assert.rejects(

@@ -7,6 +7,7 @@ import {
 } from './browser-choice-document.js';
 import { scanBrowserConversation } from './browser-conversation-history.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
+import { withBrowserChatFilter } from './browser-chat-filter.js';
 export { normalizeChatScanOptions } from './browser-scan-options.js';
 
 const failure = (message, code) =>
@@ -84,16 +85,23 @@ const tracker = (settings, now) => {
 };
 
 /** Traverse one owned rendered list; an observed DOM end is not provider proof. */
-export const scanBrowserChatList = async (
+const traverseBrowserChatList = async (
   document,
   ui,
   options = {},
   { now = () => globalThis.performance.now(), pause = sleep } = {}
 ) => {
   const settings = normalizeChatScanOptions(options);
-  const { token, control } = createBrowserScanControl(document, {
+  const { token, control: scrollControl } = createBrowserScanControl(document, {
     item: ui.chats.item,
+    inactiveToken: options.inactiveToken,
   });
+  const control = async (operation, extra) => {
+    if (operation !== 'release') {
+      await options.verifyCurrent?.();
+    }
+    return scrollControl(operation, extra);
+  };
   const started = now();
   const observed = tracker(settings, now);
   let reason = 'pass-limit';
@@ -126,6 +134,9 @@ export const scanBrowserChatList = async (
         ],
       });
       const current = await ready(control, 'status');
+      if (options.unreadOnly === true && found.some((row) => row.unread <= 0)) {
+        stop('filter-unconfirmed');
+      }
       const completed = observed.accept(found, current);
       if (completed) {
         reason = completed;
@@ -154,6 +165,43 @@ export const scanBrowserChatList = async (
     });
   }
   return result;
+};
+
+export const scanBrowserChatList = async (
+  document,
+  ui,
+  options = {},
+  dependencies = {}
+) => {
+  const settings = normalizeChatScanOptions(options);
+  if (options.unreadOnly === undefined) {
+    return traverseBrowserChatList(document, ui, options, dependencies);
+  }
+  if (!ui.chatScan?.unreadFilter) {
+    throw failure(
+      'Explicit unread filtering is unavailable for this provider',
+      'unsupported-action'
+    );
+  }
+  return withBrowserChatFilter(
+    document,
+    ui,
+    { ...options, waitMs: settings.waitMs },
+    (verify) =>
+      traverseBrowserChatList(
+        document,
+        ui,
+        {
+          ...options,
+          verifyCurrent: async () => {
+            await options.verifyCurrent?.();
+            await verify();
+          },
+        },
+        dependencies
+      ),
+    dependencies.pause
+  );
 };
 
 export const createBrowserChatScans = ({ uiFor, inList, inChat }) => {
@@ -188,6 +236,12 @@ export const createBrowserChatScans = ({ uiFor, inList, inChat }) => {
       if (!ui.chatScan || !ui.documents) {
         throw failure(
           'Bounded browser chat scans are unavailable for this provider',
+          'unsupported-action'
+        );
+      }
+      if (options.unreadOnly !== undefined && !ui.chatScan.unreadFilter) {
+        throw failure(
+          'Explicit unread filtering is unavailable for this provider',
           'unsupported-action'
         );
       }
