@@ -337,6 +337,10 @@ test('question provider and control scenarios have separate mandatory browser bu
   const groupSources = Object.keys(groups).map((name) =>
     readFileSync(path.join(root, `js/tests/e2e-${name}-browser.mjs`), 'utf8')
   );
+  assert.match(
+    groupSources[Object.keys(groups).indexOf('question-chat-lists')],
+    /nativeFocus: true/u
+  );
   assert.match(questions, /await verifyHhHistory\(/u);
   assert.match(
     questions,

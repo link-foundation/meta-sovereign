@@ -30,4 +30,6 @@ Independent owner interruption keeps the current unread filter and scroll.
 
 Scoped strict lint, formatting, secrets and the unchanged duplication gate pass (38,774/597,762 lines, 6.49%). For published `a203a29c`, Security, Links, Pages and Desktop pass; the broader Checks workflow is still running/queued as of 22:50 UTC. These preceding runs do not verify the new filter commit.
 
+The expanded mandatory chat-list group explicitly requests the existing full-Chromium native-focus fixture. The headless shell forces focus in both tabs and cannot verify the new inactive case. The registry contract checks that this setting remains enabled; production focus guards and all deadlines remain unchanged.
+
 The adjacent [evidence archive](data/chat-filter.tar.gz) and SHA-256 manifest retain sources, actual-parent sources, focused logs, screenshots and hosted status metadata. This is a browser primitive. Persistent single-flight cross-chat/unread orchestration, URL/draft/selection/message-scroll restoration, CLI/Lino/shared controls, live provider verification and every other unchecked requirement remain active; PR57 stays draft and unmerged.
