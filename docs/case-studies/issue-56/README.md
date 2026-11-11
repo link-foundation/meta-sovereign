@@ -6,7 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
-- [forms-automatic-prefill.md](forms-automatic-prefill.md) verifies explicit current-page prefilling through the multi-URL CLI and owned Lino API: guarded empty-field writes, configured/selected PDFs, provenance, non-replaying recovery and manual next-page navigation/submission. Thirty Node/Deno checks, production Chromium and independent MCP pass. Visual prefill controls and complete provider parity remain open.
+- [forms-automatic-controls.md](forms-automatic-controls.md) verifies the shared UI prefill action, actual field/PDF results and frozen-request recovery after a lost response and profile change. Forty-three Node/Deno checks, production Chromium and independent desktop/phone MCP pass; complete provider workflows remain required.
+- [forms-automatic-prefill.md](forms-automatic-prefill.md) verifies explicit current-page prefilling through the multi-URL CLI and owned Lino API: guarded empty-field writes, configured/selected PDFs, provenance, non-replaying recovery and manual next-page navigation/submission. Thirty Node/Deno checks, production Chromium and independent MCP pass. The later automatic-controls study supplies the visual UI; complete provider parity remains open.
 - [question-matching-options.md](question-matching-options.md) verifies configurable thresholds/case and all eligible ranked candidates through CLI, both Lino formats and shared controls. Forty-five Node/Deno checks, 21 compatibility checks, production Chromium and independent MCP confirm pagination, guards, one actual form receipt and preserved owner content.
 - [ci-c3912720.md](ci-c3912720.md) traces the existing context regressions, model reload edit race and Bun/macOS failed-backup cleanup race to exact hosted logs. Focused Node/Deno/Bun and Chromium/MCP evidence verifies the changes; complete new-head CI remains required.
 

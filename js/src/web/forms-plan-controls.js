@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { ModelDraftControl } from './answer-model-settings.js';
+import { FormAutomaticControl } from './form-automatic-control.js';
 import {
   QuestionMatchingFields,
   validQuestionMatching,
@@ -43,28 +44,9 @@ const useProfiles = (api, probe) => {
   return profiles;
 };
 
-export const FormPlanControls = ({
-  api,
-  report,
-  available,
-  busy,
-  setBusy,
-  onPlan,
-}) => {
-  const t = useT();
-  const [profileId, setProfileId] = useState('');
-  const [approximate, setApproximate] = useState(true);
-  const [matching, setMatching] = useState(undefined);
-  const [modelDraft, setModelDraft] = useState(false);
+const useFormPlan = ({ api, report, settings, busy, setBusy, onPlan }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [probe, setProbe] = useState(0);
-  const profiles = useProfiles(api, probe);
-  const changed = (setter, value) => {
-    setter(value);
-    setError(null);
-    onPlan(null);
-  };
   const plan = async () => {
     if (busy) {
       return;
@@ -73,7 +55,7 @@ export const FormPlanControls = ({
     setLoading(true);
     setError(null);
     try {
-      const input = { profileId, approximate, matching, modelDraft };
+      const input = settings;
       const value = report.reviewSession
         ? await api.formsPlanReview({
             id: report.reviewSession.id,
@@ -91,6 +73,39 @@ export const FormPlanControls = ({
       setBusy(false);
       setLoading(false);
     }
+  };
+  return { error, setError, loading, plan };
+};
+
+export const FormPlanControls = ({
+  api,
+  report,
+  available,
+  prefillAvailable,
+  busy,
+  setBusy,
+  onPlan,
+}) => {
+  const t = useT();
+  const [profileId, setProfileId] = useState('');
+  const [approximate, setApproximate] = useState(true);
+  const [matching, setMatching] = useState(undefined);
+  const [modelDraft, setModelDraft] = useState(false);
+  const [probe, setProbe] = useState(0);
+  const profiles = useProfiles(api, probe);
+  const settings = { profileId, approximate, matching, modelDraft };
+  const { error, setError, loading, plan } = useFormPlan({
+    api,
+    report,
+    settings,
+    busy,
+    setBusy,
+    onPlan,
+  });
+  const changed = (setter, value) => {
+    setter(value);
+    setError(null);
+    onPlan(null);
   };
   return el('section', { className: 'card col', 'data-form-planner': '' }, [
     el('h2', { key: 'title' }, t('forms.plan.title')),
@@ -184,6 +199,18 @@ export const FormPlanControls = ({
       busy,
       set: (value) => changed(setModelDraft, value),
     }),
+    report.reviewSession && prefillAvailable
+      ? el(FormAutomaticControl, {
+          key: 'automatic',
+          api,
+          id: report.reviewSession.id,
+          settings,
+          busy,
+          disabled: !available || !validQuestionMatching(matching),
+          setBusy,
+          onPlan,
+        })
+      : null,
     error
       ? el(
           'p',

@@ -24,12 +24,13 @@
     "ci-logs/forms-timezone-reference-requirements.md": "860c04caca424a79e7d44f935e83563af9257dd4684bade7cac95e3ef04d885c",
     "docs/case-studies/issue-56/forms-automatic-prefill.md": "0151f064b371724857c7b6fac1d1b3372cfaea6f5bfa6a488efc7d8b86a1651f",
     "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
-    "experiments/issue-56/collect-forms-automatic-prefill.py": "2bb5b02fdb0886dc9b56ba6b1801d3d4a53d4213d9ca9c4c4b527e8c88e91d2c",
+    "experiments/issue-56/collect-forms-automatic-prefill.py": "a3471f3eb1bb66b5831cd1311faa2a0b6c42a3d3303239fdbfa9d3b7f8b8a883",
     "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
     "experiments/issue-56/forms-automatic-fixture.mjs": "3461d7426f2d8ecd9886dc050be9665bf2e078b0771aaca4355d54ba963d786c",
     "experiments/issue-56/forms-automatic-mcp.mjs": "151b3b2950d922c17124fbcf372670cb3887406acaec3008a922e296a34becc3",
     "experiments/issue-56/forms-reader-fixture.mjs": "1af831c73e34632dcb58125f827de3d9e3159bf0028f6b5c4b071e2d334f356d",
     "experiments/issue-56/forms-reader-ui.mjs": "37ac2785863160ac25329e254a6faa5b4e3a36246ad4e48256fa00a18d61dda4",
+    "experiments/issue-56/forms_automatic_evidence.py": "ec5b4708d4a16c720f85fbb74269ac263c741f2cb5005868410b4a511870a586",
     "experiments/issue-56/verify-auto-prefill-before.py": "c064d4428e8286eefc3cae11aa76ebfd79cfbcc9dcf48a04ea2012cd02831b5a",
     "js/src/cli/forms-review-commands.js": "418120bf525f212d798df4e8e9da1ddbda2e745b243fe8b83286805ef5036bcc",
     "js/src/forms/automatic-prefill.js": "c1174a6dc0ac04748ef413921da6be9596c6b03b2089df748d8f020b260128d4",
@@ -41,8 +42,8 @@
     "js/src/web/forms-api.js": "f31aa2378cfcefef65e102230a29ae21cb724be04925d77bb1ccda33a94b168b",
     "js/tests/e2e-forms-reader-browser.mjs": "0b06147b7979f69b5385eda12dc15b631eb6f85ca6984efe3cbda48d5ad0cd9f",
     "js/tests/forms-auto-prefill.test.js": "267ccfb5cc596e9d67ff4377c7152e71612dfece7fae73b6f76036df25ab51f6",
-    "js/tests/helpers/e2e-form-automatic.mjs": "297463db5b2570d47da23ee87c8fefe0efb0c485a2a2a2330a59ccc5fc0df404",
+    "js/tests/helpers/e2e-form-automatic.mjs": "c887778c531d3b608f89c207f7d35506bebe41e908eb1ab44ecff2fbbbe471d6",
     "js/tests/helpers/forms-auto-prefill-fixture.mjs": "2d7b95e1465abe1731c510eb8216519fbbb1463856dd56094d6da67a95ac0a08",
-    "metadata.json": "790acec08b9ea54b3775b151b49668778a72bba8f28c1f864b20cc941976beec"
+    "metadata.json": "466d182c1825a201d499b631b49d1dc3e91410f963f8dea664dbcdea6e5385c1"
   }
 }

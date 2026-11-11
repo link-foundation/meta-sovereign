@@ -5,7 +5,9 @@
 ### Minor Changes
 
 - Add explicit automatic current-page prefilling to multi-URL form reviews and
-  owned Lino sessions. Preserve owner answers, verify configured or selected PDFs,
+  owned Lino sessions and localized Forms controls. Freeze interrupted requests
+  for recovery with their original settings. Preserve owner answers and verify
+  configured or selected PDFs,
   retain provenance and recover receipts without repeating writes. Keep page
   navigation and form submission under owner control.
 

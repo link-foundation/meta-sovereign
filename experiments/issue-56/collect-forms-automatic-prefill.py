@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from evidence_bundle import bundle
+from forms_automatic_evidence import validate_automatic_capture
 
 root = Path(__file__).resolve().parents[2]
 prefix = root / 'ci-logs/forms-auto-prefill-'
@@ -23,17 +24,7 @@ assert all(item['state'] == 'attached' and len(item['file']['sha256']) == 64
            for item in proof['uploads'])
 assert len(proof['unresolved']) == 1
 actual = json.loads(Path(f'{prefix}mcp-server.log').read_text().splitlines()[-1])
-assert actual['submissions'] == 0 and actual['reads']
-for read in actual['reads']:
-    assert read['closed']
-    main, child = read['automaticFrames']
-    assert main['email'] == 'ada@example.test' and main['unknown'] == ''
-    assert main['fullName'] == "Owner's current answer"
-    assert main['location'] == 'vn' and main['newsletter'] is True
-    assert main['start'] == '2027-01-15' and main['language'] == 'English'
-    assert main['resume'][0]['size'] == 599
-    assert child['city'] == 'Vietnam, UTC+7'
-    assert child['childResume'][0]['size'] == 599
+validate_automatic_capture(actual)
 runs = json.loads(Path(f'{prefix}parent-runs.json').read_text())
 parent = 'b12061261ee168d3a119e924e024d05e850584ea'
 assert len(runs) == 5
@@ -50,6 +41,7 @@ sources += [
     'ci-logs/forms-timezone-reference-head.json',
     'experiments/issue-56/verify-auto-prefill-before.py',
     'experiments/issue-56/collect-forms-automatic-prefill.py',
+    'experiments/issue-56/forms_automatic_evidence.py',
     'docs/case-studies/issue-56/forms-automatic-prefill.md',
 ]
 before = dict.fromkeys([

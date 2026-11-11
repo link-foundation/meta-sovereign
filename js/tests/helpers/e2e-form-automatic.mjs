@@ -3,6 +3,7 @@ import { openFormPlan, closeFormReview, decoded } from './e2e-form-review.mjs';
 import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
 import { saveConfiguredResume } from '../../src/forms/configured-resume.js';
 import { syntheticResumePdf } from '../../../experiments/issue-56/forms-resume-fixture.mjs';
+import { verifyAutomaticPrefillControls } from './e2e-form-automatic-controls.mjs';
 
 export const verifyFormAutomaticUi = async ({
   page,
@@ -38,12 +39,14 @@ export const verifyFormAutomaticUi = async ({
             id: plan.reviewPlan.sessionId,
             requestId,
             profileId: 'qa-profile:forms-fixture',
+            approximate: true,
+            modelDraft: false,
           },
           LINO_TEXT
         ),
       })
     );
-  const result = await prefill('automatic-page-one');
+  const result = await verifyAutomaticPrefillControls(page, until);
   assert(
     result.state === 'partial' &&
       result.receipts.length === 6 &&
@@ -86,7 +89,7 @@ export const verifyFormAutomaticUi = async ({
   const beforeRecovery = await owner.page.evaluate(
     () => globalThis.events.length
   );
-  const recovered = await prefill('automatic-page-one');
+  const recovered = await prefill(result.requestId);
   assert(
     JSON.stringify(recovered.receipts) === JSON.stringify(result.receipts) &&
       (await owner.page.evaluate(() => globalThis.events.length)) ===

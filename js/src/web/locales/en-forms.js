@@ -1,4 +1,26 @@
 export const enForms = {
+  'forms.automatic.action': 'Prefill empty fields',
+  'forms.automatic.recover': 'Recover prefill result',
+  'forms.automatic.hint':
+    'Fill complete supported answers in empty controls and attach the saved PDF, if configured. The site may upload or save changes immediately. Existing answers stay unchanged. Review every answer; open Next and submit yourself.',
+  'forms.automatic.error':
+    'No confirmed result ({code}). Inspect the browser or recover the same request; recovery keeps the original settings.',
+  'forms.automatic.title': 'Automatic prefill result',
+  'forms.automatic.unresolved':
+    'Questions still needing review or an answer: {count}.',
+  'forms.automatic.next':
+    'Review the current answers, open Next yourself, then prefill the new page. Submit the form yourself when finished.',
+  'forms.automatic.review':
+    'Review the current answers and complete open questions. Submit the form yourself when finished.',
+  'forms.automatic.state.prefilled':
+    'Supported empty fields were filled and verified. Review the current form.',
+  'forms.automatic.state.partial':
+    'Some fields remain open or could not be confirmed. Review the current form.',
+  'forms.automatic.state.uncertain':
+    'An attempted change is uncertain. Inspect the current form before another request.',
+  'forms.automatic.state.refused':
+    'The prefill sequence was refused. Inspect confirmed changes and read the current page again.',
+  'forms.journal.action.prefill': 'Prefill empty fields',
   'forms.capacity.label': 'Maximum review browsers controlled here',
   'forms.capacity.hint':
     'Saved in this store. Four per controller by default; choose a capacity that fits this server. Detached watchers are listed separately. Increasing capacity does not launch browsers.',

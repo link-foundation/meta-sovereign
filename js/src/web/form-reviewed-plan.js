@@ -34,13 +34,16 @@ const FormApplicationError = ({ error }) => {
       )
     : null;
 };
-export const FormApplicationResult = ({ result }) => {
+export const FormApplicationResult = ({
+  result,
+  stateKey = 'forms.fill.state',
+}) => {
   const t = useT();
   return el(
     'div',
     { className: 'col', 'data-form-application': result.state, role: 'status' },
     [
-      el('p', { key: 'state' }, t(`forms.fill.state.${result.state}`)),
+      el('p', { key: 'state' }, t(`${stateKey}.${result.state}`)),
       result.code
         ? el(
             'p',

@@ -6,6 +6,7 @@ import { FormAnswer, FormPlanSummary } from './forms-answer.js';
 import { FormPlanControls } from './forms-plan-controls.js';
 import { FormReviewControls } from './form-review-controls.js';
 import { FormReviewedPlan } from './form-reviewed-plan.js';
+import { FormAutomaticResult } from './form-automatic-result.js';
 import { FormResumeUpload } from './form-resume-upload.js';
 import { FormChoiceInspection } from './form-choice-disclosure.js';
 import { FormReportDownloads, FormReportFile } from './form-report-download.js';
@@ -231,16 +232,18 @@ const FormReportView = ({ report, plan, ...props }) =>
         report,
         Report: FormInspectionReport,
       })
-    : plan?.reviewPlan
-      ? el(FormReviewedPlan, {
-          ...props,
-          key: plan.reviewPlan.id,
-          plan,
-          Report: FormInspectionReport,
-        })
-      : report
-        ? el(FormInspectionReport, { report: plan ?? report })
-        : null;
+    : plan?.mode === 'prefill-result'
+      ? el(FormAutomaticResult, { result: plan, Report: FormInspectionReport })
+      : plan?.reviewPlan
+        ? el(FormReviewedPlan, {
+            ...props,
+            key: plan.reviewPlan.id,
+            plan,
+            Report: FormInspectionReport,
+          })
+        : report
+          ? el(FormInspectionReport, { report: plan ?? report })
+          : null;
 
 const FormSettings = ({ api, busy, setBusy, setPlan }) =>
   el(React.Fragment, null, [
@@ -389,6 +392,7 @@ export const FormsView = ({ api = defaultApi }) => {
             api,
             report,
             available: capability?.plan,
+            prefillAvailable: capability?.prefill,
             busy,
             setBusy,
             onPlan: setPlan,

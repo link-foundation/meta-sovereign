@@ -1,4 +1,24 @@
 export const zhForms = {
+  'forms.automatic.action': '填充空字段',
+  'forms.automatic.recover': '恢复填充结果',
+  'forms.automatic.hint':
+    '为受支持的空字段填写完整答案，并附加已配置的已保存 PDF。网站可能立即保存或上传更改。保留现有答案。请检查每个答案，并自行翻页和提交。',
+  'forms.automatic.error':
+    '结果未确认（{code}）。请检查浏览器或恢复同一请求；恢复使用原始设置。',
+  'forms.automatic.title': '自动填充结果',
+  'forms.automatic.unresolved': '仍有 {count} 个问题需要检查或回答。',
+  'forms.automatic.next':
+    '检查当前答案，自行打开下一页，再填充新页面。完成后请自行提交表单。',
+  'forms.automatic.review': '检查当前答案并补全待回答的问题。请自行提交表单。',
+  'forms.automatic.state.prefilled':
+    '已填写并核对受支持的空字段。请检查当前表单。',
+  'forms.automatic.state.partial':
+    '部分字段仍待回答或无法确认。请检查当前表单。',
+  'forms.automatic.state.uncertain':
+    '某次更改的结果不确定。再次请求前请检查当前表单。',
+  'forms.automatic.state.refused':
+    '填充流程已被拒绝。请检查已确认的更改，并重新读取当前页。',
+  'forms.journal.action.prefill': '填充空字段',
   'forms.capacity.label': '此处控制的审核浏览器上限',
   'forms.capacity.hint':
     '保存在此存储中。每个控制器默认为四个；请按服务器资源设置容量。分离的观察器单独列出。提高上限不会启动浏览器。',
