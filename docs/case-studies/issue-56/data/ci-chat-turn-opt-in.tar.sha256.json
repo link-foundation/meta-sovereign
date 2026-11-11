@@ -1,0 +1,32 @@
+{
+  "archive": "ci-chat-turn-opt-in.tar.gz",
+  "files": {
+    "before/js/src/automation/question-chat-turn.js": "0a7f295631f87e0ca7f6179f5933a7507f478e4b28e309469f37ac84d0a0660c",
+    "ci-logs/assignment-parent-checks.json": "6e338c4b009994e5bb0a5b3784d360b4f6e41f8dd1166d6132034f0c3b3746fb",
+    "ci-logs/assignment-parent-runs.json": "3ae89bde903752f9c0cbb2525ef857862ff4bb9973f3dbe41ed55a89b04652e6",
+    "ci-logs/checks-42956946192-job-130315546365.log": "cccc2a9fc3ba14856f2f9dd2959a5d202b224015edc0ec2820d4435a55fc4e62",
+    "ci-logs/checks-42956946192-job-130315546426.log": "ab0eb2a448547c57f2ba8876c9d1175cb1b2dc4935c210061e8e6e9ab6a1888a",
+    "ci-logs/checks-42956946192-job-130315546428.log": "70825a680a27f19003e8db2bfd51bd335d0edf9cc6ba275c808d7cc6ac1c63c3",
+    "ci-logs/checks-42956946192-job-130315546438.log": "12257a0889995aab2a137031df823c2a7d9453986e333fac51ebdc4aefa4d0e8",
+    "ci-logs/checks-42956946192-job-130315546463.log": "5cf738b971f9c25896f3e9e21bbd5e48538b7fae8cb42a6710e6422163ae6e56",
+    "ci-logs/checks-42956946192-job-130315546572.log": "975fc8e5ac37d2ef5d7835f3f76cb40e4f79f412150a6365236a90351ca26979",
+    "ci-logs/checks-42956946192-job-130315546591.log": "95a1e6d0b7b0d53de840b782dca99456e92a35fb1d100958cff2ae3acd2e2a3f",
+    "ci-logs/checks-42956946192-job-130315546603.log": "7abd94449970de537669502a87b6ec69581492e3287566a32b3db28ed391bc48",
+    "ci-logs/checks-42956946192-job-130315546932.log": "d2aa277fda0d7090d87040296bd69144729d765a7cd0d8f5ab7f36041ad0601e",
+    "ci-logs/question-context-after-fix.log": "bd21216da88514c0b9017a9893eead5939a5bb9274f0c673bdf38dc7ea11dcfb",
+    "ci-logs/question-context-before-fix.log": "c9c45588edc57eca443b9e408528426d9c3e1270fc6b5ecb4bb9d4819866d2cb",
+    "ci-logs/question-context-deno.log": "fa11e677b7722fbfa44af05bf0ba9e4ae975de078bcef31357bdeb89fccd72e6",
+    "ci-logs/question-context-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/question-context-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/ci-chat-turn-opt-in.md": "9cdecaf52635cf15c0a3e5a56762c5e7fc8ef1b685cc1b46c13a0718f567d0ba",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-chat-turn.py": "ab76b9ac8af0dc84c2d05f2a9480d5b4a7552e19fc403cee01e6b61e919f756b",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/src/automation/automations.js": "20a3445f7d1ce800109592d72296d2cec23ee85da3ec21d3bd51f716a933431d",
+    "js/src/automation/question-chat-turn.js": "3107c67ebd733186add774ff497d18ebe4e1d7f1eda1e23af29595553ba6c653",
+    "js/src/automation/question-store.js": "e25e969ce01129b615dbd2f7d048dd24a0d0e6cfb6f44f51b49537b7f81a39fc",
+    "js/tests/chat-answer-model.test.js": "53ad66b19af09499dd76c0b12329fad14ce85ecc8233c9b1288e65fd13a532e2",
+    "js/tests/question-context.test.js": "65cf0e05d5d5219c19723cb5ad1c6400da1f838c8fcab4c122072783c0f471e9",
+    "metadata.json": "d00a08d0ee483fd8c5ea6c1c2ab5c00f78e32571a1fdd274a055190a189a5066"
+  }
+}

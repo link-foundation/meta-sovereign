@@ -563,7 +563,11 @@ const answerDraft = (
   { self, answerRules, answerPolicy, savedAutomation, now, modelCandidates }
 ) => {
   const messages = candidate.messages.toSorted(historyOrder);
-  const selected = chatQuestionTurn(messages, self);
+  const selected = chatQuestionTurn(
+    messages,
+    self,
+    automation.action.modelDraft
+  );
   if (selected.reason) {
     return selected;
   }

@@ -168,6 +168,26 @@ test(
 );
 
 test(
+  'opting out keeps the latest saved answer through queue validation',
+  { timeout: 5000 },
+  async () => {
+    const env = await setup({ openOnly: true });
+    await env.store.put(chatModelMessage(3, knownChatQuestion));
+    const automation = {
+      ...env.automation,
+      action: { ...env.automation.action, modelDraft: false },
+    };
+    await env.store.put(automation);
+    const result = await env.runner.run(automation, opts);
+    assert.equal(result.queued.length, 1);
+    assert.equal(result.queued[0].text, 'My English level is B2.');
+    assert.equal(result.queued[0].answer.turn.messages.length, 1);
+    assert.equal(env.calls.length, 0);
+    assert.equal(env.sent.length, 0);
+  }
+);
+
+test(
   'a wholly unanswered question gets a model draft; unknown facts stay explicit and reviewed',
   { timeout: 5000 },
   async () => {

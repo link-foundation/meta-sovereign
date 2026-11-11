@@ -275,7 +275,8 @@ export const readChatAnswerInput = async (store, automation, draft) => {
   );
   const selected = chatQuestionTurn(
     history.values(),
-    draft.answer.turn?.owners
+    draft.answer.turn?.owners,
+    automation.action.modelDraft
   );
   if (
     unknownTime ||
