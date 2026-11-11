@@ -37,6 +37,28 @@ const DraftReview = ({ draft }) => {
           })
         )
       : null,
+    draft.sourceEvidence
+      ? el('p', { key: 'source', 'data-assignment-source-evidence': '' }, [
+          el(
+            'a',
+            {
+              key: 'link',
+              href: draft.sourceEvidence.url,
+              target: '_blank',
+              rel: 'noreferrer',
+            },
+            t('assignment.instructions-used', {
+              title: draft.sourceEvidence.title || draft.sourceEvidence.url,
+            })
+          ),
+          ' · ',
+          el(
+            'time',
+            { key: 'time', dateTime: draft.sourceEvidence.capturedAt },
+            new Date(draft.sourceEvidence.capturedAt).toLocaleString()
+          ),
+        ])
+      : null,
     el('h3', { key: 'title' }, draft.title),
     el(
       'pre',
@@ -63,6 +85,8 @@ const PublisherFields = ({
   setVisibility,
   vacancyUrl,
   setVacancyUrl,
+  sourceUrl,
+  setSourceUrl,
   employers,
   setEmployers,
   refresh,
@@ -115,6 +139,15 @@ const PublisherFields = ({
       type: 'url',
       maxLength: 4000,
     }),
+    input('source', 'assignment.instructions', sourceUrl, setSourceUrl, {
+      type: 'url',
+      maxLength: 4000,
+    }),
+    el(
+      'p',
+      { key: 'source-hint', className: 'meta' },
+      t('assignment.instructions-hint')
+    ),
     el('label', { key: 'refresh', className: 'row' }, [
       el('input', {
         key: 'input',
@@ -258,6 +291,7 @@ export const FormAssignmentPublisher = ({
   const [target, setTarget] = useState(assignment.repository?.fullName ?? '');
   const [visibility, setVisibility] = useState('private');
   const [vacancyUrl, setVacancyUrl] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
   const [employers, setEmployers] = useState('');
   const [refresh, setRefresh] = useState(false);
   const [draft, setDraft] = useState(null);
@@ -294,6 +328,7 @@ export const FormAssignmentPublisher = ({
         target,
         visibility,
         vacancyUrl: vacancyUrl || undefined,
+        sourceUrl: sourceUrl || undefined,
         employers: employers
           .split('\n')
           .map((name) => name.trim())
@@ -327,6 +362,7 @@ export const FormAssignmentPublisher = ({
       onRestored: (response) => {
         setTarget(response.draft.target);
         setVisibility(response.draft.visibility);
+        setSourceUrl(response.draft.sourceEvidence?.requestedUrl ?? '');
         setDraft(response.draft);
         setAttempted(response.attempted);
         setResult(null);
@@ -342,6 +378,8 @@ export const FormAssignmentPublisher = ({
       setVisibility,
       vacancyUrl,
       setVacancyUrl,
+      sourceUrl,
+      setSourceUrl,
       employers,
       setEmployers,
       refresh,

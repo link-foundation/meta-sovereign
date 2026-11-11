@@ -17,6 +17,16 @@ import {
 import { createFormsApi } from '../src/web/forms-api.js';
 import { FormAssignmentControl } from '../src/web/form-assignment.js';
 import { LocaleContext, translate } from '../src/web/i18n.js';
+const sourceUrl = 'https://instructions.example.test/task';
+const readSource = async (url) => ({
+  requestedUrl: url,
+  url,
+  title: 'Warehouse proposal',
+  text: 'Keep a short decision record explaining storage and validation choices.',
+  complete: true,
+  scope: 'visible-document-text',
+  capturedAt: '2026-01-01T00:00:00Z',
+});
 
 test(
   'CLI drafts without mutations and recovers a saved publication without rerunning the model',
@@ -36,14 +46,24 @@ test(
       openStore: async () => env.store,
       modelRunner: env.modelRunner,
       assignmentGithub: env.github,
+      readAssignmentSource: readSource,
     });
     const output = [];
     const log = (line) => output.push(JSON.parse(line));
     assert.equal(
-      await command({ _: [env.input.target], file, 'dry-run': true }, log),
+      await command(
+        { _: [env.input.target], file, source: sourceUrl, 'dry-run': true },
+        log
+      ),
       0
     );
     const draft = output.at(-1).draft;
+    assert.equal(draft.sourceEvidence.url, sourceUrl);
+    assert.ok(
+      env.state.modelCalls[0].prompt.includes(
+        (await readSource(sourceUrl)).text
+      )
+    );
     assert.equal(env.state.calls.includes('create'), false);
     assert.equal(await command({ 'draft-id': draft.id }, log), 0);
     assert.equal(output.at(-1).state, 'verified');
@@ -81,6 +101,7 @@ test(
           store: env.store,
           assignmentGithub: env.github,
           modelRunner: env.modelRunner,
+          readAssignmentSource: readSource,
         },
         media
       );
@@ -97,8 +118,16 @@ test(
           403
         );
         assert.equal(env.state.calls.length, 0);
-        const preview = await readWireResponse(await post('draft', env.input));
+        const preview = await readWireResponse(
+          await post('draft', { ...env.input, sourceUrl })
+        );
         assert.equal(preview.ok, true);
+        assert.equal(preview.draft.sourceEvidence.url, sourceUrl);
+        assert.ok(
+          env.state.modelCalls[0].prompt.includes(
+            (await readSource(sourceUrl)).text
+          )
+        );
         assert.equal(env.state.calls.includes('create'), false);
         const published = await readWireResponse(
           await post('publish', { draftId: preview.draft.id })
@@ -189,6 +218,10 @@ test('assignment publishing is visible only with an actual server capability in 
         )
       );
     assert.ok(render(true).includes('data-assignment-publisher'));
+    assert.ok(render(true).includes('data-assignment-publish-input="source"'));
+    assert.ok(
+      render(true).includes(translate(locale, 'assignment.instructions'))
+    );
     assert.ok(!render(false).includes('data-assignment-publisher'));
     assert.ok(!render(true).includes('assignment.title'));
   }

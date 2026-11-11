@@ -2,6 +2,10 @@
 import { seedFormPay } from './forms-pay-fixture.mjs';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
 import {
+  assignmentSourceBrowserFixture,
+  withAssignmentSourceModel,
+} from './assignment-source-fixture.mjs';
+import {
   seedAssignmentAnswers,
   verifyAssignmentFixture,
 } from './forms-assignment-fixture.mjs';
@@ -60,6 +64,7 @@ const publication =
     ? await assignmentPublisherFixture()
     : null;
 if (publication) {
+  publication.modelRunner = withAssignmentSourceModel(publication.modelRunner);
   const writeIssue = publication.github.writeIssue;
   let loseResponse = true;
   publication.github.writeIssue = async (...args) => {
@@ -108,6 +113,7 @@ if (
 }
 const browsers = new Set();
 const reads = [];
+const sourceReads = [];
 let server;
 try {
   server = await startServer({
@@ -127,6 +133,11 @@ try {
         }
       : {}),
     forms: {
+      readAssignmentSource: assignmentSourceBrowserFixture({
+        store,
+        browser: () => [...browsers][0],
+        records: sourceReads,
+      }),
       ...(publication ? { assignmentGithub: publication.github } : {}),
       verifyAssignmentRepository: verifyAssignmentFixture,
       review: {
@@ -349,6 +360,7 @@ try {
   console.log(
     JSON.stringify({
       reads,
+      sourceReads,
       ...(modelMode ? { modelCalls: modelCalls.length } : {}),
       ...(publication
         ? {

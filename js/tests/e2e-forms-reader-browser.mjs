@@ -1,6 +1,11 @@
 import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
 import { verifyAssignmentPublicationUi } from './helpers/e2e-assignment-publication.mjs';
+import { verifyAssignmentSourceDocument } from './helpers/e2e-assignment-source-document.mjs';
 import { assignmentPublisherFixture } from '../../experiments/issue-56/assignment-publisher-fixture.mjs';
+import {
+  assignmentSourceBrowserFixture,
+  withAssignmentSourceModel,
+} from '../../experiments/issue-56/assignment-source-fixture.mjs';
 import { verifyFormAssignmentUi } from './helpers/e2e-form-assignment.mjs';
 import { verifyAssignmentFixture } from '../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
@@ -48,8 +53,10 @@ await seedFormPlace(store);
 await seedSubjectAnswers(store);
 await seedFormPay(store);
 const owned = [];
+const sourceReads = [];
 const modelCalls = [];
 const publication = await assignmentPublisherFixture();
+publication.modelRunner = withAssignmentSourceModel(publication.modelRunner);
 const formModel = modelRunnerFixture(modelCalls);
 const writeAssignmentIssue = publication.github.writeIssue;
 let loseAssignmentIssueResponse = true;
@@ -74,6 +81,11 @@ try {
         stop: async () => {},
       },
       forms: {
+        readAssignmentSource: assignmentSourceBrowserFixture({
+          store,
+          browser: () => app.page.context().browser(),
+          records: sourceReads,
+        }),
         assignmentGithub: publication.github,
         verifyAssignmentRepository: verifyAssignmentFixture,
         review: {
@@ -297,7 +309,11 @@ const verifyLimits = async (page) => {
 };
 
 const formGroups = {
-  'forms-assignment': [verifyFormAssignmentUi, verifyAssignmentPublicationUi],
+  'forms-assignment': [
+    verifyFormAssignmentUi,
+    verifyAssignmentSourceDocument,
+    verifyAssignmentPublicationUi,
+  ],
   'forms-learning': [
     verifyFormJournalUi,
     verifyFormMonitorUi,
@@ -320,7 +336,15 @@ const runFormChecks = async (checks) => {
   for (const verify of checks) {
     const started = Date.now();
     console.log('[forms-scenario]', verify.name, 'started');
-    await verify({ ...app, owned, fixture, store, modelCalls, publication });
+    await verify({
+      ...app,
+      owned,
+      fixture,
+      store,
+      modelCalls,
+      publication,
+      sourceReads,
+    });
     console.log('[forms-scenario]', verify.name, Date.now() - started);
   }
 };
@@ -354,7 +378,14 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['LINKS', verifyFormLinksUi],
   ].find(([name]) => process.env[`FORMS_${name}_ONLY`] === '1');
   if (contactScenario) {
-    await contactScenario[1]({ ...app, owned, fixture, store, publication });
+    await contactScenario[1]({
+      ...app,
+      owned,
+      fixture,
+      store,
+      publication,
+      sourceReads,
+    });
     return true;
   }
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {

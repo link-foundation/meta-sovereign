@@ -1,5 +1,6 @@
 import { payFixtureHtml } from './forms-pay-fixture.mjs';
 import { assignmentFixtureHtml } from './forms-assignment-fixture.mjs';
+import { assignmentSourceHtml } from './assignment-source-fixture.mjs';
 import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
 import {
@@ -33,6 +34,7 @@ const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire<
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
 
 const simplePages = {
+  '/instructions': assignmentSourceHtml,
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,
   '/matching': matchingFixtureHtml,
@@ -87,6 +89,11 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/source-redirect')) {
+      res.writeHead(302, { location: '/instructions' });
+      res.end();
+      return;
+    }
     if (req.url.startsWith('/automatic')) {
       res.end(
         automaticFixtureHtml(

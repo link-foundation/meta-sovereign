@@ -25,6 +25,7 @@ import {
 import { assignmentRepositoryReceipt } from '../forms/assignment-repository.js';
 import { writeAnswerKnowledge } from '../automation/question-knowledge.js';
 import { resolveAssignmentVacancy } from './vacancy.js';
+import { resolveAssignmentSource, assignmentOriginal } from './source.js';
 
 export const ASSIGNMENT_DRAFT_SYSTEM =
   'Restate a test assignment as a public English GitHub issue in your own words. ' +
@@ -62,14 +63,17 @@ export const ASSIGNMENT_DRAFT_SCHEMA = {
 
 const stackSection = (result, template) => {
   const language = ASSIGNMENT_LANGUAGES[result.language];
-  const deliverable =
-    result.deliverable === 'document'
-      ? `## Stack\n\nWrite the result as Markdown under \`docs/\` in ${result.originalLanguage}. Respect every length limit stated above. This is a written proposal; implementation code is not required. Where the proposal recommends technologies, prefer the most fitting stack: ${language}, ${result.stack}.`
-      : `## Stack\n\nUse the most fitting stack for this assignment: ${language}, ${result.stack}. Write any accompanying documents in ${result.originalLanguage}.`;
-  return `${deliverable}\n\n${result.reason}\n\nStart from the [CI/CD template](https://github.com/${template}), preserve its checks, and keep them passing. Replace the template README with project instructions that link to the result.`;
+  const written = result.deliverable === 'document';
+  const instructions = written
+    ? `## Deliverable and stack\n\nWrite the result as Markdown under \`docs/\` in ${result.originalLanguage}. Respect every length limit stated above. This is a written proposal; implementation code is not required.\n\n`
+    : '';
+  const preference = written
+    ? `Where the proposal recommends technologies, prefer the most fitting stack: ${language}, ${result.stack}.`
+    : `Use the most fitting stack for this assignment: ${language}, ${result.stack}. Write any accompanying documents in ${result.originalLanguage}.`;
+  return `${instructions}## Stack\n\n${preference}\n\n${result.reason}\n\nStart from the [CI/CD template](https://github.com/${template}), preserve its checks, and keep them passing. Replace the template README with project instructions that link to the result.`;
 };
 
-const employerNames = (input, vacancy, inspection) => {
+const employerNames = (input, vacancy, inspection, source) => {
   const supplied = input.employers ?? [];
   if (!Array.isArray(supplied) || supplied.length > 20) {
     throw assignmentFailure(
@@ -77,13 +81,15 @@ const employerNames = (input, vacancy, inspection) => {
       'Use at most 20 employer names or aliases.'
     );
   }
-  const title = inspection.title ?? '';
-  const prefix = title.split(/[—–|]/u)[0].trim();
-  const inferred =
-    prefix !== title &&
-    !/test|assignment|тестов|задани|任务|परीक्षण/iu.test(prefix)
-      ? [prefix]
-      : [];
+  const inferred = [inspection.title, source?.title]
+    .filter(Boolean)
+    .flatMap((title) => {
+      const prefix = title.split(/[—–|]/u)[0].trim();
+      return prefix !== title &&
+        !/test|assignment|тестов|задани|任务|परीक्षण/iu.test(prefix)
+        ? [prefix]
+        : [];
+    });
   return [...supplied, vacancy.company, ...inferred]
     .filter(Boolean)
     .map((name) => assignmentText(name, 500, 'employer alias'));
@@ -148,9 +154,13 @@ const draftTarget = async (store, assignment, input) => {
   }
   return target;
 };
+const linkedInstructions = (source) =>
+  source ? { title: source.source.title, text: source.source.text } : undefined;
+const templateAction = (repository, pipeline) =>
+  repository ? (pipeline ? 'keep' : 'merge') : 'create';
 
 export const draftAssignment = async (
-  { store, modelRunner, github, readVacancy, signal },
+  { store, modelRunner, github, readVacancy, readSource, signal },
   input
 ) => {
   const { inspection, assignment } = await currentAssignmentForDraft(
@@ -165,6 +175,7 @@ export const draftAssignment = async (
       'Enable and configure the local draft model first.'
     );
   }
+  const source = await resolveAssignmentSource({ readSource, signal }, input);
   const catalog = await loadAssignmentTemplates(github.readGuide, signal);
   const vacancyEvidence = await resolveAssignmentVacancy(
     { store, readVacancy, signal },
@@ -172,7 +183,7 @@ export const draftAssignment = async (
     inspection
   );
   const vacancy = vacancyEvidence.vacancy;
-  const employers = employerNames(input, vacancy, inspection);
+  const employers = employerNames(input, vacancy, inspection, source?.source);
   signal.throwIfAborted();
   const repository = await github.repository(target, { signal });
   const confirmed = repository
@@ -198,6 +209,7 @@ export const draftAssignment = async (
     schema: ASSIGNMENT_DRAFT_SCHEMA,
     prompt: JSON.stringify({
       assignment: assignment.description,
+      linkedInstructions: linkedInstructions(source),
       vacancy,
       employers,
       namedLanguages: named,
@@ -212,7 +224,7 @@ export const draftAssignment = async (
   const body = `${assignmentText(result.body, 24000, 'issue body')}\n\n${stackSection(result, template)}`;
   const title = assignmentText(result.title, 200, 'issue title');
   checkAssignmentRestatement({
-    original: assignment.description,
+    original: assignmentOriginal(assignment, source?.source),
     employers,
     title,
     body,
@@ -237,10 +249,11 @@ export const draftAssignment = async (
     assignmentRevision: assignment.revision,
     formUrl: assignment.formUrl,
     modelRevision: settings.revision,
+    ...(source ? { sourceEvidence: source.evidence } : {}),
     vacancyFingerprint: await modelFingerprint(vacancy),
     vacancyEvidence,
     repositoryId: confirmed?.id ?? null,
-    templateAction: repository ? (pipeline ? 'keep' : 'merge') : 'create',
+    templateAction: templateAction(repository, pipeline),
     issueSnapshot: await issueSnapshot(existingIssue),
   };
   await writeAnswerKnowledge(store, async () => {
@@ -262,6 +275,7 @@ export const draftAssignment = async (
       children: [],
       draft: globalThis.structuredClone(draft),
       employers,
+      ...(source ? { source: source.source } : {}),
     });
     await store.flush?.();
   });

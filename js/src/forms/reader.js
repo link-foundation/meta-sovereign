@@ -98,6 +98,7 @@ const assignmentServices = ({
   verifyAssignmentRepository,
   assignmentGithub,
   readAssignmentVacancy,
+  readAssignmentSource,
 }) => {
   const assignments = createAssignmentRepositoryService({
     store,
@@ -108,6 +109,7 @@ const assignmentServices = ({
     modelRunner,
     github: assignmentGithub,
     readVacancy: readAssignmentVacancy,
+    readSource: readAssignmentSource,
   });
   return { assignments, publisher };
 };
@@ -133,6 +135,7 @@ export const createFormReader = ({
   verifyAssignmentRepository,
   assignmentGithub,
   readAssignmentVacancy,
+  readAssignmentSource,
 } = {}) => {
   const { assignments, publisher } = assignmentServices({
     store,
@@ -140,6 +143,7 @@ export const createFormReader = ({
     verifyAssignmentRepository,
     assignmentGithub,
     readAssignmentVacancy,
+    readAssignmentSource,
   });
   let active = null;
   let stopping = false;

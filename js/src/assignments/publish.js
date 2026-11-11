@@ -7,6 +7,7 @@ import { assignmentRepositoryReceipt } from '../forms/assignment-repository.js';
 import { writeAnswerKnowledge } from '../automation/question-knowledge.js';
 import { checkAssignmentRestatement } from './privacy.js';
 import { assignmentFailure } from './validation.js';
+import { assignmentOriginal } from './source.js';
 import {
   assignmentPublicationId,
   assignmentIssueMarker,
@@ -174,7 +175,10 @@ const assertPendingDraft = (previous, draft) => {
 };
 
 export const publishAssignment = async ({ store, github, signal }, input) => {
-  const { draft, employers } = await readAssignmentDraft(store, input.draftId);
+  const { draft, employers, source } = await readAssignmentDraft(
+    store,
+    input.draftId
+  );
   const id = await assignmentPublicationId(draft.assignmentId, draft.target);
   const previous = await store.get(id);
   assertPendingDraft(previous, draft);
@@ -200,7 +204,7 @@ export const publishAssignment = async ({ store, github, signal }, input) => {
   }
   const current = await assertCurrent(store, draft, signal);
   checkAssignmentRestatement({
-    original: current.description,
+    original: assignmentOriginal(current, source),
     employers,
     title: draft.title,
     body: draft.body,

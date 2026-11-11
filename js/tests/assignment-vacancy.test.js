@@ -189,7 +189,10 @@ test('vacancy browser uses policy defaults, reads only, and closes its owned ses
       calls.push(options);
       return {
         commander: {
-          goto: async (value) => calls.push(value),
+          goto: async (value) => {
+            calls.push(value);
+            return { navigated: true, verified: true, status: 'ready' };
+          },
           evaluate: async () => snapshot,
         },
         close: async () => calls.push('closed'),
@@ -260,7 +263,14 @@ test('vacancy browser rejects login redirects, incomplete pages and oversized de
     const read = createAssignmentVacancyReader({
       store: {},
       openSession: async () => ({
-        commander: { goto: async () => {}, evaluate: async () => invalid },
+        commander: {
+          goto: async () => ({
+            navigated: true,
+            verified: true,
+            status: 'ready',
+          }),
+          evaluate: async () => invalid,
+        },
         close: async () => {
           closed = true;
         },

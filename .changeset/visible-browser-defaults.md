@@ -209,3 +209,5 @@ Draft unresolved parts of consecutive unanswered employer messages with the conf
 Hold every answer and PDF attachment when a form requires a test-assignment repository. Keep a private assignment revision across pages, verify existing GitHub repository identity before saving its link, and share guarded CLI, Lino and four-language controls (R-AA1).
 
 Add reviewed test-assignment repository and English issue publication through CLI, text/binary Lino and shared four-language Forms controls. Read current CI templates, retain template history and owner files, associate actual HH vacancy evidence, and recover durable uncertain writes without duplicate creation or premature form release.
+
+Read explicitly selected assignment HTML/plain-text instructions through an owned browser and preserve private frozen text, source evidence and restore controls across CLI, text/binary Lino and four-language Forms. Validate both sources before preview/publication and retain both written-deliverable headings (R-AA1, R-AA6).

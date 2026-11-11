@@ -257,6 +257,7 @@ test('written deliverable uses docs, original language and length instructions',
   t.after(publisher.stop);
   const value = (await publisher.draft(env.input)).draft;
   assert.match(value.body, /## Stack\n/u);
+  assert.match(value.body, /## Deliverable and stack\n/u);
   assert.match(value.body, /under `docs\/` in Russian/u);
   assert.match(value.body, /three pages/u);
   assert.match(value.body, /implementation code is not required/u);

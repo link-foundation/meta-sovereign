@@ -9,7 +9,7 @@ import { loadFormInspection } from './forms-inspection-file.js';
 import { withAnswerModel } from './answer-model-commands.js';
 
 export const TEST_ASSIGNMENT_HELP =
-  '  test-assignment <name|owner/name> --file=<inspection.json>|--url=<form-url> [--vacancy=<hh-url>] [--visibility=private|public] [--employer=<name>] [--dry-run] [--draft-id=<saved-draft>] [--store=<dir>]';
+  '  test-assignment <name|owner/name> --file=<inspection.json>|--url=<form-url> [--vacancy=<hh-url>] [--source=<instruction-url>] [--visibility=private|public] [--employer=<name>] [--dry-run] [--draft-id=<saved-draft>] [--store=<dir>]';
 
 const booleanFlag = (args, key) => {
   if (
@@ -57,6 +57,7 @@ export const testAssignmentCommand =
           modelRunner,
           github,
           readVacancy: options.readAssignmentVacancy,
+          readSource: options.readAssignmentSource,
         });
         const stop = () => {
           publisher.stop().catch(() => {});
@@ -86,6 +87,7 @@ export const testAssignmentCommand =
               target,
               visibility: args.visibility ?? 'private',
               vacancyUrl: args.vacancy,
+              sourceUrl: args.source,
               vacancy: args['vacancy-snapshot']
                 ? decodeWire(args['vacancy-snapshot'])
                 : undefined,

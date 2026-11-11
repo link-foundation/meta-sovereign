@@ -1,4 +1,4 @@
-import { openBrowserSession } from '../cv/browser.js';
+import { readAssignmentPage } from './read-page.js';
 import {
   assignmentFailure,
   assignmentVacancy,
@@ -32,82 +32,38 @@ export const readAssignmentVacancyDocument = () => {
   };
 };
 
-/** Own a read-only, policy-configured browser through late launch and abort. */
+/** Read-only vacancy extraction shares owned launch and shutdown semantics. */
 export const createAssignmentVacancyReader =
-  ({ store, openSession = openBrowserSession }) =>
-  async (value, { signal } = {}) => {
+  ({ store, openSession }) =>
+  (value, { signal } = {}) => {
     const url = assignmentVacancyUrl(value);
-    let session;
-    let closing;
-    let expired = false;
-    const close = () =>
-      session
-        ? (closing ??= Promise.resolve().then(() => session.close()))
-        : Promise.resolve();
-    const abort = () => {
-      close().catch(() => {});
-    };
-    const check = () => {
-      if (expired || signal?.aborted) {
-        throw assignmentFailure(
-          expired ? 'vacancy-timeout' : 'stopped',
-          'Vacancy reading did not complete.'
-        );
-      }
-    };
-    const timer = globalThis.setTimeout(() => {
-      expired = true;
-      abort();
-    }, 60000);
-    signal?.addEventListener('abort', abort, { once: true });
-    try {
-      check();
-      session = await openSession({
-        store,
-        platform: 'hh',
-        useCase: 'assignments',
-        slot: 'assignment-vacancy',
-      });
-      check();
-      await session.commander.goto({
-        url,
-        waitUntil: 'domcontentloaded',
-        timeout: 30000,
-      });
-      check();
-      const read = await session.commander.evaluate({
-        fn: readAssignmentVacancyDocument,
-        args: [],
-      });
-      check();
-      if (
-        assignmentVacancyUrl(read.url) !== url ||
-        !read.title ||
-        !read.description ||
-        read.skills === null ||
-        read.company === null
-      ) {
-        throw assignmentFailure(
-          'vacancy-unavailable',
-          'The intended vacancy title and description were not readable.'
-        );
-      }
-      return {
-        ...assignmentVacancy(read),
-        url,
-        capturedAt: new Date().toISOString(),
-      };
-    } catch (error) {
-      check();
-      throw error.code?.startsWith('assignment-')
-        ? error
-        : assignmentFailure(
+    return readAssignmentPage({
+      store,
+      openSession,
+      signal,
+      url,
+      platform: 'hh',
+      slot: 'assignment-vacancy',
+      kind: 'vacancy',
+      read: readAssignmentVacancyDocument,
+      validate: (read) => {
+        if (
+          assignmentVacancyUrl(read.url) !== url ||
+          !read.title ||
+          !read.description ||
+          read.skills === null ||
+          read.company === null
+        ) {
+          throw assignmentFailure(
             'vacancy-unavailable',
-            'The intended vacancy could not be read.'
+            'The intended vacancy title and description were not readable.'
           );
-    } finally {
-      signal?.removeEventListener('abort', abort);
-      globalThis.clearTimeout(timer);
-      await close();
-    }
+        }
+        return {
+          ...assignmentVacancy(read),
+          url,
+          capturedAt: new Date().toISOString(),
+        };
+      },
+    });
   };

@@ -2,6 +2,10 @@ export const enAssignment = {
   'assignment.title': 'Publish an assignment repository',
   'assignment.hint':
     'Use the configured local model to draft an English issue without employer names. Review its requirements, stack, template and visibility before publishing. A vacancy link opens a separate browser; saved HH chat links can supply it automatically.',
+  'assignment.instructions': 'Instruction document URL (optional)',
+  'assignment.instructions-hint':
+    'Read visible text from an HTML or plain-text page in a separate browser. Login, verification, PDF and canvas documents need a readable text version.',
+  'assignment.instructions-used': 'Instructions used: {title}',
   'assignment.target': 'GitHub owner/repository',
   'assignment.visibility': 'Repository visibility',
   'assignment.visibility.private': 'Private',

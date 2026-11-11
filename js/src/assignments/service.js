@@ -4,6 +4,7 @@ import { publishAssignment } from './publish.js';
 import { assignmentFailure } from './validation.js';
 import { debugQuestionTurn } from '../automation/question-turns.js';
 import { createAssignmentVacancyReader } from './vacancy-reader.js';
+import { createAssignmentSourceReader } from './source-reader.js';
 import { restoreAssignmentDraft } from './restore.js';
 
 const owners = new WeakSet();
@@ -12,6 +13,7 @@ export const createAssignmentPublisher = ({
   modelRunner,
   github = createAssignmentGithub(),
   readVacancy = createAssignmentVacancyReader({ store }),
+  readSource = createAssignmentSourceReader({ store }),
 }) => {
   let active;
   let stopping = false;
@@ -25,7 +27,14 @@ export const createAssignmentPublisher = ({
     const controller = new AbortController();
     owners.add(store);
     const task = operation(
-      { store, modelRunner, github, readVacancy, signal: controller.signal },
+      {
+        store,
+        modelRunner,
+        github,
+        readVacancy,
+        readSource,
+        signal: controller.signal,
+      },
       input
     );
     active = { controller, task };

@@ -1,6 +1,7 @@
 import {
   assignmentTarget,
   assignmentVacancyUrl,
+  assignmentSourceUrl,
 } from '../assignments/validation.js';
 import { assignmentRepositoryConfirmed } from '../forms/assignment-repository.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
@@ -14,6 +15,22 @@ const uuid = (value) =>
   /^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/u.test(value);
 const publicText = (value, limit) =>
   typeof value === 'string' && Boolean(value.trim()) && value.length <= limit;
+const validSource = (evidence, url) => {
+  if (url === undefined) {
+    return evidence === undefined;
+  }
+  return (
+    evidence?.requestedUrl === assignmentSourceUrl(url) &&
+    evidence.url === assignmentSourceUrl(evidence.url) &&
+    typeof evidence.title === 'string' &&
+    evidence.title.length <= 500 &&
+    typeof evidence.capturedAt === 'string' &&
+    evidence.capturedAt.length <= 40 &&
+    Number.isFinite(Date.parse(evidence.capturedAt)) &&
+    evidence.scope === 'visible-document-text' &&
+    /^[a-f\d]{64}$/u.test(evidence.fingerprint)
+  );
+};
 const validDraft = (draft, input) => {
   if (
     draft?.vacancyEvidence?.url &&
@@ -24,6 +41,7 @@ const validDraft = (draft, input) => {
   }
   return (
     draft?.target === input.target &&
+    validSource(draft.sourceEvidence, input.sourceUrl) &&
     draft.visibility === input.visibility &&
     draft.formUrl === assignmentFormUrl(input.inspection.url) &&
     draft.assignmentRevision === input.revision &&
@@ -67,6 +85,7 @@ export const restoreFormAssignment = async (report, input) => {
     ...input,
     target: result.draft?.target,
     visibility: result.draft?.visibility,
+    sourceUrl: result.draft?.sourceEvidence?.requestedUrl,
   });
 };
 const validAssociation = (assignment, draft) =>

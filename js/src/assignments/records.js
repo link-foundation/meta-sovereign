@@ -5,6 +5,7 @@ import {
   assignmentTarget,
   assignmentText,
 } from './validation.js';
+import { checkSavedAssignmentSource } from './source.js';
 import { assignmentFormUrl } from '../forms/assignment-recognition.js';
 
 export const assignmentWriteIssued = (record) =>
@@ -85,7 +86,7 @@ export const readAssignmentDraft = async (store, id) => {
     record?.version !== 1 ||
     record.draft?.id !== id ||
     !Array.isArray(record.employers) ||
-    record.employers.length > 22 ||
+    record.employers.length > 23 ||
     !validDraftBinding(record.draft)
   ) {
     throw assignmentFailure(
@@ -93,6 +94,7 @@ export const readAssignmentDraft = async (store, id) => {
       'The saved assignment draft is unavailable.'
     );
   }
+  await checkSavedAssignmentSource(record);
   assignmentTarget(record.draft.target);
   assignmentTarget(record.draft.template);
   assignmentText(record.draft.title, 200, 'saved issue title');

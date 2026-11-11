@@ -7,6 +7,7 @@ import {
 } from './e2e-form-review.mjs';
 import { seedAssignmentAnswers } from '../../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { readAnswerModel } from '../../src/automation/answer-model-config.js';
+import { instructionText } from '../../../experiments/issue-56/assignment-source-fixture.mjs';
 
 const layouts = async (page, state, locator) => {
   for (const [layout, width, height] of [
@@ -54,7 +55,7 @@ const layouts = async (page, state, locator) => {
       process.env.ASSIGNMENT_PUBLICATION_BEFORE === '1'
     ) {
       await page.screenshot({
-        path: `docs/screenshots/issue-56-assignment-publication-${state}-${layout}.png`,
+        path: `docs/screenshots/issue-56-assignment-source-${state}-${layout}.png`,
       });
     }
     assert(
@@ -71,12 +72,33 @@ const response = (page, action) =>
     value.url().endsWith(`/api/forms/assignment/${action}`)
   );
 
+const verifySourceDraft = (preview, publication, sourceUrl) => {
+  assert(
+    preview.draft.sourceEvidence.requestedUrl === sourceUrl &&
+      preview.draft.sourceEvidence.url.endsWith('/instructions'),
+    'review exposes original and resolved source evidence'
+  );
+  const prompt = publication.state.modelCalls.at(-1).prompt;
+  assert(
+    prompt.includes(instructionText) &&
+      !/Private|Invisible|Hidden/u.test(prompt),
+    'visible instructions reach the model without hidden or editable values'
+  );
+  assert(
+    preview.draft.body.includes('three pages') &&
+      preview.draft.body.includes('## Deliverable and stack') &&
+      preview.draft.body.includes('## Stack'),
+    'written instructions and both required sections remain reviewable'
+  );
+};
+
 export const verifyAssignmentPublicationUi = async ({
   page,
   fixture,
   store,
   until,
   publication,
+  sourceReads,
 }) => {
   if ((await readAnswerModel(store)).revision === null) {
     await seedAssignmentAnswers(store);
@@ -108,10 +130,15 @@ export const verifyAssignmentPublicationUi = async ({
     'invalid preview has no writes'
   );
   await target.fill('fixture-owner/reviewed-task');
+  const sourceUrl = fixture.url.replace('/application', '/source-redirect');
+  await control
+    .locator('[data-assignment-publish-input="source"]')
+    .fill(sourceUrl);
   let pending = response(page, 'draft');
   await control.locator('[data-action="draft-assignment"]').click();
   const preview = await decoded(await pending);
   await control.locator('[data-assignment-draft]').waitFor();
+  verifySourceDraft(preview, publication, sourceUrl);
   assert(
     preview.draft.visibility === 'private' &&
       preview.draft.body.includes('## Stack'),
@@ -167,6 +194,16 @@ export const verifyAssignmentPublicationUi = async ({
     'one issue creation'
   );
   assert(publication.state.pipeline, 'actual fixture pipeline confirmed');
+  assert(
+    sourceReads.length === 1 && sourceReads.every((read) => read.closed),
+    'restore and publication retain one owned source snapshot'
+  );
+  assert(
+    (await control
+      .locator('[data-assignment-publish-input="source"]')
+      .inputValue()) === sourceUrl,
+    'restored source input matches reviewed evidence'
+  );
   await layouts(
     page,
     'verified',

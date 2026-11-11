@@ -1,5 +1,7 @@
 # Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA6: explicitly selected HTML/plain-text assignment instructions now share CLI, both Lino transports and four-language review controls, with private frozen text, resolved-source evidence and both written-deliverable headings. See [linked instructions](case-studies/issue-56/assignment-source.md). Other document formats, full handoff/notifications and live execution remain unfinished.
+
 R-AA6: reviewed assignment repository and English issue publication now shares CLI, text/binary Lino and four-language Forms controls. Current template/history selection, actual HH vacancy associations, written-deliverable instructions and durable uncertain-write recovery pass focused Node/Deno and production Chromium/MCP checks; see [assignment publication](case-studies/issue-56/assignment-publication.md). Assignment implementation, full handoff/notifications and live provider/model execution remain open.
 
 ## AA. Complete cross-system integration (issue 56)

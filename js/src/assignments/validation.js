@@ -1,4 +1,4 @@
-import { formFailure } from '../forms/options.js';
+import { formFailure, formUrl } from '../forms/options.js';
 export const assignmentFailure = (code, message) =>
   formFailure(`assignment-${code}`, message);
 export const assignmentText = (value, maximum, label, empty = false) => {
@@ -64,4 +64,20 @@ export const assignmentVacancyUrl = (value) => {
     throw assignmentFailure('vacancy-url', 'Use an HTTPS hh.ru vacancy URL.');
   }
   return `https://hh.ru/vacancy/${url.pathname.split('/')[2]}`;
+};
+
+export const assignmentSourceUrl = (value) => {
+  try {
+    const url = new URL(formUrl(value));
+    if (url.href.length > 4000) {
+      throw new Error('limit');
+    }
+    url.hash = '';
+    return url.href;
+  } catch {
+    throw assignmentFailure(
+      'source-url',
+      'Use an HTTP or HTTPS instruction URL without credentials.'
+    );
+  }
 };

@@ -1,5 +1,7 @@
 # Requirements (languages: [en](REQUIREMENTS.md) • [zh](REQUIREMENTS.zh.md) • hi • [ru](REQUIREMENTS.ru.md))
 
+R-AA6: चुने गए HTML/सादे पाठ निर्देशों के लिए CLI, दोनों Lino प्रारूप और साझा UI में निजी स्नैपशॉट, रीडायरेक्ट स्रोत का प्रमाण और लिखित कार्य के दोनों खंड उपलब्ध हैं। देखें [निर्देश](case-studies/issue-56/assignment-source.md)। अन्य प्रारूप, पूर्ण handoff/सूचनाएँ और वास्तविक निष्पादन अधूरे हैं।
+
 R-AA6: समीक्षा के बाद असाइनमेंट repository और अंग्रेज़ी issue प्रकाशित करने के CLI, text/binary Lino और साझा UI नियंत्रण हैं। वर्तमान template/history, HH vacancy संबंध, लिखित परिणाम के निर्देश और अनिश्चित लेखन की पुनर्प्राप्ति Node/Deno तथा Chromium/MCP में सत्यापित हैं; देखें [असाइनमेंट प्रकाशन](case-studies/issue-56/assignment-publication.md)। असाइनमेंट पूरा करना, पूर्ण handoff/सूचनाएँ और वास्तविक provider/model निष्पादन अधूरे हैं।
 
 ## AA. पूरी cross-system integration (issue 56)

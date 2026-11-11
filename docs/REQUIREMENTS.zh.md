@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA6：明确选择的 HTML/纯文本任务说明已支持 CLI、两种 Lino 格式和共享界面，保留私有快照、重定向来源证据及书面任务的两个章节。见[关联说明](case-studies/issue-56/assignment-source.md)。其他文档格式、完整交接/通知和真实执行仍未完成。
+
 R-AA6：审核后的作业仓库和英文 issue 发布已提供 CLI、文本/二进制 Lino 和共享界面。当前模板及历史、HH 职位关联、书面结果说明和不确定写入恢复通过定向 Node/Deno 与 Chromium/MCP 验证；见[作业发布](case-studies/issue-56/assignment-publication.md)。作业实现、完整交接/通知及真实平台/模型执行仍未完成。
 
 ## AA. 完整跨系统集成（issue 56）
