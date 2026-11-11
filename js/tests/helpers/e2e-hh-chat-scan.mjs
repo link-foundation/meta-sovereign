@@ -12,7 +12,14 @@ import {
 const settings = { source: 'hh', waitMs: 20, endWaitMs: 100, budgetMs: 5000 };
 const withFixture = async (
   browser,
-  { frames, loading = false, onRead, onMove } = {},
+  {
+    frames,
+    loading = false,
+    html = hhChatScanHtml({ loading }),
+    isRead = ({ fn }) => fn === extractChats,
+    onRead,
+    onMove,
+  } = {},
   run
 ) => {
   const context = await browser.newContext({
@@ -24,7 +31,7 @@ const withFixture = async (
       body:
         frames && new URL(route.request().url()).hostname === 'hh.ru'
           ? hhChatScanOwner(frames)
-          : hhChatScanHtml({ loading }),
+          : html,
     })
   );
   const page = await context.newPage();
@@ -39,8 +46,8 @@ const withFixture = async (
   const evaluate = commander.evaluate.bind(commander);
   commander.evaluate = async (args) => {
     const result = await evaluate(args);
-    if (args.fn === extractChats) {
-      await onRead?.(page);
+    if (isRead(args)) {
+      await onRead?.(page, result);
     }
     if (args.args?.[0]?.operation === 'move') {
       await onMove?.(page);
@@ -65,6 +72,7 @@ const withFixture = async (
     await context.close();
   }
 };
+export { withFixture as withHhBrowserScanFixture };
 const scan = (sender) => sender.scanChats(settings);
 
 /** Real commander, main/cross-origin frame identity and owner scroll receipts. */

@@ -402,6 +402,12 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   /** Run `fn(commander, page)` with the chat open, in the network's queue. */
   const inChat = (source, target, options, fn) =>
     pool.queue(source, async () => {
+      if (options.signal?.aborted) {
+        throw codedError(
+          'The browser conversation scan was cancelled',
+          'cancelled'
+        );
+      }
       const state = await openChat(source, target, options);
       return fn(state.commander, state.session?.page ?? null);
     });
@@ -537,7 +543,7 @@ export const createBrowserSender = ({
     receiptMs: choiceReceiptMs,
     pollMs,
   });
-  const scans = createBrowserChatScans({ uiFor, inList });
+  const scans = createBrowserChatScans({ uiFor, inList, inChat });
 
   return {
     platforms,
@@ -832,6 +838,7 @@ export const createDefaultSender = ({
     supports: actions.supports,
     readChats: (params) => browserFor().readChats(params),
     scanChats: (params) => browserFor().scanChats(params),
+    scanConversation: (params) => browserFor().scanConversation(params),
     readRecent: (params) => browserFor().readRecent(params),
     readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
     prefillAnswer: (params) => browserFor().prefillAnswer(params),

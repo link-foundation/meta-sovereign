@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add bounded HH conversation history traversal with overlap-based chronology, explicit application-start completeness, owner draft/reading-anchor preservation and drained cancellation. Keep incomplete histories and guarded background text delivery separate.
+
 Reveal confirmed native-choice replies once in ordinary and reversed panes while preserving owner activity, drafts and conversation selection. Keep viewport visibility separate from delivery receipts and retain confirmed outcomes if revealing fails.
 
 Reduce immutable server preparation filesystem work by creating each destination directory once and copying at most four files concurrently. Drain issued writes before failed-preparation cleanup, retain complete digest verification and keep existing startup deadlines.

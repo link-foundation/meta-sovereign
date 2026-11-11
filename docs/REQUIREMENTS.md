@@ -1,5 +1,7 @@
 # Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1: bounded HH conversation traversal now recovers overlapping virtual message windows and earlier manual replies. Only the original application marker proves completeness; stalled edges, gaps, changed records and owner activity stay explicit. Drafts, selection and reading anchors are preserved. [Parent regression, focused browser and independent MCP evidence](case-studies/issue-56/conversation-history.md). Guarded background text delivery, shared orchestration and live provider parity remain required.
+
 R-AA1: a confirmed native-choice reply now reveals its bubble once in ordinary or reversed panes. Typing, scrolling, touch, keyboard activity, restored drafts and conversation changes preserve the owner's view; visibility never authorizes resending a confirmed reply. [Parent regressions, eleven browser cases and independent MCP](case-studies/issue-56/choice-visibility.md). Guarded acknowledgement/rejection text delivery and complete unread orchestration remain required.
 
 R-Z32: whole-turn context regressions now retain unknown notices/questions and refuse unusable pending records. Finite watch checks observe actual draft presence; bounded opening diagnostics preserve the still unresolved hosted disclosure failure. [Evidence](case-studies/issue-56/ci-pending-context.md).

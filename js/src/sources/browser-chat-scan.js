@@ -1,25 +1,16 @@
-import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { extractChats } from './browser-actions.js';
-import { browserChatListState } from './browser-chat-list-state.js';
-import { resolveBrowserChatListDocument } from './browser-choice-document.js';
+import { createBrowserScanControl } from './browser-scan-control.js';
+import {
+  resolveBrowserChatListDocument,
+  resolveBrowserChoiceDocument,
+} from './browser-choice-document.js';
+import { scanBrowserConversation } from './browser-conversation-history.js';
+import { normalizeChatScanOptions } from './browser-scan-options.js';
+export { normalizeChatScanOptions } from './browser-scan-options.js';
 
 const failure = (message, code) =>
   Object.assign(new Error(message), { code, fallback: false });
-const bounded = (value, fallback, minimum, maximum) => {
-  const result = value ?? fallback;
-  if (!Number.isInteger(result) || result < minimum || result > maximum) {
-    throw failure('Invalid bounded browser chat-scan setting', 'bad-chat-scan');
-  }
-  return result;
-};
-export const normalizeChatScanOptions = (options = {}) => ({
-  limit: bounded(options.limit, 500, 1, 5000),
-  maxPasses: bounded(options.maxPasses, 100, 1, 500),
-  budgetMs: bounded(options.budgetMs, 30000, 100, 120000),
-  waitMs: bounded(options.waitMs, 150, 10, 1000),
-  endWaitMs: bounded(options.endWaitMs, 2000, 100, 10000),
-});
 const stop = (scanReason) => {
   throw Object.assign(new Error('Browser chat scan stopped'), { scanReason });
 };
@@ -100,16 +91,13 @@ export const scanBrowserChatList = async (
   { now = () => globalThis.performance.now(), pause = sleep } = {}
 ) => {
   const settings = normalizeChatScanOptions(options);
-  const token = randomUUID();
+  const { token, control } = createBrowserScanControl(document, {
+    item: ui.chats.item,
+  });
   const started = now();
   const observed = tracker(settings, now);
   let reason = 'pass-limit';
   let restored;
-  const control = (operation, extra = {}) =>
-    document.evaluate({
-      fn: browserChatListState,
-      args: [{ operation, token, item: ui.chats.item, ...extra }],
-    });
   const remaining = () => {
     if (options.signal?.aborted) {
       stop('cancelled');
@@ -168,9 +156,29 @@ export const scanBrowserChatList = async (
   return result;
 };
 
-export const createBrowserChatScans = ({ uiFor, inList }) => {
+export const createBrowserChatScans = ({ uiFor, inList, inChat }) => {
   const pending = new Map();
   let closed = false;
+  const start = async (options, work) => {
+    if (closed) {
+      throw failure('The browser chat scanner is closed', 'browser-closed');
+    }
+    normalizeChatScanOptions(options);
+    if (options.signal?.aborted) {
+      throw failure('The browser chat scan was cancelled', 'cancelled');
+    }
+    const controller = new AbortController();
+    const signal = options.signal
+      ? globalThis.AbortSignal.any([options.signal, controller.signal])
+      : controller.signal;
+    const result = work(signal);
+    pending.set(result, controller);
+    try {
+      return await result;
+    } finally {
+      pending.delete(result);
+    }
+  };
   return {
     async scanChats({ source, ...options } = {}) {
       if (closed) {
@@ -183,43 +191,68 @@ export const createBrowserChatScans = ({ uiFor, inList }) => {
           'unsupported-action'
         );
       }
-      normalizeChatScanOptions(options);
-      if (options.signal?.aborted) {
-        throw failure('The browser chat scan was cancelled', 'cancelled');
-      }
-      const controller = new AbortController();
-      const signal = options.signal
-        ? globalThis.AbortSignal.any([options.signal, controller.signal])
-        : controller.signal;
-      const work = inList(
-        source,
-        async (commander, page) => {
-          const document = await resolveBrowserChatListDocument(
-            commander,
-            page,
-            ui
-          );
-          const receipt = await scanBrowserChatList(document, ui, {
-            ...options,
-            signal,
-          });
-          return {
-            ...receipt,
-            rows: receipt.rows.map((row) => ({
-              ...row,
-              source,
-              via: 'browser',
-            })),
-          };
-        },
-        { signal }
+      return start(options, (signal) =>
+        inList(
+          source,
+          async (commander, page) => {
+            const document = await resolveBrowserChatListDocument(
+              commander,
+              page,
+              ui
+            );
+            const receipt = await scanBrowserChatList(document, ui, {
+              ...options,
+              signal,
+            });
+            return {
+              ...receipt,
+              rows: receipt.rows.map((row) => ({
+                ...row,
+                source,
+                via: 'browser',
+              })),
+            };
+          },
+          { signal }
+        )
       );
-      pending.set(work, controller);
-      try {
-        return await work;
-      } finally {
-        pending.delete(work);
+    },
+    async scanConversation({ source, chat, to, browserUrl, ...options } = {}) {
+      if (closed) {
+        throw failure('The browser chat scanner is closed', 'browser-closed');
       }
+      const ui = uiFor(source);
+      if (!ui.historyScan || !ui.documents || !inChat) {
+        throw failure(
+          'Bounded conversation traversal is unavailable for this provider',
+          'unsupported-action'
+        );
+      }
+      const target = ui.target({ chat, to });
+      return start(options, (signal) =>
+        inChat(
+          source,
+          target,
+          { browserUrl, signal },
+          async (commander, page) => {
+            const document = await resolveBrowserChoiceDocument(
+              commander,
+              page,
+              ui,
+              target
+            );
+            return {
+              ...(await scanBrowserConversation(document, ui, target, {
+                ...options,
+                signal,
+              })),
+              source,
+              chat: String(target),
+              via: 'browser',
+            };
+          }
+        )
+      );
     },
     async closeChatScans() {
       closed = true;

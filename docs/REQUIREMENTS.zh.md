@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1：有界 HH 会话遍历现在可合并重叠的虚拟消息窗口并找回较早的手动回复。只有原始职位申请标记能证明历史完整；滚动停滞、缺口、消息变化和所有者操作都会明确保留。草稿、选区和阅读位置得到保护。[父版本回归、浏览器和独立 MCP 证据](case-studies/issue-56/conversation-history.md)。受保护的后台文本发送、共享编排和真实服务验证仍需完成。
+
 R-AA1：原生选项答复获确认后，在普通或反向消息列表中仅展示其气泡一次。输入、滚动、触摸、键盘操作、恢复的草稿及切换会话均保留用户视图；已确认答复不可因不可见而重发。[父版本回归、11 项浏览器检查及独立 MCP](case-studies/issue-56/choice-visibility.md)。致谢与拒绝原因的受保护文本发送及完整未读编排仍须完成。
 
 R-Z32：完整待答回合的上下文测试保留未知通知和问题，并在待答消息不可用时拒绝生成部分答案。有限监视测试等待实际草稿状态；有界展开诊断继续记录 CI 中尚未查明的面板关闭故障。[证据](case-studies/issue-56/ci-pending-context.md)。

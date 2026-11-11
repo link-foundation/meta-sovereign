@@ -1,89 +1,161 @@
 /* global document, window, getComputedStyle */
+import { browserFrameVisible } from './browser-choice-document.js';
+
+const scrollOwnerActive = (state) =>
+  state.interrupted ||
+  (state.drafts ?? []).some(
+    ([node, value]) => !node.isConnected || node.value !== value
+  ) ||
+  (state.composer &&
+    document.querySelectorAll(state.composer).length !== state.drafts.length);
+
+const restoreScroll = (state, { restore, history, item, idAttribute }) => {
+  if (!restore || scrollOwnerActive(state) || !state.visible(state.root)) {
+    return false;
+  }
+  if (!history) {
+    state.root.scrollTop = state.original;
+    return true;
+  }
+  const anchor = [...state.root.querySelectorAll(item)].find(
+    (node) => node.getAttribute(idAttribute) === state.anchor?.id
+  );
+  if (anchor) {
+    state.root.scrollTop +=
+      anchor.getBoundingClientRect().top -
+      state.root.getBoundingClientRect().top -
+      state.anchor.offset;
+    state.restoring = true;
+    return true;
+  }
+  if (!state.restoring) {
+    state.root.scrollTop =
+      state.original +
+      (state.reversed ? 0 : state.root.scrollHeight - state.originalHeight);
+    state.restoring = true;
+  }
+  return false;
+};
+
+const historyAnchor = (root, cells, idAttribute) => {
+  const bounds = root.getBoundingClientRect();
+  const anchor = cells.find((node) => {
+    const rect = node.getBoundingClientRect();
+    return rect.bottom > bounds.top && rect.top < bounds.bottom;
+  });
+  return (
+    anchor && {
+      id: anchor.getAttribute(idAttribute),
+      offset: anchor.getBoundingClientRect().top - bounds.top,
+    }
+  );
+};
+
+const scrollRoot = (cell) => {
+  let root = cell?.parentElement;
+  while (root && !/^(?:auto|scroll)$/.test(getComputedStyle(root).overflowY)) {
+    root = root.parentElement;
+  }
+  return root ?? document.scrollingElement;
+};
+
+const openScroll = ({ token, item, composer, idAttribute, scope }, visible) => {
+  const history = scope === 'history';
+  const cell = [...document.querySelectorAll(item)].find(visible);
+  const root = scrollRoot(cell);
+  if (!root || !cell) {
+    return { refused: 'unavailable' };
+  }
+  const cells = history
+    ? [...document.querySelectorAll(item)].filter(visible)
+    : [];
+  if (
+    history &&
+    (cells.length > 500 || cells.some((node) => !root.contains(node)))
+  ) {
+    return { refused: 'unavailable' };
+  }
+  const state = {
+    token,
+    root,
+    visible,
+    original: root.scrollTop,
+    originalHeight: root.scrollHeight,
+    anchor: history ? historyAnchor(root, cells, idAttribute) : undefined,
+    reversed: getComputedStyle(root).flexDirection === 'column-reverse',
+    composer,
+    interrupted: false,
+    drafts: composer
+      ? [...document.querySelectorAll(composer)].map((node) => [
+          node,
+          node.value,
+        ])
+      : [],
+  };
+  state.events = [
+    'pointerdown',
+    'keydown',
+    'wheel',
+    'touchstart',
+    'touchmove',
+    'input',
+  ];
+  state.mark = (event) => {
+    if (event.isTrusted || history) {
+      state.interrupted = true;
+    }
+  };
+  for (const type of state.events) {
+    document.addEventListener(type, state.mark, {
+      capture: true,
+      passive: true,
+    });
+  }
+  root.scrollTop = history && !state.reversed ? root.scrollHeight : 0;
+  return state;
+};
 
 /** Page-side scroll ownership; real owner input always wins over restoration. */
-export const browserChatListState = ({
-  operation,
-  token,
-  item,
-  top,
-  restore,
-}) => {
-  const key = Symbol.for('meta-sovereign.browser-chat-list.v1');
-  const visible = (node) => {
-    if (!node.getClientRects().length) {
-      return false;
-    }
-    for (let parent = node; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent);
-      if (
-        parent.hidden ||
-        parent.getAttribute('aria-hidden') === 'true' ||
-        style.display === 'none' ||
-        style.visibility === 'hidden' ||
-        Number(style.opacity) === 0
-      ) {
-        return false;
-      }
-    }
-    return true;
-  };
-  const open = () => {
-    if (window[key]) {
-      return 'busy';
-    }
-    const cell = [...document.querySelectorAll(item)].find(visible);
-    let root = cell?.parentElement;
-    while (
-      root &&
-      !/^(?:auto|scroll)$/.test(getComputedStyle(root).overflowY)
-    ) {
-      root = root.parentElement;
-    }
-    root ??= document.scrollingElement;
-    if (!root || !cell) {
-      return 'unavailable';
-    }
-    const state = {
-      token,
-      root,
-      visible,
-      original: root.scrollTop,
-      interrupted: false,
-    };
-    state.events = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'input'];
-    state.mark = (event) => {
-      if (event.isTrusted) {
-        state.interrupted = true;
-      }
-    };
-    for (const type of state.events) {
-      document.addEventListener(type, state.mark, {
-        capture: true,
-        passive: true,
-      });
-    }
-    window[key] = state;
-    root.scrollTop = 0;
-    return null;
-  };
+const browserScrollState = (
+  input,
+  visible,
+  openScroll,
+  restoreScroll,
+  scrollOwnerActive
+) => {
+  const {
+    operation,
+    token,
+    item,
+    top,
+    restore,
+    scope = 'list',
+    idAttribute,
+  } = input;
+  const history = scope === 'history';
+  const key = Symbol.for(
+    history
+      ? 'meta-sovereign.browser-conversation-history.v1'
+      : 'meta-sovereign.browser-chat-list.v1'
+  );
   const release = (state) => {
     for (const type of state.events) {
       document.removeEventListener(type, state.mark, true);
     }
-    const restored = Boolean(
-      restore && !state.interrupted && state.root.isConnected
-    );
-    if (restored) {
-      state.root.scrollTop = state.original;
-    }
+    const restored = restoreScroll(state, {
+      restore,
+      history,
+      item,
+      idAttribute,
+    });
     delete window[key];
     return { state: 'released', restored };
   };
   const read = (state) => {
-    if (state.interrupted) {
+    if (scrollOwnerActive(state)) {
       return { state: 'owner-active' };
     }
-    if (!state.root.isConnected) {
+    if (!visible(state.root)) {
       return { state: 'changed' };
     }
     if (operation === 'move') {
@@ -102,17 +174,43 @@ export const browserChatListState = ({
       loading: Boolean(
         state.root.querySelector('[aria-busy="true"], [role="progressbar"]')
       ),
+      ...(history
+        ? {
+            reversed: state.reversed,
+            oldest: state.reversed
+              ? scrollTop <= -(scrollHeight - clientHeight) + 2
+              : scrollTop <= 2,
+          }
+        : {}),
     };
   };
   if (operation === 'open') {
-    const refused = open();
-    if (refused) {
-      return { state: refused };
+    if (window[key]) {
+      return { state: 'busy' };
     }
+    const state = openScroll(input, visible);
+    if (state.refused) {
+      return { state: state.refused };
+    }
+    window[key] = state;
   }
   const state = window[key];
   if (!state || state.token !== token) {
     return { state: 'unavailable' };
   }
+  if (operation === 'restore') {
+    restoreScroll(state, { restore, history, item, idAttribute });
+  }
   return operation === 'release' ? release(state) : read(state);
 };
+
+// Static application functions only; selectors and provider values remain data.
+export const browserChatListState = new Function(`return (input) => {
+  const visible = (${browserFrameVisible.toString()});
+  const scrollOwnerActive = (${scrollOwnerActive.toString()});
+  const restoreScroll = (${restoreScroll.toString()});
+  const historyAnchor = (${historyAnchor.toString()});
+  const scrollRoot = (${scrollRoot.toString()});
+  const openScroll = (${openScroll.toString()});
+  return (${browserScrollState.toString()})(input, visible, openScroll, restoreScroll, scrollOwnerActive);
+}`)();
