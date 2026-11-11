@@ -17,9 +17,11 @@ const approved = (plan) =>
   ['exact', 'accepted-summary'].includes(plan.match) &&
   typeof plan.text === 'string' &&
   Boolean(plan.text.trim());
-const questionPlan = ({ store }, target, snapshot) =>
+const questionPlan = ({ store }, record, snapshot) =>
   previewAnswer(store, {
-    source: target.source,
+    ...record.planning,
+    modelDraft: false,
+    source: record.target.source,
     chat: snapshot.chat,
     question: snapshot.question.body,
     options: snapshot.answerOptions,
@@ -64,7 +66,7 @@ const outcomePatch = (outcome, draft) => {
 
 const act = async (context, runtime, snapshot, plan) => {
   const verify = async () => {
-    const latest = await questionPlan(context, runtime.record.target, snapshot);
+    const latest = await questionPlan(context, runtime.record, snapshot);
     if (
       !runtime.fresh() ||
       !approved(latest) ||
@@ -135,7 +137,7 @@ const tick = async (context, runtime) => {
   const snapshot = checkBrowserQuestion(await runtime.handle.read());
   const plan = snapshot.question.outgoing
     ? null
-    : await questionPlan(context, runtime.record.target, snapshot);
+    : await questionPlan(context, runtime.record, snapshot);
   let phase = phaseOf(snapshot, plan);
   const previous = runtime.record.outbox;
   if (
@@ -153,7 +155,7 @@ const tick = async (context, runtime) => {
   if (phase !== 'ready' || !runtime.fresh()) {
     return;
   }
-  const latest = await questionPlan(context, runtime.record.target, snapshot);
+  const latest = await questionPlan(context, runtime.record, snapshot);
   if (
     !approved(latest) ||
     latest.text !== plan.text ||

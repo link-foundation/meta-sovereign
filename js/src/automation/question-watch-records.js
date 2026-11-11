@@ -95,6 +95,7 @@ export const questionWatchReview = async ({ store, send, clock }, input) => {
   const sources = send?.answerWatchSources?.() ?? [];
   if (
     review?.kind !== 'question-browser' ||
+    !review.planning ||
     !sources.some(({ id }) => id === review.target.source) ||
     typeof send.openAnswerWatch !== 'function' ||
     !Number.isSafeInteger(durationMs) ||

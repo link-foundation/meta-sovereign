@@ -92,6 +92,7 @@ export const createQuestionBrowserWatches = ({
           kind: 'question-browser-watch',
           tokens: ['question-browser-watch', review.target.source],
           target: review.target,
+          planning: review.planning,
           state: 'active',
           phase: 'starting',
           createdAt: clock().toISOString(),

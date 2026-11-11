@@ -3,6 +3,8 @@ import { previewAnswer } from './question-store.js';
 import { guardedSend, outboxId } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { createQuestionBrowserWatches } from './question-browser-watch.js';
+import { normalizeAnswerAction } from './question-answers.js';
+import { normalizeAnswerEnvironment } from './question-context.js';
 import {
   browserReviewId,
   browserChoiceDraft,
@@ -143,6 +145,10 @@ const createReviewActions = ({
     }
     const target = targetOf(input, caps.sources);
     const snapshot = checkBrowserQuestion(await send.readAnswerChoices(target));
+    const planning = {
+      ...normalizeAnswerAction(input),
+      ...normalizeAnswerEnvironment(input),
+    };
     // A validated URL may normalize the explicit web reference to its numeric ID.
     const plan = snapshot.question.outgoing
       ? null
@@ -150,6 +156,7 @@ const createReviewActions = ({
           store,
           {
             ...input,
+            ...planning,
             source: target.source,
             chat: snapshot.chat,
             question: snapshot.question.body,
@@ -164,6 +171,7 @@ const createReviewActions = ({
       tokens: ['question-browser', target.source, snapshot.chat],
       target,
       snapshot,
+      planning,
       plan,
       expiresAt: new Date(clock().getTime() + LIFE_MS).toISOString(),
     };
