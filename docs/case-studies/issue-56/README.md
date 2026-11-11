@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [question-strict-options.md](question-strict-options.md) reproduces absent strict controls falling back to text/model drafts and verifies a bounded pending state, frozen strict-state invalidation, reviewed-choice guards and zero ordinary writes. Actual browser choice execution remains required.
+
 - [assignment-source.md](assignment-source.md) verifies explicit linked instruction reads, private frozen context, source integrity, written-deliverable headings and CLI/Lino/UI restoration with failing-before and actual browser/MCP evidence.
 
 - [assignment-publication.md](assignment-publication.md) verifies reviewed English issues, current template selection/history, vacancy associations and durable publication recovery through CLI/Lino/UI. Focused Node/Deno, production Chromium and independent MCP preserve one creation, actual readback, the whole-form hold and zero submissions.

@@ -21,6 +21,7 @@ import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
 import { questionCore, sufficientAnswer } from './question-turns.js';
+import { answerChoiceState, applyAnswerChoices } from './question-options.js';
 import { answerModelFailure } from './answer-model-config.js';
 import {
   answerTemplateEnvironment,
@@ -331,6 +332,7 @@ const answerContext = (options, rules) => ({
 
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
+  const choices = answerChoiceState(question, options);
   if (options.questionMode !== 'field' && completedAnswerSummary(question)) {
     return {
       question,
@@ -363,7 +365,9 @@ export const planAnswer = (question, options = {}) => {
     parts: [],
   };
   let result =
-    options.questionMode === 'field' || asksQuestion(question)
+    options.questionMode === 'field' ||
+    choices.strictOptions ||
+    asksQuestion(question)
       ? answerOne(question, context)
       : empty;
   const core = questionCore(question, {
@@ -394,24 +398,7 @@ export const planAnswer = (question, options = {}) => {
       parts,
     };
   }
-  if (Array.isArray(options.options) && options.options.length) {
-    const choices = options.options.filter(
-      (choice) =>
-        typeof choice === 'string' &&
-        questionKey(choice) === questionKey(result.text)
-    );
-    if (choices.length === 1 && result.complete) {
-      result.text = choices[0];
-    } else {
-      result = {
-        ...result,
-        text: '',
-        complete: false,
-        requiresReview: true,
-        optionMismatch: true,
-      };
-    }
-  }
+  result = applyAnswerChoices(result, choices);
   return {
     ...result,
     question,

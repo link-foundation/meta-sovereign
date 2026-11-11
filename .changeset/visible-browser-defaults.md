@@ -213,3 +213,5 @@ Add reviewed test-assignment repository and English issue publication through CL
 Read explicitly selected assignment HTML/plain-text instructions through an owned browser and preserve private frozen text, source evidence and restore controls across CLI, text/binary Lino and four-language Forms. Validate both sources before preview/publication and retain both written-deliverable headings (R-AA1, R-AA6).
 
 Let CLI commands drain queued output before exiting with their returned status, preserving final success and refusal messages (R-Z1).
+
+Keep unavailable strict bot options pending without model/free-text fallback. Bind exact selected labels and strict state to reviewed delivery, preserve generic suggestions as separate context, and refuse ordinary text sends that require an actual option click (R-AA1).

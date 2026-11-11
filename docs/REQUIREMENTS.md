@@ -1,5 +1,7 @@
 # Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1: strict bot options now remain pending while controls are unavailable, without invoking the model or creating a text draft. Frozen strict state, exact selected labels and reviewed edits are rechecked; ordinary text delivery refuses a required option click. CLI configuration, both Lino formats and the offline UI API are verified in [strict choices](case-studies/issue-56/question-strict-options.md). Actual browser choice execution and full provider workflows remain required.
+
 R-AA6: explicitly selected HTML/plain-text assignment instructions now share CLI, both Lino transports and four-language review controls, with private frozen text, resolved-source evidence and both written-deliverable headings. See [linked instructions](case-studies/issue-56/assignment-source.md). Other document formats, full handoff/notifications and live execution remain unfinished.
 
 R-AA6: reviewed assignment repository and English issue publication now shares CLI, text/binary Lino and four-language Forms controls. Current template/history selection, actual HH vacancy associations, written-deliverable instructions and durable uncertain-write recovery pass focused Node/Deno and production Chromium/MCP checks; see [assignment publication](case-studies/issue-56/assignment-publication.md). Assignment implementation, full handoff/notifications and live provider/model execution remain open.

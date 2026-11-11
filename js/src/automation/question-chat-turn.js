@@ -1,6 +1,7 @@
 import { historyOrder } from '../replies/history-order.js';
 import { asksQuestion } from './question-match.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { answerChoiceState } from './question-options.js';
 
 const unavailable = () => ({ reason: 'question-turn-unavailable' });
 export const chatAnswerAction = (action) => ({
@@ -21,12 +22,33 @@ const usableLatest = (message) =>
   !pending(message) &&
   typeof message.body === 'string' &&
   message.body.length <= 6000;
-const questionSnapshot = ({ id, body, timestamp, answerOptions }) => ({
+const questionSnapshot = ({
+  id,
+  body,
+  timestamp,
+  answerOptions,
+  strictOptions,
+}) => ({
   id,
   body,
   timestamp,
   options: JSON.stringify(answerOptions),
+  strictOptions,
 });
+
+const latestChoiceState = (latest) => {
+  try {
+    return answerChoiceState(latest.body, {
+      options: latest.answerOptions,
+      strictOptions: latest.strictOptions,
+    });
+  } catch {
+    return null;
+  }
+};
+const ordinaryLatest = (latest, choices) =>
+  completedAnswerSummary(latest.body) ||
+  (!choices.strictOptions && !asksQuestion(latest.body));
 
 const unansweredQuestions = (messages, owners, latest) => {
   const unanswered = [];
@@ -71,14 +93,19 @@ export const chatQuestionTurn = (input, ownerIds = [], modelDraft = false) => {
   if (!usableLatest(latest)) {
     return unavailable();
   }
-  if (completedAnswerSummary(latest.body) || !asksQuestion(latest.body)) {
+  const choices = latestChoiceState(latest);
+  if (!choices) {
+    return unavailable();
+  }
+  if (ordinaryLatest(latest, choices)) {
     return { latest, question: latest.body };
   }
   // Consecutive-question assembly belongs to the explicit model opt-in.
   // Existing saved-answer automations continue to answer the latest message.
-  const unanswered = modelDraft
-    ? unansweredQuestions(messages, owners, latest)
-    : [latest];
+  const unanswered =
+    modelDraft && !choices.strictOptions
+      ? unansweredQuestions(messages, owners, latest)
+      : [latest];
   if (!unanswered) {
     return unavailable();
   }

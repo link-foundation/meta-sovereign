@@ -1,14 +1,7 @@
 import { prepareAnswerModelContext } from './answer-model-context.js';
 import { runAnswerModelDrafts } from './answer-model-drafts.js';
 import { answerModelFailure } from './answer-model-config.js';
-import { questionKey } from './question-match.js';
-const validOptions = (options) =>
-  options === undefined ||
-  (Array.isArray(options) &&
-    options.length <= 100 &&
-    options.every(
-      (choice) => typeof choice === 'string' && choice.length <= 6000
-    ));
+import { answerChoiceState, applyAnswerChoices } from './question-options.js';
 
 const unresolvedRequests = (answer, input) => {
   if (answer.noReply) {
@@ -38,23 +31,21 @@ const unresolvedRequests = (answer, input) => {
       ];
 };
 
-const draftedAnswer = (answer, draft, choices, model) => {
-  const optionMismatch =
-    choices.length > 0 &&
-    choices.filter((choice) => questionKey(choice) === questionKey(draft.text))
-      .length !== 1;
-  return {
-    ...answer,
-    ...draft,
-    match: 'model',
-    source: 'model',
-    complete: !draft.missing.length && Boolean(draft.text) && !optionMismatch,
-    requiresReview: true,
-    optionMismatch,
-    rules: [],
-    model,
-  };
-};
+const draftedAnswer = (answer, draft, choices, model) =>
+  applyAnswerChoices(
+    {
+      ...answer,
+      ...draft,
+      match: 'model',
+      source: 'model',
+      complete: !draft.missing.length && Boolean(draft.text),
+      requiresReview: true,
+      optionMismatch: false,
+      rules: [],
+      model,
+    },
+    { options: choices, strictOptions: choices.length > 0 }
+  );
 
 const mergedAnswer = (answer, result, choices) => {
   if (!result.drafts.length) {
@@ -108,10 +99,12 @@ export const modelAnswerPreview = async (
       'Model draft opt-in must be a boolean.'
     );
   }
-  if (!input.modelDraft) {
+  if (!input.modelDraft || answer.optionPending) {
     return answer;
   }
-  if (!validOptions(input.options)) {
+  try {
+    answerChoiceState(input.question, input);
+  } catch {
     throw answerModelFailure(
       'answer-model-context',
       'Draft answer options must be bounded text.'

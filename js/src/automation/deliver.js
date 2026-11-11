@@ -3,6 +3,9 @@ import { guardedSend, outboxKey } from './outbox.js';
 import { queueDrafts } from './drafts.js';
 import { validateAnswerDraft } from './question-store.js';
 
+const indicateTyping = (showTyping, automation, draft) =>
+  draft.answer?.strictOptions ? undefined : showTyping(automation, draft);
+
 export const createDelivery =
   ({ store, send, showTyping, clock, log, nowIso }) =>
   /** Send one draft now: typing, the guarded send, ledger, chat history. */
@@ -23,7 +26,7 @@ export const createDelivery =
         draft,
       };
     }
-    await showTyping(automation, draft);
+    await indicateTyping(showTyping, automation, draft);
     if (draft.answer) {
       const valid = await validateAnswerDraft(store, automation, draft, {
         reviewed,

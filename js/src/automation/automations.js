@@ -581,6 +581,7 @@ const answerDraft = (
     source: candidate.source,
     chat: String(candidate.chat),
     options: latest.answerOptions,
+    strictOptions: latest.strictOptions,
   });
   if (
     !answer.text &&
@@ -588,6 +589,7 @@ const answerDraft = (
       modelCandidates &&
       automation.action.modelDraft &&
       !answer.noReply &&
+      !answer.optionPending &&
       asksQuestion(question)
     )
   ) {

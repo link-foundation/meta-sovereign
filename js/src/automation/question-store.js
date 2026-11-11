@@ -1,6 +1,7 @@
 // Shared persisted answer knowledge for the CLI, server and offline editor.
 import { createBoundedHistory } from '../replies/bounded-history.js';
 import { modelAnswerPreview } from './answer-model-preview.js';
+import { answerChoiceState, applyAnswerChoices } from './question-options.js';
 import {
   prepareAnswerModelContext,
   modelFingerprint,
@@ -268,6 +269,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       deleted: link.deleted,
       service: link.service,
       answerOptions: link.answerOptions,
+      strictOptions: link.strictOptions,
       sender: link.sender,
       out: link.out,
       outgoing: link.outgoing,
@@ -299,6 +301,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       source: draft.source,
       chat: String(draft.chat),
       options: latest.answerOptions,
+      strictOptions: latest.strictOptions,
     },
   };
 };
@@ -328,6 +331,25 @@ const validateModelAnswer = async (store, current, draft, input) => {
   };
 };
 
+const validateDraftChoice = (draft, input) => {
+  const choices = answerChoiceState(input.question, input);
+  if (
+    choices.strictOptions &&
+    (draft.answer.option !== draft.text ||
+      !applyAnswerChoices({ text: draft.text, complete: true }, choices)
+        .complete)
+  ) {
+    return {
+      ok: false,
+      code: 'answer-choice-required',
+      error: 'Select one current offered answer before continuing',
+    };
+  }
+  return null;
+};
+const reviewedSavedAnswer = (draft, reviewed) =>
+  reviewed && !draft.answer.model?.used;
+
 export const validateAnswerDraft = async (
   store,
   automation,
@@ -338,7 +360,11 @@ export const validateAnswerDraft = async (
   if (!turn.ok) {
     return turn;
   }
-  if (reviewed && !draft.answer.model?.used) {
+  const choiceError = validateDraftChoice(draft, turn.input);
+  if (choiceError) {
+    return choiceError;
+  }
+  if (reviewedSavedAnswer(draft, reviewed)) {
     return { ok: true };
   }
   const saved = await store.get(automation.id);

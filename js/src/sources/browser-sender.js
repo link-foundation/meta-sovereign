@@ -693,7 +693,7 @@ export const createDefaultSender = ({
           options: { [draft.source]: await merged(draft.source) },
         })(draft)
     : null;
-  const send = createFallbackSender({
+  const sendText = createFallbackSender({
     apiSend: adapterSend,
     browserSend: (draft) => {
       refuseAutomatedWeb(draft);
@@ -727,6 +727,15 @@ export const createDefaultSender = ({
     },
     log,
   });
+  const send = (draft) => {
+    if (draft.answer?.strictOptions) {
+      throw codedError(
+        'This answer requires a verified option click; open the provider chat to select it',
+        'answer-choice-required'
+      );
+    }
+    return sendText(draft);
+  };
   const actions = createMessageActions({
     getSource,
     optionsFor: merged,
