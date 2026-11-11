@@ -19,6 +19,7 @@ import {
   validQuestionMatching,
 } from './question-matching-fields.js';
 import { QuestionMatchResults } from './question-match-results.js';
+import { BrowserAnswerControls } from './question-browser-controls.js';
 
 const el = React.createElement;
 const isOpening = (event) =>
@@ -674,6 +675,11 @@ export const QuestionControls = ({ api, openAutomation }) => {
         el(RuleEditor, { rule, set: setRule, disabled: busy, save, remove })
       ),
       el(LearnedAnswers, { key: 'learn', busy, learned, learn }),
+      el(BrowserAnswerControls, {
+        key: 'browser',
+        api,
+        planning: { profile, profileId, contexts, salary, matching },
+      }),
       el(AnswerPolicyControls, { key: 'policy', api, busy, run }),
       api?.answerModel
         ? el(AnswerModelSettings, { key: 'model', api, busy, run })

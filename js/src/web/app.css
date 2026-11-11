@@ -833,6 +833,21 @@ main[data-view='chat'] > .web-mode-banner {
   background: var(--bg-elev);
   box-shadow: 0 10px 30px var(--shadow);
 }
+.browser-answer-controls {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.browser-answer-controls fieldset {
+  min-width: 0;
+}
+.browser-answer-controls input:not([type='radio']),
+.browser-answer-controls select {
+  width: 100%;
+  min-width: 0;
+}
+.browser-answer-controls pre {
+  white-space: pre-wrap;
+}
 .chat-menu-item {
   display: grid;
   grid-template-columns: 1fr 1fr;

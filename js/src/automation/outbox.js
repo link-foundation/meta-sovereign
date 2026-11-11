@@ -21,6 +21,7 @@
  * it and the user decides (`resolveOutbox`: it arrived, or it did not).
  */
 
+import { browserChoiceReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
 
@@ -298,6 +299,9 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       status: 'sent',
       at: clock().toISOString(),
       ...(result?.via ? { via: result.via } : {}),
+      ...(draft.answer?.strictOptions && browserChoiceReceipt(result, draft)
+        ? { receipt: browserChoiceReceipt(result, draft) }
+        : {}),
     },
     log
   );

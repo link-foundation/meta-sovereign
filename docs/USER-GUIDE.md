@@ -654,3 +654,5 @@ Operator excludes bots by default. Settings → Operator provides an independent
 Temporary connection failures keep retrying automatically, without a manual retry button. Failed refreshes retain the last good screen. Queued messages keep retrying across sections and resume immediately when the server reconnects. After a server or Telegram has connected, browser-only setup is hidden by default; Settings → Connection recovery can enable that offer. See [Connection recovery](CONNECTION-RECOVERY.md).
 
 After updating, repeat `serve` while the original host stays running: it keeps serving while the replacement warms up, then transfers the single store writer and retains the public listener/certificate. Failed replacements roll back automatically. Older single-process installations need one initial restart to adopt this host. See [rolling server upgrades](ROLLING-SERVER.md).
+
+[Reviewed provider-browser answers, exact option confirmation and status recovery](QUESTION-BROWSER.md).

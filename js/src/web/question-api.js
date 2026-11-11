@@ -18,6 +18,7 @@ import {
 } from '../automation/question-profile-source.js';
 import { questionProfilesApi } from './question-profiles-api.js';
 import { answerModelApi } from './answer-model-api.js';
+import { questionBrowserApi } from './question-browser-api.js';
 
 const validProfileCandidate = (candidate) =>
   typeof candidate?.value === 'string' &&
@@ -83,6 +84,7 @@ export const questionApi = ({ remote, store }) => {
   return {
     ...questionProfilesApi({ remote, store }),
     ...answerModelApi({ remote }),
+    ...questionBrowserApi({ remote }),
     answerProfileSources: async () => {
       const result = await remote.get(
         '/api/automations/answers/profile-sources'

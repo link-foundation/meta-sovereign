@@ -37,6 +37,7 @@ import { questionCommands } from './question-commands.js';
 import { followCommands } from './follow-commands.js';
 import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { withAnswerModel } from './answer-model-commands.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
@@ -47,6 +48,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
                 answers model show | save --enabled=true|false --revision=<revision|null> [--model=id] [--cv=cv:id] [--timeout-ms=60000]
+                answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
                 answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]
                 answers profiles import [id] --file=contacts.lino [--json] (read-only draft)
@@ -401,7 +403,9 @@ const SUBCOMMANDS = {
 };
 
 const runnerFor = (store, args, deps) => {
-  const send = deps.send ?? createDefaultSender({ getSource, log: deps.trace });
+  const send =
+    deps.send ??
+    createDefaultSender({ getSource, browser: { store }, log: deps.trace });
   const setTyping =
     deps.setTyping ??
     (({ source, chat }) =>
@@ -416,7 +420,21 @@ const runnerFor = (store, args, deps) => {
     ...(now ? { clock: () => now } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
   });
-  return { runner, close: () => send.close?.() };
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    ...(now ? { clock: () => now } : {}),
+    runner: deps.modelRunner,
+    log: deps.trace,
+  });
+  return {
+    runner,
+    questionBrowser,
+    close: async () => {
+      await questionBrowser.close();
+      await send.close?.();
+    },
+  };
 };
 
 const automationsCmd = async (args, log, deps) => {
@@ -428,7 +446,10 @@ const automationsCmd = async (args, log, deps) => {
   }
   const store = await deps.openStore(args.store ?? defaultStoreDir());
   return withAnswerModel(deps.modelRunner, async (modelRunner) => {
-    const { runner, close } = runnerFor(store, args, { ...deps, modelRunner });
+    const { runner, questionBrowser, close } = runnerFor(store, args, {
+      ...deps,
+      modelRunner,
+    });
     const followDiscovery =
       deps.followDiscovery ?? createFollowDiscovery({ store });
     try {
@@ -436,6 +457,7 @@ const automationsCmd = async (args, log, deps) => {
         args,
         store,
         runner,
+        questionBrowser,
         log,
         ask: deps.ask ?? defaultAsk,
         // y/N before sending (tests answer it; otherwise the terminal).

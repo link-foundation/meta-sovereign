@@ -2,9 +2,20 @@ import { recordOutcome } from './record-outcome.js';
 import { guardedSend, outboxKey } from './outbox.js';
 import { queueDrafts } from './drafts.js';
 import { validateAnswerDraft } from './question-store.js';
+import { questionChoiceKey } from './question-choice-key.js';
 
 const indicateTyping = (showTyping, automation, draft) =>
   draft.answer?.strictOptions ? undefined : showTyping(automation, draft);
+
+const deliveryKey = (automation, draft, clock) =>
+  questionChoiceKey(draft) ??
+  outboxKey({
+    owner: automation.id,
+    source: draft.source,
+    chat: draft.chat,
+    ...(draft.answer?.message ? { step: draft.answer.message } : {}),
+    now: clock().getTime(),
+  });
 
 export const createDelivery =
   ({ store, send, showTyping, clock, log, nowIso }) =>
@@ -48,13 +59,7 @@ export const createDelivery =
       store,
       kind: 'automation',
       owner: automation.id,
-      key: outboxKey({
-        owner: automation.id,
-        source: draft.source,
-        chat: draft.chat,
-        ...(draft.answer?.message ? { step: draft.answer.message } : {}),
-        now: clock().getTime(),
-      }),
+      key: deliveryKey(automation, draft, clock),
       draft,
       send,
       clock,

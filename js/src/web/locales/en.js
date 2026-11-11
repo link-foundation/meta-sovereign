@@ -1,4 +1,5 @@
 import { enAnswerModel } from './en-answer-model.js';
+import { enBrowserAnswer } from './en-browser-answer.js';
 import { enForms } from './en-forms.js';
 import { enSharedProfile } from './en-shared-profile.js';
 import { enProfileImport } from './en-profile-import.js';
@@ -32,6 +33,7 @@ import { enStickers } from './en-stickers.js';
 export const en = {
   ...enForms,
   ...enAnswerModel,
+  ...enBrowserAnswer,
   ...enSharedProfile,
   ...enProfileImport,
   ...enChatRemoval,

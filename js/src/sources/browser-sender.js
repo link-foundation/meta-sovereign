@@ -416,6 +416,11 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   return { inChat, inList };
 };
 
+const choiceSources = (platforms) =>
+  Object.entries(platforms)
+    .filter(([, ui]) => ui.choices && ui.location)
+    .map(([id, ui]) => ({ id, name: ui.name ?? id }));
+
 /**
  * Drive the official web UIs through browser-commander.
  *
@@ -529,8 +534,8 @@ export const createBrowserSender = ({
   return {
     platforms,
     ...actions,
-
     ...choices,
+    choiceSources: () => choiceSources(platforms),
 
     /** Type and send one message in the network's web UI. */
     async send(draft = {}) {
@@ -812,6 +817,9 @@ export const createDefaultSender = ({
     supports: actions.supports,
     readChats: (params) => browserFor().readChats(params),
     readRecent: (params) => browserFor().readRecent(params),
+    readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
+    prefillAnswer: (params) => browserFor().prefillAnswer(params),
+    choiceSources: () => browserFor().choiceSources?.() ?? [],
     close: async () => browserSender?.close(),
   });
 };

@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import { questionBrowserCommand } from './question-browser-commands.js';
 import {
   questionMatchingFlags,
   questionMatchPageFlags,
@@ -150,10 +151,21 @@ const profileCommand = async (args, store) => {
   });
 };
 
-export const questionCommands = async ({ args, store, log }) => {
+export const questionCommands = async ({
+  args,
+  store,
+  log,
+  questionBrowser,
+}) => {
   const sub = args._[1] ?? 'list';
   let result;
   const reads = {
+    browser: async () =>
+      questionBrowserCommand(
+        args,
+        questionBrowser,
+        args._[2] === 'inspect' ? await planInput(args, store) : {}
+      ),
     profiles: () => namedProfileCommand(args, store),
     model: () => answerModelCommand(args, store),
     'profile-sources': () => listAnswerProfileSources(store),

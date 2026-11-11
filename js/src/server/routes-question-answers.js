@@ -1,5 +1,6 @@
 import { json, readBody } from './util.js';
 import { questionProfilesRoute } from './routes-question-profiles.js';
+import { questionBrowserRoute } from './routes-question-browser.js';
 import {
   answerModelRoute,
   answerModelPreviewRoute,
@@ -24,6 +25,9 @@ const ROOT = '/api/automations/answers';
 const isProfilesRoute = (path) =>
   path === `${ROOT}/profiles` || path.startsWith(`${ROOT}/profiles/`);
 export const questionAnswerRoute = async (store, req, res, path, url, ctx) => {
+  if (path === `${ROOT}/browser` || path.startsWith(`${ROOT}/browser/`)) {
+    return questionBrowserRoute(req, res, path, ctx);
+  }
   if (path === `${ROOT}/model`) {
     return answerModelRoute(store, req, res, ctx);
   }

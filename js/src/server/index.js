@@ -92,6 +92,7 @@ import {
   createAutomationScheduler,
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
 import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
 import { backgroundJobs } from './background-jobs.js';
@@ -397,13 +398,21 @@ const automationContext = (
         );
     });
   }
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    runner: automations.modelRunner,
+    log: say,
+  });
   return {
     send,
     setTyping,
     automations: { runner, scheduler, autopilot },
+    questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
       scheduler.stop();
+      await questionBrowser.close();
       await send.close?.();
     },
   };

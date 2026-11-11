@@ -221,3 +221,5 @@ Add shared provider choice inspection, guarded native option clicks with positiv
 Confirm suspected chat layout overlaps after ResizeObserver tail correction, retaining persistent warnings and current reading state across Chat and Operator.
 
 Add the built-in explicit HH web-chat choice adapter with trusted visible main/application-frame selection, document revalidation, native receipts and cleanup that retains uncertain reservations. Refuse guessed API/web identity mappings and protect owner drafts; shared execution controls and full provider parity remain required.
+
+Share reviewed browser question inspection, owned prefill, exact native selection and read-only recovery across CLI, text/binary Lino and localized Chat/Operator/Questions controls. Persist positive receipts and one durable question reservation across manual and automated answers, preserving unknown outcomes through reload and restart.
