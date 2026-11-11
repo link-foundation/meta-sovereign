@@ -5,7 +5,7 @@ import { mkdtemp, rm, readFile, stat, appendFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setTimeout as sleep } from 'node:timers/promises';
+import { statusWhenReady } from './helpers/rolling-cli-readiness.mjs';
 import {
   controlAddress,
   requestServerControl,
@@ -45,24 +45,6 @@ const invoke = (dir, ...extra) => {
   );
   return { child, ended, output: () => output };
 };
-const statusWhenReady = async (dir) => {
-  for (let i = 0; i < 200; i += 1) {
-    try {
-      return await requestServerControl(
-        dir,
-        { operation: 'status' },
-        { timeoutMs: 1000 }
-      );
-    } catch (error) {
-      if (!['ENOENT', 'ECONNREFUSED'].includes(error.code)) {
-        throw error;
-      }
-    }
-    await sleep(50);
-  }
-  throw new Error('CLI host did not start');
-};
-
 test('default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
   const first = invoke(dir);

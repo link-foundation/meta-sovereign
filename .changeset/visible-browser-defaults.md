@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Keep rolling CLI startup probes pending after temporary control status timeouts within a fixed total budget. Retain definite refusal errors and add opt-in metadata/readiness phase timings for Windows/macOS Bun CI.
+
 Retain reviewed rule filters, detached local profiles, named-profile references and bounded planning context in finite current-chat watches. Recheck current named-profile values before queued provider actions and require a fresh inspection for older reviews without saved planning settings.
 
 Route form link requests to the requested résumé, GitHub or LinkedIn contacts, retain missing contacts for review and offer all available links for combined requests. Reject saved/model boolean wording and links for another provider while preserving owner input and ordinary boolean questions.
