@@ -23,3 +23,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 experiments/issue-56/collect-apt-fallback.py
 ```
 
 The [verified archive](data/apt-fallback.tar.gz) retains the actual parent source, two failing regressions, focused results, raw failed jobs, completed workflow metadata and primary documentation. Exact new-head hosted CI must verify network acquisition and the new conversation-history browser cases. Retaining a fallback does not claim to repair external DNS; older unexplained browser failures and all unchecked issue criteria remain unfinished. PR 57 stays draft and unmerged.
+
+## Hosted follow-up
+
+The [Pages run 43062262005](https://github.com/link-foundation/meta-sovereign/actions/runs/43062262005) for `1a35532cb2c87593cb887ebaec0e4e45f221d72b`, created at 2026-11-11 16:50:28 UTC, passes. Its raw log records the mirror source update at line 246, 139 MB acquired in 42 seconds at line 650 and the API-only/optional-local-UI browser result at line 2036. This verifies dependency acquisition on that runner; it does not establish which fallback was used or explain the earlier DNS outage.
+
+The same commit's [Security run 43062262048](https://github.com/link-foundation/meta-sovereign/actions/runs/43062262048) fails. Raw log lines 4084–4086 identify `py/incomplete-url-substring-sanitization` in this evidence collector at line 8. That line asserts that a failing test log contains the Azure hostname; it does not validate a URL. The collector now asserts the specific regression test name instead, with the same required two failures. Its source inventory is explicit so regenerating this archive cannot include unrelated, unverified working changes. The security finding is retained in the archive; the corrected collector still requires hosted CodeQL verification.
