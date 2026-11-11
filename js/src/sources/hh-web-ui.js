@@ -70,6 +70,11 @@ export const HH_WEB_UI = {
   documents: { ownerOrigins: origins, ancestorOrigins: origins, maxFrames: 32 },
   chatScan: { pathPattern: '^/chat/?$' },
   historyScan: { startAtService: true },
+  noticeContext: {
+    company: '[data-qa="participant-info-title"]',
+    vacancy: '[data-qa="chatik-header-sub-header"]',
+    link: '[data-qa="chatik-header-sub-header"] a[href*="/vacancy/"]',
+  },
   textReply: {
     send: 'button[data-qa*="send"]',
     closedText:

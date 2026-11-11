@@ -1,4 +1,7 @@
+import { ruNoticePolicy } from './ru-notice-policy.js';
+
 export const ruBrowserAnswer = {
+  ...ruNoticePolicy,
   'browserText.title': 'Проверенный текстовый ответ',
   'browserText.draft': 'Текст ответа',
   'browserText.hint':

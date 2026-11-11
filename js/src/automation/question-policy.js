@@ -1,5 +1,6 @@
 import { questionWords } from './question-match.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
+import { normalizeNoticePolicy } from './question-notice-policy.js';
 
 export const QA_POLICY_ID = 'qa-policy:reuse';
 export const normalizeAnswerPolicy = (input = {}) => {
@@ -29,6 +30,7 @@ export const normalizeAnswerPolicy = (input = {}) => {
     tokens: ['qa-policy'],
     rejected: [...new Set(rejected.map((text) => text.trim()))],
     punctuationEquivalent: input.punctuationEquivalent === true,
+    notices: normalizeNoticePolicy(input.notices),
   };
 };
 

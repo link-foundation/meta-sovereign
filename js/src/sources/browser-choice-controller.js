@@ -42,6 +42,9 @@ export const createChoiceContext = (input, read) => {
     !value.question.outgoing &&
     identity(value) === identity(expected) &&
     samePending(value) &&
+    (!expected.noticeContext ||
+      JSON.stringify(value.noticeContext) ===
+        JSON.stringify(expected.noticeContext)) &&
     JSON.stringify(value.answerOptions) ===
       JSON.stringify(expected.answerOptions);
   const valueOf = (node) =>
@@ -143,13 +146,13 @@ export const createChoiceContext = (input, read) => {
 /** Reading history must not clear or acquire the provider composer. */
 export const readChoiceHistory = (_input, { snapshot }) => snapshot(true);
 
-export const readChoicePublic = (_input, context) => {
+export const readChoicePublic = (input, context) => {
   const { snapshot, clearOwned, valueOf } = context;
   const current = snapshot();
   if (current.code) {
     return current;
   }
-  if (current.optionsShown.length) {
+  if (!input.preserveDraft && current.optionsShown.length) {
     clearOwned(current);
   }
   const { controls: _controls, composer, ...result } = current;

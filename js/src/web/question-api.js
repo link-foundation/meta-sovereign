@@ -10,6 +10,7 @@ import { normalizeAnswerRule } from '../automation/question-answers.js';
 import {
   readAnswerPolicy,
   saveAnswerPolicy,
+  normalizeAnswerPolicy,
 } from '../automation/question-policy.js';
 import { salaryExchange } from '../automation/salary-exchange.js';
 import {
@@ -128,10 +129,20 @@ export const questionApi = ({ remote, store }) => {
     answerPolicy: async () =>
       (await remote.get('/api/automations/answers/policy'))?.policy ??
       readAnswerPolicy(store),
-    saveAnswerPolicy: async (policy) =>
-      call('policy', { policy }, async () => ({
+    saveAnswerPolicy: async (policy) => {
+      const expected = normalizeAnswerPolicy(policy);
+      const result = await call('policy', { policy }, async () => ({
         policy: await saveAnswerPolicy(store, policy),
-      })),
+      }));
+      if (
+        !result.policy ||
+        JSON.stringify(normalizeAnswerPolicy(result.policy)) !==
+          JSON.stringify(expected)
+      ) {
+        throw new Error('Answer policy save was not confirmed.');
+      }
+      return result;
+    },
     answerRules: async () => {
       const result = await remote.get('/api/automations/answers');
       if (result === null || result === undefined) {

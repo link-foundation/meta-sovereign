@@ -65,7 +65,7 @@ export const useBrowserAnswerWatch = ({
     setError('');
   };
   useWatchPolling({ api, id, enabled, pending, receive, setError, epoch });
-  const start = async (review, durationMs) => {
+  const start = async (review, durationMs, noticeReplies = false) => {
     epoch.current++;
     const requestId = `question-watch:${globalThis.crypto.randomUUID()}`;
     remember(storageKey, requestId);
@@ -80,6 +80,7 @@ export const useBrowserAnswerWatch = ({
           review: review.id,
           confirm: true,
           durationMs,
+          ...(noticeReplies ? { noticeReplies: true } : {}),
         })
       );
     } catch (err) {

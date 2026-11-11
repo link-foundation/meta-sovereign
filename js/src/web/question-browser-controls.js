@@ -355,6 +355,9 @@ const restoreBrowserAnswer = async (api, key, receive, target) => {
   }
 };
 
+const noticeAvailable = (caps, source) =>
+  caps?.noticeSources?.some((entry) => entry.id === source);
+
 /** Shared by Chat, Operator and question settings; no action on initial render. */
 export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
   const t = useT();
@@ -484,6 +487,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         api,
         review: result,
         available: watchAvailable(caps, result?.target.source ?? source),
+        noticeAvailable: noticeAvailable(caps, result?.target.source ?? source),
         enabled: Boolean(caps),
         busy,
         run,

@@ -25,7 +25,10 @@ const AnswerParts = ({ parts }) => {
 };
 
 // Shared across automation previews, Chat and Operator draft cards.
-const answerStatusKey = (answer) => {
+const answerStatusKey = (answer, noticeAdmitted) => {
+  if (noticeAdmitted) {
+    return 'noticePolicy.admitted';
+  }
   if (answer.noReply) {
     return 'questions.noReply';
   }
@@ -50,7 +53,18 @@ const AcceptedSummaryEvidence = ({ value }) => {
     : null;
 };
 
-export const AnswerEvidence = ({ answer }) => {
+const NoticeReviewEvidence = ({ answer, noticeAdmitted }) => {
+  const t = useT();
+  return answer.notice && !noticeAdmitted
+    ? el(
+        'p',
+        { key: 'notice', className: 'meta', 'data-notice-evidence': true },
+        t('questions.noticeReview')
+      )
+    : null;
+};
+
+export const AnswerEvidence = ({ answer, noticeAdmitted = false }) => {
   const t = useT();
   if (!answer) {
     return null;
@@ -59,14 +73,12 @@ export const AnswerEvidence = ({ answer }) => {
     el(AnswerModelStatus, { key: 'model', model: answer.model }),
     el(AnswerParts, { key: 'parts', parts: answer.parts }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
-    el('p', { key: 'state', className: 'meta' }, t(answerStatusKey(answer))),
-    answer.notice
-      ? el(
-          'p',
-          { key: 'notice', className: 'meta', 'data-notice-evidence': true },
-          t('questions.noticeReview')
-        )
-      : null,
+    el(
+      'p',
+      { key: 'state', className: 'meta' },
+      t(answerStatusKey(answer, noticeAdmitted))
+    ),
+    el(NoticeReviewEvidence, { key: 'notice', answer, noticeAdmitted }),
     el(AcceptedSummaryEvidence, {
       key: 'summary-proof',
       value: answer.acceptedSummary,

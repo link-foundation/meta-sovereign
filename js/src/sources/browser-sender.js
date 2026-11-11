@@ -482,6 +482,19 @@ const composerFocus = (waitFor) => async (source, ui, commander) => {
  * @param {Function} [options.log] progress messages
  * @param {() => Date} [options.clock]
  */
+const noticeReplySources = (platforms) =>
+  textReplySources(platforms).filter(
+    ({ id }) => platforms[id].noticeContext && platforms[id].historyScan
+  );
+
+const senderCapabilities = (platforms) => ({
+  choiceSources: () => choiceSources(platforms),
+  textReplySources: () => textReplySources(platforms),
+  noticeReplySources: () => noticeReplySources(platforms),
+  answerWatchSources: () =>
+    choiceSources(platforms).filter(({ id }) => platforms[id].documents),
+});
+
 export const createBrowserSender = ({
   openSession = null,
   platforms = WEB_UIS,
@@ -566,10 +579,7 @@ export const createBrowserSender = ({
     ...choices,
     ...scans,
     ...texts,
-    choiceSources: () => choiceSources(platforms),
-    textReplySources: () => textReplySources(platforms),
-    answerWatchSources: () =>
-      choiceSources(platforms).filter(({ id }) => platforms[id].documents),
+    ...senderCapabilities(platforms),
 
     /** Type and send one message in the network's web UI. */
     async send(draft = {}) {
@@ -863,6 +873,7 @@ export const createDefaultSender = ({
     replyText: (params) => browserFor().replyText(params),
     choiceSources: () => browserFor().choiceSources?.() ?? [],
     textReplySources: () => browserFor().textReplySources?.() ?? [],
+    noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),

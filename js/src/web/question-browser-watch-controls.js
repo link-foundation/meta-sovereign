@@ -6,6 +6,42 @@ import { BrowserPendingTurn } from './question-browser-pending.js';
 
 const el = React.createElement;
 
+const WatchEvidence = ({ watch }) => {
+  const t = useT();
+  return el(React.Fragment, null, [
+    watch.last
+      ? el(BrowserPendingTurn, {
+          key: 'question',
+          snapshot: watch.last.snapshot,
+          plan: watch.noticeReplies ? { pending: true } : watch.last.plan,
+          historyVerified:
+            watch.noticeReplies && watch.last.plan.historyVerified === true,
+        })
+      : null,
+    watch.noticeReplies && watch.last?.plan?.kind
+      ? el(
+          'p',
+          {
+            key: 'notice-kind',
+            className: 'meta',
+            'data-notice-watch-kind': watch.last.plan.kind,
+          },
+          t(`noticePolicy.${watch.last.plan.kind}`)
+        )
+      : null,
+    watch.last?.plan && (!watch.noticeReplies || watch.last.plan.evidence)
+      ? el(AnswerEvidence, {
+          key: 'evidence',
+          answer: watch.noticeReplies
+            ? watch.last.plan.evidence
+            : watch.last.plan,
+          noticeAdmitted:
+            watch.noticeReplies && watch.last.plan.status === 'ready',
+        })
+      : null,
+  ]);
+};
+
 const WatchStatus = ({ watch }) => {
   const t = useT();
   if (!watch) {
@@ -27,23 +63,21 @@ const WatchStatus = ({ watch }) => {
       el(
         'p',
         { key: 'phase', role: 'status' },
-        t(`browserWatch.phase.${watch.phase}`)
+        t(
+          watch.noticeReplies &&
+            ['sent', 'selecting', 'unknown', 'failed', 'marked-sent'].includes(
+              watch.phase
+            )
+            ? `noticePolicy.${watch.phase}`
+            : `browserWatch.phase.${watch.phase}`
+        )
       ),
       el(
         'small',
         { key: 'target', className: 'meta' },
         `${watch.target.source} · ${watch.target.chat}`
       ),
-      watch.last
-        ? el(BrowserPendingTurn, {
-            key: 'question',
-            snapshot: watch.last.snapshot,
-            plan: watch.last.plan,
-          })
-        : null,
-      watch.last?.plan
-        ? el(AnswerEvidence, { key: 'evidence', answer: watch.last.plan })
-        : null,
+      el(WatchEvidence, { key: 'evidence', watch }),
       watch.reason
         ? el(
             'small',
@@ -61,9 +95,15 @@ const WatchStatus = ({ watch }) => {
             el(
               'small',
               { key: 'option', className: 'meta' },
-              t('browserWatch.selected', {
-                option: watch.outbox.receipt.option,
-              })
+              t(
+                watch.selection?.type === 'text'
+                  ? 'noticePolicy.receipt'
+                  : 'browserWatch.selected',
+                {
+                  option:
+                    watch.outbox.receipt.text ?? watch.outbox.receipt.option,
+                }
+              )
             ),
           ])
         : null,
@@ -71,9 +111,17 @@ const WatchStatus = ({ watch }) => {
   );
 };
 
-const WatchStart = ({ busy, active, available, review, start }) => {
+const WatchStart = ({
+  busy,
+  active,
+  available,
+  noticeAvailable,
+  review,
+  start,
+}) => {
   const t = useT();
   const [minutes, setMinutes] = React.useState('120');
+  const [noticeReplies, setNoticeReplies] = React.useState(false);
   const duration = Number(minutes);
   const valid =
     Number.isSafeInteger(duration) && duration >= 1 && duration <= 120;
@@ -81,6 +129,28 @@ const WatchStart = ({ busy, active, available, review, start }) => {
     'fieldset',
     { className: 'col', disabled: busy || active || !available },
     [
+      !noticeAvailable || !noticeReplies
+        ? el('p', { key: 'hint', className: 'meta' }, t('browserWatch.hint'))
+        : null,
+      noticeAvailable
+        ? el('label', { key: 'notices', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              'data-notice-watch-mode': true,
+              checked: noticeReplies,
+              onChange: (event) => setNoticeReplies(event.target.checked),
+            }),
+            t('noticePolicy.watch'),
+          ])
+        : null,
+      noticeAvailable && noticeReplies
+        ? el(
+            'p',
+            { key: 'notice-hint', className: 'meta' },
+            t('noticePolicy.hint')
+          )
+        : null,
       el('label', { key: 'duration', className: 'field' }, [
         el(
           'span',
@@ -103,9 +173,14 @@ const WatchStart = ({ busy, active, available, review, start }) => {
           type: 'button',
           'data-browser-watch-start': true,
           disabled: !review || review.expired || !valid,
-          onClick: () => start(review, duration * 60000),
+          onClick: () =>
+            start(review, duration * 60000, noticeAvailable && noticeReplies),
         },
-        t('browserWatch.start')
+        t(
+          noticeAvailable && noticeReplies
+            ? 'noticePolicy.start'
+            : 'browserWatch.start'
+        )
       ),
     ]
   );
@@ -120,12 +195,12 @@ export const BrowserAnswerWatchControls = (props) => {
     return null;
   }
   return el('div', { className: 'col', 'data-browser-answer-watch': true }, [
-    el('p', { key: 'hint', className: 'meta' }, t('browserWatch.hint')),
     el(WatchStart, {
       key: 'start',
       busy,
       active: state.active,
       available,
+      noticeAvailable: props.noticeAvailable,
       review,
       start: (...args) => run(() => state.start(...args)),
     }),

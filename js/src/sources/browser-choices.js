@@ -20,6 +20,10 @@ import {
   releaseChoiceClick,
 } from './browser-choice-controller.js';
 import { answerChoiceState } from '../automation/question-options.js';
+import {
+  browserNoticeContext,
+  noticeVacancyUrl,
+} from './browser-notice-context.js';
 import { checkedPendingMessages } from '../automation/question-pending-plan.js';
 import {
   resolveBrowserChoiceDocument,
@@ -59,6 +63,8 @@ const source = `(input) => {
   const armBrowserReply = (${armBrowserReply.toString()});
   const textReplyButtons = (${textReplyButtons.toString()});
   const textReplyOpen = (${textReplyOpen.toString()});
+  const noticeVacancyUrl = (${noticeVacancyUrl.toString()});
+  const browserNoticeContext = (${browserNoticeContext.toString()});
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
@@ -108,6 +114,7 @@ export const browserChoiceSpec = (ui) => {
     messages: ui.messages,
     composer: ui.composer,
     ...(ui.textReply ? { textReply: ui.textReply } : {}),
+    ...(ui.noticeContext ? { noticeContext: ui.noticeContext } : {}),
   };
 };
 
@@ -125,10 +132,16 @@ export const readBrowserHistory = async (commander, ui, target) => {
   return value.messages;
 };
 
-export const readBrowserAnswerChoices = async (commander, ui, target) => {
+export const readBrowserAnswerChoices = async (
+  commander,
+  ui,
+  target,
+  options = {}
+) => {
   const value = await evaluate(commander, {
     spec: browserChoiceSpec(ui),
     operation: 'read',
+    preserveDraft: options.preserveDraft === true,
   });
   if (value.code || value.chat !== String(target)) {
     throw failure(value.code ?? 'answer-chat-unverified');

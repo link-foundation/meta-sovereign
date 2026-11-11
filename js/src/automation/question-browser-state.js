@@ -24,6 +24,35 @@ export const validChoiceSources = (sources) =>
       boundedBrowserText(source?.id, 80) && boundedBrowserText(source.name, 120)
   );
 
+const checkedNoticeContext = (context) => {
+  if (context === undefined) {
+    return undefined;
+  }
+  if (
+    ![context?.company, context?.vacancy].every((value) =>
+      boundedBrowserText(value, 600)
+    ) ||
+    !boundedBrowserText(context.vacancyUrl, 600) ||
+    typeof context.canReply !== 'boolean'
+  ) {
+    throw Object.assign(
+      new Error('The employer chat context was not verified.'),
+      { code: 'question-browser-unverified' }
+    );
+  }
+  return {
+    company: context.company,
+    vacancy: context.vacancy,
+    vacancyUrl: context.vacancyUrl,
+    canReply: context.canReply,
+  };
+};
+
+const noticeProperties = (snapshot) =>
+  snapshot.noticeContext
+    ? { noticeContext: checkedNoticeContext(snapshot.noticeContext) }
+    : {};
+
 export const checkBrowserQuestion = (snapshot) => {
   const question = snapshot?.question;
   const pendingTurn =
@@ -61,6 +90,7 @@ export const checkBrowserQuestion = (snapshot) => {
     strictOptions: choices.strictOptions,
     answerOptions: [...choices.options],
     ...(pendingTurn ? { pendingTurn } : {}),
+    ...noticeProperties(snapshot),
   };
 };
 
@@ -161,6 +191,21 @@ export const checkedBrowserChoiceReceipt = (result, draft) => {
 
 export const checkBrowserWatchReceipt = (value) => {
   if (value.outbox?.status === 'sent' && value.outbox.resolvedBy !== 'user') {
+    if (value.selection?.type === 'text') {
+      if (
+        !browserTextReceipt(value.outbox.receipt, {
+          source: value.target.source,
+          chat: value.selection.chat,
+          text: value.selection.text,
+        })
+      ) {
+        throw Object.assign(
+          new Error('The text watcher receipt was not verified.'),
+          { code: 'question-browser-receipt-missing' }
+        );
+      }
+      return value;
+    }
     checkedBrowserChoiceReceipt(value.outbox.receipt, {
       source: value.target.source,
       chat: value.selection?.chat,

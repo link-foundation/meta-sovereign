@@ -1,5 +1,6 @@
 /* global document, location, getComputedStyle */
 import { browserPendingTurn } from './browser-pending-turn.js';
+import { browserNoticeContext } from './browser-notice-context.js';
 
 /** Distinguish unscoped greeting chips from actual provider answer controls. */
 export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
@@ -208,6 +209,7 @@ export const readBrowserChoices = (
     optionsShown: controls.map(text),
     messages,
     pendingTurn,
+    ...browserNoticeContext(spec),
   };
   return internal
     ? { ...result, controls: enabled, composer: composers[0] }

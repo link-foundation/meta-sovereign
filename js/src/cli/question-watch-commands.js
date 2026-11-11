@@ -7,6 +7,12 @@ export const questionWatchCommand = async (
   browser,
   progress = () => {}
 ) => {
+  if (
+    args['notice-replies'] !== undefined &&
+    ![true, false, 'true', 'false'].includes(args['notice-replies'])
+  ) {
+    throw new Error('notice-replies must be true or false');
+  }
   const id = args['watch-id'] ?? newBrowserWatchId();
   let cancelled = false;
   const cancel = () => {
@@ -20,6 +26,9 @@ export const questionWatchCommand = async (
       id,
       review: args.id,
       confirm: [true, 'true'].includes(args.confirm),
+      ...(args['notice-replies'] === undefined
+        ? {}
+        : { noticeReplies: [true, 'true'].includes(args['notice-replies']) }),
       ...(args['duration-ms'] === undefined
         ? {}
         : { durationMs: Number(args['duration-ms']) }),

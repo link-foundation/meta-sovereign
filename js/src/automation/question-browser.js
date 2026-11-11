@@ -67,6 +67,7 @@ const extraBrowserCapabilities = (send, sources, available) => {
   for (const [key, action, reader] of [
     ['watchSources', 'openAnswerWatch', 'answerWatchSources'],
     ['textSources', 'replyText', 'textReplySources'],
+    ['noticeSources', 'openAnswerWatch', 'noticeReplySources'],
   ]) {
     const candidates =
       typeof send[action] === 'function' ? (send[reader]?.() ?? []) : [];

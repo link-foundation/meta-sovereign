@@ -12,7 +12,11 @@ const scopeKey = (snapshot, plan) => {
 };
 
 /** Shared reviewed context for Questions, Chat, Operator and the finite watcher. */
-export const BrowserPendingTurn = ({ snapshot, plan }) => {
+export const BrowserPendingTurn = ({
+  snapshot,
+  plan,
+  historyVerified = false,
+}) => {
   const t = useT();
   const turn = snapshot.pendingTurn;
   const messages = turn?.messages.length ? turn.messages : [snapshot.question];
@@ -37,7 +41,11 @@ export const BrowserPendingTurn = ({ snapshot, plan }) => {
       el(
         'small',
         { key: 'coverage', className: 'meta' },
-        t(`browserAnswer.boundary.${turn?.boundary.kind ?? 'unknown'}`)
+        t(
+          historyVerified
+            ? 'noticePolicy.historyVerified'
+            : `browserAnswer.boundary.${turn?.boundary.kind ?? 'unknown'}`
+        )
       ),
       turn?.messages.length > 1
         ? el(

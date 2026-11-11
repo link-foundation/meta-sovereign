@@ -1,5 +1,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { NoticePolicyFields } from './question-notice-policy.js';
+import { normalizeNoticePolicy } from '../automation/question-notice-policy.js';
 
 const el = React.createElement;
 
@@ -9,11 +11,13 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
   const [equivalent, setEquivalent] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
+  const [notices, setNotices] = React.useState(normalizeNoticePolicy);
   const load = () =>
     run(async () => {
       const policy = await api.answerPolicy();
       setRejected(policy.rejected.join('\n'));
       setEquivalent(policy.punctuationEquivalent);
+      setNotices(normalizeNoticePolicy(policy.notices));
       setLoaded(true);
       setSaved(false);
     });
@@ -53,6 +57,7 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
                   .map((text) => text.trim())
                   .filter(Boolean),
                 punctuationEquivalent: equivalent,
+                notices,
               });
               setSaved(true);
             });
@@ -63,6 +68,14 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
             'fieldset',
             { key: 'fields', disabled: busy || !loaded, className: 'col' },
             [
+              el(NoticePolicyFields, {
+                key: 'notices',
+                value: notices,
+                change: (value) => {
+                  setNotices(value);
+                  setSaved(false);
+                },
+              }),
               el('label', { key: 'rejected', className: 'field' }, [
                 el(
                   'span',

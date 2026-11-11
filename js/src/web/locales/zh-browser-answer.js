@@ -1,4 +1,7 @@
+import { zhNoticePolicy } from './zh-notice-policy.js';
+
 export const zhBrowserAnswer = {
+  ...zhNoticePolicy,
   'browserText.title': '已审阅的文本回复',
   'browserText.draft': '回复文本',
   'browserText.hint':

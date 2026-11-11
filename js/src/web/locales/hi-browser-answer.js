@@ -1,4 +1,7 @@
+import { hiNoticePolicy } from './hi-notice-policy.js';
+
 export const hiBrowserAnswer = {
+  ...hiNoticePolicy,
   'browserText.title': 'समीक्षित पाठ उत्तर',
   'browserText.draft': 'उत्तर का पाठ',
   'browserText.hint':

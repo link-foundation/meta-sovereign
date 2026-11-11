@@ -1,4 +1,7 @@
+import { enNoticePolicy } from './en-notice-policy.js';
+
 export const enBrowserAnswer = {
+  ...enNoticePolicy,
   'browserText.title': 'Reviewed text reply',
   'browserText.draft': 'Reply text',
   'browserText.hint':

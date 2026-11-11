@@ -32,6 +32,9 @@ const checkedTextSnapshot = (target, expected) => {
     question: { id: question.id, body: question.body, outgoing: false },
     pendingTurn,
     answerOptions: [],
+    ...(expected.noticeContext
+      ? { noticeContext: expected.noticeContext }
+      : {}),
   };
 };
 

@@ -1,5 +1,6 @@
 // Saved passive notices use the same knowledge store as questions. A notice
-// match proposes text for review; it never grants permission for a background send.
+// match proposes text for review. Separate opt-in notice policy may consume
+// exact approval evidence, but the match itself never authorizes a send.
 import {
   asksQuestion,
   matchQuestion,
@@ -51,6 +52,15 @@ export const noticeRuleProperties = (
     : {};
 };
 
+const approvedNotice = (noReply, best, conflicting, result) =>
+  !noReply &&
+  !best.learned &&
+  best.match === 'exact' &&
+  best.answer.approved &&
+  !conflicting &&
+  result.complete &&
+  !result.requiresReview;
+
 export const applyNoticeAnswer = (result, notice, best, conflicting) => {
   if (!notice) {
     return result;
@@ -66,6 +76,9 @@ export const applyNoticeAnswer = (result, notice, best, conflicting) => {
   return {
     ...result,
     notice: true,
+    ...(approvedNotice(noReply, best, conflicting, result)
+      ? { approvedNoticeText: true }
+      : {}),
     ...(best.learned ? { learnedPattern: true } : {}),
     requiresReview: result.requiresReview || !ready,
     ...(noReply ? { text: '', noReply: ready, noReplyProposed: true } : {}),

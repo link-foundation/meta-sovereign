@@ -840,7 +840,7 @@ main[data-view='chat'] > .web-mode-banner {
 .browser-answer-controls fieldset {
   min-width: 0;
 }
-.browser-answer-controls input:not([type='radio']),
+.browser-answer-controls input:not([type='radio'], [type='checkbox']),
 .browser-answer-controls select {
   width: 100%;
   min-width: 0;

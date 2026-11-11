@@ -13,7 +13,11 @@ import { createQuestionWatchCycle } from './question-watch-cycle.js';
 const openWatch = async (context, runtime, review) => {
   await context.store.put(runtime.record);
   runtime.handle = await context.send.openAnswerWatch(review.target);
-  const snapshot = checkBrowserQuestion(await runtime.handle.read());
+  const snapshot = checkBrowserQuestion(
+    await runtime.handle.read({
+      preserveDraft: runtime.record.noticeReplies === true,
+    })
+  );
   if (JSON.stringify(snapshot) !== JSON.stringify(review.snapshot)) {
     throw failure('question-watch-page-changed');
   }
@@ -87,12 +91,14 @@ export const createQuestionBrowserWatches = ({
       }
       slots.add(review.target.source);
       const runtime = {
+        controller: new AbortController(),
         record: {
           id: input.id,
           kind: 'question-browser-watch',
           tokens: ['question-browser-watch', review.target.source],
           target: review.target,
           planning: review.planning,
+          ...(input.noticeReplies ? { noticeReplies: true } : {}),
           state: 'active',
           phase: 'starting',
           createdAt: clock().toISOString(),

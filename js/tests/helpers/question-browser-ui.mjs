@@ -12,9 +12,9 @@ import {
 /** Shared production UI fixture; native provider effects remain separately counted. */
 export const questionBrowserUi = async (
   browser,
-  { screenshots, group } = {}
+  { screenshots, group, serverOptions } = {}
 ) => {
-  const fixture = await questionBrowserServer(browser);
+  const fixture = await questionBrowserServer(browser, serverOptions);
   const context = await browser.newContext({
     viewport: { width: 1180, height: 950 },
   });

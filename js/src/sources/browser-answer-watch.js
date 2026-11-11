@@ -76,7 +76,16 @@ export const openBrowserAnswerWatch = async ({
     return result;
   };
   return {
-    read: () => run(() => readBrowserAnswerChoices(document, ui, target)),
+    read: (options) =>
+      run(() => readBrowserAnswerChoices(document, ui, target, options)),
+    readInactiveQuestion: () =>
+      run(() =>
+        withInactiveBrowserView(document, () =>
+          readBrowserAnswerChoices(document, ui, target, {
+            preserveDraft: true,
+          })
+        )
+      ),
     readInactiveHistory: (options = {}) => {
       normalizeChatScanOptions(options);
       if (!ui.historyScan) {
@@ -92,6 +101,7 @@ export const openBrowserAnswerWatch = async ({
             inactiveToken: token,
             verifyRestore: inactive,
             verifyCurrent: async () => {
+              await options.verifyCurrent?.();
               await verifyCurrent();
               await inactive();
             },

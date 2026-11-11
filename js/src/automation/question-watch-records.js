@@ -50,7 +50,11 @@ export const questionWatchStatus = async (store, running, input) => {
             phase: deliveryPhase(record, outbox),
             selection: {
               ...record.selection,
-              option: outbox.receipt?.option ?? record.selection.option,
+              ...(record.selection.type === 'text'
+                ? { text: outbox.text }
+                : {
+                    option: outbox.receipt?.option ?? record.selection.option,
+                  }),
             },
           }
         : {}),
@@ -86,8 +90,14 @@ export const saveQuestionWatch = async ({ store, clock }, runtime, patch) => {
 
 export const validWatchStart = (input) =>
   input?.confirm === true &&
+  (input.noticeReplies === undefined ||
+    typeof input.noticeReplies === 'boolean') &&
   browserReviewId(input.review) &&
   browserWatchId(input.id);
+
+const noticeUnavailable = (input, send, source) =>
+  input.noticeReplies &&
+  !(send.noticeReplySources?.() ?? []).some(({ id }) => id === source);
 
 export const questionWatchReview = async ({ store, send, clock }, input) => {
   const review = await store.get(input.review);
@@ -98,6 +108,7 @@ export const questionWatchReview = async ({ store, send, clock }, input) => {
     !review.planning ||
     !sources.some(({ id }) => id === review.target.source) ||
     typeof send.openAnswerWatch !== 'function' ||
+    noticeUnavailable(input, send, review.target.source) ||
     !Number.isSafeInteger(durationMs) ||
     durationMs < 1000 ||
     durationMs > 120 * 60 * 1000 ||

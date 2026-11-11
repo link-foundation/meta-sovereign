@@ -53,6 +53,8 @@ const checkedWatch = (value, id) => {
     value.mode !== 'browser-answer-watch' ||
     !browserWatchId(value.id) ||
     value.id !== id ||
+    (value.noticeReplies !== undefined &&
+      typeof value.noticeReplies !== 'boolean') ||
     !['active', 'paused', 'stopped'].includes(value.state) ||
     ![
       'starting',
@@ -67,6 +69,8 @@ const checkedWatch = (value, id) => {
       'marked-sent',
       'unknown',
       'failed',
+      'ignored',
+      'owner-active',
     ].includes(value.phase) ||
     typeof value.owned !== 'boolean' ||
     !Number.isFinite(Date.parse(value.expiresAt)) ||
@@ -122,7 +126,11 @@ export const questionBrowserApi = ({ remote }) => {
       if (result.available && !result.sources.length) {
         throw failure(result);
       }
-      for (const sources of [result.watchSources, result.textSources]) {
+      for (const sources of [
+        result.watchSources,
+        result.textSources,
+        result.noticeSources,
+      ]) {
         if (
           sources !== undefined &&
           (!validChoiceSources(sources) ||

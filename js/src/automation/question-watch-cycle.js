@@ -1,6 +1,7 @@
 import { previewAnswer } from './question-store.js';
 import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
+import { tickQuestionNotices } from './question-notice-watch.js';
 import {
   browserChoiceDraft,
   checkedBrowserChoiceReceipt,
@@ -136,6 +137,12 @@ const phaseOf = (snapshot, plan) => {
   return approved(plan) ? 'ready' : 'review';
 };
 
+const alreadySelected = (phase, snapshot, previous, runtime, plan) =>
+  phase === 'ready' &&
+  snapshot.strictOptions &&
+  previous?.status === 'sent' &&
+  previous.key === questionChoiceKey(choiceDraft(runtime, snapshot, plan));
+
 const tick = async (context, runtime) => {
   if (!runtime.fresh()) {
     await saveQuestionWatch(context, runtime, {
@@ -144,18 +151,16 @@ const tick = async (context, runtime) => {
     });
     return;
   }
+  if (runtime.record.noticeReplies) {
+    return tickQuestionNotices(context, runtime);
+  }
   const snapshot = checkBrowserQuestion(await runtime.handle.read());
   const plan = snapshot.question.outgoing
     ? null
     : await questionPlan(context, runtime.record, snapshot);
   let phase = phaseOf(snapshot, plan);
   const previous = runtime.record.outbox;
-  if (
-    phase === 'ready' &&
-    snapshot.strictOptions &&
-    previous?.status === 'sent' &&
-    previous.key === questionChoiceKey(choiceDraft(runtime, snapshot, plan))
-  ) {
+  if (alreadySelected(phase, snapshot, previous, runtime, plan)) {
     phase = previous.resolvedBy === 'user' ? 'marked-sent' : 'sent';
   }
   await saveQuestionWatch(context, runtime, {
@@ -219,6 +224,7 @@ export const createQuestionWatchCycle = (context, runtime, release) => {
     },
     async stop() {
       runtime.stopping = true;
+      runtime.controller?.abort();
       globalThis.clearTimeout(runtime.timer);
       try {
         await runtime.pending;

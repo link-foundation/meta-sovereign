@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [notice-policy.md](notice-policy.md) verifies separate default-review acknowledgement/rejection/invitation policies, explicit inactive current-chat HH delivery, complete-history and vacancy guards, flushed shared/per-chat reservations, full receipts and Lino restart holds through CLI/Lino/four-language controls. Focused native and independent MCP evidence is retained; cross-chat/unread/live/provider parity remains required.
+
 Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft implementation: <https://github.com/link-foundation/meta-sovereign/pull/57>.
 
 The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and canonical requirements R-AA1–R-AA25. The issue asks for complete feature parity with six reference projects, a shared configurable automation model, browser fallback, associative storage/transport, recovery and cross-device operation. Passing an isolated test does not complete those remaining criteria.
