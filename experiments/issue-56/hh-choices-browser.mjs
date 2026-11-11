@@ -11,6 +11,8 @@ try {
     JSON.stringify(
       await verifyHhChoices(browser, {
         screenshots: process.env.CHOICE_SCREENSHOTS,
+        historyOnly: process.env.HH_HISTORY_ONLY === '1',
+        collectFailures: process.env.HH_HISTORY_COLLECT_FAILURES === '1',
       })
     )
   );

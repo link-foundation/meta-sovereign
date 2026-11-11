@@ -374,6 +374,31 @@ test('readRecent maps visible messages to message links', async () => {
   assert.equal(links[1].timestamp, '2026-10-11T10:00:00.000Z');
 });
 
+test('readRecent retains text-free service barriers as message links', async () => {
+  const commander = fakeCommander({
+    present: signedIn('telegram'),
+    rows: [
+      { id: '1', body: 'Can you start Monday?', outgoing: false },
+      { id: '2', body: '', outgoing: true, service: true },
+      { id: '3', body: 'Yes, Monday works.', outgoing: true },
+    ],
+  });
+  const { openSession } = fakeSessions(() => commander);
+  const sender = createBrowserSender({ openSession, ...quick });
+  try {
+    const messages = await sender.readRecent({ source: 'telegram', chat: 7 });
+    assert.deepEqual(
+      messages.map((row) => row.id),
+      ['msg:telegram:7:1', 'msg:telegram:7:2', 'msg:telegram:7:3']
+    );
+    assert.equal(messages[1].service, true);
+    assert.equal(messages[1].body, '');
+    assert.equal(messages[2].service, undefined);
+  } finally {
+    await sender.close();
+  }
+});
+
 test('readRecent parses WhatsApp data-pre-plain-text', async () => {
   const commander = fakeCommander({
     present: signedIn('whatsapp'),

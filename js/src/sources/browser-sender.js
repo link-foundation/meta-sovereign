@@ -48,7 +48,7 @@ import { markSendOutcome } from './http.js';
 import {
   createBrowserChoiceActions,
   enrichBrowserChoices,
-  readBrowserAnswerChoices,
+  readBrowserHistory,
 } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
@@ -160,7 +160,7 @@ export const extractMessages = (spec) => {
   }));
 };
 
-/** Keep HH history and its choice metadata in one verified document snapshot. */
+/** Keep HH history and choice metadata in one read-only verified snapshot. */
 const readCurrentHistory = async (commander, page, ui, target, limit) => {
   if (ui.documents) {
     const document = await resolveBrowserChoiceDocument(
@@ -169,16 +169,15 @@ const readCurrentHistory = async (commander, page, ui, target, limit) => {
       ui,
       target
     );
-    const current = await readBrowserAnswerChoices(document, ui, target);
-    return current.messages.slice(-limit).map((row) =>
-      row.id === current.question.id
-        ? {
-            ...row,
-            strictOptions: current.strictOptions,
-            answerOptions: current.answerOptions,
-          }
-        : row
-    );
+    const history = await readBrowserHistory(document, ui, target);
+    if (process.env.MS_BROWSER_HISTORY_DEBUG === '1') {
+      console.error('[browser-history]', {
+        source: ui.id,
+        rows: history.length,
+        services: history.filter((row) => row.service === true).length,
+      });
+    }
+    return history.slice(-limit);
   }
   const history = await commander.evaluate({
     fn: extractMessages,
@@ -221,6 +220,7 @@ const toMessageLink = (source, chat, row) => {
     body: row.body,
     timestamp,
     outgoing: Boolean(row.outgoing),
+    ...(row.service === true ? { service: true } : {}),
     ...(row.strictOptions !== undefined
       ? { strictOptions: row.strictOptions, answerOptions: row.answerOptions }
       : {}),
@@ -612,7 +612,7 @@ export const createBrowserSender = ({
           readCurrentHistory(commander, page, ui, target, limit)
       );
       return (Array.isArray(rows) ? rows : [])
-        .filter((row) => row && String(row.body ?? '').length > 0)
+        .filter((row) => row?.service === true || row?.body)
         .map((row) => toMessageLink(source, chatOf(row), row));
     },
 

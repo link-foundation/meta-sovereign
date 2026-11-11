@@ -14,8 +14,65 @@ export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
   return offered.length > 0 && offered.some((node) => pattern.test(text(node)));
 };
 
-/** Composed with the static suggestion classifier; provider text stays data. */
-export const readBrowserChoices = (spec, internal = false) => {
+/** Shared verified rows. Service records remain chronology barriers. */
+export const browserChoiceHistory = (spec, visible, text) => {
+  const unavailable = (code) => ({ code });
+  const validLocation = (url, match) =>
+    spec.location.origins.includes(url.origin) && Boolean(match?.[1]);
+  const validRows = (rows) =>
+    !rows.some((row) => !row.id || row.body.length > 6000) &&
+    new Set(rows.map((row) => row.id)).size === rows.length;
+  const bodyOf = (node) =>
+    String(node.querySelector(spec.messages.body)?.innerText ?? '').trim();
+  const url = new URL(location.href);
+  const match = new RegExp(spec.location.pathPattern).exec(url.pathname);
+  if (!validLocation(url, match)) {
+    return unavailable('answer-chat-unverified');
+  }
+  const chat = match[1];
+  const candidates = [...document.querySelectorAll(spec.messages.item)];
+  if (candidates.length > 500) {
+    return unavailable('answer-history-limited');
+  }
+  const idPattern = new RegExp(spec.messages.idPattern);
+  const serviceTitle = spec.messages.serviceTitlePattern
+    ? new RegExp(spec.messages.serviceTitlePattern, 'iu')
+    : null;
+  const rows = candidates.filter(visible).map((node) => ({
+    node,
+    id: idPattern.exec(node.getAttribute(spec.messages.idAttribute) ?? '')?.[1],
+    body: bodyOf(node),
+    outgoing:
+      node.matches(spec.messages.outgoing) ||
+      Boolean(node.querySelector(spec.messages.outgoing)),
+    ...(serviceTitle?.test(text(node.querySelector(spec.messages.serviceTitle)))
+      ? { service: true }
+      : {}),
+  }));
+  if (!validRows(rows)) {
+    return unavailable('answer-history-unverified');
+  }
+  const messages = rows.map(({ node, ...row }) => ({
+    ...row,
+    timestamp: spec.messages.timestampAttribute
+      ? node.getAttribute(spec.messages.timestampAttribute)
+      : null,
+  }));
+  const latest = rows.at(-1);
+  return {
+    chat,
+    latest,
+    messages,
+    questionAvailable: Boolean(latest?.body) && !latest.service,
+  };
+};
+
+/** Composed with static helpers; provider text stays data. */
+export const readBrowserChoices = (
+  spec,
+  internal = false,
+  historyOnly = false
+) => {
   const text = (node) =>
     String(node?.textContent ?? '')
       .replace(/\s+/gu, ' ')
@@ -39,42 +96,18 @@ export const readBrowserChoices = (spec, internal = false) => {
     return true;
   };
   const unavailable = (code) => ({ code });
-  const validLocation = (url, match) =>
-    spec.location.origins.includes(url.origin) && Boolean(match?.[1]);
-  const validRows = (rows) =>
-    !rows.some((row) => !row.id || row.body.length > 6000) &&
-    new Set(rows.map((row) => row.id)).size === rows.length;
   const validControls = (controls) =>
     controls.length <= 100 &&
     !controls.some((node) => !text(node) || text(node).length > 6000);
-  const bodyOf = (node) =>
-    String(node.querySelector(spec.messages.body)?.innerText ?? '').trim();
-  const hasQuestion = (latest) => Boolean(latest?.body);
-  const url = new URL(location.href);
-  const match = new RegExp(spec.location.pathPattern).exec(url.pathname);
-  if (!validLocation(url, match)) {
-    return unavailable('answer-chat-unverified');
+  const history = browserChoiceHistory(spec, visible, text);
+  if (history.code) {
+    return history;
   }
-  const chat = match[1];
-  const candidates = [...document.querySelectorAll(spec.messages.item)];
-  if (candidates.length > 500) {
-    return unavailable('answer-history-limited');
-  }
-  const idPattern = new RegExp(spec.messages.idPattern);
-  const rows = candidates.filter(visible).map((node) => ({
-    node,
-    id: idPattern.exec(node.getAttribute(spec.messages.idAttribute) ?? '')?.[1],
-    body: bodyOf(node),
-    outgoing:
-      node.matches(spec.messages.outgoing) ||
-      Boolean(node.querySelector(spec.messages.outgoing)),
-  }));
-  if (!validRows(rows)) {
-    return unavailable('answer-history-unverified');
-  }
-  const latest = rows.at(-1);
-  if (!hasQuestion(latest)) {
-    return unavailable('answer-question-unavailable');
+  const { chat, latest, messages, questionAvailable } = history;
+  if (!questionAvailable) {
+    return historyOnly
+      ? { chat, messages }
+      : unavailable('answer-question-unavailable');
   }
   const all = [...document.querySelectorAll(spec.choices.button)];
   if (all.length > 1000) {
@@ -140,6 +173,16 @@ export const readBrowserChoices = (spec, internal = false) => {
       !node.matches(':disabled,[disabled],[aria-disabled="true"]') &&
       !node.closest('[inert],[aria-disabled="true"]')
   );
+  const strictOptions = [attached.length, pair, controls.length].some(Boolean);
+  const answerOptions = enabled.map(text);
+  if (historyOnly) {
+    return {
+      chat,
+      messages: messages.map((row) =>
+        row.id === latest.id ? { ...row, strictOptions, answerOptions } : row
+      ),
+    };
+  }
   const composers = [...document.querySelectorAll(spec.composer)].filter(
     visible
   );
@@ -149,15 +192,10 @@ export const readBrowserChoices = (spec, internal = false) => {
   const result = {
     chat,
     question: { id: latest.id, body: latest.body, outgoing: latest.outgoing },
-    strictOptions: [attached.length, pair, controls.length].some(Boolean),
-    answerOptions: enabled.map(text),
+    strictOptions,
+    answerOptions,
     optionsShown: controls.map(text),
-    messages: rows.map(({ node, ...row }) => ({
-      ...row,
-      timestamp: spec.messages.timestampAttribute
-        ? node.getAttribute(spec.messages.timestampAttribute)
-        : null,
-    })),
+    messages,
   };
   return internal
     ? { ...result, controls: enabled, composer: composers[0] }

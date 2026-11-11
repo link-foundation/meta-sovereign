@@ -3,10 +3,12 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import {
   readBrowserChoices,
   browserChoiceSuggestions,
+  browserChoiceHistory,
 } from './browser-choice-reader.js';
 import {
   createChoiceContext,
   readChoicePublic,
+  readChoiceHistory,
   prefillChoiceDraft,
   armChoiceClick,
   readChoiceReceipt,
@@ -19,6 +21,7 @@ import { openBrowserAnswerWatch } from './browser-answer-watch.js';
 // Only these application functions become code. Provider strings remain args.
 const methods = {
   read: readChoicePublic,
+  history: readChoiceHistory,
   prefill: prefillChoiceDraft,
   arm: armChoiceClick,
   receipt: readChoiceReceipt,
@@ -26,6 +29,7 @@ const methods = {
 };
 const source = `(input) => {
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
+  const browserChoiceHistory = (${browserChoiceHistory.toString()});
   const context = (${createChoiceContext.toString()})(input, ${readBrowserChoices.toString()});
   const methods = {${Object.entries(methods)
     .map(([name, method]) => `${name}: ${method.toString()}`)
@@ -76,6 +80,17 @@ export const browserChoiceSpec = (ui) => {
 
 const evaluate = (commander, input) =>
   commander.evaluate({ fn: browserChoicePage, args: [input] });
+
+export const readBrowserHistory = async (commander, ui, target) => {
+  const value = await evaluate(commander, {
+    spec: browserChoiceSpec(ui),
+    operation: 'history',
+  });
+  if (value.code || value.chat !== String(target)) {
+    throw failure(value.code ?? 'answer-chat-unverified');
+  }
+  return value.messages;
+};
 
 export const readBrowserAnswerChoices = async (commander, ui, target) => {
   const value = await evaluate(commander, {

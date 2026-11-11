@@ -87,6 +87,10 @@ export const HH_WEB_UI = {
     outgoing:
       '[data-qa="status-icon-delivered"], [data-qa="status-icon-read"], [data-qa="status-icon-sent"]',
     timestampAttribute: 'data-time',
+    serviceTitle:
+      '[data-qa="chat-bubble-title"], [data-qa="chat-bubble-author-name"]',
+    serviceTitlePattern:
+      '^(?:отклик на вакансию|vacancy application|(?:application for|response to) (?:the|a) vacancy|bewerbung)$',
   },
   chats: {
     item: '[data-qa^="chatik-open-chat-"], a[href^="/chat/"]',

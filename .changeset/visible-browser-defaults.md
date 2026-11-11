@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Keep native HH application letters, including empty bubbles, as service barriers in browser history. Separate history reads from owned-draft reconciliation, exclude applications from learned answers and native delivery receipts, and refuse stale application answer plans. Add opt-in count-only history diagnostics.
+
 Add bounded HH virtual chat-list scans with trusted document/frame ownership, unique observed identities, explicit incomplete provider coverage and guarded scroll restoration. Cancel queued scans before browser acquisition, drain active scans on shutdown, exclude unrelated container rows and preserve actual zero unread counts.
 
 Read native HH virtual chat cells with bounded numeric web IDs, titles, previews and unread badges. Reject conflicting identities and duplicate nested anchors before applying list limits, while preserving other providers' existing identity rules.

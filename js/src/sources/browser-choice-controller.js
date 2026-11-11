@@ -9,7 +9,7 @@ export const createChoiceContext = (input, read) => {
     observed: new WeakSet(),
     attempts: new Map(),
   });
-  const snapshot = () => read(spec, true);
+  const snapshot = (historyOnly = false) => read(spec, true, historyOnly);
   const identity = (value) =>
     JSON.stringify([value.chat, value.question?.id, value.question?.body]);
   const same = (value) =>
@@ -66,6 +66,9 @@ export const createChoiceContext = (input, read) => {
   };
   return { state, snapshot, identity, same, valueOf, write, clearOwned, clean };
 };
+
+/** Reading history must not clear or acquire the provider composer. */
+export const readChoiceHistory = (_input, { snapshot }) => snapshot(true);
 
 export const readChoicePublic = (_input, context) => {
   const { snapshot, clearOwned, valueOf } = context;
@@ -190,6 +193,7 @@ export const readChoiceReceipt = (input, context) => {
           .filter(
             (row) =>
               row.outgoing &&
+              !row.service &&
               !attempt.before.includes(row.id) &&
               row.body === option
           )

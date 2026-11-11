@@ -10,9 +10,48 @@ import {
 } from '../../../experiments/issue-56/hh-choice-fixture.mjs';
 import { providerChoiceDraft } from '../../../experiments/issue-56/provider-choice-fixture.mjs';
 import { verifyHhChoiceWatch } from './e2e-hh-choice-watch.mjs';
+import { verifyHhBrowserHistory } from './e2e-hh-browser-history.mjs';
+
+const takeHhScreenshot = async (page, screenshots, name) => {
+  if (screenshots) {
+    await mkdir(screenshots, { recursive: true });
+    await page.screenshot({
+      path: join(screenshots, `hh-choices-${name}.png`),
+      fullPage: true,
+    });
+  }
+};
+
+const hhCaseRunner = (collectFailures) => {
+  let cases = 0;
+  const failures = [];
+  const run = async (name, verify) => {
+    try {
+      await verify();
+      cases++;
+      console.log(`[hh-choices] PASS ${name}`);
+    } catch (error) {
+      if (!collectFailures) {
+        throw error;
+      }
+      failures.push(name);
+      console.error(`[hh-choices] FAIL ${name}: ${error.message}`);
+    }
+  };
+  return {
+    run,
+    failures,
+    get cases() {
+      return cases;
+    },
+  };
+};
 
 /** Bounded native HH main/cross-origin/nested frame regressions with no network. */
-export const verifyHhChoices = async (browser, { screenshots } = {}) => {
+export const verifyHhChoices = async (
+  browser,
+  { screenshots, historyOnly = false, collectFailures = false } = {}
+) => {
   const context = await browser.newContext({
     viewport: { width: 1050, height: 900 },
   });
@@ -62,21 +101,9 @@ export const verifyHhChoices = async (browser, { screenshots } = {}) => {
       clicks: window.fixture.clicks,
       text: window.fixture.textSends,
     }));
-  const screenshot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await page.screenshot({
-        path: join(screenshots, `hh-choices-${name}.png`),
-        fullPage: true,
-      });
-    }
-  };
-  let cases = 0;
-  const run = async (name, verify) => {
-    await verify();
-    cases++;
-    console.log(`[hh-choices] PASS ${name}`);
-  };
+  const screenshot = (name) => takeHhScreenshot(page, screenshots, name);
+  const results = hhCaseRunner(collectFailures);
+  const { run, failures } = results;
   const openApp = async (markup = hhApplicationHtml()) => {
     application = markup;
     await page.goto(appArgs.browserUrl);
@@ -88,7 +115,25 @@ export const verifyHhChoices = async (browser, { screenshots } = {}) => {
       }
     });
   };
+  const fixture = {
+    run,
+    page,
+    sender,
+    args,
+    appArgs,
+    frame,
+    mount,
+    counters,
+    screenshot,
+    openApp,
+  };
   try {
+    if (historyOnly) {
+      await verifyHhBrowserHistory(fixture);
+      assert.deepEqual(failures, []);
+      assert.deepEqual(errors, []);
+      return { cases: results.cases, pageErrors: errors, liveProvider: false };
+    }
     // Capture the actual pre-adapter view when the parent has no built-in HH.
     await page.goto('https://hh.ru/chat/7');
     await mount();
@@ -142,23 +187,12 @@ export const verifyHhChoices = async (browser, { screenshots } = {}) => {
         await screenshot('frame-after');
       }
     );
-    const fixture = {
-      run,
-      page,
-      sender,
-      args,
-      appArgs,
-      frame,
-      mount,
-      counters,
-      screenshot,
-      openApp,
-    };
     await verifyFrameSelection(fixture);
     await verifyFrameRaces(fixture);
     await verifyHhChoiceWatch(fixture);
+    await verifyHhBrowserHistory(fixture);
     assert.deepEqual(errors, []);
-    return { cases, pageErrors: errors, liveProvider: false };
+    return { cases: results.cases, pageErrors: errors, liveProvider: false };
   } finally {
     await sender.close();
     await context.close();
