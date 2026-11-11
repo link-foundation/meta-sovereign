@@ -329,7 +329,7 @@ jobs:
     runs-on: ${{ matrix.runner || matrix.os }}
     # Retain the 10min deadline. Cold Intel macOS Node jobs can spend several
     # minutes installing and then exceed it with the complete suite; split
-    # that target across two runners, keeping every test and its 30s limit.
+    # that target across three runners, keeping every test and its 30s limit.
     timeout-minutes: 10
     needs:
       [
@@ -357,7 +357,7 @@ jobs:
       matrix:
         os: [ubuntu-26.04, macos-26, windows-2025]
         runtime: [node, bun, deno]
-        # Exclude the original pair so include appends both shards instead
+        # Exclude the original pair so include appends all shards instead
         # of overwriting the first shard's added matrix properties.
         exclude:
           - os: macos-26
@@ -369,11 +369,15 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 1/2
+            shard: 1/3
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 2/2
+            shard: 2/3
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 3/3
     steps:
       - uses: actions/checkout@v7.0.1
         with:

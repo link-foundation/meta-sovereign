@@ -16,12 +16,16 @@ test('macOS Node shards retain every test and fail on a failing shard', (t) => {
   const shards = job.strategy.matrix.include.filter(
     ({ os, runtime }) => os === 'macos-26' && runtime === 'node'
   );
-  assert.deepEqual(shards.map(({ shard }) => shard).sort(), ['1/2', '2/2']);
+  assert.deepEqual(shards.map(({ shard }) => shard).sort(), [
+    '1/3',
+    '2/3',
+    '3/3',
+  ]);
   assert.ok(
     job.strategy.matrix.exclude.some(
       ({ os, runtime }) => os === 'macos-26' && runtime === 'node'
     ),
-    'append both shards without replacing properties on the original pair'
+    'append all shards without replacing properties on the original pair'
   );
   assert.equal(job.strategy['fail-fast'], false);
   assert.equal(job['timeout-minutes'], 10);

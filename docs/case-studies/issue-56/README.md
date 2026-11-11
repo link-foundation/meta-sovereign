@@ -222,3 +222,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI: synthetic credential fixture](ci-assignment-secret-fixture.md) — exact-head secret-scan reproduction, preserved rejection assertion and completed parent workflow evidence.
 
 - [CI: assignment planning fixtures](ci-assignment-plan-fixtures.md) — nine exact-head runtime logs and restored capacity/acquired-store assertions.
+
+- [CI: macOS Node shard deadline](ci-macos-shards.md) — actual ten-minute cancellation, passing companion shard, complete coverage across three runners and focused failure propagation.

@@ -1,0 +1,25 @@
+{
+  "archive": "ci-macos-shards.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "5e753f52e8c90654dbb89ff6b44337a8681b055166a920f566df4778f7220971",
+    "before/.github/workflows/release.yml": "23b9a92936d8689a670586c80e2c423cea3fbd8ef1661a5b216197b5d4ee86e2",
+    "before/js/tests/ci-node-shards.test.js": "a0068a5a5ae1b192d22d5de9f7d166e08329efca1558024118bc63dfdcc554b4",
+    "ci-logs/assignment-publication-macos-cancelled-annotations.json": "008cd95eeb81067eb2f481e3585355827e104ff0cb9937c0ddf98ed353dbd34e",
+    "ci-logs/assignment-publication-macos-cancelled-job.json": "0453d750ad520c56f33ca112aa7537fc3596fef91dbe13551f410feee8fa1e12",
+    "ci-logs/checks-42964992347-job-130341086233.log": "100f0e5534c76c6d89bab1d2a98aca4f6d595c6a6fd9d9813d246d4f9acfb9b1",
+    "ci-logs/checks-42964992347-job-130341086349.log": "6fbbb944b944b441c593db30d9f40fdffbbfc141c3c4c87001a1682f5147911d",
+    "ci-logs/checks-42964992347-job-130349340570.log": "6f6938456d76efe8d64b0e6815b20669d2543428c6028434b1593b5f66d2f74d",
+    "ci-logs/ci-macos-redistribution-deno.log": "cc7a02992b9dc0bfbcc0ee573f1cb592fa2618f63f1582debcfa759489e8797f",
+    "ci-logs/ci-macos-redistribution-format.log": "5bdc473e60ef570c5ba14c6185dd46831b5391d25cf4f8cb03029b0a33a06218",
+    "ci-logs/ci-macos-redistribution-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-macos-redistribution-node.log": "b0b42656f82b72f4f580cd5fe6fb532f31e388d414667549192da1b23c69053b",
+    "ci-logs/ci-macos-redistribution-parent-jobs.json": "5e9e865bb011c5f00f80e3f306275d93a1c624bce6818c2ecbe68b73a7917737",
+    "ci-logs/ci-macos-redistribution-runs.json": "2c7c552fefc54cb2397b5cbec7855bc70fd666d4d44b20b4342d959a14d661b4",
+    "docs/case-studies/issue-56/ci-macos-shards.md": "f4e2afbe1bec09b53ff66c5a72769361a85e45c3f2d69ff3b4ca6c39a7c63e4d",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-macos-shards.py": "b0c1f990e7f6ec7bed36f45c9b8033f40e611ecb44f7c1d9fe3b306930c1e9ea",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/tests/ci-node-shards.test.js": "2e89a4d10d90b4fd3738d767a3ffc68f0510cd7caf33bf8773851073c7f5fdf8",
+    "metadata.json": "37cc90de3a7a811472c3c123dbc484be21c80bb6aeca36932662ae0de3b40489"
+  }
+}
