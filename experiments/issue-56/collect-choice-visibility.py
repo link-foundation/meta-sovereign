@@ -24,7 +24,7 @@ assert result['owner']['receipt']['sent'] and not result['owner']['state']['visi
 assert result['owner']['state']['draft'] == 'Owner reply remains mine'
 parent = 'c35f813d507dbff50a2d094ebe12177b01304020'
 bundle(root, [
-    *changed_sources(root), *evidence_logs(root, 'choice-visibility'),
+    *changed_sources(root, parent), *evidence_logs(root, 'choice-visibility'),
     'experiments/issue-56/provider-choices-mcp-server.mjs',
     'experiments/issue-56/provider-choice-fixture.mjs',
 ], 'docs/case-studies/issue-56/data/choice-visibility.tar.gz', {
