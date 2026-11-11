@@ -2,6 +2,7 @@
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { assert, openChatApp } from '../../js/tests/helpers/e2e-chat.mjs';
 import { verifyQuestionNotices } from '../../js/tests/helpers/e2e-question-notices.mjs';
+import { verifyNoticeLearning } from '../../js/tests/helpers/e2e-notice-learning.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
@@ -27,7 +28,9 @@ await fixture.page.addInitScript(
   { key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION }
 );
 await fixture.finish(async () => {
-  const result = await verifyQuestionNotices({
+  const learning = process.argv.includes('--learning');
+  const verify = learning ? verifyNoticeLearning : verifyQuestionNotices;
+  const result = await verify({
     ...fixture,
     store,
     before: process.argv.includes('--before'),
@@ -35,7 +38,7 @@ await fixture.finish(async () => {
   });
   assert(sends === 0, 'notice review issues zero provider sends');
   console.log(
-    '[notice-results]',
+    learning ? '[notice-learning-results]' : '[notice-results]',
     JSON.stringify({ ...result, providerSends: sends })
   );
 });

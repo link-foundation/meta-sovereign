@@ -4,17 +4,13 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { createAutomationCommands } from '../src/cli/automation-commands.js';
 import { questionApi } from '../src/web/question-api.js';
 import { formReviewHttp } from './helpers/forms-review-http.mjs';
+import { postQuestion } from './helpers/question-http.mjs';
 import { saveAnswerModel } from '../src/automation/answer-model-config.js';
 import {
   previewAnswer,
   saveAnswerRule,
 } from '../src/automation/question-store.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import {
   noticeText,
   noticeReply,
@@ -94,20 +90,8 @@ test(
       { store: createMemoryStore() },
       LINO_TEXT
     );
-    const call = async (action, body, media) => {
-      const response = await fetch(
-        `${base}/api/automations/answers/${action}`,
-        {
-          method: 'POST',
-          headers: { accept: media, 'content-type': media },
-          body: encodeWire(body, media),
-        }
-      );
-      return {
-        status: response.status,
-        body: await readWireResponse(response),
-      };
-    };
+    const call = (action, body, media) =>
+      postQuestion(base, action, body, media);
     try {
       for (const media of [LINO_TEXT, LINO_BINARY]) {
         const saved = await call('save', { rule: noticeRule() }, media);

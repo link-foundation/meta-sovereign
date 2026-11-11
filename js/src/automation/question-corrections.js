@@ -4,6 +4,7 @@ import { matchContextualQuestion } from './question-context-match.js';
 import { questionCore } from './question-turns.js';
 import { renderAnswer } from './question-profile.js';
 import { rejectedAnswer } from './question-policy.js';
+import { matchNotice } from './question-notices.js';
 
 export const answerRuleEligible = (rule, { source, chat } = {}) =>
   rule.enabled !== false &&
@@ -32,7 +33,9 @@ export const createAnswerCorrectionGuard = (
     .filter((rule) => rule.answers.some((answer) => answer.canonical))
     .map((rule) => ({
       rule,
-      questions: [rule.question, ...(rule.questions ?? [])].map(core),
+      questions: [rule.question, ...(rule.questions ?? [])].map((text) =>
+        rule.kind === 'notice' ? text : core(text)
+      ),
       answers: new Set(
         rule.answers
           .filter((answer) => answer.canonical)
@@ -49,12 +52,15 @@ export const createAnswerCorrectionGuard = (
     const normalized = core(question);
     const applicable = corrections.filter(
       (entry) =>
+        (entry.rule.kind === 'notice') === (context.notice === true) &&
         answerRuleEligible(entry.rule, context) &&
         entry.questions.some((pattern) =>
-          matchContextualQuestion(pattern, normalized, entry.rule, {
-            matching,
-            contexts,
-          })
+          entry.rule.kind === 'notice'
+            ? matchNotice(pattern, question, matching)
+            : matchContextualQuestion(pattern, normalized, entry.rule, {
+                matching,
+                contexts,
+              })
         )
     );
     return (

@@ -321,12 +321,16 @@ test('question provider and control scenarios have separate mandatory browser bu
     questions,
     /await verifyQuestionNotices\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
   );
+  assert.match(
+    questions,
+    /await verifyNoticeLearning\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
+  );
   assert.doesNotMatch(
     readFileSync(
       path.join(root, 'js/tests/e2e-question-controls-browser.mjs'),
       'utf8'
     ),
-    /\bverifyQuestionNotices\b/u,
+    /\bverify(?:QuestionNotices|NoticeLearning)\b/u,
     'notice review needs the shared page/store fixture, not a Browser'
   );
   for (const [name, scenarios] of Object.entries(groups)) {

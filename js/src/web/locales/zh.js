@@ -1276,7 +1276,7 @@ export const zh = {
   'questions.automationName': '回答收到的问题',
   'questions.learn': '从对话中学习',
   'questions.learnHint':
-    '从此设备保存的所有消息中学习。仅完整轮次中实际发出的回答计入频率；摘要引用不增加次数。建议仍需批准。',
+    '从此设备保存的消息中学习问题和通知的回复。实际发出的回复计入频率；摘要引用不增加次数。未回复不会生成免回复规则。建议仍需批准。',
   'questions.previewLearning': '预览学到的回答',
   'questions.applyLearning': '保存建议以供审核',
   'questions.learned': '建议已保存。请先检查每个回答，再批准。',

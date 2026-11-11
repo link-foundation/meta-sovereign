@@ -233,16 +233,21 @@ test('learning counts unique actual outgoing answers and preserves turns', async
     'msg:hh:1:3',
     'msg:vk:1:2',
   ]);
-  assert.equal(
-    learnAnswerRules(
-      [
-        message('hh', 1, 'them', 'Какой у вас опыт?'),
-        message('hh', 2, 'them', 'Новая тема.'),
-        message('hh', 3, 'me', 'Другое.'),
-      ],
-      { self: ['me'] }
-    ).length,
-    0
+  const interrupted = learnAnswerRules(
+    [
+      message('hh', 1, 'them', 'Какой у вас опыт?'),
+      message('hh', 2, 'them', 'Новая тема.'),
+      message('hh', 3, 'me', 'Другое.'),
+    ],
+    { self: ['me'] }
+  );
+  assert.equal(interrupted.length, 1);
+  assert.equal(interrupted[0].kind, 'notice');
+  assert.equal(interrupted[0].question, 'Новая тема.');
+  assert.equal(interrupted[0].answers[0].text, 'Другое.');
+  assert.ok(
+    interrupted.every((rule) => rule.question !== 'Какой у вас опыт?'),
+    'the new incoming turn still prevents learning the earlier question'
   );
 });
 

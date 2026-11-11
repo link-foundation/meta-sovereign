@@ -243,3 +243,5 @@ Flush durable outgoing reservations before provider dispatch so grouped text-sto
 Add explicitly started finite HH current-chat answer watches through foreground CLI, text/binary Lino and shared localized Chat, Operator and Questions controls. Wait for native options, preserve owner drafts, never automatically send free text, and drain Stop/shutdown while retaining uncertain reservations and recovering saved status without resuming automation.
 
 Add explicit passive-notice rules through CLI, Lino, offline storage and localized review controls. Keep text replies under review and approved no-reply markers out of outbound messages.
+
+Learn unapproved passive-notice replies from actual delivered owner turns, preserving scoped corrections, privacy, replay-safe counts and separate question/form labels. Expose notice proposals in the shared four-language learning controls; never infer no-reply from silence.

@@ -2,6 +2,7 @@
 import { createMemoryStore } from '../src/storage/universal.js';
 import { verifyQuestionMatching } from './helpers/e2e-question-matching.mjs';
 import { verifyQuestionNotices } from './helpers/e2e-question-notices.mjs';
+import { verifyNoticeLearning } from './helpers/e2e-notice-learning.mjs';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { verifySalaryExchange } from './helpers/e2e-salary-exchange.mjs';
@@ -611,6 +612,7 @@ const verifyProviderHistoryAndNotices = async () => {
   await resetHhHistoryFixture(store);
   await verifyHhHistory({ page, base, store, until });
   await verifyQuestionNotices({ page, base, store, until });
+  await verifyNoticeLearning({ page, base, store, until });
 };
 
 await finish(async () => {

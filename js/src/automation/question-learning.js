@@ -9,6 +9,11 @@ import { historyOrder } from '../replies/history-order.js';
 import { questionProse, splitNumberedAnswers } from './question-lists.js';
 import { createAnswerCorrectionGuard } from './question-corrections.js';
 import {
+  noticeCore,
+  passiveNotice,
+  NO_NOTICE_REPLY,
+} from './question-notices.js';
+import {
   questionCore,
   isQuestionReminder,
   isContinuationConsent,
@@ -54,6 +59,7 @@ const privateUrl = (text) => {
 };
 const reusable = (text) =>
   text.length <= 12000 &&
+  text.trim() !== NO_NOTICE_REPLY &&
   !/\[уточнить|\{\{answer:/iu.test(text) &&
   !privateUrl(text);
 
@@ -96,6 +102,14 @@ const usableQuestion = (message, isSelf) =>
   !message.service &&
   asksQuestion(message.body);
 
+const usableNotice = (message, isSelf) =>
+  !isSelf(message) &&
+  !message.deleted &&
+  !message.service &&
+  !isStandaloneGreeting(message.body) &&
+  !isContinuationConsent(message.body) &&
+  passiveNotice(message.body);
+
 const answerTarget = (question, prior, hasAnswers, message, isSelf) => {
   if (hasAnswers || !prior || !usableAnswer(prior, message, isSelf)) {
     return question;
@@ -122,9 +136,18 @@ const questionBeforeReminder = (
   }
   const previous = prior ?? question;
   return previous &&
+    usableQuestion(previous, isSelf) &&
     Date.parse(message.timestamp) - Date.parse(previous.timestamp) <= 86400000
     ? previous
     : null;
+};
+
+const learnedIdentity = (text, notice) => {
+  const question = notice ? noticeCore(text) : questionCore(text);
+  return {
+    question,
+    key: `${notice ? 'notice:' : ''}${questionKey(question)}`,
+  };
 };
 
 const answerCollection = ({ policy, contract, correction }) => {
@@ -138,7 +161,9 @@ const answerCollection = ({ policy, contract, correction }) => {
     return next;
   };
   const add = (question, text, evidence, count = 1, context = {}) => {
-    question = questionCore(question);
+    const notice = context.notice === true;
+    const identity = learnedIdentity(question, notice);
+    question = identity.question;
     if (
       !reusable(text) ||
       privateUrl(question) ||
@@ -150,10 +175,11 @@ const answerCollection = ({ policy, contract, correction }) => {
       return;
     }
     text = contract(text);
-    const key = questionKey(question);
+    const key = identity.key;
     const group = learned.get(key) ?? {
       id: `${QA_RULE_PREFIX}${hash(key)}`,
       tokens: ['qa-rule'],
+      ...(notice ? { kind: 'notice' } : {}),
       question,
       enabled: true,
       sources: [],
@@ -218,8 +244,8 @@ export const createAnswerPairLearner = ({
   };
 };
 
-// One chronological conversation at a time; retain a question, its immediate
-// reminder and twenty outgoing bubbles. No unrelated turn can bridge the pair.
+// One chronological conversation at a time; retain a question or passive notice,
+// a question's immediate reminder and twenty actual outgoing bubbles.
 export const createAnswerLearner = ({
   self = ['me'],
   policy = {},
@@ -244,10 +270,19 @@ export const createAnswerLearner = ({
     if (question && answers.length) {
       const text = answers.map((answer) => answer.body.trim()).join('\n');
       const evidence = answers.map((answer) => answer.id);
-      collection.add(question.body.trim(), text, evidence, 1, question);
-      addAlignedParts(question.body, text, evidence, (part, answer, ids) =>
-        collection.add(part, answer, ids, 1, question)
-      );
+      const context = { ...question, notice: usableNotice(question, isSelf) };
+      if (context.notice) {
+        debugQuestionTurn('notice-pair-observed', {
+          question: question.id,
+          answers: evidence,
+        });
+      }
+      collection.add(question.body.trim(), text, evidence, 1, context);
+      if (!context.notice) {
+        addAlignedParts(question.body, text, evidence, (part, answer, ids) =>
+          collection.add(part, answer, ids, 1, context)
+        );
+      }
     }
     question = null;
     priorQuestion = null;
@@ -296,7 +331,10 @@ export const createAnswerLearner = ({
         for (const pair of summaries) {
           collection.add(pair.question, pair.text, [message.id], 0, message);
         }
-      } else if (usableQuestion(message, isSelf)) {
+      } else if (
+        usableQuestion(message, isSelf) ||
+        usableNotice(message, isSelf)
+      ) {
         question = message;
         priorQuestion = previous;
       }

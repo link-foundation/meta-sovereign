@@ -1338,7 +1338,7 @@ export const en = {
   'questions.automationName': 'Answer incoming questions',
   'questions.learn': 'Learn from conversations',
   'questions.learnHint':
-    'Learn from all messages saved on this device. Actual outgoing answers in complete turns contribute to frequencies; quoted summaries add no uses. Proposals remain unapproved.',
+    'Learn question and passive-notice replies from messages saved on this device. Actual outgoing replies contribute to frequencies; quoted summaries add no uses. Silence never creates a no-reply rule. Proposals remain unapproved.',
   'questions.previewLearning': 'Preview learned answers',
   'questions.applyLearning': 'Save proposals for review',
   'questions.learned':

@@ -309,6 +309,13 @@ const LearnedAnswers = ({ busy, learned, learn }) => {
             { key: 'list' },
             learned.rules.map((entry) =>
               el('li', { key: entry.id }, [
+                el(
+                  'div',
+                  { key: 'kind', className: 'meta' },
+                  t(
+                    `questions.ruleKind.${entry.kind === 'notice' ? 'notice' : 'question'}`
+                  )
+                ),
                 el('strong', { key: 'question' }, entry.question),
                 ...entry.answers.map((answer, index) =>
                   el('div', { key: index }, [
