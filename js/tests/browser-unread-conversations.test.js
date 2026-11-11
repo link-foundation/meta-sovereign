@@ -46,7 +46,9 @@ test('unread passes require explicit bounded existing-view admission before open
 
 test('the finite native-history fixture compiles before any browser is started', () => {
   const html = chatNavigationHtml();
-  assert.doesNotThrow(
-    () => new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1])
-  );
+  // These delimiters belong to this fixed fixture, not an HTML sanitizer.
+  const start = html.indexOf('<script>') + '<script>'.length;
+  const end = html.lastIndexOf('</script>');
+  assert.ok(start >= '<script>'.length && end > start);
+  assert.doesNotThrow(() => new vm.Script(html.slice(start, end)));
 });
