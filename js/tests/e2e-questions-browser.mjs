@@ -1,5 +1,3 @@
-import { verifySummaryChoices } from './helpers/e2e-summary-choice.mjs';
-import { verifyQuestionBrowserWatch } from './helpers/e2e-question-browser-watch.mjs';
 // Production Q/A controls with an isolated store and no provider sends.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { verifyQuestionMatching } from './helpers/e2e-question-matching.mjs';
@@ -19,26 +17,16 @@ import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
 import { verifyResumeProfile } from './helpers/e2e-resume-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
 import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
-import { verifyProviderChoices } from './helpers/e2e-provider-choices.mjs';
-import { verifyQuestionBrowserControls } from './helpers/e2e-question-browser-controls.mjs';
-import { verifyHhChoices } from './helpers/e2e-hh-choices.mjs';
-import { verifyHhChatList } from './helpers/e2e-hh-chat-list.mjs';
-import { verifyHhChatScan } from './helpers/e2e-hh-chat-scan.mjs';
-import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
+import {
+  traceBrowserInputs,
+  traceBrowserDetails,
+  inputTrace,
+} from './helpers/e2e-input-trace.mjs';
+import { traceBrowserScenario } from './helpers/e2e-browser-scenarios.mjs';
 import {
   verifyHhHistory,
   resetHhHistoryFixture,
 } from './helpers/e2e-hh-history.mjs';
-
-const verifyProviderBrowsers = async (browser) => {
-  await verifyProviderChoices(browser);
-  await verifyHhChoices(browser);
-  await verifyHhChatList(browser);
-  await verifyHhChatScan(browser);
-  await verifyQuestionBrowserControls(browser);
-  await verifySummaryChoices(browser);
-  await verifyQuestionBrowserWatch(browser);
-};
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -65,6 +53,7 @@ await traceBrowserInputs(
   page,
   '[data-answer-rule] textarea, [data-answer-rule] button'
 );
+await traceBrowserDetails(page, '[data-question-controls]');
 const rtcConnections = [];
 page.on('websocket', (socket) => {
   if (new URL(socket.url()).pathname === '/rtc') {
@@ -547,10 +536,21 @@ const prepareQuestionPage = async () => {
 };
 
 const verifyProfileControls = async (preview) => {
-  await verifyQuestionProfile({ page, panel, preview, store });
-  await verifyQuestionSharedProfile({ page, base, store });
-  await verifyQuestionLegacyProfile({ page, base, store });
-  await verifyResumeProfile({ page, base, panel, store });
+  for (const verify of [
+    verifyQuestionProfile,
+    verifyQuestionSharedProfile,
+    verifyQuestionLegacyProfile,
+    verifyResumeProfile,
+  ]) {
+    try {
+      await traceBrowserScenario('questions', verify.name, () =>
+        verify({ page, base, panel, preview, store })
+      );
+    } catch (error) {
+      console.log('[profile-state]', JSON.stringify(await inputTrace(page)));
+      throw error;
+    }
+  }
 };
 
 const verifyRefusedSave = async (saved) => {
@@ -738,7 +738,5 @@ await finish(async () => {
   await verifyQuestionMatching({ page, panel, store, until });
   // The final provider fixture has its own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
-  await verifyHhHistory({ page, base, store, until }).then(() =>
-    verifyProviderBrowsers(page.context().browser())
-  );
+  await verifyHhHistory({ page, base, store, until });
 });

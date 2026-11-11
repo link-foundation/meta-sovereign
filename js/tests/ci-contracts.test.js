@@ -294,3 +294,53 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   );
   assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
 });
+
+test('question provider and control scenarios have separate mandatory browser budgets', () => {
+  const checks = JSON.parse(
+    readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
+  );
+  const scripts = JSON.parse(
+    readFileSync(path.join(root, 'package.json'))
+  ).scripts;
+  const questions = readFileSync(
+    path.join(root, 'js/tests/e2e-questions-browser.mjs'),
+    'utf8'
+  );
+  const groups = {
+    'question-providers': ['verifyProviderChoices', 'verifyHhChoices'],
+    'question-chat-lists': ['verifyHhChatList', 'verifyHhChatScan'],
+    'question-controls': [
+      'verifyQuestionBrowserControls',
+      'verifySummaryChoices',
+      'verifyQuestionBrowserWatch',
+    ],
+  };
+  assert.equal(checks.filter((name) => name === 'questions').length, 1);
+  assert.match(questions, /await verifyHhHistory\(/u);
+  for (const [name, scenarios] of Object.entries(groups)) {
+    assert.equal(checks.filter((check) => check === name).length, 1, name);
+    const command = scripts[`test:e2e:${name}`];
+    assert.equal(command, `node js/tests/e2e-${name}-browser.mjs`);
+    assert.equal(
+      scripts[`test:e2e:${name}:webkit`],
+      `E2E_BROWSER=webkit ${command}`
+    );
+    const entry = readFileSync(path.join(root, command.slice(5)), 'utf8');
+    const registered = entry.slice(entry.indexOf('await runBrowserScenarios('));
+    for (const scenario of scenarios) {
+      assert.match(registered, new RegExp(`\\b${scenario}\\b`, 'u'));
+      assert.ok(
+        !questions.includes(scenario),
+        `${scenario} runs only in its group`
+      );
+    }
+  }
+  assert.match(
+    readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'), 'utf8'),
+    /timeout: 180_000/u
+  );
+  assert.equal(
+    workflow('release.yml').jobs['e2e-browser']['timeout-minutes'],
+    35
+  );
+});

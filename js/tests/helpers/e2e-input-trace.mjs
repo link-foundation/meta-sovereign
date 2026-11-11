@@ -47,4 +47,41 @@ export const inputTrace = (page) =>
     view: document.querySelector('main[data-view]')?.dataset.view,
     focused: document.hasFocus(),
     events: globalThis.browserInputTrace,
+    details: globalThis.browserDetailsTrace,
   }));
+
+/** Native disclosure state only; bounded per document and used by fixtures. */
+export const traceBrowserDetails = (page, selector) =>
+  page.addInitScript((rootSelector) => {
+    const nodes = new WeakMap();
+    let next = 0;
+    const trace = (globalThis.browserDetailsTrace = []);
+    const record = (event) => {
+      const target = event.target?.closest?.('details');
+      const root = target?.closest(rootSelector);
+      if (
+        !root ||
+        (event.type === 'click' && !event.target.closest('summary'))
+      ) {
+        return;
+      }
+      if (!nodes.has(target)) {
+        nodes.set(target, ++next);
+      }
+      trace.push({
+        type: event.type,
+        node: nodes.get(target),
+        open: target.open,
+        rootOpen: root.open,
+        summary: target
+          .querySelector(':scope > summary')
+          ?.textContent?.slice(0, 100),
+      });
+      if (trace.length > 60) {
+        trace.shift();
+      }
+    };
+    for (const type of ['click', 'toggle']) {
+      globalThis.addEventListener(type, record, true);
+    }
+  }, selector);
