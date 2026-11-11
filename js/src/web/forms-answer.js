@@ -2,6 +2,7 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { AnswerModelStatus } from './answer-model-settings.js';
 import { SalaryGuidanceEvidence } from './question-salary-evidence.js';
+import { FormAssignmentStatus } from './form-assignment.js';
 
 const el = React.createElement;
 const AnswerEvidence = ({ evidence }) => {
@@ -140,6 +141,10 @@ export const FormPlanSummary = ({ planning }) => {
     [
       el('p', { key: 'count' }, t('forms.plan.count', planning)),
       el('p', { key: 'review', className: 'meta' }, t('forms.plan.review')),
+      el(FormAssignmentStatus, {
+        key: 'assignment',
+        assignment: planning.assignment,
+      }),
       planning.profileSource
         ? el(
             'p',
@@ -150,13 +155,15 @@ export const FormPlanSummary = ({ planning }) => {
             })
           )
         : null,
-      planning.model?.state
-        ? el(AnswerModelStatus, { key: 'model', model: planning.model })
-        : el(
-            'p',
-            { key: 'model', className: 'meta' },
-            t('forms.plan.modelUnavailable')
-          ),
+      planning.assignment?.state === 'needs-repository'
+        ? null
+        : planning.model?.state
+          ? el(AnswerModelStatus, { key: 'model', model: planning.model })
+          : el(
+              'p',
+              { key: 'model', className: 'meta' },
+              t('forms.plan.modelUnavailable')
+            ),
     ]
   );
 };

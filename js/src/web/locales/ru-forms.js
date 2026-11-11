@@ -1,4 +1,21 @@
 export const ruForms = {
+  'forms.assignment.title': 'Репозиторий тестового задания',
+  'forms.assignment.needs-repository':
+    'Создайте репозиторий задания до заполнения ответов и прикрепления файлов.',
+  'forms.assignment.verified':
+    'Существование репозитория подтверждено. Снова составьте план текущей страницы, чтобы использовать ссылку.',
+  'forms.assignment.hint':
+    'Если репозиторий уже существует, укажите URL на GitHub и проверьте его. Ссылка хранится приватно для этой формы и задания.',
+  'forms.assignment.scope':
+    'Проверяется существование репозитория. Проверьте задание и его выполнение самостоятельно. Для изменённого задания нужно заново проверить ссылку.',
+  'forms.assignment.repository': 'URL репозитория GitHub',
+  'forms.assignment.link': 'Проверить и сохранить ссылку',
+  'forms.assignment.checking': 'Проверка репозитория…',
+  'forms.assignment.error':
+    'Ссылка не подтверждена ({code}). Введённый текст сохранён; если задание изменилось, составьте план заново.',
+  'forms.plan.source.assignment': 'Подтверждённый репозиторий задания',
+  'forms.plan.reason.assignment-required':
+    'Заполнение ожидает репозиторий задания.',
   'forms.automatic.action': 'Заполнить пустые поля',
   'forms.automatic.recover': 'Восстановить результат заполнения',
   'forms.automatic.hint':

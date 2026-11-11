@@ -1,4 +1,19 @@
 export const zhForms = {
+  'forms.assignment.title': '测试任务仓库',
+  'forms.assignment.needs-repository':
+    '填写任何答案或附加文件前，请先创建任务仓库。',
+  'forms.assignment.verified': '仓库已确认存在。请重新规划当前页面以使用链接。',
+  'forms.assignment.hint':
+    '如果仓库已存在，请输入其 GitHub URL 并验证。链接仅为此表单和任务私密保存。',
+  'forms.assignment.scope':
+    '此检查仅确认仓库存在。请自行审核任务和实现。任务变化后需要重新验证链接。',
+  'forms.assignment.repository': 'GitHub 仓库 URL',
+  'forms.assignment.link': '验证并保存仓库链接',
+  'forms.assignment.checking': '正在检查仓库…',
+  'forms.assignment.error':
+    '仓库链接未获确认（{code}）。输入已保留；如果任务变化，请重新规划。',
+  'forms.plan.source.assignment': '已验证的任务仓库',
+  'forms.plan.reason.assignment-required': '填写正在等待任务仓库。',
   'forms.automatic.action': '填充空字段',
   'forms.automatic.recover': '恢复填充结果',
   'forms.automatic.hint':

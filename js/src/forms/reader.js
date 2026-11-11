@@ -7,6 +7,7 @@ import { createFormSessions } from './review-sessions.js';
 import { withFormReportFile } from './report-file.js';
 import path from 'node:path';
 import { createFormKnowledgeBridge } from './knowledge-bridge.js';
+import { createAssignmentRepositoryService } from './assignment-service.js';
 export { planFormAnswers } from './answer-plan.js';
 export { formUrl } from './options.js';
 export { inspectFormSession, inspectCurrentFormSession } from './inspection.js';
@@ -71,6 +72,23 @@ const checkPlanning = (stopping, planning) => {
   }
 };
 
+const reviewReaderApi = (reviews) => ({
+  openReview: reviews.open,
+  closeReview: reviews.close,
+  listReviews: reviews.list,
+  reviewCapacity: reviews.capacity,
+  configureReviewCapacity: reviews.configureCapacity,
+  readReview: reviews.read,
+  focusReview: reviews.focus,
+  planReview: reviews.plan,
+  applyReview: reviews.apply,
+  prefillReview: reviews.prefill,
+  prefillStatus: reviews.prefillStatus,
+  discloseReview: reviews.disclose,
+  attachReview: reviews.attach,
+  historyReview: reviews.history,
+});
+
 /** Own launch/read/close, including stop while a lazy browser launch is pending. */
 export const createFormReader = ({
   store,
@@ -80,7 +98,12 @@ export const createFormReader = ({
   review = {},
   reportWriter,
   modelRunner,
+  verifyAssignmentRepository,
 } = {}) => {
+  const assignments = createAssignmentRepositoryService({
+    store,
+    verifyRepository: verifyAssignmentRepository,
+  });
   let active = null;
   let stopping = false;
   const planning = new Set();
@@ -95,23 +118,12 @@ export const createFormReader = ({
     ready: bridge,
   });
   return {
-    openReview: reviews.open,
-    closeReview: reviews.close,
-    listReviews: reviews.list,
-    reviewCapacity: reviews.capacity,
-    configureReviewCapacity: reviews.configureCapacity,
-    readReview: reviews.read,
-    focusReview: reviews.focus,
-    planReview: reviews.plan,
-    applyReview: reviews.apply,
-    prefillReview: reviews.prefill,
-    prefillStatus: reviews.prefillStatus,
-    discloseReview: reviews.disclose,
-    attachReview: reviews.attach,
-    historyReview: reviews.history,
+    registerAssignmentRepository: assignments.register,
+    ...reviewReaderApi(reviews),
     detachReviews: async () => {
       stopping = true;
       modelAbort.abort();
+      await assignments.stop();
       await Promise.allSettled(planning);
       return detachReader(reviews, bridge);
     },
@@ -216,6 +228,7 @@ export const createFormReader = ({
     async stop() {
       stopping = true;
       modelAbort.abort();
+      await assignments.stop();
       await stopReader(reviews, planning, active, bridge);
     },
   };

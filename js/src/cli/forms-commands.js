@@ -1,4 +1,8 @@
-import { promises as fs } from 'node:fs';
+import { loadFormInspection } from './forms-inspection-file.js';
+import {
+  FORMS_ASSIGNMENT_HELP,
+  formsAssignmentCommands,
+} from './forms-assignment-commands.js';
 import { questionMatchingFlags } from './question-matching-flags.js';
 import { modelDraftFlag, withAnswerModel } from './answer-model-commands.js';
 import { decodeWire } from '../transport/lino.js';
@@ -26,22 +30,17 @@ export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markd
   forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
 ${FORMS_REVIEW_HELP}
 ${FORMS_WATCHERS_HELP}
-${FORMS_RESUME_HELP}`;
+${FORMS_RESUME_HELP}
+${FORMS_ASSIGNMENT_HELP}`;
 
 export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
   ...formWatcherCommands,
+  ...formsAssignmentCommands({ openStore, ...readerOptions }),
   ...formResumeCommands({ openStore }),
   ...createFormReviewCommands({ openStore, ...readerOptions }),
   'forms-plan': async (args, log) => {
     const output = formReportOutput(args.format);
-    if (!args.file || (await fs.stat(args.file)).size > 4 * 1024 ** 2) {
-      throw new Error('--file requires an inspection JSON file up to 4 MiB');
-    }
-    const raw = await fs.readFile(args.file, 'utf8');
-    if (Buffer.byteLength(raw) > 4 * 1024 ** 2) {
-      throw new Error('inspection file exceeds 4 MiB');
-    }
-    const inspection = JSON.parse(raw);
+    const inspection = await loadFormInspection(args.file);
     const store = await openStore(args.store ?? defaultStoreDir());
     try {
       const report = await withAnswerModel(

@@ -7,6 +7,14 @@ import { proposalFor } from './proposals.js';
 import { formModelDrafts } from './model-drafts.js';
 import { formPayProfile } from './pay-profile.js';
 import { formFailure } from './options.js';
+import {
+  currentFormAssignment,
+  rememberFormAssignment,
+} from './assignment-store.js';
+import {
+  assignmentHeldFields,
+  assignmentLinkField,
+} from './assignment-plan.js';
 
 const emptyAnswer = (reason) => ({
   source: 'unresolved',
@@ -153,9 +161,14 @@ const planField = (field, fields, prepared) => {
   };
 };
 
-/** Read-only proposals from one bounded knowledge snapshot; never opens a browser. */
-export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
+const planningInspection = (input) => {
   const inspection = validateFormInspection(input.inspection);
+  if (input.modelDraft !== undefined && typeof input.modelDraft !== 'boolean') {
+    throw formFailure(
+      'answer-model-config',
+      'Model draft opt-in must be a boolean.'
+    );
+  }
   if (
     inspection.challenge?.active ||
     inspection.frames.some((frame) => frame.challenge?.active)
@@ -165,6 +178,16 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
       'Solve verification in the review browser.'
     );
   }
+  return inspection;
+};
+
+/** Browser-read-only proposals; persist only the private assignment prerequisite. */
+export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
+  const inspection = planningInspection(input);
+  const assignment = await (
+    modelOptions.frozen ? currentFormAssignment : rememberFormAssignment
+  )(store, inspection);
+  const held = assignment?.state === 'needs-repository';
   const prepared = await prepareAnswerPreview(
     store,
     {
@@ -177,16 +200,25 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
   prepared.context.matchBudget = { remaining: 4 * 1024 ** 2, exhausted: false };
   prepared.inspection = inspection;
   prepared.context.salary ??= formPayProfile(prepared.context.profile);
-  const deterministic = inspection.fields.map((field) =>
-    planField(field, inspection.fields, prepared)
-  );
-  const { fields, model } = await formModelDrafts({
-    store,
-    input,
-    fields: deterministic,
-    context: prepared.context,
-    ...modelOptions,
-  });
+  const deterministic = held
+    ? assignmentHeldFields(inspection.fields)
+    : inspection.fields.map(
+        (field) =>
+          assignmentLinkField(field, assignment) ??
+          planField(field, inspection.fields, prepared)
+      );
+  const { fields, model } = held
+    ? {
+        fields: deterministic,
+        model: { available: false, used: false, state: 'assignment-required' },
+      }
+    : await formModelDrafts({
+        store,
+        input,
+        fields: deterministic,
+        context: prepared.context,
+        ...modelOptions,
+      });
   return {
     ...inspection,
     mode: 'answer-plan',
@@ -195,6 +227,7 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
     planning: {
       readOnly: true,
       requiresReview: true,
+      ...(assignment ? { assignment } : {}),
       profileSource: prepared.context.profileSource ?? null,
       proposed: fields.filter((field) => field.answer.proposal).length,
       unresolved: fields.filter((field) => !field.answer.proposal).length,

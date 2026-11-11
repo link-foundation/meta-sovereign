@@ -1,6 +1,7 @@
 import { formFailure as failure } from './options.js';
 import { reviewSnapshotKey } from './review-targets.js';
 import { performReviewedEffect } from './review-effect.js';
+import { currentFormAssignment } from './assignment-store.js';
 import { withConfiguredResume } from './configured-resume.js';
 import {
   resumePdf,
@@ -115,8 +116,25 @@ const attachResume = async ({ record, input, check, inspect, now }) => {
   return record.lastUpload;
 };
 
+const requireAssignmentForUpload = async (store, record) => {
+  const reviewed = record.reviewPlan;
+  if (reviewed) {
+    const assignment = await currentFormAssignment(store, reviewed.inspection);
+    if (
+      assignment?.state === 'needs-repository' ||
+      assignment?.revision !== reviewed.proposed?.planning?.assignment?.revision
+    ) {
+      throw failure(
+        'form-assignment-required',
+        'Review the current assignment repository before attaching a résumé.'
+      );
+    }
+  }
+};
+
 export const attachReviewedResume = async (options) => {
   const { record, input, store } = options;
+  await requireAssignmentForUpload(store, record);
   if (input.resumeRevision === undefined) {
     return attachResume(options);
   }

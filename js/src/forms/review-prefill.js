@@ -33,6 +33,17 @@ const requireAnswerForm = (inspection) => {
   }
 };
 
+const reviewedField = (field, assignment) => ({
+  ...field,
+  answer: {
+    ...field.answer,
+    applySupported: writableReviewField(field),
+    inspectOptionsSupported: expandableReviewField(field),
+    uploadSupported:
+      assignment?.state !== 'needs-repository' && resumeUploadField(field),
+  },
+});
+
 export const createReviewedPrefill = ({
   store,
   now = () => Date.now(),
@@ -102,15 +113,9 @@ export const createReviewedPrefill = ({
       record.reviewPlan = state;
       return {
         ...proposed,
-        fields: proposed.fields.map((field) => ({
-          ...field,
-          answer: {
-            ...field.answer,
-            applySupported: writableReviewField(field),
-            inspectOptionsSupported: expandableReviewField(field),
-            uploadSupported: resumeUploadField(field),
-          },
-        })),
+        fields: proposed.fields.map((field) =>
+          reviewedField(field, proposed.planning.assignment)
+        ),
         reviewPlan: {
           id: state.id,
           sessionId: record.id,
@@ -149,7 +154,11 @@ export const createReviewedPrefill = ({
           { frozen: state.proposed }
         )
       );
-      if (answerKey(current) !== answerKey(state.proposed)) {
+      if (
+        current.planning.assignment?.revision !==
+          state.proposed.planning.assignment?.revision ||
+        answerKey(current) !== answerKey(state.proposed)
+      ) {
         throw failure(
           'form-answers-changed',
           'Saved answers or profile changed. Review a new plan.'

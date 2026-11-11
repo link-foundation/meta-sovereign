@@ -1,4 +1,21 @@
 export const enForms = {
+  'forms.assignment.title': 'Test assignment repository',
+  'forms.assignment.needs-repository':
+    'Create the assignment repository before prefilling any answers or attaching files.',
+  'forms.assignment.verified':
+    'Repository existence was verified. Plan the current page again to use its link.',
+  'forms.assignment.hint':
+    'If the repository already exists, enter its GitHub URL and verify it. The link is saved privately for this form and assignment.',
+  'forms.assignment.scope':
+    'This check confirms repository existence. Review the assignment and its implementation yourself. A changed task requires a new link verification.',
+  'forms.assignment.repository': 'GitHub repository URL',
+  'forms.assignment.link': 'Verify and save repository link',
+  'forms.assignment.checking': 'Checking repository…',
+  'forms.assignment.error':
+    'The repository link was not confirmed ({code}). Your input is retained; plan again if the assignment changed.',
+  'forms.plan.source.assignment': 'Verified assignment repository',
+  'forms.plan.reason.assignment-required':
+    'Prefilling waits for the assignment repository.',
   'forms.automatic.action': 'Prefill empty fields',
   'forms.automatic.recover': 'Recover prefill result',
   'forms.automatic.hint':

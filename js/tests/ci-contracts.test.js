@@ -87,7 +87,13 @@ for (const [message, expected] of [
     const cwd = fixture(t);
     const checks = expected
       ? ['tutorial']
-      : ['tutorial', 'forms-reader', 'forms-learning', 'forms-answers'];
+      : [
+          'tutorial',
+          'forms-reader',
+          'forms-learning',
+          'forms-answers',
+          'forms-assignment',
+        ];
     const scripts = path.join(cwd, 'js/scripts');
     const helpers = path.join(cwd, 'js/tests/helpers');
     mkdirSync(scripts, { recursive: true });
@@ -275,7 +281,7 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.match(scripts['test:e2e:inbox-pull'], /e2e-inbox-pull-browser/);
   assert.match(scripts['test:e2e:inbox-pull:webkit'], /E2E_BROWSER=webkit/);
   assert.ok(checks.includes('forms-reader'));
-  for (const group of ['forms-learning', 'forms-answers']) {
+  for (const group of ['forms-learning', 'forms-answers', 'forms-assignment']) {
     assert.ok(checks.includes(group));
     assert.match(scripts[`test:e2e:${group}`], /e2e-forms-reader-browser/);
   }

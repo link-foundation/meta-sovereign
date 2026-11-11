@@ -101,6 +101,9 @@ const inspectionMarkdown = (report) =>
     report.planning
       ? line('Model availability / use', json(report.planning.model))
       : '',
+    report.planning?.assignment
+      ? line('Assignment prerequisite', json(report.planning.assignment))
+      : '',
     line('Omissions', json(report.omissions ?? [])),
     line('Frame coverage', json(report.frames ?? [])),
     ...(report.fields ?? []).map(fieldMarkdown),

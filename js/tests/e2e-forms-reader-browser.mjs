@@ -1,4 +1,6 @@
 import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
+import { verifyFormAssignmentUi } from './helpers/e2e-form-assignment.mjs';
+import { verifyAssignmentFixture } from '../../experiments/issue-56/forms-assignment-fixture.mjs';
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
 import { verifyFormAutomaticUi } from './helpers/e2e-form-automatic.mjs';
@@ -55,6 +57,7 @@ try {
         stop: async () => {},
       },
       forms: {
+        verifyAssignmentRepository: verifyAssignmentFixture,
         review: {
           learn: process.env.FORMS_LEARNING_BEFORE !== '1',
           learning: { stableMs: 800 },
@@ -276,6 +279,7 @@ const verifyLimits = async (page) => {
 };
 
 const formGroups = {
+  'forms-assignment': [verifyFormAssignmentUi],
   'forms-learning': [
     verifyFormJournalUi,
     verifyFormMonitorUi,
@@ -321,6 +325,7 @@ const verifyGroupOnly = async ({ page }) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['ASSIGNMENT', verifyFormAssignmentUi],
     ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],

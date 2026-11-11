@@ -175,6 +175,12 @@ const uploadEmptyResumes = async ({
 };
 
 const requireAutomaticFields = (initial, cleared) => {
+  if (initial.planning?.assignment?.state === 'needs-repository') {
+    throw failure(
+      'form-assignment-required',
+      'Create the test-assignment repository, verify its link, then prefill again.'
+    );
+  }
   if (cleared && cleared.url !== initial.url) {
     throw failure(
       'form-changed',

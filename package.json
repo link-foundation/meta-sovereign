@@ -272,6 +272,7 @@
     "test:e2e:forms-reader": "node js/tests/e2e-forms-reader-browser.mjs",
     "test:e2e:forms-learning": "node js/tests/e2e-forms-reader-browser.mjs",
     "test:e2e:forms-answers": "node js/tests/e2e-forms-reader-browser.mjs",
+    "test:e2e:forms-assignment": "node js/tests/e2e-forms-reader-browser.mjs",
     "test:e2e:forms-reader:webkit": "E2E_BROWSER=webkit node js/tests/e2e-forms-reader-browser.mjs",
     "test:e2e:web-apps": "node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:web-apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-web-apps-browser.mjs",

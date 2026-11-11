@@ -1,4 +1,21 @@
 export const hiForms = {
+  'forms.assignment.title': 'परीक्षण कार्य का रिपॉजिटरी',
+  'forms.assignment.needs-repository':
+    'उत्तर भरने या फ़ाइल जोड़ने से पहले कार्य का रिपॉजिटरी बनाएँ।',
+  'forms.assignment.verified':
+    'रिपॉजिटरी की मौजूदगी सत्यापित है। लिंक उपयोग करने के लिए वर्तमान पृष्ठ की योजना फिर बनाएँ।',
+  'forms.assignment.hint':
+    'रिपॉजिटरी पहले से है तो उसका GitHub URL देकर जाँचें। लिंक इस फ़ॉर्म और कार्य के लिए निजी रूप से सहेजा जाता है।',
+  'forms.assignment.scope':
+    'यह जाँच केवल रिपॉजिटरी की मौजूदगी की पुष्टि करती है। कार्य और उसके समाधान की समीक्षा स्वयं करें। कार्य बदलने पर लिंक फिर सत्यापित करें।',
+  'forms.assignment.repository': 'GitHub रिपॉजिटरी URL',
+  'forms.assignment.link': 'रिपॉजिटरी लिंक जाँचें और सहेजें',
+  'forms.assignment.checking': 'रिपॉजिटरी जाँची जा रही है…',
+  'forms.assignment.error':
+    'लिंक की पुष्टि नहीं हुई ({code})। आपका इनपुट सुरक्षित है; कार्य बदला हो तो योजना फिर बनाएँ।',
+  'forms.plan.source.assignment': 'सत्यापित कार्य रिपॉजिटरी',
+  'forms.plan.reason.assignment-required':
+    'भरने से पहले कार्य का रिपॉजिटरी आवश्यक है।',
   'forms.automatic.action': 'खाली फ़ील्ड भरें',
   'forms.automatic.recover': 'भराई का परिणाम वापस पाएँ',
   'forms.automatic.hint':

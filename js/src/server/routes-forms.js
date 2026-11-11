@@ -6,6 +6,7 @@ import { handleFormResumeRoutes } from './routes-form-resume.js';
 const isFormPath = (path) =>
   path.startsWith('/api/forms/sessions') ||
   path.startsWith('/api/forms/resume') ||
+  path === '/api/forms/assignment/repository' ||
   ['/api/forms/capabilities', '/api/forms/read', '/api/forms/plan'].includes(
     path
   );
@@ -24,7 +25,11 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
     if (p.endsWith('/capabilities') && req.method === 'GET') {
       json(res, 200, await ctx.forms.capabilities());
     } else if (
-      ['/api/forms/read', '/api/forms/plan'].includes(p) &&
+      [
+        '/api/forms/read',
+        '/api/forms/plan',
+        '/api/forms/assignment/repository',
+      ].includes(p) &&
       req.method === 'POST'
     ) {
       if (!isTrustedMutation(req, ctx.allowOrigins)) {
@@ -35,27 +40,33 @@ export const handleFormRoutes = async (store, req, res, p, ctx) => {
       json(
         res,
         200,
-        p.endsWith('/plan')
-          ? await ctx.forms.plan({
+        p.endsWith('/repository')
+          ? await ctx.forms.registerAssignmentRepository({
               inspection: body.inspection,
-              profileId: body.profileId,
-              profile: body.profile,
-              approximate: body.approximate,
-              matching: body.matching,
-              source: body.source,
-              chat: body.chat,
-              ruleIds: body.ruleIds,
-              contexts: body.contexts,
-              salary: body.salary,
-              vacancy: body.vacancy,
-              recent: body.recent,
-              modelDraft: body.modelDraft,
+              revision: body.revision,
+              repository: body.repository,
             })
-          : await ctx.forms.read({
-              url: body.url,
-              browserSlot: body.browserSlot,
-              headless: body.headless,
-            })
+          : p.endsWith('/plan')
+            ? await ctx.forms.plan({
+                inspection: body.inspection,
+                profileId: body.profileId,
+                profile: body.profile,
+                approximate: body.approximate,
+                matching: body.matching,
+                source: body.source,
+                chat: body.chat,
+                ruleIds: body.ruleIds,
+                contexts: body.contexts,
+                salary: body.salary,
+                vacancy: body.vacancy,
+                recent: body.recent,
+                modelDraft: body.modelDraft,
+              })
+            : await ctx.forms.read({
+                url: body.url,
+                browserSlot: body.browserSlot,
+                headless: body.headless,
+              })
       );
     } else {
       json(res, 405, {

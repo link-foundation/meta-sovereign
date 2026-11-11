@@ -13,6 +13,7 @@ import { FormReportDownloads, FormReportFile } from './form-report-download.js';
 import { FormReviewJournal } from './form-review-journal.js';
 import { FormResumeSettings } from './form-resume-settings.js';
 import { FormModelSettings } from './answer-model-settings.js';
+import { FormAssignmentControl } from './form-assignment.js';
 export { downloadFormReport } from './form-report-download.js';
 
 const el = React.createElement;
@@ -265,6 +266,30 @@ const FormSettings = ({ api, busy, setBusy, setPlan }) =>
       : null,
   ]);
 
+const AssignmentSection = ({
+  report,
+  plan,
+  linkedAssignment,
+  setLinkedAssignment,
+  setPlan,
+  ...props
+}) => {
+  const assignment =
+    (plan?.report ?? plan)?.planning?.assignment ?? linkedAssignment;
+  return assignment && report
+    ? el(FormAssignmentControl, {
+        ...props,
+        key: assignment.id,
+        inspection: report,
+        assignment,
+        onLinked: (value) => {
+          setLinkedAssignment(value);
+          setPlan(null);
+        },
+      })
+    : null;
+};
+
 export const FormsView = ({ api = defaultApi }) => {
   const t = useT();
   const [url, setUrl] = useState('');
@@ -276,6 +301,7 @@ export const FormsView = ({ api = defaultApi }) => {
   const [error, setError] = useState(null);
   const [report, setReport] = useState(null);
   const [plan, setPlan] = useState(null);
+  const [linkedAssignment, setLinkedAssignment] = useState(null);
   const read = async (event) => {
     event.preventDefault();
     if (busy) {
@@ -291,6 +317,7 @@ export const FormsView = ({ api = defaultApi }) => {
       } else {
         setReport(value);
         setPlan(null);
+        setLinkedAssignment(null);
       }
     } catch (error) {
       setError(error.code ?? 'form-read-failed');
@@ -299,7 +326,6 @@ export const FormsView = ({ api = defaultApi }) => {
       setReading(false);
     }
   };
-  const errorKey = readErrorKey(error);
   return el(
     'section',
     { className: 'col forms-view', 'data-view-content': 'forms' },
@@ -370,7 +396,7 @@ export const FormsView = ({ api = defaultApi }) => {
         ? el(
             'p',
             { key: 'error', role: 'alert', 'data-form-error': error },
-            t(`forms.error.${errorKey}`)
+            t(`forms.error.${readErrorKey(error)}`)
           )
         : null,
       el(FormReviewControls, {
@@ -384,6 +410,7 @@ export const FormsView = ({ api = defaultApi }) => {
         onReport: (value) => {
           setReport(value);
           setPlan(null);
+          setLinkedAssignment(null);
         },
       }),
       report && report.mode !== 'review-journal'
@@ -398,6 +425,17 @@ export const FormsView = ({ api = defaultApi }) => {
             onPlan: setPlan,
           })
         : null,
+      el(AssignmentSection, {
+        key: 'assignment',
+        api,
+        report,
+        plan,
+        linkedAssignment,
+        busy,
+        setBusy,
+        setLinkedAssignment,
+        setPlan,
+      }),
       el(FormReportView, { key: 'report', report, plan, api, busy, setBusy }),
     ]
   );

@@ -205,3 +205,5 @@ Include configured time zones in reviewed city/МСК/UTC/GMT form answers. Pres
 Preserve identified technology, currency and employment subjects across shared chat/form approximate matching and template gaps. Retain exact owner answers, explicit alternatives, known aliases and reviewable proposals.
 
 Draft unresolved parts of consecutive unanswered employer messages with the configured optional model. Preserve saved answers and owner edits, bind model output to current conversation and knowledge, and require review before delivery across CLI, Lino and shared Chat/Operator controls.
+
+Hold every answer and PDF attachment when a form requires a test-assignment repository. Keep a private assignment revision across pages, verify existing GitHub repository identity before saving its link, and share guarded CLI, Lino and four-language controls (R-AA1).

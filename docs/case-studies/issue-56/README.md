@@ -6,6 +6,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-assignment-prerequisite.md](forms-assignment-prerequisite.md) verifies the private whole-form hold, revision-bound GitHub existence check, protected owner input and actual selected-only readback through CLI/Lino/UI/browser/MCP. Automatic repository/issue publishing, templates, vacancy association and written deliverables remain required.
+
 - [forms-captcha.md](forms-captcha.md) verifies a bounded manual owner wait, challenge-data exclusion, read-only status recovery, guarded resumption and cancellation. Focused Node/Deno, production Chromium and independent MCP capture zero challenge reads, one verified answer and zero submissions. Full authenticated challenge/provider parity remains required.
 - [forms-automatic-controls.md](forms-automatic-controls.md) verifies the shared UI prefill action, actual field/PDF results and frozen-request recovery after a lost response and profile change. Forty-three Node/Deno checks, production Chromium and independent desktop/phone MCP pass; complete provider workflows remain required.
 - [forms-automatic-prefill.md](forms-automatic-prefill.md) verifies explicit current-page prefilling through the multi-URL CLI and owned Lino API: guarded empty-field writes, configured/selected PDFs, provenance, non-replaying recovery and manual next-page navigation/submission. Thirty Node/Deno checks, production Chromium and independent MCP pass. The later automatic-controls study supplies the visual UI; complete provider parity remains open.
@@ -212,3 +214,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Detached form watchers](forms-detached-watchers.md): real CLI exit, exact-slot reuse, full-minute answer learning, active-writer coordination, bounded saved history and explicit cleanup.
 
 - [Stable form document identity](ci-form-document-identity.md): exact WebKit clock-drift evidence, deterministic failing-before regression, guarded lost-response recovery and same-URL reload refusal.
+
+- [CI: preserve saved-answer automation scope](ci-chat-turn-opt-in.md) — nine identical hosted runtime failures, unchanged reproducing regression and explicit opt-in in planning/validation.

@@ -7,13 +7,12 @@ import { answerRuleEligible } from '../automation/question-corrections.js';
 import { matchQuestion } from '../automation/question-match.js';
 import { renderAnswer } from '../automation/question-profile.js';
 import { formProfileFields } from './profile-fields.js';
+import { assignmentQuestion } from './assignment-recognition.js';
 
 const excluded = (pair) =>
   !pair.text ||
   /\[\s*(?:уточнить|clarify)|\{\{answer:/iu.test(pair.text) ||
-  /test assignment|тестов\S*\s+задан|测试任务|परीक्षण कार्य/iu.test(
-    pair.question
-  ) ||
+  assignmentQuestion(pair.question) ||
   /salary|compensation|hourly rate|\bpay\b|(?<!\p{L})(?:зарплат|оплат|ставк|доход|вознагражд)|финансов\S*\s+ожидан|薪资|工资|वेतन/iu.test(
     pair.question
   );
