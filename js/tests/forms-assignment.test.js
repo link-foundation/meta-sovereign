@@ -221,11 +221,14 @@ test('missing, mismatched and malformed GitHub receipts cannot release the hold'
       'needs-repository'
     );
   }
+  const credentialUrl = new URL(assignmentRepository);
+  credentialUrl.username = 'fixture-user';
+  credentialUrl.password = 'fixture-password';
   for (const url of [
     'https://github.com/owner/repo/issues/1',
     'https://github.com/owner/repo?token=private',
     'https://github.com.evil.test/owner/repo',
-    'https://user:pass@github.com/owner/repo',
+    credentialUrl.href,
     'http://github.com/owner/repo',
     'https://github.com/owner/-flags',
   ]) {

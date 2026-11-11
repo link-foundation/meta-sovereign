@@ -216,3 +216,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Stable form document identity](ci-form-document-identity.md): exact WebKit clock-drift evidence, deterministic failing-before regression, guarded lost-response recovery and same-URL reload refusal.
 
 - [CI: preserve saved-answer automation scope](ci-chat-turn-opt-in.md) — nine identical hosted runtime failures, unchanged reproducing regression and explicit opt-in in planning/validation.
+
+- [CI: synthetic credential fixture](ci-assignment-secret-fixture.md) — exact-head secret-scan reproduction, preserved rejection assertion and completed parent workflow evidence.
