@@ -464,7 +464,11 @@
     "test:e2e:follow-auto": "node js/tests/e2e-follow-auto-browser.mjs",
     "test:e2e:follow-telegram-backlinks": "node js/tests/e2e-follow-telegram-backlinks-browser.mjs",
     "test:e2e:chat-model": "node js/tests/e2e-chat-model-browser.mjs",
-    "test:e2e:chat-model:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-model-browser.mjs"
+    "test:e2e:chat-model:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-model-browser.mjs",
+    "test:e2e:question-unread": "node js/tests/e2e-question-unread-browser.mjs",
+    "test:e2e:question-unread:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-browser.mjs",
+    "test:e2e:question-unread-guards": "node js/tests/e2e-question-unread-guards-browser.mjs",
+    "test:e2e:question-unread-guards:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-guards-browser.mjs"
   },
   "keywords": [
     "personal-crm",

@@ -4,7 +4,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { browserFrameVisible } from './browser-choice-document.js';
 import { browserChatScrollRoot } from './browser-chat-list-state.js';
 
-const chatFilterControl = (spec) => {
+export const chatFilterControl = (spec) => {
   const primary = [...document.querySelectorAll(spec.control)];
   const candidates = primary.length
     ? primary
@@ -37,7 +37,7 @@ const chatFilterStatus = (state, control, visible) => {
   return control.checked === state.expected ? 'ready' : 'filter-changed';
 };
 
-const activateChatFilter = (state, want) => {
+export const activateChatFilter = (state, want) => {
   state.expected = want;
   if (state.control.checked !== want) {
     const inactive =

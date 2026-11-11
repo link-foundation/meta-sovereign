@@ -61,6 +61,8 @@
   "question-chat-lists",
   "question-history",
   "question-inactive-history",
+  "question-unread",
+  "question-unread-guards",
   "question-inactive-text",
   "question-notice-policy",
   "question-controls",

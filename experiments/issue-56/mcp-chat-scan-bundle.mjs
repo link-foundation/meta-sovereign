@@ -1,11 +1,14 @@
 import { build } from 'esbuild';
 
 /** Bundle only the production scan with finite, explicitly injected Node adapters. */
-export const mcpChatScanBundle = async () => {
+export const mcpChatScanBundle = async ({ unread = false } = {}) => {
   const result = await build({
     stdin: {
-      contents:
-        "export { scanBrowserChatList } from './js/src/sources/browser-chat-scan.js';",
+      contents: `export { scanBrowserChatList } from './js/src/sources/browser-chat-scan.js';${
+        unread
+          ? "export { scanUnreadBrowserConversations } from './js/src/sources/browser-unread-conversations.js'; export { HH_WEB_UI } from './js/src/sources/hh-web-ui.js';"
+          : ''
+      }`,
       resolveDir: process.cwd(),
     },
     bundle: true,
@@ -26,7 +29,9 @@ export const mcpChatScanBundle = async () => {
               contents:
                 path === 'node:crypto'
                   ? "let next = 0; export const randomUUID = () => 'independent-mcp-scan-' + (++next); export const randomBytes = () => { throw new Error('This inspection is read-only'); };"
-                  : 'export const setTimeout = () => { throw new Error("Use the injected MCP pause"); };',
+                  : unread
+                    ? 'export const setTimeout = (ms) => mcpPause(ms);'
+                    : 'export const setTimeout = () => { throw new Error("Use the injected MCP pause"); };',
             })
           );
         },

@@ -8,6 +8,10 @@ import {
 import { scanBrowserConversation } from './browser-conversation-history.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
 import { withBrowserChatFilter } from './browser-chat-filter.js';
+import {
+  normalizeUnreadScanOptions,
+  scanUnreadBrowserConversations,
+} from './browser-unread-conversations.js';
 export { normalizeChatScanOptions } from './browser-scan-options.js';
 
 const failure = (message, code) =>
@@ -204,7 +208,19 @@ export const scanBrowserChatList = async (
   );
 };
 
-export const createBrowserChatScans = ({ uiFor, inList, inChat }) => {
+const supportsUnreadNavigation = (ui, inExisting) =>
+  ui.chatNavigation?.sameDocument &&
+  ui.documents &&
+  ui.historyScan &&
+  ui.chatScan?.unreadFilter &&
+  inExisting;
+
+export const createBrowserChatScans = ({
+  uiFor,
+  inList,
+  inChat,
+  inExisting,
+}) => {
   const pending = new Map();
   let closed = false;
   const start = async (options, work) => {
@@ -228,6 +244,34 @@ export const createBrowserChatScans = ({ uiFor, inList, inChat }) => {
     }
   };
   return {
+    async scanUnreadConversations({ source, ...options } = {}) {
+      if (closed) {
+        throw failure('The browser chat scanner is closed', 'browser-closed');
+      }
+      normalizeUnreadScanOptions(options);
+      const ui = uiFor(source);
+      if (!supportsUnreadNavigation(ui, inExisting)) {
+        throw failure(
+          'Inactive unread traversal is unavailable for this provider',
+          'unsupported-action'
+        );
+      }
+      return start(options, (signal) =>
+        inExisting(
+          source,
+          (commander, page) =>
+            scanUnreadBrowserConversations({
+              ...options,
+              commander,
+              page,
+              ui,
+              scanList: scanBrowserChatList,
+              signal,
+            }),
+          { signal }
+        )
+      );
+    },
     async scanChats({ source, ...options } = {}) {
       if (closed) {
         throw failure('The browser chat scanner is closed', 'browser-closed');

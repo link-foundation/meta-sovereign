@@ -36,7 +36,11 @@ test('public scanner validates capability, bounds and cancellation before launch
   }
 });
 
-for (const method of ['scanChats', 'scanConversation']) {
+for (const method of [
+  'scanChats',
+  'scanConversation',
+  'scanUnreadConversations',
+]) {
   test(`a queued ${method} cancellation refuses before acquiring or navigating`, async () => {
     let releaseRead;
     let entered;

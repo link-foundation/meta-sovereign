@@ -82,7 +82,12 @@ const listIdentitySelector = (ui) =>
     .filter(Boolean)
     .join(', ');
 
-const chooseDocument = async (page, ui, target, list = false) => {
+export const chooseBrowserChatDocument = async (
+  page,
+  ui,
+  target,
+  list = false
+) => {
   if (!page || !trusted(page.url(), ui.documents.ownerOrigins)) {
     throw failure();
   }
@@ -132,13 +137,13 @@ const resolveBrowserDocument = async (
   }
   let selected;
   try {
-    selected = await chooseDocument(page, ui, target, list);
+    selected = await chooseBrowserChatDocument(page, ui, target, list);
   } catch {
     throw failure();
   }
   const assertCurrent = async () => {
     try {
-      const current = await chooseDocument(page, ui, target, list);
+      const current = await chooseBrowserChatDocument(page, ui, target, list);
       if (
         current.frame !== selected.frame ||
         current.frameUrl !== selected.frameUrl ||

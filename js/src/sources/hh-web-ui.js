@@ -77,6 +77,7 @@ export const HH_WEB_UI = {
     },
   },
   historyScan: { startAtService: true },
+  chatNavigation: { sameDocument: true },
   noticeContext: {
     company: '[data-qa="participant-info-title"]',
     vacancy: '[data-qa="chatik-header-sub-header"]',

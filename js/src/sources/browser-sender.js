@@ -315,6 +315,7 @@ const createSessionPool = ({ open, log }) => {
   const sessions = new Map();
   const queues = new Map();
   return {
+    existing: (source) => sessions.get(source),
     get(source) {
       if (!sessions.has(source)) {
         const opening = Promise.resolve(open({ source })).then((session) => ({
@@ -424,7 +425,33 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
       return fn(state.commander, state.session?.page ?? null);
     });
 
-  return { inChat, inList };
+  const inExisting = (source, fn, { signal } = {}) =>
+    pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The unread browser scan was cancelled', 'cancelled');
+      }
+      const opening = pool.existing(source);
+      if (!opening) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      const state = await opening;
+      const page = state.session?.page;
+      if (!page || page.isClosed()) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      try {
+        return await fn(state.commander, page);
+      } finally {
+        state.url = page.isClosed() ? null : page.url();
+      }
+    });
+  return { inChat, inList, inExisting };
 };
 
 const choiceSources = (platforms) =>
@@ -537,7 +564,7 @@ export const createBrowserSender = ({
       ...extra,
     });
 
-  const { inChat, inList } = createChatPages({
+  const { inChat, inList, inExisting } = createChatPages({
     pool,
     uiFor,
     waitFor,
@@ -565,7 +592,7 @@ export const createBrowserSender = ({
     receiptMs: choiceReceiptMs,
     pollMs,
   });
-  const scans = createBrowserChatScans({ uiFor, inList, inChat });
+  const scans = createBrowserChatScans({ uiFor, inList, inChat, inExisting });
   const texts = createBrowserTextActions({
     uiFor,
     inChat,
@@ -867,6 +894,8 @@ export const createDefaultSender = ({
     readChats: (params) => browserFor().readChats(params),
     scanChats: (params) => browserFor().scanChats(params),
     scanConversation: (params) => browserFor().scanConversation(params),
+    scanUnreadConversations: (params) =>
+      browserFor().scanUnreadConversations(params),
     readRecent: (params) => browserFor().readRecent(params),
     readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
     prefillAnswer: (params) => browserFor().prefillAnswer(params),

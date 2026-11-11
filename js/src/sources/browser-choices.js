@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { writeBrowserNativeInput } from './browser-native-input.js';
 import {
   watchChoiceView,
   revealChoiceReply,
@@ -55,6 +56,7 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});
   const watchChoiceView = (${watchChoiceView.toString()});
   const revealChoiceReply = (${revealChoiceReply.toString()});
   const browserFrameVisible = (${browserFrameVisible.toString()});

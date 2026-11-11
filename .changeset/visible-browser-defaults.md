@@ -289,3 +289,5 @@ Preserve unsaved disclosure checks through native fragment navigation in WebKit.
 Add owned inactive frozen-turn text delivery through actual provider controls without pointer focus. Relay returning outer activity into embedded final guards, preserve foreground drafts and positive receipts, and drain uncertain sends on Stop. Keep automatic policy and unread orchestration explicitly unfinished.
 
 Add explicit all/unread filtering to bounded HH browser chat scans. Verify native outer checkbox state, reject unfiltered read rows, preserve owner interruptions and restore the original filter/list position only while owned. Keep partial coverage accurate and retain mandatory browser evidence; full unread orchestration and shared workflow controls remain required.
+
+Add a bounded existing-view HH unread read pass with native SPA navigation, owned view/draft restoration, forward-history refusal and explicit history-growth receipts. Persistent orchestration and shared controls remain in progress.
