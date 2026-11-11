@@ -23,6 +23,7 @@ import { verifyProviderChoices } from './helpers/e2e-provider-choices.mjs';
 import { verifyQuestionBrowserControls } from './helpers/e2e-question-browser-controls.mjs';
 import { verifyHhChoices } from './helpers/e2e-hh-choices.mjs';
 import { verifyHhChatList } from './helpers/e2e-hh-chat-list.mjs';
+import { verifyHhChatScan } from './helpers/e2e-hh-chat-scan.mjs';
 import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
 import {
   verifyHhHistory,
@@ -33,6 +34,7 @@ const verifyProviderBrowsers = async (browser) => {
   await verifyProviderChoices(browser);
   await verifyHhChoices(browser);
   await verifyHhChatList(browser);
+  await verifyHhChatScan(browser);
   await verifyQuestionBrowserControls(browser);
   await verifySummaryChoices(browser);
   await verifyQuestionBrowserWatch(browser);

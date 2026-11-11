@@ -68,6 +68,7 @@ export const HH_WEB_UI = {
   composer: 'textarea[data-qa="text-input"]',
   location: { origins, pathPattern: '^/chat/(\\d{1,30})/?$' },
   documents: { ownerOrigins: origins, ancestorOrigins: origins, maxFrames: 32 },
+  chatScan: { pathPattern: '^/chat/?$' },
   choices: {
     group:
       '[class*="buttons-wrapper"], [class*="reply-options"], [data-qa*="answer-options"], [data-qa*="question-options"]',

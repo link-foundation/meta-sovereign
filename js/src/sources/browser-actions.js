@@ -13,7 +13,7 @@
  * update, never silently.
  */
 
-/* global document, MouseEvent -- the page-side helpers run in the page */
+/* global document, window, MouseEvent -- the page-side helpers run in the page */
 
 import { setTimeout as sleep } from 'node:timers/promises';
 
@@ -71,6 +71,15 @@ export const scrollToNewest = (spec) => {
  * what `linkPattern` captures from the `link` element's href.
  */
 export const extractChats = (spec) => {
+  const container = () => {
+    if (!spec.listToken) {
+      return { root: document };
+    }
+    const owned = window[Symbol.for('meta-sovereign.browser-chat-list.v1')];
+    return owned?.token === spec.listToken && owned.root?.isConnected
+      ? owned
+      : null;
+  };
   const squash = (value) =>
     String(value ?? '')
       .replace(/\s+/g, ' ')
@@ -110,23 +119,34 @@ export const extractChats = (spec) => {
   };
   const rowOf = (node) => {
     const title = text(node, spec.title, spec.titleAttribute);
-    const unreadText = text(node, spec.unread);
     return {
       chat: idOf(node) ?? (!spec.requireId && title ? `title:${title}` : null),
       title: title || null,
       preview: text(node, spec.preview) || null,
       time: text(node, spec.time) || null,
-      unread: spec.unread
-        ? Number.parseInt(unreadText, 10) ||
-          (node.querySelector(spec.unread) ? 1 : 0)
-        : 0,
+      unread: unreadOf(node),
     };
+  };
+  const unreadOf = (node) => {
+    if (!spec.unread) {
+      return 0;
+    }
+    const count = Number.parseInt(text(node, spec.unread), 10);
+    return Number.isFinite(count)
+      ? Math.max(0, count)
+      : node.querySelector(spec.unread)
+        ? 1
+        : 0;
   };
   const seen = new Set();
   const rows = [];
-  for (const node of document.querySelectorAll(spec.item)) {
+  const owned = container();
+  for (const node of owned?.root.querySelectorAll(spec.item) ?? []) {
     if (rows.length >= spec.limit) {
       break;
+    }
+    if (owned.visible && !owned.visible(node)) {
+      continue;
     }
     const row = rowOf(node);
     if (!row.chat || (spec.uniqueIds && seen.has(row.chat))) {

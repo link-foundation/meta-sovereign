@@ -69,7 +69,11 @@ const visibleFrame = async (frame, main, ui) => {
   return true;
 };
 
-const chooseDocument = async (page, ui, target) => {
+const inList = (frame, ui) =>
+  trusted(frame.url(), ui.location.origins) &&
+  new RegExp(ui.chatScan.pathPattern).test(new URL(frame.url()).pathname);
+
+const chooseDocument = async (page, ui, target, list = false) => {
   if (!page || !trusted(page.url(), ui.documents.ownerOrigins)) {
     throw failure();
   }
@@ -77,7 +81,11 @@ const chooseDocument = async (page, ui, target) => {
   const ownerRoute = new RegExp(ui.location.pathPattern).exec(
     new URL(page.url()).pathname
   );
-  if (ownerRoute && ownerRoute[1] !== String(target)) {
+  if (
+    list
+      ? !new RegExp(ui.chatScan.pathPattern).test(new URL(page.url()).pathname)
+      : ownerRoute && ownerRoute[1] !== String(target)
+  ) {
     throw failure();
   }
   const frames = page.frames();
@@ -85,12 +93,11 @@ const chooseDocument = async (page, ui, target) => {
     throw failure();
   }
   const candidates = [];
+  const selector = list ? ui.chats.item : ui.messages.item;
   for (const frame of frames) {
-    if (inChat(frame, ui, target) && (await visibleFrame(frame, main, ui))) {
-      const identity = await frame.evaluate(
-        browserDocumentIdentity,
-        ui.messages.item
-      );
+    const matching = list ? inList(frame, ui) : inChat(frame, ui, target);
+    if (matching && (await visibleFrame(frame, main, ui))) {
+      const identity = await frame.evaluate(browserDocumentIdentity, selector);
       if (identity.rows) {
         candidates.push({ frame, identity, frameUrl: frame.url() });
       }
@@ -99,29 +106,30 @@ const chooseDocument = async (page, ui, target) => {
   if (candidates.length !== 1) {
     throw failure();
   }
-  const owner = await main.evaluate(browserDocumentIdentity, ui.messages.item);
+  const owner = await main.evaluate(browserDocumentIdentity, selector);
   return { ...candidates[0], owner: owner.key, url: page.url() };
 };
 
 /** Commander has no frame target; use the connected Playwright frame narrowly. */
-export const resolveBrowserChoiceDocument = async (
+const resolveBrowserDocument = async (
   commander,
   page,
   ui,
-  target
+  target,
+  list = false
 ) => {
   if (!ui.documents) {
     return commander;
   }
   let selected;
   try {
-    selected = await chooseDocument(page, ui, target);
+    selected = await chooseDocument(page, ui, target, list);
   } catch {
     throw failure();
   }
   const assertCurrent = async () => {
     try {
-      const current = await chooseDocument(page, ui, target);
+      const current = await chooseDocument(page, ui, target, list);
       if (
         current.frame !== selected.frame ||
         current.frameUrl !== selected.frameUrl ||
@@ -167,3 +175,10 @@ export const resolveBrowserChoiceDocument = async (
     },
   };
 };
+
+export const resolveBrowserChoiceDocument = (commander, page, ui, target) =>
+  resolveBrowserDocument(commander, page, ui, target);
+
+/** List scans use the same visible-frame and document-identity ownership. */
+export const resolveBrowserChatListDocument = (commander, page, ui) =>
+  resolveBrowserDocument(commander, page, ui, null, true);

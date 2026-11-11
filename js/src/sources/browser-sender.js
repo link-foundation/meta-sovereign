@@ -51,6 +51,7 @@ import {
   readBrowserAnswerChoices,
 } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import { createBrowserChatScans } from './browser-chat-scan.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -406,8 +407,11 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
     });
 
   /** Run `fn(commander, page)` with the chat list open. */
-  const inList = (source, fn) =>
+  const inList = (source, fn, { signal } = {}) =>
     pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The browser chat scan was cancelled', 'cancelled');
+      }
       const ui = uiFor(source);
       const state = await openPage(source, ui.listUrl ?? ui.loginUrl);
       return fn(state.commander, state.session?.page ?? null);
@@ -533,11 +537,13 @@ export const createBrowserSender = ({
     receiptMs: choiceReceiptMs,
     pollMs,
   });
+  const scans = createBrowserChatScans({ uiFor, inList });
 
   return {
     platforms,
     ...actions,
     ...choices,
+    ...scans,
     choiceSources: () => choiceSources(platforms),
     answerWatchSources: () =>
       choiceSources(platforms).filter(({ id }) => platforms[id].documents),
@@ -615,6 +621,7 @@ export const createBrowserSender = ({
 
     /** Close every page that was opened. */
     close: async () => {
+      await scans.closeChatScans();
       await choices.closeAnswerWatches();
       await pool.closeAll();
     },
@@ -824,6 +831,7 @@ export const createDefaultSender = ({
     perform: actions.perform,
     supports: actions.supports,
     readChats: (params) => browserFor().readChats(params),
+    scanChats: (params) => browserFor().scanChats(params),
     readRecent: (params) => browserFor().readRecent(params),
     readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
     prefillAnswer: (params) => browserFor().prefillAnswer(params),
