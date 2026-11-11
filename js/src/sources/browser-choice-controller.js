@@ -208,3 +208,15 @@ export const readChoiceReceipt = (input, context) => {
   }
   return { code: 'send-unknown', blocked: Boolean(attempt.blocked) };
 };
+
+/** Remove temporary event hooks even when host/frame verification was lost. */
+export const releaseChoiceClick = ({ token }, { state, clean }) => {
+  const attempt = [...state.attempts.values()].find(
+    (entry) => entry.token === token
+  );
+  if (attempt) {
+    clean(attempt);
+  }
+  // Keep the reservation: cleanup does not prove whether dispatch happened.
+  return { released: true };
+};

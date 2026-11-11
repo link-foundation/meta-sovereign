@@ -219,3 +219,5 @@ Keep unavailable strict bot options pending without model/free-text fallback. Bi
 Add shared provider choice inspection, guarded native option clicks with positive message receipts, strict direct-send routing and private automatic-draft ownership; refuse unsupported or uncertain choices without text fallback (R-AA1).
 
 Confirm suspected chat layout overlaps after ResizeObserver tail correction, retaining persistent warnings and current reading state across Chat and Operator.
+
+Add the built-in explicit HH web-chat choice adapter with trusted visible main/application-frame selection, document revalidation, native receipts and cleanup that retains uncertain reservations. Refuse guessed API/web identity mappings and protect owner drafts; shared execution controls and full provider parity remain required.

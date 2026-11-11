@@ -34,6 +34,7 @@
  */
 
 import { chatIdOf, parseChatRef } from './whatsapp-ids.js';
+import { HH_WEB_UI } from './hh-web-ui.js';
 
 /** VK peer ids of group chats start here (`messages.send` peer_id). */
 const VK_CHAT_PEER_OFFSET = 2000000000;
@@ -437,6 +438,7 @@ const freeze = (ui) =>
   });
 
 export const WEB_UIS = Object.freeze({
+  hh: freeze(HH_WEB_UI),
   vk: freeze(vk),
   telegram: freeze(telegram),
   whatsapp: freeze(whatsapp),

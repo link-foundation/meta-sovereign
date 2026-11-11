@@ -236,3 +236,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 [Provider choice primitives](provider-choices.md) adds native selection receipts, strict metadata and private draft ownership for configured browser adapters. Built-in provider workflows remain open.
 
 [WebKit layout observer diagnostics](ci-layout-observer.md) reproduces the pre-observer warning with the actual parent hook while preserving warnings for persistent overlaps.
+
+- [Built-in HH choices in main and application frames](hh-browser-choices.md): explicit numeric web identity, trusted unique visible documents, guarded native receipts and cleanup after navigation.

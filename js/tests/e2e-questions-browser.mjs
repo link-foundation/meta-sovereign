@@ -18,6 +18,7 @@ import { verifyResumeProfile } from './helpers/e2e-resume-profile.mjs';
 import { verifyQuestionSharedProfile } from './helpers/e2e-question-shared-profile.mjs';
 import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profile.mjs';
 import { verifyProviderChoices } from './helpers/e2e-provider-choices.mjs';
+import { verifyHhChoices } from './helpers/e2e-hh-choices.mjs';
 import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
 import {
   verifyHhHistory,
@@ -723,6 +724,8 @@ await finish(async () => {
   // The final provider fixture has its own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
   await verifyHhHistory({ page, base, store, until }).then(() =>
-    verifyProviderChoices(page.context().browser())
+    verifyProviderChoices(page.context().browser()).then(() =>
+      verifyHhChoices(page.context().browser())
+    )
   );
 });

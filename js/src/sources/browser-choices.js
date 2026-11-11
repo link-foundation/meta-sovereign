@@ -1,14 +1,19 @@
 import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { readBrowserChoices } from './browser-choice-reader.js';
+import {
+  readBrowserChoices,
+  browserChoiceSuggestions,
+} from './browser-choice-reader.js';
 import {
   createChoiceContext,
   readChoicePublic,
   prefillChoiceDraft,
   armChoiceClick,
   readChoiceReceipt,
+  releaseChoiceClick,
 } from './browser-choice-controller.js';
 import { answerChoiceState } from '../automation/question-options.js';
+import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 
 // Only these application functions become code. Provider strings remain args.
 const methods = {
@@ -16,8 +21,10 @@ const methods = {
   prefill: prefillChoiceDraft,
   arm: armChoiceClick,
   receipt: readChoiceReceipt,
+  release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const context = (${createChoiceContext.toString()})(input, ${readBrowserChoices.toString()});
   const methods = {${Object.entries(methods)
     .map(([name, method]) => `${name}: ${method.toString()}`)
@@ -186,47 +193,55 @@ export const selectBrowserAnswer = async (
   const spec = browserChoiceSpec(ui);
   const token = randomBytes(16).toString('hex');
   const input = { spec, expected, token, option: draft.answer.option };
-  const armed = await evaluate(commander, { ...input, operation: 'arm' });
-  if (!armed.armed) {
-    throw failure(armed.code);
-  }
   try {
-    await commander.clickButton({
-      selector: armed.selector,
-      scrollIntoView: true,
-      waitForNavigation: false,
-      waitAfterClick: 0,
-      verify: false,
-    });
-  } catch {
-    // Dispatch can already have happened even when the native click rejects.
-  }
-  const deadline = Date.now() + receiptMs;
-  for (;;) {
-    let result;
-    const finish = Date.now() >= deadline;
+    const armed = await evaluate(commander, { ...input, operation: 'arm' });
+    if (!armed.armed) {
+      throw failure(armed.code);
+    }
     try {
-      result = await evaluate(commander, {
-        ...input,
-        operation: 'receipt',
-        finish,
+      await commander.clickButton({
+        selector: armed.selector,
+        scrollIntoView: true,
+        waitForNavigation: false,
+        waitAfterClick: 0,
+        verify: false,
       });
     } catch {
-      throw failure('send-unknown');
+      // Dispatch can already have happened even when the native click rejects.
     }
-    if (result.sent) {
-      return {
-        via: 'browser',
-        source: draft.source,
-        chat: String(target),
-        messageId: result.messageId,
-        option: draft.answer.option,
-      };
+    const deadline = Date.now() + receiptMs;
+    for (;;) {
+      let result;
+      const finish = Date.now() >= deadline;
+      try {
+        result = await evaluate(commander, {
+          ...input,
+          operation: 'receipt',
+          finish,
+        });
+      } catch {
+        throw failure('send-unknown');
+      }
+      if (result.sent) {
+        return {
+          via: 'browser',
+          source: draft.source,
+          chat: String(target),
+          messageId: result.messageId,
+          option: draft.answer.option,
+        };
+      }
+      if (finish) {
+        throw failure(result.code);
+      }
+      await sleep(pollMs);
     }
-    if (finish) {
-      throw failure(result.code);
+  } finally {
+    try {
+      await evaluate(commander, { ...input, operation: 'release' });
+    } catch {
+      // A detached document cannot retain live hooks. Preserve the outcome.
     }
-    await sleep(pollMs);
   }
 };
 
@@ -244,32 +259,51 @@ export const createBrowserChoiceActions = ({
       chat: draft.chat,
       to: draft.contact ?? draft.to,
     });
-    return inChat(draft.source, target, {}, (commander) =>
-      selectBrowserAnswer(commander, ui, draft, target, {
-        receiptMs,
-        pollMs,
-      })
+    return inChat(
+      draft.source,
+      target,
+      { browserUrl: draft.browserUrl },
+      async (commander, page) =>
+        selectBrowserAnswer(
+          await resolveBrowserChoiceDocument(commander, page, ui, target),
+          ui,
+          draft,
+          target,
+          {
+            receiptMs,
+            pollMs,
+          }
+        )
     );
   },
 
   /** Inspect provider choices and clear only an unchanged owned draft. */
-  async readAnswerChoices({ source, chat, to } = {}) {
+  async readAnswerChoices({ source, chat, to, browserUrl } = {}) {
     const ui = uiFor(source);
     const target = ui.target({ chat, to });
-    return inChat(source, target, {}, (commander) =>
-      readBrowserAnswerChoices(commander, ui, target)
+    return inChat(source, target, { browserUrl }, async (commander, page) =>
+      readBrowserAnswerChoices(
+        await resolveBrowserChoiceDocument(commander, page, ui, target),
+        ui,
+        target
+      )
     );
   },
 
   /** Retain ownership only for a verified write into an empty provider input. */
-  async prefillAnswer({ source, chat, to, expected, text } = {}) {
+  async prefillAnswer({ source, chat, to, browserUrl, expected, text } = {}) {
     const ui = uiFor(source);
     const target = ui.target({ chat, to });
     if (expected?.chat !== String(target)) {
       throw failure('answer-chat-unverified');
     }
-    return inChat(source, target, {}, (commander) =>
-      prefillBrowserAnswer(commander, ui, expected, text)
+    return inChat(source, target, { browserUrl }, async (commander, page) =>
+      prefillBrowserAnswer(
+        await resolveBrowserChoiceDocument(commander, page, ui, target),
+        ui,
+        expected,
+        text
+      )
     );
   },
 });

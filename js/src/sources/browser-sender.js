@@ -48,7 +48,9 @@ import { markSendOutcome } from './http.js';
 import {
   createBrowserChoiceActions,
   enrichBrowserChoices,
+  readBrowserAnswerChoices,
 } from './browser-choices.js';
+import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -80,6 +82,16 @@ export class SendFallbackError extends AggregateError {
 
 const codedError = (message, code) =>
   Object.assign(new Error(message), { code });
+
+const requireTextUi = (ui, code = 'answer-choice-required') => {
+  if (ui.documents) {
+    throw codedError(
+      'Review the current provider answer controls; free-text browser input is unavailable',
+      code
+    );
+  }
+  return ui;
+};
 
 /** Errors that must never trigger a browser retry. */
 export const NO_FALLBACK_CODES = Object.freeze([
@@ -145,6 +157,33 @@ export const extractMessages = (spec) => {
       : null,
     outgoing: spec.outgoing ? Boolean(node.matches?.(spec.outgoing)) : false,
   }));
+};
+
+/** Keep HH history and its choice metadata in one verified document snapshot. */
+const readCurrentHistory = async (commander, page, ui, target, limit) => {
+  if (ui.documents) {
+    const document = await resolveBrowserChoiceDocument(
+      commander,
+      page,
+      ui,
+      target
+    );
+    const current = await readBrowserAnswerChoices(document, ui, target);
+    return current.messages.slice(-limit).map((row) =>
+      row.id === current.question.id
+        ? {
+            ...row,
+            strictOptions: current.strictOptions,
+            answerOptions: current.answerOptions,
+          }
+        : row
+    );
+  }
+  const history = await commander.evaluate({
+    fn: extractMessages,
+    args: [{ ...ui.messages, limit }],
+  });
+  return enrichBrowserChoices(commander, ui, target, history);
 };
 
 /** WhatsApp's `data-pre-plain-text`: "[10:15, 11/10/2026] Anna: ". */
@@ -344,7 +383,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   };
 
   /** Open the chat; a pre-filled URL is reloaded every time. */
-  const openChat = (source, target, { text = '' } = {}) => {
+  const openChat = (source, target, { text = '', browserUrl } = {}) => {
     const ui = uiFor(source);
     if (target === null || target === undefined || target === '') {
       throw codedError(
@@ -354,7 +393,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
     }
     // The reload is what puts the text back into the composer.
     const prefill = ui.prefill && text ? text : '';
-    return openPage(source, ui.chatUrl(target, { text: prefill }), {
+    return openPage(source, ui.chatUrl(target, { text: prefill, browserUrl }), {
       reload: Boolean(prefill),
     });
   };
@@ -494,15 +533,16 @@ export const createBrowserSender = ({
     ...choices,
 
     /** Type and send one message in the network's web UI. */
-    async send({ source, chat, to, text, answer } = {}) {
+    async send(draft = {}) {
+      const { source, chat, to, text, answer } = draft;
       if (answer?.strictOptions) {
-        return choices.chooseAnswer({ source, chat, to, text, answer });
+        return choices.chooseAnswer(draft);
       }
       const body = String(text ?? '');
       if (!body.trim()) {
         throw codedError(`${source}: message text is required`, 'bad-draft');
       }
-      const ui = uiFor(source);
+      const ui = requireTextUi(uiFor(source));
       const target = ui.target({ chat, to });
       await inChat(source, target, { text: body }, async (commander) => {
         const composer = await focusComposer(source, ui, commander);
@@ -530,7 +570,7 @@ export const createBrowserSender = ({
 
     /** Emit the "typing…" status: type a character and erase it. */
     async setTyping({ source, chat, to } = {}) {
-      const ui = uiFor(source);
+      const ui = requireTextUi(uiFor(source), 'unsupported');
       await inChat(source, ui.target({ chat, to }), {}, async (commander) => {
         await focusComposer(source, ui, commander);
         await commander.typeText({ text: '.' });
@@ -540,7 +580,7 @@ export const createBrowserSender = ({
     },
 
     /** Read the visible history of a chat as message links. */
-    async readRecent({ source, chat, to, limit = 20 } = {}) {
+    async readRecent({ source, chat, to, browserUrl, limit = 20 } = {}) {
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       // A stable chat id (E.164 number / group JID), not the typed form
@@ -548,13 +588,13 @@ export const createBrowserSender = ({
       const normalize = (value) => ui.normalizeChat?.(value) ?? null;
       const chatOf = (row) =>
         normalize(row.chat) ?? normalize(target) ?? String(target);
-      const rows = await inChat(source, target, {}, async (commander) => {
-        const history = await commander.evaluate({
-          fn: extractMessages,
-          args: [{ ...ui.messages, limit }],
-        });
-        return enrichBrowserChoices(commander, ui, target, history);
-      });
+      const rows = await inChat(
+        source,
+        target,
+        { browserUrl },
+        (commander, page) =>
+          readCurrentHistory(commander, page, ui, target, limit)
+      );
       return (Array.isArray(rows) ? rows : [])
         .filter((row) => row && String(row.body ?? '').length > 0)
         .map((row) => toMessageLink(source, chatOf(row), row));

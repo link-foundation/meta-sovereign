@@ -1,6 +1,20 @@
 /* global document, location, getComputedStyle */
 
-/** Serialized into the provider document; no page text is executed as code. */
+/** Distinguish unscoped greeting chips from actual provider answer controls. */
+export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
+  if (
+    !spec.choices.genericGroup ||
+    !group.matches(spec.choices.genericGroup) ||
+    group.closest(spec.messages.item)
+  ) {
+    return false;
+  }
+  const offered = all.filter((node) => group.contains(node) && visible(node));
+  const pattern = new RegExp(spec.choices.genericPattern, 'iu');
+  return offered.length > 0 && offered.some((node) => pattern.test(text(node)));
+};
+
+/** Composed with the static suggestion classifier; provider text stays data. */
 export const readBrowserChoices = (spec, internal = false) => {
   const text = (node) =>
     String(node?.textContent ?? '')
@@ -62,8 +76,14 @@ export const readBrowserChoices = (spec, internal = false) => {
   if (!hasQuestion(latest)) {
     return unavailable('answer-question-unavailable');
   }
+  const all = [...document.querySelectorAll(spec.choices.button)];
+  if (all.length > 1000) {
+    return unavailable('answer-options-limited');
+  }
   const groups = [...document.querySelectorAll(spec.choices.group)].filter(
-    visible
+    (group) =>
+      visible(group) &&
+      !browserChoiceSuggestions(spec, group, all, visible, text)
   );
   const attached = groups
     .filter((group) => {
@@ -89,10 +109,6 @@ export const readBrowserChoices = (spec, internal = false) => {
   if (groups.length > 100 || attached.length > 1) {
     return unavailable('answer-options-ambiguous');
   }
-  const all = [...document.querySelectorAll(spec.choices.button)];
-  if (all.length > 1000) {
-    return unavailable('answer-options-limited');
-  }
   const shown = all.filter(visible);
   const yes = /^(?:yes|да|हाँ|是)[.!]?$/iu;
   const no = /^(?:no|нет|नहीं|否)[.!]?$/iu;
@@ -102,7 +118,7 @@ export const readBrowserChoices = (spec, internal = false) => {
     return (
       (!owner || owner === latest.node) &&
       (!dialog || dialog.contains(latest.node)) &&
-      !node.closest(spec.choices.group) &&
+      !groups.some((group) => group.contains(node)) &&
       (yes.test(text(node)) || no.test(text(node)))
     );
   });
@@ -113,6 +129,7 @@ export const readBrowserChoices = (spec, internal = false) => {
   const controls = shown.filter(
     (node) =>
       attached.some((group) => group.contains(node)) ||
+      (spec.choices.attachedButtons && latest.node.contains(node)) ||
       (pair && unscoped.includes(node))
   );
   if (!validControls(controls)) {
@@ -132,10 +149,15 @@ export const readBrowserChoices = (spec, internal = false) => {
   const result = {
     chat,
     question: { id: latest.id, body: latest.body, outgoing: latest.outgoing },
-    strictOptions: attached.length > 0 || pair,
+    strictOptions: [attached.length, pair, controls.length].some(Boolean),
     answerOptions: enabled.map(text),
     optionsShown: controls.map(text),
-    messages: rows.map(({ node: _node, ...row }) => row),
+    messages: rows.map(({ node, ...row }) => ({
+      ...row,
+      timestamp: spec.messages.timestampAttribute
+        ? node.getAttribute(spec.messages.timestampAttribute)
+        : null,
+    })),
   };
   return internal
     ? { ...result, controls: enabled, composer: composers[0] }
