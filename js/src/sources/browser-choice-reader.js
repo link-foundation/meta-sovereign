@@ -1,4 +1,5 @@
 /* global document, location, getComputedStyle */
+import { browserPendingTurn } from './browser-pending-turn.js';
 
 /** Distinguish unscoped greeting chips from actual provider answer controls. */
 export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
@@ -15,7 +16,12 @@ export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
 };
 
 /** Shared verified rows. Service records remain chronology barriers. */
-export const browserChoiceHistory = (spec, visible, text) => {
+export const browserChoiceHistory = (
+  spec,
+  visible,
+  text,
+  historyOnly = false
+) => {
   const unavailable = (code) => ({ code });
   const validLocation = (url, match) =>
     spec.location.origins.includes(url.origin) && Boolean(match?.[1]);
@@ -59,10 +65,15 @@ export const browserChoiceHistory = (spec, visible, text) => {
       : null,
   }));
   const latest = rows.at(-1);
+  const pendingTurn = historyOnly ? undefined : browserPendingTurn(messages);
+  if (pendingTurn?.code) {
+    return pendingTurn;
+  }
   return {
     chat,
     latest,
     messages,
+    pendingTurn,
     questionAvailable: Boolean(latest?.body) && !latest.service,
   };
 };
@@ -99,11 +110,11 @@ export const readBrowserChoices = (
   const validControls = (controls) =>
     controls.length <= 100 &&
     !controls.some((node) => !text(node) || text(node).length > 6000);
-  const history = browserChoiceHistory(spec, visible, text);
+  const history = browserChoiceHistory(spec, visible, text, historyOnly);
   if (history.code) {
     return history;
   }
-  const { chat, latest, messages, questionAvailable } = history;
+  const { chat, latest, messages, pendingTurn, questionAvailable } = history;
   if (!questionAvailable) {
     return historyOnly
       ? { chat, messages }
@@ -196,6 +207,7 @@ export const readBrowserChoices = (
     answerOptions,
     optionsShown: controls.map(text),
     messages,
+    pendingTurn,
   };
   return internal
     ? { ...result, controls: enabled, composer: composers[0] }

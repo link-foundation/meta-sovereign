@@ -12,10 +12,18 @@ export const createChoiceContext = (input, read) => {
   const snapshot = (historyOnly = false) => read(spec, true, historyOnly);
   const identity = (value) =>
     JSON.stringify([value.chat, value.question?.id, value.question?.body]);
+  const ownershipIdentity = (value) =>
+    JSON.stringify([identity(value), value.pendingTurn]);
+  const samePending = (value) =>
+    expected.pendingTurn
+      ? JSON.stringify(value.pendingTurn) ===
+        JSON.stringify(expected.pendingTurn)
+      : value.pendingTurn?.messages.length === 1;
   const same = (value) =>
     !value.code &&
     !value.question.outgoing &&
     identity(value) === identity(expected) &&
+    samePending(value) &&
     JSON.stringify(value.answerOptions) ===
       JSON.stringify(expected.answerOptions);
   const valueOf = (node) =>
@@ -50,7 +58,7 @@ export const createChoiceContext = (input, read) => {
     const owner = node && state.owners.get(node);
     if (
       owner &&
-      owner.identity === identity(current) &&
+      owner.identity === ownershipIdentity(current) &&
       valueOf(node) === owner.text
     ) {
       state.owners.delete(node);
@@ -64,7 +72,17 @@ export const createChoiceContext = (input, read) => {
       document.removeEventListener(type, attempt.guard, true);
     }
   };
-  return { state, snapshot, identity, same, valueOf, write, clearOwned, clean };
+  return {
+    state,
+    snapshot,
+    identity,
+    ownershipIdentity,
+    same,
+    valueOf,
+    write,
+    clearOwned,
+    clean,
+  };
 };
 
 /** Reading history must not clear or acquire the provider composer. */
@@ -84,7 +102,7 @@ export const readChoicePublic = (_input, context) => {
 };
 
 export const prefillChoiceDraft = (input, context) => {
-  const { snapshot, same, valueOf, write, state, identity } = context;
+  const { snapshot, same, valueOf, write, state, ownershipIdentity } = context;
   const current = snapshot();
   if (
     !same(current) ||
@@ -98,7 +116,10 @@ export const prefillChoiceDraft = (input, context) => {
   if (!write(node, input.text)) {
     return { code: 'answer-prefill-unverified' };
   }
-  state.owners.set(node, { identity: identity(current), text: input.text });
+  state.owners.set(node, {
+    identity: ownershipIdentity(current),
+    text: input.text,
+  });
   if (!state.observed.has(node)) {
     state.observed.add(node);
     node.addEventListener('input', () => {

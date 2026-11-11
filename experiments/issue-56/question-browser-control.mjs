@@ -1,11 +1,22 @@
 import { createServer } from 'node:http';
+import {
+  editPendingMessage,
+  mountPendingHistory,
+} from './pending-turn-fixture.mjs';
 
 export const questionBrowserControlServer = (fixture) =>
   createServer(async (req, res) => {
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
       let result;
-      if (url.pathname === '/summary') {
+      if (url.pathname === '/pending') {
+        await fixture.send.readAnswerChoices({ source: 'hh', chat: '7' });
+        await fixture.page.evaluate(mountPendingHistory);
+        result = await fixture.stats();
+      } else if (url.pathname === '/pending-edit') {
+        await fixture.page.evaluate(editPendingMessage, 'When can you start?');
+        result = await fixture.stats();
+      } else if (url.pathname === '/summary') {
         result = await fixture.setSummary(
           url.searchParams.get('answer') ?? 'Yes'
         );

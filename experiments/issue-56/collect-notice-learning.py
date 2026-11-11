@@ -1,8 +1,7 @@
 """Preserve actual-parent notice learning failures and focused verification."""
 from pathlib import Path
-import subprocess
 import sys
-from evidence_bundle import bundle
+from evidence_bundle import bundle, changed_sources, evidence_logs
 
 root = Path(__file__).resolve().parents[2]
 patterns = '--patterns' in sys.argv
@@ -16,14 +15,8 @@ assert f'pass {checks}' in log('node')
 assert f'{checks} passed | 0 failed' in log('deno')
 assert '"cases":3,"providerSends":0' in log('after-ui')
 assert not log('lint')
-changed = subprocess.check_output([
-    'git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
-    cwd=root).decode().split('\0')
-sources = [name for name in changed if name and not name.startswith(
-    'docs/case-studies/issue-56/data/')]
-logs = [str(path.relative_to(root)) for path in (root / 'ci-logs').glob(f'{prefix}-*')
-        if path.is_file() and path.suffix in ('.log', '.json', '.png')
-        and not path.name.endswith(('-commit.log', '-push.log', '-archive.log', '-pr.log'))]
+sources = changed_sources(root)
+logs = evidence_logs(root, prefix, ('.log', '.json', '.png'))
 bundle(root, [*sources, *logs,
     'js/src/automation/question-store.js',
     'js/src/automation/question-notices.js',

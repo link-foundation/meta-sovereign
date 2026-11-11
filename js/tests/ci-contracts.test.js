@@ -337,6 +337,13 @@ test('question provider and control scenarios have separate mandatory browser bu
     /\bverify(?:QuestionNotices|NoticeLearning)\b/u,
     'notice review needs the shared page/store fixture, not a Browser'
   );
+  assert.match(
+    readFileSync(
+      path.join(root, 'js/tests/helpers/e2e-question-browser-controls.mjs'),
+      'utf8'
+    ),
+    /await verifyBrowserPendingTurn\(\{ \.\.\.scenario, inspect: readCurrent \}\)/u
+  );
   for (const [name, scenarios] of Object.entries(groups)) {
     assert.equal(checks.filter((check) => check === name).length, 1, name);
     const command = scripts[`test:e2e:${name}`];

@@ -13,11 +13,13 @@ import {
   questionBrowserFixture,
   browserTarget,
 } from '../../experiments/issue-56/question-browser-fixture.mjs';
+import { pendingSnapshot } from '../../experiments/issue-56/pending-turn-fixture.mjs';
 
 const inputFor = (review) => ({ id: review.id, option: 'Yes', confirm: true });
 
 test('CLI exposes current choices, confirmed selection and read-only durable recovery', async () => {
   const env = await questionBrowserFixture();
+  env.state.snapshot = pendingSnapshot();
   const cli = createAutomationCommands({
     openStore: async () => env.store,
     send: env.send,
@@ -42,6 +44,7 @@ test('CLI exposes current choices, confirmed selection and read-only durable rec
   assert.equal(env.state.reads.length, 0);
   const review = (await call('inspect', browserTarget)).value;
   assert.equal(review.plan.text, 'Yes');
+  assert.deepEqual(review.pendingTurn, pendingSnapshot().pendingTurn);
   assert.equal(
     (await call('select', { id: review.id, option: 'Yes' })).code,
     1
@@ -64,6 +67,7 @@ test(
   { timeout: 20000 },
   async () => {
     const env = await questionBrowserFixture();
+    env.state.snapshot = pendingSnapshot();
     const server = await startServer({
       store: env.store,
       port: 0,
@@ -102,6 +106,7 @@ test(
       assert.equal(env.state.reads.length, 0);
       const review = (await call('inspect', browserTarget)).body;
       assert.equal(review.question.id, '101');
+      assert.deepEqual(review.pendingTurn, pendingSnapshot().pendingTurn);
       assert.equal(
         (
           await call(
@@ -115,6 +120,7 @@ test(
       assert.equal(env.state.sends.length, 0);
       const selected = await call('select', inputFor(review), LINO_BINARY);
       assert.equal(selected.body.status, 'sent');
+      assert.deepEqual(selected.body.pendingTurn, review.pendingTurn);
       assert.equal(
         (await call('status', { id: review.id })).body.outbox.receipt.option,
         'Yes'

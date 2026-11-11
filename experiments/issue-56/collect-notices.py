@@ -1,7 +1,6 @@
 """Retain finite notice regressions, shared controls and actual-parent evidence."""
 from pathlib import Path
-import subprocess
-from evidence_bundle import bundle
+from evidence_bundle import bundle, changed_sources, evidence_logs
 
 root = Path(__file__).resolve().parents[2]
 assert 'fail 1' in (root / 'ci-logs/notices-before-node.log').read_text()
@@ -12,14 +11,8 @@ assert '"cases":6,"providerSends":0' in (root / 'ci-logs/notices-after-ui.log').
 assert '[e2e-profile-navigation] OK (chromium)' in (root / 'ci-logs/notices-profile-browser.log').read_text()
 assert not (root / 'ci-logs/notices-lint.log').read_text()
 assert 'ERROR:' not in (root / 'ci-logs/notices-duplication.log').read_text()
-changed = subprocess.check_output([
-    'git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
-    cwd=root).decode().split('\0')
-sources = [name for name in changed if name and not name.startswith(
-    'docs/case-studies/issue-56/data/')]
-logs = [str(path.relative_to(root)) for path in (root / 'ci-logs').glob('notices-*')
-        if path.is_file() and path.suffix in ('.log', '.json')
-        and not path.name.endswith(('-commit.log', '-push.log', '-archive.log', '-pr.log'))]
+sources = changed_sources(root)
+logs = evidence_logs(root, 'notices')
 bundle(root, [*sources, *logs,
     'js/tests/helpers/e2e-browser-scenarios.mjs',
     'js/src/automation/question-match.js',

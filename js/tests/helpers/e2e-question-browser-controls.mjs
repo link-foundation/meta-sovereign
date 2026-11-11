@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
+import { verifyBrowserPendingTurn } from './e2e-browser-pending-turn.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
@@ -246,7 +247,7 @@ const verifySurfaces = async ({
 
 export const verifyQuestionBrowserControls = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, pendingOnly = false } = {}
 ) => {
   const fixture = await questionBrowserServer(browser);
   const context = await browser.newContext({
@@ -319,7 +320,7 @@ export const verifyQuestionBrowserControls = async (
   };
   try {
     await open();
-    if (before) {
+    if (before && !pendingOnly) {
       await shot('before-shared-controls');
       assert.equal(await controls.count(), 0);
       const response = await page.request.get(
@@ -342,7 +343,13 @@ export const verifyQuestionBrowserControls = async (
         controls = value;
       },
     };
+    if (pendingOnly) {
+      await verifyBrowserPendingTurn(scenario, { before });
+      assert.deepEqual(errors, []);
+      return { cases, before, pageErrors: errors, liveProvider: false };
+    }
     await verifyCurrentReview(scenario);
+    await verifyBrowserPendingTurn({ ...scenario, inspect: readCurrent });
     await verifyRecovery(scenario);
     await verifySurfaces(scenario);
     assert.deepEqual(errors, []);

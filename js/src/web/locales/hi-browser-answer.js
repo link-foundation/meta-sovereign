@@ -1,4 +1,15 @@
 export const hiBrowserAnswer = {
+  'browserAnswer.turn': 'दिख रहे अनुत्तरित संदेश: {count}',
+  'browserAnswer.latestOnly':
+    'नीचे दिया उत्तर अंतिम संदेश के लिए है। पहले के संदेशों की समीक्षा अभी बाकी है।',
+  'browserAnswer.boundary.outgoing':
+    'मालिक के अंतिम दिख रहे उत्तर के बाद के संदेश। पहले का इतिहास सत्यापित नहीं है।',
+  'browserAnswer.boundary.service':
+    'अंतिम दिख रही सेवा घटना के बाद के संदेश। पहले का इतिहास सत्यापित नहीं है।',
+  'browserAnswer.boundary.rendered-start':
+    'मालिक का पिछला उत्तर या सेवा घटना नहीं दिख रही है। पहले का इतिहास अज्ञात है।',
+  'browserAnswer.boundary.unknown':
+    'इस समीक्षा में केवल अंतिम संदेश है। अनुत्तरित बातचीत का संदर्भ अज्ञात है।',
   'questions.match.accepted-summary': 'स्वीकृत उत्तर का सारांश',
   'questions.acceptedSummary.matched':
     'पूरी हुई प्रश्नावली का सारांश इस मौजूदा विकल्प से मेल खाता है।',

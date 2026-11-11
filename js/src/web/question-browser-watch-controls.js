@@ -2,6 +2,7 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { AnswerEvidence } from './question-evidence.js';
 import { useBrowserAnswerWatch } from './question-browser-watch-state.js';
+import { BrowserPendingTurn } from './question-browser-pending.js';
 
 const el = React.createElement;
 
@@ -34,11 +35,10 @@ const WatchStatus = ({ watch }) => {
         `${watch.target.source} · ${watch.target.chat}`
       ),
       watch.last
-        ? el(
-            'p',
-            { key: 'question', className: 'wrap' },
-            watch.last.snapshot.question.body
-          )
+        ? el(BrowserPendingTurn, {
+            key: 'question',
+            snapshot: watch.last.snapshot,
+          })
         : null,
       watch.last?.plan
         ? el(AnswerEvidence, { key: 'evidence', answer: watch.last.plan })

@@ -3,6 +3,7 @@ import { AnswerEvidence } from './question-evidence.js';
 import { useT } from './i18n.js';
 import { getLocalStorage } from '../storage/local-storage.js';
 import { BrowserAnswerWatchControls } from './question-browser-watch-controls.js';
+import { BrowserPendingTurn } from './question-browser-pending.js';
 
 const el = React.createElement;
 const remember = (key, id) => {
@@ -197,7 +198,7 @@ const BrowserAnswerReview = ({
         { key: 'target', className: 'meta' },
         `${result.target.source} · ${result.chat}`
       ),
-      el('p', { key: 'question', className: 'wrap' }, result.question.body),
+      el(BrowserPendingTurn, { key: 'question', snapshot: result }),
       el(
         'p',
         {

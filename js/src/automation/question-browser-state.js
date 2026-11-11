@@ -1,4 +1,5 @@
 import { answerChoiceState } from './question-options.js';
+import { checkedBrowserPendingTurn } from '../sources/browser-pending-turn.js';
 
 export const browserWatchId = (id) =>
   typeof id === 'string' &&
@@ -25,6 +26,8 @@ export const validChoiceSources = (sources) =>
 
 export const checkBrowserQuestion = (snapshot) => {
   const question = snapshot?.question;
+  const pendingTurn =
+    question && checkedBrowserPendingTurn(snapshot.pendingTurn, question);
   if (
     !boundedBrowserText(snapshot?.chat, 480) ||
     !boundedBrowserText(question?.id, 480) ||
@@ -32,7 +35,8 @@ export const checkBrowserQuestion = (snapshot) => {
     typeof question.outgoing !== 'boolean' ||
     typeof snapshot.hasDraft !== 'boolean' ||
     typeof snapshot.strictOptions !== 'boolean' ||
-    !Array.isArray(snapshot.answerOptions)
+    !Array.isArray(snapshot.answerOptions) ||
+    pendingTurn === null
   ) {
     throw Object.assign(
       new Error('The current provider question was not verified.'),
@@ -56,6 +60,7 @@ export const checkBrowserQuestion = (snapshot) => {
     hasDraft: snapshot.hasDraft,
     strictOptions: choices.strictOptions,
     answerOptions: [...choices.options],
+    ...(pendingTurn ? { pendingTurn } : {}),
   };
 };
 
@@ -92,6 +97,9 @@ export const browserChoiceDraft = (record, option = '') => {
       message,
       strictOptions: true,
       option,
+      ...(snapshot.pendingTurn
+        ? { pendingTurn: globalThis.structuredClone(snapshot.pendingTurn) }
+        : {}),
       turn: {
         messages: [
           {

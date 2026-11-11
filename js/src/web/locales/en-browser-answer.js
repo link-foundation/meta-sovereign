@@ -15,6 +15,17 @@ export const enBrowserAnswer = {
   'browserAnswer.url': 'Application page URL (optional)',
   'browserAnswer.inspect': 'Read current question and choices',
   'browserAnswer.options': 'Current offered options',
+  'browserAnswer.turn': 'Pending rendered messages: {count}',
+  'browserAnswer.latestOnly':
+    'The answer below addresses the latest message. Earlier messages still need review.',
+  'browserAnswer.boundary.outgoing':
+    'Rendered messages after the last observed owner reply. Earlier history is not verified.',
+  'browserAnswer.boundary.service':
+    'Rendered messages after the last observed service event. Earlier history is not verified.',
+  'browserAnswer.boundary.rendered-start':
+    'No earlier owner reply or service event is rendered. Earlier history is unknown.',
+  'browserAnswer.boundary.unknown':
+    'This review has only the latest message. Pending conversation context is unknown.',
   'browserAnswer.select': 'Send “{option}” in the provider chat',
   'browserAnswer.prefill': 'Prefill the reviewed draft',
   'browserAnswer.prefilled': 'Draft prefilled; review it in the provider chat',

@@ -1,4 +1,15 @@
 export const zhBrowserAnswer = {
+  'browserAnswer.turn': '已显示的待回复消息：{count}',
+  'browserAnswer.latestOnly':
+    '下面的答案仅针对最后一条消息。更早的消息仍需审核。',
+  'browserAnswer.boundary.outgoing':
+    '最后一条已显示的本人回复之后的消息。更早的历史尚未核实。',
+  'browserAnswer.boundary.service':
+    '最后一条已显示的系统事件之后的消息。更早的历史尚未核实。',
+  'browserAnswer.boundary.rendered-start':
+    '未显示更早的本人回复或系统事件。更早的历史未知。',
+  'browserAnswer.boundary.unknown':
+    '此核对仅包含最后一条消息。待回复的对话上下文未知。',
   'questions.match.accepted-summary': '已接受的答案摘要',
   'questions.acceptedSummary.matched': '已完成问卷的摘要与当前选项一致。',
   'questions.acceptedSummary.conflict':

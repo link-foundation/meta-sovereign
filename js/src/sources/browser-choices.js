@@ -17,6 +17,10 @@ import {
 import { answerChoiceState } from '../automation/question-options.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { openBrowserAnswerWatch } from './browser-answer-watch.js';
+import {
+  browserPendingTurn,
+  checkedBrowserPendingTurn,
+} from './browser-pending-turn.js';
 
 // Only these application functions become code. Provider strings remain args.
 const methods = {
@@ -28,6 +32,7 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
   const context = (${createChoiceContext.toString()})(input, ${readBrowserChoices.toString()});
@@ -153,6 +158,18 @@ export const prefillBrowserAnswer = async (commander, ui, expected, text) => {
   return result;
 };
 
+const expectedPendingTurn = (draft, question, prefix) => {
+  const pendingTurn = checkedBrowserPendingTurn(draft.answer.pendingTurn, {
+    id: question.id.slice(prefix.length),
+    body: question.body,
+    outgoing: false,
+  });
+  if (pendingTurn === null) {
+    throw failure('answer-choice-required');
+  }
+  return pendingTurn;
+};
+
 const expectedQuestion = (draft, target) => {
   const messages = draft.answer?.turn?.messages;
   const question = messages?.length === 1 && messages[0];
@@ -179,10 +196,12 @@ const expectedQuestion = (draft, target) => {
   } catch {
     throw failure('answer-choice-required');
   }
+  const pendingTurn = expectedPendingTurn(draft, question, prefix);
   return {
     chat: String(target),
     question: { id: question.id.slice(prefix.length), body: question.body },
     answerOptions,
+    ...(pendingTurn ? { pendingTurn } : {}),
   };
 };
 

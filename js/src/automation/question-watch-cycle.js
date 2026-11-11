@@ -120,6 +120,9 @@ const phaseOf = (snapshot, plan) => {
   if (snapshot.hasDraft) {
     return 'owner-draft';
   }
+  if (snapshot.pendingTurn?.messages.length > 1) {
+    return 'review';
+  }
   if (snapshot.strictOptions && !snapshot.answerOptions.length) {
     return 'pending-options';
   }

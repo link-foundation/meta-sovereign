@@ -8,6 +8,21 @@ import subprocess
 import tempfile
 
 
+def changed_sources(root):
+    """Capture the same working sources without recursively archiving evidence."""
+    changed = subprocess.check_output([
+        'git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
+        cwd=root).decode().split('\0')
+    return sorted(set(name for name in changed if name and not name.startswith(
+        'docs/case-studies/issue-56/data/')))
+
+
+def evidence_logs(root, prefix, suffixes=('.log', '.json')):
+    return [str(path.relative_to(root)) for path in (root / 'ci-logs').glob(f'{prefix}-*')
+            if path.is_file() and path.suffix in suffixes
+            and not path.name.endswith(('-commit.log', '-push.log', '-archive.log', '-pr.log'))]
+
+
 def bundle(root, sources, destination, metadata, screenshot_pattern, before=None):
     root = Path(root)
     helper = 'experiments/issue-56/evidence_bundle.py'

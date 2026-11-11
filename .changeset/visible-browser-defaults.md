@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Retain complete bounded rendered pending incoming turns and actual owner/service boundaries in browser reviews, CLI/Lino and shared Questions/Chat/Operator/watch controls. Refuse held prefills and native selections after earlier edits or manual replies, including late pointer dispatch, and keep multi-message automatic watches for manual review. Preserve explicit unknown earlier-history coverage and latest-question durable reservations.
+
 Regenerate bounded review-only notice patterns from related actual delivered-reply observations. Preserve original counts, approval decisions and owner aliases; generated patterns cannot authorize no-reply or expand canonical corrections without explicit adoption. Share pattern review through CLI, offline storage, text/binary Lino and four-language controls (R-AA1).
 
 Keep native HH application letters, including empty bubbles, as service barriers in browser history. Separate history reads from owned-draft reconciliation, exclude applications from learned answers and native delivery receipts, and refuse stale application answer plans. Add opt-in count-only history diagnostics.
