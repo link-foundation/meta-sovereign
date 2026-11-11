@@ -88,12 +88,17 @@ export const HH_WEB_UI = {
     timestampAttribute: 'data-time',
   },
   chats: {
-    item: 'a[href^="/chat/"]',
+    item: '[data-qa^="chatik-open-chat-"], a[href^="/chat/"]',
+    idAttribute: 'data-qa',
+    idPattern: '^chatik-open-chat-(\\d{1,30})$',
+    requireId: true,
+    uniqueIds: true,
     link: 'a[href^="/chat/"]',
-    linkPattern: '^/chat/(\\d+)(?:[/?#]|$)',
-    title: '[data-qa="chat-title"]',
-    preview: '[data-qa="chat-last-message"]',
-    unread: '[data-qa="chat-unread-count"]',
+    linkPattern: '^/chat/(\\d{1,30})(?:[/?#]|$)',
+    title: '[data-qa="chat-cell-title"], [data-qa="chat-title"]',
+    preview: '[class*="last-message-color_"], [data-qa="chat-last-message"]',
+    unread:
+      '[data-qa="chat-unread-count"], [data-qa*="badge"], [data-qa*="counter"]',
   },
   actions: {},
 };

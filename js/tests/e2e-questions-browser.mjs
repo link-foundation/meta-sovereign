@@ -22,11 +22,21 @@ import { verifyQuestionLegacyProfile } from './helpers/e2e-question-legacy-profi
 import { verifyProviderChoices } from './helpers/e2e-provider-choices.mjs';
 import { verifyQuestionBrowserControls } from './helpers/e2e-question-browser-controls.mjs';
 import { verifyHhChoices } from './helpers/e2e-hh-choices.mjs';
+import { verifyHhChatList } from './helpers/e2e-hh-chat-list.mjs';
 import { traceBrowserInputs, inputTrace } from './helpers/e2e-input-trace.mjs';
 import {
   verifyHhHistory,
   resetHhHistoryFixture,
 } from './helpers/e2e-hh-history.mjs';
+
+const verifyProviderBrowsers = async (browser) => {
+  await verifyProviderChoices(browser);
+  await verifyHhChoices(browser);
+  await verifyHhChatList(browser);
+  await verifyQuestionBrowserControls(browser);
+  await verifySummaryChoices(browser);
+  await verifyQuestionBrowserWatch(browser);
+};
 
 const store = createMemoryStore();
 const reading = { beforeGet: null };
@@ -727,14 +737,6 @@ await finish(async () => {
   // The final provider fixture has its own transcript and saved-rule baseline.
   await resetHhHistoryFixture(store);
   await verifyHhHistory({ page, base, store, until }).then(() =>
-    verifyProviderChoices(page.context().browser()).then(() =>
-      verifyHhChoices(page.context().browser()).then(() =>
-        verifyQuestionBrowserControls(page.context().browser()).then(() =>
-          verifySummaryChoices(page.context().browser()).then(() =>
-            verifyQuestionBrowserWatch(page.context().browser())
-          )
-        )
-      )
-    )
+    verifyProviderBrowsers(page.context().browser())
   );
 });

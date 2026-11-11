@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Read native HH virtual chat cells with bounded numeric web IDs, titles, previews and unread badges. Reject conflicting identities and duplicate nested anchors before applying list limits, while preserving other providers' existing identity rules.
+
 Keep rolling CLI startup probes pending after temporary control status timeouts within a fixed total budget. Retain definite refusal errors and add opt-in metadata/readiness phase timings for Windows/macOS Bun CI.
 
 Retain reviewed rule filters, detached local profiles, named-profile references and bounded planning context in finite current-chat watches. Recheck current named-profile values before queued provider actions and require a fresh inspection for older reviews without saved planning settings.
