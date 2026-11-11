@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { assignmentFailure } from './validation.js';
+import { debugQuestionTurn } from '../automation/question-turns.js';
 
 /** Bounded output and an owned process tree, including git's transport helpers. */
 export const runAssignmentCommand = (command, args, options = {}) =>
@@ -16,6 +17,7 @@ export const runAssignmentCommand = (command, args, options = {}) =>
     let stdout = '';
     let stdoutBytes = 0;
     let stderrBytes = 0;
+    let stderr = '';
     const terminate = (code) => {
       refusal ??= assignmentFailure(
         code,
@@ -86,6 +88,8 @@ export const runAssignmentCommand = (command, args, options = {}) =>
       stderrBytes += chunk.length;
       if (stderrBytes > 64 * 1024) {
         terminate('output');
+      } else {
+        stderr += chunk.toString('utf8');
       }
     });
     child.once('error', () => {
@@ -105,6 +109,14 @@ export const runAssignmentCommand = (command, args, options = {}) =>
           assignmentFailure('command', 'The assignment command failed.');
         // HTTP headers are inspected privately by the adapter, never returned to UI.
         Object.defineProperty(error, 'commandOutput', { value: stdout });
+        Object.defineProperty(error, 'commandError', { value: stderr });
+        debugQuestionTurn('assignment-command-failed', {
+          command,
+          code,
+          refusal: error.code,
+          stdoutBytes,
+          stderrBytes,
+        });
         reject(error);
       } else {
         resolve({ stdout });

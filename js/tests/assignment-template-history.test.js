@@ -59,7 +59,21 @@ const fixture = async (t, { sharedHistory = false } = {}) => {
           ? target
           : value
     );
-    return runAssignmentCommand(command, mapped, options);
+    try {
+      return await runAssignmentCommand(command, mapped, options);
+    } catch (error) {
+      // This fixture contains no owner data; retain exact failed Git evidence in CI.
+      console.error(
+        '[assignment-history-fixture]',
+        JSON.stringify({
+          command,
+          args: mapped,
+          code: error.code,
+          stderr: error.commandError,
+        })
+      );
+      throw error;
+    }
   };
   const show = (file) => git(['--git-dir', target, 'show', `main:${file}`]);
   return { root, run, show, calls, template, target, original, git };
@@ -169,3 +183,19 @@ test(
     await rejected;
   }
 );
+
+test('failed command stderr stays bounded and private for fixture diagnostics', async () => {
+  await assert.rejects(
+    runAssignmentCommand(process.execPath, [
+      '-e',
+      "process.stderr.write('fixture-private-error');process.exit(2)",
+    ]),
+    (error) => {
+      assert.equal(error.code, 'assignment-command');
+      assert.equal(error.commandError, 'fixture-private-error');
+      assert.ok(!error.message.includes('fixture-private-error'));
+      assert.ok(!JSON.stringify(error).includes('fixture-private-error'));
+      return true;
+    }
+  );
+});
