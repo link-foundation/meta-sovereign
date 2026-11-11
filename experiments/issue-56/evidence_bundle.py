@@ -8,10 +8,13 @@ import subprocess
 import tempfile
 
 
-def changed_sources(root):
+def changed_sources(root, revision=None):
     """Capture the same working sources without recursively archiving evidence."""
     changed = subprocess.check_output([
         'git', 'ls-files', '--modified', '--others', '--exclude-standard', '-z'],
+        cwd=root).decode().split('\0')
+    changed += subprocess.check_output([
+        'git', 'diff', '--name-only', '-z', *([revision] if revision else ['--cached'])],
         cwd=root).decode().split('\0')
     return sorted(set(name for name in changed if name and not name.startswith(
         'docs/case-studies/issue-56/data/')))

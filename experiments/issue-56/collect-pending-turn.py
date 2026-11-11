@@ -15,7 +15,7 @@ assert '9 passed | 0 failed' in log('final-deno')
 assert '"cases":4,"before":false' in log('after-ui')
 assert '"recoveredWithoutReplay":true' in log('mcp')
 assert not log('lint')
-sources = changed_sources(root)
+sources = changed_sources(root, parent)
 logs = evidence_logs(root, prefix, ('.log', '.json', '.png'))
 bundle(root, [*sources, *logs,
     'experiments/issue-56/question-browser-server.mjs',
