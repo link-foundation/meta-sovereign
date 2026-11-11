@@ -1,14 +1,47 @@
-import { createServer } from 'node:http';
+import { questionBrowserControlServer } from './question-browser-control.mjs';
 import { pathToFileURL } from 'node:url';
 import { makeBrowserCommander } from 'browser-commander';
 import { createDefaultSender } from '../../js/src/sources/browser-sender.js';
 import { startServer } from '../../js/src/server/index.js';
 import { questionBrowserFixture } from './question-browser-fixture.mjs';
+import { summaryChoiceMessage } from './summary-choice-fixture.mjs';
 import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 
 /** Private, disposable production server and routed provider; no live account. */
-export const questionBrowserServer = async (browser) => {
+export const questionBrowserServer = async (
+  browser,
+  { summaryChoices = false } = {}
+) => {
   const env = await questionBrowserFixture();
+  const setSummary = async (answer = 'Yes') => {
+    if (!['Yes', 'No', 'conflict', 'none'].includes(answer)) {
+      throw new Error('Unknown synthetic summary answer');
+    }
+    await env.store.delete('qa-rule:experience');
+    await env.store.delete('msg:hh:accepted:20');
+    await env.store.delete('msg:vk:accepted:21');
+    if (answer !== 'none') {
+      await env.store.put(
+        summaryChoiceMessage({
+          body: `Your answers:\n${env.state.snapshot.question.body}: ${answer === 'conflict' ? 'Yes' : answer}.`,
+        })
+      );
+    }
+    if (answer === 'conflict') {
+      await env.store.put(
+        summaryChoiceMessage({
+          id: 'msg:vk:accepted:21',
+          source: 'vk',
+          body: `Your answers:\n${env.state.snapshot.question.body}: No.`,
+        })
+      );
+    }
+    return { summary: answer };
+  };
+  if (summaryChoices) {
+    await setSummary();
+  }
+
   await env.store.put({
     id: 'msg:hh:7:101',
     tokens: ['message', 'hh', '7'],
@@ -108,6 +141,7 @@ export const questionBrowserServer = async (browser) => {
     store: env.store,
     send,
     reset,
+    setSummary,
     stats,
     close: async () => {
       await server.close();
@@ -115,25 +149,6 @@ export const questionBrowserServer = async (browser) => {
     },
   };
 };
-
-export const questionBrowserControlServer = (fixture) =>
-  createServer(async (req, res) => {
-    try {
-      const url = new URL(req.url, 'http://127.0.0.1');
-      let result;
-      if (url.pathname === '/reset') {
-        result = await fixture.reset(Object.fromEntries(url.searchParams));
-      } else {
-        result = await fixture.stats();
-      }
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify(result));
-    } catch {
-      res.statusCode = 500;
-      res.setHeader('content-type', 'text/plain; charset=utf-8');
-      res.end('Fixture request failed.');
-    }
-  });
 
 if (
   process.argv[1] &&
@@ -146,7 +161,9 @@ if (
     headless: true,
     args: ['--disable-dev-shm-usage'],
   });
-  const fixture = await questionBrowserServer(browser);
+  const fixture = await questionBrowserServer(browser, {
+    summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
+  });
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));
   console.log(

@@ -1,3 +1,4 @@
+import { createAcceptedSummaryIndex } from './question-summary-choice.js';
 import { collectSelfIds } from '../crm/reengage.js';
 
 const isMessage = (link) =>
@@ -20,17 +21,24 @@ const summary = (link) => {
   return record;
 };
 
+const summaryCollector = (enabled, owners) =>
+  enabled
+    ? createAcceptedSummaryIndex({ owners })
+    : { accept: () => {}, snapshot: () => undefined };
+
 export const planningRecords = async (
   store,
-  { targets, self = [], inferSelf = true } = {}
+  { targets, self = [], inferSelf = true, summaryChoices = false } = {}
 ) => {
   const wanted = Array.isArray(targets)
     ? new Set(targets.map((target) => `${target.source}:${target.chat}`))
     : null;
   const owner = collectSelfIds(inferSelf ? self : ['me', ...self]);
+  const accepted = summaryCollector(summaryChoices, self);
   const records = [];
   const project = (link) => {
     if (isMessage(link)) {
+      accepted.accept(link);
       // Keep global owner inference even when only one chat is requested.
       owner.add(link);
       if (wanted && !wanted.has(`${link.source}:${link.chat}`)) {
@@ -57,6 +65,7 @@ export const planningRecords = async (
     // Lightweight in-memory/browser stores may not expose a projection scan.
     const found = await store.query((link) => {
       if (isMessage(link)) {
+        accepted.accept(link);
         owner.add(link);
         return !wanted || wanted.has(`${link.source}:${link.chat}`);
       }
@@ -78,5 +87,5 @@ export const planningRecords = async (
       }
     }
   }
-  return { records, self: [...ids] };
+  return { records, self: [...ids], acceptedSummaries: accepted.snapshot() };
 };

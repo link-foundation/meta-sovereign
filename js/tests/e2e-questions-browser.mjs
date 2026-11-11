@@ -1,3 +1,4 @@
+import { verifySummaryChoices } from './helpers/e2e-summary-choice.mjs';
 // Production Q/A controls with an isolated store and no provider sends.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { verifyQuestionMatching } from './helpers/e2e-question-matching.mjs';
@@ -727,7 +728,9 @@ await finish(async () => {
   await verifyHhHistory({ page, base, store, until }).then(() =>
     verifyProviderChoices(page.context().browser()).then(() =>
       verifyHhChoices(page.context().browser()).then(() =>
-        verifyQuestionBrowserControls(page.context().browser())
+        verifyQuestionBrowserControls(page.context().browser()).then(() =>
+          verifySummaryChoices(page.context().browser())
+        )
       )
     )
   );

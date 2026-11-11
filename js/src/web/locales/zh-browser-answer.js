@@ -1,4 +1,11 @@
 export const zhBrowserAnswer = {
+  'questions.match.accepted-summary': '已接受的答案摘要',
+  'questions.acceptedSummary.matched': '已完成问卷的摘要与当前选项一致。',
+  'questions.acceptedSummary.conflict':
+    '已保存的摘要无法确定唯一的当前选项。请检查问题。',
+  'questions.acceptedSummary.limited':
+    '无法完整检查已保存的历史记录。请检查问题。',
+
   'browserAnswer.title': '服务浏览器答复',
   'browserAnswer.hint':
     '读取所选服务的聊天，核对当前问题，并发送一个现有选项。已有草稿会保留。恢复状态不会再次选择。',

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { questionBrowserControlServer } from '../../experiments/issue-56/question-browser-server.mjs';
+import { questionBrowserControlServer } from '../../experiments/issue-56/question-browser-control.mjs';
 
 test(
   'private browser fixture control errors are inert plain text without reflecting exception markup',

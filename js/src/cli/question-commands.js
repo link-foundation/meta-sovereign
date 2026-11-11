@@ -84,9 +84,20 @@ const policyCommand = async (args, store) => {
   return readAnswerPolicy(store);
 };
 
+const strictChoiceFlag = (value) => {
+  if (![true, false, 'true', 'false'].includes(value)) {
+    throw new Error('strict-options must be true or false');
+  }
+  return value === true || value === 'true';
+};
+
 const planOverrides = (args) => ({
   ...questionMatchingFlags(args),
   ...questionMatchPageFlags(args),
+  ...(args.options === undefined ? {} : { options: decodeWire(args.options) }),
+  ...(args['strict-options'] === undefined
+    ? {}
+    : { strictOptions: strictChoiceFlag(args['strict-options']) }),
   ...(args['model-draft'] === undefined
     ? {}
     : { modelDraft: modelDraftFlag(args['model-draft']) }),

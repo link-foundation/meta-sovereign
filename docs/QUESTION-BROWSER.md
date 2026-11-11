@@ -36,6 +36,18 @@ negotiated text/binary Links Notation. Inspection accepts the existing profile,
 salary, context and optional model planning settings. Selection requires the
 saved review ID, exact option and boolean `confirm: true`.
 
+A unique completed incoming answer summary can recover one exact current option
+for the same question across stored chats. Conflicting answers, incomplete scans,
+owner messages, rejected answers and explicit corrections keep the result for
+review. Summary evidence neither approves a saved rule nor increases its observed
+answer count; it cannot authorize a free-text answer, form field or salary target.
+Existing approved exact options retain priority. The summary is checked again
+before automatic delivery, and the shared UI shows its source messages.
+
+For a local CLI preview, pass offered labels as Links Notation:
+`meta-sovereign automations answers plan --question="Do you have distributed systems experience?" --options='(Yes No)' --strict-options=true`.
+The existing answer-plan API accepts `options` and boolean `strictOptions` too.
+
 Validation uses synthetic routed provider pages and the production sender. Live
-signed-in provider verification, completed-bot summary recovery and automatic
-provider watchers remain separate, unfinished issue #56 criteria.
+signed-in provider verification and automatic provider watchers remain separate,
+unfinished issue #56 criteria.

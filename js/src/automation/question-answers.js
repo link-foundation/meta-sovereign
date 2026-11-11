@@ -11,6 +11,7 @@ import {
   answerRuleEligible,
   createAnswerCorrectionGuard,
 } from './question-corrections.js';
+import { applyAcceptedSummaryChoice } from './question-summary-choice.js';
 import { completedAnswerSummary } from './question-summary.js';
 import {
   normalizeQuestionMatching,
@@ -398,7 +399,12 @@ export const planAnswer = (question, options = {}) => {
       parts,
     };
   }
-  result = applyAnswerChoices(result, choices);
+  result = applyAcceptedSummaryChoice(
+    core,
+    context,
+    applyAnswerChoices(result, choices),
+    choices
+  );
   return {
     ...result,
     question,

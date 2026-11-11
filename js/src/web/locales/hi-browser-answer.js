@@ -1,4 +1,12 @@
 export const hiBrowserAnswer = {
+  'questions.match.accepted-summary': 'स्वीकृत उत्तर का सारांश',
+  'questions.acceptedSummary.matched':
+    'पूरी हुई प्रश्नावली का सारांश इस मौजूदा विकल्प से मेल खाता है।',
+  'questions.acceptedSummary.conflict':
+    'सहेजे गए सारांश से एक मौजूदा विकल्प तय नहीं होता। प्रश्न की समीक्षा करें।',
+  'questions.acceptedSummary.limited':
+    'सहेजे गए इतिहास की पूरी जाँच नहीं हो सकी। प्रश्न की समीक्षा करें।',
+
   'browserAnswer.title': 'सेवा के ब्राउज़र में उत्तर',
   'browserAnswer.hint':
     'चुनी हुई सेवा की चैट पढ़ें, वर्तमान प्रश्न की समीक्षा करें और दिए गए विकल्पों में से एक भेजें। मौजूदा ड्राफ़्ट सुरक्षित रहते हैं। स्थिति वापस पाने से चयन दोहराया नहीं जाता।',

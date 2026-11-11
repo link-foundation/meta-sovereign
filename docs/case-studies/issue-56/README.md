@@ -240,3 +240,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Built-in HH choices in main and application frames](hh-browser-choices.md): explicit numeric web identity, trusted unique visible documents, guarded native receipts and cleanup after navigation.
 
 - [Shared reviewed browser answers](question-browser.md): CLI/text-binary Lino and localized Questions/Chat/Operator controls, exact native receipts, actual Lino-store recovery and desktop/mobile regression evidence.
+
+- [Completed-summary option recovery](summary-choice.md): exact cross-chat native choices, conflict review, fresh delivery validation, CLI/Lino and desktop/phone evidence.

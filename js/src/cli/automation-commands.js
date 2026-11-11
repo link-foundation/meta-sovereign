@@ -48,6 +48,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
                 answers model show | save --enabled=true|false --revision=<revision|null> [--model=id] [--cv=cv:id] [--timeout-ms=60000]
+                answers plan choices: --options='(Yes No)' --strict-options=true (Links Notation labels)
                 answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
                 answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]

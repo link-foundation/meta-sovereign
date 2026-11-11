@@ -25,6 +25,31 @@ const AnswerParts = ({ parts }) => {
 };
 
 // Shared across automation previews, Chat and Operator draft cards.
+const answerStatusKey = (answer) => {
+  if (answer.noReply) {
+    return 'questions.noReply';
+  }
+  if (answer.requiresReview) {
+    return 'questions.reviewRequired';
+  }
+  return answer.acceptedSummary?.state === 'matched'
+    ? 'questions.acceptedSummary.matched'
+    : 'questions.approvedComplete';
+};
+const AcceptedSummaryEvidence = ({ value }) => {
+  const t = useT();
+  return value && value.state !== 'matched'
+    ? el(
+        'p',
+        {
+          className: 'meta',
+          'data-answer-summary-state': value.state,
+        },
+        t(`questions.acceptedSummary.${value.state}`)
+      )
+    : null;
+};
+
 export const AnswerEvidence = ({ answer }) => {
   const t = useT();
   if (!answer) {
@@ -34,17 +59,11 @@ export const AnswerEvidence = ({ answer }) => {
     el(AnswerModelStatus, { key: 'model', model: answer.model }),
     el(AnswerParts, { key: 'parts', parts: answer.parts }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
-    el(
-      'p',
-      { key: 'state', className: 'meta' },
-      t(
-        answer.noReply
-          ? 'questions.noReply'
-          : answer.requiresReview
-            ? 'questions.reviewRequired'
-            : 'questions.approvedComplete'
-      )
-    ),
+    el('p', { key: 'state', className: 'meta' }, t(answerStatusKey(answer))),
+    el(AcceptedSummaryEvidence, {
+      key: 'summary-proof',
+      value: answer.acceptedSummary,
+    }),
     answer.missing?.length
       ? el(
           'p',

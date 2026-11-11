@@ -24,5 +24,13 @@ CLI 使用 `meta-sovereign automations answers browser`，后接 `show`、
 二进制 Links Notation。选择操作需要已保存的审核 ID、选项原文和布尔值
 `confirm: true`。检查沿用现有个人资料、薪资、上下文和可选模型设置。
 
-验证使用隔离的模拟提供方页面和实际生产发送器。已登录提供方验证、从已完成的
-机器人问卷摘要恢复选项，以及自动提供方监视器仍是问题 #56 未完成的验收条件。
+保存聊天中同一问题的完整接收答案摘要，可以恢复唯一匹配的当前选项。
+答案冲突、历史检查不完整、本人消息、被拒答案或明确更正都会保留人工审核。
+摘要不会批准保存规则或增加回答次数，也不能授权自由文本、表单字段或薪资目标。
+已批准的精确选项优先。自动发送前会重新检查摘要，公共界面会显示来源消息。
+
+CLI：`meta-sovereign automations answers plan --question="Do you have distributed systems experience?" --options='(Yes No)' --strict-options=true`。
+选项使用 Links Notation。规划 API 也接受 `options` 和布尔值 `strictOptions`。
+
+验证使用隔离的模拟提供方页面和实际生产发送器。已登录提供方验证和自动提供方
+监视器仍是问题 #56 未完成的验收条件。

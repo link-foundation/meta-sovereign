@@ -30,6 +30,7 @@
  * sending lives in `./runner.js`.
  */
 
+import { acceptedSummariesFromLinks } from './question-summary-choice.js';
 import {
   addressRulesFromPatterns,
   defaultAddressRules,
@@ -560,7 +561,15 @@ const ledgerContext = (links, automation) => ({
 const answerDraft = (
   automation,
   candidate,
-  { self, answerRules, answerPolicy, savedAutomation, now, modelCandidates }
+  {
+    self,
+    answerRules,
+    answerPolicy,
+    acceptedSummaries,
+    savedAutomation,
+    now,
+    modelCandidates,
+  }
 ) => {
   const messages = candidate.messages.toSorted(historyOrder);
   const selected = chatQuestionTurn(
@@ -575,6 +584,7 @@ const answerDraft = (
   const answer = planAnswer(question, {
     now,
     rules: answerRules,
+    acceptedSummaries,
     policy: answerPolicy,
     ...chatAnswerAction(automation.action),
     ...answerEnvironmentFromMessages(messages, latest),
@@ -644,6 +654,11 @@ const planningContext = (links, automation, options, now) => {
     resolveAudience: options.resolveAudience ?? null,
     answerRules: selectedAnswerRules(links, automation.action),
     answerPolicy: links.find((link) => link?.id === QA_POLICY_ID) ?? {},
+    acceptedSummaries:
+      automation.action.kind === 'answer-questions'
+        ? (options.acceptedSummaries ??
+          acceptedSummariesFromLinks(links, [...selfIds]))
+        : undefined,
     savedAutomation: links.some((link) => link?.id === automation.id),
     modelCandidates: options.modelCandidates === true,
     ...ledgerContext(links, automation),

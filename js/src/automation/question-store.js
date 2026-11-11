@@ -22,6 +22,7 @@ import { archiveReadGuard, learnArchivedAnswers } from './question-archive.js';
 import { createAnswerContractor } from './question-contraction.js';
 import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
+import { readAcceptedSummaries } from './question-summary-choice.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
 import {
@@ -176,6 +177,11 @@ export const prepareAnswerPreview = async (
     salary: prepared.salary,
     ...normalizeAnswerEnvironment(input),
     policy: await readAnswerPolicy(store),
+    // Caller-provided summaries cannot supply the acceptance proof.
+    acceptedSummaries: answerChoiceState(input.question ?? '', input).options
+      .length
+      ? await readAcceptedSummaries(store)
+      : undefined,
     rules: action.ruleIds.length
       ? rules.filter((rule) => action.ruleIds.includes(rule.id))
       : rules,

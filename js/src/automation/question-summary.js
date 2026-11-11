@@ -71,3 +71,9 @@ const parseSummary = (text) => {
 
 export const summaryAnswerPairs = (text) => parseSummary(text).pairs;
 export const completedAnswerSummary = (text) => parseSummary(text).complete;
+
+// Recovery uses fully completed summaries; partial handovers stay proposals.
+export const completedSummaryPairs = (text) => {
+  const result = parseSummary(text);
+  return result.complete ? result.pairs : [];
+};

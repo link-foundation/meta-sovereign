@@ -99,6 +99,7 @@ export const createAutomationRunner = ({
       targets: options.targets,
       self,
       inferSelf: automation.action?.kind !== 'answer-questions',
+      summaryChoices: automation.action?.kind === 'answer-questions',
     });
     const prepared = await prepareSalaryExchange(
       store,
@@ -120,6 +121,7 @@ export const createAutomationRunner = ({
         ...pick(options, ['targets', 'test', 'limit']),
         now: options.now ?? clock().getTime(),
         self: data.self,
+        acceptedSummaries: data.acceptedSummaries,
         resolveAudience,
         modelCandidates: true,
       }

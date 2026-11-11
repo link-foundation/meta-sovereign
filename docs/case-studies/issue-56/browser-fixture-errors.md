@@ -19,7 +19,7 @@ preceding committed handler into a temporary experiment module, reproduces a
 500 response reflecting script markup with no content type, and removes the
 module in `finally`. The focused `question-browser-fixture.test.js` injects the
 same exception, proves fixed inert text and checks the normal stats response.
-It passes with strict scoped lint. Hosted CodeQL must verify the next commit;
+It passes with strict scoped lint. Hosted Security run 42995005602 for exact commit `7e0e2f4d9f5ff4b1a279029b31348dbe87031f0f` passes, verifying the correction;
 no local resource-intensive CodeQL database was built.
 
 Raw parent and passing logs, the full Security log and exact-head metadata are

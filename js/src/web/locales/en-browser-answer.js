@@ -1,4 +1,12 @@
 export const enBrowserAnswer = {
+  'questions.match.accepted-summary': 'Accepted answer summary',
+  'questions.acceptedSummary.matched':
+    'A completed answer summary matches this current option.',
+  'questions.acceptedSummary.conflict':
+    'Saved summaries do not resolve one current option. Review the question.',
+  'questions.acceptedSummary.limited':
+    'The stored history could not be checked completely. Review the question.',
+
   'browserAnswer.title': 'Provider browser answers',
   'browserAnswer.hint':
     'Read the selected provider chat, review its current question and send one exact offered option. Existing drafts stay protected. Status recovery never repeats a selection.',

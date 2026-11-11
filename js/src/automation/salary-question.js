@@ -71,7 +71,7 @@ const excluded = (text) =>
   /\b(?:previous|past|last|payroll|revenue|accept|suit|cards?)\b|прошл|предыдущ|была|были|устраив|подходит|подходят|выручк|зарплатн\S*\s+карт|как\s+рассчит|github|\bstack\b/iu.test(
     text
   );
-const direct = (text) =>
+export const directSalaryQuestion = (text) =>
   !excluded(text) &&
   /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|почасов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)/iu.test(
     text
@@ -112,7 +112,7 @@ const clarification = (text, config) => {
 const anchor = (environment) => {
   for (const entry of environment.recent) {
     if (
-      direct(entry.text) &&
+      directSalaryQuestion(entry.text) &&
       !['unsupported', 'ambiguous'].includes(salaryPeriod(entry.text))
     ) {
       return entry;
@@ -198,7 +198,7 @@ export const salaryQuestion = (text, config, input) => {
   }
   const environment = normalizeAnswerEnvironment(input);
   const previous = anchor(environment);
-  const followup = !direct(text);
+  const followup = !directSalaryQuestion(text);
   if (!followup && input.questionMode !== 'field' && !asksQuestion(text)) {
     return null;
   }
