@@ -26,8 +26,13 @@ import {
 } from './question-notice-fields.js';
 
 const el = React.createElement;
-const isOpening = (event) =>
-  event.target === event.currentTarget && event.currentTarget.open;
+const isOpening = (event) => {
+  debugBrowser('question-toggle', {
+    root: event.target === event.currentTarget,
+    open: event.currentTarget.open,
+  });
+  return event.target === event.currentTarget && event.currentTarget.open;
+};
 const csv = (value) =>
   value
     .split(',')

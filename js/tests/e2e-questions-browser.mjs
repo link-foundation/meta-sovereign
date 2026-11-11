@@ -71,9 +71,18 @@ const panel = page.locator('[data-question-controls]');
 const editor = panel.locator('[data-answer-rule]');
 const rules = () => store.query((link) => link.id?.startsWith('qa-rule:'));
 const showPanel = async () => {
-  await page.goto(`${base}/#/automation`);
-  await panel.locator(':scope > summary').click();
-  await editor.waitFor();
+  try {
+    await page.goto(`${base}/#/automation`);
+    await panel.locator(':scope > summary').click();
+    await editor.waitFor();
+  } finally {
+    console.log(
+      '[question-opening-state]',
+      JSON.stringify(
+        await inputTrace(page).catch(() => ({ unavailable: true }))
+      )
+    );
+  }
 };
 const verifyLearning = async (saved) => {
   await panel

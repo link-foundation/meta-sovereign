@@ -101,7 +101,7 @@ const startWatch = async (env) => {
   return env.until(
     (state) =>
       state.state === 'paused' ||
-      ['review', 'prefilled', 'sent', 'failed'].includes(state.phase)
+      ['review', 'owner-draft', 'sent', 'failed'].includes(state.phase)
   );
 };
 
@@ -231,7 +231,8 @@ test('finite watches prefill all approved answers and never send free text', () 
     async (env) => {
       env.state.snapshot = wholeTurnSnapshot();
       const status = await startWatch(env);
-      assert.equal(status.phase, 'prefilled');
+      assert.equal(status.phase, 'owner-draft');
+      assert.equal(env.state.prefills.length, 1);
       assert.equal(env.state.prefills[0].text, `1. ${earlierAnswer}\n2. Yes`);
       assert.equal(env.state.sends.length, 0);
     },

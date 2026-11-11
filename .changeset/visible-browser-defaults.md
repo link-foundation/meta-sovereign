@@ -253,3 +253,5 @@ Add explicitly started finite HH current-chat answer watches through foreground 
 Add explicit passive-notice rules through CLI, Lino, offline storage and localized review controls. Keep text replies under review and approved no-reply markers out of outbound messages.
 
 Learn unapproved passive-notice replies from actual delivered owner turns, preserving scoped corrections, privacy, replay-safe counts and separate question/form labels. Expose notice proposals in the shared four-language learning controls; never infer no-reply from silence.
+
+Retain default-off root disclosure diagnostics for unresolved hosted Questions opening failures; keep complete pending-turn context and finite-watch regression checks aligned with actual guarded behavior (R-Z32, R-AA1).

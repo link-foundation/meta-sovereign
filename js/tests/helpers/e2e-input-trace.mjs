@@ -48,6 +48,17 @@ export const inputTrace = (page) =>
     focused: document.hasFocus(),
     events: globalThis.browserInputTrace,
     details: globalThis.browserDetailsTrace,
+    questionPanel: (() => {
+      const panel = document.querySelector('[data-question-controls]');
+      return panel
+        ? {
+            open: panel.open,
+            editorVisible: Boolean(
+              panel.querySelector('[data-answer-rule]')?.getClientRects().length
+            ),
+          }
+        : null;
+    })(),
   }));
 
 /** Native disclosure state only; bounded per document and used by fixtures. */

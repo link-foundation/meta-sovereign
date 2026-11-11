@@ -7,6 +7,7 @@ import {
 } from '../src/automation/automations.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { createAutomationRunner } from '../src/automation/runner.js';
+import { NO_NOTICE_REPLY } from '../src/automation/question-notices.js';
 
 const contexts = [
   {
@@ -35,6 +36,13 @@ const rule = {
   id: 'qa-rule:salary',
   question: 'What salary …?',
   answers: [{ text: '{{salary}} in {{currency}}', approved: true, count: 3 }],
+};
+const payNotice = {
+  id: 'qa-rule:pay-notice',
+  kind: 'notice',
+  question: 'We pay in USD.',
+  questions: ['We pay in RUB.'],
+  answers: [{ text: NO_NOTICE_REPLY, approved: true }],
 };
 const options = { rules: [rule], contexts, profile: { city: 'Hanoi' } };
 const incoming = (id, body, extra = {}) => ({
@@ -159,7 +167,7 @@ test('context templates span only configured variable choices and retain literal
   );
 });
 
-test('conversation context is chat scoped and stops at unrelated questions and unusable turns', () => {
+test('conversation context is chat scoped while explicitly approved notices need no reply', () => {
   for (const source of ['hh', 'telegram', 'vk', 'email', 'whatsapp']) {
     const messages = [
       incoming(1, 'We pay in USD.'),
@@ -169,30 +177,12 @@ test('conversation context is chat scoped and stops at unrelated questions and u
       source,
       id: message.id.replace(':hh:', `:${source}:`),
     }));
-    const plan = planAutomation([...messages, rule], configured(), {
+    const plan = planAutomation([...messages, rule, payNotice], configured(), {
       self: ['me'],
       targets: [{ source, chat: '1' }],
     });
     assert.equal(plan.drafts[0]?.text, '$6000 in USD', source);
     assert.equal(plan.drafts[0].answer.contexts[0].evidence, messages[0].id);
-  }
-  for (const barrier of [
-    incoming(2, 'What stack do you use?'),
-    incoming(2, 'USD', { service: true }),
-    incoming(2, 'USD', { deleted: true }),
-    incoming(2, 'USD', { pending: true }),
-  ]) {
-    const plan = planAutomation(
-      [
-        incoming(1, 'We pay in USD.'),
-        barrier,
-        incoming(3, 'What salary expectations?'),
-        rule,
-      ],
-      configured(),
-      { self: ['me'], targets: [{ source: 'hh', chat: '1' }] }
-    );
-    assert.equal(plan.drafts[0]?.text, '450000 ₽ in RUB');
   }
   const plan = planAutomation(
     [
@@ -206,13 +196,67 @@ test('conversation context is chat scoped and stops at unrelated questions and u
   assert.equal(plan.drafts[0]?.text, '450000 ₽ in RUB');
 });
 
-const verifyChangedContext = async (change) => {
+test('unrelated pending questions retain review and unusable pending turns refuse the entire draft', () => {
+  const run = (barrier) =>
+    planAutomation(
+      [
+        incoming(1, 'We pay in USD.'),
+        barrier,
+        incoming(3, 'What salary expectations?'),
+        rule,
+        payNotice,
+      ],
+      configured(),
+      { self: ['me'], targets: [{ source: 'hh', chat: '1' }] }
+    );
+  const unrelated = run(incoming(2, 'What stack do you use?')).drafts[0];
+  assert.equal(unrelated.text, '1. {{answer:1}}\n2. 450000 ₽ in RUB');
+  assert.equal(unrelated.answer.complete, false);
+  assert.equal(unrelated.answer.requiresReview, true);
+  assert.equal(unrelated.answer.parts.at(-1).contexts[0].source, 'default');
+  assert.equal(
+    run(incoming(2, 'USD', { service: true })).drafts[0].text,
+    '450000 ₽ in RUB'
+  );
+  for (const unusable of [
+    { deleted: true },
+    { pending: true },
+    { delivery: 'unknown' },
+  ]) {
+    const result = run(incoming(2, 'USD', unusable));
+    assert.deepEqual(result.drafts, []);
+    assert.equal(result.excluded[0].reason, 'question-turn-unavailable');
+  }
+});
+
+test('an unapproved context notice remains pending even when the latest answer is known', () => {
+  const result = planAutomation(
+    [
+      incoming(1, 'We pay in USD.'),
+      incoming(2, 'What salary expectations?'),
+      rule,
+      { ...payNotice, answers: [{ text: NO_NOTICE_REPLY, approved: false }] },
+    ],
+    configured(),
+    { self: ['me'], targets: [{ source: 'hh', chat: '1' }] }
+  );
+  const draft = result.drafts[0];
+  assert.equal(draft.text, '1. {{answer:1}}\n2. $6000 in USD');
+  assert.equal(draft.answer.requiresReview, true);
+  assert.equal(draft.answer.parts[0].noReply, false);
+  assert.equal(draft.answer.parts[1].contexts[0].source, 'conversation');
+});
+
+const verifyChangedContext = async (
+  change,
+  expectedCode = 'answer-review-required'
+) => {
   const store = createMemoryStore();
   const previous = incoming(1, 'We pay in USD.');
   const latest = incoming(2, 'What salary expectations?');
   const automation = configured();
   automation.pacing.typing = true;
-  for (const link of [previous, latest, rule, automation]) {
+  for (const link of [previous, latest, rule, payNotice, automation]) {
     await store.put(link);
   }
   let sent = 0;
@@ -230,7 +274,7 @@ const verifyChangedContext = async (change) => {
   });
   assert.equal(plan.drafts[0]?.text, '$6000 in USD');
   const outcome = await runner.deliverDraft(automation, plan.drafts[0]);
-  assert.equal(outcome.code, 'answer-review-required');
+  assert.equal(outcome.code, expectedCode);
   assert.equal(sent, 0);
   assert.deepEqual(
     await store.query((link) => link.id?.startsWith('outbox:')),
@@ -240,7 +284,6 @@ const verifyChangedContext = async (change) => {
 
 test('context and saved action edits during typing invalidate delivery before an outbox claim', async () => {
   for (const change of [
-    (store, { previous }) => store.put({ ...previous, body: 'We pay in RUB.' }),
     (store, { automation }) => store.put({ ...automation, enabled: false }),
     (store, { automation }) => store.delete(automation.id),
     (store, { automation }) =>
@@ -250,6 +293,11 @@ test('context and saved action edits during typing invalidate delivery before an
         ...automation,
         action: { ...automation.action, profile: {}, contexts: [] },
       }),
+  ]) {
+    await verifyChangedContext(change);
+  }
+  for (const change of [
+    (store, { previous }) => store.put({ ...previous, body: 'We pay in RUB.' }),
     // A new vacancy attachment supplies the only currency evidence.
     (store, { latest, previous }) =>
       Promise.all([
@@ -257,7 +305,7 @@ test('context and saved action edits during typing invalidate delivery before an
         store.put({ ...latest, answerContext: { pay: 'USDT' } }),
       ]),
   ]) {
-    await verifyChangedContext(change);
+    await verifyChangedContext(change, 'answer-changed');
   }
 });
 
@@ -368,7 +416,7 @@ test('context validation rejects overlapping fields, duplicate choices and malfo
 test('history is bounded, ordered and never uses old, failed or foreign metadata', () => {
   const latest = incoming(3, 'What salary expectations?');
   const run = (messages) =>
-    planAutomation([...messages, latest, rule], configured(), {
+    planAutomation([...messages, latest, rule, payNotice], configured(), {
       self: ['me'],
       targets: [{ source: 'hh', chat: '1' }],
     }).drafts[0];
@@ -381,8 +429,8 @@ test('history is bounded, ordered and never uses old, failed or foreign metadata
     run([
       incoming(1, 'We pay in USD.'),
       incoming(2, 'Unknown delivery', { delivery: 'unknown' }),
-    ]).text,
-    '450000 ₽ in RUB'
+    ]),
+    undefined
   );
   assert.equal(
     run([incoming(2, 'We pay in USD.'), incoming(1, 'We pay in RUB.')]).text,
