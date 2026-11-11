@@ -263,3 +263,5 @@ Add explicit passive-notice rules through CLI, Lino, offline storage and localiz
 Learn unapproved passive-notice replies from actual delivered owner turns, preserving scoped corrections, privacy, replay-safe counts and separate question/form labels. Expose notice proposals in the shared four-language learning controls; never infer no-reply from silence.
 
 Retain default-off root disclosure diagnostics for unresolved hosted Questions opening failures; keep complete pending-turn context and finite-watch regression checks aligned with actual guarded behavior (R-Z32, R-AA1).
+
+Load the selected serve command before unrelated provider/command modules, keeping the rolling host independent of the worker's full server graph. Preserve shared argument/store/error behavior, TLS, logs, upgrades and readiness deadlines, with default-off import phase diagnostics.
