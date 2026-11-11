@@ -1,6 +1,7 @@
 // Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
 import { seedFormAnswers } from './forms-plan-fixture.mjs';
 import { seedLinkAnswers } from './forms-links-fixture.mjs';
+import { seedFormPlace } from './forms-timezone-fixture.mjs';
 import { chromium } from 'playwright';
 import { makeBrowserCommander } from 'browser-commander';
 import { startServer } from '../../js/src/server/index.js';
@@ -22,6 +23,9 @@ const store = createMemoryStore();
 await seedFormAnswers(store);
 if (process.env.FORMS_LINKS_MCP === '1') {
   await seedLinkAnswers(store);
+}
+if (process.env.FORMS_TIMEZONE_MCP === '1') {
+  await seedFormPlace(store);
 }
 const modelCalls = [];
 const modelMode = process.env.FORMS_MODEL_MCP === '1';
@@ -174,7 +178,7 @@ try {
               }
             }
             if (
-              ['/prefill', '/model', '/links'].includes(
+              ['/prefill', '/model', '/links', '/timezone'].includes(
                 new URL(page.url()).pathname
               )
             ) {
@@ -210,17 +214,19 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_LINKS_MCP === '1'
-          ? fixture.url.replace('/application', '/links')
-          : modelMode
-            ? fixture.url.replace('/application', '/model')
-            : process.env.FORMS_RESUME_MCP === '1'
-              ? fixture.url.replace('/application', '/upload')
-              : process.env.FORMS_LEARNING_MCP === '1'
-                ? fixture.url.replace('/application', '/learning')
-                : process.env.FORMS_MONITOR_MCP === '1'
-                  ? fixture.url.replace('/application', '/monitor')
-                  : fixture.url,
+        process.env.FORMS_TIMEZONE_MCP === '1'
+          ? fixture.url.replace('/application', '/timezone')
+          : process.env.FORMS_LINKS_MCP === '1'
+            ? fixture.url.replace('/application', '/links')
+            : modelMode
+              ? fixture.url.replace('/application', '/model')
+              : process.env.FORMS_RESUME_MCP === '1'
+                ? fixture.url.replace('/application', '/upload')
+                : process.env.FORMS_LEARNING_MCP === '1'
+                  ? fixture.url.replace('/application', '/learning')
+                  : process.env.FORMS_MONITOR_MCP === '1'
+                    ? fixture.url.replace('/application', '/monitor')
+                    : fixture.url,
     })
   );
   if (

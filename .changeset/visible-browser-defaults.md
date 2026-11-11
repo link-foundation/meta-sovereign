@@ -199,3 +199,5 @@ Bind reviewed form snapshots, automatic capture and learning to stable document 
 Import reviewed contact headers from exported résumé Markdown and retain canonical CV birth dates, public résumé URLs and GitHub lists. Share source evidence, current-value conflicts, explicit field selection and separate saving across CLI, text/binary Lino, offline and localized profile editors.
 
 Preserve question edits after malformed or mismatched answer receipts. Validate save values, list entries and deletion identity before updating the editor; retain explicit contraction and offline editing. Add opt-in bounded input/state diagnostics for hosted browser investigation.
+
+Include configured time zones in reviewed city/МСК/UTC/GMT form answers. Preserve separate city/zone fields, missing-value review and existing owner input; allow explicit source-backed zone extraction in all four UI languages.

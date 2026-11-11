@@ -37,7 +37,18 @@ const aliases = {
     '所在地',
     '城市',
   ],
-  timezone: ['time zone', 'timezone', 'часовой пояс', 'समय क्षेत्र', '时区'],
+  timezone: [
+    'time zone',
+    'timezone',
+    'часовой пояс',
+    'समय क्षेत्र',
+    '时区',
+    'utc offset',
+    'gmt offset',
+    'msk offset',
+    'разница с москвой',
+    'сколько от мск',
+  ],
   birthDate: [
     'birth date',
     'date of birth',
@@ -79,6 +90,11 @@ const excludedProfileField = (field, text, group) =>
   );
 
 const linkKeys = ['resume', 'website', 'linkedin', 'github'];
+const zoneAbbreviations = ['utc', 'gmt', 'msk', 'мск'];
+const abbreviatedZone = (text, keys) =>
+  zoneAbbreviations.includes(text.trim()) ||
+  (keys.includes('location') &&
+    zoneAbbreviations.some((zone) => text.includes(` ${zone} `)));
 const linkWords = new Set(
   linkKeys.flatMap((key) =>
     aliases[key].flatMap((label) => questionKey(label).split(' '))
@@ -160,6 +176,11 @@ export const formProfileFields = (field, profile) => {
         !linkKeys.includes(key) && labels.some((label) => mentions(text, label))
     )
     .map(([key]) => key);
+  // A city plus a named time standard asks for the configured zone too.
+  // A technical mention of UTC/MSK alone is not an owner contact request.
+  if (abbreviatedZone(text, keys)) {
+    keys.push('timezone');
+  }
   const links = formLinkFields(field);
   // Include every available contact for a combined request. Keep the missing
   // keys when none exist so a saved boolean cannot replace absent contacts.

@@ -2,6 +2,8 @@ import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixtu
 import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
 import { verifyFormLinksUi } from './helpers/e2e-form-links.mjs';
 import { seedLinkAnswers } from '../../experiments/issue-56/forms-links-fixture.mjs';
+import { seedFormPlace } from '../../experiments/issue-56/forms-timezone-fixture.mjs';
+import { verifyFormTimezoneUi } from './helpers/e2e-form-timezone.mjs';
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
@@ -31,6 +33,7 @@ const fixture = await startFormsFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
 await seedLinkAnswers(store);
+await seedFormPlace(store);
 const owned = [];
 const modelCalls = [];
 let app;
@@ -264,8 +267,12 @@ const verifyLimits = async (page) => {
 };
 
 const verifyCustomOnly = async ({ page, until }) => {
-  if (process.env.FORMS_LINKS_ONLY === '1') {
-    await verifyFormLinksUi({ ...app, owned, fixture });
+  const contactScenario = [
+    ['TIMEZONE', verifyFormTimezoneUi],
+    ['LINKS', verifyFormLinksUi],
+  ].find(([name]) => process.env[`FORMS_${name}_ONLY`] === '1');
+  if (contactScenario) {
+    await contactScenario[1]({ ...app, owned, fixture });
     return true;
   }
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
@@ -457,6 +464,7 @@ await app.finish(async () => {
       verifyFormCapacityUi,
       verifyFormModelUi,
       verifyFormLinksUi,
+      verifyFormTimezoneUi,
     ]) {
       await verify({ page, base, owned, fixture, until, store, modelCalls });
     }
@@ -484,6 +492,7 @@ if (
   process.env.FORMS_CAPACITY_ONLY !== '1' &&
   process.env.FORMS_MODEL_ONLY !== '1' &&
   process.env.FORMS_LINKS_ONLY !== '1' &&
+  process.env.FORMS_TIMEZONE_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'
 ) {

@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { modelFixtureHtml } from './forms-model-fixture.mjs';
 import { linksFixtureHtml } from './forms-links-fixture.mjs';
+import { timezoneFixtureHtml } from './forms-timezone-fixture.mjs';
 import { learningFixtureHtml } from './forms-learning-fixture.mjs';
 import {
   monitorFixtureHtml,
@@ -62,6 +63,10 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/timezone')) {
+      res.end(timezoneFixtureHtml);
+      return;
+    }
     if (req.url.startsWith('/links')) {
       res.end(linksFixtureHtml);
       return;

@@ -39,6 +39,7 @@ const labels = {
     '所在地',
     '城市',
   ],
+  timezone: ['time zone', 'timezone', 'часовой пояс', 'समय क्षेत्र', '时区'],
   website: ['website', 'portfolio', 'сайт', 'портфолио', 'वेबसाइट', '网站'],
   headline: ['headline', 'profession', 'профессия', 'पेशा', '职业'],
   summary: ['summary', 'about', 'о себе', 'परिचय', '简介'],
