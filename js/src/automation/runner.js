@@ -25,6 +25,7 @@ import { nextChatOperations } from './next-chat.js';
 import { createPacedSender } from './paced-send.js';
 import { createDelivery } from './deliver.js';
 import { planningRecords } from './planning-store.js';
+import { draftChatModelAnswers } from './question-chat-model.js';
 import {
   prepareSalaryExchange,
   withSalaryExchangeEvidence,
@@ -82,6 +83,7 @@ export const createAutomationRunner = ({
   sleep = delay,
   random = Math.random,
   log = () => {},
+  modelRunner,
 } = {}) => {
   const nowIso = () => clock().toISOString();
 
@@ -119,9 +121,15 @@ export const createAutomationRunner = ({
         now: options.now ?? clock().getTime(),
         self: data.self,
         resolveAudience,
+        modelCandidates: true,
       }
     );
-    for (const draft of planned.drafts) {
+    const drafted = await draftChatModelAnswers(store, automation, planned, {
+      runner: modelRunner,
+      signal: options.signal,
+      now: options.now ?? clock().getTime(),
+    });
+    for (const draft of drafted.drafts) {
       if (draft.answer) {
         draft.answer = withSalaryExchangeEvidence(
           draft.answer,
@@ -129,7 +137,7 @@ export const createAutomationRunner = ({
         );
       }
     }
-    return planned;
+    return drafted;
   };
 
   const showTyping = async (automation, draft) => {

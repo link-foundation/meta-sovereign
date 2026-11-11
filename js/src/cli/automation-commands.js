@@ -36,10 +36,12 @@ import { confirmCli } from './confirm.js';
 import { questionCommands } from './question-commands.js';
 import { followCommands } from './follow-commands.js';
 import { createFollowDiscovery } from '../follow/chat-discovery.js';
+import { withAnswerModel } from './answer-model-commands.js';
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
+                answer-questions: saved action modelDraft=true drafts unanswered parts using answers model settings; every model draft requires review
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
                 answers: list | save [file.lino] | delete <id> | plan --question=<text> [--model-draft] [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id]
                 answers save: --id=<id> --question=<text> --answer=<text> [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
@@ -153,7 +155,17 @@ const logPlan = (plan, log) => {
   plan.drafts.forEach((draft, i) => {
     log(`${i + 1}. ${describeDraft(draft)}`);
     log(indent(draft.text));
+    if (draft.answer?.model) {
+      log(
+        `    model: ${draft.answer.model.state}; review required: ${draft.answer.requiresReview}`
+      );
+    }
   });
+  for (const entry of plan.excluded.filter((item) => item.answer?.model)) {
+    log(
+      `${entry.key}: model ${entry.answer.model.state}${entry.answer.model.code ? ` (${entry.answer.model.code})` : ''}`
+    );
+  }
   const reasons = {};
   for (const { reason } of plan.excluded) {
     reasons[reason] = (reasons[reason] ?? 0) + 1;
@@ -399,6 +411,7 @@ const runnerFor = (store, args, deps) => {
     store,
     send,
     setTyping,
+    modelRunner: deps.modelRunner,
     self: parseCsv(args.self),
     ...(now ? { clock: () => now } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
@@ -414,28 +427,30 @@ const automationsCmd = async (args, log, deps) => {
     return 1;
   }
   const store = await deps.openStore(args.store ?? defaultStoreDir());
-  const { runner, close } = runnerFor(store, args, deps);
-  const followDiscovery =
-    deps.followDiscovery ?? createFollowDiscovery({ store });
-  try {
-    return await handler({
-      args,
-      store,
-      runner,
-      log,
-      ask: deps.ask ?? defaultAsk,
-      // y/N before sending (tests answer it; otherwise the terminal).
-      confirmAsk: deps.confirm ?? null,
-      followDiscovery,
-      createAccount: deps.createAccount,
-      followBacklinks: deps.followBacklinks,
-    });
-  } finally {
-    if (!deps.followDiscovery) {
-      await followDiscovery.stop();
+  return withAnswerModel(deps.modelRunner, async (modelRunner) => {
+    const { runner, close } = runnerFor(store, args, { ...deps, modelRunner });
+    const followDiscovery =
+      deps.followDiscovery ?? createFollowDiscovery({ store });
+    try {
+      return await handler({
+        args,
+        store,
+        runner,
+        log,
+        ask: deps.ask ?? defaultAsk,
+        // y/N before sending (tests answer it; otherwise the terminal).
+        confirmAsk: deps.confirm ?? null,
+        followDiscovery,
+        createAccount: deps.createAccount,
+        followBacklinks: deps.followBacklinks,
+      });
+    } finally {
+      if (!deps.followDiscovery) {
+        await followDiscovery.stop();
+      }
+      await close();
     }
-    await close();
-  }
+  });
 };
 
 /**

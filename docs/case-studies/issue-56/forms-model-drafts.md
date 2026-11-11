@@ -4,7 +4,7 @@ Issue: <https://github.com/link-foundation/meta-sovereign/issues/56>. Draft impl
 
 Unresolved question previews and form plans can now explicitly request Claude Code drafts. Stored exact/profile/approved answers remain first. An owner selects a stored CV and enables the adapter, then opts in for each plan. Proposed model text shows its source and evidence. Missing personal facts become visible clarification questions and cannot be selected for form writes. Applying a selected proposal revalidates the frozen context and reads back the actual control without making another model request or submitting the form.
 
-This completes a shared drafting mechanism within B7, QA18 and R-AA6. Automatic chat drafting, full Google/Yandex and authenticated provider workflows, automatic filling of every form, assignments and other unchecked criteria remain required. PR 57 stays draft and unmerged.
+This completes a shared drafting mechanism within B7, QA18 and R-AA6. The later [chat model unit](chat-model-drafts.md) supplies reviewed automatic chat drafting. Full Google/Yandex and authenticated provider workflows, automatic filling of every form, assignments and other unchecked criteria remain required. PR 57 stays draft and unmerged.
 
 ## Reproduction and root cause
 

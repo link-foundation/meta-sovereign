@@ -3,6 +3,20 @@ import { useT } from './i18n.js';
 import { debugBrowser } from './client-log.js';
 
 const el = React.createElement;
+export const AnswerModelExclusions = ({ excluded = [] }) =>
+  el(
+    React.Fragment,
+    null,
+    excluded
+      .filter((entry) => entry.answer?.model)
+      .map((entry) =>
+        el('div', { key: entry.key }, [
+          el('span', { key: 'name' }, entry.name ?? entry.key),
+          el(AnswerModelStatus, { key: 'status', model: entry.answer.model }),
+        ])
+      )
+  );
+
 export const ModelDraftControl = ({ value, set, busy }) => {
   const t = useT();
   return el('label', { className: 'row' }, [

@@ -441,7 +441,9 @@
     "test:e2e:legacy-follow": "node js/tests/e2e-legacy-follow-browser.mjs",
     "test:e2e:shared-leave": "node js/tests/e2e-shared-leave-browser.mjs",
     "test:e2e:follow-auto": "node js/tests/e2e-follow-auto-browser.mjs",
-    "test:e2e:follow-telegram-backlinks": "node js/tests/e2e-follow-telegram-backlinks-browser.mjs"
+    "test:e2e:follow-telegram-backlinks": "node js/tests/e2e-follow-telegram-backlinks-browser.mjs",
+    "test:e2e:chat-model": "node js/tests/e2e-chat-model-browser.mjs",
+    "test:e2e:chat-model:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-model-browser.mjs"
   },
   "keywords": [
     "personal-crm",

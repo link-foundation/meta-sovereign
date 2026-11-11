@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { AnswerEvidence } from './question-evidence.js';
+import { AnswerModelExclusions } from './answer-model-settings.js';
 import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
@@ -582,6 +583,7 @@ const PlanPreview = ({ runs }) => {
           ])
         )
       ),
+      el(AnswerModelExclusions, { key: 'models', excluded: plan.excluded }),
       plan.excluded?.length
         ? el(
             'p',

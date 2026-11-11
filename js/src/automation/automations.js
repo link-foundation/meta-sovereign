@@ -59,6 +59,8 @@ import {
 import { QA_POLICY_ID } from './question-policy.js';
 import { resolveAnswerProfile } from './question-profiles.js';
 import { answerEnvironmentFromMessages } from './question-context.js';
+import { chatQuestionTurn, chatAnswerAction } from './question-chat-turn.js';
+import { asksQuestion } from './question-match.js';
 import { historyOrder } from '../replies/history-order.js';
 import {
   SETTINGS_ID,
@@ -558,39 +560,33 @@ const ledgerContext = (links, automation) => ({
 const answerDraft = (
   automation,
   candidate,
-  { isSelf, answerRules, answerPolicy, savedAutomation, now }
+  { self, answerRules, answerPolicy, savedAutomation, now, modelCandidates }
 ) => {
-  if (
-    candidate.messages.some(
-      (message) => !Number.isFinite(toMs(message.timestamp))
-    )
-  ) {
-    return { reason: 'question-turn-unavailable' };
-  }
   const messages = candidate.messages.toSorted(historyOrder);
-  const latest = messages.at(-1);
-  if (latest?.service || latest?.deleted) {
-    return { reason: 'question-turn-unavailable' };
+  const selected = chatQuestionTurn(messages, self);
+  if (selected.reason) {
+    return selected;
   }
-  if (
-    !latest ||
-    isSelf(latest.sender) ||
-    latest.out === true ||
-    latest.outgoing === true
-  ) {
-    return { reason: 'question-already-answered' };
-  }
-  const answer = planAnswer(latest.body, {
+  const { latest, question, turn } = selected;
+  const answer = planAnswer(question, {
     now,
     rules: answerRules,
     policy: answerPolicy,
-    ...automation.action,
+    ...chatAnswerAction(automation.action),
     ...answerEnvironmentFromMessages(messages, latest),
     source: candidate.source,
     chat: String(candidate.chat),
     options: latest.answerOptions,
   });
-  if (!answer.text) {
+  if (
+    !answer.text &&
+    !(
+      modelCandidates &&
+      automation.action.modelDraft &&
+      !answer.noReply &&
+      asksQuestion(question)
+    )
+  ) {
     return {
       reason: answer.noReply
         ? 'question-summary-complete'
@@ -608,7 +604,7 @@ const answerDraft = (
       form: 'neutral',
       addressForm: { form: 'neutral', reason: 'answer' },
       text: answer.text,
-      answer: { ...answer, message: latest.id, savedAutomation },
+      answer: { ...answer, turn, message: latest.id, savedAutomation },
       edited: false,
       prefill: prefillLinkFor({ ...candidate, text: answer.text }),
     },
@@ -643,6 +639,7 @@ const planningContext = (links, automation, options, now) => {
     answerRules: selectedAnswerRules(links, automation.action),
     answerPolicy: links.find((link) => link?.id === QA_POLICY_ID) ?? {},
     savedAutomation: links.some((link) => link?.id === automation.id),
+    modelCandidates: options.modelCandidates === true,
     ...ledgerContext(links, automation),
   };
   return { ctx, selfIds, isSelf };

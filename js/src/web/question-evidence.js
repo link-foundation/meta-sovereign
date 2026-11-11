@@ -9,6 +9,20 @@ import {
 } from './question-salary-evidence.js';
 
 const el = React.createElement;
+const AnswerParts = ({ parts }) => {
+  const t = useT();
+  return parts?.length
+    ? el('details', { 'data-answer-parts': true }, [
+        el('summary', { key: 'title' }, t('questions.match.assembled')),
+        ...parts.map((part, index) =>
+          el('div', { key: index }, [
+            el('p', { key: 'question' }, part.question),
+            el(AnswerEvidence, { key: 'answer', answer: part }),
+          ])
+        ),
+      ])
+    : null;
+};
 
 // Shared across automation previews, Chat and Operator draft cards.
 export const AnswerEvidence = ({ answer }) => {
@@ -18,6 +32,7 @@ export const AnswerEvidence = ({ answer }) => {
   }
   return el('div', { className: 'col', 'data-answer-evidence': true }, [
     el(AnswerModelStatus, { key: 'model', model: answer.model }),
+    el(AnswerParts, { key: 'parts', parts: answer.parts }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
     el(
       'p',

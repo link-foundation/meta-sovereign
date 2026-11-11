@@ -1,6 +1,11 @@
 // Shared persisted answer knowledge for the CLI, server and offline editor.
 import { createBoundedHistory } from '../replies/bounded-history.js';
 import { modelAnswerPreview } from './answer-model-preview.js';
+import {
+  prepareAnswerModelContext,
+  modelFingerprint,
+} from './answer-model-context.js';
+import { chatQuestionTurn, chatAnswerAction } from './question-chat-turn.js';
 import { historyOrder } from '../replies/history-order.js';
 import {
   answerEnvironmentFromMessages,
@@ -211,21 +216,19 @@ const contextHistoryMessage = (message) => {
   };
 };
 
-const sameQuestion = (latest, draft) =>
+const sameQuestion = (latest, draft, selected) =>
   latest &&
   !latest.deleted &&
   !latest.service &&
   latest.id === draft.answer.message &&
-  latest.body === draft.answer.question;
+  (draft.answer.turn
+    ? selected.question === draft.answer.question &&
+      JSON.stringify(selected.turn) === JSON.stringify(draft.answer.turn)
+    : latest.body === draft.answer.question);
 
 // Recheck the actual latest turn and current approvals immediately before an
 // automatic send. A newer/edited question or changed rule invalidates a plan.
-export const validateAnswerDraft = async (
-  store,
-  automation,
-  draft,
-  { reviewed = false, now } = {}
-) => {
+export const readChatAnswerInput = async (store, automation, draft) => {
   let latest;
   let unknownTime = false;
   const history = createBoundedHistory({
@@ -265,9 +268,20 @@ export const validateAnswerDraft = async (
       deleted: link.deleted,
       service: link.service,
       answerOptions: link.answerOptions,
+      sender: link.sender,
+      out: link.out,
+      outgoing: link.outgoing,
     })
   );
-  if (unknownTime || !sameQuestion(latest, draft)) {
+  const selected = chatQuestionTurn(
+    history.values(),
+    draft.answer.turn?.owners
+  );
+  if (
+    unknownTime ||
+    selected.reason ||
+    !sameQuestion(latest, draft, selected)
+  ) {
     return {
       ok: false,
       code: 'answer-changed',
@@ -275,7 +289,55 @@ export const validateAnswerDraft = async (
         'The question changed; review the current conversation before sending',
     };
   }
-  if (reviewed) {
+  return {
+    ok: true,
+    input: {
+      ...chatAnswerAction(automation.action),
+      question: selected.question,
+      ...answerEnvironmentFromMessages(history.values(), latest),
+      source: draft.source,
+      chat: String(draft.chat),
+      options: latest.answerOptions,
+    },
+  };
+};
+
+const validateModelAnswer = async (store, current, draft, input) => {
+  try {
+    const { context } = await prepareAnswerPreview(store, input, {
+      maxBytes: 512 * 1024,
+    });
+    const prepared = await prepareAnswerModelContext(store, context, [
+      input.question,
+    ]);
+    if (
+      prepared.fingerprint === draft.answer.model.fingerprint &&
+      (await modelFingerprint(normalizeAnswerAction(current.action))) ===
+        draft.answer.modelAction
+    ) {
+      return { ok: true };
+    }
+  } catch {
+    // A deleted CV/profile or invalid current settings also invalidate the draft.
+  }
+  return {
+    ok: false,
+    code: 'answer-review-required',
+    error: 'The model context changed; prepare a new answer before sending',
+  };
+};
+
+export const validateAnswerDraft = async (
+  store,
+  automation,
+  draft,
+  { reviewed = false, now } = {}
+) => {
+  const turn = await readChatAnswerInput(store, automation, draft);
+  if (!turn.ok) {
+    return turn;
+  }
+  if (reviewed && !draft.answer.model?.used) {
     return { ok: true };
   }
   const saved = await store.get(automation.id);
@@ -291,27 +353,19 @@ export const validateAnswerDraft = async (
       error: 'The question automation changed; review before sending',
     };
   }
-  return validateCurrentAnswer(store, current, draft, latest, history, now);
+  const input = { ...turn.input, ...chatAnswerAction(current.action), now };
+  if (draft.answer.model?.used) {
+    return validateModelAnswer(store, current, draft, input);
+  }
+  return validateCurrentAnswer(store, draft, input);
 };
 
-const validateCurrentAnswer = async (
-  store,
-  current,
-  draft,
-  latest,
-  history,
-  now
-) => {
+const validateCurrentAnswer = async (store, draft, input) => {
   let fresh;
   try {
     fresh = await previewAnswer(store, {
-      now,
-      question: latest.body,
-      ...current.action,
-      ...answerEnvironmentFromMessages(history.values(), latest),
-      source: draft.source,
-      chat: String(draft.chat),
-      options: latest.answerOptions,
+      ...input,
+      modelDraft: false,
     });
   } catch (error) {
     if (error.code !== 'answer-profile-missing') {

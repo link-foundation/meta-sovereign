@@ -4,6 +4,8 @@ import { ProfileFields } from './question-profile-fields.js';
 import { AnswerContextFields } from './question-context-fields.js';
 import { SalaryFields } from './question-salary-fields.js';
 import { QuestionMatchingFields } from './question-matching-fields.js';
+import { ModelDraftControl } from './answer-model-settings.js';
+import { chatAnswerAction } from '../automation/question-chat-turn.js';
 
 const el = React.createElement;
 export const AutomationActionFields = ({
@@ -53,9 +55,14 @@ export const AutomationActionFields = ({
             contexts: form.contexts,
             set: (contexts) => set('contexts', contexts),
           }),
+          el(ModelDraftControl, {
+            key: 'model',
+            value: form.modelDraft,
+            set: (value) => set('modelDraft', value),
+          }),
           el(QuestionMatchingFields, {
             key: 'matching',
-            matching: form.matching,
+            matching: chatAnswerAction({ matching: form.matching }).matching,
             set: (matching) => set('matching', matching),
           }),
           el(SalaryFields, {

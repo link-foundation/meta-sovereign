@@ -21,6 +21,7 @@ import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
 import { applySalaryAnswer } from './question-salary.js';
 import { questionCore, sufficientAnswer } from './question-turns.js';
+import { answerModelFailure } from './answer-model-config.js';
 import {
   answerTemplateEnvironment,
   salaryTemplateEvidence,
@@ -124,10 +125,22 @@ export const normalizeAnswerRule = (input) => {
 };
 
 export const normalizeAnswerAction = (action) => {
+  if (
+    action.modelDraft !== undefined &&
+    typeof action.modelDraft !== 'boolean'
+  ) {
+    throw answerModelFailure(
+      'answer-model-config',
+      'Model draft opt-in must be a boolean'
+    );
+  }
   const profile = normalizeAnswerProfile(action.profile);
   const profileId = optionalAnswerProfileId(action.profileId);
   return {
     kind: 'answer-questions',
+    ...(action.modelDraft === undefined
+      ? {}
+      : { modelDraft: action.modelDraft }),
     ruleIds: strings(action.ruleIds, 'ruleIds'),
     profile,
     ...(profileId ? { profileId } : {}),

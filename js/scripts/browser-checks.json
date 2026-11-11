@@ -45,6 +45,7 @@
   "suggestion-labels",
   "chat-identities",
   "automation-chat",
+  "chat-model",
   "automation-find",
   "conversation-context",
   "calls",

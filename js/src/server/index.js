@@ -358,6 +358,7 @@ const automationContext = (
     resolveAudience: automations.resolveAudience,
     self,
     log: say,
+    modelRunner: automations.modelRunner,
   });
   const scheduler = createAutomationScheduler({
     store,
@@ -900,10 +901,18 @@ const serverForms = (store, options) =>
     ...options,
   });
 
-const modelContext = (store, forms, service = createLocalAnswerModel()) => ({
-  answerModel: service,
-  forms: serverForms(store, { modelRunner: service.draft, ...forms }),
-});
+const modelContext = (
+  store,
+  forms,
+  automations,
+  service = createLocalAnswerModel()
+) => {
+  automations.modelRunner ??= service.draft;
+  return {
+    answerModel: service,
+    forms: serverForms(store, { modelRunner: service.draft, ...forms }),
+  };
+};
 
 export const startServer = async ({
   port = 0,
@@ -982,6 +991,7 @@ export const startServer = async ({
     },
     later
   );
+  const models = modelContext(store, forms, automations, answerModel);
   const ctx = {
     front,
     jsonCompatibility: jsonCompatibility === true,
@@ -993,7 +1003,7 @@ export const startServer = async ({
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
-    ...modelContext(store, forms, answerModel),
+    ...models,
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),

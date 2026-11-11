@@ -506,6 +506,9 @@ export const runNotice = (result) => {
       kind: result.queued.length ? 'queued' : 'nothing',
       count: result.queued.length,
       reason: result.excluded?.[0]?.reason ?? null,
+      ...(result.excluded?.some((entry) => entry.answer?.model)
+        ? { excluded: result.excluded }
+        : {}),
     };
   }
   if (!Array.isArray(result.results)) {

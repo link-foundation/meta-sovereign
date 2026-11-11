@@ -38,6 +38,7 @@ import {
 } from '../crm/people.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { planningRecords } from '../automation/planning-store.js';
+import { draftChatModelAnswers } from '../automation/question-chat-model.js';
 import { questionApi } from './question-api.js';
 import { followApi } from './follow-api.js';
 import { followTelegramApi } from './follow-telegram-api.js';
@@ -102,11 +103,13 @@ const localAutomations = (store) => {
       ...options,
       inferSelf: loaded.action.kind !== 'answer-questions',
     });
-    return planAutomation(data.records, loaded, {
+    const planned = planAutomation(data.records, loaded, {
       ...options,
       self: data.self,
       resolveAudience,
+      modelCandidates: true,
     });
+    return draftChatModelAnswers(store, loaded, planned, { now: options.now });
   };
   return {
     plan,
