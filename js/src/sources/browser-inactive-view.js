@@ -1,4 +1,4 @@
-/* global document, window */
+/* global document, window, setTimeout, clearTimeout */
 import { randomUUID } from 'node:crypto';
 
 /** Focus is latched: leaving again cannot silently resume an interrupted task. */
@@ -11,6 +11,10 @@ export const browserInactiveView = ({ operation, token }) => {
       return { state: 'owner-active' };
     }
     const state = { token, interrupted: false };
+    state.interrupt = () => {
+      state.interrupted = true;
+      state.notify?.();
+    };
     state.events = [
       'pointerdown',
       'keydown',
@@ -20,13 +24,16 @@ export const browserInactiveView = ({ operation, token }) => {
       'input',
     ];
     state.mark = (event) => {
+      if (!event.isTrusted && event === state.ownedInput) {
+        return;
+      }
       if (event.isTrusted || event.type === 'input') {
-        state.interrupted = true;
+        state.interrupt();
       }
     };
     state.focus = () => {
       if (document.hasFocus()) {
-        state.interrupted = true;
+        state.interrupt();
       }
     };
     for (const type of state.events) {
@@ -45,6 +52,7 @@ export const browserInactiveView = ({ operation, token }) => {
   }
   const status = current(state);
   if (operation === 'release') {
+    state.releaseRelay?.();
     for (const type of state.events) {
       document.removeEventListener(type, state.mark, true);
     }
@@ -53,6 +61,77 @@ export const browserInactiveView = ({ operation, token }) => {
     delete window[key];
   }
   return { state: status };
+};
+
+/** Relay outer activity to an embedded control's final page-local guard. */
+export const linkBrowserInactiveOwner = async ({ token }) => {
+  const state = window[Symbol.for('meta-sovereign.browser-inactive-view.v1')];
+  if (!state || state.token !== token) {
+    return false;
+  }
+  if (state.releaseRelay) {
+    return state.relayReady;
+  }
+  const owner = window.top === window;
+  const peers = new Set();
+  const type = 'meta-sovereign.browser-inactive-owner.v1';
+  const send = (peer, operation) => {
+    try {
+      peer.postMessage({ type, token, operation }, '*');
+    } catch {
+      state.interrupted = true;
+    }
+  };
+  let complete;
+  let timer;
+  const ready = owner
+    ? Promise.resolve(true)
+    : new Promise((resolve) => {
+        complete = resolve;
+        timer = setTimeout(() => resolve(false), 1000);
+      });
+  state.relayReady = ready;
+  const ownerStatus = () =>
+    state.interrupted || document.hasFocus() ? 'owner-active' : 'ready';
+  const receive = (event) => {
+    const data = event.data;
+    if (data?.type !== type || data.token !== token || !event.source) {
+      return;
+    }
+    if (owner && event.source !== window && data.operation === 'observe') {
+      if (peers.size >= 64 && !peers.has(event.source)) {
+        return;
+      }
+      peers.add(event.source);
+      send(event.source, ownerStatus());
+    } else if (!owner && event.source === window.top) {
+      if (data.operation === 'owner-active') {
+        state.interrupt();
+        complete(false);
+      } else if (data.operation === 'ready') {
+        complete(true);
+      }
+    }
+  };
+  state.notify = () => {
+    for (const peer of peers) {
+      send(peer, 'owner-active');
+    }
+  };
+  state.releaseRelay = () => {
+    window.removeEventListener('message', receive, true);
+    clearTimeout(timer);
+    complete?.(false);
+    peers.clear();
+    delete state.notify;
+  };
+  window.addEventListener('message', receive, true);
+  if (!owner) {
+    send(window.top, 'observe');
+  }
+  const linked = await ready;
+  clearTimeout(timer);
+  return linked;
 };
 
 const failure = (state) => {
@@ -89,7 +168,11 @@ export const prepareBrowserInactiveView = async (page) => {
 };
 
 /** Inspect only an existing owned view, including its trusted outer document. */
-export const withInactiveBrowserView = async (document, read) => {
+export const withInactiveBrowserView = async (
+  document,
+  read,
+  { relayOwner = false } = {}
+) => {
   if (
     ['evaluateOwner', 'evaluate'].some(
       (method) => typeof document?.[method] !== 'function'
@@ -113,6 +196,19 @@ export const withInactiveBrowserView = async (document, read) => {
     await document.prepareInactiveView?.();
     // The same token makes this idempotent when chat and owner share a document.
     await control('open');
+    if (relayOwner) {
+      for (const method of ['evaluateOwner', 'evaluate']) {
+        // A shared main document needs only one relay listener.
+        const result = await document[method]({
+          fn: linkBrowserInactiveOwner,
+          args: [{ token }],
+        });
+        if (!result) {
+          throw failure('owner-unverified');
+        }
+      }
+      await control('status');
+    }
     const result = await read(() => control('status'), token);
     await control('status');
     return result;

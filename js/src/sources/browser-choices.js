@@ -294,17 +294,42 @@ export const selectBrowserAnswer = async (
   };
 };
 
+const issueBrowserReply = async (commander, selector, inactiveToken) => {
+  try {
+    await commander.clickButton({
+      selector,
+      scrollIntoView: !inactiveToken,
+      ...(inactiveToken
+        ? { inactiveToken, activation: 'dom', scroll: 'none' }
+        : {}),
+      waitForNavigation: false,
+      waitAfterClick: 0,
+      verify: false,
+    });
+  } catch (error) {
+    if (inactiveToken && error?.dispatched === false) {
+      throw error;
+    }
+    // An issued native click can reject even after dispatch; require its receipt.
+  }
+};
+
 /** Both reply modes need one guarded dispatch and a distinct outgoing bubble. */
 export const dispatchBrowserReply = async (
   commander,
   request,
-  { receiptMs, pollMs }
+  { receiptMs, pollMs, inactiveToken, verifyCurrent }
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
   }
-  const input = { ...request, token: randomBytes(16).toString('hex') };
+  const input = {
+    ...request,
+    ...(inactiveToken ? { inactiveToken } : {}),
+    token: randomBytes(16).toString('hex'),
+  };
   try {
+    await verifyCurrent?.();
     const armed = await evaluate(commander, {
       ...input,
       operation: input.text === undefined ? 'arm' : 'armText',
@@ -312,17 +337,8 @@ export const dispatchBrowserReply = async (
     if (!armed.armed) {
       throw failure(armed.code);
     }
-    try {
-      await commander.clickButton({
-        selector: armed.selector,
-        scrollIntoView: true,
-        waitForNavigation: false,
-        waitAfterClick: 0,
-        verify: false,
-      });
-    } catch {
-      // Dispatch can already have happened even when the native click rejects.
-    }
+    await verifyCurrent?.();
+    await issueBrowserReply(commander, armed.selector, inactiveToken);
     const deadline = Date.now() + receiptMs;
     for (;;) {
       let result;

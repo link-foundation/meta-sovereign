@@ -281,3 +281,5 @@ Expose reviewed text replies in the shared localized Questions, Chat and Operato
 Read bounded history through an already owned inactive HH watch without launching or navigating. Use real Chromium focus and outer/child ownership, settle delayed scroll events, restore the original inactive view on cancellation/Stop and yield to returning owners. Refuse unavailable native focus explicitly; background reply and unread orchestration remain unfinished.
 
 Preserve unsaved disclosure checks through native fragment navigation in WebKit. Partition all mandatory browser checks across four disjoint CI shards per engine with unchanged deadlines and separate inactive-history coverage; retain failure propagation and per-shard diagnostics.
+
+Add owned inactive frozen-turn text delivery through actual provider controls without pointer focus. Relay returning outer activity into embedded final guards, preserve foreground drafts and positive receipts, and drain uncertain sends on Stop. Keep automatic policy and unread orchestration explicitly unfinished.

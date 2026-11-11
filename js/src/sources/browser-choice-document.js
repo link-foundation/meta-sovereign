@@ -1,5 +1,8 @@
 /* global document, window, getComputedStyle, crypto */
-import { prepareBrowserInactiveView } from './browser-inactive-view.js';
+import {
+  browserInactiveView,
+  prepareBrowserInactiveView,
+} from './browser-inactive-view.js';
 
 const failure = () =>
   Object.assign(
@@ -178,16 +181,39 @@ const resolveBrowserDocument = async (
       await assertCurrent();
       return value;
     },
-    async clickButton({ selector }) {
+    async clickButton({ selector, inactiveToken }) {
       await assertCurrent();
+      if (inactiveToken) {
+        for (const frame of new Set([ownerFrame, selected.frame])) {
+          const { state } = await frame.evaluate(browserInactiveView, {
+            operation: 'status',
+            token: inactiveToken,
+          });
+          if (state !== 'ready') {
+            throw Object.assign(
+              new Error('Inactive reply ownership changed.'),
+              {
+                code: `browser-background-${state}`,
+                fallback: false,
+                dispatched: false,
+              }
+            );
+          }
+        }
+      }
       if (selected.frame === page.mainFrame()) {
         await commander.clickButton({
           selector,
-          scrollIntoView: true,
+          scrollIntoView: !inactiveToken,
+          ...(inactiveToken ? { activation: 'dom', scroll: 'none' } : {}),
           waitForNavigation: false,
           waitAfterClick: 0,
           verify: false,
         });
+      } else if (inactiveToken) {
+        // DOM activation targets the actual provider control without taking
+        // window focus. Its page-local frozen-turn guard still runs on click.
+        await selected.frame.locator(selector).evaluate((node) => node.click());
       } else {
         await selected.frame.locator(selector).click({ timeout: 5000 });
       }

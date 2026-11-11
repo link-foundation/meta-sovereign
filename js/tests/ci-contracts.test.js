@@ -318,6 +318,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-chat-lists': ['verifyHhChatList', 'verifyHhChatScan'],
     'question-history': ['verifyConversationHistory'],
     'question-inactive-history': ['verifyInactiveHistory'],
+    'question-inactive-text': ['verifyInactiveText'],
     'question-controls': [
       'verifyQuestionBrowserControls',
       'verifySummaryChoices',

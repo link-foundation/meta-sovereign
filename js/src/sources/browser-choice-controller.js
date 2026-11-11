@@ -15,6 +15,15 @@ export const createChoiceContext = (input, read) => {
     attempts: new Map(),
   });
   const snapshot = (historyOnly = false) => read(spec, true, historyOnly);
+  const inactiveKey = Symbol.for('meta-sovereign.browser-inactive-view.v1');
+  const inactive = input.inactiveToken && window[inactiveKey];
+  const inactiveReady = () =>
+    !input.inactiveToken ||
+    (inactive &&
+      window[inactiveKey] === inactive &&
+      inactive.token === input.inactiveToken &&
+      !inactive.interrupted &&
+      !document.hasFocus());
   const identity = (value) =>
     JSON.stringify([value.chat, value.question?.id, value.question?.body]);
   const ownershipIdentity = (value) =>
@@ -28,6 +37,7 @@ export const createChoiceContext = (input, read) => {
           JSON.stringify(expected.pendingMessages)
         : value.pendingTurn?.messages.length === 1;
   const same = (value) =>
+    inactiveReady() &&
     !value.code &&
     !value.question.outgoing &&
     identity(value) === identity(expected) &&
@@ -43,7 +53,7 @@ export const createChoiceContext = (input, read) => {
     ) &&
     !node.closest('[inert],[aria-disabled="true"]');
   const write = (node, value) => {
-    if (!writable(node)) {
+    if (!writable(node) || !inactiveReady()) {
       return false;
     }
     const prototype =
@@ -55,12 +65,19 @@ export const createChoiceContext = (input, read) => {
       return false;
     }
     state.writing = true;
+    const event = new Event('input', { bubbles: true });
+    if (inactive) {
+      inactive.ownedInput = event;
+    }
     try {
       setter.call(node, value);
-      node.dispatchEvent(new Event('input', { bubbles: true }));
+      node.dispatchEvent(event);
       node.dispatchEvent(new Event('change', { bubbles: true }));
       return valueOf(node) === value;
     } finally {
+      if (inactive?.ownedInput === event) {
+        delete inactive.ownedInput;
+      }
       state.writing = false;
     }
   };

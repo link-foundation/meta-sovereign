@@ -7,6 +7,7 @@ import {
 import {
   checkedTextReply,
   sendBrowserTextReply,
+  sendInactiveBrowserTextReply,
 } from './browser-text-reply.js';
 import { withInactiveBrowserView } from './browser-inactive-view.js';
 import { scanBrowserConversation } from './browser-conversation-history.js';
@@ -120,6 +121,16 @@ export const openBrowserAnswerWatch = async ({
           pollMs,
         });
       });
+    },
+    replyTextInactive: (expected, text, verify) => {
+      const frozen = checkedTextReply(ui, target, expected, text);
+      return run(() =>
+        sendInactiveBrowserTextReply(document, ui, target, frozen, text, {
+          receiptMs,
+          pollMs,
+          verifyCurrent: () => verifyCurrent(verify),
+        })
+      );
     },
     close() {
       closing ??= (async () => {

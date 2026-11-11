@@ -14,9 +14,9 @@ export const inactiveViewFixture = (focused = false) => {
       removeEventListener(type, fn) {
         listeners.get(type)?.delete(fn);
       },
-      emit(type, isTrusted = true) {
+      emit(type, isTrusted = true, event = { type, isTrusted }) {
         for (const fn of listeners.get(type) ?? []) {
-          fn({ type, isTrusted });
+          fn(event);
         }
       },
       count: () =>
@@ -25,7 +25,13 @@ export const inactiveViewFixture = (focused = false) => {
   };
   const document = { ...target(), hasFocus: () => focused };
   const window = target();
-  const context = vm.createContext({ document, window });
+  window.top = window;
+  const context = vm.createContext({
+    document,
+    window,
+    setTimeout,
+    clearTimeout,
+  });
   return {
     document,
     window,

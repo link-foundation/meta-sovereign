@@ -2,6 +2,7 @@ import { answerChoiceState } from '../automation/question-options.js';
 import { checkedBrowserPendingTurn } from './browser-pending-turn.js';
 import { browserChoiceSpec, dispatchBrowserReply } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import { withInactiveBrowserView } from './browser-inactive-view.js';
 
 const failure = (code) =>
   Object.assign(
@@ -61,6 +62,8 @@ export const sendBrowserTextReply = async (
     {
       receiptMs: options.receiptMs ?? 10000,
       pollMs: options.pollMs ?? 100,
+      inactiveToken: options.inactiveToken,
+      verifyCurrent: options.verifyCurrent,
     }
   );
   return {
@@ -70,6 +73,49 @@ export const sendBrowserTextReply = async (
     messageId: result.messageId,
     text,
   };
+};
+
+/** An existing inactive view may issue once; only its actual receipt survives. */
+export const sendInactiveBrowserTextReply = async (
+  document,
+  ui,
+  target,
+  expected,
+  text,
+  options
+) => {
+  let receipt;
+  try {
+    return await withInactiveBrowserView(
+      document,
+      async (inactive, token) => {
+        receipt = await sendBrowserTextReply(
+          document,
+          ui,
+          target,
+          expected,
+          text,
+          {
+            ...options,
+            inactiveToken: token,
+            verifyCurrent: async () => {
+              await options.verifyCurrent();
+              await inactive();
+            },
+          }
+        );
+        return receipt;
+      },
+      { relayOwner: true }
+    );
+  } catch (error) {
+    // Later activity cannot erase a positive outgoing receipt. An uncertain
+    // dispatch never sets this private value and still propagates its error.
+    if (receipt) {
+      return receipt;
+    }
+    throw error;
+  }
 };
 
 /** Queue explicit frozen replies, cancel pending admission and drain dispatches. */

@@ -66,7 +66,7 @@ const withFixture = async (
     }),
   });
   try {
-    const result = await run({ sender, page });
+    const result = await run({ sender, page, commander });
     assert.deepEqual(errors, []);
     return result;
   } finally {
