@@ -227,3 +227,5 @@ Share reviewed browser question inspection, owned prefill, exact native selectio
 Recover a unique native answer option from a completed incoming bot summary for the same question across stored chats. Preserve approved exact choices, corrections, rejection policy, zero-count unapproved learning and review on conflicts or bounded scans; revalidate evidence before delivery and expose the source through CLI, Lino and shared browser controls.
 
 Avoid unused stdin pipes for assignment commands without payloads so an early child exit cannot falsely refuse successful Git operations. Preserve exact payload writes, real input failures and default-off private diagnostics.
+
+Flush durable outgoing reservations before provider dispatch so grouped text-store writes cannot leave a duplicate window after a process interruption. Refuse dispatch when that flush fails.

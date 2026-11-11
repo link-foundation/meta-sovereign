@@ -249,6 +249,7 @@ export const guardedSend = async ({
     });
     try {
       await store.put(record);
+      await store.flush?.();
     } catch (error) {
       return refused('outbox-unavailable', `not sent: ${error.message}`);
     }
