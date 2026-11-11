@@ -12,6 +12,7 @@
 import { createWriteStream, promises as fs, renameSync } from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
+import { once } from 'node:events';
 
 export const FILE_MODE = 0o600;
 export const DIR_MODE = 0o700;
@@ -183,14 +184,19 @@ export const writeStreamDurable = async (file, ...streams) => {
   const dir = path.dirname(file);
   await ensurePrivateDir(dir);
   const tmp = `${file}.${process.pid}.tmp`;
+  const sink = createWriteStream(tmp, { flags: 'w', mode: FILE_MODE });
+  const closed = new Promise((resolve) => sink.once('close', resolve));
   try {
-    await pipeline(
-      ...streams,
-      createWriteStream(tmp, { flags: 'w', mode: FILE_MODE })
-    );
+    // Open before consuming the source: an immediately failing source must
+    // never race a pending open that recreates the temp after cleanup.
+    await once(sink, 'open');
+    await pipeline(...streams, sink);
+    await closed;
     await fsyncFile(tmp);
     await renameDurable(tmp, file);
   } catch (error) {
+    sink.destroy();
+    await closed;
     await fs.unlink(tmp).catch(() => {});
     throw error;
   }
