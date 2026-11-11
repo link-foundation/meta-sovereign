@@ -1,4 +1,9 @@
 export const hiBrowserAnswer = {
+  'browserAnswer.latestAfterCompleted':
+    'पहले के पूर्ण सारांश या स्वीकृत सूचनाओं को उत्तर नहीं चाहिए। विकल्प नवीनतम संदेश के लिए है।',
+  'questions.match.pending-turn': 'अनुत्तरित संदेशों के उत्तर',
+  'browserAnswer.wholeTurn':
+    'मसौदे में सभी अनुत्तरित संदेश शामिल हैं। भरने से पहले हर उत्तर की समीक्षा करें।',
   'browserAnswer.turn': 'दिख रहे अनुत्तरित संदेश: {count}',
   'browserAnswer.latestOnly':
     'नीचे दिया उत्तर अंतिम संदेश के लिए है। पहले के संदेशों की समीक्षा अभी बाकी है।',

@@ -198,7 +198,11 @@ const BrowserAnswerReview = ({
         { key: 'target', className: 'meta' },
         `${result.target.source} · ${result.chat}`
       ),
-      el(BrowserPendingTurn, { key: 'question', snapshot: result }),
+      el(BrowserPendingTurn, {
+        key: 'question',
+        snapshot: result,
+        plan: result.plan,
+      }),
       el(
         'p',
         {

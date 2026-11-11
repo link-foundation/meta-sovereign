@@ -168,7 +168,7 @@ test(
 );
 
 test(
-  'opting out keeps the latest saved answer through queue validation',
+  'opting out preserves earlier unknown requests and the latest saved answer without a model call',
   { timeout: 5000 },
   async () => {
     const env = await setup({ openOnly: true });
@@ -180,8 +180,13 @@ test(
     await env.store.put(automation);
     const result = await env.runner.run(automation, opts);
     assert.equal(result.queued.length, 1);
-    assert.equal(result.queued[0].text, 'My English level is B2.');
-    assert.equal(result.queued[0].answer.turn.messages.length, 1);
+    assert.equal(
+      result.queued[0].text,
+      '1. {{answer:1}}\n2. My English level is B2.'
+    );
+    assert.equal(result.queued[0].answer.turn.messages.length, 2);
+    assert.equal(result.queued[0].answer.complete, false);
+    assert.equal(result.queued[0].answer.requiresReview, true);
     assert.equal(env.calls.length, 0);
     assert.equal(env.sent.length, 0);
   }
@@ -251,7 +256,7 @@ test(
       },
       async (env) =>
         env.store.put(
-          chatModelMessage(4, 'Your answers:\nWhat is your English level?: B2.')
+          chatModelMessage(2, 'Your answers:\nWhat is your English level?: B2.')
         ),
       async (env) =>
         env.store.put(chatModelMessage(4, 'My own reply', { outgoing: true })),

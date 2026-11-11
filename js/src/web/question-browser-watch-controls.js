@@ -38,6 +38,7 @@ const WatchStatus = ({ watch }) => {
         ? el(BrowserPendingTurn, {
             key: 'question',
             snapshot: watch.last.snapshot,
+            plan: watch.last.plan,
           })
         : null,
       watch.last?.plan

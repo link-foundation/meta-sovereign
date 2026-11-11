@@ -2,9 +2,17 @@ import React from 'react';
 import { useT } from './i18n.js';
 
 const el = React.createElement;
+const scopeKey = (snapshot, plan) => {
+  if (!snapshot.strictOptions && plan?.pending) {
+    return 'browserAnswer.wholeTurn';
+  }
+  return snapshot.strictOptions && plan?.pending?.blocked === false
+    ? 'browserAnswer.latestAfterCompleted'
+    : 'browserAnswer.latestOnly';
+};
 
 /** Shared reviewed context for Questions, Chat, Operator and the finite watcher. */
-export const BrowserPendingTurn = ({ snapshot }) => {
+export const BrowserPendingTurn = ({ snapshot, plan }) => {
   const t = useT();
   const turn = snapshot.pendingTurn;
   const messages = turn?.messages.length ? turn.messages : [snapshot.question];
@@ -35,7 +43,7 @@ export const BrowserPendingTurn = ({ snapshot }) => {
         ? el(
             'p',
             { key: 'scope', className: 'meta' },
-            t('browserAnswer.latestOnly')
+            t(scopeKey(snapshot, plan))
           )
         : null,
     ]

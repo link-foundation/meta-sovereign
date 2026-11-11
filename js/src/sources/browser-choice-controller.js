@@ -18,7 +18,10 @@ export const createChoiceContext = (input, read) => {
     expected.pendingTurn
       ? JSON.stringify(value.pendingTurn) ===
         JSON.stringify(expected.pendingTurn)
-      : value.pendingTurn?.messages.length === 1;
+      : expected.pendingMessages
+        ? JSON.stringify(value.pendingTurn?.messages) ===
+          JSON.stringify(expected.pendingMessages)
+        : value.pendingTurn?.messages.length === 1;
   const same = (value) =>
     !value.code &&
     !value.question.outgoing &&

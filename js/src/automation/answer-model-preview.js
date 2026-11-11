@@ -2,6 +2,7 @@ import { prepareAnswerModelContext } from './answer-model-context.js';
 import { runAnswerModelDrafts } from './answer-model-drafts.js';
 import { answerModelFailure } from './answer-model-config.js';
 import { answerChoiceState, applyAnswerChoices } from './question-options.js';
+import { pendingAnswerText } from './question-pending-plan.js';
 
 const unresolvedRequests = (answer, input) => {
   if (answer.noReply || answer.noReplyProposed) {
@@ -9,7 +10,7 @@ const unresolvedRequests = (answer, input) => {
   }
   if (answer.parts?.length && !input.options?.length) {
     return answer.parts.flatMap((part, index) =>
-      part.text
+      part.text || part.noReply || part.noReplyProposed
         ? []
         : [
             {
@@ -59,11 +60,7 @@ const mergedAnswer = (answer, result, choices) => {
     const draft = byId.get(`part:${index}`);
     return draft ? draftedAnswer(part, draft, [], result.model) : part;
   });
-  const text = parts
-    .map(
-      (part, index) => `${index + 1}. ${part.text || `{{answer:${index + 1}}}`}`
-    )
-    .join('\n');
+  const text = pendingAnswerText(parts);
   if (text.length > 12000) {
     return {
       ...answer,
@@ -99,7 +96,12 @@ export const modelAnswerPreview = async (
       'Model draft opt-in must be a boolean.'
     );
   }
-  if (!input.modelDraft || answer.optionPending) {
+  if (
+    !input.modelDraft ||
+    answer.optionPending ||
+    answer.pending?.blocked ||
+    answer.pending?.limited
+  ) {
     return answer;
   }
   try {
@@ -110,10 +112,20 @@ export const modelAnswerPreview = async (
       'Draft answer options must be bounded text.'
     );
   }
-  const prepared = await prepareAnswerModelContext(store, context, [
-    input.question,
-  ]);
   const requests = unresolvedRequests(answer, input);
+  if (requests.length > 25) {
+    return {
+      ...answer,
+      model: { state: 'refused', used: false, code: 'answer-model-context' },
+    };
+  }
+  const prepared = await prepareAnswerModelContext(
+    store,
+    context,
+    answer.parts?.length
+      ? answer.parts.map((part) => part.question)
+      : [input.question]
+  );
   const result = await runAnswerModelDrafts({
     ...options,
     prepared,

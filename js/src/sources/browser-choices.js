@@ -15,6 +15,7 @@ import {
   releaseChoiceClick,
 } from './browser-choice-controller.js';
 import { answerChoiceState } from '../automation/question-options.js';
+import { checkedPendingMessages } from '../automation/question-pending-plan.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { openBrowserAnswerWatch } from './browser-answer-watch.js';
 import {
@@ -139,7 +140,7 @@ export const prefillBrowserAnswer = async (commander, ui, expected, text) => {
   if (
     typeof text !== 'string' ||
     !text.trim() ||
-    text.length > 6000 ||
+    text.length > 12000 ||
     answerChoiceState(expected.question.body, {
       options: expected.answerOptions,
     }).strictOptions
@@ -170,9 +171,29 @@ const expectedPendingTurn = (draft, question, prefix) => {
   return pendingTurn;
 };
 
+const expectedPendingMessages = (messages, prefix, question) => {
+  if (messages.length === 1) {
+    return undefined;
+  }
+  try {
+    if (messages.some((message) => !message.id?.startsWith(prefix))) {
+      throw failure('answer-choice-required');
+    }
+    return checkedPendingMessages(
+      messages.map((message) => ({
+        id: message.id.slice(prefix.length),
+        body: message.body,
+      })),
+      question.body
+    );
+  } catch {
+    throw failure('answer-choice-required');
+  }
+};
+
 const expectedQuestion = (draft, target) => {
   const messages = draft.answer?.turn?.messages;
-  const question = messages?.length === 1 && messages[0];
+  const question = Array.isArray(messages) && messages.at(-1);
   const prefix = `msg:${draft.source}:${target}:`;
   if (
     !question ||
@@ -197,11 +218,13 @@ const expectedQuestion = (draft, target) => {
     throw failure('answer-choice-required');
   }
   const pendingTurn = expectedPendingTurn(draft, question, prefix);
+  const pendingMessages = expectedPendingMessages(messages, prefix, question);
   return {
     chat: String(target),
     question: { id: question.id.slice(prefix.length), body: question.body },
     answerOptions,
     ...(pendingTurn ? { pendingTurn } : {}),
+    ...(pendingMessages ? { pendingMessages } : {}),
   };
 };
 

@@ -1,4 +1,9 @@
 export const enBrowserAnswer = {
+  'browserAnswer.latestAfterCompleted':
+    'Earlier completed summaries or approved notices need no reply. The choice applies to the latest message.',
+  'questions.match.pending-turn': 'Answers to pending messages',
+  'browserAnswer.wholeTurn':
+    'The draft covers all pending messages. Review each answer before prefilling.',
   'questions.match.accepted-summary': 'Accepted answer summary',
   'questions.acceptedSummary.matched':
     'A completed answer summary matches this current option.',

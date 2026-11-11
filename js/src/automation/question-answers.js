@@ -13,6 +13,7 @@ import {
 } from './question-corrections.js';
 import { applyAcceptedSummaryChoice } from './question-summary-choice.js';
 import { completedAnswerSummary } from './question-summary.js';
+import { planPendingMessages } from './question-pending-plan.js';
 import {
   matchNotice,
   noticeSimilarity,
@@ -376,6 +377,9 @@ const answerContext = (options, rules) => ({
 
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
+  if (options.pendingMessages !== undefined) {
+    return planPendingMessages(question, options, planAnswer);
+  }
   const choices = answerChoiceState(question, options);
   if (options.questionMode !== 'field' && completedAnswerSummary(question)) {
     return {

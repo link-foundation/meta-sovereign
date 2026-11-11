@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Plan every bounded pending message through shared archived/browser answer controls, independently of model opt-in. Preserve unresolved earlier requests through completed summaries, guard strict native choices, prefill complete approved turns without sending, refuse oversized model batches and recheck queued current knowledge.
+
 Retain complete bounded rendered pending incoming turns and actual owner/service boundaries in browser reviews, CLI/Lino and shared Questions/Chat/Operator/watch controls. Refuse held prefills and native selections after earlier edits or manual replies, including late pointer dispatch, and keep multi-message automatic watches for manual review. Preserve explicit unknown earlier-history coverage and latest-question durable reservations.
 
 Regenerate bounded review-only notice patterns from related actual delivered-reply observations. Preserve original counts, approval decisions and owner aliases; generated patterns cannot authorize no-reply or expand canonical corrections without explicit adoption. Share pattern review through CLI, offline storage, text/binary Lino and four-language controls (R-AA1).

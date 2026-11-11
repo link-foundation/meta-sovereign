@@ -11,10 +11,16 @@ import {
   saveQuestionWatch,
 } from './question-watch-records.js';
 
+const approvedPart = (part) =>
+  part.noReply ||
+  (part.complete &&
+    !part.requiresReview &&
+    ['exact', 'accepted-summary'].includes(part.match));
 const approved = (plan) =>
   plan?.complete === true &&
-  plan.requiresReview === false &&
-  ['exact', 'accepted-summary'].includes(plan.match) &&
+  !plan.pending?.blocked &&
+  (approvedPart(plan) ||
+    (plan.match === 'pending-turn' && plan.parts.every(approvedPart))) &&
   typeof plan.text === 'string' &&
   Boolean(plan.text.trim());
 const questionPlan = ({ store }, record, snapshot) =>
@@ -24,6 +30,7 @@ const questionPlan = ({ store }, record, snapshot) =>
     source: record.target.source,
     chat: snapshot.chat,
     question: snapshot.question.body,
+    pendingMessages: snapshot.pendingTurn?.messages,
     options: snapshot.answerOptions,
     strictOptions: snapshot.strictOptions,
   });
@@ -120,7 +127,7 @@ const phaseOf = (snapshot, plan) => {
   if (snapshot.hasDraft) {
     return 'owner-draft';
   }
-  if (snapshot.pendingTurn?.messages.length > 1) {
+  if (plan?.pending?.blocked || plan?.pending?.limited) {
     return 'review';
   }
   if (snapshot.strictOptions && !snapshot.answerOptions.length) {

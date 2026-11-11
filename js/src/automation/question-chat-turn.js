@@ -1,7 +1,6 @@
 import { historyOrder } from '../replies/history-order.js';
-import { asksQuestion } from './question-match.js';
-import { completedAnswerSummary } from './question-summary.js';
 import { answerChoiceState } from './question-options.js';
+import { checkedPendingMessages } from './question-pending-plan.js';
 
 const unavailable = () => ({ reason: 'question-turn-unavailable' });
 export const chatAnswerAction = (action) => ({
@@ -46,23 +45,14 @@ const latestChoiceState = (latest) => {
     return null;
   }
 };
-const ordinaryLatest = (latest, choices) =>
-  completedAnswerSummary(latest.body) ||
-  (!choices.strictOptions && !asksQuestion(latest.body));
-
-const unansweredQuestions = (messages, owners, latest) => {
+const unansweredMessages = (messages, owners) => {
   const unanswered = [];
   for (const message of messages.toReversed()) {
-    if (
-      outgoing(message, owners) ||
-      message.service ||
-      message.deleted ||
-      Date.parse(latest.timestamp) - Date.parse(message.timestamp) > 86400000 ||
-      !asksQuestion(message.body)
-    ) {
+    if (outgoing(message, owners) || message.service) {
       break;
     }
     if (
+      message.deleted ||
       pending(message) ||
       typeof message.body !== 'string' ||
       message.body.length > 6000
@@ -78,7 +68,7 @@ const unansweredQuestions = (messages, owners, latest) => {
 };
 
 /** Latest contiguous unanswered employer turn, bounded independently of archive size. */
-export const chatQuestionTurn = (input, ownerIds = [], modelDraft = false) => {
+export const chatQuestionTurn = (input, ownerIds = []) => {
   const owners = [...new Set(['me', ...ownerIds.map(String)])];
   if (
     input.some((message) => !Number.isFinite(Date.parse(message.timestamp)))
@@ -93,30 +83,23 @@ export const chatQuestionTurn = (input, ownerIds = [], modelDraft = false) => {
   if (!usableLatest(latest)) {
     return unavailable();
   }
-  const choices = latestChoiceState(latest);
-  if (!choices) {
+  if (!latestChoiceState(latest)) {
     return unavailable();
   }
-  if (ordinaryLatest(latest, choices)) {
-    return { latest, question: latest.body };
-  }
-  // Consecutive-question assembly belongs to the explicit model opt-in.
-  // Existing saved-answer automations continue to answer the latest message.
-  const unanswered =
-    modelDraft && !choices.strictOptions
-      ? unansweredQuestions(messages, owners, latest)
-      : [latest];
+  const unanswered = unansweredMessages(messages, owners);
   if (!unanswered) {
     return unavailable();
   }
-  const question =
-    unanswered.map((message) => message.body).join('\n') || latest.body;
-  if (question.length > 6000) {
+  let pendingMessages;
+  try {
+    pendingMessages = checkedPendingMessages(unanswered, latest.body);
+  } catch {
     return unavailable();
   }
   return {
     latest,
-    question,
+    question: latest.body,
+    pendingMessages,
     turn: {
       owners,
       messages: unanswered.map(questionSnapshot),

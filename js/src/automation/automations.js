@@ -572,15 +572,11 @@ const answerDraft = (
   }
 ) => {
   const messages = candidate.messages.toSorted(historyOrder);
-  const selected = chatQuestionTurn(
-    messages,
-    self,
-    automation.action.modelDraft
-  );
+  const selected = chatQuestionTurn(messages, self);
   if (selected.reason) {
     return selected;
   }
-  const { latest, question, turn } = selected;
+  const { latest, question, turn, pendingMessages } = selected;
   const answer = planAnswer(question, {
     now,
     rules: answerRules,
@@ -592,6 +588,7 @@ const answerDraft = (
     chat: String(candidate.chat),
     options: latest.answerOptions,
     strictOptions: latest.strictOptions,
+    pendingMessages,
   });
   if (
     !answer.text &&

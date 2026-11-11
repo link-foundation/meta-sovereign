@@ -45,6 +45,7 @@ test('CLI exposes current choices, confirmed selection and read-only durable rec
   const review = (await call('inspect', browserTarget)).value;
   assert.equal(review.plan.text, 'Yes');
   assert.deepEqual(review.pendingTurn, pendingSnapshot().pendingTurn);
+  assert.equal(review.plan.pending.blocked, true);
   assert.equal(
     (await call('select', { id: review.id, option: 'Yes' })).code,
     1
@@ -107,6 +108,7 @@ test(
       const review = (await call('inspect', browserTarget)).body;
       assert.equal(review.question.id, '101');
       assert.deepEqual(review.pendingTurn, pendingSnapshot().pendingTurn);
+      assert.equal(review.plan.pending.blocked, true);
       assert.equal(
         (
           await call(

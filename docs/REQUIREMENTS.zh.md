@@ -1,6 +1,6 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
-R-AA1：浏览器核对现在通过 CLI、文本/二进制 Lino 及共用 Questions/Chat/Operator 控件保留完整、有界的已显示待回复消息及本人回复/系统事件边界。更早的待回复消息被编辑或出现手动回复时，会阻止已准备的预填或原生选项操作，包括实际事件发送前的检查；有限观察器对多条待回复消息保持人工审核。显示起点之前及旧核对中的上下文明示未知。参见[待回复消息证据](case-studies/issue-56/pending-turn.md)。完整历史读取、空闲时的确认/拒绝回复及未读聊天编排仍须完成。
+R-AA1：归档与浏览器中显示的待回复消息现通过 CLI、文本/二进制 Lino 和 Questions/Chat/Operator/观察器共用有限的逐条答复规划。关闭模型仍保留先前的已知答案；完整摘要及已批准的无需回复通知不会掩盖未解决请求。先前仍有待答请求时暂停自动选项点击；完整的已批准文本可预填，但不会自动发送。先前消息编辑、手动回复及排队期间答案知识变化会阻止原操作。显示范围仍明确标注。见[整个待回复回合规划](case-studies/issue-56/whole-turn.md)。完整平台历史、用户活动保护、通知答复及未读聊天编排仍须完成。
 
 R-AA1：显式被动通知规则、基于实际已送达回复的学习及随新观察重新生成的有序词模板现已共用 CLI、文本/二进制 Lino、离线存储和四语言审核控件。重复学习不会增加计数。生成模板的匹配始终需要审核；在所有者明确采纳之前，不会扩大纠正规则的范围，也不会授权无回复。沉默不会生成无回复规则。参见[保存规则](case-studies/issue-56/question-notices.md)、[学习](case-studies/issue-56/notice-learning.md)及[模板证据](case-studies/issue-56/notice-patterns.md)。完整的当前会话保护和未读聊天自动处理仍须完成。
 

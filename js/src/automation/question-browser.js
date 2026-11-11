@@ -160,6 +160,7 @@ const createReviewActions = ({
             source: target.source,
             chat: snapshot.chat,
             question: snapshot.question.body,
+            pendingMessages: snapshot.pendingTurn?.messages,
             options: snapshot.answerOptions,
             strictOptions: snapshot.strictOptions,
           },

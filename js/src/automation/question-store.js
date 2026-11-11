@@ -219,7 +219,7 @@ const contextHistoryMessage = (message) => {
   return {
     ...message,
     body: valid ? message.body : '',
-    service: message.service || !valid,
+    service: message.service,
   };
 };
 
@@ -283,8 +283,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
   );
   const selected = chatQuestionTurn(
     history.values(),
-    draft.answer.turn?.owners,
-    automation.action.modelDraft
+    draft.answer.turn?.owners
   );
   if (
     unknownTime ||
@@ -303,6 +302,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
     input: {
       ...chatAnswerAction(automation.action),
       question: selected.question,
+      pendingMessages: selected.pendingMessages,
       ...answerEnvironmentFromMessages(history.values(), latest),
       source: draft.source,
       chat: String(draft.chat),
@@ -317,9 +317,13 @@ const validateModelAnswer = async (store, current, draft, input) => {
     const { context } = await prepareAnswerPreview(store, input, {
       maxBytes: 512 * 1024,
     });
-    const prepared = await prepareAnswerModelContext(store, context, [
-      input.question,
-    ]);
+    const prepared = await prepareAnswerModelContext(
+      store,
+      context,
+      draft.answer.parts?.length
+        ? draft.answer.parts.map((part) => part.question)
+        : [input.question]
+    );
     if (
       prepared.fingerprint === draft.answer.model.fingerprint &&
       (await modelFingerprint(normalizeAnswerAction(current.action))) ===

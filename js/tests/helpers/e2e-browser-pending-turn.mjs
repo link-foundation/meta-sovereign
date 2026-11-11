@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { saveAnswerRule } from '../../src/automation/question-store.js';
 import {
   editPendingMessage,
   mountPendingHistory,
@@ -129,6 +130,11 @@ const verifyPendingPrefillAndMobile = async ({
   await run(
     'earlier edits protect free drafts and a fresh mobile review can select once',
     async () => {
+      await saveAnswerRule(fixture.store, {
+        id: 'pending-salary',
+        question: 'What is your expected salary?',
+        answers: [{ text: 'Salary discussed separately.', approved: true }],
+      });
       await fixture.reset({ freeText: true });
       await fixture.page.evaluate(mountPendingHistory);
       await readCurrent();

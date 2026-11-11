@@ -236,7 +236,9 @@ test(
     await env.store.put(chatModelMessage(1, 'Where do you live?'));
     const plan = await env.runner.plan(env.automation, opts);
     assert.equal(plan.drafts[0].text, 'YES');
-    assert.equal(plan.drafts[0].answer.turn.messages.length, 1);
+    assert.equal(plan.drafts[0].answer.turn.messages.length, 2);
+    assert.equal(plan.drafts[0].answer.pending.blocked, true);
+    assert.equal(plan.drafts[0].answer.requiresReview, true);
     assert.equal(plan.drafts[0].answer.question, question);
     assert.equal(env.calls.length, 0);
   }

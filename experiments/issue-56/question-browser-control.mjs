@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { mountWholeTurn } from './whole-turn-fixture.mjs';
 import {
   editPendingMessage,
   mountPendingHistory,
@@ -9,7 +10,10 @@ export const questionBrowserControlServer = (fixture) =>
     try {
       const url = new URL(req.url, 'http://127.0.0.1');
       let result;
-      if (url.pathname === '/pending') {
+      if (url.pathname === '/whole-turn') {
+        await mountWholeTurn(fixture);
+        result = await fixture.stats();
+      } else if (url.pathname === '/pending') {
         await fixture.send.readAnswerChoices({ source: 'hh', chat: '7' });
         await fixture.page.evaluate(mountPendingHistory);
         result = await fixture.stats();

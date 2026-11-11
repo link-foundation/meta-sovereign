@@ -391,7 +391,6 @@ test('planning never jumps over an unusable latest turn', () => {
   for (const barrier of [
     message('hh', 2, 'service', '', { service: true }),
     message('hh', 2, 'them', 'Gone?', { deleted: true }),
-    message('hh', 2, 'them', 'Спасибо'),
     message('hh', 2, 'service', '', { timestamp: undefined }),
     message('hh', 2, 'owner', 'Где вы живете?', { outgoing: true }),
   ]) {
@@ -406,6 +405,24 @@ test('planning never jumps over an unusable latest turn', () => {
     );
     assert.equal(plan.drafts.length, 0);
   }
+});
+
+test('a trailing notice retains earlier unanswered questions as a reviewed incomplete draft', () => {
+  const plan = planAutomation(
+    [
+      message('hh', 1, 'them', 'Где вы живете?'),
+      message('hh', 2, 'them', 'Спасибо'),
+      rule('Где вы живете?', 'Вьетнам'),
+    ],
+    automation,
+    { self: ['me'], targets: [{ source: 'hh', chat: '1' }] }
+  );
+  assert.equal(plan.drafts.length, 1);
+  const draft = plan.drafts[0];
+  assert.equal(draft.text, '1. Вьетнам\n2. {{answer:2}}');
+  assert.equal(draft.answer.complete, false);
+  assert.equal(draft.answer.requiresReview, true);
+  assert.equal(draft.answer.turn.messages.length, 2);
 });
 
 test('questions arriving during typing stop delivery without an outbox claim', async () => {

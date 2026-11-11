@@ -1,22 +1,7 @@
-import { chromium } from 'playwright';
-import { verifyQuestionBrowserControls } from '../../js/tests/helpers/e2e-question-browser-controls.mjs';
+import { questionBrowserProbe } from './question-browser-probe.mjs';
 
-const browser = await chromium.launch({
-  executablePath:
-    process.env.E2E_EXECUTABLE_PATH ?? '/opt/google/chrome/chrome',
-  headless: true,
-  args: ['--disable-dev-shm-usage'],
+await questionBrowserProbe({
+  pendingOnly: true,
+  before: process.argv.includes('--before'),
+  screenshots: 'docs/screenshots/issue-56-pending-turn',
 });
-try {
-  console.log(
-    JSON.stringify(
-      await verifyQuestionBrowserControls(browser, {
-        pendingOnly: true,
-        before: process.argv.includes('--before'),
-        screenshots: 'docs/screenshots/issue-56-pending-turn',
-      })
-    )
-  );
-} finally {
-  await browser.close();
-}
