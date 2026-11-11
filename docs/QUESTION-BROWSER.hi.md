@@ -39,5 +39,25 @@ CLI में `meta-sovereign automations answers browser` के बाद `sho
 CLI: `meta-sovereign automations answers plan --question="Do you have distributed systems experience?" --options='(Yes No)' --strict-options=true`.
 विकल्प Links Notation में दें। योजना API में `options` और बूलियन `strictOptions` हैं।
 
+HH प्रश्न पढ़ने के बाद स्पष्ट निगरानी 1–120 मिनट चलती है (डिफ़ॉल्ट 120)। केवल
+स्वीकृत सटीक विकल्प या पूर्ण सारांश का एकमात्र सही विकल्प अपने मूल बटन से चुना
+जाता है; हर कार्रवाई से पहले वर्तमान ज्ञान फिर जाँचते हैं। विलंबित/अक्षम विकल्प
+प्रतीक्षा करते हैं। मुक्त पाठ सिर्फ़ समीक्षा के लिए भरता है, अपने आप नहीं भेजता।
+बटन आने पर अपरिवर्तित स्वचालित ड्राफ्ट हटता है; आपके संपादन सुरक्षित रहते हैं।
+नेविगेशन, reload, अज्ञात वितरण या मालिक खोने पर निगरानी रुकती है। Stop वर्तमान
+कार्रवाई पूरी होने का इंतज़ार करता है।
+
+CLI: `meta-sovereign automations answers browser watch --id=<review-id>
+--confirm=true --duration-ms=7200000`। यह foreground प्रक्रिया है; Ctrl+C/SIGTERM
+इसे रोककर जारी कार्रवाई पूरी करता है। अलग प्रक्रिया `watch-status
+--watch-id=<watch-id>` से सहेजी स्थिति पढ़ सकती है, मालिक को चला या रोक नहीं सकती।
+मालिक सर्वर के विश्वसनीय पाठ/बाइनरी Lino मार्ग हैं:
+`POST /api/automations/answers/browser/{watch-start,watch-status,watch-stop}`।
+Start में `id: 'question-watch:<uuid>'`, `review`, `confirm: true` और वैकल्पिक
+`durationMs` दें। प्रतिक्रिया खोने पर वही ID रखें; उसे दोहराने या UI reload करने
+से केवल स्थिति पढ़ती है, निगरानी फिर शुरू नहीं होती। बिना चल रहे मालिक का सहेजा
+सक्रिय रिकॉर्ड paused/owner-unavailable दिखता है।
+
 सत्यापन अलग कृत्रिम प्रदाता पृष्ठों और वास्तविक उत्पादन प्रेषक पर हुआ है।
-लॉग-इन प्रदाता और स्वचालित प्रदाता निगरानी अभी कार्य #56 के अधूरे मानदंड हैं।
+लॉग-इन प्रदाता समानता और सभी unread चैट का संचालन अभी #56 में अधूरे हैं।
+[निगरानी प्रमाण](case-studies/issue-56/question-watch.md) देखें।

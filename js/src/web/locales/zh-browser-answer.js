@@ -38,4 +38,30 @@ export const zhBrowserAnswer = {
     '选择响应尚未确认。再次选择前，请恢复服务器状态。',
   'browserAnswer.outgoing':
     '提供方的最新消息是已发出的消息。收到新问题后请重新读取。',
+  'browserWatch.hint':
+    '监看此聊天中的已知答案。精确获准答案和完整摘要中的唯一匹配可以自动点击原生选项。普通文本仅填入草稿。保留所有者的编辑。导航、重新加载或结果不明的选择会暂停监看；重启服务器不会恢复监看。',
+  'browserWatch.minutes': '分钟（1–120）',
+  'browserWatch.start': '监看此聊天并选择已知答案',
+  'browserWatch.unconfirmed':
+    '监看启动尚未确认。再次启动前请恢复已保存的状态。',
+  'browserWatch.active': '正在监看此平台聊天。',
+  'browserWatch.paused': '监看已暂停。再次启动前请检查平台聊天。',
+  'browserWatch.stopped': '监看已停止；待处理操作已结束。',
+  'browserWatch.reason': '监看详情：{code}',
+  'browserWatch.recover': '恢复监看状态',
+  'browserWatch.stop': '停止监看并等待',
+  'browserWatch.phase.starting': '正在打开已检查的聊天。',
+  'browserWatch.phase.waiting': '正在等待新的收到的问题。',
+  'browserWatch.phase.owner-draft': '已保留所有者的草稿。',
+  'browserWatch.phase.pending-options': '正在等待回答控件出现或启用。',
+  'browserWatch.phase.review': '此问题需要手动检查。',
+  'browserWatch.phase.ready': '正在准备已知答案。',
+  'browserWatch.phase.prefilled': '已填入草稿，等待检查。',
+  'browserWatch.phase.sent': '平台已确认所选答案。',
+  'browserWatch.phase.unknown':
+    '选择可能已发送。请在发件箱核实结果；自动选择已暂停。',
+  'browserWatch.phase.failed': '选择被拒绝；监看已暂停。',
+  'browserWatch.phase.marked-sent': '您已在发件箱将先前的选择标记为已发送。',
+  'browserWatch.selected': '上次确认的选项：{option}',
+  'browserWatch.phase.selecting': '正在选择原生选项；请等待回执。',
 };

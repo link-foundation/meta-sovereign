@@ -1,9 +1,11 @@
 import {
   browserReviewId,
+  browserWatchId,
   checkBrowserQuestion,
   browserChoiceReceipt,
   boundedBrowserText,
   validChoiceSources,
+  checkBrowserWatchReceipt,
 } from '../automation/question-browser-state.js';
 
 const failure = (value) =>
@@ -52,6 +54,45 @@ const checked = (value) => {
   return value;
 };
 
+const checkedWatch = (value, id) => {
+  if (
+    !value ||
+    value.error ||
+    value.httpStatus >= 400 ||
+    value.mode !== 'browser-answer-watch' ||
+    !browserWatchId(value.id) ||
+    value.id !== id ||
+    !['active', 'paused', 'stopped'].includes(value.state) ||
+    ![
+      'starting',
+      'waiting',
+      'owner-draft',
+      'pending-options',
+      'ready',
+      'review',
+      'prefilled',
+      'selecting',
+      'sent',
+      'marked-sent',
+      'unknown',
+      'failed',
+    ].includes(value.phase) ||
+    typeof value.owned !== 'boolean' ||
+    !Number.isFinite(Date.parse(value.expiresAt)) ||
+    !validWatchTarget(value.target)
+  ) {
+    throw failure(value);
+  }
+  if (value.last) {
+    checkBrowserQuestion(value.last.snapshot);
+  }
+  return checkBrowserWatchReceipt(value);
+};
+
+const validWatchTarget = (target) =>
+  boundedBrowserText(target?.source, 80) &&
+  boundedBrowserText(target?.chat, 480);
+
 export const questionBrowserApi = ({ remote }) => {
   const call = async (action, input) => {
     const result = checked(
@@ -66,6 +107,15 @@ export const questionBrowserApi = ({ remote }) => {
     }
     return result;
   };
+  const watch = async (action, input) =>
+    checkedWatch(
+      await (remote.report ?? remote.post)(
+        `/api/automations/answers/browser/watch-${action}`,
+        input,
+        { network: true, read: action === 'status' }
+      ),
+      input.id
+    );
   return {
     browserAnswerCapabilities: async () => {
       const result = await remote.get('/api/automations/answers/browser');
@@ -81,11 +131,23 @@ export const questionBrowserApi = ({ remote }) => {
       if (result.available && !result.sources.length) {
         throw failure(result);
       }
+      if (
+        result.watchSources !== undefined &&
+        (!validChoiceSources(result.watchSources) ||
+          result.watchSources.some(
+            ({ id }) => !result.sources.some((source) => source.id === id)
+          ))
+      ) {
+        throw failure(result);
+      }
       return result;
     },
     inspectBrowserAnswer: (input) => call('inspect', input),
     prefillBrowserAnswer: (input) => call('prefill', input),
     selectBrowserAnswer: (input) => call('select', input),
     browserAnswerStatus: (input) => call('status', input),
+    startBrowserAnswerWatch: (input) => watch('start', input),
+    browserAnswerWatchStatus: (input) => watch('status', input),
+    stopBrowserAnswerWatch: (input) => watch('stop', input),
   };
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { AnswerEvidence } from './question-evidence.js';
 import { useT } from './i18n.js';
 import { getLocalStorage } from '../storage/local-storage.js';
+import { BrowserAnswerWatchControls } from './question-browser-watch-controls.js';
 
 const el = React.createElement;
 const remember = (key, id) => {
@@ -9,6 +10,8 @@ const remember = (key, id) => {
     const storage = getLocalStorage();
     if (id) {
       storage?.setItem(key, id);
+    } else if (id === null) {
+      storage?.removeItem(key);
     }
     return storage?.getItem(key) ?? '';
   } catch {
@@ -281,20 +284,56 @@ const BrowserAnswerReview = ({
   );
 };
 
+const browserAnswerDefaults = (chat) => ({
+  source: chat?.source ?? 'hh',
+  reference: String(chat?.chat ?? ''),
+  key: `metaSovereign.browserAnswer.${chat?.key ?? 'settings'}`,
+});
+
+const watchAvailable = (caps, source) =>
+  caps?.watchSources?.some((entry) => entry.id === source);
+
+const loadBrowserAnswer = async (api, key, receive, target) => {
+  const value = await api.browserAnswerCapabilities();
+  target.caps(value);
+  if (
+    value.available &&
+    !value.sources.some((entry) => entry.id === target.current)
+  ) {
+    target.source(value.sources[0].id);
+  }
+  if (value.available) {
+    await restoreBrowserAnswer(api, key, receive, target);
+  }
+};
+
+const restoreBrowserAnswer = async (api, key, receive, target) => {
+  const id = remember(key);
+  if (id) {
+    const restored = await api.browserAnswerStatus({ id });
+    receive(restored);
+    target.source(restored.target.source);
+    target.chat(restored.target.chat);
+    target.url(restored.target.browserUrl ?? '');
+  }
+};
+
 /** Shared by Chat, Operator and question settings; no action on initial render. */
 export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
   const t = useT();
   const [caps, setCaps] = React.useState(null);
-  const [source, setSource] = React.useState(chat?.source ?? 'hh');
-  const [reference, setReference] = React.useState(String(chat?.chat ?? ''));
+  const initial = browserAnswerDefaults(chat);
+  const [source, setSource] = React.useState(initial.source);
+  const [reference, setReference] = React.useState(initial.reference);
   const [browserUrl, setBrowserUrl] = React.useState('');
   const [result, setResult] = React.useState(null);
   const [option, setOption] = React.useState('');
   const [pending, setPending] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [watchActive, setWatchActive] = React.useState(false);
   const active = React.useRef(false);
-  const key = `metaSovereign.browserAnswer.${chat?.key ?? 'settings'}`;
+  const key = initial.key;
   const receive = (value) => {
     setResult(value);
     setPending(false);
@@ -324,24 +363,14 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       setPending(true);
       receive(await api.selectBrowserAnswer(input));
     });
-  const load = async () => {
-    const value = await api.browserAnswerCapabilities();
-    setCaps(value);
-    if (
-      value.available &&
-      !value.sources.some((entry) => entry.id === source)
-    ) {
-      setSource(value.sources[0].id);
-    }
-    const id = remember(key);
-    if (id && value.available) {
-      const restored = await api.browserAnswerStatus({ id });
-      receive(restored);
-      setSource(restored.target.source);
-      setReference(restored.target.chat);
-      setBrowserUrl(restored.target.browserUrl ?? '');
-    }
-  };
+  const load = () =>
+    loadBrowserAnswer(api, key, receive, {
+      current: source,
+      caps: setCaps,
+      source: setSource,
+      chat: setReference,
+      url: setBrowserUrl,
+    });
   const change = (set) => (value) => {
     set(value);
     setResult(null);
@@ -376,7 +405,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       el(BrowserAnswerTarget, {
         key: 'target',
         caps,
-        busy,
+        busy: busy || watchActive,
         source,
         setSource,
         reference,
@@ -401,12 +430,24 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         result,
         option,
         setOption,
-        busy,
+        busy: busy || watchActive,
         pending,
         select,
         run,
         api,
         receive,
+      }),
+      el(BrowserAnswerWatchControls, {
+        key: 'watch',
+        api,
+        review: result,
+        available: watchAvailable(caps, result?.target.source ?? source),
+        enabled: Boolean(caps),
+        busy,
+        run,
+        remember,
+        storageKey: `${key}.watch`,
+        changed: setWatchActive,
       }),
       el(
         'button',

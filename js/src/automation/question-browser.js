@@ -2,8 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { previewAnswer } from './question-store.js';
 import { guardedSend, outboxId } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
+import { createQuestionBrowserWatches } from './question-browser-watch.js';
 import {
   browserReviewId,
+  browserChoiceDraft,
+  checkedBrowserChoiceReceipt,
   checkBrowserQuestion,
   browserChoiceReceipt,
   validChoiceSources,
@@ -36,44 +39,6 @@ const targetOf = (input, sources) => {
   };
 };
 
-const choiceDraft = (record, option = '') => {
-  const { target, snapshot } = record;
-  const message = `msg:${target.source}:${snapshot.chat}:${snapshot.question.id}`;
-  return {
-    ...target,
-    chat: snapshot.chat,
-    text: option,
-    answer: {
-      message,
-      strictOptions: true,
-      option,
-      turn: {
-        messages: [
-          {
-            id: message,
-            body: snapshot.question.body,
-            options: JSON.stringify(snapshot.answerOptions),
-            strictOptions: true,
-          },
-        ],
-      },
-    },
-  };
-};
-
-const checkedReceipt = (result, draft) => {
-  if (!browserChoiceReceipt(result, draft)) {
-    throw Object.assign(
-      failure(
-        'send-unknown',
-        'The native selection receipt could not be verified.'
-      ),
-      { ambiguous: true }
-    );
-  }
-  return result;
-};
-
 const readRecord = async (store, input) => {
   if (!browserReviewId(input.id)) {
     throw failure(
@@ -100,19 +65,29 @@ const browserCapabilities = (send) => {
     typeof send === 'function' &&
     typeof send.readAnswerChoices === 'function' &&
     typeof send.prefillAnswer === 'function';
-  return { available, sources: available ? sources : [] };
+  const watchSources =
+    available && typeof send?.openAnswerWatch === 'function'
+      ? (send.answerWatchSources?.() ?? [])
+      : [];
+  return {
+    available,
+    sources: available ? sources : [],
+    ...(validChoiceSources(watchSources) && watchSources.length
+      ? { watchSources }
+      : {}),
+  };
 };
 
 const browserReviewStatus = async (store, clock, input) => {
   const record = await readRecord(store, input);
-  const key = questionChoiceKey(choiceDraft(record));
+  const key = questionChoiceKey(browserChoiceDraft(record));
   const outbox = await store.get(outboxId(key));
   if (
     outbox?.status === 'sent' &&
     outbox.resolvedBy !== 'user' &&
     (!browserChoiceReceipt(
       outbox.receipt,
-      choiceDraft(record, outbox.receipt?.option)
+      browserChoiceDraft(record, outbox.receipt?.option)
     ) ||
       record.snapshot.answerOptions.filter(
         (option) => option === outbox.receipt?.option
@@ -148,6 +123,120 @@ const freshReview = async (store, clock, input) => {
   return record;
 };
 
+const createReviewActions = ({
+  store,
+  send,
+  clock,
+  runner,
+  log,
+  status,
+  capabilities,
+}) => ({
+  status,
+  async inspect(input = {}) {
+    const caps = capabilities();
+    if (!caps.available) {
+      throw failure(
+        'question-browser-unavailable',
+        'Browser question controls require a connected server adapter.'
+      );
+    }
+    const target = targetOf(input, caps.sources);
+    const snapshot = checkBrowserQuestion(await send.readAnswerChoices(target));
+    // A validated URL may normalize the explicit web reference to its numeric ID.
+    const plan = snapshot.question.outgoing
+      ? null
+      : await previewAnswer(
+          store,
+          {
+            ...input,
+            source: target.source,
+            chat: snapshot.chat,
+            question: snapshot.question.body,
+            options: snapshot.answerOptions,
+            strictOptions: snapshot.strictOptions,
+          },
+          { runner }
+        );
+    const record = {
+      id: `${PREFIX}${randomUUID()}`,
+      kind: 'question-browser',
+      tokens: ['question-browser', target.source, snapshot.chat],
+      target,
+      snapshot,
+      plan,
+      expiresAt: new Date(clock().getTime() + LIFE_MS).toISOString(),
+    };
+    await store.put(record);
+    return status(record);
+  },
+  async prefill(input = {}) {
+    const record = await freshReview(store, clock, input);
+    if (
+      record.snapshot.strictOptions ||
+      record.snapshot.question.outgoing ||
+      !record.plan?.complete ||
+      !record.plan.text?.trim()
+    ) {
+      throw failure(
+        'question-browser-no-draft',
+        'This question has no complete free-text draft to prefill.'
+      );
+    }
+    const result = await send.prefillAnswer({
+      ...record.target,
+      chat: record.snapshot.chat,
+      expected: record.snapshot,
+      text: record.plan.text,
+    });
+    if (result?.prefilled !== true) {
+      throw failure(
+        'question-browser-prefill-unconfirmed',
+        'The provider draft was not confirmed. Read the current question again.'
+      );
+    }
+    await store.put({ ...record, prefilled: true });
+    return status(record);
+  },
+  async select(input = {}) {
+    const record = await freshReview(store, clock, input);
+    if (input.confirm !== true) {
+      throw failure(
+        'confirm-required',
+        'Review and confirm this exact provider option.'
+      );
+    }
+    if (
+      !record.snapshot.strictOptions ||
+      record.snapshot.question.outgoing ||
+      record.snapshot.answerOptions.filter((option) => option === input.option)
+        .length !== 1
+    ) {
+      throw failure(
+        'question-browser-option',
+        'Choose one exact offered option from this review.'
+      );
+    }
+    const draft = browserChoiceDraft(record, input.option);
+    const outcome = await guardedSend({
+      store,
+      kind: 'question-choice',
+      owner: record.id,
+      key: questionChoiceKey(draft),
+      draft,
+      clock,
+      log,
+      userConfirmed: true,
+      send: async (selected) =>
+        checkedBrowserChoiceReceipt(await send(selected), selected),
+    });
+    return {
+      ...(await status(record)),
+      ...(outcome.code ? { code: outcome.code } : {}),
+    };
+  },
+});
+
 /** Shared CLI/Lino workflow. Status recovery never opens or replays the browser. */
 export const createQuestionBrowser = ({
   store,
@@ -155,116 +244,30 @@ export const createQuestionBrowser = ({
   clock = () => new Date(),
   runner,
   log = () => {},
+  watchIntervalMs = 1500,
 }) => {
   const capabilities = () => browserCapabilities(send);
   const status = (input) => browserReviewStatus(store, clock, input);
+  const watches = createQuestionBrowserWatches({
+    store,
+    send,
+    clock,
+    log,
+    intervalMs: watchIntervalMs,
+  });
   const actions = {
-    status,
-    async inspect(input = {}) {
-      const caps = capabilities();
-      if (!caps.available) {
-        throw failure(
-          'question-browser-unavailable',
-          'Browser question controls require a connected server adapter.'
-        );
-      }
-      const target = targetOf(input, caps.sources);
-      const snapshot = checkBrowserQuestion(
-        await send.readAnswerChoices(target)
-      );
-      // A validated URL may normalize the explicit web reference to its numeric ID.
-      const plan = snapshot.question.outgoing
-        ? null
-        : await previewAnswer(
-            store,
-            {
-              ...input,
-              source: target.source,
-              chat: snapshot.chat,
-              question: snapshot.question.body,
-              options: snapshot.answerOptions,
-              strictOptions: snapshot.strictOptions,
-            },
-            { runner }
-          );
-      const record = {
-        id: `${PREFIX}${randomUUID()}`,
-        kind: 'question-browser',
-        tokens: ['question-browser', target.source, snapshot.chat],
-        target,
-        snapshot,
-        plan,
-        expiresAt: new Date(clock().getTime() + LIFE_MS).toISOString(),
-      };
-      await store.put(record);
-      return status(record);
-    },
-    async prefill(input = {}) {
-      const record = await freshReview(store, clock, input);
-      if (
-        record.snapshot.strictOptions ||
-        record.snapshot.question.outgoing ||
-        !record.plan?.complete ||
-        !record.plan.text?.trim()
-      ) {
-        throw failure(
-          'question-browser-no-draft',
-          'This question has no complete free-text draft to prefill.'
-        );
-      }
-      const result = await send.prefillAnswer({
-        ...record.target,
-        chat: record.snapshot.chat,
-        expected: record.snapshot,
-        text: record.plan.text,
-      });
-      if (result?.prefilled !== true) {
-        throw failure(
-          'question-browser-prefill-unconfirmed',
-          'The provider draft was not confirmed. Read the current question again.'
-        );
-      }
-      await store.put({ ...record, prefilled: true });
-      return status(record);
-    },
-    async select(input = {}) {
-      const record = await freshReview(store, clock, input);
-      if (input.confirm !== true) {
-        throw failure(
-          'confirm-required',
-          'Review and confirm this exact provider option.'
-        );
-      }
-      if (
-        !record.snapshot.strictOptions ||
-        record.snapshot.question.outgoing ||
-        record.snapshot.answerOptions.filter(
-          (option) => option === input.option
-        ).length !== 1
-      ) {
-        throw failure(
-          'question-browser-option',
-          'Choose one exact offered option from this review.'
-        );
-      }
-      const draft = choiceDraft(record, input.option);
-      const outcome = await guardedSend({
-        store,
-        kind: 'question-choice',
-        owner: record.id,
-        key: questionChoiceKey(draft),
-        draft,
-        clock,
-        log,
-        userConfirmed: true,
-        send: async (selected) =>
-          checkedReceipt(await send(selected), selected),
-      });
-      return {
-        ...(await status(record)),
-        ...(outcome.code ? { code: outcome.code } : {}),
-      };
-    },
+    ...createReviewActions({
+      store,
+      send,
+      clock,
+      runner,
+      log,
+      status,
+      capabilities,
+    }),
+    watchStart: watches.start,
+    watchStatus: watches.status,
+    watchStop: watches.stop,
   };
   let closed = false;
   const pending = new Set();
@@ -294,7 +297,11 @@ export const createQuestionBrowser = ({
     ),
     async close() {
       closed = true;
-      await Promise.allSettled([...pending]);
+      try {
+        await watches.close();
+      } finally {
+        await Promise.allSettled([...pending]);
+      }
     },
   };
 };

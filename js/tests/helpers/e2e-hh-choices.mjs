@@ -9,6 +9,7 @@ import {
   hhApplicationHtml,
 } from '../../../experiments/issue-56/hh-choice-fixture.mjs';
 import { providerChoiceDraft } from '../../../experiments/issue-56/provider-choice-fixture.mjs';
+import { verifyHhChoiceWatch } from './e2e-hh-choice-watch.mjs';
 
 /** Bounded native HH main/cross-origin/nested frame regressions with no network. */
 export const verifyHhChoices = async (browser, { screenshots } = {}) => {
@@ -155,6 +156,7 @@ export const verifyHhChoices = async (browser, { screenshots } = {}) => {
     };
     await verifyFrameSelection(fixture);
     await verifyFrameRaces(fixture);
+    await verifyHhChoiceWatch(fixture);
     assert.deepEqual(errors, []);
     return { cases, pageErrors: errors, liveProvider: false };
   } finally {

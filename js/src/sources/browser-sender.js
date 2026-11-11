@@ -421,6 +421,18 @@ const choiceSources = (platforms) =>
     .filter(([, ui]) => ui.choices && ui.location)
     .map(([id, ui]) => ({ id, name: ui.name ?? id }));
 
+const composerFocus = (waitFor) => async (source, ui, commander) => {
+  const composer = await waitFor(commander, ui.composer);
+  if (!composer) {
+    throw codedError(
+      `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
+      'composer-missing'
+    );
+  }
+  await commander.clickButton({ selector: composer, scrollIntoView: true });
+  return composer;
+};
+
 /**
  * Drive the official web UIs through browser-commander.
  *
@@ -501,17 +513,7 @@ export const createBrowserSender = ({
     profileDirFor: (source) => slotProfileDir(profileDirFor(source), slot),
   });
 
-  const focusComposer = async (source, ui, commander) => {
-    const composer = await waitFor(commander, ui.composer);
-    if (!composer) {
-      throw codedError(
-        `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
-        'composer-missing'
-      );
-    }
-    await commander.clickButton({ selector: composer, scrollIntoView: true });
-    return composer;
-  };
+  const focusComposer = composerFocus(waitFor);
 
   const actions = createBrowserActions({
     inChat: (source, chat, fn) => inChat(source, chat, {}, fn),
@@ -526,6 +528,7 @@ export const createBrowserSender = ({
   });
   const choices = createBrowserChoiceActions({
     inChat,
+    queue: (source, work) => pool.queue(source, work),
     uiFor,
     receiptMs: choiceReceiptMs,
     pollMs,
@@ -536,6 +539,8 @@ export const createBrowserSender = ({
     ...actions,
     ...choices,
     choiceSources: () => choiceSources(platforms),
+    answerWatchSources: () =>
+      choiceSources(platforms).filter(({ id }) => platforms[id].documents),
 
     /** Type and send one message in the network's web UI. */
     async send(draft = {}) {
@@ -609,7 +614,10 @@ export const createBrowserSender = ({
     openSources: pool.sources,
 
     /** Close every page that was opened. */
-    close: pool.closeAll,
+    close: async () => {
+      await choices.closeAnswerWatches();
+      await pool.closeAll();
+    },
   };
 };
 
@@ -820,6 +828,8 @@ export const createDefaultSender = ({
     readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
     prefillAnswer: (params) => browserFor().prefillAnswer(params),
     choiceSources: () => browserFor().choiceSources?.() ?? [],
+    answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
+    openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),
   });
 };

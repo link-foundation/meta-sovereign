@@ -175,7 +175,9 @@ export const questionCommands = async ({
       questionBrowserCommand(
         args,
         questionBrowser,
-        args._[2] === 'inspect' ? await planInput(args, store) : {}
+        args._[2] === 'inspect' ? await planInput(args, store) : {},
+        (value) =>
+          log(args.json ? JSON.stringify(value) : encodeLinoValue(value))
       ),
     profiles: () => namedProfileCommand(args, store),
     model: () => answerModelCommand(args, store),

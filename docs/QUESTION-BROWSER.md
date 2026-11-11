@@ -48,6 +48,30 @@ For a local CLI preview, pass offered labels as Links Notation:
 `meta-sovereign automations answers plan --question="Do you have distributed systems experience?" --options='(Yes No)' --strict-options=true`.
 The existing answer-plan API accepts `options` and boolean `strictOptions` too.
 
+After reading the current HH question, **Watch this chat and answer known choices**
+starts explicit automation for 1–120 minutes (120 by default). It clicks only
+approved exact options or a unique accepted-summary option, rechecking the saved
+knowledge before each action. Disabled or delayed choices wait. Free-text answers
+are prefilled for your review and never sent automatically. An unchanged automatic
+draft clears when native choices appear; your edits are preserved. The watch stays
+with the original document: navigation, reload, ambiguous delivery or loss of its
+owner pauses it. **Stop watcher and wait** drains the current action before closing.
+
+```sh
+meta-sovereign automations answers browser watch --id=<review-id> --confirm=true --duration-ms=7200000
+meta-sovereign automations answers browser watch-status --watch-id=<watch-id>
+```
+
+The CLI watch owns the foreground process; Ctrl+C or SIGTERM stops and drains it.
+A separate CLI process can read the saved record but cannot control or resume that
+foreground owner. The owning server exposes trusted
+`POST /api/automations/answers/browser/{watch-start,watch-status,watch-stop}` in
+text/binary Lino. Start requires `{id: 'question-watch:<uuid>', review: '<review-id>',
+confirm: true, durationMs: 7200000}`. Repeated start IDs recover existing state
+without opening or resuming a watcher. Keep that ID if a response is lost; UI
+reload only reads its status. Saved active records without a running owner show
+paused/owner-unavailable. A new watch requires a fresh explicit start.
+
 Validation uses synthetic routed provider pages and the production sender. Live
-signed-in provider verification and automatic provider watchers remain separate,
-unfinished issue #56 criteria.
+signed-in provider parity and all-unread chat orchestration remain unfinished
+issue #56 criteria. See [current-chat evidence](case-studies/issue-56/question-watch.md).

@@ -13,6 +13,9 @@ export const questionBrowserRoute = async (req, res, path, ctx) => {
     [`${ROOT}/prefill`]: 'prefill',
     [`${ROOT}/select`]: 'select',
     [`${ROOT}/status`]: 'status',
+    [`${ROOT}/watch-start`]: 'watchStart',
+    [`${ROOT}/watch-status`]: 'watchStatus',
+    [`${ROOT}/watch-stop`]: 'watchStop',
   }[path];
   if (req.method !== 'POST' || !action) {
     return false;

@@ -1,5 +1,11 @@
 import { answerChoiceState } from './question-options.js';
 
+export const browserWatchId = (id) =>
+  typeof id === 'string' &&
+  /^question-watch:[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/u.test(
+    id
+  );
+
 export const browserReviewId = (value) =>
   typeof value === 'string' &&
   /^question-browser:[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/u.test(
@@ -73,4 +79,50 @@ export const browserChoiceReceipt = (result, draft) => {
     option: result.option,
     messageId: result.messageId,
   };
+};
+
+export const browserChoiceDraft = (record, option = '') => {
+  const { target, snapshot } = record;
+  const message = `msg:${target.source}:${snapshot.chat}:${snapshot.question.id}`;
+  return {
+    ...target,
+    chat: snapshot.chat,
+    text: option,
+    answer: {
+      message,
+      strictOptions: true,
+      option,
+      turn: {
+        messages: [
+          {
+            id: message,
+            body: snapshot.question.body,
+            options: JSON.stringify(snapshot.answerOptions),
+            strictOptions: true,
+          },
+        ],
+      },
+    },
+  };
+};
+
+export const checkedBrowserChoiceReceipt = (result, draft) => {
+  if (!browserChoiceReceipt(result, draft)) {
+    throw Object.assign(
+      new Error('The native selection receipt could not be verified.'),
+      { code: 'send-unknown', fallback: false, ambiguous: true }
+    );
+  }
+  return result;
+};
+
+export const checkBrowserWatchReceipt = (value) => {
+  if (value.outbox?.status === 'sent' && value.outbox.resolvedBy !== 'user') {
+    checkedBrowserChoiceReceipt(value.outbox.receipt, {
+      source: value.target.source,
+      chat: value.selection?.chat,
+      text: value.selection?.option,
+    });
+  }
+  return value;
 };

@@ -50,6 +50,8 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers model show | save --enabled=true|false --revision=<revision|null> [--model=id] [--cv=cv:id] [--timeout-ms=60000]
                 answers plan choices: --options='(Yes No)' --strict-options=true (Links Notation labels)
                 answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>
+                answers browser watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] (foreground; Ctrl+C stops and drains)
+                answers browser watch-status | watch-stop --watch-id=<saved-id> (status never resumes a watcher)
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
                 answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]
                 answers profiles import [id] --file=contacts.lino [--json] (read-only draft)
@@ -446,7 +448,7 @@ const automationsCmd = async (args, log, deps) => {
     return 1;
   }
   const store = await deps.openStore(args.store ?? defaultStoreDir());
-  return withAnswerModel(deps.modelRunner, async (modelRunner) => {
+  const work = async (modelRunner) => {
     const { runner, questionBrowser, close } = runnerFor(store, args, {
       ...deps,
       modelRunner,
@@ -473,7 +475,13 @@ const automationsCmd = async (args, log, deps) => {
       }
       await close();
     }
-  });
+  };
+  // The finite watch uses saved answers and owns its draining signal handlers.
+  const watch =
+    sub === 'answers' && args._[1] === 'browser' && args._[2] === 'watch';
+  return watch
+    ? work(deps.modelRunner)
+    : withAnswerModel(deps.modelRunner, work);
 };
 
 /**

@@ -229,3 +229,5 @@ Recover a unique native answer option from a completed incoming bot summary for 
 Avoid unused stdin pipes for assignment commands without payloads so an early child exit cannot falsely refuse successful Git operations. Preserve exact payload writes, real input failures and default-off private diagnostics.
 
 Flush durable outgoing reservations before provider dispatch so grouped text-store writes cannot leave a duplicate window after a process interruption. Refuse dispatch when that flush fails.
+
+Add explicitly started finite HH current-chat answer watches through foreground CLI, text/binary Lino and shared localized Chat, Operator and Questions controls. Wait for native options, preserve owner drafts, never automatically send free text, and drain Stop/shutdown while retaining uncertain reservations and recovering saved status without resuming automation.

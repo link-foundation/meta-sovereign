@@ -1,5 +1,7 @@
 # Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1: an explicitly started finite HH current-chat watch now shares foreground CLI, text/binary Lino and localized Chat/Operator/Questions controls. It waits for native choices, preserves owner drafts, never automatically sends free text, drains Stop/shutdown and recovers saved status without resuming. [Focused Node/Deno, production Chromium and independent MCP evidence](case-studies/issue-56/question-watch.md) covers the synthetic provider. All-unread orchestration and live provider parity remain required.
+
 R-AA1: the built-in HH adapter now reads an explicit numeric web chat on the main page or in one trusted visible application frame. Native choices preserve owner drafts and require outgoing receipts; API UUIDs are never guessed. [HH frame evidence](case-studies/issue-56/hh-browser-choices.md) covers isolated browser checks. Shared execution controls, durable recovery across reloads, summary recovery and full provider workflows remain required.
 
 R-AA1: configured browser adapters now retain current choice metadata, preserve edited drafts, guard one native selection and require a unique outgoing receipt. The [provider choice primitives](case-studies/issue-56/provider-choices.md) pass focused Node/Deno and isolated Chromium/MCP checks. Built-in HH chat/application frames and shared CLI/Lino/React execution remain required.

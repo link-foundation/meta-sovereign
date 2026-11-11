@@ -14,6 +14,7 @@ import {
 } from './browser-choice-controller.js';
 import { answerChoiceState } from '../automation/question-options.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import { openBrowserAnswerWatch } from './browser-answer-watch.js';
 
 // Only these application functions become code. Provider strings remain args.
 const methods = {
@@ -247,63 +248,118 @@ export const selectBrowserAnswer = async (
 
 export const createBrowserChoiceActions = ({
   inChat,
+  queue,
   uiFor,
   receiptMs,
   pollMs,
-}) => ({
-  /** Strict choices bypass API/plain-text sending and require a receipt. */
-  async chooseAnswer(draft) {
-    const ui = uiFor(draft.source);
-    browserChoiceSpec(ui);
-    const target = ui.target({
-      chat: draft.chat,
-      to: draft.contact ?? draft.to,
-    });
-    return inChat(
-      draft.source,
-      target,
-      { browserUrl: draft.browserUrl },
-      async (commander, page) =>
-        selectBrowserAnswer(
-          await resolveBrowserChoiceDocument(commander, page, ui, target),
-          ui,
-          draft,
-          target,
-          {
+}) => {
+  const watches = new Set();
+  const handles = new Set();
+  const opening = new Set();
+  let closed = false;
+  return {
+    async closeAnswerWatches() {
+      closed = true;
+      await Promise.allSettled([...opening]);
+      await Promise.allSettled([...handles].map((handle) => handle.close()));
+    },
+    async openAnswerWatch({ source, chat, to, browserUrl } = {}) {
+      const ui = uiFor(source);
+      const target = ui.target({ chat, to });
+      if (closed || !ui.documents || !queue || watches.has(source)) {
+        throw failure('question-watch-unavailable');
+      }
+      watches.add(source);
+      let handle;
+      const pending = inChat(
+        source,
+        target,
+        { browserUrl },
+        (commander, page) =>
+          openBrowserAnswerWatch({
+            commander,
+            page,
+            ui,
+            target,
             receiptMs,
             pollMs,
-          }
+            queue: (work) => queue(source, work),
+            released: () => {
+              watches.delete(source);
+              handles.delete(handle);
+            },
+          })
+      );
+      opening.add(pending);
+      try {
+        handle = await pending;
+        handles.add(handle);
+        if (closed) {
+          await handle.close();
+          throw failure('question-watch-unavailable');
+        }
+        return handle;
+      } catch (error) {
+        watches.delete(source);
+        throw error;
+      } finally {
+        opening.delete(pending);
+      }
+    },
+    /** Strict choices bypass API/plain-text sending and require a receipt. */
+    async chooseAnswer(draft) {
+      const ui = uiFor(draft.source);
+      browserChoiceSpec(ui);
+      const target = ui.target({
+        chat: draft.chat,
+        to: draft.contact ?? draft.to,
+      });
+      return inChat(
+        draft.source,
+        target,
+        { browserUrl: draft.browserUrl },
+        async (commander, page) =>
+          selectBrowserAnswer(
+            await resolveBrowserChoiceDocument(commander, page, ui, target),
+            ui,
+            draft,
+            target,
+            {
+              receiptMs,
+              pollMs,
+            }
+          )
+      );
+    },
+
+    /** Inspect provider choices and clear only an unchanged owned draft. */
+    async readAnswerChoices({ source, chat, to, browserUrl } = {}) {
+      const ui = uiFor(source);
+      const target = ui.target({ chat, to });
+      return inChat(source, target, { browserUrl }, async (commander, page) =>
+        readBrowserAnswerChoices(
+          await resolveBrowserChoiceDocument(commander, page, ui, target),
+          ui,
+          target
         )
-    );
-  },
+      );
+    },
 
-  /** Inspect provider choices and clear only an unchanged owned draft. */
-  async readAnswerChoices({ source, chat, to, browserUrl } = {}) {
-    const ui = uiFor(source);
-    const target = ui.target({ chat, to });
-    return inChat(source, target, { browserUrl }, async (commander, page) =>
-      readBrowserAnswerChoices(
-        await resolveBrowserChoiceDocument(commander, page, ui, target),
-        ui,
-        target
-      )
-    );
-  },
-
-  /** Retain ownership only for a verified write into an empty provider input. */
-  async prefillAnswer({ source, chat, to, browserUrl, expected, text } = {}) {
-    const ui = uiFor(source);
-    const target = ui.target({ chat, to });
-    if (expected?.chat !== String(target)) {
-      throw failure('answer-chat-unverified');
-    }
-    return inChat(source, target, { browserUrl }, async (commander, page) =>
-      prefillBrowserAnswer(
-        await resolveBrowserChoiceDocument(commander, page, ui, target),
-        ui,
-        expected,
-        text
-      )
-    );
-  },
-});
+    /** Retain ownership only for a verified write into an empty provider input. */
+    async prefillAnswer({ source, chat, to, browserUrl, expected, text } = {}) {
+      const ui = uiFor(source);
+      const target = ui.target({ chat, to });
+      if (expected?.chat !== String(target)) {
+        throw failure('answer-chat-unverified');
+      }
+      return inChat(source, target, { browserUrl }, async (commander, page) =>
+        prefillBrowserAnswer(
+          await resolveBrowserChoiceDocument(commander, page, ui, target),
+          ui,
+          expected,
+          text
+        )
+      );
+    },
+  };
+};

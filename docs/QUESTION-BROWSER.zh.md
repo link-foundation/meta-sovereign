@@ -32,5 +32,21 @@ CLI 使用 `meta-sovereign automations answers browser`，后接 `show`、
 CLI：`meta-sovereign automations answers plan --question="Do you have distributed systems experience?" --options='(Yes No)' --strict-options=true`。
 选项使用 Links Notation。规划 API 也接受 `options` 和布尔值 `strictOptions`。
 
-验证使用隔离的模拟提供方页面和实际生产发送器。已登录提供方验证和自动提供方
-监视器仍是问题 #56 未完成的验收条件。
+读取 HH 当前问题后，可以明确启动 1–120 分钟的监视（默认 120）。只有已批准的
+精确选项或完整摘要中唯一匹配的选项会自动点击；每次操作前重新检查当前知识。
+禁用或延迟出现的选项会等待。自由文本仅预填供审核，不自动发送。出现原生选项时，
+未修改的自动草稿会清除，个人修改会保留。导航、刷新、未知送达结果或失去运行
+所有者会暂停监视。“停止并等待”会先等待当前操作完成。
+
+CLI：`meta-sovereign automations answers browser watch --id=<review-id>
+--confirm=true --duration-ms=7200000`。此命令在前台运行，Ctrl+C/SIGTERM 会停止
+并等待操作结束。其他进程可用 `watch-status --watch-id=<watch-id>` 读取保存状态，
+但不能控制或恢复该前台所有者。运行它的服务器提供可信文本/二进制 Lino 路由：
+`POST /api/automations/answers/browser/{watch-start,watch-status,watch-stop}`。
+启动需要 `id: 'question-watch:<uuid>'`、`review`、`confirm: true` 和可选
+`durationMs`。响应丢失时保留该 ID；重复启动 ID 或刷新界面仅恢复状态，不恢复
+运行。没有运行所有者的已保存活动记录显示为 paused/owner-unavailable。
+
+验证使用隔离的模拟提供方页面和实际生产发送器。已登录提供方完整验证和所有未读
+聊天的编排仍是问题 #56 未完成的验收条件。参见
+[监视验证记录](case-studies/issue-56/question-watch.md)。

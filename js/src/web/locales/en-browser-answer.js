@@ -44,4 +44,34 @@ export const enBrowserAnswer = {
     'The selection response is unconfirmed. Recover server status before another selection.',
   'browserAnswer.outgoing':
     'The latest provider message is outgoing. Read again when a new question arrives.',
+  'browserWatch.hint':
+    'Watch this chat for known answers. Exact approved answers and unique completed summaries can select native choices automatically. Free text is only prefilled. Owner edits are preserved. Navigation, reload or an uncertain selection pauses the watcher; restarting the server never resumes it.',
+  'browserWatch.minutes': 'Minutes (1–120)',
+  'browserWatch.start': 'Watch this chat and answer known choices',
+  'browserWatch.unconfirmed':
+    'Watcher start is unconfirmed. Recover its saved status before starting another watcher.',
+  'browserWatch.active': 'Watching this provider chat.',
+  'browserWatch.paused':
+    'Watcher paused. Review the provider chat before starting again.',
+  'browserWatch.stopped': 'Watcher stopped; its pending action has settled.',
+  'browserWatch.reason': 'Watcher detail: {code}',
+  'browserWatch.recover': 'Recover watcher status',
+  'browserWatch.stop': 'Stop watcher and wait',
+  'browserWatch.phase.starting': 'Opening the reviewed chat.',
+  'browserWatch.phase.waiting': 'Waiting for a new incoming question.',
+  'browserWatch.phase.owner-draft': 'The owner’s draft is preserved.',
+  'browserWatch.phase.pending-options':
+    'Waiting for answer controls to appear or become enabled.',
+  'browserWatch.phase.review': 'This question needs manual review.',
+  'browserWatch.phase.ready': 'Preparing the known answer.',
+  'browserWatch.phase.prefilled': 'The draft was prefilled for review.',
+  'browserWatch.phase.sent': 'The provider confirmed the selected choice.',
+  'browserWatch.phase.unknown':
+    'The choice may have been sent. Resolve it in the outbox; automatic selection is paused.',
+  'browserWatch.phase.failed': 'Selection was refused; the watcher is paused.',
+  'browserWatch.phase.marked-sent':
+    'You marked the earlier choice as sent in the outbox.',
+  'browserWatch.selected': 'Last confirmed option: {option}',
+  'browserWatch.phase.selecting':
+    'Selecting the native choice; wait for its receipt.',
 };
