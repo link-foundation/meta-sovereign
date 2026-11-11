@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import {
   watchChatPages,
+  watchFixturePages,
   screenshotChatPages,
 } from './helpers/e2e-page-errors.mjs';
 
@@ -34,6 +35,34 @@ const fixture = (options = {}) => {
   watchChatPages(context, { base, engine: 'webkit', errors, ...options });
   return { first, newPage, errors };
 };
+
+test('standalone fixtures retain their actual engine, origin and genuine errors', () => {
+  for (const engine of ['webkit', 'chromium']) {
+    const context = new EventEmitter();
+    const page = new EventEmitter();
+    context.pages = () => [page];
+    const errors = [];
+    watchFixturePages(
+      context,
+      { browserType: () => ({ name: () => engine }) },
+      base,
+      errors
+    );
+    const native = accessError();
+    const foreign = accessError('http://127.0.0.1:49744/api/status?probe=1');
+    const genuine = new TypeError('Load failed');
+    for (const error of [native, foreign, genuine]) {
+      page.emit('pageerror', error);
+    }
+    assert.deepEqual(
+      errors,
+      (engine === 'webkit'
+        ? [foreign, genuine]
+        : [native, foreign, genuine]
+      ).map(String)
+    );
+  }
+});
 
 test('reopened pages apply the same WebKit policy and retain genuine errors', () => {
   const { first, newPage, errors } = fixture();

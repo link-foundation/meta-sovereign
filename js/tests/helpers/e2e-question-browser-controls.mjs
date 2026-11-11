@@ -1,3 +1,4 @@
+import { watchFixturePages } from './e2e-page-errors.mjs';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -253,7 +254,7 @@ export const verifyQuestionBrowserControls = async (
   });
   const page = await context.newPage();
   const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  watchFixturePages(context, browser, fixture.base, errors);
   await page.addInitScript(
     ({ key, version }) => {
       globalThis.localStorage.setItem(

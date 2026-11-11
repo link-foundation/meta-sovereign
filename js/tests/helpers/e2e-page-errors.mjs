@@ -59,6 +59,18 @@ export const watchChatPages = (
   context.pages().forEach(watch);
 };
 
+/** Standalone provider fixtures retain the real engine and their private origin. */
+export const watchFixturePages = (context, browser, base, errors) =>
+  watchChatPages(context, {
+    errors,
+    engine: browser.browserType().name(),
+    base,
+    trace:
+      process.env.CI_BROWSER_DEBUG === '1'
+        ? (event) => console.log(`[question-browser] ${event}`)
+        : undefined,
+  });
+
 /** Capture the pages that are still open after a close/reopen scenario. */
 export const screenshotChatPages = async (
   context,
