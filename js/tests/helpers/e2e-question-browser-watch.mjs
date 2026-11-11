@@ -1,8 +1,33 @@
-import { watchFixturePages } from './e2e-page-errors.mjs';
+import { watchFixturePages, screenshotChatPages } from './e2e-page-errors.mjs';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
+import {
+  traceBrowserInputs,
+  traceBrowserDetails,
+  inputTrace,
+} from './e2e-input-trace.mjs';
+
+// Native events and disclosure identities only, with the shared sixty-event cap.
+const watchDisclosureTrace = async (page) => {
+  if (
+    process.env.CI_QUESTION_WATCH_DEBUG !== '1' &&
+    process.env.CI_BROWSER_DEBUG !== '1'
+  ) {
+    return async () => {};
+  }
+  await traceBrowserInputs(page, '[data-question-controls] summary');
+  await traceBrowserDetails(page, '[data-question-controls]');
+  return async (phase) =>
+    console.log(
+      '[watch-disclosure]',
+      JSON.stringify({
+        phase,
+        ...(await inputTrace(page)),
+      })
+    );
+};
 
 /** Production controls and real browser-commander writes; official origins are routed. */
 export const verifyQuestionBrowserWatch = async (
@@ -17,6 +42,7 @@ export const verifyQuestionBrowserWatch = async (
   page.setDefaultTimeout(15000);
   const errors = [];
   watchFixturePages(context, browser, fixture.base, errors);
+  const trace = await watchDisclosureTrace(page);
   await page.addInitScript(() => {
     globalThis.localStorage.setItem('metaSovereignLocale', 'en');
     globalThis.localStorage.setItem(
@@ -60,8 +86,11 @@ export const verifyQuestionBrowserWatch = async (
     await page.goto(
       `${fixture.base}/?watch-review=${++navigation}#/automation`
     );
+    await trace('before');
     await page.locator('[data-question-controls] > summary').click();
+    await trace('root-click');
     await controls.locator(':scope > summary').click();
+    await trace('child-click');
   };
   const start = () => watch.locator('[data-browser-watch-start]').click();
   const stop = async () => {
@@ -112,7 +141,24 @@ export const verifyQuestionBrowserWatch = async (
     assert.deepEqual(errors, []);
     return { cases, pageErrors: errors, liveProvider: false };
   } catch (error) {
-    await shot('failed').catch(() => {});
+    await trace('failed').catch(() => {});
+    const artifactDir = screenshots ?? process.env.E2E_ARTIFACT_DIR;
+    if (artifactDir) {
+      await mkdir(artifactDir, { recursive: true })
+        .then(() =>
+          screenshotChatPages(context, {
+            artifactDir,
+            name: 'question-watch-failed',
+            engine: browser.browserType().name(),
+          })
+        )
+        .catch((captureError) =>
+          console.error(
+            '[question-watch] capture failed:',
+            captureError.message
+          )
+        );
+    }
     throw error;
   } finally {
     await context.close();

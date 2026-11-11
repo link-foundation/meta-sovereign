@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [ci-watch-disclosure.md](ci-watch-disclosure.md) preserves an unexplained first-open WebKit failure and two passing local five-case runs. Bounded native event/node diagnostics and robust failure screenshots retain the next recurrence without changing opening behavior or deadlines.
+
 - [ci-windows-cli.md](ci-windows-cli.md) preserves actual Windows preload/CLI failures and notice browser/CodeQL failures, reproduces six parent regressions, selects version commands without provider imports and retains deadlines with bounded diagnostics. Focused local checks pass; hosted confirmation and every unchecked product criterion remain required.
 
 - [notice-policy.md](notice-policy.md) verifies separate default-review acknowledgement/rejection/invitation policies, explicit inactive current-chat HH delivery, complete-history and vacancy guards, flushed shared/per-chat reservations, full receipts and Lino restart holds through CLI/Lino/four-language controls. Focused native and independent MCP evidence is retained; cross-chat/unread/live/provider parity remains required.
