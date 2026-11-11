@@ -1,3 +1,4 @@
+/* global Event */
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -112,6 +113,135 @@ const fixture = (
       }
     }
   );
+};
+
+/** Repeated passes may truncate only their own still-witnessed forward entries. */
+export const verifyUnreadRepetition = async (
+  browser,
+  { screenshots, before = false } = {}
+) => {
+  if (browser.browserType().name() !== 'chromium') {
+    return verifyChatNavigation(browser);
+  }
+  const outcomes = [];
+  const shot = screenshot(screenshots);
+  for (const embedded of [false, true]) {
+    await fixture(
+      browser,
+      {
+        ...(embedded
+          ? {
+              frames: [{ url: 'https://chatik.hh.ru/chat/7' }],
+              setup: (page) =>
+                page.evaluate(() =>
+                  window.history.replaceState({}, '', '/chat?owner=repeat')
+                ),
+            }
+          : {}),
+      },
+      async ({ sender, page, original }) => {
+        const first = await sender.scanUnreadConversations({
+          ...options,
+          maxChats: 1,
+        });
+        assert.equal(first.restoration.restored, true);
+        assert.deepEqual(await state(page), original);
+        if (before) {
+          await assert.rejects(
+            sender.scanUnreadConversations({ ...options, maxChats: 1 }),
+            { code: 'browser-chat-view-history-forward' }
+          );
+          await shot(page, 'repetition-before', {
+            nextPass: 'browser-chat-view-history-forward',
+            restoration: first.restoration,
+          });
+          outcomes.push('actual-parent-repeated-pass-refused');
+          return;
+        }
+        const second = await sender.scanUnreadConversations({
+          ...options,
+          maxChats: 1,
+        });
+        assert.equal(
+          second.restoration.restored,
+          true,
+          JSON.stringify(second.restoration)
+        );
+        assert.equal(second.restoration.history.reusedOwnedForward, true);
+        assert.equal(
+          second.restoration.history.lengthAfter,
+          first.restoration.history.lengthAfter
+        );
+        assert.deepEqual(
+          second.conversations.map((item) => item.chat),
+          ['9']
+        );
+        assert.deepEqual(await state(page), original);
+        const empty = await sender.scanUnreadConversations(options);
+        assert.equal(empty.conversations.length, 0);
+        assert.equal(empty.restoration.restored, true);
+        assert.equal(empty.coverage.complete, false);
+        assert.deepEqual(await state(page), original);
+        await shot(
+          page,
+          embedded ? 'repetition-child-after' : 'repetition-after',
+          {
+            first: first.restoration,
+            second: second.restoration,
+            empty: empty.coverage,
+          }
+        );
+        outcomes.push(
+          embedded ? 'child-owned-forward-reused' : 'main-owned-forward-reused'
+        );
+      }
+    );
+    if (before) {
+      return { cases: outcomes.length, outcomes, liveProvider: false };
+    }
+  }
+  for (const activity of ['focus', 'input', 'navigation']) {
+    await fixture(browser, {}, async ({ sender, page, original }) => {
+      await sender.scanUnreadConversations({ ...options, maxChats: 1 });
+      if (activity === 'focus') {
+        const foreground = page
+          .context()
+          .pages()
+          .find((other) => other !== page);
+        await page.bringToFront();
+        await foreground.bringToFront();
+      } else if (activity === 'input') {
+        await page
+          .locator('textarea')
+          .evaluate((field) =>
+            field.dispatchEvent(new Event('input', { bubbles: true }))
+          );
+      } else {
+        await page.evaluate(() => {
+          window.history.pushState({}, '', '/chat/99');
+          window.history.back();
+        });
+        await page.waitForURL(original.url);
+      }
+      const current = await state(page);
+      const session = await page.context().newCDPSession(page);
+      try {
+        const prior = await session.send('Page.getNavigationHistory');
+        await assert.rejects(sender.scanUnreadConversations(options), {
+          code: 'browser-chat-view-history-forward',
+        });
+        assert.deepEqual(await state(page), current);
+        assert.deepEqual(
+          await session.send('Page.getNavigationHistory'),
+          prior
+        );
+      } finally {
+        await session.detach();
+      }
+      outcomes.push(`between-pass-${activity}-revokes-reuse`);
+    });
+  }
+  return { cases: outcomes.length, outcomes, liveProvider: false };
 };
 
 export const verifyChatNavigation = async (

@@ -3,6 +3,7 @@ import {
   verifyChatNavigation,
   verifyUnreadViewGuards,
   verifyUnreadNavigationStop,
+  verifyUnreadRepetition,
 } from '../../js/tests/helpers/e2e-chat-navigation.mjs';
 
 const browser = await chromium.launch({
@@ -14,14 +15,18 @@ try {
   console.log(
     JSON.stringify(
       await (
-        process.argv.includes('--stop')
-          ? verifyUnreadNavigationStop
-          : process.argv.includes('--guards')
-            ? verifyUnreadViewGuards
-            : verifyChatNavigation
+        process.argv.includes('--repeat')
+          ? verifyUnreadRepetition
+          : process.argv.includes('--stop')
+            ? verifyUnreadNavigationStop
+            : process.argv.includes('--guards')
+              ? verifyUnreadViewGuards
+              : verifyChatNavigation
       )(browser, {
         before: process.argv.includes('--before'),
-        screenshots: 'docs/screenshots/issue-56-chat-navigation',
+        screenshots: process.argv.includes('--repeat')
+          ? 'docs/screenshots/issue-56-chat-repetition'
+          : 'docs/screenshots/issue-56-chat-navigation',
       })
     )
   );

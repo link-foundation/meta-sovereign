@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Repeated owned unread passes](chat-repetition.md): native history suffix ownership, exact entry checks and permanent owner-activity revocation.
+
 - [chat-navigation.md](chat-navigation.md) verifies one finite existing-view unread pass, native main/child navigation and owned URL/filter/draft/selection/scroll restoration. Forward-history protection and added-entry receipts remain explicit; persistent repetition and delivery remain required.
 
 - [chat-filter.md](chat-filter.md) verifies explicit all/unread HH list selection, actual nested native checkbox state, truthful row guards and owned filter/scroll restoration. Cross-chat/unread orchestration and its shared controls remain required.

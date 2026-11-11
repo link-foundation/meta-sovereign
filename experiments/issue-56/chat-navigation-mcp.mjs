@@ -4,7 +4,71 @@ import { mcpChatScanBundle } from './mcp-chat-scan-bundle.mjs';
 import { mcpInspectionCode } from './mcp-inspection-code.mjs';
 import { chatNavigationHtml } from './chat-navigation-fixture.mjs';
 
-const inspect = async (page, { html, screenshot }) => {
+const verifyRepeatedMcp = async ({
+  commander,
+  page,
+  other,
+  snapshot,
+  original,
+  result,
+  check,
+}) => {
+  const second = await chatScanContract.scanUnreadBrowserConversations({
+    commander,
+    page,
+    ui: chatScanContract.HH_WEB_UI,
+    scanList: chatScanContract.scanBrowserChatList,
+    waitMs: 150,
+    endWaitMs: 100,
+    budgetMs: 30000,
+    maxChats: 1,
+  });
+  check(
+    second.conversations[0]?.chat === '9',
+    'Read the next unread conversation'
+  );
+  check(
+    second.restoration.restored &&
+      second.restoration.history.reusedOwnedForward,
+    'Reuse only witnessed automation entries'
+  );
+  check(
+    second.restoration.history.lengthAfter ===
+      result.restoration.history.lengthAfter,
+    'Repeated pass does not keep growing history'
+  );
+  check(
+    JSON.stringify(await snapshot()) === JSON.stringify(original),
+    'Second exact original view'
+  );
+  await page.bringToFront();
+  await other.bringToFront();
+  let refusal;
+  try {
+    await chatScanContract.scanUnreadBrowserConversations({
+      commander,
+      page,
+      ui: chatScanContract.HH_WEB_UI,
+      scanList: chatScanContract.scanBrowserChatList,
+      waitMs: 150,
+      endWaitMs: 100,
+      budgetMs: 30000,
+    });
+  } catch (error) {
+    refusal = error.code;
+  }
+  check(
+    refusal === 'browser-chat-view-history-forward',
+    'Returning owner permanently revokes reuse'
+  );
+  check(
+    JSON.stringify(await snapshot()) === JSON.stringify(original),
+    'Refusal preserves the current view'
+  );
+  return second.restoration;
+};
+
+const inspect = async (page, { html, screenshot, repeat }) => {
   const check = (condition, message) => {
     if (!condition) {
       throw new Error(message);
@@ -105,10 +169,23 @@ const inspect = async (page, { html, screenshot }) => {
         );
         result = { interrupted: true, restoration: error.restoration };
       }
+      const repeated =
+        repeat && !ownerReturns
+          ? await verifyRepeatedMcp({
+              commander,
+              page,
+              other,
+              snapshot,
+              original,
+              result,
+              check,
+            })
+          : undefined;
       const receipt = {
         ownerReturns,
         coverage: result.coverage,
         restoration: result.restoration,
+        ...(repeated ? { repeated } : {}),
         state: await snapshot(),
       };
       results.push(receipt);
@@ -132,13 +209,15 @@ const inspect = async (page, { html, screenshot }) => {
   };
 };
 const bundle = await mcpChatScanBundle({ unread: true });
+const repeat = process.argv.includes('--repeat');
 await writeFile(
-  'ci-logs/chat-navigation-mcp-code.js',
+  `ci-logs/${repeat ? 'chat-repetition' : 'chat-navigation'}-mcp-code.js`,
   `async (page) => {
  const process={env:{}};
  const globalThis={performance:{now:()=>Date.now()}};
  const mcpPause=(ms)=>page.waitForTimeout(ms);
  ${bundle}
- return (${mcpInspectionCode(inspect, { html: chatNavigationHtml(), screenshot: `${process.cwd()}/docs/screenshots/issue-56-chat-navigation/mcp` })})(page);
+ const verifyRepeatedMcp = (${verifyRepeatedMcp.toString()});
+ return (${mcpInspectionCode(inspect, { html: chatNavigationHtml(), repeat, screenshot: `${process.cwd()}/docs/screenshots/issue-56-${repeat ? 'chat-repetition' : 'chat-navigation'}/mcp` })})(page);
 }`
 );

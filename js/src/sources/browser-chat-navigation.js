@@ -13,6 +13,10 @@ import {
 } from './browser-inactive-view.js';
 import { browserChatViewState } from './browser-chat-view-state.js';
 import { createBrowserScanControl } from './browser-scan-control.js';
+import {
+  claimBrowserHistoryTail,
+  verifyBrowserHistoryTransition,
+} from './browser-chat-history-tail.js';
 
 const failure = (reason) =>
   Object.assign(new Error('The inactive chat view could not be preserved'), {
@@ -168,9 +172,11 @@ class ChatNavigation {
   async admitHistory() {
     this.historySession = await this.page.context().newCDPSession(this.page);
     this.position = await this.historyPosition();
-    if (this.position.index !== this.position.ids.length - 1) {
-      throw failure('history-forward');
-    }
+    this.historyTail = await claimBrowserHistoryTail(
+      this.page,
+      this.bindings,
+      this.position
+    );
     this.initialPosition = this.position;
   }
 
@@ -185,7 +191,8 @@ class ChatNavigation {
     if (
       this.historySession &&
       !this.pending &&
-      (await this.historyPosition()).index !== this.position.index
+      JSON.stringify(await this.historyPosition()) !==
+        JSON.stringify(this.position)
     ) {
       throw failure('history-changed');
     }
@@ -218,19 +225,19 @@ class ChatNavigation {
 
   async update() {
     const position = await this.historyPosition();
-    const expected = this.pending?.restore
-      ? this.initialPosition.index
-      : this.position.index;
     if (
-      position.index < expected ||
-      position.index > expected + (this.pending?.restore ? 0 : 1)
+      !verifyBrowserHistoryTransition(
+        this.pending?.restore ? this.initialPosition : this.position,
+        position,
+        Boolean(this.pending?.restore)
+      )
     ) {
       throw failure('history-changed');
     }
     this.position = position;
     for (const binding of this.bindings) {
       const length = await binding.frame.evaluate(() => window.history.length);
-      if (length < binding.length || length > binding.length + 1) {
+      if (length !== position.ids.length) {
         throw failure('history-changed');
       }
       binding.url = binding.frame.url();
@@ -323,6 +330,9 @@ class ChatNavigation {
     }
     const target = String(this.ui.target({ chat }));
     if (chatAt(this.original.frame.url(), this.ui) !== target) {
+      if (this.position.index >= 48) {
+        throw failure('history-capacity');
+      }
       await this.reveal(target);
       if (this.signal?.aborted) {
         throw failure('cancelled');
@@ -374,7 +384,7 @@ class ChatNavigation {
     for (const binding of this.bindings) {
       const saved = this.initial.find((item) => item.frame === binding.frame);
       if (binding.frame.url() !== saved.url) {
-        const count = binding.length - saved.length;
+        const count = this.position.index - this.initialPosition.index;
         if (
           count <= 0 ||
           !(await binding.frame.evaluate(historyBack, {
@@ -412,6 +422,7 @@ class ChatNavigation {
         positionRestored: receipt.fields.historyPosition,
         lengthBefore: this.initialPosition.ids.length,
         lengthAfter: this.position.ids.length,
+        reusedOwnedForward: this.historyTail.reused,
       };
       return {
         history,
@@ -468,7 +479,16 @@ class ChatNavigation {
       this.page.off('framenavigated', this.navigated);
       this.page.off('framedetached', this.invalidate);
       this.page.off('close', this.invalidate);
-      await this.historySession?.detach().catch(() => {});
+      try {
+        if (this.restoration.restored) {
+          await this.historyTail?.retain(this.position);
+        }
+      } catch {
+        // A closed or changed view cannot retain permission for another pass.
+      } finally {
+        await this.historyTail?.release();
+        await this.historySession?.detach().catch(() => {});
+      }
     }
   }
 }

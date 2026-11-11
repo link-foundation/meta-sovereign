@@ -291,3 +291,5 @@ Add owned inactive frozen-turn text delivery through actual provider controls wi
 Add explicit all/unread filtering to bounded HH browser chat scans. Verify native outer checkbox state, reject unfiltered read rows, preserve owner interruptions and restore the original filter/list position only while owned. Keep partial coverage accurate and retain mandatory browser evidence; full unread orchestration and shared workflow controls remain required.
 
 Add a bounded existing-view HH unread read pass with native SPA navigation, owned view/draft restoration, forward-history refusal and explicit history-growth receipts. Persistent orchestration and shared controls remain in progress.
+
+Repeated existing-view unread passes may reuse only their precisely witnessed automation-created forward history; owner activity or navigation revokes reuse, and original history lengths remain disclosed.

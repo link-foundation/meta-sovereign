@@ -324,6 +324,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-inactive-history': ['verifyInactiveHistory'],
     'question-unread': ['verifyChatNavigation'],
     'question-unread-guards': ['verifyUnreadViewGuards'],
+    'question-unread-repeat': ['verifyUnreadRepetition'],
     'question-inactive-text': ['verifyInactiveText'],
     'question-notice-policy': [
       'verifyNoticePolicies',
@@ -343,7 +344,11 @@ test('question provider and control scenarios have separate mandatory browser bu
     groupSources[Object.keys(groups).indexOf('question-chat-lists')],
     /nativeFocus: true/u
   );
-  for (const name of ['question-unread', 'question-unread-guards']) {
+  for (const name of [
+    'question-unread',
+    'question-unread-guards',
+    'question-unread-repeat',
+  ]) {
     assert.match(
       groupSources[Object.keys(groups).indexOf(name)],
       /nativeFocus: true/u
