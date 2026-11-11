@@ -45,6 +45,10 @@ import { WEB_UIS } from './web-uis.js';
 import { createBrowserActions } from './browser-actions.js';
 import { createMessageActions } from './message-actions.js';
 import { markSendOutcome } from './http.js';
+import {
+  createBrowserChoiceActions,
+  enrichBrowserChoices,
+} from './browser-choices.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -177,6 +181,9 @@ const toMessageLink = (source, chat, row) => {
     body: row.body,
     timestamp,
     outgoing: Boolean(row.outgoing),
+    ...(row.strictOptions !== undefined
+      ? { strictOptions: row.strictOptions, answerOptions: row.answerOptions }
+      : {}),
     via: 'browser',
   };
 };
@@ -398,6 +405,7 @@ export const createBrowserSender = ({
   input = 'type',
   loginTimeoutMs = 20000,
   pollMs = 250,
+  choiceReceiptMs = 10000,
   headless,
   store = null,
   slot = 'main',
@@ -472,13 +480,24 @@ export const createBrowserSender = ({
     pressSend,
     clock,
   });
+  const choices = createBrowserChoiceActions({
+    inChat,
+    uiFor,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
 
   return {
     platforms,
     ...actions,
 
+    ...choices,
+
     /** Type and send one message in the network's web UI. */
-    async send({ source, chat, to, text } = {}) {
+    async send({ source, chat, to, text, answer } = {}) {
+      if (answer?.strictOptions) {
+        return choices.chooseAnswer({ source, chat, to, text, answer });
+      }
       const body = String(text ?? '');
       if (!body.trim()) {
         throw codedError(`${source}: message text is required`, 'bad-draft');
@@ -529,12 +548,13 @@ export const createBrowserSender = ({
       const normalize = (value) => ui.normalizeChat?.(value) ?? null;
       const chatOf = (row) =>
         normalize(row.chat) ?? normalize(target) ?? String(target);
-      const rows = await inChat(source, target, {}, (commander) =>
-        commander.evaluate({
+      const rows = await inChat(source, target, {}, async (commander) => {
+        const history = await commander.evaluate({
           fn: extractMessages,
           args: [{ ...ui.messages, limit }],
-        })
-      );
+        });
+        return enrichBrowserChoices(commander, ui, target, history);
+      });
       return (Array.isArray(rows) ? rows : [])
         .filter((row) => row && String(row.body ?? '').length > 0)
         .map((row) => toMessageLink(source, chatOf(row), row));
@@ -729,6 +749,11 @@ export const createDefaultSender = ({
   });
   const send = (draft) => {
     if (draft.answer?.strictOptions) {
+      refuseAutomatedWeb(draft);
+      const chooser = browserFor();
+      if (typeof chooser.chooseAnswer === 'function') {
+        return chooser.chooseAnswer(draft);
+      }
       throw codedError(
         'This answer requires a verified option click; open the provider chat to select it',
         'answer-choice-required'

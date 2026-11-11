@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1：已配置的浏览器适配器可保留当前选项信息、保护已编辑草稿、守护一次原生选择，并要求唯一的发出消息回执。[浏览器选项基础](case-studies/issue-56/provider-choices.md)已通过针对性的 Node/Deno 和隔离 Chromium/MCP 检查。内置 HH 聊天及申请框架路由、共享 CLI/Lino/React 执行流程仍须完成。
+
 R-AA1：严格选项控件尚不可用时保持等待，不调用模型或生成自由文本草稿。发送前重新检查冻结状态、所选标签和用户修改；普通文本发送不能替代选项点击。CLI 配置、两种 Lino 格式和离线界面 API 已有[验证](case-studies/issue-56/question-strict-options.md)。实际浏览器点击及完整提供商流程仍待完成。
 
 R-AA6：明确选择的 HTML/纯文本任务说明已支持 CLI、两种 Lino 格式和共享界面，保留私有快照、重定向来源证据及书面任务的两个章节。见[关联说明](case-studies/issue-56/assignment-source.md)。其他文档格式、完整交接/通知和真实执行仍未完成。
