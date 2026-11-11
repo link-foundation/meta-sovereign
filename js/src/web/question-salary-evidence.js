@@ -4,6 +4,19 @@ import { formatSalary } from '../automation/salary-config.js';
 
 const el = React.createElement;
 const percent = (rate) => `${Number((rate * 100).toFixed(10))}%`;
+export const SalaryGuidanceEvidence = ({ salary }) => {
+  const t = useT();
+  const guidance = salary?.guidance;
+  return guidance
+    ? el(
+        'p',
+        { className: 'meta', 'data-salary-guidance': guidance.source },
+        t('questions.salaryMinimumSource', {
+          source: t(`questions.contextSource.${guidance.source}`),
+        })
+      )
+    : null;
+};
 export const SalaryTemplateEvidence = ({ value }) => {
   const t = useT();
   if (!value) {

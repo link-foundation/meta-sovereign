@@ -4,6 +4,10 @@
 
 ### Minor Changes
 
+- Add reviewed vacancy/form minimum-pay guidance with a separate comfortable rate,
+  visible introduction priority, per-frame context and explicit source evidence.
+  Preserve owner answers and exclude vacancy-specific pay from reusable learning.
+
 - Show Telegram sign-in requirements and broken/reconnecting transport states
   before the saved-session flag, keeping Connections status accurate during recovery.
 

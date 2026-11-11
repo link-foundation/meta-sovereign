@@ -1,6 +1,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { AnswerModelStatus } from './answer-model-settings.js';
+import { SalaryGuidanceEvidence } from './question-salary-evidence.js';
 
 const el = React.createElement;
 const AnswerEvidence = ({ evidence }) => {
@@ -61,6 +62,10 @@ export const FormAnswer = ({ answer }) => {
         })
       ),
       el(ModelUnresolvedText, { key: 'draft', answer }),
+      el(SalaryGuidanceEvidence, {
+        key: 'pay-source',
+        salary: answer.salary,
+      }),
       answer.effects?.length
         ? el(
             'p',

@@ -1,3 +1,4 @@
+import { payFixtureHtml } from './forms-pay-fixture.mjs';
 import { createServer } from 'node:http';
 import { modelFixtureHtml } from './forms-model-fixture.mjs';
 import { linksFixtureHtml } from './forms-links-fixture.mjs';
@@ -64,6 +65,10 @@ export const startFormsFixture = async () => {
       submits++;
     }
     res.setHeader('content-type', 'text/html');
+    if (req.url.startsWith('/pay')) {
+      res.end(payFixtureHtml);
+      return;
+    }
     if (req.url.startsWith('/subjects')) {
       res.end(subjectFixtureHtml);
       return;

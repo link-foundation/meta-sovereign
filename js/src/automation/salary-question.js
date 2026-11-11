@@ -73,7 +73,7 @@ const excluded = (text) =>
   );
 const direct = (text) =>
   !excluded(text) &&
-  /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|почасов\S*\s+(?:ставк|ожидан)/iu.test(
+  /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|почасов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)/iu.test(
     text
   );
 const language = (text) => (/[а-яё]/iu.test(text) ? 'ru' : 'en');
@@ -123,6 +123,19 @@ const anchor = (environment) => {
   }
   return null;
 };
+const vacancyCurrencySources = (environment) => [
+  { text: environment.intro ?? '', source: 'form-intro' },
+  {
+    text: environment.vacancy.pay,
+    source: 'vacancy-pay',
+    evidence: environment.vacancy.evidence,
+  },
+  {
+    text: environment.vacancy.description,
+    source: 'vacancy-description',
+    evidence: environment.vacancy.evidence,
+  },
+];
 const chooseCurrency = (text, config, environment) => {
   const explicit = salaryCurrencies(text, config);
   if (unknownSalaryCurrency(text, config) || explicit.length > 1) {
@@ -147,22 +160,18 @@ const chooseCurrency = (text, config, environment) => {
       break;
     }
   }
-  for (const [field, source] of [
-    ['pay', 'vacancy-pay'],
-    ['description', 'vacancy-description'],
-  ]) {
-    const matches = salaryCurrencies(environment.vacancy[field], config);
-    if (
-      unknownSalaryCurrency(environment.vacancy[field], config) ||
-      matches.length > 1
-    ) {
+  for (const { text: value, source, evidence } of vacancyCurrencySources(
+    environment
+  )) {
+    const matches = salaryCurrencies(value, config);
+    if (unknownSalaryCurrency(value, config) || matches.length > 1) {
       return { code: null, source: 'ambiguous' };
     }
     if (matches.length === 1) {
       return {
         code: matches[0].code,
         source,
-        evidence: environment.vacancy.evidence,
+        evidence,
       };
     }
   }

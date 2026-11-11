@@ -6,6 +6,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [forms-pay-guidance.md](forms-pay-guidance.md) verifies lower vacancy minimums, visible form-introduction priority and a separate comfortable hourly rate. Thirty-seven Node/Deno checks, CLI/both Lino transports and production Chromium/MCP confirm one reviewed actual field, preserved owner content and zero submissions; complete provider discovery remains required.
 - [forms-subjects.md](forms-subjects.md) reproduces Go answers offered for C# questions at 92% similarity. Shared subject checks preserve technology/currency/employment distinctions and owner aliases; 33 Node/Deno checks, production Chromium and independent MCP verify one actual field receipt, preserved owner input and zero submissions.
 
 - [forms-timezone.md](forms-timezone.md) reproduces missing configured time zones for city/МСК/UTC labels and verifies combined/separate proposals, missing-value review and source evidence. Thirty-seven Node/Deno checks, production Chromium and independent MCP confirm four actual field receipts, preserved owner input and zero submissions.

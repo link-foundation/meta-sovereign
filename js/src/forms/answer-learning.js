@@ -14,7 +14,7 @@ const excluded = (pair) =>
   /test assignment|тестов\S*\s+задан|测试任务|परीक्षण कार्य/iu.test(
     pair.question
   ) ||
-  /salary|compensation|hourly rate|зарплат|финансов\S*\s+ожидан|薪资|工资|वेतन/iu.test(
+  /salary|compensation|hourly rate|\bpay\b|(?<!\p{L})(?:зарплат|оплат|ставк|доход|вознагражд)|финансов\S*\s+ожидан|薪资|工资|वेतन/iu.test(
     pair.question
   );
 

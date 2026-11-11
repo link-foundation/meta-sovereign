@@ -1379,6 +1379,13 @@ export const hi = {
   'questions.contextSource.default': 'सेट किया गया डिफ़ॉल्ट',
   'questions.contextSource.missing': 'संदर्भ उपलब्ध नहीं है',
   'questions.contextSource.ambiguous': 'संदर्भ अस्पष्ट है',
+  'questions.salaryGuidance':
+    'रिक्ति/फ़ॉर्म के अनुसार न्यूनतम और सुविधाजनक दर का मसौदा बनाएँ (समीक्षा आवश्यक)',
+  'questions.salary.hourlyNet': 'सुविधाजनक प्रति घंटे शुद्ध राशि (वैकल्पिक)',
+  'questions.salary.hourlyGross': 'सुविधाजनक प्रति घंटे सकल राशि (वैकल्पिक)',
+  'questions.contextSource.form-intro': 'फ़ॉर्म का परिचय',
+  'questions.salaryMinimumSource': 'न्यूनतम भुगतान का स्रोत: {source}',
+  'questions.contextSource.owner-target': 'स्वामी का लक्ष्य',
   'questions.salaryTitle': 'वेतन लक्ष्य',
   'questions.salaryHint':
     'हर मुद्रा के लिए अलग मासिक कर-पश्चात लक्ष्य दें। कर-पूर्व राशि भरें या अपनी कर दरों और दिनांकित विनिमय दरों से गणना चुनें। घंटे की दर आपके घंटों और चरण से ऊपर गोल होगी। अनुपलब्ध या पुरानी जानकारी की समीक्षा ज़रूरी है।',

@@ -81,9 +81,19 @@ export const normalizeAnswerContexts = (input = []) => {
   return groups;
 };
 
+const formIntro = (intro) => {
+  if (
+    intro !== undefined &&
+    (typeof intro !== 'string' || intro.length > 6000)
+  ) {
+    throw new Error('invalid form introduction context');
+  }
+  return intro === undefined ? {} : { intro };
+};
 export const normalizeAnswerEnvironment = ({
   recent = [],
   vacancy = {},
+  intro,
 } = {}) => {
   if (!Array.isArray(recent) || recent.length > 20) {
     throw new Error(
@@ -117,7 +127,11 @@ export const normalizeAnswerEnvironment = ({
     }
     known[field] = value;
   }
-  return { recent: messages, vacancy: known };
+  return {
+    recent: messages,
+    vacancy: known,
+    ...formIntro(intro),
+  };
 };
 
 const mentions = (group, text) => {

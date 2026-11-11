@@ -47,7 +47,7 @@ const currency = (entry) => {
     code: entry.code,
     keywords: [...new Set(entry.keywords.map((word) => word.trim()))],
   };
-  for (const basis of ['net', 'gross']) {
+  for (const basis of ['net', 'gross', 'hourlyNet', 'hourlyGross']) {
     if (entry[basis] !== undefined && entry[basis] !== null) {
       result[basis] = positive(entry[basis], basis);
     }
@@ -58,6 +58,14 @@ const currency = (entry) => {
   );
   return { ...result, ...grossSettings(entry) };
 };
+const configuredHours = (input) =>
+  input.monthlyHours === null
+    ? null
+    : positive(
+        input.monthlyHours ?? (input.vacancyGuidance === true ? 168 : 160),
+        'monthlyHours',
+        744
+      );
 export const normalizeSalary = (input) => {
   if (input === undefined || input === null) {
     return undefined;
@@ -89,12 +97,12 @@ export const normalizeSalary = (input) => {
   return {
     enabled: input.enabled === true,
     approved: input.approved === true,
+    ...(input.vacancyGuidance === undefined
+      ? {}
+      : { vacancyGuidance: input.vacancyGuidance === true }),
     defaultCurrency,
     defaultBasis,
-    monthlyHours:
-      input.monthlyHours === null
-        ? null
-        : positive(input.monthlyHours ?? 160, 'monthlyHours', 744),
+    monthlyHours: configuredHours(input),
     currencies,
     ...normalizeSalaryCalculation(input),
   };

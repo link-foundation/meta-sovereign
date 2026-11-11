@@ -22,7 +22,7 @@ import {
 } from './forms-resume-commands.js';
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--approximate=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
+  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
 ${FORMS_REVIEW_HELP}
 ${FORMS_WATCHERS_HELP}
 ${FORMS_RESUME_HELP}`;
@@ -55,6 +55,8 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
               approximate: ![false, 'false'].includes(args.approximate),
               source: args.source,
               chat: args.chat,
+              salary: args.salary ? decodeWire(args.salary) : undefined,
+              vacancy: args.vacancy ? decodeWire(args.vacancy) : undefined,
               modelDraft: modelDraftFlag(args['model-draft']),
             },
             { runner }

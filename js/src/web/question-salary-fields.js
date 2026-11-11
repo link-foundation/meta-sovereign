@@ -14,7 +14,7 @@ const initial = () => ({
   approved: false,
   defaultCurrency: null,
   defaultBasis: 'net',
-  monthlyHours: 160,
+  monthlyHours: 168,
   currencies: [blankCurrency()],
 });
 const CurrencyFields = ({ entry, set, remove }) => {
@@ -52,7 +52,14 @@ const CurrencyFields = ({ entry, set, remove }) => {
         t(`questions.salaryMethod.${method}`),
       ]),
     }),
-    ...['net', 'gross', 'grossStep', 'hourlyStep'].map((field) =>
+    ...[
+      'net',
+      'gross',
+      'hourlyNet',
+      'hourlyGross',
+      'grossStep',
+      'hourlyStep',
+    ].map((field) =>
       el(Field, {
         key: field,
         label: t(`questions.salary.${field}`),
@@ -101,6 +108,12 @@ export const SalaryFields = ({ salary, set, api }) => {
             label: t('questions.salaryApproved'),
             value: value.approved,
             change: (approved) => patch({ approved }),
+          }),
+          el(Check, {
+            key: 'guidance',
+            label: t('questions.salaryGuidance'),
+            value: value.vacancyGuidance,
+            change: (vacancyGuidance) => patch({ vacancyGuidance }),
           }),
           el(Field, {
             key: 'hours',

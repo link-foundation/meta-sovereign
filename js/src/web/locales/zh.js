@@ -1316,6 +1316,12 @@ export const zh = {
   'questions.contextSource.default': '已配置的默认值',
   'questions.contextSource.missing': '上下文不可用',
   'questions.contextSource.ambiguous': '上下文不明确',
+  'questions.salaryGuidance': '按职位或表单拟定最低报酬和理想时薪（需审核）',
+  'questions.salary.hourlyNet': '理想税后时薪（可选）',
+  'questions.salary.hourlyGross': '理想税前时薪（可选）',
+  'questions.contextSource.form-intro': '表单介绍',
+  'questions.salaryMinimumSource': '最低报酬来源：{source}',
+  'questions.contextSource.owner-target': '所有者的目标',
   'questions.salaryTitle': '薪酬目标',
   'questions.salaryHint':
     '分别填写各币种的税后月薪目标。可直接填写税前金额，或明确选择按您自己的税率表和带日期的汇率计算。时薪按工时和步长向上取整。缺失或过期的数据需要审核。',

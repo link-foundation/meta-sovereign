@@ -17,6 +17,13 @@ import { configuredResume } from './configured-resume.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
+const planOptions = (input) => ({
+  profileId: input.profileId ?? '',
+  approximate: input.approximate !== false,
+  modelDraft: input.modelDraft === true,
+  salary: input.salary,
+  vacancy: input.vacancy,
+});
 
 export const createReviewedPrefill = ({
   store,
@@ -49,11 +56,7 @@ export const createReviewedPrefill = ({
         snapshot = value;
       },
     });
-    const options = {
-      profileId: input.profileId ?? '',
-      approximate: input.approximate !== false,
-      modelDraft: input.modelDraft === true,
-    };
+    const options = planOptions(input);
     const proposed = withRadioReview(
       await planFormAnswers(
         store,

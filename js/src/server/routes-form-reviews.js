@@ -25,6 +25,8 @@ const actions = {
       profileId: body.profileId,
       approximate: body.approximate,
       modelDraft: body.modelDraft,
+      salary: body.salary,
+      vacancy: body.vacancy,
     }),
   apply: (forms, body) =>
     forms.applyReview({

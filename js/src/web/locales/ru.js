@@ -1397,6 +1397,15 @@ export const ru = {
   'questions.contextSource.default': 'Заданное значение по умолчанию',
   'questions.contextSource.missing': 'Контекст недоступен',
   'questions.contextSource.ambiguous': 'Неоднозначный контекст',
+  'questions.salaryGuidance':
+    'Предлагать минимум по вакансии/анкете и комфортную ставку (нужна проверка)',
+  'questions.salary.hourlyNet':
+    'Комфортная ставка в час на руки (необязательно)',
+  'questions.salary.hourlyGross':
+    'Комфортная ставка в час до налогов (необязательно)',
+  'questions.contextSource.form-intro': 'Описание анкеты',
+  'questions.salaryMinimumSource': 'Источник минимальной оплаты: {source}',
+  'questions.contextSource.owner-target': 'Целевая оплата владельца',
   'questions.salaryTitle': 'Зарплатные ожидания',
   'questions.salaryHint':
     'Задайте независимую месячную сумму на руки для каждой валюты. Укажите сумму до налогов или выберите расчёт по своей налоговой шкале и курсам с датой. Почасовая ставка округляется вверх с учётом часов и шага. Отсутствующие или устаревшие данные требуют проверки.',

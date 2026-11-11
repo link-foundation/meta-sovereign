@@ -3,6 +3,7 @@ import { resolveSalaryAmount } from './salary-calculation.js';
 import { salaryQuestion } from './salary-question.js';
 import { salaryOption } from './salary-options.js';
 import { rejectedAnswer } from './question-policy.js';
+import { salaryGuidance } from './salary-guidance.js';
 
 const wording = (value, selection) => {
   const { language, basis, period } = selection;
@@ -79,24 +80,39 @@ const salaryDetails = (selection, resolved) => ({
 });
 const selectedOption = (choices, amount, selection, config) =>
   amount ? (salaryOption(choices, amount, selection, config) ?? '') : '';
-const salaryResult = (question, input, previous, config, selection) => {
-  const entry = config.currencies.find(
-    (item) => item.code === selection.currency
-  );
-  const resolved = resolveSelection(config, entry, selection, input.now);
+const salaryContent = (input, config, selection, entry, resolved, guidance) => {
   const { amount } = resolved;
   const hasAmount = Boolean(amount || resolved.amounts);
   const missing = hasAmount
     ? []
     : [resolved.missing ?? missingField(selection, config, entry)];
   let text = hasAmount
-    ? resolvedWording(resolved, selection)
+    ? (guidance?.text ?? resolvedWording(resolved, selection))
     : `{{${missing[0]}}}`;
   let optionMismatch = false;
   if (hasAmount && input.options?.length) {
     text = selectedOption(input.options, amount, selection, config);
     optionMismatch = !text;
   }
+  return { missing, text, optionMismatch };
+};
+const salaryResult = (question, input, previous, config, selection) => {
+  const entry = config.currencies.find(
+    (item) => item.code === selection.currency
+  );
+  let resolved = resolveSelection(config, entry, selection, input.now);
+  const guidance = salaryGuidance(input, config, selection, entry, resolved);
+  if (guidance) {
+    resolved = { ...resolved, amount: guidance.amount };
+  }
+  const { missing, text, optionMismatch } = salaryContent(
+    input,
+    config,
+    selection,
+    entry,
+    resolved,
+    guidance
+  );
   const rejected = Boolean(rejectedAnswer(text, input.policy));
   return {
     question,
@@ -104,11 +120,18 @@ const salaryResult = (question, input, previous, config, selection) => {
     match: 'salary',
     complete: missing.length === 0 && !optionMismatch && !rejected,
     requiresReview:
-      !config.approved || missing.length > 0 || optionMismatch || rejected,
+      !config.approved ||
+      Boolean(guidance) ||
+      missing.length > 0 ||
+      optionMismatch ||
+      rejected,
     missing,
     rules: [],
     contexts: salaryContexts(previous, selection),
-    salary: salaryDetails(selection, resolved),
+    salary: {
+      ...salaryDetails(selection, resolved),
+      ...(guidance ? { guidance } : {}),
+    },
     ...(optionMismatch ? { optionMismatch: true } : {}),
   };
 };

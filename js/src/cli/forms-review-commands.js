@@ -11,7 +11,7 @@ import { modelDraftFlag } from './answer-model-commands.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--approximate=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
 const inputs = (args) => {
   const sources = [
     args.urls !== undefined,
@@ -286,6 +286,8 @@ export const createFormReviewCommands = ({
           file,
           plans,
           profileId: args['profile-id'] ?? '',
+          salary: args.salary ? decodeWire(args.salary) : undefined,
+          vacancy: args.vacancy ? decodeWire(args.vacancy) : undefined,
           approximate: ![false, 'false'].includes(args.approximate),
           modelDraft,
         },

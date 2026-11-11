@@ -5,6 +5,7 @@ import {
   SalaryCalculationEvidence,
   SalaryExchangeEvidence,
   SalaryTemplateEvidence,
+  SalaryGuidanceEvidence,
 } from './question-salary-evidence.js';
 
 const el = React.createElement;
@@ -71,6 +72,10 @@ export const AnswerEvidence = ({ answer }) => {
     el(SalaryCalculationEvidence, {
       key: 'calculation',
       calculation: answer.salary?.calculation,
+    }),
+    el(SalaryGuidanceEvidence, {
+      key: 'guidance',
+      salary: answer.salary,
     }),
     el(SalaryTemplateEvidence, {
       key: 'salary-templates',

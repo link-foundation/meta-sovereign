@@ -1381,6 +1381,13 @@ export const en = {
   'questions.contextSource.default': 'Configured default',
   'questions.contextSource.missing': 'Context unavailable',
   'questions.contextSource.ambiguous': 'Ambiguous context',
+  'questions.salaryGuidance':
+    'Draft vacancy/form minimum pay and a comfortable rate (requires review)',
+  'questions.salary.hourlyNet': 'Comfortable hourly net amount (optional)',
+  'questions.salary.hourlyGross': 'Comfortable hourly gross amount (optional)',
+  'questions.contextSource.form-intro': 'Form introduction',
+  'questions.salaryMinimumSource': 'Minimum pay source: {source}',
+  'questions.contextSource.owner-target': 'Owner target',
   'questions.salaryTitle': 'Salary targets',
   'questions.salaryHint':
     'Enter an independent monthly net target for each currency. Enter gross amounts or explicitly choose a calculation using your own tax schedule and dated exchange rates. Hourly rates round up using your hours and step. Missing or stale inputs require review.',

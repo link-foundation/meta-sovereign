@@ -104,6 +104,7 @@ const validFrame = (frame) =>
   frame &&
   id(frame.id) &&
   validUrl(frame.url, frame.parent !== null) &&
+  text(frame.intro ?? '', 6000) &&
   list(frame.reasons, 30, reason);
 const reportIdentity = (input) =>
   input?.ok === true &&

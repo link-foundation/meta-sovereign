@@ -436,6 +436,52 @@ export const readFormDocument = ({
       return navigation;
     };
     const fields = [];
+    const readIntro = () => {
+      const first = doc.querySelectorAll(selector)[fields[0]?.index];
+      if (!first) {
+        return '';
+      }
+      const boundary =
+        first.closest('label,[role="listitem"],fieldset') ?? first;
+      const root = first.closest('form,[role="form"]') ?? doc.body;
+      const walker = doc.createTreeWalker(
+        root,
+        globalThis.NodeFilter.SHOW_TEXT
+      );
+      const chunks = [];
+      let length = 0;
+      for (let count = 0; count < 1000; count++) {
+        const node = walker.nextNode();
+        if (
+          !node ||
+          boundary.contains(node) ||
+          !(node.compareDocumentPosition(boundary) & 4)
+        ) {
+          return chunks.join(' ').trim();
+        }
+        const parent = node.parentElement;
+        if (
+          !parent ||
+          parent.closest(
+            'script,style,noscript,button,input,textarea,select'
+          ) ||
+          !visible(parent)
+        ) {
+          continue;
+        }
+        const text = node.textContent.replace(/\s+/gu, ' ').trim();
+        if (text) {
+          chunks.push(text.slice(0, 6000 - length));
+          length += text.length + 1;
+        }
+        if (length >= 6000) {
+          reasons.add('intro-limit');
+          return chunks.join(' ').slice(0, 6000);
+        }
+      }
+      reasons.add('intro-limit');
+      return chunks.join(' ').slice(0, 6000);
+    };
     let examined = 0;
     let excluded = 0;
     const collectControlledLists = () => {
@@ -527,6 +573,7 @@ export const readFormDocument = ({
     return {
       ...identity,
       title: clip(doc.title),
+      intro: readIntro(),
       fields,
       excluded,
       reasons: [...reasons],

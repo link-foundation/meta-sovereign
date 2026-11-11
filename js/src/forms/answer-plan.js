@@ -5,6 +5,7 @@ import { validateFormInspection } from './plan-validation.js';
 import { formProfileFields } from './profile-fields.js';
 import { proposalFor } from './proposals.js';
 import { formModelDrafts } from './model-drafts.js';
+import { formPayProfile } from './pay-profile.js';
 
 const emptyAnswer = (reason) => ({
   source: 'unresolved',
@@ -119,6 +120,9 @@ const planField = (field, fields, prepared) => {
   const answer = withSalaryExchangeEvidence(
     planAnswer(question, {
       ...context,
+      intro:
+        prepared.inspection.frames.find((frame) => frame.id === field.frame)
+          ?.intro ?? '',
       questionMode: 'field',
       ...(keys.length ? { rules: [profileRule(question, keys)] } : {}),
       options: options
@@ -161,6 +165,8 @@ export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
     { maxBytes: 4 * 1024 ** 2 }
   );
   prepared.context.matchBudget = { remaining: 4 * 1024 ** 2, exhausted: false };
+  prepared.inspection = inspection;
+  prepared.context.salary ??= formPayProfile(prepared.context.profile);
   const deterministic = inspection.fields.map((field) =>
     planField(field, inspection.fields, prepared)
   );
