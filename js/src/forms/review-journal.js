@@ -33,6 +33,7 @@ export const formReportSnapshot = (result, proposed) => {
             ...(result.mode === 'prefill-result'
               ? {
                   requestId: result.requestId,
+                  wait: result.wait,
                   complete: result.complete,
                   requiresReview: result.requiresReview,
                   submissionAttempted: result.submissionAttempted,

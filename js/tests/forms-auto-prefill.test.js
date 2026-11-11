@@ -279,10 +279,13 @@ test(
   async (t) => {
     const env = await automaticFormEnvironment();
     t.after(() => env.reader.stop());
-    let reads = 0;
+    let sawReadback = false;
     env.hooks.inspect = () => {
-      if (++reads === 7) {
-        env.report.fields[0].value = 'Owner changed after the text writes';
+      if (env.textWrites.length === 2) {
+        if (sawReadback) {
+          env.report.fields[0].value = 'Owner changed after the text writes';
+        }
+        sawReadback = true;
       }
     };
     const result = await env.prefill({ file: env.file });

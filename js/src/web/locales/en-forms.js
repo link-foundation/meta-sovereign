@@ -12,6 +12,16 @@ export const enForms = {
     'Review the current answers, open Next yourself, then prefill the new page. Submit the form yourself when finished.',
   'forms.automatic.review':
     'Review the current answers and complete open questions. Submit the form yourself when finished.',
+  'forms.reason.owner-verification':
+    'Manual verification is visible. Complete it in the review browser; its contents are excluded from answers.',
+  'forms.reason.captcha-frame':
+    'A CAPTCHA frame was excluded from answer inspection.',
+  'forms.automatic.state.waiting-owner':
+    'Waiting for you to solve verification in the review browser.',
+  'forms.automatic.state.prefilling':
+    'Verification cleared. Checking the form before filling.',
+  'forms.automatic.wait':
+    'Solve the CAPTCHA yourself before {time}. Use Focus to open a visible review window, or Close to cancel. Challenge contents are excluded from answer learning.',
   'forms.automatic.state.prefilled':
     'Supported empty fields were filled and verified. Review the current form.',
   'forms.automatic.state.partial':

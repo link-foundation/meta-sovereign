@@ -1,3 +1,4 @@
+import { verifyFormCaptchaUi } from './helpers/e2e-form-captcha.mjs';
 import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
 import { verifyFormAutomaticUi } from './helpers/e2e-form-automatic.mjs';
@@ -274,8 +275,53 @@ const verifyLimits = async (page) => {
   }
 };
 
+const formGroups = {
+  'forms-learning': [
+    verifyFormJournalUi,
+    verifyFormMonitorUi,
+    verifyFormLearningUi,
+    verifyFormCapacityUi,
+    verifyFormModelUi,
+  ],
+  'forms-answers': [
+    verifyFormLinksUi,
+    verifyFormTimezoneUi,
+    verifyFormSubjectsUi,
+    verifyFormPayUi,
+    verifyFormMatchingUi,
+    verifyFormAutomaticUi,
+    verifyFormCaptchaUi,
+  ],
+};
+
+const runFormChecks = async (checks) => {
+  for (const verify of checks) {
+    const started = Date.now();
+    console.log('[forms-scenario]', verify.name, 'started');
+    await verify({ ...app, owned, fixture, store, modelCalls });
+    console.log('[forms-scenario]', verify.name, Date.now() - started);
+  }
+};
+
+const verifyGroupOnly = async ({ page }) => {
+  const group = process.env.FORMS_GROUP;
+  if (group && group !== 'forms-reader') {
+    assert(formGroups[group], 'known Forms browser group');
+    await page.locator('[data-form-slot]').fill('application-2');
+    await page.locator('[data-form-url]').fill(fixture.url);
+    await runFormChecks(formGroups[group]);
+    assert(
+      owned.every((record) => record.closed),
+      'group browsers close'
+    );
+    return true;
+  }
+  return false;
+};
+
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['CAPTCHA', verifyFormCaptchaUi],
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],
     ['PAY', verifyFormPayUi],
@@ -290,13 +336,11 @@ const verifyCustomOnly = async ({ page, until }) => {
   if (process.env.FORMS_POST_LEARNING_ONLY === '1') {
     await page.locator('[data-form-slot]').fill('application-2');
     await page.locator('[data-form-url]').fill(fixture.url);
-    for (const verify of [
+    await runFormChecks([
       verifyFormLearningUi,
       verifyFormCapacityUi,
       verifyFormModelUi,
-    ]) {
-      await verify({ ...app, owned, fixture, store, modelCalls });
-    }
+    ]);
     assert(
       fixture.submits === 1 && owned.every((record) => record.closed),
       'only learning submits once and every browser closes'
@@ -374,7 +418,7 @@ await app.finish(async () => {
       return;
     }
     await nav.click();
-    if (await verifyCustomOnly(app)) {
+    if ((await verifyGroupOnly(app)) || (await verifyCustomOnly(app))) {
       return;
     }
     await page.locator('[data-form-slot]').fill('bad slot');
@@ -462,7 +506,7 @@ await app.finish(async () => {
       });
     }
     await verifyLimits(page);
-    for (const verify of [
+    await runFormChecks([
       verifyFormReviewUi,
       verifyFormPrefillUi,
       verifyFormRadioUi,
@@ -470,20 +514,10 @@ await app.finish(async () => {
       verifyFormChoicesUi,
       verifyFormUploadUi,
       verifyFormConfiguredResumeUi,
-      verifyFormJournalUi,
-      verifyFormMonitorUi,
-      verifyFormLearningUi,
-      verifyFormCapacityUi,
-      verifyFormModelUi,
-      verifyFormLinksUi,
-      verifyFormTimezoneUi,
-      verifyFormSubjectsUi,
-      verifyFormPayUi,
-      verifyFormMatchingUi,
-      verifyFormAutomaticUi,
-    ]) {
-      await verify({ page, base, owned, fixture, until, store, modelCalls });
-    }
+      ...(process.env.FORMS_GROUP === 'forms-reader'
+        ? []
+        : Object.values(formGroups).flat()),
+    ]);
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );
@@ -502,6 +536,7 @@ await app.finish(async () => {
 
 // CDP watchers use Chromium; the shared form reader is checked in both engines.
 if (
+  !formGroups[process.env.FORMS_GROUP] &&
   process.env.E2E_BROWSER !== 'webkit' &&
   process.env.FORMS_LEARNING_ONLY !== '1' &&
   process.env.FORMS_POST_LEARNING_ONLY !== '1' &&
@@ -512,6 +547,7 @@ if (
   process.env.FORMS_SUBJECTS_ONLY !== '1' &&
   process.env.FORMS_PAY_ONLY !== '1' &&
   process.env.FORMS_MATCHING_ONLY !== '1' &&
+  process.env.FORMS_CAPTCHA_ONLY !== '1' &&
   process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1'

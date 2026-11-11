@@ -1,4 +1,5 @@
 import { formFailure as failure } from './options.js';
+import { reviewDeadline } from './review-deadline.js';
 
 const detachRecord = async (records, record, timers) => {
   if (record.task || record.closing) {
@@ -107,11 +108,16 @@ export const createReviewLifecycle = ({
   };
   const run = async (record, operation) => {
     record.operationAbort = new AbortController();
-    const timer = timers.setTimeout(() => {
-      record.cancelled = 'form-timeout';
-      close(record.id).catch(() => {});
-    }, deadlineMs);
-    timer.unref?.();
+    const deadline = reviewDeadline({
+      milliseconds: deadlineMs,
+      now,
+      timers,
+      expired: (code = 'form-timeout') => {
+        record.cancelled = code;
+        close(record.id).catch(() => {});
+      },
+    });
+    record.pauseDeadline = deadline.pause;
     try {
       const result = await operation();
       check(record);
@@ -123,7 +129,8 @@ export const createReviewLifecycle = ({
       check(record);
       throw error;
     } finally {
-      timers.clearTimeout(timer);
+      deadline.stop();
+      record.pauseDeadline = null;
       record.operationAbort = null;
     }
   };

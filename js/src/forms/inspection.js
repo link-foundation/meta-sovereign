@@ -1,5 +1,6 @@
 import { formFailure as failure, formUrl } from './options.js';
 import { readFormDocument, formFrameVisible } from './read-document.js';
+import { challengeFrameUrl } from './challenge-wait.js';
 
 const sameDocument = (a, b) =>
   typeof a.documentKey === 'string' &&
@@ -14,6 +15,9 @@ const readChildFrame = async (frame, parent, maxFields) => {
     element = await frame.frameElement();
     if (!(await element.evaluate(formFrameVisible))) {
       return { omission: { reason: 'hidden-frame' } };
+    }
+    if (frame.url && challengeFrameUrl(frame.url())) {
+      return { omission: { reason: 'captcha-frame' } };
     }
     await frame.waitForLoadState?.('domcontentloaded', { timeout: 5000 });
     // Commander owns main-document reads. Its API has no frame target;
@@ -135,6 +139,7 @@ export const inspectCurrentFormSession = async (
   await assertCurrentDocuments(commander, handles, main, trace);
   check();
   onSnapshot?.({ frames, handles });
+  const challenge = frames.some((frame) => frame.challenge?.active);
   return {
     ok: true,
     version: 1,
@@ -147,13 +152,16 @@ export const inspectCurrentFormSession = async (
       omissions.length || frames.some((frame) => frame.reasons.length)
         ? 'partial'
         : 'inspected',
-    fields: frames.flatMap((frame) =>
-      frame.fields.map((field) => ({
-        ...field,
-        id: `${frame.id}:${field.id}`,
-        frame: frame.id,
-      }))
-    ),
+    ...(challenge ? { challenge: { active: true, kind: 'captcha' } } : {}),
+    fields: challenge
+      ? []
+      : frames.flatMap((frame) =>
+          frame.fields.map((field) => ({
+            ...field,
+            id: `${frame.id}:${field.id}`,
+            frame: frame.id,
+          }))
+        ),
     navigation: {
       nextPage: frames.some((frame) => frame.navigation?.nextPage),
       limited: frames.some((frame) => frame.navigation?.limited),

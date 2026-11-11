@@ -144,7 +144,11 @@ const ReviewCard = ({ session, busy, run }) => {
             'data-review-action': action.toLowerCase(),
             disabled:
               busy ||
-              session.busy ||
+              (session.busy &&
+                action !== 'Close' &&
+                !(
+                  action === 'Focus' && session.prefillState === 'waiting-owner'
+                )) ||
               (action !== 'Close' && closed) ||
               (action === 'Focus' && session.headless === true),
             onClick: () => run(action, { id: session.id }),

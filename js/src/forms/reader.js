@@ -105,6 +105,7 @@ export const createFormReader = ({
     planReview: reviews.plan,
     applyReview: reviews.apply,
     prefillReview: reviews.prefill,
+    prefillStatus: reviews.prefillStatus,
     discloseReview: reviews.disclose,
     attachReview: reviews.attach,
     historyReview: reviews.history,

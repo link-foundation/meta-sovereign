@@ -1,4 +1,5 @@
 import { payFixtureHtml } from './forms-pay-fixture.mjs';
+import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
 import { matchingFixtureHtml } from './question-matching-fixture.mjs';
 import {
   automaticFixtureHtml,
@@ -31,6 +32,7 @@ const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire<
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
 
 const simplePages = {
+  '/captcha': captchaFixtureHtml,
   '/matching': matchingFixtureHtml,
   '/pay': payFixtureHtml,
   '/subjects': subjectFixtureHtml,

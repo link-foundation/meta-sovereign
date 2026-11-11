@@ -18,12 +18,39 @@ const learningAction = async (action, page) => {
   }
 };
 
+const fixtureActions = (learning, captcha) => [
+  'next',
+  ...(learning ? ['edit', 'submit', 'state'] : []),
+  ...(captcha ? ['release'] : []),
+];
+
+const releaseCaptcha = async ({ captcha, page, action, fixture }) => {
+  if (
+    captcha &&
+    page &&
+    action === 'release' &&
+    new URL(page.url()).pathname === '/captcha'
+  ) {
+    await page.locator('#owner-clear').click();
+    console.log(
+      JSON.stringify({
+        action: 'owner-captcha-release',
+        challengeReads: await page.evaluate(() => globalThis.challengeReads),
+        submissions: fixture.submits,
+      })
+    );
+    return true;
+  }
+  return false;
+};
+
 /** Explicit fixture-only stdin actions simulate owner edits in the owned browser. */
 export const controlFormMonitorFixture = async ({
   browsers,
   store,
   fixture,
   learning = false,
+  captcha = false,
 }) => {
   const rules = JSON.stringify(await listAnswerRules(store));
   const input = createInterface({ input: process.stdin, terminal: false });
@@ -36,14 +63,13 @@ export const controlFormMonitorFixture = async ({
         break;
       }
       const action = command.trim();
-      if (
-        !['next', ...(learning ? ['edit', 'submit', 'state'] : [])].includes(
-          action
-        )
-      ) {
+      if (!fixtureActions(learning, captcha).includes(action)) {
         continue;
       }
       const page = [...browsers].at(-1)?.contexts()[0]?.pages()[0];
+      if (await releaseCaptcha({ captcha, page, action, fixture })) {
+        continue;
+      }
       if (learning && page) {
         await learningAction(action, page);
         console.log(

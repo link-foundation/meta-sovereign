@@ -25,6 +25,7 @@ export const automaticFormEnvironment = async (count = 2, settings = {}) => {
     ...env.options,
     ...settings,
     review: {
+      ...settings.review,
       prefill: {
         ...prefill,
         capture: async (...args) => ({

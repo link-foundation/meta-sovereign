@@ -23,6 +23,11 @@ const validUrl = (value, child = false) => {
 const list = (values, max, check) =>
   Array.isArray(values) && values.length <= max && values.every(check);
 const reason = (value) => text(value, 80);
+const validChallenge = (value) =>
+  value === undefined ||
+  (value?.active === true &&
+    value.kind === 'captcha' &&
+    Object.keys(value).length === 2);
 const option = (value) =>
   value &&
   text(value.label, 2000) &&
@@ -105,6 +110,7 @@ const validFrame = (frame) =>
   id(frame.id) &&
   validUrl(frame.url, frame.parent !== null) &&
   text(frame.intro ?? '', 6000) &&
+  validChallenge(frame.challenge) &&
   list(frame.reasons, 30, reason);
 const reportIdentity = (input) =>
   input?.ok === true &&
@@ -119,6 +125,7 @@ const reportIdentity = (input) =>
   Number.isFinite(Date.parse(input.capturedAt));
 const validShape = (input) =>
   reportIdentity(input) &&
+  validChallenge(input.challenge) &&
   list(input.frames, 10, validFrame) &&
   input.frames.length > 0 &&
   list(input.omissions, 30, (item) => item && reason(item.reason)) &&

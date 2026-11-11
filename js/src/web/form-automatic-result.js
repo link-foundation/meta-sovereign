@@ -3,11 +3,33 @@ import { useT } from './i18n.js';
 import { FormApplicationResult } from './form-reviewed-plan.js';
 import { FormResumeUploadResult } from './form-resume-upload.js';
 import { formReportSnapshot } from '../forms/review-journal.js';
+import { pendingPrefill } from '../forms/challenge-wait.js';
 
 const el = React.createElement;
 export const FormAutomaticResult = ({ result, Report }) => {
   const t = useT();
   const report = formReportSnapshot(result);
+  if (pendingPrefill(result)) {
+    return el(
+      'section',
+      {
+        className: 'card col',
+        role: 'status',
+        'data-form-automatic-result': result.state,
+      },
+      [
+        el('h2', { key: 'title' }, t('forms.automatic.title')),
+        el('p', { key: 'state' }, t(`forms.automatic.state.${result.state}`)),
+        result.wait
+          ? el(
+              'p',
+              { key: 'wait', className: 'meta' },
+              t('forms.automatic.wait', { time: result.wait.expiresAt })
+            )
+          : null,
+      ]
+    );
+  }
   return el(
     'section',
     { className: 'col', 'data-form-automatic-result': result.state },

@@ -6,6 +6,8 @@ import { inspectCurrentFormSession } from './inspection.js';
 import { trackReviewActivity } from './review-activity.js';
 import { createReviewedPrefill } from './review-prefill.js';
 import { prefillFormReview } from './automatic-prefill.js';
+import { createPrefillControl } from './prefill-control.js';
+import { pendingPrefill } from './challenge-wait.js';
 import { createFormJournal, formReportSnapshot } from './review-journal.js';
 import { persistFormReport } from './report-file.js';
 import { createFormMonitor } from './review-monitor.js';
@@ -23,6 +25,10 @@ const bounded = (value, max) =>
 const idleExpiry = (record) =>
   record.learning?.watcher?.().idleExpiresAt ??
   new Date(record.lastUsedAt + record.idleMs).toISOString();
+const prefillIdentity = (record) =>
+  pendingPrefill(record.lastPrefill?.result)
+    ? { prefillState: record.lastPrefill.result.state }
+    : {};
 const identity = (record) => {
   let url = record.url;
   try {
@@ -49,6 +55,7 @@ const identity = (record) => {
       learning: false,
     },
     error: record.error ?? null,
+    ...prefillIdentity(record),
   };
 };
 
@@ -268,8 +275,8 @@ const reviewLearning = ({
   });
 
 const reviewAction =
-  ({ operate, filling, reportWriter, get, check }, action) =>
-  async (input) => {
+  ({ operate, filling, reportWriter, get, check, challenge }, action) =>
+  async (input, onWaiting) => {
     const result = await operate(input.id, async (record) => {
       const perform = async (name, options, arm = true) => {
         const proposed = record.reviewPlan?.proposed;
@@ -308,6 +315,8 @@ const reviewAction =
           perform,
           filling,
           check: () => check(record),
+          onWaiting,
+          challenge,
         })
       );
     });
@@ -389,6 +398,33 @@ const readReviewReport = async ({ record, filling, check, reportWriter }) => {
   });
 };
 
+const reviewOperator =
+  ({ get, check, touch, run }) =>
+  async (id, operation) => {
+    const record = get(id);
+    check(record);
+    if (record.task || record.closing || record.state !== 'open') {
+      throw failure(
+        'form-busy',
+        'Another operation still owns this review session.'
+      );
+    }
+    touch(record);
+    record.task = run(record, async () => {
+      await record.learning.pause?.(true);
+      try {
+        return await operation(record);
+      } finally {
+        await record.learning.pause?.(false);
+      }
+    });
+    try {
+      return await record.task;
+    } finally {
+      record.task = null;
+    }
+  };
+
 export const createFormSessions = ({
   store,
   openSession = openBrowserSession,
@@ -404,6 +440,7 @@ export const createFormSessions = ({
   learning = {},
   modelRunner,
   ready,
+  challenge = {},
 } = {}) => {
   reviewLimits({ maxSessions, idleMs, deadlineMs, autoCapture, learn });
   const records = new Map();
@@ -478,32 +515,25 @@ export const createFormSessions = ({
     }
     return { ok: true, session: identity(record) };
   };
-  const operate = async (id, operation) => {
-    const record = get(id);
-    check(record);
-    if (record.task || record.closing || record.state !== 'open') {
-      throw failure(
-        'form-busy',
-        'Another operation still owns this review session.'
-      );
-    }
-    touch(record);
-    record.task = run(record, async () => {
-      await record.learning.pause?.(true);
-      try {
-        return await operation(record);
-      } finally {
-        await record.learning.pause?.(false);
-      }
-    });
-    try {
-      return await record.task;
-    } finally {
-      record.task = null;
-    }
-  };
+  const operate = reviewOperator({ get, check, touch, run });
   const action = (name) =>
-    reviewAction({ operate, filling, reportWriter, get, check }, name);
+    reviewAction(
+      {
+        operate,
+        filling,
+        reportWriter,
+        get,
+        check,
+        challenge: { now, timers, ...challenge },
+      },
+      name
+    );
+  const automatic = createPrefillControl({
+    get,
+    check,
+    identity,
+    action: action('prefill'),
+  });
   return {
     open,
     close,
@@ -518,12 +548,19 @@ export const createFormSessions = ({
       idleMs,
     }),
     focus: async (id) => {
-      await operate(id, focusBrowser);
+      const record = get(id);
+      check(record);
+      if (record.lastPrefill?.result.state === 'waiting-owner' && record.task) {
+        await focusBrowser(record);
+      } else {
+        await operate(id, focusBrowser);
+      }
       return { ok: true, session: identity(get(id)) };
     },
     plan: action('plan'),
     apply: action('apply'),
-    prefill: action('prefill'),
+    prefill: automatic.run,
+    prefillStatus: automatic.status,
     attach: action('attach'),
     disclose: action('disclose'),
     history: async (id) => ({

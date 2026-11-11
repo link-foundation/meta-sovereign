@@ -27,6 +27,11 @@ for (const name of checks) {
     maxBuffer: 16 * 1024 * 1024,
     env: {
       ...process.env,
+      FORMS_GROUP: ['forms-reader', 'forms-learning', 'forms-answers'].includes(
+        name
+      )
+        ? name
+        : '',
       NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --import=./js/tests/helpers/e2e-reduced-effects.mjs`,
     },
   });

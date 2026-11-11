@@ -53,6 +53,7 @@ const monitorReport = (snapshot, id, slot) => {
     browserSlot: slot,
     observation: 'passive-document-snapshot',
     navigation: document.navigation,
+    ...(document.challenge ? { challenge: document.challenge } : {}),
     // A document callback does not establish an atomic read of other frames.
     omissions: [{ reason: 'other-documents-not-sampled' }],
     frames: [{ ...document, id, parent: null, fieldCount: fields.length }],

@@ -10,6 +10,13 @@ export const zhForms = {
   'forms.automatic.next':
     '检查当前答案，自行打开下一页，再填充新页面。完成后请自行提交表单。',
   'forms.automatic.review': '检查当前答案并补全待回答的问题。请自行提交表单。',
+  'forms.reason.owner-verification':
+    '检测到人工验证。请在审阅浏览器中完成；验证内容不会作为答案读取。',
+  'forms.reason.captcha-frame': 'CAPTCHA 框架已排除在答案检查之外。',
+  'forms.automatic.state.waiting-owner': '正在等待您在审阅浏览器中完成验证。',
+  'forms.automatic.state.prefilling': '验证已完成。填写前正在检查表单。',
+  'forms.automatic.wait':
+    '请在 {time} 前自行完成 CAPTCHA。使用“聚焦”打开可见的审阅窗口，或使用“关闭”取消等待。验证码内容不会用于答案学习。',
   'forms.automatic.state.prefilled':
     '已填写并核对受支持的空字段。请检查当前表单。',
   'forms.automatic.state.partial':

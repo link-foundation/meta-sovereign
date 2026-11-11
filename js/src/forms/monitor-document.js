@@ -38,7 +38,7 @@ export const observeFormDocument = (read, binding, learning) => {
     globalThis.clearTimeout(timer);
     try {
       const snapshot = read({ maxFields: 200, maxOptions: 100 });
-      if (evidence) {
+      if (evidence && !snapshot.challenge?.active) {
         snapshot.learning = evidence.read(snapshot);
       }
       // Observation time changes on every read; only content and new evidence

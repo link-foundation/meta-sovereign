@@ -27,6 +27,10 @@ export const createFormsApi = ({ get, getResume, report, local }) => ({
       ok: false,
       code: 'server-required',
     },
+  formsPrefillStatus: async ({ id, requestId }) =>
+    (await get(
+      `/api/forms/sessions/prefill?${new URLSearchParams({ id, requestId })}`
+    )) ?? { ok: false, code: 'server-required' },
   ...Object.fromEntries(
     [
       'Open',

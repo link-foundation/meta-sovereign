@@ -85,6 +85,9 @@ for (const [message, expected] of [
 ]) {
   test(`mandatory browser runner classifies: ${message}`, (t) => {
     const cwd = fixture(t);
+    const checks = expected
+      ? ['tutorial']
+      : ['tutorial', 'forms-reader', 'forms-learning', 'forms-answers'];
     const scripts = path.join(cwd, 'js/scripts');
     const helpers = path.join(cwd, 'js/tests/helpers');
     mkdirSync(scripts, { recursive: true });
@@ -95,7 +98,7 @@ for (const [message, expected] of [
     );
     writeFileSync(
       path.join(scripts, 'browser-checks.json'),
-      JSON.stringify(['tutorial'])
+      JSON.stringify(checks)
     );
     writeFileSync(
       path.join(helpers, 'e2e-reduced-effects.mjs'),
@@ -103,11 +106,15 @@ for (const [message, expected] of [
     );
     writeFileSync(
       path.join(cwd, 'package.json'),
-      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
+      JSON.stringify({
+        scripts: Object.fromEntries(
+          checks.map((name) => [`test:e2e:${name}`, 'node fixture.mjs'])
+        ),
+      })
     );
     writeFileSync(
       path.join(cwd, 'fixture.mjs'),
-      `console.log(${JSON.stringify(message)});\n`
+      `console.log('group:' + process.env.FORMS_GROUP);\nconsole.log(${JSON.stringify(message)});\n`
     );
     // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
     const result = spawnSync(
@@ -128,6 +135,14 @@ for (const [message, expected] of [
       readFileSync(path.join(cwd, 'artifacts/summary.json'))
     );
     assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
+    if (!expected) {
+      for (const group of checks.slice(1)) {
+        assert.match(
+          readFileSync(path.join(cwd, `artifacts/${group}.log`), 'utf8'),
+          new RegExp(`group:${group}`)
+        );
+      }
+    }
   });
 }
 
@@ -260,6 +275,10 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.match(scripts['test:e2e:inbox-pull'], /e2e-inbox-pull-browser/);
   assert.match(scripts['test:e2e:inbox-pull:webkit'], /E2E_BROWSER=webkit/);
   assert.ok(checks.includes('forms-reader'));
+  for (const group of ['forms-learning', 'forms-answers']) {
+    assert.ok(checks.includes(group));
+    assert.match(scripts[`test:e2e:${group}`], /e2e-forms-reader-browser/);
+  }
   assert.match(scripts['test:e2e:forms-reader'], /e2e-forms-reader-browser/);
   assert.match(scripts['test:e2e:forms-reader:webkit'], /E2E_BROWSER=webkit/);
   assert.match(scripts['test:e2e:forms-watchers'], /e2e-forms-watcher-browser/);

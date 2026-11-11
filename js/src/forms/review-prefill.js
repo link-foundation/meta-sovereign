@@ -27,6 +27,12 @@ const planOptions = (input) => ({
   vacancy: input.vacancy,
 });
 
+const requireAnswerForm = (inspection) => {
+  if (inspection.challenge?.active) {
+    throw failure('form-captcha', 'Solve verification in the review browser.');
+  }
+};
+
 export const createReviewedPrefill = ({
   store,
   now = () => Date.now(),
@@ -58,6 +64,7 @@ export const createReviewedPrefill = ({
         snapshot = value;
       },
     });
+    requireAnswerForm(inspection);
     const options = planOptions(input);
     const proposed = withRadioReview(
       await planFormAnswers(
@@ -164,6 +171,7 @@ export const createReviewedPrefill = ({
     }
   };
   return {
+    inspect,
     plan,
     apply,
     applyEmpty: (record, input, check) =>

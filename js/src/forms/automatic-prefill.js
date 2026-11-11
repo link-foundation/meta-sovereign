@@ -3,6 +3,7 @@ import { formFailure as failure } from './options.js';
 import { writableReviewField, reviewSnapshotKey } from './review-targets.js';
 import { proposalMatches } from './review-apply.js';
 import { resumePdf, resumeUploadField } from './resume-upload.js';
+import { waitForManualChallenge } from './challenge-wait.js';
 
 /** Automatic writes never replace an answer, including a radio peer's value. */
 export const automaticReviewFields = (plan) =>
@@ -41,6 +42,20 @@ const requestSignature = (input) => {
       })
     )
     .digest('hex');
+};
+
+export const recoverPrefill = (record, input) => {
+  const signature = requestSignature(input);
+  if (record.lastPrefill?.result.requestId !== input.requestId) {
+    return null;
+  }
+  if (record.lastPrefill.signature !== signature) {
+    throw failure(
+      'form-prefill-conflict',
+      'This request already attempted a different prefill.'
+    );
+  }
+  return record.lastPrefill.result;
 };
 
 const ownerRadio = (field, fields) =>
@@ -94,6 +109,7 @@ const finish = (result, initial) => {
   result.nextPage = Boolean(result.report?.navigation?.nextPage);
   result.complete =
     result.ok &&
+    fields.length > 0 &&
     result.report?.coverage === 'inspected' &&
     !result.unresolved.length;
   if (result.ok) {
@@ -158,6 +174,18 @@ const uploadEmptyResumes = async ({
   return true;
 };
 
+const requireAutomaticFields = (initial, cleared) => {
+  if (cleared && cleared.url !== initial.url) {
+    throw failure(
+      'form-changed',
+      'The verified form navigated before planning.'
+    );
+  }
+  if (!initial.fields.length) {
+    throw failure('form-no-fields', 'No answer fields were inspected.');
+  }
+};
+
 /** One owned operation, one initial document boundary, and no automatic replay. */
 export const prefillFormReview = async ({
   record,
@@ -165,16 +193,13 @@ export const prefillFormReview = async ({
   perform,
   filling,
   check,
+  onWaiting,
+  challenge = {},
 }) => {
   const signature = requestSignature(input);
-  if (record.lastPrefill?.result.requestId === input.requestId) {
-    if (record.lastPrefill.signature !== signature) {
-      throw failure(
-        'form-prefill-conflict',
-        'This request already attempted a different prefill.'
-      );
-    }
-    return record.lastPrefill.result;
+  const cached = recoverPrefill(record, input);
+  if (cached) {
+    return cached;
   }
   record.prefillRequests ??= new Set();
   if (
@@ -192,6 +217,8 @@ export const prefillFormReview = async ({
     mode: 'prefill-result',
     requestId: input.requestId,
     state: 'planning',
+    complete: false,
+    unresolved: [],
     requiresReview: true,
     submissionAttempted: false,
     receipts: [],
@@ -202,8 +229,17 @@ export const prefillFormReview = async ({
   let initial;
   let anchor;
   try {
+    const cleared = await waitForManualChallenge({
+      ...challenge,
+      record,
+      result,
+      inspect: filling.inspect,
+      check,
+      onWaiting,
+    });
     initial = await perform('plan', input);
     result.report = initial;
+    requireAutomaticFields(initial, cleared);
     anchor = record.reviewPlan.targets;
     // Keep the initial document/control bindings across subsequent upload plans.
     record.reviewPlan.targets = { ...anchor, dispose: async () => {} };

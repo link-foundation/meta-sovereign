@@ -11,6 +11,7 @@ import { reviewCapacityValue } from '../forms/review-capacity.js';
 import { modelDraftFlag } from './answer-model-commands.js';
 import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { formReportSnapshot } from '../forms/review-journal.js';
+import { awaitFormPrefill } from './forms-prefill-wait.js';
 
 export const FORMS_REVIEW_HELP =
   '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--prefill] [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
@@ -187,11 +188,18 @@ const openReviews = async (
       const opened = await reader.openReview(form);
       log(JSON.stringify(opened));
       if (automatic.enabled && !isCancelled()) {
-        const result = await reader.prefillReview({
+        const initial = await reader.prefillReview({
           ...automatic.settings,
           id: opened.session.id,
           requestId: globalThis.crypto.randomUUID(),
         });
+        const result = await awaitFormPrefill(
+          reader,
+          initial,
+          (value) =>
+            log(reviewOutput(value, automatic.output, automatic.format)),
+          isCancelled
+        );
         log(reviewOutput(result, automatic.output, automatic.format));
         failed ||= !result.ok;
       }
@@ -227,7 +235,13 @@ const reviewLines = async ({
       break;
     }
     try {
-      const result = await command(reader, line, settings);
+      const initial = await command(reader, line, settings);
+      const result = await awaitFormPrefill(
+        reader,
+        initial,
+        (value) => log(reviewOutput(value, output, format)),
+        isCancelled
+      );
       log(reviewOutput(result, output, format));
     } catch (error) {
       log(

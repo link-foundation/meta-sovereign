@@ -60,6 +60,18 @@ const actions = {
     }),
 };
 export const handleFormReviewRoutes = async (req, res, p, ctx) => {
+  if (p === '/api/forms/sessions/prefill' && req.method === 'GET') {
+    const query = new URL(req.url, 'http://local').searchParams;
+    json(
+      res,
+      200,
+      await ctx.forms.prefillStatus({
+        id: query.get('id'),
+        requestId: query.get('requestId'),
+      })
+    );
+    return true;
+  }
   if (p === '/api/forms/sessions' && req.method === 'GET') {
     await ctx.forms.reviewCapacity();
     json(res, 200, ctx.forms.listReviews());

@@ -6,6 +6,7 @@ import { formProfileFields } from './profile-fields.js';
 import { proposalFor } from './proposals.js';
 import { formModelDrafts } from './model-drafts.js';
 import { formPayProfile } from './pay-profile.js';
+import { formFailure } from './options.js';
 
 const emptyAnswer = (reason) => ({
   source: 'unresolved',
@@ -155,6 +156,15 @@ const planField = (field, fields, prepared) => {
 /** Read-only proposals from one bounded knowledge snapshot; never opens a browser. */
 export const planFormAnswers = async (store, input = {}, modelOptions = {}) => {
   const inspection = validateFormInspection(input.inspection);
+  if (
+    inspection.challenge?.active ||
+    inspection.frames.some((frame) => frame.challenge?.active)
+  ) {
+    throw formFailure(
+      'form-captcha',
+      'Solve verification in the review browser.'
+    );
+  }
   const prepared = await prepareAnswerPreview(
     store,
     {

@@ -28,6 +28,13 @@ const captureAutomaticFrames = async (page, read) => {
       page.frames().map((frame) => frame.evaluate(automaticControlValues))
     );
   }
+  if (new URL(page.url()).pathname === '/captcha') {
+    read.captcha = await page.evaluate(() => ({
+      challengeReads: globalThis.challengeReads,
+      ownerReleases: globalThis.ownerReleases,
+      email: document.querySelector('[name="email"]')?.value,
+    }));
+  }
 };
 
 const fixture = await startFormsFixture();
@@ -246,30 +253,33 @@ try {
     JSON.stringify({
       app: `http://127.0.0.1:${server.port}/#/forms`,
       form:
-        process.env.FORMS_AUTOMATIC_MCP === '1'
-          ? fixture.url.replace('/application', '/automatic')
-          : process.env.FORMS_MATCHING_MCP === '1'
-            ? fixture.url.replace('/application', '/matching')
-            : process.env.FORMS_PAY_MCP === '1'
-              ? fixture.url.replace('/application', '/pay')
-              : process.env.FORMS_SUBJECTS_MCP === '1'
-                ? fixture.url.replace('/application', '/subjects')
-                : process.env.FORMS_TIMEZONE_MCP === '1'
-                  ? fixture.url.replace('/application', '/timezone')
-                  : process.env.FORMS_LINKS_MCP === '1'
-                    ? fixture.url.replace('/application', '/links')
-                    : modelMode
-                      ? fixture.url.replace('/application', '/model')
-                      : process.env.FORMS_RESUME_MCP === '1'
-                        ? fixture.url.replace('/application', '/upload')
-                        : process.env.FORMS_LEARNING_MCP === '1'
-                          ? fixture.url.replace('/application', '/learning')
-                          : process.env.FORMS_MONITOR_MCP === '1'
-                            ? fixture.url.replace('/application', '/monitor')
-                            : fixture.url,
+        process.env.FORMS_CAPTCHA_MCP === '1'
+          ? fixture.url.replace('/application', '/captcha')
+          : process.env.FORMS_AUTOMATIC_MCP === '1'
+            ? fixture.url.replace('/application', '/automatic')
+            : process.env.FORMS_MATCHING_MCP === '1'
+              ? fixture.url.replace('/application', '/matching')
+              : process.env.FORMS_PAY_MCP === '1'
+                ? fixture.url.replace('/application', '/pay')
+                : process.env.FORMS_SUBJECTS_MCP === '1'
+                  ? fixture.url.replace('/application', '/subjects')
+                  : process.env.FORMS_TIMEZONE_MCP === '1'
+                    ? fixture.url.replace('/application', '/timezone')
+                    : process.env.FORMS_LINKS_MCP === '1'
+                      ? fixture.url.replace('/application', '/links')
+                      : modelMode
+                        ? fixture.url.replace('/application', '/model')
+                        : process.env.FORMS_RESUME_MCP === '1'
+                          ? fixture.url.replace('/application', '/upload')
+                          : process.env.FORMS_LEARNING_MCP === '1'
+                            ? fixture.url.replace('/application', '/learning')
+                            : process.env.FORMS_MONITOR_MCP === '1'
+                              ? fixture.url.replace('/application', '/monitor')
+                              : fixture.url,
     })
   );
   if (
+    process.env.FORMS_CAPTCHA_MCP === '1' ||
     process.env.FORMS_MONITOR_MCP === '1' ||
     process.env.FORMS_LEARNING_MCP === '1'
   ) {
@@ -278,6 +288,7 @@ try {
       store,
       fixture,
       learning: process.env.FORMS_LEARNING_MCP === '1',
+      captcha: process.env.FORMS_CAPTCHA_MCP === '1',
     });
   } else {
     await new Promise((resolve) => {

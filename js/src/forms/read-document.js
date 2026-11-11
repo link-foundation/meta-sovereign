@@ -20,6 +20,68 @@ export const readFormDocument = ({
   if (identityOnly) {
     return identity;
   }
+  const visible = (node) => {
+    if (node.closest('[hidden], [inert], [aria-hidden="true"]')) {
+      return false;
+    }
+    const style = globalThis.getComputedStyle(node);
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      style.visibility !== 'collapse' &&
+      node.getClientRects().length > 0
+    );
+  };
+  // Detect only challenge boundaries and completion booleans. Never extract a
+  // challenge's instructions, answers, images or response token into a report.
+  const challengeRoots =
+    '.smart-captcha,[data-smartcaptcha],#captcha-form,form[action*="checkcaptcha"],.CheckboxCaptcha,.TextinputCaptcha,.g-recaptcha,.h-captcha,.cf-turnstile';
+  const challengeUrl = (value) => {
+    if (!globalThis.URL) {
+      return false;
+    }
+    const { hostname, pathname } = new globalThis.URL(value, identity.url);
+    return (
+      hostname === 'smartcaptcha.yandexcloud.net' ||
+      /(^|\.)captcha\.yandex\.net$/u.test(hostname) ||
+      /(^|\.)(hcaptcha\.com|recaptcha\.net)$/u.test(hostname) ||
+      hostname === 'challenges.cloudflare.com' ||
+      (/^\/(showcaptcha|checkcaptcha)(\/|$)/u.test(pathname) &&
+        /(^|\.)yandex\.(ru|com)$/u.test(hostname)) ||
+      (/(^|\.)google\.com$/u.test(hostname) &&
+        pathname.startsWith('/recaptcha/'))
+    );
+  };
+  const responses = Array.from(
+    doc.querySelectorAll(
+      '[name="smart-token"],[name="g-recaptcha-response"],[name="h-captcha-response"],[name="cf-turnstile-response"]'
+    )
+  ).slice(0, 21);
+  const completed =
+    responses.length > 0 &&
+    responses.length <= 20 &&
+    responses.every((node) => Boolean(node.value));
+  const challenge =
+    challengeUrl(identity.url) ||
+    (!completed &&
+      (Array.from(doc.querySelectorAll(challengeRoots)).some(visible) ||
+        Array.from(doc.querySelectorAll('iframe')).some(
+          (node) =>
+            visible(node) && challengeUrl(node.getAttribute('src') || '')
+        )));
+  if (challenge) {
+    return {
+      ...identity,
+      title: '',
+      intro: '',
+      fields: [],
+      excluded: 0,
+      reasons: ['owner-verification'],
+      challenge: { active: true, kind: 'captcha' },
+      scope: 'visible-current-document',
+      navigation: { nextPage: false, limited: true },
+    };
+  }
   const readFields = () => {
     const reasons = new Set();
     const groups = new Map();
@@ -93,18 +155,6 @@ export const readFormDocument = ({
       return text.slice(0, 2000);
     };
     const attr = (node, key) => node.getAttribute(key) ?? '';
-    const visible = (node) => {
-      if (node.closest('[hidden], [inert], [aria-hidden="true"]')) {
-        return false;
-      }
-      const style = globalThis.getComputedStyle(node);
-      return (
-        style.display !== 'none' &&
-        style.visibility !== 'hidden' &&
-        style.visibility !== 'collapse' &&
-        node.getClientRects().length > 0
-      );
-    };
     const refs = (node, key) =>
       clip(
         attr(node, key)
@@ -421,6 +471,9 @@ export const readFormDocument = ({
           navigation.limited = true;
           break;
         }
+        if (node.closest(challengeRoots)) {
+          continue;
+        }
         const name = clip(
           attr(node, 'aria-label') || node.value || node.textContent
         );
@@ -462,6 +515,7 @@ export const readFormDocument = ({
         const parent = node.parentElement;
         if (
           !parent ||
+          parent.closest(challengeRoots) ||
           parent.closest(
             'script,style,noscript,button,input,textarea,select'
           ) ||
@@ -537,6 +591,7 @@ export const readFormDocument = ({
       }
       if (
         ['hidden', 'submit', 'reset', 'button', 'image'].includes(type) ||
+        node.closest(challengeRoots) ||
         !visible(node)
       ) {
         excluded++;

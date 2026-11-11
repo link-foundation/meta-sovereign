@@ -9,7 +9,9 @@
   for recovery with their original settings. Preserve owner answers and verify
   configured or selected PDFs,
   retain provenance and recover receipts without repeating writes. Keep page
-  navigation and form submission under owner control.
+  navigation and form submission under owner control. Wait up to 30 minutes
+  for manual CAPTCHA verification, exclude challenge data from answers and
+  resume through fresh guarded inspection with read-only status recovery.
 
 - Add configurable question similarity/case and paged ranked-match inspection
   across CLI, Lino, automation and Forms controls. Preserve subject guards,
