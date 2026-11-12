@@ -15,7 +15,15 @@ Active shared workplace identity readback:
 - [x] Verify 30 focused Node/30 Deno checks and four native WebKit owner Save cases, with actual-parent before/after desktop/phone evidence. See [record identity](cv-workplace-identity.md).
 - [ ] Publish this atomic change, integrate the concurrently published cancellation history and inspect exact-head hosted CI. Complete native preparation/copy/detach and every other unchecked issue requirement afterward.
 
-Active unreceived About request recovery:
+Active exact-head duplication correction:
+
+- [x] Preserve Checks 43245201058 (242d4ccd, 2026-11-12 15:12:04 UTC), its failed lint job and the unchanged 6.5% gate; reproduce 41,084 duplicated lines / 629,179 analyzed lines (6.53%).
+- [x] Share the byte-identical archive tail in fourteen evidence collectors without changing their selected entries, metadata, deterministic bytes or retained historical archives.
+- [x] Compare old/new archive bytes, manifests and refusal on four bounded fixtures; run twenty workflow contracts, workflow policy and scoped formatting/secrets.
+- [ ] Publish the atomic correction and inspect exact-head hosted results.
+- [ ] Continue shared-workplace identity, native editing/copy/detach, batches, bilingual provider writes and every unchecked product requirement.
+
+Active HH14/HH16 About preparation cancellation and recovery:
 
 Integrate local `c22a89d7` and published `d76215a1` with a regular merge. Preserve
 the published cancelled-preparation receipt and latest-pointer reload behavior,
