@@ -6,6 +6,7 @@ import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
 import { foregroundCvWatch } from './cv-watch-command.js';
 import { cvTranslationCommandInput } from './cv-translation-command.js';
+import { cvWorkplaceCommandInput } from './cv-workplace-command.js';
 
 const vacancyCommandExit = (operation, result) =>
   (operation === 'resume-export' && result.state !== 'completed') ||
@@ -36,7 +37,12 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description> [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-source --export-id=<id> --resume=<hash> [--job-index=0] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-dictionaries [--store=<dir>]
+  vacancies-cv-workplace-plan --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<fields.json|fields.lino|fields.bin> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-plan-stored [--fingerprint=<plan-fingerprint>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-review --fingerprint=<plan-fingerprint> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description|workplace> [--review-kind=workplace] [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-translate --file=<texts.json|texts.lino|texts.bin> --from=ru|en --to=en|ru [--providers=haiku,luna,formal-ai] [--haiku-model=<id>] [--luna-model=<id>] [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
@@ -79,6 +85,11 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'cv-watch-status',
       'cv-watch-stop',
       'cv-snapshots',
+      'cv-workplace-source',
+      'cv-workplace-dictionaries',
+      'cv-workplace-plan',
+      'cv-workplace-plan-stored',
+      'cv-workplace-review',
       'cv-prepare',
       'cv-prepare-status',
       'cv-prepare-cancel',
@@ -96,41 +107,44 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
           ? await cvTranslationCommandInput(operation, args)
           : operation.startsWith('technology-')
             ? await technologyCommandInput(operation, args)
-            : {
-                ...Object.fromEntries(
-                  ['query', 'resume', 'area', 'currency', 'order', 'url'].map(
-                    (key) => [key, args[key]]
-                  )
-                ),
-                ...Object.fromEntries(
-                  ['remote', 'refresh', 'headless', 'all'].map((key) => [
-                    key,
-                    typedFlag(args, key, 'boolean'),
-                  ])
-                ),
-                salary: typedFlag(args, 'salary', 'number'),
-                page: typedFlag(args, 'page', 'number'),
-                browserSlot: args['browser-slot'],
-                resumeLanguage: args['resume-language'],
-                requestId:
-                  args['request-id'] ??
-                  (['resume-export', 'cv-watch', 'cv-prepare'].includes(
-                    operation
-                  )
-                    ? randomUUID()
-                    : undefined),
-                durationMs: typedFlag(args, 'duration-ms', 'number'),
-                targetId: args['target-id'],
-                fingerprint: args.fingerprint,
-                changeId: args['change-id'],
-                recordId: args['record-id'],
-                formats:
-                  args.formats === undefined
-                    ? undefined
-                    : String(args.formats)
-                        .split(',')
-                        .map((format) => format.trim()),
-              };
+            : operation.startsWith('cv-workplace-')
+              ? await cvWorkplaceCommandInput(operation, args)
+              : {
+                  ...Object.fromEntries(
+                    ['query', 'resume', 'area', 'currency', 'order', 'url'].map(
+                      (key) => [key, args[key]]
+                    )
+                  ),
+                  ...Object.fromEntries(
+                    ['remote', 'refresh', 'headless', 'all'].map((key) => [
+                      key,
+                      typedFlag(args, key, 'boolean'),
+                    ])
+                  ),
+                  salary: typedFlag(args, 'salary', 'number'),
+                  page: typedFlag(args, 'page', 'number'),
+                  browserSlot: args['browser-slot'],
+                  resumeLanguage: args['resume-language'],
+                  requestId:
+                    args['request-id'] ??
+                    (['resume-export', 'cv-watch', 'cv-prepare'].includes(
+                      operation
+                    )
+                      ? randomUUID()
+                      : undefined),
+                  durationMs: typedFlag(args, 'duration-ms', 'number'),
+                  targetId: args['target-id'],
+                  fingerprint: args.fingerprint,
+                  changeId: args['change-id'],
+                  recordId: args['record-id'],
+                  reviewKind: args['review-kind'],
+                  formats:
+                    args.formats === undefined
+                      ? undefined
+                      : String(args.formats)
+                          .split(',')
+                          .map((format) => format.trim()),
+                };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
         const service = createVacancyService({ store, storeDir, ...options });

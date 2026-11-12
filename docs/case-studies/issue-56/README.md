@@ -310,3 +310,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Reviewed workplace description preparation](cv-workplace-prepare.md): exact owner-opened identity, verified sources, fresh native fields/membership, controlled keyboard insertion and draft-only CLI/Lino/four-language receipts. Shared copies, other workplace fields, batches and authenticated parity remain open.
 
 - [CI: shared CV verification fixtures](ci-cv-fixture-duplication.md): exact published duplication failure, preserved cancellation tests, shared parent replay/server setup and finite lifecycle checks under the unchanged gate.
+
+- [Existing workplace field review and preparation](cv-workplace-fields.md): immutable source/job/record-bound nine-field differences, explicit approval, localized dictionaries and native controlled typing/pickers; draft-only CLI/Lino/four-language receipts with phone recovery. Shared copy/detach, new records, batches and authenticated provider parity remain open.

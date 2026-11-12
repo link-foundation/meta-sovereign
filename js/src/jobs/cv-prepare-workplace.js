@@ -9,6 +9,7 @@ import {
 import { prepareCvControlledText } from './cv-prepare-text.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { prepareNativeCvWorkplaceEdit } from './cv-workplace-edit-native.js';
 
 const selector =
   'textarea[data-qa="resume-editor-experience-description-input"]';
@@ -52,6 +53,16 @@ export const prepareNativeCvWorkplace = async ({
   readinessMs = 20000,
   settleMs = 750,
 }) => {
+  if (change.plan) {
+    return prepareNativeCvWorkplaceEdit({
+      session,
+      change,
+      check,
+      phase,
+      readinessMs,
+      settleMs,
+    });
+  }
   const { recordId, job } = change.workplace;
   const read = async () => {
     check();

@@ -42,7 +42,7 @@ const WorkplacePreparation = ({ change, review, state, idle, t }) => {
     ]
   );
 };
-const PreparationReceipt = ({ result, t }) =>
+export const PreparationReceipt = ({ result, t }) =>
   result
     ? el(
         'div',
@@ -57,7 +57,14 @@ const PreparationReceipt = ({ result, t }) =>
           el(
             'p',
             { key: 'identity', className: 'meta' },
-            `${result.language.toUpperCase()} · ${result.hash ?? ''} · ${result.requestId} · ${result.updatedAt}`
+            [
+              result.language?.toUpperCase(),
+              result.hash,
+              result.requestId,
+              result.updatedAt,
+            ]
+              .filter(Boolean)
+              .join(' · ')
           ),
           result.recordId
             ? el(

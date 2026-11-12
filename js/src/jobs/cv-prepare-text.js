@@ -41,7 +41,11 @@ export const prepareCvControlledText = async ({
     await unchanged(before, true);
     await handle.press('ControlOrMeta+A', { timeout: 10000 });
     await unchanged(before, true);
-    await page.keyboard.insertText(after);
+    if (after) {
+      await page.keyboard.insertText(after);
+    } else {
+      await handle.press('Backspace', { timeout: 10000 });
+    }
     await unchanged(after, true, false);
     // A native change after bulk insertion settles HH's controlled textarea.
     // At maxlength, remove/restore one complete code point instead of overflowing.

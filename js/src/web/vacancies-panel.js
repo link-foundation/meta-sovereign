@@ -15,6 +15,8 @@ import {
   CvTranslationPanel,
   useCvTranslation,
 } from './cv-translation-panel.js';
+import { useCvWorkplaceReview } from './cv-workplace-state.js';
+import { CvWorkplaceReview } from './cv-workplace-panel.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -62,6 +64,11 @@ const persistSettings = (values) => {
     /* Reading does not require storage. */
   }
 };
+
+const activeVacancyOperation = (busy, resumeExports, cvTranslation) =>
+  busy ||
+  (resumeExports.job?.state === 'running' ? 'resume-export' : '') ||
+  (cvTranslation.comparison?.state === 'running' ? 'cv-translate' : '');
 
 export const useVacancies = (api) => {
   const [values, setValues] = useState(initialSettings);
@@ -121,6 +128,12 @@ export const useVacancies = (api) => {
   const technology = useTechnologyAnalysis({ api, values, run });
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
   cvTechnology.preparation = useCvPreparation({ api, values, run });
+  const cvWorkplace = useCvWorkplaceReview({
+    api,
+    values,
+    run,
+    preparation: cvTechnology.preparation,
+  });
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const cvTranslation = useCvTranslation({ api, values, run });
   const search = (page = 0) =>
@@ -183,13 +196,11 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy:
-      busy ||
-      (resumeExports.job?.state === 'running' ? 'resume-export' : '') ||
-      (cvTranslation.comparison?.state === 'running' ? 'cv-translate' : ''),
+    busy: activeVacancyOperation(busy, resumeExports, cvTranslation),
     resumeExports,
     technology,
     cvTechnology,
+    cvWorkplace,
     cvSaveWatch,
     cvTranslation,
     error,
@@ -450,6 +461,9 @@ const CvEvidencePanels = ({ state, t }) =>
       : null,
     state.cvTechnology
       ? el(CvTechnologyReview, { key: 'cv-technology', state, t })
+      : null,
+    state.cvWorkplace
+      ? el(CvWorkplaceReview, { key: 'cv-workplace', state, t })
       : null,
   ]);
 

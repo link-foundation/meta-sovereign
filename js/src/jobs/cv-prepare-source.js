@@ -4,6 +4,7 @@ import { verifiedTechnologyCv } from './technology-cv.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { sanitizedResumeCv } from './resume-cv.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
+import { cvWorkplacePreparationSource } from './cv-workplace-review-service.js';
 
 const selectedChange = (review, input) => {
   const change = review.report.changes.find(
@@ -27,6 +28,9 @@ const selectedChange = (review, input) => {
 
 /** Revalidate the approved plan and its exact private source before touching a tab. */
 export const cvPrepareSource = async ({ store, artifactRoot }, input) => {
+  if (input.reviewKind === 'workplace') {
+    return cvWorkplacePreparationSource({ store, artifactRoot }, input);
+  }
   const row = await store.get(`jobs-cv-technology-review:${input.browserSlot}`);
   const { review } = await confirmedCvTechnologyReview(
     { review: row?.review ?? null },

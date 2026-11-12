@@ -331,3 +331,5 @@ Verify existing shared HH workplaces against their exact fresh native record and
 Prepare a selected reviewed workplace description only in an exact owner-opened unchanged record belonging to one CV. Bind fresh native fields, membership and verified source evidence before keyboard insertion; preserve other fields, owner Save/Cancel and durable non-replaying CLI/Lino/four-language receipts. Refuse shared records until their separate copy workflow is available.
 
 Reject ambiguous native CV identities, extra readback exports and unobserved workplace metadata even when all CVs are excluded. Cancel rejected HTTP response bodies before returning readback failures.
+
+Add explicit review and native draft preparation of all nine existing workplace fields, localized area/industry identities and immutable export/job/record binding. Share CLI, both Lino encodings and four-language controls; preserve owner edits, memberships, Save/Cancel and durable recovery. Render unreceived cancellation receipts without requiring a CV identity.
