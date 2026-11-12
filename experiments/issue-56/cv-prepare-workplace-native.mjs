@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import {
+  NativeDates,
+  NativeArea,
+  NativeIndustries,
+} from './cv-workplace-native-choices.mjs';
 const el = React.createElement;
 
 /** Native controlled fields, using only finite synthetic CV content. */
@@ -8,10 +13,17 @@ export const NativeCvWorkplace = ({
   otherHash,
   shared = false,
   maxLength = 24000,
+  fieldsMode = false,
 }) => {
   const [description, setDescription] = useState(job.description);
   const [company, setCompany] = useState(job.company);
   const [checked, setChecked] = useState(shared);
+  const [position, setPosition] = useState(job.position);
+  const [website, setWebsite] = useState(job.website);
+  const [area, setArea] = useState(job.area);
+  const [industryIds, setIndustryIds] = useState(
+    job.industries.map((row) => row.id)
+  );
   const field = (qa, value) =>
     el(
       'div',
@@ -29,13 +41,19 @@ export const NativeCvWorkplace = ({
       key: 'company',
       name: 'company',
       value: company,
-      onChange: (event) => setCompany(event.target.value),
+      onChange: (event) => {
+        setCompany(event.target.value);
+        if (globalThis.fixtureConcurrentOwner) {
+          setPosition('Owner concurrent position');
+        }
+      },
     }),
     el('input', {
       key: 'position',
       name: 'position',
-      value: job.position,
-      readOnly: true,
+      value: position,
+      readOnly: !fieldsMode,
+      onChange: (event) => setPosition(event.target.value),
     }),
     el('textarea', {
       key: 'description',
@@ -47,38 +65,49 @@ export const NativeCvWorkplace = ({
         setDescription(event.target.value);
       },
     }),
-    el(React.Fragment, { key: 'dates' }, [
-      field('resume-editor-experience-start-month-input', 'May'),
-      el('input', {
-        key: 'year',
-        'data-qa': 'resume-editor-experience-start-year-input',
-        value: '2020',
-        readOnly: true,
-      }),
-      el('input', {
-        key: 'current',
-        type: 'checkbox',
-        'data-qa': 'resume-editor-experience-present-checkbox',
-        checked: true,
-        readOnly: true,
-      }),
-    ]),
+    fieldsMode
+      ? el(NativeDates, { key: 'full-dates', job })
+      : el(React.Fragment, { key: 'dates' }, [
+          field('resume-editor-experience-start-month-input', 'May'),
+          el('input', {
+            key: 'year',
+            'data-qa': 'resume-editor-experience-start-year-input',
+            value: '2020',
+            readOnly: true,
+          }),
+          el('input', {
+            key: 'current',
+            type: 'checkbox',
+            'data-qa': 'resume-editor-experience-present-checkbox',
+            checked: true,
+            readOnly: true,
+          }),
+        ]),
     el(React.Fragment, { key: 'metadata' }, [
-      field('resume-editor-experience-area-input', job.area),
+      fieldsMode
+        ? el(NativeArea, { key: 'area', value: area, update: setArea })
+        : field('resume-editor-experience-area-input', job.area),
       el('input', {
         key: 'website',
         'data-qa': 'resume-editor-experience-company-url-input',
-        value: job.website,
-        readOnly: true,
+        value: website,
+        readOnly: !fieldsMode,
+        onChange: (event) => setWebsite(event.target.value),
       }),
-      el('div', { key: 'industry', 'data-qa': 'trigger-root' }, [
-        el('label', { key: 'label' }, 'Field of activity'),
-        el(
-          'span',
-          { key: 'values', 'data-qa': 'trigger-values-wrapper' },
-          job.industries.map((row) => row.name).join(', ')
-        ),
-      ]),
+      fieldsMode
+        ? el(NativeIndustries, {
+            key: 'industry',
+            values: industryIds,
+            update: setIndustryIds,
+          })
+        : el('div', { key: 'industry', 'data-qa': 'trigger-root' }, [
+            el('label', { key: 'label' }, 'Field of activity'),
+            el(
+              'span',
+              { key: 'values', 'data-qa': 'trigger-values-wrapper' },
+              job.industries.map((row) => row.name).join(', ')
+            ),
+          ]),
     ]),
     el('label', { key: 'cv' }, [
       el('input', {

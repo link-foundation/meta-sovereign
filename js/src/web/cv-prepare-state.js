@@ -87,6 +87,7 @@ export const useCvPreparation = ({ api, values, run }) => {
           fingerprint: review.fingerprint,
           changeId: change.id,
           ...(options.recordId ? { recordId: options.recordId } : {}),
+          ...(options.reviewKind ? { reviewKind: options.reviewKind } : {}),
         });
         if (current === generation.current) {
           accept(answer, requestId);

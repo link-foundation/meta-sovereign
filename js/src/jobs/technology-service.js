@@ -3,6 +3,7 @@ import { modelFingerprint } from '../automation/answer-model-context.js';
 import { vacancyContent } from '../assignments/vacancy-content.js';
 import { verifiedTechnologyCv } from './technology-cv.js';
 import { createCvTechnologyService } from './cv-technology-service.js';
+import { createCvWorkplaceReviewService } from './cv-workplace-review-service.js';
 import { saveTechnologyRecord } from './technology-storage.js';
 import {
   storedTechnologyCatalog,
@@ -73,6 +74,12 @@ const storedAnalysis = async (store, input) => {
 };
 
 export const createTechnologyService = ({ store, artifactRoot, run }) => ({
+  ...createCvWorkplaceReviewService({
+    store,
+    artifactRoot,
+    write: (operation) => acknowledgedWrite(store, run, operation),
+    read: (operation) => acknowledgedRead(store, operation),
+  }),
   ...createCvTechnologyService({
     store,
     artifactRoot,

@@ -9,16 +9,20 @@ export const cvPrepareIdentity = (input) => ({
   requestId: resumeExportRequestId(input.requestId),
   browserSlot: browserName(input.browserSlot ?? 'jobs'),
 });
+const recordMatchesChange = (input) =>
+  input.changeId?.endsWith(':about')
+    ? input.recordId === undefined
+    : typeof input.recordId === 'string' && /^\d{1,100}$/u.test(input.recordId);
 export const cvPrepareOptions = (input) => {
+  const workplace = input.reviewKind === 'workplace';
+  const changePattern = workplace
+    ? /^(?:ru|en):workplace$/u
+    : /^(?:ru|en):(?:about|jobs\.(?:0|[1-9]\d{0,2})\.description)$/u;
   if (
+    (input.reviewKind !== undefined && !workplace) ||
     !/^[a-f\d]{64}$/u.test(input.fingerprint ?? '') ||
-    !/^(?:ru|en):(?:about|jobs\.(?:0|[1-9]\d{0,2})\.description)$/u.test(
-      input.changeId ?? ''
-    ) ||
-    (input.changeId?.endsWith(':about')
-      ? input.recordId !== undefined
-      : typeof input.recordId !== 'string' ||
-        !/^\d{1,100}$/u.test(input.recordId)) ||
+    !changePattern.test(input.changeId ?? '') ||
+    !recordMatchesChange(input) ||
     (input.targetId !== undefined &&
       !/^[a-zA-Z\d]{1,100}$/u.test(input.targetId))
   ) {
@@ -28,6 +32,7 @@ export const cvPrepareOptions = (input) => {
     ...cvPrepareIdentity(input),
     fingerprint: input.fingerprint,
     changeId: input.changeId,
+    ...(workplace ? { reviewKind: 'workplace' } : {}),
     ...(input.recordId ? { recordId: input.recordId } : {}),
     ...(input.targetId ? { targetId: input.targetId } : {}),
   };
@@ -96,6 +101,7 @@ const preparedResult = (raw, input) => {
       'changeId',
       'targetId',
       'recordId',
+      'reviewKind',
     ].some((key) => input[key] !== undefined && input[key] !== options[key])
   ) {
     throw cvPrepareFailure('state');

@@ -41,27 +41,31 @@ export const technologyCommandInput = async (operation, args) => {
   if (typeof args.file !== 'string') {
     throw new Error('Use --file=<catalog.lino|catalog.bin|catalog.json>.');
   }
-  const handle = await open(args.file, 'r');
+  return boundedCommandFile(args.file);
+};
+
+export const boundedCommandFile = async (file) => {
+  const handle = await open(file, 'r');
   try {
     const stat = await handle.stat();
     if (!stat.isFile() || stat.size > 256 * 1024) {
-      throw new Error('Catalog files must be at most 256 KiB.');
+      throw new Error('Input files must be at most 256 KiB.');
     }
     const bytes = Buffer.alloc(stat.size);
     let offset = 0;
     while (offset < bytes.length) {
       const part = await handle.read(bytes, offset, bytes.length - offset);
       if (!part.bytesRead) {
-        throw new Error('Catalog file changed while reading.');
+        throw new Error('Input file changed while reading.');
       }
       offset += part.bytesRead;
     }
     if ((await handle.read(Buffer.alloc(1), 0, 1)).bytesRead) {
-      throw new Error('Catalog file changed while reading.');
+      throw new Error('Input file changed while reading.');
     }
-    return args.file.endsWith('.json')
+    return file.endsWith('.json')
       ? JSON.parse(bytes.toString('utf8'))
-      : decodeWire(bytes, args.file.endsWith('.bin') ? LINO_BINARY : LINO_TEXT);
+      : decodeWire(bytes, file.endsWith('.bin') ? LINO_BINARY : LINO_TEXT);
   } finally {
     await handle.close();
   }

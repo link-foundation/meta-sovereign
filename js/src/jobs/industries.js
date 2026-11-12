@@ -45,13 +45,14 @@ export const resolveResumeIndustry = (value, entries) => {
   return matches[0];
 };
 
-const readIndustryTree = async (response) => {
+export const readHhDictionaryTree = async (response) => {
   const limit = 2 * 1024 ** 2;
   if (
     !response.ok ||
     !response.body ||
     Number(response.headers.get('content-length')) > limit
   ) {
+    await response.body?.cancel().catch(() => {});
     invalid();
   }
   const reader = response.body.getReader();
@@ -118,7 +119,7 @@ export const loadResumeIndustries = async ({
       : AbortSignal.timeout(15000),
     redirect: 'error',
   });
-  const tree = await readIndustryTree(response);
+  const tree = await readHhDictionaryTree(response);
   const entries = industryDirectory(tree);
   signal?.throwIfAborted();
   await store.put({ id, version: 1, fetchedAt: now(), tree });

@@ -6,9 +6,13 @@ import { NativeCvWorkplace } from './cv-prepare-workplace-native.mjs';
 import { cvPrepareFixture } from './cv-prepare-fixture.mjs';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { prepareNativeCvWorkplace } from '../../js/src/jobs/cv-prepare-workplace.js';
+import { cvWorkplaceDictionaryRows } from './cv-workplace-fields-fixture.mjs';
 
 let bundle;
-export const cvWorkplacePrepareBrowserFixture = async (browser) => {
+export const cvWorkplacePrepareBrowserFixture = async (
+  browser,
+  { fieldsMode = false } = {}
+) => {
   const data = await cvPrepareFixture({ selected: ['en:jobs.0.description'] });
   const change = data.review.report.changes.find(
     (row) => row.id === 'en:jobs.0.description'
@@ -46,9 +50,10 @@ export const cvWorkplacePrepareBrowserFixture = async (browser) => {
     otherHash,
     shared: options.shared ?? false,
     maxLength: options.maxLength ?? 24000,
+    fieldsMode,
   });
   const html = (saved = false) =>
-    `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(NativeCvWorkplace, props(saved)))}</div><script>globalThis.fixtureProps=${JSON.stringify(props()).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
+    `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(NativeCvWorkplace, props(saved)))}</div><script>globalThis.fixtureProps=${JSON.stringify(props()).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
   await native.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin !== 'https://hh.ru') {
@@ -120,7 +125,7 @@ export const cvWorkplacePrepareBrowserFixture = async (browser) => {
         }),
       },
     });
-    for (const row of data.rows) {
+    for (const row of [...data.rows, ...cvWorkplaceDictionaryRows()]) {
       await app.store.put(row);
     }
     return {

@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active complete existing-workplace field review/preparation:
+
+- [x] Inventory native controls and pinned dictionary behavior; reproduce the missing full-field review on published `2389fc8e`.
+- [x] Save an immutable exact-export/job/record-bound proposed draft, explicitly review its complete field differences and revalidate source artifacts before browser admission.
+- [x] Prepare company, position, description, month-precise dates/current status, website, localized area and industry identities in the exact existing single-CV workplace; preserve every unrelated field, memberships and owner edits. Leave native Save/Cancel to the owner.
+- [x] Share review, recovery and draft-only receipts through CLI, both Lino formats and four-language CV controls. Verify focused parent-failing checks and native desktop/phone evidence with no full local suite.
+- [ ] Preserve evidence, commit and push only the prepared branch, review exact-head hosted checks, then continue shared copy/detach, new identities, durable batches and every remaining requirement.
+
+Nine new checks pass per Node/Deno; the mandatory native preparation group passes all 21 scenarios. Four new cases drain seven attachments with zero provider Saves and no page errors. A shared cancellation receipt regression is reproduced and fixed. Parent hosted WebKit shard 4 still fails during offline rediscovery; inspect and correct its connection-readiness assumption separately. See [field-review evidence](cv-workplace-fields.md).
+
 Active reviewed workplace description preparation:
 
 Preparation `0b14bcd6` is integrated with independent readback guards `16a73620` in a regular merge. All 69 focused Node/69 Deno checks pass on the combined sources, with explicit successful Deno exit; the five preparation/eight Save-observation native cases pass. Parent native-helper cancellation was a superseded concurrency request with no test steps or log blob; retain its annotations and require exact combined-head hosted checks. Original archives and both implementations are preserved.
