@@ -4,7 +4,8 @@ export const hiVacancy = {
   'technology.hint':
     'अधिकतम 100 सहेजे गए विवरणों की तुलना स्पष्ट रूप से चुने गए सत्यापित बायोडाटा निर्यात से करें। उल्लेख केवल पाठ का प्रमाण हैं, योग्यता का प्रमाण नहीं। केवल सूची के नाम पहचाने जाते हैं; अज्ञात कौशल टैग अलग दिखते हैं। गिनती अलग-अलग रिक्तियों की है। इससे बायोडाटा संपादित या आवेदन नहीं होता।',
   'technology.catalog': 'स्थानीय तकनीक नाम और उपनाम',
-  'technology.catalogEdit': 'सूची संपादित करें (256 नाम, प्रत्येक के 8 उपनाम तक)',
+  'technology.catalogEdit':
+    'सूची संपादित करें (256 नाम, प्रत्येक के 8 उपनाम तक)',
   'technology.entry': 'सूची प्रविष्टि',
   'technology.new': 'नाम जोड़ें',
   'technology.canonical': 'तकनीक का नाम',
@@ -15,7 +16,8 @@ export const hiVacancy = {
   'technology.remove': 'मसौदे से हटाएँ',
   'technology.defaults': 'मसौदे में डिफ़ॉल्ट नाम लाएँ',
   'technology.save': 'सूची सहेजें',
-  'technology.unsaved': 'सूची मसौदे में बदलाव सहेजे नहीं गए हैं। विश्लेषण से पहले सहेजें।',
+  'technology.unsaved':
+    'सूची मसौदे में बदलाव सहेजे नहीं गए हैं। विश्लेषण से पहले सहेजें।',
   'technology.invalid':
     '80 अक्षरों तक के अलग नाम और प्रत्येक नाम के अधिकतम 8 उपनाम दें।',
   'technology.resume': 'तुलना के लिए सत्यापित बायोडाटा निर्यात',
@@ -37,7 +39,8 @@ export const hiVacancy = {
   'technology.missing': 'बायोडाटा के पाठ में नहीं मिला',
   'technology.requiredMissing': 'बायोडाटा पाठ में अनुपस्थित आवश्यक नाम',
   'technology.preferredMissing': 'बायोडाटा पाठ में अनुपस्थित वांछित नाम',
-  'technology.unrecognized': 'अवर्गीकृत कौशल टैग (सूची संपादित करके वर्गीकृत करें)',
+  'technology.unrecognized':
+    'अवर्गीकृत कौशल टैग (सूची संपादित करके वर्गीकृत करें)',
   'technology.aliasSuggestions':
     'बायोडाटा में पहले से उल्लिखित नामों की देखी गई वर्तनियाँ',
   'technology.spellingSuggestions':
@@ -67,7 +70,8 @@ export const hiVacancy = {
   'vacancy.exportProgress': '{total} में से {count} रिज़्यूमे सत्यापित',
   'vacancy.exportState.running': 'निर्यात चल रहा है',
   'vacancy.exportState.completed': 'निर्यात पूरा हुआ',
-  'vacancy.exportState.failed': 'त्रुटि के बाद निर्यात रुका; सत्यापित फ़ाइलें सुरक्षित हैं',
+  'vacancy.exportState.failed':
+    'त्रुटि के बाद निर्यात रुका; सत्यापित फ़ाइलें सुरक्षित हैं',
   'vacancy.exportState.stopped': 'निर्यात रुका; सत्यापित फ़ाइलें सुरक्षित हैं',
   'vacancy.exportState.interrupted':
     'निर्यात बाधित हुआ; स्थिति प्राप्त करने से यह फिर शुरू नहीं होगा',
@@ -140,7 +144,8 @@ export const hiVacancy = {
   'cvTechnology.en': 'अंग्रेज़ी निर्यात',
   'cvTechnology.generate': 'स्थानीय समीक्षा बनाएँ',
   'cvTechnology.reload': 'सहेजी गई समीक्षा फिर लोड करें',
-  'cvTechnology.loadError': 'सहेजी गई समीक्षा लोड नहीं हुई। मौजूदा समीक्षा सुरक्षित है।',
+  'cvTechnology.loadError':
+    'सहेजी गई समीक्षा लोड नहीं हुई। मौजूदा समीक्षा सुरक्षित है।',
   'cvTechnology.before': 'मूल पाठ',
   'cvTechnology.after': 'प्रस्तावित पाठ',
   'cvTechnology.draft': 'स्थानीय समीक्षा का मसौदा',
@@ -148,7 +153,8 @@ export const hiVacancy = {
     'चुने हुए बदलाव स्थानीय समीक्षा में सहेजे गए। प्रदाता का सीवी नहीं बदला।',
   'cvTechnology.complete':
     'दोनों सहेजे गए निर्यात में समीक्षा की गई तकनीकें पहले से मौजूद हैं।',
-  'cvTechnology.blocked': 'समीक्षा सहेजने से पहले साक्ष्य की अस्पष्टता सुलझाएँ।',
+  'cvTechnology.blocked':
+    'समीक्षा सहेजने से पहले साक्ष्य की अस्पष्टता सुलझाएँ।',
   'cvTechnology.coverage': 'प्रत्येक फ़ील्ड का कवरेज',
   'cvTechnology.raw': 'मूल सूची और दोहराव के साक्ष्य',
   'cvTechnology.duplicates': 'दोहराव',
@@ -180,10 +186,12 @@ export const hiVacancy = {
   'cvWatch.not-saved': 'सहेजना अपुष्ट है। पिछला स्नैपशॉट सुरक्षित है।',
   'cvWatch.cancelled': 'मालिक ने रद्द किया। स्नैपशॉट अपरिवर्तित है।',
   'cvWatch.edited': 'सहेजने के बाद मालिक ने संपादन किया। लंबित जाँच रद्द हुई।',
-  'cvWatch.failed': 'निरीक्षण विफल। फिर शुरू करने से पहले स्थिति पुनः लोड करें।',
+  'cvWatch.failed':
+    'निरीक्षण विफल। फिर शुरू करने से पहले स्थिति पुनः लोड करें।',
   'cvWatch.stopped': 'निरीक्षण रुका।',
   'cvWatch.expired': 'निरीक्षण अवधि समाप्त।',
-  'cvWatch.interrupted': 'निरीक्षण बाधित हुआ। जारी रखने के लिए नया निरीक्षण शुरू करें।',
+  'cvWatch.interrupted':
+    'निरीक्षण बाधित हुआ। जारी रखने के लिए नया निरीक्षण शुरू करें।',
   'cvWatch.verified': 'सत्यापित सहेज',
   'cvWatch.until': 'समाप्ति',
   'cvWatch.snapshots': 'सहेजे CV स्नैपशॉट',
@@ -209,8 +217,10 @@ export const hiVacancy = {
   'cvPrepare.preparing': 'समीक्षित परिचय का पाठ तैयार हो रहा है…',
   'cvPrepare.prepared':
     'परिचय का मसौदा तैयार है। HH टैब में समीक्षा करके सहेजें या रद्द करें। यह रसीद प्रदाता पर सहेजे जाने की पुष्टि नहीं है।',
-  'cvPrepare.failed': 'संपादक खोलने से पहले तैयारी विफल हुई। मौजूदा टैब सुरक्षित है।',
+  'cvPrepare.failed':
+    'संपादक खोलने से पहले तैयारी विफल हुई। मौजूदा टैब सुरक्षित है।',
   'cvPrepare.uncertain':
     'तैयारी का परिणाम अनिश्चित है। मौजूदा HH मसौदा जाँचें; कोई स्वचालित पुनः प्रयास नहीं हुआ।',
-  'cvPrepare.interrupted': 'तैयारी बाधित हुई। आगे बढ़ने से पहले मौजूदा HH मसौदा जाँचें।',
+  'cvPrepare.interrupted':
+    'तैयारी बाधित हुई। आगे बढ़ने से पहले मौजूदा HH मसौदा जाँचें।',
 };
