@@ -1,0 +1,33 @@
+{
+  "archive": "browser-durable-snapshots.tar.gz",
+  "files": {
+    "before/js/src/storage/browser-store.js": "76f099eae255b67269fb2c0344089d78b8598c68ac7ef9b56bcf29638418acf2",
+    "ci-logs/browser-durable-before.log": "22546b1615ab001abe05a1ad49a76a911335448543c57d70f025182c313b16dd",
+    "ci-logs/browser-durable-build-final.log": "e0539320bee6bcd46f283ce1c4f948ab182cbac2a238df5af963561d9e681327",
+    "ci-logs/browser-durable-build.log": "7bb99874409404dcca8b0122ad211e67be9eb04954daeb48e2ab0299a3e774c6",
+    "ci-logs/browser-durable-deno-doublets.log": "68b3472dff77b7078e75eb2fc3729ca517ae97414166b5dc2146f677108ea2e7",
+    "ci-logs/browser-durable-deno.log": "a072a6eabb3c793031b49ae32fe96a008b91b0df76ad7c2511fb56d606e72118",
+    "ci-logs/browser-durable-doc-format.log": "0528e3207fbb14b8910e4cd817c91f63e6a0ec4b7cae600fadba224d1f007f2d",
+    "ci-logs/browser-durable-driver-format.log": "3eb72c0311c197f0de289343fb8eb6f4637db35cf86a137ad084c89e740d5c98",
+    "ci-logs/browser-durable-format-final.log": "5a447084c043bc682eb5c0762faffce2dedc82a5538394e884a20c6039e1a6e1",
+    "ci-logs/browser-durable-format.log": "fe58c3e2afd02cd4739c3d3c2b16b9dfc64b736f4fed724f8d3a20cd220ad227",
+    "ci-logs/browser-durable-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/browser-durable-lint.log": "a4daf8e3730f530b0d26fa695a90437fcd464817c9026bec88535cf00e86ef03",
+    "ci-logs/browser-durable-native-final.log": "1fb3a7156d5344efdafbc2052ea0a75fa70d715fc7358e6b8265ad965a699514",
+    "ci-logs/browser-durable-native.log": "1fb3a7156d5344efdafbc2052ea0a75fa70d715fc7358e6b8265ad965a699514",
+    "ci-logs/browser-durable-node-final.log": "e374d0cdef5d333e2322bdf4716aa0973d662e67a4b1b5f1e6ab0f2cc1574280",
+    "ci-logs/browser-durable-node.log": "3ba12d02b313c391e6955c48f077f321fab293f2819c01ec9bb50f9cd3ed6fe4",
+    "ci-logs/browser-durable-parent-jobs.json": "669cb5e1e31f3ce13a4268aaeb7217be6447da2ebf8880b7ba519aef8f9d3808",
+    "ci-logs/browser-durable-parent-runs.json": "db80c0f3d3870a1408ffe6a72d135bc87926aa5782edba98cca6cd012ba96e3b",
+    "ci-logs/ea957225-lint-131368719426.log": "18ed165de17568e0a7049ad58423788ad5b38722347d3b29de09bf5914b0883c",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/browser-durability-before.py": "900ef78adf9d9bbf1acb5bb8ee9d737508aae39c789d5dd2c90b849683d870a4",
+    "experiments/issue-56/collect-browser-durable.py": "ca20524c578aa36676850a6c1e3cac73de8253905a6ae0ecc35475da1b23d5df",
+    "experiments/issue-56/evidence_bundle.py": "024f9281300d3c61a575303998953b7a56c145a136f1c19ca93649c668183b16",
+    "js/src/storage/browser-snapshot-queue.js": "3d17e40b310b862112094f93ba03ce2a519ca4cb548d46c3448a95099e384fee",
+    "js/src/storage/browser-store.js": "1dee5428e2f4e34a19f7b297822edb172d259ca48241cdcb58f4724082d19e6d",
+    "js/tests/browser-store-durability.test.js": "91efa66d3f9ff92b0a52caeaf9c23b33ea3c2f53981068a125664a3ac412e87d",
+    "js/tests/browser-store.test.js": "90256ba62495c8a6e4fb38c1f7bbb29eddf241624a3c4a2f45713d3906232df0",
+    "metadata.json": "07aa8e2aff914c8af07f88189d481d1fad59d15ef365b9735fd631fce1c8aca7"
+  }
+}

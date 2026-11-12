@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active durable browser state for offline reconciliation:
+
+- [x] Reproduce premature browser acknowledgements and overlapping snapshots against the actual parent.
+- [x] Serialize and batch persistence, expose committed reads, reject failed writes without events, and keep doublets graph publication after persistence.
+- [ ] Preserve focused checks and native sync compatibility, commit this prerequisite and inspect exact-head hosted CI.
+- [ ] Add durable record/deletion revisions and bounded reconnect reconciliation. Continue every other unchecked original criterion; persistence alone is not complete sync.
+
 Active ordinary WebSocket cleanup and Windows Deno startup:
 
 - [x] Merge the independently published peer mesh forward, preserving both histories and the alternative lifecycle evidence.

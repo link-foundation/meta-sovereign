@@ -144,6 +144,17 @@ test('browser store: doublets-web driver indexes snapshots as triples', async ()
 
   const reloaded = await createBrowserStore({ driver });
   assert.equal((await reloaded.get('l:doublets'))?.tokens[1], 'web');
+  const previous = driver.graph();
+  snapshotDriver.save = async () => {
+    throw new Error('fixture quota');
+  };
+  await assert.rejects(
+    store.put({ id: 'l:uncommitted', tokens: ['lost'] }),
+    /fixture quota/
+  );
+  assert.equal(driver.graph(), previous, 'do not publish an unsaved graph');
+  assert.equal(driver.stats().records, 1);
+  assert.equal(await store.get('l:uncommitted'), null);
 });
 
 test('browser store: indexedDB driver works against a minimal IDB shim', async () => {

@@ -1,4 +1,5 @@
 import { getLocalStorage } from './local-storage.js';
+import { createBrowserSnapshotQueue } from './browser-snapshot-queue.js';
 
 /**
  * Browser-side links store for offline-first operation.
@@ -18,9 +19,9 @@ import { getLocalStorage } from './local-storage.js';
  * driver at boot via `pickBrowserDriver()`.
  *
  * Snapshot shape: `{ links: Link[] }`. We persist on every mutation
- * (debounced via micro-task batching) so a tab refresh never loses
- * data. The driver layer keeps the store synchronous in spirit even
- * though the API is async, and lets us pivot to file-system storage
+ * (serialized with micro-task batching), acknowledging mutations and
+ * emitting events only after persistence succeeds. Readers see committed
+ * state. The driver layer lets us pivot to file-system storage
  * (Electron) by adding another driver.
  */
 
@@ -195,15 +196,29 @@ export const createDoubletsWebDriver = ({
   const module = resolveDoubletsWeb(doubletsWeb);
   let current = { links: [] };
   let graph = encodeDoubletsGraph(module, current);
+  const stats = (snapshot, encoded) => ({
+    package: 'doublets-web',
+    records: snapshot.links.length,
+    atoms: encoded.atoms.size,
+    triples: encoded.triples.length,
+    graphLinks:
+      typeof encoded.links.count === 'function'
+        ? encoded.links.count()
+        : encoded.triples.length + encoded.atoms.size,
+  });
+  const publish = (next, encoded) => {
+    current = next;
+    graph = encoded;
+    onGraph?.({ graph, snapshot: { links: current.links.map(cloneLink) } });
+  };
 
   const rebuild = (snapshot) => {
-    current = {
+    const next = {
       links: Array.isArray(snapshot?.links)
         ? snapshot.links.map(cloneLink)
         : [],
     };
-    graph = encodeDoubletsGraph(module, current);
-    onGraph?.({ graph, snapshot: { links: current.links.map(cloneLink) } });
+    publish(next, encodeDoubletsGraph(module, next));
   };
 
   return {
@@ -214,23 +229,16 @@ export const createDoubletsWebDriver = ({
       return { links: current.links.map(cloneLink) };
     },
     async save(snapshot) {
-      rebuild(snapshot);
+      const next = { links: snapshot.links.map(cloneLink) };
+      const encoded = encodeDoubletsGraph(module, next);
       await snapshotDriver.save({
-        links: current.links.map(cloneLink),
-        doubletsWeb: this.stats(),
+        links: next.links.map(cloneLink),
+        doubletsWeb: stats(next, encoded),
       });
+      publish(next, encoded);
     },
     stats() {
-      return {
-        package: 'doublets-web',
-        records: current.links.length,
-        atoms: graph.atoms.size,
-        triples: graph.triples.length,
-        graphLinks:
-          typeof graph.links.count === 'function'
-            ? graph.links.count()
-            : graph.triples.length + graph.atoms.size,
-      };
+      return stats(current, graph);
     },
     graph() {
       return graph;
@@ -329,45 +337,42 @@ export const createBrowserStore = async ({
     }
   }
 
-  let saveQueued = false;
-  const queueSave = () => {
-    if (saveQueued) {
-      return;
-    }
-    saveQueued = true;
-    Promise.resolve().then(async () => {
-      saveQueued = false;
-      await driver.save({ links: [...data.values()] });
+  const queue = createBrowserSnapshotQueue({ initial: data, driver, emit });
+  const putMany = (links) => {
+    const copies = links.map((link) => {
+      if (!link || typeof link.id !== 'string') {
+        throw new Error('link.id is required');
+      }
+      return cloneLink(link);
+    });
+    return queue.write((next) => {
+      copies.forEach((link) => next.set(link.id, link));
+      return {
+        result: links,
+        events: copies.map((link) => ({ type: 'put', link: cloneLink(link) })),
+      };
     });
   };
 
   return {
     async put(link) {
-      if (!link || typeof link.id !== 'string') {
-        throw new Error('link.id is required');
-      }
-      data.set(link.id, cloneLink(link));
-      queueSave();
-      emit({ type: 'put', link: cloneLink(link) });
+      await putMany([link]);
       return link;
     },
     async putMany(links) {
-      for (const link of links) {
-        await this.put(link);
-      }
-      return links;
+      return putMany(links);
     },
     async get(id, project = cloneLink) {
-      const v = data.get(id);
+      const v = queue.read().get(id);
       return v ? project(v) : null;
     },
     /** How many links are held (R-Z17). */
-    size: () => data.size,
+    size: () => queue.read().size,
     /** The matching links in batches of copies (the migration runner, R-Z17). */
     async scan(filter, batchSize, onBatch, project = cloneLink) {
       let batch = [];
       let looked = 0;
-      for (const link of [...data.values()]) {
+      for (const link of [...queue.read().values()]) {
         looked += 1;
         if (!filter || filter(link)) {
           batch.push(project(link));
@@ -384,26 +389,26 @@ export const createBrowserStore = async ({
       return looked;
     },
     async delete(id) {
-      const existed = data.has(id);
-      const link = data.get(id);
-      data.delete(id);
-      if (existed) {
-        queueSave();
-        emit({ type: 'delete', link: cloneLink(link) });
-      }
-      return existed;
+      return queue.write((next) => {
+        const link = next.get(id);
+        const existed = next.delete(id);
+        return {
+          result: existed,
+          events: existed ? [{ type: 'delete', link: cloneLink(link) }] : [],
+        };
+      });
     },
     async query(filter) {
-      const all = [...data.values()].map(cloneLink);
+      const all = [...queue.read().values()].map(cloneLink);
       return filter ? all.filter(filter) : all;
     },
     subscribe(handler) {
       handlers.add(handler);
       return () => handlers.delete(handler);
     },
-    /** Force-flush the persistence layer (useful in tests). */
+    /** Wait for preceding writes and persist a snapshot through the same queue. */
     async flush() {
-      await driver.save({ links: [...data.values()] });
+      await queue.write(() => ({ events: [], result: undefined }));
     },
   };
 };
