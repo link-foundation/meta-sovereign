@@ -112,6 +112,21 @@ that response and job/annotation metadata are retained. This cancellation is not
 a test failure or a passing whole-matrix result. Integrate that published work
 and require the combined head's hosted checks.
 
+The regular merge retains both preparation `0b14bcd6` and independent readback
+guards `16a73620`. It preserves complete export cardinality, observed metadata
+on both sides and strict string identities while sharing the native comparison.
+Sixty-nine focused Node and sixty-nine Deno checks pass on the combined sources;
+the five new native preparation cases and eight Save-observation cases pass.
+One combined shell stopped with status 143 after Deno printed all passing
+assertions; that raw output is retained without a clean-exit claim. The isolated
+rerun explicitly records status 0. No assertion, deadline or production behavior
+was changed for the rerun.
+
+`data/cv-workplace-prepare-merged.tar.gz` separately preserves merged sources and
+logs, leaving the original unit archive unchanged. The independently published
+MCP Save-observation evidence remains in `cv-workplace-hardening.md`; it does not
+claim MCP coverage of these new preparation controls.
+
 Complete workplace field/add/copy/detach workflows, new native identities, edit
 batches, bilingual provider Save/readback, authenticated live parity and every
 other unchecked issue requirement remain unfinished. This unit does not mark

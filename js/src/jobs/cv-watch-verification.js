@@ -107,6 +107,8 @@ const workplaceAttempt = (raw) => {
 export const sameCvWorkplace = (attempt, saved) => {
   if (
     !attempt.recordId ||
+    !attempt.metadataEditable ||
+    attempt.industryText === null ||
     saved?.kind !== 'workplace' ||
     saved.recordId !== attempt.recordId ||
     !saved.metadataEditable ||
@@ -164,7 +166,10 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
     const cv = one(attempt.hash);
     return Boolean(cv && normalize(cv.cv.about) === normalize(attempt.about));
   }
-  if (!sameCvWorkplace(attempt, savedWorkplace)) {
+  if (
+    exports.length !== attempt.resumes.length ||
+    !sameCvWorkplace(attempt, savedWorkplace)
+  ) {
     return false;
   }
   return attempt.resumes.every(({ hash, checked }) => {

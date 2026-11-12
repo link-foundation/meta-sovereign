@@ -12,24 +12,28 @@ export const fetchCvSavedHtml = async ({ hash, recordId }) => {
   if (location.origin !== 'https://hh.ru') {
     throw new Error('The native CV page changed.');
   }
-  const workplace = typeof recordId === 'string';
-  if (
-    workplace
-      ? !/^\d{1,100}$/u.test(recordId)
-      : !/^[a-zA-Z\d_-]{1,100}$/u.test(hash ?? '')
-  ) {
-    throw new Error('The native saved CV identity is unavailable.');
-  }
-  const url = new URL(
-    workplace
-      ? `/profile/edit/experience/${recordId}`
-      : '/resume_converter/resume.txt',
-    location.origin
-  );
-  if (!workplace) {
-    url.searchParams.set('hash', hash);
-    url.searchParams.set('type', 'txt');
-  }
+  const targetUrl = () => {
+    const workplace = recordId !== undefined;
+    if (
+      workplace
+        ? typeof recordId !== 'string' || !/^\d{1,100}$/u.test(recordId)
+        : typeof hash !== 'string' || !/^[a-zA-Z\d_-]{1,100}$/u.test(hash)
+    ) {
+      throw new Error('The native saved CV identity is unavailable.');
+    }
+    const url = new URL(
+      workplace
+        ? `/profile/edit/experience/${recordId}`
+        : '/resume_converter/resume.txt',
+      location.origin
+    );
+    if (!workplace) {
+      url.searchParams.set('hash', hash);
+      url.searchParams.set('type', 'txt');
+    }
+    return url;
+  };
+  const url = targetUrl();
   const response = await fetch(url, {
     credentials: 'include',
     redirect: 'error',
@@ -44,6 +48,7 @@ export const fetchCvSavedHtml = async ({ hash, recordId }) => {
     !response.body ||
     Number(response.headers.get('content-length')) > limit
   ) {
+    await response.body?.cancel().catch(() => {});
     throw new Error('Native saved CV readback is unavailable.');
   }
   const reader = response.body.getReader();

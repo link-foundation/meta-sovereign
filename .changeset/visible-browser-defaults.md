@@ -329,3 +329,5 @@ Cancel an unreceived native About preparation by its durable request ID through 
 Verify existing shared HH workplaces against their exact fresh native record and complete CV membership before publishing owner Save snapshots. Preserve unrelated jobs in excluded CVs and expose persisted identity/digest evidence through CLI, both Lino formats and four-language controls.
 
 Prepare a selected reviewed workplace description only in an exact owner-opened unchanged record belonging to one CV. Bind fresh native fields, membership and verified source evidence before keyboard insertion; preserve other fields, owner Save/Cancel and durable non-replaying CLI/Lino/four-language receipts. Refuse shared records until their separate copy workflow is available.
+
+Reject ambiguous native CV identities, extra readback exports and unobserved workplace metadata even when all CVs are excluded. Cancel rejected HTTP response bodies before returning readback failures.

@@ -6,7 +6,10 @@ import { jobsFailure } from './options.js';
 
 /** Read the exact saved record without resumeFrom's checkbox preselection. */
 export const readCvSavedWorkplace = async ({ session, attempt, check }) => {
-  if (!/^\d{1,100}$/u.test(attempt.recordId ?? '')) {
+  if (
+    typeof attempt.recordId !== 'string' ||
+    !/^\d{1,100}$/u.test(attempt.recordId)
+  ) {
     throw jobsFailure('cv-record', 'The saved workplace identity is unknown.');
   }
   check();

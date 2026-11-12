@@ -1,4 +1,5 @@
 """Preserve finite exact-record preparation regressions and native evidence."""
+import sys
 from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs
 
 root, logs, read = evidence_context(__file__, 'cv-workplace-prepare')
@@ -19,12 +20,22 @@ assert 'All matched files use Prettier code style!' in read('static')
 assert not read('secrets').strip()
 assert 'ERROR' not in read('duplication')
 base = 'ee7a74e466c49498ee47ece193a30e55559a65ec'
-bundle(root, changed_sources(root) + evidence_logs(root, 'cv-workplace-prepare') + [
+merged = '--merged' in sys.argv
+if merged:
+    assert 'pass 69' in read('merged-node')
+    assert '69 passed | 0 failed' in read('merged-deno')
+    assert 'Deno exit status: 0' in read('merged-deno')
+    assert '[e2e-cv-workplace-prepare] OK (webkit)' in read('merged-browser')
+    assert '[e2e-cv-save-watch] OK (webkit)' in read('merged-save')
+    assert not read('merged-lint').strip()
+name = 'cv-workplace-prepare-merged' if merged else 'cv-workplace-prepare'
+bundle(root, changed_sources(root, base if merged else None) + evidence_logs(root, 'cv-workplace-prepare') + [
     'ci-logs/cv-workplace-prepare-reference.mjs'],
-    'docs/case-studies/issue-56/data/cv-workplace-prepare.tar.gz',
+    f'docs/case-studies/issue-56/data/{name}.tar.gz',
     dict(published_base=base, node=46, deno=46, new_checks=6,
          compatibility_node=21, compatibility_deno=21, native_cases=5,
          attached=9, detached=9, native_reads=7, provider_saves=0,
+         merged_checks_per_runtime=69 if merged else None,
          mcp_available=False, authenticated_provider=False,
          unfinished='Full fields/add/copy/detach, new identities, batches, bilingual provider saves, authenticated parity, exact-head CI and all unchecked criteria'),
     'issue-56-cv-workplace-prepare/**/*.png',

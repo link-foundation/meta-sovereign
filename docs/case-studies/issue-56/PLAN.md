@@ -2,6 +2,8 @@
 
 Active reviewed workplace description preparation:
 
+Preparation `0b14bcd6` is integrated with independent readback guards `16a73620` in a regular merge. All 69 focused Node/69 Deno checks pass on the combined sources, with explicit successful Deno exit; the five preparation/eight Save-observation native cases pass. Parent native-helper cancellation was a superseded concurrency request with no test steps or log blob; retain its annotations and require exact combined-head hosted checks. Original archives and both implementations are preserved.
+
 Five new native WebKit cases pass with nine drained attachments, seven fresh reads, zero Save requests and no page errors. Forty-six preparation/cancellation/identity plus twenty-one Save-observation checks pass per Node/Deno. Three actual-parent regressions fail as expected. The mandatory preparation and Save-observation entries pass; preserve final checksummed evidence and require exact new-head CI. See [case study](cv-workplace-prepare.md).
 
 - [x] Reproduce rejection of a selected workplace change against published `ee7a74e4`; inspect the pinned reference workflow and existing native controls.
@@ -9,6 +11,14 @@ Five new native WebKit cases pass with nine drained attachments, seven fresh rea
 - [x] Prepare only the reviewed description through native controlled-field keyboard events. Preserve other fields, membership, owner focus, Save/Cancel and durable non-replaying request recovery through CLI, both Lino formats and four locales.
 - [ ] Verify focused regressions, native before/after desktop/phone evidence and compatibility; preserve a checksummed case study, publish and inspect exact-head hosted checks.
 - [ ] Continue complete workplace field/copy/detach workflows, batches and every unchecked requirement; this bounded step does not complete HH14–HH20.
+
+Active independent workplace verification and readback guards:
+
+- [x] Preserve the alternate unpublished investigation and integrate published `ee7a74e4` forward, retaining its query-free record contract and historical evidence.
+- [x] Reproduce missing export cardinality, coerced record identity and uncancelled rejected response bodies against the actual published code.
+- [x] Verify stricter final metadata/cardinality/identity guards and bounded response cleanup with 32 Node/32 Deno checks and eight native WebKit cases.
+- [x] Exercise the published UI through independent Playwright MCP against owned native provider fixtures: six cases, four trusted Saves, preserved snapshots on mismatches/challenge, read-only phone recovery and drained Stop. See [independent evidence](cv-workplace-hardening.md).
+- [ ] Preserve logs and screenshots, publish an atomic correction, inspect exact-head hosted CI and continue every unchecked product requirement.
 
 Active merged CV validation:
 
