@@ -4,6 +4,8 @@ import { hhSearchUrl } from '../jobs/options.js';
 import { VacancyResumes } from './vacancy-resumes.js';
 import { useResumeExports } from './resume-export-state.js';
 import { ResumeExports } from './resume-exports.js';
+import { useTechnologyAnalysis } from './technology-state.js';
+import { VacancyTechnologies } from './vacancy-technologies.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -98,13 +100,16 @@ export const useVacancies = (api) => {
       }
       return answer;
     } catch (failure) {
-      setError(failure.message);
+      setError(
+        `${kind.startsWith('technology-') ? 'jobs-technology:' : ''}${failure.code ?? failure.message}`
+      );
       return null;
     } finally {
       setBusy('');
     }
   };
   const resumeExports = useResumeExports({ api, values, run });
+  const technology = useTechnologyAnalysis({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -168,6 +173,7 @@ export const useVacancies = (api) => {
     busy:
       busy || (resumeExports.job?.state === 'running' ? 'resume-export' : ''),
     resumeExports,
+    technology,
     error,
     loaded,
     valid,
@@ -425,6 +431,9 @@ export const VacanciesScreen = ({ state }) => {
       state.resumeExports
         ? el(ResumeExports, { key: 'exports', state, t })
         : null,
+      state.technology
+        ? el(VacancyTechnologies, { key: 'technology', state, t })
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         action(
           'search',
@@ -449,13 +458,21 @@ export const VacanciesScreen = ({ state }) => {
             )
           : null,
       state.busy
-        ? el('p', { key: 'busy', role: 'status' }, t('vacancy.working'))
+        ? el(
+            'p',
+            { key: 'busy', role: 'status' },
+            t(
+              state.busy.startsWith('technology-')
+                ? 'technology.working'
+                : 'vacancy.working'
+            )
+          )
         : null,
       state.error
         ? el(
             'p',
             { key: 'error', role: 'alert', 'data-vacancy-error': true },
-            `${t('vacancy.failed')} (${state.error})`
+            `${t(state.error.startsWith('jobs-technology') ? 'technology.failed' : 'vacancy.failed')} (${state.error})`
           )
         : null,
       el(Results, { key: 'results', state, t, idle, live }),

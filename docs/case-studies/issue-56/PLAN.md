@@ -4,12 +4,14 @@ Windows résumé export CI correction: exact 9e2169f3 run 43171285138 reports tw
 
 Active HH04 technology analysis unit:
 
-- [ ] Preserve cached vacancy prose; recognize bounded whole technology names, separate required/preferred mentions and retain ambiguous aliases.
-- [ ] Save an editable local alias catalog with revision conflict checks; keep products and versions distinct.
-- [ ] Compare the explicitly selected verified résumé export against cached vacancies, retaining per-field mention evidence, spelling frequencies and corpus metadata statistics.
-- [ ] Expose the same analysis and catalog controls through CLI, Lino API and localized CV controls; disclose cached provenance and avoid unsupported skill claims.
+- [x] Preserve cached vacancy prose; recognize bounded whole technology names, separate required/preferred mentions and retain ambiguous aliases.
+- [x] Save an editable local alias catalog with revision conflict checks; keep products and versions distinct.
+- [x] Compare the explicitly selected verified résumé export against cached vacancies, retaining per-field mention evidence, spelling frequencies and corpus metadata statistics.
+- [x] Expose the same analysis and catalog controls through CLI, Lino API and localized CV controls; disclose cached provenance and avoid unsupported skill claims.
 - [ ] Add focused failing-before regressions, real-browser before/after evidence and mandatory CI coverage; run focused checks locally, publish an atomic commit and inspect exact-head CI.
 - [ ] Keep HH19/HH20 bilingual edit/review/save coverage and all other unfinished criteria open until independently implemented and verified.
+
+HH04 is locally verified by 21 focused Node/21 Deno checks, 72 compatibility checks, three Deno CI contracts, three actual-parent regressions, four native WebKit scenarios and four independent Playwright MCP cases. Provider reads remain zero. See [technology analysis](technology-analysis.md). Exact 72ec50bf run 43172233986 exhausted the shared 180-second vacancy/résumé/export budget after passing scenarios; split all four groups into separate mandatory entries with unchanged per-entry/per-shard deadlines. Exact-head hosted verification and every unchecked issue criterion remain required. PR57 stays draft and unmerged.
 
 Profile navigation investigation: preserve exact 3a6a49fd WebKit shard 4/4 failure and replay the four profile helpers in CI order with their required initial email field. Both baseline and diagnostic replays pass; the root cause remains unproven. Add optional document/readiness/root-state snapshots around the unchanged original interactions, enabled in hosted CI without changing any deadline. See [investigation](ci-profile-navigation.md). Require recurrence evidence and exact-head checks; all remaining issue requirements remain active.
 

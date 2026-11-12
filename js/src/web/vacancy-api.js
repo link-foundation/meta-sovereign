@@ -19,6 +19,7 @@ import {
   resumeExportOptions,
   resumeExportRequestId,
 } from '../jobs/resume-export-options.js';
+import { createTechnologyApi } from './technology-api.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs');
@@ -99,6 +100,7 @@ const confirmedExport = (result, requestId) => {
   return job;
 };
 export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
+  ...createTechnologyApi({ get, report, local }),
   vacancyCapabilities: async () =>
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,

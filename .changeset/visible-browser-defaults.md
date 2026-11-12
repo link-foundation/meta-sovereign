@@ -313,3 +313,5 @@ Expose native HH résumé inventory and explicit search selection through CLI, t
 Keep automatic prefill status pending until browser-handle cleanup completes, so the UI can receive the final receipt without replaying writes. Hide CAPTCHA instructions after verification and retain silent content-free status diagnostics.
 
 Add owned native HH résumé exports (latest, specified or all), private verified downloads and sanitized bilingual Markdown/text/structured/Lino with stable industry IDs. Share durable request recovery, ID-specific cancellation, CLI and four-language CV controls; preserve verified files after failed or stopped refreshes.
+
+Compare cached HH vacancies with an explicitly selected verified résumé export using editable local aliases, required/preferred mentions, per-field evidence and distinct-vacancy statistics. Share durable catalog/report controls through CLI, Lino and localized CV UI, retaining ambiguity and read-only recovery. Give vacancy, résumé, export and analysis browser groups separate mandatory CI budgets without raising deadlines.

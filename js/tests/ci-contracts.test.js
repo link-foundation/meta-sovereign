@@ -308,26 +308,33 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
 });
 
-test('vacancy reads run in both mandatory browser lanes', () => {
+test('vacancy reads and local analysis have independent mandatory browser budgets', () => {
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
   );
   const { scripts } = JSON.parse(readFileSync(path.join(root, 'package.json')));
-  assert.ok(checks.includes('vacancies'));
-  assert.equal(
-    scripts['test:e2e:vacancies'],
-    'node js/tests/e2e-vacancies-browser.mjs'
-  );
-  assert.equal(
-    scripts['test:e2e:vacancies:webkit'],
-    'E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs'
-  );
-  const entry = readFileSync(
-    path.join(root, 'js/tests/e2e-vacancies-browser.mjs'),
-    'utf8'
-  );
-  assert.match(entry, /verifyJobResumes/u);
-  assert.match(entry, /verifyResumeExports/u);
+  const groups = {
+    vacancies: 'verifyVacancies',
+    'job-resumes': 'verifyJobResumes',
+    'resume-exports': 'verifyResumeExports',
+    'vacancy-technologies': 'verifyVacancyTechnologies',
+  };
+  for (const [name, helper] of Object.entries(groups)) {
+    assert.equal(checks.filter((item) => item === name).length, 1);
+    const command = `node js/tests/e2e-${name}-browser.mjs`;
+    assert.equal(scripts[`test:e2e:${name}`], command);
+    assert.equal(
+      scripts[`test:e2e:${name}:webkit`],
+      `E2E_BROWSER=webkit ${command}`
+    );
+    const entry = readFileSync(path.join(root, command.slice(5)), 'utf8');
+    assert.ok(entry.includes(helper));
+    for (const other of Object.values(groups).filter(
+      (item) => item !== helper
+    )) {
+      assert.ok(!entry.includes(other), `${name} must retain its own deadline`);
+    }
+  }
 });
 
 test('question provider and control scenarios have separate mandatory browser budgets', () => {

@@ -1,4 +1,58 @@
 export const enVacancy = {
+  'technology.working': 'Working with saved evidence…',
+  'technology.title': 'Vacancy technology analysis',
+  'technology.hint':
+    'Analyze up to 100 cached descriptions against an explicitly chosen verified resume export. Mentions are textual evidence, not proof of competence. Only catalog names are classified; unknown skill tags stay visible. Counts use distinct vacancies. This does not edit a resume or apply.',
+  'technology.catalog': 'Local technology names and aliases',
+  'technology.catalogEdit': 'Edit catalog (up to 256 names; 8 aliases each)',
+  'technology.entry': 'Catalog entry',
+  'technology.new': 'Add a name',
+  'technology.canonical': 'Technology name',
+  'technology.aliases': 'Aliases, one per line',
+  'technology.caseSensitive':
+    'Match letter case (helps with Go, BASIC and NPM)',
+  'technology.updateDraft': 'Update catalog draft',
+  'technology.remove': 'Remove from draft',
+  'technology.defaults': 'Load default names into draft',
+  'technology.save': 'Save catalog',
+  'technology.unsaved':
+    'Catalog draft has unsaved changes. Save before analyzing.',
+  'technology.invalid':
+    'Use distinct names up to 80 characters and at most 8 aliases per name.',
+  'technology.resume': 'Verified resume export for comparison',
+  'technology.choose': 'Choose an exported resume',
+  'technology.analyze': 'Analyze cached vacancies',
+  'technology.reload': 'Reload saved catalog and report; discard draft',
+  'technology.loadError':
+    'Some saved data could not be loaded. Reconnect to the local server and reload.',
+  'technology.failed':
+    'Analysis or catalog saving was not confirmed. Earlier evidence and the draft are retained. A catalog conflict requires reloading before saving again.',
+  'technology.saved': 'Saved analysis',
+  'technology.provenance': 'Verified resume source',
+  'technology.stale':
+    'This report used a different catalog revision. Run analysis again to use the saved catalog.',
+  'technology.statistics': 'Corpus statistics (distinct vacancies)',
+  'technology.evidence': 'Resume mention evidence (20 per page)',
+  'technology.vacancy': 'Saved vacancy to review',
+  'technology.mentioned': 'Mentioned in resume',
+  'technology.missing': 'Not found in resume text',
+  'technology.requiredMissing': 'Required names absent from resume text',
+  'technology.preferredMissing': 'Preferred names absent from resume text',
+  'technology.unrecognized':
+    'Unclassified skill tags (edit catalog to classify)',
+  'technology.aliasSuggestions':
+    'Observed spellings of names already mentioned in resume',
+  'technology.spellingSuggestions': 'Similar spellings to review (not a match)',
+  'technology.vacancyEvidence': 'Vacancy mention evidence',
+  'technology.prose': 'Original saved employer description',
+  'technology.required': 'Required',
+  'technology.preferred': 'Preferred',
+  'technology.unspecified': 'Requirement unspecified',
+  'technology.ambiguous': 'Ambiguous alias',
+  'technology.metadata.location': 'Locations',
+  'technology.metadata.employment': 'Employment',
+  'technology.metadata.experience': 'Experience',
+  'technology.metadata.workFormat': 'Work formats',
   'vacancy.exports': 'Native resume exports',
   'vacancy.exportHint':
     'Read the latest, selected or all resumes from this HH account. Native files may contain personal details. Derived Markdown, text, structured data and Lino exclude contact, salary and birth-date fields; removed private prose lines are counted. HTML is required for verified extraction. DOC contains RTF.',

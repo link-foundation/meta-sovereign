@@ -1,4 +1,60 @@
 export const hiVacancy = {
+  'technology.working': 'सहेजे गए प्रमाण पर काम हो रहा है…',
+  'technology.title': 'रिक्तियों का तकनीक विश्लेषण',
+  'technology.hint':
+    'अधिकतम 100 सहेजे गए विवरणों की तुलना स्पष्ट रूप से चुने गए सत्यापित बायोडाटा निर्यात से करें। उल्लेख केवल पाठ का प्रमाण हैं, योग्यता का प्रमाण नहीं। केवल सूची के नाम पहचाने जाते हैं; अज्ञात कौशल टैग अलग दिखते हैं। गिनती अलग-अलग रिक्तियों की है। इससे बायोडाटा संपादित या आवेदन नहीं होता।',
+  'technology.catalog': 'स्थानीय तकनीक नाम और उपनाम',
+  'technology.catalogEdit':
+    'सूची संपादित करें (256 नाम, प्रत्येक के 8 उपनाम तक)',
+  'technology.entry': 'सूची प्रविष्टि',
+  'technology.new': 'नाम जोड़ें',
+  'technology.canonical': 'तकनीक का नाम',
+  'technology.aliases': 'उपनाम, प्रत्येक अलग पंक्ति में',
+  'technology.caseSensitive':
+    'अक्षरों का केस मिलाएँ (Go, BASIC और NPM के लिए उपयोगी)',
+  'technology.updateDraft': 'सूची मसौदा अपडेट करें',
+  'technology.remove': 'मसौदे से हटाएँ',
+  'technology.defaults': 'मसौदे में डिफ़ॉल्ट नाम लाएँ',
+  'technology.save': 'सूची सहेजें',
+  'technology.unsaved':
+    'सूची मसौदे में बदलाव सहेजे नहीं गए हैं। विश्लेषण से पहले सहेजें।',
+  'technology.invalid':
+    '80 अक्षरों तक के अलग नाम और प्रत्येक नाम के अधिकतम 8 उपनाम दें।',
+  'technology.resume': 'तुलना के लिए सत्यापित बायोडाटा निर्यात',
+  'technology.choose': 'निर्यात किया बायोडाटा चुनें',
+  'technology.analyze': 'सहेजी गई रिक्तियों का विश्लेषण करें',
+  'technology.reload': 'सहेजी सूची और रिपोर्ट फिर लाएँ; मसौदा हटाएँ',
+  'technology.loadError':
+    'कुछ सहेजे डेटा लोड नहीं हुए। स्थानीय सर्वर से फिर जुड़कर दोबारा लोड करें।',
+  'technology.failed':
+    'विश्लेषण या सूची सहेजने की पुष्टि नहीं हुई। पहले के प्रमाण और मसौदा सुरक्षित हैं। सूची में टकराव हो तो फिर सहेजने से पहले दोबारा लोड करें।',
+  'technology.saved': 'सहेजा विश्लेषण',
+  'technology.provenance': 'सत्यापित बायोडाटा स्रोत',
+  'technology.stale':
+    'इस रिपोर्ट ने सूची के दूसरे संस्करण का उपयोग किया। सहेजी सूची के साथ विश्लेषण फिर चलाएँ।',
+  'technology.statistics': 'संग्रह आँकड़े (अलग रिक्तियाँ)',
+  'technology.evidence': 'बायोडाटा में उल्लेख के प्रमाण (प्रति पृष्ठ 20)',
+  'technology.vacancy': 'समीक्षा के लिए सहेजी रिक्ति',
+  'technology.mentioned': 'बायोडाटा में उल्लिखित',
+  'technology.missing': 'बायोडाटा के पाठ में नहीं मिला',
+  'technology.requiredMissing': 'बायोडाटा पाठ में अनुपस्थित आवश्यक नाम',
+  'technology.preferredMissing': 'बायोडाटा पाठ में अनुपस्थित वांछित नाम',
+  'technology.unrecognized':
+    'अवर्गीकृत कौशल टैग (सूची संपादित करके वर्गीकृत करें)',
+  'technology.aliasSuggestions':
+    'बायोडाटा में पहले से उल्लिखित नामों की देखी गई वर्तनियाँ',
+  'technology.spellingSuggestions':
+    'समीक्षा के लिए मिलती वर्तनियाँ (मेल की पुष्टि नहीं)',
+  'technology.vacancyEvidence': 'रिक्ति में उल्लेख के प्रमाण',
+  'technology.prose': 'नियोक्ता का मूल सहेजा विवरण',
+  'technology.required': 'आवश्यक',
+  'technology.preferred': 'वांछित',
+  'technology.unspecified': 'आवश्यकता निर्दिष्ट नहीं',
+  'technology.ambiguous': 'अस्पष्ट उपनाम',
+  'technology.metadata.location': 'स्थान',
+  'technology.metadata.employment': 'रोज़गार',
+  'technology.metadata.experience': 'अनुभव',
+  'technology.metadata.workFormat': 'कार्य प्रारूप',
   'vacancy.exports': 'HH के मूल रिज़्यूमे निर्यात',
   'vacancy.exportHint':
     'इस HH खाते का नवीनतम, चुना हुआ या सभी रिज़्यूमे पढ़ें। मूल फ़ाइलों में निजी जानकारी हो सकती है। बने हुए Markdown, पाठ, संरचित डेटा और Lino में संपर्क, वेतन और जन्मतिथि के फ़ील्ड शामिल नहीं होते; हटाई गई निजी पंक्तियाँ गिनी जाती हैं। सत्यापित निष्कर्षण के लिए HTML ज़रूरी है। DOC में RTF सामग्री होती है।',

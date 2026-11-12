@@ -8,8 +8,6 @@ import {
   jobsFailure,
 } from './options.js';
 import { createVacancySearchReader } from './read-search.js';
-import { vacancyContent } from '../assignments/vacancy-content.js';
-import { modelFingerprint } from '../automation/answer-model-context.js';
 import { createResumeListReader } from './read-resumes.js';
 import { resumeChoiceOptions } from './resume-list.js';
 import { saveResumeList, storedResumeLists } from './resume-cache.js';
@@ -21,6 +19,10 @@ import {
   storedResumeExports,
   readResumeExportFile,
 } from './resume-export-files.js';
+import {
+  createTechnologyService,
+  storedVacancies,
+} from './technology-service.js';
 
 const owners = new WeakSet();
 
@@ -81,6 +83,7 @@ export const createVacancyService = ({
     occupied: () => owners.has(store),
   });
   return {
+    ...createTechnologyService({ store, artifactRoot, run }),
     async capabilities() {
       const browser = await availability();
       return {
@@ -90,6 +93,7 @@ export const createVacancyService = ({
         resumes: browser.available === true,
         resumeExport: browser.available === true,
         cached: true,
+        technologyAnalysis: true,
         apply: false,
       };
     },
@@ -119,29 +123,7 @@ export const createVacancyService = ({
         vacancySnapshot(store, readVacancy, url, refresh, signal, options)
       );
     },
-    async stored() {
-      const rows = await store.query(
-        (row) => row.id?.startsWith('assignment-vacancy:') && row.version === 1
-      );
-      const entries = [];
-      for (const row of rows
-        .sort((a, b) =>
-          String(b.capturedAt).localeCompare(String(a.capturedAt))
-        )
-        .slice(0, 100)) {
-        const content = vacancyContent(row);
-        if (
-          row.id !== `assignment-vacancy:${await modelFingerprint(content.url)}`
-        ) {
-          throw jobsFailure(
-            'cache-invalid',
-            'A saved vacancy has an invalid identity.'
-          );
-        }
-        entries.push({ id: row.id, ...content });
-      }
-      return { entries };
-    },
+    stored: () => storedVacancies(store),
     cancel,
     stop() {
       return (stopping ??= Promise.resolve().then(async () => {

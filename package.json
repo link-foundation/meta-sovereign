@@ -481,6 +481,12 @@
     "test:e2e:question-unread-polling:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-polling-browser.mjs",
     "test:e2e:question-unread-reply-view": "node js/tests/e2e-question-unread-reply-view-browser.mjs",
     "test:e2e:question-unread-reply-view:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-reply-view-browser.mjs",
+    "test:e2e:job-resumes": "node js/tests/e2e-job-resumes-browser.mjs",
+    "test:e2e:job-resumes:webkit": "E2E_BROWSER=webkit node js/tests/e2e-job-resumes-browser.mjs",
+    "test:e2e:resume-exports": "node js/tests/e2e-resume-exports-browser.mjs",
+    "test:e2e:resume-exports:webkit": "E2E_BROWSER=webkit node js/tests/e2e-resume-exports-browser.mjs",
+    "test:e2e:vacancy-technologies": "node js/tests/e2e-vacancy-technologies-browser.mjs",
+    "test:e2e:vacancy-technologies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancy-technologies-browser.mjs",
     "test:e2e:vacancies": "node js/tests/e2e-vacancies-browser.mjs",
     "test:e2e:vacancies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs"
   },

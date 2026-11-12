@@ -21,7 +21,7 @@ const failureReply = (error) => {
     error.status ??
     (code === 'browser-unavailable'
       ? 503
-      : ['jobs-busy', 'jobs-stopped'].includes(code)
+      : ['jobs-busy', 'jobs-stopped', 'jobs-technology-conflict'].includes(code)
         ? 409
         : 400);
   return [
@@ -60,6 +60,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'resumes-stored',
       'resume-export-status',
       'resume-exports-stored',
+      'technology-catalog',
+      'technology-analysis-stored',
     ].includes(operation) || file;
   if (
     !read &&
@@ -70,6 +72,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'resumes',
       'resume-export',
       'resume-export-cancel',
+      'technology-catalog-save',
+      'technology-analyze',
     ].includes(operation)
   ) {
     return false;
@@ -84,7 +88,9 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
   try {
     const input = read
       ? Object.fromEntries(new URL(req.url, 'http://local').searchParams)
-      : await readBody(req, { limit: 8192 });
+      : await readBody(req, {
+          limit: operation === 'technology-catalog-save' ? 256 * 1024 : 8192,
+        });
     const service = (ctx.vacancies ??= createVacancyService({
       store,
       storeDir: ctx.storeDir,
