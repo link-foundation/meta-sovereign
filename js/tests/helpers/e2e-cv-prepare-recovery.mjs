@@ -1,4 +1,33 @@
 import assert from 'node:assert/strict';
+import { decodeWire } from '../../src/transport/lino.js';
+
+export const holdUnreceivedCvPreparation = async ({ page, prepare, panel }) => {
+  let original;
+  let posts = 0;
+  await page.route('**/api/vacancies/cv-prepare', async (route) => {
+    posts++;
+    original = decodeWire(
+      route.request().postDataBuffer(),
+      route.request().headers()['content-type']
+    );
+    await route.abort('failed');
+  });
+  await prepare.click();
+  await page.locator('[data-vacancy-error]').waitFor();
+  await page.unroute('**/api/vacancies/cv-prepare');
+  await panel.locator('[data-cv-prepare-reload]').click();
+  await page.waitForFunction(
+    () => !document.querySelector('[data-cv-preparation-state]')
+  );
+  assert.equal(await prepare.isDisabled(), true);
+  await page.reload();
+  await panel.waitFor();
+  await page.waitForFunction(
+    () => document.querySelector('[data-cv-prepare-reload]')?.disabled === false
+  );
+  assert.equal(await prepare.isDisabled(), true);
+  return { original, posts };
+};
 
 export const verifyCvPreparationRecovery = async ({
   run,
@@ -81,26 +110,11 @@ export const verifyCvPreparationRecovery = async ({
   await run(
     'an unreceived request remains blocked after GET-null and page reload without a replacement POST',
     async () => {
-      let posts = 0;
-      await page.route('**/api/vacancies/cv-prepare', async (route) => {
-        posts++;
-        await route.abort('failed');
+      const { posts } = await holdUnreceivedCvPreparation({
+        page,
+        prepare,
+        panel,
       });
-      await prepare.click();
-      await page.locator('[data-vacancy-error]').waitFor();
-      await page.unroute('**/api/vacancies/cv-prepare');
-      await reload.click();
-      await page.waitForFunction(
-        () => !document.querySelector('[data-cv-preparation-state]')
-      );
-      assert.equal(await prepare.isDisabled(), true);
-      await page.reload();
-      await panel.waitFor();
-      await page.waitForFunction(
-        () =>
-          document.querySelector('[data-cv-prepare-reload]')?.disabled === false
-      );
-      assert.equal(await prepare.isDisabled(), true);
       assert.equal(posts, 1);
     }
   );

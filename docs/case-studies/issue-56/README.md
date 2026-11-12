@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [cv-prepare-cancel.md](cv-prepare-cancel.md) verifies durable cancellation of an unreceived About intent, refusal of delayed POSTs and preservation of issued native drafts through CLI/Lino/four locales, focused regressions and native WebKit desktop/phone evidence.
+
 - [ci-windows-deno-shards.md](ci-windows-deno-shards.md) preserves the explicit ten-minute Windows Deno cancellation and partitions the same discovery across three hosted runners. Tiny native fixtures verify complete, disjoint execution and failure propagation; no deadline increases or full local suite runs.
 
 - [ci-deno-shards.md](ci-deno-shards.md) retains the independently published equivalent Windows Deno investigation and its complete workflow log. The branch histories are merged without removing either evidence set.

@@ -17,41 +17,35 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
   test(`native preparation authenticates mutation and recovers read-only in ${type}`, async () => {
     const f = await cvPrepareFixture();
     try {
-      await withRoutes(
-        async (base) => {
-          assert.equal(
-            (
-              await wirePost(base, 'cv-prepare', f.input, type, {
-                origin: 'https://untrusted.test',
-              })
-            ).status,
-            403
-          );
-          const prepared = await wirePost(base, 'cv-prepare', f.input, type);
-          assert.equal(prepared.status, 200);
-          assert.equal(prepared.value.preparation.state, 'prepared');
-          const response = await fetch(
-            `${base}/api/vacancies/cv-prepare-status?browserSlot=jobs`,
-            { headers: { accept: type } }
-          );
-          assert.deepEqual(
-            decodeWire(
-              await response.arrayBuffer(),
-              response.headers.get('content-type')
-            ),
-            prepared.value
-          );
-          assert.equal(
-            (await fetch(`${base}/api/vacancies/cv-prepare`)).status,
-            405
-          );
-          assert.equal(f.calls.attached, 1);
-        },
-        {
-          store: f.store,
-          service: { artifactRoot: f.artifactRoot, cvPrepare: f.cvPrepare },
-        }
-      );
+      await withRoutes(async (base) => {
+        assert.equal(
+          (
+            await wirePost(base, 'cv-prepare', f.input, type, {
+              origin: 'https://untrusted.test',
+            })
+          ).status,
+          403
+        );
+        const prepared = await wirePost(base, 'cv-prepare', f.input, type);
+        assert.equal(prepared.status, 200);
+        assert.equal(prepared.value.preparation.state, 'prepared');
+        const response = await fetch(
+          `${base}/api/vacancies/cv-prepare-status?browserSlot=jobs`,
+          { headers: { accept: type } }
+        );
+        assert.deepEqual(
+          decodeWire(
+            await response.arrayBuffer(),
+            response.headers.get('content-type')
+          ),
+          prepared.value
+        );
+        assert.equal(
+          (await fetch(`${base}/api/vacancies/cv-prepare`)).status,
+          405
+        );
+        assert.equal(f.calls.attached, 1);
+      }, f.routeOptions);
     } finally {
       await f.close();
     }

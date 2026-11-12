@@ -43,6 +43,10 @@ export const cvPrepareFixture = async () => {
     ...data,
     service,
     cvPrepare,
+    routeOptions: {
+      store: data.store,
+      service: { artifactRoot: data.artifactRoot, cvPrepare },
+    },
     calls,
     review,
     prepare: (fn) => {

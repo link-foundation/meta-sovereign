@@ -209,8 +209,11 @@ export const enVacancy = {
   'cvPrepare.choose': 'Save an About change in the local review first.',
   'cvPrepare.prepare': 'Prepare About',
   'cvPrepare.reload': 'Reload preparation',
+  'cvPrepare.cancel': 'Cancel pending request',
+  'cvPrepare.cancelled':
+    'The unreceived request was cancelled. A delayed copy cannot prepare a draft. Existing native drafts remain yours to inspect.',
   'cvPrepare.recovery':
-    'Recover preparation status before another attempt. An unknown request stays blocked; inspect the existing tab.',
+    'Reload status or cancel the pending request before another attempt. Cancellation waits for issued work and preserves its actual result. Inspect the existing HH tab.',
   'cvPrepare.starting': 'Connecting to the existing CV tab…',
   'cvPrepare.opening': 'Opening the native About editor…',
   'cvPrepare.preparing': 'Preparing the reviewed About text…',

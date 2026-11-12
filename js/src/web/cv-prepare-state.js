@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 export const useCvPreparation = ({ api, values, run }) => {
   const [preparation, setPreparation] = useState(null);
   const [ready, setReady] = useState(false);
+  const [pendingId, setPendingId] = useState(null);
   const pending = useRef(null);
   const permitted = useRef(false);
   const generation = useRef(0);
@@ -20,6 +21,7 @@ export const useCvPreparation = ({ api, values, run }) => {
     if (answer.preparation && terminal) {
       globalThis.localStorage?.removeItem(key);
       pending.current = null;
+      setPendingId(null);
     }
   };
   const load = async (requestId) => {
@@ -41,6 +43,7 @@ export const useCvPreparation = ({ api, values, run }) => {
     permitted.current = false;
     try {
       pending.current = globalThis.localStorage?.getItem(key) ?? null;
+      setPendingId(pending.current);
       void load(pending.current).catch(() => {});
     } catch {
       // Recovery stays blocked if the pending durable intent cannot be read.
@@ -52,6 +55,7 @@ export const useCvPreparation = ({ api, values, run }) => {
   return {
     preparation,
     ready,
+    cancellable: Boolean(pendingId) && !ready,
     prepare: (review, change) =>
       run('cv-prepare', async () => {
         if (!permitted.current) {
@@ -67,6 +71,7 @@ export const useCvPreparation = ({ api, values, run }) => {
         permitted.current = false;
         setReady(false);
         pending.current = requestId;
+        setPendingId(requestId);
         const answer = await api.vacancyCvPrepare({
           browserSlot,
           requestId,
@@ -79,5 +84,22 @@ export const useCvPreparation = ({ api, values, run }) => {
         return answer;
       }),
     reload: () => run('cv-prepare-status', () => load(pending.current)),
+    cancel: () =>
+      run('cv-prepare-cancel', async () => {
+        const requestId = pending.current;
+        if (!requestId) {
+          throw new Error('jobs-cv-recovery');
+        }
+        const current = generation.current;
+        const read = ++revision.current;
+        const answer = await api.vacancyCvPrepareCancel({
+          browserSlot,
+          requestId,
+        });
+        if (current === generation.current && read === revision.current) {
+          accept(answer, requestId);
+        }
+        return answer;
+      }),
   };
 };

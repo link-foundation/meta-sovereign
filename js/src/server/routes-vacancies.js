@@ -92,6 +92,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-review-save',
       'cv-watch',
       'cv-prepare',
+      'cv-prepare-cancel',
       'cv-watch-stop',
     ].includes(operation)
   ) {

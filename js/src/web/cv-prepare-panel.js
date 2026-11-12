@@ -46,6 +46,19 @@ export const CvPreparation = ({ state, review, idle, t }) => {
           },
           t('cvPrepare.reload')
         ),
+        state.cancellable
+          ? el(
+              'button',
+              {
+                key: 'cancel',
+                type: 'button',
+                disabled: !idle,
+                onClick: state.cancel,
+                'data-cv-prepare-cancel': true,
+              },
+              t('cvPrepare.cancel')
+            )
+          : null,
       ]),
       !state.ready
         ? el('p', { key: 'recovery', role: 'status' }, t('cvPrepare.recovery'))
@@ -64,7 +77,14 @@ export const CvPreparation = ({ state, review, idle, t }) => {
               el(
                 'p',
                 { key: 'identity', className: 'meta' },
-                `${result.language.toUpperCase()} · ${result.hash ?? ''} · ${result.requestId} · ${result.updatedAt}`
+                [
+                  result.language?.toUpperCase(),
+                  result.hash,
+                  result.requestId,
+                  result.updatedAt,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
               ),
               result.code
                 ? el('p', { key: 'code', className: 'meta' }, result.code)

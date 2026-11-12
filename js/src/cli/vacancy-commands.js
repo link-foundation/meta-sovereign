@@ -27,7 +27,8 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=ru:about|en:about [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
+  vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];
@@ -67,6 +68,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'cv-snapshots',
       'cv-prepare',
       'cv-prepare-status',
+      'cv-prepare-cancel',
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
