@@ -8,6 +8,8 @@ import { useTechnologyAnalysis } from './technology-state.js';
 import { VacancyTechnologies } from './vacancy-technologies.js';
 import { useCvTechnologyReview } from './cv-technology-state.js';
 import { CvTechnologyReview } from './cv-technology-review.js';
+import { useCvSaveWatch } from './cv-watch-state.js';
+import { CvSaveWatch } from './cv-watch-panel.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -113,6 +115,7 @@ export const useVacancies = (api) => {
   const resumeExports = useResumeExports({ api, values, run });
   const technology = useTechnologyAnalysis({ api, values, run });
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
+  const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -178,6 +181,7 @@ export const useVacancies = (api) => {
     resumeExports,
     technology,
     cvTechnology,
+    cvSaveWatch,
     error,
     loaded,
     valid,
@@ -418,6 +422,9 @@ const Snapshot = ({ state, t, idle }) => {
 
 const CvEvidencePanels = ({ state, t }) =>
   el(React.Fragment, null, [
+    state.cvSaveWatch
+      ? el(CvSaveWatch, { key: state.values.browserSlot, state, t })
+      : null,
     state.resumeExports
       ? el(ResumeExports, { key: 'exports', state, t })
       : null,

@@ -4,6 +4,7 @@ import { encodeWire } from '../transport/lino.js';
 import { randomUUID } from 'node:crypto';
 import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
+import { foregroundCvWatch } from './cv-watch-command.js';
 
 export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
@@ -20,7 +21,11 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-technology-analysis-stored [--browser-slot=jobs] [--store=<dir>]
   vacancies-technology-review --ru-export-id=<id> --ru-resume=<hash> --en-export-id=<id> --en-resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
   vacancies-technology-review-stored [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-review-save --fingerprint=<review-fingerprint> --selected=<change-id>,<change-id> [--browser-slot=jobs] [--store=<dir>]`;
+  vacancies-technology-review-save --fingerprint=<review-fingerprint> --selected=<change-id>,<change-id> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch [--request-id=<id>] [--duration-ms=900000] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]`;
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];
@@ -54,6 +59,10 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'technology-review',
       'technology-review-stored',
       'technology-review-save',
+      'cv-watch',
+      'cv-watch-status',
+      'cv-watch-stop',
+      'cv-snapshots',
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
@@ -77,7 +86,11 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
               resumeLanguage: args['resume-language'],
               requestId:
                 args['request-id'] ??
-                (operation === 'resume-export' ? randomUUID() : undefined),
+                (['resume-export', 'cv-watch'].includes(operation)
+                  ? randomUUID()
+                  : undefined),
+              durationMs: typedFlag(args, 'duration-ms', 'number'),
+              targetId: args['target-id'],
               formats:
                 args.formats === undefined
                   ? undefined
@@ -92,7 +105,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
           const result =
             operation === 'resume-export'
               ? await foregroundResumeExport(service, input, args.out)
-              : await service[operation](input);
+              : operation === 'cv-watch'
+                ? await foregroundCvWatch(service, input, log)
+                : await service[operation](input);
           log(encodeWire(result));
           return operation === 'resume-export' && result.state !== 'completed'
             ? 1

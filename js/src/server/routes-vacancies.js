@@ -26,7 +26,12 @@ const failureReply = (error) => {
     error.status ??
     (code === 'browser-unavailable'
       ? 503
-      : ['jobs-busy', 'jobs-stopped', 'jobs-technology-conflict'].includes(code)
+      : [
+            'jobs-busy',
+            'jobs-stopped',
+            'jobs-technology-conflict',
+            'jobs-cv-conflict',
+          ].includes(code)
         ? 409
         : 400);
   return [
@@ -68,6 +73,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-catalog',
       'technology-analysis-stored',
       'technology-review-stored',
+      'cv-watch-status',
+      'cv-snapshots',
     ].includes(operation) || file;
   if (
     !read &&
@@ -82,6 +89,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-analyze',
       'technology-review',
       'technology-review-save',
+      'cv-watch',
+      'cv-watch-stop',
     ].includes(operation)
   ) {
     return false;

@@ -1,6 +1,16 @@
 # Issue 56 / PR 57 work plan
 
-Current hosted follow-up: exact 8c4bfc6c WebKit shard 2 failed technology keyboard focus and Follow disclosure visibility. Use the documented native Option-Tab shortcut for macOS WebKit while retaining enabled/focus assertions; add default-off content-free native event/node/document diagnostics for the still-unreproduced Follow opener. Local Linux WebKit passes eight technology cases and the unchanged Follow workflow. Require exact-head hosted confirmation and recurrence evidence; [investigation](ci-cv-keyboard-disclosure.md). All unfinished product requirements remain active.
+Active HH16–HH18 native CV save observation unit:
+
+- [x] Attach through browser-commander to the exact existing HH tab in a chosen slot; refuse absent/replaced sessions and never launch, click, fill, focus, close or navigate an owner page.
+- [x] Capture bounded final About/workplace fields at trusted owner Save, exclude nested picker saves, and invalidate pending verification on Cancel or later edits.
+- [ ] Verify closed forms against fresh native saved exports, including checked/unchecked CV membership and complete metadata. Preserve older snapshots on validation, mismatches, challenges, limits, cancellation or read failure.
+- [x] Persist explicit attempt/verified/interrupted states without replay, share finite watch/status/Stop/snapshot controls through CLI, both Lino encodings and localized CV UI, and drain callbacks before disconnecting.
+- [ ] Retain focused regression and real browser/MCP evidence, publish an atomic change and inspect exact-head hosted checks. Full native preparation/queues and all other open issue criteria remain required.
+
+Local Save observation verification: 21 Node, 21 Deno and 24 compatibility checks, one browser-registry contract, two actual-parent failures, six native Linux WebKit cases, two actual Chromium CDP attachment checks and four independent MCP cases pass. Native exports cannot prove shared record identity: unchecked CVs with work history and hidden company metadata refuse confirmation. That acceptance criterion, live authenticated parity, native preparation/queues and every other open requirement stay unfinished. See [Save observation](cv-save-watch.md).
+
+Current hosted follow-up: exact 15f9c3e8 Checks run 43183721390 confirms macOS native Alt+Tab focus, but nine runtime jobs fail the older technology-capability assertion and WebKit shard 2 fails a collapsed Follow Backlinks disclosure. Full failed-job logs and its screenshot are preserved. The capability assertion now passes locally; Follow Backlinks needs further native event/node/document diagnostics around both openers. The earlier chat disclosure trace does not cover Backlinks. Require exact new-head hosted confirmation; [investigation](cv-save-watch.md#published-parent-ci-investigation). All unfinished product requirements remain active.
 
 Active HH19/HH20 bilingual technology review unit:
 

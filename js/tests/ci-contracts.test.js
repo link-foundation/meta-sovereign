@@ -319,6 +319,7 @@ test('vacancy reads and local analysis have independent mandatory browser budget
     'resume-exports': 'verifyResumeExports',
     'vacancy-technologies': 'verifyVacancyTechnologies',
     'cv-technologies': 'verifyCvTechnologies',
+    'cv-save-watch': 'verifyCvSaveWatch',
   };
   for (const [name, helper] of Object.entries(groups)) {
     assert.equal(checks.filter((item) => item === name).length, 1);

@@ -171,4 +171,36 @@ export const enVacancy = {
   'cvTechnology.skills': 'Skills',
   'cvTechnology.position': 'Workplace',
   'cvTechnology.current': 'present',
+  'cvWatch.title': 'Observe owner CV saves',
+  'cvWatch.hint':
+    'Attach to the existing HH CV tab in this browser slot. Save or cancel in HH yourself. Observation never opens, edits or navigates a page. A snapshot changes only after a verified native saved export.',
+  'cvWatch.duration': 'Watch for (minutes)',
+  'cvWatch.start': 'Start observing',
+  'cvWatch.stop': 'Stop observing',
+  'cvWatch.reload': 'Reload saved state',
+  'cvWatch.none': 'No active observation.',
+  'cvWatch.starting': 'Connecting to the existing tab…',
+  'cvWatch.watching': 'Observing owner saves.',
+  'cvWatch.verifying':
+    'Checking the final owner fields against native saved exports…',
+  'cvWatch.saved': 'Owner Save verified.',
+  'cvWatch.not-saved': 'Save not confirmed. The previous snapshot is retained.',
+  'cvWatch.cancelled': 'Owner cancelled. No saved snapshot changed.',
+  'cvWatch.edited':
+    'Owner edited after Save. The pending verification was invalidated.',
+  'cvWatch.failed':
+    'Observation failed. Reload saved state before starting again.',
+  'cvWatch.stopped': 'Observation stopped.',
+  'cvWatch.expired': 'Observation duration ended.',
+  'cvWatch.interrupted':
+    'Observation was interrupted. Start a new explicit watch to continue.',
+  'cvWatch.verified': 'Verified saves',
+  'cvWatch.until': 'Until',
+  'cvWatch.snapshots': 'Saved CV snapshots',
+  'cvWatch.choose': 'Choose saved CV',
+  'cvWatch.native': 'Native readback',
+  'cvWatch.inspect': 'Inspect sanitized saved fields',
+  'cvWatch.empty': 'No verified owner save has been captured.',
+  'cvWatch.loadError':
+    'The connection or saved state could not be confirmed. Existing snapshots are retained; reload before starting again.',
 };
