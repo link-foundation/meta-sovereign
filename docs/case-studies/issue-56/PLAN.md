@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active merged CV validation:
+
+- [x] Integrate both published cancellation histories and workplace identity with regular commits; rebuild the web bundle and retain both evidence sets.
+- [x] Verify 61 Node/61 Deno checks and preserve both actual-parent cancellation failures.
+- [x] Reproduce exact published duplication failure; share replay and isolated server setup while retaining the 6.5% gate, all assertions and mandatory browser coverage. Verify three real fixture lifecycles.
+- [ ] Publish the merged correction, inspect complete exact-head CI and continue all unchecked product requirements. See [CI evidence](ci-cv-fixture-duplication.md).
+
 Active shared workplace identity readback:
 
 - [x] Reproduce text-only membership failures and false confirmation without an exact saved record identity.
