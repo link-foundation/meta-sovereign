@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-windows-deno-shards.md](ci-windows-deno-shards.md) preserves the explicit ten-minute Windows Deno cancellation and partitions the same discovery across three hosted runners. Tiny native fixtures verify complete, disjoint execution and failure propagation; no deadline increases or full local suite runs.
+
 - [cv-prepare.md](cv-prepare.md) verifies selected saved About changes, exact existing-tab native keyboard preparation, durable non-replaying receipts and owner Save/readback through CLI/Lino/four languages. Thirteen Node/Deno checks, eight native WebKit cases and four independent MCP cases pass; full native editing, shared identities, batches and live parity stay unfinished.
 
 - [ci-follow-backlinks.md](ci-follow-backlinks.md) preserves the collapsed hosted Backlinks screenshot and extends default-off native event/node diagnostics to both original openers. Local Backlinks and chat workflows pass; the hosted cause remains unproven.

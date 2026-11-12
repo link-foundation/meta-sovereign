@@ -328,8 +328,9 @@ jobs:
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
     # Retain the 10min deadline. Cold Intel macOS Node jobs can spend several
-    # minutes installing and then exceed it with the complete suite; split
-    # that target across three runners, keeping every test and its 30s limit.
+    # minutes installing and then exceed it with the complete suite. Windows
+    # Deno also reaches the deadline while still passing tests. Partition both
+    # targets across three runners without dropping discovery or test limits.
     timeout-minutes: 10
     needs:
       [
@@ -362,6 +363,8 @@ jobs:
         exclude:
           - os: macos-26
             runtime: node
+          - os: windows-2025
+            runtime: deno
         # Retain all nine runtime/OS targets. Use the separate native Intel
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
@@ -377,6 +380,15 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
+            shard: 3/3
+          - os: windows-2025
+            runtime: deno
+            shard: 1/3
+          - os: windows-2025
+            runtime: deno
+            shard: 2/3
+          - os: windows-2025
+            runtime: deno
             shard: 3/3
     steps:
       - uses: actions/checkout@v7.0.1
@@ -457,7 +469,7 @@ jobs:
           RUST_BACKTRACE: '1'
         run: |
           if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
-          deno test --allow-all js/tests
+          deno test --allow-all --shard=${{ matrix.shard || '1/1' }} js/tests
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the

@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active Windows Deno deadline correction:
+
+- [x] Preserve exact-parent run/job logs and the explicit ten-minute annotation; identify setup overhead and continued passing modules rather than assuming a hung test.
+- [x] Partition Windows Deno using native shards, retaining all discovery, runtime/OS targets, crypto checks and existing deadlines.
+- [x] Verify a parent-failing workflow contract, tiny actual Deno partitions, failure propagation and existing macOS Node coverage locally with limited concurrency.
+- [ ] Publish the atomic correction and inspect completed exact-head hosted checks. Continue all unchecked product requirements while CI runs.
+
+The About preparation unit is published as `a795d6bc732b605b43cea79dc5f4b7adbacd972e`; its five workflows began at 2026-11-12 14:24:37 UTC, including Checks 43236878326. Its PR description now retains reproduction, local checks, before/after screenshots and explicit remaining scope. Hosted completion remains required. The separate Windows deadline evidence and correction are tracked in [ci-windows-deno-shards.md](ci-windows-deno-shards.md).
+
 Active HH14/HH16/HH19 About preparation unit:
 
 - [x] Resolve only an explicitly selected About change from an integrity-checked, saved bilingual review and the current catalog/export evidence.
