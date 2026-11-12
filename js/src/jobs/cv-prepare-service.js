@@ -5,12 +5,57 @@ import {
   cvPrepareOptions,
   cvPrepareResult,
   cvPrepareFailure,
+  cvPrepareIdentity,
 } from './cv-prepare-record.js';
 import { saveTechnologyRecord } from './technology-storage.js';
 import { browserName } from '../browser/policy.js';
 import { resumeExportRequestId } from './resume-export-options.js';
 
 const recordId = (id) => `jobs-cv-prepare:${resumeExportRequestId(id)}`;
+const admissions = new WeakMap();
+const assertRunning = (stopped) => {
+  if (stopped) {
+    throw cvPrepareFailure('stopped');
+  }
+};
+const preparationLane = (store) => {
+  let lane = admissions.get(store);
+  if (!lane) {
+    lane = { tail: Promise.resolve(), current: null, cancellations: new Map() };
+    admissions.set(store, lane);
+  }
+  return lane;
+};
+const enqueuePreparation = (lane, operation) => {
+  const task = lane.tail.then(operation);
+  lane.tail = task.catch(() => {});
+  return task;
+};
+const cancelPreparation = async ({ store, lane, status }, input) => {
+  const identity = cvPrepareIdentity(input);
+  if (await store.get(recordId(identity.requestId))) {
+    // Issued work is reported accurately. This operation never closes,
+    // undoes or calls native Cancel on an existing provider draft.
+    return status(identity);
+  }
+  const row = {
+    id: recordId(identity.requestId),
+    ...identity,
+    version: 1,
+    state: 'cancelled',
+    providerSaved: false,
+    updatedAt: new Date().toISOString(),
+  };
+  const result = cvPrepareResult(row, identity);
+  const durable = saveTechnologyRecord(store, row);
+  lane.cancellations.set(identity.requestId, durable);
+  try {
+    await durable;
+  } finally {
+    lane.cancellations.delete(identity.requestId);
+  }
+  return result;
+};
 export const createCvPrepareService = ({
   store,
   artifactRoot,
@@ -18,9 +63,9 @@ export const createCvPrepareService = ({
   attach = attachCvWatchBrowser,
   prepare = prepareNativeCvAbout,
 }) => {
-  let admitting = Promise.resolve();
-  let current;
+  const lane = preparationLane(store);
   let stopped = false;
+  const enqueue = (operation) => enqueuePreparation(lane, operation);
   const status = async (input) => {
     const browserSlot = browserName(input.browserSlot ?? 'jobs');
     const requestId =
@@ -29,19 +74,24 @@ export const createCvPrepareService = ({
     if (!requestId) {
       return { preparation: null };
     }
+    await lane.cancellations.get(requestId);
     const raw = await store.get(recordId(requestId));
     if (!raw) {
       return { preparation: null };
     }
-    const { preparation } = cvPrepareResult(raw, {
+    const answer = cvPrepareResult(raw, {
       ...input,
       browserSlot,
       requestId,
     });
+    const { preparation } = answer;
+    if (!preparation) {
+      return answer;
+    }
     return {
       preparation:
         ['starting', 'opening', 'preparing'].includes(preparation.state) &&
-        current !== requestId
+        lane.current !== requestId
           ? {
               ...preparation,
               state: 'interrupted',
@@ -51,12 +101,13 @@ export const createCvPrepareService = ({
     };
   };
   const start = async (input) => {
-    if (stopped) {
-      throw cvPrepareFailure('stopped');
-    }
+    assertRunning(stopped);
     const options = cvPrepareOptions(input);
     const previous = await store.get(recordId(options.requestId));
     if (previous) {
+      if (previous.state === 'cancelled') {
+        return status(options);
+      }
       if (
         JSON.stringify(cvPrepareOptions(previous)) !== JSON.stringify(options)
       ) {
@@ -90,7 +141,7 @@ export const createCvPrepareService = ({
         record = next;
       };
       let session;
-      current = options.requestId;
+      lane.current = options.requestId;
       try {
         await save('starting');
         await saveTechnologyRecord(store, {
@@ -132,23 +183,25 @@ export const createCvPrepareService = ({
         try {
           await session?.detach();
         } finally {
-          current = null;
+          lane.current = null;
         }
       }
       return status(options);
     }
   };
+
   return {
     stop: () => {
       stopped = true;
-      return admitting;
+      return lane.tail;
     },
     operations: {
-      'cv-prepare': (input) => {
-        const task = admitting.then(() => start(input));
-        admitting = task.catch(() => {});
-        return task;
-      },
+      'cv-prepare': (input) => enqueue(() => start(input)),
+      'cv-prepare-cancel': (input) =>
+        enqueue(() => {
+          assertRunning(stopped);
+          return cancelPreparation({ store, lane, status }, input);
+        }),
       'cv-prepare-status': status,
     },
   };

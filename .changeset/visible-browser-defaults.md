@@ -323,3 +323,5 @@ Observe final owner CV Save/Cancel in an exact existing HH tab through CLI, Lino
 Prepare a selected reviewed About change in the exact existing HH tab after native hydration and baseline checks. Preserve open owner drafts, leave Save/Cancel to the owner, and recover durable preparation receipts through CLI, Lino API and four-language CV controls without replay.
 
 Partition Windows Deno validation across three native shards while retaining every test, runtime/OS target and the existing ten-minute deadline. Verify actual partition coverage and failure propagation with tiny isolated fixtures.
+
+Cancel an unreceived native About preparation by its durable request ID through CLI, Lino and four-language CV controls. Block late preparation copies, preserve pending intent after failed or lost acknowledgements, and report already issued drafts without undoing them.

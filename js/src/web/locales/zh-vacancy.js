@@ -190,6 +190,11 @@ export const zhVacancy = {
   'cvPrepare.choose': '请先在本地审核中保存自我介绍更改。',
   'cvPrepare.prepare': '准备自我介绍',
   'cvPrepare.reload': '重新读取准备状态',
+  'cvPrepare.cancel': '取消未确认的请求',
+  'cvPrepare.cancelHint':
+    '重试前先取消此请求。现有 HH 草稿会保留；已开始的准备会显示实际状态。',
+  'cvPrepare.cancelled':
+    '未收到的请求已持久取消。其延迟副本无法再准备草稿。尚未确认在平台保存。',
   'cvPrepare.recovery':
     '再次尝试前请恢复准备状态。未知请求仍会阻止准备；请检查现有标签页。',
   'cvPrepare.starting': '正在连接现有简历标签页…',

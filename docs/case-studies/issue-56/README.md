@@ -33,6 +33,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 - [ci-deno-shards.md](ci-deno-shards.md) retains the independently published equivalent Windows Deno investigation and its complete workflow log. The branch histories are merged without removing either evidence set.
 
 - [cv-prepare.md](cv-prepare.md) verifies selected saved About changes, exact existing-tab native keyboard preparation, durable non-replaying receipts and owner Save/readback through CLI/Lino/four languages. Thirteen Node/Deno checks, eight native WebKit cases and four independent MCP cases pass; full native editing, shared identities, batches and live parity stay unfinished.
+- [cv-prepare-cancel.md](cv-prepare-cancel.md) verifies durable ID-specific cancellation of unreceived About requests through CLI/Lino/four locales. Late copies cannot prepare, failed acknowledgements preserve intent, and already issued native drafts remain intact. Twenty-two focused checks per Node/Deno, twelve native WebKit cases and five independent MCP cases pass; broad CV requirements remain open.
 
 - [ci-follow-backlinks.md](ci-follow-backlinks.md) preserves the collapsed hosted Backlinks screenshot and extends default-off native event/node diagnostics to both original openers. Local Backlinks and chat workflows pass; the hosted cause remains unproven.
 

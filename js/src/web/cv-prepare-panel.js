@@ -46,9 +46,46 @@ export const CvPreparation = ({ state, review, idle, t }) => {
           },
           t('cvPrepare.reload')
         ),
+        state.canCancel
+          ? el(
+              'button',
+              {
+                key: 'cancel',
+                type: 'button',
+                disabled: !idle,
+                onClick: state.cancel,
+                'data-cv-prepare-cancel': true,
+              },
+              t('cvPrepare.cancel')
+            )
+          : null,
       ]),
       !state.ready
         ? el('p', { key: 'recovery', role: 'status' }, t('cvPrepare.recovery'))
+        : null,
+      state.canCancel
+        ? el('p', { key: 'cancel-hint' }, t('cvPrepare.cancelHint'))
+        : null,
+      state.pendingId
+        ? el('p', { key: 'pending', className: 'meta' }, state.pendingId)
+        : null,
+      state.cancellation
+        ? el(
+            'div',
+            {
+              key: 'cancelled',
+              role: 'status',
+              'data-cv-prepare-cancelled': state.cancellation.requestId,
+            },
+            [
+              el('p', { key: 'text' }, t('cvPrepare.cancelled')),
+              el(
+                'p',
+                { key: 'identity', className: 'meta' },
+                `${state.cancellation.requestId} · ${state.cancellation.updatedAt}`
+              ),
+            ]
+          )
         : null,
       result
         ? el(

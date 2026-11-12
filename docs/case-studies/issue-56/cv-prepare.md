@@ -77,8 +77,9 @@ preparation until a validated result or GET recovers that same request. Slot
 generations and read revisions discard obsolete responses. Malformed or lost
 POST replies cannot silently release the guard. A request that never reached the
 server stays blocked after GET-null and page reload, so a delayed original POST
-cannot race a replacement. There is not yet a cancellation/tombstone control for
-that unreceived intent; that recovery limitation remains unfinished. Unavailable
+cannot race a replacement. The subsequent [ID-specific cancellation](cv-prepare-cancel.md) adds a durable
+recovery control for that unreceived intent and refuses late copies without
+undoing any already issued native draft. Unavailable
 local intent storage prevents a POST. Reload never prepares or saves a CV.
 
 After preparation, start passive Save observation before choosing native Save
@@ -146,7 +147,6 @@ result counts and archives source, parent snapshots, logs, reference provenance,
 screenshots and byte integrity in [`data/cv-prepare.tar.gz`](data/cv-prepare.tar.gz).
 
 Complete shared-workplace identity, native workplace editing, copy/detach,
-durable edit batches, bilingual save/readback, authenticated HH parity, explicit
-unreceived-intent cancellation and every other unchecked issue criterion remain
+durable edit batches, bilingual save/readback, authenticated HH parity and every other unchecked issue criterion remain
 unfinished. The technology provider-save capability remains false. PR57 stays
 draft and unmerged while that work continues.

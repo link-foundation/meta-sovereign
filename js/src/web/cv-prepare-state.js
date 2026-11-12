@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 export const useCvPreparation = ({ api, values, run }) => {
   const [preparation, setPreparation] = useState(null);
+  const [cancellation, setCancellation] = useState(null);
+  const [pendingId, setPendingId] = useState(null);
   const [ready, setReady] = useState(false);
   const pending = useRef(null);
   const permitted = useRef(false);
@@ -13,13 +15,16 @@ export const useCvPreparation = ({ api, values, run }) => {
     const terminal = !['starting', 'opening', 'preparing'].includes(
       answer.preparation?.state
     );
-    const known = !requestId || Boolean(answer.preparation);
+    const known =
+      !requestId || Boolean(answer.preparation || answer.cancellation);
     setPreparation(answer.preparation);
+    setCancellation(answer.cancellation ?? null);
     permitted.current = terminal && known;
     setReady(permitted.current);
-    if (answer.preparation && terminal) {
+    if ((answer.preparation || answer.cancellation) && terminal) {
       globalThis.localStorage?.removeItem(key);
       pending.current = null;
+      setPendingId(null);
     }
   };
   const load = async (requestId) => {
@@ -37,10 +42,13 @@ export const useCvPreparation = ({ api, values, run }) => {
   useEffect(() => {
     generation.current++;
     setPreparation(null);
+    setCancellation(null);
+    setPendingId(null);
     setReady(false);
     permitted.current = false;
     try {
       pending.current = globalThis.localStorage?.getItem(key) ?? null;
+      setPendingId(pending.current);
       void load(pending.current).catch(() => {});
     } catch {
       // Recovery stays blocked if the pending durable intent cannot be read.
@@ -51,6 +59,9 @@ export const useCvPreparation = ({ api, values, run }) => {
   }, [api, browserSlot]);
   return {
     preparation,
+    cancellation,
+    pendingId,
+    canCancel: Boolean(pendingId && !preparation && !ready),
     ready,
     prepare: (review, change) =>
       run('cv-prepare', async () => {
@@ -66,12 +77,34 @@ export const useCvPreparation = ({ api, values, run }) => {
         revision.current++;
         permitted.current = false;
         setReady(false);
+        setPreparation(null);
+        setCancellation(null);
+        setPendingId(requestId);
         pending.current = requestId;
         const answer = await api.vacancyCvPrepare({
           browserSlot,
           requestId,
           fingerprint: review.fingerprint,
           changeId: change.id,
+        });
+        if (current === generation.current) {
+          accept(answer, requestId);
+        }
+        return answer;
+      }),
+    cancel: () =>
+      run('cv-prepare-cancel', async () => {
+        const requestId = pending.current;
+        if (!requestId) {
+          throw new Error('jobs-cv-recovery');
+        }
+        const current = generation.current;
+        revision.current++;
+        permitted.current = false;
+        setReady(false);
+        const answer = await api.vacancyCvPrepareCancel({
+          browserSlot,
+          requestId,
         });
         if (current === generation.current) {
           accept(answer, requestId);
