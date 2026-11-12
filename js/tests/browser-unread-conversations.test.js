@@ -58,3 +58,17 @@ test('the finite native-history fixture compiles before any browser is started',
   assert.ok(start >= '<script>'.length && end > start);
   assert.doesNotThrow(() => new vm.Script(html.slice(start, end)));
 });
+
+test('native history message data cannot end its containing script element', () => {
+  const message =
+    '</script><script>globalThis.injected = true;</script><b>literal</b>';
+  const html = chatNavigationHtml({ latestMessages: { 8: message } });
+  assert.equal(html.split('<script>').length - 1, 1);
+  assert.equal(html.split('</script>').length - 1, 1);
+  const start = html.indexOf('<script>') + '<script>'.length;
+  const end = html.lastIndexOf('</script>');
+  assert.doesNotThrow(() => new vm.Script(html.slice(start, end)));
+  const dataStart = html.indexOf('{"8":');
+  const dataEnd = html.indexOf('?.[fixture.chat]', dataStart);
+  assert.equal(JSON.parse(html.slice(dataStart, dataEnd))[8], message);
+});

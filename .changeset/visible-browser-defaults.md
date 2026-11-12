@@ -299,3 +299,5 @@ Expose bounded existing-view HH unread reviews through foreground CLI, text/bina
 Add private borrowed unread-conversation handles that reuse native ownership and the existing provider queue. Serialize and drain direct reply work, expire handles on return, preserve actual send receipts and yield to owner input. Distinguish pending virtual-scroll events from provider loading during bounded restoration. Public automatic delivery and polling remain unfinished.
 
 Expose explicitly admitted finite unread acknowledgement/rejection replies through CLI, both Lino transports and shared four-language Questions, Chat and Operator controls. Reuse saved policies, complete observed history and durable question/per-chat reservations; preserve unknown holds, positive receipts and independent restoration results through read-only recovery and Stop. Default unread passes stay review-only. Polling, backoff, lifetime and original-empty-chat reveal remain unfinished.
+
+Escape native unread fixture message data before embedding it in script elements, preserving exact decoded text and retaining a closing-script regression.
