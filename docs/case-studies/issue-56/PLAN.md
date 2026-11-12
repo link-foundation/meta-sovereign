@@ -1,5 +1,16 @@
 # Issue 56 / PR 57 work plan
 
+Windows résumé export CI correction: exact 9e2169f3 run 43171285138 reports two POSIX-bit assertions on Windows (0666 versus 0600/0700); preserve raw logs and metadata, scope those two assertions to POSIX as existing backup tests do, and retain every platform's integrity/attachment/CLI checks. Focused local verification cannot establish Windows ACLs or hosted results. The same run's macOS fetch failure is separate infrastructure evidence. See [investigation](ci-resume-permissions.md).
+
+Active HH04 technology analysis unit:
+
+- [ ] Preserve cached vacancy prose; recognize bounded whole technology names, separate required/preferred mentions and retain ambiguous aliases.
+- [ ] Save an editable local alias catalog with revision conflict checks; keep products and versions distinct.
+- [ ] Compare the explicitly selected verified résumé export against cached vacancies, retaining per-field mention evidence, spelling frequencies and corpus metadata statistics.
+- [ ] Expose the same analysis and catalog controls through CLI, Lino API and localized CV controls; disclose cached provenance and avoid unsupported skill claims.
+- [ ] Add focused failing-before regressions, real-browser before/after evidence and mandatory CI coverage; run focused checks locally, publish an atomic commit and inspect exact-head CI.
+- [ ] Keep HH19/HH20 bilingual edit/review/save coverage and all other unfinished criteria open until independently implemented and verified.
+
 Profile navigation investigation: preserve exact 3a6a49fd WebKit shard 4/4 failure and replay the four profile helpers in CI order with their required initial email field. Both baseline and diagnostic replays pass; the root cause remains unproven. Add optional document/readiness/root-state snapshots around the unchanged original interactions, enabled in hosted CI without changing any deadline. See [investigation](ci-profile-navigation.md). Require recurrence evidence and exact-head checks; all remaining issue requirements remain active.
 
 HH12/HH13 locally verified: owned latest/specified/all native downloads, sanitized bilingual Markdown/text/structured/Lino, official stable industry IDs and private verified artifacts share CLI/Lino/four-language CV controls. Thirty-five focused Node checks, twelve new Deno checks, twelve CI registry contracts, six native WebKit cases (27 downloads/six closed owned sessions) and four independent MCP cases pass. Actual-parent service/UI regressions fail as expected. Durable IDs recover lost replies without replay; explicit ID-specific cancellation refuses unreceived late POSTs, while failed durability stays uncertain. See [export evidence](resume-exports.md). Authenticated live verification, native application selection, complete CV editing/sync and every unchecked criterion remain required. Prior exact-head 3a6a49fd CI failed in WebKit question-profile disclosure; retain raw run/job/artifact evidence, investigate the root cause, and require the next exact-head matrix.

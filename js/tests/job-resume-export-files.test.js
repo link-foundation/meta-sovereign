@@ -62,7 +62,13 @@ test('private downloads require exact manifests, sizes and digests and refuse tr
       (await readResumeExportFile(fixture, input)).bytes,
       resumeExportFixtureContent('resume.pdf')
     );
-    assert.equal((await stat(join(folder, 'resume.pdf'))).mode & 0o777, 0o600);
+    // Windows stat does not expose POSIX owner/group permission distinctions.
+    if (process.platform !== 'win32') {
+      assert.equal(
+        (await stat(join(folder, 'resume.pdf'))).mode & 0o777,
+        0o600
+      );
+    }
     for (const invalid of [
       { ...input, name: '../resume.pdf' },
       { ...input, hash: '../english' },
@@ -206,7 +212,9 @@ test(
       const output = decodeWire(logs[0], LINO_TEXT);
       assert.equal(output.state, 'completed');
       const folder = output.output;
-      assert.equal((await stat(folder)).mode & 0o777, 0o700);
+      if (process.platform !== 'win32') {
+        assert.equal((await stat(folder)).mode & 0o777, 0o700);
+      }
       assert.equal((await readdir(join(folder, receipt.hash))).length, 8);
       assert.deepEqual(
         await readFile(join(folder, receipt.hash, 'resume.pdf')),
