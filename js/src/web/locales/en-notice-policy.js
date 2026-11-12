@@ -1,7 +1,7 @@
 export const enNoticePolicy = {
   'noticePolicy.title': 'Notice reply policies',
   'noticePolicy.hint':
-    'Saving these policies starts nothing. Start an inactive notice watch for one reviewed HH chat. Acknowledgements require approved exact saved notice answers; rejection replies are limited to once per chat. Complete history and a verified open employer chat are required. Invitations are never accepted automatically.',
+    'Saving these policies starts nothing. Start an inactive notice watch for one reviewed HH chat, or explicitly apply these policies in a finite unread pass. Acknowledgements require approved exact saved notice answers; rejection replies are limited to once per chat. Complete history and a verified open employer chat are required. Invitations are never accepted automatically.',
   'noticePolicy.acknowledgements': 'Application acknowledgements',
   'noticePolicy.rejections': 'Rejections',
   'noticePolicy.invitations': 'Invitations',

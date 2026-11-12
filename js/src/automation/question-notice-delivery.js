@@ -27,6 +27,37 @@ export const rejectionReplyKey = (draft) =>
     step: 'once',
   });
 
+/** Preserve actual stored text and receipts, including earlier once-per-chat replies. */
+const noticeOutcomePhase = (outcome, delivered) => {
+  if (delivered) {
+    return outcome.outbox?.resolvedBy === 'user' ? 'marked-sent' : 'sent';
+  }
+  return outcome.status === 'unknown' || outcome.code === 'send-in-doubt'
+    ? 'unknown'
+    : 'failed';
+};
+
+export const noticeDeliveryState = (outcome, draft, selection) => {
+  const delivered =
+    outcome.status === 'sent' || outcome.code === 'already-sent';
+  const outbox = outcome.outbox ?? null;
+  if (
+    delivered &&
+    outbox?.resolvedBy !== 'user' &&
+    !browserTextReceipt(outbox?.receipt, { ...draft, text: outbox?.text })
+  ) {
+    throw failure('question-browser-receipt-missing', false);
+  }
+  return {
+    outbox,
+    selection: { ...selection, text: outbox?.text ?? draft.text },
+    phase: noticeOutcomePhase(outcome, delivered),
+    ...(!delivered
+      ? { state: 'paused', reason: outcome.code ?? 'notice-reply-refused' }
+      : {}),
+  };
+};
+
 /** Both reservation layers flush before issue; uncertainty blocks either path. */
 export const deliverNoticeReply = async ({
   context,

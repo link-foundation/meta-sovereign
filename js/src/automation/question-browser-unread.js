@@ -11,6 +11,11 @@ import {
   validUnreadCoverage,
   validUnreadRestoration,
 } from './question-unread-state.js';
+import { visitUnreadNotice } from './question-unread-notices.js';
+import {
+  unreadNoticeStatus,
+  validUnreadNotice,
+} from './question-unread-notice-state.js';
 
 const failure = unreadFailure;
 const checkedPass = (value, maxChats) => {
@@ -69,6 +74,7 @@ const executeUnreadReview = async ({
   send,
   review,
   save,
+  context,
 }) => {
   try {
     const pass = checkedPass(
@@ -76,21 +82,49 @@ const executeUnreadReview = async ({
         source: record.source,
         ...record.settings,
         signal: controller.signal,
+        ...(record.noticeReplies
+          ? {
+              onConversation: (observation, handle) =>
+                visitUnreadNotice({
+                  context,
+                  record,
+                  controller,
+                  observation,
+                  handle,
+                  reviewEntry: (entry, current) =>
+                    reviewEntry(entry, current, review),
+                  save,
+                }),
+            }
+          : {}),
       }),
       record.settings.maxChats
     );
     record.coverage = pass.coverage;
     record.restoration = pass.restoration;
-    for (const entry of pass.conversations) {
+    for (const entry of record.noticeReplies ? [] : pass.conversations) {
       if (controller.signal.aborted) {
         break;
       }
       record.entries.push(await reviewEntry(entry, record, review));
       await save(record);
     }
+    if (
+      !controller.signal.aborted &&
+      record.entries.length !== pass.conversations.length
+    ) {
+      throw failure(
+        'question-unread-unverified',
+        'The unread visitor did not confirm every chat.'
+      );
+    }
     record.state = controller.signal.aborted ? 'stopped' : 'completed';
   } catch (error) {
-    record.state = controller.signal.aborted ? 'stopped' : 'failed';
+    record.state = controller.signal.aborted
+      ? 'stopped'
+      : error.code === 'question-unread-notice-paused'
+        ? 'paused'
+        : 'failed';
     record.code = boundedBrowserText(error.code, 120)
       ? error.code
       : 'question-unread-failed';
@@ -102,6 +136,42 @@ const executeUnreadReview = async ({
   }
 };
 
+const unreadSettings = (input, capabilities) => {
+  if (!capabilities.unreadSources?.some(({ id }) => id === input.source)) {
+    throw failure(
+      'question-unread-unavailable',
+      'Unread browser traversal is unavailable for this provider.'
+    );
+  }
+  const settings = normalizeUnreadScanOptions(input);
+  if (
+    (input.noticeReplies !== undefined &&
+      typeof input.noticeReplies !== 'boolean') ||
+    (input.noticeReplies &&
+      !capabilities.unreadNoticeSources?.some(({ id }) => id === input.source))
+  ) {
+    throw failure(
+      'question-unread-notices-unavailable',
+      'Notice replies require an explicitly supported unread provider.'
+    );
+  }
+  return settings;
+};
+
+const unreadStatusResult = (record, owned) => {
+  const {
+    kind: _kind,
+    tokens: _tokens,
+    planning: _planning,
+    ...result
+  } = record;
+  return globalThis.structuredClone({
+    ...result,
+    mode: 'browser-unread-review',
+    owned,
+  });
+};
+
 /** Finite existing-view reads; durable IDs recover status without replaying mark-read actions. */
 export const createQuestionUnreadReviews = ({
   store,
@@ -109,10 +179,12 @@ export const createQuestionUnreadReviews = ({
   clock,
   capabilities,
   review,
+  log = () => {},
 }) => {
   const runtimes = new Map();
   let admitting = Promise.resolve();
   let closed = false;
+  const context = { store, clock, log };
   const save = async (record) => {
     record.updatedAt = clock().toISOString();
     await store.put(record);
@@ -134,17 +206,22 @@ export const createQuestionUnreadReviews = ({
       record.state = 'paused';
       record.code = 'question-unread-owner-unavailable';
     }
-    const {
-      kind: _kind,
-      tokens: _tokens,
-      planning: _planning,
-      ...result
-    } = record;
-    return globalThis.structuredClone({
-      ...result,
-      mode: 'browser-unread-review',
-      owned: runtimes.has(record.id),
-    });
+    record.entries = await Promise.all(
+      record.entries.map((entry) => unreadNoticeStatus(store, entry))
+    );
+    if (
+      record.entries.some(
+        (entry) =>
+          entry.notice &&
+          !validUnreadNotice(entry.notice, record.source, entry.chat)
+      )
+    ) {
+      throw failure(
+        'question-browser-receipt-missing',
+        'The unread notice receipt was not verified.'
+      );
+    }
+    return unreadStatusResult(record, runtimes.has(record.id));
   };
   const admit = async (input) => {
     if (closed) {
@@ -162,13 +239,7 @@ export const createQuestionUnreadReviews = ({
     if (await store.get(input.id)) {
       return status(input);
     }
-    if (!capabilities().unreadSources?.some(({ id }) => id === input.source)) {
-      throw failure(
-        'question-unread-unavailable',
-        'Unread browser traversal is unavailable for this provider.'
-      );
-    }
-    const settings = normalizeUnreadScanOptions(input);
+    const settings = unreadSettings(input, capabilities());
     const planning = {
       ...normalizeAnswerAction(input),
       ...normalizeAnswerEnvironment(input),
@@ -189,6 +260,7 @@ export const createQuestionUnreadReviews = ({
       source: input.source,
       settings,
       planning,
+      ...(input.noticeReplies ? { noticeReplies: true } : {}),
       state: 'active',
       startedAt: clock().toISOString(),
       entries: [],
@@ -213,6 +285,7 @@ export const createQuestionUnreadReviews = ({
       send,
       review,
       save,
+      context,
     }).finally(() => runtimes.delete(record.id));
     runtime.work.catch(() => {});
     return status(record);

@@ -1,12 +1,10 @@
-import {
-  checkBrowserQuestion,
-  browserTextReceipt,
-} from './question-browser-state.js';
+import { checkBrowserQuestion } from './question-browser-state.js';
 import { planNoticeReply } from './question-notice-plan.js';
 import {
   deliverNoticeReply,
   noticeReplyDraft,
   rejectionReplyKey,
+  noticeDeliveryState,
 } from './question-notice-delivery.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import {
@@ -51,44 +49,6 @@ const noticeSnapshot = async (context, runtime) => {
     throw error;
   }
   return { snapshot, history };
-};
-
-const noticeOutcomePhase = (delivered, outbox, uncertain) =>
-  delivered
-    ? outbox?.resolvedBy === 'user'
-      ? 'marked-sent'
-      : 'sent'
-    : uncertain
-      ? 'unknown'
-      : 'failed';
-
-const saveNoticeOutcome = async (
-  context,
-  runtime,
-  outcome,
-  draft,
-  selection
-) => {
-  const delivered =
-    outcome.status === 'sent' || outcome.code === 'already-sent';
-  const outbox = outcome.outbox ?? null;
-  if (
-    delivered &&
-    outbox?.resolvedBy !== 'user' &&
-    !browserTextReceipt(outbox?.receipt, { ...draft, text: outbox?.text })
-  ) {
-    throw questionWatchFailure('question-browser-receipt-missing');
-  }
-  const uncertain =
-    outcome.status === 'unknown' || outcome.code === 'send-in-doubt';
-  await saveQuestionWatch(context, runtime, {
-    outbox,
-    selection: { ...selection, text: outbox?.text ?? draft.text },
-    phase: noticeOutcomePhase(delivered, outbox, uncertain),
-    ...(!delivered
-      ? { state: 'paused', reason: outcome.code ?? 'notice-reply-refused' }
-      : {}),
-  });
 };
 
 /** A separately selected mode: never navigate, prefill foreground or select chips. */
@@ -139,5 +99,9 @@ export const tickQuestionNotices = async (context, runtime) => {
     plan,
     verify,
   });
-  await saveNoticeOutcome(context, runtime, outcome, draft, selection);
+  await saveQuestionWatch(
+    context,
+    runtime,
+    noticeDeliveryState(outcome, draft, selection)
+  );
 };

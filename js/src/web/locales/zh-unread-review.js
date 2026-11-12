@@ -24,4 +24,12 @@ export const zhUnreadReview = {
     '原始视图未能完全恢复。请检查服务窗口；已保留所有者的新更改。',
   'browserUnread.review': '审核聊天 {chat}',
   'browserUnread.unverified': '聊天 {chat} 没有经过验证的问题审核。',
+  'browserUnread.notices': '应用已启用的申请确认和拒绝回复规则',
+  'browserUnread.noticesHint':
+    '在已连接且未激活的服务窗口中进行有限检查。验证完整历史后，已启用的保存规则可发送完全匹配且已批准的申请确认回复，或每个聊天一次的指定拒绝回复。请保持窗口未激活。问题和邀请保留待审核；不会调用模型。',
+  'browserUnread.startNotices': '对未读聊天应用通知规则',
+  'browserUnread.activeNotices':
+    '正在访问未读聊天并应用已启用的通知回复规则。请等待实际发送和视图恢复凭据。',
+  'browserUnread.pausedNotices':
+    '通知回复已暂停。开始下一轮前请检查保存的结果和发件箱。此轮检查不会自动重启。',
 };

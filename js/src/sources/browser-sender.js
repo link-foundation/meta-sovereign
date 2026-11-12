@@ -514,20 +514,26 @@ const noticeReplySources = (platforms) =>
     ({ id }) => platforms[id].noticeContext && platforms[id].historyScan
   );
 
+const unreadConversationSources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return (
+      ui.chatNavigation?.sameDocument &&
+      ui.documents &&
+      ui.historyScan &&
+      ui.chatScan?.unreadFilter
+    );
+  });
+
 const senderCapabilities = (platforms) => ({
   choiceSources: () => choiceSources(platforms),
   textReplySources: () => textReplySources(platforms),
   noticeReplySources: () => noticeReplySources(platforms),
-  unreadConversationSources: () =>
-    choiceSources(platforms).filter(({ id }) => {
-      const ui = platforms[id];
-      return (
-        ui.chatNavigation?.sameDocument &&
-        ui.documents &&
-        ui.historyScan &&
-        ui.chatScan?.unreadFilter
-      );
-    }),
+  unreadConversationSources: () => unreadConversationSources(platforms),
+  unreadNoticeReplySources: () =>
+    unreadConversationSources(platforms).filter(({ id }) =>
+      noticeReplySources(platforms).some((source) => source.id === id)
+    ),
   answerWatchSources: () =>
     choiceSources(platforms).filter(({ id }) => platforms[id].documents),
 });
@@ -915,6 +921,8 @@ export const createDefaultSender = ({
     noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
     unreadConversationSources: () =>
       browserFor().unreadConversationSources?.() ?? [],
+    unreadNoticeReplySources: () =>
+      browserFor().unreadNoticeReplySources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),

@@ -42,7 +42,7 @@ export const questionBrowserCommand = async (
   };
   if (!Object.hasOwn(actions, action)) {
     throw new Error(
-      'answers browser expects show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | reply-text --id=<review> --text=<reviewed-reply> --confirm=true | status --id=<review> | unread --source=hh --confirm=true [--pass-id=<request-id>] [--max-chats=20] [--budget-ms=30000] | unread-status --pass-id=<id> | unread-stop --pass-id=<id> | watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] [--notice-replies=true|false] | watch-status --watch-id=<id> | watch-stop --watch-id=<id>'
+      'answers browser expects show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | reply-text --id=<review> --text=<reviewed-reply> --confirm=true | status --id=<review> | unread --source=hh --confirm=true [--pass-id=<request-id>] [--max-chats=20] [--budget-ms=30000] [--notice-replies=true|false] | unread-status --pass-id=<id> | unread-stop --pass-id=<id> | watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] [--notice-replies=true|false] | watch-status --watch-id=<id> | watch-stop --watch-id=<id>'
     );
   }
   return actions[action]();

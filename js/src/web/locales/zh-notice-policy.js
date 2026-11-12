@@ -1,7 +1,7 @@
 export const zhNoticePolicy = {
   'noticePolicy.title': '通知回复策略',
   'noticePolicy.hint':
-    '保存策略不会启动任何操作。请为一个已核对的 HH 聊天启动非活动通知监控。申请确认只使用已批准且精确匹配的已保存通知回复；每个聊天仅询问一次拒绝原因。需要完整历史记录和已验证的开放雇主聊天。不会自动接受邀请。',
+    '保存策略不会启动任何操作。请为一个已核对的 HH 聊天启动非活动通知监控，或明确在有限次未读聊天访问中应用这些策略。申请确认只使用已批准且精确匹配的已保存通知回复；每个聊天仅询问一次拒绝原因。需要完整历史记录和已验证的开放雇主聊天。不会自动接受邀请。',
   'noticePolicy.acknowledgements': '申请确认',
   'noticePolicy.rejections': '拒绝通知',
   'noticePolicy.invitations': '邀请',

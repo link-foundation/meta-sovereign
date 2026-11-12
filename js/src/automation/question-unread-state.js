@@ -2,6 +2,7 @@ import {
   boundedBrowserText,
   browserReviewId,
 } from './question-browser-state.js';
+import { validUnreadNotice } from './question-unread-notice-state.js';
 
 export const browserUnreadId = (id) =>
   typeof id === 'string' &&
@@ -38,11 +39,13 @@ export const validUnreadRestoration = (value) =>
     (validUnreadHistory(value.history) &&
       (!value.restored || value.history.positionRestored)));
 
-const validUnreadEntry = (entry) =>
+const validUnreadEntry = (entry, source) =>
   boundedBrowserText(entry?.chat, 480) &&
   (entry.reviewId === undefined || browserReviewId(entry.reviewId)) &&
   (entry.preview === undefined || boundedBrowserText(entry.preview, 600)) &&
-  (entry.code === undefined || boundedBrowserText(entry.code, 120));
+  (entry.code === undefined || boundedBrowserText(entry.code, 120)) &&
+  (entry.notice === undefined ||
+    validUnreadNotice(entry.notice, source, entry.chat));
 
 const validUnreadIdentity = (value, id) =>
   value &&
@@ -56,12 +59,16 @@ const validUnreadIdentity = (value, id) =>
     value.state
   ) &&
   typeof value.owned === 'boolean' &&
+  (value.noticeReplies === undefined ||
+    typeof value.noticeReplies === 'boolean') &&
   (value.state !== 'active' || value.owned);
 
 const invalidUnreadEntries = (value) =>
   !Array.isArray(value.entries) ||
   value.entries.length > 100 ||
-  !value.entries.every(validUnreadEntry) ||
+  (!value.noticeReplies &&
+    value.entries.some((entry) => entry.notice !== undefined)) ||
+  !value.entries.every((entry) => validUnreadEntry(entry, value.source)) ||
   new Set(value.entries.map((entry) => entry.chat)).size !==
     value.entries.length;
 
@@ -71,6 +78,9 @@ const invalidUnreadCompletion = (value) =>
   (value.state === 'completed' && (!value.coverage || !value.restoration)) ||
   (value.state === 'completed' &&
     value.entries.length !== value.coverage?.visited) ||
+  (value.state === 'completed' &&
+    value.noticeReplies &&
+    value.entries.some((entry) => entry.notice === undefined)) ||
   (value.coverage && value.entries.length > value.coverage.visited);
 
 /** Both wire formats must retain uncertainty and bind recovery to the caller's ID. */

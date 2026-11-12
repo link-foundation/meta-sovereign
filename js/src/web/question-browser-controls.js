@@ -400,8 +400,8 @@ const useBrowserReview = (chat) => {
   };
 };
 
-const unreadAvailable = (caps, source) =>
-  caps?.unreadSources?.some((entry) => entry.id === source);
+const unreadAvailable = (caps, source, field = 'unreadSources') =>
+  caps?.[field]?.some((entry) => entry.id === source);
 const textAvailable = (caps, result, api) =>
   caps?.textSources?.some((entry) => entry.id === result?.target.source) &&
   typeof api.replyBrowserText === 'function';
@@ -414,6 +414,12 @@ const loadOnDisclosure = (caps, run, load) => (event) => {
   ) {
     run(load);
   }
+};
+
+const selectUnreadReview = async (api, id, setReference, receive) => {
+  const value = await api.browserAnswerStatus({ id });
+  setReference(value.chat);
+  receive(value);
 };
 
 /** Shared by Chat, Operator and question settings; no action on initial render. */
@@ -520,12 +526,9 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         storageKey: `${key}.unread`,
         changed: setUnreadActive,
         available: unreadAvailable(caps, source),
+        noticesAvailable: unreadAvailable(caps, source, 'unreadNoticeSources'),
         blocked: busy || watchActive,
-        select: async (id) => {
-          const value = await api.browserAnswerStatus({ id });
-          setReference(value.chat);
-          receive(value);
-        },
+        select: (id) => selectUnreadReview(api, id, setReference, receive),
       }),
       el(BrowserAnswerReview, {
         key: 'review',

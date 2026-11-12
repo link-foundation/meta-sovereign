@@ -76,7 +76,7 @@ const verifySurfaces = async ({
         'Cross-surface recovery must not scan.'
       );
     }
-    await pass.getByRole('checkbox').check();
+    await pass.locator('[data-browser-unread-confirm]').check();
     await pass.locator('[data-browser-unread-start]').click();
     await pass.locator('[data-browser-unread-result="completed"]').waitFor();
     check(
@@ -141,7 +141,7 @@ export const verifyUnreadMcp = async (page) => {
   const start = unread.locator('[data-browser-unread-start]');
   check(await start.isDisabled(), 'Mark-read consent is required.');
   check((await stats()).scans === 0, 'Consent must precede traversal.');
-  await unread.getByRole('checkbox').check();
+  await unread.locator('[data-browser-unread-confirm]').check();
   await start.click();
   await unread.locator('[data-browser-unread-result="completed"]').waitFor();
   await unread.locator('[data-browser-unread-review="8"]').click();
@@ -163,7 +163,7 @@ export const verifyUnreadMcp = async (page) => {
     results,
   });
   await page.request.get(`${control}/mode?value=stop`);
-  await unread.getByRole('checkbox').check();
+  await unread.locator('[data-browser-unread-confirm]').check();
   await start.click();
   await unread.locator('[data-browser-unread-result="active"]').waitFor();
   await unread

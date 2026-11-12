@@ -1,5 +1,5 @@
 import { createAutomationCommands } from '../../js/src/cli/automation-commands.js';
-import { startServer } from '../../js/src/server/index.js';
+import { startQuestionFixtureServer } from '../../js/tests/helpers/question-fixture-server.mjs';
 import { LINO_TEXT, readWireResponse } from '../../js/src/transport/lino.js';
 import { postQuestion } from '../../js/tests/helpers/question-http.mjs';
 
@@ -29,16 +29,7 @@ export const questionBrowserCli = (env) => {
 
 /** Shared private question server; negotiated requests never touch the user's app. */
 export const questionBrowserHttp = async (env) => {
-  const server = await startServer({
-    store: env.store,
-    port: 0,
-    localUi: false,
-    enableSync: false,
-    enableHandlers: false,
-    telegramAccount: false,
-    automations: { scheduler: false, send: env.send },
-    log: null,
-  });
+  const server = await startQuestionFixtureServer(env);
   const base = `http://127.0.0.1:${server.port}`;
   const call = async (action, input, media = LINO_TEXT, headers = {}) => {
     if (input) {

@@ -8,6 +8,12 @@ export const questionUnreadCommand = async (
   options,
   progress = () => {}
 ) => {
+  if (
+    args['notice-replies'] !== undefined &&
+    ![true, false, 'true', 'false'].includes(args['notice-replies'])
+  ) {
+    throw new Error('notice-replies must be true or false');
+  }
   const id = args['pass-id'] ?? `question-unread:${randomUUID()}`;
   return ownBrowserCommand({
     id,
@@ -18,6 +24,9 @@ export const questionUnreadCommand = async (
         source: args.source,
         id,
         confirm: [true, 'true'].includes(args.confirm),
+        ...(args['notice-replies'] === undefined
+          ? {}
+          : { noticeReplies: [true, 'true'].includes(args['notice-replies']) }),
         ...Object.fromEntries(
           [
             ['max-chats', 'maxChats'],

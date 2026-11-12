@@ -115,3 +115,10 @@ export const useBrowserAnswerWatch = ({
     stop: () => read('stopBrowserAnswerWatch'),
   };
 };
+export const browserWatchPhaseKey = (watch) =>
+  watch.noticeReplies &&
+  ['sent', 'selecting', 'unknown', 'failed', 'marked-sent'].includes(
+    watch.phase
+  )
+    ? `noticePolicy.${watch.phase}`
+    : `browserWatch.phase.${watch.phase}`;

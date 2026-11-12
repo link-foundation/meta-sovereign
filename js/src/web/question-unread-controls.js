@@ -1,9 +1,12 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { browserUnreadId } from '../automation/question-unread-state.js';
+import { browserWatchPhaseKey } from './question-browser-watch-state.js';
 
 const el = React.createElement;
 const activePass = (result) => result?.owned && result.state === 'active';
+const validLimit = (value) =>
+  Number.isInteger(value) && value >= 1 && value <= 100;
 
 const useUnreadPass = ({ api, remember, storageKey, changed }) => {
   const t = useT();
@@ -77,6 +80,40 @@ const useUnreadPass = ({ api, remember, storageKey, changed }) => {
   };
 };
 
+const UnreadNoticeResult = ({ notice }) => {
+  const t = useT();
+  return notice
+    ? el(
+        'div',
+        { className: 'col', 'data-browser-unread-notice': notice.phase },
+        [
+          el(
+            'p',
+            {
+              key: 'phase',
+              role: ['unknown', 'failed'].includes(notice.phase)
+                ? 'alert'
+                : 'status',
+            },
+            t(browserWatchPhaseKey({ ...notice, noticeReplies: true }))
+          ),
+          notice.selection?.text
+            ? el('p', { key: 'text', className: 'wrap' }, notice.selection.text)
+            : null,
+          notice.outbox?.receipt?.messageId
+            ? el(
+                'small',
+                { key: 'receipt', className: 'meta' },
+                t('browserAnswer.receipt', {
+                  id: notice.outbox.receipt.messageId,
+                })
+              )
+            : null,
+        ]
+      )
+    : null;
+};
+
 const UnreadResult = ({ result, blocked, select }) => {
   const t = useT();
   if (!result) {
@@ -89,7 +126,9 @@ const UnreadResult = ({ result, blocked, select }) => {
       el(
         'p',
         { key: 'state', role: 'status' },
-        t(`browserUnread.${result.state}`)
+        t(
+          `browserUnread.${result.state}${result.noticeReplies && ['active', 'paused'].includes(result.state) ? 'Notices' : ''}`
+        )
       ),
       result.coverage
         ? el(
@@ -135,6 +174,7 @@ const UnreadResult = ({ result, blocked, select }) => {
           entry.preview
             ? el('p', { key: 'preview', className: 'wrap' }, entry.preview)
             : null,
+          el(UnreadNoticeResult, { key: 'notice', notice: entry.notice }),
           entry.reviewId
             ? el(
                 'button',
@@ -167,11 +207,13 @@ const UnreadControls = ({
   remember,
   storageKey,
   select,
+  noticesAvailable,
 }) => {
   const t = useT();
   const pass = useUnreadPass({ api, remember, storageKey, changed });
   const [confirm, setConfirm] = React.useState(false);
   const [limit, setLimit] = React.useState('20');
+  const [noticeReplies, setNoticeReplies] = React.useState(false);
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
   const maxChats = Number(limit);
@@ -180,7 +222,24 @@ const UnreadControls = ({
     { className: 'col', 'data-browser-unread-controls': true },
     [
       el('h4', { key: 'title' }, t('browserUnread.title')),
-      el('p', { key: 'hint', className: 'meta' }, t('browserUnread.hint')),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t(`browserUnread.${noticeReplies ? 'noticesHint' : 'hint'}`)
+      ),
+      noticesAvailable
+        ? el('label', { key: 'notices', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: noticeReplies,
+              disabled: locked,
+              'data-browser-unread-notices': true,
+              onChange: (event) => setNoticeReplies(event.target.checked),
+            }),
+            t('browserUnread.notices'),
+          ])
+        : null,
       el('label', { key: 'limit', className: 'field' }, [
         el(
           'span',
@@ -202,6 +261,7 @@ const UnreadControls = ({
           key: 'input',
           type: 'checkbox',
           checked: confirm,
+          'data-browser-unread-confirm': true,
           disabled: locked,
           onChange: (event) => setConfirm(event.target.checked),
         }),
@@ -213,16 +273,21 @@ const UnreadControls = ({
           key: 'start',
           type: 'button',
           'data-browser-unread-start': true,
-          disabled:
-            locked ||
-            !confirm ||
-            !Number.isInteger(maxChats) ||
-            maxChats < 1 ||
-            maxChats > 100,
+          disabled: locked || !confirm || !validLimit(maxChats),
           onClick: () =>
-            pass.start({ ...planning, source, confirm: true, maxChats }),
+            pass.start({
+              ...planning,
+              source,
+              confirm: true,
+              maxChats,
+              ...(noticeReplies && noticesAvailable
+                ? { noticeReplies: true }
+                : {}),
+            }),
         },
-        t('browserUnread.start')
+        t(
+          `browserUnread.${noticeReplies && noticesAvailable ? 'startNotices' : 'start'}`
+        )
       ),
       pass.pending
         ? el(

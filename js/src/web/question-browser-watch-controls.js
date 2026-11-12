@@ -1,7 +1,10 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { AnswerEvidence } from './question-evidence.js';
-import { useBrowserAnswerWatch } from './question-browser-watch-state.js';
+import {
+  useBrowserAnswerWatch,
+  browserWatchPhaseKey,
+} from './question-browser-watch-state.js';
 import { BrowserPendingTurn } from './question-browser-pending.js';
 
 const el = React.createElement;
@@ -60,18 +63,7 @@ const WatchStatus = ({ watch }) => {
         { key: 'state', role: 'status' },
         t(`browserWatch.${watch.state}`)
       ),
-      el(
-        'p',
-        { key: 'phase', role: 'status' },
-        t(
-          watch.noticeReplies &&
-            ['sent', 'selecting', 'unknown', 'failed', 'marked-sent'].includes(
-              watch.phase
-            )
-            ? `noticePolicy.${watch.phase}`
-            : `browserWatch.phase.${watch.phase}`
-        )
-      ),
+      el('p', { key: 'phase', role: 'status' }, t(browserWatchPhaseKey(watch))),
       el(
         'small',
         { key: 'target', className: 'meta' },

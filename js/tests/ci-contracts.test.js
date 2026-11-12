@@ -327,6 +327,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-repeat': ['verifyUnreadRepetition'],
     'question-unread-controls': ['verifyQuestionUnreadControls'],
     'question-unread-delivery': ['verifyUnreadDeliveryVisit'],
+    'question-unread-notices': ['verifyUnreadNoticeControls'],
     'question-inactive-text': ['verifyInactiveText'],
     'question-notice-policy': [
       'verifyNoticePolicies',
@@ -352,6 +353,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-repeat',
     'question-unread-controls',
     'question-unread-delivery',
+    'question-unread-notices',
   ]) {
     assert.match(
       groupSources[Object.keys(groups).indexOf(name)],

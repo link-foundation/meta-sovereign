@@ -64,6 +64,11 @@ const extraBrowserCapabilities = (send, sources, available) => {
     ['textSources', 'replyText', 'textReplySources'],
     ['noticeSources', 'openAnswerWatch', 'noticeReplySources'],
     ['unreadSources', 'scanUnreadConversations', 'unreadConversationSources'],
+    [
+      'unreadNoticeSources',
+      'scanUnreadConversations',
+      'unreadNoticeReplySources',
+    ],
   ]) {
     const candidates =
       typeof send[action] === 'function' ? (send[reader]?.() ?? []) : [];
@@ -239,6 +244,7 @@ export const createQuestionBrowser = ({
     clock,
     capabilities,
     review,
+    log,
   });
   const watches = createQuestionBrowserWatches({
     store,

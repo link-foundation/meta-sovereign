@@ -2,7 +2,7 @@ import { questionBrowserControlServer } from './question-browser-control.mjs';
 import { pathToFileURL } from 'node:url';
 import { makeBrowserCommander } from 'browser-commander';
 import { createDefaultSender } from '../../js/src/sources/browser-sender.js';
-import { startServer } from '../../js/src/server/index.js';
+import { startQuestionFixtureServer } from '../../js/tests/helpers/question-fixture-server.mjs';
 import {
   questionBrowserFixture,
   seedQuestionBrowserChat,
@@ -15,6 +15,8 @@ import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
 import { noticeText, noticeRule } from './notice-fixture.mjs';
 import { chatNavigationHtml } from './chat-navigation-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+import { saveAnswerPolicy } from '../../js/src/automation/question-policy.js';
+import { rejectionText } from './notice-policy-fixture.mjs';
 
 const unreadTrace = (enabled) => (message) => {
   if (enabled && process.env.MS_BROWSER_CHAT_VIEW_DEBUG === '1') {
@@ -30,24 +32,9 @@ const traceUnreadNavigation = (page, enabled) => {
   }
 };
 
-/** Private, disposable production server and routed provider; no live account. */
-export const questionBrowserServer = async (
-  browser,
-  { summaryChoices = false, noticePolicies = false, unreadReview = false } = {}
-) => {
-  const env = await questionBrowserFixture();
-  if (unreadReview) {
-    await saveAnswerRule(env.store, {
-      id: 'start-time',
-      question: 'What time can you start?',
-      answers: [{ text: 'At 9 a.m.', approved: true }],
-    });
-  }
-  if (noticePolicies) {
-    env.state.snapshot.question.body = noticeText;
-    await saveAnswerRule(env.store, noticeRule());
-  }
-  const setSummary = async (answer = 'Yes') => {
+const summarySetter =
+  (env) =>
+  async (answer = 'Yes') => {
     if (!['Yes', 'No', 'conflict', 'none'].includes(answer)) {
       throw new Error('Unknown synthetic summary answer');
     }
@@ -72,6 +59,39 @@ export const questionBrowserServer = async (
     }
     return { summary: answer };
   };
+
+/** Private, disposable production server and routed provider; no live account. */
+export const questionBrowserServer = async (
+  browser,
+  {
+    summaryChoices = false,
+    noticePolicies = false,
+    unreadReview = false,
+    unreadNotices = false,
+  } = {}
+) => {
+  const env = await questionBrowserFixture();
+  if (unreadReview) {
+    await saveAnswerRule(env.store, {
+      id: 'start-time',
+      question: 'What time can you start?',
+      answers: [{ text: 'At 9 a.m.', approved: true }],
+    });
+  }
+  if (noticePolicies || unreadNotices) {
+    env.state.snapshot.question.body = noticeText;
+    await saveAnswerRule(env.store, noticeRule());
+  }
+  if (unreadNotices) {
+    await saveAnswerPolicy(env.store, {
+      notices: {
+        acknowledgements: 'reply',
+        rejections: 'reply',
+        rejectionReply: 'May I ask why?',
+      },
+    });
+  }
+  const setSummary = summarySetter(env);
   if (summaryChoices) {
     await setSummary();
   }
@@ -98,7 +118,16 @@ export const questionBrowserServer = async (
     return route.fulfill({
       contentType: 'text/html',
       body: unreadReview
-        ? chatNavigationHtml(mode)
+        ? chatNavigationHtml({
+            ...mode,
+            ...(unreadNotices
+              ? {
+                  textReplies: true,
+                  precedingOutgoing: true,
+                  latestMessages: { 8: noticeText, 9: rejectionText },
+                }
+              : {}),
+          })
         : `${(noticePolicies
             ? noticePolicyHtml()
             : mode.freeText
@@ -130,16 +159,10 @@ export const questionBrowserServer = async (
       }),
     },
   });
-  const server = await startServer({
-    store: env.store,
-    port: 0,
-    localUi: true,
-    enableSync: false,
-    enableHandlers: false,
-    telegramAccount: false,
-    automations: { scheduler: false, send },
-    log: null,
-  });
+  const server = await startQuestionFixtureServer(
+    { store: env.store, send },
+    true
+  );
   const localBase = `http://127.0.0.1:${server.port}`;
   const reset = async (next = {}) => {
     mode = { id: String(Number(mode.id) + 100), ...next };
@@ -162,7 +185,11 @@ export const questionBrowserServer = async (
       textSends: window.fixture.textSends,
       draft: document.querySelector('textarea').value,
       ...(window.fixture.visits
-        ? { visits: window.fixture.visits, sends: window.fixture.sends }
+        ? {
+            visits: window.fixture.visits,
+            sends: window.fixture.sends,
+            replies: window.fixture.replies,
+          }
         : {}),
     }));
   return {
