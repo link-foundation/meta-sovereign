@@ -69,6 +69,38 @@ test('record identity, final fields and the entire native CV selection must agre
   assert.equal(verifyCvSave(attempt, exports, attempt), false);
 });
 
+test('workplace evidence refuses extra exports outside the complete native CV set', () => {
+  const { attempt, exports } = cvWorkplaceIdentityFixture();
+  assert.equal(
+    verifyCvSave(
+      attempt,
+      [...exports, { ...exports[0], hash: 'third' }],
+      attempt
+    ),
+    false
+  );
+});
+
+test('workplace evidence refuses unobserved metadata even when every CV is unchecked', () => {
+  const { attempt, exports } = cvWorkplaceIdentityFixture();
+  const detached = {
+    ...attempt,
+    resumes: attempt.resumes.map((row) => ({ ...row, checked: false })),
+    metadataEditable: false,
+    industryText: null,
+  };
+  assert.equal(
+    verifyCvSave(detached, exports, {
+      ...detached,
+      metadataEditable: true,
+      industryText: '',
+    }),
+    false
+  );
+  const visible = { ...detached, metadataEditable: true, industryText: '' };
+  assert.equal(verifyCvSave(visible, exports, visible), true);
+});
+
 test('native workplace readback binds inert final fields to one bounded exact record GET', async () => {
   const { raw, attempt } = cvWorkplaceIdentityFixture();
   const calls = [];
@@ -96,7 +128,7 @@ test('native workplace readback binds inert final fields to one bounded exact re
   assert.equal(calls[1].fn, readCvEditorDocument);
   assert.equal(calls[1].args[0].url, raw.url);
   assert.equal(calls[1].args[0].html, '<html>Native record</html>');
-  for (const recordId of [null, '', '../123', '1'.repeat(101)]) {
+  for (const recordId of [null, '', 123, '../123', '1'.repeat(101)]) {
     await assert.rejects(
       readCvSavedWorkplace({
         session,
@@ -132,6 +164,7 @@ test('native record fetch uses a query-free bounded GET and refuses redirects, e
   const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'location');
   const originalFetch = globalThis.fetch;
   let calls = 0;
+  let cancellations = 0;
   let mode = 'ready';
   Object.defineProperty(globalThis, 'location', {
     configurable: true,
@@ -160,6 +193,11 @@ test('native record fetch uses a query-free bounded GET and refuses redirects, e
     if (mode === 'length') {
       response.headers.set('content-length', String(2 * 1024 ** 2 + 1));
     }
+    const cancel = response.body.cancel.bind(response.body);
+    response.body.cancel = async () => {
+      cancellations++;
+      return cancel();
+    };
     return response;
   };
   try {
@@ -173,7 +211,16 @@ test('native record fetch uses a query-free bounded GET and refuses redirects, e
     for (const recordId of ['../123', '1?resumeFrom=other', '1'.repeat(101)]) {
       await assert.rejects(fetchCvSavedHtml({ recordId }));
     }
+    for (const recordId of [null, 123, {}, []]) {
+      await assert.rejects(fetchCvSavedHtml({ recordId, hash: 'valid' }));
+    }
+    await assert.rejects(fetchCvSavedHtml({ hash: 123 }));
     assert.equal(calls, 6);
+    assert.equal(
+      cancellations,
+      3,
+      'Rejected response bodies must be cancelled'
+    );
   } finally {
     globalThis.fetch = originalFetch;
     if (descriptor) {

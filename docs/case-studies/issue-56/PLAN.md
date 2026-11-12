@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active independent workplace verification and readback guards:
+
+- [x] Preserve the alternate unpublished investigation and integrate published `ee7a74e4` forward, retaining its query-free record contract and historical evidence.
+- [x] Reproduce missing export cardinality, coerced record identity and uncancelled rejected response bodies against the actual published code.
+- [x] Verify stricter final metadata/cardinality/identity guards and bounded response cleanup with 32 Node/32 Deno checks and eight native WebKit cases.
+- [x] Exercise the published UI through independent Playwright MCP against owned native provider fixtures: six cases, four trusted Saves, preserved snapshots on mismatches/challenge, read-only phone recovery and drained Stop. See [independent evidence](cv-workplace-hardening.md).
+- [ ] Preserve logs and screenshots, publish an atomic correction, inspect exact-head hosted CI and continue every unchecked product requirement.
+
 Active merged CV validation:
 
 - [x] Integrate both published cancellation histories and workplace identity with regular commits; rebuild the web bundle and retain both evidence sets.

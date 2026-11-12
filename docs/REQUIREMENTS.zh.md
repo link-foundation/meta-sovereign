@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA5: 独立 Playwright MCP 已在自有原生测试夹具上验证所有者 Save、字段或成员关系不符及挑战时保留旧快照、手机恢复和 Stop 等待清理。更严格的元数据、导出集合、ID 校验和被拒响应体清理均保留了父版本失败回归。[证据](case-studies/issue-56/cv-workplace-hardening.md)。真实已登录提供方验证及其他条件仍未完成。
+
 R-AA5: 现有 HH 工作经历的 Save 观察现在要求新读取的准确原生记录、完整的简历复选框集合以及所选简历的匹配导出。从另一份简历排除该记录时保留其余工作经历；CLI、两种 Lino 格式和四语言界面保留记录 ID、哈希及包含/排除证据。[回归测试和桌面/手机截图](case-studies/issue-56/cv-workplace-identity.md) 使用测试夹具。未知或新建 ID、隐藏字段和提供方挑战仍不确认。原生准备/复制/排除控件、编辑队列、真实提供方验证及其他未完成条件仍须实现。
 
 R-AA1：已持有的 HH 监视句柄现在可有界读取非活动会话历史，使用 Chromium 的真实焦点、外层/子文档所有权，并恢复草稿、选区及阅读位置。所有者返回会停止遍历并保留当前视图；停止操作会等待已接收任务清理。WebKit 在无法验证原生焦点时明确拒绝。[父版本回归及浏览器/MCP 证据](case-studies/issue-56/inactive-history.md)。后台回复、跨会话/筛选恢复、未读编排、公开控件及真实服务验证仍未完成。

@@ -302,6 +302,8 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 
 - [WebKit résumé profile navigation investigation](ci-profile-navigation.md): exact hosted failure, four-helper replay and optional bounded document/disclosure metadata; root cause remains unproven.
 
+- [Independent workplace verification and readback guards](cv-workplace-hardening.md): four actual-parent regressions, 32 Node/32 Deno checks, eight native WebKit cases and six independent MCP cases with retained desktop/phone screenshots.
+
 - [Exact saved workplace identity](cv-workplace-identity.md): bounded inert native record readback, complete CV membership, preserved unrelated jobs and durable CLI/Lino/four-language evidence; native editing/batches and authenticated parity remain open.
 
 - [CI: shared CV verification fixtures](ci-cv-fixture-duplication.md): exact published duplication failure, preserved cancellation tests, shared parent replay/server setup and finite lifecycle checks under the unchanged gate.

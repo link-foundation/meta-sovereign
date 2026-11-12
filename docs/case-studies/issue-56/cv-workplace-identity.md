@@ -75,7 +75,9 @@ compatibility scenarios. The new inert-reader checks also refuse six malformed
 or challenged documents. Browser coverage remains mandatory in hosted CI.
 
 These are real local WebKit fixture checks, not authenticated provider tests or
-independent MCP checks. Playwright MCP was unavailable in this session. Hosted
+independent MCP checks. Playwright MCP was unavailable during that original run.
+The later [independent browser verification and stricter guards](cv-workplace-hardening.md)
+retain six passing MCP cases against the owned native fixture. Hosted
 runtime/browser matrices and their exact published head results remain required.
 
 Before, with the actual parent verifier:
