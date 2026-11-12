@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
+
 - [Private workplace translation comparisons](cv-translation.md): bounded configurable model adapters, private version caches, all variants and non-replaying CLI/Lino/four-language recovery; real model and provider synchronization requirements remain open.
 
 - [Prefill cleanup status](ci-prefill-cleanup.md): reproduce an inconsistent pending receipt against the actual parent, keep success private through disposal and verify read-only recovery without raising deadlines.

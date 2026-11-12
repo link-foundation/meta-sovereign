@@ -18,6 +18,20 @@ export const verifyCvTranslation = async (
     },
   });
   const { page } = f;
+  const boot = [];
+  if (process.env.CV_TRANSLATION_DEBUG === '1') {
+    await page.addInitScript(() => {
+      globalThis.metaSovereignDebug = true;
+    });
+    page.on('console', (event) => {
+      if (event.text().startsWith('[ms-debug]')) {
+        boot.push(event.text());
+        if (boot.length > 24) {
+          boot.shift();
+        }
+      }
+    });
+  }
   const panel = page.locator('[data-cv-translation]');
   const text = panel.locator('[data-cv-translation-text]');
   const action = (name) =>
@@ -104,6 +118,24 @@ export const verifyCvTranslation = async (
         errors: f.errors,
       })
     );
+  } catch (error) {
+    if (process.env.CV_TRANSLATION_DEBUG === '1') {
+      console.error('[cv-translation-boot]', JSON.stringify(boot));
+      console.error(
+        '[cv-translation-debug]',
+        await panel.evaluate((node) => ({
+          text: node.querySelector('textarea')?.value,
+          disabled: node.querySelector(
+            '[data-cv-translation-action="generate"]'
+          )?.disabled,
+          fieldsetDisabled: node.querySelector('fieldset')?.disabled,
+          visible: node.innerText,
+          error: document.querySelector('[data-vacancy-error]')?.textContent,
+        }))
+      );
+      await screenshot('cv-translation-integration-failure');
+    }
+    throw error;
   } finally {
     await f.close();
     await translators.service.stop();

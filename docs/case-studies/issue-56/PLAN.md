@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active exact-head CI and connection lifecycle:
+
+- [x] Preserve parent WebKit job 131312063036 and identify offline rediscovery replacing the document after API readiness.
+- [x] Reproduce the exact parent TypeError with real offline rediscovery; poll readiness without falsely confirming deletion. The focused native WebKit check passes with unchanged deadlines.
+- [x] Commit translation comparison and merge the independently published full-field review forward. Combined focused Node checks pass 28 cases; six native translation cases pass after one unreproduced disabled-button timeout.
+- [ ] Publish preserved evidence, inspect all exact-head hosted checks, then repair the independently reproduced stale RTC channel on connected-peer reload.
+- [ ] Continue full HH/LinkedIn synchronization, live latest translator checks, upstream failure publication and every remaining requirement.
+
+[Rediscovery evidence and remaining connection limits](ci-lino-sync-rediscovery.md).
+
 Active HH22 translation comparison:
 
 The comparison draft passes 23 focused Node checks, 19 Deno checks, two actual-parent failures, six native WebKit scenarios and five independent MCP scenarios. Eleven synthetic model calls and one drained Stop are observed per browser run; no provider session or live model call is claimed. [Evidence and remaining limits](cv-translation.md). Parent hosted WebKit shard 4 fails at Lino peer rediscovery (`__msApi.get` during reload); preserve job logs and investigate without raising deadlines.

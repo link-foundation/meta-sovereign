@@ -6,6 +6,11 @@ import {
   screenshotChatPages,
 } from './helpers/e2e-page-errors.mjs';
 import { traceSyncPeer } from './helpers/e2e-lino-sync-trace.mjs';
+import {
+  readSyncPeer,
+  reloadSyncPeer,
+  holdSyncDiscovery,
+} from './helpers/e2e-lino-sync-read.mjs';
 
 const preparePeer = async (target, base, engine) => {
   if (engine === 'webkit') {
@@ -103,6 +108,7 @@ await finish(async () => {
   const targets = [page, other];
   const traces = [];
   try {
+    const releaseDiscovery = await holdSyncDiscovery(other);
     // Record actual wire frames and negotiated protocols without replacing sockets.
     for (const target of targets) {
       const trace = await traceSyncPeer(target, traces.length);
@@ -124,31 +130,24 @@ await finish(async () => {
       });
       await globalThis.__msApi.put(value);
     }, link);
+    await reloadSyncPeer(other, releaseDiscovery);
+    let snapshot;
     await until(
-      () =>
-        other.evaluate(
-          async (id) => (await globalThis.__msApi.get(id))?.body,
-          link.id
-        ),
+      async () => {
+        snapshot = await readSyncPeer(other, link.id);
+        return Boolean(snapshot?.record?.body);
+      },
       'WebRTC convergence',
       20000
     );
-    const received = await other.evaluate(
-      (id) => globalThis.__msApi.get(id),
-      link.id
-    );
+    const received = snapshot.record;
     assert(
       received.body === link.body &&
         received.single[0] === true &&
         received.empty.length === 0,
       'exact typed Unicode record'
     );
-    assert(
-      !(await other.evaluate(() =>
-        globalThis.__msApi.get('secret:rtc-fixture')
-      )),
-      'secrets excluded'
-    );
+    assert(!snapshot.secret, 'secrets excluded');
     assert(
       !(await store.get(link.id)),
       'convergence uses the data channel, not a server write'
@@ -173,14 +172,10 @@ await finish(async () => {
       );
     }
     await page.evaluate((id) => globalThis.__msApi.del(id), link.id);
-    await until(
-      () =>
-        other.evaluate(
-          async (id) => !(await globalThis.__msApi.get(id)),
-          link.id
-        ),
-      'WebRTC deletion'
-    );
+    await until(async () => {
+      const current = await readSyncPeer(other, link.id);
+      return Boolean(current && !current.record);
+    }, 'WebRTC deletion');
   } catch (error) {
     // Inspect real connection state without logging SDP, addresses or records.
     for (const [index, target] of targets.entries()) {
