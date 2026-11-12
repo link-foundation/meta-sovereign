@@ -1,0 +1,32 @@
+{
+  "archive": "ci-cv-keyboard.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "3831fd8f34221eb91837b31195d0d45ea3c3dd2515c9a94b17d5b328bab2318c",
+    "before/js/tests/e2e-follow-chats-browser.mjs": "3bdee4b1f201ba9d2b8daaabedf5d0d5d24410116bac47ca5222cca255a11ea9",
+    "before/js/tests/helpers/e2e-vacancy-technologies.mjs": "7b339e95d6a813ac9f4dadee113cf46aaca6e07d159e61e7cf36c89877685cbc",
+    "ci-logs/cv-keyboard-apple-reference.json": "a7039b9e94357bf17815905f47a25511d3e6a88dd83c64bca039a0fb9d4bf922",
+    "ci-logs/cv-keyboard-ci-contracts.log": "26cb494fb5112ae1fbb209ed14852090192ab64d3c06263b721efe0a6bfcacf5",
+    "ci-logs/cv-keyboard-current-runs.json": "4d87033771d591c117edae1a85ad82753deed5801f7a0ab5734883ad87c39f8d",
+    "ci-logs/cv-keyboard-doc-format.log": "bbd6ed10283a82550fe445766ddfde65957b500f0371dc549c1ea2b450fcfec2",
+    "ci-logs/cv-keyboard-duplication.log": "796ade2152aac30ce4b64aa2a40213b7dd6c91cc45c881070e77a79b7e9a51a6",
+    "ci-logs/cv-keyboard-follow-webkit.log": "137d7acc24540d9f63bc6cf92eedd88fae1a37c9a42e6f840bae1d8036cdaa6c",
+    "ci-logs/cv-keyboard-format.log": "7f8a97ad46979c630c1870e077e4d06bf4ff0c790b75bc83009bf91f0a5b2236",
+    "ci-logs/cv-keyboard-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-keyboard-review-webkit.log": "6befd55430d5cd0dacc41df79ad81e53fafb545f08487250135ab6fc3ea27d98",
+    "ci-logs/cv-keyboard-static.log": "7961f2c7f561dd39da23e4deed7ee41ff2ccfbf699f03d091cd1f562c1c2737e",
+    "ci-logs/cv-keyboard-vacancy-webkit.log": "046e43ba39b330a21210021a7b6e3224291d1f2e7ca517a1fb620307342b47e4",
+    "docs/case-studies/issue-56/PLAN.md": "bdb14d4fd12054c6791441520c12910fc2f6667c06b8fcd41c57d7912c22ea85",
+    "docs/case-studies/issue-56/README.md": "9ed03b1b586dc584c06876f856a4a3612a7990782c9e7d871964c8fff748b69b",
+    "docs/case-studies/issue-56/ci-cv-keyboard-disclosure.md": "97ec80cc63c10393218da05a7304e3e76d683b813a70d5efa95a72665b07b1e6",
+    "docs/screenshots/issue-56-cv-keyboard/follow-hosted-closed.png": "8cc808caef0c1d06088597908a30e446d9de085c23f0732b859e8cc6a2855332",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-cv-keyboard.py": "18d151d61b08df684acb3c955da4a6875db4d60139e0b0748e863c80f4033d82",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "js/tests/e2e-follow-chats-browser.mjs": "216a74ccdd41c599a6a426f20d39ea809fa721441f6cf5e479b49471f922f1aa",
+    "js/tests/helpers/e2e-cv-technologies.mjs": "dc67a94ff647e1719ef61797d7fff509592acfe4a347bb5099dca5916a1f166a",
+    "js/tests/helpers/e2e-follow-disclosure-trace.mjs": "8b370b3fe4eaef4d6c446d74419e7d0f56b579861620752e1f516decd2c410bc",
+    "js/tests/helpers/e2e-keyboard-controls.mjs": "12b79ef60ff3d8d18ac4a9bbfab711e04be879d4b33f6ad19b63c53b6456039f",
+    "js/tests/helpers/e2e-vacancy-technologies.mjs": "cba0583e86ff8d0e8dc19fc8913c438324ed3c60a7f786c2e986fc3e378fb7c6",
+    "metadata.json": "8614c6c43fc42903d7c85a0513196130ddc038431155ebd24e9e8dddd7b18ec7"
+  }
+}

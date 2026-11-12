@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
 import { cvTechnologyFixture } from '../../../experiments/issue-56/cv-technology-fixture.mjs';
 import { traceBrowserScenario } from './e2e-browser-scenarios.mjs';
+import { assertNextControl } from './e2e-keyboard-controls.mjs';
 
 const verifyReviewedSave = async ({ run, view, page, action, store }) => {
   await run(
@@ -153,13 +154,10 @@ export const verifyCvTechnologies = async (
       'phone layout and keyboard controls remain usable with cached proposals',
       async () => {
         await page.setViewportSize({ width: 390, height: 844 });
-        await view.locator('[data-cv-technology-export="en"]').focus();
-        await page.keyboard.press('Tab');
-        assert.equal(
-          await action('generate').evaluate(
-            (node) => node === document.activeElement
-          ),
-          true
+        await assertNextControl(
+          page,
+          view.locator('[data-cv-technology-export="en"]'),
+          action('generate')
         );
         assert.equal(
           await page.evaluate(

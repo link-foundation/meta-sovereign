@@ -6,6 +6,7 @@ import { technologyFixture } from '../../../experiments/issue-56/technology-fixt
 import { traceBrowserScenario } from './e2e-browser-scenarios.mjs';
 import { wirePost } from './vacancy-routes.mjs';
 import { decodeWire, LINO_TEXT } from '../../src/transport/lino.js';
+import { assertNextControl } from './e2e-keyboard-controls.mjs';
 
 const verifyCatalogConflict = async ({
   run,
@@ -98,14 +99,7 @@ const verifyLostAcknowledgement = async ({
         .waitFor();
       assert.equal(posts, 1);
       await page.setViewportSize({ width: 390, height: 844 });
-      await field('resume').focus();
-      await page.keyboard.press('Tab');
-      assert.equal(
-        await action('analyze').evaluate(
-          (node) => node === document.activeElement
-        ),
-        true
-      );
+      await assertNextControl(page, field('resume'), action('analyze'));
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= globalThis.innerWidth

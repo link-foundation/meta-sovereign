@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-cv-keyboard-disclosure.md](ci-cv-keyboard-disclosure.md) preserves the exact macOS WebKit focus and Follow visibility failures. Platform-native keyboard traversal retains enabled/focus assertions; default-off document/node/event diagnostics leave the unresolved Follow interaction and all deadlines unchanged. Hosted verification remains required.
+
 - [cv-technologies.md](cv-technologies.md) verifies two explicit language exports, per-field evidence, preserved prose, company/date pairing and selected local review plans through CLI/Lino/four languages. Twenty focused checks per Node/Deno, native WebKit and independent MCP pass without provider reads; provider editing/save/readback and full HH19/HH20 remain required.
 
 - [technology-analysis.md](technology-analysis.md) verifies editable local aliases, cached required/preferred technology evidence and explicit verified résumé comparison through CLI/Lino/localized CV controls. Native WebKit and independent MCP cover conflicts, lost replies and phone reload without provider reads; the hosted aggregate timeout now has independent mandatory browser groups with unchanged deadlines.

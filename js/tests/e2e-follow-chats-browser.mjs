@@ -1,6 +1,7 @@
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { followChatsFixture } from './helpers/follow-chats.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
+import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
 
 const f = await followChatsFixture();
 const { page, base, finish, until } = await openChatApp('follow-chats', f);
@@ -17,15 +18,24 @@ await page.addInitScript(
 );
 const panel = page.locator('[data-follow-chats-panel]');
 const action = (name) => panel.locator(`[data-follow-chats-action="${name}"]`);
+const trace = await followDisclosureTrace(page);
 await finish(async () => {
+  await trace('before-navigation');
   await page.goto(`${base}/#/automation`);
+  await trace('after-navigation');
   await panel.locator(':scope > summary').click();
+  await trace('after-summary-click');
   assert(
     f.calls.length === 0,
     'opening the panel does not start provider reads'
   );
   const retry = (name) => panel.locator(`[data-follow-read-field="${name}"]`);
-  await retry('attempts').fill('2');
+  try {
+    await retry('attempts').fill('2');
+  } catch (error) {
+    await trace('attempts-fill-failed');
+    throw error;
+  }
   await retry('retryDelayMs').fill('0');
   await retry('retryMaxDelayMs').fill('0');
   f.state.error = Object.assign(new Error('private diagnostic'), {

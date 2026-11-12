@@ -1,5 +1,7 @@
 # Issue 56 / PR 57 work plan
 
+Current hosted follow-up: exact 8c4bfc6c WebKit shard 2 failed technology keyboard focus and Follow disclosure visibility. Use the documented native Option-Tab shortcut for macOS WebKit while retaining enabled/focus assertions; add default-off content-free native event/node/document diagnostics for the still-unreproduced Follow opener. Local Linux WebKit passes eight technology cases and the unchanged Follow workflow. Require exact-head hosted confirmation and recurrence evidence; [investigation](ci-cv-keyboard-disclosure.md). All unfinished product requirements remain active.
+
 Active HH19/HH20 bilingual technology review unit:
 
 - [x] Parse labelled About/workplace inventories without losing biography, personal prose, raw terms or duplicate evidence; preserve distinct products, versions and ambiguous aliases.
