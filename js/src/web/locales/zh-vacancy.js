@@ -184,4 +184,20 @@ export const zhVacancy = {
   'cvWatch.empty': '尚未捕获已验证的所有者保存。',
   'cvWatch.loadError':
     '无法确认连接或保存状态。保留现有快照；再次开始前请重新加载。',
+  'cvPrepare.title': '准备原生自我介绍草稿',
+  'cvPrepare.hint':
+    '选择已保存的自我介绍更改，并在现有 HH 槽位中打开该简历。请先停止观察。准备操作会拒绝已打开的编辑器，由你决定保存或取消。若需要经核验的快照，请在保存前开始观察。',
+  'cvPrepare.choose': '请先在本地审核中保存自我介绍更改。',
+  'cvPrepare.prepare': '准备自我介绍',
+  'cvPrepare.reload': '重新读取准备状态',
+  'cvPrepare.recovery':
+    '再次尝试前请恢复准备状态。未知请求仍会阻止准备；请检查现有标签页。',
+  'cvPrepare.starting': '正在连接现有简历标签页…',
+  'cvPrepare.opening': '正在打开原生自我介绍编辑器…',
+  'cvPrepare.preparing': '正在准备已审核的自我介绍文本…',
+  'cvPrepare.prepared':
+    '自我介绍草稿已准备。在 HH 标签页审核后选择保存或取消。此回执不代表已在提供方保存。',
+  'cvPrepare.failed': '打开编辑器前准备失败。现有标签页已保留。',
+  'cvPrepare.uncertain': '准备结果不确定。请检查现有 HH 草稿；未自动重试。',
+  'cvPrepare.interrupted': '准备已中断。继续前请检查现有 HH 草稿。',
 };
