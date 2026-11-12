@@ -38,12 +38,18 @@ const preparationHash = (raw) =>
   raw.hash === null && ['starting', 'failed', 'interrupted'].includes(raw.state)
     ? null
     : resumeHash(raw.hash);
+const validReceipt = (raw) =>
+  raw.version === 1 &&
+  raw.providerSaved === false &&
+  Number.isFinite(Date.parse(raw.startedAt)) &&
+  Number.isFinite(Date.parse(raw.updatedAt));
 const cancelledPreparation = (raw, input) => {
   const identity = cvPrepareIdentity(raw);
   if (
-    raw.version !== 1 ||
-    raw.providerSaved !== false ||
-    !Number.isFinite(Date.parse(raw.updatedAt)) ||
+    !validReceipt(raw) ||
+    raw.hash !== null ||
+    raw.language !== null ||
+    raw.code !== 'jobs-cv-cancelled' ||
     ['requestId', 'browserSlot'].some(
       (key) => input[key] !== undefined && input[key] !== identity[key]
     )
@@ -51,39 +57,30 @@ const cancelledPreparation = (raw, input) => {
     throw cvPrepareFailure('state');
   }
   return {
-    preparation: null,
-    cancellation: {
+    preparation: {
       ...identity,
       version: 1,
       state: 'cancelled',
       providerSaved: false,
+      hash: null,
+      language: null,
+      code: raw.code,
+      startedAt: raw.startedAt,
       updatedAt: raw.updatedAt,
     },
   };
 };
-const validatePreparation = (raw) => {
+const preparedResult = (raw, input) => {
+  const options = cvPrepareOptions(raw ?? {});
   if (
-    raw.version !== 1 ||
+    !validReceipt(raw) ||
     !states.includes(raw.state) ||
-    raw.providerSaved !== false ||
-    !Number.isFinite(Date.parse(raw.startedAt)) ||
-    !Number.isFinite(Date.parse(raw.updatedAt)) ||
     !['ru', 'en'].includes(raw.language) ||
     raw.changeId !== `${raw.language}:about` ||
     (raw.code !== null && !/^jobs-[a-z\d-]+$/u.test(raw.code))
   ) {
     throw cvPrepareFailure('state');
   }
-};
-export const cvPrepareResult = (raw, input = {}) => {
-  if (raw === null) {
-    return { preparation: null };
-  }
-  if (raw?.state === 'cancelled') {
-    return cancelledPreparation(raw, input);
-  }
-  const options = cvPrepareOptions(raw ?? {});
-  validatePreparation(raw);
   if (
     ['requestId', 'browserSlot', 'fingerprint', 'changeId', 'targetId'].some(
       (key) => input[key] !== undefined && input[key] !== options[key]
@@ -105,16 +102,22 @@ export const cvPrepareResult = (raw, input = {}) => {
     },
   };
 };
+export const cvPrepareResult = (raw, input = {}) => {
+  if (raw === null) {
+    return { preparation: null };
+  }
+  return raw?.state === 'cancelled'
+    ? cancelledPreparation(raw, input)
+    : preparedResult(raw, input);
+};
 
 export const cvPrepareReply = (raw, input) => {
-  if (!raw || !Object.hasOwn(raw, 'preparation')) {
+  if (
+    !raw ||
+    !Object.hasOwn(raw, 'preparation') ||
+    Object.hasOwn(raw, 'cancellation')
+  ) {
     throw cvPrepareFailure('state');
   }
-  if (raw?.cancellation) {
-    if (raw.preparation !== null || raw.cancellation.state !== 'cancelled') {
-      throw cvPrepareFailure('state');
-    }
-    return cvPrepareResult(raw.cancellation, input);
-  }
-  return cvPrepareResult(raw?.preparation ?? null, input);
+  return cvPrepareResult(raw.preparation, input);
 };

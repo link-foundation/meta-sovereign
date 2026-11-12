@@ -175,7 +175,7 @@ const verifyCancellationReceipt = async ({
       await shot('cv-prepare-cancel-desktop');
       const late = await wirePost(f.base, 'cv-prepare', original, LINO_TEXT);
       assert.equal(late.status, 200);
-      assert.equal(late.value.cancellation.requestId, original.requestId);
+      assert.equal(late.value.preparation.requestId, original.requestId);
       assert.equal(f.counters.attached, 0);
       await page.setViewportSize({ width: 390, height: 844 });
       assert.equal(
@@ -186,6 +186,11 @@ const verifyCancellationReceipt = async ({
       await reload.focus();
       await page.keyboard.press('Enter');
       await ready();
+      await page.reload();
+      await ready();
+      await panel
+        .locator(`[data-cv-prepare-cancelled="${original.requestId}"]`)
+        .waitFor();
       assert.equal(cancellations, 1);
       assert.ok(
         await panel.evaluate((node) => node.scrollWidth <= node.clientWidth + 1)

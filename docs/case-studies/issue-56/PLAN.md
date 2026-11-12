@@ -2,10 +2,17 @@
 
 Active HH14/HH16 About preparation cancellation and recovery:
 
+Integrate local `c22a89d7` and published `d76215a1` with a regular merge. Preserve
+the published cancelled-preparation receipt and latest-pointer reload behavior,
+and retain shared-store serialization, durability gating, malformed-reply
+validation, both regression sets and both frozen evidence archives. Published
+Checks 43241143099 lint job 131261905765 fails only ten Hindi formatting errors
+(raw lines 408–417); the restored consistent formatting passes scoped ESLint.
+
 - [x] Reproduce the missing API and recovery control against published parent `6e5f3ca7`; retain both expected failures and the before screenshot.
 - [x] Durably cancel only an unreceived request ID, prevent late copies from preparing and recover the exact typed receipt without browser work. Serialize preparation and cancellation across services sharing a store; wait for persistence before acknowledging.
 - [x] Report already admitted preparations without undoing the native draft. Retain pending browser intent after failed durability, malformed acknowledgements or lost replies; allow a new explicit request only after confirmed recovery.
-- [x] Share cancellation through CLI, both Lino encodings and four localized CV panels. Verify 22 focused Node/22 Deno checks, twelve native WebKit cases and five independent MCP cases; retain desktop/phone evidence.
+- [x] Share cancellation through CLI, both Lino encodings and four localized CV panels. Verify 31 focused Node/31 Deno checks, twelve native WebKit cases and five independent MCP cases; retain desktop/phone evidence.
 - [ ] Publish atomic cancellation work and inspect the complete exact-head hosted matrix. Continue shared-workplace identity, native editing/copy/detach, batches, bilingual provider writes and every unchecked issue requirement.
 
 Windows Deno hosted evidence: exact `6e5f3ca7` Checks 43238347626, created 2026-11-12 14:33:04 UTC, passes all three Windows Deno shards (jobs 131256855680, 131256856195 and 131256855971). The complete workflow is still running; no whole-matrix completion is claimed. See [cancellation evidence](cv-prepare-cancel.md).

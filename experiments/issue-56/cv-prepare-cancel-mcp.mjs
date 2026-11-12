@@ -23,7 +23,6 @@ export const verifyCvPreparationCancellationMcp = async (originalPage) => {
           ?.disabled === false
     );
   const pendingKey = 'meta-sovereign:cv-preparation:jobs';
-  let original;
   let cancelled;
   let preparationPosts = 0;
   page.on('request', (request) => {
@@ -41,7 +40,6 @@ export const verifyCvPreparationCancellationMcp = async (originalPage) => {
       source,
       ready,
     });
-    original = pending.original;
     const { requestId } = pending;
     check(await prepare.isDisabled(), 'Unreceived request was forgotten');
     check(
@@ -99,10 +97,10 @@ export const verifyCvPreparationCancellationMcp = async (originalPage) => {
     const late = await page.request.post(
       `${source.origin}/api/vacancies/cv-prepare`,
       {
-        data: original.data,
+        data: pending.original.data,
         headers: {
-          'content-type': original.headers['content-type'],
-          accept: original.headers.accept,
+          'content-type': pending.original.headers['content-type'],
+          accept: pending.original.headers.accept,
           origin: source.origin,
         },
       }
@@ -116,6 +114,7 @@ export const verifyCvPreparationCancellationMcp = async (originalPage) => {
       'Cancellation attached a provider'
     );
     await page.setViewportSize({ width: 390, height: 844 });
+    await panel.locator('[data-cv-prepare-cancelled]').scrollIntoViewIfNeeded();
     check(
       await panel.evaluate((node) => node.scrollWidth <= node.clientWidth + 1),
       'Phone cancellation panel overflows'
@@ -128,6 +127,7 @@ export const verifyCvPreparationCancellationMcp = async (originalPage) => {
     await ready();
     await page.reload();
     await ready();
+    await panel.locator(`[data-cv-prepare-cancelled="${requestId}"]`).waitFor();
     check(
       preparationPosts === 1 && cancellationPosts === 2,
       'Recovery replayed a mutation'

@@ -13,19 +13,19 @@ export const createCvPrepareApi = ({ get, report, local }) => ({
       read: false,
     });
     const answer = cvPrepareReply(raw, input);
-    if (!answer.preparation) {
+    if (!answer.preparation || answer.preparation.state === 'cancelled') {
       throw new Error('jobs-cv-state');
     }
     return answer;
   },
   vacancyCvPrepareCancel: async (input) => {
-    cvPrepareIdentity(input);
-    const raw = await report('/api/vacancies/cv-prepare-cancel', input, {
+    const identity = cvPrepareIdentity(input);
+    const raw = await report('/api/vacancies/cv-prepare-cancel', identity, {
       network: true,
       read: false,
     });
-    const answer = cvPrepareReply(raw, input);
-    if (!answer.preparation && !answer.cancellation) {
+    const answer = cvPrepareReply(raw, identity);
+    if (!answer.preparation) {
       throw new Error('jobs-cv-state');
     }
     return answer;

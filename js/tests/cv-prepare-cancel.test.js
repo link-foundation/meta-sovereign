@@ -20,14 +20,17 @@ test('cancelling an unreceived preparation durably blocks its late POST and surv
   await withFixture(async (f) => {
     const input = identity(f.input);
     const cancelled = await f.service['cv-prepare-cancel'](input);
-    assert.equal(cancelled.preparation, null);
-    assert.equal(cancelled.cancellation.state, 'cancelled');
-    assert.equal(cancelled.cancellation.providerSaved, false);
-    assert.equal(cancelled.cancellation.requestId, input.requestId);
-    assert.equal(Object.hasOwn(cancelled.cancellation, 'language'), false);
+    assert.equal(cancelled.preparation.state, 'cancelled');
+    assert.equal(cancelled.preparation.providerSaved, false);
+    assert.equal(cancelled.preparation.requestId, input.requestId);
+    assert.equal(cancelled.preparation.language, null);
     assert.deepEqual(await f.service['cv-prepare'](f.input), cancelled);
     assert.deepEqual(await f.service['cv-prepare-cancel'](input), cancelled);
     assert.deepEqual(await f.service['cv-prepare-status'](input), cancelled);
+    assert.deepEqual(
+      await f.service['cv-prepare-status']({ browserSlot: input.browserSlot }),
+      cancelled
+    );
     const second = createVacancyService({ store: f.store });
     try {
       assert.deepEqual(await second['cv-prepare'](f.input), cancelled);
@@ -61,7 +64,7 @@ test('a failed cancellation flush cannot acknowledge cancellation or open a brow
     assert.equal(f.calls.attached, 0);
     delete f.store.flush;
     const retried = await f.service['cv-prepare-cancel'](identity(f.input));
-    assert.equal(retried.cancellation.state, 'cancelled');
+    assert.equal(retried.preparation.state, 'cancelled');
     assert.deepEqual(await f.service['cv-prepare'](f.input), retried);
     assert.equal(f.calls.attached, 0);
   });

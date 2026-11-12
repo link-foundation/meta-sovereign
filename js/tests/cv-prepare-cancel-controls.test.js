@@ -36,10 +36,10 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
             type
           );
           assert.equal(cancelled.status, 200);
-          assert.equal(cancelled.value.cancellation.state, 'cancelled');
+          assert.equal(cancelled.value.preparation.state, 'cancelled');
           assert.equal(
             (await wirePost(base, 'cv-prepare', f.input, type)).value
-              .cancellation.requestId,
+              .preparation.requestId,
             input.requestId
           );
           const reply = await fetch(
@@ -132,7 +132,7 @@ test('browser cancellation requires an exact acknowledgement and recovers stored
     );
     response = { preparation: null };
     await assert.rejects(api.vacancyCvPrepareCancel(input));
-    response = { ...result, preparation: { state: 'prepared' } };
+    response = { ...result, cancellation: result.preparation };
     await assert.rejects(api.vacancyCvPrepareCancel(input));
     response = result;
     await assert.rejects(api.vacancyCvPrepare(f.input));
@@ -146,7 +146,9 @@ test('browser cancellation requires an exact acknowledgement and recovers stored
 test('four locales explain cancellation without claiming a native draft was undone', async () => {
   const f = await cvPrepareFixture();
   try {
-    const { cancellation } = await f.service['cv-prepare-cancel'](f.input);
+    const { preparation: cancellation } = await f.service['cv-prepare-cancel'](
+      f.input
+    );
     for (const locale of ['en', 'ru', 'zh', 'hi']) {
       const html = renderInLocale(
         locale,

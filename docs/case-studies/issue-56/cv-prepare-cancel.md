@@ -22,8 +22,9 @@ restores the working bytes in `finally`.
 
 Cancellation validates only the request UUID and browser slot. For an unknown
 request it stores a bounded versioned cancellation receipt containing those
-identities, its timestamp and `providerSaved: false`. It does not fabricate a CV
-hash, selected language or reviewed change. The receipt uses the same durable
+identities, both timestamps and `providerSaved: false`. The published response
+uses `preparation.state: cancelled`, with explicitly null CV hash and language
+and `code: jobs-cv-cancelled`; no reviewed change is fabricated. The receipt uses the same durable
 request key as preparation, so a late copy returns that receipt before source
 resolution or browser attachment. Repeated cancellation and restart preserve
 the decision. A new explicit UUID can prepare normally.
@@ -33,8 +34,9 @@ wait for an in-progress cancellation write to flush; failed persistence rolls
 back the unacknowledged row and returns an error. Existing preparation receipts
 take precedence: cancellation waits for admitted work and reports its actual
 state. It never clicks native Cancel, erases text, closes an editor or claims
-that an issued draft was undone. The slot's latest issued preparation pointer
-remains unchanged; an older cancellation can always be inspected by UUID.
+that an issued draft was undone. A new cancellation also persists the slot's
+latest pointer, retaining its confirmation after the pending local UUID clears
+and the page reloads. An older receipt remains inspectable by UUID.
 
 The browser retains the original pending UUID until an identity-checked
 preparation or cancellation receipt arrives. Failed writes, absent/malformed
@@ -62,8 +64,8 @@ timestamp. Reload and keyboard activation do not dispatch mutations.
 
 ## Verification and evidence
 
-Twenty-two focused Node and twenty-two Deno checks pass: nine new cancellation
-checks and the thirteen existing preparation checks. They cover restart, late
+Thirty-one focused Node and thirty-one Deno checks pass: eighteen cancellation
+checks from both branch histories and the thirteen existing preparation checks. They cover restart, late
 copies, shared-store durability, failed flushes, admission ordering, trusted
 routes in both Lino encodings, CLI lifecycle, browser reply validation, cached
 recovery and all four locales. Both actual-parent regressions fail as expected.
@@ -88,8 +90,7 @@ the fixture; authenticated provider parity remains unfinished.
 The first native durability probe did not reach the server's wrapped store
 because it added `flush` after wrapper creation. The corrected fixture installs
 its stable flush delegate before wrapping and toggles only the failure it
-returns. The retained initial log documents the failed probe; final evidence
-uses the corrected fixture. The MCP tool executes the final experiment body inside an async wrapper,
+returns. Final evidence uses the corrected fixture. The MCP tool executes the final experiment body inside an async wrapper,
 removing its export declaration; its VM does not support dynamic imports or
 semicolon-terminated expression-only filenames.
 
@@ -102,12 +103,24 @@ Run `python3 -B experiments/issue-56/verify-cv-prepare-cancel.py` for the focuse
 checks. The parent replay, native wrapper and independent MCP module live beside
 it. The collector verifies counts and archives source, parent snapshots, raw
 logs, screenshot hashes and byte integrity in
-[`data/cv-prepare-cancel.tar.gz`](data/cv-prepare-cancel.tar.gz).
+[`data/cv-prepare-cancel.tar.gz`](data/cv-prepare-cancel.tar.gz). The frozen
+[initial local archive](data/cv-prepare-cancel-initial.tar.gz) and
+[independently published archive](data/cv-prepare-cancel-published.tar.gz) retain
+their original sources and logs; their historical response designs differ.
+The merged implementation keeps the published receipt shape, shared admission
+and flush gating, typed browser validation, and latest-pointer reload recovery.
 
 Exact parent `6e5f3ca7` Checks run 43238347626 began at
 `2026-11-12T14:33:04Z`. All three Windows Deno shards pass within the existing
 deadline; remaining jobs were still running when this unit was prepared.
 The complete exact new-head matrix remains required after publication.
+
+Published `d76215a1` Checks 43241143099 began at `2026-11-12T14:49:07Z`. Its
+failed lint job 131261905765 reports ten Hindi string-formatting errors at raw
+log lines 408–417 and exits at line 426. The merged Hindi file passes the same
+ESLint/Prettier rule locally. The raw completed-job log is preserved even though
+the workflow still had an unrelated running job when downloaded. No assertion
+or deadline was weakened.
 
 Shared-workplace identity, complete native editing/copy/detach, durable batches,
 bilingual provider save/readback, authenticated HH parity and every other

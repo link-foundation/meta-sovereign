@@ -1,6 +1,9 @@
 import React from 'react';
 
 const el = React.createElement;
+const cancelledPreparation = (state) =>
+  state.cancellation ??
+  (state.preparation?.state === 'cancelled' ? state.preparation : null);
 export const CvPreparation = ({ state, review, idle, t }) => {
   const saved = review?.status === 'reviewed';
   const changes = saved
@@ -9,7 +12,8 @@ export const CvPreparation = ({ state, review, idle, t }) => {
           change.field === 'about' && review.selected.includes(change.id)
       )
     : [];
-  const result = state.preparation;
+  const cancellation = cancelledPreparation(state);
+  const result = cancellation ? null : state.preparation;
   return el(
     'section',
     {
@@ -69,20 +73,22 @@ export const CvPreparation = ({ state, review, idle, t }) => {
       state.pendingId
         ? el('p', { key: 'pending', className: 'meta' }, state.pendingId)
         : null,
-      state.cancellation
+      cancellation
         ? el(
             'div',
             {
               key: 'cancelled',
               role: 'status',
-              'data-cv-prepare-cancelled': state.cancellation.requestId,
+              'data-cv-prepare-cancelled': cancellation.requestId,
+              'data-cv-preparation-state': 'cancelled',
+              'data-cv-preparation-request': cancellation.requestId,
             },
             [
               el('p', { key: 'text' }, t('cvPrepare.cancelled')),
               el(
                 'p',
                 { key: 'identity', className: 'meta' },
-                `${state.cancellation.requestId} · ${state.cancellation.updatedAt}`
+                `${cancellation.requestId} · ${cancellation.updatedAt}`
               ),
             ]
           )

@@ -38,16 +38,27 @@ const cancelPreparation = async ({ store, lane, status }, input) => {
     // undoes or calls native Cancel on an existing provider draft.
     return status(identity);
   }
+  const startedAt = new Date().toISOString();
   const row = {
     id: recordId(identity.requestId),
     ...identity,
     version: 1,
     state: 'cancelled',
     providerSaved: false,
-    updatedAt: new Date().toISOString(),
+    hash: null,
+    language: null,
+    code: 'jobs-cv-cancelled',
+    startedAt,
+    updatedAt: startedAt,
   };
   const result = cvPrepareResult(row, identity);
-  const durable = saveTechnologyRecord(store, row);
+  const durable = (async () => {
+    await saveTechnologyRecord(store, row);
+    await saveTechnologyRecord(store, {
+      id: `jobs-cv-prepare-latest:${identity.browserSlot}`,
+      requestId: identity.requestId,
+    });
+  })();
   lane.cancellations.set(identity.requestId, durable);
   try {
     await durable;

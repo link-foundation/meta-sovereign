@@ -6,20 +6,20 @@ import sys
 
 root = Path(__file__).resolve().parents[2]
 env = dict(os.environ, NODE_OPTIONS='--max-old-space-size=384')
-changed = subprocess.check_output(['git', 'ls-files', '--modified', '--others', '--exclude-standard'], cwd=root).decode().splitlines()
+changed = sorted(set(subprocess.check_output(['git', 'diff', '--name-only', '6e5f3ca7'], cwd=root).decode().splitlines() + subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard'], cwd=root).decode().splitlines()))
 scripts = [name for name in changed if name.endswith(('.js', '.mjs')) and name != 'js/src/web/app.min.js']
 formatted = scripts + [name for name in changed if name.endswith(('.md', '.json'))]
-tests = [f'js/tests/{name}.test.js' for name in ['cv-prepare-cancel', 'cv-prepare-cancel-controls', 'cv-prepare', 'cv-prepare-controls']]
+tests = [f'js/tests/{name}.test.js' for name in ['cv-prepare-cancel', 'cv-prepare-cancel-controls', 'cv-prepare-cancel-published', 'cv-prepare', 'cv-prepare-controls']]
 commands = [
-    ('node-final', ['node', '--test', '--test-concurrency=1', '--test-timeout=15000', *tests]),
-    ('deno-final', ['deno', 'test', '--allow-all', '--v8-flags=--max-old-space-size=384', *tests]),
+    ('merged-node', ['node', '--test', '--test-concurrency=1', '--test-timeout=15000', *tests]),
+    ('merged-deno', ['deno', 'test', '--allow-all', '--v8-flags=--max-old-space-size=384', *tests]),
     ('ci-contracts', ['node', '--test', '--test-concurrency=1', '--test-name-pattern=vacancy reads and local analysis', 'js/tests/ci-contracts.test.js']),
     ('lint-final', ['node_modules/.bin/eslint', '--config', 'js/eslint.config.js', '--max-warnings=0', *scripts]),
     ('static-final', ['node_modules/.bin/prettier', '--check', *formatted]),
     ('secrets-final', ['node_modules/.bin/secretlint', *formatted]),
 ]
 for name, command in commands:
-    if '--gates-only' in sys.argv and name in ['node-final', 'deno-final']:
+    if '--gates-only' in sys.argv and name in ['merged-node', 'merged-deno']:
         continue
     with (root / f'ci-logs/cv-prepare-cancel-{name}.log').open('w') as output:
         result = subprocess.run(command, cwd=root, env=env, stdout=output, stderr=subprocess.STDOUT)

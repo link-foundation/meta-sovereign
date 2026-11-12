@@ -15,13 +15,13 @@ export const useCvPreparation = ({ api, values, run }) => {
     const terminal = !['starting', 'opening', 'preparing'].includes(
       answer.preparation?.state
     );
-    const known =
-      !requestId || Boolean(answer.preparation || answer.cancellation);
+    const cancelled = answer.preparation?.state === 'cancelled';
+    const known = !requestId || Boolean(answer.preparation);
     setPreparation(answer.preparation);
-    setCancellation(answer.cancellation ?? null);
+    setCancellation(cancelled ? answer.preparation : null);
     permitted.current = terminal && known;
     setReady(permitted.current);
-    if ((answer.preparation || answer.cancellation) && terminal) {
+    if (answer.preparation && terminal) {
       globalThis.localStorage?.removeItem(key);
       pending.current = null;
       setPendingId(null);
@@ -61,7 +61,7 @@ export const useCvPreparation = ({ api, values, run }) => {
     preparation,
     cancellation,
     pendingId,
-    canCancel: Boolean(pendingId && !preparation && !ready),
+    canCancel: Boolean(pendingId && !ready),
     ready,
     prepare: (review, change) =>
       run('cv-prepare', async () => {
@@ -99,14 +99,14 @@ export const useCvPreparation = ({ api, values, run }) => {
           throw new Error('jobs-cv-recovery');
         }
         const current = generation.current;
-        revision.current++;
+        const read = ++revision.current;
         permitted.current = false;
         setReady(false);
         const answer = await api.vacancyCvPrepareCancel({
           browserSlot,
           requestId,
         });
-        if (current === generation.current) {
+        if (current === generation.current && read === revision.current) {
           accept(answer, requestId);
         }
         return answer;
