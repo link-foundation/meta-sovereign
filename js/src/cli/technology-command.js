@@ -1,8 +1,35 @@
 import { open } from 'node:fs/promises';
 import { decodeWire, LINO_TEXT, LINO_BINARY } from '../transport/lino.js';
 
+const reviewInput = (operation, args) => {
+  if (operation === 'technology-review') {
+    return {
+      browserSlot: args['browser-slot'] ?? 'jobs',
+      revision: args.revision,
+      exports: ['ru', 'en'].map((language) => ({
+        exportId: args[`${language}-export-id`],
+        hash: args[`${language}-resume`],
+      })),
+    };
+  }
+  if (operation === 'technology-review-save') {
+    return {
+      browserSlot: args['browser-slot'] ?? 'jobs',
+      fingerprint: args.fingerprint,
+      selected:
+        typeof args.selected === 'string' ? args.selected.split(',') : [],
+    };
+  }
+};
+
 /** Bounded explicit catalog file; JSON and both typed Lino encodings are accepted. */
 export const technologyCommandInput = async (operation, args) => {
+  if (
+    operation.startsWith('technology-review') &&
+    operation !== 'technology-review-stored'
+  ) {
+    return reviewInput(operation, args);
+  }
   if (operation !== 'technology-catalog-save') {
     return {
       browserSlot: args['browser-slot'] ?? 'jobs',

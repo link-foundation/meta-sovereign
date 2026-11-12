@@ -136,4 +136,39 @@ export const enVacancy = {
   'vacancy.resumeReason.updated': 'latest observed update',
   'vacancy.resumeReason.latest': 'HH latest marker',
   'vacancy.resumeReason.list-order': 'HH list order',
+  'cvTechnology.title': 'Bilingual CV technology review',
+  'cvTechnology.hint':
+    'Choose verified Russian and English exports. Review field-specific proposals and save selected changes as a local review. Your provider CV remains unchanged.',
+  'cvTechnology.ru': 'Russian export',
+  'cvTechnology.en': 'English export',
+  'cvTechnology.generate': 'Build local review',
+  'cvTechnology.reload': 'Reload saved review',
+  'cvTechnology.loadError':
+    'Saved review could not be loaded. Your current review is retained.',
+  'cvTechnology.before': 'Original text',
+  'cvTechnology.after': 'Proposed text',
+  'cvTechnology.draft': 'Draft local review',
+  'cvTechnology.saved':
+    'Selected changes saved as a local review. Provider CV unchanged.',
+  'cvTechnology.complete':
+    'Both saved exports already cover the reviewed technologies.',
+  'cvTechnology.blocked':
+    'Resolve the evidence blockers before saving this review.',
+  'cvTechnology.coverage': 'Coverage by field',
+  'cvTechnology.raw': 'Raw inventory and duplicate evidence',
+  'cvTechnology.duplicates': 'Duplicates',
+  'cvTechnology.save': 'Save selected local review',
+  'cvTechnology.counterpart-ambiguous':
+    'Several workplaces match this position',
+  'cvTechnology.counterpart-missing': 'No workplace matches this position',
+  'cvTechnology.counterpart-unresolved': 'Workplace counterpart unresolved',
+  'cvTechnology.about-layout':
+    'About layout needs review; original text retained',
+  'cvTechnology.alias-ambiguous': 'Technology alias has several meanings',
+  'cvTechnology.moreChanges': 'Show more changes',
+  'cvTechnology.moreEvidence': 'Show more evidence',
+  'cvTechnology.about': 'About me',
+  'cvTechnology.skills': 'Skills',
+  'cvTechnology.position': 'Workplace',
+  'cvTechnology.current': 'present',
 };

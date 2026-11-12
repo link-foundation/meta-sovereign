@@ -1,8 +1,9 @@
 import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { vacancyContent } from '../assignments/vacancy-content.js';
-import { resumeExportResult } from './resume-export-result.js';
-import { readResumeExportFile } from './resume-export-files.js';
+import { verifiedTechnologyCv } from './technology-cv.js';
+import { createCvTechnologyService } from './cv-technology-service.js';
+import { saveTechnologyRecord } from './technology-storage.js';
 import {
   storedTechnologyCatalog,
   saveTechnologyCatalog,
@@ -72,6 +73,12 @@ const storedAnalysis = async (store, input) => {
 };
 
 export const createTechnologyService = ({ store, artifactRoot, run }) => ({
+  ...createCvTechnologyService({
+    store,
+    artifactRoot,
+    write: (operation) => acknowledgedWrite(store, run, operation),
+    read: (operation) => acknowledgedRead(store, operation),
+  }),
   'technology-catalog': () =>
     acknowledgedRead(store, () => storedTechnologyCatalog(store)),
   'technology-catalog-save': (input) =>
@@ -81,56 +88,24 @@ export const createTechnologyService = ({ store, artifactRoot, run }) => ({
   'technology-analyze': (input) =>
     acknowledgedWrite(store, run, async (signal) => {
       const browserSlot = browserName(input.browserSlot ?? 'jobs');
-      const file = await readResumeExportFile(
+      const source = await verifiedTechnologyCv(
         { store, artifactRoot },
-        { ...input, name: 'resume.json' }
+        { ...input, browserSlot }
       );
-      const row = await store.get(
-        `jobs-resume-artifact:${input.exportId}:${input.hash}`
-      );
-      const receipt = resumeExportResult(row);
       const catalog = await storedTechnologyCatalog(store);
-      if (
-        receipt.browserSlot !== browserSlot ||
-        input.revision !== catalog.revision
-      ) {
+      if (input.revision !== catalog.revision) {
         throw technologyFailure('conflict');
-      }
-      const cv = JSON.parse(
-        new TextDecoder('utf-8', { fatal: true }).decode(file.bytes)
-      );
-      if (cv.language !== receipt.language || cv.title !== receipt.title) {
-        throw technologyFailure('resume');
       }
       const analysis = await analyzeTechnologies({
         catalog,
         vacancies: (await storedVacancies(store)).entries,
-        cv,
+        cv: source.cv,
         signal,
-        resume: {
-          exportId: receipt.exportId,
-          hash: receipt.hash,
-          browserSlot,
-          title: receipt.title,
-          language: receipt.language,
-          capturedAt: receipt.capturedAt,
-          sha256: file.sha256,
-        },
+        resume: source.identity,
       });
       signal.throwIfAborted();
       const id = `jobs-technology-analysis:${browserSlot}`;
-      const previous = await store.get(id);
-      await store.put({ id, version: 1, analysis });
-      try {
-        await store.flush?.();
-      } catch (error) {
-        if (previous) {
-          await store.put(previous);
-        } else {
-          await store.delete(id);
-        }
-        throw error;
-      }
+      await saveTechnologyRecord(store, { id, version: 1, analysis });
       return { analysis };
     }),
 });

@@ -29,6 +29,8 @@ const defaults = [
   ['Kubernetes', ['k8s']],
   ['Git', []],
   ['GitHub', []],
+  ['Cutter', ['Cuter']],
+  ['Telerik', ['Teleric']],
   ['Linux', []],
   ['CI/CD', ['CI CD']],
   ['HTML', []],

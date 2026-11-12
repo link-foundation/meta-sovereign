@@ -6,6 +6,8 @@ import { useResumeExports } from './resume-export-state.js';
 import { ResumeExports } from './resume-exports.js';
 import { useTechnologyAnalysis } from './technology-state.js';
 import { VacancyTechnologies } from './vacancy-technologies.js';
+import { useCvTechnologyReview } from './cv-technology-state.js';
+import { CvTechnologyReview } from './cv-technology-review.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -110,6 +112,7 @@ export const useVacancies = (api) => {
   };
   const resumeExports = useResumeExports({ api, values, run });
   const technology = useTechnologyAnalysis({ api, values, run });
+  const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -174,6 +177,7 @@ export const useVacancies = (api) => {
       busy || (resumeExports.job?.state === 'running' ? 'resume-export' : ''),
     resumeExports,
     technology,
+    cvTechnology,
     error,
     loaded,
     valid,
@@ -412,6 +416,19 @@ const Snapshot = ({ state, t, idle }) => {
     : null;
 };
 
+const CvEvidencePanels = ({ state, t }) =>
+  el(React.Fragment, null, [
+    state.resumeExports
+      ? el(ResumeExports, { key: 'exports', state, t })
+      : null,
+    state.technology
+      ? el(VacancyTechnologies, { key: 'technology', state, t })
+      : null,
+    state.cvTechnology
+      ? el(CvTechnologyReview, { key: 'cv-technology', state, t })
+      : null,
+  ]);
+
 export const VacanciesScreen = ({ state }) => {
   const t = useT();
   const idle = !state.busy;
@@ -428,12 +445,7 @@ export const VacanciesScreen = ({ state }) => {
       el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
       el(Fields, { key: 'settings', state, t }),
       el(VacancyResumes, { key: 'resumes', state, t }),
-      state.resumeExports
-        ? el(ResumeExports, { key: 'exports', state, t })
-        : null,
-      state.technology
-        ? el(VacancyTechnologies, { key: 'technology', state, t })
-        : null,
+      el(CvEvidencePanels, { key: 'evidence', state, t }),
       el('div', { key: 'actions', className: 'row' }, [
         action(
           'search',

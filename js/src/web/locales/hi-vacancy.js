@@ -137,4 +137,38 @@ export const hiVacancy = {
   'vacancy.resumeReason.updated': 'सबसे नया देखा गया अपडेट',
   'vacancy.resumeReason.latest': 'HH का नवीनतम चिह्न',
   'vacancy.resumeReason.list-order': 'HH सूची का क्रम',
+  'cvTechnology.title': 'द्विभाषी सीवी तकनीक समीक्षा',
+  'cvTechnology.hint':
+    'सत्यापित रूसी और अंग्रेज़ी निर्यात चुनें। प्रत्येक फ़ील्ड के सुझाव जाँचें और चुने हुए बदलावों को स्थानीय समीक्षा के रूप में सहेजें। प्रदाता पर आपका सीवी अपरिवर्तित रहेगा।',
+  'cvTechnology.ru': 'रूसी निर्यात',
+  'cvTechnology.en': 'अंग्रेज़ी निर्यात',
+  'cvTechnology.generate': 'स्थानीय समीक्षा बनाएँ',
+  'cvTechnology.reload': 'सहेजी गई समीक्षा फिर लोड करें',
+  'cvTechnology.loadError':
+    'सहेजी गई समीक्षा लोड नहीं हुई। मौजूदा समीक्षा सुरक्षित है।',
+  'cvTechnology.before': 'मूल पाठ',
+  'cvTechnology.after': 'प्रस्तावित पाठ',
+  'cvTechnology.draft': 'स्थानीय समीक्षा का मसौदा',
+  'cvTechnology.saved':
+    'चुने हुए बदलाव स्थानीय समीक्षा में सहेजे गए। प्रदाता का सीवी नहीं बदला।',
+  'cvTechnology.complete':
+    'दोनों सहेजे गए निर्यात में समीक्षा की गई तकनीकें पहले से मौजूद हैं।',
+  'cvTechnology.blocked':
+    'समीक्षा सहेजने से पहले साक्ष्य की अस्पष्टता सुलझाएँ।',
+  'cvTechnology.coverage': 'प्रत्येक फ़ील्ड का कवरेज',
+  'cvTechnology.raw': 'मूल सूची और दोहराव के साक्ष्य',
+  'cvTechnology.duplicates': 'दोहराव',
+  'cvTechnology.save': 'चुनी स्थानीय समीक्षा सहेजें',
+  'cvTechnology.counterpart-ambiguous': 'इस पद से कई कार्यस्थल मेल खाते हैं',
+  'cvTechnology.counterpart-missing': 'इस पद से कोई कार्यस्थल नहीं मिला',
+  'cvTechnology.counterpart-unresolved': 'समकक्ष कार्यस्थल तय नहीं हुआ',
+  'cvTechnology.about-layout':
+    'परिचय की संरचना की समीक्षा चाहिए; मूल पाठ सुरक्षित है',
+  'cvTechnology.alias-ambiguous': 'तकनीक के उपनाम के कई अर्थ हैं',
+  'cvTechnology.moreChanges': 'और बदलाव दिखाएँ',
+  'cvTechnology.moreEvidence': 'और साक्ष्य दिखाएँ',
+  'cvTechnology.about': 'परिचय',
+  'cvTechnology.skills': 'कौशल',
+  'cvTechnology.position': 'कार्यस्थल',
+  'cvTechnology.current': 'वर्तमान',
 };

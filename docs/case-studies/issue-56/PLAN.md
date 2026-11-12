@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active HH19/HH20 bilingual technology review unit:
+
+- [x] Parse labelled About/workplace inventories without losing biography, personal prose, raw terms or duplicate evidence; preserve distinct products, versions and ambiguous aliases.
+- [x] Build alphabetized per-field proposals from two explicitly selected verified language exports, with saved job evidence and observed vacancy spellings; match workplaces by company and dates, and expose ambiguous/missing counterparts as review blockers.
+- [x] Save bounded local review plans with exact export/catalog provenance, per-field coverage and explicit selected changes. Revalidate revisions and evidence before accepting a reviewed plan; never claim a provider CV was saved.
+- [x] Share generation, cached recovery and selected local review through CLI, both Lino encodings and localized CV controls. Preserve old plans and drafts on failures or lost replies.
+- [ ] Preserve failing-before regressions, verify focused pure/control checks and actual desktop/phone browser evidence, publish atomic work and inspect exact-head CI. Complete provider editing/saves and every other unchecked requirement afterward.
+
+Locally verified by 20 Node/20 Deno checks, 60 compatibility checks, the Deno registry contract, two actual-parent failures, four native WebKit and four independent MCP cases with zero provider reads. See [bilingual review](cv-technologies.md). Provider CV editing/save/readback and complete HH19/HH20 stay unfinished.
+
 Windows résumé export CI correction: exact 9e2169f3 run 43171285138 reports two POSIX-bit assertions on Windows (0666 versus 0600/0700); preserve raw logs and metadata, scope those two assertions to POSIX as existing backup tests do, and retain every platform's integrity/attachment/CLI checks. Focused local verification cannot establish Windows ACLs or hosted results. The same run's macOS fetch failure is separate infrastructure evidence. See [investigation](ci-resume-permissions.md).
 
 Active HH04 technology analysis unit:
@@ -8,7 +18,7 @@ Active HH04 technology analysis unit:
 - [x] Save an editable local alias catalog with revision conflict checks; keep products and versions distinct.
 - [x] Compare the explicitly selected verified résumé export against cached vacancies, retaining per-field mention evidence, spelling frequencies and corpus metadata statistics.
 - [x] Expose the same analysis and catalog controls through CLI, Lino API and localized CV controls; disclose cached provenance and avoid unsupported skill claims.
-- [ ] Add focused failing-before regressions, real-browser before/after evidence and mandatory CI coverage; run focused checks locally, publish an atomic commit and inspect exact-head CI.
+- [x] Add focused failing-before regressions, real-browser before/after evidence and mandatory CI coverage; publish and inspect exact-head CI (8c4bfc6c has two separate WebKit shard 2 failures, retained as unfinished investigations).
 - [ ] Keep HH19/HH20 bilingual edit/review/save coverage and all other unfinished criteria open until independently implemented and verified.
 
 HH04 is locally verified by 21 focused Node/21 Deno checks, 72 compatibility checks, three Deno CI contracts, three actual-parent regressions, four native WebKit scenarios and four independent Playwright MCP cases. Provider reads remain zero. See [technology analysis](technology-analysis.md). Exact 72ec50bf run 43172233986 exhausted the shared 180-second vacancy/résumé/export budget after passing scenarios; split all four groups into separate mandatory entries with unchanged per-entry/per-shard deadlines. Exact-head hosted verification and every unchecked issue criterion remain required. PR57 stays draft and unmerged.

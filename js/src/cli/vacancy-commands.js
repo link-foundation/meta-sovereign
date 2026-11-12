@@ -17,7 +17,10 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-technology-catalog [--store=<dir>]
   vacancies-technology-catalog-save --file=<catalog.lino|catalog.bin|catalog.json> [--store=<dir>]
   vacancies-technology-analyze --export-id=<id> --resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-analysis-stored [--browser-slot=jobs] [--store=<dir>]`;
+  vacancies-technology-analysis-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review --ru-export-id=<id> --ru-resume=<hash> --en-export-id=<id> --en-resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review-save --fingerprint=<review-fingerprint> --selected=<change-id>,<change-id> [--browser-slot=jobs] [--store=<dir>]`;
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];
@@ -48,6 +51,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'technology-catalog-save',
       'technology-analyze',
       'technology-analysis-stored',
+      'technology-review',
+      'technology-review-stored',
+      'technology-review-save',
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {

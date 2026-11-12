@@ -142,4 +142,42 @@ export const ruVacancy = {
   'vacancy.resumeReason.updated': 'последнее наблюдаемое обновление',
   'vacancy.resumeReason.latest': 'пометка HH «последнее»',
   'vacancy.resumeReason.list-order': 'порядок в списке HH',
+  'cvTechnology.title': 'Двуязычная проверка технологий в резюме',
+  'cvTechnology.hint':
+    'Выберите проверенные экспорты на русском и английском. Проверьте предложения для каждого поля и сохраните выбранные изменения как локальную проверку. Резюме у провайдера останется прежним.',
+  'cvTechnology.ru': 'Русский экспорт',
+  'cvTechnology.en': 'Английский экспорт',
+  'cvTechnology.generate': 'Подготовить локальную проверку',
+  'cvTechnology.reload': 'Загрузить сохранённую проверку',
+  'cvTechnology.loadError':
+    'Не удалось загрузить проверку. Текущая проверка сохранена на экране.',
+  'cvTechnology.before': 'Исходный текст',
+  'cvTechnology.after': 'Предлагаемый текст',
+  'cvTechnology.draft': 'Черновик локальной проверки',
+  'cvTechnology.saved':
+    'Выбранные изменения сохранены как локальная проверка. Резюме у провайдера не изменено.',
+  'cvTechnology.complete':
+    'Оба сохранённых экспорта уже содержат проверенные технологии.',
+  'cvTechnology.blocked':
+    'Устраните неоднозначность данных перед сохранением проверки.',
+  'cvTechnology.coverage': 'Покрытие по полям',
+  'cvTechnology.raw': 'Исходные списки и повторы',
+  'cvTechnology.duplicates': 'Повторы',
+  'cvTechnology.save': 'Сохранить выбранное локально',
+  'cvTechnology.counterpart-ambiguous':
+    'Этой позиции соответствуют несколько мест работы',
+  'cvTechnology.counterpart-missing':
+    'Для этой позиции не найдено место работы',
+  'cvTechnology.counterpart-unresolved':
+    'Соответствие места работы не установлено',
+  'cvTechnology.about-layout':
+    'Структура раздела «О себе» требует проверки; исходный текст сохранён',
+  'cvTechnology.alias-ambiguous':
+    'Название технологии имеет несколько значений',
+  'cvTechnology.moreChanges': 'Показать ещё изменения',
+  'cvTechnology.moreEvidence': 'Показать ещё исходные данные',
+  'cvTechnology.about': 'О себе',
+  'cvTechnology.skills': 'Навыки',
+  'cvTechnology.position': 'Место работы',
+  'cvTechnology.current': 'настоящее время',
 };

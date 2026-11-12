@@ -94,6 +94,8 @@ export const createVacancyService = ({
         resumeExport: browser.available === true,
         cached: true,
         technologyAnalysis: true,
+        technologyReview: true,
+        technologyProviderSave: false,
         apply: false,
       };
     },

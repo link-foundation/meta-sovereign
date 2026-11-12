@@ -3,6 +3,11 @@ import { isTrustedMutation } from './routes-auto-import.js';
 import { createVacancyService } from '../jobs/service.js';
 import { fromApp } from './routes-telegram-files.js';
 
+const bodyLimits = {
+  'technology-catalog-save': 256 * 1024,
+  'technology-review-save': 32 * 1024,
+};
+
 const refused = (req, ctx, read) => {
   if (req.method !== (read ? 'GET' : 'POST')) {
     return [405, 'method-not-allowed'];
@@ -62,6 +67,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'resume-exports-stored',
       'technology-catalog',
       'technology-analysis-stored',
+      'technology-review-stored',
     ].includes(operation) || file;
   if (
     !read &&
@@ -74,6 +80,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'resume-export-cancel',
       'technology-catalog-save',
       'technology-analyze',
+      'technology-review',
+      'technology-review-save',
     ].includes(operation)
   ) {
     return false;
@@ -89,7 +97,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     const input = read
       ? Object.fromEntries(new URL(req.url, 'http://local').searchParams)
       : await readBody(req, {
-          limit: operation === 'technology-catalog-save' ? 256 * 1024 : 8192,
+          limit: bodyLimits[operation] ?? 8192,
         });
     const service = (ctx.vacancies ??= createVacancyService({
       store,

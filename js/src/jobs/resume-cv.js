@@ -40,9 +40,7 @@ export const sanitizedResumeCv = (raw) => {
     language: raw.language,
     name: scalar(raw.name),
     title: scalar(raw.title, false),
-    skills: [
-      ...new Set(list(raw.skills, 500).map((value) => scalar(value, false))),
-    ],
+    skills: list(raw.skills, 500).map((value) => scalar(value, false)),
     about: sanitize.prose(text(raw.about, 24000)),
     jobs: list(raw.jobs, 200).map((job) => {
       if (
