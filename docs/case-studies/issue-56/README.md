@@ -300,3 +300,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 [Shared unread recovery in native fixtures](ci-unread-recovery.md) reproduces the disabled Chat limit timeout and corrects recovery sequencing in both finite-review and notice-policy cases without weakening product guards.
 
 - [WebKit résumé profile navigation investigation](ci-profile-navigation.md): exact hosted failure, four-helper replay and optional bounded document/disclosure metadata; root cause remains unproven.
+
+- [Exact saved workplace identity](cv-workplace-identity.md): bounded inert native record readback, complete CV membership, preserved unrelated jobs and durable CLI/Lino/four-language evidence; native editing/batches and authenticated parity remain open.

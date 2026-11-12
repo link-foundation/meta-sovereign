@@ -180,6 +180,9 @@ export const zhVacancy = {
   'cvWatch.snapshots': '已保存的简历快照',
   'cvWatch.choose': '选择已保存简历',
   'cvWatch.native': '原生导出核对',
+  'cvWatch.workplace': '已核验的工作记录',
+  'cvWatch.included': '包含在此简历中',
+  'cvWatch.excluded': '已从此简历排除',
   'cvWatch.inspect': '查看已清除隐私的保存字段',
   'cvWatch.empty': '尚未捕获已验证的所有者保存。',
   'cvWatch.loadError':

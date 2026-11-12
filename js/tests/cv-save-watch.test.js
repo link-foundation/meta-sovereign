@@ -22,6 +22,7 @@ import {
   cvWatchRaw,
 } from '../../experiments/issue-56/cv-watch-fixture.mjs';
 import { gate } from '../../experiments/issue-56/vacancy-fixture.mjs';
+import { cvWorkplaceIdentityFixture } from '../../experiments/issue-56/cv-workplace-identity-fixture.mjs';
 
 const input = () => ({
   browserSlot: 'jobs',
@@ -232,42 +233,10 @@ test('failed snapshot durability rolls back data and never acknowledges a verifi
     assert.equal((await f.service['cv-watch-status']({})).watch.saves, 0);
   }));
 test('workplace verification checks exact dates, all CV selections and every visible metadata field', () => {
-  const raw = {
-    kind: 'workplace',
-    url: 'https://hh.ru/profile/edit/experience/123',
-    recordId: '123',
-    company: 'Employer',
-    position: 'Engineer',
-    description: 'Final work',
-    start: 'January 2020',
-    end: 'May 2024',
-    current: false,
-    metadataEditable: true,
-    area: 'London',
-    website: 'https://example.org/',
-    industryText: 'Software, finance',
-    resumes: [
-      { hash: 'english', checked: true },
-      { hash: 'russian', checked: false },
-    ],
-  };
-  const attempt = cvSaveAttempt(raw);
-  const job = {
-    company: 'Employer',
-    position: 'Engineer',
-    description: 'Final work',
-    start: '2020-01',
-    end: '2024-05',
-    current: false,
-    area: 'London',
-    website: 'example.org',
-    industries: [{ id: '1.2', name: 'Software, finance', parent: 'Services' }],
-  };
-  const exports = [
-    { hash: 'english', cv: { jobs: [job] }, industryEntries: job.industries },
-    { hash: 'russian', cv: { jobs: [] } },
-  ];
-  assert.equal(verifyCvSave(attempt, exports), true);
+  const { raw, attempt, job, exports } = cvWorkplaceIdentityFixture();
+  exports[1].cv.jobs = [];
+  const verified = (candidate, rows) => verifyCvSave(candidate, rows, attempt);
+  assert.equal(verified(attempt, exports), true);
   for (const patch of [
     { start: '2020-02' },
     { end: '2024-06' },
@@ -277,16 +246,16 @@ test('workplace verification checks exact dates, all CV selections and every vis
     { description: 'Other record' },
   ]) {
     assert.equal(
-      verifyCvSave(attempt, [
+      verified(attempt, [
         { ...exports[0], cv: { jobs: [{ ...job, ...patch }] } },
         exports[1],
       ]),
       false
     );
   }
-  assert.equal(verifyCvSave(attempt, [exports[0]]), false);
+  assert.equal(verified(attempt, [exports[0]]), false);
   assert.equal(
-    verifyCvSave(attempt, [
+    verified(attempt, [
       exports[0],
       {
         hash: 'russian',
@@ -295,24 +264,21 @@ test('workplace verification checks exact dates, all CV selections and every vis
         },
       },
     ]),
-    false
+    true
   );
   assert.equal(
-    verifyCvSave(attempt, [
-      exports[0],
-      { hash: 'russian', cv: { jobs: [job] } },
-    ]),
-    false
+    verified(attempt, [exports[0], { hash: 'russian', cv: { jobs: [job] } }]),
+    true
   );
   assert.equal(
-    verifyCvSave(attempt, [
+    verified(attempt, [
       { ...exports[0], cv: { jobs: [job, job] } },
       exports[1],
     ]),
     false
   );
   assert.equal(
-    verifyCvSave({ ...attempt, metadataEditable: false }, exports),
+    verified({ ...attempt, metadataEditable: false }, exports),
     false
   );
   assert.throws(() => cvSaveAttempt({ ...raw, start: '2020' }));

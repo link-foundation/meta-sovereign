@@ -199,6 +199,9 @@ export const enVacancy = {
   'cvWatch.snapshots': 'Saved CV snapshots',
   'cvWatch.choose': 'Choose saved CV',
   'cvWatch.native': 'Native readback',
+  'cvWatch.workplace': 'Verified workplace record',
+  'cvWatch.included': 'Included in this CV',
+  'cvWatch.excluded': 'Excluded from this CV',
   'cvWatch.inspect': 'Inspect sanitized saved fields',
   'cvWatch.empty': 'No verified owner save has been captured.',
   'cvWatch.loadError':

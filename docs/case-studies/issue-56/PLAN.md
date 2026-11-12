@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active shared workplace identity readback:
+
+- [x] Reproduce text-only membership failures and false confirmation without an exact saved record identity.
+- [x] Read the exact existing workplace through a bounded authenticated native GET without `resumeFrom`, redirects, navigation or script execution. Compare its final fields and complete CV checkbox selection before checking fresh CV exports.
+- [x] Preserve earlier snapshots on missing/ambiguous SSR fields, mismatched identities, provider challenges, cancellation or Stop; keep newly created records unconfirmed until their native identity is known.
+- [x] Verify 30 focused Node/30 Deno checks and four native WebKit owner Save cases, with actual-parent before/after desktop/phone evidence. See [record identity](cv-workplace-identity.md).
+- [ ] Publish this atomic change, integrate the concurrently published cancellation history and inspect exact-head hosted CI. Complete native preparation/copy/detach and every other unchecked issue requirement afterward.
+
 Active unreceived About request recovery:
 
 - [x] Reproduce the permanently held unknown intent against the published service/UI without discarding its delayed-write guard.

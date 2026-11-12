@@ -19,7 +19,7 @@ export const cvWatchAttempt = () => ({
   url: `https://hh.ru/resume/edit/${cvWatchHash}/about`,
   about: 'Final owner revision',
 });
-export const cvWatchFixture = () => {
+export const cvWatchFixture = ({ verification = {} } = {}) => {
   const store = createMemoryStore();
   const page = new EventEmitter();
   let receiver;
@@ -59,7 +59,7 @@ export const cvWatchFixture = () => {
     availability: async () => ({ available: true }),
     cvWatch: {
       attach,
-      verification: { pollMs: 1, verificationMs: 40 },
+      verification: { pollMs: 1, verificationMs: 40, ...verification },
       readExports: async () => {
         reads++;
         await beforeRead?.();

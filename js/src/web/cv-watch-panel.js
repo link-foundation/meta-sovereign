@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 
 const el = React.createElement;
+const workplaceEvidence = (workplace, t) =>
+  workplace
+    ? el(
+        'p',
+        {
+          key: 'workplace',
+          className: 'meta',
+          'data-cv-workplace-evidence': workplace.recordId,
+          style: { overflowWrap: 'anywhere' },
+        },
+        `${t('cvWatch.workplace')}: ${workplace.recordId} · ${t(workplace.checked ? 'cvWatch.included' : 'cvWatch.excluded')} · ${workplace.sha256}`
+      )
+    : null;
 export const CvSaveWatch = ({ state, t }) => {
   const {
     watch,
@@ -116,6 +129,7 @@ export const CvSaveWatch = ({ state, t }) => {
               },
               `${t('cvWatch.native')}: ${snapshot.savedAt} · ${snapshot.sha256}`
             ),
+            workplaceEvidence(snapshot.workplace, t),
             el(
               'details',
               { key: snapshot.sha256, 'data-cv-saved-snapshot': snapshot.hash },

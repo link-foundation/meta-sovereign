@@ -197,6 +197,9 @@ export const hiVacancy = {
   'cvWatch.snapshots': 'सहेजे CV स्नैपशॉट',
   'cvWatch.choose': 'सहेजा CV चुनें',
   'cvWatch.native': 'मूल निर्यात की जाँच',
+  'cvWatch.workplace': 'सत्यापित कार्यस्थल रिकॉर्ड',
+  'cvWatch.included': 'इस CV में शामिल',
+  'cvWatch.excluded': 'इस CV से बाहर',
   'cvWatch.inspect': 'निजी विवरण हटाए गए फ़ील्ड देखें',
   'cvWatch.empty': 'कोई सत्यापित सहेज अभी दर्ज नहीं है।',
   'cvWatch.loadError':

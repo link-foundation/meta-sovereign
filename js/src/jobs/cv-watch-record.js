@@ -38,6 +38,27 @@ const states = [
   'expired',
   'interrupted',
 ];
+const workplaceEvidence = (raw) => {
+  if (raw === undefined) {
+    return {};
+  }
+  if (
+    !raw ||
+    typeof raw.recordId !== 'string' ||
+    !/^\d{1,100}$/u.test(raw.recordId) ||
+    !/^[a-f\d]{64}$/u.test(raw.sha256) ||
+    typeof raw.checked !== 'boolean'
+  ) {
+    throw jobsFailure('cv-state', 'The saved workplace evidence is invalid.');
+  }
+  return {
+    workplace: {
+      recordId: raw.recordId,
+      sha256: raw.sha256,
+      checked: raw.checked,
+    },
+  };
+};
 const validWatchTimes = (raw) =>
   typeof raw.active === 'boolean' &&
   typeof raw.startedAt === 'string' &&
@@ -111,6 +132,7 @@ export const cvSnapshotsResult = (raw, input = {}) => {
       savedAt: row.savedAt,
       attemptId: resumeExportRequestId(row.attemptId),
       evidence: row.evidence,
+      ...workplaceEvidence(row.workplace),
     };
   });
   if (new Set(snapshots.map((row) => row.hash)).size !== snapshots.length) {

@@ -5,6 +5,7 @@ import { cvWatchUrl } from './cv-watch-browser.js';
 import { sanitizedResumeCv } from './resume-cv.js';
 import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { readCvSavedWorkplace } from './cv-workplace-readback.js';
 
 /** Read retries only. No save, fill, cancellation click or navigation is issued. */
 export const verifyOwnerCvSave = async ({
@@ -14,6 +15,7 @@ export const verifyOwnerCvSave = async ({
   check,
   signal,
   readExports,
+  readWorkplace = readCvSavedWorkplace,
   pollMs = 500,
   verificationMs = 30000,
 }) => {
@@ -49,12 +51,28 @@ export const verifyOwnerCvSave = async ({
         signal,
       });
       confirm();
-      if (verifyCvSave(attempt, exports)) {
+      const workplace =
+        attempt.kind === 'workplace'
+          ? await readWorkplace({ session, attempt, check: confirm, signal })
+          : undefined;
+      confirm();
+      if (verifyCvSave(attempt, exports, workplace)) {
         return {
           exports: exports.map((row) => ({
             hash: row.hash,
             cv: sanitizedResumeCv(row.cv).cv,
             sha256: row.sha256,
+            ...(workplace
+              ? {
+                  workplace: {
+                    recordId: workplace.recordId,
+                    sha256: workplace.sha256,
+                    checked: workplace.resumes.find(
+                      (resume) => resume.hash === row.hash
+                    ).checked,
+                  },
+                }
+              : {}),
           })),
         };
       }

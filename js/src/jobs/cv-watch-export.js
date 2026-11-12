@@ -7,14 +7,29 @@ import { cvWatchUrl } from './cv-watch-browser.js';
 import { jobsFailure } from './options.js';
 
 /** Native GET only, in the current page's authenticated origin. No navigation. */
-export const fetchCvSavedHtml = async ({ hash }) => {
+export const fetchCvSavedHtml = async ({ hash, recordId }) => {
   const { location, AbortSignal } = globalThis;
   if (location.origin !== 'https://hh.ru') {
     throw new Error('The native CV page changed.');
   }
-  const url = new URL('/resume_converter/resume.txt', location.origin);
-  url.searchParams.set('hash', hash);
-  url.searchParams.set('type', 'txt');
+  const workplace = typeof recordId === 'string';
+  if (
+    workplace
+      ? !/^\d{1,100}$/u.test(recordId)
+      : !/^[a-zA-Z\d_-]{1,100}$/u.test(hash ?? '')
+  ) {
+    throw new Error('The native saved CV identity is unavailable.');
+  }
+  const url = new URL(
+    workplace
+      ? `/profile/edit/experience/${recordId}`
+      : '/resume_converter/resume.txt',
+    location.origin
+  );
+  if (!workplace) {
+    url.searchParams.set('hash', hash);
+    url.searchParams.set('type', 'txt');
+  }
   const response = await fetch(url, {
     credentials: 'include',
     redirect: 'error',

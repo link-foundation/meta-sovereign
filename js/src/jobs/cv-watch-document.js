@@ -1,14 +1,17 @@
 /** Runs in the native page; allowlisted public CV editor fields only. */
-export const readCvEditorDocument = () => {
-  const { document: doc, location } = globalThis;
-  if (doc.readyState === 'loading') {
+export const readCvEditorDocument = ({ html, url: savedUrl } = {}) => {
+  const saved = typeof html === 'string';
+  const doc = saved
+    ? new globalThis.DOMParser().parseFromString(html, 'text/html')
+    : globalThis.document;
+  if (!saved && doc.readyState === 'loading') {
     return { kind: 'unavailable' };
   }
   const visible = (node) =>
     Boolean(
       node &&
-      node.getClientRects().length &&
-      !node.closest('[hidden],[inert],[aria-hidden="true"]')
+      (saved || node.getClientRects().length) &&
+      !node.closest('[hidden],[inert],[aria-hidden="true"],[type="hidden"]')
     );
   const unique = (selector) => {
     const nodes = [...doc.querySelectorAll(selector)].filter(visible);
@@ -23,7 +26,10 @@ export const readCvEditorDocument = () => {
   if (!about && !position) {
     return null;
   }
-  const url = new URL(location.href);
+  const url = new URL(saved ? savedUrl : globalThis.location.href);
+  if (saved && !completeWorkplace()) {
+    return { kind: 'unavailable' };
+  }
   if (about) {
     return {
       kind: 'about',
@@ -35,6 +41,32 @@ export const readCvEditorDocument = () => {
     };
   }
   return readWorkplace();
+  function completeWorkplace() {
+    const required = [
+      'input[name="company"]',
+      '[data-qa="resume-editor-experience-description-input"]',
+      '[data-qa="resume-editor-experience-start-year-input"]',
+      '[data-qa="resume-editor-experience-start-month-input"] [data-qa="trigger-values-wrapper"]',
+      'input[type="checkbox"][data-qa="resume-editor-experience-present-checkbox"]',
+    ];
+    const resumes = [
+      ...doc.querySelectorAll('[data-qa^="profile-resumes-list-checkbox-"]'),
+    ];
+    const checkbox = (node) => {
+      const inputs = node.matches('input')
+        ? [node]
+        : [...node.querySelectorAll('input')];
+      return inputs.length === 1 && inputs[0].type === 'checkbox';
+    };
+    return (
+      position &&
+      !about &&
+      required.every((selector) => unique(selector)) &&
+      resumes.length > 0 &&
+      resumes.length <= 100 &&
+      resumes.every((node) => visible(node) && checkbox(node))
+    );
+  }
   function readWorkplace() {
     const month = (part) =>
       unique(

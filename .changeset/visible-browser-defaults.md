@@ -325,3 +325,5 @@ Prepare a selected reviewed About change in the exact existing HH tab after nati
 Partition Windows Deno validation across three native shards while retaining every test, runtime/OS target and the existing ten-minute deadline. Verify actual partition coverage and failure propagation with tiny isolated fixtures.
 
 Recover unreceived About preparation requests through durable ID-specific cancellation in CLI, Lino and four-language CV controls. Refuse delayed original POSTs and preserve the actual results and native drafts of already issued work.
+
+Verify existing shared HH workplaces against their exact fresh native record and complete CV membership before publishing owner Save snapshots. Preserve unrelated jobs in excluded CVs and expose persisted identity/digest evidence through CLI, both Lino formats and four-language controls.

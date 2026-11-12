@@ -208,6 +208,9 @@ export const ruVacancy = {
   'cvWatch.snapshots': 'Сохранённые снимки резюме',
   'cvWatch.choose': 'Выберите снимок',
   'cvWatch.native': 'Проверка экспорта HH',
+  'cvWatch.workplace': 'Проверенная запись о работе',
+  'cvWatch.included': 'Включена в это резюме',
+  'cvWatch.excluded': 'Исключена из этого резюме',
   'cvWatch.inspect': 'Просмотреть очищенные поля',
   'cvWatch.empty': 'Подтверждённых сохранений пока нет.',
   'cvWatch.loadError':

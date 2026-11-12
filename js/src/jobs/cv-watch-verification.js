@@ -104,8 +104,34 @@ const workplaceAttempt = (raw) => {
   };
 };
 
-/** Complete field/membership readback; a closed form alone proves nothing. */
-export const verifyCvSave = (attempt, exports) => {
+const sameWorkplace = (attempt, saved) => {
+  if (
+    !attempt.recordId ||
+    saved?.kind !== 'workplace' ||
+    saved.recordId !== attempt.recordId ||
+    !saved.metadataEditable ||
+    saved.industryText === null ||
+    saved.resumes.length !== attempt.resumes.length
+  ) {
+    return false;
+  }
+  const fields = ['company', 'position', 'description', 'area', 'industryText'];
+  return (
+    fields.every(
+      (field) => normalize(saved[field]) === normalize(attempt[field] ?? '')
+    ) &&
+    saved.start === attempt.start &&
+    saved.end === attempt.end &&
+    saved.current === attempt.current &&
+    website(saved.website) === website(attempt.website) &&
+    attempt.resumes.every(({ hash, checked }) =>
+      saved.resumes.some((row) => row.hash === hash && row.checked === checked)
+    )
+  );
+};
+
+/** Exact record membership plus fresh exports; a closed form proves nothing. */
+export const verifyCvSave = (attempt, exports, savedWorkplace) => {
   const one = (hash) => {
     const rows = exports.filter((row) => row.hash === hash);
     return rows.length === 1 ? rows[0] : null;
@@ -113,6 +139,9 @@ export const verifyCvSave = (attempt, exports) => {
   if (attempt.kind === 'about') {
     const cv = one(attempt.hash);
     return Boolean(cv && normalize(cv.cv.about) === normalize(attempt.about));
+  }
+  if (!sameWorkplace(attempt, savedWorkplace)) {
+    return false;
   }
   return attempt.resumes.every(({ hash, checked }) => {
     const cv = one(hash);
@@ -129,9 +158,9 @@ export const verifyCvSave = (attempt, exports) => {
         normalize(job.description) === normalize(attempt.description)
     );
     if (!checked) {
-      // Native exports omit shared record IDs. An older variant could have
-      // different fields, so only an empty CV proves this record is absent.
-      return cv.cv.jobs.length === 0;
+      // The exact record's fresh native checkbox proves exclusion; unrelated
+      // and even text-identical records in this CV must remain untouched.
+      return true;
     }
     if (
       matches.length !== 1 ||
