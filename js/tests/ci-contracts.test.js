@@ -23,7 +23,10 @@ test('runtime test deadlines exclude the completed release-copy experiment', () 
   assert.equal(job['timeout-minutes'], 10);
   assert.deepEqual(job.strategy.matrix.runtime, ['node', 'bun', 'deno']);
   const commands = job.steps.map((step) => step.run ?? '').join('\n');
-  assert.match(commands, /deno test --allow-all js\/tests/u);
+  assert.match(
+    commands,
+    /deno test --allow-all --shard="\$DENO_TEST_SHARD" js\/tests/u
+  );
   assert.doesNotMatch(commands, /release-copy-strategies/u);
 });
 

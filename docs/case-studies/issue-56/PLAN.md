@@ -2,6 +2,8 @@
 
 Active Windows Deno deadline correction:
 
+The same branch independently published the equivalent correction in `0ff36f54` and merged About preparation in `9c188c96`. Integrate both forward-moving histories, retain its environment-based shard argument and existing runtime contract, and preserve both case-study evidence sets. See also [the parallel investigation](ci-deno-shards.md).
+
 - [x] Preserve exact-parent run/job logs and the explicit ten-minute annotation; identify setup overhead and continued passing modules rather than assuming a hung test.
 - [x] Partition Windows Deno using native shards, retaining all discovery, runtime/OS targets, crypto checks and existing deadlines.
 - [x] Verify a parent-failing workflow contract, tiny actual Deno partitions, failure propagation and existing macOS Node coverage locally with limited concurrency.

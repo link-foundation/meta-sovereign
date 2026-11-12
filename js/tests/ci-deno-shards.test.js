@@ -34,8 +34,9 @@ test('Windows Deno partitions retain the original test discovery and deadline', 
   const step = job.steps.find(({ name }) => name === 'Run tests (Deno)');
   assert.match(
     step.run,
-    /deno test --allow-all --shard=\$\{\{ matrix.shard \|\| '1\/1' \}\} js\/tests/u
+    /deno test --allow-all --shard="\$DENO_TEST_SHARD" js\/tests/u
   );
+  assert.equal(step.env.DENO_TEST_SHARD, "${{ matrix.shard || '1/1' }}");
   assert.doesNotMatch(step.run, /--filter|--ignore|--fail-fast|\|\| true/u);
   assert.notEqual(step['continue-on-error'], true);
 });

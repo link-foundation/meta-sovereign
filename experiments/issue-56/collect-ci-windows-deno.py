@@ -6,6 +6,8 @@ root, logs, read = evidence_context(__file__, 'ci-windows-deno')
 assert 'fail 1' in read('before')
 assert 'pass 2' in read('node') and 'skipped 1' in read('node')
 assert '2 passed | 0 failed' in read('deno')
+assert 'pass 22' in read('merged-node') and 'skipped 1' in read('merged-node')
+assert '2 passed | 0 failed' in read('merged-deno')
 assert 'All workflows enforce runner, deadline and checkout policy' in read('policy')
 assert not read('lint').strip()
 assert 'All matched files use Prettier code style!' in read('format')
@@ -21,6 +23,7 @@ sources += ['ci-logs/cv-prepare-published-runs.json',
 bundle(root, sources, 'docs/case-studies/issue-56/data/ci-windows-deno-shards.tar.gz',
        dict(published_base=base, regression_parent=base, node_pass=2,
             node_skip=1, deno_pass=2, fixture_files=6, shard_count=3,
+            merged_node_pass=22, merged_node_skip=1, merged_deno_pass=2,
             unchanged_job_deadline_minutes=10,
             hosted_required='Exact new-head Windows partitions and complete mandatory matrix; every unchecked issue requirement'),
        'no-windows-deno-screenshots',
