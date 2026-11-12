@@ -2,8 +2,12 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { setTimeout, clearTimeout } from 'node:timers';
 
+// Workers, including immutable release snapshots, share the installed modules.
+// Auto mode with --no-lock would resolve newer ranges and install them at startup.
 export const workerArgs = (entry, versions = process.versions) =>
-  versions.deno ? ['run', '--allow-all', '--no-lock', entry] : [entry];
+  versions.deno
+    ? ['run', '--allow-all', '--no-lock', '--node-modules-dir=manual', entry]
+    : [entry];
 
 export const spawnWorker = ({
   entry,

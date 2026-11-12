@@ -4,6 +4,7 @@ Active ordinary WebSocket cleanup and Windows Deno startup:
 
 - [x] Merge the independently published peer mesh forward, preserving both histories and the alternative lifecycle evidence.
 - [x] Reproduce ordinary WebSocket TCP-end retention against the actual parent; verify replacement connections with 22 focused merged Node checks and one native WebKit scenario.
+- [x] Reproduce Deno child auto-installation despite installed modules; use manual resolution and verify five focused Deno checks plus a real CLI startup/upgrade without increasing deadlines.
 - [ ] Publish preserved evidence, inspect exact-head CI and resolve cold dependency initialization before the Windows Deno readiness deadline without raising that deadline.
 - [ ] Continue offline record/deletion reconciliation and every other unchecked original feature requirement. These socket fixes do not complete the issue.
 

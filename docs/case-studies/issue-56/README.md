@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Deno workers retain installed dependencies](ci-deno-installed-workers.md): offline parent regression, focused output/worker checks and real CLI upgrade; exact-head Windows timing remains hosted verification.
+
 - [TCP disconnect cleanup and merged native mesh validation](websocket-disconnect.md).
 - [Exact hosted translation capability failures](ci-translation-capability.md).
 

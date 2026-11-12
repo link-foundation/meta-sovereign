@@ -4,6 +4,8 @@
 
 Remove disconnected ordinary WebSocket sockets on TCP end and verify replacement connections while preserving the addressed multi-peer WebRTC lifecycle.
 
+Use the installed dependency graph for Deno workers and rolling CLI children, avoiding fresh range resolution and package installation during startup.
+
 Pass reconnect fixture preloads as file URLs, select version aliases before loading provider commands, and retain CLI output/exit behavior with default-off admission timings and owned test-child cleanup. Restore mandatory notice browser commands, validate every registered browser entry and escape generated MCP fixture data.
 
 Add separate default-review notice policies and an explicit inactive current-chat HH watch with complete-history/open-employer guards, exact approved acknowledgement replies, once-per-chat configured rejection replies, durable shared reservations and full provider receipts. Share CLI/Lino/offline/four-language controls, retain unknown holds and restart refusal, and preserve native checkbox layout.
