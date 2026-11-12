@@ -115,6 +115,11 @@ const fixture = (
   );
 };
 
+export {
+  fixture as withChatNavigationFixture,
+  state as readChatNavigationView,
+};
+
 /** Repeated passes may truncate only their own still-witnessed forward entries. */
 export const verifyUnreadRepetition = async (
   browser,

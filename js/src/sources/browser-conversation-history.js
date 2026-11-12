@@ -34,7 +34,12 @@ export const mergeConversationWindow = (known, incoming) => {
   return [...incoming.slice(0, shared), ...known];
 };
 
-const releaseConversation = async (control, pause, waitMs, verifyCurrent) => {
+export const releaseBrowserConversation = async (
+  control,
+  pause,
+  waitMs,
+  verifyCurrent
+) => {
   let restored = false;
   let restore;
   try {
@@ -42,9 +47,17 @@ const releaseConversation = async (control, pause, waitMs, verifyCurrent) => {
     restore = (await control('status')).state === 'ready';
     if (restore) {
       await control('restore', { restore: true });
-      await pause(waitMs);
-      await verifyCurrent?.();
-      restore = (await control('status')).state === 'ready';
+      // Background tabs can defer the scroll event that remounts the anchor.
+      // Bound settling and keep checking ownership before releasing the lease.
+      for (let remaining = 2000; ; remaining -= waitMs) {
+        await pause(waitMs);
+        await verifyCurrent?.();
+        const state = await control('status');
+        restore = state.state === 'ready' && !state.scrollPending;
+        if (state.state !== 'ready' || !state.scrollPending || remaining <= 0) {
+          break;
+        }
+      }
     }
   } catch {
     restore = false;
@@ -185,7 +198,7 @@ export const scanBrowserConversation = async (
         ? 'document-changed'
         : 'read-failed');
   } finally {
-    restored = await releaseConversation(
+    restored = await releaseBrowserConversation(
       control,
       pause,
       settings.waitMs,

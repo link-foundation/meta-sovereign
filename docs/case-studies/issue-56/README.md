@@ -1,5 +1,6 @@
 # Issue 56: unified automation and device architecture
 
+- [Borrowed unread visits](unread-delivery-visit.md): sequential native reply handles, receipt draining and bounded scroll settlement inside the existing navigation lease.
 - [Finite unread review](question-unread-review.md): confirmed existing-view reads, durable pass recovery and frozen questions in CLI, Lino and shared localized controls.
 - [Repeated owned unread passes](chat-repetition.md): native history suffix ownership, exact entry checks and permanent owner-activity revocation.
 

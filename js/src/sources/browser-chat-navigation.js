@@ -76,10 +76,9 @@ class ChatNavigation {
     this.changed = false;
     this.restoration = { restored: false, reason: 'unavailable' };
     this.adapter = Object.fromEntries(
-      ['evaluate', 'evaluateOwner', 'prepareInactiveView'].map((method) => [
-        method,
-        (input) => this.call(method, input),
-      ])
+      ['evaluate', 'evaluateOwner', 'prepareInactiveView', 'clickButton'].map(
+        (method) => [method, (input) => this.call(method, input)]
+      )
     );
     this.navigated = (frame) => {
       const binding = this.bindings.find((item) => item.frame === frame);

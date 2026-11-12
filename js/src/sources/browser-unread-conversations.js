@@ -2,6 +2,7 @@ import { withBrowserChatNavigation } from './browser-chat-navigation.js';
 import { scanBrowserConversation } from './browser-conversation-history.js';
 import { readBrowserAnswerChoices } from './browser-choices.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
+import { withBrowserConversationTail } from './browser-conversation-tail.js';
 
 export const normalizeUnreadScanOptions = (options = {}) => {
   const settings = normalizeChatScanOptions(options);
@@ -10,7 +11,9 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     !Number.isInteger(maxChats) ||
     maxChats < 1 ||
     maxChats > 100 ||
-    options.unreadOnly === false
+    options.unreadOnly === false ||
+    (options.onConversation !== undefined &&
+      typeof options.onConversation !== 'function')
   ) {
     throw Object.assign(new Error('An unread scan requires one to 100 chats'), {
       code: 'bad-chat-scan',
@@ -18,6 +21,16 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     });
   }
   return { ...settings, maxChats };
+};
+
+const passStopReason = (signal, deadline, limitReached = false) => {
+  if (signal?.aborted) {
+    return 'cancelled';
+  }
+  if (globalThis.performance.now() >= deadline) {
+    return 'time-limit';
+  }
+  return limitReached ? 'chat-limit' : null;
 };
 
 /** One finite read pass in an existing inactive view; opening may mark chats read. */
@@ -52,16 +65,13 @@ export const scanUnreadBrowserConversations = ({
         ? 'observed-list'
         : list.coverage.reason;
       for (const row of list.rows) {
-        if (
-          options.signal?.aborted ||
-          globalThis.performance.now() >= deadline ||
+        const stop = passStopReason(
+          options.signal,
+          deadline,
           conversations.length >= settings.maxChats
-        ) {
-          reason = options.signal?.aborted
-            ? 'cancelled'
-            : globalThis.performance.now() >= deadline
-              ? 'time-limit'
-              : 'chat-limit';
+        );
+        if (stop) {
+          reason = stop;
           break;
         }
         await verifyCurrent();
@@ -103,11 +113,33 @@ export const scanUnreadBrowserConversations = ({
               }
             );
             await verify();
-            return {
+            const observation = {
               ...row,
               history,
               question: options.signal?.aborted ? null : question,
             };
+            if (options.onConversation && !options.signal?.aborted) {
+              const processed = await withBrowserConversationTail(
+                {
+                  document: chatDocument,
+                  ui,
+                  chat,
+                  settings: {
+                    ...settings,
+                    budgetMs: Math.max(
+                      0,
+                      deadline - globalThis.performance.now()
+                    ),
+                  },
+                  signal: options.signal,
+                  token,
+                  verify,
+                },
+                (handle) => options.onConversation(observation, handle)
+              );
+              observation.processing = processed;
+            }
+            return observation;
           }
         );
         if (!observation) {
@@ -115,12 +147,13 @@ export const scanUnreadBrowserConversations = ({
           break;
         }
         conversations.push(observation);
-        if (options.signal?.aborted) {
-          reason = 'cancelled';
+        if (observation.processing?.restored === false) {
+          reason = 'visit-restoration-failed';
           break;
         }
-        if (globalThis.performance.now() >= deadline) {
-          reason = 'time-limit';
+        const stopped = passStopReason(options.signal, deadline);
+        if (stopped) {
+          reason = stopped;
           break;
         }
       }

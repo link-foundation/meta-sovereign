@@ -19,25 +19,35 @@ const restoreScroll = (state, { restore, history, item, idAttribute }) => {
   if (!restore || scrollOwnerActive(state) || !state.visible(state.root)) {
     return false;
   }
+  const move = (top) => {
+    const previous = state.root.scrollTop;
+    state.root.scrollTop = top;
+    state.pendingScroll ||= previous !== state.root.scrollTop;
+  };
   if (!history) {
-    state.root.scrollTop = state.original;
+    move(state.original);
     return true;
   }
   const anchor = [...state.root.querySelectorAll(item)].find(
     (node) => node.getAttribute(idAttribute) === state.anchor?.id
   );
   if (anchor) {
-    state.root.scrollTop +=
-      anchor.getBoundingClientRect().top -
-      state.root.getBoundingClientRect().top -
-      state.anchor.offset;
+    move(
+      state.root.scrollTop +
+        anchor.getBoundingClientRect().top -
+        state.root.getBoundingClientRect().top -
+        state.anchor.offset
+    );
     state.restoring = true;
     return true;
   }
   if (!state.restoring) {
-    state.root.scrollTop =
+    move(
       state.original +
-      (state.reversed ? 0 : state.root.scrollHeight - state.originalHeight);
+        (state.reversed || state.tailOnly
+          ? 0
+          : state.root.scrollHeight - state.originalHeight)
+    );
     state.restoring = true;
   }
   return false;
@@ -66,7 +76,16 @@ export const browserChatScrollRoot = (cell) => {
 };
 
 const openScroll = (
-  { token, item, composer, idAttribute, scope, inactiveToken },
+  {
+    token,
+    item,
+    composer,
+    idAttribute,
+    scope,
+    inactiveToken,
+    allowOwnedInput,
+    tailOnly,
+  },
   visible
 ) => {
   const history = scope === 'history';
@@ -94,6 +113,7 @@ const openScroll = (
     anchor: history ? historyAnchor(root, cells, idAttribute) : undefined,
     reversed: getComputedStyle(root).flexDirection === 'column-reverse',
     composer,
+    tailOnly,
     interrupted: false,
     drafts: composer
       ? [...document.querySelectorAll(composer)].map((node) => [
@@ -111,6 +131,17 @@ const openScroll = (
     'input',
   ];
   state.mark = (event) => {
+    const inactive =
+      window[Symbol.for('meta-sovereign.browser-inactive-view.v1')];
+    if (
+      allowOwnedInput === true &&
+      inactive &&
+      inactive.token === inactiveToken &&
+      event === inactive.ownedInput &&
+      !event.isTrusted
+    ) {
+      return;
+    }
     if (event.isTrusted || history) {
       state.interrupted = true;
     }
@@ -198,10 +229,20 @@ const browserScrollState = (
       height: scrollHeight,
       view: clientHeight,
       bottom: scrollTop + clientHeight >= scrollHeight - 2,
+      scrollPending: Boolean(state.pendingScroll),
       loading: Boolean(
         state.pendingScroll ||
         state.root.querySelector('[aria-busy="true"], [role="progressbar"]')
       ),
+      ...(input.debug
+        ? {
+            original: state.original,
+            anchor: state.anchor,
+            rendered: [...state.root.querySelectorAll(item)].map((node) =>
+              node.getAttribute(idAttribute)
+            ),
+          }
+        : {}),
       ...(history
         ? {
             reversed: state.reversed,
