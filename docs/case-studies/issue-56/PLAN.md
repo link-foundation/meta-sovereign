@@ -7,7 +7,19 @@ Active Windows Deno CI investigation:
 - [x] Partition all Windows Deno test files with native runtime sharding; prove exact fixture coverage and failure propagation without increasing deadlines.
 - [ ] Publish focused verification and inspect all exact new-head checks. Continue native CV preparation, complete shared workplace identity and every unchecked issue criterion.
 
-Evidence and reproducible commands: [Windows Deno sharding](ci-deno-shards.md). The uncommitted About preparation draft from the previous container was lost during environment replacement; it is not part of the published branch and must be reconstructed and reverified before it can count as implementation evidence.
+Evidence and reproducible commands: [Windows Deno sharding](ci-deno-shards.md). The restored About preparation unit was independently published as `a795d6bc`; merge its source and durable evidence with this CI correction, then continue the remaining recovery and CV requirements.
+
+Active HH14/HH16/HH19 About preparation unit:
+
+- [x] Resolve only an explicitly selected About change from an integrity-checked, saved bilingual review and the current catalog/export evidence.
+- [x] Attach to the exact existing HH tab, verify its CV, refuse every existing editor, wait for native hydration, compare the baseline and insert through the keyboard. Leave Save/Cancel to the owner and never navigate or replace a draft.
+- [x] Persist bounded request-specific preparation receipts before browser changes; recover lost replies by GET without repeating preparation, distinguish prepared drafts from provider saves, and drain on Stop.
+- [ ] Share preparation/status through CLI, text/binary Lino and four-language review controls. Verify focused regressions and native/MCP desktop/phone evidence, publish an atomic commit and inspect exact-head hosted CI.
+- [ ] Continue shared-workplace identity, complete native editing/copy/detach, durable batches, bilingual provider save/readback and every other unchecked issue requirement.
+
+Local About preparation verification: 13 Node, 13 Deno and 36 compatibility checks, one registry contract, two actual-parent failures, eight native WebKit scenarios and four independent MCP cases pass. The owner can revise the prepared text and the existing passive observer verifies that final native Save. Unknown/unreceived intents remain blocked without a tombstone control. All broad CV criteria and exact new-head hosted completion remain required; see [About evidence](cv-prepare.md).
+
+Exact parent `9d805e4f` Checks 43193074875 passes all eight browser shards and every runtime job except Windows Deno 131100508779. Its check annotation explicitly reports the ten-minute deadline; raw log line 10364 cancels during vacancy-reader checks. Preserve metadata and both raw failed/cancelled job logs, investigate suite partitioning/startup costs without increasing deadlines, and require exact new-head hosted completion. The earlier Backlinks root cause remains unproven despite the passing current shard.
 
 Active HH16–HH18 native CV save observation unit:
 

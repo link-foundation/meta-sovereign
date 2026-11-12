@@ -319,3 +319,5 @@ Compare cached HH vacancies with an explicitly selected verified résumé export
 Add bilingual CV technology proposals from two explicitly selected verified exports, retaining raw duplicate evidence, prose, distinct products and company/date blockers. Share selected durable local review plans through CLI, both Lino formats and four-language CV controls, with exact source/catalog checks and read-only lost-reply recovery. Provider editing and save/readback remain unfinished.
 
 Observe final owner CV Save/Cancel in an exact existing HH tab through CLI, Lino and localized controls. Publish sanitized snapshots only after fresh native readback, preserve prior data on failure, recover interrupted requests without replay and drain finite watches before disconnecting.
+
+Prepare a selected reviewed About change in the exact existing HH tab after native hydration and baseline checks. Preserve open owner drafts, leave Save/Cancel to the owner, and recover durable preparation receipts through CLI, Lino API and four-language CV controls without replay.

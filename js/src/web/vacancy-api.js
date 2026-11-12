@@ -22,6 +22,7 @@ import {
 import { createTechnologyApi } from './technology-api.js';
 import { createCvTechnologyApi } from './cv-technology-api.js';
 import { createCvWatchApi } from './cv-watch-api.js';
+import { createCvPrepareApi } from './cv-prepare-api.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs');
@@ -105,6 +106,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   ...createTechnologyApi({ get, report, local }),
   ...createCvTechnologyApi({ get, report, local }),
   ...createCvWatchApi({ get, report, local }),
+  ...createCvPrepareApi({ get, report, local }),
   vacancyCapabilities: async () =>
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,
