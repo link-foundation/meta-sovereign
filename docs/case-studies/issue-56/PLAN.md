@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active separately reviewed shared-workplace deselection:
+
+- [x] Read pinned copy/detach behavior and integrate published translation/sync work without discarding either implementation.
+- [x] Draft immutable complete membership review and native target-only deselection through CLI, both Lino encodings and four locales. Refuse orphaning and leave Save/Cancel to the owner.
+- [x] Reproduce actual-parent service/UI failures; verify focused tampering, stale membership, owner concurrency and phone lost-reply recovery on isolated native fixtures.
+- [ ] Preserve evidence/screenshots, publish the atomic unit and inspect exact-head hosted CI.
+- [ ] Continue complete shared copy/new-record identity, durable batches and every other unchecked original criterion. Standalone deselection does not complete HH14–HH20.
+
 Active exact-head CI and connection lifecycle:
 
 - [x] Preserve parent WebKit job 131312063036 and identify offline rediscovery replacing the document after API readiness.

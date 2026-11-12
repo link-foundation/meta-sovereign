@@ -21,6 +21,8 @@ import {
   chooseCvWorkplaceArea,
   chooseCvWorkplaceIndustries,
 } from './cv-workplace-choices.js';
+import { sameCvMembership } from './cv-workplace-membership.js';
+import { prepareCvWorkplaceMembership } from './cv-workplace-membership-native.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 
 const contextFor = ({
@@ -122,7 +124,11 @@ const readyControls = (state) =>
 const verifyBaseline = async (context, session, change) => {
   const before = await context.form();
   const selected = before.resumes.filter((row) => row.checked);
-  if (selected.length !== 1 || selected[0].hash !== change.hash) {
+  if (
+    change.plan.operation === 'detach'
+      ? !sameCvMembership(before.resumes, change.plan.membership.before)
+      : selected.length !== 1 || selected[0].hash !== change.hash
+  ) {
     throw cvPrepareFailure('shared');
   }
   const saved = await readCvSavedWorkplace({
@@ -216,7 +222,11 @@ export const prepareNativeCvWorkplaceEdit = async ({
     const before = await verifyBaseline(context, input.session, input.change);
     await context.phase('preparing');
     await context.guard();
-    await prepareFields(context, input.change.plan, before.locale);
+    if (input.change.plan.operation === 'detach') {
+      await prepareCvWorkplaceMembership(context, input.change.plan);
+    } else {
+      await prepareFields(context, input.change.plan, before.locale);
+    }
     await delay(settleMs);
     await context.guard();
     const after = await context.form();
@@ -227,7 +237,11 @@ export const prepareNativeCvWorkplaceEdit = async ({
     );
     if (
       !sameCvWorkplace(
-        { ...before, ...after, resumes: before.resumes },
+        {
+          ...before,
+          ...after,
+          resumes: input.change.plan.membership?.after ?? before.resumes,
+        },
         after
       ) ||
       !cvWorkplaceMatchesJob(after, wanted, wanted.industries)
@@ -238,4 +252,43 @@ export const prepareNativeCvWorkplaceEdit = async ({
   } finally {
     await anchor.dispose();
   }
+};
+
+/** Read one unchanged owner-opened form and its fresh saved membership; never edit. */
+export const inspectNativeCvWorkplace = async ({
+  session,
+  recordId,
+  check,
+  readinessMs = 20000,
+}) => {
+  const context = contextFor({
+    session,
+    change: { workplace: { recordId } },
+    check,
+    readinessMs,
+  });
+  await context.wait(async () => {
+    const state = await context.read();
+    return state.ready && !state.dialogs && readyControls(state);
+  });
+  const before = await context.form();
+  const controls = await context.read();
+  const saved = await readCvSavedWorkplace({ session, attempt: before, check });
+  if (
+    !sameCvWorkplace(before, saved) ||
+    [
+      'company',
+      'position',
+      'description',
+      'area',
+      'website',
+      'industryText',
+    ].some((key) => before[key] !== saved[key]) ||
+    JSON.stringify(controls.fields) !==
+      JSON.stringify((await context.read()).fields) ||
+    JSON.stringify(before) !== JSON.stringify(await context.form())
+  ) {
+    throw cvPrepareFailure('baseline');
+  }
+  return before;
 };

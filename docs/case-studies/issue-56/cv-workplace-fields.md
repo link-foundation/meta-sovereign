@@ -120,3 +120,5 @@ unverified. Shared record copy/detach, cross-CV jobs, new records/identities, du
 batches, hidden metadata, bilingual provider Save/readback, authenticated parity
 and every other unchecked issue criterion remain unfinished. This unit does not
 complete HH14–HH20 or issue #56; keep the PR draft and unmerged.
+
+Later pinned-source inspection confirms that empty area changes are explicitly refused by the reference editor as well. Separately reviewed existing shared-record deselection is now verified in [membership evidence](cv-workplace-membership.md); shared copy/new identities and the remaining broad criteria stay unfinished. The original frozen archive retains the earlier investigation state.

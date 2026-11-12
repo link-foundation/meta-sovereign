@@ -14,7 +14,9 @@ export const NativeCvWorkplace = ({
   shared = false,
   maxLength = 24000,
   fieldsMode = false,
+  membershipMode = false,
 }) => {
+  const [targetChecked, setTargetChecked] = useState(true);
   const [description, setDescription] = useState(job.description);
   const [company, setCompany] = useState(job.company);
   const [checked, setChecked] = useState(shared);
@@ -114,8 +116,17 @@ export const NativeCvWorkplace = ({
         key: 'checkbox',
         type: 'checkbox',
         'data-qa': `profile-resumes-list-checkbox-${hash}`,
-        checked: true,
-        readOnly: true,
+        checked: targetChecked,
+        readOnly: !membershipMode,
+        onChange: membershipMode
+          ? (event) => {
+              setTargetChecked(event.target.checked);
+              if (globalThis.fixtureMembershipConcurrentOwner) {
+                setCompany('Owner revised company');
+                setChecked(false);
+              }
+            }
+          : undefined,
       }),
       'English CV',
     ]),

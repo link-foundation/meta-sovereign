@@ -272,4 +272,12 @@ export const zhVacancy = {
   'cvWorkplace.status': '检查准备状态',
   'cvWorkplace.cancel': '停止准备',
   'cvWorkplace.loadError': '无法加载已保存的工作经历审核。',
+  'cvWorkplace.operation': '工作经历操作',
+  'cvWorkplace.update': '编辑工作经历字段',
+  'cvWorkplace.detach': '从此简历中取消选择',
+  'cvWorkplace.loadMembership': '读取已保存的简历选择',
+  'cvWorkplace.resumes': '简历选择',
+  'cvWorkplace.detachHint':
+    '仅在现有记录中准备取消选择目标简历。其他简历的选择和所有工作经历字段将保持审核时的状态。由您保存。要替换共享工作经历，请先保存并验证单独的副本。',
+  'cvWorkplace.membershipBefore': 'HH 中保存的选择',
 };

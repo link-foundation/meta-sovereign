@@ -1,4 +1,5 @@
 import React from 'react';
+import { cvWorkplaceMembership } from '../jobs/cv-workplace-membership.js';
 import { CvWorkplaceFields } from './cv-workplace-fields.js';
 import { PreparationReceipt } from './cv-prepare-panel.js';
 import {
@@ -20,6 +21,14 @@ const button = (action, handler, disabled, t) =>
     t(`cvWorkplace.${action}`)
   );
 const valueLabel = (plan, field, value, t) => {
+  if (field === 'resumes') {
+    return value
+      .map(
+        (row) =>
+          `${row.hash} · ${t(row.checked ? 'cvWorkplace.yes' : 'cvWorkplace.no')}`
+      )
+      .join('\n');
+  }
   if (field === 'current') {
     return t(value ? 'cvWorkplace.yes' : 'cvWorkplace.no');
   }
@@ -75,7 +84,11 @@ const Plan = ({ state, idle, ready, t }) => {
             el(
               'span',
               { key: 'before-label', className: 'meta' },
-              t('cvWorkplace.before')
+              t(
+                change.field === 'resumes'
+                  ? 'cvWorkplace.membershipBefore'
+                  : 'cvWorkplace.before'
+              )
             ),
             el(
               'pre',
@@ -194,6 +207,12 @@ export const CvWorkplaceReview = ({ state, t }) => {
   try {
     cvWorkplaceValues(review.fields);
     cvWorkplaceRecordId(review.recordId);
+    if (review.operation === 'detach') {
+      cvWorkplaceMembership(
+        review.membership?.resumes,
+        review.source?.identity.hash
+      );
+    }
     valid = true;
   } catch {
     /* Keep incomplete edits editable. */
@@ -217,7 +236,51 @@ export const CvWorkplaceReview = ({ state, t }) => {
         idle,
         t,
       }),
-      el(CvWorkplaceFields, { key: 'fields', state: review, idle, t }),
+      el('label', { key: 'operation', className: 'chat-form-field' }, [
+        el('span', { key: 'label' }, t('cvWorkplace.operation')),
+        el(
+          'select',
+          {
+            key: 'select',
+            value: review.operation ?? 'update',
+            disabled: !idle,
+            'data-cv-workplace-operation': true,
+            onChange: (event) => review.setOperation(event.target.value),
+          },
+          ['update', 'detach'].map((value) =>
+            el('option', { key: value, value }, t(`cvWorkplace.${value}`))
+          )
+        ),
+      ]),
+      review.operation === 'detach'
+        ? el('div', { key: 'membership', className: 'col' }, [
+            el(
+              'p',
+              { key: 'hint', className: 'meta' },
+              t('cvWorkplace.detachHint')
+            ),
+            button(
+              'loadMembership',
+              review.loadMembership,
+              !idle ||
+                !review.source ||
+                !/^\d{1,100}$/u.test(review.recordId) ||
+                state.capabilities?.cvSaveWatch !== true,
+              t
+            ),
+            review.membership
+              ? el(
+                  'pre',
+                  {
+                    key: 'rows',
+                    'data-cv-workplace-membership': true,
+                    style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+                  },
+                  valueLabel(null, 'resumes', review.membership.resumes, t)
+                )
+              : null,
+          ])
+        : el(CvWorkplaceFields, { key: 'fields', state: review, idle, t }),
       el('div', { key: 'actions', className: 'row' }, [
         button('propose', review.propose, !idle || !valid, t),
         button('reload', review.reload, !idle, t),

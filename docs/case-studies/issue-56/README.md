@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Separately reviewed workplace deselection](cv-workplace-membership.md): complete native membership, target-only preparation, preserved owner edits and non-replaying CLI/Lino/four-language recovery. Full shared copy and new identities remain unfinished.
+
 - [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
 
 - [Private workplace translation comparisons](cv-translation.md): bounded configurable model adapters, private version caches, all variants and non-replaying CLI/Lino/four-language recovery; real model and provider synchronization requirements remain open.

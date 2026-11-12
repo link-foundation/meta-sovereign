@@ -100,6 +100,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'cv-prepare-cancel',
       'cv-translate',
       'cv-translation-cancel',
+      'cv-workplace-membership',
       'cv-workplace-dictionaries',
       'cv-workplace-plan',
       'cv-workplace-review',

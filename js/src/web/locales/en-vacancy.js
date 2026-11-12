@@ -299,4 +299,12 @@ export const enVacancy = {
   'cvWorkplace.status': 'Check preparation status',
   'cvWorkplace.cancel': 'Stop preparation',
   'cvWorkplace.loadError': 'The saved workplace review could not be loaded.',
+  'cvWorkplace.operation': 'Workplace operation',
+  'cvWorkplace.update': 'Edit workplace fields',
+  'cvWorkplace.detach': 'Deselect from this CV',
+  'cvWorkplace.loadMembership': 'Read saved CV membership',
+  'cvWorkplace.resumes': 'CV selection',
+  'cvWorkplace.detachHint':
+    'This prepares only the target CV’s deselection in the existing record. Other CV selections and all workplace fields stay as reviewed. Save remains yours. To replace a shared workplace, save and verify its separate copy first.',
+  'cvWorkplace.membershipBefore': 'Native saved selection',
 };
