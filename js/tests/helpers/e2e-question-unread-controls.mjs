@@ -65,6 +65,24 @@ export const recoverUnread = async (unread) => {
   await settledUnread(unread);
 };
 
+export const recoverUnreadSurface = async (unread, fixture) => {
+  const before = await fixture.stats();
+  assert.equal(
+    await unread.locator('[data-browser-unread-start]').isDisabled(),
+    true,
+    'A shared saved pass must be recovered before another pass can start'
+  );
+  await recoverUnread(unread);
+  const after = await fixture.stats();
+  for (const key of ['visits', 'sends']) {
+    assert.deepEqual(
+      after[key],
+      before[key],
+      `Recovery must not change ${key}`
+    );
+  }
+};
+
 export const loseUnreadStartResponse = (page) =>
   page.route(
     '**/api/automations/answers/browser/unread-start',
@@ -129,11 +147,7 @@ const verifyUnreadSurfaces = async (scenario) => {
       `${surface} shares finite unread controls without an explicit chat target`,
       async () => {
         const unread = await openUnreadSurface(scenario, surface, hash, width);
-        if (surface === 'operator') {
-          const visits = (await fixture.stats()).visits;
-          await recoverUnread(unread);
-          assert.deepEqual((await fixture.stats()).visits, visits);
-        }
+        await recoverUnreadSurface(unread, fixture);
         const original = await ownerState(fixture.page);
         await unread.getByRole('spinbutton').fill('1');
         await unread.locator('[data-browser-unread-confirm]').check();

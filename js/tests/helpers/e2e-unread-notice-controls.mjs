@@ -5,6 +5,7 @@ import {
   openUnreadSurface,
   ownerState,
   recoverUnread,
+  recoverUnreadSurface,
   loseUnreadStartResponse,
   verifyUnreadFocusRefusal,
   shotUnreadSurface,
@@ -34,9 +35,7 @@ const verifyNoticeSurfaces = async (scenario) => {
           hash,
           width
         );
-        if (surface === 'operator') {
-          await recoverUnread(controls);
-        }
+        await recoverUnreadSurface(controls, fixture);
         await start(controls, true);
         await completed(controls);
         assert.equal(
