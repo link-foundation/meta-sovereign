@@ -19,6 +19,14 @@ ESLint then pass. No CI assertion, warning policy or deadline changes.
 The existing hosted lint/format jobs verify the correction; their result for
 the next published commit remains required.
 
+Follow-up exact commit `89eb873cffcafe817fdfd62530b5c03f50c3da91`
+passes hosted ESLint. Run 43243477284 then reaches the separate full formatting
+step and identifies the same formatter mismatch in all four requirement
+translations (raw job log lines 499–504). The locked formatter reproduces
+these four failures locally; rewrapping the Markdown tables and prose preserves
+every requirement and makes the focused four-file check pass. The follow-up
+raw log, job metadata and before/after results are retained in the archive.
+
 The [checksummed evidence](data/ci-locked-prettier.tar.gz) contains the raw
 445-line job log, annotations, exact-head job metadata, parent locale,
 before/after formatter results, scoped lint output and formatter versions.
