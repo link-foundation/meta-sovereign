@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active merged sync/membership validation:
+
+- [x] Merge both published feature histories forward, retain original evidence, rebuild the combined browser bundle and retain one changeset.
+- [x] Verify 26 combined focused checks, 23 workplace checks, six native WebKit scenarios and zero scoped lint warnings; preserve the refactor failure caught before publication.
+- [x] Preserve exact parent Bun logs, reproduce the missing translation capability expectation and verify its focused correction. See [integration evidence](ci-mesh-membership-integration.md).
+- [ ] Publish the combined correction and inspect every exact-head hosted check. Continue offline reconciliation, complete shared-copy/new-identity workflows and every other unchecked requirement.
+
 Active addressed WebRTC connection lifecycle:
 
 - [x] Integrate both published readiness fixes forward and publish `3483c8b1`; retain actual offline rediscovery and atomic guarded reads.
