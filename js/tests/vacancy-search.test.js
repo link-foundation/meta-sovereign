@@ -307,6 +307,7 @@ test('capabilities report missing browser support without pretending to apply', 
       technologyAnalysis: true,
       technologyReview: true,
       technologyProviderSave: false,
+      cvTranslation: true,
       cvSaveWatch: false,
       apply: false,
     });

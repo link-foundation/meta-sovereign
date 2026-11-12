@@ -1,0 +1,21 @@
+{
+  "archive": "ci-translation-capability.tar.gz",
+  "files": {
+    "ci-logs/ci-translation-capability-after.log": "aad494dd4212b9b9a73cadeab58e8ef4236fa6d8624eb8a87d09b55533ff0b16",
+    "ci-logs/ci-translation-capability-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-translation-capability-before.log": "656ae37e683c1611b567882b6916fd27768c983e3eb9153d139523a381bf2afd",
+    "ci-logs/ci-translation-capability-deno.log": "86bb95d6bdd17c847e0e8aa04f9b0e68acac190ded8cc515c8c53b426770ea6d",
+    "ci-logs/d4c7fb81-job-131362601094.log": "4e6c8e5773947243b611e2ce5e5475a5918c3d04d4ddb1722e95327d98145ae1",
+    "ci-logs/d4c7fb81-job-131362601330.log": "6cfc006d1645331bdbc30a9a8018b94fea8506888e6fa8ee0bea03df426d4923",
+    "ci-logs/d4c7fb81-job-131362601378.log": "58981eb15c80500b5f3fe1acfd84984975c09dee9f9dd0dc189429c89701f306",
+    "ci-logs/d4c7fb81-job-131362601502.log": "6d865042200474e7f7c7868b3af31b91e61da2422ba16ec77b6606ad4f89558f",
+    "ci-logs/d4c7fb81-job-131362601552.log": "179dfb29f550c5ebac38f5ac836fde49124db17b34c77f490f883a1a12483ab3",
+    "ci-logs/d4c7fb81-job-131362601592.log": "414b5cc4657952e4a740820b0faa723e9bfbf8c1723ed6be7b48bbbddfea254e",
+    "ci-logs/d4c7fb81-job-131362602752.log": "9c56aeacf7786a4b9247128e8b2176581efe88e723c5330a932ed565bd06d51d",
+    "ci-logs/rtc-lifecycle-parent-checks.json": "2e8bbf2fec75f0f02dc1ccc8b4ad82207919f0c34667f02acfe54ae0f3a052fe",
+    "experiments/issue-56/collect-translation-capability-ci.py": "c5ae4cd2d17137de54bfc11156572a7bee94b09590a962dec6f17ce672b0eb3d",
+    "js/src/jobs/service.js": "bcd5b798f1a82a659a20c2d543e60ad4980ea97edbfcbc291711e996e3229c2e",
+    "js/tests/vacancy-search.test.js": "ea12a193f9f402cde4c02f377606039f60cbd51f26c1c650c396b7199089695d",
+    "metadata.json": "5428237c3cf474e26d0cf02b153a713e6712babc9fc4ea459229bffb98b68080"
+  }
+}
