@@ -40,4 +40,22 @@ export const hiVacancy = {
   'vacancy.employment': 'रोज़गार',
   'vacancy.workFormat': 'काम का तरीका',
   'vacancy.published': 'प्रकाशित',
+  'vacancy.resumeLanguage': 'रिज्यूमे शीर्षक की प्राथमिकता',
+  'vacancy.ru': 'रूसी शीर्षक पहले',
+  'vacancy.en': 'अंग्रेज़ी शीर्षक पहले',
+  'vacancy.any': 'कोई भी शीर्षक',
+  'vacancy.resumes': 'इस ब्राउज़र स्लॉट के रिज्यूमे',
+  'vacancy.readResumes': 'रिज्यूमे सूची पढ़ें',
+  'vacancy.resumesHint':
+    'केवल पढ़ने की सूची। शीर्षक की भाषा एक संकेत है, रिज्यूमे की सत्यापित भाषा नहीं। यहाँ चयन खोज सेटिंग बदलता है; यह आवेदन नहीं भेजता और वेबसाइट का रिज्यूमे नहीं बदलता।',
+  'vacancy.resumesCaptured':
+    'सूची {date} को सहेजी गई; खाते के बदलाव जाँचने के लिए फिर पढ़ें।',
+  'vacancy.resumeSuggested': '{title} इस्तेमाल करें · {reason}',
+  'vacancy.resumesEmpty': 'इस सूची में कोई रिज्यूमे नहीं दिखा।',
+  'vacancy.resumeUnknownDate': 'अपडेट की तारीख उपलब्ध नहीं',
+  'vacancy.resumeUse': 'खोज के लिए इस्तेमाल करें',
+  'vacancy.resumeSelected': 'खोज के लिए चुना गया',
+  'vacancy.resumeReason.updated': 'सबसे नया देखा गया अपडेट',
+  'vacancy.resumeReason.latest': 'HH का नवीनतम चिह्न',
+  'vacancy.resumeReason.list-order': 'HH सूची का क्रम',
 };

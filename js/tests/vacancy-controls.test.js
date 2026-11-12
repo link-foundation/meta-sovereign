@@ -22,6 +22,7 @@ import {
   vacancyUrl,
   searchFixture,
 } from '../../experiments/issue-56/vacancy-fixture.mjs';
+import { resumeListFixture } from '../../experiments/issue-56/resume-list-fixture.mjs';
 
 const withRoutes = async (work) => {
   const store = createMemoryStore();
@@ -36,6 +37,10 @@ const withRoutes = async (work) => {
       readSearch: async (url) => {
         calls.push(url);
         return searchFixture(url);
+      },
+      readResumes: async () => {
+        calls.push('resumes');
+        return resumeListFixture();
       },
     },
   };
@@ -112,6 +117,22 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           (await wirePost(base, 'cancel', {}, type)).value.stopped,
           true
         );
+        const resumes = await wirePost(
+          base,
+          'resumes',
+          { resumeLanguage: 'any' },
+          type
+        );
+        assert.equal(resumes.value.selection.hash, 'english');
+        const cached = await fetch(`${base}/api/vacancies/resumes-stored`, {
+          headers: { accept: type },
+        });
+        const saved = decodeWire(
+          await cached.arrayBuffer(),
+          cached.headers.get('content-type')
+        );
+        assert.equal(saved.lists[0].entries.length, 3);
+        assert.equal(calls.length, 3);
       });
     }
   );
@@ -133,6 +154,10 @@ test('CLI keeps Lino output, exact filters and browser lifetime in both operatio
     readVacancy: async (_url, options) => {
       reads.push(options);
       return vacancySnapshotFixture();
+    },
+    readResumes: async (options) => {
+      reads.push(options);
+      return resumeListFixture(options.browserSlot);
     },
   });
   const output = [];
@@ -165,6 +190,13 @@ test('CLI keeps Lino output, exact filters and browser lifetime in both operatio
     /boolean/u
   );
   assert.equal(closed, 2, 'invalid flags fail before opening storage');
+  await commands['vacancies-resumes'](
+    { 'resume-language': 'any', 'browser-slot': 'personal' },
+    (value) => output.push(decodeWire(value))
+  );
+  assert.equal(output[2].selection.hash, 'english');
+  assert.equal(output[2].browserSlot, 'personal');
+  assert.equal(closed, 3);
 });
 
 test('vacancy API preserves offline cached descriptions and refused reads', async () => {
@@ -228,6 +260,7 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
       remote: false,
       browserSlot: 'jobs',
       mode: 'inherit',
+      resumeLanguage: 'ru',
     },
     capabilities: { search: false, collect: false },
     stored: [selected],
@@ -237,6 +270,10 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     error: '',
     loaded: true,
     valid: true,
+    browserValid: true,
+    resumeLists: [resumeListFixture()],
+    readResumes() {},
+    selectResume() {},
     search() {},
     cancel() {},
     setValues() {},
@@ -250,5 +287,7 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     assert.ok(html.includes('Employer’s final paragraph stays intact.'));
     assert.ok(html.includes('от 250 000 ₽'));
     assert.doesNotMatch(html, />vacancy\./u);
+    assert.match(html, /data-vacancy-resume="russian-new"/u);
+    assert.match(html, /data-vacancy-action="resumes"[^>]*disabled/u);
   }
 });

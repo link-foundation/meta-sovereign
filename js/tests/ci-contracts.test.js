@@ -322,6 +322,11 @@ test('vacancy reads run in both mandatory browser lanes', () => {
     scripts['test:e2e:vacancies:webkit'],
     'E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs'
   );
+  const entry = readFileSync(
+    path.join(root, 'js/tests/e2e-vacancies-browser.mjs'),
+    'utf8'
+  );
+  assert.match(entry, /verifyJobResumes/u);
 });
 
 test('question provider and control scenarios have separate mandatory browser budgets', () => {

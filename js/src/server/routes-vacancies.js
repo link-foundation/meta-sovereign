@@ -37,8 +37,11 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     return false;
   }
   const operation = path.slice('/api/vacancies/'.length);
-  const read = ['capabilities', 'stored'].includes(operation);
-  if (!read && !['search', 'collect', 'cancel'].includes(operation)) {
+  const read = ['capabilities', 'stored', 'resumes-stored'].includes(operation);
+  if (
+    !read &&
+    !['search', 'collect', 'cancel', 'resumes'].includes(operation)
+  ) {
     return false;
   }
   const refusal = refused(req, ctx, read);

@@ -40,4 +40,22 @@ export const enVacancy = {
   'vacancy.employment': 'Employment',
   'vacancy.workFormat': 'Work format',
   'vacancy.published': 'Published',
+  'vacancy.resumeLanguage': 'Resume title preference',
+  'vacancy.ru': 'Russian title first',
+  'vacancy.en': 'English title first',
+  'vacancy.any': 'Any title',
+  'vacancy.resumes': 'Resumes in this browser slot',
+  'vacancy.readResumes': 'Read resume list',
+  'vacancy.resumesHint':
+    'Read-only inventory. Title language is a hint, not verified CV language. Choosing here changes your search settings; it does not submit or change a provider resume.',
+  'vacancy.resumesCaptured':
+    'Saved list from {date}; read again to check account changes.',
+  'vacancy.resumeSuggested': 'Use {title} · {reason}',
+  'vacancy.resumesEmpty': 'No resumes were observed in this list.',
+  'vacancy.resumeUnknownDate': 'Update date unavailable',
+  'vacancy.resumeUse': 'Use for search',
+  'vacancy.resumeSelected': 'Selected for search',
+  'vacancy.resumeReason.updated': 'latest observed update',
+  'vacancy.resumeReason.latest': 'HH latest marker',
+  'vacancy.resumeReason.list-order': 'HH list order',
 };

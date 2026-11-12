@@ -307,3 +307,5 @@ Reveal a confirmed original-chat unread reply only when its saved and current co
 Add finite HH vacancy search/collection with typed resume-bound filters, exact native pagination, full visible employer context, a shared success-only cache, Stop and cached recovery across CLI, Lino and localized CV controls.
 
 Make the CAPTCHA pause/resume fixture independent of host scheduling while retaining every deadline; directly verify unspent ordinary time, manual expiry and Stop, with silent optional lifetime diagnostics.
+
+Expose native HH résumé inventory and explicit search selection through CLI, text/binary Lino and localized CV controls. Explain title/date recommendations, preserve successful slot snapshots on failed refresh and recover cached choices without reopening the provider.

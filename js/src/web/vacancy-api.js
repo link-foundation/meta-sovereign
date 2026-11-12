@@ -3,10 +3,30 @@ import { vacancyContent } from '../assignments/vacancy-content.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { hhSearchUrl, jobsFailure } from '../jobs/options.js';
 import { validateVacancySearch } from '../jobs/search-result.js';
+import { resumeList, chooseSearchResume } from '../jobs/resume-list.js';
+import { storedResumeLists } from '../jobs/resume-cache.js';
 
+const confirmedResumes = (answer, input) => {
+  const list = resumeList(answer, input.browserSlot ?? 'jobs');
+  const choice = chooseSearchResume(list, input);
+  if (
+    !Object.entries(choice).every(
+      ([key, value]) => answer.selection?.[key] === value
+    )
+  ) {
+    throw jobsFailure(
+      'unconfirmed',
+      'The requested resume selection was not confirmed.'
+    );
+  }
+  return { ...list, selection: choice };
+};
 const confirmed = (operation, answer, input) => {
   if (answer.ok === false) {
     return answer;
+  }
+  if (operation === 'resumes') {
+    return confirmedResumes(answer, input);
   }
   if (operation === 'cancel') {
     if (answer.stopped !== true) {
@@ -45,16 +65,33 @@ const confirmed = (operation, answer, input) => {
   );
   return { ...result, capturedAt: answer.capturedAt };
 };
+const savedResumes = (answer) => {
+  if (!Array.isArray(answer?.lists) || answer.lists.length > 100) {
+    throw jobsFailure(
+      'unconfirmed',
+      'The saved resume lists were not confirmed.'
+    );
+  }
+  return { lists: answer.lists.map((row) => resumeList(row)) };
+};
 export const createVacancyApi = ({ get, report, local }) => ({
   vacancyCapabilities: async () =>
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,
       search: false,
       collect: false,
+      resumes: false,
       apply: false,
       cached: true,
       reason: 'server-required',
     },
+  vacancyResumesStored: async () =>
+    savedResumes(
+      (await get('/api/vacancies/resumes-stored')) ??
+        (await storedResumeLists(async (predicate) =>
+          (await local()).query(predicate)
+        ))
+    ),
   vacancyStored: async () =>
     (await get('/api/vacancies/stored')) ?? {
       entries: (
@@ -66,7 +103,7 @@ export const createVacancyApi = ({ get, report, local }) => ({
         .map((row) => ({ id: row.id, ...vacancyContent(row) })),
     },
   ...Object.fromEntries(
-    ['search', 'collect', 'cancel'].map((operation) => [
+    ['search', 'collect', 'cancel', 'resumes'].map((operation) => [
       `vacancy${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input = {}) =>
         confirmed(

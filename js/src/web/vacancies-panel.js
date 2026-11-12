@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { hhSearchUrl } from '../jobs/options.js';
+import { VacancyResumes } from './vacancy-resumes.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -14,6 +15,7 @@ const defaults = {
   remote: false,
   browserSlot: 'jobs',
   mode: 'inherit',
+  resumeLanguage: 'ru',
 };
 const initialSettings = () => {
   try {
@@ -25,7 +27,8 @@ const initialSettings = () => {
         Object.entries(saved).filter(
           ([key, value]) =>
             Object.hasOwn(defaults, key) &&
-            typeof value === typeof defaults[key]
+            typeof value === typeof defaults[key] &&
+            (key !== 'resumeLanguage' || ['ru', 'en', 'any'].includes(value))
         )
       ),
     };
@@ -39,6 +42,13 @@ const searchInput = (values, page) => ({
   salary: values.salary === '' ? undefined : Number(values.salary),
   headless: values.mode === 'inherit' ? undefined : values.mode === 'headless',
 });
+const persistSettings = (values) => {
+  try {
+    globalThis.localStorage?.setItem(settingsKey, JSON.stringify(values));
+  } catch {
+    /* Reading does not require storage. */
+  }
+};
 
 export const useVacancies = (api) => {
   const [values, setValues] = useState(initialSettings);
@@ -49,15 +59,21 @@ export const useVacancies = (api) => {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const [resumeLists, setResumeLists] = useState([]);
   useEffect(() => {
     let current = true;
-    Promise.all([api.vacancyCapabilities(), api.vacancyStored()])
-      .then(([caps, saved]) => {
+    Promise.all([
+      api.vacancyCapabilities(),
+      api.vacancyStored(),
+      api.vacancyResumesStored(),
+    ])
+      .then(([caps, saved, resumes]) => {
         if (!current) {
           return;
         }
         setCapabilities(caps);
         setStored(saved.entries ?? []);
+        setResumeLists(resumes.lists);
         setLoaded(true);
       })
       .catch(() => {
@@ -93,11 +109,23 @@ export const useVacancies = (api) => {
       const answer = await api.vacancySearch(input);
       if (Array.isArray(answer?.cards)) {
         setResult({ ...answer, input: { ...values } });
-        try {
-          globalThis.localStorage?.setItem(settingsKey, JSON.stringify(values));
-        } catch {
-          /* Reading does not require storage. */
-        }
+        persistSettings(values);
+      }
+      return answer;
+    });
+  const readResumes = () =>
+    run('resumes', async () => {
+      const options = searchInput(values, 0);
+      const answer = await api.vacancyResumes({
+        browserSlot: options.browserSlot,
+        headless: options.headless,
+        resumeLanguage: options.resumeLanguage,
+      });
+      if (Array.isArray(answer?.entries)) {
+        setResumeLists((lists) => [
+          answer,
+          ...lists.filter((list) => list.browserSlot !== answer.browserSlot),
+        ]);
       }
       return answer;
     });
@@ -118,10 +146,11 @@ export const useVacancies = (api) => {
       }
       return answer;
     });
+  const browserValid = /^[a-z0-9][a-z0-9_-]{0,63}$/u.test(values.browserSlot);
   let valid = false;
   try {
     hhSearchUrl(searchInput(values, 0));
-    valid = /^[a-z0-9][a-z0-9_-]{0,63}$/u.test(values.browserSlot);
+    valid = browserValid;
   } catch {
     /* Keep invalid settings editable. */
   }
@@ -137,8 +166,16 @@ export const useVacancies = (api) => {
     error,
     loaded,
     valid,
+    browserValid,
     search,
     collect,
+    resumeLists,
+    readResumes,
+    selectResume: (hash) => {
+      const next = { ...values, resume: hash };
+      setValues(next);
+      persistSettings(next);
+    },
     cancel: () => run('cancel', () => api.vacancyCancel()),
   };
 };
@@ -150,6 +187,7 @@ const Fields = ({ state, t }) => {
     currency: ['RUR', 'USD', 'EUR'],
     order: ['salary_desc', 'publication_time', 'relevance'],
     mode: ['inherit', 'visible', 'headless'],
+    resumeLanguage: ['ru', 'en', 'any'],
   };
   return el(
     'fieldset',
@@ -378,6 +416,7 @@ export const VacanciesScreen = ({ state }) => {
       el('h2', { key: 'title' }, t('vacancy.title')),
       el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
       el(Fields, { key: 'settings', state, t }),
+      el(VacancyResumes, { key: 'resumes', state, t }),
       el('div', { key: 'actions', className: 'row' }, [
         action(
           'search',

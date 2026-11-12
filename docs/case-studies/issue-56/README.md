@@ -1,5 +1,6 @@
 # Issue 56: unified automation and device architecture
 
+- [HH résumé inventory](job-resumes.md): bounded native list reads, disclosed title/date recommendations, explicit search selection and per-slot cache recovery through CLI, Lino and localized CV controls.
 - [CAPTCHA CI deadline](ci-captcha-deadline.md): preserve legitimate expiry after bounded delayed replanning, control test time and verify remaining-budget/manual-ceiling/Stop semantics without increasing deadlines.
 
 - [HH vacancy reads](vacancies.md): typed resume-bound search, native pagination, full employer prose/metadata and shared success-only cache through CLI, Lino and localized CV controls; Stop and restart recovery retain explicit delivery limits.

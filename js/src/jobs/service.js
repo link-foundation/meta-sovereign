@@ -10,6 +10,9 @@ import {
 import { createVacancySearchReader } from './read-search.js';
 import { vacancyContent } from '../assignments/vacancy-content.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
+import { createResumeListReader } from './read-resumes.js';
+import { resumeChoiceOptions } from './resume-list.js';
+import { saveResumeList, storedResumeLists } from './resume-cache.js';
 
 const owners = new WeakSet();
 
@@ -20,6 +23,7 @@ export const createVacancyService = ({
   availability = browserAvailability,
   readSearch = createVacancySearchReader({ store, openSession }),
   readVacancy = createAssignmentVacancyReader({ store, openSession }),
+  readResumes = createResumeListReader({ store, openSession }),
 }) => {
   let active;
   let stopping;
@@ -55,10 +59,20 @@ export const createVacancyService = ({
         ...browser,
         search: browser.available === true,
         collect: browser.available === true,
+        resumes: browser.available === true,
         cached: true,
         apply: false,
       };
     },
+    resumes(input) {
+      const options = jobsBrowserOptions(input);
+      const choice = resumeChoiceOptions(input);
+      return run((signal) =>
+        saveResumeList(store, readResumes, { ...options, signal }, choice)
+      );
+    },
+    'resumes-stored': () =>
+      storedResumeLists((predicate) => store.query(predicate)),
     search(input) {
       const url = hhSearchUrl(input);
       const options = jobsBrowserOptions(input);

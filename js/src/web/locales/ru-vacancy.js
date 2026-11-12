@@ -41,4 +41,22 @@ export const ruVacancy = {
   'vacancy.employment': 'Занятость',
   'vacancy.workFormat': 'Формат работы',
   'vacancy.published': 'Опубликовано',
+  'vacancy.resumeLanguage': 'Предпочтение по названию резюме',
+  'vacancy.ru': 'Сначала русское название',
+  'vacancy.en': 'Сначала английское название',
+  'vacancy.any': 'Любое название',
+  'vacancy.resumes': 'Резюме в этом слоте браузера',
+  'vacancy.readResumes': 'Прочитать список резюме',
+  'vacancy.resumesHint':
+    'Список только для чтения. Язык названия — подсказка, а не подтверждение языка резюме. Выбор здесь меняет настройки поиска; он не отправляет отклик и не изменяет резюме на сайте.',
+  'vacancy.resumesCaptured':
+    'Список сохранён {date}; прочитайте заново, чтобы проверить изменения аккаунта.',
+  'vacancy.resumeSuggested': 'Выбрать {title} · {reason}',
+  'vacancy.resumesEmpty': 'В этом списке резюме не обнаружены.',
+  'vacancy.resumeUnknownDate': 'Дата обновления неизвестна',
+  'vacancy.resumeUse': 'Использовать для поиска',
+  'vacancy.resumeSelected': 'Выбрано для поиска',
+  'vacancy.resumeReason.updated': 'последнее наблюдаемое обновление',
+  'vacancy.resumeReason.latest': 'пометка HH «последнее»',
+  'vacancy.resumeReason.list-order': 'порядок в списке HH',
 };

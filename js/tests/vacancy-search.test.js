@@ -301,6 +301,7 @@ test('capabilities report missing browser support without pretending to apply', 
       reason: 'missing-packages',
       search: false,
       collect: false,
+      resumes: false,
       cached: true,
       apply: false,
     });

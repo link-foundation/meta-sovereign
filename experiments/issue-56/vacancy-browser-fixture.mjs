@@ -8,6 +8,8 @@ import {
 import { watchFixturePages } from '../../js/tests/helpers/e2e-page-errors.mjs';
 import { gate, vacancySnapshotFixture } from './vacancy-fixture.mjs';
 import { createVacancySearchReader } from '../../js/src/jobs/read-search.js';
+import { createResumeListReader } from '../../js/src/jobs/read-resumes.js';
+import { resumeListHtml } from './resume-list-fixture.mjs';
 
 const cardHtml = (id) =>
   `<article data-qa="vacancy-serp__vacancy"><a data-qa="serp-item__title" href="https://hh.ru/vacancy/${id}?from=search">Python engineer ${id}</a><span data-qa="vacancy-serp__vacancy-employer">Fixture employer</span><span data-qa="vacancy-serp__vacancy-compensation">от 250 000 ₽</span><span data-qa="vacancy-serp__vacancy-address">Москва</span>${id === '124' ? '<span data-qa="vacancy-serp__vacancy_responded">Already responded</span>' : ''}<button data-qa="vacancy-response-link-top">Apply</button></article>`;
@@ -67,7 +69,9 @@ export const vacancyBrowserFixture = async (browser) => {
           ? '<input name="captcha" aria-label="Challenge">'
           : url.pathname === '/search/vacancy'
             ? searchHtml(url.href)
-            : descriptionHtml(mode);
+            : url.pathname === '/applicant/resumes'
+              ? resumeListHtml(mode)
+              : descriptionHtml(mode);
       return route.fulfill({
         status: 200,
         contentType: 'text/html; charset=utf-8',
@@ -99,6 +103,7 @@ export const vacancyBrowserFixture = async (browser) => {
     };
   };
   const readSearch = createVacancySearchReader({ store, openSession });
+  const readResumes = createResumeListReader({ store, openSession });
   const server = await startServer({
     localUi: true,
     port: 0,
@@ -115,6 +120,10 @@ export const vacancyBrowserFixture = async (browser) => {
       readSearch: (url, options) => {
         searchSignal = options.signal;
         return readSearch(url, options);
+      },
+      readResumes: (options) => {
+        searchSignal = options.signal;
+        return readResumes(options);
       },
     },
   });
