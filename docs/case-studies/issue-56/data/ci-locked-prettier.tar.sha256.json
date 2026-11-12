@@ -1,0 +1,19 @@
+{
+  "archive": "ci-locked-prettier.tar.gz",
+  "files": {
+    "before/js/src/web/locales/hi-vacancy.js": "92d46f3432fe4ad46fdc60e27d18d3406fb4b68bcc5494f585a6904041e63757",
+    "ci-logs/ci-locked-prettier-after.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-locked-prettier-before.log": "59787e2f29f401532fbbaad67fbfa2a5ce9499ce8d16bb674b7f75fee06f5f35",
+    "ci-logs/ci-locked-prettier-lint.log": "4f8a78edc48c9ee82f388e07cda37917d597d96365ef435bc6ad062229a79d00",
+    "ci-logs/ci-locked-prettier-versions.json": "4535f7a1571e75b84e0cce5562b04a292c40dd6fd579be80202016a9f8e4ebb1",
+    "ci-logs/cv-workplace-identity-parent-checks.json": "d401ccd177a6448c299a4006e18e003355440284881f6b257d5eb95c7f01ab4f",
+    "ci-logs/cv-workplace-identity-parent-lint-annotations.json": "daa43a889c50dfb6f492a3390e309b6380b4a238e44b87b76299aeb2682c6ea2",
+    "ci-logs/cv-workplace-identity-parent-lint.log": "2418efde6e153ad4789b256aaece3bded1cfa37f58ede3b78d5b09e8a6a0d85e",
+    "docs/case-studies/issue-56/ci-locked-prettier.md": "a903a088dca7a678b86e246aa7ca9c30b6ea978ae1583070a80b25b4a0d3022a",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "js/src/web/locales/hi-vacancy.js": "c65ece400f6d9262cf489addde05f704fd70e983410291b578f39f689f1e95b9",
+    "metadata.json": "76a4ac40eda4caaa2d2cffe6aa3457ce7d795d04e900f4284cd45fb3382847cf",
+    "package-lock.json": "4f3edf143cf93a32c3284dad79819421240e1ed165a0cfaaaa8c0b584871e3e0"
+  }
+}
