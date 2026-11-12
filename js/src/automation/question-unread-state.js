@@ -3,15 +3,9 @@ import {
   browserReviewId,
 } from './question-browser-state.js';
 import { validUnreadNotice } from './question-unread-notice-state.js';
-
-export const browserUnreadId = (id) =>
-  typeof id === 'string' &&
-  /^question-unread:[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/u.test(
-    id
-  );
-
-export const unreadFailure = (code, message) =>
-  Object.assign(new Error(message), { code, fallback: false });
+import { validUnreadPolling } from './question-unread-polling-state.js';
+import { browserUnreadId, unreadFailure } from './question-unread-identity.js';
+export { browserUnreadId, unreadFailure } from './question-unread-identity.js';
 
 export const validUnreadCoverage = (value) =>
   value?.complete === false &&
@@ -66,6 +60,7 @@ const validUnreadIdentity = (value, id) =>
     value.state
   ) &&
   typeof value.owned === 'boolean' &&
+  validUnreadPolling(value.polling, id) &&
   (value.noticeReplies === undefined ||
     typeof value.noticeReplies === 'boolean') &&
   (value.state !== 'active' || value.owned);

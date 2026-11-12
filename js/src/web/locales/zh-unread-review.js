@@ -36,4 +36,23 @@ export const zhUnreadReview = {
     '正在访问未读聊天并应用已启用的通知回复规则。请等待实际发送和视图恢复凭据。',
   'browserUnread.pausedNotices':
     '通知回复已暂停。开始下一轮前请检查保存的结果和发件箱。此轮检查不会自动重启。',
+  'browserUnread.polling': '重复检查未读会话',
+  'browserUnread.pollingHint':
+    '每次检查都在服务窗口未激活时使用相同的已确认设置。停止会等待已开始的操作结束。发送或视图恢复结果不确定时会暂停；恢复状态不会重新启动。',
+  'browserUnread.intervalMs': '检查间隔（秒，1–7200）',
+  'browserUnread.durationMs': '运行时长（分钟，1–1440）',
+  'browserUnread.retryMaxMs': '重试最大间隔（秒，不小于检查间隔）',
+  'browserUnread.maxFailures': '暂停前连续失败次数（1–10）',
+  'browserUnread.poll.starting': '正在启动重复未读检查。',
+  'browserUnread.poll.visiting':
+    '一轮检查正在进行。下方显示的记录属于标明的检查轮次。',
+  'browserUnread.poll.waiting': '等待下一次未读检查。',
+  'browserUnread.poll.owner-active': '服务窗口已激活。等待期间不会打开会话。',
+  'browserUnread.poll.backoff':
+    '确定尚未执行或已恢复视图的空检查失败。等待重试。',
+  'browserUnread.poll.settled': '重复检查已停止或暂停。恢复状态不会继续运行。',
+  'browserUnread.pollCounts':
+    '已结束轮次：{passes}。连续失败：{failures}/{max}。结束时间：{expires}。',
+  'browserUnread.pollNext': '下次检查时间：{next}。',
+  'browserUnread.pollReceipt': '显示的记录来自轮次 {id}。',
 };

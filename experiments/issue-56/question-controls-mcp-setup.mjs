@@ -1,5 +1,14 @@
 /** Prepare the independent MCP production controls and their read-only refresh. */
-export const prepareQuestionBrowserMcp = async (page) => {
+export const prepareQuestionBrowserMcp = async (page, { screenshots } = {}) => {
+  if (screenshots) {
+    page.setDefaultTimeout(10000);
+    await page.addInitScript(() =>
+      globalThis.localStorage.setItem(
+        'metaSovereignOperatorScope',
+        JSON.stringify({ private: true, bot: true })
+      )
+    );
+  }
   const url = new URL(page.url());
   const base = url.origin;
   const control = url.searchParams.get('fixtureControl');
@@ -37,7 +46,26 @@ export const prepareQuestionBrowserMcp = async (page) => {
       )
       .waitFor();
   };
-  return { control, controls, errors, read };
+  const stats = async () => (await page.request.get(control)).json();
+  const check = (ok, message) => {
+    if (!ok) {
+      throw new Error(message);
+    }
+  };
+  const shot = async (name, node) => {
+    await node.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${screenshots}/mcp-${name}.png` });
+  };
+  const unreadSurface = async (surface, hash, width) => {
+    await page.request.get(`${control}/seed`);
+    await page.setViewportSize({ width, height: 950 });
+    await page.goto(`${base}/?unread-${surface}${hash}`);
+    await page.locator('[data-action="chat-automations"]').click();
+    const menu = page.locator('.chat-menu-list [data-browser-answer-controls]');
+    await menu.locator(':scope > summary').click();
+    return menu.locator('[data-browser-unread-controls]');
+  };
+  return { control, controls, errors, read, stats, check, shot, unreadSurface };
 };
 
 export const waitForQuestionPrefill = (controls) =>

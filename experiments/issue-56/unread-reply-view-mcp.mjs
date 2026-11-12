@@ -1,21 +1,8 @@
 import { prepareQuestionBrowserMcp } from './question-controls-mcp-setup.mjs';
 
 const inspect = async (page, screenshots) => {
-  const base = new URL(page.url()).origin;
-  page.setDefaultTimeout(10000);
-  await page.addInitScript(() =>
-    globalThis.localStorage.setItem(
-      'metaSovereignOperatorScope',
-      JSON.stringify({ private: true, bot: true })
-    )
-  );
-  const { control, controls, errors } = await prepareQuestionBrowserMcp(page);
-  const check = (ok, message) => {
-    if (!ok) {
-      throw new Error(message);
-    }
-  };
-  const stats = async () => (await page.request.get(control)).json();
+  const { control, controls, errors, stats, check, shot, unreadSurface } =
+    await prepareQuestionBrowserMcp(page, { screenshots });
   const open = async (node) => {
     if (!(await node.evaluate((element) => element.open))) {
       await node.locator(':scope > summary').click();
@@ -32,10 +19,6 @@ const inspect = async (page, screenshots) => {
       .getByRole('button', { name: 'Recover unread pass status', exact: true })
       .click();
     await node.locator('[data-browser-unread-result="completed"]').waitFor();
-  };
-  const shot = async (name, node) => {
-    await node.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${screenshots}/mcp-${name}.png` });
   };
   const cases = [];
   const unread = controls.locator('[data-browser-unread-controls]');
@@ -75,13 +58,7 @@ const inspect = async (page, screenshots) => {
     ['chat', '#chat=hh:7', 1180],
     ['operator', '#/operator?chat=hh%3A7', 390],
   ]) {
-    await page.request.get(`${control}/seed`);
-    await page.setViewportSize({ width, height: 950 });
-    await page.goto(`${base}/?reply-view-${surface}${hash}`);
-    await page.locator('[data-action="chat-automations"]').click();
-    const menu = page.locator('.chat-menu-list [data-browser-answer-controls]');
-    await open(menu);
-    const pass = menu.locator('[data-browser-unread-controls]');
+    const pass = await unreadSurface(surface, hash, width);
     await recover(pass);
     await pass
       .getByText('Reply 808 was confirmed, but was not revealed.', {

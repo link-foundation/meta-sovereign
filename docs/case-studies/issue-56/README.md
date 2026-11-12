@@ -265,3 +265,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Original empty-chat reply visibility](unread-reply-view.md): actual positive outgoing receipts, bounded native reveal, returning-owner priority and shared read-only recovery.
 
 - [Unresolved WebKit sync API loss and opt-in document tracing](ci-lino-sync-navigation.md).
+
+- [Repeated unread checking](unread-polling.md): explicit configurable intervals, lifetime and capped retries, durable child receipts, drained cancellation and shared non-replaying recovery.

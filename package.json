@@ -477,6 +477,8 @@
     "test:e2e:question-unread-delivery:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-delivery-browser.mjs",
     "test:e2e:question-unread-notices": "node js/tests/e2e-question-unread-notices-browser.mjs",
     "test:e2e:question-unread-notices:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-notices-browser.mjs",
+    "test:e2e:question-unread-polling": "node js/tests/e2e-question-unread-polling-browser.mjs",
+    "test:e2e:question-unread-polling:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-polling-browser.mjs",
     "test:e2e:question-unread-reply-view": "node js/tests/e2e-question-unread-reply-view-browser.mjs",
     "test:e2e:question-unread-reply-view:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-reply-view-browser.mjs"
   },

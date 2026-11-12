@@ -2,11 +2,16 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { browserUnreadId } from '../automation/question-unread-state.js';
 import { browserWatchPhaseKey } from './question-browser-watch-state.js';
+import {
+  useUnreadPolling,
+  UnreadPollingFields,
+  UnreadPollingStatus,
+} from './question-unread-polling.js';
 
 const el = React.createElement;
 const activePass = (result) => result?.owned && result.state === 'active';
-const validLimit = (value) =>
-  Number.isInteger(value) && value >= 1 && value <= 100;
+const validLimit = (value, polling) =>
+  Number.isInteger(value) && value >= 1 && value <= 100 && polling.valid;
 
 const useUnreadPass = ({
   api,
@@ -172,10 +177,12 @@ const UnreadResult = ({ result, blocked, select }) => {
       el(
         'p',
         { key: 'state', role: 'status' },
-        t(
-          `browserUnread.${result.state}${result.noticeReplies && ['active', 'paused'].includes(result.state) ? 'Notices' : ''}`
-        )
+        !result.polling &&
+          t(
+            `browserUnread.${result.state}${result.noticeReplies && ['active', 'paused'].includes(result.state) ? 'Notices' : ''}`
+          )
       ),
+      el(UnreadPollingStatus, { key: 'polling', polling: result.polling }),
       result.coverage
         ? el(
             'p',
@@ -259,6 +266,7 @@ const UnreadControls = ({
   const [confirm, setConfirm] = React.useState(false);
   const [limit, setLimit] = React.useState('20');
   const [noticeReplies, setNoticeReplies] = React.useState(false);
+  const polling = useUnreadPolling();
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
   const maxChats = Number(limit);
@@ -312,19 +320,21 @@ const UnreadControls = ({
         }),
         t('browserUnread.confirm'),
       ]),
+      el(UnreadPollingFields, { key: 'polling', polling, disabled: locked }),
       el(
         'button',
         {
           key: 'start',
           type: 'button',
           'data-browser-unread-start': true,
-          disabled: locked || !confirm || !validLimit(maxChats),
+          disabled: locked || !confirm || !validLimit(maxChats, polling),
           onClick: () =>
             pass.start({
               ...planning,
               source,
               confirm: true,
               maxChats,
+              ...polling.input,
               ...(noticeReplies && noticesAvailable
                 ? { noticeReplies: true }
                 : {}),

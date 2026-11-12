@@ -41,4 +41,26 @@ export const enUnreadReview = {
     'Visiting unread chats and applying the enabled notice reply policies. Wait for actual delivery and restoration receipts.',
   'browserUnread.pausedNotices':
     'Notice replies are paused. Inspect the saved outcomes and outbox before starting another pass. This saved pass will not restart automatically.',
+  'browserUnread.polling': 'Repeat unread checks',
+  'browserUnread.pollingHint':
+    'Each pass uses the same confirmed settings while the provider stays inactive. Stop waits for issued work. Uncertain delivery or restoration pauses checking; recovery never restarts it.',
+  'browserUnread.intervalMs': 'Check interval in seconds (1–7200)',
+  'browserUnread.durationMs': 'Run duration in minutes (1–1440)',
+  'browserUnread.retryMaxMs':
+    'Maximum retry delay in seconds (at least the interval)',
+  'browserUnread.maxFailures': 'Consecutive failures before pause (1–10)',
+  'browserUnread.poll.starting': 'Starting repeated unread checks.',
+  'browserUnread.poll.visiting':
+    'An unread pass is in progress. Displayed receipts belong to the pass identified below.',
+  'browserUnread.poll.waiting': 'Waiting for the next unread check.',
+  'browserUnread.poll.owner-active':
+    'The provider window is active. Waiting without opening chats.',
+  'browserUnread.poll.backoff':
+    'A definitely unissued or restored empty pass failed. Waiting before retry.',
+  'browserUnread.poll.settled':
+    'Repeated checking has stopped or paused. Recovering status does not resume it.',
+  'browserUnread.pollCounts':
+    'Settled passes: {passes}. Consecutive failures: {failures}/{max}. Ends at {expires}.',
+  'browserUnread.pollNext': 'Next check at {next}.',
+  'browserUnread.pollReceipt': 'Displayed receipts are from pass {id}.',
 };

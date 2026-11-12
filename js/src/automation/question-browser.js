@@ -4,6 +4,7 @@ import { createQuestionBrowserWatches } from './question-browser-watch.js';
 import { createBrowserTextReview } from './question-browser-text.js';
 import { createBrowserReviewRecorder } from './question-browser-review.js';
 import { createQuestionUnreadReviews } from './question-browser-unread.js';
+import { withQuestionUnreadPolling } from './question-unread-polling.js';
 import {
   browserReviewId,
   browserChoiceDraft,
@@ -238,13 +239,19 @@ export const createQuestionBrowser = ({
   const capabilities = () => browserCapabilities(send);
   const status = (input) => browserReviewStatus(store, clock, input);
   const review = createBrowserReviewRecorder({ store, clock, runner, status });
-  const unread = createQuestionUnreadReviews({
+  const finiteUnread = createQuestionUnreadReviews({
     store,
     send,
     clock,
     capabilities,
     review,
     log,
+  });
+  const unread = withQuestionUnreadPolling({
+    finite: finiteUnread,
+    store,
+    clock,
+    capabilities,
   });
   const watches = createQuestionBrowserWatches({
     store,

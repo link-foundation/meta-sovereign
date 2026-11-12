@@ -143,7 +143,7 @@ const executeUnreadReview = async ({
   }
 };
 
-const unreadSettings = (input, capabilities) => {
+export const normalizeUnreadReviewSettings = (input, capabilities) => {
   if (!capabilities.unreadSources?.some(({ id }) => id === input.source)) {
     throw failure(
       'question-unread-unavailable',
@@ -246,7 +246,7 @@ export const createQuestionUnreadReviews = ({
     if (await store.get(input.id)) {
       return status(input);
     }
-    const settings = unreadSettings(input, capabilities());
+    const settings = normalizeUnreadReviewSettings(input, capabilities());
     const planning = {
       ...normalizeAnswerAction(input),
       ...normalizeAnswerEnvironment(input),
