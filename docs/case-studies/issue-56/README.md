@@ -278,3 +278,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Repeated unread checking](unread-polling.md): explicit configurable intervals, lifetime and capped retries, durable child receipts, drained cancellation and shared non-replaying recovery.
 
 [Shared unread recovery in native fixtures](ci-unread-recovery.md) reproduces the disabled Chat limit timeout and corrects recovery sequencing in both finite-review and notice-policy cases without weakening product guards.
+
+- [WebKit résumé profile navigation investigation](ci-profile-navigation.md): exact hosted failure, four-helper replay and optional bounded document/disclosure metadata; root cause remains unproven.

@@ -4,6 +4,7 @@ import {
   githubLinks,
 } from '../../../experiments/issue-56/resume-profile-fixture.mjs';
 import { assert } from './e2e-chat.mjs';
+import { profileNavigationTrace } from './e2e-profile-navigation-trace.mjs';
 
 const verifyCvContacts = async (draft) => {
   for (const [label, message] of [
@@ -26,19 +27,33 @@ const verifyCvContacts = async (draft) => {
   }
 };
 
-export const verifyResumeProfile = async ({ page, base, panel, store }) => {
-  await store.put(resumeCv);
-  const before = await store.query(() => true);
+const openResumeProfile = async (page, base, panel) => {
+  const trace = profileNavigationTrace(page);
+  await trace('before-navigation');
   await page.goto(`${base}/#/automation`);
-  if ((await panel.getAttribute('open')) === null) {
+  await trace('after-navigation');
+  const rootOpen = (await panel.getAttribute('open')) !== null;
+  await trace('root-state', { observedOpen: rootOpen });
+  if (!rootOpen) {
     await panel.locator(':scope > summary').click();
+    await trace('root-click');
   }
   const preview = panel.locator('details').filter({
     has: page.locator(':scope > summary', { hasText: 'Preview answer' }),
   });
-  if ((await preview.getAttribute('open')) === null) {
+  const previewOpen = (await preview.getAttribute('open')) !== null;
+  await trace('preview-state', { observedOpen: previewOpen });
+  if (!previewOpen) {
     await preview.locator(':scope > summary').click();
+    await trace('preview-click');
   }
+  return preview;
+};
+
+export const verifyResumeProfile = async ({ page, base, panel, store }) => {
+  await store.put(resumeCv);
+  const before = await store.query(() => true);
+  const preview = await openResumeProfile(page, base, panel);
   const fields = preview.locator(':scope > [data-answer-profile]');
   const importer = fields.locator(':scope > [data-profile-import]');
   await importer.locator(':scope > summary').click();
