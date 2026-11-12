@@ -136,6 +136,10 @@ export const attachSyncWebSocket = (
       onPing: (payload) => socket.write(encodePongFrame(payload)),
     });
     socket.on('data', reader);
+    socket.on('end', () => {
+      sockets.delete(socket);
+      socket.destroy();
+    });
     socket.on('close', () => sockets.delete(socket));
     socket.on('error', () => sockets.delete(socket));
   };

@@ -1,5 +1,8 @@
 # Issue 56: unified automation and device architecture
 
+- [TCP disconnect cleanup and merged native mesh validation](websocket-disconnect.md).
+- [Exact hosted translation capability failures](ci-translation-capability.md).
+
 - [Merged sync/membership validation and exact Bun failure](ci-mesh-membership-integration.md).
 
 - [Independent WebRTC connections and connected-peer reload](webrtc-mesh.md): real three-peer native and MCP convergence, fresh post-reload writes, deletion, secret isolation and surviving-pair cleanup; offline reconciliation remains required.

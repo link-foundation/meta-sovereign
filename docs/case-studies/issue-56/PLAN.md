@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active ordinary WebSocket cleanup and Windows Deno startup:
+
+- [x] Merge the independently published peer mesh forward, preserving both histories and the alternative lifecycle evidence.
+- [x] Reproduce ordinary WebSocket TCP-end retention against the actual parent; verify replacement connections with 22 focused merged Node checks and one native WebKit scenario.
+- [ ] Publish preserved evidence, inspect exact-head CI and resolve cold dependency initialization before the Windows Deno readiness deadline without raising that deadline.
+- [ ] Continue offline record/deletion reconciliation and every other unchecked original feature requirement. These socket fixes do not complete the issue.
+
 Active merged sync/membership validation:
 
 - [x] Merge both published feature histories forward, retain original evidence, rebuild the combined browser bundle and retain one changeset.
