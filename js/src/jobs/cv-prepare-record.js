@@ -110,3 +110,14 @@ export const cvPrepareResult = (raw, input = {}) => {
     ? cancelledPreparation(raw, input)
     : preparedResult(raw, input);
 };
+
+export const cvPrepareReply = (raw, input) => {
+  if (
+    !raw ||
+    !Object.hasOwn(raw, 'preparation') ||
+    Object.hasOwn(raw, 'cancellation')
+  ) {
+    throw cvPrepareFailure('state');
+  }
+  return cvPrepareResult(raw.preparation, input);
+};

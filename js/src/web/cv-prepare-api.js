@@ -1,29 +1,30 @@
 import {
   cvPrepareOptions,
   cvPrepareResult,
+  cvPrepareReply,
   cvPrepareIdentity,
 } from '../jobs/cv-prepare-record.js';
 
 export const createCvPrepareApi = ({ get, report, local }) => ({
-  vacancyCvPrepareCancel: async (input) => {
-    const identity = cvPrepareIdentity(input);
-    const raw = await report('/api/vacancies/cv-prepare-cancel', identity, {
-      network: true,
-      read: false,
-    });
-    const answer = cvPrepareResult(raw?.preparation, identity);
-    if (!answer.preparation) {
-      throw new Error('jobs-cv-state');
-    }
-    return answer;
-  },
   vacancyCvPrepare: async (input) => {
     cvPrepareOptions(input);
     const raw = await report('/api/vacancies/cv-prepare', input, {
       network: true,
       read: false,
     });
-    const answer = cvPrepareResult(raw?.preparation, input);
+    const answer = cvPrepareReply(raw, input);
+    if (!answer.preparation || answer.preparation.state === 'cancelled') {
+      throw new Error('jobs-cv-state');
+    }
+    return answer;
+  },
+  vacancyCvPrepareCancel: async (input) => {
+    const identity = cvPrepareIdentity(input);
+    const raw = await report('/api/vacancies/cv-prepare-cancel', identity, {
+      network: true,
+      read: false,
+    });
+    const answer = cvPrepareReply(raw, identity);
     if (!answer.preparation) {
       throw new Error('jobs-cv-state');
     }
@@ -34,7 +35,7 @@ export const createCvPrepareApi = ({ get, report, local }) => ({
       `/api/vacancies/cv-prepare-status?${new URLSearchParams(input)}`
     );
     if (raw) {
-      return cvPrepareResult(raw.preparation, input);
+      return cvPrepareReply(raw, input);
     }
     const store = await local();
     const requestId =

@@ -8,7 +8,7 @@ import { cvWatchSavedHtml } from './cv-watch-browser-fixture.mjs';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 
 let bundle;
-export const cvPrepareBrowserFixture = async (browser) => {
+export const cvPrepareBrowserFixture = async (browser, { flush } = {}) => {
   const data = await cvPrepareFixture();
   bundle ??= build({
     stdin: {
@@ -85,14 +85,19 @@ export const cvPrepareBrowserFixture = async (browser) => {
     };
     app = await vacancyBrowserFixture(browser, {
       exports: {
-        service: () => ({
-          artifactRoot: data.artifactRoot,
-          cvPrepare: { attach },
-          cvWatch: {
-            attach,
-            verification: { pollMs: 50, verificationMs: 1500 },
-          },
-        }),
+        service: ({ store }) => {
+          if (flush) {
+            store.flush = flush;
+          }
+          return {
+            artifactRoot: data.artifactRoot,
+            cvPrepare: { attach },
+            cvWatch: {
+              attach,
+              verification: { pollMs: 50, verificationMs: 1500 },
+            },
+          };
+        },
       },
     });
     for (const row of data.rows) {

@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 export const useCvPreparation = ({ api, values, run }) => {
   const [preparation, setPreparation] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [cancellation, setCancellation] = useState(null);
   const [pendingId, setPendingId] = useState(null);
+  const [ready, setReady] = useState(false);
   const pending = useRef(null);
   const permitted = useRef(false);
   const generation = useRef(0);
@@ -14,8 +15,10 @@ export const useCvPreparation = ({ api, values, run }) => {
     const terminal = !['starting', 'opening', 'preparing'].includes(
       answer.preparation?.state
     );
+    const cancelled = answer.preparation?.state === 'cancelled';
     const known = !requestId || Boolean(answer.preparation);
     setPreparation(answer.preparation);
+    setCancellation(cancelled ? answer.preparation : null);
     permitted.current = terminal && known;
     setReady(permitted.current);
     if (answer.preparation && terminal) {
@@ -39,6 +42,8 @@ export const useCvPreparation = ({ api, values, run }) => {
   useEffect(() => {
     generation.current++;
     setPreparation(null);
+    setCancellation(null);
+    setPendingId(null);
     setReady(false);
     permitted.current = false;
     try {
@@ -54,8 +59,10 @@ export const useCvPreparation = ({ api, values, run }) => {
   }, [api, browserSlot]);
   return {
     preparation,
+    cancellation,
+    pendingId,
+    canCancel: Boolean(pendingId && !ready),
     ready,
-    cancellable: Boolean(pendingId) && !ready,
     prepare: (review, change) =>
       run('cv-prepare', async () => {
         if (!permitted.current) {
@@ -70,8 +77,10 @@ export const useCvPreparation = ({ api, values, run }) => {
         revision.current++;
         permitted.current = false;
         setReady(false);
-        pending.current = requestId;
+        setPreparation(null);
+        setCancellation(null);
         setPendingId(requestId);
+        pending.current = requestId;
         const answer = await api.vacancyCvPrepare({
           browserSlot,
           requestId,
@@ -83,7 +92,6 @@ export const useCvPreparation = ({ api, values, run }) => {
         }
         return answer;
       }),
-    reload: () => run('cv-prepare-status', () => load(pending.current)),
     cancel: () =>
       run('cv-prepare-cancel', async () => {
         const requestId = pending.current;
@@ -92,6 +100,8 @@ export const useCvPreparation = ({ api, values, run }) => {
         }
         const current = generation.current;
         const read = ++revision.current;
+        permitted.current = false;
+        setReady(false);
         const answer = await api.vacancyCvPrepareCancel({
           browserSlot,
           requestId,
@@ -101,5 +111,6 @@ export const useCvPreparation = ({ api, values, run }) => {
         }
         return answer;
       }),
+    reload: () => run('cv-prepare-status', () => load(pending.current)),
   };
 };

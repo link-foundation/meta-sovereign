@@ -1,6 +1,9 @@
 import React from 'react';
 
 const el = React.createElement;
+const cancelledPreparation = (state) =>
+  state.cancellation ??
+  (state.preparation?.state === 'cancelled' ? state.preparation : null);
 export const CvPreparation = ({ state, review, idle, t }) => {
   const saved = review?.status === 'reviewed';
   const changes = saved
@@ -9,7 +12,8 @@ export const CvPreparation = ({ state, review, idle, t }) => {
           change.field === 'about' && review.selected.includes(change.id)
       )
     : [];
-  const result = state.preparation;
+  const cancellation = cancelledPreparation(state);
+  const result = cancellation ? null : state.preparation;
   return el(
     'section',
     {
@@ -46,7 +50,7 @@ export const CvPreparation = ({ state, review, idle, t }) => {
           },
           t('cvPrepare.reload')
         ),
-        state.cancellable
+        state.canCancel
           ? el(
               'button',
               {
@@ -63,6 +67,32 @@ export const CvPreparation = ({ state, review, idle, t }) => {
       !state.ready
         ? el('p', { key: 'recovery', role: 'status' }, t('cvPrepare.recovery'))
         : null,
+      state.canCancel
+        ? el('p', { key: 'cancel-hint' }, t('cvPrepare.cancelHint'))
+        : null,
+      state.pendingId
+        ? el('p', { key: 'pending', className: 'meta' }, state.pendingId)
+        : null,
+      cancellation
+        ? el(
+            'div',
+            {
+              key: 'cancelled',
+              role: 'status',
+              'data-cv-prepare-cancelled': cancellation.requestId,
+              'data-cv-preparation-state': 'cancelled',
+              'data-cv-preparation-request': cancellation.requestId,
+            },
+            [
+              el('p', { key: 'text' }, t('cvPrepare.cancelled')),
+              el(
+                'p',
+                { key: 'identity', className: 'meta' },
+                `${cancellation.requestId} · ${cancellation.updatedAt}`
+              ),
+            ]
+          )
+        : null,
       result
         ? el(
             'div',
@@ -77,14 +107,7 @@ export const CvPreparation = ({ state, review, idle, t }) => {
               el(
                 'p',
                 { key: 'identity', className: 'meta' },
-                [
-                  result.language?.toUpperCase(),
-                  result.hash,
-                  result.requestId,
-                  result.updatedAt,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')
+                `${result.language.toUpperCase()} · ${result.hash ?? ''} · ${result.requestId} · ${result.updatedAt}`
               ),
               result.code
                 ? el('p', { key: 'code', className: 'meta' }, result.code)

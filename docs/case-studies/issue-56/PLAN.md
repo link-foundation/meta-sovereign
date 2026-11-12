@@ -10,10 +10,20 @@ Active shared workplace identity readback:
 
 Active unreceived About request recovery:
 
-- [x] Reproduce the permanently held unknown intent against the published service/UI without discarding its delayed-write guard.
-- [x] Flush request-specific cancellation receipts, refuse late preparations, preserve issued results and share CLI/text-binary Lino/four-locale controls.
-- [x] Verify focused Node/Deno regressions and native WebKit keyboard/desktop/phone recovery with before/after screenshots.
-- [ ] Publish the atomic change, inspect exact-head hosted CI, then continue every unchecked issue criterion. See [cancellation evidence](cv-prepare-cancel.md).
+Integrate local `c22a89d7` and published `d76215a1` with a regular merge. Preserve
+the published cancelled-preparation receipt and latest-pointer reload behavior,
+and retain shared-store serialization, durability gating, malformed-reply
+validation, both regression sets and both frozen evidence archives. Published
+Checks 43241143099 lint job 131261905765 fails only ten Hindi formatting errors
+(raw lines 408–417); the restored consistent formatting passes scoped ESLint.
+
+- [x] Reproduce the missing API and recovery control against published parent `6e5f3ca7`; retain both expected failures and the before screenshot.
+- [x] Durably cancel only an unreceived request ID, prevent late copies from preparing and recover the exact typed receipt without browser work. Serialize preparation and cancellation across services sharing a store; wait for persistence before acknowledging.
+- [x] Report already admitted preparations without undoing the native draft. Retain pending browser intent after failed durability, malformed acknowledgements or lost replies; allow a new explicit request only after confirmed recovery.
+- [x] Share cancellation through CLI, both Lino encodings and four localized CV panels. Verify 31 focused Node/31 Deno checks, twelve native WebKit cases and five independent MCP cases; retain desktop/phone evidence.
+- [ ] Publish atomic cancellation work and inspect the complete exact-head hosted matrix. Continue shared-workplace identity, native editing/copy/detach, batches, bilingual provider writes and every unchecked issue requirement.
+
+Windows Deno hosted evidence: exact `6e5f3ca7` Checks 43238347626, created 2026-11-12 14:33:04 UTC, passes all three Windows Deno shards (jobs 131256855680, 131256856195 and 131256855971). The complete workflow is still running; no whole-matrix completion is claimed. See [cancellation evidence](cv-prepare-cancel.md).
 
 Active Windows Deno deadline correction:
 
@@ -34,7 +44,7 @@ Active HH14/HH16/HH19 About preparation unit:
 - [ ] Share preparation/status through CLI, text/binary Lino and four-language review controls. Verify focused regressions and native/MCP desktop/phone evidence, publish an atomic commit and inspect exact-head hosted CI.
 - [ ] Continue shared-workplace identity, complete native editing/copy/detach, durable batches, bilingual provider save/readback and every other unchecked issue requirement.
 
-Local About preparation verification: 13 Node, 13 Deno and 36 compatibility checks, one registry contract, two actual-parent failures, eight native WebKit scenarios and four independent MCP cases pass. The owner can revise the prepared text and the existing passive observer verifies that final native Save. The later [cancellation unit](cv-prepare-cancel.md) resolves unknown/unreceived intents through flushed tombstones while preserving issued native drafts. All broad CV criteria and exact new-head hosted completion remain required; see [About evidence](cv-prepare.md).
+Local About preparation verification: 13 Node, 13 Deno and 36 compatibility checks, one registry contract, two actual-parent failures, eight native WebKit scenarios and four independent MCP cases pass. The owner can revise the prepared text and the existing passive observer verifies that final native Save. The follow-up [ID-specific cancellation](cv-prepare-cancel.md) now resolves unknown/unreceived intents without preparing late copies or undoing issued drafts. All broad CV criteria and exact new-head hosted completion remain required; see [About evidence](cv-prepare.md).
 
 Exact parent `9d805e4f` Checks 43193074875 passes all eight browser shards and every runtime job except Windows Deno 131100508779. Its check annotation explicitly reports the ten-minute deadline; raw log line 10364 cancels during vacancy-reader checks. Preserve metadata and both raw failed/cancelled job logs, investigate suite partitioning/startup costs without increasing deadlines, and require exact new-head hosted completion. The earlier Backlinks root cause remains unproven despite the passing current shard.
 
