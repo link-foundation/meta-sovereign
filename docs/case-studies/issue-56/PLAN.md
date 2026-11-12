@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted WebKit sync readiness correction:
+
+- [x] Preserve exact failed parent run/job/timestamp evidence and deterministically reproduce offline rediscovery before sync API reads.
+- [x] Require actual peer/signaling readiness before writes, preserve real WebRTC convergence/deletion/secret isolation and existing deadlines, and verify the recovery path locally with one engine.
+- [ ] Preserve the regression/evidence, publish only the prepared branch and inspect exact-head hosted CI.
+- [ ] Continue every unchecked original feature criterion; passing CI does not complete missing requirements.
+
 Active complete existing-workplace field review/preparation:
 
 - [x] Inventory native controls and pinned dictionary behavior; reproduce the missing full-field review on published `2389fc8e`.

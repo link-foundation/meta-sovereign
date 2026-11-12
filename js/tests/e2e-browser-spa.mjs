@@ -39,6 +39,7 @@ const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 // below as part of this browser run when the JS backend is active.
 
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
+import { stepTwoBrowserWebRtcConvergence } from './helpers/e2e-browser-spa-sync.mjs';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -635,64 +636,6 @@ const stepAxeAudit = async ({ page, base }) => {
     console.log(
       `\n  (axe noted ${violations.length} non-blocking issue(s): ${violations.map((v) => `${v.id}/${v.impact}`).join(', ')})`
     );
-  }
-};
-
-// Boot a *second* SPA in a fresh browser context (so it gets an
-// isolated IndexedDB) on the same backend, mutate in page A, observe
-// the same link materialise in page B's local store. Convergence has
-// to happen via the WebRTC data channel — the SPA's writes are local-
-// only (api.put → store.put), so page B can only see the link if
-// `attachWebRtcSync` wired the store to a peer transport that
-// delivered the event.
-const stepTwoBrowserWebRtcConvergence = async ({ browser, page, base }) => {
-  const contextB = await browser.newContext();
-  const pageB = await contextB.newPage();
-  try {
-    // Both pages load the SPA so each calls `attachWebRtcSync` and
-    // joins the /rtc room. Reload page A to ensure a fresh boot too
-    // since the previous step navigated it around.
-    await page.goto(base, { waitUntil: 'load' });
-    await pageB.goto(base, { waitUntil: 'load' });
-
-    // The dom.js boot is gated behind `ensure()` which runs lazily on
-    // the first api.* call. Trigger it on both pages by calling
-    // `api.status()` — that resolves the boot promise, which constructs
-    // the local store, the offline client, *and* `attachWebRtcSync` on
-    // top of the discovered server. The bundle exposes the api as
-    // window.__msApi (app.js sets it synchronously on module evaluation).
-    const seed = async (p) => {
-      await p.evaluate(async () => {
-        await window.__msApi.status();
-      });
-    };
-    await seed(page);
-    await seed(pageB);
-
-    // Page A writes a unique link via the SPA's own put path so it
-    // flows store → peer.onLocal → transport.send.
-    const probeId = `msg:rtc-probe-${Date.now()}`;
-    await page.evaluate(async (id) => {
-      await window.__msApi.put({
-        id,
-        tokens: ['rtc', 'probe'],
-        body: 'two-browser convergence',
-      });
-    }, probeId);
-
-    // Page B should observe the link in its local store. Poll for up
-    // to 20s — ICE negotiation + datagram handshake is not free in a
-    // headless browser.
-    await pageB.waitForFunction(
-      async (id) => {
-        const link = await window.__msApi.get(id);
-        return Boolean(link && link.id === id);
-      },
-      probeId,
-      { timeout: 20000, polling: 250 }
-    );
-  } finally {
-    await contextB.close();
   }
 };
 
