@@ -6,6 +6,7 @@ import { fromApp } from './routes-telegram-files.js';
 const bodyLimits = {
   'technology-catalog-save': 256 * 1024,
   'technology-review-save': 32 * 1024,
+  'cv-translate': 80 * 1024,
 };
 
 const refused = (req, ctx, read) => {
@@ -75,6 +76,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-review-stored',
       'cv-watch-status',
       'cv-prepare-status',
+      'cv-translation-status',
       'cv-snapshots',
     ].includes(operation) || file;
   if (
@@ -93,6 +95,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'cv-watch',
       'cv-prepare',
       'cv-prepare-cancel',
+      'cv-translate',
+      'cv-translation-cancel',
       'cv-watch-stop',
     ].includes(operation)
   ) {

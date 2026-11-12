@@ -235,4 +235,34 @@ export const enVacancy = {
     'Preparation outcome is uncertain. Inspect the existing HH draft; no automatic retry was made.',
   'cvPrepare.interrupted':
     'Preparation was interrupted. Inspect the existing HH draft before continuing.',
+  'cvTranslation.title': 'Compare workplace translations',
+  'cvTranslation.hint':
+    'Sends only this text to your selected local translator commands. Results stay private. Blank model fields use the current Haiku alias and latest available Luna; pin a model for repeatable cache reuse.',
+  'cvTranslation.source': 'Source text',
+  'cvTranslation.direction': 'Translation direction',
+  'cvTranslation.text': 'Workplace text',
+  'cvTranslation.model': 'Optional exact model',
+  'cvTranslation.compare': 'Compare translations',
+  'cvTranslation.reload': 'Reload saved comparison',
+  'cvTranslation.pending':
+    'The request may have been received. Reload its saved state before starting another. Cancel an unreceived request to block late copies.',
+  'cvTranslation.loadError':
+    'Saved comparison could not be loaded. Retry reload.',
+  'cvTranslation.review':
+    'Translations need your review. No provider fields have been prepared or saved.',
+  'cvTranslation.cached': 'Cached for this model/version',
+  'cvTranslation.fresh': 'Fresh answer',
+  'cvTranslation.refused': 'No valid translation',
+  'cvTranslation.output': 'Inspect rejected output',
+  'cvTranslation.preferred': 'Preferred variant',
+  'cvTranslation.none': 'No valid variant; the source is not a translation.',
+  'cvTranslation.running': 'Translation comparison is running.',
+  'cvTranslation.completed': 'Comparison complete. Review each variant.',
+  'cvTranslation.interrupted': 'Interrupted; this request will not restart.',
+  'cvTranslation.stopped': 'Stopped; completed variants remain available.',
+  'cvTranslation.failed':
+    'Comparison failed; previous private cache entries remain available.',
+  'cvTranslation.cancel': 'Cancel unreceived request',
+  'cvTranslation.stop': 'Stop comparison',
+  'cvTranslation.noAnswer': 'No answer received',
 };

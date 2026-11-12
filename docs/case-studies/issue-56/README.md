@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Private workplace translation comparisons](cv-translation.md): bounded configurable model adapters, private version caches, all variants and non-replaying CLI/Lino/four-language recovery; real model and provider synchronization requirements remain open.
+
 - [Prefill cleanup status](ci-prefill-cleanup.md): reproduce an inconsistent pending receipt against the actual parent, keep success private through disposal and verify read-only recovery without raising deadlines.
 
 - [HH résumé inventory](job-resumes.md): bounded native list reads, disclosed title/date recommendations, explicit search selection and per-slot cache recovery through CLI, Lino and localized CV controls.

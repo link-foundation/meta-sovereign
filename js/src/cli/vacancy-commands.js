@@ -5,6 +5,16 @@ import { randomUUID } from 'node:crypto';
 import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
 import { foregroundCvWatch } from './cv-watch-command.js';
+import { cvTranslationCommandInput } from './cv-translation-command.js';
+
+const vacancyCommandExit = (operation, result) =>
+  (operation === 'resume-export' && result.state !== 'completed') ||
+  (operation === 'cv-prepare' && result.preparation?.state !== 'prepared') ||
+  (operation === 'cv-translate' &&
+    (result.comparison?.state !== 'completed' ||
+      result.comparison.rows.some((row) => !row.chosen)))
+    ? 1
+    : 0;
 
 export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
@@ -28,7 +38,10 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description> [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
+  vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translate --file=<texts.json|texts.lino|texts.bin> --from=ru|en --to=en|ru [--providers=haiku,luna,formal-ai] [--haiku-model=<id>] [--luna-model=<id>] [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translation-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translation-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];
@@ -69,44 +82,55 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'cv-prepare',
       'cv-prepare-status',
       'cv-prepare-cancel',
+      'cv-translate',
+      'cv-translation-status',
+      'cv-translation-cancel',
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
-        const input = operation.startsWith('technology-')
-          ? await technologyCommandInput(operation, args)
-          : {
-              ...Object.fromEntries(
-                ['query', 'resume', 'area', 'currency', 'order', 'url'].map(
-                  (key) => [key, args[key]]
-                )
-              ),
-              ...Object.fromEntries(
-                ['remote', 'refresh', 'headless', 'all'].map((key) => [
-                  key,
-                  typedFlag(args, key, 'boolean'),
-                ])
-              ),
-              salary: typedFlag(args, 'salary', 'number'),
-              page: typedFlag(args, 'page', 'number'),
-              browserSlot: args['browser-slot'],
-              resumeLanguage: args['resume-language'],
-              requestId:
-                args['request-id'] ??
-                (['resume-export', 'cv-watch', 'cv-prepare'].includes(operation)
-                  ? randomUUID()
-                  : undefined),
-              durationMs: typedFlag(args, 'duration-ms', 'number'),
-              targetId: args['target-id'],
-              fingerprint: args.fingerprint,
-              changeId: args['change-id'],
-              recordId: args['record-id'],
-              formats:
-                args.formats === undefined
-                  ? undefined
-                  : String(args.formats)
-                      .split(',')
-                      .map((format) => format.trim()),
-            };
+        const input = [
+          'cv-translate',
+          'cv-translation-status',
+          'cv-translation-cancel',
+        ].includes(operation)
+          ? await cvTranslationCommandInput(operation, args)
+          : operation.startsWith('technology-')
+            ? await technologyCommandInput(operation, args)
+            : {
+                ...Object.fromEntries(
+                  ['query', 'resume', 'area', 'currency', 'order', 'url'].map(
+                    (key) => [key, args[key]]
+                  )
+                ),
+                ...Object.fromEntries(
+                  ['remote', 'refresh', 'headless', 'all'].map((key) => [
+                    key,
+                    typedFlag(args, key, 'boolean'),
+                  ])
+                ),
+                salary: typedFlag(args, 'salary', 'number'),
+                page: typedFlag(args, 'page', 'number'),
+                browserSlot: args['browser-slot'],
+                resumeLanguage: args['resume-language'],
+                requestId:
+                  args['request-id'] ??
+                  (['resume-export', 'cv-watch', 'cv-prepare'].includes(
+                    operation
+                  )
+                    ? randomUUID()
+                    : undefined),
+                durationMs: typedFlag(args, 'duration-ms', 'number'),
+                targetId: args['target-id'],
+                fingerprint: args.fingerprint,
+                changeId: args['change-id'],
+                recordId: args['record-id'],
+                formats:
+                  args.formats === undefined
+                    ? undefined
+                    : String(args.formats)
+                        .split(',')
+                        .map((format) => format.trim()),
+              };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
         const service = createVacancyService({ store, storeDir, ...options });
@@ -118,12 +142,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                 ? await foregroundCvWatch(service, input, log)
                 : await service[operation](input);
           log(encodeWire(result));
-          return (operation === 'resume-export' &&
-            result.state !== 'completed') ||
-            (operation === 'cv-prepare' &&
-              result.preparation?.state !== 'prepared')
-            ? 1
-            : 0;
+          return vacancyCommandExit(operation, result);
         } finally {
           try {
             await service.stop();

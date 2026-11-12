@@ -11,6 +11,10 @@ import { useCvPreparation } from './cv-prepare-state.js';
 import { CvTechnologyReview } from './cv-technology-review.js';
 import { useCvSaveWatch } from './cv-watch-state.js';
 import { CvSaveWatch } from './cv-watch-panel.js';
+import {
+  CvTranslationPanel,
+  useCvTranslation,
+} from './cv-translation-panel.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -118,6 +122,7 @@ export const useVacancies = (api) => {
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
   cvTechnology.preparation = useCvPreparation({ api, values, run });
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
+  const cvTranslation = useCvTranslation({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -179,11 +184,14 @@ export const useVacancies = (api) => {
     selected,
     setSelected,
     busy:
-      busy || (resumeExports.job?.state === 'running' ? 'resume-export' : ''),
+      busy ||
+      (resumeExports.job?.state === 'running' ? 'resume-export' : '') ||
+      (cvTranslation.comparison?.state === 'running' ? 'cv-translate' : ''),
     resumeExports,
     technology,
     cvTechnology,
     cvSaveWatch,
+    cvTranslation,
     error,
     loaded,
     valid,
@@ -424,6 +432,13 @@ const Snapshot = ({ state, t, idle }) => {
 
 const CvEvidencePanels = ({ state, t }) =>
   el(React.Fragment, null, [
+    state.cvTranslation
+      ? el(CvTranslationPanel, {
+          key: `translation:${state.values.browserSlot}`,
+          state,
+          t,
+        })
+      : null,
     state.cvSaveWatch
       ? el(CvSaveWatch, { key: state.values.browserSlot, state, t })
       : null,

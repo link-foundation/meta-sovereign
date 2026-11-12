@@ -492,6 +492,7 @@
     "test:e2e:cv-technologies": "node js/tests/e2e-cv-technologies-browser.mjs",
     "test:e2e:cv-technologies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-cv-technologies-browser.mjs",
     "test:e2e:cv-prepare": "node js/tests/e2e-cv-prepare-browser.mjs",
+    "test:e2e:cv-translation": "node js/tests/e2e-cv-translation-browser.mjs",
     "test:e2e:cv-prepare:webkit": "E2E_BROWSER=webkit node js/tests/e2e-cv-prepare-browser.mjs",
     "test:e2e:cv-save-watch": "node js/tests/e2e-cv-save-watch-browser.mjs",
     "test:e2e:cv-save-watch:webkit": "E2E_BROWSER=webkit node js/tests/e2e-cv-save-watch-browser.mjs"

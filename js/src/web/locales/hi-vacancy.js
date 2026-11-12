@@ -233,4 +233,32 @@ export const hiVacancy = {
     'तैयारी का परिणाम अनिश्चित है। मौजूदा HH मसौदा जाँचें; कोई स्वचालित पुनः प्रयास नहीं हुआ।',
   'cvPrepare.interrupted':
     'तैयारी बाधित हुई। आगे बढ़ने से पहले मौजूदा HH मसौदा जाँचें।',
+  'cvTranslation.title': 'कार्य अनुभव के अनुवादों की तुलना करें',
+  'cvTranslation.hint':
+    'केवल यह पाठ आपके चुने हुए स्थानीय अनुवाद कमांड को भेजा जाता है। परिणाम निजी रहते हैं। मॉडल खाली होने पर वर्तमान Haiku उपनाम और नवीनतम उपलब्ध Luna चुने जाते हैं; सटीक मॉडल से कैश दोबारा उपयोग होता है।',
+  'cvTranslation.source': 'मूल पाठ',
+  'cvTranslation.direction': 'अनुवाद की दिशा',
+  'cvTranslation.text': 'कार्य अनुभव का पाठ',
+  'cvTranslation.model': 'सटीक मॉडल (वैकल्पिक)',
+  'cvTranslation.compare': 'अनुवादों की तुलना करें',
+  'cvTranslation.reload': 'सहेजी गई तुलना फिर लोड करें',
+  'cvTranslation.pending':
+    'अनुरोध प्राप्त हो सकता है। नया अनुरोध शुरू करने से पहले उसकी स्थिति लोड करें। अप्राप्त अनुरोध रद्द करने से देर से आने वाली प्रतियाँ रुकती हैं।',
+  'cvTranslation.loadError': 'सहेजी गई तुलना लोड नहीं हुई। फिर प्रयास करें।',
+  'cvTranslation.review':
+    'अनुवादों की समीक्षा करें। प्रदाता के किसी फ़ील्ड को भरा या सहेजा नहीं गया है।',
+  'cvTranslation.cached': 'इस मॉडल या संस्करण के कैश से',
+  'cvTranslation.fresh': 'नया उत्तर',
+  'cvTranslation.refused': 'कोई मान्य अनुवाद नहीं',
+  'cvTranslation.output': 'अस्वीकृत आउटपुट देखें',
+  'cvTranslation.preferred': 'पसंदीदा विकल्प',
+  'cvTranslation.none': 'कोई मान्य विकल्प नहीं; मूल पाठ अनुवाद नहीं है।',
+  'cvTranslation.running': 'अनुवादों की तुलना चल रही है।',
+  'cvTranslation.completed': 'तुलना पूरी हुई। हर विकल्प की समीक्षा करें।',
+  'cvTranslation.interrupted': 'बाधित; यह अनुरोध फिर शुरू नहीं होगा।',
+  'cvTranslation.stopped': 'रोक दिया गया; पूरे हुए विकल्प उपलब्ध हैं।',
+  'cvTranslation.failed': 'तुलना विफल; पिछला निजी कैश उपलब्ध है।',
+  'cvTranslation.cancel': 'अप्राप्त अनुरोध रद्द करें',
+  'cvTranslation.stop': 'तुलना रोकें',
+  'cvTranslation.noAnswer': 'कोई जवाब नहीं मिला',
 };

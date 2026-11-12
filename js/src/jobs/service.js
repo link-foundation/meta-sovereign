@@ -25,6 +25,7 @@ import {
 } from './technology-service.js';
 import { createCvWatchService } from './cv-watch-service.js';
 import { createCvPrepareService } from './cv-prepare-service.js';
+import { createCvTranslationService } from './cv-translation-service.js';
 
 const owners = new WeakSet();
 
@@ -45,6 +46,7 @@ export const createVacancyService = ({
   }),
   cvWatch = {},
   cvPrepare = {},
+  cvTranslation = {},
 }) => {
   let active;
   let stopping;
@@ -96,6 +98,7 @@ export const createVacancyService = ({
     ...createTechnologyService({ store, artifactRoot, run }),
     ...createCvWatchService({ store, run, ...cvWatch }),
     ...preparation.operations,
+    ...createCvTranslationService({ store, run, ...cvTranslation }),
     async capabilities() {
       const browser = await availability();
       return {
@@ -108,6 +111,7 @@ export const createVacancyService = ({
         technologyAnalysis: true,
         technologyReview: true,
         technologyProviderSave: false,
+        cvTranslation: true,
         cvSaveWatch: browser.available === true,
         apply: false,
       };

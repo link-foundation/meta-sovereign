@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active HH22 translation comparison:
+
+The comparison draft passes 23 focused Node checks, 19 Deno checks, two actual-parent failures, six native WebKit scenarios and five independent MCP scenarios. Eleven synthetic model calls and one drained Stop are observed per browser run; no provider session or live model call is claimed. [Evidence and remaining limits](cv-translation.md). Parent hosted WebKit shard 4 fails at Lino peer rediscovery (`__msApi.get` during reload); preserve job logs and investigate without raising deadlines.
+
+- [x] Implement explicit bounded RU/EN comparison requests with configurable Haiku, Luna and Formal AI adapters, exact source/target/model provenance and private versioned caches. Retry failed results only on a new explicit request.
+- [x] Persist request IDs before translator admission, recover lost replies and interrupted runs without replay, abort/drain on Stop, and reject invalid answers without treating fallback source text as a translation.
+- [x] Share comparison, read-only recovery and variant/failure review through CLI, text/binary Lino and four localized CV controls; keep provider writes separate and truthful.
+- [ ] Verify actual-parent failure, focused Node/Deno and process bounds, independent MCP desktop/phone controls and checksummed evidence. Publish an atomic commit and inspect exact-head hosted checks.
+- [ ] Continue full HH/LinkedIn import, field comparison, reviewed sync, Formal AI failure publication and every other unchecked issue requirement; this unit alone does not complete HH21/HH22.
+
 Active reviewed workplace description preparation:
 
 Preparation `0b14bcd6` is integrated with independent readback guards `16a73620` in a regular merge. All 69 focused Node/69 Deno checks pass on the combined sources, with explicit successful Deno exit; the five preparation/eight Save-observation native cases pass. Parent native-helper cancellation was a superseded concurrency request with no test steps or log blob; retain its annotations and require exact combined-head hosted checks. Original archives and both implementations are preserved.

@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA5：显式私有 RU/EN 工作经历翻译比较提供有界 Haiku/Luna/Formal AI 适配器、模型版本缓存、候选及拒绝原因查看，以及 CLI、两种 Lino 格式和四语言 CV 控件中的不重放恢复、取消和停止。[专项检查及桌面/手机证据](case-studies/issue-56/cv-translation.md)使用模拟翻译器。真实模型验证、已安装 Formal AI 最新版本确认、上游故障报告及完整 HH/LinkedIn 同步仍未完成。
+
 R-AA5：已选定并保存的工作描述审核现可通过 CLI、两种 Lino 格式和四语言控件，在所有者已打开的确切 HH 记录中准备草稿。键盘输入前必须核对最新原生字段、简历勾选及来源证据；共享记录和未保存编辑会被拒绝。Save/Cancel 仍由所有者操作，丢失响应可恢复而不重复输入。[父版本回归与桌面/手机证据](case-studies/issue-56/cv-workplace-prepare.md)。完整字段、添加/复制/解除关联、批次、新记录身份、双语平台保存及真实平台验证仍未完成。
 
 R-AA5: 独立 Playwright MCP 已在自有原生测试夹具上验证所有者 Save、字段或成员关系不符及挑战时保留旧快照、手机恢复和 Stop 等待清理。更严格的元数据、导出集合、ID 校验和被拒响应体清理均保留了父版本失败回归。[证据](case-studies/issue-56/cv-workplace-hardening.md)。真实已登录提供方验证及其他条件仍未完成。
