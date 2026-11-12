@@ -335,3 +335,5 @@ Reject ambiguous native CV identities, extra readback exports and unobserved wor
 Add explicit review and native draft preparation of all nine existing workplace fields, localized area/industry identities and immutable export/job/record binding. Share CLI, both Lino encodings and four-language controls; preserve owner edits, memberships, Save/Cancel and durable recovery. Render unreceived cancellation receipts without requiring a CV identity.
 
 Compare explicit RU/EN workplace translations through configurable Haiku, Luna and Formal AI commands. Retain per-model private cache and all valid or rejected variants, durable caller-owned request recovery, cancellation and drained Stop through CLI, both Lino formats and four localized CV controls. Provider edits and saves remain separate.
+
+Keep a separate addressed WebRTC data connection for each remote browser. Rejoin with fresh peer identities, dispose only departing connections, and retain bounded early ICE until remote descriptions are ready. Share signaling membership across Node and Bun.

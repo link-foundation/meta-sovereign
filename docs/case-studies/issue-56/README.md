@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Independent WebRTC connections and connected-peer reload](webrtc-mesh.md): real three-peer native and MCP convergence, fresh post-reload writes, deletion, secret isolation and surviving-pair cleanup; offline reconciliation remains required.
+
 - [Offline rediscovery read race and connection lifecycle evidence](ci-lino-sync-rediscovery.md).
 
 - [Private workplace translation comparisons](cv-translation.md): bounded configurable model adapters, private version caches, all variants and non-replaying CLI/Lino/four-language recovery; real model and provider synchronization requirements remain open.

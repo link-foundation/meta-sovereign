@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active addressed WebRTC connection lifecycle:
+
+- [x] Integrate both published readiness fixes forward and publish `3483c8b1`; retain actual offline rediscovery and atomic guarded reads.
+- [x] Reproduce three-peer convergence against the actual parent bundle/server; preserve the earlier connected-peer deletion failure.
+- [x] Share server-owned room identities and directed signaling in Node/Bun; isolate one connection per remote peer, departure cleanup and bounded early ICE handling.
+- [x] Verify 18 focused room/mesh/transport checks and one native WebKit scenario covering a third peer, connected reload, fresh bidirectional writes, deletion, secrets and signaling-only server state.
+- [ ] Preserve [native and independent MCP evidence](webrtc-mesh.md), publish only the prepared branch and inspect all exact-head CI checks. Continue every unchecked original feature requirement.
+
 Active exact-head CI and connection lifecycle:
 
 - [x] Preserve parent WebKit job 131312063036 and identify offline rediscovery replacing the document after API readiness.

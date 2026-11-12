@@ -39,6 +39,7 @@
  */
 
 import { negotiateSync, syncQueue } from './wire.js';
+import { createSignalingRooms } from './signaling-room.js';
 import { connectNativeWebSocket } from './websocket-client.js';
 
 const REGISTRY = Symbol.for('meta-sovereign.bun-http-registry');
@@ -442,32 +443,16 @@ export const bunConnectSyncWebSocket = ({
   connectNativeWebSocket({ url: `ws://${host}:${port}${path}`, ...options });
 
 const wireSignalingHandlers = () => {
-  const rooms = new Map();
-  const join = (room, ws) => {
-    if (!rooms.has(room)) {
-      rooms.set(room, new Set());
-    }
-    rooms.get(room).add(ws);
-  };
-  const leave = (room, ws) => {
-    rooms.get(room)?.delete(ws);
-    if (rooms.get(room)?.size === 0) {
-      rooms.delete(room);
-    }
-  };
+  const relay = createSignalingRooms((ws, event) =>
+    ws.send(ws.data.wire.encode(event))
+  );
+  const { rooms } = relay;
   const handlers = {
     onOpen(ws) {
       const params = new URLSearchParams(ws.data?.query ?? '');
       const room = params.get('room') ?? 'default';
       ws.data.room = room;
-      join(room, ws);
-      const peerId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const announce = { type: 'peer-joined', peerId };
-      for (const other of rooms.get(room)) {
-        if (other !== ws) {
-          other.send(other.data.wire.encode(announce));
-        }
-      }
+      relay.join(room, ws);
     },
     onMessage(ws, msg) {
       let event;
@@ -477,21 +462,12 @@ const wireSignalingHandlers = () => {
         ws.close(1003, 'invalid sync message');
         return;
       }
-      const room = ws.data?.room;
-      try {
-        for (const other of rooms.get(room) ?? []) {
-          if (other !== ws) {
-            other.send(other.data.wire.encode(event));
-          }
-        }
-      } catch {
-        ws.close(1009, 'sync message exceeds negotiated limit');
-      }
+      relay.receive(ws.data?.room, ws, event);
     },
     onClose(ws) {
       const room = ws.data?.room;
       if (room) {
-        leave(room, ws);
+        relay.leave(room, ws);
       }
     },
   };
@@ -500,7 +476,7 @@ const wireSignalingHandlers = () => {
     rooms,
     closeAll() {
       for (const peers of rooms.values()) {
-        for (const ws of peers) {
+        for (const ws of peers.keys()) {
           try {
             ws.close();
           } catch {

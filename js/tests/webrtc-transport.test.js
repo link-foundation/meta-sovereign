@@ -399,3 +399,45 @@ test('WebRTC refuses an unversioned data channel instead of accepting JSON', () 
     transport.close();
   }
 });
+
+test(
+  'early ICE waits for a remote description and is bounded during negotiation',
+  { timeout: 3000 },
+  async () => {
+    const bus = makeBus();
+    const remote = signalingChannel(bus.connect('remote'));
+    const candidates = [];
+    const errors = [];
+    class IceRtc extends makeFakeRtc([]) {
+      async addIceCandidate(candidate) {
+        assert.ok(
+          this.remoteDescription,
+          'remote description precedes candidates'
+        );
+        candidates.push(candidate);
+      }
+    }
+    const transport = createWebRtcTransport({
+      signaling: signalingChannel(bus.connect('local')),
+      RTCPeerConnection: IceRtc,
+      onError: (error) => errors.push(error.message),
+    });
+    try {
+      for (let index = 0; index < 129; index++) {
+        remote.sendIce({ candidate: `fixture-${index}` });
+      }
+      assert.equal(candidates.length, 0);
+      assert.deepEqual(errors, ['too many pending WebRTC ICE candidates']);
+      remote.sendOffer('fixture');
+      await waitFor(() => candidates.length === 128);
+      assert.equal(candidates.length, 128);
+      assert.equal(candidates[0].candidate, 'fixture-0');
+      assert.equal(candidates.at(-1).candidate, 'fixture-127');
+      transport.close();
+      remote.sendIce({ candidate: 'closed' });
+      assert.equal(candidates.length, 128);
+    } finally {
+      transport.close();
+    }
+  }
+);

@@ -69,6 +69,47 @@ export const signalingChannel = (transport) => {
   };
 };
 
+// ICE can precede its offer on the signaling socket. Keep a finite queue
+// until setRemoteDescription completes, and dispose it with this connection.
+const manageIceCandidates = (pc, signaling, onError) => {
+  let closed = false;
+  const pendingIce = [];
+  const addIce = async (candidate) => {
+    try {
+      await pc.addIceCandidate(candidate);
+    } catch {
+      // A late candidate may refer to a superseded ICE generation.
+    }
+  };
+  const flushIce = async () => {
+    while (!closed && pendingIce.length) {
+      await addIce(pendingIce.shift());
+    }
+  };
+
+  const offIce = signaling.on(TYPE_ICE, (msg) => {
+    if (closed || !msg.candidate) {
+      return;
+    }
+    if (pc.remoteDescription) {
+      void addIce(msg.candidate);
+    } else if (pendingIce.length < 128) {
+      pendingIce.push(msg.candidate);
+    } else {
+      onError(new Error('too many pending WebRTC ICE candidates'));
+    }
+  });
+
+  return {
+    flush: flushIce,
+    close() {
+      closed = true;
+      pendingIce.length = 0;
+      offIce();
+    },
+  };
+};
+
 /**
  * Create a WebRTC data-channel transport. The peer that wants to
  * initiate creates an offer immediately; the peer that *receives*
@@ -96,6 +137,7 @@ export const createWebRtcTransport = ({
   let dataChannel = null;
   let awaitingAnswer = false;
   let closed = false;
+  const ice = manageIceCandidates(pc, signaling, onError);
 
   const wireChannel = (channel) => {
     if (channel.protocol !== wire.protocol) {
@@ -144,6 +186,7 @@ export const createWebRtcTransport = ({
         return;
       }
       await pc.setRemoteDescription({ type: 'offer', sdp: msg.sdp });
+      await ice.flush();
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
       signaling.sendAnswer(answer.sdp);
@@ -161,19 +204,10 @@ export const createWebRtcTransport = ({
       // Claim this answer before awaiting: a duplicate cannot race it.
       awaitingAnswer = false;
       await pc.setRemoteDescription({ type: 'answer', sdp: msg.sdp });
+      await ice.flush();
     },
     onError
   );
-
-  const offIce = signaling.on(TYPE_ICE, async (msg) => {
-    if (msg.candidate) {
-      try {
-        await pc.addIceCandidate(msg.candidate);
-      } catch {
-        // ignore — late candidates are OK to drop
-      }
-    }
-  });
 
   const startAsInitiator = async () => {
     if (closed || awaitingAnswer || dataChannel?.readyState === 'open') {
@@ -221,7 +255,7 @@ export const createWebRtcTransport = ({
       sendQueue.clear();
       offOffer();
       offAnswer();
-      offIce();
+      ice.close();
       try {
         dataChannel?.close();
       } catch {
