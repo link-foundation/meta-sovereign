@@ -128,6 +128,75 @@ const propose = async (options, input, signal) => {
   signal.throwIfAborted();
   return saveCvWorkplacePlan(options.store, plan);
 };
+const inspectMembership = async ({ options, input, signal, attach }) => {
+  const { store } = options;
+  const recordId = cvWorkplaceRecordId(input.recordId);
+  const source = await verifiedTechnologyCv(options, input);
+  if (!Number.isInteger(input.jobIndex) || !source.cv.jobs[input.jobIndex]) {
+    cvWorkplaceFail('options');
+  }
+  const dictionaries = await loadCvWorkplaceDictionaries({
+    store,
+    signal,
+  });
+  const job = source.cv.jobs[input.jobIndex];
+  const baseline = cvWorkplaceJobValues(
+    job,
+    cvAreaIdentity(job.area, dictionaries)
+  );
+  const metadata = {
+    areas: baseline.areaId
+      ? [cvLocalizedEntry(dictionaries.areas, baseline.areaId)]
+      : [],
+    industries: baseline.industryIds.map((id) =>
+      cvLocalizedEntry(dictionaries.industries, id)
+    ),
+  };
+  let session;
+  try {
+    signal.throwIfAborted();
+    session = await attach({
+      browserSlot: source.identity.browserSlot,
+      targetId: input.targetId,
+    });
+    const form = await inspectNativeCvWorkplace({
+      session,
+      recordId,
+      check: () => signal.throwIfAborted(),
+    });
+    if (
+      !cvWorkplaceMatchesJob(
+        form,
+        cvWorkplacePlanJob({ baseline, metadata }, 'baseline', form.locale),
+        metadata.industries.map((row) => ({
+          id: row.id,
+          ...row[form.locale],
+        }))
+      )
+    ) {
+      cvWorkplaceFail('baseline');
+    }
+    const membership = cvWorkplaceMembership(
+      form.resumes,
+      source.identity.hash
+    );
+    signal.throwIfAborted();
+    return {
+      membership: {
+        recordId,
+        source: {
+          identity: source.identity,
+          jobIndex: input.jobIndex,
+          job,
+        },
+        resumes: membership.before,
+        observedAt: new Date().toISOString(),
+      },
+    };
+  } finally {
+    await session?.detach();
+  }
+};
 export const createCvWorkplaceReviewService = ({
   store,
   artifactRoot,
@@ -138,81 +207,7 @@ export const createCvWorkplaceReviewService = ({
   const options = { store, artifactRoot };
   return {
     'cv-workplace-membership': (input) =>
-      write(async (signal) => {
-        const recordId = cvWorkplaceRecordId(input.recordId);
-        const source = await verifiedTechnologyCv(options, input);
-        if (
-          !Number.isInteger(input.jobIndex) ||
-          !source.cv.jobs[input.jobIndex]
-        ) {
-          cvWorkplaceFail('options');
-        }
-        const dictionaries = await loadCvWorkplaceDictionaries({
-          store,
-          signal,
-        });
-        const job = source.cv.jobs[input.jobIndex];
-        const baseline = cvWorkplaceJobValues(
-          job,
-          cvAreaIdentity(job.area, dictionaries)
-        );
-        const metadata = {
-          areas: baseline.areaId
-            ? [cvLocalizedEntry(dictionaries.areas, baseline.areaId)]
-            : [],
-          industries: baseline.industryIds.map((id) =>
-            cvLocalizedEntry(dictionaries.industries, id)
-          ),
-        };
-        let session;
-        try {
-          signal.throwIfAborted();
-          session = await attach({
-            browserSlot: source.identity.browserSlot,
-            targetId: input.targetId,
-          });
-          const form = await inspectNativeCvWorkplace({
-            session,
-            recordId,
-            check: () => signal.throwIfAborted(),
-          });
-          if (
-            !cvWorkplaceMatchesJob(
-              form,
-              cvWorkplacePlanJob(
-                { baseline, metadata },
-                'baseline',
-                form.locale
-              ),
-              metadata.industries.map((row) => ({
-                id: row.id,
-                ...row[form.locale],
-              }))
-            )
-          ) {
-            cvWorkplaceFail('baseline');
-          }
-          const membership = cvWorkplaceMembership(
-            form.resumes,
-            source.identity.hash
-          );
-          signal.throwIfAborted();
-          return {
-            membership: {
-              recordId,
-              source: {
-                identity: source.identity,
-                jobIndex: input.jobIndex,
-                job,
-              },
-              resumes: membership.before,
-              observedAt: new Date().toISOString(),
-            },
-          };
-        } finally {
-          await session?.detach();
-        }
-      }),
+      write((signal) => inspectMembership({ options, input, signal, attach })),
     'cv-workplace-source': (input) =>
       read(async () => {
         const jobIndex =

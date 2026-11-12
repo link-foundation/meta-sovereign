@@ -7,6 +7,93 @@ import { cvSaveAttempt } from '../../src/jobs/cv-watch-verification.js';
 import { clickCvPreparation } from './e2e-cv-prepare-recovery.mjs';
 import { traceBrowserScenario } from './e2e-browser-scenarios.mjs';
 
+const verifyPhoneRecovery = async ({
+  open,
+  page,
+  panel,
+  prepare,
+  read,
+  f,
+  shot,
+}) => {
+  await open();
+  let posts = 0;
+  await page.route('**/api/vacancies/cv-prepare', async (route) => {
+    posts++;
+    await route.fetch();
+    await route.abort('failed');
+  });
+  await prepare.click();
+  await page.locator('[data-vacancy-error]').waitFor();
+  await page.unroute('**/api/vacancies/cv-prepare');
+  const attached = f.counters.attached;
+  const baseline = await read();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await panel.locator('[data-cv-preparation-state="prepared"]').waitFor();
+  await panel.locator('[data-cv-workplace-action="status"]').click();
+  assert.deepEqual(await read(), baseline);
+  assert.equal(f.counters.attached, attached);
+  assert.equal(posts, 1);
+  assert.equal(
+    await panel.locator('[data-cv-workplace-operation]').inputValue(),
+    'detach'
+  );
+  const geometry = await panel.evaluate((node) => ({
+    width: node.clientWidth,
+    scroll: node.scrollWidth,
+  }));
+  assert.ok(geometry.scroll <= geometry.width + 1);
+  await panel.locator('[data-cv-workplace-plan]').scrollIntoViewIfNeeded();
+  await shot('cv-workplace-membership-phone');
+};
+
+const verifyMembershipPreparation = async ({
+  f,
+  panel,
+  open,
+  read,
+  prepare,
+  page,
+  provider,
+  shot,
+}) => {
+  const { identity } = f.data.sources.find(
+    (row) => row.identity.language === 'en'
+  );
+  await panel
+    .locator('[data-cv-workplace-export]')
+    .selectOption(`${identity.exportId}:${identity.hash}`);
+  await panel.locator('[data-cv-workplace-action="loadSource"]').click();
+  await panel.locator('[data-cv-workplace-fields]').waitFor();
+  await panel.locator('[data-cv-workplace-record]').fill('123');
+  await panel.locator('[data-cv-workplace-operation]').selectOption('detach');
+  await open({ delay: 300 });
+  const baseline = await read();
+  await panel.locator('[data-cv-workplace-action="loadMembership"]').click();
+  await panel.locator('[data-cv-workplace-membership]').waitFor();
+  assert.deepEqual(await read(), baseline);
+  await panel.locator('[data-cv-workplace-action="propose"]').click();
+  await panel.locator('[data-cv-workplace-plan="draft"]').waitFor();
+  assert.equal(await prepare.count(), 0);
+  await panel.locator('[data-cv-workplace-action="approve"]').click();
+  await panel.locator('[data-cv-workplace-plan="reviewed"]').waitFor();
+  const navigations = f.counters.navigations;
+  await clickCvPreparation(page, prepare, 'prepared');
+  assert.deepEqual(await read(), {
+    ...baseline,
+    resumes: baseline.resumes.map((row) =>
+      row.hash === f.change.hash ? { ...row, checked: false } : row
+    ),
+  });
+  assert.equal(f.counters.navigations, navigations);
+  assert.equal(await provider.evaluate(() => globalThis.fixtureInputs), 0);
+  assert.equal(await provider.evaluate(() => globalThis.fixtureCancels), 0);
+  await shot('cv-workplace-membership-native', provider);
+  await panel.locator('[data-cv-workplace-plan]').scrollIntoViewIfNeeded();
+  await shot('cv-workplace-membership-desktop');
+};
+
 export const verifyCvWorkplaceMembership = async (
   browser,
   { before = false, screenshots } = {}
@@ -55,54 +142,17 @@ export const verifyCvWorkplaceMembership = async (
     }
     await run(
       'read complete unchanged native membership and explicitly review target-only deselection',
-      async () => {
-        const { identity } = f.data.sources.find(
-          (row) => row.identity.language === 'en'
-        );
-        await panel
-          .locator('[data-cv-workplace-export]')
-          .selectOption(`${identity.exportId}:${identity.hash}`);
-        await panel.locator('[data-cv-workplace-action="loadSource"]').click();
-        await panel.locator('[data-cv-workplace-fields]').waitFor();
-        await panel.locator('[data-cv-workplace-record]').fill('123');
-        await panel
-          .locator('[data-cv-workplace-operation]')
-          .selectOption('detach');
-        await open({ delay: 300 });
-        const baseline = await read();
-        await panel
-          .locator('[data-cv-workplace-action="loadMembership"]')
-          .click();
-        await panel.locator('[data-cv-workplace-membership]').waitFor();
-        assert.deepEqual(await read(), baseline);
-        await panel.locator('[data-cv-workplace-action="propose"]').click();
-        await panel.locator('[data-cv-workplace-plan="draft"]').waitFor();
-        assert.equal(await prepare.count(), 0);
-        await panel.locator('[data-cv-workplace-action="approve"]').click();
-        await panel.locator('[data-cv-workplace-plan="reviewed"]').waitFor();
-        const navigations = f.counters.navigations;
-        await clickCvPreparation(page, prepare, 'prepared');
-        assert.deepEqual(await read(), {
-          ...baseline,
-          resumes: baseline.resumes.map((row) =>
-            row.hash === f.change.hash ? { ...row, checked: false } : row
-          ),
-        });
-        assert.equal(f.counters.navigations, navigations);
-        assert.equal(
-          await provider.evaluate(() => globalThis.fixtureInputs),
-          0
-        );
-        assert.equal(
-          await provider.evaluate(() => globalThis.fixtureCancels),
-          0
-        );
-        await shot('cv-workplace-membership-native', provider);
-        await panel
-          .locator('[data-cv-workplace-plan]')
-          .scrollIntoViewIfNeeded();
-        await shot('cv-workplace-membership-desktop');
-      }
+      () =>
+        verifyMembershipPreparation({
+          f,
+          panel,
+          open,
+          read,
+          prepare,
+          page,
+          provider,
+          shot,
+        })
     );
     await run(
       'stale membership, another saved record and unsaved fields refuse without touching the draft',
@@ -175,40 +225,7 @@ export const verifyCvWorkplaceMembership = async (
     );
     await run(
       'lost preparation reply recovers by GET on the phone without another attachment',
-      async () => {
-        await open();
-        let posts = 0;
-        await page.route('**/api/vacancies/cv-prepare', async (route) => {
-          posts++;
-          await route.fetch();
-          await route.abort('failed');
-        });
-        await prepare.click();
-        await page.locator('[data-vacancy-error]').waitFor();
-        await page.unroute('**/api/vacancies/cv-prepare');
-        const attached = f.counters.attached;
-        const baseline = await read();
-        await page.setViewportSize({ width: 390, height: 844 });
-        await page.reload();
-        await panel.locator('[data-cv-preparation-state="prepared"]').waitFor();
-        await panel.locator('[data-cv-workplace-action="status"]').click();
-        assert.deepEqual(await read(), baseline);
-        assert.equal(f.counters.attached, attached);
-        assert.equal(posts, 1);
-        assert.equal(
-          await panel.locator('[data-cv-workplace-operation]').inputValue(),
-          'detach'
-        );
-        const geometry = await panel.evaluate((node) => ({
-          width: node.clientWidth,
-          scroll: node.scrollWidth,
-        }));
-        assert.ok(geometry.scroll <= geometry.width + 1);
-        await panel
-          .locator('[data-cv-workplace-plan]')
-          .scrollIntoViewIfNeeded();
-        await shot('cv-workplace-membership-phone');
-      }
+      () => verifyPhoneRecovery({ open, page, panel, prepare, read, f, shot })
     );
     assert.equal(f.counters.saves, 0);
     assert.equal(f.counters.attached, f.counters.detached);

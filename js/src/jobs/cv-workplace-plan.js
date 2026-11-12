@@ -233,7 +233,23 @@ const validateProposedPrivacy = (plan) => {
     cvWorkplaceFail();
   }
 };
+const validateFieldBindings = (plan, fields) => {
+  if (
+    fields &&
+    Object.keys(fields).some(
+      (key) =>
+        JSON.stringify(
+          key === 'industryIds' && Array.isArray(fields[key])
+            ? [...fields[key]].sort()
+            : fields[key]
+        ) !== JSON.stringify(plan.desired[key])
+    )
+  ) {
+    cvWorkplaceFail('conflict');
+  }
+};
 const validateInputBindings = (plan, input) => {
+  validateFieldBindings(plan, input.fields);
   for (const field of ['browserSlot', 'recordId', 'operation']) {
     if (input[field] !== undefined && input[field] !== plan[field]) {
       cvWorkplaceFail('conflict');
@@ -252,16 +268,7 @@ const validateInputBindings = (plan, input) => {
     (input.resumes &&
       JSON.stringify(
         cvWorkplaceMembership(input.resumes, plan.source.identity.hash)
-      ) !== JSON.stringify(plan.membership)) ||
-    (input.fields &&
-      Object.keys(input.fields).some(
-        (key) =>
-          JSON.stringify(
-            key === 'industryIds' && Array.isArray(input.fields[key])
-              ? [...input.fields[key]].sort()
-              : input.fields[key]
-          ) !== JSON.stringify(plan.desired[key])
-      ))
+      ) !== JSON.stringify(plan.membership))
   ) {
     cvWorkplaceFail('conflict');
   }
