@@ -112,6 +112,7 @@ export const createReviewLifecycle = ({
       milliseconds: deadlineMs,
       now,
       timers,
+      trace: (event) => record.browser?.trace?.(event),
       expired: (code = 'form-timeout') => {
         record.cancelled = code;
         close(record.id).catch(() => {});

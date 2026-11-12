@@ -20,6 +20,7 @@ import {
   readWireResponse,
 } from '../src/transport/lino.js';
 import { awaitFormPrefill } from '../src/cli/forms-prefill-wait.js';
+import { formDeadlineClock } from '../../experiments/issue-56/form-deadline-clock.mjs';
 
 const delay = (ms = 5) => new Promise((resolve) => setTimeout(resolve, ms));
 const completed = async (reader, initial) => {
@@ -99,9 +100,12 @@ test(
   'CAPTCHA pauses the ordinary deadline, preserves one request and resumes a fresh guarded plan',
   { timeout: 5000 },
   async (t) => {
+    const clock = formDeadlineClock();
     const env = await automaticFormEnvironment(2, {
       review: {
         deadlineMs: 100,
+        now: clock.now,
+        timers: clock.timers,
         challenge: { waitMs: 2000, pollMs: 5 },
       },
     });
@@ -113,7 +117,8 @@ test(
     assert.equal(initial.complete, false);
     assert.equal(initial.reviewSession.busy, true);
     assert.equal(env.textWrites.length, 0);
-    await delay(120);
+    clock.advance(120);
+    await delay();
     const snapshot = await env.reader.prefillStatus({
       id: env.session.id,
       requestId,
@@ -128,10 +133,21 @@ test(
     await assert.rejects(env.reader.planReview({ id: env.session.id }), {
       code: 'form-busy',
     });
+    let guarded = 0;
+    env.hooks.check = async () => {
+      if (++guarded === 1) {
+        await delay(120);
+      }
+    };
     delete env.report.challenge;
+    clock.advance(5);
     const result = await completed(env.reader, initial);
     assert.equal(result.state, 'partial');
     assert.equal(result.receipts.length, 2);
+    assert.ok(
+      guarded > 0,
+      'the resumed plan must pass the deliberately delayed guard'
+    );
     assert.equal(env.textWrites.length, 2);
     assert.equal(result.submissionAttempted, false);
     await env.prefill({ requestId });
