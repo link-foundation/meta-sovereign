@@ -309,3 +309,5 @@ Add finite HH vacancy search/collection with typed resume-bound filters, exact n
 Make the CAPTCHA pause/resume fixture independent of host scheduling while retaining every deadline; directly verify unspent ordinary time, manual expiry and Stop, with silent optional lifetime diagnostics.
 
 Expose native HH résumé inventory and explicit search selection through CLI, text/binary Lino and localized CV controls. Explain title/date recommendations, preserve successful slot snapshots on failed refresh and recover cached choices without reopening the provider.
+
+Keep automatic prefill status pending until browser-handle cleanup completes, so the UI can receive the final receipt without replaying writes. Hide CAPTCHA instructions after verification and retain silent content-free status diagnostics.

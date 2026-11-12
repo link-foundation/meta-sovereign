@@ -20,7 +20,7 @@ export const FormAutomaticResult = ({ result, Report }) => {
       [
         el('h2', { key: 'title' }, t('forms.automatic.title')),
         el('p', { key: 'state' }, t(`forms.automatic.state.${result.state}`)),
-        result.wait
+        result.state === 'waiting-owner' && result.wait
           ? el(
               'p',
               { key: 'wait', className: 'meta' },

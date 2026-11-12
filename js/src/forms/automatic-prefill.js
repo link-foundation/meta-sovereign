@@ -234,6 +234,7 @@ export const prefillFormReview = async ({
   record.lastPrefill = { signature, result };
   let initial;
   let anchor;
+  let succeeded = false;
   try {
     const cleared = await waitForManualChallenge({
       ...challenge,
@@ -276,7 +277,7 @@ export const prefillFormReview = async ({
     }
     check();
     await anchor.check();
-    result.ok = true;
+    succeeded = true;
   } catch (error) {
     result.state =
       result.receipts.some((receipt) => receipt.status === 'applied') ||
@@ -288,5 +289,6 @@ export const prefillFormReview = async ({
     await filling.clear(record);
     await anchor?.dispose();
   }
+  result.ok = succeeded;
   return finish(result, initial);
 };

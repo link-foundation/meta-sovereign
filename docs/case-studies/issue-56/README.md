@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Prefill cleanup status](ci-prefill-cleanup.md): reproduce an inconsistent pending receipt against the actual parent, keep success private through disposal and verify read-only recovery without raising deadlines.
+
 - [HH résumé inventory](job-resumes.md): bounded native list reads, disclosed title/date recommendations, explicit search selection and per-slot cache recovery through CLI, Lino and localized CV controls.
 - [CAPTCHA CI deadline](ci-captcha-deadline.md): preserve legitimate expiry after bounded delayed replanning, control test time and verify remaining-budget/manual-ceiling/Stop semantics without increasing deadlines.
 

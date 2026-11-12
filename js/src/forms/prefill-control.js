@@ -17,6 +17,19 @@ export const createPrefillControl = ({ get, check, identity, action }) => {
           'This request is not recoverable.'
         );
       }
+      try {
+        record.browser?.trace?.({
+          event: 'form-prefill-status',
+          state: result.state,
+          ok: result.ok,
+          complete: result.complete,
+          busy: Boolean(record.task),
+          receipts: result.receipts.length,
+          uploads: result.uploads.length,
+        });
+      } catch {
+        // Optional status-shape diagnostics must never affect recovery.
+      }
       return snapshot(record, result);
     },
     run: async (input) => {

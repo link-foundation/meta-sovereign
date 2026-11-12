@@ -21,6 +21,7 @@ import {
 } from '../src/transport/lino.js';
 import { awaitFormPrefill } from '../src/cli/forms-prefill-wait.js';
 import { formDeadlineClock } from '../../experiments/issue-56/form-deadline-clock.mjs';
+import { createPrefillControl } from '../src/forms/prefill-control.js';
 
 const delay = (ms = 5) => new Promise((resolve) => setTimeout(resolve, ms));
 const completed = async (reader, initial) => {
@@ -37,6 +38,21 @@ const completed = async (reader, initial) => {
 };
 const challenge = { active: true, kind: 'captcha' };
 const settings = { review: { challenge: { waitMs: 2000, pollMs: 5 } } };
+const uiPrefill = (env) => {
+  const calls = { posts: 0, reads: 0 };
+  const invoke = (name, method) => (input) => {
+    calls[name]++;
+    return env.reader[method](input);
+  };
+  return {
+    calls,
+    request: createFormPrefillRequest({
+      formsPrefillReview: invoke('posts', 'prefillReview'),
+      formsPrefillStatus: invoke('reads', 'prefillStatus'),
+    }),
+    input: { id: env.session.id, profileId: env.profile.id },
+  };
+};
 
 const challengeDocument = (url, inline = false) => {
   const root = {
@@ -290,22 +306,8 @@ test(
     const env = await automaticFormEnvironment(2, settings);
     t.after(() => env.reader.stop());
     env.report.challenge = challenge;
-    let posts = 0;
-    let reads = 0;
-    const request = createFormPrefillRequest({
-      formsPrefillReview: (input) => {
-        posts++;
-        return env.reader.prefillReview(input);
-      },
-      formsPrefillStatus: (input) => {
-        reads++;
-        return env.reader.prefillStatus(input);
-      },
-    });
-    const initial = await request.run({
-      id: env.session.id,
-      profileId: env.profile.id,
-    });
+    const { request, calls, input } = uiPrefill(env);
+    const initial = await request.run(input);
     assert.equal(request.pending(), true);
     const markup = renderToStaticMarkup(
       React.createElement(FormAutomaticResult, {
@@ -315,15 +317,113 @@ test(
     );
     assert.match(markup, /solve verification/iu);
     assert(!markup.includes('Questions still needing'));
+    const cleared = renderToStaticMarkup(
+      React.createElement(FormAutomaticResult, {
+        result: { ...initial, state: 'prefilling' },
+        Report: () => assert.fail('no question report while prefilling'),
+      })
+    );
+    assert.match(cleared, /Verification cleared/u);
+    assert(!cleared.includes('Solve the CAPTCHA yourself before'));
     assert.equal((await request.status()).state, 'waiting-owner');
     delete env.report.challenge;
     await completed(env.reader, initial);
     assert.equal((await request.status()).state, 'partial');
     assert.equal(request.pending(), false);
-    assert.equal(posts, 1);
-    assert.equal(reads, 2);
+    assert.equal(calls.posts, 1);
+    assert.equal(calls.reads, 2);
   }
 );
+
+test(
+  'UI status stays pending until successful prefill cleanup completes',
+  { timeout: 5000 },
+  async (t) => {
+    const env = await automaticFormEnvironment(2, settings);
+    env.report.fields = env.report.fields.filter(
+      (field) => field.type !== 'file'
+    );
+    env.report.challenge = challenge;
+    let release;
+    let started;
+    const cleanup = new Promise((resolve) => {
+      started = resolve;
+    });
+    const held = new Promise((resolve) => {
+      release = resolve;
+    });
+    t.after(async () => {
+      release();
+      await env.reader.stop();
+    });
+    env.hooks.dispose = async () => {
+      started();
+      await held;
+    };
+    const { request, calls, input } = uiPrefill(env);
+    const initial = await request.run(input);
+    delete env.report.challenge;
+    try {
+      await cleanup;
+      const status = await request.status();
+      assert.equal(status.state, 'prefilling');
+      assert.equal(status.ok, false);
+      assert.equal(status.complete, false);
+      assert.equal(request.pending(), true);
+      assert.equal(status.receipts.length, 2);
+      assert.equal(env.reader.listReviews().sessions[0].busy, true);
+    } finally {
+      release();
+    }
+    await completed(env.reader, initial);
+    const result = await request.status();
+    assert.equal(result.state, 'prefilled');
+    assert.equal(result.ok, true);
+    assert.equal(result.complete, true);
+    assert.equal(request.pending(), false);
+    assert.equal(calls.posts, 1);
+    assert.equal(env.textWrites.length, 2);
+  }
+);
+
+test('optional status diagnostics disclose shape only and cannot break recovery', () => {
+  const events = [];
+  const result = {
+    state: 'prefilling',
+    ok: false,
+    complete: false,
+    requestId: 'private-request',
+    receipts: [{ answer: 'private-answer' }],
+    uploads: [],
+  };
+  const control = createPrefillControl({
+    get: () => ({
+      lastPrefill: { result },
+      task: {},
+      browser: {
+        trace: (event) => {
+          events.push(event);
+          throw new Error('diagnostic failed');
+        },
+      },
+    }),
+    check: () => {},
+    identity: () => ({ id: 'owned' }),
+  });
+  const value = control.status({ id: 'owned', requestId: result.requestId });
+  assert.equal(value.reviewSession.id, 'owned');
+  assert.deepEqual(events, [
+    {
+      event: 'form-prefill-status',
+      state: 'prefilling',
+      ok: false,
+      complete: false,
+      busy: true,
+      receipts: 1,
+      uploads: 0,
+    },
+  ]);
+});
 
 test(
   'text and binary Lino expose waiting status without replaying a POST',

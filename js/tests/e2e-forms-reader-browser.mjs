@@ -44,8 +44,10 @@ import { readFormDocument } from '../src/forms/read-document.js';
 import { readFile } from 'node:fs/promises';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
 import { traceBrowserInputs } from './helpers/e2e-input-trace.mjs';
+import { prefillCleanupFixture } from '../../experiments/issue-56/prefill-cleanup-fixture.mjs';
 
 const fixture = await startFormsFixture();
+fixture.prefillCleanup = prefillCleanupFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
 await seedLinkAnswers(store);
@@ -91,6 +93,7 @@ try {
         review: {
           learn: process.env.FORMS_LEARNING_BEFORE !== '1',
           learning: { stableMs: 800 },
+          prefill: { capture: fixture.prefillCleanup.capture },
         },
         availability: async () => ({
           available: true,

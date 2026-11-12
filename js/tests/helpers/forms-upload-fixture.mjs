@@ -45,6 +45,7 @@ export const formUploadEnvironment = async (settings) => {
           check: async () => hooks.check?.(),
           dispose: async () => {
             disposed++;
+            await hooks.dispose?.();
           },
           control: () => ({
             setInputFiles: async (payload) => {

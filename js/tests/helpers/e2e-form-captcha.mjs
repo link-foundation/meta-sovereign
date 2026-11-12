@@ -1,5 +1,6 @@
 import { assert } from './e2e-chat.mjs';
 import { decoded, responseFor, closeFormReview } from './e2e-form-review.mjs';
+import { verifyPrefillCleanup } from './e2e-prefill-cleanup.mjs';
 
 const capture = async (page, state) => {
   const result = page.locator(`[data-form-automatic-result="${state}"]`);
@@ -108,7 +109,7 @@ export const verifyFormCaptchaUi = async ({ page, fixture, owned, until }) => {
   });
   // This is the test owner completing a synthetic gate. Production never
   // receives this button selector or a CAPTCHA answer/solver implementation.
-  await owner.page.locator('#owner-clear').click();
+  await verifyPrefillCleanup({ page, owner, fixture });
   await page.locator('[data-form-automatic-result="prefilled"]').waitFor();
   assert(
     (await owner.page.locator('[name="email"]').inputValue()) ===
