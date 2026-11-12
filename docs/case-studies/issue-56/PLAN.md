@@ -8,6 +8,14 @@ Active addressed WebRTC connection lifecycle:
 - [x] Verify 18 focused room/mesh/transport checks and one native WebKit scenario covering a third peer, connected reload, fresh bidirectional writes, deletion, secrets and signaling-only server state.
 - [ ] Preserve [native and independent MCP evidence](webrtc-mesh.md), publish only the prepared branch and inspect all exact-head CI checks. Continue every unchecked original feature requirement.
 
+Active separately reviewed shared-workplace deselection:
+
+- [x] Read pinned copy/detach behavior and integrate published translation/sync work without discarding either implementation.
+- [x] Draft immutable complete membership review and native target-only deselection through CLI, both Lino encodings and four locales. Refuse orphaning and leave Save/Cancel to the owner.
+- [x] Reproduce actual-parent service/UI failures; verify focused tampering, stale membership, owner concurrency and phone lost-reply recovery on isolated native fixtures.
+- [ ] Preserve evidence/screenshots, publish the atomic unit and inspect exact-head hosted CI.
+- [ ] Continue complete shared copy/new-record identity, durable batches and every other unchecked original criterion. Standalone deselection does not complete HH14–HH20.
+
 Active exact-head CI and connection lifecycle:
 
 - [x] Preserve parent WebKit job 131312063036 and identify offline rediscovery replacing the document after API readiness.

@@ -2,6 +2,7 @@ import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { resumeExportId } from './resume-export-result.js';
 import { resumeHash } from './resume-list.js';
+import { cvWorkplaceMembership } from './cv-workplace-membership.js';
 import { sanitizedResumeCv } from './resume-cv.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 
@@ -233,7 +234,7 @@ const validateProposedPrivacy = (plan) => {
   }
 };
 const validateInputBindings = (plan, input) => {
-  for (const field of ['browserSlot', 'recordId']) {
+  for (const field of ['browserSlot', 'recordId', 'operation']) {
     if (input[field] !== undefined && input[field] !== plan[field]) {
       cvWorkplaceFail('conflict');
     }
@@ -248,6 +249,10 @@ const validateInputBindings = (plan, input) => {
   }
   if (
     (input.jobIndex !== undefined && input.jobIndex !== plan.source.jobIndex) ||
+    (input.resumes &&
+      JSON.stringify(
+        cvWorkplaceMembership(input.resumes, plan.source.identity.hash)
+      ) !== JSON.stringify(plan.membership)) ||
     (input.fields &&
       Object.keys(input.fields).some(
         (key) =>
@@ -306,7 +311,7 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
   }
   metadataShape(plan);
   validateProposedPrivacy(plan);
-  const changes = cvWorkplaceDifferences(baseline, desired);
+  const changes = cvWorkplacePlanDifferences({ ...plan, baseline, desired });
   if (
     !changes.length ||
     JSON.stringify(changes) !== JSON.stringify(plan.changes)
@@ -319,4 +324,26 @@ export const confirmedCvWorkplacePlan = async (answer, input = {}) => {
     cvWorkplaceFail();
   }
   return { plan };
+};
+
+/** Membership-only plans never authorize changes to a workplace field. */
+export const cvWorkplacePlanDifferences = (plan) => {
+  const changes = cvWorkplaceDifferences(plan.baseline, plan.desired);
+  if (plan.operation === undefined) {
+    if (plan.membership !== undefined) {
+      cvWorkplaceFail();
+    }
+    return changes;
+  }
+  if (plan.operation !== 'detach' || changes.length) {
+    cvWorkplaceFail();
+  }
+  const expected = cvWorkplaceMembership(
+    plan.membership?.before,
+    plan.source.identity.hash
+  );
+  if (JSON.stringify(expected) !== JSON.stringify(plan.membership)) {
+    cvWorkplaceFail();
+  }
+  return [{ field: 'resumes', ...expected }];
 };

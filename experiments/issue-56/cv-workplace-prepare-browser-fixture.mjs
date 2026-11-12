@@ -51,6 +51,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
     shared: options.shared ?? false,
     maxLength: options.maxLength ?? 24000,
     fieldsMode,
+    membershipMode: options.membershipMode ?? false,
   });
   const html = (saved = false) =>
     `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(NativeCvWorkplace, props(saved)))}</div><script>globalThis.fixtureProps=${JSON.stringify(props()).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;

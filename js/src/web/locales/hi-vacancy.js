@@ -295,4 +295,12 @@ export const hiVacancy = {
   'cvWorkplace.status': 'तैयारी की स्थिति जाँचें',
   'cvWorkplace.cancel': 'तैयारी रोकें',
   'cvWorkplace.loadError': 'कार्यस्थल की सहेजी गई समीक्षा लोड नहीं हो सकी।',
+  'cvWorkplace.operation': 'कार्यस्थल की कार्रवाई',
+  'cvWorkplace.update': 'कार्यस्थल के फ़ील्ड बदलें',
+  'cvWorkplace.detach': 'इस बायोडाटा से चयन हटाएँ',
+  'cvWorkplace.loadMembership': 'सहेजा गया बायोडाटा चयन पढ़ें',
+  'cvWorkplace.resumes': 'बायोडाटा का चयन',
+  'cvWorkplace.detachHint':
+    'यह मौजूदा रिकॉर्ड में केवल लक्षित बायोडाटा का चयन हटाने का मसौदा तैयार करता है। अन्य बायोडाटा के चयन और सभी फ़ील्ड समीक्षा के अनुसार रहते हैं। आप स्वयं सहेजते हैं। साझा कार्यस्थल बदलने के लिए पहले उसकी अलग प्रति सहेजकर सत्यापित करें।',
+  'cvWorkplace.membershipBefore': 'HH में सहेजा गया चयन',
 };

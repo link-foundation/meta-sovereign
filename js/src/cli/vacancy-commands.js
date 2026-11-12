@@ -37,9 +37,11 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-membership --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-source --export-id=<id> --resume=<hash> [--job-index=0] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-dictionaries [--store=<dir>]
   vacancies-cv-workplace-plan --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<fields.json|fields.lino|fields.bin> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-plan --operation=detach --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<reviewed-membership.json|.lino|.bin> [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-plan-stored [--fingerprint=<plan-fingerprint>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-workplace-review --fingerprint=<plan-fingerprint> [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description|workplace> [--review-kind=workplace] [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
@@ -85,6 +87,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'cv-watch-status',
       'cv-watch-stop',
       'cv-snapshots',
+      'cv-workplace-membership',
       'cv-workplace-source',
       'cv-workplace-dictionaries',
       'cv-workplace-plan',

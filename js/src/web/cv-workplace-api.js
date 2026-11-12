@@ -3,6 +3,7 @@ import {
   cvWorkplaceSourceShape,
   cvWorkplaceFail,
 } from '../jobs/cv-workplace-plan.js';
+import { cvWorkplaceMembership } from '../jobs/cv-workplace-membership.js';
 import { storedCvWorkplacePlan } from '../jobs/cv-workplace-plan-storage.js';
 
 const query = (input) =>
@@ -67,7 +68,37 @@ const sourceReply = (answer, input) => {
   }
   return answer;
 };
+const membershipReply = (answer, input) => {
+  const value = answer?.membership;
+  cvWorkplaceSourceShape(value?.source);
+  if (
+    value.recordId !== input.recordId ||
+    value.source.jobIndex !== input.jobIndex ||
+    ['browserSlot', 'hash', 'exportId'].some(
+      (key) => value.source.identity[key] !== input[key]
+    ) ||
+    !Number.isFinite(Date.parse(value.observedAt))
+  ) {
+    cvWorkplaceFail('conflict');
+  }
+  const expected = cvWorkplaceMembership(
+    value.resumes,
+    value.source.identity.hash
+  );
+  if (JSON.stringify(expected.before) !== JSON.stringify(value.resumes)) {
+    cvWorkplaceFail();
+  }
+  return answer;
+};
 export const createCvWorkplaceApi = ({ get, report, local }) => ({
+  vacancyCvWorkplaceMembership: async (input) =>
+    membershipReply(
+      await report('/api/vacancies/cv-workplace-membership', input, {
+        network: true,
+        read: false,
+      }),
+      input
+    ),
   vacancyCvWorkplaceSource: async (input) =>
     sourceReply(
       await get(`/api/vacancies/cv-workplace-source?${query(input)}`),

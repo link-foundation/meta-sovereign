@@ -73,8 +73,14 @@ const storedAnalysis = async (store, input) => {
   return confirmedTechnologyAnalysis({ analysis: row.analysis });
 };
 
-export const createTechnologyService = ({ store, artifactRoot, run }) => ({
+export const createTechnologyService = ({
+  store,
+  artifactRoot,
+  run,
+  cvPrepare = {},
+}) => ({
   ...createCvWorkplaceReviewService({
+    attach: cvPrepare.attach,
     store,
     artifactRoot,
     write: (operation) => acknowledgedWrite(store, run, operation),

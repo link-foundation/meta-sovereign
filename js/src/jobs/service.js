@@ -95,7 +95,7 @@ export const createVacancyService = ({
     ...cvPrepare,
   });
   return {
-    ...createTechnologyService({ store, artifactRoot, run }),
+    ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
     ...preparation.operations,
     ...createCvTranslationService({ store, run, ...cvTranslation }),

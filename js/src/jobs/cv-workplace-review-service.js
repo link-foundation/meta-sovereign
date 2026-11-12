@@ -1,3 +1,7 @@
+import { attachCvWatchBrowser } from './cv-watch-browser.js';
+import { inspectNativeCvWorkplace } from './cv-workplace-edit-native.js';
+import { cvWorkplaceMatchesJob } from './cv-watch-verification.js';
+import { cvWorkplaceMembership } from './cv-workplace-membership.js';
 import { browserName } from '../browser/policy.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { verifiedTechnologyCv } from './technology-cv.js';
@@ -11,7 +15,8 @@ import {
   cvWorkplaceValues,
   cvWorkplaceJobValues,
   cvWorkplaceRecordId,
-  cvWorkplaceDifferences,
+  cvWorkplacePlanDifferences,
+  cvWorkplacePlanJob,
   cvWorkplaceFail,
   fingerprintCvWorkplacePlan,
 } from './cv-workplace-plan.js';
@@ -78,6 +83,12 @@ const propose = async (options, input, signal) => {
     job,
     cvAreaIdentity(job.area, dictionaries)
   );
+  if (input.operation !== undefined && input.operation !== 'detach') {
+    cvWorkplaceFail('options');
+  }
+  if (input.operation === 'detach' && Object.keys(input.fields).length) {
+    cvWorkplaceFail('options');
+  }
   const desired = cvWorkplaceValues({ ...baseline, ...input.fields });
   const metadata = Object.fromEntries(
     [
@@ -90,7 +101,7 @@ const propose = async (options, input, signal) => {
         .map((id) => cvLocalizedEntry(dictionaries[kind], id)),
     ])
   );
-  const plan = await fingerprintCvWorkplacePlan({
+  const content = {
     version: 1,
     browserSlot,
     recordId: input.recordId,
@@ -98,9 +109,21 @@ const propose = async (options, input, signal) => {
     baseline,
     desired,
     metadata,
-    changes: cvWorkplaceDifferences(baseline, desired),
+    ...(input.operation === 'detach'
+      ? {
+          operation: 'detach',
+          membership: cvWorkplaceMembership(
+            input.resumes,
+            source.identity.hash
+          ),
+        }
+      : {}),
     status: 'draft',
     createdAt: new Date().toISOString(),
+  };
+  const plan = await fingerprintCvWorkplacePlan({
+    ...content,
+    changes: cvWorkplacePlanDifferences(content),
   });
   signal.throwIfAborted();
   return saveCvWorkplacePlan(options.store, plan);
@@ -110,9 +133,86 @@ export const createCvWorkplaceReviewService = ({
   artifactRoot,
   write,
   read,
+  attach = attachCvWatchBrowser,
 }) => {
   const options = { store, artifactRoot };
   return {
+    'cv-workplace-membership': (input) =>
+      write(async (signal) => {
+        const recordId = cvWorkplaceRecordId(input.recordId);
+        const source = await verifiedTechnologyCv(options, input);
+        if (
+          !Number.isInteger(input.jobIndex) ||
+          !source.cv.jobs[input.jobIndex]
+        ) {
+          cvWorkplaceFail('options');
+        }
+        const dictionaries = await loadCvWorkplaceDictionaries({
+          store,
+          signal,
+        });
+        const job = source.cv.jobs[input.jobIndex];
+        const baseline = cvWorkplaceJobValues(
+          job,
+          cvAreaIdentity(job.area, dictionaries)
+        );
+        const metadata = {
+          areas: baseline.areaId
+            ? [cvLocalizedEntry(dictionaries.areas, baseline.areaId)]
+            : [],
+          industries: baseline.industryIds.map((id) =>
+            cvLocalizedEntry(dictionaries.industries, id)
+          ),
+        };
+        let session;
+        try {
+          signal.throwIfAborted();
+          session = await attach({
+            browserSlot: source.identity.browserSlot,
+            targetId: input.targetId,
+          });
+          const form = await inspectNativeCvWorkplace({
+            session,
+            recordId,
+            check: () => signal.throwIfAborted(),
+          });
+          if (
+            !cvWorkplaceMatchesJob(
+              form,
+              cvWorkplacePlanJob(
+                { baseline, metadata },
+                'baseline',
+                form.locale
+              ),
+              metadata.industries.map((row) => ({
+                id: row.id,
+                ...row[form.locale],
+              }))
+            )
+          ) {
+            cvWorkplaceFail('baseline');
+          }
+          const membership = cvWorkplaceMembership(
+            form.resumes,
+            source.identity.hash
+          );
+          signal.throwIfAborted();
+          return {
+            membership: {
+              recordId,
+              source: {
+                identity: source.identity,
+                jobIndex: input.jobIndex,
+                job,
+              },
+              resumes: membership.before,
+              observedAt: new Date().toISOString(),
+            },
+          };
+        } finally {
+          await session?.detach();
+        }
+      }),
     'cv-workplace-source': (input) =>
       read(async () => {
         const jobIndex =
