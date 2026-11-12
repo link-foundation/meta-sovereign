@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-locked-prettier.md](ci-locked-prettier.md) reproduces published Hindi locale and requirement-document failures with the locked formatter, preserving raw hosted logs and correcting only formatting.
+
 - [cv-prepare-cancel.md](cv-prepare-cancel.md) verifies durable cancellation of an unreceived About intent, refusal of delayed POSTs and preservation of issued native drafts through CLI/Lino/four locales, focused regressions and native WebKit desktop/phone evidence.
 
 - [ci-windows-deno-shards.md](ci-windows-deno-shards.md) preserves the explicit ten-minute Windows Deno cancellation and partitions the same discovery across three hosted runners. Tiny native fixtures verify complete, disjoint execution and failure propagation; no deadline increases or full local suite runs.
