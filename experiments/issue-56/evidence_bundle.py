@@ -1,11 +1,14 @@
 """Stage verified case-study evidence, source snapshots and screenshot hashes."""
+import gzip
 import hashlib
+import io
 import json
 from pathlib import Path
 import runpy
 import shutil
 import subprocess
 import tempfile
+import tarfile
 
 
 def evidence_context(script, prefix):
@@ -58,3 +61,28 @@ def bundle(root, sources, destination, metadata, screenshot_pattern, before=None
         (stage / 'metadata.json').write_text(
             json.dumps(metadata, indent=2, ensure_ascii=False) + '\n')
         write_archive(stage, root / destination)
+
+
+def write_hashed_archive(root, archive, names, metadata, source_count):
+    """Write deterministic named evidence and verify every archived byte."""
+    with archive.open('wb') as raw:
+        with gzip.GzipFile(fileobj=raw, mode='wb', filename='', mtime=0) as compressed:
+            with tarfile.open(fileobj=compressed, mode='w') as tar:
+                for name in sorted(set(names)):
+                    data = (root / name).read_bytes()
+                    entry = tarfile.TarInfo(name)
+                    entry.size = len(data)
+                    tar.addfile(entry, io.BytesIO(data))
+                payload = (json.dumps(metadata, indent=2) + '\n').encode()
+                entry = tarfile.TarInfo('metadata.json')
+                entry.size = len(payload)
+                tar.addfile(entry, io.BytesIO(payload))
+    with tarfile.open(archive, 'r:gz') as tar:
+        hashes = {entry.name: hashlib.sha256(tar.extractfile(entry).read()).hexdigest()
+                  for entry in tar.getmembers() if entry.isfile()}
+    assert set(hashes) == set(names) | {'metadata.json'}
+    for name in names:
+        assert hashes[name] == hashlib.sha256((root / name).read_bytes()).hexdigest()
+    archive.with_suffix('').with_suffix('.tar.sha256.json').write_text(
+        json.dumps({'archive': archive.name, 'files': hashes}, indent=2) + '\n')
+    print(f'Verified {len(hashes)} archive entries and {source_count} source hashes')
