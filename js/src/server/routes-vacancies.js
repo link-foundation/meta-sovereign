@@ -74,6 +74,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-analysis-stored',
       'technology-review-stored',
       'cv-watch-status',
+      'cv-prepare-status',
       'cv-snapshots',
     ].includes(operation) || file;
   if (
@@ -90,6 +91,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'technology-review',
       'technology-review-save',
       'cv-watch',
+      'cv-prepare',
       'cv-watch-stop',
     ].includes(operation)
   ) {

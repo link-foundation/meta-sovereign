@@ -25,7 +25,9 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-watch [--request-id=<id>] [--duration-ms=900000] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]`;
+  vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=ru:about|en:about [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];
@@ -63,6 +65,8 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'cv-watch-status',
       'cv-watch-stop',
       'cv-snapshots',
+      'cv-prepare',
+      'cv-prepare-status',
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
@@ -86,11 +90,13 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
               resumeLanguage: args['resume-language'],
               requestId:
                 args['request-id'] ??
-                (['resume-export', 'cv-watch'].includes(operation)
+                (['resume-export', 'cv-watch', 'cv-prepare'].includes(operation)
                   ? randomUUID()
                   : undefined),
               durationMs: typedFlag(args, 'duration-ms', 'number'),
               targetId: args['target-id'],
+              fingerprint: args.fingerprint,
+              changeId: args['change-id'],
               formats:
                 args.formats === undefined
                   ? undefined
@@ -109,7 +115,10 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                 ? await foregroundCvWatch(service, input, log)
                 : await service[operation](input);
           log(encodeWire(result));
-          return operation === 'resume-export' && result.state !== 'completed'
+          return (operation === 'resume-export' &&
+            result.state !== 'completed') ||
+            (operation === 'cv-prepare' &&
+              result.preparation?.state !== 'prepared')
             ? 1
             : 0;
         } finally {

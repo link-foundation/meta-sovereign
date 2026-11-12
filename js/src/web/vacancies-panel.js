@@ -7,6 +7,7 @@ import { ResumeExports } from './resume-exports.js';
 import { useTechnologyAnalysis } from './technology-state.js';
 import { VacancyTechnologies } from './vacancy-technologies.js';
 import { useCvTechnologyReview } from './cv-technology-state.js';
+import { useCvPreparation } from './cv-prepare-state.js';
 import { CvTechnologyReview } from './cv-technology-review.js';
 import { useCvSaveWatch } from './cv-watch-state.js';
 import { CvSaveWatch } from './cv-watch-panel.js';
@@ -115,6 +116,7 @@ export const useVacancies = (api) => {
   const resumeExports = useResumeExports({ api, values, run });
   const technology = useTechnologyAnalysis({ api, values, run });
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
+  cvTechnology.preparation = useCvPreparation({ api, values, run });
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {

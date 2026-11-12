@@ -203,4 +203,23 @@ export const enVacancy = {
   'cvWatch.empty': 'No verified owner save has been captured.',
   'cvWatch.loadError':
     'The connection or saved state could not be confirmed. Existing snapshots are retained; reload before starting again.',
+  'cvPrepare.title': 'Prepare native About draft',
+  'cvPrepare.hint':
+    'Select a saved About change and open that CV in the existing HH slot. Stop any observation first. Preparation refuses an open editor and leaves Save or Cancel to you. After preparation, start observation before saving if you want verified snapshots.',
+  'cvPrepare.choose': 'Save an About change in the local review first.',
+  'cvPrepare.prepare': 'Prepare About',
+  'cvPrepare.reload': 'Reload preparation',
+  'cvPrepare.recovery':
+    'Recover preparation status before another attempt. An unknown request stays blocked; inspect the existing tab.',
+  'cvPrepare.starting': 'Connecting to the existing CV tab…',
+  'cvPrepare.opening': 'Opening the native About editor…',
+  'cvPrepare.preparing': 'Preparing the reviewed About text…',
+  'cvPrepare.prepared':
+    'About draft prepared. Review it in the HH tab, then choose Save or Cancel. This receipt does not confirm a provider save.',
+  'cvPrepare.failed':
+    'Preparation failed before opening. The existing tab was preserved.',
+  'cvPrepare.uncertain':
+    'Preparation outcome is uncertain. Inspect the existing HH draft; no automatic retry was made.',
+  'cvPrepare.interrupted':
+    'Preparation was interrupted. Inspect the existing HH draft before continuing.',
 };

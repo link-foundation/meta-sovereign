@@ -1,5 +1,6 @@
 import React from 'react';
 import { CvTechnologyPlanView } from './cv-technology-view.js';
+import { CvPreparation } from './cv-prepare-panel.js';
 
 const el = React.createElement;
 export const CvTechnologyReview = ({ state, t }) => {
@@ -87,6 +88,15 @@ export const CvTechnologyReview = ({ state, t }) => {
             key: review.review.fingerprint,
             state: review,
             catalog: state.technology.catalog,
+            idle: idle && !state.technology.dirty,
+            t,
+          })
+        : null,
+      review.preparation
+        ? el(CvPreparation, {
+            key: 'preparation',
+            state: review.preparation,
+            review: review.review,
             idle: idle && !state.technology.dirty,
             t,
           })

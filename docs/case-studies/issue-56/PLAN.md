@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active HH14/HH16/HH19 About preparation unit:
+
+- [x] Resolve only an explicitly selected About change from an integrity-checked, saved bilingual review and the current catalog/export evidence.
+- [x] Attach to the exact existing HH tab, verify its CV, refuse every existing editor, wait for native hydration, compare the baseline and insert through the keyboard. Leave Save/Cancel to the owner and never navigate or replace a draft.
+- [x] Persist bounded request-specific preparation receipts before browser changes; recover lost replies by GET without repeating preparation, distinguish prepared drafts from provider saves, and drain on Stop.
+- [ ] Share preparation/status through CLI, text/binary Lino and four-language review controls. Verify focused regressions and native/MCP desktop/phone evidence, publish an atomic commit and inspect exact-head hosted CI.
+- [ ] Continue shared-workplace identity, complete native editing/copy/detach, durable batches, bilingual provider save/readback and every other unchecked issue requirement.
+
+Local About preparation verification: 13 Node, 13 Deno and 36 compatibility checks, one registry contract, two actual-parent failures, eight native WebKit scenarios and four independent MCP cases pass. The owner can revise the prepared text and the existing passive observer verifies that final native Save. Unknown/unreceived intents remain blocked without a tombstone control. All broad CV criteria and exact new-head hosted completion remain required; see [About evidence](cv-prepare.md).
+
 Active HH16–HH18 native CV save observation unit:
 
 - [x] Attach through browser-commander to the exact existing HH tab in a chosen slot; refuse absent/replaced sessions and never launch, click, fill, focus, close or navigate an owner page.

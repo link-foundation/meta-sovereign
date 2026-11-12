@@ -24,6 +24,7 @@ import {
   storedVacancies,
 } from './technology-service.js';
 import { createCvWatchService } from './cv-watch-service.js';
+import { createCvPrepareService } from './cv-prepare-service.js';
 
 const owners = new WeakSet();
 
@@ -43,6 +44,7 @@ export const createVacancyService = ({
     artifactRoot,
   }),
   cvWatch = {},
+  cvPrepare = {},
 }) => {
   let active;
   let stopping;
@@ -84,9 +86,16 @@ export const createVacancyService = ({
     cancel,
     occupied: () => owners.has(store),
   });
+  const preparation = createCvPrepareService({
+    store,
+    artifactRoot,
+    run,
+    ...cvPrepare,
+  });
   return {
     ...createTechnologyService({ store, artifactRoot, run }),
     ...createCvWatchService({ store, run, ...cvWatch }),
+    ...preparation.operations,
     async capabilities() {
       const browser = await availability();
       return {
@@ -133,8 +142,10 @@ export const createVacancyService = ({
     cancel,
     stop() {
       return (stopping ??= Promise.resolve().then(async () => {
+        const drained = preparation.stop();
         active?.controller.abort();
         await active?.task.catch(() => {});
+        await drained;
       }));
     },
   };
