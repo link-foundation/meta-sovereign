@@ -13,14 +13,36 @@ import { hhChoiceHtml } from './hh-choice-fixture.mjs';
 import { textReplyHtml } from './text-reply-fixture.mjs';
 import { noticePolicyHtml } from './notice-policy-browser-fixture.mjs';
 import { noticeText, noticeRule } from './notice-fixture.mjs';
+import { chatNavigationHtml } from './chat-navigation-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+
+const unreadTrace = (enabled) => (message) => {
+  if (enabled && process.env.MS_BROWSER_CHAT_VIEW_DEBUG === '1') {
+    console.error(message);
+  }
+};
+
+const traceUnreadNavigation = (page, enabled) => {
+  if (enabled && process.env.MS_BROWSER_CHAT_VIEW_DEBUG === '1') {
+    page.on('framenavigated', (frame) =>
+      console.error('[question-unread-frame]', frame.url())
+    );
+  }
+};
 
 /** Private, disposable production server and routed provider; no live account. */
 export const questionBrowserServer = async (
   browser,
-  { summaryChoices = false, noticePolicies = false } = {}
+  { summaryChoices = false, noticePolicies = false, unreadReview = false } = {}
 ) => {
   const env = await questionBrowserFixture();
+  if (unreadReview) {
+    await saveAnswerRule(env.store, {
+      id: 'start-time',
+      question: 'What time can you start?',
+      answers: [{ text: 'At 9 a.m.', approved: true }],
+    });
+  }
   if (noticePolicies) {
     env.state.snapshot.question.body = noticeText;
     await saveAnswerRule(env.store, noticeRule());
@@ -59,8 +81,13 @@ export const questionBrowserServer = async (
     viewport: { width: 1000, height: 800 },
   });
   const page = await context.newPage();
+  traceUnreadNavigation(page, unreadReview);
+  let inactiveView;
   let mode = { id: '101' };
   await context.route('**/*', (route) => {
+    if (localBase && new URL(route.request().url()).origin === localBase) {
+      return route.continue();
+    }
     if (
       !['https://hh.ru', 'https://chatik.hh.ru'].includes(
         new URL(route.request().url()).origin
@@ -70,15 +97,17 @@ export const questionBrowserServer = async (
     }
     return route.fulfill({
       contentType: 'text/html',
-      body: `${(noticePolicies
-        ? noticePolicyHtml()
-        : mode.freeText
-          ? textReplyHtml
-          : hhChoiceHtml
-      ).replaceAll(
-        'message-101',
-        `message-${mode.id}`
-      )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`,
+      body: unreadReview
+        ? chatNavigationHtml(mode)
+        : `${(noticePolicies
+            ? noticePolicyHtml()
+            : mode.freeText
+              ? textReplyHtml
+              : hhChoiceHtml
+          ).replaceAll(
+            'message-101',
+            `message-${mode.id}`
+          )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`,
     });
   });
   const commander = makeBrowserCommander({
@@ -88,6 +117,7 @@ export const questionBrowserServer = async (
     enableDialogManager: false,
   });
   const send = createDefaultSender({
+    log: unreadTrace(unreadReview),
     browser: {
       store: env.store,
       pollMs: 10,
@@ -110,9 +140,18 @@ export const questionBrowserServer = async (
     automations: { scheduler: false, send },
     log: null,
   });
+  const localBase = `http://127.0.0.1:${server.port}`;
   const reset = async (next = {}) => {
     mode = { id: String(Number(mode.id) + 100), ...next };
     await page.goto('https://hh.ru/chat/7');
+    if (unreadReview) {
+      await send.readRecent({ source: 'hh', chat: '7' });
+      await page.evaluate(() =>
+        window.history.replaceState({}, '', '/chat/7?owner=review#reading')
+      );
+      inactiveView ??= await context.newPage();
+      await inactiveView.bringToFront();
+    }
     await seedQuestionBrowserRead(env.store);
     return mode;
   };
@@ -122,6 +161,9 @@ export const questionBrowserServer = async (
       clicks: window.fixture.clicks,
       textSends: window.fixture.textSends,
       draft: document.querySelector('textarea').value,
+      ...(window.fixture.visits
+        ? { visits: window.fixture.visits, sends: window.fixture.sends }
+        : {}),
     }));
   return {
     base: `http://127.0.0.1:${server.port}`,
@@ -152,6 +194,7 @@ if (
   const fixture = await questionBrowserServer(browser, {
     summaryChoices: process.env.QUESTION_BROWSER_SUMMARY === '1',
     noticePolicies: process.env.QUESTION_BROWSER_NOTICES === '1',
+    unreadReview: process.env.QUESTION_BROWSER_UNREAD === '1',
   });
   const controls = questionBrowserControlServer(fixture);
   await new Promise((resolve) => controls.listen(0, '127.0.0.1', resolve));

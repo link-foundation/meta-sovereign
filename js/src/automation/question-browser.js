@@ -1,22 +1,17 @@
-import { randomUUID } from 'node:crypto';
-import { previewAnswer } from './question-store.js';
 import { guardedSend, outboxId } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { createQuestionBrowserWatches } from './question-browser-watch.js';
 import { createBrowserTextReview } from './question-browser-text.js';
-import { normalizeAnswerAction } from './question-answers.js';
-import { normalizeAnswerEnvironment } from './question-context.js';
+import { createBrowserReviewRecorder } from './question-browser-review.js';
+import { createQuestionUnreadReviews } from './question-browser-unread.js';
 import {
   browserReviewId,
   browserChoiceDraft,
   checkedBrowserChoiceReceipt,
-  checkBrowserQuestion,
   browserReviewReceipt,
   validChoiceSources,
 } from './question-browser-state.js';
 
-const PREFIX = 'question-browser:';
-const LIFE_MS = 30 * 60 * 1000;
 export const questionBrowserFailure = (code, message) =>
   Object.assign(new Error(message), { code, fallback: false });
 const failure = questionBrowserFailure;
@@ -68,6 +63,7 @@ const extraBrowserCapabilities = (send, sources, available) => {
     ['watchSources', 'openAnswerWatch', 'answerWatchSources'],
     ['textSources', 'replyText', 'textReplySources'],
     ['noticeSources', 'openAnswerWatch', 'noticeReplySources'],
+    ['unreadSources', 'scanUnreadConversations', 'unreadConversationSources'],
   ]) {
     const candidates =
       typeof send[action] === 'function' ? (send[reader]?.() ?? []) : [];
@@ -141,10 +137,10 @@ const createReviewActions = ({
   store,
   send,
   clock,
-  runner,
   log,
   status,
   capabilities,
+  review,
 }) => ({
   status,
   async inspect(input = {}) {
@@ -156,40 +152,7 @@ const createReviewActions = ({
       );
     }
     const target = targetOf(input, caps.sources);
-    const snapshot = checkBrowserQuestion(await send.readAnswerChoices(target));
-    const planning = {
-      ...normalizeAnswerAction(input),
-      ...normalizeAnswerEnvironment(input),
-    };
-    // A validated URL may normalize the explicit web reference to its numeric ID.
-    const plan = snapshot.question.outgoing
-      ? null
-      : await previewAnswer(
-          store,
-          {
-            ...input,
-            ...planning,
-            source: target.source,
-            chat: snapshot.chat,
-            question: snapshot.question.body,
-            pendingMessages: snapshot.pendingTurn?.messages,
-            options: snapshot.answerOptions,
-            strictOptions: snapshot.strictOptions,
-          },
-          { runner }
-        );
-    const record = {
-      id: `${PREFIX}${randomUUID()}`,
-      kind: 'question-browser',
-      tokens: ['question-browser', target.source, snapshot.chat],
-      target,
-      snapshot,
-      planning,
-      plan,
-      expiresAt: new Date(clock().getTime() + LIFE_MS).toISOString(),
-    };
-    await store.put(record);
-    return status(record);
+    return review(target, await send.readAnswerChoices(target), input);
   },
   async prefill(input = {}) {
     const record = await freshReview(store, clock, input);
@@ -269,6 +232,14 @@ export const createQuestionBrowser = ({
 }) => {
   const capabilities = () => browserCapabilities(send);
   const status = (input) => browserReviewStatus(store, clock, input);
+  const review = createBrowserReviewRecorder({ store, clock, runner, status });
+  const unread = createQuestionUnreadReviews({
+    store,
+    send,
+    clock,
+    capabilities,
+    review,
+  });
   const watches = createQuestionBrowserWatches({
     store,
     send,
@@ -290,11 +261,14 @@ export const createQuestionBrowser = ({
       store,
       send,
       clock,
-      runner,
       log,
       status,
       capabilities,
+      review,
     }),
+    unreadStart: unread.start,
+    unreadStatus: unread.status,
+    unreadStop: unread.stop,
     watchStart: watches.start,
     watchStatus: watches.status,
     watchStop: watches.stop,
@@ -328,6 +302,7 @@ export const createQuestionBrowser = ({
     async close() {
       closed = true;
       try {
+        await unread.close();
         await watches.close();
       } finally {
         await Promise.allSettled([...pending]);

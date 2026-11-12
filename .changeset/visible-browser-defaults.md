@@ -293,3 +293,5 @@ Add explicit all/unread filtering to bounded HH browser chat scans. Verify nativ
 Add a bounded existing-view HH unread read pass with native SPA navigation, owned view/draft restoration, forward-history refusal and explicit history-growth receipts. Persistent orchestration and shared controls remain in progress.
 
 Repeated existing-view unread passes may reuse only their precisely witnessed automation-created forward history; owner activity or navigation revokes reuse, and original history lengths remain disclosed.
+
+Expose bounded existing-view HH unread reviews through foreground CLI, text/binary Lino and shared localized Questions, Chat and Operator controls. Require mark-read consent, flush caller-owned pass IDs before traversal, recover without replay, drain Stop/shutdown and freeze per-chat reviews without sending or model calls. Capture the newest rendered question before restoring older history, clear old completion when starting a new pass and retain incomplete coverage and owner-restoration warnings. Persistent polling, policy delivery and authenticated provider parity remain unfinished.

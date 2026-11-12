@@ -74,6 +74,7 @@ export const scanUnreadBrowserConversations = ({
             if (remaining < 100) {
               return null;
             }
+            let question = null;
             const history = await scanBrowserConversation(
               chatDocument,
               ui,
@@ -85,15 +86,28 @@ export const scanUnreadBrowserConversations = ({
                 inactiveToken: token,
                 verifyCurrent: verify,
                 verifyRestore: verify,
+              },
+              {
+                readNewest: async () => {
+                  await verify();
+                  question = await readBrowserAnswerChoices(
+                    chatDocument,
+                    ui,
+                    chat,
+                    {
+                      preserveDraft: true,
+                    }
+                  );
+                  await verify();
+                },
               }
             );
             await verify();
-            const question = options.signal?.aborted
-              ? null
-              : await readBrowserAnswerChoices(chatDocument, ui, chat, {
-                  preserveDraft: true,
-                });
-            return { ...row, history, question };
+            return {
+              ...row,
+              history,
+              question: options.signal?.aborted ? null : question,
+            };
           }
         );
         if (!observation) {

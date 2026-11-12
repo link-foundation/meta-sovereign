@@ -1,5 +1,6 @@
 # Issue 56: unified automation and device architecture
 
+- [Finite unread review](question-unread-review.md): confirmed existing-view reads, durable pass recovery and frozen questions in CLI, Lino and shared localized controls.
 - [Repeated owned unread passes](chat-repetition.md): native history suffix ownership, exact entry checks and permanent owner-activity revocation.
 
 - [chat-navigation.md](chat-navigation.md) verifies one finite existing-view unread pass, native main/child navigation and owned URL/filter/draft/selection/scroll restoration. Forward-history protection and added-entry receipts remain explicit; persistent repetition and delivery remain required.

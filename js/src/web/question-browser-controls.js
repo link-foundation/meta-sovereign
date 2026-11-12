@@ -5,6 +5,7 @@ import { getLocalStorage } from '../storage/local-storage.js';
 import { BrowserAnswerWatchControls } from './question-browser-watch-controls.js';
 import { BrowserPendingTurn } from './question-browser-pending.js';
 import { BrowserTextAnswer } from './question-browser-text-controls.js';
+import { BrowserUnreadControls } from './question-unread-controls.js';
 
 const el = React.createElement;
 const remember = (key, id) => {
@@ -358,10 +359,7 @@ const restoreBrowserAnswer = async (api, key, receive, target) => {
 const noticeAvailable = (caps, source) =>
   caps?.noticeSources?.some((entry) => entry.id === source);
 
-/** Shared by Chat, Operator and question settings; no action on initial render. */
-export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
-  const t = useT();
-  const [caps, setCaps] = React.useState(null);
+const useBrowserReview = (chat) => {
   const initial = browserAnswerDefaults(chat);
   const [source, setSource] = React.useState(initial.source);
   const [reference, setReference] = React.useState(initial.reference);
@@ -369,10 +367,6 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
   const [result, setResult] = React.useState(null);
   const [option, setOption] = React.useState('');
   const [pending, setPending] = React.useState(false);
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [watchActive, setWatchActive] = React.useState(false);
-  const active = React.useRef(false);
   const key = initial.key;
   const receive = (value) => {
     setResult(value);
@@ -382,6 +376,72 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       value.answerOptions.includes(before) ? before : (value.plan?.option ?? '')
     );
   };
+  const change = (set) => (value) => {
+    set(value);
+    setResult(null);
+    setOption('');
+    setPending(false);
+  };
+  return {
+    key,
+    source,
+    setSource,
+    reference,
+    setReference,
+    browserUrl,
+    setBrowserUrl,
+    result,
+    option,
+    setOption,
+    pending,
+    setPending,
+    receive,
+    change,
+  };
+};
+
+const unreadAvailable = (caps, source) =>
+  caps?.unreadSources?.some((entry) => entry.id === source);
+const textAvailable = (caps, result, api) =>
+  caps?.textSources?.some((entry) => entry.id === result?.target.source) &&
+  typeof api.replyBrowserText === 'function';
+
+const loadOnDisclosure = (caps, run, load) => (event) => {
+  if (
+    event.target === event.currentTarget &&
+    event.currentTarget.open &&
+    !caps
+  ) {
+    run(load);
+  }
+};
+
+/** Shared by Chat, Operator and question settings; no action on initial render. */
+export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
+  const t = useT();
+  const [caps, setCaps] = React.useState(null);
+  const {
+    key,
+    source,
+    setSource,
+    reference,
+    setReference,
+    browserUrl,
+    setBrowserUrl,
+    result,
+    option,
+    setOption,
+    pending,
+    setPending,
+    receive,
+    change,
+  } = useBrowserReview(chat);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [watchActive, setWatchActive] = React.useState(false);
+  const [unreadActive, setUnreadActive] = React.useState(false);
+  const active = React.useRef(false);
+  const blocked = busy || watchActive || unreadActive;
   const run = async (work) => {
     if (active.current) {
       return;
@@ -411,12 +471,6 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       chat: setReference,
       url: setBrowserUrl,
     });
-  const change = (set) => (value) => {
-    set(value);
-    setResult(null);
-    setOption('');
-    setPending(false);
-  };
   if (!api?.browserAnswerCapabilities) {
     return null;
   }
@@ -425,15 +479,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
     {
       className: 'card col browser-answer-controls',
       'data-browser-answer-controls': true,
-      onToggle: (event) => {
-        if (
-          event.target === event.currentTarget &&
-          event.currentTarget.open &&
-          !caps
-        ) {
-          run(load);
-        }
-      },
+      onToggle: loadOnDisclosure(caps, run, load),
     },
     [
       el('summary', { key: 'title' }, t('browserAnswer.title')),
@@ -445,7 +491,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
       el(BrowserAnswerTarget, {
         key: 'target',
         caps,
-        busy: busy || watchActive,
+        busy: blocked,
         source,
         setSource,
         reference,
@@ -465,19 +511,32 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
             receive(value);
           }),
       }),
+      el(BrowserUnreadControls, {
+        key: 'unread',
+        api,
+        source,
+        planning,
+        remember,
+        storageKey: `${key}.unread`,
+        changed: setUnreadActive,
+        available: unreadAvailable(caps, source),
+        blocked: busy || watchActive,
+        select: async (id) => {
+          const value = await api.browserAnswerStatus({ id });
+          setReference(value.chat);
+          receive(value);
+        },
+      }),
       el(BrowserAnswerReview, {
         key: 'review',
         result,
         option,
         setOption,
-        busy: busy || watchActive,
+        busy: blocked,
         pending,
         select: (input) => submit('selectBrowserAnswer', input),
         reply: (input) => submit('replyBrowserText', input),
-        textAvailable:
-          caps?.textSources?.some(
-            (entry) => entry.id === result?.target.source
-          ) && typeof api.replyBrowserText === 'function',
+        textAvailable: textAvailable(caps, result, api),
         run,
         api,
         receive,
@@ -489,7 +548,7 @@ export const BrowserAnswerControls = ({ api, chat, planning = {} }) => {
         available: watchAvailable(caps, result?.target.source ?? source),
         noticeAvailable: noticeAvailable(caps, result?.target.source ?? source),
         enabled: Boolean(caps),
-        busy,
+        busy: busy || unreadActive,
         run,
         remember,
         storageKey: `${key}.watch`,

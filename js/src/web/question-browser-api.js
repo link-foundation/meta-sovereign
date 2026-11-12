@@ -7,6 +7,7 @@ import {
   validChoiceSources,
   checkBrowserWatchReceipt,
 } from '../automation/question-browser-state.js';
+import { checkUnreadReview } from '../automation/question-unread-state.js';
 
 const failure = (value) =>
   Object.assign(
@@ -111,6 +112,15 @@ export const questionBrowserApi = ({ remote }) => {
       ),
       input.id
     );
+  const unread = async (action, input) =>
+    checkUnreadReview(
+      await (remote.report ?? remote.post)(
+        `/api/automations/answers/browser/unread-${action}`,
+        input,
+        { network: true, read: action === 'status' }
+      ),
+      input.id
+    );
   return {
     browserAnswerCapabilities: async () => {
       const result = await remote.get('/api/automations/answers/browser');
@@ -130,6 +140,7 @@ export const questionBrowserApi = ({ remote }) => {
         result.watchSources,
         result.textSources,
         result.noticeSources,
+        result.unreadSources,
       ]) {
         if (
           sources !== undefined &&
@@ -144,6 +155,9 @@ export const questionBrowserApi = ({ remote }) => {
       return result;
     },
     inspectBrowserAnswer: (input) => call('inspect', input),
+    startBrowserUnreadReview: (input) => unread('start', input),
+    browserUnreadReviewStatus: (input) => unread('status', input),
+    stopBrowserUnreadReview: (input) => unread('stop', input),
     prefillBrowserAnswer: (input) => call('prefill', input),
     selectBrowserAnswer: (input) => call('select', input),
     replyBrowserText: (input) => call('reply-text', input),

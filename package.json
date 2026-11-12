@@ -470,7 +470,9 @@
     "test:e2e:question-unread-guards": "node js/tests/e2e-question-unread-guards-browser.mjs",
     "test:e2e:question-unread-guards:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-guards-browser.mjs",
     "test:e2e:question-unread-repeat": "node js/tests/e2e-question-unread-repeat-browser.mjs",
-    "test:e2e:question-unread-repeat:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-repeat-browser.mjs"
+    "test:e2e:question-unread-repeat:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-repeat-browser.mjs",
+    "test:e2e:question-unread-controls": "node js/tests/e2e-question-unread-controls-browser.mjs",
+    "test:e2e:question-unread-controls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-unread-controls-browser.mjs"
   },
   "keywords": [
     "personal-crm",

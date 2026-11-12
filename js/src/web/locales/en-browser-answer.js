@@ -1,7 +1,9 @@
 import { enNoticePolicy } from './en-notice-policy.js';
+import { enUnreadReview } from './en-unread-review.js';
 
 export const enBrowserAnswer = {
   ...enNoticePolicy,
+  ...enUnreadReview,
   'browserText.title': 'Reviewed text reply',
   'browserText.draft': 'Reply text',
   'browserText.hint':

@@ -1,7 +1,9 @@
 import { hiNoticePolicy } from './hi-notice-policy.js';
+import { hiUnreadReview } from './hi-unread-review.js';
 
 export const hiBrowserAnswer = {
   ...hiNoticePolicy,
+  ...hiUnreadReview,
   'browserText.title': 'समीक्षित पाठ उत्तर',
   'browserText.draft': 'उत्तर का पाठ',
   'browserText.hint':

@@ -121,7 +121,7 @@ export const scanBrowserConversation = async (
   ui,
   target,
   options = {},
-  { now = () => globalThis.performance.now(), pause = sleep } = {}
+  { now = () => globalThis.performance.now(), pause = sleep, readNewest } = {}
 ) => {
   const settings = normalizeChatScanOptions(options);
   const { control } = createBrowserScanControl(document, {
@@ -135,6 +135,7 @@ export const scanBrowserConversation = async (
   const observed = conversationTracker(settings, ui, now);
   let reason = 'pass-limit';
   let restored;
+  let newestRead = false;
   const check = async (operation = 'status', extra) => {
     if (options.signal?.aborted) {
       stopped('cancelled');
@@ -163,6 +164,11 @@ export const scanBrowserConversation = async (
         ({ strictOptions: _strict, answerOptions: _options, ...row }) => row
       );
       const state = await check();
+      if (!newestRead) {
+        await readNewest?.();
+        newestRead = true;
+        await check();
+      }
       const completed = observed.accept(found, state);
       if (completed) {
         reason = completed;

@@ -1,7 +1,9 @@
 import { ruNoticePolicy } from './ru-notice-policy.js';
+import { ruUnreadReview } from './ru-unread-review.js';
 
 export const ruBrowserAnswer = {
   ...ruNoticePolicy,
+  ...ruUnreadReview,
   'browserText.title': 'Проверенный текстовый ответ',
   'browserText.draft': 'Текст ответа',
   'browserText.hint':

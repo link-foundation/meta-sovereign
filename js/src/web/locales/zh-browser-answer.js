@@ -1,7 +1,9 @@
 import { zhNoticePolicy } from './zh-notice-policy.js';
+import { zhUnreadReview } from './zh-unread-review.js';
 
 export const zhBrowserAnswer = {
   ...zhNoticePolicy,
+  ...zhUnreadReview,
   'browserText.title': '已审阅的文本回复',
   'browserText.draft': '回复文本',
   'browserText.hint':

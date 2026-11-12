@@ -15,10 +15,15 @@ export const questionBrowserUi = async (
   { screenshots, group, serverOptions } = {}
 ) => {
   const fixture = await questionBrowserServer(browser, serverOptions);
-  const context = await browser.newContext({
-    viewport: { width: 1180, height: 950 },
-  });
+  // Native focus is scoped to a browser context. The unread fixture must share
+  // that context so the real UI tab deactivates its synthetic provider tab.
+  const context = serverOptions?.unreadReview
+    ? fixture.page.context()
+    : await browser.newContext({ viewport: { width: 1180, height: 950 } });
   const page = await context.newPage();
+  if (serverOptions?.unreadReview) {
+    await page.setViewportSize({ width: 1180, height: 950 });
+  }
   const errors = [];
   watchFixturePages(context, browser, fixture.base, errors);
   await page.addInitScript(
@@ -54,6 +59,9 @@ export const questionBrowserUi = async (
     await page.goto(
       `${fixture.base}/?browser-review=${++navigation}#/automation`
     );
+    if (serverOptions?.unreadReview) {
+      await page.bringToFront();
+    }
     controls = panel.locator('[data-browser-answer-controls]');
     await openQuestionDisclosure(panel);
   };

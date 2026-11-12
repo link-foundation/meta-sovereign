@@ -1,0 +1,277 @@
+import React from 'react';
+import { useT } from './i18n.js';
+import { browserUnreadId } from '../automation/question-unread-state.js';
+
+const el = React.createElement;
+const activePass = (result) => result?.owned && result.state === 'active';
+
+const useUnreadPass = ({ api, remember, storageKey, changed }) => {
+  const t = useT();
+  const [id, setId] = React.useState(() => {
+    const saved = remember(storageKey);
+    return browserUnreadId(saved) ? saved : '';
+  });
+  const [result, setResult] = React.useState(null);
+  const [pending, setPending] = React.useState(Boolean(id));
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const running = React.useRef(false);
+  const run = async (work) => {
+    if (running.current) {
+      return;
+    }
+    running.current = true;
+    setBusy(true);
+    setError('');
+    try {
+      const value = await work();
+      if (value) {
+        setResult(value);
+        setPending(false);
+      }
+    } catch (err) {
+      setError(t('browserAnswer.error', { code: err.code ?? 'unconfirmed' }));
+      if (err.code === 'question-unread-missing') {
+        remember(storageKey, null);
+        setId('');
+        setPending(false);
+      }
+    } finally {
+      running.current = false;
+      setBusy(false);
+    }
+  };
+  React.useEffect(() => {
+    changed(pending || activePass(result) || busy);
+  }, [pending, result, busy, changed]);
+  React.useEffect(() => () => changed(false), [changed]);
+  React.useEffect(() => {
+    if (!activePass(result)) {
+      return undefined;
+    }
+    const timer = globalThis.setTimeout(() => {
+      run(() => api.browserUnreadReviewStatus({ id }));
+    }, 750);
+    return () => globalThis.clearTimeout(timer);
+  }, [result, id]);
+  return {
+    id,
+    result,
+    pending,
+    busy,
+    error,
+    run,
+    async start(input) {
+      if (running.current) {
+        return;
+      }
+      const next = `question-unread:${globalThis.crypto.randomUUID()}`;
+      remember(storageKey, next);
+      setId(next);
+      setResult(null);
+      setPending(true);
+      await run(() => api.startBrowserUnreadReview({ ...input, id: next }));
+    },
+    recover: () => run(() => api.browserUnreadReviewStatus({ id })),
+    stop: () => run(() => api.stopBrowserUnreadReview({ id })),
+  };
+};
+
+const UnreadResult = ({ result, blocked, select }) => {
+  const t = useT();
+  if (!result) {
+    return null;
+  }
+  return el(
+    'div',
+    { className: 'col', 'data-browser-unread-result': result.state },
+    [
+      el(
+        'p',
+        { key: 'state', role: 'status' },
+        t(`browserUnread.${result.state}`)
+      ),
+      result.coverage
+        ? el(
+            'p',
+            { key: 'coverage', className: 'meta' },
+            t('browserUnread.coverage', {
+              visited: result.coverage.visited,
+              observed: result.coverage.observed,
+            })
+          )
+        : null,
+      result.restoration
+        ? el(
+            'p',
+            {
+              key: 'restored',
+              role: result.restoration.restored ? 'status' : 'alert',
+            },
+            t(
+              `browserUnread.${result.restoration.restored ? 'restored' : 'notRestored'}`
+            )
+          )
+        : null,
+      result.restoration?.history
+        ? el(
+            'p',
+            { key: 'history', className: 'meta' },
+            t('browserUnread.history', {
+              before: result.restoration.history.lengthBefore,
+              after: result.restoration.history.lengthAfter,
+            })
+          )
+        : null,
+      result.code
+        ? el(
+            'small',
+            { key: 'code', className: 'meta' },
+            t('browserWatch.reason', { code: result.code })
+          )
+        : null,
+      ...result.entries.map((entry) =>
+        el('div', { key: entry.chat, className: 'col' }, [
+          entry.preview
+            ? el('p', { key: 'preview', className: 'wrap' }, entry.preview)
+            : null,
+          entry.reviewId
+            ? el(
+                'button',
+                {
+                  key: 'review',
+                  type: 'button',
+                  disabled: blocked,
+                  'data-browser-unread-review': entry.chat,
+                  onClick: () => select(entry.reviewId),
+                },
+                t('browserUnread.review', { chat: entry.chat })
+              )
+            : el(
+                'p',
+                { key: 'unverified', className: 'meta' },
+                t('browserUnread.unverified', { chat: entry.chat })
+              ),
+        ])
+      ),
+    ]
+  );
+};
+
+const UnreadControls = ({
+  api,
+  source,
+  planning,
+  blocked,
+  changed,
+  remember,
+  storageKey,
+  select,
+}) => {
+  const t = useT();
+  const pass = useUnreadPass({ api, remember, storageKey, changed });
+  const [confirm, setConfirm] = React.useState(false);
+  const [limit, setLimit] = React.useState('20');
+  const active = activePass(pass.result);
+  const locked = blocked || pass.busy || pass.pending || active;
+  const maxChats = Number(limit);
+  return el(
+    'section',
+    { className: 'col', 'data-browser-unread-controls': true },
+    [
+      el('h4', { key: 'title' }, t('browserUnread.title')),
+      el('p', { key: 'hint', className: 'meta' }, t('browserUnread.hint')),
+      el('label', { key: 'limit', className: 'field' }, [
+        el(
+          'span',
+          { key: 'label', className: 'field-label' },
+          t('browserUnread.limit')
+        ),
+        el('input', {
+          key: 'input',
+          type: 'number',
+          min: 1,
+          max: 100,
+          value: limit,
+          disabled: locked,
+          onChange: (event) => setLimit(event.target.value),
+        }),
+      ]),
+      el('label', { key: 'confirm', className: 'check' }, [
+        el('input', {
+          key: 'input',
+          type: 'checkbox',
+          checked: confirm,
+          disabled: locked,
+          onChange: (event) => setConfirm(event.target.checked),
+        }),
+        t('browserUnread.confirm'),
+      ]),
+      el(
+        'button',
+        {
+          key: 'start',
+          type: 'button',
+          'data-browser-unread-start': true,
+          disabled:
+            locked ||
+            !confirm ||
+            !Number.isInteger(maxChats) ||
+            maxChats < 1 ||
+            maxChats > 100,
+          onClick: () =>
+            pass.start({ ...planning, source, confirm: true, maxChats }),
+        },
+        t('browserUnread.start')
+      ),
+      pass.pending
+        ? el(
+            'p',
+            { key: 'pending', role: 'status' },
+            t('browserUnread.unconfirmed')
+          )
+        : null,
+      pass.error ? el('p', { key: 'error', role: 'alert' }, pass.error) : null,
+      pass.id
+        ? el('div', { key: 'recovery', className: 'row wrap' }, [
+            el(
+              'button',
+              {
+                key: 'recover',
+                type: 'button',
+                disabled: pass.busy,
+                onClick: pass.recover,
+              },
+              t('browserUnread.recover')
+            ),
+            active || pass.pending
+              ? el(
+                  'button',
+                  {
+                    key: 'stop',
+                    type: 'button',
+                    disabled: pass.busy,
+                    onClick: pass.stop,
+                  },
+                  t('browserUnread.stop')
+                )
+              : null,
+          ])
+        : null,
+      el(UnreadResult, {
+        key: 'result',
+        result: pass.result,
+        blocked: locked,
+        select: (id) =>
+          pass.run(async () => {
+            await select(id);
+          }),
+      }),
+    ]
+  );
+};
+
+export const BrowserUnreadControls = (props) =>
+  props.available && props.api?.startBrowserUnreadReview
+    ? el(UnreadControls, { ...props, key: props.source })
+    : null;

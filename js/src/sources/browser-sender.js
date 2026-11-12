@@ -518,6 +518,16 @@ const senderCapabilities = (platforms) => ({
   choiceSources: () => choiceSources(platforms),
   textReplySources: () => textReplySources(platforms),
   noticeReplySources: () => noticeReplySources(platforms),
+  unreadConversationSources: () =>
+    choiceSources(platforms).filter(({ id }) => {
+      const ui = platforms[id];
+      return (
+        ui.chatNavigation?.sameDocument &&
+        ui.documents &&
+        ui.historyScan &&
+        ui.chatScan?.unreadFilter
+      );
+    }),
   answerWatchSources: () =>
     choiceSources(platforms).filter(({ id }) => platforms[id].documents),
 });
@@ -903,6 +913,8 @@ export const createDefaultSender = ({
     choiceSources: () => browserFor().choiceSources?.() ?? [],
     textReplySources: () => browserFor().textReplySources?.() ?? [],
     noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
+    unreadConversationSources: () =>
+      browserFor().unreadConversationSources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),

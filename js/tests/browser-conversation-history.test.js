@@ -99,6 +99,25 @@ test('conversation traversal preserves overlap chronology without interpreting I
   assert.deepEqual(value.releases, [true]);
 });
 
+test('the newest question is captured once before moving to older history or restoring its anchor', async () => {
+  const value = fixture();
+  let captures = 0;
+  const result = await run(
+    value,
+    {},
+    {
+      readNewest: async () => {
+        captures++;
+        assert.equal(value.reads(), 1);
+        assert.deepEqual(value.releases, []);
+      },
+    }
+  );
+  assert.equal(captures, 1);
+  assert.equal(result.restored, true);
+  assert.deepEqual(value.releases, [true]);
+});
+
 test('stalled history without an application stays incomplete, including an empty chat', async () => {
   for (const pages of [[[message('old')], [message('old')]], [[]]]) {
     const result = await run(fixture({ pages }));
