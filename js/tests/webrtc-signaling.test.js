@@ -97,11 +97,16 @@ test(
       };
       const received = new Promise((resolve) => b.transport.onMessage(resolve));
       a.transport.send(offer);
-      assert.deepEqual(await received, offer);
+      const delivered = await received;
+      assert.equal(typeof delivered.from, 'string');
+      assert.deepEqual(delivered, { ...offer, from: delivered.from });
       const answer = { type: 'answer', sdp: 'v=0\r\ns=你好\r\n' };
       const replied = new Promise((resolve) => a.transport.onMessage(resolve));
       b.transport.send(answer);
-      assert.deepEqual(await replied, answer);
+      const response = await replied;
+      assert.equal(typeof response.from, 'string');
+      assert.notEqual(response.from, delivered.from);
+      assert.deepEqual(response, { ...answer, from: response.from });
     } finally {
       await a?.close();
       await b?.close();
@@ -158,3 +163,69 @@ test('peer-joined fires for existing peers when new one arrives', async () => {
   await b.close();
   await server.close();
 });
+
+test(
+  'addressed SDP goes to one peer and departure identifies its authoritative sender',
+  { timeout: 5000 },
+  async () => {
+    const server = await startSignalingServer();
+    const clients = [];
+    try {
+      const a = await connectSyncWebSocket({
+        port: server.port,
+        path: '/rtc?room=mesh',
+      });
+      clients.push(a);
+      const joined = new Promise((resolve) => a.transport.onMessage(resolve));
+      const b = await connectSyncWebSocket({
+        port: server.port,
+        path: '/rtc?room=mesh',
+        format: LINO_BINARY,
+      });
+      clients.push(b);
+      const bId = (await joined).peerId;
+      const c = await connectSyncWebSocket({
+        port: server.port,
+        path: '/rtc?room=mesh',
+      });
+      clients.push(c);
+      await settle();
+      const bSeen = [];
+      const cSeen = [];
+      b.transport.onMessage((event) => bSeen.push(event));
+      c.transport.onMessage((event) => cSeen.push(event));
+      const received = new Promise((resolve) => b.transport.onMessage(resolve));
+      a.transport.send({
+        type: 'offer',
+        to: bId,
+        from: 'spoofed',
+        sdp: 'targeted',
+      });
+      const offer = await received;
+      assert.equal(offer.to, bId);
+      assert.equal(offer.sdp, 'targeted');
+      assert.notEqual(offer.from, 'spoofed');
+      assert.equal(typeof offer.from, 'string');
+      await settle();
+      assert.deepEqual(cSeen, []);
+      const departed = new Promise((resolve) =>
+        b.transport.onMessage((event) => {
+          if (event.type === 'peer-left') {
+            resolve(event);
+          }
+        })
+      );
+      await a.close();
+      assert.deepEqual(await departed, {
+        type: 'peer-left',
+        peerId: offer.from,
+      });
+      assert.equal(bSeen.filter((event) => event.type === 'offer').length, 1);
+    } finally {
+      for (const client of clients) {
+        await client.close();
+      }
+      await server.close();
+    }
+  }
+);

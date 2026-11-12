@@ -199,10 +199,7 @@ const Source = ({ state, exports, idle, t }) =>
       }),
     ]),
   ]);
-export const CvWorkplaceReview = ({ state, t }) => {
-  const review = state.cvWorkplace;
-  const preparation = state.cvTechnology.preparation;
-  const idle = !state.busy;
+const validWorkplaceReview = (review) => {
   let valid = false;
   try {
     cvWorkplaceValues(review.fields);
@@ -217,6 +214,37 @@ export const CvWorkplaceReview = ({ state, t }) => {
   } catch {
     /* Keep incomplete edits editable. */
   }
+  return valid;
+};
+const Membership = ({ review, idle, capable, t }) =>
+  el('div', { key: 'membership', className: 'col' }, [
+    el('p', { key: 'hint', className: 'meta' }, t('cvWorkplace.detachHint')),
+    button(
+      'loadMembership',
+      review.loadMembership,
+      !idle ||
+        !review.source ||
+        !/^\d{1,100}$/u.test(review.recordId) ||
+        !capable,
+      t
+    ),
+    review.membership
+      ? el(
+          'pre',
+          {
+            key: 'rows',
+            'data-cv-workplace-membership': true,
+            style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
+          },
+          valueLabel(null, 'resumes', review.membership.resumes, t)
+        )
+      : null,
+  ]);
+export const CvWorkplaceReview = ({ state, t }) => {
+  const review = state.cvWorkplace;
+  const preparation = state.cvTechnology.preparation;
+  const idle = !state.busy;
+  const valid = validWorkplaceReview(review);
   return el(
     'section',
     {
@@ -253,33 +281,13 @@ export const CvWorkplaceReview = ({ state, t }) => {
         ),
       ]),
       review.operation === 'detach'
-        ? el('div', { key: 'membership', className: 'col' }, [
-            el(
-              'p',
-              { key: 'hint', className: 'meta' },
-              t('cvWorkplace.detachHint')
-            ),
-            button(
-              'loadMembership',
-              review.loadMembership,
-              !idle ||
-                !review.source ||
-                !/^\d{1,100}$/u.test(review.recordId) ||
-                state.capabilities?.cvSaveWatch !== true,
-              t
-            ),
-            review.membership
-              ? el(
-                  'pre',
-                  {
-                    key: 'rows',
-                    'data-cv-workplace-membership': true,
-                    style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
-                  },
-                  valueLabel(null, 'resumes', review.membership.resumes, t)
-                )
-              : null,
-          ])
+        ? el(Membership, {
+            key: 'membership',
+            review,
+            idle,
+            capable: state.capabilities?.cvSaveWatch === true,
+            t,
+          })
         : el(CvWorkplaceFields, { key: 'fields', state: review, idle, t }),
       el('div', { key: 'actions', className: 'row' }, [
         button('propose', review.propose, !idle || !valid, t),

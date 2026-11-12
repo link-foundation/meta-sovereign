@@ -5,6 +5,12 @@ import {
   NativeIndustries,
 } from './cv-workplace-native-choices.mjs';
 const el = React.createElement;
+const field = (qa, value) =>
+  el(
+    'div',
+    { key: qa, 'data-qa': qa },
+    el('span', { 'data-qa': 'trigger-values-wrapper' }, value)
+  );
 
 /** Native controlled fields, using only finite synthetic CV content. */
 export const NativeCvWorkplace = ({
@@ -26,12 +32,6 @@ export const NativeCvWorkplace = ({
   const [industryIds, setIndustryIds] = useState(
     job.industries.map((row) => row.id)
   );
-  const field = (qa, value) =>
-    el(
-      'div',
-      { key: qa, 'data-qa': qa },
-      el('span', { 'data-qa': 'trigger-values-wrapper' }, value)
-    );
   const save = async () => {
     globalThis.fixtureSaves++;
     await fetch('/fixture/save', { method: 'POST', body: description });

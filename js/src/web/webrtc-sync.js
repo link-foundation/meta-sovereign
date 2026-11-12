@@ -5,21 +5,11 @@
  * The server's `/rtc` endpoint relays signaling; application records
  * travel directly between the browser stores (R-J7).
  *
- * Wire-up:
- *   1. Open a browser `WebSocket` to `/rtc?room=<room>` on the
- *      discovered server. The signaling broker fans negotiated Lino messages to
- *      everyone else in the same room.
- *   2. Wrap that WebSocket in a `signalingChannel` so SDP / ICE
- *      messages are typed.
- *   3. Construct `createWebRtcTransport({ initiator: false, ... })` —
- *      both peers start as followers. When a `peer-joined` event
- *      arrives (meaning a *new* peer just entered the room behind
- *      us), we know we're the existing one so we call
- *      `transport.startAsInitiator()` to send the offer. The newcomer
- *      sees the offer first and answers it; no race.
- *   4. Plug the transport into `createPeer(store).connect(transport)`
- *      so every local write fans out over the data channel and
- *      remote writes flow into the local store.
+ * The broker assigns each remote socket a fresh identity. Existing peers
+ * initiate one addressed connection for each newcomer; offers and early ICE
+ * create the newcomer's matching follower. Departures dispose only that pair.
+ * A reload therefore receives fresh connections without replacing other peers.
+ * Application records remain on data channels, separate from signaling.
  *
  * The room defaults to `default`; production deployments that want
  * tenant isolation can set it from the URL or a config endpoint.
@@ -31,10 +21,9 @@
 // Import from leaf files instead of `sync/index.js` so the browser
 // bundle does not pull in `node:net` / `node:http` (re-exported by
 // the TCP/WebSocket *server* transports through index.js).
-import {
-  signalingChannel,
-  createWebRtcTransport,
-} from '../sync/webrtc-transport.js';
+import { signalingChannel } from '../sync/webrtc-transport.js';
+import { createWebRtcMesh } from '../sync/webrtc-mesh.js';
+import { debugBrowser } from './client-log.js';
 import { createPeer } from '../sync/peer.js';
 import { syncWire, syncQueue } from '../sync/wire.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
@@ -118,46 +107,29 @@ export const attachWebRtcSync = ({
   const ws = new WebSocketImpl(wsUrl, wire.protocol);
   const wsTransport = wrapBrowserWebSocket(ws, wire, onError);
   const signaling = signalingChannel(wsTransport);
-  const transport = createWebRtcTransport({
-    signaling,
-    RTCPeerConnection,
-    initiator: false,
-    rtcConfig,
-    format,
-    jsonCompatibility,
-    onError,
-  });
-  // Existing peers (us, until someone else joins) become initiator
-  // when the broker says a new peer arrived.
-  signaling.on('peer-joined', () => {
-    transport.startAsInitiator().catch(onError);
-  });
   // A browser and a peer of another data schema exchange nothing (R-Z17).
   const peer = createPeer(store, {
     node: 'web',
     schemaVersion: CURRENT_SCHEMA,
     onMismatch,
   });
-  const detach = peer.connect(transport);
+  const mesh = createWebRtcMesh({
+    signaling,
+    RTCPeerConnection,
+    rtcConfig,
+    format,
+    jsonCompatibility,
+    connect: (transport) => peer.connect(transport),
+    onState: (state) => debugBrowser('rtc-peer', state),
+    onError,
+  });
+  ws.addEventListener('close', () => mesh.close());
   return {
-    transport,
+    mesh,
     peer,
     close() {
-      try {
-        detach();
-      } catch {
-        // ignore
-      }
-      try {
-        transport.close();
-      } catch {
-        // ignore
-      }
-      try {
-        ws.close();
-      } catch {
-        // ignore
-      }
+      mesh.close();
+      ws.close();
     },
   };
 };
