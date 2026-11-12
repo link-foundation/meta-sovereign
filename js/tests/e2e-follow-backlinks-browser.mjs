@@ -3,6 +3,7 @@ import { followBacklinksFixture } from './helpers/follow-backlinks.mjs';
 import { followReadWait } from '../src/follow/read-policy.js';
 import { readWireResponse } from '../src/transport/lino.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
 
 const f = await followBacklinksFixture();
 const { base, page, until, finish } = await openChatApp('follow-backlinks', {
@@ -17,6 +18,7 @@ await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
 });
 const sends = () => f.calls.filter((c) => c.method === 'messages.send').length;
+const trace = await followDisclosureTrace(page, 'backlinks');
 const receipts = [];
 page.on('response', async (response) => {
   if (!response.url().includes('/follow/backlinks')) {
@@ -108,7 +110,9 @@ const verifyPreviewStop = async (card, field, action) => {
   f.state.before = undefined;
   f.state.sleep = undefined;
   await page.goto(`${base}/#/automation`);
+  await trace('return-after-navigation');
   await card.locator('summary').click();
+  await trace('return-after-summary-click');
   await field('chats').fill('2000000007');
   await field('backlink').fill('https://t.me/study_group');
   await field('retryDelayMs').fill('100');
@@ -118,8 +122,10 @@ const verifyPreviewStop = async (card, field, action) => {
 await finish(async () => {
   try {
     await page.goto(`${base}/#/automation`);
+    await trace('initial-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
     await card.locator('summary').click();
+    await trace('initial-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);
     const action = (key) =>
@@ -198,6 +204,7 @@ await finish(async () => {
       'mobile backlink controls fit'
     );
   } catch (error) {
+    await trace('workflow-failed');
     console.error(
       JSON.stringify({ receipts, calls: f.calls.map((c) => c.method) })
     );

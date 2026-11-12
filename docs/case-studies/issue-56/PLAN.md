@@ -8,9 +8,13 @@ Active HH16–HH18 native CV save observation unit:
 - [x] Persist explicit attempt/verified/interrupted states without replay, share finite watch/status/Stop/snapshot controls through CLI, both Lino encodings and localized CV UI, and drain callbacks before disconnecting.
 - [ ] Retain focused regression and real browser/MCP evidence, publish an atomic change and inspect exact-head hosted checks. Full native preparation/queues and all other open issue criteria remain required.
 
+Published Save observation as `b3f258489b86dfb6af72b503ae00ec7f6cc3b4d6`; its five hosted workflows began at 2026-11-12 09:30:15 UTC, including Checks 43192029767. All local scoped gates and checksummed evidence pass. Require completed exact-head results before checking the delivery item above.
+
 Local Save observation verification: 21 Node, 21 Deno and 24 compatibility checks, one browser-registry contract, two actual-parent failures, six native Linux WebKit cases, two actual Chromium CDP attachment checks and four independent MCP cases pass. Native exports cannot prove shared record identity: unchecked CVs with work history and hidden company metadata refuse confirmation. That acceptance criterion, live authenticated parity, native preparation/queues and every other open requirement stay unfinished. See [Save observation](cv-save-watch.md).
 
 Current hosted follow-up: exact 15f9c3e8 Checks run 43183721390 confirms macOS native Alt+Tab focus, but nine runtime jobs fail the older technology-capability assertion and WebKit shard 2 fails a collapsed Follow Backlinks disclosure. Full failed-job logs and its screenshot are preserved. The capability assertion now passes locally; Follow Backlinks needs further native event/node/document diagnostics around both openers. The earlier chat disclosure trace does not cover Backlinks. Require exact new-head hosted confirmation; [investigation](cv-save-watch.md#published-parent-ci-investigation). All unfinished product requirements remain active.
+
+Follow recurrence step: both original Backlinks openers now have default-off bounded pointer/click/toggle metadata and document/node identities. Local Linux WebKit passes the complete Backlinks workflow and the chat compatibility workflow. No interaction or deadline changes; the hosted cause remains unproven. Publish this tracing and inspect recurrence while continuing native CV editor/identity requirements. See [Backlinks investigation](ci-follow-backlinks.md).
 
 Active HH19/HH20 bilingual technology review unit:
 

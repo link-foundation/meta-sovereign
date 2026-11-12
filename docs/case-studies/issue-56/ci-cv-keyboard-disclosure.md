@@ -2,8 +2,11 @@
 
 Issue [56](https://github.com/link-foundation/meta-sovereign/issues/56),
 [PR57](https://github.com/link-foundation/meta-sovereign/pull/57) remains draft.
-The macOS keyboard correction needs hosted confirmation. The Follow disclosure
-root cause remains unproven; its new diagnostics preserve the original interaction.
+The macOS keyboard correction is confirmed on exact `15f9c3e8` at
+`cv-watch-parent-webkit2-131069572747.log:1393`. Follow Backlinks failed
+separately, outside the original chat-only trace. Its root cause remains unproven;
+[the extended investigation](ci-follow-backlinks.md) preserves both native openers.
+The sections below retain the original failure and local evidence.
 
 ## Preserved exact failure
 
