@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active Windows Deno CI investigation:
+
+- [x] List recent runs with timestamps and compare exact head SHA; preserve the cancelled job and full workflow logs.
+- [x] Read the actual failure and GitHub annotation: Windows Deno exhausted the unchanged ten-minute job budget; all other runtime targets and eight browser shards passed.
+- [x] Partition all Windows Deno test files with native runtime sharding; prove exact fixture coverage and failure propagation without increasing deadlines.
+- [ ] Publish focused verification and inspect all exact new-head checks. Continue native CV preparation, complete shared workplace identity and every unchecked issue criterion.
+
+Evidence and reproducible commands: [Windows Deno sharding](ci-deno-shards.md). The uncommitted About preparation draft from the previous container was lost during environment replacement; it is not part of the published branch and must be reconstructed and reverified before it can count as implementation evidence.
+
 Active HH16–HH18 native CV save observation unit:
 
 - [x] Attach through browser-commander to the exact existing HH tab in a chosen slot; refuse absent/replaced sessions and never launch, click, fill, focus, close or navigate an owner page.

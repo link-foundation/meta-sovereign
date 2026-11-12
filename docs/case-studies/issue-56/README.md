@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [ci-deno-shards.md](ci-deno-shards.md) preserves the exact-head Windows Deno deadline annotation and partitions complete native test coverage without increasing the ten-minute job limit.
+
 - [ci-follow-backlinks.md](ci-follow-backlinks.md) preserves the collapsed hosted Backlinks screenshot and extends default-off native event/node diagnostics to both original openers. Local Backlinks and chat workflows pass; the hosted cause remains unproven.
 
 - [cv-save-watch.md](cv-save-watch.md) verifies passive existing-tab observation, final owner fields, fresh native readback, sanitized snapshots and drained Stop through CLI/Lino/four-language controls. Focused Node/Deno, six native WebKit cases, actual CDP and independent MCP evidence pass. Shared-record identity, complete membership, native editing/batches and live parity stay unfinished.
