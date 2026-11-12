@@ -27,6 +27,8 @@
     "ci-logs/resume-export-doc-format.log": "fc890be050e388bff48b07a5a6fab0a84a509ab763bad00554200b1f5cd945db",
     "ci-logs/resume-export-duplication-final.log": "5ac75322469283f1cf89412977a0e367c9c99f9e378a747a19651a635047a1ba",
     "ci-logs/resume-export-duplication.log": "599816bfba9c037b0adaf881f97e9a2fa81dd25c7a846af6549aa81a27b1a6ad",
+    "ci-logs/resume-export-existing-diff.log": "cbe9d75aebbf184c5e512dea73d0bb91c8112611f1040567172728cde267afc0",
+    "ci-logs/resume-export-fetch-main.log": "86194f0b895cd37b4a286ee91d208cb30d9892c2f92af5d9911b89b3a0e09c31",
     "ci-logs/resume-export-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
     "ci-logs/resume-export-format-final.log": "f877ff59d3aa112ccc23c823bc29971cd56dc5cc518fa4907b00aa62f1d2e64c",
     "ci-logs/resume-export-format-refactored.log": "9d18f50122058b55337aad10a23a797b4c30a11582db333687ea678fdbc9723c",
@@ -54,6 +56,9 @@
     "ci-logs/resume-export-node.log": "d0e2c6080135dda787fc606258df187587fb92d163b430c8a0f9ce75fe1c818f",
     "ci-logs/resume-export-parent-replay.log": "25a2d2bd98cb715509bee5d110add5a380725c89813a1fe3ed22570bceb429f2",
     "ci-logs/resume-export-pr-comments-current.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "ci-logs/resume-export-pr-current.json": "b18d071357d0ad5ab9a2035d22c219088ef6314d24f1be6e76ceda60772129bd",
+    "ci-logs/resume-export-pr-full-diff-error.log": "b63a99af89adc4cd4ef1c0bdda1ba4d7086a8402aaa20503629bf40f65765254",
+    "ci-logs/resume-export-pr-full-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "ci-logs/resume-export-pr-inline-current.json": "a0eedd74ecf77f3c8f2cf26f84170a5c1694cedadd4a3d7897321a225784edde",
     "ci-logs/resume-export-pr-reviews-current.json": "8e3f69332b24d959aa82880db84494d91327dee3ba14776d5209292961207165",
     "ci-logs/resume-export-preceding-checks.json": "248d7f8d4f7e6e2ab10bc8f352ed06317dc476552ee5ef277a7cb192bd1ec6d4",
@@ -80,9 +85,8 @@
     "docs/screenshots/issue-56-resume-exports/after/exports-mcp-phone.png": "773a8f0ab7cd4a125b2b08e07baa64545c35443f4db9f5ded88e4efe2d65d746",
     "docs/screenshots/issue-56-resume-exports/after/exports-phone-recovery.png": "5645c98ff19f1ccb92b58810b9bed0032e999068536766b9c5529e1fb20f4808",
     "docs/screenshots/issue-56-resume-exports/before/exports-before.png": "e7f71b8659f8b7aafe9cb6607eca5ba0bf25929d3e41476eb1286d92f235e176",
-    "docs/screenshots/issue-56-resume-exports/before/exports-failed.png": "e7f71b8659f8b7aafe9cb6607eca5ba0bf25929d3e41476eb1286d92f235e176",
     "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
-    "experiments/issue-56/collect-resume-exports.py": "6a21a625ade7b86a50765816f8fecd3b1e8e0566aedd974143a59e7d752f4c4d",
+    "experiments/issue-56/collect-resume-exports.py": "137e6777160b1fa34ea7bb3ae7e177fb3da5bc08c2e79c6fe324d3f305c539ab",
     "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
     "experiments/issue-56/resume-cookie-probe.mjs": "10cdcdb0e2b58dbaa75c4c1ecec1f356290b2d0c0b3d2c13c1315253fbcd729c",
     "experiments/issue-56/resume-export-before.py": "0f13685dac013759703ec2f208bf5b3d45b2a7346ceaf4427dc12a6b3944173b",
@@ -126,6 +130,6 @@
     "js/tests/job-resume-exports.test.js": "6800c351040fd17e995945364b3f032beae83be66ba467e8ee2d8a2b226c82dd",
     "js/tests/vacancy-controls.test.js": "09155ffc8ce09c170b5e8b5456eb0d184071ebaefb2e96b2840b9a31a1687a7f",
     "js/tests/vacancy-search.test.js": "6d981e05f48285f1fada8096fcf32254610c40dd5082c04697fc3dca42f2872e",
-    "metadata.json": "5a0109327567ef2426fec5b7a6c2bf7d25f51552edf62e2290b3b51dc00a3daf"
+    "metadata.json": "16bfe91a160d21b64d758efda8a938cc507824df654e7c6af3579d42dff1eb07"
   }
 }

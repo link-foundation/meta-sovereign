@@ -25,7 +25,7 @@ assert not read('lint-final').strip()
 assert not read('secretlint').strip()
 assert 'All matched files use Prettier code style!' in read('format-check')
 assert 'ERROR' not in read('duplication-final')
-sources = [name for name in changed_sources(root)
+sources = [name for name in changed_sources(root, revision=parent)
            if name != 'experiments/issue-56/resume-profile-navigation.mjs']
 bundle(root, [*sources, *evidence_logs(root, 'resume-export'),
               *evidence_logs(root, 'hh-resume-reference', suffixes=('.log', '.json', '.mjs')),
