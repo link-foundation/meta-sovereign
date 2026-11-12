@@ -2,7 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { cvTechnologyFixture } from './cv-technology-fixture.mjs';
 import { createVacancyService } from '../../js/src/jobs/service.js';
 
-export const cvPrepareFixture = async () => {
+export const cvPrepareFixture = async ({
+  selected = ['en:about', 'ru:about'],
+} = {}) => {
   const data = await cvTechnologyFixture();
   const calls = { attached: 0, detached: 0, prepared: 0 };
   let prepare = async ({ phase, check }) => {
@@ -31,7 +33,7 @@ export const cvPrepareFixture = async () => {
   const { review } = await service['technology-review-save']({
     browserSlot: 'jobs',
     fingerprint: draft.review.fingerprint,
-    selected: ['en:about', 'ru:about'],
+    selected,
   });
   const input = {
     browserSlot: 'jobs',

@@ -12,7 +12,13 @@ export const cvPrepareIdentity = (input) => ({
 export const cvPrepareOptions = (input) => {
   if (
     !/^[a-f\d]{64}$/u.test(input.fingerprint ?? '') ||
-    !/^(?:ru|en):about$/u.test(input.changeId ?? '') ||
+    !/^(?:ru|en):(?:about|jobs\.(?:0|[1-9]\d{0,2})\.description)$/u.test(
+      input.changeId ?? ''
+    ) ||
+    (input.changeId?.endsWith(':about')
+      ? input.recordId !== undefined
+      : typeof input.recordId !== 'string' ||
+        !/^\d{1,100}$/u.test(input.recordId)) ||
     (input.targetId !== undefined &&
       !/^[a-zA-Z\d]{1,100}$/u.test(input.targetId))
   ) {
@@ -22,6 +28,7 @@ export const cvPrepareOptions = (input) => {
     ...cvPrepareIdentity(input),
     fingerprint: input.fingerprint,
     changeId: input.changeId,
+    ...(input.recordId ? { recordId: input.recordId } : {}),
     ...(input.targetId ? { targetId: input.targetId } : {}),
   };
 };
@@ -76,15 +83,20 @@ const preparedResult = (raw, input) => {
     !validReceipt(raw) ||
     !states.includes(raw.state) ||
     !['ru', 'en'].includes(raw.language) ||
-    raw.changeId !== `${raw.language}:about` ||
+    !raw.changeId.startsWith(`${raw.language}:`) ||
     (raw.code !== null && !/^jobs-[a-z\d-]+$/u.test(raw.code))
   ) {
     throw cvPrepareFailure('state');
   }
   if (
-    ['requestId', 'browserSlot', 'fingerprint', 'changeId', 'targetId'].some(
-      (key) => input[key] !== undefined && input[key] !== options[key]
-    )
+    [
+      'requestId',
+      'browserSlot',
+      'fingerprint',
+      'changeId',
+      'targetId',
+      'recordId',
+    ].some((key) => input[key] !== undefined && input[key] !== options[key])
   ) {
     throw cvPrepareFailure('state');
   }

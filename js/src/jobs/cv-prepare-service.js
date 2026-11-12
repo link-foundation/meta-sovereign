@@ -1,5 +1,6 @@
 import { attachCvWatchBrowser } from './cv-watch-browser.js';
 import { prepareNativeCvAbout } from './cv-prepare-browser.js';
+import { prepareNativeCvWorkplace } from './cv-prepare-workplace.js';
 import { cvPrepareSource } from './cv-prepare-source.js';
 import {
   cvPrepareOptions,
@@ -12,6 +13,10 @@ import { browserName } from '../browser/policy.js';
 import { resumeExportRequestId } from './resume-export-options.js';
 
 const recordId = (id) => `jobs-cv-prepare:${resumeExportRequestId(id)}`;
+const prepareNativeCvChange = (input) =>
+  input.change.field === 'about'
+    ? prepareNativeCvAbout(input)
+    : prepareNativeCvWorkplace(input);
 const admissions = new WeakMap();
 const assertRunning = (stopped) => {
   if (stopped) {
@@ -72,7 +77,7 @@ export const createCvPrepareService = ({
   artifactRoot,
   run,
   attach = attachCvWatchBrowser,
-  prepare = prepareNativeCvAbout,
+  prepare = prepareNativeCvChange,
 }) => {
   const lane = preparationLane(store);
   let stopped = false;

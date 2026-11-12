@@ -1,4 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises';
+import { prepareCvControlledText } from './cv-prepare-text.js';
 import { readCvAboutPreparation } from './cv-prepare-document.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
@@ -73,75 +74,29 @@ export const prepareNativeCvAbout = async ({
   ) {
     throw cvPrepareFailure('baseline');
   }
-  const editor = page.locator('textarea[data-qa="resume-editor-about"]');
-  const handle = await editor.elementHandle();
-  if (!handle) {
-    throw cvPrepareFailure('draft');
-  }
-  try {
-    const unchanged = async (expected, focused = false, controlled = true) => {
+  await prepareCvControlledText({
+    page,
+    selector: 'textarea[data-qa="resume-editor-about"]',
+    before: before.about,
+    after: change.after,
+    maxLength: before.maxLength,
+    read: async (expected, controlled) => {
       const state = await read();
-      const same = await handle.evaluate(
-        (node, focused) =>
-          node.isConnected &&
-          node ===
-            globalThis.document.querySelector(
-              'textarea[data-qa="resume-editor-about"]'
-            ) &&
-          (!focused || node === globalThis.document.activeElement),
-        focused
+      return (
+        !state.foreign &&
+        state.writable &&
+        state.about === expected &&
+        (!controlled || state.controlledValue === expected)
       );
-      check();
-      if (
-        !same ||
-        state.foreign ||
-        !state.writable ||
-        state.about !== expected ||
-        (controlled && state.controlledValue !== expected)
-      ) {
-        throw cvPrepareFailure('draft');
-      }
-    };
-    await handle.focus();
-    await delay(settleMs);
-    await unchanged(before.about, true);
-    await phase('preparing');
-    await unchanged(before.about, true);
-    await handle.press('ControlOrMeta+A', { timeout: 10000 });
-    await unchanged(before.about, true);
-    await page.keyboard.insertText(change.after);
-    await unchanged(change.after, true, false);
-    // A native change after bulk insertion settles HH's controlled textarea.
-    // At maxlength, remove/restore one complete code point instead of overflowing.
-    if (
-      before.maxLength >= 0 &&
-      change.after.length === before.maxLength &&
-      change.after.length
-    ) {
-      const last = Array.from(change.after).at(-1);
-      await handle.evaluate(
-        (node, size) =>
-          node.setSelectionRange(node.value.length - size, node.value.length),
-        last.length
-      );
-      check();
-      await handle.press('Backspace', { timeout: 10000 });
-      await unchanged(change.after.slice(0, -last.length), true, false);
-      await page.keyboard.insertText(last);
-    } else {
-      await handle.press('Space', { timeout: 10000 });
-      await unchanged(`${change.after} `, true, false);
-      await handle.press('Backspace', { timeout: 10000 });
-    }
-    await wait(
-      (state) =>
-        state.about === change.after && state.controlledValue === change.after
-    );
-    await editor.blur();
-    await delay(settleMs);
-    await unchanged(change.after);
-    traceCvWatch('about-prepared', { state: 'prepared' });
-  } finally {
-    await handle.dispose();
-  }
+    },
+    wait: () =>
+      wait(
+        (state) =>
+          state.about === change.after && state.controlledValue === change.after
+      ),
+    check,
+    phase,
+    settleMs,
+  });
+  traceCvWatch('about-prepared', { state: 'prepared' });
 };

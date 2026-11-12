@@ -63,7 +63,7 @@ export const useCvPreparation = ({ api, values, run }) => {
     pendingId,
     canCancel: Boolean(pendingId && !ready),
     ready,
-    prepare: (review, change) =>
+    prepare: (review, change, options = {}) =>
       run('cv-prepare', async () => {
         if (!permitted.current) {
           throw new Error('jobs-cv-recovery');
@@ -86,6 +86,7 @@ export const useCvPreparation = ({ api, values, run }) => {
           requestId,
           fingerprint: review.fingerprint,
           changeId: change.id,
+          ...(options.recordId ? { recordId: options.recordId } : {}),
         });
         if (current === generation.current) {
           accept(answer, requestId);

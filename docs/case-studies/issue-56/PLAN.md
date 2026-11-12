@@ -1,5 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active reviewed workplace description preparation:
+
+Five new native WebKit cases pass with nine drained attachments, seven fresh reads, zero Save requests and no page errors. Forty-six preparation/cancellation/identity plus twenty-one Save-observation checks pass per Node/Deno. Three actual-parent regressions fail as expected. The mandatory preparation and Save-observation entries pass; preserve final checksummed evidence and require exact new-head CI. See [case study](cv-workplace-prepare.md).
+
+- [x] Reproduce rejection of a selected workplace change against published `ee7a74e4`; inspect the pinned reference workflow and existing native controls.
+- [x] Bind an explicitly chosen existing record to the selected verified job, fresh native fields and complete membership. Refuse shared records, unsaved edits, stale sources, missing fields and ambiguous identity before typing.
+- [x] Prepare only the reviewed description through native controlled-field keyboard events. Preserve other fields, membership, owner focus, Save/Cancel and durable non-replaying request recovery through CLI, both Lino formats and four locales.
+- [ ] Verify focused regressions, native before/after desktop/phone evidence and compatibility; preserve a checksummed case study, publish and inspect exact-head hosted checks.
+- [ ] Continue complete workplace field/copy/detach workflows, batches and every unchecked requirement; this bounded step does not complete HH14–HH20.
+
 Active merged CV validation:
 
 - [x] Integrate both published cancellation histories and workplace identity with regular commits; rebuild the web bundle and retain both evidence sets.

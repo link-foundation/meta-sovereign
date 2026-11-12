@@ -26,7 +26,7 @@ export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash
   vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=ru:about|en:about [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description> [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
 
@@ -99,6 +99,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
               targetId: args['target-id'],
               fingerprint: args.fingerprint,
               changeId: args['change-id'],
+              recordId: args['record-id'],
               formats:
                 args.formats === undefined
                   ? undefined

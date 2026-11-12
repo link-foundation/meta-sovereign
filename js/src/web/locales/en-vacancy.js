@@ -206,11 +206,16 @@ export const enVacancy = {
   'cvWatch.empty': 'No verified owner save has been captured.',
   'cvWatch.loadError':
     'The connection or saved state could not be confirmed. Existing snapshots are retained; reload before starting again.',
-  'cvPrepare.title': 'Prepare native About draft',
+  'cvPrepare.title': 'Prepare a native CV draft',
   'cvPrepare.hint':
     'Select a saved About change and open that CV in the existing HH slot. Stop any observation first. Preparation refuses an open editor and leaves Save or Cancel to you. After preparation, start observation before saving if you want verified snapshots.',
-  'cvPrepare.choose': 'Save an About change in the local review first.',
+  'cvPrepare.choose':
+    'Save a selected About or workplace description change in the local review first.',
   'cvPrepare.prepare': 'Prepare About',
+  'cvPrepare.recordId': 'Existing workplace record ID',
+  'cvPrepare.description': 'Prepare description',
+  'cvPrepare.workplaceHint':
+    'For a workplace description, open the unchanged existing record yourself and enter its numeric ID. It must belong only to the selected CV; shared records require a separate copy. Preparation changes only the description and leaves Save or Cancel to you.',
   'cvPrepare.reload': 'Reload preparation',
   'cvPrepare.cancel': 'Cancel unresolved request',
   'cvPrepare.cancelHint':
@@ -221,11 +226,11 @@ export const enVacancy = {
     'Recover preparation status before another attempt. An unknown request stays blocked; inspect the existing tab.',
   'cvPrepare.starting': 'Connecting to the existing CV tab…',
   'cvPrepare.opening': 'Opening the native About editor…',
-  'cvPrepare.preparing': 'Preparing the reviewed About text…',
+  'cvPrepare.preparing': 'Preparing the reviewed text…',
   'cvPrepare.prepared':
-    'About draft prepared. Review it in the HH tab, then choose Save or Cancel. This receipt does not confirm a provider save.',
+    'Draft prepared. Review it in the HH tab, then choose Save or Cancel. This receipt does not confirm a provider save.',
   'cvPrepare.failed':
-    'Preparation failed before opening. The existing tab was preserved.',
+    'Preparation stopped before changing fields. The existing draft was preserved.',
   'cvPrepare.uncertain':
     'Preparation outcome is uncertain. Inspect the existing HH draft; no automatic retry was made.',
   'cvPrepare.interrupted':

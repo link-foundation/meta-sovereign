@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDates } from './i18n.js';
 
 const el = React.createElement;
-const fieldLabel = (review, row, t) => {
+export const cvTechnologyFieldLabel = (review, row, t) => {
   const cv = review.sources.find(
     (source) => source.cv.language === row.language
   )?.cv;
@@ -34,7 +34,7 @@ const Change = ({ change, state, idle, t }) =>
       el(
         'span',
         { key: 'label' },
-        `${change.language.toUpperCase()} · ${fieldLabel(state.review, change, t)}`
+        `${change.language.toUpperCase()} · ${cvTechnologyFieldLabel(state.review, change, t)}`
       ),
     ]),
     el('details', { key: 'before' }, [
@@ -121,7 +121,7 @@ export const CvTechnologyPlanView = ({ state, catalog, idle, t }) => {
                 el(
                   'p',
                   { key: index, className: 'meta' },
-                  `${t(`cvTechnology.${blocker.code}`)} · ${blocker.language?.toUpperCase() ?? ''} · ${fieldLabel(review, blocker, t)} · ${blocker.raw ?? ''}`
+                  `${t(`cvTechnology.${blocker.code}`)} · ${blocker.language?.toUpperCase() ?? ''} · ${cvTechnologyFieldLabel(review, blocker, t)} · ${blocker.raw ?? ''}`
                 )
               ),
             ]
@@ -133,7 +133,7 @@ export const CvTechnologyPlanView = ({ state, catalog, idle, t }) => {
           el(
             'p',
             { key: `${row.language}:${row.field}` },
-            `${row.language.toUpperCase()} · ${fieldLabel(review, row, t)} · ${row.before.length} → ${row.proposed.length} · ${row.proposed.join(' · ')}`
+            `${row.language.toUpperCase()} · ${cvTechnologyFieldLabel(review, row, t)} · ${row.before.length} → ${row.proposed.length} · ${row.proposed.join(' · ')}`
           )
         ),
       ]),
@@ -144,7 +144,7 @@ export const CvTechnologyPlanView = ({ state, catalog, idle, t }) => {
             el(
               'p',
               { key: 'title', className: 'meta' },
-              `${field.language.toUpperCase()} · ${fieldLabel(review, field, t)} · ${t('cvTechnology.duplicates')}: ${field.duplicates.length}`
+              `${field.language.toUpperCase()} · ${cvTechnologyFieldLabel(review, field, t)} · ${t('cvTechnology.duplicates')}: ${field.duplicates.length}`
             ),
             el(
               'pre',

@@ -303,5 +303,6 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [WebKit résumé profile navigation investigation](ci-profile-navigation.md): exact hosted failure, four-helper replay and optional bounded document/disclosure metadata; root cause remains unproven.
 
 - [Exact saved workplace identity](cv-workplace-identity.md): bounded inert native record readback, complete CV membership, preserved unrelated jobs and durable CLI/Lino/four-language evidence; native editing/batches and authenticated parity remain open.
+- [Reviewed workplace description preparation](cv-workplace-prepare.md): exact owner-opened identity, verified sources, fresh native fields/membership, controlled keyboard insertion and draft-only CLI/Lino/four-language receipts. Shared copies, other workplace fields, batches and authenticated parity remain open.
 
 - [CI: shared CV verification fixtures](ci-cv-fixture-duplication.md): exact published duplication failure, preserved cancellation tests, shared parent replay/server setup and finite lifecycle checks under the unchanged gate.

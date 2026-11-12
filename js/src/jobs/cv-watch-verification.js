@@ -104,7 +104,7 @@ const workplaceAttempt = (raw) => {
   };
 };
 
-const sameWorkplace = (attempt, saved) => {
+export const sameCvWorkplace = (attempt, saved) => {
   if (
     !attempt.recordId ||
     saved?.kind !== 'workplace' ||
@@ -130,6 +130,30 @@ const sameWorkplace = (attempt, saved) => {
   );
 };
 
+const sameJobFields = (attempt, job) =>
+  job.company === attempt.company &&
+  job.position === attempt.position &&
+  job.start === attempt.start &&
+  job.end === attempt.end &&
+  job.current === attempt.current &&
+  normalize(job.description) === normalize(attempt.description);
+
+/** Complete exported metadata must match the exact native record. */
+export const cvWorkplaceMatchesJob = (attempt, job, industryEntries) => {
+  if (!attempt.metadataEditable || attempt.industryText === null) {
+    return false;
+  }
+  const ids = confirmedCvIndustryIds(attempt.industryText, industryEntries);
+  return (
+    sameJobFields(attempt, job) &&
+    normalize(job.area) === normalize(attempt.area) &&
+    website(job.website) === website(attempt.website) &&
+    ids !== null &&
+    JSON.stringify(job.industries.map((row) => row.id).sort()) ===
+      JSON.stringify(ids)
+  );
+};
+
 /** Exact record membership plus fresh exports; a closed form proves nothing. */
 export const verifyCvSave = (attempt, exports, savedWorkplace) => {
   const one = (hash) => {
@@ -140,7 +164,7 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
     const cv = one(attempt.hash);
     return Boolean(cv && normalize(cv.cv.about) === normalize(attempt.about));
   }
-  if (!sameWorkplace(attempt, savedWorkplace)) {
+  if (!sameCvWorkplace(attempt, savedWorkplace)) {
     return false;
   }
   return attempt.resumes.every(({ hash, checked }) => {
@@ -148,15 +172,7 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
     if (!cv) {
       return false;
     }
-    const matches = cv.cv.jobs.filter(
-      (job) =>
-        job.company === attempt.company &&
-        job.position === attempt.position &&
-        job.start === attempt.start &&
-        job.end === attempt.end &&
-        job.current === attempt.current &&
-        normalize(job.description) === normalize(attempt.description)
-    );
+    const matches = cv.cv.jobs.filter((job) => sameJobFields(attempt, job));
     if (!checked) {
       // The exact record's fresh native checkbox proves exclusion; unrelated
       // and even text-identical records in this CV must remain untouched.
@@ -170,17 +186,6 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
       // Hidden company metadata cannot establish a complete saved record.
       return false;
     }
-    const job = matches[0];
-    const ids = confirmedCvIndustryIds(
-      attempt.industryText,
-      cv.industryEntries
-    );
-    return (
-      normalize(job.area) === normalize(attempt.area) &&
-      website(job.website) === website(attempt.website) &&
-      ids !== null &&
-      JSON.stringify(job.industries.map((row) => row.id).sort()) ===
-        JSON.stringify(ids)
-    );
+    return cvWorkplaceMatchesJob(attempt, matches[0], cv.industryEntries);
   });
 };
