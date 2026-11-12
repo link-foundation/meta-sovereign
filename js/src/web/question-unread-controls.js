@@ -8,11 +8,21 @@ const activePass = (result) => result?.owned && result.state === 'active';
 const validLimit = (value) =>
   Number.isInteger(value) && value >= 1 && value <= 100;
 
-const useUnreadPass = ({ api, remember, storageKey, changed }) => {
+const useUnreadPass = ({
+  api,
+  remember,
+  storageKey,
+  legacyStorageKey,
+  changed,
+}) => {
   const t = useT();
   const [id, setId] = React.useState(() => {
     const saved = remember(storageKey);
-    return browserUnreadId(saved) ? saved : '';
+    if (browserUnreadId(saved)) {
+      return saved;
+    }
+    const legacy = remember(legacyStorageKey);
+    return browserUnreadId(legacy) ? legacy : '';
   });
   const [result, setResult] = React.useState(null);
   const [pending, setPending] = React.useState(Boolean(id));
@@ -29,6 +39,7 @@ const useUnreadPass = ({ api, remember, storageKey, changed }) => {
     try {
       const value = await work();
       if (value) {
+        remember(storageKey, value.id);
         setResult(value);
         setPending(false);
       }
@@ -36,6 +47,9 @@ const useUnreadPass = ({ api, remember, storageKey, changed }) => {
       setError(t('browserAnswer.error', { code: err.code ?? 'unconfirmed' }));
       if (err.code === 'question-unread-missing') {
         remember(storageKey, null);
+        if (remember(legacyStorageKey) === id) {
+          remember(legacyStorageKey, null);
+        }
         setId('');
         setPending(false);
       }
@@ -114,6 +128,38 @@ const UnreadNoticeResult = ({ notice }) => {
     : null;
 };
 
+const UnreadRestoration = ({ restoration }) => {
+  const t = useT();
+  if (!restoration) {
+    return null;
+  }
+  const revealed = restoration.replyView?.state === 'revealed';
+  const key = restoration.restored
+    ? revealed
+      ? 'restoredReply'
+      : 'restored'
+    : 'notRestored';
+  return el(React.Fragment, null, [
+    el(
+      'p',
+      {
+        key: 'restored',
+        role: restoration.restored ? 'status' : 'alert',
+      },
+      t(`browserUnread.${key}`, { id: restoration.replyView?.messageId })
+    ),
+    restoration.replyView && !revealed
+      ? el(
+          'p',
+          { key: 'reply-view', className: 'meta' },
+          t('browserUnread.replyNotRevealed', {
+            id: restoration.replyView.messageId,
+          })
+        )
+      : null,
+  ]);
+};
+
 const UnreadResult = ({ result, blocked, select }) => {
   const t = useT();
   if (!result) {
@@ -140,18 +186,10 @@ const UnreadResult = ({ result, blocked, select }) => {
             })
           )
         : null,
-      result.restoration
-        ? el(
-            'p',
-            {
-              key: 'restored',
-              role: result.restoration.restored ? 'status' : 'alert',
-            },
-            t(
-              `browserUnread.${result.restoration.restored ? 'restored' : 'notRestored'}`
-            )
-          )
-        : null,
+      el(UnreadRestoration, {
+        key: 'restoration',
+        restoration: result.restoration,
+      }),
       result.restoration?.history
         ? el(
             'p',
@@ -206,11 +244,18 @@ const UnreadControls = ({
   changed,
   remember,
   storageKey,
+  legacyStorageKey,
   select,
   noticesAvailable,
 }) => {
   const t = useT();
-  const pass = useUnreadPass({ api, remember, storageKey, changed });
+  const pass = useUnreadPass({
+    api,
+    remember,
+    storageKey,
+    legacyStorageKey,
+    changed,
+  });
   const [confirm, setConfirm] = React.useState(false);
   const [limit, setLimit] = React.useState('20');
   const [noticeReplies, setNoticeReplies] = React.useState(false);

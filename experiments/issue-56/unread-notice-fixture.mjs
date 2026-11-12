@@ -58,6 +58,9 @@ export const unreadNoticeFixture = async (options = {}) => {
       observed: (options.bodies ?? [undefined]).length,
       visited: pass.conversations.length,
     };
+    if (options.restoration) {
+      pass.restoration = options.restoration;
+    }
     return pass;
   });
   env.send.unreadNoticeReplySources = () => [{ id: 'hh', name: 'HeadHunter' }];

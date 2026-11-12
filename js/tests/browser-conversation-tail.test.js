@@ -77,6 +77,37 @@ const visit = (env, work) =>
     now: () => 0,
   });
 
+test('only actual positive replies reach view bookkeeping and observer failure preserves delivery', async () => {
+  const env = fixture();
+  const retained = [];
+  env.options.retainReply = (receipt) => {
+    retained.push(receipt);
+    throw new Error('View unavailable after confirmation');
+  };
+  const result = await visit(env, async (handle) =>
+    handle.replyTextInactive(handle.snapshot, 'Thanks')
+  );
+  assert.equal(result.value.messageId, '102');
+  assert.deepEqual(retained, [result.value]);
+  assert.equal(env.events.filter((value) => value === 'click').length, 1);
+});
+
+test('an uncertain send never reaches original-view reveal bookkeeping', async () => {
+  const env = fixture();
+  Object.assign(env.options.settings, { receiptMs: 10, pollMs: 1 });
+  const evaluate = env.options.document.evaluate;
+  env.options.document.evaluate = async (input) =>
+    input.args[0].operation === 'receipt'
+      ? { code: 'send-unknown' }
+      : evaluate(input);
+  env.options.retainReply = () => assert.fail('Unknown delivery was retained');
+  await assert.rejects(
+    visit(env, (handle) => handle.replyTextInactive(handle.snapshot, 'Thanks')),
+    { code: 'send-unknown' }
+  );
+  assert.equal(env.events.filter((value) => value === 'click').length, 1);
+});
+
 test('borrowed tail waits for a stable latest snapshot and expires after its callback', async () => {
   const env = fixture();
   let saved;

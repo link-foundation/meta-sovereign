@@ -14,6 +14,11 @@ import {
 import { browserChatViewState } from './browser-chat-view-state.js';
 import { createBrowserScanControl } from './browser-scan-control.js';
 import {
+  browserChatReplyView,
+  revealBrowserChatReply,
+} from './browser-chat-reply-view.js';
+import { browserTextReceipt } from '../automation/question-browser-state.js';
+import {
   claimBrowserHistoryTail,
   verifyBrowserHistoryTransition,
 } from './browser-chat-history-tail.js';
@@ -407,6 +412,7 @@ class ChatNavigation {
   }
 
   async restore() {
+    let replyView;
     try {
       await this.verify();
       await this.restoreRoutes();
@@ -414,6 +420,30 @@ class ChatNavigation {
       await sleep(this.waitMs);
       await this.view('restore-position');
       await sleep(this.waitMs);
+      if (this.reply && !this.signal?.aborted) {
+        const state = await revealBrowserChatReply({
+          document: this.adapter,
+          ui: this.ui,
+          reply: this.reply,
+          token: this.inactiveToken,
+          verify: () => this.verify(),
+          waitMs: this.waitMs,
+          view: (operation, reply) =>
+            this.original.frame.evaluate(browserChatReplyView, {
+              operation,
+              reply,
+              token: this.token,
+              inactiveToken: this.inactiveToken,
+              ui: this.spec,
+            }),
+        });
+        replyView = {
+          state,
+          chat: this.reply.chat,
+          messageId: this.reply.messageId,
+        };
+        this.trace('reply-view', state);
+      }
       const receipt = await this.view('receipt');
       receipt.fields.historyPosition =
         this.position.index === this.initialPosition.index;
@@ -428,11 +458,21 @@ class ChatNavigation {
         restored: Object.values(receipt.fields).every(Boolean),
         fields: receipt.fields,
         reason: 'checked',
+        ...(replyView ? { replyView } : {}),
       };
     } catch (error) {
       return {
         restored: false,
         reason: error.scanReason ?? 'document-changed',
+        ...(this.reply
+          ? {
+              replyView: {
+                state: 'unavailable',
+                chat: this.reply.chat,
+                messageId: this.reply.messageId,
+              },
+            }
+          : {}),
       };
     }
   }
@@ -456,6 +496,16 @@ class ChatNavigation {
               visit: (chat, read) => this.visit(chat, read),
               verifyCurrent: inactive,
               inactiveToken: token,
+              retainReply: (receipt) => {
+                const reply = browserTextReceipt(receipt, {
+                  source: this.ui.id,
+                  chat: this.originalTarget,
+                  text: receipt?.text,
+                });
+                if (reply) {
+                  this.reply = reply;
+                }
+              },
             });
           } finally {
             this.restoration = await this.restore();

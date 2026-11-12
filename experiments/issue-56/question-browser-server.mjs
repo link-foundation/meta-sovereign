@@ -60,6 +60,25 @@ const summarySetter =
     return { summary: answer };
   };
 
+const unreadFixtureHtml = (mode, notices, replyView) =>
+  chatNavigationHtml({
+    ...mode,
+    ...(notices
+      ? {
+          textReplies: true,
+          emptyOriginal: replyView,
+          originalUnread: replyView,
+          allRead: replyView,
+          precedingOutgoing: true,
+          latestMessages: {
+            7: noticeText,
+            8: noticeText,
+            9: rejectionText,
+          },
+        }
+      : {}),
+  });
+
 /** Private, disposable production server and routed provider; no live account. */
 export const questionBrowserServer = async (
   browser,
@@ -68,6 +87,7 @@ export const questionBrowserServer = async (
     noticePolicies = false,
     unreadReview = false,
     unreadNotices = false,
+    unreadReplyView = false,
   } = {}
 ) => {
   const env = await questionBrowserFixture();
@@ -118,16 +138,7 @@ export const questionBrowserServer = async (
     return route.fulfill({
       contentType: 'text/html',
       body: unreadReview
-        ? chatNavigationHtml({
-            ...mode,
-            ...(unreadNotices
-              ? {
-                  textReplies: true,
-                  precedingOutgoing: true,
-                  latestMessages: { 8: noticeText, 9: rejectionText },
-                }
-              : {}),
-          })
+        ? unreadFixtureHtml(mode, unreadNotices, unreadReplyView)
         : `${(noticePolicies
             ? noticePolicyHtml()
             : mode.freeText

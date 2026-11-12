@@ -6,6 +6,10 @@ import {
   activateChatFilter,
 } from './browser-chat-filter.js';
 import { writeBrowserNativeInput } from './browser-native-input.js';
+import {
+  browserChatReplyNode,
+  browserChatReplyVisible,
+} from './browser-chat-reply-view.js';
 
 const viewElements = (ui) => {
   const first = (selector) =>
@@ -65,11 +69,16 @@ const selectionRestored = (draft, field) =>
     field.scrollTop === draft.top
   );
 
-const restoredView = (state, nodes) => ({
+const restoredView = (state, nodes, ui) => ({
   filter: nodes.control?.checked === state.unreadOnly,
   list: state.listTop === null || nodes.list?.scrollTop === state.listTop,
-  messages:
-    state.messageTop === null || nodes.messages?.scrollTop === state.messageTop,
+  messages: state.reply
+    ? browserChatReplyVisible(
+        browserChatReplyNode(ui, state.reply),
+        nodes.messages
+      )
+    : state.messageTop === null ||
+      nodes.messages?.scrollTop === state.messageTop,
   draft: !state.draft || nodes.field?.value === state.draft.value,
   selection: selectionRestored(state.draft, nodes.field),
 });
@@ -176,13 +185,15 @@ const viewState = (input) => {
   }
   const nodes = viewElements(ui);
   const status = restoreView(state, nodes, inactive, input);
-  return { state: status, fields: restoredView(state, nodes) };
+  return { state: status, fields: restoredView(state, nodes, ui) };
 };
 
 // Static functions only; provider selectors, draft values and URLs remain data.
 export const browserChatViewState = new Function(`return (input) => {
   const browserFrameVisible = (${browserFrameVisible.toString()});
   const browserChatScrollRoot = (${browserChatScrollRoot.toString()});
+  const browserChatReplyNode = (${browserChatReplyNode.toString()});
+  const browserChatReplyVisible = (${browserChatReplyVisible.toString()});
   const chatFilterControl = (${chatFilterControl.toString()});
   const activateChatFilter = (${activateChatFilter.toString()});
   const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});

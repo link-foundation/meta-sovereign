@@ -1,4 +1,8 @@
 export const zhUnreadReview = {
+  'browserUnread.restoredReply':
+    '已恢复原聊天、筛选条件和空白输入框。已显示确认的回复 {id}，而非先前的阅读位置。',
+  'browserUnread.replyNotRevealed':
+    '回复 {id} 已确认，但未显示。优先保留所有者的草稿和阅读位置；请检查服务窗口。',
   'browserUnread.title': '未读会话',
   'browserUnread.hint':
     '在已连接且未激活的服务窗口中读取有限数量的未读聊天。请保持该窗口未激活，直到本次读取结束。已保存的答案用于生成待审核内容；本次读取不会发送回复或调用模型。可见列表和历史记录可能不完整。',

@@ -1,12 +1,9 @@
 """Preserve finite notice admission, receipt and cross-surface recovery evidence."""
 import json
-from pathlib import Path
-from evidence_bundle import bundle, changed_sources, evidence_logs
+from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs
 
-root = Path(__file__).resolve().parents[2]
-logs = root / 'ci-logs'
+root, logs, read = evidence_context(__file__, 'unread-notice')
 parent = 'ebd6f80d2cf787a6b49fc4bdc33ddbfdb41faa53'
-read = lambda name: (logs / f'unread-notice-{name}.log').read_text()
 for runtime, expected in [('node', 'pass 42'), ('deno', '42 passed | 0 failed'),
                           ('registry', 'pass 1'), ('registry-deno', '1 passed | 0 failed')]:
     assert expected in read(f'{runtime}-verified')

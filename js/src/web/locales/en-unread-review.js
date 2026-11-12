@@ -22,6 +22,10 @@ export const enUnreadReview = {
   'browserUnread.coverage':
     'Visited {visited} of {observed} observed chats. This does not prove that all unread chats or messages were found.',
   'browserUnread.restored': 'The original provider view was restored.',
+  'browserUnread.restoredReply':
+    'The original chat, filter and empty composer were restored. Confirmed reply {id} was revealed in place of the earlier reading position.',
+  'browserUnread.replyNotRevealed':
+    'Reply {id} was confirmed, but was not revealed. The owner’s draft and reading position take priority; check the provider window.',
   'browserUnread.history':
     'Browser history entries: {before} before, {after} after.',
   'browserUnread.notRestored':

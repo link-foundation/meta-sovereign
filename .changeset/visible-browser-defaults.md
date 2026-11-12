@@ -301,3 +301,5 @@ Add private borrowed unread-conversation handles that reuse native ownership and
 Expose explicitly admitted finite unread acknowledgement/rejection replies through CLI, both Lino transports and shared four-language Questions, Chat and Operator controls. Reuse saved policies, complete observed history and durable question/per-chat reservations; preserve unknown holds, positive receipts and independent restoration results through read-only recovery and Stop. Default unread passes stay review-only. Polling, backoff, lifetime and original-empty-chat reveal remain unfinished.
 
 Escape native unread fixture message data before embedding it in script elements, preserving exact decoded text and retaining a closing-script regression.
+
+Reveal a confirmed original-chat unread reply only when its saved and current composer are empty and inactive ownership remains valid. Verify the exact outgoing bubble through bounded virtual-history settling, preserve actual delivery independently from view success and retain truthful localized recovery results. Share provider-wide unread pass IDs across Questions, Chat and Operator, preserving legacy recovery.

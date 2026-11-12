@@ -10,6 +10,7 @@ import {
   unreadFailure,
   validUnreadCoverage,
   validUnreadRestoration,
+  validUnreadReplyView,
 } from './question-unread-state.js';
 import { visitUnreadNotice } from './question-unread-notices.js';
 import {
@@ -100,6 +101,12 @@ const executeUnreadReview = async ({
       }),
       record.settings.maxChats
     );
+    if (!validUnreadReplyView({ ...record, restoration: pass.restoration })) {
+      throw failure(
+        'question-unread-unverified',
+        'The revealed reply was not confirmed.'
+      );
+    }
     record.coverage = pass.coverage;
     record.restoration = pass.restoration;
     for (const entry of record.noticeReplies ? [] : pass.conversations) {

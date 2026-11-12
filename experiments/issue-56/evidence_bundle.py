@@ -8,6 +8,15 @@ import subprocess
 import tempfile
 
 
+def evidence_context(script, prefix):
+    """Share root-relative log reads across the finite evidence collectors."""
+    root = Path(script).resolve().parents[2]
+    logs = root / 'ci-logs'
+    def read(name):
+        return (logs / f'{prefix}-{name}.log').read_text()
+    return root, logs, read
+
+
 def changed_sources(root, revision=None):
     """Capture the same working sources without recursively archiving evidence."""
     changed = subprocess.check_output([

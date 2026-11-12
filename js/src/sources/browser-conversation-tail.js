@@ -35,7 +35,7 @@ const stableQuestion = async ({ read, checked, control, settings, pause }) => {
 
 /** Borrow this visit's lease and queue slot; never open another watch or lease. */
 export const withBrowserConversationTail = async (
-  { document, ui, chat, settings, signal, token, verify },
+  { document, ui, chat, settings, signal, token, verify, retainReply },
   work,
   { pause = sleep, now = () => globalThis.performance.now() } = {}
 ) => {
@@ -102,17 +102,31 @@ export const withBrowserConversationTail = async (
       snapshot,
       readInactiveQuestion: () => run(read),
       replyTextInactive: (expected, text, verifyCurrent) =>
-        run(() =>
-          sendBrowserTextReply(document, ui, chat, expected, text, {
-            receiptMs: settings.receiptMs,
-            pollMs: settings.pollMs,
-            inactiveToken: token,
-            verifyCurrent: async () => {
-              await checked();
-              await verifyCurrent?.();
-            },
-          })
-        ),
+        run(async () => {
+          const receipt = await sendBrowserTextReply(
+            document,
+            ui,
+            chat,
+            expected,
+            text,
+            {
+              receiptMs: settings.receiptMs,
+              pollMs: settings.pollMs,
+              inactiveToken: token,
+              verifyCurrent: async () => {
+                await checked();
+                await verifyCurrent?.();
+              },
+            }
+          );
+          // View bookkeeping cannot revoke a witnessed send or permit a retry.
+          try {
+            await retainReply?.(receipt);
+          } catch {
+            // The caller still receives the full positive delivery receipt.
+          }
+          return receipt;
+        }),
     });
   } finally {
     closed = true;

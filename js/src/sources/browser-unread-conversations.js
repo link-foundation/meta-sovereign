@@ -45,7 +45,7 @@ export const scanUnreadBrowserConversations = ({
   const deadline = globalThis.performance.now() + settings.budgetMs;
   return withBrowserChatNavigation(
     { commander, page, ui, signal: options.signal, waitMs: settings.waitMs },
-    async ({ document, visit, verifyCurrent, inactiveToken }) => {
+    async ({ document, visit, verifyCurrent, inactiveToken, retainReply }) => {
       const list = await scanList(document, ui, {
         ...options,
         ...settings,
@@ -134,6 +134,7 @@ export const scanUnreadBrowserConversations = ({
                   signal: options.signal,
                   token,
                   verify,
+                  retainReply,
                 },
                 (handle) => options.onConversation(observation, handle)
               );
