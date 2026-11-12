@@ -6,91 +6,9 @@ import {
   screenshotChatPages,
 } from './helpers/e2e-page-errors.mjs';
 import { traceSyncPeer } from './helpers/e2e-lino-sync-trace.mjs';
-import {
-  readSyncPeer,
-  reloadSyncPeer,
-  holdSyncDiscovery,
-} from './helpers/e2e-lino-sync-read.mjs';
+import { readSyncPeer } from './helpers/e2e-lino-sync-read.mjs';
 
-const preparePeer = async (target, base, engine) => {
-  if (engine === 'webkit') {
-    // Native WebKit filters host ICE candidates without active capture.
-    // Playwright supplies mock devices; this fixture never opens a real mic.
-    // Start capture before app boot so both peers have usable local ICE.
-    // Production must use permitted ICE/network configuration, not ask for
-    // microphone access merely to synchronize data.
-    await target.context().grantPermissions(['microphone'], { origin: base });
-    await target.route('**/app.min.js', async (route) => {
-      const response = await route.fetch();
-      await route.fulfill({
-        response,
-        body: `globalThis.__syncFixtureMedia = await navigator.mediaDevices.getUserMedia({audio:true});\n${await response.text()}`,
-      });
-    });
-  }
-  await target.addInitScript(() => {
-    globalThis.__syncWire = [];
-    globalThis.__syncRtc = [];
-    const NativeRtc = globalThis.RTCPeerConnection;
-    globalThis.RTCPeerConnection = class extends NativeRtc {
-      constructor(...args) {
-        super(...args);
-        const events = [];
-        globalThis.__syncRtc.push(events);
-        const record = (event, extra = {}) => {
-          events.push({
-            event,
-            signaling: this.signalingState,
-            connection: this.connectionState,
-            ice: this.iceConnectionState,
-            remote: !!this.remoteDescription,
-            ...extra,
-          });
-        };
-        for (const event of [
-          'connectionstatechange',
-          'iceconnectionstatechange',
-          'signalingstatechange',
-        ]) {
-          this.addEventListener(event, () => record(event));
-        }
-        this.addEventListener('icecandidate', (event) =>
-          record('icecandidate', { candidate: !!event.candidate })
-        );
-        this.addEventListener('datachannel', (event) => {
-          record('datachannel', { protocol: event.channel.protocol });
-          event.channel.addEventListener('open', () => record('channel-open'));
-        });
-        const add = this.addIceCandidate.bind(this);
-        this.addIceCandidate = (candidate) => {
-          record('add-ice', { present: !!candidate?.candidate });
-          return add(candidate).catch((error) => {
-            record('add-ice-error', { name: error.name });
-            throw error;
-          });
-        };
-      }
-    };
-    const Native = globalThis.WebSocket;
-    globalThis.WebSocket = class extends Native {
-      constructor(...args) {
-        super(...args);
-        this.addEventListener('open', () =>
-          globalThis.__syncWire.push({ protocol: this.protocol })
-        );
-        this.addEventListener('message', (event) =>
-          globalThis.__syncWire.push({
-            text: typeof event.data === 'string',
-            data: event.data,
-          })
-        );
-      }
-    };
-  });
-  await target.goto(`${base}/#settings`);
-  await target.waitForFunction(() => !!globalThis.__msApi);
-  await target.evaluate(() => globalThis.__msApi.status());
-};
+import { prepareSyncPeer, stopSyncPeer } from './helpers/e2e-sync-peer.mjs';
 
 const store = createMemoryStore();
 const { page, base, until, finish, errors, engine } = await openChatApp(
@@ -105,15 +23,32 @@ await finish(async () => {
   const context = await browser.newContext();
   watchChatPages(context, { errors, engine, base });
   const other = await context.newPage();
+  // Exercise the production offline -> rediscovery reload deterministically.
+  // Only this isolated peer's first exact-origin identity probe is interrupted.
+  let interrupted = false;
+  let documents = 0;
+  other.on('framenavigated', (frame) => {
+    if (frame === other.mainFrame()) {
+      documents++;
+    }
+  });
+  await other.route(`${base}/api/status?probe=1`, async (route) => {
+    if (!interrupted) {
+      interrupted = true;
+      await route.abort('connectionreset');
+    } else {
+      await route.continue();
+    }
+  });
   const targets = [page, other];
   const traces = [];
+  const peers = [];
   try {
-    const releaseDiscovery = await holdSyncDiscovery(other);
     // Record actual wire frames and negotiated protocols without replacing sockets.
     for (const target of targets) {
       const trace = await traceSyncPeer(target, traces.length);
       traces.push(trace);
-      await preparePeer(target, base, engine);
+      peers.push(await prepareSyncPeer(target, base, engine));
       await trace('prepared');
     }
     const link = {
@@ -130,7 +65,6 @@ await finish(async () => {
       });
       await globalThis.__msApi.put(value);
     }, link);
-    await reloadSyncPeer(other, releaseDiscovery);
     let snapshot;
     await until(
       async () => {
@@ -141,6 +75,12 @@ await finish(async () => {
       20000
     );
     const received = snapshot.record;
+    const reloaded = peers[1].initialDocument !== peers[1].readyDocument;
+    assert(interrupted && reloaded, 'real offline rediscovery reload');
+    console.log(
+      '[lino-sync-recovery]',
+      JSON.stringify({ interrupted, reloaded, documents })
+    );
     assert(
       received.body === link.body &&
         received.single[0] === true &&
@@ -206,16 +146,7 @@ await finish(async () => {
     throw error;
   } finally {
     for (const target of targets) {
-      if (!target.isClosed()) {
-        // App update checks can fetch the intercepted bundle during teardown.
-        // Finish those callbacks before disposing their request context.
-        await target.unrouteAll({ behavior: 'wait' });
-        await target.evaluate(() =>
-          globalThis.__syncFixtureMedia
-            ?.getTracks()
-            .forEach((track) => track.stop())
-        );
-      }
+      await stopSyncPeer(target);
     }
     await context.close();
   }

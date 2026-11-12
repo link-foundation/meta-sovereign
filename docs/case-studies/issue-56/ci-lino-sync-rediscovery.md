@@ -8,11 +8,17 @@ Line 1170 fails with `globalThis.__msApi.get` while the new document is loading.
 This identifies the reason the earlier instrumentation could not establish:
 the poll assumed its initial API readiness check survived document replacement.
 
-The mandatory real-WebRTC fixture now deliberately boots its second peer offline,
+The preserved standalone replay deliberately boots its second peer offline,
 releases discovery, and dispatches an online event. Production rediscovery causes
 the reload. A finite bundle gate exposes the actual new-document gap, without
 replacing the API, storage, WebSocket, RTCPeerConnection or signaling protocol.
 The gate releases after 500 ms and has a five-second emergency release.
+
+The integrated mandatory fixture uses the independently published exact-origin
+one-probe interruption and waits for actual negotiated signaling before writes.
+It retains the guarded atomic reads below. The standalone bundle-gap replay and
+its immutable archive preserve the earlier implementation; see
+[the signaling-readiness evidence](ci-lino-sync-readiness.md).
 
 Read polling returns an explicit not-ready result while the API is absent or
 Playwright loses an execution context during navigation. Other errors still
@@ -45,6 +51,10 @@ second unchanged run passes all six scenarios. Its cause remains unestablished.
 `CV_TRANSLATION_DEBUG=1` enables bounded boot decisions and failure screenshots
 for the synthetic fixture; it is off by default. Both logs are preserved, and
 hosted validation of the final commit remains required.
+
+On the combined merge sources, the focused native WebKit regression passes with
+`interrupted: true`, `reloaded: true` and four main-frame navigation events.
+All three asynchronous polling checks and scoped ESLint pass.
 
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and
 unmerged. Reconnect, full CV synchronization, live translator checks and every

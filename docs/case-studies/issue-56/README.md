@@ -314,3 +314,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [CI: shared CV verification fixtures](ci-cv-fixture-duplication.md): exact published duplication failure, preserved cancellation tests, shared parent replay/server setup and finite lifecycle checks under the unchanged gate.
 
 - [Existing workplace field review and preparation](cv-workplace-fields.md): immutable source/job/record-bound nine-field differences, explicit approval, localized dictionaries and native controlled typing/pickers; draft-only CLI/Lino/four-language receipts with phone recovery. Shared copy/detach, new records, batches and authenticated provider parity remain open.
+
+- [Hosted WebKit sync readiness](ci-lino-sync-readiness.md): deterministic failed-discovery/reload reproduction, real Lino signaling readiness and awaited SPA convergence polling; existing transport assertions and deadlines retained. Exact-head hosted checks remain required.
