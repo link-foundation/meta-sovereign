@@ -1,0 +1,25 @@
+{
+  "archive": "ci-copy-deadline.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "89e477ce5add0e21dc3f167476c0312af6ba46b25432d9c67caa175e1c222610",
+    "before/.github/workflows/release.yml": "c3d355be2efa39fe30aef5d9713bdf375a5f28d520e69e86d6a89979d982b25e",
+    "ci-logs/ci-copy-deadline-before.log": "0c0bc04bb8b57cc63fe5811e4cc9608d0f64426c50b173bebaa0efc6cfdc873a",
+    "ci-logs/ci-copy-deadline-duplication.log": "878ade0bd41e8b6b0afa545b53bc63cbfcba1fd4504fef7852a1c591348af6e4",
+    "ci-logs/ci-copy-deadline-format.log": "c9cf76844f8875e48cf7b18a07e8c3165a3b6b75fd6e0401105c7f3928d62f37",
+    "ci-logs/ci-copy-deadline-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-copy-deadline-node.log": "a7cf7319167b2cf291fd90c3846e115e010447d95fa058b6db74d19bd1486345",
+    "ci-logs/ci-copy-deadline-plan-format.log": "f66b0055d5a0552125b42cc0f375803e30d40655b9610687b693afbb8bf39982",
+    "ci-logs/ci-copy-deadline-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-copy-deadline-workflow.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/unread-reply-view-job-130925135004-annotations.json": "6ac2fd34ca36a4bc02a2282800e6f4dc89173e1159cd42c8b6bf0a62a85b991d",
+    "ci-logs/unread-reply-view-job-130925135004.json": "4354c8737af7f81c277b24806ee53403c17b45dca1a595870b3d83936ac0fc23",
+    "ci-logs/unread-reply-view-job-130925135004.log": "60a3b3b01275bc2830bfb05d8cb973ffdc46677f285229e3725d8ef81f1bf063",
+    "docs/case-studies/issue-56/PLAN.md": "d8a149f1080a6403cd2f08614acb942ac9fa988fa43b4532eeb0e7951a460569",
+    "docs/case-studies/issue-56/ci-release-copy-methods.md": "3ee5361eb97a132307a521c86b2107d3fff022f52ce4cff193994418c40d44b9",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-copy-deadline.py": "af2d93471d403bd2a64a546d8c88954f2ae4800307faadfbaf33c53f2f5046b1",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "js/tests/ci-contracts.test.js": "e8e0bddd9ec303c98c7047bead7481f7a2e1034fcf2dbc5ce724c3d4cbac6e5d",
+    "metadata.json": "0caa51da231ef6fbdabd5a5b4e81ab9ecddd2ece0729833a4ef1414a3677b775"
+  }
+}

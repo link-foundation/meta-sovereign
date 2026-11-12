@@ -459,12 +459,6 @@ jobs:
           if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
           deno test --allow-all js/tests
 
-      - name: Compare bounded release copy methods (Windows Deno)
-        if: ${{ !cancelled() && matrix.runtime == 'deno' && runner.os == 'Windows' }}
-        # Observe after real startup tests; never warm or replace their path.
-        # Both private snapshots retain the production digest verification.
-        run: deno run --allow-all --no-lock --v8-flags=--max-old-space-size=384 experiments/issue-56/release-copy-strategies.mjs
-
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the
   # Rust port can not rot unseen. Required by the terminal release gate.

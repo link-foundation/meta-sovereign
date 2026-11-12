@@ -18,6 +18,15 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const workflow = (name) =>
   parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
 
+test('runtime test deadlines exclude the completed release-copy experiment', () => {
+  const job = workflow('release.yml').jobs.test;
+  assert.equal(job['timeout-minutes'], 10);
+  assert.deepEqual(job.strategy.matrix.runtime, ['node', 'bun', 'deno']);
+  const commands = job.steps.map((step) => step.run ?? '').join('\n');
+  assert.match(commands, /deno test --allow-all js\/tests/u);
+  assert.doesNotMatch(commands, /release-copy-strategies/u);
+});
+
 test('browser failures cannot become a green release', () => {
   const jobs = workflow('release.yml').jobs;
   assert.ok(
