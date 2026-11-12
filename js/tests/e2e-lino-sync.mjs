@@ -1,7 +1,11 @@
 // Two isolated browser stores converge only through the real WebRTC channel.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
-import { watchChatPages } from './helpers/e2e-page-errors.mjs';
+import {
+  watchChatPages,
+  screenshotChatPages,
+} from './helpers/e2e-page-errors.mjs';
+import { traceSyncPeer } from './helpers/e2e-lino-sync-trace.mjs';
 
 const preparePeer = async (target, base, engine) => {
   if (engine === 'webkit') {
@@ -97,10 +101,14 @@ await finish(async () => {
   watchChatPages(context, { errors, engine, base });
   const other = await context.newPage();
   const targets = [page, other];
+  const traces = [];
   try {
     // Record actual wire frames and negotiated protocols without replacing sockets.
     for (const target of targets) {
+      const trace = await traceSyncPeer(target, traces.length);
+      traces.push(trace);
       await preparePeer(target, base, engine);
+      await trace('prepared');
     }
     const link = {
       id: 'l:rtc-lino-fixture',
@@ -176,6 +184,7 @@ await finish(async () => {
   } catch (error) {
     // Inspect real connection state without logging SDP, addresses or records.
     for (const [index, target] of targets.entries()) {
+      await traces[index]?.('failure');
       console.error(
         `[e2e-lino-sync] peer ${index}: ${JSON.stringify(
           await target.evaluate(() => ({
@@ -191,6 +200,13 @@ await finish(async () => {
           }))
         )}`
       );
+    }
+    if (process.env.E2E_ARTIFACT_DIR) {
+      await screenshotChatPages(context, {
+        artifactDir: process.env.E2E_ARTIFACT_DIR,
+        name: 'lino-sync-peer',
+        engine,
+      });
     }
     throw error;
   } finally {

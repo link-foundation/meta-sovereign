@@ -263,3 +263,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Native fixture message escaping](ci-unread-fixture-escaping.md): exact-head CodeQL finding, failing-before script-boundary regression and unchanged message round trip.
 
 - [Original empty-chat reply visibility](unread-reply-view.md): actual positive outgoing receipts, bounded native reveal, returning-owner priority and shared read-only recovery.
+
+- [Unresolved WebKit sync API loss and opt-in document tracing](ci-lino-sync-navigation.md).
