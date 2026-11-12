@@ -27,6 +27,8 @@ export const readAssignmentPage = async ({
   redirects = false,
   useCase = 'assignments',
   browserOptions = {},
+  execute,
+  deadlineMs = 60000,
 }) => {
   let session;
   let closing;
@@ -58,7 +60,7 @@ export const readAssignmentPage = async ({
   const timer = globalThis.setTimeout(() => {
     expired = true;
     abort();
-  }, 60000);
+  }, deadlineMs);
   signal?.addEventListener('abort', abort, { once: true });
   try {
     check();
@@ -98,7 +100,9 @@ export const readAssignmentPage = async ({
         'The requested browser page did not load successfully.'
       );
     }
-    const value = await session.commander.evaluate({ fn: read, args: [] });
+    const value = execute
+      ? await execute(session, check)
+      : await session.commander.evaluate({ fn: read, args: [] });
     check();
     return await validate(value);
   } catch (error) {

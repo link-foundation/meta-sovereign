@@ -1,6 +1,7 @@
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { createVacancyService } from '../jobs/service.js';
+import { fromApp } from './routes-telegram-files.js';
 
 const refused = (req, ctx, read) => {
   if (req.method !== (read ? 'GET' : 'POST')) {
@@ -32,15 +33,44 @@ const failureReply = (error) => {
     },
   ];
 };
+const replyVacancy = (res, result, file) => {
+  if (file) {
+    res.writeHead(200, {
+      'content-type': result.type,
+      'content-length': result.size,
+      'content-disposition': `attachment; filename="${result.name}"`,
+      'cache-control': 'private, no-store',
+      'x-content-type-options': 'nosniff',
+    });
+    res.end(result.bytes);
+    return true;
+  }
+  return json(res, 200, result) ?? true;
+};
 export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
   if (!path.startsWith('/api/vacancies/')) {
     return false;
   }
   const operation = path.slice('/api/vacancies/'.length);
-  const read = ['capabilities', 'stored', 'resumes-stored'].includes(operation);
+  const file = operation === 'resume-export-file';
+  const read =
+    [
+      'capabilities',
+      'stored',
+      'resumes-stored',
+      'resume-export-status',
+      'resume-exports-stored',
+    ].includes(operation) || file;
   if (
     !read &&
-    !['search', 'collect', 'cancel', 'resumes'].includes(operation)
+    ![
+      'search',
+      'collect',
+      'cancel',
+      'resumes',
+      'resume-export',
+      'resume-export-cancel',
+    ].includes(operation)
   ) {
     return false;
   }
@@ -48,13 +78,20 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
   if (refusal) {
     return json(res, refusal[0], { code: refusal[1] }) ?? true;
   }
+  if (file && !fromApp(req, ctx.allowOrigins)) {
+    return json(res, 403, { code: 'forbidden' }) ?? true;
+  }
   try {
-    const input = read ? undefined : await readBody(req, { limit: 8192 });
+    const input = read
+      ? Object.fromEntries(new URL(req.url, 'http://local').searchParams)
+      : await readBody(req, { limit: 8192 });
     const service = (ctx.vacancies ??= createVacancyService({
       store,
+      storeDir: ctx.storeDir,
       ...ctx.vacancyOptions,
     }));
-    return json(res, 200, await service[operation](input)) ?? true;
+    const result = await service[operation](input);
+    return replyVacancy(res, result, file);
   } catch (error) {
     return json(res, ...failureReply(error)) ?? true;
   }

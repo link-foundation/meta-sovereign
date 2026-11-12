@@ -43,7 +43,7 @@ const descriptionHtml = (mode) => {
 };
 
 /** Real DOM and commander navigation; provider traffic stays inside owned routes. */
-export const vacancyBrowserFixture = async (browser) => {
+export const vacancyBrowserFixture = async (browser, { exports } = {}) => {
   const store = createMemoryStore();
   const records = [];
   const errors = [];
@@ -58,9 +58,14 @@ export const vacancyBrowserFixture = async (browser) => {
       await launchGate.promise;
     }
     const context = await browser.newContext();
+    await exports?.prepare?.(context);
     const page = await context.newPage();
     await context.route('**/*', async (route) => {
       const url = new URL(route.request().url());
+      const exported = await exports?.route(route, mode);
+      if (exported) {
+        return;
+      }
       if (url.origin !== 'https://hh.ru') {
         return route.abort('blockedbyclient');
       }
@@ -125,6 +130,7 @@ export const vacancyBrowserFixture = async (browser) => {
         searchSignal = options.signal;
         return readResumes(options);
       },
+      ...exports?.service({ store, openSession }),
     },
   });
   const base = `http://127.0.0.1:${server.port}`;

@@ -327,6 +327,7 @@ test('vacancy reads run in both mandatory browser lanes', () => {
     'utf8'
   );
   assert.match(entry, /verifyJobResumes/u);
+  assert.match(entry, /verifyResumeExports/u);
 });
 
 test('question provider and control scenarios have separate mandatory browser budgets', () => {

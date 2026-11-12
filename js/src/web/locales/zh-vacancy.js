@@ -1,4 +1,25 @@
 export const zhVacancy = {
+  'vacancy.exports': 'HH 原生简历导出',
+  'vacancy.exportHint':
+    '读取此 HH 账号最新、所选或全部简历。原生文件可能含个人信息。派生 Markdown、文本、结构化数据和 Lino 排除联系方式、薪资和出生日期，并统计删除的隐私文本行。验证提取需要 HTML。DOC 内容为 RTF。',
+  'vacancy.exportSettings': '导出设置',
+  'vacancy.exportScope': '要导出的简历',
+  'vacancy.exportScope.latest': '观察到的最新更新',
+  'vacancy.exportScope.selected': '用于搜索的所选简历',
+  'vacancy.exportScope.all': '全部已观察简历（最多 100 份）',
+  'vacancy.exportStart': '读取并导出简历',
+  'vacancy.exportRecover': '恢复导出状态',
+  'vacancy.exportUnknown':
+    '导出状态未知。请先恢复或停止已保存请求，再开始新的导出。',
+  'vacancy.exportProgress': '已验证 {count} / {total} 份简历',
+  'vacancy.exportState.running': '正在导出',
+  'vacancy.exportState.completed': '导出完成',
+  'vacancy.exportState.failed': '导出因错误停止；已验证文件保留',
+  'vacancy.exportState.stopped': '导出已停止；已验证的文件已保留',
+  'vacancy.exportState.interrupted': '导出已中断；恢复状态不会重启任务',
+  'vacancy.exportRemoved': '从派生文件删除的隐私文本行：{count}',
+  'vacancy.exportNative': '原生 · 可能含个人信息',
+  'vacancy.exportSanitized': '已移除隐私信息',
   'vacancy.title': 'HH 职位',
   'vacancy.hint':
     '在专用 HH 浏览器中搜索，并保存雇主的完整职位描述。这些操作只读取职位，不会投递申请。保存的描述也可用于准备测试任务。',

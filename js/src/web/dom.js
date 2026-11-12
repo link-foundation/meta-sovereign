@@ -763,6 +763,12 @@ const rawApi = {
     get: serverFetch,
     report: serverPostReport,
     local: async () => (await ensure()).store,
+    fileUrl: async (path) => {
+      const { client, origin } = await ensure();
+      return client.isOnline()
+        ? scopedUrl(origin ? new URL(path, origin).toString() : path)
+        : null;
+    },
   }),
   ...createFormsApi({
     get: serverFetch,

@@ -1,4 +1,28 @@
 export const enVacancy = {
+  'vacancy.exports': 'Native resume exports',
+  'vacancy.exportHint':
+    'Read the latest, selected or all resumes from this HH account. Native files may contain personal details. Derived Markdown, text, structured data and Lino exclude contact, salary and birth-date fields; removed private prose lines are counted. HTML is required for verified extraction. DOC contains RTF.',
+  'vacancy.exportSettings': 'Export settings',
+  'vacancy.exportScope': 'Resumes to export',
+  'vacancy.exportScope.latest': 'Latest observed update',
+  'vacancy.exportScope.selected': 'Selected search resume',
+  'vacancy.exportScope.all': 'All observed resumes (up to 100)',
+  'vacancy.exportStart': 'Read and export resumes',
+  'vacancy.exportRecover': 'Recover export status',
+  'vacancy.exportUnknown':
+    'Export status is unknown. Recover or stop the saved request before starting another export.',
+  'vacancy.exportProgress': '{count} of {total} resumes verified',
+  'vacancy.exportState.running': 'Export in progress',
+  'vacancy.exportState.completed': 'Export completed',
+  'vacancy.exportState.failed':
+    'Export stopped after a failure; verified files are retained',
+  'vacancy.exportState.stopped': 'Export stopped; verified files retained',
+  'vacancy.exportState.interrupted':
+    'Export interrupted; recovery will not restart it',
+  'vacancy.exportRemoved':
+    'Private prose lines removed from derived files: {count}',
+  'vacancy.exportNative': 'native · may include personal details',
+  'vacancy.exportSanitized': 'sanitized',
   'vacancy.title': 'HH vacancies',
   'vacancy.hint':
     'Search in your owned HH browser, then collect an employer’s full description. These actions read vacancies; they do not apply. Saved descriptions are shared with assignment drafting.',

@@ -3,8 +3,22 @@ import { vacancyContent } from '../assignments/vacancy-content.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { hhSearchUrl, jobsFailure } from '../jobs/options.js';
 import { validateVacancySearch } from '../jobs/search-result.js';
-import { resumeList, chooseSearchResume } from '../jobs/resume-list.js';
+import {
+  resumeList,
+  chooseSearchResume,
+  resumeHash,
+} from '../jobs/resume-list.js';
 import { storedResumeLists } from '../jobs/resume-cache.js';
+import { resumeExportJob } from '../jobs/resume-export-control.js';
+import {
+  resumeExportResult,
+  resumeExportId,
+  invalidResumeExport,
+} from '../jobs/resume-export-result.js';
+import {
+  resumeExportOptions,
+  resumeExportRequestId,
+} from '../jobs/resume-export-options.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs');
@@ -74,13 +88,24 @@ const savedResumes = (answer) => {
   }
   return { lists: answer.lists.map((row) => resumeList(row)) };
 };
-export const createVacancyApi = ({ get, report, local }) => ({
+const confirmedExport = (result, requestId) => {
+  if (!result?.state && (result?.code || result?.ok === false)) {
+    throw jobsFailure('export-unconfirmed', result.code ?? 'server-required');
+  }
+  const job = resumeExportJob(result);
+  if (job.requestId !== requestId) {
+    invalidResumeExport();
+  }
+  return job;
+};
+export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   vacancyCapabilities: async () =>
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,
       search: false,
       collect: false,
       resumes: false,
+      resumeExport: false,
       apply: false,
       cached: true,
       reason: 'server-required',
@@ -102,6 +127,59 @@ export const createVacancyApi = ({ get, report, local }) => ({
         .slice(0, 100)
         .map((row) => ({ id: row.id, ...vacancyContent(row) })),
     },
+  vacancyResumeExport: async (input) => {
+    resumeExportOptions(input);
+    const requestId = resumeExportRequestId(input.requestId);
+    const result = await report('/api/vacancies/resume-export', input, {
+      network: true,
+      read: false,
+    });
+    return confirmedExport(result, requestId);
+  },
+  vacancyResumeExportStatus: async ({ requestId }) => {
+    resumeExportRequestId(requestId);
+    return confirmedExport(
+      await get(
+        `/api/vacancies/resume-export-status?requestId=${encodeURIComponent(requestId)}`
+      ),
+      requestId
+    );
+  },
+  vacancyResumeExportCancel: async ({ requestId }) => {
+    resumeExportRequestId(requestId);
+    return confirmedExport(
+      await report(
+        '/api/vacancies/resume-export-cancel',
+        { requestId },
+        { network: true, read: false }
+      ),
+      requestId
+    );
+  },
+  vacancyResumeExportsStored: async () => {
+    const result = (await get('/api/vacancies/resume-exports-stored')) ?? {
+      exports: (
+        await (
+          await local()
+        ).query((row) => row.id?.startsWith('jobs-resume-export:'))
+      ).slice(0, 100),
+    };
+    if (!Array.isArray(result.exports) || result.exports.length > 100) {
+      invalidResumeExport();
+    }
+    return { exports: result.exports.map(resumeExportResult) };
+  },
+  vacancyResumeExportUrl: async ({ exportId, hash, name }) => {
+    const query = new URLSearchParams({
+      exportId: resumeExportId(exportId),
+      hash: resumeHash(hash),
+      name,
+    });
+    if (!/^resume\.(?:pdf|doc|rtf|html|md|txt|json|lino)$/u.test(name)) {
+      invalidResumeExport();
+    }
+    return fileUrl?.(`/api/vacancies/resume-export-file?${query}`) ?? null;
+  },
   ...Object.fromEntries(
     ['search', 'collect', 'cancel', 'resumes'].map((operation) => [
       `vacancy${operation[0].toUpperCase()}${operation.slice(1)}`,

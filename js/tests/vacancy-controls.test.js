@@ -1,21 +1,13 @@
+import { withRoutes, wirePost } from './helpers/vacancy-routes.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import http from 'node:http';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createVacancyCommands } from '../src/cli/vacancy-commands.js';
-import { handleVacancyRoutes } from '../src/server/routes-vacancies.js';
-import { bindWire } from '../src/server/wire.js';
 import { validateVacancySearch } from '../src/jobs/search-result.js';
 import { hhSearchUrl } from '../src/jobs/options.js';
 import { createVacancyApi } from '../src/web/vacancy-api.js';
 import { VacanciesScreen } from '../src/web/vacancies-panel.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  decodeWire,
-  encodeWire,
-} from '../src/transport/lino.js';
-import { fixtureServerClose } from './helpers/fixture-server.mjs';
+import { LINO_TEXT, LINO_BINARY, decodeWire } from '../src/transport/lino.js';
 import { screenRenderer } from './util-render.js';
 import {
   vacancySnapshotFixture,
@@ -23,64 +15,7 @@ import {
   searchFixture,
 } from '../../experiments/issue-56/vacancy-fixture.mjs';
 import { resumeListFixture } from '../../experiments/issue-56/resume-list-fixture.mjs';
-
-const withRoutes = async (work) => {
-  const store = createMemoryStore();
-  const calls = [];
-  const context = {
-    vacancyOptions: {
-      availability: async () => ({ available: true }),
-      readVacancy: async () => {
-        calls.push('collect');
-        return vacancySnapshotFixture();
-      },
-      readSearch: async (url) => {
-        calls.push(url);
-        return searchFixture(url);
-      },
-      readResumes: async () => {
-        calls.push('resumes');
-        return resumeListFixture();
-      },
-    },
-  };
-  const server = http.createServer(async (req, res) => {
-    bindWire(req, res);
-    const handled = await handleVacancyRoutes(
-      store,
-      req,
-      res,
-      new URL(req.url, 'http://localhost').pathname,
-      context
-    );
-    if (!handled) {
-      res.writeHead(404);
-      res.end();
-    }
-  });
-  const close = fixtureServerClose(server, 'vacancies');
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  try {
-    return await work(`http://127.0.0.1:${server.address().port}`, calls);
-  } finally {
-    await context.vacancies?.stop();
-    await close();
-  }
-};
-const wirePost = async (base, path, value, type, headers = {}) => {
-  const response = await fetch(`${base}/api/vacancies/${path}`, {
-    method: 'POST',
-    headers: { 'content-type': type, accept: type, ...headers },
-    body: encodeWire(value, type),
-  });
-  return {
-    status: response.status,
-    value: decodeWire(
-      await response.arrayBuffer(),
-      response.headers.get('content-type')
-    ),
-  };
-};
+import { resumeExportReceipt } from '../../experiments/issue-56/resume-export-fixture.mjs';
 
 for (const type of [LINO_TEXT, LINO_BINARY]) {
   test(
@@ -272,6 +207,13 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     valid: true,
     browserValid: true,
     resumeLists: [resumeListFixture()],
+    resumeExports: {
+      scope: 'latest',
+      formats: ['pdf', 'rtf', 'html'],
+      exports: [resumeExportReceipt()],
+      requestId: 'unknown-export',
+      statusLost: true,
+    },
     readResumes() {},
     selectResume() {},
     search() {},
@@ -289,5 +231,10 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     assert.doesNotMatch(html, />vacancy\./u);
     assert.match(html, /data-vacancy-resume="russian-new"/u);
     assert.match(html, /data-vacancy-action="resumes"[^>]*disabled/u);
+    assert.match(html, /data-resume-export-action="start"[^>]*disabled/u);
+    assert.match(html, /data-resume-export-action="recover"/u);
+    assert.match(html, /data-resume-export-action="stop"/u);
+    assert.match(html, /data-resume-export-unknown/u);
+    assert.match(html, /resume\.lino/u);
   }
 });

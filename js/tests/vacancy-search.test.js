@@ -302,6 +302,7 @@ test('capabilities report missing browser support without pretending to apply', 
       search: false,
       collect: false,
       resumes: false,
+      resumeExport: false,
       cached: true,
       apply: false,
     });

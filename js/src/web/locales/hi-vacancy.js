@@ -1,4 +1,27 @@
 export const hiVacancy = {
+  'vacancy.exports': 'HH के मूल रिज़्यूमे निर्यात',
+  'vacancy.exportHint':
+    'इस HH खाते का नवीनतम, चुना हुआ या सभी रिज़्यूमे पढ़ें। मूल फ़ाइलों में निजी जानकारी हो सकती है। बने हुए Markdown, पाठ, संरचित डेटा और Lino में संपर्क, वेतन और जन्मतिथि के फ़ील्ड शामिल नहीं होते; हटाई गई निजी पंक्तियाँ गिनी जाती हैं। सत्यापित निष्कर्षण के लिए HTML ज़रूरी है। DOC में RTF सामग्री होती है।',
+  'vacancy.exportSettings': 'निर्यात सेटिंग',
+  'vacancy.exportScope': 'निर्यात के लिए रिज़्यूमे',
+  'vacancy.exportScope.latest': 'सबसे नया देखा गया अपडेट',
+  'vacancy.exportScope.selected': 'खोज के लिए चुना गया रिज़्यूमे',
+  'vacancy.exportScope.all': 'सभी देखे गए रिज़्यूमे (अधिकतम 100)',
+  'vacancy.exportStart': 'रिज़्यूमे पढ़ें और निर्यात करें',
+  'vacancy.exportRecover': 'निर्यात स्थिति पुनः प्राप्त करें',
+  'vacancy.exportUnknown':
+    'निर्यात की स्थिति अज्ञात है। नया निर्यात शुरू करने से पहले सहेजा गया अनुरोध पुनः प्राप्त करें या रोकें।',
+  'vacancy.exportProgress': '{total} में से {count} रिज़्यूमे सत्यापित',
+  'vacancy.exportState.running': 'निर्यात चल रहा है',
+  'vacancy.exportState.completed': 'निर्यात पूरा हुआ',
+  'vacancy.exportState.failed':
+    'त्रुटि के बाद निर्यात रुका; सत्यापित फ़ाइलें सुरक्षित हैं',
+  'vacancy.exportState.stopped': 'निर्यात रुका; सत्यापित फ़ाइलें सुरक्षित हैं',
+  'vacancy.exportState.interrupted':
+    'निर्यात बाधित हुआ; स्थिति प्राप्त करने से यह फिर शुरू नहीं होगा',
+  'vacancy.exportRemoved': 'बनी हुई फ़ाइलों से हटाई गई निजी पंक्तियाँ: {count}',
+  'vacancy.exportNative': 'मूल · निजी जानकारी हो सकती है',
+  'vacancy.exportSanitized': 'निजी जानकारी हटाई गई',
   'vacancy.title': 'HH नौकरियाँ',
   'vacancy.hint':
     'अपने HH ब्राउज़र में खोजें और नियोक्ता का पूरा विवरण सहेजें। ये कार्रवाइयाँ केवल नौकरियाँ पढ़ती हैं, आवेदन नहीं भेजतीं। सहेजे गए विवरण परीक्षण कार्य तैयार करने में भी उपलब्ध हैं।',

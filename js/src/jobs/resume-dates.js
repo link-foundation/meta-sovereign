@@ -18,6 +18,30 @@ const monthIndex = (name) =>
   );
 const dayMs = 86400000;
 
+/** Native employment periods retain year-only precision and explicit current work. */
+export const resumePeriod = (value) => {
+  const date = (part) => {
+    const year = part.match(/\b(?:19|20)\d{2}\b/u)?.[0];
+    if (!year) {
+      return null;
+    }
+    const name = part.match(/[a-zа-яё]+/iu)?.[0].toLowerCase();
+    const index = name
+      ? months.findIndex((names) =>
+          names.some(
+            (prefix) =>
+              prefix.slice(0, 3) === name.slice(0, 3) ||
+              (prefix === 'мая' && name === 'май')
+          )
+        )
+      : -1;
+    return index < 0 ? year : `${year}-${String(index + 1).padStart(2, '0')}`;
+  };
+  const [from = '', to = ''] = value.split(/[—–]|\s+-\s+/u);
+  const current = /present|\bnow\b|настоящее время|сейчас/iu.test(to);
+  return { start: date(from), end: current ? null : date(to), current };
+};
+
 /** Local visible HH dates are hints; native epoch timestamps take precedence. */
 export const resumeDate = (text, now = new Date()) => {
   if (typeof text !== 'string' || text.length > 200) {

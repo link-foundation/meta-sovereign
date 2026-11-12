@@ -13,6 +13,14 @@ import { modelFingerprint } from '../automation/answer-model-context.js';
 import { createResumeListReader } from './read-resumes.js';
 import { resumeChoiceOptions } from './resume-list.js';
 import { saveResumeList, storedResumeLists } from './resume-cache.js';
+import path from 'node:path';
+import { defaultStoreDir } from '../storage/app-directory.js';
+import { createResumeExportReader } from './read-resume-exports.js';
+import { createResumeExportControl } from './resume-export-control.js';
+import {
+  storedResumeExports,
+  readResumeExportFile,
+} from './resume-export-files.js';
 
 const owners = new WeakSet();
 
@@ -24,6 +32,13 @@ export const createVacancyService = ({
   readSearch = createVacancySearchReader({ store, openSession }),
   readVacancy = createAssignmentVacancyReader({ store, openSession }),
   readResumes = createResumeListReader({ store, openSession }),
+  storeDir = defaultStoreDir(),
+  artifactRoot = path.join(storeDir, 'resume-exports'),
+  readResumeExports = createResumeExportReader({
+    store,
+    openSession,
+    artifactRoot,
+  }),
 }) => {
   let active;
   let stopping;
@@ -52,6 +67,19 @@ export const createVacancyService = ({
     active = { controller, task };
     return task;
   };
+  const cancel = async () => {
+    const owned = active;
+    owned?.controller.abort();
+    await owned?.task.catch(() => {});
+    return { stopped: true };
+  };
+  const exports = createResumeExportControl({
+    store,
+    run,
+    read: readResumeExports,
+    cancel,
+    occupied: () => owners.has(store),
+  });
   return {
     async capabilities() {
       const browser = await availability();
@@ -60,6 +88,7 @@ export const createVacancyService = ({
         search: browser.available === true,
         collect: browser.available === true,
         resumes: browser.available === true,
+        resumeExport: browser.available === true,
         cached: true,
         apply: false,
       };
@@ -73,6 +102,12 @@ export const createVacancyService = ({
     },
     'resumes-stored': () =>
       storedResumeLists((predicate) => store.query(predicate)),
+    'resume-export': exports.start,
+    'resume-export-status': exports.status,
+    'resume-export-cancel': exports.cancel,
+    'resume-exports-stored': () => storedResumeExports(store),
+    'resume-export-file': (input) =>
+      readResumeExportFile({ store, artifactRoot }, input),
     search(input) {
       const url = hhSearchUrl(input);
       const options = jobsBrowserOptions(input);
@@ -107,12 +142,7 @@ export const createVacancyService = ({
       }
       return { entries };
     },
-    async cancel() {
-      const owned = active;
-      owned?.controller.abort();
-      await owned?.task.catch(() => {});
-      return { stopped: true };
-    },
+    cancel,
     stop() {
       return (stopping ??= Promise.resolve().then(async () => {
         active?.controller.abort();

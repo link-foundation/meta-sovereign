@@ -28,6 +28,8 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 ## Evidence and chronology
 
+- [resume-exports.md](resume-exports.md) documents owned native résumé downloads, sanitized bilingual derivatives, stable industries and durable ID recovery/cancellation through CLI/Lino/shared CV controls. Focused native and independent MCP evidence is retained with parent/final screenshots; authenticated live parity and every other unchecked criterion remain required.
+
 - [question-strict-options.md](question-strict-options.md) reproduces absent strict controls falling back to text/model drafts and verifies a bounded pending state, frozen strict-state invalidation, reviewed-choice guards and zero ordinary writes. Actual browser choice execution remains required.
 
 - [assignment-source.md](assignment-source.md) verifies explicit linked instruction reads, private frozen context, source integrity, written-deliverable headings and CLI/Lino/UI restoration with failing-before and actual browser/MCP evidence.

@@ -311,3 +311,5 @@ Make the CAPTCHA pause/resume fixture independent of host scheduling while retai
 Expose native HH résumé inventory and explicit search selection through CLI, text/binary Lino and localized CV controls. Explain title/date recommendations, preserve successful slot snapshots on failed refresh and recover cached choices without reopening the provider.
 
 Keep automatic prefill status pending until browser-handle cleanup completes, so the UI can receive the final receipt without replaying writes. Hide CAPTCHA instructions after verification and retain silent content-free status diagnostics.
+
+Add owned native HH résumé exports (latest, specified or all), private verified downloads and sanitized bilingual Markdown/text/structured/Lino with stable industry IDs. Share durable request recovery, ID-specific cancellation, CLI and four-language CV controls; preserve verified files after failed or stopped refreshes.

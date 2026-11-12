@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { hhSearchUrl } from '../jobs/options.js';
 import { VacancyResumes } from './vacancy-resumes.js';
+import { useResumeExports } from './resume-export-state.js';
+import { ResumeExports } from './resume-exports.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -102,6 +104,7 @@ export const useVacancies = (api) => {
       setBusy('');
     }
   };
+  const resumeExports = useResumeExports({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -162,7 +165,9 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy,
+    busy:
+      busy || (resumeExports.job?.state === 'running' ? 'resume-export' : ''),
+    resumeExports,
     error,
     loaded,
     valid,
@@ -417,6 +422,9 @@ export const VacanciesScreen = ({ state }) => {
       el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
       el(Fields, { key: 'settings', state, t }),
       el(VacancyResumes, { key: 'resumes', state, t }),
+      state.resumeExports
+        ? el(ResumeExports, { key: 'exports', state, t })
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         action(
           'search',
