@@ -303,3 +303,5 @@ Expose explicitly admitted finite unread acknowledgement/rejection replies throu
 Escape native unread fixture message data before embedding it in script elements, preserving exact decoded text and retaining a closing-script regression.
 
 Reveal a confirmed original-chat unread reply only when its saved and current composer are empty and inactive ownership remains valid. Verify the exact outgoing bubble through bounded virtual-history settling, preserve actual delivery independently from view success and retain truthful localized recovery results. Share provider-wide unread pass IDs across Questions, Chat and Operator, preserving legacy recovery.
+
+Add finite HH vacancy search/collection with typed resume-bound filters, exact native pagination, full visible employer context, a shared success-only cache, Stop and cached recovery across CLI, Lino and localized CV controls.

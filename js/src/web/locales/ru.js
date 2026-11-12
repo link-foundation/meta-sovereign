@@ -1,4 +1,5 @@
 import { ruQuestions } from './ru-questions.js';
+import { ruVacancy } from './ru-vacancy.js';
 import { ruAnswerModel } from './ru-answer-model.js';
 import { ruBrowserAnswer } from './ru-browser-answer.js';
 import { ruForms } from './ru-forms.js';
@@ -28,6 +29,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruVacancy,
   ...ruForms,
   ...ruAnswerModel,
   ...ruBrowserAnswer,

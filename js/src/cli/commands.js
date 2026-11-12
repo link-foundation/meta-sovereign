@@ -36,6 +36,7 @@ import { promises as fs } from 'node:fs';
 import { runCliCommand } from './command-runner.js';
 import { versionCmd } from './version-command.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
+import { VACANCY_HELP, createVacancyCommands } from './vacancy-commands.js';
 import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
 import { FORMS_HELP, createFormsCommands } from './forms-commands.js';
 import {
@@ -160,6 +161,7 @@ ${AUTOMATION_HELP}
   vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
   vault-list    [--file=<path>]
 ${CV_HELP}
+${VACANCY_HELP}
 ${BROWSER_HELP}
 ${FORMS_HELP}
 ${GREETINGS_HELP}
@@ -876,6 +878,7 @@ const COMMANDS = {
   'vault-list': vaultListCmd,
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
   ...createCvCommands({ openStore }),
+  ...createVacancyCommands({ openStore }),
   ...createBrowserCommands({ openStore, openReadOnly }),
   ...createFormsCommands({ openStore }),
   // Automations: plan, run and review drafts one by one (issue #31).

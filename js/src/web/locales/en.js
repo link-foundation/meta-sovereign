@@ -1,4 +1,5 @@
 import { enAnswerModel } from './en-answer-model.js';
+import { enVacancy } from './en-vacancy.js';
 import { enBrowserAnswer } from './en-browser-answer.js';
 import { enForms } from './en-forms.js';
 import { enSharedProfile } from './en-shared-profile.js';
@@ -16,14 +17,12 @@ import { enBrowser } from './en-browser.js';
 // adds a key. Provider names ("Telegram", "WhatsApp", …) and API URLs
 // stay in their source form because they are proper nouns / API
 // brand identifiers.
-
 import { enChat } from './en-chat.js';
 import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
 import { enFolders } from './en-folders.js';
 import { enTranscribe } from './en-transcribe.js';
 import { enGithub } from './en-github.js';
-
 import { enConversation } from './en-conversation.js';
 
 import { enFeedback } from './en-feedback.js';
@@ -31,6 +30,7 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enVacancy,
   ...enForms,
   ...enAnswerModel,
   ...enBrowserAnswer,

@@ -8,8 +8,16 @@ import {
   rememberAssignmentVacancy,
   storedAssignmentVacancy,
 } from './vacancy-association.js';
+import { vacancyContent } from './vacancy-content.js';
 
-const vacancySnapshot = async (store, readVacancy, url, refresh, signal) => {
+export const vacancySnapshot = async (
+  store,
+  readVacancy,
+  url,
+  refresh,
+  signal,
+  browserOptions = {}
+) => {
   const id = `assignment-vacancy:${await modelFingerprint(url)}`;
   let saved = await store.get(id);
   if (saved && (saved.version !== 1 || saved.id !== id || saved.url !== url)) {
@@ -19,35 +27,20 @@ const vacancySnapshot = async (store, readVacancy, url, refresh, signal) => {
     );
   }
   if (!saved || refresh === true) {
-    const snapshot = await readVacancy(url, { signal });
-    signal.throwIfAborted();
-    if (
-      assignmentVacancyUrl(snapshot.url) !== url ||
-      !Number.isFinite(Date.parse(snapshot.capturedAt))
-    ) {
-      throw assignmentFailure(
-        'vacancy-invalid',
-        'The reader returned another vacancy.'
-      );
-    }
+    const snapshot = await readVacancy(url, { ...browserOptions, signal });
+    signal?.throwIfAborted();
+    const content = vacancyContent(snapshot, url);
     saved = {
       id,
       version: 1,
       tokens: ['assignment', 'vacancy'],
       children: [],
-      ...assignmentVacancy(snapshot),
-      url,
-      capturedAt: snapshot.capturedAt,
+      ...content,
     };
     await store.put(saved);
     await store.flush?.();
   }
-  if (!Number.isFinite(Date.parse(saved.capturedAt))) {
-    throw assignmentFailure(
-      'vacancy-invalid',
-      'The saved vacancy date is invalid.'
-    );
-  }
+  vacancyContent(saved, url);
   return saved;
 };
 

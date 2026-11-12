@@ -5,6 +5,13 @@ const navigationReady = (navigation, status) =>
   navigation.verified === true &&
   navigation.status === 'ready' &&
   !(status >= 400);
+const pageFailure = (error, kind) =>
+  error.code?.startsWith('assignment-') || error.code?.startsWith('jobs-')
+    ? error
+    : assignmentFailure(
+        `${kind}-unavailable`,
+        'The requested browser page could not be read.'
+      );
 
 /** Own the browser, including a launch that completes after cancellation. */
 export const readAssignmentPage = async ({
@@ -18,6 +25,8 @@ export const readAssignmentPage = async ({
   validate,
   signal,
   redirects = false,
+  useCase = 'assignments',
+  browserOptions = {},
 }) => {
   let session;
   let closing;
@@ -56,8 +65,9 @@ export const readAssignmentPage = async ({
     session = await openSession({
       store,
       platform,
-      useCase: 'assignments',
+      useCase,
       slot,
+      ...browserOptions,
     });
     check();
     session.page?.on('response', response);
@@ -85,7 +95,7 @@ export const readAssignmentPage = async ({
     if (!navigationReady(navigation, responseStatus)) {
       throw assignmentFailure(
         `${kind}-unavailable`,
-        'The intended assignment page did not load successfully.'
+        'The requested browser page did not load successfully.'
       );
     }
     const value = await session.commander.evaluate({ fn: read, args: [] });
@@ -93,12 +103,7 @@ export const readAssignmentPage = async ({
     return await validate(value);
   } catch (error) {
     check();
-    throw error.code?.startsWith('assignment-')
-      ? error
-      : assignmentFailure(
-          `${kind}-unavailable`,
-          'The intended assignment page could not be read.'
-        );
+    throw pageFailure(error, kind);
   } finally {
     signal?.removeEventListener('abort', abort);
     globalThis.clearTimeout(timer);

@@ -75,6 +75,7 @@ import { bindWire, requestWireFailure } from './wire.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleVacancyRoutes } from './routes-vacancies.js';
 import { handleBrowserRoutes } from './routes-browser.js';
 import { handleFormRoutes } from './routes-forms.js';
 import { createFormReader } from '../forms/reader.js';
@@ -291,7 +292,8 @@ const uiContext = (allowOrigins, uiUrl, localUi) => {
  * that already owns a session — never open a second one.
  * @param {{commander?: object, sessionFactory?: Function, artifactDir?: string}} cv
  */
-const cvContext = (cv = {}) => ({
+const cvContext = (cv = {}, vacancies) => ({
+  vacancyOptions: vacancies,
   cvCommander: cv.commander ?? null,
   cvSessionFactory: cv.sessionFactory ?? null,
   cvArtifactDir: cv.artifactDir ?? null,
@@ -622,6 +624,9 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
     return;
   }
+  if (await handleVacancyRoutes(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleSuggestRoutes(req, res, p, url, ctx)) {
     return;
   }
@@ -936,6 +941,7 @@ export const startServer = async ({
   emailLiveFactory = null,
   emailPoll,
   cv = {},
+  vacancies,
   forms,
   answerModel,
   // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
@@ -1000,7 +1006,6 @@ export const startServer = async ({
     },
     later
   );
-  const models = modelContext(store, forms, automations, answerModel);
   const ctx = {
     front,
     jsonCompatibility: jsonCompatibility === true,
@@ -1011,8 +1016,8 @@ export const startServer = async ({
     emailLiveFactory,
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
-    ...cvContext(cv),
-    ...models,
+    ...cvContext(cv, vacancies),
+    ...modelContext(store, forms, automations, answerModel),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),

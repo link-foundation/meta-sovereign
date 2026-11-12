@@ -1,0 +1,427 @@
+import React, { useEffect, useState } from 'react';
+import { useDates, useT } from './i18n.js';
+import { hhSearchUrl } from '../jobs/options.js';
+
+const el = React.createElement;
+const settingsKey = 'meta-sovereign:vacancy-search';
+const defaults = {
+  query: '',
+  resume: '',
+  area: '',
+  salary: '',
+  currency: 'RUR',
+  order: 'salary_desc',
+  remote: false,
+  browserSlot: 'jobs',
+  mode: 'inherit',
+};
+const initialSettings = () => {
+  try {
+    const raw = globalThis.localStorage?.getItem(settingsKey);
+    const saved = raw?.length < 6000 ? JSON.parse(raw) : {};
+    return {
+      ...defaults,
+      ...Object.fromEntries(
+        Object.entries(saved).filter(
+          ([key, value]) =>
+            Object.hasOwn(defaults, key) &&
+            typeof value === typeof defaults[key]
+        )
+      ),
+    };
+  } catch {
+    return defaults;
+  }
+};
+const searchInput = (values, page) => ({
+  ...values,
+  page,
+  salary: values.salary === '' ? undefined : Number(values.salary),
+  headless: values.mode === 'inherit' ? undefined : values.mode === 'headless',
+});
+
+export const useVacancies = (api) => {
+  const [values, setValues] = useState(initialSettings);
+  const [capabilities, setCapabilities] = useState(null);
+  const [stored, setStored] = useState([]);
+  const [result, setResult] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let current = true;
+    Promise.all([api.vacancyCapabilities(), api.vacancyStored()])
+      .then(([caps, saved]) => {
+        if (!current) {
+          return;
+        }
+        setCapabilities(caps);
+        setStored(saved.entries ?? []);
+        setLoaded(true);
+      })
+      .catch(() => {
+        if (current) {
+          setError('server-required');
+          setLoaded(true);
+        }
+      });
+    return () => {
+      current = false;
+    };
+  }, [api]);
+  const run = async (kind, operation) => {
+    setBusy(kind);
+    setError('');
+    try {
+      const answer = await operation();
+      if (!answer || answer.ok === false || answer.code) {
+        throw new Error(answer?.code ?? 'jobs-unconfirmed');
+      }
+      return answer;
+    } catch (failure) {
+      setError(failure.message);
+      return null;
+    } finally {
+      setBusy('');
+    }
+  };
+  const search = (page = 0) =>
+    run('search', async () => {
+      const input = searchInput(values, page);
+      hhSearchUrl(input);
+      const answer = await api.vacancySearch(input);
+      if (Array.isArray(answer?.cards)) {
+        setResult({ ...answer, input: { ...values } });
+        try {
+          globalThis.localStorage?.setItem(settingsKey, JSON.stringify(values));
+        } catch {
+          /* Reading does not require storage. */
+        }
+      }
+      return answer;
+    });
+  const collect = (url, refresh = false) =>
+    run('collect', async () => {
+      const options = searchInput(values, 0);
+      const answer = await api.vacancyCollect({
+        url,
+        refresh,
+        browserSlot: options.browserSlot,
+        headless: options.headless,
+      });
+      if (answer?.url === url && answer.title && answer.description) {
+        setSelected(answer);
+        setStored((rows) =>
+          [answer, ...rows.filter((row) => row.url !== url)].slice(0, 100)
+        );
+      }
+      return answer;
+    });
+  let valid = false;
+  try {
+    hhSearchUrl(searchInput(values, 0));
+    valid = /^[a-z0-9][a-z0-9_-]{0,63}$/u.test(values.browserSlot);
+  } catch {
+    /* Keep invalid settings editable. */
+  }
+  return {
+    values,
+    setValues,
+    capabilities,
+    stored,
+    result,
+    selected,
+    setSelected,
+    busy,
+    error,
+    loaded,
+    valid,
+    search,
+    collect,
+    cancel: () => run('cancel', () => api.vacancyCancel()),
+  };
+};
+
+const Fields = ({ state, t }) => {
+  const update = (key, value) =>
+    state.setValues({ ...state.values, [key]: value });
+  const choices = {
+    currency: ['RUR', 'USD', 'EUR'],
+    order: ['salary_desc', 'publication_time', 'relevance'],
+    mode: ['inherit', 'visible', 'headless'],
+  };
+  return el(
+    'fieldset',
+    { className: 'automation-fieldset', disabled: Boolean(state.busy) },
+    [
+      el('legend', { key: 'legend' }, t('vacancy.settings')),
+      el(
+        'div',
+        { key: 'fields', className: 'row' },
+        Object.keys(defaults)
+          .filter((key) => key !== 'remote')
+          .map((key) =>
+            el('label', { key, className: 'chat-form-field' }, [
+              el(
+                'span',
+                { key: 'label', className: 'meta' },
+                t(`vacancy.${key}`)
+              ),
+              choices[key]
+                ? el(
+                    'select',
+                    {
+                      key: 'input',
+                      value: state.values[key],
+                      'data-vacancy-field': key,
+                      onChange: (event) => update(key, event.target.value),
+                    },
+                    choices[key].map((value) =>
+                      el(
+                        'option',
+                        { key: value, value },
+                        key === 'currency' ? value : t(`vacancy.${value}`)
+                      )
+                    )
+                  )
+                : el('input', {
+                    key: 'input',
+                    value: state.values[key],
+                    type: key === 'salary' ? 'number' : 'text',
+                    min: key === 'salary' ? 0 : undefined,
+                    maxLength: 500,
+                    'data-vacancy-field': key,
+                    onChange: (event) => update(key, event.target.value),
+                  }),
+            ])
+          )
+      ),
+      el('label', { key: 'remote', className: 'check' }, [
+        el('input', {
+          key: 'input',
+          type: 'checkbox',
+          checked: state.values.remote,
+          'data-vacancy-field': 'remote',
+          onChange: (event) => update('remote', event.target.checked),
+        }),
+        t('vacancy.remote'),
+      ]),
+    ]
+  );
+};
+const action = (id, label, onClick, disabled) =>
+  el(
+    'button',
+    { key: id, type: 'button', 'data-vacancy-action': id, onClick, disabled },
+    label
+  );
+
+const Results = ({ state, t, idle, live }) => {
+  const unchanged =
+    state.result &&
+    JSON.stringify(state.values) === JSON.stringify(state.result.input);
+  return state.result
+    ? el(
+        'div',
+        { key: 'results', className: 'col', 'data-vacancy-results': true },
+        [
+          el(
+            'p',
+            { key: 'page', className: 'meta' },
+            t('vacancy.page', {
+              page: state.result.page + 1,
+              count: state.result.cards.length,
+            })
+          ),
+          ...state.result.cards.map((card) =>
+            el(
+              'article',
+              {
+                key: card.url,
+                className: 'col',
+                'data-vacancy-card': card.url,
+              },
+              [
+                el(
+                  'a',
+                  {
+                    key: 'title',
+                    href: card.url,
+                    target: '_blank',
+                    rel: 'noreferrer',
+                  },
+                  card.title
+                ),
+                el(
+                  'span',
+                  { key: 'meta', className: 'meta' },
+                  [
+                    card.company,
+                    card.salary,
+                    card.location,
+                    card.responded ? t('vacancy.responded') : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')
+                ),
+                action(
+                  'collect',
+                  t('vacancy.collect'),
+                  () => state.collect(card.url),
+                  !idle || state.capabilities?.collect !== true
+                ),
+              ]
+            )
+          ),
+          el('div', { key: 'pages', className: 'row' }, [
+            action(
+              'previous',
+              t('vacancy.previous'),
+              () => state.search(state.result.page - 1),
+              !idle || !live || !unchanged || state.result.page === 0
+            ),
+            action(
+              'next',
+              t('vacancy.next'),
+              () => state.search(state.result.nextPage),
+              !idle || !live || !unchanged || state.result.nextPage === null
+            ),
+          ]),
+        ]
+      )
+    : null;
+};
+const Snapshot = ({ state, t, idle }) => {
+  const { dateTime } = useDates();
+  return state.selected
+    ? el(
+        'article',
+        {
+          key: 'selected',
+          className: 'col',
+          'data-vacancy-snapshot': state.selected.url,
+        },
+        [
+          el('h3', { key: 'title' }, state.selected.title),
+          el(
+            'p',
+            { key: 'date', className: 'meta' },
+            `${state.selected.company} · ${dateTime(state.selected.capturedAt)}`
+          ),
+          el(
+            'a',
+            {
+              key: 'url',
+              href: state.selected.url,
+              target: '_blank',
+              rel: 'noreferrer',
+            },
+            state.selected.url
+          ),
+          ...[
+            'salary',
+            'location',
+            'experience',
+            'employment',
+            'workFormat',
+            'published',
+          ]
+            .filter((key) => state.selected[key])
+            .map((key) =>
+              el(
+                'p',
+                { key, className: 'meta' },
+                `${t(`vacancy.${key === 'salary' ? 'salaryValue' : key}`)}: ${state.selected[key]}`
+              )
+            ),
+          el(
+            'p',
+            { key: 'skills', className: 'meta' },
+            state.selected.skills.join(' · ')
+          ),
+          el(
+            'pre',
+            {
+              key: 'description',
+              style: {
+                whiteSpace: 'pre-wrap',
+                overflowWrap: 'anywhere',
+                fontFamily: 'inherit',
+              },
+            },
+            state.selected.description
+          ),
+          action(
+            'refresh',
+            t('vacancy.refresh'),
+            () => state.collect(state.selected.url, true),
+            !idle || state.capabilities?.collect !== true
+          ),
+        ]
+      )
+    : null;
+};
+
+export const VacanciesScreen = ({ state }) => {
+  const t = useT();
+  const idle = !state.busy;
+  const live = state.capabilities?.search === true;
+  return el(
+    'section',
+    {
+      className: 'col',
+      'data-vacancies': true,
+      'aria-label': t('vacancy.title'),
+    },
+    [
+      el('h2', { key: 'title' }, t('vacancy.title')),
+      el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
+      el(Fields, { key: 'settings', state, t }),
+      el('div', { key: 'actions', className: 'row' }, [
+        action(
+          'search',
+          t('vacancy.search'),
+          () => state.search(),
+          !idle || !live || !state.valid
+        ),
+        action(
+          'stop',
+          t('vacancy.stop'),
+          state.cancel,
+          idle || state.busy === 'cancel'
+        ),
+      ]),
+      !state.loaded
+        ? el('p', { key: 'loading', role: 'status' }, t('vacancy.loading'))
+        : !live
+          ? el(
+              'p',
+              { key: 'offline', role: 'status' },
+              t('vacancy.unavailable')
+            )
+          : null,
+      state.busy
+        ? el('p', { key: 'busy', role: 'status' }, t('vacancy.working'))
+        : null,
+      state.error
+        ? el(
+            'p',
+            { key: 'error', role: 'alert', 'data-vacancy-error': true },
+            `${t('vacancy.failed')} (${state.error})`
+          )
+        : null,
+      el(Results, { key: 'results', state, t, idle, live }),
+      el('h3', { key: 'stored-title' }, t('vacancy.cached')),
+      ...state.stored.map((row) =>
+        action(row.id, row.title, () => state.setSelected(row), !idle)
+      ),
+      state.loaded && !state.stored.length
+        ? el('p', { key: 'empty', className: 'meta' }, t('vacancy.empty'))
+        : null,
+      el(Snapshot, { key: 'selected', state, t, idle }),
+    ]
+  );
+};
+export const VacanciesPanel = ({ api }) =>
+  el(VacanciesScreen, { state: useVacancies(api) });

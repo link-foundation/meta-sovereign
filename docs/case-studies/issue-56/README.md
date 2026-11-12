@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [HH vacancy reads](vacancies.md): typed resume-bound search, native pagination, full employer prose/metadata and shared success-only cache through CLI, Lino and localized CV controls; Stop and restart recovery retain explicit delivery limits.
+
 - [Explicit finite unread notices](unread-notices.md): saved reply policies, durable per-chat decisions, positive receipts and non-replaying recovery across CLI, Lino and shared controls.
 - [Borrowed unread visits](unread-delivery-visit.md): sequential native reply handles, receipt draining and bounded scroll settlement inside the existing navigation lease.
 - [Finite unread review](question-unread-review.md): confirmed existing-view reads, durable pass recovery and frozen questions in CLI, Lino and shared localized controls.

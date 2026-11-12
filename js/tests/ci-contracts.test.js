@@ -308,6 +308,22 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
   assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
 });
 
+test('vacancy reads run in both mandatory browser lanes', () => {
+  const checks = JSON.parse(
+    readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
+  );
+  const { scripts } = JSON.parse(readFileSync(path.join(root, 'package.json')));
+  assert.ok(checks.includes('vacancies'));
+  assert.equal(
+    scripts['test:e2e:vacancies'],
+    'node js/tests/e2e-vacancies-browser.mjs'
+  );
+  assert.equal(
+    scripts['test:e2e:vacancies:webkit'],
+    'E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs'
+  );
+});
+
 test('question provider and control scenarios have separate mandatory browser budgets', () => {
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))

@@ -1,4 +1,5 @@
 import { hiAnswerModel } from './hi-answer-model.js';
+import { hiVacancy } from './hi-vacancy.js';
 import { hiBrowserAnswer } from './hi-browser-answer.js';
 import { hiForms } from './hi-forms.js';
 import { hiSharedProfile } from './hi-shared-profile.js';
@@ -31,6 +32,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiVacancy,
   ...hiForms,
   ...hiAnswerModel,
   ...hiBrowserAnswer,

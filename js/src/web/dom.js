@@ -42,6 +42,7 @@ import { createStickerCollectionsApi } from './sticker-collections-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
+import { createVacancyApi } from './vacancy-api.js';
 import { createPublicationApi } from './publication-api.js';
 import { AUTOMATION_CALLS } from './dom-automation-calls.js';
 
@@ -758,6 +759,11 @@ const rawApi = {
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
   cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
+  ...createVacancyApi({
+    get: serverFetch,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+  }),
   ...createFormsApi({
     get: serverFetch,
     getResume: serverReadReport,

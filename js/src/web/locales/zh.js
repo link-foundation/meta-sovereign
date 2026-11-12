@@ -1,4 +1,5 @@
 import { zhAnswerModel } from './zh-answer-model.js';
+import { zhVacancy } from './zh-vacancy.js';
 import { zhBrowserAnswer } from './zh-browser-answer.js';
 import { zhForms } from './zh-forms.js';
 import { zhSharedProfile } from './zh-shared-profile.js';
@@ -31,6 +32,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhVacancy,
   ...zhForms,
   ...zhAnswerModel,
   ...zhBrowserAnswer,
