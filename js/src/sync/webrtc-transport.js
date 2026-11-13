@@ -110,6 +110,25 @@ const manageIceCandidates = (pc, signaling, onError) => {
   };
 };
 
+const closeRtc = (resource) => {
+  try {
+    resource?.close();
+  } catch {
+    // Already disposed by the browser.
+  }
+};
+
+// Channel-open callbacks run outside peer.send's failure isolation. A native
+// send may fail during the open event; disposal must precede error reporting.
+const drainChannel = (channel, queue, wire, close, onError) => {
+  try {
+    queue.drain((event) => channel.send(wire.encode(event)));
+  } catch (error) {
+    close();
+    onError(error);
+  }
+};
+
 /**
  * Create a WebRTC data-channel transport. The peer that wants to
  * initiate creates an offer immediately; the peer that *receives*
@@ -140,6 +159,10 @@ export const createWebRtcTransport = ({
   const ice = manageIceCandidates(pc, signaling, onError);
 
   const wireChannel = (channel) => {
+    if (closed) {
+      channel.close();
+      return;
+    }
     if (channel.protocol !== wire.protocol) {
       channel.close();
       onError(new Error('unsupported WebRTC sync protocol'));
@@ -147,9 +170,16 @@ export const createWebRtcTransport = ({
     }
     dataChannel = channel;
     channel.binaryType = 'arraybuffer';
-    channel.onopen = () =>
-      sendQueue.drain((event) => channel.send(wire.encode(event)));
+    channel.onopen = () => {
+      if (closed || channel !== dataChannel) {
+        return;
+      }
+      drainChannel(channel, sendQueue, wire, close, onError);
+    };
     channel.onmessage = (event) => {
+      if (closed || channel !== dataChannel) {
+        return;
+      }
       let parsed;
       try {
         parsed = wire.decode(event.data);
@@ -173,7 +203,7 @@ export const createWebRtcTransport = ({
   }
 
   pc.onicecandidate = (event) => {
-    if (event.candidate) {
+    if (!closed && event.candidate) {
       signaling.sendIce(event.candidate);
     }
   };
@@ -208,6 +238,19 @@ export const createWebRtcTransport = ({
     },
     onError
   );
+
+  const close = () => {
+    if (closed) {
+      return;
+    }
+    closed = true;
+    sendQueue.clear();
+    offOffer();
+    offAnswer();
+    ice.close();
+    closeRtc(dataChannel);
+    closeRtc(pc);
+  };
 
   const startAsInitiator = async () => {
     if (closed || awaitingAnswer || dataChannel?.readyState === 'open') {
@@ -250,23 +293,7 @@ export const createWebRtcTransport = ({
       recvHandlers.add(h);
       return () => recvHandlers.delete(h);
     },
-    close: () => {
-      closed = true;
-      sendQueue.clear();
-      offOffer();
-      offAnswer();
-      ice.close();
-      try {
-        dataChannel?.close();
-      } catch {
-        // ignore
-      }
-      try {
-        pc.close();
-      } catch {
-        // ignore
-      }
-    },
+    close,
     startAsInitiator,
     pc,
   };

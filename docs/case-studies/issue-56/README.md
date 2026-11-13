@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [WebRTC queued sends and departure readiness](ci-rtc-open.md): exact hosted failure, two failing-before lifecycle regressions, app-free native diagnostic reproduction, upstream report and actual peer-disposal readiness with passing focused/native evidence.
+
 - [Durable causal deletion safeguards](causal-deletions.md): payload-free deletion clocks, durable reopen, recreated-history protection, index invalidation and schema-13 owner-field safety. Initial/reconnect reconciliation and native parity remain required.
 
 - [Ordinary-write causal clocks](causal-writes.md): atomic production admission, offline edits, complete bulk preparation, fresh writable-opening actors and actual file/IndexedDB reopen. Initial reconciliation and deletion history remain required.

@@ -14,10 +14,18 @@ export const traceSyncPeer = async (page, index) => {
     globalThis.metaSovereignDebug = true;
   });
   page.on('console', (event) => {
+    if (event.text().startsWith('WebRTC sync failed')) {
+      record('transport-error', { message: event.text().slice(0, 500) });
+    }
     if (event.text().startsWith('[ms-debug]')) {
       record('boot', { message: event.text() });
     }
   });
+  page.on('pageerror', (error) =>
+    console.error(
+      `[sync-peer-${index}-error] ${error.name}: ${String(error.stack).slice(0, 2000)}`
+    )
+  );
   const trace = async (phase) => {
     const document = await page
       .evaluate(() => ({

@@ -97,6 +97,20 @@ export const checkSyncMesh = async ({
     assert(errors.length === 0, 'third peer has no browser errors');
     await stopSyncPeer(third);
     await context.close();
+    // Closing a document does not await broker departure delivery. Require
+    // both survivors to dispose the departed connection before testing the
+    // remaining pair; WebKit can otherwise log native send failures even when
+    // send() returns normally and no JavaScript error is raised.
+    for (const target of [page, other]) {
+      await target.waitForFunction(
+        () =>
+          globalThis.__syncRtc.filter(
+            (events) => !events.some((event) => event.event === 'disposed')
+          ).length === 1,
+        null,
+        { timeout: 20000 }
+      );
+    }
     const survivor = 'l:rtc-after-third-departure';
     await put(other, survivor);
     await until(

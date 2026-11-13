@@ -314,6 +314,55 @@ test('unexpected SDP failures are reported without an unhandled rejection', asyn
   transport.close();
 });
 
+test('a queued send failure on channel open is reported and disposes the failed connection', async () => {
+  const channels = [];
+  const errors = [];
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('local')),
+    RTCPeerConnection: makeFakeRtc(channels, { autoOpen: false }),
+    initiator: true,
+    onError: (error) => errors.push(error.message),
+  });
+  try {
+    transport.send({ type: 'hello', schema: { version: 13 } });
+    const channel = channels[0];
+    channel.readyState = 'open';
+    channel.send = () => {
+      throw new Error('Error sending string through RTCDataChannel.');
+    };
+    assert.doesNotThrow(() => channel.onopen());
+    assert.deepEqual(errors, ['Error sending string through RTCDataChannel.']);
+    assert.equal(channel.readyState, 'closed');
+    assert.throws(() => transport.send({ type: 'hello' }), /closed/);
+    assert.doesNotThrow(() => channel.onopen());
+    assert.equal(errors.length, 1, 'a late open cannot retry failed delivery');
+    await settle();
+  } finally {
+    transport.close();
+  }
+});
+
+test('a late incoming channel after disposal is closed without delivering messages', () => {
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('local')),
+    RTCPeerConnection: makeFakeRtc([], { autoOpen: false }),
+  });
+  const seen = [];
+  transport.onMessage((message) => seen.push(message));
+  transport.close();
+  const channel = {
+    protocol: 'meta-sovereign-sync.lino.v2',
+    readyState: 'connecting',
+    close() {
+      this.readyState = 'closed';
+    },
+  };
+  transport.pc.ondatachannel({ channel });
+  assert.equal(channel.readyState, 'closed');
+  assert.equal(channel.onmessage, undefined);
+  assert.deepEqual(seen, []);
+});
+
 test(
   'binary WebRTC preserves typed values and advertises the Lino protocol',
   { timeout: 3000 },

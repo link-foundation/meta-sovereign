@@ -51,6 +51,11 @@ export const prepareSyncPeer = async (target, base, engine) => {
           record('datachannel', { protocol: event.channel.protocol });
           event.channel.addEventListener('open', () => record('channel-open'));
         });
+        const close = this.close.bind(this);
+        this.close = () => {
+          close();
+          record('disposed');
+        };
         const add = this.addIceCandidate.bind(this);
         this.addIceCandidate = (candidate) => {
           record('add-ice', { present: !!candidate?.candidate });

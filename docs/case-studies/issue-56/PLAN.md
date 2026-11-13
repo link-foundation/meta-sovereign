@@ -1,11 +1,19 @@
 # Issue 56 / PR 57 work plan
 
+Active WebRTC queued sends and departure readiness:
+
+- [x] Preserve exact published `96a54d99` failure, complete workflow/job logs, artifact metadata and inspected valid screenshot; reproduce two finite lifecycle failures before correction.
+- [x] Isolate queued native send errors, dispose failed/late channels and retain explicit delivery failure reporting without replay. Nineteen focused checks pass. A final native rerun disproves the queue-only diagnosis; preserve the ordinary-send failure and app-free native diagnostic probe. Wait for actual broker departure disposal before remaining-pair writes, retain page-error checks and verify the native WebKit scenario.
+- [x] Report the native console/pageerror classification with a reproducer and workaround upstream: microsoft/playwright#44103.
+- [ ] Preserve checksummed evidence, publish the causal-write/deletion/lifecycle units and inspect every exact-head hosted check.
+- [ ] Continue bounded initial/reconnect reconciliation, native parity and every unchecked original requirement; these safeguards do not complete offline synchronization.
+
 Active durable causal deletion safeguards:
 
 - [x] Reproduce old-packet resurrection after actual durable reopen and stale deletion of explicit recreation against `a874e936`.
 - [x] Retain payload-free deletion clocks below history, hide markers from public reads, reserve schema 13 and mark empty durable roots before admitting new-format writes.
 - [x] Catch draft regressions in recreated history and edited chat counts; preserve owner history, feedback indexes, private records and read-only guards.
-- [ ] Finish focused compatibility checks, one native WebKit scenario and independent actual IndexedDB parent/final probes; archive, commit and publish the complete unit.
+- [x] Finish focused compatibility checks and independent actual IndexedDB parent/final probes; archive and commit `980e1f0b`. Native WebKit first reproduces the existing RTC error, then passes with the separately tested lifecycle correction; publication and exact-head hosted checks remain required.
 - [ ] Repair the exact `96a54d99` hosted RTC send lifecycle failure (run `43462136209`, job `132013458396`), retain failing-before tests and inspect all checks on the new published SHA.
 - [ ] Continue bounded offline/reconnect reconciliation, native parity and every unchecked original requirement. Durable deletion metadata alone does not synchronize disconnected history.
 
@@ -16,7 +24,7 @@ Active ordinary-write causal clocks:
 - [x] Verify focused storage/history/API/migration/handoff checks, exact-parent failures, one rebuilt native WebKit WebRTC scenario and independent actual IndexedDB parent/final reopen probes.
 - [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue durable offline reconciliation, deletion history, native parity and every remaining original criterion.
 
-Hosted checks for published `fc7c095c` all pass. The later `96a54d99` checks are still running; retain exact-SHA verification before declaring this next unit verified.
+Hosted checks for published `fc7c095c` all pass. The later `96a54d99` Checks run fails only in WebKit shard 1 at queued RTC send disposal; all other workflows pass. Retain exact-SHA verification before declaring the correction verified.
 
 Active delivery-order-independent JavaScript merge rules:
 

@@ -359,3 +359,7 @@ Refill four immutable snapshot copy slots independently during server release pr
 Order and coalesce browser snapshot saves, acknowledge driver completion and expose persistence failures while keeping memory and subscription updates immediate. Admit complete bulks before subscribers can edit, isolate driver snapshots and observe IndexedDB request/transaction failures together; explicit flush can recover unsaved memory.
 
 Retain payload-free causal deletion metadata in production stores, reject delayed resurrection and stale deletes, preserve recreated message history and update chat/feedback indexes without erased payload fields. Reserve schema 13, stamp empty durable roots before new-format writes and preserve older read-only owner data.
+
+Dispose failed WebRTC connections when queued native sends throw during channel open. Report the original delivery error, reject late channels and retain optional bounded page-error diagnostics for sync fixtures.
+
+Require actual peer departure disposal before remaining-pair sync fixture writes. Preserve native WebKit send diagnostics, page-error assertions and unchanged readiness deadlines, with an app-free upstream reproducer.
