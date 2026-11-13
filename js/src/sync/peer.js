@@ -10,6 +10,7 @@ import { isolatePeerTransport } from './peer-transport.js';
 import { createPeerReceiver } from './peer-receiver.js';
 import { createRelayIdentity, createRelayOutbox } from './peer-relay.js';
 import { merge } from './register.js';
+import { createReconciliation } from './peer-reconcile.js';
 export { merge } from './register.js';
 export {
   tickVersion,
@@ -50,6 +51,7 @@ export const createPeer = (
     onMismatch = () => {},
     hub = false,
     onState = () => {},
+    reconciliation = {},
     onError = (error) =>
       globalThis.console?.warn?.('Sync transport failed', error),
   } = {}
@@ -130,8 +132,9 @@ export const createPeer = (
      * the transport fans out to many sockets, so one wrong one must not
      * silence the rest. Hubs relay successful remote mutations to their
      * connected transports. Bounded operation routes prevent cycles; pending
-     * persistence keeps later owner events in admission order. This carries
-     * live operations only and does not reconcile disconnected history.
+     * persistence keeps later owner events in admission order. Built-in causal
+     * stores also reconcile existing records and deletion clocks after matching
+     * schema negotiation, with one durably acknowledged record per session.
      */
     connect(transport) {
       const isolated = isolatePeerTransport(transport, onError);
@@ -141,30 +144,52 @@ export const createPeer = (
             this,
             isolated,
             { local: schemaVersion, onMismatch, hub },
-            subscribe
+            subscribe,
+            reconciliation === false
+              ? null
+              : {
+                  store,
+                  send: (event) => transport.send(event),
+                  report,
+                  onState,
+                  options: reconciliation,
+                }
           );
     },
   };
 };
 
 // Connect `peer` to `transport`; `gate` (or null) is the schema check.
-const plug = (peer, transport, gate, subscribe) => {
+const plug = (peer, transport, gate, subscribe, reconciliation) => {
+  const history = reconciliation
+    ? createReconciliation({
+        ...reconciliation,
+        schema: gate.local,
+        receive: (event) => peer.receive(event),
+      })
+    : null;
+  let disconnected = false;
   const stop = (offLocal, offRemote) => () => {
+    disconnected = true;
     offLocal();
     if (typeof offRemote === 'function') {
       offRemote();
     }
+    history?.close();
   };
   if (!gate) {
     return stop(
       subscribe((e) => transport.send(e)),
-      transport.onMessage((e) => peer.receive(e))
+      transport.onMessage((e) => (disconnected ? undefined : peer.receive(e)))
     );
   }
   const seen = new Set();
   let refused = false;
   const mismatch = (remote) => {
     refused = !gate.hub;
+    if (refused) {
+      history?.close();
+    }
     if (!seen.has(remote)) {
       seen.add(remote);
       gate.onMismatch(schemaMismatch(gate.local, remote));
@@ -176,14 +201,20 @@ const plug = (peer, transport, gate, subscribe) => {
     }
   });
   const offRemote = transport.onMessage((e) => {
+    if (disconnected || refused || (history && !history.addressed(e))) {
+      return undefined;
+    }
     const remote = Number.isInteger(e?.schema) ? e.schema : null;
     if (remote !== gate.local) {
       mismatch(remote);
       return undefined;
     }
+    if (history?.handles(e)) {
+      return history.receive(e);
+    }
     return e.type === HELLO ? undefined : peer.receive(e);
   });
-  transport.send({ type: HELLO, schema: gate.local });
+  transport.send(history?.hello() ?? { type: HELLO, schema: gate.local });
   return stop(offLocal, offRemote);
 };
 

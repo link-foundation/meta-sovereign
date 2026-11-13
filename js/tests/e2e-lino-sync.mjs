@@ -10,6 +10,7 @@ import { readSyncPeer } from './helpers/e2e-lino-sync-read.mjs';
 import { checkReceiveIsolation } from './helpers/e2e-sync-receive-isolation.mjs';
 import { checkSyncMesh } from './helpers/e2e-lino-sync-mesh.mjs';
 import { checkCausalWrites } from './helpers/e2e-causal-writes.mjs';
+import { checkSyncReconciliation } from './helpers/e2e-sync-reconciliation.mjs';
 
 import { prepareSyncPeer, stopSyncPeer } from './helpers/e2e-sync-peer.mjs';
 
@@ -120,6 +121,7 @@ await finish(async () => {
       const current = await readSyncPeer(other, link.id);
       return Boolean(current && !current.record);
     }, 'WebRTC deletion');
+    await checkSyncReconciliation({ page, other, base, until, store });
     await checkReceiveIsolation({ page, other, until });
     await checkSyncMesh({ page, other, base, engine, until, store });
   } catch (error) {

@@ -1,5 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active bounded initial/reconnect reconciliation:
+
+- [x] Reproduce missing preconnection records, offline edits and deletion clocks on published `4bfeaf2c`, including a later client on a shared hub transport.
+- [x] Negotiate optional addressed sessions after matching schema; stream raw causal records with one record awaiting acknowledgement per remote, finite initial scan bounds, bounded session state, cancellation and explicit errors. Never expose private/schema records or acknowledge unapplied writes.
+- [x] Verify minimal parent/final regressions, acknowledgement backpressure, stale/duplicate/wrong-recipient control packets, schema refusal, hub isolation, durable reopen and one focused native browser scenario. Keep full matrices hosted.
+- [ ] Preserve evidence, commit/publish an atomic unit and inspect exact-head CI; continue native parity, shared multi-tab persistence and every unchecked original feature requirement.
+
+Active published `4bfeaf2c` compatibility failures:
+
+- [x] Preserve exact-head metadata and completed failing runtime job logs; Linux Node has eight failures at lines 6526–6656.
+- [ ] Reproduce and correct causal-wrapper send-failure injection, cache deletion visibility, initial schema counts, raw binary mirror assertions and publication target normalization without weakening owner input validation.
+- [ ] Run only focused affected checks locally, publish the atomic correction and inspect every exact-head hosted check. Keep remaining original issue scope active.
+
 Active WebRTC queued sends and departure readiness:
 
 - [x] Preserve exact published `96a54d99` failure, complete workflow/job logs, artifact metadata and inspected valid screenshot; reproduce two finite lifecycle failures before correction.

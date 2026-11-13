@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Bounded initial and reconnect reconciliation](sync-reconciliation.md): addressed sessions, incremental causal records/deletions, durable acknowledgements, shared-hub discovery and actual file/IndexedDB/native catch-up evidence; hosted compatibility failures remain active.
+
 - [WebRTC queued sends and departure readiness](ci-rtc-open.md): exact hosted failure, two failing-before lifecycle regressions, app-free native diagnostic reproduction, upstream report and actual peer-disposal readiness with passing focused/native evidence.
 
 - [Durable causal deletion safeguards](causal-deletions.md): payload-free deletion clocks, durable reopen, recreated-history protection, index invalidation and schema-13 owner-field safety. Initial/reconnect reconciliation and native parity remain required.

@@ -29,6 +29,7 @@
  */
 
 import { changedLink } from './mutation.js';
+import { syncRecords } from './sync-deletions.js';
 import { encryptBackup, decryptBackup } from './backup.js';
 
 const SECRET_PREFIX = 'secret:';
@@ -62,6 +63,10 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
     rawStore: inner,
     logFile: inner.logFile,
     flushLog: inner.flushLog,
+    flush: inner.flush ? () => inner.flush() : undefined,
+    // Reconciliation filters private IDs before reading payloads. Preserve
+    // raw deletion clocks without opening or transmitting sealed secrets.
+    [syncRecords]: inner[syncRecords],
     size: inner.size ? () => inner.size() : undefined,
     memoryStats: inner.memoryStats ? () => inner.memoryStats() : undefined,
     async put(link, options) {

@@ -363,3 +363,5 @@ Retain payload-free causal deletion metadata in production stores, reject delaye
 Dispose failed WebRTC connections when queued native sends throw during channel open. Report the original delivery error, reject late channels and retain optional bounded page-error diagnostics for sync fixtures.
 
 Require actual peer departure disposal before remaining-pair sync fixture writes. Preserve native WebKit send diagnostics, page-error assertions and unchanged readiness deadlines, with an app-free upstream reproducer.
+
+Reconcile preconnection and offline JavaScript records/deletion clocks through addressed, bounded sessions on schema-matched causal stores. Keep one record awaiting durable acknowledgement per remote, discover later shared-hub clients, preserve encrypted store barriers, cancel stale sessions and report incomplete exchange explicitly.
