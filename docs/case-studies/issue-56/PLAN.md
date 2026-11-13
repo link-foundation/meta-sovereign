@@ -10,8 +10,9 @@ Active bounded initial/reconnect reconciliation:
 Active published `4bfeaf2c` compatibility failures:
 
 - [x] Preserve exact-head metadata and completed failing runtime job logs; Linux Node has eight failures at lines 6526–6656.
-- [ ] Reproduce and correct causal-wrapper send-failure injection, cache deletion visibility, initial schema counts, raw binary mirror assertions and publication target normalization without weakening owner input validation.
+- [x] Reproduce and correct causal-wrapper send-failure injection, cache deletion visibility, initial schema counts, raw binary mirror assertions and publication target normalization without weakening owner input validation. Twelve affected-name checks and twelve overlapping publication checks pass; three new destination regressions fail on the exact parent.
 - [ ] Run only focused affected checks locally, publish the atomic correction and inspect every exact-head hosted check. Keep remaining original issue scope active.
+- [ ] Investigate the separate Windows Bun initial rolling-start failure (job `132046618096`, lines 7058–7093) without raising readiness or job deadlines; retain complete parent workflow/job logs and compare the next exact-head result.
 
 Active WebRTC queued sends and departure readiness:
 

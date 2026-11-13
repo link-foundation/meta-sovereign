@@ -7,6 +7,7 @@ import { setTimeout, clearTimeout } from 'node:timers';
 import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { waitFor } from './helpers/wait-for.js';
+import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 
 const fetchJson = async (url, init) => {
   const r = await fetch(url, init);
@@ -167,7 +168,11 @@ describe('http server', () => {
       const got = await fetchJson(`${base}/links/a`);
       expect(got.body.tokens[0]).toBe('hi');
       const list = await fetchJson(`${base}/links`);
-      expect(list.body.length).toBe(1);
+      const ids = list.body.map((link) => link.id).sort();
+      expect(ids).toEqual(['a', 'meta:schema']);
+      expect(list.body.find((link) => link.id === 'meta:schema').version).toBe(
+        CURRENT_SCHEMA
+      );
     } finally {
       await handle.close();
     }

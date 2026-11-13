@@ -6,7 +6,12 @@ import {
 import { codedError } from '../sources/http.js';
 import { safeMessage } from '../server/redact.js';
 import { broadcastOutcome } from './outcomes.js';
-import { listTargets, normalizeTarget, selectTargets } from './targets.js';
+import {
+  listTargets,
+  normalizeStoredTarget,
+  normalizeTarget,
+  selectTargets,
+} from './targets.js';
 import {
   resolvePublicationProvider,
   publicProviderState,
@@ -38,7 +43,7 @@ const unchangedTarget = async (store, target) => {
   if (
     !current?.enabled ||
     current.version !== target.version ||
-    JSON.stringify(normalizeTarget(current)) !==
+    JSON.stringify(normalizeStoredTarget(current)) !==
       JSON.stringify(normalizeTarget(target))
   ) {
     problem(

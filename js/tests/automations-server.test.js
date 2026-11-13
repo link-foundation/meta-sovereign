@@ -217,10 +217,13 @@ test('the composer sends through /api/send and stores the message', async () => 
 });
 
 test('a send the network took stays sent when the store write fails', async () => {
-  const { server, store, sent, confirmCall } = await boot();
-  const put = store.put.bind(store);
-  store.put = async (link) => {
+  const { server, sent, confirmCall } = await boot();
+  const put = server.store.put.bind(server.store);
+  let failedWrites = 0;
+  // Inject at the service's storage boundary, above causal admission/history.
+  server.store.put = async (link) => {
     if (link.sender === 'me') {
+      failedWrites++;
       throw Object.assign(new Error('disk full'), {
         code: 'STORE_WRITE_FAILED',
       });
@@ -233,10 +236,12 @@ test('a send the network took stays sent when the store write fails', async () =
     assert.equal(first.status, 200);
     assert.equal(first.body.status, 'sent');
     assert.equal(first.body.stored, false);
+    assert.equal(failedWrites, 1);
     // A retry of the same draft is the first one's answer, not a resend.
     const again = await confirmCall('/api/send', draft);
     assert.equal(again.status, 200);
     assert.equal(sent.length, 1);
+    assert.equal(failedWrites, 1);
   } finally {
     await server.close();
   }

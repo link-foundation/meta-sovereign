@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Causal-storage publication compatibility](ci-causal-compatibility.md): eight exact hosted failures, strict trusted-record normalization, public/raw deletion assertions and focused parent/final evidence; the separate Windows Bun startup failure remains active.
+
 - [Bounded initial and reconnect reconciliation](sync-reconciliation.md): addressed sessions, incremental causal records/deletions, durable acknowledgements, shared-hub discovery and actual file/IndexedDB/native catch-up evidence; hosted compatibility failures remain active.
 
 - [WebRTC queued sends and departure readiness](ci-rtc-open.md): exact hosted failure, two failing-before lifecycle regressions, app-free native diagnostic reproduction, upstream report and actual peer-disposal readiness with passing focused/native evidence.

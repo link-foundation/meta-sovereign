@@ -1,4 +1,5 @@
 import { codedError } from '../sources/http.js';
+import { SYNC_STAMP } from '../sync/register.js';
 
 export const TARGET_PREFIX = 'broadcast-target:';
 export const BROADCAST_MODES = Object.freeze({
@@ -138,8 +139,26 @@ export const normalizeTarget = (input = {}) => {
   };
 };
 
-export const listTargets = (store) =>
-  store.query((link) => link?.id?.startsWith(TARGET_PREFIX));
+// Only trusted storage reads may discard causal metadata. Owner input keeps
+// the strict field allowlist, including when editing a destination from a list.
+export const normalizeStoredTarget = (input) => {
+  const { vc: _clock, [SYNC_STAMP]: _stamp, ...target } = input;
+  return normalizeTarget(target);
+};
+
+export const listTargets = async (store) => {
+  const targets = await store.query((link) =>
+    link?.id?.startsWith(TARGET_PREFIX)
+  );
+  return targets.map((target) => ({
+    ...normalizeStoredTarget(target),
+    ...Object.fromEntries(
+      ['version', 'updatedAt', 'tokens']
+        .filter((key) => Object.hasOwn(target, key))
+        .map((key) => [key, target[key]])
+    ),
+  }));
+};
 
 export const saveTarget = async (store, input) => {
   const target = {
@@ -195,5 +214,8 @@ export const selectTargets = async (store, input = {}) => {
   if (new Set(selected.map((t) => t.id)).size !== selected.length) {
     bad('A destination may be selected only once');
   }
-  return selected.map((t) => ({ ...normalizeTarget(t), version: t.version }));
+  return selected.map((t) => ({
+    ...normalizeStoredTarget(t),
+    version: t.version,
+  }));
 };

@@ -14,6 +14,7 @@ import path from 'node:path';
 import { startServer } from './helpers/legacy-server.js';
 import { createBackup, restoreBackup } from '../src/storage/backup.js';
 import { createMemoryStore } from '../src/storage/index.js';
+import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 
 describe('e2e: import → derived API → backup → restore', () => {
   it('walks the full pipeline', async () => {
@@ -64,7 +65,18 @@ describe('e2e: import → derived API → backup → restore', () => {
       const archive = await createBackup(handle.store, { archiveDir: dir });
       const restored = createMemoryStore();
       const n = await restoreBackup(restored, archive);
-      expect(n).toBe(status.links);
+      // Restore migrates its own schema; it does not import the source marker.
+      const saved = await handle.store.query();
+      expect(saved.length).toBe(status.links);
+      expect(saved.find((link) => link.id === 'meta:schema').version).toBe(
+        CURRENT_SCHEMA
+      );
+      const records = saved.filter((link) => link.id !== 'meta:schema');
+      expect(n).toBe(records.length);
+      expect(await restored.get('meta:schema')).toBe(null);
+      expect((await restored.query()).map((link) => link.id).sort()).toEqual(
+        records.map((link) => link.id).sort()
+      );
       expect((await restored.get('msg:telegram:1')).body).toBe('hello world');
     } finally {
       await handle.close();

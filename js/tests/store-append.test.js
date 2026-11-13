@@ -24,6 +24,7 @@ import { CURRENT_SCHEMA, schemaLink } from '../src/storage/migrations/index.js';
 import { startServer } from './helpers/legacy-server.js';
 import { waitFor } from './helpers/wait-for.js';
 import { messageVersions } from '../src/storage/message-versions.js';
+import { syncRecords, isSyncDeleted } from '../src/storage/sync-deletions.js';
 
 const tmpdir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-append-'));
 
@@ -266,7 +267,21 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
   await store.flush();
   const bin = path.join(dir, 'data.bin');
-  const saved = await store.query();
+  const visible = await store.query();
+  const saved = [];
+  await store[syncRecords].scan(null, 10, (batch) => saved.push(...batch));
+  assert.equal(
+    visible.some((link) => link.id === message(1).id),
+    false
+  );
+  const deleted = saved.find((link) => link.id === message(1).id);
+  assert.equal(isSyncDeleted(deleted), true);
+  assert.deepEqual(Object.keys(deleted).sort(), [
+    '__msSyncDeleted',
+    'id',
+    'vc',
+  ]);
+  assert(Object.values(deleted.vc).some((tick) => tick > 0));
   const sorted = (links) => links.toSorted((a, b) => a.id.localeCompare(b.id));
   assert.deepEqual(
     sorted(decodeArchive(await fs.readFile(bin))),
