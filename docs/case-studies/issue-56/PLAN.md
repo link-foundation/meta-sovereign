@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted directory keyboard failure:
+
+- [x] Match the failing run to published `222f2e80`, preserve WebKit shard 1's complete log and artifact, and inspect the valid failure screenshot. The failure is Home focus from chat 150 to chat 1; a normal focused local WebKit run passes.
+- [x] Preserve the separate macOS Node shard 3 checkout cancellation and GitHub's ten-minute deadline annotation. No test step started; the log endpoint currently returns BlobNotFound.
+- [x] Add bounded, default-off focus/scroll diagnostics and reproduce the pending viewport-frame dependency with a finite native fixture before changing behavior. Exact published `1ea671cf` fails the bounded Home assertion; restoring its frame recovers focus. The original hosted scheduling trigger remains unproven.
+- [x] Remove the verified dependency, preserve keyboard/selection/viewport behavior, run only focused checks, and capture native/MCP before/after evidence. Eighteen focused Node checks, six held-frame native keyboard moves and four independent MCP moves pass. The final MCP fixture reports no page or console errors; all owned resources close. All existing deadlines remain unchanged.
+- [ ] Publish the atomic correction, update PR 57 and verify its exact-head hosted checks. Continue the application executor, session policies and every original unchecked requirement; the draft remains unmerged.
+
 Active native hosted reference artifact:
 
 - [x] Preserve exact `9db8d8d9` Rust and API Docs failure logs. Official-codec durable tests now all pass; the network check starts the parent's executable from the shared Cargo output.

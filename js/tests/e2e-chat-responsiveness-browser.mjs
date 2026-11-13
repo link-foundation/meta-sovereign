@@ -1,23 +1,10 @@
 import { requestBody } from './helpers/http-wire.mjs';
 // Small deterministic UI fixture: bounded rows and feedback before a held send.
-import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { verifyDirectoryHome } from './helpers/e2e-directory-focus.mjs';
+import { directoryStore } from './helpers/directory-store.mjs';
 
-const store = createMemoryStore();
-const at = Date.now();
-await store.putMany(
-  Array.from({ length: 150 }, (_, index) => ({
-    id: `msg:telegram:${index + 1}:1`,
-    source: 'telegram',
-    chat: String(index + 1),
-    sender: String(index + 1),
-    senderName: `Contact ${index + 1}`,
-    chatName: `Contact ${index + 1}`,
-    chatType: 'personal_chat',
-    body: `Cached conversation ${index + 1}`,
-    timestamp: new Date(at - index * 60_000).toISOString(),
-  }))
-);
+const store = await directoryStore();
 let release;
 const heldSend = new Promise((resolve) => {
   release = resolve;
@@ -36,6 +23,16 @@ const { page, base, until, finish } = await openChatApp('chat-responsiveness', {
     return { via: 'fixture' };
   },
 });
+if (process.env.CI_BROWSER_DEBUG === '1') {
+  await page.addInitScript(() => {
+    globalThis.metaSovereignDebug = true;
+  });
+  page.on('console', (message) => {
+    if (message.text().startsWith('[ms-debug] chat_directory_focus')) {
+      console.log(message.text());
+    }
+  });
+}
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
   globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off');
@@ -96,16 +93,7 @@ await finish(async () => {
       (await list.locator('[data-chat="telegram:1"]').count()) === 0,
       'offscreen rows are unmounted'
     );
-    await list.locator('[data-chat="telegram:150"]').focus();
-    await page.keyboard.press('Home');
-    await until(
-      () =>
-        list
-          .locator('[data-chat="telegram:1"]')
-          .evaluate((node) => globalThis.document.activeElement === node)
-          .catch(() => false),
-      'keyboard can focus a row outside the viewport'
-    );
+    await verifyDirectoryHome(page, until);
     await list.locator('[data-chat="telegram:2"]').click();
     await until(() => infoStarted, 'provider metadata is held');
     await until(
