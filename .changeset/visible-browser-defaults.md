@@ -349,3 +349,5 @@ Keep owner edits observable during live peer receives, serialize remote merges a
 Reserve text-log append order before subscription handlers can write again. Capture encoded records before mutable inputs change, include already called writes in flush/compaction barriers and preserve immediate memory writes, disk batching and failure recovery.
 
 Forward live accepted operations through sync hubs across text/binary transports, with opaque bounded replay/route protection and an admission-ordered outbox. Preserve schema/private-record guards, local-only subscription semantics and explicit failed-delivery reporting. Offline reconciliation remains unfinished.
+
+Refill four immutable snapshot copy slots independently during server release preparation. Drain issued writes before failed-copy cleanup, retain complete verification and add a silent-by-default directory phase diagnostic without raising startup deadlines.

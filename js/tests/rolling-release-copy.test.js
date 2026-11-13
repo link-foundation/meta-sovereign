@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import { copyFileSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { setImmediate as nextTurn } from 'node:timers/promises';
@@ -93,6 +93,63 @@ test(
         ),
         'export const value = 11;'
       );
+    });
+  }
+);
+
+test(
+  'one pending snapshot copy does not idle the other three slots',
+  { timeout: 5000 },
+  async () => {
+    await withPackage(async (options) => {
+      const original = fs.copyFile;
+      let releaseCopy;
+      const gate = new Promise((resolve) => {
+        releaseCopy = resolve;
+      });
+      let firstCopy;
+      const started = new Promise((resolve) => {
+        firstCopy = resolve;
+      });
+      let copies = 0;
+      let active = 0;
+      let maximum = 0;
+      fs.copyFile = async (...args) => {
+        copies += 1;
+        active += 1;
+        maximum = Math.max(maximum, active);
+        try {
+          // Tiny fixture files use synchronous copies so the scheduling
+          // assertion depends only on the explicit gate, never disk timing.
+          copyFileSync(...args);
+          if (copies === 1) {
+            firstCopy();
+            await gate;
+          } else {
+            await Promise.resolve();
+          }
+        } finally {
+          active -= 1;
+        }
+      };
+      const preparation = stageServerRelease(options);
+      let release;
+      try {
+        await started;
+        await nextTurn();
+        assert.equal(copies, 14, 'all unblocked copies finished');
+        assert.equal(active, 1, 'only the explicitly gated copy remains');
+        assert.ok(maximum <= 4, `copy concurrency was ${maximum}`);
+      } finally {
+        releaseCopy();
+        try {
+          release = await preparation;
+        } finally {
+          fs.copyFile = original;
+        }
+      }
+      assert.equal(active, 0);
+      await verifyRelease(options.storeDir, release);
     });
   }
 );

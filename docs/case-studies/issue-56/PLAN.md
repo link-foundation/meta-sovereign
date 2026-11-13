@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active cold immutable release staging:
+
+- [x] Preserve the exact Windows Deno failure: 1,620-file cold staging consumes most of the unchanged ten-second CLI readiness budget before the control pipe exists.
+- [x] Reproduce the four-copy batch barrier with a finite fourteen-file fixture and one explicitly gated copy; keep all other copy slots working without increasing concurrency or deadlines.
+- [x] Preserve failed-copy draining, atomic publication, complete snapshot verification and source-edit refusal; thirteen focused checks pass, including both real CLI checks, with one Deno-only check skipped under Node.
+- [ ] Publish checksummed evidence and inspect exact-head hosted Windows Deno and other checks. Continue all unfinished issue criteria.
+
 Active live hub forwarding:
 
 - [x] Reproduce missing three-peer forwarding with and without schema negotiation, and a hub cycle with a downstream leaf, against published `f4a8fac1`.

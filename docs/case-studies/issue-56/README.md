@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Cold immutable snapshot copying](ci-release-copy-pool.md): refill four bounded copy slots independently, drain issued writes on failure and retain complete release verification; hosted Windows Deno confirmation remains required.
+
 - [Live hub forwarding](sync-hub-relay.md): bounded cycle/duplicate protection, admission-ordered forwarding, real text/binary peers and explicit delivery failures. Offline history reconciliation remains required.
 
 - [Text log mutation admission](lino-mutation-admission.md): preserve subscriber-triggered edits/deletes after reopen, wait for called writes during flush and retain immutable encoded inputs and disk batching.

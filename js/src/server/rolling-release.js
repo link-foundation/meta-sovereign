@@ -47,7 +47,7 @@ const digest = async (root, names) => {
   }
   return hash.digest('hex');
 };
-const copySnapshot = async (sourceRoot, temp, files) => {
+const copySnapshot = async (sourceRoot, temp, files, trace) => {
   const directories = new Set(
     files.map((name) => path.dirname(name)).filter((name) => name !== '.')
   );
@@ -57,20 +57,29 @@ const copySnapshot = async (sourceRoot, temp, files) => {
       mode: 0o700,
     });
   }
-  // Bound filesystem pressure and drain issued copies before removing a
-  // failed preparation. Promise.all alone can race cleanup on rejection.
-  for (let offset = 0; offset < files.length; offset += 4) {
-    const copied = await Promise.allSettled(
-      files
-        .slice(offset, offset + 4)
-        .map((name) =>
-          fs.copyFile(path.join(sourceRoot, name), path.join(temp, name))
-        )
-    );
-    const failure = copied.find((result) => result.status === 'rejected');
-    if (failure) {
-      throw failure.reason;
+  trace('directories_ready');
+  // Refill each of four slots independently so a slow copy cannot idle the
+  // others. Stop admitting files on failure, but drain every issued copy
+  // before cleanup can remove its destination.
+  let next = 0;
+  let failed = false;
+  let failure;
+  const copy = async () => {
+    while (!failed && next < files.length) {
+      const name = files[next++];
+      try {
+        await fs.copyFile(path.join(sourceRoot, name), path.join(temp, name));
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          failure = error;
+        }
+      }
     }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, files.length) }, copy));
+  if (failed) {
+    throw failure;
   }
 };
 const dependencyDirectory = async (sourceRoot) => {
@@ -143,7 +152,7 @@ export const stageServerRelease = async ({
   const temp = `${root}.preparing-${process.pid}-${randomBytes(4).toString('hex')}`;
   await fs.mkdir(temp, { recursive: true, mode: 0o700 });
   try {
-    await copySnapshot(sourceRoot, temp, files);
+    await copySnapshot(sourceRoot, temp, files, trace);
     trace('snapshot_copied');
     if ((await digest(temp, files)) !== build) {
       throw new Error(
