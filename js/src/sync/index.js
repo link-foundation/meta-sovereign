@@ -1,9 +1,12 @@
 /**
  * Sync layer (R-F5).
  *
- * Last-writer-wins-per-link CRDT seed: every link carries a `version`
- * (Lamport-style). `merge(a, b)` picks the higher version on conflict
- * and union of children otherwise. `Peer` is transport-agnostic — the
+ * A max register per link with a joined observed clock and a grow-only set
+ * of children. Vector writes retain their original winning clock in the
+ * schema-11 stamp when the observed clock grows. New causal assignments
+ * must tick the observed clock; ordinary unversioned writes have no causal
+ * ordering. Decimal tickVersion counters compare numerically. `Peer` is
+ * transport-agnostic — the
  * WebRTC adapter is plumbed via `Peer.connect(transport)` so the same
  * code runs over loopback in tests, WebSocket on a server, or
  * RTCDataChannel in the browser.

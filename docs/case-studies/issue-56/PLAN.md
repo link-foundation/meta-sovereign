@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active delivery-order-independent JavaScript merge rules:
+
+- [x] Reproduce equal-clock ties, three-way synthetic-clock promotion, key/child insertion order, decimal counter width and explicit-zero clock failures against published `fc7c095c`.
+- [x] Retain the original winning write clock separately from joined observations, use a deterministic total rank, canonical child unions and safe own-property counters, and reserve the field through schema 11 with collision refusal.
+- [x] Verify 109 focused Node checks, actual text/binary file reopen and TCP/WebSocket exchange, one rebuilt native WebKit scenario and independent real IndexedDB parent/final MCP probes.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue ordinary-write causal stamping, durable reconnect/deletion reconciliation, native parity and every remaining original requirement.
+
+Hosted confirmation of cold immutable release staging: all three Windows Deno shards pass on published `ff43da4f`; job `131986863539` retains 1,888 passes, zero failures and complete startup below the unchanged deadline. The superseded run's aggregate fails because later checks were cancelled after publication of `fc7c095c`, not because this Windows job failed. Exact final-head checks remain required.
+
 Active ordered browser snapshot durability:
 
 - [x] Reproduce early write acknowledgement, stale overlapping saves/flush and partial bulk admission using finite delayed drivers against published `ff43da4f`.
