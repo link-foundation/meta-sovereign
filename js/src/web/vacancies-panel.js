@@ -19,6 +19,12 @@ import { useCvWorkplaceReview } from './cv-workplace-state.js';
 import { CvWorkplaceReview } from './cv-workplace-panel.js';
 import { useVacancyChoices } from './vacancy-choice-state.js';
 import { VacancyChoices, VacancyChoiceControls } from './vacancy-choices.js';
+import { vacancySelectionOptions } from '../jobs/vacancy-selection.js';
+import {
+  VacancySelectionSettings,
+  VacancySelectionSummary,
+  VacancySelectionStatus,
+} from './vacancy-selection.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -33,6 +39,8 @@ const defaults = {
   browserSlot: 'jobs',
   mode: 'inherit',
   resumeLanguage: 'ru',
+  skipResponded: true,
+  excludeText: '',
 };
 const initialSettings = () => {
   try {
@@ -71,6 +79,16 @@ const activeVacancyOperation = (busy, resumeExports, cvTranslation) =>
   busy ||
   (resumeExports.job?.state === 'running' ? 'resume-export' : '') ||
   (cvTranslation.comparison?.state === 'running' ? 'cv-translate' : '');
+
+const validSearch = (values) => {
+  try {
+    hhSearchUrl(searchInput(values, 0));
+    vacancySelectionOptions(values);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export const useVacancies = (api) => {
   const [values, setValues] = useState(initialSettings);
@@ -143,6 +161,7 @@ export const useVacancies = (api) => {
     run('search', async () => {
       const input = searchInput(values, page);
       hhSearchUrl(input);
+      vacancySelectionOptions(input);
       const answer = await api.vacancySearch(input);
       if (Array.isArray(answer?.cards)) {
         setResult({ ...answer, input: { ...values } });
@@ -184,13 +203,7 @@ export const useVacancies = (api) => {
       return answer;
     });
   const browserValid = /^[a-z0-9][a-z0-9_-]{0,63}$/u.test(values.browserSlot);
-  let valid = false;
-  try {
-    hhSearchUrl(searchInput(values, 0));
-    valid = browserValid;
-  } catch {
-    /* Keep invalid settings editable. */
-  }
+  const valid = browserValid && validSearch(values);
   return {
     values,
     setValues,
@@ -242,7 +255,9 @@ const Fields = ({ state, t }) => {
         'div',
         { key: 'fields', className: 'row' },
         Object.keys(defaults)
-          .filter((key) => key !== 'remote')
+          .filter(
+            (key) => !['remote', 'skipResponded', 'excludeText'].includes(key)
+          )
           .map((key) =>
             el('label', { key, className: 'chat-form-field' }, [
               el(
@@ -289,6 +304,7 @@ const Fields = ({ state, t }) => {
         }),
         t('vacancy.remote'),
       ]),
+      el(VacancySelectionSettings, { key: 'selection', state, t, update }),
     ]
   );
 };
@@ -308,6 +324,7 @@ const Results = ({ state, t, idle, live }) => {
         'div',
         { key: 'results', className: 'col', 'data-vacancy-results': true },
         [
+          el(VacancySelectionSummary, { key: 'selection', state, t }),
           el(
             'p',
             { key: 'page', className: 'meta' },
@@ -355,6 +372,12 @@ const Results = ({ state, t, idle, live }) => {
                 ),
                 el(VacancyChoiceControls, {
                   key: `choice:${state.values.browserSlot}`,
+                  state,
+                  card,
+                  t,
+                }),
+                el(VacancySelectionStatus, {
+                  key: 'selection',
                   state,
                   card,
                   t,

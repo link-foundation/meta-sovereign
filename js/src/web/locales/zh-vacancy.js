@@ -1,4 +1,26 @@
 export const zhVacancy = {
+  'vacancySelection.searchAt': '上次成功搜索时间：{date}。',
+  'vacancySelection.skipResponded': '排除原生卡片上已标记申请的职位',
+  'vacancySelection.excludeText': '排除指定文本，每行一个短语',
+  'vacancySelection.hint':
+    '最多 32 个短语，每个 120 字符。匹配标题、雇主及最多 100 份缓存描述，忽略大小写（ё/е 等同）。未读取的描述保持待定。所有卡片仍显示；不会提交申请。',
+  'vacancySelection.unavailable': '此服务器不支持筛选检查。',
+  'vacancySelection.stale':
+    '筛选结果已过期。请使用当前设置和已保存的选择重新搜索。',
+  'vacancySelection.summary':
+    '已排除：{excluded} · 已推迟：{deferred} · 需要描述：{unread} · 人工审核：{review}',
+  'vacancySelection.owner-skipped': '按您已保存的选择排除',
+  'vacancySelection.owner-deferred': '按您已保存的选择推迟',
+  'vacancySelection.responded': '已排除：原生卡片显示已申请',
+  'vacancySelection.configured-text': '按配置文本排除',
+  'vacancySelection.needs-description':
+    '请收集描述，然后重新搜索以完成文本检查',
+  'vacancySelection.review': '可供人工审核；未发送申请',
+  'vacancySelection.match': '在{field}中匹配“{term}”',
+  'vacancySelection.title': '标题',
+  'vacancySelection.company': '雇主',
+  'vacancySelection.description': '缓存描述',
+  'vacancySelection.cachedAt': '描述收集于 {date}；网站上的职位可能已变更。',
   'technology.working': '正在处理已保存的证据…',
   'technology.title': '职位技术分析',
   'technology.hint':

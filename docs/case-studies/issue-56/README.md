@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Vacancy selection review](vacancy-selection.md): visible reasons for every native card, saved-choice revision binding, literal filters, cached-description provenance and rejected-cache restoration through CLI/Lino/four-language controls. Native viewed state, retry policies and application execution remain unfinished.
+
 - [Reply idle fixture scheduling](ci-reply-idle.md): six exact hosted failures, an unchanged local Bun reproduction and explicit callback registration within the existing deadline. Corrected-head runtime verification remains required.
 
 - [Private vacancy choices](vacancy-choices.md): durable slot-bound exclusions and reminders, stale-write refusal, CLI/text-binary Lino/four-language controls and actual-parent/native/MCP evidence. Automatic application and questionnaire policies remain unfinished.

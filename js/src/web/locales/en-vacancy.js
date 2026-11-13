@@ -1,4 +1,30 @@
 export const enVacancy = {
+  'vacancySelection.searchAt': 'Last successful search captured {date}.',
+  'vacancySelection.skipResponded':
+    'Exclude native cards already marked responded',
+  'vacancySelection.excludeText': 'Exclude literal text, one phrase per line',
+  'vacancySelection.hint':
+    'Use up to 32 phrases of 120 characters. Match title, employer and up to 100 cached descriptions without case differences (ё/е are equivalent). Uncollected descriptions stay undecided. All cards remain visible; these choices do not apply.',
+  'vacancySelection.unavailable':
+    'Selection review is unavailable from this server.',
+  'vacancySelection.stale':
+    'Selection is out of date. Search again with the current settings and saved choices.',
+  'vacancySelection.summary':
+    'Excluded: {excluded} · Deferred: {deferred} · Description needed: {unread} · Manual review: {review}',
+  'vacancySelection.owner-skipped': 'Excluded by your saved choice',
+  'vacancySelection.owner-deferred': 'Deferred by your saved choice',
+  'vacancySelection.responded':
+    'Excluded: native card already marks a response',
+  'vacancySelection.configured-text': 'Excluded by configured text',
+  'vacancySelection.needs-description':
+    'Collect the description, then search again to finish text checks',
+  'vacancySelection.review': 'Available for manual review; no application sent',
+  'vacancySelection.match': 'Matched “{term}” in {field}',
+  'vacancySelection.title': 'title',
+  'vacancySelection.company': 'employer',
+  'vacancySelection.description': 'cached description',
+  'vacancySelection.cachedAt':
+    'Description captured {date}; the live vacancy may have changed.',
   'technology.working': 'Working with saved evidence…',
   'technology.title': 'Vacancy technology analysis',
   'technology.hint':

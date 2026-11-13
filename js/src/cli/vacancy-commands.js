@@ -17,7 +17,7 @@ const vacancyCommandExit = (operation, result) =>
     ? 1
     : 0;
 
-export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--skip-responded=true|false] [--exclude-text=<literal-lines>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-stored [--store=<dir>]
   vacancies-choices-stored [--browser-slot=jobs] [--store=<dir>]
@@ -140,6 +140,8 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                     ])
                   ),
                   salary: typedFlag(args, 'salary', 'number'),
+                  skipResponded: typedFlag(args, 'skip-responded', 'boolean'),
+                  excludeText: args['exclude-text'],
                   page: typedFlag(args, 'page', 'number'),
                   browserSlot: args['browser-slot'],
                   resumeLanguage: args['resume-language'],

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Explain every native vacancy search card using private slot choices, native responded markers, reversible literal exclusions and saved-description provenance through CLI, both Lino encodings and four-language CV controls. Retain all cards and failed-search evidence, refuse stale selection reports, and restore acknowledged vacancy caches after rejected writes before later filtering.
+
 Coordinate account-scoped browser reply models with serial saves, atomic root ownership, payload-free refresh and drained cancellation. Preserve unsaved models on refusals, compare only same-build offsets, reject invalid deltas and keep learned counts as complete snapshots.
 
 Extend existing default-off native disclosure diagnostics to Telegram Backlinks, preserving its original click and deadlines while retaining the unresolved hosted failure evidence.

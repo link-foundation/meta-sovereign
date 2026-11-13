@@ -1,4 +1,30 @@
 export const ruVacancy = {
+  'vacancySelection.searchAt': 'Последний успешный поиск: {date}.',
+  'vacancySelection.skipResponded':
+    'Исключать карточки с отметкой об отправленном отклике',
+  'vacancySelection.excludeText':
+    'Исключать точный текст, одна фраза на строку',
+  'vacancySelection.hint':
+    'До 32 фраз по 120 символов. Проверяются название, работодатель и до 100 сохранённых описаний без учёта регистра и ё/е. Непрочитанные описания остаются непроверенными. Все карточки видны; отклики не отправляются.',
+  'vacancySelection.unavailable': 'Сервер не поддерживает проверку отбора.',
+  'vacancySelection.stale':
+    'Отбор устарел. Повторите поиск с текущими настройками и сохранёнными решениями.',
+  'vacancySelection.summary':
+    'Исключено: {excluded} · Отложено: {deferred} · Нужно описание: {unread} · На проверку: {review}',
+  'vacancySelection.owner-skipped': 'Исключено вашим сохранённым решением',
+  'vacancySelection.owner-deferred': 'Отложено вашим сохранённым решением',
+  'vacancySelection.responded': 'Исключено: карточка уже отмечена как отклик',
+  'vacancySelection.configured-text': 'Исключено по настроенному тексту',
+  'vacancySelection.needs-description':
+    'Сохраните описание и повторите поиск для проверки текста',
+  'vacancySelection.review':
+    'Доступно для ручной проверки; отклик не отправлен',
+  'vacancySelection.match': 'Совпадение «{term}»: {field}',
+  'vacancySelection.title': 'название',
+  'vacancySelection.company': 'работодатель',
+  'vacancySelection.description': 'сохранённое описание',
+  'vacancySelection.cachedAt':
+    'Описание сохранено {date}; вакансия на сайте могла измениться.',
   'technology.working': 'Обработка сохранённых данных…',
   'technology.title': 'Анализ технологий вакансий',
   'technology.hint':

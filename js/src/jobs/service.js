@@ -27,6 +27,9 @@ import { createCvWatchService } from './cv-watch-service.js';
 import { createCvPrepareService } from './cv-prepare-service.js';
 import { createCvTranslationService } from './cv-translation-service.js';
 import { createVacancyChoiceService } from './vacancy-choice-service.js';
+import { vacancySelectionOptions } from './vacancy-selection.js';
+import { reviewVacancySearch } from './vacancy-selection-service.js';
+import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
 
 const owners = new WeakSet();
 
@@ -111,6 +114,7 @@ export const createVacancyService = ({
         resumeExport: browser.available === true,
         cached: true,
         localChoices: true,
+        selectionReview: browser.available === true,
         technologyAnalysis: true,
         technologyReview: true,
         technologyProviderSave: false,
@@ -137,15 +141,20 @@ export const createVacancyService = ({
     search(input) {
       const url = hhSearchUrl(input);
       const options = jobsBrowserOptions(input);
-      return run((signal) => readSearch(url, { ...options, signal }));
+      vacancySelectionOptions(input);
+      return run(async (signal) => {
+        const result = await readSearch(url, { ...options, signal });
+        signal.throwIfAborted();
+        return reviewVacancySearch(store, result, input);
+      });
     },
     collect(input) {
       const { url, refresh, ...options } = collectionOptions(input);
-      return run((signal) =>
+      return acknowledgedWrite(store, run, (signal) =>
         vacancySnapshot(store, readVacancy, url, refresh, signal, options)
       );
     },
-    stored: () => storedVacancies(store),
+    stored: () => acknowledgedRead(store, () => storedVacancies(store)),
     cancel,
     stop() {
       return (stopping ??= Promise.resolve().then(async () => {

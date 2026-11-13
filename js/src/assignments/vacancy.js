@@ -9,6 +9,7 @@ import {
   storedAssignmentVacancy,
 } from './vacancy-association.js';
 import { vacancyContent } from './vacancy-content.js';
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 
 export const vacancySnapshot = async (
   store,
@@ -37,8 +38,7 @@ export const vacancySnapshot = async (
       children: [],
       ...content,
     };
-    await store.put(saved);
-    await store.flush?.();
+    await saveAcknowledgedRecord(store, saved);
   }
   vacancyContent(saved, url);
   return saved;

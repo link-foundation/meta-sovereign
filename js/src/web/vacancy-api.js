@@ -26,6 +26,7 @@ import { createCvPrepareApi } from './cv-prepare-api.js';
 import { createCvTranslationApi } from './cv-translation-api.js';
 import { createCvWorkplaceApi } from './cv-workplace-api.js';
 import { createVacancyChoiceApi } from './vacancy-choice-api.js';
+import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs');
@@ -84,7 +85,15 @@ const confirmed = (operation, answer, input) => {
     },
     url
   );
-  return { ...result, capturedAt: answer.capturedAt };
+  return {
+    ...result,
+    capturedAt: answer.capturedAt,
+    ...(answer.selection === undefined
+      ? {}
+      : {
+          selection: vacancySelectionResult(answer.selection, result, input),
+        }),
+  };
 };
 const savedResumes = (answer) => {
   if (!Array.isArray(answer?.lists) || answer.lists.length > 100) {
@@ -123,6 +132,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
       apply: false,
       cached: true,
       localChoices: false,
+      selectionReview: false,
       reason: 'server-required',
     },
   vacancyResumesStored: async () =>

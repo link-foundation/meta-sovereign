@@ -1,4 +1,30 @@
 export const hiVacancy = {
+  'vacancySelection.searchAt': 'अंतिम सफल खोज का समय: {date}।',
+  'vacancySelection.skipResponded':
+    'जिन मूल कार्ड पर आवेदन का संकेत है उन्हें अलग रखें',
+  'vacancySelection.excludeText':
+    'अलग रखने वाला सटीक पाठ, हर पंक्ति में एक वाक्यांश',
+  'vacancySelection.hint':
+    '120 अक्षरों तक के 32 वाक्यांश। शीर्षक, नियोक्ता और अधिकतम 100 सहेजे विवरणों में मिलान होता है; बड़े-छोटे अक्षर तथा ё/е समान हैं। अपठित विवरण अनिर्णीत रहते हैं। सभी कार्ड दिखते हैं; आवेदन नहीं भेजा जाता।',
+  'vacancySelection.unavailable': 'यह सर्वर चयन जाँच नहीं देता।',
+  'vacancySelection.stale':
+    'चयन पुराना है। वर्तमान सेटिंग और सहेजे निर्णयों के साथ फिर खोजें।',
+  'vacancySelection.summary':
+    'अलग: {excluded} · स्थगित: {deferred} · विवरण चाहिए: {unread} · मैनुअल समीक्षा: {review}',
+  'vacancySelection.owner-skipped': 'आपके सहेजे निर्णय से अलग रखा गया',
+  'vacancySelection.owner-deferred': 'आपके सहेजे निर्णय से स्थगित',
+  'vacancySelection.responded': 'अलग: मूल कार्ड पर आवेदन का संकेत है',
+  'vacancySelection.configured-text': 'निर्धारित पाठ से अलग रखा गया',
+  'vacancySelection.needs-description':
+    'विवरण सहेजें, फिर पाठ की जाँच के लिए दोबारा खोजें',
+  'vacancySelection.review':
+    'मैनुअल समीक्षा के लिए उपलब्ध; आवेदन नहीं भेजा गया',
+  'vacancySelection.match': '{field} में “{term}” मिला',
+  'vacancySelection.title': 'शीर्षक',
+  'vacancySelection.company': 'नियोक्ता',
+  'vacancySelection.description': 'सहेजा विवरण',
+  'vacancySelection.cachedAt':
+    'विवरण {date} को लिया गया; वेबसाइट पर नौकरी बदल सकती है।',
   'technology.working': 'सहेजे गए प्रमाण पर काम हो रहा है…',
   'technology.title': 'रिक्तियों का तकनीक विश्लेषण',
   'technology.hint':
