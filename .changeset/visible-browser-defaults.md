@@ -391,3 +391,5 @@ Apply native CLI schema-13 WebSocket records through durable checked admission, 
 Merge concurrent editable browser tabs after migration while retaining atomic root revision checks, causal deletions and independent writer clocks. Refresh local roots through payload-free invalidations, refuse conflicting private/schema changes, preserve unsaved drafts and drain subscribed writes on close.
 
 Add private browser-slot vacancy exclusions and deferred-review notes through CLI, both Lino encodings and four-language CV controls. Require observed revisions and durable receipts, retain notes after stale or unreceived replies, and recover through explicit reload without replay. Automatic application and questionnaire policies remain unfinished.
+
+Restore acknowledged job records after rejected puts as well as failed flushes. Share catalog rollback with vacancy and résumé persistence, keep reads and Stop behind restoration, and verify actual snapshot failures and browser reload without exposing uncommitted notes as saved.

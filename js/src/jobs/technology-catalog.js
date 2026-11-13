@@ -1,6 +1,7 @@
 import { assignmentText } from '../assignments/validation.js';
 import { modelFingerprint } from '../automation/answer-model-context.js';
 import { jobsFailure } from './options.js';
+import { saveTechnologyRecord } from './technology-storage.js';
 
 const defaults = [
   ['JavaScript', ['JS']],
@@ -104,20 +105,15 @@ export const storedTechnologyCatalog = async (store) => {
   return catalog;
 };
 export const saveTechnologyCatalog = async (store, input) => {
-  const old = await store.get('jobs-technology-catalog');
   const current = await storedTechnologyCatalog(store);
   if (input.revision !== current.revision) {
     throw technologyFailure('conflict');
   }
   const catalog = await technologyCatalog(input.entries);
-  await store.put({ id: 'jobs-technology-catalog', version: 1, ...catalog });
-  try {
-    await store.flush?.();
-  } catch (error) {
-    await store.put(
-      old ?? { id: 'jobs-technology-catalog', version: 1, ...current }
-    );
-    throw error;
-  }
+  await saveTechnologyRecord(store, {
+    id: 'jobs-technology-catalog',
+    version: 1,
+    ...catalog,
+  });
   return catalog;
 };

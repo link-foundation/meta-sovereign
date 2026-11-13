@@ -1,8 +1,9 @@
 /** Failed durability must not replace the last acknowledged in-memory record. */
 export const saveTechnologyRecord = async (store, row) => {
   const previous = await store.get(row.id);
-  await store.put(row);
   try {
+    // Stores may admit memory before their mutation promise rejects on disk.
+    await store.put(row);
     await store.flush?.();
   } catch (error) {
     if (previous) {

@@ -43,8 +43,10 @@ const descriptionHtml = (mode) => {
 };
 
 /** Real DOM and commander navigation; provider traffic stays inside owned routes. */
-export const vacancyBrowserFixture = async (browser, { exports } = {}) => {
-  const store = createMemoryStore();
+export const vacancyBrowserFixture = async (
+  browser,
+  { exports, store = createMemoryStore() } = {}
+) => {
   const records = [];
   const errors = [];
   let mode = 'ready';

@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
+import { choicePutFixture } from './choice-put-fixture.mjs';
 
 const browser = await chromium.launch({
   executablePath: '/opt/google/chrome/chrome',
@@ -8,7 +9,11 @@ const browser = await chromium.launch({
 });
 let fixture;
 try {
-  fixture = await vacancyBrowserFixture(browser);
+  const create =
+    process.env.CHOICE_PUT_FAILURE === '1'
+      ? choicePutFixture
+      : vacancyBrowserFixture;
+  fixture = await create(browser);
   await fixture.page.context().close();
 } catch (error) {
   await browser.close();
@@ -23,8 +28,12 @@ const stats = () => ({
   ),
   pageErrors: fixture.errors,
   liveProvider: false,
+  ...(fixture.failed ? { failedSaves: fixture.failed() } : {}),
 });
-const control = createServer((_req, res) => {
+const control = createServer((req, res) => {
+  if (req.method === 'POST' && req.url === '/fail-next' && fixture.failNext) {
+    fixture.failNext();
+  }
   res.setHeader('content-type', 'application/json');
   res.end(JSON.stringify(stats()));
 });
