@@ -2,6 +2,7 @@ import {
   replicatedMutation,
   replicationAdmission,
 } from '../storage/mutation.js';
+import { replicatedDeletion } from '../storage/sync-deletions.js';
 
 // Keep remote operations in arrival order. The storage update applies its merge
 // at write admission, so a local write during an async read is not overwritten
@@ -23,6 +24,7 @@ export const createPeerReceiver = (
     let admission;
     const options = {
       [replicatedMutation]: true,
+      ...(event.type === 'delete' ? { [replicatedDeletion]: event.link } : {}),
       [replicationAdmission]: (type, id) => {
         if (type === event.type && id === event.link.id) {
           admission ??= onAdmit(event);

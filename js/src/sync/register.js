@@ -1,4 +1,5 @@
 import { cmp, normalizeClock, vcCompare, vcMerge } from './clock.js';
+import { validateSyncDeletion } from '../storage/sync-deletions.js';
 
 // Reserved by schema 11. A joined vector describes observed writes, not the
 // timestamp of the winning payload. Never promote that payload to the join.
@@ -40,6 +41,7 @@ const keyValue = (value, depth = 0) => {
   ];
 };
 const read = (link) => {
+  validateSyncDeletion(link);
   const { vc, children, [SYNC_STAMP]: stamp, ...value } = link;
   if (typeof value.id !== 'string') {
     throw invalid('Synchronization value requires a link id');

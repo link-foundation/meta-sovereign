@@ -24,6 +24,7 @@ import * as m0009 from './0009-salary-exchange-policy.js';
 import * as m0010 from './0010-hh-message-metadata.js';
 import * as m0011 from './0011-sync-write-stamps.js';
 import * as m0012 from './0012-causal-writes.js';
+import * as m0013 from './0013-sync-deletions.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -38,10 +39,11 @@ export const MIGRATIONS = Object.freeze([
   m0010,
   m0011,
   m0012,
+  m0013,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 12;
+export const CURRENT_SCHEMA = 13;
 
 export {
   SCHEMA_ID,

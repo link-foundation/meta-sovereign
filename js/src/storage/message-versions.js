@@ -3,7 +3,8 @@
 // on a write or create versions for read receipts, counters or tombstones.
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
-import { changedLink } from './mutation.js';
+import { changedLink, replicatedMutation } from './mutation.js';
+import { syncRecords } from './sync-deletions.js';
 import { isTombstone } from './soft-delete.js';
 import { SYNC_STAMP } from '../sync/register.js';
 
@@ -161,8 +162,13 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     const history = [];
     const after = [];
     for (const link of links) {
-      if (!isMessage(link)) {
-        await guard(link);
+      if (
+        !isMessage(link) ||
+        (inner[syncRecords] && options?.[replicatedMutation])
+      ) {
+        if (!isMessage(link)) {
+          await guard(link);
+        }
         writes.push(link);
         continue;
       }
@@ -264,17 +270,26 @@ export const withMessageVersions = (
     {},
     Object.getOwnPropertyDescriptors(inner)
   );
+  // Causal production peers replicate the origin's immutable revision records
+  // separately. Generating new revisions from a delayed losing message could
+  // retain text that its causal hard-delete has already erased.
+  const originHistory = (options) =>
+    inner[syncRecords] && options?.[replicatedMutation];
   result.put = (link, options) =>
-    isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
-      ? enqueue(async () => (await prepare([link], true, options))[0])
-      : inner.put(link, options);
+    originHistory(options) && isMessage(link)
+      ? enqueue(() => inner.put(link, options))
+      : isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
+        ? enqueue(async () => (await prepare([link], true, options))[0])
+        : inner.put(link, options);
   result.update = (id, change, options) =>
-    String(id).startsWith('msg:') || String(id).startsWith(VERSION_PREFIX)
-      ? enqueue(async () => {
-          const next = changedLink(id, change, await inner.get(id));
-          return (await prepare([next], true, options))[0];
-        })
-      : inner.update(id, change, options);
+    originHistory(options) && String(id).startsWith('msg:')
+      ? enqueue(() => inner.update(id, change, options))
+      : String(id).startsWith('msg:') || String(id).startsWith(VERSION_PREFIX)
+        ? enqueue(async () => {
+            const next = changedLink(id, change, await inner.get(id));
+            return (await prepare([next], true, options))[0];
+          })
+        : inner.update(id, change, options);
   result.putMany = (links, options) =>
     links.some(
       (link) => isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
@@ -287,13 +302,23 @@ export const withMessageVersions = (
     !String(id).startsWith('msg:')
       ? inner.delete(id, options)
       : enqueue(async () => {
+          // Validate and merge an incoming deletion before erasing revisions.
+          // A delayed deletion can lose to an explicit recreation; malformed
+          // metadata must not erase any current message history either.
+          let removed;
+          if (originHistory(options)) {
+            removed = await inner.delete(id, options);
+            if (await inner.get(id)) {
+              return removed;
+            }
+          }
           // Hard deletion is already an explicitly confirmed local operation. Its
           // saved text must be erased too, rather than left as hidden revision links.
           const records = await versionsFor(id);
           for (const record of records) {
             await inner.delete(record.id, options);
           }
-          const removed = await inner.delete(id, options);
+          removed ??= await inner.delete(id, options);
           versionIds.delete(id);
           await purgeMedia(records, inner);
           return removed;

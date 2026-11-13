@@ -1,7 +1,8 @@
 /**
  * The deleted messages of a chat: kept, never lost, and the user's to
  * bring back or to remove (R-K1, R-K2, R-K4; wired to a page by R-Z7).
- * These are local actions only: nothing is sent to any network.
+ * These actions change stored data only, without deleting upstream provider
+ * messages. Connected sync peers receive the resulting record/deletion events.
  *
  *   GET  /api/chat/deleted?key=<chat key>   -> { messages }  the chat's
  *                                              tombstoned messages, oldest
@@ -11,7 +12,8 @@
  *                                              again
  *   POST /api/chat/deleted/purge { ids, confirm: true }
  *                                           -> { ok, purged }  erased from
- *                                              this device for good
+ *                                              the live store (minimal causal
+ *                                              metadata remains for sync)
  *
  * Only a message that is already deleted can be recovered or purged; a live
  * one is never touched, whatever ids a request names.

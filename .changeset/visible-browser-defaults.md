@@ -357,3 +357,5 @@ Forward live accepted operations through sync hubs across text/binary transports
 Refill four immutable snapshot copy slots independently during server release preparation. Drain issued writes before failed-copy cleanup, retain complete verification and add a silent-by-default directory phase diagnostic without raising startup deadlines.
 
 Order and coalesce browser snapshot saves, acknowledge driver completion and expose persistence failures while keeping memory and subscription updates immediate. Admit complete bulks before subscribers can edit, isolate driver snapshots and observe IndexedDB request/transaction failures together; explicit flush can recover unsaved memory.
+
+Retain payload-free causal deletion metadata in production stores, reject delayed resurrection and stale deletes, preserve recreated message history and update chat/feedback indexes without erased payload fields. Reserve schema 13, stamp empty durable roots before new-format writes and preserve older read-only owner data.

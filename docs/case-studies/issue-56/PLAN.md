@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active durable causal deletion safeguards:
+
+- [x] Reproduce old-packet resurrection after actual durable reopen and stale deletion of explicit recreation against `a874e936`.
+- [x] Retain payload-free deletion clocks below history, hide markers from public reads, reserve schema 13 and mark empty durable roots before admitting new-format writes.
+- [x] Catch draft regressions in recreated history and edited chat counts; preserve owner history, feedback indexes, private records and read-only guards.
+- [ ] Finish focused compatibility checks, one native WebKit scenario and independent actual IndexedDB parent/final probes; archive, commit and publish the complete unit.
+- [ ] Repair the exact `96a54d99` hosted RTC send lifecycle failure (run `43462136209`, job `132013458396`), retain failing-before tests and inspect all checks on the new published SHA.
+- [ ] Continue bounded offline/reconnect reconciliation, native parity and every unchecked original requirement. Durable deletion metadata alone does not synchronize disconnected history.
+
 Active ordinary-write causal clocks:
 
 - [x] Reproduce stale-packet rollback after ordinary durable/server edits on published `96a54d99`.

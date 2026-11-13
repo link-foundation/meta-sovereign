@@ -159,7 +159,10 @@ for (const [name, open] of Object.entries(durableFactories)) {
           peer.receive(incoming({ id: 'record', body: 'new', vc: { r: 2 } })),
         ]);
         await peer.receive(incoming({ id: 'removed', body: 'temporary' }));
-        await peer.receive({ type: 'delete', link: { id: 'removed' } });
+        await peer.receive({
+          type: 'delete',
+          link: { id: 'removed', __msSyncDeleted: 1, vc: { r: 1 } },
+        });
         await store.put({ id: 'owner', body: 'typed' });
         assert.deepEqual(observed, ['owner']);
         await store.flush();

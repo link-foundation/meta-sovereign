@@ -4,7 +4,12 @@ import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 
 const modules = new Map();
-for (const name of ['browser-store.js', 'mutation.js', 'local-storage.js']) {
+for (const name of [
+  'browser-store.js',
+  'mutation.js',
+  'local-storage.js',
+  'sync-deletions.js',
+]) {
   modules.set(
     `/storage/${name}`,
     await readFile(new URL(`../../js/src/storage/${name}`, import.meta.url))

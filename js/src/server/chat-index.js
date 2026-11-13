@@ -28,11 +28,10 @@ import {
 } from './feedback-index.js';
 import { splitTopicKey, topicOfMessage } from '../web/forum-topics.js';
 
+const isMessageId = (link) =>
+  typeof link?.id === 'string' && link.id.startsWith('msg:');
 const isMessage = (link) =>
-  typeof link?.id === 'string' &&
-  link.id.startsWith('msg:') &&
-  link.chat !== undefined &&
-  link.chat !== null;
+  isMessageId(link) && link.chat !== undefined && link.chat !== null;
 const feedbackProjection = (link) => ({
   id: link.id,
   source: link.source,
@@ -218,9 +217,10 @@ export const createChatIndex = (store, { log } = {}) => {
   };
 
   const remove = (chat, id) => {
-    chat.gone.delete(id);
-    chat.edited.delete(id);
-    if (!chat.entries.delete(id)) {
+    const gone = chat.gone.delete(id);
+    const edited = chat.edited.delete(id);
+    const entry = chat.entries.delete(id);
+    if (!gone && !edited && !entry) {
       return;
     }
     chat.revision += 1;
@@ -278,13 +278,15 @@ export const createChatIndex = (store, { log } = {}) => {
       feedback.observe(link, event.type === 'delete');
     }
     let quiet = String(link?.id ?? '').startsWith('message-version:');
-    if (isMessage(link)) {
-      if (event.type === 'delete') {
-        feedback.observe(feedbackProjection(link), true, true);
-        remove(chatOf(chatKey(link.source, link.chat)), link.id);
-      } else {
-        quiet = add(link, true) === 'old' && loaded;
+    if (event.type === 'delete' && isMessageId(link)) {
+      // A causal deletion contains no message payload or chat metadata. Remove
+      // its ID from the small existing chat indexes without loading the archive.
+      feedback.observe(link, true, true);
+      for (const chat of chats.values()) {
+        remove(chat, link.id);
       }
+    } else if (isMessage(link)) {
+      quiet = add(link, true) === 'old' && loaded;
     }
     for (const listener of listeners) {
       listener(quiet ? { ...event, quiet } : event);

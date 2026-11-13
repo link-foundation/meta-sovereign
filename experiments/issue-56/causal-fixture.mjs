@@ -21,6 +21,12 @@ modules.set(
     new URL('../../js/src/storage/causal-writes.js', import.meta.url)
   )
 );
+modules.set(
+  '/after/storage/sync-deletions.js',
+  await readFile(
+    new URL('../../js/src/storage/sync-deletions.js', import.meta.url)
+  )
+);
 for (const name of ['register.js', 'clock.js']) {
   modules.set(
     `/after/sync/${name}`,

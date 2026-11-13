@@ -278,7 +278,11 @@ export const openDualStore = async (
       readOnly: true,
       onCorrupt,
     });
-    return readOnlyStore(text, await checkReadOnly({ text, onEvent, current }));
+    const schema = await checkReadOnly({ text, onEvent, current });
+    const reader = readOnlyStore(text, schema);
+    // Before schema 13 this name can still contain owner data. A read-only
+    // opening must not reinterpret or hide it without the collision migration.
+    return schema.version >= 13 ? withCausalWrites(reader) : reader;
   }
   const lock = await acquireStoreLock(dir);
   try {
