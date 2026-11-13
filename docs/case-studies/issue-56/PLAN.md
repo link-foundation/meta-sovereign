@@ -1,11 +1,25 @@
 # Issue 56 / PR 57 work plan
 
+Active Bun browser account fixture compatibility:
+
+- [x] Preserve complete Linux and Windows Bun failures on `8b1c19ba`, reproduce the selected account-storage case and supply the existing lock fixture without weakening production protection. Both focused runtimes pass; publish `c0fc2d23` with [checksummed evidence](ci-browser-account-locks.md).
+- [ ] Inspect exact corrected-head hosted checks and continue every unchecked original requirement.
+
+Active typed native register convergence:
+
+- [x] Reproduce equal-clock argument bias, synthetic assignment promotion, randomized children and retained zero counters against exact published `8b1c19ba` with four failing finite cases.
+- [x] Retain original typed assignment clocks, normalize safe counters, canonicalize children and match JavaScript UTF-16/numeric-property/version ranking without new dependencies. Preserve trusted APIs and add fallible admission helpers.
+- [x] Pass eight focused regressions and thirteen production-JavaScript-generated permutation fixtures; run scoped Clippy below 190 MiB and register fixture drift checks in existing native CI.
+- [ ] Preserve evidence, publish this atomic unit and inspect exact-head hosted checks. See [native register](native-register.md).
+- [ ] Implement native rich-record admission, durable causal persistence, deletion and reconciliation, automatic editable-tab merging and every other unchecked original criterion. Typed-core convergence is only one prerequisite.
+
 Active concurrent browser snapshot protection:
 
 - [x] Reproduce stale insert/edit/delete/bulk/flush overwrites on exact published `eefc6f7d`, including a reused driver and two native tabs sharing IndexedDB/localStorage.
 - [x] Compare and replace atomically in one IndexedDB transaction or one nonqueued Web Lock. Bind the expected revision to each open store, preserve legacy roots, reject unsafe fallback writes and retain unsaved owner memory on conflicts.
 - [x] Verify seven exact-parent failures, 29 focused persistence/error checks, 32 existing causal/offline/registry checks, actual native WebKit tabs and independent MCP before/after data. Register both hosted browser engines; retain the draft first-save retry failure and final correction.
-- [ ] Preserve evidence, publish the atomic correction and inspect exact-head CI. See [snapshot ownership](browser-snapshot-ownership.md).
+- [x] Preserve evidence and publish the atomic correction as `8b1c19ba`. See [snapshot ownership](browser-snapshot-ownership.md).
+- [ ] Inspect every exact-head hosted check; `8b1c19ba` run `43481124739` is unfinished. Previous completed `eefc6f7d` runtime jobs pass, but three browser shards are superseded by cancellation.
 - [ ] Continue live tab merging, native sync parity and every unchecked original feature requirement. Conflict refusal alone does not complete simultaneous editable tabs.
 
 Active bounded initial/reconnect reconciliation:

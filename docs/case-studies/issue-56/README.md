@@ -1,5 +1,9 @@
 # Issue 56: unified automation and device architecture
 
+- [Bun browser-account fixture](ci-browser-account-locks.md): identical Linux/Windows missing-Web-Locks failures, one selected failing-before test and passing Bun/Node checks. Production unsafe-write refusal remains enforced.
+
+- [Deterministic typed Rust register](native-register.md): four exact-parent failures, retained assignment clocks, JavaScript-compatible ordering and thirteen generated reference fixtures. Rich native replication and durable causal metadata remain unfinished.
+
 - [Concurrent browser snapshot protection](browser-snapshot-ownership.md): atomic IndexedDB and Web Lock comparison, per-opening revisions, retained unsaved drafts and actual parent/final two-tab evidence. Automatic live merging and full shared cache ownership remain unfinished.
 
 - [Causal-storage publication compatibility](ci-causal-compatibility.md): eight exact hosted failures, strict trusted-record normalization, public/raw deletion assertions and focused parent/final evidence; the separate Windows Bun startup failure remains active.

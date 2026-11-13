@@ -369,3 +369,5 @@ Reconcile preconnection and offline JavaScript records/deletion clocks through a
 Validate stored publication destinations without exposing causal metadata to owner editing. Preserve strict input fields, version-bound confirmation, credential isolation and causal deletion/schema assertions in existing workflow fixtures.
 
 Reject stale browser snapshot replacement atomically through IndexedDB transactions and localStorage Web Locks. Bind comparison versions to each open store, retain unsaved owner memory and legacy roots, refuse unavailable or busy coordination explicitly, and verify real concurrent tabs without changing replicated Link records.
+
+Make the typed Rust core's merge independent of equal-clock argument order and delivery grouping. Retain original assignment clocks, normalize safe counters and canonical children, and compare typed ranks against production JavaScript fixtures. Preserve trusted entry points and expose fallible clock/merge helpers; native rich-record replication and durable causal persistence remain unfinished.
