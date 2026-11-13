@@ -62,6 +62,8 @@ const copySnapshot = async (sourceRoot, temp, files, trace) => {
   // others. Stop admitting files on failure, but drain every issued copy
   // before cleanup can remove its destination.
   let next = 0;
+  let completed = 0;
+  const progressEvery = Math.max(1, Math.ceil(files.length / 8));
   let failed = false;
   let failure;
   const copy = async () => {
@@ -69,6 +71,12 @@ const copySnapshot = async (sourceRoot, temp, files, trace) => {
       const name = files[next++];
       try {
         await fs.copyFile(path.join(sourceRoot, name), path.join(temp, name));
+        completed += 1;
+        if (completed % progressEvery === 0 || completed === files.length) {
+          // At most eight content-free checkpoints distinguish a cold copy
+          // backlog from one outstanding operation. Tracing stays opt-in.
+          trace(`copy_progress ${completed}/${files.length}`);
+        }
       } catch (error) {
         if (!failed) {
           failed = true;

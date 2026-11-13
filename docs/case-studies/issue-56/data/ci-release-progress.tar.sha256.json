@@ -1,0 +1,21 @@
+{
+  "archive": "ci-release-progress.tar.gz",
+  "files": {
+    "before/js/src/server/rolling-release.js": "5dcfd5fb6cdb141ddecd94f0efa22b7d013bc886ba78be39438c89e00c999602",
+    "ci-logs/browser-tabs-hosted-run.json": "7b0b17c4fe6ff35a9a3f87d737fd7afc08a82461cfebe0243d724f7f12c4901d",
+    "ci-logs/ci-release-progress-focused.log": "38cb77f4e231f5273a38cf0f5f3c39dde2f23b33140d48541e82fc46065ac372",
+    "ci-logs/ci-release-progress-format.log": "6ae222a5c723cf3e7b12990d59be9e43c64bdacb632067788bd3f9f4d75dedfc",
+    "ci-logs/ci-release-progress-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-release-progress-trace-before.log": "b8bc50382b122c292f9eff552c48ec0f99c200fb77fbade5f7a23d3dd52cf11b",
+    "ci-logs/reply-ownership-parent-deno-windows3.log": "1fa90335518f810eb1d6137c7424234ddb2467a1da4bc3a235c312a389f1dc91",
+    "docs/case-studies/issue-56/ci-release-progress.md": "dc12e6b5b516cd2a1aa95c57412ffe707daabaabf7b2d904b192e7e486b74cc6",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-release-progress.py": "8525d6d152d0d2abc6668b4028ce6b8ac8a438791d7a6a6f6d055a4f941a0ffa",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "experiments/issue-56/release-progress-before.py": "2301fda91c7a0a46b584baef0595c1a34cf9868362bd36791cce5e819e84c039",
+    "js/src/server/rolling-release.js": "a63e2a298e1b6b2119eed615d07e36a354dc65c6da205662cae95926db2f0d5e",
+    "js/tests/rolling-release-copy.test.js": "90a6c33e1c2073324a3c61efa4543fc946388f5b402700955968cf79020a9945",
+    "metadata.json": "bb306687e032783ac408bc59fda234593ede5028567939f368fcee7eb109e730"
+  }
+}

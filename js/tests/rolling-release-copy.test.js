@@ -98,6 +98,46 @@ test(
 );
 
 test(
+  'snapshot copy diagnostics are opt-in, bounded and contain no package paths',
+  { timeout: 5000 },
+  async () => {
+    await withPackage(async (options) => {
+      const previous = process.env.MS_LIFECYCLE_DEBUG;
+      const original = console.error;
+      const lines = [];
+      console.error = (line) => lines.push(line);
+      try {
+        delete process.env.MS_LIFECYCLE_DEBUG;
+        await stageServerRelease(options);
+        assert.deepEqual(lines, []);
+        process.env.MS_LIFECYCLE_DEBUG = '1';
+        await stageServerRelease({
+          ...options,
+          storeDir: path.join(options.dir, 'traced-store'),
+        });
+        const progress = lines.filter((line) => line.includes('copy_progress'));
+        assert.ok(progress.length > 0 && progress.length <= 8);
+        assert.ok(progress.at(-1).includes('14/14'));
+        for (const line of lines) {
+          assert.match(
+            line,
+            /^\[release\] [a-z_]+(?: \d+\/\d+)? after \d+ ms \(14 files\)$/u
+          );
+          assert.equal(line.includes(options.dir), false);
+        }
+      } finally {
+        console.error = original;
+        if (previous === undefined) {
+          delete process.env.MS_LIFECYCLE_DEBUG;
+        } else {
+          process.env.MS_LIFECYCLE_DEBUG = previous;
+        }
+      }
+    });
+  }
+);
+
+test(
   'one pending snapshot copy does not idle the other three slots',
   { timeout: 5000 },
   async () => {
