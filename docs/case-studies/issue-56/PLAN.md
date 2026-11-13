@@ -1,5 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active desktop provenance failure:
+
+- [x] Preserve exact `0f245481` desktop run `43492615795`: Windows ARM64 packaging and smoke pass, then the npm version launcher exits `-2147483644` at full log line 3035.
+- [x] Read installed builder metadata without launching its CLI, and reproduce the failed actual shell step with a finite unavailable-launcher fixture. Check checksum and provenance contents and register the regression in hosted packaging.
+- [ ] Archive [the evidence](ci-desktop-provenance.md), publish, and verify every corrected-head check. Keep the unrelated hosted disclosure investigation and all original requirements active.
+
+Active native durable admission:
+
+- [ ] Retain a finite exact-parent restart-loss reproduction and draft durable native state admission without acknowledging unpersisted writes.
+- [ ] Persist full rich records, assignment/deletion clocks and private local metadata in recoverable text/binary Links Notation checkpoints, with exclusive writable ownership and bounded decoding.
+- [ ] Cover reopen, stale replica packets, atomic batches, interrupted checkpoint publication, corruption, owner conflicts and actual native HTTP restart. Keep heavy codec/network builds on hosted CI.
+- [ ] Preserve checksummed evidence, publish and verify exact-head checks. Then continue schema-gated native transport/reconciliation, live tab merging and every unchecked original requirement.
+
 Active hosted Telegram Backlinks disclosure:
 
 - [x] Preserve exact `bd954afd` WebKit shard 3 failure and artifact metadata; verify and inspect the closed-disclosure screenshot.

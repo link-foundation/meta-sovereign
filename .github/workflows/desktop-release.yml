@@ -393,6 +393,10 @@ jobs:
             if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
           }
 
+      - name: Check provenance metadata regression
+        if: matrix.name == 'linux-x64'
+        run: node experiments/issue-56/desktop-provenance-version.mjs
+
       - name: Checksums and provenance
         shell: bash
         env:
@@ -403,7 +407,7 @@ jobs:
           BUILD_REF: ${{ needs.resolve.outputs.ref }}
         run: |
           set -euo pipefail
-          builder_version=$(npx --no-install electron-builder --version)
+          builder_version=$(node -p "require('./node_modules/electron-builder/package.json').version")
           cd dist/desktop/release
           files=()
           for f in meta-sovereign-desktop-* latest*.yml; do

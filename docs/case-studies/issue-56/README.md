@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Desktop provenance metadata](ci-desktop-provenance.md): preserve the Windows ARM64 post-packaging launcher exit and use installed metadata, with an exact-parent real-shell regression and unchanged installer checks.
+
 - [Native owner clocks](native-owner-clocks.md): four exact-parent HTTP failures, atomic owner edits and deletion metadata, all mutating routes, ten focused regressions and twelve production JavaScript references. Durable native transport remains unfinished.
 - [Checked native rich records](native-rich-register.md): four exact-parent failures, atomic in-memory remote admission, deletion/private-record isolation, 27 JavaScript fixtures and preserved CI duplication evidence. Durable native transport remains unfinished.
 
