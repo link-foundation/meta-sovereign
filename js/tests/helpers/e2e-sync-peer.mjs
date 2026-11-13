@@ -1,4 +1,8 @@
 export const prepareSyncPeer = async (target, base, engine) => {
+  // Changing only #chat to #settings reuses the current document; init scripts
+  // would never instrument its already-open sockets. Replace that document
+  // before installing fixture hooks, retaining the context's persistent data.
+  await target.goto('about:blank');
   if (engine === 'webkit') {
     // Native WebKit filters host ICE candidates without active capture.
     // Playwright supplies mock devices; this fixture never opens a real mic.

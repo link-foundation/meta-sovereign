@@ -1,3 +1,4 @@
+import { changedLink, mutationEvent } from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
 
 /**
@@ -342,20 +343,27 @@ export const createBrowserStore = async ({
   };
 
   return {
-    async put(link) {
+    async put(link, options) {
       if (!link || typeof link.id !== 'string') {
         throw new Error('link.id is required');
       }
       data.set(link.id, cloneLink(link));
       queueSave();
-      emit({ type: 'put', link: cloneLink(link) });
+      emit(mutationEvent('put', cloneLink(link), options));
       return link;
     },
-    async putMany(links) {
+    async putMany(links, options) {
       for (const link of links) {
-        await this.put(link);
+        await this.put(link, options);
       }
       return links;
+    },
+    async update(id, change, options) {
+      const before = data.get(id);
+      return this.put(
+        changedLink(id, change, before ? cloneLink(before) : null),
+        options
+      );
     },
     async get(id, project = cloneLink) {
       const v = data.get(id);
@@ -383,13 +391,13 @@ export const createBrowserStore = async ({
       }
       return looked;
     },
-    async delete(id) {
+    async delete(id, options) {
       const existed = data.has(id);
       const link = data.get(id);
       data.delete(id);
       if (existed) {
         queueSave();
-        emit({ type: 'delete', link: cloneLink(link) });
+        emit(mutationEvent('delete', cloneLink(link), options));
       }
       return existed;
     },

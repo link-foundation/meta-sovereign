@@ -6,6 +6,9 @@
  * WebSocket *server* transports re-export from `sync/index.js`).
  */
 
+import { isolatePeerTransport } from './peer-transport.js';
+import { createPeerReceiver } from './peer-receiver.js';
+
 export const tickVersion = (now = Date.now(), node = 'local') =>
   `${now}-${node}`;
 
@@ -111,12 +114,20 @@ export const schemaMismatch = (local, remote) => {
 
 export const createPeer = (
   store,
-  { node = 'local', schemaVersion, onMismatch = () => {}, hub = false } = {}
+  {
+    node = 'local',
+    schemaVersion,
+    onMismatch = () => {},
+    hub = false,
+    onState = () => {},
+    onError = (error) =>
+      globalThis.console?.warn?.('Sync transport failed', error),
+  } = {}
 ) => {
   const subs = new Set();
-  let muted = false;
+  const receiver = createPeerReceiver(store, merge, onState);
   store.subscribe((event) => {
-    if (muted) {
+    if (receiver.suppresses(event)) {
       return;
     }
     if (isSecretEvent(event)) {
@@ -136,17 +147,7 @@ export const createPeer = (
       if (isSecretEvent(event)) {
         return;
       }
-      muted = true;
-      try {
-        if (event.type === 'put') {
-          const local = await store.get(event.link.id);
-          await store.put(merge(local, event.link));
-        } else if (event.type === 'delete') {
-          await store.delete(event.link.id);
-        }
-      } finally {
-        muted = false;
-      }
+      return receiver.receive(event);
     },
     /**
      * Plug a transport in. With `schemaVersion` set (R-Z17) every event
@@ -158,9 +159,10 @@ export const createPeer = (
      * silence the rest.
      */
     connect(transport) {
+      const isolated = isolatePeerTransport(transport, onError);
       return schemaVersion === undefined
-        ? plug(this, transport, null)
-        : plug(this, transport, { local: schemaVersion, onMismatch, hub });
+        ? plug(this, isolated, null)
+        : plug(this, isolated, { local: schemaVersion, onMismatch, hub });
     },
   };
 };

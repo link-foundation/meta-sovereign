@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Live receive isolation and SPA fixture readiness](sync-receive-isolation.md): atomic merges, observable concurrent owner edits, ordered durable copies and reported transport failures; offline catch-up remains required.
+
 - [Merged sync/membership validation and exact Bun failure](ci-mesh-membership-integration.md).
 
 - [Independent WebRTC connections and connected-peer reload](webrtc-mesh.md): real three-peer native and MCP convergence, fresh post-reload writes, deletion, secret isolation and surviving-pair cleanup; offline reconciliation remains required.

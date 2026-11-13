@@ -1,3 +1,4 @@
+export { mutationEvent, replicatedMutation } from './mutation.js';
 export { createMemoryStore, putAll } from './universal.js';
 export {
   createLinoTextStore,

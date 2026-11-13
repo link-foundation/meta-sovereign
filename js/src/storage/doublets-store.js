@@ -101,18 +101,23 @@ export const createDoubletsStore = async (
 
   return {
     ...mem,
-    async put(link) {
-      const out = await mem.put(link);
+    async put(link, options) {
+      const out = await mem.put(link, options);
       snapshots.later();
       return out;
     },
-    async putMany(links) {
-      const out = await mem.putMany(links);
+    async putMany(links, options) {
+      const out = await mem.putMany(links, options);
       snapshots.later();
       return out;
     },
-    async delete(id) {
-      const ok = await mem.delete(id);
+    async update(id, change, options) {
+      const out = await mem.update(id, change, options);
+      snapshots.later();
+      return out;
+    },
+    async delete(id, options) {
+      const ok = await mem.delete(id, options);
       if (ok) {
         snapshots.later();
       }

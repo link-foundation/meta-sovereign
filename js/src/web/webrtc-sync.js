@@ -86,8 +86,7 @@ export const attachWebRtcSync = ({
   format,
   jsonCompatibility = false,
   onMismatch = () => {},
-  onError = (error) =>
-    globalThis.console?.warn?.('WebRTC negotiation failed', error),
+  onError = (error) => globalThis.console?.warn?.('WebRTC sync failed', error),
 } = {}) => {
   if (
     capabilities?.webRtcSync === false ||
@@ -110,8 +109,10 @@ export const attachWebRtcSync = ({
   // A browser and a peer of another data schema exchange nothing (R-Z17).
   const peer = createPeer(store, {
     node: 'web',
+    onState: (state) => debugBrowser('sync-receive', state),
     schemaVersion: CURRENT_SCHEMA,
     onMismatch,
+    onError,
   });
   const mesh = createWebRtcMesh({
     signaling,

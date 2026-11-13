@@ -38,97 +38,135 @@ import {
   recoverJournal,
 } from './migrations/node-runner.js';
 
-const putEach = async (store, links) => {
+const putEach = async (store, links, options) => {
   for (const link of links) {
-    await store.put(link);
+    await store.put(link, options);
   }
 };
 
-export const createDualStore = ({ binary, text }) => ({
-  async put(link) {
-    await binary.put(link);
-    await text.put(link);
-    return link;
-  },
-  async putMany(links) {
-    await (binary.putMany ? binary.putMany(links) : putEach(binary, links));
-    await (text.putMany ? text.putMany(links) : putEach(text, links));
-    return links;
-  },
-  async get(id, project) {
-    return binary.get(id, project);
-  },
-  async delete(id) {
-    const a = await binary.delete(id);
-    const b = await text.delete(id);
-    return a || b;
-  },
-  async query(filter) {
-    return binary.query(filter);
-  },
-  scan: (filter, size, onBatch, project) =>
-    binary.scan?.(filter, size, onBatch, project),
-  memoryStats: () => text.memoryStats?.() ?? null,
-  size: () => binary.size?.(),
-  subscribe(h) {
-    return binary.subscribe(h);
-  },
-  async flush() {
-    await binary.flush?.();
-    await text.flush?.();
-  },
-  /** `{ degraded, queuedBytes }`: whether the log's writes are failing (R-Z14). */
-  health: () =>
-    text.health?.() ?? { degraded: false, queuedBytes: 0, error: null },
-  async reconcile() {
-    if (binary.mirrors === text) {
-      return binary.refresh();
-    }
-    const textLinks = await text.query();
-    const binaryById = new Map((await binary.query()).map((l) => [l.id, l]));
-    const stale = textLinks.filter((link) => {
-      const other = binaryById.get(link.id);
-      return !other || JSON.stringify(other) !== JSON.stringify(link);
-    });
-    for (const link of textLinks) {
-      binaryById.delete(link.id);
-    }
-    const extra = [...binaryById.keys()];
-    await (binary.putMany ? binary.putMany(stale) : putEach(binary, stale));
-    for (const id of extra) {
-      await binary.delete(id);
-    }
-    if (stale.length > 0 || extra.length > 0) {
-      await binary.flush?.();
-    }
-    return { put: stale.length, deleted: extra.length };
-  },
-  async verify() {
-    // A live mirror delegates both reads to this very same text store, as
-    // reconcile() recognises above. There cannot be a logical difference;
-    // serialising both copies blocks large stores for seconds for no benefit.
-    if (binary.mirrors === text) {
-      return [];
-    }
-    const a = await binary.query();
-    const b = await text.query();
-    const aMap = new Map(a.map((l) => [l.id, l]));
-    const bMap = new Map(b.map((l) => [l.id, l]));
-    const diffs = [];
-    for (const [id, link] of aMap) {
-      const other = bMap.get(id);
-      if (!other || JSON.stringify(other) !== JSON.stringify(link)) {
-        diffs.push({ id, binary: link, text: other ?? null });
-      }
-    }
-    for (const [id, link] of bMap) {
-      if (!aMap.has(id)) {
-        diffs.push({ id, binary: null, text: link });
-      }
-    }
-    return diffs;
-  },
-});
+export const createDualStore = ({ binary, text }) => {
+  let tail = Promise.resolve();
+  const enqueue = (run) => {
+    const result = tail.then(run);
+    tail = result.catch(() => {});
+    return result;
+  };
+  return {
+    put(link, options) {
+      return enqueue(async () => {
+        await binary.put(link, options);
+        await text.put(link, options);
+        return link;
+      });
+    },
+    putMany(links, options) {
+      return enqueue(async () => {
+        await (binary.putMany
+          ? binary.putMany(links, options)
+          : putEach(binary, links, options));
+        await (text.putMany
+          ? text.putMany(links, options)
+          : putEach(text, links, options));
+        return links;
+      });
+    },
+    update(id, change, options) {
+      return enqueue(async () => {
+        if (binary.mirrors === text) {
+          const out = await text.update(id, change, options);
+          await binary.put(out, options);
+          return out;
+        }
+        const out = await binary.update(id, change, options);
+        await text.put(out, options);
+        return out;
+      });
+    },
+    async get(id, project) {
+      return binary.get(id, project);
+    },
+    delete(id, options) {
+      return enqueue(async () => {
+        const a = await binary.delete(id, options);
+        const b = await text.delete(id, options);
+        return a || b;
+      });
+    },
+    async query(filter) {
+      return binary.query(filter);
+    },
+    scan: (filter, size, onBatch, project) =>
+      binary.scan?.(filter, size, onBatch, project),
+    memoryStats: () => text.memoryStats?.() ?? null,
+    size: () => binary.size?.(),
+    subscribe(h) {
+      return binary.subscribe(h);
+    },
+    flush() {
+      return enqueue(async () => {
+        await binary.flush?.();
+        await text.flush?.();
+      });
+    },
+    /** `{ degraded, queuedBytes }`: whether the log's writes are failing (R-Z14). */
+    health: () =>
+      text.health?.() ?? { degraded: false, queuedBytes: 0, error: null },
+    reconcile() {
+      return enqueue(async () => {
+        if (binary.mirrors === text) {
+          return binary.refresh();
+        }
+        const textLinks = await text.query();
+        const binaryById = new Map(
+          (await binary.query()).map((l) => [l.id, l])
+        );
+        const stale = textLinks.filter((link) => {
+          const other = binaryById.get(link.id);
+          return !other || JSON.stringify(other) !== JSON.stringify(link);
+        });
+        for (const link of textLinks) {
+          binaryById.delete(link.id);
+        }
+        const extra = [...binaryById.keys()];
+        await (binary.putMany ? binary.putMany(stale) : putEach(binary, stale));
+        for (const id of extra) {
+          await binary.delete(id);
+        }
+        if (stale.length > 0 || extra.length > 0) {
+          await binary.flush?.();
+        }
+        return { put: stale.length, deleted: extra.length };
+      });
+    },
+    verify() {
+      return enqueue(async () => {
+        // A live mirror delegates both reads to this very same text store, as
+        // reconcile() recognises above. There cannot be a logical difference;
+        // serialising both copies blocks large stores for seconds for no benefit.
+        if (binary.mirrors === text) {
+          return [];
+        }
+        const a = await binary.query();
+        const b = await text.query();
+        const aMap = new Map(a.map((l) => [l.id, l]));
+        const bMap = new Map(b.map((l) => [l.id, l]));
+        const diffs = [];
+        for (const [id, link] of aMap) {
+          const other = bMap.get(id);
+          if (!other || JSON.stringify(other) !== JSON.stringify(link)) {
+            diffs.push({ id, binary: link, text: other ?? null });
+          }
+        }
+        for (const [id, link] of bMap) {
+          if (!aMap.has(id)) {
+            diffs.push({ id, binary: null, text: link });
+          }
+        }
+        return diffs;
+      });
+    },
+  };
+};
 
 const readOnlyStore = (text, schema) => ({
   schema,
@@ -137,6 +175,7 @@ const readOnlyStore = (text, schema) => ({
   query: (filter) => text.query(filter),
   subscribe: (handler) => text.subscribe(handler),
   put: text.put,
+  update: text.update,
   putMany: text.putMany,
   delete: text.delete,
   scan: text.scan,

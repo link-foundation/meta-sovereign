@@ -733,6 +733,37 @@ const loadRetained = async (filePath, readLimit) => {
   }
 };
 
+const textMutations = ({ mem, guard, append, tally, lineOf }) => ({
+  async put(link, options) {
+    guard();
+    const out = await mem.put(link, options);
+    await append([lineOf(link)]);
+    return out;
+  },
+  async putMany(links, options) {
+    guard();
+    const out = await mem.putMany(links, options);
+    await append(links.map(lineOf));
+    return out;
+  },
+  async update(id, change, options) {
+    guard();
+    const out = await mem.update(id, change, options);
+    await append([lineOf(out)]);
+    return out;
+  },
+  async delete(id, options) {
+    guard();
+    const ok = await mem.delete(id, options);
+    if (ok) {
+      const text = formatLinoRecords([tombstoneRecord(id)]);
+      tally.removed(id, text.length);
+      await append([text]);
+    }
+    return ok;
+  },
+});
+
 export const createLinoTextStore = async (
   filePath,
   {
@@ -864,28 +895,7 @@ export const createLinoTextStore = async (
     memoryStats: packing.stats,
     close: packing.close,
     ...textHandoff({ filePath, mem, tally, mode }),
-    async put(link) {
-      guard();
-      const out = await mem.put(link);
-      await append([lineOf(link)]);
-      return out;
-    },
-    async putMany(links) {
-      guard();
-      const out = await mem.putMany(links);
-      await append(links.map(lineOf));
-      return out;
-    },
-    async delete(id) {
-      guard();
-      const ok = await mem.delete(id);
-      if (ok) {
-        const text = formatLinoRecords([tombstoneRecord(id)]);
-        tally.removed(id, text.length);
-        await append([text]);
-      }
-      return ok;
-    },
+    ...textMutations({ mem, guard, append, tally, lineOf }),
     /** Resolves once every write so far is on disk (flushed, not just written). */
     flush: () =>
       enqueue(async () => {

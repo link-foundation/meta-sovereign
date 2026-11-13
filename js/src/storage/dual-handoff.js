@@ -46,6 +46,7 @@ export const managedDualStore = ({
       [
         'put',
         'putMany',
+        'update',
         'get',
         'delete',
         'query',

@@ -3,6 +3,7 @@
 // on a write or create versions for read receipts, counters or tombstones.
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
+import { changedLink } from './mutation.js';
 import { isTombstone } from './soft-delete.js';
 
 export const VERSION_PREFIX = 'message-version:';
@@ -148,7 +149,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       versionPartial: partial,
     };
   };
-  return async (links, single = false) => {
+  return async (links, single = false, options) => {
     const pending = new Map();
     const writes = [];
     const history = [];
@@ -189,12 +190,12 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
         return;
       }
       if (one && records.length === 1) {
-        await inner.put(records[0]);
+        await inner.put(records[0], options);
       } else if (inner.putMany) {
-        await inner.putMany(records);
+        await inner.putMany(records, options);
       } else {
         for (const record of records) {
-          await inner.put(record);
+          await inner.put(record, options);
         }
       }
     };
@@ -258,29 +259,36 @@ export const withMessageVersions = (
     {},
     Object.getOwnPropertyDescriptors(inner)
   );
-  result.put = (link) =>
+  result.put = (link, options) =>
     isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
-      ? enqueue(async () => (await prepare([link], true))[0])
-      : inner.put(link);
-  result.putMany = (links) =>
+      ? enqueue(async () => (await prepare([link], true, options))[0])
+      : inner.put(link, options);
+  result.update = (id, change, options) =>
+    String(id).startsWith('msg:') || String(id).startsWith(VERSION_PREFIX)
+      ? enqueue(async () => {
+          const next = changedLink(id, change, await inner.get(id));
+          return (await prepare([next], true, options))[0];
+        })
+      : inner.update(id, change, options);
+  result.putMany = (links, options) =>
     links.some(
       (link) => isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
     )
-      ? enqueue(() => prepare(links))
+      ? enqueue(() => prepare(links, false, options))
       : inner.putMany
-        ? inner.putMany(links)
-        : Promise.all(links.map((link) => inner.put(link)));
-  result.delete = (id) =>
+        ? inner.putMany(links, options)
+        : Promise.all(links.map((link) => inner.put(link, options)));
+  result.delete = (id, options) =>
     !String(id).startsWith('msg:')
-      ? inner.delete(id)
+      ? inner.delete(id, options)
       : enqueue(async () => {
           // Hard deletion is already an explicitly confirmed local operation. Its
           // saved text must be erased too, rather than left as hidden revision links.
           const records = await versionsFor(id);
           for (const record of records) {
-            await inner.delete(record.id);
+            await inner.delete(record.id, options);
           }
-          const removed = await inner.delete(id);
+          const removed = await inner.delete(id, options);
           versionIds.delete(id);
           await purgeMedia(records, inner);
           return removed;

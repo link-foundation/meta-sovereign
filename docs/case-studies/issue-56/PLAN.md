@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active receive isolation and atomic merge:
+
+- [x] Reproduce local edit suppression, stale overlapping receives and same-record edits against published `ea957225` with finite focused fixtures.
+- [x] Tag only replicated mutations in transient events, serialize incoming work and merge atomically through memory/browser/durable/history wrappers without persisting or transmitting the marker.
+- [x] Verify 46 focused Node checks, the exact-parent native failure, native WebKit race/mesh and an independent MCP race. Preserve message history, secret/schema isolation, durable reopen, transport error reporting and failure recovery.
+- [x] Reproduce the exact hosted SPA hash-navigation fixture timeout and verify a fresh fixture document with the same 20-second deadline.
+- [ ] Preserve [receive isolation evidence](sync-receive-isolation.md), publish and inspect exact-head CI.
+- [ ] Continue offline history reconciliation and every other unchecked original criterion; live receive isolation alone does not provide catch-up.
+
 Active merged sync/membership validation:
 
 - [x] Merge both published feature histories forward, retain original evidence, rebuild the combined browser bundle and retain one changeset.
