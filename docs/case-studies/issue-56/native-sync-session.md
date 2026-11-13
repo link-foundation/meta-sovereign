@@ -63,6 +63,21 @@ The [archive](data/native-sync-session.tar.gz) and
 [manifest](data/native-sync-session.tar.sha256.json) preserve the draft scan
 failure, focused logs and source snapshots. Full native codec/network builds
 remain hosted because a prior local codec build exceeded this container's
-memory limit. Exact corrected-head hosted verification is still required.
+memory limit.
+
+Hosted Rust job [132158855257](https://github.com/link-foundation/meta-sovereign/actions/runs/43503860150/job/132158855257)
+passes on exact commit `1e90229508cfe71ca8c47a5e15924acf2681b5dd`.
+The complete retained job log records the unchanged parent handshake failure
+at lines 971–992, real HTTP/signaling compatibility at 993, acknowledged
+checkpoint restart at 1001, actual native/JavaScript reconciliation and live
+text/binary fanout at 1009, and failed-checkpoint/no-ACK refusal at 1017.
+Workspace tests, strict Clippy and the isolated Cargo artifact regression also
+pass. Warnings-denied API documentation job
+[132158855409](https://github.com/link-foundation/meta-sovereign/actions/runs/43503860150/job/132158855409)
+passes for the same commit. The separate [hosted archive](data/native-sync-hosted.tar.gz)
+and [manifest](data/native-sync-hosted.tar.sha256.json) retain both complete
+logs and run metadata; the earlier draft archive deliberately retains its
+then-pending verification flags. Other workflow jobs and the broader issue
+criteria require their own evidence.
 This unit does not establish automatic merging between editable browser tabs,
 every native provider route or completion of the remaining issue inventory.
