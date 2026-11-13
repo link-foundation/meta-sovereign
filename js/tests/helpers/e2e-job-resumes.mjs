@@ -19,6 +19,11 @@ const verifyResumeChoice = async ({
     'native cards, escaped state and dates recommend a Russian title without private fields',
     async () => {
       await field('resume').fill('invalid/hash');
+      // Observe the rendered validation state after dispatching input instead
+      // of sampling it synchronously, within the existing scenario deadline.
+      await page.waitForFunction(
+        () => document.querySelector('[data-vacancy-action="search"]')?.disabled
+      );
       assert.equal(await action('search').isDisabled(), true);
       assert.equal(await action('resumes').isEnabled(), true);
       await action('resumes').click();
