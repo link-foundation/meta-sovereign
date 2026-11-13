@@ -1,0 +1,25 @@
+{
+  "archive": "browser-account-locks.tar.gz",
+  "files": {
+    "before/js/tests/telegram-extra-accounts.test.js": "d6ade7b2296b9fa8adbe526183eace010774c595100aa85b53b4210d4db57bcd",
+    "ci-logs/browser-account-locks-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/browser-account-locks-parent-windows-bun.log": "5dec75cbc32fff25b847aff8526659290c5b0741a77ed2435e0f9356a5835661",
+    "ci-logs/browser-account-locks-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/browser-ownership-account-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/browser-ownership-bun-scope-final.log": "73cd432e60a46e5e55cb03202f069a196e539f3f6a9f8be4e3c88eb0dbc647d9",
+    "ci-logs/browser-ownership-bun-scope-parent.log": "10c12aa09f0b78ed5ad08f18ad811c3684bbaa33476752faa3e292fbb437e442",
+    "ci-logs/browser-ownership-node-scope-final.log": "24a2f4ac3a61dae34569dbe2f20f53d0678e1e0228a37b0cb66d31276992aeef",
+    "ci-logs/native-register-browser-parent-bun-linux.log": "2119fec306cc72add344c61c1bbd927a419e2d15b30e4368289b1128e8907de4",
+    "ci-logs/resume-8b1c-jobs.json": "e3f930c39e1f73346f15e244120d20761991e17cd3b933f6da30f7d578836c6f",
+    "ci-logs/resume-current-runs.json": "b357f9bd38d06593c94245e851f73804fdd0012a4c5a05e1a054c16c3b615838",
+    "ci-logs/resume-pr-checks.json": "8af872be1e828bd34df1ae270190b1b364ccc5830858a2fd7bba658e31c163aa",
+    "docs/case-studies/issue-56/ci-browser-account-locks.md": "1952b0e25a8b36e8a67f723aec98ca56adca0fd3f994e9f8ae3ceeb400e556c0",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-browser-account-locks.py": "b9c9690748a837a1ddebcfe733adc639e56fe226476f9235a28e115407de0ce4",
+    "experiments/issue-56/evidence_bundle.py": "024f9281300d3c61a575303998953b7a56c145a136f1c19ca93649c668183b16",
+    "js/src/storage/browser-snapshot.js": "9c24d072de9a5269a60aee4dc95e15ae14b2154bfe6091003c8c6c4253419826",
+    "js/tests/helpers/snapshot-locks.mjs": "9f5a24b2e7acefac3bd5e95cef6954a3da8863fd7aa272c26fc2bd5108aff5f9",
+    "js/tests/telegram-extra-accounts.test.js": "08e320a9c183bdd3df37cfb17690de5de72cfb9baab04ddf39a19232f47cdd5b",
+    "metadata.json": "1b0303bf03ceb0da5288a42cb1820c34f70c2a429793cec032da685d2c80d4e5"
+  }
+}
