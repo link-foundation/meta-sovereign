@@ -28,7 +28,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Узнайте ограничения до выбора.** Rust server хранит links **только в памяти**: на диск ничего не пишется, после остановки все данные пропадают. У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выберите JS server (раздел 3) или desktop app (раздел 4). Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](./SERVER-PARITY.ru.md).
+> **Узнайте ограничения до выбора.** CLI Rust server по умолчанию сохраняет links в нативных текстовых/бинарных контрольных копиях; `--data` задаёт каталог, `--memory` явно включает хранение только в памяти. Формат и восстановление описаны в [native storage](./NATIVE-STORAGE.md). У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выберите JS server (раздел 3) или desktop app (раздел 4). Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](./SERVER-PARITY.ru.md).
 
 Server слушает <http://127.0.0.1:8787> по умолчанию. SPA на GitHub Pages найдет его автоматически через saved override (`metaServer` в `localStorage`) и список портов `127.0.0.1`.
 
@@ -194,7 +194,7 @@ MS_SECRET_PASSPHRASE='длинная фраза, которую знаете т�
 - Если переменная не задана, ничего не шифруется, server работает как раньше.
 - Эта же passphrase используется по умолчанию в `POST /api/export-encrypted`, если запрос её не передал.
 
-Что она **не** шифрует: остальное хранилище (`data.lino` и `data.bin`: контакты, сообщения, patterns и т. д.), скачанные media и archives, логи и backups (backup шифруется только если при создании вы указали passphrase). Защищайте их шифрованием диска и правами на файлы. У Rust server такой опции нет: он держит всё в памяти.
+Что она **не** шифрует: остальное хранилище (`data.lino` и `data.bin`: контакты, сообщения, patterns и т. д.), скачанные media и archives, логи и backups (backup шифруется только если при создании вы указали passphrase). Защищайте их шифрованием диска и правами на файлы. У Rust server такой опции шифрования нет: его нативные контрольные копии не зашифрованы.
 
 ## 8. Import данных
 

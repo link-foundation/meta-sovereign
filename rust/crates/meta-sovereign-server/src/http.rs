@@ -165,6 +165,8 @@ pub struct ServerOptions {
     pub log_format: LogFormat,
     /// Legacy JSON is disabled unless explicitly requested.
     pub json_compatibility: bool,
+    /// Native checkpoint directory; None is an explicit in-memory fixture.
+    pub data_dir: Option<PathBuf>,
 }
 
 pub struct ServerHandle {
@@ -312,7 +314,10 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
     let listener = TcpListener::bind(("127.0.0.1", opts.port))?;
     let addr = listener.local_addr()?;
     let stop = Arc::new(AtomicBool::new(false));
-    let state = Arc::new(ServerState::new());
+    let state = Arc::new(match &opts.data_dir {
+        Some(directory) => ServerState::open(directory).map_err(std::io::Error::from)?,
+        None => ServerState::new(),
+    });
     let static_root = Arc::new(StaticRoot::new(opts.static_root.clone()));
     let signaling = Signaling::new();
     let ws_outgoing = WsSender::default();
@@ -973,6 +978,7 @@ fn status_reason(code: u16) -> &'static str {
         415 => "Unsupported Media Type",
         421 => "Misdirected Request",
         500 => "Internal Server Error",
+        503 => "Service Unavailable",
         _ => "OK",
     }
 }

@@ -2,9 +2,7 @@
 // node experiments/issue-56/native-lino-interop.mjs /path/to/meta-sovereign-rs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { createInterface } from 'node:readline';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
@@ -16,6 +14,7 @@ import {
   LINO_TYPES,
 } from '../../js/src/transport/lino.js';
 import { syncWire } from '../../js/src/sync/wire.js';
+import { nativeServer } from './native-server.mjs';
 
 test(
   'production JavaScript interoperates with native HTTP and mixed signaling peers',
@@ -24,36 +23,11 @@ test(
     const binary = resolve(
       process.argv[2] ?? 'rust/target/debug/meta-sovereign-rs'
     );
-    const server = spawn(binary, ['serve', '--port', '0'], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      env: {
-        ...process.env,
-        MS_JSON_COMPATIBILITY: '0',
-        MS_LOG_FORMAT: 'none',
-      },
+    const { base, server, finished, output } = await nativeServer(t, binary, {
+      args: ['--memory'],
     });
-    const finished = once(server, 'close');
-    const stopped = finished.then(([code]) => {
-      throw new Error(`native server exited during startup: ${code}`);
-    });
-    // A failed spawn must be observed even if readline rejects first.
-    stopped.catch(() => {});
     const sockets = [];
-    const output = createInterface({ input: server.stdout });
-    let stderr = '';
-    server.stderr.on('data', (chunk) => {
-      stderr = (stderr + chunk.toString()).slice(-65536);
-    });
     try {
-      const line = (
-        await Promise.race([
-          once(output, 'line', { signal: t.signal }),
-          stopped,
-        ])
-      )[0];
-      const port = Number(line.match(/:(\d+)$/)?.[1]);
-      assert.ok(port > 0, `native startup: ${line} ${stderr}`);
-      const base = `http://127.0.0.1:${port}`;
       if (!process.argv.includes('--sockets-only')) {
         const status = await fetch(`${base}/api/status`, { signal: t.signal });
         assert.equal(
@@ -111,7 +85,7 @@ test(
       const open = async (type) => {
         const wire = syncWire({ format: type });
         const socket = new globalThis.WebSocket(
-          `ws://127.0.0.1:${port}/rtc?room=fixture`,
+          `${base.replace(/^http/u, 'ws')}/rtc?room=fixture`,
           wire.protocol
         );
         sockets.push(socket);

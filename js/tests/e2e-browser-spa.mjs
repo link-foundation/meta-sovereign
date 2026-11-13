@@ -150,11 +150,15 @@ const startRustBackend = async () => {
   // Bind to an ephemeral port. The Rust binary defaults to 8787 if
   // --port is omitted; we pass --port 0 so the OS assigns a free one
   // and the binary echoes it back on stdout.
-  const proc = spawn(bin, ['serve', '--port', '0', '--web', webDir], {
-    cwd: repoRoot,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: process.env,
-  });
+  const proc = spawn(
+    bin,
+    ['serve', '--port', '0', '--memory', '--web', webDir],
+    {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: process.env,
+    }
+  );
 
   const portPromise = new Promise((resolve, reject) => {
     let buf = '';

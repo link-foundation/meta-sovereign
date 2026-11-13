@@ -78,7 +78,7 @@ fn err(status: u16, msg: &str) -> Response {
 fn owner_write(state: &ServerState, value: &Value) -> Result<Value, Response> {
     state
         .put_owner(value)
-        .map_err(|error| err(400, &format!("invalid owner write: {error:?}")))
+        .map_err(|error| err(error.status(), &error.to_string()))
 }
 
 // -- Sources ----------------------------------------------------------------
@@ -117,7 +117,7 @@ pub fn links(state: &ServerState, req: &Request) -> Option<Response> {
         if req.method == "DELETE" {
             let ok = match state.delete_owner(&id) {
                 Ok(existed) => existed,
-                Err(error) => return Some(err(400, &format!("invalid owner delete: {error:?}"))),
+                Err(error) => return Some(err(error.status(), &error.to_string())),
             };
             let mut o = json::obj();
             o.insert("ok".into(), Value::Bool(ok));

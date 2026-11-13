@@ -28,7 +28,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **चुनने से पहले सीमाएँ जान लें।** Rust server links को **सिर्फ़ memory में** रखता है: disk पर कुछ नहीं लिखा जाता, बंद होते ही सारा data चला जाता है। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server (section 3) या desktop app (section 4) चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) में है।
+> **चुनने से पहले सीमाएँ जान लें।** Rust server CLI डिफ़ॉल्ट रूप से links को native text/binary checkpoints में सहेजता है; `--data` directory चुनता है और `--memory` स्पष्ट रूप से अस्थायी memory उपयोग करता है। Format और recovery की सीमाएँ [native storage](./NATIVE-STORAGE.md) में हैं। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server (section 3) या desktop app (section 4) चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) में है।
 
 Server default रूप से <http://127.0.0.1:8787> पर listen करता है। GitHub Pages वाला SPA saved override (`localStorage` में `metaServer`) और `127.0.0.1` ports probe करके इसे खोजता है।
 
@@ -194,7 +194,7 @@ MS_SECRET_PASSPHRASE='सिर्फ़ आपको पता लंबा pas
 - Variable सेट न हो तो कुछ encrypt नहीं होता और server पहले जैसा चलता है।
 - अगर request passphrase नहीं देता, तो `POST /api/export-encrypted` में यही passphrase default है।
 
-यह क्या encrypt **नहीं** करता: store का बाकी हिस्सा (`data.lino` और `data.bin`: contacts, messages, patterns आदि), download किया media और archives, logs, और backups (backup तभी encrypted होता है जब बनाते समय आप passphrase दें)। इन्हें disk encryption और file permissions से सुरक्षित करें। Rust server में ऐसा option नहीं है: वह सब कुछ memory में रखता है।
+यह क्या encrypt **नहीं** करता: store का बाकी हिस्सा (`data.lino` और `data.bin`: contacts, messages, patterns आदि), download किया media और archives, logs, और backups (backup तभी encrypted होता है जब बनाते समय आप passphrase दें)। इन्हें disk encryption और file permissions से सुरक्षित करें। Rust server में यह encryption option नहीं है: उसके native checkpoint files plaintext हैं।
 
 ## 8. data import
 

@@ -1,5 +1,7 @@
 # 服务器 parity 矩阵：JS server vs. Rust server (languages: [en](SERVER-PARITY.md) • zh • [hi](SERVER-PARITY.hi.md) • [ru](SERVER-PARITY.ru.md))
 
+Native CLI 默认在独立目录中保存包含因果删除元数据的完整记录，使用文本/二进制检查点。`--data` 指定目录；`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](NATIVE-STORAGE.md)。原生 schema 校验同步和离线协调仍未完成。
+
 本页列出 JavaScript server（`js/src/server/index.js` 与 `routes-*.js`）
 和纯 Rust server（`rust/crates/meta-sovereign-server/src/routes.rs` 与
 `handlers.rs`）暴露的 HTTP route 与 transport surface，帮助用户在选择后

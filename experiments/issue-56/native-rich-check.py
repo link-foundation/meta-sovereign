@@ -11,9 +11,14 @@ parser = argparse.ArgumentParser()
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument('--before', action='store_true')
 mode.add_argument('--clippy', action='store_true')
-parser.add_argument('--owner', action='store_true')
+unit_mode = parser.add_mutually_exclusive_group()
+unit_mode.add_argument('--owner', action='store_true')
+unit_mode.add_argument('--storage', action='store_true')
 args = parser.parse_args()
-unit = 'owner' if args.owner else 'rich'
+if args.storage and args.before:
+    parser.error('storage admission uses a new API; use the unchanged CLI restart reproducer for the parent')
+unit = 'storage' if args.storage else 'owner' if args.owner else 'rich'
+routes = args.owner or args.storage
 prefix = f'native-{unit}-' + ('parent' if args.before else 'clippy' if args.clippy else 'focused')
 logs = root / 'ci-logs'
 logs.mkdir(exist_ok=True)
@@ -49,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix=f'native-{unit}-', dir=root / 'experimen
     owner_modules = (
         'pub mod http { use std::collections::BTreeMap;\n' + http + '}\n' +
         ''.join(f'#[path = "{modules / (name + ".rs")}"] pub mod {name};\n'
-                for name in ['handlers', 'email', 'routes'])) if args.owner else ''
+                for name in ['handlers', 'email', 'routes'])) if routes else ''
     wrapper.write_text(
         f'#[path = "{server / "json.rs"}"] pub mod json;\n' +
         ('' if args.before and not args.owner else f'#[path = "{modules / "record_sync.rs"}"] pub mod record_sync;\n') +
@@ -66,16 +71,19 @@ with tempfile.TemporaryDirectory(prefix=f'native-{unit}-', dir=root / 'experimen
         library = work / 'libmeta_sovereign_core.rlib'
         compile_rust(core / 'lib.rs', library, '--crate-name', 'meta_sovereign_core', '--crate-type', 'rlib')
         external = ['--extern', f'meta_sovereign_core={library}']
-        tests = [] if args.owner else [(wrapper, ['native_parent_' if args.before else 'native_'])]
+        tests = [] if routes else [(wrapper, ['native_parent_' if args.before else 'native_'])]
         if not args.before or args.owner:
             native = work / 'libmeta_sovereign_server.rlib'
             compile_rust(wrapper, native, '--crate-name', 'meta_sovereign_server', '--crate-type', 'rlib', *external)
-            case = root / f'rust/crates/meta-sovereign-server/tests/{unit}_sync.rs'
+            case_name = 'storage_admission' if args.storage else f'{unit}_sync'
+            case = root / f'rust/crates/meta-sovereign-server/tests/{case_name}.rs'
             if args.before:
                 parent_case = work / 'owner-before.rs'
                 parent_case.write_text(case.read_text().split('// Checked owner refusals.', 1)[0])
                 case = parent_case
             tests.append((case, [f'native_{unit}_']))
+            if args.storage:
+                tests.append((root / 'rust/crates/meta-sovereign-server/tests/checkpoint_file.rs', ['checkpoint_']))
             external += ['--extern', f'meta_sovereign_server={native}']
         with (logs / f'{prefix}.log').open('w') as log:
             for i, (case, filters) in enumerate(tests):

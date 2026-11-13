@@ -304,12 +304,12 @@ pub fn send(state: &ServerState, body: &Value) -> Value {
     Value::Object(o)
 }
 
-fn admission_error(error: meta_sovereign_core::SyncError) -> Value {
+fn admission_error(error: crate::state::StateError) -> Value {
     Value::Object(
-        [(
-            "error".into(),
-            Value::String(format!("invalid owner write: {error:?}")),
-        )]
+        [
+            ("status".into(), Value::Number(f64::from(error.status()))),
+            ("error".into(), Value::String(error.to_string())),
+        ]
         .into(),
     )
 }

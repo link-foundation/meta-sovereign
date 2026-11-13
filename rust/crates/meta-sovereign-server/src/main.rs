@@ -1,7 +1,7 @@
 //! `meta-sovereign-rs` — native Rust HTTP and sync server.
 //!
 //! Usage:
-//!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web]
+//!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web] [--data <dir> | --memory]
 //!
 //! GitHub Pages is the default UI: <https://link-foundation.github.io/meta-sovereign/>.
 //! When `--web` explicitly points at the SPA assets the Rust server doubles as
@@ -17,6 +17,11 @@ use meta_sovereign_server::{LogFormat, ServerOptions, serve};
 fn parse_args() -> ServerOptions {
     let mut port: u16 = 8787;
     let mut web: Option<PathBuf> = None;
+    let mut data_dir = Some(
+        std::env::var_os("MS_NATIVE_DATA_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from(".meta-sovereign/native")),
+    );
     let mut json_compatibility = std::env::var("MS_JSON_COMPATIBILITY").as_deref() == Ok("1");
     let mut log_format = match std::env::var("MS_LOG_FORMAT").ok().as_deref() {
         Some("json") => LogFormat::Json,
@@ -36,6 +41,18 @@ fn parse_args() -> ServerOptions {
                 web = args.next().map(PathBuf::from);
             }
             "--json-compatibility" => json_compatibility = true,
+            "--memory" => data_dir = None,
+            "--data" => {
+                data_dir = Some(
+                    args.next()
+                        .filter(|path| !path.is_empty())
+                        .map(PathBuf::from)
+                        .unwrap_or_else(|| {
+                            eprintln!("--data requires a directory");
+                            std::process::exit(2);
+                        }),
+                );
+            }
             "--log" => {
                 log_format = match args.next().as_deref() {
                     Some("json") => LogFormat::Json,
@@ -66,6 +83,7 @@ fn parse_args() -> ServerOptions {
         static_root: web,
         log_format,
         json_compatibility,
+        data_dir,
     }
 }
 
@@ -80,10 +98,14 @@ fn print_help() {
     eprintln!("  --web <dir>     directory containing the SPA assets");
     eprintln!("  --log <fmt>     access log format: \"json\" (default: none)");
     eprintln!("  --json-compatibility  explicitly enable legacy JSON wire transport");
+    eprintln!("  --data <dir>    native text/binary checkpoints (default .meta-sovereign/native)");
+    eprintln!("  --memory        explicitly use volatile in-memory state");
     eprintln!();
     eprintln!("ENVIRONMENT:");
     eprintln!("  MS_LOG_FORMAT   sets default --log when unset on CLI");
     eprintln!("  MS_JSON_COMPATIBILITY=1 enables legacy JSON wire transport");
+    eprintln!("  MS_NATIVE_DATA_DIR sets the native checkpoint directory");
+    eprintln!("  MS_NATIVE_STORAGE_DEBUG=1 enables content-free checkpoint diagnostics");
 }
 
 fn main() {
@@ -91,7 +113,7 @@ fn main() {
     let handle = match serve(opts.clone()) {
         Ok(h) => h,
         Err(e) => {
-            eprintln!("failed to bind: {e}");
+            eprintln!("failed to start native server: {e}");
             std::process::exit(1);
         }
     };

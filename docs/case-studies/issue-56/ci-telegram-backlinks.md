@@ -49,3 +49,13 @@ The parent native Rust and Linux/Windows Bun jobs pass. That verifies their
 preceding units, not the unpublished native owner-clock unit. Exact new-head
 hosted checks, the disclosure root cause, durable native replication and all
 other unchecked original requirements remain unfinished.
+
+The next published commit `0f245481` passes every browser shard, including
+WebKit shard 3 job `132119118115` in run `43492615764`. Its raw log lines
+1942–1943 retain the unchanged document identity and trusted pointer/click/toggle
+sequence opening connected node 1; line 1944 records the successful workflow.
+The native Rust job `132119117307` also passes the owner-clock unit. This run
+does not reproduce the disclosure failure or establish its root cause. The
+raw successful job and complete preceding failed workflow are also retained
+with the [native storage evidence](native-durable-storage.md). The separate
+Windows ARM64 provenance failure is tracked in [its investigation](ci-desktop-provenance.md).

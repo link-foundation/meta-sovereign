@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Native checkpoint admission](native-durable-storage.md): persist complete rich records before admission, retain text/binary recovery pairs and exclusive ownership, and verify finite failure paths. Hosted codec/restart verification and native durable transport remain required.
+
 - [Desktop provenance metadata](ci-desktop-provenance.md): preserve the Windows ARM64 post-packaging launcher exit and use installed metadata, with an exact-parent real-shell regression and unchanged installer checks.
 
 - [Native owner clocks](native-owner-clocks.md): four exact-parent HTTP failures, atomic owner edits and deletion metadata, all mutating routes, ten focused regressions and twelve production JavaScript references. Durable native transport remains unfinished.

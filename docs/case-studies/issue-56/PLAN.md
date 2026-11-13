@@ -8,9 +8,10 @@ Active desktop provenance failure:
 
 Active native durable admission:
 
-- [ ] Retain a finite exact-parent restart-loss reproduction and draft durable native state admission without acknowledging unpersisted writes.
-- [ ] Persist full rich records, assignment/deletion clocks and private local metadata in recoverable text/binary Links Notation checkpoints, with exclusive writable ownership and bounded decoding.
-- [ ] Cover reopen, stale replica packets, atomic batches, interrupted checkpoint publication, corruption, owner conflicts and actual native HTTP restart. Keep heavy codec/network builds on hosted CI.
+- [x] Draft an unchanged-CLI restart-loss regression and register an exact-parent native build on provisioned CI; the real parent executable has not been built on this limited host.
+- [x] Draft full rich records, assignment/deletion clocks and private local metadata in recoverable text/binary Links Notation checkpoints, with exclusive writable ownership, bounded decoding and pre-admission persistence.
+- [x] Pass nine finite std-only admission/filesystem checks, scoped Clippy, ten owner-route checks and nine rich/number checks. Cover nested directory durability, staging/refusal, uncertain publication and 503 errors; keep the unchanged 6.5% duplication gate.
+- [ ] Verify actual codec reopen, stale replica packets, corruption, owner conflicts, failed batches and native HTTP restart in the hosted Rust job; these full integration tests are drafted but remain unverified locally.
 - [ ] Preserve checksummed evidence, publish and verify exact-head checks. Then continue schema-gated native transport/reconciliation, live tab merging and every unchecked original requirement.
 
 Active hosted Telegram Backlinks disclosure:

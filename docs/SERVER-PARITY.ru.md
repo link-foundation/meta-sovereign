@@ -1,5 +1,7 @@
 # Server parity matrix — JS server vs. Rust server (languages: [en](SERVER-PARITY.md) • [zh](SERVER-PARITY.zh.md) • [hi](SERVER-PARITY.hi.md) • ru)
 
+Native CLI по умолчанию сохраняет rich records и причинные метаданные удаления в собственном каталоге текстовых/бинарных контрольных копий. `--data` задаёт каталог; `--memory` явно включает хранение только в памяти. Восстановление и ограничения формата: [native storage](NATIVE-STORAGE.md). Нативная синхронизация с проверкой схемы и offline reconciliation ещё не завершены.
+
 Эта страница перечисляет HTTP routes и transport surfaces, которые
 предоставляют JavaScript server (`js/src/server/index.js` + `routes-*.js`)
 и pure-Rust server (`rust/crates/meta-sovereign-server/src/routes.rs` +

@@ -15,6 +15,8 @@
 
 #![forbid(unsafe_code)]
 
+mod checkpoint;
+mod durable;
 pub mod email;
 pub mod handlers;
 pub mod http;
