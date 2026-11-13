@@ -1,4 +1,4 @@
-import { changedLink, mutationEvent } from './mutation.js';
+import { changedLink, mutationEvent, admitMutation } from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
 
 /**
@@ -349,6 +349,7 @@ export const createBrowserStore = async ({
       }
       data.set(link.id, cloneLink(link));
       queueSave();
+      admitMutation('put', link.id, options);
       emit(mutationEvent('put', cloneLink(link), options));
       return link;
     },
@@ -394,6 +395,7 @@ export const createBrowserStore = async ({
     async delete(id, options) {
       const existed = data.has(id);
       const link = data.get(id);
+      admitMutation('delete', id, options);
       data.delete(id);
       if (existed) {
         queueSave();

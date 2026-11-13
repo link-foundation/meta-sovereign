@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Live hub forwarding](sync-hub-relay.md): bounded cycle/duplicate protection, admission-ordered forwarding, real text/binary peers and explicit delivery failures. Offline history reconciliation remains required.
+
 - [Text log mutation admission](lino-mutation-admission.md): preserve subscriber-triggered edits/deletes after reopen, wait for called writes during flush and retain immutable encoded inputs and disk batching.
 
 - [Live receive isolation and SPA fixture readiness](sync-receive-isolation.md): atomic merges, observable concurrent owner edits, ordered durable copies and reported transport failures; offline catch-up remains required.

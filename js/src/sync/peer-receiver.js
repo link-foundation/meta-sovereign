@@ -1,18 +1,34 @@
-import { replicatedMutation } from '../storage/mutation.js';
+import {
+  replicatedMutation,
+  replicationAdmission,
+} from '../storage/mutation.js';
 
 // Keep remote operations in arrival order. The storage update applies its merge
 // at write admission, so a local write during an async read is not overwritten
 // using a stale snapshot. Only events belonging to that mutation are silenced.
-export const createPeerReceiver = (store, merge, onState = () => {}) => {
+export const createPeerReceiver = (
+  store,
+  merge,
+  onState = () => {},
+  onAdmit = () => {}
+) => {
   let tail = Promise.resolve();
   let legacyMuted = false;
-  const options = { [replicatedMutation]: true };
   const atomic = typeof store.update === 'function';
   const apply = async (event) => {
     // Third-party implementations of the original interface keep their prior
     // echo suppression; they must implement update + mutation metadata to gain
     // isolation. All built-in writable stores support the extended contract.
     legacyMuted = !atomic;
+    let admission;
+    const options = {
+      [replicatedMutation]: true,
+      [replicationAdmission]: (type, id) => {
+        if (type === event.type && id === event.link.id) {
+          admission ??= onAdmit(event);
+        }
+      },
+    };
     try {
       onState({
         phase: atomic ? 'receive' : 'legacy-receive',
@@ -34,8 +50,12 @@ export const createPeerReceiver = (store, merge, onState = () => {}) => {
       } else if (event.type === 'delete') {
         await store.delete(event.link.id, options);
       }
+      // Legacy third-party stores may not expose mutation admission.
+      admission ??= onAdmit(event);
+      admission?.commit();
       onState({ phase: 'applied', type: event.type });
     } catch (error) {
+      admission?.abort();
       onState({ phase: 'failed', type: event.type });
       throw error;
     } finally {

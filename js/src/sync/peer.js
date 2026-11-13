@@ -8,6 +8,7 @@
 
 import { isolatePeerTransport } from './peer-transport.js';
 import { createPeerReceiver } from './peer-receiver.js';
+import { createRelayIdentity, createRelayOutbox } from './peer-relay.js';
 
 export const tickVersion = (now = Date.now(), node = 'local') =>
   `${now}-${node}`;
@@ -125,13 +126,40 @@ export const createPeer = (
   } = {}
 ) => {
   const subs = new Set();
-  const receiver = createPeerReceiver(store, merge, onState);
+  const transports = new Set();
+  const identity = createRelayIdentity();
+  const report = (error) => {
+    try {
+      onError(error);
+    } catch {
+      /* Diagnostics cannot interrupt persistence. */
+    }
+  };
+  const send = (event) => {
+    for (const handler of transports) {
+      handler(event);
+    }
+  };
+  const outbox = hub ? createRelayOutbox(send, report) : { local: send };
+  const receiver = createPeerReceiver(
+    store,
+    merge,
+    onState,
+    hub ? (event) => outbox.reserve(event) : undefined
+  );
+  const subscribe = (handler) => {
+    transports.add(handler);
+    return () => transports.delete(handler);
+  };
   store.subscribe((event) => {
     if (receiver.suppresses(event)) {
       return;
     }
     if (isSecretEvent(event)) {
       return;
+    }
+    if (transports.size) {
+      outbox.local(identity.local(event));
     }
     for (const s of subs) {
       s(event);
@@ -144,10 +172,25 @@ export const createPeer = (
       return () => subs.delete(handler);
     },
     async receive(event) {
-      if (isSecretEvent(event)) {
+      if (isSecretEvent(event) || !['put', 'delete'].includes(event?.type)) {
         return;
       }
-      return receiver.receive(event);
+      if (!event.link || typeof event.link.id !== 'string') {
+        throw Object.assign(new Error('Sync mutation requires a link id'), {
+          code: 'SYNC_RELAY_INVALID',
+        });
+      }
+      const accepted = identity.accept(event);
+      if (!accepted) {
+        return;
+      }
+      let applied = false;
+      try {
+        await receiver.receive(accepted);
+        applied = true;
+      } finally {
+        identity.finish(accepted, applied);
+      }
     },
     /**
      * Plug a transport in. With `schemaVersion` set (R-Z17) every event
@@ -156,19 +199,27 @@ export const createPeer = (
      * `onMismatch(error)` hears SCHEMA_MISMATCH once per version seen. A
      * peer without a version (or an old build) speaks as before. `hub`:
      * the transport fans out to many sockets, so one wrong one must not
-     * silence the rest.
+     * silence the rest. Hubs relay successful remote mutations to their
+     * connected transports. Bounded operation routes prevent cycles; pending
+     * persistence keeps later owner events in admission order. This carries
+     * live operations only and does not reconcile disconnected history.
      */
     connect(transport) {
       const isolated = isolatePeerTransport(transport, onError);
       return schemaVersion === undefined
-        ? plug(this, isolated, null)
-        : plug(this, isolated, { local: schemaVersion, onMismatch, hub });
+        ? plug(this, isolated, null, subscribe)
+        : plug(
+            this,
+            isolated,
+            { local: schemaVersion, onMismatch, hub },
+            subscribe
+          );
     },
   };
 };
 
 // Connect `peer` to `transport`; `gate` (or null) is the schema check.
-const plug = (peer, transport, gate) => {
+const plug = (peer, transport, gate, subscribe) => {
   const stop = (offLocal, offRemote) => () => {
     offLocal();
     if (typeof offRemote === 'function') {
@@ -177,7 +228,7 @@ const plug = (peer, transport, gate) => {
   };
   if (!gate) {
     return stop(
-      peer.onLocal((e) => transport.send(e)),
+      subscribe((e) => transport.send(e)),
       transport.onMessage((e) => peer.receive(e))
     );
   }
@@ -190,7 +241,7 @@ const plug = (peer, transport, gate) => {
       gate.onMismatch(schemaMismatch(gate.local, remote));
     }
   };
-  const offLocal = peer.onLocal((e) => {
+  const offLocal = subscribe((e) => {
     if (!refused) {
       transport.send({ ...e, schema: gate.local });
     }

@@ -4,6 +4,15 @@ export const replicatedMutation = Symbol.for(
   'meta-sovereign.replicated-mutation'
 );
 
+// A receiver reserves forwarding when this exact mutation reaches storage,
+// including a delete of an absent record. Wrappers forward the options to the
+// primitive; neither this callback nor its symbol enters stored/wire records.
+export const replicationAdmission = Symbol.for(
+  'meta-sovereign.replication-admission'
+);
+export const admitMutation = (type, id, options) =>
+  options?.[replicationAdmission]?.(type, id);
+
 export const mutationEvent = (type, link, options) => ({
   type,
   link,

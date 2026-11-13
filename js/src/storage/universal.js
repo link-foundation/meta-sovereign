@@ -29,7 +29,7 @@
  * @property {(handler: (event: {type: string, link: Link}) => void) => () => void} subscribe
  */
 
-import { changedLink, mutationEvent } from './mutation.js';
+import { changedLink, mutationEvent, admitMutation } from './mutation.js';
 
 export const createMemoryStore = ({
   retain = (link) => ({ ...link }),
@@ -51,6 +51,7 @@ export const createMemoryStore = ({
   };
   const put = (link, options) => {
     remember(link);
+    admitMutation('put', link.id, options);
     emit(mutationEvent('put', link, options));
     return link;
   };
@@ -63,7 +64,10 @@ export const createMemoryStore = ({
       // A bulk log record cannot be interrupted halfway by a subscriber's
       // write. Admit the complete batch before exposing any of its events.
       const out = links.map(remember);
-      out.forEach((link) => emit(mutationEvent('put', link, options)));
+      out.forEach((link) => {
+        admitMutation('put', link.id, options);
+        emit(mutationEvent('put', link, options));
+      });
       return out;
     },
     async update(id, change, options) {
@@ -82,6 +86,7 @@ export const createMemoryStore = ({
     async delete(id, options) {
       const existed = data.has(id);
       const link = data.get(id);
+      admitMutation('delete', id, options);
       data.delete(id);
       release(link);
       if (existed) {

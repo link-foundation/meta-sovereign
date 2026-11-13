@@ -347,3 +347,5 @@ Add separately reviewed target-CV deselection for existing shared workplaces. Bi
 Keep owner edits observable during live peer receives, serialize remote merges and expose atomic updates through built-in storage wrappers. Preserve transient provenance, immutable message history and secret isolation; report failed peer sends without interrupting persistence or healthy peers. Prepare SPA sync fixtures in a fresh document so fragment navigation cannot skip socket instrumentation.
 
 Reserve text-log append order before subscription handlers can write again. Capture encoded records before mutable inputs change, include already called writes in flush/compaction barriers and preserve immediate memory writes, disk batching and failure recovery.
+
+Forward live accepted operations through sync hubs across text/binary transports, with opaque bounded replay/route protection and an admission-ordered outbox. Preserve schema/private-record guards, local-only subscription semantics and explicit failed-delivery reporting. Offline reconciliation remains unfinished.

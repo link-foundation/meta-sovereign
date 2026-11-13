@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active live hub forwarding:
+
+- [x] Reproduce missing three-peer forwarding with and without schema negotiation, and a hub cycle with a downstream leaf, against published `f4a8fac1`.
+- [x] Relay accepted remote operations across connected hub transports with bounded duplicate/loop prevention; preserve local/remote admission order, secret/schema guards and explicit failure reporting.
+- [x] Verify 76 focused peer/storage/wire/schema checks and real text/binary WebSocket/TCP cases; six finite cases fail on the exact published parent and the native WebKit mesh scenario passes.
+- [ ] Preserve [hub forwarding evidence](sync-hub-relay.md), publish and inspect exact-head CI.
+- [ ] Resolve exact parent Windows Deno cold release staging: job `131967810018`, raw log lines 2244–2260 and 5088–5109 show 8.5-second snapshot copying and missing control pipe at the unchanged ten-second readiness deadline.
+- [ ] Continue durable offline reconciliation, ordinary unversioned-edit convergence and every other unchecked requirement. Live forwarding does not complete multiserver synchronization.
+
 Active text-log mutation admission:
 
 - [x] Reproduce nine subscriber-triggered put/bulk/delete reorderings, interrupted bulk memory admission and an early flush returning before called writes are staged against published `e8ff3c84`.
