@@ -65,24 +65,25 @@ def bundle(root, sources, destination, metadata, screenshot_pattern, before=None
 
 def write_hashed_archive(root, archive, names, metadata, source_count):
     """Write deterministic named evidence and verify every archived byte."""
+    entries = {name: (root / name).read_bytes() for name in sorted(set(names))}
+    entries['metadata.json'] = (json.dumps(metadata, indent=2) + '\n').encode()
+    write_entries_archive(archive, entries, source_count)
+
+
+def write_entries_archive(archive, entries, source_count=None):
+    """Share the existing ordered byte-entry writer across evidence collectors."""
     with archive.open('wb') as raw:
         with gzip.GzipFile(fileobj=raw, mode='wb', filename='', mtime=0) as compressed:
             with tarfile.open(fileobj=compressed, mode='w') as tar:
-                for name in sorted(set(names)):
-                    data = (root / name).read_bytes()
+                for name, data in entries.items():
                     entry = tarfile.TarInfo(name)
                     entry.size = len(data)
                     tar.addfile(entry, io.BytesIO(data))
-                payload = (json.dumps(metadata, indent=2) + '\n').encode()
-                entry = tarfile.TarInfo('metadata.json')
-                entry.size = len(payload)
-                tar.addfile(entry, io.BytesIO(payload))
     with tarfile.open(archive, 'r:gz') as tar:
         hashes = {entry.name: hashlib.sha256(tar.extractfile(entry).read()).hexdigest()
                   for entry in tar.getmembers() if entry.isfile()}
-    assert set(hashes) == set(names) | {'metadata.json'}
-    for name in names:
-        assert hashes[name] == hashlib.sha256((root / name).read_bytes()).hexdigest()
+    assert hashes == {name: hashlib.sha256(data).hexdigest() for name, data in entries.items()}
     archive.with_suffix('').with_suffix('.tar.sha256.json').write_text(
         json.dumps({'archive': archive.name, 'files': hashes}, indent=2) + '\n')
-    print(f'Verified {len(hashes)} archive entries and {source_count} source hashes')
+    suffix = '' if source_count is None else f' and {source_count} source hashes'
+    print(f'Verified {len(hashes)} archive entries{suffix}')

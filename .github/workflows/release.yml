@@ -542,6 +542,7 @@ jobs:
       - name: Check production JavaScript against the native server
         run: |
           node experiments/issue-56/native-register-vectors.mjs --check
+          node experiments/issue-56/native-rich-vectors.mjs --check
           cargo build --manifest-path rust/Cargo.toml -p meta-sovereign-server --bin meta-sovereign-rs
           node experiments/issue-56/native-lino-interop.mjs rust/target/debug/meta-sovereign-rs
 
@@ -941,6 +942,7 @@ jobs:
           python3 -B experiments/issue-52/archive.py --verify
           python3 -B experiments/issue-54/archive.py --verify
           python3 -B experiments/issue-56/verify-evidence-archive.py
+          python3 -B experiments/issue-56/verify-entry-collectors.py
       - run: node --test --test-concurrency=1 js/tests/ci-*.test.js
       - name: Rehearse both release modes without dependency resolution
         run: |

@@ -22,8 +22,8 @@ use std::path::PathBuf;
 
 mod sync;
 pub use sync::{
-    AssignmentStamp, SyncError, VectorClock, merge, try_merge, try_vc_compare, try_vc_merge,
-    try_vc_tick, vc_compare, vc_merge, vc_tick,
+    AssignmentStamp, SyncError, VectorClock, merge, try_compare_assignments, try_merge,
+    try_vc_compare, try_vc_merge, try_vc_tick, vc_compare, vc_merge, vc_tick,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]

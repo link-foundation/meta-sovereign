@@ -226,13 +226,29 @@ fn read(link: &Link) -> Result<Assignment<'_>, SyncError> {
     })
 }
 
-fn compare(a: &Assignment<'_>, b: &Assignment<'_>) -> Ordering {
+/// Compare immutable assignment ranks after canonicalizing safe clocks.
+/// `key` is the caller's type-tagged canonical payload key, not a wire codec.
+/// Callers must separately validate record IDs, stamps and payload values.
+pub fn try_compare_assignments(
+    a_clock: Option<&VectorClock>,
+    a_version: Option<&str>,
+    a_key: &str,
+    b_clock: Option<&VectorClock>,
+    b_version: Option<&str>,
+    b_key: &str,
+) -> Result<Ordering, SyncError> {
+    let a = a_clock.map(normalize).transpose()?;
+    let b = b_clock.map(normalize).transpose()?;
     let weight = |clock: &VectorClock| clock.values().map(|&n| u128::from(n)).sum::<u128>();
-    weight(&a.clock)
-        .cmp(&weight(&b.clock))
-        .then_with(|| js_cmp(&clock_key(&a.clock), &clock_key(&b.clock)))
-        .then_with(|| compare_version(a.value.version.as_deref(), b.value.version.as_deref()))
-        .then_with(|| js_cmp(&payload_key(a.value), &payload_key(b.value)))
+    Ok(a.is_some()
+        .cmp(&b.is_some())
+        .then_with(|| a.as_ref().map(weight).cmp(&b.as_ref().map(weight)))
+        .then_with(|| match (&a, &b) {
+            (Some(a), Some(b)) => js_cmp(&clock_key(a), &clock_key(b)),
+            _ => Ordering::Equal,
+        })
+        .then_with(|| compare_version(a_version, b_version))
+        .then_with(|| js_cmp(a_key, b_key)))
 }
 
 pub fn try_merge(a: &Link, b: &Link) -> Result<Link, SyncError> {
@@ -241,11 +257,15 @@ pub fn try_merge(a: &Link, b: &Link) -> Result<Link, SyncError> {
     }
     let left = read(a)?;
     let right = read(b)?;
-    let winner = if compare(&left, &right).is_lt() {
-        &right
-    } else {
-        &left
-    };
+    let rank = try_compare_assignments(
+        Some(&left.clock),
+        left.value.version.as_deref(),
+        &payload_key(left.value),
+        Some(&right.clock),
+        right.value.version.as_deref(),
+        &payload_key(right.value),
+    )?;
+    let winner = if rank.is_lt() { &right } else { &left };
     let context = try_vc_merge(&left.context, &right.context)?;
     let mut next = winner.value.clone();
     next.sync_stamp =

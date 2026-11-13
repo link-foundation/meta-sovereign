@@ -19,6 +19,7 @@ pub mod email;
 pub mod handlers;
 pub mod http;
 pub mod json;
+pub mod record_sync;
 pub mod routes;
 pub mod signaling;
 pub mod state;

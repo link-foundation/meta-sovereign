@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Checked native rich records](native-rich-register.md): four exact-parent failures, atomic in-memory remote admission, deletion/private-record isolation, 27 JavaScript fixtures and preserved CI duplication evidence. Durable native transport remains unfinished.
+
 - [Bun browser-account fixture](ci-browser-account-locks.md): identical Linux/Windows missing-Web-Locks failures, one selected failing-before test and passing Bun/Node checks. Production unsafe-write refusal remains enforced.
 
 - [Deterministic typed Rust register](native-register.md): four exact-parent failures, retained assignment clocks, JavaScript-compatible ordering and thirteen generated reference fixtures. Rich native replication and durable causal metadata remain unfinished.

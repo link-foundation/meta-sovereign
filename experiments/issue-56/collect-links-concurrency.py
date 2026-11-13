@@ -1,10 +1,8 @@
 """Retain the bounded link-checker policy checks without fetching the network again."""
 from pathlib import Path
-import gzip
+from evidence_bundle import write_entries_archive
 import hashlib
-import io
 import json
-import tarfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -26,17 +24,4 @@ entries['metadata.json'] = (json.dumps({
     'limits': 'remote root cause unproven; mitigation retains strict link failure semantics',
 }, indent=2) + '\n').encode()
 archive = root / 'docs/case-studies/issue-56/data/ci-links-concurrency.tar.gz'
-with archive.open('wb') as raw:
-    with gzip.GzipFile(fileobj=raw, mode='wb', filename='', mtime=0) as compressed:
-        with tarfile.open(fileobj=compressed, mode='w') as tar:
-            for name, data in entries.items():
-                info = tarfile.TarInfo(name)
-                info.size = len(data)
-                tar.addfile(info, io.BytesIO(data))
-with tarfile.open(archive, 'r:gz') as tar:
-    hashes = {entry.name: hashlib.sha256(tar.extractfile(entry).read()).hexdigest()
-              for entry in tar.getmembers() if entry.isfile()}
-assert hashes == {name: hashlib.sha256(data).hexdigest() for name, data in entries.items()}
-archive.with_suffix('').with_suffix('.tar.sha256.json').write_text(
-    json.dumps({'archive': archive.name, 'files': hashes}, indent=2) + '\n')
-print(f'Verified {len(hashes)} archive entries')
+write_entries_archive(archive, entries)

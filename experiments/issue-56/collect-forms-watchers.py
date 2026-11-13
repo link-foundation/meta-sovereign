@@ -1,10 +1,8 @@
 """Archive bounded public detached-watcher evidence, excluding private stores."""
 from pathlib import Path
-import gzip
+from evidence_bundle import write_entries_archive
 import hashlib
-import io
 import json
-import tarfile
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'
@@ -72,17 +70,4 @@ entries['metadata.json'] = (json.dumps({
                     for p in sorted((root / 'docs/screenshots').glob('issue-56-forms-watcher-*.png'))},
 }, indent=2) + '\n').encode()
 archive = root / 'docs/case-studies/issue-56/data/forms-detached-watchers.tar.gz'
-with archive.open('wb') as raw_file:
-    with gzip.GzipFile(fileobj=raw_file, mode='wb', filename='', mtime=0) as compressed:
-        with tarfile.open(fileobj=compressed, mode='w') as saved:
-            for name, data in entries.items():
-                entry = tarfile.TarInfo(name)
-                entry.size = len(data)
-                saved.addfile(entry, io.BytesIO(data))
-with tarfile.open(archive, 'r:gz') as saved:
-    hashes = {entry.name: hashlib.sha256(saved.extractfile(entry).read()).hexdigest()
-              for entry in saved.getmembers() if entry.isfile()}
-assert hashes == {name: hashlib.sha256(data).hexdigest() for name, data in entries.items()}
-archive.with_suffix('').with_suffix('.tar.sha256.json').write_text(
-    json.dumps({'archive': archive.name, 'files': hashes}, indent=2) + '\n')
-print(f'Verified {len(hashes)} archive entries')
+write_entries_archive(archive, entries)

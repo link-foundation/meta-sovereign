@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active native rich-record convergence and CI duplication:
+
+- [x] Reproduce four state/mirror failures on exact published `b24e1ca5`: discarded clocks, assignment stamps and versions, plus public deletion exposure.
+- [x] Draft checked finite rich-record merge, shared original-assignment ranking, private-record refusal, atomic remote state admission and hidden payload-free deletion records. Add JavaScript-generated rich fixtures and bounded malformed/concurrent admission tests.
+- [x] Preserve hosted `b24e1ca5` lint job `132087249139`: generated Rust fixture literals increase duplication to 6.58%, above the unchanged 6.5% gate. Convert those expectations to data consumed by one shared test helper; preserve all thirteen typed fixtures and per-case tests.
+- [x] Verify focused Rust/Clippy and generated fixtures, including 26 direct number-string cases. Preserve every typed assertion while replacing generated literals with data. Share fourteen deterministic archive tails and prove 28 byte-for-byte comparisons against published evidence; retain the existing four writer checks.
+- [ ] Archive the exact-parent evidence, publish this unit and inspect all exact-head hosted checks.
+- [ ] Implement native durable causal persistence, schema-gated transport application and reconciliation, automatic editable-tab merging and every other unchecked original criterion. A checked in-memory boundary alone does not complete replication.
+
 Active Bun browser account fixture compatibility:
 
 - [x] Preserve complete Linux and Windows Bun failures on `8b1c19ba`, reproduce the selected account-storage case and supply the existing lock fixture without weakening production protection. Both focused runtimes pass; publish `c0fc2d23` with [checksummed evidence](ci-browser-account-locks.md).
