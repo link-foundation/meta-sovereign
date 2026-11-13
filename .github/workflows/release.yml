@@ -544,8 +544,9 @@ jobs:
           node experiments/issue-56/native-register-vectors.mjs --check
           node experiments/issue-56/native-rich-vectors.mjs --check
           node experiments/issue-56/native-recreated-children.mjs
-          python3 -B experiments/issue-56/native-durable-before.py
+          python3 -B experiments/issue-56/native-cargo-reference-check.py
           cargo build --manifest-path rust/Cargo.toml -p meta-sovereign-server --bin meta-sovereign-rs
+          python3 -B experiments/issue-56/native-durable-before.py
           node experiments/issue-56/native-lino-interop.mjs rust/target/debug/meta-sovereign-rs
           node experiments/issue-56/native-durable-interop.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-storage-network.log
 
@@ -554,7 +555,10 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         with:
           name: native-checkpoint-evidence
-          path: ci-logs/native-storage-*.log
+          path: |
+            ci-logs/native-storage-*.log
+            ci-logs/native-cargo-*.log
+            ci-logs/native-rustdoc-*.log
           if-no-files-found: ignore
           retention-days: 14
 

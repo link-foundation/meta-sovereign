@@ -381,3 +381,5 @@ Make the typed Rust core's merge independent of equal-clock argument order and d
 Add checked native rich-record merge and atomic in-memory remote admission, retain valid causal metadata in the typed mirror, hide deletion records from public reads and exclude private records from replication. Verify finite JavaScript reference fixtures and preserve deterministic evidence archive output while consolidating repeated writers. Native durable transport application remains unfinished.
 
 Stamp native owner edits and payload-free deletions at atomic admission across every mutating HTTP route. Return admitted clocks, refuse malformed or exhausted batches without partial imports, preserve independent opening identities and verify twelve production JavaScript owner references. Native durable persistence and transport reconciliation remain unfinished.
+
+Preserve the current native CLI across exact-parent Cargo regression builds and isolate the reference executable. Quote CLI usage documentation for warnings-denied rustdoc; verify actual small Cargo artifact identities, failed-build cleanup and before/after documentation without weakening CI gates.

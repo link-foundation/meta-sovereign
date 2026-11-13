@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active native hosted reference artifact:
+
+- [x] Preserve exact `9db8d8d9` Rust and API Docs failure logs. Official-codec durable tests now all pass; the network check starts the parent's executable from the shared Cargo output.
+- [x] Preserve and restore the current CLI while running an isolated parent copy. Verify actual small Cargo binaries and failure cleanup, plus the original/corrected CLI header with warnings-denied rustdoc.
+- [ ] Publish [the correction](ci-native-reference-artifact.md) and verify current-head native network/restart and documentation checks. Continue native synchronization and every original unchecked requirement.
+
 Active native WebSocket application:
 
 - [ ] Reproduce the published CLI's unapplied sync mutations with the production JavaScript peer.

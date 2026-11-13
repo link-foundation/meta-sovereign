@@ -4,6 +4,7 @@ import os
 import subprocess
 import tarfile
 import tempfile
+from native_cargo_reference import build_reference
 
 root = Path(__file__).resolve().parents[2]
 if os.environ.get('GITHUB_ACTIONS') != 'true':
@@ -24,12 +25,13 @@ with (logs / 'native-storage-parent-compile.log').open('w') as log:
         with tarfile.open(archive) as source:
             source.extractall(work, filter='data')
         target = root / 'rust/target'
-        subprocess.run(['cargo', 'build', '--manifest-path', str(work / 'rust/Cargo.toml'),
+        parent = work / 'parent-cli'
+        build_reference(['cargo', 'build', '--manifest-path', str(work / 'rust/Cargo.toml'),
                         '--target-dir', str(target), '-j', '1', '-p', 'meta-sovereign-server',
-                        '--bin', 'meta-sovereign-rs'], cwd=root,
-                       stdout=log, stderr=subprocess.STDOUT, check=True)
+                        '--bin', 'meta-sovereign-rs'], target / 'debug/meta-sovereign-rs',
+                        parent, cwd=root, stdout=log, stderr=subprocess.STDOUT)
         result = subprocess.run(['node', 'experiments/issue-56/native-durable-interop.mjs',
-                                 str(target / 'debug/meta-sovereign-rs')], cwd=root,
+                                 str(parent)], cwd=root,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         (logs / 'native-storage-parent.log').write_text(result.stdout)
         assert result.returncode != 0, result.stdout

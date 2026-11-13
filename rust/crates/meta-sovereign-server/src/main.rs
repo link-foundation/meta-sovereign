@@ -1,7 +1,7 @@
 //! `meta-sovereign-rs` — native Rust HTTP and sync server.
 //!
 //! Usage:
-//!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web] [--data <dir> | --memory]
+//!   `meta-sovereign-rs serve [--port 8787] [--web ./js/src/web] [--data <dir> | --memory]`
 //!
 //! GitHub Pages is the default UI: <https://link-foundation.github.io/meta-sovereign/>.
 //! When `--web` explicitly points at the SPA assets the Rust server doubles as
