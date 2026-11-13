@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted Telegram Backlinks disclosure:
+
+- [x] Preserve exact `bd954afd` WebKit shard 3 failure and artifact metadata; verify and inspect the closed-disclosure screenshot.
+- [x] Extend the existing default-off trace to the Telegram fixture without changing its click, assertions or deadlines. One focused WebKit workflow and one independent MCP opening pass locally.
+- [ ] Publish [recurrence diagnostics](ci-telegram-backlinks.md), inspect the next exact-head hosted trace and determine the actual cause. Local passes do not establish a hosted fix.
+
 Active native owner causality:
 
 - [x] Reproduce native HTTP owner-edit rollback, deletion resurrection, recreation loss and absent write clocks against published `bd954afd`.

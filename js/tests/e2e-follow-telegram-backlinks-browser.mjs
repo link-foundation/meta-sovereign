@@ -1,6 +1,7 @@
 // The production bundle, routes and Lino codec with only Telegram's SDK RPCs faked.
 import { telegramBacklinksFixture } from './helpers/telegram-backlinks.mjs';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
+import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
 
 const f = await telegramBacklinksFixture();
 const { telegramAccount: _account, ...timing } = f.options;
@@ -19,11 +20,14 @@ await page.addInitScript(() => {
   );
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
 });
+const trace = await followDisclosureTrace(page, 'backlinks');
 await finish(async () => {
   try {
     await page.goto(`${base}/#/automation`);
+    await trace('telegram-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
     await card.locator('summary').click();
+    await trace('telegram-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);
     const action = (key) =>
@@ -112,6 +116,9 @@ await finish(async () => {
         ),
       'Telegram backlink controls fit mobile'
     );
+  } catch (error) {
+    await trace('telegram-failure');
+    throw error;
   } finally {
     await f.close();
   }

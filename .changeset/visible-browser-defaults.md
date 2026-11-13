@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Extend existing default-off native disclosure diagnostics to Telegram Backlinks, preserving its original click and deadlines while retaining the unresolved hosted failure evidence.
+
 Assign ordinary JavaScript production writes causal clocks at atomic storage admission, including offline edits and bulk writes. Preserve received clocks, return admitted records, use a fresh actor per writable opening and require schema-12 peers without inventing historical clocks.
 
 Make JavaScript synchronization merges independent of delivery grouping and equal-clock ties. Retain original winning-write clocks separately from observed vector joins, compare decimal ticks numerically, canonicalize child unions and validate safe counters. Reserve synchronization stamps through schema 11 with owner-field collision refusal.
