@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active ordered browser snapshot durability:
+
+- [x] Reproduce early write acknowledgement, stale overlapping saves/flush and partial bulk admission using finite delayed drivers against published `ff43da4f`.
+- [x] Serialize/coalesce snapshot saves with at most one pending snapshot, retain immediate memory/events, acknowledge driver completion and expose failures with explicit flush recovery.
+- [x] Verify 64 focused browser storage/offline/receive/relay checks, the rebuilt native WebKit scenario and independent actual IndexedDB parent/final probes through Playwright MCP.
+- [ ] Preserve evidence, publish and inspect exact-head hosted checks. Continue durable reconnect/deletion reconciliation, ordinary-edit convergence and every remaining original requirement.
+
 Active cold immutable release staging:
 
 - [x] Preserve the exact Windows Deno failure: 1,620-file cold staging consumes most of the unchanged ten-second CLI readiness budget before the control pipe exists.

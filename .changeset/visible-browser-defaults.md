@@ -351,3 +351,5 @@ Reserve text-log append order before subscription handlers can write again. Capt
 Forward live accepted operations through sync hubs across text/binary transports, with opaque bounded replay/route protection and an admission-ordered outbox. Preserve schema/private-record guards, local-only subscription semantics and explicit failed-delivery reporting. Offline reconciliation remains unfinished.
 
 Refill four immutable snapshot copy slots independently during server release preparation. Drain issued writes before failed-copy cleanup, retain complete verification and add a silent-by-default directory phase diagnostic without raising startup deadlines.
+
+Order and coalesce browser snapshot saves, acknowledge driver completion and expose persistence failures while keeping memory and subscription updates immediate. Admit complete bulks before subscribers can edit, isolate driver snapshots and observe IndexedDB request/transaction failures together; explicit flush can recover unsaved memory.

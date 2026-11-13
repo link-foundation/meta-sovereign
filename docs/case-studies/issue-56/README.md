@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Ordered browser snapshot durability](browser-snapshot-order.md): immediate local edits, committed save acknowledgements, coalesced ordered snapshots and explicit failure recovery; real IndexedDB parent/final MCP evidence.
+
 - [Cold immutable snapshot copying](ci-release-copy-pool.md): refill four bounded copy slots independently, drain issued writes on failure and retain complete release verification; hosted Windows Deno confirmation remains required.
 
 - [Live hub forwarding](sync-hub-relay.md): bounded cycle/duplicate protection, admission-ordered forwarding, real text/binary peers and explicit delivery failures. Offline history reconciliation remains required.

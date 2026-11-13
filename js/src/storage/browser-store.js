@@ -18,11 +18,12 @@ import { getLocalStorage } from './local-storage.js';
  * an in-memory driver used by tests. Browser code picks the best
  * driver at boot via `pickBrowserDriver()`.
  *
- * Snapshot shape: `{ links: Link[] }`. We persist on every mutation
- * (debounced via micro-task batching) so a tab refresh never loses
- * data. The driver layer keeps the store synchronous in spirit even
- * though the API is async, and lets us pivot to file-system storage
- * (Electron) by adding another driver.
+ * Snapshot shape: `{ links: Link[] }`. Memory and subscription events
+ * update immediately. Mutation promises wait for a coalesced, ordered
+ * driver save and reject on failure; flush explicitly retries the current
+ * memory state. At most one save and one pending batch exist, so an older
+ * snapshot cannot replace a newer acknowledged one. Additional drivers
+ * can provide file-system storage (Electron) with the same contract.
  */
 
 const SNAPSHOT_KEY = 'meta-sovereign:store-snapshot';
@@ -107,9 +108,15 @@ export const createIndexedDbDriver = ({
         tx.onabort = () => reject(tx.error);
         tx.onerror = () => reject(tx.error);
       });
-      const obj = tx.objectStore(storeName);
-      await idbReq(obj.put(snapshot, key));
-      await txDone;
+      try {
+        const obj = tx.objectStore(storeName);
+        await Promise.all([idbReq(obj.put(snapshot, key)), txDone]);
+      } catch (error) {
+        // A synchronous put failure can precede Promise.all attaching to
+        // txDone. Observe the eventual abort without replacing the cause.
+        txDone.catch(() => {});
+        throw error;
+      }
     },
   };
 };
@@ -330,33 +337,53 @@ export const createBrowserStore = async ({
     }
   }
 
-  let saveQueued = false;
+  let pending = null;
+  let tail = Promise.resolve();
   const queueSave = () => {
-    if (saveQueued) {
-      return;
+    if (pending) {
+      return pending;
     }
-    saveQueued = true;
-    Promise.resolve().then(async () => {
-      saveQueued = false;
-      await driver.save({ links: [...data.values()] });
+    const saving = tail.then(async () => {
+      pending = null;
+      await driver.save({ links: [...data.values()].map(cloneLink) });
     });
+    pending = saving;
+    // Failed callers retain their rejection, while later saves may recover.
+    // This also observes a save if a synchronous subscriber throws first.
+    tail = saving.catch(() => {});
+    return saving;
+  };
+  const capture = (link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
+    }
+    return cloneLink(link);
   };
 
   return {
     async put(link, options) {
-      if (!link || typeof link.id !== 'string') {
-        throw new Error('link.id is required');
-      }
-      data.set(link.id, cloneLink(link));
-      queueSave();
-      admitMutation('put', link.id, options);
-      emit(mutationEvent('put', cloneLink(link), options));
+      const record = capture(link);
+      data.set(record.id, record);
+      const saved = queueSave();
+      admitMutation('put', record.id, options);
+      emit(mutationEvent('put', cloneLink(record), options));
+      await saved;
       return link;
     },
     async putMany(links, options) {
-      for (const link of links) {
-        await this.put(link, options);
+      const records = links.map(capture);
+      if (!records.length) {
+        return links;
       }
+      for (const record of records) {
+        data.set(record.id, record);
+      }
+      const saved = queueSave();
+      for (const record of records) {
+        admitMutation('put', record.id, options);
+        emit(mutationEvent('put', cloneLink(record), options));
+      }
+      await saved;
       return links;
     },
     async update(id, change, options) {
@@ -398,8 +425,9 @@ export const createBrowserStore = async ({
       admitMutation('delete', id, options);
       data.delete(id);
       if (existed) {
-        queueSave();
+        const saved = queueSave();
         emit(mutationEvent('delete', cloneLink(link), options));
+        await saved;
       }
       return existed;
     },
@@ -411,9 +439,9 @@ export const createBrowserStore = async ({
       handlers.add(handler);
       return () => handlers.delete(handler);
     },
-    /** Force-flush the persistence layer (useful in tests). */
+    /** Persist current memory after prior saves, including failed writes. */
     async flush() {
-      await driver.save({ links: [...data.values()] });
+      await queueSave();
     },
   };
 };
