@@ -207,12 +207,15 @@ pub fn pull(state: &ServerState, body: &Value) -> Value {
         })
         .unwrap_or_default();
 
-    let mut imported = 0u64;
-    for (i, rec) in records.iter().enumerate() {
-        let link = normalize_record(rec, i);
-        state.put(link);
-        imported += 1;
-    }
+    let normalized: Vec<_> = records
+        .iter()
+        .enumerate()
+        .map(|(i, rec)| normalize_record(rec, i))
+        .collect();
+    let imported = match state.put_many_owner(&normalized) {
+        Ok(saved) => saved.len(),
+        Err(error) => return admission_error(error),
+    };
 
     let raw_count = records.len() as f64;
     let mut o = json::obj();
@@ -277,7 +280,10 @@ pub fn send(state: &ServerState, body: &Value) -> Value {
     record.insert("subject".into(), Value::String(subject.clone()));
     record.insert("to".into(), to_value);
     record.insert("text".into(), Value::String(raw_text));
-    let saved = state.put(Value::Object(record));
+    let saved = match state.put_owner(&Value::Object(record)) {
+        Ok(saved) => saved,
+        Err(error) => return admission_error(error),
+    };
 
     let mut result = json::obj();
     result.insert("id".into(), Value::String(id));
@@ -296,6 +302,16 @@ pub fn send(state: &ServerState, body: &Value) -> Value {
     o.insert("result".into(), Value::Object(result));
     o.insert("queued".into(), saved);
     Value::Object(o)
+}
+
+fn admission_error(error: meta_sovereign_core::SyncError) -> Value {
+    Value::Object(
+        [(
+            "error".into(),
+            Value::String(format!("invalid owner write: {error:?}")),
+        )]
+        .into(),
+    )
 }
 
 /// Return `true` when the request matches a route this module owns. The

@@ -11,33 +11,49 @@ parser = argparse.ArgumentParser()
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument('--before', action='store_true')
 mode.add_argument('--clippy', action='store_true')
+parser.add_argument('--owner', action='store_true')
 args = parser.parse_args()
-prefix = 'native-rich-' + ('parent' if args.before else 'clippy' if args.clippy else 'focused')
+unit = 'owner' if args.owner else 'rich'
+prefix = f'native-{unit}-' + ('parent' if args.before else 'clippy' if args.clippy else 'focused')
 logs = root / 'ci-logs'
 logs.mkdir(exist_ok=True)
 core = root / 'rust/crates/meta-sovereign-core/src'
 server = root / 'rust/crates/meta-sovereign-server/src'
 marker = '// Native rich-record admission regressions.'
-with tempfile.TemporaryDirectory(prefix='native-rich-', dir=root / 'experiments/issue-56') as directory:
+with tempfile.TemporaryDirectory(prefix=f'native-{unit}-', dir=root / 'experiments/issue-56') as directory:
     work = Path(directory)
     if args.before:
         def source(name):
-            return subprocess.check_output(['git', 'show', 'b24e1ca5:' + name], cwd=root).decode()
+            revision = 'bd954afd' if args.owner else 'b24e1ca5'
+            return subprocess.check_output(['git', 'show', revision + ':' + name], cwd=root).decode()
         for name in ['lib.rs', 'sync.rs']:
             (work / name).write_text(source(f'rust/crates/meta-sovereign-core/src/{name}'))
         core = work
         state = work / 'state.rs'
-        current = (server / 'state.rs').read_text()
-        # The unchanged-API regression module is the final item in the source.
-        cases = current.split(marker, 1)[1].split('pub struct ServerState', 1)[0]
-        state.write_text(source('rust/crates/meta-sovereign-server/src/state.rs') + '\n' + marker + cases)
+        if args.owner:
+            for name in ['state.rs', 'record_sync.rs', 'handlers.rs', 'email.rs', 'routes.rs']:
+                (work / name).write_text(source(f'rust/crates/meta-sovereign-server/src/{name}'))
+        else:
+            current = (server / 'state.rs').read_text()
+            # The unchanged-API regression module is the final item in the source.
+            cases = current.split(marker, 1)[1].split('pub struct ServerState', 1)[0]
+            state.write_text(source('rust/crates/meta-sovereign-server/src/state.rs') + '\n' + marker + cases)
     else:
         state = server / 'state.rs'
     wrapper = work / 'server.rs'
+    modules = work if args.before and args.owner else server
+    http = (server / 'http.rs').read_text()
+    http = '#[derive(Debug, Clone)]\npub struct Request' + http.split(
+        '#[derive(Debug, Clone)]\npub struct Request', 1)[1].split(
+        '#[derive(Default, Clone, Copy, PartialEq, Eq)]', 1)[0]
+    owner_modules = (
+        'pub mod http { use std::collections::BTreeMap;\n' + http + '}\n' +
+        ''.join(f'#[path = "{modules / (name + ".rs")}"] pub mod {name};\n'
+                for name in ['handlers', 'email', 'routes'])) if args.owner else ''
     wrapper.write_text(
         f'#[path = "{server / "json.rs"}"] pub mod json;\n' +
-        ('' if args.before else f'#[path = "{server / "record_sync.rs"}"] pub mod record_sync;\n') +
-        f'#[path = "{state}"] pub mod state;\npub use state::ServerState;\n')
+        ('' if args.before and not args.owner else f'#[path = "{modules / "record_sync.rs"}"] pub mod record_sync;\n') +
+        f'#[path = "{state}"] pub mod state;\npub use state::ServerState;\n' + owner_modules)
     with (logs / f'{prefix}-compile.log').open('w') as compile_log:
         def compile_rust(source, destination, *extra):
             started = time.perf_counter()
@@ -50,11 +66,16 @@ with tempfile.TemporaryDirectory(prefix='native-rich-', dir=root / 'experiments/
         library = work / 'libmeta_sovereign_core.rlib'
         compile_rust(core / 'lib.rs', library, '--crate-name', 'meta_sovereign_core', '--crate-type', 'rlib')
         external = ['--extern', f'meta_sovereign_core={library}']
-        tests = [(wrapper, ['native_parent_' if args.before else 'native_'])]
-        if not args.before:
+        tests = [] if args.owner else [(wrapper, ['native_parent_' if args.before else 'native_'])]
+        if not args.before or args.owner:
             native = work / 'libmeta_sovereign_server.rlib'
             compile_rust(wrapper, native, '--crate-name', 'meta_sovereign_server', '--crate-type', 'rlib', *external)
-            tests.append((root / 'rust/crates/meta-sovereign-server/tests/rich_sync.rs', ['native_rich_']))
+            case = root / f'rust/crates/meta-sovereign-server/tests/{unit}_sync.rs'
+            if args.before:
+                parent_case = work / 'owner-before.rs'
+                parent_case.write_text(case.read_text().split('// Checked owner refusals.', 1)[0])
+                case = parent_case
+            tests.append((case, [f'native_{unit}_']))
             external += ['--extern', f'meta_sovereign_server={native}']
         with (logs / f'{prefix}.log').open('w') as log:
             for i, (case, filters) in enumerate(tests):

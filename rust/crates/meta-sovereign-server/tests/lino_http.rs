@@ -11,6 +11,17 @@ struct Reply {
     body: Vec<u8>,
 }
 
+fn owner_response(value: Value, expected: &Value, counter: u64) -> Value {
+    let mut payload = value.as_object().unwrap().clone();
+    let clock = payload.remove("vc").unwrap();
+    let clock = clock.as_object().unwrap();
+    assert_eq!(clock.len(), 1);
+    assert!(clock.keys().next().unwrap().starts_with("writer:"));
+    assert_eq!(clock.values().next(), Some(&Value::Number(counter as f64)));
+    assert_eq!(&Value::Object(payload), expected);
+    value
+}
+
 fn request(port: u16, path: &str, headers: &str, body: &[u8], length: usize) -> Reply {
     let mut stream = TcpStream::connect(("127.0.0.1", port)).unwrap();
     stream
@@ -56,7 +67,10 @@ fn default_http_uses_lino_and_all_four_representations_round_trip() {
         Some("meta-sovereign")
     );
     let value = json::parse(r#"{"id":"fixture:🚀","text":"Привет\r\n100%","empty":{},"flags":[true,false,null],"number":1.25}"#).unwrap();
-    for format in [Format::Text, Format::Binary, Format::Line, Format::Compact] {
+    for (index, format) in [Format::Text, Format::Binary, Format::Line, Format::Compact]
+        .into_iter()
+        .enumerate()
+    {
         let body = format.encode(&value).unwrap();
         let headers = format!(
             "Content-Type: {}\r\nAccept: {}\r\n",
@@ -70,7 +84,12 @@ fn default_http_uses_lino_and_all_four_representations_round_trip() {
                 .headers
                 .contains(&format!("content-type: {}", format.media()))
         );
-        assert_eq!(format.decode(&reply.body).unwrap(), value);
+        let saved = owner_response(
+            format.decode(&reply.body).unwrap(),
+            &value,
+            index as u64 + 1,
+        );
+        assert_eq!(server.state().get("fixture:🚀"), Some(saved));
     }
     server.shutdown();
 }
@@ -169,10 +188,9 @@ fn http_json_requires_opt_in_and_explicit_lino_still_wins() {
     );
     assert_eq!(reply.status, 200);
     assert!(reply.headers.contains("content-type: application/json"));
-    assert_eq!(
-        Format::Json.decode(&reply.body).unwrap(),
-        json::parse(std::str::from_utf8(body).unwrap()).unwrap()
-    );
+    let expected = json::parse(std::str::from_utf8(body).unwrap()).unwrap();
+    let saved = owner_response(Format::Json.decode(&reply.body).unwrap(), &expected, 1);
+    assert_eq!(server.state().get("legacy"), Some(saved));
     let reply = request(server.port(), "/links", "Accept: text/lino\r\n", &[], 0);
     assert_eq!(reply.status, 200);
     assert!(reply.headers.contains("content-type: text/lino"));

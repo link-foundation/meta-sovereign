@@ -1,5 +1,6 @@
 # Issue 56: unified automation and device architecture
 
+- [Native owner clocks](native-owner-clocks.md): four exact-parent HTTP failures, atomic owner edits and deletion metadata, all mutating routes, ten focused regressions and twelve production JavaScript references. Durable native transport remains unfinished.
 - [Checked native rich records](native-rich-register.md): four exact-parent failures, atomic in-memory remote admission, deletion/private-record isolation, 27 JavaScript fixtures and preserved CI duplication evidence. Durable native transport remains unfinished.
 
 - [Bun browser-account fixture](ci-browser-account-locks.md): identical Linux/Windows missing-Web-Locks failures, one selected failing-before test and passing Bun/Node checks. Production unsafe-write refusal remains enforced.

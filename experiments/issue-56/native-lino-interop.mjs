@@ -70,9 +70,10 @@ test(
             'utf8'
           )
         );
-        for (const { value } of vectors) {
+        for (const [index, { value }] of vectors.entries()) {
           for (const type of LINO_TYPES) {
-            const body = encodeWire(value, type);
+            const record = { id: `interop:fixture:${index}:${type}`, value };
+            const body = encodeWire(record, type);
             const response = await fetch(`${base}/links`, {
               method: 'PUT',
               headers: { 'content-type': type, accept: type },
@@ -80,7 +81,21 @@ test(
               signal: t.signal,
             });
             assert.equal(response.status, 200, type);
-            assert.deepEqual(await readWireResponse(response), value, type);
+            const saved = await readWireResponse(response);
+            const { vc, ...payload } = saved;
+            assert.deepEqual(payload, record, type);
+            assert.equal(Object.keys(vc).length, 1);
+            assert.ok(Object.keys(vc)[0].startsWith('writer:'));
+            assert.equal(Object.values(vc)[0], 1);
+            const stored = await fetch(
+              `${base}/links/${encodeURIComponent(record.id)}`,
+              {
+                headers: { accept: type },
+                signal: t.signal,
+              }
+            );
+            assert.equal(stored.status, 200);
+            assert.deepEqual(await readWireResponse(stored), saved, type);
           }
         }
         const json = await fetch(`${base}/links`, {

@@ -12,6 +12,9 @@
 //! merge and `meta-sovereign-core` queries continue to work.
 
 use std::collections::BTreeMap;
+use std::collections::hash_map::RandomState;
+use std::hash::BuildHasher;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, MutexGuard};
 
 use meta_sovereign_core::{Link, MemoryStore, SyncError};
@@ -25,6 +28,7 @@ fn private(id: &str) -> bool {
 
 pub struct ServerState {
     inner: Mutex<Inner>,
+    actor: String,
 }
 
 struct Inner {
@@ -38,12 +42,30 @@ struct Inner {
 
 impl ServerState {
     pub fn new() -> Self {
-        Self {
+        // Writer identities are nonsecret collision-resistant names, not
+        // authorization tokens. Include a process-local sequence as well as
+        // fresh standard-library randomized hash keys for copied openings.
+        static OPENING: AtomicU64 = AtomicU64::new(0);
+        let sequence = OPENING.fetch_add(1, Ordering::Relaxed);
+        let random = RandomState::new();
+        let actor = format!(
+            "writer:{:016x}{:016x}:{sequence}",
+            random.hash_one((std::process::id(), sequence, "left")),
+            random.hash_one((std::process::id(), sequence, "right"))
+        );
+        Self::with_actor(actor).expect("generated nonempty actor")
+    }
+
+    pub fn with_actor(actor: impl Into<String>) -> Result<Self, SyncError> {
+        let actor = actor.into();
+        meta_sovereign_core::try_vc_tick(&Default::default(), &actor)?;
+        Ok(Self {
             inner: Mutex::new(Inner {
                 links: BTreeMap::new(),
                 store: MemoryStore::new(),
             }),
-        }
+            actor,
+        })
     }
 
     fn lock(&self) -> MutexGuard<'_, Inner> {
@@ -74,8 +96,8 @@ impl ServerState {
                     .filter_map(|c| c.as_str().map(String::from))
                     .collect();
             }
-            // Invalid legacy owner inputs still follow the existing owner API;
-            // checked replicated admission below rejects them before mutation.
+            // This trusted primitive preserves legacy restoration/fixture
+            // behavior. Production writes use checked causal admission below.
             if let Ok(checked) = record_sync::core_link(&link) {
                 core = checked;
             }
@@ -83,6 +105,63 @@ impl ServerState {
             g.links.insert(id, link.clone());
         }
         link
+    }
+
+    /// Atomic owner admission for production mutating endpoints. The primitive
+    /// `put` remains available for trusted fixtures and restoration.
+    pub fn put_owner(&self, link: &Value) -> Result<Value, SyncError> {
+        Ok(self.put_many_owner(std::slice::from_ref(link))?.remove(0))
+    }
+
+    /// Prepare the whole finite batch before changing either representation.
+    pub fn put_many_owner(&self, links: &[Value]) -> Result<Vec<Value>, SyncError> {
+        let mut g = self.lock();
+        let mut pending: BTreeMap<String, (Value, Link)> = BTreeMap::new();
+        let mut admitted = Vec::with_capacity(links.len());
+        for link in links {
+            let id = link
+                .get("id")
+                .and_then(Value::as_str)
+                .filter(|id| !id.is_empty())
+                .ok_or(SyncError::InvalidValue)?;
+            let before = pending
+                .get(id)
+                .map(|(value, _)| value)
+                .or_else(|| g.links.get(id));
+            let next = if private(id) {
+                record_sync::merge(link, link)?;
+                link.clone()
+            } else {
+                record_sync::assign(link, before, &self.actor)?
+            };
+            let core = record_sync::core_link(&next)?;
+            admitted.push(next.clone());
+            pending.insert(id.into(), (next, core));
+        }
+        for (id, (value, core)) in pending {
+            g.store.put(core);
+            g.links.insert(id, value);
+        }
+        Ok(admitted)
+    }
+
+    pub fn delete_owner(&self, id: &str) -> Result<bool, SyncError> {
+        if id.is_empty() {
+            return Err(SyncError::InvalidValue);
+        }
+        let mut g = self.lock();
+        if private(id) {
+            let existed = g.links.remove(id).is_some();
+            g.store.delete(id);
+            return Ok(existed);
+        }
+        let before = g.links.get(id);
+        let existed = before.is_some_and(|value| !record_sync::is_deleted(value));
+        let next = record_sync::deletion(id, before, &self.actor)?;
+        let core = record_sync::core_link(&next)?;
+        g.store.put(core);
+        g.links.insert(id.into(), next);
+        Ok(existed)
     }
 
     pub fn get(&self, id: &str) -> Option<Value> {

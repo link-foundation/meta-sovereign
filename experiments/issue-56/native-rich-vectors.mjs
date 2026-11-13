@@ -1,6 +1,8 @@
 // Rich native expectations from actual production JavaScript, without builds.
 import { readFile, writeFile } from 'node:fs/promises';
 import { merge } from '../../js/src/sync/register.js';
+import { createMemoryStore } from '../../js/src/storage/universal.js';
+import { withCausalWrites } from '../../js/src/storage/causal-writes.js';
 import { format } from 'prettier';
 import { fixtures as typed } from './native-register-cases.mjs';
 
@@ -105,9 +107,69 @@ const numericContent = await format(
   json(numbers.map((value) => ({ value, expected: String(value) }))),
   { parser: 'json' }
 );
+const ownerCases = [
+  { name: 'fresh', value: record('new') },
+  { name: 'observed', before: equal('old'), value: record('new') },
+  {
+    name: 'supplied_context',
+    before: equal('old'),
+    value: record('new', { vc: { b: 3, 'native-owner': 2, zero: 0 } }),
+  },
+  {
+    name: 'replace_assignment',
+    before: merge(equal('A'), record('Z', { vc: { b: 1 } })),
+    value: record('owner'),
+  },
+  {
+    name: 'supplied_assignment',
+    value: merge(equal('A'), record('Z', { vc: { b: 1 } })),
+  },
+  { name: 'delete_missing', delete: true },
+  { name: 'delete_existing', before: equal('old'), delete: true },
+  {
+    name: 'delete_null_children',
+    before: equal('old', { children: null }),
+    delete: true,
+  },
+  {
+    name: 'delete_child_order',
+    before: equal('old', { children: ['z', 'a', 'z'] }),
+    delete: true,
+  },
+  {
+    name: 'delete_empty_children',
+    before: equal('old', { children: [] }),
+    delete: true,
+  },
+  {
+    name: 'recreate',
+    before: { id: 'shared', __msSyncDeleted: 1, vc: { a: 2 } },
+    value: record('recreated'),
+  },
+  {
+    name: 'delete_twice',
+    before: { id: 'shared', __msSyncDeleted: 1, vc: { a: 2 } },
+    delete: true,
+  },
+];
+for (const fixture of ownerCases) {
+  const inner = createMemoryStore();
+  if (fixture.before) {
+    await inner.put(fixture.before);
+  }
+  const store = withCausalWrites(inner, { actor: 'native-owner' });
+  if (fixture.delete) {
+    await store.delete('shared');
+    fixture.expected = await inner.get('shared');
+  } else {
+    fixture.expected = await store.put(fixture.value);
+  }
+}
+const ownerContent = await format(json(ownerCases), { parser: 'json' });
 for (const [name, value] of [
   ['rich-register', content],
   ['number-strings', numericContent],
+  ['owner-register', ownerContent],
 ]) {
   const destination = new URL(
     `../../rust/crates/meta-sovereign-server/tests/fixtures/${name}.json`,
@@ -122,5 +184,5 @@ for (const [name, value] of [
   }
 }
 console.log(
-  `Verified ${Object.keys(fixtures).length} finite rich register fixtures and ${numbers.length} number strings`
+  `Verified ${Object.keys(fixtures).length} finite rich register fixtures and ${numbers.length} number strings; ${ownerCases.length} owner assignments`
 );

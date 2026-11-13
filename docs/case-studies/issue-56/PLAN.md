@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active native owner causality:
+
+- [x] Reproduce native HTTP owner-edit rollback, deletion resurrection, recreation loss and absent write clocks against published `bd954afd`.
+- [x] Stamp native owner writes atomically with a fresh writer per state opening, retain payload-free owner deletion clocks, validate before mutation and cover all native mutating endpoints.
+- [x] Verify ten focused real-router regressions and twelve production JavaScript owner cases, including atomic email refusal, counter exhaustion and three concurrent writes. Scoped Clippy passes below 224 MiB.
+- [ ] Preserve [owner-clock evidence](native-owner-clocks.md), publish this atomic unit and inspect exact-head hosted checks before continuing durable storage and schema-gated transport.
+
 Active native rich-record convergence and CI duplication:
 
 - [x] Reproduce four state/mirror failures on exact published `b24e1ca5`: discarded clocks, assignment stamps and versions, plus public deletion exposure.

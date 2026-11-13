@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 
 use meta_sovereign_core::{
     AssignmentStamp, Link, SyncError, VectorClock, try_compare_assignments, try_vc_compare,
-    try_vc_merge,
+    try_vc_merge, try_vc_tick,
 };
 
 use crate::json::{self, Value};
@@ -287,6 +287,56 @@ pub fn merge(a: &Value, b: &Value) -> Result<Value, SyncError> {
         next.insert("children".into(), list(children.into_iter().map(text)));
     }
     Ok(Value::Object(next))
+}
+
+/// Assign an ordinary owner edit after observing both the stored and supplied
+/// clocks. Replicated admission must use `merge` instead of ticking this clock.
+pub fn assign(value: &Value, before: Option<&Value>, actor: &str) -> Result<Value, SyncError> {
+    if value.get(DELETED).is_some() {
+        return Err(SyncError::InvalidValue);
+    }
+    let incoming = read(value)?;
+    let previous = before.map(read).transpose()?;
+    if previous
+        .as_ref()
+        .is_some_and(|old| old.payload.get("id") != incoming.payload.get("id"))
+    {
+        return Err(SyncError::InvalidValue);
+    }
+    let empty = VectorClock::new();
+    let observed = try_vc_merge(
+        incoming.context.as_ref().unwrap_or(&empty),
+        previous
+            .as_ref()
+            .and_then(|old| old.context.as_ref())
+            .unwrap_or(&empty),
+    )?;
+    let clock = try_vc_tick(&observed, actor)?;
+    let Value::Object(mut assigned) = value.clone() else {
+        unreachable!("validated record");
+    };
+    assigned.remove(STAMP);
+    assigned.insert("vc".into(), encoded_clock(&clock));
+    Ok(Value::Object(assigned))
+}
+
+/// Retain only an ID, existing child links and a new deletion clock.
+pub fn deletion(id: &str, before: Option<&Value>, actor: &str) -> Result<Value, SyncError> {
+    let mut value = BTreeMap::from([("id".into(), text(id))]);
+    if let Some(children) = before.and_then(|old| old.get("children"))
+        && children != &Value::Null
+    {
+        value.insert("children".into(), children.clone());
+    }
+    let Value::Object(mut assigned) = assign(&Value::Object(value), before, actor)? else {
+        unreachable!("assigned record");
+    };
+    assigned.insert(DELETED.into(), Value::Number(1.0));
+    // Owner deletion preserves the existing child order, just as JS admission
+    // does. A later replica merge canonicalizes the grow-only child set.
+    let value = Value::Object(assigned);
+    read(&value)?;
+    Ok(value)
 }
 
 /// Retain synchronization metadata in the core mirror of a validated record.
