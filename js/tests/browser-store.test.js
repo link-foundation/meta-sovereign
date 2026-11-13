@@ -11,6 +11,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { snapshotLocks } from './helpers/snapshot-locks.mjs';
 
 import {
   createBrowserStore,
@@ -63,7 +64,9 @@ test('browser store: localStorage driver persists snapshots', async () => {
       removeItem: (k) => map.delete(k),
     };
   })();
-  const driver = createLocalStorageDriver(fakeStorage, 'test:snapshot');
+  const driver = createLocalStorageDriver(fakeStorage, 'test:snapshot', {
+    locks: snapshotLocks(),
+  });
 
   const a = await createBrowserStore({ driver });
   await a.put({ id: 'l:p', tokens: ['persist'] });

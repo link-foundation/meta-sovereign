@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Concurrent browser snapshot protection](browser-snapshot-ownership.md): atomic IndexedDB and Web Lock comparison, per-opening revisions, retained unsaved drafts and actual parent/final two-tab evidence. Automatic live merging and full shared cache ownership remain unfinished.
+
 - [Causal-storage publication compatibility](ci-causal-compatibility.md): eight exact hosted failures, strict trusted-record normalization, public/raw deletion assertions and focused parent/final evidence; the separate Windows Bun startup failure remains active.
 
 - [Bounded initial and reconnect reconciliation](sync-reconciliation.md): addressed sessions, incremental causal records/deletions, durable acknowledgements, shared-hub discovery and actual file/IndexedDB/native catch-up evidence; hosted compatibility failures remain active.

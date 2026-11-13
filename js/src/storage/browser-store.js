@@ -6,6 +6,12 @@ import {
   admitMutation,
 } from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
+import {
+  snapshotVersion,
+  versionedSnapshotDriver,
+  saveIndexedSnapshot,
+  saveLocalSnapshot,
+} from './browser-snapshot.js';
 
 /**
  * Browser-side links store for offline-first operation.
@@ -20,15 +26,17 @@ import { getLocalStorage } from './local-storage.js';
  * The store keeps the live data in a JS `Map` for synchronous, fast
  * lookups and persists snapshots to a pluggable *driver*. Drivers
  * expose `load() -> Promise<snapshot|null>` and `save(snapshot) ->
- * Promise<void>`; ship-in drivers cover IndexedDB, localStorage, and
+ * Promise<void|version>`; ship-in drivers cover IndexedDB, localStorage, and
  * an in-memory driver used by tests. Browser code picks the best
  * driver at boot via `pickBrowserDriver()`.
  *
  * Snapshot shape: `{ links: Link[] }`. Memory and subscription events
  * update immediately. Mutation promises wait for a coalesced, ordered
  * driver save and reject on failure; flush explicitly retries the current
- * memory state. At most one save and one pending batch exist, so an older
- * snapshot cannot replace a newer acknowledged one. Additional drivers
+ * memory state. At most one save and one pending batch exist. Built-in durable
+ * drivers compare the opening's revision atomically before replacement and
+ * reject stale tabs without overwriting committed data. localStorage writes
+ * require Web Locks; a busy or unsupported lock rejects explicitly. Additional drivers
  * can provide file-system storage (Electron) with the same contract.
  */
 
@@ -51,23 +59,25 @@ export const createInMemoryDriver = () => {
 
 export const createLocalStorageDriver = (
   storage = getLocalStorage(),
-  key = SNAPSHOT_KEY
-) => ({
-  async load() {
-    const raw = storage.getItem(key);
-    if (!raw) {
-      return null;
-    }
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  },
-  async save(snapshot) {
-    storage.setItem(key, JSON.stringify(snapshot));
-  },
-});
+  key = SNAPSHOT_KEY,
+  { locks = globalThis.navigator?.locks } = {}
+) =>
+  versionedSnapshotDriver({
+    async load() {
+      const raw = storage.getItem(key);
+      if (!raw) {
+        return null;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    },
+    async save(snapshot, expected) {
+      await saveLocalSnapshot(storage, key, locks, snapshot, expected);
+    },
+  });
 
 const idbReq = (req) =>
   new Promise((resolve, reject) => {
@@ -98,7 +108,7 @@ export const createIndexedDbDriver = ({
     });
     return dbPromise;
   };
-  return {
+  return versionedSnapshotDriver({
     async load() {
       const db = await open();
       const tx = db.transaction(storeName, 'readonly');
@@ -106,25 +116,11 @@ export const createIndexedDbDriver = ({
       const value = await idbReq(obj.get(key));
       return value ?? null;
     },
-    async save(snapshot) {
+    async save(snapshot, expected) {
       const db = await open();
-      const tx = db.transaction(storeName, 'readwrite');
-      const txDone = new Promise((resolve, reject) => {
-        tx.oncomplete = () => resolve();
-        tx.onabort = () => reject(tx.error);
-        tx.onerror = () => reject(tx.error);
-      });
-      try {
-        const obj = tx.objectStore(storeName);
-        await Promise.all([idbReq(obj.put(snapshot, key)), txDone]);
-      } catch (error) {
-        // A synchronous put failure can precede Promise.all attaching to
-        // txDone. Observe the eventual abort without replacing the cause.
-        txDone.catch(() => {});
-        throw error;
-      }
+      await saveIndexedSnapshot(db, storeName, key, snapshot, expected);
     },
-  };
+  });
 };
 
 const createBestSnapshotDriver = (key = SNAPSHOT_KEY) => {
@@ -223,16 +219,19 @@ export const createDoubletsWebDriver = ({
   return {
     kind: 'doublets-web',
     async load() {
-      const loaded = (await snapshotDriver.load()) ?? { links: [] };
+      const loaded = await snapshotDriver.load();
       rebuild(loaded);
-      return { links: current.links.map(cloneLink) };
+      return loaded ? { ...loaded, links: current.links.map(cloneLink) } : null;
     },
-    async save(snapshot) {
+    async save(snapshot, options) {
       rebuild(snapshot);
-      await snapshotDriver.save({
-        links: current.links.map(cloneLink),
-        doubletsWeb: this.stats(),
-      });
+      return snapshotDriver.save(
+        {
+          links: current.links.map(cloneLink),
+          doubletsWeb: this.stats(),
+        },
+        options
+      );
     },
     stats() {
       return {
@@ -337,6 +336,7 @@ export const createBrowserStore = async ({
   };
 
   const snapshot = await driver.load();
+  let expected = snapshotVersion(snapshot);
   if (snapshot?.links) {
     for (const link of snapshot.links) {
       data.set(link.id, cloneLink(link));
@@ -351,7 +351,10 @@ export const createBrowserStore = async ({
     }
     const saving = tail.then(async () => {
       pending = null;
-      await driver.save({ links: [...data.values()].map(cloneLink) });
+      const next = { links: [...data.values()].map(cloneLink) };
+      const committed = await driver.save(next, { expected });
+      expected =
+        typeof committed === 'string' ? committed : snapshotVersion(next);
     });
     pending = saving;
     // Failed callers retain their rejection, while later saves may recover.

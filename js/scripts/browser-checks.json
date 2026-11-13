@@ -111,5 +111,6 @@
   "sticker-collections",
   "browser-preferences",
   "lino-events",
-  "lino-sync"
+  "lino-sync",
+  "browser-storage"
 ]

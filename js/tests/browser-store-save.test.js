@@ -241,15 +241,20 @@ for (const mode of ['request', 'commit', 'synchronous put', 'object store']) {
     async () => {
       const failure = new Error('fixture aborted transaction');
       const db = {
-        transaction() {
+        transaction(_name, txMode) {
           const tx = {
             error: failure,
             objectStore() {
-              if (mode === 'object store') {
+              if (mode === 'object store' && txMode === 'readwrite') {
                 globalThis.queueMicrotask(() => tx.onabort());
                 throw failure;
               }
               return {
+                get() {
+                  const request = { result: null };
+                  globalThis.queueMicrotask(() => request.onsuccess());
+                  return request;
+                },
                 put() {
                   if (mode === 'synchronous put') {
                     globalThis.queueMicrotask(() => tx.onabort());
@@ -258,7 +263,7 @@ for (const mode of ['request', 'commit', 'synchronous put', 'object store']) {
                   const request = { error: failure };
                   globalThis.queueMicrotask(() => {
                     if (mode === 'commit') {
-                      request.onsuccess();
+                      request.onsuccess?.();
                     } else {
                       request.onerror();
                     }

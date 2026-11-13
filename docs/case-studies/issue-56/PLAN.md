@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active concurrent browser snapshot protection:
+
+- [x] Reproduce stale insert/edit/delete/bulk/flush overwrites on exact published `eefc6f7d`, including a reused driver and two native tabs sharing IndexedDB/localStorage.
+- [x] Compare and replace atomically in one IndexedDB transaction or one nonqueued Web Lock. Bind the expected revision to each open store, preserve legacy roots, reject unsafe fallback writes and retain unsaved owner memory on conflicts.
+- [x] Verify seven exact-parent failures, 29 focused persistence/error checks, 32 existing causal/offline/registry checks, actual native WebKit tabs and independent MCP before/after data. Register both hosted browser engines; retain the draft first-save retry failure and final correction.
+- [ ] Preserve evidence, publish the atomic correction and inspect exact-head CI. See [snapshot ownership](browser-snapshot-ownership.md).
+- [ ] Continue live tab merging, native sync parity and every unchecked original feature requirement. Conflict refusal alone does not complete simultaneous editable tabs.
+
 Active bounded initial/reconnect reconciliation:
 
 - [x] Reproduce missing preconnection records, offline edits and deletion clocks on published `4bfeaf2c`, including a later client on a shared hub transport.
