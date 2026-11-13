@@ -384,10 +384,12 @@ test(
   async (t) => {
     const previousIdle = globalThis.requestIdleCallback;
     const previousCancel = globalThis.cancelIdleCallback;
+    const scheduled = Promise.withResolvers();
     let idle;
     let cancelled = 0;
     globalThis.requestIdleCallback = (fn) => {
       idle = fn;
+      scheduled.resolve();
       return 7;
     };
     globalThis.cancelIdleCallback = (id) => {
@@ -423,7 +425,17 @@ test(
       },
     });
     await cache.start();
-    await tick(() => idle !== undefined);
+    // Keep a referenced timer while production intentionally unrefs its work.
+    const deadline = setTimeout(() => {
+      scheduled.reject(
+        new Error('the cache did not schedule idle persistence')
+      );
+    }, 3000);
+    try {
+      await scheduled.promise;
+    } finally {
+      clearTimeout(deadline);
+    }
     let done = false;
     const close = cache.close().then(() => {
       done = true;

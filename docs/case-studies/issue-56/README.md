@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Reply idle fixture scheduling](ci-reply-idle.md): six exact hosted failures, an unchanged local Bun reproduction and explicit callback registration within the existing deadline. Corrected-head runtime verification remains required.
+
 - [Private vacancy choices](vacancy-choices.md): durable slot-bound exclusions and reminders, stale-write refusal, CLI/text-binary Lino/four-language controls and actual-parent/native/MCP evidence. Automatic application and questionnaire policies remain unfinished.
 
 - [Editable browser tab convergence](browser-tab-merge.md): causal record merging under atomic root revisions, payload-free invalidations, private conflict refusal, retained drafts and actual parent/final native-tab evidence.
