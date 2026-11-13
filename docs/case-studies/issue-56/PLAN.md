@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active ordinary-write causal clocks:
+
+- [x] Reproduce stale-packet rollback after ordinary durable/server edits on published `96a54d99`.
+- [x] Stamp ordinary production writes at atomic storage admission, prepare complete bulk clocks before events, preserve replicated clocks and return admitted records through history/offline APIs. Use distinct actors per writable opening and schema 12 without rewriting history.
+- [x] Verify focused storage/history/API/migration/handoff checks, exact-parent failures, one rebuilt native WebKit WebRTC scenario and independent actual IndexedDB parent/final reopen probes.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue durable offline reconciliation, deletion history, native parity and every remaining original criterion.
+
+Hosted checks for published `fc7c095c` all pass. The later `96a54d99` checks are still running; retain exact-SHA verification before declaring this next unit verified.
+
 Active delivery-order-independent JavaScript merge rules:
 
 - [x] Reproduce equal-clock ties, three-way synthetic-clock promotion, key/child insertion order, decimal counter width and explicit-zero clock failures against published `fc7c095c`.

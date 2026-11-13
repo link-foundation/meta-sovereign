@@ -31,6 +31,27 @@ export const changedLink = (id, change, before) => {
   return next;
 };
 
+// Internal capability used below write decorators: evaluate every synchronous
+// transform at one batch admission, then expose the complete batch's events.
+// It is deliberately separate from a public sequence of asynchronous updates.
+export const atomicBatch = Symbol.for('meta-sovereign.atomic-batch');
+export const changedBatch = (links, change, read, copy) => {
+  const staged = new Map();
+  return links.map((link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
+    }
+    const before = staged.has(link.id) ? staged.get(link.id) : read(link.id);
+    const next = changedLink(
+      link.id,
+      (old) => change(link, old),
+      before ? copy(before) : null
+    );
+    staged.set(link.id, next);
+    return next;
+  });
+};
+
 // Reserve append admission before a synchronous subscriber can start another
 // mutation. Memory still changes immediately; persistence stages in call order
 // without waiting for disk completion, preserving group commit.
@@ -39,7 +60,7 @@ export const orderedMutations = (methods) => {
   return {
     wait: (run) => tail.then(run),
     methods: Object.fromEntries(
-      Object.entries(methods).map(([name, run]) => [
+      Reflect.ownKeys(methods).map((name) => [
         name,
         (...args) => {
           let ready;
@@ -60,7 +81,7 @@ export const orderedMutations = (methods) => {
           // that rejection now, while retaining it for this caller's result.
           mutation.catch(() => {});
           try {
-            Promise.resolve(run(...args)).then(ready, failed);
+            Promise.resolve(methods[name](...args)).then(ready, failed);
           } catch (error) {
             failed(error);
           }

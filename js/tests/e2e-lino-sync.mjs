@@ -9,6 +9,7 @@ import { traceSyncPeer } from './helpers/e2e-lino-sync-trace.mjs';
 import { readSyncPeer } from './helpers/e2e-lino-sync-read.mjs';
 import { checkReceiveIsolation } from './helpers/e2e-sync-receive-isolation.mjs';
 import { checkSyncMesh } from './helpers/e2e-lino-sync-mesh.mjs';
+import { checkCausalWrites } from './helpers/e2e-causal-writes.mjs';
 
 import { prepareSyncPeer, stopSyncPeer } from './helpers/e2e-sync-peer.mjs';
 
@@ -113,6 +114,7 @@ await finish(async () => {
         'signaling does not use JSON'
       );
     }
+    await checkCausalWrites({ page, other, until, link });
     await page.evaluate((id) => globalThis.__msApi.del(id), link.id);
     await until(async () => {
       const current = await readSyncPeer(other, link.id);

@@ -100,6 +100,7 @@ import { backgroundJobs } from './background-jobs.js';
 import { handleDeletedRoutes } from './routes-deleted.js';
 import { handleVersionRoutes } from './routes-message-versions.js';
 import { withMessageVersions } from '../storage/message-versions.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
 import { handleAudienceSyncRoute } from './audience-sync.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
@@ -719,7 +720,7 @@ const initStore = async ({
     }
   }
   // Kept before wrapping: the secret wrapper does not pass `flush` on.
-  store = withMessageVersions(store);
+  store = withMessageVersions(withCausalWrites(store));
   const unwrapped = store;
   const flush = async () => {
     await unwrapped.flush?.();

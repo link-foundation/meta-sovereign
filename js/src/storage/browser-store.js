@@ -1,4 +1,10 @@
-import { changedLink, mutationEvent, admitMutation } from './mutation.js';
+import {
+  changedLink,
+  changedBatch,
+  atomicBatch,
+  mutationEvent,
+  admitMutation,
+} from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
 
 /**
@@ -385,6 +391,12 @@ export const createBrowserStore = async ({
       }
       await saved;
       return links;
+    },
+    async [atomicBatch](links, change, options) {
+      return this.putMany(
+        changedBatch(links, change, (id) => data.get(id), cloneLink),
+        options
+      );
     },
     async update(id, change, options) {
       const before = data.get(id);

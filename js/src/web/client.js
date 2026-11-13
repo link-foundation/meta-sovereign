@@ -153,8 +153,7 @@ const localWrites = (store) => ({
       networks,
       body: body ?? text,
     };
-    await store.put(link);
-    return link;
+    return store.put(link);
   },
   async syncProfile(profile) {
     const link = {
@@ -162,8 +161,7 @@ const localWrites = (store) => ({
       tokens: ['profile-sync'],
       ...profile,
     };
-    await store.put(link);
-    return link;
+    return store.put(link);
   },
 });
 
@@ -286,8 +284,7 @@ export const createOfflineClient = ({
 
     // ---- core link operations ----------------------------------------
     async put(link) {
-      await store.put(link);
-      return link;
+      return store.put(link);
     },
     async get(id) {
       return store.get(id);

@@ -26,6 +26,8 @@ import { managedDualStore } from './dual-handoff.js';
 import { verifyCheckpoint } from './lino-handoff.js';
 import { CURRENT_SCHEMA } from './migrations/index.js';
 import { acquireStoreLock } from './store-lock.js';
+import { atomicBatch } from './mutation.js';
+import { withCausalWrites } from './causal-writes.js';
 import { withMessageVersions } from './message-versions.js';
 import {
   preserveMessageMedia,
@@ -79,6 +81,18 @@ export const createDualStore = ({ binary, text }) => {
         }
         const out = await binary.update(id, change, options);
         await text.put(out, options);
+        return out;
+      });
+    },
+    [atomicBatch](links, change, options) {
+      return enqueue(async () => {
+        if (binary.mirrors === text) {
+          const out = await text[atomicBatch](links, change, options);
+          await binary.putMany(out, options);
+          return out;
+        }
+        const out = await binary[atomicBatch](links, change, options);
+        await text.putMany(out, options);
         return out;
       });
     },
@@ -177,6 +191,7 @@ const readOnlyStore = (text, schema) => ({
   put: text.put,
   update: text.update,
   putMany: text.putMany,
+  [atomicBatch]: text[atomicBatch],
   delete: text.delete,
   scan: text.scan,
   size: text.size,
@@ -288,16 +303,18 @@ export const openDualStore = async (
       onEvent,
     });
     return withMessageVersions(
-      managedDualStore({
-        dir,
-        text,
-        binary,
-        lock,
-        schema,
-        access: (binary, text) => createDualStore({ binary, text }),
-        onError,
-        onEvent,
-      }),
+      withCausalWrites(
+        managedDualStore({
+          dir,
+          text,
+          binary,
+          lock,
+          schema,
+          access: (binary, text) => createDualStore({ binary, text }),
+          onError,
+          onEvent,
+        })
+      ),
       {
         preserve: preserveMessageMedia(dir),
         purgeMedia: purgeVersionMedia(dir),
@@ -335,14 +352,16 @@ export const openWarmDualStore = async (
   }
   schema.version = CURRENT_SCHEMA;
   return withMessageVersions(
-    managedDualStore({
-      dir,
-      text,
-      schema,
-      access: (binary, text) => createDualStore({ binary, text }),
-      onError,
-      onEvent,
-    }),
+    withCausalWrites(
+      managedDualStore({
+        dir,
+        text,
+        schema,
+        access: (binary, text) => createDualStore({ binary, text }),
+        onError,
+        onEvent,
+      })
+    ),
     { preserve: preserveMessageMedia(dir), purgeMedia: purgeVersionMedia(dir) }
   );
 };

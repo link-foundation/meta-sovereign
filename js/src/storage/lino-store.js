@@ -28,7 +28,7 @@ import { createInterface } from 'node:readline';
 import { ownedLines } from './read-lines.js';
 import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore } from './universal.js';
-import { changedLink, orderedMutations } from './mutation.js';
+import { atomicBatch, changedLink, orderedMutations } from './mutation.js';
 import { createRawPacking } from './raw-packing.js';
 import { createPayloadFile } from './payload-file.js';
 import { parseLino } from './lino.js';
@@ -771,6 +771,20 @@ const textMutations = ({ mem, guard, append, tally }) => {
         options
       );
       return { value: out, persist: persist([record]) };
+    },
+    async [atomicBatch](links, change, options) {
+      guard();
+      const records = [];
+      const out = await mem[atomicBatch](
+        links,
+        (link, before) => {
+          const next = changedLink(link.id, (old) => change(link, old), before);
+          records.push(encoded(next));
+          return next;
+        },
+        options
+      );
+      return { value: out, persist: persist(records) };
     },
     async delete(id, options) {
       guard();

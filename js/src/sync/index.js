@@ -3,10 +3,11 @@
  *
  * A max register per link with a joined observed clock and a grow-only set
  * of children. Vector writes retain their original winning clock in the
- * schema-11 stamp when the observed clock grows. New causal assignments
- * must tick the observed clock; ordinary unversioned writes have no causal
- * ordering. Decimal tickVersion counters compare numerically. `Peer` is
- * transport-agnostic — the
+ * schema-11 stamp when the observed clock grows. Schema-12 production stores
+ * tick the observed clock for ordinary assignments at atomic admission,
+ * including offline edits. Primitive library stores can opt in through
+ * `withCausalWrites`; unversioned writes have no causal ordering. Decimal
+ * tickVersion counters compare numerically. `Peer` is transport-agnostic — the
  * WebRTC adapter is plumbed via `Peer.connect(transport)` so the same
  * code runs over loopback in tests, WebSocket on a server, or
  * RTCDataChannel in the browser.

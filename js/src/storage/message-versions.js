@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { changedLink } from './mutation.js';
 import { isTombstone } from './soft-delete.js';
+import { SYNC_STAMP } from '../sync/register.js';
 
 export const VERSION_PREFIX = 'message-version:';
 export const isMessageVersion = (link) => link?.kind === 'message-version';
@@ -97,7 +98,12 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     }
     const before = await inner.get(link.id);
     const immutable = (record) => {
-      const { assets: _assets, ...rest } = record;
+      const {
+        assets: _assets,
+        vc: _clock,
+        [SYNC_STAMP]: _stamp,
+        ...rest
+      } = record;
       return rest;
     };
     if (before && !isDeepStrictEqual(immutable(before), immutable(link))) {
@@ -154,12 +160,10 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     const writes = [];
     const history = [];
     const after = [];
-    const output = [];
     for (const link of links) {
       if (!isMessage(link)) {
         await guard(link);
         writes.push(link);
-        output.push(link);
         continue;
       }
       const before = pending.get(link.id) ?? (await inner.get(link.id));
@@ -183,20 +187,21 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       }
       pending.set(link.id, next);
       writes.push(next);
-      output.push(next);
     }
     const write = async (records, one = false) => {
       if (!records.length) {
-        return;
+        return [];
       }
       if (one && records.length === 1) {
-        await inner.put(records[0], options);
+        return [await inner.put(records[0], options)];
       } else if (inner.putMany) {
-        await inner.putMany(records, options);
+        return inner.putMany(records, options);
       } else {
+        const output = [];
         for (const record of records) {
-          await inner.put(record, options);
+          output.push(await inner.put(record, options));
         }
+        return output;
       }
     };
     await write(history);
@@ -204,7 +209,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     for (const finish of after) {
       await finish();
     }
-    await write(writes, single);
+    const output = await write(writes, single);
     indexVersions(writes);
     return output;
   };

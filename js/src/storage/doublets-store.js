@@ -23,6 +23,7 @@ import { promises as fs } from 'node:fs';
 import { createMemoryStore } from './universal.js';
 import { decodeArchive, encodeArchive } from './doublets-archive.js';
 import { createFileWriter } from './file-writer.js';
+import { atomicBatch } from './mutation.js';
 
 const LEGACY_MAGIC = Buffer.from('MSDB1\n', 'utf8');
 
@@ -113,6 +114,11 @@ export const createDoubletsStore = async (
     },
     async update(id, change, options) {
       const out = await mem.update(id, change, options);
+      snapshots.later();
+      return out;
+    },
+    async [atomicBatch](links, change, options) {
+      const out = await mem[atomicBatch](links, change, options);
       snapshots.later();
       return out;
     },

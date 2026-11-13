@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Ordinary-write causal clocks](causal-writes.md): atomic production admission, offline edits, complete bulk preparation, fresh writable-opening actors and actual file/IndexedDB reopen. Initial reconciliation and deletion history remain required.
+
 - [Delivery-order-independent JavaScript merge rules](sync-register.md): immutable winning-write clocks, canonical ties/children, schema-11 collision protection and actual file/network/IndexedDB evidence. Ordinary-write stamping and offline reconciliation remain required.
 
 - [Ordered browser snapshot durability](browser-snapshot-order.md): immediate local edits, committed save acknowledgements, coalesced ordered snapshots and explicit failure recovery; real IndexedDB parent/final MCP evidence.

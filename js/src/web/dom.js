@@ -16,6 +16,7 @@ import { createLinoFetch } from '../transport/fetch.js';
 import { LINO_TEXT, LINO_LINE, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -98,7 +99,7 @@ const openMigratedStore = async (suffix) => {
   });
   try {
     await migrateBrowserStore(store);
-    return store;
+    return withCausalWrites(store);
   } catch (error) {
     if (error?.code !== 'STORE_TOO_NEW') {
       throw error;
@@ -107,7 +108,7 @@ const openMigratedStore = async (suffix) => {
     globalThis.dispatchEvent?.(
       new globalThis.CustomEvent('ms-schema-too-new', { detail: error.message })
     );
-    return createBrowserStore();
+    return withCausalWrites(await createBrowserStore());
   }
 };
 

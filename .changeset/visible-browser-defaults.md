@@ -2,7 +2,9 @@
 'meta-sovereign': minor
 ---
 
-Make JavaScript synchronization merges independent of delivery grouping and equal-clock ties. Retain original winning-write clocks separately from observed vector joins, compare decimal ticks numerically, canonicalize child unions and validate safe counters. Reserve synchronization stamps through schema 11 with owner-field collision refusal; ordinary writes still require explicit causal ticks.
+Assign ordinary JavaScript production writes causal clocks at atomic storage admission, including offline edits and bulk writes. Preserve received clocks, return admitted records, use a fresh actor per writable opening and require schema-12 peers without inventing historical clocks.
+
+Make JavaScript synchronization merges independent of delivery grouping and equal-clock ties. Retain original winning-write clocks separately from observed vector joins, compare decimal ticks numerically, canonicalize child unions and validate safe counters. Reserve synchronization stamps through schema 11 with owner-field collision refusal.
 
 Remove disconnected ordinary WebSocket sockets on TCP end and verify replacement connections while preserving the addressed multi-peer WebRTC lifecycle.
 

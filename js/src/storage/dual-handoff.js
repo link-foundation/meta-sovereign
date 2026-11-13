@@ -5,6 +5,7 @@ import { acquireStoreLock } from './store-lock.js';
 import { createDoubletsMirror } from './doublets-mirror.js';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { atomicBatch } from './mutation.js';
 
 const refusal = () =>
   Object.assign(new Error('no writable owner for this operation'), {
@@ -47,6 +48,7 @@ export const managedDualStore = ({
         'put',
         'putMany',
         'update',
+        atomicBatch,
         'get',
         'delete',
         'query',

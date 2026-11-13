@@ -15,6 +15,7 @@
  * @property {string} id
  * @property {string[]} tokens
  * @property {string[]} [children]
+ * @property {Object<string, number>} [vc] observed synchronization clock
  */
 
 /**
@@ -29,7 +30,13 @@
  * @property {(handler: (event: {type: string, link: Link}) => void) => () => void} subscribe
  */
 
-import { changedLink, mutationEvent, admitMutation } from './mutation.js';
+import {
+  changedLink,
+  changedBatch,
+  atomicBatch,
+  mutationEvent,
+  admitMutation,
+} from './mutation.js';
 
 export const createMemoryStore = ({
   retain = (link) => ({ ...link }),
@@ -74,6 +81,12 @@ export const createMemoryStore = ({
       const before = data.get(id);
       return put(
         changedLink(id, change, before ? copy(before) : null),
+        options
+      );
+    },
+    async [atomicBatch](links, change, options) {
+      return this.putMany(
+        changedBatch(links, change, (id) => data.get(id), copy),
         options
       );
     },
