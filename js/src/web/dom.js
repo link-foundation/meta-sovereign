@@ -15,8 +15,8 @@ import { createRecoveringRequest } from './request-recovery.js';
 import { createLinoFetch } from '../transport/fetch.js';
 import { LINO_TEXT, LINO_LINE, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
-import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import { withCausalWrites } from '../storage/causal-writes.js';
+import { openCausalBrowserStore } from '../storage/open-browser-store.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -94,12 +94,13 @@ const localBroadcast = async (networks, body) =>
 // by a newer build is not touched: the page works on a scratch copy and
 // says so (`ms-schema-too-new`), so nothing of it is overwritten.
 const openMigratedStore = async (suffix) => {
-  const store = await createBrowserStore({
-    driver: pickBrowserDriver({ suffix }),
-  });
   try {
-    await migrateBrowserStore(store);
-    return withCausalWrites(store);
+    return await openCausalBrowserStore({
+      driver: pickBrowserDriver({ suffix }),
+      signal: pageLifetime,
+      onError: (error) =>
+        debugBrowser('snapshot-merge-refused', { code: error?.code }),
+    });
   } catch (error) {
     if (error?.code !== 'STORE_TOO_NEW') {
       throw error;

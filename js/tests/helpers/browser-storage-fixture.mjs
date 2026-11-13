@@ -5,12 +5,16 @@ import { build } from 'esbuild';
 
 // Separate from the owner's app; bundles the production storage adapter only.
 // An optional exact commit is served solely for finite before/after probes.
-export const startSnapshotFixture = async ({ before } = {}) => {
+export const startSnapshotFixture = async ({
+  before,
+  entry = "export * from './js/src/storage/browser-store.js';",
+  beforeEntry = entry,
+} = {}) => {
   const modules = new Map();
   for (const side of before ? ['before', 'after'] : ['after']) {
     const result = await build({
       stdin: {
-        contents: "export * from './js/src/storage/browser-store.js';",
+        contents: side === 'before' ? beforeEntry : entry,
         resolveDir: process.cwd(),
       },
       bundle: true,

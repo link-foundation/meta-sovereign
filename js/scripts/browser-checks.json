@@ -112,5 +112,6 @@
   "browser-preferences",
   "lino-events",
   "lino-sync",
-  "browser-storage"
+  "browser-storage",
+  "browser-merge"
 ]

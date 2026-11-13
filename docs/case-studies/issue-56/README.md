@@ -1,6 +1,10 @@
 # Issue 56: unified automation and device architecture
 
-- [Native checkpoint admission](native-durable-storage.md): persist complete rich records before admission, retain text/binary recovery pairs and exclusive ownership, and verify finite failure paths. Hosted codec/restart verification and native durable transport remain required.
+- [Editable browser tab convergence](browser-tab-merge.md): causal record merging under atomic root revisions, payload-free invalidations, private conflict refusal, retained drafts and actual parent/final native-tab evidence.
+
+- [Native schema-gated replica sessions](native-sync-session.md): directed durable reconciliation, bounded live text/binary fanout, private/deletion guards and exact-head hosted real CLI verification.
+
+- [Native checkpoint admission](native-durable-storage.md): persist complete rich records before admission, retain text/binary recovery pairs and exclusive ownership, and verify finite failure paths. Exact-head hosted codec/restart and native durable transport checks pass; provider parity remains required.
 
 - [Desktop provenance metadata](ci-desktop-provenance.md): preserve the Windows ARM64 post-packaging launcher exit and use installed metadata, with an exact-parent real-shell regression and unchanged installer checks.
 
@@ -11,7 +15,7 @@
 
 - [Deterministic typed Rust register](native-register.md): four exact-parent failures, retained assignment clocks, JavaScript-compatible ordering and thirteen generated reference fixtures. Rich native replication and durable causal metadata remain unfinished.
 
-- [Concurrent browser snapshot protection](browser-snapshot-ownership.md): atomic IndexedDB and Web Lock comparison, per-opening revisions, retained unsaved drafts and actual parent/final two-tab evidence. Automatic live merging and full shared cache ownership remain unfinished.
+- [Concurrent browser snapshot protection](browser-snapshot-ownership.md): atomic IndexedDB and Web Lock comparison, per-opening revisions, retained unsaved drafts and actual parent/final two-tab evidence. Automatic live merging follows in [editable tabs](browser-tab-merge.md); full shared reply-cache ownership remains unfinished.
 
 - [Causal-storage publication compatibility](ci-causal-compatibility.md): eight exact hosted failures, strict trusted-record normalization, public/raw deletion assertions and focused parent/final evidence; the separate Windows Bun startup failure remains active.
 

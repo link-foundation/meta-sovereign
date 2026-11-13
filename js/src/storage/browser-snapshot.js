@@ -21,10 +21,12 @@ export const assertSnapshotVersion = (snapshot, expected) => {
 // Direct driver callers also get protection after load. The browser store
 // supplies its own expected version, so sharing a driver cannot reset another
 // open store's baseline. Only successful durable commits advance that version.
-export const versionedSnapshotDriver = ({ load, save }) => {
+export const versionedSnapshotDriver = ({ load, save, notifications }) => {
   let baseline;
   let initialRead;
   return {
+    revisioned: true,
+    watch: notifications?.watch,
     async load() {
       const snapshot = await load();
       baseline = snapshotVersion(snapshot);
@@ -44,6 +46,7 @@ export const versionedSnapshotDriver = ({ load, save }) => {
       };
       await save(next, expected);
       baseline = snapshotVersion(next);
+      notifications?.publish();
       return baseline;
     },
   };

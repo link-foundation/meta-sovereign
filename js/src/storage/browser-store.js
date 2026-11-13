@@ -7,7 +7,11 @@ import {
 } from './mutation.js';
 import { getLocalStorage } from './local-storage.js';
 import {
-  snapshotVersion,
+  coordinateSnapshots,
+  snapshotNotifications,
+} from './browser-coordination.js';
+import { createSnapshotWriter } from './browser-snapshot-writer.js';
+import {
   versionedSnapshotDriver,
   saveIndexedSnapshot,
   saveLocalSnapshot,
@@ -35,7 +39,8 @@ import {
  * driver save and reject on failure; flush explicitly retries the current
  * memory state. At most one save and one pending batch exist. Built-in durable
  * drivers compare the opening's revision atomically before replacement and
- * reject stale tabs without overwriting committed data. localStorage writes
+ * reject stale primitive stores without overwriting committed data. The production
+ * migrated opening enables causal per-record merging and root notifications. localStorage writes
  * require Web Locks; a busy or unsupported lock rejects explicitly. Additional drivers
  * can provide file-system storage (Electron) with the same contract.
  */
@@ -60,9 +65,12 @@ export const createInMemoryDriver = () => {
 export const createLocalStorageDriver = (
   storage = getLocalStorage(),
   key = SNAPSHOT_KEY,
-  { locks = globalThis.navigator?.locks } = {}
+  { locks = globalThis.navigator?.locks, notifications } = {}
 ) =>
   versionedSnapshotDriver({
+    notifications:
+      notifications ??
+      snapshotNotifications(JSON.stringify(['local', key]), { key }),
     async load() {
       const raw = storage.getItem(key);
       if (!raw) {
@@ -90,6 +98,7 @@ export const createIndexedDbDriver = ({
   dbName = 'meta-sovereign',
   storeName = 'snapshot',
   key = 'current',
+  notifications,
 } = {}) => {
   let dbPromise = null;
   const open = () => {
@@ -109,6 +118,11 @@ export const createIndexedDbDriver = ({
     return dbPromise;
   };
   return versionedSnapshotDriver({
+    notifications:
+      notifications ??
+      snapshotNotifications(
+        JSON.stringify(['indexedDB', dbName, storeName, key])
+      ),
     async load() {
       const db = await open();
       const tx = db.transaction(storeName, 'readonly');
@@ -218,6 +232,8 @@ export const createDoubletsWebDriver = ({
 
   return {
     kind: 'doublets-web',
+    revisioned: snapshotDriver.revisioned,
+    watch: snapshotDriver.watch,
     async load() {
       const loaded = await snapshotDriver.load();
       rebuild(loaded);
@@ -336,32 +352,20 @@ export const createBrowserStore = async ({
   };
 
   const snapshot = await driver.load();
-  let expected = snapshotVersion(snapshot);
   if (snapshot?.links) {
     for (const link of snapshot.links) {
       data.set(link.id, cloneLink(link));
     }
   }
 
-  let pending = null;
-  let tail = Promise.resolve();
-  const queueSave = () => {
-    if (pending) {
-      return pending;
-    }
-    const saving = tail.then(async () => {
-      pending = null;
-      const next = { links: [...data.values()].map(cloneLink) };
-      const committed = await driver.save(next, { expected });
-      expected =
-        typeof committed === 'string' ? committed : snapshotVersion(next);
-    });
-    pending = saving;
-    // Failed callers retain their rejection, while later saves may recover.
-    // This also observes a save if a synchronous subscriber throws first.
-    tail = saving.catch(() => {});
-    return saving;
-  };
+  const writer = createSnapshotWriter({
+    driver,
+    snapshot,
+    data,
+    cloneLink,
+    emit,
+  });
+  const queueSave = writer.save;
   const capture = (link) => {
     if (!link || typeof link.id !== 'string') {
       throw new Error('link.id is required');
@@ -370,6 +374,7 @@ export const createBrowserStore = async ({
   };
 
   return {
+    [coordinateSnapshots]: writer.coordinate,
     async put(link, options) {
       const record = capture(link);
       data.set(record.id, record);
@@ -458,5 +463,7 @@ export const createBrowserStore = async ({
     async flush() {
       await queueSave();
     },
+    refresh: writer.refresh,
+    close: writer.close,
   };
 };

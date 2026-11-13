@@ -385,3 +385,5 @@ Stamp native owner edits and payload-free deletions at atomic admission across e
 Preserve the current native CLI across exact-parent Cargo regression builds and isolate the reference executable. Quote CLI usage documentation for warnings-denied rustdoc; verify actual small Cargo artifact identities, failed-build cleanup and before/after documentation without weakening CI gates.
 
 Apply native CLI schema-13 WebSocket records through durable checked admission, directed initial/reconnect scans and bounded live fan-out. Preserve private/deletion guards, acknowledge reconciliation only after checkpoints, isolate sessions and stop buffered admission on refusal. Keep opening records stable during concurrent inserts and verify real JavaScript text/binary peers, failed storage and process restart in hosted CI.
+
+Merge concurrent editable browser tabs after migration while retaining atomic root revision checks, causal deletions and independent writer clocks. Refresh local roots through payload-free invalidations, refuse conflicting private/schema changes, preserve unsaved drafts and drain subscribed writes on close.
