@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 use std::collections::hash_map::RandomState;
 use std::hash::BuildHasher;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard, Weak};
 use std::{fmt, io};
 
 use meta_sovereign_core::{Link, MemoryStore, SyncError};
@@ -92,6 +92,55 @@ struct Inner {
     /// future code paths that need vector-clock merge can reach it.
     store: MemoryStore,
     persistence: Option<Box<dyn StatePersistence>>,
+    feeds: Vec<Weak<crate::change_feed::ChangeFeed>>,
+    // Stable public insertion ordinals, rebuilt on opening. Later BTree keys
+    // cannot consume a scan's finite opening budget and displace older keys.
+    public_births: BTreeMap<String, usize>,
+}
+
+impl Inner {
+    fn insert_record(&mut self, id: String, record: Value) {
+        if !private(&id) && !self.public_births.contains_key(&id) {
+            let ordinal = self.public_births.len();
+            self.public_births.insert(id.clone(), ordinal);
+        }
+        self.links.insert(id, record);
+    }
+}
+
+fn notify(inner: &mut Inner, record: &Value) {
+    let Some(id) = record.get("id").and_then(Value::as_str) else {
+        return;
+    };
+    if private(id) || inner.feeds.is_empty() {
+        return;
+    }
+    let event = Value::Object(
+        [
+            (
+                "type".into(),
+                Value::String(
+                    if record_sync::is_deleted(record) {
+                        "delete"
+                    } else {
+                        "put"
+                    }
+                    .into(),
+                ),
+            ),
+            ("schema".into(), Value::Number(crate::sync_session::SCHEMA)),
+            ("link".into(), record.clone()),
+        ]
+        .into(),
+    );
+    let bytes = crate::json::encode(&event).len();
+    inner.feeds.retain(|weak| {
+        let Some(feed) = weak.upgrade() else {
+            return false;
+        };
+        feed.push(&event, bytes);
+        feed.is_open()
+    });
 }
 
 fn persist<'a>(
@@ -149,6 +198,8 @@ impl ServerState {
                 links: BTreeMap::new(),
                 store: MemoryStore::new(),
                 persistence: None,
+                feeds: Vec::new(),
+                public_births: BTreeMap::new(),
             }),
             actor,
         })
@@ -169,7 +220,7 @@ impl ServerState {
                 if inner.links.contains_key(&id) {
                     return Err(SyncError::InvalidValue.into());
                 }
-                inner.links.insert(id, record);
+                inner.insert_record(id, record);
                 inner.store.put(core);
             }
             inner.persistence = Some(persistence);
@@ -179,6 +230,19 @@ impl ServerState {
 
     fn lock(&self) -> MutexGuard<'_, Inner> {
         self.inner.lock().expect("state mutex poisoned")
+    }
+
+    pub fn subscribe_sync(&self) -> io::Result<Arc<crate::change_feed::ChangeFeed>> {
+        let mut inner = self.lock();
+        inner
+            .feeds
+            .retain(|weak| weak.upgrade().is_some_and(|feed| feed.is_open()));
+        if inner.feeds.len() >= 16 {
+            return Err(io::Error::other("native sync connection limit reached"));
+        }
+        let feed = Arc::new(crate::change_feed::ChangeFeed::default());
+        inner.feeds.push(Arc::downgrade(&feed));
+        Ok(feed)
     }
 
     pub fn put(&self, link: Value) -> Value {
@@ -216,7 +280,7 @@ impl ServerState {
                 core = checked;
             }
             g.store.put(core);
-            g.links.insert(id, link.clone());
+            g.insert_record(id, link.clone());
         }
         link
     }
@@ -260,7 +324,8 @@ impl ServerState {
         )?;
         for (id, (value, core)) in pending {
             g.store.put(core);
-            g.links.insert(id, value);
+            notify(&mut g, &value);
+            g.insert_record(id, value);
         }
         Ok(admitted)
     }
@@ -282,7 +347,8 @@ impl ServerState {
         let core = record_sync::core_link(&next)?;
         persist(&mut g, [(id, Some(&next))])?;
         g.store.put(core);
-        g.links.insert(id.into(), next);
+        notify(&mut g, &next);
+        g.insert_record(id.into(), next);
         Ok(existed)
     }
 
@@ -312,12 +378,37 @@ impl ServerState {
             None => admitted,
         };
         let core = record_sync::core_link(&next)?;
-        if g.links.get(id) != Some(&next) {
+        let changed = g.links.get(id) != Some(&next);
+        if changed {
             persist(&mut g, [(id, Some(&next))])?;
         }
         g.store.put(core);
-        g.links.insert(id.into(), next.clone());
+        if changed {
+            notify(&mut g, &next);
+        }
+        g.insert_record(id.into(), next.clone());
         Ok(next)
+    }
+
+    /// Fixed opening boundary, with no per-connection record inventory.
+    pub fn sync_boundary(&self) -> usize {
+        self.lock().public_births.len()
+    }
+
+    /// Clone one public record after a cursor, never an archive-sized vector.
+    pub fn sync_next(&self, after: Option<&str>, boundary: usize) -> Option<Value> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        let inner = self.lock();
+        inner
+            .links
+            .range::<str, _>((after.map_or(Unbounded, Excluded), Unbounded))
+            .find(|(id, _)| {
+                inner
+                    .public_births
+                    .get(*id)
+                    .is_some_and(|birth| *birth < boundary)
+            })
+            .map(|(_, record)| record.clone())
     }
 
     /// Raw public replica records, including payload-free deletion clocks.

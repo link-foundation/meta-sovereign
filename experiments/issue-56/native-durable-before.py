@@ -1,5 +1,6 @@
 """Hosted-only exact-parent CLI regression, reusing the existing Cargo cache."""
 from pathlib import Path
+import argparse
 import os
 import subprocess
 import tarfile
@@ -7,12 +8,18 @@ import tempfile
 from native_cargo_reference import build_reference
 
 root = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser()
+parser.add_argument('--sync', action='store_true')
+args = parser.parse_args()
 if os.environ.get('GITHUB_ACTIONS') != 'true':
     raise SystemExit('Run this full native build on a provisioned hosted CI runner.')
-revision = '0f245481b247bdbbf622127deecd97fd095ddb8e'
+revision = ('9db8d8d97da8551b381e7655107904e07afda7d8' if args.sync
+            else '0f245481b247bdbbf622127deecd97fd095ddb8e')
+prefix = 'native-session-parent' if args.sync else 'native-storage-parent'
+probe = 'native-sync-interop' if args.sync else 'native-durable-interop'
 logs = root / 'ci-logs'
 logs.mkdir(exist_ok=True)
-with (logs / 'native-storage-parent-compile.log').open('w') as log:
+with (logs / f'{prefix}-compile.log').open('w') as log:
     if subprocess.run(['git', 'cat-file', '-e', revision], cwd=root,
                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
         subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', revision],
@@ -30,12 +37,16 @@ with (logs / 'native-storage-parent-compile.log').open('w') as log:
                         '--target-dir', str(target), '-j', '1', '-p', 'meta-sovereign-server',
                         '--bin', 'meta-sovereign-rs'], target / 'debug/meta-sovereign-rs',
                         parent, cwd=root, stdout=log, stderr=subprocess.STDOUT)
-        result = subprocess.run(['node', 'experiments/issue-56/native-durable-interop.mjs',
+        result = subprocess.run(['node', f'experiments/issue-56/{probe}.mjs',
                                  str(parent)], cwd=root,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-        (logs / 'native-storage-parent.log').write_text(result.stdout)
+        (logs / f'{prefix}.log').write_text(result.stdout)
         assert result.returncode != 0, result.stdout
-        assert 'acknowledged owner write survives process termination' in result.stdout, result.stdout
-        assert '404 !== 200' in result.stdout, result.stdout
-        print(f'Exact parent {revision}: acknowledged write is missing after restart (expected failure).')
+        if args.sync:
+            assert 'native CLI did not reconcile schema-13 JavaScript peer' in result.stdout, result.stdout
+            print(f'Exact parent {revision}: native schema-13 reconciliation is absent (expected failure).')
+        else:
+            assert 'acknowledged owner write survives process termination' in result.stdout, result.stdout
+            assert '404 !== 200' in result.stdout, result.stdout
+            print(f'Exact parent {revision}: acknowledged write is missing after restart (expected failure).')
         print(result.stdout)

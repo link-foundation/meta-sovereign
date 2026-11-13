@@ -39,3 +39,13 @@ The [evidence archive](data/ci-native-reference-artifact.tar.gz) and
 hosted job logs, exact-head metadata, sources and local checks. The actual
 corrected native network/restart check still requires hosted verification.
 Native reconciliation and all remaining issue acceptance criteria stay open.
+
+Hosted follow-up: corrected head `3ad29517` passes the
+[Rust job](https://github.com/link-foundation/meta-sovereign/actions/runs/43501736882/job/132152543260)
+and [API Docs job](https://github.com/link-foundation/meta-sovereign/actions/runs/43501736882/job/132152542905).
+Full Rust log lines 915–916 show both focused regressions passing, 918–946
+retain the expected exact-parent restart failure, 949 confirms real native
+HTTP/mixed signaling interoperability, and 959 confirms actual CLI durable
+restart, corruption recovery and failed-write refusal. Full docs log line 592
+completes warnings-denied rustdoc. The complete positive logs and exact-head
+metadata are preserved in the subsequent [native sync evidence](native-sync-session.md).

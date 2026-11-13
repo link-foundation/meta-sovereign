@@ -84,6 +84,7 @@ fn parse_args() -> ServerOptions {
         log_format,
         json_compatibility,
         data_dir,
+        apply_sync: true,
     }
 }
 
@@ -106,6 +107,7 @@ fn print_help() {
     eprintln!("  MS_JSON_COMPATIBILITY=1 enables legacy JSON wire transport");
     eprintln!("  MS_NATIVE_DATA_DIR sets the native checkpoint directory");
     eprintln!("  MS_NATIVE_STORAGE_DEBUG=1 enables content-free checkpoint diagnostics");
+    eprintln!("  MS_SYNC_DEBUG=1 enables content-free sync refusal/overflow diagnostics");
 }
 
 fn main() {

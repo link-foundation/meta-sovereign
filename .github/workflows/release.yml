@@ -547,8 +547,11 @@ jobs:
           python3 -B experiments/issue-56/native-cargo-reference-check.py
           cargo build --manifest-path rust/Cargo.toml -p meta-sovereign-server --bin meta-sovereign-rs
           python3 -B experiments/issue-56/native-durable-before.py
+          python3 -B experiments/issue-56/native-durable-before.py --sync
           node experiments/issue-56/native-lino-interop.mjs rust/target/debug/meta-sovereign-rs
           node experiments/issue-56/native-durable-interop.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-storage-network.log
+          node experiments/issue-56/native-sync-interop.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-session-network.log
+          node experiments/issue-56/native-sync-refusal.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-session-refusal.log
 
       - name: Preserve native checkpoint regression evidence
         if: always()
@@ -559,6 +562,7 @@ jobs:
             ci-logs/native-storage-*.log
             ci-logs/native-cargo-*.log
             ci-logs/native-rustdoc-*.log
+            ci-logs/native-session-*.log
           if-no-files-found: ignore
           retention-days: 14
 

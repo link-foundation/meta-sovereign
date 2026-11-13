@@ -15,6 +15,7 @@
 
 #![forbid(unsafe_code)]
 
+pub mod change_feed;
 mod checkpoint;
 mod durable;
 pub mod email;
@@ -25,6 +26,7 @@ pub mod record_sync;
 pub mod routes;
 pub mod signaling;
 pub mod state;
+pub mod sync_session;
 pub mod wire;
 pub mod ws;
 

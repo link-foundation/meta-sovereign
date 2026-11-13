@@ -167,6 +167,9 @@ pub struct ServerOptions {
     pub json_compatibility: bool,
     /// Native checkpoint directory; None is an explicit in-memory fixture.
     pub data_dir: Option<PathBuf>,
+    /// Apply schema-gated replica traffic. False preserves the low-level
+    /// transport fixture API; the native CLI always enables application.
+    pub apply_sync: bool,
 }
 
 pub struct ServerHandle {
@@ -324,6 +327,7 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
     let ws_incoming = Arc::new(Mutex::new(SyncInbox::default()));
     let log_format = opts.log_format;
     let json_compatibility = opts.json_compatibility;
+    let apply_sync = opts.apply_sync;
 
     let stop_l = Arc::clone(&stop);
     let state_l = Arc::clone(&state);
@@ -351,6 +355,7 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
                     ws_incoming: Arc::clone(&ws_in_l),
                     log_format,
                     json_compatibility,
+                    apply_sync,
                 };
                 thread::spawn(move || {
                     let _ = handle_connection(stream, ctx);
@@ -376,6 +381,7 @@ struct ConnectionCtx {
     ws_incoming: Arc<Mutex<SyncInbox>>,
     log_format: LogFormat,
     json_compatibility: bool,
+    apply_sync: bool,
 }
 
 fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Result<()> {
@@ -387,6 +393,7 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         ws_incoming,
         log_format,
         json_compatibility,
+        apply_sync,
     } = ctx;
     let _ = stream.set_read_timeout(Some(Duration::from_secs(60)));
     let (head, leftover) = match read_head(&mut stream)? {
@@ -432,7 +439,15 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
             );
         };
         if parsed.path == "/ws" {
-            return upgrade_ws(stream, &parsed, ws_outgoing, ws_incoming, wire, &leftover);
+            return upgrade_ws(
+                stream,
+                &parsed,
+                ws_outgoing,
+                ws_incoming,
+                wire,
+                &leftover,
+                apply_sync.then_some(state),
+            );
         }
         if parsed.path == "/rtc" {
             return upgrade_rtc(stream, &parsed, signaling, wire, &leftover);
@@ -814,20 +829,33 @@ fn read_socket(
     wire: SocketWire,
     mut receive: impl FnMut(Value) -> std::io::Result<()>,
 ) -> std::io::Result<()> {
+    read_socket_until(stream, writer, initial, wire, None, |value| {
+        if let Err(error) = receive(value) {
+            let _ = writer.write(&encode_close_frame(1009));
+            return Err(error);
+        }
+        Ok(None)
+    })
+}
+
+fn read_socket_until(
+    stream: &mut TcpStream,
+    writer: &SocketWriter,
+    initial: &[u8],
+    wire: SocketWire,
+    mut deadline: Option<std::time::Instant>,
+    mut receive: impl FnMut(Value) -> std::io::Result<Option<std::time::Instant>>,
+) -> std::io::Result<()> {
     let mut reader = FrameReader::client();
     reader.push(initial);
-    stream.set_read_timeout(None)?;
     let mut chunk = [0u8; 4096];
     loop {
         while let Some(frame) = reader.next_frame() {
             let close = match frame {
                 Frame::Text(_) | Frame::Binary(_) => match wire.decode(frame) {
                     Ok(value) => {
-                        if receive(value).is_ok() {
-                            None
-                        } else {
-                            Some(1009)
-                        }
+                        deadline = receive(value)?;
+                        None
                     }
                     Err(_) => Some(1003),
                 },
@@ -848,7 +876,26 @@ fn read_socket(
                 return Ok(());
             }
         }
-        let n = stream.read(&mut chunk)?;
+        let remaining =
+            deadline.map(|limit| limit.saturating_duration_since(std::time::Instant::now()));
+        if remaining.is_some_and(|duration| duration.is_zero()) {
+            writer.write(&encode_close_frame(1008))?;
+            return Ok(());
+        }
+        stream.set_read_timeout(remaining)?;
+        let n = match stream.read(&mut chunk) {
+            Err(error)
+                if deadline.is_some()
+                    && matches!(
+                        error.kind(),
+                        std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+                    ) =>
+            {
+                writer.write(&encode_close_frame(1008))?;
+                return Ok(());
+            }
+            result => result?,
+        };
         if n == 0 {
             return Ok(());
         }
@@ -863,15 +910,84 @@ fn upgrade_ws(
     ws_incoming: Arc<Mutex<SyncInbox>>,
     wire: SocketWire,
     initial: &[u8],
+    state: Option<Arc<ServerState>>,
 ) -> std::io::Result<()> {
     write_handshake(&mut stream, req, wire)?;
     let writer = SocketWriter::new(stream.try_clone()?);
     ws_outgoing.add(writer.clone(), wire)?;
-    let result = read_socket(&mut stream, &writer, initial, wire, |value| {
-        ws_incoming.lock().expect("incoming poisoned").push(value)
-    });
+    let mut live = None;
+    let result = if let Some(state) = state {
+        let mut session = crate::sync_session::SyncSession::default();
+        let hello = writer.write(&wire.frame(&session.hello())?);
+        hello.and_then(|()| {
+            read_socket_until(
+                &mut stream,
+                &writer,
+                initial,
+                wire,
+                session.deadline(),
+                |value| match session.receive(&state, &value) {
+                    Ok(events) => {
+                        if live.is_none() && session.matched() {
+                            live = Some(start_sync_feed(&state, writer.clone(), wire)?);
+                        }
+                        for event in events {
+                            writer.write(&wire.frame(&event)?)?;
+                        }
+                        Ok(session.deadline())
+                    }
+                    Err(error) => {
+                        if std::env::var("MS_SYNC_DEBUG").as_deref() == Ok("1") {
+                            eprintln!("[sync] admission refused; kind={:?}", error.kind());
+                        }
+                        let _ = writer.write(&wire.frame(&session.abort())?);
+                        let code = if error.kind() == std::io::ErrorKind::InvalidData {
+                            1008
+                        } else {
+                            1011
+                        };
+                        let _ = writer.write(&encode_close_frame(code));
+                        writer.shutdown();
+                        Err(error)
+                    }
+                },
+            )
+        })
+    } else {
+        read_socket(&mut stream, &writer, initial, wire, |value| {
+            ws_incoming.lock().expect("incoming poisoned").push(value)
+        })
+    };
+    if let Some((feed, worker)) = live {
+        feed.close();
+        let _ = worker.join();
+    }
     ws_outgoing.drop_socket(&stream);
     result
+}
+
+fn start_sync_feed(
+    state: &ServerState,
+    writer: SocketWriter,
+    wire: SocketWire,
+) -> std::io::Result<(Arc<crate::change_feed::ChangeFeed>, thread::JoinHandle<()>)> {
+    let feed = state.subscribe_sync()?;
+    let reader = Arc::clone(&feed);
+    let worker = thread::Builder::new()
+        .name("native-sync-feed".into())
+        .spawn(move || {
+            while let Some(event) = reader.recv() {
+                if wire
+                    .frame(&event)
+                    .and_then(|frame| writer.write(&frame))
+                    .is_err()
+                {
+                    break;
+                }
+            }
+            writer.shutdown();
+        })?;
+    Ok((feed, worker))
 }
 
 fn upgrade_rtc(

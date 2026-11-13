@@ -1,6 +1,6 @@
 # 服务器 parity 矩阵：JS server vs. Rust server (languages: [en](SERVER-PARITY.md) • zh • [hi](SERVER-PARITY.hi.md) • [ru](SERVER-PARITY.ru.md))
 
-Native CLI 默认在独立目录中保存包含因果删除元数据的完整记录，使用文本/二进制检查点。`--data` 指定目录；`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](NATIVE-STORAGE.md)。原生 schema 校验同步和离线协调仍未完成。
+Native CLI 默认在独立目录中保存包含因果删除元数据的完整记录，使用文本/二进制检查点。`--data` 指定目录；`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](NATIVE-STORAGE.md)。CLI 现支持 schema-13 WebSocket 复制、检查点提交后的协调确认和有界实时分发；见[验证与限制](case-studies/issue-56/native-sync-session.md)。完整的原生提供方功能仍未完成。
 
 本页列出 JavaScript server（`js/src/server/index.js` 与 `routes-*.js`）
 和纯 Rust server（`rust/crates/meta-sovereign-server/src/routes.rs` 与

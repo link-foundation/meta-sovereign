@@ -89,3 +89,14 @@ and network verification must rerun after the assertion correction. The
 [manifest](data/native-recreated-children.tar.sha256.json) preserve the full
 725-line failed Rust job, exact-head metadata, source snapshots and reference
 logs.
+
+Hosted follow-up: all three actual official-codec durable integration tests
+pass on `9db8d8d9`; after isolating the parent executable, corrected
+`3ad29517` also passes the real CLI restart/corruption/refused-write probe and
+HTTP/mixed signaling interoperability in
+[Rust job 132152543260](https://github.com/link-foundation/meta-sovereign/actions/runs/43501736882/job/132152543260).
+The expected exact-parent restart loss is still verified. See the
+[artifact correction](ci-native-reference-artifact.md) and
+[next native sync unit](native-sync-session.md), whose evidence retains the
+full positive logs. This verifies native checkpoint admission and restart;
+every remaining replication and product criterion stays independently open.

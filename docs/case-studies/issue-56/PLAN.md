@@ -4,15 +4,15 @@ Active native hosted reference artifact:
 
 - [x] Preserve exact `9db8d8d9` Rust and API Docs failure logs. Official-codec durable tests now all pass; the network check starts the parent's executable from the shared Cargo output.
 - [x] Preserve and restore the current CLI while running an isolated parent copy. Verify actual small Cargo binaries and failure cleanup, plus the original/corrected CLI header with warnings-denied rustdoc.
-- [ ] Publish [the correction](ci-native-reference-artifact.md) and verify current-head native network/restart and documentation checks. Continue native synchronization and every original unchecked requirement.
+- [x] Publish [the correction](ci-native-reference-artifact.md) as `3ad29517`; actual native HTTP/restart and warnings-denied documentation pass in hosted jobs `132152543260` and `132152542905`. Continue native synchronization and every original unchecked requirement.
 
 Active native WebSocket application:
 
 - [ ] Reproduce the published CLI's unapplied sync mutations with the production JavaScript peer.
-- [ ] Negotiate schema 13 before applying records; exclude private/schema IDs and preserve causal deletion validation.
-- [ ] Reuse native checkpoint admission for incoming mutations and acknowledge reconciliation records only after persistence. Bound each connection to one remote session and one outstanding scan record.
+- [x] Draft schema-13 admission, private/schema exclusion and causal deletion validation. Finite checks pass; full network verification remains hosted.
+- [x] Draft checkpoint-gated incoming admission, one remote/session scan and one outstanding record. Verify failed persistence, duplicate controls and a stable opening boundary despite middle-key insertions.
 - [ ] Verify directed initial/reconnect scans, failed admission, duplicate/out-of-order controls, mismatched schema and session cleanup with finite std-only checks and hosted official-codec/network checks.
-- [ ] Continue live owner/remote fan-out and all remaining requirements; initial reconciliation alone does not establish complete native sync parity.
+- [ ] Verify drafted bounded live owner/remote fan-out through two real JavaScript peers and durable restart in hosted CI, then continue editable-tab merging and all remaining requirements. See [native session evidence](native-sync-session.md).
 
 Active desktop provenance failure:
 
@@ -25,7 +25,7 @@ Active native durable admission:
 - [x] Draft an unchanged-CLI restart-loss regression and register an exact-parent native build on provisioned CI; the real parent executable has not been built on this limited host.
 - [x] Draft full rich records, assignment/deletion clocks and private local metadata in recoverable text/binary Links Notation checkpoints, with exclusive writable ownership, bounded decoding and pre-admission persistence.
 - [x] Pass nine finite std-only admission/filesystem checks, scoped Clippy, ten owner-route checks and nine rich/number checks. Cover nested directory durability, staging/refusal, uncertain publication and 503 errors; keep the unchanged 6.5% duplication gate.
-- [ ] Verify actual codec reopen, stale replica packets, corruption, owner conflicts, failed batches and native HTTP restart in the hosted Rust job; these full integration tests are drafted but remain unverified locally.
+- [x] Verify actual codec reopen, stale replica packets, corruption, owner conflicts, failed batches and native HTTP restart in hosted Rust job `132152543260` on `3ad29517`, retaining the expected exact-parent failure. Full builds remain hosted.
 - [ ] Preserve checksummed evidence, publish and verify exact-head checks. Then continue schema-gated native transport/reconciliation, live tab merging and every unchecked original requirement.
 
 Active hosted Telegram Backlinks disclosure:

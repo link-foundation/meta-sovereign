@@ -14,11 +14,12 @@ mode.add_argument('--clippy', action='store_true')
 unit_mode = parser.add_mutually_exclusive_group()
 unit_mode.add_argument('--owner', action='store_true')
 unit_mode.add_argument('--storage', action='store_true')
+unit_mode.add_argument('--session', action='store_true')
 args = parser.parse_args()
-if args.storage and args.before:
+if (args.storage or args.session) and args.before:
     parser.error('storage admission uses a new API; use the unchanged CLI restart reproducer for the parent')
-unit = 'storage' if args.storage else 'owner' if args.owner else 'rich'
-routes = args.owner or args.storage
+unit = 'session' if args.session else 'storage' if args.storage else 'owner' if args.owner else 'rich'
+routes = args.owner or args.storage or args.session
 prefix = f'native-{unit}-' + ('parent' if args.before else 'clippy' if args.clippy else 'focused')
 logs = root / 'ci-logs'
 logs.mkdir(exist_ok=True)
@@ -57,8 +58,10 @@ with tempfile.TemporaryDirectory(prefix=f'native-{unit}-', dir=root / 'experimen
                 for name in ['handlers', 'email', 'routes'])) if routes else ''
     wrapper.write_text(
         f'#[path = "{server / "json.rs"}"] pub mod json;\n' +
+        f'#[path = "{server / "change_feed.rs"}"] pub mod change_feed;\n' +
         ('' if args.before and not args.owner else f'#[path = "{modules / "record_sync.rs"}"] pub mod record_sync;\n') +
-        f'#[path = "{state}"] pub mod state;\npub use state::ServerState;\n' + owner_modules)
+        f'#[path = "{state}"] pub mod state;\npub use state::ServerState;\n' +
+        (f'#[path = "{server / "sync_session.rs"}"] pub mod sync_session;\n' if not args.before else '') + owner_modules)
     with (logs / f'{prefix}-compile.log').open('w') as compile_log:
         def compile_rust(source, destination, *extra):
             started = time.perf_counter()
@@ -75,7 +78,7 @@ with tempfile.TemporaryDirectory(prefix=f'native-{unit}-', dir=root / 'experimen
         if not args.before or args.owner:
             native = work / 'libmeta_sovereign_server.rlib'
             compile_rust(wrapper, native, '--crate-name', 'meta_sovereign_server', '--crate-type', 'rlib', *external)
-            case_name = 'storage_admission' if args.storage else f'{unit}_sync'
+            case_name = 'sync_session' if args.session else 'storage_admission' if args.storage else f'{unit}_sync'
             case = root / f'rust/crates/meta-sovereign-server/tests/{case_name}.rs'
             if args.before:
                 parent_case = work / 'owner-before.rs'
