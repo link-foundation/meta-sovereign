@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active text-log mutation admission:
+
+- [x] Reproduce nine subscriber-triggered put/bulk/delete reorderings, interrupted bulk memory admission and an early flush returning before called writes are staged against published `e8ff3c84`.
+- [x] Reserve append admission before reentrant subscribers; capture encoded records before mutable subscriber/caller inputs can change them. Preserve immediate memory writes and disk group commit.
+- [x] Verify 52 focused storage/sync/persistence/receive/handoff checks and 13 bounded append/failure checks. All 15 regression cases fail against the exact published parent.
+- [ ] Preserve [mutation admission evidence](lino-mutation-admission.md), publish and inspect exact-head CI. Continue all other unchecked criteria.
+
 Active receive isolation and atomic merge:
 
 - [x] Reproduce local edit suppression, stale overlapping receives and same-record edits against published `ea957225` with finite focused fixtures.

@@ -40,13 +40,17 @@ export const createMemoryStore = ({
   const handlers = new Set();
   const emit = (event) => handlers.forEach((h) => h(event));
 
-  const put = (link, options) => {
+  const remember = (link) => {
     if (!link || typeof link.id !== 'string') {
       throw new Error('link.id is required');
     }
     const held = retain(link);
     release(data.get(link.id));
     data.set(link.id, held);
+    return link;
+  };
+  const put = (link, options) => {
+    remember(link);
     emit(mutationEvent('put', link, options));
     return link;
   };
@@ -56,7 +60,11 @@ export const createMemoryStore = ({
       return put(link, options);
     },
     async putMany(links, options) {
-      return links.map((link) => put(link, options));
+      // A bulk log record cannot be interrupted halfway by a subscriber's
+      // write. Admit the complete batch before exposing any of its events.
+      const out = links.map(remember);
+      out.forEach((link) => emit(mutationEvent('put', link, options)));
+      return out;
     },
     async update(id, change, options) {
       const before = data.get(id);

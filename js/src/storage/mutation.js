@@ -21,3 +21,46 @@ export const changedLink = (id, change, before) => {
   }
   return next;
 };
+
+// Reserve append admission before a synchronous subscriber can start another
+// mutation. Memory still changes immediately; persistence stages in call order
+// without waiting for disk completion, preserving group commit.
+export const orderedMutations = (methods) => {
+  let tail = Promise.resolve();
+  return {
+    wait: (run) => tail.then(run),
+    methods: Object.fromEntries(
+      Object.entries(methods).map(([name, run]) => [
+        name,
+        (...args) => {
+          let ready;
+          let failed;
+          const mutation = new Promise((resolve, reject) => {
+            ready = resolve;
+            failed = reject;
+          });
+          const admitted = tail.then(async () => {
+            const { value, persist } = await mutation;
+            return { value, persisted: persist?.() };
+          });
+          tail = admitted.then(
+            () => {},
+            () => {}
+          );
+          // A handler can throw before a previous admission finishes. Observe
+          // that rejection now, while retaining it for this caller's result.
+          mutation.catch(() => {});
+          try {
+            Promise.resolve(run(...args)).then(ready, failed);
+          } catch (error) {
+            failed(error);
+          }
+          return admitted.then(async ({ value, persisted }) => {
+            await persisted;
+            return value;
+          });
+        },
+      ])
+    ),
+  };
+};

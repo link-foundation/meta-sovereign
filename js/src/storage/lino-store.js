@@ -28,6 +28,7 @@ import { createInterface } from 'node:readline';
 import { ownedLines } from './read-lines.js';
 import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore } from './universal.js';
+import { changedLink, orderedMutations } from './mutation.js';
 import { createRawPacking } from './raw-packing.js';
 import { createPayloadFile } from './payload-file.js';
 import { parseLino } from './lino.js';
@@ -733,36 +734,61 @@ const loadRetained = async (filePath, readLimit) => {
   }
 };
 
-const textMutations = ({ mem, guard, append, tally, lineOf }) => ({
-  async put(link, options) {
-    guard();
-    const out = await mem.put(link, options);
-    await append([lineOf(link)]);
-    return out;
-  },
-  async putMany(links, options) {
-    guard();
-    const out = await mem.putMany(links, options);
-    await append(links.map(lineOf));
-    return out;
-  },
-  async update(id, change, options) {
-    guard();
-    const out = await mem.update(id, change, options);
-    await append([lineOf(out)]);
-    return out;
-  },
-  async delete(id, options) {
-    guard();
-    const ok = await mem.delete(id, options);
-    if (ok) {
-      const text = formatLinoRecords([tombstoneRecord(id)]);
-      tally.removed(id, text.length);
-      await append([text]);
+const textMutations = ({ mem, guard, append, tally }) => {
+  const encoded = (link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
     }
-    return ok;
-  },
-});
+    return { id: link.id, text: formatLinoRecords([link]) };
+  };
+  const persist = (records) => () => {
+    records.forEach(({ id, text }) => tally.wrote(id, text.length));
+    return append(records.map(({ text }) => text));
+  };
+  return orderedMutations({
+    async put(link, options) {
+      guard();
+      const record = encoded(link);
+      const out = await mem.put(link, options);
+      return { value: out, persist: persist([record]) };
+    },
+    async putMany(links, options) {
+      guard();
+      const records = links.map(encoded);
+      const out = await mem.putMany(links, options);
+      return { value: out, persist: persist(records) };
+    },
+    async update(id, change, options) {
+      guard();
+      let record;
+      const out = await mem.update(
+        id,
+        (before) => {
+          const next = changedLink(id, change, before);
+          record = encoded(next);
+          return next;
+        },
+        options
+      );
+      return { value: out, persist: persist([record]) };
+    },
+    async delete(id, options) {
+      guard();
+      const ok = await mem.delete(id, options);
+      if (ok) {
+        const text = formatLinoRecords([tombstoneRecord(id)]);
+        return {
+          value: ok,
+          persist: () => {
+            tally.removed(id, text.length);
+            return append([text]);
+          },
+        };
+      }
+      return { value: ok };
+    },
+  });
+};
 
 export const createLinoTextStore = async (
   filePath,
@@ -873,12 +899,6 @@ export const createLinoTextStore = async (
     rewriting: () => rewrite,
     compactOrThrow,
   });
-  // Each link's line, counted as written.
-  const lineOf = (link) => {
-    const text = formatLinoRecords([link]);
-    tally.wrote(link.id, text.length);
-    return text;
-  };
   if (!readOnly && tally.superseded()) {
     // A failed (or skipped) compaction must not stop the store opening.
     await enqueue(compact).catch(compactionFailed(onEvent));
@@ -890,25 +910,28 @@ export const createLinoTextStore = async (
     wq.guard();
   };
 
+  const admission = textMutations({ mem, guard, append, tally });
   return {
     ...mem,
     memoryStats: packing.stats,
     close: packing.close,
     ...textHandoff({ filePath, mem, tally, mode }),
-    ...textMutations({ mem, guard, append, tally, lineOf }),
+    ...admission.methods,
     /** Resolves once every write so far is on disk (flushed, not just written). */
     flush: () =>
-      enqueue(async () => {
-        // Never claim "on disk" for what is still waiting (R-Z14).
-        if (wq.down() && !(await wq.retry())) {
-          throw writeFailed(wq.down());
-        }
-        await syncer.now();
-      }),
+      admission.wait(() =>
+        enqueue(async () => {
+          // Never claim "on disk" for what is still waiting (R-Z14).
+          if (wq.down() && !(await wq.retry())) {
+            throw writeFailed(wq.down());
+          }
+          await syncer.now();
+        })
+      ),
     /** Rewrite the file with one line per live link. */
     compact: () => {
       guard();
-      return enqueue(compact);
+      return admission.wait(() => enqueue(compact));
     },
     /** `{ degraded, queuedBytes, error }`: whether writes are failing (R-Z14). */
     health: wq.health,

@@ -345,3 +345,5 @@ Keep a separate addressed WebRTC data connection for each remote browser. Rejoin
 Add separately reviewed target-CV deselection for existing shared workplaces. Bind the complete saved native selection and original export, preserve every workplace field and other CV, refuse orphaning and owner conflicts, and recover durable draft-only receipts through CLI, both Lino encodings and four localized CV controls. Native Save/Cancel remain with the owner.
 
 Keep owner edits observable during live peer receives, serialize remote merges and expose atomic updates through built-in storage wrappers. Preserve transient provenance, immutable message history and secret isolation; report failed peer sends without interrupting persistence or healthy peers. Prepare SPA sync fixtures in a fresh document so fragment navigation cannot skip socket instrumentation.
+
+Reserve text-log append order before subscription handlers can write again. Capture encoded records before mutable inputs change, include already called writes in flush/compaction barriers and preserve immediate memory writes, disk batching and failure recovery.
