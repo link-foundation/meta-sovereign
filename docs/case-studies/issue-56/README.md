@@ -370,3 +370,4 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 
 - [Rendered résumé validation](ci-resume-render.md): exact hosted WebKit assertion, predicate-based waiting and all six focused native scenarios; other hosted failures remain separate.
 - [Reply-cache ownership](reply-cache-ownership.md): actual-parent overlapping saves and stale tabs, whole-model atomic ownership, finite lifecycle regressions and independent two-tab IndexedDB/localStorage evidence.
+- [Minimal IndexedDB fixture completion](ci-idb-completion.md): hosted Windows failure, deterministic delayed-request parent reproduction and request-based transaction completion.

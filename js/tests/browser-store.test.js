@@ -21,8 +21,6 @@ import {
   createIndexedDbDriver,
 } from '../src/storage/browser-store.js';
 
-const settle = () => new Promise((r) => setTimeout(r, 5));
-
 test('browser store: put / get / delete / query / subscribe', async () => {
   const store = await createBrowserStore();
   const seen = [];
@@ -149,83 +147,97 @@ test('browser store: doublets-web driver indexes snapshots as triples', async ()
   assert.equal((await reloaded.get('l:doublets'))?.tokens[1], 'web');
 });
 
-test('browser store: indexedDB driver works against a minimal IDB shim', async () => {
-  const databases = new Map();
-  const makeObjectStore = () => {
-    const map = new Map();
-    return {
-      get(key) {
-        const r = {};
+test(
+  'browser store: indexedDB driver works against a minimal IDB shim',
+  { timeout: 2000 },
+  async () => {
+    const databases = new Map();
+    const makeDb = () => {
+      const stores = new Map();
+      return {
+        _stores: stores,
+        objectStoreNames: { contains: (n) => stores.has(n) },
+        createObjectStore(n) {
+          stores.set(n, new Map());
+          return stores.get(n);
+        },
+        transaction(n) {
+          const map = stores.get(n);
+          let pending = 0;
+          let aborted = false;
+          const request = (run) => {
+            const req = {};
+            pending++;
+            // Deliberately exceed the old shim's four-ms completion timer.
+            // Completion belongs to the request tree, not elapsed wall time.
+            setTimeout(() => {
+              if (aborted) {
+                return;
+              }
+              req.result = run();
+              req.onsuccess?.();
+              pending--;
+              globalThis.queueMicrotask(() => {
+                if (!pending && !aborted) {
+                  tx.oncomplete?.();
+                }
+              });
+            }, 10);
+            return req;
+          };
+          const tx = {
+            oncomplete: null,
+            onabort: null,
+            onerror: null,
+            abort() {
+              aborted = true;
+              tx.onabort?.();
+            },
+            objectStore: () => ({
+              get: (key) => request(() => map.get(key)),
+              put: (value, key) => request(() => map.set(key, value)),
+            }),
+          };
+          return tx;
+        },
+      };
+    };
+
+    const idbShim = {
+      open(name) {
+        const req = {};
         setTimeout(() => {
-          r.result = map.get(key);
-          r.onsuccess?.();
+          let db = databases.get(name);
+          const fresh = !db;
+          if (fresh) {
+            db = makeDb();
+            databases.set(name, db);
+          }
+          req.result = db;
+          if (fresh) {
+            req.onupgradeneeded?.();
+          }
+          req.onsuccess?.();
         });
-        return r;
-      },
-      put(value, key) {
-        const r = {};
-        setTimeout(() => {
-          map.set(key, value);
-          r.onsuccess?.();
-        });
-        return r;
+        return req;
       },
     };
-  };
-  const makeDb = () => {
-    const stores = new Map();
-    return {
-      _stores: stores,
-      objectStoreNames: { contains: (n) => stores.has(n) },
-      createObjectStore(n) {
-        stores.set(n, makeObjectStore());
-        return stores.get(n);
-      },
-      transaction(n) {
-        const tx = {
-          oncomplete: null,
-          onabort: null,
-          onerror: null,
-          objectStore: () => stores.get(n),
-        };
-        // Fire oncomplete after a couple of ticks so the caller has
-        // time to assign it AFTER awaiting any puts on the store.
-        setTimeout(() => tx.oncomplete?.(), 4);
-        return tx;
-      },
-    };
-  };
 
-  const idbShim = {
-    open(name) {
-      const req = {};
-      setTimeout(() => {
-        let db = databases.get(name);
-        const fresh = !db;
-        if (fresh) {
-          db = makeDb();
-          databases.set(name, db);
-        }
-        req.result = db;
-        if (fresh) {
-          req.onupgradeneeded?.();
-        }
-        req.onsuccess?.();
-      });
-      return req;
-    },
-  };
+    const driver = createIndexedDbDriver({ factory: idbShim });
+    const a = await createBrowserStore({ driver });
+    await a.put({ id: 'l:idb', tokens: ['stored'] });
+    assert.equal(
+      (await driver.load())?.links[0]?.id,
+      'l:idb',
+      'a completed transaction must contain its nested write'
+    );
+    await a.flush();
 
-  const driver = createIndexedDbDriver({ factory: idbShim });
-  const a = await createBrowserStore({ driver });
-  await a.put({ id: 'l:idb', tokens: ['stored'] });
-  await a.flush();
-  await settle();
-
-  const driver2 = createIndexedDbDriver({ factory: idbShim });
-  const b = await createBrowserStore({ driver: driver2 });
-  assert.equal((await b.get('l:idb'))?.tokens[0], 'stored');
-});
+    const driver2 = createIndexedDbDriver({ factory: idbShim });
+    const b = await createBrowserStore({ driver: driver2 });
+    assert.equal((await b.get('l:idb'))?.tokens[0], 'stored');
+  }
+);
 
 test('browser store: indexedDB driver attaches transaction completion before writes', async () => {
   let completionHandlerWasAttachedBeforePut = null;
