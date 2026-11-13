@@ -26,6 +26,7 @@ import {
 import { createCvWatchService } from './cv-watch-service.js';
 import { createCvPrepareService } from './cv-prepare-service.js';
 import { createCvTranslationService } from './cv-translation-service.js';
+import { createVacancyChoiceService } from './vacancy-choice-service.js';
 
 const owners = new WeakSet();
 
@@ -95,6 +96,7 @@ export const createVacancyService = ({
     ...cvPrepare,
   });
   return {
+    ...createVacancyChoiceService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
     ...preparation.operations,
@@ -108,6 +110,7 @@ export const createVacancyService = ({
         resumes: browser.available === true,
         resumeExport: browser.available === true,
         cached: true,
+        localChoices: true,
         technologyAnalysis: true,
         technologyReview: true,
         technologyProviderSave: false,

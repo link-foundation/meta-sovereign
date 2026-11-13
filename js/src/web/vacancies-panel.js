@@ -17,6 +17,8 @@ import {
 } from './cv-translation-panel.js';
 import { useCvWorkplaceReview } from './cv-workplace-state.js';
 import { CvWorkplaceReview } from './cv-workplace-panel.js';
+import { useVacancyChoices } from './vacancy-choice-state.js';
+import { VacancyChoices, VacancyChoiceControls } from './vacancy-choices.js';
 
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
@@ -136,6 +138,7 @@ export const useVacancies = (api) => {
   });
   const cvSaveWatch = useCvSaveWatch({ api, values, run });
   const cvTranslation = useCvTranslation({ api, values, run });
+  const choices = useVacancyChoices({ api, values, run });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -203,6 +206,7 @@ export const useVacancies = (api) => {
     cvWorkplace,
     cvSaveWatch,
     cvTranslation,
+    choices,
     error,
     loaded,
     valid,
@@ -349,6 +353,12 @@ const Results = ({ state, t, idle, live }) => {
                   () => state.collect(card.url),
                   !idle || state.capabilities?.collect !== true
                 ),
+                el(VacancyChoiceControls, {
+                  key: `choice:${state.values.browserSlot}`,
+                  state,
+                  card,
+                  t,
+                }),
               ]
             )
           ),
@@ -526,6 +536,11 @@ export const VacanciesScreen = ({ state }) => {
           )
         : null,
       el(Results, { key: 'results', state, t, idle, live }),
+      el(VacancyChoices, {
+        key: `choices:${state.values.browserSlot}`,
+        state,
+        t,
+      }),
       el('h3', { key: 'stored-title' }, t('vacancy.cached')),
       ...state.stored.map((row) =>
         action(row.id, row.title, () => state.setSelected(row), !idle)

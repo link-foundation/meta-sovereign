@@ -25,6 +25,7 @@ import { createCvWatchApi } from './cv-watch-api.js';
 import { createCvPrepareApi } from './cv-prepare-api.js';
 import { createCvTranslationApi } from './cv-translation-api.js';
 import { createCvWorkplaceApi } from './cv-workplace-api.js';
+import { createVacancyChoiceApi } from './vacancy-choice-api.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs');
@@ -105,6 +106,7 @@ const confirmedExport = (result, requestId) => {
   return job;
 };
 export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
+  ...createVacancyChoiceApi({ get, report, local }),
   ...createTechnologyApi({ get, report, local }),
   ...createCvTechnologyApi({ get, report, local }),
   ...createCvWatchApi({ get, report, local }),
@@ -120,6 +122,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
       resumeExport: false,
       apply: false,
       cached: true,
+      localChoices: false,
       reason: 'server-required',
     },
   vacancyResumesStored: async () =>

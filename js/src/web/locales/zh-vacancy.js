@@ -280,4 +280,18 @@ export const zhVacancy = {
   'cvWorkplace.detachHint':
     '仅在现有记录中准备取消选择目标简历。其他简历的选择和所有工作经历字段将保持审核时的状态。由您保存。要替换共享工作经历，请先保存并验证单独的副本。',
   'cvWorkplace.membershipBefore': 'HH 中保存的选择',
+  'vacancyChoice.title': '本地职位选择',
+  'vacancyChoice.hint':
+    '为此浏览器槽位保存排除项和提醒。重启后仍会保留。目前需要手动申请职位。',
+  'vacancyChoice.note': '私人备注或稍后处理的问题',
+  'vacancyChoice.skipped': '已从计划中排除',
+  'vacancyChoice.deferred': '已保存以便稍后查看',
+  'vacancyChoice.skippedAction': '排除',
+  'vacancyChoice.deferredAction': '稍后查看',
+  'vacancyChoice.clear': '恢复到计划',
+  'vacancyChoice.reload': '重新加载已保存的选择',
+  'vacancyChoice.failed':
+    '无法确认已保存的选择。修改前请重新加载；备注仍然保留。',
+  'vacancyChoice.empty': '没有保存的排除项或提醒。',
+  'vacancyChoice.more': '显示更多选择',
 };

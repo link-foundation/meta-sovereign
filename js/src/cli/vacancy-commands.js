@@ -20,6 +20,9 @@ const vacancyCommandExit = (operation, result) =>
 export const VACANCY_HELP = `  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-stored [--store=<dir>]
+  vacancies-choices-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-choice-save --url=<hh-vacancy-url> --title=<text> --state=skipped|deferred --revision=<observed-revision> [--note=<private-text>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-choice-clear --url=<hh-vacancy-url> --revision=<observed-revision> [--browser-slot=jobs] [--store=<dir>]
   vacancies-resumes [--resume=<hash>] [--resume-language=ru|en|any] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-resumes-stored [--store=<dir>]
   vacancies-resume-export [--resume=<hash>|--all=true] [--formats=pdf,doc,rtf,html] [--request-id=<id>] [--out=<directory>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
@@ -70,6 +73,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       'search',
       'collect',
       'stored',
+      'choices-stored',
+      'choice-save',
+      'choice-clear',
       'resumes',
       'resumes-stored',
       'resume-export',
@@ -114,9 +120,18 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
               ? await cvWorkplaceCommandInput(operation, args)
               : {
                   ...Object.fromEntries(
-                    ['query', 'resume', 'area', 'currency', 'order', 'url'].map(
-                      (key) => [key, args[key]]
-                    )
+                    [
+                      'query',
+                      'resume',
+                      'area',
+                      'currency',
+                      'order',
+                      'url',
+                      'title',
+                      'state',
+                      'revision',
+                      'note',
+                    ].map((key) => [key, args[key]])
                   ),
                   ...Object.fromEntries(
                     ['remote', 'refresh', 'headless', 'all'].map((key) => [

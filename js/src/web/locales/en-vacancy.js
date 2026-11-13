@@ -307,4 +307,18 @@ export const enVacancy = {
   'cvWorkplace.detachHint':
     'This prepares only the target CV’s deselection in the existing record. Other CV selections and all workplace fields stay as reviewed. Save remains yours. To replace a shared workplace, save and verify its separate copy first.',
   'cvWorkplace.membershipBefore': 'Native saved selection',
+  'vacancyChoice.title': 'Local vacancy choices',
+  'vacancyChoice.hint':
+    'Save exclusions and reminders for this browser slot. Choices persist across restarts. Applying to vacancies is currently manual.',
+  'vacancyChoice.note': 'Private note or question to revisit',
+  'vacancyChoice.skipped': 'Excluded from your plan',
+  'vacancyChoice.deferred': 'Saved for later review',
+  'vacancyChoice.skippedAction': 'Exclude',
+  'vacancyChoice.deferredAction': 'Review later',
+  'vacancyChoice.clear': 'Restore to your plan',
+  'vacancyChoice.reload': 'Reload saved choices',
+  'vacancyChoice.failed':
+    'Saved choices could not be confirmed. Reload before changing them; your notes remain visible.',
+  'vacancyChoice.empty': 'No saved exclusions or reminders.',
+  'vacancyChoice.more': 'Show more choices',
 };

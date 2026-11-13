@@ -114,5 +114,6 @@
   "lino-sync",
   "browser-storage",
   "browser-merge",
-  "reply-cache-ownership"
+  "reply-cache-ownership",
+  "vacancy-choices"
 ]

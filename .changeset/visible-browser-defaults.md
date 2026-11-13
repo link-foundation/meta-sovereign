@@ -389,3 +389,5 @@ Preserve the current native CLI across exact-parent Cargo regression builds and 
 Apply native CLI schema-13 WebSocket records through durable checked admission, directed initial/reconnect scans and bounded live fan-out. Preserve private/deletion guards, acknowledge reconciliation only after checkpoints, isolate sessions and stop buffered admission on refusal. Keep opening records stable during concurrent inserts and verify real JavaScript text/binary peers, failed storage and process restart in hosted CI.
 
 Merge concurrent editable browser tabs after migration while retaining atomic root revision checks, causal deletions and independent writer clocks. Refresh local roots through payload-free invalidations, refuse conflicting private/schema changes, preserve unsaved drafts and drain subscribed writes on close.
+
+Add private browser-slot vacancy exclusions and deferred-review notes through CLI, both Lino encodings and four-language CV controls. Require observed revisions and durable receipts, retain notes after stale or unreceived replies, and recover through explicit reload without replay. Automatic application and questionnaire policies remain unfinished.

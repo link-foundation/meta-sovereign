@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Private vacancy choices](vacancy-choices.md): durable slot-bound exclusions and reminders, stale-write refusal, CLI/text-binary Lino/four-language controls and actual-parent/native/MCP evidence. Automatic application and questionnaire policies remain unfinished.
+
 - [Editable browser tab convergence](browser-tab-merge.md): causal record merging under atomic root revisions, payload-free invalidations, private conflict refusal, retained drafts and actual parent/final native-tab evidence.
 
 - [Native schema-gated replica sessions](native-sync-session.md): directed durable reconciliation, bounded live text/binary fanout, private/deletion guards and exact-head hosted real CLI verification.
