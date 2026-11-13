@@ -23,16 +23,19 @@ import {
   normalizeMessage,
 } from './reply-graph.js';
 import { usefulSuggestion } from './suggestion-quality.js';
+import {
+  MODEL_ID,
+  compareReplyVersions,
+  replyModel,
+} from './reply-persistence.js';
+import { createReplyCacheSync } from './reply-cache-sync.js';
 
-const MODEL_ID = 'reply-model';
 // Links learned per task while loading: a long task would stall typing.
 const CHUNK = 4000;
 // A burst of live messages asks once.
 const NUDGE_MS = 400;
 // Saved at most this often (a save writes megabytes).
 const SAVE_MS = 30_000;
-
-const defer = (fn, ms = 0) => globalThis.setTimeout(fn, ms);
 
 const toMs = (value) => {
   const at = Date.parse(String(value ?? ''));
@@ -49,72 +52,23 @@ const laterOf = (a, b) => {
 
 // Learn `links` into `index` a chunk at a time, yielding between them.
 const learnInChunks = (index, links, chunk) =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     let at = 0;
     const step = () => {
-      index.fromLinks(links.slice(at, at + chunk));
-      at += chunk;
-      if (at < links.length) {
-        defer(step);
-      } else {
-        resolve(index);
+      try {
+        index.fromLinks(links.slice(at, at + chunk));
+        at += chunk;
+        if (at < links.length) {
+          globalThis.setTimeout(step, 0);
+        } else {
+          resolve(index);
+        }
+      } catch (error) {
+        reject(error);
       }
     };
     step();
   });
-
-// The copy kept between visits: `{ links }`, the `reply-model` link
-// first (version, owner ids, window), or null.
-const readModel = async (driver) => {
-  try {
-    const links = (await driver?.load())?.links ?? [];
-    const header = links.find((l) => l?.id === MODEL_ID);
-    return header
-      ? { ...header, links: links.filter((l) => l?.id !== MODEL_ID) }
-      : null;
-  } catch {
-    // Nothing kept, or not readable: the server's copy will do.
-    return null;
-  }
-};
-
-// Keeps `snapshot()` with `driver`: a whole model once the browser is
-// idle (`soon(true)`); what is learned after it, at most every `saveMs`.
-const createSaver = (driver, snapshot, saveMs) => {
-  let timer = null;
-  const save = async () => {
-    timer = null;
-    const links = snapshot();
-    if (!driver || !links) {
-      return;
-    }
-    try {
-      await driver.save({ links });
-    } catch {
-      // A full disk or a private window: the copy lives until the reload.
-    }
-  };
-  return {
-    soon(whole = false) {
-      if (whole) {
-        globalThis.clearTimeout(timer);
-        timer = defer(
-          () =>
-            globalThis.requestIdleCallback
-              ? globalThis.requestIdleCallback(save, { timeout: 5000 })
-              : save(),
-          0
-        );
-        return;
-      }
-      timer ??= defer(save, saveMs);
-    },
-    flush() {
-      globalThis.clearTimeout(timer);
-      return save();
-    },
-  };
-};
 
 /**
  * `fetchModel({ since })` → the server's answer (or null offline);
@@ -127,16 +81,19 @@ export const createReplyCache = ({
   chunk = CHUNK,
   nudgeMs = NUDGE_MS,
   saveMs = SAVE_MS,
+  signal,
+  onError,
 } = {}) => {
+  if (!Number.isSafeInteger(chunk) || chunk <= 0) {
+    throw new RangeError(
+      'Reply model chunks must be a positive finite integer'
+    );
+  }
   let index = null;
   let version = '';
   let self = new Set();
   let windowMs = DEFAULT_REPLY_WINDOW_MS;
   let revision = 0;
-  let syncing = null;
-  let again = false;
-  let nudgeTimer = null;
-  let started = null;
   const listeners = new Set();
 
   const changed = () => {
@@ -150,78 +107,83 @@ export const createReplyCache = ({
     self.has(String(sender)) || String(sender) === 'me';
 
   const build = async (model) => {
-    const next = createReplyIndex({ isSelf, windowMs: model.windowMs });
-    self = new Set((model.self ?? []).map(String));
-    windowMs = Number(model.windowMs) || DEFAULT_REPLY_WINDOW_MS;
+    replyModel({
+      links: [{ ...model, id: MODEL_ID, links: undefined }, ...model.links],
+    });
+    const nextSelf = new Set((model.self ?? []).map(String));
+    const next = createReplyIndex({
+      isSelf: (sender) =>
+        nextSelf.has(String(sender)) || String(sender) === 'me',
+      windowMs: model.windowMs,
+    });
     await learnInChunks(next, model.links ?? [], chunk);
+    self = nextSelf;
+    windowMs = Number(model.windowMs) || DEFAULT_REPLY_WINDOW_MS;
     index = next;
     version = String(model.version ?? '');
     changed();
   };
 
-  const saver = createSaver(
-    driver,
-    () =>
-      index && [
-        {
-          id: MODEL_ID,
-          tokens: [MODEL_ID],
-          version,
-          self: [...self],
-          windowMs,
-        },
-        ...index.modelLinks(),
-      ],
-    saveMs
-  );
-
-  const load = async () => {
-    const saved = await readModel(driver);
-    if (saved && !index) {
-      await build(saved);
-    }
-  };
+  const snapshot = () =>
+    index && [
+      {
+        id: MODEL_ID,
+        tokens: [MODEL_ID],
+        version,
+        self: [...self],
+        windowMs,
+      },
+      ...index.modelLinks(),
+    ];
+  const header = () => ({ self: [...self], windowMs });
 
   const apply = async (model) => {
     if (!model?.version) {
-      return;
+      return false;
     }
     if (Array.isArray(model.links)) {
+      const order = compareReplyVersions(model.version, version);
+      if (order !== null && order < 0) {
+        return false;
+      }
       await build(model);
-      saver.soon(true);
-      return;
+      return true;
     }
     if (!index || !Array.isArray(model.changes)) {
-      return;
+      return false;
+    }
+    const order = compareReplyVersions(model.version, version);
+    if (order === null || order !== model.changes.length) {
+      throw Object.assign(
+        new Error('The reply delta does not continue this model.'),
+        {
+          code: 'REPLY_CACHE_CONFLICT',
+        }
+      );
     }
     for (const message of model.changes) {
       index.observe(message);
     }
+    const updated = model.version !== version || model.changes.length > 0;
     version = String(model.version);
     if (model.changes.length > 0) {
       changed();
-      saver.soon();
     }
+    return updated;
   };
 
-  /** Bring the copy up to the server's (once at a time). */
-  const sync = () => {
-    if (syncing) {
-      again = true;
-      return syncing;
-    }
-    syncing = Promise.resolve()
-      .then(() => fetchModel({ since: index ? version : '' }))
-      .then(apply, () => {})
-      .finally(() => {
-        syncing = null;
-        if (again) {
-          again = false;
-          sync();
-        }
-      });
-    return syncing;
-  };
+  const lifecycle = createReplyCacheSync({
+    driver,
+    fetchModel,
+    apply,
+    snapshot,
+    header,
+    version: () => version,
+    saveMs,
+    nudgeMs,
+    signal,
+    onError,
+  });
 
   const toAnswer = (source, chat, hint) => {
     const last = laterOf(index?.lastIn(source, chat) ?? null, hint);
@@ -233,20 +195,7 @@ export const createReplyCache = ({
   };
 
   const cache = {
-    /** Load the kept copy, then catch up with the server. */
-    start() {
-      started ??= load().then(sync);
-      return started;
-    },
-    /** Something arrived: ask the server what it learned, soon. */
-    nudge() {
-      if (!started) {
-        return;
-      }
-      globalThis.clearTimeout(nudgeTimer);
-      nudgeTimer = defer(() => sync(), nudgeMs);
-    },
-    sync,
+    ...lifecycle,
     ready: () => index !== null,
     revision: () => revision,
     version: () => version,
@@ -284,8 +233,6 @@ export const createReplyCache = ({
       };
     },
     stats: () => ({ ...(index?.stats() ?? {}), version }),
-    /** Save now (a page closing; tests). */
-    flush: () => saver.flush(),
   };
   return cache;
 };

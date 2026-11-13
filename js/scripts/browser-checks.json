@@ -113,5 +113,6 @@
   "lino-events",
   "lino-sync",
   "browser-storage",
-  "browser-merge"
+  "browser-merge",
+  "reply-cache-ownership"
 ]

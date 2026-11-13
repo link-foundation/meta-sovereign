@@ -367,3 +367,6 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 
 - [Hosted WebKit sync readiness](ci-lino-sync-readiness.md): deterministic failed-discovery/reload reproduction, real Lino signaling readiness and awaited SPA convergence polling; existing transport assertions and deadlines retained. Exact-head hosted checks remain required.
 - [ci-telegram-backlinks.md](ci-telegram-backlinks.md) preserves the exact hosted closed-disclosure failure and extends the existing default-off event trace to the Telegram fixture. Focused WebKit and independent MCP pass locally; the hosted cause remains unresolved.
+
+- [Rendered résumé validation](ci-resume-render.md): exact hosted WebKit assertion, predicate-based waiting and all six focused native scenarios; other hosted failures remain separate.
+- [Reply-cache ownership](reply-cache-ownership.md): actual-parent overlapping saves and stale tabs, whole-model atomic ownership, finite lifecycle regressions and independent two-tab IndexedDB/localStorage evidence.

@@ -428,6 +428,7 @@
     "test:e2e:lino-sync": "node js/tests/e2e-lino-sync.mjs",
     "test:e2e:browser-storage": "node js/tests/e2e-browser-storage.mjs",
     "test:e2e:browser-merge": "node js/tests/e2e-browser-merge.mjs",
+    "test:e2e:reply-cache-ownership": "node js/tests/e2e-reply-cache-ownership.mjs",
     "test:e2e:questions": "node js/tests/e2e-questions-browser.mjs",
     "test:e2e:questions:webkit": "E2E_BROWSER=webkit node js/tests/e2e-questions-browser.mjs",
     "test:e2e:question-providers": "node js/tests/e2e-question-providers-browser.mjs",

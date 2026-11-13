@@ -145,6 +145,9 @@ const boot = async () => {
     store,
     server,
     replyDriver: pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
+    signal: pageLifetime,
+    onReplyCacheError: (error) =>
+      debugBrowser('reply-cache-refused', { code: error.code }),
   });
   client.on((event) => {
     if (event.type === 'mode-change' && event.online) {

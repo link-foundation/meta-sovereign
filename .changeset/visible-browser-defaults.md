@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Coordinate account-scoped browser reply models with serial saves, atomic root ownership, payload-free refresh and drained cancellation. Preserve unsaved models on refusals, compare only same-build offsets, reject invalid deltas and keep learned counts as complete snapshots.
+
 Extend existing default-off native disclosure diagnostics to Telegram Backlinks, preserving its original click and deadlines while retaining the unresolved hosted failure evidence.
 
 Read the installed desktop builder version directly for provenance, avoiding an unnecessary npm CLI launch after successful Windows ARM64 packaging. Preserve checksum and installer smoke checks and add a finite shell regression.

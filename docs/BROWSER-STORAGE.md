@@ -40,3 +40,24 @@ The [case study](case-studies/issue-56/browser-tab-merge.md) records exact-paren
 focused and native-browser verification. This local tab coordination does not
 establish delivery to an external provider or synchronization with a device
 that has no reachable transport.
+
+The account-scoped reply model has a separate ownership rule. Its learned
+counts remain one complete snapshot; editable-record causal merging would
+count some replies twice. Admissions, explicit flushes and scheduled saves
+share one serial lane. Only offsets within the same opaque server build can
+be ordered. A stale tab adopts the newer committed model; replacing a
+different build requires a fresh server request that observed that root.
+Invalid snapshots and noncontiguous deltas refuse without replacing the
+current model. Failed chunked loads preserve the prior model and owner IDs.
+
+Reply roots use the same payload-free invalidations and account isolation.
+Offline reload reads their committed model. A fetch does not hold the save
+lane; a root change invalidates a late response based on the older version.
+`flush()` rejects persistence failures while keeping the usable memory copy;
+`persistence()` exposes only dirty/closed state and an error code. Explicit
+flush retries retained state. `close()` cancels idle saves, nudges and fetch
+admission, detaches listeners and waits for issued saves. The browser client
+ties this lifetime to its page and keeps optional diagnostics content-free.
+Legacy custom drivers without revision support receive serial saves but
+cannot provide cross-tab atomic ownership. See the
+[reply-cache evidence](case-studies/issue-56/reply-cache-ownership.md).
