@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Repeated unread boundaries](ci-unread-polling-boundary.md): exact hosted failure, finite overlapping native-pass reproduction and full owner-state verification at a completed boundary, preserving focus, stop and recovery checks.
+
 - [Directory keyboard focus](ci-directory-focus.md): exact hosted failure, actual-parent frame-gated reproduction, immediate keyboard viewport updates, default-off diagnostics and native/MCP before/after evidence. Hosted scheduling and the separate checkout cancellation remain unproven.
 
 - [Vacancy selection review](vacancy-selection.md): visible reasons for every native card, saved-choice revision binding, literal filters, cached-description provenance and rejected-cache restoration through CLI/Lino/four-language controls. Native viewed state, retry policies and application execution remain unfinished.

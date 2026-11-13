@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { questionBrowserUi } from './question-browser-ui.mjs';
+import { unreadPollingBoundary } from '../../../experiments/issue-56/unread-polling-boundary.mjs';
 import {
   openUnread,
   openUnreadSurface,
@@ -22,10 +23,11 @@ export const verifyUnreadPollingControls = async (
   browser,
   { screenshots, before = false } = {}
 ) => {
+  const boundary = unreadPollingBoundary();
   const scenario = await questionBrowserUi(browser, {
     screenshots,
     group: 'question-unread-polling',
-    serverOptions: { unreadReview: true },
+    serverOptions: { unreadReview: true, ...boundary },
   });
   const { page, fixture, run, shot } = scenario;
   try {
@@ -68,9 +70,20 @@ export const verifyUnreadPollingControls = async (
       return scenario.result();
     }
     await run(
-      'one polling session reaches a second native pass and restores the owner view',
+      'settled pass receipts remain valid while a following pass moves the view',
       async () => {
         await unread.getByText(/^Settled passes: 2\./u).waitFor();
+        // The displayed count describes completed work, not the live viewport.
+        // Hold the following real native filter change to cover that overlap.
+        await boundary.started.wait();
+        assert.equal((await ownerState(fixture.page)).listTop, 0);
+        assert.equal(boundary.snapshots.length, 2);
+        for (const snapshot of boundary.snapshots) {
+          assert.equal(snapshot.result.restoration.restored, true);
+          assert.deepEqual(snapshot.view, original);
+        }
+        boundary.scan.release();
+        await boundary.completed.wait();
         const visits = (await fixture.stats()).visits;
         assert.deepEqual(visits, ['8', '9']);
         assert.deepEqual(await ownerState(fixture.page), original);
@@ -82,6 +95,9 @@ export const verifyUnreadPollingControls = async (
       'returning owner waits without stealing focus or opening another chat',
       async () => {
         await fixture.page.bringToFront();
+        // Release the already restored pass only after the owner returns.
+        // The next admission must wait without touching the owner view.
+        boundary.returned.release();
         await unread
           .locator('[data-browser-unread-poll-phase="owner-active"]')
           .waitFor();
@@ -141,6 +157,7 @@ export const verifyUnreadPollingControls = async (
     });
     throw error;
   } finally {
+    boundary.release();
     await scenario.close();
   }
 };

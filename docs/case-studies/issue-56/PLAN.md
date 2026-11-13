@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted repeated-unread assertion:
+
+- [x] Match Chromium shard 2 job `132238675692` to published `236f42a7` and preserve its complete 1,897-line log and 30-file artifact. The assertion compares the active list viewport with a completed pass receipt; draft, selection, route and message scroll agree.
+- [x] Read the actual native navigation/filter restoration and polling admission paths. An unchanged focused local Chromium scenario passes; that alone does not resolve the hosted failure.
+- [x] Reproduce the overlapping third pass with finite fixture gates. Keep every native read, full owner-state assertion, focus refusal, stop/drain and reload recovery check. The exact published assertion fails at the held third native filter change; the corrected Chromium scenario passes all five cases and 16 focused Node checks pass. Existing deadlines are unchanged.
+- [ ] Publish the atomic test correction and inspect every exact-head hosted check. Resume the stashed native application draft and all unchecked original criteria. The draft stays unmerged.
+
 Active hosted directory keyboard failure:
 
 - [x] Match the failing run to published `222f2e80`, preserve WebKit shard 1's complete log and artifact, and inspect the valid failure screenshot. The failure is Home focus from chat 150 to chat 1; a normal focused local WebKit run passes.

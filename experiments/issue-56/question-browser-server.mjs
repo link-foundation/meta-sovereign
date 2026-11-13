@@ -79,6 +79,31 @@ const unreadFixtureHtml = (mode, notices, replyView) =>
       : {}),
   });
 
+const observeBrowserFixture = ({
+  commander,
+  send,
+  page,
+  afterBrowserEvaluate,
+  onUnreadPass,
+}) => {
+  if (afterBrowserEvaluate) {
+    const evaluate = commander.evaluate.bind(commander);
+    commander.evaluate = async (input) => {
+      const result = await evaluate(input);
+      await afterBrowserEvaluate({ page, input, result });
+      return result;
+    };
+  }
+  if (onUnreadPass) {
+    const scan = send.scanUnreadConversations.bind(send);
+    send.scanUnreadConversations = async (input) => {
+      const result = await scan(input);
+      await onUnreadPass({ page, result });
+      return result;
+    };
+  }
+};
+
 /** Private, disposable production server and routed provider; no live account. */
 export const questionBrowserServer = async (
   browser,
@@ -88,6 +113,8 @@ export const questionBrowserServer = async (
     unreadReview = false,
     unreadNotices = false,
     unreadReplyView = false,
+    afterBrowserEvaluate,
+    onUnreadPass,
   } = {}
 ) => {
   const env = await questionBrowserFixture();
@@ -169,6 +196,13 @@ export const questionBrowserServer = async (
         close: () => context.close(),
       }),
     },
+  });
+  observeBrowserFixture({
+    commander,
+    send,
+    page,
+    afterBrowserEvaluate,
+    onUnreadPass,
   });
   const server = await startQuestionFixtureServer(
     { store: env.store, send },
