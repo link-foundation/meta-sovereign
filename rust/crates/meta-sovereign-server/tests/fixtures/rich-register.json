@@ -524,5 +524,29 @@
       { "id": "shared", "body": "stale", "vc": { "a": 1 } }
     ],
     "expected": { "id": "shared", "body": "new", "vc": { "a": 3 } }
+  },
+  {
+    "name": "recreation_children",
+    "records": [
+      {
+        "id": "shared",
+        "__msSyncDeleted": 1,
+        "children": ["c"],
+        "vc": { "a": 2 }
+      },
+      { "id": "shared", "body": "recreated", "vc": { "a": 2, "b": 1 } },
+      {
+        "id": "shared",
+        "body": "old payload",
+        "children": ["c"],
+        "vc": { "a": 1 }
+      }
+    ],
+    "expected": {
+      "id": "shared",
+      "body": "recreated",
+      "vc": { "a": 2, "b": 1 },
+      "children": ["c"]
+    }
   }
 ]

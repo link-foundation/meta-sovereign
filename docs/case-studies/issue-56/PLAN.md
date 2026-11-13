@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active native WebSocket application:
+
+- [ ] Reproduce the published CLI's unapplied sync mutations with the production JavaScript peer.
+- [ ] Negotiate schema 13 before applying records; exclude private/schema IDs and preserve causal deletion validation.
+- [ ] Reuse native checkpoint admission for incoming mutations and acknowledge reconciliation records only after persistence. Bound each connection to one remote session and one outstanding scan record.
+- [ ] Verify directed initial/reconnect scans, failed admission, duplicate/out-of-order controls, mismatched schema and session cleanup with finite std-only checks and hosted official-codec/network checks.
+- [ ] Continue live owner/remote fan-out and all remaining requirements; initial reconciliation alone does not establish complete native sync parity.
+
 Active desktop provenance failure:
 
 - [x] Preserve exact `0f245481` desktop run `43492615795`: Windows ARM64 packaging and smoke pass, then the npm version launcher exits `-2147483644` at full log line 3035.

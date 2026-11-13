@@ -67,3 +67,25 @@ checks are registered on hosted CI and have not been run on this limited host.
 Exact-head hosted verification remains required. Native schema-gated transport, durable network acknowledgements,
 initial/offline reconciliation, automatic live tab merging and the remaining
 original requirements are unfinished. PR #57 remains draft and unmerged.
+
+Hosted follow-up on `25637f4f`: the official codec build, Clippy, all six
+filesystem tests and two of three durable integration cases pass. The remaining
+case fails at [Rust job 132137416165](https://github.com/link-foundation/meta-sovereign/actions/runs/43497852404/job/132137416165),
+full log lines 676–679: replaying an older deletion contributes its retained
+child `c` to a recreated record. The body and all three causal counters remain
+exactly the recreated values. The test had incorrectly expected the pre-merge
+absence of `children` to survive a grow-only child-set merge.
+
+`native-recreated-children.mjs` independently exercises actual JavaScript owner
+admission, private raw deletion storage, a fresh writable opening and the
+production peer receiver. It confirms this child union while preserving the
+new payload. A new JavaScript-generated shared fixture verifies native merge
+permutations too. The durable assertion now explicitly expects the retained
+child and the complete unchanged recreated payload/clock, including after
+another durable opening. No production merge behavior is changed. The focused
+reference test and nine native rich/number checks pass. Hosted durable restart
+and network verification must rerun after the assertion correction. The
+[follow-up evidence](data/native-recreated-children.tar.gz) and
+[manifest](data/native-recreated-children.tar.sha256.json) preserve the full
+725-line failed Rust job, exact-head metadata, source snapshots and reference
+logs.

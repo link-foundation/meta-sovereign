@@ -51,13 +51,19 @@ fn native_durable_reopen_preserves_owner_clocks_deletion_and_private_metadata() 
     let recreated = state
         .put_owner(&value(r#"{"id":"shared","body":"recreated"}"#))
         .unwrap();
-    state.apply_remote(&deletion[0]).unwrap();
     assert_eq!(state.get("shared"), Some(recreated.clone()));
+    // Child links are a grow-only set on replica merge. An older deletion
+    // contributes its retained children without replacing the newer payload.
+    let mut expected = recreated.as_object().unwrap().clone();
+    expected.insert("children".into(), value(r#"["c"]"#));
+    let expected = Value::Object(expected);
+    state.apply_remote(&deletion[0]).unwrap();
+    assert_eq!(state.get("shared"), Some(expected.clone()));
     assert_eq!(recreated.get("vc").unwrap().as_object().unwrap().len(), 3);
     drop(state);
     assert_eq!(
         ServerState::open(&dir.0).unwrap().get("shared"),
-        Some(recreated)
+        Some(expected)
     );
 }
 

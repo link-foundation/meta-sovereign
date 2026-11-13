@@ -48,6 +48,11 @@ const fixtures = {
     record('new', { vc: { a: 3 } }),
     equal('stale'),
   ],
+  recreation_children: [
+    { id: 'shared', __msSyncDeleted: 1, children: ['c'], vc: { a: 2 } },
+    record('recreated', { vc: { a: 2, b: 1 } }),
+    record('old payload', { children: ['c'], vc: { a: 1 } }),
+  ],
 };
 
 // Preserve -0 in finite source inputs; JSON.stringify would erase its sign.
