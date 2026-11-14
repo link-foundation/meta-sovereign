@@ -50,11 +50,18 @@ export const verifyNativeExportPublication = async (
     const consent = panel.locator('[data-cv-publication-consent]');
     await consent.check();
     await source.selectOption('owner');
+    // selectOption dispatches change before React's source effect commits.
+    await panel
+      .locator('[data-cv-publication-consent]:not(:checked)')
+      .waitFor();
     assert.equal(await consent.isChecked(), false);
     assert.equal(await action('publish').isDisabled(), true);
     await source.selectOption(
       `${exported.receipt.exportId}:${exported.receipt.hash}`
     );
+    await panel
+      .locator('[data-cv-publication-consent]:not(:checked)')
+      .waitFor();
     assert.equal(await consent.isChecked(), false);
     await panel.locator('details > summary').click();
     assert.doesNotMatch(

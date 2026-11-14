@@ -462,3 +462,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Native-export CV snapshot publication](cv-publication-exports.md): explicit private artifact provenance, source-bound consent and preserved native files.
 
 Saved ordered-word template workflow: [CLI, Lino, native UI and independent MCP evidence](question-templates.md).
+
+Native-export publication CI: [wait for rendered source-bound consent](ci-cv-publication-consent.md).
