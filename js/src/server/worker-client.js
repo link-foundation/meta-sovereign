@@ -9,12 +9,35 @@ export const workerArgs = (entry, versions = process.versions) =>
     ? ['run', '--allow-all', '--no-lock', '--node-modules-dir=manual', entry]
     : [entry];
 
+const workerLifecycleLog = (log) => {
+  const started = globalThis.performance.now();
+  const phase = (name) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-worker] ${name} after ${Math.round(globalThis.performance.now() - started)} ms`
+      );
+    }
+  };
+  phase('spawning');
+  return (entry) => {
+    if (
+      entry?.event === 'server_worker_operation' &&
+      entry.operation === 'init' &&
+      ['started', 'finished', 'failed'].includes(entry.phase)
+    ) {
+      phase(`init_${entry.phase}`);
+    }
+    log(entry);
+  };
+};
+
 export const spawnWorker = ({
   entry,
   log = () => {},
   execPath = process.execPath,
   spawnChild = spawn,
 }) => {
+  const report = workerLifecycleLog(log);
   const child = spawnChild(execPath, workerArgs(entry), {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -54,7 +77,7 @@ export const spawnWorker = ({
     });
   const receive = (message) => {
     if (message.type === 'log') {
-      log(message.entry);
+      report(message.entry);
       return;
     }
     const slot = pending.get(message.id);

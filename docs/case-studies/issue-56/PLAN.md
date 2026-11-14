@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted startup / worker channel ownership:
+
+- [x] Preserve exact `1e6582c3` run `43572547657`, failed macOS Node shard 2/3 job `132380690633` and its complete log. Initial readiness expires at 10,034 ms (lines 2239–2272); cleanup then reports `ENOTEMPTY` (3115–3117). All eight browser shards and the other four workflows pass.
+- [x] Reproduce two separate worker-channel bugs against published `02303fc7`: input EOF during initialization leaves its new listener alive, while a broken output pipe raises unhandled `EPIPE`. Terminate/drain failed fixtures; keep the original macOS timing explicitly unproven.
+- [x] Stop accepting new messages, await already accepted work, then close worker resources exactly once after either channel loss. Verify seven focused Node checks, eight Deno checks and one existing startup/repeated-serve/upgrade case. Add off-by-default phase-only tracing to separate pre-init imports from worker initialization. Existing readiness and CI deadlines remain unchanged.
+- [ ] Publish checksummed evidence and verify every exact-head hosted check. Investigate any remaining startup delay from its actual trace; continue all 81 original unchecked criteria. Keep PR57 draft and unmerged.
+
 Active explicit native application résumé choice (HH02/HH06 remain incomplete):
 
 - [x] Read the bound native chooser without opening it during inspection. Open and choose only after separate current confirmation; verify the native radio hash against a matching checked export from this browser slot. Preserve owner answers, letters, preview, reservations and read-only recovery.

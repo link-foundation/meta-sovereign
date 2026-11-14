@@ -433,3 +433,5 @@ Split the growing native application browser checks into three registered groups
 Prefer checked same-slot résumé export language when suggesting a search résumé, with visible capture evidence and explicit owner choice. Recheck file integrity and native identity, preserve title fallback and existing durable list formats, and share the result across CLI, both Lino encodings and four-language browser controls.
 
 Add separately confirmed native application résumé choice backed by checked same-slot export evidence. Verify the native selection, preserve actual owner answers and letters, and refuse stale, unsafe or interrupted operations across CLI, both Lino encodings and four-language controls. Read-only recovery never repeats the choice.
+
+Drain accepted worker initialization and operations after host input or output closes, then release owned stores and listeners. Add opt-in worker initialization phase timings without changing readiness deadlines.
