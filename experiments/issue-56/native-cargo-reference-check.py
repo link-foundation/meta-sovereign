@@ -5,6 +5,9 @@ import shutil
 import subprocess
 import tempfile
 from native_cargo_reference import build_reference
+import runpy
+
+runpy.run_path(str(Path(__file__).with_name('native-parent-failure-check.py')), run_name='__main__')
 
 root = Path(__file__).resolve().parents[2]
 logs = root / 'ci-logs'

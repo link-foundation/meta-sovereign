@@ -6,6 +6,7 @@ import subprocess
 import tarfile
 import tempfile
 from native_cargo_reference import build_reference
+from native_parent_failure import check_parent_failure
 
 root = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
@@ -41,12 +42,9 @@ with (logs / f'{prefix}-compile.log').open('w') as log:
                                  str(parent)], cwd=root,
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         (logs / f'{prefix}.log').write_text(result.stdout)
-        assert result.returncode != 0, result.stdout
+        check_parent_failure(result, sync=args.sync)
         if args.sync:
-            assert 'native CLI did not reconcile schema-13 JavaScript peer' in result.stdout, result.stdout
-            print(f'Exact parent {revision}: native schema-13 reconciliation is absent (expected failure).')
+            print(f'Exact parent {revision}: native reconciliation is absent (expected failure).')
         else:
-            assert 'acknowledged owner write survives process termination' in result.stdout, result.stdout
-            assert '404 !== 200' in result.stdout, result.stdout
             print(f'Exact parent {revision}: acknowledged write is missing after restart (expected failure).')
         print(result.stdout)
