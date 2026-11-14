@@ -1,6 +1,7 @@
 // Real production bundle, routes and Lino; only provider RPCs use isolated fixtures.
 import { followAutoFixture } from './helpers/follow-auto.mjs';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
+import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
 const f = await followAutoFixture();
 const { telegramAccount: _account, ...timing } = f.options;
 const { base, page, until, finish } = await openChatApp('follow-auto', {
@@ -15,11 +16,14 @@ await page.addInitScript(() => {
   );
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
 });
+const trace = await followDisclosureTrace(page, 'backlinks');
 await finish(async () => {
   try {
     await page.goto(`${base}/#/automation`);
+    await trace('auto-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
     await card.locator('summary').click();
+    await trace('auto-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);
     const action = (key) =>
@@ -133,6 +137,7 @@ await finish(async () => {
       'automatic controls fit mobile'
     );
   } finally {
+    await trace('auto-finished');
     await f.close();
   }
 });

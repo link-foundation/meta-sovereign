@@ -59,3 +59,31 @@ does not reproduce the disclosure failure or establish its root cause. The
 raw successful job and complete preceding failed workflow are also retained
 with the [native storage evidence](native-durable-storage.md). The separate
 Windows ARM64 provenance failure is tracked in [its investigation](ci-desktop-provenance.md).
+
+The later automatic Follow fixture has the same unexplained hidden-field
+failure on `c976dc98`, run
+[43600700798](https://github.com/link-foundation/meta-sovereign/actions/runs/43600700798)
+(created 2026-11-14 13:37:29 UTC), WebKit shard 2 job `132465586160`.
+Its complete 1,637-line log records the first chats-field fill timeout at lines
+1517–1540. The downloaded, locally validated PNG again shows the outer
+Backlinks disclosure closed with no dialog obscuring it. The shard summary
+reports one failure among 31 selected scenarios.
+
+![Hosted automatic Follow failure](../../screenshots/issue-56-ci-telegram-backlinks/auto-hosted-closed.png)
+
+The automatic fixture now uses the existing bounded, default-off trace at
+navigation, after its unchanged native summary click, and in cleanup. One
+focused Linux WebKit replay passes the complete original automatic VK/Telegram
+retry workflow and phone layout. Its trace shows the same document and node
+remaining open after trusted pointer/click events. This is diagnostic evidence;
+it does not explain the hosted closure or establish a product fix. Native
+clicks, assertions, scenarios and deadlines are unchanged; all owned fixtures
+closed before the generated bundle was restored.
+
+Reproduce with `RUN_BROWSER_E2E=1 E2E_BROWSER=webkit
+CI_FOLLOW_DISCLOSURE_DEBUG=1 node js/tests/e2e-follow-auto-browser.mjs`.
+Run `python3 experiments/issue-56/collect-ci-telegram-backlinks.py --auto` to
+verify the retained logs and source snapshots in the separate
+[checksummed automatic Follow archive](data/ci-follow-auto.tar.gz).
+The new-head hosted result, original cause and every original unchecked
+criterion remain unfinished.

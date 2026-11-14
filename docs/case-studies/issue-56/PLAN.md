@@ -1,9 +1,15 @@
 # Issue 56 / PR 57 work plan
 
+Active automatic Follow disclosure diagnostic:
+
+- [x] Preserve exact `c976dc98` WebKit shard 2 job `132465586160`, all 1,637 lines and the validated closed-disclosure artifact. Lines 1517–1540 show the first chats-field fill timeout; original cause remains unproven.
+- [x] Extend the existing bounded, default-off trace to the automatic fixture without changing its native clicks, assertions or deadlines. One focused WebKit replay passes VK/Telegram retry and phone layout; all fixtures drain.
+- [ ] Publish and inspect exact-head hosted checks; use the trace on any recurrence. Continue HH daily-limit/CAPTCHA coexistence and all original incomplete requirements.
+
 Active exact-parent hosted failures (`c976dc98`, run `43600700798`):
 
 - [x] Confirm the SHA and 2026-11-14 13:37:29 UTC timestamp. Preserve complete logs for Ubuntu Deno job `132465586330` (8,896 lines), Chromium shard 2 `132465586203` (1,847 lines), and cancelled macOS Node shard 1 `132465586315` (1,176 lines). Four companion workflows pass; main workflow remains unfinished.
-- [ ] Reproduce the Deno signaling assertion at job-log lines 8859–8872: a fixed 30 ms sleep precedes the offer assertion and failure skips resource cleanup. Keep finite delivery evidence and owned fixture cleanup; do not infer the original delivery delay without measurement.
+- [x] Reproduce the Deno signaling assertion at job-log lines 8859–8872: a fixed 30 ms sleep precedes the offer assertion and failure skips resource cleanup. The exact parent fails with a finite 120 ms callback delay; the corrected bounded predicate passes, as do Node 9/Deno 9. Fixture cleanup runs on assertion failure. Published as `63f9f559`; original hosted delivery delay remains unmeasured.
 - [x] Reproduce a concrete native daily-limit wait race: the deadline crosses during acknowledged backup after inspection computed an active flag. Exact parent `ef99739b` refuses incorrectly; a newer shared pause still refuses. Re-read the saved pause at expiry and retain every guard. Node 65/Deno 65 and the finite native waiting scenario pass; zero sends and drained fixtures. Original hosted interleaving remains unmeasured. Honor the existing CI screenshot directory without changing deadlines/scenarios/engines.
 - [x] Preserve the Chromium artifact summary and complete failed log. macOS Node shard 1 annotations establish the ten-minute job deadline, with roughly five minutes consumed before tests. Its final output alone does not establish a specific test hang; investigate if it recurs on the new head.
 - [ ] Publish useful atomic corrections and inspect every exact-head hosted check. Continue every original incomplete requirement; PR57 stays draft and unmerged.

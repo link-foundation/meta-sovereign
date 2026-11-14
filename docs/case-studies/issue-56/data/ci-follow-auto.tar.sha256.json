@@ -1,0 +1,25 @@
+{
+  "archive": "ci-follow-auto.tar.gz",
+  "files": {
+    "before/js/tests/e2e-follow-auto-browser.mjs": "d1e798fabf9188ca39d0bf1b772bbab4e8b5da6c13c180d654b7dba6e0a5d82a",
+    "ci-logs/artifacts-43600700798-webkit-2/summary.json": "fc9db9dbeb4a56dda23c37b1602c7b4c11e8af24d62d04677d6ab2825a6a8842",
+    "ci-logs/checks-43600700798-webkit-2.log": "53fc0345e8ed3aafce8f0f01cca8fb5c8e406bab22e51dcec1adefea5132b084",
+    "ci-logs/ci-follow-auto-build.log": "9c3fe378e61cc46f688780cafe4b0f7fe97afd72ee895a7de45af5d324d60f34",
+    "ci-logs/ci-follow-auto-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-follow-auto-duplication.log": "1d5292a100d15d3fcde5649ecde3b81bd9b5898d2cfbaa8f68221a66c1d289b4",
+    "ci-logs/ci-follow-auto-format-write.log": "889e16a1181c09da0491eefcdc977001af65641c0883127f0a37f2a3c590b54e",
+    "ci-logs/ci-follow-auto-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-follow-auto-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-follow-auto-native.log": "fd5ff629681f1029a441247c6cbcc5552de3b8661ad8a94aa317416e91474a90",
+    "ci-logs/ci-follow-auto-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/PLAN.md": "bb8bcf677681793a34587c56ccf562038c8505d0b3ec82bf745086ade3f431e0",
+    "docs/case-studies/issue-56/ci-telegram-backlinks.md": "3082e4cf238cd2e41a785e02b8b471f1359af62f6609e0afa35165aa9a2ea3c5",
+    "docs/screenshots/issue-56-ci-telegram-backlinks/auto-hosted-closed.png": "ef005330d53731ce4baa5b8afe7b5f151763c19c914d25a7c9657eb816e6e3cf",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-telegram-backlinks.py": "76d02b6f063a37f7939f776a46ee43eb9e8a64931bc62103d005327126468271",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "js/tests/e2e-follow-auto-browser.mjs": "a1f7dc2302abd6c7f16e63512d677c573e2a660da9176d6302da2e482be7a726",
+    "js/tests/helpers/e2e-follow-disclosure-trace.mjs": "84ea0076ec4fe0ac8928e4077c9354e690d73341f26487033a62faf9d1798b55",
+    "metadata.json": "71f84980c1a7b9edb0041fdeb5235f555c4186661a151fb2d5323815dc3097c1"
+  }
+}
