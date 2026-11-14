@@ -5,6 +5,7 @@ import {
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
+import { rememberApplicationLocation } from './application-location.js';
 import {
   applicationFailure as fail,
   applicationPageKey,
@@ -113,6 +114,7 @@ export class ApplicationReview {
         ? 'verified'
         : 'not-attached';
     await this.prepare(record, signal);
+    rememberApplicationLocation(record);
     this.policy(record);
     record.guard = {
       page: applicationPageKey(record.page),

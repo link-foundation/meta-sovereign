@@ -1,6 +1,7 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { assignmentVacancy } from '../assignments/validation.js';
 import { applicationResult, applicationStates } from './application-result.js';
+import { applicationResumeUrl } from './application-location.js';
 import {
   applicationSettings,
   applicationFailure as fail,
@@ -19,6 +20,7 @@ const properties = [
   'delivery',
   'code',
   'vacancy',
+  'resumeUrl',
 ];
 const snapshot = (record) =>
   Object.fromEntries(properties.map((key) => [key, record[key] ?? null]));
@@ -45,7 +47,11 @@ export const readApplicationJournal = (row, key) => {
     }
     assignmentVacancy(row.vacancy);
   }
-  const restored = { ...row, active: false };
+  const restored = {
+    ...row,
+    resumeUrl: applicationResumeUrl(row.resumeUrl, key.url),
+    active: false,
+  };
   applicationResult(applicationView(restored), {
     ...key,
     requestId: row.requestId,

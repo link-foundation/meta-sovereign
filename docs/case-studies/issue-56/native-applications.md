@@ -3,8 +3,12 @@
 The separate security audit passes on published `81d55350`, including the URL
 probe correction below. [Application browser controls](application-controls.md)
 now have focused native and independent MCP verification. Deferred queues,
-recovered forms and all remaining acceptance criteria stay unfinished; earlier
+complete form recovery and all remaining acceptance criteria stay unfinished; earlier
 executor evidence below describes that atomic unit, not completed issue parity.
+
+The later [full-form recovery correction](application-recovery.md) preserves an
+acknowledged native questionnaire URL without replaying entry or submission.
+Popup state and unsaved native owner answers remain separate requirements.
 
 The exact native selectors pass their focused checks, but `20d47bb1` security
 job `132268444304` finds the old prefix predicate in the negative experiment

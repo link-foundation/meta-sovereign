@@ -3,9 +3,11 @@ import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
 import {
   verifyNativeApplication,
   verifyNativeApplicationGuards,
+  verifyNativeApplicationRecovery,
 } from './helpers/e2e-job-application.mjs';
 await runBrowserScenarios('job-application', [
   verifyNativeApplication,
   verifyNativeApplicationGuards,
   verifyApplicationPanel,
+  verifyNativeApplicationRecovery,
 ]);

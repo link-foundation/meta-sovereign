@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active native full-form recovery correction:
+
+- [x] Reproduce exact published `e1c10104` reopening at the vacancy while its entry reservation blocks further entry. Preserve Node/native failures and independent MCP before screenshot; replace mock document retention with a fresh browser document.
+- [x] Checkpoint only an acknowledged bound questionnaire URL; validate exact HH origin, credentials, route and vacancy ID before browser launch. Preserve original settings and entry/submission reservations; keep legacy journals readable and failed put/flush locations rolled back.
+- [x] Verify fresh explicit review, no automatic entry/prefill/submit, uncertain submission refusal, renewed confirmations and read-only reload through focused tests, production Chromium and independent MCP. Close all fixture browsers and preserve before/after screenshots.
+- [ ] Publish checksummed [recovery evidence](application-recovery.md), verify scoped gates and inspect exact-head CI. Continue deferred retries, full session/popup policies and every unchecked original criterion; PR57 stays draft and unmerged.
+
 Active native application browser controls:
 
 - [x] Add four-language vacancy-bound review, frozen owner settings, full vacancy/form evidence and freshly confirmed native actions. Preserve private durable reservations and truthful missing, unknown and live-browser states.

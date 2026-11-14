@@ -24,6 +24,90 @@ const identity = (receipt, extra = {}) => ({
   revision: receipt.revision,
   ...extra,
 });
+export const verifyNativeApplicationRecovery = async (browser) => {
+  const fixture = await applicationNativeFixture(browser);
+  const formUrl = 'https://hh.ru/applicant/vacancy_response?vacancyId=123';
+  const owned = () =>
+    browser
+      .contexts()
+      .flatMap((context) => context.pages())
+      .find((page) => page.url() === formUrl);
+  try {
+    let receipt = await request(fixture, 'open', {
+      ...applicationInput,
+      coverLetter: 'Original reviewed letter.',
+    });
+    receipt = await request(
+      fixture,
+      'advance',
+      identity(receipt, {
+        action: 'enter',
+        confirm: true,
+      })
+    );
+    assert.equal(receipt.state, 'review');
+    const first = owned();
+    assert.equal(await first.evaluate(() => globalThis.applicationEntries), 1);
+    await request(fixture, 'close', identity(receipt));
+    assert(first.isClosed());
+    receipt = await request(fixture, 'open', {
+      ...applicationInput,
+      recover: true,
+    });
+    assert.equal(receipt.state, 'review');
+    assert.equal(receipt.page.url, formUrl);
+    assert.equal(receipt.attempted.enter, true);
+    const page = owned();
+    assert.notEqual(page, first);
+    assert.deepEqual(fixture.records.at(-1).navigation, [formUrl]);
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        entry: globalThis.applicationEntries,
+        submission: globalThis.applicationAttempts,
+        experience: document.querySelector('#experience').value,
+      })),
+      { entry: 0, submission: 0, experience: '' }
+    );
+    receipt = await request(
+      fixture,
+      'prefill',
+      identity(receipt, { confirm: true })
+    );
+    assert.equal(receipt.letter, 'verified');
+    assert.equal(
+      await page.locator('#experience').inputValue(),
+      'Five years building Python services.'
+    );
+    receipt = await request(
+      fixture,
+      'advance',
+      identity(receipt, { action: 'submit', confirm: true })
+    );
+    assert.equal(receipt.delivery, 'provider-confirmed');
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        entry: globalThis.applicationEntries,
+        submission: globalThis.applicationAttempts,
+        letter: globalThis.deliveredLetter,
+      })),
+      { entry: 0, submission: 1, letter: 'Original reviewed letter.' }
+    );
+    await request(fixture, 'close', identity(receipt));
+    assert(page.isClosed());
+    assert(fixture.records.every((record) => record.closed));
+    assert.deepEqual(fixture.errors, []);
+    return {
+      originalEntry: 1,
+      recoveredEntry: 0,
+      recoveredSubmission: 1,
+      originalLetter: 'verified',
+      ownedBrowsersClosed: true,
+      errors: fixture.errors,
+    };
+  } finally {
+    await fixture.close();
+  }
+};
 export const verifyNativeApplication = async (browser) => {
   const fixture = await applicationNativeFixture(browser);
   try {

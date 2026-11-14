@@ -3,9 +3,13 @@
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) adds a native
 HH application review card to CV sync in English, Russian, Hindi and Chinese.
 The issue and HH06–HH08 remain unfinished. Deferred retry queues, complete
-session policies, recovered native forms and other original inventory criteria
+session policies, complete native-form recovery and other original inventory criteria
 still require implementation and verification. `applicationReview` advertises
 the available owned executor; the broader `apply` capability remains false.
+
+The later [questionnaire recovery correction](application-recovery.md) reopens
+an acknowledged full-form URL without replaying entry. Popup state, native
+owner drafts and the remaining workflow still require separate verification.
 
 ## Reproduction and behavior
 

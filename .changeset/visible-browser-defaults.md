@@ -403,3 +403,5 @@ Add private browser-slot vacancy exclusions and deferred-review notes through CL
 Restore acknowledged job records after rejected puts as well as failed flushes. Share catalog rollback with vacancy and résumé persistence, keep reads and Stop behind restoration, and verify actual snapshot failures and browser reload without exposing uncommitted notes as saved.
 
 Add four-language native HH application review controls with complete vacancy context, exact answer and letter evidence, explicit action confirmations and identity-only reload recovery. Preserve unknown outcomes without replay, drain Stop, expose verified live-browser state and allow fresh settings only after a confirmed unissued preview. Deferred queues and complete session policies remain unfinished.
+
+Reopen an acknowledged native HH questionnaire at its validated saved form URL. Preserve original settings, durable entry/submission reservations and fresh confirmation, refuse foreign or mismatched locations before browser launch, and retain acknowledged checkpoints after failed storage.

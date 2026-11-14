@@ -252,8 +252,13 @@ class ApplicationService {
         ),
       });
       signal.throwIfAborted();
+      this.trace({
+        event: 'application-opening-location',
+        recovered: Boolean(restored.previous),
+        location: record.resumeUrl ? 'questionnaire' : 'vacancy',
+      });
       await record.browser.commander.goto({
-        url: options.url,
+        url: record.resumeUrl ?? options.url,
         waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
