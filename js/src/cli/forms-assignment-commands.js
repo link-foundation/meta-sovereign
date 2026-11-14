@@ -1,12 +1,9 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createAssignmentRepositoryService } from '../forms/assignment-service.js';
 import { loadFormInspection } from './forms-inspection-file.js';
-import {
-  TEST_ASSIGNMENT_HELP,
-  testAssignmentCommand,
-} from './test-assignment-command.js';
+import { testAssignmentCommand } from './test-assignment-command.js';
 
-export const FORMS_ASSIGNMENT_HELP = `  forms-assignment-link --file=<inspection.json> --repository=<https://github.com/owner/repo> --revision=<assignment-revision> [--store=<dir>]\n${TEST_ASSIGNMENT_HELP}`;
+export { FORMS_ASSIGNMENT_HELP } from './help.js';
 export const formsAssignmentCommands = ({
   openStore,
   verifyAssignmentRepository,

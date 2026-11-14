@@ -5,8 +5,7 @@ import {
   saveBrowserPolicy,
 } from '../browser/policy.js';
 
-export const BROWSER_HELP = `  browser-policies [--platform=hh] [--slot=main] [--case=cv] [--store=<dir>]
-  browser-configure --scope=default|case|slot [--key=cv|hh/forms] --mode=visible|headless|inherit [--store=<dir>]`;
+export { BROWSER_HELP } from './help.js';
 
 const modeValue = (mode) => {
   if (!['visible', 'headless', 'inherit'].includes(mode)) {

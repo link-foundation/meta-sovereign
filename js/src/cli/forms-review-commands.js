@@ -13,8 +13,7 @@ import { createLocalAnswerModel } from '../automation/local-answer-model.js';
 import { formReportSnapshot } from '../forms/review-journal.js';
 import { awaitFormPrefill } from './forms-prefill-wait.js';
 
-export const FORMS_REVIEW_HELP =
-  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--prefill] [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
+export { FORMS_REVIEW_HELP } from './help.js';
 const inputs = (args) => {
   const sources = [
     args.urls !== undefined,

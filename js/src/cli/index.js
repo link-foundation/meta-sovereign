@@ -1,5 +1,6 @@
 /** Select the CLI consumer before loading its command/provider graph. */
 import { runCliCommand } from './command-runner.js';
+import { ordinaryCommandNames } from './command-names.js';
 
 const loadConsumer = async (name, load) => {
   const began = globalThis.performance.now();
@@ -26,6 +27,26 @@ export const runCli = async (argv, options = {}) => {
       () => import('./serve-command.js')
     );
     return runCliCommand(argv, serveCmd, options);
+  }
+  const help = [undefined, 'help', '--help', '-h'].includes(argv[0]);
+  if (help || !ordinaryCommandNames.has(argv[0])) {
+    const { HELP } = await loadConsumer(
+      'help command',
+      () => import('./help.js')
+    );
+    if (!help) {
+      // Unknown commands historically print usage before parsing their flags.
+      (options.log ?? console.log)(HELP);
+      return 1;
+    }
+    return runCliCommand(
+      argv,
+      async (_args, log) => {
+        log(HELP);
+        return 0;
+      },
+      options
+    );
   }
   const commands = await loadConsumer(
     'ordinary commands',

@@ -6,8 +6,7 @@ import {
 } from '../forms/configured-resume.js';
 import { loadResumePdf } from './forms-resume-file.js';
 
-export const FORMS_RESUME_HELP =
-  '  forms-resume  --action=status|save|delete [--file=<pdf-path>] [--revision=<saved-revision>] [--store=<dir>]';
+export { FORMS_RESUME_HELP } from './help.js';
 export const formResumeCommands = ({ openStore }) => ({
   'forms-resume': async (args, log) => {
     const action = args.action ?? 'status';

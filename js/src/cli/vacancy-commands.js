@@ -1,7 +1,4 @@
-import {
-  createApplicationCommands,
-  APPLICATION_HELP,
-} from './application-command.js';
+import { createApplicationCommands } from './application-command.js';
 import { createVacancyService } from '../jobs/service.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire } from '../transport/lino.js';
@@ -21,43 +18,7 @@ const vacancyCommandExit = (operation, result) =>
     ? 1
     : 0;
 
-export const VACANCY_HELP = `${APPLICATION_HELP}
-  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--skip-responded=true|false] [--exclude-text=<literal-lines>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
-  vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
-  vacancies-stored [--store=<dir>]
-  vacancies-choices-stored [--browser-slot=jobs] [--store=<dir>]
-  vacancies-choice-save --url=<hh-vacancy-url> --title=<text> --state=skipped|deferred --revision=<observed-revision> [--note=<private-text>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-choice-clear --url=<hh-vacancy-url> --revision=<observed-revision> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-resumes [--resume=<hash>] [--resume-language=ru|en|any] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
-  vacancies-resumes-stored [--store=<dir>]
-  vacancies-resume-export [--resume=<hash>|--all=true] [--formats=pdf,doc,rtf,html] [--request-id=<id>] [--out=<directory>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
-  vacancies-resume-export-status --request-id=<id> [--store=<dir>]
-  vacancies-resume-export-cancel --request-id=<id> [--store=<dir>]
-  vacancies-resume-exports-stored [--store=<dir>]
-  vacancies-technology-catalog [--store=<dir>]
-  vacancies-technology-catalog-save --file=<catalog.lino|catalog.bin|catalog.json> [--store=<dir>]
-  vacancies-technology-analyze --export-id=<id> --resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-analysis-stored [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-review --ru-export-id=<id> --ru-resume=<hash> --en-export-id=<id> --en-resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-review-stored [--browser-slot=jobs] [--store=<dir>]
-  vacancies-technology-review-save --fingerprint=<review-fingerprint> --selected=<change-id>,<change-id> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-watch [--request-id=<id>] [--duration-ms=900000] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-membership --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-source --export-id=<id> --resume=<hash> [--job-index=0] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-dictionaries [--store=<dir>]
-  vacancies-cv-workplace-plan --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<fields.json|fields.lino|fields.bin> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-plan --operation=detach --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<reviewed-membership.json|.lino|.bin> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-plan-stored [--fingerprint=<plan-fingerprint>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-workplace-review --fingerprint=<plan-fingerprint> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description|workplace> [--review-kind=workplace] [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-translate --file=<texts.json|texts.lino|texts.bin> --from=ru|en --to=en|ru [--providers=haiku,luna,formal-ai] [--haiku-model=<id>] [--luna-model=<id>] [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-translation-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-  vacancies-cv-translation-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
+export { VACANCY_HELP } from './help.js';
 
 const typedFlag = (args, key, kind) => {
   const value = args[key];

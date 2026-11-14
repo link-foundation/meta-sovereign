@@ -8,8 +8,7 @@ import {
   applyContactsImport,
 } from '../sources/contacts-import.js';
 
-export const CONTACTS_HELP = `  contacts-import [--file=<contacts.vcf> | --system] [--store=<dir>] [--preview]
-                import a vCard export or macOS Contacts (including synced iCloud accounts); nothing is uploaded`;
+export { CONTACTS_HELP } from './help.js';
 
 export const createContactCommands = ({ openStore }) => ({
   'contacts-import': async (args, log) => {

@@ -1,8 +1,5 @@
 import { loadFormInspection } from './forms-inspection-file.js';
-import {
-  FORMS_ASSIGNMENT_HELP,
-  formsAssignmentCommands,
-} from './forms-assignment-commands.js';
+import { formsAssignmentCommands } from './forms-assignment-commands.js';
 import { questionMatchingFlags } from './question-matching-flags.js';
 import { modelDraftFlag, withAnswerModel } from './answer-model-commands.js';
 import { decodeWire } from '../transport/lino.js';
@@ -13,25 +10,11 @@ import {
   persistFormReport,
 } from '../forms/report-file.js';
 import { formReportOutput } from '../forms/report-markdown.js';
-import {
-  createFormReviewCommands,
-  FORMS_REVIEW_HELP,
-} from './forms-review-commands.js';
-import {
-  FORMS_WATCHERS_HELP,
-  formWatcherCommands,
-} from './forms-watcher-commands.js';
-import {
-  FORMS_RESUME_HELP,
-  formResumeCommands,
-} from './forms-resume-commands.js';
+import { createFormReviewCommands } from './forms-review-commands.js';
+import { formWatcherCommands } from './forms-watcher-commands.js';
+import { formResumeCommands } from './forms-resume-commands.js';
 
-export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
-${FORMS_REVIEW_HELP}
-${FORMS_WATCHERS_HELP}
-${FORMS_RESUME_HELP}
-${FORMS_ASSIGNMENT_HELP}`;
+export { FORMS_HELP } from './help.js';
 
 export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
   ...formWatcherCommands,

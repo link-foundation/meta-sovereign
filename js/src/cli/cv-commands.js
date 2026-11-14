@@ -27,12 +27,7 @@ import {
 } from '../cv/index.js';
 import { confirmCli } from './confirm.js';
 
-export const CV_HELP = `  cv-platforms  [--json]
-  cv-plan       --platform=<id> [--json]
-  cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
-  cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
-  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--store=<dir>]
-  cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
+export { CV_HELP } from './help.js';
 
 /** `--platforms=a,b` (or repeated commas) — defaults to every platform. */
 export const parsePlatforms = (value) => {

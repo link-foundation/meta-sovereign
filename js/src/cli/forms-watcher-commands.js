@@ -4,8 +4,7 @@ import {
   listFormWatchers,
 } from '../forms/watcher-management.js';
 
-export const FORMS_WATCHERS_HELP =
-  '  forms-watchers [--action=list|status|history|stop] [--browser-slot=<name>] [--store=<dir>]';
+export { FORMS_WATCHERS_HELP } from './help.js';
 export const formWatcherCommands = {
   'forms-watchers': async (args, log) => {
     const action = args.action ?? 'list';

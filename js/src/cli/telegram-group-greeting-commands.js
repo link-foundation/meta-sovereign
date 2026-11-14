@@ -4,10 +4,7 @@ import { exportTarget } from '../sources/telegram-export-target.js';
 import { scanOptions } from '../sources/telegram-chat-users-shape.js';
 import { groupGreetingOptions } from '../sources/telegram-group-greeting-shape.js';
 
-export const TELEGRAM_GROUP_GREETING_HELP = `  telegram-greet-group --chat=<group-id|@group|t.me/link> [--limit=0] [--delay-ms=30000]
-                [--participants-limit=10000] [--sticker=<document-id>] [--confirm=true] [--store=<dir>]
-                Scans participants and previews eligible private greetings by default. Zero limit selects all eligible users.
-                Confirmation sends the reviewed selection with acknowledgements and 24-hour deduplication; the first error stops.`;
+export { TELEGRAM_GROUP_GREETING_HELP } from './help.js';
 export const groupGreetingRequest = (args = {}) => {
   if (![undefined, true, false, 'true', 'false'].includes(args.confirm)) {
     return null;

@@ -14,12 +14,7 @@ import { askTerminalSecret } from './secret-prompt.js';
 import { readLegacyTelegramConfig } from '../sources/telegram-legacy-config.js';
 import { encodeLinoValue } from '../transport/lino.js';
 
-export const TELEGRAM_LOGIN_HELP = `  telegram-login [--api-id=<id>] [--store=<dir>]
-  telegram-session-import --file=<legacy-string-session-file> [--api-id=<id>] [--store=<dir>]
-  telegram-session-import --env-file=<legacy-follow-env-file> [--store=<dir>]
-                API hash and phone use TELEGRAM_API_HASH/TELEGRAM_PHONE or masked terminal prompts.
-                API ID also accepts TELEGRAM_API_ID; code/2FA prompts are masked. Sessions stay in the store.
-                Follow TELEGRAM_USER_BOT_* aliases are accepted. Output is Lino; --json requests JSON.`;
+export { TELEGRAM_LOGIN_HELP } from './help.js';
 
 const safeCode = (error) => {
   const knownMessage =

@@ -15,48 +15,23 @@
 
 import { defaultStoreDir } from '../storage/app-directory.js';
 import path from 'node:path';
-import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
-import {
-  TELEGRAM_GREETINGS_HELP,
-  createTelegramGreetingCommands,
-} from './telegram-greetings-commands.js';
-import {
-  TELEGRAM_USERS_HELP,
-  createTelegramUsersCommands,
-} from './telegram-users-commands.js';
-import {
-  TELEGRAM_LOGIN_HELP,
-  createTelegramLoginCommands,
-} from './telegram-login-commands.js';
-import {
-  TELEGRAM_EXPORT_HELP,
-  createTelegramExportCommands,
-} from './telegram-export-commands.js';
+import { createContactCommands } from './contact-commands.js';
+import { createTelegramGreetingCommands } from './telegram-greetings-commands.js';
+import { createTelegramUsersCommands } from './telegram-users-commands.js';
+import { createTelegramLoginCommands } from './telegram-login-commands.js';
+import { createTelegramExportCommands } from './telegram-export-commands.js';
 import { promises as fs } from 'node:fs';
 import { runCliCommand } from './command-runner.js';
 import { versionCmd } from './version-command.js';
-import { CV_HELP, createCvCommands } from './cv-commands.js';
-import { VACANCY_HELP, createVacancyCommands } from './vacancy-commands.js';
-import { BROWSER_HELP, createBrowserCommands } from './browser-commands.js';
-import { FORMS_HELP, createFormsCommands } from './forms-commands.js';
-import {
-  BROADCAST_HELP,
-  createBroadcastCommands,
-} from './broadcast-commands.js';
-import {
-  AUTOMATION_HELP,
-  createAutomationCommands,
-} from './automation-commands.js';
-import {
-  GREETINGS_HELP,
-  createGreetingCommands,
-} from './greetings-commands.js';
-import { TRUST_HELP, createTrustCommands } from './trust-commands.js';
-import {
-  MIGRATE_HELP,
-  createMigrateCommands,
-  migrationNotice,
-} from './migrate-commands.js';
+import { createCvCommands } from './cv-commands.js';
+import { createVacancyCommands } from './vacancy-commands.js';
+import { createBrowserCommands } from './browser-commands.js';
+import { createFormsCommands } from './forms-commands.js';
+import { createBroadcastCommands } from './broadcast-commands.js';
+import { createAutomationCommands } from './automation-commands.js';
+import { createGreetingCommands } from './greetings-commands.js';
+import { createTrustCommands } from './trust-commands.js';
+import { createMigrateCommands, migrationNotice } from './migrate-commands.js';
 import {
   openDualStore,
   bulkPurge,
@@ -107,69 +82,7 @@ import { planOutreach } from '../broadcast/index.js';
 import { LINO_TEXT, LINO_BINARY, JSON_MEDIA } from '../transport/lino.js';
 import { syncWire } from '../sync/wire.js';
 
-const HELP = `meta-sovereign <command> [options]
-
-Commands:
-  import        --source=<name> --file=<path> --store=<dir>
-  export        --file=<path> --store=<dir>
-  backup        --store=<dir> --archive=<dir> [--keep=<n>] [--formats=text,binary] [--passphrase=<pp>]
-  backup-config [--store=<dir>] [--interval-hours=<h>] [--keep=<n>] [--formats=text,binary|none]
-  restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
-  passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
-                [--backup-interval-hours=<h>] [--backup-keep=<n>] [--recovery-formats=text,binary|none]
-                open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
-                on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
-                verbose logs are written to <store>/logs/meta-sovereign.log by default
-                repeat serve after updating: the current worker serves while its replacement prepares
-                https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
-${TRUST_HELP}
-${CONTACTS_HELP}
-${TELEGRAM_EXPORT_HELP}
-${TELEGRAM_USERS_HELP}
-${TELEGRAM_GREETINGS_HELP}
-${TELEGRAM_LOGIN_HELP}
-  sources
-  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--max-requests=<n>] [--restart-history] [--store=<dir>]
-  email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
-  github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
-  github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>
-  upwork-search --query=<q> [--limit=<n>] [--sort=<s>] --token=<pat> [--store=<dir>]
-  upwork-message --room-id=<r> --text=<body> --token=<pat> [--store=<dir>]
-  peopleperhour-search --query=<q> [--limit=<n>] [--sort=<s>] --token=<pat> [--store=<dir>]
-  peopleperhour-message --workstream-id=<w> | --proposal-id=<p> --text=<body> --token=<pat> [--store=<dir>]
-  audience      --query=<expr> [--store=<dir>]
-  facts         [--store=<dir>]
-  search        --query=<text> [--min=<0..1>] [--store=<dir>]
-  broadcast     --text=<msg> [--networks=t,vk,...] [--store=<dir>]
-  patterns      [--store=<dir>]
-  patterns-infer --examples=<a,b,c> [--mode=simple|lcs]
-  graphs        [--store=<dir>]
-  graphs-run    --id=<graph:id> --message=<text> [--mode=auto|semi] [--store=<dir>]
-  replies       [--store=<dir>]
-  profile       [--name=<n>] [--bio=<b>] [--store=<dir>]
-  resume        [--title=<t>] [--body=<b>] [--store=<dir>]
-  sync-listen   [--port=<n>] [--store=<dir>] [--sync-format=lino|binary|json]
-  sync-connect  --port=<n> [--host=<h>] [--store=<dir>] [--sync-format=lino|binary|json]
-                JSON sync also requires --json-compatibility=true on both ends
-  outreach      --query=<expr> --text=<msg> [--reply=<reply:id>] [--networks=t,vk] [--mode=preview|queue] [--store=<dir>]
-${AUTOMATION_HELP}
-  export-encrypted --file=<path> --passphrase=<pp> [--store=<dir>]
-  purge-tombstones --confirm=true [--id-prefix=<msg:tg>] [--older-than=<iso>] [--store=<dir>]
-  vault-init    --kind=passphrase|pin|passkey|totp-recovery --secret=<s> [--label=<l>] [--file=<path>]
-  vault-add     --secret=<old> --kind=<k> --new-secret=<s> [--label=<l>] [--file=<path>]
-  vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
-  vault-list    [--file=<path>]
-${CV_HELP}
-${VACANCY_HELP}
-${BROWSER_HELP}
-${FORMS_HELP}
-${GREETINGS_HELP}
-${BROADCAST_HELP}
-${MIGRATE_HELP}
-  help          (also --help, -h)
-  version       (also --version, -v)
-`;
+import { HELP } from './help.js';
 
 // A writer migrates the store first (R-Z17) and says so on stderr.
 const openStore = (dir) =>
@@ -909,6 +822,8 @@ const ALIASES = {
   '--version': 'version',
   '-v': 'version',
 };
+
+export const cliCommandNames = Object.keys(COMMANDS);
 
 export const runCli = async (argv, { log = console.log } = {}) => {
   const [cmd] = argv;

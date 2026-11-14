@@ -6,11 +6,7 @@ import {
   contactOptions,
 } from '../sources/telegram-chat-users-shape.js';
 
-export const TELEGRAM_USERS_HELP = `  telegram-users --chat=<id|@username|t.me/link> [--participants-limit=10000] [--messages-limit=100000]
-  telegram-chat-contacts --chat=<id|@username|t.me/link> [--limit=0] [--delay-ms=10000]
-                [--apply=true] [--share-phone=true] [--include-existing=true] [--store=<dir>]
-                Contacts are previewed by default; phone sharing is off. Scan limits also apply.
-                Zero participants means unlimited; zero messages disables history. [--debug=true]`;
+export { TELEGRAM_USERS_HELP } from './help.js';
 const bool = (value) =>
   [undefined, true, false, 'true', 'false'].includes(value);
 const on = (value) => value === true || value === 'true';

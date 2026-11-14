@@ -28,10 +28,7 @@ import {
 } from '../greetings/index.js';
 import { confirmCli } from './confirm.js';
 
-export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
-  greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--json] [--store=<dir>]
-  greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
-  greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
+export { GREETINGS_HELP } from './help.js';
 
 /** vk-bot waits 30 s between greetings. */
 export const DEFAULT_SEND_DELAY_MS = 30_000;

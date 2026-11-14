@@ -19,8 +19,7 @@ import {
 } from '../storage/migrations/index.js';
 import { dryRunMigrations } from '../storage/migrations/node-runner.js';
 
-export const MIGRATE_HELP =
-  '  migrate       [--store=<dir>] [--dry-run | --status]   bring the store to the current data schema';
+export { MIGRATE_HELP } from './help.js';
 
 export { SCHEMA_ERROR_CODES } from './errors.js';
 

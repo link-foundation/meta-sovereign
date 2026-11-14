@@ -8,8 +8,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { loadFormInspection } from './forms-inspection-file.js';
 import { withAnswerModel } from './answer-model-commands.js';
 
-export const TEST_ASSIGNMENT_HELP =
-  '  test-assignment <name|owner/name> --file=<inspection.json>|--url=<form-url> [--vacancy=<hh-url>] [--source=<instruction-url>] [--visibility=private|public] [--employer=<name>] [--dry-run] [--draft-id=<saved-draft>] [--store=<dir>]';
+export { TEST_ASSIGNMENT_HELP } from './help.js';
 
 const booleanFlag = (args, key) => {
   if (

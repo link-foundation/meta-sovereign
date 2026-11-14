@@ -66,7 +66,7 @@ test(
       'unknown-fixture-command'
     );
     assert.equal(code, 1, errors);
-    assert.match(errors, /\[cli\] ordinary commands ready after \d+ ms/u);
+    assert.match(errors, /\[cli\] help command ready after \d+ ms/u);
     assert.match(output, /meta-sovereign <command>/u);
     assert.match(output, /test-assignment/u);
   }

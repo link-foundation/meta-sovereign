@@ -4,11 +4,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import { MEDIA_KEYS, parseExport } from '../sources/telegram-export.js';
 
-export const TELEGRAM_EXPORT_HELP = `  telegram-export --chat=<id|@username|t.me/link> --folder=<absolute-path>
-                [--scope=active|all] [--gap-hours=4] [--max-lines=1500]
-                [--formats=markdown|html|json|html,json] [--media=all|none|photos,files,...]
-                [--size-limit-mb=8] [--from=YYYY-MM-DD] [--to=YYYY-MM-DD] [--store=<dir>] [--debug=true|false]
-                active is the CLI default; Markdown includes linked structured JSON parts`;
+export { TELEGRAM_EXPORT_HELP } from './help.js';
 
 const requestOf = (args) => {
   const kinds = String(args.media ?? 'all').split(',');

@@ -2,10 +2,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import { greetingSendRequest } from '../sources/telegram-greeting-target.js';
 
-export const TELEGRAM_GREETING_SEND_HELP = `  telegram-bot-start --chat=<@bot|id> [--confirm=true] [--store=<dir>]
-  telegram-greet --chat=<@username|signed-id|t.me/link> [--sticker=<document-id>]
-                [--confirm=true] [--store=<dir>]
-                Preview by default. Confirmation sends one reviewed /start or cached greeting, with Telegram acknowledgement.`;
+export { TELEGRAM_GREETING_SEND_HELP } from './help.js';
 const request = (args, operation) => {
   const confirm = args.confirm;
   if (![undefined, true, false, 'true', 'false'].includes(confirm)) {

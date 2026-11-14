@@ -465,3 +465,7 @@ application form and actual Q&A before closing a uniquely identified native
 CAPTCHA dialog. Refuse challenge content, unsafe or changed captures, failed
 persistence and expired pauses; retain the original workspace deadline and
 separate restoration/submission confirmation.
+
+Load CLI help and unknown-command explanations without importing providers or
+ordinary execution modules. Preserve all registered commands, existing help
+exports and exact usage output, exit statuses and pending output drainage.

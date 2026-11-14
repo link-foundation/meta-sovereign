@@ -13,17 +13,7 @@ import {
 } from '../broadcast/credentials.js';
 import { confirmCli } from './confirm.js';
 
-export const BROADCAST_HELP = `  broadcast-targets [--store=<dir>]
-  broadcast-target-save --id=<id> --label=<name> --network=telegram|vk|x --kind=channel|group|personal-wall|community-wall|account [--destination=<id|@name>] [--auth-mode=<mode>] [--format=plain|html] [--enabled=true|false]
-  broadcast-target-remove --id=<id>
-  broadcast-credentials --network=telegram|vk|x [--file=<private-json-file>]
-  broadcast-setup --network=telegram|vk|x (interactive masked credential input)
-  broadcast-preview --text=<message> --targets=<id,id> | --all [--debug=true|false]
-  broadcast-send (preview flags) [--request-id=<stable-id>] [--yes]
-  broadcast-test --id=<destination-id> (read-only identity test)
-  broadcast-history [--id=<publication-id>] [--limit=50]
-  broadcast-delete --id=<publication-id> [--targets=<id,id>] [--yes]
-                all broadcast commands accept --store=<dir>; legacy broadcast --networks still queues`;
+export { BROADCAST_HELP } from './help.js';
 
 const list = (value) =>
   value === undefined
