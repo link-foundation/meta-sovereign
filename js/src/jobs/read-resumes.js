@@ -6,9 +6,18 @@ export const readResumeListDocument = () => {
   const visible = (node) => Boolean(node?.getClientRects().length);
   const challenge = [
     ...document.querySelectorAll(
-      '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"]'
+      '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
     ),
   ].some(visible);
+  if (challenge) {
+    return {
+      url: location.href,
+      entries: [],
+      observed: false,
+      challenge: true,
+      capturedAt: new Date().toISOString(),
+    };
+  }
   const readState = () => {
     const templates = [
       ...document.querySelectorAll('template.ResumeProfileFront-InitialState'),

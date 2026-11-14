@@ -1,5 +1,19 @@
 # Issue 56 / PR 57 work plan
 
+Active exact-parent hosted failures (`c976dc98`, run `43600700798`):
+
+- [x] Confirm the SHA and 2026-11-14 13:37:29 UTC timestamp. Preserve complete logs for Ubuntu Deno job `132465586330` (8,896 lines), Chromium shard 2 `132465586203` (1,847 lines), and cancelled macOS Node shard 1 `132465586315` (1,176 lines). Four companion workflows pass; main workflow remains unfinished.
+- [ ] Reproduce the Deno signaling assertion at job-log lines 8859–8872: a fixed 30 ms sleep precedes the offer assertion and failure skips resource cleanup. Keep finite delivery evidence and owned fixture cleanup; do not infer the original delivery delay without measurement.
+- [ ] Investigate the native daily-limit wait refusal at Chromium job-log lines 1764–1789. Preserve its artifact and distinguish the failed safe-wait state from a mere rendering delay before changing code or tests. Investigate cancellation from annotations. Keep existing deadlines/scenarios/engines.
+- [ ] Publish useful atomic corrections and inspect every exact-head hosted check. Continue every original incomplete requirement; PR57 stays draft and unmerged.
+
+Active HH discovery verification boundaries (HH02/HH03/HH06 remain incomplete):
+
+- [x] Reproduce the same native text markers being missed by résumé-list, vacancy-search and vacancy-detail readers. All 12 visible-boundary cases fail on published parent `c976dc98`; 12 hidden-marker cases pass. Return only blocked metadata before reading cards, state templates or employer prose; preserve ordinary successful snapshots.
+- [x] Verify focused Node 63/Deno 63 and the existing finite native CAPTCHA scenario plus independent MCP. Three discovery readers, both native markers, zero challenge reads/actions or sends, four locales and phone layout pass; all owned fixtures close. Preserve checksummed evidence.
+- [ ] Publish the atomic discovery unit and inspect every exact-head hosted check, including the parent failures above.
+- [ ] Continue safe daily-limit capture/dismissal, authenticated scope, paced batches and all 81 original unchecked criteria. PR57 remains draft and unmerged.
+
 Active HH CAPTCHA recognition and answer privacy (HH06/HH08 remain incomplete):
 
 - [x] Reproduce the published parent's failure to recognize HH's `account-captcha-input` and `captchaText` boundaries: 10 of 11 focused cases fail on actual parent `b4257480`; its native screenshot exposes the synthetic answer. Detect visible fields before reading form values, instructions or HTML, including with an unrelated completed token; hidden fields do not create a hold.

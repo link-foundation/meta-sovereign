@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH02/HH03/HH06/HH08 extension: [HH discovery verification holds](hh-discovery-boundaries.md) block résumé, search and vacancy payload reads before inspecting visible HH text inputs or existing widgets. Blocked receipts cannot become observed empty results or cached vacancy prose. Safe daily-limit backup/dismissal, authenticated scope, paced batches and all 81 original unchecked rows remain required.
+
 Partial HH06/HH08 extension: [HH CAPTCHA answer privacy](hh-captcha-boundaries.md) recognizes visible native text gates before reading values, instructions or HTML, even with a completed unrelated token. Daily-limit priority, manual completion and dispatch guards remain intact. Authenticated scope, daily-limit backup/dismissal, pacing and full reference parity remain unfinished; no original row is complete.
 
 Partial HH06/HH08 extension: [confirmed expiry restoration](application-limit-restore.md) offers explicit wait-and-restore consent through CLI, both Lino encodings and four-language controls. One guarded refresh restores later actual answers and letters into matching empty controls; ordinary waiting retains separate restoration. Status/restart never rearm work, unknown delivery remains reserved and sending requires separate confirmation. This supersedes the automatic-restoration-consent gap in the earlier waiting snapshot. Authenticated account scope, CAPTCHA priority/dismissal, paced batches and all 81 original unchecked rows remain required.

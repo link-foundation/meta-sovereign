@@ -10,6 +10,14 @@ export { assignmentVacancyUrl } from './validation.js';
 
 export const readAssignmentVacancyDocument = () => {
   const { document } = globalThis;
+  const challenge = [
+    ...document.querySelectorAll(
+      '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
+    ),
+  ].some((node) => node.getClientRects().length);
+  if (challenge) {
+    return { url: globalThis.location.href, challenge: true };
+  }
   const text = (selector, limit) => {
     const elements = [...document.querySelectorAll(selector)].filter(
       (node) => node.getClientRects().length
@@ -27,11 +35,7 @@ export const readAssignmentVacancyDocument = () => {
   const skills = [...document.querySelectorAll('[data-qa="skills-element"]')];
   return {
     url: globalThis.location.href,
-    challenge: [
-      ...document.querySelectorAll(
-        '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"]'
-      ),
-    ].some((node) => node.getClientRects().length),
+    challenge: false,
     title: text('[data-qa="vacancy-title"]', 500),
     company: text('[data-qa="vacancy-company-name"]', 500),
     description: text('[data-qa="vacancy-description"]', 30000),

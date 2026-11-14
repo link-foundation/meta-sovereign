@@ -1,6 +1,11 @@
 async (originalPage, fixture) =>
   fixture(originalPage, async (tools) => {
     const { start, owner, confirmed, panel, action, page, require } = tools;
+    const imagePrefix = new URL(originalPage.url()).searchParams.has(
+      'discovery'
+    )
+      ? 'hh-discovery'
+      : 'hh-captcha';
     await start(async () =>
       panel.locator('[data-application-option="supervised"]').check()
     );
@@ -19,6 +24,13 @@ async (originalPage, fixture) =>
       const report = await owner('captcha-report');
       require(report.challenge?.active &&
         report.fields.length === 0, 'Challenge became answer evidence');
+      const discovery = await owner('captcha-discovery');
+      require(discovery.length === 3 &&
+        discovery.every(
+          (row) =>
+            row.challenge === true &&
+            !(row.cards?.length || row.entries?.length || row.description)
+        ), 'Discovery ignored HH verification');
       require(!(await panel.innerText()).includes(
         'Owner-only synthetic verification answer'
       ), 'Challenge answer leaked');
@@ -36,14 +48,14 @@ async (originalPage, fixture) =>
     }
     await tools.locales('state="verification"', 'submit');
     await panel.screenshot({
-      path: 'docs/screenshots/hh-captcha-after-mcp.png',
+      path: `docs/screenshots/${imagePrefix}-after-mcp.png`,
     });
     await page.setViewportSize({ width: 390, height: 1440 });
     require(await page.evaluate(
       () => document.documentElement.scrollWidth <= globalThis.innerWidth
     ), 'Verification overflows phone');
     await panel.screenshot({
-      path: 'docs/screenshots/hh-captcha-after-mcp-phone.png',
+      path: `docs/screenshots/${imagePrefix}-after-mcp-phone.png`,
     });
     await owner('limit-show', 'POST');
     await confirmed('read');
@@ -64,6 +76,7 @@ async (originalPage, fixture) =>
       !tools.errors.length, 'Fixture did not drain');
     return {
       markers: 2,
+      discoveryReaders: 3,
       hiddenIgnored: true,
       completedTokenDoesNotWaiveHh: true,
       challengeReads: 0,

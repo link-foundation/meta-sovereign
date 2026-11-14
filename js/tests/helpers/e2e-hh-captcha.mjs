@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { applicationLimitBrowser } from './application-limit-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
 import { readFormDocument } from '../../src/forms/read-document.js';
+import { readResumeListDocument } from '../../src/jobs/read-resumes.js';
+import { readVacancySearchDocument } from '../../src/jobs/read-search.js';
+import { readAssignmentVacancyDocument } from '../../src/assignments/vacancy-reader.js';
 import {
   changeHhCaptchaFixture,
   hhCaptchaCounters,
@@ -31,6 +34,13 @@ export const verifyNativeHhCaptcha = async (
       1
     );
     assert.equal((await owned.evaluate(readFormDocument)).challenge, undefined);
+    for (const reader of [
+      readResumeListDocument,
+      readVacancySearchDocument,
+      readAssignmentVacancyDocument,
+    ]) {
+      assert.equal((await owned.evaluate(reader)).challenge, false);
+    }
     for (const marker of ['qa', 'name']) {
       await owned.evaluate(changeHhCaptchaFixture, { marker });
       await controls.confirmed('read');
@@ -45,6 +55,22 @@ export const verifyNativeHhCaptcha = async (
       const report = await owned.evaluate(readFormDocument);
       assert.equal(report.challenge?.active, true);
       assert.equal(report.fields.length, 0);
+      for (const reader of [
+        readResumeListDocument,
+        readVacancySearchDocument,
+        readAssignmentVacancyDocument,
+      ]) {
+        const discovery = await owned.evaluate(reader);
+        assert.equal(
+          discovery.challenge,
+          true,
+          `${reader.name} ignored HH verification.`
+        );
+        assert.equal(
+          discovery.cards?.length ?? discovery.entries?.length ?? 0,
+          0
+        );
+      }
       assert.equal(
         (await panel.innerText()).includes(
           'Owner-only synthetic verification answer'
@@ -96,6 +122,7 @@ export const verifyNativeHhCaptcha = async (
     await controls.close(owned);
     return {
       markers: 2,
+      discoveryReaders: 3,
       hiddenIgnored: true,
       completedTokenDoesNotWaiveHh: true,
       challengeReads: 0,

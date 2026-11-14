@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [HH discovery verification holds](hh-discovery-boundaries.md): pause résumé, search and vacancy readers before state templates, cards or prose are read. Exact-parent regressions and shared native/MCP scenarios cover both HH text markers, hidden markers and existing widgets. Hosted signaling/daily-limit failures and every original incomplete criterion remain active.
+
 - [HH CAPTCHA answer privacy](hh-captcha-boundaries.md): recognize both visible native text markers before reading any form payload, preserve daily-limit priority and require manual completion. Exact-parent, focused Node/Deno, native and independent MCP evidence reports no challenge reads or actions. All original unchecked criteria remain required.
 
 - [Confirmed expiry restoration](application-limit-restore.md): an explicit wait-and-restore choice preserves later actual answers and letters through one guarded refresh. Ordinary waiting keeps separate restoration; sending remains separately confirmed. Parent, native/MCP and focused regression evidence is preserved. All original unchecked criteria remain required.

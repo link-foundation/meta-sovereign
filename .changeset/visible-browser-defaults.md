@@ -453,3 +453,5 @@ Add explicitly confirmed daily-limit waiting with acknowledged ongoing answer pr
 Offer separately confirmed restoration after the guarded daily-limit refresh through CLI, both Lino encodings and four-language controls. Preserve ordinary waiting, empty-control ownership, failed acknowledgements, Stop and unknown delivery reservations without sending.
 
 Recognize native HH text CAPTCHA fields before generic or application form payload reads. Retain daily-limit priority and manual owner completion, refuse native actions and ignore unrelated completed widget tokens when the HH challenge remains visible.
+
+Stop HH résumé-list, vacancy-search and vacancy-detail discovery before reading page payloads when native text CAPTCHA or existing verification boundaries are visible. Keep hidden markers non-blocking and refuse to turn held discovery into empty or successful results.

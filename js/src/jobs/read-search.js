@@ -5,6 +5,20 @@ export { validateVacancySearch } from './search-result.js';
 export const readVacancySearchDocument = () => {
   const { document, location } = globalThis;
   const visible = (node) => Boolean(node?.getClientRects().length);
+  const challenge = [
+    ...document.querySelectorAll(
+      '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
+    ),
+  ].some(visible);
+  if (challenge) {
+    return {
+      url: location.href,
+      cards: [],
+      empty: false,
+      challenge: true,
+      next: null,
+    };
+  }
   const text = (root, selector, limit = 1000) => {
     const nodes = [...root.querySelectorAll(selector)].filter(visible);
     if (nodes.length > 1) {
@@ -67,11 +81,7 @@ export const readVacancySearchDocument = () => {
         '[data-qa="vacancy-serp__vacancy-not-found"], [data-qa="vacancy-serp__no-results"]'
       ),
     ].some(visible),
-    challenge: [
-      ...document.querySelectorAll(
-        '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"]'
-      ),
-    ].some(visible),
+    challenge: false,
     next:
       destinations.length === 0
         ? null
