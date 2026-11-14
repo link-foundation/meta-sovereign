@@ -420,3 +420,25 @@ test('snapshot notifications carry only invalidation and cannot turn a durable s
   assert.deepEqual(messages, [{ changed: true }]);
   assert.equal(closed, 1);
 });
+
+test(
+  'a later observed child replacement does not reappear from an unchanged stale opening',
+  { timeout: 3000 },
+  async (t) => {
+    const fixture = setup(t, { notify: false });
+    const first = await fixture.open();
+    await first.put({ id: 'shared', body: 'first', children: ['child-0'] });
+    const second = await fixture.open();
+    await second.put({
+      id: 'shared',
+      body: 'later owner',
+      children: ['child-1'],
+    });
+    await first.refresh();
+    const expected = await second.get('shared');
+    assert.deepEqual(expected.children, ['child-1']);
+    assert.deepEqual(await first.get('shared'), expected);
+    assert.deepEqual(await (await fixture.open()).get('shared'), expected);
+    assert.deepEqual(fixture.errors, []);
+  }
+);

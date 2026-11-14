@@ -52,16 +52,26 @@ export const mergeBrowserSnapshot = (baseline, local, remote, schema) => {
       }
       next = same(ours, before) ? theirs : ours;
     } else {
-      if (before && (!ours || !theirs)) {
-        throw refused();
-      }
-      next = merge(ours, theirs);
+      next = publicRecord(before, ours, theirs);
     }
     if (next) {
       result.set(id, next);
     }
   }
   return result;
+};
+
+// An unchanged opening contributes no new owner assignment. Joining its old
+// children into a later observed replacement would resurrect removed values.
+const publicRecord = (before, ours, theirs) => {
+  if (before && (!ours || !theirs)) {
+    throw refused();
+  }
+  return same(ours, before)
+    ? theirs
+    : same(theirs, before)
+      ? ours
+      : merge(ours, theirs);
 };
 
 export const snapshotNotifications = (

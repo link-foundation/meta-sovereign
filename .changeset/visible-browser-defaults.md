@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Preserve later observed browser-tab child replacements by comparing unchanged openings with their saved baseline before joining concurrent records. Keep bounded stale-root retries, private refusal and causal deletion behavior.
+
 Add an owned native HH application executor with explicit CLI and Lino controls, exact answer review, verified cover letters, durable no-replay intent and drained cancellation. Keep the UI application capability unavailable until its controls and remaining policies are verified.
 
 Mount virtual chat-directory keyboard targets immediately after revealing their viewport. Preserve frame-coalesced passive scrolling, bounded rows and chat selection, with finite held-frame regression coverage and default-off focus diagnostics.
