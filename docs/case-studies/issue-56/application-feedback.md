@@ -10,8 +10,9 @@ The behavior was studied in the HH reference README and `src/vacancy-feedback.mj
 at pinned commit `fa0991b8c2d0896fb3b4be6c69947f0590094b15`, already preserved in
 `data/reference-snapshots.tar.gz`. The implementation is original. This unit
 covers owned application-review browsers, including finite batches. Read-only
-discovery browsers do not acquire this effect. Native viewed-card exclusion,
-reference `.lenv` compatibility and authenticated provider parity remain required
+discovery browsers do not acquire this effect. CLI configuration compatibility
+is covered by [the configuration follow-up](application-configuration.md).
+Native viewed-card exclusion and authenticated provider parity remain required
 parts of the original incomplete inventory.
 
 ## Behavior and implementation

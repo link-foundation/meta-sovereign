@@ -8,6 +8,7 @@ import {
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
+import { applicationSurveyConfiguration } from './application-configuration.js';
 import {
   applicationBatchCommand,
   applicationBatchFile,
@@ -34,7 +35,7 @@ const letterFile = async (file) => {
   }
   return readFile(file, 'utf8');
 };
-const commandInput = async (args) => {
+const commandInput = async (args, configuration) => {
   const standardLetters =
     args['standard-letter-en-file'] || args['standard-letter-ru-file']
       ? {
@@ -63,8 +64,10 @@ const commandInput = async (args) => {
     standardLetters,
     autoSelectResumeLanguage:
       boolean(args, 'no-auto-select-resume-language') !== true,
-    autoAnswerViewedVacancy:
-      boolean(args, 'no-auto-answer-viewed-vacancy') !== true,
+    autoAnswerViewedVacancy: await applicationSurveyConfiguration(
+      args,
+      configuration
+    ),
     reviewDelayMs:
       args['review-delay-ms'] === undefined
         ? undefined
@@ -218,6 +221,7 @@ export const applicationCommand = async (service, input, log, readInput) => {
 };
 export const createApplicationCommands = ({
   openStore,
+  applicationConfiguration,
   applicationInput = () =>
     createInterface({ input: process.stdin, terminal: false }),
   ...options
@@ -237,7 +241,10 @@ export const createApplicationCommands = ({
             : undefined;
         const input = urls
           ? {
-              ...(await commandInput({ ...args, url: urls[0] })),
+              ...(await commandInput(
+                { ...args, url: urls[0] },
+                applicationConfiguration
+              )),
               urls,
               maxApplications:
                 args['max-applications'] === undefined
@@ -255,7 +262,7 @@ export const createApplicationCommands = ({
                 browserSlot: args['browser-slot'],
               }
             : operation === 'application'
-              ? await commandInput(args)
+              ? await commandInput(args, applicationConfiguration)
               : {
                   ...applicationKey({
                     url: args.url,

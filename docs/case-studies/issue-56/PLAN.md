@@ -1,5 +1,17 @@
 # Issue 56 / PR 57 work plan
 
+Active viewed-vacancy configuration compatibility (HH08 remains incomplete):
+
+- [x] Use the installed Lino configuration library to resolve the survey default from CLI, environment and local/selected `.lenv` files without mutating process settings. Freeze only at explicit single/batch start; status stays read-only.
+- [x] Reproduce absent configuration on published `21b7afcb` (two failures). Focused Node 13/Deno 4, production packaging and lightweight help checks pass, with no submissions or host environment mutation. Retain the public native-state observation without treating visited styling as positive viewed-state evidence.
+- [ ] Preserve evidence, publish the atomic configuration unit and inspect exact-head hosted checks. Native viewed-state exclusion and every original incomplete requirement remain active.
+
+Active native survey browser registration CI correction:
+
+- [x] Preserve exact `21b7afcb` Checks `43640819417` and workflow-contract job `132588015295`: complete log lines 635–650 refuse five scenarios in the existing four-scenario group. The other four workflows pass. Focused published configuration fails one of five checks.
+- [x] Keep the existing four policy scenarios and give the survey its own mandatory registry entry. Include its exact-once inventory, preserve both engines/four shards and every deadline; focused five checks and scoped lint pass. Preserve the checked archive and publish `f0884815`.
+- [ ] Inspect all exact-head hosted checks; continue all 81 original incomplete requirements.
+
 Active batch-owned review controls regression:
 
 - [x] Preserve exact published discovery head `8007a002`, Checks `43635159024` and Chromium shard 3 job `132572456753`: log lines 2222–2244 show a disabled confirmation checkbox, with the original ten-second deadline retained. Workspace busy classification now includes the active batch and disables its own review.

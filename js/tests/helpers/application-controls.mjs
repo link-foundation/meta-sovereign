@@ -21,13 +21,15 @@ export const assertApplicationReviewOnly = (fixture, receipt, answer) => {
 export const runApplicationFixtureCommand = async (
   fixture,
   applicationInputStream,
-  args = {}
+  args = {},
+  options = {}
 ) => {
   const output = [];
   const commands = createVacancyCommands({
     ...fixture.serviceOptions,
     openStore: async () => fixture.store,
     applicationInput: applicationInputStream,
+    ...options,
   });
   const status = await commands['vacancies-application'](
     {
