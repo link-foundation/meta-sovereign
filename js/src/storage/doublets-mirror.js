@@ -26,6 +26,7 @@ import { sqliteRuntime } from './disk-network.js';
 import { trackSnapshot } from './snapshot-memory.js';
 import { sweepSnapshotWorkspaces } from './snapshot-workspace.js';
 import { awaitSnapshotWorker } from './snapshot-worker-control.js';
+import { SNAPSHOT_CLOCK } from './snapshot-clock.js';
 
 const MIN_INTERVAL_MS = 60_000;
 
@@ -98,17 +99,11 @@ const MAX_BACKOFF_MS = 3_600_000;
 // is reported once, not once for every write that arrived meanwhile.
 // `clock` is the real one unless a test hands in a virtual one, so the
 // schedule can be checked without sleeping (R-Z6).
-const REAL_CLOCK = {
-  now: () => Date.now(),
-  setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
-  clearTimeout: (timer) => globalThis.clearTimeout(timer),
-};
-
 const createSnapshots = ({
   run,
   minIntervalMs,
   onError,
-  clock = REAL_CLOCK,
+  clock = SNAPSHOT_CLOCK,
   initialDelayMs = 0,
 }) => {
   let timer = null;

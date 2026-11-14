@@ -24,6 +24,7 @@ import { createMemoryStore } from './universal.js';
 import { decodeArchive, encodeArchive } from './doublets-archive.js';
 import { createFileWriter } from './file-writer.js';
 import { atomicBatch } from './mutation.js';
+import { SNAPSHOT_CLOCK } from './snapshot-clock.js';
 
 const LEGACY_MAGIC = Buffer.from('MSDB1\n', 'utf8');
 
@@ -50,39 +51,50 @@ const MIN_INTERVAL_MS = 5000;
 
 // Snapshot writes: the first change after a quiet interval is written
 // at once, later ones wait for the interval; `now()` writes immediately.
-const createSnapshots = (writer, minIntervalMs) => {
+const createSnapshots = (writer, minIntervalMs, clock, onEvent) => {
   let timer = null;
   let lastAt = 0;
   let lastCost = 0;
   const interval = () => Math.max(minIntervalMs, 10 * lastCost);
+  const emit = (event) => {
+    try {
+      onEvent(event);
+    } catch {
+      /* Diagnostics cannot interrupt persistence. */
+    }
+  };
   const now = async () => {
-    globalThis.clearTimeout(timer);
+    clock.clearTimeout(timer);
     timer = null;
-    const started = Date.now();
+    const started = clock.now();
     try {
       await writer.request();
     } finally {
-      lastAt = Date.now();
+      lastAt = clock.now();
       lastCost = lastAt - started;
+      emit({ event: 'snapshot-settled', durationMs: lastCost });
     }
   };
   const later = () => {
     if (timer) {
       return;
     }
-    const wait = Math.max(0, lastAt + interval() - Date.now());
-    timer = globalThis.setTimeout(() => {
-      // A failed write is tried again after the next interval.
-      now().catch(later);
-    }, wait);
+    const wait = Math.max(0, lastAt + interval() - clock.now());
+    // A failed write is tried again after the next interval.
+    timer = clock.setTimeout(() => now().catch(later), wait);
     timer.unref?.();
+    emit({ event: 'snapshot-scheduled', waitMs: wait, intervalMs: interval() });
   };
   return { now, later };
 };
 
 export const createDoubletsStore = async (
   filePath,
-  { minIntervalMs = MIN_INTERVAL_MS } = {}
+  {
+    minIntervalMs = MIN_INTERVAL_MS,
+    clock = SNAPSHOT_CLOCK,
+    onEvent = () => {},
+  } = {}
 ) => {
   const mem = createMemoryStore();
 
@@ -98,7 +110,7 @@ export const createDoubletsStore = async (
   const writer = createFileWriter(filePath, async () =>
     encodeArchive(await mem.query())
   );
-  const snapshots = createSnapshots(writer, minIntervalMs);
+  const snapshots = createSnapshots(writer, minIntervalMs, clock, onEvent);
 
   return {
     ...mem,

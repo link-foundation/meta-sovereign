@@ -10,7 +10,7 @@ Active native application draft prerequisite for HH06/HH08:
 Active hosted Windows Deno snapshot interval failure:
 
 - [x] Match Windows 2025 Deno shard 3 job `132290872116` to exact published `4f482c34`, and preserve its complete 5,292-line log. Lines 5244–5257 report one snapshot record instead of three in the interval test.
-- [ ] Reproduce the relationship between the adaptive ten-times-write-cost interval and the fixed five-second test deadline with a bounded controlled clock. Establish the actual cause before correcting the test or scheduler; do not increase deadlines blindly.
+- [x] Reproduce the invalid five-second assertion against the exact published scheduler with a bounded controlled 600 ms write. Await actual file writes with an injected finite scheduling clock; verify minimum/adaptive intervals, coalescing, immediate flush and throwing diagnostics in three Node/three Deno checks, plus six existing mirror checks. Preserve full hosted logs and confirmed supersession annotation in [the evidence](ci-snapshot-interval.md). Production timing policy and deadlines stay unchanged; the original runner's precise write cost was not measured.
 - [ ] Publish the atomic correction and inspect every exact-head hosted check, then continue every unfinished original requirement.
 
 Active native full-form recovery correction:

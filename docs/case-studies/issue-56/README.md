@@ -387,3 +387,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Bounded release-copy diagnostics](ci-release-progress.md): exact Windows cold-start failure, content-free progress and unchanged readiness deadline; correction remains open.
 
 - [Rejected job-write rollback](choice-put-rollback.md): four actual-parent real-store failures, acknowledged vacancy/catalog restoration, native reload regression and independent desktop/phone MCP screenshots.
+
+- [Adaptive snapshot interval verification](ci-snapshot-interval.md): exact hosted Windows Deno failure, bounded parent assertion, real-file virtual-clock regression and confirmed superseded WebKit cancellation. Production timing policy and deadlines stay unchanged.

@@ -407,3 +407,5 @@ Add four-language native HH application review controls with complete vacancy co
 Add private acknowledged backups of actual native questionnaire answers and edited letters, with separately confirmed restoration into matching empty controls. Preserve owner edits, unsupported capture refusals, complete native choice identity and uncertain write receipts across CLI, both Lino encodings and four-language controls; restoration neither learns nor submits. Automatic deferral backups and full session policies remain unfinished.
 
 Reopen an acknowledged native HH questionnaire at its validated saved form URL. Preserve original settings, durable entry/submission reservations and fresh confirmation, refuse foreign or mismatched locations before browser launch, and retain acknowledged checkpoints after failed storage.
+
+Verify binary snapshot minimum/adaptive intervals and immediate flush with finite scheduling clocks and real file writes. Share the default clock and add optional timing-only diagnostics without changing production pacing or persistence policy.
