@@ -59,8 +59,8 @@ async (originalPage, work) => {
         );
         await page.reload();
         await panel.locator(`[data-application-${attribute}]`).waitFor();
-        require(!(await panel.innerText()).includes(
-          'application.'
+        require(!/\bapplication\.[a-z]/iu.test(
+          await panel.innerText()
         ), 'Recovery hint is untranslated');
         require(await action(
           blockedAction

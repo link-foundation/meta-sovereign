@@ -1,4 +1,27 @@
 export const ruApplication = {
+  'application.confirmationSettings': 'Шаги подтверждения',
+  'application.confirmation.answers': 'Ответы',
+  'application.confirmation.cover-letter': 'Сопроводительное письмо',
+  'application.confirmation.send': 'Отправка анкеты',
+  'application.confirmation.popup': 'Короткое окно',
+  'application.confirmation.none': 'Без пауз подтверждения',
+  'application.continue': 'Продолжить с сохранёнными настройками',
+  'application.confirmStep': 'Подтвердить: {step}',
+  'application.savedConfirmations': 'Сохранённые шаги подтверждения: {steps}.',
+  'application.continueHint':
+    'Продолжение заполняет пустые поля точными сохранёнными ответами и может отправить отклик, если выбранные шаги не ожидают подтверждения. Каждый выбранный шаг подтверждается отдельно. Недостающие ответы ждут вас. Пошаговый режим требует все шаги; предпросмотр ничего не меняет. Чтение и перезапуск не продолжают работу.',
+  'application.continuation.answers':
+    'Проверьте предложенные ответы и подтвердите заполнение.',
+  'application.continuation.cover-letter':
+    'Проверьте выбранное письмо и подтвердите прикрепление.',
+  'application.continuation.send':
+    'Проверьте анкету HH и подтвердите отправку.',
+  'application.continuation.popup':
+    'Проверьте короткое окно HH и подтвердите продолжение.',
+  'application.continuation.missing-answers':
+    'Заполните недостающие ответы в HH, прочитайте форму и продолжите. Отклик не отправлен.',
+  'application.continuation.complete': 'HH подтвердил доставку.',
+
   'application.dailyRejection.recorded':
     'Для отправленного отклика сохранён отказ HH из-за дневного лимита. Ожидание с восстановлением проверит это свидетельство перед освобождением только этой неудачной попытки. Для отправки нужно отдельное подтверждение.',
   'application.dailyRejection.released':
@@ -67,7 +90,7 @@ export const ruApplication = {
     'Для выбора {hash} проверен экспорт на языке {language}.',
   'application.title': 'Проверка отклика в HH',
   'application.hint':
-    'Проверьте полную вакансию и ответы. Вход в отклик может сразу отправить его. Для отправки нужно ваше подтверждение; доставка подтверждается только сигналом HH.',
+    'Проверьте полную вакансию и ответы. Вход в отклик может сразу отправить его. Продолжение следует сохранённым шагам подтверждения; доставка подтверждается только сигналом HH.',
   'application.settings': 'Настройки отклика',
   'application.coverLetter':
     'Проверенное сопроводительное письмо (до 24 000 знаков)',

@@ -76,3 +76,5 @@ queue revisits, authenticated account scope, independent confirmation policies
 and all 81 original incomplete inventory rows remain required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). The PR remains
 draft and unmerged; local fixture passes do not establish issue completion.
+
+Published commits `d81c2f75` and `6ad826b0` are covered by successful [Checks run 43621364660](https://github.com/link-foundation/meta-sovereign/actions/runs/43621364660) and all four companion workflows on exact SHA `6ad826b0e1951e0623654647f6882187e66b857f`. Both native browser engines and every runtime/OS test pair pass. The subsequent confirmation archive retains the exact-head metadata; all original incomplete requirements remain required.

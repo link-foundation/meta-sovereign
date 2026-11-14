@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Independent application confirmations](application-confirmations.md): frozen per-step choices, explicitly bounded continuation and separate current consent through CLI, both Lino encodings and four-language UI. Parent regressions, focused checks and native/MCP desktop/phone evidence are retained; full batches, RAM revisits and all original incomplete criteria remain required.
+
 [Witnessed daily-refusal recovery](application-limit-rejection.md) preserves immutable failed-action evidence and permits separately consented fresh-form restoration without an automatic resend. Full batch execution and every original incomplete criterion remain active.
 
 [Fresh native pacing feedback](application-pacing-guard.md) retains outcomes at refused action guards and gives pacing its own mandatory browser entry; all original incomplete requirements remain active.

@@ -45,3 +45,7 @@ focused red/green evidence. Hosted checks must pass on the new published SHA.
 All 81 original incomplete inventory rows remain required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57), which stays
 draft and unmerged.
+
+## Published verification
+
+All five hosted workflows pass on `6ad826b0e1951e0623654647f6882187e66b857f`. [Checks run 43621364660](https://github.com/link-foundation/meta-sovereign/actions/runs/43621364660) includes successful Windows Node shards `132528902864`, `132528902773` and `132528902960`, all original runtime/OS pairs and all eight browser lanes. Complete job metadata and the five workflow receipts are retained in the subsequent `data/application-confirmations.tar.gz` archive. This verifies the sharded configuration while leaving the original cold snapshot latency beyond the recorded phase traces unmeasured.

@@ -48,6 +48,7 @@ export const createApplicationApi = ({ get, report }) => ({
       'read',
       'wait',
       'advance',
+      'continue',
       'prefill',
       'resume',
       'backup',

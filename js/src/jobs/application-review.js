@@ -141,6 +141,7 @@ export class ApplicationReview {
     const { filling, readPage } = this.service;
     signal.throwIfAborted();
     await filling.clear(record);
+    record.continuation = null;
     record.page = await readPage(record.browser, record.url);
     record.state = applicationState(record.page);
     this.service.holds.observe(record);

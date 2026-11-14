@@ -2,6 +2,10 @@ import {
   applicationDraft,
   draftRestoration,
 } from './application-draft-data.js';
+import {
+  applicationConfirmations,
+  applicationContinuationData,
+} from './application-confirmations.js';
 import { jobsFailure } from './options.js';
 import {
   assignmentVacancy,
@@ -166,6 +170,8 @@ export const applicationResult = (raw, input) => {
     if (!identity(raw, input) || !state(raw) || !page(raw.page)) {
       fail();
     }
+    applicationConfirmations(raw.confirmations);
+    applicationContinuationData(raw.continuation, raw);
     validateLimitWait(raw);
     if (raw.vacancy !== null) {
       if (raw.vacancy.url !== raw.url) {

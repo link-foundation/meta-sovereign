@@ -1,19 +1,28 @@
 # Issue 56 / PR 57 work plan
 
+Active independently configured application confirmations (HH08 remains incomplete):
+
+- [x] Freeze independent answers, cover-letter, questionnaire Send and short-popup confirmation choices in review settings, with Send as the default and a supervised override. Reuse guarded exact-answer writes and native sending; keep manual actions available and preview free of effects.
+- [x] Add an explicitly invoked continuation operation that stops at the next selected confirmation or missing-answer boundary. A confirmation authorizes only its displayed step/revision; changed forms, holds, pauses and uncertain sends refuse. The exact-answer exception requires this continuation's own empty-field autofill, verified unchanged against the same native document.
+- [x] Carry settings and continuation through CLI, both Lino encodings and four-language UI, with read-only recovery and fresh consent after each step. Reproduce the missing parent behavior, verify focused service/control checks and native/MCP evidence, retain screenshots. Focused Node 63 plus one fixture regression, Deno 34 and native/MCP pass; exact-head CI is tracked separately.
+- [x] Preserve the checked 111-file source, regression, native/MCP, screenshot and hosted receipt archive.
+- [ ] Publish this atomic unit and inspect every exact-head hosted check.
+- [ ] Continue the full paced batch runner, automatic RAM revisits and every original incomplete requirement; this unit alone cannot complete HH08.
+
 Active acknowledged daily-rejection recovery (HH06 remains incomplete):
 
 - [x] Reproduce an automation-issued Send followed by a fresh native daily-limit rejection: preserve its actual draft and original two-hour pause, distinguish the witnessed rejection from an unknown/older outcome.
 - [x] Retain immutable acknowledged rejection evidence bound to the issued action and failed document. Allow explicit wait-and-restore consent to release only that rejected reservation after a verified fresh form; preserve unknown dispatches, owner changes, failed saves and separate Send confirmation.
 - [x] Verify exact-parent service/native failures, 105 focused Node/41 Deno checks and native/MCP restoration without another Send; retain four-language and phone screenshots. Concurrent journal-digest changes refuse recovery. Static checks and the unchanged duplication gate pass.
 - [x] Preserve the checked 110-file source, regression, native/MCP, screenshot and hosted-failure evidence archive.
-- [ ] Publish and inspect exact-head CI. Continue the full batch runner and every original unchecked criterion.
+- [x] Published through `6ad826b0`; all five exact-head workflows pass, including all runtime/OS pairs and eight browser lanes. Full batch work and every original unchecked criterion remain required.
 
 Active exact-parent Windows Node CI:
 
 - [x] Preserve `6b1e9dea` run `43617379351`: original Windows job `132516105839` exhausts initial CLI readiness while copying its cold immutable snapshot; original WebKit job `132516105683` fails action download before checkout/tests. No deadline changed; retain complete job logs and annotations.
 - [x] Rerun failed jobs only. Windows rerun `132522363805` reaches the unchanged ten-minute job deadline after setup leaves approximately 134 seconds for tests. Complete 4,616-line log and annotations distinguish aggregate job exhaustion from a specific test hang. WebKit rerun `132522363215` passes all assigned browser scenarios; preserve its complete log.
 - [x] Reuse native Node sharding for Windows, preserving every test, per-test/job deadlines and runtime/OS coverage. The finite regression fails on the parent configuration and passes both OS cases after the change, including injected shard failure propagation. Preserve checksummed logs and source evidence.
-- [ ] Publish and inspect every exact-head hosted check. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
+- [x] Published `6ad826b0`: all five hosted workflows pass, including Windows Node shards 1/3, 2/3 and 3/3. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
 
 Active pacing action-guard feedback:
 

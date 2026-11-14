@@ -10,6 +10,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     autoExact: false,
     testMode: false,
     supervised: false,
+    confirmations: ['send'],
     reviewDelayMs: 3000,
   });
   useEffect(() => {

@@ -106,6 +106,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-defer',
       'application-retry',
       'application-advance',
+      'application-continue',
       'application-mode',
       'application-close',
       'choice-save',

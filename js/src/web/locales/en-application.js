@@ -1,4 +1,27 @@
 export const enApplication = {
+  'application.confirmationSettings': 'Confirmation steps',
+  'application.confirmation.answers': 'Answers',
+  'application.confirmation.cover-letter': 'Cover letter',
+  'application.confirmation.send': 'Questionnaire Send',
+  'application.confirmation.popup': 'Short popup',
+  'application.confirmation.none': 'No confirmation pauses',
+  'application.continue': 'Continue with saved settings',
+  'application.confirmStep': 'Confirm: {step}',
+  'application.savedConfirmations': 'Saved confirmation steps: {steps}.',
+  'application.continueHint':
+    'Continue fills only exact saved answers into empty controls and may send when no selected step is waiting. Each selected step requires separate current confirmation. Missing answers wait for you. Supervised review requires every step; preview changes nothing. Reading or restarting never continues.',
+  'application.continuation.answers':
+    'Review the proposed answers, then confirm their fill.',
+  'application.continuation.cover-letter':
+    'Review the chosen cover letter, then confirm attachment.',
+  'application.continuation.send':
+    'Review the native questionnaire, then confirm Send.',
+  'application.continuation.popup':
+    'Review the short native popup, then confirm continuation.',
+  'application.continuation.missing-answers':
+    'Complete missing answers in HH, read the form and continue. No application was sent.',
+  'application.continuation.complete': 'HH confirmed delivery.',
+
   'application.dailyRejection.recorded':
     'The issued application has a saved native daily-limit rejection. Waiting with restoration verifies this evidence before releasing only that failed reservation. Sending needs a separate confirmation.',
   'application.dailyRejection.released':
@@ -62,7 +85,7 @@ export const enApplication = {
     'Verified {language} export used for choice {hash}.',
   'application.title': 'Native HH application review',
   'application.hint':
-    'Review the full vacancy and native answers. Entering an application can send it immediately. Submission requires your confirmation; only a native success signal confirms delivery.',
+    'Review the full vacancy and native answers. Entering an application can send it immediately. Continue follows the saved confirmation choices; only a native success signal confirms delivery.',
   'application.settings': 'Application settings',
   'application.coverLetter': 'Reviewed cover letter (up to 24,000 characters)',
   'application.autoExact':

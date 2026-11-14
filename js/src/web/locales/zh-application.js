@@ -1,4 +1,23 @@
 export const zhApplication = {
+  'application.confirmationSettings': '确认步骤',
+  'application.confirmation.answers': '答案',
+  'application.confirmation.cover-letter': '求职信',
+  'application.confirmation.send': '发送问卷',
+  'application.confirmation.popup': '简短弹窗',
+  'application.confirmation.none': '无需确认暂停',
+  'application.continue': '按已保存设置继续',
+  'application.confirmStep': '确认：{step}',
+  'application.savedConfirmations': '已保存的确认步骤：{steps}。',
+  'application.continueHint':
+    '继续操作仅在空控件中填写完全匹配的已保存答案；没有选定步骤等待确认时，可能发送申请。每个选定步骤都需要单独确认。缺失答案会等待您填写。监督审核要求确认所有步骤；预览不会更改内容。读取或重启不会继续执行。',
+  'application.continuation.answers': '检查建议答案，然后确认填写。',
+  'application.continuation.cover-letter': '检查所选求职信，然后确认附加。',
+  'application.continuation.send': '检查 HH 原生问卷，然后确认发送。',
+  'application.continuation.popup': '检查 HH 原生简短弹窗，然后确认继续。',
+  'application.continuation.missing-answers':
+    '在 HH 填写缺失答案，读取表单后继续。尚未发送申请。',
+  'application.continuation.complete': 'HH 已确认送达。',
+
   'application.dailyRejection.recorded':
     '已保存此次申请因 HH 每日上限被拒绝的原生证据。等待并恢复答案会先验证证据，再仅释放这次失败尝试的预留。发送仍需单独确认。',
   'application.dailyRejection.released':
@@ -56,7 +75,7 @@ export const zhApplication = {
     '此次选择 {hash} 使用了已验证的 {language} 导出。',
   'application.title': 'HH 原生申请审核',
   'application.hint':
-    '请审核完整职位和原生答案。进入申请可能立即发送。发送需要您的确认，只有 HH 的成功信号才能确认送达。',
+    '请审核完整职位和原生答案。进入申请可能立即发送。继续操作遵循已保存的确认步骤；只有 HH 的成功信号才能确认送达。',
   'application.settings': '申请设置',
   'application.coverLetter': '已审核的求职信（最多 24,000 字符）',
   'application.autoExact': '填写后，仅在所有答案均精确且已验证时自动发送',

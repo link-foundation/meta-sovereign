@@ -311,7 +311,10 @@ export class ApplicationActions {
     );
     const fields = automaticReviewFields(record.report)
       .filter(
-        (field) => native.has(field.id) && field.answer.source === 'exact'
+        (field) =>
+          native.has(field.id) &&
+          field.index !== record.page.letter?.index &&
+          field.answer.source === 'exact'
       )
       .map((field) => field.id)
       .slice(0, 25);

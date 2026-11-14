@@ -10,6 +10,10 @@ import {
   ApplicationLimitWaitControls,
 } from './application-limit-view.js';
 import { applicationLimitHeld } from '../jobs/application-limit-data.js';
+import {
+  ApplicationConfirmationSettings,
+  ApplicationContinuationView,
+} from './application-confirmation-view.js';
 import { ApplicationPacingSettings } from './application-pacing-view.js';
 
 const el = React.createElement;
@@ -66,6 +70,12 @@ const Settings = ({ application, disabled, t }) => {
     ),
     el(ApplicationLetterSettings, { key: 'letter', options, setOptions, t }),
     el(ApplicationPacingSettings, { key: 'pacing', options, setOptions, t }),
+    el(ApplicationConfirmationSettings, {
+      key: 'confirmations',
+      options,
+      setOptions,
+      t,
+    }),
     check(
       'supervised',
       t('application.supervised'),
@@ -269,6 +279,14 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
   const action = (name, input) => () => application.action(name, input);
   return el('div', { className: 'col' }, [
     el(ApplicationResumeView, { key: 'resume', receipt, action, writable, t }),
+    el(ApplicationContinuationView, {
+      key: 'continuation',
+      receipt,
+      application,
+      ready: admitted,
+      confirmed,
+      t,
+    }),
     el('div', { key: 'actions', className: 'row' }, [
       button('read', t('application.read'), action('Read'), !ready),
       button(

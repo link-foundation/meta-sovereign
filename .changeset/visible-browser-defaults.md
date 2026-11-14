@@ -480,3 +480,5 @@ Preserve acknowledged native daily-refusal evidence after an issued application
 action. Explicit fresh-form recovery may release only that rejected reservation
 after the shared pause, restore later saved owner values and require a separate
 Send confirmation through CLI, both Lino encodings and four-language controls.
+
+Add independent HH answer, letter, questionnaire Send and short-popup confirmation choices, with an explicitly invoked guarded continuation through CLI, Lino APIs and four-language UI. Preserve missing-answer waits, current-step consent, supervised review and read-only recovery.

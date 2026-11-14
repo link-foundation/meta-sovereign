@@ -30,6 +30,7 @@ import { ApplicationLanguagePolicy } from './application-language-policy.js';
 import { ApplicationLimits } from './application-limits.js';
 import { ApplicationLimitBackups } from './application-limit-backups.js';
 import { ApplicationLimitWait } from './application-limit-wait.js';
+import { ApplicationContinuation } from './application-continuation.js';
 import { ApplicationPacing } from './application-pacing.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import {
@@ -79,6 +80,7 @@ class ApplicationService {
     });
     this.review = new ApplicationReview(this);
     this.actions = new ApplicationActions(this);
+    this.continuation = new ApplicationContinuation(this);
     this.drafts = new ApplicationDrafts(this);
     this.modes = new ApplicationRunModes();
     this.deferrals = new ApplicationDeferrals(this);
@@ -113,6 +115,7 @@ class ApplicationService {
       owners.delete(this.store);
     }
     record.active = false;
+    record.continuation = null;
     return { ...applicationView(record), state: 'closed' };
   }
   touch() {
@@ -444,6 +447,10 @@ export const createApplicationService = (options) => {
       'application-read': (input) =>
         service.operate((signal) =>
           service.review.inspect(service.owned(input), signal)
+        ),
+      'application-continue': (input) =>
+        service.operate((signal) =>
+          service.continuation.run(service.owned(input), input, signal)
         ),
       'application-advance': (input) =>
         service.operate((signal) =>

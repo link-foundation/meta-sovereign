@@ -1,4 +1,27 @@
 export const hiApplication = {
+  'application.confirmationSettings': 'पुष्टि के चरण',
+  'application.confirmation.answers': 'उत्तर',
+  'application.confirmation.cover-letter': 'आवरण पत्र',
+  'application.confirmation.send': 'प्रश्नावली भेजना',
+  'application.confirmation.popup': 'छोटी पॉपअप विंडो',
+  'application.confirmation.none': 'पुष्टि के लिए विराम नहीं',
+  'application.continue': 'सहेजी गई सेटिंग से जारी रखें',
+  'application.confirmStep': 'पुष्टि करें: {step}',
+  'application.savedConfirmations': 'सहेजे गए पुष्टि चरण: {steps}।',
+  'application.continueHint':
+    'जारी रखने पर केवल खाली फ़ील्ड में सटीक सहेजे गए उत्तर भरते हैं और कोई चुना चरण लंबित न हो तो आवेदन भेजा जा सकता है। हर चुने चरण की अलग वर्तमान पुष्टि चाहिए। छूटे उत्तर आपकी प्रतीक्षा करते हैं। पर्यवेक्षित समीक्षा में सभी चरण आवश्यक हैं; पूर्वावलोकन कुछ नहीं बदलता। पढ़ना या पुनः शुरू करना कार्य जारी नहीं करता।',
+  'application.continuation.answers':
+    'प्रस्तावित उत्तर जाँचें, फिर भरने की पुष्टि करें।',
+  'application.continuation.cover-letter':
+    'चुना आवरण पत्र जाँचें, फिर संलग्न करने की पुष्टि करें।',
+  'application.continuation.send':
+    'मूल HH प्रश्नावली जाँचें, फिर भेजने की पुष्टि करें।',
+  'application.continuation.popup':
+    'छोटी मूल HH पॉपअप जाँचें, फिर जारी रखने की पुष्टि करें।',
+  'application.continuation.missing-answers':
+    'HH में छूटे उत्तर भरें, फ़ॉर्म पढ़ें और जारी रखें। कोई आवेदन नहीं भेजा गया।',
+  'application.continuation.complete': 'HH ने डिलीवरी की पुष्टि की।',
+
   'application.dailyRejection.recorded':
     'भेजे गए आवेदन के लिए HH की दैनिक सीमा की अस्वीकृति सहेजी गई है। उत्तर बहाल करने के साथ प्रतीक्षा केवल उस विफल प्रयास को मुक्त करने से पहले साक्ष्य जाँचती है। भेजने के लिए अलग पुष्टि चाहिए।',
   'application.dailyRejection.released':
@@ -64,7 +87,7 @@ export const hiApplication = {
     'इस चयन {hash} में सत्यापित {language} निर्यात इस्तेमाल हुआ।',
   'application.title': 'HH आवेदन की समीक्षा',
   'application.hint':
-    'पूरा नौकरी विवरण और मूल उत्तर देखें। आवेदन खोलते ही वह भेजा जा सकता है। भेजने के लिए आपकी पुष्टि चाहिए; केवल HH की सफलता सूचना भेजे जाने की पुष्टि करती है।',
+    'पूरा नौकरी विवरण और मूल उत्तर देखें। आवेदन खोलते ही वह भेजा जा सकता है। जारी रखने पर सहेजे गए पुष्टि चरण लागू होते हैं; केवल HH की सफलता सूचना भेजे जाने की पुष्टि करती है।',
   'application.settings': 'आवेदन सेटिंग',
   'application.coverLetter': 'समीक्षित परिचय पत्र (24,000 अक्षर तक)',
   'application.autoExact':

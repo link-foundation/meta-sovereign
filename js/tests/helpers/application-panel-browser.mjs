@@ -34,7 +34,10 @@ export const applicationPanelBrowser = (fixture) => {
         );
         await page.reload();
         await panel.locator(selector).waitFor();
-        assert.equal((await panel.innerText()).includes('application.'), false);
+        assert.equal(
+          /\bapplication\.[a-z]/iu.test(await panel.innerText()),
+          false
+        );
         await verify(locale);
       }
     },

@@ -1,6 +1,10 @@
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { jobsBrowserOptions, jobsFailure, jobsObject } from './options.js';
 import { applicationResumeContext } from './application-resume-context.js';
+import {
+  applicationConfirmations,
+  applicationConfirmationPolicy,
+} from './application-confirmations.js';
 import { applicationInterval } from './application-pacing-data.js';
 import {
   applicationStandardLetters,
@@ -73,6 +77,9 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     // Absence preserves the exact signatures of acknowledged legacy reviews.
     ...(input.supervised === true ? { supervised: true } : {}),
     ...languageSettings(input, legacy),
+    ...(input.confirmations === undefined
+      ? {}
+      : { confirmations: applicationConfirmations(input.confirmations) }),
     ...(input.applicationIntervalSeconds === undefined
       ? {}
       : {
@@ -130,6 +137,7 @@ export const applicationCanReenter = (record) =>
   !record.hold &&
   !record.paused;
 
+const continuationView = (record) => record.continuation ?? null;
 const dailyRejectionView = (record) => record.limitRejection?.state ?? null;
 export const applicationView = (record) => {
   const page =
@@ -164,6 +172,8 @@ export const applicationView = (record) => {
     testMode: record.options.testMode,
     autoExact: record.options.autoExact,
     supervised: record.options.supervised === true,
+    confirmations: applicationConfirmationPolicy(record.options),
+    continuation: continuationView(record),
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
     applicationLimit: record.applicationLimit ?? null,
     limitWait: record.limitWait ?? null,

@@ -1,3 +1,5 @@
+import { nativeApplicationForm } from '../../js/tests/helpers/application-native-request.mjs';
+
 /** Isolated synthetic owner edits; this fixture endpoint is never a product route. */
 export const applicationDraftControl = (browser, popup = false) => {
   let ownerActions = 0;
@@ -14,16 +16,10 @@ export const applicationDraftControl = (browser, popup = false) => {
     ) {
       return null;
     }
-    const page = browser
-      .contexts()
-      .flatMap((context) => context.pages())
-      .find(
-        (page) =>
-          page.url() ===
-          (popup
-            ? 'https://hh.ru/vacancy/123'
-            : 'https://hh.ru/applicant/vacancy_response?vacancyId=123')
-      );
+    const page = nativeApplicationForm(
+      browser,
+      popup ? 'https://hh.ru/vacancy/123' : undefined
+    );
     if (!page) {
       throw new Error('No bound synthetic application page');
     }
