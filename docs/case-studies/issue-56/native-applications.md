@@ -67,3 +67,17 @@ parent failures, draft verification failures and final focused/native checks.
 Both hosted browser engines are registered in the existing matrix. Full suites
 and exact published-head verification remain hosted. No UI layout changes are
 included in this executor unit; the browser controls remain the next task.
+
+## Native fixture URL selection
+
+Hosted CodeQL job `132263470967` on `5a687049` reports two incomplete URL
+checks in the new native test helper (gate log lines 8897–8898). The page
+selector used a string prefix, which also admits a lookalike host, credentials
+or another vacancy. Both selectors now require the exact owned response-form
+URL and vacancy ID. No rule is suppressed. A finite decoy experiment confirms
+four previously accepted misleading candidates are excluded; both native
+Chromium scenarios still pass, including verified letters and four late DOM
+refusals. [Preserved evidence](data/ci-application-page-url.tar.gz) and the
+[manifest](data/ci-application-page-url.tar.sha256.json) retain the actual
+SARIF, complete job log, parent helper and focused final checks. Exact-head
+hosted CodeQL confirmation remains required.

@@ -1,11 +1,17 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted native application fixture URL findings:
+
+- [x] Preserve `5a687049` CodeQL job `132263470967`, its 8,964-line log and actual SARIF. The gate reports two incomplete URL checks at log lines 8897–8898, both in native fixture page discovery.
+- [x] Select the exact owned full-form URL, including its vacancy ID. A finite four-candidate decoy probe and both native Chromium application scenarios pass; there are no page errors or CodeQL suppressions.
+- [ ] Publish this correction and inspect the current-head CodeQL gates and all other hosted checks. Continue every unfinished original criterion.
+
 Active hosted stale-tab replacement failure:
 
 - [x] Match WebKit shard 3 job `132250412027` to `8d16669e`; preserve the complete workflow/job logs, 38-file browser artifact and the mismatch at job-log lines 1941–1985. The current `5a687049` workflows are a separate, unfinished run.
 - [x] Reproduce an unchanged opening reviving removed children against exact `5a687049` in one focused regression, native WebKit and independent Playwright MCP over both IndexedDB/localStorage. Preserve the controlled concurrent-save draft refusal too.
 - [x] Compare each public record with its opening baseline before joining independently changed records. Keep concurrent child unions, causal deletion, private conflicts and the finite save retry budget. Gate native concurrent admission explicitly and separately verify later replacement.
-- [ ] Publish this atomic correction and inspect every exact-head CI check. Continue native application UI, deferred policies and every unchecked original requirement; keep PR #57 draft and unmerged.
+- [x] Publish the correction as `9c931111` with checksummed evidence; its exact-head CI remains pending. Continue native application UI, deferred policies and every unchecked original requirement; keep PR #57 draft and unmerged.
 
 Active native application executor (HH06–HH08 remain incomplete):
 

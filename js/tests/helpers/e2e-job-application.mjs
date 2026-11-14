@@ -58,7 +58,11 @@ export const verifyNativeApplication = async (browser) => {
     const page = browser
       .contexts()
       .flatMap((context) => context.pages())
-      .find((entry) => entry.url().startsWith('https://hh.ru'));
+      .find(
+        (entry) =>
+          entry.url() ===
+          'https://hh.ru/applicant/vacancy_response?vacancyId=123'
+      );
     assert.deepEqual(
       await page.evaluate(() => ({
         header: document.querySelector('#header').value,
@@ -134,7 +138,11 @@ export const verifyNativeApplicationGuards = async (browser) => {
     const page = browser
       .contexts()
       .flatMap((context) => context.pages())
-      .find((entry) => entry.url().startsWith('https://hh.ru'));
+      .find(
+        (entry) =>
+          entry.url() ===
+          'https://hh.ru/applicant/vacancy_response?vacancyId=123'
+      );
     const changes = [
       [
         () =>
