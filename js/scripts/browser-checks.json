@@ -125,5 +125,6 @@
   "job-application-pacing",
   "job-application-rejection",
   "job-application-confirmations",
-  "job-application-batch"
+  "job-application-batch",
+  "job-application-feedback"
 ]
