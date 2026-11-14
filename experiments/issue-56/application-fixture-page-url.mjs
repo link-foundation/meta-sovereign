@@ -9,10 +9,6 @@ const variants = [
   'https://hh.ru/vacancy/123',
 ];
 assert.deepEqual(
-  variants.map((url) => url.startsWith('https://hh.ru')),
-  [true, true, true, true, true]
-);
-assert.deepEqual(
   variants.map((url) => url === expected),
   [true, false, false, false, false]
 );

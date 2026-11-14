@@ -1,5 +1,13 @@
 # Native HH application executor
 
+The exact native selectors pass their focused checks, but `20d47bb1` security
+job `132268444304` finds the old prefix predicate in the negative experiment
+itself (complete log lines 8890–8892). Remove that obsolete predicate and retain
+all four exact-URL decoy refusals. No CodeQL rule or gate is suppressed. The
+[probe evidence](data/ci-application-url-probe.tar.gz) preserves the actual SARIF,
+complete job log and finite final check; corrected-head hosted gates remain
+pending. This does not complete any deferred application or issue criterion.
+
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) remains draft
 and unmerged. This atomic unit supplies the owned executor and CLI/Lino
 interfaces. HH06–HH08 remain unchecked until the browser controls, deferred

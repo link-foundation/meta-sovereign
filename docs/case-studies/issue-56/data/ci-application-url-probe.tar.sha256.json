@@ -1,0 +1,13 @@
+{
+  "archive": "ci-application-url-probe.tar.gz",
+  "files": {
+    "ci-logs/application-url-current-artifacts.json": "28e0ec6503e0c14c0755b74898c1a116689d0efa9312ee2cc54f24f97d81963a",
+    "ci-logs/application-url-current-codeql.log": "cf8f9af7cbe3cf97a9e52d211e3480912a27c340be9303b540817d0c44140c55",
+    "ci-logs/application-url-current-findings.json": "739965ef238d9ea678e5760c822f63e2886f5d096737b242959326267ec7d588",
+    "ci-logs/application-url-current-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-url-current-probe.log": "5d418a01e6344ff33ebbcfaf8c5c0d9730621612f99afd797918529af0526248",
+    "experiments/issue-56/application-fixture-page-url.mjs": "a6a02592c985cfd642b6e090c874f6b2ec17142e835aadd32909677687758080",
+    "experiments/issue-56/collect-ci-application-url-probe.py": "d96dd381c57e69388be9c732371a4f5a2e382fde91ded554e2ae20900b327ac9",
+    "metadata.json": "a0ffa9f93c8b563885cd2018ec4d69da538d7a3d0cac3c25332b81eb4904be8f"
+  }
+}

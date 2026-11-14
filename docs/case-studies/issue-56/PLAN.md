@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted negative URL probe finding:
+
+- [x] Inspect exact `20d47bb1` security job `132268444304` and preserve its complete log, actual SARIF and the remaining probe finding at lines 8890–8892. Native selectors no longer trigger the gate.
+- [x] Remove the obsolete unsafe prefix predicate from the experiment; retain its four exact-URL decoy refusals without a suppression.
+- [ ] Publish this correction and inspect every exact-head gate. Complete the drafted native application browser controls, session/deferred policies and every original unchecked criterion. PR #57 stays draft and unmerged.
+
 Active hosted native application fixture URL findings:
 
 - [x] Preserve `5a687049` CodeQL job `132263470967`, its 8,964-line log and actual SARIF. The gate reports two incomplete URL checks at log lines 8897–8898, both in native fixture page discovery.
