@@ -1,4 +1,41 @@
 export const hiApplication = {
+  'application.batch.settings':
+    'सहेजी गई पुष्टियाँ: {steps}। अंतराल: {interval}। अधिकतम सफल वितरण: {maximum}।',
+  'application.batch.title': 'अंतराल के साथ आवेदन बैच',
+  'application.batch.hint':
+    'ऊपर की आवेदन सेटिंग से सीमित सूची शुरू करें। चुनी हुई पुष्टि लंबित न होने पर प्रक्रिया फ़ॉर्म भर और भेज सकती है। प्रश्नावलियाँ सक्षम होने पर वह मेमोरी की कतार पर लौटती है। सहेजे गए बहिष्करण और अनिश्चित परिणाम सुरक्षित रहते हैं। सहेजे गए दैनिक विराम के बाद प्रक्रिया फ़ॉर्म रीफ़्रेश और बहाल कर सकती है, फिर सहेजी हुई पुष्टियों का पालन करती है। स्थिति पढ़ने या पुनः शुरू करने से बैच नहीं चलता। रोकने पर बैच का काम समाप्त होता है और मौजूदा फ़ॉर्म खुला रहता है।',
+  'application.batch.urls': 'HH रिक्ति के URL (प्रति पंक्ति एक; अधिकतम 1,000)',
+  'application.batch.maximum': 'अधिकतम पुष्ट आवेदन (0 = पूरी सूची)',
+  'application.batch.duration': 'प्रक्रिया की अवधि, सेकंड में (अधिकतम 24 घंटे)',
+  'application.batch.confirm':
+    'मैं सहेजी गई पुष्टि सेटिंग के अनुसार इस बैच को आगे बढ़ने और भेजने की अनुमति देता हूँ।',
+  'application.batch.start': 'बैच शुरू करें',
+  'application.batch.status': 'बैच की स्थिति पढ़ें',
+  'application.batch.stop': 'बैच रोकें; फ़ॉर्म खुला रखें',
+  'application.batch.follow': 'वर्तमान रिक्ति की समीक्षा करें',
+  'application.batch.progress':
+    'पहुंचे: {delivered}; बाहर रखे: {skipped}; सूची में: {total}।',
+  'application.batch.next': 'अगला प्रवेश: {at}।',
+  'application.batch.phase.starting': 'बैच शुरू हो रहा है।',
+  'application.batch.phase.pacing':
+    'सहेजे हुए अंतराल के समाप्त होने की प्रतीक्षा है।',
+  'application.batch.phase.review': 'वर्तमान रिक्ति की समीक्षा चाहिए।',
+  'application.batch.phase.questionnaires-held':
+    'प्रश्नावलियाँ इस प्रक्रिया की मेमोरी कतार में रुकी हैं।',
+  'application.batch.phase.retry-wait':
+    'सहेजी गई सामान्य त्रुटि के बाद दोबारा प्रयास की प्रतीक्षा है।',
+  'application.batch.phase.daily-limit':
+    'सहेजे हुए HH दैनिक विराम की प्रतीक्षा है। इस बैच की प्रतीक्षा अगले चुने हुए पुष्टिकरण से पहले फ़ॉर्म रीफ़्रेश और बहाल कर सकती है।',
+  'application.batch.phase.paused': 'बैच रुका हुआ है।',
+  'application.batch.phase.completed': 'बैच पूरा हुआ।',
+  'application.batch.phase.stopped':
+    'बैच रोक दिया गया; वर्तमान फ़ॉर्म खुला है।',
+  'application.batch.phase.expired':
+    'बैच की अवधि समाप्त; वर्तमान फ़ॉर्म खुला है।',
+  'application.batch.phase.refused':
+    'बैच ने आगे का काम अस्वीकार किया। वर्तमान फ़ॉर्म देखें।',
+  'application.batch.phase.interrupted':
+    'प्रक्रिया बाधित हुई। यह स्थिति पढ़ने से वह फिर नहीं चलती।',
   'application.confirmationSettings': 'पुष्टि के चरण',
   'application.confirmation.answers': 'उत्तर',
   'application.confirmation.cover-letter': 'आवरण पत्र',

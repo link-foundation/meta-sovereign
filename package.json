@@ -493,6 +493,7 @@
     "test:e2e:job-application": "node js/tests/e2e-job-application-browser.mjs",
     "test:e2e:job-application-pacing": "node js/tests/e2e-job-application-pacing-browser.mjs",
     "test:e2e:job-application-rejection": "node js/tests/e2e-job-application-rejection-browser.mjs",
+    "test:e2e:job-application-batch": "node js/tests/e2e-job-application-batch-browser.mjs",
     "test:e2e:job-application-confirmations": "node js/tests/e2e-job-application-confirmations-browser.mjs",
     "test:e2e:job-application-drafts": "node js/tests/e2e-job-application-drafts-browser.mjs",
     "test:e2e:job-application-language": "node js/tests/e2e-job-application-language-browser.mjs",

@@ -211,6 +211,21 @@ export class ApplicationSession {
       recover: true,
     });
   }
+  followBatch(receipt) {
+    const input = token(receipt);
+    if (
+      this.state.busy ||
+      this.blockedStorage ||
+      (this.state.intent &&
+        (!equalTarget(this.state.intent, input) ||
+          this.state.intent.requestId !== input.requestId))
+    ) {
+      throw failure();
+    }
+    this.remember(input);
+    this.publish({ known: true });
+    return this.execute('vacancyApplicationStatus', input);
+  }
   action(name, extra = {}) {
     const receipt = this.state.receipt;
     const intent =

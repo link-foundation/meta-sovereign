@@ -1,4 +1,36 @@
 export const zhApplication = {
+  'application.batch.settings':
+    '已保存的确认步骤：{steps}。间隔：{interval}。最多送达：{maximum}。',
+  'application.batch.title': '按间隔批量申请',
+  'application.batch.hint':
+    '使用上方申请设置启动有限列表。没有选定确认待处理时，程序可能填写并发送表单。启用问卷后会重访内存队列。已保存的排除项和结果不明的操作仍受保护。在有备份的每日暂停结束后，程序可能刷新并恢复表单，然后遵循已保存的确认步骤。读取状态或重启不会恢复批次。停止会结束批次工作，并保持当前表单打开。',
+  'application.batch.urls': 'HH 职位网址（每行一个；最多 1,000 个）',
+  'application.batch.maximum': '最多确认送达数量（0 = 列出的全部职位）',
+  'application.batch.duration': '运行时长，单位秒（最多 24 小时）',
+  'application.batch.confirm':
+    '我授权此批次按照已保存的确认设置继续并发送申请。',
+  'application.batch.start': '启动批次',
+  'application.batch.status': '读取批次状态',
+  'application.batch.stop': '停止批次并保留表单',
+  'application.batch.follow': '查看当前职位',
+  'application.batch.progress':
+    '已送达：{delivered}；已排除：{skipped}；列表总数：{total}。',
+  'application.batch.next': '下次打开时间：{at}。',
+  'application.batch.phase.starting': '正在启动批次。',
+  'application.batch.phase.pacing': '等待已保存的间隔截止时间。',
+  'application.batch.phase.review': '当前职位需要审核。',
+  'application.batch.phase.questionnaires-held':
+    '问卷保留在此进程的内存队列中。',
+  'application.batch.phase.retry-wait': '等待已备份的一般错误重试。',
+  'application.batch.phase.daily-limit':
+    '等待已保存的 HH 每日暂停。此批次自己的等待可能刷新并恢复表单，然后停在下一个已配置的确认步骤。',
+  'application.batch.phase.paused': '批次已暂停。',
+  'application.batch.phase.completed': '批次已完成。',
+  'application.batch.phase.stopped': '批次已停止；当前表单仍然打开。',
+  'application.batch.phase.expired': '批次运行时长已结束；当前表单仍然打开。',
+  'application.batch.phase.refused': '批次拒绝继续操作。请查看当前表单。',
+  'application.batch.phase.interrupted':
+    '进程已中断。读取此状态不会重新启动它。',
   'application.confirmationSettings': '确认步骤',
   'application.confirmation.answers': '答案',
   'application.confirmation.cover-letter': '求职信',

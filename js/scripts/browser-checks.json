@@ -124,5 +124,6 @@
   "job-application-limit-restore",
   "job-application-pacing",
   "job-application-rejection",
-  "job-application-confirmations"
+  "job-application-confirmations",
+  "job-application-batch"
 ]

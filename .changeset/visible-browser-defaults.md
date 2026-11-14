@@ -482,3 +482,5 @@ after the shared pause, restore later saved owner values and require a separate
 Send confirmation through CLI, both Lino encodings and four-language controls.
 
 Add independent HH answer, letter, questionnaire Send and short-popup confirmation choices, with an explicitly invoked guarded continuation through CLI, Lino APIs and four-language UI. Preserve missing-answer waits, current-step consent, supervised review and read-only recovery.
+
+Add explicit finite paced HH application batches through foreground CLI, both Lino encodings and four-language controls. Freeze settings and native delivery limits, revisit backed RAM deferrals through existing guards, own stoppable daily-limit waits, and keep durable recovery free of worker replay.

@@ -5,6 +5,7 @@ import { fromApp } from './routes-telegram-files.js';
 
 const bodyLimits = {
   'application-open': 128 * 1024,
+  'application-batch-start': 256 * 1024,
   'choice-save': 128 * 1024,
   'cv-workplace-plan': 64 * 1024,
   'technology-catalog-save': 256 * 1024,
@@ -76,6 +77,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     [
       'capabilities',
       'application-status',
+      'application-batch-status',
       'application-queue',
       'choices-stored',
       'stored',
@@ -97,6 +99,9 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     ![
       'search',
       'application-open',
+      'application-batch-start',
+      'application-batch-stop',
+      'application-batch-mode',
       'application-read',
       'application-wait',
       'application-prefill',

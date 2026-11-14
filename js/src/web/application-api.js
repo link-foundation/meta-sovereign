@@ -3,6 +3,7 @@ import { applicationKey } from '../jobs/application-options.js';
 import { jobsFailure } from '../jobs/options.js';
 import { applicationQueueResult } from '../jobs/application-deferral-data.js';
 import { vacancyChoiceSlot } from '../jobs/vacancy-choice.js';
+import { createApplicationBatchApi } from './application-batch-api.js';
 const confirmed = (raw, input, missing = false) => {
   if (!raw || raw.ok === false || raw.error) {
     throw jobsFailure(
@@ -20,6 +21,7 @@ const confirmed = (raw, input, missing = false) => {
   return result;
 };
 export const createApplicationApi = ({ get, report }) => ({
+  ...createApplicationBatchApi({ get, report }),
   vacancyApplicationQueue: async (input) =>
     applicationQueueResult(
       await get(

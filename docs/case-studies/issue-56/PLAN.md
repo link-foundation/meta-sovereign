@@ -1,12 +1,21 @@
 # Issue 56 / PR 57 work plan
 
+Active finite paced application batches (HH06/HH08 remain incomplete):
+
+- [x] Freeze a bounded vacancy list and delivery limit with the existing application settings; release the writer while pacing, pause safely, count only native confirmed deliveries, and retain explicit per-step confirmations.
+- [x] Revisit this worker's backed RAM queue when questionnaires become enabled, preserving exclusions, original retry deadlines, fresh CV/draft guards and unknown delivery reservations. Durable batch receipts cannot recreate a worker.
+- [x] Carry start/status/stop/mode controls through foreground CLI, both Lino encodings and four-language UI. Add focused service/lifecycle/control regressions and finite native/MCP evidence, with before/after screenshots.
+- [ ] Preserve evidence, publish atomic work and inspect exact-head CI. Continue automatic discovery, authenticated scope and every original incomplete requirement; no original row is completed by a finite-list prerequisite alone.
+
+Focused Node 64/Deno 30 pass. Native Chromium reports two deliveries/two RAM revisits/zero entry clicks; independent MCP reports one delivery/one revisit/one Send/zero entry clicks. Four locales, phone layout, no recovery replay and owned resource drainage pass. Publication and exact-head CI remain pending.
+
 Active independently configured application confirmations (HH08 remains incomplete):
 
 - [x] Freeze independent answers, cover-letter, questionnaire Send and short-popup confirmation choices in review settings, with Send as the default and a supervised override. Reuse guarded exact-answer writes and native sending; keep manual actions available and preview free of effects.
 - [x] Add an explicitly invoked continuation operation that stops at the next selected confirmation or missing-answer boundary. A confirmation authorizes only its displayed step/revision; changed forms, holds, pauses and uncertain sends refuse. The exact-answer exception requires this continuation's own empty-field autofill, verified unchanged against the same native document.
 - [x] Carry settings and continuation through CLI, both Lino encodings and four-language UI, with read-only recovery and fresh consent after each step. Reproduce the missing parent behavior, verify focused service/control checks and native/MCP evidence, retain screenshots. Focused Node 63 plus one fixture regression, Deno 34 and native/MCP pass; exact-head CI is tracked separately.
 - [x] Preserve the checked 111-file source, regression, native/MCP, screenshot and hosted receipt archive.
-- [ ] Publish this atomic unit and inspect every exact-head hosted check.
+- [x] Published `af668771`; all five exact-head hosted workflows pass, including Checks `43624524344` and all eight browser lanes.
 - [ ] Continue the full paced batch runner, automatic RAM revisits and every original incomplete requirement; this unit alone cannot complete HH08.
 
 Active acknowledged daily-rejection recovery (HH06 remains incomplete):

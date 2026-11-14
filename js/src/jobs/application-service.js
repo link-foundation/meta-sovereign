@@ -31,6 +31,7 @@ import { ApplicationLimits } from './application-limits.js';
 import { ApplicationLimitBackups } from './application-limit-backups.js';
 import { ApplicationLimitWait } from './application-limit-wait.js';
 import { ApplicationContinuation } from './application-continuation.js';
+import { ApplicationBatch } from './application-batch.js';
 import { ApplicationPacing } from './application-pacing.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import {
@@ -59,6 +60,7 @@ class ApplicationService {
     now = Date.now,
     limitWait,
     pacingRandom,
+    batchWait,
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
       : () => {},
@@ -94,6 +96,7 @@ class ApplicationService {
     this.limitWait = new ApplicationLimitWait(this, now, limitWait);
     this.pacing = new ApplicationPacing(this, now, pacingRandom);
     this.limitRejections = new ApplicationLimitRejections(this, now);
+    this.batch = new ApplicationBatch(this, now, batchWait);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -381,7 +384,13 @@ class ApplicationService {
         timeout: 30000,
       });
       signal.throwIfAborted();
-      return await this.review.inspect(record, signal);
+      this.trace({ event: 'application-opening-document-ready' });
+      const result = await this.review.inspect(record, signal);
+      this.trace({
+        event: 'application-opening-reviewed',
+        state: record.state,
+      });
+      return result;
     } catch (error) {
       return this.openingFailure(record, error);
     }
@@ -407,6 +416,7 @@ class ApplicationService {
   }
   async stop() {
     this.stopped = true;
+    await this.batch.drain();
     this.limitWait.abort();
     globalThis.clearTimeout(this.timer);
     await this.task?.catch(() => {});
@@ -429,6 +439,12 @@ export const createApplicationService = (options) => {
       'application-signal-mode': (input) => service.signalMode(input),
       'application-open': (input) =>
         service.operate((signal) => service.open(input, signal)),
+      'application-batch-start': (input) => service.batch.start(input),
+      'application-batch-status': (input) => service.batch.status(input),
+      'application-batch-stop': (input) => service.batch.stop(input),
+      'application-batch-mode': (input) => service.batch.mode(input),
+      // Foreground CLI lifecycle only; HTTP status remains an immediate read.
+      'application-batch-drain': () => service.batch.runtime?.work,
       'application-status': (input) => service.status(input),
       'application-wait': (input) =>
         input.action === 'stop'
@@ -481,6 +497,7 @@ export const createApplicationService = (options) => {
         }),
     },
     cancel: async () => {
+      await service.batch.drain();
       await service.limitWait.drain();
       return service.close();
     },

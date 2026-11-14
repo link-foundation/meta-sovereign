@@ -1,0 +1,498 @@
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { acknowledgedRead } from './acknowledged-store.js';
+import {
+  applicationDelay,
+  applicationFailure as fail,
+  applicationView,
+  applicationKey,
+} from './application-options.js';
+import {
+  applicationBatchKey,
+  applicationBatchOptions,
+  applicationBatchView,
+  applicationBatchTerminal,
+  readApplicationBatch,
+} from './application-batch-data.js';
+import { storedVacancyChoices } from './vacancy-choice-service.js';
+import { vacancyChoiceSlot } from './vacancy-choice.js';
+import { applicationPreservationPolicy } from './application-run-modes.js';
+
+const observedOutcome = (page) =>
+  page.bound &&
+  (page.delivered || page.dailyLimit || page.challenge || page.error);
+const owners = new WeakMap();
+const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
+
+/** Explicit finite batch. Sleeps release the writer; durable reads never arm work. */
+export class ApplicationBatch {
+  constructor(service, now, wait = applicationDelay) {
+    Object.assign(this, { service, now, wait });
+  }
+  async status(input = {}) {
+    return acknowledgedRead(this.service.store, async () => {
+      const browserSlot = vacancyChoiceSlot(input);
+      const requestId =
+        input.requestId ??
+        (await this.service.store.get(latest(browserSlot)))?.requestId;
+      if (!requestId) {
+        return applicationBatchView(null, false);
+      }
+      const key = applicationBatchKey({ browserSlot, requestId });
+      const raw =
+        this.runtime?.record.id === key.id
+          ? this.runtime.record
+          : await this.service.store.get(key.id);
+      if (!raw) {
+        return applicationBatchView(null, false);
+      }
+      const record = readApplicationBatch(raw, key);
+      const current = this.service.current;
+      const application =
+        current?.url === record.currentUrl &&
+        current.requestId === requestId &&
+        current.browserSlot === browserSlot
+          ? applicationView(current)
+          : null;
+      return applicationBatchView(
+        record,
+        this.runtime?.record.id === key.id,
+        application,
+        this.service.modes.read(browserSlot)
+      );
+    });
+  }
+  async save(runtime, change) {
+    const record = { ...runtime.record, ...change };
+    if (JSON.stringify(record) === JSON.stringify(runtime.record)) {
+      return;
+    }
+    record.revision = globalThis.crypto.randomUUID();
+    readApplicationBatch(record, record.options);
+    await saveAcknowledgedRecord(this.service.store, record);
+    runtime.controller.signal.throwIfAborted();
+    runtime.record = record;
+  }
+  async start(input) {
+    const options = applicationBatchOptions(input);
+    if (input.confirm !== true) {
+      throw fail('confirmation');
+    }
+    const existing = await this.service.store.get(options.id);
+    if (existing) {
+      const record = readApplicationBatch(existing, options);
+      if (record.signature !== JSON.stringify(options)) {
+        throw fail('conflict');
+      }
+      return this.status(options);
+    }
+    await this.service.operate(async (signal) => {
+      if (owners.has(this.service.store) || this.service.current) {
+        throw fail('busy');
+      }
+      if (await this.service.store.get(options.id)) {
+        throw fail('conflict');
+      }
+      const startedAt = new Date(this.now()).toISOString();
+      const record = {
+        id: options.id,
+        version: 1,
+        options,
+        revision: globalThis.crypto.randomUUID(),
+        signature: JSON.stringify(options),
+        phase: options.review.testMode ? 'completed' : 'starting',
+        active: !options.review.testMode,
+        cursor: 0,
+        delivered: [],
+        skipped: [],
+        currentUrl: null,
+        code: null,
+        nextAt: null,
+        startedAt,
+        expiresAt: new Date(this.now() + options.durationMs).toISOString(),
+      };
+      readApplicationBatch(record, options);
+      await saveAcknowledgedRecord(this.service.store, record);
+      await saveAcknowledgedRecord(this.service.store, {
+        id: latest(options.browserSlot),
+        requestId: options.requestId,
+      });
+      signal.throwIfAborted();
+      if (options.review.testMode) {
+        return;
+      }
+      this.service.modes.signal(
+        null,
+        options.browserSlot,
+        options.noQuestionnaires
+      );
+      const runtime = { record, controller: new AbortController() };
+      runtime.timer = globalThis.setTimeout(() => {
+        runtime.expired = true;
+        runtime.controller.abort();
+      }, options.durationMs);
+      runtime.timer.unref?.();
+      this.runtime = runtime;
+      owners.set(this.service.store, this);
+      runtime.work = this.cycle(runtime).finally(() => {
+        globalThis.clearTimeout(runtime.timer);
+        if (this.runtime === runtime) {
+          this.runtime = null;
+        }
+        if (owners.get(this.service.store) === this) {
+          owners.delete(this.service.store);
+        }
+      });
+      runtime.work.catch(() => {});
+    });
+    return this.status(options);
+  }
+  async stop(input) {
+    const key = applicationBatchKey(input);
+    if (this.runtime && this.runtime.record.id !== key.id) {
+      throw fail('missing');
+    }
+    await this.drain();
+    return this.status(input);
+  }
+  async mode(input) {
+    const key = applicationBatchKey(input);
+    await this.service.operate(async (signal) => {
+      const runtime = this.runtime;
+      if (
+        !runtime ||
+        runtime.record.id !== key.id ||
+        input.revision !== runtime.record.revision
+      ) {
+        throw fail('changed');
+      }
+      const modes = this.service.modes.change(key.browserSlot, input);
+      const current = this.service.current;
+      if (current) {
+        await this.service.actions.mode(current, input, signal);
+      } else {
+        this.service.modes.save(key.browserSlot, modes);
+      }
+      await this.save(runtime, { revision: globalThis.crypto.randomUUID() });
+    });
+    return this.status(input);
+  }
+  async drain() {
+    const runtime = this.runtime;
+    runtime?.controller.abort();
+    await runtime?.work;
+  }
+  async cycle(runtime) {
+    try {
+      // Yield until the start acknowledgement releases its writer.
+      await this.wait(0, runtime.controller.signal);
+      while (!applicationBatchTerminal(runtime.record.phase)) {
+        try {
+          await this.service.operate((writer) =>
+            this.tick(
+              runtime,
+              globalThis.AbortSignal.any([writer, runtime.controller.signal])
+            )
+          );
+        } catch (error) {
+          if (!this.interrupted(runtime, error)) {
+            throw error;
+          }
+        }
+        if (runtime.waitRequested) {
+          await this.startLimitWait(runtime);
+        }
+        if (!applicationBatchTerminal(runtime.record.phase)) {
+          await this.wait(1000, runtime.controller.signal);
+        }
+      }
+    } catch (error) {
+      // Even an unacknowledged final snapshot cannot become recovery permission.
+      const record = {
+        ...runtime.record,
+        active: false,
+        revision: globalThis.crypto.randomUUID(),
+        phase: runtime.expired
+          ? 'expired'
+          : runtime.controller.signal.aborted
+            ? 'stopped'
+            : 'refused',
+        code: runtime.controller.signal.aborted
+          ? null
+          : (error.code ?? 'jobs-application-unavailable'),
+      };
+      try {
+        await saveAcknowledgedRecord(this.service.store, record);
+        runtime.record = record;
+      } catch (saveError) {
+        this.service.trace({
+          event: 'application-batch-final-save-refused',
+          code: saveError.code ?? 'unknown',
+        });
+      }
+      this.service.trace({
+        event: 'application-batch-ended',
+        phase: record.phase,
+        code: record.code,
+      });
+    } finally {
+      await this.drainLimitWait(runtime);
+    }
+  }
+  async drainLimitWait(runtime) {
+    if (
+      runtime.limitWaitId &&
+      this.service.current?.limitWait?.id === runtime.limitWaitId
+    ) {
+      await this.service.limitWait.drain();
+    }
+  }
+  interrupted(runtime, error) {
+    if (error.code === 'jobs-busy') {
+      return true;
+    }
+    if (error.code !== 'jobs-application-state') {
+      return false;
+    }
+    const modes = this.service.modes.read(runtime.record.options.browserSlot);
+    return (
+      modes.paused ||
+      (modes.noQuestionnaires &&
+        this.queue(runtime).some(
+          (row) => row.url === runtime.record.currentUrl
+        ))
+    );
+  }
+  async startLimitWait(runtime) {
+    const input = runtime.waitRequested;
+    runtime.waitRequested = null;
+    runtime.controller.signal.throwIfAborted();
+    await this.service.limitWait.start(input);
+  }
+  queue(runtime) {
+    const options = runtime.record.options;
+    return [...this.service.deferrals.entries.values()].filter(
+      (row) =>
+        row.requestId === options.requestId &&
+        row.browserSlot === options.browserSlot &&
+        options.urls.includes(row.url)
+    );
+  }
+  async tick(runtime, signal) {
+    signal.throwIfAborted();
+    const record = runtime.record;
+    const modes = this.service.modes.read(record.options.browserSlot);
+    if (this.now() >= Date.parse(record.expiresAt)) {
+      return this.save(runtime, { phase: 'expired', active: false });
+    }
+    if (modes.paused) {
+      return this.save(runtime, { phase: 'paused' });
+    }
+    if (this.service.current) {
+      return this.observe(runtime, signal);
+    }
+    const maximum = record.options.maxApplications;
+    if (maximum && record.delivered.length >= maximum) {
+      return this.save(runtime, {
+        phase: 'completed',
+        active: false,
+        currentUrl: null,
+      });
+    }
+    const limit = await this.service.limits.read();
+    if (limit?.active) {
+      return this.save(runtime, { phase: 'daily-limit', nextAt: limit.until });
+    }
+    return this.admit(runtime, signal, modes);
+  }
+  async admit(runtime, signal, modes) {
+    const record = runtime.record;
+    const queue = this.queue(runtime);
+    const due = queue.find((row) =>
+      row.reason === 'questionnaire'
+        ? !modes.noQuestionnaires
+        : this.service.retries.ready(row)
+    );
+    const url = due?.url ?? record.options.urls[record.cursor];
+    if (!url) {
+      if (!queue.length) {
+        return this.save(runtime, {
+          phase: 'completed',
+          active: false,
+          currentUrl: null,
+          nextAt: null,
+        });
+      }
+      const retryAt =
+        queue
+          .filter((row) => row.retryAt)
+          .map((row) => row.retryAt)
+          .sort()[0] ?? null;
+      return this.save(runtime, {
+        phase: retryAt ? 'retry-wait' : 'questionnaires-held',
+        currentUrl: null,
+        nextAt: retryAt,
+      });
+    }
+    const choices = await storedVacancyChoices(
+      this.service.store,
+      record.options
+    );
+    signal.throwIfAborted();
+    if (choices.entries.some((row) => row.url === url)) {
+      return this.exclude(runtime, url, due);
+    }
+    const pace = await this.service.pacing.read();
+    if (pace?.waiting) {
+      return this.save(runtime, { phase: 'pacing', nextAt: pace.nextAt });
+    }
+    return this.open(runtime, url, due, signal);
+  }
+  async open(runtime, url, due, signal) {
+    const record = runtime.record;
+    await this.save(runtime, {
+      currentUrl: url,
+      phase: 'review',
+      nextAt: null,
+      cursor: due ? record.cursor : record.cursor + 1,
+    });
+    signal.throwIfAborted();
+    if (due) {
+      await this.service.deferrals.retry(
+        { ...due, confirm: true, queueId: due.id },
+        signal
+      );
+      if (this.service.current?.state === 'review') {
+        await this.restore(this.service.current, signal);
+      }
+    } else {
+      await this.service.open({ ...record.options.review, url }, signal);
+    }
+    const current = this.service.current;
+    if (
+      current &&
+      ['ready', 'review'].includes(current.state) &&
+      !current.hold
+    ) {
+      await this.service.continuation.run(current, {}, signal);
+    }
+  }
+  async exclude(runtime, url, entry) {
+    if (entry) {
+      this.service.deferrals.entries.delete(applicationKey(entry).id);
+      this.service.deferrals.revision = globalThis.crypto.randomUUID();
+    }
+    return this.save(runtime, {
+      skipped: [...new Set([...runtime.record.skipped, url])],
+      cursor: entry ? runtime.record.cursor : runtime.record.cursor + 1,
+    });
+  }
+  async restore(current, signal) {
+    if (
+      current.draft?.fields.length > current.page.fieldIndices.length &&
+      current.page.letterToggle
+    ) {
+      await this.service.actions.showLetter(current, signal);
+    }
+    await this.service.drafts.restore(current, { confirm: true }, signal);
+    if (current.restoration?.state !== 'restored') {
+      throw fail('changed');
+    }
+  }
+  async observe(runtime, signal) {
+    const current = this.service.current;
+    if (
+      current.url !== runtime.record.currentUrl ||
+      current.requestId !== runtime.record.options.requestId ||
+      current.browserSlot !== runtime.record.options.browserSlot
+    ) {
+      throw fail('busy');
+    }
+    if (await this.observeLimitWait(runtime, current, signal)) {
+      return;
+    }
+    const page = await this.service.readPage(current.browser, current.url);
+    signal.throwIfAborted();
+    if (observedOutcome(page)) {
+      await this.service.review.inspect(current, signal);
+    }
+    if (current.delivery === 'provider-confirmed') {
+      await this.save(runtime, {
+        delivered: [...new Set([...runtime.record.delivered, current.url])],
+      });
+      await this.service.close();
+      return;
+    }
+    if (current.delivery === 'unknown' && !current.hold) {
+      throw fail('unconfirmed');
+    }
+    this.prepareLimitWait(runtime, current);
+    return this.save(runtime, {
+      phase: current.state === 'daily-limit' ? 'daily-limit' : 'review',
+      nextAt:
+        current.state === 'daily-limit'
+          ? (current.applicationLimit?.until ?? null)
+          : null,
+    });
+  }
+  async observeLimitWait(runtime, current, signal) {
+    if (!runtime.limitWaitId || current.limitWait?.id !== runtime.limitWaitId) {
+      return false;
+    }
+    const phase = current.limitWait.phase;
+    if (phase === 'review' && current.restoration?.state === 'restored') {
+      await this.resumeLimitWait(current, signal);
+      runtime.previousWaitId = current.limitWait.id;
+      runtime.limitWaitId = null;
+      return false;
+    }
+    if (['stopped', 'refused'].includes(phase)) {
+      throw fail('wait-refused');
+    }
+    await this.save(runtime, {
+      phase: 'daily-limit',
+      nextAt: current.limitWait.until,
+    });
+    return true;
+  }
+  async resumeLimitWait(current, signal) {
+    if (
+      current.state !== 'review' ||
+      current.attempted.submit ||
+      current.delivery !== 'none' ||
+      (current.hold && current.hold !== 'daily-limit')
+    ) {
+      throw fail('wait-refused');
+    }
+    const policy = applicationPreservationPolicy(this.service, current, signal);
+    await this.service.review.check(current, 'submit', signal, true);
+    policy();
+    // Only this explicitly started batch's verified wait and protected restore
+    // authorize clearing its original daily-limit hold. Other holds remain manual.
+    this.service.holds.entries.delete(current.id);
+    current.hold = null;
+    this.service.trace({ event: 'application-batch-limit-resumed' });
+    await this.service.continuation.run(current, {}, signal);
+  }
+  prepareLimitWait(runtime, current) {
+    if (
+      current.state !== 'daily-limit' ||
+      (current.limitWait && current.limitWait.id !== runtime.previousWaitId) ||
+      !current.applicationLimit?.active ||
+      !current.applicationLimit.saved ||
+      !current.draft?.limit ||
+      current.paused ||
+      current.noQuestionnaires
+    ) {
+      return;
+    }
+    runtime.limitWaitId = globalThis.crypto.randomUUID();
+    runtime.waitRequested = {
+      ...applicationKey(current),
+      requestId: current.requestId,
+      revision: current.revision,
+      waitId: runtime.limitWaitId,
+      confirm: true,
+      restoreDraft: true,
+    };
+  }
+}

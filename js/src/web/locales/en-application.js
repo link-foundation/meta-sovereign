@@ -1,4 +1,41 @@
 export const enApplication = {
+  'application.batch.settings':
+    'Saved confirmations: {steps}. Interval: {interval}. Maximum deliveries: {maximum}.',
+  'application.batch.title': 'Paced application batch',
+  'application.batch.hint':
+    'Start a finite list with the application settings above. The worker may fill and send when no selected confirmation is waiting. It revisits its RAM queue when questionnaires are enabled. Saved exclusions and uncertain outcomes stay protected. A backed daily-limit wait may refresh and restore its form, then follow the saved confirmations. Status and restart never resume a batch. Stop drains batch work and keeps the current form open.',
+  'application.batch.urls': 'HH vacancy URLs (one per line; maximum 1,000)',
+  'application.batch.maximum':
+    'Maximum confirmed deliveries (0 = all listed vacancies)',
+  'application.batch.duration': 'Run lifetime in seconds (up to 24 hours)',
+  'application.batch.confirm':
+    'I authorize this batch to continue and send according to the saved confirmation settings.',
+  'application.batch.start': 'Start batch',
+  'application.batch.status': 'Read batch status',
+  'application.batch.stop': 'Stop batch; keep form',
+  'application.batch.follow': 'Review current vacancy',
+  'application.batch.progress':
+    'Delivered: {delivered}; excluded: {skipped}; listed: {total}.',
+  'application.batch.next': 'Next admission: {at}.',
+  'application.batch.phase.starting': 'Starting the owned batch.',
+  'application.batch.phase.pacing': 'Waiting for the saved spacing deadline.',
+  'application.batch.phase.review': 'Current vacancy needs review.',
+  'application.batch.phase.questionnaires-held':
+    'Questionnaires are held in this worker’s RAM queue.',
+  'application.batch.phase.retry-wait':
+    'Waiting for a backed generic-error retry.',
+  'application.batch.phase.daily-limit':
+    'Waiting for the saved HH daily pause. An owned wait may refresh and restore the form before the next configured confirmation.',
+  'application.batch.phase.paused': 'Batch paused.',
+  'application.batch.phase.completed': 'Batch completed.',
+  'application.batch.phase.stopped':
+    'Batch stopped; the current form remains open.',
+  'application.batch.phase.expired':
+    'Batch lifetime ended; the current form remains open.',
+  'application.batch.phase.refused':
+    'Batch refused further work. Review the current form.',
+  'application.batch.phase.interrupted':
+    'Worker interrupted. Reading this receipt does not restart it.',
   'application.confirmationSettings': 'Confirmation steps',
   'application.confirmation.answers': 'Answers',
   'application.confirmation.cover-letter': 'Cover letter',

@@ -22,6 +22,8 @@ const retryFixture = process.env.APPLICATION_RETRY_FIXTURE === '1';
 const limitFixture = process.env.APPLICATION_LIMIT_FIXTURE === '1';
 const pacingFixture = process.env.APPLICATION_PACING_FIXTURE === '1';
 const popup = process.env.APPLICATION_POPUP_FIXTURE === '1';
+const batchFixture = process.env.APPLICATION_BATCH_FIXTURE === '1';
+const batchEffects = [];
 try {
   const create =
     process.env.APPLICATION_RESUME_FIXTURE === '1'
@@ -35,6 +37,9 @@ try {
             : vacancyBrowserFixture;
   fixture = await create(browser, {
     popup,
+    ...(batchFixture
+      ? { onApplicationClose: (effect) => batchEffects.push(effect) }
+      : {}),
     language: process.env.APPLICATION_LANGUAGE_FIXTURE === '1',
     ...(retryFixture || limitFixture || pacingFixture
       ? {
@@ -59,6 +64,7 @@ const stats = () => ({
   ),
   pageErrors: fixture.errors,
   liveProvider: false,
+  ...(batchFixture ? { batchEffects } : {}),
   ...(fixture.failed ? { failedSaves: fixture.failed() } : {}),
 });
 const draftControl =

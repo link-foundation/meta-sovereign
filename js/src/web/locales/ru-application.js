@@ -1,4 +1,41 @@
 export const ruApplication = {
+  'application.batch.settings':
+    'Сохранённые подтверждения: {steps}. Интервал: {interval}. Максимум доставок: {maximum}.',
+  'application.batch.title': 'Пакет откликов с интервалами',
+  'application.batch.hint':
+    'Запустите конечный список с настройками отклика выше. Если выбранное подтверждение не требуется, процесс может заполнить и отправить форму. При включении анкет он возвращается к очереди в памяти. Сохранённые исключения и неопределённые результаты защищены. После сохранённой суточной паузы процесс может обновить и восстановить форму, затем применить выбранные подтверждения. Чтение статуса и перезапуск не возобновляют пакет. Остановка завершает работу пакета и оставляет текущую форму открытой.',
+  'application.batch.urls':
+    'Ссылки на вакансии HH (по одной в строке; не более 1 000)',
+  'application.batch.maximum':
+    'Максимум подтверждённых откликов (0 = весь список)',
+  'application.batch.duration': 'Срок работы в секундах (до 24 часов)',
+  'application.batch.confirm':
+    'Разрешаю продолжать и отправлять отклики по сохранённым настройкам подтверждения.',
+  'application.batch.start': 'Запустить пакет',
+  'application.batch.status': 'Прочитать статус пакета',
+  'application.batch.stop': 'Остановить пакет; оставить форму',
+  'application.batch.follow': 'Открыть проверку текущей вакансии',
+  'application.batch.progress':
+    'Доставлено: {delivered}; исключено: {skipped}; в списке: {total}.',
+  'application.batch.next': 'Следующее открытие: {at}.',
+  'application.batch.phase.starting': 'Пакет запускается.',
+  'application.batch.phase.pacing': 'Ожидание сохранённого интервала.',
+  'application.batch.phase.review': 'Текущая вакансия ожидает проверки.',
+  'application.batch.phase.questionnaires-held':
+    'Анкеты удерживаются в очереди памяти процесса.',
+  'application.batch.phase.retry-wait':
+    'Ожидание повторной проверки после сохранённой общей ошибки.',
+  'application.batch.phase.daily-limit':
+    'Ожидание сохранённой суточной паузы HH. Ожидание этого пакета может обновить и восстановить форму до следующего выбранного подтверждения.',
+  'application.batch.phase.paused': 'Пакет приостановлен.',
+  'application.batch.phase.completed': 'Пакет завершён.',
+  'application.batch.phase.stopped': 'Пакет остановлен; текущая форма открыта.',
+  'application.batch.phase.expired':
+    'Срок работы пакета истёк; текущая форма открыта.',
+  'application.batch.phase.refused':
+    'Продолжение пакета отклонено. Проверьте текущую форму.',
+  'application.batch.phase.interrupted':
+    'Процесс прерван. Чтение статуса не перезапускает его.',
   'application.confirmationSettings': 'Шаги подтверждения',
   'application.confirmation.answers': 'Ответы',
   'application.confirmation.cover-letter': 'Сопроводительное письмо',

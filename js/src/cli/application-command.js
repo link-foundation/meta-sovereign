@@ -8,6 +8,10 @@ import {
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
+import {
+  applicationBatchCommand,
+  applicationBatchFile,
+} from './application-batch-command.js';
 
 export { APPLICATION_HELP } from './help.js';
 const boolean = (args, key) => {
@@ -217,23 +221,58 @@ export const createApplicationCommands = ({
   ...options
 }) =>
   Object.fromEntries(
-    ['application', 'application-status'].map((operation) => [
+    [
+      'application',
+      'application-status',
+      'application-batch',
+      'application-batch-status',
+    ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
-        const input =
-          operation === 'application'
-            ? await commandInput(args)
-            : {
-                ...applicationKey({
-                  url: args.url,
-                  browserSlot: args['browser-slot'],
-                }),
+        const urls =
+          operation === 'application-batch'
+            ? await applicationBatchFile(args['vacancies-file'])
+            : undefined;
+        const input = urls
+          ? {
+              ...(await commandInput({ ...args, url: urls[0] })),
+              urls,
+              maxApplications:
+                args['max-applications'] === undefined
+                  ? 0
+                  : Number(args['max-applications']),
+              durationMs:
+                args['duration-ms'] === undefined
+                  ? undefined
+                  : Number(args['duration-ms']),
+              noQuestionnaires: boolean(args, 'no-questions'),
+            }
+          : operation === 'application-batch-status'
+            ? {
                 requestId: args['request-id'],
-              };
+                browserSlot: args['browser-slot'],
+              }
+            : operation === 'application'
+              ? await commandInput(args)
+              : {
+                  ...applicationKey({
+                    url: args.url,
+                    browserSlot: args['browser-slot'],
+                  }),
+                  requestId: args['request-id'],
+                };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
         const service = createVacancyService({ store, storeDir, ...options });
         try {
+          if (operation === 'application-batch') {
+            return await applicationBatchCommand(
+              service,
+              input,
+              log,
+              applicationInput
+            );
+          }
           if (operation === 'application') {
             return await applicationCommand(
               service,

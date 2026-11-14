@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ApplicationSession } from './application-session.js';
+import { useApplicationBatch } from './application-batch-state.js';
 
 export const useApplication = ({ api, values, selected, run }) => {
   const session = useMemo(() => new ApplicationSession(api), [api]);
@@ -13,6 +14,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     confirmations: ['send'],
     reviewDelayMs: 3000,
   });
+  const batch = useApplicationBatch({ api, values, options, session });
   useEffect(() => {
     const unsubscribe = session.subscribe(setState);
     setState(session.state);
@@ -73,6 +75,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     ...state,
     options,
     setOptions,
+    batch,
     occupied: Boolean(state.intent && (!state.known || state.receipt?.active)),
     start: () =>
       operate('open', () =>
