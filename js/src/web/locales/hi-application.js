@@ -1,4 +1,13 @@
 export const hiApplication = {
+  'application.autoAnswerViewedVacancy':
+    'देखी गई नौकरी के सर्वे का उत्तर अपने आप दें',
+  'application.feedbackHint':
+    'इस समीक्षा के दौरान HH के सर्वे में “शायद बाद में आवेदन करूँगा” चुनें और उसे बंद करें। आपका पहले से चुना अलग उत्तर बना रहेगा। पूर्वावलोकन में कोई क्लिक नहीं होता।',
+  'application.feedbackAutomatic':
+    'देखी गई नौकरी का सर्वे: इस समीक्षा में “शायद बाद में आवेदन करूँगा” सक्षम है।',
+  'application.feedbackManual': 'देखी गई नौकरी का सर्वे: उत्तर स्वयं दें।',
+  'application.feedbackPreview':
+    'देखी गई नौकरी का सर्वे: पूर्वावलोकन में कोई क्लिक नहीं होता।',
   'application.batch.settings':
     'सहेजी गई पुष्टियाँ: {steps}। अंतराल: {interval}। अधिकतम सफल वितरण: {maximum}।',
   'application.batch.title': 'अंतराल के साथ आवेदन बैच',

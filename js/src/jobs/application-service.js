@@ -34,6 +34,7 @@ import { ApplicationContinuation } from './application-continuation.js';
 import { ApplicationBatch } from './application-batch.js';
 import { ApplicationPacing } from './application-pacing.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
+import { watchApplicationFeedback } from './application-feedback.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -57,6 +58,7 @@ class ApplicationService {
     writeLetter = writeApplicationLetter,
     dispatch = dispatchApplication,
     selectResume = dispatchResumeChoice,
+    watchFeedback = watchApplicationFeedback,
     now = Date.now,
     limitWait,
     pacingRandom,
@@ -78,6 +80,7 @@ class ApplicationService {
       writeLetter,
       dispatch,
       selectResume,
+      watchFeedback,
       trace,
     });
     this.review = new ApplicationReview(this);
@@ -109,6 +112,7 @@ class ApplicationService {
       return;
     }
     try {
+      await record.stopFeedback?.();
       await this.filling.clear(record);
     } finally {
       await record.browser?.close();
@@ -371,6 +375,12 @@ class ApplicationService {
           'hh',
           options.browserSlot
         ),
+      });
+      signal.throwIfAborted();
+      record.stopFeedback = await this.watchFeedback(record.browser, options);
+      this.trace({
+        event: 'application-feedback-policy',
+        watching: Boolean(record.stopFeedback),
       });
       signal.throwIfAborted();
       this.trace({

@@ -59,6 +59,17 @@ const Settings = ({ application, disabled, t }) => {
   return el('fieldset', { className: 'automation-fieldset', disabled }, [
     el('legend', { key: 'legend' }, t('application.settings')),
     check(
+      'autoAnswerViewedVacancy',
+      t('application.autoAnswerViewedVacancy'),
+      options.autoAnswerViewedVacancy !== false,
+      (value) => update('autoAnswerViewedVacancy', value)
+    ),
+    el(
+      'p',
+      { key: 'feedback-hint', className: 'meta' },
+      t('application.feedbackHint')
+    ),
+    check(
       'autoSelectResumeLanguage',
       t('application.autoSelectResumeLanguage'),
       options.autoSelectResumeLanguage,
@@ -116,8 +127,27 @@ const Settings = ({ application, disabled, t }) => {
   ]);
 };
 
+const FeedbackReceipt = ({ receipt, t }) =>
+  el(
+    'p',
+    {
+      'data-application-feedback-policy': receipt.testMode
+        ? 'preview'
+        : receipt.autoAnswerViewedVacancy
+          ? 'automatic'
+          : 'manual',
+    },
+    t(
+      receipt.testMode
+        ? 'application.feedbackPreview'
+        : receipt.autoAnswerViewedVacancy
+          ? 'application.feedbackAutomatic'
+          : 'application.feedbackManual'
+    )
+  );
 const Receipt = ({ receipt, t }) =>
   el('div', { className: 'col' }, [
+    el(FeedbackReceipt, { key: 'feedback', receipt, t }),
     el(
       'p',
       {

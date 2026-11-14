@@ -36,6 +36,7 @@ const validateApplicationFlags = (input) => {
       'recover',
       'supervised',
       'autoSelectResumeLanguage',
+      'autoAnswerViewedVacancy',
     ].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
     ) ||
@@ -56,6 +57,11 @@ const languageSettings = (input, legacy) => {
     ...(standardLetters ? { standardLetters } : {}),
   };
 };
+// Absence keeps the acknowledged signature and defaults on only at execution.
+const feedbackSettings = (input) =>
+  input.autoAnswerViewedVacancy === undefined
+    ? {}
+    : { autoAnswerViewedVacancy: input.autoAnswerViewedVacancy };
 export const applicationSettings = (input, { legacy = false } = {}) => {
   const options = applicationKey(input);
   if (
@@ -77,6 +83,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     // Absence preserves the exact signatures of acknowledged legacy reviews.
     ...(input.supervised === true ? { supervised: true } : {}),
     ...languageSettings(input, legacy),
+    ...feedbackSettings(input),
     ...(input.confirmations === undefined
       ? {}
       : { confirmations: applicationConfirmations(input.confirmations) }),
@@ -175,6 +182,7 @@ export const applicationView = (record) => {
     confirmations: applicationConfirmationPolicy(record.options),
     continuation: continuationView(record),
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
+    autoAnswerViewedVacancy: record.options.autoAnswerViewedVacancy !== false,
     applicationLimit: record.applicationLimit ?? null,
     limitWait: record.limitWait ?? null,
     dailyRejection: dailyRejectionView(record),

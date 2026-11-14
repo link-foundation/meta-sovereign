@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Configurable viewed-vacancy surveys](application-feedback.md): a frozen default/opt-out for explicitly opened owned application reviews, preserving owner reasons, preview, verification holds and read-only recovery. Parent regressions and focused native/MCP desktop/phone evidence are retained; original incomplete criteria remain required.
+
 - [Bounded automatic vacancy discovery](vacancy-discovery.md): frozen native search/pagination, finite full-description collection, acknowledged progress and explicit batch-draft handoff through CLI, both Lino encodings and four-language UI. Parent failures and focused native/MCP desktop/phone evidence are retained; all original incomplete criteria remain required.
 
 - [Batch CLI admission correction](ci-batch-cli-admission.md): preserve eight exact-parent runtime failures and admit the two existing commands through the public entrypoint. Focused Node/Deno checks retain lightweight help, complete command coverage and foreground batch controls.

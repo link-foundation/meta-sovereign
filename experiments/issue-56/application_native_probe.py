@@ -4,7 +4,8 @@ import os
 import subprocess
 
 
-def run_application_native(script, prefix, group, mcp=False, mcp_env=None):
+def run_application_native(script, prefix, group, mcp=False, mcp_env=None,
+                           native_entry=None):
     root = Path(script).resolve().parents[2]
     bundle = root / 'js/src/web/app.min.js'
     original = bundle.read_bytes()
@@ -28,7 +29,8 @@ def run_application_native(script, prefix, group, mcp=False, mcp_env=None):
                         server.terminate()
                         server.wait()
             else:
-                subprocess.run(['node', f'js/tests/e2e-{group}-browser.mjs'],
+                entry = native_entry or f'js/tests/e2e-{group}-browser.mjs'
+                subprocess.run(['node', entry],
                     cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
     finally:
         bundle.write_bytes(original)

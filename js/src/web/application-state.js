@@ -8,6 +8,7 @@ export const useApplication = ({ api, values, selected, run }) => {
   const [options, setOptions] = useState({
     coverLetter: '',
     autoSelectResumeLanguage: true,
+    autoAnswerViewedVacancy: true,
     autoExact: false,
     testMode: false,
     supervised: false,

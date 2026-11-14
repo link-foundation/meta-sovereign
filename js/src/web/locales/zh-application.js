@@ -1,4 +1,11 @@
 export const zhApplication = {
+  'application.autoAnswerViewedVacancy': '自动回答已浏览职位的问卷',
+  'application.feedbackHint':
+    '在本次申请审核期间，在 HH 问卷中选择“也许稍后申请”并关闭问卷。保留你已选择的其他原因。预览模式不会点击。',
+  'application.feedbackAutomatic':
+    '已浏览职位问卷：本次审核已启用“也许稍后申请”。',
+  'application.feedbackManual': '已浏览职位问卷：手动回答。',
+  'application.feedbackPreview': '已浏览职位问卷：预览模式不会点击。',
   'application.batch.settings':
     '已保存的确认步骤：{steps}。间隔：{interval}。最多送达：{maximum}。',
   'application.batch.title': '按间隔批量申请',

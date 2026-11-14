@@ -63,6 +63,8 @@ const commandInput = async (args) => {
     standardLetters,
     autoSelectResumeLanguage:
       boolean(args, 'no-auto-select-resume-language') !== true,
+    autoAnswerViewedVacancy:
+      boolean(args, 'no-auto-answer-viewed-vacancy') !== true,
     reviewDelayMs:
       args['review-delay-ms'] === undefined
         ? undefined

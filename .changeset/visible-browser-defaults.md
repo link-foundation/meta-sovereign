@@ -488,3 +488,5 @@ Add explicit finite paced HH application batches through foreground CLI, both Li
 Preserve the last acknowledged native résumé list after snapshot write failures, including concurrent cached readers, store restart and desktop/phone reload. Reuse shared record rollback and service reader boundaries without replaying provider discovery.
 
 Add bounded automatic HH vacancy discovery with frozen native pagination, distinct-card and time limits, successful full-description cache reuse and acknowledged no-replay progress through foreground CLI, both Lino encodings and four-language controls. Preserve private selections and native responded state; reviewed eligible URLs only populate an unstarted application batch draft.
+
+Add a frozen default/opt-out for the dedicated HH viewed-vacancy survey in owned application reviews through CLI, both Lino encodings and four-language controls. Preserve owner reasons, preview, verification boundaries, legacy signatures and read-only recovery.

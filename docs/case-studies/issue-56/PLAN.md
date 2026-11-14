@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active viewed-vacancy feedback policy (HH05/HH08 remain incomplete):
+
+- [x] Add the reference's configurable default “Maybe I'll apply later” response to the dedicated native HH survey, including while an explicitly opened application review waits. Preserve a different owner reason, preview, verification gates and application controls.
+- [x] Freeze the setting across CLI, both Lino encodings, journals and four-language UI. Status and restart must not create an observer or provider effect; retain legacy journal and batch signatures.
+- [x] Reproduce missing parent behavior; verify focused service/control checks, one native Chromium scenario and independent MCP, with before/after phone/desktop evidence and drained resources.
+- [ ] Preserve evidence, publish the atomic unit and inspect exact-head CI. Continue every original incomplete requirement; this survey does not establish native viewed-card skipping or complete HH05/HH08.
+
 Active bounded automatic vacancy discovery (HH02/HH03/HH05 remain incomplete):
 
 - [x] Reuse exact native pagination and frozen search/filter settings to collect finite successful descriptions, canonical deduplication and explicit selection reasons. Keep owner exclusions and responded state, stop at observed exhaustion or configured bounds, and preserve acknowledged progress on refusal/interruption without recovery replay.

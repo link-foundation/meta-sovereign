@@ -56,6 +56,8 @@ const identity = (raw, input) =>
   text(raw.revision, 100) &&
   raw.revision.length > 0;
 const supervised = (raw) =>
+  (raw.autoAnswerViewedVacancy === undefined ||
+    typeof raw.autoAnswerViewedVacancy === 'boolean') &&
   (raw.supervised === undefined || typeof raw.supervised === 'boolean') &&
   (raw.autoSelectResumeLanguage === undefined ||
     typeof raw.autoSelectResumeLanguage === 'boolean') &&

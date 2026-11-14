@@ -127,6 +127,9 @@ export const readApplicationBatch = (raw, key) => {
   return { ...raw, options };
 };
 const settingsView = (options) => ({
+  ...(options.review.autoAnswerViewedVacancy === undefined
+    ? {}
+    : { autoAnswerViewedVacancy: options.review.autoAnswerViewedVacancy }),
   confirmations: applicationConfirmationPolicy(options.review),
   applicationIntervalSeconds: options.review.applicationIntervalSeconds,
   supervised: options.review.supervised === true,

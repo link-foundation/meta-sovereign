@@ -1,4 +1,13 @@
 export const enApplication = {
+  'application.autoAnswerViewedVacancy':
+    'Answer the viewed-vacancy survey automatically',
+  'application.feedbackHint':
+    'During this review, select “Maybe I’ll apply later” in HH’s viewed-vacancy survey and close it. Keep a different reason you already selected. Preview mode makes no clicks.',
+  'application.feedbackAutomatic':
+    'Viewed-vacancy survey: “Maybe I’ll apply later” is enabled for this review.',
+  'application.feedbackManual': 'Viewed-vacancy survey: answer manually.',
+  'application.feedbackPreview':
+    'Viewed-vacancy survey: preview makes no clicks.',
   'application.batch.settings':
     'Saved confirmations: {steps}. Interval: {interval}. Maximum deliveries: {maximum}.',
   'application.batch.title': 'Paced application batch',

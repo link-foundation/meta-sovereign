@@ -3,10 +3,12 @@ import { verifyNativeApplicationHolds } from './helpers/e2e-application-holds.mj
 import { verifyNativeApplicationRetries } from './helpers/e2e-application-retries.mjs';
 import { verifyNativeApplicationSupervised } from './helpers/e2e-application-supervised.mjs';
 import { verifyNativeApplicationPopup } from './helpers/e2e-application-popup.mjs';
+import { verifyNativeApplicationFeedback } from './helpers/e2e-application-feedback.mjs';
 
 await runBrowserScenarios('job-application-policies', [
   verifyNativeApplicationHolds,
   verifyNativeApplicationRetries,
   verifyNativeApplicationSupervised,
   verifyNativeApplicationPopup,
+  verifyNativeApplicationFeedback,
 ]);

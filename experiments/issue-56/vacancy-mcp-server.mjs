@@ -1,4 +1,5 @@
 import { applicationPacingControl } from './application-pacing-mcp-control.mjs';
+import { applicationFeedbackControl } from './application-feedback-mcp-control.mjs';
 import { applicationDraftControl } from './application-draft-mcp-control.mjs';
 import { applicationHoldControl } from './application-hold-mcp-control.mjs';
 import { applicationRetryControl } from './application-retry-mcp-control.mjs';
@@ -93,6 +94,9 @@ const pacingControl = pacingFixture
   ? applicationPacingControl(fixture, clock)
   : null;
 const handlers = [
+  process.env.APPLICATION_FEEDBACK_FIXTURE === '1'
+    ? applicationFeedbackControl(browser)
+    : null,
   draftControl,
   holdControl,
   retryControl,
