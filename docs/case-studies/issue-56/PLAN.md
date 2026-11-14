@@ -1,5 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active CV Save recovery CI fixture:
+
+- [x] Preserve macOS Node shard 3 job `132499772549` from exact head `ec835b0b`; reproduce its 100 ms recovery-budget exhaustion with a finite 120 ms synthetic probe delay.
+- [x] Inject a logical clock for this fixture; preserve production polling/deadline and five-read limit. Focused Node 17/Deno 6 and scoped gates pass; retain the checksummed source and CI evidence.
+- [ ] Publish this atomic correction and inspect exact-head hosted checks. All 81 original incomplete rows remain required; PR57 stays draft and unmerged.
+
+Active optional paced application reviews (HH06/HH08 remain incomplete):
+
+- [ ] Add one acknowledged private workspace schedule for explicitly paced reviews: zero selects adaptive 1–4 minute timing starting at two minutes; a positive seconds value selects fixed timing. Count time already spent on the vacancy. Persist native delivery/CAPTCHA feedback, stable random variation, bounded cooldown and restart state without reading challenge contents.
+- [ ] Gate new review admission across slots, including callers omitting the flag while the saved window is active. Reopening the same review does not reset its deadline. Preserve preview, daily-limit, reservation and manual-hold semantics; failed acknowledgements refuse new browser work.
+- [ ] Carry the optional interval through CLI, text/binary Lino and four-language application settings. Show saved schedule/counters and explicit read-to-refresh recovery in the shared queue. Add actual-parent failure, focused deterministic tests, one native browser/MCP flow and retained screenshots; inspect exact-head CI.
+- [ ] Continue the full paced batch runner, automatic RAM-queue revisits, authenticated account scope and every original incomplete requirement. A single-review admission unit does not establish full reference parity or complete HH06/HH08.
+
 Active Windows Deno CLI timeout (`cd2a3337`, run `43606682331`):
 
 - [x] Verify SHA/timestamps and preserve the complete 147,661-line workflow log, 5,230-line Windows shard log, pipeline log and annotations. Lines 3551–3557 and 5181–5195 show the unsuccessful CLI child importing the entrypoint but not reaching ordinary-command readiness before the unchanged ten-second deadline. All eight browser lanes and four companion workflows pass.

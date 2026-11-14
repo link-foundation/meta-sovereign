@@ -469,3 +469,5 @@ separate restoration/submission confirmation.
 Load CLI help and unknown-command explanations without importing providers or
 ordinary execution modules. Preserve all registered commands, existing help
 exports and exact usage output, exit statuses and pending output drainage.
+
+Keep CV Save recovery verification tests independent of host scheduling with an injected fixture clock; retain production polling, deadlines and bounded read attempts.

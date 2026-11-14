@@ -7,6 +7,8 @@ import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { readCvSavedWorkplace } from './cv-workplace-readback.js';
 
+const systemClock = Object.freeze({ now: Date.now, wait: delay });
+
 /** Read retries only. No save, fill, cancellation click or navigation is issued. */
 export const verifyOwnerCvSave = async ({
   session,
@@ -18,8 +20,9 @@ export const verifyOwnerCvSave = async ({
   readWorkplace = readCvSavedWorkplace,
   pollMs = 500,
   verificationMs = 30000,
+  clock = systemClock,
 }) => {
-  const deadline = Date.now() + verificationMs;
+  const deadline = clock.now() + verificationMs;
   let reads = 0;
   let code = 'jobs-cv-form-open';
   const confirm = () => {
@@ -31,7 +34,7 @@ export const verifyOwnerCvSave = async ({
     }
   };
   do {
-    await delay(pollMs, undefined, { signal });
+    await clock.wait(pollMs, undefined, { signal });
     confirm();
     let readAttempted = false;
     try {
@@ -93,7 +96,7 @@ export const verifyOwnerCvSave = async ({
         ? error.code
         : 'jobs-cv-readback';
     }
-  } while (reads < 5 && Date.now() < deadline);
+  } while (reads < 5 && clock.now() < deadline);
   throw jobsFailure(
     code.slice('jobs-'.length),
     'The owner Save was not confirmed in native saved CVs.'

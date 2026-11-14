@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [CV Save recovery fixture clock](ci-cv-save-recovery-clock.md): preserve the macOS Node failure, reproduce a finite late navigation probe and use logical fixture time while retaining the production deadline and five-read bound.
+
 - [CLI help import boundary](ci-cli-help-startup.md): avoid provider imports for help and unknown commands while preserving exact usage bytes, all 116 registrations, exit statuses and delayed-output drainage. The Windows cold-import cause remains unproven; exact-parent, focused Node/Deno and module observations are preserved.
 
 - [Daily-limit CAPTCHA backup and native close](application-limit-challenge.md): acknowledge actual answers, letter and Q&A before closing a disjoint native gate; refuse unsafe capture or changed state and retain the original workspace deadline. Exact-parent, Node/Deno, native and independent MCP evidence is preserved. Authenticated scope and all original incomplete criteria remain required.

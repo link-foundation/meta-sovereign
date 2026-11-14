@@ -2,12 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { confirmedCvIndustryIds } from '../src/jobs/cv-watch-industries.js';
-import {
-  cvWatchFixture,
-  cvWatchAttempt,
-  cvWatchHash,
-  cvWatchRaw,
-} from '../../experiments/issue-56/cv-watch-fixture.mjs';
+import { cvWatchFixture } from '../../experiments/issue-56/cv-watch-fixture.mjs';
+import { cvSaveRecoveryClock } from '../../experiments/issue-56/cv-save-recovery-clock.mjs';
 import { verifyOwnerCvSave } from '../src/jobs/cv-save-cycle.js';
 import { gate } from '../../experiments/issue-56/vacancy-fixture.mjs';
 
@@ -45,37 +41,46 @@ test('observer URL errors and oversized captures remain explicit failures withou
   }
 });
 
-test('native Save navigation can destroy one form probe without losing verified readback', async () => {
-  let probes = 0;
-  let reads = 0;
-  const result = await verifyOwnerCvSave({
-    session: {
-      page: { url: () => cvWatchAttempt().url },
-      commander: {
-        evaluate: async () => {
-          if (++probes === 1) {
-            throw new Error(
-              'Execution context was destroyed during navigation'
-            );
-          }
-          return null;
-        },
-      },
-    },
-    attempt: { ...cvWatchAttempt(), kind: 'about' },
-    check: () => {},
-    signal: new AbortController().signal,
-    readExports: async () => {
-      reads++;
-      return [{ hash: cvWatchHash, cv: cvWatchRaw(), sha256: 'a'.repeat(64) }];
-    },
-    pollMs: 1,
-    verificationMs: 100,
-  });
-  assert.equal(probes, 2);
-  assert.equal(reads, 1);
-  assert.equal(result.exports[0].cv.about, 'Final owner revision');
-});
+test(
+  'native Save navigation can destroy one form probe without losing verified readback',
+  { timeout: 3000 },
+  async () => {
+    const { state, options } = cvSaveRecoveryClock();
+    const result = await verifyOwnerCvSave(options);
+    assert.equal(state.probes, 2);
+    assert.equal(state.reads, 1);
+    assert.equal(state.waits, 2);
+    assert.equal(state.elapsed, 2);
+    assert.equal(result.exports[0].cv.about, 'Final owner revision');
+  }
+);
+
+test(
+  'the injected verification deadline and five-read bound still refuse unconfirmed saves',
+  { timeout: 3000 },
+  async () => {
+    const deadline = cvSaveRecoveryClock();
+    deadline.options.session.commander.evaluate = async () => ({
+      formOpen: true,
+    });
+    await assert.rejects(verifyOwnerCvSave(deadline.options), {
+      code: 'jobs-cv-form-open',
+    });
+    assert.equal(deadline.state.elapsed, 100);
+    assert.equal(deadline.state.reads, 0);
+    const attempts = cvSaveRecoveryClock();
+    attempts.options.session.commander.evaluate = async () => null;
+    attempts.options.readExports = async () => {
+      attempts.state.reads++;
+      return [];
+    };
+    await assert.rejects(verifyOwnerCvSave(attempts.options), {
+      code: 'jobs-cv-mismatch',
+    });
+    assert.equal(attempts.state.reads, 5);
+    assert.equal(attempts.state.elapsed, 5);
+  }
+);
 
 test('Cancel during snapshot durability rolls back publication before acknowledging it', async () => {
   const f = cvWatchFixture();
