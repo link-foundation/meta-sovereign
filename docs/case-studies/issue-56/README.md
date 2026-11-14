@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Batch CLI admission correction](ci-batch-cli-admission.md): preserve eight exact-parent runtime failures and admit the two existing commands through the public entrypoint. Focused Node/Deno checks retain lightweight help, complete command coverage and foreground batch controls.
+
 - [Acknowledged résumé cache recovery](resume-cache-durability.md): restore the last saved list after a real snapshot refusal, hold concurrent cached readers, and preserve desktop/phone reload state. Exact-parent failures and focused Node/Deno/native/MCP evidence are retained; HH02 and all original incomplete criteria remain required.
 
 - [Finite paced application batches](application-batch.md): frozen URL lists, native delivery limits, guarded automatic RAM revisits and owned daily waits through CLI, both Lino encodings and four-language controls. Parent regressions, focused checks and native/MCP desktop/phone evidence are retained; discovery, authenticated scope and every original incomplete criterion remain required.

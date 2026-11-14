@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active finite-batch CLI admission CI correction:
+
+- [x] Match exact head `281d6dcc` and timestamps for Checks `43629631473`; preserve eight complete failing runtime job logs. Each fails `cli-help-imports.test.js:51` because the new batch start/status registrations are missing from lightweight admission. The actual-parent public-entry regression also fails before any workspace is opened.
+- [x] Admit both existing commands without changing help imports, unknown-command behavior, deadlines or provider execution. Focused Node 12/Deno 11 pass, with one Node-specific import-hook test ignored on Deno. The complete registration catalog and public-entry file-validation/status regressions pass; the exact parent fails both admission cases.
+- [ ] Preserve checksummed evidence, publish the acknowledged résumé correction plus this atomic admission correction, and inspect all exact-head workflows. Continue every original incomplete requirement; PR57 remains draft and unmerged.
+
 Active acknowledged résumé cache recovery (HH02 remains incomplete):
 
 - [x] Reproduce rejected native discovery replacing the actual browser store's in-memory cache on published `281d6dcc`, both with and without an earlier successful list. Hold concurrent service readers until the save or rollback finishes; preserve the acknowledged list through restart.

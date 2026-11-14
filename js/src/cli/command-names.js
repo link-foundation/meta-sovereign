@@ -75,6 +75,8 @@ export const ordinaryCommandNames = new Set([
   'upwork-message',
   'upwork-search',
   'vacancies-application',
+  'vacancies-application-batch',
+  'vacancies-application-batch-status',
   'vacancies-application-status',
   'vacancies-choice-clear',
   'vacancies-choice-save',
