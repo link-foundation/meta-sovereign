@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [HH CLI fixture ownership](ci-hh-cli-fixture.md): bounded unfinished-response reproduction and owned-socket cleanup with default-off phase tracing. The original macOS Deno timeout remains unexplained.
+
 - [Confirmed full-form review](application-fullform.md): review the native CV and employer questions before a potentially immediate entry click. Automatic language policy and full HH06 parity remain unfinished.
 
 - [Backed five-hour generic-error retries](application-retries.md): actual native answers and failed-dispatch history are acknowledged before worker-only exclusion and closure; due review, restoration and sending remain separately confirmed through CLI/Lino/four-language controls. Automatic paced revisits, supervised presets and all unchecked original criteria remain unfinished.

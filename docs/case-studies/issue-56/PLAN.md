@@ -3,13 +3,15 @@
 Active exact-parent macOS Deno HH CLI timeout:
 
 - [x] Match published `6899b33b` main run `43579541371` to failed macOS Deno job `132403292910`. Save its complete 11,248-line job log; test at lines 5756–5763 times out at 15 seconds, with failure summary at 11201–11215. Broad runtime suite otherwise reports 5,565 passing cases; this does not make the workflow passing.
-- [ ] Measure bounded CLI/fixture shutdown phases, reproduce the actual cause and add a focused regression without increasing the deadline. Preserve evidence, publish an atomic correction and inspect exact-head CI.
+- [x] Measure bounded CLI/fixture phases. The unchanged Linux Deno CLI closes promptly; a partial header does too on Node. A deliberately unfinished response keeps legacy closure pending for the 500 ms window; the existing owned-socket helper drains it. Reuse that helper and add default-off, payload-free phase markers without increasing the 15-second deadline. Five focused Node and five Deno checks pass.
+- [ ] Preserve evidence and publish the fixture-ownership/diagnostic unit. Inspect exact-head CI and establish the original macOS timeout cause if it recurs; the controlled experiment alone does not establish that cause. Continue every original incomplete criterion.
 
 Active full-form review before potentially immediate entry (HH06 remains incomplete):
 
 - [x] Open the same vacancy's native full form through a separately confirmed, synchronously guarded navigation. Preserve existing entry behavior and delivery reservations; preview, pauses, stale pages and an existing live form must refuse navigation.
 - [x] Carry the action through foreground CLI, both Lino encodings and four-language controls. Verify fresh résumé/answer review and read-only recovery with no entry/send clicks; retain parent regression and before/after screenshots. Node 11, Deno 11, compatibility 53, native Chromium 1 and independent MCP 1 pass; zero entry/send clicks and all owned fixtures drained.
-- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue automatic selection, durable owner overrides, standard-letter language and all original unchecked criteria.
+- [x] Preserve checksummed evidence and publish the full-form unit as `c40c0c86`. All owned fixtures are drained and publication left a clean working tree.
+- [ ] Inspect exact-head hosted checks. Continue automatic selection, durable owner overrides, standard-letter language and all original unchecked criteria.
 
 Active confirmed employer-context résumé choice (HH06 remains incomplete):
 

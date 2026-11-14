@@ -9,6 +9,7 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { startServer } from '../src/server/index.js';
 import { runCli } from '../src/cli/index.js';
 import { openDualStore } from '../src/storage/index.js';
+import { fixtureServerClose } from './helpers/fixture-server.mjs';
 import { pullMessage, FETCHABLE } from '../src/web/connections/fetch-now.js';
 import { translate, availableLocales } from '../src/web/i18n.js';
 import {
@@ -78,12 +79,23 @@ test(
   { timeout: 15000 },
   async () => {
     const dir = await mkdtemp(join(tmpdir(), 'ms-hh-common-cli-'));
+    const started = Date.now();
+    const phase = (name) => {
+      if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+        console.error(
+          `[hh-cli-fixture] ${name} after ${Date.now() - started} ms`
+        );
+      }
+    };
     const fake = hhCommonFixture();
     const provider = createServer(async (req, res) => {
+      phase('provider_request');
       const answer = await fake.fetchImpl(`http://127.0.0.1${req.url}`);
       res.writeHead(answer.status, Object.fromEntries(answer.headers));
       res.end(await answer.text());
+      phase('provider_response');
     });
+    const closeProvider = fixtureServerClose(provider, 'hh-cli');
     await new Promise((resolve) => provider.listen(0, '127.0.0.1', resolve));
     const output = [];
     try {
@@ -96,16 +108,19 @@ test(
         '--max-requests=2',
         `--store=${dir}`,
       ];
+      phase('first_pull_started');
       assert.equal(
         await runCli(base, { log: (text) => output.push(JSON.parse(text)) }),
         0
       );
       assert.equal(output.at(-1).history.messagesRead, 2);
+      phase('first_pull_finished');
       assert.equal(
         await runCli(base, { log: (text) => output.push(JSON.parse(text)) }),
         0
       );
       assert.equal(output.at(-1).history.messagesRead, 3);
+      phase('resumed_pull_finished');
       assert.equal(
         await runCli([...base, '--restart-history'], {
           log: (text) => output.push(JSON.parse(text)),
@@ -113,15 +128,24 @@ test(
         0
       );
       assert.equal(output.at(-1).history.messagesRead, 2);
+      phase('restarted_pull_finished');
       const store = await openDualStore(dir);
+      phase('verification_store_opened');
       try {
         assert.equal((await store.get('msg:hh:chat:41:2')).outgoing, true);
       } finally {
         await store.close();
+        phase('verification_store_closed');
       }
     } finally {
-      await new Promise((resolve) => provider.close(resolve));
-      await rm(dir, { recursive: true, force: true });
+      phase('provider_close_started');
+      try {
+        await closeProvider();
+        phase('provider_closed');
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+        phase('directory_removed');
+      }
     }
   }
 );
