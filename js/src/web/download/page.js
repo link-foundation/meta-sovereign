@@ -102,7 +102,11 @@ const downloadLink = (entry, { primary = false } = {}) => {
     el(
       'span',
       { class: 'label' },
-      primary ? t('downloadFor', { platform: label }) : label
+      primary
+        ? entry.href
+          ? t('downloadFor', { platform: label })
+          : t('allReleases')
+        : label
     ),
     el('span', { class: 'meta' }, meta),
   ];

@@ -511,7 +511,8 @@
     "test:e2e:cv-save-watch": "node js/tests/e2e-cv-save-watch-browser.mjs",
     "test:e2e:cv-save-watch:webkit": "E2E_BROWSER=webkit node js/tests/e2e-cv-save-watch-browser.mjs",
     "test:e2e:vacancy-choices": "node js/tests/e2e-vacancy-choices-browser.mjs",
-    "test:e2e:cv-snapshot-publication": "node js/tests/e2e-cv-publication-browser.mjs"
+    "test:e2e:cv-snapshot-publication": "node js/tests/e2e-cv-publication-browser.mjs",
+    "test:e2e:desktop-landing-availability": "node js/tests/e2e-desktop-landing-browser.mjs"
   },
   "keywords": [
     "personal-crm",

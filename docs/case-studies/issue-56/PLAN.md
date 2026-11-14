@@ -1,5 +1,16 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted canonical-path fixture correction:
+
+- [x] Preserve four actual `74576648` runtime failures and reproduce the alias mismatch on Linux. Use the canonical reviewed path returned by the existing UI hook; retain source/slot/locale assertions and add changed-target refusal. Focused alias Node 1/Deno 1 pass; commit `42fd0c6d`.
+- [ ] Preserve checked evidence, publish with the desktop availability unit and inspect exact-head hosted checks. Every original incomplete criterion remains required.
+
+Active desktop landing availability audit (VD10 remains incomplete):
+
+- [x] Reproduce a `starter` upload being offered as a desktop download on `74576648`; preserve a native before screenshot and a minimal failing catalogue/cache regression.
+- [x] Admit only uploaded, nonempty release assets with an actual download URL; use the same decision for release selection, download buttons, checksum/provenance links and the session cache. Preserve missing-platform and API-error fallbacks.
+- [ ] Run focused catalogue/page checks and one native/MCP review, compare the current public release metadata without downloading installers, preserve evidence and inspect exact-head hosted checks. Complete VD10 only when its full landing behavior is verified; all other incomplete rows remain required.
+
 Active native-export snapshot publication source (HH23 remains incomplete):
 
 - [x] Admit an explicit native export identity through the existing publication review, recheck its private structured file and receipt, sanitize again and freeze the exact provenance. Preserve owner-save plans and every private artifact.

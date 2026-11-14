@@ -89,10 +89,26 @@ export const missingAssets = (expected, actualNames) => {
   return expected.filter((name) => !have.has(name));
 };
 
-const hasDesktopAssets = (release) =>
-  (release?.assets ?? []).some((asset) =>
-    String(asset?.name ?? '').startsWith(`${ARTIFACT_PREFIX}-`)
+const releaseAssets = (release) =>
+  Array.isArray(release?.assets) ? release.assets : [];
+const downloadableAsset = (asset) =>
+  asset?.state === 'uploaded' &&
+  Number.isSafeInteger(asset.size) &&
+  asset.size > 0 &&
+  typeof asset.browser_download_url === 'string' &&
+  asset.browser_download_url.startsWith(`${RELEASES_URL}/download/`);
+const hasDesktopAssets = (release) => {
+  const version = releaseVersion(release);
+  if (!version) {
+    return false;
+  }
+  const names = new Set(
+    DOWNLOAD_OPTIONS.map((option) => assetNameFor(option, version))
   );
+  return releaseAssets(release).some(
+    (asset) => names.has(asset?.name) && downloadableAsset(asset)
+  );
+};
 
 /**
  * Newest published, non-prerelease release that already has desktop
@@ -116,7 +132,9 @@ export const pickDesktopRelease = (releases) =>
 export const resolveDownloads = (release) => {
   const version = releaseVersion(release);
   const byName = new Map(
-    (release?.assets ?? []).map((asset) => [asset.name, asset])
+    releaseAssets(release)
+      .filter(downloadableAsset)
+      .map((asset) => [asset.name, asset])
   );
   return DOWNLOAD_OPTIONS.map((opt) => {
     const name = version ? assetNameFor(opt, version) : null;
@@ -131,8 +149,9 @@ export const resolveDownloads = (release) => {
 };
 
 export const assetHref = (release, name) =>
-  (release?.assets ?? []).find((asset) => asset.name === name)
-    ?.browser_download_url ?? RELEASES_URL;
+  releaseAssets(release).find(
+    (asset) => asset?.name === name && downloadableAsset(asset)
+  )?.browser_download_url ?? RELEASES_URL;
 
 /**
  * Guess `{ os, arch }` from a navigator-like object. `arch` is only a

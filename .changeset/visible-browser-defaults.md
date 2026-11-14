@@ -498,3 +498,5 @@ Add a frozen default/opt-out for the dedicated HH viewed-vacancy survey in owned
 Keep an active batch's matching review controls available while preserving competing workspace exclusion, stale-action guards and inactive identity recovery. Derive batch receipt expiry from one captured start time so clock ticks cannot reject the default 24-hour lifetime.
 
 Allow an explicitly selected, integrity-checked native résumé export as a sanitized CV publication source, with shared source selection and fresh consent.
+
+Offer desktop installers only from uploaded, nonempty GitHub release assets. Retain upload state in the session cache, refresh legacy metadata and label missing-platform fallback links accurately. Preserve completed platforms and API-error recovery.

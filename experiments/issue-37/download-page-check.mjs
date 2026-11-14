@@ -38,6 +38,7 @@ const mockRelease = () => [
     prerelease: false,
     assets: expectedReleaseAssets(VERSION).map((name, i) => ({
       name,
+      state: 'uploaded',
       size:
         name.endsWith('.yml') || name.endsWith('.txt')
           ? 900

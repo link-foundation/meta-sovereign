@@ -203,18 +203,18 @@ Source: vk-bot `index.js`, all 24 `triggers/*.js`, standalone scripts, caches an
 
 Source: vk-bot-desktop README and its configuration/runner/release entry points. The desktop reference's acceptance policy differs from vk-bot's fixed request batch; expose the configured policy rather than conflating them.
 
-| ID   | Required behavior                                                                                                 | Implementation and verification                                    |
-| ---- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| VD01 | Local Electron execution without Docker; automatic required dependency preparation.                               | [ ] Desktop runner parity.                                         |
-| VD02 | Remote SSH execution with isolated Docker or screen process and truthful start/stop status.                       | [ ] Remote runner.                                                 |
-| VD03 | Independently enabled online/friend cleanup/invitation/birthday actions.                                          | [ ] Shared persisted job configuration.                            |
-| VD04 | Top-ten-percent request policy below friend capacity, mutual-only policy above it and priority-friend protection. | [ ] Policy fixtures.                                               |
-| VD05 | Configurable community/avatar/invitation text and birthday catalog.                                               | [ ] Convenient editor.                                             |
-| VD06 | One-window mode switching, start/stop, light/dark/automatic themes and English/Russian localization.              | [ ] Existing shell audit.                                          |
-| VD07 | Global/local Lino configuration with CLI overrides and protected secrets.                                         | [ ] Configuration precedence.                                      |
-| VD08 | Live redacted logs.                                                                                               | [ ] Shared diagnostics view.                                       |
-| VD09 | Unsigned macOS operation, five desktop artifacts, checksums/provenance and installation instructions.             | [ ] Existing packaging passes; runtime/instructions audit remains. |
-| VD10 | Landing release links reflect actual assets and never fabricate downloads.                                        | [ ] Pages/API integration.                                         |
+| ID   | Required behavior                                                                                                 | Implementation and verification                                                                                                                        |
+| ---- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| VD01 | Local Electron execution without Docker; automatic required dependency preparation.                               | [ ] Desktop runner parity.                                                                                                                             |
+| VD02 | Remote SSH execution with isolated Docker or screen process and truthful start/stop status.                       | [ ] Remote runner.                                                                                                                                     |
+| VD03 | Independently enabled online/friend cleanup/invitation/birthday actions.                                          | [ ] Shared persisted job configuration.                                                                                                                |
+| VD04 | Top-ten-percent request policy below friend capacity, mutual-only policy above it and priority-friend protection. | [ ] Policy fixtures.                                                                                                                                   |
+| VD05 | Configurable community/avatar/invitation text and birthday catalog.                                               | [ ] Convenient editor.                                                                                                                                 |
+| VD06 | One-window mode switching, start/stop, light/dark/automatic themes and English/Russian localization.              | [ ] Existing shell audit.                                                                                                                              |
+| VD07 | Global/local Lino configuration with CLI overrides and protected secrets.                                         | [ ] Configuration precedence.                                                                                                                          |
+| VD08 | Live redacted logs.                                                                                               | [ ] Shared diagnostics view.                                                                                                                           |
+| VD09 | Unsigned macOS operation, five desktop artifacts, checksums/provenance and installation instructions.             | [ ] Existing packaging passes; runtime/instructions audit remains.                                                                                     |
+| VD10 | Landing release links reflect actual assets and never fabricate downloads.                                        | [ ] Catalogue/cache/page and public metadata verified in [desktop landing evidence](desktop-landing-availability.md); exact-head hosted check remains. |
 
 ## Integration order and retained constraints
 

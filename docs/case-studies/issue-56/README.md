@@ -1,5 +1,9 @@
 # Issue 56: unified automation and device architecture
 
+- [Desktop landing availability](desktop-landing-availability.md): reject unfinished uploads, retain cache state and preserve completed platforms, with exact-parent regressions, native/MCP before/after screenshots and current public release metadata. Exact-head hosted checks remain required.
+
+- [Canonical publication fixture paths](ci-cv-publication-alias.md): reproduce hosted Windows/macOS alias mismatches with a finite symlink probe and model the existing UI normalization while retaining changed-target refusal.
+
 - [Explicit saved snapshot publication](cv-publication.md): frozen sanitized owner-save snapshots, isolated Git commits and explicit push confirmation through CLI/Lino/four-language UI, with parent failures, focused Git regressions and native/MCP desktop/phone evidence. Wider source-pipeline parity remains unfinished.
 
 - [Saved native survey configuration](application-configuration.md): isolated CLI/environment/Lino file resolution, frozen single/batch settings and read-only status, with an exact-parent regression and focused packaging/admission checks. Native viewed-state exclusion remains unfinished.
