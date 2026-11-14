@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { CvSnapshotPublication } from './cv-publication-panel.js';
 
 const el = React.createElement;
+const watchStatus = (watch) => watch?.state ?? 'none';
 const workplaceEvidence = (workplace, t) =>
   workplace
     ? el(
@@ -29,7 +31,7 @@ export const CvSaveWatch = ({ state, t }) => {
   const snapshot = snapshots.find((row) => row.hash === chosen) ?? snapshots[0];
   const idle = !state.busy;
   const active = watch?.active === true;
-  const status = watch?.state ?? 'none';
+  const status = watchStatus(watch);
   const button = (id, callback, disabled) =>
     el(
       'button',
@@ -151,6 +153,16 @@ export const CvSaveWatch = ({ state, t }) => {
             ),
           ])
         : el('p', { key: 'empty', className: 'meta' }, t('cvWatch.empty')),
+      state.cvSaveWatch.publication
+        ? el(CvSnapshotPublication, {
+            key: 'publication',
+            publication: state.cvSaveWatch.publication,
+            snapshot,
+            busy: !idle || active,
+            supported: state.capabilities?.cvSnapshotPublication === true,
+            t,
+          })
+        : null,
     ]
   );
 };

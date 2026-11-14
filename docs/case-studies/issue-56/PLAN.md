@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active explicit saved résumé snapshot publication (HH23 remains incomplete):
+
+- [x] Freeze a reviewed selection from verified owner-save snapshots, sanitize and round-trip its Lino again, and bind confirmation to exact content, repository, branch and remote baseline. Publish only generated `.lino` paths; preserve pending plans, private exports, PDFs, backups and unrelated staged changes.
+- [x] Reuse owned finite Git commands, require an existing remote branch matching local HEAD, acknowledge a durable attempt before effects and refuse uncertain replay or changed inputs. Check the exact committed paths/content and remote receipt before reporting success.
+- [x] Carry plan/publish/read-only status through foreground CLI, both Lino encodings and four-language UI. Exact-parent missing-operation regression, focused Node 29/Deno 19 and finite native/MCP evidence pass, including private index/filter/tag boundaries, changed targets, failed acknowledgements and drained cancellation. Before/after desktop/phone screenshots are retained.
+- [ ] Preserve checked source/log evidence, publish the atomic unit and inspect every exact-head hosted workflow. Publication from remaining import/edit pipelines and all 81 original incomplete criteria remain required.
+
 Active viewed-vacancy configuration compatibility (HH08 remains incomplete):
 
 - [x] Use the installed Lino configuration library to resolve the survey default from CLI, environment and local/selected `.lenv` files without mutating process settings. Freeze only at explicit single/batch start; status stays read-only.

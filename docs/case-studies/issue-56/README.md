@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Explicit saved snapshot publication](cv-publication.md): frozen sanitized owner-save snapshots, isolated Git commits and explicit push confirmation through CLI/Lino/four-language UI, with parent failures, focused Git regressions and native/MCP desktop/phone evidence. Wider source-pipeline parity remains unfinished.
+
 - [Saved native survey configuration](application-configuration.md): isolated CLI/environment/Lino file resolution, frozen single/batch settings and read-only status, with an exact-parent regression and focused packaging/admission checks. Native viewed-state exclusion remains unfinished.
 
 - [Native survey browser registration](ci-application-feedback-shard.md): preserve the exact hosted four-scenario contract failure and retain the survey in its own mandatory browser entry, with exact-once partition coverage and unchanged deadlines.

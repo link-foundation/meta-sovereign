@@ -355,4 +355,29 @@ export const enVacancy = {
     'Saved choices could not be confirmed. Reload before changing them; your notes remain visible.',
   'vacancyChoice.empty': 'No saved exclusions or reminders.',
   'vacancyChoice.more': 'Show more choices',
+  'cvPublish.title': 'Publish saved snapshot',
+  'cvPublish.hint':
+    'Optional. Review the sanitized saved CV before committing and pushing it. Private exports, pending plans and unrelated staged changes stay in your workspace.',
+  'cvPublish.repository': 'Existing local Git repository root',
+  'cvPublish.remote': 'Git remote',
+  'cvPublish.directory': 'Snapshot folder in the repository',
+  'cvPublish.plan': 'Review publication',
+  'cvPublish.reload': 'Reload publication status',
+  'cvPublish.none': 'No publication has been requested.',
+  'cvPublish.planned': 'Ready for your review. Nothing has been published.',
+  'cvPublish.attempting': 'Publication is in progress.',
+  'cvPublish.committed':
+    'Snapshot commit recorded; remote publication is not confirmed.',
+  'cvPublish.published':
+    'The remote branch confirmed the exact snapshot commit.',
+  'cvPublish.unchanged':
+    'The remote already contains these saved snapshots. No commit was needed.',
+  'cvPublish.uncertain':
+    'Publication is not confirmed. Inspect the local repository and remote before starting another plan. This attempt will not retry.',
+  'cvPublish.loadError':
+    'Publication status could not be confirmed. Reload before publishing.',
+  'cvPublish.commit': 'Snapshot commit',
+  'cvPublish.consent':
+    'I reviewed these saved fields and this target. Commit and push only the listed snapshots.',
+  'cvPublish.publish': 'Commit and push snapshots',
 };

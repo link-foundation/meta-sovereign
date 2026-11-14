@@ -236,6 +236,8 @@ counts, shows the comparison matrix, and refuses to run a live read
 from a browser tab — a browser cannot drive another browser, so the
 SPA links to the CLI instead.
 
+Saved HH owner-save snapshots can also be reviewed and explicitly published to an existing Git repository. See [snapshot publication](CV-SNAPSHOT-PUBLICATION.md) for CLI, HTTP and UI controls, preservation guarantees and uncertain-outcome recovery.
+
 ## 9. Testing
 
 | Level            | What runs                                                                                                                                                               |

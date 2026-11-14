@@ -23,6 +23,7 @@ import {
   storedVacancies,
 } from './technology-service.js';
 import { createCvWatchService } from './cv-watch-service.js';
+import { createCvPublicationService } from './cv-publication-service.js';
 import { createCvPrepareService } from './cv-prepare-service.js';
 import { createCvTranslationService } from './cv-translation-service.js';
 import { createVacancyChoiceService } from './vacancy-choice-service.js';
@@ -53,6 +54,7 @@ export const createVacancyService = ({
     artifactRoot,
   }),
   cvWatch = {},
+  cvPublication = {},
   cvPrepare = {},
   cvTranslation = {},
   application = {},
@@ -127,6 +129,7 @@ export const createVacancyService = ({
     ...createVacancyChoiceService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
+    ...createCvPublicationService({ store, run, ...cvPublication }),
     ...preparation.operations,
     ...createCvTranslationService({ store, run, ...cvTranslation }),
     async capabilities() {
@@ -195,6 +198,7 @@ const vacancyCapabilities = (browser) => ({
   technologyProviderSave: false,
   cvTranslation: true,
   cvSaveWatch: browser.available === true,
+  cvSnapshotPublication: true,
   applicationReview: browser.available === true,
   apply: false,
 });

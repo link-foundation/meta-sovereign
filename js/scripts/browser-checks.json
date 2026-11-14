@@ -126,5 +126,6 @@
   "job-application-rejection",
   "job-application-confirmations",
   "job-application-batch",
-  "job-application-feedback"
+  "job-application-feedback",
+  "cv-snapshot-publication"
 ]

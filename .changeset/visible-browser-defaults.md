@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add opt-in publication of reviewed sanitized saved CV snapshots through foreground CLI, text/binary Lino and four-language controls. Commit only generated snapshot paths with an isolated Git index, preserve private/staged content and require exact remote confirmation without recovery retries.
+
 Resolve the native viewed-vacancy survey setting from explicit CLI flags, environment and selected/default Lino environment files at single/batch review start. Preserve isolated configuration, frozen receipts, read-only status and lightweight help, and include the configuration library in production dependencies.
 
 Add explicitly confirmed employer-context résumé choice through CLI, both Lino encodings and four-language application controls. Derive language only from employer questions and the frozen vacancy, verify actual native options against checked same-slot exports, skip already matching menus and preserve owner answers, letters, preview and read-only recovery. Automatic selection before entry and full HH language policy remain unfinished.

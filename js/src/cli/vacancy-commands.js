@@ -9,15 +9,22 @@ import { foregroundCvWatch } from './cv-watch-command.js';
 import { cvTranslationCommandInput } from './cv-translation-command.js';
 import { cvWorkplaceCommandInput } from './cv-workplace-command.js';
 import { foregroundVacancyDiscovery } from './discovery-command.js';
+import {
+  cvPublicationCommandInput,
+  foregroundCvPublication,
+} from './cv-publication-command.js';
 
+const translationIncomplete = (result) =>
+  result.comparison?.state !== 'completed' ||
+  result.comparison.rows.some((row) => !row.chosen);
 const vacancyCommandExit = (operation, result) =>
   (operation === 'discovery-start' &&
     result.discovery?.phase !== 'completed') ||
   (operation === 'resume-export' && result.state !== 'completed') ||
+  (operation === 'cv-publish' &&
+    !['published', 'unchanged'].includes(result.publication?.state)) ||
   (operation === 'cv-prepare' && result.preparation?.state !== 'prepared') ||
-  (operation === 'cv-translate' &&
-    (result.comparison?.state !== 'completed' ||
-      result.comparison.rows.some((row) => !row.chosen)))
+  (operation === 'cv-translate' && translationIncomplete(result))
     ? 1
     : 0;
 
@@ -67,6 +74,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
         'cv-watch-status',
         'cv-watch-stop',
         'cv-snapshots',
+        'cv-publish-plan',
+        'cv-publish',
+        'cv-publish-status',
         'cv-workplace-membership',
         'cv-workplace-source',
         'cv-workplace-dictionaries',
@@ -82,74 +92,81 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
       ].map((operation) => [
         `vacancies-${operation}`,
         async (args, log) => {
-          const input = [
-            'cv-translate',
-            'cv-translation-status',
-            'cv-translation-cancel',
-          ].includes(operation)
-            ? await cvTranslationCommandInput(operation, args)
-            : operation.startsWith('technology-')
-              ? await technologyCommandInput(operation, args)
-              : operation.startsWith('cv-workplace-')
-                ? await cvWorkplaceCommandInput(operation, args)
-                : {
-                    ...Object.fromEntries(
-                      [
-                        'query',
-                        'resume',
-                        'area',
-                        'currency',
-                        'order',
-                        'url',
-                        'title',
-                        'state',
-                        'revision',
-                        'note',
-                      ].map((key) => [key, args[key]])
-                    ),
-                    ...Object.fromEntries(
-                      ['remote', 'refresh', 'headless', 'all'].map((key) => [
-                        key,
-                        typedFlag(args, key, 'boolean'),
-                      ])
-                    ),
-                    salary: typedFlag(args, 'salary', 'number'),
-                    skipResponded: typedFlag(args, 'skip-responded', 'boolean'),
-                    excludeText: args['exclude-text'],
-                    page: typedFlag(args, 'page', 'number'),
-                    browserSlot: args['browser-slot'],
-                    resumeLanguage: args['resume-language'],
-                    requestId:
-                      args['request-id'] ??
-                      ([
-                        'resume-export',
-                        'cv-watch',
-                        'cv-prepare',
-                        'discovery-start',
-                      ].includes(operation)
-                        ? randomUUID()
-                        : undefined),
-                    durationMs: typedFlag(args, 'duration-ms', 'number'),
-                    maxPages: typedFlag(args, 'max-pages', 'number'),
-                    maxVacancies: typedFlag(args, 'max-vacancies', 'number'),
-                    targetId: args['target-id'],
-                    fingerprint: args.fingerprint,
-                    changeId: args['change-id'],
-                    recordId: args['record-id'],
-                    reviewKind: args['review-kind'],
-                    formats:
-                      args.formats === undefined
-                        ? undefined
-                        : String(args.formats)
-                            .split(',')
-                            .map((format) => format.trim()),
-                  };
+          const input = operation.startsWith('cv-publish')
+            ? cvPublicationCommandInput(operation, args)
+            : [
+                  'cv-translate',
+                  'cv-translation-status',
+                  'cv-translation-cancel',
+                ].includes(operation)
+              ? await cvTranslationCommandInput(operation, args)
+              : operation.startsWith('technology-')
+                ? await technologyCommandInput(operation, args)
+                : operation.startsWith('cv-workplace-')
+                  ? await cvWorkplaceCommandInput(operation, args)
+                  : {
+                      ...Object.fromEntries(
+                        [
+                          'query',
+                          'resume',
+                          'area',
+                          'currency',
+                          'order',
+                          'url',
+                          'title',
+                          'state',
+                          'revision',
+                          'note',
+                        ].map((key) => [key, args[key]])
+                      ),
+                      ...Object.fromEntries(
+                        ['remote', 'refresh', 'headless', 'all'].map((key) => [
+                          key,
+                          typedFlag(args, key, 'boolean'),
+                        ])
+                      ),
+                      salary: typedFlag(args, 'salary', 'number'),
+                      skipResponded: typedFlag(
+                        args,
+                        'skip-responded',
+                        'boolean'
+                      ),
+                      excludeText: args['exclude-text'],
+                      page: typedFlag(args, 'page', 'number'),
+                      browserSlot: args['browser-slot'],
+                      resumeLanguage: args['resume-language'],
+                      requestId:
+                        args['request-id'] ??
+                        ([
+                          'resume-export',
+                          'cv-watch',
+                          'cv-prepare',
+                          'discovery-start',
+                        ].includes(operation)
+                          ? randomUUID()
+                          : undefined),
+                      durationMs: typedFlag(args, 'duration-ms', 'number'),
+                      maxPages: typedFlag(args, 'max-pages', 'number'),
+                      maxVacancies: typedFlag(args, 'max-vacancies', 'number'),
+                      targetId: args['target-id'],
+                      fingerprint: args.fingerprint,
+                      changeId: args['change-id'],
+                      recordId: args['record-id'],
+                      reviewKind: args['review-kind'],
+                      formats:
+                        args.formats === undefined
+                          ? undefined
+                          : String(args.formats)
+                              .split(',')
+                              .map((format) => format.trim()),
+                    };
           const storeDir = args.store ?? defaultStoreDir();
           const store = await openStore(storeDir);
           const service = createVacancyService({ store, storeDir, ...options });
           try {
-            const result =
-              operation === 'discovery-start'
+            const result = ['cv-publish', 'cv-publish-plan'].includes(operation)
+              ? await foregroundCvPublication(service, operation, input)
+              : operation === 'discovery-start'
                 ? await foregroundVacancyDiscovery(service, input, (receipt) =>
                     log(encodeWire(receipt))
                   )

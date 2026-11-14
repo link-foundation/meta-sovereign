@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { useCvPublication } from './cv-publication-state.js';
 
 export const useCvSaveWatch = ({ api, values, run }) => {
+  const publication = useCvPublication({ api, values, run });
   const browserSlot = values.browserSlot;
   const [watch, setWatch] = useState(null);
   const [snapshots, setSnapshots] = useState([]);
@@ -85,6 +87,7 @@ export const useCvSaveWatch = ({ api, values, run }) => {
     };
   }, [api, browserSlot, watch?.active]);
   return {
+    publication,
     watch,
     snapshots,
     loadError,

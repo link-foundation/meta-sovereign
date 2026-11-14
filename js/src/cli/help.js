@@ -117,6 +117,10 @@ export const VACANCY_HELP = `${APPLICATION_HELP}
   vacancies-resume-export-status --request-id=<id> [--store=<dir>]
   vacancies-resume-export-cancel --request-id=<id> [--store=<dir>]
   vacancies-resume-exports-stored [--store=<dir>]
+  vacancies-cv-publish-plan --repository=<existing-repository-root> --resumes=<saved-hash,...> [--remote=origin] [--directory=examples/cv-snapshots] [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-publish --request-id=<reviewed-id> --confirmation=<reviewed-digest> --publish=true [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-publish-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+    Publication is opt-in: review the sanitized Lino and exact target first. The existing remote branch must match local HEAD. Only saved snapshot paths are committed/pushed; pending plans and unrelated staged changes are preserved. Uncertain attempts and status never retry.
   vacancies-technology-catalog [--store=<dir>]
   vacancies-technology-catalog-save --file=<catalog.lino|catalog.bin|catalog.json> [--store=<dir>]
   vacancies-technology-analyze --export-id=<id> --resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]

@@ -5,7 +5,7 @@ import { debugQuestionTurn } from '../automation/question-turns.js';
 /** Bounded output and an owned process tree, including git's transport helpers. */
 export const runAssignmentCommand = (command, args, options = {}) =>
   new Promise((resolve, reject) => {
-    const { signal, cwd, input = '' } = options;
+    const { signal, cwd, input = '', env = {} } = options;
     if (signal?.aborted) {
       reject(assignmentFailure('stopped', 'Assignment operation stopped.'));
       return;
@@ -57,6 +57,7 @@ export const runAssignmentCommand = (command, args, options = {}) =>
         windowsHide: true,
         env: {
           ...process.env,
+          ...env,
           GIT_TERMINAL_PROMPT: '0',
           GCM_INTERACTIVE: 'never',
         },

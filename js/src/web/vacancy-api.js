@@ -22,6 +22,7 @@ import {
 import { createTechnologyApi } from './technology-api.js';
 import { createCvTechnologyApi } from './cv-technology-api.js';
 import { createCvWatchApi } from './cv-watch-api.js';
+import { createCvPublicationApi } from './cv-publication-api.js';
 import { createCvPrepareApi } from './cv-prepare-api.js';
 import { createCvTranslationApi } from './cv-translation-api.js';
 import { createCvWorkplaceApi } from './cv-workplace-api.js';
@@ -104,6 +105,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   ...createTechnologyApi({ get, report, local }),
   ...createCvTechnologyApi({ get, report, local }),
   ...createCvWatchApi({ get, report, local }),
+  ...createCvPublicationApi({ get, report, local }),
   ...createCvPrepareApi({ get, report, local }),
   ...createCvTranslationApi({ get, report, local }),
   ...createCvWorkplaceApi({ get, report, local }),
