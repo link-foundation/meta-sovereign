@@ -411,3 +411,5 @@ Reopen an acknowledged native HH questionnaire at its validated saved form URL. 
 Verify binary snapshot minimum/adaptive intervals and immediate flush with finite scheduling clocks and real file writes. Share the default clock and add optional timing-only diagnostics without changing production pacing or persistence policy.
 
 Retain application pause and questionnaire choices across reviews in the same worker and browser slot, without durable skip state. Add foreground POSIX mode signals that interrupt exact-answer delays and native guards, preserve later signals during acknowledged mode changes, and disclose scope and remaining retry limitations in all four languages.
+
+Preserve actual native questionnaire answers, private Q&A and eligible unapproved knowledge before explicitly deferring. Keep forms open after failed or stale saves, expose a bounded worker-only queue through CLI/Lino/four-language controls, and reopen only for fresh review with separate restoration and submission confirmation.

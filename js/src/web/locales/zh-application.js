@@ -22,7 +22,7 @@ export const zhApplication = {
   'application.pause': '暂停此浏览器槽位中的申请',
   'application.noQuestionnaires': '在此工作进程和浏览器槽位中暂缓问卷',
   'application.sessionHint':
-    '暂停和问卷选项会应用于此工作进程和浏览器槽位中的后续审核。重启后会清除。暂缓的表单保持打开：关闭前请备份答案。目前尚无重试队列。',
+    '暂停和问卷选项会应用于此进程和浏览器配置中的后续审核。重启会清除这些选项及暂缓队列。保留的表单会一直打开，直到您关闭它或停止进程。离开问卷前，请使用“保存答案并暂缓”进行备份。',
   'application.unavailable': '需要连接支持原生申请审核的服务器。',
   'application.choose': '请先采集或选择已保存的职位。',
   'application.bound':
@@ -80,4 +80,13 @@ export const zhApplication = {
   'application.state.paused': '审核已暂停',
   'application.state.test-preview': '预览完成，未执行申请操作',
   'application.state.closed': '此申请的浏览器已关闭',
+  'application.defer': '保存答案并暂缓',
+  'application.queueTitle': '暂缓的问卷',
+  'application.queueHint':
+    '关闭前会保存私人恢复副本及实际问答。符合条件的答案作为未批准的知识保存。队列仅存在于当前进程；重新打开需要再次审核，不会恢复或发送答案。单独保存的排除项仍然有效。',
+  'application.queueRead': '刷新暂缓队列',
+  'application.queueLoading': '正在读取当前进程的队列…',
+  'application.queueUnknown': '无法读取队列。未重新打开任何职位。',
+  'application.queueEmpty': '此浏览器配置中没有排队的问卷。',
+  'application.retry': '重新打开以再次审核',
 };

@@ -22,6 +22,7 @@ import { ApplicationReview } from './application-review.js';
 import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
 import { ApplicationRunModes } from './application-run-modes.js';
+import { ApplicationDeferrals } from './application-deferrals.js';
 
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
@@ -60,6 +61,7 @@ class ApplicationService {
     this.actions = new ApplicationActions(this);
     this.drafts = new ApplicationDrafts(this);
     this.modes = new ApplicationRunModes();
+    this.deferrals = new ApplicationDeferrals(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -84,7 +86,13 @@ class ApplicationService {
   }
   touch() {
     globalThis.clearTimeout(this.timer);
-    if (!this.current || this.stopped) {
+    if (
+      !this.current ||
+      this.stopped ||
+      (this.current.page?.scope &&
+        this.current.page.submit &&
+        !this.current.page.delivered)
+    ) {
       return;
     }
     this.timer = globalThis.setTimeout(() => {
@@ -287,6 +295,7 @@ class ApplicationService {
     await this.task?.catch(() => {});
     await this.close();
     this.modes.clear();
+    this.deferrals.clear();
   }
 }
 export const createApplicationService = (options) => {
@@ -312,6 +321,14 @@ export const createApplicationService = (options) => {
       'application-open': (input) =>
         service.operate((signal) => service.open(input, signal)),
       'application-status': (input) => service.status(input),
+      'application-queue': (input) =>
+        acknowledgedRead(service.store, () => service.deferrals.list(input)),
+      'application-defer': (input) =>
+        service.operate((signal) =>
+          service.deferrals.defer(service.owned(input), input, signal)
+        ),
+      'application-retry': (input) =>
+        service.operate((signal) => service.deferrals.retry(input, signal)),
       'application-read': (input) =>
         service.operate((signal) =>
           service.review.inspect(service.owned(input), signal)

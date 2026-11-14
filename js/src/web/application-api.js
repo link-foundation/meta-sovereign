@@ -1,6 +1,8 @@
 import { applicationResult } from '../jobs/application-result.js';
 import { applicationKey } from '../jobs/application-options.js';
 import { jobsFailure } from '../jobs/options.js';
+import { applicationQueueResult } from '../jobs/application-deferral-data.js';
+import { vacancyChoiceSlot } from '../jobs/vacancy-choice.js';
 const confirmed = (raw, input, missing = false) => {
   if (!raw || raw.ok === false || raw.error) {
     throw jobsFailure(
@@ -18,6 +20,13 @@ const confirmed = (raw, input, missing = false) => {
   return result;
 };
 export const createApplicationApi = ({ get, report }) => ({
+  vacancyApplicationQueue: async (input) =>
+    applicationQueueResult(
+      await get(
+        `/api/vacancies/application-queue?${new URLSearchParams({ browserSlot: vacancyChoiceSlot(input) })}`
+      ),
+      input
+    ),
   vacancyApplicationStatus: async (input) => {
     const { url, browserSlot } = applicationKey(input);
     const query = {
@@ -41,6 +50,8 @@ export const createApplicationApi = ({ get, report }) => ({
       'prefill',
       'backup',
       'restore',
+      'defer',
+      'retry',
       'mode',
       'close',
     ].map((operation) => [

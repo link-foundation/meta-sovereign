@@ -4,6 +4,7 @@ import { listAnswerRules } from '../../src/automation/question-store.js';
 import {
   nativeApplicationReviewRequest as request,
   nativeApplicationForm,
+  openNativeAnsweredApplication,
 } from './application-native-request.mjs';
 
 export const verifyNativeApplicationDraft = async (browser) => {
@@ -15,18 +16,11 @@ export const verifyNativeApplicationDraft = async (browser) => {
   };
   try {
     const knowledge = await listAnswerRules(fixture.store);
-    let receipt = await request(fixture, 'open');
-    receipt = await request(fixture, 'advance', receipt, {
-      action: 'enter',
-      confirm: true,
-    });
-    let page = owned();
-    await page.locator('#experience').fill(answers.experience);
-    await page.locator('[data-qa="add-cover-letter"]').click();
-    await page
-      .locator('[data-qa="vacancy-response-form-letter-input"]')
-      .fill(answers.letter);
-    receipt = await request(fixture, 'read', receipt);
+    let { receipt, page } = await openNativeAnsweredApplication(
+      fixture,
+      browser,
+      answers
+    );
     receipt = await request(fixture, 'backup', receipt, { confirm: true });
     const saved = receipt.draft;
     assert.deepEqual(

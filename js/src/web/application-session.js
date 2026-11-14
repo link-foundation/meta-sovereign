@@ -3,6 +3,8 @@ import {
   applicationSettings,
 } from '../jobs/application-options.js';
 import { applicationResult } from '../jobs/application-result.js';
+import { applicationQueueResult } from '../jobs/application-deferral-data.js';
+import { vacancyChoiceSlot } from '../jobs/vacancy-choice.js';
 
 const pendingKey = 'meta-sovereign:hh-application-intent';
 const failure = () => new Error('jobs-application-recovery');
@@ -20,6 +22,13 @@ export const applicationMayRestart = (receipt) =>
   receipt.delivery === 'none' &&
   receipt.attempted.enter === false &&
   receipt.attempted.submit === false;
+export const applicationMayRetry = (state, entry) =>
+  (state.known || (!state.intent && !state.receipt && !state.target)) &&
+  !state.busy &&
+  !state.receipt?.active &&
+  (!state.intent ||
+    (equalTarget(state.intent, entry) &&
+      state.intent.requestId === entry.requestId));
 
 /** Keep only the pending identity locally; options and reservations belong to the server. */
 export class ApplicationSession {
@@ -37,6 +46,9 @@ export class ApplicationSession {
       busy: false,
       stopping: false,
       error: null,
+      queue: null,
+      queueBusy: false,
+      queueError: null,
     };
     try {
       this.storage = storage ?? globalThis.localStorage;
@@ -64,6 +76,7 @@ export class ApplicationSession {
   }
   dispose() {
     this.sequence++;
+    this.queueSequence = (this.queueSequence ?? 0) + 1;
     this.listeners.clear();
   }
   remember(input) {
@@ -204,6 +217,41 @@ export class ApplicationSession {
       ...this.state.intent,
       revision: this.state.receipt.revision,
     });
+  }
+  async refreshQueue(input) {
+    const browserSlot = vacancyChoiceSlot(input);
+    const sequence = (this.queueSequence ?? 0) + 1;
+    this.queueSequence = sequence;
+    this.publish({ queue: null, queueBusy: true, queueError: null });
+    try {
+      const raw = await this.api.vacancyApplicationQueue({ browserSlot });
+      const queue = applicationQueueResult(raw, { browserSlot });
+      if (this.queueSequence === sequence) {
+        this.publish({ queue });
+      }
+      return queue;
+    } catch (error) {
+      if (this.queueSequence === sequence) {
+        this.publish({ queueError: error.code ?? 'jobs-application-queue' });
+      }
+      throw error;
+    } finally {
+      if (this.queueSequence === sequence) {
+        this.publish({ queueBusy: false });
+      }
+    }
+  }
+  retry(entry) {
+    const selected = this.state.queue?.entries.find(
+      (row) => row.id === entry.id
+    );
+    if (!selected || !applicationMayRetry(this.state, selected)) {
+      throw failure();
+    }
+    const input = { ...token(selected), queueId: selected.id, confirm: true };
+    this.remember(input);
+    this.publish({ known: true });
+    return this.execute('vacancyApplicationRetry', input);
   }
   async release() {
     if (

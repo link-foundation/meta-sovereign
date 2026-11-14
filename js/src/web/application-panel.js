@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ApplicationDraftView } from './application-draft-view.js';
 import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
+import { ApplicationQueueView } from './application-queue-view.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -144,6 +145,11 @@ const Receipt = ({ receipt, t }) =>
   ]);
 
 const canRestore = (writable, receipt) => writable && Boolean(receipt?.draft);
+const canBackup = (ready, confirmed, receipt) =>
+  ready &&
+  confirmed &&
+  ['review', 'paused', 'deferred'].includes(receipt.state) &&
+  !receipt.attempted.submit;
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const ready = idle && application.known && receipt?.active;
@@ -185,10 +191,13 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         'backup',
         t('application.backup'),
         action('Backup', { confirm: true }),
-        !ready ||
-          !confirmed ||
-          !['review', 'paused', 'deferred'].includes(receipt.state) ||
-          receipt.attempted.submit
+        !canBackup(ready, confirmed, receipt)
+      ),
+      button(
+        'defer',
+        t('application.defer'),
+        action('Defer', { confirm: true }),
+        !canBackup(ready, confirmed, receipt) || !receipt.page?.questions
       ),
       button(
         'restore',
@@ -378,6 +387,13 @@ export const ApplicationPanel = ({ state, t }) => {
             t,
           })
         : null,
+      el(ApplicationQueueView, {
+        key: 'queue',
+        application,
+        idle: idle && supported,
+        confirmed,
+        t,
+      }),
     ]
   );
 };

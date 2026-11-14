@@ -1,5 +1,9 @@
 # Worker-scoped application policies
 
+Later [backed deferral](application-deferrals.md) adds an explicit private-save
+and RAM-queue action. The evidence below records the earlier policy unit and
+its then-current limitations. Automatic mode-driven deferral remains required.
+
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) retains pause
 and questionnaire choices across reviews in one worker and named browser slot.
 HH08 remains incomplete: automatic deferral backups, the RAM retry queue and the

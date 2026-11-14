@@ -55,7 +55,7 @@ const supportedField = (raw, fields) => {
     Boolean(field.label)
   );
 };
-const nativeFields = (record) => {
+export const nativeDraftFields = (record) => {
   const report = record.reviewPlan?.inspection;
   const page = record.page;
   if (
@@ -111,7 +111,7 @@ export class ApplicationDrafts {
   }
   async backup(record, input, signal) {
     await this.admit(record, input, signal);
-    const fields = nativeFields(record);
+    const fields = nativeDraftFields(record);
     const next = applicationDraft({
       version: 1,
       id: globalThis.crypto.randomUUID(),
@@ -140,7 +140,7 @@ export class ApplicationDrafts {
       return { ...applicationView(record), state: 'test-preview' };
     }
     const draft = applicationDraft(record.draft);
-    const fields = nativeFields(record);
+    const fields = nativeDraftFields(record);
     if (
       !draft ||
       fields.length !== draft.fields.length ||

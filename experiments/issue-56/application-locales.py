@@ -22,7 +22,7 @@ rows = {
     "close": ["Close owned application browser", "Закрыть браузер отклика", "आवेदन का अपना ब्राउज़र बंद करें", "关闭此申请的浏览器"],
     "pause": ["Pause applications in this browser slot", "Приостановить отклики в этом слоте браузера", "इस ब्राउज़र स्लॉट में आवेदन रोकें", "暂停此浏览器槽位中的申请"],
     "noQuestionnaires": ["Defer questionnaires in this worker and browser slot", "Отложить анкеты в этом процессе и слоте браузера", "इस कार्यकर्ता और ब्राउज़र स्लॉट में प्रश्नावलियाँ टालें", "在此工作进程和浏览器槽位中暂缓问卷"],
-    "sessionHint": ["Pause and questionnaire choices carry across reviews in this worker and browser slot. Restart clears them. Deferred forms stay open: back up answers before closing. Retry queues are not available yet.", "Пауза и выбор режима анкет сохраняются между проверками в этом процессе и слоте. Перезапуск их сбрасывает. Отложенные формы остаются открыты: сохраните ответы перед закрытием. Очередь повторов пока недоступна.", "विराम और प्रश्नावली विकल्प इस कार्यकर्ता और ब्राउज़र स्लॉट की अगली समीक्षाओं पर भी लागू होते हैं। पुनः आरंभ पर ये मिट जाते हैं। टाले गए फ़ॉर्म खुले रहते हैं: बंद करने से पहले उत्तरों का बैकअप लें। पुनः प्रयास कतार अभी उपलब्ध नहीं है।", "暂停和问卷选项会应用于此工作进程和浏览器槽位中的后续审核。重启后会清除。暂缓的表单保持打开：关闭前请备份答案。目前尚无重试队列。"],
+    "sessionHint": ["Pause and questionnaire choices carry across reviews in this worker and browser slot. Restart clears them and the deferred queue. Held forms stay open until you close them or stop the worker. Use Save answers and defer to back up a questionnaire before leaving it.", "Пауза и режим анкет действуют между проверками в этом процессе и слоте. Перезапуск сбрасывает их и очередь. Удерживаемые формы остаются открыты до закрытия или остановки процесса. «Сохранить ответы и отложить» создаёт резервную копию перед выходом из анкеты.", "विराम और प्रश्नावली विकल्प इसी कार्यकर्ता और ब्राउज़र स्लॉट की अगली समीक्षाओं में लागू होते हैं। पुनः आरंभ पर ये और कतार मिट जाते हैं। रोके गए फ़ॉर्म आपके बंद करने या प्रक्रिया रोकने तक खुले रहते हैं। प्रश्नावली छोड़ने से पहले «उत्तर सहेजें और टालें» से बैकअप लें।", "暂停和问卷选项会应用于此进程和浏览器配置中的后续审核。重启会清除这些选项及暂缓队列。保留的表单会一直打开，直到您关闭它或停止进程。离开问卷前，请使用“保存答案并暂缓”进行备份。"],
     "unavailable": ["A connected server with native application review support is required.", "Нужен подключённый сервер с поддержкой проверки откликов.", "मूल आवेदन समीक्षा समर्थित जुड़े सर्वर की आवश्यकता है।", "需要连接支持原生申请审核的服务器。"],
     "choose": ["Collect or choose a saved vacancy to begin.", "Соберите описание или выберите сохранённую вакансию.", "शुरू करने के लिए नौकरी का विवरण लें या सहेजी नौकरी चुनें।", "请先采集或选择已保存的职位。"],
     "bound": ["This review remains bound to its original vacancy and browser slot. Close or finish it before reviewing the new selection.", "Проверка привязана к исходной вакансии и слоту браузера. Закройте или завершите её перед переходом к новому выбору.", "यह समीक्षा अपनी मूल नौकरी और ब्राउज़र स्लॉट से बँधी है। नया चयन देखने से पहले इसे बंद या समाप्त करें।", "此审核仍绑定原职位和浏览器槽位。审核新选择前，请先关闭或结束此审核。"],
@@ -145,6 +145,21 @@ states = {
     "closed": ["Owned application browser closed", "Браузер отклика закрыт", "आवेदन का अपना ब्राउज़र बंद है", "此申请的浏览器已关闭"],
 }
 rows.update({f"state.{key}": value for key, value in states.items()})
+rows.update({
+    "defer": ["Save answers and defer", "Сохранить ответы и отложить", "उत्तर सहेजें और टालें", "保存答案并暂缓"],
+    "queueTitle": ["Deferred questionnaires", "Отложенные анкеты", "टाली गई प्रश्नावलियाँ", "暂缓的问卷"],
+    "queueHint": [
+        "Save and defer keeps a private recovery copy and actual Q&A observations before closing. Eligible answers become unapproved knowledge. This queue lasts only in the current worker; reopening requires fresh review and does not restore or send answers. Separately saved exclusions still apply.",
+        "Перед закрытием сохраняются личная копия для восстановления и фактические вопросы и ответы. Допустимые ответы попадают в базу без одобрения. Очередь живёт только в текущем процессе; открытие требует новой проверки и не восстанавливает и не отправляет ответы. Сохранённые отдельно исключения действуют.",
+        "बंद करने से पहले निजी पुनर्प्राप्ति प्रति और वास्तविक प्रश्न-उत्तर सहेजे जाते हैं। योग्य उत्तर बिना स्वीकृति वाले ज्ञान बनते हैं। कतार केवल वर्तमान प्रक्रिया तक रहती है; फिर खोलने पर नई समीक्षा होगी, उत्तर बहाल या भेजे नहीं जाएँगे। अलग से सहेजे बहिष्करण लागू रहते हैं।",
+        "关闭前会保存私人恢复副本及实际问答。符合条件的答案作为未批准的知识保存。队列仅存在于当前进程；重新打开需要再次审核，不会恢复或发送答案。单独保存的排除项仍然有效。",
+    ],
+    "queueRead": ["Refresh deferred queue", "Обновить очередь", "टाली गई कतार ताज़ा करें", "刷新暂缓队列"],
+    "queueLoading": ["Reading the current worker queue…", "Чтение очереди текущего процесса…", "वर्तमान प्रक्रिया की कतार पढ़ी जा रही है…", "正在读取当前进程的队列…"],
+    "queueUnknown": ["The queue could not be read. No vacancy was reopened.", "Очередь прочитать не удалось. Вакансии не открывались.", "कतार पढ़ी नहीं जा सकी। कोई नौकरी फिर नहीं खोली गई।", "无法读取队列。未重新打开任何职位。"],
+    "queueEmpty": ["No questionnaires queued in this browser slot.", "В этом профиле браузера нет анкет в очереди.", "इस ब्राउज़र स्लॉट में कोई प्रश्नावली कतार में नहीं है।", "此浏览器配置中没有排队的问卷。"],
+    "retry": ["Reopen for fresh review", "Открыть для новой проверки", "नई समीक्षा के लिए फिर खोलें", "重新打开以再次审核"],
+})
 root = Path(__file__).resolve().parents[2] / "js/src/web/locales"
 for index, locale in enumerate(("en", "ru", "hi", "zh")):
     entries = {f"application.{key}": values[index] for key, values in rows.items()}

@@ -1,11 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active backed questionnaire deferral prerequisite (HH08 remains incomplete):
+
+- [x] Save the complete actual native draft and private Q&A observations, then acknowledge eligible unapproved answer learning before closing. Refuse stale, unsupported or failed saves and keep live questionnaires through idle time.
+- [x] Add a bounded RAM-only per-slot queue and explicitly confirmed fresh-review reopening. Preserve run policies, saved exclusions, delivery reservations and separate restoration/submission confirmation. Reset only the queue on worker restart; durable drafts remain recoverable.
+- [x] Expose deferral and queue review through CLI, both Lino routes and four-language browser controls. Verify exact-parent failure, 83 focused application checks, production Chromium and independent MCP before/after screenshots; close all fixtures. Shared-form (27), dictionary (25), Deno (21) and all seven affected native scenarios pass. Final gates and publication remain.
+- [ ] Preserve checksummed evidence, publish the atomic unit and inspect exact-head CI. Continue automatic mode-driven deferral, generic-error five-hour retries, supervised test presets and every unchecked original criterion. Keep PR57 draft and unmerged.
+
 Active worker application policies (HH08 remains incomplete):
 
 - [x] Draft worker-owned, browser-slot-isolated pause/questionnaire choices across vacancy reviews. Exclude them from durable journals, reset on worker restart and retain explicit read/backup while held.
 - [x] Draft POSIX foreground signals that can interrupt an active exact-answer delay and its last native guard. Preserve acknowledged mode updates and a later signal during successful or failed storage.
 - [x] Verify exact-parent loss, 62 focused application cases, 15 shared-prefill cases, 11 sequential Deno cases and four dictionary checks. Production native Chromium and independent MCP confirm retained choices, held questionnaires and review-only resume; all owned fixtures close. Preserve before/after screens and the initial asynchronous-checkbox probe failures.
-- [ ] Preserve checksummed evidence, publish an atomic unit and inspect exact-head hosted checks. Continue RAM deferred retries, automatic backup before leaving, the supervised one-application preset and every unchecked original criterion; keep PR57 draft and unmerged.
+- [x] Publish checksummed [run-policy evidence](application-run-modes.md) as `5e622049` and confirm every hosted check for that exact head passes. The next backed-deferral unit and all remaining original criteria stay active; PR57 remains draft and unmerged.
 
 Active native application draft prerequisite for HH06/HH08:
 

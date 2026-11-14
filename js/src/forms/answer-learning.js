@@ -17,7 +17,7 @@ const excluded = (pair) =>
     pair.question
   );
 
-const known = (pair, context, contract) => {
+const known = (pair, context, contract, source) => {
   const keys = formProfileFields(
     { ...pair.field, label: pair.question },
     context.profile
@@ -30,7 +30,7 @@ const known = (pair, context, contract) => {
   }
   return context.rules.some(
     (rule) =>
-      answerRuleEligible(rule, { source: 'forms', chat: pair.url }) &&
+      answerRuleEligible(rule, { source, chat: pair.url }) &&
       [rule.question, ...rule.questions].some((question) =>
         matchQuestion(question, pair.question)
       ) &&
@@ -46,7 +46,7 @@ const known = (pair, context, contract) => {
 export const learnFormAnswerPairs = (
   store,
   pairs,
-  { profileId = '', check = () => {} } = {}
+  { profileId = '', source = 'forms', check = () => {} } = {}
 ) =>
   writeAnswerKnowledge(store, async () => {
     if (
@@ -65,9 +65,9 @@ export const learnFormAnswerPairs = (
     const contract = createAnswerContractor({ ...context, contract: true });
     const learner = createAnswerPairLearner({ ...context, contract });
     for (const pair of pairs) {
-      if (!excluded(pair) && !known(pair, context, contract)) {
+      if (!excluded(pair) && !known(pair, context, contract, source)) {
         learner.add(pair.question, pair.text, [pair.evidence], 1, {
-          source: 'forms',
+          source,
           chat: pair.url,
         });
       }

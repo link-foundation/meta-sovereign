@@ -56,6 +56,8 @@ const commands = {
   prefill: ['prefill', { confirm: true }],
   backup: ['backup', { confirm: true }],
   restore: ['restore', { confirm: true }],
+  defer: ['defer', { confirm: true }],
+  reopen: ['open', { recover: true }],
   pause: ['mode', { paused: true }],
   resume: ['mode', { paused: false }],
   'defer-questionnaires': ['mode', { noQuestionnaires: true }],
@@ -80,8 +82,14 @@ export const applicationCommand = async (service, input, log, readInput) => {
     log(encodeWire(receipt));
     log(
       encodeWire({
-        commands: [...Object.keys(commands), 'status', 'quit'],
-        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves the actual native answers privately. Restore requires matching empty controls and never sends or learns answers. Test mode never clicks or fills. Pause and questionnaire policies last for this worker and browser slot. SIGUSR1 defers questionnaires; SIGUSR2 enables them. Deferred forms stay open; retries are not queued. Unknown outcomes never retry automatically. End of input closes this browser.',
+        commands: [
+          ...Object.keys(commands),
+          'queue',
+          'retry',
+          'status',
+          'quit',
+        ],
+        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves actual answers privately. Defer saves the full recovery draft, actual Q&A observations and eligible unapproved knowledge before closing; failed saves leave the form open. Queue reasons last only in this worker. Retry reopens the queued vacancy for fresh review, without restoring or sending. Restore requires matching empty controls and never sends or learns answers. Test mode never clicks or fills. Pause and questionnaire policies last for this worker and browser slot. SIGUSR1 holds questionnaires; SIGUSR2 enables review. Unknown outcomes never retry automatically. End of input closes this browser.',
       })
     );
     for await (const line of stream) {
@@ -90,7 +98,20 @@ export const applicationCommand = async (service, input, log, readInput) => {
         break;
       }
       try {
-        if (action === 'status') {
+        if (action === 'queue') {
+          log(encodeWire(await service['application-queue'](input)));
+          continue;
+        } else if (action === 'retry') {
+          const queue = await service['application-queue'](input);
+          const entry = queue.entries.find(
+            (row) => row.url === input.url && row.requestId === input.requestId
+          );
+          receipt = await service['application-retry']({
+            ...input,
+            queueId: entry?.id,
+            confirm: true,
+          });
+        } else if (action === 'status') {
           receipt = await service['application-status'](input);
         } else {
           const command = commands[action];

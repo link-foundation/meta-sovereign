@@ -32,3 +32,24 @@ export const nativeApplicationReviewRequest = (
     ...(receipt ? { revision: receipt.revision } : {}),
     ...extra,
   });
+
+/** Enter the real native fixture and retain actual owner edits for draft checks. */
+export const openNativeAnsweredApplication = async (
+  fixture,
+  browser,
+  answers
+) => {
+  let receipt = await nativeApplicationReviewRequest(fixture, 'open');
+  receipt = await nativeApplicationReviewRequest(fixture, 'advance', receipt, {
+    action: 'enter',
+    confirm: true,
+  });
+  const page = nativeApplicationForm(browser);
+  await page.locator('#experience').fill(answers.experience);
+  await page.locator('[data-qa="add-cover-letter"]').click();
+  await page
+    .locator('[data-qa="vacancy-response-form-letter-input"]')
+    .fill(answers.letter);
+  receipt = await nativeApplicationReviewRequest(fixture, 'read', receipt);
+  return { receipt, page };
+};
