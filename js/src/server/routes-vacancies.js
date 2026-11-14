@@ -78,6 +78,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'capabilities',
       'application-status',
       'application-batch-status',
+      'discovery-status',
       'application-queue',
       'choices-stored',
       'stored',
@@ -98,6 +99,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     !read &&
     ![
       'search',
+      'discovery-start',
+      'discovery-stop',
       'application-open',
       'application-batch-start',
       'application-batch-stop',

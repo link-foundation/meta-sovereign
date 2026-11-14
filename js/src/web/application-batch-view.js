@@ -11,6 +11,7 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
   });
   const [confirmed, setConfirmed] = useState(false);
   const batch = state?.receipt?.batch;
+  const eligible = discoveredReviewUrls(application.discovery);
   useEffect(
     () => setConfirmed(false),
     [batch?.requestId, JSON.stringify(application.options)]
@@ -24,7 +25,7 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
     frozen,
     confirmed,
     draft,
-    application.occupied
+    application
   );
   const update = (name, value) => {
     setDraft({ ...draft, [name]: value });
@@ -35,6 +36,14 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
   return el('div', { className: 'col', 'data-application-batch': true }, [
     el('h4', { key: 'title' }, t('application.batch.title')),
     el('p', { key: 'hint', className: 'meta' }, t('application.batch.hint')),
+    eligible.length
+      ? action(
+          'use-discovery',
+          'discovery.useBatch',
+          () => update('urls', eligible.join('\n')),
+          frozen
+        )
+      : null,
     el('label', { key: 'urls', className: 'col' }, [
       t('application.batch.urls'),
       el('textarea', {
@@ -237,5 +246,19 @@ const batchCheck = (t, key, label, checked, onChange, disabled) =>
     t(label),
   ]);
 
-const batchStartDisabled = (state, frozen, confirmed, draft, occupied) =>
-  frozen || !state.known || !confirmed || !draft.urls.trim() || occupied;
+const batchStartDisabled = (state, frozen, confirmed, draft, application) =>
+  frozen ||
+  !state.known ||
+  !confirmed ||
+  !draft.urls.trim() ||
+  application.occupied ||
+  application.discoveryRunning;
+
+const discoveredReviewUrls = (state) => {
+  const discovery = state?.receipt?.discovery;
+  return discovery?.phase === 'completed'
+    ? discovery.entries
+        .filter((row) => row.decision.reason === 'review')
+        .map((row) => row.card.url)
+    : [];
+};

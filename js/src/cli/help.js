@@ -100,6 +100,9 @@ export const CV_HELP = `  cv-platforms  [--json]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 
 export const VACANCY_HELP = `${APPLICATION_HELP}
+  vacancies-discovery-start [search/filter/browser flags from vacancies-search] [--max-pages=10] [--max-vacancies=100] [--duration-ms=900000] [--refresh=true|false] [--request-id=<id>] [--store=<dir>]
+  vacancies-discovery-status|vacancies-discovery-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+    Finite native pagination and acknowledged description collection; no applications. Start owns the foreground until completion; SIGINT/SIGTERM stop and drain it. Saved status and repeated IDs never resume discovery. Use completed entries with decision.reason=review as an explicitly reviewed batch URL list. Stop requires a request ID.
   vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--skip-responded=true|false] [--exclude-text=<literal-lines>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-stored [--store=<dir>]

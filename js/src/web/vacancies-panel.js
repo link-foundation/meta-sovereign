@@ -22,6 +22,8 @@ import { CvWorkplaceReview } from './cv-workplace-panel.js';
 import { useVacancyChoices } from './vacancy-choice-state.js';
 import { VacancyChoices, VacancyChoiceControls } from './vacancy-choices.js';
 import { vacancySelectionOptions } from '../jobs/vacancy-selection.js';
+import { useVacancyDiscovery } from './discovery-state.js';
+import { VacancyDiscoveryView } from './discovery-view.js';
 import {
   VacancySelectionSettings,
   VacancySelectionSummary,
@@ -152,6 +154,10 @@ export const useVacancies = (api) => {
     }
   };
   const application = useApplication({ api, values, selected, run });
+  const discovery = useVacancyDiscovery({ api, values });
+  const discovering = discovery.receipt?.discovery?.phase === 'running';
+  application.discovery = discovery;
+  application.discoveryRunning = discovering;
   const resumeExports = useResumeExports({ api, values, run });
   const technology = useTechnologyAnalysis({ api, values, run });
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
@@ -174,22 +180,6 @@ export const useVacancies = (api) => {
       if (Array.isArray(answer?.cards)) {
         setResult({ ...answer, input: { ...values } });
         persistSettings(values);
-      }
-      return answer;
-    });
-  const readResumes = () =>
-    run('resumes', async () => {
-      const options = searchInput(values, 0);
-      const answer = await api.vacancyResumes({
-        browserSlot: options.browserSlot,
-        headless: options.headless,
-        resumeLanguage: options.resumeLanguage,
-      });
-      if (Array.isArray(answer?.entries)) {
-        setResumeLists((lists) => [
-          answer,
-          ...lists.filter((list) => list.browserSlot !== answer.browserSlot),
-        ]);
       }
       return answer;
     });
@@ -220,10 +210,15 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy:
-      activeVacancyOperation(busy, resumeExports, cvTranslation) ||
-      (application.occupied ? 'application-owned' : ''),
+    busy: workspaceBusy(
+      busy,
+      resumeExports,
+      cvTranslation,
+      discovering,
+      application
+    ),
     application,
+    discovery,
     resumeExports,
     technology,
     cvTechnology,
@@ -238,13 +233,16 @@ export const useVacancies = (api) => {
     search,
     collect,
     resumeLists,
-    readResumes,
+    readResumes: () => readSearchResumes({ api, values, run, setResumeLists }),
     selectResume: (hash) => {
       const next = { ...values, resume: hash };
       setValues(next);
       persistSettings(next);
     },
-    cancel: () => cancelVacancyOperation({ application, api, run }),
+    cancel: () =>
+      discovering
+        ? discovery.stop()
+        : cancelVacancyOperation({ application, api, run }),
   };
 };
 
@@ -527,6 +525,11 @@ export const VacanciesScreen = ({ state }) => {
       el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
       el(Fields, { key: 'settings', state, t }),
       el(VacancyResumes, { key: 'resumes', state, t }),
+      el(VacancyDiscoveryView, {
+        key: `discovery:${state.values.browserSlot}`,
+        state,
+        t,
+      }),
       el(CvEvidencePanels, { key: 'evidence', state, t }),
       el('div', { key: 'actions', className: 'row' }, [
         action(
@@ -591,3 +594,32 @@ export const VacanciesScreen = ({ state }) => {
 };
 export const VacanciesPanel = ({ api }) =>
   el(VacanciesScreen, { state: useVacancies(api) });
+
+const workspaceBusy = (
+  busy,
+  resumeExports,
+  cvTranslation,
+  discovering,
+  application
+) =>
+  activeVacancyOperation(busy, resumeExports, cvTranslation) ||
+  (discovering ? 'discovery' : '') ||
+  (application.batch.receipt?.batch?.active ? 'application-batch' : '') ||
+  (application.occupied ? 'application-owned' : '');
+
+const readSearchResumes = ({ api, values, run, setResumeLists }) =>
+  run('resumes', async () => {
+    const options = searchInput(values, 0);
+    const answer = await api.vacancyResumes({
+      browserSlot: options.browserSlot,
+      headless: options.headless,
+      resumeLanguage: options.resumeLanguage,
+    });
+    if (Array.isArray(answer?.entries)) {
+      setResumeLists((lists) => [
+        answer,
+        ...lists.filter((list) => list.browserSlot !== answer.browserSlot),
+      ]);
+    }
+    return answer;
+  });

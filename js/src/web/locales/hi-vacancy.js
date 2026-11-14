@@ -1,5 +1,7 @@
+import { hiDiscovery } from './hi-discovery.js';
 import { hiApplication } from './hi-application.js';
 export const hiVacancy = {
+  ...hiDiscovery,
   'vacancySelection.retry-wait':
     'उत्तर सहेजे गए हैं; सामान्य त्रुटि के बाद पुनः प्रयास के लिए पाँच घंटे की प्रतीक्षा',
   ...hiApplication,

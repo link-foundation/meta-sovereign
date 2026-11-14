@@ -1,5 +1,7 @@
+import { enDiscovery } from './en-discovery.js';
 import { enApplication } from './en-application.js';
 export const enVacancy = {
+  ...enDiscovery,
   'vacancySelection.retry-wait':
     'Waiting for the backed generic-error retry (five hours)',
   ...enApplication,

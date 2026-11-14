@@ -2,7 +2,35 @@ import {
   assignmentText,
   assignmentVacancyUrl,
 } from '../assignments/validation.js';
-import { jobsFailure, sameSearch } from './options.js';
+import { hhSearchUrl, jobsFailure, sameSearch } from './options.js';
+
+/** Recheck a native reader or remote receipt against the frozen requested page. */
+export const confirmedVacancySearch = (answer, input) => {
+  const url = hhSearchUrl(input);
+  const page = input.page ?? 0;
+  if (
+    !answer ||
+    answer.page !== page ||
+    (answer.nextPage !== null && answer.nextPage !== page + 1) ||
+    typeof answer.capturedAt !== 'string' ||
+    !Number.isFinite(Date.parse(answer.capturedAt))
+  ) {
+    throw jobsFailure('unconfirmed', 'The requested search was not confirmed.');
+  }
+  const next = new URL(url);
+  next.searchParams.set('page', String(page + 1));
+  return {
+    ...validateVacancySearch(
+      {
+        ...answer,
+        next: answer.nextPage === null ? null : next.href,
+        empty: answer.cards?.length === 0,
+      },
+      url
+    ),
+    capturedAt: answer.capturedAt,
+  };
+};
 
 export const validateVacancySearch = (read, url) => {
   if (

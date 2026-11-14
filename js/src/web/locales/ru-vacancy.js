@@ -1,5 +1,7 @@
+import { ruDiscovery } from './ru-discovery.js';
 import { ruApplication } from './ru-application.js';
 export const ruVacancy = {
+  ...ruDiscovery,
   'vacancySelection.retry-wait':
     'Ожидание повтора после общей ошибки (пять часов); ответы сохранены',
   ...ruApplication,

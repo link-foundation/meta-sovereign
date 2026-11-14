@@ -431,6 +431,7 @@ class ApplicationService {
 export const createApplicationService = (options) => {
   const service = new ApplicationService(options);
   return {
+    batchOwned: () => Boolean(service.batch.runtime),
     retryWaiting: (input) => service.retries.waiting(input),
     operations: {
       // Foreground CLI signals only: the HTTP route allowlist does not expose

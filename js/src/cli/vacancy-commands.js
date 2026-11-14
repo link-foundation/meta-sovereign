@@ -8,8 +8,11 @@ import { technologyCommandInput } from './technology-command.js';
 import { foregroundCvWatch } from './cv-watch-command.js';
 import { cvTranslationCommandInput } from './cv-translation-command.js';
 import { cvWorkplaceCommandInput } from './cv-workplace-command.js';
+import { foregroundVacancyDiscovery } from './discovery-command.js';
 
 const vacancyCommandExit = (operation, result) =>
+  (operation === 'discovery-start' &&
+    result.discovery?.phase !== 'completed') ||
   (operation === 'resume-export' && result.state !== 'completed') ||
   (operation === 'cv-prepare' && result.preparation?.state !== 'prepared') ||
   (operation === 'cv-translate' &&
@@ -39,6 +42,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
     Object.fromEntries(
       [
         'search',
+        'discovery-start',
+        'discovery-status',
+        'discovery-stop',
         'collect',
         'stored',
         'choices-stored',
@@ -115,12 +121,17 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                     resumeLanguage: args['resume-language'],
                     requestId:
                       args['request-id'] ??
-                      (['resume-export', 'cv-watch', 'cv-prepare'].includes(
-                        operation
-                      )
+                      ([
+                        'resume-export',
+                        'cv-watch',
+                        'cv-prepare',
+                        'discovery-start',
+                      ].includes(operation)
                         ? randomUUID()
                         : undefined),
                     durationMs: typedFlag(args, 'duration-ms', 'number'),
+                    maxPages: typedFlag(args, 'max-pages', 'number'),
+                    maxVacancies: typedFlag(args, 'max-vacancies', 'number'),
                     targetId: args['target-id'],
                     fingerprint: args.fingerprint,
                     changeId: args['change-id'],
@@ -138,11 +149,15 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
           const service = createVacancyService({ store, storeDir, ...options });
           try {
             const result =
-              operation === 'resume-export'
-                ? await foregroundResumeExport(service, input, args.out)
-                : operation === 'cv-watch'
-                  ? await foregroundCvWatch(service, input, log)
-                  : await service[operation](input);
+              operation === 'discovery-start'
+                ? await foregroundVacancyDiscovery(service, input, (receipt) =>
+                    log(encodeWire(receipt))
+                  )
+                : operation === 'resume-export'
+                  ? await foregroundResumeExport(service, input, args.out)
+                  : operation === 'cv-watch'
+                    ? await foregroundCvWatch(service, input, log)
+                    : await service[operation](input);
             log(encodeWire(result));
             return vacancyCommandExit(operation, result);
           } finally {

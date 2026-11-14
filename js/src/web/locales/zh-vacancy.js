@@ -1,5 +1,7 @@
+import { zhDiscovery } from './zh-discovery.js';
 import { zhApplication } from './zh-application.js';
 export const zhVacancy = {
+  ...zhDiscovery,
   'vacancySelection.retry-wait': '答案已保存；一般错误后等待五小时再重试',
   ...zhApplication,
   'vacancySelection.searchAt': '上次成功搜索时间：{date}。',

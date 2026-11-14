@@ -1,8 +1,8 @@
 /** Owned server browser operations and separately validated offline snapshots. */
 import { vacancyContent } from '../assignments/vacancy-content.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
-import { hhSearchUrl, jobsFailure } from '../jobs/options.js';
-import { validateVacancySearch } from '../jobs/search-result.js';
+import { jobsFailure } from '../jobs/options.js';
+import { confirmedVacancySearch } from '../jobs/search-result.js';
 import {
   resumeList,
   chooseSearchResume,
@@ -28,6 +28,7 @@ import { createCvWorkplaceApi } from './cv-workplace-api.js';
 import { createVacancyChoiceApi } from './vacancy-choice-api.js';
 import { createApplicationApi } from './application-api.js';
 import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
+import { createDiscoveryApi } from './discovery-api.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs', true);
@@ -66,26 +67,7 @@ const confirmed = (operation, answer, input) => {
       ...vacancyContent(answer, assignmentVacancyUrl(input.url)),
     };
   }
-  const url = hhSearchUrl(input);
-  const page = input.page ?? 0;
-  if (
-    answer.page !== page ||
-    (answer.nextPage !== null && answer.nextPage !== page + 1) ||
-    typeof answer.capturedAt !== 'string' ||
-    !Number.isFinite(Date.parse(answer.capturedAt))
-  ) {
-    throw jobsFailure('unconfirmed', 'The requested search was not confirmed.');
-  }
-  const next = new URL(url);
-  next.searchParams.set('page', String(page + 1));
-  const result = validateVacancySearch(
-    {
-      ...answer,
-      next: answer.nextPage === null ? null : next.href,
-      empty: answer.cards?.length === 0,
-    },
-    url
-  );
+  const result = confirmedVacancySearch(answer, input);
   return {
     ...result,
     capturedAt: answer.capturedAt,
@@ -116,6 +98,7 @@ const confirmedExport = (result, requestId) => {
   return job;
 };
 export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
+  ...createDiscoveryApi({ get, report }),
   ...createApplicationApi({ get, report }),
   ...createVacancyChoiceApi({ get, report, local }),
   ...createTechnologyApi({ get, report, local }),
@@ -128,6 +111,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,
       search: false,
+      discovery: false,
       collect: false,
       resumes: false,
       resumeExport: false,

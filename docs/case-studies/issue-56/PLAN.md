@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active bounded automatic vacancy discovery (HH02/HH03/HH05 remain incomplete):
+
+- [x] Reuse exact native pagination and frozen search/filter settings to collect finite successful descriptions, canonical deduplication and explicit selection reasons. Keep owner exclusions and responded state, stop at observed exhaustion or configured bounds, and preserve acknowledged progress on refusal/interruption without recovery replay.
+- [x] Expose start/status/stop through foreground CLI, text/binary Lino and four-language UI. Let reviewed eligible URLs populate a finite batch without starting it. Keep shared browser ownership, Stop/shutdown drainage and truthful unsupported states.
+- [x] Add finite parent-failing regressions, focused service/control checks and one native Chromium/MCP scenario with before/after desktop/phone evidence. Preserve logs/source hashes and inspect exact-head CI; all original incomplete requirements stay active.
+
+Focused Node 47/Deno 21, actual-parent service/native failures and current native/MCP checks pass. Both browser checks observe two pages, three cards, two descriptions, zero provider clicks, no replay, four locales and drained resources. Preserve the checked evidence, publish and inspect exact-head CI; every original incomplete criterion remains active.
+
 Active finite-batch CLI admission CI correction:
 
 - [x] Match exact head `281d6dcc` and timestamps for Checks `43629631473`; preserve eight complete failing runtime job logs. Each fails `cli-help-imports.test.js:51` because the new batch start/status registrations are missing from lightweight admission. The actual-parent public-entry regression also fails before any workspace is opened.

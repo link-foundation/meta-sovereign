@@ -29,6 +29,7 @@ import { createVacancyChoiceService } from './vacancy-choice-service.js';
 import { vacancySelectionOptions } from './vacancy-selection.js';
 import { reviewVacancySearch } from './vacancy-selection-service.js';
 import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
+import { createVacancyDiscovery } from './discovery.js';
 import {
   createApplicationService,
   applicationOwned,
@@ -55,6 +56,7 @@ export const createVacancyService = ({
   cvPrepare = {},
   cvTranslation = {},
   application = {},
+  discovery = {},
 }) => {
   let active;
   let stopping;
@@ -112,6 +114,14 @@ export const createVacancyService = ({
     ...application,
   });
   return {
+    ...createVacancyDiscovery({
+      store,
+      run: discoveryRun(run, applications),
+      readSearch,
+      readVacancy,
+      retryWaiting: applications.retryWaiting,
+      ...discovery,
+    }),
     ...createResumeListControl({ store, read: readResumes, artifactRoot, run }),
     ...applications.operations,
     ...createVacancyChoiceService({ store, run }),
@@ -120,24 +130,7 @@ export const createVacancyService = ({
     ...preparation.operations,
     ...createCvTranslationService({ store, run, ...cvTranslation }),
     async capabilities() {
-      const browser = await availability();
-      return {
-        ...browser,
-        search: browser.available === true,
-        collect: browser.available === true,
-        resumes: browser.available === true,
-        resumeExport: browser.available === true,
-        cached: true,
-        localChoices: true,
-        selectionReview: browser.available === true,
-        technologyAnalysis: true,
-        technologyReview: true,
-        technologyProviderSave: false,
-        cvTranslation: true,
-        cvSaveWatch: browser.available === true,
-        applicationReview: browser.available === true,
-        apply: false,
-      };
+      return vacancyCapabilities(await availability());
     },
     'resume-export': exports.start,
     'resume-export-status': exports.status,
@@ -179,3 +172,29 @@ export const createVacancyService = ({
     },
   };
 };
+
+const discoveryRun = (run, applications) => (work) =>
+  applications.batchOwned()
+    ? Promise.reject(
+        jobsFailure('busy', 'An application batch owns this workspace.')
+      )
+    : run(work);
+
+const vacancyCapabilities = (browser) => ({
+  ...browser,
+  search: browser.available === true,
+  discovery: browser.available === true,
+  collect: browser.available === true,
+  resumes: browser.available === true,
+  resumeExport: browser.available === true,
+  cached: true,
+  localChoices: true,
+  selectionReview: browser.available === true,
+  technologyAnalysis: true,
+  technologyReview: true,
+  technologyProviderSave: false,
+  cvTranslation: true,
+  cvSaveWatch: browser.available === true,
+  applicationReview: browser.available === true,
+  apply: false,
+});

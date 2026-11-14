@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Bounded automatic vacancy discovery](vacancy-discovery.md): frozen native search/pagination, finite full-description collection, acknowledged progress and explicit batch-draft handoff through CLI, both Lino encodings and four-language UI. Parent failures and focused native/MCP desktop/phone evidence are retained; all original incomplete criteria remain required.
+
 - [Batch CLI admission correction](ci-batch-cli-admission.md): preserve eight exact-parent runtime failures and admit the two existing commands through the public entrypoint. Focused Node/Deno checks retain lightweight help, complete command coverage and foreground batch controls.
 
 - [Acknowledged résumé cache recovery](resume-cache-durability.md): restore the last saved list after a real snapshot refusal, hold concurrent cached readers, and preserve desktop/phone reload state. Exact-parent failures and focused Node/Deno/native/MCP evidence are retained; HH02 and all original incomplete criteria remain required.
