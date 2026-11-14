@@ -1,4 +1,10 @@
 export const ruApplication = {
+  'application.resumePreference':
+    'Сохранённый выбор резюме: {title} ({source}).',
+  'application.resumePreferenceSource.manual': 'явный выбор',
+  'application.resumePreferenceSource.context':
+    'выбор по контексту работодателя',
+  'application.resumePreferenceSource.native': 'изменено в форме HH',
   'application.form': 'Открыть полную форму для проверки',
   'application.resumeContext': 'Контекст указывает язык {language}: {reason}.',
   'application.resumeContextUnknown':

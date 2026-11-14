@@ -43,6 +43,11 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           })
         );
         assert.equal(receipt.resumeSelection.languageProof.language, 'ru');
+        assert.equal(receipt.resumePreference.source, 'manual');
+        receipt = await api.vacancyApplicationRead(
+          applicationIdentity(receipt)
+        );
+        assert.equal(receipt.resumePreference.hash, 'english');
         assert.equal(fixture.state.resumeWrites, 1);
         assert.equal(fixture.state.submitted, 0);
         await api.vacancyApplicationClose(applicationIdentity(receipt));
@@ -71,6 +76,7 @@ test(
     assert.equal(status, 0);
     assert(output[1].commands.includes('choose-resume <hash>'));
     assert.equal(output.at(-1).resumeSelection.hash, 'english');
+    assert.equal(output.at(-1).resumePreference.source, 'manual');
     assert.equal(fixture.state.resumeWrites, 1);
     assert.equal(fixture.state.submitted, 0);
     assert.equal(fixture.state.closed, 1);

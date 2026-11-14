@@ -1,4 +1,9 @@
 export const hiApplication = {
+  'application.resumePreference':
+    'सहेजा गया रिज़्यूमे चयन: {title} ({source})।',
+  'application.resumePreferenceSource.manual': 'स्पष्ट चयन',
+  'application.resumePreferenceSource.context': 'नियोक्ता के संदर्भ से चयन',
+  'application.resumePreferenceSource.native': 'मूल फ़ॉर्म में बदला गया',
   'application.form': 'समीक्षा के लिए पूरा फ़ॉर्म खोलें',
   'application.resumeContext': 'संदर्भ {language} सुझाता है: {reason}।',
   'application.resumeContextUnknown':

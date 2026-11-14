@@ -8,6 +8,7 @@ import {
 } from '../src/storage/migrations/core.js';
 import * as supervised from '../src/storage/migrations/0014-supervised-applications.js';
 import * as popup from '../src/storage/migrations/0015-popup-application-recovery.js';
+import * as resume from '../src/storage/migrations/0016-application-resume-preference.js';
 import { readApplicationJournal } from '../src/jobs/application-journal.js';
 import { applicationKey } from '../src/jobs/application-options.js';
 import {
@@ -18,6 +19,12 @@ import {
 for (const [migration, option, keyName, code] of [
   [supervised, true, 'supervised', 'APPLICATION_SUPERVISED_COLLISION'],
   [popup, false, 'popupReview', 'APPLICATION_POPUP_COLLISION'],
+  [
+    resume,
+    false,
+    'resumePreference',
+    'APPLICATION_RESUME_PREFERENCE_COLLISION',
+  ],
 ]) {
   test(
     `${migration.id} preserves acknowledged legacy options, signatures and dispatch history byte for byte`,

@@ -1,6 +1,7 @@
 import { applicationFailure as fail } from './application-options.js';
 import { resumeHash } from './resume-list.js';
 import { resumeLanguageProof } from './resume-language.js';
+import { applicationResumePreference } from './application-resume-preference.js';
 
 const title = (value) =>
   typeof value === 'string' && value.length > 0 && value.length <= 500;
@@ -95,6 +96,7 @@ const contextShape = (raw) => {
 };
 
 export const applicationResumeData = (raw, input) => {
+  applicationResumePreference(raw.resumePreference);
   applicationResumeChooser(raw.page?.resumeChooser);
   contextShape(raw.resumeContext);
   applicationResumeSelection(

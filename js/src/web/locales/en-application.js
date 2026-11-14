@@ -1,4 +1,8 @@
 export const enApplication = {
+  'application.resumePreference': 'Saved résumé choice: {title} ({source}).',
+  'application.resumePreferenceSource.manual': 'explicit choice',
+  'application.resumePreferenceSource.context': 'employer-context choice',
+  'application.resumePreferenceSource.native': 'changed in the native form',
   'application.form': 'Open full form for review',
   'application.resumeContext': 'Context suggests {language}: {reason}.',
   'application.resumeContextUnknown':

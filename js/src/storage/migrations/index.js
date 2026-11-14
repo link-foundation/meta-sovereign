@@ -27,6 +27,7 @@ import * as m0012 from './0012-causal-writes.js';
 import * as m0013 from './0013-sync-deletions.js';
 import * as m0014 from './0014-supervised-applications.js';
 import * as m0015 from './0015-popup-application-recovery.js';
+import * as m0016 from './0016-application-resume-preference.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -44,10 +45,11 @@ export const MIGRATIONS = Object.freeze([
   m0013,
   m0014,
   m0015,
+  m0016,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 15;
+export const CURRENT_SCHEMA = 16;
 
 export {
   SCHEMA_ID,

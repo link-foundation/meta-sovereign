@@ -105,7 +105,8 @@ export class ApplicationContextChoice {
         record,
         chooser.options.find((row) => row.hash === entry.hash),
         proof,
-        signal
+        signal,
+        'context'
       );
     } else if (chooser.title === entry.title) {
       // A successful no-op still consumes this confirmation through a fresh receipt.
@@ -117,6 +118,7 @@ export class ApplicationContextChoice {
       ) {
         throw fail('changed');
       }
+      await resumes.remember(record, entry, 'context');
       result = {
         ...applicationView(record),
         resumeSelection: {

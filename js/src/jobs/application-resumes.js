@@ -10,6 +10,7 @@ import {
 import { resumeHash, resumeList, resumeListId } from './resume-list.js';
 import { withResumeLanguages } from './resume-language-files.js';
 import { ApplicationContextChoice } from './application-context-choice.js';
+import { applicationResumePreference } from './application-resume-preference.js';
 
 export const applicationResumeSelector = (hash) =>
   `[role="option"][data-qa="magritte-select-option-${resumeHash(hash)}"]`;
@@ -171,7 +172,15 @@ export class ApplicationResumes {
     }
     return result;
   }
-  async choose(record, desired, languageProof, signal) {
+  async remember(record, desired, source) {
+    record.resumePreference = applicationResumePreference({
+      hash: desired.hash,
+      title: desired.title,
+      source,
+    });
+    await this.service.save(record);
+  }
+  async choose(record, desired, languageProof, signal, source = 'manual') {
     const documentKey = record.page.documentKey;
     if (!desired.checked) {
       await this.click(
@@ -218,6 +227,7 @@ export class ApplicationResumes {
     ) {
       throw fail('resume');
     }
+    await this.remember(record, desired, source);
     return {
       ...applicationView(record),
       resumeSelection: {

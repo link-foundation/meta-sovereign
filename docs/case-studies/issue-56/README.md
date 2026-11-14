@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Acknowledged CV-choice history](application-preference.md): private restart-safe observations and later native changes, with no recovery replay. Automatic language policy and durable override enforcement remain unfinished.
+
 - [HH CLI fixture ownership](ci-hh-cli-fixture.md): bounded unfinished-response reproduction and owned-socket cleanup with default-off phase tracing. The original macOS Deno timeout remains unexplained.
 
 - [Confirmed full-form review](application-fullform.md): review the native CV and employer questions before a potentially immediate entry click. Automatic language policy and full HH06 parity remain unfinished.

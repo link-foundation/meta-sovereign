@@ -9,6 +9,7 @@ import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
 import { rememberApplicationPopup } from './application-popup.js';
 import { applyApplicationRunPolicy } from './application-run-modes.js';
+import { observeApplicationResume } from './application-resume-preference.js';
 import {
   applicationFailure as fail,
   applicationPageKey,
@@ -143,6 +144,7 @@ export class ApplicationReview {
         : 'not-attached';
     await this.prepare(record, signal);
     this.service.holds.observe(record, record.page, record.state);
+    observeApplicationResume(record);
     rememberApplicationLocation(record);
     this.policy(record);
     rememberApplicationPopup(record);

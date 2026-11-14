@@ -26,7 +26,7 @@ fn hello(session: &mut SyncSession, state: &ServerState) -> (Value, Value) {
     let replies = session
         .receive(
             state,
-            &value(r#"{"type":"hello","schema":15,"reconcile":1,"session":"javascript"}"#),
+            &value(r#"{"type":"hello","schema":16,"reconcile":1,"session":"javascript"}"#),
         )
         .unwrap();
     assert_eq!(replies.len(), 2);
@@ -40,7 +40,7 @@ fn control(local: &Value, kind: &str, request: Value, sequence: u64) -> Value {
     Value::Object(
         [
             ("type".into(), Value::String(kind.into())),
-            ("schema".into(), Value::Number(15.0)),
+            ("schema".into(), Value::Number(16.0)),
             ("from".into(), Value::String("javascript".into())),
             ("to".into(), field(local, "session")),
             ("request".into(), request),
@@ -70,13 +70,13 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     let mut session = SyncSession::default();
     assert!(session.deadline().is_some());
     let mutation =
-        value(r#"{"type":"put","schema":15,"link":{"id":"public","vc":{"js":1},"body":"saved"}}"#);
+        value(r#"{"type":"put","schema":16,"link":{"id":"public","vc":{"js":1},"body":"saved"}}"#);
     assert!(session.receive(&state, &mutation).is_err());
     assert!(
         session
             .receive(
                 &state,
-                &value(r#"{"type":"hello","schema":15,"reconcile":1,"session":"invalid session"}"#)
+                &value(r#"{"type":"hello","schema":16,"reconcile":1,"session":"invalid session"}"#)
             )
             .is_err()
     );
@@ -92,7 +92,7 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     assert!(state.is_empty());
     assert!(
         session
-            .receive(&state, &value(r#"{"type":"hello","schema":15}"#))
+            .receive(&state, &value(r#"{"type":"hello","schema":16}"#))
             .unwrap()
             .is_empty()
     );
@@ -100,10 +100,10 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     assert!(session.receive(&state, &mutation).unwrap().is_empty());
     assert_eq!(state.get("public"), mutation.get("link").cloned());
     for record in [
-        r#"{"type":"put","schema":15,"link":{"id":"secret:key"}}"#,
-        r#"{"type":"put","schema":15,"link":{"id":"meta:schema"}}"#,
-        r#"{"type":"delete","schema":15,"link":{"id":"public","vc":{"js":2}}}"#,
-        r#"{"type":"put","schema":15,"link":{"id":"public","__msSyncDeleted":1,"vc":{"js":2}}}"#,
+        r#"{"type":"put","schema":16,"link":{"id":"secret:key"}}"#,
+        r#"{"type":"put","schema":16,"link":{"id":"meta:schema"}}"#,
+        r#"{"type":"delete","schema":16,"link":{"id":"public","vc":{"js":2}}}"#,
+        r#"{"type":"put","schema":16,"link":{"id":"public","__msSyncDeleted":1,"vc":{"js":2}}}"#,
     ] {
         assert!(session.receive(&state, &value(record)).is_err());
     }
@@ -266,7 +266,7 @@ fn native_session_controls_cannot_cross_sessions_or_restart_an_active_scan() {
         session
             .receive(
                 &state,
-                &value(r#"{"type":"hello","schema":15,"reconcile":1,"session":"other"}"#)
+                &value(r#"{"type":"hello","schema":16,"reconcile":1,"session":"other"}"#)
             )
             .is_err()
     );

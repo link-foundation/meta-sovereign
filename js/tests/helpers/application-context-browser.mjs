@@ -32,6 +32,11 @@ export const verifyApplicationContextBrowser = async (
     .waitFor();
   assert.equal(await action('context-resume').isDisabled(), true);
   await controls.confirmed('context-resume');
+  if (process.env.APPLICATION_CONTEXT_BEFORE !== '1') {
+    await panel
+      .locator('[data-application-resume-preference="context"]')
+      .waitFor();
+  }
   assert.equal(await owned.evaluate(() => globalThis.resumeMenus), 1);
   assert.equal(await owned.evaluate(() => globalThis.resumeChoices), 1);
   // A later owner choice is changed only by this new, explicit contextual confirmation.
@@ -43,6 +48,9 @@ export const verifyApplicationContextBrowser = async (
   await panel
     .locator('[data-application-resume-title]')
     .filter({ hasText: 'Старое резюме' })
+    .waitFor();
+  await panel
+    .locator('[data-application-resume-preference="native"]')
     .waitFor();
   await controls.confirmed('context-resume');
   await panel.locator('[data-application-resume-proof="ru"]').waitFor();

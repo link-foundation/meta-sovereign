@@ -29,6 +29,7 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           reason: 'questions',
         });
         assert.equal(selected.resumeSelection.languageProof.language, 'ru');
+        assert.equal(selected.resumePreference.source, 'context');
         assert.equal(fixture.state.resumeWrites, 1);
         assert.equal(fixture.state.submitted, 0);
         await api.vacancyApplicationClose(identity(selected));
@@ -55,6 +56,7 @@ test(
     assert.equal(status, 0);
     assert(output[1].commands.includes('context-resume'));
     assert.equal(output.at(-1).resumeSelection.languageProof.language, 'ru');
+    assert.equal(output.at(-1).resumePreference.source, 'context');
     assert.equal(fixture.state.resumeWrites, 1);
     assert.equal(fixture.state.submitted, 0);
     assert.equal(fixture.state.closed, 1);

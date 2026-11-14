@@ -1,10 +1,27 @@
 import React from 'react';
 const el = React.createElement;
 
+const savedChoice = (receipt, t) =>
+  receipt?.resumePreference
+    ? el(
+        'p',
+        {
+          key: 'preference',
+          'data-application-resume-preference': receipt.resumePreference.source,
+        },
+        t('application.resumePreference', {
+          title: receipt.resumePreference.title,
+          source: t(
+            `application.resumePreferenceSource.${receipt.resumePreference.source}`
+          ),
+        })
+      )
+    : null;
+
 export const ApplicationResumeView = ({ receipt, action, writable, t }) => {
   const chooser = receipt?.page?.resumeChooser;
   if (!chooser) {
-    return null;
+    return savedChoice(receipt, t);
   }
   return el('fieldset', { className: 'automation-fieldset' }, [
     el('legend', { key: 'title' }, t('application.resume')),
@@ -14,6 +31,7 @@ export const ApplicationResumeView = ({ receipt, action, writable, t }) => {
       chooser.title
     ),
     el('p', { key: 'hint', className: 'meta' }, t('application.resumeHint')),
+    savedChoice(receipt, t),
     el(
       'p',
       { key: 'context', 'data-application-resume-context': true },

@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH06 extension: [acknowledged CV-choice history](application-preference.md) retains manual/context/native observations through restart, isolated by vacancy/request/slot. CLI, both Lino formats and four-language controls disclose saved history without replay. Automatic selection, durable override enforcement, standard letters and authenticated parity remain required; all 81 original rows stay unchecked.
+
 Partial HH06 extension: [confirmed full-form review](application-fullform.md) navigates to the verified native form before an entry control can send a default CV. CLI, both Lino encodings and four-language controls preserve existing forms, preview, pauses and read-only recovery. Automatic language selection, durable owner overrides, standard letters and authenticated parity remain required; all 81 original unchecked rows remain incomplete.
 
 Partial HH06 extension: [confirmed employer-context résumé choice](application-context.md) derives language from employer questions, dollar pay and the frozen full vacancy, then verifies same-slot exports against native options. An already matching CV needs no menu click; CLI, both Lino encodings and four-language controls preserve owner values, preview and read-only recovery. Automatic selection before entry that may send immediately, durable manual overrides, language-aware standard letters, authenticated parity and all 81 original unchecked rows remain required. HH06 stays unchecked.

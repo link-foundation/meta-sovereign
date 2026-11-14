@@ -1,4 +1,8 @@
 export const zhApplication = {
+  'application.resumePreference': '已保存的简历选择：{title}（{source}）。',
+  'application.resumePreferenceSource.manual': '明确选择',
+  'application.resumePreferenceSource.context': '按雇主上下文选择',
+  'application.resumePreferenceSource.native': '已在原生表单中更改',
   'application.form': '打开完整表单进行审核',
   'application.resumeContext': '上下文建议使用 {language}：{reason}。',
   'application.resumeContextUnknown':

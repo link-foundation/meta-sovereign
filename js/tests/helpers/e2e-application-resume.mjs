@@ -6,6 +6,7 @@ import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { verifyResumeAdmission } from './application-resume-admission.mjs';
 import { verifyApplicationContextBrowser } from './application-context-browser.mjs';
 import { openFullFormReview } from './application-fullform-browser.mjs';
+import { verifyApplicationPreferenceBrowser } from './application-preference-browser.mjs';
 
 export const verifyNativeApplicationResume = async (
   browser,
@@ -71,6 +72,7 @@ export const verifyNativeApplicationResume = async (
     assert.equal(await owned.evaluate(() => globalThis.applicationAttempts), 0);
     assert.equal(await action('submit').isDisabled(), true);
     await shot('after');
+    await verifyApplicationPreferenceBrowser(panel, screenshots, before);
     const contextualChoice = await verifyApplicationContextBrowser(
       controls,
       owned,
@@ -89,6 +91,9 @@ export const verifyNativeApplicationResume = async (
       );
       await page.reload();
       await panel.locator('[data-application-resume-title]').waitFor();
+      await panel
+        .locator('[data-application-resume-preference="context"]')
+        .waitFor();
       assert.equal(
         await panel.locator('[data-application-resume-title]').innerText(),
         'Senior Software Engineer'
@@ -97,6 +102,14 @@ export const verifyNativeApplicationResume = async (
     }
     await controls.phone();
     await shot('phone');
+    if (screenshots) {
+      await panel
+        .locator('[data-application-resume-title]')
+        .locator('..')
+        .screenshot({
+          path: join(screenshots, 'application-preference-phone.png'),
+        });
+    }
     if (fullForm && screenshots) {
       await panel.screenshot({
         path: join(screenshots, 'application-fullform-phone.png'),
@@ -132,6 +145,7 @@ export const verifyNativeApplicationResume = async (
       contextualChoice,
       fullFormNavigation: fullForm,
       entryClicks: fullForm ? 0 : 1,
+      acknowledgedResumeHistory: true,
     };
   } finally {
     await fixture.close();

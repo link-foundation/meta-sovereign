@@ -139,6 +139,7 @@ export const applicationView = (record) => {
     restoration: record.restoration ?? null,
     exact: record.exact === true,
     resumeContext: applicationResumeContext(record),
+    resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
   });
 };
