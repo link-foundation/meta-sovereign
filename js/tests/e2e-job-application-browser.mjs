@@ -3,6 +3,7 @@ import { verifyNativeApplicationDraft } from './helpers/e2e-application-drafts.m
 import { verifyNativeApplicationRunModes } from './helpers/e2e-application-run-modes.mjs';
 import { verifyNativeApplicationDeferral } from './helpers/e2e-application-deferrals.mjs';
 import { verifyNativeApplicationHolds } from './helpers/e2e-application-holds.mjs';
+import { verifyNativeApplicationRetries } from './helpers/e2e-application-retries.mjs';
 import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
 import {
   verifyNativeApplication,
@@ -18,4 +19,5 @@ await runBrowserScenarios('job-application', [
   verifyNativeApplicationRunModes,
   verifyNativeApplicationDeferral,
   verifyNativeApplicationHolds,
+  verifyNativeApplicationRetries,
 ]);

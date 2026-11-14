@@ -36,6 +36,15 @@ const checkPolicy = (record, allowHeld) => {
     throw fail('state');
   }
 };
+const invalidNativeRead = (page, action, captureGeneric) =>
+  !page.bound ||
+  page.challenge ||
+  page.dailyLimit ||
+  page.external ||
+  page.delivered ||
+  (captureGeneric ? page.error !== 'generic-error' : page.error) ||
+  !page[action] ||
+  (!captureGeneric && page[action].disabled);
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -140,7 +149,11 @@ export class ApplicationReview {
     if (record.state === 'ready' && !record.vacancy) {
       await this.vacancy(record, signal);
     }
-    if (record.state === 'review' && record.page.scope && record.vacancy) {
+    if (
+      (record.state === 'review' || record.page.error === 'generic-error') &&
+      record.page.scope &&
+      record.vacancy
+    ) {
       await this.plan(record, signal);
     }
   }
@@ -156,7 +169,13 @@ export class ApplicationReview {
     }
     applyApplicationRunPolicy(record);
   }
-  async check(record, action, signal, allowHeld = false) {
+  async check(
+    record,
+    action,
+    signal,
+    allowHeld = false,
+    captureGeneric = false
+  ) {
     const { readPage, filling } = this.service;
     if (!record.guard) {
       throw fail('changed');
@@ -166,14 +185,7 @@ export class ApplicationReview {
     this.service.holds.observe(record, before);
     if (
       applicationPageKey(before) !== record.guard.page ||
-      !before.bound ||
-      before.challenge ||
-      before.dailyLimit ||
-      before.error ||
-      before.external ||
-      before.delivered ||
-      !before[action] ||
-      before[action].disabled
+      invalidNativeRead(before, action, captureGeneric)
     ) {
       throw fail('changed');
     }

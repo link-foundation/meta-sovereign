@@ -12,7 +12,11 @@ const validEntry = (row, slot, key) =>
   uuid(row.id) &&
   row.browserSlot === slot &&
   key.url === row.url &&
-  row.reason === 'questionnaire' &&
+  (row.reason === 'questionnaire' ||
+    (row.reason === 'generic-error' &&
+      typeof row.ready === 'boolean' &&
+      typeof row.retryAt === 'string' &&
+      Number.isFinite(Date.parse(row.retryAt)))) &&
   typeof row.requestId === 'string' &&
   /^[a-zA-Z0-9_-]{1,100}$/u.test(row.requestId) &&
   typeof row.title === 'string' &&

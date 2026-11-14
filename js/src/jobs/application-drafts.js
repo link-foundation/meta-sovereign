@@ -109,8 +109,13 @@ export class ApplicationDrafts {
     }
     await this.service.review.check(record, 'submit', signal, !restoring);
   }
-  async backup(record, input, signal) {
-    await this.admit(record, input, signal);
+  async backup(
+    record,
+    input,
+    signal,
+    check = () => this.admit(record, input, signal)
+  ) {
+    await check();
     const fields = nativeDraftFields(record);
     const next = applicationDraft({
       version: 1,
@@ -124,7 +129,7 @@ export class ApplicationDrafts {
         checked: field.checked,
       })),
     });
-    await this.service.review.check(record, 'submit', signal, true);
+    await check();
     record.draft = next;
     record.restoration = null;
     await this.service.save(record);

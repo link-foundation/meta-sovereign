@@ -37,7 +37,7 @@ rows = {
     "release": ["Finish review and use current selection", "Завершить проверку и перейти к выбранной вакансии", "समीक्षा समाप्त कर वर्तमान चयन लें", "结束审核并使用当前选择"],
     "stop": ["Stop and drain application operation", "Остановить и завершить операцию отклика", "आवेदन क्रिया रोकें और पूरी तरह समाप्त करें", "停止申请操作并等待结束"],
     "delivery.none": ["No application dispatch is recorded.", "Отправка отклика не зафиксирована.", "आवेदन भेजने का कोई रिकॉर्ड नहीं है।", "未记录申请发送。"],
-    "delivery.unknown": ["Delivery is unknown. A reserved action may have reached HH; it will not be sent again.", "Доставка неизвестна. Зарезервированное действие могло достичь HH; повторной отправки не будет.", "भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है; उसे दोबारा नहीं भेजा जाएगा।", "送达状态未知。已预留操作可能已到达 HH，不会重复发送。"],
+    "delivery.unknown": ["Delivery is unknown. A reserved action may have reached HH. A retry requires fresh native rejection evidence and a separately confirmed review.", "Доставка неизвестна. Зарезервированное действие могло достичь HH. Для повтора нужны свежие данные об отказе в родной форме и отдельное подтверждение просмотра.", "भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है। दोबारा प्रयास के लिए मूल फ़ॉर्म में अस्वीकृति का नया प्रमाण और अलग से पुष्टि की गई समीक्षा चाहिए।", "送达状态未知。已预留操作可能已到达 HH。重试需要原生页面的新拒绝证据和单独确认的审核。"],
     "delivery.provider-confirmed": ["HH confirmed application delivery.", "HH подтвердил доставку отклика.", "HH ने आवेदन पहुँचने की पुष्टि की।", "HH 已确认申请送达。"],
     "letter.not-requested": ["No letter attachment requested yet.", "Прикрепление письма ещё не запрошено.", "पत्र जोड़ने का अनुरोध अभी नहीं हुआ।", "尚未请求添加求职信。"],
     "letter.verified": ["Letter verified in the native application.", "Письмо проверено в отклике HH.", "मूल आवेदन में पत्र सत्यापित है।", "求职信已在原生申请中验证。"],
@@ -173,6 +173,18 @@ rows.update({
     "queueUnknown": ["The queue could not be read. No vacancy was reopened.", "Очередь прочитать не удалось. Вакансии не открывались.", "कतार पढ़ी नहीं जा सकी। कोई नौकरी फिर नहीं खोली गई।", "无法读取队列。未重新打开任何职位。"],
     "queueEmpty": ["No questionnaires queued in this browser slot.", "В этом профиле браузера нет анкет в очереди.", "इस ब्राउज़र स्लॉट में कोई प्रश्नावली कतार में नहीं है।", "此浏览器配置中没有排队的问卷。"],
     "retry": ["Reopen for fresh review", "Открыть для новой проверки", "नई समीक्षा के लिए फिर खोलें", "重新打开以再次审核"],
+})
+rows.update({
+    "queueTitle": ["Deferred applications", "Отложенные отклики", "टाले गए आवेदन", "暂缓的申请"],
+    "queueEmpty": ["No applications queued in this browser slot.", "В этом профиле браузера нет откликов в очереди.", "इस ब्राउज़र स्लॉट में कोई आवेदन कतार में नहीं है।", "此浏览器配置中没有排队的申请。"],
+    "retryWaiting": ["Answers saved. Generic-error retry available at {at} (five-hour wait).", "Ответы сохранены. Повтор после общей ошибки доступен {at} (ожидание пять часов).", "उत्तर सहेजे गए। सामान्य त्रुटि के बाद पुनः प्रयास {at} पर उपलब्ध होगा (पाँच घंटे की प्रतीक्षा)।", "答案已保存。一般错误后可于 {at} 重试（等待五小时）。"],
+    "retryReady": ["The generic-error wait has ended. Reopen for fresh review; restoration and sending need separate confirmation.", "Ожидание после общей ошибки завершено. Откройте для новой проверки; восстановление и отправка подтверждаются отдельно.", "सामान्य त्रुटि की प्रतीक्षा समाप्त हुई। नई समीक्षा के लिए खोलें; बहाली और भेजने के लिए अलग पुष्टि चाहिए।", "一般错误后的等待已结束。请重新打开以再次审核；恢复及发送需分别确认。"],
+    "hold": [
+        "Automatic sending and automatic questionnaire deferral are held: {reason}. Dismissing the banner does not grant sending permission. Read the page before a separately confirmed send; confirmed delivery clears the hold. A backed generic-error queue allows fresh review only after its five-hour wait.",
+        "Автоотправка и автоматическое откладывание анкет остановлены: {reason}. Закрытие сообщения не разрешает отправку. Перечитайте страницу перед отдельно подтверждённой отправкой; подтверждённая доставка снимает ограничение. Очередь после общей ошибки допускает новую проверку лишь через пять часов после сохранения ответов.",
+        "स्वतः भेजना और प्रश्नावली को स्वतः टालना रुका है: {reason}। संदेश हटाने से भेजने की अनुमति नहीं मिलती। अलग पुष्टि से भेजने से पहले पेज फिर पढ़ें; पहुँचने की पुष्टि पर रोक हटती है। सामान्य त्रुटि की कतार में उत्तर सहेजने के पाँच घंटे बाद ही नई समीक्षा उपलब्ध होती है।",
+        "已暂停自动发送及自动暂缓问卷：{reason}。关闭提示不会授予发送权限。请先重新读取页面，再单独确认发送；确认送达后解除暂停。一般错误队列仅在保存答案并等待五小时后允许再次审核。"
+    ],
 })
 root = Path(__file__).resolve().parents[2] / "js/src/web/locales"
 for index, locale in enumerate(("en", "ru", "hi", "zh")):

@@ -160,7 +160,12 @@ export const createVacancyService = ({
       return run(async (signal) => {
         const result = await readSearch(url, { ...options, signal });
         signal.throwIfAborted();
-        return reviewVacancySearch(store, result, input);
+        return reviewVacancySearch(
+          store,
+          result,
+          input,
+          applications.retryWaiting
+        );
       });
     },
     collect(input) {

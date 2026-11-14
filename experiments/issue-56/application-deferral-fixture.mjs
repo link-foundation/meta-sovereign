@@ -37,9 +37,15 @@ export const deferralStorageFault = () => {
       ? 'learning'
       : row.id.startsWith('secret:jobs-application-answers:')
         ? 'answers'
-        : 'draft';
+        : row.id.startsWith('secret:jobs-application-rejection:')
+          ? 'rejection'
+          : 'draft';
   const check = (stage, row) => {
-    if (state.stage === stage && state.kind === kind(row)) {
+    if (
+      state.stage === stage &&
+      state.kind === kind(row) &&
+      (!state.when || state.when(row))
+    ) {
       state.stage = null;
       state.hits++;
       throw Object.assign(new Error('Finite deferral checkpoint refusal'), {

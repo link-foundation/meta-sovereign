@@ -68,6 +68,10 @@ export const verifyNativeApplicationHolds = async (browser) => {
       'generic-text-en',
       'daily-limit',
     ]) {
+      const generic = kind.startsWith('generic-');
+      if (generic) {
+        receipt = await request('mode', receipt, { paused: true });
+      }
       await page.evaluate(changeApplicationHoldFixture, kind);
       receipt = await request('read', receipt);
       const reason = kind.startsWith('generic-') ? 'generic-error' : kind;
@@ -99,6 +103,9 @@ export const verifyNativeApplicationHolds = async (browser) => {
       await page.evaluate(changeApplicationHoldFixture, 'clear');
       receipt = await request('read', receipt);
       assert.equal(receipt.hold, reason);
+      if (generic) {
+        receipt = await request('mode', receipt, { paused: false });
+      }
       receipt = await request('mode', receipt, { noQuestionnaires: true });
       assert.equal(receipt.active, true);
       assert.equal((await nativeApplicationQueue(fixture)).entries.length, 0);

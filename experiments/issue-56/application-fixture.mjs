@@ -53,6 +53,7 @@ const field = (label, index, value, source = 'exact') =>
 export const applicationFixture = ({
   store = createMemoryStore(),
   application = {},
+  readSearch,
 } = {}) => {
   const state = {
     page: applicationPageFixture(),
@@ -96,6 +97,7 @@ export const applicationFixture = ({
   };
   const serviceOptions = {
     store,
+    ...(readSearch ? { readSearch } : {}),
     storeDir: '/tmp/application-fixture',
     openSession: async (options) => {
       state.opened++;

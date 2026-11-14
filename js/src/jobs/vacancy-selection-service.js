@@ -8,7 +8,12 @@ import {
 } from './vacancy-selection.js';
 
 /** Called inside the owned search lane, after the native reader has completed. */
-export const reviewVacancySearch = async (store, result, input) => {
+export const reviewVacancySearch = async (
+  store,
+  result,
+  input,
+  retryWaiting = () => false
+) => {
   const browserSlot = vacancyChoiceSlot(input);
   const filters = vacancySelectionOptions(input);
   const choices = await storedVacancyChoices(store, { browserSlot });
@@ -21,9 +26,18 @@ export const reviewVacancySearch = async (store, result, input) => {
       browserSlot,
       choiceRevision: choices.revision,
       filters,
-      decisions: result.cards.map((card) =>
-        vacancySelectionDecision(card, choices, cached, filters)
-      ),
+      decisions: result.cards.map((card) => {
+        const decision = vacancySelectionDecision(
+          card,
+          choices,
+          cached,
+          filters
+        );
+        return ['review', 'needs-description'].includes(decision.reason) &&
+          retryWaiting({ url: card.url, browserSlot })
+          ? { ...decision, reason: 'retry-wait' }
+          : decision;
+      }),
     },
     result,
     input

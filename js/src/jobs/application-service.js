@@ -24,6 +24,7 @@ import { ApplicationActions } from './application-actions.js';
 import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationHolds } from './application-holds.js';
+import { ApplicationRetries } from './application-retries.js';
 
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
@@ -41,6 +42,7 @@ class ApplicationService {
     target = applicationTarget,
     writeLetter = writeApplicationLetter,
     dispatch = dispatchApplication,
+    now = Date.now,
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
       : () => {},
@@ -64,6 +66,7 @@ class ApplicationService {
     this.modes = new ApplicationRunModes();
     this.deferrals = new ApplicationDeferrals(this);
     this.holds = new ApplicationHolds(this.trace);
+    this.retries = new ApplicationRetries(this, now);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -142,7 +145,10 @@ class ApplicationService {
       // Only a mode-interrupted action may finish by backing up its held form.
       // A failed read/save must keep that form open without a second save attempt.
       if (!failure || failure.code === 'jobs-application-state') {
-        result = (await this.deferrals.automatic(signal)) ?? result;
+        result =
+          (await this.retries.automatic(signal)) ??
+          (await this.deferrals.automatic(signal)) ??
+          result;
       }
     } catch (error) {
       this.trace({
@@ -265,6 +271,9 @@ class ApplicationService {
   }
   async open(input, signal) {
     let options = applicationSettings(input);
+    if (this.retries.waiting(options)) {
+      throw fail('retry-wait');
+    }
     if (this.current) {
       const record = this.current;
       const same =
@@ -359,11 +368,13 @@ class ApplicationService {
     this.modes.clear();
     this.deferrals.clear();
     this.holds.clear();
+    this.retries.clear();
   }
 }
 export const createApplicationService = (options) => {
   const service = new ApplicationService(options);
   return {
+    retryWaiting: (input) => service.retries.waiting(input),
     operations: {
       // Foreground CLI signals only: the HTTP route allowlist does not expose
       // this interruption channel. It changes RAM policy without waiting behind

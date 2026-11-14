@@ -54,7 +54,12 @@ export const VacancySelectionSummary = ({ state, t }) => {
     : !current
       ? t('vacancySelection.stale')
       : t('vacancySelection.summary', {
-          excluded: count(['owner-skipped', 'responded', 'configured-text']),
+          excluded: count([
+            'owner-skipped',
+            'responded',
+            'configured-text',
+            'retry-wait',
+          ]),
           deferred: count(['owner-deferred']),
           unread: count(['needs-description']),
           review: count(['review']),

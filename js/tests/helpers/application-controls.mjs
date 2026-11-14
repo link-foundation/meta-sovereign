@@ -9,6 +9,15 @@ import { wirePost, withRoutes } from './vacancy-routes.mjs';
 import { createVacancyCommands } from '../../src/cli/vacancy-commands.js';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 
+/** A queue reopen reveals the saved draft without editing or submitting it. */
+export const assertApplicationReviewOnly = (fixture, receipt, answer) => {
+  assert.equal(receipt.state, 'review');
+  assert.equal(receipt.draft.fields[0].value, answer);
+  assert.equal(fixture.state.fields[1].value, '');
+  assert.equal(fixture.state.writes.length, 0);
+  assert.equal(fixture.state.submitted, 0);
+};
+
 export const runApplicationFixtureCommand = async (
   fixture,
   applicationInputStream

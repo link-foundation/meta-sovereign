@@ -44,6 +44,18 @@ export const ApplicationQueueView = ({ application, idle, confirmed, t }) =>
         },
         [
           el('p', { key: 'title' }, entry.title),
+          entry.reason === 'generic-error'
+            ? el(
+                'p',
+                { key: 'retryAt', 'data-application-retry-at': entry.retryAt },
+                t(
+                  entry.ready
+                    ? 'application.retryReady'
+                    : 'application.retryWaiting',
+                  { at: entry.retryAt }
+                )
+              )
+            : null,
           el(
             'p',
             {

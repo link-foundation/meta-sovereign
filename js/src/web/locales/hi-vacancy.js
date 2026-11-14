@@ -1,5 +1,7 @@
 import { hiApplication } from './hi-application.js';
 export const hiVacancy = {
+  'vacancySelection.retry-wait':
+    'उत्तर सहेजे गए हैं; सामान्य त्रुटि के बाद पुनः प्रयास के लिए पाँच घंटे की प्रतीक्षा',
   ...hiApplication,
   'vacancySelection.searchAt': 'अंतिम सफल खोज का समय: {date}।',
   'vacancySelection.skipResponded':

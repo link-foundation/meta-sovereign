@@ -1,4 +1,7 @@
-import { assertUnapprovedApplicationLearning } from './helpers/application-deferral-assertions.mjs';
+import {
+  assertUnapprovedApplicationLearning,
+  assertApplicationAnswerObservation,
+} from './helpers/application-deferral-assertions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setTimeout as wait } from 'node:timers/promises';
@@ -32,14 +35,7 @@ test(
     assert.equal(queue.entries.length, 1);
     assert.equal(queue.entries[0].reason, 'questionnaire');
     const rows = await fixture.store.query();
-    const observation = rows.find((row) =>
-      row.id.startsWith('secret:jobs-application-answers:')
-    );
-    assert.equal(observation.draftId, closed.draft.id);
-    assert.deepEqual(
-      observation.fields.map((row) => row.value),
-      ['Owner recent storage work.', 'Owner edited cover letter.']
-    );
+    const observation = assertApplicationAnswerObservation(rows, closed);
     assert.deepEqual(
       observation.pairs.map((row) => row.text),
       observation.fields.map((row) => row.value)

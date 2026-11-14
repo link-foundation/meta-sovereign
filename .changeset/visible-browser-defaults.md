@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Preserve actual native HH application answers and failed-send evidence before queuing generic errors for a worker-only five-hour retry wait. Retain live forms after failed acknowledgements, isolate search exclusions by slot, and require fresh review plus separate restoration and send confirmations through CLI, both Lino encodings and four-language controls.
+
 Preserve later observed browser-tab child replacements by comparing unchanged openings with their saved baseline before joining concurrent records. Keep bounded stale-root retries, private refusal and causal deletion behavior.
 
 Add an owned native HH application executor with explicit CLI and Lino controls, exact answer review, verified cover letters, durable no-replay intent and drained cancellation. Keep the UI application capability unavailable until its controls and remaining policies are verified.

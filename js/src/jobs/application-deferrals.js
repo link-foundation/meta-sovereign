@@ -29,27 +29,41 @@ export class ApplicationDeferrals {
         revision: this.revision,
         entries: [...this.entries.values()]
           .filter((row) => row.browserSlot === browserSlot)
-          .map((row) => ({ ...row })),
+          .map((row) => ({
+            ...row,
+            ...(row.reason === 'generic-error'
+              ? { ready: this.service.retries.ready(row) }
+              : {}),
+          })),
       },
       input
     );
   }
-  async preserve(record, input, signal, policyCheck) {
+  async preserve(record, input, signal, policyCheck, capture) {
     const service = this.service;
     const check = async () => {
       policyCheck();
-      await service.review.check(record, 'submit', signal, true);
+      await (capture
+        ? capture()
+        : service.review.check(record, 'submit', signal, true));
       policyCheck();
     };
     await check();
-    await service.drafts.admit(record, input, signal);
+    if (!capture) {
+      await service.drafts.admit(record, input, signal);
+    }
     const fields = nativeDraftFields(record);
     const report = { ...record.reviewPlan.inspection, fields };
     const pairs = formAnswerPairs(report);
     // Preserve all native answers in a full recovery draft and a private Q&A
     // observation. Reusable learning remains subject to the existing exclusions
     // (e.g. salary and assignments), contraction and owner approval policy.
-    await service.drafts.backup(record, input, signal);
+    await service.drafts.backup(
+      record,
+      input,
+      signal,
+      capture ? check : undefined
+    );
     await check();
     await saveAcknowledgedRecord(service.store, {
       id: record.id.replace(
@@ -89,6 +103,10 @@ export class ApplicationDeferrals {
       throw fail('queue');
     }
     await this.preserve(record, input, signal, policyCheck);
+    this.enqueue(record, 'questionnaire');
+    return this.service.close();
+  }
+  enqueue(record, reason, extra = {}) {
     const entry = {
       id: globalThis.crypto.randomUUID(),
       url: record.url,
@@ -96,15 +114,17 @@ export class ApplicationDeferrals {
       requestId: record.requestId,
       title: record.vacancy.title,
       queuedAt: new Date().toISOString(),
-      reason: 'questionnaire',
+      reason,
+      ...extra,
     };
     this.entries.set(record.id, entry);
     this.revision = globalThis.crypto.randomUUID();
     this.service.trace({
-      event: 'application-questionnaire-queued',
+      event: 'application-retry-queued',
+      reason,
       count: this.entries.size,
     });
-    return this.service.close();
+    return entry;
   }
   async automatic(signal) {
     const service = this.service;
@@ -165,8 +185,8 @@ export class ApplicationDeferrals {
     );
     if (
       previous.requestId !== entry.requestId ||
-      previous.attempted.submit ||
-      previous.delivery !== 'none' ||
+      (entry.reason !== 'generic-error' &&
+        (previous.attempted.submit || previous.delivery !== 'none')) ||
       !previous.draft
     ) {
       throw fail('state');
@@ -175,16 +195,22 @@ export class ApplicationDeferrals {
     if (choices.entries.some((row) => row.url === key.url)) {
       throw fail('excluded');
     }
-    if (service.modes.read(key.browserSlot).noQuestionnaires) {
+    if (
+      entry.reason === 'questionnaire' &&
+      service.modes.read(key.browserSlot).noQuestionnaires
+    ) {
       throw fail('questionnaires-held');
     }
     signal.throwIfAborted();
+    if (entry.reason === 'generic-error') {
+      await service.retries.admit(entry, previous, signal);
+    }
     const receipt = await service.open({ ...entry, recover: true }, signal);
     // Opening creates a freshly inspected review. Filling/restoration and native
     // sending each retain their own confirmation; a lost reply never retries.
     this.entries.delete(key.id);
     this.revision = globalThis.crypto.randomUUID();
-    return receipt;
+    return service.retries.release(entry, receipt);
   }
   clear() {
     this.entries.clear();

@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH08 extension: [backed five-hour generic-error retries](application-retries.md) now preserve actual values and failed-dispatch history before RAM-only exclusion and separately confirmed due review. Automatic paced revisits, the supervised preset, recruiter-panel behavior and every unchecked original criterion remain unfinished. This supersedes the generic-error retry gap in the earlier snapshots below; no inventory row is marked complete by this unit.
+
 Partial HH08 prerequisite: [native application error holds](application-holds.md) retain manual review after banner dismissal and browser reopening. Generic-error five-hour retries, paced revisits and supervised presets remain unfinished; no inventory row is marked complete by this unit.
 
 Latest partial HH08 evidence: [automatic backed questionnaire deferral](application-automatic-deferral.md) now preserves actual values before mode-driven closure and enables later confirmed review. Automatic paced revisits, generic-error five-hour retries, the supervised preset and all unchecked criteria remain unfinished.

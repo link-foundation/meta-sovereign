@@ -40,7 +40,7 @@ export const zhApplication = {
   'application.stop': '停止申请操作并等待结束',
   'application.delivery.none': 'HH 尚未确认申请送达。',
   'application.delivery.unknown':
-    '送达状态未知。已预留操作可能已到达 HH，不会重复发送。',
+    '送达状态未知。已预留操作可能已到达 HH。重试需要原生页面的新拒绝证据和单独确认的审核。',
   'application.delivery.provider-confirmed': 'HH 已确认申请送达。',
   'application.letter.not-requested': '尚未请求添加求职信。',
   'application.letter.verified': '求职信已在原生申请中验证。',
@@ -82,19 +82,23 @@ export const zhApplication = {
   'application.state.closed': '此申请的浏览器已关闭',
   'application.state.provider-error': 'HH 申请错误：需要手动处理',
   'application.hold':
-    '已暂停自动发送及自动暂缓问卷：{reason}。关闭提示或重新打开不会解除当前进程中的暂停。请重新读取页面并审核，再手动确认发送；确认送达后解除暂停。',
+    '已暂停自动发送及自动暂缓问卷：{reason}。关闭提示不会授予发送权限。请先重新读取页面，再单独确认发送；确认送达后解除暂停。一般错误队列仅在保存答案并等待五小时后允许再次审核。',
   'application.hold.generic-error': '提供商一般错误',
   'application.hold.validation-error': '提供商验证错误',
   'application.hold.verification': '手动验证',
   'application.hold.daily-limit': '提供商申请上限',
   'application.hold.external': '外部申请',
   'application.defer': '保存答案并暂缓',
-  'application.queueTitle': '暂缓的问卷',
+  'application.queueTitle': '暂缓的申请',
   'application.queueHint':
     '关闭前会保存私人恢复副本及实际问答。符合条件的答案作为未批准的知识保存。队列仅存在于当前进程；重新打开需要再次审核，不会恢复或发送答案。单独保存的排除项仍然有效。',
   'application.queueRead': '刷新暂缓队列',
   'application.queueLoading': '正在读取当前进程的队列…',
   'application.queueUnknown': '无法读取队列。未重新打开任何职位。',
-  'application.queueEmpty': '此浏览器配置中没有排队的问卷。',
+  'application.queueEmpty': '此浏览器配置中没有排队的申请。',
   'application.retry': '重新打开以再次审核',
+  'application.retryWaiting':
+    '答案已保存。一般错误后可于 {at} 重试（等待五小时）。',
+  'application.retryReady':
+    '一般错误后的等待已结束。请重新打开以再次审核；恢复及发送需分别确认。',
 };

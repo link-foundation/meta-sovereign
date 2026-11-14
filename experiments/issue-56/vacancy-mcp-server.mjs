@@ -1,5 +1,6 @@
 import { applicationDraftControl } from './application-draft-mcp-control.mjs';
 import { applicationHoldControl } from './application-hold-mcp-control.mjs';
+import { applicationRetryControl } from './application-retry-mcp-control.mjs';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
@@ -11,6 +12,8 @@ const browser = await chromium.launch({
   headless: true,
 });
 let fixture;
+const clock = { value: Date.UTC(2026, 10, 14), rejections: 0 };
+const retryFixture = process.env.APPLICATION_RETRY_FIXTURE === '1';
 try {
   const create =
     process.env.APPLICATION_REVIEW_FIXTURE === '1'
@@ -18,7 +21,10 @@ try {
       : process.env.CHOICE_PUT_FAILURE === '1'
         ? choicePutFixture
         : vacancyBrowserFixture;
-  fixture = await create(browser);
+  fixture = await create(
+    browser,
+    retryFixture ? { application: { now: () => clock.value } } : {}
+  );
   await fixture.page.context().close();
 } catch (error) {
   await browser.close();
@@ -43,9 +49,15 @@ const holdControl =
   process.env.APPLICATION_HOLD_FIXTURE === '1'
     ? applicationHoldControl(browser)
     : null;
+const retryControl = retryFixture
+  ? applicationRetryControl(browser, clock)
+  : null;
 const control = createServer(async (req, res) => {
   try {
-    const draft = (await draftControl?.(req)) ?? (await holdControl?.(req));
+    const draft =
+      (await draftControl?.(req)) ??
+      (await holdControl?.(req)) ??
+      (await retryControl?.(req));
     if (draft) {
       res.setHeader('content-type', 'application/json');
       res.end(JSON.stringify(draft));

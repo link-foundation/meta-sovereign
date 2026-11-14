@@ -1,5 +1,7 @@
 import { ruApplication } from './ru-application.js';
 export const ruVacancy = {
+  'vacancySelection.retry-wait':
+    'Ожидание повтора после общей ошибки (пять часов); ответы сохранены',
   ...ruApplication,
   'vacancySelection.searchAt': 'Последний успешный поиск: {date}.',
   'vacancySelection.skipResponded':

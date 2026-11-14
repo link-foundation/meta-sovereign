@@ -2,13 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import {
+  assertApplicationReviewOnly,
   withApplicationRouteFixture,
   enterApplicationRoute,
   runApplicationFixtureCommand,
   applicationPanelMarkup,
   assertApplicationLocaleMarkup,
 } from './helpers/application-controls.mjs';
-import { applicationSessionClient } from './helpers/application-session-client.mjs';
+import {
+  applicationSessionClient,
+  recoverApplicationSession,
+} from './helpers/application-session-client.mjs';
 import {
   ownedDeferralFixture,
   identity,
@@ -74,13 +78,11 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           queueId: entry.id,
           confirm: true,
         });
-        assert.equal(reopened.state, 'review');
-        assert.equal(
-          reopened.draft.fields[0].value,
+        assertApplicationReviewOnly(
+          fixture,
+          reopened,
           'Actual automatic transport answer'
         );
-        assert.equal(fixture.state.writes.length, 0);
-        assert.equal(fixture.state.submitted, 0);
         await api.vacancyApplicationClose(identity(reopened));
       });
     }
@@ -131,14 +133,9 @@ test(
       value.session.action('Mode', { noQuestionnaires: false })
     );
     assert.equal(value.session.state.known, false);
-    const recovered = applicationSessionClient(fixture, value.saved);
-    await recovered.session.recover();
+    const recovered = await recoverApplicationSession(fixture, value.saved);
     assert.equal(recovered.session.state.receipt.noQuestionnaires, false);
     assert.equal(recovered.session.state.receipt.active, false);
-    assert.deepEqual(
-      recovered.calls.map(([name]) => name),
-      ['status']
-    );
     assert.equal(fixture.state.opened, 1);
     await recovered.session.refreshQueue({});
     await recovered.session.retry(queue.entries[0]);

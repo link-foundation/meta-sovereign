@@ -1,5 +1,7 @@
 import { enApplication } from './en-application.js';
 export const enVacancy = {
+  'vacancySelection.retry-wait':
+    'Waiting for the backed generic-error retry (five hours)',
   ...enApplication,
   'vacancySelection.searchAt': 'Last successful search captured {date}.',
   'vacancySelection.skipResponded':

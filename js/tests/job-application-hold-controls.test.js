@@ -6,7 +6,10 @@ import {
   applicationInput,
 } from '../../experiments/issue-56/application-fixture.mjs';
 import { applicationIdentity as identity } from '../../experiments/issue-56/application-run-fixture.mjs';
-import { applicationSessionClient } from './helpers/application-session-client.mjs';
+import {
+  applicationSessionClient,
+  recoverApplicationSession,
+} from './helpers/application-session-client.mjs';
 import {
   withApplicationRouteFixture,
   enterApplicationRoute,
@@ -24,17 +27,17 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
       t.after(() => fixture.close());
       await withApplicationRouteFixture(fixture, type, async (api) => {
         let receipt = await enterApplicationRoute(api);
-        fixture.state.page.error = 'generic-error';
+        fixture.state.page.error = 'validation-error';
         receipt = await api.vacancyApplicationRead(identity(receipt));
         assert.equal(receipt.state, 'provider-error');
         fixture.state.page.error = null;
         receipt = await api.vacancyApplicationRead(identity(receipt));
-        assert.equal(receipt.hold, 'generic-error');
+        assert.equal(receipt.hold, 'validation-error');
         receipt = await api.vacancyApplicationMode(
           identity(receipt, { noQuestionnaires: true })
         );
         assert.equal(receipt.active, true);
-        assert.equal(receipt.hold, 'generic-error');
+        assert.equal(receipt.hold, 'validation-error');
         assert.equal((await api.vacancyApplicationQueue({})).entries.length, 0);
         await api.vacancyApplicationClose(identity(receipt));
       });
@@ -93,12 +96,7 @@ test(
     };
     await assert.rejects(client.session.action('Read'));
     fixture.state.page.error = null;
-    const recovered = applicationSessionClient(fixture, client.saved);
-    await recovered.session.recover();
-    assert.deepEqual(
-      recovered.calls.map(([name]) => name),
-      ['status']
-    );
+    const recovered = await recoverApplicationSession(fixture, client.saved);
     assert.equal(recovered.session.state.receipt.hold, 'validation-error');
     await recovered.session.action('Read');
     await recovered.session.action('Prefill', { confirm: true });

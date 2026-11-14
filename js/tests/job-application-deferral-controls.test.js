@@ -1,4 +1,5 @@
 import {
+  assertApplicationReviewOnly,
   withApplicationRouteFixture,
   enterApplicationRoute,
   runApplicationFixtureCommand,
@@ -9,7 +10,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applicationQueueResult } from '../src/jobs/application-deferral-data.js';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
-import { applicationSessionClient as client } from './helpers/application-session-client.mjs';
+import {
+  applicationSessionClient as client,
+  recoverApplicationSession,
+} from './helpers/application-session-client.mjs';
 import {
   applicationDeferralFixture,
   ownedDeferralFixture,
@@ -80,12 +84,12 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
           queueId: queue.entries[0].id,
           confirm: true,
         });
-        assert.equal(receipt.state, 'review');
-        assert.equal(receipt.draft.fields[0].value, 'Actual transport answer');
+        assertApplicationReviewOnly(
+          fixture,
+          receipt,
+          'Actual transport answer'
+        );
         assert.equal((await api.vacancyApplicationQueue({})).entries.length, 0);
-        assert.equal(fixture.state.fields[1].value, '');
-        assert.equal(fixture.state.writes.length, 0);
-        assert.equal(fixture.state.submitted, 0);
         await api.vacancyApplicationClose(identity(receipt));
       });
     }
@@ -124,16 +128,11 @@ test(
     await assert.rejects(value.session.retry(queue.entries[0]));
     assert.equal(value.session.state.known, false);
     assert.throws(() => value.session.retry(queue.entries[0]));
-    const recovered = client(fixture, value.saved);
-    await recovered.session.recover();
+    const recovered = await recoverApplicationSession(fixture, value.saved);
     assert.equal(recovered.session.state.receipt.state, 'review');
     assert.equal(
       recovered.session.state.receipt.draft.fields[0].value,
       'Private controller answer'
-    );
-    assert.deepEqual(
-      recovered.calls.map(([name]) => name),
-      ['status']
     );
     const saved = JSON.parse([...value.saved.values.values()][0]);
     assert.deepEqual(Object.keys(saved).sort(), [

@@ -1,5 +1,6 @@
 import { zhApplication } from './zh-application.js';
 export const zhVacancy = {
+  'vacancySelection.retry-wait': '答案已保存；一般错误后等待五小时再重试',
   ...zhApplication,
   'vacancySelection.searchAt': '上次成功搜索时间：{date}。',
   'vacancySelection.skipResponded': '排除原生卡片上已标记申请的职位',

@@ -23,6 +23,7 @@ export const applicationMayRestart = (receipt) =>
   receipt.attempted.enter === false &&
   receipt.attempted.submit === false;
 export const applicationMayRetry = (state, entry) =>
+  (entry.reason !== 'generic-error' || entry.ready === true) &&
   (state.known || (!state.intent && !state.receipt && !state.target)) &&
   !state.busy &&
   !state.receipt?.active &&

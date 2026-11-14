@@ -154,6 +154,7 @@ export const vacancySelectionResult = (raw, result, input) => {
         'responded',
         'configured-text',
         'needs-description',
+        'retry-wait',
         'review',
       ].includes(row.reason) ||
       (filters.skipResponded &&

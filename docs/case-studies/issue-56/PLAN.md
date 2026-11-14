@@ -1,11 +1,19 @@
 # Issue 56 / PR 57 work plan
 
+Active generic-error retry preservation (HH08 remains incomplete):
+
+- [x] Capture the bound native generic-error form without enabling dispatch. Acknowledge every safe actual draft/Q&A value before closing; keep the live form after read/save failures, verification, validation, limits, pauses or preview.
+- [x] Queue the vacancy only in worker RAM for five hours, exclude it from ordinary search/reopening until due, isolate slots and preserve separately saved exclusions. A durable recovery draft never becomes a persistent exclusion.
+- [x] Preserve acknowledged failed-dispatch history before allowing a due, explicitly confirmed fresh review. Refuse uncertain outcomes without fresh native generic-error evidence; restoration and sending keep separate confirmations.
+- [x] Verify exact-parent failure, 141 focused Node cases, 31 new Deno cases, 35 selection/dictionary checks, all nine native Chromium scenarios and independent MCP through CLI, both Lino routes and four-language controls. After shared fixture consolidation, all 60 affected Node and 31 new Deno cases pass; unchanged static gates pass. Preserve checksummed source/log/reference/screenshots evidence.
+- [ ] Publish the retry unit and inspect every exact-head hosted workflow; continue automatic pacing/revisits and every other unchecked original requirement.
+
 Active native provider-error and verification holds (HH08 remains incomplete):
 
 - [x] Detect visible native application errors without treating unrelated page text as an error. Retain a RAM-only hold per vacancy and browser slot through banner dismissal, explicit close/reopen and failed acknowledgements; clear it only on freshly confirmed delivery or worker shutdown.
 - [x] Block automatic sending, late native dispatch and automatic questionnaire closure while held. Preserve explicit fresh review, owner answers, separate manual confirmation and durable uncertain-dispatch reservations.
 - [x] Expose truthful hold states through both wire formats, CLI and four-language browser controls. Reproduce the exact-parent failure, run focused checks and one native/MCP scenario, preserve before/after screenshots and drain fixtures. All 110 focused Node, 15 new Deno and 25 dictionary checks pass; the final shared MCP fixture also preserves existing automatic deferral/restoration behavior.
-- [ ] Publish an atomic unit, update evidence and inspect exact-head hosted checks. Continue five-hour generic-error retries, queue pacing/revisits, supervised presets and every unchecked original requirement. Keep PR57 draft and unmerged.
+- [x] Publish the atomic hold unit as `37d0a3c9` and confirm all five exact-head hosted workflows pass, including main run `43560242200`. The following retry unit, queue pacing/revisits, supervised presets and every unchecked original requirement remain active. Keep PR57 draft and unmerged.
 
 Active automatic questionnaire deferral prerequisite (HH08 remains incomplete):
 

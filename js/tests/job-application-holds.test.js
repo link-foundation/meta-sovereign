@@ -71,6 +71,11 @@ for (const [property, value, reason, state] of [
       const setup = await owned(t);
       const { fixture } = setup;
       let { receipt } = setup;
+      if (reason === 'generic-error') {
+        receipt = await fixture.service['application-mode'](
+          identity(receipt, { paused: true })
+        );
+      }
       fixture.state.page[property] = value;
       receipt = await read(fixture, receipt);
       assert.equal(receipt.state, state);
@@ -80,6 +85,11 @@ for (const [property, value, reason, state] of [
       });
       fixture.state.page[property] = property === 'error' ? null : false;
       receipt = await read(fixture, receipt);
+      if (reason === 'generic-error') {
+        receipt = await fixture.service['application-mode'](
+          identity(receipt, { paused: false })
+        );
+      }
       receipt = await prefill(fixture, receipt);
       assert.equal(receipt.state, 'review');
       assert.equal(receipt.exact, true);
@@ -249,7 +259,7 @@ test(
             fixture.state.page.questions = true;
             fixture.state.page.fieldIndices = [1];
           } else {
-            fixture.state.page.error = 'generic-error';
+            fixture.state.page.error = 'validation-error';
           }
           return { dispatched: true };
         },

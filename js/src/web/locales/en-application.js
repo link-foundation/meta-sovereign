@@ -49,7 +49,7 @@ export const enApplication = {
   'application.stop': 'Stop and drain application operation',
   'application.delivery.none': 'HH has not confirmed application delivery.',
   'application.delivery.unknown':
-    'Delivery is unknown. A reserved action may have reached HH; it will not be sent again.',
+    'Delivery is unknown. A reserved action may have reached HH. A retry requires fresh native rejection evidence and a separately confirmed review.',
   'application.delivery.provider-confirmed':
     'HH confirmed application delivery.',
   'application.letter.not-requested': 'No letter attachment requested yet.',
@@ -99,20 +99,24 @@ export const enApplication = {
   'application.state.provider-error':
     'HH application error: manual action required',
   'application.hold':
-    'Automatic sending and automatic questionnaire deferral are held: {reason}. Dismissing the banner or reopening does not release this hold in the current worker. Read the page and review before any manually confirmed send; confirmed delivery clears the hold.',
+    'Automatic sending and automatic questionnaire deferral are held: {reason}. Dismissing the banner does not grant sending permission. Read the page before a separately confirmed send; confirmed delivery clears the hold. A backed generic-error queue allows fresh review only after its five-hour wait.',
   'application.hold.generic-error': 'generic provider error',
   'application.hold.validation-error': 'provider validation error',
   'application.hold.verification': 'manual verification',
   'application.hold.daily-limit': 'provider application limit',
   'application.hold.external': 'external application',
   'application.defer': 'Save answers and defer',
-  'application.queueTitle': 'Deferred questionnaires',
+  'application.queueTitle': 'Deferred applications',
   'application.queueHint':
     'Save and defer keeps a private recovery copy and actual Q&A observations before closing. Eligible answers become unapproved knowledge. This queue lasts only in the current worker; reopening requires fresh review and does not restore or send answers. Separately saved exclusions still apply.',
   'application.queueRead': 'Refresh deferred queue',
   'application.queueLoading': 'Reading the current worker queue…',
   'application.queueUnknown':
     'The queue could not be read. No vacancy was reopened.',
-  'application.queueEmpty': 'No questionnaires queued in this browser slot.',
+  'application.queueEmpty': 'No applications queued in this browser slot.',
   'application.retry': 'Reopen for fresh review',
+  'application.retryWaiting':
+    'Answers saved. Generic-error retry available at {at} (five-hour wait).',
+  'application.retryReady':
+    'The generic-error wait has ended. Reopen for fresh review; restoration and sending need separate confirmation.',
 };
