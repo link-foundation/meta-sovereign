@@ -201,6 +201,7 @@ export class ApplicationReview {
     const before = await readPage(record.browser, record.url);
     this.service.holds.observe(record, before);
     await this.service.limits.observe(record, before);
+    await this.service.pacing.observe(record, signal, before);
     if (
       applicationPageKey(before) !== record.guard.page ||
       invalidNativeRead(before, action, capture)

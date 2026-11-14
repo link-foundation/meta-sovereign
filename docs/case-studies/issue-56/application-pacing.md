@@ -47,8 +47,10 @@ cross-slot and omitted-setting admission, lost responses, failed acknowledgement
 native feedback deduplication, cooldown and timing bounds, preview, four-language
 controls and actual text/binary routes. Injected clocks avoid real pacing sleeps.
 
-The native Chromium pacing scenario runs within the existing mandatory worker
-policy scenario, retaining every prior scenario, engine, assertion and deadline.
+The initial native Chromium pacing scenario ran with the mandatory worker policy
+scenario. Its [follow-up guard correction](application-pacing-guard.md) gives
+pacing a separate mandatory entry, retaining every prior scenario, engine,
+assertion and deadline.
 It verifies adaptive timing, saved queue state, four locales, phone width, explicit
 expiry refresh and one manual owner Send in the synthetic native fixture. Only
 the resulting native success marker increments delivery feedback; application

@@ -1,4 +1,3 @@
-import { verifyNativeApplicationPacing } from './e2e-application-pacing.mjs';
 import assert from 'node:assert/strict';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import {
@@ -8,7 +7,6 @@ import {
 } from './application-native-request.mjs';
 
 export const verifyNativeApplicationRunModes = async (browser) => {
-  const pacing = await verifyNativeApplicationPacing(browser);
   const fixture = await applicationNativeFixture(browser);
   const request = (operation, receipt, extra) =>
     nativeApplicationReviewRequest(fixture, operation, receipt, extra);
@@ -61,7 +59,6 @@ export const verifyNativeApplicationRunModes = async (browser) => {
     assert(fixture.records.every((row) => row.closed));
     assert.deepEqual(fixture.errors, []);
     return {
-      pacing,
       workerPauseRetained: true,
       workerQuestionnairePolicyRetained: true,
       deferred: true,

@@ -473,3 +473,5 @@ exports and exact usage output, exit statuses and pending output drainage.
 Keep CV Save recovery verification tests independent of host scheduling with an injected fixture clock; retain production polling, deadlines and bounded read attempts.
 
 Add optional saved adaptive/fixed pacing for explicit HH application review admission, with native feedback, workspace queue status and four-language controls.
+
+Retain pacing feedback from a fresh native outcome at a refused action guard, preserving daily-limit priority, challenge privacy and zero dispatch after page changes.

@@ -121,5 +121,6 @@
   "job-application-policies",
   "job-application-language",
   "job-application-limits",
-  "job-application-limit-restore"
+  "job-application-limit-restore",
+  "job-application-pacing"
 ]

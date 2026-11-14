@@ -121,15 +121,12 @@ export class ApplicationPacing {
       })
     );
   }
-  feedback(row, record) {
-    if (
-      record.page.challenge &&
-      !row.documents.includes(record.page.documentKey)
-    ) {
+  feedback(row, record, page) {
+    if (page.challenge && !row.documents.includes(page.documentKey)) {
       if (row.documents.length >= 64) {
         throw fail('pacing-observations');
       }
-      row.documents.push(record.page.documentKey);
+      row.documents.push(page.documentKey);
       row.challenges++;
       row.baseMs = Math.min(
         240000,
@@ -145,8 +142,8 @@ export class ApplicationPacing {
       ).toISOString();
       return 'challenge';
     } else if (
-      !record.page.challenge &&
-      record.page.delivered &&
+      !page.challenge &&
+      page.delivered &&
       !row.delivered &&
       record.acknowledged?.delivery !== 'provider-confirmed'
     ) {
@@ -161,7 +158,7 @@ export class ApplicationPacing {
       return 'delivery';
     }
   }
-  async observe(record, signal) {
+  async observe(record, signal, page = record.page) {
     if (
       record.options.applicationIntervalSeconds === undefined ||
       record.options.testMode
@@ -171,15 +168,10 @@ export class ApplicationPacing {
     await this.flush();
     const row = await this.row();
     signal.throwIfAborted();
-    if (
-      !same(row, record) ||
-      !record.page.bound ||
-      record.page.external ||
-      record.page.dailyLimit
-    ) {
+    if (!same(row, record) || !page.bound || page.external || page.dailyLimit) {
       return;
     }
-    const event = this.feedback(row, record);
+    const event = this.feedback(row, record, page);
     if (event) {
       signal.throwIfAborted();
       await this.save(schedule(row));

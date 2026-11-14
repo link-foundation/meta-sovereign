@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active pacing action-guard feedback:
+
+- [x] Reproduce native CAPTCHA/delivery arriving after the frozen review but before guarded dispatch: two of three finite service cases and the native guard fail on `9a78b6d9`; every attempted action still refuses safely.
+- [x] Acknowledge the same fresh native outcome before the unchanged action refusal; deduplicate a later inspection, preserve daily-limit priority and zero challenge reads/actions.
+- [ ] Verify focused Node/Deno and native cases, preserve checksummed evidence, publish and inspect exact-head CI. Give pacing its own mandatory browser entry with all original scenarios and deadlines retained. Continue all 81 original incomplete requirements.
+
 Active CV Save recovery CI fixture:
 
 - [x] Preserve macOS Node shard 3 job `132499772549` from exact head `ec835b0b`; reproduce its 100 ms recovery-budget exhaustion with a finite 120 ms synthetic probe delay.

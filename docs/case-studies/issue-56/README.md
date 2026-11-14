@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+[Fresh native pacing feedback](application-pacing-guard.md) retains outcomes at refused action guards and gives pacing its own mandatory browser entry; all original incomplete requirements remain active.
+
 [Optional saved application pacing](application-pacing.md) adds adaptive/fixed review admission, acknowledged native feedback and explicit queue refresh; full paced batches and all original incomplete rows remain required.
 
 - [CV Save recovery fixture clock](ci-cv-save-recovery-clock.md): preserve the macOS Node failure, reproduce a finite late navigation probe and use logical fixture time while retaining the production deadline and five-read bound.

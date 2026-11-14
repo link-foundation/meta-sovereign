@@ -491,6 +491,7 @@
     "test:e2e:vacancy-technologies": "node js/tests/e2e-vacancy-technologies-browser.mjs",
     "test:e2e:vacancy-technologies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancy-technologies-browser.mjs",
     "test:e2e:job-application": "node js/tests/e2e-job-application-browser.mjs",
+    "test:e2e:job-application-pacing": "node js/tests/e2e-job-application-pacing-browser.mjs",
     "test:e2e:job-application-drafts": "node js/tests/e2e-job-application-drafts-browser.mjs",
     "test:e2e:job-application-language": "node js/tests/e2e-job-application-language-browser.mjs",
     "test:e2e:job-application-policies": "node js/tests/e2e-job-application-policies-browser.mjs",
