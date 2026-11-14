@@ -312,6 +312,7 @@ test('capabilities report missing browser support without pretending to apply', 
       technologyProviderSave: false,
       cvTranslation: true,
       cvSaveWatch: false,
+      cvSnapshotPublication: true,
       applicationReview: false,
       apply: false,
     });
