@@ -1,6 +1,19 @@
 import { nativeApplicationForm } from '../../js/tests/helpers/application-native-request.mjs';
 import { changeApplicationHoldFixture } from './application-hold-dom.mjs';
 import { applicationLimitMs } from '../../js/src/jobs/application-limit-data.js';
+import { mountApplicationLimitChallenge } from './application-limit-challenge-dom.mjs';
+
+const changeChallenge = async (page, url) => {
+  if (url !== '/limit-challenge' && url !== '/limit-challenge-remount') {
+    return;
+  }
+  await page.evaluate(mountApplicationLimitChallenge);
+  if (url === '/limit-challenge-remount') {
+    await page.locator('[data-qa-popup-error-code]').evaluate((node) => {
+      node.hidden = true;
+    });
+  }
+};
 
 /** Isolated synthetic fixture controls; never application product routes. */
 export const applicationLimitControl = (browser, clock) => async (req) => {
@@ -14,6 +27,8 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
       '/limit-edit-later',
       '/limit-letter',
       '/limit-letter-later',
+      '/limit-challenge',
+      '/limit-challenge-remount',
     ].includes(req.url)
   ) {
     return null;
@@ -23,6 +38,7 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
     throw new Error('No owned synthetic form for daily limit');
   }
   if (req.method === 'POST') {
+    await changeChallenge(page, req.url);
     if (req.url === '/limit-letter' || req.url === '/limit-letter-later') {
       const letter = page.locator(
         '[data-qa="vacancy-response-form-letter-input"]'
@@ -62,5 +78,8 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
     )?.value,
     entries: globalThis.applicationEntries,
     sends: globalThis.applicationAttempts,
+    challengeCloses: globalThis.limitCaptchaCloses ?? 0,
+    challengeActions: globalThis.limitCaptchaActions ?? 0,
+    challengeVisible: Boolean(document.querySelector('#limit-captcha')),
   }));
 };

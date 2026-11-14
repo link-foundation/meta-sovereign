@@ -1,5 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active Windows Deno CLI timeout (`cd2a3337`, run `43606682331`):
+
+- [x] Verify SHA/timestamps and preserve the complete 147,661-line workflow log, 5,230-line Windows shard log, pipeline log and annotations. Lines 3551–3557 and 5181–5195 show the unsuccessful CLI child importing the entrypoint but not reaching ordinary-command readiness before the unchanged ten-second deadline. All eight browser lanes and four companion workflows pass.
+- [ ] Investigate the cold ordinary-command import graph with bounded focused Node/Deno checks and retain default-off diagnostics where useful. Establish a reproducible cause before claiming a fix; do not raise deadlines or weaken assertions.
+- [ ] Publish any verified atomic correction and inspect all exact-head checks. Continue all original incomplete requirements; PR57 stays draft and unmerged.
+
+Active daily-limit/CAPTCHA coexistence:
+
+- [x] Reproduce refusal to back up and dismiss a disjoint native CAPTCHA over an HH application pause. Preserve full owner answers/letter and actual Q&A before any dismissal; retain the original workspace deadline.
+- [x] Scope capture to the verified native application form; reject nested challenges, external label/option references, incomplete/unsupported fields and changed documents. Keep ordinary CAPTCHA inspection blocked and every Send/renew/answer control untouched.
+- [x] Reuse acknowledged draft/Q&A preservation, recheck after each awaited checkpoint and synchronously bind only the native close control. Cover failed persistence, owner edits, late/remounted gates, expiry and ambiguity; drain finite fixtures.
+- [ ] Publish evidence and inspect exact-head CI. All original incomplete criteria remain required; PR57 stays draft and unmerged.
+
 Active HH CV/assignment verification boundaries:
 
 - [x] Reproduce content reads past both native HH text markers in assignment, CV about, editor/saved-record and workplace recheck paths. Published parent `63f9f559` fails 12/22 focused regressions and the finite native assignment probe; ten hidden cases pass.

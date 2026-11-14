@@ -1,6 +1,7 @@
 import { applicationView } from './application-options.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
+import { preserveApplicationLimitChallenge } from './application-limit-challenge.js';
 
 const eligible = (record) =>
   record?.page?.bound &&
@@ -21,7 +22,7 @@ const pendingRestoration = (record) =>
   record.draft.limit.documentKey !== record.page.documentKey &&
   record.restoration?.state !== 'restored';
 
-/** Preserve actual native values during the pause without closing or dispatching. */
+/** Preserve actual native values; admit native challenge close only after acknowledgement. */
 export class ApplicationLimitBackups {
   constructor(service) {
     this.service = service;
@@ -29,6 +30,9 @@ export class ApplicationLimitBackups {
   async automatic(signal) {
     const service = this.service;
     const record = service.current;
+    if (record?.page?.challenge && !pendingRestoration(record)) {
+      return preserveApplicationLimitChallenge(service, record, signal);
+    }
     if (!eligible(record) || pendingRestoration(record)) {
       return;
     }

@@ -459,3 +459,9 @@ Stop HH résumé-list, vacancy-search and vacancy-detail discovery before readin
 Recheck the saved shared HH pause when an acknowledged answer backup crosses the original wait deadline. Preserve later pauses from other browser slots, guarded refreshes, separate restoration consent and zero automatic sending.
 
 Stop HH CV and assignment content reads at native verification gates, reuse guarded workplace control inspection and preserve hidden-marker/ordinary reads and manual owner completion.
+
+During an acknowledged HH daily pause, preserve the complete separate native
+application form and actual Q&A before closing a uniquely identified native
+CAPTCHA dialog. Refuse challenge content, unsafe or changed captures, failed
+persistence and expired pauses; retain the original workspace deadline and
+separate restoration/submission confirmation.

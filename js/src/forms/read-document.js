@@ -6,6 +6,7 @@ export const readFormDocument = ({
   maxFields = 200,
   maxOptions = 100,
   identityOnly = false,
+  hhLimit = null,
 } = {}) => {
   const doc = globalThis.document;
   // WebKit timeOrigin can drift within one live document. Bind to a private,
@@ -63,11 +64,12 @@ export const readFormDocument = ({
       '[name="smart-token"],[name="g-recaptcha-response"],[name="h-captcha-response"],[name="cf-turnstile-response"]'
     )
   ).slice(0, 21);
-  const completed =
+  const completedResponse = () =>
     !nativeChallenge &&
     responses.length > 0 &&
     responses.length <= 20 &&
     responses.every((node) => Boolean(node.value));
+  const completed = completedResponse();
   const challenge =
     nativeChallenge ||
     challengeUrl(identity.url) ||
@@ -77,7 +79,8 @@ export const readFormDocument = ({
           (node) =>
             visible(node) && challengeUrl(node.getAttribute('src') || '')
         )));
-  if (challenge) {
+  const root = limitForm();
+  if ((challenge && !hhLimit) || !root) {
     return {
       ...identity,
       title: '',
@@ -90,9 +93,65 @@ export const readFormDocument = ({
       navigation: { nextPage: false, limited: true },
     };
   }
+  function limitForm() {
+    if (!hhLimit) {
+      return doc;
+    }
+    const expected = new URL(hhLimit.url);
+    const current = new URL(identity.url);
+    const documentKey =
+      doc[Symbol.for('meta-sovereign.jobs.application-document.v1')];
+    const submits = [
+      ...doc.querySelectorAll(
+        '[data-qa="vacancy-response-submit-popup"],[data-qa="vacancy-response-letter-submit"],[data-qa="vacancy-response-link-no-questions"]'
+      ),
+    ].filter(visible);
+    const form = submits.length === 1 ? submits[0].form : null;
+    const challenges = [
+      ...doc.querySelectorAll(
+        'input[data-qa="account-captcha-input"],input[name="captchaText"]'
+      ),
+    ].filter(visible);
+    const sameLocation = () =>
+      expected.origin === 'https://hh.ru' &&
+      current.origin === expected.origin &&
+      !current.username &&
+      !current.password &&
+      (current.pathname === expected.pathname ||
+        (current.pathname === '/applicant/vacancy_response' &&
+          current.searchParams.getAll('vacancyId').length === 1 &&
+          current.searchParams.get('vacancyId') ===
+            expected.pathname.split('/').at(-1)));
+    return sameLocation() &&
+      documentKey === hhLimit.documentKey &&
+      nativeChallenge &&
+      form &&
+      visible(form) &&
+      challenges.every(
+        (node) =>
+          !form.contains(node) &&
+          !node.closest('[role="dialog"]')?.contains(form)
+      ) &&
+      !form.matches(challengeRoots) &&
+      ![...form.elements].some((node) => !form.contains(node)) &&
+      !form.querySelector(
+        `${challengeRoots},[data-qa="captcha"],input[name*="captcha"],input[data-qa="account-captcha-input"],iframe,input[type="password"],input[type="file"]`
+      )
+      ? form
+      : null;
+  }
   const readFields = () => {
     const reasons = new Set();
     const groups = new Map();
+    const within = (node) => !hhLimit || Boolean(node && root.contains(node));
+    const reference = (id) => {
+      const node = doc.getElementById(id);
+      if (node && !within(node)) {
+        reasons.add('external-form-reference');
+        return null;
+      }
+      return node;
+    };
     // Native exclusivity follows form owner and exact name, across fieldsets.
     // Include hidden/disabled peers in the count so a partial group cannot fill.
     const collectRadios = () => {
@@ -100,7 +159,7 @@ export const readFormDocument = ({
       const membership = new Map();
       let count = 0;
       let complete = true;
-      for (const node of doc.querySelectorAll('input[type="radio"]')) {
+      for (const node of root.querySelectorAll('input[type="radio"]')) {
         if (++count > 2000) {
           complete = false;
           reasons.add('control-scan-limit');
@@ -125,7 +184,7 @@ export const readFormDocument = ({
       const membership = new Map();
       const owners = new Map();
       let count = 0;
-      for (const node of doc.querySelectorAll('[role="radio"]')) {
+      for (const node of root.querySelectorAll('[role="radio"]')) {
         if (++count > 2000) {
           reasons.add('control-scan-limit');
           break;
@@ -168,7 +227,7 @@ export const readFormDocument = ({
         attr(node, key)
           .split(/\s+/u)
           .slice(0, 20)
-          .map((id) => doc.getElementById(id)?.textContent ?? '')
+          .map((id) => reference(id)?.textContent ?? '')
           .join(' ')
       );
     const labelText = (label) => {
@@ -209,6 +268,13 @@ export const readFormDocument = ({
           'label',
           Array.from(node.labels ?? [])
             .slice(0, 20)
+            .filter((label) => {
+              if (!within(label)) {
+                reasons.add('external-form-reference');
+                return false;
+              }
+              return true;
+            })
             .map(labelText)
             .join(' '),
         ],
@@ -222,9 +288,12 @@ export const readFormDocument = ({
       let current = node;
       for (
         let depth = 0;
-        current && depth < 6;
+        current && within(current) && depth < 6;
         depth++, current = current.parentElement
       ) {
+        if (hhLimit && current === root) {
+          break;
+        }
         let sibling = current.previousElementSibling;
         for (
           let step = 0;
@@ -253,7 +322,7 @@ export const readFormDocument = ({
       const parent = node.parentElement?.closest(
         'fieldset,[role="group"],[role="radiogroup"]'
       );
-      if (!parent) {
+      if (!parent || !within(parent)) {
         return null;
       }
       const name = named(parent);
@@ -278,10 +347,7 @@ export const readFormDocument = ({
       const references = attr(node, 'aria-controls')
         .split(/\s+/u)
         .filter(Boolean);
-      const owned = references
-        .slice(0, 10)
-        .map((id) => doc.getElementById(id))
-        .filter(Boolean);
+      const owned = references.slice(0, 10).map(reference).filter(Boolean);
       const choices = new Set([
         ...node.querySelectorAll('option,[role="option"]'),
         ...owned.flatMap((owner) =>
@@ -472,7 +538,7 @@ export const readFormDocument = ({
     const readNavigation = () => {
       const navigation = { nextPage: false, limited: false };
       let buttons = 0;
-      for (const node of doc.querySelectorAll(
+      for (const node of root.querySelectorAll(
         'button,[role="button"],input[type="button"],input[type="submit"]'
       )) {
         if (++buttons > 200) {
@@ -548,13 +614,13 @@ export const readFormDocument = ({
     let excluded = 0;
     const collectControlledLists = () => {
       const controlledLists = new Set();
-      for (const combo of doc.querySelectorAll(
+      for (const combo of root.querySelectorAll(
         '[role="combobox"][aria-controls]'
       )) {
         for (const id of attr(combo, 'aria-controls')
           .split(/\s+/u)
           .slice(0, 10)) {
-          controlledLists.add(doc.getElementById(id));
+          controlledLists.add(reference(id));
         }
       }
       return controlledLists;
@@ -591,6 +657,9 @@ export const readFormDocument = ({
         reasons.add('control-scan-limit');
         break;
       }
+      if (!within(node)) {
+        continue;
+      }
       const tag = node.tagName.toLowerCase();
       const type = typeOf(node);
       // A controlled popup is part of its combobox whether open or closed.
@@ -621,26 +690,27 @@ export const readFormDocument = ({
       };
       fields.push(selectedValue(field));
     }
-    // Shadow DOM needs its own reader. Never represent an opaque custom element
-    // as proof that the entire questionnaire was inspected.
-    let nodes = 0;
-    for (const node of doc.querySelectorAll('*')) {
-      if (++nodes > 5000) {
-        reasons.add('shadow-scan-limit');
-        break;
-      }
-      if (node.shadowRoot || node.tagName.includes('-')) {
-        reasons.add('custom-elements');
+    inspectCustomElements();
+    function inspectCustomElements() {
+      let nodes = 0;
+      for (const node of root.querySelectorAll('*')) {
+        if (++nodes > 5000) {
+          reasons.add('shadow-scan-limit');
+          break;
+        }
+        if (node.shadowRoot || node.tagName.includes('-')) {
+          reasons.add('custom-elements');
+        }
       }
     }
     return {
       ...identity,
-      title: clip(doc.title),
+      title: hhLimit ? '' : clip(doc.title),
       intro: readIntro(),
       fields,
       excluded,
       reasons: [...reasons],
-      scope: 'visible-current-document',
+      scope: hhLimit ? 'hh-limit-application-form' : 'visible-current-document',
       navigation: readNavigation(),
     };
   };
