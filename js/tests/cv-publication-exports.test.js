@@ -228,7 +228,7 @@ test(
       );
       const state = {
         receipt: publication,
-        repository: f.repository,
+        repository: publication.repository,
         remote: publication.remote,
         directory: publication.directory,
         consent: true,
@@ -236,11 +236,15 @@ test(
         setConsent() {},
       };
       for (const locale of ['en', 'ru', 'hi', 'zh']) {
-        const render = (receipt = publication, browserSlot = 'jobs') =>
+        const render = (
+          receipt = publication,
+          browserSlot = 'jobs',
+          repository = publication.repository
+        ) =>
           renderInLocale(
             locale,
             React.createElement(CvSnapshotPublication, {
-              publication: { ...state, receipt },
+              publication: { ...state, receipt, repository },
               exports: [exported.receipt],
               browserSlot,
               busy: false,
@@ -261,6 +265,14 @@ test(
         );
         assert.match(
           render(publication, 'another'),
+          /disabled=""[^>]+data-cv-publication-action="publish"/u
+        );
+        assert.match(
+          render(
+            publication,
+            'jobs',
+            path.join(publication.repository, 'different')
+          ),
           /disabled=""[^>]+data-cv-publication-action="publish"/u
         );
       }
