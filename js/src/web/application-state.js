@@ -8,6 +8,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     coverLetter: '',
     autoExact: false,
     testMode: false,
+    supervised: false,
     reviewDelayMs: 3000,
   });
   useEffect(() => {

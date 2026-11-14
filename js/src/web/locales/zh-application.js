@@ -101,4 +101,9 @@ export const zhApplication = {
     '答案已保存。一般错误后可于 {at} 重试（等待五小时）。',
   'application.retryReady':
     '一般错误后的等待已结束。请重新打开以再次审核；恢复及发送需分别确认。',
+  'application.supervised': '逐步审核一份申请',
+  'application.supervisedHint':
+    '答案、求职信和发送均需分别确认。已关闭自动发送。如果 HH 不提供审核表单，进入申请仍可能立即发送。',
+  'application.answers': '仅填写已审核的精确答案',
+  'application.letter': '仅附上已审核的求职信',
 };

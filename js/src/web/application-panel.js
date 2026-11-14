@@ -56,8 +56,23 @@ const Settings = ({ application, disabled, t }) => {
         onChange: (event) => update('coverLetter', event.target.value),
       }),
     ]),
-    check('autoExact', t('application.autoExact'), options.autoExact, (value) =>
-      update('autoExact', value)
+    check(
+      'supervised',
+      t('application.supervised'),
+      options.supervised,
+      (value) =>
+        setOptions({
+          ...options,
+          supervised: value,
+          autoExact: value ? false : options.autoExact,
+        })
+    ),
+    check(
+      'autoExact',
+      t('application.autoExact'),
+      options.autoExact,
+      (value) => update('autoExact', value),
+      options.supervised
     ),
     el('label', { key: 'delay', className: 'col' }, [
       t('application.delay'),
@@ -109,6 +124,17 @@ const Receipt = ({ receipt, t }) =>
     ),
     receipt.testMode
       ? el('p', { key: 'test', role: 'note' }, t('application.testMode'))
+      : null,
+    receipt.supervised
+      ? el(
+          'p',
+          {
+            key: 'supervised',
+            role: 'note',
+            'data-application-supervised': true,
+          },
+          t('application.supervisedHint')
+        )
       : null,
     receipt.hold
       ? el(
@@ -163,6 +189,28 @@ const prefillLabel = (receipt) =>
   receipt.autoExact && !receipt.hold
     ? 'application.prefillAutomatic'
     : 'application.prefill';
+const PrefillControls = ({ receipt, action, writable, t }) =>
+  receipt.supervised
+    ? el(React.Fragment, null, [
+        button(
+          'answers',
+          t('application.answers'),
+          action('Prefill', { part: 'answers', confirm: true }),
+          !writable
+        ),
+        button(
+          'letter',
+          t('application.letter'),
+          action('Prefill', { part: 'cover-letter', confirm: true }),
+          !writable || receipt.letter === 'not-requested'
+        ),
+      ])
+    : button(
+        'prefill',
+        t(prefillLabel(receipt)),
+        action('Prefill', { confirm: true }),
+        !writable
+      );
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const ready = idle && application.known && receipt?.active;
@@ -184,12 +232,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
           receipt.state !== 'ready' ||
           receipt.attempted.enter
       ),
-      button(
-        'prefill',
-        t(prefillLabel(receipt)),
-        action('Prefill', { confirm: true }),
-        !writable
-      ),
+      el(PrefillControls, { key: 'prefill', receipt, action, writable, t }),
       button(
         'submit',
         t('application.submit'),

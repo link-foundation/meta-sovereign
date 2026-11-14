@@ -5,6 +5,7 @@ import { verifyNativeApplicationDeferral } from './helpers/e2e-application-defer
 import { verifyNativeApplicationHolds } from './helpers/e2e-application-holds.mjs';
 import { verifyNativeApplicationRetries } from './helpers/e2e-application-retries.mjs';
 import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
+import { verifyNativeApplicationSupervised } from './helpers/e2e-application-supervised.mjs';
 import {
   verifyNativeApplication,
   verifyNativeApplicationGuards,
@@ -20,4 +21,5 @@ await runBrowserScenarios('job-application', [
   verifyNativeApplicationDeferral,
   verifyNativeApplicationHolds,
   verifyNativeApplicationRetries,
+  verifyNativeApplicationSupervised,
 ]);

@@ -3,18 +3,15 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { gate } from '../../../experiments/issue-56/vacancy-fixture.mjs';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
+import { applicationPanelBrowser } from './application-panel-browser.mjs';
 
 export const verifyApplicationPanel = async (
   browser,
   { screenshots, before = false } = {}
 ) => {
   const fixture = await applicationNativeFixture(browser);
-  const { page } = fixture;
-  page.setDefaultTimeout(10000);
-  const panel = page.locator('[data-application-panel]');
-  const action = (name) => panel.locator(`[data-application-action="${name}"]`);
-  const confirm = () =>
-    panel.locator('[data-application-option="confirm"]').check();
+  const controls = applicationPanelBrowser(fixture);
+  const { page, panel, action, confirm } = controls;
   const shot = async (name) => {
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
@@ -60,14 +57,8 @@ export const verifyApplicationPanel = async (
       /Employer’s final paragraph stays intact\.$/u
     );
     await shot('application-ready-desktop');
-    await page.setViewportSize({ width: 390, height: 1440 });
+    await controls.phone();
     await shot('application-ready-phone');
-    assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      true
-    );
     await page.setViewportSize({ width: 1280, height: 900 });
     const { owned, posts } = await loseEntryResponse({
       page,
@@ -100,7 +91,7 @@ export const verifyApplicationPanel = async (
     assert.equal(await owned.evaluate(() => globalThis.applicationAttempts), 1);
     assert.equal(await action('submit').isDisabled(), true);
     await shot('application-delivered');
-    await closeReview({ page, panel, owned, fixture, action });
+    await closeReview({ page, owned, controls });
     return {
       entries: 1,
       submissions: 1,
@@ -159,16 +150,12 @@ const loseEntryResponse = async ({ page, browser, action, confirm }) => {
   return { owned, posts };
 };
 
-const closeReview = async ({ page, panel, owned, fixture, action }) => {
-  await action('close').click();
-  await panel.locator('[data-application-state="closed"]').waitFor();
-  assert(owned.isClosed());
+const closeReview = async ({ page, owned, controls }) => {
+  await controls.close(owned);
   assert.equal(
     await page.evaluate(() =>
       globalThis.localStorage.getItem('meta-sovereign:hh-application-intent')
     ),
     null
   );
-  assert.equal(fixture.records.filter((record) => !record.closed).length, 0);
-  assert.deepEqual(fixture.errors, []);
 };

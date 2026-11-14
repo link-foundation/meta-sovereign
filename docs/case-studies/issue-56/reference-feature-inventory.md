@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH08 extension: [supervised single-application review](application-supervised.md) separates answer filling, letter attachment and sending, disables automatic sending and stops the foreground command after one HH-confirmed delivery. Zero-effect preview and legacy journals remain compatible. Automatic paced batches/revisits, independently configurable confirmations, recruiter-panel behavior and all 81 unchecked original rows remain required. This supersedes the preset gap in the earlier snapshots below; HH08 remains unchecked.
+
 Partial HH08 extension: [backed five-hour generic-error retries](application-retries.md) now preserve actual values and failed-dispatch history before RAM-only exclusion and separately confirmed due review. Automatic paced revisits, the supervised preset, recruiter-panel behavior and every unchecked original criterion remain unfinished. This supersedes the generic-error retry gap in the earlier snapshots below; no inventory row is marked complete by this unit.
 
 Partial HH08 prerequisite: [native application error holds](application-holds.md) retain manual review after banner dismissal and browser reopening. Generic-error five-hour retries, paced revisits and supervised presets remain unfinished; no inventory row is marked complete by this unit.

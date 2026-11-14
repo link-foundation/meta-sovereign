@@ -136,6 +136,9 @@ export const applicationFixture = ({
         return { dispatched: true };
       },
       writeLetter: async (_browser, value) => {
+        if (state.page.letter?.value === value) {
+          return 'verified';
+        }
         if (state.page.letter?.value) {
           return 'owner-conflict';
         }

@@ -208,31 +208,21 @@ export class ApplicationActions {
     record.letter = result;
     await service.save(record);
   }
-  async prefill(record, input, signal) {
-    const service = this.service;
+  prefillPart(record, input) {
     if (input.confirm !== true) {
       throw fail('confirmation');
     }
-    if (record.options.testMode) {
-      return { ...applicationView(record), state: 'test-preview' };
+    const part = input.part === undefined ? 'all' : input.part;
+    if (!['all', 'answers', 'cover-letter'].includes(part)) {
+      throw fail('input');
     }
-    if (
-      record.state !== 'review' ||
-      record.attempted.submit ||
-      !record.page.scope
-    ) {
-      throw fail('state');
+    if (record.options.supervised && part === 'all') {
+      throw fail('confirmation');
     }
-    await service.review.check(record, 'submit', signal);
-    if (record.options.coverLetter) {
-      await this.letter(record, signal);
-      if (record.letter !== 'verified') {
-        return applicationView(record);
-      }
-    }
-    if (record.state !== 'review') {
-      return applicationView(record);
-    }
+    return part;
+  }
+  async answers(record, signal) {
+    const service = this.service;
     const native = new Set(
       nativeApplicationFields(record.report, record.page).map(
         (field) => field.id
@@ -251,8 +241,36 @@ export class ApplicationActions {
         () => signal.throwIfAborted()
       );
     }
+  }
+  async prefill(record, input, signal) {
+    const service = this.service;
+    const part = this.prefillPart(record, input);
+    if (record.options.testMode) {
+      return { ...applicationView(record), state: 'test-preview' };
+    }
+    if (
+      record.state !== 'review' ||
+      record.attempted.submit ||
+      !record.page.scope
+    ) {
+      throw fail('state');
+    }
+    await service.review.check(record, 'submit', signal);
+    if (part !== 'answers' && record.options.coverLetter) {
+      await this.letter(record, signal);
+      if (record.letter !== 'verified') {
+        return applicationView(record);
+      }
+    }
+    if (record.state !== 'review') {
+      return applicationView(record);
+    }
+    if (part !== 'cover-letter') {
+      await this.answers(record, signal);
+    }
     const result = await service.review.inspect(record, signal);
     if (
+      part !== 'all' ||
       !record.options.autoExact ||
       record.hold ||
       !record.exact ||

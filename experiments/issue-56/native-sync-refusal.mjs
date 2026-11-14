@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA } from '../../js/src/storage/migrations/index.js';
 // Actual native sockets and filesystem failure; no substituted wire codec.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -63,7 +64,7 @@ test(
       // Adjacent buffered frames must not resume admission after a fatal hello.
       mismatch.send({
         type: 'put',
-        schema: 13,
+        schema: CURRENT_SCHEMA,
         link: { id: 'after-refusal', vc: { js: 1 }, body: 'must stay absent' },
       });
       await mismatch.packet('sync-abort');
@@ -71,10 +72,10 @@ test(
       assert.ok(!mismatch.events.some((event) => event.type === 'sync-ack'));
       const privatePeer = await open();
       await privatePeer.packet('hello');
-      privatePeer.send({ type: 'hello', schema: 13 });
+      privatePeer.send({ type: 'hello', schema: CURRENT_SCHEMA });
       privatePeer.send({
         type: 'put',
-        schema: 13,
+        schema: CURRENT_SCHEMA,
         link: { id: 'secret:foreign', vc: { js: 1 }, body: 'private' },
       });
       await privatePeer.packet('sync-abort');
@@ -84,7 +85,7 @@ test(
       const hello = await peer.packet('hello');
       peer.send({
         type: 'hello',
-        schema: 13,
+        schema: CURRENT_SCHEMA,
         reconcile: 1,
         session: 'refusal-probe',
       });
@@ -94,7 +95,7 @@ test(
       await mkdir(blocked);
       peer.send({
         type: 'sync-record',
-        schema: 13,
+        schema: CURRENT_SCHEMA,
         from: 'refusal-probe',
         to: hello.session,
         request: pull.request,

@@ -1,12 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active supervised single-application review (HH08 remains incomplete):
+
+- [x] Add an opt-in preset that confirms answers, letter and sending separately, disables automatic exact sending and ends the foreground command after one confirmed delivery. Preserve zero-effect preview and existing combined prefill behavior outside the preset.
+- [x] Carry the frozen preset and separately scoped prefill actions through CLI, both Lino routes, recovery and four-language browser controls. Preserve legacy journals, owner values, native guards, failed-write uncertainty and renewed confirmation after each accepted revision. All 184 focused Node checks, 14 Deno checks, seven finite native session checks and scoped Clippy pass. One native Chromium scenario and independent MCP verify separate fills, renewed confirmation, four-locale recovery and phone layout; all owned fixtures close.
+- [ ] Reproduce the published-parent failure; verify focused Node/Deno and one native/MCP scenario, preserve screenshots and checksummed evidence, drain fixtures and inspect exact-head hosted checks. Automatic paced revisits, recruiter-panel handling and every unchecked original criterion remain required.
+
 Active generic-error retry preservation (HH08 remains incomplete):
 
 - [x] Capture the bound native generic-error form without enabling dispatch. Acknowledge every safe actual draft/Q&A value before closing; keep the live form after read/save failures, verification, validation, limits, pauses or preview.
 - [x] Queue the vacancy only in worker RAM for five hours, exclude it from ordinary search/reopening until due, isolate slots and preserve separately saved exclusions. A durable recovery draft never becomes a persistent exclusion.
 - [x] Preserve acknowledged failed-dispatch history before allowing a due, explicitly confirmed fresh review. Refuse uncertain outcomes without fresh native generic-error evidence; restoration and sending keep separate confirmations.
 - [x] Verify exact-parent failure, 141 focused Node cases, 31 new Deno cases, 35 selection/dictionary checks, all nine native Chromium scenarios and independent MCP through CLI, both Lino routes and four-language controls. After shared fixture consolidation, all 60 affected Node and 31 new Deno cases pass; unchanged static gates pass. Preserve checksummed source/log/reference/screenshots evidence.
-- [ ] Publish the retry unit and inspect every exact-head hosted workflow; continue automatic pacing/revisits and every other unchecked original requirement.
+- [x] Publish the retry unit as `f523ccc5` and confirm all five exact-head hosted workflows pass, including main run `43563472873`. Continue automatic pacing/revisits and every other unchecked original requirement; the PR remains draft and unmerged.
 
 Active native provider-error and verification holds (HH08 remains incomplete):
 

@@ -29,7 +29,7 @@ export const applicationSettings = (input) => {
     throw applicationFailure('input');
   }
   if (
-    ['autoExact', 'testMode', 'recover'].some(
+    ['autoExact', 'testMode', 'recover', 'supervised'].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
     ) ||
     !boundedInteger(input.reviewDelayMs ?? 3000, 30000)
@@ -40,9 +40,11 @@ export const applicationSettings = (input) => {
     ...options,
     requestId: input.requestId,
     coverLetter: input.coverLetter ?? '',
-    autoExact: input.autoExact === true,
+    autoExact: input.autoExact === true && input.supervised !== true,
     testMode: input.testMode === true,
     reviewDelayMs: input.reviewDelayMs ?? 3000,
+    // Absence preserves the exact signatures of acknowledged legacy reviews.
+    ...(input.supervised === true ? { supervised: true } : {}),
   };
 };
 export const applicationDelay = (ms, signal) =>
@@ -112,6 +114,7 @@ export const applicationView = (record) => {
     hold: record.hold ?? null,
     testMode: record.options.testMode,
     autoExact: record.options.autoExact,
+    supervised: record.options.supervised === true,
     reviewDelayMs: record.options.reviewDelayMs,
     noQuestionnaires: record.noQuestionnaires ?? false,
     paused: record.paused ?? false,

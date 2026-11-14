@@ -119,4 +119,9 @@ export const enApplication = {
     'Answers saved. Generic-error retry available at {at} (five-hour wait).',
   'application.retryReady':
     'The generic-error wait has ended. Reopen for fresh review; restoration and sending need separate confirmation.',
+  'application.supervised': 'Review one application step by step',
+  'application.supervisedHint':
+    'Answers, letter and sending need separate confirmation. Automatic sending is off. Entry can still send immediately if HH offers no review form.',
+  'application.answers': 'Fill reviewed exact answers only',
+  'application.letter': 'Attach reviewed letter only',
 };

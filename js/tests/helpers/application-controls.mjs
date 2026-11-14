@@ -20,7 +20,8 @@ export const assertApplicationReviewOnly = (fixture, receipt, answer) => {
 
 export const runApplicationFixtureCommand = async (
   fixture,
-  applicationInputStream
+  applicationInputStream,
+  args = {}
 ) => {
   const output = [];
   const commands = createVacancyCommands({
@@ -32,6 +33,7 @@ export const runApplicationFixtureCommand = async (
     {
       url: applicationInput.url,
       'request-id': applicationInput.requestId,
+      ...args,
     },
     (line) => output.push(decodeWire(line))
   );

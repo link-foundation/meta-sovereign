@@ -39,7 +39,7 @@ export const applicationDraftControl = (browser) => {
     return page.evaluate(
       (ownerActions) => ({
         ownerActions,
-        experience: document.querySelector('#experience').value,
+        experience: document.querySelector('#experience')?.value ?? null,
         letter:
           document.querySelector(
             '[data-qa="vacancy-response-form-letter-input"]'

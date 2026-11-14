@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA } from '../../js/src/storage/migrations/index.js';
 // Real JS peer, official Lino codecs and owned native process/restart.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -30,7 +31,7 @@ const fixture = async (t) => {
     body: ['before connect', { unicode: 'Привет 🚀' }],
   });
   await store.put({ id: 'secret:local', body: 'never replicated' });
-  await store.put({ id: 'meta:schema', version: 13 });
+  await store.put({ id: 'meta:schema', version: CURRENT_SCHEMA });
   let running;
   const connections = new Set();
   const errors = [];
@@ -53,14 +54,16 @@ const fixture = async (t) => {
     const timer = setTimeout(
       () =>
         complete.reject(
-          new Error('native CLI did not reconcile schema-13 JavaScript peer')
+          new Error(
+            'native CLI did not reconcile current-schema JavaScript peer'
+          )
         ),
       5000
     );
     const onAbort = () => complete.reject(t.signal.reason);
     t.signal.addEventListener('abort', onAbort, { once: true });
     const disconnect = createPeer(source, {
-      schemaVersion: 13,
+      schemaVersion: CURRENT_SCHEMA,
       reconciliation: { timeoutMs: 5000 },
       onError: (error) => {
         errors.push(error);

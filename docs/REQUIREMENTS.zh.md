@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1/HH08：可选的 HH 监督申请模式分别确认填写答案、附加求职信和发送；关闭自动发送，并在 HH 确认一次申请成功后结束前台命令。CLI、两种 Lino 编码和四种语言的界面保留原始设置、无操作预览、用户填写的值及旧日志。[父版本失败和 native/MCP 证据](case-studies/issue-56/application-supervised.md)验证单独确认及恢复。按间隔自动处理队列、独立确认配置、招聘者面板和所有原始未勾选要求仍未完成。
+
 R-AA5：现有 HH 共享工作记录现在可通过 CLI、两种 Lino 格式和四语言界面单独审核取消目标 CV 的选择。必须核对完整的原生已保存选择、原始导出、工作项和记录 ID；保留全部字段及其他 CV，拒绝取消最后一个关联或覆盖用户修改，Save/Cancel 由用户执行。[回归和桌面/手机截图](case-studies/issue-56/cv-workplace-membership.md)。共享复制、新记录身份、批次和真实提供方验证仍未完成。
 
 R-AA5：显式私有 RU/EN 工作经历翻译比较提供有界 Haiku/Luna/Formal AI 适配器、模型版本缓存、候选及拒绝原因查看，以及 CLI、两种 Lino 格式和四语言 CV 控件中的不重放恢复、取消和停止。[专项检查及桌面/手机证据](case-studies/issue-56/cv-translation.md)使用模拟翻译器。真实模型验证、已安装 Formal AI 最新版本确认、上游故障报告及完整 HH/LinkedIn 同步仍未完成。

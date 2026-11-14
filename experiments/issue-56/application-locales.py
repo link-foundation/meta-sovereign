@@ -186,6 +186,12 @@ rows.update({
         "已暂停自动发送及自动暂缓问卷：{reason}。关闭提示不会授予发送权限。请先重新读取页面，再单独确认发送；确认送达后解除暂停。一般错误队列仅在保存答案并等待五小时后允许再次审核。"
     ],
 })
+rows.update({
+    "supervised": ["Review one application step by step", "Проверить один отклик по шагам", "एक आवेदन की चरण-दर-चरण समीक्षा करें", "逐步审核一份申请"],
+    "supervisedHint": ["Answers, letter and sending need separate confirmation. Automatic sending is off. Entry can still send immediately if HH offers no review form.", "Ответы, письмо и отправка подтверждаются отдельно. Автоотправка выключена. Вход всё ещё может отправить отклик сразу, если HH не предлагает форму проверки.", "उत्तर, पत्र और भेजने के लिए अलग पुष्टि चाहिए। स्वतः भेजना बंद है। यदि HH समीक्षा फ़ॉर्म नहीं देता तो आवेदन खोलते ही भेजा जा सकता है।", "答案、求职信和发送均需分别确认。已关闭自动发送。如果 HH 不提供审核表单，进入申请仍可能立即发送。"],
+    "answers": ["Fill reviewed exact answers only", "Заполнить только проверенные точные ответы", "केवल समीक्षित सटीक उत्तर भरें", "仅填写已审核的精确答案"],
+    "letter": ["Attach reviewed letter only", "Прикрепить только проверенное письмо", "केवल समीक्षित पत्र जोड़ें", "仅附上已审核的求职信"],
+})
 root = Path(__file__).resolve().parents[2] / "js/src/web/locales"
 for index, locale in enumerate(("en", "ru", "hi", "zh")):
     entries = {f"application.{key}": values[index] for key, values in rows.items()}

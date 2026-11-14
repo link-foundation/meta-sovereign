@@ -48,6 +48,9 @@ const identity = (raw, input) =>
   /^[a-zA-Z0-9_-]{1,100}$/u.test(raw.requestId) &&
   text(raw.revision, 100) &&
   raw.revision.length > 0;
+const supervised = (raw) =>
+  (raw.supervised === undefined || typeof raw.supervised === 'boolean') &&
+  !(raw.supervised && raw.autoExact);
 const state = (raw) =>
   applicationStates.includes(raw.state) &&
   ['none', 'provider-confirmed', 'unknown'].includes(raw.delivery) &&
@@ -62,6 +65,7 @@ const state = (raw) =>
     'paused',
     'exact',
   ].every((name) => typeof raw[name] === 'boolean') &&
+  supervised(raw) &&
   Number.isInteger(raw.reviewDelayMs) &&
   raw.reviewDelayMs >= 0 &&
   raw.reviewDelayMs <= 30000 &&
