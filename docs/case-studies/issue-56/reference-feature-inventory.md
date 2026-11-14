@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH01/HH06/HH07 and assignment privacy extension: [HH CV and assignment verification holds](hh-content-boundaries.md) stop content reads at native text gates, including a late workplace recheck and inert saved records. Parent regressions and focused/native evidence preserve ordinary reads; no original incomplete row is marked complete.
+
 Partial HH02/HH03/HH06/HH08 extension: [HH discovery verification holds](hh-discovery-boundaries.md) block résumé, search and vacancy payload reads before inspecting visible HH text inputs or existing widgets. Blocked receipts cannot become observed empty results or cached vacancy prose. Safe daily-limit backup/dismissal, authenticated scope, paced batches and all 81 original unchecked rows remain required.
 
 Partial HH06/HH08 extension: [HH CAPTCHA answer privacy](hh-captcha-boundaries.md) recognizes visible native text gates before reading values, instructions or HTML, even with a completed unrelated token. Daily-limit priority, manual completion and dispatch guards remain intact. Authenticated scope, daily-limit backup/dismissal, pacing and full reference parity remain unfinished; no original row is complete.

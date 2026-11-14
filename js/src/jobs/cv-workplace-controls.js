@@ -15,7 +15,20 @@ export const readCvWorkplaceControls = (selectors) => {
   const doc = globalThis.document;
   const visible = (node) =>
     node.getClientRects().length &&
-    !node.closest('[hidden],[inert],[aria-hidden="true"]');
+    !node.closest('[hidden],[inert],[aria-hidden="true"]') &&
+    !['hidden', 'collapse'].includes(
+      globalThis.getComputedStyle(node).visibility
+    );
+  if (
+    [
+      ...doc.querySelectorAll(
+        'input[data-qa="account-captcha-input"],input[name="captchaText"],input[name*="captcha"],.smart-captcha,[data-smartcaptcha],[data-qa="captcha"],.g-recaptcha,.h-captcha,.cf-turnstile'
+      ),
+    ].some(visible) ||
+    doc.querySelector('[data-qa="account-login-form"]')
+  ) {
+    return { foreign: true, challenge: true };
+  }
   const fields = {};
   const controls = {};
   const readControl = (key, selector) => {
@@ -87,8 +100,11 @@ export const readCvWorkplaceControls = (selectors) => {
     controls,
     ready: doc.readyState !== 'loading',
     foreign: Boolean(
+      doc.querySelector('textarea[data-qa="resume-editor-about"]')
+    ),
+    foreignSaveDialog: Boolean(
       doc.querySelector(
-        'textarea[data-qa="resume-editor-about"],input[name*="captcha"],[data-qa="account-login-form"]'
+        '[role="dialog"] [data-qa="profile-layout-save-button"]'
       )
     ),
     dialogs: [...doc.querySelectorAll('[role="dialog"]')].filter(visible)

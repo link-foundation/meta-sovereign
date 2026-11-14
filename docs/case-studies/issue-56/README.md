@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [HH CV and assignment verification holds](hh-content-boundaries.md): stop before CV controls, saved-record facts or assignment instructions are inspected; reuse guarded workplace reads and retain hidden-marker/ordinary behavior. Exact-parent, focused Node/Deno and existing native scenarios provide evidence; daily-limit coexistence and every original incomplete criterion remain required.
+
 - [Signaling delivery predicate](ci-signaling-delivery.md): the actual integration tolerates bounded native delivery delay while retaining the expected offer assertion and draining sockets on failure. Parent failure, delayed probe and focused Node/Deno evidence are retained; exact-head hosted checks and every original criterion remain required.
 
 - [Daily-limit expiry race](ci-limit-expiry.md): an acknowledged backup can cross the original deadline after inspection computed an active flag. Recheck the saved shared pause before refresh, preserve newer pauses and retain all guards, restoration consent and deadlines. Exact-parent and focused/native evidence is retained; exact-head CI and all original incomplete criteria remain required.

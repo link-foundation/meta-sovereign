@@ -10,6 +10,7 @@ import {
   hhCaptchaCounters,
 } from '../../../experiments/issue-56/hh-captcha-dom.mjs';
 import { changeApplicationHoldFixture } from '../../../experiments/issue-56/application-hold-dom.mjs';
+import { verifyNativeHhContent } from './e2e-hh-content.mjs';
 
 export const verifyNativeHhCaptcha = async (
   browser,
@@ -18,6 +19,7 @@ export const verifyNativeHhCaptcha = async (
   const { fixture, controls, panel, action, shot } =
     await applicationLimitBrowser(browser, screenshots, 'hh-captcha');
   try {
+    const content = await verifyNativeHhContent(browser);
     await controls.select();
     await panel.locator('[data-application-option="supervised"]').check();
     await action('start').click();
@@ -123,6 +125,7 @@ export const verifyNativeHhCaptcha = async (
     return {
       markers: 2,
       discoveryReaders: 3,
+      content,
       hiddenIgnored: true,
       completedTokenDoesNotWaiveHh: true,
       challengeReads: 0,

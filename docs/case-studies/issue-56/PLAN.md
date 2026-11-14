@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active HH CV/assignment verification boundaries:
+
+- [x] Reproduce content reads past both native HH text markers in assignment, CV about, editor/saved-record and workplace recheck paths. Published parent `63f9f559` fails 12/22 focused regressions and the finite native assignment probe; ten hidden cases pass.
+- [x] Return blocked metadata before content reads and reuse the guarded workplace controls reader. Focused Node 59/Deno 59 and the integrated native HH scenario pass; preserve ordinary reads, late-gate refusal, inert record identity, four locales, phone layout and zero sends. The original focused workplace browser scenario also passes. Owned resources drain before restoring the bundle.
+- [ ] Preserve checksummed evidence, publish the atomic unit and inspect every exact-head hosted check. Continue safe daily-limit backup/dismissal, authenticated scope, paced batches and all 81 original incomplete inventory rows; PR57 stays draft and unmerged.
+
 Active automatic Follow disclosure diagnostic:
 
 - [x] Preserve exact `c976dc98` WebKit shard 2 job `132465586160`, all 1,637 lines and the validated closed-disclosure artifact. Lines 1517–1540 show the first chats-field fill timeout; original cause remains unproven.

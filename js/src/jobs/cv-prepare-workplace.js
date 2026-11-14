@@ -10,40 +10,10 @@ import { prepareCvControlledText } from './cv-prepare-text.js';
 import { cvPrepareFailure } from './cv-prepare-record.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { prepareNativeCvWorkplaceEdit } from './cv-workplace-edit-native.js';
+import { readCvWorkplaceControls } from './cv-workplace-controls.js';
 
 const selector =
   'textarea[data-qa="resume-editor-experience-description-input"]';
-const readControl = () => {
-  const doc = globalThis.document;
-  const fields = [
-    ...doc.querySelectorAll(
-      'textarea[data-qa="resume-editor-experience-description-input"]'
-    ),
-  ].filter(
-    (node) =>
-      node.getClientRects().length &&
-      !node.closest('[hidden],[inert],[aria-hidden="true"]')
-  );
-  const node = fields.length === 1 ? fields[0] : null;
-  const props =
-    node?.[Object.keys(node).find((key) => key.startsWith('__reactProps$'))];
-  return {
-    ready: doc.readyState !== 'loading',
-    challenge: Boolean(
-      doc.querySelector('input[name*="captcha"],[data-qa="account-login-form"]')
-    ),
-    writable: Boolean(node && !node.disabled && !node.readOnly),
-    controlled: typeof props?.onChange === 'function',
-    value: typeof props?.value === 'string' ? props.value : null,
-    maxLength: node?.maxLength ?? -1,
-    foreign: Boolean(
-      doc.querySelector(
-        'textarea[data-qa="resume-editor-about"],[role="dialog"] [data-qa="profile-layout-save-button"]'
-      )
-    ),
-  };
-};
-
 /** Already open exact record only. Owner Save, Cancel and every other field stay native. */
 export const prepareNativeCvWorkplace = async ({
   session,
@@ -75,15 +45,23 @@ export const prepareNativeCvWorkplace = async ({
       args: [],
     });
     check();
-    const control = await session.commander.evaluate({
-      fn: readControl,
-      args: [],
+    const controls = await session.commander.evaluate({
+      fn: readCvWorkplaceControls,
+      args: [{ description: selector }],
     });
     check();
-    if (raw?.kind !== 'workplace' || control.challenge || control.foreign) {
+    if (
+      raw?.kind !== 'workplace' ||
+      controls.challenge ||
+      controls.foreign ||
+      controls.foreignSaveDialog
+    ) {
       throw cvPrepareFailure('draft');
     }
-    return { form: cvSaveAttempt(raw), control };
+    return {
+      form: cvSaveAttempt(raw),
+      control: { ...controls.controls.description, ready: controls.ready },
+    };
   };
   const wait = async (accept) => {
     const deadline = Date.now() + readinessMs;

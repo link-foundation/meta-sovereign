@@ -11,8 +11,15 @@ export const readCvEditorDocument = ({ html, url: savedUrl } = {}) => {
     Boolean(
       node &&
       (saved || node.getClientRects().length) &&
-      !node.closest('[hidden],[inert],[aria-hidden="true"],[type="hidden"]')
+      !node.closest('[hidden],[inert],[aria-hidden="true"],[type="hidden"]') &&
+      (saved ||
+        !['hidden', 'collapse'].includes(
+          globalThis.getComputedStyle(node).visibility
+        ))
     );
+  if (verificationActive()) {
+    return { kind: 'unavailable', challenge: true };
+  }
   const unique = (selector) => {
     const nodes = [...doc.querySelectorAll(selector)].filter(visible);
     return nodes.length === 1 ? nodes[0] : null;
@@ -41,6 +48,15 @@ export const readCvEditorDocument = ({ html, url: savedUrl } = {}) => {
     };
   }
   return readWorkplace();
+  function verificationActive() {
+    return (
+      [
+        ...doc.querySelectorAll(
+          'input[data-qa="account-captcha-input"],input[name="captchaText"],input[name*="captcha"],.smart-captcha,[data-smartcaptcha],[data-qa="captcha"],.g-recaptcha,.h-captcha,.cf-turnstile'
+        ),
+      ].some(visible) || doc.querySelector('[data-qa="account-login-form"]')
+    );
+  }
   function completeWorkplace() {
     const required = [
       'input[name="company"]',

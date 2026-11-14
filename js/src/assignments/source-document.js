@@ -16,26 +16,36 @@ export const readAssignmentSourceDocument = () => {
     );
   };
   const blocked =
+    [
+      ...doc.querySelectorAll(
+        'input[data-qa="account-captcha-input"],input[name="captchaText"],[data-qa="captcha"]'
+      ),
+    ].some(visible) ||
     Boolean(
       doc.querySelector(
         'input[type="password"],.smart-captcha,[data-smartcaptcha],.g-recaptcha,.h-captcha,.cf-turnstile'
       )
     ) ||
     /\/(?:signin|login|challenge)(?:\/|$)/iu.test(globalThis.location.pathname);
+  const result = {
+    url: globalThis.location.href,
+    title: '',
+    text: '',
+    complete: false,
+    blocked,
+    scope: 'visible-document-text',
+  };
+  if (blocked) {
+    return result;
+  }
   const supported =
     ['text/html', 'text/plain', 'application/xhtml+xml'].includes(
       doc.contentType
     ) && !doc.querySelector('canvas,embed,object,iframe');
   const root =
     doc.querySelector('article,[role="document"],main,pre') ?? doc.body;
-  const result = {
-    url: globalThis.location.href,
-    title: doc.title,
-    text: '',
-    complete: supported && !blocked && Boolean(root),
-    blocked,
-    scope: 'visible-document-text',
-  };
+  result.title = doc.title;
+  result.complete = supported && Boolean(root);
   if (!result.complete) {
     return result;
   }

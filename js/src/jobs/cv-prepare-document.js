@@ -4,8 +4,21 @@ export const readCvAboutPreparation = () => {
   const visible = (node) =>
     Boolean(
       node.getClientRects().length &&
-      !node.closest('[hidden],[inert],[aria-hidden="true"]')
+      !node.closest('[hidden],[inert],[aria-hidden="true"]') &&
+      !['hidden', 'collapse'].includes(
+        globalThis.getComputedStyle(node).visibility
+      )
     );
+  if (
+    [
+      ...doc.querySelectorAll(
+        'input[data-qa="account-captcha-input"],input[name="captchaText"],input[name*="captcha"],.smart-captcha,[data-smartcaptcha],[data-qa="captcha"],.g-recaptcha,.h-captcha,.cf-turnstile'
+      ),
+    ].some(visible) ||
+    doc.querySelector('[data-qa="account-login-form"]')
+  ) {
+    return { hash: null, challenge: true };
+  }
   const fields = [
     ...doc.querySelectorAll('textarea[data-qa="resume-editor-about"]'),
   ].filter(visible);
@@ -27,11 +40,7 @@ export const readCvAboutPreparation = () => {
         /^\/resume\/(?:edit\/)?([a-zA-Z\d_-]+)(?:\/about)?\/?$/u
       )?.[1] ?? null,
     ready: doc.readyState !== 'loading',
-    challenge: Boolean(
-      doc.querySelector(
-        'input[name*="captcha"], [data-qa="account-login-form"]'
-      )
-    ),
+    challenge: false,
     open: fields.length > 0 || other.length > 0,
     aboutCount: fields.length,
     foreign: other.some(

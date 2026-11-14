@@ -457,3 +457,5 @@ Recognize native HH text CAPTCHA fields before generic or application form paylo
 Stop HH résumé-list, vacancy-search and vacancy-detail discovery before reading page payloads when native text CAPTCHA or existing verification boundaries are visible. Keep hidden markers non-blocking and refuse to turn held discovery into empty or successful results.
 
 Recheck the saved shared HH pause when an acknowledged answer backup crosses the original wait deadline. Preserve later pauses from other browser slots, guarded refreshes, separate restoration consent and zero automatic sending.
+
+Stop HH CV and assignment content reads at native verification gates, reuse guarded workplace control inspection and preserve hidden-marker/ordinary reads and manual owner completion.
