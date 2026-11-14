@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Archive and mute new chats (R-Y174), as Telegram
 // Desktop's Settings has it: in Privacy and security a section shows the
 // switches of Telegram's global privacy settings (archive and mute new
@@ -71,7 +72,7 @@ await page.route('**/api/telegram/archive-settings', (route) => {
   return fulfil(route, { ok: true, settings });
 });
 await page.route('**/api/telegram/archive-settings-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.push(body);
   if (body.hideReadMarks) {
     return fulfil(route, {

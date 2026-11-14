@@ -147,6 +147,11 @@ import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 import { createInstantView } from './telegram-instant-view.js';
 import { createHistoryExport } from './telegram-export.js';
+import { createChatUsers } from './telegram-chat-users.js';
+import { createGreetingStickers } from './telegram-greeting-stickers.js';
+import { createGreetingSends } from './telegram-greeting-send.js';
+import { createFollowTelegram } from './telegram-follow.js';
+import { createTelegramBacklinks } from './telegram-backlinks.js';
 import { createAccountData } from './telegram-account-data.js';
 import { createPhoneChange } from './telegram-phone-change.js';
 import { createDrafts } from './telegram-drafts.js';
@@ -530,9 +535,13 @@ const chatActions = (env, context) => {
     env,
     context
   );
+  const { select: greetingSticker, ...greetingStickers } =
+    createGreetingStickers(env, { ...context, stickerLists });
   return {
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
+    ...createFollowTelegram(env, context),
+    ...createTelegramBacklinks(env, context),
     ...createChatSearch(env, context),
     ...createGlobalSearch(env, context),
     ...files,
@@ -543,6 +552,12 @@ const chatActions = (env, context) => {
     ...createFolderEdit(env, context),
     ...createChatlists(env, context),
     ...stickers,
+    ...greetingStickers,
+    ...createGreetingSends(env, {
+      ...context,
+      greetingSticker,
+      sendDocument: stickers.sendDocument,
+    }),
     ...createStickerSets(env, { ...context, stickers: stickerLists }),
     ...createContactsEdit(env, context),
     ...createContactsActions(env, context),
@@ -634,6 +649,11 @@ const chatActions = (env, context) => {
     ...createInviteLinks(env, context),
     ...createMessageLinks(env, context),
     ...createHistoryExport(env, context),
+    ...createChatUsers(env, {
+      ...context,
+      greetingSticker,
+      sendDocument: stickers.sendDocument,
+    }),
     ...createAccountData(env, context),
     ...createPhoneChange(env, context),
     ...createProxy(env),

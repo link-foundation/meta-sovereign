@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for chat backgrounds (R-Y155), as Telegram Desktop's
 // "Chat background": Settings lists what Telegram offers as a grid (with
 // "No background" and "Upload from file"); an image wallpaper picked there
@@ -99,7 +100,7 @@ await page.route('**/api/telegram/wallpaper?*', (route) => {
 });
 const sets = [];
 await page.route('**/api/telegram/chat-wallpaper-set', (route) => {
-  sets.push(route.request().postDataJSON());
+  sets.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

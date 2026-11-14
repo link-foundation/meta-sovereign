@@ -7,8 +7,8 @@
  * on the http server so the SPA only needs one origin.
  *
  * Each WebSocket joins a *room* identified by a path query
- * (`?room=foo`). The broker fans every JSON frame to every other
- * peer in the same room. It is *not* a TURN server; once peers have
+ * (`?room=foo`). Addressed Lino SDP/ICE goes only to its named room member;
+ * legacy untargeted signaling still fans out within the room. It is *not* a TURN server; once peers have
  * exchanged candidates they talk directly. The broker holds zero
  * application state — losing it just means new peers can't find
  * each other until it reboots.
@@ -18,35 +18,40 @@ import {
   isWebSocketUpgrade,
   writeAcceptHandshake,
   encodeTextFrame,
+  encodeBinaryFrame,
+  encodePongFrame,
   createFrameReader,
   rejectForeignOrigin,
 } from './ws-frame.js';
 import { bunAttachSignaling } from './bun-server.js';
 
+import { negotiateSync } from './wire.js';
+import { createSignalingRooms } from './signaling-room.js';
+
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
 
 export const attachSignaling = (
   server,
-  { path = '/rtc', verifyOrigin = null } = {}
+  { path = '/rtc', verifyOrigin = null, jsonCompatibility = false } = {}
 ) => {
   if (IS_BUN) {
-    return bunAttachSignaling(server, { path, verifyOrigin });
+    return bunAttachSignaling(server, {
+      path,
+      verifyOrigin,
+      jsonCompatibility,
+    });
   }
-  const rooms = new Map();
-
-  const join = (room, socket) => {
-    if (!rooms.has(room)) {
-      rooms.set(room, new Set());
-    }
-    rooms.get(room).add(socket);
+  const formats = new WeakMap();
+  const frameFor = (socket, event) => {
+    const wire = formats.get(socket);
+    const data = wire.encode(event);
+    return wire.binary ? encodeBinaryFrame(data) : encodeTextFrame(data);
   };
 
-  const leave = (room, socket) => {
-    rooms.get(room)?.delete(socket);
-    if (rooms.get(room)?.size === 0) {
-      rooms.delete(room);
-    }
-  };
+  const relay = createSignalingRooms((socket, event) =>
+    socket.write(frameFor(socket, event))
+  );
+  const { rooms } = relay;
 
   const onUpgrade = (req, socket) => {
     const url = new URL(req.url ?? '/', 'http://x');
@@ -63,40 +68,43 @@ export const attachSignaling = (
       return;
     }
     const room = url.searchParams.get('room') ?? 'default';
-    writeAcceptHandshake(socket, req);
-    join(room, socket);
-
-    // Notify the room the new peer arrived so existing peers can
-    // initiate. We mark the announcement so peers can ignore their
-    // own.
-    const peerId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const announce = encodeTextFrame(
-      JSON.stringify({ type: 'peer-joined', peerId })
-    );
-    for (const other of rooms.get(room)) {
-      if (other !== socket) {
-        other.write(announce);
-      }
+    const selected = negotiateSync(req.headers['sec-websocket-protocol'], {
+      jsonCompatibility,
+    });
+    if (!selected) {
+      socket.end('HTTP/1.1 406 Not Acceptable\r\nConnection: close\r\n\r\n');
+      return;
     }
+    writeAcceptHandshake(socket, req, selected.protocol);
+    formats.set(socket, selected.wire);
+    relay.join(room, socket);
 
+    const receive = (data) => {
+      let event;
+      try {
+        event = selected.wire.decode(data);
+      } catch {
+        socket.destroy();
+        return;
+      }
+      relay.receive(room, socket, event);
+    };
     const reader = createFrameReader({
-      onText: (text) => {
-        const frame = encodeTextFrame(text);
-        for (const other of rooms.get(room) ?? []) {
-          if (other !== socket) {
-            other.write(frame);
-          }
-        }
-      },
+      onText: receive,
+      onBinary: receive,
       onClose: () => {
-        leave(room, socket);
+        relay.leave(room, socket);
         socket.destroy();
       },
-      onPing: () => socket.write(Buffer.from([0x8a, 0x00])),
+      onPing: (payload) => socket.write(encodePongFrame(payload)),
     });
     socket.on('data', reader);
-    socket.on('close', () => leave(room, socket));
-    socket.on('error', () => leave(room, socket));
+    socket.on('end', () => {
+      relay.leave(room, socket);
+      socket.destroy();
+    });
+    socket.on('close', () => relay.leave(room, socket));
+    socket.on('error', () => relay.leave(room, socket));
   };
 
   server.on('upgrade', onUpgrade);
@@ -105,7 +113,7 @@ export const attachSignaling = (
     close: () => {
       server.removeListener('upgrade', onUpgrade);
       for (const peers of rooms.values()) {
-        for (const s of peers) {
+        for (const s of peers.keys()) {
           s.destroy();
         }
       }

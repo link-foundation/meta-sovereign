@@ -1,0 +1,31 @@
+export const enBrowser = {
+  'browser.title': 'Browser automation',
+  'browser.hint':
+    'Choose how the connected server opens browser windows. Changes apply to the next launch. A run option takes priority, followed by the slot, workflow and default.',
+  'browser.scope': 'Apply to',
+  'browser.scope.default': 'Default',
+  'browser.scope.case': 'Workflow',
+  'browser.scope.slot': 'Browser slot',
+  'browser.workflow': 'Workflow',
+  'browser.case.general': 'General',
+  'browser.case.cv': 'CV',
+  'browser.case.messages': 'Messages',
+  'browser.case.auto-import': 'Import',
+  'browser.case.marketplace': 'Marketplace',
+  'browser.case.jobs': 'Job applications',
+  'browser.case.forms': 'Forms',
+  'browser.platform': 'Provider ID',
+  'browser.slot': 'Slot name',
+  'browser.mode': 'Window',
+  'browser.mode.visible': 'Visible',
+  'browser.mode.headless': 'Hidden (headless)',
+  'browser.mode.inherit': 'Use inherited setting',
+  'browser.slotHint':
+    'Use lowercase letters, numbers, hyphens or underscores. The main slot keeps your existing profile; named slots have separate logins. Interactive QR sign-in opens a visible window.',
+  'browser.save': 'Save browser setting',
+  'browser.saving': 'Saving…',
+  'browser.saved': 'Browser setting saved.',
+  'browser.failed':
+    'Could not save this setting. Your selection is kept; try again.',
+  'browser.loading': 'Loading browser settings…',
+};

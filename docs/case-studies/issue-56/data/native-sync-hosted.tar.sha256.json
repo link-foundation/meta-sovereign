@@ -1,0 +1,13 @@
+{
+  "archive": "native-sync-hosted.tar.gz",
+  "files": {
+    "ci-logs/native-session-hosted-docs.log": "7dfc40ac4452d0be1ccb8529ea5157cc007b065c685fd846dc6c170f5cd82031",
+    "ci-logs/native-session-hosted-run.json": "6f462b3257a0e2eaf9164875360c33222819e1ddc3cafaf641498e7ff1c1341c",
+    "ci-logs/native-session-hosted-rust.log": "15a84b243e61f5c201ad5c2db0b04da96d47615de0162ab90f01682fe3fdf6ac",
+    "docs/case-studies/issue-56/native-sync-session.md": "be560acb5d7debc09e238d678263ede322dd08eeef88955d17953f3c096caa03",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-native-session-hosted.py": "023e0cb511885fa9c2575c613182c7c84d8565a389d55f92f4921affc1df9026",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "metadata.json": "5a12e25244d1fe86c108b6616b369a42638f592e5c6fa1d1747300751833c385"
+  }
+}

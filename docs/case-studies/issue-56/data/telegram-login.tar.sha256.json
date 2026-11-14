@@ -1,0 +1,26 @@
+{
+  "archive": "telegram-login.tar.gz",
+  "files": {
+    "ci-logs/checks-42726623365-lint-job.log": "1691b91cac4a9ef60c478cb599e5705a2aad82064dd405cb91107bc136c457b3",
+    "ci-logs/checks-42727686505-deno-windows-job.log": "553e126e1574d942e443d8e73610ca3d2054a4aeb88b2dd65b648f4afd64abc0",
+    "ci-logs/checks-42727686505-webkit-job.log": "24ebb8feb4c566b4492d4cb17aceb429e48a251e7a66cab9dc153b165a5087b4",
+    "ci-logs/ci-aab-ledger-format.log": "d33859d27b19cbdf08817bf949d02154eb6166c0f2c8fe3ad8e4f179918d176d",
+    "ci-logs/telegram-login-cli-final.log": "5f58cf5d9e9a189886e7f11f95d88c7e75189e2206b79997592e70e81df07031",
+    "ci-logs/telegram-login-cli-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-login-cli-terminal-before.log": "329dd48e468d60ba0206baf45bc3e97868c5d93f4fe69b410b438d15112f1047",
+    "ci-logs/telegram-login-complete.log": "5a5c6e4a4aec28cc84ee612a1191edbf4adf36a870195e67b3de424c5fe019d3",
+    "ci-logs/telegram-login-lifecycle-before.log": "87d671137176f26edf2a1a4da003b680809c2f58a48ab6baf8feb19f8b0246dc",
+    "ci-logs/telegram-login-lifecycle-final.log": "89613729e8e6ca32571b04a0222999cc7736d739f725549a6761dd7f25bd4d41",
+    "ci-logs/telegram-login-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-login-mcp-final.json": "a141ededb56c56fe94a86c85ab24b82edb8f49ae3674e28d9a1c9f560dd3e11b",
+    "ci-logs/telegram-login-qr-ui.log": "0d4426c6919d5effce982f07d2d5def965004e916bbf56cd7de40f090f43a9a5",
+    "ci-logs/telegram-login-ui-after.log": "6aec909f3565cba266e5c81378953657c0e643122a91542ef66ad99cbab9c3cd",
+    "ci-logs/telegram-login-ui-before.log": "a35d8ecd620fcb41fb0ad36cd300ae874d5e9a029f674af9be1ce535b0fbfb98",
+    "ci-logs/telegram-login-ui-build.log": "5d05fb8b91bec6e288a8b94c5de4511eb1ee392e92bba04ea10bc5626190cda5",
+    "ci-logs/telegram-login-ui-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-login-ui-owner.log": "8b44ffbb7093ed13cbb2f76ecbe322b44c37f3ac81cee2cc9468dd0e7cf28121",
+    "experiments/issue-56/collect-login-evidence.py": "be36eb5247273e9e7c32dbfa0565cab79b631ebd699cb2d6c0c6d45f0e1b7f62",
+    "experiments/issue-56/telegram-login-ui.mjs": "4cb51626643576101296a982cc19ae802b1e637f4ea97e254e5498f050194231",
+    "metadata.json": "a98ed40ef318aebda1d5e620a0b8e29a24db0dff2b414088aae65f123675b1df"
+  }
+}

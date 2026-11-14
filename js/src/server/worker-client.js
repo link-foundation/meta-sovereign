@@ -2,22 +2,56 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { setTimeout, clearTimeout } from 'node:timers';
 
+// Workers, including immutable release snapshots, share the installed modules.
+// Auto mode with --no-lock would resolve newer ranges and install them at startup.
 export const workerArgs = (entry, versions = process.versions) =>
-  versions.deno ? ['run', '--allow-all', '--no-lock', entry] : [entry];
+  versions.deno
+    ? ['run', '--allow-all', '--no-lock', '--node-modules-dir=manual', entry]
+    : [entry];
+
+const workerLifecycleLog = (log) => {
+  const started = globalThis.performance.now();
+  const phase = (name) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-worker] ${name} after ${Math.round(globalThis.performance.now() - started)} ms`
+      );
+    }
+  };
+  phase('spawning');
+  return (entry) => {
+    if (
+      entry?.event === 'server_worker_operation' &&
+      entry.operation === 'init' &&
+      ['started', 'finished', 'failed'].includes(entry.phase)
+    ) {
+      phase(`init_${entry.phase}`);
+    }
+    log(entry);
+  };
+};
 
 export const spawnWorker = ({
   entry,
   log = () => {},
   execPath = process.execPath,
+  spawnChild = spawn,
 }) => {
-  const child = spawn(execPath, workerArgs(entry), {
+  const report = workerLifecycleLog(log);
+  const child = spawnChild(execPath, workerArgs(entry), {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   const pending = new Map();
   let sequence = 0;
   let port = null;
   let exited = false;
+  let exitInfo = null;
   let onExit = () => {};
+  let closing = null;
+  let resolveClosed;
+  const closed = new Promise((resolve) => {
+    resolveClosed = resolve;
+  });
   const call = (operation, body, timeoutMs = 300_000) =>
     new Promise((resolve, reject) => {
       if (exited) {
@@ -43,7 +77,7 @@ export const spawnWorker = ({
     });
   const receive = (message) => {
     if (message.type === 'log') {
-      log(message.entry);
+      report(message.entry);
       return;
     }
     const slot = pending.get(message.id);
@@ -83,6 +117,7 @@ export const spawnWorker = ({
       return;
     }
     exited = true;
+    exitInfo = { code, signal };
     pending.forEach((slot) => {
       clearTimeout(slot.timer);
       slot.reject(
@@ -92,10 +127,17 @@ export const spawnWorker = ({
       );
     });
     pending.clear();
-    onExit({ code, signal });
   };
   child.once('exit', ended);
   child.once('error', (error) => ended(error.code, null));
+  // An IPC acknowledgment precedes process termination; even `exit` can
+  // precede closure of the child's stdio. Keep the supervisor's ownership
+  // until `close`, so store/cache files can be safely reused or removed.
+  child.once('close', (code, signal) => {
+    ended(code, signal);
+    onExit(exitInfo);
+    resolveClosed();
+  });
   child.stdin.on('error', () => {});
   for (const stream of [child.stderr]) {
     stream.on('data', (chunk) =>
@@ -121,7 +163,26 @@ export const spawnWorker = ({
       onExit = listener;
     },
     // A failed warm reader owns no data writer and may be discarded safely.
-    discard: () => child.kill('SIGTERM'),
-    close: () => (exited ? Promise.resolve() : call('close')),
+    discard: () => {
+      if (!exited) {
+        child.kill('SIGTERM');
+      }
+      return closed;
+    },
+    close: () => {
+      closing ??= (async () => {
+        if (!exited) {
+          try {
+            await call('close');
+          } catch (error) {
+            if (!exited) {
+              throw error;
+            }
+          }
+        }
+        await closed;
+      })();
+      return closing;
+    },
   };
 };

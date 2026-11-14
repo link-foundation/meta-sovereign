@@ -188,7 +188,7 @@ test('a failing clink mirror is reported, suggestions keep working', async () =>
 });
 
 test('GET /api/suggest answers for a chat over HTTP', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const server = await startServer({
     store: await seeded(),
     enableSync: false,

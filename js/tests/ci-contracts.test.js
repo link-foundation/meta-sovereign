@@ -18,6 +18,18 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const workflow = (name) =>
   parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
 
+test('runtime test deadlines exclude the completed release-copy experiment', () => {
+  const job = workflow('release.yml').jobs.test;
+  assert.equal(job['timeout-minutes'], 10);
+  assert.deepEqual(job.strategy.matrix.runtime, ['node', 'bun', 'deno']);
+  const commands = job.steps.map((step) => step.run ?? '').join('\n');
+  assert.match(
+    commands,
+    /deno test --allow-all --shard="\$DENO_TEST_SHARD" js\/tests/u
+  );
+  assert.doesNotMatch(commands, /release-copy-strategies/u);
+});
+
 test('browser failures cannot become a green release', () => {
   const jobs = workflow('release.yml').jobs;
   assert.ok(
@@ -85,6 +97,15 @@ for (const [message, expected] of [
 ]) {
   test(`mandatory browser runner classifies: ${message}`, (t) => {
     const cwd = fixture(t);
+    const checks = expected
+      ? ['tutorial']
+      : [
+          'tutorial',
+          'forms-reader',
+          'forms-learning',
+          'forms-answers',
+          'forms-assignment',
+        ];
     const scripts = path.join(cwd, 'js/scripts');
     const helpers = path.join(cwd, 'js/tests/helpers');
     mkdirSync(scripts, { recursive: true });
@@ -94,8 +115,12 @@ for (const [message, expected] of [
       readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
     );
     writeFileSync(
+      path.join(scripts, 'browser-check-shards.mjs'),
+      readFileSync(path.join(root, 'js/scripts/browser-check-shards.mjs'))
+    );
+    writeFileSync(
       path.join(scripts, 'browser-checks.json'),
-      JSON.stringify(['tutorial'])
+      JSON.stringify(checks)
     );
     writeFileSync(
       path.join(helpers, 'e2e-reduced-effects.mjs'),
@@ -103,11 +128,15 @@ for (const [message, expected] of [
     );
     writeFileSync(
       path.join(cwd, 'package.json'),
-      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
+      JSON.stringify({
+        scripts: Object.fromEntries(
+          checks.map((name) => [`test:e2e:${name}`, 'node fixture.mjs'])
+        ),
+      })
     );
     writeFileSync(
       path.join(cwd, 'fixture.mjs'),
-      `console.log(${JSON.stringify(message)});\n`
+      `console.log('group:' + process.env.FORMS_GROUP);\nconsole.log(${JSON.stringify(message)});\n`
     );
     // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
     const result = spawnSync(
@@ -128,6 +157,14 @@ for (const [message, expected] of [
       readFileSync(path.join(cwd, 'artifacts/summary.json'))
     );
     assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
+    if (!expected) {
+      for (const group of checks.slice(1)) {
+        assert.match(
+          readFileSync(path.join(cwd, `artifacts/${group}.log`), 'utf8'),
+          new RegExp(`group:${group}`)
+        );
+      }
+    }
   });
 }
 
@@ -247,4 +284,194 @@ test('browser jobs install Chromium for the cross-origin Pages fixture in either
     /playwright install --with-deps chromium "\$BROWSER"/
   );
   assert.equal(install.env.BROWSER, '${{ matrix.browser }}');
+});
+
+test('inbox history and form inspection run in both mandatory browser lanes', () => {
+  const checks = JSON.parse(
+    readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
+  );
+  const scripts = JSON.parse(
+    readFileSync(path.join(root, 'package.json'))
+  ).scripts;
+  assert.ok(checks.includes('inbox-pull'));
+  assert.match(scripts['test:e2e:inbox-pull'], /e2e-inbox-pull-browser/);
+  assert.match(scripts['test:e2e:inbox-pull:webkit'], /E2E_BROWSER=webkit/);
+  assert.ok(checks.includes('forms-reader'));
+  for (const group of ['forms-learning', 'forms-answers', 'forms-assignment']) {
+    assert.ok(checks.includes(group));
+    assert.match(scripts[`test:e2e:${group}`], /e2e-forms-reader-browser/);
+  }
+  assert.match(scripts['test:e2e:forms-reader'], /e2e-forms-reader-browser/);
+  assert.match(scripts['test:e2e:forms-reader:webkit'], /E2E_BROWSER=webkit/);
+  assert.match(scripts['test:e2e:forms-watchers'], /e2e-forms-watcher-browser/);
+  const reader = readFileSync(
+    path.join(root, 'js/tests/e2e-forms-reader-browser.mjs'),
+    'utf8'
+  );
+  assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
+});
+
+test('vacancy reads and local analysis have independent mandatory browser budgets', () => {
+  const checks = JSON.parse(
+    readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
+  );
+  const { scripts } = JSON.parse(readFileSync(path.join(root, 'package.json')));
+  const groups = {
+    vacancies: 'verifyVacancies',
+    'job-resumes': 'verifyJobResumes',
+    'resume-exports': 'verifyResumeExports',
+    'vacancy-technologies': 'verifyVacancyTechnologies',
+    'cv-technologies': 'verifyCvTechnologies',
+    'cv-save-watch': 'verifyCvSaveWatch',
+    'cv-prepare': 'verifyCvPreparation',
+  };
+  for (const [name, helper] of Object.entries(groups)) {
+    assert.equal(checks.filter((item) => item === name).length, 1);
+    const command = `node js/tests/e2e-${name}-browser.mjs`;
+    assert.equal(scripts[`test:e2e:${name}`], command);
+    assert.equal(
+      scripts[`test:e2e:${name}:webkit`],
+      `E2E_BROWSER=webkit ${command}`
+    );
+    const entry = readFileSync(path.join(root, command.slice(5)), 'utf8');
+    assert.ok(entry.includes(helper));
+    for (const other of Object.values(groups).filter(
+      (item) => item !== helper
+    )) {
+      assert.ok(!entry.includes(other), `${name} must retain its own deadline`);
+    }
+  }
+});
+
+test('question provider and control scenarios have separate mandatory browser budgets', () => {
+  const checks = JSON.parse(
+    readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
+  );
+  const scripts = JSON.parse(
+    readFileSync(path.join(root, 'package.json'))
+  ).scripts;
+  const questions = readFileSync(
+    path.join(root, 'js/tests/e2e-questions-browser.mjs'),
+    'utf8'
+  );
+  const groups = {
+    'question-providers': ['verifyProviderChoices', 'verifyHhChoices'],
+    'question-text-replies': ['verifyTextReplyControls'],
+    'question-text-guards': ['verifyTextReplyGuards'],
+    'question-text-controls': ['verifyQuestionTextControls'],
+    'question-chat-lists': [
+      'verifyHhChatList',
+      'verifyHhChatScan',
+      'verifyHhChatFilter',
+    ],
+    'question-history': ['verifyConversationHistory'],
+    'question-inactive-history': ['verifyInactiveHistory'],
+    'question-unread': ['verifyChatNavigation'],
+    'question-unread-guards': ['verifyUnreadViewGuards'],
+    'question-unread-repeat': ['verifyUnreadRepetition'],
+    'question-unread-controls': ['verifyQuestionUnreadControls'],
+    'question-unread-delivery': ['verifyUnreadDeliveryVisit'],
+    'question-unread-notices': ['verifyUnreadNoticeControls'],
+    'question-unread-polling': ['verifyUnreadPollingControls'],
+    'question-unread-reply-view': [
+      'verifyUnreadReplyView',
+      'verifyUnreadReplyViewControls',
+    ],
+    'question-inactive-text': ['verifyInactiveText'],
+    'question-notice-policy': [
+      'verifyNoticePolicies',
+      'verifyNoticePolicyControls',
+    ],
+    'question-controls': [
+      'verifyQuestionBrowserControls',
+      'verifySummaryChoices',
+      'verifyQuestionBrowserWatch',
+    ],
+  };
+  assert.equal(checks.filter((name) => name === 'questions').length, 1);
+  const groupSources = Object.keys(groups).map((name) =>
+    readFileSync(path.join(root, `js/tests/e2e-${name}-browser.mjs`), 'utf8')
+  );
+  assert.match(
+    groupSources[Object.keys(groups).indexOf('question-chat-lists')],
+    /nativeFocus: true/u
+  );
+  for (const name of [
+    'question-unread',
+    'question-unread-guards',
+    'question-unread-repeat',
+    'question-unread-controls',
+    'question-unread-delivery',
+    'question-unread-notices',
+    'question-unread-reply-view',
+    'question-unread-polling',
+  ]) {
+    assert.match(
+      groupSources[Object.keys(groups).indexOf(name)],
+      /nativeFocus: true/u
+    );
+  }
+  assert.match(questions, /await verifyHhHistory\(/u);
+  assert.match(
+    questions,
+    /await verifyQuestionDisclosures\(\{ page, base \}\)/u
+  );
+  assert.match(
+    questions,
+    /await verifyQuestionNotices\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
+  );
+  assert.match(
+    questions,
+    /await verifyNoticeLearning\(\{\s*page,\s*base,\s*store,\s*until\s*\}\)/u
+  );
+  assert.match(
+    questions,
+    /await verifyNoticeLearning\(\{\s*page,\s*base,\s*store,\s*until,\s*patterns: true\s*\}\)/u
+  );
+  assert.doesNotMatch(
+    readFileSync(
+      path.join(root, 'js/tests/e2e-question-controls-browser.mjs'),
+      'utf8'
+    ),
+    /\bverify(?:QuestionNotices|NoticeLearning)\b/u,
+    'notice review needs the shared page/store fixture, not a Browser'
+  );
+  assert.match(
+    readFileSync(
+      path.join(root, 'js/tests/helpers/e2e-question-browser-controls.mjs'),
+      'utf8'
+    ),
+    /await verifyBrowserPendingTurn\(\{ \.\.\.scenario, inspect: readCurrent \}\)/u
+  );
+  for (const [name, scenarios] of Object.entries(groups)) {
+    assert.equal(checks.filter((check) => check === name).length, 1, name);
+    const command = scripts[`test:e2e:${name}`];
+    assert.equal(command, `node js/tests/e2e-${name}-browser.mjs`);
+    assert.equal(
+      scripts[`test:e2e:${name}:webkit`],
+      `E2E_BROWSER=webkit ${command}`
+    );
+    const entry = readFileSync(path.join(root, command.slice(5)), 'utf8');
+    const registered = entry.slice(entry.indexOf('await runBrowserScenarios('));
+    for (const scenario of scenarios) {
+      assert.match(registered, new RegExp(`\\b${scenario}\\b`, 'u'));
+      assert.equal(
+        groupSources.filter((source) => source.includes(scenario)).length,
+        1,
+        `${scenario} runs in exactly one bounded group`
+      );
+      assert.ok(
+        !questions.includes(scenario),
+        `${scenario} runs only in its group`
+      );
+    }
+  }
+  assert.match(
+    readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'), 'utf8'),
+    /timeout: 180_000/u
+  );
+  assert.equal(
+    workflow('release.yml').jobs['e2e-browser']['timeout-minutes'],
+    35
+  );
 });

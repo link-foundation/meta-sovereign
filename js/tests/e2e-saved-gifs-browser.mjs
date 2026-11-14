@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for saved GIFs (R-Y171), as Telegram Desktop's: the
 // context menu of a GIF message in a chat offers "Save GIF", or "Remove
 // from GIFs" when it is saved; the choice asks the server (messages.saveGif)
@@ -84,7 +85,7 @@ await page.route('**/api/telegram/gifs', (route) => {
 // The message menu's saves (messages.saveGif on the server).
 const gifSaves = [];
 await page.route('**/api/telegram/gif-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   gifSaves.push(body);
   const id = body.message === 1 ? 900 : 950;
   saved = body.unsave ? saved.filter((n) => n !== id) : [...saved, id];
@@ -93,7 +94,7 @@ await page.route('**/api/telegram/gif-save', (route) => {
 // The panel's own menu.
 const panelSaves = [];
 await page.route('**/api/telegram/sticker-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   panelSaves.push(body);
   saved = saved.filter((n) => String(n) !== body.id);
   return fulfil(route, { ok: true });

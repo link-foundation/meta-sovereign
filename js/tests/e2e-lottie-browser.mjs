@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for animated stickers (R-Y113), as Telegram's apps
 // play them: a `.tgs` sticker in the chat shows its picture, then its
 // animation drawn as SVG and moving; the panel's animated stickers play
@@ -150,7 +151,7 @@ page.on('console', (m) => {
 });
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),

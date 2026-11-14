@@ -11,6 +11,9 @@ const changesFrom = (args) => ({
     : {}),
   ...(args['ui-url'] !== undefined ? { uiUrl: args['ui-url'] } : {}),
   ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+  ...(args['json-compatibility'] !== undefined
+    ? { jsonCompatibility: String(args['json-compatibility']) === 'true' }
+    : {}),
   ...(args.tls !== undefined ? { tls: String(args.tls) !== 'false' } : {}),
 });
 
@@ -49,7 +52,17 @@ export const startRollingCliServer = async ({
   options,
   log,
 }) => {
+  const began = globalThis.performance.now();
+  const phase = (name) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-start] ${name} after ${Math.round(globalThis.performance.now() - began)} ms`
+      );
+    }
+  };
+  phase('staging');
   const release = await stageServerRelease({ storeDir });
+  phase('release_ready');
   const handle = await startRollingServer({
     storeDir,
     port,
@@ -57,9 +70,11 @@ export const startRollingCliServer = async ({
     release,
     log,
   });
+  phase('worker_ready');
   let control;
   try {
     control = await createServerControl({ storeDir, handle, log });
+    phase('control_ready');
   } catch (error) {
     await handle.close();
     throw error;

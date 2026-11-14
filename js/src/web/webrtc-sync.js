@@ -1,26 +1,15 @@
 /**
  * Browser-side WebRTC sync wiring.
  *
- * The SPA already replicates writes over `/ws` when a server is
- * reachable. This module adds a *peer-to-peer* WebRTC data channel
- * alongside that path so two browsers can talk without the server
- * relaying every message (R-J7).
+ * Browser stores replicate over a peer-to-peer WebRTC data channel.
+ * The server's `/rtc` endpoint relays signaling; application records
+ * travel directly between the browser stores (R-J7).
  *
- * Wire-up:
- *   1. Open a browser `WebSocket` to `/rtc?room=<room>` on the
- *      discovered server. The signaling broker fans JSON frames to
- *      everyone else in the same room.
- *   2. Wrap that WebSocket in a `signalingChannel` so SDP / ICE
- *      messages are typed.
- *   3. Construct `createWebRtcTransport({ initiator: false, ... })` —
- *      both peers start as followers. When a `peer-joined` event
- *      arrives (meaning a *new* peer just entered the room behind
- *      us), we know we're the existing one so we call
- *      `transport.startAsInitiator()` to send the offer. The newcomer
- *      sees the offer first and answers it; no race.
- *   4. Plug the transport into `createPeer(store).connect(transport)`
- *      so every local write fans out over the data channel and
- *      remote writes flow into the local store.
+ * The broker assigns each remote socket a fresh identity. Existing peers
+ * initiate one addressed connection for each newcomer; offers and early ICE
+ * create the newcomer's matching follower. Departures dispose only that pair.
+ * A reload therefore receives fresh connections without replacing other peers.
+ * Application records remain on data channels, separate from signaling.
  *
  * The room defaults to `default`; production deployments that want
  * tenant isolation can set it from the URL or a config endpoint.
@@ -32,20 +21,36 @@
 // Import from leaf files instead of `sync/index.js` so the browser
 // bundle does not pull in `node:net` / `node:http` (re-exported by
 // the TCP/WebSocket *server* transports through index.js).
-import {
-  signalingChannel,
-  createWebRtcTransport,
-} from '../sync/webrtc-transport.js';
+import { signalingChannel } from '../sync/webrtc-transport.js';
+import { createWebRtcMesh } from '../sync/webrtc-mesh.js';
+import { debugBrowser } from './client-log.js';
 import { createPeer } from '../sync/peer.js';
+import { syncWire, syncQueue } from '../sync/wire.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 
-const wrapBrowserWebSocket = (ws) => {
+const wrapBrowserWebSocket = (ws, wire, onError) => {
+  const queue = syncQueue();
+  ws.binaryType = 'arraybuffer';
+  ws.addEventListener('open', () => {
+    if (ws.protocol !== wire.protocol) {
+      onError(new Error('signaling sync protocol was not negotiated'));
+      ws.close();
+      return;
+    }
+    queue.drain((event) => ws.send(wire.encode(event)));
+  });
+  ws.addEventListener('close', () => queue.clear());
+  ws.addEventListener('error', () =>
+    onError(new Error('signaling connection failed'))
+  );
   const handlers = new Set();
   ws.addEventListener('message', (event) => {
     let parsed;
     try {
-      parsed = JSON.parse(event.data);
-    } catch {
+      parsed = wire.decode(event.data);
+    } catch (error) {
+      onError(error);
+      ws.close(1003, 'invalid signaling message');
       return;
     }
     for (const h of handlers) {
@@ -54,11 +59,13 @@ const wrapBrowserWebSocket = (ws) => {
   });
   return {
     send(msg) {
-      const text = JSON.stringify(msg);
+      const data = wire.encode(msg);
       if (ws.readyState === ws.OPEN) {
-        ws.send(text);
+        ws.send(data);
+      } else if (ws.readyState === ws.CONNECTING) {
+        queue.push(msg);
       } else {
-        ws.addEventListener('open', () => ws.send(text), { once: true });
+        throw new Error('signaling connection is closed');
       }
     },
     onMessage(h) {
@@ -71,15 +78,21 @@ const wrapBrowserWebSocket = (ws) => {
 export const attachWebRtcSync = ({
   store,
   origin,
+  capabilities,
   room = 'default',
   RTCPeerConnection = globalThis.RTCPeerConnection,
   WebSocketImpl = globalThis.WebSocket,
   rtcConfig = { iceServers: [] },
+  format,
+  jsonCompatibility = false,
   onMismatch = () => {},
-  onError = (error) =>
-    globalThis.console?.warn?.('WebRTC negotiation failed', error),
+  onError = (error) => globalThis.console?.warn?.('WebRTC sync failed', error),
 } = {}) => {
-  if (!RTCPeerConnection || !WebSocketImpl) {
+  if (
+    capabilities?.webRtcSync === false ||
+    !RTCPeerConnection ||
+    !WebSocketImpl
+  ) {
     return null;
   }
   const wsUrl = (() => {
@@ -89,47 +102,35 @@ export const attachWebRtcSync = ({
     u.searchParams.set('room', room);
     return u.toString();
   })();
-  const ws = new WebSocketImpl(wsUrl);
-  const wsTransport = wrapBrowserWebSocket(ws);
+  const wire = syncWire({ format, jsonCompatibility });
+  const ws = new WebSocketImpl(wsUrl, wire.protocol);
+  const wsTransport = wrapBrowserWebSocket(ws, wire, onError);
   const signaling = signalingChannel(wsTransport);
-  const transport = createWebRtcTransport({
-    signaling,
-    RTCPeerConnection,
-    initiator: false,
-    rtcConfig,
-    onError,
-  });
-  // Existing peers (us, until someone else joins) become initiator
-  // when the broker says a new peer arrived.
-  signaling.on('peer-joined', () => {
-    transport.startAsInitiator().catch(onError);
-  });
   // A browser and a peer of another data schema exchange nothing (R-Z17).
   const peer = createPeer(store, {
     node: 'web',
+    onState: (state) => debugBrowser('sync-receive', state),
     schemaVersion: CURRENT_SCHEMA,
     onMismatch,
+    onError,
   });
-  const detach = peer.connect(transport);
+  const mesh = createWebRtcMesh({
+    signaling,
+    RTCPeerConnection,
+    rtcConfig,
+    format,
+    jsonCompatibility,
+    connect: (transport) => peer.connect(transport),
+    onState: (state) => debugBrowser('rtc-peer', state),
+    onError,
+  });
+  ws.addEventListener('close', () => mesh.close());
   return {
-    transport,
+    mesh,
     peer,
     close() {
-      try {
-        detach();
-      } catch {
-        // ignore
-      }
-      try {
-        transport.close();
-      } catch {
-        // ignore
-      }
-      try {
-        ws.close();
-      } catch {
-        // ignore
-      }
+      mesh.close();
+      ws.close();
     },
   };
 };

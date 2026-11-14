@@ -14,7 +14,7 @@ import {
 } from './app-route.js';
 import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
-import { traceClient } from './client-log.js';
+import { debugBrowser, traceClient } from './client-log.js';
 import { useDraftPresentation } from './chat-draft-state.js';
 import { useFindMatchingChat } from './chat-automation-find.js';
 import {
@@ -506,6 +506,9 @@ export const runNotice = (result) => {
       kind: result.queued.length ? 'queued' : 'nothing',
       count: result.queued.length,
       reason: result.excluded?.[0]?.reason ?? null,
+      ...(result.excluded?.some((entry) => entry.answer?.model)
+        ? { excluded: result.excluded }
+        : {}),
     };
   }
   if (!Array.isArray(result.results)) {
@@ -1090,6 +1093,7 @@ const useOpening = ({
   const [toEnd, setToEnd] = useState(0);
   return {
     select: (key) => {
+      debugBrowser('chat-select', { from: current?.key ?? null, to: key });
       if (key === current?.key) {
         setToEnd((n) => n + 1);
       }
@@ -1171,11 +1175,13 @@ const useCurrentChat = (all, target, selectFirst) => {
   );
   useEffect(() => {
     if (target) {
+      debugBrowser('chat-route', { source: target.source, chat: target.chat });
       setActive(chatKey(target.source, target.chat));
     }
   }, [target?.source, target?.chat]);
   useEffect(() => {
     if (selectFirst && all.length && !all.some((c) => c.key === active)) {
+      debugBrowser('chat-fallback', { from: active, to: all[0].key });
       setActive(all[0].key);
     }
   }, [all, active, selectFirst]);

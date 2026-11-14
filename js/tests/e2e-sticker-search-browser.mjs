@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for searching stickers and GIFs (R-Y112), as
 // Telegram Desktop's panel: an emoji in the Stickers tab's box finds the
 // stickers for it; words find stickers and sets (a set's stickers asked
@@ -98,7 +99,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -121,7 +122,7 @@ await page.route('**/api/telegram/stickers', (route) => {
   fulfil(route, PANEL);
 });
 await page.route('**/api/telegram/sticker-set', (route) => {
-  const { id } = route.request().postDataJSON();
+  const { id } = requestBody(route.request());
   asked.sets.push(id);
   fulfil(route, { ok: true, id, stickers: SETS[id] });
 });
@@ -141,7 +142,7 @@ await page.route('**/api/telegram/sticker?*', (route) => {
 // page at a time.
 const searched = { stickers: [], gifs: [] };
 await page.route('**/api/telegram/sticker-search', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   searched.stickers.push(body);
   fulfil(
     route,
@@ -170,7 +171,7 @@ await page.route('**/api/telegram/sticker-search', (route) => {
   );
 });
 await page.route('**/api/telegram/gif-search', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   searched.gifs.push(body);
   const gif = (id) => ({ ...GIFS.gifs[0], id: String(id) });
   fulfil(
@@ -183,12 +184,12 @@ await page.route('**/api/telegram/gif-search', (route) => {
 SETS[9] = range(950, 4).map((id) => sticker(id, '🐈'));
 const installs = [];
 await page.route('**/api/telegram/sticker-set-install', (route) => {
-  installs.push(route.request().postDataJSON());
+  installs.push(requestBody(route.request()));
   return fulfil(route, { ok: true, installed: true });
 });
 const sends = [];
 await page.route('**/api/telegram/send-document', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 

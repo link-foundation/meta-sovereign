@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the attach dialog's Send menu (R-Y99, R-Y102): a
 // file picked from the paperclip opens the dialog; a right click on its
 // Send offers "Send without sound" (the request to the files route says
@@ -49,7 +50,7 @@ await page.route('**/api/telegram/upload*', (route) => {
 });
 const sends = [];
 await page.route('**/api/telegram/send-files', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT, ids: [2] });
 });
 

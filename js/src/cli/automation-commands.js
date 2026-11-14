@@ -13,7 +13,7 @@
  *   time; each is sent only after the user answers `y`, and can be
  *   edited, switched to the other "ты"/"вы" form, marked as sent by
  *   hand, or skipped.
- * - `automations drafts | history | save <file.json> | delete <id>`.
+ * - `automations drafts | history | save <file.lino> | delete <id>`.
  *
  * `--chat=vk:101,telegram:5` narrows a plan or run to chosen chats (what
  * the chat menu does); with `--test` the conditions are ignored there.
@@ -21,6 +21,7 @@
 
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
+import { decodeWire } from '../transport/lino.js';
 import { createInterface } from 'node:readline/promises';
 import { getSource } from '../sources/index.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
@@ -32,11 +33,42 @@ import {
 import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
+import { questionCommands } from './question-commands.js';
+import { followCommands } from './follow-commands.js';
+import { createFollowDiscovery } from '../follow/chat-discovery.js';
+import { withAnswerModel } from './answer-model-commands.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
 
-export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.json> | delete <id>
+export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
-                review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time`;
+                answer-questions: saved action modelDraft=true drafts unanswered parts using answers model settings; every model draft requires review
+                review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
+                answers: list | save [file.lino] | delete <id> | plan --question=<text> [--model-draft] [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id]
+                answers save: --id=<id> --question=<text> --answer=<text> [--kind=question|notice] [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
+                answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
+                answers model show | save --enabled=true|false --revision=<revision|null> [--model=id] [--cv=cv:id] [--timeout-ms=60000]
+                answers plan choices: --options='(Yes No)' --strict-options=true (Links Notation labels)
+                answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>
+                answers browser watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] (foreground; Ctrl+C stops and drains)
+                answers browser watch-status | watch-stop --watch-id=<saved-id> (status never resumes a watcher)
+                answers browser unread --source=hh --confirm=true [--pass-id=<request-id>] [--max-chats=20] [--budget-ms=30000] (existing inactive browser; opening may mark read; saved answers only)
+                answers browser unread-status | unread-stop --pass-id=<saved-id> (status never repeats traversal)
+                answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
+                answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]
+                answers profiles import [id] --file=contacts.lino [--json] (read-only draft)
+                answers profile-sources | profile [--cv=<platform|cv:id>] [--text=<owner contacts>|--text-file=<path>] [--format=text|resume-markdown|contacts-lino] [--profile=<lino>] [--json] (read-only draft)
+                follow: links | extract | clear [--source=<provider>] [--chat=<id>] [--self=<id,id>] [--limit=<n>] [--offset=<n>]
+                follow extract: scans cached incoming messages; --limit=0 scans the whole cached archive
+                follow chats: [--source=vk] [--telegram-only] [--limit=50] [--offset=0]
+                follow details: --chat=<VK peer or local chat ID> [--member-offset=0] [--member-limit=50] [--message-limit=10]
+                follow telegram list: [--limit=40] [--cursor=<next>]
+                follow telegram join | leave | preferences: --target=<username|signed-id|Telegram-link> [--mute=true|false] [--archive=true|false] [--confirm=true]
+                follow chats | details | telegram: [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] (timeout reads only; total attempts include the first call)
+                follow backlinks post: [--source=vk|telegram] --chats=<signed-Telegram-ID-or-VK-peer,...> --backlink=<Telegram-or-VK-invite> [--monitor-ms=200000] [--interval-ms=30000] [--delay-ms=0] [--delete-incoming=false] [--history-limit=200] [--attempts=3] [--retry-delay-ms=100] [--retry-max-delay-ms=2000] [--confirm=true]
+                follow backlinks post --auto-follow=true: [--max-retries=10] [--max-links=100] [--join-delay-ms=1000] [--follow-mute=true] [--follow-archive=true] (Telegram preferences; VK joins do not change them)
+                follow backlinks list | status | resume | cancel: [--job-id=<saved-id>] [--limit=20] [--offset=0] [--confirm=true]
+                Telegram operations preview by default; leave preserves history. Confirmation applies the frozen plan once.`;
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()
@@ -130,7 +162,17 @@ const logPlan = (plan, log) => {
   plan.drafts.forEach((draft, i) => {
     log(`${i + 1}. ${describeDraft(draft)}`);
     log(indent(draft.text));
+    if (draft.answer?.model) {
+      log(
+        `    model: ${draft.answer.model.state}; review required: ${draft.answer.requiresReview}`
+      );
+    }
   });
+  for (const entry of plan.excluded.filter((item) => item.answer?.model)) {
+    log(
+      `${entry.key}: model ${entry.answer.model.state}${entry.answer.model.code ? ` (${entry.answer.model.code})` : ''}`
+    );
+  }
   const reasons = {};
   for (const { reason } of plan.excluded) {
     reasons[reason] = (reasons[reason] ?? 0) + 1;
@@ -249,10 +291,14 @@ const historyCmd = async ({ args, runner, log }) => {
 const saveCmd = async ({ args, store, log }) => {
   const file = args._[1] ?? args.file;
   if (!file) {
-    throw new Error('automations save <file.json>');
+    throw new Error('automations save <file.lino>');
   }
+  if ((await fs.stat(file)).size > 4 * 1024 ** 2) {
+    throw new Error('automation configuration exceeds 4 MiB');
+  }
+  const text = await fs.readFile(file, 'utf8');
   const automation = normalizeAutomation(
-    JSON.parse(await fs.readFile(file, 'utf8'))
+    file.endsWith('.json') ? JSON.parse(text) : decodeWire(text)
   );
   await store.put(automation);
   log(`saved ${automation.id}`);
@@ -349,6 +395,8 @@ const summaryLine = (tally, left) =>
   `sent ${tally.sent}, skipped ${tally.skipped}, failed ${tally.failed}, left ${left}`;
 
 const SUBCOMMANDS = {
+  follow: followCommands,
+  answers: questionCommands,
   list: listCmd,
   plan: planCmd,
   run: runCmd,
@@ -360,7 +408,9 @@ const SUBCOMMANDS = {
 };
 
 const runnerFor = (store, args, deps) => {
-  const send = deps.send ?? createDefaultSender({ getSource, log: deps.trace });
+  const send =
+    deps.send ??
+    createDefaultSender({ getSource, browser: { store }, log: deps.trace });
   const setTyping =
     deps.setTyping ??
     (({ source, chat }) =>
@@ -370,11 +420,26 @@ const runnerFor = (store, args, deps) => {
     store,
     send,
     setTyping,
+    modelRunner: deps.modelRunner,
     self: parseCsv(args.self),
     ...(now ? { clock: () => now } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
   });
-  return { runner, close: () => send.close?.() };
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    ...(now ? { clock: () => now } : {}),
+    runner: deps.modelRunner,
+    log: deps.trace,
+  });
+  return {
+    runner,
+    questionBrowser,
+    close: async () => {
+      await questionBrowser.close();
+      await send.close?.();
+    },
+  };
 };
 
 const automationsCmd = async (args, log, deps) => {
@@ -385,20 +450,42 @@ const automationsCmd = async (args, log, deps) => {
     return 1;
   }
   const store = await deps.openStore(args.store ?? defaultStoreDir());
-  const { runner, close } = runnerFor(store, args, deps);
-  try {
-    return await handler({
-      args,
-      store,
-      runner,
-      log,
-      ask: deps.ask ?? defaultAsk,
-      // y/N before sending (tests answer it; otherwise the terminal).
-      confirmAsk: deps.confirm ?? null,
+  const work = async (modelRunner) => {
+    const { runner, questionBrowser, close } = runnerFor(store, args, {
+      ...deps,
+      modelRunner,
     });
-  } finally {
-    await close();
-  }
+    const followDiscovery =
+      deps.followDiscovery ?? createFollowDiscovery({ store });
+    try {
+      return await handler({
+        args,
+        store,
+        runner,
+        questionBrowser,
+        log,
+        ask: deps.ask ?? defaultAsk,
+        // y/N before sending (tests answer it; otherwise the terminal).
+        confirmAsk: deps.confirm ?? null,
+        followDiscovery,
+        createAccount: deps.createAccount,
+        followBacklinks: deps.followBacklinks,
+      });
+    } finally {
+      if (!deps.followDiscovery) {
+        await followDiscovery.stop();
+      }
+      await close();
+    }
+  };
+  // The finite watch uses saved answers and owns its draining signal handlers.
+  const watch =
+    sub === 'answers' &&
+    args._[1] === 'browser' &&
+    ['watch', 'unread'].includes(args._[2]);
+  return watch
+    ? work(deps.modelRunner)
+    : withAnswerModel(deps.modelRunner, work);
 };
 
 /**

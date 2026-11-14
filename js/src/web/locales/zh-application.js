@@ -1,0 +1,171 @@
+export const zhApplication = {
+  'application.limitWaitRestore': '等待、刷新并恢复保存的答案',
+  'application.limitWaitRestorePolicy':
+    '完成一次经过核验的刷新后，将保存的答案恢复到匹配的空白控件中。发送仍需单独确认。',
+  'application.limitWait.restoring': '正在将保存的答案恢复到刷新后的表单…',
+  'application.limitWaitStart': '等待后检查重新加载的表单',
+  'application.limitWaitStop': '停止等待并保留表单',
+  'application.limitWaitHint':
+    '等待会保存后续编辑，并在检查间隔内释放工作区。保存的期限到达后，只刷新仍失败且未更改的表单。可选择现在或稍后确认恢复。发送需单独确认；结果未知时仍保留预留状态。停止会保留表单。重启不会恢复等待。',
+  'application.limitWait.waiting': '正在等待保存的期限。',
+  'application.limitWait.refreshing': '正在重新加载已核验的失败表单…',
+  'application.limitWait.review':
+    '等待结束。请检查当前表单；如有需要，单独恢复保存的答案。',
+  'application.limitWait.stopped': '等待已停止。当前表单保持打开。',
+  'application.limitWait.refused': '无法安全继续等待。重试前请读取当前表单。',
+  'application.limitDraftSaved':
+    '实际答案和求职信已在每日暂停期间保存。恢复需在选择等待并恢复时确认，或在重新打开后确认。恢复不会发送申请。',
+  'application.resumePreferenceSource.automatic': '自动语言选择',
+  'application.autoSelectResumeLanguage': '申请前自动选择简历语言',
+  'application.languagePolicyHint':
+    '先打开完整表单供审阅，不会发送申请。必须用已核验的导出文件确认简历语言。明确选择和随后在 HH 中的更改具有优先权，重启后仍然保留。',
+  'application.languageAutomatic':
+    '已启用自动简历语言选择；进入时仅打开审阅表单，不会申请。',
+  'application.languageManual': '此已保存审阅已关闭自动简历选择。',
+  'application.standardLetters': '使用已审阅的英语和俄语标准求职信',
+  'application.standardLetter.en': '英语标准求职信（必填）',
+  'application.standardLetter.ru': '俄语标准求职信（必填）',
+  'application.standardLettersHint':
+    '必须提供两个版本。求职信跟随已核验的所选简历语言。修正语言判断后，只有确认填写求职信才会替换未修改的标准文本。本人编辑和问卷答案会保留。',
+  'application.resumePreference': '已保存的简历选择：{title}（{source}）。',
+  'application.resumePreferenceSource.manual': '明确选择',
+  'application.resumePreferenceSource.context': '按雇主上下文选择',
+  'application.resumePreferenceSource.native': '已在原生表单中更改',
+  'application.form': '打开完整表单进行审核',
+  'application.resumeContext': '上下文建议使用 {language}：{reason}。',
+  'application.resumeContextUnknown':
+    '雇主文本不足以确定简历语言。请在审核后明确选择。',
+  'application.resumeContextChoose': '根据雇主上下文选择简历',
+  'application.resumeReason.dollar-pay': '美元薪酬',
+  'application.resumeReason.questions': '雇主问题',
+  'application.resumeReason.description': '职位完整描述',
+  'application.resumeReason.title': '职位名称',
+  'application.resume': '申请简历',
+  'application.resumeHint':
+    '打开原生选项后按哈希确认简历。需要匹配的已验证导出。答案、求职信和发送仍是独立操作。',
+  'application.resumeUnavailable':
+    '原生选项有歧义或暂不支持。请重新读取页面或直接在 HH 中选择。',
+  'application.resumeOpen': '打开原生简历选项',
+  'application.resumeClose': '关闭原生简历选项',
+  'application.resumeChoose': '选择 {title} · {hash}',
+  'application.resumeVerified':
+    '此次选择 {hash} 使用了已验证的 {language} 导出。',
+  'application.title': 'HH 原生申请审核',
+  'application.hint':
+    '请审核完整职位和原生答案。进入申请可能立即发送。发送需要您的确认，只有 HH 的成功信号才能确认送达。',
+  'application.settings': '申请设置',
+  'application.coverLetter': '已审核的求职信（最多 24,000 字符）',
+  'application.autoExact': '填写后，仅在所有答案均精确且已验证时自动发送',
+  'application.delay': '自动发送前的审核延时（0–30,000 毫秒）',
+  'application.testMode': '仅预览：不执行答案填写或申请操作',
+  'application.settingsHint':
+    '审核开始后设置固定。恢复会使用服务器保存的原始设置。求职信不会保存在此浏览器中，已有的原生文本会被保留。',
+  'application.slot': '浏览器槽位：{slot}',
+  'application.automaticDelay':
+    '精确答案自动发送已启用，审核延时为 {delay} 毫秒。',
+  'application.refused': '原生操作被拒绝。继续前请重新读取页面。',
+  'application.read': '读取当前原生页面',
+  'application.enterWithLanguage': '打开完整申请表并核对简历语言',
+  'application.enter': '进入申请（可能立即发送）',
+  'application.prefill': '填写已验证的精确答案和求职信',
+  'application.prefillAutomatic': '填写精确答案并在审核延时后发送',
+  'application.submit': '发送已审核的申请',
+  'application.close': '关闭此申请的浏览器',
+  'application.pause': '暂停此浏览器槽位中的申请',
+  'application.noQuestionnaires': '在此工作进程和浏览器槽位中暂缓问卷',
+  'application.sessionHint':
+    '暂停和问卷选项会应用于此进程和浏览器槽位中的后续审核。暂缓问卷会自动保存当前答案，所有保存成功后才关闭表单。保存失败、暂停或预览时表单保持打开。确认审核队列前，请在此重新启用问卷。重启会清除这些选项和队列。',
+  'application.unavailable': '需要连接支持原生申请审核的服务器。',
+  'application.choose': '请先采集或选择已保存的职位。',
+  'application.bound':
+    '此审核仍绑定原职位和浏览器槽位。审核新选择前，请先关闭或结束此审核。',
+  'application.unknown':
+    '当前状态未知。执行下一步前请恢复状态。恢复仅读取状态，绝不会重复发送。',
+  'application.missing': '服务器确认此职位和请求没有已保存的审核。',
+  'application.failed': '无法确认申请操作或状态。继续前请恢复状态。',
+  'application.working': '正在操作此申请的浏览器…',
+  'application.confirm': '我已审核完整职位，并授权按钮所述的申请操作',
+  'application.start': '打开原生审核',
+  'application.recover': '恢复状态（只读）',
+  'application.reopen': '从已保存审核重新打开浏览器',
+  'application.release': '结束审核并使用当前选择',
+  'application.stop': '停止申请操作并等待结束',
+  'application.delivery.none': 'HH 尚未确认申请送达。',
+  'application.delivery.unknown':
+    '送达状态未知。已预留操作可能已到达 HH。重试需要原生页面的新拒绝证据和单独确认的审核。',
+  'application.delivery.provider-confirmed': 'HH 已确认申请送达。',
+  'application.letter.not-requested': '尚未请求添加求职信。',
+  'application.letter.verified': '求职信已在原生申请中验证。',
+  'application.letter.not-attached': '求职信未附上。',
+  'application.letter.unavailable': '求职信控件不可用。',
+  'application.letter.unverified': '无法验证求职信内容。',
+  'application.letter.owner-conflict': '已保留您现有的求职信，自动发送被阻止。',
+  'application.backup': '备份当前 HH 答案',
+  'application.restore': '将已审核草稿恢复到空白控件',
+  'application.draft': '已保存的私人问卷草稿',
+  'application.draftSaved': '保存于此服务器：{time}',
+  'application.draftHint':
+    '恢复前请打开相同的问题和求职信控件。请先审核这份私人副本。现有答案会被保留；恢复不会提交申请或学习答案。保存的副本本身不是重试队列。',
+  'application.draft.checked': '已选中',
+  'application.draft.unchecked': '未选中',
+  'application.restore.restoring':
+    '已开始恢复；请重新读取 HH 页面以确认当前值。',
+  'application.restore.restored':
+    '草稿值已在 HH 控件中验证。提交前请审核答案。',
+  'application.restore.refused': '恢复被拒绝；现有答案已保留。请重新读取页面。',
+  'application.restore.partial': '已恢复部分草稿值。继续前请读取 HH 页面。',
+  'application.restore.uncertain':
+    '无法确认恢复结果。进行其他操作前请读取 HH 页面。',
+  'application.state.opening': '正在打开原生审核',
+  'application.state.ready': '可进入申请',
+  'application.state.review': '发送前请审核原生答案',
+  'application.state.verification': '请在此 HH 浏览器中完成验证',
+  'application.state.daily-limit': '已达到 HH 每日申请上限',
+  'application.state.external': '外部申请需要人工审核',
+  'application.state.delivered': '申请已送达',
+  'application.state.wrong-page': '原生页面与此职位不匹配',
+  'application.state.unavailable': '原生申请控件不可用',
+  'application.state.interrupted': '审核已中断，发送预留记录已保留',
+  'application.state.sending': '原生操作已发出，正在等待证据',
+  'application.state.review-delay': '自动发送前的审核延时',
+  'application.state.deferred': '此次审核中的问卷已暂缓',
+  'application.state.paused': '审核已暂停',
+  'application.state.test-preview': '预览完成，未执行申请操作',
+  'application.state.closed': '此申请的浏览器已关闭',
+  'application.state.provider-error': 'HH 申请错误：需要手动处理',
+  'application.hold':
+    '已暂停自动发送及自动暂缓问卷：{reason}。关闭提示不会授予发送权限。请先重新读取页面，再单独确认发送；确认送达后解除暂停。一般错误队列仅在保存答案并等待五小时后允许再次审核。',
+  'application.hold.generic-error': '提供商一般错误',
+  'application.hold.validation-error': '提供商验证错误',
+  'application.hold.verification': '手动验证',
+  'application.hold.daily-limit': '提供商申请上限',
+  'application.hold.external': '外部申请',
+  'application.defer': '保存答案并暂缓',
+  'application.queueTitle': '暂缓的申请',
+  'application.queueHint':
+    '关闭前会保存私人恢复副本及实际问答。符合条件的答案作为未批准的知识保存。队列仅存在于当前进程；重新打开需要再次审核，不会恢复或发送答案。单独保存的排除项仍然有效。',
+  'application.queueRead': '刷新暂缓队列',
+  'application.queueLoading': '正在读取当前进程的队列…',
+  'application.queueUnknown': '无法读取队列。未重新打开任何职位。',
+  'application.queueEmpty': '此浏览器配置中没有排队的申请。',
+  'application.retry': '重新打开以再次审核',
+  'application.retryWaiting':
+    '答案已保存。一般错误后可于 {at} 重试（等待五小时）。',
+  'application.retryReady':
+    '一般错误后的等待已结束。请重新打开以再次审核；恢复及发送需分别确认。',
+  'application.supervised': '逐步审核一份申请',
+  'application.supervisedHint':
+    '答案、求职信和发送均需分别确认。已关闭自动发送。如果 HH 不提供审核表单，进入申请仍可能立即发送。',
+  'application.answers': '仅填写已审核的精确答案',
+  'application.letter': '仅附上已审核的求职信',
+  'application.reenter': '重新打开已审核弹窗（可能立即发送）',
+  'application.reenterHint':
+    '重新打开浏览器之前已保存尚未发送的原生弹窗状态。再次打开需要重新确认，并可能立即提交申请。此操作不会恢复答案或发送已保存的草稿。',
+  'application.limitWaiting': 'HH 申请已暂停，直到 {at}。',
+  'application.limitElapsed':
+    '已保存的 HH 申请暂停于 {at} 结束。继续前请重新读取当前表单。',
+  'application.limitScope':
+    '此暂停适用于本工作区的所有 HH 申请槽位。被拒绝的表单保持打开；读取和聊天仍可继续。表单保留状态和未确认的发送结果仍需单独审核。',
+  'application.limitUnsaved':
+    '此暂停仅保留在内存中。保存失败，尚未验证重启恢复。请保持进程和表单打开，再次读取以重试保存。',
+};

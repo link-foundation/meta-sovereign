@@ -33,13 +33,26 @@
 import { createHash } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 
-import { defaultProfileDir, openBrowserSession } from '../cv/browser.js';
+import {
+  defaultProfileDir,
+  openBrowserSession,
+  slotProfileDir,
+} from '../cv/browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 import { selectorCandidates } from '../cv/runner.js';
 import { createAdapterSender } from '../crm/reengage.js';
 import { WEB_UIS } from './web-uis.js';
 import { createBrowserActions } from './browser-actions.js';
 import { createMessageActions } from './message-actions.js';
 import { markSendOutcome } from './http.js';
+import {
+  createBrowserChoiceActions,
+  enrichBrowserChoices,
+  readBrowserHistory,
+} from './browser-choices.js';
+import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import { createBrowserChatScans } from './browser-chat-scan.js';
+import { createBrowserTextActions } from './browser-text-reply.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -71,6 +84,16 @@ export class SendFallbackError extends AggregateError {
 
 const codedError = (message, code) =>
   Object.assign(new Error(message), { code });
+
+const requireTextUi = (ui, code = 'answer-choice-required') => {
+  if (ui.documents) {
+    throw codedError(
+      'Review the current provider answer controls; free-text browser input is unavailable',
+      code
+    );
+  }
+  return ui;
+};
 
 /** Errors that must never trigger a browser retry. */
 export const NO_FALLBACK_CODES = Object.freeze([
@@ -138,6 +161,32 @@ export const extractMessages = (spec) => {
   }));
 };
 
+/** Keep HH history and choice metadata in one read-only verified snapshot. */
+const readCurrentHistory = async (commander, page, ui, target, limit) => {
+  if (ui.documents) {
+    const document = await resolveBrowserChoiceDocument(
+      commander,
+      page,
+      ui,
+      target
+    );
+    const history = await readBrowserHistory(document, ui, target);
+    if (process.env.MS_BROWSER_HISTORY_DEBUG === '1') {
+      console.error('[browser-history]', {
+        source: ui.id,
+        rows: history.length,
+        services: history.filter((row) => row.service === true).length,
+      });
+    }
+    return history.slice(-limit);
+  }
+  const history = await commander.evaluate({
+    fn: extractMessages,
+    args: [{ ...ui.messages, limit }],
+  });
+  return enrichBrowserChoices(commander, ui, target, history);
+};
+
 /** WhatsApp's `data-pre-plain-text`: "[10:15, 11/10/2026] Anna: ". */
 const PRE_PLAIN = /^\[([^\]]+)\]\s*(.*?):?\s*$/;
 
@@ -172,6 +221,10 @@ const toMessageLink = (source, chat, row) => {
     body: row.body,
     timestamp,
     outgoing: Boolean(row.outgoing),
+    ...(row.service === true ? { service: true } : {}),
+    ...(row.strictOptions !== undefined
+      ? { strictOptions: row.strictOptions, answerOptions: row.answerOptions }
+      : {}),
     via: 'browser',
   };
 };
@@ -262,6 +315,7 @@ const createSessionPool = ({ open, log }) => {
   const sessions = new Map();
   const queues = new Map();
   return {
+    existing: (source) => sessions.get(source),
     get(source) {
       if (!sessions.has(source)) {
         const opening = Promise.resolve(open({ source })).then((session) => ({
@@ -332,7 +386,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   };
 
   /** Open the chat; a pre-filled URL is reloaded every time. */
-  const openChat = (source, target, { text = '' } = {}) => {
+  const openChat = (source, target, { text = '', browserUrl } = {}) => {
     const ui = uiFor(source);
     if (target === null || target === undefined || target === '') {
       throw codedError(
@@ -342,7 +396,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
     }
     // The reload is what puts the text back into the composer.
     const prefill = ui.prefill && text ? text : '';
-    return openPage(source, ui.chatUrl(target, { text: prefill }), {
+    return openPage(source, ui.chatUrl(target, { text: prefill, browserUrl }), {
       reload: Boolean(prefill),
     });
   };
@@ -350,19 +404,88 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   /** Run `fn(commander, page)` with the chat open, in the network's queue. */
   const inChat = (source, target, options, fn) =>
     pool.queue(source, async () => {
+      if (options.signal?.aborted) {
+        throw codedError(
+          'The browser conversation scan was cancelled',
+          'cancelled'
+        );
+      }
       const state = await openChat(source, target, options);
       return fn(state.commander, state.session?.page ?? null);
     });
 
   /** Run `fn(commander, page)` with the chat list open. */
-  const inList = (source, fn) =>
+  const inList = (source, fn, { signal } = {}) =>
     pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The browser chat scan was cancelled', 'cancelled');
+      }
       const ui = uiFor(source);
       const state = await openPage(source, ui.listUrl ?? ui.loginUrl);
       return fn(state.commander, state.session?.page ?? null);
     });
 
-  return { inChat, inList };
+  const inExisting = (source, fn, { signal } = {}) =>
+    pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The unread browser scan was cancelled', 'cancelled');
+      }
+      const opening = pool.existing(source);
+      if (!opening) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      const state = await opening;
+      const page = state.session?.page;
+      if (!page || page.isClosed()) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      try {
+        return await fn(state.commander, page);
+      } finally {
+        state.url = page.isClosed() ? null : page.url();
+      }
+    });
+  return { inChat, inList, inExisting };
+};
+
+const choiceSources = (platforms) =>
+  Object.entries(platforms)
+    .filter(([, ui]) => ui.choices && ui.location)
+    .map(([id, ui]) => ({ id, name: ui.name ?? id }));
+
+const textReplySources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return ui.documents && ui.textReply?.send && ui.textReply.closedText;
+  });
+
+const browserUiFor = (platforms) => (source) => {
+  const ui = platforms[source];
+  if (!ui) {
+    throw codedError(
+      `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
+      'unsupported-source'
+    );
+  }
+  return ui;
+};
+
+const composerFocus = (waitFor) => async (source, ui, commander) => {
+  const composer = await waitFor(commander, ui.composer);
+  if (!composer) {
+    throw codedError(
+      `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
+      'composer-missing'
+    );
+  }
+  await commander.clickButton({ selector: composer, scrollIntoView: true });
+  return composer;
 };
 
 /**
@@ -386,6 +509,35 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
  * @param {Function} [options.log] progress messages
  * @param {() => Date} [options.clock]
  */
+const noticeReplySources = (platforms) =>
+  textReplySources(platforms).filter(
+    ({ id }) => platforms[id].noticeContext && platforms[id].historyScan
+  );
+
+const unreadConversationSources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return (
+      ui.chatNavigation?.sameDocument &&
+      ui.documents &&
+      ui.historyScan &&
+      ui.chatScan?.unreadFilter
+    );
+  });
+
+const senderCapabilities = (platforms) => ({
+  choiceSources: () => choiceSources(platforms),
+  textReplySources: () => textReplySources(platforms),
+  noticeReplySources: () => noticeReplySources(platforms),
+  unreadConversationSources: () => unreadConversationSources(platforms),
+  unreadNoticeReplySources: () =>
+    unreadConversationSources(platforms).filter(({ id }) =>
+      noticeReplySources(platforms).some((source) => source.id === id)
+    ),
+  answerWatchSources: () =>
+    choiceSources(platforms).filter(({ id }) => platforms[id].documents),
+});
+
 export const createBrowserSender = ({
   openSession = null,
   platforms = WEB_UIS,
@@ -393,31 +545,33 @@ export const createBrowserSender = ({
   input = 'type',
   loginTimeoutMs = 20000,
   pollMs = 250,
-  headless = true,
+  choiceReceiptMs = 10000,
+  headless,
+  store = null,
+  slot = 'main',
   profileDirFor = defaultProfileDir,
   log = () => {},
   clock = () => new Date(),
 } = {}) => {
-  const open =
-    openSession ??
-    (({ source }) =>
-      openBrowserSession({
-        platform: source,
-        headless,
-        profileDir: profileDirFor(source),
-      }));
+  const open = async ({ source }) => {
+    const policy = await resolveBrowserPolicy(store, {
+      platform: source,
+      useCase: 'messages',
+      headless,
+      slot,
+    });
+    return (openSession ?? openBrowserSession)({
+      source,
+      platform: source,
+      useCase: 'messages',
+      slot,
+      headless: policy.headless,
+      profileDir: slotProfileDir(profileDirFor(source), slot),
+    });
+  };
   const pool = createSessionPool({ open, log });
 
-  const uiFor = (source) => {
-    const ui = platforms[source];
-    if (!ui) {
-      throw codedError(
-        `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
-        'unsupported-source'
-      );
-    }
-    return ui;
-  };
+  const uiFor = browserUiFor(platforms);
 
   const waitFor = (commander, want, extra = {}) =>
     waitForAny(commander, want, {
@@ -426,25 +580,15 @@ export const createBrowserSender = ({
       ...extra,
     });
 
-  const { inChat, inList } = createChatPages({
+  const { inChat, inList, inExisting } = createChatPages({
     pool,
     uiFor,
     waitFor,
     log,
-    profileDirFor,
+    profileDirFor: (source) => slotProfileDir(profileDirFor(source), slot),
   });
 
-  const focusComposer = async (source, ui, commander) => {
-    const composer = await waitFor(commander, ui.composer);
-    if (!composer) {
-      throw codedError(
-        `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
-        'composer-missing'
-      );
-    }
-    await commander.clickButton({ selector: composer, scrollIntoView: true });
-    return composer;
-  };
+  const focusComposer = composerFocus(waitFor);
 
   const actions = createBrowserActions({
     inChat: (source, chat, fn) => inChat(source, chat, {}, fn),
@@ -457,18 +601,40 @@ export const createBrowserSender = ({
     pressSend,
     clock,
   });
+  const choices = createBrowserChoiceActions({
+    inChat,
+    queue: (source, work) => pool.queue(source, work),
+    uiFor,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
+  const scans = createBrowserChatScans({ uiFor, inList, inChat, inExisting });
+  const texts = createBrowserTextActions({
+    uiFor,
+    inChat,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
 
   return {
     platforms,
     ...actions,
+    ...choices,
+    ...scans,
+    ...texts,
+    ...senderCapabilities(platforms),
 
     /** Type and send one message in the network's web UI. */
-    async send({ source, chat, to, text } = {}) {
+    async send(draft = {}) {
+      const { source, chat, to, text, answer } = draft;
+      if (answer?.strictOptions) {
+        return choices.chooseAnswer(draft);
+      }
       const body = String(text ?? '');
       if (!body.trim()) {
         throw codedError(`${source}: message text is required`, 'bad-draft');
       }
-      const ui = uiFor(source);
+      const ui = requireTextUi(uiFor(source));
       const target = ui.target({ chat, to });
       await inChat(source, target, { text: body }, async (commander) => {
         const composer = await focusComposer(source, ui, commander);
@@ -496,7 +662,7 @@ export const createBrowserSender = ({
 
     /** Emit the "typing…" status: type a character and erase it. */
     async setTyping({ source, chat, to } = {}) {
-      const ui = uiFor(source);
+      const ui = requireTextUi(uiFor(source), 'unsupported');
       await inChat(source, ui.target({ chat, to }), {}, async (commander) => {
         await focusComposer(source, ui, commander);
         await commander.typeText({ text: '.' });
@@ -506,7 +672,7 @@ export const createBrowserSender = ({
     },
 
     /** Read the visible history of a chat as message links. */
-    async readRecent({ source, chat, to, limit = 20 } = {}) {
+    async readRecent({ source, chat, to, browserUrl, limit = 20 } = {}) {
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       // A stable chat id (E.164 number / group JID), not the typed form
@@ -514,14 +680,15 @@ export const createBrowserSender = ({
       const normalize = (value) => ui.normalizeChat?.(value) ?? null;
       const chatOf = (row) =>
         normalize(row.chat) ?? normalize(target) ?? String(target);
-      const rows = await inChat(source, target, {}, (commander) =>
-        commander.evaluate({
-          fn: extractMessages,
-          args: [{ ...ui.messages, limit }],
-        })
+      const rows = await inChat(
+        source,
+        target,
+        { browserUrl },
+        (commander, page) =>
+          readCurrentHistory(commander, page, ui, target, limit)
       );
       return (Array.isArray(rows) ? rows : [])
-        .filter((row) => row && String(row.body ?? '').length > 0)
+        .filter((row) => row?.service === true || row?.body)
         .map((row) => toMessageLink(source, chatOf(row), row));
     },
 
@@ -529,7 +696,12 @@ export const createBrowserSender = ({
     openSources: pool.sources,
 
     /** Close every page that was opened. */
-    close: pool.closeAll,
+    close: async () => {
+      await scans.closeChatScans();
+      await texts.closeTextReplies();
+      await choices.closeAnswerWatches();
+      await pool.closeAll();
+    },
   };
 };
 
@@ -678,7 +850,7 @@ export const createDefaultSender = ({
           options: { [draft.source]: await merged(draft.source) },
         })(draft)
     : null;
-  const send = createFallbackSender({
+  const sendText = createFallbackSender({
     apiSend: adapterSend,
     browserSend: (draft) => {
       refuseAutomatedWeb(draft);
@@ -712,6 +884,20 @@ export const createDefaultSender = ({
     },
     log,
   });
+  const send = (draft) => {
+    if (draft.answer?.strictOptions) {
+      refuseAutomatedWeb(draft);
+      const chooser = browserFor();
+      if (typeof chooser.chooseAnswer === 'function') {
+        return chooser.chooseAnswer(draft);
+      }
+      throw codedError(
+        'This answer requires a verified option click; open the provider chat to select it',
+        'answer-choice-required'
+      );
+    }
+    return sendText(draft);
+  };
   const actions = createMessageActions({
     getSource,
     optionsFor: merged,
@@ -722,7 +908,23 @@ export const createDefaultSender = ({
     perform: actions.perform,
     supports: actions.supports,
     readChats: (params) => browserFor().readChats(params),
+    scanChats: (params) => browserFor().scanChats(params),
+    scanConversation: (params) => browserFor().scanConversation(params),
+    scanUnreadConversations: (params) =>
+      browserFor().scanUnreadConversations(params),
     readRecent: (params) => browserFor().readRecent(params),
+    readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
+    prefillAnswer: (params) => browserFor().prefillAnswer(params),
+    replyText: (params) => browserFor().replyText(params),
+    choiceSources: () => browserFor().choiceSources?.() ?? [],
+    textReplySources: () => browserFor().textReplySources?.() ?? [],
+    noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
+    unreadConversationSources: () =>
+      browserFor().unreadConversationSources?.() ?? [],
+    unreadNoticeReplySources: () =>
+      browserFor().unreadNoticeReplySources?.() ?? [],
+    answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
+    openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),
   });
 };

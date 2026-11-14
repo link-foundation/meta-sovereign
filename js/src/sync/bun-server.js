@@ -32,11 +32,15 @@
  *     version.
  *
  *   bunConnectSyncWebSocket({ port, host, path }) → { transport, close }
- *     Wraps the global WebSocket so messages flow as JSON.
+ *     Wraps the global WebSocket with the negotiated Lino codec.
  *
  *   bunAttachSignaling(httpServer, { path }) → handle
  *     Same shape as `attachSignaling` but uses Bun.serve underneath.
  */
+
+import { negotiateSync, syncQueue } from './wire.js';
+import { createSignalingRooms } from './signaling-room.js';
+import { connectNativeWebSocket } from './websocket-client.js';
 
 const REGISTRY = Symbol.for('meta-sovereign.bun-http-registry');
 
@@ -49,14 +53,21 @@ const startBunServer = (httpServer, registry, host, port) => {
       const url = new URL(req.url);
       const pathname = url.pathname;
       if (registry.wsByPath.has(pathname)) {
-        const verify = registry.wsByPath.get(pathname).verifyOrigin;
+        const registered = registry.wsByPath.get(pathname);
+        const verify = registered.verifyOrigin;
         const headers = Object.fromEntries(req.headers);
         if (verify && !verify({ headers })) {
           return new Response('Forbidden', { status: 403 });
         }
-        const ok = srv.upgrade(req, {
-          data: { path: pathname, query: url.search },
+        const options = syncUpgradeOptions(req, {
+          path: pathname,
+          query: url.search,
+          jsonCompatibility: registered.jsonCompatibility,
         });
+        if (!options) {
+          return new Response('Unsupported sync protocol', { status: 406 });
+        }
+        const ok = srv.upgrade(req, options);
         if (ok) {
           return;
         }
@@ -276,58 +287,75 @@ export const bunAttachWs = (httpServer, { path = '/ws', handlers }) => {
   };
 };
 
+const syncUpgradeOptions = (
+  req,
+  { path, query = '', jsonCompatibility = false }
+) => {
+  const selected = negotiateSync(req.headers.get('sec-websocket-protocol'), {
+    jsonCompatibility,
+  });
+  if (!selected) {
+    return null;
+  }
+  return {
+    data: { path, query, wire: selected.wire },
+    headers: selected.protocol
+      ? { 'Sec-WebSocket-Protocol': selected.protocol }
+      : {},
+  };
+};
+
 const wireSyncWsHandlers = () => {
   const sockets = new Set();
   const messageHandlers = new Set();
-  const pending = [];
+  const pending = syncQueue();
   const handlers = {
     onOpen(ws) {
       sockets.add(ws);
-      while (pending.length) {
-        ws.send(pending.shift());
+      try {
+        pending.drain((event) => ws.send(ws.data.wire.encode(event)));
+      } catch {
+        sockets.delete(ws);
+        ws.close(1009, 'sync message exceeds negotiated limit');
       }
     },
     onMessage(ws, msg) {
-      const text = typeof msg === 'string' ? msg : msg.toString('utf8');
+      let event;
       try {
-        const event = JSON.parse(text);
-        for (const h of messageHandlers) {
-          h(event);
-        }
+        event = ws.data.wire.decode(msg);
       } catch {
-        // ignore malformed
+        ws.close(1003, 'invalid sync message');
+        return;
+      }
+      for (const handler of messageHandlers) {
+        handler(event);
       }
     },
     onClose(ws) {
       sockets.delete(ws);
     },
   };
-  const transport = {
-    send(event) {
-      const text = JSON.stringify(event);
-      if (sockets.size === 0) {
-        pending.push(text);
-        return;
-      }
-      for (const s of sockets) {
-        s.send(text);
-      }
-    },
-    onMessage(h) {
-      messageHandlers.add(h);
-      return () => messageHandlers.delete(h);
-    },
-  };
   return {
     handlers,
-    transport,
-    closeAll() {
-      for (const s of sockets) {
-        try {
-          s.close();
-        } catch {
-          // ignore
+    transport: {
+      send(event) {
+        if (sockets.size === 0) {
+          pending.push(event);
+          return;
         }
+        for (const socket of sockets) {
+          socket.send(socket.data.wire.encode(event));
+        }
+      },
+      onMessage(handler) {
+        messageHandlers.add(handler);
+        return () => messageHandlers.delete(handler);
+      },
+    },
+    closeAll() {
+      pending.clear();
+      for (const socket of sockets) {
+        socket.close();
       }
       sockets.clear();
       messageHandlers.clear();
@@ -338,11 +366,15 @@ const wireSyncWsHandlers = () => {
 
 export const bunAttachSyncWebSocket = (
   httpServer,
-  { path = '/ws', verifyOrigin = null } = {}
+  { path = '/ws', verifyOrigin = null, jsonCompatibility = false } = {}
 ) => {
   const wired = wireSyncWsHandlers();
   const registry = installRegistry(httpServer);
-  registry.registerWs(path, { ...wired.handlers, verifyOrigin });
+  registry.registerWs(path, {
+    ...wired.handlers,
+    verifyOrigin,
+    jsonCompatibility,
+  });
   return {
     transport: wired.transport,
     close: () => {
@@ -356,6 +388,7 @@ export const bunAttachSyncWebSocket = (
 export const bunStartSyncWebSocketListener = ({
   port = 0,
   path = '/ws',
+  jsonCompatibility = false,
 } = {}) =>
   new Promise((resolve) => {
     const wired = wireSyncWsHandlers();
@@ -365,7 +398,11 @@ export const bunStartSyncWebSocketListener = ({
       fetch(req, srv) {
         const url = new URL(req.url);
         if (url.pathname === path) {
-          if (srv.upgrade(req)) {
+          const options = syncUpgradeOptions(req, { path, jsonCompatibility });
+          if (!options) {
+            return new Response('Unsupported sync protocol', { status: 406 });
+          }
+          if (srv.upgrade(req, options)) {
             return;
           }
         }
@@ -401,99 +438,36 @@ export const bunConnectSyncWebSocket = ({
   port,
   host = '127.0.0.1',
   path = '/ws',
+  ...options
 }) =>
-  new Promise((resolve, reject) => {
-    const handlers = new Set();
-    const ws = new WebSocket(`ws://${host}:${port}${path}`);
-    let settled = false;
-    ws.addEventListener('open', () => {
-      settled = true;
-      resolve({
-        transport: {
-          send(event) {
-            ws.send(JSON.stringify(event));
-          },
-          onMessage(h) {
-            handlers.add(h);
-            return () => handlers.delete(h);
-          },
-        },
-        close: () =>
-          new Promise((r) => {
-            ws.addEventListener('close', () => r(), { once: true });
-            ws.close();
-          }),
-      });
-    });
-    ws.addEventListener('message', (e) => {
-      const text =
-        typeof e.data === 'string'
-          ? e.data
-          : Buffer.from(e.data).toString('utf8');
-      try {
-        const event = JSON.parse(text);
-        for (const h of handlers) {
-          h(event);
-        }
-      } catch {
-        // ignore malformed
-      }
-    });
-    ws.addEventListener('error', () => {
-      if (!settled) {
-        settled = true;
-        reject(new Error('websocket connection failed'));
-      }
-    });
-    ws.addEventListener('close', () => {
-      if (!settled) {
-        settled = true;
-        reject(new Error('websocket closed before open'));
-      }
-    });
-  });
+  connectNativeWebSocket({ url: `ws://${host}:${port}${path}`, ...options });
 
 const wireSignalingHandlers = () => {
-  const rooms = new Map();
-  const join = (room, ws) => {
-    if (!rooms.has(room)) {
-      rooms.set(room, new Set());
-    }
-    rooms.get(room).add(ws);
-  };
-  const leave = (room, ws) => {
-    rooms.get(room)?.delete(ws);
-    if (rooms.get(room)?.size === 0) {
-      rooms.delete(room);
-    }
-  };
+  const relay = createSignalingRooms((ws, event) =>
+    ws.send(ws.data.wire.encode(event))
+  );
+  const { rooms } = relay;
   const handlers = {
     onOpen(ws) {
       const params = new URLSearchParams(ws.data?.query ?? '');
       const room = params.get('room') ?? 'default';
       ws.data.room = room;
-      join(room, ws);
-      const peerId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const announce = JSON.stringify({ type: 'peer-joined', peerId });
-      for (const other of rooms.get(room)) {
-        if (other !== ws) {
-          other.send(announce);
-        }
-      }
+      relay.join(room, ws);
     },
     onMessage(ws, msg) {
-      const text = typeof msg === 'string' ? msg : msg.toString('utf8');
-      const room = ws.data?.room;
-      for (const other of rooms.get(room) ?? []) {
-        if (other !== ws) {
-          other.send(text);
-        }
+      let event;
+      try {
+        event = ws.data.wire.decode(msg);
+      } catch {
+        ws.close(1003, 'invalid sync message');
+        return;
       }
+      relay.receive(ws.data?.room, ws, event);
     },
     onClose(ws) {
       const room = ws.data?.room;
       if (room) {
-        leave(room, ws);
+        relay.leave(room, ws);
       }
     },
   };
@@ -502,7 +476,7 @@ const wireSignalingHandlers = () => {
     rooms,
     closeAll() {
       for (const peers of rooms.values()) {
-        for (const ws of peers) {
+        for (const ws of peers.keys()) {
           try {
             ws.close();
           } catch {
@@ -517,11 +491,15 @@ const wireSignalingHandlers = () => {
 
 export const bunAttachSignaling = (
   httpServer,
-  { path = '/rtc', verifyOrigin = null } = {}
+  { path = '/rtc', verifyOrigin = null, jsonCompatibility = false } = {}
 ) => {
   const wired = wireSignalingHandlers();
   const registry = installRegistry(httpServer);
-  registry.registerWs(path, { ...wired.handlers, verifyOrigin });
+  registry.registerWs(path, {
+    ...wired.handlers,
+    verifyOrigin,
+    jsonCompatibility,
+  });
   return {
     close: () => {
       registry.unregisterWs(path);

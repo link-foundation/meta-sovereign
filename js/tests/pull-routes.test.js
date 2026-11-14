@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'test-anywhere';
 
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createPullRunner, loadPullState } from '../src/sources/pull-runner.js';
 import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
 import {

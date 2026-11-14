@@ -1,0 +1,7 @@
+{
+  "archive": "ci-macos-followup.tar.gz",
+  "files": {
+    "0a39-checks-full.log": "b6d7aa108463f7f498168af7c89019003a9311942baf5b05681d4b48a3a33f2e",
+    "0a39-checks-progress.json": "f2d61ae314327d016fb12a786596f9423b79a74968cd888beb728e3063762bc5"
+  }
+}

@@ -429,7 +429,10 @@ export const TELEGRAM_CALLS = {
   telegramSendAsSave: body('send-as-save'),
   // The recent calls list (R-Y163).
   telegramCalls: readBody('calls'),
-  telegramNotifySettings: readNone('notify-settings'),
+  telegramNotifySettings: {
+    ...readNone('notify-settings'),
+    capability: 'notifySettings',
+  },
   telegramNotifySettingsSet: body('notify-settings-set'),
   telegramNotifyChat: body('notify-chat'),
   telegramCommonChats: readBody('common-chats'),
@@ -476,6 +479,62 @@ export const TELEGRAM_CALLS = {
   // Exporting a chat's history to a folder (R-Y186): the default folder and
   // the running export, start ({ chat, media, sizeLimitMb, from, to,
   // formats, folder }), status, cancel, and the folder shown.
+  telegramChatUsersStart: {
+    ...body('chat-users-start'),
+    capability: 'chatUsersStart',
+  },
+  telegramGreetingStickersRefresh: {
+    ...body('greeting-stickers-refresh'),
+    capability: 'greetingStickersRefresh',
+  },
+  telegramGreetingStickersStatus: {
+    ...readBody('greeting-stickers-status'),
+    capability: 'greetingStickersRefresh',
+  },
+  telegramGreetingStickersCancel: {
+    ...none('greeting-stickers-cancel'),
+    capability: 'greetingStickersRefresh',
+  },
+  telegramGreetingSendPreview: {
+    ...readBody('greeting-send-preview'),
+    capability: 'greetingSendPreview',
+  },
+  telegramGreetingSendApply: {
+    ...body('greeting-send-apply'),
+    capability: 'greetingSendPreview',
+  },
+  telegramGreetingSendCancel: {
+    ...none('greeting-send-cancel'),
+    capability: 'greetingSendPreview',
+  },
+  telegramChatUsersStatus: {
+    ...readBody('chat-users-status'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersGreetingsStart: {
+    ...body('chat-users-greetings-start'),
+    capability: 'chatUsersGreetingsStart',
+  },
+  telegramChatUsersGreetingsPreview: {
+    ...readBody('chat-users-greetings-preview'),
+    capability: 'chatUsersGreetingsStart',
+  },
+  telegramChatUsersGreetingsApply: {
+    ...body('chat-users-greetings-apply'),
+    capability: 'chatUsersGreetingsStart',
+  },
+  telegramChatUsersCancel: {
+    ...none('chat-users-cancel'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersContactsPreview: {
+    ...readBody('chat-users-contacts-preview'),
+    capability: 'chatUsersStart',
+  },
+  telegramChatUsersContactsApply: {
+    ...body('chat-users-contacts-apply'),
+    capability: 'chatUsersStart',
+  },
   telegramExportDefaults: readNone('export-defaults'),
   telegramExportStart: body('export-start'),
   telegramExportStatus: readNone('export-status'),
@@ -509,7 +568,10 @@ export const TELEGRAM_CALLS = {
   // Bot login links and attachment-menu bots (R-Y201).
   telegramBotUrlAuth: readBody('bot-url-auth'),
   telegramBotUrlAccept: body('bot-url-accept'),
-  telegramUrlAuthDomains: readNone('url-auth-domains'),
+  telegramUrlAuthDomains: {
+    ...readNone('url-auth-domains'),
+    capability: 'urlAuthDomains',
+  },
   telegramAttachMenuBots: readNone('attach-menu-bots'),
   telegramAttachMenuBot: readBody('attach-menu-bot'),
   telegramAttachMenuToggle: body('attach-menu-toggle'),
@@ -534,8 +596,14 @@ export const TELEGRAM_CALLS = {
   telegramStickerFeaturedRead: body('sticker-featured-read'),
   telegramStickerRecentClear: none('sticker-recent-clear'),
   telegramStickerAttached: readBody('sticker-attached'),
-  telegramQuickReaction: readNone('quick-reaction'),
-  telegramQuickReactionSet: body('quick-reaction-set'),
+  telegramQuickReaction: {
+    ...readNone('quick-reaction'),
+    capability: 'quickReaction',
+  },
+  telegramQuickReactionSet: {
+    ...body('quick-reaction-set'),
+    capability: 'quickReactionSet',
+  },
   telegramCustomEmojiSearch: readBody('custom-emoji-search'),
   // The emoji panel's Premium flag and category groups (R-Y214).
   telegramEmojiPanelInfo: readBody('emoji-panel-info'),

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for stories and music on a profile (R-Y185), as
 // Telegram Desktop shows them: a person's info column has "Stories" (the
 // pinned ones as a grid, the one fixed on top first, album chips that load
@@ -44,7 +45,7 @@ await page.addInitScript(() => {
 });
 
 await page.route('**/api/telegram/profile-stories', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asks.push(body);
   const mine = body.chat === SELF;
   if (body.album) {
@@ -75,7 +76,7 @@ await page.route('**/api/telegram/stories-archive', (route) =>
 const writes = [];
 for (const name of ['story-pin', 'story-pin-top', 'music-remove']) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     writes.push([name, body]);
     return fulfil(
       route,
@@ -97,7 +98,7 @@ await page.route('**/api/telegram/saved-music', (route) =>
   fulfil(route, {
     ok: true,
     count: 2,
-    mine: route.request().postDataJSON().chat === SELF,
+    mine: requestBody(route.request()).chat === SELF,
     tracks: [track('501', 'First song'), track('502', 'Second song')],
     next: null,
   })

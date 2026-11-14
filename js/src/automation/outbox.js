@@ -21,6 +21,7 @@
  * it and the user decides (`resolveOutbox`: it arrived, or it did not).
  */
 
+import { browserAnswerReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
 
@@ -189,7 +190,11 @@ const newRecord = ({ id, key, kind, owner, draft, at }) => ({
   source: draft.source,
   chat: draft.chat === undefined ? null : String(draft.chat),
   contact: draft.contact ?? null,
-  text: String(draft.text ?? '').slice(0, 2000),
+  text: String(draft.text ?? '').slice(
+    0,
+    draft.answer?.textReply ? 12000 : 2000
+  ),
+  ...(draft.answer?.textReply ? { answerType: 'text' } : {}),
   status: 'sending',
   createdAt: at,
   at,
@@ -248,6 +253,7 @@ export const guardedSend = async ({
     });
     try {
       await store.put(record);
+      await store.flush?.();
     } catch (error) {
       return refused('outbox-unavailable', `not sent: ${error.message}`);
     }
@@ -291,6 +297,7 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
     };
   }
   // The message is out: whatever the store does now, it stays "sent".
+  const receipt = browserAnswerReceipt(result, draft);
   const outbox = await settle(
     store,
     record,
@@ -298,6 +305,7 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       status: 'sent',
       at: clock().toISOString(),
       ...(result?.via ? { via: result.via } : {}),
+      ...(receipt ? { receipt } : {}),
     },
     log
   );

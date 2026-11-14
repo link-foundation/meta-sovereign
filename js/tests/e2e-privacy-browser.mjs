@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Privacy and security (R-Y139), as Telegram Desktop's
 // Settings → Privacy and Security has it: from "My Telegram profile" a
 // dialog lists who can see the phone number, last seen and more (changing
@@ -59,7 +60,7 @@ await page.route('**/api/telegram/privacy', (route) =>
   fulfil(route, { ok: true, keys })
 );
 await page.route('**/api/telegram/privacy-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sets.push(body);
   const row = keys.find((k) => k.key === body.key);
   return body.key === 'about'
@@ -71,10 +72,10 @@ await page.route('**/api/telegram/privacy-ttl', (route) =>
   fulfil(route, { ok: true, period: 0 })
 );
 await page.route('**/api/telegram/privacy-ttl-set', (route) => {
-  ttlSets.push(route.request().postDataJSON());
+  ttlSets.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
-    period: route.request().postDataJSON().period,
+    period: requestBody(route.request()).period,
   });
 });
 const session = (hash, extra) => ({
@@ -107,7 +108,7 @@ await page.route('**/api/telegram/sessions', (route) =>
 );
 const ended = [];
 await page.route('**/api/telegram/session-terminate', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   ended.push(body);
   return body.hash === '3'
     ? fulfil(route, { ok: false, error: 'x', code: 'hash-invalid' })
@@ -132,7 +133,7 @@ await page.route('**/api/telegram/web-sessions', (route) =>
 const unblocked = [];
 const blockedAsked = [];
 await page.route('**/api/telegram/blocked', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   blockedAsked.push(body);
   const items = (ids) =>
     ids.map((id) => ({
@@ -149,7 +150,7 @@ await page.route('**/api/telegram/blocked', (route) => {
   );
 });
 await page.route('**/api/telegram/unblock', (route) => {
-  unblocked.push(route.request().postDataJSON());
+  unblocked.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

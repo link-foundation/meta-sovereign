@@ -139,10 +139,17 @@ const fakeClink = async () => {
       }
     });
   });
+  const closed = new Promise((resolve) => server.once('close', resolve));
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  let closing = false;
   const child = Object.assign(new EventEmitter(), {
     stdout: new EventEmitter(),
+    closed,
     kill() {
+      if (closing) {
+        return;
+      }
+      closing = true;
       for (const s of sockets) {
         s.destroy();
       }
@@ -158,9 +165,18 @@ const fakeClink = async () => {
   return child;
 };
 
-test('startClinkServer serialises queries and reconnects after a hang-up', async () => {
+test('startClinkServer serialises queries and reconnects after a hang-up', async (t) => {
   const child = await fakeClink();
-  const client = await startClinkServer({
+  let client = null;
+  t.after(async () => {
+    try {
+      await client?.close();
+    } finally {
+      child.kill();
+      await child.closed;
+    }
+  });
+  client = await startClinkServer({
     bin: 'clink',
     db: 'x',
     spawnImpl: () => child,
@@ -177,7 +193,6 @@ test('startClinkServer serialises queries and reconnects after a hang-up', async
   assert.equal((await client.query('after'))[0].after.source, 'after');
   await assert.rejects(client.query('slow'), /timed out/);
   assert.equal((await client.query('again'))[0].after.source, 'again');
-  await client.close();
 });
 
 test('replyNetwork is the documented prompt → edge → attrs shape', () => {

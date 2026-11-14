@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Temporary outages keep loading, keep queued sends, and recover in any view.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { OUTBOX_KEY } from '../src/web/chat-outbox.js';
@@ -40,7 +41,7 @@ const checkProviderRetry = async () => {
   let historyAttempts = 0;
   await page.route('**/api/telegram/history', (route) => {
     historyAttempts += 1;
-    return route.fulfill({
+    return fulfilWire(route, {
       status: historyAttempts < 3 ? 502 : 200,
       contentType: 'application/json',
       body: JSON.stringify(

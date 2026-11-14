@@ -1,0 +1,21 @@
+{
+  "archive": "ci-assignment-source-proof.tar.gz",
+  "files": {
+    "before/js/tests/assignment-source.test.js": "a059ffc911c17a7b53801458e8f027528e86eb68d48397ee33732219b1b1160e",
+    "ci-logs/assignment-source-codeql-alert57.json": "6c5c2dec70218259fa2a8951b0142a0fd60e4d1ab4e97dce08e0eab3501b8de8",
+    "ci-logs/assignment-source-url-deno.log": "f1b03d14d6e4d86130a841200068ba1269492ef63259a3eb0342823d8702cc30",
+    "ci-logs/assignment-source-url-format.log": "93242ee1555f13537b93eb18f0ec913cbc3750f04522b4f34b8f75a31e8cc4ec",
+    "ci-logs/assignment-source-url-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/assignment-source-url-node.log": "f3d287c47cf4b96500bdb27f6144d31b6e982388d9047f0681acd2d05835ca92",
+    "ci-logs/assignment-source-url-secretlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/checks-42972596896-job-130365231240.log": "d6dbb7071b71f3c3118e44ed73b7a4472e939eeebb893a6066e038d924d1058a",
+    "ci-logs/qa-buttons-pr-inline.json": "dc3e58f8d83801832aa4c5d1ca513d346650d07e5bef7eb56780c6364053dd10",
+    "ci-logs/qa-buttons-pr-reviews.json": "dc2f26ea79babaca3cf52656041d50ac75ecacd39d2cba1e81b82808d3ee0150",
+    "docs/case-studies/issue-56/ci-assignment-source-proof.md": "c03c015d91b6740dc45d6ea4233eaa469c7f716de3719252697bfa927cd78080",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-assignment-source-proof.py": "f336aafe5412faee9e0a3b5ea2f7f96451160e8acf13be46e17221ff0336cc30",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/tests/assignment-source.test.js": "583e144be00b553c58f86525d4c5ccf0859c09fb3304ab1e768e642daec94b47",
+    "metadata.json": "807741edb5c42da151c97cb00e8904fab61bf441518f2efebb1d1ed8ff90839d"
+  }
+}

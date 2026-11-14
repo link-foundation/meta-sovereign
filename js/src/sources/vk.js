@@ -31,6 +31,7 @@ import {
 } from './http.js';
 import { contentSticker } from './sticker.js';
 import { vkMediaUrl } from './vk-hosts.js';
+import { createVkPublications } from './vk-publication.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 import {
@@ -757,6 +758,8 @@ export const VK_API_VERSION = '5.199';
 
 export const createVkLive = ({
   token = null,
+  tokenType = null,
+  ownerId = null,
   fetchImpl = globalThis.fetch,
   baseUrl = VK_API_BASE,
   apiVersion = VK_API_VERSION,
@@ -765,8 +768,15 @@ export const createVkLive = ({
   limiter = createRateLimiter({ perSecond: requestsPerSecond }),
   sleep,
 } = {}) => {
-  const once = async (method, params, accessToken) => {
+  const once = async (
+    method,
+    params,
+    accessToken,
+    requestOptions = {},
+    beforeIssue
+  ) => {
     await limiter.wait();
+    await beforeIssue?.();
     const body = new URLSearchParams({
       ...compact(params),
       access_token: accessToken,
@@ -779,6 +789,7 @@ export const createVkLive = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body,
+        ...requestOptions,
       }
     );
     return unwrapVk(payload);
@@ -797,6 +808,24 @@ export const createVkLive = ({
 
   return {
     call,
+    // Follow owns its finite timeout policy and must observe rate/permission
+    // refusals without the general adapter's error-6 retry. Reads use POST on
+    // VK too: explicitly mark them so a timeout remains a read failure.
+    callOnce(method, params = {}, { write = true, beforeIssue } = {}) {
+      const accessToken = resolveOption(
+        token,
+        'VK_ACCESS_TOKEN',
+        'VK access token'
+      );
+      return once(
+        method,
+        params,
+        accessToken,
+        { write, retries: 0 },
+        beforeIssue
+      );
+    },
+    ...createVkPublications({ call, token, tokenType, ownerId }),
     ...vkLiveAudience(call),
     ...vkLiveActions(call),
     async listChats(options = {}) {

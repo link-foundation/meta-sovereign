@@ -833,6 +833,21 @@ main[data-view='chat'] > .web-mode-banner {
   background: var(--bg-elev);
   box-shadow: 0 10px 30px var(--shadow);
 }
+.browser-answer-controls {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.browser-answer-controls fieldset {
+  min-width: 0;
+}
+.browser-answer-controls input:not([type='radio'], [type='checkbox']),
+.browser-answer-controls select {
+  width: 100%;
+  min-width: 0;
+}
+.browser-answer-controls pre {
+  white-space: pre-wrap;
+}
 .chat-menu-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -10783,7 +10798,10 @@ span.bubble-effect {
   overflow-y: auto;
 }
 .export-form,
-.export-progress {
+.export-progress,
+.export-scope {
+  display: grid;
+  gap: 0.6rem;
 }
 
 /* Giveaways, paid messages, channel auto-translation (R-Y184). */
@@ -10834,10 +10852,19 @@ span.bubble-effect {
   border-radius: var(--radius);
   padding: 0.4rem 0.7rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem 0.75rem;
 }
 .export-media .pin-dialog-option {
   margin: 0.2rem 0;
+  min-width: 0;
+}
+.export-media .pin-dialog-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.export-media input {
+  flex: 0 0 auto;
 }
 .export-field {
   display: flex;
@@ -13791,4 +13818,280 @@ main[data-view='operator']:has(> .operator-workspace) {
 .collection-picker-items {
   max-height: 200px;
   overflow: auto;
+}
+
+/* Recovery file names remain readable on narrow mobile screens. */
+.backup-filename {
+  overflow-wrap: anywhere;
+}
+
+.publication-panel {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.publication-panel .row {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.publication-panel [role='tab'][aria-selected='true'] {
+  background: var(--bg-elev);
+  font-weight: 600;
+  border-color: var(--text-muted);
+}
+.publication-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.publication-field :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+}
+.publication-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+.publication-settings > .publication-targets {
+  grid-column: 1 / -1;
+}
+.publication-form,
+.publication-form-fields,
+.publication-credentials,
+.publication-credentials > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.publication-form-fields {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.publication-record pre {
+  max-height: 16rem;
+  overflow: auto;
+}
+.publication-toggle,
+.publication-targets label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.publication-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  min-width: 0;
+}
+.publication-targets li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.publication-preview,
+.publication-record {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+}
+.publication-panel blockquote {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 16rem;
+  overflow: auto;
+}
+.publication-record li {
+  margin: 0.6rem 0;
+  overflow-wrap: anywhere;
+}
+.publication-receipt {
+  display: block;
+  margin: 0.35rem 0;
+}
+
+/* Shared Chat/Operator user extraction and contact previews. */
+.telegram-greeting-catalog {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.telegram-greeting-catalog input[type='number'] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.telegram-greeting-send-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.telegram-greeting-send-form input,
+.telegram-greeting-send-form select {
+  width: 100%;
+  min-width: 0;
+}
+[data-greeting-send-preview],
+[data-telegram-group-greetings] {
+  overflow-wrap: anywhere;
+}
+.telegram-greeting-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  max-height: 24rem;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.telegram-greeting-items li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.telegram-greeting-emoji {
+  font-size: 2rem;
+}
+.telegram-catalog-filter {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.telegram-catalog-filter input {
+  flex: 0 0 auto;
+}
+.telegram-catalog-filter span {
+  min-width: 0;
+}
+.chat-users-dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+  width: min(680px, 94vw);
+  display: grid;
+  gap: 12px;
+}
+.chat-users-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  margin: 12px 0;
+  border: 0;
+  padding: 0;
+}
+.chat-users-options legend {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.chat-users-dialog .export-field {
+  display: grid;
+  gap: 6px;
+}
+.chat-users-dialog input[type='number'] {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.chat-users-dialog .pin-dialog-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.chat-users-dialog .pin-dialog-option input {
+  flex: 0 0 auto;
+}
+.chat-users-plan {
+  border-inline-start: 3px solid currentColor;
+  padding-inline-start: 12px;
+  display: grid;
+  gap: 8px;
+}
+.chat-users-list {
+  overflow-wrap: anywhere;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+.chat-users-list ul {
+  list-style: none;
+  padding: 0;
+}
+.chat-users-list li {
+  margin: 10px 0;
+}
+.chat-users-list small {
+  display: block;
+}
+.chat-users-dialog .delete-dialog-btns {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chat-users-dialog :is(h3, p, ul, .pin-dialog-option) {
+  margin-block: 0;
+}
+.chat-users-dialog ul:empty {
+  display: none;
+}
+.chat-users-dialog [data-users='progress'] {
+  display: grid;
+  gap: 8px;
+}
+.chat-users-options > :is(p, button, .pin-dialog-option, .chat-users-plan) {
+  grid-column: 1 / -1;
+}
+@media (max-width: 480px) {
+  .chat-users-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Form reports use the same cards and controls as the other shared surfaces. */
+.forms-view {
+  max-width: 60rem;
+}
+.forms-view > form {
+  max-width: 42rem;
+}
+.forms-view input:not([type='checkbox'], [type='radio']) {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.forms-view label:has(> input[type='checkbox']) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.forms-report {
+  overflow-wrap: anywhere;
+}
+.form-fields {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.form-field {
+  min-width: 0;
+}
+.form-field h3 {
+  margin-top: 0;
+}
+.form-current-value {
+  white-space: pre-wrap;
 }

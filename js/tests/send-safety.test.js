@@ -10,7 +10,7 @@ import { setImmediate } from 'node:timers';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS, createReengageSession } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   automationPresets,
   planAutomation,

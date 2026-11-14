@@ -200,7 +200,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-某个平台的第一次 `cv-read` 会打开可见浏览器（`--headed`），用户登录一次，
+每次 `cv-read` 和实时 `cv-sync` 默认都会打开可见浏览器。
+使用 `--headless`（或 API `headless: true`）选择无界面运行；
+仍支持 `--headed`。用户登录一次，
 session 保存在按平台区分的 profile 目录（`--profile=<dir>`）里，之后的运行
 会复用它。本仓库从不索取、保存或传输凭据。
 
@@ -221,3 +223,19 @@ fixture 生成器正是浏览器测试有价值的原因：它从计划的 selec
 因此计划与其 fixture 不可能脱节，而 e2e 检验的是实际发布的路径 ——
 `openBrowserSession` → browser-commander → runner → telemetry —— 而不是它
 的 mock。
+
+## 持久浏览器设置（R-AA2）
+
+设置 → 浏览器自动化可配置默认值、工作流或服务商/槽位组合。优先顺序：本次运行选项 → 槽位 → 工作流 → 默认值 → 显示。继承会跳过覆盖。更改在下次启动时生效。二维码登录保持可见。简历、消息发送、导入和交易平台会话共用解析规则。jobs/forms 键为预留项，仅保存设置不会运行工作流。
+
+命名槽位使用独立持久配置；main 保留原路径。简历 CLI 使用 `--browser-slot=forms`；简历 API 和导入启动请求使用 `browserSlot`。显式 `--profile` 指定确切目录。可移植链接仅含偏好，不存储 Cookie、浏览器配置或凭据。
+
+```sh
+meta-sovereign browser-configure --scope=case --key=cv --mode=headless
+meta-sovereign browser-configure --scope=slot --key=hh/forms --mode=visible
+meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
+```
+
+`GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
+
+`POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`

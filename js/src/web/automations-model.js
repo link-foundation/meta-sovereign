@@ -74,6 +74,15 @@ export const toForm = (input) => {
     lastFrom: c.lastFrom ?? 'any',
     networks: (c.networks ?? []).join(', '),
     form: a.action.form,
+    actionKind: a.action.kind,
+    ruleIds: (a.action.ruleIds ?? []).join(', '),
+    profile: { ...a.action.profile },
+    profileId: a.action.profileId ?? '',
+    contexts: a.action.contexts ?? [],
+    salary: a.action.salary,
+    approximate: a.action.approximate !== false,
+    modelDraft: a.action.modelDraft === true,
+    matching: a.action.matching,
     informal: a.action.templates.informal ?? '',
     formal: a.action.templates.formal ?? '',
     dailyCap: numberText(p.dailyCap),
@@ -127,6 +136,11 @@ const templatesFrom = (form, base) => {
   return templates;
 };
 
+const modelDraftFrom = (form, base) =>
+  form.modelDraft || base.action?.modelDraft !== undefined
+    ? { modelDraft: form.modelDraft === true }
+    : {};
+
 /** The editor's fields back into an automation, over `base`. */
 export const fromForm = (form, base = {}) => ({
   ...base,
@@ -150,6 +164,19 @@ export const fromForm = (form, base = {}) => ({
   },
   action: {
     ...base.action,
+    kind: form.actionKind ?? base.action?.kind ?? 'send-template',
+    ...(form.actionKind === 'answer-questions'
+      ? {
+          ruleIds: csv(form.ruleIds),
+          profile: form.profile,
+          profileId: form.profileId,
+          contexts: form.contexts ?? [],
+          salary: form.salary,
+          approximate: form.approximate,
+          matching: form.matching,
+          ...modelDraftFrom(form, base),
+        }
+      : {}),
     form: form.form,
     templates: templatesFrom(form, base),
   },

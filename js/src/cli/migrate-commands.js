@@ -22,13 +22,7 @@ import { dryRunMigrations } from '../storage/migrations/node-runner.js';
 export const MIGRATE_HELP =
   '  migrate       [--store=<dir>] [--dry-run | --status]   bring the store to the current data schema';
 
-/** Errors that end a command with a message instead of a stack (R-Z17). */
-export const SCHEMA_ERROR_CODES = new Set([
-  'STORE_TOO_NEW',
-  'LOW_DISK',
-  'MIGRATION_FAILED',
-  'BACKUP_TOO_NEW',
-]);
+export { SCHEMA_ERROR_CODES } from './errors.js';
 
 const STEP_LINE = (e) =>
   `migration ${e.id}: scanned ${e.scanned}, changed ${e.changed} in ${e.ms} ms`;

@@ -21,6 +21,7 @@ import {
 } from '../src/storage/backup.js';
 import { writeFileDurable } from '../src/storage/durable.js';
 import { assertMode } from './helpers/mode.js';
+import { SCHEMA_ID } from '../src/storage/migrations/index.js';
 
 const tmp = (name) => fs.mkdtemp(path.join(os.tmpdir(), `ms-z2-${name}-`));
 const link = (i) => ({
@@ -221,7 +222,11 @@ test('a second process fails fast; read-only still works; a stale lock is taken 
     assert.ok(writer.message.includes(String(child.pid)));
     // Read-only: no lock, works while the other process owns the store.
     const reader = await openDualStore(dir, { readOnly: true });
-    assert.deepEqual(await reader.query(), []);
+    assert.deepEqual(
+      await reader.query((record) => record.id !== SCHEMA_ID),
+      []
+    );
+    assert.equal((await reader.get(SCHEMA_ID)).version, reader.schema.current);
     await assert.rejects(reader.put(link(1)), { code: 'STORE_READ_ONLY' });
   } finally {
     child.kill('SIGKILL');
@@ -233,7 +238,10 @@ test('a second process fails fast; read-only still works; a stale lock is taken 
   );
   const store = await openDualStore(dir);
   await store.put(link(1));
-  assert.equal((await store.query()).length, 1);
+  assert.equal(
+    (await store.query((record) => record.id !== SCHEMA_ID)).length,
+    1
+  );
 });
 
 test('a read-only open never compacts or writes', async () => {

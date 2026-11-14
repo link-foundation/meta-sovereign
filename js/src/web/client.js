@@ -29,6 +29,8 @@ import { conversationQuery } from '../crm/conversation-policy.js';
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
 const timeoutSignal = (ms) => globalThis.AbortSignal?.timeout?.(ms);
+const reportFailure = (error, signal) =>
+  !signal?.aborted && error?.name !== 'AbortError';
 
 // The local links, plus the server's that the local store does not hold
 // (the local copy has the user's latest edits).
@@ -79,13 +81,16 @@ const computeContacts = async (store) =>
 // `timing` ({ recheckMs, setTimer, clearTimer }) is for tests.
 // The browser's copy of the reply index (../replies/reply-cache.js), kept
 // by `driver` and brought up to date from the server.
-const replyCacheOf = (driver, fetchOrLocal) =>
+const replyCacheOf = (driver, fetchOrLocal, signal, onError) =>
   createReplyCache({
     driver,
-    fetchModel: ({ since }) =>
+    signal,
+    onError,
+    fetchModel: ({ since, signal: requestSignal }) =>
       fetchOrLocal(
         `/api/suggest/model?${new URLSearchParams({ since })}`,
-        () => null
+        () => null,
+        { signal: requestSignal }
       ),
   });
 
@@ -153,8 +158,7 @@ const localWrites = (store) => ({
       networks,
       body: body ?? text,
     };
-    await store.put(link);
-    return link;
+    return store.put(link);
   },
   async syncProfile(profile) {
     const link = {
@@ -162,8 +166,7 @@ const localWrites = (store) => ({
       tokens: ['profile-sync'],
       ...profile,
     };
-    await store.put(link);
-    return link;
+    return store.put(link);
   },
 });
 
@@ -201,6 +204,8 @@ export const createOfflineClient = ({
   store,
   server,
   replyDriver = null,
+  signal,
+  onReplyCacheError,
   ...timing
 }) => {
   const handlers = new Set();
@@ -237,13 +242,18 @@ export const createOfflineClient = ({
   let localReplies = null;
   const replies = () => (localReplies ??= createReplyService({ store }));
 
-  const fetchOrLocal = async (path, fallback, { recover = true } = {}) => {
+  const fetchOrLocal = async (
+    path,
+    fallback,
+    { recover = true, signal: suppliedSignal } = {}
+  ) => {
     if (!server?.fetchImpl || (!online && !recover)) {
       return fallback();
     }
     try {
       // A server that does not answer (busy, stuck) counts as gone.
-      const signal = recover ? null : timeoutSignal(READ_TIMEOUT_MS);
+      const signal =
+        suppliedSignal ?? (recover ? null : timeoutSignal(READ_TIMEOUT_MS));
       const res = await requests.request(
         `${server.origin}${path}`,
         signal ? { signal } : {},
@@ -255,14 +265,19 @@ export const createOfflineClient = ({
       }
       return await res.json();
     } catch (error) {
-      if (error?.name !== 'AbortError') {
+      if (reportFailure(error, suppliedSignal)) {
         await watch.failed();
       }
       return fallback();
     }
   };
 
-  const replyCache = replyCacheOf(replyDriver, fetchOrLocal);
+  const replyCache = replyCacheOf(
+    replyDriver,
+    fetchOrLocal,
+    signal,
+    onReplyCacheError
+  );
 
   return {
     on: (handler) => {
@@ -275,6 +290,7 @@ export const createOfflineClient = ({
     close: () => {
       watch.stop();
       requests.stop();
+      return replyCache.close().catch(() => {});
     },
     setServer: (next) => {
       watch.stop();
@@ -286,8 +302,7 @@ export const createOfflineClient = ({
 
     // ---- core link operations ----------------------------------------
     async put(link) {
-      await store.put(link);
-      return link;
+      return store.put(link);
     },
     async get(id) {
       return store.get(id);

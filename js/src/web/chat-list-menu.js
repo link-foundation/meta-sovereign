@@ -12,6 +12,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MsgContextMenu } from './chat-message.js';
 import { useT } from './i18n.js';
+import { useRemovalConfirm, removalError } from './chat-removal-result.js';
 
 const el = React.createElement;
 
@@ -77,6 +78,7 @@ const personalChat = (chat) => !String(chat?.chat ?? '').startsWith('-');
 export const RemoveChatDialog = ({ ask, onClose, onConfirm }) => {
   const t = useT();
   const [revoke, setRevoke] = useState(false);
+  const confirmation = useRemovalConfirm(onConfirm, onClose);
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
     globalThis.addEventListener?.('keydown', onKey);
@@ -122,6 +124,13 @@ export const RemoveChatDialog = ({ ask, onClose, onConfirm }) => {
             el('span', { key: 'l' }, t('chat.list.alsoFor', { name })),
           ])
         : null,
+      confirmation.result?.ok === false
+        ? el(
+            'p',
+            { key: 'error', role: 'alert' },
+            removalError(t, confirmation.result)
+          )
+        : null,
       el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
         el(
           'button',
@@ -136,9 +145,9 @@ export const RemoveChatDialog = ({ ask, onClose, onConfirm }) => {
             className: 'danger',
             'data-action': 'confirm-remove',
             autoFocus: true,
+            disabled: confirmation.busy || confirmation.blocked,
             onClick: () => {
-              onClose();
-              onConfirm({
+              confirmation.run({
                 chat: String(chat.chat),
                 action,
                 ...(personal && action !== 'leave' ? { revoke } : {}),
@@ -204,15 +213,7 @@ export const useChatListMenu = ({ state, api, pins = null }) => {
   // One function for every render, so the list's rows stay as they are.
   const [onMenu] = useState(() => (chat, point) => latest.current(chat, point));
   const [removing, setRemoving] = useState(null);
-  const remove = async (request) => {
-    const answer = await api?.telegramRemoveChat?.(request);
-    if (!answer || answer.error) {
-      state.notify?.({
-        kind: 'action-failed',
-        error: answer?.error ?? 'not done',
-      });
-    }
-  };
+  const remove = async (request) => api?.telegramRemoveChat?.(request);
   const onAction = (key, chat) => {
     if (REMOVAL[key]) {
       setRemoving({ chat, key });

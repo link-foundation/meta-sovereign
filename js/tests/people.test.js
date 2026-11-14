@@ -349,6 +349,20 @@ describe('resolveAudience', () => {
     );
   });
 
+  it('slugs audience names with collapsed punctuation and Unicode letters', () => {
+    const audience = audienceLink({
+      name: ' -- Привет !!! мир -- ',
+      spec: 'all',
+    });
+    assert.equal(audience.id, 'audience:привет-мир');
+    const list = listLink({ name: ' -- Team !!! 42 -- ', members: [] });
+    assert.equal(list.id, 'list:team-42');
+    assert.throws(
+      () => audienceLink({ name: '---', spec: 'all' }),
+      /needs an id or a name/
+    );
+  });
+
   it('rejects unknown kinds and missing fields clearly', () => {
     expectError(() => resolveAudience(links, { kind: 'enemies' })).toThrow(
       /unknown audience kind "enemies"; known: all, friends/

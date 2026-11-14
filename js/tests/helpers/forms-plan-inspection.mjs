@@ -1,0 +1,37 @@
+export const formModelField = (label, input = {}) => ({
+  id: `frame-1:${label}`,
+  frame: 'frame-1',
+  label,
+  labelSource: 'label',
+  type: 'text',
+  description: '',
+  value: '',
+  valueOmitted: null,
+  checked: null,
+  options: [],
+  required: false,
+  disabled: false,
+  readOnly: false,
+  ...input,
+});
+export const formModelInspection = (fields) => ({
+  ok: true,
+  version: 1,
+  mode: 'read-only',
+  url: 'https://example.test/application',
+  title: 'Application',
+  capturedAt: '2026-11-10T14:00:00Z',
+  scope: 'visible-current-pages',
+  coverage: 'inspected',
+  frames: [
+    {
+      id: 'frame-1',
+      parent: null,
+      url: 'https://example.test/application',
+      reasons: [],
+    },
+  ],
+  omissions: [],
+  fields,
+  targetLifetime: 'snapshot-only',
+});

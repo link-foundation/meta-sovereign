@@ -22,6 +22,7 @@ import { createVkInbox } from '../sources/vk-sync.js';
 import { liveOptionsFrom, pullLiveInto } from '../sources/index.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
+import { createHhLive } from '../sources/hh.js';
 import { createGithubService } from './github-service.js';
 import { handleVkRoutes } from './routes-vk.js';
 import { emailConfigured } from '../sources/email-store.js';
@@ -54,6 +55,16 @@ const emailJob = (store, poll = {}) => ({
 export const pullJobs = (store, { vkInbox, github, options = {} }) => ({
   ...(github ? { github: github.pullJob() } : {}),
   email: emailJob(store, options.email),
+  hh: {
+    ready: connected(store, 'hh'),
+    run: () =>
+      pullLiveInto(store, 'hh', {
+        live: liveOf(createHhLive, options.hh),
+        maxRequests: options.hh?.maxRequests,
+      }),
+    // History imports are explicit. An unread watcher has different semantics.
+    intervalMs: 0,
+  },
   vk: {
     ready: vkInbox.ready,
     run: vkInbox.fetch,
@@ -97,6 +108,7 @@ export const createPullServices = (store, log, options = {}, github = null) => {
     jobs,
     log,
     minGapMs: options.minGapMs,
+    now: options.now,
   });
   return {
     pullRunner,
@@ -120,6 +132,7 @@ const statusOf = async (store, ctx) => {
       lastError: state.lastError ?? null,
       // A captcha, or anything else only the user can clear (R-Z20).
       needsAttention: state.lastError?.needsAttention === true,
+      ...(state.history ? { history: state.history } : {}),
     };
   }
   return { ok: true, sources };

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for hiding the stories of a person from the strip
 // (R-Y174), as Telegram Desktop has it: a right click on an entry offers
 // "Hide stories"; nothing is sent until the item is clicked; the entry then
@@ -62,7 +63,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/stories', (route) => {
-  const hidden = Boolean(route.request().postDataJSON()?.hidden);
+  const hidden = Boolean(requestBody(route.request())?.hidden);
   return fulfil(route, {
     ok: true,
     peers: all.filter((p) => away.has(p.peer) === hidden),
@@ -72,7 +73,7 @@ await page.route('**/api/telegram/stories', (route) => {
 });
 const sent = [];
 await page.route('**/api/telegram/stories-hide', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.push(body);
   if (body.hidden) {
     away.add(body.chat);

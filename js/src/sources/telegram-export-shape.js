@@ -153,9 +153,32 @@ const snake = (name) =>
 const namesOf = (ids, names) =>
   (ids ?? []).map((id) => names.get(`user${id}`) ?? `user${id}`);
 
+const titledActions = {
+  ChannelCreate: (action) => ({
+    action: 'create_channel',
+    title: action.title,
+  }),
+  ChatEditTitle: (action) => ({
+    action: 'edit_group_title',
+    title: action.title,
+  }),
+  ChannelMigrateFrom: (action) => ({
+    action: 'migrate_from_group',
+    title: action.title,
+    chat_id: String(action.chatId),
+  }),
+  ChatMigrateTo: (action) => ({
+    action: 'migrate_to_supergroup',
+    channel_id: String(action.channelId),
+  }),
+};
+
 /** What a service message (a join, a new title, a pin, a call) adds. */
 export const actionFieldsOf = (action, names, raw) => {
   const kind = String(action?.className ?? '').replace('MessageAction', '');
+  if (Object.hasOwn(titledActions, kind)) {
+    return titledActions[kind](action);
+  }
   switch (kind) {
     case 'ChatCreate':
       return {
@@ -163,10 +186,6 @@ export const actionFieldsOf = (action, names, raw) => {
         title: action.title,
         members: namesOf(action.users, names),
       };
-    case 'ChannelCreate':
-      return { action: 'create_channel', title: action.title };
-    case 'ChatEditTitle':
-      return { action: 'edit_group_title', title: action.title };
     case 'ChatAddUser':
       return {
         action: 'invite_members',
@@ -210,6 +229,7 @@ export const serviceOf = (raw, ctx) => {
     date_unixtime: String(at),
     actor: who.from,
     actor_id: who.from_id,
+    action_details: raw.action,
     ...actionFieldsOf(raw.action, ctx.names, raw),
   });
 };

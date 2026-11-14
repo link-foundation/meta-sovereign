@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the pinned messages list, similar channels and fact
 // checks (R-Y166), as Telegram Desktop has them: with three pinned the bar
 // gets a list button that opens "3 pinned messages", a click goes to the
@@ -85,7 +86,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 const calls = [];
 const record = (name, answer) =>
   page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     calls.push([name, body]);
     return fulfil(route, typeof answer === 'function' ? answer(body) : answer);
   });

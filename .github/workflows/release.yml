@@ -92,10 +92,10 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Check dependency review capability before building
         id: graph
@@ -224,13 +224,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -292,7 +292,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
@@ -300,7 +300,7 @@ jobs:
           write: 'true'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -325,11 +325,11 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-test-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
-    name: Test (${{ matrix.runtime }} on ${{ matrix.os }})
+    name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Typical run: 13–55s (deno on Windows can spike to ~2min on cold runners).
-    # 10min cap surfaces a hung test or flaky network well before the
-    # 6h GitHub default — the user wants flaky tests to fail fast.
+    # Retain the 10min deadline. Cold macOS Node and Windows Deno jobs can
+    # exceed it with the complete suite; partition each across three runners.
+    # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
       [
@@ -357,6 +357,13 @@ jobs:
       matrix:
         os: [ubuntu-26.04, macos-26, windows-2025]
         runtime: [node, bun, deno]
+        # Exclude the original pair so include appends all shards instead
+        # of overwriting the first shard's added matrix properties.
+        exclude:
+          - os: macos-26
+            runtime: node
+          - os: windows-2025
+            runtime: deno
         # Retain all nine runtime/OS targets. Use the separate native Intel
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
@@ -364,6 +371,24 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
+            shard: 1/3
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 2/3
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 3/3
+          - os: windows-2025
+            runtime: deno
+            shard: 1/3
+          - os: windows-2025
+            runtime: deno
+            shard: 2/3
+          - os: windows-2025
+            runtime: deno
+            shard: 3/3
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -381,7 +406,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
@@ -390,7 +415,7 @@ jobs:
           write: ${{ matrix.os != 'ubuntu-26.04' && 'true' || 'false' }}
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies (Node.js)
         if: matrix.runtime == 'node'
@@ -399,8 +424,9 @@ jobs:
       - name: Run tests (Node.js)
         if: matrix.runtime == 'node'
         env:
-          MS_LIFECYCLE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
-        run: node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
+          MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
+          MS_CLINK_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
+        run: node --test --test-concurrency=2 --test-timeout=30000 --test-shard=${{ matrix.shard || '1/1' }} js/tests/*.test.js
 
       - name: Setup Bun
         if: matrix.runtime == 'bun'
@@ -417,6 +443,8 @@ jobs:
         # --timeout caps an individual test at 30s. Default is 5s but a few
         # WebRTC / WebSocket scenarios run slower on cold runners; 30s leaves
         # headroom while still failing fast on a hung promise.
+        env:
+          MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
         run: bun test --timeout 30000
 
       - name: Setup Deno
@@ -436,10 +464,12 @@ jobs:
         # remain isolated in fixture stores and never use personal accounts.
         env:
           CI_CRYPTO_DIAGNOSTICS: ${{ runner.os == 'Windows' && '1' || '0' }}
+          MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
           RUST_BACKTRACE: '1'
+          DENO_TEST_SHARD: ${{ matrix.shard || '1/1' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
-          deno test --allow-all js/tests
+          deno test --allow-all --shard="$DENO_TEST_SHARD" js/tests
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the
@@ -495,6 +525,47 @@ jobs:
       - name: cargo test
         run: cargo test --manifest-path rust/Cargo.toml --workspace
 
+      - name: Setup Node.js for native wire interoperability
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '26.13.0'
+          package-manager-cache: false
+
+      - uses: $/.github/actions/npm-cache
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
+      - name: Install JavaScript wire codecs
+        run: npm ci --no-audit --no-fund
+
+      - name: Check production JavaScript against the native server
+        run: |
+          node experiments/issue-56/native-register-vectors.mjs --check
+          node experiments/issue-56/native-rich-vectors.mjs --check
+          node experiments/issue-56/native-recreated-children.mjs
+          python3 -B experiments/issue-56/native-cargo-reference-check.py
+          cargo build --manifest-path rust/Cargo.toml -p meta-sovereign-server --bin meta-sovereign-rs
+          python3 -B experiments/issue-56/native-durable-before.py
+          python3 -B experiments/issue-56/native-durable-before.py --sync
+          node experiments/issue-56/native-lino-interop.mjs rust/target/debug/meta-sovereign-rs
+          node experiments/issue-56/native-durable-interop.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-storage-network.log
+          node experiments/issue-56/native-sync-interop.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-session-network.log
+          node experiments/issue-56/native-sync-refusal.mjs rust/target/debug/meta-sovereign-rs 2>&1 | tee ci-logs/native-session-refusal.log
+
+      - name: Preserve native checkpoint regression evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: native-checkpoint-evidence
+          path: |
+            ci-logs/native-storage-*.log
+            ci-logs/native-cargo-*.log
+            ci-logs/native-rustdoc-*.log
+            ci-logs/native-session-*.log
+          if-no-files-found: ignore
+          retention-days: 14
+
   # === BROWSER E2E (R-Z6) ===
   # A representative set of the `test:e2e:*` scripts in chromium: the SPA
   # smoke test, the chat basics, rich and service messages, ephemeral
@@ -506,7 +577,7 @@ jobs:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-e2e-browser-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
-    name: Browser e2e (${{ matrix.browser }})
+    name: Browser e2e (${{ matrix.browser }}, shard ${{ matrix.shard }}/4)
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
     needs:
@@ -525,6 +596,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        browser: [chromium, webkit]
+        shard: [1, 2, 3, 4]
         include:
           - browser: chromium
             runner: ubuntu-26.04
@@ -533,10 +606,17 @@ jobs:
     env:
       RUN_BROWSER_E2E: '1'
       E2E_BROWSER: ${{ matrix.browser }}
+      E2E_SHARD: ${{ matrix.shard }}/4
       E2E_ENGINES: ${{ matrix.browser }}
       E2E_SAFARI: '0'
       E2E_ARTIFACT_DIR: artifacts/browser
       CI_TUTORIAL_DEBUG: '1'
+      CI_QUESTION_WATCH_DEBUG: '1'
+      CI_PROFILE_NAVIGATION_DEBUG: '1'
+      CI_CV_KEYBOARD_DEBUG: '1'
+      CI_RESUME_INPUT_DEBUG: '1'
+      CI_FOLLOW_DISCLOSURE_DEBUG: '1'
+      CI_LINO_SYNC_DEBUG: '1'
       DEBUG: ${{ vars.CI_BROWSER_DEBUG == '1' && 'pw:api' || '' }}
     steps:
       - uses: actions/checkout@v7.0.1
@@ -550,14 +630,17 @@ jobs:
         run: bash js/scripts/simulate-fresh-merge.sh
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
+      - name: Use the primary Ubuntu archive for browser dependencies
+        if: runner.os == 'Linux'
+        run: sudo node js/scripts/prepare-browser-apt.mjs
       - name: Install the browser
         env:
           BROWSER: ${{ matrix.browser }}
@@ -576,7 +659,7 @@ jobs:
         if: ${{ !cancelled() && steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '' }}
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: browser-${{ matrix.browser }}
+          name: browser-${{ matrix.browser }}-${{ matrix.shard }}
           path: artifacts/browser/
           if-no-files-found: error
           retention-days: 14
@@ -620,13 +703,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -765,13 +848,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -821,12 +904,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - name: Verify streaming memory bound and complete round trip
@@ -849,12 +932,12 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - uses: $/.github/actions/npm-cache
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - uses: actions/setup-python@v7.1.0
@@ -867,7 +950,7 @@ jobs:
       - name: Compile standard-library Python utilities
         run: python -m compileall -q experiments
       - name: Install pinned workflow security scanner
-        run: python -m pip install --disable-pip-version-check zizmor==1.31.1
+        run: python -m pip install --disable-pip-version-check zizmor==1.32.0
       - name: Workflow security audit (offline deterministic policy)
         run: zizmor --offline --format plain .github
       - name: Check pipeline gate and browser coverage
@@ -879,6 +962,8 @@ jobs:
           python3 -B experiments/issue43-evidence-bundle.py verify
           python3 -B experiments/issue-52/archive.py --verify
           python3 -B experiments/issue-54/archive.py --verify
+          python3 -B experiments/issue-56/verify-evidence-archive.py
+          python3 -B experiments/issue-56/verify-entry-collectors.py
       - run: node --test --test-concurrency=1 js/tests/ci-*.test.js
       - name: Rehearse both release modes without dependency resolution
         run: |
@@ -900,14 +985,14 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - run: npm ci --no-audit --no-fund
       - run: npm audit --package-lock-only --audit-level=low
-      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
@@ -945,17 +1030,17 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@v4.39.1
+      - uses: github/codeql-action/init@v4.39.3
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@v4.39.1
+      - uses: github/codeql-action/analyze@v4.39.3
         with:
           output: artifacts/codeql
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
       - name: Reject unresolved CodeQL findings
         run: node js/scripts/check-codeql-results.mjs artifacts/codeql
@@ -1010,14 +1095,14 @@ jobs:
           installer -pkg "$RUNNER_TEMP/swiftly.pkg" -target CurrentUserHomeDirectory
           "$HOME/.swiftly/bin/swiftly" init --skip-install --assume-yes --no-modify-profile
           . "$HOME/.swiftly/env.sh"
-          swiftly install 6.4.1 --use --assume-yes
+          swiftly install 6.4.2 --use --assume-yes
           echo "$HOME/.swiftly/bin" >> "$GITHUB_PATH"
       - name: Type-check Apple SDK helpers without accessing personal data
         if: runner.os == 'macOS'
         run: |
           swift_compiler_version=$(swiftc --version)
           echo "$swift_compiler_version"
-          [[ "$swift_compiler_version" == *"Swift version 6.4.1 "* ]]
+          [[ "$swift_compiler_version" == *"Swift version 6.4.2 "* ]]
           swiftc -typecheck js/src/server/local-key-enclave.swift
           swiftc -parse-as-library -typecheck js/src/sources/system-contacts.swift
       - name: Build both Docker services from the committed lockfile
@@ -1060,11 +1145,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Require every selected check to pass
         env:
@@ -1103,12 +1188,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1217,12 +1302,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1306,11 +1391,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7.1.0
         with:
-          node-version: '26.12.1'
+          node-version: '26.13.0'
           package-manager-cache: false
 
       - name: Use pinned npm
-        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+        run: npm install --global npm@12.2.2 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1329,7 +1414,7 @@ jobs:
           echo "Formatted changeset files"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        uses: peter-evans/create-pull-request@15733dbdfeedb4f7fdb73d13c6f5ac83b710fab8 # v8.1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore: add changeset for manual ${{ github.event.inputs.bump_type }} release'

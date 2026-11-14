@@ -1,0 +1,154 @@
+[
+  {
+    "name": "fresh",
+    "value": { "id": "shared", "body": "new" },
+    "expected": { "id": "shared", "body": "new", "vc": { "native-owner": 1 } }
+  },
+  {
+    "name": "observed",
+    "before": { "id": "shared", "body": "old", "vc": { "a": 1 } },
+    "value": { "id": "shared", "body": "new" },
+    "expected": {
+      "id": "shared",
+      "body": "new",
+      "vc": { "a": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "supplied_context",
+    "before": { "id": "shared", "body": "old", "vc": { "a": 1 } },
+    "value": {
+      "id": "shared",
+      "body": "new",
+      "vc": { "b": 3, "native-owner": 2, "zero": 0 }
+    },
+    "expected": {
+      "id": "shared",
+      "body": "new",
+      "vc": { "a": 1, "b": 3, "native-owner": 3 }
+    }
+  },
+  {
+    "name": "replace_assignment",
+    "before": {
+      "id": "shared",
+      "body": "Z",
+      "vc": { "a": 1, "b": 1 },
+      "__msSyncStamp": {
+        "version": 1,
+        "clock": { "b": 1 },
+        "context": { "a": 1, "b": 1 }
+      }
+    },
+    "value": { "id": "shared", "body": "owner" },
+    "expected": {
+      "id": "shared",
+      "body": "owner",
+      "vc": { "a": 1, "b": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "supplied_assignment",
+    "value": {
+      "id": "shared",
+      "body": "Z",
+      "vc": { "a": 1, "b": 1 },
+      "__msSyncStamp": {
+        "version": 1,
+        "clock": { "b": 1 },
+        "context": { "a": 1, "b": 1 }
+      }
+    },
+    "expected": {
+      "id": "shared",
+      "body": "Z",
+      "vc": { "a": 1, "b": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_missing",
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "vc": { "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_existing",
+    "before": { "id": "shared", "body": "old", "vc": { "a": 1 } },
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "vc": { "a": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_null_children",
+    "before": {
+      "id": "shared",
+      "body": "old",
+      "vc": { "a": 1 },
+      "children": null
+    },
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "vc": { "a": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_child_order",
+    "before": {
+      "id": "shared",
+      "body": "old",
+      "vc": { "a": 1 },
+      "children": ["z", "a", "z"]
+    },
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "children": ["z", "a", "z"],
+      "vc": { "a": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_empty_children",
+    "before": {
+      "id": "shared",
+      "body": "old",
+      "vc": { "a": 1 },
+      "children": []
+    },
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "children": [],
+      "vc": { "a": 1, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "recreate",
+    "before": { "id": "shared", "__msSyncDeleted": 1, "vc": { "a": 2 } },
+    "value": { "id": "shared", "body": "recreated" },
+    "expected": {
+      "id": "shared",
+      "body": "recreated",
+      "vc": { "a": 2, "native-owner": 1 }
+    }
+  },
+  {
+    "name": "delete_twice",
+    "before": { "id": "shared", "__msSyncDeleted": 1, "vc": { "a": 2 } },
+    "delete": true,
+    "expected": {
+      "id": "shared",
+      "__msSyncDeleted": 1,
+      "vc": { "a": 2, "native-owner": 1 }
+    }
+  }
+]

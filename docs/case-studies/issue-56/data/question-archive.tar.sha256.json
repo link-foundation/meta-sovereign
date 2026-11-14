@@ -1,0 +1,15 @@
+{
+  "archive": "question-archive.tar.gz",
+  "files": {
+    "mcp-observations.json": "970d93dd63abc96296025931dabf19e3ed6cac87e57243b0dabff72b0a5eeb7e",
+    "question-archive-before.log": "3a7426e0bfe45a86af8cc86e438dc7c071ce0ad93d1c8b2981dd8353f7fd9338",
+    "question-archive-browser-final.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "question-archive-browser-store.log": "08d6a7af0b8c3812f9118d474a3466613c305f6bcb0dd72f5e7be28fb68e5691",
+    "question-archive-controls.log": "5ee2b1f7b566d826c4b86661be801bdad9e4106d157d3988808e0ab6117ee83f",
+    "question-archive-example.log": "3354108b1c3d4ee3161c3e868f360180a0355f2865e99152262ad4d1f963c0a4",
+    "question-archive-final-build.log": "727cf7075c1e0b088522b2534032474be2f05ed1e083de7b643d416803c023d1",
+    "question-archive-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-archive-final-tests.log": "f91f6f7f810ca13bdea9d221633184cf7597a323877b72dbd8ddc6725d24bb01",
+    "question-archive-focused.log": "795bf23b12051fbd6875f3687a61d77d9da10c7f439a15d13b5437b06f8eec5e"
+  }
+}

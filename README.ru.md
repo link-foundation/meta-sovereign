@@ -40,7 +40,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Ограничения Rust server.** Он хранит links **только в памяти**: на диск ничего не пишется, поэтому после остановки server все данные пропадают. У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выбирайте JS server или desktop app. Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md).
+> **Ограничения Rust server.** CLI по умолчанию сохраняет links в нативных текстовых/бинарных контрольных копиях; `--data` задаёт каталог, `--memory` явно включает хранение только в памяти. Формат и восстановление описаны в [native storage](docs/NATIVE-STORAGE.md). У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выбирайте JS server или desktop app. Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md).
 
 ### JavaScript server — полный набор функций (Node/Bun/Deno), из исходников
 
@@ -94,7 +94,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 - **Приветствия**: начинать диалоги в VK, Telegram, WhatsApp, Messenger, X и почте с «привет» или стикера, как [konard/vk-bot](https://github.com/konard/vk-bot) ([`docs/GREETINGS.ru.md`](docs/GREETINGS.ru.md)).
 - **Синхронизация резюме** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob через ваш собственный браузер, поле за полем ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
 - **Ваши данные в безопасности**: локальное хранилище, переживающее сбои ([Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)), автоматические миграции схемы ([`docs/DATA-MIGRATIONS.ru.md`](docs/DATA-MIGRATIONS.ru.md)), потоковые зашифрованные резервные копии, работа при полном диске, зашифрованные секреты, локальный сервер, который не пускает чужие сайты.
-- **Везде, где вы**: веб-приложение, настольное приложение со встроенным сервером, мобильные оболочки, WebRTC-синхронизация между вашими устройствами, офлайн-записи, которые доотправляются позже; вариант сервера на чистом Rust использует тот же формат на диске.
+- **Везде, где вы**: веб-приложение, настольное приложение со встроенным сервером, мобильные оболочки, WebRTC-синхронизация между вашими устройствами, офлайн-записи, которые доотправляются позже; вариант сервера на чистом Rust использует текстовые/бинарные контрольные копии с отдельной структурой базы.
 - **Четыре языка**: приложение и все документы — на английском, русском, хинди и китайском.
 
 Каждая функция по каждой сети — поддерживается, частично или нет, и доступна ли через API или веб-приложение: [`docs/FEATURES.ru.md`](docs/FEATURES.ru.md). Каждое требование с подтверждением: [`docs/REQUIREMENTS.ru.md`](docs/REQUIREMENTS.ru.md).

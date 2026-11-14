@@ -1,0 +1,42 @@
+[
+  {
+    "mergedAt": "2026-10-29T09:52:47Z",
+    "number": 55,
+    "title": "fix: repair GitHub releases and audit CI evidence"
+  },
+  {
+    "mergedAt": "2026-10-29T07:18:43Z",
+    "number": 53,
+    "title": "Fix release integrity and enforce complete CI evidence"
+  },
+  {
+    "mergedAt": "2026-10-28T23:55:23Z",
+    "number": 51,
+    "title": "build: update all dependencies and restore CI across current toolchains"
+  },
+  {
+    "mergedAt": "2026-10-28T20:41:44Z",
+    "number": 49,
+    "title": "build(deps): bump taiki-e/install-action from 2.87.4 to 2.87.31"
+  },
+  {
+    "mergedAt": "2026-10-28T20:41:40Z",
+    "number": 48,
+    "title": "build(deps): bump browser-commander from 0.32.1 to 0.34.0"
+  },
+  {
+    "mergedAt": "2026-10-28T20:41:37Z",
+    "number": 47,
+    "title": "build(deps): bump actions/cache from 5 to 6"
+  },
+  {
+    "mergedAt": "2026-10-28T20:41:33Z",
+    "number": 46,
+    "title": "build(deps): bump lino-objects-codec from 0.9.2 to 0.9.3"
+  },
+  {
+    "mergedAt": "2026-10-28T20:41:29Z",
+    "number": 45,
+    "title": "build(deps-dev): bump the development group with 3 updates"
+  }
+]

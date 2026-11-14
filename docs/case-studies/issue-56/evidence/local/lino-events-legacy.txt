@@ -1,0 +1,12 @@
+✔ regex: pattern length and input size are capped, a runaway match is cut off (106.152411ms)
+✔ the other accounts: unread from each own store, and the notification stream (124.419691ms)
+✔ /api/events streams chat links and never secrets (316.691837ms)
+✔ a page that stops reading the stream is cut off, not buffered for (1.086577ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3689.720678

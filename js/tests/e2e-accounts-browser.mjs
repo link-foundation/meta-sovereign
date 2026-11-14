@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the account switcher (R-Y198), as Telegram
 // Desktop's main menu has it: the list's menu has Accounts, a window that
 // lists every signed-in account with its name and unread count; choosing
@@ -57,7 +58,7 @@ await page.route('**/api/telegram/accounts-unread', (route) =>
   })
 );
 await page.route('**/api/telegram/accounts-dialogs', (route) => {
-  calls.push(['dialogs', route.request().postDataJSON().account]);
+  calls.push(['dialogs', requestBody(route.request()).account]);
   return fulfil(route, {
     ok: true,
     unread: 5,
@@ -68,13 +69,13 @@ await page.route('**/api/telegram/accounts-dialogs', (route) => {
   });
 });
 await page.route('**/api/telegram/accounts-logout', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['logout', body.account]);
   accounts = accounts.filter((a) => a.account !== body.account);
   return fulfil(route, { ok: true, removed: 4 });
 });
 await page.route('**/api/auto-import/telegram/login/start', (route) => {
-  calls.push(['login', route.request().postDataJSON().account]);
+  calls.push(['login', requestBody(route.request()).account]);
   return fulfil(route, { needs: 'code', id: 'fake-login' });
 });
 

@@ -4,7 +4,7 @@
 // opens one the app knows; any other shows its preview with Join. Nothing
 // is joined until Join is pressed.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { ChatAvatar } from './chat-list.js';
 import { chatKey } from './chat-model.js';
@@ -49,6 +49,9 @@ const useSimilar = (api, chat, on) => {
 };
 
 const errorText = (t, code) => {
+  if (['outcome-unknown', 'join-web-view-required'].includes(code)) {
+    return t(`chat.invite.err.${code}`);
+  }
   const key = `chat.similar.err.${code}`;
   const text = t(key);
   return text === key ? t('chat.similar.err.failed') : text;
@@ -57,17 +60,33 @@ const errorText = (t, code) => {
 export const Preview = ({ api, item, onJoined, onClose }) => {
   const t = useT();
   const [state, setState] = useState({ busy: false, code: null });
+  const sending = useRef(false);
+  const active = useRef(true);
+  useEffect(
+    () => () => {
+      active.current = false;
+    },
+    []
+  );
   useEsc(onClose);
   const join = async () => {
+    if (sending.current) {
+      return;
+    }
+    sending.current = true;
     setState({ busy: true, code: null });
     const answer = await api
       .telegramSimilarJoin({ chat: item.chat })
-      .catch(() => null);
-    if (answer?.ok) {
+      .catch(() => ({ ok: false, code: 'outcome-unknown' }));
+    if (!active.current) {
+      return;
+    }
+    if (answer?.ok && answer.chat === item.chat) {
       onJoined();
     } else {
-      setState({ busy: false, code: answer?.code ?? 'failed' });
+      setState({ busy: false, code: answer?.code ?? 'outcome-unknown' });
     }
+    sending.current = false;
   };
   return el(
     'div',
@@ -130,7 +149,11 @@ export const Preview = ({ api, item, onJoined, onClose }) => {
             type: 'button',
             className: 'primary',
             'data-action': 'similar-join',
-            disabled: state.busy,
+            disabled:
+              state.busy ||
+              ['outcome-unknown', 'join-web-view-required'].includes(
+                state.code
+              ),
             onClick: join,
           },
           t('chat.invite.join')

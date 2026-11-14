@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for private one-to-one voice calls (R-Y196), as Telegram
 // Desktop has them: an incoming call is a notification with Accept and
 // Decline (Decline discards); "Call" in a private chat's header places one
@@ -108,7 +109,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 // What the fake server does with the current call.
 let current = null;
 await page.route('**/api/telegram/private-call-start', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.push(['start', body]);
   current = ring({
     phase: 'waiting',
@@ -120,12 +121,12 @@ await page.route('**/api/telegram/private-call-start', async (route) => {
   return fulfil(route, { ok: true, callId: current.callId });
 });
 await page.route('**/api/telegram/private-call-accept', async (route) => {
-  sent.push(['accept', route.request().postDataJSON()]);
+  sent.push(['accept', requestBody(route.request())]);
   await put({ ...current, phase: 'connecting' });
   return fulfil(route, { ok: true, callId: current.callId });
 });
 await page.route('**/api/telegram/private-call-discard', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.push(['discard', body]);
   await put({
     ...current,
@@ -138,7 +139,7 @@ await page.route('**/api/telegram/private-call-discard', async (route) => {
   return fulfil(route, { ok: true, duration: 7 });
 });
 await page.route('**/api/telegram/private-call-rate', (route) => {
-  sent.push(['rate', route.request().postDataJSON()]);
+  sent.push(['rate', requestBody(route.request())]);
   return fulfil(route, { ok: true });
 });
 

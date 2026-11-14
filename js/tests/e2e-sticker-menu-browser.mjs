@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a sticker's and a GIF's menu in the panel
 // (R-Y115), as Telegram Desktop's: a right click opens it over the panel,
 // which stays open under it; a favourite taken off, a recent one removed,
@@ -97,7 +98,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -120,7 +121,7 @@ await page.route('**/api/telegram/stickers', (route) => {
   fulfil(route, PANEL);
 });
 await page.route('**/api/telegram/sticker-set', (route) => {
-  const { id } = route.request().postDataJSON();
+  const { id } = requestBody(route.request());
   asked.sets.push(id);
   fulfil(route, { ok: true, id, stickers: SETS[id] });
 });
@@ -149,7 +150,7 @@ await page.route('**/api/telegram/scheduled', (route) =>
 // The menu's saves, as Telegram would answer them: the lists change.
 const saves = [];
 await page.route('**/api/telegram/sticker-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   saves.push(body);
   if (body.action === 'unfave') {
     PANEL.faved = PANEL.faved.filter((s) => s.id !== body.id);
@@ -162,7 +163,7 @@ await page.route('**/api/telegram/sticker-save', (route) => {
 });
 const sends = [];
 await page.route('**/api/telegram/send-document', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 

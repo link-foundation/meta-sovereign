@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for Telegram Desktop's selection and menu (R-Y68).
 // Fake messages in a memory store, a server on a free port, headless
 // Chromium; nothing reaches Telegram or a running app. Not part of
@@ -116,7 +117,7 @@ await page.addInitScript(() => {
 // This exercises a connected chat's menus. Disconnected cached chats
 // intentionally show a connection guide (covered by the offline tests).
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     contentType: 'application/json',
     body: JSON.stringify({ connected: true, kind: 'user', offline: false }),
   })
@@ -135,7 +136,7 @@ if (engine !== 'chromium') {
 }
 const errors = [];
 await page.route('**/api/telegram/history', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     contentType: 'application/json',
     body: JSON.stringify({ written: 0, cached: true, complete: true }),
   })

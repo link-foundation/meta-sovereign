@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the recent calls list (R-Y163), as Telegram
 // Desktop's main menu → Calls: the list shows the calls with their arrows
 // (red when missed), "Video" and durations; calls with the same person on
@@ -92,7 +93,7 @@ const second = [
 ];
 const asked = [];
 await page.route('**/api/telegram/calls', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   if (body.missed) {
     return fulfil(route, {

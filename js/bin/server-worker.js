@@ -17,12 +17,18 @@ const phaseAfter = (operation) => {
   }
 };
 let chain = Promise.resolve();
+let closing = null;
+let inputClosed = false;
 const send = (value) =>
+  !inputClosed &&
   process.stdout.write(
     `${JSON.stringify(value.type ? value : { type: 'response', ...value })}\n`
   );
 const input = createInterface({ input: process.stdin });
 input.on('line', (line) => {
+  if (inputClosed) {
+    return;
+  }
   let message;
   try {
     message = JSON.parse(line);
@@ -99,10 +105,25 @@ input.on('line', (line) => {
     }
   });
 });
-input.once('close', () => {
-  resources?.stop();
-  worker
-    ?.close()
+const drain = () => {
+  inputClosed = true;
+  // Initialization and accepted operations may still acquire stores/listeners.
+  // Keep ownership until they settle, then close their actual resources once.
+  closing ??= chain
+    .catch(() => {})
+    .then(async () => {
+      resources?.stop();
+      await worker?.close();
+    })
     .catch(() => {})
     .finally(() => process.exit(0));
+  return closing;
+};
+input.once('close', drain);
+process.stdout.on('error', (error) => {
+  if (['EPIPE', 'ERR_STREAM_DESTROYED'].includes(error.code)) {
+    void drain();
+  } else {
+    throw error;
+  }
 });

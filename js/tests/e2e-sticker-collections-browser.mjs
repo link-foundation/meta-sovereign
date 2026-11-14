@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { openChatApp, fulfil, assert } from './helpers/e2e-chat.mjs';
 const store = createMemoryStore();
@@ -18,7 +19,7 @@ const sticker = (id, emoji) => ({ id, emoji, kind: 'sticker', format: 'webp' });
 const items = [sticker('1001', '👋'), sticker('1002', '🎂')];
 const sent = [];
 await page.route('**/api/telegram/send-document', (route) => {
-  sent.push(route.request().postDataJSON());
+  sent.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: '7' });
 });
 const png = Buffer.from(

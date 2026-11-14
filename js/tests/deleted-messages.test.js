@@ -14,7 +14,7 @@ import {
   deletedAtOf,
 } from '../src/storage/soft-delete.js';
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { facebookWebhookToLinks } from '../src/sources/facebook.js';
 
 const msg = (n, extra = {}) => ({

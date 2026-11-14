@@ -217,7 +217,14 @@ test('inactive channels are listed with dates; only the chosen listed ones are l
             { className: 'Channel', id: 2n, accessHash: 22n, title: 'Two' },
           ],
         }
-      : {}
+      : {
+          className: 'Updates',
+          updates: [
+            { className: 'UpdateChannel', channelId: r.channel.channelId },
+          ],
+          chats: [],
+          users: [],
+        }
   );
   const list = await actions.inactiveChannels();
   assert.deepEqual(list.channels[0], {
@@ -228,7 +235,14 @@ test('inactive channels are listed with dates; only the chosen listed ones are l
   });
   assert.equal(log.filter((r) => r.className === 'LeaveChannel').length, 0);
   const left = await actions.leaveChannels({ chats: ['-1002', '-1009999'] });
-  assert.deepEqual(left, { ok: true, left: ['-1002'] });
+  assert.deepEqual(left, {
+    ok: true,
+    left: ['-1002'],
+    results: [
+      { chat: '-1002', status: 'confirmed' },
+      { chat: '-1009999', status: 'skipped', code: 'not-inactive' },
+    ],
+  });
   const leaves = log.filter((r) => r.className === 'LeaveChannel');
   assert.equal(leaves.length, 1);
   assert.equal(leaves[0].channel.accessHash, 22n);
@@ -297,4 +311,54 @@ test('page helpers: the link typed, the limit codes and the date', () => {
   assert.equal(dayOf(0, 'en'), '');
   assert.match(dayOf(1_700_000_000, 'en'), /2023/);
   assert.equal(moderationOf({ creator: true }).owner, true);
+});
+
+test('inactive-channel batches retain confirmed leaves and stop at an uncertain receipt', async () => {
+  for (const response of [
+    undefined,
+    {
+      className: 'Updates',
+      users: [],
+      chats: [],
+      updates: [{ className: 'UpdateChannel', channelId: 999n }],
+    },
+    Object.assign(new Error('RPC_CALL_FAIL'), {
+      errorMessage: 'RPC_CALL_FAIL',
+      code: 500,
+    }),
+  ]) {
+    const fixture = make((r) =>
+      r.className === 'GetInactiveChannels'
+        ? {
+            chats: [1n, 2n, 3n].map((id) => ({
+              className: 'Channel',
+              id,
+              accessHash: id,
+            })),
+          }
+        : r.channel.channelId === 1n
+          ? {
+              className: 'Updates',
+              users: [],
+              chats: [],
+              updates: [{ className: 'UpdateChannel', channelId: 1n }],
+            }
+          : response
+    );
+    const result = await fixture.actions.leaveChannels({
+      chats: ['-1001', '-1002', '-1003'],
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'outcome-unknown');
+    assert.deepEqual(result.left, ['-1001']);
+    assert.deepEqual(result.results, [
+      { chat: '-1001', status: 'confirmed' },
+      { chat: '-1002', status: 'unknown', code: 'outcome-unknown' },
+    ]);
+    assert.equal(
+      fixture.log.filter((r) => r.className === 'LeaveChannel').length,
+      2,
+      'no request for third channel'
+    );
+  }
 });

@@ -18,12 +18,11 @@
  *   already use `handledBy` stamps to dedupe, so a tombstone that
  *   round-trips through sync does not re-fire the "delete on upstream"
  *   handler chain.
- * - Hard-delete (`purge`) is intentionally local. It calls the inner
- *   store's `delete()` only when `confirm === true` so the operator
- *   cannot accidentally drop data, and the call never travels over the
- *   sync bus (the sync `peer` only emits `put`/`delete` events that
- *   originated locally; the user has to explicitly run `purge` on each
- *   device).
+ * - Hard-delete (`purge`) calls the inner store's `delete()` only when
+ *   `confirm === true`. A connected sync peer forwards that local delete.
+ *   Production causal stores erase the live payload and retain minimal
+ *   deletion metadata so older packets cannot restore it. Disconnected
+ *   history reconciliation and erasure of backups are separate concerns.
  * - `isTombstone` and `markDeleted` are pure helpers exported so
  *   adapters can stamp links offline (e.g. inside `parseArchive`) when
  *   they observe upstream deletes.

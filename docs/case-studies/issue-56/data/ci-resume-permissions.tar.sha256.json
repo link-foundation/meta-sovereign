@@ -1,0 +1,16 @@
+{
+  "archive": "ci-resume-permissions.tar.gz",
+  "files": {
+    "ci-logs/resume-permissions-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/resume-permissions-node.log": "f47a49d527966a95249184c81f745dfbecc8c75c4f450e3baaae69e4907b7539",
+    "ci-logs/technology-cancelled-desktop-43171284982.log": "3eb335c8ba302a45e4d5086872f8ae2b1b33302f76ce66573cb078259732d5f0",
+    "ci-logs/technology-preceding-checks-43171285138.json": "2d7eeb16efe7159325f5fbfaaf72e185e6a5eb2ba7bef572a8247db1342e8ffb",
+    "ci-logs/technology-preceding-checks-43171285138.log": "e25ad34050a6e24bab9374e00fc37d2108e52fd60c8aff65a457826a0b23b9d3",
+    "docs/case-studies/issue-56/ci-resume-permissions.md": "3a660a11094010b00948abe28314a046d9c8e7773555bc80d0fbab3a142594b8",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-resume-permissions.py": "5980c25856370a69d9c960c62f76d33ba273fc1793484283e563d111375e6f9b",
+    "experiments/issue-56/evidence_bundle.py": "54ab3b457200a9d64babdf120e660df1fe305549e6520d682db92f7c1bfd5060",
+    "js/tests/job-resume-export-files.test.js": "3e03329e505fba88c9bf6418b91533dee4e67f284ef7f6b1d37e41c2aea21639",
+    "metadata.json": "69d7cbd36c03756e80d4640a458b5ac4d7eb81c0b16e6faa7a9be0f81f85a7a0"
+  }
+}

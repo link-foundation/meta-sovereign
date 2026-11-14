@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for channel boosts (R-Y173), as Telegram Desktop has
 // them: the info column of a channel shows the boost level with its
 // progress and the boost link with Copy; "Boost" gives the channel a free
@@ -74,13 +75,13 @@ await page.route('**/api/telegram/my-boosts', (route) =>
   fulfil(route, { ok: true, premium, slots })
 );
 await page.route('**/api/telegram/boost-apply', (route) => {
-  applies.push(route.request().postDataJSON());
+  applies.push(requestBody(route.request()));
   boosts += 1;
   return fulfil(route, { ok: true, slots });
 });
 const asks = [];
 await page.route('**/api/telegram/boosters', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asks.push(body);
   const one = (name, user) => ({
     user,

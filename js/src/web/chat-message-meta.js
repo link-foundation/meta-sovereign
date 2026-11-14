@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { EffectBadge } from './chat-effects.js';
 import { ViewCount } from './chat-views.js';
+import { deliveryLabel } from './chat-failure.js';
 
 const el = React.createElement;
 
@@ -48,7 +49,7 @@ export const BubbleFooter = ({
       message.delivery
         ? spacer
           ? el('span', { key: 'd', className: 'bubble-status-spacer' })
-          : el(DeliveryIcon, { key: 'd', status: message.delivery })
+          : el(DeliveryIcon, { key: 'd', status: message.delivery, message })
         : null,
     ]
   );
@@ -63,9 +64,9 @@ const DELIVERY_ICON = {
   failed: 'alert',
 };
 
-const DeliveryIcon = ({ status }) => {
+const DeliveryIcon = ({ status, message }) => {
   const t = useT();
-  const label = t(`chat.delivery.${status}`);
+  const label = deliveryLabel(t, message, status);
   return el(
     'span',
     {

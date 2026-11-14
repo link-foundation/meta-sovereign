@@ -17,13 +17,21 @@ import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { defaultStoreDir } from '../storage/app-directory.js';
+import { browserName, resolveBrowserPolicy } from '../browser/policy.js';
+import { launchPersistentBrowser } from './persistent-browser.js';
 
 /** Packages a live run needs, in the order we report them. */
 export const BROWSER_PACKAGES = ['browser-commander', 'playwright'];
 
 /** Default persistent profile directory: sessions must survive runs. */
-export const defaultProfileDir = (platform = 'shared') =>
-  path.join(defaultStoreDir(), 'browser-profiles', platform);
+export const slotProfileDir = (base, slot = 'main') =>
+  slot === 'main' ? base : path.join(base, 'slots', browserName(slot));
+
+export const defaultProfileDir = (platform = 'shared', slot = 'main') =>
+  slotProfileDir(
+    path.join(defaultStoreDir(), 'browser-profiles', browserName(platform)),
+    slot
+  );
 
 const persistentProfile = async (platform) => {
   const target = defaultProfileDir(platform);
@@ -120,7 +128,20 @@ export const launchWithCommander = async ({
   slowMo,
   locale,
   verbose = false,
+  persistent = false,
+  idleMs = 24 * 60 * 60 * 1000,
 }) => {
+  if (persistent) {
+    return launchPersistentBrowser({
+      bc,
+      profileDir,
+      idleMs,
+      headless,
+      slowMo,
+      verbose,
+      args: [`--lang=${locale}`],
+    });
+  }
   const session = await bc.launchBrowser({
     engine: 'playwright',
     headless,
@@ -141,7 +162,10 @@ export const launchWithCommander = async ({
  *
  * @param {object} [options]
  * @param {string} [options.platform] platform id, used for the profile dir
- * @param {boolean} [options.headless] default true; sign-in runs want false
+ * @param {boolean} [options.headless] explicit override of stored visibility
+ * @param {object} [options.store] portable workflow/slot visibility preferences
+ * @param {string} [options.slot] isolated profile name; main keeps the old path
+ * @param {string} [options.useCase] workflow visibility preference key
  * @param {string} [options.profileDir] persistent user-data directory
  * @param {number} [options.slowMo] ms between actions (debugging)
  * @param {string} [options.locale] browser locale, e.g. `vi-VN`
@@ -152,14 +176,25 @@ export const launchWithCommander = async ({
  */
 export const openBrowserSession = async ({
   platform = 'shared',
-  headless = true,
+  headless,
+  store = null,
+  slot = 'main',
+  useCase = 'general',
   profileDir = null,
   slowMo = 0,
   locale = 'en-US',
   verbose = false,
   importers = {},
   launcher = null,
+  persistent = false,
+  idleMs,
 } = {}) => {
+  const policy = await resolveBrowserPolicy(store, {
+    platform,
+    headless,
+    slot,
+    useCase,
+  });
   const load = async (name) => {
     const importer = importers[name] ?? defaultImporters[name];
     try {
@@ -170,19 +205,27 @@ export const openBrowserSession = async ({
   };
   const bc = await load('browser-commander');
   const session = launcher
-    ? await launcher({ headless, profileDir, slowMo, locale })
+    ? await launcher({ headless: policy.headless, profileDir, slowMo, locale })
     : await (async () => {
         // The engine browser-commander drives the real Chrome with.
         await load('playwright');
         return launchWithCommander({
           bc,
-          headless,
-          profileDir: profileDir ?? (await persistentProfile(platform)),
+          headless: policy.headless,
+          profileDir:
+            profileDir ??
+            slotProfileDir(await persistentProfile(platform), slot),
           slowMo,
           locale,
           verbose,
+          persistent,
+          idleMs,
         });
       })();
+  return wrapBrowserSession({ bc, session, policy, verbose });
+};
+
+const wrapBrowserSession = ({ bc, session, policy, verbose }) => {
   const commander = bc.makeBrowserCommander({
     page: session.page,
     verbose,
@@ -196,6 +239,19 @@ export const openBrowserSession = async ({
     commander,
     page: session.page,
     context: session.context ?? null,
+    policy,
+    persistent: session.persistent,
+    ...(session.detach
+      ? {
+          detach: async () => {
+            try {
+              await commander.destroy?.();
+            } finally {
+              await session.detach();
+            }
+          },
+        }
+      : {}),
     async close() {
       try {
         await commander.destroy?.();

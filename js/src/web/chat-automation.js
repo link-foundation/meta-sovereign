@@ -12,12 +12,14 @@ import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { isTelegramWebUrl } from '../sources/telegram-chat-url.js';
 import { useDraftFocus } from './chat-draft-focus.js';
+import { AnswerEvidence } from './question-evidence.js';
 
 const el = React.createElement;
 
 const FORM_KEYS = {
   informal: 'chat.form.informal',
   formal: 'chat.form.formal',
+  neutral: 'chat.form.neutral',
 };
 
 // "Open chat": the network's own app, the text filled in where it can.
@@ -120,13 +122,15 @@ export const DraftCard = ({ draft, drafts, autopilot }) => {
         'aria-label': t('chat.draft.text'),
         onChange: (event) => drafts.edit(draft.id, event.target.value),
       }),
+      el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
       el('div', { key: 'actions', className: 'row' }, [
         button('send', t('chat.draft.send'), act('send')),
-        button(
-          'form',
-          t('chat.draft.switchTo', { form: t(FORM_KEYS[other]) }),
-          act('form', { form: other })
-        ),
+        !draft.answer &&
+          button(
+            'form',
+            t('chat.draft.switchTo', { form: t(FORM_KEYS[other]) }),
+            act('form', { form: other })
+          ),
         draft.edited
           ? button('reset', t('chat.draft.useOwn'), () => drafts.reset(draft))
           : null,

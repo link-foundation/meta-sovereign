@@ -1,0 +1,197 @@
+import {
+  createApplicationCommands,
+  APPLICATION_HELP,
+} from './application-command.js';
+import { createVacancyService } from '../jobs/service.js';
+import { defaultStoreDir } from '../storage/app-directory.js';
+import { encodeWire } from '../transport/lino.js';
+import { randomUUID } from 'node:crypto';
+import { foregroundResumeExport } from './resume-export-command.js';
+import { technologyCommandInput } from './technology-command.js';
+import { foregroundCvWatch } from './cv-watch-command.js';
+import { cvTranslationCommandInput } from './cv-translation-command.js';
+import { cvWorkplaceCommandInput } from './cv-workplace-command.js';
+
+const vacancyCommandExit = (operation, result) =>
+  (operation === 'resume-export' && result.state !== 'completed') ||
+  (operation === 'cv-prepare' && result.preparation?.state !== 'prepared') ||
+  (operation === 'cv-translate' &&
+    (result.comparison?.state !== 'completed' ||
+      result.comparison.rows.some((row) => !row.chosen)))
+    ? 1
+    : 0;
+
+export const VACANCY_HELP = `${APPLICATION_HELP}
+  vacancies-search [--query=<text>] [--resume=<hash>] [--area=<id>] [--salary=<amount>] [--currency=RUR|USD|EUR] [--remote=true|false] [--order=salary_desc|publication_time|relevance] [--page=0] [--skip-responded=true|false] [--exclude-text=<literal-lines>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+  vacancies-collect --url=<hh-vacancy-url> [--refresh=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+  vacancies-stored [--store=<dir>]
+  vacancies-choices-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-choice-save --url=<hh-vacancy-url> --title=<text> --state=skipped|deferred --revision=<observed-revision> [--note=<private-text>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-choice-clear --url=<hh-vacancy-url> --revision=<observed-revision> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-resumes [--resume=<hash>] [--resume-language=ru|en|any] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+  vacancies-resumes-stored [--store=<dir>]
+  vacancies-resume-export [--resume=<hash>|--all=true] [--formats=pdf,doc,rtf,html] [--request-id=<id>] [--out=<directory>] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+  vacancies-resume-export-status --request-id=<id> [--store=<dir>]
+  vacancies-resume-export-cancel --request-id=<id> [--store=<dir>]
+  vacancies-resume-exports-stored [--store=<dir>]
+  vacancies-technology-catalog [--store=<dir>]
+  vacancies-technology-catalog-save --file=<catalog.lino|catalog.bin|catalog.json> [--store=<dir>]
+  vacancies-technology-analyze --export-id=<id> --resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-analysis-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review --ru-export-id=<id> --ru-resume=<hash> --en-export-id=<id> --en-resume=<hash> --revision=<catalog-revision> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review-stored [--browser-slot=jobs] [--store=<dir>]
+  vacancies-technology-review-save --fingerprint=<review-fingerprint> --selected=<change-id>,<change-id> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch [--request-id=<id>] [--duration-ms=900000] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-watch-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-snapshots [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-membership --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-source --export-id=<id> --resume=<hash> [--job-index=0] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-dictionaries [--store=<dir>]
+  vacancies-cv-workplace-plan --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<fields.json|fields.lino|fields.bin> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-plan --operation=detach --export-id=<id> --resume=<hash> --job-index=<index> --record-id=<existing-id> --file=<reviewed-membership.json|.lino|.bin> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-plan-stored [--fingerprint=<plan-fingerprint>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-workplace-review --fingerprint=<plan-fingerprint> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare --fingerprint=<review-fingerprint> --change-id=<ru|en>:<about|jobs.N.description|workplace> [--review-kind=workplace] [--record-id=<existing-workplace-id>] [--request-id=<id>] [--target-id=<existing-tab-id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-prepare-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translate --file=<texts.json|texts.lino|texts.bin> --from=ru|en --to=en|ru [--providers=haiku,luna,formal-ai] [--haiku-model=<id>] [--luna-model=<id>] [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translation-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-cv-translation-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
+
+const typedFlag = (args, key, kind) => {
+  const value = args[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (kind === 'boolean' && [true, false, 'true', 'false'].includes(value)) {
+    return value === true || value === 'true';
+  }
+  if (kind === 'number' && /^\d+$/u.test(String(value))) {
+    return Number(value);
+  }
+  throw new Error(`--${key} must be a ${kind}`);
+};
+export const createVacancyCommands = ({ openStore, ...options }) =>
+  Object.assign(
+    createApplicationCommands({ openStore, ...options }),
+    Object.fromEntries(
+      [
+        'search',
+        'collect',
+        'stored',
+        'choices-stored',
+        'choice-save',
+        'choice-clear',
+        'resumes',
+        'resumes-stored',
+        'resume-export',
+        'resume-export-status',
+        'resume-export-cancel',
+        'resume-exports-stored',
+        'technology-catalog',
+        'technology-catalog-save',
+        'technology-analyze',
+        'technology-analysis-stored',
+        'technology-review',
+        'technology-review-stored',
+        'technology-review-save',
+        'cv-watch',
+        'cv-watch-status',
+        'cv-watch-stop',
+        'cv-snapshots',
+        'cv-workplace-membership',
+        'cv-workplace-source',
+        'cv-workplace-dictionaries',
+        'cv-workplace-plan',
+        'cv-workplace-plan-stored',
+        'cv-workplace-review',
+        'cv-prepare',
+        'cv-prepare-status',
+        'cv-prepare-cancel',
+        'cv-translate',
+        'cv-translation-status',
+        'cv-translation-cancel',
+      ].map((operation) => [
+        `vacancies-${operation}`,
+        async (args, log) => {
+          const input = [
+            'cv-translate',
+            'cv-translation-status',
+            'cv-translation-cancel',
+          ].includes(operation)
+            ? await cvTranslationCommandInput(operation, args)
+            : operation.startsWith('technology-')
+              ? await technologyCommandInput(operation, args)
+              : operation.startsWith('cv-workplace-')
+                ? await cvWorkplaceCommandInput(operation, args)
+                : {
+                    ...Object.fromEntries(
+                      [
+                        'query',
+                        'resume',
+                        'area',
+                        'currency',
+                        'order',
+                        'url',
+                        'title',
+                        'state',
+                        'revision',
+                        'note',
+                      ].map((key) => [key, args[key]])
+                    ),
+                    ...Object.fromEntries(
+                      ['remote', 'refresh', 'headless', 'all'].map((key) => [
+                        key,
+                        typedFlag(args, key, 'boolean'),
+                      ])
+                    ),
+                    salary: typedFlag(args, 'salary', 'number'),
+                    skipResponded: typedFlag(args, 'skip-responded', 'boolean'),
+                    excludeText: args['exclude-text'],
+                    page: typedFlag(args, 'page', 'number'),
+                    browserSlot: args['browser-slot'],
+                    resumeLanguage: args['resume-language'],
+                    requestId:
+                      args['request-id'] ??
+                      (['resume-export', 'cv-watch', 'cv-prepare'].includes(
+                        operation
+                      )
+                        ? randomUUID()
+                        : undefined),
+                    durationMs: typedFlag(args, 'duration-ms', 'number'),
+                    targetId: args['target-id'],
+                    fingerprint: args.fingerprint,
+                    changeId: args['change-id'],
+                    recordId: args['record-id'],
+                    reviewKind: args['review-kind'],
+                    formats:
+                      args.formats === undefined
+                        ? undefined
+                        : String(args.formats)
+                            .split(',')
+                            .map((format) => format.trim()),
+                  };
+          const storeDir = args.store ?? defaultStoreDir();
+          const store = await openStore(storeDir);
+          const service = createVacancyService({ store, storeDir, ...options });
+          try {
+            const result =
+              operation === 'resume-export'
+                ? await foregroundResumeExport(service, input, args.out)
+                : operation === 'cv-watch'
+                  ? await foregroundCvWatch(service, input, log)
+                  : await service[operation](input);
+            log(encodeWire(result));
+            return vacancyCommandExit(operation, result);
+          } finally {
+            try {
+              await service.stop();
+            } finally {
+              await store.close?.();
+            }
+          }
+        },
+      ])
+    )
+  );

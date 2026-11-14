@@ -1,0 +1,18 @@
+{
+  "archive": "ci-forms-submission-counter.tar.gz",
+  "files": {
+    "ci-logs/forms-capacity-chromium-130147209271.log": "96698d1268c9f0a2d079146d8bc463b7f21606c5b70ed2015be016fb8f0c9e51",
+    "ci-logs/forms-submission-counter-after.log": "91da6adc03a46475c0d9e80b3cf7fbd93d35011f948bcde4ed8a3a33673ae78f",
+    "ci-logs/forms-submission-counter-before.log": "7045206b7cbfa23199a7f9dc4b7553659d6838d00925e3d761c5554380501be4",
+    "ci-logs/forms-submission-counter-current-runs.json": "4bdc97ddf2dce75ebb8af76f3b2606ec55de5a782d5208c93dcd06bff547a91b",
+    "ci-logs/forms-submission-counter-format.log": "c9dfb260b79c817dab9430d16c54139ba2e500777206cc3c823d60f7032cf5a7",
+    "ci-logs/forms-submission-counter-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/forms-submission-counter-parent-ci.json": "0c3efe9590ddb694b831283771fc8ce38cd37f781ad7cd6d257ba3d088145dc8",
+    "docs/case-studies/issue-56/ci-forms-submission-counter.md": "6abbb65973e025c23adf544fcb34304358c6b39435cecd68c473ff76ab69b0dc",
+    "experiments/issue-56/collect-form-counter.py": "54f5859982cc102c8f7ed3ec720509d862a514f7876ff198e1d02d27cc52eb9a",
+    "js/tests/e2e-forms-reader-browser.mjs": "888612d9c0539e79607d90636fd0098f12890d84708d86414a658530ff04ec45",
+    "js/tests/helpers/e2e-form-capacity.mjs": "ad38f2f1616d9a259fabc04aa39d8358a4eb2f42e049234b091433b8ea48805a",
+    "js/tests/helpers/e2e-form-model.mjs": "b7cd64542805294aa4f589c38eacb604a93c3536a2fc61b5eac76c4bf672ee2a",
+    "metadata.json": "3b156d93a58955aa5c53f3ae4fbd827667bbdf812594bc17dc7016d9412c40e2"
+  }
+}

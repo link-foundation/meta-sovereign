@@ -18,6 +18,19 @@ import * as m0003 from './0003-vk-reactions-docs.js';
 import * as m0004 from './0004-github-external-ids.js';
 import * as m0005 from './0005-archive-ids.js';
 import * as m0006 from './0006-tombstones.js';
+import * as m0007 from './0007-browser-policy.js';
+import * as m0008 from './0008-salary-exchange.js';
+import * as m0009 from './0009-salary-exchange-policy.js';
+import * as m0010 from './0010-hh-message-metadata.js';
+import * as m0011 from './0011-sync-write-stamps.js';
+import * as m0012 from './0012-causal-writes.js';
+import * as m0013 from './0013-sync-deletions.js';
+import * as m0014 from './0014-supervised-applications.js';
+import * as m0015 from './0015-popup-application-recovery.js';
+import * as m0016 from './0016-application-resume-preference.js';
+import * as m0017 from './0017-application-language-policy.js';
+import * as m0018 from './0018-application-limits.js';
+import * as m0019 from './0019-application-limit-drafts.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -26,10 +39,23 @@ export const MIGRATIONS = Object.freeze([
   m0004,
   m0005,
   m0006,
+  m0007,
+  m0008,
+  m0009,
+  m0010,
+  m0011,
+  m0012,
+  m0013,
+  m0014,
+  m0015,
+  m0016,
+  m0017,
+  m0018,
+  m0019,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 6;
+export const CURRENT_SCHEMA = 19;
 
 export {
   SCHEMA_ID,

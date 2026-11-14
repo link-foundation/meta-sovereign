@@ -252,6 +252,54 @@ test('post sends as the user and returns the canonical link', async () => {
   assert.equal(result.link.sender, 'me');
 });
 
+test('the account never returns a sent link for a missing library receipt', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = fakeClient();
+  client.sendMessage = async (peer, { message }) => {
+    client.calls.sent.push({ peer, message });
+    return {};
+  };
+  const account = accountWith(store, client);
+  try {
+    await assert.rejects(
+      account.post({ chat: '42', text: 'still uncertain' }),
+      {
+        code: 'send-unknown',
+        ambiguous: true,
+        fallback: false,
+      }
+    );
+    assert.equal(client.calls.sent.length, 1);
+    assert.equal(await store.get('msg:telegram:42:null'), null);
+  } finally {
+    await account.stop();
+  }
+});
+
+test('the connected user account retains explicit publication format through the send path', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = fakeClient();
+  const sent = [];
+  client.sendMessage = async (peer, options) => {
+    sent.push({ peer, ...options });
+    return { id: sent.length };
+  };
+  const account = accountWith(store, client);
+  const result = await account.post({
+    chat: '42',
+    text: '<b>News</b>',
+    format: 'html',
+  });
+  assert.equal(result.link.body, 'News');
+  assert.equal(sent[0].message, 'News');
+  assert.equal(sent[0].formattingEntities[0].className, 'MessageEntityBold');
+  await account.post({ chat: '42', text: '**literal**', format: 'plain' });
+  assert.equal(sent[1].message, '**literal**');
+  assert.equal(sent[1].formattingEntities, undefined);
+});
+
 test('history pulls one chat on demand', async () => {
   const store = createMemoryStore();
   await seed(store);
@@ -292,7 +340,7 @@ test('a bot token is not polled in the background', async () => {
 });
 
 test('the server syncs, reports and sends through the connected account', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const store = createMemoryStore();
   await seed(store);
   const client = fakeClient();
@@ -340,7 +388,7 @@ test('the server syncs, reports and sends through the connected account', async 
 });
 
 test('without an account the status says not connected', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const server = await startServer({
     store: createMemoryStore(),
     enableSync: false,

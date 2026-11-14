@@ -46,7 +46,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Rust server limits.** It keeps links **in memory only**: nothing is written to disk, so everything is gone when the server stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork or similar, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. Pick the JS server or the desktop app for real use. The route-by-route list is in [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md).
+> **Rust server limits.** The CLI persists links in native text/binary checkpoints by default; `--data` selects the directory and `--memory` explicitly uses volatile state. See [native storage](docs/NATIVE-STORAGE.md) for recovery and format limits. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork or similar, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. Pick the JS server or the desktop app for real use. The route-by-route list is in [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md).
 
 ### JavaScript server — full feature set (Node/Bun/Deno), from source
 
@@ -103,7 +103,7 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 - **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does ([`docs/GREETINGS.md`](docs/GREETINGS.md)).
 - **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob through your own browser, field by field ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
 - **Your data, safe**: a crash-safe local store ([Doublets](https://github.com/linksplatform/doublets-rs) binary + [Links Notation](https://github.com/link-foundation/links-notation) text), automatic schema migrations ([`docs/DATA-MIGRATIONS.md`](docs/DATA-MIGRATIONS.md)), streamed encrypted backups, full-disk handling, encrypted secrets, a local server that refuses other sites.
-- **Everywhere you are**: the hosted web app, a desktop app with the server inside, mobile shells, WebRTC sync between your own devices, offline writes replayed later; a pure-Rust server variant shares the on-disk format.
+- **Everywhere you are**: the hosted web app, a desktop app with the server inside, mobile shells, WebRTC sync between your own devices, offline writes replayed later; a pure-Rust server variant uses native text/binary checkpoints with a separate database envelope.
 - **Four languages**: the app and every document are in English, Russian, Hindi and Chinese.
 
 Every feature, network by network, with what is supported, partial or not supported and whether it is reachable by API or web app: [`docs/FEATURES.md`](docs/FEATURES.md). Every requirement with its evidence: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).

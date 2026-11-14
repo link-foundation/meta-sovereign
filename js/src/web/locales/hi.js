@@ -1,3 +1,16 @@
+import { hiAnswerModel } from './hi-answer-model.js';
+import { hiVacancy } from './hi-vacancy.js';
+import { hiBrowserAnswer } from './hi-browser-answer.js';
+import { hiForms } from './hi-forms.js';
+import { hiSharedProfile } from './hi-shared-profile.js';
+import { hiProfileImport } from './hi-profile-import.js';
+import { hiChatRemoval } from './hi-chat-removal.js';
+import { hiFollowTelegram } from './hi-follow-telegram.js';
+import { hiFollow } from './hi-follow.js';
+import { hiTelegramGreetings } from './hi-telegram-greetings.js';
+import { hiChatUsers } from './hi-chat-users.js';
+import { hiPublication } from './hi-publication.js';
+import { hiBrowser } from './hi-browser.js';
 // Hindi locale (issue #18). Keys must mirror ./en.js exactly; the
 // parity test in js/tests/i18n.test.js fails the build if they
 // drift. Devanagari script renders correctly without bundled fonts on
@@ -19,6 +32,45 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...hiVacancy,
+  ...hiForms,
+  ...hiAnswerModel,
+  ...hiBrowserAnswer,
+  ...hiSharedProfile,
+  ...hiProfileImport,
+  ...hiChatRemoval,
+  ...hiFollow,
+  ...hiFollowTelegram,
+  ...hiFollowBacklink,
+  ...hiTelegramGreetings,
+  ...hiChatUsers,
+  ...hiPublication,
+  'backup.schedule': 'स्वचालित पुनर्प्राप्ति',
+  'backup.scheduleHint':
+    'निर्धारित और एक बार के बैकअप के लिए ये सेटिंग सहेजें। पहला स्वचालित बैकअप चुने हुए अंतराल के बाद चलेगा।',
+  'backup.hours': 'घंटों में अंतराल (0 से बंद)',
+  'backup.retention': 'हर प्रारूप की रखी जाने वाली प्रतियाँ (0 से सभी)',
+  'backup.formats': 'स्वतंत्र पुनर्प्राप्ति डंप',
+  'backup.format.text': 'टेक्स्ट Lino डंप',
+  'backup.format.binary': 'बाइनरी Lino डंप',
+  'backup.format.archive': 'पुनर्प्राप्ति संग्रह',
+  'backup.save': 'पुनर्प्राप्ति सेटिंग सहेजें',
+  'backup.saved': 'पुनर्प्राप्ति सेटिंग सहेजी गईं।',
+  'backup.created':
+    'बैकअप सत्यापित; {count} स्वतंत्र पुनर्प्राप्ति डंप सत्यापित।',
+  'backup.restored': '{count} रिकॉर्ड पुनर्स्थापित।',
+  'backup.working': 'काम जारी है…',
+  'backup.failed':
+    'कार्य के परिणाम की पुष्टि नहीं हो सकी। दोबारा प्रयास से पहले फ़ाइल सूची जाँचें।',
+  'backup.refused': 'कार्य विफल: {reason}',
+  'backup.empty': 'अभी कोई पुनर्प्राप्ति फ़ाइल नहीं है।',
+  'backup.rawHint':
+    'स्वतंत्र डंप गुप्त रिकॉर्ड शामिल नहीं करते, भले ही संग्रह एन्क्रिप्टेड हो। उनमें आपका अन्य डेटा रहता है। फ़ाइलों को निजी रखें।',
+  'backup.unavailable':
+    'फ़ाइल बैकअप के लिए संग्रह भंडारण वाले जुड़े सर्वर की आवश्यकता है। पुनर्प्राप्ति सेट करने के लिए समर्थित सर्वर जोड़ें।',
+  'backup.restoreAsk':
+    '{file} पुनर्स्थापित करें? रिकॉर्ड इस सर्वर में मिलेंगे और समान ID वाले रिकॉर्ड बदलेंगे। किसी बदलाव से पहले पूरी फ़ाइल की जाँच होगी।',
+  ...hiBrowser,
   ...hiStickers,
   ...hiFeedback,
   ...hiConversation,
@@ -216,6 +268,18 @@ export const hi = {
   'audience.queryPlaceholder': 'जैसे network:telegram AND chat:general',
   'audience.contactsCount': '{count} संपर्क',
   'broadcast.title': 'प्रसारण',
+  'broadcast.sending': 'भेजा जा रहा है…',
+  'broadcast.sent': 'भेज दिया गया।',
+  'broadcast.partial': 'कुछ गंतव्यों पर भेजा गया। बाकी परिणाम देखें।',
+  'broadcast.failed': 'इस प्रयास में नहीं भेजा गया।',
+  'broadcast.unknown':
+    'डिलीवरी अनिश्चित है। फिर प्रयास करने से पहले गंतव्य जांचें।',
+  'broadcast.queued': 'कतार में; डिलीवरी की पुष्टि नहीं हुई है।',
+  'broadcast.cancelled': 'रद्द किया गया।',
+  'broadcast.unavailable':
+    'भेजने के लिए समर्थित सर्वर जोड़ें। कतार में कुछ नहीं जोड़ा गया।',
+  'broadcast.counts':
+    '{sent} भेजे · {failed} नहीं भेजे · {unknown} अनिश्चित · {queued} कतार में',
   'broadcast.placeholder': 'चुने गए सभी नेटवर्क के लिए संदेश',
   'outreach.title': 'पहुँच',
   'outreach.hint':
@@ -494,6 +558,8 @@ export const hi = {
   'telegramSessions.less': 'कम दिखाएँ',
   'telegramSessions.signIn': 'साइन इन करें',
   'telegramSessions.connected': 'कनेक्ट हो गया',
+  'telegramSessions.unconfirmed':
+    'सेशन आयात की पुष्टि नहीं हुई। आपका पिछला कनेक्शन सुरक्षित है; Telegram जाँचकर फिर प्रयास करें।',
 
   // MTProto (GramJS) के ज़रिये अपने Telegram यूज़र खाते में साइन इन, konard/telegram-bot की तरह।
   'telegramLogin.title': 'अपने Telegram खाते से लॉग इन करें',
@@ -796,11 +862,11 @@ export const hi = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': 'hh.ru वार्तालाप संग्रह आयात करें',
   'connections.hh.archive.hint':
-    'https://hh.ru/applicant/negotiations खोलें, JSON निर्यात का उपयोग करें, फ़ाइल सहेजें और यहाँ लोड करें।',
+    'पहले से प्राप्त वार्तालाप के वास्तविक संदेशों वाली JSON फ़ाइल आयात करें। केवल वार्तालाप सूची में संदेश इतिहास नहीं होता। लाइव इतिहास के लिए API टोकन भरें और अभी लाएँ चुनें।',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': 'hh.ru API जोड़ें',
   'connections.hh.api.hint':
-    'https://dev.hh.ru/ पर ऐप पंजीकृत करें, OAuth2 client-credentials/authorisation-code प्रवाह चलाएँ और एक्सेस टोकन को "secret:hh:token" के रूप में चिपकाएँ।',
+    'https://dev.hh.ru/ पर ऐप पंजीकृत करें, OAuth से अपने HH खाते को अधिकृत करें और नीचे उपयोगकर्ता एक्सेस टोकन भरें। चैट पहुँच ऐप और खाते की अनुमतियों पर निर्भर है।',
   'connections.hh.fields.token.label': 'एक्सेस टोकन',
   'connections.hh.errorHints.401':
     'hh.ru ने टोकन अस्वीकृत किया। https://dev.hh.ru/ पर अपने ऐप के माध्यम से रिफ़्रेश करें।',
@@ -1203,4 +1269,232 @@ export const hi = {
     'पिछला संदेश शायद जा चुका है — उसे दोहराया नहीं गया',
   'error.code.timeout': 'अनुरोध का समय समाप्त हो गया',
   'error.code.network': 'स्थानीय सर्वर से कोई उत्तर नहीं',
+  'questions.title': 'सवाल और सहेजे गए जवाब',
+  'questions.intro':
+    'अलग-अलग चैट में जवाब फिर उपयोग करें। स्वीकृत सहेजे गए नियम स्वचालित भेज सकते हैं; अनुमानित, विरोधी और अधूरे मिलान समीक्षा में रहते हैं। प्रोफ़ाइल मान के लिए {{field}}, छोटे बदलते वाक्यांश के लिए … और शब्द के अंत के लिए word* उपयोग करें।',
+  'questions.action': 'कार्रवाई',
+  'questions.kind.send-template': 'टेम्पलेट भेजें',
+  'questions.kind.answer-questions': 'सवालों के जवाब दें',
+  'questions.actionHint':
+    'सबसे हाल के अनुत्तरित सवाल और नीचे सहेजे गए जवाब इस्तेमाल होते हैं। अस्वीकृत, अनुमानित, विरोधी या अधूरे जवाब समीक्षा के लिए स्वचालित भेजना रोकते हैं।',
+  'questions.ruleIds': 'जवाब नियम की आईडी',
+  'questions.ruleIdsHint':
+    'कॉमा से अलग करें; सभी चालू नियमों के लिए खाली छोड़ें।',
+  'questions.matchingSettings': 'प्रश्न मिलान',
+  'questions.matchingThreshold': 'न्यूनतम समानता (%)',
+  'questions.matchingCase': 'अक्षरों का केस मिलाएँ',
+  'questions.matchingHint':
+    'अनुमानित मिलान की हमेशा समीक्षा आवश्यक है। विषय, दायरे और अस्वीकृत उत्तरों के नियम लागू रहते हैं।',
+  'questions.matchingInvalid': '0 से 100 के बीच समानता दर्ज करें।',
+  'questions.inspectMatches': 'सभी योग्य मिलान देखें',
+  'questions.matchesTitle': 'क्रमबद्ध मिलान',
+  'questions.matchesRange': 'कुल {total} में से {start}–{end} मिलान',
+  'questions.matchesPartial': 'मिलान की सीमा पूरी हुई। यह सूची अधूरी है।',
+  'questions.matchScore': 'समानता: {score}%',
+  'questions.matchSelected': 'इस मसौदे के लिए चुना गया',
+  'questions.matchesPrevious': 'पिछले मिलान',
+  'questions.matchesNext': 'अगले मिलान',
+  'questions.approximate': 'समीक्षा के लिए अनुमानित मिलान दिखाएँ',
+  'questions.contract': 'कॉन्फ़िगर किए मानों को प्लेसहोल्डर से बदलें',
+  'questions.contractHint':
+    'जवाब सहेजते या सीखते समय जवाब पूर्वावलोकन की प्रोफ़ाइल और वेतन सेटिंग इस्तेमाल करें। मंज़ूरी देने से पहले सुझाए टेम्प्लेट जाँचें।',
+  'questions.salaryTemplateEvidence': 'वेतन प्लेसहोल्डर मान',
+  'questions.profile': 'प्रोफ़ाइल मान',
+  'questions.fieldName': 'फ़ील्ड नाम, जैसे city',
+  'questions.addField': 'फ़ील्ड जोड़ें',
+  'questions.removeField': 'फ़ील्ड हटाएँ',
+  'questions.ruleKind': 'नियम का प्रकार',
+  'questions.ruleKind.question': 'प्रश्न या फ़ॉर्म फ़ील्ड',
+  'questions.ruleKind.notice': 'सूचनात्मक संदेश',
+  'questions.learnedNoticePatterns': 'सीखे गए सूचना पैटर्न',
+  'questions.learnedNoticePatternsHint':
+    'इन पैटर्न को समान संदेशों में जोड़ने से पहले समीक्षा करें। नए अवलोकन सूची को दोबारा बनाते हैं; सीखे गए पैटर्न से मेल खाने पर हमेशा समीक्षा आवश्यक है।',
+  'questions.noticeHint':
+    'केवल सूचनात्मक संदेशों के लिए; प्रश्न, अनुरोध, आमंत्रण, अस्वीकृति और लिंक अलग रहते हैं। उत्तर की समीक्षा ज़रूरी है। उत्तर न देने के लिए [без ответа] लिखें और नियम को समीक्षित चिह्नित करें।',
+  'questions.noticeApproved':
+    'समीक्षित सूचना नियम (उत्तर की समीक्षा फिर भी ज़रूरी है)',
+  'questions.noticeReview':
+    'सहेजी गई सूचना मिली। उत्तर की समीक्षा ज़रूरी है; यह पूर्वावलोकन कुछ नहीं भेजता।',
+  'questions.noticeNoReplyReview':
+    'उत्तर न देने का प्रस्ताव है। पहले सहेजे गए नियम की समीक्षा और स्वीकृति दें।',
+  'questions.question': 'सवाल या पैटर्न',
+  'questions.answer': 'जवाब',
+  'questions.variant': 'विकल्प {count}',
+  'questions.approved': 'इस सहेजे गए नियम से स्वचालित भेजने की स्वीकृति',
+  'questions.frequency': 'देखे गए जवाब: {count}',
+  'questions.evidence': 'स्रोत संदेश',
+  'questions.addVariant': 'जवाब का विकल्प जोड़ें',
+  'questions.removeVariant': 'विकल्प हटाएँ',
+  'questions.sources': 'प्रदाता, कॉमा से अलग; खाली होने पर सभी',
+  'questions.chats': 'चैट, जैसे hh:123, telegram:456; खाली होने पर सभी',
+  'questions.new': 'नया जवाब नियम',
+  'questions.refresh': 'जवाब ताज़ा करें',
+  'questions.empty':
+    'अभी कोई जवाब नहीं सहेजा है। नया जोड़ें या आयात की गई बातचीत से सुझाव सीखें।',
+  'questions.saved': 'जवाब नियम सहेजा गया।',
+  'questions.deleted': 'जवाब नियम हटाया गया।',
+  'questions.createAutomation': 'सवालों का ऑटोमेशन बनाएँ',
+  'questions.automationName': 'आने वाले सवालों के जवाब',
+  'questions.learn': 'बातचीत से सीखें',
+  'questions.learnHint':
+    'इस डिवाइस पर सहेजे गए संदेशों से प्रश्नों और सूचनाओं के जवाब सीखें। वास्तव में भेजे गए जवाब गिने जाते हैं; सारांश के उद्धरण उपयोग नहीं बढ़ाते। चुप्पी से जवाब न देने का नियम नहीं बनता। सुझाव स्वीकृत नहीं होते।',
+  'questions.previewLearning': 'सीखे गए जवाब देखें',
+  'questions.applyLearning': 'समीक्षा के लिए सुझाव सहेजें',
+  'questions.learned':
+    'सुझाव सहेजे गए। स्वीकृति से पहले हर जवाब की समीक्षा करें।',
+  'questions.coverage': 'संग्रह के जाँचे गए संदेश: {seen} में से {retained}।',
+  'questions.partialHistory':
+    'विश्वसनीय समय न होने से कुछ बातचीत बाहर रखी गई हैं। सीखना सहेजे गए संदेशों तक सीमित है; सेवाओं से अनुपलब्ध इतिहास डाउनलोड नहीं होता।',
+  'questions.preview': 'जवाब का पूर्वावलोकन',
+  'questions.previewSource': 'पूर्वावलोकन का प्रदाता',
+  'questions.previewChat': 'पूर्वावलोकन की चैट',
+  'questions.match.exact': 'सटीक मिलान',
+  'questions.match.template': 'पैटर्न मिलान',
+  'questions.match.approximate': 'अनुमानित मिलान',
+  'questions.match.assembled': 'अलग-अलग जवाबों से बनाया गया',
+  'questions.match.unanswered': 'कोई मेल खाता जवाब नहीं',
+  'questions.reviewRequired': 'स्वचालित भेजने से पहले समीक्षा ज़रूरी है।',
+  'questions.ready':
+    'स्वीकृत और पूरा है। इस पूर्वावलोकन में कुछ नहीं भेजा गया।',
+  'questions.noAnswer': 'सहेजा गया जवाब जोड़ें या पूरा करें।',
+  'questions.missing': 'प्रोफ़ाइल में मान गुम हैं: {fields}',
+  'questions.enabled': 'इस जवाब नियम का उपयोग करें',
+  'questions.approvedComplete': 'स्वीकृत और पूरा है।',
+  'automations.form.neutral': 'सहेजा गया जवाब',
+  'chat.form.neutral': 'सहेजा गया जवाब',
+  'automations.reason.question-unanswered':
+    'नए सवाल का कोई सहेजा गया जवाब नहीं',
+  'automations.reason.question-already-answered':
+    'आखिरी संदेश पहले ही भेजा जा चुका है',
+  'automations.reason.question-turn-unavailable':
+    'आखिरी संदेश को सवाल की तरह उपयोग नहीं किया जा सकता',
+  'questions.aliases': 'समान अर्थ वाले प्रश्न, प्रत्येक पंक्ति में एक',
+  'questions.canonical': 'पुराने विकल्पों की जगह इस सुधार का उपयोग करें',
+  'questions.policy': 'उत्तर दोबारा उपयोग करने के नियम',
+  'questions.policyHint':
+    'अस्वीकृत वाक्यांश सहेजे और सीखे गए उत्तरों से हटाए जाते हैं, प्रोफ़ाइल से भरी गई जानकारी में भी। पुराने संदेश सुरक्षित रहते हैं। विराम चिह्न वाले विकल्प आपके चुने बिना नहीं जोड़े जाते।',
+  'questions.rejected': 'अस्वीकृत वाक्यांश, प्रत्येक पंक्ति में एक',
+  'questions.punctuationEquivalent':
+    'केवल अंतिम विराम चिह्न में अलग उत्तरों की गिनती जोड़ें',
+  'questions.policySaved': 'उत्तर दोबारा उपयोग करने के नियम सहेजे गए।',
+  'automations.reason.notice-no-reply': 'सहेजी गई सूचना; जवाब आवश्यक नहीं',
+  'questions.noReply': 'जवाब आवश्यक नहीं।',
+  'questions.match.summary': 'पूरी की गई प्रश्नावली का सारांश',
+  'automations.reason.question-summary-complete':
+    'प्रश्नावली पूरी है; जवाब आवश्यक नहीं',
+  'questions.contexts': 'संदर्भ के मान',
+  'questions.contextHint':
+    'मुद्रा, काम करने के तरीके या अन्य संदर्भ के लिए प्रोफ़ाइल मान चुनने वाले शब्द सेट करें। प्राथमिकता: प्रश्न, हाल की बातचीत, नौकरी का वेतन, विवरण और आपका डिफ़ॉल्ट। अनुपलब्ध मान भरे नहीं जाते।',
+  'questions.contextGroup': 'संदर्भ समूह',
+  'questions.contextKey': 'संदर्भ फ़ील्ड, जैसे currency',
+  'questions.contextChoice': 'संदर्भ विकल्प',
+  'questions.contextChoiceId': 'विकल्प का मान, जैसे USD',
+  'questions.contextKeywords':
+    'यह विकल्प चुनने वाले शब्द, प्रत्येक पंक्ति में एक',
+  'questions.contextDefault': 'संदर्भ न होने पर डिफ़ॉल्ट',
+  'questions.contextNoDefault': 'संदर्भ आवश्यक है',
+  'questions.contextAddGroup': 'संदर्भ समूह जोड़ें',
+  'questions.contextRemoveGroup': 'संदर्भ समूह हटाएँ',
+  'questions.contextAddChoice': 'संदर्भ विकल्प जोड़ें',
+  'questions.contextRemoveChoice': 'संदर्भ विकल्प हटाएँ',
+  'questions.contextPreview': 'पूर्वावलोकन के लिए बातचीत और नौकरी',
+  'questions.contextPreviewHint':
+    'ये फ़ील्ड केवल इस पूर्वावलोकन के लिए हैं। भेजते समय वास्तविक बातचीत और उससे जुड़ी नौकरी का संदर्भ उपयोग होता है।',
+  'questions.contextRecent':
+    'हाल के संदेश, सबसे नया पहले, प्रत्येक पंक्ति में एक',
+  'questions.contextPay': 'नौकरी के वेतन का संदर्भ',
+  'questions.contextDescription': 'नौकरी का विवरण',
+  'questions.contextEvidence': 'ये मान क्यों चुने गए',
+  'questions.contextSource.question': 'वर्तमान प्रश्न',
+  'questions.contextSource.conversation': 'हाल की बातचीत',
+  'questions.contextSource.vacancy-pay': 'नौकरी का वेतन',
+  'questions.contextSource.vacancy-description': 'नौकरी का विवरण',
+  'questions.contextSource.default': 'सेट किया गया डिफ़ॉल्ट',
+  'questions.contextSource.missing': 'संदर्भ उपलब्ध नहीं है',
+  'questions.contextSource.ambiguous': 'संदर्भ अस्पष्ट है',
+  'questions.salaryGuidance':
+    'रिक्ति/फ़ॉर्म के अनुसार न्यूनतम और सुविधाजनक दर का मसौदा बनाएँ (समीक्षा आवश्यक)',
+  'questions.salary.hourlyNet': 'सुविधाजनक प्रति घंटे शुद्ध राशि (वैकल्पिक)',
+  'questions.salary.hourlyGross': 'सुविधाजनक प्रति घंटे सकल राशि (वैकल्पिक)',
+  'questions.contextSource.form-intro': 'फ़ॉर्म का परिचय',
+  'questions.salaryMinimumSource': 'न्यूनतम भुगतान का स्रोत: {source}',
+  'questions.contextSource.owner-target': 'स्वामी का लक्ष्य',
+  'questions.salaryTitle': 'वेतन लक्ष्य',
+  'questions.salaryHint':
+    'हर मुद्रा के लिए अलग मासिक कर-पश्चात लक्ष्य दें। कर-पूर्व राशि भरें या अपनी कर दरों और दिनांकित विनिमय दरों से गणना चुनें। घंटे की दर आपके घंटों और चरण से ऊपर गोल होगी। अनुपलब्ध या पुरानी जानकारी की समीक्षा ज़रूरी है।',
+  'questions.salaryEnabled': 'निर्धारित वेतन लक्ष्य उपयोग करें',
+  'questions.salaryApproved':
+    'पूर्ण वेतन उत्तरों को स्वतः भेजने की मंज़ूरी दें',
+  'questions.salaryHours':
+    'मासिक कार्य घंटे (खाली रखने पर प्रति घंटे उत्तर बंद)',
+  'questions.salaryDefault': 'डिफ़ॉल्ट वेतन मुद्रा',
+  'questions.salaryBasis': 'डिफ़ॉल्ट कर आधार',
+  'questions.salaryCurrency': 'वेतन मुद्रा',
+  'questions.salaryCode': 'मुद्रा कोड, जैसे USD',
+  'questions.salaryKeywords': 'मुद्रा के शब्द, अल्पविराम से अलग',
+  'questions.salary.net': 'मासिक कर के बाद की राशि',
+  'questions.salary.gross': 'मासिक कर से पहले की राशि',
+  'questions.salary.hourlyStep': 'प्रति घंटे पूर्णांकन चरण',
+  'questions.salaryAdd': 'वेतन मुद्रा जोड़ें',
+  'questions.salaryRemove': 'वेतन मुद्रा हटाएं',
+  'questions.salaryClear': 'वेतन सेटिंग हटाएं',
+  'questions.match.salary': 'निर्धारित वेतन लक्ष्य',
+  'questions.salaryMethod': 'कर-पूर्व राशि का तरीका',
+  'questions.salaryMethod.explicit': 'भरी हुई कर-पूर्व राशि',
+  'questions.salaryMethod.personal': 'प्रगतिशील व्यक्तिगत कर',
+  'questions.salaryMethod.company': 'कंपनी कर और वितरण कर',
+  'questions.salary.grossStep':
+    'गणना की गई कर-पूर्व मासिक राशि का पूर्णांकन चरण',
+  'questions.salaryTaxHint.personal':
+    'अपनी लागू वार्षिक कर-पूर्व आय की सीमाएं और दरें दें। हर दर केवल अपने दायरे पर लागू होती है; अंतिम दायरा असीमित है। क्षेत्र या कानूनी दरें पहले से तय नहीं हैं।',
+  'questions.salaryTaxHint.company':
+    'दायरा पूरी वार्षिक कर-पूर्व आय की एक दर चुनता है। वितरण कर कंपनी कर के बाद लगता है। ताज़ा विनिमय दर उपलब्ध हो तो सीमा की मुद्रा वेतन से अलग हो सकती है।',
+  'questions.salaryTaxCurrency': 'व्यक्तिगत कर की मुद्रा',
+  'questions.salaryBand': 'कर दायरा {number}',
+  'questions.salaryBandLimit': 'वार्षिक कर-पूर्व आय की ऊपरी सीमा',
+  'questions.salaryBandCurrency': 'सीमा की मुद्रा (खाली पर वेतन की मुद्रा)',
+  'questions.salaryTaxRate': 'कर दर (%)',
+  'questions.salaryPayout': 'अतिरिक्त वितरण कर (%)',
+  'questions.salaryUnlimited': 'अंतिम दायरा: कोई ऊपरी सीमा नहीं',
+  'questions.salaryAddBand': 'सीमित कर दायरा जोड़ें',
+  'questions.salaryRemoveBand': 'कर दायरा हटाएं',
+  'questions.salaryAddTax': 'कर दर तालिका बनाएं',
+  'questions.salaryRemoveTax': 'कर दर तालिका हटाएं',
+  'questions.salaryExchange': 'दिनांकित विनिमय दरें',
+  'questions.salaryExchangeHint':
+    'दर हर सूचीबद्ध मुद्रा की एक इकाई के लिए आधार मुद्रा की इकाइयां है। केवल कर सीमाओं का रूपांतरण होता है; अलग कर-पश्चात लक्ष्य नहीं बदलते। उत्तर के साथ स्रोत और तारीख दिखेंगे। अनुपलब्ध या पुरानी दरों की समीक्षा ज़रूरी है।',
+  'questions.salaryExchangeBase': 'विनिमय की आधार मुद्रा',
+  'questions.salaryExchangeDate': 'दर की तारीख',
+  'questions.salaryExchangeSource': 'दर का स्रोत',
+  'questions.salaryExchangeSource.manual': 'मालिक की दी हुई दरें',
+  'questions.salaryExchangeSource.cbr': 'रूसी केंद्रीय बैंक की दरें',
+  'questions.salaryExchangeAge': 'दर की अधिकतम आयु (दिन)',
+  'questions.salaryExchangeRate': 'एक मुद्रा इकाई के लिए आधार इकाइयां',
+  'questions.salaryAddRate': 'विनिमय दर जोड़ें',
+  'questions.salaryRemoveRate': 'विनिमय दर हटाएं',
+  'questions.salaryAddExchange': 'विनिमय दरें बनाएं',
+  'questions.salaryRemoveExchange': 'विनिमय दरें हटाएं',
+  'questions.salaryCalculationEvidence': 'वेतन गणना का विवरण',
+  'questions.salaryFetchRates': 'रूस के केंद्रीय बैंक से ताज़ा करें',
+  'questions.salaryUseCachedRates': 'सहेजी दरें इस्तेमाल करें',
+  'questions.salaryRatesLoading': 'विनिमय दरें लोड हो रही हैं…',
+  'questions.salaryRates.updated':
+    'रूस के केंद्रीय बैंक की दरें लोड हुईं ({date})।',
+  'questions.salaryRates.cached': 'सहेजी दरें लोड हुईं ({date})।',
+  'questions.salaryRates.stale':
+    '{date} की दरें पुरानी हैं। गणना वाले उत्तरों की समीक्षा ज़रूरी है।',
+  'questions.salaryRates.unavailable':
+    'कोई सहेजी दर उपलब्ध नहीं है। दरें भरें या दोबारा ताज़ा करें।',
+  'questions.salaryRatesFallback':
+    'ताज़ा करने से नई मान्य दरें नहीं मिलीं; उपलब्ध सहेजी दरें रखी गई हैं।',
+  'questions.salaryRatesDraft': 'दरें इस मसौदे में लागू हुई हैं।',
+  'questions.salaryRatesChanged':
+    'दरें लोड होते समय सेटिंग बदली। आपके बदलाव रखे गए हैं; उन्हें बदलने के लिए फिर कोशिश करें।',
+  'questions.salaryExchangeMode': 'विनिमय दर नीति',
+  'questions.salaryExchangeMode.snapshot': 'इस सहेजी दर का उपयोग करें',
+  'questions.salaryExchangeMode.cbr':
+    'रूस के केंद्रीय बैंक से अपने आप ताज़ा करें',
+  'questions.salaryExchangeModeHint':
+    'स्वचालित मोड ताज़ी सहेजी दरें लेता है और योजना से पहले अनुपलब्ध या पुरानी दरें ताज़ा करता है। अनुरोध विफल होने पर कैश की तारीख़ रहती है और पाँच मिनट बाद फिर प्रयास होता है। सहेजी दरें केवल स्नैपशॉट मोड में इस्तेमाल होती हैं।',
 };
+import { hiFollowBacklink } from './hi-follow-backlink.js';

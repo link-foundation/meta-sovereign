@@ -23,16 +23,8 @@
 import { importTelegram } from './telegram-layer.js';
 import { proxyOptions } from './telegram-proxy.js';
 import { startQrLogin } from './telegram-qr-login.js';
-
-const deferred = () => {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
-};
+import { startPhoneLogin } from './telegram-phone-login.js';
+import { createLoginLifetime, loginError } from './telegram-login-lifecycle.js';
 
 // GramJS returns the id as a BigInt (or a big-integer object) and camelCase
 // names; normalize the id to a plain string so it survives JSON.stringify
@@ -89,17 +81,33 @@ export const createTelegramMtproto = ({
   now = () => Date.now(),
   // The GramJS `Api` namespace (the QR sign-in builds requests with it).
   loadApi = async () => (await importTelegram()).Api,
+  identifyTimeoutMs = 12_000,
+  loginTimeoutMs = 300_000,
+  debug = false,
+  log,
 } = {}) => {
   // Connect with an existing session string and read the account. Used by
   // the credential finder to resolve a discovered `.telegram_session` to
   // its real @username instead of grouping it only by phone.
   const identify = async ({ apiId, apiHash, session }) => {
     const client = await clientFactory({ apiId, apiHash, session });
-    await client.connect();
+    const lifetime = createLoginLifetime(client, {
+      timeoutMs: identifyTimeoutMs,
+      debug,
+      log,
+    });
     try {
-      return accountOf(await client.getMe());
+      await lifetime.run(() => client.connect());
+      const me = await lifetime.run(() => client.getMe());
+      if (!/^[1-9]\d{0,19}$/.test(idOf(me) ?? '') || me?.bot || me?.deleted) {
+        throw loginError(
+          'LOGIN_IDENTITY',
+          'Telegram did not verify a user account'
+        );
+      }
+      return accountOf(me);
     } finally {
-      await client.disconnect?.();
+      await lifetime.close();
     }
   };
 
@@ -107,105 +115,31 @@ export const createTelegramMtproto = ({
   // GramJS `start()` callbacks await deferreds that later requests resolve.
   const createLogin = async ({ apiId, apiHash, phone }) => {
     const client = await clientFactory({ apiId, apiHash, session: '' });
-    const code = deferred();
-    const password = deferred();
-    const ctrl = {
-      state: 'starting',
-      error: null,
-      account: null,
-      session: null,
-    };
-    driveLogin({ client, ctrl, code, password, phone });
-    return loginController({
+    return startPhoneLogin({
       client,
-      ctrl,
-      code,
-      password,
-      settle: settleFor(ctrl, now),
+      phone,
+      accountOf,
+      timeoutMs: loginTimeoutMs,
+      debug,
+      log,
     });
   };
 
   // The sign-in by QR code (R-Y203): same controller shape as createLogin's.
-  const createQrLogin = async ({ apiId, apiHash }) =>
-    startQrLogin({
+  const createQrLogin = async ({ apiId, apiHash }) => {
+    const Api = await loadApi();
+    return startQrLogin({
       client: await clientFactory({ apiId, apiHash, session: '' }),
       apiId,
       apiHash,
-      Api: await loadApi(),
+      Api,
       accountOf,
       now,
+      timeoutMs: loginTimeoutMs,
+      debug,
+      log,
     });
+  };
 
   return { identify, createLogin, createQrLogin };
 };
-
-// Wait until the login flow leaves `want` (asks for the next thing,
-// finishes, or fails). The GramJS callbacks flip `ctrl.state`.
-const settleFor = (ctrl, now) => async (want) => {
-  const deadline = now() + 60000;
-  while (ctrl.state === want && now() < deadline && !ctrl.error) {
-    await new Promise((r) => globalThis.setTimeout(r, 25));
-  }
-  if (ctrl.error) {
-    throw ctrl.error;
-  }
-  return ctrl.state;
-};
-
-// Kick off GramJS `start()`; its callbacks resolve from the deferreds and
-// flip `ctrl.state` so the HTTP layer knows what to ask for next.
-const driveLogin = ({ client, ctrl, code, password, phone }) => {
-  client
-    .start({
-      phoneNumber: async () => phone,
-      phoneCode: async () => {
-        ctrl.state = 'code';
-        return code.promise;
-      },
-      password: async () => {
-        ctrl.state = 'password';
-        return password.promise;
-      },
-      onError: (error) => {
-        ctrl.error = error;
-      },
-    })
-    .then(async () => {
-      ctrl.session = client.session.save();
-      ctrl.account = accountOf(await client.getMe());
-      ctrl.state = 'done';
-    })
-    .catch((error) => {
-      ctrl.error = ctrl.error ?? error;
-      ctrl.state = 'error';
-    });
-};
-
-const loginController = ({ client, ctrl, code, password, settle }) => ({
-  get state() {
-    return ctrl.state;
-  },
-  get account() {
-    return ctrl.account;
-  },
-  get session() {
-    return ctrl.session;
-  },
-  // Telegram has sent the code; the client is now waiting for it.
-  async ready() {
-    return settle('starting');
-  },
-  async submitCode(value) {
-    code.resolve(String(value));
-    return settle('code');
-  },
-  async submitPassword(value) {
-    password.resolve(String(value));
-    return settle('password');
-  },
-  async cancel() {
-    code.reject?.(new Error('cancelled'));
-    password.reject?.(new Error('cancelled'));
-    await client.disconnect?.();
-  },
-});

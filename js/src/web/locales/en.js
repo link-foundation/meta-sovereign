@@ -1,17 +1,28 @@
+import { enAnswerModel } from './en-answer-model.js';
+import { enVacancy } from './en-vacancy.js';
+import { enBrowserAnswer } from './en-browser-answer.js';
+import { enForms } from './en-forms.js';
+import { enSharedProfile } from './en-shared-profile.js';
+import { enProfileImport } from './en-profile-import.js';
+import { enChatRemoval } from './en-chat-removal.js';
+import { enFollowTelegram } from './en-follow-telegram.js';
+import { enFollow } from './en-follow.js';
+import { enTelegramGreetings } from './en-telegram-greetings.js';
+import { enChatUsers } from './en-chat-users.js';
+import { enPublication } from './en-publication.js';
+import { enBrowser } from './en-browser.js';
 // English locale (issue #18). Source language — every other locale
 // dictionary mirrors this set of keys exactly. The parity test in
 // js/tests/i18n.test.js fails the build if a locale is missing or
 // adds a key. Provider names ("Telegram", "WhatsApp", …) and API URLs
 // stay in their source form because they are proper nouns / API
 // brand identifiers.
-
 import { enChat } from './en-chat.js';
 import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
 import { enFolders } from './en-folders.js';
 import { enTranscribe } from './en-transcribe.js';
 import { enGithub } from './en-github.js';
-
 import { enConversation } from './en-conversation.js';
 
 import { enFeedback } from './en-feedback.js';
@@ -19,6 +30,45 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enVacancy,
+  ...enForms,
+  ...enAnswerModel,
+  ...enBrowserAnswer,
+  ...enSharedProfile,
+  ...enProfileImport,
+  ...enChatRemoval,
+  ...enFollow,
+  ...enFollowTelegram,
+  ...enFollowBacklink,
+  ...enTelegramGreetings,
+  ...enChatUsers,
+  ...enPublication,
+  'backup.schedule': 'Automatic recovery',
+  'backup.scheduleHint':
+    'Save these settings for scheduled and one-off backups. The first automatic backup runs after the chosen interval.',
+  'backup.hours': 'Interval in hours (0 turns it off)',
+  'backup.retention': 'Copies of each format to keep (0 keeps all)',
+  'backup.formats': 'Independent recovery dumps',
+  'backup.format.text': 'Text Lino dump',
+  'backup.format.binary': 'Binary Lino dump',
+  'backup.format.archive': 'Recovery archive',
+  'backup.save': 'Save recovery settings',
+  'backup.saved': 'Recovery settings saved.',
+  'backup.created':
+    'Backup verified; {count} independent recovery dumps verified.',
+  'backup.restored': 'Restored {count} records.',
+  'backup.working': 'Working…',
+  'backup.failed':
+    'The operation could not be confirmed. Check the file list before retrying.',
+  'backup.refused': 'The operation failed: {reason}',
+  'backup.empty': 'No recovery files yet.',
+  'backup.rawHint':
+    'Independent dumps always exclude secret records, even when the archive is encrypted. They still contain your other data. Keep these files private.',
+  'backup.unavailable':
+    'File backups require a connected server with archive storage. Connect a supported server to configure recovery.',
+  'backup.restoreAsk':
+    'Restore {file}? Its records will merge into this server and replace records with the same IDs. The file is checked before any records change.',
+  ...enBrowser,
   ...enStickers,
   ...enFeedback,
   ...enConversation,
@@ -215,6 +265,19 @@ export const en = {
   'audience.queryPlaceholder': 'e.g. network:telegram AND chat:general',
   'audience.contactsCount': '{count} contacts',
   'broadcast.title': 'Broadcast',
+  'broadcast.sending': 'Sending…',
+  'broadcast.sent': 'Sent.',
+  'broadcast.partial':
+    'Sent to some destinations. Review the remaining results.',
+  'broadcast.failed': 'Not sent in this run.',
+  'broadcast.unknown':
+    'Delivery is uncertain. Check the destination before retrying.',
+  'broadcast.queued': 'Queued; delivery has not been confirmed.',
+  'broadcast.cancelled': 'Cancelled.',
+  'broadcast.unavailable':
+    'Connect a supported server to send. Nothing was queued.',
+  'broadcast.counts':
+    '{sent} sent · {failed} not sent · {unknown} uncertain · {queued} queued',
   'broadcast.placeholder': 'Message for every selected network',
   'outreach.title': 'Outreach',
   'outreach.hint':
@@ -496,6 +559,8 @@ export const en = {
   'telegramSessions.less': 'Show less',
   'telegramSessions.signIn': 'Sign in',
   'telegramSessions.connected': 'Connected',
+  'telegramSessions.unconfirmed':
+    'The session import was not confirmed. Your previous connection is retained; check Telegram and try again.',
 
   // Sign in to a Telegram user account over MTProto (GramJS), like konard/telegram-bot.
   'telegramLogin.title': 'Log in with your Telegram account',
@@ -797,11 +862,11 @@ export const en = {
   'connections.hh.label': 'hh.ru',
   'connections.hh.archive.title': 'Import an hh.ru negotiations archive',
   'connections.hh.archive.hint':
-    'Open https://hh.ru/applicant/negotiations, use the JSON export, save the file and load it here.',
+    'Import a JSON file containing actual negotiation messages that you have already obtained. A negotiation list alone contains no message history. For live history, enter an API token and choose Fetch now.',
   'connections.hh.archive.fileHint': 'negotiations.json',
   'connections.hh.api.title': 'Connect the hh.ru API',
   'connections.hh.api.hint':
-    'Register an app at https://dev.hh.ru/, run the OAuth2 client-credentials/authorisation-code flow and paste the access token as "secret:hh:token".',
+    'Register an app at https://dev.hh.ru/, authorize your HH account with OAuth and paste the user access token below. Chat access depends on app and account permissions.',
   'connections.hh.fields.token.label': 'Access token',
   'connections.hh.errorHints.401':
     'hh.ru rejected the token. Refresh it via your app at https://dev.hh.ru/.',
@@ -1207,4 +1272,228 @@ export const en = {
     'A previous send may have gone out — it was not repeated',
   'error.code.timeout': 'The request timed out',
   'error.code.network': 'No answer from the local server',
+  'questions.title': 'Questions and saved answers',
+  'questions.intro':
+    'Reuse answers across chats. Approved saved rules can send automatically; approximate, conflicting and incomplete matches stay for review. Use {{field}} for profile values, … for a short variable phrase, and word* for a word ending.',
+  'questions.action': 'Action',
+  'questions.kind.send-template': 'Send a template',
+  'questions.kind.answer-questions': 'Answer questions',
+  'questions.actionHint':
+    'Uses the latest unanswered question and saved answers below. Unapproved, approximate, conflicting or incomplete answers pause automatic sending for review.',
+  'questions.ruleIds': 'Answer rule IDs',
+  'questions.ruleIdsHint':
+    'Comma-separated; leave empty to use every enabled rule.',
+  'questions.matchingSettings': 'Question matching',
+  'questions.matchingThreshold': 'Minimum similarity (%)',
+  'questions.matchingCase': 'Match letter case',
+  'questions.matchingHint':
+    'Approximate matches always require review. Subject, scope and rejected-answer rules still apply.',
+  'questions.matchingInvalid': 'Enter a similarity from 0 to 100.',
+  'questions.inspectMatches': 'Inspect all eligible matches',
+  'questions.matchesTitle': 'Ranked matches',
+  'questions.matchesRange': 'Matches {start}–{end} of {total}',
+  'questions.matchesPartial':
+    'The matching limit was reached. This list is incomplete.',
+  'questions.matchScore': 'Similarity: {score}%',
+  'questions.matchSelected': 'Selected for this draft',
+  'questions.matchesPrevious': 'Previous matches',
+  'questions.matchesNext': 'Next matches',
+  'questions.approximate': 'Offer approximate matches for review',
+  'questions.contract': 'Replace configured values with placeholders',
+  'questions.contractHint':
+    'Use the profile and salary settings under Preview answer when saving or learning answers. Review the proposed templates before approving them.',
+  'questions.salaryTemplateEvidence': 'Salary placeholder values',
+  'questions.profile': 'Profile values',
+  'questions.fieldName': 'Field name, e.g. city',
+  'questions.addField': 'Add field',
+  'questions.removeField': 'Remove field',
+  'questions.ruleKind': 'Rule type',
+  'questions.ruleKind.question': 'Question or form field',
+  'questions.ruleKind.notice': 'Passive notice',
+  'questions.learnedNoticePatterns': 'Learned notice patterns',
+  'questions.learnedNoticePatternsHint':
+    'Review these patterns before adding them as equivalent messages. New observations regenerate this list; matching a learned pattern always requires review.',
+  'questions.noticeHint':
+    'For passive notices only; questions, requests, invitations, rejections and links stay separate. Text replies require review. Use [без ответа] as the answer for a notice that needs no reply, then mark the rule reviewed.',
+  'questions.noticeApproved':
+    'Reviewed notice rule (text replies still require review)',
+  'questions.noticeReview':
+    'Saved notice match. Text replies require review; this preview sends nothing.',
+  'questions.noticeNoReplyReview':
+    'Proposed no-reply notice. Review and approve its saved rule first.',
+  'questions.question': 'Question or pattern',
+  'questions.answer': 'Answer',
+  'questions.variant': 'Variant {count}',
+  'questions.approved': 'Approved for automatic sending with this saved rule',
+  'questions.frequency': 'Observed answer turns: {count}',
+  'questions.evidence': 'Source messages',
+  'questions.addVariant': 'Add answer variant',
+  'questions.removeVariant': 'Remove variant',
+  'questions.sources': 'Providers, comma-separated; empty means all',
+  'questions.chats': 'Chats, e.g. hh:123, telegram:456; empty means all',
+  'questions.new': 'New answer rule',
+  'questions.refresh': 'Refresh answers',
+  'questions.empty':
+    'No saved answers yet. Add one or learn proposals from imported conversations.',
+  'questions.saved': 'Answer rule saved.',
+  'questions.deleted': 'Answer rule deleted.',
+  'questions.createAutomation': 'Create question automation',
+  'questions.automationName': 'Answer incoming questions',
+  'questions.learn': 'Learn from conversations',
+  'questions.learnHint':
+    'Learn question and passive-notice replies from messages saved on this device. Actual outgoing replies contribute to frequencies; quoted summaries add no uses. Silence never creates a no-reply rule. Proposals remain unapproved.',
+  'questions.previewLearning': 'Preview learned answers',
+  'questions.applyLearning': 'Save proposals for review',
+  'questions.learned':
+    'Proposals saved. Review each answer before approving it.',
+  'questions.coverage': 'Archived messages inspected: {retained} of {seen}.',
+  'questions.partialHistory':
+    'Some conversations lack reliable timestamps and were excluded. Learning covers saved messages; it does not download missing provider history.',
+  'questions.preview': 'Preview answer',
+  'questions.previewSource': 'Provider for preview',
+  'questions.previewChat': 'Chat for preview',
+  'questions.match.exact': 'Exact match',
+  'questions.match.template': 'Pattern match',
+  'questions.match.approximate': 'Approximate match',
+  'questions.match.assembled': 'Assembled from separate answers',
+  'questions.match.unanswered': 'No matching answer',
+  'questions.reviewRequired': 'Review required before automatic sending.',
+  'questions.ready': 'Approved and complete. Nothing was sent by this preview.',
+  'questions.noAnswer': 'Add or complete a saved answer.',
+  'questions.missing': 'Missing profile values: {fields}',
+  'questions.enabled': 'Use this answer rule',
+  'questions.approvedComplete': 'Approved and complete.',
+  'automations.form.neutral': 'Saved answer',
+  'chat.form.neutral': 'saved answer',
+  'automations.reason.question-unanswered':
+    'No saved answer for the latest question',
+  'automations.reason.question-already-answered':
+    'The latest turn is already outgoing',
+  'automations.reason.question-turn-unavailable':
+    'The latest turn cannot be used as a question',
+  'questions.aliases': 'Equivalent questions, one per line',
+  'questions.canonical': 'Use this correction instead of older variants',
+  'questions.policy': 'Answer reuse policy',
+  'questions.policyHint':
+    'Rejected phrases are excluded from learned and saved answers, including profile substitutions. Historical messages are preserved. Punctuation variants stay separate unless you choose to combine them.',
+  'questions.rejected': 'Rejected phrases, one per line',
+  'questions.punctuationEquivalent':
+    'Combine frequencies of answers differing only by final punctuation',
+  'questions.policySaved': 'Answer reuse policy saved.',
+  'automations.reason.notice-no-reply': 'Saved notice; no reply needed',
+  'questions.noReply': 'No reply needed.',
+  'questions.match.summary': 'Completed questionnaire summary',
+  'automations.reason.question-summary-complete':
+    'Completed questionnaire; no reply needed',
+  'questions.contexts': 'Context values',
+  'questions.contextHint':
+    'Set words that select profile values for a currency, work format or another context. The question takes priority, then recent conversation, vacancy pay, vacancy description and your default. Missing values stay unavailable.',
+  'questions.contextGroup': 'Context group',
+  'questions.contextKey': 'Context field, e.g. currency',
+  'questions.contextChoice': 'Context choice',
+  'questions.contextChoiceId': 'Choice value, e.g. USD',
+  'questions.contextKeywords': 'Words that select this choice, one per line',
+  'questions.contextDefault': 'Default when context is absent',
+  'questions.contextNoDefault': 'Require context',
+  'questions.contextAddGroup': 'Add context group',
+  'questions.contextRemoveGroup': 'Remove context group',
+  'questions.contextAddChoice': 'Add context choice',
+  'questions.contextRemoveChoice': 'Remove context choice',
+  'questions.contextPreview': 'Conversation and vacancy for preview',
+  'questions.contextPreviewHint':
+    'These fields are only for this preview. Sending uses the actual conversation and attached vacancy context.',
+  'questions.contextRecent': 'Recent messages, newest first, one per line',
+  'questions.contextPay': 'Vacancy pay context',
+  'questions.contextDescription': 'Vacancy description',
+  'questions.contextEvidence': 'Why these values were selected',
+  'questions.contextSource.question': 'Current question',
+  'questions.contextSource.conversation': 'Recent conversation',
+  'questions.contextSource.vacancy-pay': 'Vacancy pay',
+  'questions.contextSource.vacancy-description': 'Vacancy description',
+  'questions.contextSource.default': 'Configured default',
+  'questions.contextSource.missing': 'Context unavailable',
+  'questions.contextSource.ambiguous': 'Ambiguous context',
+  'questions.salaryGuidance':
+    'Draft vacancy/form minimum pay and a comfortable rate (requires review)',
+  'questions.salary.hourlyNet': 'Comfortable hourly net amount (optional)',
+  'questions.salary.hourlyGross': 'Comfortable hourly gross amount (optional)',
+  'questions.contextSource.form-intro': 'Form introduction',
+  'questions.salaryMinimumSource': 'Minimum pay source: {source}',
+  'questions.contextSource.owner-target': 'Owner target',
+  'questions.salaryTitle': 'Salary targets',
+  'questions.salaryHint':
+    'Enter an independent monthly net target for each currency. Enter gross amounts or explicitly choose a calculation using your own tax schedule and dated exchange rates. Hourly rates round up using your hours and step. Missing or stale inputs require review.',
+  'questions.salaryEnabled': 'Use configured salary targets',
+  'questions.salaryApproved':
+    'Approve complete salary answers for automatic sending',
+  'questions.salaryHours':
+    'Work hours per month (empty disables hourly answers)',
+  'questions.salaryDefault': 'Default salary currency',
+  'questions.salaryBasis': 'Default tax basis',
+  'questions.salaryCurrency': 'Salary currency',
+  'questions.salaryCode': 'Currency code, e.g. USD',
+  'questions.salaryKeywords': 'Currency words, comma-separated',
+  'questions.salary.net': 'Monthly net amount',
+  'questions.salary.gross': 'Monthly gross amount',
+  'questions.salary.hourlyStep': 'Hourly rounding step',
+  'questions.salaryAdd': 'Add salary currency',
+  'questions.salaryRemove': 'Remove salary currency',
+  'questions.salaryClear': 'Remove salary settings',
+  'questions.match.salary': 'Configured salary target',
+  'questions.salaryMethod': 'Gross amount method',
+  'questions.salaryMethod.explicit': 'Entered gross amount',
+  'questions.salaryMethod.personal': 'Progressive personal tax',
+  'questions.salaryMethod.company': 'Company tax and payout',
+  'questions.salary.grossStep': 'Calculated monthly gross rounding step',
+  'questions.salaryTaxHint.personal':
+    'Enter your applicable annual gross-income bands and rates. Each rate applies only within its band; the final band is unlimited. No jurisdiction or legal rates are assumed.',
+  'questions.salaryTaxHint.company':
+    'A band selects one tax rate for the whole annual gross income. Payout tax applies after company tax. A band currency can differ from the salary currency when a fresh exchange rate is available.',
+  'questions.salaryTaxCurrency': 'Personal tax currency',
+  'questions.salaryBand': 'Tax band {number}',
+  'questions.salaryBandLimit': 'Annual gross upper limit',
+  'questions.salaryBandCurrency': 'Band currency (empty uses salary currency)',
+  'questions.salaryTaxRate': 'Tax rate (%)',
+  'questions.salaryPayout': 'Additional payout tax (%)',
+  'questions.salaryUnlimited': 'Final band: no upper limit',
+  'questions.salaryAddBand': 'Add limited tax band',
+  'questions.salaryRemoveBand': 'Remove tax band',
+  'questions.salaryAddTax': 'Configure tax schedule',
+  'questions.salaryRemoveTax': 'Remove tax schedule',
+  'questions.salaryExchange': 'Dated exchange rates',
+  'questions.salaryExchangeHint':
+    'Rates are base-currency units for one unit of each listed currency. They convert tax thresholds only; independent net targets are unchanged. Source and date appear with calculated answers. Missing or stale rates require review.',
+  'questions.salaryExchangeBase': 'Exchange base currency',
+  'questions.salaryExchangeDate': 'Rate date',
+  'questions.salaryExchangeSource': 'Rate source',
+  'questions.salaryExchangeSource.manual': 'Owner-supplied rates',
+  'questions.salaryExchangeSource.cbr': 'CBR snapshot',
+  'questions.salaryExchangeAge': 'Maximum rate age (days)',
+  'questions.salaryExchangeRate': 'Base units per one currency unit',
+  'questions.salaryAddRate': 'Add exchange rate',
+  'questions.salaryRemoveRate': 'Remove exchange rate',
+  'questions.salaryAddExchange': 'Configure exchange rates',
+  'questions.salaryRemoveExchange': 'Remove exchange rates',
+  'questions.salaryCalculationEvidence': 'Salary calculation details',
+  'questions.salaryFetchRates': 'Refresh from Bank of Russia',
+  'questions.salaryUseCachedRates': 'Use cached rates',
+  'questions.salaryRatesLoading': 'Loading exchange rates…',
+  'questions.salaryRates.updated': 'Bank of Russia rates loaded ({date}).',
+  'questions.salaryRates.cached': 'Cached rates loaded ({date}).',
+  'questions.salaryRates.stale':
+    'Rates dated {date} are stale. Calculated answers require review.',
+  'questions.salaryRates.unavailable':
+    'No saved rates are available. Enter a snapshot or retry the refresh.',
+  'questions.salaryRatesFallback':
+    'Refresh did not provide newer valid rates; any available saved snapshot is retained.',
+  'questions.salaryRatesDraft': 'Rates are applied to this draft.',
+  'questions.salaryRatesChanged':
+    'Exchange settings changed while rates were loading. Your edits are kept; retry to replace them.',
+  'questions.salaryExchangeMode': 'Exchange-rate policy',
+  'questions.salaryExchangeMode.snapshot': 'Use this saved snapshot',
+  'questions.salaryExchangeMode.cbr':
+    'Refresh automatically from Bank of Russia',
+  'questions.salaryExchangeModeHint':
+    'Automatic mode uses fresh cached rates and refreshes missing or stale rates before planning. Failed requests keep the dated cache and retry after five minutes. Saved snapshot values are used only in snapshot mode.',
 };
+import { enFollowBacklink } from './en-follow-backlink.js';

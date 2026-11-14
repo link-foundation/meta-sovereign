@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a group's members in the info column (R-Y125), as
 // Telegram Desktop lists them: the count, a search box, rows with an
 // initial, the name and an "owner" or "admin" badge with the rank; "Show
@@ -64,7 +65,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/members', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   const words = (body.q ?? '').toLowerCase();
   const found = everyone.filter((m) => m.name.toLowerCase().includes(words));
@@ -78,7 +79,7 @@ await page.route('**/api/telegram/members', (route) => {
 });
 const removed = [];
 await page.route('**/api/telegram/member-remove', (route) => {
-  removed.push(route.request().postDataJSON());
+  removed.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

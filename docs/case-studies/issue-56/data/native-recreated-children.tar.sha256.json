@@ -1,0 +1,24 @@
+{
+  "archive": "native-recreated-children.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "2a2db6963b858c5a15162b658125ffea3290b0f2b7b2f4fc68888b34a8ae5dfc",
+    "before/rust/crates/meta-sovereign-server/tests/durable.rs": "21046e00965ba0defa06e842debe29a47d6af19d4363f9b1f67b50ffb359f825",
+    "ci-logs/native-rich-focused-compile.log": "6aa71f3720a1e830e118f457965682ce4bd81bece986ba6b0bbaba5d853db8ec",
+    "ci-logs/native-rich-focused.log": "c20d093b589cf3496cfefe197f620ad0f09e7ae16b7087ae2f1ae681c52c0966",
+    "ci-logs/native-storage-child-native.log": "e74f142260bd4339d55e44403fb06235b36e551df3b73409138189da8c474650",
+    "ci-logs/native-storage-child-reference.log": "4a645cc85af22ed3cf8a134f714ac6bebf96314ec280f37bd1f88bad91ca9db5",
+    "ci-logs/native-storage-child-vectors.log": "d55ada620f82c4c2b341161ed863c45fb956d95d91baf8cd621c7fba2e33ddeb",
+    "ci-logs/native-storage-head-checks.json": "0f597d74aca6f5db70b5365bc1b815c67bae8834e7bbe5a9fb24be9d1bdb8d5a",
+    "ci-logs/native-storage-head-rust.log": "7d3db8080ca7d85f07f796df9c4be069910ffd2a6c82c43fd4edeab997af9f3e",
+    "docs/case-studies/issue-56/PLAN.md": "ad4400edd764c7abb54767d864dd0a215d6a679f038c33986221dade6572d1ba",
+    "docs/case-studies/issue-56/native-durable-storage.md": "5865410bdbdc3a2955f148fe5274266f2d2c49ca192a8511ca9374d4ec1c11c9",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-native-children.py": "5565fb2767bb85d53a90f566982f2298286f4be13e01aa502834ddb2ea903b17",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "experiments/issue-56/native-recreated-children.mjs": "e6390149e39f6830de8b2929368a8d7ac8ac74bb5068e90593055f2c125d48a9",
+    "experiments/issue-56/native-rich-vectors.mjs": "add4040e97f579d884ab51f035e2419ea21a55dfda2fbc667311f848c3d7f8f1",
+    "metadata.json": "deb5981c364533094e8958c36f52b06d30559a3d62cad02329113a328a163a5a",
+    "rust/crates/meta-sovereign-server/tests/durable.rs": "0ecde4f547c36707020b0b81c149984614ae8b4d3414be1ae11c4ff96ca7cfe4",
+    "rust/crates/meta-sovereign-server/tests/fixtures/rich-register.json": "1926c452f17cb1bd2a226625a1c44a32c8bb5d9516efe401750f0a3a07d75a63"
+  }
+}

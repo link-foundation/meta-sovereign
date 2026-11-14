@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for days in a chat and a jump to a date (R-Y106): the
 // messages of each day under its date; the date at the top floats while
 // the chat scrolls; a click on a date opens the calendar, a day picked
@@ -82,7 +83,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -98,14 +99,14 @@ await page.route('**/api/telegram/status', (route) =>
 );
 const asked = { at: [], after: [] };
 await page.route('**/api/telegram/history', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   if (body.after) {
     asked.after.push(body.after);
   }
   fulfil(route, { written: 0, cached: true, complete: true, newest: false });
 });
 await page.route('**/api/telegram/history-at', (route) => {
-  const { date } = route.request().postDataJSON();
+  const { date } = requestBody(route.request());
   asked.at.push(date);
   const first = sent.find((m) => m.when.getTime() >= date * 1000);
   fulfil(route, { ok: true, id: first ? first.id : null, newest: !first });

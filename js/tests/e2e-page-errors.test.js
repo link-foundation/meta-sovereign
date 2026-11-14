@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import {
   watchChatPages,
+  watchFixturePages,
   screenshotChatPages,
 } from './helpers/e2e-page-errors.mjs';
 
@@ -34,6 +35,34 @@ const fixture = (options = {}) => {
   watchChatPages(context, { base, engine: 'webkit', errors, ...options });
   return { first, newPage, errors };
 };
+
+test('standalone fixtures retain their actual engine, origin and genuine errors', () => {
+  for (const engine of ['webkit', 'chromium']) {
+    const context = new EventEmitter();
+    const page = new EventEmitter();
+    context.pages = () => [page];
+    const errors = [];
+    watchFixturePages(
+      context,
+      { browserType: () => ({ name: () => engine }) },
+      base,
+      errors
+    );
+    const native = accessError();
+    const foreign = accessError('http://127.0.0.1:49744/api/status?probe=1');
+    const genuine = new TypeError('Load failed');
+    for (const error of [native, foreign, genuine]) {
+      page.emit('pageerror', error);
+    }
+    assert.deepEqual(
+      errors,
+      (engine === 'webkit'
+        ? [foreign, genuine]
+        : [native, foreign, genuine]
+      ).map(String)
+    );
+  }
+});
 
 test('reopened pages apply the same WebKit policy and retain genuine errors', () => {
   const { first, newPage, errors } = fixture();
@@ -115,6 +144,24 @@ test('handled WebKit diagnostics have opt-in tracing', () => {
   newPage().emit('pageerror', accessError());
   assert.deepEqual(errors, []);
   assert.deepEqual(trace, ['handled WebKit same-origin network diagnostic']);
+});
+
+test('only explicitly expected confirmations are accepted', async () => {
+  const { first, errors } = fixture({
+    acceptDialog: (dialog) => dialog.message() === 'Delete recorded post?',
+  });
+  const accepted = [];
+  const dismissed = [];
+  for (const message of ['Delete recorded post?', 'Unexpected prompt']) {
+    first.emit('dialog', {
+      message: () => message,
+      accept: async () => accepted.push(message),
+      dismiss: async () => dismissed.push(message),
+    });
+  }
+  assert.deepEqual(accepted, ['Delete recorded post?']);
+  assert.deepEqual(dismissed, ['Unexpected prompt']);
+  assert.deepEqual(errors, ['browser dialog: Unexpected prompt']);
 });
 
 test('native WebKit display-form URLs retain the exact origin boundary', () => {

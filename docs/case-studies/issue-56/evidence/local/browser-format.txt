@@ -1,0 +1,15 @@
+js/tests/browser-mode.test.js 113ms (unchanged)
+js/src/cli/cv-commands.js 104ms (unchanged)
+js/src/cv/browser.js 28ms (unchanged)
+js/src/cv/index.js 63ms (unchanged)
+js/src/server/routes-cv.js 30ms (unchanged)
+js/src/sources/browser-sender.js 99ms (unchanged)
+.changeset/visible-browser-defaults.md 63ms (unchanged)
+docs/CV-SYNC.md 127ms (unchanged)
+docs/CV-SYNC.ru.md 97ms (unchanged)
+docs/CV-SYNC.hi.md 72ms (unchanged)
+docs/CV-SYNC.zh.md 86ms (unchanged)
+docs/REQUIREMENTS.md 1072ms
+docs/REQUIREMENTS.ru.md 731ms
+docs/REQUIREMENTS.hi.md 771ms
+docs/REQUIREMENTS.zh.md 814ms

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a group's sticker set, pinned topics' order and new
 // chats in a shared folder (R-Y211), as Telegram Desktop has them:
 // - in Edit group, "Group sticker set" takes a short name or a
@@ -124,13 +125,13 @@ await page.route('**/api/telegram/chat-info*', (route) => {
   });
 });
 await page.route('**/api/telegram/group-sticker-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.groupSet.push(body);
   groupSet = body.shortName === null ? null : GROUP_SET;
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/sticker-set-box', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.boxes.push(body);
   return body.shortName === 'FakeCats'
     ? fulfil(route, {
@@ -155,7 +156,7 @@ await page.route('**/api/telegram/sticker?*', (route) =>
   route.fulfill({ status: 200, contentType: 'image/png', body: PNG })
 );
 await page.route('**/api/telegram/send-document', (route) => {
-  calls.sends.push(route.request().postDataJSON());
+  calls.sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 
@@ -190,7 +191,7 @@ await page.route('**/api/telegram/forum-topics', (route) =>
   })
 );
 await page.route('**/api/telegram/topic-reorder', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.reorder.push(body);
   pinned = body.order;
   return fulfil(route, { ok: true });
@@ -228,16 +229,16 @@ await page.route('**/api/telegram/folders-suggested', (route) =>
   fulfil(route, { ok: true, suggested: [] })
 );
 await page.route('**/api/telegram/chatlist-updates', (route) =>
-  fulfil(route, { ok: true, chats: news[route.request().postDataJSON().id] })
+  fulfil(route, { ok: true, chats: news[requestBody(route.request()).id] })
 );
 await page.route('**/api/telegram/chatlist-updates-join', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.join.push(body);
   news[body.id] = [];
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/chatlist-updates-hide', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.hide.push(body);
   news[body.id] = [];
   return fulfil(route, { ok: true });

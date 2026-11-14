@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for stickers and GIFs (R-Y105): the emoji panel's
 // Stickers tab lists the favourite and recent stickers, then each set,
 // a set's stickers asked only as the list comes to it (the bar below
@@ -96,7 +97,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -119,7 +120,7 @@ await page.route('**/api/telegram/stickers', (route) => {
   fulfil(route, PANEL);
 });
 await page.route('**/api/telegram/sticker-set', (route) => {
-  const { id } = route.request().postDataJSON();
+  const { id } = requestBody(route.request());
   asked.sets.push(id);
   fulfil(route, { ok: true, id, stickers: SETS[id] });
 });
@@ -138,7 +139,7 @@ await page.route('**/api/telegram/sticker?*', (route) => {
 const sends = [];
 let refuse = false;
 await page.route('**/api/telegram/send-document', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return refuse
     ? fulfil(
         route,

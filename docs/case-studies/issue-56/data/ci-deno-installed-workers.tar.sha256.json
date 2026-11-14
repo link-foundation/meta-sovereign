@@ -1,0 +1,23 @@
+{
+  "archive": "ci-deno-installed-workers.tar.gz",
+  "files": {
+    "before/js/src/server/worker-client.js": "3415ed7ab2aab690a0c7442294057552e02e601a569f0c7f18b3f0484c0d3e01",
+    "ci-logs/d4c7fb81-job-131362601592.log": "414b5cc4657952e4a740820b0faa723e9bfbf8c1723ed6be7b48bbbddfea254e",
+    "ci-logs/deno-worker-dependencies-after.log": "2298dd13a749affe60b9f158280988b62fc1d2419e5a4f9d31c3144ad18e9afa",
+    "ci-logs/deno-worker-dependencies-before.log": "7c869ef698476c544fe6e6eac7072bfc385747a3579828edf78398e21c1261fe",
+    "ci-logs/deno-worker-dependencies-cli.log": "eb76f439caea46fdf240489046d7135e7e34ddcd6c8869eb1fa467607bafea9d",
+    "ci-logs/deno-worker-dependencies-deno.log": "27b5e719ffecfbec865663de697445bef0252720923d1682000e97451c158ba1",
+    "ci-logs/deno-worker-dependencies-format-final.log": "03c056a521d57150444b1d27a93ec6bdcf74bde885a06dde72c6951d4c50b07b",
+    "ci-logs/deno-worker-dependencies-format.log": "8032a7b3e1d1b17d51141b895a3616c755388a59c695687e7616aedb07aa2df9",
+    "ci-logs/deno-worker-dependencies-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/deno-worker-dependencies-lint.log": "9e54bfbcb1da7274f99dd90ec89699b1520128aa57ed3208b6f6f169b46ddae2",
+    "ci-logs/deno-worker-dependencies-node.log": "78ad1a9dcdae7a825e3fa519a123af30aab6bc356b6bdb7deef76f6dc800aee7",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-deno-installed-workers.py": "aa77fbc1dbf5f4b345c64bb697ce2951d6dc2772b9b05bc0a17f1e7f3d58e544",
+    "experiments/issue-56/deno-worker-dependencies-before.py": "953a581c36e32037b95b6dd8cef95fbb1e0fe77c97e1265322734829e84b917e",
+    "experiments/issue-56/evidence_bundle.py": "024f9281300d3c61a575303998953b7a56c145a136f1c19ca93649c668183b16",
+    "js/src/server/worker-client.js": "3cd1d1cad59daebc11f6c954332fdf1336e61b70ac9cbc9c6d51292b334f48fa",
+    "js/tests/worker-client.test.js": "c9bfdb77294d81b4197add479a75f29b48acf36acee97bf698838ef67ac34ab5",
+    "metadata.json": "d74a7c114a764ed55cddabcacbe81a7aac309e0a379e80a3469d17deb7d9bd52"
+  }
+}

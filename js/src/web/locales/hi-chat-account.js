@@ -428,6 +428,16 @@ export const hiChatAccount = {
   'email.download': 'डाउनलोड करें',
   'pull.fetchNow': 'अभी प्राप्त करें',
   'pull.fetching': 'प्राप्त हो रहा है…',
+  'pull.history.changed':
+    'पढ़ते समय चैट सूची बदल गई। {count} संदेश पढ़े; कवरेज फिर जाँचने के लिए दोबारा लाएँ।',
+  'pull.history.hint':
+    'ज़रूरत पर HH इतिहास पढ़ें। अधूरा इतिहास जारी रखने के लिए फिर से लाएँ। इससे संदेश पढ़े हुए चिह्नित नहीं होते।',
+  'pull.history.complete':
+    '{count} संदेश पढ़े। उपलब्ध API इतिहास जाँचा गया: {chats} चैट में {total} संदेश।',
+  'pull.history.partial':
+    '{count} संदेश पढ़े। इतिहास अधूरा है ({total} संदेश, {chats} चैट पूरी)। जारी रखने के लिए फिर से लाएँ।',
+  'pull.history.limited':
+    '{count} संदेश पढ़े। API की चैट सूची सीमा आ गई; पुराने चैट गायब हो सकते हैं।',
   'pull.done': 'हो गया। {count} संदेश पढ़े गए।',
   'pull.rateLimited':
     'अभी-अभी प्राप्त किया गया। {seconds} सेकंड बाद फिर कोशिश करें।',

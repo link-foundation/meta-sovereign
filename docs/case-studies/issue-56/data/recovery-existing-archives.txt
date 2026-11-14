@@ -1,0 +1,11 @@
+✔ a plain backup round-trips, leaves secrets out and counts them (125.353168ms)
+✔ an encrypted backup keeps secrets sealed and round-trips (701.13505ms)
+✔ an archive of the earlier format still restores (258.981542ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1554.21207

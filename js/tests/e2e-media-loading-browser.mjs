@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Delayed bytes must retain media geometry and a visible loader until decoded.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -74,7 +75,7 @@ let quoteAttempts = 0;
 let releaseQuote = () => {};
 const mediaTraces = [];
 await page.route('**/api/client-log', async (route) => {
-  mediaTraces.push(route.request().postDataJSON());
+  mediaTraces.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 const waiting = [];

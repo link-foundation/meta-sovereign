@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { createGithubLive } from '../src/sources/github.js';
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { startFakeGithub } from './helpers/fake-github.mjs';
 
 const T0 = '2026-01-01T00:00:00Z';
@@ -125,7 +125,7 @@ describe('R-Z11 /api/github routes', () => {
         { repos: [] },
         { 'content-type': 'text/plain' }
       );
-      assert.equal(plain.status, 403);
+      assert.equal(plain.status, 415);
       assert.equal(plain.body.ok, false);
     } finally {
       await done();

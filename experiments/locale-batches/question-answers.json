@@ -1,0 +1,338 @@
+{
+  "questions.title": {
+    "en": "Questions and saved answers",
+    "ru": "Вопросы и сохранённые ответы",
+    "zh": "问题与已保存的回答",
+    "hi": "सवाल और सहेजे गए जवाब"
+  },
+  "questions.intro": {
+    "en": "Reuse answers across chats. Approved saved rules can send automatically; approximate, conflicting and incomplete matches stay for review. Use {{field}} for profile values, … for a short variable phrase, and word* for a word ending.",
+    "ru": "Используйте ответы в разных чатах. Одобренные сохранённые правила могут отправлять автоматически; приблизительные, противоречивые и неполные совпадения остаются для проверки. {{field}} подставляет значение профиля, … заменяет короткую фразу, word* — окончание слова.",
+    "zh": "跨聊天复用回答。已批准的保存规则可自动发送；近似、冲突或不完整的匹配仍需审核。使用 {{field}} 替换资料值，… 表示短语变量，word* 表示词尾。",
+    "hi": "अलग-अलग चैट में जवाब फिर उपयोग करें। स्वीकृत सहेजे गए नियम स्वचालित भेज सकते हैं; अनुमानित, विरोधी और अधूरे मिलान समीक्षा में रहते हैं। प्रोफ़ाइल मान के लिए {{field}}, छोटे बदलते वाक्यांश के लिए … और शब्द के अंत के लिए word* उपयोग करें।"
+  },
+  "questions.action": {
+    "en": "Action",
+    "ru": "Действие",
+    "zh": "操作",
+    "hi": "कार्रवाई"
+  },
+  "questions.kind.send-template": {
+    "en": "Send a template",
+    "ru": "Отправить шаблон",
+    "zh": "发送模板",
+    "hi": "टेम्पलेट भेजें"
+  },
+  "questions.kind.answer-questions": {
+    "en": "Answer questions",
+    "ru": "Отвечать на вопросы",
+    "zh": "回答问题",
+    "hi": "सवालों के जवाब दें"
+  },
+  "questions.actionHint": {
+    "en": "Uses the latest unanswered question and saved answers below. Unapproved, approximate, conflicting or incomplete answers pause automatic sending for review.",
+    "ru": "Использует последний неотвеченный вопрос и ответы ниже. Неодобренные, приблизительные, противоречивые и неполные ответы приостанавливают автоматическую отправку для проверки.",
+    "zh": "使用最新未回答的问题及下方保存的回答。未批准、近似、冲突或不完整的回答会暂停自动发送并等待审核。",
+    "hi": "सबसे हाल के अनुत्तरित सवाल और नीचे सहेजे गए जवाब इस्तेमाल होते हैं। अस्वीकृत, अनुमानित, विरोधी या अधूरे जवाब समीक्षा के लिए स्वचालित भेजना रोकते हैं।"
+  },
+  "questions.ruleIds": {
+    "en": "Answer rule IDs",
+    "ru": "Идентификаторы правил ответов",
+    "zh": "回答规则 ID",
+    "hi": "जवाब नियम की आईडी"
+  },
+  "questions.ruleIdsHint": {
+    "en": "Comma-separated; leave empty to use every enabled rule.",
+    "ru": "Через запятую; оставьте пустым для всех включённых правил.",
+    "zh": "用逗号分隔；留空则使用所有启用的规则。",
+    "hi": "कॉमा से अलग करें; सभी चालू नियमों के लिए खाली छोड़ें।"
+  },
+  "questions.approximate": {
+    "en": "Offer approximate matches for review",
+    "ru": "Предлагать приблизительные совпадения для проверки",
+    "zh": "提供近似匹配以供审核",
+    "hi": "समीक्षा के लिए अनुमानित मिलान दिखाएँ"
+  },
+  "questions.profile": {
+    "en": "Profile values",
+    "ru": "Значения профиля",
+    "zh": "资料值",
+    "hi": "प्रोफ़ाइल मान"
+  },
+  "questions.fieldName": {
+    "en": "Field name, e.g. city",
+    "ru": "Имя поля, например city",
+    "zh": "字段名，例如 city",
+    "hi": "फ़ील्ड नाम, जैसे city"
+  },
+  "questions.addField": {
+    "en": "Add field",
+    "ru": "Добавить поле",
+    "zh": "添加字段",
+    "hi": "फ़ील्ड जोड़ें"
+  },
+  "questions.removeField": {
+    "en": "Remove field",
+    "ru": "Удалить поле",
+    "zh": "移除字段",
+    "hi": "फ़ील्ड हटाएँ"
+  },
+  "questions.question": {
+    "en": "Question or pattern",
+    "ru": "Вопрос или шаблон",
+    "zh": "问题或模式",
+    "hi": "सवाल या पैटर्न"
+  },
+  "questions.answer": {
+    "en": "Answer",
+    "ru": "Ответ",
+    "zh": "回答",
+    "hi": "जवाब"
+  },
+  "questions.variant": {
+    "en": "Variant {count}",
+    "ru": "Вариант {count}",
+    "zh": "变体 {count}",
+    "hi": "विकल्प {count}"
+  },
+  "questions.approved": {
+    "en": "Approved for automatic sending with this saved rule",
+    "ru": "Одобрен для автоматической отправки по этому правилу",
+    "zh": "允许按此保存的规则自动发送",
+    "hi": "इस सहेजे गए नियम से स्वचालित भेजने की स्वीकृति"
+  },
+  "questions.frequency": {
+    "en": "Observed answer turns: {count}",
+    "ru": "Наблюдавшихся ответов: {count}",
+    "zh": "观察到的回答轮次：{count}",
+    "hi": "देखे गए जवाब: {count}"
+  },
+  "questions.evidence": {
+    "en": "Source messages",
+    "ru": "Исходные сообщения",
+    "zh": "来源消息",
+    "hi": "स्रोत संदेश"
+  },
+  "questions.addVariant": {
+    "en": "Add answer variant",
+    "ru": "Добавить вариант ответа",
+    "zh": "添加回答变体",
+    "hi": "जवाब का विकल्प जोड़ें"
+  },
+  "questions.removeVariant": {
+    "en": "Remove variant",
+    "ru": "Удалить вариант",
+    "zh": "移除变体",
+    "hi": "विकल्प हटाएँ"
+  },
+  "questions.sources": {
+    "en": "Providers, comma-separated; empty means all",
+    "ru": "Провайдеры через запятую; пусто — все",
+    "zh": "服务商，用逗号分隔；留空表示全部",
+    "hi": "प्रदाता, कॉमा से अलग; खाली होने पर सभी"
+  },
+  "questions.chats": {
+    "en": "Chats, e.g. hh:123, telegram:456; empty means all",
+    "ru": "Чаты, например hh:123, telegram:456; пусто — все",
+    "zh": "聊天，例如 hh:123, telegram:456；留空表示全部",
+    "hi": "चैट, जैसे hh:123, telegram:456; खाली होने पर सभी"
+  },
+  "questions.new": {
+    "en": "New answer rule",
+    "ru": "Новое правило ответа",
+    "zh": "新建回答规则",
+    "hi": "नया जवाब नियम"
+  },
+  "questions.refresh": {
+    "en": "Refresh answers",
+    "ru": "Обновить ответы",
+    "zh": "刷新回答",
+    "hi": "जवाब ताज़ा करें"
+  },
+  "questions.empty": {
+    "en": "No saved answers yet. Add one or learn proposals from imported conversations.",
+    "ru": "Ответов пока нет. Добавьте ответ или изучите предложения из импортированных разговоров.",
+    "zh": "暂无保存的回答。请添加回答或从导入的对话中学习建议。",
+    "hi": "अभी कोई जवाब नहीं सहेजा है। नया जोड़ें या आयात की गई बातचीत से सुझाव सीखें।"
+  },
+  "questions.saved": {
+    "en": "Answer rule saved.",
+    "ru": "Правило ответа сохранено.",
+    "zh": "回答规则已保存。",
+    "hi": "जवाब नियम सहेजा गया।"
+  },
+  "questions.deleted": {
+    "en": "Answer rule deleted.",
+    "ru": "Правило ответа удалено.",
+    "zh": "回答规则已删除。",
+    "hi": "जवाब नियम हटाया गया।"
+  },
+  "questions.createAutomation": {
+    "en": "Create question automation",
+    "ru": "Создать автоматизацию ответов",
+    "zh": "创建问答自动化",
+    "hi": "सवालों का ऑटोमेशन बनाएँ"
+  },
+  "questions.automationName": {
+    "en": "Answer incoming questions",
+    "ru": "Ответы на входящие вопросы",
+    "zh": "回答收到的问题",
+    "hi": "आने वाले सवालों के जवाब"
+  },
+  "questions.learn": {
+    "en": "Learn from conversations",
+    "ru": "Изучить разговоры",
+    "zh": "从对话中学习",
+    "hi": "बातचीत से सीखें"
+  },
+  "questions.learnHint": {
+    "en": "Only actual outgoing answers in complete turns become proposals. Applying keeps them unapproved. Frequencies describe the retained history window, not the entire archive.",
+    "ru": "Предлагаются только реальные исходящие ответы из полных пар реплик. При сохранении они остаются неодобренными. Частоты относятся к сохранённому окну истории, а не ко всему архиву.",
+    "zh": "仅从完整轮次中实际发出的回答生成建议。保存后仍未批准。频率反映保留的历史窗口，而非整个档案。",
+    "hi": "पूरी बातचीत में वास्तव में भेजे गए जवाब ही सुझाव बनते हैं। सहेजने पर भी वे अस्वीकृत रहते हैं। गिनती रखे गए इतिहास की है, पूरे संग्रह की नहीं।"
+  },
+  "questions.previewLearning": {
+    "en": "Preview learned answers",
+    "ru": "Предпросмотр изученных ответов",
+    "zh": "预览学到的回答",
+    "hi": "सीखे गए जवाब देखें"
+  },
+  "questions.applyLearning": {
+    "en": "Save proposals for review",
+    "ru": "Сохранить предложения для проверки",
+    "zh": "保存建议以供审核",
+    "hi": "समीक्षा के लिए सुझाव सहेजें"
+  },
+  "questions.learned": {
+    "en": "Proposals saved. Review each answer before approving it.",
+    "ru": "Предложения сохранены. Проверьте каждый ответ перед одобрением.",
+    "zh": "建议已保存。请先检查每个回答，再批准。",
+    "hi": "सुझाव सहेजे गए। स्वीकृति से पहले हर जवाब की समीक्षा करें।"
+  },
+  "questions.coverage": {
+    "en": "History retained: {retained} of {seen} messages.",
+    "ru": "Сохранённое окно истории: {retained} из {seen} сообщений.",
+    "zh": "保留的历史：{retained} / {seen} 条消息。",
+    "hi": "रखा गया इतिहास: {seen} में से {retained} संदेश।"
+  },
+  "questions.partialHistory": {
+    "en": "Partial history: older messages are outside this bounded learning window.",
+    "ru": "История неполная: старые сообщения не входят в ограниченное окно обучения.",
+    "zh": "历史不完整：较早的消息不在此有界学习窗口中。",
+    "hi": "आंशिक इतिहास: पुराने संदेश इस सीमित सीखने की अवधि के बाहर हैं।"
+  },
+  "questions.preview": {
+    "en": "Preview answer",
+    "ru": "Предпросмотр ответа",
+    "zh": "预览回答",
+    "hi": "जवाब का पूर्वावलोकन"
+  },
+  "questions.previewSource": {
+    "en": "Provider for preview",
+    "ru": "Провайдер для предпросмотра",
+    "zh": "预览服务商",
+    "hi": "पूर्वावलोकन का प्रदाता"
+  },
+  "questions.previewChat": {
+    "en": "Chat for preview",
+    "ru": "Чат для предпросмотра",
+    "zh": "预览聊天",
+    "hi": "पूर्वावलोकन की चैट"
+  },
+  "questions.match.exact": {
+    "en": "Exact match",
+    "ru": "Точное совпадение",
+    "zh": "精确匹配",
+    "hi": "सटीक मिलान"
+  },
+  "questions.match.template": {
+    "en": "Pattern match",
+    "ru": "Совпадение по шаблону",
+    "zh": "模式匹配",
+    "hi": "पैटर्न मिलान"
+  },
+  "questions.match.approximate": {
+    "en": "Approximate match",
+    "ru": "Приблизительное совпадение",
+    "zh": "近似匹配",
+    "hi": "अनुमानित मिलान"
+  },
+  "questions.match.assembled": {
+    "en": "Assembled from separate answers",
+    "ru": "Собрано из отдельных ответов",
+    "zh": "由单独回答组合",
+    "hi": "अलग-अलग जवाबों से बनाया गया"
+  },
+  "questions.match.unanswered": {
+    "en": "No matching answer",
+    "ru": "Подходящего ответа нет",
+    "zh": "没有匹配的回答",
+    "hi": "कोई मेल खाता जवाब नहीं"
+  },
+  "questions.reviewRequired": {
+    "en": "Review required before automatic sending.",
+    "ru": "Перед автоматической отправкой нужна проверка.",
+    "zh": "自动发送前需要审核。",
+    "hi": "स्वचालित भेजने से पहले समीक्षा ज़रूरी है।"
+  },
+  "questions.ready": {
+    "en": "Approved and complete. Nothing was sent by this preview.",
+    "ru": "Одобрен и заполнен. Предпросмотр ничего не отправляет.",
+    "zh": "已批准且完整。预览不会发送任何消息。",
+    "hi": "स्वीकृत और पूरा है। इस पूर्वावलोकन में कुछ नहीं भेजा गया।"
+  },
+  "questions.noAnswer": {
+    "en": "Add or complete a saved answer.",
+    "ru": "Добавьте или дополните сохранённый ответ.",
+    "zh": "请添加或完善已保存的回答。",
+    "hi": "सहेजा गया जवाब जोड़ें या पूरा करें।"
+  },
+  "questions.missing": {
+    "en": "Missing profile values: {fields}",
+    "ru": "Не заполнены значения профиля: {fields}",
+    "zh": "缺少资料值：{fields}",
+    "hi": "प्रोफ़ाइल में मान गुम हैं: {fields}"
+  },
+  "questions.enabled": {
+    "en": "Use this answer rule",
+    "ru": "Использовать это правило ответа",
+    "zh": "使用此回答规则",
+    "hi": "इस जवाब नियम का उपयोग करें"
+  },
+  "questions.approvedComplete": {
+    "en": "Approved and complete.",
+    "ru": "Одобрен и заполнен.",
+    "zh": "已批准且完整。",
+    "hi": "स्वीकृत और पूरा है।"
+  },
+  "automations.form.neutral": {
+    "en": "Saved answer",
+    "ru": "Сохранённый ответ",
+    "zh": "保存的回答",
+    "hi": "सहेजा गया जवाब"
+  },
+  "chat.form.neutral": {
+    "en": "saved answer",
+    "ru": "сохранённый ответ",
+    "zh": "保存的回答",
+    "hi": "सहेजा गया जवाब"
+  },
+  "automations.reason.question-unanswered": {
+    "en": "No saved answer for the latest question",
+    "ru": "Нет сохранённого ответа на последний вопрос",
+    "zh": "最新问题没有保存的回答",
+    "hi": "नए सवाल का कोई सहेजा गया जवाब नहीं"
+  },
+  "automations.reason.question-already-answered": {
+    "en": "The latest turn is already outgoing",
+    "ru": "Последняя реплика уже исходящая",
+    "zh": "最新一轮已经发出",
+    "hi": "आखिरी संदेश पहले ही भेजा जा चुका है"
+  },
+  "automations.reason.question-turn-unavailable": {
+    "en": "The latest turn cannot be used as a question",
+    "ru": "Последнюю реплику нельзя использовать как вопрос",
+    "zh": "最新一轮不能用作问题",
+    "hi": "आखिरी संदेश को सवाल की तरह उपयोग नहीं किया जा सकता"
+  }
+}

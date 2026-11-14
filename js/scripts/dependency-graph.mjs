@@ -1,10 +1,41 @@
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
+const TRANSIENT = new Set([408, 429, 500, 502, 503, 504]);
+const sleep = (ms) =>
+  new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+const requestGraph = async (url, headers, request, report, wait) => {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let response;
+    try {
+      response = await request(url, {
+        headers,
+        signal: globalThis.AbortSignal.timeout(15000),
+      });
+    } catch (error) {
+      if (attempt === 2) {
+        throw error;
+      }
+      // Do not print transport errors, which can contain request headers.
+    }
+    if (response && !TRANSIENT.has(response.status)) {
+      return response;
+    }
+    if (attempt === 2) {
+      return response;
+    }
+    report(
+      `::notice::Dependency graph request: ${response ? `HTTP ${response.status}` : 'transport unavailable'}; retry ${attempt + 1}/2.`
+    );
+    await wait(1000 * (attempt + 1));
+  }
+};
+
 export async function checkDependencyGraph(
   env = process.env,
   request = fetch,
-  report = console.log
+  report = console.log,
+  wait = sleep
 ) {
   const repository = env.GITHUB_REPOSITORY;
   const base = env.BASE_SHA || env.GITHUB_SHA;
@@ -12,15 +43,15 @@ export async function checkDependencyGraph(
   if (!repository || !base || !head) {
     throw new Error('Repository and comparison SHAs are required');
   }
-  const response = await request(
+  const response = await requestGraph(
     `https://api.github.com/repos/${repository}/dependency-graph/compare/${base}...${head}`,
     {
-      headers: {
-        authorization: `Bearer ${env.GH_TOKEN}`,
-        accept: 'application/vnd.github+json',
-      },
-      signal: globalThis.AbortSignal.timeout(15_000),
-    }
+      authorization: `Bearer ${env.GH_TOKEN}`,
+      accept: 'application/vnd.github+json',
+    },
+    request,
+    report,
+    wait
   );
   if (response.ok) {
     return true;

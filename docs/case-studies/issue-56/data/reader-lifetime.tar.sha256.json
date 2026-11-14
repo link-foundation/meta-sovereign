@@ -1,0 +1,15 @@
+{
+  "archive": "reader-lifetime.tar.gz",
+  "files": {
+    "9b718-job-129353939947.log": "8704ed5be844f2b0540b1f8e36f908ce1dac835fe09254c8d02e823340b51c16",
+    "reader-lifetime-after.log": "62ef051de8eecdad87d6dec713b7eef898e4f21e5d5c9aa89673cdfece87c544",
+    "reader-lifetime-before.log": "fe21a5eedf9899a57b176a79742aa57a5bba63f1010fb0ff81395ba438ad6c8b",
+    "reader-lifetime-deno.log": "e33b7e8d8444aa8238053d162dc1eaf65b5e6e3f7f49c7d4d154efe2279d600b",
+    "reader-lifetime-final.log": "125b3033793dd2e18007f266c3a6feb482503500dad3e64115fa4c790245492b",
+    "reader-lifetime-focused.log": "53a79304f2abfa9ab7ba4a05bac0c8c25b9030c4f044f44b2c32c5b8b7590e83",
+    "reader-lifetime-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "reader-lifetime-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reader-lifetime-records.log": "5703c864b0265ffc98d1998fcc9c0d034ee856746ef43ef4dc0046807546b5a8",
+    "trace-store-reader-lifetime.mjs": "0566fe5731b54df53626faf41d593ef7fffdeab609a73d61da5c116a7e89afa8"
+  }
+}

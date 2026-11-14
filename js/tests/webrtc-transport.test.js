@@ -66,10 +66,11 @@ const makeFakeRtc = (channelStore, { autoOpen = true } = {}) =>
       this.ondatachannel = null;
       this.iceCandidates = [];
     }
-    createDataChannel(label) {
+    createDataChannel(label, { protocol = '' } = {}) {
       const channel = {
         readyState: 'connecting',
         label,
+        protocol,
         peer: null,
         onopen: null,
         onmessage: null,
@@ -115,6 +116,7 @@ const makeFakeRtc = (channelStore, { autoOpen = true } = {}) =>
         const incoming = {
           readyState: 'connecting',
           label: 'meta-sovereign-sync',
+          protocol: channelStore.at(-1)?.protocol ?? '',
           peer: null,
           onopen: null,
           onmessage: null,
@@ -311,3 +313,180 @@ test('unexpected SDP failures are reported without an unhandled rejection', asyn
   assert.deepEqual(errors, ['invalid remote SDP']);
   transport.close();
 });
+
+test('a queued send failure on channel open is reported and disposes the failed connection', async () => {
+  const channels = [];
+  const errors = [];
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('local')),
+    RTCPeerConnection: makeFakeRtc(channels, { autoOpen: false }),
+    initiator: true,
+    onError: (error) => errors.push(error.message),
+  });
+  try {
+    transport.send({ type: 'hello', schema: { version: 13 } });
+    const channel = channels[0];
+    channel.readyState = 'open';
+    channel.send = () => {
+      throw new Error('Error sending string through RTCDataChannel.');
+    };
+    assert.doesNotThrow(() => channel.onopen());
+    assert.deepEqual(errors, ['Error sending string through RTCDataChannel.']);
+    assert.equal(channel.readyState, 'closed');
+    assert.throws(() => transport.send({ type: 'hello' }), /closed/);
+    assert.doesNotThrow(() => channel.onopen());
+    assert.equal(errors.length, 1, 'a late open cannot retry failed delivery');
+    await settle();
+  } finally {
+    transport.close();
+  }
+});
+
+test('a late incoming channel after disposal is closed without delivering messages', () => {
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('local')),
+    RTCPeerConnection: makeFakeRtc([], { autoOpen: false }),
+  });
+  const seen = [];
+  transport.onMessage((message) => seen.push(message));
+  transport.close();
+  const channel = {
+    protocol: 'meta-sovereign-sync.lino.v2',
+    readyState: 'connecting',
+    close() {
+      this.readyState = 'closed';
+    },
+  };
+  transport.pc.ondatachannel({ channel });
+  assert.equal(channel.readyState, 'closed');
+  assert.equal(channel.onmessage, undefined);
+  assert.deepEqual(seen, []);
+});
+
+test(
+  'binary WebRTC preserves typed values and advertises the Lino protocol',
+  { timeout: 3000 },
+  async () => {
+    const bus = makeBus();
+    const channels = [];
+    const Rtc = makeFakeRtc(channels, { autoOpen: false });
+    const errors = [];
+    const options = {
+      RTCPeerConnection: Rtc,
+      format: 'application/lino-binary',
+      onError: (error) => errors.push(error),
+    };
+    const a = createWebRtcTransport({
+      ...options,
+      signaling: signalingChannel(bus.connect('a')),
+      initiator: true,
+    });
+    const b = createWebRtcTransport({
+      ...options,
+      signaling: signalingChannel(bus.connect('b')),
+    });
+    try {
+      const seen = [];
+      b.onMessage((message) => seen.push(message));
+      const value = {
+        type: 'put',
+        link: {
+          id: 'l:🚀',
+          body: '你好\r\nПривет',
+          single: [true],
+          empty: [],
+          value: null,
+        },
+      };
+      a.send(value);
+      await waitFor(
+        () =>
+          channels.length === 2 &&
+          channels.every((channel) => channel.onmessage)
+      );
+      channels.forEach((channel) => {
+        channel.readyState = 'open';
+      });
+      channels.forEach((channel) => channel.onopen?.());
+      await waitFor(() => seen.length === 1);
+      assert.deepEqual(seen, [value]);
+      assert.ok(
+        channels.every(
+          (channel) =>
+            channel.protocol === 'meta-sovereign-sync.lino-binary.v2' &&
+            channel.binaryType === 'arraybuffer'
+        )
+      );
+      assert.deepEqual(errors, []);
+    } finally {
+      a.close();
+      b.close();
+    }
+  }
+);
+
+test('WebRTC refuses an unversioned data channel instead of accepting JSON', () => {
+  const errors = [];
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(makeBus().connect('a')),
+    RTCPeerConnection: makeFakeRtc([]),
+    onError: (error) => errors.push(error.message),
+  });
+  let closed = false;
+  try {
+    transport.pc.ondatachannel({
+      channel: {
+        protocol: '',
+        close: () => {
+          closed = true;
+        },
+      },
+    });
+    assert.equal(closed, true);
+    assert.deepEqual(errors, ['unsupported WebRTC sync protocol']);
+  } finally {
+    transport.close();
+  }
+});
+
+test(
+  'early ICE waits for a remote description and is bounded during negotiation',
+  { timeout: 3000 },
+  async () => {
+    const bus = makeBus();
+    const remote = signalingChannel(bus.connect('remote'));
+    const candidates = [];
+    const errors = [];
+    class IceRtc extends makeFakeRtc([]) {
+      async addIceCandidate(candidate) {
+        assert.ok(
+          this.remoteDescription,
+          'remote description precedes candidates'
+        );
+        candidates.push(candidate);
+      }
+    }
+    const transport = createWebRtcTransport({
+      signaling: signalingChannel(bus.connect('local')),
+      RTCPeerConnection: IceRtc,
+      onError: (error) => errors.push(error.message),
+    });
+    try {
+      for (let index = 0; index < 129; index++) {
+        remote.sendIce({ candidate: `fixture-${index}` });
+      }
+      assert.equal(candidates.length, 0);
+      assert.deepEqual(errors, ['too many pending WebRTC ICE candidates']);
+      remote.sendOffer('fixture');
+      await waitFor(() => candidates.length === 128);
+      assert.equal(candidates.length, 128);
+      assert.equal(candidates[0].candidate, 'fixture-0');
+      assert.equal(candidates.at(-1).candidate, 'fixture-127');
+      transport.close();
+      remote.sendIce({ candidate: 'closed' });
+      assert.equal(candidates.length, 128);
+    } finally {
+      transport.close();
+    }
+  }
+);

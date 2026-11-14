@@ -1,0 +1,12 @@
+{
+  "archive": "salary-both.tar.gz",
+  "files": {
+    "example.log": "b1cc9905aa0793635c3a524b69d944e195680e3fbd121ea2958d366a48287db3",
+    "mcp-verification.json": "07b43176518cfaa8293ff0cc627898375fff58bbd3e948576838863015b58513",
+    "salary-both-before.log": "8a6ab0feeb58fb34d985f3ed08809645e4e15d866106339bc558c23357000cbc",
+    "salary-both-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "salary-both-build.log": "1e6346a3e2e495072fd0c7685f1716690489522e061d555dfd9b63f723fc66b9",
+    "salary-both-focused.log": "5fdc5ccc58c7280fdc1db8905a459e8d1b1515e15539bf74e8305233e59a6db0",
+    "salary-both-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

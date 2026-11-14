@@ -1,0 +1,31 @@
+{
+  "archive": "follow-chats.tar.gz",
+  "files": {
+    "ci-logs/follow-chats-browser.log": "5f2d2924f3a1cfeb66223d74f03017531cc140b366cfb386c116db1262a423ad",
+    "ci-logs/follow-chats-build.log": "23a04d1dbcbc198fa4cc93e4038bc759cd33295667f030d7093a17701519e348",
+    "ci-logs/follow-chats-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-final-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-final-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/follow-chats-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-final-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-focused.log": "eab46a8e76e87f5666ccd4f1f1a363219ffc7932a54019c98c16691dfffae259",
+    "ci-logs/follow-chats-format-docs.log": "f4e613a4dd8a56faca29f2f4e3f412fc41d904ab2457dc47834ebb951c6aeaa6",
+    "ci-logs/follow-chats-format-final-code.log": "60c69422f61b4d64744ca7b657066cdfe73cc530a7b2480883317b4920d1d6e7",
+    "ci-logs/follow-chats-format-final-docs.log": "71a24cc6bea15795917371e600ec3ef493197ba0806b2e3988afb3c75176fc59",
+    "ci-logs/follow-chats-format-test.log": "8172b55d615347abe08b842119c093db1f7a2c07ab26cd6302f649e78f4d57fb",
+    "ci-logs/follow-chats-format.log": "199d78e9704371b268551ff0360c6b24796cf11a033afd6b1ef4440e69b0afeb",
+    "ci-logs/follow-chats-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-pagination-before.log": "fef659b0889a11f5c55ea1b554a23d9199eb5e18a9119046f79d9bf3a451502d",
+    "ci-logs/follow-chats-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-chats-mcp.json": "567b0864ec90cb16df7bdd65b0d3e03a089af1e31a75cdb7472a373167f2fc91",
+    "ci-logs/follow-chats-vk-schema-head.txt": "5292ebb67b15fa744efa6d22017d8cf97a3d0166c2a839a0b696e967bdf55782",
+    "ci-logs/vk-messages-methods.json": "86ce48b28b6533885d90068309739426393fa7a9416e13f4ceaaf596d8075392",
+    "ci-logs/vk-messages-objects.json": "0277b13b3e801c66a8849c07e9d940b01b996caaa335ad5f5e75fa00c9cf5eda",
+    "ci-logs/follow-chats-pr33.json": "4e9c16468db1bb832715db4ab9f823ba264c718575c1ba46e045cec8c443aa9a",
+    "ci-logs/follow-chats-pr34.json": "068b67700733264b92910c48d0454c8d18f88389be725db4fe8ee780737f88a1",
+    "ci-logs/follow-chats-related-prs.json": "66508fa3fd7ed5a354e544d8316fd1fdf40674d869cdea4e1fb73ce5ae4a34f6",
+    "experiments/issue-56/follow-chats-ui.mjs": "fc397ae4434e73b93a78a44ad7d178423b56c2d3281b66988555f36707cc6fcb",
+    "experiments/issue-56/collect-follow-chat-evidence.py": "4b00a2ba48e1c7486ad73980e33e1bf58c43c146fdcd3867786ec0d01ca7bc22",
+    "metadata.json": "d00f08891179d448d92dab086ee68b83f078ce0ee2e0dd3920c40a88c98097e7"
+  }
+}

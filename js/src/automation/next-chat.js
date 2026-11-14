@@ -36,6 +36,15 @@ export const nextChatOperations = ({
     /** Send a planned draft now (the autopilot's step). */
     async deliverDraft(automationOrId, draft) {
       const automation = await load(automationOrId);
+      if (draft.answer?.requiresReview || draft.answer?.complete === false) {
+        await queue(automation, [draft]);
+        return {
+          status: 'failed',
+          code: 'answer-review-required',
+          error: 'Review this answer in its chat before sending',
+          draft,
+        };
+      }
       const outcome = await deliver(automation, draft);
       if (outcome.status === 'sent') {
         // A draft waiting in that chat is the one just sent.

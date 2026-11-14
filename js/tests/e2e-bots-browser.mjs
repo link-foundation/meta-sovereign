@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a bot's buttons (R-Y110), as Telegram Desktop has
 // them: rows of buttons under the bot's message — one asks the bot and
 // shows its answer as a toast, another as a box; a link asks before it
@@ -136,7 +137,7 @@ await page.addInitScript(() => {
 });
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -168,7 +169,7 @@ const ANSWERS = {
   alert: { ok: true, message: 'Are you sure?', alert: true, url: null },
 };
 await page.route('**/api/telegram/bot-callback', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   pressed.push(body);
   fulfil(route, ANSWERS[Buffer.from(body.data, 'base64').toString()]);
 });

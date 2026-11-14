@@ -1,4 +1,5 @@
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
+import { closeTelegramLogins } from './telegram-login-registry.js';
 
 const stopAccounts = (ctx, handoff) =>
   Promise.allSettled(
@@ -19,6 +20,7 @@ export const createRuntimeLifecycle = ({
   sockets,
   flush,
   flushLog,
+  releaseStore,
 }) => {
   let bus = null;
   let started = false;
@@ -34,14 +36,24 @@ export const createRuntimeLifecycle = ({
     server.requestGate.activate();
   };
   const stopRuntime = () => {
+    ctx.publicationsClosing = true;
+    ctx.followClosing = true;
+    ctx.vacanciesClosing = true;
     bus?.close();
-    ctx.replies.close().catch(() => {});
-    ctx.closeAutomations().catch(() => {});
     ctx.chatIndex.close();
     ctx.knowledge?.close();
     return Promise.allSettled([
+      ctx.replies.close(),
+      ctx.closeAutomations(),
       ctx.stopJobs(),
       ctx.marketplaceSessions?.stop(),
+      ctx.publications?.close(),
+      ctx.followBacklinks?.stop(),
+      ctx.followDiscovery?.stop(),
+      ctx.forms?.stop(),
+      ctx.vacancies?.stop(),
+      ctx.answerModel?.stop?.(),
+      closeTelegramLogins(ctx),
     ]);
   };
   return {
@@ -80,13 +92,14 @@ export const createRuntimeLifecycle = ({
           socket.destroy();
         }
       })
-        .then(() => (handoff ? accountsDone : jobsDone))
+        .then(() => Promise.all([accountsDone, jobsDone]))
         .then(() => {
           trace('flush_started');
           return Promise.resolve(handoff ? flushLog?.() : flush()).catch(
             () => {}
           );
         })
+        .finally(() => releaseStore?.())
         .then((result) => {
           trace('close_finished');
           return result;

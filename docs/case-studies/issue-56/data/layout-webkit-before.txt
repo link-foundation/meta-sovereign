@@ -1,0 +1,21 @@
+[
+  'chat_scroll {"viewport":[648,640],"top":2678,"correctedTop":2678,"following":false}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5937,"correctedTop":5937,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5937,"correctedTop":5937,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5999,"correctedTop":5999,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5587,"correctedTop":5587,"following":false}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5587,"correctedTop":5587,"following":false}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5937,"correctedTop":5937,"following":true}',
+  'chat_scroll {"viewport":[648,600],"previousViewport":[648,640],"top":5937,"correctedTop":7610,"following":true}',
+  'chat_scroll {"viewport":[648,600],"previousViewport":[648,600],"top":7610,"correctedTop":7610,"following":true}',
+  'chat_scroll {"viewport":[648,600],"previousViewport":[648,600],"top":7627,"correctedTop":7627,"following":true}',
+  'chat_scroll {"viewport":[230,641],"previousViewport":[648,600],"top":7613,"correctedTop":7613,"following":false}',
+  'chat_scroll {"viewport":[390,620],"previousViewport":[230,641],"top":5974,"correctedTop":5974,"following":true}',
+  'chat_scroll {"viewport":[880,620],"previousViewport":[390,620],"top":5957,"correctedTop":5957,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[880,620],"top":5937,"correctedTop":5937,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5937,"correctedTop":5937,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5889,"correctedTop":5889,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5889,"correctedTop":5889,"following":true}',
+  'chat_scroll {"viewport":[648,640],"previousViewport":[648,640],"top":5825,"correctedTop":5825,"following":false}'
+]
+[e2e-chat-layout] FAIL (webkit): timed out: Chat typing: last message stays just above composer (gap -102.78125 px)

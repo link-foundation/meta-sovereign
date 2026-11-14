@@ -1,0 +1,12 @@
+{
+  "archive": "ci-41af6c6b.tar.gz",
+  "files": {
+    "checks-complete.log": "ebf23f10e9103646bdf33b93c43f328b7b8082909054955319fa635af32df960",
+    "checks-jobs.json": "e6eca43e72cae768e1531ff95822f25109bbde5979fcea3e050ca0503ee6f876",
+    "checks-run.json": "e801cf868199e62143f6b84c4954ecee4ed84b034cb804ca1d8cfbff732670ae",
+    "desktop-complete.log": "47fac391a6cc7878ae752d5f76b30ce4a55bc7166f3329a8590ae94c88ddd735",
+    "desktop-jobs.json": "ad3c8b36de25cff3dd5b21fb7e4d58d70b032abc13e584e9411124b9b54dbb93",
+    "replacement-checks-jobs.json": "dac1f731da444bd24420ac994ce1aef82e1629d30b20ea35995fa15b552cd62f",
+    "workflows.json": "d01bd6deeda1adb8fd1b149199de9490293bb178e3e971ce7f6bed0b7ace8070"
+  }
+}

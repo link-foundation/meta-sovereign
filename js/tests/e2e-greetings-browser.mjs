@@ -1,3 +1,5 @@
+import { createLinoFetch } from '../src/transport/fetch.js';
+const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 /**
  * Real-browser Greetings run (issue #35).
  *
@@ -7,10 +9,9 @@
  * listing whose Telegram thumbnails come through the server proxy, a
  * saved selection, a plan preview and a queued send.
  *
- * Nothing reaches a messenger: the adapters record what they would
- * have sent. The vk.com sticker pictures are real links, so they load
- * only when the machine can reach vk.com; the run reports that instead
- * of failing on it.
+ * Nothing reaches a messenger: adapters record sends and browser image
+ * requests receive generated PNG fixtures. Production VK URLs and the
+ * Telegram server proxy are still checked, without an external CDN.
  *
  * Playwright is an optional dependency, so this is not part of
  * `npm test`. Run it explicitly:
@@ -20,7 +21,7 @@
  * Set `GREETINGS_SCREENSHOT=<file.png>` to save a full-page screenshot.
  */
 
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { deflateSync, crc32 } from 'node:zlib';
@@ -165,6 +166,52 @@ const seed = async (store) => {
 const imageLoaded = (page, selector) =>
   page.$eval(selector, (img) => img.complete && img.naturalWidth > 0);
 
+const captureScreenshot = async (page) => {
+  if (process.env.GREETINGS_SCREENSHOT) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: process.env.GREETINGS_SCREENSHOT,
+      fullPage: true,
+    });
+    console.log(
+      `[e2e-greetings-browser] screenshot: ${process.env.GREETINGS_SCREENSHOT}`
+    );
+  }
+};
+
+// Failure-only diagnostics distinguish a collapsed panel, layout or image
+// decoding failure. The fixture contains no account data or real messages.
+const traceFailure = async (page, selector) => {
+  console.error(
+    '[e2e-greetings-browser] failure state',
+    await page.evaluate((sel) => {
+      const panel = document.querySelector('[data-greeting-presets]');
+      const image = document.querySelector(sel);
+      return {
+        panelOpen: panel?.open,
+        image: image
+          ? {
+              complete: image.complete,
+              naturalWidth: image.naturalWidth,
+              rect: image.getBoundingClientRect().toJSON(),
+              display: window.getComputedStyle(image).display,
+              visibility: window.getComputedStyle(image).visibility,
+            }
+          : null,
+      };
+    }, selector)
+  );
+  const directory = process.env.E2E_ARTIFACT_DIR || 'artifacts/browser';
+  await mkdir(directory, { recursive: true });
+  await page.screenshot({
+    path: path.join(
+      directory,
+      `greetings-${process.env.E2E_BROWSER || 'chromium'}-failure.png`
+    ),
+    fullPage: true,
+  });
+};
+
 const run = async () => {
   const store = createMemoryStore();
   await seed(store);
@@ -184,10 +231,18 @@ const run = async () => {
   const base = `http://127.0.0.1:${handle.port}`;
   const browser =
     await playwright[process.env.E2E_BROWSER || 'chromium'].launch();
+  const firstVk = `[data-sticker="vk:${vkGreetingStickers[0].id}"] img`;
+  let page;
   try {
-    const page = await browser.newPage({
+    page = await browser.newPage({
       viewport: { width: 1280, height: 900 },
     });
+    await page.route('https://vk.com/sticker/**', (route) =>
+      route.fulfill({
+        contentType: 'image/png',
+        body: discPng([80, 170, 255]),
+      })
+    );
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     // The send flow calls window.confirm() to show the plan; accept it.
@@ -202,22 +257,27 @@ const run = async () => {
     });
     await page.goto(base, { waitUntil: 'load' });
     await page.click('button[data-view="greetings"]');
+    // Collection hydration changes the layout above the preset panel. Wait
+    // for its real readiness state before interacting with that panel.
+    await page.locator('[data-action="collection-add"]:enabled').waitFor();
     await page.locator('[data-greeting-presets] summary').click();
 
-    const firstVk = `[data-sticker="vk:${vkGreetingStickers[0].id}"] img`;
+    await page.locator(firstVk).scrollIntoViewIfNeeded();
     await page.waitForSelector(firstVk, { timeout: 10000 });
     // Not 'networkidle': the page keeps its /api/events stream open for
     // live Telegram updates, so the network is never idle. Give the first
-    // picture a moment to settle instead; offline it simply stays unloaded.
-    await page
-      .waitForFunction(
-        (sel) => document.querySelector(sel)?.complete === true,
-        firstVk,
-        { timeout: 5000 }
-      )
-      .catch(() => {});
-    console.log(
-      `[e2e-greetings-browser] vk.com preview loaded: ${await imageLoaded(page, firstVk)}`
+    // picture to decode instead. The generated image avoids CDN timing.
+    await page.waitForFunction(
+      (sel) => document.querySelector(sel)?.complete === true,
+      firstVk,
+      { timeout: 5000 }
+    );
+    assert(await imageLoaded(page, firstVk), 'VK fixture preview is decoded');
+    assert(
+      (await page.getAttribute(firstVk, 'src')).startsWith(
+        'https://vk.com/sticker/'
+      ),
+      'VK previews retain their production URLs'
     );
 
     // Live listing: Telegram thumbnails come through the server proxy.
@@ -319,16 +379,15 @@ const run = async () => {
     assert(calls.length === 3, `the dry run sent nothing: ${calls.length}`);
     assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
 
-    if (process.env.GREETINGS_SCREENSHOT) {
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({
-        path: process.env.GREETINGS_SCREENSHOT,
-        fullPage: true,
-      });
-      console.log(
-        `[e2e-greetings-browser] screenshot: ${process.env.GREETINGS_SCREENSHOT}`
-      );
-    }
+    await captureScreenshot(page);
+  } catch (error) {
+    await traceFailure(page, firstVk).catch((diagnostic) =>
+      console.error(
+        '[e2e-greetings-browser] diagnostic failed',
+        diagnostic.message
+      )
+    );
+    throw error;
   } finally {
     await browser.close();
     await handle.close();

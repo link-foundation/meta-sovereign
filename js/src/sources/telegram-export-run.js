@@ -25,6 +25,11 @@ import {
   wantedName,
 } from './telegram-export-media.js';
 import { chatMeta, keyOfChat, openOutput } from './telegram-export-output.js';
+import {
+  activeHistoryRanges,
+  exportTrace,
+  migratedChat,
+} from './telegram-export-window.js';
 
 const PAGE = 100;
 const MAX_WAIT_S = 3600;
@@ -194,55 +199,81 @@ const fieldsOf = async (r, raw) => {
     : inline;
 };
 
-const writeMessage = async (r, raw) => {
+const writeMessage = async (r, raw, chat) => {
   const media = await fieldsOf(r, raw);
+  r.ctx.peer = keyOfChat(chat);
   await r.out.add(
-    messageOf(raw, r.ctx, media),
+    { ...messageOf(raw, r.ctx, media), source_chat: chat },
     segmentsOf(raw.message, entitiesOf(raw))
   );
   r.job.messages += 1;
   await r.publish();
 };
 
-const readPage = (r, cursor, n) =>
-  asked(r, `messages:export:${r.job.chat}:${n}`, () =>
-    r.env.connection.withPeer(r.c.client, r.job.chat, (peer) =>
+const readPage = (r, cursor, n, range = {}) => {
+  const chat = range.chat ?? r.job.chat;
+  return asked(r, `messages:export:${chat}:${n}`, () =>
+    r.env.connection.withPeer(r.c.client, chat, (peer) =>
       r.c.client.invoke(
         new r.c.Api.messages.GetHistory({
           peer,
           offsetId: cursor.offsetId,
           offsetDate: cursor.offsetDate,
-          addOffset: -PAGE,
+          addOffset: range.reverse ? 0 : -PAGE,
           limit: PAGE,
-          maxId: 0,
-          minId: 0,
+          maxId: range.maxId ? range.maxId + 1 : 0,
+          minId: range.minId ? range.minId - 1 : 0,
           hash: r.c.zero,
         })
       )
     )
   );
+};
+
+// Channel metadata retains a migration even when its service message was
+// deleted. Basic groups have no predecessor. Test adapters may omit channels.
+const migrationOf = async (r, chat) => {
+  if (!chat.startsWith('-100') || !r.c.Api.channels?.GetFullChannel) {
+    return null;
+  }
+  const page = await asked(r, `export:migration:${chat}`, () =>
+    r.env.connection.withPeer(r.c.client, chat, (channel) =>
+      r.c.client.invoke(new r.c.Api.channels.GetFullChannel({ channel }))
+    )
+  );
+  absorb(page, r.ctx);
+  const id = String(page.fullChat?.migratedFromChatId ?? '');
+  return /^[1-9]\d{0,19}$/.test(id) ? `-${id}` : null;
+};
 
 // The first answer: how many there are, and the folder opened under the
 // chat's name and kind.
-const begin = async (r, page) => {
-  const ranged = r.fromMs !== null || r.toMs !== null;
+const begin = async (r, page, migration = false) => {
+  const ranged =
+    r.fromMs !== null ||
+    r.toMs !== null ||
+    migration ||
+    r.job.options.scope === 'active';
   r.job.total = ranged
     ? null
     : Number(page.count ?? page.messages?.length ?? 0);
   r.out = await openOutput({
     folder: r.job.folder,
     formats: r.job.formats,
+    maxLines: r.job.options.maxLines,
     meta: chatMeta({
       chat: r.job.chat,
       chatName: r.job.chatName,
       entities: r.ctx.entities,
+      sourceChat: r.job.chat,
     }),
   });
+  r.job.phase = 'exporting';
 };
 
 // Writes the page's messages; `last` is the newest id seen, `done` that the
 // end of the range or a Cancel was reached.
-const consume = async (r, fresh, last) => {
+const consume = async (r, fresh, last, chat) => {
   let newest = last;
   for (const message of fresh) {
     if (stopping(r)) {
@@ -255,39 +286,87 @@ const consume = async (r, fresh, last) => {
       return { last: newest, done: true };
     }
     if (r.fromMs === null || at >= r.fromMs) {
-      await writeMessage(r, raw);
+      await writeMessage(r, raw, chat);
     }
   }
   return { last: newest, done: false };
 };
 
-const freshOf = (page, last) =>
+const freshOf = (page, last, range = {}) =>
   (page.messages ?? [])
-    .filter((m) => m.className !== 'MessageEmpty' && Number(m.id) > last)
+    .filter(
+      (m) =>
+        m.className !== 'MessageEmpty' &&
+        Number(m.id) > last &&
+        (!range.minId || Number(m.id) >= range.minId) &&
+        (!range.maxId || Number(m.id) <= range.maxId)
+    )
     .sort((a, b) => Number(a.id) - Number(b.id));
 
 // Oldest first: each page is the messages after the cursor (a negative
 // add_offset), the newest of them the next cursor; it ends when nothing
 // newer comes.
-const readAll = async (r) => {
-  let cursor =
-    r.fromMs === null
+const firstCursor = (r, range) =>
+  range.minId
+    ? { offsetId: Math.max(1, range.minId - 1), offsetDate: 0 }
+    : r.fromMs === null
       ? { offsetId: 1, offsetDate: 0 }
       : { offsetId: 0, offsetDate: Math.floor(r.fromMs / 1000) };
+
+const peerFinished = (step, range) =>
+  !step || step.done || (range.maxId && step.last >= range.maxId);
+
+const readPeer = async (r, range, visited = new Set()) => {
+  const chat = range.chat;
+  if (visited.has(chat) || visited.size >= 8) {
+    throw new Error('history-migration-cycle');
+  }
+  visited.add(chat);
+  let cursor = firstCursor(r, range);
   let last = 0;
   for (let n = 1; !stopping(r); n += 1) {
-    const page = await readPage(r, cursor, n);
+    const page = await readPage(r, cursor, n, range);
     absorb(page, r.ctx);
-    if (n === 1) {
-      await begin(r, page);
+    if (n === 1 && !range.minId) {
+      const migration =
+        migratedChat((page.messages ?? []).map(rawMessage)) ??
+        (await migrationOf(r, chat));
+      if (!r.out) {
+        await begin(r, page, Boolean(migration));
+      }
+      if (migration) {
+        exportTrace(r, 'migration', { chat, predecessor: migration });
+        r.job.total = null;
+        await readPeer(r, { chat: migration }, visited);
+      }
     }
-    const fresh = freshOf(page, last);
-    const step = fresh.length > 0 ? await consume(r, fresh, last) : null;
-    if (!step || step.done) {
+    const fresh = freshOf(page, last, range);
+    const step = fresh.length > 0 ? await consume(r, fresh, last, chat) : null;
+    if (peerFinished(step, range)) {
       return;
     }
     last = step.last;
     cursor = { offsetId: last, offsetDate: 0 };
+  }
+};
+
+const readAll = async (r) => {
+  if (r.job.options.scope !== 'active') {
+    return readPeer(r, { chat: r.job.chat });
+  }
+  const ranges = await activeHistoryRanges(r, {
+    pageOf: (chat, offsetId, n) =>
+      readPage(r, { offsetId, offsetDate: 0 }, n, { chat, reverse: true }),
+    absorb,
+    stopping,
+    migrationOf: (chat) => migrationOf(r, chat),
+  });
+  await begin(r, {});
+  for (const range of ranges) {
+    if (stopping(r)) {
+      break;
+    }
+    await readPeer(r, range);
   }
 };
 

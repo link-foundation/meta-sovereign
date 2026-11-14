@@ -1,0 +1,17 @@
+{
+  "archive": "ci-resume-render.tar.gz",
+  "files": {
+    "before/js/tests/helpers/e2e-job-resumes.mjs": "9d1094ef2615a5710729166b798b5a97fd522a84b735b77c1ff89ec464b07086",
+    "ci-logs/browser-tabs-hosted-run.json": "7b0b17c4fe6ff35a9a3f87d737fd7afc08a82461cfebe0243d724f7f12c4901d",
+    "ci-logs/browser-tabs-hosted-webkit4.log": "bd045366b86dbf202d790890146e42b4446dd546b335125073362cbf7d03a350",
+    "ci-logs/ci-resume-render-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-resume-render-native.log": "2eadd55224c810739c0a9507af7840cc26fe63e8f3776a4690358a8d3322c00c",
+    "ci-logs/ci-resume-render-prettier.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "docs/case-studies/issue-56/ci-resume-render.md": "2ed52be69df537e859c271df0cb70767cd2ba764ce26614e56a40140cc5e331c",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-resume-render.py": "10480e67efa3fcc712c28243243b53a6fd95c40eb69ecebdd5d6297506d628bb",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "js/tests/helpers/e2e-job-resumes.mjs": "097120ebf06d693c8513f89845ceddaa2801a9222d10c435609de05746beb3d7",
+    "metadata.json": "7d90697ed72a3075b75e215537b78e6691b35e461ad960969d9015c133d6bf25"
+  }
+}

@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a search across Telegram and a jump to a message
 // (R-Y107): what is typed in the chat list's box shows "Global search"
 // (a chat Telegram finds, not in the list) and "Messages" found in every
@@ -73,7 +74,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -92,12 +93,12 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const asked = { around: [], peers: [], global: [] };
 await page.route('**/api/telegram/history-at', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.around.push(body.id);
   fulfil(route, { ok: true, id: body.id, newest: false });
 });
 await page.route('**/api/telegram/search-peers', (route) => {
-  asked.peers.push(route.request().postDataJSON().q);
+  asked.peers.push(requestBody(route.request()).q);
   fulfil(route, {
     ok: true,
     peers: [
@@ -126,7 +127,7 @@ const found = (n) => {
   return { ...shown, body: `${shown.body} needle` };
 };
 await page.route('**/api/telegram/search-global', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.global.push(body.cursor ?? null);
   if (body.cursor) {
     return fulfil(route, {

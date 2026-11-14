@@ -15,6 +15,7 @@ import {
   redraftWithForm,
   runRecordId,
 } from './automations.js';
+import { validateAnswerDraft } from './question-store.js';
 
 export class ConfirmationRequiredError extends Error {
   constructor(message) {
@@ -82,15 +83,31 @@ export const queueDrafts = async (store, automation, drafts, at) => {
   if (drafts.length > 0 && !(await store.get(automation.id))) {
     await store.put(automation);
   }
+  const queued = [];
   for (const draft of drafts) {
+    if (draft.answer?.model?.used) {
+      const existing = await store.get(draft.id);
+      if (existing?.status === 'pending') {
+        queued.push(existing);
+        continue;
+      }
+      const valid = await validateAnswerDraft(store, automation, draft, {
+        reviewed: true,
+        now: Date.parse(at),
+      });
+      if (!valid.ok) {
+        throw Object.assign(new Error(valid.error), { code: valid.code });
+      }
+    }
     await store.put({
       ...draft,
       tokens: ['automation-draft', automationKey(automation), draft.source],
       status: 'pending',
       createdAt: at,
     });
+    queued.push(draft);
   }
-  return drafts;
+  return queued;
 };
 
 // Revealing an existing preview is a read, so it needs no archive planning.
@@ -202,7 +219,7 @@ export const draftOperations = ({
       if (typeof text === 'string') {
         draft = { ...draft, text };
       }
-      const outcome = await deliver(automation, draft);
+      const outcome = await deliver(automation, draft, { reviewed: true });
       if (outcome.status === 'sent') {
         await store.delete(id);
         await afterSend(automation, draft);

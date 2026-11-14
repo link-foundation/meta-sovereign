@@ -1,0 +1,26 @@
+{
+  "archive": "hh-capability-contract.tar.gz",
+  "files": {
+    "before/js/tests/message-actions.test.js": "f783c01fe1f0269303aa359c1638de31685e11651eccda51533b53f504f9d79f",
+    "ci-logs/choice-workflow-checks-jobs.json": "235e1a9739a65831e2808efc6929bf19f5efbec37651acdc35edde3161ed77e2",
+    "ci-logs/choice-workflow-ci-runs.json": "535f84e8e8113953a038fc3c2c64a9d0fc11908bce3e2ea301d9f263b280f4b1",
+    "ci-logs/hh-capability-contract-node.log": "52a0548e66d1fc3b258928f29df4741e941d9902ac4285e945db09524d5fec21",
+    "ci-logs/shared-choice-node-130410483875.log": "a448dea54a0aea31e226221c6324dd1faa84ef4d7b69ce33a4ff768450c44be6",
+    "ci-logs/shared-choice-runtime-130410483793.log": "ee996377694281a0b13497209b5eee35a08a1ca968458b12ecf8fb831e36b856",
+    "ci-logs/shared-choice-runtime-130410483812.log": "f5673427004620b74d89e4c0d97bc5b5bc5999d65e26e9f9dd95cd80ccfb6611",
+    "ci-logs/shared-choice-runtime-130410483855.log": "92b0ebeb73c6faaba73e8e8324eb1895047a4bace0ce8b926c8d9e78ecd96e3c",
+    "ci-logs/shared-choice-runtime-130410483911.log": "6d414f572776d222eb0ac02c1041e6dc19e525d55a047c6322e5da0818b5e65f",
+    "ci-logs/shared-choice-runtime-130410483938.log": "42a5c580146c41e0d5376a1daa56795dd1005d1451f9056d2dc3f836fc4c28fb",
+    "ci-logs/shared-choice-runtime-130410483961.log": "38d77aed4b34c5c2ad4e0e6c7298f950c3bf88b663ccd8d6124e5eb514479fb6",
+    "ci-logs/shared-choice-runtime-130410483990.log": "f732c518d39180c035a59bc9a49d6cdbffd21324cbf4cf53a6c2baac11fc986f",
+    "ci-logs/shared-choice-runtime-130410484253.log": "aa52ffd3e38b15f6de5a04e3a1456a8e330ac13f741215b714feb319af9801bb",
+    "docs/case-studies/issue-56/hh-capability-contract.md": "a829dfec149efef034423d136848b5ae192e6a8c857adbaa095bd7ac2b360252",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-hh-capability.py": "0b932d8ec746d82f30f7b90efafd23d0f6cab7c1aad635d1b720bc5bd75853dc",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "js/src/sources/hh-web-ui.js": "5f6134f1a1e896abc5949656ecd50c79263fb014c2014d30bbbbad9ad6f5fbcd",
+    "js/tests/hh-web-ui.test.js": "ef718842cb2783a8b61db8a237ad534e5439d92c2b4e295df95bf86b4de89293",
+    "js/tests/message-actions.test.js": "e66ef89c0e0cd602759d65015746ec9363351af9598ce64e71e1d27e62cc30df",
+    "metadata.json": "b4394ddec6f32d92d1ff845799adef86361a3850b257e32b49501f31f5dd3ffb"
+  }
+}

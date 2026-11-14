@@ -170,7 +170,7 @@ await app.finish(async () => {
     async () =>
       (await page.evaluate(
         async () =>
-          (await (await fetch('/api/passcode/status')).json()).autoLockMinutes
+          (await globalThis.__msApi.passcode('status')).autoLockMinutes
       )) === 1,
     'the auto-lock saved'
   );

@@ -1,24 +1,30 @@
 //! `meta-sovereign-core` — Rust counterpart of `js/src/storage` (R-G2).
 //!
-//! Targets one-to-one parity with the JS reference implementation so a
-//! Rust-only deployment of the server stays feature-complete:
+//! The typed core covers a subset of the JavaScript model. Rich-record
+//! replication and durable causal metadata in the native server remain open:
 //!
-//! - [`Link`] mirrors the JS link shape (`id`, `tokens`, `children`).
+//! - [`Link`] covers `id`, string tokens, children, vectors and string versions.
 //! - [`MemoryStore`] is the in-memory equivalent of `createMemoryStore`.
 //! - [`parse_lino`] / [`format_lino`] round-trip indented Links Notation
 //!   the same way `js/src/storage/lino.js` does.
 //! - [`LinoTextStore`] persists links as indented Links Notation, the
 //!   Rust counterpart of `createLinoTextStore`.
-//! - [`vc_merge`], [`vc_compare`], and [`merge`] mirror the vector-clock
-//!   CRDT primitives in `js/src/sync/index.js`.
+//! - [`try_merge`] retains winning assignment clocks and follows the JavaScript
+//!   register order for this typed shape. Fallible clock helpers reject invalid
+//!   counters; the original trusted-call entry points remain available.
 
 #![forbid(unsafe_code)]
 
-use std::cmp::Ordering;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+
+mod sync;
+pub use sync::{
+    AssignmentStamp, SyncError, VectorClock, merge, try_compare_assignments, try_merge,
+    try_vc_compare, try_vc_merge, try_vc_tick, vc_compare, vc_merge, vc_tick,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Link {
@@ -26,6 +32,9 @@ pub struct Link {
     pub tokens: Vec<String>,
     pub children: Vec<String>,
     pub vc: BTreeMap<String, u64>,
+    /// Original winning assignment, separate from its joined observations.
+    pub sync_stamp: Option<AssignmentStamp>,
+    pub version: Option<String>,
 }
 
 impl Link {
@@ -39,6 +48,8 @@ impl Link {
             tokens: tokens.into_iter().map(Into::into).collect(),
             children: Vec::new(),
             vc: BTreeMap::new(),
+            sync_stamp: None,
+            version: None,
         }
     }
 }
@@ -198,6 +209,8 @@ impl LinoTextStore {
                         tokens: node.tokens.clone(),
                         children: node.children.iter().map(|c| c.tokens.join(" ")).collect(),
                         vc: BTreeMap::new(),
+                        sync_stamp: None,
+                        version: None,
                     });
                 }
             }
@@ -244,89 +257,6 @@ impl LinoTextStore {
             })
             .collect();
         fs::write(&self.path, format_lino(&nodes))
-    }
-}
-
-// -- Vector-clock CRDT ------------------------------------------------------
-
-pub type VectorClock = BTreeMap<String, u64>;
-
-pub fn vc_tick(vc: &VectorClock, node: &str) -> VectorClock {
-    let mut out = vc.clone();
-    *out.entry(node.to_string()).or_insert(0) += 1;
-    out
-}
-
-pub fn vc_merge(a: &VectorClock, b: &VectorClock) -> VectorClock {
-    let mut out = a.clone();
-    for (k, &v) in b {
-        let entry = out.entry(k.clone()).or_insert(0);
-        *entry = (*entry).max(v);
-    }
-    out
-}
-
-/// Returns `Some(Ordering::Greater)` when `a` dominates `b`, `Less`
-/// when `b` dominates, `Equal` when identical. `None` means concurrent.
-pub fn vc_compare(a: &VectorClock, b: &VectorClock) -> Option<Ordering> {
-    let mut keys: HashSet<&String> = a.keys().collect();
-    keys.extend(b.keys());
-    let mut a_strict = false;
-    let mut b_strict = false;
-    for k in keys {
-        let av = a.get(k).copied().unwrap_or(0);
-        let bv = b.get(k).copied().unwrap_or(0);
-        if av > bv {
-            a_strict = true;
-        }
-        if bv > av {
-            b_strict = true;
-        }
-    }
-    match (a_strict, b_strict) {
-        (false, false) => Some(Ordering::Equal),
-        (true, false) => Some(Ordering::Greater),
-        (false, true) => Some(Ordering::Less),
-        (true, true) => None,
-    }
-}
-
-fn tiebreak<'a>(a: &'a Link, b: &'a Link) -> &'a Link {
-    let a_top =
-        a.vc.iter()
-            .max_by_key(|(_, v)| *v)
-            .map(|(k, _)| k.clone())
-            .unwrap_or_default();
-    let b_top =
-        b.vc.iter()
-            .max_by_key(|(_, v)| *v)
-            .map(|(k, _)| k.clone())
-            .unwrap_or_default();
-    if a_top != b_top {
-        return if a_top > b_top { a } else { b };
-    }
-    if format!("{:?}", a) >= format!("{:?}", b) {
-        a
-    } else {
-        b
-    }
-}
-
-pub fn merge(a: &Link, b: &Link) -> Link {
-    let chosen = match vc_compare(&a.vc, &b.vc) {
-        Some(Ordering::Greater) => a.clone(),
-        Some(Ordering::Less) => b.clone(),
-        Some(Ordering::Equal) => a.clone(),
-        None => tiebreak(a, b).clone(),
-    };
-    let mut child_set: HashSet<String> = chosen.children.iter().cloned().collect();
-    child_set.extend(a.children.iter().cloned());
-    child_set.extend(b.children.iter().cloned());
-    Link {
-        id: chosen.id,
-        tokens: chosen.tokens,
-        children: child_set.into_iter().collect(),
-        vc: vc_merge(&a.vc, &b.vc),
     }
 }
 
@@ -482,6 +412,7 @@ pub fn pattern_matches(source: &str, input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::cmp::Ordering;
 
     #[test]
     fn memory_round_trip() {

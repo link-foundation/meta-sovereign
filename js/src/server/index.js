@@ -71,13 +71,21 @@ import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { createExtraRuntime, telegramChats } from './telegram-extras.js';
 import { accountScope } from './account-scope.js';
 import { bodyFailure, fail, json } from './util.js';
+import { bindWire, requestWireFailure } from './wire.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleVacancyRoutes } from './routes-vacancies.js';
+import { handleBrowserRoutes } from './routes-browser.js';
+import { handleFormRoutes } from './routes-forms.js';
+import { createFormReader } from '../forms/reader.js';
+import { createLocalAnswerModel } from '../automation/local-answer-model.js';
+import { createFormReportWriter } from '../forms/report-file.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
+import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { handlePeopleRoutes } from './routes-people.js';
 import { handleContactsImport } from './routes-contacts-import.js';
 import {
@@ -85,12 +93,14 @@ import {
   createAutomationScheduler,
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
 import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
 import { backgroundJobs } from './background-jobs.js';
 import { handleDeletedRoutes } from './routes-deleted.js';
 import { handleVersionRoutes } from './routes-message-versions.js';
 import { withMessageVersions } from '../storage/message-versions.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
 import { handleAudienceSyncRoute } from './audience-sync.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
@@ -283,7 +293,8 @@ const uiContext = (allowOrigins, uiUrl, localUi) => {
  * that already owns a session — never open a second one.
  * @param {{commander?: object, sessionFactory?: Function, artifactDir?: string}} cv
  */
-const cvContext = (cv = {}) => ({
+const cvContext = (cv = {}, vacancies) => ({
+  vacancyOptions: vacancies,
   cvCommander: cv.commander ?? null,
   cvSessionFactory: cv.sessionFactory ?? null,
   cvArtifactDir: cv.artifactDir ?? null,
@@ -327,7 +338,7 @@ const automationContext = (
       getSource,
       options: automations.options,
       optionsFor,
-      browser: automations.browser,
+      browser: { store, ...automations.browser },
       log: say,
     });
   const setTyping =
@@ -351,6 +362,7 @@ const automationContext = (
     resolveAudience: automations.resolveAudience,
     self,
     log: say,
+    modelRunner: automations.modelRunner,
   });
   const scheduler = createAutomationScheduler({
     store,
@@ -389,13 +401,21 @@ const automationContext = (
         );
     });
   }
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    runner: automations.modelRunner,
+    log: say,
+  });
   return {
     send,
     setTyping,
     automations: { runner, scheduler, autopilot },
+    questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
       scheduler.stop();
+      await questionBrowser.close();
       await send.close?.();
     },
   };
@@ -579,6 +599,10 @@ const route = async (store, req, res, ctx) => {
   if (redirectLocalTls(req, res, url, ctx)) {
     return;
   }
+  const wireFailure = requestWireFailure(req);
+  if (wireFailure) {
+    return fail(res, ...wireFailure);
+  }
   if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }
@@ -601,6 +625,9 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
     return;
   }
+  if (await handleVacancyRoutes(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleSuggestRoutes(req, res, p, url, ctx)) {
     return;
   }
@@ -620,20 +647,18 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   if (
-    await handleBackupRoutes(
-      store,
-      req,
-      res,
-      p,
-      ctx.archiveDir,
-      ctx.secretPassphrase
-    )
+    await handleBackupRoutes(store, req, res, p, ctx.archiveDir, {
+      fallbackPassphrase: ctx.secretPassphrase,
+      recovery: ctx.recovery,
+    })
   ) {
     return;
   }
   for (const handle of [
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
+    () => handleBrowserRoutes(store, req, res, p, url, ctx),
+    () => handleFormRoutes(store, req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
@@ -695,10 +720,16 @@ const initStore = async ({
     }
   }
   // Kept before wrapping: the secret wrapper does not pass `flush` on.
-  store = withMessageVersions(store);
+  store = withMessageVersions(withCausalWrites(store));
   const unwrapped = store;
   const flush = async () => {
     await unwrapped.flush?.();
+  };
+  // An injected store belongs to its caller (including the rolling host).
+  const releaseStore = async () => {
+    if (!providedStore) {
+      await unwrapped.close?.();
+    }
   };
   if (secretPassphrase) {
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
@@ -709,7 +740,7 @@ const initStore = async ({
     ...(unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 }),
     schema: unwrapped.schema ?? null,
   });
-  return { store, resolvedArchiveDir, flush, storeHealth };
+  return { store, resolvedArchiveDir, flush, releaseStore, storeHealth };
 };
 
 // The HTTP server: each request is logged, and routed (./account-scope.js
@@ -763,7 +794,10 @@ const createHttpServer = (store, ctx, log) => {
   const gate = createRequestGate(dispatch, ctx.front);
   const server = http.createServer(
     { requestTimeout: UPLOAD_TIMEOUT_MS },
-    gate.handle
+    (req, res) => {
+      bindWire(req, res, ctx.jsonCompatibility);
+      return gate.handle(req, res);
+    }
   );
   server.requestGate = gate;
   server.prependListener('upgrade', (req, socket) => {
@@ -793,7 +827,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   const originAllowed = socketAllowed(ctx);
   const verifyOrigin = (req) =>
     server.requestGate.authorize(req) && originAllowed(req);
-  const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
+  const wsHandle = attachSyncWebSocket(server, {
+    path: '/ws',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   // Peers of another data schema are refused, with a log line (R-Z17).
   createPeer(store, {
     node,
@@ -808,7 +846,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
         message: error.message,
       }),
   }).connect(wsHandle.transport);
-  const signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
+  const signaling = attachSignaling(server, {
+    path: '/rtc',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   ctx.sync = wsHandle;
   ctx.signaling = signaling;
   return { wsHandle, signaling };
@@ -854,6 +896,39 @@ const applyServerAddress = (ctx, listening, front, activate) => {
   }
 };
 
+const releaseBeforeListen =
+  ({ wsHandle, signaling, lifecycle, flush, releaseStore }) =>
+  async () => {
+    wsHandle?.close();
+    signaling?.close();
+    await lifecycle.stopRuntime();
+    try {
+      await flush().catch(() => {});
+    } finally {
+      await releaseStore();
+    }
+  };
+
+const serverForms = (store, options) =>
+  createFormReader({
+    store,
+    reportWriter: createFormReportWriter(),
+    ...options,
+  });
+
+const modelContext = (
+  store,
+  forms,
+  automations,
+  service = createLocalAnswerModel()
+) => {
+  automations.modelRunner ??= service.draft;
+  return {
+    answerModel: service,
+    forms: serverForms(store, { modelRunner: service.draft, ...forms }),
+  };
+};
+
 export const startServer = async ({
   port = 0,
   storeDir = defaultStoreDir(),
@@ -867,12 +942,17 @@ export const startServer = async ({
   emailLiveFactory = null,
   emailPoll,
   cv = {},
+  vacancies,
+  forms,
+  answerModel,
   // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
   // setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   replies,
   automations,
   greetings,
+  broadcasting,
   allowOrigins,
+  follow,
   autoImportLauncher,
   // Tests inject a fake `createSignIns()` and a fake MTProto (no real browsers
   // or network are used).
@@ -891,6 +971,8 @@ export const startServer = async ({
   // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
+  // Legacy JSON is an explicit opt-in. Normal servers speak text/binary LINO.
+  jsonCompatibility = process.env.MS_JSON_COMPATIBILITY === '1',
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
   tls,
   // diskFree: a test fake `(dir) => bytes|null` (R-Z14); backups:
@@ -901,13 +983,14 @@ export const startServer = async ({
   // Private rolling-worker options; the public listener remains in its host.
   front,
 } = {}) => {
-  const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
-    providedStore,
-    storeDir,
-    archiveDir,
-    secretPassphrase,
-    log,
-  });
+  const { store, resolvedArchiveDir, flush, releaseStore, storeHealth } =
+    await initStore({
+      providedStore,
+      storeDir,
+      archiveDir,
+      secretPassphrase,
+      log,
+    });
   // Services that run in the background start only after the port is ours.
   const later = [];
   automations = withStoreProfiles(automations, storeDir, front);
@@ -926,6 +1009,7 @@ export const startServer = async ({
   );
   const ctx = {
     front,
+    jsonCompatibility: jsonCompatibility === true,
     archiveDir: resolvedArchiveDir,
     sync: null,
     signaling: null,
@@ -933,11 +1017,15 @@ export const startServer = async ({
     emailLiveFactory,
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
-    ...cvContext(cv),
+    ...cvContext(cv, vacancies),
+    ...modelContext(store, forms, automations, answerModel),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),
+    broadcasting,
     storeDir,
+    followDiscovery: createFollowDiscovery({ store, ...follow }),
+    followBacklinkOptions: follow?.backlinks,
     storeHealth,
     systemContactsReader,
     diskFree,
@@ -973,6 +1061,7 @@ export const startServer = async ({
     enableHandlers,
     sockets,
     flush,
+    releaseStore,
     flushLog: logFlusher(providedStore),
   });
   const { wsHandle, signaling } = attachSockets(server, ctx, store, {
@@ -983,14 +1072,7 @@ export const startServer = async ({
     server,
     sockets,
     { port, storeDir, tls, log },
-    async () => {
-      lifecycle.bus?.close();
-      wsHandle?.close();
-      signaling?.close();
-      ctx.replies.close().catch(() => {});
-      ctx.chatIndex.close();
-      await flush().catch(() => {});
-    }
+    releaseBeforeListen({ wsHandle, signaling, lifecycle, flush, releaseStore })
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);
   return {

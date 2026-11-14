@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the Send button's menu (R-Y102): a right click on
 // Send offers "Send without sound" and "Schedule message"; a scheduled
 // message goes with its time and is not shown in the chat; a clock with
@@ -85,7 +86,7 @@ page.on('pageerror', (e) => errors.push(String(e)));
 page.on('dialog', (dialog) => dialog.accept());
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -105,7 +106,7 @@ await page.route('**/api/telegram/history', (route) =>
 const asked = [];
 await page.route('**/api/telegram/scheduled*', (route) => {
   const name = route.request().url().split('/api/telegram/')[1];
-  const body = JSON.parse(route.request().postData() ?? '{}');
+  const body = requestBody(route.request());
   asked.push([name, body]);
   if (name === 'scheduled-reschedule') {
     scheduled = scheduled.map((m) =>

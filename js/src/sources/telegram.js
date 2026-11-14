@@ -20,6 +20,15 @@ import { buildMessageLink } from './link.js';
 import { contentSticker } from './sticker.js';
 import { greetingEmoji } from '../greetings/detect.js';
 import { DEFAULT_TIMEOUT_MS, timedRequest } from './http.js';
+import {
+  createTelegramPublications,
+  telegramFormat,
+  telegramReceipt,
+} from './telegram-publication.js';
+import {
+  consumeTelegramBot,
+  telegramBotFetch,
+} from './telegram-bot-response.js';
 
 // Bot API methods that only read: a timeout there is retried (R-Z1).
 const BOT_READS = /^get[A-Z]/;
@@ -173,6 +182,7 @@ const sendRequest = (content, chat) => {
     {
       chat_id: chat,
       text,
+      ...telegramFormat(content?.format),
       business_connection_id: business,
       ...fields,
       ...(content?.noWebpage
@@ -521,7 +531,7 @@ export const createTelegramBotLive = ({
     // A long poll waits `timeout` seconds on purpose (R-Z1).
     const wait = Number(body.timeout) > 0 ? body.timeout * 1000 : 0;
     return timedRequest(
-      fetchImpl,
+      telegramBotFetch(fetchImpl, !BOT_READS.test(method)),
       `${root}/bot${authToken}/${method}`,
       {
         method: 'POST',
@@ -533,19 +543,12 @@ export const createTelegramBotLive = ({
         write: !BOT_READS.test(method),
         ...(timing ?? {}),
       },
-      async (res) => {
-        const payload = await res.json();
-        if (!res.ok || payload.ok === false) {
-          throw new Error(
-            `telegram ${method}: ${payload.description ?? `HTTP ${res.status}`}`
-          );
-        }
-        return payload.result;
-      }
+      consumeTelegramBot(method, !BOT_READS.test(method))
     );
   };
 
   return {
+    ...createTelegramPublications(call),
     async pullMessages({
       offset = undefined,
       limit = 100,
@@ -608,11 +611,7 @@ export const createTelegramBotLive = ({
         throw new Error('telegram live.post requires a chat/chatId target');
       }
       const result = await call(...sendRequest(content, chat), tokenOverride);
-      return {
-        ok: true,
-        messageId: String(result.message_id),
-        chat: String(result.chat?.id ?? chat),
-      };
+      return telegramReceipt(result, chat);
     },
     /**
      * Greeting stickers from the named sets. A sticker qualifies when

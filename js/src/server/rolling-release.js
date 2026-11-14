@@ -47,6 +47,49 @@ const digest = async (root, names) => {
   }
   return hash.digest('hex');
 };
+const copySnapshot = async (sourceRoot, temp, files, trace) => {
+  const directories = new Set(
+    files.map((name) => path.dirname(name)).filter((name) => name !== '.')
+  );
+  for (const directory of directories) {
+    await fs.mkdir(path.join(temp, directory), {
+      recursive: true,
+      mode: 0o700,
+    });
+  }
+  trace('directories_ready');
+  // Refill each of four slots independently so a slow copy cannot idle the
+  // others. Stop admitting files on failure, but drain every issued copy
+  // before cleanup can remove its destination.
+  let next = 0;
+  let completed = 0;
+  const progressEvery = Math.max(1, Math.ceil(files.length / 8));
+  let failed = false;
+  let failure;
+  const copy = async () => {
+    while (!failed && next < files.length) {
+      const name = files[next++];
+      try {
+        await fs.copyFile(path.join(sourceRoot, name), path.join(temp, name));
+        completed += 1;
+        if (completed % progressEvery === 0 || completed === files.length) {
+          // At most eight content-free checkpoints distinguish a cold copy
+          // backlog from one outstanding operation. Tracing stays opt-in.
+          trace(`copy_progress ${completed}/${files.length}`);
+        }
+      } catch (error) {
+        if (!failed) {
+          failed = true;
+          failure = error;
+        }
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, files.length) }, copy));
+  if (failed) {
+    throw failure;
+  }
+};
 const dependencyDirectory = async (sourceRoot) => {
   for (let root = sourceRoot; ; root = path.dirname(root)) {
     const modules = path.join(root, 'node_modules');
@@ -95,29 +138,36 @@ export const stageServerRelease = async ({
   storeDir,
   sourceRoot = PACKAGE_ROOT,
 }) => {
+  const startedAt = Date.now();
   const files = await runtimeFiles(sourceRoot);
+  const trace = (stage) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[release] ${stage} after ${Date.now() - startedAt} ms (${files.length} files)`
+      );
+    }
+  };
+  trace('enumerated');
   const build = await digest(sourceRoot, files);
+  trace('hashed');
   const root = path.join(releaseDirectory(storeDir), build);
   const release = { build, entry: path.join(root, 'js/bin/server-worker.js') };
   if (await fs.stat(root).catch(() => null)) {
-    return verifyRelease(storeDir, release);
+    const verified = await verifyRelease(storeDir, release);
+    trace('existing_verified');
+    return verified;
   }
   const temp = `${root}.preparing-${process.pid}-${randomBytes(4).toString('hex')}`;
   await fs.mkdir(temp, { recursive: true, mode: 0o700 });
   try {
-    for (const name of files) {
-      const destination = path.join(temp, name);
-      await fs.mkdir(path.dirname(destination), {
-        recursive: true,
-        mode: 0o700,
-      });
-      await fs.copyFile(path.join(sourceRoot, name), destination);
-    }
+    await copySnapshot(sourceRoot, temp, files, trace);
+    trace('snapshot_copied');
     if ((await digest(temp, files)) !== build) {
       throw new Error(
         'server files changed while preparing the release; retry with the current version'
       );
     }
+    trace('snapshot_verified');
     await fs.symlink(
       await dependencyDirectory(sourceRoot),
       path.join(temp, 'node_modules'),
@@ -134,6 +184,7 @@ export const stageServerRelease = async ({
       }
       await verifyRelease(storeDir, release);
     });
+    trace('snapshot_ready');
     return release;
   } finally {
     await fs.rm(temp, { recursive: true, force: true });

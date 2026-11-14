@@ -1,0 +1,20 @@
+{
+  "archive": "websocket-disconnect.tar.gz",
+  "files": {
+    "before/js/src/sync/ws-transport.js": "f8c4e836a7ac7f091cc7668908ec60792bcc4159f1b7bcc0a349658b9cdc782c",
+    "ci-logs/rtc-lifecycle-merged-native.log": "1fb3a7156d5344efdafbc2052ea0a75fa70d715fc7358e6b8265ad965a699514",
+    "ci-logs/rtc-lifecycle-merged-node.log": "973307879e2063ea438edf84a78f343f8d3b6cb1470610e4dedad404de5c6cd9",
+    "ci-logs/rtc-lifecycle-merged-transport.log": "722fbe36c256b9f82c07e1c193c5b44c7802c2ddb3915b4b914d2f015f92d219",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-websocket-disconnect.py": "062398a339493a0fe5d3e8100a576945fdbe43f1f41875517c6296facadd1d17",
+    "experiments/issue-56/evidence_bundle.py": "024f9281300d3c61a575303998953b7a56c145a136f1c19ca93649c668183b16",
+    "js/src/sync/signaling-room.js": "64647557683a729b5fb4d5072fcf5c57f0ba94715b9c1a02166eb7d63e1c02d4",
+    "js/src/sync/webrtc-mesh.js": "cd3732289f19d1e2aef40af464fe37f32db52a66c70c0d6b757755b46fc6ae05",
+    "js/src/sync/webrtc-transport.js": "d0a8c3c1e0ab295b7d07c7e272cb6e658c9dafc526ed8ecf8c98da1779832f7c",
+    "js/src/sync/ws-transport.js": "292b45fce8114e42a077c68694ba350e960901a0e48c50e81351ebe0010950c1",
+    "js/src/web/webrtc-sync.js": "31c8e5d16f5ae18710286a2047e86b5247fc685b45844ca9b0230eb0e91ed5e7",
+    "js/tests/helpers/e2e-lino-sync-mesh.mjs": "d9a8707b583f39230b2972ca21a165d7826b18874c28431405897e7357a4ea34",
+    "js/tests/sync-ws.test.js": "9f29aa8687bac0831cf3a8a7e95ee1a1d9b2f8c11acd43516a3ad404e758eae3",
+    "metadata.json": "a1cad0bf97b7af3f7224986271269bd23dafcbc493592d968f569dd255a0578e"
+  }
+}

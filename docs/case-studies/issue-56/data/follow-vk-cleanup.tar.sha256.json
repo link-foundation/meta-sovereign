@@ -1,0 +1,18 @@
+{
+  "archive": "follow-vk-cleanup.tar.gz",
+  "files": {
+    "ci-logs/follow-vk-cleanup-baseline-runs.json": "637099c65616cae1cc090cd3d619bbb78cdf7f33a01b4585e24c88867e0c5549",
+    "ci-logs/follow-vk-cleanup-before.log": "1fef986f4f964a7e5c048979f8826ff77a7d97b8674b9b58ac03e932a3f5809c",
+    "ci-logs/follow-vk-cleanup-browser.log": "5be5a9c802b1598a8467cb1b8a8c531a1b126b765ece9067fdb5aea187241a69",
+    "ci-logs/follow-vk-cleanup-controls.log": "548528ae95c0b77d51913f236fcf10864ad0b053c0c3d04c61ac2a3bf1fa6e9b",
+    "ci-logs/follow-vk-cleanup-core.log": "e048f0d534521fe90e3b74a58d9ec939d1140e83e6215e76eac69dc6ff605bc5",
+    "ci-logs/follow-vk-cleanup-current-runs.json": "ba91601be612e351cbf022b14984cc01666cd74ba6ceecf017f6f9005532ec31",
+    "ci-logs/follow-vk-cleanup-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/follow-vk-cleanup-format.log": "9ed10576b33e4ca1e531bc03ed49c9fb350f0540a8ae3d94df4640fd8b290280",
+    "ci-logs/follow-vk-cleanup-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-vk-cleanup-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-vk-cleanup-test-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/issue-56/collect-follow-vk-cleanup.py": "b40bb92813423c610878222505ded3544aca8af6ef3f11ef340e3e90ebd4209a",
+    "metadata.json": "6c15024ca040df8309c4ed65053684468fd14248651f27ecbbe3729ca355432c"
+  }
+}

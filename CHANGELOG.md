@@ -4,6 +4,24 @@
 
 ### Minor Changes
 
+- Add explicit automatic current-page prefilling to multi-URL form reviews and
+  owned Lino sessions and localized Forms controls. Freeze interrupted requests
+  for recovery with their original settings. Preserve owner answers and verify
+  configured or selected PDFs,
+  retain provenance and recover receipts without repeating writes. Keep page
+  navigation and form submission under owner control. Wait up to 30 minutes
+  for manual CAPTCHA verification, exclude challenge data from answers and
+  resume through fresh guarded inspection with read-only status recovery.
+
+- Add configurable question similarity/case and paged ranked-match inspection
+  across CLI, Lino, automation and Forms controls. Preserve subject guards,
+  configured context templates and owner answers. Prevent model reloads from
+  overwriting edits and failed backup streams from leaving temporary files.
+
+- Add reviewed vacancy/form minimum-pay guidance with a separate comfortable rate,
+  visible introduction priority, per-frame context and explicit source evidence.
+  Preserve owner answers and exclude vacancy-specific pay from reusable learning.
+
 - Show Telegram sign-in requirements and broken/reconnecting transport states
   before the saved-session flag, keeping Connections status accurate during recovery.
 

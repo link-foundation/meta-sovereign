@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for posting a story (R-Y156), as Telegram Desktop has
 // it: the user's avatar first in the strip with a "+" badge while they
 // have no story; a click opens a file picker; a limit answer is told in
@@ -76,7 +77,7 @@ const state = { posted: false, can: { ok: true, remains: 5 } };
 await page.route('**/api/telegram/stories', (route) =>
   fulfil(route, {
     ok: true,
-    peers: route.request().postDataJSON()?.hidden
+    peers: requestBody(route.request())?.hidden
       ? []
       : state.posted
         ? [mine, ann]
@@ -120,7 +121,7 @@ await page.route('**/api/telegram/upload**', (route) => {
 });
 const posts = [];
 await page.route('**/api/telegram/story-post', (route) => {
-  posts.push(route.request().postDataJSON());
+  posts.push(requestBody(route.request()));
   state.posted = true;
   return fulfil(route, { ok: true });
 });

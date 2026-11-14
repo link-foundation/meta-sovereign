@@ -227,7 +227,7 @@ test('older messages above are not counted as new ones below', () => {
 });
 
 test('the server serves chat heads, pages and links without messages', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const store = createMemoryStore();
   for (let n = 1; n <= 4; n += 1) {
     await store.put(msg('42', n));

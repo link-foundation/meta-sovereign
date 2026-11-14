@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for three gaps closed (R-Y161), as Telegram Desktop
 // behaves: (1) the files' box offers "Send with effect" on its Send in a
 // private chat, and the files route gets the picked effect (a group has no
@@ -143,7 +144,7 @@ const topic = (id, title) => ({
 await page.route('**/api/telegram/forum-topics', (route) =>
   fulfil(
     route,
-    route.request().postDataJSON().chat === FORUM
+    requestBody(route.request()).chat === FORUM
       ? {
           ok: true,
           forum: true,
@@ -168,7 +169,7 @@ await page.route('**/api/telegram/upload*', (route) => {
 });
 const sends = [];
 await page.route('**/api/telegram/send-files', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: ANN, ids: [2] });
 });
 

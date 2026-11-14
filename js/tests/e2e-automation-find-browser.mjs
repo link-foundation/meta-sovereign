@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Read-only condition inspection against the real planner and a small fixture.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { automationPresets } from '../src/automation/automations.js';
@@ -50,7 +51,7 @@ let hold = false;
 let fail = false;
 let interrupted = false;
 await page.route('**/api/automations/next', async (route) => {
-  queries.push(route.request().postDataJSON());
+  queries.push(requestBody(route.request()));
   if (hold) {
     await new Promise((resolve) => {
       release = resolve;

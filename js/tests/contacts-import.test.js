@@ -10,7 +10,7 @@ import {
   applyContactsImport,
 } from '../src/sources/contacts-import.js';
 import { aggregateContacts } from '../src/server/aggregate.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { runCli } from '../src/cli/index.js';
 
 const card = (

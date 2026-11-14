@@ -1,0 +1,27 @@
+✔ server exposes auto-import status, jobs and guards mutations (625.630059ms)
+▶ R-Z11 /api/github routes
+  ✔ refuses bad settings with the uniform error and a foreign-type POST (329.906664ms)
+✔ R-Z11 /api/github routes (332.374107ms)
+▶ server CORS (issue #37)
+  ✔ lets the hosted web app read /api/status from the local server (710.672738ms)
+✔ server CORS (issue #37) (714.238672ms)
+✔ regex: pattern length and input size are capped, a runaway match is cut off (105.121429ms)
+▶ soft-delete (R-K1..R-K6)
+  ✔ POST /api/links/purge-tombstones requires { confirm: true } (790.091606ms)
+✔ soft-delete (R-K1..R-K6) (792.715902ms)
+[meta-sovereign] GET /api/cv/platforms failed (404):  unknown route
+[meta-sovereign] GET /api/cv/telemetry?limit=200 failed (404):  unknown route
+[meta-sovereign] GET /api/backups failed (404):  unknown route
+[meta-sovereign] POST /api/cv/read failed (404):  unknown route
+[meta-sovereign] POST /api/automations/drafts/send failed (502):  blocked by privacy settings
+▶ serverFetch talks to the discovered server
+  ✔ uses the discovered origin and falls back when a route is missing (416.578063ms)
+✔ serverFetch talks to the discovered server (418.747479ms)
+ℹ tests 6
+ℹ suites 4
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8730.946734

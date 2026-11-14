@@ -5,12 +5,11 @@
  */
 
 import { safeMessage } from './redact.js';
-
-// JSON.stringify throws on a BigInt ("Do not know how to serialize a
-// BigInt"), which some upstream libraries (GramJS account ids) hand us —
-// render those as strings so one stray BigInt can never fail a response.
-const jsonSafe = (_key, value) =>
-  typeof value === 'bigint' ? value.toString() : value;
+import {
+  encodeWireResponse,
+  decodeWireRequest,
+  requestWireType,
+} from './wire.js';
 
 // Every error answer has one shape (R-Z1): `{ ok: false, error, code }`.
 // `json()` completes whatever a route wrote, so no route can forget it.
@@ -51,8 +50,13 @@ export const json = (res, status, body) => {
     return;
   }
   const out = status >= 400 && plain(body) ? failureBody(status, body) : body;
-  res.writeHead(status, { 'content-type': 'application/json' });
-  res.end(JSON.stringify(out, jsonSafe));
+  const wire = encodeWireResponse(res, status, out);
+  res.writeHead(wire.status, {
+    'content-type':
+      wire.type + (wire.type.startsWith('text/') ? '; charset=utf-8' : ''),
+    vary: [res.getHeader?.('vary'), 'Accept'].filter(Boolean).join(', '),
+  });
+  res.end(wire.body);
 };
 
 /** The one helper for an error answer: `{ ok: false, error, code }`. */
@@ -64,8 +68,8 @@ export const text = (res, status, body, type = 'text/plain; charset=utf-8') => {
   res.end(body);
 };
 
-// A JSON request body is small; the one big body, a file upload, is
-// streamed by its own route with its own limit (R-Z1).
+// Ordinary structured request bodies are small; archive/media routes apply
+// their own streaming limits (R-Z1). Retain the exported name for callers.
 export const MAX_JSON_BODY = 1024 * 1024;
 
 /** A request body that cannot be used: it carries its HTTP answer. */
@@ -87,28 +91,35 @@ export const bodyFailure = (error) =>
 const tooLarge = (limit) =>
   new BodyError(413, 'too-large', `request body is over ${limit} bytes`);
 
-const parseObject = (raw, allowEmpty) => {
-  if (!raw) {
+const parseObject = (raw, allowEmpty, req) => {
+  const kind = requestWireType(req) === 'application/json' ? 'json' : 'lino';
+  if (!raw.length) {
     if (allowEmpty) {
       return {};
     }
-    throw new BodyError(400, 'bad-json', 'a JSON body is needed');
+    throw new BodyError(400, `bad-${kind}`, 'a structured body is needed');
   }
   let value;
   try {
-    value = JSON.parse(raw);
-  } catch {
-    throw new BodyError(400, 'bad-json', 'the request body is not valid JSON');
+    value = decodeWireRequest(req, raw);
+  } catch (error) {
+    throw new BodyError(
+      error.status ?? 400,
+      error.code === 'unsupported-media' ? error.code : `bad-${kind}`,
+      error.status === 415
+        ? error.message
+        : `the request body is not valid ${kind.toUpperCase()}`
+    );
   }
   if (!plain(value)) {
-    throw new BodyError(400, 'bad-json', 'a JSON object is needed');
+    throw new BodyError(400, `bad-${kind}`, 'an object body is needed');
   }
   return value;
 };
 
 /**
- * The request's JSON object body. Rejects with a BodyError (the server
- * answers it: 400 `bad-json`, 413 `too-large`) and never turns a broken
+ * The request's negotiated object body. Rejects with a BodyError (400
+ * `bad-lino`, or `bad-json` in compatibility mode; 413 `too-large`) and never turns a broken
  * body into `{}`. An empty body is `{}` unless `allowEmpty: false`.
  * @param {{limit?: number, allowEmpty?: boolean}} options
  */
@@ -142,9 +153,7 @@ export const readBody = (
         return;
       }
       try {
-        resolve(
-          parseObject(Buffer.concat(chunks).toString('utf8'), allowEmpty)
-        );
+        resolve(parseObject(Buffer.concat(chunks), allowEmpty, req));
       } catch (err) {
         reject(err);
       }

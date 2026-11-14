@@ -11,8 +11,8 @@ import { Busy } from '../spinner.js';
 
 const el = React.createElement;
 
-/** The networks whose inbox the server pulls on demand and on a schedule. */
-export const FETCHABLE = new Set(['vk', 'upwork', 'peopleperhour']);
+/** Networks with a manual inbox pull; HH history is manual only. */
+export const FETCHABLE = new Set(['vk', 'upwork', 'peopleperhour', 'hh']);
 
 // Codes with a sentence of their own (R-Z20: a VK captcha needs the user).
 const PLAIN_ERRORS = {
@@ -20,9 +20,37 @@ const PLAIN_ERRORS = {
   'not-connected': 'pull.notConnected',
 };
 
+const historyMessage = (t, answer) => {
+  const status = answer.history.status;
+  const key =
+    answer.history.reason === 'changed-list'
+      ? 'changed'
+      : ['complete', 'limited'].includes(status)
+        ? status
+        : 'partial';
+  return {
+    tone: status === 'complete' ? 'ok' : 'wait',
+    text: t(`pull.history.${key}`, {
+      count: answer.imported ?? 0,
+      chats: answer.history.chatsRead ?? 0,
+      total: answer.history.messagesRead ?? 0,
+    }),
+  };
+};
+
+const failedMessage = (t, answer) => ({
+  tone: 'error',
+  text: t('pull.failed', {
+    error: errorText(t, answer?.code, answer?.error ?? answer?.code ?? '?'),
+  }),
+});
+
 /** The message to show for the server's answer to a pull. */
 export const pullMessage = (t, answer) => {
   if (answer?.ok) {
+    if (answer.history?.scope === 'available-api-history') {
+      return historyMessage(t, answer);
+    }
     return {
       tone: 'ok',
       text: t('pull.done', { count: answer.imported ?? 0 }),
@@ -39,12 +67,7 @@ export const pullMessage = (t, answer) => {
   if (fixed) {
     return { tone: 'error', text: t(fixed) };
   }
-  return {
-    tone: 'error',
-    text: t('pull.failed', {
-      error: errorText(t, answer?.code, answer?.error ?? answer?.code ?? '?'),
-    }),
-  };
+  return failedMessage(t, answer);
 };
 
 export const FetchNow = ({ providerId, before = null, disabled = false }) => {
@@ -53,9 +76,16 @@ export const FetchNow = ({ providerId, before = null, disabled = false }) => {
   const fetchNow = async () => {
     setState({ busy: true, result: null });
     // `before` saves what the fetch depends on (GitHub's chosen repositories).
-    await before?.();
-    const answer = await api.pullInbox(providerId);
-    setState({ busy: false, result: pullMessage(t, answer) });
+    try {
+      await before?.();
+      const answer = await api.pullInbox(providerId);
+      setState({ busy: false, result: pullMessage(t, answer) });
+    } catch (error) {
+      setState({
+        busy: false,
+        result: pullMessage(t, { error: error.message }),
+      });
+    }
   };
   return el(
     'div',
@@ -84,7 +114,8 @@ export const FetchNow = ({ providerId, before = null, disabled = false }) => {
               role: 'status',
               'data-fetch-status': state.result?.tone ?? 'idle',
             },
-            state.result?.text ?? t('pull.hint')
+            state.result?.text ??
+              t(providerId === 'hh' ? 'pull.history.hint' : 'pull.hint')
           ),
     ]
   );

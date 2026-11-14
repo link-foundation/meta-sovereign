@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for cloud themes and the per-chat translation switch
 // (R-Y209), as Telegram Desktop has them: Settings lists the cloud themes
 // as cards drawn from their colours; Apply maps a theme onto the app's
@@ -101,18 +102,18 @@ await page.route('**/api/telegram/cloud-themes', (route) =>
   fulfil(route, { ok: true, themes: THEMES })
 );
 await page.route('**/api/telegram/cloud-theme', (route) =>
-  route.request().postDataJSON().slug === 'linkedtheme'
+  requestBody(route.request()).slug === 'linkedtheme'
     ? fulfil(route, { ok: true, theme: LINKED })
     : fulfil(route, { ok: false, code: 'not-found' })
 );
 const installs = [];
 await page.route('**/api/telegram/cloud-theme-install', (route) => {
-  installs.push(route.request().postDataJSON());
+  installs.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 const toggles = [];
 await page.route('**/api/telegram/translations-toggle', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   toggles.push(body);
   return fulfil(route, { ok: true, disabled: body.disabled });
 });

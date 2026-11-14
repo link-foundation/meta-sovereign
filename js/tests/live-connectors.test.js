@@ -287,9 +287,10 @@ describe('job-board live adapters', () => {
       pages: 1,
     }));
     const hh = createHhLive({ fetchImpl: hhFetch, baseUrl: 'https://hh.test' });
-    expect((await hh.pullMessages({ token: 'hh-token' })).links[0].body).toBe(
-      'hh hello'
-    );
+    expect(
+      (await hh.pullMessages({ token: 'hh-token', protocol: 'negotiations' }))
+        .links[0].body
+    ).toBe('hh hello');
     await expectUnsupported(() => hh.syncResume({ id: 'resume1' }));
 
     const habrFetch = mockFetch(() => ({

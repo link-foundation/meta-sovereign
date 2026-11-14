@@ -1,0 +1,8 @@
+
+> meta-sovereign@1.2.0 build:web
+> node js/scripts/build-web.mjs
+
+
+  js/src/web/app.min.js  4.4mb ⚠️
+
+⚡ Done in 632ms

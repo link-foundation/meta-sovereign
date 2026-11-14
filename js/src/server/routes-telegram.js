@@ -224,6 +224,7 @@ import { ADMIN_EXTRAS_POSTS } from './routes-telegram-admin-extras.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
 import { CHANNEL_DM_POSTS } from './routes-telegram-channel-dm.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
+import { CHAT_USERS_POSTS } from './routes-telegram-chat-users.js';
 import { ACCOUNT_DATA_POSTS } from './routes-telegram-account-data.js';
 import { PAID_POSTS } from './routes-telegram-paid.js';
 import { VOICE_CHAT_POSTS } from './routes-telegram-voice-chat.js';
@@ -305,11 +306,14 @@ import {
 } from '../sources/telegram-upload.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 
+import {
+  NO_TELEGRAM,
+  telegramStatusResponse,
+} from './telegram-capabilities.js';
+
 export { byteRange, fromApp } from './routes-telegram-files.js';
 
 const PREFIX = '/api/telegram/';
-
-const NONE = { connected: false, kind: null, account: null };
 
 // Only the page asks for what the user looks at; anything else waits.
 const PRIORITIES = new Set(['view', 'list', 'prefetch']);
@@ -1050,6 +1054,7 @@ const POSTS = {
   ...PROXY_POSTS,
   ...CHANNEL_DM_POSTS,
   ...EXPORT_POSTS,
+  ...CHAT_USERS_POSTS,
   ...ACCOUNT_DATA_POSTS,
   ...PAID_POSTS,
   ...VOICE_CHAT_POSTS,
@@ -1408,14 +1413,7 @@ const ALL_GETS = {
 
 const dispatch = async (account, req, res, p, ctx) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
-    const status = await account.status();
-    // Connected but never synced (a key pasted by hand, a restart before
-    // the first poll): start the first sync now; the UI polls the status.
-    if (status.auto && !status.at && !status.syncing) {
-      account.sync({ full: true, reason: 'status' }).catch(() => {});
-      return json(res, 200, { ...status, syncing: true }) ?? true;
-    }
-    return json(res, 200, status) ?? true;
+    return json(res, 200, await telegramStatusResponse(account, ctx)) ?? true;
   }
   const name = p.slice(PREFIX.length);
   if (req.method === 'GET' && Object.hasOwn(ALL_GETS, name)) {
@@ -1477,7 +1475,9 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
   }
   const account = ctx.telegramAccount;
   if (!account) {
-    return p === `${PREFIX}status` ? (json(res, 200, NONE) ?? true) : false;
+    return p === `${PREFIX}status`
+      ? (json(res, 200, NO_TELEGRAM) ?? true)
+      : false;
   }
   if (req.method === 'POST' && p === `${PREFIX}upload`) {
     return handleUpload(account, req, res, ctx);

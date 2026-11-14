@@ -1,0 +1,20 @@
+{
+  "archive": "ci-124a2234.tar.gz",
+  "files": {
+    "browser/profile-extras.log": "e3f981a5a34f89a3e6a1507a73a67a3594c79177611c95a3ecfb172c76fcc33d",
+    "browser/profile-extras.png": "3134ce73812f31337fc51bfb6b1a81b784c42f58614fdfedd233a470c03d1d19",
+    "browser/summary.json": "f60c5ee3681c610c4074db41a5a4175360c81da2c0ef31f2f35ed043fddbccad",
+    "ci/checks.log": "7db9257c422b8bc7d3eccf0354c5dac1863e46c1c421843b74382cabe5996666",
+    "ci/deno-windows.log": "fa76d9907e92f98222411de6829c489f0e6db7e950722e0b645928820c55b078",
+    "ci/jobs.json": "41420938127134ab86fd84eab2600d21134d77427ddb5bd9e9c9eabad5545d75",
+    "ci/runs.json": "6fb082d7c339c47eea2c88bf897f46c01f70144bc2c25a1a21f0a52c27c8165f",
+    "experiment.py": "94e436f2181933299009e271936f0e7ac3f2cc540c7d54c877af3041b49faf97",
+    "focused/ci-124-birthday-after.log": "c450ea0249e12c94ef09937857fb310b542eba4ebeddeb19849e2fbb5ca0cde8",
+    "focused/ci-124-birthday-before.log": "afa0a13f2896930feef69c8cfb0fb9dadcc81528ba54b181056ab5a7d12215c7",
+    "focused/ci-124-birthday-comparison.log": "6346959b35e47b07fe41bda7ccba3af447215cce4ed2d7ce8f0e1f4569b3a89c",
+    "focused/ci-124-format.log": "6775d6d5ccd97a327dec83f3caf0847f6ce1e6e45744a54f17cc4cc94054d9b8",
+    "focused/ci-124-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "focused/ci-124-rolling-deno-linux.log": "944283154a42df7792778af14e9ef3e13a7832fbf043e70d87b1c56c1c59be9d",
+    "focused/ci-124-rolling-deno-trace.log": "7261ac91d550d804aebbba8e755e52d1f007263cab3bf203245c5b1d5a7cebec"
+  }
+}

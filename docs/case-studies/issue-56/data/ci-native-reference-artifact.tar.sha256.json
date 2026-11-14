@@ -1,0 +1,23 @@
+{
+  "archive": "ci-native-reference-artifact.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "f2407d2d2f875da502061f5fc59072fa7de5b39e12baebcddf31d45095035dca",
+    ".changeset/visible-browser-defaults.md": "bfa6c669cd2e0a64e107c1ab23c9d2b96630654c35974c8f0ceeadee8e501664",
+    "rust/crates/meta-sovereign-server/src/main.rs": "fbfed670e2853ba8d9ef9b71185510bd45974c8b6d0d00de4cba837a5d8748e0",
+    "experiments/issue-56/native_cargo_reference.py": "fe2f9d56c777e8df4700c96463df0fc4263080809d8cf304b3e0ce77825f562c",
+    "experiments/issue-56/native-cargo-reference-check.py": "a981704619122a4a1ca7374e5fba44859e44c832fffa6e2d208d612a0eac7797",
+    "experiments/issue-56/native-durable-before.py": "20cb4891e0841b645748e05277c3963e4d249e15ea24b6e537da6cf0662f0bfd",
+    "experiments/issue-56/collect-native-reference.py": "8b03513e4f5a0ef906b5e580ad1a25f27d30ce4e1a26d960fff53277a9a4b9b0",
+    "docs/case-studies/issue-56/ci-native-reference-artifact.md": "9127363a9639d6b9f23fb3b0e5bd4a7b50c14d428e5f45b5c93c620fb6e19ac6",
+    "docs/case-studies/issue-56/PLAN.md": "dec5f23a39affcddad3b1529b507c883a13e3d2d6f0155baaec8d459e31345e3",
+    "ci-logs/native-cargo-reference-check.log": "d329ef4bcdfa035e54d059ef2e37fe3a39b48a77d55976b4e5393b8bb5fc942e",
+    "ci-logs/native-cargo-reference.log": "cb5b1b67e3b89304091df5ba0950fda3c1d673df5a49f6b233098bcde7e48008",
+    "ci-logs/native-rustdoc-before.log": "20a992c1805120f5d3b1860f156e693e87194c3276fe1e60625c811a0c88aeda",
+    "ci-logs/native-rustdoc-after.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/native-children-job-132142558257.log": "5002a05ecb34e88dc4b73ec7c07e35215aa0827e23a911776b3e9c60529d9bed",
+    "ci-logs/native-children-job-132142558414.log": "7325fa5f1e6d8e8556697d4ee8b340502612f9c8dea19d349ee178149b6f9525",
+    "ci-logs/native-children-head-checks.json": "ca6a49ded8d1ab5adca6ea83a3ba14c41c173738400f3be33601c0b6ea0dbada",
+    "ci-logs/native-cargo-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "metadata.json": "972ebe6270d96248d004f5a73247844d28944e850e8b65191dd5733403771c35"
+  }
+}

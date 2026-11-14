@@ -6,86 +6,20 @@
  * WebSocket *server* transports re-export from `sync/index.js`).
  */
 
-export const tickVersion = (now = Date.now(), node = 'local') =>
-  `${now}-${node}`;
-
-export const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-
-export const vcInit = () => ({});
-export const vcTick = (vc, node) => ({ ...vc, [node]: (vc[node] ?? 0) + 1 });
-export const vcMerge = (a, b) => {
-  const out = { ...a };
-  for (const [k, v] of Object.entries(b)) {
-    out[k] = Math.max(out[k] ?? 0, v);
-  }
-  return out;
-};
-const vcDominates = (a, b) => {
-  let strict = false;
-  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
-    const av = a[k] ?? 0;
-    const bv = b[k] ?? 0;
-    if (av < bv) {
-      return false;
-    }
-    if (av > bv) {
-      strict = true;
-    }
-  }
-  return strict;
-};
-export const vcCompare = (a, b) => {
-  if (vcDominates(a, b)) {
-    return 1;
-  }
-  if (vcDominates(b, a)) {
-    return -1;
-  }
-  const ka = Object.keys(a).sort().join('|');
-  const kb = Object.keys(b).sort().join('|');
-  if (ka === kb && Object.keys(a).every((k) => a[k] === b[k])) {
-    return 0;
-  }
-  return null;
-};
-
-const tiebreak = (a, b) => {
-  const av = a.vc ?? {};
-  const bv = b.vc ?? {};
-  const aTop = Object.entries(av).sort((x, y) => y[1] - x[1])[0]?.[0] ?? '';
-  const bTop = Object.entries(bv).sort((x, y) => y[1] - x[1])[0]?.[0] ?? '';
-  if (aTop !== bTop) {
-    return aTop > bTop ? a : b;
-  }
-  return JSON.stringify(a) >= JSON.stringify(b) ? a : b;
-};
-
-export const merge = (a, b) => {
-  if (!a) {
-    return b;
-  }
-  if (!b) {
-    return a;
-  }
-  let winner;
-  if (a.vc && b.vc) {
-    const ord = vcCompare(a.vc, b.vc);
-    if (ord === 1) {
-      winner = a;
-    } else if (ord === -1) {
-      winner = b;
-    } else if (ord === 0) {
-      winner = a;
-    } else {
-      winner = tiebreak(a, b);
-    }
-    winner = { ...winner, vc: vcMerge(a.vc, b.vc) };
-  } else {
-    winner = cmp(a.version ?? '', b.version ?? '') >= 0 ? a : b;
-  }
-  const childIds = new Set([...(a.children ?? []), ...(b.children ?? [])]);
-  return { ...winner, children: [...childIds] };
-};
+import { isolatePeerTransport } from './peer-transport.js';
+import { createPeerReceiver } from './peer-receiver.js';
+import { createRelayIdentity, createRelayOutbox } from './peer-relay.js';
+import { merge } from './register.js';
+import { createReconciliation } from './peer-reconcile.js';
+export { merge } from './register.js';
+export {
+  tickVersion,
+  cmp,
+  vcInit,
+  vcTick,
+  vcMerge,
+  vcCompare,
+} from './clock.js';
 
 // Secrets and the schema marker never leave the store (R-Z2, R-Z17): each
 // side's `meta:schema` is its own.
@@ -111,16 +45,52 @@ export const schemaMismatch = (local, remote) => {
 
 export const createPeer = (
   store,
-  { node = 'local', schemaVersion, onMismatch = () => {}, hub = false } = {}
+  {
+    node = 'local',
+    schemaVersion,
+    onMismatch = () => {},
+    hub = false,
+    onState = () => {},
+    reconciliation = {},
+    onError = (error) =>
+      globalThis.console?.warn?.('Sync transport failed', error),
+  } = {}
 ) => {
   const subs = new Set();
-  let muted = false;
+  const transports = new Set();
+  const identity = createRelayIdentity();
+  const report = (error) => {
+    try {
+      onError(error);
+    } catch {
+      /* Diagnostics cannot interrupt persistence. */
+    }
+  };
+  const send = (event) => {
+    for (const handler of transports) {
+      handler(event);
+    }
+  };
+  const outbox = hub ? createRelayOutbox(send, report) : { local: send };
+  const receiver = createPeerReceiver(
+    store,
+    merge,
+    onState,
+    hub ? (event) => outbox.reserve(event) : undefined
+  );
+  const subscribe = (handler) => {
+    transports.add(handler);
+    return () => transports.delete(handler);
+  };
   store.subscribe((event) => {
-    if (muted) {
+    if (receiver.suppresses(event)) {
       return;
     }
     if (isSecretEvent(event)) {
       return;
+    }
+    if (transports.size) {
+      outbox.local(identity.local(event));
     }
     for (const s of subs) {
       s(event);
@@ -133,19 +103,24 @@ export const createPeer = (
       return () => subs.delete(handler);
     },
     async receive(event) {
-      if (isSecretEvent(event)) {
+      if (isSecretEvent(event) || !['put', 'delete'].includes(event?.type)) {
         return;
       }
-      muted = true;
+      if (!event.link || typeof event.link.id !== 'string') {
+        throw Object.assign(new Error('Sync mutation requires a link id'), {
+          code: 'SYNC_RELAY_INVALID',
+        });
+      }
+      const accepted = identity.accept(event);
+      if (!accepted) {
+        return;
+      }
+      let applied = false;
       try {
-        if (event.type === 'put') {
-          const local = await store.get(event.link.id);
-          await store.put(merge(local, event.link));
-        } else if (event.type === 'delete') {
-          await store.delete(event.link.id);
-        }
+        await receiver.receive(accepted);
+        applied = true;
       } finally {
-        muted = false;
+        identity.finish(accepted, applied);
       }
     },
     /**
@@ -155,53 +130,91 @@ export const createPeer = (
      * `onMismatch(error)` hears SCHEMA_MISMATCH once per version seen. A
      * peer without a version (or an old build) speaks as before. `hub`:
      * the transport fans out to many sockets, so one wrong one must not
-     * silence the rest.
+     * silence the rest. Hubs relay successful remote mutations to their
+     * connected transports. Bounded operation routes prevent cycles; pending
+     * persistence keeps later owner events in admission order. Built-in causal
+     * stores also reconcile existing records and deletion clocks after matching
+     * schema negotiation, with one durably acknowledged record per session.
      */
     connect(transport) {
+      const isolated = isolatePeerTransport(transport, onError);
       return schemaVersion === undefined
-        ? plug(this, transport, null)
-        : plug(this, transport, { local: schemaVersion, onMismatch, hub });
+        ? plug(this, isolated, null, subscribe)
+        : plug(
+            this,
+            isolated,
+            { local: schemaVersion, onMismatch, hub },
+            subscribe,
+            reconciliation === false
+              ? null
+              : {
+                  store,
+                  send: (event) => transport.send(event),
+                  report,
+                  onState,
+                  options: reconciliation,
+                }
+          );
     },
   };
 };
 
 // Connect `peer` to `transport`; `gate` (or null) is the schema check.
-const plug = (peer, transport, gate) => {
+const plug = (peer, transport, gate, subscribe, reconciliation) => {
+  const history = reconciliation
+    ? createReconciliation({
+        ...reconciliation,
+        schema: gate.local,
+        receive: (event) => peer.receive(event),
+      })
+    : null;
+  let disconnected = false;
   const stop = (offLocal, offRemote) => () => {
+    disconnected = true;
     offLocal();
     if (typeof offRemote === 'function') {
       offRemote();
     }
+    history?.close();
   };
   if (!gate) {
     return stop(
-      peer.onLocal((e) => transport.send(e)),
-      transport.onMessage((e) => peer.receive(e))
+      subscribe((e) => transport.send(e)),
+      transport.onMessage((e) => (disconnected ? undefined : peer.receive(e)))
     );
   }
   const seen = new Set();
   let refused = false;
   const mismatch = (remote) => {
     refused = !gate.hub;
+    if (refused) {
+      history?.close();
+    }
     if (!seen.has(remote)) {
       seen.add(remote);
       gate.onMismatch(schemaMismatch(gate.local, remote));
     }
   };
-  const offLocal = peer.onLocal((e) => {
+  const offLocal = subscribe((e) => {
     if (!refused) {
       transport.send({ ...e, schema: gate.local });
     }
   });
   const offRemote = transport.onMessage((e) => {
+    if (disconnected || refused || (history && !history.addressed(e))) {
+      return undefined;
+    }
     const remote = Number.isInteger(e?.schema) ? e.schema : null;
     if (remote !== gate.local) {
       mismatch(remote);
       return undefined;
     }
+    if (history?.handles(e)) {
+      return history.receive(e);
+    }
     return e.type === HELLO ? undefined : peer.receive(e);
   });
-  transport.send({ type: HELLO, schema: gate.local });
+  transport.send(history?.hello() ?? { type: HELLO, schema: gate.local });
   return stop(offLocal, offRemote);
 };
 

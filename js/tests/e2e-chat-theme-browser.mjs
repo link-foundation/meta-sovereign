@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for chat themes and several usernames (R-Y170), as
 // Telegram Desktop has them. A chat with a person has "Change colours" in
 // its info column: a picker of the themes Telegram offers (each with a
@@ -100,7 +101,7 @@ await page.route('**/api/telegram/chat-themes', (route) =>
 );
 const themeSets = [];
 await page.route('**/api/telegram/chat-theme-set', (route) => {
-  themeSets.push(route.request().postDataJSON());
+  themeSets.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/profile', (route) =>
@@ -125,11 +126,11 @@ await page.route('**/api/telegram/profile', (route) =>
 const toggles = [];
 const reorders = [];
 await page.route('**/api/telegram/username-toggle', (route) => {
-  toggles.push(route.request().postDataJSON());
+  toggles.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/usernames-reorder', (route) => {
-  reorders.push(route.request().postDataJSON());
+  reorders.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

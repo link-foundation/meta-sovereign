@@ -1,0 +1,11 @@
+{
+  "archive": "salary-exchange-policy.tar.gz",
+  "files": {
+    "mcp-verification.json": "eebfb2e6e7ede8bd493cbb16e6bd767b53b8c1ab52571e218181df518cc903a8",
+    "salary-exchange-policy-before.log": "a1baff06e1a6820da7318c70f1f31c63df75e9f4488ac0ab2d715ebaae1f60cd",
+    "salary-exchange-policy-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "salary-exchange-policy-build.log": "e4531598208df77a700ebc146c3594728d89e8aeb7491020579bcfa8d23eb603",
+    "salary-exchange-policy-focused.log": "f2ac409b1dd788887ce99f75755f166f47d717a9691adc3c61294731f9d84065",
+    "salary-exchange-policy-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Browser -> confirmed HTTP send -> shared adapter -> Telegram wire request.
 // Fake Telegram clears unread after a send, as may happen on another device.
 import { createMemoryStore } from '../src/storage/universal.js';
@@ -104,14 +105,14 @@ await page.addInitScript(() => {
 });
 const acknowledgements = [];
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   return fulfil(route, {
     ok: true,
     read: await store.get(`read:telegram:${chat}`),
   });
 });
 await page.route('**/api/telegram/read', async (route) => {
-  acknowledgements.push(route.request().postDataJSON());
+  acknowledgements.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 const card = () =>

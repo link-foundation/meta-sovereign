@@ -1,0 +1,15 @@
+{
+  "archive": "telegram-optional-capabilities.tar.gz",
+  "files": {
+    "mcp-observations.json": "dbcbb59490ca22fbb0734e281cf9fce092e92281b073f8b224248ab879c02eba",
+    "telegram-optional-browser-after.log": "2e135c07839575665bc07ce359887789e71ec40d5c8087bfd8b8702d788f2148",
+    "telegram-optional-browser-before.log": "45a274dd27bda4333000757c0af0a8c0cf6fe6ec4d3a5a865298b5b6b725c15a",
+    "telegram-optional-build.log": "3a7ec30bbe4ecedc7033b21ffea4a521362b85f3cf47002d425f0448cb96c295",
+    "telegram-optional-capabilities-after.log": "79ace38d27b926d4cbd37bd15bfd470ac624f76d8db79b8ba22778ed85580706",
+    "telegram-optional-capabilities-before.log": "6c6d5ed28e2839b1d33c3907f44d084b6f43ac382a25a0bc51e976e68744d9c7",
+    "telegram-optional-doc-format.log": "70cc88bfef6c347b2361919b5f8647dd5fe3137ea9692667a30fa81ed3a0f9b7",
+    "telegram-optional-doc-tests.log": "8645502f29d141961ef96198aa1691a1cf465b2930c60cf97ec863ae6e891428",
+    "telegram-optional-format.log": "dda5d3cb72f67feb18aa275f00088680fef9b4ff105c9caadbda7b64734770b7",
+    "telegram-optional-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

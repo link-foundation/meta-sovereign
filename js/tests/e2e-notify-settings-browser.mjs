@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the notification settings (R-Y157), as Telegram
 // Desktop has them: Settings → Notifications lists Private chats, Groups
 // and Channels, each with Notifications, Message preview and Stories
@@ -66,7 +67,7 @@ await page.route('**/api/telegram/notify-settings', (route) =>
   fulfil(route, { ok: true, scopes, exceptions })
 );
 await page.route('**/api/telegram/notify-settings-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['scope', body]);
   const { scope, ...change } = body;
   return fulfil(route, { ok: true, scope, ...scopes[scope], ...change });
@@ -74,7 +75,7 @@ await page.route('**/api/telegram/notify-settings-set', (route) => {
 await page.route('**/api/telegram/notify-chat', (route) =>
   fulfil(route, {
     ok: true,
-    chat: route.request().postDataJSON().chat,
+    chat: requestBody(route.request()).chat,
     exception: true,
     muteUntil: 0,
     forever: false,
@@ -83,7 +84,7 @@ await page.route('**/api/telegram/notify-chat', (route) =>
   })
 );
 await page.route('**/api/telegram/notify-chat-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['chat', body]);
   return fulfil(route, {
     ok: true,

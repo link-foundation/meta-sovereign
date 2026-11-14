@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for reordering the pinned chats (R-Y159): the third
 // pinned chat is dragged to the top (the list shows the new order at once
 // and /api/telegram/pinned-reorder gets the exact order); an unpinned chat
@@ -55,7 +56,7 @@ const { base, page, until, finish } = await openChatApp('pinned-reorder', {
 const asked = [];
 let refuse = false;
 await page.route('**/api/telegram/pinned-reorder', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   if (refuse) {
     return fulfil(route, { ok: false, error: 'PINNED_DIALOGS_TOO_MUCH' });

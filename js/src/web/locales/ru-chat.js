@@ -1,7 +1,10 @@
+import { ruChatInvite } from './ru-chat-invite.js';
+
 // The chat screen's words in Russian, split from ./ru.js to keep
 // each file small; its keys are part of the ru dictionary.
 
 export const ruChat = {
+  ...ruChatInvite,
   'chat.history.complete': 'Все доступные сообщения загружены',
   'chat.history.loading': 'Загружаем сообщения…',
   'chat.history.wait': 'Telegram просит подождать. Повторим автоматически…',
@@ -301,18 +304,6 @@ export const ruChat = {
   'chat.topics.forum': 'Темы',
   'chat.topics.forumHint': 'Показывать группу как список тем.',
   'chat.pollNew.title': 'Новый опрос',
-  'chat.invite.channel': 'Канал',
-  'chat.invite.group': 'Группа',
-  'chat.invite.join': 'Вступить',
-  'chat.invite.request': 'Подать заявку',
-  'chat.invite.cancel': 'Отмена',
-  'chat.invite.loading': 'Проверяем ссылку-приглашение…',
-  'chat.invite.requestSent': 'Заявка на вступление отправлена.',
-  'chat.invite.err.invite-expired': 'Срок действия ссылки истёк.',
-  'chat.invite.err.invite-invalid': 'Эта ссылка-приглашение недействительна.',
-  'chat.invite.err.chat-full': 'Эта группа переполнена.',
-  'chat.invite.err.too-many-chats': 'Вы состоите в слишком многих чатах.',
-  'chat.invite.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
   'chat.members.title': 'Участники',
   'chat.members.owner': 'владелец',
   'chat.members.admin': 'админ',

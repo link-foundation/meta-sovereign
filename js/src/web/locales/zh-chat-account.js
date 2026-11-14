@@ -387,6 +387,16 @@ export const zhChatAccount = {
   'email.download': '下载',
   'pull.fetchNow': '立即获取',
   'pull.fetching': '正在获取…',
+  'pull.history.changed':
+    '读取期间聊天列表发生变化。已读取 {count} 条消息；请再次获取以重新检查覆盖范围。',
+  'pull.history.hint':
+    '按需读取 HH 历史。再次获取可继续未完成的读取。此操作不会将消息标为已读。',
+  'pull.history.complete':
+    '已读取 {count} 条消息。已检查 API 可用历史：{chats} 个聊天中的 {total} 条消息。',
+  'pull.history.partial':
+    '已读取 {count} 条消息。历史尚不完整（{total} 条消息，已完成 {chats} 个聊天）。请再次获取以继续。',
+  'pull.history.limited':
+    '已读取 {count} 条消息。已达到 API 聊天列表上限，较早的聊天可能缺失。',
   'pull.done': '已完成，读取了 {count} 条消息。',
   'pull.rateLimited': '刚刚获取过，请在 {seconds} 秒后重试。',
   'pull.notConnected': '请先保存访问令牌，再获取。',

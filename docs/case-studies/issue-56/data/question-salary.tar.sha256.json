@@ -1,0 +1,15 @@
+{
+  "archive": "question-salary.tar.gz",
+  "files": {
+    "c974-checks-status.json": "014a110de831f1fb159c67ff50e62b3fc0e8d3fa2ac324dbc5d181b1b6b02f53",
+    "c974-rust-failure.log": "767f4765401232ecaa290f30d4b99dfbca493cb250757e63ee88c28b71747bbc",
+    "manual-mcp.txt": "42914faf3dc15a1daaea7cf7e740758f007466f670831c173e0a987c224cc642",
+    "question-salary-before.log": "422c344028025ed0774b28375f6284988d83a0f982fb512da14f77d478ce2ff2",
+    "question-salary-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "question-salary-build.log": "ac490e80b1c720a8cc9ece293b3e78398dad09dddfdadb0cd9558b4a58cd7d48",
+    "question-salary-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-salary-final.log": "fe96d7c143e7eba96f85dc33bd7d7d36300390c5a7310a61e285de2ebe2d2f08",
+    "question-salary-focused.log": "eec3ee6cf0734adb09d965b22f65039fd0e3990673ca02735f0662d84f7e8461",
+    "question-salary-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

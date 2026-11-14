@@ -73,3 +73,27 @@ test('real Telegram imports emit no native storage warnings', () => {
   `);
   assert.deepEqual(JSON.parse(out.trim().split('\n').pop()), []);
 });
+
+test('installed SDK loads and resaves legacy GramJS IPv4 and string-address sessions', () => {
+  const out = runModuleScript(`
+    const { importTelegram } = await import(${JSON.stringify(layer)});
+    const { StringSession } = (await importTelegram()).sessions;
+    const key = Buffer.alloc(256, 42);
+    const port = Buffer.from([1, 187]);
+    const address = Buffer.from('149.154.167.50');
+    const size = Buffer.alloc(2);
+    size.writeUInt16BE(address.length);
+    const formats = [Buffer.from([149, 154, 167, 50]), Buffer.concat([size, address])];
+    const results = [];
+    for (const encodedAddress of formats) {
+      const original = '1' + Buffer.concat([Buffer.from([2]), encodedAddress, port, key]).toString('base64');
+      const imported = new StringSession(original);
+      await imported.load();
+      const reopened = new StringSession(imported.save());
+      await reopened.load();
+      results.push([imported, reopened].every((s) => s.dcId === 2 && s.serverAddress === address.toString() && s.port === 443 && Buffer.from(s.authKey.getKey()).equals(key)));
+    }
+    console.log(JSON.stringify(results));
+  `);
+  assert.deepEqual(JSON.parse(out.trim().split('\n').pop()), [true, true]);
+});

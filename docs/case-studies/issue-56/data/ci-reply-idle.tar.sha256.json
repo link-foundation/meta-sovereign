@@ -1,0 +1,31 @@
+{
+  "archive": "ci-reply-idle.tar.gz",
+  "files": {
+    "before/js/tests/reply-cache-ownership.test.js": "2b8ec4c9f63ba7ad7246ec268ff9d8dde2f96ac957cff73d5191e9efb9aec59d",
+    "ci-logs/ci-reply-idle-bun-before.log": "d25e0800e2c6e6a9f9984ec6e4db7b286b101211b06b7825708a658ce71720a7",
+    "ci-logs/ci-reply-idle-bun-file-before.log": "0c507760a07ba3e0a2f3e5b10a0986d813f297383fbc21d3544821b1e39858d9",
+    "ci-logs/ci-reply-idle-bun-focused.log": "b6925de2b5dacb3c1cd226940acff35e9592f38707020204357667ea13fb554f",
+    "ci-logs/ci-reply-idle-deno-before.log": "e506beb2ab5760c9656ccd7ed4b7780c41aeafd48aef9b8896888e0a2660b209",
+    "ci-logs/ci-reply-idle-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-reply-idle-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-reply-idle-node-focused.log": "3abc6a23081eb1c66f127690cdb14eb6a89e9b3f97473ddcf84d843038002b75",
+    "ci-logs/ci-reply-idle-prettier.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/head64-bun-linux.log": "3d038dfe7a17714060b2b43f4edd427f67bf48bc54ca88acae197a14307c1581",
+    "ci-logs/head64-bun-macos.log": "e81237a9df14fb37c796c06a5be1017bdd9c246e342ed60fe1ae4e01043905bf",
+    "ci-logs/head64-bun-windows.log": "3437020963851af2a137fb483ec420204160336c89cdb4c5d5a34617d5db2b9c",
+    "ci-logs/head64-deno-linux.log": "119218a9b3d8175af586cb2e9532bfbd3d07e6edd7466cd96f94901b3291ded3",
+    "ci-logs/head64-deno-macos.log": "3a7c8253f9edf285200e89d43d81a4abf178a5534300a7229ba3174055b2dba9",
+    "ci-logs/head64-deno-windows2.log": "6e6f0f465e31ecf6866b1478dd9a4bece7d11cbbd19427c07423cf02d4316d9f",
+    "ci-logs/head64-deno-windows3.log": "75d25f19d9092007d1d7bb175803f2046dca31f052537ffc61da826ff598a49f",
+    "ci-logs/head64-node-windows.log": "e6e79f07c882fdc82370b79fbeeb56b6e661208cb97726ba22f9a993bd696e82",
+    "ci-logs/head64-webkit4.log": "275e636116faf638e38e34fac40e131cebf398dd78a2cfa42341a1bd8f4f6d0d",
+    "ci-logs/reply-idle-parent-jobs.json": "d4fc464e5d91ea17cb00324d547f89537368c58d22f2dd344a0b9e021e4d3383",
+    "docs/case-studies/issue-56/ci-reply-idle.md": "39bb2cbd8a464d6f7a4b29f2a38c9966c05da4f0640fd3dcadfbe14e2f1951c9",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-reply-idle.py": "3f8053d00ab2b1e15f0a69f5959e531d79495c43e8ef7231d2ab27e13786e9fd",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "js/src/replies/reply-cache-work.js": "f7853c229b23e52ed4b85b6aa60b257b0a8e1aad9516763dde5389d990cba2cd",
+    "js/tests/reply-cache-ownership.test.js": "0d8d37b445f3ad2a2950deffa731a31267705605e99c2affce0334ce0e3f11fc",
+    "metadata.json": "b205da6442e4091ce6f4a317e5fe29e87afcb2e3ea87cf476ceb09119bd5fd43"
+  }
+}

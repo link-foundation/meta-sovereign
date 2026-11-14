@@ -32,7 +32,7 @@ import { launchWithCommander } from '../src/cv/browser.js';
 
 const clock = () => new Date('2026-10-19T12:00:00.000Z');
 
-test('every web app entry describes sign-in, sending, reading and actions', () => {
+test('web app entries describe only their supported messaging capabilities', () => {
   for (const [id, ui] of Object.entries(WEB_UIS)) {
     assert.equal(ui.id, id);
     for (const field of ['name', 'loginUrl', 'loggedIn', 'loggedOut']) {
@@ -40,10 +40,20 @@ test('every web app entry describes sign-in, sending, reading and actions', () =
     }
     assert.equal(typeof ui.chatUrl, 'function', `${id}.chatUrl`);
     assert.equal(typeof ui.target, 'function', `${id}.target`);
-    assert.ok(ui.composer && ui.send, `${id} composer/send`);
     assert.ok(ui.messages?.item && ui.messages?.body, `${id}.messages`);
     assert.ok(ui.chats?.item, `${id}.chats`);
-    assert.ok(ui.actions?.menu && ui.actions?.delete, `${id}.actions`);
+    if (id === 'hh') {
+      assert.ok(ui.composer && ui.choices && ui.location, 'hh native choices');
+      assert.equal(
+        ui.send,
+        undefined,
+        'hh ordinary text sending is unavailable'
+      );
+      assert.deepEqual(ui.actions, {}, 'hh has no general message actions');
+    } else {
+      assert.ok(ui.composer && ui.send, `${id} composer/send`);
+      assert.ok(ui.actions?.menu && ui.actions?.delete, `${id}.actions`);
+    }
     assert.match(
       ui.chatUrl(ui.target({ chat: '1234567' }), { text: '' }),
       /^https:\/\//

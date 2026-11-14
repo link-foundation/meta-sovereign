@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for profile extras (R-Y178), as Telegram Desktop has
 // them: the profile card opens "Birthday, colours, personal channel" where
 // the birthday (day, month, optional year), the name colour and the
@@ -20,7 +21,9 @@ const ANN = '42';
 const BOB = '43';
 const CAROL = '44';
 const EVE = '45';
-const today = new Date();
+// Keep browser dates and fixture history on one fixed calendar day. A real
+// clock just after midnight made the "two minutes ago" wish belong to yesterday.
+const today = new Date(2026, 10, 10, 12);
 const onDay = (offset) => {
   const date = new Date(
     today.getFullYear(),
@@ -50,7 +53,7 @@ for (const [chat, name] of [
     sender: chat,
     senderName: name,
     body: 'hello',
-    timestamp: new Date(Date.now() - 60_000).toISOString(),
+    timestamp: new Date(today.getTime() - 60_000).toISOString(),
     raw: { id: 1 },
   });
 }
@@ -64,14 +67,59 @@ await store.put({
   chatName: 'Eve Bell',
   chatType: 'private',
   body: 'С днём рождения!',
-  timestamp: new Date(Date.now() - 120_000).toISOString(),
+  timestamp: new Date(today.getTime() - 120_000).toISOString(),
 });
 const { base, page, until, finish } = await openChatApp('profile-extras', {
   store,
 });
+await page.clock.setFixedTime(today);
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+  globalThis.metaSovereignDebug = true;
+  globalThis.profileSelectionTrace = [];
+  const record = (event) => {
+    const trace = globalThis.profileSelectionTrace;
+    trace.push({
+      type: event.type,
+      row: event.target?.closest?.('[data-chat]')?.dataset.chat ?? null,
+      hash: globalThis.location.hash,
+    });
+    if (trace.length > 40) {
+      trace.shift();
+    }
+  };
+  for (const type of ['pointerdown', 'click', 'hashchange']) {
+    globalThis.addEventListener(type, record, true);
+  }
 });
+page.on('console', (message) => {
+  if (message.text().startsWith('[ms-debug] chat-')) {
+    console.log(`[profile-selection] ${message.text()}`);
+  }
+});
+
+const selectedChat = async (chat) => {
+  try {
+    await until(
+      async () =>
+        (await page
+          .locator(`[data-chat="telegram:${chat}"][aria-current="true"]`)
+          .count()) === 1,
+      `selected Telegram chat ${chat}`
+    );
+  } catch (error) {
+    const state = await page.evaluate(() => ({
+      hash: globalThis.location.hash,
+      selected: globalThis.document.querySelector(
+        '[data-chat][aria-current="true"]'
+      )?.dataset.chat,
+      trace: globalThis.profileSelectionTrace,
+    }));
+    throw new Error(`${error.message}: ${JSON.stringify(state)}`, {
+      cause: error,
+    });
+  }
+};
 let sentRoute = null;
 let releaseSend = null;
 await page.route('**/api/send', async (route) => {
@@ -87,7 +135,7 @@ await page.route('**/api/send', async (route) => {
     chatName: 'Bob Ray',
     chatType: 'private',
     body: 'Happy birthday!',
-    timestamp: new Date().toISOString(),
+    timestamp: today.toISOString(),
   };
   await store.put(link);
   return fulfil(route, { status: 'sent', link });
@@ -185,7 +233,7 @@ await page.route('**/api/telegram/emoji-statuses', (route) =>
 const writes = [];
 for (const name of ['birthday-save', 'color-save', 'personal-channel-save']) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    writes.push([name, route.request().postDataJSON()]);
+    writes.push([name, requestBody(route.request())]);
     return fulfil(route, { ok: true });
   });
 }
@@ -267,6 +315,7 @@ await finish(async () => {
   await birthdaySteps();
   // A person: birthday with age, profile colour, personal channel, cake.
   await page.locator(`[data-chat="telegram:${ANN}"]`).click();
+  await selectedChat(ANN);
   if ((await page.locator('.person-panel').count()) === 0) {
     await page.locator('[data-action="chat-about"]').click();
   }

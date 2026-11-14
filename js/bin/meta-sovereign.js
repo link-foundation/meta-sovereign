@@ -1,5 +1,12 @@
 #!/usr/bin/env node
-import { runCli } from '../src/cli/index.js';
+const importedAt = globalThis.performance.now();
+const { runCli } = await import('../src/cli/index.js');
+if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+  console.error(
+    `[cli] imported after ${Math.round(globalThis.performance.now() - importedAt)} ms`
+  );
+}
 
 const code = await runCli(process.argv.slice(2));
-process.exit(code);
+// Let pending output finish before the runtime exits.
+process.exitCode = code;

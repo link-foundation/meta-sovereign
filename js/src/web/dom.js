@@ -12,8 +12,11 @@ import { createPasscodeCaller } from './passcode-request.js';
 import { messageVersionCalls } from './dom-message-versions.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { createRecoveringRequest } from './request-recovery.js';
+import { createLinoFetch } from '../transport/fetch.js';
+import { LINO_TEXT, LINO_LINE, decodeWire } from '../transport/lino.js';
 import { isReadRequest } from './request-policy.js';
-import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
+import { openCausalBrowserStore } from '../storage/open-browser-store.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -30,13 +33,19 @@ import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 import { createGreetingApi } from './greetings-api.js';
-import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
+import { createTelegramCalls } from './telegram-call-api.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
 import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
+import { openTelegramAccountEvents } from './telegram-capabilities.js';
+import { createBroadcastApi } from './broadcast-api.js';
+import { createFormsApi } from './forms-api.js';
+import { createVacancyApi } from './vacancy-api.js';
+import { createPublicationApi } from './publication-api.js';
+import { AUTOMATION_CALLS } from './dom-automation-calls.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = globalThis.document.createElement(tag);
@@ -85,12 +94,13 @@ const localBroadcast = async (networks, body) =>
 // by a newer build is not touched: the page works on a scratch copy and
 // says so (`ms-schema-too-new`), so nothing of it is overwritten.
 const openMigratedStore = async (suffix) => {
-  const store = await createBrowserStore({
-    driver: pickBrowserDriver({ suffix }),
-  });
   try {
-    await migrateBrowserStore(store);
-    return store;
+    return await openCausalBrowserStore({
+      driver: pickBrowserDriver({ suffix }),
+      signal: pageLifetime,
+      onError: (error) =>
+        debugBrowser('snapshot-merge-refused', { code: error?.code }),
+    });
   } catch (error) {
     if (error?.code !== 'STORE_TOO_NEW') {
       throw error;
@@ -99,7 +109,7 @@ const openMigratedStore = async (suffix) => {
     globalThis.dispatchEvent?.(
       new globalThis.CustomEvent('ms-schema-too-new', { detail: error.message })
     );
-    return createBrowserStore();
+    return withCausalWrites(await createBrowserStore());
   }
 };
 
@@ -126,14 +136,18 @@ const boot = async () => {
     ? {
         origin: discovered.origin,
         // The links and chat pages of the account this tab uses (R-Y202).
-        fetchImpl: (url, init) =>
-          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init),
+        fetchImpl: createLinoFetch((url, init) =>
+          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init)
+        ),
       }
     : null;
   const client = createOfflineClient({
     store,
     server,
     replyDriver: pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
+    signal: pageLifetime,
+    onReplyCacheError: (error) =>
+      debugBrowser('reply-cache-refused', { code: error.code }),
   });
   client.on((event) => {
     if (event.type === 'mode-change' && event.online) {
@@ -142,7 +156,8 @@ const boot = async () => {
   });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
-  // server relaying every byte (R-J7). Best-effort: a missing
+  // server relaying every byte (R-J7). Honor an explicitly disabled broker.
+  // Best-effort: a missing
   // RTCPeerConnection (older browsers) just skips this path. Only account
   // 1's: the peers are account 1's pages (R-Y202).
   const rtc =
@@ -150,6 +165,7 @@ const boot = async () => {
       ? attachWebRtcSync({
           store,
           origin: discovered.origin,
+          capabilities: discovered.capabilities,
           onError: (error) => {
             rawApi
               .clientLog({
@@ -166,7 +182,7 @@ const boot = async () => {
     bus,
     client,
     requests: createRecoveringRequest({
-      fetchImpl: (url, init) => globalThis.fetch(url, init),
+      fetchImpl: createLinoFetch((url, init) => globalThis.fetch(url, init)),
       reached: client.reached,
       failed: client.failed,
     }),
@@ -198,8 +214,9 @@ const ensure = () => {
  */
 export const resetServerBinding = () => {
   bootPromise
-    ?.then(({ follow, client, requests }) => {
+    ?.then(({ follow, client, requests, rtc }) => {
       follow?.stop?.();
+      rtc?.close?.();
       client.close?.();
       requests.stop();
     })
@@ -257,13 +274,13 @@ const announceLocked = (response) => {
 };
 
 // The local passcode (R-Y183): `op` is status, unlock, lock, set, remove or
-// auto-lock; the answer is the server's JSON with `httpStatus`, null offline.
+// auto-lock; the answer has `httpStatus`, null offline.
 const passcodeCall = createPasscodeCaller(ensure, announceLocked);
 
 const serverFetch = async (path, init) => {
   const response = await serverResponse(path, init);
   // "Online" does not mean "implements this route": the Rust backend
-  // answers routes it does not have with a 404 and a JSON error body
+  // answers routes it does not have with a 404 and a structured error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
   // with HTML. Both mean the same thing as being offline, so both
   // return null and let the caller's `??` default take over —
@@ -283,6 +300,16 @@ const serverFetch = async (path, init) => {
     return null;
   }
   return response.json().catch(() => null);
+};
+
+// A refused saved-file read is unknown, rather than an empty local selection.
+const serverReadReport = async (path) => {
+  const response = await serverResponse(path, {}, { network: true });
+  if (!response) {
+    return null;
+  }
+  const result = await response.json().catch(() => null);
+  return result ?? { ok: false, code: 'server-read-unconfirmed' };
 };
 
 /**
@@ -329,12 +356,16 @@ const uploadTo = async (path, file, { onProgress, signal } = {}) => {
     const xhr = new globalThis.XMLHttpRequest();
     xhr.open('POST', url);
     xhr.setRequestHeader('content-type', 'application/octet-stream');
+    xhr.setRequestHeader('accept', LINO_TEXT);
     xhr.upload.onprogress = (event) =>
       event.lengthComputable && onProgress?.(event.loaded / event.total);
     xhr.onload = () => {
       const data = (() => {
         try {
-          return JSON.parse(xhr.responseText);
+          return decodeWire(
+            xhr.responseText,
+            xhr.getResponseHeader('content-type')
+          );
         } catch {
           return null;
         }
@@ -472,6 +503,7 @@ export const serverPostConfirmed = async (path, body, ask, options) => {
 
 /** The server bridge for ./automation-api.js; null means "no server". */
 const remote = {
+  request: serverResponse,
   get: (path) => serverFetch(path),
   post: (path, body) => postJson(path, body),
   report: (path, body, options) => serverPostReport(path, body, options),
@@ -492,14 +524,10 @@ const telegramPost = async (name, body) =>
 let automationApi = null;
 // Each plain Telegram call of the page (R-Y75 onwards) as a function: a
 // call that takes a body sends it, one that takes none always sends {}.
-const telegramCalls = Object.fromEntries(
-  Object.entries(TELEGRAM_CALLS).map(([name, call]) => [
-    name,
-    call.body
-      ? (body = {}) => telegramPost(call.route, body)
-      : () => telegramPost(call.route, {}),
-  ])
-);
+const telegramCalls = createTelegramCalls({
+  post: telegramPost,
+  readStatus: () => api.telegramStatus(),
+});
 
 const automationCall =
   (name) =>
@@ -509,38 +537,11 @@ const automationCall =
     return automationApi[name](...args);
   };
 
-// Issue #31 / PR #34: automations, their drafts, the composer's send and
-// typing status, people, lists and audiences — see ./automation-api.js.
-const AUTOMATION_CALLS = [
-  'automations',
-  'saveAutomation',
-  'deleteAutomation',
-  'planAutomation',
-  'runAutomation',
-  'drafts',
-  'draftAction',
-  'nextDraft',
-  'resetEdit',
-  'autopilots',
-  'autopilot',
-  'automationHistory',
-  'outbox',
-  'resolveOutbox',
-  'safetySettings',
-  'saveSafetySettings',
-  'sendMessage',
-  'setTyping',
-  'typing',
-  'people',
-  'audiences',
-  'saveAudience',
-  'deleteAudience',
-  'resolveAudience',
-  'lists',
-  'saveList',
-];
-
 const rawApi = {
+  browserPolicies: async () =>
+    (await serverFetch('/api/browser/policies')) ?? { available: false },
+  saveBrowserPolicy: async (policy) =>
+    serverPostReport('/api/browser/policies', policy, { network: true }),
   ...createFeedbackApi(remote),
   ...createStickerCollectionsApi({
     ...remote,
@@ -659,10 +660,11 @@ const rawApi = {
       ok: false,
       code: 'server-required',
     },
-  broadcast: async (text, networks) => {
-    const { client } = await ensure();
-    return client.broadcast({ text, networks });
-  },
+  broadcast: createBroadcastApi(serverPostConfirmed),
+  publications: createPublicationApi({
+    request: serverResponse,
+    confirmed: serverPostConfirmed,
+  }),
   // ---- thin server passthroughs (work only when online) -----------
   // These derive from richer server-side data (sources, patterns,
   // etc.). When offline they short-circuit to safe defaults so the
@@ -762,6 +764,23 @@ const rawApi = {
   // server has; offline the SPA still shows the catalogue, the stored
   // snapshots it holds and a clear "server required" answer.
   cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
+  ...createVacancyApi({
+    get: serverFetch,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+    fileUrl: async (path) => {
+      const { client, origin } = await ensure();
+      return client.isOnline()
+        ? scopedUrl(origin ? new URL(path, origin).toString() : path)
+        : null;
+    },
+  }),
+  ...createFormsApi({
+    get: serverFetch,
+    getResume: serverReadReport,
+    report: serverPostReport,
+    local: async () => (await ensure()).store,
+  }),
   cvPlan: async (platform) =>
     (await serverFetch(
       `/api/cv/plan?platform=${encodeURIComponent(platform)}`
@@ -844,18 +863,26 @@ const rawApi = {
       confirm: true,
     })) ?? { ok: false, error: 'server required' },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
-  createBackup: async ({ passphrase = null, keep } = {}) =>
-    (await serverFetch('/api/backups', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ passphrase, ...(keep ? { keep } : {}) }),
-    })) ?? { error: 'server required for backups' },
+  recoverySettings: async () =>
+    (await serverFetch('/api/backups/settings')) ?? { available: false },
+  saveRecoverySettings: (settings) =>
+    serverPostReport('/api/backups/settings', settings, { network: true }),
+  createBackup: async ({ passphrase = null, keep, formats } = {}) =>
+    (await serverPostReport(
+      '/api/backups',
+      {
+        passphrase,
+        ...(keep !== undefined ? { keep } : {}),
+        ...(formats !== undefined ? { formats } : {}),
+      },
+      { network: true }
+    )) ?? { error: 'server required for backups' },
   restoreBackup: async (file, passphrase = null) =>
-    (await serverFetch('/api/backups/restore', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ file, passphrase }),
-    })) ?? { error: 'server required for restore' },
+    (await serverPostReport(
+      '/api/backups/restore',
+      { file, passphrase },
+      { network: true }
+    )) ?? { error: 'server required for restore' },
   // The GitHub inbox (R-Z11): GET when `body` is undefined, else POST. The
   // server's own answer, with its error code, is kept.
   githubInbox: async (route, body) => {
@@ -965,7 +992,7 @@ const rawApi = {
       return () => {};
     }
     const url = scopedUrl(
-      origin ? new URL('/api/events', origin).toString() : '/api/events'
+      new URL('/api/events?format=lino-line', origin).toString()
     );
     const transport = trackServerStream();
     let interrupted = false;
@@ -986,7 +1013,7 @@ const rawApi = {
         },
         link: (event) => {
           try {
-            onEvent(JSON.parse(event.data));
+            onEvent(decodeWire(event.data, LINO_LINE));
           } catch {
             /* Skip malformed frames; the next refresh catches up. */
           }
@@ -1016,24 +1043,10 @@ const rawApi = {
    */
   telegramAccountsEvents: async (onEvent) => {
     const { origin } = await ensure();
-    const Source = globalThis.EventSource;
-    if (!origin || typeof Source !== 'function') {
-      return () => {};
-    }
-    const path = '/api/telegram/accounts-events';
-    return openServerEvents(
-      origin ? new URL(path, origin).toString() : path,
-      {
-        message: (event) => {
-          try {
-            onEvent(JSON.parse(event.data));
-          } catch {
-            /* Skip malformed frames. */
-          }
-        },
-      },
-      { Source, signal: pageLifetime }
-    );
+    return openTelegramAccountEvents(origin, onEvent, {
+      readStatus: () => api.telegramStatus(),
+      signal: pageLifetime,
+    });
   },
   // Mark a chat read up to a message on Telegram, and save its draft
   // there, so the phone and other apps show the same.

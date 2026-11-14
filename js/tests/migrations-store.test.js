@@ -270,10 +270,10 @@ test('the binary snapshot is rebuilt after a rollback', async () => {
   store.close();
 });
 
-test('an empty store is not stamped; data written later is migrated safely', async () => {
+test('an empty store records its current schema before admitting new-format data', async () => {
   const dir = await tmpdir();
   const store = await open(dir);
-  assert.equal(await store.get(SCHEMA_ID), null);
+  assert.equal((await store.get(SCHEMA_ID)).version, 1);
   assert.equal(store.migration, null);
   await store.put(oldLinks(1)[0]);
   await store.flush();

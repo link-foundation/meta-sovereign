@@ -10,8 +10,8 @@
   {
     "rule": "js/redos",
     "path": "js/tests/server-hardening.test.js",
-    "line": "assert.equal(safeTest(/(a+)+$/, `${'a'.repeat(5000)}b`), false);",
-    "sha256": "56e02dde5fe88c584732c529c891a14d7a2d2a104cb275ce05f604462993e76a",
+    "line": "assert.equal(safeTest(safeRegExp('(a+)+$'), `${'a'.repeat(5000)}b`), false);",
+    "sha256": "682794b86a2d7f38088c84878d62b8a7b2461c4e800370a5670e416fd1a6bcab",
     "reason": "This regression deliberately supplies a catastrophic expression to safeTest, never directly to RegExp.test. The fixed 5001-character fixture verifies that the existing server VM stops matching within its 50 ms budget. Removing this input would remove the timeout regression. Only this exact assertion and whole-file digest are accepted.",
     "test": "js/tests/server-hardening.test.js: regex: pattern length and input size are capped, a runaway match is cut off"
   }

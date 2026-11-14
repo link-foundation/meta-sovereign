@@ -22,10 +22,14 @@ import { clearInterval, setInterval } from 'node:timers';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
-import { recordOutcome } from './record-outcome.js';
 import { createPacedSender } from './paced-send.js';
-import { guardedSend, outboxKey } from './outbox.js';
+import { createDelivery } from './deliver.js';
 import { planningRecords } from './planning-store.js';
+import { draftChatModelAnswers } from './question-chat-model.js';
+import {
+  prepareSalaryExchange,
+  withSalaryExchangeEvidence,
+} from './salary-exchange-policy.js';
 import { createAutomationRun } from './run-automation.js';
 import {
   AUTOMATION_PREFIX,
@@ -79,6 +83,7 @@ export const createAutomationRunner = ({
   sleep = delay,
   random = Math.random,
   log = () => {},
+  modelRunner,
 } = {}) => {
   const nowIso = () => clock().toISOString();
 
@@ -93,13 +98,48 @@ export const createAutomationRunner = ({
     const data = await planningRecords(store, {
       targets: options.targets,
       self,
+      inferSelf: automation.action?.kind !== 'answer-questions',
+      summaryChoices: automation.action?.kind === 'answer-questions',
     });
-    return planAutomation(data.records, automation, {
-      ...pick(options, ['targets', 'test', 'limit']),
+    const prepared = await prepareSalaryExchange(
+      store,
+      automation.action.salary,
+      {
+        now: () => options.now ?? clock().getTime(),
+      }
+    );
+    const planned = planAutomation(
+      data.records,
+      {
+        ...automation,
+        action: {
+          ...automation.action,
+          ...(prepared.salary ? { salary: prepared.salary } : {}),
+        },
+      },
+      {
+        ...pick(options, ['targets', 'test', 'limit']),
+        now: options.now ?? clock().getTime(),
+        self: data.self,
+        acceptedSummaries: data.acceptedSummaries,
+        resolveAudience,
+        modelCandidates: true,
+      }
+    );
+    const drafted = await draftChatModelAnswers(store, automation, planned, {
+      runner: modelRunner,
+      signal: options.signal,
       now: options.now ?? clock().getTime(),
-      self: data.self,
-      resolveAudience,
     });
+    for (const draft of drafted.drafts) {
+      if (draft.answer) {
+        draft.answer = withSalaryExchangeEvidence(
+          draft.answer,
+          prepared.rateState
+        );
+      }
+    }
+    return drafted;
   };
 
   const showTyping = async (automation, draft) => {
@@ -125,49 +165,14 @@ export const createAutomationRunner = ({
     await sleep(ms);
   };
 
-  /** Send one draft now: typing, the guarded send, ledger, chat history. */
-  const deliver = async (automation, draft) => {
-    if (typeof send !== 'function') {
-      throw new Error('no sender configured; send it yourself and mark it');
-    }
-    await showTyping(automation, draft);
-    const outcome = await guardedSend({
-      store,
-      kind: 'automation',
-      owner: automation.id,
-      key: outboxKey({
-        owner: automation.id,
-        source: draft.source,
-        chat: draft.chat,
-        now: clock().getTime(),
-      }),
-      draft,
-      send,
-      clock,
-      log,
-    });
-    const record = await recordOutcome({
-      store,
-      automation,
-      draft,
-      outcome,
-      nowIso,
-      log,
-    });
-    return {
-      status: outcome.status,
-      draft,
-      record,
-      outbox: outcome.outbox,
-      ...(outcome.status === 'sent'
-        ? {}
-        : {
-            error: outcome.error,
-            ...(outcome.code ? { code: outcome.code } : {}),
-            ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
-          }),
-    };
-  };
+  const deliver = createDelivery({
+    store,
+    send,
+    showTyping,
+    clock,
+    log,
+    nowIso,
+  });
 
   const queue = (automation, drafts) =>
     queueDrafts(store, automation, drafts, nowIso());

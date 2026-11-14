@@ -9,6 +9,7 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../../src/server/index.js';
+import { fulfilWire } from './http-wire.mjs';
 import { watchChatPages, screenshotChatPages } from './e2e-page-errors.mjs';
 
 export const assert = (cond, msg) => {
@@ -19,7 +20,7 @@ export const assert = (cond, msg) => {
 
 /** A route answered with JSON. */
 export const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -58,6 +59,8 @@ export const openChatApp = async (
     telegramAccount = false,
     secure = false,
     launchOptions = {},
+    fileBackups = false,
+    acceptDialog,
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -69,6 +72,7 @@ export const openChatApp = async (
     port: 0,
     storeDir: dir,
     store,
+    ...(fileBackups ? { archiveDir: path.join(dir, 'archives') } : {}),
     enableSync: false,
     enableHandlers: false,
     telegramAccount,
@@ -84,6 +88,9 @@ export const openChatApp = async (
   const base = `${secure ? 'https' : 'http'}://127.0.0.1:${handle.port}`;
   const browser = await browserType.launch({
     headless: true,
+    ...(process.env.E2E_EXECUTABLE_PATH
+      ? { executablePath: process.env.E2E_EXECUTABLE_PATH }
+      : {}),
     ...launchOptions,
   });
   const context = await browser.newContext({
@@ -95,6 +102,7 @@ export const openChatApp = async (
     errors,
     engine,
     base,
+    acceptDialog,
     trace:
       process.env.CI_BROWSER_DEBUG === '1'
         ? (event) => console.log(`[e2e-${name}] ${event}`)

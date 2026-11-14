@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for forward options and message links (R-Y154), as
 // Telegram Desktop has them: picking the chat for a forward opens it with
 // a bar over the box ("Forward n messages", the senders, a menu with Hide
@@ -104,15 +105,15 @@ await page.route('**/api/telegram/chat-info*', (route) => {
   return fulfil(route, { chat, kind: 'group', title: 'Chat' });
 });
 await page.route('**/api/send', (route) => {
-  events.push(['send', route.request().postDataJSON()]);
+  events.push(['send', requestBody(route.request())]);
   return fulfil(route, { status: 'sent', links: [] });
 });
 await page.route('**/api/telegram/forward', (route) => {
-  events.push(['forward', route.request().postDataJSON()]);
+  events.push(['forward', requestBody(route.request())]);
   return fulfil(route, { ok: true, forwarded: 1 });
 });
 await page.route('**/api/telegram/message-link', (route) => {
-  events.push(['message-link', route.request().postDataJSON()]);
+  events.push(['message-link', requestBody(route.request())]);
   return fulfil(route, { ok: true, link: 'https://t.me/c/1111/2' });
 });
 const named = (kind) => events.filter(([k]) => k === kind).map(([, b]) => b);

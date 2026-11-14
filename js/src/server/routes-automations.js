@@ -57,6 +57,8 @@ import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validEffect } from './routes-telegram-effects.js';
+import { questionAnswerRoute } from './routes-question-answers.js';
+import { followRoute } from './routes-follow.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -550,6 +552,9 @@ const handleWrite = async (store, req, res, p) => {
 };
 
 const statusFor = (error) => {
+  if (error.code?.startsWith('answer-model-')) {
+    return [error.code === 'answer-model-changed' ? 409 : 400, error.code];
+  }
   if (error.code === 'confirm-required') {
     return [400, error.code];
   }
@@ -557,7 +562,23 @@ const statusFor = (error) => {
   return bodyFailure(error) ? [error.status, error.code] : [400, 'bad-request'];
 };
 
+const featureRoute = (path) =>
+  [
+    ['/api/automations/answers', questionAnswerRoute],
+    ['/api/automations/follow', followRoute],
+  ].find(([root]) => path === root || path.startsWith(`${root}/`))?.[1];
+
 export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
+  const feature = featureRoute(p);
+  if (feature) {
+    try {
+      return await feature(store, req, res, p, url, ctx);
+    } catch (error) {
+      const [status, code] = statusFor(error);
+      fail(res, status, code, error.message);
+      return true;
+    }
+  }
   const get = req.method === 'GET' ? GET[p] : null;
   const post = req.method === 'POST' ? POST[p] : null;
   const isWrite = ['PUT', 'DELETE'].includes(req.method);

@@ -8,7 +8,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   HOSTED_UI_URL,
   foundOnPort,
@@ -299,6 +299,7 @@ test('discovery never queries or verifies the store and retains origin checks', 
       assert.deepEqual(await answer.json(), {
         service: 'meta-sovereign',
         discovery: true,
+        capabilities: { webSocketSync: false, webRtcSync: false },
       });
       const denied = await fetch(`${base}/api/status?probe=1`, {
         headers: { origin: 'https://unrelated.example' },
@@ -382,6 +383,7 @@ test('sync writes during slow statistics do not spawn overlapping verifications 
     assert.deepEqual(await derivedStatus(store, '?probe=1'), {
       service: 'meta-sovereign',
       discovery: true,
+      capabilities: { webSocketSync: false, webRtcSync: false },
     });
     assert.equal(
       verifications,

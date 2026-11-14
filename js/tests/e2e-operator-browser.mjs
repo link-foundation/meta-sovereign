@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Unread conversations are Operator cards, with a real composer and no list.
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
@@ -51,6 +52,21 @@ const { base, page, until, finish } = await openChatApp('operator', {
     return { via: 'fake' };
   },
 });
+if (process.env.E2E_OPERATOR_TRACE === '1') {
+  await page.addInitScript(() => {
+    globalThis.metaSovereignDebug = true;
+    for (const type of ['popstate', 'hashchange']) {
+      globalThis.addEventListener(type, () =>
+        console.debug('[operator-history]', type, globalThis.location.hash)
+      );
+    }
+  });
+  page.on('console', (event) => {
+    if (/\[ms-debug\]|\[operator-history\]/u.test(event.text())) {
+      console.log(event.text());
+    }
+  });
+}
 let failRead = false;
 let failDirectory = true;
 await page.addInitScript(() => {
@@ -64,7 +80,7 @@ await page.route(/\/links\?except=msg:/, (route) =>
 );
 const inspected = [];
 await page.route('**/api/telegram/dialog-state', async (route) => {
-  const { chat } = route.request().postDataJSON();
+  const { chat } = requestBody(route.request());
   inspected.push(chat);
   const current = summarizeChats(await store.query()).find(
     (item) => item.chat === chat
@@ -86,7 +102,7 @@ await page.route('**/api/telegram/dialog-state', async (route) => {
 });
 const reads = [];
 await page.route('**/api/telegram/read', async (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   reads.push(body);
   if (failRead) {
     return fulfil(route, { error: 'simulated failure' }, 502);

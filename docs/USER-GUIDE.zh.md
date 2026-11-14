@@ -28,7 +28,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **选择之前请先了解限制。** Rust server 只把 links 保存在**内存**中：不会写入磁盘，停止后所有数据都会丢失。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS server（第 3 节）或桌面 app（第 4 节）。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md)。
+> **选择之前请先了解限制。** Rust server CLI 默认将 links 保存到原生文本/二进制检查点；`--data` 指定目录，`--memory` 显式使用临时内存。格式和恢复限制见 [native storage](./NATIVE-STORAGE.md)。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS server（第 3 节）或桌面 app（第 4 节）。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md)。
 
 Server 默认监听 <http://127.0.0.1:8787>。GitHub Pages 上的 SPA 会自动探测保存的 override（`localStorage` 中的 `metaServer`）和一组 `127.0.0.1` 端口。
 
@@ -193,7 +193,7 @@ MS_SECRET_PASSPHRASE='只有你自己知道的长 passphrase' node js/bin/meta-s
 - 未设置该变量时，什么都不加密，server 行为和以前一样。
 - 当请求没有带 passphrase 时，`POST /api/export-encrypted` 默认使用同一个 passphrase。
 
-它**不会**加密的内容：存储的其余部分（`data.lino` 和 `data.bin`：联系人、消息、patterns 等）、下载的媒体和归档、日志，以及备份（只有创建备份时给了 passphrase 才会加密）。请用磁盘加密和文件权限保护它们。Rust server 没有这个选项：它把一切都放在内存中。
+它**不会**加密的内容：存储的其余部分（`data.lino` 和 `data.bin`：联系人、消息、patterns 等）、下载的媒体和归档、日志，以及备份（只有创建备份时给了 passphrase 才会加密）。请用磁盘加密和文件权限保护它们。Rust server 没有这个加密选项：其原生检查点文件以明文保存。
 
 ## 8. 导入数据
 
@@ -498,3 +498,5 @@ Operator 的 Next 会将会话移至队列末尾，保持未读；其他会话�
 临时连接失败会无限自动重试加载，并保留最近成功显示的内容。消息队列在所有页面持续运行，服务器恢复后立即继续发送。连接过服务器或 Telegram 后，默认不再建议纯浏览器模式；可在连接恢复设置中启用该建议。
 
 更新后，在原主进程保持运行时再次执行 `serve`：旧版本在新版本预热时继续服务，随后移交唯一写入权限，保留公共端口和证书。失败时自动回退。旧的单进程安装需要首次重启才能启用此架构。[滚动升级说明](ROLLING-SERVER.md)。
+
+[提供方浏览器答案审核、精确选项确认与状态恢复](QUESTION-BROWSER.zh.md).

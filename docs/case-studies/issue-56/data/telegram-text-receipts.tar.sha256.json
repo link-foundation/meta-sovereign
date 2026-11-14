@@ -1,0 +1,25 @@
+{
+  "archive": "telegram-text-receipts.tar.gz",
+  "files": {
+    "ci-logs/telegram-text-receipts-after.log": "be94ce50f36b01245782f730a293b0efbf69282545c2b76380709304023f827c",
+    "ci-logs/telegram-text-receipts-before.log": "de9496964960895df8cba49d9a9e1e5a8e3dbb3cfa39ffdafb0161532db0b0cf",
+    "ci-logs/telegram-text-receipts-browser-after.log": "8477b9005a8076b25917dda0b3e0ac4f5537e601ed94e4d02aac0cd7040d9d5c",
+    "ci-logs/telegram-text-receipts-browser-before.log": "1200e90a95ba212107818939d5d224ff8a3ca5a9c24565c2bb001aa379d47667",
+    "ci-logs/telegram-text-receipts-build-web.log": "70bdc6defe7e6804a41047f421df72d33e258590af1b0994fb815a394ae96abc",
+    "ci-logs/telegram-text-receipts-final-format.log": "a92d3bfb62ad9a66aaaee2baefbb11c2e2110ed58bdfec1774e426dd3e333712",
+    "ci-logs/telegram-text-receipts-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-text-receipts-fixture-format.log": "3cf9e5f1bb4728347426931b1ed099c94aa865cade288b3c622a31f57590e27d",
+    "ci-logs/telegram-text-receipts-format.log": "3ce4b3348f480b2c6beef80ac03bb067e79c07bec3d620b9a652fdb1c290f3f3",
+    "ci-logs/telegram-text-receipts-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-text-receipts-ui-after.log": "c2a834a38b68f984f7dd5b98d694f5a3debc6b7ff5c6247fbf9607d91ad21bfc",
+    "ci-logs/telegram-text-receipts-ui-before.log": "6950949c0e324106d316e80ca0cc94ac29280242d0533ed4d65fec74443df1fc",
+    "ci-logs/telegram-text-receipts-ui-format.log": "68d66d013bf5950e5ae7b8b681f0262865986ebc4de8fe1fd561ad7e4c6bf62a",
+    "ci-logs/telegram-text-receipts-ui-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-text-receipts-mcp.json": "acf10da993914b2f5e6f36b7ef2883235cc7dbb4290710c890cede8e6ae33d66",
+    "ci-logs/telegram-text-receipts-checkout-excerpt.txt": "2630b733b2eb30019d278da49311dbe52edf4e5cf365a82bd5d2cb74a51d7321",
+    "experiments/issue-56/replay-text-receipts-before.py": "9450b638d9b32782935259dfd52f3d50bb5bd0cb09c49bf63c49170d84ae14f3",
+    "experiments/issue-56/telegram-text-receipts-ui.mjs": "b36cac207b9495444d7030acaf2a094646539e4c10e0e9035234ba743c40155c",
+    "experiments/issue-56/collect-text-receipt-evidence.py": "91bbfdce904f5b6b41312696fe73276d36c89282279684d3c01ca839d2fbeef3",
+    "metadata.json": "df885f15ec9342fec2da1276ddfb798ce19f1b795697edeba2a003a9c51889a9"
+  }
+}

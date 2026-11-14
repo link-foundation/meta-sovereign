@@ -17,7 +17,7 @@ import {
   hashPasscode,
   verifyPasscode,
 } from '../src/server/passcode.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { runCli } from '../src/cli/index.js';
 import { idleExpired, isLockKey } from '../src/web/passcode.js';
 import { passcodeProblem } from '../src/web/chat-passcode.js';

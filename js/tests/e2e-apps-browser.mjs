@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the bot and mini-app extras (R-Y194), as Telegram
 // Desktop has them: the chat list's search lists the popular mini apps
 // (avatar, name, monthly users) a page at a time, narrows them to what is
@@ -99,7 +100,7 @@ await page.route('**/api/telegram/bot-commands', (route) =>
     ok: true,
     commands: [],
     menu:
-      String(route.request().postDataJSON()?.chat) === MENU
+      String(requestBody(route.request())?.chat) === MENU
         ? { kind: 'webapp', text: 'Open app', url: `${ORIGIN}/menu` }
         : { kind: 'default' },
   })
@@ -109,7 +110,7 @@ const calls = {};
 const record = async (name, answer) => {
   calls[name] = [];
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     calls[name].push(body);
     return fulfil(route, answer(body));
   });

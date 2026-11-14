@@ -214,8 +214,9 @@ meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
 meta-sovereign cv-telemetry --type=step.miss
 ```
 
-किसी platform के लिए पहली `cv-read` दिखने वाला browser खोलती है
-(`--headed`), उपयोगकर्ता एक बार sign in करता है, और session हर platform के
+हर `cv-read` और live `cv-sync` डिफ़ॉल्ट रूप से दिखने वाला browser खोलती है।
+अदृश्य run के लिए `--headless` (या API `headless: true`) चुनें;
+`--headed` भी समर्थित है। उपयोगकर्ता एक बार sign in करता है, और session हर platform के
 अलग profile directory (`--profile=<dir>`) में रह जाती है। आगे की runs उसी
 का पुन: उपयोग करती हैं। यह repository credentials कभी माँगती, सहेजती या
 भेजती नहीं है।
@@ -238,3 +239,19 @@ Fixture generator ही browser test को सार्थक बनाता 
 selectors से निकालता है, इसलिए plan और उसका fixture अलग नहीं हो सकते, और
 e2e उसी path को जाँचता है जो असल में भेजा जाता है — `openBrowserSession` →
 browser-commander → runner → telemetry — न कि उसके किसी mock को।
+
+## स्थायी ब्राउज़र सेटिंग (R-AA2)
+
+सेटिंग → ब्राउज़र स्वचालन में डिफ़ॉल्ट, कार्यप्रवाह या प्रदाता/स्लॉट चुनें। प्राथमिकता: रन विकल्प → स्लॉट → कार्यप्रवाह → डिफ़ॉल्ट → दिखाई देना। विरासत का विकल्प ओवरराइड छोड़ देता है। बदलाव अगले लॉन्च पर लागू होते हैं। QR साइन-इन दिखाई देता है। सीवी, संदेश, आयात और मार्केटप्लेस साझा नियम इस्तेमाल करते हैं। jobs/forms कुंजियाँ आरक्षित हैं; सेटिंग सहेजना कार्यप्रवाह नहीं चलाता।
+
+नाम वाले स्लॉट के अलग स्थायी प्रोफ़ाइल होते हैं; main का पुराना पथ रहता है। सीवी CLI में `--browser-slot=forms`, सीवी API और आयात शुरू करने के अनुरोध में `browserSlot` दें। स्पष्ट `--profile` एक सटीक निर्देशिका तय करता है। पोर्टेबल लिंक में सिर्फ़ सेटिंग होती है, कुकी, प्रोफ़ाइल या क्रेडेंशियल नहीं।
+
+```sh
+meta-sovereign browser-configure --scope=case --key=cv --mode=headless
+meta-sovereign browser-configure --scope=slot --key=hh/forms --mode=visible
+meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
+```
+
+`GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
+
+`POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`

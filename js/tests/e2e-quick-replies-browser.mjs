@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Telegram Business quick replies and the greeting and
 // away messages (R-Y179), as Telegram Desktop has them: "/" in a person's
 // chat lists the user's shortcuts with the first message, narrowing as one
@@ -71,7 +72,7 @@ const shortcuts = [
 ];
 const writes = [];
 const calls = [];
-const body = (route) => route.request().postDataJSON();
+const body = (route) => requestBody(route.request());
 const answer = (path, make) =>
   page.route(`**/api/telegram/${path}`, (route) => {
     const b = route.request().postData() ? body(route) : {};

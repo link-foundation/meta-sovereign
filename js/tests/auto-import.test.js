@@ -25,7 +25,7 @@ import {
   readZipEntries,
   scrapedRowsToLinks,
 } from '../src/sources/auto-import/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { isTrustedMutation } from '../src/server/routes-auto-import.js';
 import { ProviderAutoImport } from '../src/web/connections/index.js';
 import { providerCatalogue } from '../src/web/connection-guides.js';
@@ -458,7 +458,7 @@ test('server exposes auto-import status, jobs and guards mutations', async () =>
       headers: { 'content-type': 'text/plain' },
       body: '{"provider":"whatsapp"}',
     });
-    assert.equal(plain.status, 403);
+    assert.equal(plain.status, 415);
     assert.equal(calls.length, 0, 'no browser launched by rejected calls');
 
     const unknown = await post('/api/auto-import', { provider: 'myspace' });

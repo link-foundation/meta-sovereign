@@ -38,6 +38,11 @@ import {
 } from '../crm/people.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { planningRecords } from '../automation/planning-store.js';
+import { draftChatModelAnswers } from '../automation/question-chat-model.js';
+import { questionApi } from './question-api.js';
+import { followApi } from './follow-api.js';
+import { followTelegramApi } from './follow-telegram-api.js';
+import { followBacklinkApi } from './follow-backlink-api.js';
 
 const SERVER_REQUIRED = Object.freeze({
   status: 'failed',
@@ -93,12 +98,18 @@ const localAutomations = (store) => {
   const load = (automation) => loadAutomation(store, automation);
   const nowIso = () => new Date().toISOString();
   const plan = async (automation, options = {}) => {
-    const data = await planningRecords(store, options);
-    return planAutomation(data.records, await load(automation), {
+    const loaded = await load(automation);
+    const data = await planningRecords(store, {
+      ...options,
+      inferSelf: loaded.action.kind !== 'answer-questions',
+    });
+    const planned = planAutomation(data.records, loaded, {
       ...options,
       self: data.self,
       resolveAudience,
+      modelCandidates: true,
     });
+    return draftChatModelAnswers(store, loaded, planned, { now: options.now });
   };
   return {
     plan,
@@ -416,6 +427,10 @@ export const createAutomationApi = ({ remote, store }) => {
   const local = localAutomations(store);
   return {
     ...automationCalls({ remote, store, local }),
+    ...questionApi({ remote, store }),
+    ...followApi({ remote, store }),
+    ...followTelegramApi({ remote }),
+    ...followBacklinkApi({ remote }),
     ...chatCalls({ remote, store }),
     ...peopleCalls({ remote, store }),
   };

@@ -43,6 +43,7 @@
 
 import { classifyOrigin } from './cors.js';
 import { json } from './util.js';
+import { eventFrame, eventWireType } from './event-wire.js';
 import { unreadOfStore } from './telegram-extras.js';
 import {
   accountSlot,
@@ -203,7 +204,6 @@ const logout = async (account, body, ctx) => {
 
 // The notification stream (R-Y202): a new incoming message of any
 // account, so the page can notify for the accounts it is not showing.
-const FRAME = (data) => `event: message\ndata: ${JSON.stringify(data)}\n\n`;
 const accountEvents = (account, req, res, ctx) => {
   if (classifyOrigin(req, ctx.allowOrigins ?? []) === 'denied') {
     return json(res, 403, { error: 'origin not allowed' }) ?? true;
@@ -211,8 +211,18 @@ const accountEvents = (account, req, res, ctx) => {
   if (!ctx.telegramExtras || ctx.passcode?.locked()) {
     return json(res, 501, { error: 'accounts not available' }) ?? true;
   }
+  const type = eventWireType(req);
+  if (!type) {
+    return (
+      json(res, 406, {
+        error: 'use format=lino-line; JSON events require compatibility mode',
+        code: 'unsupported-event-format',
+      }) ?? true
+    );
+  }
   res.writeHead(200, {
     'content-type': 'text/event-stream; charset=utf-8',
+    'x-lino-event-format': type,
     'cache-control': 'no-cache, no-transform',
     ...(req.httpVersionMajor === 2 ? {} : { connection: 'keep-alive' }),
     'x-accel-buffering': 'no',
@@ -220,12 +230,17 @@ const accountEvents = (account, req, res, ctx) => {
   res.write('retry: 5000\n\n: open\n\n');
   const stop = ctx.telegramExtras.watch((event) => {
     if (res.writableLength < MAX_BUFFERED) {
-      res.write(FRAME(event));
+      res.write(eventFrame('message', event, type));
     }
   });
   const ping = globalThis.setInterval(() => res.write(': ping\n\n'), 25_000);
   ping.unref?.();
+  let closed = false;
   const close = () => {
+    if (closed) {
+      return;
+    }
+    closed = true;
     globalThis.clearInterval(ping);
     stop();
   };

@@ -25,8 +25,10 @@
 import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
-import { decodeLine, encodeLine } from 'lino-objects-codec';
+import { ownedLines } from './read-lines.js';
+import { decodeLine, encodeLine } from '../lino-objects.js';
 import { createMemoryStore } from './universal.js';
+import { atomicBatch, changedLink, orderedMutations } from './mutation.js';
 import { createRawPacking } from './raw-packing.js';
 import { createPayloadFile } from './payload-file.js';
 import { parseLino } from './lino.js';
@@ -219,8 +221,7 @@ const streamRecords = async (
     encoding: 'utf8',
     ...(readLimit > 0 ? { end: readLimit - 1 } : {}),
   });
-  const reader = createInterface({ input, crlfDelay: Infinity });
-  for await (const line of reader) {
+  for await (const line of ownedLines(input)) {
     chars += line.length + 1;
     if (!isRecordLine(line)) {
       noteBad(bad, line);
@@ -278,18 +279,12 @@ const streamRecords = async (
 // The first line that is not blank: the legacy format has no records.
 const firstLine = async (filePath) => {
   const input = createReadStream(filePath, { encoding: 'utf8' });
-  const reader = createInterface({ input, crlfDelay: Infinity });
-  try {
-    for await (const line of reader) {
-      if (line.trim().length > 0) {
-        return line;
-      }
+  for await (const line of ownedLines(input)) {
+    if (line.trim().length > 0) {
+      return line;
     }
-    return null;
-  } finally {
-    reader.close();
-    input.destroy();
   }
+  return null;
 };
 
 // The lines of the first `size` bytes of an open file (what was there
@@ -739,6 +734,76 @@ const loadRetained = async (filePath, readLimit) => {
   }
 };
 
+const textMutations = ({ mem, guard, append, tally }) => {
+  const encoded = (link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
+    }
+    return { id: link.id, text: formatLinoRecords([link]) };
+  };
+  const persist = (records) => () => {
+    records.forEach(({ id, text }) => tally.wrote(id, text.length));
+    return append(records.map(({ text }) => text));
+  };
+  return orderedMutations({
+    async put(link, options) {
+      guard();
+      const record = encoded(link);
+      const out = await mem.put(link, options);
+      return { value: out, persist: persist([record]) };
+    },
+    async putMany(links, options) {
+      guard();
+      const records = links.map(encoded);
+      const out = await mem.putMany(links, options);
+      return { value: out, persist: persist(records) };
+    },
+    async update(id, change, options) {
+      guard();
+      let record;
+      const out = await mem.update(
+        id,
+        (before) => {
+          const next = changedLink(id, change, before);
+          record = encoded(next);
+          return next;
+        },
+        options
+      );
+      return { value: out, persist: persist([record]) };
+    },
+    async [atomicBatch](links, change, options) {
+      guard();
+      const records = [];
+      const out = await mem[atomicBatch](
+        links,
+        (link, before) => {
+          const next = changedLink(link.id, (old) => change(link, old), before);
+          records.push(encoded(next));
+          return next;
+        },
+        options
+      );
+      return { value: out, persist: persist(records) };
+    },
+    async delete(id, options) {
+      guard();
+      const ok = await mem.delete(id, options);
+      if (ok) {
+        const text = formatLinoRecords([tombstoneRecord(id)]);
+        return {
+          value: ok,
+          persist: () => {
+            tally.removed(id, text.length);
+            return append([text]);
+          },
+        };
+      }
+      return { value: ok };
+    },
+  });
+};
+
 export const createLinoTextStore = async (
   filePath,
   {
@@ -848,12 +913,6 @@ export const createLinoTextStore = async (
     rewriting: () => rewrite,
     compactOrThrow,
   });
-  // Each link's line, counted as written.
-  const lineOf = (link) => {
-    const text = formatLinoRecords([link]);
-    tally.wrote(link.id, text.length);
-    return text;
-  };
   if (!readOnly && tally.superseded()) {
     // A failed (or skipped) compaction must not stop the store opening.
     await enqueue(compact).catch(compactionFailed(onEvent));
@@ -865,46 +924,28 @@ export const createLinoTextStore = async (
     wq.guard();
   };
 
+  const admission = textMutations({ mem, guard, append, tally });
   return {
     ...mem,
     memoryStats: packing.stats,
     close: packing.close,
     ...textHandoff({ filePath, mem, tally, mode }),
-    async put(link) {
-      guard();
-      const out = await mem.put(link);
-      await append([lineOf(link)]);
-      return out;
-    },
-    async putMany(links) {
-      guard();
-      const out = await mem.putMany(links);
-      await append(links.map(lineOf));
-      return out;
-    },
-    async delete(id) {
-      guard();
-      const ok = await mem.delete(id);
-      if (ok) {
-        const text = formatLinoRecords([tombstoneRecord(id)]);
-        tally.removed(id, text.length);
-        await append([text]);
-      }
-      return ok;
-    },
+    ...admission.methods,
     /** Resolves once every write so far is on disk (flushed, not just written). */
     flush: () =>
-      enqueue(async () => {
-        // Never claim "on disk" for what is still waiting (R-Z14).
-        if (wq.down() && !(await wq.retry())) {
-          throw writeFailed(wq.down());
-        }
-        await syncer.now();
-      }),
+      admission.wait(() =>
+        enqueue(async () => {
+          // Never claim "on disk" for what is still waiting (R-Z14).
+          if (wq.down() && !(await wq.retry())) {
+            throw writeFailed(wq.down());
+          }
+          await syncer.now();
+        })
+      ),
     /** Rewrite the file with one line per live link. */
     compact: () => {
       guard();
-      return enqueue(compact);
+      return admission.wait(() => enqueue(compact));
     },
     /** `{ degraded, queuedBytes, error }`: whether writes are failing (R-Z14). */
     health: wq.health,

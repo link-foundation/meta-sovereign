@@ -1,0 +1,17 @@
+{
+  "archive": "ci-catalog-signals.tar.gz",
+  "files": {
+    "ci-logs/checks-42735153273.json": "06f174aa1f85222c17f5f32bfc77140f61bfe2c4d97f145f9d5efde6e432ee7c",
+    "ci-logs/checks-42735153273.log": "dd9196cb0c5ffc0e9ca0dc28485426fe736060b11bed6e6f05cc39e16c1a7b4d",
+    "ci-logs/ci-catalog-signal-deno.log": "c26af24b43abb28678f09fada37642fc211ca05a91969ba3330a3f41b9e1d8f2",
+    "ci-logs/ci-catalog-signal-format.log": "a2a42fcf3ba9e1f8578b19285c65d57d2830824b7b85f29fb8a68485723fd119",
+    "ci-logs/ci-catalog-signal-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-catalog-signal-linux-deno.log": "37f2dc7f42eafef901ee5196fe8af13c996df775c1069cbb5b106d422f07015c",
+    "ci-logs/ci-catalog-signal-node.log": "1cdd78c9644332a97b3a494ee76ddfd8cbe9a4a821d4343dd5c20a9fb60719b7",
+    "experiments/issue-56/collect-catalog-signal-evidence.py": "ec1d0a761ba16af43dee38c3ca28ca6f08dea7b32807c2ff07f77f29dbdf1d03",
+    "experiments/issue-56/telegram-cli-signals.mjs": "e14884b86673c218b00fbbbd3ecb4dc4e66433401657c9d1d299fe2ea3d5d6f9",
+    "issue-56-deno-process.ts": "8626fb8664f11e692b03f0f0dd93ec5dab1da874d624d1ac286f1e3f588becaf",
+    "issue-56-deno-signals-26331.json": "91a80462b45d1e617c67770d6ddaf994b8b0b3ba840295bf48065d5183a06b4a",
+    "js/tests/telegram-greeting-stickers-cli.test.js": "4d79d219223e834d1b844db8229f786b390cef6020b2a49779b64c451232e9ad"
+  }
+}

@@ -1,0 +1,34 @@
+✔ unnegotiated sync defaults to Lino text in both directions (70.549832ms)
+✔ sync negotiates text and binary peers and encodes broadcasts for each (74.575713ms)
+✔ portable sync clients exchange binary frames and reject sends after close (25.745637ms)
+✔ JSON sync requires an explicit server compatibility switch (25.074755ms)
+✔ main server exposes /ws sync alongside REST (375.241516ms)
+✔ main server exposes /rtc signaling broker (46.955249ms)
+✔ a stored or synced broadcast link sends nothing by itself (251.670375ms)
+✔ REST + sync coexist: PUT /links also replicates over /ws (116.013288ms)
+✔ sync protocol preferences are explicit and JSON cannot be autodetected (8.476826ms)
+✔ pending sync records are snapshots and clear on close (3.908633ms)
+✔ WebSocket text, binary, masking and fragmented Unicode preserve exact bytes (3.081349ms)
+✔ WebSocket rejects oversized and malformed headers without allocating their payloads (0.758575ms)
+✔ ws transport replicates puts both ways (145.952137ms)
+✔ attachSyncWebSocket can ride on an existing http server (66.088437ms)
+✔ client connection to wrong path is refused (6.511269ms)
+✔ signaling relays SDP frames between peers in same room (90.210335ms)
+✔ signaling transcodes between text and binary peers (42.89336ms)
+✔ rooms are isolated (36.115584ms)
+✔ peer-joined fires for existing peers when new one arrives (35.690972ms)
+✔ signalingChannel routes typed messages by `type` (8.764162ms)
+✔ two webrtc transports exchange messages over the data channel (24.980679ms)
+✔ webrtc transport queues sends until the data channel opens (9.451674ms)
+✔ late room answers and repeated peer joins cannot renegotiate an active connection (25.422472ms)
+✔ unexpected SDP failures are reported without an unhandled rejection (6.461576ms)
+✔ binary WebRTC preserves typed values and advertises the Lino protocol (41.512864ms)
+✔ WebRTC refuses an unversioned data channel instead of accepting JSON (0.703503ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3350.537085

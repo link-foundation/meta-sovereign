@@ -9,7 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { createMemoryStore } from '../src/storage/index.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   audienceGroups,
   audienceSyncFor,
@@ -197,7 +197,16 @@ test('a started server purges expired cache by itself', async () => {
   });
   try {
     await pause(300);
-    assert.equal(await store.get('msg:upwork:old'), null);
+    assert.equal(await server.store.get('msg:upwork:old'), null);
+    // Erased payloads stay absent while causal metadata prevents resurrection.
+    const deleted = await store.get('msg:upwork:old');
+    assert.deepEqual(Object.keys(deleted).sort(), [
+      '__msSyncDeleted',
+      'id',
+      'vc',
+    ]);
+    assert.equal(deleted.__msSyncDeleted, 1);
+    assert(Object.values(deleted.vc).some((tick) => tick > 0));
   } finally {
     delete process.env.MS_CACHE_PURGE_DELAY_MS;
     await server.close();

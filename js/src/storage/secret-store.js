@@ -28,6 +28,8 @@
  * (or the `passphrase` option on `startServer`).
  */
 
+import { changedLink } from './mutation.js';
+import { syncRecords } from './sync-deletions.js';
 import { encryptBackup, decryptBackup } from './backup.js';
 
 const SECRET_PREFIX = 'secret:';
@@ -61,15 +63,34 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
     rawStore: inner,
     logFile: inner.logFile,
     flushLog: inner.flushLog,
+    flush: inner.flush ? () => inner.flush() : undefined,
+    // Reconciliation filters private IDs before reading payloads. Preserve
+    // raw deletion clocks without opening or transmitting sealed secrets.
+    [syncRecords]: inner[syncRecords],
     size: inner.size ? () => inner.size() : undefined,
     memoryStats: inner.memoryStats ? () => inner.memoryStats() : undefined,
-    async put(link) {
+    async put(link, options) {
       if (isSecret(link)) {
         const sealed = sealLink(link, passphrase);
-        await inner.put(sealed);
+        await inner.put(sealed, options);
         return link;
       }
-      return inner.put(link);
+      return inner.put(link, options);
+    },
+    async update(id, change, options) {
+      const out = await inner.update(
+        id,
+        (before) => {
+          const opened =
+            before?.enc && id.startsWith(SECRET_PREFIX)
+              ? openLink(before, passphrase)
+              : before;
+          const next = changedLink(id, change, opened);
+          return isSecret(next) ? sealLink(next, passphrase) : next;
+        },
+        options
+      );
+      return isSecret(out) ? openLink(out, passphrase) : out;
     },
     async get(id) {
       const raw = await inner.get(id);
@@ -81,8 +102,8 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
       }
       return raw;
     },
-    async delete(id) {
-      return inner.delete(id);
+    async delete(id, options) {
+      return inner.delete(id, options);
     },
     async query(filter) {
       // Apply non-secret filters before cloning the archive. A typing or health

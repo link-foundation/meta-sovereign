@@ -191,10 +191,11 @@ test('two browsers sync via WebRTC: writing a link on A appears on B', async () 
       this.onicecandidate = null;
       this.ondatachannel = null;
     }
-    createDataChannel(label) {
+    createDataChannel(label, { protocol = '' } = {}) {
       const ch = {
         readyState: 'connecting',
         label,
+        protocol,
         peer: null,
         onopen: null,
         onmessage: null,
@@ -233,6 +234,7 @@ test('two browsers sync via WebRTC: writing a link on A appears on B', async () 
         const ch = {
           readyState: 'connecting',
           label: 'meta-sovereign-sync',
+          protocol: channels.at(-1)?.protocol ?? '',
           peer: null,
           onopen: null,
           onmessage: null,

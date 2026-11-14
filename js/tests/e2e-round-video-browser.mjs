@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for round video messages (R-Y150), as Telegram
 // Desktop has them. Playback: a received round video is a circle (about
 // 240 px) that plays muted and looped in place; a click plays it from
@@ -217,7 +218,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),

@@ -28,7 +28,7 @@ import {
   createSafeWriter,
   installCrashLogging,
 } from '../src/server/log.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import {
   TELEGRAM_STATE_ID,
   createTelegramCatchUp,

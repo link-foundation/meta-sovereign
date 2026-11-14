@@ -187,6 +187,24 @@ export const importArchive = async ({ bin, db, archive }) => {
   }
 };
 
+// Content-free phases expose failures without logging LiNo, database paths,
+// reply text or addresses. Ordinary clients stay silent.
+const clinkTrace = () => {
+  const started = globalThis.performance.now();
+  return (phase, fields = {}) => {
+    if (process.env.MS_CLINK_DEBUG === '1') {
+      console.debug(
+        '[clink-client]',
+        JSON.stringify({
+          phase,
+          elapsedMs: Math.round(globalThis.performance.now() - started),
+          ...fields,
+        })
+      );
+    }
+  };
+};
+
 /**
  * Start `clink --serve` on a free local port and return a client whose
  * `query(text)` resolves to parsed changes. Queries are serialised. The
@@ -200,7 +218,9 @@ export const startClinkServer = async ({
   connect = (address) => net.connect(address),
   timeoutMs = 10_000,
 }) => {
+  const trace = clinkTrace();
   const child = spawnImpl(bin, ['--db', db, '--serve', '127.0.0.1:0']);
+  trace('child-spawned');
   let exited = false;
   const address = await new Promise((resolve, reject) => {
     const timer = setTimeout(
@@ -225,13 +245,24 @@ export const startClinkServer = async ({
       clearTimeout(timer);
       reject(new ClinkError(`clink exited with ${code}`));
     });
+  }).catch((error) => {
+    trace('startup-failed', { code: error.code ?? error.name });
+    if (!exited) {
+      child.kill();
+    }
+    throw error;
   });
+  trace('ready');
   let socket = null;
+  let closed = false;
   let buffer = '';
   let waiting = null;
-  const fail = (error) => {
+  const fail = (error, reason = 'connection-lost') => {
     const pending = waiting;
     waiting = null;
+    if (pending) {
+      trace('query-failed', { query: pending.id, reason });
+    }
     pending?.reject(error);
   };
   const drop = (s) => {
@@ -246,6 +277,7 @@ export const startClinkServer = async ({
     s.on('data', (chunk) => {
       buffer += chunk;
       if (waiting?.socket === s && replyComplete(buffer)) {
+        trace('reply-received', { query: waiting.id });
         const { resolve } = waiting;
         waiting = null;
         if (SYNTAX_ERROR.test(buffer)) {
@@ -265,21 +297,29 @@ export const startClinkServer = async ({
     s.on('close', () => lost(new ClinkError('clink closed the connection')));
     return s;
   };
+  let query = 0;
   const raw = (text) =>
     new Promise((resolve, reject) => {
-      if (exited) {
-        reject(new ClinkError('clink is not running'));
+      if (exited || closed) {
+        reject(
+          new ClinkError(
+            closed ? 'clink client is closed' : 'clink is not running'
+          )
+        );
         return;
       }
       socket ??= open();
+      const id = ++query;
+      trace('query-started', { query: id });
       const timer = setTimeout(() => {
         const s = waiting?.socket;
-        fail(new ClinkError('clink query timed out'));
+        fail(new ClinkError('clink query timed out'), 'query-timeout');
         if (s) {
           drop(s);
         }
       }, timeoutMs);
       waiting = {
+        id,
         socket,
         resolve: (value) => {
           clearTimeout(timer);
@@ -303,9 +343,15 @@ export const startClinkServer = async ({
       return next;
     },
     async close() {
-      socket?.destroy();
-      socket = null;
-      child.kill();
+      if (!closed) {
+        closed = true;
+        fail(new ClinkError('clink client is closed'), 'client-closed');
+        socket?.destroy();
+        socket = null;
+        child.kill();
+      }
+      await chain;
+      trace('closed');
     },
   };
 };

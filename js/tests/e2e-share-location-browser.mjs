@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for sharing a place and a contact (R-Y142), as Telegram
 // Desktop offers them: the paperclip's menu has Location and Contact;
 // Location sends a typed place (validated ranges, a map preview), the
@@ -133,23 +134,23 @@ const stops = [];
 const moves = [];
 const adds = [];
 await page.route('**/api/telegram/send-location', (route) => {
-  locations.push(route.request().postDataJSON());
+  locations.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 await page.route('**/api/telegram/send-contact', (route) => {
-  contacts.push(route.request().postDataJSON());
+  contacts.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 await page.route('**/api/telegram/stop-live-location', (route) => {
-  stops.push(route.request().postDataJSON());
+  stops.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/update-live-location', (route) => {
-  moves.push(route.request().postDataJSON());
+  moves.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/peer-contact', (route) => {
-  adds.push(route.request().postDataJSON());
+  adds.push(requestBody(route.request()));
   return fulfil(route, { ok: true, contact: true });
 });
 await page.route('**/api/telegram/chat-contacts', (route) =>

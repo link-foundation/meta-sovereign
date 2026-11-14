@@ -75,6 +75,12 @@ fn err(status: u16, msg: &str) -> Response {
     json_response(status, &Value::Object(o))
 }
 
+fn owner_write(state: &ServerState, value: &Value) -> Result<Value, Response> {
+    state
+        .put_owner(value)
+        .map_err(|error| err(error.status(), &error.to_string()))
+}
+
 // -- Sources ----------------------------------------------------------------
 
 pub fn sources(_req: &Request) -> Response {
@@ -94,7 +100,10 @@ pub fn links(state: &ServerState, req: &Request) -> Option<Response> {
             Ok(v) => v,
             Err(e) => return Some(err(400, &format!("bad body: {e}"))),
         };
-        let saved = state.put(body);
+        let saved = match owner_write(state, &body) {
+            Ok(saved) => saved,
+            Err(response) => return Some(response),
+        };
         return Some(json_response(200, &saved));
     }
     if let Some(rest) = req.path.strip_prefix("/links/") {
@@ -106,7 +115,10 @@ pub fn links(state: &ServerState, req: &Request) -> Option<Response> {
             });
         }
         if req.method == "DELETE" {
-            let ok = state.delete(&id);
+            let ok = match state.delete_owner(&id) {
+                Ok(existed) => existed,
+                Err(error) => return Some(err(error.status(), &error.to_string())),
+            };
             let mut o = json::obj();
             o.insert("ok".into(), Value::Bool(ok));
             return Some(json_response(if ok { 200 } else { 404 }, &Value::Object(o)));
@@ -473,8 +485,10 @@ fn prefixed_put(state: &ServerState, req: &Request, prefix: &str, kind: &str) ->
     if !id.starts_with(&format!("{prefix}:")) {
         return err(400, &format!("{kind}.id must start with \"{prefix}:\""));
     }
-    let saved = state.put(body);
-    json_response(200, &saved)
+    match owner_write(state, &body) {
+        Ok(saved) => json_response(200, &saved),
+        Err(response) => response,
+    }
 }
 
 fn pattern_infer(req: &Request) -> Response {
@@ -627,7 +641,10 @@ pub fn mutating(state: &ServerState, req: &Request) -> Option<Response> {
             map.insert("id".into(), Value::String("profile:me".into()));
             map.entry("tokens".into())
                 .or_insert(Value::Array(vec![Value::String("profile".into())]));
-            let saved = state.put(Value::Object(map));
+            let saved = match owner_write(state, &Value::Object(map)) {
+                Ok(saved) => saved,
+                Err(response) => return Some(response),
+            };
             let plans: Vec<Value> = SOURCES
                 .iter()
                 .map(|s| {
@@ -664,7 +681,10 @@ pub fn mutating(state: &ServerState, req: &Request) -> Option<Response> {
             map.insert("id".into(), Value::String("resume:me".into()));
             map.entry("tokens".into())
                 .or_insert(Value::Array(vec![Value::String("resume".into())]));
-            let saved = state.put(Value::Object(map));
+            let saved = match owner_write(state, &Value::Object(map)) {
+                Ok(saved) => saved,
+                Err(response) => return Some(response),
+            };
             let plans: Vec<Value> = RESUME_TARGETS
                 .iter()
                 .map(|s| {
@@ -715,8 +735,10 @@ pub fn mutating(state: &ServerState, req: &Request) -> Option<Response> {
                 ("timestamp", Value::String(format!("{now}"))),
                 ("status", Value::String("queued".into())),
             ]);
-            let saved = state.put(post);
-            json_response(200, &saved)
+            match owner_write(state, &post) {
+                Ok(saved) => json_response(200, &saved),
+                Err(response) => response,
+            }
         }
         _ => return None,
     };

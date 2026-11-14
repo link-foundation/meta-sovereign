@@ -330,7 +330,11 @@ test('a BigInt account id from GramJS never breaks serialization', async () => {
 
 test('use writes the matching secret links and no plaintext escapes', async () => {
   const { root } = await makeTree();
-  const { creds } = await credsFor();
+  const { creds } = await credsFor({
+    mtproto: async () => ({
+      getMe: async () => ({ id: 42, username: 'fixture' }),
+    }),
+  });
   const scan = await creds.scan({ roots: [root] });
   const botId = scan.entries.find((e) => e.kind === 'bot-token').id;
   const userId = scan.entries.find((e) => e.kind === 'user-session').id;

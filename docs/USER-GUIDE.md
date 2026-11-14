@@ -38,7 +38,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Know the limits before you choose it.** The Rust server keeps links **in memory only**: nothing is written to disk, so all data is gone when it stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork and the like, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. For real use pick the JS server (section 3) or the desktop app (section 4). The route-by-route list is in [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
+> **Know the limits before you choose it.** The CLI persists links in native text/binary checkpoints by default; `--data` selects the directory and `--memory` explicitly uses volatile state. See [native storage](./NATIVE-STORAGE.md) for recovery and format limits. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork and the like, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. For real use pick the JS server (section 3) or the desktop app (section 4). The route-by-route list is in [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
 
 The server listens on <http://127.0.0.1:8787> by default. The
 GitHub-Pages-hosted SPA discovers it automatically: it probes the
@@ -261,7 +261,7 @@ What it does:
 - With the variable unset, nothing is encrypted and the server behaves as before.
 - The same passphrase is the default for `POST /api/export-encrypted` when the request brings none.
 
-What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`: contacts, messages, patterns and so on), downloaded media and archives, logs, and backups (a backup is encrypted only when you give a passphrase while creating it). Protect those with disk encryption and file permissions. The Rust server has no such option: it keeps everything in memory.
+What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`: contacts, messages, patterns and so on), downloaded media and archives, logs, and backups (a backup is encrypted only when you give a passphrase while creating it). Protect those with disk encryption and file permissions. The Rust server has no such encryption option: its native checkpoint files are plaintext.
 
 ## 8. Importing data
 
@@ -654,3 +654,5 @@ Operator excludes bots by default. Settings → Operator provides an independent
 Temporary connection failures keep retrying automatically, without a manual retry button. Failed refreshes retain the last good screen. Queued messages keep retrying across sections and resume immediately when the server reconnects. After a server or Telegram has connected, browser-only setup is hidden by default; Settings → Connection recovery can enable that offer. See [Connection recovery](CONNECTION-RECOVERY.md).
 
 After updating, repeat `serve` while the original host stays running: it keeps serving while the replacement warms up, then transfers the single store writer and retains the public listener/certificate. Failed replacements roll back automatically. Older single-process installations need one initial restart to adopt this host. See [rolling server upgrades](ROLLING-SERVER.md).
+
+[Reviewed provider-browser answers, exact option confirmation and status recovery](QUESTION-BROWSER.md).

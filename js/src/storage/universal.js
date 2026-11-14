@@ -15,18 +15,28 @@
  * @property {string} id
  * @property {string[]} tokens
  * @property {string[]} [children]
+ * @property {Object<string, number>} [vc] observed synchronization clock
  */
 
 /**
  * @typedef {Object} UniversalLinksAccess
- * @property {(link: Link) => Promise<Link>} put
- * @property {(links: Link[]) => Promise<Link[]>} [putMany] bulk put; file
+ * @property {(link: Link, options?: object) => Promise<Link>} put
+ * @property {(id: string, change: (before: Link|null) => Link, options?: object) => Promise<Link>} [update] synchronous transform at write admission
+ * @property {(links: Link[], options?: object) => Promise<Link[]>} [putMany] bulk put; file
  *   backed stores write once for the whole batch
  * @property {(id: string, project?: (link: Link) => unknown) => Promise<Link | null>} get
- * @property {(id: string) => Promise<boolean>} delete
+ * @property {(id: string, options?: object) => Promise<boolean>} delete
  * @property {(filter?: (l: Link) => boolean) => Promise<Link[]>} query
  * @property {(handler: (event: {type: string, link: Link}) => void) => () => void} subscribe
  */
+
+import {
+  changedLink,
+  changedBatch,
+  atomicBatch,
+  mutationEvent,
+  admitMutation,
+} from './mutation.js';
 
 export const createMemoryStore = ({
   retain = (link) => ({ ...link }),
@@ -37,23 +47,48 @@ export const createMemoryStore = ({
   const handlers = new Set();
   const emit = (event) => handlers.forEach((h) => h(event));
 
-  const put = (link) => {
+  const remember = (link) => {
     if (!link || typeof link.id !== 'string') {
       throw new Error('link.id is required');
     }
     const held = retain(link);
     release(data.get(link.id));
     data.set(link.id, held);
-    emit({ type: 'put', link });
+    return link;
+  };
+  const put = (link, options) => {
+    remember(link);
+    admitMutation('put', link.id, options);
+    emit(mutationEvent('put', link, options));
     return link;
   };
 
   return {
-    async put(link) {
-      return put(link);
+    async put(link, options) {
+      return put(link, options);
     },
-    async putMany(links) {
-      return links.map(put);
+    async putMany(links, options) {
+      // A bulk log record cannot be interrupted halfway by a subscriber's
+      // write. Admit the complete batch before exposing any of its events.
+      const out = links.map(remember);
+      out.forEach((link) => {
+        admitMutation('put', link.id, options);
+        emit(mutationEvent('put', link, options));
+      });
+      return out;
+    },
+    async update(id, change, options) {
+      const before = data.get(id);
+      return put(
+        changedLink(id, change, before ? copy(before) : null),
+        options
+      );
+    },
+    async [atomicBatch](links, change, options) {
+      return this.putMany(
+        changedBatch(links, change, (id) => data.get(id), copy),
+        options
+      );
     },
     // A projection reads retained metadata without detaching cold payloads,
     // as scan's projection does. It must not mutate the stored record.
@@ -61,13 +96,14 @@ export const createMemoryStore = ({
       const v = data.get(id);
       return v ? project(v) : null;
     },
-    async delete(id) {
+    async delete(id, options) {
       const existed = data.has(id);
       const link = data.get(id);
+      admitMutation('delete', id, options);
       data.delete(id);
       release(link);
       if (existed) {
-        emit({ type: 'delete', link });
+        emit(mutationEvent('delete', link, options));
       }
       return existed;
     },

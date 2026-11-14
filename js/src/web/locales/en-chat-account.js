@@ -425,6 +425,16 @@ export const enChatAccount = {
   'email.download': 'Download',
   'pull.fetchNow': 'Fetch now',
   'pull.fetching': 'Fetching…',
+  'pull.history.changed':
+    'The chat list changed while reading. Read {count} messages; fetch again to recheck coverage.',
+  'pull.history.hint':
+    'Read HH history on demand. Fetch again to continue a partial read. This does not mark messages as read.',
+  'pull.history.complete':
+    'Read {count} messages. Available API history checked: {total} messages across {chats} chats.',
+  'pull.history.partial':
+    'Read {count} messages. History is partial ({total} messages, {chats} chats finished). Fetch again to continue.',
+  'pull.history.limited':
+    'Read {count} messages. Reached the API chat-list limit; older chats may be missing.',
   'pull.done': 'Fetched. {count} messages read.',
   'pull.rateLimited': 'Fetched a moment ago. Try again in {seconds} s.',
   'pull.notConnected': 'Save the access token first, then fetch.',

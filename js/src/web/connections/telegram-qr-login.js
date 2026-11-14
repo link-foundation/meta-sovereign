@@ -59,14 +59,12 @@ export const QrPanel = ({ url }) => {
 /**
  * While `id` is a QR sign-in being waited for, ask the server for its
  * state now and then and hand each answer to `onResult` (which decides
- * whether polling goes on, by changing `id`). Cancels a sign-in left
- * behind when the form goes away.
+ * whether polling goes on, by changing `id`). The enclosing login owner
+ * retains cancellation ownership through QR, code and password steps.
  */
 export const useQrPolling = (id, onResult) => {
   const handler = useRef(onResult);
   handler.current = onResult;
-  const live = useRef(null);
-  live.current = id;
   useEffect(() => {
     if (!id) {
       return undefined;
@@ -78,7 +76,7 @@ export const useQrPolling = (id, onResult) => {
       if (stopped) {
         return;
       }
-      handler.current(result);
+      handler.current(result, id);
       timer = globalThis.setTimeout(tick, QR_POLL_MS);
     };
     timer = globalThis.setTimeout(tick, QR_POLL_MS);
@@ -87,12 +85,4 @@ export const useQrPolling = (id, onResult) => {
       globalThis.clearTimeout(timer);
     };
   }, [id]);
-  useEffect(
-    () => () => {
-      if (live.current) {
-        api.telegramLogin('qr-cancel', { id: live.current });
-      }
-    },
-    []
-  );
 };

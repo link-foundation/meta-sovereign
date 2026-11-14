@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { groupChats } from './chat-model.js';
+import { debugBrowser } from './client-log.js';
 
 const el = React.createElement;
 
@@ -69,6 +70,18 @@ export const useListHandler = (handler) => {
 const useViewport = (root, box, resetKey) => {
   const [viewport, setViewport] = useState({ top: 0, height: 600 });
   const [sizes, setSizes] = useState({ chat: 68, heading: 30 });
+  const readViewport = () => {
+    const list = root.current;
+    const content = box.current;
+    if (list && content) {
+      const top =
+        list.getBoundingClientRect().top - content.getBoundingClientRect().top;
+      const height = list.clientHeight || 600;
+      setViewport((was) =>
+        was.top === top && was.height === height ? was : { top, height }
+      );
+    }
+  };
   // The scroll root belongs to our parent; its ref is attached after the
   // child's layout effects. Subscribe once all refs are committed.
   useEffect(() => {
@@ -94,12 +107,7 @@ const useViewport = (root, box, resetKey) => {
           ? measured
           : was;
       });
-      const top =
-        list.getBoundingClientRect().top - content.getBoundingClientRect().top;
-      const height = list.clientHeight || 600;
-      setViewport((was) =>
-        was.top === top && was.height === height ? was : { top, height }
-      );
+      readViewport();
     };
     const schedule = () => {
       globalThis.cancelAnimationFrame(frame);
@@ -124,7 +132,7 @@ const useViewport = (root, box, resetKey) => {
       setViewport((was) => ({ ...was, top: 0 }));
     }
   }, [resetKey]);
-  return { viewport, sizes };
+  return { viewport, sizes, readViewport };
 };
 
 // Prefetch only the mounted viewport and overscan, never every archived chat.
@@ -184,7 +192,15 @@ const keyboardTarget = (entries, index, event) => {
   return nextChatIndex(entries, index, backwards ? -1 : 1);
 };
 
-const useListFocus = (root, box, entries, offsets, range, selected) => {
+const useListFocus = ({
+  root,
+  box,
+  entries,
+  offsets,
+  range,
+  selected,
+  readViewport,
+}) => {
   const [focus, setFocus] = useState(null);
   const previous = useRef(selected);
   const reveal = (index) => {
@@ -204,6 +220,9 @@ const useListFocus = (root, box, entries, offsets, range, selected) => {
     } else if (bottom > list.scrollTop + list.clientHeight) {
       list.scrollTop = bottom - list.clientHeight;
     }
+    // Keyboard targets must mount in this commit, even when the next scroll
+    // measurement frame is delayed. Passive scrolling still uses one frame.
+    readViewport();
     list.dispatchEvent(new globalThis.Event('scroll'));
   };
   useLayoutEffect(() => {
@@ -220,6 +239,14 @@ const useListFocus = (root, box, entries, offsets, range, selected) => {
       const node = box.current?.querySelector(
         `[data-list-index="${focus}"] button`
       );
+      debugBrowser('chat_directory_focus', {
+        phase: 'commit',
+        index: focus,
+        rendered: Boolean(node),
+        start: range.start,
+        end: range.end,
+        top: root.current?.scrollTop,
+      });
       if (node) {
         node.focus({ preventScroll: true });
         setFocus(null);
@@ -244,6 +271,13 @@ const useListFocus = (root, box, entries, offsets, range, selected) => {
       (event.key !== 'Tab' || next < range.start || next >= range.end)
     ) {
       event.preventDefault();
+      debugBrowser('chat_directory_focus', {
+        phase: 'key',
+        key: event.key,
+        index,
+        next,
+        top: root.current?.scrollTop,
+      });
       setFocus(next);
       reveal(next);
     }
@@ -262,7 +296,7 @@ export const VirtualChats = ({
 }) => {
   const box = useRef(null);
   const entries = useMemo(() => chatListEntries(chats, sort), [chats, sort]);
-  const { viewport, sizes } = useViewport(root, box, resetKey);
+  const { viewport, sizes, readViewport } = useViewport(root, box, resetKey);
   const offsets = useMemo(() => listOffsets(entries, sizes), [entries, sizes]);
   const range = listRange(offsets, viewport.top, viewport.height);
   const shown = useMemo(
@@ -270,7 +304,15 @@ export const VirtualChats = ({
     [entries, range.start, range.end]
   );
   useVisibleChats(root, shown, prefetch);
-  const onKeyDown = useListFocus(root, box, entries, offsets, range, selected);
+  const onKeyDown = useListFocus({
+    root,
+    box,
+    entries,
+    offsets,
+    range,
+    selected,
+    readViewport,
+  });
   return el('div', { ref: box, className: 'chat-list-window', onKeyDown }, [
     el('div', {
       key: 'before',

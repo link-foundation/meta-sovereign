@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { Busy } from './spinner.js';
+import { VacanciesPanel } from './vacancies-panel.js';
 
 const el = React.createElement;
 
@@ -468,5 +469,9 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
 
 export const CvView = ({ api = defaultApi }) => {
   const [login, setLogin] = useState('');
-  return el(CvScreen, { state: useCvState(api), login, setLogin });
+  const state = useCvState(api);
+  return el('div', { className: 'col' }, [
+    el(CvScreen, { key: 'cv', state, login, setLogin }),
+    el(VacanciesPanel, { key: 'vacancies', api }),
+  ]);
 };

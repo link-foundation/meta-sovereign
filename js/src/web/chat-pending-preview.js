@@ -35,6 +35,7 @@ export const pendingChatPreviews = (chats, pending = [], sort = 'latest') => {
       body: item.text,
       timestamp: item.at,
       pending: true,
+      code: item.code ?? null,
     };
     return {
       ...chat,
