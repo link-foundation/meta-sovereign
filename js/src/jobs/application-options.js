@@ -85,7 +85,13 @@ export const applicationView = (record) => {
     record.page &&
     Object.fromEntries(
       Object.entries(record.page).filter(
-        ([key]) => !['documentKey', 'scopeKey', 'fieldIndices'].includes(key)
+        ([key]) =>
+          ![
+            'documentKey',
+            'scopeKey',
+            'scopeStructureKey',
+            'fieldIndices',
+          ].includes(key)
       )
     );
   return globalThis.structuredClone({
@@ -108,6 +114,8 @@ export const applicationView = (record) => {
     vacancy: record.vacancy ?? null,
     page: page ?? null,
     report: record.report ?? null,
+    draft: record.draft ?? null,
+    restoration: record.restoration ?? null,
     exact: record.exact === true,
     letter: record.letter ?? 'not-requested',
   });

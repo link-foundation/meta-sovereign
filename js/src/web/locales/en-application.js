@@ -22,6 +22,24 @@ export const enApplication = {
   'application.prefillAutomatic':
     'Fill exact answers, then send after review delay',
   'application.submit': 'Send reviewed application',
+  'application.backup': 'Back up current native answers',
+  'application.restore': 'Restore reviewed draft into empty controls',
+  'application.draft': 'Private saved questionnaire draft',
+  'application.draftSaved': 'Saved on this server at {time}',
+  'application.draftHint':
+    'Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. Backups are explicit and are not a retry queue.',
+  'application.draft.checked': 'Checked',
+  'application.draft.unchecked': 'Unchecked',
+  'application.restore.restoring':
+    'Restoration started; read the native page to confirm its current values.',
+  'application.restore.restored':
+    'Draft values verified in native controls. Review the answers before sending.',
+  'application.restore.refused':
+    'Restoration refused; existing answers are preserved. Read the page again.',
+  'application.restore.partial':
+    'Some draft values were restored. Read the native page before continuing.',
+  'application.restore.uncertain':
+    'Restoration could not be confirmed. Read the native page before another action.',
   'application.close': 'Close owned application browser',
   'application.pause': 'Pause this review',
   'application.noQuestionnaires': 'Defer this questionnaire for this review',
@@ -46,7 +64,7 @@ export const enApplication = {
   'application.reopen': 'Reopen browser from saved review',
   'application.release': 'Finish review and use current selection',
   'application.stop': 'Stop and drain application operation',
-  'application.delivery.none': 'No application dispatch is recorded.',
+  'application.delivery.none': 'HH has not confirmed application delivery.',
   'application.delivery.unknown':
     'Delivery is unknown. A reserved action may have reached HH; it will not be sent again.',
   'application.delivery.provider-confirmed':

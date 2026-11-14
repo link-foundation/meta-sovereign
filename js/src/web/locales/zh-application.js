@@ -18,6 +18,22 @@ export const zhApplication = {
   'application.prefill': '填写已验证的精确答案和求职信',
   'application.prefillAutomatic': '填写精确答案并在审核延时后发送',
   'application.submit': '发送已审核的申请',
+  'application.backup': '备份当前 HH 答案',
+  'application.restore': '将已审核草稿恢复到空白控件',
+  'application.draft': '已保存的私人问卷草稿',
+  'application.draftSaved': '保存于此服务器：{time}',
+  'application.draftHint':
+    '恢复前请打开相同的问题和求职信控件。请先审核这份私人副本。现有答案会被保留；恢复不会提交申请或学习答案。备份需要明确操作，不是重试队列。',
+  'application.draft.checked': '已选中',
+  'application.draft.unchecked': '未选中',
+  'application.restore.restoring':
+    '已开始恢复；请重新读取 HH 页面以确认当前值。',
+  'application.restore.restored':
+    '草稿值已在 HH 控件中验证。提交前请审核答案。',
+  'application.restore.refused': '恢复被拒绝；现有答案已保留。请重新读取页面。',
+  'application.restore.partial': '已恢复部分草稿值。继续前请读取 HH 页面。',
+  'application.restore.uncertain':
+    '无法确认恢复结果。进行其他操作前请读取 HH 页面。',
   'application.close': '关闭此申请的浏览器',
   'application.pause': '暂停此审核',
   'application.noQuestionnaires': '在此次审核中暂缓问卷',
@@ -38,7 +54,7 @@ export const zhApplication = {
   'application.reopen': '从已保存审核重新打开浏览器',
   'application.release': '结束审核并使用当前选择',
   'application.stop': '停止申请操作并等待结束',
-  'application.delivery.none': '未记录申请发送。',
+  'application.delivery.none': 'HH 尚未确认申请送达。',
   'application.delivery.unknown':
     '送达状态未知。已预留操作可能已到达 HH，不会重复发送。',
   'application.delivery.provider-confirmed': 'HH 已确认申请送达。',

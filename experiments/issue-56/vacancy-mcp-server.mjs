@@ -1,3 +1,4 @@
+import { applicationDraftControl } from './application-draft-mcp-control.mjs';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
@@ -33,7 +34,23 @@ const stats = () => ({
   liveProvider: false,
   ...(fixture.failed ? { failedSaves: fixture.failed() } : {}),
 });
-const control = createServer((req, res) => {
+const draftControl =
+  process.env.APPLICATION_DRAFT_FIXTURE === '1'
+    ? applicationDraftControl(browser)
+    : null;
+const control = createServer(async (req, res) => {
+  try {
+    const draft = await draftControl?.(req);
+    if (draft) {
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify(draft));
+      return;
+    }
+  } catch (error) {
+    res.statusCode = 500;
+    res.end(error.message);
+    return;
+  }
   if (req.method === 'POST' && req.url === '/fail-next' && fixture.failNext) {
     fixture.failNext();
   }

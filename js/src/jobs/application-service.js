@@ -19,6 +19,7 @@ import {
   saveApplicationJournal,
 } from './application-journal.js';
 import { ApplicationReview } from './application-review.js';
+import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
 
 const owners = new WeakMap();
@@ -56,6 +57,7 @@ class ApplicationService {
     });
     this.review = new ApplicationReview(this);
     this.actions = new ApplicationActions(this);
+    this.drafts = new ApplicationDrafts(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -301,6 +303,14 @@ export const createApplicationService = (options) => {
       'application-prefill': (input) =>
         service.operate((signal) =>
           service.actions.prefill(service.owned(input), input, signal)
+        ),
+      'application-backup': (input) =>
+        service.operate((signal) =>
+          service.drafts.backup(service.owned(input), input, signal)
+        ),
+      'application-restore': (input) =>
+        service.operate((signal) =>
+          service.drafts.restore(service.owned(input), input, signal)
         ),
       'application-mode': (input) =>
         service.operate((signal) =>

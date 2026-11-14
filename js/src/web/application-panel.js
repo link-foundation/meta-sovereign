@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ApplicationDraftView } from './application-draft-view.js';
 import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
 
@@ -136,14 +137,21 @@ const Receipt = ({ receipt, t }) =>
           ),
         ])
       : null,
+    el(ApplicationDraftView, { key: 'draft', receipt, t }),
     receipt.report
       ? el(FormInspectionReport, { key: 'report', report: receipt.report })
       : null,
   ]);
 
+const canRestore = (writable, receipt) => writable && Boolean(receipt?.draft);
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const ready = idle && application.known && receipt?.active;
+  const writable =
+    ready &&
+    confirmed &&
+    receipt.state === 'review' &&
+    !receipt.attempted.submit;
   const action = (name, input) => () => application.action(name, input);
   return el('div', { className: 'col' }, [
     el('div', { key: 'actions', className: 'row' }, [
@@ -165,19 +173,28 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
             : 'application.prefill'
         ),
         action('Prefill', { confirm: true }),
-        !ready ||
-          !confirmed ||
-          receipt.state !== 'review' ||
-          receipt.attempted.submit
+        !writable
       ),
       button(
         'submit',
         t('application.submit'),
         action('Advance', { action: 'submit', confirm: true }),
+        !writable
+      ),
+      button(
+        'backup',
+        t('application.backup'),
+        action('Backup', { confirm: true }),
         !ready ||
           !confirmed ||
-          receipt.state !== 'review' ||
+          !['review', 'paused', 'deferred'].includes(receipt.state) ||
           receipt.attempted.submit
+      ),
+      button(
+        'restore',
+        t('application.restore'),
+        action('Restore', { confirm: true }),
+        !canRestore(writable, receipt)
       ),
       button('close', t('application.close'), action('Close'), !ready),
     ]),

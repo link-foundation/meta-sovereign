@@ -46,6 +46,86 @@ rows = {
     "letter.unverified": ["Letter contents could not be verified.", "Содержимое письма не подтверждено.", "पत्र की सामग्री सत्यापित नहीं हुई।", "无法验证求职信内容。"],
     "letter.owner-conflict": ["Existing owner letter preserved; automatic sending is blocked.", "Ваше существующее письмо сохранено; автоотправка заблокирована.", "पहले से मौजूद आपका पत्र सुरक्षित है; स्वतः भेजना अवरुद्ध है।", "已保留您现有的求职信，自动发送被阻止。"],
 }
+rows.update({
+    "backup": [
+        "Back up current native answers",
+        "Сохранить текущие ответы HH",
+        "मौजूदा HH उत्तरों का बैकअप लें",
+        "备份当前 HH 答案"
+    ],
+    "restore": [
+        "Restore reviewed draft into empty controls",
+        "Восстановить проверенный черновик в пустые поля",
+        "समीक्षित ड्राफ़्ट खाली फ़ील्ड में बहाल करें",
+        "将已审核草稿恢复到空白控件"
+    ],
+    "draft": [
+        "Private saved questionnaire draft",
+        "Личный черновик анкеты",
+        "प्रश्नावली का निजी सहेजा हुआ ड्राफ़्ट",
+        "已保存的私人问卷草稿"
+    ],
+    "draftSaved": [
+        "Saved on this server at {time}",
+        "Сохранён на этом сервере: {time}",
+        "इस सर्वर पर सहेजने का समय: {time}",
+        "保存于此服务器：{time}"
+    ],
+    "draftHint": [
+        "Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. Backups are explicit and are not a retry queue.",
+        "Перед восстановлением откройте те же вопросы и поле письма. Сначала проверьте эту личную копию. Существующие ответы сохраняются; восстановление не отправляет отклик и не обучает базу ответов. Копия сохраняется явно и не является очередью повторных попыток.",
+        "बहाल करने से पहले वही प्रश्न और पत्र का फ़ील्ड खोलें। पहले इस निजी प्रति की समीक्षा करें। मौजूदा उत्तर सुरक्षित रहेंगे; बहाली से आवेदन नहीं भेजा जाता और उत्तर नहीं सीखे जाते। बैकअप स्पष्ट कार्रवाई है, पुनः प्रयास की कतार नहीं।",
+        "恢复前请打开相同的问题和求职信控件。请先审核这份私人副本。现有答案会被保留；恢复不会提交申请或学习答案。备份需要明确操作，不是重试队列。"
+    ],
+    "draft.checked": [
+        "Checked",
+        "Отмечено",
+        "चुना गया",
+        "已选中"
+    ],
+    "draft.unchecked": [
+        "Unchecked",
+        "Не отмечено",
+        "नहीं चुना गया",
+        "未选中"
+    ],
+    "restore.restoring": [
+        "Restoration started; read the native page to confirm its current values.",
+        "Восстановление начато; прочитайте страницу HH, чтобы проверить текущие значения.",
+        "बहाली शुरू हुई; मौजूदा मान जाँचने के लिए HH पृष्ठ फिर पढ़ें।",
+        "已开始恢复；请重新读取 HH 页面以确认当前值。"
+    ],
+    "restore.restored": [
+        "Draft values verified in native controls. Review the answers before sending.",
+        "Значения черновика проверены в полях HH. Проверьте ответы перед отправкой.",
+        "ड्राफ़्ट के मान HH फ़ील्ड में सत्यापित हैं। भेजने से पहले उत्तरों की समीक्षा करें।",
+        "草稿值已在 HH 控件中验证。提交前请审核答案。"
+    ],
+    "restore.refused": [
+        "Restoration refused; existing answers are preserved. Read the page again.",
+        "Восстановление отклонено; существующие ответы сохранены. Прочитайте страницу снова.",
+        "बहाली अस्वीकार हुई; मौजूदा उत्तर सुरक्षित हैं। पृष्ठ फिर पढ़ें।",
+        "恢复被拒绝；现有答案已保留。请重新读取页面。"
+    ],
+    "restore.partial": [
+        "Some draft values were restored. Read the native page before continuing.",
+        "Часть значений восстановлена. Прочитайте страницу HH перед продолжением.",
+        "कुछ मान बहाल हुए। आगे बढ़ने से पहले HH पृष्ठ पढ़ें।",
+        "已恢复部分草稿值。继续前请读取 HH 页面。"
+    ],
+    "restore.uncertain": [
+        "Restoration could not be confirmed. Read the native page before another action.",
+        "Восстановление не подтверждено. Прочитайте страницу HH перед следующим действием.",
+        "बहाली की पुष्टि नहीं हुई। दूसरी कार्रवाई से पहले HH पृष्ठ पढ़ें।",
+        "无法确认恢复结果。进行其他操作前请读取 HH 页面。"
+    ],
+    "delivery.none": [
+        "HH has not confirmed application delivery.",
+        "HH пока не подтвердил доставку отклика.",
+        "HH ने आवेदन की डिलीवरी की पुष्टि नहीं की है।",
+        "HH 尚未确认申请送达。"
+    ]
+})
 states = {
     "opening": ["Opening native review", "Открытие проверки", "मूल समीक्षा खुल रही है", "正在打开原生审核"],
     "ready": ["Ready to enter the application", "Можно войти в отклик", "आवेदन खोलने के लिए तैयार", "可进入申请"],

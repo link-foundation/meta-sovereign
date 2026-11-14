@@ -1,3 +1,7 @@
+import {
+  applicationDraft,
+  draftRestoration,
+} from './application-draft-data.js';
 import { jobsFailure } from './options.js';
 import {
   assignmentVacancy,
@@ -125,6 +129,8 @@ export const applicationResult = (raw, input) => {
       assignmentVacancy(raw.vacancy);
     }
     validateReport(raw.report);
+    applicationDraft(raw.draft);
+    draftRestoration(raw.restoration);
     if (raw.exact && (!raw.report || !raw.page?.scope)) {
       fail();
     }

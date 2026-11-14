@@ -53,6 +53,8 @@ const commands = {
   submit: ['advance', { action: 'submit', confirm: true }],
   automatic: ['advance', { action: 'submit', confirm: true, automatic: true }],
   prefill: ['prefill', { confirm: true }],
+  backup: ['backup', { confirm: true }],
+  restore: ['restore', { confirm: true }],
   pause: ['mode', { paused: true }],
   resume: ['mode', { paused: false }],
   'defer-questionnaires': ['mode', { noQuestionnaires: true }],
@@ -77,7 +79,7 @@ export const applicationCommand = async (service, input, log, readInput) => {
     log(
       encodeWire({
         commands: [...Object.keys(commands), 'status', 'quit'],
-        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Test mode never clicks or fills. Unknown outcomes never retry automatically. End of input closes this browser.',
+        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves the actual native answers privately. Restore requires matching empty controls and never sends or learns answers. Test mode never clicks or fills. Unknown outcomes never retry automatically. End of input closes this browser.',
       })
     );
     for await (const line of stream) {

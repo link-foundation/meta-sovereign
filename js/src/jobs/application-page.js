@@ -127,6 +127,7 @@ export const applicationDocument = (target, input) => {
         controls.length <= 2000
       ),
       fieldIndices: fields.map((field) => field.index),
+      scopeStructureKey: html.slice(0, 100000),
       scopeKey: JSON.stringify([html.slice(0, 100000), fields]),
     };
   };

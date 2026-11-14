@@ -22,6 +22,24 @@ export const hiApplication = {
   'application.prefillAutomatic':
     'सटीक उत्तर भरें, फिर समीक्षा विराम के बाद भेजें',
   'application.submit': 'समीक्षित आवेदन भेजें',
+  'application.backup': 'मौजूदा HH उत्तरों का बैकअप लें',
+  'application.restore': 'समीक्षित ड्राफ़्ट खाली फ़ील्ड में बहाल करें',
+  'application.draft': 'प्रश्नावली का निजी सहेजा हुआ ड्राफ़्ट',
+  'application.draftSaved': 'इस सर्वर पर सहेजने का समय: {time}',
+  'application.draftHint':
+    'बहाल करने से पहले वही प्रश्न और पत्र का फ़ील्ड खोलें। पहले इस निजी प्रति की समीक्षा करें। मौजूदा उत्तर सुरक्षित रहेंगे; बहाली से आवेदन नहीं भेजा जाता और उत्तर नहीं सीखे जाते। बैकअप स्पष्ट कार्रवाई है, पुनः प्रयास की कतार नहीं।',
+  'application.draft.checked': 'चुना गया',
+  'application.draft.unchecked': 'नहीं चुना गया',
+  'application.restore.restoring':
+    'बहाली शुरू हुई; मौजूदा मान जाँचने के लिए HH पृष्ठ फिर पढ़ें।',
+  'application.restore.restored':
+    'ड्राफ़्ट के मान HH फ़ील्ड में सत्यापित हैं। भेजने से पहले उत्तरों की समीक्षा करें।',
+  'application.restore.refused':
+    'बहाली अस्वीकार हुई; मौजूदा उत्तर सुरक्षित हैं। पृष्ठ फिर पढ़ें।',
+  'application.restore.partial':
+    'कुछ मान बहाल हुए। आगे बढ़ने से पहले HH पृष्ठ पढ़ें।',
+  'application.restore.uncertain':
+    'बहाली की पुष्टि नहीं हुई। दूसरी कार्रवाई से पहले HH पृष्ठ पढ़ें।',
   'application.close': 'आवेदन का अपना ब्राउज़र बंद करें',
   'application.pause': 'इस समीक्षा को रोकें',
   'application.noQuestionnaires': 'इस समीक्षा में प्रश्नावली टालें',
@@ -47,7 +65,7 @@ export const hiApplication = {
   'application.reopen': 'सहेजी समीक्षा से ब्राउज़र फिर खोलें',
   'application.release': 'समीक्षा समाप्त कर वर्तमान चयन लें',
   'application.stop': 'आवेदन क्रिया रोकें और पूरी तरह समाप्त करें',
-  'application.delivery.none': 'आवेदन भेजने का कोई रिकॉर्ड नहीं है।',
+  'application.delivery.none': 'HH ने आवेदन की डिलीवरी की पुष्टि नहीं की है।',
   'application.delivery.unknown':
     'भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है; उसे दोबारा नहीं भेजा जाएगा।',
   'application.delivery.provider-confirmed':

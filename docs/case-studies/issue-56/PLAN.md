@@ -1,5 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active native application draft prerequisite for HH06/HH08:
+
+- [x] Add explicit private acknowledged backups of freshly inspected bound questionnaires and actual owner letters. Refuse incomplete, unsafe or unsupported captures; retain previous acknowledged drafts and the live form after failed storage. Automatic backup before future deferral remains required.
+- [x] Add separately confirmed restoration into matching empty native controls using existing owned form targets, full-document revalidation and verified readback. Preserve changed owner values, scope, reservations and manual submission; never learn or send while restoring.
+- [x] Expose backup, saved-answer review and explicit restore through CLI, both Lino formats and four-language application controls. Verify exact-parent absence/loss, 66 focused checks, four dictionary checks, production browser/MCP and before/after evidence; preserve the initial native guard failure too. See [draft evidence](application-drafts.md).
+- [ ] Continue the RAM-only queue, run-wide modes and supervised one-application test preset required by the pinned HH guide (README lines 368–389 and 468–479). Existing zero-effect preview remains available. Complete every original unchecked criterion and exact-head CI before marking PR57 ready.
+
+Active hosted Windows Deno snapshot interval failure:
+
+- [x] Match Windows 2025 Deno shard 3 job `132290872116` to exact published `4f482c34`, and preserve its complete 5,292-line log. Lines 5244–5257 report one snapshot record instead of three in the interval test.
+- [ ] Reproduce the relationship between the adaptive ten-times-write-cost interval and the fixed five-second test deadline with a bounded controlled clock. Establish the actual cause before correcting the test or scheduler; do not increase deadlines blindly.
+- [ ] Publish the atomic correction and inspect every exact-head hosted check, then continue every unfinished original requirement.
+
 Active native full-form recovery correction:
 
 - [x] Reproduce exact published `e1c10104` reopening at the vacancy while its entry reservation blocks further entry. Preserve Node/native failures and independent MCP before screenshot; replace mock document retention with a fresh browser document.

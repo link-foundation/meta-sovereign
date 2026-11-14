@@ -34,7 +34,16 @@ export const createApplicationApi = ({ get, report }) => ({
     );
   },
   ...Object.fromEntries(
-    ['open', 'read', 'advance', 'prefill', 'mode', 'close'].map((operation) => [
+    [
+      'open',
+      'read',
+      'advance',
+      'prefill',
+      'backup',
+      'restore',
+      'mode',
+      'close',
+    ].map((operation) => [
       `vacancyApplication${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input) =>
         confirmed(

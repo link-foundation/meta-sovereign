@@ -14,6 +14,7 @@ import { attachReviewedResume } from './review-upload.js';
 import { resumeUploadField } from './resume-upload.js';
 import { discloseReviewedOptions } from './review-disclosure.js';
 import { configuredResume } from './configured-resume.js';
+import { createDraftRestorer } from './review-restore.js';
 import { automaticReviewFields } from './automatic-prefill.js';
 
 const answerKey = (plan) =>
@@ -185,6 +186,7 @@ export const createReviewedPrefill = ({
     inspect,
     plan,
     apply,
+    restore: createDraftRestorer({ inspect, capture, write, clear, now }),
     applyEmpty: (record, input, check) =>
       apply(record, input, check, automaticReviewFields),
     clear,

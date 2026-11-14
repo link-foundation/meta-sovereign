@@ -404,4 +404,6 @@ Restore acknowledged job records after rejected puts as well as failed flushes. 
 
 Add four-language native HH application review controls with complete vacancy context, exact answer and letter evidence, explicit action confirmations and identity-only reload recovery. Preserve unknown outcomes without replay, drain Stop, expose verified live-browser state and allow fresh settings only after a confirmed unissued preview. Deferred queues and complete session policies remain unfinished.
 
+Add private acknowledged backups of actual native questionnaire answers and edited letters, with separately confirmed restoration into matching empty controls. Preserve owner edits, unsupported capture refusals, complete native choice identity and uncertain write receipts across CLI, both Lino encodings and four-language controls; restoration neither learns nor submits. Automatic deferral backups and full session policies remain unfinished.
+
 Reopen an acknowledged native HH questionnaire at its validated saved form URL. Preserve original settings, durable entry/submission reservations and fresh confirmation, refuse foreign or mismatched locations before browser launch, and retain acknowledged checkpoints after failed storage.

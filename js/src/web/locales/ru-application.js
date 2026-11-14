@@ -23,6 +23,24 @@ export const ruApplication = {
   'application.prefillAutomatic':
     'Заполнить точные ответы и отправить после паузы',
   'application.submit': 'Отправить проверенный отклик',
+  'application.backup': 'Сохранить текущие ответы HH',
+  'application.restore': 'Восстановить проверенный черновик в пустые поля',
+  'application.draft': 'Личный черновик анкеты',
+  'application.draftSaved': 'Сохранён на этом сервере: {time}',
+  'application.draftHint':
+    'Перед восстановлением откройте те же вопросы и поле письма. Сначала проверьте эту личную копию. Существующие ответы сохраняются; восстановление не отправляет отклик и не обучает базу ответов. Копия сохраняется явно и не является очередью повторных попыток.',
+  'application.draft.checked': 'Отмечено',
+  'application.draft.unchecked': 'Не отмечено',
+  'application.restore.restoring':
+    'Восстановление начато; прочитайте страницу HH, чтобы проверить текущие значения.',
+  'application.restore.restored':
+    'Значения черновика проверены в полях HH. Проверьте ответы перед отправкой.',
+  'application.restore.refused':
+    'Восстановление отклонено; существующие ответы сохранены. Прочитайте страницу снова.',
+  'application.restore.partial':
+    'Часть значений восстановлена. Прочитайте страницу HH перед продолжением.',
+  'application.restore.uncertain':
+    'Восстановление не подтверждено. Прочитайте страницу HH перед следующим действием.',
   'application.close': 'Закрыть браузер отклика',
   'application.pause': 'Приостановить проверку',
   'application.noQuestionnaires': 'Отложить анкету в этой проверке',
@@ -47,7 +65,7 @@ export const ruApplication = {
   'application.reopen': 'Открыть браузер сохранённой проверки',
   'application.release': 'Завершить проверку и перейти к выбранной вакансии',
   'application.stop': 'Остановить и завершить операцию отклика',
-  'application.delivery.none': 'Отправка отклика не зафиксирована.',
+  'application.delivery.none': 'HH пока не подтвердил доставку отклика.',
   'application.delivery.unknown':
     'Доставка неизвестна. Зарезервированное действие могло достичь HH; повторной отправки не будет.',
   'application.delivery.provider-confirmed': 'HH подтвердил доставку отклика.',
