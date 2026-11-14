@@ -1,0 +1,163 @@
+import { createInterface } from 'node:readline';
+import { readFile, stat } from 'node:fs/promises';
+import { createVacancyService } from '../jobs/service.js';
+import {
+  applicationSettings,
+  applicationKey,
+} from '../jobs/application-options.js';
+import { defaultStoreDir } from '../storage/app-directory.js';
+import { encodeWire } from '../transport/lino.js';
+
+export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--auto-exact=true|false] [--review-delay-ms=3000] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+  vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
+const boolean = (args, key) => {
+  const value = args[key];
+  if (value === undefined) {
+    return undefined;
+  }
+  if (![true, false, 'true', 'false'].includes(value)) {
+    throw new Error(`--${key} must be true or false`);
+  }
+  return value === true || value === 'true';
+};
+const commandInput = async (args) => {
+  const file = args['cover-letter-file'];
+  let coverLetter = '';
+  if (file) {
+    const size = await stat(file);
+    if (!size.isFile() || size.size > 96000) {
+      throw new Error('Use a cover letter up to 24,000 characters.');
+    }
+    coverLetter = await readFile(file, 'utf8');
+  }
+  const input = {
+    url: args.url,
+    requestId: args['request-id'],
+    browserSlot: args['browser-slot'],
+    headless: boolean(args, 'headless'),
+    autoExact: boolean(args, 'auto-exact'),
+    testMode: boolean(args, 'test-mode'),
+    recover: boolean(args, 'recover'),
+    coverLetter,
+    reviewDelayMs:
+      args['review-delay-ms'] === undefined
+        ? undefined
+        : Number(args['review-delay-ms']),
+  };
+  applicationSettings(input);
+  return input;
+};
+const commands = {
+  read: ['read', {}],
+  enter: ['advance', { action: 'enter', confirm: true }],
+  submit: ['advance', { action: 'submit', confirm: true }],
+  automatic: ['advance', { action: 'submit', confirm: true, automatic: true }],
+  prefill: ['prefill', { confirm: true }],
+  pause: ['mode', { paused: true }],
+  resume: ['mode', { paused: false }],
+  'defer-questionnaires': ['mode', { noQuestionnaires: true }],
+  'review-questionnaires': ['mode', { noQuestionnaires: false }],
+  close: ['close', {}],
+};
+export const applicationCommand = async (service, input, log, readInput) => {
+  const stream = readInput();
+  let cancelled = false;
+  let cancelling;
+  const cancel = () => {
+    cancelled = true;
+    stream.close?.();
+    cancelling ??= service.cancel();
+    cancelling.catch(() => {});
+  };
+  process.once('SIGINT', cancel);
+  process.once('SIGTERM', cancel);
+  try {
+    let receipt = await service['application-open'](input);
+    log(encodeWire(receipt));
+    log(
+      encodeWire({
+        commands: [...Object.keys(commands), 'status', 'quit'],
+        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Test mode never clicks or fills. Unknown outcomes never retry automatically. End of input closes this browser.',
+      })
+    );
+    for await (const line of stream) {
+      const action = line.trim();
+      if (cancelled || action === 'quit') {
+        break;
+      }
+      try {
+        if (action === 'status') {
+          receipt = await service['application-status'](input);
+        } else {
+          const command = commands[action];
+          if (!command) {
+            throw new Error('Use one of the listed commands.');
+          }
+          receipt = await service[`application-${command[0]}`]({
+            ...input,
+            revision: receipt.revision,
+            ...command[1],
+          });
+        }
+        log(encodeWire(receipt));
+      } catch (error) {
+        log(
+          encodeWire({
+            ok: false,
+            code: error.code ?? 'jobs-application-command',
+          })
+        );
+      }
+    }
+    return cancelled ? 130 : 0;
+  } finally {
+    process.off('SIGINT', cancel);
+    process.off('SIGTERM', cancel);
+    stream.close?.();
+    await cancelling;
+  }
+};
+export const createApplicationCommands = ({
+  openStore,
+  applicationInput = () =>
+    createInterface({ input: process.stdin, terminal: false }),
+  ...options
+}) =>
+  Object.fromEntries(
+    ['application', 'application-status'].map((operation) => [
+      `vacancies-${operation}`,
+      async (args, log) => {
+        const input =
+          operation === 'application'
+            ? await commandInput(args)
+            : {
+                ...applicationKey({
+                  url: args.url,
+                  browserSlot: args['browser-slot'],
+                }),
+                requestId: args['request-id'],
+              };
+        const storeDir = args.store ?? defaultStoreDir();
+        const store = await openStore(storeDir);
+        const service = createVacancyService({ store, storeDir, ...options });
+        try {
+          if (operation === 'application') {
+            return await applicationCommand(
+              service,
+              input,
+              log,
+              applicationInput
+            );
+          }
+          log(encodeWire(await service[operation](input)));
+          return 0;
+        } finally {
+          try {
+            await service.stop();
+          } finally {
+            await store.close?.();
+          }
+        }
+      },
+    ])
+  );

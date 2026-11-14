@@ -490,6 +490,7 @@
     "test:e2e:resume-exports:webkit": "E2E_BROWSER=webkit node js/tests/e2e-resume-exports-browser.mjs",
     "test:e2e:vacancy-technologies": "node js/tests/e2e-vacancy-technologies-browser.mjs",
     "test:e2e:vacancy-technologies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancy-technologies-browser.mjs",
+    "test:e2e:job-application": "node js/tests/e2e-job-application-browser.mjs",
     "test:e2e:vacancies": "node js/tests/e2e-vacancies-browser.mjs",
     "test:e2e:vacancies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs",
     "test:e2e:cv-technologies": "node js/tests/e2e-cv-technologies-browser.mjs",

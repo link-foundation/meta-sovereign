@@ -25,6 +25,8 @@ const planOptions = (input) => ({
   modelDraft: input.modelDraft === true,
   salary: input.salary,
   vacancy: input.vacancy,
+  source: input.source,
+  chat: input.chat,
 });
 
 const requireAnswerForm = (inspection) => {

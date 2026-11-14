@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add an owned native HH application executor with explicit CLI and Lino controls, exact answer review, verified cover letters, durable no-replay intent and drained cancellation. Keep the UI application capability unavailable until its controls and remaining policies are verified.
+
 Mount virtual chat-directory keyboard targets immediately after revealing their viewport. Preserve frame-coalesced passive scrolling, bounded rows and chat selection, with finite held-frame regression coverage and default-off focus diagnostics.
 
 Explain every native vacancy search card using private slot choices, native responded markers, reversible literal exclusions and saved-description provenance through CLI, both Lino encodings and four-language CV controls. Retain all cards and failed-search evidence, refuse stale selection reports, and restore acknowledged vacancy caches after rejected writes before later filtering.

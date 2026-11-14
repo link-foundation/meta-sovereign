@@ -1,0 +1,113 @@
+import { assignmentVacancyUrl } from '../assignments/validation.js';
+import { jobsBrowserOptions, jobsFailure, jobsObject } from './options.js';
+
+export const applicationFailure = (kind) =>
+  jobsFailure(
+    `application-${kind}`,
+    'The native HH application was not confirmed. Read its current state before continuing.'
+  );
+export const applicationKey = (input) => {
+  jobsObject(input);
+  const url = assignmentVacancyUrl(input.url);
+  const browser = jobsBrowserOptions(input);
+  return {
+    url,
+    ...browser,
+    id: `secret:jobs-application:${browser.browserSlot}:${url.split('/').at(-1)}`,
+  };
+};
+const boundedInteger = (value, max) =>
+  Number.isInteger(value) && value >= 0 && value <= max;
+export const applicationSettings = (input) => {
+  const options = applicationKey(input);
+  if (
+    typeof input.requestId !== 'string' ||
+    !/^[a-zA-Z0-9_-]{1,100}$/u.test(input.requestId) ||
+    typeof (input.coverLetter ?? '') !== 'string' ||
+    (input.coverLetter ?? '').length > 24000
+  ) {
+    throw applicationFailure('input');
+  }
+  if (
+    ['autoExact', 'testMode', 'recover'].some(
+      (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
+    ) ||
+    !boundedInteger(input.reviewDelayMs ?? 3000, 30000)
+  ) {
+    throw applicationFailure('input');
+  }
+  return {
+    ...options,
+    requestId: input.requestId,
+    coverLetter: input.coverLetter ?? '',
+    autoExact: input.autoExact === true,
+    testMode: input.testMode === true,
+    reviewDelayMs: input.reviewDelayMs ?? 3000,
+  };
+};
+export const applicationDelay = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    signal.throwIfAborted();
+    const abort = () => {
+      globalThis.clearTimeout(timer);
+      reject(signal.reason);
+    };
+    const timer = globalThis.setTimeout(() => {
+      signal.removeEventListener('abort', abort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', abort, { once: true });
+  });
+export const applicationPageKey = (page) => JSON.stringify(page);
+export const applicationState = (page) => {
+  if (!page.bound) {
+    return 'wrong-page';
+  }
+  if (page.challenge) {
+    return 'verification';
+  }
+  if (page.dailyLimit) {
+    return 'daily-limit';
+  }
+  if (page.external) {
+    return 'external';
+  }
+  if (page.delivered) {
+    return 'delivered';
+  }
+  if (page.submit) {
+    return 'review';
+  }
+  return page.enter ? 'ready' : 'unavailable';
+};
+export const applicationView = (record) => {
+  const page =
+    record.page &&
+    Object.fromEntries(
+      Object.entries(record.page).filter(
+        ([key]) => !['documentKey', 'scopeKey', 'fieldIndices'].includes(key)
+      )
+    );
+  return globalThis.structuredClone({
+    ok: true,
+    mode: 'hh-application-review',
+    requestId: record.requestId,
+    url: record.url,
+    browserSlot: record.browserSlot,
+    revision: record.revision,
+    state: record.state,
+    attempted: record.attempted,
+    delivery: record.delivery,
+    code: record.code ?? null,
+    testMode: record.options.testMode,
+    autoExact: record.options.autoExact,
+    reviewDelayMs: record.options.reviewDelayMs,
+    noQuestionnaires: record.noQuestionnaires ?? false,
+    paused: record.paused ?? false,
+    vacancy: record.vacancy ?? null,
+    page: page ?? null,
+    report: record.report ?? null,
+    exact: record.exact === true,
+    letter: record.letter ?? 'not-requested',
+  });
+};

@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active native application executor (HH06–HH08 remain incomplete):
+
+- [x] Draft owned native review, full vacancy context, durable pre-dispatch reservations, exact-only filling, verified letters, bounded delay and session-only pause/deferral. Sixteen focused service and ownership checks pass on the draft.
+- [x] Verify real native DOM admission, entry/submission outcomes, replaced controls, letter toggles and full-form navigation using two isolated finite Chromium scenarios. Four late changes refuse dispatch; no page errors occur.
+- [x] Verify the executor CLI, text/binary HTTP Lino routes and browser API receipts in 20 focused checks. Confirmed absence is distinct from unknown reads. Browser UI controls and deferred retry policies remain unfinished; `apply` stays false.
+- [ ] Add browser evidence, preserve before/after failures, documentation and release trigger. Publish each useful atomic unit and inspect exact-head CI.
+- [ ] Complete deferred retry policies and all remaining HH06–HH08 and original inventory criteria. Keep PR #57 draft and unmerged until every acceptance criterion is verified.
+
 Active hosted repeated-unread assertion:
 
 - [x] Match Chromium shard 2 job `132238675692` to published `236f42a7` and preserve its complete 1,897-line log and 30-file artifact. The assertion compares the active list viewport with a completed pass receipt; draft, selection, route and message scroll agree.

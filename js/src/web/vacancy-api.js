@@ -1,4 +1,4 @@
-/** Read-only server browser operations; cached records remain useful offline. */
+/** Owned server browser operations and separately validated offline snapshots. */
 import { vacancyContent } from '../assignments/vacancy-content.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { hhSearchUrl, jobsFailure } from '../jobs/options.js';
@@ -26,6 +26,7 @@ import { createCvPrepareApi } from './cv-prepare-api.js';
 import { createCvTranslationApi } from './cv-translation-api.js';
 import { createCvWorkplaceApi } from './cv-workplace-api.js';
 import { createVacancyChoiceApi } from './vacancy-choice-api.js';
+import { createApplicationApi } from './application-api.js';
 import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
 
 const confirmedResumes = (answer, input) => {
@@ -115,6 +116,7 @@ const confirmedExport = (result, requestId) => {
   return job;
 };
 export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
+  ...createApplicationApi({ get, report }),
   ...createVacancyChoiceApi({ get, report, local }),
   ...createTechnologyApi({ get, report, local }),
   ...createCvTechnologyApi({ get, report, local }),

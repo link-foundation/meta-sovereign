@@ -30,6 +30,10 @@ import { createVacancyChoiceService } from './vacancy-choice-service.js';
 import { vacancySelectionOptions } from './vacancy-selection.js';
 import { reviewVacancySearch } from './vacancy-selection-service.js';
 import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
+import {
+  createApplicationService,
+  applicationOwned,
+} from './application-service.js';
 
 const owners = new WeakSet();
 
@@ -51,16 +55,17 @@ export const createVacancyService = ({
   cvWatch = {},
   cvPrepare = {},
   cvTranslation = {},
+  application = {},
 }) => {
   let active;
   let stopping;
-  const run = (operation) => {
+  const run = (operation, application = false) => {
     if (stopping) {
       return Promise.reject(
         jobsFailure('stopped', 'Vacancy reading has stopped.')
       );
     }
-    if (owners.has(store)) {
+    if (owners.has(store) || (!application && applicationOwned(store))) {
       return Promise.reject(
         jobsFailure('busy', 'Another vacancy read owns this workspace.')
       );
@@ -83,6 +88,7 @@ export const createVacancyService = ({
     const owned = active;
     owned?.controller.abort();
     await owned?.task.catch(() => {});
+    await applications.cancel();
     return { stopped: true };
   };
   const exports = createResumeExportControl({
@@ -98,7 +104,15 @@ export const createVacancyService = ({
     run,
     ...cvPrepare,
   });
+  const applications = createApplicationService({
+    store,
+    storeDir,
+    openSession,
+    run: (operation) => run(operation, true),
+    ...application,
+  });
   return {
+    ...applications.operations,
     ...createVacancyChoiceService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
@@ -161,6 +175,7 @@ export const createVacancyService = ({
         const drained = preparation.stop();
         active?.controller.abort();
         await active?.task.catch(() => {});
+        await applications.stop();
         await drained;
       }));
     },

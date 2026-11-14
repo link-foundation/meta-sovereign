@@ -4,6 +4,7 @@ import { createVacancyService } from '../jobs/service.js';
 import { fromApp } from './routes-telegram-files.js';
 
 const bodyLimits = {
+  'application-open': 128 * 1024,
   'choice-save': 128 * 1024,
   'cv-workplace-plan': 64 * 1024,
   'technology-catalog-save': 256 * 1024,
@@ -35,6 +36,10 @@ const failureReply = (error) => {
             'jobs-technology-conflict',
             'jobs-cv-conflict',
             'jobs-choice-conflict',
+            'jobs-application-busy',
+            'jobs-application-conflict',
+            'jobs-application-changed',
+            'jobs-application-already-attempted',
           ].includes(code)
         ? 409
         : 400);
@@ -70,6 +75,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
   const read =
     [
       'capabilities',
+      'application-status',
       'choices-stored',
       'stored',
       'resumes-stored',
@@ -89,6 +95,12 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     !read &&
     ![
       'search',
+      'application-open',
+      'application-read',
+      'application-prefill',
+      'application-advance',
+      'application-mode',
+      'application-close',
       'choice-save',
       'choice-clear',
       'collect',
