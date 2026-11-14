@@ -1,0 +1,24 @@
+{
+  "archive": "windows-node-shards.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "0e02dd1e05c1ff5538d7d1485949e618b507f338b8b2a3a2f21c82bf4ef7a82e",
+    "ci-logs/application-limit-rejection-ci-latest.json": "127aff3e30bf6c1b5f92cd86e9474ee91111da4b2cc63f39f2549ba337f33473",
+    "ci-logs/application-limit-rejection-ci-windows-rerun.json": "80ea73dfa26e1de037dd0bc0764e4234c43eb2c6960b8ec98c632375f888d0ba",
+    "ci-logs/checks-43617379351-132516105683-annotations.json": "d8536ab6470363821f11abefb02a7f03c91340b77557dcc3cea484ccbfb740b7",
+    "ci-logs/checks-43617379351-132516105683.log": "2af00d144426704c54d9eb1173f978e8da4a2f100204a5f57eb69794504df7ff",
+    "ci-logs/checks-43617379351-132516105839-annotations.json": "dc19651492483fe690d99bbabf4015f588e08873ef6db7ed32c3980c5c9cce3d",
+    "ci-logs/checks-43617379351-132516105839.log": "7d0e9400d1dde355b1314e88a9d5d5cbc42a6a0ddc799f2dbb2ac8ba236360ac",
+    "ci-logs/checks-43617379351-132522363215.log": "efc938aa9611ee9d744602d200a8858d1f18e35b212e1d9038d2e26db50236d5",
+    "ci-logs/checks-43617379351-132522363805-annotations.json": "69b680b572d3c800777bc2b235775dd5a7afc3b81864940f88cd52c39eaf78a2",
+    "ci-logs/checks-43617379351-132522363805.log": "4e2b1bca7ca58f261669ce6c7692ac5fc16cecda1e87be5017721b5e05ffdd2d",
+    "ci-logs/windows-node-shards-after.log": "a7efc176456280554ebaa81bc9df948739e549cdc579b7ea693237b8cbd68706",
+    "ci-logs/windows-node-shards-before.log": "de7d0785f1377c8cc3a4773b7a7864336e497a133ecf7a2d55219358bf234fc1",
+    "ci-logs/windows-node-shards-doc-format.log": "689e7290f2331f0197853d07172d10a9fd99db14a15433fe2501afc7e2b647f7",
+    "ci-logs/windows-node-shards-format.log": "231af9d4a638187f3d0a29d05cfe9cf12fe02ebe0e6c1ca7274fae2097c62669",
+    "ci-logs/windows-node-shards-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/windows-node-shards.md": "0ccfb790cfe52713878acd9026cb2185e86574ef05ea65989503c8451037360d",
+    "js/tests/ci-node-shards.test.js": "b30b998de9a41d324ad0d1c9abba4c6619e114ba0b449fcb5e9fb15ab184bb70",
+    "before/.github/workflows/release.yml": "b522d030d852b34dfc96c7a194a107a8d602d9441e2e1483f8d3eb433929cf4c",
+    "before/js/tests/ci-node-shards.test.js": "2e89a4d10d90b4fd3738d767a3ffc68f0510cd7caf33bf8773851073c7f5fdf8"
+  }
+}

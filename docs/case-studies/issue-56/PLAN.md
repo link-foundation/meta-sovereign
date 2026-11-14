@@ -11,8 +11,9 @@ Active acknowledged daily-rejection recovery (HH06 remains incomplete):
 Active exact-parent Windows Node CI:
 
 - [x] Preserve `6b1e9dea` run `43617379351`: original Windows job `132516105839` exhausts initial CLI readiness while copying its cold immutable snapshot; original WebKit job `132516105683` fails action download before checkout/tests. No deadline changed; retain complete job logs and annotations.
-- [x] Rerun failed jobs only. Windows rerun `132522363805` reaches the unchanged ten-minute job deadline after setup leaves approximately 134 seconds for tests. Complete 4,616-line log and annotations distinguish aggregate job exhaustion from a specific test hang. WebKit rerun remains pending.
-- [ ] Reuse native Node sharding for Windows, preserving every test, per-test/job deadlines and runtime/OS coverage. Verify a finite failing-shard regression locally, publish and inspect every exact-head hosted check. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
+- [x] Rerun failed jobs only. Windows rerun `132522363805` reaches the unchanged ten-minute job deadline after setup leaves approximately 134 seconds for tests. Complete 4,616-line log and annotations distinguish aggregate job exhaustion from a specific test hang. WebKit rerun `132522363215` passes all assigned browser scenarios; preserve its complete log.
+- [x] Reuse native Node sharding for Windows, preserving every test, per-test/job deadlines and runtime/OS coverage. The finite regression fails on the parent configuration and passes both OS cases after the change, including injected shard failure propagation. Preserve checksummed logs and source evidence.
+- [ ] Publish and inspect every exact-head hosted check. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
 
 Active pacing action-guard feedback:
 

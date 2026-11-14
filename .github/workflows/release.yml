@@ -327,8 +327,8 @@ jobs:
       cancel-in-progress: true
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Retain the 10min deadline. Cold macOS Node and Windows Deno jobs can
-    # exceed it with the complete suite; partition each across three runners.
+    # Retain the 10min deadline. Cold macOS/Windows Node and Windows Deno
+    # jobs can exceed it with the complete suite; use three runners each.
     # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
@@ -364,6 +364,8 @@ jobs:
             runtime: node
           - os: windows-2025
             runtime: deno
+          - os: windows-2025
+            runtime: node
         # Retain all nine runtime/OS targets. Use the separate native Intel
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
@@ -379,6 +381,15 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
+            shard: 3/3
+          - os: windows-2025
+            runtime: node
+            shard: 1/3
+          - os: windows-2025
+            runtime: node
+            shard: 2/3
+          - os: windows-2025
+            runtime: node
             shard: 3/3
           - os: windows-2025
             runtime: deno
