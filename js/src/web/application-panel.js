@@ -110,7 +110,16 @@ const Receipt = ({ receipt, t }) =>
     receipt.testMode
       ? el('p', { key: 'test', role: 'note' }, t('application.testMode'))
       : null,
-    receipt.autoExact
+    receipt.hold
+      ? el(
+          'p',
+          { key: 'hold', role: 'alert', 'data-application-hold': receipt.hold },
+          t('application.hold', {
+            reason: t(`application.hold.${receipt.hold}`),
+          })
+        )
+      : null,
+    receipt.autoExact && !receipt.hold
       ? el(
           'p',
           { key: 'auto', role: 'note' },
@@ -150,6 +159,10 @@ const canBackup = (ready, confirmed, receipt) =>
   confirmed &&
   ['review', 'paused', 'deferred'].includes(receipt.state) &&
   !receipt.attempted.submit;
+const prefillLabel = (receipt) =>
+  receipt.autoExact && !receipt.hold
+    ? 'application.prefillAutomatic'
+    : 'application.prefill';
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const ready = idle && application.known && receipt?.active;
@@ -173,11 +186,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       ),
       button(
         'prefill',
-        t(
-          receipt.autoExact
-            ? 'application.prefillAutomatic'
-            : 'application.prefill'
-        ),
+        t(prefillLabel(receipt)),
         action('Prefill', { confirm: true }),
         !writable
       ),

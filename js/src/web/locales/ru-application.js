@@ -95,6 +95,15 @@ export const ruApplication = {
   'application.state.test-preview':
     'Просмотр завершён; действие отклика не отправлено',
   'application.state.closed': 'Браузер отклика закрыт',
+  'application.state.provider-error':
+    'Ошибка отклика HH: требуется ручное действие',
+  'application.hold':
+    'Автоотправка и автоматическое откладывание анкет остановлены: {reason}. Закрытие сообщения или повторное открытие не снимает ограничение в текущем процессе. Перечитайте страницу и проверьте ответы перед ручной отправкой с подтверждением; подтверждённая доставка снимает ограничение.',
+  'application.hold.generic-error': 'общая ошибка провайдера',
+  'application.hold.validation-error': 'ошибка проверки провайдера',
+  'application.hold.verification': 'ручная проверка',
+  'application.hold.daily-limit': 'лимит откликов провайдера',
+  'application.hold.external': 'внешний отклик',
   'application.defer': 'Сохранить ответы и отложить',
   'application.queueTitle': 'Отложенные анкеты',
   'application.queueHint':

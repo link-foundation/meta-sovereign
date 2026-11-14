@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH08 prerequisite: [native application error holds](application-holds.md) retain manual review after banner dismissal and browser reopening. Generic-error five-hour retries, paced revisits and supervised presets remain unfinished; no inventory row is marked complete by this unit.
+
 Latest partial HH08 evidence: [automatic backed questionnaire deferral](application-automatic-deferral.md) now preserves actual values before mode-driven closure and enables later confirmed review. Automatic paced revisits, generic-error five-hour retries, the supervised preset and all unchecked criteria remain unfinished.
 
 This is the implementation checklist for issue 56's six feature references. The source revisions and original repository/tree/README responses are preserved in `data/reference-snapshots.tar.gz`. References are read to understand behavior; their code is not copied or executed. A feature is complete only after CLI, API and UI controls and the relevant regression evidence are recorded. Existing related modules below identify integration points, not verified parity. Every unchecked row remains required work in PR 57.

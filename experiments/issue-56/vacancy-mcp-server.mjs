@@ -1,4 +1,5 @@
 import { applicationDraftControl } from './application-draft-mcp-control.mjs';
+import { applicationHoldControl } from './application-hold-mcp-control.mjs';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
@@ -38,9 +39,13 @@ const draftControl =
   process.env.APPLICATION_DRAFT_FIXTURE === '1'
     ? applicationDraftControl(browser)
     : null;
+const holdControl =
+  process.env.APPLICATION_HOLD_FIXTURE === '1'
+    ? applicationHoldControl(browser)
+    : null;
 const control = createServer(async (req, res) => {
   try {
-    const draft = await draftControl?.(req);
+    const draft = (await draftControl?.(req)) ?? (await holdControl?.(req));
     if (draft) {
       res.setHeader('content-type', 'application/json');
       res.end(JSON.stringify(draft));

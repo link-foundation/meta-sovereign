@@ -68,6 +68,31 @@ export const applicationDocument = (target, input) => {
         Boolean(node.disabled || node.getAttribute('aria-disabled') === 'true'),
     };
   };
+  const applicationError = (form) => {
+    const errors = nodes('[data-qa-popup-error-code]');
+    const alerts = nodes('[role="alert"], [data-qa="vacancy-response-error"]')
+      .filter(
+        (node) =>
+          form?.contains(node) ||
+          node.matches('[data-qa="vacancy-response-error"]')
+      )
+      .map((node) => node.textContent.replace(/\s+/gu, ' ').trim())
+      .filter(Boolean);
+    const generic =
+      errors.some(
+        (node) => node.getAttribute('data-qa-popup-error-code') === 'unknown'
+      ) ||
+      alerts.some(
+        (text) =>
+          text.includes('Произошла ошибка, попробуйте ещё раз') ||
+          text.includes('An error occurred, please try again')
+      );
+    return generic
+      ? 'generic-error'
+      : errors.length || alerts.length
+        ? 'validation-error'
+        : null;
+  };
   const snapshot = () => {
     const submit = unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
@@ -104,6 +129,7 @@ export const applicationDocument = (target, input) => {
       dailyLimit: marked(
         '[data-qa-popup-error-code="negotiations-limit-exceeded"]'
       ),
+      error: applicationError(form),
       external: marked('[data-qa="vacancy-response-link-advertising-cancel"]'),
       delivered: marked(
         '[data-qa="vacancy-response-link-view-topic"], [data-qa="vacancy-response-link-top-again"]'
@@ -140,6 +166,7 @@ export const applicationDocument = (target, input) => {
       bound &&
       !result.challenge &&
       !result.dailyLimit &&
+      !result.error &&
       !result.external &&
       !result.delivered;
     if (

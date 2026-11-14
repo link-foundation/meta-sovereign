@@ -23,6 +23,7 @@ import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
 import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
+import { ApplicationHolds } from './application-holds.js';
 
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
@@ -62,6 +63,7 @@ class ApplicationService {
     this.drafts = new ApplicationDrafts(this);
     this.modes = new ApplicationRunModes();
     this.deferrals = new ApplicationDeferrals(this);
+    this.holds = new ApplicationHolds(this.trace);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -89,6 +91,7 @@ class ApplicationService {
     if (
       !this.current ||
       this.stopped ||
+      this.current.hold ||
       (this.current.page?.scope &&
         this.current.page.submit &&
         !this.current.page.delivered)
@@ -224,6 +227,7 @@ class ApplicationService {
           ? row
           : {
               ...row,
+              hold: this.holds.read(key.id),
               ...this.modes.read(row.browserSlot),
               state:
                 row.delivery === 'provider-confirmed'
@@ -281,6 +285,7 @@ class ApplicationService {
     if (restored.previous && !input.recover) {
       return applicationView({
         ...restored.previous,
+        hold: this.holds.read(options.id),
         ...this.modes.read(options.browserSlot),
         state:
           restored.previous.delivery === 'provider-confirmed'
@@ -298,6 +303,7 @@ class ApplicationService {
       ...restored.previous,
       id: options.id,
       ...this.modes.read(options.browserSlot),
+      hold: this.holds.read(options.id),
       browser: null,
       active: true,
     };
@@ -352,6 +358,7 @@ class ApplicationService {
     await this.close();
     this.modes.clear();
     this.deferrals.clear();
+    this.holds.clear();
   }
 }
 export const createApplicationService = (options) => {

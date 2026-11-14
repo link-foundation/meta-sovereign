@@ -113,6 +113,7 @@ export class ApplicationDeferrals {
       !record?.noQuestionnaires ||
       record.paused ||
       record.options.testMode ||
+      record.hold ||
       record.state !== 'deferred' ||
       !record.page?.questions ||
       record.attempted.submit ||

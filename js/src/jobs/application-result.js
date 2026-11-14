@@ -8,11 +8,13 @@ import {
   assignmentVacancyUrl,
 } from '../assignments/validation.js';
 import { validateFormInspection } from '../forms/plan-validation.js';
+import { applicationHoldReasons } from './application-holds.js';
 
 export const applicationStates = [
   'opening',
   'ready',
   'review',
+  'provider-error',
   'verification',
   'daily-limit',
   'external',
@@ -28,6 +30,8 @@ export const applicationStates = [
   'closed',
 ];
 const text = (value, max) => typeof value === 'string' && value.length <= max;
+const optionalChoice = (value, choices) =>
+  value === null || value === undefined || choices.includes(value);
 const fail = () => {
   throw jobsFailure(
     'application-unconfirmed',
@@ -62,6 +66,7 @@ const state = (raw) =>
   raw.reviewDelayMs >= 0 &&
   raw.reviewDelayMs <= 30000 &&
   (raw.code === null || text(raw.code, 100)) &&
+  optionalChoice(raw.hold, applicationHoldReasons) &&
   [
     'not-requested',
     'verified',
@@ -88,6 +93,7 @@ const page = (value) =>
       'scope',
     ].every((key) => typeof value[key] === 'boolean') &&
     (value.url === null || text(value.url, 4000)) &&
+    optionalChoice(value.error, ['generic-error', 'validation-error']) &&
     ['enter', 'submit', 'letterToggle'].every((key) =>
       actionDescriptor(value[key])
     ));

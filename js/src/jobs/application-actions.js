@@ -21,6 +21,7 @@ export class ApplicationActions {
         page.delivered ||
         page.challenge ||
         page.dailyLimit ||
+        page.error ||
         page.external ||
         (action === 'enter' && page.submit)
       ) {
@@ -130,7 +131,8 @@ export class ApplicationActions {
       if (
         input.action !== 'submit' ||
         !record.options.autoExact ||
-        !record.exact
+        !record.exact ||
+        record.hold
       ) {
         throw fail('exact');
       }
@@ -144,6 +146,7 @@ export class ApplicationActions {
       await this.service.review.inspect(record, signal);
       if (
         !record.exact ||
+        record.hold ||
         record.state !== 'review' ||
         record.guard.page !== guard.page ||
         record.guard.report !== guard.report
@@ -178,7 +181,13 @@ export class ApplicationActions {
       }
       for (let count = 0; count < 20; count += 1) {
         const page = await service.readPage(record.browser, record.url);
-        if (!page.bound || page.challenge || page.dailyLimit || page.letter) {
+        if (
+          !page.bound ||
+          page.challenge ||
+          page.dailyLimit ||
+          page.error ||
+          page.letter
+        ) {
           break;
         }
         await delay(50, signal);
@@ -245,6 +254,7 @@ export class ApplicationActions {
     const result = await service.review.inspect(record, signal);
     if (
       !record.options.autoExact ||
+      record.hold ||
       !record.exact ||
       record.state !== 'review'
     ) {
@@ -263,6 +273,7 @@ export class ApplicationActions {
     }
     const key = applicationKey(input);
     const record = readApplicationJournal(await service.store.get(key.id), key);
+    record.hold = service.holds.read(key.id);
     if (
       input.requestId !== record.requestId ||
       input.revision !== record.revision

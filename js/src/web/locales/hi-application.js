@@ -96,6 +96,15 @@ export const hiApplication = {
   'application.state.test-preview':
     'पूर्वावलोकन पूरा; आवेदन क्रिया नहीं भेजी गई',
   'application.state.closed': 'आवेदन का अपना ब्राउज़र बंद है',
+  'application.state.provider-error':
+    'HH आवेदन त्रुटि: आपकी कार्रवाई ज़रूरी है',
+  'application.hold':
+    'स्वतः भेजना और प्रश्नावली को स्वतः टालना रुका है: {reason}। संदेश हटाने या फिर खोलने से वर्तमान प्रक्रिया में यह रोक नहीं हटती। पेज फिर पढ़ें और पुष्टि करके हाथ से भेजने से पहले समीक्षा करें; पहुँचने की पुष्टि पर रोक हटती है।',
+  'application.hold.generic-error': 'प्रदाता की सामान्य त्रुटि',
+  'application.hold.validation-error': 'प्रदाता की सत्यापन त्रुटि',
+  'application.hold.verification': 'हाथ से सत्यापन',
+  'application.hold.daily-limit': 'प्रदाता की आवेदन सीमा',
+  'application.hold.external': 'बाहरी आवेदन',
   'application.defer': 'उत्तर सहेजें और टालें',
   'application.queueTitle': 'टाली गई प्रश्नावलियाँ',
   'application.queueHint':

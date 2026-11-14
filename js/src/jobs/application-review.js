@@ -114,6 +114,7 @@ export class ApplicationReview {
     await filling.clear(record);
     record.page = await readPage(record.browser, record.url);
     record.state = applicationState(record.page);
+    this.service.holds.observe(record);
     record.report = null;
     record.exact = false;
     record.code = null;
@@ -123,6 +124,7 @@ export class ApplicationReview {
         ? 'verified'
         : 'not-attached';
     await this.prepare(record, signal);
+    this.service.holds.observe(record, record.page, record.state);
     rememberApplicationLocation(record);
     this.policy(record);
     record.guard = {
@@ -161,11 +163,13 @@ export class ApplicationReview {
     }
     checkPolicy(record, allowHeld);
     const before = await readPage(record.browser, record.url);
+    this.service.holds.observe(record, before);
     if (
       applicationPageKey(before) !== record.guard.page ||
       !before.bound ||
       before.challenge ||
       before.dailyLimit ||
+      before.error ||
       before.external ||
       before.delivered ||
       !before[action] ||

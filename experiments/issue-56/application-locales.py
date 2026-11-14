@@ -144,7 +144,21 @@ states = {
     "test-preview": ["Preview complete; no application action dispatched", "Просмотр завершён; действие отклика не отправлено", "पूर्वावलोकन पूरा; आवेदन क्रिया नहीं भेजी गई", "预览完成，未执行申请操作"],
     "closed": ["Owned application browser closed", "Браузер отклика закрыт", "आवेदन का अपना ब्राउज़र बंद है", "此申请的浏览器已关闭"],
 }
+states["provider-error"] = ["HH application error: manual action required", "Ошибка отклика HH: требуется ручное действие", "HH आवेदन त्रुटि: आपकी कार्रवाई ज़रूरी है", "HH 申请错误：需要手动处理"]
 rows.update({f"state.{key}": value for key, value in states.items()})
+rows.update({
+    "hold": [
+        "Automatic sending and automatic questionnaire deferral are held: {reason}. Dismissing the banner or reopening does not release this hold in the current worker. Read the page and review before any manually confirmed send; confirmed delivery clears the hold.",
+        "Автоотправка и автоматическое откладывание анкет остановлены: {reason}. Закрытие сообщения или повторное открытие не снимает ограничение в текущем процессе. Перечитайте страницу и проверьте ответы перед ручной отправкой с подтверждением; подтверждённая доставка снимает ограничение.",
+        "स्वतः भेजना और प्रश्नावली को स्वतः टालना रुका है: {reason}। संदेश हटाने या फिर खोलने से वर्तमान प्रक्रिया में यह रोक नहीं हटती। पेज फिर पढ़ें और पुष्टि करके हाथ से भेजने से पहले समीक्षा करें; पहुँचने की पुष्टि पर रोक हटती है।",
+        "已暂停自动发送及自动暂缓问卷：{reason}。关闭提示或重新打开不会解除当前进程中的暂停。请重新读取页面并审核，再手动确认发送；确认送达后解除暂停。"
+    ],
+    "hold.generic-error": ["generic provider error", "общая ошибка провайдера", "प्रदाता की सामान्य त्रुटि", "提供商一般错误"],
+    "hold.validation-error": ["provider validation error", "ошибка проверки провайдера", "प्रदाता की सत्यापन त्रुटि", "提供商验证错误"],
+    "hold.verification": ["manual verification", "ручная проверка", "हाथ से सत्यापन", "手动验证"],
+    "hold.daily-limit": ["provider application limit", "лимит откликов провайдера", "प्रदाता की आवेदन सीमा", "提供商申请上限"],
+    "hold.external": ["external application", "внешний отклик", "बाहरी आवेदन", "外部申请"],
+})
 rows.update({
     "defer": ["Save answers and defer", "Сохранить ответы и отложить", "उत्तर सहेजें और टालें", "保存答案并暂缓"],
     "queueTitle": ["Deferred questionnaires", "Отложенные анкеты", "टाली गई प्रश्नावलियाँ", "暂缓的问卷"],

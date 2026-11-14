@@ -75,6 +75,9 @@ export const applicationState = (page) => {
   if (page.delivered) {
     return 'delivered';
   }
+  if (page.error) {
+    return 'provider-error';
+  }
   if (page.submit) {
     return 'review';
   }
@@ -106,6 +109,7 @@ export const applicationView = (record) => {
     attempted: record.attempted,
     delivery: record.delivery,
     code: record.code ?? null,
+    hold: record.hold ?? null,
     testMode: record.options.testMode,
     autoExact: record.options.autoExact,
     reviewDelayMs: record.options.reviewDelayMs,

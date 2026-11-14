@@ -80,6 +80,14 @@ export const zhApplication = {
   'application.state.paused': '审核已暂停',
   'application.state.test-preview': '预览完成，未执行申请操作',
   'application.state.closed': '此申请的浏览器已关闭',
+  'application.state.provider-error': 'HH 申请错误：需要手动处理',
+  'application.hold':
+    '已暂停自动发送及自动暂缓问卷：{reason}。关闭提示或重新打开不会解除当前进程中的暂停。请重新读取页面并审核，再手动确认发送；确认送达后解除暂停。',
+  'application.hold.generic-error': '提供商一般错误',
+  'application.hold.validation-error': '提供商验证错误',
+  'application.hold.verification': '手动验证',
+  'application.hold.daily-limit': '提供商申请上限',
+  'application.hold.external': '外部申请',
   'application.defer': '保存答案并暂缓',
   'application.queueTitle': '暂缓的问卷',
   'application.queueHint':

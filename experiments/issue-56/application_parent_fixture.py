@@ -29,13 +29,13 @@ def published_application_sources(script, parent):
                    for name, value in original.items())
 
 
-def serve_parent_application(root, env, prefix):
+def serve_parent_application(root, env, prefix, extra_env=None):
     with (root / f'ci-logs/{prefix}-before-mcp-server.log').open('wb') as log:
         server = subprocess.Popen([
             'node', '--max-old-space-size=384',
             'experiments/issue-56/vacancy-mcp-server.mjs'], cwd=root,
             stdout=log, stderr=subprocess.STDOUT,
-            env=dict(env, APPLICATION_REVIEW_FIXTURE='1', APPLICATION_DRAFT_FIXTURE='1'))
+            env=dict(env, APPLICATION_REVIEW_FIXTURE='1', APPLICATION_DRAFT_FIXTURE='1', **(extra_env or {})))
         try:
             print(f'Exact parent application fixture process {server.pid}', flush=True)
             assert server.wait() == 0

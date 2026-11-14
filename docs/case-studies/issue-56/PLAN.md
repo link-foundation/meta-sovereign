@@ -1,10 +1,17 @@
 # Issue 56 / PR 57 work plan
 
+Active native provider-error and verification holds (HH08 remains incomplete):
+
+- [x] Detect visible native application errors without treating unrelated page text as an error. Retain a RAM-only hold per vacancy and browser slot through banner dismissal, explicit close/reopen and failed acknowledgements; clear it only on freshly confirmed delivery or worker shutdown.
+- [x] Block automatic sending, late native dispatch and automatic questionnaire closure while held. Preserve explicit fresh review, owner answers, separate manual confirmation and durable uncertain-dispatch reservations.
+- [x] Expose truthful hold states through both wire formats, CLI and four-language browser controls. Reproduce the exact-parent failure, run focused checks and one native/MCP scenario, preserve before/after screenshots and drain fixtures. All 110 focused Node, 15 new Deno and 25 dictionary checks pass; the final shared MCP fixture also preserves existing automatic deferral/restoration behavior.
+- [ ] Publish an atomic unit, update evidence and inspect exact-head hosted checks. Continue five-hour generic-error retries, queue pacing/revisits, supervised presets and every unchecked original requirement. Keep PR57 draft and unmerged.
+
 Active automatic questionnaire deferral prerequisite (HH08 remains incomplete):
 
 - [x] Reuse acknowledged actual-answer preservation at the owned operation boundary when questionnaire mode is enabled. Keep pauses, preview, unsafe captures, storage failures and uncertain submissions open; respect mode changes during checkpoints.
 - [x] Process idle foreground signals without overlapping owned operations. Let CLI/API/UI re-enable questions after automatic closure using fresh inactive-journal identity; preserve separate review/restoration/send confirmation.
-- [ ] Exact-parent Node/native/MCP reproductions, 95 focused Node checks, 12 new Deno cases, 25 dictionary checks, final native/MCP before/after and fixture drain pass. Preserve checksummed evidence, publish the atomic unit and inspect exact-head CI.
+- [x] Exact-parent Node/native/MCP reproductions, 95 focused Node checks, 12 new Deno cases, 25 dictionary checks, final native/MCP before/after and fixture drain pass. Checksummed evidence is published as `c4a40d2c`; every exact-head hosted check passes, including main run `43557439839`.
 - [ ] Continue queue pacing/revisits, generic-error five-hour retries, supervised presets and every original unchecked criterion. Keep PR57 draft and unmerged.
 
 Active backed questionnaire deferral prerequisite (HH08 remains incomplete):

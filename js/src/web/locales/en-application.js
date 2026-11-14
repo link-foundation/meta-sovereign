@@ -96,6 +96,15 @@ export const enApplication = {
   'application.state.test-preview':
     'Preview complete; no application action dispatched',
   'application.state.closed': 'Owned application browser closed',
+  'application.state.provider-error':
+    'HH application error: manual action required',
+  'application.hold':
+    'Automatic sending and automatic questionnaire deferral are held: {reason}. Dismissing the banner or reopening does not release this hold in the current worker. Read the page and review before any manually confirmed send; confirmed delivery clears the hold.',
+  'application.hold.generic-error': 'generic provider error',
+  'application.hold.validation-error': 'provider validation error',
+  'application.hold.verification': 'manual verification',
+  'application.hold.daily-limit': 'provider application limit',
+  'application.hold.external': 'external application',
   'application.defer': 'Save answers and defer',
   'application.queueTitle': 'Deferred questionnaires',
   'application.queueHint':
