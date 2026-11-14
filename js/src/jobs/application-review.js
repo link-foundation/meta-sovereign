@@ -1,6 +1,7 @@
 import {
   assignmentVacancy,
   assignmentVacancyUrl,
+  assignmentText,
 } from '../assignments/validation.js';
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
 import { proposalMatches } from '../forms/review-apply.js';
@@ -93,7 +94,14 @@ export class ApplicationReview {
     ) {
       throw fail('vacancy');
     }
-    record.vacancy = { ...assignmentVacancy(raw), url: record.url };
+    record.vacancy = {
+      ...assignmentVacancy(raw),
+      salary:
+        raw.salary === null
+          ? null
+          : assignmentText(raw.salary ?? '', 1000, 'vacancy salary', true),
+      url: record.url,
+    };
   }
   async plan(record, signal) {
     const { filling } = this.service;
@@ -189,6 +197,11 @@ export class ApplicationReview {
       applicationPageKey(before) !== record.guard.page ||
       invalidNativeRead(before, action, captureGeneric)
     ) {
+      this.service.trace({
+        event: 'application-review-changed',
+        phase: 'native-page',
+        pageChanged: applicationPageKey(before) !== record.guard.page,
+      });
       throw fail('changed');
     }
     if (record.guard.report) {
@@ -196,6 +209,10 @@ export class ApplicationReview {
         check: () => signal.throwIfAborted(),
       });
       if (reviewSnapshotKey(report) !== record.guard.report) {
+        this.service.trace({
+          event: 'application-review-changed',
+          phase: 'form-report',
+        });
         throw fail('changed');
       }
     }

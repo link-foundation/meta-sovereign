@@ -219,6 +219,25 @@ export const applicationDocument = (target, input) => {
         controls.length <= 2000
       ),
       fieldIndices: fields.map((field) => field.index),
+      questionIndices: fields
+        .filter(
+          (field) =>
+            controls[field.index] !== letter &&
+            controls[field.index].closest('[data-qa="task-body"]') &&
+            !controls[field.index].closest(
+              '[data-qa="magritte-select-option-list"]'
+            )
+        )
+        .map((field) => field.index),
+      resumeIndices: fields
+        .filter(
+          (field) =>
+            controls[field.index].matches('input[type="radio"]') &&
+            controls[field.index].closest(
+              '[data-qa="magritte-select-option-list"] [role="option"]'
+            )
+        )
+        .map((field) => field.index),
       scopeStructureKey: html.slice(0, 100000),
       scopeKey: JSON.stringify([html.slice(0, 100000), fields]),
     };

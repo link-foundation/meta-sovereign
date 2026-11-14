@@ -5,6 +5,7 @@ import { applicationResumeNativeFixture } from '../../../experiments/issue-56/ap
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
 import { verifyResumeAdmission } from './application-resume-admission.mjs';
+import { verifyApplicationContextBrowser } from './application-context-browser.mjs';
 
 export const verifyNativeApplicationResume = async (
   browser,
@@ -67,6 +68,11 @@ export const verifyNativeApplicationResume = async (
     assert.equal(await owned.evaluate(() => globalThis.applicationAttempts), 0);
     assert.equal(await action('submit').isDisabled(), true);
     await shot('after');
+    const contextualChoice = await verifyApplicationContextBrowser(
+      controls,
+      owned,
+      screenshots
+    );
     for (const locale of ['ru', 'hi', 'zh', 'en']) {
       await page.evaluate(
         (value) =>
@@ -83,13 +89,21 @@ export const verifyNativeApplicationResume = async (
     }
     await controls.phone();
     await shot('phone');
+    if (screenshots) {
+      await panel
+        .locator('[data-application-resume-title]')
+        .locator('..')
+        .screenshot({
+          path: join(screenshots, 'application-context-phone.png'),
+        });
+    }
     assert.deepEqual(
       await owned.evaluate(() => ({
         menus: globalThis.resumeMenus,
         choices: globalThis.resumeChoices,
         sends: globalThis.applicationAttempts,
       })),
-      { menus: 1, choices: 1, sends: 0 }
+      { menus: 3, choices: 3, sends: 0 }
     );
     const refusedUnsafeTargets = await verifyResumeAdmission(owned);
     await controls.close(owned);
@@ -102,6 +116,7 @@ export const verifyNativeApplicationResume = async (
       browsersClosed: true,
       errors: fixture.errors,
       refusedUnsafeTargets,
+      contextualChoice,
     };
   } finally {
     await fixture.close();

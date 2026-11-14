@@ -1,4 +1,12 @@
 export const zhApplication = {
+  'application.resumeContext': '上下文建议使用 {language}：{reason}。',
+  'application.resumeContextUnknown':
+    '雇主文本不足以确定简历语言。请在审核后明确选择。',
+  'application.resumeContextChoose': '根据雇主上下文选择简历',
+  'application.resumeReason.dollar-pay': '美元薪酬',
+  'application.resumeReason.questions': '雇主问题',
+  'application.resumeReason.description': '职位完整描述',
+  'application.resumeReason.title': '职位名称',
   'application.resume': '申请简历',
   'application.resumeHint':
     '打开原生选项后按哈希确认简历。需要匹配的已验证导出。答案、求职信和发送仍是独立操作。',

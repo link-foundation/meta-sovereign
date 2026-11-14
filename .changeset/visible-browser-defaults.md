@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add explicitly confirmed employer-context résumé choice through CLI, both Lino encodings and four-language application controls. Derive language only from employer questions and the frozen vacancy, verify actual native options against checked same-slot exports, skip already matching menus and preserve owner answers, letters, preview and read-only recovery. Automatic selection before entry and full HH language policy remain unfinished.
+
 Preserve actual native HH application answers and failed-send evidence before queuing generic errors for a worker-only five-hour retry wait. Retain live forms after failed acknowledgements, isolate search exclusions by slot, and require fresh review plus separate restoration and send confirmations through CLI, both Lino encodings and four-language controls.
 
 Preserve later observed browser-tab child replacements by comparing unchanged openings with their saved baseline before joining concurrent records. Keep bounded stale-root retries, private refusal and causal deletion behavior.

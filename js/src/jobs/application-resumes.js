@@ -9,6 +9,7 @@ import {
 } from './application-page.js';
 import { resumeHash, resumeList, resumeListId } from './resume-list.js';
 import { withResumeLanguages } from './resume-language-files.js';
+import { ApplicationContextChoice } from './application-context-choice.js';
 
 export const applicationResumeSelector = (hash) =>
   `[role="option"][data-qa="magritte-select-option-${resumeHash(hash)}"]`;
@@ -59,15 +60,23 @@ const observedChoice = (chooser, input) => {
 export class ApplicationResumes {
   constructor(service) {
     this.service = service;
+    this.context = new ApplicationContextChoice(this);
   }
-  async proof(record, hash, title, signal) {
-    const { store, artifactRoot } = this.service;
+  ready(record) {
+    return readyChooser(record);
+  }
+  async list(record) {
+    const { store } = this.service;
     const id = resumeListId(record.browserSlot);
     const raw = await store.get(id);
     if (raw?.id !== id || raw.version !== 1) {
       throw fail('resume-export');
     }
-    const list = resumeList(raw, record.browserSlot);
+    return resumeList(raw, record.browserSlot);
+  }
+  async proof(record, hash, title, signal) {
+    const { store, artifactRoot } = this.service;
+    const list = await this.list(record);
     const entry = list.entries.find(
       (row) => row.hash === hash && row.title === title
     );
@@ -124,10 +133,13 @@ export class ApplicationResumes {
     if (input.confirm !== true) {
       throw fail('confirmation');
     }
-    if (!['menu', 'choose'].includes(input.action)) {
+    if (!['menu', 'choose', 'context'].includes(input.action)) {
       throw fail('input');
     }
     const chooser = readyChooser(record);
+    if (input.action === 'context') {
+      return this.context.change(record, signal);
+    }
     const desired =
       input.action === 'choose' ? observedChoice(chooser, input) : null;
     const languageProof = desired

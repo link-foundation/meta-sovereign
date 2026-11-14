@@ -1,4 +1,12 @@
 export const enApplication = {
+  'application.resumeContext': 'Context suggests {language}: {reason}.',
+  'application.resumeContextUnknown':
+    'The employer text does not establish a résumé language. Choose explicitly after review.',
+  'application.resumeContextChoose': 'Choose résumé from employer context',
+  'application.resumeReason.dollar-pay': 'dollar-denominated pay',
+  'application.resumeReason.questions': 'employer questions',
+  'application.resumeReason.description': 'full vacancy description',
+  'application.resumeReason.title': 'vacancy title',
   'application.resume': 'Application résumé',
   'application.resumeHint':
     'Open the native choices, then confirm a résumé by its hash. A matching checked export is required. Answers, letters and sending keep separate actions.',

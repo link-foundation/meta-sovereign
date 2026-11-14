@@ -49,13 +49,18 @@ export const applicationResumeChooser = (raw) => {
   }
 };
 
-export const applicationResumeSelection = (raw, input, page) => {
+const selectionMatchesInput = (raw, input, context) =>
+  input.action === 'context'
+    ? context?.language && raw.languageProof?.language === context.language
+    : resumeHash(raw.hash) === input.resume;
+
+export const applicationResumeSelection = (raw, input, page, context) => {
   if (raw === undefined) {
     return;
   }
   if (
     !raw ||
-    resumeHash(raw.hash) !== input.resume ||
+    !selectionMatchesInput(raw, input, context) ||
     !title(raw.title) ||
     raw.title !== page?.resumeChooser?.title ||
     page.resumeChooser.open ||
@@ -68,9 +73,41 @@ export const applicationResumeSelection = (raw, input, page) => {
   resumeLanguageProof(raw.languageProof, {
     updatedAt: raw.languageProof?.updatedAt,
   });
+  resumeHash(raw.hash);
+};
+
+const contextShape = (raw) => {
+  if (raw === undefined) {
+    return;
+  }
+  if (
+    !raw ||
+    ![null, 'ru', 'en'].includes(raw.language) ||
+    !(raw.language === null
+      ? ['unknown', 'unreadable'].includes(raw.reason)
+      : ['dollar-pay', 'questions', 'description', 'title'].includes(
+          raw.reason
+        )) ||
+    (raw.reason === 'dollar-pay' && raw.language !== 'en')
+  ) {
+    throw fail('unconfirmed');
+  }
 };
 
 export const applicationResumeData = (raw, input) => {
   applicationResumeChooser(raw.page?.resumeChooser);
-  applicationResumeSelection(raw.resumeSelection, input, raw.page);
+  contextShape(raw.resumeContext);
+  applicationResumeSelection(
+    raw.resumeSelection,
+    input,
+    raw.page,
+    raw.resumeContext
+  );
+  if (
+    raw.vacancy?.salary !== undefined &&
+    raw.vacancy.salary !== null &&
+    (typeof raw.vacancy.salary !== 'string' || raw.vacancy.salary.length > 1000)
+  ) {
+    throw fail('unconfirmed');
+  }
 };

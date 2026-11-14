@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active confirmed employer-context résumé choice (HH06 remains incomplete):
+
+- [x] Derive a bounded decision from employer questions, dollar pay and the full vacancy description, excluding owner answers, cover letters and CV titles. Preserve unreadable/unknown states and the collected salary across recovery.
+- [x] Reuse the owned native chooser and checked same-slot exports for one explicitly confirmed contextual choice. Prefer an already matching CV without reopening its menu; refuse missing evidence, changed context and unsafe targets. Keep previews read only and preserve answers/letters/submission reservations.
+- [ ] Expose truthful decision reasons through CLI, both Lino formats and four-language browser controls. Reproduce the exact parent, verify focused Node/Deno and one native/MCP case, preserve screenshots/checksummed evidence and drain fixtures. Local verification passes: Node 32, Deno 17, recovery/ownership/session/dictionaries 44, native Chromium 1 and independent MCP 1. Publication and exact-head CI remain pending.
+- [ ] Continue automatic selection before potentially immediate entry, same-document owner overrides across worker restarts, language-aware standard letters, authenticated parity and all 81 original unchecked criteria. PR57 stays draft and unmerged.
+
 Active hosted startup / worker channel ownership:
 
 - [x] Preserve exact `1e6582c3` run `43572547657`, failed macOS Node shard 2/3 job `132380690633` and its complete log. Initial readiness expires at 10,034 ms (lines 2239–2272); cleanup then reports `ENOTEMPTY` (3115–3117). All eight browser shards and the other four workflows pass.

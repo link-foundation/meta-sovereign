@@ -1,4 +1,12 @@
 export const ruApplication = {
+  'application.resumeContext': 'Контекст указывает язык {language}: {reason}.',
+  'application.resumeContextUnknown':
+    'Текст работодателя не позволяет определить язык резюме. Выберите его явно после проверки.',
+  'application.resumeContextChoose': 'Выбрать резюме по контексту работодателя',
+  'application.resumeReason.dollar-pay': 'оплата в долларах',
+  'application.resumeReason.questions': 'вопросы работодателя',
+  'application.resumeReason.description': 'полное описание вакансии',
+  'application.resumeReason.title': 'название вакансии',
   'application.resume': 'Резюме для отклика',
   'application.resumeHint':
     'Откройте нативный список и подтвердите резюме по хешу. Нужен соответствующий проверенный экспорт. Ответы, письмо и отправка остаются отдельными действиями.',

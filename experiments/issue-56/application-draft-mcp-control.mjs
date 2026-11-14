@@ -7,6 +7,8 @@ export const applicationDraftControl = (browser, popup = false) => {
         '/draft-owner-fill',
         '/draft-owner-open-letter',
         '/draft-values',
+        '/draft-owner-question-ru',
+        '/draft-owner-resume-old',
       ].includes(req.url)
     ) {
       return null;
@@ -35,6 +37,18 @@ export const applicationDraftControl = (browser, popup = false) => {
         await page
           .locator('[data-qa="vacancy-response-form-letter-input"]')
           .fill('Actual edited owner letter.');
+      } else if (req.url === '/draft-owner-question-ru') {
+        await page.locator('#experience').evaluate((node) => {
+          node.parentElement.firstChild.textContent =
+            'Расскажите о вашем последнем опыте работы';
+        });
+      } else if (req.url === '/draft-owner-resume-old') {
+        await page.locator('[data-qa="resume-title"]').first().click();
+        await page
+          .locator(
+            '[role="option"][data-qa="magritte-select-option-russian-old"]'
+          )
+          .click();
       }
       ownerActions++;
     }

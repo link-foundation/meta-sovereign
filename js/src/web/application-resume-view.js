@@ -14,6 +14,33 @@ export const ApplicationResumeView = ({ receipt, action, writable, t }) => {
       chooser.title
     ),
     el('p', { key: 'hint', className: 'meta' }, t('application.resumeHint')),
+    el(
+      'p',
+      { key: 'context', 'data-application-resume-context': true },
+      receipt.resumeContext?.language
+        ? t('application.resumeContext', {
+            language: receipt.resumeContext.language.toUpperCase(),
+            reason: t(
+              `application.resumeReason.${receipt.resumeContext.reason}`
+            ),
+          })
+        : t('application.resumeContextUnknown')
+    ),
+    el(
+      'button',
+      {
+        key: 'context-choice',
+        type: 'button',
+        'data-application-action': 'context-resume',
+        disabled:
+          !writable ||
+          chooser.ambiguous ||
+          chooser.disabled ||
+          !receipt.resumeContext?.language,
+        onClick: action('Resume', { action: 'context', confirm: true }),
+      },
+      t('application.resumeContextChoose')
+    ),
     chooser.ambiguous
       ? el(
           'p',

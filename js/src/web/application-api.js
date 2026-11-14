@@ -67,7 +67,7 @@ export const createApplicationApi = ({ get, report }) => ({
         );
         if (
           operation === 'resume' &&
-          input.action === 'choose' &&
+          ['choose', 'context'].includes(input.action) &&
           !result.testMode &&
           !result.resumeSelection
         ) {

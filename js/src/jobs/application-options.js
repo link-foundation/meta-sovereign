@@ -1,5 +1,6 @@
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { jobsBrowserOptions, jobsFailure, jobsObject } from './options.js';
+import { applicationResumeContext } from './application-resume-context.js';
 
 export const applicationFailure = (kind) =>
   jobsFailure(
@@ -106,6 +107,8 @@ export const applicationView = (record) => {
             'scopeKey',
             'scopeStructureKey',
             'fieldIndices',
+            'questionIndices',
+            'resumeIndices',
           ].includes(key)
       )
     );
@@ -135,6 +138,7 @@ export const applicationView = (record) => {
     draft: record.draft ?? null,
     restoration: record.restoration ?? null,
     exact: record.exact === true,
+    resumeContext: applicationResumeContext(record),
     letter: record.letter ?? 'not-requested',
   });
 };

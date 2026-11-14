@@ -161,7 +161,7 @@ test('four locales escape native titles and retain disabled ambiguous and unconf
     );
     assert(markup.includes('&lt;script&gt;private title&lt;/script&gt;'));
     assert(!markup.includes('<script>'));
-    assert.equal((markup.match(/disabled=""/gu) ?? []).length, 3);
+    assert.equal((markup.match(/disabled=""/gu) ?? []).length, 4);
     assert(!markup.includes('application.'));
   }
 });

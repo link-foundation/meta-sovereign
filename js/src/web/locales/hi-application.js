@@ -1,4 +1,12 @@
 export const hiApplication = {
+  'application.resumeContext': 'संदर्भ {language} सुझाता है: {reason}।',
+  'application.resumeContextUnknown':
+    'नियोक्ता के पाठ से रिज़्यूमे की भाषा तय नहीं होती। समीक्षा के बाद स्पष्ट रूप से चुनें।',
+  'application.resumeContextChoose': 'नियोक्ता के संदर्भ से रिज़्यूमे चुनें',
+  'application.resumeReason.dollar-pay': 'डॉलर में वेतन',
+  'application.resumeReason.questions': 'नियोक्ता के प्रश्न',
+  'application.resumeReason.description': 'रिक्ति का पूरा विवरण',
+  'application.resumeReason.title': 'रिक्ति का शीर्षक',
   'application.resume': 'आवेदन का रिज़्यूमे',
   'application.resumeHint':
     'मूल विकल्प खोलें, फिर हैश से रिज़्यूमे की पुष्टि करें। मेल खाता सत्यापित निर्यात आवश्यक है। उत्तर, पत्र और भेजना अलग क्रियाएँ हैं।',

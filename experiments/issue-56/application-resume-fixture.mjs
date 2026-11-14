@@ -57,12 +57,25 @@ export const applicationResumeFixture = async (t, options = {}) => {
     };
     // Replace the not-yet-open service so its injected dispatch observes this fixture.
     await fixture.service.stop();
+    if (options.vacancy) {
+      const open = fixture.serviceOptions.openSession;
+      fixture.serviceOptions.openSession = async (input) => {
+        const browser = await open(input);
+        const evaluate = browser.commander.evaluate;
+        browser.commander.evaluate = async (...args) => ({
+          ...(await evaluate(...args)),
+          ...options.vacancy,
+        });
+        return browser;
+      };
+    }
     const { createVacancyService } =
       await import('../../js/src/jobs/service.js');
     fixture.service = createVacancyService(fixture.serviceOptions);
     fixture.state.menuClicks = 0;
     fixture.state.resumeWrites = 0;
     fixture.state.page.resumeChooser = applicationResumeChooserFixture();
+    fixture.state.page.questionIndices = [1];
     await evidence.store.put({
       id: 'jobs-resumes:jobs',
       version: 1,
@@ -96,6 +109,14 @@ export const applicationResumeFixture = async (t, options = {}) => {
       fixture.service['application-resume'](
         applicationIdentity(receipt, {
           action: 'menu',
+          confirm: true,
+          ...extra,
+        })
+      );
+    fixture.context = (receipt, extra = {}) =>
+      fixture.service['application-resume'](
+        applicationIdentity(receipt, {
+          action: 'context',
           confirm: true,
           ...extra,
         })
