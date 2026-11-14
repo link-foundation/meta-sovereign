@@ -1,5 +1,16 @@
 # Issue 56 / PR 57 work plan
 
+Active exact-parent macOS Deno HH CLI timeout:
+
+- [x] Match published `6899b33b` main run `43579541371` to failed macOS Deno job `132403292910`. Save its complete 11,248-line job log; test at lines 5756–5763 times out at 15 seconds, with failure summary at 11201–11215. Broad runtime suite otherwise reports 5,565 passing cases; this does not make the workflow passing.
+- [ ] Measure bounded CLI/fixture shutdown phases, reproduce the actual cause and add a focused regression without increasing the deadline. Preserve evidence, publish an atomic correction and inspect exact-head CI.
+
+Active full-form review before potentially immediate entry (HH06 remains incomplete):
+
+- [x] Open the same vacancy's native full form through a separately confirmed, synchronously guarded navigation. Preserve existing entry behavior and delivery reservations; preview, pauses, stale pages and an existing live form must refuse navigation.
+- [x] Carry the action through foreground CLI, both Lino encodings and four-language controls. Verify fresh résumé/answer review and read-only recovery with no entry/send clicks; retain parent regression and before/after screenshots. Node 11, Deno 11, compatibility 53, native Chromium 1 and independent MCP 1 pass; zero entry/send clicks and all owned fixtures drained.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head hosted checks. Continue automatic selection, durable owner overrides, standard-letter language and all original unchecked criteria.
+
 Active confirmed employer-context résumé choice (HH06 remains incomplete):
 
 - [x] Derive a bounded decision from employer questions, dollar pay and the full vacancy description, excluding owner answers, cover letters and CV titles. Preserve unreadable/unknown states and the collected salary across recovery.

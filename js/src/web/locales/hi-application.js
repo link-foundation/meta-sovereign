@@ -1,4 +1,5 @@
 export const hiApplication = {
+  'application.form': 'समीक्षा के लिए पूरा फ़ॉर्म खोलें',
   'application.resumeContext': 'संदर्भ {language} सुझाता है: {reason}।',
   'application.resumeContextUnknown':
     'नियोक्ता के पाठ से रिज़्यूमे की भाषा तय नहीं होती। समीक्षा के बाद स्पष्ट रूप से चुनें।',

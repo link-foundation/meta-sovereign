@@ -25,6 +25,7 @@ import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationHolds } from './application-holds.js';
 import { ApplicationRetries } from './application-retries.js';
+import { ApplicationFullForm } from './application-full-form.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -76,6 +77,7 @@ class ApplicationService {
     this.holds = new ApplicationHolds(this.trace);
     this.retries = new ApplicationRetries(this, now);
     this.resumes = new ApplicationResumes(this);
+    this.fullForm = new ApplicationFullForm(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);

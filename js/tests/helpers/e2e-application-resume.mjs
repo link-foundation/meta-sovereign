@@ -3,9 +3,9 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { applicationResumeNativeFixture } from '../../../experiments/issue-56/application-resume-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
-import { nativeApplicationForm } from './application-native-request.mjs';
 import { verifyResumeAdmission } from './application-resume-admission.mjs';
 import { verifyApplicationContextBrowser } from './application-context-browser.mjs';
+import { openFullFormReview } from './application-fullform-browser.mjs';
 
 export const verifyNativeApplicationResume = async (
   browser,
@@ -26,8 +26,11 @@ export const verifyNativeApplicationResume = async (
     await controls.select();
     await action('start').click();
     await panel.locator('[data-application-state="ready"]').waitFor();
-    await controls.confirmed('enter');
-    const owned = nativeApplicationForm(browser);
+    const fullForm = !before && process.env.APPLICATION_CONTEXT_BEFORE !== '1';
+    const owned = await openFullFormReview(controls, browser, {
+      fullForm,
+      screenshots,
+    });
     await owned.locator('#experience').fill('Owner answer retained.');
     await owned.locator('[data-qa="add-cover-letter"]').click();
     await owned
@@ -73,6 +76,11 @@ export const verifyNativeApplicationResume = async (
       owned,
       screenshots
     );
+    if (fullForm && screenshots) {
+      await panel.screenshot({
+        path: join(screenshots, 'application-fullform-after.png'),
+      });
+    }
     for (const locale of ['ru', 'hi', 'zh', 'en']) {
       await page.evaluate(
         (value) =>
@@ -89,6 +97,11 @@ export const verifyNativeApplicationResume = async (
     }
     await controls.phone();
     await shot('phone');
+    if (fullForm && screenshots) {
+      await panel.screenshot({
+        path: join(screenshots, 'application-fullform-phone.png'),
+      });
+    }
     if (screenshots) {
       await panel
         .locator('[data-application-resume-title]')
@@ -117,6 +130,8 @@ export const verifyNativeApplicationResume = async (
       errors: fixture.errors,
       refusedUnsafeTargets,
       contextualChoice,
+      fullFormNavigation: fullForm,
+      entryClicks: fullForm ? 0 : 1,
     };
   } finally {
     await fixture.close();

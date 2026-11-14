@@ -133,6 +133,9 @@ export class ApplicationActions {
     }
   }
   async advance(record, input, signal) {
+    if (input.action === 'form') {
+      return this.service.fullForm.open(record, input, signal);
+    }
     this.admitAdvance(record, input);
     if (input.action === 'reenter') {
       this.service.trace({

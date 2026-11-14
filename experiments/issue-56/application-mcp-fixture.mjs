@@ -15,6 +15,7 @@ async (originalPage, work) => {
   const owner = async (operation, method = 'GET') => {
     const response = await page.request.fetch(`${control}/${operation}`, {
       method,
+      headers: { connection: 'close' },
     });
     require(response.ok(), 'Synthetic native fixture refused control');
     return response.json();
@@ -66,7 +67,7 @@ async (originalPage, work) => {
         ).isDisabled(), 'Locale recovery reused confirmation');
       }
     };
-    const start = async (settings = async () => {}) => {
+    const start = async (settings = async () => {}, entry = 'enter') => {
       await vacancies.locator('[data-vacancy-field="query"]').fill('Python');
       await vacancies.locator('[data-vacancy-action="search"]').click();
       await vacancies
@@ -78,7 +79,7 @@ async (originalPage, work) => {
       await action('start').click();
       await state('ready');
       await confirm();
-      await action('enter').click();
+      await action(entry).click();
       await state('review');
     };
     return await work({

@@ -1,4 +1,5 @@
 export const ruApplication = {
+  'application.form': 'Открыть полную форму для проверки',
   'application.resumeContext': 'Контекст указывает язык {language}: {reason}.',
   'application.resumeContextUnknown':
     'Текст работодателя не позволяет определить язык резюме. Выберите его явно после проверки.',

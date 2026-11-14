@@ -265,14 +265,15 @@ export const applicationDocument = (target, input) => {
       !result.error &&
       !result.external &&
       !result.delivered;
+    const nativeAction = input.action === 'fullForm' ? 'enter' : input.action;
     const action = ['resumeMenu', 'resumeChoice'].includes(input.action)
       ? resumeAction()
-      : result[input.action];
+      : result[nativeAction];
     if (
       !allowed ||
       JSON.stringify(result) !== input.guard ||
       !target?.isConnected ||
-      unique(selectors[input.action]) !== target ||
+      unique(selectors[nativeAction]) !== target ||
       !action ||
       action.disabled
     ) {
@@ -282,6 +283,16 @@ export const applicationDocument = (target, input) => {
   };
   if (!admits()) {
     return { dispatched: false };
+  }
+  if (input.action === 'fullForm') {
+    const destination = new URL('/applicant/vacancy_response', expected);
+    destination.searchParams.set(
+      'vacancyId',
+      expected.pathname.split('/').at(-1)
+    );
+    destination.searchParams.set('startedWithQuestion', 'false');
+    globalThis.location.assign(destination.href);
+    return { navigated: true };
   }
   const writeLetter = () => {
     if (target.readOnly) {

@@ -1,4 +1,5 @@
 export const zhApplication = {
+  'application.form': '打开完整表单进行审核',
   'application.resumeContext': '上下文建议使用 {language}：{reason}。',
   'application.resumeContextUnknown':
     '雇主文本不足以确定简历语言。请在审核后明确选择。',

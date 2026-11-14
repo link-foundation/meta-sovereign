@@ -437,3 +437,5 @@ Prefer checked same-slot résumé export language when suggesting a search résu
 Add separately confirmed native application résumé choice backed by checked same-slot export evidence. Verify the native selection, preserve actual owner answers and letters, and refuse stale, unsafe or interrupted operations across CLI, both Lino encodings and four-language controls. Read-only recovery never repeats the choice.
 
 Drain accepted worker initialization and operations after host input or output closes, then release owned stores and listeners. Add opt-in worker initialization phase timings without changing readiness deadlines.
+
+Add separately confirmed native full-form navigation before a potentially immediate HH entry click. Preserve document guards, owner forms, pauses, preview, frozen context and read-only recovery through CLI, both Lino formats and four-language controls. Automatic résumé and standard-letter policy remain unfinished.

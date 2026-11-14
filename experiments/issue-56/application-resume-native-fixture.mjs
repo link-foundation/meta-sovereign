@@ -1,6 +1,21 @@
 import { applicationNativeFixture } from './application-native-fixture.mjs';
 import { resumeLanguageFixture } from './resume-language-fixture.mjs';
 import { resumeListFixture } from './resume-list-fixture.mjs';
+import { readApplicationPage } from '../../js/src/jobs/application-page.js';
+
+const diagnosticApplication =
+  process.env.MS_JOBS_APPLICATION_DEBUG === '1'
+    ? {
+        readPage: async (...args) => {
+          try {
+            return await readApplicationPage(...args);
+          } catch (error) {
+            console.error('Synthetic native read:', error);
+            throw error;
+          }
+        },
+      }
+    : undefined;
 
 export const applicationResumeNativeFixture = async (browser) => {
   const evidence = await resumeLanguageFixture();
@@ -14,6 +29,7 @@ export const applicationResumeNativeFixture = async (browser) => {
       store: evidence.store,
       artifactRoot: evidence.artifactRoot,
       resumeChooser: true,
+      application: diagnosticApplication,
     });
     const close = fixture.close.bind(fixture);
     fixture.close = async () => {

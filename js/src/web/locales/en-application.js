@@ -1,4 +1,5 @@
 export const enApplication = {
+  'application.form': 'Open full form for review',
   'application.resumeContext': 'Context suggests {language}: {reason}.',
   'application.resumeContextUnknown':
     'The employer text does not establish a résumé language. Choose explicitly after review.',

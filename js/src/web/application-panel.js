@@ -190,6 +190,14 @@ const Receipt = ({ receipt, t }) =>
 const canRestore = (writable, receipt) => writable && Boolean(receipt?.draft);
 const canEnter = (ready, confirmed, receipt) =>
   ready && confirmed && receipt.state === 'ready' && !receipt.attempted.enter;
+const canOpenForm = (ready, confirmed, receipt) =>
+  canEnter(ready, confirmed, receipt) &&
+  !receipt.hold &&
+  !receipt.page.scope &&
+  !receipt.page.submit &&
+  !receipt.page.questions &&
+  !receipt.attempted.submit &&
+  receipt.delivery === 'none';
 const canBackup = (ready, confirmed, receipt) =>
   ready &&
   confirmed &&
@@ -234,6 +242,12 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
     el(ApplicationResumeView, { key: 'resume', receipt, action, writable, t }),
     el('div', { key: 'actions', className: 'row' }, [
       button('read', t('application.read'), action('Read'), !ready),
+      button(
+        'form',
+        t('application.form'),
+        action('Advance', { action: 'form', confirm: true }),
+        !canOpenForm(ready, confirmed, receipt)
+      ),
       button(
         'enter',
         t('application.enter'),
