@@ -26,6 +26,7 @@ import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationHolds } from './application-holds.js';
 import { ApplicationRetries } from './application-retries.js';
 import { ApplicationFullForm } from './application-full-form.js';
+import { ApplicationLanguagePolicy } from './application-language-policy.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -78,6 +79,7 @@ class ApplicationService {
     this.retries = new ApplicationRetries(this, now);
     this.resumes = new ApplicationResumes(this);
     this.fullForm = new ApplicationFullForm(this);
+    this.language = new ApplicationLanguagePolicy(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -273,7 +275,7 @@ class ApplicationService {
       return { options };
     }
     if (input.recover === true) {
-      options = applicationSettings(previous.options);
+      options = previous.options;
     }
     if (previous.signature !== JSON.stringify(options)) {
       throw fail('conflict');

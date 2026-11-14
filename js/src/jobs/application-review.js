@@ -11,6 +11,10 @@ import { rememberApplicationPopup } from './application-popup.js';
 import { applyApplicationRunPolicy } from './application-run-modes.js';
 import { observeApplicationResume } from './application-resume-preference.js';
 import {
+  applicationLetterRequested,
+  applicationLetterStatus,
+} from './application-letters.js';
+import {
   applicationFailure as fail,
   applicationPageKey,
   applicationState,
@@ -70,7 +74,7 @@ export const exactApplicationPlan = (record) => {
   }
   return fields.every((field) =>
     field.index === page.letter?.index
-      ? !options.coverLetter || record.letter === 'verified'
+      ? !applicationLetterRequested(options) || record.letter === 'verified'
       : exactField(field)
   );
 };
@@ -137,11 +141,8 @@ export class ApplicationReview {
     record.report = null;
     record.exact = false;
     record.code = null;
-    record.letter = !record.options.coverLetter
-      ? 'not-requested'
-      : record.page.letter?.value === record.options.coverLetter
-        ? 'verified'
-        : 'not-attached';
+    record.letterResume = null;
+    record.letter = applicationLetterStatus(record);
     await this.prepare(record, signal);
     this.service.holds.observe(record, record.page, record.state);
     observeApplicationResume(record);

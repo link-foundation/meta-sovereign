@@ -23,6 +23,7 @@ test(
       ['status']
     );
     await value.session.start({
+      autoSelectResumeLanguage: false,
       coverLetter: 'Private owner letter',
       url: 'https://hh.ru/vacancy/999',
       browserSlot: 'foreign',
@@ -256,6 +257,7 @@ test(
     assert.equal(value.session.state.missing, false);
     await value.session.start({
       testMode: false,
+      autoSelectResumeLanguage: false,
       coverLetter: 'New reviewed letter',
     });
     assert.notEqual(value.session.state.intent.requestId, first);

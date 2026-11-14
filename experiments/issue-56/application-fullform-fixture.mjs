@@ -5,8 +5,7 @@ import {
 import { applicationIdentity } from './application-run-fixture.mjs';
 import { createVacancyService } from '../../js/src/jobs/service.js';
 
-export const applicationFullFormFixture = async (t, options = {}) => {
-  const fixture = applicationFixture(options);
+export const configureApplicationFullForm = async (fixture) => {
   await fixture.service.stop();
   const openSession = fixture.serviceOptions.openSession;
   fixture.serviceOptions.openSession = async (...args) => {
@@ -41,6 +40,13 @@ export const applicationFullFormFixture = async (t, options = {}) => {
     return { navigated: true };
   };
   fixture.service = createVacancyService(fixture.serviceOptions);
+  return fixture;
+};
+
+export const applicationFullFormFixture = async (t, options = {}) => {
+  const fixture = await configureApplicationFullForm(
+    applicationFixture(options)
+  );
   if (options.open !== false) {
     fixture.opened = await fixture.service['application-open']({
       ...applicationInput,

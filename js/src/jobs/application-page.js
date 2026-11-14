@@ -301,7 +301,7 @@ export const applicationDocument = (target, input) => {
     if (target.value === input.text) {
       return { letter: 'verified' };
     }
-    if (target.value !== '') {
+    if (target.value !== '' && target.value !== input.previousText) {
       return { letter: 'owner-conflict' };
     }
     const setter = Object.getOwnPropertyDescriptor(
@@ -372,7 +372,13 @@ export const dispatchApplication = (handle, record, action) =>
   });
 
 /** The letter uses the same synchronous vacancy/document/form admission. */
-export const writeApplicationLetter = async (browser, text, page, url) => {
+export const writeApplicationLetter = async (
+  browser,
+  text,
+  page,
+  url,
+  previousText
+) => {
   const handle = await applicationTarget(
     browser.page,
     applicationSelectors.letter
@@ -387,6 +393,7 @@ export const writeApplicationLetter = async (browser, text, page, url) => {
       action: 'letter',
       guard: JSON.stringify(page),
       text,
+      previousText,
     });
     return result.letter ?? 'unavailable';
   } finally {

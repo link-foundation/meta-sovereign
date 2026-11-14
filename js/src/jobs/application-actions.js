@@ -9,6 +9,11 @@ import {
 import { applicationSelectors } from './application-page.js';
 import { nativeApplicationFields } from './application-review.js';
 import { readApplicationJournal } from './application-journal.js';
+import {
+  applicationLetterRequested,
+  applicationLetterText,
+  applicationLetterTemplate,
+} from './application-letters.js';
 
 export class ApplicationActions {
   constructor(service) {
@@ -126,15 +131,56 @@ export class ApplicationActions {
     }
     if (
       input.action === 'submit' &&
-      record.options.coverLetter &&
+      applicationLetterRequested(record.options) &&
       record.letter !== 'verified'
     ) {
       throw fail('letter');
     }
   }
+  async reviewAutomatic(record, input, signal) {
+    if (
+      input.action !== 'submit' ||
+      !record.options.autoExact ||
+      !record.exact ||
+      record.hold
+    ) {
+      throw fail('exact');
+    }
+    const guard = record.guard;
+    record.state = 'review-delay';
+    this.service.trace({
+      event: 'application-review-delay',
+      delayMs: record.options.reviewDelayMs,
+    });
+    await delay(record.options.reviewDelayMs, signal);
+    await this.service.review.inspect(record, signal);
+    if (
+      !record.exact ||
+      record.hold ||
+      record.state !== 'review' ||
+      record.guard.page !== guard.page ||
+      record.guard.report !== guard.report
+    ) {
+      return false;
+    }
+    return true;
+  }
   async advance(record, input, signal) {
-    if (input.action === 'form') {
-      return this.service.fullForm.open(record, input, signal);
+    if (input.action === 'reenter' && !applicationCanReenter(record)) {
+      throw fail('already-attempted');
+    }
+    if (
+      input.action === 'form' ||
+      ((record.options.autoSelectResumeLanguage ||
+        record.options.standardLetters) &&
+        ['enter', 'reenter'].includes(input.action))
+    ) {
+      const result = await this.service.fullForm.open(record, input, signal);
+      if (result.state !== 'review') {
+        return result;
+      }
+      await this.service.language.ensure(record, signal);
+      return applicationView(record);
     }
     this.admitAdvance(record, input);
     if (input.action === 'reenter') {
@@ -146,32 +192,13 @@ export class ApplicationActions {
     if (record.options.testMode) {
       return applicationView({ ...record, state: 'test-preview' });
     }
-    if (input.automatic === true) {
-      if (
-        input.action !== 'submit' ||
-        !record.options.autoExact ||
-        !record.exact ||
-        record.hold
-      ) {
-        throw fail('exact');
-      }
-      const guard = record.guard;
-      record.state = 'review-delay';
-      this.service.trace({
-        event: 'application-review-delay',
-        delayMs: record.options.reviewDelayMs,
-      });
-      await delay(record.options.reviewDelayMs, signal);
-      await this.service.review.inspect(record, signal);
-      if (
-        !record.exact ||
-        record.hold ||
-        record.state !== 'review' ||
-        record.guard.page !== guard.page ||
-        record.guard.report !== guard.report
-      ) {
-        return applicationView(record);
-      }
+    await this.service.language.ensure(record, signal);
+    this.admitSubmit(record, input);
+    if (
+      input.automatic === true &&
+      !(await this.reviewAutomatic(record, input, signal))
+    ) {
+      return applicationView(record);
     }
     return this.click(
       record,
@@ -179,7 +206,7 @@ export class ApplicationActions {
       signal
     );
   }
-  async letter(record, signal) {
+  async showLetter(record, signal) {
     const service = this.service;
     if (
       !record.page.letter &&
@@ -217,16 +244,39 @@ export class ApplicationActions {
       }
       await service.review.inspect(record, signal);
     }
+  }
+  async letter(record, signal) {
+    const service = this.service;
+    const text = applicationLetterText(record);
+    const resume = record.letterResume;
+    if (!text) {
+      throw fail('letter');
+    }
+    await this.showLetter(record, signal);
     if (record.state !== 'review' || !record.page.scope) {
       return;
     }
     await service.review.check(record, 'submit', signal);
     const result = await service.writeLetter(
       record.browser,
-      record.options.coverLetter,
+      text,
       record.page,
-      record.url
+      record.url,
+      record.letterTemplate?.text
     );
+    if (result === 'verified' && record.options.standardLetters) {
+      record.letterTemplate = applicationLetterTemplate(
+        {
+          hash: resume.hash,
+          title: resume.title,
+          language: resume.languageProof.language,
+          text,
+        },
+        record.options
+      );
+      // Persist before any later inspection can fail; a failed save removes authority.
+      await service.save(record);
+    }
     await service.review.inspect(record, signal);
     record.letter = result;
     await service.save(record);
@@ -279,7 +329,8 @@ export class ApplicationActions {
       throw fail('state');
     }
     await service.review.check(record, 'submit', signal);
-    if (part !== 'answers' && record.options.coverLetter) {
+    await service.language.ensure(record, signal);
+    if (part !== 'answers' && applicationLetterRequested(record.options)) {
       await this.letter(record, signal);
       if (record.letter !== 'verified') {
         return applicationView(record);

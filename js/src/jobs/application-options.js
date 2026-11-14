@@ -1,6 +1,10 @@
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { jobsBrowserOptions, jobsFailure, jobsObject } from './options.js';
 import { applicationResumeContext } from './application-resume-context.js';
+import {
+  applicationStandardLetters,
+  applicationLetterLanguage,
+} from './application-letters.js';
 
 export const applicationFailure = (kind) =>
   jobsFailure(
@@ -19,7 +23,35 @@ export const applicationKey = (input) => {
 };
 const boundedInteger = (value, max) =>
   Number.isInteger(value) && value >= 0 && value <= max;
-export const applicationSettings = (input) => {
+const validateApplicationFlags = (input) => {
+  if (
+    [
+      'autoExact',
+      'testMode',
+      'recover',
+      'supervised',
+      'autoSelectResumeLanguage',
+    ].some(
+      (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
+    ) ||
+    !boundedInteger(input.reviewDelayMs ?? 3000, 30000)
+  ) {
+    throw applicationFailure('input');
+  }
+};
+const languageSettings = (input, legacy) => {
+  const standardLetters = applicationStandardLetters(input.standardLetters);
+  if (standardLetters && input.coverLetter) {
+    throw applicationFailure('input');
+  }
+  return {
+    ...(!legacy || input.autoSelectResumeLanguage !== undefined
+      ? { autoSelectResumeLanguage: input.autoSelectResumeLanguage ?? true }
+      : {}),
+    ...(standardLetters ? { standardLetters } : {}),
+  };
+};
+export const applicationSettings = (input, { legacy = false } = {}) => {
   const options = applicationKey(input);
   if (
     typeof input.requestId !== 'string' ||
@@ -29,14 +61,7 @@ export const applicationSettings = (input) => {
   ) {
     throw applicationFailure('input');
   }
-  if (
-    ['autoExact', 'testMode', 'recover', 'supervised'].some(
-      (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
-    ) ||
-    !boundedInteger(input.reviewDelayMs ?? 3000, 30000)
-  ) {
-    throw applicationFailure('input');
-  }
+  validateApplicationFlags(input);
   return {
     ...options,
     requestId: input.requestId,
@@ -46,6 +71,7 @@ export const applicationSettings = (input) => {
     reviewDelayMs: input.reviewDelayMs ?? 3000,
     // Absence preserves the exact signatures of acknowledged legacy reviews.
     ...(input.supervised === true ? { supervised: true } : {}),
+    ...languageSettings(input, legacy),
   };
 };
 export const applicationDelay = (ms, signal) =>
@@ -129,6 +155,8 @@ export const applicationView = (record) => {
     testMode: record.options.testMode,
     autoExact: record.options.autoExact,
     supervised: record.options.supervised === true,
+    autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
+    letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
     noQuestionnaires: record.noQuestionnaires ?? false,
     paused: record.paused ?? false,

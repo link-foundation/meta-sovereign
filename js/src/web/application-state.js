@@ -6,6 +6,7 @@ export const useApplication = ({ api, values, selected, run }) => {
   const [state, setState] = useState(session.state);
   const [options, setOptions] = useState({
     coverLetter: '',
+    autoSelectResumeLanguage: true,
     autoExact: false,
     testMode: false,
     supervised: false,

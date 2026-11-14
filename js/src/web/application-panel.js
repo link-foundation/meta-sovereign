@@ -4,6 +4,7 @@ import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationResumeView } from './application-resume-view.js';
+import { ApplicationLetterSettings } from './application-letter-settings.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -46,17 +47,18 @@ const Settings = ({ application, disabled, t }) => {
   const update = (key, value) => setOptions({ ...options, [key]: value });
   return el('fieldset', { className: 'automation-fieldset', disabled }, [
     el('legend', { key: 'legend' }, t('application.settings')),
-    el('label', { key: 'letter', className: 'col' }, [
-      t('application.coverLetter'),
-      el('textarea', {
-        key: 'input',
-        rows: 4,
-        maxLength: 24000,
-        'data-application-letter': true,
-        value: options.coverLetter,
-        onChange: (event) => update('coverLetter', event.target.value),
-      }),
-    ]),
+    check(
+      'autoSelectResumeLanguage',
+      t('application.autoSelectResumeLanguage'),
+      options.autoSelectResumeLanguage,
+      (value) => update('autoSelectResumeLanguage', value)
+    ),
+    el(
+      'p',
+      { key: 'language-hint', className: 'meta' },
+      t('application.languagePolicyHint')
+    ),
+    el(ApplicationLetterSettings, { key: 'letter', options, setOptions, t }),
     check(
       'supervised',
       t('application.supervised'),
@@ -98,6 +100,20 @@ const Settings = ({ application, disabled, t }) => {
 
 const Receipt = ({ receipt, t }) =>
   el('div', { className: 'col' }, [
+    el(
+      'p',
+      {
+        key: 'language',
+        'data-application-language-policy': receipt.autoSelectResumeLanguage
+          ? 'automatic'
+          : 'manual',
+      },
+      t(
+        receipt.autoSelectResumeLanguage
+          ? 'application.languageAutomatic'
+          : 'application.languageManual'
+      )
+    ),
     el('p', { key: 'url', className: 'meta' }, receipt.url),
     el(
       'p',
@@ -250,7 +266,11 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       ),
       button(
         'enter',
-        t('application.enter'),
+        t(
+          receipt.autoSelectResumeLanguage
+            ? 'application.enterWithLanguage'
+            : 'application.enter'
+        ),
         action('Advance', { action: 'enter', confirm: true }),
         !canEnter(ready, confirmed, receipt)
       ),
@@ -258,7 +278,11 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       receipt.reentryAvailable
         ? button(
             'reenter',
-            t('application.reenter'),
+            t(
+              receipt.autoSelectResumeLanguage
+                ? 'application.enterWithLanguage'
+                : 'application.reenter'
+            ),
             action('Advance', { action: 'reenter', confirm: true }),
             !ready || !confirmed
           )

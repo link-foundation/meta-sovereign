@@ -441,3 +441,5 @@ Drain accepted worker initialization and operations after host input or output c
 Add separately confirmed native full-form navigation before a potentially immediate HH entry click. Preserve document guards, owner forms, pauses, preview, frozen context and read-only recovery through CLI, both Lino formats and four-language controls. Automatic résumé and standard-letter policy remain unfinished.
 
 Retain acknowledged manual, contextual and later native application CV observations as private saved history across worker restart. Share truthful history through CLI, both Lino encodings and four-language controls; reserve additive schema 16 without changing legacy intent. Recovery grants no selection or sending permission; automatic language policy and durable override enforcement remain unfinished.
+
+New application reviews verify CV language in the full form before entry, preserve durable owner overrides and support paired reviewed standard letters with guarded correction of unchanged system-written text. CLI, both Lino formats and four-language controls share an explicit opt-out; schema 17 keeps legacy reviews and dispatch reservations intact.

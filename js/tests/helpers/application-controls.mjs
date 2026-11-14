@@ -33,6 +33,7 @@ export const runApplicationFixtureCommand = async (
     {
       url: applicationInput.url,
       'request-id': applicationInput.requestId,
+      'no-auto-select-resume-language': true,
       ...args,
     },
     (line) => output.push(decodeWire(line))
@@ -97,10 +98,19 @@ export const applicationPanelMarkup = (application, locale) =>
     })
   );
 
+export const assertApplicationTranslation = (locale, suffix) => {
+  const key = `application.${suffix}`;
+  const value = translate(locale, key);
+  assert(!value.includes(key));
+  if (locale !== 'en') {
+    assert.notEqual(value, translate('en', key));
+  }
+  return value;
+};
+
 export const assertApplicationLocaleMarkup = (markup, locale, keys) => {
   for (const key of keys) {
-    const translated = translate(locale, `application.${key}`);
-    assert(!translated.includes(`application.${key}`));
+    const translated = assertApplicationTranslation(locale, key);
     assert(
       markup.includes(
         renderToStaticMarkup(
@@ -109,8 +119,5 @@ export const assertApplicationLocaleMarkup = (markup, locale, keys) => {
       ),
       `${locale}.${key}`
     );
-    if (locale !== 'en') {
-      assert.notEqual(translated, translate('en', `application.${key}`));
-    }
   }
 };

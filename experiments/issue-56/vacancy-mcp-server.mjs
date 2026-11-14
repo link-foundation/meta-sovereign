@@ -30,6 +30,7 @@ try {
             : vacancyBrowserFixture;
   fixture = await create(browser, {
     popup,
+    language: process.env.APPLICATION_LANGUAGE_FIXTURE === '1',
     ...(retryFixture ? { application: { now: () => clock.value } } : {}),
   });
   await fixture.page.context().close();

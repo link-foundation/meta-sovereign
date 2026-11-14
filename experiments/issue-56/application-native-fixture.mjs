@@ -8,6 +8,7 @@ export const applicationNativeHtml = ({
   response = false,
   popup = false,
   resumeChooser = false,
+  questionLabel,
 } = {}) => {
   const vacancy = vacancySnapshotFixture();
   return `<!doctype html><html><body>
@@ -32,6 +33,7 @@ export const applicationNativeHtml = ({
           document.querySelector('#application').innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a>';
         };
         ${resumeChooser ? applicationResumeHtml() : ''}
+        ${questionLabel ? `document.querySelector('#experience').parentElement.firstChild.textContent=${JSON.stringify(questionLabel)};` : ''}
       }
       function showLetter(button) {
         button.insertAdjacentHTML('beforebegin', '<label>Cover letter<textarea data-qa="vacancy-response-form-letter-input"></textarea></label>');
@@ -47,6 +49,7 @@ export const applicationNativeFixture = async (
     application,
     popup = false,
     resumeChooser = false,
+    questionLabel,
     store,
     artifactRoot,
   } = {}
@@ -69,7 +72,12 @@ export const applicationNativeFixture = async (
         await route.fulfill({
           status: 200,
           contentType: 'text/html; charset=utf-8',
-          body: applicationNativeHtml({ response, popup, resumeChooser }),
+          body: applicationNativeHtml({
+            response,
+            popup,
+            resumeChooser,
+            questionLabel,
+          }),
         });
         return true;
       },

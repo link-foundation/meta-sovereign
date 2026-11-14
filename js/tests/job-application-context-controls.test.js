@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { applicationContextFixture } from '../../experiments/issue-56/application-context-fixture.mjs';
 import { applicationIdentity as identity } from '../../experiments/issue-56/application-run-fixture.mjs';
 import {
+  assertApplicationTranslation,
   withApplicationRouteFixture,
   enterApplicationRoute,
   runApplicationFixtureCommand,
 } from './helpers/application-controls.mjs';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createApplicationApi } from '../src/web/application-api.js';
-import { translate } from '../src/web/i18n.js';
 
 for (const type of [LINO_TEXT, LINO_BINARY]) {
   test(
@@ -109,11 +109,7 @@ test('all context decision labels and action names are translated in four locale
   ];
   for (const locale of ['en', 'ru', 'hi', 'zh']) {
     for (const suffix of keys) {
-      const key = `application.${suffix}`;
-      assert.notEqual(translate(locale, key), key);
-      if (locale !== 'en') {
-        assert.notEqual(translate(locale, key), translate('en', key));
-      }
+      assertApplicationTranslation(locale, suffix);
     }
   }
 });

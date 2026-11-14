@@ -1,4 +1,19 @@
 export const enApplication = {
+  'application.resumePreferenceSource.automatic': 'automatic language choice',
+  'application.autoSelectResumeLanguage':
+    'Select the résumé language automatically before applying',
+  'application.languagePolicyHint':
+    'Entry first opens the full form for review. Checked exports must establish the CV language. Explicit choices and later changes in HH override automatic selection, including after restart.',
+  'application.languageAutomatic':
+    'Automatic résumé language is enabled; entry opens the review form without applying.',
+  'application.languageManual':
+    'Automatic résumé selection is off for this saved review.',
+  'application.standardLetters':
+    'Use reviewed English and Russian standard letters',
+  'application.standardLetter.en': 'English standard letter (required)',
+  'application.standardLetter.ru': 'Russian standard letter (required)',
+  'application.standardLettersHint':
+    'Both variants are required. The letter follows the verified selected CV language. A corrected decision replaces only unchanged standard text after a confirmed letter fill. Owner edits and answers are preserved.',
   'application.resumePreference': 'Saved résumé choice: {title} ({source}).',
   'application.resumePreferenceSource.manual': 'explicit choice',
   'application.resumePreferenceSource.context': 'employer-context choice',
@@ -40,6 +55,7 @@ export const enApplication = {
   'application.refused':
     'The native action was refused. Read the page again before continuing.',
   'application.read': 'Read current native page',
+  'application.enterWithLanguage': 'Open full form and check CV language',
   'application.enter': 'Enter application (may send immediately)',
   'application.prefill': 'Fill verified exact answers and letter',
   'application.prefillAutomatic':

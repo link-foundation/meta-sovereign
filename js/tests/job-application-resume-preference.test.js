@@ -174,7 +174,7 @@ test(
     delete legacy.resumePreference;
     assert.equal(readApplicationJournal(legacy, key).resumePreference, null);
     for (const preference of [
-      { ...manual, source: 'automatic' },
+      { ...manual, source: 'unsupported' },
       { ...manual, hash: '../another' },
       { ...manual, title: '' },
       { ...manual, authority: 'send' },

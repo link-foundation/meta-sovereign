@@ -1,4 +1,19 @@
 export const hiApplication = {
+  'application.resumePreferenceSource.automatic': 'भाषा का स्वचालित चयन',
+  'application.autoSelectResumeLanguage':
+    'आवेदन से पहले रेज़्यूमे की भाषा अपने आप चुनें',
+  'application.languagePolicyHint':
+    'पहले पूरा फ़ॉर्म खुलेगा; आवेदन नहीं भेजा जाएगा। जाँचे गए निर्यात से रेज़्यूमे की भाषा पुष्ट होनी चाहिए। आपका स्पष्ट चयन और HH में बाद के बदलाव पुनः आरंभ के बाद भी प्राथमिक रहेंगे।',
+  'application.languageAutomatic':
+    'रेज़्यूमे भाषा का स्वचालित चयन चालू है; प्रवेश से केवल समीक्षा फ़ॉर्म खुलेगा।',
+  'application.languageManual':
+    'इस सहेजी गई समीक्षा में रेज़्यूमे का स्वचालित चयन बंद है।',
+  'application.standardLetters':
+    'समीक्षित अंग्रेज़ी और रूसी मानक पत्र इस्तेमाल करें',
+  'application.standardLetter.en': 'अंग्रेज़ी मानक पत्र (अनिवार्य)',
+  'application.standardLetter.ru': 'रूसी मानक पत्र (अनिवार्य)',
+  'application.standardLettersHint':
+    'दोनों रूप आवश्यक हैं। पत्र जाँचे गए चयनित रेज़्यूमे की भाषा में होगा। निर्णय में सुधार केवल अपरिवर्तित मानक पाठ को पत्र भरने की पुष्टि के बाद बदलेगा। आपके बदलाव और उत्तर सुरक्षित रहेंगे।',
   'application.resumePreference':
     'सहेजा गया रिज़्यूमे चयन: {title} ({source})।',
   'application.resumePreferenceSource.manual': 'स्पष्ट चयन',
@@ -41,6 +56,7 @@ export const hiApplication = {
   'application.refused':
     'मूल क्रिया अस्वीकार हुई। आगे बढ़ने से पहले पेज फिर पढ़ें।',
   'application.read': 'वर्तमान मूल पेज पढ़ें',
+  'application.enterWithLanguage': 'पूरा फ़ॉर्म खोलें और CV की भाषा जाँचें',
   'application.enter': 'आवेदन खोलें (तुरंत भेजा जा सकता है)',
   'application.prefill': 'सत्यापित सटीक उत्तर और पत्र भरें',
   'application.prefillAutomatic':

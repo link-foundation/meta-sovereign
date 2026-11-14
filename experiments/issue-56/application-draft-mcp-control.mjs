@@ -8,6 +8,7 @@ export const applicationDraftControl = (browser, popup = false) => {
         '/draft-owner-open-letter',
         '/draft-values',
         '/draft-owner-question-ru',
+        '/draft-owner-question-usd',
         '/draft-owner-resume-old',
       ].includes(req.url)
     ) {
@@ -37,11 +38,19 @@ export const applicationDraftControl = (browser, popup = false) => {
         await page
           .locator('[data-qa="vacancy-response-form-letter-input"]')
           .fill('Actual edited owner letter.');
-      } else if (req.url === '/draft-owner-question-ru') {
-        await page.locator('#experience').evaluate((node) => {
-          node.parentElement.firstChild.textContent =
-            'Расскажите о вашем последнем опыте работы';
-        });
+      } else if (
+        ['/draft-owner-question-ru', '/draft-owner-question-usd'].includes(
+          req.url
+        )
+      ) {
+        await page.locator('#experience').evaluate(
+          (node, label) => {
+            node.parentElement.firstChild.textContent = label;
+          },
+          req.url.endsWith('-ru')
+            ? 'Расскажите о вашем последнем опыте работы'
+            : 'What compensation do you expect in USD?'
+        );
       } else if (req.url === '/draft-owner-resume-old') {
         await page.locator('[data-qa="resume-title"]').first().click();
         await page

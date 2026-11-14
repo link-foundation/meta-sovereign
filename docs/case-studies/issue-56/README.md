@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Default application language](application-language.md): full-form CV verification before entry, durable owner overrides and guarded standard-letter correction through CLI/Lino/four-language UI. Authenticated parity and all original unchecked criteria remain active.
+
 - [Acknowledged CV-choice history](application-preference.md): private restart-safe observations and later native changes, with no recovery replay. Automatic language policy and durable override enforcement remain unfinished.
 
 - [HH CLI fixture ownership](ci-hh-cli-fixture.md): bounded unfinished-response reproduction and owned-socket cleanup with default-off phase tracing. The original macOS Deno timeout remains unexplained.

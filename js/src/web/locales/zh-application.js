@@ -1,4 +1,16 @@
 export const zhApplication = {
+  'application.resumePreferenceSource.automatic': '自动语言选择',
+  'application.autoSelectResumeLanguage': '申请前自动选择简历语言',
+  'application.languagePolicyHint':
+    '先打开完整表单供审阅，不会发送申请。必须用已核验的导出文件确认简历语言。明确选择和随后在 HH 中的更改具有优先权，重启后仍然保留。',
+  'application.languageAutomatic':
+    '已启用自动简历语言选择；进入时仅打开审阅表单，不会申请。',
+  'application.languageManual': '此已保存审阅已关闭自动简历选择。',
+  'application.standardLetters': '使用已审阅的英语和俄语标准求职信',
+  'application.standardLetter.en': '英语标准求职信（必填）',
+  'application.standardLetter.ru': '俄语标准求职信（必填）',
+  'application.standardLettersHint':
+    '必须提供两个版本。求职信跟随已核验的所选简历语言。修正语言判断后，只有确认填写求职信才会替换未修改的标准文本。本人编辑和问卷答案会保留。',
   'application.resumePreference': '已保存的简历选择：{title}（{source}）。',
   'application.resumePreferenceSource.manual': '明确选择',
   'application.resumePreferenceSource.context': '按雇主上下文选择',
@@ -37,6 +49,7 @@ export const zhApplication = {
     '精确答案自动发送已启用，审核延时为 {delay} 毫秒。',
   'application.refused': '原生操作被拒绝。继续前请重新读取页面。',
   'application.read': '读取当前原生页面',
+  'application.enterWithLanguage': '打开完整申请表并核对简历语言',
   'application.enter': '进入申请（可能立即发送）',
   'application.prefill': '填写已验证的精确答案和求职信',
   'application.prefillAutomatic': '填写精确答案并在审核延时后发送',

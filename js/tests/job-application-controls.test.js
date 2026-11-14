@@ -176,7 +176,11 @@ test(
     });
     try {
       const result = await commands['vacancies-application'](
-        { url: applicationInput.url, 'request-id': applicationInput.requestId },
+        {
+          url: applicationInput.url,
+          'request-id': applicationInput.requestId,
+          'no-auto-select-resume-language': true,
+        },
         (line) => output.push(decodeWire(line))
       );
       assert.equal(result, 0);

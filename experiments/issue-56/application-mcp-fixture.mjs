@@ -75,6 +75,12 @@ async (originalPage, work) => {
         .first()
         .click();
       await panel.locator('[data-application-missing]').waitFor();
+      const languagePolicy = panel.locator(
+        '[data-application-option="autoSelectResumeLanguage"]'
+      );
+      if (await languagePolicy.count()) {
+        await languagePolicy.uncheck();
+      }
       await settings(panel);
       await action('start').click();
       await state('ready');

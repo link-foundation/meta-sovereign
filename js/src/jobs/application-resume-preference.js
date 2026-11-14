@@ -14,7 +14,7 @@ export const applicationResumePreference = (raw) => {
     typeof raw.title !== 'string' ||
     !raw.title.length ||
     raw.title.length > 500 ||
-    !['manual', 'context', 'native'].includes(raw.source) ||
+    !['manual', 'context', 'native', 'automatic'].includes(raw.source) ||
     (raw.hash !== null && typeof raw.hash !== 'string')
   ) {
     throw fail('journal');

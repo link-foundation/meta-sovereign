@@ -9,6 +9,8 @@ import { vacancySnapshotFixture, vacancyUrl } from './vacancy-fixture.mjs';
 export const applicationInput = {
   url: vacancyUrl,
   requestId: 'fixture-application',
+  // Existing fixtures exercise explicitly opted-out entry semantics.
+  autoSelectResumeLanguage: false,
 };
 const descriptor = (qa) => ({
   qa,
@@ -135,11 +137,14 @@ export const applicationFixture = ({
         }
         return { dispatched: true };
       },
-      writeLetter: async (_browser, value) => {
+      writeLetter: async (_browser, value, _page, _url, previousText) => {
         if (state.page.letter?.value === value) {
           return 'verified';
         }
-        if (state.page.letter?.value) {
+        if (
+          state.page.letter?.value &&
+          state.page.letter.value !== previousText
+        ) {
           return 'owner-conflict';
         }
         state.page.letter = { value, index: 2, disabled: false };

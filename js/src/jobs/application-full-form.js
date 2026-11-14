@@ -1,6 +1,7 @@
 import {
   applicationFailure as fail,
   applicationView,
+  applicationCanReenter,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
 
@@ -10,7 +11,10 @@ const admitFullForm = (record) => {
     record.page.scope ||
     record.page.submit ||
     record.page.questions ||
-    record.attempted.enter ||
+    (record.attempted.enter &&
+      !(
+        record.options.autoSelectResumeLanguage && applicationCanReenter(record)
+      )) ||
     record.attempted.submit ||
     record.delivery !== 'none' ||
     !record.vacancy ||

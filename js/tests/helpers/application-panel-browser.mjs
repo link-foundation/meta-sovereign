@@ -50,6 +50,12 @@ export const applicationPanelBrowser = (fixture) => {
         .first()
         .click();
       await panel.locator('[data-application-missing]').waitFor();
+      const languagePolicy = panel.locator(
+        '[data-application-option="autoSelectResumeLanguage"]'
+      );
+      if (await languagePolicy.count()) {
+        await languagePolicy.uncheck();
+      }
       return vacancies;
     },
   };

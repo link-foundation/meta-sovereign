@@ -1,4 +1,20 @@
 export const ruApplication = {
+  'application.resumePreferenceSource.automatic': 'автоматический выбор языка',
+  'application.autoSelectResumeLanguage':
+    'Автоматически выбирать язык резюме перед откликом',
+  'application.languagePolicyHint':
+    'Сначала открывается полная форма без отправки. Язык резюме подтверждается проверенным экспортом. Явный выбор и последующие изменения в HH сохраняют приоритет, в том числе после перезапуска.',
+  'application.languageAutomatic':
+    'Автовыбор языка включён: сначала открывается форма проверки без отклика.',
+  'application.languageManual':
+    'Для этого сохранённого отклика автовыбор резюме выключен.',
+  'application.standardLetters':
+    'Использовать проверенные стандартные письма на английском и русском',
+  'application.standardLetter.en':
+    'Английское стандартное письмо (обязательно)',
+  'application.standardLetter.ru': 'Русское стандартное письмо (обязательно)',
+  'application.standardLettersHint':
+    'Нужны оба варианта. Язык письма соответствует проверенному выбранному резюме. Исправление решения заменяет только неизменённый стандартный текст после подтверждения заполнения письма. Авторские правки и ответы сохраняются.',
   'application.resumePreference':
     'Сохранённый выбор резюме: {title} ({source}).',
   'application.resumePreferenceSource.manual': 'явный выбор',
@@ -43,6 +59,8 @@ export const ruApplication = {
   'application.refused':
     'Действие отклонено. Перед продолжением перечитайте страницу.',
   'application.read': 'Перечитать текущую страницу',
+  'application.enterWithLanguage':
+    'Открыть полную форму и проверить язык резюме',
   'application.enter': 'Войти в отклик (возможна немедленная отправка)',
   'application.prefill': 'Заполнить точные проверенные ответы и письмо',
   'application.prefillAutomatic':

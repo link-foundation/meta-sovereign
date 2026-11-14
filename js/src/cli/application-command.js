@@ -9,7 +9,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
 
-export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--supervised=true|false] [--auto-exact=true|false] [--review-delay-ms=3000] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--standard-letter-en-file=<text-file> --standard-letter-ru-file=<text-file>] [--no-auto-select-resume-language=true|false] [--supervised=true|false] [--auto-exact=true|false] [--review-delay-ms=3000] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
 const boolean = (args, key) => {
   const value = args[key];
@@ -21,16 +21,24 @@ const boolean = (args, key) => {
   }
   return value === true || value === 'true';
 };
-const commandInput = async (args) => {
-  const file = args['cover-letter-file'];
-  let coverLetter = '';
-  if (file) {
-    const size = await stat(file);
-    if (!size.isFile() || size.size > 96000) {
-      throw new Error('Use a cover letter up to 24,000 characters.');
-    }
-    coverLetter = await readFile(file, 'utf8');
+const letterFile = async (file) => {
+  if (!file) {
+    return '';
   }
+  const size = await stat(file);
+  if (!size.isFile() || size.size > 96000) {
+    throw new Error('Use a cover letter up to 24,000 characters.');
+  }
+  return readFile(file, 'utf8');
+};
+const commandInput = async (args) => {
+  const standardLetters =
+    args['standard-letter-en-file'] || args['standard-letter-ru-file']
+      ? {
+          en: await letterFile(args['standard-letter-en-file']),
+          ru: await letterFile(args['standard-letter-ru-file']),
+        }
+      : undefined;
   const input = {
     url: args.url,
     requestId: args['request-id'],
@@ -40,7 +48,10 @@ const commandInput = async (args) => {
     testMode: boolean(args, 'test-mode'),
     supervised: boolean(args, 'supervised'),
     recover: boolean(args, 'recover'),
-    coverLetter,
+    coverLetter: await letterFile(args['cover-letter-file']),
+    standardLetters,
+    autoSelectResumeLanguage:
+      boolean(args, 'no-auto-select-resume-language') !== true,
     reviewDelayMs:
       args['review-delay-ms'] === undefined
         ? undefined
@@ -106,7 +117,7 @@ export const applicationCommand = async (service, input, log, readInput) => {
           'choose-resume <hash>',
         ],
         resumeNote:
-          'Use form to open the same vacancy’s full native form without clicking its possibly immediate entry control, then review the résumé before sending. Use resume-menu to inspect the native options, then choose-resume <hash> for a separately confirmed choice backed by a checked export. context-resume confirms one choice from employer questions, dollar pay and the full vacancy description, using only matching checked exports. An already correct CV does not reopen its menu. These actions preserve answers and letters and never submit. Automatic language selection before entry or sending is not enabled.',
+          'New reviews select the résumé language from employer questions, dollar pay and the full vacancy description using checked exports. Entry opens the full form before any potentially immediate application control. An already correct CV does not reopen its menu. Explicit choices and later native changes survive recovery and override automatic selection. Use --no-auto-select-resume-language to opt out before starting. Use resume-menu then choose-resume <hash> for an explicit verified choice, or context-resume to confirm a new context choice. Both reviewed standard-letter files follow the selected CV language. A later correction can replace only unchanged system-written standard text; owner letters and answers are preserved. Reading and recovery never choose or fill.',
         note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves actual answers privately. Defer saves the full recovery draft, actual Q&A observations and eligible unapproved knowledge before closing; failed saves leave the form open. Generic native errors also save actual answers before closing, then wait five hours in this worker queue. Earlier reopening is refused and search shows the temporary exclusion. Use queue and retry for a due, confirmed fresh review; restoration and sending remain separate. Recovery copies never act as persistent exclusions. Reopen only reads the saved review; reenter separately confirms a new entry backed by an acknowledged unsent popup. It may apply immediately. Unknown entry or send outcomes without that checkpoint stay reserved. Failed dispatch history stays private and acknowledged; a lost or uncertain outcome without fresh native rejection evidence remains reserved. Restore requires matching empty controls and never sends or learns answers. Supervised review disables automatic sending: use answers and letter for separately confirmed fills, then submit; this command stops after one HH-confirmed delivery. It also stops if entry itself confirms delivery. Test mode never clicks or fills, including during supervised review. Pause and questionnaire policies last for this worker and browser slot. Questionnaire deferral and SIGUSR1 automatically save actual answers before closing; failed saves, pauses and preview keep forms open. SIGUSR2 or review-questionnaires enables a later confirmed queue review without sending. Validation, limits and verification retain a manual hold through banner dismissal and browser reopening in this worker. Confirmed delivery clears holds. End of input closes this browser.',
       })
     );

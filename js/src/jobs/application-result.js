@@ -51,6 +51,9 @@ const identity = (raw, input) =>
   raw.revision.length > 0;
 const supervised = (raw) =>
   (raw.supervised === undefined || typeof raw.supervised === 'boolean') &&
+  (raw.autoSelectResumeLanguage === undefined ||
+    typeof raw.autoSelectResumeLanguage === 'boolean') &&
+  optionalChoice(raw.letterLanguage, ['en', 'ru']) &&
   !(raw.supervised && raw.autoExact);
 const reentry = (raw) =>
   (raw.reentryAvailable === undefined ||

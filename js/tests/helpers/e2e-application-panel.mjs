@@ -43,6 +43,9 @@ export const verifyApplicationPanel = async (
     await vacancies.locator('[data-vacancy-action="collect"]').first().click();
     await panel.locator('[data-application-missing]').waitFor();
     await panel
+      .locator('[data-application-option="autoSelectResumeLanguage"]')
+      .uncheck();
+    await panel
       .locator('[data-application-letter]')
       .fill('Owner reviewed letter.');
     await action('start').click();

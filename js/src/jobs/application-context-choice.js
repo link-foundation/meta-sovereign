@@ -6,7 +6,7 @@ import { applicationResumeContext } from './application-resume-context.js';
 import { chooseSearchResume } from './resume-list.js';
 import { withResumeLanguages } from './resume-language-files.js';
 
-const matchingCurrent = (chooser, entries) => {
+export const matchingApplicationResume = (chooser, entries) => {
   if (chooser.open) {
     const checked = chooser.options.find((row) => row.checked && !row.disabled);
     return entries.find(
@@ -31,7 +31,7 @@ export const chooseContextResume = (chooser, list, language) => {
             .length === 1
       )
   );
-  const checked = matchingCurrent(chooser, entries);
+  const checked = matchingApplicationResume(chooser, entries);
   const hash = checked?.hash ?? chooseSearchResume({ ...list, entries }).hash;
   return entries.find((row) => row.hash === hash);
 };
@@ -53,7 +53,7 @@ export class ApplicationContextChoice {
       throw fail('changed');
     }
   }
-  async change(record, signal) {
+  async change(record, signal, source = 'context') {
     const { resumes, service } = this;
     const { language } = applicationResumeContext(record);
     if (!language) {
@@ -69,9 +69,12 @@ export class ApplicationContextChoice {
       signal
     );
     // A uniquely known, already correct title does not need a chooser click.
-    const current = matchingCurrent(record.page.resumeChooser, list.entries);
+    const current = matchingApplicationResume(
+      record.page.resumeChooser,
+      list.entries
+    );
     if (current?.languageProof?.language === language) {
-      return this.choose(record, current, language, signal);
+      return this.choose(record, current, language, signal, source);
     }
     if (!list.entries.some((row) => row.languageProof?.language === language)) {
       throw fail('resume-export');
@@ -86,9 +89,9 @@ export class ApplicationContextChoice {
       await resumes.menu(record, chooser, signal);
       throw fail('resume-export');
     }
-    return this.choose(record, desired, language, signal);
+    return this.choose(record, desired, language, signal, source);
   }
-  async choose(record, entry, language, signal) {
+  async choose(record, entry, language, signal, source) {
     const { resumes, service } = this;
     const documentKey = record.page.documentKey;
     // Recheck bytes after asynchronous menu inspection; no cached proof grants a write.
@@ -106,7 +109,7 @@ export class ApplicationContextChoice {
         chooser.options.find((row) => row.hash === entry.hash),
         proof,
         signal,
-        'context'
+        source
       );
     } else if (chooser.title === entry.title) {
       // A successful no-op still consumes this confirmation through a fresh receipt.
@@ -118,7 +121,7 @@ export class ApplicationContextChoice {
       ) {
         throw fail('changed');
       }
-      await resumes.remember(record, entry, 'context');
+      await resumes.remember(record, entry, source);
       result = {
         ...applicationView(record),
         resumeSelection: {

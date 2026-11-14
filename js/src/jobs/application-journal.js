@@ -8,6 +8,7 @@ import {
 import { applicationResumeUrl } from './application-location.js';
 import { applicationPopupCheckpoint } from './application-popup.js';
 import { applicationResumePreference } from './application-resume-preference.js';
+import { applicationLetterTemplate } from './application-letters.js';
 import {
   applicationSettings,
   applicationFailure as fail,
@@ -29,6 +30,7 @@ const properties = [
   'resumeUrl',
   'popupReview',
   'resumePreference',
+  'letterTemplate',
   'draft',
   'restoration',
 ];
@@ -38,7 +40,7 @@ export const readApplicationJournal = (row, key) => {
   if (!row || row.version !== 1 || row.id !== key.id) {
     throw fail('missing');
   }
-  const options = applicationSettings(row.options);
+  const options = applicationSettings(row.options, { legacy: true });
   if (
     options.id !== key.id ||
     options.url !== key.url ||
@@ -62,6 +64,7 @@ export const readApplicationJournal = (row, key) => {
     resumeUrl: applicationResumeUrl(row.resumeUrl, key.url),
     popupReview: applicationPopupCheckpoint(row.popupReview, row),
     resumePreference: applicationResumePreference(row.resumePreference),
+    letterTemplate: applicationLetterTemplate(row.letterTemplate, options),
     draft: applicationDraft(row.draft),
     restoration: draftRestoration(row.restoration),
     active: false,
