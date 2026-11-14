@@ -460,3 +460,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Adaptive snapshot interval verification](ci-snapshot-interval.md): exact hosted Windows Deno failure, bounded parent assertion, real-file virtual-clock regression and confirmed superseded WebKit cancellation. Production timing policy and deadlines stay unchanged.
 
 - [Native-export CV snapshot publication](cv-publication-exports.md): explicit private artifact provenance, source-bound consent and preserved native files.
+
+Saved ordered-word template workflow: [CLI, Lino, native UI and independent MCP evidence](question-templates.md).

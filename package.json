@@ -433,6 +433,8 @@
     "test:e2e:questions:webkit": "E2E_BROWSER=webkit node js/tests/e2e-questions-browser.mjs",
     "test:e2e:question-providers": "node js/tests/e2e-question-providers-browser.mjs",
     "test:e2e:question-providers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-providers-browser.mjs",
+    "test:e2e:question-templates": "node js/tests/e2e-question-templates-browser.mjs",
+    "test:e2e:question-templates:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-templates-browser.mjs",
     "test:e2e:question-text-replies": "node js/tests/e2e-question-text-replies-browser.mjs",
     "test:e2e:question-text-replies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-question-text-replies-browser.mjs",
     "test:e2e:question-text-guards": "node js/tests/e2e-question-text-guards-browser.mjs",
