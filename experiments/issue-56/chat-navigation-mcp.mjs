@@ -1,4 +1,4 @@
-/* global chatScanContract -- bundled production modules */
+/* global Event, chatScanContract -- bundled production modules */
 import { writeFile } from 'node:fs/promises';
 import { mcpChatScanBundle } from './mcp-chat-scan-bundle.mjs';
 import { mcpInspectionCode } from './mcp-inspection-code.mjs';
@@ -68,7 +68,44 @@ const verifyRepeatedMcp = async ({
   return second.restoration;
 };
 
-const inspect = async (page, { html, screenshot, repeat }) => {
+const releaseRevealMcp = async (page, input, value, touched) => {
+  if (
+    touched ||
+    input?.operation !== 'locate' ||
+    input.chat !== '9' ||
+    value.found !== false
+  ) {
+    return touched;
+  }
+  await page.evaluate(() => {
+    const list = document.querySelector('#list');
+    list.scrollTop = list.scrollHeight;
+    list.dispatchEvent(new Event('scroll'));
+  });
+  return true;
+};
+
+const verifyUnreadMcpResult = (result, reveal, released, check) => {
+  check(
+    result.conversations.length === (reveal ? 2 : 1) &&
+      result.conversations[0].chat === '8',
+    'Expected unread chats'
+  );
+  check(
+    !reveal || (released && result.conversations[1].chat === '9'),
+    'Settled virtual render is readable'
+  );
+  check(
+    result.conversations[0].history.coverage.complete,
+    'Full fixture conversation'
+  );
+  check(
+    result.restoration.restored && !result.coverage.complete,
+    'Restore with partial provider coverage'
+  );
+};
+
+const inspect = async (page, { html, screenshot, repeat, reveal }) => {
   const check = (condition, message) => {
     if (!condition) {
       throw new Error(message);
@@ -107,6 +144,7 @@ const inspect = async (page, { html, screenshot, repeat }) => {
       });
     const original = await snapshot();
     const other = await page.context().newPage();
+    let released = false;
     let touched = false,
       result;
     try {
@@ -114,6 +152,9 @@ const inspect = async (page, { html, screenshot, repeat }) => {
       const commander = {
         evaluate: async ({ fn, args = [] }) => {
           const value = await page.evaluate(fn, args[0]);
+          if (reveal) {
+            released = await releaseRevealMcp(page, args[0], value, released);
+          }
           if (ownerReturns && !touched && args[0]?.operation === 'history') {
             touched = true;
             await page.bringToFront();
@@ -131,22 +172,10 @@ const inspect = async (page, { html, screenshot, repeat }) => {
           waitMs: 150,
           endWaitMs: 100,
           budgetMs: 30000,
-          maxChats: 1,
+          maxChats: reveal ? 2 : 1,
         });
         check(!ownerReturns, 'Owner return must interrupt');
-        check(
-          result.conversations.length === 1 &&
-            result.conversations[0].chat === '8',
-          'Exactly one unread chat'
-        );
-        check(
-          result.conversations[0].history.coverage.complete,
-          'Full fixture conversation'
-        );
-        check(
-          result.restoration.restored && !result.coverage.complete,
-          'Restore with partial provider coverage'
-        );
+        verifyUnreadMcpResult(result, reveal, released, check);
         check(
           JSON.stringify(await snapshot()) === JSON.stringify(original),
           'Exact original view'
@@ -183,6 +212,7 @@ const inspect = async (page, { html, screenshot, repeat }) => {
           : undefined;
       const receipt = {
         ownerReturns,
+        revealReleased: released,
         coverage: result.coverage,
         restoration: result.restoration,
         ...(repeated ? { repeated } : {}),
@@ -210,14 +240,22 @@ const inspect = async (page, { html, screenshot, repeat }) => {
 };
 const bundle = await mcpChatScanBundle({ unread: true });
 const repeat = process.argv.includes('--repeat');
+const reveal = process.argv.includes('--reveal');
+const prefix = reveal
+  ? 'unread-reveal'
+  : repeat
+    ? 'chat-repetition'
+    : 'chat-navigation';
 await writeFile(
-  `ci-logs/${repeat ? 'chat-repetition' : 'chat-navigation'}-mcp-code.js`,
+  `ci-logs/${prefix}-mcp-code.js`,
   `async (page) => {
  const process={env:{}};
  const globalThis={performance:{now:()=>Date.now()}};
  const mcpPause=(ms)=>page.waitForTimeout(ms);
  ${bundle}
+ const releaseRevealMcp = (${releaseRevealMcp.toString()});
+ const verifyUnreadMcpResult = (${verifyUnreadMcpResult.toString()});
  const verifyRepeatedMcp = (${verifyRepeatedMcp.toString()});
- return (${mcpInspectionCode(inspect, { html: chatNavigationHtml(), repeat, screenshot: `${process.cwd()}/docs/screenshots/issue-56-${repeat ? 'chat-repetition' : 'chat-navigation'}/mcp` })})(page);
+ return (${mcpInspectionCode(inspect, { html: chatNavigationHtml({ virtual: reveal }), repeat, reveal, screenshot: `${process.cwd()}/docs/screenshots/issue-56-${prefix}/mcp` })})(page);
 }`
 );

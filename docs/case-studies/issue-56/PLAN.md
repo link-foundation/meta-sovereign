@@ -1,5 +1,23 @@
 # Issue 56 / PR 57 work plan
 
+Active exact-head application group timeout:
+
+- [x] Match WebKit shard 2 job `132370299236` in exact-head run `43569152391` to `e8533c0c`. Preserve all 1,617 log lines and its artifact. Ten native scenarios pass before the eleventh starts with roughly 12 seconds left; the runner expires at 180,127 ms.
+- [x] Reproduce the overloaded eleven-scenario group with a focused registration regression. Split it into groups of four, three and four; preserve all eleven scenarios exactly once, both engines, four shards, the 180-second group deadline and the 35-minute job deadline. All five focused runner checks pass. Do not infer an individual scenario hang from the aggregate timeout.
+- [ ] Publish the correction and verify exact-head hosted CI while continuing every original unchecked criterion. Keep PR57 draft and unmerged.
+
+Active exact-head unread-view failure:
+
+- [x] Match Chromium shard 4 job `132370298746` in run `43569152391` to published `e8533c0c`. Preserve its complete 1,449-line log and browser artifact. Lines 1153–1164 report `browser-chat-view-chat-unavailable`; lines 1174–1189 report successful owner-state restoration.
+- [x] Reproduce a native render completing between target lookup and scroll status against the published reveal code. Recheck the settled target, preserve genuine absence refusal, and verify two finite native cases, two independent MCP cases and 20 focused Node checks. Keep all original deadlines and guards. The precise original hosted render timing remains unmeasured.
+- [ ] Publish the atomic correction and verify exact-head hosted CI while continuing every original incomplete criterion. PR57 remains draft and unmerged.
+
+Active export-proven résumé suggestions (HH02 and HH06 remain incomplete):
+
+- [ ] Prefer the requested language from checked, same-slot export artifacts whose hash, title and observed update still match the native list. Preserve explicit owner choices and disclose title-only fallback. Keep proofs out of durable list records and revalidate artifacts on server cache reads.
+- [ ] Carry strict portable evidence through CLI, both Lino formats and four-language search controls. Cover stale or corrupted exports, slot isolation, cancellation, offline snapshots and zero provider mutations with focused regression checks.
+- [ ] Reproduce the exact published parent, verify one native browser and independent MCP scenario, preserve before/after screenshots and checksummed evidence, publish and review exact-head CI. Continue native application résumé selection and every original unchecked criterion; keep PR57 draft and unmerged.
+
 Active native popup recovery (HH06 remains incomplete):
 
 - [x] Preserve an acknowledged unsent native popup checkpoint without releasing the original entry reservation. Reopening the browser only reads; a separately confirmed re-entry may apply immediately and must consume that checkpoint before dispatch.

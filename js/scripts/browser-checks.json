@@ -116,5 +116,7 @@
   "browser-merge",
   "reply-cache-ownership",
   "vacancy-choices",
-  "job-application"
+  "job-application",
+  "job-application-drafts",
+  "job-application-policies"
 ]

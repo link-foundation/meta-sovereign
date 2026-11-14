@@ -95,7 +95,7 @@ const fixture = (
         );
       },
     },
-    async ({ sender, page }) => {
+    async ({ sender, page, commander }) => {
       await sender.readRecent({ source: 'hh', chat: '7' });
       await page.evaluate(
         (url) => window.history.replaceState({}, '', url),
@@ -107,7 +107,7 @@ const fixture = (
       try {
         await other.bringToFront();
         armed = true;
-        await work({ sender, page, original });
+        await work({ sender, page, commander, original });
       } finally {
         await other.close();
       }

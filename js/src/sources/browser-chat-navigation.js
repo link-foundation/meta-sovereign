@@ -312,6 +312,16 @@ class ChatNavigation {
           return false;
         }
         if (current.bottom) {
+          // A pending native render can finish between locate and status.
+          // Recheck the now-settled list before treating its end as absence.
+          const settled = await this.view('locate', { chat });
+          this.trace(
+            'reveal-end',
+            settled.found ? 'found' : 'chat-unavailable'
+          );
+          if (settled.found) {
+            return true;
+          }
           throw failure('chat-unavailable');
         }
         const moved = await control('move', {

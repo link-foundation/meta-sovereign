@@ -425,3 +425,8 @@ Preserve actual native answers and acknowledged private rejection history before
 Add an opt-in supervised native application preset with separately confirmed answer and letter fills, automatic sending disabled and one confirmed delivery per foreground command. Preserve zero-effect preview, legacy journals, original frozen choices, owner values and renewed confirmations across CLI, both Lino encodings and four-language browser controls. Reserve schema 14 without rewriting acknowledged legacy intent; paced batches and recruiter-panel behavior remain unfinished.
 
 Native popup recovery retains acknowledged unsent review checkpoints and requires a new explicit entry confirmation after reopening. Unknown sends remain reserved; draft restoration and sending stay separate. Additive data schema 15 keeps old journals intact.
+
+Recheck native unread chat targets after a virtual list render settles at its end. Preserve existing ownership, activation, restoration and deadlines, with finite render-order and unavailable-target regressions.
+
+Split the growing native application browser checks into three registered groups. Retain all eleven scenarios and existing engine, shard and timeout coverage; add a focused registration regression.
+

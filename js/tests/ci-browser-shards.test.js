@@ -18,6 +18,45 @@ const source = (file) =>
   readFileSync(new URL(`../scripts/${file}`, import.meta.url));
 const registry = JSON.parse(source('browser-checks.json'));
 
+test('native application scenarios remain registered once in bounded groups', () => {
+  const root = new URL('../../', import.meta.url);
+  const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));
+  const scenarios = registry
+    .filter((name) => name.startsWith('job-application'))
+    .flatMap((name) => {
+      const text = readFileSync(
+        new URL(scripts[`test:e2e:${name}`].slice(5), root),
+        'utf8'
+      );
+      const argumentsText = text.match(
+        /runBrowserScenarios\([^[]+\[([^\]]+)\]/u
+      )?.[1];
+      assert.ok(argumentsText, name);
+      const checks = argumentsText.match(/verify\w+/gu);
+      assert.ok(
+        checks.length <= 4,
+        `${name} combines ${checks.length} native scenarios`
+      );
+      return checks;
+    });
+  assert.deepEqual(
+    scenarios.sort(),
+    [
+      'verifyNativeApplication',
+      'verifyNativeApplicationGuards',
+      'verifyApplicationPanel',
+      'verifyNativeApplicationRecovery',
+      'verifyNativeApplicationDraft',
+      'verifyNativeApplicationRunModes',
+      'verifyNativeApplicationDeferral',
+      'verifyNativeApplicationHolds',
+      'verifyNativeApplicationRetries',
+      'verifyNativeApplicationSupervised',
+      'verifyNativeApplicationPopup',
+    ].sort()
+  );
+});
+
 test('every registered browser check resolves to an existing direct Node entry', () => {
   const root = new URL('../../', import.meta.url);
   const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));
