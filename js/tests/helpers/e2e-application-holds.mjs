@@ -11,8 +11,19 @@ import {
   nativeApplicationQueue,
 } from './application-native-request.mjs';
 
+const expireDailyLimit = async (request, receipt, clock) => {
+  assert.equal(receipt.applicationLimit.active, true);
+  clock.value = Date.parse(receipt.applicationLimit.until);
+  const expired = await request('read', receipt);
+  assert.equal(expired.applicationLimit.active, false);
+  return expired;
+};
+
 export const verifyNativeApplicationHolds = async (browser) => {
-  const fixture = await applicationNativeFixture(browser);
+  const clock = { value: Date.UTC(2026, 10, 14) };
+  const fixture = await applicationNativeFixture(browser, {
+    application: { now: () => clock.value },
+  });
   const request = (operation, receipt, extra) =>
     nativeApplicationReviewRequest(fixture, operation, receipt, extra);
   try {
@@ -103,6 +114,9 @@ export const verifyNativeApplicationHolds = async (browser) => {
       await page.evaluate(changeApplicationHoldFixture, 'clear');
       receipt = await request('read', receipt);
       assert.equal(receipt.hold, reason);
+      if (kind === 'daily-limit') {
+        receipt = await expireDailyLimit(request, receipt, clock);
+      }
       if (generic) {
         receipt = await request('mode', receipt, { paused: false });
       }

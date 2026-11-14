@@ -10,6 +10,7 @@ import {
 import { validateFormInspection } from '../forms/plan-validation.js';
 import { applicationHoldReasons } from './application-holds.js';
 import { applicationResumeData } from './application-resume-data.js';
+import { applicationLimitData } from './application-limit-data.js';
 
 export const applicationStates = [
   'opening',
@@ -130,6 +131,7 @@ const validateReport = (report) => {
 };
 
 const validateMissing = (raw, input) => {
+  applicationLimitData(raw.applicationLimit);
   if (
     raw.ok !== true ||
     raw.url !== assignmentVacancyUrl(input.url) ||
@@ -150,6 +152,7 @@ export const applicationResult = (raw, input) => {
     if (!identity(raw, input) || !state(raw) || !page(raw.page)) {
       fail();
     }
+    applicationLimitData(raw.applicationLimit);
     if (raw.vacancy !== null) {
       if (raw.vacancy.url !== raw.url) {
         fail();

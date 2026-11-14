@@ -68,7 +68,8 @@ for (const [property, value, reason, state] of [
     `dismissed ${reason} keeps automatic sending and deferral held`,
     { timeout: 3000 },
     async (t) => {
-      const setup = await owned(t);
+      const clock = { value: Date.UTC(2026, 10, 14) };
+      const setup = await owned(t, { application: { now: () => clock.value } });
       const { fixture } = setup;
       let { receipt } = setup;
       if (reason === 'generic-error') {
@@ -85,6 +86,13 @@ for (const [property, value, reason, state] of [
       });
       fixture.state.page[property] = property === 'error' ? null : false;
       receipt = await read(fixture, receipt);
+      if (reason === 'daily-limit') {
+        await assert.rejects(prefill(fixture, receipt), {
+          code: 'jobs-application-limit-wait',
+        });
+        clock.value = Date.parse(receipt.applicationLimit.until);
+        receipt = await read(fixture, receipt);
+      }
       if (reason === 'generic-error') {
         receipt = await fixture.service['application-mode'](
           identity(receipt, { paused: false })

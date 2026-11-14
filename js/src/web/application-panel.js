@@ -5,6 +5,8 @@ import { applicationMayRestart } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationResumeView } from './application-resume-view.js';
 import { ApplicationLetterSettings } from './application-letter-settings.js';
+import { ApplicationLimitView } from './application-limit-view.js';
+import { applicationLimitHeld } from '../jobs/application-limit-data.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -247,9 +249,10 @@ const PrefillControls = ({ receipt, action, writable, t }) =>
       );
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
-  const ready = idle && application.known && receipt?.active;
+  const ready = idle && application.known && receipt.active;
+  const admitted = ready && !applicationLimitHeld(application);
   const writable =
-    ready &&
+    admitted &&
     confirmed &&
     receipt.state === 'review' &&
     !receipt.attempted.submit;
@@ -262,7 +265,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         'form',
         t('application.form'),
         action('Advance', { action: 'form', confirm: true }),
-        !canOpenForm(ready, confirmed, receipt)
+        !canOpenForm(admitted, confirmed, receipt)
       ),
       button(
         'enter',
@@ -272,7 +275,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
             : 'application.enter'
         ),
         action('Advance', { action: 'enter', confirm: true }),
-        !canEnter(ready, confirmed, receipt)
+        !canEnter(admitted, confirmed, receipt)
       ),
       el(PrefillControls, { key: 'prefill', receipt, action, writable, t }),
       receipt.reentryAvailable
@@ -284,7 +287,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
                 : 'application.reenter'
             ),
             action('Advance', { action: 'reenter', confirm: true }),
-            !ready || !confirmed
+            !admitted || !confirmed
           )
         : null,
       button(
@@ -469,6 +472,7 @@ export const ApplicationPanel = ({ state, t }) => {
         t,
         disabled: !idle || Boolean(application.intent) || !supported,
       }),
+      el(ApplicationLimitView, { key: 'limit', application, t }),
       el(Status, { key: 'status', application, t }),
       check(
         'confirm',

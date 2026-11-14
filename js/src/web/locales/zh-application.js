@@ -145,4 +145,11 @@ export const zhApplication = {
   'application.reenter': '重新打开已审核弹窗（可能立即发送）',
   'application.reenterHint':
     '重新打开浏览器之前已保存尚未发送的原生弹窗状态。再次打开需要重新确认，并可能立即提交申请。此操作不会恢复答案或发送已保存的草稿。',
+  'application.limitWaiting': 'HH 申请已暂停，直到 {at}。',
+  'application.limitElapsed':
+    '已保存的 HH 申请暂停于 {at} 结束。继续前请重新读取当前表单。',
+  'application.limitScope':
+    '此暂停适用于本工作区的所有 HH 申请槽位。被拒绝的表单保持打开；读取和聊天仍可继续。表单保留状态和未确认的发送结果仍需单独审核。',
+  'application.limitUnsaved':
+    '此暂停仅保留在内存中。保存失败，尚未验证重启恢复。请保持进程和表单打开，再次读取以重试保存。',
 };

@@ -5,6 +5,7 @@ import {
 import { applicationResult } from '../jobs/application-result.js';
 import { applicationQueueResult } from '../jobs/application-deferral-data.js';
 import { vacancyChoiceSlot } from '../jobs/vacancy-choice.js';
+import { applicationLimitHeld } from '../jobs/application-limit-data.js';
 
 const pendingKey = 'meta-sovereign:hh-application-intent';
 const failure = () => new Error('jobs-application-recovery');
@@ -23,6 +24,7 @@ export const applicationMayRestart = (receipt) =>
   receipt.attempted.enter === false &&
   receipt.attempted.submit === false;
 export const applicationMayRetry = (state, entry) =>
+  !applicationLimitHeld(state) &&
   (entry.reason !== 'generic-error' || entry.ready === true) &&
   (state.known || (!state.intent && !state.receipt && !state.target)) &&
   !state.busy &&

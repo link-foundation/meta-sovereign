@@ -19,7 +19,7 @@ export class ApplicationDeferrals {
     this.entries = new Map();
     this.revision = globalThis.crypto.randomUUID();
   }
-  list(input) {
+  async list(input) {
     const browserSlot = vacancyChoiceSlot(input);
     return applicationQueueResult(
       {
@@ -27,6 +27,7 @@ export class ApplicationDeferrals {
         mode: 'hh-application-queue',
         browserSlot,
         revision: this.revision,
+        applicationLimit: await this.service.limits.read(),
         entries: [...this.entries.values()]
           .filter((row) => row.browserSlot === browserSlot)
           .map((row) => ({
@@ -183,6 +184,10 @@ export class ApplicationDeferrals {
       await service.store.get(key.id),
       key
     );
+    // A queue retry must not release a reservation or open a new native form
+    // while another slot's acknowledged HH application pause is still active.
+    await service.limits.admit(previous);
+    signal.throwIfAborted();
     if (
       previous.requestId !== entry.requestId ||
       (entry.reason !== 'generic-error' &&

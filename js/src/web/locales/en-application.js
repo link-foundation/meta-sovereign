@@ -166,4 +166,11 @@ export const enApplication = {
   'application.reenter': 'Reopen reviewed popup (may send immediately)',
   'application.reenterHint':
     'An unsent native popup was saved before this browser was reopened. Opening it again needs a new confirmation and can apply immediately. It does not restore answers or send a saved draft.',
+  'application.limitWaiting': 'HH applications are paused until {at}.',
+  'application.limitElapsed':
+    'The saved HH application pause ended at {at}. Read the current form before continuing.',
+  'application.limitScope':
+    'This pause covers every HH application slot in this workspace. The current refused form stays open; reading and chats can continue. A native hold and any unconfirmed delivery reservation still require separate review.',
+  'application.limitUnsaved':
+    'This pause is held in memory. Saving failed, so restart recovery is not verified. Keep this worker and form open and read again to retry saving.',
 };

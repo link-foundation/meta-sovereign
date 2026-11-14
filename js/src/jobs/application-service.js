@@ -27,6 +27,7 @@ import { ApplicationHolds } from './application-holds.js';
 import { ApplicationRetries } from './application-retries.js';
 import { ApplicationFullForm } from './application-full-form.js';
 import { ApplicationLanguagePolicy } from './application-language-policy.js';
+import { ApplicationLimits } from './application-limits.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -80,6 +81,7 @@ class ApplicationService {
     this.resumes = new ApplicationResumes(this);
     this.fullForm = new ApplicationFullForm(this);
     this.language = new ApplicationLanguagePolicy(this);
+    this.limits = new ApplicationLimits(this, now);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -243,9 +245,10 @@ class ApplicationService {
       }
       return applicationView(
         this.current === row
-          ? row
+          ? { ...row, applicationLimit: await this.limits.read() }
           : {
               ...row,
+              applicationLimit: await this.limits.read(),
               hold: this.holds.read(key.id),
               ...this.modes.read(row.browserSlot),
               state:
@@ -362,16 +365,27 @@ class ApplicationService {
       signal.throwIfAborted();
       return await this.review.inspect(record, signal);
     } catch (error) {
-      // Always drain this browser, including failed journal writes.
-      record.state = 'interrupted';
-      record.code = error.code ?? 'jobs-application-unavailable';
-      try {
-        await this.save(record);
-      } finally {
-        await this.close();
-      }
+      return this.openingFailure(record, error);
+    }
+  }
+  async openingFailure(record, error) {
+    if (record.browser && record.hold === 'daily-limit') {
+      // A refused checkpoint cannot authorize losing the owner's held form.
+      this.trace({
+        event: 'application-limit-opening-held',
+        code: error.code ?? 'unknown',
+      });
       throw error;
     }
+    // Other opening failures drain the browser, including failed journal writes.
+    record.state = 'interrupted';
+    record.code = error.code ?? 'jobs-application-unavailable';
+    try {
+      await this.save(record);
+    } finally {
+      await this.close();
+    }
+    throw error;
   }
   async stop() {
     this.stopped = true;

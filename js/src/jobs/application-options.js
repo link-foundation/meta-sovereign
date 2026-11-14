@@ -92,11 +92,11 @@ export const applicationState = (page) => {
   if (!page.bound) {
     return 'wrong-page';
   }
-  if (page.challenge) {
-    return 'verification';
-  }
   if (page.dailyLimit) {
     return 'daily-limit';
+  }
+  if (page.challenge) {
+    return 'verification';
   }
   if (page.external) {
     return 'external';
@@ -156,6 +156,7 @@ export const applicationView = (record) => {
     autoExact: record.options.autoExact,
     supervised: record.options.supervised === true,
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
+    applicationLimit: record.applicationLimit ?? null,
     letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
     noQuestionnaires: record.noQuestionnaires ?? false,

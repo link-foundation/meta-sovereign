@@ -1,4 +1,5 @@
 import { vacancyChoiceSlot } from './vacancy-choice.js';
+import { applicationLimitData } from './application-limit-data.js';
 import {
   applicationKey,
   applicationFailure as fail,
@@ -27,6 +28,7 @@ const validEntry = (row, slot, key) =>
 /** Queue receipts contain identities only. Answers remain in private storage. */
 export const applicationQueueResult = (raw, input = {}) => {
   const slot = vacancyChoiceSlot(input);
+  applicationLimitData(raw?.applicationLimit);
   if (
     raw?.ok !== true ||
     raw.mode !== 'hh-application-queue' ||

@@ -118,22 +118,15 @@ export const verifyNativeApplicationLanguage = async (
 };
 
 const verifyLanguageRecovery = async (controls, owned) => {
-  const { panel, page, action } = controls;
-  for (const locale of ['ru', 'hi', 'zh', 'en']) {
-    await page.evaluate(
-      (value) => globalThis.localStorage.setItem('metaSovereignLocale', value),
-      locale
-    );
-    await page.reload();
-    await panel
-      .locator('[data-application-language-policy="automatic"]')
-      .waitFor();
-    assert.equal((await panel.innerText()).includes('application.'), false);
-    assert.equal(await action('submit').isDisabled(), true);
-    assert.deepEqual(await counters(owned), {
-      entries: 0,
-      sends: 0,
-      choices: 3,
-    });
-  }
+  await controls.locales(
+    '[data-application-language-policy="automatic"]',
+    async () => {
+      assert.equal(await controls.action('submit').isDisabled(), true);
+      assert.deepEqual(await counters(owned), {
+        entries: 0,
+        sends: 0,
+        choices: 3,
+      });
+    }
+  );
 };

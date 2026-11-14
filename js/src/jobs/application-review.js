@@ -138,6 +138,7 @@ export class ApplicationReview {
     record.page = await readPage(record.browser, record.url);
     record.state = applicationState(record.page);
     this.service.holds.observe(record);
+    await this.service.limits.observe(record);
     record.report = null;
     record.exact = false;
     record.code = null;
@@ -196,6 +197,7 @@ export class ApplicationReview {
     checkPolicy(record, allowHeld);
     const before = await readPage(record.browser, record.url);
     this.service.holds.observe(record, before);
+    await this.service.limits.observe(record, before);
     if (
       applicationPageKey(before) !== record.guard.page ||
       invalidNativeRead(before, action, captureGeneric)
@@ -221,5 +223,9 @@ export class ApplicationReview {
     }
     signal.throwIfAborted();
     checkPolicy(record, allowHeld);
+    if (!allowHeld) {
+      await this.service.limits.admit(record);
+      signal.throwIfAborted();
+    }
   }
 }

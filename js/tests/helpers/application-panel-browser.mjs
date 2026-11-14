@@ -13,6 +13,19 @@ export const applicationPanelBrowser = (fixture) => {
     panel,
     action,
     confirm,
+    async locales(selector, verify = async () => {}) {
+      for (const locale of ['ru', 'hi', 'zh', 'en']) {
+        await page.evaluate(
+          (value) =>
+            globalThis.localStorage.setItem('metaSovereignLocale', value),
+          locale
+        );
+        await page.reload();
+        await panel.locator(selector).waitFor();
+        assert.equal((await panel.innerText()).includes('application.'), false);
+        await verify(locale);
+      }
+    },
     async phone() {
       await page.setViewportSize({ width: 390, height: 1440 });
       assert.equal(
