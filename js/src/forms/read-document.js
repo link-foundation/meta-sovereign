@@ -36,6 +36,12 @@ export const readFormDocument = ({
   // challenge's instructions, answers, images or response token into a report.
   const challengeRoots =
     '.smart-captcha,[data-smartcaptcha],#captcha-form,form[action*="checkcaptcha"],.CheckboxCaptcha,.TextinputCaptcha,.g-recaptcha,.h-captcha,.cf-turnstile';
+  // HH's text gate is independent of another widget's completion token.
+  const nativeChallenge = Array.from(
+    doc.querySelectorAll(
+      'input[data-qa="account-captcha-input"],input[name="captchaText"]'
+    )
+  ).some(visible);
   const challengeUrl = (value) => {
     if (!globalThis.URL) {
       return false;
@@ -58,10 +64,12 @@ export const readFormDocument = ({
     )
   ).slice(0, 21);
   const completed =
+    !nativeChallenge &&
     responses.length > 0 &&
     responses.length <= 20 &&
     responses.every((node) => Boolean(node.value));
   const challenge =
+    nativeChallenge ||
     challengeUrl(identity.url) ||
     (!completed &&
       (Array.from(doc.querySelectorAll(challengeRoots)).some(visible) ||

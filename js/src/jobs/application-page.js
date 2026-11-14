@@ -158,7 +158,8 @@ export const applicationDocument = (target, input) => {
       options: rows,
     };
   };
-  const snapshot = () => {
+  const marked = (selector) => nodes(selector).length > 0;
+  const formSnapshot = () => {
     const submit = unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
     const controls = [
@@ -183,23 +184,8 @@ export const applicationDocument = (target, input) => {
     const letter =
       letters.length === 1 && form?.contains(letters[0]) ? letters[0] : null;
     const html = form?.outerHTML ?? '';
-    const marked = (selector) => nodes(selector).length > 0;
     return {
-      bound,
-      url: bound ? current.href : null,
-      documentKey: doc[key],
-      challenge: marked(
-        '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], .smart-captcha, .g-recaptcha, .h-captcha'
-      ),
-      dailyLimit: marked(
-        '[data-qa-popup-error-code="negotiations-limit-exceeded"]'
-      ),
       error: applicationError(form),
-      external: marked('[data-qa="vacancy-response-link-advertising-cancel"]'),
-      delivered: marked(
-        '[data-qa="vacancy-response-link-view-topic"], [data-qa="vacancy-response-link-top-again"]'
-      ),
-      questions: marked('[data-qa="task-body"]'),
       enter: describe(selectors.enter),
       submit: describe(selectors.submit),
       letter: letter
@@ -241,6 +227,43 @@ export const applicationDocument = (target, input) => {
       scopeStructureKey: html.slice(0, 100000),
       scopeKey: JSON.stringify([html.slice(0, 100000), fields]),
     };
+  };
+  const snapshot = () => {
+    // Detect the boundary before any form value, instructions or HTML read.
+    const metadata = {
+      bound,
+      url: bound ? current.href : null,
+      documentKey: doc[key],
+      challenge: marked(
+        '[data-qa="captcha"], iframe[src*="captcha"], input[name="captcha"], input[data-qa="account-captcha-input"], input[name="captchaText"], .smart-captcha, .g-recaptcha, .h-captcha'
+      ),
+      dailyLimit: marked(
+        '[data-qa-popup-error-code="negotiations-limit-exceeded"]'
+      ),
+      external: marked('[data-qa="vacancy-response-link-advertising-cancel"]'),
+      delivered: marked(
+        '[data-qa="vacancy-response-link-view-topic"], [data-qa="vacancy-response-link-top-again"]'
+      ),
+      questions: marked('[data-qa="task-body"]'),
+    };
+    const content = metadata.challenge
+      ? {
+          error: null,
+          enter: null,
+          submit: null,
+          letter: null,
+          letterToggle: null,
+          resumeChooser: null,
+          ambiguousLetter: false,
+          scope: false,
+          fieldIndices: [],
+          questionIndices: [],
+          resumeIndices: [],
+          scopeStructureKey: '',
+          scopeKey: JSON.stringify(['', []]),
+        }
+      : formSnapshot();
+    return { ...metadata, ...content };
   };
   const result = snapshot();
   if (!input.action) {

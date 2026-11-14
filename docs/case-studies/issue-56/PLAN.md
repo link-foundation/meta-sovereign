@@ -1,16 +1,22 @@
 # Issue 56 / PR 57 work plan
 
+Active HH CAPTCHA recognition and answer privacy (HH06/HH08 remain incomplete):
+
+- [x] Reproduce the published parent's failure to recognize HH's `account-captcha-input` and `captchaText` boundaries: 10 of 11 focused cases fail on actual parent `b4257480`; its native screenshot exposes the synthetic answer. Detect visible fields before reading form values, instructions or HTML, including with an unrelated completed token; hidden fields do not create a hold.
+- [x] Preserve native daily-limit priority, all synchronous dispatch guards and manual owner completion. Final focused Node 56 / Deno 51, native Chromium and independent MCP pass with zero challenge reads/actions and zero sends, four locales, phone layout and drained fixtures. Ordinary form behavior and all existing deadlines remain intact.
+- [ ] Preserve checksummed source/log/screenshot evidence (prepared), publish and inspect every exact-head hosted check. Parent restoration run `43598794698` has a WebKit shard 4 checkout cancellation before tests; its complete 148-line log and sole cancellation annotation are retained, with cause unproven. Daily-limit-specific backup/dismissal, authenticated scope, pacing and all original unchecked requirements remain active.
+
 Active confirmed restoration after the daily-limit refresh (HH06 remains incomplete):
 
 - [x] Offer an explicit wait-and-restore consent through foreground CLI, both Lino encodings and four-language controls. Ordinary waiting retains separate later restoration. Restore only the fresh same-vacancy document through existing protected empty-control writes; never send or release unknown reservations.
 - [x] Reproduce the published parent, verify preservation of later answers/letters, refusal after owner/policy/persistence changes, stop/drain, non-replaying recovery and one native/MCP before/after flow. Keep all existing deadlines and scenario coverage. Focused final Node/Deno checks and both existing native limits scenarios pass; independent MCP reports one entry, one refresh, zero sends and drained resources.
-- [ ] Preserve checksummed evidence, publish the atomic unit and inspect every exact-head hosted check. Authenticated account scope, CAPTCHA dismissal, paced batches and all original unchecked rows remain required.
+- [ ] Preserve checksummed evidence and publish the atomic unit (`b4257480`, complete); inspect every exact-head hosted check (pending). Authenticated account scope, CAPTCHA dismissal, paced batches and all original unchecked rows remain required.
 
 Active exact-parent WebKit résumé validation timeout:
 
 - [x] Match `cac7f7d3` run `43591479049` and failed macOS WebKit shard 4 job `132437782294`; retain complete workflow/job/pipeline logs and inspect the artifact. Job lines 1000–1001 exhaust the existing 30-second validation wait. The artifact has no résumé failure screenshot.
 - [x] Run one isolated native input probe; trusted input and disabled search agree locally. Preserve the original cause as unproven. Add bounded, opt-in, value-free input/focus diagnostics and honor the CI screenshot directory without changing scenario/engine/deadline coverage.
-- [ ] Verify focused privacy/registration checks and the newly built résumé scenario, publish checksummed evidence and inspect every exact-head hosted check. Investigate a recurrence from its actual trace; a passing local scenario does not establish the original macOS cause. Continue every original unchecked criterion.
+- [x] Verify focused privacy/registration checks and the newly built résumé scenario, publish checksummed evidence and inspect every exact-head hosted check. All five workflows pass for diagnostic head `e2bc1bd9`, including Checks run `43596139531`; WebKit shard 4 job `132451955406` passes all six résumé cases (job-log lines 997–1009). Bounded trace lines 1013–1014 show trusted input and rendered invalid state. The original macOS cause remains unproven. Continue every original unchecked criterion.
 
 Active exact-parent macOS Deno HH CLI timeout:
 

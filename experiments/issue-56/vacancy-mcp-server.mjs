@@ -2,6 +2,7 @@ import { applicationDraftControl } from './application-draft-mcp-control.mjs';
 import { applicationHoldControl } from './application-hold-mcp-control.mjs';
 import { applicationRetryControl } from './application-retry-mcp-control.mjs';
 import { applicationLimitControl } from './application-limit-mcp-control.mjs';
+import { hhCaptchaControl } from './hh-captcha-mcp-control.mjs';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
@@ -67,13 +68,18 @@ const retryControl = retryFixture
 const limitControl = limitFixture
   ? applicationLimitControl(browser, clock)
   : null;
+const captchaControl =
+  process.env.APPLICATION_HH_CAPTCHA_FIXTURE === '1'
+    ? hhCaptchaControl(browser)
+    : null;
 const control = createServer(async (req, res) => {
   try {
     const draft =
       (await draftControl?.(req)) ??
       (await holdControl?.(req)) ??
       (await retryControl?.(req)) ??
-      (await limitControl?.(req));
+      (await limitControl?.(req)) ??
+      (await captchaControl?.(req));
     if (draft) {
       res.setHeader('content-type', 'application/json');
       res.end(JSON.stringify(draft));

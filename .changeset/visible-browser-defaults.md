@@ -451,3 +451,5 @@ Automatically preserve complete actual native answers and letter text during HH 
 Add explicitly confirmed daily-limit waiting with acknowledged ongoing answer preservation, one guarded expiry refresh and separately confirmed restoration. Keep workspace writers free between finite checks, retain all uncertain delivery reservations, expose CLI/Lino/localized controls and drain Stop/shutdown.
 
 Offer separately confirmed restoration after the guarded daily-limit refresh through CLI, both Lino encodings and four-language controls. Preserve ordinary waiting, empty-control ownership, failed acknowledgements, Stop and unknown delivery reservations without sending.
+
+Recognize native HH text CAPTCHA fields before generic or application form payload reads. Retain daily-limit priority and manual owner completion, refuse native actions and ignore unrelated completed widget tokens when the HH challenge remains visible.

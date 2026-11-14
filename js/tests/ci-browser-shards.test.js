@@ -58,6 +58,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationLimits',
       'verifyNativeApplicationLimitWait',
       'verifyNativeApplicationLimitRestore',
+      'verifyNativeHhCaptcha',
     ].sort()
   );
 });
