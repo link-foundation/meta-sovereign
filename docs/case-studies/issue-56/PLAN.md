@@ -1,5 +1,14 @@
 # Issue 56 / PR 57 work plan
 
+Active acknowledged résumé cache recovery (HH02 remains incomplete):
+
+- [x] Reproduce rejected native discovery replacing the actual browser store's in-memory cache on published `281d6dcc`, both with and without an earlier successful list. Hold concurrent service readers until the save or rollback finishes; preserve the acknowledged list through restart.
+- [x] Verify reload recovery in one focused native Chromium scenario and independent Playwright MCP, with before/after desktop and phone screenshots and zero provider clicks.
+- [x] Preserve the checked 74-file source, parent-failure, focused Node/Deno, native/MCP, screenshot and hosted-failure archive. Scoped gates and the unchanged duplication threshold pass; the controlled snapshot-refusal fixture is shared by all three durability regressions with their assertions retained.
+- [ ] Publish the atomic correction and inspect exact-head hosted checks. Continue every original incomplete requirement; this correction does not complete HH02 or issue 56.
+
+Focused Node 30 and Deno 30 pass, including all three shared snapshot-refusal regressions. Native/MCP recovery passes with three retained entries, one refused write, no provider clicks/replay and drained resources. Four batch-parent workflows pass; Checks has runtime failures because the two new commands are missing from lightweight admission. Preserve full logs and correct that separately; no aggregate pass is claimed.
+
 Active finite paced application batches (HH06/HH08 remain incomplete):
 
 - [x] Freeze a bounded vacancy list and delivery limit with the existing application settings; release the writer while pacing, pause safely, count only native confirmed deliveries, and retain explicit per-step confirmations.

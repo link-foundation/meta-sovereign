@@ -5,9 +5,11 @@ import { applicationRetryControl } from './application-retry-mcp-control.mjs';
 import { applicationLimitControl } from './application-limit-mcp-control.mjs';
 import { hhCaptchaControl } from './hh-captcha-mcp-control.mjs';
 import { createServer } from 'node:http';
+import { setImmediate } from 'node:timers';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { choicePutFixture } from './choice-put-fixture.mjs';
+import { resumeCacheFixture } from './resume-cache-fixture.mjs';
 import { applicationNativeFixture } from './application-native-fixture.mjs';
 import { resumeLanguageBrowserFixture } from './resume-language-browser-fixture.mjs';
 import { applicationResumeNativeFixture } from './application-resume-native-fixture.mjs';
@@ -34,7 +36,9 @@ try {
           ? applicationNativeFixture
           : process.env.CHOICE_PUT_FAILURE === '1'
             ? choicePutFixture
-            : vacancyBrowserFixture;
+            : process.env.RESUME_CACHE_FAILURE === '1'
+              ? resumeCacheFixture
+              : vacancyBrowserFixture;
   fixture = await create(browser, {
     popup,
     ...(batchFixture
@@ -105,6 +109,11 @@ const runControl = async (req) => {
   }
 };
 const control = createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/close') {
+    res.end(JSON.stringify(stats()));
+    setImmediate(close);
+    return;
+  }
   try {
     const draft = await runControl(req);
     if (draft) {

@@ -1,5 +1,6 @@
 import { resumeList, resumeListId, chooseSearchResume } from './resume-list.js';
 import { jobsFailure } from './options.js';
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 
 export const saveResumeList = async (
   store,
@@ -13,7 +14,11 @@ export const saveResumeList = async (
   const result = await enrich(list, options.signal);
   options.signal.throwIfAborted();
   const choice = chooseSearchResume(result, selection);
-  await store.put({ id: resumeListId(list.browserSlot), version: 1, ...list });
+  await saveAcknowledgedRecord(store, {
+    id: resumeListId(list.browserSlot),
+    version: 1,
+    ...list,
+  });
   return { ...result, selection: choice };
 };
 

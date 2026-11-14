@@ -1,10 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setImmediate as nextTurn } from 'node:timers/promises';
-import {
-  createBrowserStore,
-  createInMemoryDriver,
-} from '../src/storage/browser-store.js';
+import { refusedSnapshot } from './helpers/refused-snapshot.mjs';
 import { createVacancyService } from '../src/jobs/service.js';
 import { validateVacancySearch } from '../src/jobs/search-result.js';
 import {
@@ -17,27 +14,8 @@ for (const existing of [false, true]) {
     `a rejected description put preserves ${existing ? 'acknowledged prose' : 'an absent cache'} for selection`,
     { timeout: 3000 },
     async () => {
-      const driver = createInMemoryDriver();
-      const entered = Promise.withResolvers();
-      const release = Promise.withResolvers();
-      const failure = Object.assign(new Error('fixture cache quota'), {
-        code: 'ENOSPC',
-      });
-      let failNext = false;
-      const store = await createBrowserStore({
-        driver: {
-          load: driver.load,
-          async save(snapshot) {
-            if (failNext) {
-              failNext = false;
-              entered.resolve();
-              await release.promise;
-              throw failure;
-            }
-            await driver.save(snapshot);
-          },
-        },
-      });
+      const { driver, store, entered, release, failure, failNext } =
+        await refusedSnapshot();
       const native = vacancySnapshotFixture();
       let description = 'Acknowledged description.';
       const service = createVacancyService({
@@ -56,7 +34,7 @@ for (const existing of [false, true]) {
         }
         const before = await service.stored();
         description = 'Unacknowledged exclusion phrase.';
-        failNext = true;
+        failNext();
         rejected = assert.rejects(
           service.collect({ url: native.url, refresh: true }),
           (error) => error === failure

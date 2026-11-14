@@ -33,6 +33,9 @@ export const resumeListFixture = (browserSlot = 'jobs') => ({
 
 export const resumeListHtml = (mode = 'ready') => {
   const fixture = resumeListFixture();
+  if (mode === 'english-only') {
+    fixture.entries = [{ ...fixture.entries[0], title: 'Unacknowledged CV' }];
+  }
   const state = {
     // This intentionally private data must never be returned or cached.
     account: { email: 'private@example.test', phone: '+10000000000' },

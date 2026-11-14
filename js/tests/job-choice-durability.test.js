@@ -1,10 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setImmediate as nextTurn } from 'node:timers/promises';
-import {
-  createBrowserStore,
-  createInMemoryDriver,
-} from '../src/storage/browser-store.js';
+import { refusedSnapshot } from './helpers/refused-snapshot.mjs';
 import { createVacancyService } from '../src/jobs/service.js';
 import { vacancyChoiceId } from '../src/jobs/vacancy-choice.js';
 
@@ -14,27 +11,14 @@ for (const kind of ['choice', 'catalog']) {
       `a rejected actual snapshot put restores ${existing ? 'the acknowledged' : 'the absent'} ${kind}`,
       { timeout: 3000 },
       async () => {
-        const driver = createInMemoryDriver();
-        const entered = Promise.withResolvers();
-        const release = Promise.withResolvers();
-        const error = Object.assign(new Error('fixture snapshot quota'), {
-          code: 'ENOSPC',
-        });
-        let fail = false;
-        const store = await createBrowserStore({
-          driver: {
-            load: driver.load,
-            async save(snapshot) {
-              if (fail) {
-                fail = false;
-                entered.resolve();
-                await release.promise;
-                throw error;
-              }
-              await driver.save(snapshot);
-            },
-          },
-        });
+        const {
+          driver,
+          store,
+          entered,
+          release,
+          failure: error,
+          failNext,
+        } = await refusedSnapshot();
         const service = createVacancyService({ store });
         const id =
           kind === 'choice'
@@ -71,7 +55,7 @@ for (const kind of ['choice', 'catalog']) {
           const initial = await readCurrent();
           const before = existing ? await save(initial) : initial;
           const beforeRow = await store.get(id);
-          fail = true;
+          failNext();
           rejected = assert.rejects(
             save(before, true),
             (failure) => failure === error

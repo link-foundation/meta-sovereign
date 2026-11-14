@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Acknowledged résumé cache recovery](resume-cache-durability.md): restore the last saved list after a real snapshot refusal, hold concurrent cached readers, and preserve desktop/phone reload state. Exact-parent failures and focused Node/Deno/native/MCP evidence are retained; HH02 and all original incomplete criteria remain required.
+
 - [Finite paced application batches](application-batch.md): frozen URL lists, native delivery limits, guarded automatic RAM revisits and owned daily waits through CLI, both Lino encodings and four-language controls. Parent regressions, focused checks and native/MCP desktop/phone evidence are retained; discovery, authenticated scope and every original incomplete criterion remain required.
 
 - [Independent application confirmations](application-confirmations.md): frozen per-step choices, explicitly bounded continuation and separate current consent through CLI, both Lino encodings and four-language UI. Parent regressions, focused checks and native/MCP desktop/phone evidence are retained; full batches, RAM revisits and all original incomplete criteria remain required.
