@@ -113,7 +113,8 @@ export class ApplicationDrafts {
     record,
     input,
     signal,
-    check = () => this.admit(record, input, signal)
+    check = () => this.admit(record, input, signal),
+    limit = null
   ) {
     await check();
     const fields = nativeDraftFields(record);
@@ -121,6 +122,7 @@ export class ApplicationDrafts {
       version: 1,
       id: globalThis.crypto.randomUUID(),
       capturedAt: new Date().toISOString(),
+      ...(limit ? { limit } : {}),
       fields: fields.map((field) => ({
         key: draftFieldKey(field),
         label: field.label,

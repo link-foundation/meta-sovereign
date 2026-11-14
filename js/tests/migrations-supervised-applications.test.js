@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { assertApplicationMigration } from './helpers/application-migration.mjs';
 import assert from 'node:assert/strict';
 import {
   createContext,
@@ -61,28 +62,15 @@ for (const [migration, option, keyName, code] of [
   test(
     `${migration.id} refuses an unexpected pre-existing field without changing legacy intent or schema`,
     { timeout: 4000 },
-    async (t) => {
-      const fixture = applicationFixture();
-      t.after(() => fixture.close());
-      const old = {
-        id: 'secret:jobs-application:jobs:123',
+    async () => {
+      const row = { id: 'secret:jobs-application:jobs:123', options: {} };
+      const collision = {
+        ...row,
         ...(option
           ? { options: { [keyName]: 'owner-data' } }
           : { [keyName]: 'owner-data' }),
       };
-      await fixture.store.putMany([
-        schemaLink({ version: migration.from }),
-        old,
-      ]);
-      await assert.rejects(
-        runMigrations(fixture.store, { migrations: [migration] }),
-        (error) => error.cause?.code === code
-      );
-      assert.equal(
-        (await fixture.store.get(SCHEMA_ID)).version,
-        migration.from
-      );
-      assert.deepEqual(await fixture.store.get(old.id), old);
+      await assertApplicationMigration(migration, row, [collision], code);
     }
   );
 }

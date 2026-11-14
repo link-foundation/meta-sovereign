@@ -31,6 +31,14 @@ const validField = (field) =>
   (choice(field.type)
     ? typeof field.checked === 'boolean'
     : field.checked === null);
+const validLimit = (limit) =>
+  limit === null ||
+  limit === undefined ||
+  (text(limit.documentKey, 100) &&
+    Boolean(limit.documentKey) &&
+    text(limit.until, 40) &&
+    Number.isFinite(Date.parse(limit.until)) &&
+    new Date(limit.until).toISOString() === limit.until);
 
 /** Private values, never an answer-knowledge source or a durable DOM target. */
 export const applicationDraft = (value) => {
@@ -47,6 +55,7 @@ export const applicationDraft = (value) => {
     !value.fields.length ||
     value.fields.length > 25 ||
     !value.fields.every(validField) ||
+    !validLimit(value.limit) ||
     new Set(value.fields.map((field) => field.key)).size !==
       value.fields.length ||
     JSON.stringify(value).length > 512 * 1024

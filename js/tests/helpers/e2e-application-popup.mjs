@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
@@ -13,14 +11,7 @@ export const verifyNativeApplicationPopup = async (
   const fixture = await applicationNativeFixture(browser, { popup: true });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action } = controls;
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await panel.screenshot({
-        path: join(screenshots, `application-popup-${name}.png`),
-      });
-    }
-  };
+  const shot = controls.screenshot(screenshots, 'application-popup');
   const owned = () => nativeApplicationForm(browser, applicationInput.url);
   try {
     await controls.select();

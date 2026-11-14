@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import { join } from 'node:path';
-import { mkdir } from 'node:fs/promises';
 import { applicationResumeNativeFixture } from '../../../experiments/issue-56/application-resume-native-fixture.mjs';
 import { standardLetters } from '../../../experiments/issue-56/application-language-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
@@ -26,14 +24,7 @@ export const verifyNativeApplicationLanguage = async (
   });
   const controls = applicationPanelBrowser(fixture);
   const { panel, action } = controls;
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await panel.screenshot({
-        path: join(screenshots, `application-language-${name}.png`),
-      });
-    }
-  };
+  const shot = controls.screenshot(screenshots, 'application-language');
   try {
     await controls.select();
     if (before) {

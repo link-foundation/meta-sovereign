@@ -30,6 +30,7 @@ import * as m0015 from './0015-popup-application-recovery.js';
 import * as m0016 from './0016-application-resume-preference.js';
 import * as m0017 from './0017-application-language-policy.js';
 import * as m0018 from './0018-application-limits.js';
+import * as m0019 from './0019-application-limit-drafts.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -50,10 +51,11 @@ export const MIGRATIONS = Object.freeze([
   m0016,
   m0017,
   m0018,
+  m0019,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 18;
+export const CURRENT_SCHEMA = 19;
 
 export {
   SCHEMA_ID,

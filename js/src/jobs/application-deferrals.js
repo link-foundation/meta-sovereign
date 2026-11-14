@@ -11,6 +11,7 @@ import {
 import { applicationQueueResult } from './application-deferral-data.js';
 import { nativeDraftFields } from './application-drafts.js';
 import { readApplicationJournal } from './application-journal.js';
+import { applicationPreservationPolicy } from './application-run-modes.js';
 
 /** Worker-owned queue: durable backups are never interpreted as exclusions. */
 export class ApplicationDeferrals {
@@ -40,7 +41,7 @@ export class ApplicationDeferrals {
       input
     );
   }
-  async preserve(record, input, signal, policyCheck, capture) {
+  async preserve(record, input, signal, policyCheck, capture, limit) {
     const service = this.service;
     const check = async () => {
       policyCheck();
@@ -63,7 +64,8 @@ export class ApplicationDeferrals {
       record,
       input,
       signal,
-      capture ? check : undefined
+      capture ? check : undefined,
+      limit
     );
     await check();
     await saveAcknowledgedRecord(service.store, {
@@ -143,15 +145,10 @@ export class ApplicationDeferrals {
     ) {
       return;
     }
-    const version = service.modes.version(record.browserSlot);
+    const policy = applicationPreservationPolicy(service, record, signal);
     const check = () => {
-      signal.throwIfAborted();
-      if (
-        service.current !== record ||
-        !record.noQuestionnaires ||
-        record.paused ||
-        service.modes.version(record.browserSlot) !== version
-      ) {
+      policy();
+      if (!record.noQuestionnaires) {
         throw fail('mode-changed');
       }
     };

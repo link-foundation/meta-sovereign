@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { changeApplicationHoldFixture } from '../../../experiments/issue-56/application-hold-dom.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
@@ -8,7 +6,7 @@ import { nativeApplicationForm } from './application-native-request.mjs';
 
 export const verifyNativeApplicationLimits = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, backup = false } = {}
 ) => {
   const clock = { value: Date.UTC(2026, 10, 14) };
   const fixture = await applicationNativeFixture(browser, {
@@ -16,14 +14,10 @@ export const verifyNativeApplicationLimits = async (
   });
   const controls = applicationPanelBrowser(fixture);
   const { panel, action } = controls;
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await panel.screenshot({
-        path: join(screenshots, `application-limits-${name}.png`),
-      });
-    }
-  };
+  const shot = controls.screenshot(
+    screenshots,
+    backup ? 'application-limit-drafts' : 'application-limits'
+  );
   try {
     await controls.select();
     await panel.locator('[data-application-option="supervised"]').check();
@@ -76,6 +70,22 @@ export const verifyNativeApplicationLimits = async (
       assert.equal(await action(name).isDisabled(), true, name);
     }
     assert.equal(owned.isClosed(), false);
+    if (backup) {
+      const draft = panel.locator('[data-application-draft]');
+      assert.equal(
+        await draft.count(),
+        1,
+        'Daily-limit recovery draft is missing.'
+      );
+      assert.equal(
+        await draft.locator('[data-application-limit-draft]').count(),
+        1
+      );
+      const values = await draft.textContent();
+      assert(values.includes('Owner answer retained during the daily pause.'));
+      assert(values.includes('Owner letter retained during the daily pause.'));
+      await draft.locator('summary').click();
+    }
     await shot('after');
     await controls.locales('[data-application-limit="waiting"]', async () => {
       assert.equal(
@@ -86,6 +96,12 @@ export const verifyNativeApplicationLimits = async (
       );
       await controls.confirm();
       assert.equal(await action('submit').isDisabled(), true);
+      if (backup) {
+        assert.equal(
+          await panel.locator('[data-application-limit-draft]').count(),
+          1
+        );
+      }
     });
     await controls.phone();
     await shot('phone');
@@ -119,6 +135,7 @@ export const verifyNativeApplicationLimits = async (
       originalDeadlineRetained: true,
       locales: 4,
       ownerValuesPreserved: true,
+      automaticBackup: backup,
       errors: fixture.errors,
     };
   } finally {

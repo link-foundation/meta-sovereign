@@ -1,4 +1,6 @@
 export const ruApplication = {
+  'application.limitDraftSaved':
+    'Эти фактические ответы и письмо сохранены во время суточного ограничения. В повторно открытой форме восстановление требует отдельного подтверждения. Восстановление не отправляет отклик.',
   'application.resumePreferenceSource.automatic': 'автоматический выбор языка',
   'application.autoSelectResumeLanguage':
     'Автоматически выбирать язык резюме перед откликом',

@@ -1,4 +1,6 @@
 export const enApplication = {
+  'application.limitDraftSaved':
+    'These actual answers and letter were saved during the daily pause. A reopened form needs separate confirmation to restore them. Restoration does not send the application.',
   'application.resumePreferenceSource.automatic': 'automatic language choice',
   'application.autoSelectResumeLanguage':
     'Select the résumé language automatically before applying',

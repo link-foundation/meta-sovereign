@@ -5,6 +5,21 @@ import {
 
 const names = ['noQuestionnaires', 'paused'];
 const defaults = () => ({ noQuestionnaires: false, paused: false });
+
+/** Freeze automatic preservation admission across every awaited checkpoint. */
+export const applicationPreservationPolicy = (service, record, signal) => {
+  const version = service.modes.version(record.browserSlot);
+  return () => {
+    signal.throwIfAborted();
+    if (
+      service.current !== record ||
+      record.paused ||
+      service.modes.version(record.browserSlot) !== version
+    ) {
+      throw fail('mode-changed');
+    }
+  };
+};
 export const applyApplicationRunPolicy = (record) => {
   if (
     record.page &&

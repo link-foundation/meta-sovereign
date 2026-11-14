@@ -5,7 +5,7 @@ import { applicationIdentity as identity } from '../../experiments/issue-56/appl
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
 import {
   withApplicationRouteFixture,
-  runApplicationFixtureCommand,
+  successfulApplicationFixtureCommand,
   applicationPanelMarkup,
 } from './helpers/application-controls.mjs';
 import { wirePost } from './helpers/vacancy-routes.mjs';
@@ -51,11 +51,7 @@ test(
       yield 'form';
       yield 'quit';
     };
-    const { status, output } = await runApplicationFixtureCommand(
-      fixture,
-      actions
-    );
-    assert.equal(status, 0);
+    const output = await successfulApplicationFixtureCommand(fixture, actions);
     assert(output[1].commands.includes('form'));
     assert.equal(output.at(-1).state, 'review');
     assert.equal(fixture.state.navigated, 1);

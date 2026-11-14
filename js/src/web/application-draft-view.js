@@ -14,6 +14,13 @@ export const ApplicationDraftView = ({ receipt, t }) => {
       t('application.draftSaved', { time: draft.capturedAt })
     ),
     el('p', { key: 'hint', role: 'note' }, t('application.draftHint')),
+    draft.limit
+      ? el(
+          'p',
+          { key: 'limit', role: 'note', 'data-application-limit-draft': true },
+          t('application.limitDraftSaved')
+        )
+      : null,
     el(
       'dl',
       { key: 'answers' },

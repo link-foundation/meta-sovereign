@@ -28,6 +28,7 @@ import { ApplicationRetries } from './application-retries.js';
 import { ApplicationFullForm } from './application-full-form.js';
 import { ApplicationLanguagePolicy } from './application-language-policy.js';
 import { ApplicationLimits } from './application-limits.js';
+import { ApplicationLimitBackups } from './application-limit-backups.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -82,6 +83,7 @@ class ApplicationService {
     this.fullForm = new ApplicationFullForm(this);
     this.language = new ApplicationLanguagePolicy(this);
     this.limits = new ApplicationLimits(this, now);
+    this.limitBackups = new ApplicationLimitBackups(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -161,6 +163,7 @@ class ApplicationService {
       // A failed read/save must keep that form open without a second save attempt.
       if (!failure || failure.code === 'jobs-application-state') {
         result =
+          (await this.limitBackups.automatic(signal)) ??
           (await this.retries.automatic(signal)) ??
           (await this.deferrals.automatic(signal)) ??
           result;

@@ -41,6 +41,13 @@ export const runApplicationFixtureCommand = async (
   return { status, output };
 };
 
+/** Successful foreground commands must finish before their receipts are reviewed. */
+export const successfulApplicationFixtureCommand = async (...args) => {
+  const { status, output } = await runApplicationFixtureCommand(...args);
+  assert.equal(status, 0);
+  return output;
+};
+
 /** Exercise production API decoding and actual route admission in each format. */
 export const applicationRouteApi = (base, type) =>
   createApplicationApi({

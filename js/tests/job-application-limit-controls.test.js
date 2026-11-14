@@ -10,7 +10,7 @@ import { wirePost } from './helpers/vacancy-routes.mjs';
 import {
   withApplicationRouteFixture,
   enterApplicationRoute,
-  runApplicationFixtureCommand,
+  successfulApplicationFixtureCommand,
   applicationPanelMarkup,
   assertApplicationTranslation,
 } from './helpers/application-controls.mjs';
@@ -69,11 +69,7 @@ test(
       yield 'read';
       yield 'prefill';
     };
-    const { status, output } = await runApplicationFixtureCommand(
-      fixture,
-      actions
-    );
-    assert.equal(status, 0);
+    const output = await successfulApplicationFixtureCommand(fixture, actions);
     assert.deepEqual(
       output.filter((row) => row.ok === false).map((row) => row.code),
       ['jobs-application-limit-wait']

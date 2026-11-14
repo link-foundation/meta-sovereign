@@ -1,4 +1,6 @@
 export const hiApplication = {
+  'application.limitDraftSaved':
+    'दैनिक विराम के दौरान ये वास्तविक उत्तर और पत्र सहेजे गए हैं। दोबारा खुले फ़ॉर्म में इन्हें बहाल करने के लिए अलग पुष्टि चाहिए। बहाली से आवेदन नहीं भेजा जाता।',
   'application.resumePreferenceSource.automatic': 'भाषा का स्वचालित चयन',
   'application.autoSelectResumeLanguage':
     'आवेदन से पहले रेज़्यूमे की भाषा अपने आप चुनें',

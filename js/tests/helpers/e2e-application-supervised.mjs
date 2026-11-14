@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import {
@@ -16,15 +14,7 @@ export const verifyNativeApplicationSupervised = async (
   const fixture = await applicationNativeFixture(browser);
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action, confirm } = controls;
-  const shot = async (name) => {
-    if (!screenshots) {
-      return;
-    }
-    await mkdir(screenshots, { recursive: true });
-    await panel.screenshot({
-      path: join(screenshots, `application-supervised-${name}.png`),
-    });
-  };
+  const shot = controls.screenshot(screenshots, 'application-supervised');
   try {
     await controls.select();
     await panel

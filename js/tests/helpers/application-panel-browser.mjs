@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
 /** Operate the production panel in an isolated vacancy fixture. */
 export const applicationPanelBrowser = (fixture) => {
@@ -13,6 +15,16 @@ export const applicationPanelBrowser = (fixture) => {
     panel,
     action,
     confirm,
+    screenshot(directory, prefix) {
+      return async (name) => {
+        if (directory) {
+          await mkdir(directory, { recursive: true });
+          await panel.screenshot({
+            path: join(directory, `${prefix}-${name}.png`),
+          });
+        }
+      };
+    },
     async locales(selector, verify = async () => {}) {
       for (const locale of ['ru', 'hi', 'zh', 'en']) {
         await page.evaluate(

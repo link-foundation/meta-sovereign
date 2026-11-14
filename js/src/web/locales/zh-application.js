@@ -1,4 +1,6 @@
 export const zhApplication = {
+  'application.limitDraftSaved':
+    '这些实际答案和求职信已在每日限制暂停期间保存。重新打开表单后，需要单独确认才能恢复。恢复不会发送申请。',
   'application.resumePreferenceSource.automatic': '自动语言选择',
   'application.autoSelectResumeLanguage': '申请前自动选择简历语言',
   'application.languagePolicyHint':

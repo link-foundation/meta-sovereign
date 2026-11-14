@@ -43,15 +43,21 @@ const checkPolicy = (record, allowHeld) => {
     throw fail('state');
   }
 };
-const invalidNativeRead = (page, action, captureGeneric) =>
+const captureError = (page, capture) =>
+  capture === 'generic-error'
+    ? page.error !== 'generic-error'
+    : capture === 'daily-limit' && page.dailyLimit
+      ? false
+      : page.error;
+const invalidNativeRead = (page, action, capture) =>
   !page.bound ||
   page.challenge ||
-  page.dailyLimit ||
+  (page.dailyLimit && capture !== 'daily-limit') ||
   page.external ||
   page.delivered ||
-  (captureGeneric ? page.error !== 'generic-error' : page.error) ||
+  captureError(page, capture) ||
   !page[action] ||
-  (!captureGeneric && page[action].disabled);
+  (!capture && page[action].disabled);
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -127,7 +133,7 @@ export class ApplicationReview {
       if (error.code !== 'form-captcha') {
         throw error;
       }
-      record.state = 'verification';
+      record.state = record.page.dailyLimit ? 'daily-limit' : 'verification';
       record.code = error.code;
     }
   }
@@ -164,7 +170,9 @@ export class ApplicationReview {
       await this.vacancy(record, signal);
     }
     if (
-      (record.state === 'review' || record.page.error === 'generic-error') &&
+      (record.state === 'review' ||
+        record.state === 'daily-limit' ||
+        record.page.error === 'generic-error') &&
       record.page.scope &&
       record.vacancy
     ) {
@@ -183,13 +191,7 @@ export class ApplicationReview {
     }
     applyApplicationRunPolicy(record);
   }
-  async check(
-    record,
-    action,
-    signal,
-    allowHeld = false,
-    captureGeneric = false
-  ) {
+  async check(record, action, signal, allowHeld = false, capture = null) {
     const { readPage, filling } = this.service;
     if (!record.guard) {
       throw fail('changed');
@@ -200,7 +202,7 @@ export class ApplicationReview {
     await this.service.limits.observe(record, before);
     if (
       applicationPageKey(before) !== record.guard.page ||
-      invalidNativeRead(before, action, captureGeneric)
+      invalidNativeRead(before, action, capture)
     ) {
       this.service.trace({
         event: 'application-review-changed',

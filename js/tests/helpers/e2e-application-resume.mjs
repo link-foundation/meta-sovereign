@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { applicationResumeNativeFixture } from '../../../experiments/issue-56/application-resume-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
@@ -15,14 +14,7 @@ export const verifyNativeApplicationResume = async (
   const fixture = await applicationResumeNativeFixture(browser);
   const controls = applicationPanelBrowser(fixture);
   const { panel, action, page } = controls;
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await panel.screenshot({
-        path: join(screenshots, `application-resume-${name}.png`),
-      });
-    }
-  };
+  const shot = controls.screenshot(screenshots, 'application-resume');
   try {
     await controls.select();
     await action('start').click();

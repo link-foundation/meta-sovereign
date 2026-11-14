@@ -5,6 +5,7 @@ import {
   applicationView,
 } from './application-options.js';
 import { saveApplicationJournal } from './application-journal.js';
+import { applicationPreservationPolicy } from './application-run-modes.js';
 
 export const applicationRetryMs = 5 * 60 * 60 * 1000;
 const retryAttempts = (previous) => ({
@@ -53,19 +54,9 @@ export class ApplicationRetries {
     ) {
       return;
     }
-    const version = service.modes.version(record.browserSlot);
-    const policy = () => {
-      signal.throwIfAborted();
-      if (
-        service.current !== record ||
-        record.paused ||
-        service.modes.version(record.browserSlot) !== version
-      ) {
-        throw fail('mode-changed');
-      }
-    };
+    const policy = applicationPreservationPolicy(service, record, signal);
     const capture = () =>
-      service.review.check(record, 'submit', signal, true, true);
+      service.review.check(record, 'submit', signal, true, 'generic-error');
     await service.deferrals.preserve(
       record,
       { confirm: true },
