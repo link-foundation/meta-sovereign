@@ -1,11 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active automatic questionnaire deferral prerequisite (HH08 remains incomplete):
+
+- [x] Reuse acknowledged actual-answer preservation at the owned operation boundary when questionnaire mode is enabled. Keep pauses, preview, unsafe captures, storage failures and uncertain submissions open; respect mode changes during checkpoints.
+- [x] Process idle foreground signals without overlapping owned operations. Let CLI/API/UI re-enable questions after automatic closure using fresh inactive-journal identity; preserve separate review/restoration/send confirmation.
+- [ ] Exact-parent Node/native/MCP reproductions, 95 focused Node checks, 12 new Deno cases, 25 dictionary checks, final native/MCP before/after and fixture drain pass. Preserve checksummed evidence, publish the atomic unit and inspect exact-head CI.
+- [ ] Continue queue pacing/revisits, generic-error five-hour retries, supervised presets and every original unchecked criterion. Keep PR57 draft and unmerged.
+
 Active backed questionnaire deferral prerequisite (HH08 remains incomplete):
 
 - [x] Save the complete actual native draft and private Q&A observations, then acknowledge eligible unapproved answer learning before closing. Refuse stale, unsupported or failed saves and keep live questionnaires through idle time.
 - [x] Add a bounded RAM-only per-slot queue and explicitly confirmed fresh-review reopening. Preserve run policies, saved exclusions, delivery reservations and separate restoration/submission confirmation. Reset only the queue on worker restart; durable drafts remain recoverable.
 - [x] Expose deferral and queue review through CLI, both Lino routes and four-language browser controls. Verify exact-parent failure, 83 focused application checks, production Chromium and independent MCP before/after screenshots; close all fixtures. Shared-form (27), dictionary (25), Deno (21) and all seven affected native scenarios pass. Final gates and publication remain.
-- [ ] Preserve checksummed evidence, publish the atomic unit and inspect exact-head CI. Continue automatic mode-driven deferral, generic-error five-hour retries, supervised test presets and every unchecked original criterion. Keep PR57 draft and unmerged.
+- [x] Preserve checksummed evidence and publish the atomic unit as `24ef1b88`. Every exact-head hosted check passes, including main run `43554063889`. Continue automatic mode-driven deferral, generic-error five-hour retries, supervised test presets and every unchecked original criterion. Keep PR57 draft and unmerged.
 
 Active worker application policies (HH08 remains incomplete):
 

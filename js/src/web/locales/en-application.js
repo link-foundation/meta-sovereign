@@ -27,7 +27,7 @@ export const enApplication = {
   'application.noQuestionnaires':
     'Defer questionnaires in this worker and browser slot',
   'application.sessionHint':
-    'Pause and questionnaire choices carry across reviews in this worker and browser slot. Restart clears them and the deferred queue. Held forms stay open until you close them or stop the worker. Use Save answers and defer to back up a questionnaire before leaving it.',
+    'Pause and questionnaire choices carry across reviews in this worker and browser slot. Deferring questionnaires automatically saves actual answers and closes them after every save succeeds. Failed saves, paused forms and preview stay open. Re-enable questionnaires here before a confirmed queue review. Restart clears these choices and the queue.',
   'application.unavailable':
     'A connected server with native application review support is required.',
   'application.choose': 'Collect or choose a saved vacancy to begin.',
@@ -64,7 +64,7 @@ export const enApplication = {
   'application.draft': 'Private saved questionnaire draft',
   'application.draftSaved': 'Saved on this server at {time}',
   'application.draftHint':
-    'Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. Backups are explicit and are not a retry queue.',
+    'Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. A saved copy alone is not a retry queue.',
   'application.draft.checked': 'Checked',
   'application.draft.unchecked': 'Unchecked',
   'application.restore.restoring':

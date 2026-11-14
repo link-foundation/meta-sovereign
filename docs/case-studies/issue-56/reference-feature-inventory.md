@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Latest partial HH08 evidence: [automatic backed questionnaire deferral](application-automatic-deferral.md) now preserves actual values before mode-driven closure and enables later confirmed review. Automatic paced revisits, generic-error five-hour retries, the supervised preset and all unchecked criteria remain unfinished.
+
 This is the implementation checklist for issue 56's six feature references. The source revisions and original repository/tree/README responses are preserved in `data/reference-snapshots.tar.gz`. References are read to understand behavior; their code is not copied or executed. A feature is complete only after CLI, API and UI controls and the relevant regression evidence are recorded. Existing related modules below identify integration points, not verified parity. Every unchecked row remains required work in PR 57.
 
 HH06 / HH08 now include [explicit backed deferral](application-deferrals.md): complete actual private drafts and Q&A, eligible unapproved learning, failure-retained live forms and a bounded worker queue with confirmed review-only reopening through CLI, both Lino encodings and four-language controls. Automatic mode-driven deferral, generic-error five-hour retries, full queue pacing and the supervised preset remain required; both original rows stay unchecked.

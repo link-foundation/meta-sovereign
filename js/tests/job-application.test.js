@@ -93,7 +93,7 @@ test(
 );
 
 test(
-  'questionnaire deferral and pause are session-only and can resume the same live form',
+  'paused questionnaires remain live and can resume; worker modes reset on restart',
   { timeout: 3000 },
   async () => {
     const fixture = applicationFixture();
@@ -101,9 +101,9 @@ test(
     try {
       const review = await fixture.enter();
       const deferred = await fixture.service['application-mode'](
-        input(review, { noQuestionnaires: true })
+        input(review, { noQuestionnaires: true, paused: true })
       );
-      assert.equal(deferred.state, 'deferred');
+      assert.equal(deferred.state, 'paused');
       await assert.rejects(
         fixture.service['application-prefill'](
           input(deferred, { confirm: true })

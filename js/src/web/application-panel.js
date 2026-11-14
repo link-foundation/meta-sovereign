@@ -212,14 +212,14 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       t('application.pause'),
       receipt.paused,
       (paused) => application.action('Mode', { paused }),
-      !ready
+      !idle || !application.known
     ),
     check(
       'noQuestionnaires',
       t('application.noQuestionnaires'),
       receipt.noQuestionnaires,
       (noQuestionnaires) => application.action('Mode', { noQuestionnaires }),
-      !ready
+      !idle || !application.known
     ),
     el(
       'p',

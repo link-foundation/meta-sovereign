@@ -34,8 +34,14 @@ export const useApplication = ({ api, values, selected, run }) => {
   }, [session, values.browserSlot]);
   const operate = (kind, action) =>
     run(`application-${kind}`, async () => {
-      await action();
-      return { ok: true };
+      try {
+        await action();
+        return { ok: true };
+      } finally {
+        await session
+          .refreshQueue({ browserSlot: values.browserSlot })
+          .catch(() => {});
+      }
     });
   return {
     ...state,
@@ -54,29 +60,10 @@ export const useApplication = ({ api, values, selected, run }) => {
     reopen: () => operate('reopen', () => session.reopen()),
     release: () => operate('release', () => session.release()),
     action: (name, input) =>
-      operate(name.toLowerCase(), async () => {
-        try {
-          return await session.action(name, input);
-        } finally {
-          if (name === 'Defer') {
-            await session
-              .refreshQueue({ browserSlot: values.browserSlot })
-              .catch(() => {});
-          }
-        }
-      }),
+      operate(name.toLowerCase(), () => session.action(name, input)),
     refreshQueue: () =>
       session.refreshQueue({ browserSlot: values.browserSlot }),
-    retry: (entry) =>
-      operate('retry', async () => {
-        try {
-          return await session.retry(entry);
-        } finally {
-          await session
-            .refreshQueue({ browserSlot: values.browserSlot })
-            .catch(() => {});
-        }
-      }),
+    retry: (entry) => operate('retry', () => session.retry(entry)),
     stop: () => operate('stop', () => session.stop()),
   };
 };

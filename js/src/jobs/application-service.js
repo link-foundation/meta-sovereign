@@ -112,7 +112,7 @@ class ApplicationService {
     const next = acknowledgedWrite(this.store, this.run, async (signal) => {
       globalThis.clearTimeout(this.timer);
       try {
-        return await operation(signal);
+        return await this.perform(operation, signal);
       } finally {
         this.touch();
       }
@@ -126,6 +126,62 @@ class ApplicationService {
       })
       .catch(() => {});
     return next;
+  }
+  async perform(operation, signal) {
+    let result;
+    let failure;
+    try {
+      result = await operation(signal);
+    } catch (error) {
+      failure = error;
+    }
+    try {
+      // Only a mode-interrupted action may finish by backing up its held form.
+      // A failed read/save must keep that form open without a second save attempt.
+      if (!failure || failure.code === 'jobs-application-state') {
+        result = (await this.deferrals.automatic(signal)) ?? result;
+      }
+    } catch (error) {
+      this.trace({
+        event: 'application-automatic-deferral-refused',
+        code: error.code ?? 'unknown',
+      });
+      failure ??= error;
+    }
+    if (failure) {
+      throw failure;
+    }
+    return result;
+  }
+  signalMode(input) {
+    if (this.stopped) {
+      throw fail('stopped');
+    }
+    const { browserSlot } = applicationKey(input);
+    const modes = this.modes.signal(
+      this.current,
+      browserSlot,
+      input.noQuestionnaires
+    );
+    this.trace({ event: 'application-run-mode-signal', ...modes });
+    // An active operation processes its latest policy before releasing ownership.
+    // At idle, acquire the same writer and inspect fresh native values first.
+    const record = this.current;
+    if (
+      !this.task &&
+      modes.noQuestionnaires &&
+      record?.browserSlot === browserSlot &&
+      record.page?.questions
+    ) {
+      this.operate((signal) => this.review.inspect(record, signal)).catch(
+        (error) =>
+          this.trace({
+            event: 'application-signal-deferral-refused',
+            code: error.code ?? 'unknown',
+          })
+      );
+    }
+    return { ok: true, browserSlot, ...modes };
   }
   owned(input) {
     const key = applicationKey(input);
@@ -305,19 +361,7 @@ export const createApplicationService = (options) => {
       // Foreground CLI signals only: the HTTP route allowlist does not expose
       // this interruption channel. It changes RAM policy without waiting behind
       // an exact-answer review delay or performing a provider action.
-      'application-signal-mode': (input) => {
-        if (service.stopped) {
-          throw fail('stopped');
-        }
-        const { browserSlot } = applicationKey(input);
-        const modes = service.modes.signal(
-          service.current,
-          browserSlot,
-          input.noQuestionnaires
-        );
-        service.trace({ event: 'application-run-mode-signal', ...modes });
-        return { ok: true, browserSlot, ...modes };
-      },
+      'application-signal-mode': (input) => service.signalMode(input),
       'application-open': (input) =>
         service.operate((signal) => service.open(input, signal)),
       'application-status': (input) => service.status(input),
@@ -350,9 +394,7 @@ export const createApplicationService = (options) => {
           service.drafts.restore(service.owned(input), input, signal)
         ),
       'application-mode': (input) =>
-        service.operate((signal) =>
-          service.actions.mode(service.owned(input), input, signal)
-        ),
+        service.operate((signal) => service.actions.changeMode(input, signal)),
       'application-close': (input) =>
         service.operate(() => {
           service.owned(input);

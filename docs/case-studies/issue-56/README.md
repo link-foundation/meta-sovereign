@@ -1,6 +1,8 @@
 # Issue 56: unified automation and device architecture
 
-- [Backed questionnaire deferral](application-deferrals.md): acknowledged actual drafts, private Q&A and eligible unapproved learning before explicit closure, a bounded worker queue and confirmed fresh-review reopening through CLI/Lino/four-language controls. Automatic deferral, generic-error retry pacing and the supervised preset remain unfinished.
+- [Automatic backed questionnaire deferral](application-automatic-deferral.md): enabled worker policy preserves actual private drafts, Q&A and eligible unapproved learning before closure, respects pause/preview/checkpoint failures and late signals, and permits inactive re-enabling before separate confirmed review. Automatic paced revisits, generic-error retries and the supervised preset remain unfinished.
+
+- [Backed questionnaire deferral](application-deferrals.md): acknowledged actual drafts, private Q&A and eligible unapproved learning before explicit closure, a bounded worker queue and confirmed fresh-review reopening through CLI/Lino/four-language controls. The following automatic-policy unit adds closure; generic-error retry pacing and the supervised preset remain unfinished.
 
 - [Worker application policies](application-run-modes.md): slot-isolated RAM choices across reviews, foreground signal interruption, acknowledged-mode races and exact-parent/native/MCP evidence. Automatic deferral backups, retries and the supervised preset remain unfinished.
 

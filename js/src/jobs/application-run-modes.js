@@ -7,6 +7,7 @@ const names = ['noQuestionnaires', 'paused'];
 const defaults = () => ({ noQuestionnaires: false, paused: false });
 export const applyApplicationRunPolicy = (record) => {
   if (
+    record.page &&
     ['ready', 'review', 'review-delay', 'paused', 'deferred'].includes(
       record.state
     )

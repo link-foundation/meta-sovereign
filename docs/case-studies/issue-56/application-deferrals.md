@@ -1,5 +1,9 @@
 # Backed questionnaire deferral
 
+This records the explicit deferral prerequisite. The subsequent
+[automatic-policy unit](application-automatic-deferral.md) adds preservation and
+closure when questionnaire mode is enabled; paced revisits remain unfinished.
+
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) adds an
 explicit Save answers and defer action. It acknowledges the complete actual
 native draft, private Q&A observations and eligible unapproved answer learning

@@ -26,10 +26,13 @@ const open = (fixture, number, slot = 'jobs') =>
   });
 const assertPrivate = async (fixture) => {
   for (const row of await fixture.store.query()) {
-    assert(row.id.startsWith('secret:jobs-application:'));
+    assert(
+      row.id.startsWith('secret:jobs-application') ||
+        row.id.startsWith('qa-rule:')
+    );
     for (const key of ['noQuestionnaires', 'paused', 'slots']) {
       assert.equal(Object.hasOwn(row, key), false);
-      assert.equal(Object.hasOwn(row.options, key), false);
+      assert.equal(Object.hasOwn(row.options ?? {}, key), false);
     }
   }
 };
@@ -109,12 +112,13 @@ test(
       fixture.state.fields[1].value = 'Reviewed answer';
       receipt = await mode(fixture, receipt, { noQuestionnaires: true });
       assert.equal(receipt.exact, true);
-      assert.equal(receipt.state, 'deferred');
+      assert.equal(receipt.state, 'closed');
+      assert.equal(receipt.active, false);
       await assert.rejects(
         fixture.service['application-prefill'](
           identity(receipt, { confirm: true })
         ),
-        { code: 'jobs-application-state' }
+        { code: 'jobs-application-missing' }
       );
       fixture.state.page.questions = false;
       fixture.state.page.letter = {
@@ -122,7 +126,10 @@ test(
         value: 'Reviewed answer',
         disabled: false,
       };
-      receipt = await fixture.service['application-read'](identity(receipt));
+      receipt = await fixture.service['application-open']({
+        ...identity(receipt),
+        recover: true,
+      });
       assert.equal(receipt.noQuestionnaires, true);
       assert.equal(receipt.state, 'review');
       receipt = await fixture.service['application-advance'](
@@ -200,7 +207,7 @@ test(
         identity(receipt, { confirm: true })
       );
       assert.equal(interruptions, 1);
-      assert.equal(receipt.state, 'deferred');
+      assert.equal(receipt.state, 'closed');
       assert.equal(receipt.noQuestionnaires, true);
       assert.equal(receipt.attempted.submit, false);
       assert.equal(fixture.state.submitted, 0);
@@ -208,7 +215,10 @@ test(
         ...applicationInput,
         noQuestionnaires: false,
       });
-      receipt = await fixture.service['application-read'](identity(receipt));
+      receipt = await fixture.service['application-open']({
+        ...identity(receipt),
+        recover: true,
+      });
       assert.equal(receipt.state, 'review');
       assert.equal(
         fixture.state.submitted,
@@ -260,7 +270,12 @@ test(
       const status = await fixture.service['application-status'](
         identity(receipt)
       );
-      assert.equal(status.state, 'deferred');
+      assert.equal(status.state, 'interrupted');
+      assert.equal(status.active, false);
+      assert.equal(
+        (await fixture.service['application-queue']({})).entries.length,
+        1
+      );
       assert.equal(status.attempted.submit, false);
       assert.equal(fixture.state.submitted, 0);
     } finally {
@@ -311,7 +326,8 @@ for (const refused of [false, true]) {
         );
         assert.equal(status.paused, false);
         assert.equal(status.noQuestionnaires, true);
-        assert.equal(status.state, 'deferred');
+        assert.equal(status.state, refused ? 'deferred' : 'interrupted');
+        assert.equal(status.active, refused);
         await assertPrivate(fixture);
       } finally {
         held.resolve();
@@ -341,13 +357,20 @@ test(
       events.emit('SIGUSR1');
       assert.equal(
         (await fixture.service['application-status'](identity(receipt))).state,
-        'deferred'
+        'interrupted'
       );
       events.emit('SIGUSR2');
       assert.equal(
         (await fixture.service['application-status'](identity(receipt))).state,
-        'review'
+        'interrupted'
       );
+      const resumed = await fixture.service['application-open']({
+        ...identity(receipt),
+        recover: true,
+      });
+      assert.equal(resumed.state, 'review');
+      assert.equal(resumed.noQuestionnaires, false);
+      assert.equal(fixture.state.submitted, 0);
       assert.equal(logs.length, 2);
       assert.throws(
         () =>

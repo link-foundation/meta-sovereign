@@ -3,9 +3,11 @@ import {
   applicationDelay as delay,
   applicationFailure as fail,
   applicationView,
+  applicationKey,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
 import { nativeApplicationFields } from './application-review.js';
+import { readApplicationJournal } from './application-journal.js';
 
 export class ApplicationActions {
   constructor(service) {
@@ -254,13 +256,39 @@ export class ApplicationActions {
       signal
     );
   }
+  async changeMode(input, signal) {
+    const service = this.service;
+    if (service.current) {
+      return this.mode(service.owned(input), input, signal);
+    }
+    const key = applicationKey(input);
+    const record = readApplicationJournal(await service.store.get(key.id), key);
+    if (
+      input.requestId !== record.requestId ||
+      input.revision !== record.revision
+    ) {
+      throw fail('changed');
+    }
+    record.acknowledged = globalThis.structuredClone(record);
+    Object.assign(record, service.modes.read(record.browserSlot), {
+      state:
+        record.delivery === 'provider-confirmed' ? 'delivered' : 'interrupted',
+    });
+    return this.mode(record, input, signal);
+  }
   async mode(record, input, signal) {
     const service = this.service;
     const version = service.modes.version(record.browserSlot);
     const modes = service.modes.change(record.browserSlot, input);
     Object.assign(record, modes);
     try {
-      const result = await service.review.inspect(record, signal);
+      if (!record.active) {
+        signal.throwIfAborted();
+        await service.save(record);
+      }
+      const result = record.active
+        ? await service.review.inspect(record, signal)
+        : applicationView(record);
       if (service.modes.version(record.browserSlot) === version) {
         service.modes.save(record.browserSlot, modes);
         return result;

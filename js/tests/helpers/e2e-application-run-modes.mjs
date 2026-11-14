@@ -3,6 +3,7 @@ import { applicationNativeFixture } from '../../../experiments/issue-56/applicat
 import {
   nativeApplicationReviewRequest,
   nativeApplicationForm,
+  nativeApplicationQueue,
 } from './application-native-request.mjs';
 
 export const verifyNativeApplicationRunModes = async (browser) => {
@@ -36,14 +37,23 @@ export const verifyNativeApplicationRunModes = async (browser) => {
       action: 'enter',
       confirm: true,
     });
-    assert.equal(receipt.state, 'deferred');
+    assert.equal(receipt.state, 'closed');
     assert.equal(receipt.noQuestionnaires, true);
     assert.equal(receipt.attempted.submit, false);
+    assert(fixture.records.every((row) => row.closed));
+    const queue = await nativeApplicationQueue(fixture);
+    assert.equal(queue.entries.length, 1);
+    receipt = await request('mode', receipt, { noQuestionnaires: false });
+    assert.equal(receipt.active, false);
+    const [entry] = queue.entries;
+    receipt = await request('retry', receipt, {
+      queueId: entry.id,
+      confirm: true,
+    });
     const page = nativeApplicationForm(browser);
     assert.equal(await page.locator('#experience').inputValue(), '');
     assert.equal(await page.locator('#header').inputValue(), 'Owner header');
     assert.equal(await page.evaluate(() => globalThis.applicationAttempts), 0);
-    receipt = await request('mode', receipt, { noQuestionnaires: false });
     assert.equal(receipt.state, 'review');
     await request('close', receipt);
     assert(fixture.records.every((row) => row.closed));
@@ -52,6 +62,7 @@ export const verifyNativeApplicationRunModes = async (browser) => {
       workerPauseRetained: true,
       workerQuestionnairePolicyRetained: true,
       deferred: true,
+      automaticallyBackedAndClosed: true,
       resumedReviewOnly: true,
       ownerHeaderPreserved: true,
       submissions: 0,

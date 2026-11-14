@@ -6,6 +6,7 @@ import { vacancyChoiceSlot } from './vacancy-choice.js';
 import {
   applicationKey,
   applicationFailure as fail,
+  applicationView,
 } from './application-options.js';
 import { applicationQueueResult } from './application-deferral-data.js';
 import { nativeDraftFields } from './application-drafts.js';
@@ -33,8 +34,14 @@ export class ApplicationDeferrals {
       input
     );
   }
-  async preserve(record, input, signal) {
+  async preserve(record, input, signal, policyCheck) {
     const service = this.service;
+    const check = async () => {
+      policyCheck();
+      await service.review.check(record, 'submit', signal, true);
+      policyCheck();
+    };
+    await check();
     await service.drafts.admit(record, input, signal);
     const fields = nativeDraftFields(record);
     const report = { ...record.reviewPlan.inspection, fields };
@@ -43,7 +50,6 @@ export class ApplicationDeferrals {
     // observation. Reusable learning remains subject to the existing exclusions
     // (e.g. salary and assignments), contraction and owner approval policy.
     await service.drafts.backup(record, input, signal);
-    const check = () => service.review.check(record, 'submit', signal, true);
     await check();
     await saveAcknowledgedRecord(service.store, {
       id: record.id.replace(
@@ -75,14 +81,14 @@ export class ApplicationDeferrals {
     // values to the queue. A refusal retains the browser and all owner controls.
     await check();
   }
-  async defer(record, input, signal) {
+  async defer(record, input, signal, policyCheck = () => {}) {
     if (
       !record.page?.questions ||
       (this.entries.size >= 1000 && !this.entries.has(record.id))
     ) {
       throw fail('queue');
     }
-    await this.preserve(record, input, signal);
+    await this.preserve(record, input, signal, policyCheck);
     const entry = {
       id: globalThis.crypto.randomUUID(),
       url: record.url,
@@ -99,6 +105,43 @@ export class ApplicationDeferrals {
       count: this.entries.size,
     });
     return this.service.close();
+  }
+  async automatic(signal) {
+    const service = this.service;
+    const record = service.current;
+    if (
+      !record?.noQuestionnaires ||
+      record.paused ||
+      record.options.testMode ||
+      record.state !== 'deferred' ||
+      !record.page?.questions ||
+      record.attempted.submit ||
+      record.delivery !== 'none' ||
+      !record.guard
+    ) {
+      return;
+    }
+    const version = service.modes.version(record.browserSlot);
+    const check = () => {
+      signal.throwIfAborted();
+      if (
+        service.current !== record ||
+        !record.noQuestionnaires ||
+        record.paused ||
+        service.modes.version(record.browserSlot) !== version
+      ) {
+        throw fail('mode-changed');
+      }
+    };
+    try {
+      return await this.defer(record, { confirm: true }, signal, check);
+    } catch (error) {
+      if (error.code !== 'jobs-application-mode-changed') {
+        throw error;
+      }
+      service.trace({ event: 'application-automatic-deferral-cancelled' });
+      return applicationView(record);
+    }
   }
   async retry(input, signal) {
     const key = applicationKey(input);
@@ -130,6 +173,9 @@ export class ApplicationDeferrals {
     const choices = await storedVacancyChoices(service.store, key);
     if (choices.entries.some((row) => row.url === key.url)) {
       throw fail('excluded');
+    }
+    if (service.modes.read(key.browserSlot).noQuestionnaires) {
+      throw fail('questionnaires-held');
     }
     signal.throwIfAborted();
     const receipt = await service.open({ ...entry, recover: true }, signal);

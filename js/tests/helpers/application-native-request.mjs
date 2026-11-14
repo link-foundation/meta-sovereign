@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { wirePost } from './vacancy-routes.mjs';
-import { LINO_TEXT } from '../../src/transport/lino.js';
+import { LINO_TEXT, decodeWire } from '../../src/transport/lino.js';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 
 export const nativeApplicationFormUrl =
@@ -10,6 +10,20 @@ export const nativeApplicationForm = (browser) =>
     .contexts()
     .flatMap((context) => context.pages())
     .find((page) => page.url() === nativeApplicationFormUrl);
+
+export const nativeApplicationQueue = async (fixture) => {
+  const response = await fetch(
+    `${fixture.base}/api/vacancies/application-queue`,
+    {
+      headers: { accept: LINO_TEXT },
+    }
+  );
+  assert.equal(response.status, 200);
+  return decodeWire(
+    await response.arrayBuffer(),
+    response.headers.get('content-type')
+  );
+};
 
 export const nativeApplicationRequest = async (fixture, operation, input) => {
   const result = await wirePost(

@@ -1,5 +1,6 @@
 import {
-  applicationRouteApi,
+  withApplicationRouteFixture,
+  enterApplicationRoute,
   runApplicationFixtureCommand,
   applicationPanelMarkup,
   assertApplicationLocaleMarkup,
@@ -9,9 +10,9 @@ import assert from 'node:assert/strict';
 import { applicationQueueResult } from '../src/jobs/application-deferral-data.js';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { applicationSessionClient as client } from './helpers/application-session-client.mjs';
-import { withRoutes } from './helpers/vacancy-routes.mjs';
 import {
   applicationDeferralFixture,
+  ownedDeferralFixture,
   identity,
 } from '../../experiments/issue-56/application-deferral-fixture.mjs';
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
@@ -61,46 +62,32 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
     `deferral and fresh-review retry cross the actual browser API and HTTP ${type} boundary`,
     { timeout: 10000 },
     async (t) => {
-      const fixture = applicationDeferralFixture();
-      t.after(() => fixture.close());
-      await withRoutes(
-        async (base) => {
-          const api = applicationRouteApi(base, type);
-          let receipt = await api.vacancyApplicationOpen(applicationInput);
-          receipt = await api.vacancyApplicationAdvance(
-            identity(receipt, { action: 'enter', confirm: true })
-          );
-          fixture.state.fields[1].value = 'Actual transport answer';
-          receipt = await api.vacancyApplicationRead(identity(receipt));
-          receipt = await api.vacancyApplicationDefer(
-            identity(receipt, { confirm: true })
-          );
-          assert.equal(receipt.state, 'closed');
-          const queue = await api.vacancyApplicationQueue({
-            browserSlot: 'jobs',
-          });
-          assert.equal(queue.entries.length, 1);
-          receipt = await api.vacancyApplicationRetry({
-            ...queue.entries[0],
-            queueId: queue.entries[0].id,
-            confirm: true,
-          });
-          assert.equal(receipt.state, 'review');
-          assert.equal(
-            receipt.draft.fields[0].value,
-            'Actual transport answer'
-          );
-          assert.equal(
-            (await api.vacancyApplicationQueue({})).entries.length,
-            0
-          );
-          assert.equal(fixture.state.fields[1].value, '');
-          assert.equal(fixture.state.writes.length, 0);
-          assert.equal(fixture.state.submitted, 0);
-          await api.vacancyApplicationClose(identity(receipt));
-        },
-        { store: fixture.store, service: fixture.serviceOptions }
-      );
+      const fixture = ownedDeferralFixture(t);
+      await withApplicationRouteFixture(fixture, type, async (api) => {
+        let receipt = await enterApplicationRoute(api);
+        fixture.state.fields[1].value = 'Actual transport answer';
+        receipt = await api.vacancyApplicationRead(identity(receipt));
+        receipt = await api.vacancyApplicationDefer(
+          identity(receipt, { confirm: true })
+        );
+        assert.equal(receipt.state, 'closed');
+        const queue = await api.vacancyApplicationQueue({
+          browserSlot: 'jobs',
+        });
+        assert.equal(queue.entries.length, 1);
+        receipt = await api.vacancyApplicationRetry({
+          ...queue.entries[0],
+          queueId: queue.entries[0].id,
+          confirm: true,
+        });
+        assert.equal(receipt.state, 'review');
+        assert.equal(receipt.draft.fields[0].value, 'Actual transport answer');
+        assert.equal((await api.vacancyApplicationQueue({})).entries.length, 0);
+        assert.equal(fixture.state.fields[1].value, '');
+        assert.equal(fixture.state.writes.length, 0);
+        assert.equal(fixture.state.submitted, 0);
+        await api.vacancyApplicationClose(identity(receipt));
+      });
     }
   );
 }
@@ -165,8 +152,7 @@ test(
   'queue receipts reject foreign slots, duplicate vacancies, malformed identity and replies that do not confirm a queue',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     await fixture.defer(await fixture.answered());
     const queue = await fixture.queue();
     const entry = queue.entries[0];
@@ -197,8 +183,7 @@ test(
   'four-language application panels expose backed deferral and require fresh confirmation for queue reopening',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     const receipt = await fixture.defer(await fixture.answered());
     const queue = await fixture.queue();
     for (const locale of ['en', 'ru', 'hi', 'zh']) {

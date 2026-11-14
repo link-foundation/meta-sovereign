@@ -5,7 +5,7 @@ import { createApplicationApi } from '../../src/web/application-api.js';
 import { ApplicationPanel } from '../../src/web/application-panel.js';
 import { translate } from '../../src/web/i18n.js';
 import { decodeWire } from '../../src/transport/lino.js';
-import { wirePost } from './vacancy-routes.mjs';
+import { wirePost, withRoutes } from './vacancy-routes.mjs';
 import { createVacancyCommands } from '../../src/cli/vacancy-commands.js';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 
@@ -54,6 +54,25 @@ export const applicationRouteApi = (base, type) =>
       return response.value;
     },
   });
+
+/** Reuse isolated route ownership while retaining real API encoding and guards. */
+export const withApplicationRouteFixture = (fixture, type, work) =>
+  withRoutes((base) => work(applicationRouteApi(base, type), base), {
+    store: fixture.store,
+    service: fixture.serviceOptions,
+  });
+
+export const enterApplicationRoute = async (api) => {
+  const receipt = await api.vacancyApplicationOpen(applicationInput);
+  return api.vacancyApplicationAdvance({
+    url: receipt.url,
+    browserSlot: receipt.browserSlot,
+    requestId: receipt.requestId,
+    revision: receipt.revision,
+    action: 'enter',
+    confirm: true,
+  });
+};
 
 export const applicationPanelMarkup = (application, locale) =>
   renderToStaticMarkup(

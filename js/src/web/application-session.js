@@ -209,13 +209,20 @@ export class ApplicationSession {
     });
   }
   action(name, extra = {}) {
-    if (!this.state.receipt || !this.state.intent || this.state.missing) {
+    const receipt = this.state.receipt;
+    const intent =
+      this.state.intent ??
+      (name === 'Mode' && receipt?.active === false ? token(receipt) : null);
+    if (!receipt || !intent || this.state.missing) {
       throw failure();
+    }
+    if (!this.state.intent) {
+      this.remember(intent);
     }
     return this.execute(`vacancyApplication${name}`, {
       ...extra,
-      ...this.state.intent,
-      revision: this.state.receipt.revision,
+      ...intent,
+      revision: receipt.revision,
     });
   }
   async refreshQueue(input) {

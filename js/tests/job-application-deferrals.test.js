@@ -1,3 +1,4 @@
+import { assertUnapprovedApplicationLearning } from './helpers/application-deferral-assertions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setTimeout as wait } from 'node:timers/promises';
@@ -11,6 +12,8 @@ import { formModelField } from './helpers/forms-plan-inspection.mjs';
 import {
   applicationDeferralFixture,
   deferralStorageFault,
+  ownedDeferralFixture,
+  answeredDeferralTest,
   identity,
 } from '../../experiments/issue-56/application-deferral-fixture.mjs';
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
@@ -19,8 +22,7 @@ test(
   'confirmed deferral acknowledges actual private answers and unapproved knowledge before closing; retry only reopens a fresh review',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     const answered = await fixture.answered();
     const closed = await fixture.defer(answered);
     assert.equal(closed.state, 'closed');
@@ -86,13 +88,9 @@ for (const stage of ['put', 'flush']) {
       `failed ${kind} ${stage} keeps the questionnaire open past idle and does not queue or send`,
       { timeout: 4000 },
       async (t) => {
-        const fault = deferralStorageFault();
-        const fixture = applicationDeferralFixture({
-          store: fault.store,
-          application: { idleMs: 5 },
+        const { fault, fixture, receipt } = await answeredDeferralTest(t, {
+          idleMs: 5,
         });
-        t.after(() => fixture.close());
-        const receipt = await fixture.answered();
         Object.assign(fault.state, { stage, kind });
         await assert.rejects(fixture.defer(receipt), {
           code: 'fixture-deferral-save',
@@ -115,11 +113,7 @@ for (const stage of ['put', 'flush']) {
         await fixture.defer(fresh);
         assert.equal((await fixture.queue()).entries.length, 1);
         assert.equal(fixture.state.closed, 1);
-        assert(
-          (await listAnswerRules(fixture.store)).every((rule) =>
-            rule.answers.every((answer) => !answer.approved)
-          )
-        );
+        await assertUnapprovedApplicationLearning(fixture);
       }
     );
   }
@@ -129,10 +123,7 @@ test(
   'a late owner edit during the Q&A checkpoint preserves the live form and refuses queue admission',
   { timeout: 4000 },
   async (t) => {
-    const fault = deferralStorageFault();
-    const fixture = applicationDeferralFixture({ store: fault.store });
-    t.after(() => fixture.close());
-    const receipt = await fixture.answered();
+    const { fault, fixture, receipt } = await answeredDeferralTest(t);
     fault.state.hook = (row) => {
       if (row.id.startsWith('secret:jobs-application-answers:')) {
         fault.state.hook = null;
@@ -154,8 +145,7 @@ test(
   'native choice values and policy-excluded answers remain private recovery evidence',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     let receipt = await fixture.answered();
     fixture.state.fields[1].label = 'Salary expectations';
     fixture.state.fields[1].value = '100000';
@@ -190,8 +180,7 @@ test(
   'fresh ownership, confirmation and complete safe questionnaires are required; unsupported captures do not leave the form',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     let receipt = await fixture.answered();
     for (const extra of [
       { confirm: false },
@@ -223,8 +212,7 @@ test(
   'queue reopening respects saved exclusions, current browser ownership, fresh queue identity and retained run policies',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     let receipt = await fixture.answered();
     receipt = await fixture.service['application-mode'](
       identity(receipt, { paused: true, noQuestionnaires: true })
@@ -269,9 +257,15 @@ test(
     });
     assert.equal((await fixture.queue()).entries.length, 1);
     await fixture.service['application-close'](identity(occupied));
+    await assert.rejects(fixture.retry(entry), {
+      code: 'jobs-application-questionnaires-held',
+    });
+    await fixture.service['application-mode'](
+      identity(occupied, { noQuestionnaires: false })
+    );
     receipt = await fixture.retry(entry);
     assert.equal(receipt.state, 'paused');
-    assert.equal(receipt.noQuestionnaires, true);
+    assert.equal(receipt.noQuestionnaires, false);
     assert.equal(receipt.paused, true);
     assert.equal(fixture.state.writes.length, 0);
     assert.equal(fixture.state.submitted, 0);
@@ -282,8 +276,7 @@ test(
   'deferral respects HH-scoped canonical corrections while retaining the actual private answer',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     await saveAnswerRule(fixture.store, {
       id: 'hh-owner-correction',
       question: 'Recent experience',
@@ -367,8 +360,7 @@ test(
   'worker restart forgets queue reasons but preserves recoverable actual drafts and uncertain submission reservations',
   { timeout: 4000 },
   async (t) => {
-    const fixture = applicationDeferralFixture();
-    t.after(() => fixture.close());
+    const fixture = ownedDeferralFixture(t);
     const closed = await fixture.defer(await fixture.answered());
     const [entry] = (await fixture.queue()).entries;
     const row = await fixture.store.get(`secret:jobs-application:jobs:123`);

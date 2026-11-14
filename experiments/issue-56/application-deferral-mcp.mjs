@@ -1,31 +1,37 @@
-async (originalPage) => {
-  const source = new URL(originalPage.url());
-  const control = source.searchParams.get('control');
-  const before = source.searchParams.has('expect-parent');
-  const context = await originalPage.context().browser().newContext();
-  const page = await context.newPage();
-  page.setDefaultTimeout(10000);
-  const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  const require = (value, message) => {
-    if (!value) {
-      throw new Error(message);
+(class ApplicationDeferralVerification {
+  static async verifyDeferred({
+    panel,
+    action,
+    confirm,
+    state,
+    automatic,
+    screenshotPrefix,
+    page,
+    require,
+    owner,
+  }) {
+    if (automatic) {
+      await panel
+        .locator('[data-application-option="noQuestionnaires"]')
+        .click();
+      await state('closed');
+      await panel.screenshot({
+        path: `docs/screenshots/${screenshotPrefix}-closed.png`,
+      });
+      const mode = panel.locator(
+        '[data-application-option="noQuestionnaires"]'
+      );
+      require(await mode.isEnabled(), 'Closed review cannot re-enable questionnaires');
+      await mode.click();
+      await state('interrupted');
+    } else {
+      require(await action(
+        'defer'
+      ).isDisabled(), 'Deferral must renew confirmation');
+      await confirm();
+      await action('defer').click();
+      await state('closed');
     }
-  };
-  const owner = async (operation, method = 'GET') => {
-    const response = await page.request.fetch(`${control}/${operation}`, {
-      method,
-    });
-    require(response.ok(), 'Synthetic native owner fixture failed');
-    return response.json();
-  };
-  const verifyDeferred = async (panel, action, confirm, state) => {
-    require(await action(
-      'defer'
-    ).isDisabled(), 'Deferral must renew confirmation');
-    await confirm();
-    await action('defer').click();
-    await state('closed');
     await panel.locator('[data-application-queued]').waitFor();
     const stats = await owner('stats');
     require(stats.closed, 'Deferral left an owned browser open');
@@ -33,7 +39,7 @@ async (originalPage) => {
       'retry'
     ).isDisabled(), 'Retry must renew confirmation');
     await panel.locator('[data-application-queue]').screenshot({
-      path: 'docs/screenshots/application-deferral-queued.png',
+      path: `docs/screenshots/${screenshotPrefix}-queued.png`,
     });
     await page.reload();
     await panel.locator('[data-application-queued]').waitFor();
@@ -74,65 +80,118 @@ async (originalPage) => {
       await draft.locator(':scope > summary').click();
     }
     await draft.screenshot({
-      path: 'docs/screenshots/application-deferral-restored-phone.png',
+      path: `docs/screenshots/${screenshotPrefix}-restored-phone.png`,
     });
     require(await page.evaluate(
       () => document.documentElement.scrollWidth <= globalThis.innerWidth
     ), 'Queue panel overflows the phone viewport');
-  };
-  try {
-    await page.setViewportSize({ width: 1280, height: 1100 });
-    await page.addInitScript(() => {
-      globalThis.localStorage.setItem('metaSovereignLocale', 'en');
-      globalThis.localStorage.setItem(
-        'metaSovereignTutorial',
-        '{"off":true,"v":5}'
-      );
-    });
-    await page.goto(`${source.origin}/#/cv`);
-    const panel = page.locator('[data-application-panel]');
-    const vacancies = page.locator('[data-vacancies]');
-    const action = (name) =>
-      panel.locator(`[data-application-action="${name}"]`);
-    const confirm = () =>
-      panel.locator('[data-application-option="confirm"]').check();
-    const state = (name) =>
-      panel.locator(`[data-application-state="${name}"]`).waitFor();
-    await vacancies.locator('[data-vacancy-field="query"]').fill('Python');
-    await vacancies.locator('[data-vacancy-action="search"]').click();
-    await vacancies.locator('[data-vacancy-action="collect"]').first().click();
-    await panel.locator('[data-application-missing]').waitFor();
-    await action('start').click();
-    await state('ready');
-    await confirm();
-    await action('enter').click();
-    await state('review');
-    await owner('draft-owner-fill', 'POST');
-    await action('read').click();
-    await state('review');
-    if (before) {
-      require((await action('defer').count()) ===
-        0, 'Parent unexpectedly has backed deferral');
-      await panel.screenshot({
-        path: 'docs/screenshots/application-deferral-before.png',
-      });
-    } else {
-      await verifyDeferred(panel, action, confirm, state);
-    }
-    await action('close').click();
-    await state('closed');
-    require(errors.length === 0, 'Application page errors');
-    return {
-      parentMissingDeferral: before,
-      backedQuestionnaire: !before,
-      queueSurvivesUiReload: !before,
-      retryOnlyReviews: !before,
-      restored: before ? 0 : 2,
-      submissions: 0,
-      identityOnlyIntent: !before,
-      pageErrors: errors,
-    };
-  } finally {
-    await context.close();
   }
-};
+  static async run(originalPage) {
+    const source = new URL(originalPage.url());
+    const control = source.searchParams.get('control');
+    const before = source.searchParams.has('expect-parent');
+    const automatic = source.searchParams.has('automatic');
+    const screenshotPrefix = automatic
+      ? 'application-automatic'
+      : 'application-deferral';
+    const context = await originalPage.context().browser().newContext();
+    const page = await context.newPage();
+    page.setDefaultTimeout(10000);
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const require = (value, message) => {
+      if (!value) {
+        throw new Error(message);
+      }
+    };
+    const owner = async (operation, method = 'GET') => {
+      const response = await page.request.fetch(`${control}/${operation}`, {
+        method,
+      });
+      require(response.ok(), 'Synthetic native owner fixture failed');
+      return response.json();
+    };
+
+    try {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      await page.addInitScript(() => {
+        globalThis.localStorage.setItem('metaSovereignLocale', 'en');
+        globalThis.localStorage.setItem(
+          'metaSovereignTutorial',
+          '{"off":true,"v":5}'
+        );
+      });
+      await page.goto(`${source.origin}/#/cv`);
+      const panel = page.locator('[data-application-panel]');
+      const vacancies = page.locator('[data-vacancies]');
+      const action = (name) =>
+        panel.locator(`[data-application-action="${name}"]`);
+      const confirm = () =>
+        panel.locator('[data-application-option="confirm"]').check();
+      const state = (name) =>
+        panel.locator(`[data-application-state="${name}"]`).waitFor();
+      await vacancies.locator('[data-vacancy-field="query"]').fill('Python');
+      await vacancies.locator('[data-vacancy-action="search"]').click();
+      await vacancies
+        .locator('[data-vacancy-action="collect"]')
+        .first()
+        .click();
+      await panel.locator('[data-application-missing]').waitFor();
+      await action('start').click();
+      await state('ready');
+      await confirm();
+      await action('enter').click();
+      await state('review');
+      await owner('draft-owner-fill', 'POST');
+      await action('read').click();
+      await state('review');
+      if (before) {
+        if (automatic) {
+          await panel
+            .locator('[data-application-option="noQuestionnaires"]')
+            .click();
+          await state('deferred');
+          const values = await owner('draft-values');
+          require(values.experience === 'Owner-only questionnaire answer.' &&
+            values.submissions ===
+              0, 'Published parent lost the live owner answer');
+        } else {
+          require((await action('defer').count()) ===
+            0, 'Parent unexpectedly has backed deferral');
+        }
+        await panel.screenshot({
+          path: `docs/screenshots/${screenshotPrefix}-before.png`,
+        });
+      } else {
+        await ApplicationDeferralVerification.verifyDeferred({
+          panel,
+          action,
+          confirm,
+          state,
+          automatic,
+          screenshotPrefix,
+          page,
+          require,
+          owner,
+        });
+      }
+      await action('close').click();
+      await state('closed');
+      require(errors.length === 0, 'Application page errors');
+      return {
+        parentMissingDeferral: before && !automatic,
+        parentKeepsQuestionnaireOpen: before && automatic,
+        automaticDeferral: !before && automatic,
+        backedQuestionnaire: !before,
+        queueSurvivesUiReload: !before,
+        retryOnlyReviews: !before,
+        restored: before ? 0 : 2,
+        submissions: 0,
+        identityOnlyIntent: !before,
+        pageErrors: errors,
+      };
+    } finally {
+      await context.close();
+    }
+  }
+}).run;

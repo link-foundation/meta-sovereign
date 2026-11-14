@@ -1,5 +1,5 @@
 import {
-  applicationRouteApi,
+  withApplicationRouteFixture,
   applicationPanelMarkup,
   assertApplicationLocaleMarkup,
 } from './helpers/application-controls.mjs';
@@ -10,7 +10,6 @@ import {
   applicationIdentity as identity,
 } from '../../experiments/issue-56/application-run-fixture.mjs';
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
-import { withRoutes } from './helpers/vacancy-routes.mjs';
 import { LINO_TEXT, LINO_BINARY, encodeWire } from '../src/transport/lino.js';
 
 for (const type of [LINO_TEXT, LINO_BINARY]) {
@@ -20,48 +19,44 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
     async (t) => {
       const fixture = applicationRunFixture();
       t.after(() => fixture.close());
-      await withRoutes(
-        async (base) => {
-          const api = applicationRouteApi(base, type);
-          let receipt = await api.vacancyApplicationOpen(applicationInput);
-          receipt = await api.vacancyApplicationMode(
-            identity(receipt, { paused: true, noQuestionnaires: true })
-          );
-          assert.equal(receipt.state, 'paused');
-          await api.vacancyApplicationClose(identity(receipt));
-          receipt = await api.vacancyApplicationOpen({
-            ...applicationInput,
-            url: 'https://hh.ru/vacancy/456',
-            requestId: 'next',
-          });
-          assert.equal(receipt.paused, true);
-          assert.equal(receipt.noQuestionnaires, true);
-          assert.equal(receipt.state, 'paused');
-          const signal = await fetch(
-            `${base}/api/vacancies/application-signal-mode`,
-            {
-              method: 'POST',
-              headers: { 'content-type': type },
-              body: encodeWire(
-                identity(receipt, { noQuestionnaires: false }),
-                type
-              ),
-            }
-          );
-          assert.equal(
-            signal.status,
-            404,
-            'foreground interruption is not an HTTP operation'
-          );
-          await signal.arrayBuffer();
-          receipt = await api.vacancyApplicationRead(identity(receipt));
-          assert.equal(receipt.noQuestionnaires, true);
-          assert.equal(fixture.state.entered, 0);
-          assert.equal(fixture.state.submitted, 0);
-          await api.vacancyApplicationClose(identity(receipt));
-        },
-        { store: fixture.store, service: fixture.serviceOptions }
-      );
+      await withApplicationRouteFixture(fixture, type, async (api, base) => {
+        let receipt = await api.vacancyApplicationOpen(applicationInput);
+        receipt = await api.vacancyApplicationMode(
+          identity(receipt, { paused: true, noQuestionnaires: true })
+        );
+        assert.equal(receipt.state, 'paused');
+        await api.vacancyApplicationClose(identity(receipt));
+        receipt = await api.vacancyApplicationOpen({
+          ...applicationInput,
+          url: 'https://hh.ru/vacancy/456',
+          requestId: 'next',
+        });
+        assert.equal(receipt.paused, true);
+        assert.equal(receipt.noQuestionnaires, true);
+        assert.equal(receipt.state, 'paused');
+        const signal = await fetch(
+          `${base}/api/vacancies/application-signal-mode`,
+          {
+            method: 'POST',
+            headers: { 'content-type': type },
+            body: encodeWire(
+              identity(receipt, { noQuestionnaires: false }),
+              type
+            ),
+          }
+        );
+        assert.equal(
+          signal.status,
+          404,
+          'foreground interruption is not an HTTP operation'
+        );
+        await signal.arrayBuffer();
+        receipt = await api.vacancyApplicationRead(identity(receipt));
+        assert.equal(receipt.noQuestionnaires, true);
+        assert.equal(fixture.state.entered, 0);
+        assert.equal(fixture.state.submitted, 0);
+        await api.vacancyApplicationClose(identity(receipt));
+      });
     }
   );
 }

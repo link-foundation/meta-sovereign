@@ -62,3 +62,20 @@ export const deferralStorageFault = () => {
     },
   };
 };
+
+/** Register fixture draining once for the focused deferral/interface checks. */
+export const ownedDeferralFixture = (test, options) => {
+  const fixture = applicationDeferralFixture(options);
+  test.after(() => fixture.close());
+  return fixture;
+};
+
+/** A fresh answered questionnaire with one-shot, acknowledged storage faults. */
+export const answeredDeferralTest = async (test, application) => {
+  const fault = deferralStorageFault();
+  const fixture = ownedDeferralFixture(test, {
+    store: fault.store,
+    application,
+  });
+  return { fault, fixture, receipt: await fixture.answered() };
+};
