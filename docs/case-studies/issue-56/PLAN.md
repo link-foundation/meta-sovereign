@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active confirmed restoration after the daily-limit refresh (HH06 remains incomplete):
+
+- [x] Offer an explicit wait-and-restore consent through foreground CLI, both Lino encodings and four-language controls. Ordinary waiting retains separate later restoration. Restore only the fresh same-vacancy document through existing protected empty-control writes; never send or release unknown reservations.
+- [x] Reproduce the published parent, verify preservation of later answers/letters, refusal after owner/policy/persistence changes, stop/drain, non-replaying recovery and one native/MCP before/after flow. Keep all existing deadlines and scenario coverage. Focused final Node/Deno checks and both existing native limits scenarios pass; independent MCP reports one entry, one refresh, zero sends and drained resources.
+- [ ] Preserve checksummed evidence, publish the atomic unit and inspect every exact-head hosted check. Authenticated account scope, CAPTCHA dismissal, paced batches and all original unchecked rows remain required.
+
 Active exact-parent WebKit résumé validation timeout:
 
 - [x] Match `cac7f7d3` run `43591479049` and failed macOS WebKit shard 4 job `132437782294`; retain complete workflow/job/pipeline logs and inspect the artifact. Job lines 1000–1001 exhaust the existing 30-second validation wait. The artifact has no résumé failure screenshot.

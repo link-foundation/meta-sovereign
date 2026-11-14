@@ -1,8 +1,13 @@
 export const enApplication = {
+  'application.limitWaitRestore': 'Wait, refresh and restore saved answers',
+  'application.limitWaitRestorePolicy':
+    'After one guarded refresh, restore saved answers into matching empty controls. Sending still needs its own confirmation.',
+  'application.limitWait.restoring':
+    'Restoring saved answers into the refreshed form…',
   'application.limitWaitStart': 'Wait, then review a refreshed form',
   'application.limitWaitStop': 'Stop waiting; keep this form',
   'application.limitWaitHint':
-    'Waiting saves later native edits and releases other workspace work between checks. At the saved deadline, only a still-failed, unchanged form is refreshed. Restoration and sending need separate confirmation. Unknown delivery remains reserved. Stopping keeps the form open; restarting this worker never resumes a wait.',
+    'Waiting saves later edits and releases the workspace between checks. At the saved deadline, only a still-failed unchanged form is refreshed. Choose whether to confirm restoration now or later. Sending needs its own confirmation; unknown delivery stays reserved. Stop keeps the form open. Restart never resumes waiting.',
   'application.limitWait.waiting': 'Waiting for the saved deadline.',
   'application.limitWait.refreshing': 'Refreshing the verified failed form…',
   'application.limitWait.review':
@@ -12,7 +17,7 @@ export const enApplication = {
   'application.limitWait.refused':
     'Waiting could not safely continue. Read the current form before trying again.',
   'application.limitDraftSaved':
-    'These actual answers and letter were saved during the daily pause. A reopened form needs separate confirmation to restore them. Restoration does not send the application.',
+    'These actual answers and letter were saved during the daily pause. Restoration needs confirmation, either with the wait-and-restore action or after reopening. Restoration never sends the application.',
   'application.resumePreferenceSource.automatic': 'automatic language choice',
   'application.autoSelectResumeLanguage':
     'Select the résumé language automatically before applying',

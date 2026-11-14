@@ -449,3 +449,5 @@ Persist a two-hour HH application pause from visible native daily refusals acros
 Automatically preserve complete actual native answers and letter text during HH daily-limit pauses without closing the form or releasing dispatch reservations. Retain acknowledged draft provenance across restart so a newly opened empty document cannot overwrite the prior answers; keep restoration separately confirmed.
 
 Add explicitly confirmed daily-limit waiting with acknowledged ongoing answer preservation, one guarded expiry refresh and separately confirmed restoration. Keep workspace writers free between finite checks, retain all uncertain delivery reservations, expose CLI/Lino/localized controls and drain Stop/shutdown.
+
+Offer separately confirmed restoration after the guarded daily-limit refresh through CLI, both Lino encodings and four-language controls. Preserve ordinary waiting, empty-control ownership, failed acknowledgements, Stop and unknown delivery reservations without sending.

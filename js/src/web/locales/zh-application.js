@@ -1,8 +1,12 @@
 export const zhApplication = {
+  'application.limitWaitRestore': '等待、刷新并恢复保存的答案',
+  'application.limitWaitRestorePolicy':
+    '完成一次经过核验的刷新后，将保存的答案恢复到匹配的空白控件中。发送仍需单独确认。',
+  'application.limitWait.restoring': '正在将保存的答案恢复到刷新后的表单…',
   'application.limitWaitStart': '等待后检查重新加载的表单',
   'application.limitWaitStop': '停止等待并保留表单',
   'application.limitWaitHint':
-    '等待期间会保存后续原生编辑，检查间隔内释放工作区。保存的期限到达后，只重新加载仍显示失败且未被替换的表单。恢复答案和发送各需单独确认。发送结果未知时仍保留预留状态。停止后表单保持打开；重启进程不会继续等待。',
+    '等待会保存后续编辑，并在检查间隔内释放工作区。保存的期限到达后，只刷新仍失败且未更改的表单。可选择现在或稍后确认恢复。发送需单独确认；结果未知时仍保留预留状态。停止会保留表单。重启不会恢复等待。',
   'application.limitWait.waiting': '正在等待保存的期限。',
   'application.limitWait.refreshing': '正在重新加载已核验的失败表单…',
   'application.limitWait.review':
@@ -10,7 +14,7 @@ export const zhApplication = {
   'application.limitWait.stopped': '等待已停止。当前表单保持打开。',
   'application.limitWait.refused': '无法安全继续等待。重试前请读取当前表单。',
   'application.limitDraftSaved':
-    '这些实际答案和求职信已在每日限制暂停期间保存。重新打开表单后，需要单独确认才能恢复。恢复不会发送申请。',
+    '实际答案和求职信已在每日暂停期间保存。恢复需在选择等待并恢复时确认，或在重新打开后确认。恢复不会发送申请。',
   'application.resumePreferenceSource.automatic': '自动语言选择',
   'application.autoSelectResumeLanguage': '申请前自动选择简历语言',
   'application.languagePolicyHint':

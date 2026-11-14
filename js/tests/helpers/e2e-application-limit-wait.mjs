@@ -6,13 +6,13 @@ import { verifyApplicationLimitRefreshGuards } from './e2e-application-limit-gua
 
 export const verifyNativeApplicationLimitWait = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, restore = false } = {}
 ) => {
   const { fixture, clock, controls, panel, action, shot } =
     await applicationLimitBrowser(
       browser,
       screenshots,
-      'application-limit-wait'
+      restore ? 'application-limit-restore' : 'application-limit-wait'
     );
   try {
     await controls.select();
@@ -31,21 +31,30 @@ export const verifyNativeApplicationLimitWait = async (
     await owned
       .locator('#experience')
       .fill('Original owner answer before waiting.');
+    if (restore) {
+      await owned.locator('[data-qa="add-cover-letter"]').click();
+      await owned
+        .locator('[data-qa="vacancy-response-form-letter-input"]')
+        .fill('Actual owner letter before waiting.');
+    }
     await owned.evaluate(changeApplicationHoldFixture, 'daily-limit');
     await controls.confirmed('read');
     if (before) {
       await shot('before');
     }
+    const waitAction = restore ? 'wait-limit-restore' : 'wait-limit';
     assert.equal(
-      await action('wait-limit').count(),
+      await action(waitAction).count(),
       1,
-      'Confirmed daily-limit waiting is missing.'
+      restore
+        ? 'Confirmed expiry restoration is missing.'
+        : 'Confirmed daily-limit waiting is missing.'
     );
     assert(await action('wait-limit').isDisabled());
     const refusedNativeChanges =
       await verifyApplicationLimitRefreshGuards(owned);
     await controls.confirm();
-    await action('wait-limit').click();
+    await action(waitAction).click();
     await panel.locator('[data-application-limit-wait="waiting"]').waitFor();
     const deadline = await panel
       .locator('[data-application-limit-until]')
@@ -53,6 +62,11 @@ export const verifyNativeApplicationLimitWait = async (
     await owned
       .locator('#experience')
       .fill('Later native owner answer while waiting.');
+    if (restore) {
+      await owned
+        .locator('[data-qa="vacancy-response-form-letter-input"]')
+        .fill('Later owner letter while waiting.');
+    }
     await controls.page.waitForFunction(() =>
       document
         .querySelector('[data-application-draft]')
@@ -73,7 +87,10 @@ export const verifyNativeApplicationLimitWait = async (
       new URL(owned.url()).searchParams.get('startedWithQuestion'),
       'false'
     );
-    assert.equal(await owned.locator('#experience').inputValue(), '');
+    assert.equal(
+      await owned.locator('#experience').inputValue(),
+      restore ? 'Later native owner answer while waiting.' : ''
+    );
     assert(
       (await panel.locator('[data-application-draft]').textContent()).includes(
         'Later native owner answer while waiting.'
@@ -82,7 +99,17 @@ export const verifyNativeApplicationLimitWait = async (
     await controls.page.setViewportSize({ width: 1180, height: 950 });
     await panel.locator('[data-application-draft] summary').click();
     await shot('after');
-    await controls.confirmed('restore');
+    if (!restore) {
+      await controls.confirmed('restore');
+    }
+    if (restore) {
+      assert.equal(
+        await owned
+          .locator('[data-qa="vacancy-response-form-letter-input"]')
+          .inputValue(),
+        'Later owner letter while waiting.'
+      );
+    }
     assert.equal(
       await owned.locator('#experience').inputValue(),
       'Later native owner answer while waiting.'
@@ -94,14 +121,18 @@ export const verifyNativeApplicationLimitWait = async (
       guardedRefreshes: 1,
       refusedNativeChanges,
       laterOwnerEditSaved: true,
-      restorationSeparatelyConfirmed: true,
+      restorationSeparatelyConfirmed: !restore,
+      restorationConfirmedWithWait: restore,
       locales: 4,
       errors: fixture.errors,
     };
   } catch (error) {
     console.error(
       '[application-limit-wait-failure]',
-      await panel.locator('[data-application-limit-wait]').textContent()
+      await panel
+        .locator('[data-application-limit-wait]')
+        .textContent({ timeout: 1000 })
+        .catch(() => null)
     );
     await shot('failed');
     throw error;
@@ -109,3 +140,6 @@ export const verifyNativeApplicationLimitWait = async (
     await fixture.close();
   }
 };
+
+export const verifyNativeApplicationLimitRestore = (browser, options = {}) =>
+  verifyNativeApplicationLimitWait(browser, { ...options, restore: true });

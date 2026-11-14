@@ -1,5 +1,9 @@
 # Confirmed waiting for the original daily deadline
 
+This snapshot describes ordinary waiting. The later
+[confirmed expiry-restoration unit](application-limit-restore.md) adds a separate
+wait-and-restore choice while preserving this behavior.
+
 An owner can now confirm a finite worker wait through the foreground CLI, either
 Lino transport or the four-language application controls. Waiting preserves later
 actual native answers through the existing acknowledged draft/Q&A checkpoints.

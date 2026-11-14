@@ -146,7 +146,11 @@ const validateMissing = (raw, input) => {
 const validateLimitWait = (raw) => {
   applicationLimitData(raw.applicationLimit);
   const wait = applicationLimitWaitData(raw.limitWait);
-  if (wait && ['waiting', 'refreshing'].includes(wait.phase) && !raw.active) {
+  if (
+    wait &&
+    ['waiting', 'refreshing', 'restoring'].includes(wait.phase) &&
+    !raw.active
+  ) {
     fail();
   }
 };

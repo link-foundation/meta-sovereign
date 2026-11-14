@@ -10,6 +10,34 @@ const canStartWait = (receipt, confirmed) =>
   !receipt.noQuestionnaires &&
   !receipt.testMode &&
   !receipt.page?.challenge;
+const canRestoreWait = (receipt, confirmed) =>
+  canStartWait(receipt, confirmed) &&
+  !receipt.attempted.submit &&
+  receipt.delivery === 'none';
+
+const WaitAction = ({
+  active,
+  ready,
+  receipt,
+  confirmed,
+  application,
+  start,
+  wait,
+  t,
+}) =>
+  el(
+    'button',
+    {
+      type: 'button',
+      'data-application-action': active ? 'stop-limit-wait' : 'wait-limit',
+      disabled: active ? !ready : !ready || !canStartWait(receipt, confirmed),
+      onClick: () =>
+        active
+          ? application.action('Wait', { action: 'stop', waitId: wait.id })
+          : start(false),
+    },
+    t(active ? 'application.limitWaitStop' : 'application.limitWaitStart')
+  );
 export const ApplicationLimitWaitControls = ({
   application,
   confirmed,
@@ -18,8 +46,16 @@ export const ApplicationLimitWaitControls = ({
 }) => {
   const receipt = application.receipt;
   const wait = receipt?.limitWait;
-  const active = wait && ['waiting', 'refreshing'].includes(wait.phase);
+  const active =
+    wait && ['waiting', 'refreshing', 'restoring'].includes(wait.phase);
   const ready = idle && application.known && receipt?.active;
+  const start = (restoreDraft) =>
+    application.action('Wait', {
+      action: 'start',
+      confirm: true,
+      waitId: globalThis.crypto.randomUUID(),
+      restoreDraft,
+    });
   return receipt?.applicationLimit
     ? el('div', { className: 'col' }, [
         el(
@@ -41,31 +77,41 @@ export const ApplicationLimitWaitControls = ({
               ]
             )
           : null,
-        el(
-          'button',
-          {
-            key: 'action',
-            type: 'button',
-            'data-application-action': active
-              ? 'stop-limit-wait'
-              : 'wait-limit',
-            disabled: active
-              ? !ready
-              : !ready || !canStartWait(receipt, confirmed),
-            onClick: () =>
-              application.action(
-                'Wait',
-                active
-                  ? { action: 'stop', waitId: wait.id }
-                  : {
-                      action: 'start',
-                      confirm: true,
-                      waitId: globalThis.crypto.randomUUID(),
-                    }
-              ),
-          },
-          t(active ? 'application.limitWaitStop' : 'application.limitWaitStart')
-        ),
+        wait?.restoreDraft
+          ? el(
+              'p',
+              {
+                key: 'restore-policy',
+                className: 'meta',
+                'data-application-limit-restore': true,
+              },
+              t('application.limitWaitRestorePolicy')
+            )
+          : null,
+        el(WaitAction, {
+          key: 'action',
+          active,
+          ready,
+          receipt,
+          confirmed,
+          application,
+          start,
+          wait,
+          t,
+        }),
+        !active
+          ? el(
+              'button',
+              {
+                key: 'restore-action',
+                type: 'button',
+                'data-application-action': 'wait-limit-restore',
+                disabled: !ready || !canRestoreWait(receipt, confirmed),
+                onClick: () => start(true),
+              },
+              t('application.limitWaitRestore')
+            )
+          : null,
       ])
     : null;
 };

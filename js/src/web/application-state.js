@@ -34,7 +34,7 @@ export const useApplication = ({ api, values, selected, run }) => {
       .refreshQueue({ browserSlot: values.browserSlot })
       .catch(() => {});
   }, [session, values.browserSlot]);
-  const waiting = ['waiting', 'refreshing'].includes(
+  const waiting = ['waiting', 'refreshing', 'restoring'].includes(
     state.receipt?.limitWait?.phase
   );
   useEffect(() => {

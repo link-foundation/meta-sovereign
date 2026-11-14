@@ -8,13 +8,20 @@ export const applicationLimitWaitData = (value) => {
   }
   if (
     !applicationWaitId(value.id) ||
-    !['waiting', 'refreshing', 'review', 'stopped', 'refused'].includes(
-      value.phase
-    ) ||
+    ![
+      'waiting',
+      'refreshing',
+      'restoring',
+      'review',
+      'stopped',
+      'refused',
+    ].includes(value.phase) ||
     typeof value.until !== 'string' ||
     value.until.length > 40 ||
     !Number.isFinite(Date.parse(value.until)) ||
     new Date(value.until).toISOString() !== value.until ||
+    (value.restoreDraft !== undefined &&
+      typeof value.restoreDraft !== 'boolean') ||
     !(
       value.code === null ||
       (typeof value.code === 'string' && value.code.length <= 100)
@@ -27,5 +34,8 @@ export const applicationLimitWaitData = (value) => {
     phase: value.phase,
     until: value.until,
     code: value.code,
+    ...(value.restoreDraft === undefined
+      ? {}
+      : { restoreDraft: value.restoreDraft }),
   };
 };

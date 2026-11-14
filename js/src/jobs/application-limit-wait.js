@@ -41,6 +41,12 @@ export class ApplicationLimitWait {
   }
   async start(input) {
     const record = this.record(input);
+    if (
+      input.restoreDraft !== undefined &&
+      typeof input.restoreDraft !== 'boolean'
+    ) {
+      throw fail('input');
+    }
     if (input.confirm !== true) {
       throw fail('confirmation');
     }
@@ -58,6 +64,12 @@ export class ApplicationLimitWait {
       if (!canWait(record)) {
         throw fail('state');
       }
+      if (
+        input.restoreDraft &&
+        (record.attempted.submit || record.delivery !== 'none')
+      ) {
+        throw fail('state');
+      }
       const runtime = {
         controller: new AbortController(),
         record,
@@ -70,6 +82,7 @@ export class ApplicationLimitWait {
         phase: 'waiting',
         until: record.applicationLimit.until,
         code: null,
+        restoreDraft: input.restoreDraft === true,
       };
       this.runtime = runtime;
       runtime.work = this.cycle(runtime).finally(() => {
@@ -173,12 +186,32 @@ export class ApplicationLimitWait {
       return applicationView(record);
     }
     await this.refresh(runtime, signal);
+    if (record.limitWait.restoreDraft) {
+      // Only the freshly loaded form belongs to this consent. Status/restart,
+      // a dismissed banner or another navigation cannot authorize restoration.
+      const fresh = {
+        ...runtime,
+        documentKey: record.page.documentKey,
+        url: record.page.url,
+      };
+      record.limitWait.phase = 'restoring';
+      runtime.checkpoint = 'restoration';
+      const policy = () => this.current(fresh, signal);
+      if (runtime.hadLetter) {
+        await service.actions.showLetter(record, signal, policy);
+      }
+      await service.drafts.restore(record, { confirm: true }, signal, policy);
+      if (record.restoration?.state !== 'restored') {
+        throw fail('changed');
+      }
+    }
     record.limitWait.phase = 'review';
     return applicationView(record);
   }
   async refresh(runtime, signal) {
     const { service } = this;
     const { record } = runtime;
+    runtime.hadLetter = Boolean(record.page.letter);
     const policy = applicationPreservationPolicy(service, record, signal);
     const check = async () => {
       this.current(runtime, signal);

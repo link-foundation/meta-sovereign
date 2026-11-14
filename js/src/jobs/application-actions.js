@@ -206,14 +206,16 @@ export class ApplicationActions {
       signal
     );
   }
-  async showLetter(record, signal) {
+  async showLetter(record, signal, policy = () => signal.throwIfAborted()) {
     const service = this.service;
+    policy();
     if (
       !record.page.letter &&
       record.page.letterToggle &&
       !record.page.letterToggle.disabled
     ) {
       await service.review.check(record, 'submit', signal);
+      policy();
       const toggle = await service.target(
         record.browser.page,
         applicationSelectors.letterToggle
@@ -222,6 +224,7 @@ export class ApplicationActions {
         throw fail('changed');
       }
       try {
+        policy();
         const result = await service.dispatch(toggle, record, 'letterToggle');
         if (!result?.dispatched) {
           throw fail('changed');
@@ -230,7 +233,9 @@ export class ApplicationActions {
         await toggle.dispose();
       }
       for (let count = 0; count < 20; count += 1) {
+        policy();
         const page = await service.readPage(record.browser, record.url);
+        policy();
         if (
           !page.bound ||
           page.challenge ||
@@ -242,7 +247,9 @@ export class ApplicationActions {
         }
         await delay(50, signal);
       }
+      policy();
       await service.review.inspect(record, signal);
+      policy();
     }
   }
   async letter(record, signal) {

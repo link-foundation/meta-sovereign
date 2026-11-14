@@ -120,5 +120,6 @@
   "job-application-drafts",
   "job-application-policies",
   "job-application-language",
-  "job-application-limits"
+  "job-application-limits",
+  "job-application-limit-restore"
 ]

@@ -141,8 +141,10 @@ export class ApplicationDrafts {
     });
     return applicationView(record);
   }
-  async restore(record, input, signal) {
+  async restore(record, input, signal, policy = () => signal.throwIfAborted()) {
+    policy();
     await this.admit(record, input, signal, true);
+    policy();
     if (record.options.testMode) {
       return { ...applicationView(record), state: 'test-preview' };
     }
@@ -169,8 +171,9 @@ export class ApplicationDrafts {
       });
     const expected = pageKey(record.page);
     const guard = async () => {
-      signal.throwIfAborted();
+      policy();
       const page = await this.service.readPage(record.browser, record.url);
+      policy();
       if (
         pageKey(page) !== expected ||
         !page.bound ||
@@ -202,7 +205,7 @@ export class ApplicationDrafts {
       result = await this.service.filling.restore(
         record,
         proposed,
-        () => signal.throwIfAborted(),
+        policy,
         guard
       );
     } catch (error) {
@@ -221,6 +224,7 @@ export class ApplicationDrafts {
       result
     );
     await this.service.review.inspect(record, signal);
+    policy();
     this.service.trace({
       event: 'application-draft-restored',
       state: record.restoration.state,

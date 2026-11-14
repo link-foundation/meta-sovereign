@@ -12,6 +12,8 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
       '/limit-values',
       '/limit-edit',
       '/limit-edit-later',
+      '/limit-letter',
+      '/limit-letter-later',
     ].includes(req.url)
   ) {
     return null;
@@ -21,6 +23,19 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
     throw new Error('No owned synthetic form for daily limit');
   }
   if (req.method === 'POST') {
+    if (req.url === '/limit-letter' || req.url === '/limit-letter-later') {
+      const letter = page.locator(
+        '[data-qa="vacancy-response-form-letter-input"]'
+      );
+      if (!(await letter.count())) {
+        await page.locator('[data-qa="add-cover-letter"]').click();
+      }
+      await letter.fill(
+        req.url === '/limit-letter'
+          ? 'Actual owner letter before waiting.'
+          : 'Later owner letter while waiting.'
+      );
+    }
     if (req.url === '/limit-edit' || req.url === '/limit-edit-later') {
       await page
         .locator('#experience')

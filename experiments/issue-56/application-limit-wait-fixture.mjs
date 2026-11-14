@@ -60,6 +60,7 @@ export const applicationLimitWaitFixture = (t, options = {}) => {
     for (const field of fixture.state.fields.slice(1)) {
       field.value = '';
     }
+    await fixture.hooks.refreshed?.();
     return { navigated: true };
   };
   fixture.service = createVacancyService(fixture.serviceOptions);
@@ -94,7 +95,11 @@ export const applicationLimitWaitFixture = (t, options = {}) => {
           url: 'https://hh.ru/vacancy/123',
           requestId: 'fixture-application',
         });
-        if (!['waiting', 'refreshing'].includes(status.limitWait?.phase)) {
+        if (
+          !['waiting', 'refreshing', 'restoring'].includes(
+            status.limitWait?.phase
+          )
+        ) {
           return status;
         }
       }

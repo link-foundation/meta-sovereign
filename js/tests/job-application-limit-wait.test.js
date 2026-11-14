@@ -216,6 +216,10 @@ test(
     });
     fixture.state.fields[1].value = 'Owner retains unknown application.';
     receipt = await fixture.limited(receipt);
+    await assert.rejects(fixture.begin(receipt, { restoreDraft: true }), {
+      code: 'jobs-application-state',
+    });
+    receipt = await fixture.status(receipt);
     receipt = await fixture.begin(receipt);
     receipt = await fixture.pulse(Date.parse(receipt.limitWait.until));
     assert.equal(receipt.delivery, 'unknown');
@@ -230,23 +234,30 @@ test(
   }
 );
 
-test(
-  'shutdown drains the wait and recovery only reads without resuming it',
-  { timeout: 5000 },
-  async (t) => {
-    const fixture = applicationLimitWaitFixture(t);
-    let receipt = await fixture.waiting();
-    await fixture.service.stop();
-    assert.equal(fixture.pendingWaits.length, 0);
-    assert.equal(fixture.state.closed, 1);
-    fixture.service = createVacancyService(fixture.serviceOptions);
-    receipt = await fixture.status(receipt);
-    assert.equal(receipt.limitWait, null);
-    assert.equal(receipt.state, 'interrupted');
-    assert.equal(fixture.state.refreshes, 0);
-    assert.equal(fixture.pendingWaits.length, 0);
-  }
-);
+for (const restoreDraft of [false, true]) {
+  test(
+    `shutdown drains the wait (restore=${restoreDraft}) and recovery only reads without resuming it`,
+    { timeout: 5000 },
+    async (t) => {
+      const fixture = applicationLimitWaitFixture(t);
+      let receipt = await fixture.begin(
+        await fixture.limited(await fixture.answered()),
+        { restoreDraft }
+      );
+      await fixture.service.stop();
+      assert.equal(fixture.pendingWaits.length, 0);
+      assert.equal(fixture.state.closed, 1);
+      fixture.service = createVacancyService(fixture.serviceOptions);
+      receipt = await fixture.status(receipt);
+      assert.equal(receipt.limitWait, null);
+      assert.equal(receipt.state, 'interrupted');
+      assert.equal(fixture.state.refreshes, 0);
+      assert.equal(fixture.state.writes.length, 0);
+      assert.equal(fixture.state.submitted, 0);
+      assert.equal(fixture.pendingWaits.length, 0);
+    }
+  );
+}
 
 test(
   'wait admission requires a fresh confirmation and current revision',
@@ -284,8 +295,17 @@ test(
         )
       );
     }
-    assert.throws(() =>
-      applicationResult({ ...receipt, active: false }, receipt)
-    );
+    for (const phase of ['waiting', 'refreshing', 'restoring']) {
+      assert.throws(() =>
+        applicationResult(
+          {
+            ...receipt,
+            active: false,
+            limitWait: { ...receipt.limitWait, phase },
+          },
+          receipt
+        )
+      );
+    }
   }
 );
