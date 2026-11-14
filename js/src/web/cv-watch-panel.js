@@ -3,6 +3,11 @@ import { CvSnapshotPublication } from './cv-publication-panel.js';
 
 const el = React.createElement;
 const watchStatus = (watch) => watch?.state ?? 'none';
+const publicationSourceOptions = (state, snapshot) => ({
+  snapshot,
+  exports: state.resumeExports?.exports,
+  browserSlot: state.values?.browserSlot ?? 'jobs',
+});
 const workplaceEvidence = (workplace, t) =>
   workplace
     ? el(
@@ -157,7 +162,7 @@ export const CvSaveWatch = ({ state, t }) => {
         ? el(CvSnapshotPublication, {
             key: 'publication',
             publication: state.cvSaveWatch.publication,
-            snapshot,
+            ...publicationSourceOptions(state, snapshot),
             busy: !idle || active,
             supported: state.capabilities?.cvSnapshotPublication === true,
             t,

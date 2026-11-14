@@ -324,6 +324,9 @@ export const zhVacancy = {
   'vacancyChoice.empty': '没有保存的排除项或提醒。',
   'vacancyChoice.more': '显示更多选择',
   'cvPublish.title': '发布已保存的快照',
+  'cvPublish.source': '已保存简历的来源',
+  'cvPublish.ownerSource': '已验证的所有者保存',
+  'cvPublish.exportSource': '原生简历导出',
   'cvPublish.hint':
     '可选。提交和推送前，请检查已清除隐私信息的已保存简历。私人导出、待处理计划和其他暂存更改保留在工作区中。',
   'cvPublish.repository': '现有本地 Git 仓库的根目录',

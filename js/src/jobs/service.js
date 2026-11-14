@@ -129,7 +129,12 @@ export const createVacancyService = ({
     ...createVacancyChoiceService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
     ...createCvWatchService({ store, run, ...cvWatch }),
-    ...createCvPublicationService({ store, run, ...cvPublication }),
+    ...createCvPublicationService({
+      store,
+      artifactRoot,
+      run,
+      ...cvPublication,
+    }),
     ...preparation.operations,
     ...createCvTranslationService({ store, run, ...cvTranslation }),
     async capabilities() {

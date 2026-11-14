@@ -4,8 +4,12 @@ import {
   TUTORIAL_VERSION,
 } from '../../js/src/web/tutorial.js';
 import { cvPublicationFixture } from './cv-publication-fixture.mjs';
+import { seedPublicationExport } from './cv-publication-export-fixture.mjs';
 
 const fixture = await cvPublicationFixture();
+const exported = process.argv.includes('--native-export')
+  ? await seedPublicationExport(fixture)
+  : null;
 let server;
 try {
   server = await startServer({
@@ -30,6 +34,9 @@ console.log(
     pid: process.pid,
     base: `http://127.0.0.1:${server.port}`,
     repository: fixture.repository,
+    ...(exported
+      ? { exportId: exported.receipt.exportId, hash: exported.receipt.hash }
+      : {}),
     tutorial: {
       key: TUTORIAL_STORAGE_KEY,
       preference: { v: TUTORIAL_VERSION, off: true, completed: true },

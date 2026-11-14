@@ -64,7 +64,7 @@ export const useCvPublication = ({ api, values, run }) => {
     setDirectory: edit(setDirectory),
     setConsent,
     reload: () => run('cv-publish-status', () => load(++generation.current)),
-    plan: (hash) =>
+    plan: (hash, exportId) =>
       run('cv-publish-plan', async () => {
         const current = ++generation.current;
         setConsent(false);
@@ -74,6 +74,7 @@ export const useCvPublication = ({ api, values, run }) => {
           remote,
           directory,
           resumes: [hash],
+          ...(exportId === undefined ? {} : { exportId }),
           requestId: globalThis.crypto.randomUUID(),
         });
         if (current === generation.current) {

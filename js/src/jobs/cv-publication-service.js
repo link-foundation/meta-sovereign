@@ -3,8 +3,7 @@ import { browserName } from '../browser/policy.js';
 import { acknowledgedRead, acknowledgedWrite } from './acknowledged-store.js';
 import { saveTechnologyRecord } from './technology-storage.js';
 import { resumeExportRequestId } from './resume-export-options.js';
-import { cvSnapshotsResult } from './cv-watch-record.js';
-import { resumeCvLino } from './resume-cv.js';
+import { cvPublicationFiles } from './cv-publication-source.js';
 import {
   cvPublicationOptions,
   cvPublicationResult,
@@ -21,32 +20,6 @@ const trace = (state, count) => {
   if (globalThis.process?.env?.CI_CV_PUBLICATION_DEBUG === '1') {
     console.log('[cv-publication]', JSON.stringify({ state, count }));
   }
-};
-const filesFor = async (store, options) => {
-  const raw = await store.get(`jobs-cv-snapshots:${options.browserSlot}`);
-  if (!raw || raw.version !== 1) {
-    throw cvPublicationFailure();
-  }
-  const { snapshots } = cvSnapshotsResult(raw, options);
-  return options.resumes.map((hash) => {
-    const snapshot = snapshots.find((row) => row.hash === hash);
-    if (!snapshot) {
-      throw cvPublicationFailure();
-    }
-    const content = resumeCvLino(snapshot.cv);
-    const sha256 = publicationDigest(content);
-    const language = snapshot.cv.language;
-    return {
-      hash,
-      language,
-      path: `${options.directory}/cv.${language}.${hash}.${sha256}.lino`,
-      sha256,
-      sourceSha256: snapshot.sha256,
-      savedAt: snapshot.savedAt,
-      bytes: Buffer.byteLength(content),
-      content,
-    };
-  });
 };
 const frozen = (plan) => {
   const {
@@ -77,10 +50,13 @@ const checked = (raw, input) => {
 /** A durable attempt is never resumed by status, restart or a repeated request. */
 export const createCvPublicationService = ({
   store,
+  artifactRoot,
   run,
   git = createCvPublicationGit(),
   now = Date.now,
 }) => {
+  const filesFor = (options) =>
+    cvPublicationFiles({ store, artifactRoot }, options);
   const save = async (plan) => {
     checked(plan);
     await saveTechnologyRecord(store, {
@@ -134,7 +110,7 @@ export const createCvPublicationService = ({
           }
           return read(options);
         }
-        const files = await filesFor(store, options);
+        const files = await filesFor(options);
         const base = await git.preview(options, files, signal);
         const created = now();
         let plan = {
@@ -177,8 +153,7 @@ export const createCvPublicationService = ({
         if (
           now() >= Date.parse(plan.expiresAt) ||
           now() < Date.parse(plan.createdAt) ||
-          JSON.stringify(await filesFor(store, plan)) !==
-            JSON.stringify(plan.files)
+          JSON.stringify(await filesFor(plan)) !== JSON.stringify(plan.files)
         ) {
           throw cvPublicationFailure();
         }

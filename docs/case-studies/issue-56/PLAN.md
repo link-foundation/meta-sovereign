@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active native-export snapshot publication source (HH23 remains incomplete):
+
+- [x] Admit an explicit native export identity through the existing publication review, recheck its private structured file and receipt, sanitize again and freeze the exact provenance. Preserve owner-save plans and every private artifact.
+- [x] Expose the source through foreground CLI, both Lino encodings and the shared four-language CV publication controls. Refuse missing/tampered/wrong-slot artifacts and changed receipts before Git effects; retain read-only recovery.
+- [ ] Reproduce missing source support on `9945c266`, run focused regressions and one native/MCP scenario, preserve before/after evidence, publish atomically and inspect exact-head hosted checks. All original incomplete criteria remain required.
+
+Native-export focused Node 35/Deno 25, native Chromium and independent MCP pass with private bytes retained, one local push, no provider sessions and read-only source recovery. The existing owner-save scenario also passes. Parent `9945c266` has a missing capability expectation; preserve the seven failed runtime logs and publish its separately committed focused correction. Every original incomplete row remains required.
+
 Active explicit saved résumé snapshot publication (HH23 remains incomplete):
 
 - [x] Freeze a reviewed selection from verified owner-save snapshots, sanitize and round-trip its Lino again, and bind confirmation to exact content, repository, branch and remote baseline. Publish only generated `.lino` paths; preserve pending plans, private exports, PDFs, backups and unrelated staged changes.
@@ -11,7 +19,7 @@ Active viewed-vacancy configuration compatibility (HH08 remains incomplete):
 
 - [x] Use the installed Lino configuration library to resolve the survey default from CLI, environment and local/selected `.lenv` files without mutating process settings. Freeze only at explicit single/batch start; status stays read-only.
 - [x] Reproduce absent configuration on published `21b7afcb` (two failures). Focused Node 13/Deno 4, production packaging and lightweight help checks pass, with no submissions or host environment mutation. Retain the public native-state observation without treating visited styling as positive viewed-state evidence.
-- [ ] Preserve evidence, publish the atomic configuration unit and inspect exact-head hosted checks. Native viewed-state exclusion and every original incomplete requirement remain active.
+- [x] Preserve evidence and publish `4c06685a`; all five exact-head workflows pass, including Checks `43642480999` and all 45 jobs. Native viewed-state exclusion and every original incomplete requirement remain active.
 
 Active native survey browser registration CI correction:
 

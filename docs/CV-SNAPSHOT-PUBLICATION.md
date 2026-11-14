@@ -1,10 +1,10 @@
 # Publish a saved CV snapshot
 
-The CV screen can publish a verified HH owner-save snapshot to an existing local
+The CV screen can publish a verified HH owner-save snapshot or native résumé export to an existing local
 Git repository and its configured remote. Publication is optional. Observation,
 preparation, status and reload never commit or push anything.
 
-In **CV → Saved CV snapshots**, choose a saved CV, enter the repository root,
+In **CV → Saved CV snapshots**, choose a saved CV or a native export under **Saved CV source**, then enter the repository root,
 remote name and snapshot folder, then select **Review publication**. Inspect the
 exact sanitized Lino content and target. Check the confirmation and select
 **Commit and push snapshots**. Changing the target or saved CV clears consent;
@@ -23,7 +23,9 @@ The plan returns the digest, exact file content, current branch and base commit.
 Optional `--remote=origin`, `--directory=examples/cv-snapshots`,
 `--browser-slot=jobs` and `--store=<dir>` choose the target and private workspace.
 One CLI plan can select up to 20 distinct saved hashes separated by commas.
-Plans expire after 24 hours and refuse if a selected saved snapshot changes.
+For a verified native export, add `--export-id=<id>` to the plan command and select résumé hashes belonging to that export. The equivalent API field is `exportId`. The server checks the private `resume.json` bytes against their export receipt, verifies the browser slot, language and title, then sanitizes the content again. It never refreshes an export or opens a provider browser during publication.
+
+Plans expire after 24 hours and refuse if a selected saved snapshot or native-export provenance changes.
 
 HTTP clients use trusted `POST /api/vacancies/cv-publish-plan`, trusted
 `POST /api/vacancies/cv-publish` and read-only
@@ -48,7 +50,7 @@ inspect the local branch and remote manually. Status, restart and repeating the
 same request never retry that attempt. A fresh request is an explicit new
 review, not a recovery retry.
 
-This source is the verified owner-save snapshot cache. Publication from every
+Sources are the verified owner-save snapshot cache and checked native-export artifacts. Publication from every
 remaining import/edit pipeline and complete reference workflow parity remain
 unfinished. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 retains the broader requirement inventory and verification evidence.

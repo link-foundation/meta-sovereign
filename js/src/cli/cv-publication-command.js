@@ -10,6 +10,9 @@ export const cvPublicationCommandInput = (operation, args) => ({
         repository: args.repository,
         remote: args.remote,
         directory: args.directory,
+        ...(args['export-id'] === undefined
+          ? {}
+          : { exportId: args['export-id'] }),
         resumes:
           typeof (args.resumes ?? args.resume) === 'string'
             ? (args.resumes ?? args.resume)

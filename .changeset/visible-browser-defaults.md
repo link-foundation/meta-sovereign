@@ -496,3 +496,5 @@ Add bounded automatic HH vacancy discovery with frozen native pagination, distin
 Add a frozen default/opt-out for the dedicated HH viewed-vacancy survey in owned application reviews through CLI, both Lino encodings and four-language controls. Preserve owner reasons, preview, verification boundaries, legacy signatures and read-only recovery.
 
 Keep an active batch's matching review controls available while preserving competing workspace exclusion, stale-action guards and inactive identity recovery. Derive batch receipt expiry from one captured start time so clock ticks cannot reject the default 24-hour lifetime.
+
+Allow an explicitly selected, integrity-checked native résumé export as a sanitized CV publication source, with shared source selection and fresh consent.

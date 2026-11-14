@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useCvPublicationSource } from './cv-publication-sources.js';
 
 const el = React.createElement;
 const publicationState = (receipt) => receipt?.state ?? 'none';
@@ -16,6 +17,12 @@ const snapshotContent = (content) =>
     content
   );
 
+const sameSavedSnapshot = (receipt, snapshot) =>
+  receipt.resumes.length === 1 &&
+  receipt.resumes[0] === snapshot?.hash &&
+  receipt.files[0].sourceSha256 === snapshot?.sha256 &&
+  receipt.files[0].savedAt === snapshot?.savedAt &&
+  receipt.exportId === snapshot?.exportId;
 const canPublishSnapshot = (state, snapshot, supported) =>
   !state.loadError &&
   supported &&
@@ -23,26 +30,33 @@ const canPublishSnapshot = (state, snapshot, supported) =>
   state.receipt.repository === state.repository &&
   state.receipt.remote === state.remote &&
   state.receipt.directory === state.directory &&
-  state.receipt.resumes.length === 1 &&
-  state.receipt.resumes[0] === snapshot?.hash &&
-  state.receipt.files[0].sourceSha256 === snapshot?.sha256 &&
-  state.receipt.files[0].savedAt === snapshot?.savedAt &&
+  sameSavedSnapshot(state.receipt, snapshot) &&
   Date.now() < Date.parse(state.receipt.expiresAt);
 
 export const CvSnapshotPublication = ({
   publication: state,
   snapshot,
+  exports,
+  browserSlot,
   busy,
   supported,
   t,
 }) => {
+  const { source, picker } = useCvPublicationSource({
+    snapshot,
+    exports,
+    browserSlot,
+    receipt: state.receipt,
+    busy,
+    t,
+  });
   const receipt = state.receipt;
   const phase = publicationState(receipt);
-  const chosen = snapshot?.hash;
-  const canPublish = canPublishSnapshot(state, snapshot, supported);
+  const chosen = source?.hash;
+  const canPublish = canPublishSnapshot(state, source, supported);
   useEffect(() => {
     state.setConsent(false);
-  }, [chosen, snapshot?.sha256, snapshot?.savedAt]);
+  }, [chosen, source?.sha256, source?.savedAt, source?.exportId]);
   return el(
     'section',
     {
@@ -53,6 +67,7 @@ export const CvSnapshotPublication = ({
     [
       el('h4', { key: 'title' }, t('cvPublish.title')),
       el('p', { key: 'hint', className: 'meta' }, t('cvPublish.hint')),
+      el(React.Fragment, { key: 'source' }, picker),
       ...['repository', 'remote', 'directory'].map((key) =>
         el('label', { key, className: 'chat-form-field' }, [
           el('span', { key: 'label' }, t(`cvPublish.${key}`)),
@@ -75,7 +90,7 @@ export const CvSnapshotPublication = ({
             key: 'plan',
             type: 'button',
             disabled: busy || !supported || !chosen || !state.repository,
-            onClick: () => state.plan(chosen),
+            onClick: () => state.plan(chosen, source?.exportId),
             'data-cv-publication-action': 'plan',
           },
           t('cvPublish.plan')

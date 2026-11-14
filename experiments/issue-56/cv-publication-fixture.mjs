@@ -95,6 +95,7 @@ export const cvPublicationFixture = async ({
     });
     const options = {
       store,
+      artifactRoot: path.join(folder, 'native-exports'),
       availability: async () => ({ available: false }),
       cvPublication: { git, now },
     };
@@ -106,6 +107,7 @@ export const cvPublicationFixture = async ({
       store,
       service,
       options,
+      artifactRoot: options.artifactRoot,
       calls,
       command,
       input: {

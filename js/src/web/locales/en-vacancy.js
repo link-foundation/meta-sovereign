@@ -356,6 +356,9 @@ export const enVacancy = {
   'vacancyChoice.empty': 'No saved exclusions or reminders.',
   'vacancyChoice.more': 'Show more choices',
   'cvPublish.title': 'Publish saved snapshot',
+  'cvPublish.source': 'Saved CV source',
+  'cvPublish.ownerSource': 'Verified owner Save',
+  'cvPublish.exportSource': 'Native résumé export',
   'cvPublish.hint':
     'Optional. Review the sanitized saved CV before committing and pushing it. Private exports, pending plans and unrelated staged changes stay in your workspace.',
   'cvPublish.repository': 'Existing local Git repository root',

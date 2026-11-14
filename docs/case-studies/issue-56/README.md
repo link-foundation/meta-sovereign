@@ -454,3 +454,5 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 - [Rejected job-write rollback](choice-put-rollback.md): four actual-parent real-store failures, acknowledged vacancy/catalog restoration, native reload regression and independent desktop/phone MCP screenshots.
 
 - [Adaptive snapshot interval verification](ci-snapshot-interval.md): exact hosted Windows Deno failure, bounded parent assertion, real-file virtual-clock regression and confirmed superseded WebKit cancellation. Production timing policy and deadlines stay unchanged.
+
+- [Native-export CV snapshot publication](cv-publication-exports.md): explicit private artifact provenance, source-bound consent and preserved native files.

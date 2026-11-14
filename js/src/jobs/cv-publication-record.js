@@ -1,6 +1,7 @@
 import { browserName } from '../browser/policy.js';
 import { resumeHash } from './resume-list.js';
 import { resumeExportRequestId } from './resume-export-options.js';
+import { resumeExportId } from './resume-export-result.js';
 import { resumeCvFromLino, resumeCvLino } from './resume-cv.js';
 import { jobsFailure, jobsObject } from './options.js';
 
@@ -49,6 +50,9 @@ export const cvPublicationOptions = (input) => {
     remote,
     directory,
     resumes: resumes.map(resumeHash).sort(),
+    ...(input.exportId === undefined
+      ? {}
+      : { exportId: resumeExportId(input.exportId) }),
   };
 };
 const hex = (value, lengths) =>
@@ -113,6 +117,7 @@ const validReceipt = (raw) =>
   (raw.code === null || raw.code === 'jobs-cv-publication-unverified');
 const sameIdentity = (input, options) =>
   (input.requestId === undefined || input.requestId === options.requestId) &&
+  (input.exportId === undefined || input.exportId === options.exportId) &&
   (input.browserSlot === undefined ||
     input.browserSlot === options.browserSlot);
 export const cvPublicationResult = (raw, input = {}) => {
