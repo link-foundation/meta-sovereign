@@ -92,7 +92,8 @@ export class ApplicationBatch {
       if (await this.service.store.get(options.id)) {
         throw fail('conflict');
       }
-      const startedAt = new Date(this.now()).toISOString();
+      const started = this.now();
+      const startedAt = new Date(started).toISOString();
       const record = {
         id: options.id,
         version: 1,
@@ -108,7 +109,7 @@ export class ApplicationBatch {
         code: null,
         nextAt: null,
         startedAt,
-        expiresAt: new Date(this.now() + options.durationMs).toISOString(),
+        expiresAt: new Date(started + options.durationMs).toISOString(),
       };
       readApplicationBatch(record, options);
       await saveAcknowledgedRecord(this.service.store, record);
