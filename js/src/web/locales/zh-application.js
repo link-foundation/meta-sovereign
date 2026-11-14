@@ -1,4 +1,14 @@
 export const zhApplication = {
+  'application.limitWaitStart': '等待后检查重新加载的表单',
+  'application.limitWaitStop': '停止等待并保留表单',
+  'application.limitWaitHint':
+    '等待期间会保存后续原生编辑，检查间隔内释放工作区。保存的期限到达后，只重新加载仍显示失败且未被替换的表单。恢复答案和发送各需单独确认。发送结果未知时仍保留预留状态。停止后表单保持打开；重启进程不会继续等待。',
+  'application.limitWait.waiting': '正在等待保存的期限。',
+  'application.limitWait.refreshing': '正在重新加载已核验的失败表单…',
+  'application.limitWait.review':
+    '等待结束。请检查当前表单；如有需要，单独恢复保存的答案。',
+  'application.limitWait.stopped': '等待已停止。当前表单保持打开。',
+  'application.limitWait.refused': '无法安全继续等待。重试前请读取当前表单。',
   'application.limitDraftSaved':
     '这些实际答案和求职信已在每日限制暂停期间保存。重新打开表单后，需要单独确认才能恢复。恢复不会发送申请。',
   'application.resumePreferenceSource.automatic': '自动语言选择',

@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH06/HH08 extension: [confirmed daily-deadline waiting](application-limit-wait.md) backs later native edits, releases the workspace writer between checks and performs one guarded fresh-form GET at the original deadline. CLI, both Lino encodings and four-language controls expose Stop and read-only recovery. Restoration and sending need separate confirmation. Automatic restoration policy, authenticated account scope, CAPTCHA handling, paced batches and all 81 original unchecked rows remain required.
+
 Partial HH06 extension: [default CV-language policy and paired standard letters](application-language.md) verify the full form before entry, retain owner overrides across restart and correct only unchanged acknowledged standard text. CLI, both Lino encodings and four-language UI share the guarded flow. This supersedes earlier automatic-language/override/standard-letter gaps below. Authenticated parity, remaining workflows and all 81 original unchecked rows remain required.
 
 Partial HH06 extension: [acknowledged CV-choice history](application-preference.md) retains manual/context/native observations through restart, isolated by vacancy/request/slot. CLI, both Lino formats and four-language controls disclose saved history without replay. Automatic selection, durable override enforcement, standard letters and authenticated parity remain required; all 81 original rows stay unchecked.

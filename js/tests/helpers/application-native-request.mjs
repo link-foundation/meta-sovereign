@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { wirePost } from './vacancy-routes.mjs';
 import { LINO_TEXT, decodeWire } from '../../src/transport/lino.js';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
+import { applicationResumeUrl } from '../../src/jobs/application-location.js';
 
 export const nativeApplicationFormUrl =
   'https://hh.ru/applicant/vacancy_response?vacancyId=123';
@@ -12,7 +13,19 @@ export const nativeApplicationForm = (
   browser
     .contexts()
     .flatMap((context) => context.pages())
-    .find((page) => page.url() === url);
+    .find((page) => {
+      if (page.url() === url) {
+        return true;
+      }
+      try {
+        return (
+          url === nativeApplicationFormUrl &&
+          Boolean(applicationResumeUrl(page.url(), 'https://hh.ru/vacancy/123'))
+        );
+      } catch {
+        return false;
+      }
+    });
 
 export const nativeApplicationQueue = async (fixture) => {
   const response = await fetch(

@@ -11,6 +11,7 @@ import { validateFormInspection } from '../forms/plan-validation.js';
 import { applicationHoldReasons } from './application-holds.js';
 import { applicationResumeData } from './application-resume-data.js';
 import { applicationLimitData } from './application-limit-data.js';
+import { applicationLimitWaitData } from './application-limit-wait-data.js';
 
 export const applicationStates = [
   'opening',
@@ -142,6 +143,14 @@ const validateMissing = (raw, input) => {
   }
 };
 
+const validateLimitWait = (raw) => {
+  applicationLimitData(raw.applicationLimit);
+  const wait = applicationLimitWaitData(raw.limitWait);
+  if (wait && ['waiting', 'refreshing'].includes(wait.phase) && !raw.active) {
+    fail();
+  }
+};
+
 /** Bind public receipts before any UI uses their readiness or delivery state. */
 export const applicationResult = (raw, input) => {
   try {
@@ -152,7 +161,7 @@ export const applicationResult = (raw, input) => {
     if (!identity(raw, input) || !state(raw) || !page(raw.page)) {
       fail();
     }
-    applicationLimitData(raw.applicationLimit);
+    validateLimitWait(raw);
     if (raw.vacancy !== null) {
       if (raw.vacancy.url !== raw.url) {
         fail();

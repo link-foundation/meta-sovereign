@@ -10,6 +10,8 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
       '/limit-dismiss',
       '/limit-expire',
       '/limit-values',
+      '/limit-edit',
+      '/limit-edit-later',
     ].includes(req.url)
   ) {
     return null;
@@ -19,6 +21,15 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
     throw new Error('No owned synthetic form for daily limit');
   }
   if (req.method === 'POST') {
+    if (req.url === '/limit-edit' || req.url === '/limit-edit-later') {
+      await page
+        .locator('#experience')
+        .fill(
+          req.url === '/limit-edit'
+            ? 'Original owner answer before waiting.'
+            : 'Later native owner answer while waiting.'
+        );
+    }
     if (req.url === '/limit-show' || req.url === '/limit-dismiss') {
       await page.evaluate(
         changeApplicationHoldFixture,

@@ -246,6 +246,31 @@ export const applicationDocument = (target, input) => {
   if (!input.action) {
     return result;
   }
+  const navigateFullForm = () => {
+    const destination = new URL('/applicant/vacancy_response', expected);
+    destination.searchParams.set(
+      'vacancyId',
+      expected.pathname.split('/').at(-1)
+    );
+    destination.searchParams.set('startedWithQuestion', 'false');
+    globalThis.location.assign(destination.href);
+    return { navigated: true };
+  };
+  const refreshLimitedForm = () =>
+    bound &&
+    result.dailyLimit &&
+    result.scope &&
+    !result.challenge &&
+    !result.external &&
+    !result.delivered &&
+    JSON.stringify(result) === input.guard &&
+    target?.isConnected &&
+    unique(selectors.submit) === target
+      ? navigateFullForm()
+      : { navigated: false };
+  if (input.action === 'limitRefresh') {
+    return refreshLimitedForm();
+  }
   const resumeAction = () => {
     const chooser = result.resumeChooser;
     if (!chooser || chooser.ambiguous || chooser.disabled) {
@@ -285,14 +310,7 @@ export const applicationDocument = (target, input) => {
     return { dispatched: false };
   }
   if (input.action === 'fullForm') {
-    const destination = new URL('/applicant/vacancy_response', expected);
-    destination.searchParams.set(
-      'vacancyId',
-      expected.pathname.split('/').at(-1)
-    );
-    destination.searchParams.set('startedWithQuestion', 'false');
-    globalThis.location.assign(destination.href);
-    return { navigated: true };
+    return navigateFullForm();
   }
   const writeLetter = () => {
     if (target.readOnly) {

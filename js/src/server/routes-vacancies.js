@@ -98,6 +98,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'search',
       'application-open',
       'application-read',
+      'application-wait',
       'application-prefill',
       'application-resume',
       'application-backup',

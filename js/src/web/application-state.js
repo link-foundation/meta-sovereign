@@ -34,6 +34,29 @@ export const useApplication = ({ api, values, selected, run }) => {
       .refreshQueue({ browserSlot: values.browserSlot })
       .catch(() => {});
   }, [session, values.browserSlot]);
+  const waiting = ['waiting', 'refreshing'].includes(
+    state.receipt?.limitWait?.phase
+  );
+  useEffect(() => {
+    if (!waiting) {
+      return;
+    }
+    let pending = false;
+    const timer = globalThis.setInterval(async () => {
+      if (!pending && !session.state.busy) {
+        pending = true;
+        try {
+          await session.recover();
+          await session.refreshQueue({ browserSlot: values.browserSlot });
+        } catch {
+          // Status recovery stays read only; a lost response cannot restart work.
+        } finally {
+          pending = false;
+        }
+      }
+    }, 1500);
+    return () => globalThis.clearInterval(timer);
+  }, [session, waiting, values.browserSlot]);
   const operate = (kind, action) =>
     run(`application-${kind}`, async () => {
       try {

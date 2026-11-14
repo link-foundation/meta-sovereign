@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Confirmed daily-deadline waiting](application-limit-wait.md): later native edits remain backed up during a finite, stoppable wait; one guarded expiry refresh returns to review with separate restoration and sending. CLI/Lino/four-language native and independent MCP evidence is preserved. The separate hosted WebKit résumé failure and all original unchecked criteria remain active.
+
 - [Default application language](application-language.md): full-form CV verification before entry, durable owner overrides and guarded standard-letter correction through CLI/Lino/four-language UI. Authenticated parity and all original unchecked criteria remain active.
 
 - [Acknowledged CV-choice history](application-preference.md): private restart-safe observations and later native changes, with no recovery replay. Automatic language policy and durable override enforcement remain unfinished.

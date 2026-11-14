@@ -157,6 +157,7 @@ export const applicationView = (record) => {
     supervised: record.options.supervised === true,
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
     applicationLimit: record.applicationLimit ?? null,
+    limitWait: record.limitWait ?? null,
     letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
     noQuestionnaires: record.noQuestionnaires ?? false,

@@ -15,7 +15,7 @@ const eligible = (record) =>
     record.paused ||
     record.options.testMode
   ) &&
-  (record.applicationLimit?.active || record.hold === 'daily-limit');
+  (record.applicationLimit?.active || record.page.dailyLimit);
 const pendingRestoration = (record) =>
   record.draft?.limit &&
   record.draft.limit.documentKey !== record.page.documentKey &&

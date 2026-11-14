@@ -1,4 +1,16 @@
 export const enApplication = {
+  'application.limitWaitStart': 'Wait, then review a refreshed form',
+  'application.limitWaitStop': 'Stop waiting; keep this form',
+  'application.limitWaitHint':
+    'Waiting saves later native edits and releases other workspace work between checks. At the saved deadline, only a still-failed, unchanged form is refreshed. Restoration and sending need separate confirmation. Unknown delivery remains reserved. Stopping keeps the form open; restarting this worker never resumes a wait.',
+  'application.limitWait.waiting': 'Waiting for the saved deadline.',
+  'application.limitWait.refreshing': 'Refreshing the verified failed form…',
+  'application.limitWait.review':
+    'Waiting ended. Review the current form; restore saved answers separately if needed.',
+  'application.limitWait.stopped':
+    'Waiting stopped. The current form remains open.',
+  'application.limitWait.refused':
+    'Waiting could not safely continue. Read the current form before trying again.',
   'application.limitDraftSaved':
     'These actual answers and letter were saved during the daily pause. A reopened form needs separate confirmation to restore them. Restoration does not send the application.',
   'application.resumePreferenceSource.automatic': 'automatic language choice',

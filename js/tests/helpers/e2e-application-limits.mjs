@@ -1,23 +1,18 @@
 import assert from 'node:assert/strict';
-import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { changeApplicationHoldFixture } from '../../../experiments/issue-56/application-hold-dom.mjs';
-import { applicationPanelBrowser } from './application-panel-browser.mjs';
+import { applicationLimitBrowser } from './application-limit-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
 
 export const verifyNativeApplicationLimits = async (
   browser,
   { screenshots, before = false, backup = false } = {}
 ) => {
-  const clock = { value: Date.UTC(2026, 10, 14) };
-  const fixture = await applicationNativeFixture(browser, {
-    application: { now: () => clock.value },
-  });
-  const controls = applicationPanelBrowser(fixture);
-  const { panel, action } = controls;
-  const shot = controls.screenshot(
-    screenshots,
-    backup ? 'application-limit-drafts' : 'application-limits'
-  );
+  const { fixture, clock, controls, panel, action, shot } =
+    await applicationLimitBrowser(
+      browser,
+      screenshots,
+      backup ? 'application-limit-drafts' : 'application-limits'
+    );
   try {
     await controls.select();
     await panel.locator('[data-application-option="supervised"]').check();

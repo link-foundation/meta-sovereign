@@ -29,6 +29,7 @@ import { ApplicationFullForm } from './application-full-form.js';
 import { ApplicationLanguagePolicy } from './application-language-policy.js';
 import { ApplicationLimits } from './application-limits.js';
 import { ApplicationLimitBackups } from './application-limit-backups.js';
+import { ApplicationLimitWait } from './application-limit-wait.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -53,6 +54,7 @@ class ApplicationService {
     dispatch = dispatchApplication,
     selectResume = dispatchResumeChoice,
     now = Date.now,
+    limitWait,
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
       : () => {},
@@ -84,11 +86,13 @@ class ApplicationService {
     this.language = new ApplicationLanguagePolicy(this);
     this.limits = new ApplicationLimits(this, now);
     this.limitBackups = new ApplicationLimitBackups(this);
+    this.limitWait = new ApplicationLimitWait(this, now, limitWait);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
   }
   async close() {
+    this.limitWait.abort();
     globalThis.clearTimeout(this.timer);
     const record = this.current;
     if (!record) {
@@ -392,8 +396,10 @@ class ApplicationService {
   }
   async stop() {
     this.stopped = true;
+    this.limitWait.abort();
     globalThis.clearTimeout(this.timer);
     await this.task?.catch(() => {});
+    await this.limitWait.drain();
     await this.close();
     this.modes.clear();
     this.deferrals.clear();
@@ -413,6 +419,12 @@ export const createApplicationService = (options) => {
       'application-open': (input) =>
         service.operate((signal) => service.open(input, signal)),
       'application-status': (input) => service.status(input),
+      'application-wait': (input) =>
+        input.action === 'stop'
+          ? service.limitWait.stop(input)
+          : input.action === 'start'
+            ? service.limitWait.start(input)
+            : Promise.reject(fail('input')),
       'application-queue': (input) =>
         acknowledgedRead(service.store, () => service.deferrals.list(input)),
       'application-defer': (input) =>
@@ -453,7 +465,10 @@ export const createApplicationService = (options) => {
           return service.close();
         }),
     },
-    cancel: () => service.close(),
+    cancel: async () => {
+      await service.limitWait.drain();
+      return service.close();
+    },
     stop: () => service.stop(),
   };
 };

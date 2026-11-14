@@ -24,7 +24,7 @@ export const applicationNativeHtml = ({
       function openApplication(recordEntry = true) {
         if (recordEntry) globalThis.applicationEntries++;
         document.querySelector('[data-qa="vacancy-response-link-top"]').remove();
-        ${popup ? '' : "history.pushState({}, '', '/applicant/vacancy_response?vacancyId=123');"}
+        ${popup ? '' : "if (recordEntry) history.pushState({}, '', '/applicant/vacancy_response?vacancyId=123');"}
         document.querySelector('#application').innerHTML='<form id="native-form"><div data-qa="task-body"><label>Recent experience<textarea id="experience"></textarea></label></div><button type="button" data-qa="add-cover-letter" onclick="showLetter(this)">Add letter</button><button type="submit" data-qa="${popup ? 'vacancy-response-submit-popup' : 'vacancy-response-letter-submit'}">Send application</button></form>';
         document.querySelector('#native-form').onsubmit=(event)=>{
           event.preventDefault();

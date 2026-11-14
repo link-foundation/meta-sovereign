@@ -29,6 +29,23 @@ def published_application_sources(script, parent):
                    for name, value in original.items())
 
 
+def run_parent_application_probe(root, env, prefix, command, native=False):
+    """Preserve the working bundle while capturing a finite parent regression."""
+    path = root / f'ci-logs/{prefix}-before{"-native" if native else ""}.log'
+    bundle = root / 'js/src/web/app.min.js'
+    original = bundle.read_bytes()
+    try:
+        with path.open('wb') as log:
+            if native:
+                subprocess.run(['node', 'js/scripts/build-web.mjs'], cwd=root,
+                               env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
+            result = subprocess.run(command, cwd=root, env=env, stdout=log,
+                                    stderr=subprocess.STDOUT)
+    finally:
+        bundle.write_bytes(original)
+    return path, result
+
+
 def serve_parent_application(root, env, prefix, extra_env=None):
     with (root / f'ci-logs/{prefix}-before-mcp-server.log').open('wb') as log:
         server = subprocess.Popen([

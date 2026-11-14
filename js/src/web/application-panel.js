@@ -5,7 +5,10 @@ import { applicationMayRestart } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationResumeView } from './application-resume-view.js';
 import { ApplicationLetterSettings } from './application-letter-settings.js';
-import { ApplicationLimitView } from './application-limit-view.js';
+import {
+  ApplicationLimitView,
+  ApplicationLimitWaitControls,
+} from './application-limit-view.js';
 import { applicationLimitHeld } from '../jobs/application-limit-data.js';
 
 const el = React.createElement;
@@ -486,6 +489,13 @@ export const ApplicationPanel = ({ state, t }) => {
         application,
         idle,
         supported,
+        t,
+      }),
+      el(ApplicationLimitWaitControls, {
+        key: 'limit-wait',
+        application,
+        confirmed,
+        idle: idle && supported,
         t,
       }),
       application.receipt
