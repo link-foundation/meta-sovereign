@@ -40,7 +40,7 @@ default-off `MS_JOBS_APPLICATION_DEBUG=1` tracing adds payload-free pacing event
 sources and drains both finite probes. The service probe fails because no pacing
 deadline was saved. The native probe captures the parent panel, then fails because
 the optional control is absent. The new focused checks pass: Node 44, including
-worker policy, limits, session, CLI and browser-registration compatibility; Deno
+worker policy, session, CLI and browser-registration compatibility; Deno
 19 for pacing, controls and namespace migration; four existing migration-registry
 checks also pass. They cover restart recovery,
 cross-slot and omitted-setting admission, lost responses, failed acknowledgements,

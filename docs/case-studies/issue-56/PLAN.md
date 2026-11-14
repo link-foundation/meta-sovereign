@@ -4,20 +4,23 @@ Active pacing action-guard feedback:
 
 - [x] Reproduce native CAPTCHA/delivery arriving after the frozen review but before guarded dispatch: two of three finite service cases and the native guard fail on `9a78b6d9`; every attempted action still refuses safely.
 - [x] Acknowledge the same fresh native outcome before the unchanged action refusal; deduplicate a later inspection, preserve daily-limit priority and zero challenge reads/actions.
-- [ ] Verify focused Node/Deno and native cases, preserve checksummed evidence, publish and inspect exact-head CI. Give pacing its own mandatory browser entry with all original scenarios and deadlines retained. Continue all 81 original incomplete requirements.
+- [x] Verify Node 40/Deno 35 and both finite native Chromium scenarios; preserve the 48-file checksummed archive. Give pacing its own mandatory browser entry, retaining all prior scenarios and deadlines.
+- [ ] Publish saved pacing and guard commits and inspect exact-head CI. Continue all 81 original incomplete requirements.
 
 Active CV Save recovery CI fixture:
 
 - [x] Preserve macOS Node shard 3 job `132499772549` from exact head `ec835b0b`; reproduce its 100 ms recovery-budget exhaustion with a finite 120 ms synthetic probe delay.
 - [x] Inject a logical clock for this fixture; preserve production polling/deadline and five-read limit. Focused Node 17/Deno 6 and scoped gates pass; retain the checksummed source and CI evidence.
-- [ ] Publish this atomic correction and inspect exact-head hosted checks. All 81 original incomplete rows remain required; PR57 stays draft and unmerged.
+- [x] Publish `0aa60851` and verify all five exact-head hosted workflows pass, including Checks `43613931687`, all eight browser lanes and macOS Node shard 3. Retain full workflow logs and metadata.
+- [ ] Continue all 81 original incomplete rows; PR57 stays draft and unmerged.
 
 Active optional paced application reviews (HH06/HH08 remain incomplete):
 
 - [x] Add one acknowledged private workspace schedule for explicitly paced reviews: zero selects adaptive 1–4 minute timing starting at two minutes; a positive seconds value selects fixed timing. Count time already spent on the vacancy. Persist native delivery/CAPTCHA feedback, stable random variation, bounded cooldown and restart state without reading challenge contents.
 - [x] Gate new review admission across slots, including callers omitting the flag while the saved window is active. Reopening the same review does not reset its deadline. Preserve preview, daily-limit, reservation and manual-hold semantics; failed acknowledgements refuse new browser work.
 - [x] Carry the optional interval through CLI, text/binary Lino and four-language application settings. Show saved schedule/counters and explicit read-to-refresh recovery in the shared queue. Add actual-parent failure, focused deterministic tests, one native browser/MCP flow and retained screenshots. Exact-head CI remains pending after publication. Focused Node 44/Deno 19, native Chromium plus the existing worker-policy scenario and independent MCP pass; all owned resources close.
-- [ ] Preserve checksummed evidence, publish and inspect exact-head CI.
+- [x] Preserve the 110-file checksummed pacing archive and screenshots.
+- [ ] Publish and inspect exact-head CI.
 - [ ] Continue the full paced batch runner, automatic RAM-queue revisits, authenticated account scope and every original incomplete requirement. A single-review admission unit does not establish full reference parity or complete HH06/HH08.
 
 Active Windows Deno CLI timeout (`cd2a3337`, run `43606682331`):

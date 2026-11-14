@@ -31,6 +31,9 @@ The first strict-lint attempt identified one missing brace and the added default
 parameters exceeding the existing complexity budget; the final shared clock
 argument resolves both without relaxing a rule. Evidence retains the final checks.
 `data/ci-cv-save-recovery-clock.tar.gz` and its SHA-256 manifest retain source,
-parent source, logs and CI metadata. Corrected-head hosted verification remains
-required. All 81 original incomplete inventory rows remain required; PR57 stays
+parent source, logs and CI metadata. All five workflows pass on corrected head `0aa608516804400f38c215f12f626f92e8f63f3e`,
+created 2026-11-14 16:08:09 UTC. [Checks 43613931687](https://github.com/link-foundation/meta-sovereign/actions/runs/43613931687)
+passes every runtime lane and all eight browser lanes, including macOS Node shard 3.
+Pages, Security, Broken Links and Desktop also pass. Complete passing logs and
+metadata are retained in `data/hosted-0aa60851.tar.gz` with a SHA-256 manifest. All 81 original incomplete inventory rows remain required; PR57 stays
 draft and unmerged.
