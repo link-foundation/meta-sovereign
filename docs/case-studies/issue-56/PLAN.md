@@ -1,11 +1,26 @@
 # Issue 56 / PR 57 work plan
 
+Active acknowledged daily-rejection recovery (HH06 remains incomplete):
+
+- [x] Reproduce an automation-issued Send followed by a fresh native daily-limit rejection: preserve its actual draft and original two-hour pause, distinguish the witnessed rejection from an unknown/older outcome.
+- [x] Retain immutable acknowledged rejection evidence bound to the issued action and failed document. Allow explicit wait-and-restore consent to release only that rejected reservation after a verified fresh form; preserve unknown dispatches, owner changes, failed saves and separate Send confirmation.
+- [x] Verify exact-parent service/native failures, 105 focused Node/41 Deno checks and native/MCP restoration without another Send; retain four-language and phone screenshots. Concurrent journal-digest changes refuse recovery. Static checks and the unchanged duplication gate pass.
+- [x] Preserve the checked 110-file source, regression, native/MCP, screenshot and hosted-failure evidence archive.
+- [ ] Publish and inspect exact-head CI. Continue the full batch runner and every original unchecked criterion.
+
+Active exact-parent Windows Node CI:
+
+- [x] Preserve `6b1e9dea` run `43617379351`: original Windows job `132516105839` exhausts initial CLI readiness while copying its cold immutable snapshot; original WebKit job `132516105683` fails action download before checkout/tests. No deadline changed; retain complete job logs and annotations.
+- [x] Rerun failed jobs only. Windows rerun `132522363805` reaches the unchanged ten-minute job deadline after setup leaves approximately 134 seconds for tests. Complete 4,616-line log and annotations distinguish aggregate job exhaustion from a specific test hang. WebKit rerun remains pending.
+- [ ] Reuse native Node sharding for Windows, preserving every test, per-test/job deadlines and runtime/OS coverage. Verify a finite failing-shard regression locally, publish and inspect every exact-head hosted check. The original cold snapshot latency remains unmeasured beyond phase traces; all original incomplete criteria remain required.
+
 Active pacing action-guard feedback:
 
 - [x] Reproduce native CAPTCHA/delivery arriving after the frozen review but before guarded dispatch: two of three finite service cases and the native guard fail on `9a78b6d9`; every attempted action still refuses safely.
 - [x] Acknowledge the same fresh native outcome before the unchanged action refusal; deduplicate a later inspection, preserve daily-limit priority and zero challenge reads/actions.
 - [x] Verify Node 40/Deno 35 and both finite native Chromium scenarios; preserve the 48-file checksummed archive. Give pacing its own mandatory browser entry, retaining all prior scenarios and deadlines.
-- [ ] Publish saved pacing and guard commits and inspect exact-head CI. Continue all 81 original incomplete requirements.
+- [x] Publish saved pacing and guard commits through `6b1e9dea`; retain the passing parent workflows.
+- [ ] Inspect every exact-head check for `6b1e9dea`. Continue all 81 original incomplete requirements.
 
 Active CV Save recovery CI fixture:
 

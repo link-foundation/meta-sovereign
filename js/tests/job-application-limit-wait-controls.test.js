@@ -6,8 +6,7 @@ import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import {
   withApplicationRouteFixture,
   enterApplicationRoute,
-  applicationPanelMarkup,
-  assertApplicationLocaleMarkup,
+  assertApplicationPanelLocales,
   successfulApplicationFixtureCommand,
 } from './helpers/application-controls.mjs';
 
@@ -24,16 +23,15 @@ for (const restoreDraft of [false, true]) {
           fixture.state.fields[1].value = 'API owner answer.';
           fixture.state.page.dailyLimit = true;
           receipt = await api.vacancyApplicationRead(identity(receipt));
-          for (const locale of ['en', 'ru', 'hi', 'zh']) {
-            const markup = applicationPanelMarkup(
-              { receipt, options: {} },
-              locale
-            );
-            assert(
-              markup.includes('data-application-action="wait-limit-restore"')
-            );
-            assertApplicationLocaleMarkup(markup, locale, ['limitWaitRestore']);
-          }
+          assertApplicationPanelLocales(
+            receipt,
+            ['limitWaitRestore'],
+            (markup) => {
+              assert(
+                markup.includes('data-application-action="wait-limit-restore"')
+              );
+            }
+          );
           const input = identity(receipt, {
             action: 'start',
             waitId: 'api-limit-wait',
@@ -46,30 +44,25 @@ for (const restoreDraft of [false, true]) {
           assert.equal(receipt.limitWait.phase, 'waiting');
           receipt = await api.vacancyApplicationWait(input);
           assert.equal(fixture.pendingWaits.length, 1);
-          for (const locale of ['en', 'ru', 'hi', 'zh']) {
-            const markup = applicationPanelMarkup(
-              { receipt, options: {} },
-              locale
-            );
-            assert(markup.includes('data-application-limit-wait="waiting"'));
-            assert(
-              markup.includes('data-application-action="stop-limit-wait"')
-            );
-            assertApplicationLocaleMarkup(markup, locale, [
+          assertApplicationPanelLocales(
+            receipt,
+            [
               'limitWaitHint',
               'limitWait.waiting',
               'limitWaitStop',
-            ]);
-            assert.equal(
-              markup.includes('data-application-limit-restore="true"'),
-              restoreDraft
-            );
-            if (restoreDraft) {
-              assertApplicationLocaleMarkup(markup, locale, [
-                'limitWaitRestorePolicy',
-              ]);
+              ...(restoreDraft ? ['limitWaitRestorePolicy'] : []),
+            ],
+            (markup) => {
+              assert(markup.includes('data-application-limit-wait="waiting"'));
+              assert(
+                markup.includes('data-application-action="stop-limit-wait"')
+              );
+              assert.equal(
+                markup.includes('data-application-limit-restore="true"'),
+                restoreDraft
+              );
             }
-          }
+          );
           receipt = await api.vacancyApplicationWait(
             identity(receipt, { action: 'stop', waitId: receipt.limitWait.id })
           );

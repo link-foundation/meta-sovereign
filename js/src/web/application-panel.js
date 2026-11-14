@@ -210,7 +210,12 @@ const Receipt = ({ receipt, t }) =>
       : null,
   ]);
 
-const canRestore = (writable, receipt) => writable && Boolean(receipt?.draft);
+const canRestore = (admitted, confirmed, receipt) =>
+  admitted &&
+  confirmed &&
+  receipt.state === 'review' &&
+  Boolean(receipt.draft) &&
+  (!receipt.attempted.submit || receipt.dailyRejection === 'recorded');
 const canEnter = (ready, confirmed, receipt) =>
   ready && confirmed && receipt.state === 'ready' && !receipt.attempted.enter;
 const canOpenForm = (ready, confirmed, receipt) =>
@@ -317,7 +322,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         'restore',
         t('application.restore'),
         action('Restore', { confirm: true }),
-        !canRestore(writable, receipt)
+        !canRestore(admitted, confirmed, receipt)
       ),
       button('close', t('application.close'), action('Close'), !ready),
     ]),

@@ -12,8 +12,8 @@ const canStartWait = (receipt, confirmed) =>
   !receipt.page?.challenge;
 const canRestoreWait = (receipt, confirmed) =>
   canStartWait(receipt, confirmed) &&
-  !receipt.attempted.submit &&
-  receipt.delivery === 'none';
+  ((!receipt.attempted.submit && receipt.delivery === 'none') ||
+    receipt.dailyRejection === 'recorded');
 
 const WaitAction = ({
   active,
@@ -75,6 +75,17 @@ export const ApplicationLimitWaitControls = ({
                 t(`application.limitWait.${wait.phase}`),
                 wait.code ? ` (${wait.code})` : '',
               ]
+            )
+          : null,
+        receipt.dailyRejection
+          ? el(
+              'p',
+              {
+                key: 'rejection',
+                className: 'meta',
+                'data-application-daily-rejection': receipt.dailyRejection,
+              },
+              t(`application.dailyRejection.${receipt.dailyRejection}`)
             )
           : null,
         wait?.restoreDraft

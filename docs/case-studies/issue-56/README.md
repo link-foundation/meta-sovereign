@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+[Witnessed daily-refusal recovery](application-limit-rejection.md) preserves immutable failed-action evidence and permits separately consented fresh-form restoration without an automatic resend. Full batch execution and every original incomplete criterion remain active.
+
 [Fresh native pacing feedback](application-pacing-guard.md) retains outcomes at refused action guards and gives pacing its own mandatory browser entry; all original incomplete requirements remain active.
 
 [Optional saved application pacing](application-pacing.md) adds adaptive/fixed review admission, acknowledged native feedback and explicit queue refresh; full paced batches and all original incomplete rows remain required.

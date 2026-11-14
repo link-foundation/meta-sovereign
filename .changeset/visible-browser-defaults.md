@@ -475,3 +475,8 @@ Keep CV Save recovery verification tests independent of host scheduling with an 
 Add optional saved adaptive/fixed pacing for explicit HH application review admission, with native feedback, workspace queue status and four-language controls.
 
 Retain pacing feedback from a fresh native outcome at a refused action guard, preserving daily-limit priority, challenge privacy and zero dispatch after page changes.
+
+Preserve acknowledged native daily-refusal evidence after an issued application
+action. Explicit fresh-form recovery may release only that rejected reservation
+after the shared pause, restore later saved owner values and require a separate
+Send confirmation through CLI, both Lino encodings and four-language controls.

@@ -2,8 +2,12 @@ import { nativeApplicationForm } from '../../js/tests/helpers/application-native
 import { changeApplicationHoldFixture } from './application-hold-dom.mjs';
 import { applicationLimitMs } from '../../js/src/jobs/application-limit-data.js';
 import { mountApplicationLimitChallenge } from './application-limit-challenge-dom.mjs';
+import { rejectNativeApplicationAtLimit } from './application-limit-rejection-dom.mjs';
 
 const changeChallenge = async (page, url) => {
+  if (url === '/limit-reject-next') {
+    await page.evaluate(rejectNativeApplicationAtLimit);
+  }
   if (url !== '/limit-challenge' && url !== '/limit-challenge-remount') {
     return;
   }
@@ -29,6 +33,7 @@ export const applicationLimitControl = (browser, clock) => async (req) => {
       '/limit-letter-later',
       '/limit-challenge',
       '/limit-challenge-remount',
+      '/limit-reject-next',
     ].includes(req.url)
   ) {
     return null;

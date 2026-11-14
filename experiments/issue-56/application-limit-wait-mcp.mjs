@@ -3,16 +3,31 @@ async (originalPage, fixture) =>
     const { start, panel, owner, require, confirmed, action, page, errors } =
       tools;
     const restore = tools.source.searchParams.has('restore');
-    const prefix = restore
-      ? 'application-limit-restore'
-      : 'application-limit-wait';
+    const rejected = tools.source.searchParams.has('rejection');
+    const prefix = (() =>
+      rejected
+        ? 'application-limit-rejection'
+        : restore
+          ? 'application-limit-restore'
+          : 'application-limit-wait')();
+    const rejectionState = async (state, submit = false) => {
+      if (rejected) {
+        if (submit) {
+          await confirmed('submit');
+        }
+        await panel
+          .locator(`[data-application-daily-rejection="${state}"]`)
+          .waitFor();
+      }
+    };
     await start();
     await owner('limit-edit', 'POST');
     if (restore) {
       await owner('limit-letter', 'POST');
     }
-    await owner('limit-show', 'POST');
+    await owner(rejected ? 'limit-reject-next' : 'limit-show', 'POST');
     await confirmed('read');
+    await rejectionState('recorded', true);
     require(await action(
       'wait-limit'
     ).isDisabled(), 'Waiting reused confirmation');
@@ -47,9 +62,11 @@ async (originalPage, fixture) =>
     });
     const counters = await owner('limit-values');
     require(counters.entries === 1 &&
-      counters.sends === 0, 'Waiting repeated native entry or sent');
+      counters.sends ===
+        (rejected ? 1 : 0), 'Waiting repeated native entry or sent');
     await owner('limit-expire', 'POST');
     await panel.locator('[data-application-limit-wait="review"]').waitFor();
+    await rejectionState('released');
     require((await owner('limit-values')).experience ===
       (restore
         ? 'Later native owner answer while waiting.'
@@ -83,6 +100,7 @@ async (originalPage, fixture) =>
       restorationSeparatelyConfirmed: !restore,
       restorationConfirmedWithWait: restore,
       sends: 0,
+      issuedRefusedSends: rejected ? 1 : 0,
       entries: counters.entries,
       resourcesClosed: true,
       errors,

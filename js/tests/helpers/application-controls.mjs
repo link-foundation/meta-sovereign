@@ -128,3 +128,16 @@ export const assertApplicationLocaleMarkup = (markup, locale, keys) => {
     );
   }
 };
+
+/** Render the shared application panel in every supported locale. */
+export const assertApplicationPanelLocales = (
+  receipt,
+  keys,
+  check = () => {}
+) => {
+  for (const locale of ['en', 'ru', 'hi', 'zh']) {
+    const markup = applicationPanelMarkup({ receipt, options: {} }, locale);
+    assertApplicationLocaleMarkup(markup, locale, keys);
+    check(markup, locale);
+  }
+};

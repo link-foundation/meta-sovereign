@@ -186,6 +186,7 @@ export class ApplicationReview {
     } else if (
       record.state === 'review' &&
       !record.attempted.submit &&
+      record.limitRejection?.state !== 'recorded' &&
       record.delivery !== 'provider-confirmed'
     ) {
       record.delivery = 'none';

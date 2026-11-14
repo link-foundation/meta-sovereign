@@ -78,7 +78,7 @@ export const applicationLimitWaitFixture = (t, options = {}) => {
         })
       );
     },
-    async pulse(now = fixture.clock.value + 1000) {
+    async pulse(now = fixture.clock.value + 1000, current) {
       assert.equal(
         pending.length,
         1,
@@ -91,10 +91,12 @@ export const applicationLimitWaitFixture = (t, options = {}) => {
         if (pending.length || !fixture.service) {
           return;
         }
-        const status = await fixture.service['application-status']({
-          url: 'https://hh.ru/vacancy/123',
-          requestId: 'fixture-application',
-        });
+        const status = current
+          ? await current()
+          : await fixture.service['application-status']({
+              url: 'https://hh.ru/vacancy/123',
+              requestId: 'fixture-application',
+            });
         if (
           !['waiting', 'refreshing', 'restoring'].includes(
             status.limitWait?.phase

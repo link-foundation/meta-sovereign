@@ -85,6 +85,7 @@ const state = (raw) =>
     'paused',
     'exact',
   ].every((name) => typeof raw[name] === 'boolean') &&
+  optionalChoice(raw.dailyRejection, ['recorded', 'released']) &&
   supervised(raw) &&
   Number.isInteger(raw.reviewDelayMs) &&
   raw.reviewDelayMs >= 0 &&

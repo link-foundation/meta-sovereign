@@ -9,6 +9,7 @@ import { applicationResumeUrl } from './application-location.js';
 import { applicationPopupCheckpoint } from './application-popup.js';
 import { applicationResumePreference } from './application-resume-preference.js';
 import { applicationLetterTemplate } from './application-letters.js';
+import { applicationLimitRejection } from './application-limit-rejection-data.js';
 import {
   applicationSettings,
   applicationFailure as fail,
@@ -31,6 +32,7 @@ const properties = [
   'popupReview',
   'resumePreference',
   'letterTemplate',
+  'limitRejection',
   'draft',
   'restoration',
 ];
@@ -65,6 +67,7 @@ export const readApplicationJournal = (row, key) => {
     popupReview: applicationPopupCheckpoint(row.popupReview, row),
     resumePreference: applicationResumePreference(row.resumePreference),
     letterTemplate: applicationLetterTemplate(row.letterTemplate, options),
+    limitRejection: applicationLimitRejection(row.limitRejection),
     draft: applicationDraft(row.draft),
     restoration: draftRestoration(row.restoration),
     active: false,

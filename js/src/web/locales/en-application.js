@@ -1,4 +1,8 @@
 export const enApplication = {
+  'application.dailyRejection.recorded':
+    'The issued application has a saved native daily-limit rejection. Waiting with restoration verifies this evidence before releasing only that failed reservation. Sending needs a separate confirmation.',
+  'application.dailyRejection.released':
+    'The rejected reservation was released after the verified refresh. Restoration is checked separately; sending still needs confirmation.',
   'application.limitWaitRestore': 'Wait, refresh and restore saved answers',
   'application.limitWaitRestorePolicy':
     'After one guarded refresh, restore saved answers into matching empty controls. Sending still needs its own confirmation.',

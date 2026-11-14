@@ -1,4 +1,8 @@
 export const hiApplication = {
+  'application.dailyRejection.recorded':
+    'भेजे गए आवेदन के लिए HH की दैनिक सीमा की अस्वीकृति सहेजी गई है। उत्तर बहाल करने के साथ प्रतीक्षा केवल उस विफल प्रयास को मुक्त करने से पहले साक्ष्य जाँचती है। भेजने के लिए अलग पुष्टि चाहिए।',
+  'application.dailyRejection.released':
+    'सत्यापित रीफ़्रेश के बाद अस्वीकृत प्रयास का आरक्षण हटाया गया। बहाली अलग से जाँची जाती है; भेजने के लिए अब भी पुष्टि चाहिए।',
   'application.limitWaitRestore':
     'प्रतीक्षा करें, नया फ़ॉर्म खोलें और सहेजे उत्तर बहाल करें',
   'application.limitWaitRestorePolicy':

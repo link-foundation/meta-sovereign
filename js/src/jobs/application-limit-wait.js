@@ -64,13 +64,20 @@ export class ApplicationLimitWait {
       if (!canWait(record)) {
         throw fail('state');
       }
-      if (
-        input.restoreDraft &&
-        (record.attempted.submit || record.delivery !== 'none')
-      ) {
+      const policy = applicationPreservationPolicy(
+        this.service,
+        record,
+        signal
+      );
+      const rejectionId = input.restoreDraft
+        ? await this.service.limitRejections.consent(record)
+        : null;
+      policy();
+      if (!canWait(record)) {
         throw fail('state');
       }
       const runtime = {
+        rejectionId,
         controller: new AbortController(),
         record,
         documentKey: record.page.documentKey,
@@ -204,6 +211,13 @@ export class ApplicationLimitWait {
       record.limitWait.phase = 'restoring';
       runtime.checkpoint = 'restoration';
       const policy = () => this.current(fresh, signal);
+      await service.limitRejections.release(
+        record,
+        runtime.rejectionId,
+        signal,
+        policy
+      );
+      policy();
       if (runtime.hadLetter) {
         await service.actions.showLetter(record, signal, policy);
       }

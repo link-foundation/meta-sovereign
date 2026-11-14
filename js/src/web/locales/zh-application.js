@@ -1,4 +1,8 @@
 export const zhApplication = {
+  'application.dailyRejection.recorded':
+    '已保存此次申请因 HH 每日上限被拒绝的原生证据。等待并恢复答案会先验证证据，再仅释放这次失败尝试的预留。发送仍需单独确认。',
+  'application.dailyRejection.released':
+    '已在验证刷新后释放被拒绝尝试的预留。恢复另行检查；发送仍需确认。',
   'application.limitWaitRestore': '等待、刷新并恢复保存的答案',
   'application.limitWaitRestorePolicy':
     '完成一次经过核验的刷新后，将保存的答案恢复到匹配的空白控件中。发送仍需单独确认。',

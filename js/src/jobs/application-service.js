@@ -31,6 +31,7 @@ import { ApplicationLimits } from './application-limits.js';
 import { ApplicationLimitBackups } from './application-limit-backups.js';
 import { ApplicationLimitWait } from './application-limit-wait.js';
 import { ApplicationPacing } from './application-pacing.js';
+import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -90,6 +91,7 @@ class ApplicationService {
     this.limitBackups = new ApplicationLimitBackups(this);
     this.limitWait = new ApplicationLimitWait(this, now, limitWait);
     this.pacing = new ApplicationPacing(this, now, pacingRandom);
+    this.limitRejections = new ApplicationLimitRejections(this, now);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -169,8 +171,10 @@ class ApplicationService {
       // Only a mode-interrupted action may finish by backing up its held form.
       // A failed read/save must keep that form open without a second save attempt.
       if (!failure || failure.code === 'jobs-application-state') {
+        const backed = await this.limitBackups.automatic(signal);
         result =
-          (await this.limitBackups.automatic(signal)) ??
+          (await this.limitRejections.observe(signal)) ??
+          backed ??
           (await this.retries.automatic(signal)) ??
           (await this.deferrals.automatic(signal)) ??
           result;

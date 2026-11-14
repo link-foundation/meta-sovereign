@@ -80,6 +80,7 @@ export class ApplicationActions {
       if (result?.dispatched !== true) {
         throw fail('unconfirmed');
       }
+      service.limitRejections.issued(record, action);
       service.trace({ event: 'application-dispatched', action });
     } catch (error) {
       if (reserved && !issued) {

@@ -130,6 +130,7 @@ export const applicationCanReenter = (record) =>
   !record.hold &&
   !record.paused;
 
+const dailyRejectionView = (record) => record.limitRejection?.state ?? null;
 export const applicationView = (record) => {
   const page =
     record.page &&
@@ -166,6 +167,7 @@ export const applicationView = (record) => {
     autoSelectResumeLanguage: record.options.autoSelectResumeLanguage === true,
     applicationLimit: record.applicationLimit ?? null,
     limitWait: record.limitWait ?? null,
+    dailyRejection: dailyRejectionView(record),
     letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
     noQuestionnaires: record.noQuestionnaires ?? false,

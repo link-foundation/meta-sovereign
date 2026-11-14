@@ -143,6 +143,13 @@ export class ApplicationDrafts {
   }
   async restore(record, input, signal, policy = () => signal.throwIfAborted()) {
     policy();
+    await this.service.limitRejections.restoreConsent(
+      record,
+      input,
+      signal,
+      policy
+    );
+    policy();
     await this.admit(record, input, signal, true);
     policy();
     if (record.options.testMode) {
