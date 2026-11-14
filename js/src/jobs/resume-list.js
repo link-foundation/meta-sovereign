@@ -2,6 +2,7 @@ import { assignmentText } from '../assignments/validation.js';
 import { browserName } from '../browser/policy.js';
 import { jobsFailure, jobsObject } from './options.js';
 import { resumeDate } from './resume-dates.js';
+import { resumeLanguageProof } from './resume-language.js';
 
 export const HH_RESUMES_URL = 'https://hh.ru/applicant/resumes';
 export const resumeListId = (slot) => `jobs-resumes:${browserName(slot)}`;
@@ -51,7 +52,7 @@ const entry = (raw, seen, capturedAt) => {
 };
 
 /** Strict portable projection. Raw account state never leaves the owned document. */
-export const resumeList = (raw, browserSlot) => {
+export const resumeList = (raw, browserSlot, acceptLanguageProof = false) => {
   jobsObject(raw);
   const slot = browserName(browserSlot ?? raw.browserSlot);
   if (
@@ -67,7 +68,15 @@ export const resumeList = (raw, browserSlot) => {
     unavailable();
   }
   const seen = new Set();
-  const entries = raw.entries.map((row) => entry(row, seen, raw.capturedAt));
+  const entries = raw.entries.map((row) => {
+    const value = entry(row, seen, raw.capturedAt);
+    return {
+      ...value,
+      ...(acceptLanguageProof && row.languageProof !== undefined
+        ? { languageProof: resumeLanguageProof(row.languageProof, value) }
+        : {}),
+    };
+  });
   if (entries.filter((row) => row.latest).length > 1) {
     unavailable();
   }
@@ -87,7 +96,7 @@ export const resumeChoiceOptions = (input = {}) => {
   if (!['ru', 'en', 'any'].includes(language)) {
     throw jobsFailure(
       'input',
-      'Choose ru, en or any for the resume title preference.'
+      'Choose ru, en or any for the resume language preference.'
     );
   }
   return {
@@ -98,7 +107,27 @@ export const resumeChoiceOptions = (input = {}) => {
   };
 };
 
-/** The title preference is disclosed as a hint, never as verified CV language. */
+const titleMatches = (row, language) =>
+  !row.languageProof &&
+  (language === 'ru'
+    ? /[а-яё]/iu.test(row.title)
+    : /[a-z]/iu.test(row.title) && !/[а-яё]/iu.test(row.title));
+const selectionReason = (selected, dated) =>
+  !selected
+    ? 'empty'
+    : dated.length
+      ? 'updated'
+      : selected.latest
+        ? 'latest'
+        : 'list-order';
+const languageEvidence = (selected, titleHint = false) =>
+  selected?.languageProof
+    ? 'native-export'
+    : titleHint
+      ? 'title-hint'
+      : 'unknown';
+
+/** Verified exports outrank title hints; an explicit owner choice always wins. */
 export const chooseSearchResume = (list, input = {}) => {
   const { resumeLanguage: language } = resumeChoiceOptions(input);
   if (input.resume) {
@@ -113,17 +142,20 @@ export const chooseSearchResume = (list, input = {}) => {
       hash,
       reason: 'specified',
       languagePreference: language,
-      languageEvidence: 'unknown',
+      languageEvidence: languageEvidence(
+        list.entries.find((row) => row.hash === hash)
+      ),
     };
   }
+  const verified = list.entries.filter(
+    (row) => row.languageProof?.language === language
+  );
   const preferred =
     language === 'any'
       ? []
-      : list.entries.filter((row) =>
-          language === 'ru'
-            ? /[а-яё]/iu.test(row.title)
-            : /[a-z]/iu.test(row.title) && !/[а-яё]/iu.test(row.title)
-        );
+      : verified.length
+        ? verified
+        : list.entries.filter((row) => titleMatches(row, language));
   const candidates = preferred.length ? preferred : list.entries;
   const dated = candidates.filter((row) => row.updatedAt !== null);
   const selected = dated.length
@@ -131,14 +163,8 @@ export const chooseSearchResume = (list, input = {}) => {
     : (candidates.find((row) => row.latest) ?? candidates[0]);
   return {
     hash: selected?.hash ?? null,
-    reason: !selected
-      ? 'empty'
-      : dated.length
-        ? 'updated'
-        : selected.latest
-          ? 'latest'
-          : 'list-order',
+    reason: selectionReason(selected, dated),
     languagePreference: language,
-    languageEvidence: preferred.length ? 'title-hint' : 'unknown',
+    languageEvidence: languageEvidence(selected, preferred.length > 0),
   };
 };

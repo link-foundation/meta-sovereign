@@ -430,3 +430,4 @@ Recheck native unread chat targets after a virtual list render settles at its en
 
 Split the growing native application browser checks into three registered groups. Retain all eleven scenarios and existing engine, shard and timeout coverage; add a focused registration regression.
 
+Prefer checked same-slot résumé export language when suggesting a search résumé, with visible capture evidence and explicit owner choice. Recheck file integrity and native identity, preserve title fallback and existing durable list formats, and share the result across CLI, both Lino encodings and four-language browser controls.

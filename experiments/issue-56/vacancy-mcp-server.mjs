@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { choicePutFixture } from './choice-put-fixture.mjs';
 import { applicationNativeFixture } from './application-native-fixture.mjs';
+import { resumeLanguageBrowserFixture } from './resume-language-browser-fixture.mjs';
 
 const browser = await chromium.launch({
   executablePath: '/opt/google/chrome/chrome',
@@ -17,11 +18,13 @@ const retryFixture = process.env.APPLICATION_RETRY_FIXTURE === '1';
 const popup = process.env.APPLICATION_POPUP_FIXTURE === '1';
 try {
   const create =
-    process.env.APPLICATION_REVIEW_FIXTURE === '1'
-      ? applicationNativeFixture
-      : process.env.CHOICE_PUT_FAILURE === '1'
-        ? choicePutFixture
-        : vacancyBrowserFixture;
+    process.env.RESUME_LANGUAGE_FIXTURE === '1'
+      ? resumeLanguageBrowserFixture
+      : process.env.APPLICATION_REVIEW_FIXTURE === '1'
+        ? applicationNativeFixture
+        : process.env.CHOICE_PUT_FAILURE === '1'
+          ? choicePutFixture
+          : vacancyBrowserFixture;
   fixture = await create(browser, {
     popup,
     ...(retryFixture ? { application: { now: () => clock.value } } : {}),

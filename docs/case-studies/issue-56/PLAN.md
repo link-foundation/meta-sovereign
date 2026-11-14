@@ -14,8 +14,8 @@ Active exact-head unread-view failure:
 
 Active export-proven résumé suggestions (HH02 and HH06 remain incomplete):
 
-- [ ] Prefer the requested language from checked, same-slot export artifacts whose hash, title and observed update still match the native list. Preserve explicit owner choices and disclose title-only fallback. Keep proofs out of durable list records and revalidate artifacts on server cache reads.
-- [ ] Carry strict portable evidence through CLI, both Lino formats and four-language search controls. Cover stale or corrupted exports, slot isolation, cancellation, offline snapshots and zero provider mutations with focused regression checks.
+- [x] Prefer the requested language from checked, same-slot export artifacts whose hash, title and observed update still match the native list. Preserve explicit owner choices and disclose title-only fallback. Keep proofs out of durable list records and revalidate artifacts on server cache reads.
+- [x] Carry strict portable evidence through CLI, both Lino formats and four-language search controls. Cover stale or corrupted exports, slot isolation, cancellation, offline snapshots and zero provider mutations with focused regression checks.
 - [ ] Reproduce the exact published parent, verify one native browser and independent MCP scenario, preserve before/after screenshots and checksummed evidence, publish and review exact-head CI. Continue native application résumé selection and every original unchecked criterion; keep PR57 draft and unmerged.
 
 Active native popup recovery (HH06 remains incomplete):

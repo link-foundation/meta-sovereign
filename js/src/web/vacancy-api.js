@@ -30,7 +30,7 @@ import { createApplicationApi } from './application-api.js';
 import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
 
 const confirmedResumes = (answer, input) => {
-  const list = resumeList(answer, input.browserSlot ?? 'jobs');
+  const list = resumeList(answer, input.browserSlot ?? 'jobs', true);
   const choice = chooseSearchResume(list, input);
   if (
     !Object.entries(choice).every(
@@ -103,7 +103,7 @@ const savedResumes = (answer) => {
       'The saved resume lists were not confirmed.'
     );
   }
-  return { lists: answer.lists.map((row) => resumeList(row)) };
+  return { lists: answer.lists.map((row) => resumeList(row, undefined, true)) };
 };
 const confirmedExport = (result, requestId) => {
   if (!result?.state && (result?.code || result?.ok === false)) {

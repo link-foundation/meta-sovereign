@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH02/HH06 extension: [checked export language suggestions](resume-language.md) prefer matching immutable native export evidence over title hints across CLI, both Lino encodings and four-language search controls. Explicit choices remain authoritative, cache reads recheck files and offline snapshots strip claims. Native application résumé selection and authenticated provider parity remain required; all 81 original unchecked rows stay unchecked.
+
 Partial HH06 extension: [acknowledged native popup recovery](application-popup.md) keeps the original entry reserved, reopens the browser read-only and offers a separately confirmed entry only after a saved unsent popup review. Actual draft restoration and sending require their own confirmations. Legacy or unknown outcomes remain reserved. Full provider parity and all 81 original unchecked rows remain required; HH06 stays unchecked.
 
 Partial HH08 extension: [supervised single-application review](application-supervised.md) separates answer filling, letter attachment and sending, disables automatic sending and stops the foreground command after one HH-confirmed delivery. Zero-effect preview and legacy journals remain compatible. Automatic paced batches/revisits, independently configurable confirmations, recruiter-panel behavior and all 81 unchecked original rows remain required. This supersedes the preset gap in the earlier snapshots below; HH08 remains unchecked.

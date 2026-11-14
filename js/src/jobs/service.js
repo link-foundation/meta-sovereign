@@ -9,8 +9,7 @@ import {
 } from './options.js';
 import { createVacancySearchReader } from './read-search.js';
 import { createResumeListReader } from './read-resumes.js';
-import { resumeChoiceOptions } from './resume-list.js';
-import { saveResumeList, storedResumeLists } from './resume-cache.js';
+import { createResumeListControl } from './resume-list-service.js';
 import path from 'node:path';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createResumeExportReader } from './read-resume-exports.js';
@@ -112,6 +111,7 @@ export const createVacancyService = ({
     ...application,
   });
   return {
+    ...createResumeListControl({ store, read: readResumes, artifactRoot, run }),
     ...applications.operations,
     ...createVacancyChoiceService({ store, run }),
     ...createTechnologyService({ store, artifactRoot, run, cvPrepare }),
@@ -138,15 +138,6 @@ export const createVacancyService = ({
         apply: false,
       };
     },
-    resumes(input) {
-      const options = jobsBrowserOptions(input);
-      const choice = resumeChoiceOptions(input);
-      return run((signal) =>
-        saveResumeList(store, readResumes, { ...options, signal }, choice)
-      );
-    },
-    'resumes-stored': () =>
-      storedResumeLists((predicate) => store.query(predicate)),
     'resume-export': exports.start,
     'resume-export-status': exports.status,
     'resume-export-cancel': exports.cancel,

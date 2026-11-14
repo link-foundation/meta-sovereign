@@ -36,11 +36,12 @@ export const technologyCv = () => {
     'Owned PostgreSQL and npm tooling. Preserved biography and job narrative.';
   return cv;
 };
-export const technologyFixture = async () => {
+export const technologyFixture = async ({
+  cv = technologyCv(),
+  receipt = resumeExportReceipt(),
+} = {}) => {
   const artifactRoot = await mkdtemp(join(tmpdir(), 'hh-technology-'));
   const store = createMemoryStore();
-  const cv = technologyCv();
-  const receipt = resumeExportReceipt();
   const bytes = Buffer.from(JSON.stringify(cv));
   receipt.files = receipt.files.map((file) =>
     file.name === 'resume.json'

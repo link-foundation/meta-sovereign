@@ -87,6 +87,19 @@ export const VacancyResumes = ({ state, t }) => {
                 ? t('vacancy.resumeUnknownDate')
                 : dateTime(row.updatedAt)
             ),
+            row.languageProof
+              ? el(
+                  'p',
+                  {
+                    key: 'language',
+                    className: 'meta',
+                    'data-resume-language': row.languageProof.language,
+                  },
+                  t(`vacancy.resumeProof.${row.languageProof.language}`, {
+                    date: dateTime(row.languageProof.capturedAt),
+                  })
+                )
+              : null,
             el(
               'button',
               {

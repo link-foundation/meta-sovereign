@@ -1,12 +1,20 @@
 import { resumeList, resumeListId, chooseSearchResume } from './resume-list.js';
 import { jobsFailure } from './options.js';
 
-export const saveResumeList = async (store, read, options, selection) => {
+export const saveResumeList = async (
+  store,
+  read,
+  options,
+  selection,
+  enrich = async (list) => list
+) => {
   const list = resumeList(await read(options), options.browserSlot);
   options.signal.throwIfAborted();
-  const choice = chooseSearchResume(list, selection);
+  const result = await enrich(list, options.signal);
+  options.signal.throwIfAborted();
+  const choice = chooseSearchResume(result, selection);
   await store.put({ id: resumeListId(list.browserSlot), version: 1, ...list });
-  return { ...list, selection: choice };
+  return { ...result, selection: choice };
 };
 
 export const storedResumeLists = async (query) => {

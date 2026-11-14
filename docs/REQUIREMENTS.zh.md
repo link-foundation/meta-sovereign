@@ -1,5 +1,7 @@
 # 需求 (languages: [en](REQUIREMENTS.md) • zh • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
+R-AA1/HH02/HH06：搜索简历建议现在优先采用同一浏览器配置中经过验证的原生导出语言，并核对哈希、标题和已观察到的更新时间。保留用户的明确选择；过期资料回退到明确标注的标题提示，损坏的匹配导出不会覆盖上次列表。CLI、两种 Lino 编码及四语言界面共享[回归与原生/MCP 证据](case-studies/issue-56/resume-language.md)。申请表中的简历选择、真实提供方验证及全部原有未完成要求仍须完成。
+
 R-AA1/HH06：已确认保存且尚未发送的 HH 原生弹窗可在浏览器只读恢复后，经所有者重新确认再次进入。CLI、两种 Lino 编码和四种语言界面均保留原始尝试记录，保护结果不明的操作及真实草稿；[回归与原生浏览器/MCP 证据](case-studies/issue-56/application-popup.md)验证了单独恢复草稿和重新确认发送。真实服务的完整功能对等及所有原始未完成要求仍须完成。
 
 R-AA1/HH08：可选的 HH 监督申请模式分别确认填写答案、附加求职信和发送；关闭自动发送，并在 HH 确认一次申请成功后结束前台命令。CLI、两种 Lino 编码和四种语言的界面保留原始设置、无操作预览、用户填写的值及旧日志。[父版本失败和 native/MCP 证据](case-studies/issue-56/application-supervised.md)验证单独确认及恢复。按间隔自动处理队列、独立确认配置、招聘者面板和所有原始未勾选要求仍未完成。
