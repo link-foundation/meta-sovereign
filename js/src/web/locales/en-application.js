@@ -124,4 +124,7 @@ export const enApplication = {
     'Answers, letter and sending need separate confirmation. Automatic sending is off. Entry can still send immediately if HH offers no review form.',
   'application.answers': 'Fill reviewed exact answers only',
   'application.letter': 'Attach reviewed letter only',
+  'application.reenter': 'Reopen reviewed popup (may send immediately)',
+  'application.reenterHint':
+    'An unsent native popup was saved before this browser was reopened. Opening it again needs a new confirmation and can apply immediately. It does not restore answers or send a saved draft.',
 };

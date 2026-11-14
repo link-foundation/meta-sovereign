@@ -5,11 +5,14 @@ import { applicationInput } from '../../../experiments/issue-56/application-fixt
 
 export const nativeApplicationFormUrl =
   'https://hh.ru/applicant/vacancy_response?vacancyId=123';
-export const nativeApplicationForm = (browser) =>
+export const nativeApplicationForm = (
+  browser,
+  url = nativeApplicationFormUrl
+) =>
   browser
     .contexts()
     .flatMap((context) => context.pages())
-    .find((page) => page.url() === nativeApplicationFormUrl);
+    .find((page) => page.url() === url);
 
 export const nativeApplicationQueue = async (fixture) => {
   const response = await fetch(

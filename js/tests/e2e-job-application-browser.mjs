@@ -6,6 +6,7 @@ import { verifyNativeApplicationHolds } from './helpers/e2e-application-holds.mj
 import { verifyNativeApplicationRetries } from './helpers/e2e-application-retries.mjs';
 import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
 import { verifyNativeApplicationSupervised } from './helpers/e2e-application-supervised.mjs';
+import { verifyNativeApplicationPopup } from './helpers/e2e-application-popup.mjs';
 import {
   verifyNativeApplication,
   verifyNativeApplicationGuards,
@@ -22,4 +23,5 @@ await runBrowserScenarios('job-application', [
   verifyNativeApplicationHolds,
   verifyNativeApplicationRetries,
   verifyNativeApplicationSupervised,
+  verifyNativeApplicationPopup,
 ]);

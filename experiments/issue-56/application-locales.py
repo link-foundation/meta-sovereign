@@ -192,6 +192,7 @@ rows.update({
     "answers": ["Fill reviewed exact answers only", "Заполнить только проверенные точные ответы", "केवल समीक्षित सटीक उत्तर भरें", "仅填写已审核的精确答案"],
     "letter": ["Attach reviewed letter only", "Прикрепить только проверенное письмо", "केवल समीक्षित पत्र जोड़ें", "仅附上已审核的求职信"],
 })
+rows.update({'reenter': ['Reopen reviewed popup (may send immediately)', 'Открыть проверенное окно (возможна немедленная отправка)', 'समीक्षित पॉपअप फिर खोलें (तुरंत भेजा जा सकता है)', '重新打开已审核弹窗（可能立即发送）'], 'reenterHint': ['An unsent native popup was saved before this browser was reopened. Opening it again needs a new confirmation and can apply immediately. It does not restore answers or send a saved draft.', 'Перед повторным открытием браузера сохранена проверка неотправленного окна HH. Чтобы открыть его снова, нужно новое подтверждение; отклик может отправиться сразу. Это не восстанавливает ответы и не отправляет сохранённый черновик.', 'ब्राउज़र फिर खोलने से पहले न भेजे गए मूल पॉपअप की स्थिति सहेजी गई थी। उसे फिर खोलने के लिए नई पुष्टि चाहिए और आवेदन तुरंत भेजा जा सकता है। इससे उत्तर बहाल या सहेजा ड्राफ़्ट नहीं भेजा जाता।', '重新打开浏览器之前已保存尚未发送的原生弹窗状态。再次打开需要重新确认，并可能立即提交申请。此操作不会恢复答案或发送已保存的草稿。']})
 root = Path(__file__).resolve().parents[2] / "js/src/web/locales"
 for index, locale in enumerate(("en", "ru", "hi", "zh")):
     entries = {f"application.{key}": values[index] for key, values in rows.items()}

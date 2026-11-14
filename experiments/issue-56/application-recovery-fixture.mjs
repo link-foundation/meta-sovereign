@@ -8,7 +8,10 @@ export const applicationFormUrl =
   'https://hh.ru/applicant/vacancy_response?vacancyId=123';
 
 /** Each reopened browser starts a new document, rather than retaining the old mock page. */
-export const applicationRecoveryFixture = (options = {}) => {
+export const applicationRecoveryFixture = ({
+  popup = false,
+  ...options
+} = {}) => {
   const fixture = applicationFixture(options);
   const { state } = fixture;
   const originalOpen = fixture.serviceOptions.openSession;
@@ -37,7 +40,7 @@ export const applicationRecoveryFixture = (options = {}) => {
       ...fixture.serviceOptions.application,
       dispatch: async (...args) => {
         const result = await originalDispatch(...args);
-        if (args[2] === 'enter') {
+        if (args[2] === 'enter' && !popup) {
           state.page.url = applicationFormUrl;
         }
         return result;

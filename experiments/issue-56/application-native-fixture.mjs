@@ -3,7 +3,10 @@ import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { vacancySnapshotFixture } from './vacancy-fixture.mjs';
 
 const html = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
-export const applicationNativeHtml = ({ response = false } = {}) => {
+export const applicationNativeHtml = ({
+  response = false,
+  popup = false,
+} = {}) => {
   const vacancy = vacancySnapshotFixture();
   return `<!doctype html><html><body>
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
@@ -18,8 +21,8 @@ export const applicationNativeHtml = ({ response = false } = {}) => {
       function openApplication(recordEntry = true) {
         if (recordEntry) globalThis.applicationEntries++;
         document.querySelector('[data-qa="vacancy-response-link-top"]').remove();
-        history.pushState({}, '', '/applicant/vacancy_response?vacancyId=123');
-        document.querySelector('#application').innerHTML='<form id="native-form"><div data-qa="task-body"><label>Recent experience<textarea id="experience"></textarea></label></div><button type="button" data-qa="add-cover-letter" onclick="showLetter(this)">Add letter</button><button type="submit" data-qa="vacancy-response-letter-submit">Send application</button></form>';
+        ${popup ? '' : "history.pushState({}, '', '/applicant/vacancy_response?vacancyId=123');"}
+        document.querySelector('#application').innerHTML='<form id="native-form"><div data-qa="task-body"><label>Recent experience<textarea id="experience"></textarea></label></div><button type="button" data-qa="add-cover-letter" onclick="showLetter(this)">Add letter</button><button type="submit" data-qa="${popup ? 'vacancy-response-submit-popup' : 'vacancy-response-letter-submit'}">Send application</button></form>';
         document.querySelector('#native-form').onsubmit=(event)=>{
           event.preventDefault();
           globalThis.applicationAttempts++;
@@ -37,7 +40,7 @@ export const applicationNativeHtml = ({ response = false } = {}) => {
 
 export const applicationNativeFixture = async (
   browser,
-  { application } = {}
+  { application, popup = false } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser, {
     exports: {
@@ -56,7 +59,7 @@ export const applicationNativeFixture = async (
         await route.fulfill({
           status: 200,
           contentType: 'text/html; charset=utf-8',
-          body: applicationNativeHtml({ response }),
+          body: applicationNativeHtml({ response, popup }),
         });
         return true;
       },

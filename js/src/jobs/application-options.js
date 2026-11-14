@@ -85,6 +85,16 @@ export const applicationState = (page) => {
   }
   return page.enter ? 'ready' : 'unavailable';
 };
+export const applicationCanReenter = (record) =>
+  record.active === true &&
+  record.state === 'ready' &&
+  record.popupReview === true &&
+  record.attempted.enter &&
+  !record.attempted.submit &&
+  record.delivery === 'none' &&
+  !record.hold &&
+  !record.paused;
+
 export const applicationView = (record) => {
   const page =
     record.page &&
@@ -109,6 +119,7 @@ export const applicationView = (record) => {
     state: record.state,
     active: record.active === true,
     attempted: record.attempted,
+    reentryAvailable: applicationCanReenter(record),
     delivery: record.delivery,
     code: record.code ?? null,
     hold: record.hold ?? null,

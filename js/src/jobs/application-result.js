@@ -51,6 +51,20 @@ const identity = (raw, input) =>
 const supervised = (raw) =>
   (raw.supervised === undefined || typeof raw.supervised === 'boolean') &&
   !(raw.supervised && raw.autoExact);
+const reentry = (raw) =>
+  (raw.reentryAvailable === undefined ||
+    typeof raw.reentryAvailable === 'boolean') &&
+  (!raw.reentryAvailable ||
+    (raw.active &&
+      raw.state === 'ready' &&
+      raw.attempted.enter &&
+      !raw.attempted.submit &&
+      raw.delivery === 'none' &&
+      !raw.hold &&
+      !raw.paused &&
+      raw.page?.bound &&
+      raw.page.enter &&
+      !raw.page.submit));
 const state = (raw) =>
   applicationStates.includes(raw.state) &&
   ['none', 'provider-confirmed', 'unknown'].includes(raw.delivery) &&
@@ -139,6 +153,9 @@ export const applicationResult = (raw, input) => {
       assignmentVacancy(raw.vacancy);
     }
     validateReport(raw.report);
+    if (!reentry(raw)) {
+      fail();
+    }
     applicationDraft(raw.draft);
     draftRestoration(raw.restoration);
     if (raw.exact && (!raw.report || !raw.page?.scope)) {

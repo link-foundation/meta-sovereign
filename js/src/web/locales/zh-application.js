@@ -106,4 +106,7 @@ export const zhApplication = {
     '答案、求职信和发送均需分别确认。已关闭自动发送。如果 HH 不提供审核表单，进入申请仍可能立即发送。',
   'application.answers': '仅填写已审核的精确答案',
   'application.letter': '仅附上已审核的求职信',
+  'application.reenter': '重新打开已审核弹窗（可能立即发送）',
+  'application.reenterHint':
+    '重新打开浏览器之前已保存尚未发送的原生弹窗状态。再次打开需要重新确认，并可能立即提交申请。此操作不会恢复答案或发送已保存的草稿。',
 };

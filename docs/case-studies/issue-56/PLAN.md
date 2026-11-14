@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active native popup recovery (HH06 remains incomplete):
+
+- [x] Preserve an acknowledged unsent native popup checkpoint without releasing the original entry reservation. Reopening the browser only reads; a separately confirmed re-entry may apply immediately and must consume that checkpoint before dispatch.
+- [x] Refuse legacy, failed-checkpoint, uncertain-send, held, paused, stale or changed-page re-entry. Preserve actual drafts, owner values, full-form recovery, zero-effect preview and separately confirmed restoration/submission across CLI, both Lino formats and four-language controls. Register the additive schema change without rewriting acknowledged legacy journals.
+- [ ] Reproduce the exact-parent failure, run focused tests and one native/MCP scenario, preserve before/after screenshots and checksummed evidence, drain fixtures, publish and inspect exact-head CI. Complete every remaining original criterion before marking the PR ready.
+
 Active supervised single-application review (HH08 remains incomplete):
 
 - [x] Add an opt-in preset that confirms answers, letter and sending separately, disables automatic exact sending and ends the foreground command after one confirmed delivery. Preserve zero-effect preview and existing combined prefill behavior outside the preset.

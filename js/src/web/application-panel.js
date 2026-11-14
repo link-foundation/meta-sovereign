@@ -145,6 +145,13 @@ const Receipt = ({ receipt, t }) =>
           })
         )
       : null,
+    receipt.reentryAvailable
+      ? el(
+          'p',
+          { key: 'reentry', role: 'note', 'data-application-reentry': true },
+          t('application.reenterHint')
+        )
+      : null,
     receipt.autoExact && !receipt.hold
       ? el(
           'p',
@@ -180,6 +187,8 @@ const Receipt = ({ receipt, t }) =>
   ]);
 
 const canRestore = (writable, receipt) => writable && Boolean(receipt?.draft);
+const canEnter = (ready, confirmed, receipt) =>
+  ready && confirmed && receipt.state === 'ready' && !receipt.attempted.enter;
 const canBackup = (ready, confirmed, receipt) =>
   ready &&
   confirmed &&
@@ -227,12 +236,17 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         'enter',
         t('application.enter'),
         action('Advance', { action: 'enter', confirm: true }),
-        !ready ||
-          !confirmed ||
-          receipt.state !== 'ready' ||
-          receipt.attempted.enter
+        !canEnter(ready, confirmed, receipt)
       ),
       el(PrefillControls, { key: 'prefill', receipt, action, writable, t }),
+      receipt.reentryAvailable
+        ? button(
+            'reenter',
+            t('application.reenter'),
+            action('Advance', { action: 'reenter', confirm: true }),
+            !ready || !confirmed
+          )
+        : null,
       button(
         'submit',
         t('application.submit'),

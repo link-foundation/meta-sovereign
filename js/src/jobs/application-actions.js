@@ -4,6 +4,7 @@ import {
   applicationFailure as fail,
   applicationView,
   applicationKey,
+  applicationCanReenter,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
 import { nativeApplicationFields } from './application-review.js';
@@ -45,6 +46,7 @@ export class ApplicationActions {
       attempted: record.attempted,
       delivery: record.delivery,
       state: record.state,
+      popupReview: record.popupReview ?? false,
     });
     let reserved = false;
     let issued = false;
@@ -53,6 +55,8 @@ export class ApplicationActions {
       // A failed/lost dispatch remains unknown. A definitive synchronous refusal
       // below is the only path which can release this reservation.
       record.attempted[action] = true;
+      // Consumed in the same acknowledged reservation as this new dispatch.
+      record.popupReview = false;
       record.delivery = 'unknown';
       record.state = 'sending';
       await service.save(record);
@@ -90,17 +94,23 @@ export class ApplicationActions {
     return this.settle(record, action, signal);
   }
   admitAdvance(record, input) {
-    if (!['enter', 'submit'].includes(input.action) || input.confirm !== true) {
+    if (
+      !['enter', 'reenter', 'submit'].includes(input.action) ||
+      input.confirm !== true
+    ) {
       throw fail('confirmation');
     }
     if (input.automatic !== undefined && typeof input.automatic !== 'boolean') {
       throw fail('input');
     }
-    if (record.attempted[input.action]) {
+    if (input.action === 'reenter' && !applicationCanReenter(record)) {
+      throw fail('already-attempted');
+    }
+    if (input.action !== 'reenter' && record.attempted[input.action]) {
       throw fail('already-attempted');
     }
     if (
-      record.state !== (input.action === 'enter' ? 'ready' : 'review') ||
+      record.state !== (input.action === 'submit' ? 'review' : 'ready') ||
       record.delivery === 'provider-confirmed'
     ) {
       throw fail('state');
@@ -124,8 +134,14 @@ export class ApplicationActions {
   }
   async advance(record, input, signal) {
     this.admitAdvance(record, input);
+    if (input.action === 'reenter') {
+      this.service.trace({
+        event: 'application-popup-reentry-reviewed',
+        preview: record.options.testMode,
+      });
+    }
     if (record.options.testMode) {
-      return { ...applicationView(record), state: 'test-preview' };
+      return applicationView({ ...record, state: 'test-preview' });
     }
     if (input.automatic === true) {
       if (
@@ -154,7 +170,11 @@ export class ApplicationActions {
         return applicationView(record);
       }
     }
-    return this.click(record, input.action, signal);
+    return this.click(
+      record,
+      input.action === 'reenter' ? 'enter' : input.action,
+      signal
+    );
   }
   async letter(record, signal) {
     const service = this.service;
@@ -246,7 +266,7 @@ export class ApplicationActions {
     const service = this.service;
     const part = this.prefillPart(record, input);
     if (record.options.testMode) {
-      return { ...applicationView(record), state: 'test-preview' };
+      return applicationView({ ...record, state: 'test-preview' });
     }
     if (
       record.state !== 'review' ||

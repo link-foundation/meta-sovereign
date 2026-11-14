@@ -39,6 +39,33 @@ async (originalPage, work) => {
       panel.locator(`[data-application-state="${name}"]`).waitFor();
     const confirm = () =>
       panel.locator('[data-application-option="confirm"]').check();
+    const confirmed = async (name) => {
+      await confirm();
+      await action(name).click();
+      await page.waitForFunction(
+        () =>
+          !document.querySelector('[data-application-option="confirm"]')
+            .checked &&
+          !document.querySelector('[data-application-action="read"]').disabled
+      );
+    };
+    const locales = async (attribute, blockedAction) => {
+      for (const locale of ['ru', 'hi', 'zh', 'en']) {
+        await page.evaluate(
+          (value) =>
+            globalThis.localStorage.setItem('metaSovereignLocale', value),
+          locale
+        );
+        await page.reload();
+        await panel.locator(`[data-application-${attribute}]`).waitFor();
+        require(!(await panel.innerText()).includes(
+          'application.'
+        ), 'Recovery hint is untranslated');
+        require(await action(
+          blockedAction
+        ).isDisabled(), 'Locale recovery reused confirmation');
+      }
+    };
     const start = async (settings = async () => {}) => {
       await vacancies.locator('[data-vacancy-field="query"]').fill('Python');
       await vacancies.locator('[data-vacancy-action="search"]').click();
@@ -65,6 +92,8 @@ async (originalPage, work) => {
       action,
       state,
       confirm,
+      confirmed,
+      locales,
       start,
     });
   } finally {

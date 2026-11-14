@@ -6,6 +6,7 @@ import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js'
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
+import { rememberApplicationPopup } from './application-popup.js';
 import { applyApplicationRunPolicy } from './application-run-modes.js';
 import {
   applicationFailure as fail,
@@ -136,6 +137,7 @@ export class ApplicationReview {
     this.service.holds.observe(record, record.page, record.state);
     rememberApplicationLocation(record);
     this.policy(record);
+    rememberApplicationPopup(record);
     record.guard = {
       page: applicationPageKey(record.page),
       report: record.report

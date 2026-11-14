@@ -134,6 +134,7 @@ export class ApplicationRetries {
       ...previous,
       attempted: retryAttempts(previous),
       delivery: 'none',
+      popupReview: false,
     });
     this.released.add(entry.id);
   }

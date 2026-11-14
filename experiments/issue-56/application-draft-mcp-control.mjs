@@ -1,5 +1,5 @@
 /** Isolated synthetic owner edits; this fixture endpoint is never a product route. */
-export const applicationDraftControl = (browser) => {
+export const applicationDraftControl = (browser, popup = false) => {
   let ownerActions = 0;
   return async (req) => {
     if (
@@ -17,7 +17,9 @@ export const applicationDraftControl = (browser) => {
       .find(
         (page) =>
           page.url() ===
-          'https://hh.ru/applicant/vacancy_response?vacancyId=123'
+          (popup
+            ? 'https://hh.ru/vacancy/123'
+            : 'https://hh.ru/applicant/vacancy_response?vacancyId=123')
       );
     if (!page) {
       throw new Error('No bound synthetic application page');

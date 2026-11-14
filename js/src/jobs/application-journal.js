@@ -6,6 +6,7 @@ import {
   draftRestoration,
 } from './application-draft-data.js';
 import { applicationResumeUrl } from './application-location.js';
+import { applicationPopupCheckpoint } from './application-popup.js';
 import {
   applicationSettings,
   applicationFailure as fail,
@@ -25,6 +26,7 @@ const properties = [
   'code',
   'vacancy',
   'resumeUrl',
+  'popupReview',
   'draft',
   'restoration',
 ];
@@ -56,6 +58,7 @@ export const readApplicationJournal = (row, key) => {
   const restored = {
     ...row,
     resumeUrl: applicationResumeUrl(row.resumeUrl, key.url),
+    popupReview: applicationPopupCheckpoint(row.popupReview, row),
     draft: applicationDraft(row.draft),
     restoration: draftRestoration(row.restoration),
     active: false,

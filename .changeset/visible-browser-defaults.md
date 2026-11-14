@@ -423,3 +423,5 @@ Retain native application error, verification and limit holds after banner dismi
 Preserve actual native answers and acknowledged private rejection history before closing a generic-error form, then exclude its vacancy for five hours in worker memory. A due, explicitly confirmed retry opens fresh review while restoration and sending remain separate; uncertain transport outcomes remain reserved.
 
 Add an opt-in supervised native application preset with separately confirmed answer and letter fills, automatic sending disabled and one confirmed delivery per foreground command. Preserve zero-effect preview, legacy journals, original frozen choices, owner values and renewed confirmations across CLI, both Lino encodings and four-language browser controls. Reserve schema 14 without rewriting acknowledged legacy intent; paced batches and recruiter-panel behavior remain unfinished.
+
+Native popup recovery retains acknowledged unsent review checkpoints and requires a new explicit entry confirmation after reopening. Unknown sends remain reserved; draft restoration and sending stay separate. Additive data schema 15 keeps old journals intact.

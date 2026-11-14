@@ -14,6 +14,7 @@ const browser = await chromium.launch({
 let fixture;
 const clock = { value: Date.UTC(2026, 10, 14), rejections: 0 };
 const retryFixture = process.env.APPLICATION_RETRY_FIXTURE === '1';
+const popup = process.env.APPLICATION_POPUP_FIXTURE === '1';
 try {
   const create =
     process.env.APPLICATION_REVIEW_FIXTURE === '1'
@@ -21,10 +22,10 @@ try {
       : process.env.CHOICE_PUT_FAILURE === '1'
         ? choicePutFixture
         : vacancyBrowserFixture;
-  fixture = await create(
-    browser,
-    retryFixture ? { application: { now: () => clock.value } } : {}
-  );
+  fixture = await create(browser, {
+    popup,
+    ...(retryFixture ? { application: { now: () => clock.value } } : {}),
+  });
   await fixture.page.context().close();
 } catch (error) {
   await browser.close();
@@ -43,7 +44,7 @@ const stats = () => ({
 });
 const draftControl =
   process.env.APPLICATION_DRAFT_FIXTURE === '1'
-    ? applicationDraftControl(browser)
+    ? applicationDraftControl(browser, popup)
     : null;
 const holdControl =
   process.env.APPLICATION_HOLD_FIXTURE === '1'

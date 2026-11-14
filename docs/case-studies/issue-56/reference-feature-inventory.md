@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH06 extension: [acknowledged native popup recovery](application-popup.md) keeps the original entry reserved, reopens the browser read-only and offers a separately confirmed entry only after a saved unsent popup review. Actual draft restoration and sending require their own confirmations. Legacy or unknown outcomes remain reserved. Full provider parity and all 81 original unchecked rows remain required; HH06 stays unchecked.
+
 Partial HH08 extension: [supervised single-application review](application-supervised.md) separates answer filling, letter attachment and sending, disables automatic sending and stops the foreground command after one HH-confirmed delivery. Zero-effect preview and legacy journals remain compatible. Automatic paced batches/revisits, independently configurable confirmations, recruiter-panel behavior and all 81 unchecked original rows remain required. This supersedes the preset gap in the earlier snapshots below; HH08 remains unchecked.
 
 Partial HH08 extension: [backed five-hour generic-error retries](application-retries.md) now preserve actual values and failed-dispatch history before RAM-only exclusion and separately confirmed due review. Automatic paced revisits, the supervised preset, recruiter-panel behavior and every unchecked original criterion remain unfinished. This supersedes the generic-error retry gap in the earlier snapshots below; no inventory row is marked complete by this unit.

@@ -1,33 +1,4 @@
 (class SupervisedApplicationVerification {
-  static async confirmed(tools, name) {
-    const { confirm, action, page } = tools;
-    await confirm();
-    await action(name).click();
-    await page.waitForFunction(
-      () =>
-        !document.querySelector('[data-application-option="confirm"]')
-          .checked &&
-        !document.querySelector('[data-application-action="read"]').disabled
-    );
-  }
-  static async locales(tools) {
-    const { page, panel, action, require } = tools;
-    for (const locale of ['ru', 'hi', 'zh', 'en']) {
-      await page.evaluate(
-        (value) =>
-          globalThis.localStorage.setItem('metaSovereignLocale', value),
-        locale
-      );
-      await page.reload();
-      await panel.locator('[data-application-supervised]').waitFor();
-      require(!(await panel.innerText()).includes(
-        'application.supervised'
-      ), 'Preset hint is untranslated');
-      require(await action(
-        'letter'
-      ).isDisabled(), 'Locale recovery reused confirmation');
-    }
-  }
   static async run(originalPage, fixture) {
     return fixture(originalPage, async (tools) => {
       const {
@@ -53,16 +24,16 @@
       });
       require((await action('prefill').count()) ===
         0, 'Combined prefill exposed in supervised review');
-      await SupervisedApplicationVerification.confirmed(tools, 'answers');
+      await tools.confirmed('answers');
       let values = await owner('draft-values');
       require(values.experience === 'Five years building Python services.' &&
         values.letter === null &&
         values.submissions === 0, 'Answer step combined effects');
-      await SupervisedApplicationVerification.locales(tools);
+      await tools.locales('supervised', 'letter');
       await panel.screenshot({
         path: 'docs/screenshots/application-supervised-answers.png',
       });
-      await SupervisedApplicationVerification.confirmed(tools, 'letter');
+      await tools.confirmed('letter');
       values = await owner('draft-values');
       require(values.letter === 'Independent supervised owner letter.' &&
         values.submissions === 0, 'Letter step sent or lost owner text');
