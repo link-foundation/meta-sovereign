@@ -1,5 +1,6 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyNativeApplicationDraft } from './helpers/e2e-application-drafts.mjs';
+import { verifyNativeApplicationRunModes } from './helpers/e2e-application-run-modes.mjs';
 import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
 import {
   verifyNativeApplication,
@@ -12,4 +13,5 @@ await runBrowserScenarios('job-application', [
   verifyApplicationPanel,
   verifyNativeApplicationRecovery,
   verifyNativeApplicationDraft,
+  verifyNativeApplicationRunModes,
 ]);

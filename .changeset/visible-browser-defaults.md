@@ -409,3 +409,5 @@ Add private acknowledged backups of actual native questionnaire answers and edit
 Reopen an acknowledged native HH questionnaire at its validated saved form URL. Preserve original settings, durable entry/submission reservations and fresh confirmation, refuse foreign or mismatched locations before browser launch, and retain acknowledged checkpoints after failed storage.
 
 Verify binary snapshot minimum/adaptive intervals and immediate flush with finite scheduling clocks and real file writes. Share the default clock and add optional timing-only diagnostics without changing production pacing or persistence policy.
+
+Retain application pause and questionnaire choices across reviews in the same worker and browser slot, without durable skip state. Add foreground POSIX mode signals that interrupt exact-answer delays and native guards, preserve later signals during acknowledged mode changes, and disclose scope and remaining retry limitations in all four languages.

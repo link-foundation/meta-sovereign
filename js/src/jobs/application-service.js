@@ -21,6 +21,7 @@ import {
 import { ApplicationReview } from './application-review.js';
 import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
+import { ApplicationRunModes } from './application-run-modes.js';
 
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
@@ -58,6 +59,7 @@ class ApplicationService {
     this.review = new ApplicationReview(this);
     this.actions = new ApplicationActions(this);
     this.drafts = new ApplicationDrafts(this);
+    this.modes = new ApplicationRunModes();
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -158,6 +160,7 @@ class ApplicationService {
           ? row
           : {
               ...row,
+              ...this.modes.read(row.browserSlot),
               state:
                 row.delivery === 'provider-confirmed'
                   ? 'delivered'
@@ -214,6 +217,7 @@ class ApplicationService {
     if (restored.previous && !input.recover) {
       return applicationView({
         ...restored.previous,
+        ...this.modes.read(options.browserSlot),
         state:
           restored.previous.delivery === 'provider-confirmed'
             ? 'delivered'
@@ -229,8 +233,7 @@ class ApplicationService {
       attempted: { enter: false, submit: false },
       ...restored.previous,
       id: options.id,
-      noQuestionnaires: false,
-      paused: false,
+      ...this.modes.read(options.browserSlot),
       browser: null,
       active: true,
     };
@@ -283,12 +286,29 @@ class ApplicationService {
     globalThis.clearTimeout(this.timer);
     await this.task?.catch(() => {});
     await this.close();
+    this.modes.clear();
   }
 }
 export const createApplicationService = (options) => {
   const service = new ApplicationService(options);
   return {
     operations: {
+      // Foreground CLI signals only: the HTTP route allowlist does not expose
+      // this interruption channel. It changes RAM policy without waiting behind
+      // an exact-answer review delay or performing a provider action.
+      'application-signal-mode': (input) => {
+        if (service.stopped) {
+          throw fail('stopped');
+        }
+        const { browserSlot } = applicationKey(input);
+        const modes = service.modes.signal(
+          service.current,
+          browserSlot,
+          input.noQuestionnaires
+        );
+        service.trace({ event: 'application-run-mode-signal', ...modes });
+        return { ok: true, browserSlot, ...modes };
+      },
       'application-open': (input) =>
         service.operate((signal) => service.open(input, signal)),
       'application-status': (input) => service.status(input),

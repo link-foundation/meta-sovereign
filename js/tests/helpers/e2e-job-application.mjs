@@ -1,24 +1,12 @@
 import assert from 'node:assert/strict';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
-import { encodeWire, decodeWire, LINO_TEXT } from '../../src/transport/lino.js';
+import {
+  nativeApplicationRequest as request,
+  nativeApplicationForm,
+  nativeApplicationFormUrl as formUrl,
+} from './application-native-request.mjs';
 
-const request = async (fixture, operation, input) => {
-  const response = await fetch(
-    `${fixture.base}/api/vacancies/application-${operation}`,
-    {
-      method: 'POST',
-      headers: { 'content-type': LINO_TEXT, accept: LINO_TEXT },
-      body: encodeWire(input),
-    }
-  );
-  const value = decodeWire(
-    await response.arrayBuffer(),
-    response.headers.get('content-type')
-  );
-  assert.equal(response.status, 200, JSON.stringify(value));
-  return value;
-};
 const identity = (receipt, extra = {}) => ({
   ...applicationInput,
   revision: receipt.revision,
@@ -26,12 +14,7 @@ const identity = (receipt, extra = {}) => ({
 });
 export const verifyNativeApplicationRecovery = async (browser) => {
   const fixture = await applicationNativeFixture(browser);
-  const formUrl = 'https://hh.ru/applicant/vacancy_response?vacancyId=123';
-  const owned = () =>
-    browser
-      .contexts()
-      .flatMap((context) => context.pages())
-      .find((page) => page.url() === formUrl);
+  const owned = () => nativeApplicationForm(browser);
   try {
     let receipt = await request(fixture, 'open', {
       ...applicationInput,

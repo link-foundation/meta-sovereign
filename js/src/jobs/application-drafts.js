@@ -107,7 +107,7 @@ export class ApplicationDrafts {
     ) {
       throw fail('state');
     }
-    await this.service.review.check(record, 'submit', signal);
+    await this.service.review.check(record, 'submit', signal, !restoring);
   }
   async backup(record, input, signal) {
     await this.admit(record, input, signal);
@@ -124,7 +124,7 @@ export class ApplicationDrafts {
         checked: field.checked,
       })),
     });
-    await this.service.review.check(record, 'submit', signal);
+    await this.service.review.check(record, 'submit', signal, true);
     record.draft = next;
     record.restoration = null;
     await this.service.save(record);

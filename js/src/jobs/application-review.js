@@ -6,6 +6,7 @@ import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js'
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
+import { applyApplicationRunPolicy } from './application-run-modes.js';
 import {
   applicationFailure as fail,
   applicationPageKey,
@@ -27,6 +28,14 @@ const exactField = (field) =>
   !field.answer.missing?.length &&
   Boolean(field.answer.proposal) &&
   proposalMatches(field, field.answer.proposal);
+const checkPolicy = (record, allowHeld) => {
+  if (
+    !allowHeld &&
+    (record.paused || (record.noQuestionnaires && record.page.questions))
+  ) {
+    throw fail('state');
+  }
+};
 export const exactApplicationPlan = (record) => {
   const { report, page, options } = record;
   if (
@@ -143,22 +152,14 @@ export class ApplicationReview {
     ) {
       record.delivery = 'none';
     }
-    if (['ready', 'review'].includes(record.state) && record.paused) {
-      record.state = 'paused';
-    }
-    if (
-      record.state === 'review' &&
-      record.noQuestionnaires &&
-      record.page.questions
-    ) {
-      record.state = 'deferred';
-    }
+    applyApplicationRunPolicy(record);
   }
-  async check(record, action, signal) {
+  async check(record, action, signal, allowHeld = false) {
     const { readPage, filling } = this.service;
     if (!record.guard) {
       throw fail('changed');
     }
+    checkPolicy(record, allowHeld);
     const before = await readPage(record.browser, record.url);
     if (
       applicationPageKey(before) !== record.guard.page ||
@@ -181,5 +182,6 @@ export class ApplicationReview {
       }
     }
     signal.throwIfAborted();
+    checkPolicy(record, allowHeld);
   }
 }

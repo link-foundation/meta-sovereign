@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { wirePost } from './vacancy-routes.mjs';
+import { LINO_TEXT } from '../../src/transport/lino.js';
+import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
+
+export const nativeApplicationFormUrl =
+  'https://hh.ru/applicant/vacancy_response?vacancyId=123';
+export const nativeApplicationForm = (browser) =>
+  browser
+    .contexts()
+    .flatMap((context) => context.pages())
+    .find((page) => page.url() === nativeApplicationFormUrl);
+
+export const nativeApplicationRequest = async (fixture, operation, input) => {
+  const result = await wirePost(
+    fixture.base,
+    `application-${operation}`,
+    input,
+    LINO_TEXT
+  );
+  assert.equal(result.status, 200, JSON.stringify(result.value));
+  return result.value;
+};
+export const nativeApplicationReviewRequest = (
+  fixture,
+  operation,
+  receipt,
+  extra = {}
+) =>
+  nativeApplicationRequest(fixture, operation, {
+    ...applicationInput,
+    ...(receipt ? { revision: receipt.revision } : {}),
+    ...extra,
+  });

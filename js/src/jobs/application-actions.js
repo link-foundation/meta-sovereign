@@ -134,6 +134,10 @@ export class ApplicationActions {
       }
       const guard = record.guard;
       record.state = 'review-delay';
+      this.service.trace({
+        event: 'application-review-delay',
+        delayMs: record.options.reviewDelayMs,
+      });
       await delay(record.options.reviewDelayMs, signal);
       await this.service.review.inspect(record, signal);
       if (
@@ -251,21 +255,21 @@ export class ApplicationActions {
     );
   }
   async mode(record, input, signal) {
-    if (
-      !['noQuestionnaires', 'paused'].some(
-        (name) => input[name] !== undefined
-      ) ||
-      ['noQuestionnaires', 'paused'].some(
-        (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
-      )
-    ) {
-      throw fail('input');
-    }
-    for (const name of ['noQuestionnaires', 'paused']) {
-      if (input[name] !== undefined) {
-        record[name] = input[name];
+    const service = this.service;
+    const version = service.modes.version(record.browserSlot);
+    const modes = service.modes.change(record.browserSlot, input);
+    Object.assign(record, modes);
+    try {
+      const result = await service.review.inspect(record, signal);
+      if (service.modes.version(record.browserSlot) === version) {
+        service.modes.save(record.browserSlot, modes);
+        return result;
       }
+      service.modes.apply(record);
+      return applicationView(record);
+    } catch (error) {
+      service.modes.apply(record);
+      throw error;
     }
-    return this.service.review.inspect(record, signal);
   }
 }

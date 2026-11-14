@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Worker application policies](application-run-modes.md): slot-isolated RAM choices across reviews, foreground signal interruption, acknowledged-mode races and exact-parent/native/MCP evidence. Automatic deferral backups, retries and the supervised preset remain unfinished.
+
 - [Native questionnaire drafts](application-drafts.md): explicit acknowledged backup of actual owner answers and letters, separately confirmed guarded restoration, CLI/Lino/four-language controls and actual-parent/native/MCP evidence. Automatic deferral and complete session policies remain unfinished.
 
 - [Repeated unread boundaries](ci-unread-polling-boundary.md): exact hosted failure, finite overlapping native-pass reproduction and full owner-state verification at a completed boundary, preserving focus, stop and recovery checks.

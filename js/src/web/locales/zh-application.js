@@ -18,27 +18,11 @@ export const zhApplication = {
   'application.prefill': '填写已验证的精确答案和求职信',
   'application.prefillAutomatic': '填写精确答案并在审核延时后发送',
   'application.submit': '发送已审核的申请',
-  'application.backup': '备份当前 HH 答案',
-  'application.restore': '将已审核草稿恢复到空白控件',
-  'application.draft': '已保存的私人问卷草稿',
-  'application.draftSaved': '保存于此服务器：{time}',
-  'application.draftHint':
-    '恢复前请打开相同的问题和求职信控件。请先审核这份私人副本。现有答案会被保留；恢复不会提交申请或学习答案。备份需要明确操作，不是重试队列。',
-  'application.draft.checked': '已选中',
-  'application.draft.unchecked': '未选中',
-  'application.restore.restoring':
-    '已开始恢复；请重新读取 HH 页面以确认当前值。',
-  'application.restore.restored':
-    '草稿值已在 HH 控件中验证。提交前请审核答案。',
-  'application.restore.refused': '恢复被拒绝；现有答案已保留。请重新读取页面。',
-  'application.restore.partial': '已恢复部分草稿值。继续前请读取 HH 页面。',
-  'application.restore.uncertain':
-    '无法确认恢复结果。进行其他操作前请读取 HH 页面。',
   'application.close': '关闭此申请的浏览器',
-  'application.pause': '暂停此审核',
-  'application.noQuestionnaires': '在此次审核中暂缓问卷',
+  'application.pause': '暂停此浏览器槽位中的申请',
+  'application.noQuestionnaires': '在此工作进程和浏览器槽位中暂缓问卷',
   'application.sessionHint':
-    '暂停和问卷暂缓仅适用于此次打开的审核，不会创建永久排除或重试队列。',
+    '暂停和问卷选项会应用于此工作进程和浏览器槽位中的后续审核。重启后会清除。暂缓的表单保持打开：关闭前请备份答案。目前尚无重试队列。',
   'application.unavailable': '需要连接支持原生申请审核的服务器。',
   'application.choose': '请先采集或选择已保存的职位。',
   'application.bound':
@@ -64,6 +48,22 @@ export const zhApplication = {
   'application.letter.unavailable': '求职信控件不可用。',
   'application.letter.unverified': '无法验证求职信内容。',
   'application.letter.owner-conflict': '已保留您现有的求职信，自动发送被阻止。',
+  'application.backup': '备份当前 HH 答案',
+  'application.restore': '将已审核草稿恢复到空白控件',
+  'application.draft': '已保存的私人问卷草稿',
+  'application.draftSaved': '保存于此服务器：{time}',
+  'application.draftHint':
+    '恢复前请打开相同的问题和求职信控件。请先审核这份私人副本。现有答案会被保留；恢复不会提交申请或学习答案。备份需要明确操作，不是重试队列。',
+  'application.draft.checked': '已选中',
+  'application.draft.unchecked': '未选中',
+  'application.restore.restoring':
+    '已开始恢复；请重新读取 HH 页面以确认当前值。',
+  'application.restore.restored':
+    '草稿值已在 HH 控件中验证。提交前请审核答案。',
+  'application.restore.refused': '恢复被拒绝；现有答案已保留。请重新读取页面。',
+  'application.restore.partial': '已恢复部分草稿值。继续前请读取 HH 页面。',
+  'application.restore.uncertain':
+    '无法确认恢复结果。进行其他操作前请读取 HH 页面。',
   'application.state.opening': '正在打开原生审核',
   'application.state.ready': '可进入申请',
   'application.state.review': '发送前请审核原生答案',

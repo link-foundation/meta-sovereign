@@ -7,6 +7,7 @@ import {
 } from '../jobs/application-options.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire } from '../transport/lino.js';
+import { applicationModeSignals } from './application-signals.js';
 
 export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--auto-exact=true|false] [--review-delay-ms=3000] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
@@ -73,13 +74,14 @@ export const applicationCommand = async (service, input, log, readInput) => {
   };
   process.once('SIGINT', cancel);
   process.once('SIGTERM', cancel);
+  const releaseModes = applicationModeSignals(service, input, log);
   try {
     let receipt = await service['application-open'](input);
     log(encodeWire(receipt));
     log(
       encodeWire({
         commands: [...Object.keys(commands), 'status', 'quit'],
-        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves the actual native answers privately. Restore requires matching empty controls and never sends or learns answers. Test mode never clicks or fills. Unknown outcomes never retry automatically. End of input closes this browser.',
+        note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves the actual native answers privately. Restore requires matching empty controls and never sends or learns answers. Test mode never clicks or fills. Pause and questionnaire policies last for this worker and browser slot. SIGUSR1 defers questionnaires; SIGUSR2 enables them. Deferred forms stay open; retries are not queued. Unknown outcomes never retry automatically. End of input closes this browser.',
       })
     );
     for await (const line of stream) {
@@ -115,6 +117,7 @@ export const applicationCommand = async (service, input, log, readInput) => {
   } finally {
     process.off('SIGINT', cancel);
     process.off('SIGTERM', cancel);
+    releaseModes();
     stream.close?.();
     await cancelling;
   }

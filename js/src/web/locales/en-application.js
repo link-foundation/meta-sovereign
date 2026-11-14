@@ -22,29 +22,12 @@ export const enApplication = {
   'application.prefillAutomatic':
     'Fill exact answers, then send after review delay',
   'application.submit': 'Send reviewed application',
-  'application.backup': 'Back up current native answers',
-  'application.restore': 'Restore reviewed draft into empty controls',
-  'application.draft': 'Private saved questionnaire draft',
-  'application.draftSaved': 'Saved on this server at {time}',
-  'application.draftHint':
-    'Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. Backups are explicit and are not a retry queue.',
-  'application.draft.checked': 'Checked',
-  'application.draft.unchecked': 'Unchecked',
-  'application.restore.restoring':
-    'Restoration started; read the native page to confirm its current values.',
-  'application.restore.restored':
-    'Draft values verified in native controls. Review the answers before sending.',
-  'application.restore.refused':
-    'Restoration refused; existing answers are preserved. Read the page again.',
-  'application.restore.partial':
-    'Some draft values were restored. Read the native page before continuing.',
-  'application.restore.uncertain':
-    'Restoration could not be confirmed. Read the native page before another action.',
   'application.close': 'Close owned application browser',
-  'application.pause': 'Pause this review',
-  'application.noQuestionnaires': 'Defer this questionnaire for this review',
+  'application.pause': 'Pause applications in this browser slot',
+  'application.noQuestionnaires':
+    'Defer questionnaires in this worker and browser slot',
   'application.sessionHint':
-    'Pause and questionnaire deferral apply only to this open review. They do not create permanent skips or a retry queue.',
+    'Pause and questionnaire choices carry across reviews in this worker and browser slot. Restart clears them. Deferred forms stay open: back up answers before closing. Retry queues are not available yet.',
   'application.unavailable':
     'A connected server with native application review support is required.',
   'application.choose': 'Collect or choose a saved vacancy to begin.',
@@ -76,6 +59,24 @@ export const enApplication = {
   'application.letter.unverified': 'Letter contents could not be verified.',
   'application.letter.owner-conflict':
     'Existing owner letter preserved; automatic sending is blocked.',
+  'application.backup': 'Back up current native answers',
+  'application.restore': 'Restore reviewed draft into empty controls',
+  'application.draft': 'Private saved questionnaire draft',
+  'application.draftSaved': 'Saved on this server at {time}',
+  'application.draftHint':
+    'Open the same native questions, including the letter control, before restoring. Review this private copy first. Existing answers are preserved; restoration never sends or learns answers. Backups are explicit and are not a retry queue.',
+  'application.draft.checked': 'Checked',
+  'application.draft.unchecked': 'Unchecked',
+  'application.restore.restoring':
+    'Restoration started; read the native page to confirm its current values.',
+  'application.restore.restored':
+    'Draft values verified in native controls. Review the answers before sending.',
+  'application.restore.refused':
+    'Restoration refused; existing answers are preserved. Read the page again.',
+  'application.restore.partial':
+    'Some draft values were restored. Read the native page before continuing.',
+  'application.restore.uncertain':
+    'Restoration could not be confirmed. Read the native page before another action.',
   'application.state.opening': 'Opening native review',
   'application.state.ready': 'Ready to enter the application',
   'application.state.review': 'Review native answers before sending',

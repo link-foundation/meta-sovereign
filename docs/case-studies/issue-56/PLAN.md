@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active worker application policies (HH08 remains incomplete):
+
+- [x] Draft worker-owned, browser-slot-isolated pause/questionnaire choices across vacancy reviews. Exclude them from durable journals, reset on worker restart and retain explicit read/backup while held.
+- [x] Draft POSIX foreground signals that can interrupt an active exact-answer delay and its last native guard. Preserve acknowledged mode updates and a later signal during successful or failed storage.
+- [x] Verify exact-parent loss, 62 focused application cases, 15 shared-prefill cases, 11 sequential Deno cases and four dictionary checks. Production native Chromium and independent MCP confirm retained choices, held questionnaires and review-only resume; all owned fixtures close. Preserve before/after screens and the initial asynchronous-checkbox probe failures.
+- [ ] Preserve checksummed evidence, publish an atomic unit and inspect exact-head hosted checks. Continue RAM deferred retries, automatic backup before leaving, the supervised one-application preset and every unchecked original criterion; keep PR57 draft and unmerged.
+
 Active native application draft prerequisite for HH06/HH08:
 
 - [x] Add explicit private acknowledged backups of freshly inspected bound questionnaires and actual owner letters. Refuse incomplete, unsafe or unsupported captures; retain previous acknowledged drafts and the live form after failed storage. Automatic backup before future deferral remains required.
@@ -11,7 +18,7 @@ Active hosted Windows Deno snapshot interval failure:
 
 - [x] Match Windows 2025 Deno shard 3 job `132290872116` to exact published `4f482c34`, and preserve its complete 5,292-line log. Lines 5244–5257 report one snapshot record instead of three in the interval test.
 - [x] Reproduce the invalid five-second assertion against the exact published scheduler with a bounded controlled 600 ms write. Await actual file writes with an injected finite scheduling clock; verify minimum/adaptive intervals, coalescing, immediate flush and throwing diagnostics in three Node/three Deno checks, plus six existing mirror checks. Preserve full hosted logs and confirmed supersession annotation in [the evidence](ci-snapshot-interval.md). Production timing policy and deadlines stay unchanged; the original runner's precise write cost was not measured.
-- [ ] Publish the atomic correction and inspect every exact-head hosted check, then continue every unfinished original requirement.
+- [x] Publish the atomic correction as `d0a5e5e5`; its exact-head Windows Deno shard 3 (`132305077741`) and all four CodeQL jobs pass. The aggregate workflow still has unfinished jobs; every final-head check remains required.
 
 Active native full-form recovery correction:
 

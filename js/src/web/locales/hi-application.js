@@ -22,29 +22,12 @@ export const hiApplication = {
   'application.prefillAutomatic':
     'सटीक उत्तर भरें, फिर समीक्षा विराम के बाद भेजें',
   'application.submit': 'समीक्षित आवेदन भेजें',
-  'application.backup': 'मौजूदा HH उत्तरों का बैकअप लें',
-  'application.restore': 'समीक्षित ड्राफ़्ट खाली फ़ील्ड में बहाल करें',
-  'application.draft': 'प्रश्नावली का निजी सहेजा हुआ ड्राफ़्ट',
-  'application.draftSaved': 'इस सर्वर पर सहेजने का समय: {time}',
-  'application.draftHint':
-    'बहाल करने से पहले वही प्रश्न और पत्र का फ़ील्ड खोलें। पहले इस निजी प्रति की समीक्षा करें। मौजूदा उत्तर सुरक्षित रहेंगे; बहाली से आवेदन नहीं भेजा जाता और उत्तर नहीं सीखे जाते। बैकअप स्पष्ट कार्रवाई है, पुनः प्रयास की कतार नहीं।',
-  'application.draft.checked': 'चुना गया',
-  'application.draft.unchecked': 'नहीं चुना गया',
-  'application.restore.restoring':
-    'बहाली शुरू हुई; मौजूदा मान जाँचने के लिए HH पृष्ठ फिर पढ़ें।',
-  'application.restore.restored':
-    'ड्राफ़्ट के मान HH फ़ील्ड में सत्यापित हैं। भेजने से पहले उत्तरों की समीक्षा करें।',
-  'application.restore.refused':
-    'बहाली अस्वीकार हुई; मौजूदा उत्तर सुरक्षित हैं। पृष्ठ फिर पढ़ें।',
-  'application.restore.partial':
-    'कुछ मान बहाल हुए। आगे बढ़ने से पहले HH पृष्ठ पढ़ें।',
-  'application.restore.uncertain':
-    'बहाली की पुष्टि नहीं हुई। दूसरी कार्रवाई से पहले HH पृष्ठ पढ़ें।',
   'application.close': 'आवेदन का अपना ब्राउज़र बंद करें',
-  'application.pause': 'इस समीक्षा को रोकें',
-  'application.noQuestionnaires': 'इस समीक्षा में प्रश्नावली टालें',
+  'application.pause': 'इस ब्राउज़र स्लॉट में आवेदन रोकें',
+  'application.noQuestionnaires':
+    'इस कार्यकर्ता और ब्राउज़र स्लॉट में प्रश्नावलियाँ टालें',
   'application.sessionHint':
-    'विराम और प्रश्नावली टालना केवल इस खुली समीक्षा पर लागू हैं। ये स्थायी बहिष्करण या पुनः प्रयास कतार नहीं बनाते।',
+    'विराम और प्रश्नावली विकल्प इस कार्यकर्ता और ब्राउज़र स्लॉट की अगली समीक्षाओं पर भी लागू होते हैं। पुनः आरंभ पर ये मिट जाते हैं। टाले गए फ़ॉर्म खुले रहते हैं: बंद करने से पहले उत्तरों का बैकअप लें। पुनः प्रयास कतार अभी उपलब्ध नहीं है।',
   'application.unavailable':
     'मूल आवेदन समीक्षा समर्थित जुड़े सर्वर की आवश्यकता है।',
   'application.choose':
@@ -77,6 +60,24 @@ export const hiApplication = {
   'application.letter.unverified': 'पत्र की सामग्री सत्यापित नहीं हुई।',
   'application.letter.owner-conflict':
     'पहले से मौजूद आपका पत्र सुरक्षित है; स्वतः भेजना अवरुद्ध है।',
+  'application.backup': 'मौजूदा HH उत्तरों का बैकअप लें',
+  'application.restore': 'समीक्षित ड्राफ़्ट खाली फ़ील्ड में बहाल करें',
+  'application.draft': 'प्रश्नावली का निजी सहेजा हुआ ड्राफ़्ट',
+  'application.draftSaved': 'इस सर्वर पर सहेजने का समय: {time}',
+  'application.draftHint':
+    'बहाल करने से पहले वही प्रश्न और पत्र का फ़ील्ड खोलें। पहले इस निजी प्रति की समीक्षा करें। मौजूदा उत्तर सुरक्षित रहेंगे; बहाली से आवेदन नहीं भेजा जाता और उत्तर नहीं सीखे जाते। बैकअप स्पष्ट कार्रवाई है, पुनः प्रयास की कतार नहीं।',
+  'application.draft.checked': 'चुना गया',
+  'application.draft.unchecked': 'नहीं चुना गया',
+  'application.restore.restoring':
+    'बहाली शुरू हुई; मौजूदा मान जाँचने के लिए HH पृष्ठ फिर पढ़ें।',
+  'application.restore.restored':
+    'ड्राफ़्ट के मान HH फ़ील्ड में सत्यापित हैं। भेजने से पहले उत्तरों की समीक्षा करें।',
+  'application.restore.refused':
+    'बहाली अस्वीकार हुई; मौजूदा उत्तर सुरक्षित हैं। पृष्ठ फिर पढ़ें।',
+  'application.restore.partial':
+    'कुछ मान बहाल हुए। आगे बढ़ने से पहले HH पृष्ठ पढ़ें।',
+  'application.restore.uncertain':
+    'बहाली की पुष्टि नहीं हुई। दूसरी कार्रवाई से पहले HH पृष्ठ पढ़ें।',
   'application.state.opening': 'मूल समीक्षा खुल रही है',
   'application.state.ready': 'आवेदन खोलने के लिए तैयार',
   'application.state.review': 'भेजने से पहले मूल उत्तर देखें',
