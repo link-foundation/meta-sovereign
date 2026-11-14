@@ -201,3 +201,12 @@ export const applicationBatchFixture = (t, configuration = {}) => {
   };
   return f;
 };
+
+export const applicationBatchAtSend = async (t) => {
+  const f = applicationBatchFixture(t);
+  await f.start({ confirmations: ['send'] });
+  const receipt = await f.until(
+    (row) => row.application?.continuation?.step === 'send'
+  );
+  return { f, receipt };
+};

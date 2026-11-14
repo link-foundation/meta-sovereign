@@ -1,5 +1,6 @@
 # Issue 56: unified automation and device architecture
 
+- [Batch-owned review controls](batch-review-ownership.md): exact Chromium/WebKit failures, matching owner controls, inactive identity recovery and a single-clock admission correction, with parent regressions and native/MCP desktop/phone evidence.
 - [Configurable viewed-vacancy surveys](application-feedback.md): a frozen default/opt-out for explicitly opened owned application reviews, preserving owner reasons, preview, verification holds and read-only recovery. Parent regressions and focused native/MCP desktop/phone evidence are retained; original incomplete criteria remain required.
 
 - [Bounded automatic vacancy discovery](vacancy-discovery.md): frozen native search/pagination, finite full-description collection, acknowledged progress and explicit batch-draft handoff through CLI, both Lino encodings and four-language UI. Parent failures and focused native/MCP desktop/phone evidence are retained; all original incomplete criteria remain required.

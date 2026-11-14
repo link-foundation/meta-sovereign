@@ -8,6 +8,7 @@ import { applicationBatchKey } from '../src/jobs/application-batch-data.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import {
   applicationBatchFixture,
+  applicationBatchAtSend,
   batchInput,
   batchUrls,
 } from '../../experiments/issue-56/application-batch-fixture.mjs';
@@ -110,11 +111,7 @@ test(
   'batch UI renders frozen settings and truthful lifecycle controls in four languages',
   { timeout: 5000 },
   async (t) => {
-    const f = applicationBatchFixture(t);
-    await f.start({ confirmations: ['send'] });
-    const receipt = await f.until(
-      (r) => r.application?.continuation?.step === 'send'
-    );
+    const { receipt } = await applicationBatchAtSend(t);
     for (const locale of ['en', 'ru', 'hi', 'zh']) {
       const markup = applicationPanelMarkup(
         { options: {}, batch: { receipt, busy: false, known: true } },
@@ -138,11 +135,7 @@ test(
   'following a batch adopts only its identity through status without replay or loss of another intent',
   { timeout: 5000 },
   async (t) => {
-    const f = applicationBatchFixture(t);
-    await f.start({ confirmations: ['send'] });
-    const receipt = await f.until(
-      (r) => r.application?.continuation?.step === 'send'
-    );
+    const { f, receipt } = await applicationBatchAtSend(t);
     const client = applicationSessionClient(f);
     await client.session.followBatch(receipt.application);
     assert.deepEqual(

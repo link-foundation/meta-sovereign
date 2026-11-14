@@ -93,13 +93,14 @@ export const enterApplicationRoute = async (api) => {
   });
 };
 
-export const applicationPanelMarkup = (application, locale) =>
+export const applicationPanelMarkup = (application, locale, state = {}) =>
   renderToStaticMarkup(
     React.createElement(ApplicationPanel, {
       t: (key, values) => translate(locale, key, values),
       state: {
         capabilities: { applicationReview: true },
         busy: false,
+        ...state,
         application: { known: true, busy: false, ...application },
       },
     })

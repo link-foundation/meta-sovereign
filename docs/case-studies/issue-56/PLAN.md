@@ -1,5 +1,13 @@
 # Issue 56 / PR 57 work plan
 
+Active batch-owned review controls regression:
+
+- [x] Preserve exact published discovery head `8007a002`, Checks `43635159024` and Chromium shard 3 job `132572456753`: log lines 2222–2244 show a disabled confirmation checkbox, with the original ten-second deadline retained. Workspace busy classification now includes the active batch and disables its own review.
+- [x] Reproduce the active-batch panel refusal with a minimal regression. Admit only the matching active batch review; preserve status and inactive identity release after advancement. Retain other workspace operations, mismatched identities, current-step confirmation and native guards.
+- [x] Reproduce the independent two-clock Start admission failure with a finite advancing clock. Capture one start time for expiry, retaining the 24-hour limit; Node/Deno regression passes without browser work.
+- [x] Focused Node 16/Deno 4 and the unchanged finite native batch scenario pass. Independent MCP, before/after desktop and phone evidence, no replay and resource drainage pass.
+- [ ] Preserve evidence, publish all atomic units and inspect every exact-head check. Continue all 81 original incomplete requirements.
+
 Active viewed-vacancy feedback policy (HH05/HH08 remain incomplete):
 
 - [x] Add the reference's configurable default “Maybe I'll apply later” response to the dedicated native HH survey, including while an explicitly opened application review waits. Preserve a different owner reason, preview, verification gates and application controls.

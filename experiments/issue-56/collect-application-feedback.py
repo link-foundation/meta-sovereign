@@ -1,7 +1,6 @@
 """Preserve the owned survey policy, actual-parent failures and browser evidence."""
 import json
-import re
-from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs
+from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs, verify_evidence
 
 root, logs, read = evidence_context(__file__, 'application-feedback')
 checks = {
@@ -14,16 +13,7 @@ checks = {
                '"closed":true', '"recoveryReplay":false'],
     'format-check': ['All matched files use Prettier code style!'],
 }
-for name, fragments in checks.items():
-    assert all(fragment in read(name) for fragment in fragments), name
-for name in ['lint-final', 'secrets', 'diff']:
-    assert not read(name).strip(), name
-duplication = read('duplication')
-assert 'Found' in duplication
-total = next(line for line in duplication.splitlines() if 'Total:' in line)
-percentages = re.findall(r'([\d.]+)%', total)
-assert percentages and float(percentages[0]) <= 6.5, percentages
-assert 'ERROR:' not in duplication, 'duplication threshold failed'
+verify_evidence(read, checks)
 receipt = json.loads((logs / 'application-feedback-mcp-final.json').read_text())
 assert not receipt.get('isError'), receipt
 text = '\n'.join(row.get('text', '') for row in receipt['content'])

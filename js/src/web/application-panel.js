@@ -465,7 +465,13 @@ const Status = ({ application, t }) =>
       ? el(Receipt, { key: 'receipt', receipt: application.receipt, t })
       : null,
   ]);
-const RecoveryControls = ({ application, idle, supported, t }) => {
+const RecoveryControls = ({
+  application,
+  idle,
+  recoveryIdle,
+  supported,
+  t,
+}) => {
   const blocked = !idle || !supported;
   return el('div', { className: 'row' }, [
     button(
@@ -481,7 +487,7 @@ const RecoveryControls = ({ application, idle, supported, t }) => {
       'recover',
       t('application.recover'),
       application.recover,
-      blocked || !(application.intent || application.target)
+      !recoveryIdle || !supported || !(application.intent || application.target)
     ),
     button(
       'reopen',
@@ -493,7 +499,7 @@ const RecoveryControls = ({ application, idle, supported, t }) => {
       'release',
       t('application.release'),
       application.release,
-      !idle || !canRelease(application)
+      !recoveryIdle || !canRelease(application)
     ),
     button(
       'stop',
@@ -503,6 +509,22 @@ const RecoveryControls = ({ application, idle, supported, t }) => {
     ),
   ]);
 };
+const ownsBatchReview = (application) => {
+  const batch = application.batch?.receipt;
+  const current = batch?.application;
+  const receipt = application.receipt;
+  return Boolean(
+    batch?.batch?.active === true &&
+    current &&
+    receipt?.active === true &&
+    ['url', 'browserSlot', 'requestId'].every(
+      (key) => receipt[key] === current[key]
+    )
+  );
+};
+const recoveryIdle = (application, busy) =>
+  !application.busy &&
+  (!busy || ['application-owned', 'application-batch'].includes(busy));
 export const ApplicationPanel = ({ state, t }) => {
   const application = state.application;
   const [confirmed, setConfirmed] = useState(false);
@@ -515,8 +537,10 @@ export const ApplicationPanel = ({ state, t }) => {
     application.target?.browserSlot,
   ]);
   const supported = state.capabilities?.applicationReview === true;
+  const canRecoverNow = recoveryIdle(application, state.busy);
   const idle =
-    !application.busy && (!state.busy || state.busy === 'application-owned');
+    canRecoverNow &&
+    (state.busy !== 'application-batch' || ownsBatchReview(application));
   return el(
     'section',
     {
@@ -547,6 +571,7 @@ export const ApplicationPanel = ({ state, t }) => {
         key: 'recovery',
         application,
         idle,
+        recoveryIdle: canRecoverNow,
         supported,
         t,
       }),

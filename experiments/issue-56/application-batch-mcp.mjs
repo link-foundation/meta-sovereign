@@ -1,4 +1,4 @@
-async (originalPage, fixture) =>
+async (originalPage, fixture, screenshots = 'application-batch') =>
   fixture(originalPage, async (tools) => {
     const { page, panel, owner, require, action, confirmed, errors } = tools;
     const vacancies = page.locator('[data-vacancies]');
@@ -56,14 +56,14 @@ async (originalPage, fixture) =>
     ).isDisabled(), 'Batch reused Start consent for Send');
     await tools.locales('continuation="send"', 'confirm-step');
     await panel.screenshot({
-      path: 'docs/screenshots/application-batch-after-mcp.png',
+      path: `docs/screenshots/${screenshots}-after-mcp.png`,
     });
     await page.setViewportSize({ width: 390, height: 1440 });
     require(await page.evaluate(
       () => document.documentElement.scrollWidth <= globalThis.innerWidth
     ), 'Phone overflow');
     await panel.screenshot({
-      path: 'docs/screenshots/application-batch-after-mcp-phone.png',
+      path: `docs/screenshots/${screenshots}-after-mcp-phone.png`,
     });
     await confirmed('confirm-step');
     await phase('completed');

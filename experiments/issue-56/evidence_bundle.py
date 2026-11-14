@@ -3,6 +3,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 import runpy
 import shutil
@@ -36,6 +37,19 @@ def evidence_logs(root, prefix, suffixes=('.log', '.json')):
     return [str(path.relative_to(root)) for path in (root / 'ci-logs').glob(f'{prefix}-*')
             if path.is_file() and path.suffix in suffixes
             and not path.name.endswith(('-commit.log', '-push.log', '-archive.log', '-pr.log'))]
+
+
+def verify_evidence(read, checks, empty=('lint-final', 'secrets', 'diff')):
+    """Require successful finite checks and the unchanged duplication gate."""
+    for name, fragments in checks.items():
+        assert all(fragment in read(name) for fragment in fragments), name
+    for name in empty:
+        assert not read(name).strip(), name
+    duplication = read('duplication')
+    total = next(line for line in duplication.splitlines() if 'Total:' in line)
+    percentages = re.findall(r'([\d.]+)%', total)
+    assert percentages and float(percentages[0]) <= 6.5, percentages
+    assert 'ERROR:' not in duplication, 'duplication threshold failed'
 
 
 def bundle(root, sources, destination, metadata, screenshot_pattern, before=None):

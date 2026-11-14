@@ -5,13 +5,13 @@ import subprocess
 
 
 def run_application_native(script, prefix, group, mcp=False, mcp_env=None,
-                           native_entry=None):
+                           native_entry=None, screenshots='docs/screenshots'):
     root = Path(script).resolve().parents[2]
     bundle = root / 'js/src/web/app.min.js'
     original = bundle.read_bytes()
     env = dict(os.environ, NODE_OPTIONS='--max-old-space-size=384', RUN_BROWSER_E2E='1',
                E2E_BROWSER='chromium', E2E_EXECUTABLE_PATH='/opt/google/chrome/chrome',
-               APPLICATION_SCREENSHOTS='docs/screenshots')
+               APPLICATION_SCREENSHOTS=screenshots)
     name = 'mcp-server' if mcp else 'native-final'
     try:
         with (root / f'ci-logs/{prefix}-{name}.log').open('w') as log:
