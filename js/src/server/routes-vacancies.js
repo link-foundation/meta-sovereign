@@ -99,6 +99,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-open',
       'application-read',
       'application-prefill',
+      'application-resume',
       'application-backup',
       'application-restore',
       'application-defer',

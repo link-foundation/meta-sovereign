@@ -48,6 +48,7 @@ export const createApplicationApi = ({ get, report }) => ({
       'read',
       'advance',
       'prefill',
+      'resume',
       'backup',
       'restore',
       'defer',
@@ -56,14 +57,27 @@ export const createApplicationApi = ({ get, report }) => ({
       'close',
     ].map((operation) => [
       `vacancyApplication${operation[0].toUpperCase()}${operation.slice(1)}`,
-      async (input) =>
-        confirmed(
+      async (input) => {
+        const result = confirmed(
           await report(`/api/vacancies/application-${operation}`, input, {
             network: true,
             read: false,
           }),
           input
-        ),
+        );
+        if (
+          operation === 'resume' &&
+          input.action === 'choose' &&
+          !result.testMode &&
+          !result.resumeSelection
+        ) {
+          throw jobsFailure(
+            'application-unconfirmed',
+            'The native resume choice was not confirmed.'
+          );
+        }
+        return result;
+      },
     ])
   ),
 });

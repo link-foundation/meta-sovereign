@@ -49,6 +49,11 @@ export const applicationDraftControl = (browser, popup = false) => {
         header: document.querySelector('#header').value,
         entries: globalThis.applicationEntries,
         submissions: globalThis.applicationAttempts,
+        resume:
+          document.querySelector('input[name="native-resume"]:checked')
+            ?.value ?? null,
+        resumeChoices: globalThis.resumeChoices ?? 0,
+        resumeMenus: globalThis.resumeMenus ?? 0,
       }),
       ownerActions
     );

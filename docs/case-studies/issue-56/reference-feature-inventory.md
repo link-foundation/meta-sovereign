@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH02/HH06 extension: [explicit native application résumé choice](application-resume.md) requires separate current confirmations and checked same-slot export evidence, verifies the observed native hash and preserves answers, letters, preview and read-only recovery through CLI, both Lino encodings and four-language controls. Automatic context-based language selection, authenticated provider parity and all 81 original unchecked rows remain required. This supersedes the missing explicit chooser in earlier snapshots.
+
 Partial HH02/HH06 extension: [checked export language suggestions](resume-language.md) prefer matching immutable native export evidence over title hints across CLI, both Lino encodings and four-language search controls. Explicit choices remain authoritative, cache reads recheck files and offline snapshots strip claims. Native application résumé selection and authenticated provider parity remain required; all 81 original unchecked rows stay unchecked.
 
 Partial HH06 extension: [acknowledged native popup recovery](application-popup.md) keeps the original entry reserved, reopens the browser read-only and offers a separately confirmed entry only after a saved unsent popup review. Actual draft restoration and sending require their own confirmations. Legacy or unknown outcomes remain reserved. Full provider parity and all 81 original unchecked rows remain required; HH06 stays unchecked.

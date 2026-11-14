@@ -3,6 +3,7 @@ import { ApplicationDraftView } from './application-draft-view.js';
 import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
 import { ApplicationQueueView } from './application-queue-view.js';
+import { ApplicationResumeView } from './application-resume-view.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -230,6 +231,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
     !receipt.attempted.submit;
   const action = (name, input) => () => application.action(name, input);
   return el('div', { className: 'col' }, [
+    el(ApplicationResumeView, { key: 'resume', receipt, action, writable, t }),
     el('div', { key: 'actions', className: 'row' }, [
       button('read', t('application.read'), action('Read'), !ready),
       button(

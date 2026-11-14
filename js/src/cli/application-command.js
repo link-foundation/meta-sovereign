@@ -60,6 +60,7 @@ const commands = {
   letter: ['prefill', { part: 'cover-letter', confirm: true }],
   backup: ['backup', { confirm: true }],
   restore: ['restore', { confirm: true }],
+  'resume-menu': ['resume', { action: 'menu', confirm: true }],
   defer: ['defer', { confirm: true }],
   reopen: ['open', { recover: true }],
   pause: ['mode', { paused: true }],
@@ -67,6 +68,12 @@ const commands = {
   'defer-questionnaires': ['mode', { noQuestionnaires: true }],
   'review-questionnaires': ['mode', { noQuestionnaires: false }],
   close: ['close', {}],
+};
+const promptCommand = (value) => {
+  const match = /^choose-resume ([a-zA-Z0-9_-]{1,100})$/u.exec(value);
+  return match
+    ? ['resume', { action: 'choose', resume: match[1], confirm: true }]
+    : commands[value];
 };
 const supervisedComplete = (receipt) =>
   receipt.supervised && receipt.delivery === 'provider-confirmed';
@@ -94,7 +101,10 @@ export const applicationCommand = async (service, input, log, readInput) => {
           'retry',
           'status',
           'quit',
+          'choose-resume <hash>',
         ],
+        resumeNote:
+          'Use resume-menu to inspect the native options, then choose-resume <hash> for a separately confirmed choice backed by a checked export. These actions preserve answers and letters and never submit.',
         note: 'Entry can immediately apply. Prefill may apply after your exact-answer delay if auto-exact is enabled. Backup saves actual answers privately. Defer saves the full recovery draft, actual Q&A observations and eligible unapproved knowledge before closing; failed saves leave the form open. Generic native errors also save actual answers before closing, then wait five hours in this worker queue. Earlier reopening is refused and search shows the temporary exclusion. Use queue and retry for a due, confirmed fresh review; restoration and sending remain separate. Recovery copies never act as persistent exclusions. Reopen only reads the saved review; reenter separately confirms a new entry backed by an acknowledged unsent popup. It may apply immediately. Unknown entry or send outcomes without that checkpoint stay reserved. Failed dispatch history stays private and acknowledged; a lost or uncertain outcome without fresh native rejection evidence remains reserved. Restore requires matching empty controls and never sends or learns answers. Supervised review disables automatic sending: use answers and letter for separately confirmed fills, then submit; this command stops after one HH-confirmed delivery. It also stops if entry itself confirms delivery. Test mode never clicks or fills, including during supervised review. Pause and questionnaire policies last for this worker and browser slot. Questionnaire deferral and SIGUSR1 automatically save actual answers before closing; failed saves, pauses and preview keep forms open. SIGUSR2 or review-questionnaires enables a later confirmed queue review without sending. Validation, limits and verification retain a manual hold through banner dismissal and browser reopening in this worker. Confirmed delivery clears holds. End of input closes this browser.',
       })
     );
@@ -123,7 +133,7 @@ export const applicationCommand = async (service, input, log, readInput) => {
         } else if (action === 'status') {
           receipt = await service['application-status'](input);
         } else {
-          const command = commands[action];
+          const command = promptCommand(action);
           if (!command) {
             throw new Error('Use one of the listed commands.');
           }

@@ -1,11 +1,13 @@
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { vacancySnapshotFixture } from './vacancy-fixture.mjs';
+import { applicationResumeHtml } from './application-resume-html.mjs';
 
 const html = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
 export const applicationNativeHtml = ({
   response = false,
   popup = false,
+  resumeChooser = false,
 } = {}) => {
   const vacancy = vacancySnapshotFixture();
   return `<!doctype html><html><body>
@@ -29,6 +31,7 @@ export const applicationNativeHtml = ({
           globalThis.deliveredLetter=document.querySelector('[data-qa="vacancy-response-form-letter-input"]')?.value;
           document.querySelector('#application').innerHTML='<a data-qa="vacancy-response-link-view-topic">Application delivered</a>';
         };
+        ${resumeChooser ? applicationResumeHtml() : ''}
       }
       function showLetter(button) {
         button.insertAdjacentHTML('beforebegin', '<label>Cover letter<textarea data-qa="vacancy-response-form-letter-input"></textarea></label>');
@@ -40,9 +43,16 @@ export const applicationNativeHtml = ({
 
 export const applicationNativeFixture = async (
   browser,
-  { application, popup = false } = {}
+  {
+    application,
+    popup = false,
+    resumeChooser = false,
+    store,
+    artifactRoot,
+  } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser, {
+    ...(store ? { store } : {}),
     exports: {
       route: async (route) => {
         const url = new URL(route.request().url());
@@ -59,11 +69,14 @@ export const applicationNativeFixture = async (
         await route.fulfill({
           status: 200,
           contentType: 'text/html; charset=utf-8',
-          body: applicationNativeHtml({ response, popup }),
+          body: applicationNativeHtml({ response, popup, resumeChooser }),
         });
         return true;
       },
-      service: () => ({ application }),
+      service: () => ({
+        application,
+        ...(artifactRoot ? { artifactRoot } : {}),
+      }),
     },
   });
   await saveAnswerRule(fixture.store, {

@@ -25,6 +25,10 @@ import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
 import { ApplicationHolds } from './application-holds.js';
 import { ApplicationRetries } from './application-retries.js';
+import {
+  ApplicationResumes,
+  dispatchResumeChoice,
+} from './application-resumes.js';
 
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
@@ -34,6 +38,7 @@ class ApplicationService {
   constructor({
     store,
     storeDir,
+    artifactRoot = storeDir ? path.join(storeDir, 'resume-exports') : undefined,
     run,
     openSession = openBrowserSession,
     filling = createReviewedPrefill({ store }),
@@ -42,6 +47,7 @@ class ApplicationService {
     target = applicationTarget,
     writeLetter = writeApplicationLetter,
     dispatch = dispatchApplication,
+    selectResume = dispatchResumeChoice,
     now = Date.now,
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
@@ -50,6 +56,7 @@ class ApplicationService {
     Object.assign(this, {
       store,
       storeDir,
+      artifactRoot,
       run,
       openSession,
       filling,
@@ -58,6 +65,7 @@ class ApplicationService {
       target,
       writeLetter,
       dispatch,
+      selectResume,
       trace,
     });
     this.review = new ApplicationReview(this);
@@ -67,6 +75,7 @@ class ApplicationService {
     this.deferrals = new ApplicationDeferrals(this);
     this.holds = new ApplicationHolds(this.trace);
     this.retries = new ApplicationRetries(this, now);
+    this.resumes = new ApplicationResumes(this);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -402,6 +411,10 @@ export const createApplicationService = (options) => {
       'application-prefill': (input) =>
         service.operate((signal) =>
           service.actions.prefill(service.owned(input), input, signal)
+        ),
+      'application-resume': (input) =>
+        service.operate((signal) =>
+          service.resumes.change(service.owned(input), input, signal)
         ),
       'application-backup': (input) =>
         service.operate((signal) =>

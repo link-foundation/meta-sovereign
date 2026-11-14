@@ -1,16 +1,24 @@
 # Issue 56 / PR 57 work plan
 
+Active explicit native application résumé choice (HH02/HH06 remain incomplete):
+
+- [x] Read the bound native chooser without opening it during inspection. Open and choose only after separate current confirmation; verify the native radio hash against a matching checked export from this browser slot. Preserve owner answers, letters, preview, reservations and read-only recovery.
+- [x] Expose the operation through foreground CLI, both Lino formats and four-language controls. Refuse stale documents/revisions, ambiguous or unsafe controls, missing evidence, ineffective writes and interrupted ownership; never infer CV language from its title.
+- [ ] Reproduce the published parent, verify focused Node/Deno and one native/MCP scenario, preserve screenshots and checksummed evidence, drain fixtures and inspect exact-head CI. Continue automatic language policy, live provider parity and every original unchecked criterion.
+
+Published `1e6582c3` includes verified-export search suggestions and the two exact-parent CI corrections. All five hosted workflows started at 2026-11-14 07:45:08 UTC; main run `43572547657` failed only macOS Node shard 2/3 job `132380690633`; all eight browser shards and the other four workflows pass. The complete 143,968-line workflow and 3,138-line failed job logs are preserved locally. Failed-job lines 2239–2272 show initial readiness expiring at 10,034 ms after release readiness at 3,977 ms, with no worker-ready phase. Lines 3115–3117 report concurrent temporary-directory cleanup (`ENOTEMPTY`). The original import/startup delay is unmeasured; investigate shutdown ownership and startup phase costs without increasing deadlines. The working tree was clean after publication and `origin/main` at `1dc57835` is an ancestor. Every original incomplete criterion remains required.
+
 Active exact-head application group timeout:
 
 - [x] Match WebKit shard 2 job `132370299236` in exact-head run `43569152391` to `e8533c0c`. Preserve all 1,617 log lines and its artifact. Ten native scenarios pass before the eleventh starts with roughly 12 seconds left; the runner expires at 180,127 ms.
 - [x] Reproduce the overloaded eleven-scenario group with a focused registration regression. Split it into groups of four, three and four; preserve all eleven scenarios exactly once, both engines, four shards, the 180-second group deadline and the 35-minute job deadline. All five focused runner checks pass. Do not infer an individual scenario hang from the aggregate timeout.
-- [ ] Publish the correction and verify exact-head hosted CI while continuing every original unchecked criterion. Keep PR57 draft and unmerged.
+- [x] Publish the correction and verify exact-head hosted browser CI while continuing every original unchecked criterion. Keep PR57 draft and unmerged.
 
 Active exact-head unread-view failure:
 
 - [x] Match Chromium shard 4 job `132370298746` in run `43569152391` to published `e8533c0c`. Preserve its complete 1,449-line log and browser artifact. Lines 1153–1164 report `browser-chat-view-chat-unavailable`; lines 1174–1189 report successful owner-state restoration.
 - [x] Reproduce a native render completing between target lookup and scroll status against the published reveal code. Recheck the settled target, preserve genuine absence refusal, and verify two finite native cases, two independent MCP cases and 20 focused Node checks. Keep all original deadlines and guards. The precise original hosted render timing remains unmeasured.
-- [ ] Publish the atomic correction and verify exact-head hosted CI while continuing every original incomplete criterion. PR57 remains draft and unmerged.
+- [x] Publish the atomic correction and verify exact-head hosted browser CI while continuing every original incomplete criterion. PR57 remains draft and unmerged.
 
 Active export-proven résumé suggestions (HH02 and HH06 remain incomplete):
 

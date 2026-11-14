@@ -1,4 +1,14 @@
 export const hiApplication = {
+  'application.resume': 'आवेदन का रिज़्यूमे',
+  'application.resumeHint':
+    'मूल विकल्प खोलें, फिर हैश से रिज़्यूमे की पुष्टि करें। मेल खाता सत्यापित निर्यात आवश्यक है। उत्तर, पत्र और भेजना अलग क्रियाएँ हैं।',
+  'application.resumeUnavailable':
+    'मूल विकल्प अस्पष्ट या असमर्थित हैं। पेज फिर पढ़ें या सीधे HH में चुनें।',
+  'application.resumeOpen': 'मूल रिज़्यूमे विकल्प खोलें',
+  'application.resumeClose': 'मूल रिज़्यूमे विकल्प बंद करें',
+  'application.resumeChoose': '{title} · {hash} चुनें',
+  'application.resumeVerified':
+    'इस चयन {hash} में सत्यापित {language} निर्यात इस्तेमाल हुआ।',
   'application.title': 'HH आवेदन की समीक्षा',
   'application.hint':
     'पूरा नौकरी विवरण और मूल उत्तर देखें। आवेदन खोलते ही वह भेजा जा सकता है। भेजने के लिए आपकी पुष्टि चाहिए; केवल HH की सफलता सूचना भेजे जाने की पुष्टि करती है।',

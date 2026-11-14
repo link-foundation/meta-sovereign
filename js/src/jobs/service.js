@@ -106,6 +106,7 @@ export const createVacancyService = ({
   const applications = createApplicationService({
     store,
     storeDir,
+    artifactRoot,
     openSession,
     run: (operation) => run(operation, true),
     ...application,

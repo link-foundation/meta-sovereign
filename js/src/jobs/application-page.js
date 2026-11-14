@@ -7,6 +7,8 @@ export const applicationSelectors = {
     'textarea[data-qa="vacancy-response-popup-form-letter-input"], textarea[data-qa="vacancy-response-form-letter-input"]',
   letterToggle:
     '[data-qa="vacancy-response-letter-toggle"], [data-qa="add-cover-letter"]',
+  resumeMenu:
+    '[data-qa="resume-title"]:not([role="option"] [data-qa="resume-title"])',
 };
 
 /** One serializable document boundary, also used for synchronous click admission. */
@@ -93,6 +95,69 @@ export const applicationDocument = (target, input) => {
         ? 'validation-error'
         : null;
   };
+  const resumeTitle = (node) => {
+    const text = node?.textContent.trim() ?? '';
+    return text.length <= 500 ? text : '';
+  };
+  const unsafeResumeButton = (node) => {
+    const button = node.closest('button');
+    return Boolean(
+      button?.disabled ||
+      (button && button.type !== 'button') ||
+      node.closest('a[href], [aria-disabled="true"]')
+    );
+  };
+  const resumeOption = (node) => {
+    const radios = node.querySelectorAll('input[type="radio"]');
+    return {
+      hash:
+        radios.length === 1 &&
+        node.getAttribute('data-qa') ===
+          `magritte-select-option-${radios[0].value}`
+          ? radios[0].value
+          : '',
+      title: resumeTitle(node.querySelector('[data-qa="resume-title"]')),
+      checked: radios.length === 1 && radios[0].checked,
+      disabled: Boolean(radios[0]?.disabled || unsafeResumeButton(node)),
+    };
+  };
+  const ambiguousResumes = (rows) =>
+    rows.length > 100 ||
+    rows.some(
+      (row) => !/^[a-zA-Z0-9_-]{1,100}$/u.test(row.hash) || !row.title
+    ) ||
+    new Set(rows.map((row) => row.hash)).size !== rows.length ||
+    rows.filter((row) => row.checked).length > 1;
+  const resumeChooser = (form) => {
+    const titles = nodes(selectors.resumeMenu).filter((node) =>
+      form?.contains(node)
+    );
+    if (!titles.length) {
+      return null;
+    }
+    const lists = nodes('[data-qa="magritte-select-option-list"]');
+    const options =
+      lists.length === 1
+        ? [
+            ...lists[0].querySelectorAll(
+              '[role="option"][data-qa^="magritte-select-option-"]'
+            ),
+          ].filter(visible)
+        : [];
+    const rows = options.slice(0, 101).map(resumeOption);
+    const title = resumeTitle(titles[0]);
+    return {
+      title,
+      open: lists.length > 0,
+      disabled: unsafeResumeButton(titles[0]),
+      ambiguous:
+        !title ||
+        titles.length !== 1 ||
+        lists.length > 1 ||
+        ambiguousResumes(rows),
+      options: rows,
+    };
+  };
   const snapshot = () => {
     const submit = unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
@@ -145,6 +210,7 @@ export const applicationDocument = (target, input) => {
           }
         : null,
       letterToggle: describe(selectors.letterToggle),
+      resumeChooser: resumeChooser(form),
       ambiguousLetter: letters.length > 1,
       scope: Boolean(
         form &&
@@ -161,6 +227,17 @@ export const applicationDocument = (target, input) => {
   if (!input.action) {
     return result;
   }
+  const resumeAction = () => {
+    const chooser = result.resumeChooser;
+    if (!chooser || chooser.ambiguous || chooser.disabled) {
+      return null;
+    }
+    return input.action === 'resumeMenu'
+      ? chooser
+      : chooser.options.find(
+          (row) => row.hash === input.resume && !row.disabled
+        );
+  };
   const admits = () => {
     const allowed =
       bound &&
@@ -169,13 +246,16 @@ export const applicationDocument = (target, input) => {
       !result.error &&
       !result.external &&
       !result.delivered;
+    const action = ['resumeMenu', 'resumeChoice'].includes(input.action)
+      ? resumeAction()
+      : result[input.action];
     if (
       !allowed ||
       JSON.stringify(result) !== input.guard ||
       !target?.isConnected ||
       unique(selectors[input.action]) !== target ||
-      !result[input.action] ||
-      result[input.action].disabled
+      !action ||
+      action.disabled
     ) {
       return false;
     }

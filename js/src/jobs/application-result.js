@@ -9,6 +9,7 @@ import {
 } from '../assignments/validation.js';
 import { validateFormInspection } from '../forms/plan-validation.js';
 import { applicationHoldReasons } from './application-holds.js';
+import { applicationResumeData } from './application-resume-data.js';
 
 export const applicationStates = [
   'opening',
@@ -153,6 +154,7 @@ export const applicationResult = (raw, input) => {
       assignmentVacancy(raw.vacancy);
     }
     validateReport(raw.report);
+    applicationResumeData(raw, input);
     if (!reentry(raw)) {
       fail();
     }

@@ -1,4 +1,14 @@
 export const enApplication = {
+  'application.resume': 'Application résumé',
+  'application.resumeHint':
+    'Open the native choices, then confirm a résumé by its hash. A matching checked export is required. Answers, letters and sending keep separate actions.',
+  'application.resumeUnavailable':
+    'The native chooser is ambiguous or unsupported. Read the page again or choose directly in HH.',
+  'application.resumeOpen': 'Open native résumé choices',
+  'application.resumeClose': 'Close native résumé choices',
+  'application.resumeChoose': 'Choose {title} · {hash}',
+  'application.resumeVerified':
+    'Verified {language} export used for choice {hash}.',
   'application.title': 'Native HH application review',
   'application.hint':
     'Review the full vacancy and native answers. Entering an application can send it immediately. Submission requires your confirmation; only a native success signal confirms delivery.',

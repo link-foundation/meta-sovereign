@@ -1,4 +1,14 @@
 export const zhApplication = {
+  'application.resume': '申请简历',
+  'application.resumeHint':
+    '打开原生选项后按哈希确认简历。需要匹配的已验证导出。答案、求职信和发送仍是独立操作。',
+  'application.resumeUnavailable':
+    '原生选项有歧义或暂不支持。请重新读取页面或直接在 HH 中选择。',
+  'application.resumeOpen': '打开原生简历选项',
+  'application.resumeClose': '关闭原生简历选项',
+  'application.resumeChoose': '选择 {title} · {hash}',
+  'application.resumeVerified':
+    '此次选择 {hash} 使用了已验证的 {language} 导出。',
   'application.title': 'HH 原生申请审核',
   'application.hint':
     '请审核完整职位和原生答案。进入申请可能立即发送。发送需要您的确认，只有 HH 的成功信号才能确认送达。',
