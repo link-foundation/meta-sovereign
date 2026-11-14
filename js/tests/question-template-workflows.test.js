@@ -19,6 +19,7 @@ import {
 } from '../src/transport/lino.js';
 import {
   templateExample as example,
+  templateLinkExample,
   templateRule,
 } from '../../experiments/issue-56/question-template-fixture.mjs';
 
@@ -60,7 +61,7 @@ test('suffix and ordered bounded gaps cannot swallow another task or link', () =
   }
 });
 
-test('CLI, offline controls and persisted rules share literal template syntax', async () => {
+const verifyControlPlan = async (example, match, requiresReview) => {
   const store = createMemoryStore();
   const cli = createAutomationCommands({ openStore: async () => store });
   const lines = [];
@@ -81,16 +82,23 @@ test('CLI, offline controls and persisted rules share literal template syntax', 
   });
   assert.equal((await api.answerRules())[0].question, example.pattern);
   const plan = await api.previewAnswer({ question: example.question });
-  assert.equal(plan.match, 'template');
+  assert.equal(plan.match, match);
   assert.equal(plan.text, example.answer);
-  assert.equal(plan.requiresReview, false);
+  assert.equal(plan.requiresReview, requiresReview);
   assert.equal(
     await run({ _: ['answers', 'plan'], question: example.question }),
     0
   );
   // CLI defaults remain text Links Notation; no JSON compatibility flag needed.
   const { decodeWire } = await import('../src/transport/lino.js');
-  assert.equal(decodeWire(lines.at(-1)).match, 'template');
+  const cliPlan = decodeWire(lines.at(-1));
+  assert.equal(cliPlan.match, match);
+  assert.equal(cliPlan.requiresReview, requiresReview);
+};
+
+test('CLI and offline controls preserve templates and review new links', async () => {
+  await verifyControlPlan(example, 'template', false);
+  await verifyControlPlan(templateLinkExample, 'approximate', true);
 });
 
 test(
@@ -113,13 +121,24 @@ test(
           assert.equal(response.status, 200);
           return readWireResponse(response);
         };
-        await call('PUT', '', { rule: templateRule() });
-        const plan = await call('POST', '/plan', {
-          question: example.question,
-        });
-        assert.equal(plan.match, 'template');
-        assert.equal(plan.text, example.answer);
-        assert.equal(plan.requiresReview, false);
+        for (const [sample, match, requiresReview] of [
+          [example, 'template', false],
+          [templateLinkExample, 'approximate', true],
+        ]) {
+          await call('PUT', '', {
+            rule: {
+              id: sample.id,
+              question: sample.pattern,
+              answers: [{ text: sample.answer, approved: true }],
+            },
+          });
+          const plan = await call('POST', '/plan', {
+            question: sample.question,
+          });
+          assert.equal(plan.match, match);
+          assert.equal(plan.text, sample.answer);
+          assert.equal(plan.requiresReview, requiresReview);
+        }
       }
     } finally {
       await server.close();

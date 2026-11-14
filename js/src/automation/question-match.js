@@ -6,6 +6,7 @@ import {
 } from '../crm/question-recognition.js';
 import { splitQuestionBlocks } from './question-lists.js';
 import { sameQuestionSubjects } from './question-subjects.js';
+import { textLinks } from '../message-links.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
@@ -61,11 +62,23 @@ const advancePattern = (states, token, input, maxGap) => {
 };
 
 /** Exact normalized text, or an explicitly saved whole-message template. */
+// A bare name such as example.zip may be a file or a domain. Either added
+// interpretation needs review. Bare host casing is immaterial; paths are not.
+const questionLinks = (text) =>
+  textLinks(text, { includeFileNames: true }).map((link) =>
+    /^[a-z][a-z\d+.-]*:/iu.test(link)
+      ? link
+      : link.replace(/^[^/?#:]+/u, (host) => host.toLowerCase())
+  );
 const invalidInputs = (pattern, text) =>
   typeof pattern !== 'string' ||
   typeof text !== 'string' ||
   pattern.length > MAX_QUESTION_LENGTH ||
-  text.length > MAX_QUESTION_LENGTH;
+  text.length > MAX_QUESTION_LENGTH ||
+  // Token folding discards URL punctuation and path case. Bind full targets
+  // before either exact normalization or wildcard expansion can hide a change.
+  JSON.stringify(questionLinks(pattern)) !==
+    JSON.stringify(questionLinks(text));
 const invalidTemplateExpansion = (pattern, text, options) =>
   (text.match(/[?？]/gu)?.length ?? 0) >
     (pattern.match(/[?？]/gu)?.length ?? 0) ||

@@ -6,6 +6,13 @@ export const templateExample = {
   answer: 'Живу во Вьетнаме.',
 };
 
+export const templateLinkExample = {
+  id: 'experience-link-template',
+  pattern: 'Do you have https://company.test … experience?',
+  question: 'Do you have https://company.test https://other.test experience?',
+  answer: 'Five years.',
+};
+
 export const templateRule = (extra = {}) => ({
   id: templateExample.id,
   question: templateExample.pattern,

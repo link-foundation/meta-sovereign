@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Question-template link identity](question-template-links.md): exact-parent failures and native before/after evidence for extra URLs, bare/action links and path/query changes; default CLI/Lino and preview compatibility remain covered. QA04 and the wider issue remain incomplete.
+
 - [Desktop landing availability](desktop-landing-availability.md): reject unfinished uploads, retain cache state and preserve completed platforms, with exact-parent regressions, native/MCP before/after screenshots and current public release metadata. Exact-head hosted checks remain required.
 
 - [Canonical publication fixture paths](ci-cv-publication-alias.md): reproduce hosted Windows/macOS alias mismatches with a finite symlink probe and model the existing UI normalization while retaining changed-target refusal.

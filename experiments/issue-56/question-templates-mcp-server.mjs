@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { questionBrowserServer } from './question-browser-server.mjs';
 import {
   templateExample,
+  templateLinkExample,
   mountTemplateQuestion,
 } from './question-template-fixture.mjs';
 
@@ -34,7 +35,10 @@ try {
   await fixture.store.delete('qa-rule:experience');
   await fixture.reset({ freeText: true });
   await fixture.send.readAnswerChoices({ source: 'hh', chat: '7' });
-  await fixture.page.evaluate(mountTemplateQuestion, templateExample.question);
+  const example = process.argv.includes('--link-guard')
+    ? templateLinkExample
+    : templateExample;
+  await fixture.page.evaluate(mountTemplateQuestion, example.question);
   console.log(
     JSON.stringify({
       pid: process.pid,

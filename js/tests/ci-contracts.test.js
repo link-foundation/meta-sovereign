@@ -356,7 +356,10 @@ test('question provider and control scenarios have separate mandatory browser bu
   );
   const groups = {
     'question-providers': ['verifyProviderChoices', 'verifyHhChoices'],
-    'question-templates': ['verifyQuestionTemplates'],
+    'question-templates': [
+      'verifyQuestionTemplates',
+      'verifyTemplateLinkGuards',
+    ],
     'question-text-replies': ['verifyTextReplyControls'],
     'question-text-guards': ['verifyTextReplyGuards'],
     'question-text-controls': ['verifyQuestionTextControls'],

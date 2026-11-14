@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active question-template link identity correction (QA04 remains incomplete):
+
+- [x] Reproduce four actual parent regressions: extra URLs with an already linked template, bare/action links and exact URL normalization changes. Preserve native before screenshots.
+- [x] Bind full targets before normalization, including ambiguous file/domain names; retain case folding for unchanged bare technical names, HTTP preview compatibility and fresh approximate review.
+- [x] Focused Node 11/Deno 11, 34 compatibility checks, foreground CLI/both Lino, five provider plans and native/MCP before/after evidence pass. Existing saved-template positive delivery and no-replay coverage pass. Scoped strict lint, format, secrets, diff and the unchanged duplication gate pass.
+- [ ] Preserve checked evidence, publish atomically and inspect every exact-head hosted workflow. All 81 original incomplete requirements remain active.
+
 Active hosted canonical-path fixture correction:
 
 - [x] Preserve four actual `74576648` runtime failures and reproduce the alias mismatch on Linux. Use the canonical reviewed path returned by the existing UI hook; retain source/slot/locale assertions and add changed-target refusal. Focused alias Node 1/Deno 1 pass; commit `42fd0c6d`.
