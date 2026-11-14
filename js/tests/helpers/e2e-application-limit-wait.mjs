@@ -6,7 +6,11 @@ import { verifyApplicationLimitRefreshGuards } from './e2e-application-limit-gua
 
 export const verifyNativeApplicationLimitWait = async (
   browser,
-  { screenshots, before = false, restore = false } = {}
+  {
+    screenshots = process.env.E2E_ARTIFACT_DIR,
+    before = false,
+    restore = false,
+  } = {}
 ) => {
   const { fixture, clock, controls, panel, action, shot } =
     await applicationLimitBrowser(

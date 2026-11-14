@@ -178,9 +178,16 @@ export class ApplicationLimitWait {
     if (this.now() < Date.parse(record.limitWait.until)) {
       return applicationView(record);
     }
-    if (record.applicationLimit.active) {
-      throw fail('limit-wait');
-    }
+    // Inspection and acknowledged backups can cross the deadline. Re-read the
+    // shared pause: its earlier active flag is stale, and another slot may
+    // have established a later pause while this wait retained its deadline.
+    runtime.checkpoint = 'limit';
+    service.trace({
+      event: 'application-limit-expiry',
+      inspectedActive: record.applicationLimit.active,
+    });
+    await service.limits.admit(record);
+    this.current(runtime, signal);
     if (!record.page.dailyLimit) {
       record.limitWait.phase = 'review';
       return applicationView(record);

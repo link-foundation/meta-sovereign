@@ -5,6 +5,56 @@ import { applicationIdentity as identity } from '../../experiments/issue-56/appl
 import { deferralStorageFault } from '../../experiments/issue-56/application-deferral-fixture.mjs';
 import { createVacancyService } from '../src/jobs/service.js';
 import { applicationResult } from '../src/jobs/application-result.js';
+import { applicationLimitId } from '../src/jobs/application-limit-data.js';
+
+for (const laterPause of [false, true]) {
+  test(
+    `deadline crossing during backup rechecks the saved pause (newer=${laterPause})`,
+    { timeout: 5000 },
+    async (t) => {
+      let crossDeadline = false;
+      let crossed = 0;
+      const fixture = applicationLimitWaitFixture(t, {
+        application: {
+          trace: (event) => {
+            if (
+              crossDeadline &&
+              event.event === 'application-limit-draft-saved'
+            ) {
+              crossDeadline = false;
+              crossed++;
+              fixture.clock.value = until;
+            }
+          },
+        },
+      });
+      let receipt = await fixture.waiting();
+      const until = Date.parse(receipt.limitWait.until);
+      fixture.state.fields[1].value = 'Latest answer before expiry.';
+      if (laterPause) {
+        const limit = await fixture.store.get(applicationLimitId);
+        await fixture.store.put({
+          ...limit,
+          observedAt: limit.until,
+          until: new Date(until + 2 * 60 * 60 * 1000).toISOString(),
+          documentKey: 'newer-pause-from-another-slot',
+        });
+      }
+      crossDeadline = true;
+      receipt = await fixture.pulse(until - 1);
+      assert.equal(crossed, 1);
+      assert.equal(receipt.limitWait.phase, laterPause ? 'refused' : 'review');
+      assert.equal(fixture.state.refreshes, laterPause ? 0 : 1);
+      assert.equal(
+        receipt.draft.fields[0].value,
+        'Latest answer before expiry.'
+      );
+      assert.equal(receipt.limitWait.until, new Date(until).toISOString());
+      assert.equal(fixture.state.submitted, 0);
+      assert.equal(fixture.pendingWaits.length, 0);
+    }
+  );
+}
 
 test(
   'confirmed daily waiting backs later edits and refreshes exactly once at the original deadline',
