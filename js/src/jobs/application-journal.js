@@ -45,8 +45,12 @@ export const readApplicationJournal = (row, key) => {
     }
     assignmentVacancy(row.vacancy);
   }
-  applicationResult(applicationView(row), { ...key, requestId: row.requestId });
-  return globalThis.structuredClone(row);
+  const restored = { ...row, active: false };
+  applicationResult(applicationView(restored), {
+    ...key,
+    requestId: row.requestId,
+  });
+  return globalThis.structuredClone(restored);
 };
 export const saveApplicationJournal = async (store, record) => {
   const next = globalThis.structuredClone({

@@ -185,6 +185,21 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     id: 'assignment-vacancy:fixture',
   };
   const state = {
+    application: {
+      intent: null,
+      target: { url: vacancyUrl, browserSlot: 'jobs' },
+      known: false,
+      missing: false,
+      busy: false,
+      receipt: null,
+      occupied: false,
+      options: {
+        coverLetter: '',
+        autoExact: false,
+        testMode: false,
+        reviewDelayMs: 3000,
+      },
+    },
     values: {
       query: '',
       resume: 'selected',
@@ -228,7 +243,9 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     assert.match(html, /data-vacancy-action="refresh"[^>]*disabled/u);
     assert.ok(html.includes('Employer’s final paragraph stays intact.'));
     assert.ok(html.includes('от 250 000 ₽'));
-    assert.doesNotMatch(html, />vacancy\./u);
+    assert.doesNotMatch(html, />(?:vacancy|application)\./u);
+    assert.match(html, /data-application-action="start"[^>]*disabled/u);
+    assert.match(html, /data-application-action="recover"[^>]*disabled/u);
     assert.match(html, /data-vacancy-resume="russian-new"/u);
     assert.match(html, /data-vacancy-action="resumes"[^>]*disabled/u);
     assert.match(html, /data-resume-export-action="start"[^>]*disabled/u);

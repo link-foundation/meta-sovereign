@@ -96,6 +96,7 @@ export const applicationView = (record) => {
     browserSlot: record.browserSlot,
     revision: record.revision,
     state: record.state,
+    active: record.active === true,
     attempted: record.attempted,
     delivery: record.delivery,
     code: record.code ?? null,

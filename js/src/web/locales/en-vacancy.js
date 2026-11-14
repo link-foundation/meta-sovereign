@@ -1,4 +1,6 @@
+import { enApplication } from './en-application.js';
 export const enVacancy = {
+  ...enApplication,
   'vacancySelection.searchAt': 'Last successful search captured {date}.',
   'vacancySelection.skipResponded':
     'Exclude native cards already marked responded',
@@ -105,7 +107,7 @@ export const enVacancy = {
   'vacancy.exportSanitized': 'sanitized',
   'vacancy.title': 'HH vacancies',
   'vacancy.hint':
-    'Search in your owned HH browser, then collect an employer’s full description. These actions read vacancies; they do not apply. Saved descriptions are shared with assignment drafting.',
+    'Search and collect full descriptions in your owned HH browser. Application review below has separate controls that can send an application. Saved descriptions are shared with assignment drafting.',
   'vacancy.settings': 'Search and browser settings',
   'vacancy.query': 'Search words',
   'vacancy.resume': 'Selected resume hash (optional)',
@@ -123,7 +125,7 @@ export const enVacancy = {
   'vacancy.publication_time': 'Newest first',
   'vacancy.relevance': 'Most relevant first',
   'vacancy.search': 'Search vacancies',
-  'vacancy.stop': 'Stop reading',
+  'vacancy.stop': 'Stop browser operation',
   'vacancy.loading': 'Loading saved vacancies…',
   'vacancy.unavailable':
     'A connected server with browser support is required to read HH. Saved descriptions remain available.',

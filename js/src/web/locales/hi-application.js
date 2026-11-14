@@ -1,0 +1,80 @@
+export const hiApplication = {
+  'application.title': 'HH आवेदन की समीक्षा',
+  'application.hint':
+    'पूरा नौकरी विवरण और मूल उत्तर देखें। आवेदन खोलते ही वह भेजा जा सकता है। भेजने के लिए आपकी पुष्टि चाहिए; केवल HH की सफलता सूचना भेजे जाने की पुष्टि करती है।',
+  'application.settings': 'आवेदन सेटिंग',
+  'application.coverLetter': 'समीक्षित परिचय पत्र (24,000 अक्षर तक)',
+  'application.autoExact':
+    'भरने के बाद तभी स्वतः भेजें जब सभी उत्तर सटीक और सत्यापित हों',
+  'application.delay': 'स्वतः भेजने से पहले समीक्षा विराम (0–30,000 मिलीसेकंड)',
+  'application.testMode':
+    'केवल पूर्वावलोकन: उत्तर या आवेदन क्रियाएँ नहीं भेजी जातीं',
+  'application.settingsHint':
+    'समीक्षा शुरू होने पर विकल्प स्थिर हो जाते हैं। पुनर्प्राप्ति सर्वर के मूल विकल्प लेती है। पत्र इस ब्राउज़र में सहेजा नहीं जाता। पहले से लिखा मूल पाठ सुरक्षित रहता है।',
+  'application.slot': 'ब्राउज़र स्लॉट: {slot}',
+  'application.automaticDelay':
+    'सटीक उत्तरों के लिए {delay} मिलीसेकंड विराम के साथ स्वतः भेजना चालू है।',
+  'application.refused':
+    'मूल क्रिया अस्वीकार हुई। आगे बढ़ने से पहले पेज फिर पढ़ें।',
+  'application.read': 'वर्तमान मूल पेज पढ़ें',
+  'application.enter': 'आवेदन खोलें (तुरंत भेजा जा सकता है)',
+  'application.prefill': 'सत्यापित सटीक उत्तर और पत्र भरें',
+  'application.prefillAutomatic':
+    'सटीक उत्तर भरें, फिर समीक्षा विराम के बाद भेजें',
+  'application.submit': 'समीक्षित आवेदन भेजें',
+  'application.close': 'आवेदन का अपना ब्राउज़र बंद करें',
+  'application.pause': 'इस समीक्षा को रोकें',
+  'application.noQuestionnaires': 'इस समीक्षा में प्रश्नावली टालें',
+  'application.sessionHint':
+    'विराम और प्रश्नावली टालना केवल इस खुली समीक्षा पर लागू हैं। ये स्थायी बहिष्करण या पुनः प्रयास कतार नहीं बनाते।',
+  'application.unavailable':
+    'मूल आवेदन समीक्षा समर्थित जुड़े सर्वर की आवश्यकता है।',
+  'application.choose':
+    'शुरू करने के लिए नौकरी का विवरण लें या सहेजी नौकरी चुनें।',
+  'application.bound':
+    'यह समीक्षा अपनी मूल नौकरी और ब्राउज़र स्लॉट से बँधी है। नया चयन देखने से पहले इसे बंद या समाप्त करें।',
+  'application.unknown':
+    'वर्तमान स्थिति अज्ञात है। अगली क्रिया से पहले स्थिति वापस पढ़ें। पुनर्प्राप्ति केवल पढ़ती है; भेजना दोहराती नहीं।',
+  'application.missing':
+    'सर्वर ने पुष्टि की कि इस नौकरी और अनुरोध की कोई सहेजी समीक्षा नहीं है।',
+  'application.failed':
+    'आवेदन क्रिया या स्थिति की पुष्टि नहीं हुई। आगे बढ़ने से पहले स्थिति वापस पढ़ें।',
+  'application.working': 'आवेदन के अपने ब्राउज़र पर काम जारी…',
+  'application.confirm':
+    'मैंने पूरा नौकरी विवरण देखा है और बटन पर लिखी आवेदन क्रिया की अनुमति देता/देती हूँ',
+  'application.start': 'मूल समीक्षा खोलें',
+  'application.recover': 'स्थिति वापस पढ़ें (केवल पढ़ना)',
+  'application.reopen': 'सहेजी समीक्षा से ब्राउज़र फिर खोलें',
+  'application.release': 'समीक्षा समाप्त कर वर्तमान चयन लें',
+  'application.stop': 'आवेदन क्रिया रोकें और पूरी तरह समाप्त करें',
+  'application.delivery.none': 'आवेदन भेजने का कोई रिकॉर्ड नहीं है।',
+  'application.delivery.unknown':
+    'भेजे जाने की स्थिति अज्ञात है। आरक्षित क्रिया HH तक पहुँच सकती है; उसे दोबारा नहीं भेजा जाएगा।',
+  'application.delivery.provider-confirmed':
+    'HH ने आवेदन पहुँचने की पुष्टि की।',
+  'application.letter.not-requested': 'पत्र जोड़ने का अनुरोध अभी नहीं हुआ।',
+  'application.letter.verified': 'मूल आवेदन में पत्र सत्यापित है।',
+  'application.letter.not-attached': 'पत्र जुड़ा नहीं है।',
+  'application.letter.unavailable': 'पत्र का नियंत्रण उपलब्ध नहीं है।',
+  'application.letter.unverified': 'पत्र की सामग्री सत्यापित नहीं हुई।',
+  'application.letter.owner-conflict':
+    'पहले से मौजूद आपका पत्र सुरक्षित है; स्वतः भेजना अवरुद्ध है।',
+  'application.state.opening': 'मूल समीक्षा खुल रही है',
+  'application.state.ready': 'आवेदन खोलने के लिए तैयार',
+  'application.state.review': 'भेजने से पहले मूल उत्तर देखें',
+  'application.state.verification': 'अपने HH ब्राउज़र में सत्यापन पूरा करें',
+  'application.state.daily-limit': 'HH की दैनिक आवेदन सीमा पूरी हुई',
+  'application.state.external': 'बाहरी आवेदन को मानवीय समीक्षा चाहिए',
+  'application.state.delivered': 'आवेदन पहुँच गया',
+  'application.state.wrong-page': 'मूल पेज इस नौकरी से मेल नहीं खाता',
+  'application.state.unavailable': 'मूल आवेदन नियंत्रण उपलब्ध नहीं',
+  'application.state.interrupted':
+    'समीक्षा बाधित; भेजने के आरक्षण सुरक्षित हैं',
+  'application.state.sending': 'मूल क्रिया भेजी गई; प्रमाण की प्रतीक्षा है',
+  'application.state.review-delay': 'स्वतः भेजने से पहले समीक्षा विराम',
+  'application.state.deferred': 'इस समीक्षा में प्रश्नावली टाली गई',
+  'application.state.paused': 'समीक्षा रुकी है',
+  'application.state.test-preview':
+    'पूर्वावलोकन पूरा; आवेदन क्रिया नहीं भेजी गई',
+  'application.state.closed': 'आवेदन का अपना ब्राउज़र बंद है',
+};

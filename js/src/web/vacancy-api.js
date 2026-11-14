@@ -131,6 +131,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
       collect: false,
       resumes: false,
       resumeExport: false,
+      applicationReview: false,
       apply: false,
       cached: true,
       localChoices: false,

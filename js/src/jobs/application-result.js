@@ -46,9 +46,14 @@ const state = (raw) =>
   ['enter', 'submit'].every(
     (name) => typeof raw.attempted?.[name] === 'boolean'
   ) &&
-  ['testMode', 'autoExact', 'noQuestionnaires', 'paused', 'exact'].every(
-    (name) => typeof raw[name] === 'boolean'
-  ) &&
+  [
+    'active',
+    'testMode',
+    'autoExact',
+    'noQuestionnaires',
+    'paused',
+    'exact',
+  ].every((name) => typeof raw[name] === 'boolean') &&
   Number.isInteger(raw.reviewDelayMs) &&
   raw.reviewDelayMs >= 0 &&
   raw.reviewDelayMs <= 30000 &&

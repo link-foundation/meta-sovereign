@@ -1,4 +1,6 @@
+import { hiApplication } from './hi-application.js';
 export const hiVacancy = {
+  ...hiApplication,
   'vacancySelection.searchAt': 'अंतिम सफल खोज का समय: {date}।',
   'vacancySelection.skipResponded':
     'जिन मूल कार्ड पर आवेदन का संकेत है उन्हें अलग रखें',
@@ -106,7 +108,7 @@ export const hiVacancy = {
   'vacancy.exportSanitized': 'निजी जानकारी हटाई गई',
   'vacancy.title': 'HH नौकरियाँ',
   'vacancy.hint':
-    'अपने HH ब्राउज़र में खोजें और नियोक्ता का पूरा विवरण सहेजें। ये कार्रवाइयाँ केवल नौकरियाँ पढ़ती हैं, आवेदन नहीं भेजतीं। सहेजे गए विवरण परीक्षण कार्य तैयार करने में भी उपलब्ध हैं।',
+    'अपने HH ब्राउज़र में खोजें और पूरा विवरण लें। नीचे आवेदन समीक्षा के अलग नियंत्रण आवेदन भेज सकते हैं। सहेजे विवरण परीक्षण कार्य तैयार करने में भी उपलब्ध हैं।',
   'vacancy.settings': 'खोज और ब्राउज़र सेटिंग',
   'vacancy.query': 'खोज के शब्द',
   'vacancy.resume': 'चुने हुए रिज्यूमे का हैश (वैकल्पिक)',
@@ -124,7 +126,7 @@ export const hiVacancy = {
   'vacancy.publication_time': 'सबसे नई पहले',
   'vacancy.relevance': 'सबसे प्रासंगिक पहले',
   'vacancy.search': 'नौकरियाँ खोजें',
-  'vacancy.stop': 'पढ़ना रोकें',
+  'vacancy.stop': 'ब्राउज़र क्रिया रोकें',
   'vacancy.loading': 'सहेजी गई नौकरियाँ लोड हो रही हैं…',
   'vacancy.unavailable':
     'HH पढ़ने के लिए ब्राउज़र समर्थित जुड़ा सर्वर चाहिए। सहेजे गए विवरण उपलब्ध रहते हैं।',

@@ -1,10 +1,18 @@
 # Issue 56 / PR 57 work plan
 
+Active native application browser controls:
+
+- [x] Add four-language vacancy-bound review, frozen owner settings, full vacancy/form evidence and freshly confirmed native actions. Preserve private durable reservations and truthful missing, unknown and live-browser states.
+- [x] Verify seven controller cases, existing service/interface/ownership compatibility, all four locale renders and dictionary parity. Confirm one actual native entry/submission through a dropped response and reload without replay; capture exact published before and desktop/phone/unknown/delivered after screens.
+- [x] Independently verify preview restart, pause/resume, reversible current-review deferral and delivered replay refusal through Playwright MCP; close and drain all owned fixture resources. Preserve the draft checkbox/SSR failures alongside final results.
+- [ ] Publish checksummed [application controls evidence](application-controls.md), inspect every exact-head gate and complete deferred retries, recovered native forms and every remaining original criterion. The PR stays draft and unmerged.
+
 Active hosted negative URL probe finding:
 
 - [x] Inspect exact `20d47bb1` security job `132268444304` and preserve its complete log, actual SARIF and the remaining probe finding at lines 8890–8892. Native selectors no longer trigger the gate.
 - [x] Remove the obsolete unsafe prefix predicate from the experiment; retain its four exact-URL decoy refusals without a suppression.
-- [ ] Publish this correction and inspect every exact-head gate. Complete the drafted native application browser controls, session/deferred policies and every original unchecked criterion. PR #57 stays draft and unmerged.
+- [x] Publish the probe correction as `81d55350`. Its security audit passes; the main workflow still has unfinished browser/runtime jobs. Exact final-head gates remain required.
+- [ ] Complete native application session/deferred policies and every original unchecked criterion. PR #57 stays draft and unmerged.
 
 Active hosted native application fixture URL findings:
 

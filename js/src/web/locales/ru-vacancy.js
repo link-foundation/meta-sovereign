@@ -1,4 +1,6 @@
+import { ruApplication } from './ru-application.js';
 export const ruVacancy = {
+  ...ruApplication,
   'vacancySelection.searchAt': 'Последний успешный поиск: {date}.',
   'vacancySelection.skipResponded':
     'Исключать карточки с отметкой об отправленном отклике',
@@ -110,7 +112,7 @@ export const ruVacancy = {
   'vacancy.exportSanitized': 'без личных данных',
   'vacancy.title': 'Вакансии HH',
   'vacancy.hint':
-    'Ищите вакансии в своём браузере HH и сохраняйте полное описание работодателя. Эти действия только читают вакансии и не отправляют отклик. Описания доступны при подготовке тестового задания.',
+    'Ищите вакансии и собирайте полные описания в своём браузере HH. Отдельные элементы проверки ниже могут отправлять отклики. Описания доступны при подготовке тестового задания.',
   'vacancy.settings': 'Настройки поиска и браузера',
   'vacancy.query': 'Слова для поиска',
   'vacancy.resume': 'Хеш выбранного резюме (необязательно)',
@@ -128,7 +130,7 @@ export const ruVacancy = {
   'vacancy.publication_time': 'Сначала новые',
   'vacancy.relevance': 'Сначала подходящие',
   'vacancy.search': 'Найти вакансии',
-  'vacancy.stop': 'Остановить чтение',
+  'vacancy.stop': 'Остановить операцию браузера',
   'vacancy.loading': 'Загружаем сохранённые вакансии…',
   'vacancy.unavailable':
     'Для чтения HH нужен подключённый сервер с поддержкой браузера. Сохранённые описания доступны.',

@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { choicePutFixture } from './choice-put-fixture.mjs';
+import { applicationNativeFixture } from './application-native-fixture.mjs';
 
 const browser = await chromium.launch({
   executablePath: '/opt/google/chrome/chrome',
@@ -10,9 +11,11 @@ const browser = await chromium.launch({
 let fixture;
 try {
   const create =
-    process.env.CHOICE_PUT_FAILURE === '1'
-      ? choicePutFixture
-      : vacancyBrowserFixture;
+    process.env.APPLICATION_REVIEW_FIXTURE === '1'
+      ? applicationNativeFixture
+      : process.env.CHOICE_PUT_FAILURE === '1'
+        ? choicePutFixture
+        : vacancyBrowserFixture;
   fixture = await create(browser);
   await fixture.page.context().close();
 } catch (error) {

@@ -134,6 +134,7 @@ export const createVacancyService = ({
         technologyProviderSave: false,
         cvTranslation: true,
         cvSaveWatch: browser.available === true,
+        applicationReview: browser.available === true,
         apply: false,
       };
     },

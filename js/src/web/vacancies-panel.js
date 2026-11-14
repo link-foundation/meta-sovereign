@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { hhSearchUrl } from '../jobs/options.js';
+import { ApplicationPanel } from './application-panel.js';
+import { useApplication } from './application-state.js';
 import { VacancyResumes } from './vacancy-resumes.js';
 import { useResumeExports } from './resume-export-state.js';
 import { ResumeExports } from './resume-exports.js';
@@ -90,6 +92,11 @@ const validSearch = (values) => {
   }
 };
 
+const cancelVacancyOperation = ({ application, api, run }) =>
+  application.occupied || application.busy
+    ? application.stop()
+    : run('cancel', () => api.vacancyCancel());
+
 export const useVacancies = (api) => {
   const [values, setValues] = useState(initialSettings);
   const [capabilities, setCapabilities] = useState(null);
@@ -137,13 +144,14 @@ export const useVacancies = (api) => {
       return answer;
     } catch (failure) {
       setError(
-        `${kind.startsWith('technology-') ? 'jobs-technology:' : ''}${failure.code ?? failure.message}`
+        `${kind.startsWith('technology-') ? 'jobs-technology:' : kind.startsWith('application-') ? 'jobs-application:' : ''}${failure.code ?? failure.message}`
       );
       return null;
     } finally {
       setBusy('');
     }
   };
+  const application = useApplication({ api, values, selected, run });
   const resumeExports = useResumeExports({ api, values, run });
   const technology = useTechnologyAnalysis({ api, values, run });
   const cvTechnology = useCvTechnologyReview({ api, values, run, technology });
@@ -212,7 +220,10 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy: activeVacancyOperation(busy, resumeExports, cvTranslation),
+    busy:
+      activeVacancyOperation(busy, resumeExports, cvTranslation) ||
+      (application.occupied ? 'application-owned' : ''),
+    application,
     resumeExports,
     technology,
     cvTechnology,
@@ -233,7 +244,7 @@ export const useVacancies = (api) => {
       setValues(next);
       persistSettings(next);
     },
-    cancel: () => run('cancel', () => api.vacancyCancel()),
+    cancel: () => cancelVacancyOperation({ application, api, run }),
   };
 };
 
@@ -547,7 +558,9 @@ export const VacanciesScreen = ({ state }) => {
             t(
               state.busy.startsWith('technology-')
                 ? 'technology.working'
-                : 'vacancy.working'
+                : state.busy.startsWith('application-')
+                  ? 'application.working'
+                  : 'vacancy.working'
             )
           )
         : null,
@@ -555,7 +568,7 @@ export const VacanciesScreen = ({ state }) => {
         ? el(
             'p',
             { key: 'error', role: 'alert', 'data-vacancy-error': true },
-            `${t(state.error.startsWith('jobs-technology') ? 'technology.failed' : 'vacancy.failed')} (${state.error})`
+            `${t(state.error.startsWith('jobs-technology') ? 'technology.failed' : state.error.startsWith('jobs-application') ? 'application.failed' : 'vacancy.failed')} (${state.error})`
           )
         : null,
       el(Results, { key: 'results', state, t, idle, live }),
@@ -572,6 +585,7 @@ export const VacanciesScreen = ({ state }) => {
         ? el('p', { key: 'empty', className: 'meta' }, t('vacancy.empty'))
         : null,
       el(Snapshot, { key: 'selected', state, t, idle }),
+      el(ApplicationPanel, { key: 'application', state, t }),
     ]
   );
 };

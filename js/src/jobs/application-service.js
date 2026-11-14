@@ -75,6 +75,7 @@ class ApplicationService {
     if (owners.get(this.store) === this) {
       owners.delete(this.store);
     }
+    record.active = false;
     return { ...applicationView(record), state: 'closed' };
   }
   touch() {
@@ -229,6 +230,7 @@ class ApplicationService {
       noQuestionnaires: false,
       paused: false,
       browser: null,
+      active: true,
     };
     record.acknowledged = restored.previous;
     this.current = record;

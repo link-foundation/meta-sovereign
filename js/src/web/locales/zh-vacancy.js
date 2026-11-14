@@ -1,4 +1,6 @@
+import { zhApplication } from './zh-application.js';
 export const zhVacancy = {
+  ...zhApplication,
   'vacancySelection.searchAt': '上次成功搜索时间：{date}。',
   'vacancySelection.skipResponded': '排除原生卡片上已标记申请的职位',
   'vacancySelection.excludeText': '排除指定文本，每行一个短语',
@@ -93,7 +95,7 @@ export const zhVacancy = {
   'vacancy.exportSanitized': '已移除隐私信息',
   'vacancy.title': 'HH 职位',
   'vacancy.hint':
-    '在专用 HH 浏览器中搜索，并保存雇主的完整职位描述。这些操作只读取职位，不会投递申请。保存的描述也可用于准备测试任务。',
+    '在专用 HH 浏览器中搜索并采集完整职位描述。下方申请审核的独立控件可以发送申请。保存的描述也可用于准备测试任务。',
   'vacancy.settings': '搜索与浏览器设置',
   'vacancy.query': '搜索词',
   'vacancy.resume': '所选简历哈希（可选）',
@@ -111,7 +113,7 @@ export const zhVacancy = {
   'vacancy.publication_time': '最新优先',
   'vacancy.relevance': '相关度优先',
   'vacancy.search': '搜索职位',
-  'vacancy.stop': '停止读取',
+  'vacancy.stop': '停止浏览器操作',
   'vacancy.loading': '正在加载已保存的职位…',
   'vacancy.unavailable':
     '读取 HH 需要连接支持浏览器的服务器。已保存的描述仍然可用。',
