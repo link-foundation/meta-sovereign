@@ -44,7 +44,13 @@ export const applicationSessionClient = (
       `vacancyApplication${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input) => {
         calls.push([operation, input]);
-        return fixture.service[`application-${operation}`](input);
+        // These controller scenarios exercise direct native entry. Language
+        // policy has its own full-form fixture and can override this opt-out.
+        return fixture.service[`application-${operation}`](
+          operation === 'open'
+            ? { autoSelectResumeLanguage: false, ...input }
+            : input
+        );
       },
     ])
   );
