@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Signaling delivery predicate](ci-signaling-delivery.md): the actual integration tolerates bounded native delivery delay while retaining the expected offer assertion and draining sockets on failure. Parent failure, delayed probe and focused Node/Deno evidence are retained; exact-head hosted checks and every original criterion remain required.
+
 - [Daily-limit expiry race](ci-limit-expiry.md): an acknowledged backup can cross the original deadline after inspection computed an active flag. Recheck the saved shared pause before refresh, preserve newer pauses and retain all guards, restoration consent and deadlines. Exact-parent and focused/native evidence is retained; exact-head CI and all original incomplete criteria remain required.
 
 - [HH discovery verification holds](hh-discovery-boundaries.md): pause résumé, search and vacancy readers before state templates, cards or prose are read. Exact-parent regressions and shared native/MCP scenarios cover both HH text markers, hidden markers and existing widgets. Hosted signaling/daily-limit failures and every original incomplete criterion remain active.

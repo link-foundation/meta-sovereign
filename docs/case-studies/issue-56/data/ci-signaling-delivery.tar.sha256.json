@@ -1,0 +1,29 @@
+{
+  "archive": "ci-signaling-delivery.tar.gz",
+  "files": {
+    "before/js/tests/server-sync.test.js": "2ad390a2870eb1982e111dc4f42073d3ec7bda15137061d52cfcbc7138897d6f",
+    "ci-logs/checks-43600700798-ubuntu-deno.log": "045617a8cc670df3c7a8a00734d414cf4d8eae4863e80f3a528c7a22cbe2a0fe",
+    "ci-logs/ci-signaling-delivery-before.log": "4adfe1c4b8667b0a02e41f89f013b217c6f1a2c1fb18a78616fe191127dc8325",
+    "ci-logs/ci-signaling-delivery-delayed-final.log": "822048b6903a2b502da53bf40d120cef131f54e0b0b25facd61f3115da9192eb",
+    "ci-logs/ci-signaling-delivery-deno-final.log": "5986db8fbdb8a2f39246b3eae691404cdb7720b2a82ac0dbd944d52a3787f7d0",
+    "ci-logs/ci-signaling-delivery-diff-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-signaling-delivery-duplication-final.log": "1e37b2130009ce09a215ba3ff1fa2995863738eb4f7e03272b6d32372c608ec8",
+    "ci-logs/ci-signaling-delivery-focused-final.log": "d6e05ce71de3b0abab8a8e59f853f3b044eb9dffbd45ff92ffbdd9b07630537c",
+    "ci-logs/ci-signaling-delivery-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-signaling-delivery-format-write.log": "6f6543bf49c50d43742dcee7490c75c51ccf26bebd75f6ac988e6a6a067bd083",
+    "ci-logs/ci-signaling-delivery-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-signaling-delivery-parent-probe.log": "6a6eddf1b01256443ec6544bbfafc07f993b11d8473f4113375f5765d4dc4c8b",
+    "ci-logs/ci-signaling-delivery-secrets-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/hh-discovery-parent-deno-job.json": "ae704eb7e5f9c8adae816d2452acee6f214a73d76e4f9986fcb0180d4a7078a6",
+    "docs/case-studies/issue-56/PLAN.md": "89211a2e97a5131acc01da3d6f49a489061d3d02452c17282b3ecd09d3042820",
+    "docs/case-studies/issue-56/README.md": "51f8c8f36563daa01ede6be970e68b7cfdfbfb5543df8ac2a4cecdd4978d4278",
+    "docs/case-studies/issue-56/ci-signaling-delivery.md": "58d11b01e6edee3bbc47e0bbfb8e461c9fc50e81d91567828301e062b1e9d3a8",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-signaling-delivery.py": "6616f636bb30c978efeea5854cfc6bb058fae9f03b93095da117ff5b11b3872a",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "experiments/issue-56/signaling-delivery-before.py": "9160fe09355de6ece77604041d48eec9eff99bce63f4bfb9b4fb1d9d747b8368",
+    "experiments/issue-56/signaling-delivery-probe.mjs": "f30b5b6f5fdfa1c4babaa3df3a9831c1d9116c7b778750701b5cdfed42819b4f",
+    "js/tests/server-sync.test.js": "7c87a36bce5f1ca8016bc44f8da0b34a044954c89df417d54f86d356f2aa87b3",
+    "metadata.json": "960a856ac61b557b9962abd5139151fcce4fdb0d2c861fac8ac8a3d2ba37a1ca"
+  }
+}
