@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active exact-parent WebKit résumé validation timeout:
+
+- [x] Match `cac7f7d3` run `43591479049` and failed macOS WebKit shard 4 job `132437782294`; retain complete workflow/job/pipeline logs and inspect the artifact. Job lines 1000–1001 exhaust the existing 30-second validation wait. The artifact has no résumé failure screenshot.
+- [x] Run one isolated native input probe; trusted input and disabled search agree locally. Preserve the original cause as unproven. Add bounded, opt-in, value-free input/focus diagnostics and honor the CI screenshot directory without changing scenario/engine/deadline coverage.
+- [ ] Verify focused privacy/registration checks and the newly built résumé scenario, publish checksummed evidence and inspect every exact-head hosted check. Investigate a recurrence from its actual trace; a passing local scenario does not establish the original macOS cause. Continue every original unchecked criterion.
+
 Active exact-parent macOS Deno HH CLI timeout:
 
 - [x] Match published `6899b33b` main run `43579541371` to failed macOS Deno job `132403292910`. Save its complete 11,248-line job log; test at lines 5756–5763 times out at 15 seconds, with failure summary at 11201–11215. Broad runtime suite otherwise reports 5,565 passing cases; this does not make the workflow passing.

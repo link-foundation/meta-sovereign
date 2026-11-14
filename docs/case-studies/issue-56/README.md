@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Hosted résumé input investigation](ci-resume-input.md): preserve the macOS WebKit validation timeout, add bounded value-free input/focus traces and failure screenshots, and distinguish passing local evidence from the unproven hosted cause.
+
 - [Confirmed daily-deadline waiting](application-limit-wait.md): later native edits remain backed up during a finite, stoppable wait; one guarded expiry refresh returns to review with separate restoration and sending. CLI/Lino/four-language native and independent MCP evidence is preserved. The separate hosted WebKit résumé failure and all original unchecked criteria remain active.
 
 - [Default application language](application-language.md): full-form CV verification before entry, durable owner overrides and guarded standard-letter correction through CLI/Lino/four-language UI. Authenticated parity and all original unchecked criteria remain active.

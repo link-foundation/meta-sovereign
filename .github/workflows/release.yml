@@ -614,6 +614,7 @@ jobs:
       CI_QUESTION_WATCH_DEBUG: '1'
       CI_PROFILE_NAVIGATION_DEBUG: '1'
       CI_CV_KEYBOARD_DEBUG: '1'
+      CI_RESUME_INPUT_DEBUG: '1'
       CI_FOLLOW_DISCLOSURE_DEBUG: '1'
       CI_LINO_SYNC_DEBUG: '1'
       DEBUG: ${{ vars.CI_BROWSER_DEBUG == '1' && 'pw:api' || '' }}

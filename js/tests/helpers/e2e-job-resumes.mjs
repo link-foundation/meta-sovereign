@@ -3,6 +3,10 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
 import { traceBrowserScenario } from './e2e-browser-scenarios.mjs';
+import {
+  installResumeInputTrace,
+  traceResumeInput,
+} from './e2e-resume-input.mjs';
 
 const verifyResumeChoice = async ({
   run,
@@ -19,6 +23,8 @@ const verifyResumeChoice = async ({
     'native cards, escaped state and dates recommend a Russian title without private fields',
     async () => {
       await field('resume').fill('invalid/hash');
+      await traceResumeInput(page, 'after-invalid-fill');
+      assert.equal(await field('resume').inputValue(), 'invalid/hash');
       // Observe the rendered validation state after dispatching input instead
       // of sampling it synchronously, within the existing scenario deadline.
       await page.waitForFunction(
@@ -112,7 +118,7 @@ const verifyResumeRefresh = async ({
 
 export const verifyJobResumes = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots = process.env.E2E_ARTIFACT_DIR, before = false } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser);
   const { page, records } = fixture;
@@ -135,8 +141,10 @@ export const verifyJobResumes = async (
     cases++;
   };
   try {
+    await installResumeInputTrace(page);
     await page.goto(`${fixture.base}/#/cv`);
     await panel.waitFor();
+    await traceResumeInput(page, 'panel-visible');
     if (before) {
       await panel.scrollIntoViewIfNeeded();
       await shot('resumes-before');
@@ -242,6 +250,7 @@ export const verifyJobResumes = async (
       pageErrors: fixture.errors,
     };
   } catch (error) {
+    await traceResumeInput(page, 'failure', true).catch(() => {});
     await shot('resumes-failed');
     throw error;
   } finally {
