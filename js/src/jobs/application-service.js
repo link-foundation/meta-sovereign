@@ -30,6 +30,7 @@ import { ApplicationLanguagePolicy } from './application-language-policy.js';
 import { ApplicationLimits } from './application-limits.js';
 import { ApplicationLimitBackups } from './application-limit-backups.js';
 import { ApplicationLimitWait } from './application-limit-wait.js';
+import { ApplicationPacing } from './application-pacing.js';
 import {
   ApplicationResumes,
   dispatchResumeChoice,
@@ -55,6 +56,7 @@ class ApplicationService {
     selectResume = dispatchResumeChoice,
     now = Date.now,
     limitWait,
+    pacingRandom,
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
       : () => {},
@@ -87,6 +89,7 @@ class ApplicationService {
     this.limits = new ApplicationLimits(this, now);
     this.limitBackups = new ApplicationLimitBackups(this);
     this.limitWait = new ApplicationLimitWait(this, now, limitWait);
+    this.pacing = new ApplicationPacing(this, now, pacingRandom);
   }
   save(record) {
     return saveApplicationJournal(this.store, record);
@@ -339,6 +342,7 @@ class ApplicationService {
       browser: null,
       active: true,
     };
+    await this.pacing.admit(options, restored.previous, signal);
     record.acknowledged = restored.previous;
     this.current = record;
     owners.set(this.store, this);

@@ -1,5 +1,6 @@
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { applicationLimitData } from './application-limit-data.js';
+import { applicationPacingData } from './application-pacing-data.js';
 import {
   applicationKey,
   applicationFailure as fail,
@@ -29,6 +30,7 @@ const validEntry = (row, slot, key) =>
 export const applicationQueueResult = (raw, input = {}) => {
   const slot = vacancyChoiceSlot(input);
   applicationLimitData(raw?.applicationLimit);
+  applicationPacingData(raw?.pacing);
   if (
     raw?.ok !== true ||
     raw.mode !== 'hh-application-queue' ||

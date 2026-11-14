@@ -1,11 +1,17 @@
 import React from 'react';
 import { applicationMayRetry } from './application-session.js';
+import { ApplicationPacingView } from './application-pacing-view.js';
 
 const el = React.createElement;
 export const ApplicationQueueView = ({ application, idle, confirmed, t }) =>
   el('div', { className: 'col', 'data-application-queue': true }, [
     el('h4', { key: 'title' }, t('application.queueTitle')),
     el('p', { key: 'hint', className: 'meta' }, t('application.queueHint')),
+    el(ApplicationPacingView, {
+      key: 'pacing',
+      pacing: application.queue?.pacing,
+      t,
+    }),
     el(
       'button',
       {

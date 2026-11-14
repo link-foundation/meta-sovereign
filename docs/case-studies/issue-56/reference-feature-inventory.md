@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH06/HH08 extension: [saved optional application pacing](application-pacing.md) spaces explicitly paced review admissions across workspace slots and restarts. Native confirmed delivery and unique CAPTCHA observations adapt a bounded interval, with fixed seconds available. Expiry only changes read eligibility; automatic batch execution, queue revisits, authenticated account scope and all 81 original incomplete rows remain required.
+
 Partial HH06/HH08 extension: [daily-limit CAPTCHA coexistence](application-limit-challenge.md) now backs up the separate native application form and actual Q&A before closing its uniquely identified dialog. Poisoned DOM, failed-save, owner-edit, expiry and remount checks preserve challenge privacy and the original workspace deadline. This supersedes the safe backup/dismissal gap in earlier snapshots; authenticated account scope, paced batches, provider parity and all 81 original unchecked rows remain required.
 
 Partial HH01/HH06/HH07 and assignment privacy extension: [HH CV and assignment verification holds](hh-content-boundaries.md) stop content reads at native text gates, including a late workplace recheck and inert saved records. Parent regressions and focused/native evidence preserve ordinary reads; no original incomplete row is marked complete.

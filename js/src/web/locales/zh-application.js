@@ -168,4 +168,19 @@ export const zhApplication = {
     '此暂停适用于本工作区的所有 HH 申请槽位。被拒绝的表单保持打开；读取和聊天仍可继续。表单保留状态和未确认的发送结果仍需单独审核。',
   'application.limitUnsaved':
     '此暂停仅保留在内存中。保存失败，尚未验证重启恢复。请保持进程和表单打开，再次读取以重试保存。',
+  'application.pacingEnabled': '为新的申请审核设置间隔',
+  'application.pacingInterval': '间隔秒数（0：自适应）',
+  'application.pacingHint':
+    '可选间隔从两分钟开始，在观察到 HH 确认送达或 CAPTCHA 后在 1–4 分钟内调整。正数设置固定秒数，最多 86400。审核所用时间计入间隔。此工作区时间表跨浏览器槽并在重启后保留。到期后重新读取队列；到期不会自动打开或发送。',
+  'application.pacingWaiting':
+    '新职位审核需等待至 {at}。请重新读取队列以更新资格。',
+  'application.pacingReady':
+    '保存的审核间隔已于 {at} 结束。开始新审核仍需明确操作。',
+  'application.pacingStats':
+    '{mode}：{seconds} 秒。观察到的送达：{deliveries}；CAPTCHA：{challenges}。',
+  'application.pacingMode.adaptive': '自适应',
+  'application.pacingMode.fixed': '固定',
+  'application.pacingHold': '在 {at} 之前，成功送达不会加快自适应速度。',
+  'application.pacingUnsaved':
+    '存储尚未确认此时间表。请保持此工作进程运行；保存成功前会阻止新审核。',
 };

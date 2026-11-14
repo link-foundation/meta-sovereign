@@ -8,9 +8,10 @@ Active CV Save recovery CI fixture:
 
 Active optional paced application reviews (HH06/HH08 remain incomplete):
 
-- [ ] Add one acknowledged private workspace schedule for explicitly paced reviews: zero selects adaptive 1–4 minute timing starting at two minutes; a positive seconds value selects fixed timing. Count time already spent on the vacancy. Persist native delivery/CAPTCHA feedback, stable random variation, bounded cooldown and restart state without reading challenge contents.
-- [ ] Gate new review admission across slots, including callers omitting the flag while the saved window is active. Reopening the same review does not reset its deadline. Preserve preview, daily-limit, reservation and manual-hold semantics; failed acknowledgements refuse new browser work.
-- [ ] Carry the optional interval through CLI, text/binary Lino and four-language application settings. Show saved schedule/counters and explicit read-to-refresh recovery in the shared queue. Add actual-parent failure, focused deterministic tests, one native browser/MCP flow and retained screenshots; inspect exact-head CI.
+- [x] Add one acknowledged private workspace schedule for explicitly paced reviews: zero selects adaptive 1–4 minute timing starting at two minutes; a positive seconds value selects fixed timing. Count time already spent on the vacancy. Persist native delivery/CAPTCHA feedback, stable random variation, bounded cooldown and restart state without reading challenge contents.
+- [x] Gate new review admission across slots, including callers omitting the flag while the saved window is active. Reopening the same review does not reset its deadline. Preserve preview, daily-limit, reservation and manual-hold semantics; failed acknowledgements refuse new browser work.
+- [x] Carry the optional interval through CLI, text/binary Lino and four-language application settings. Show saved schedule/counters and explicit read-to-refresh recovery in the shared queue. Add actual-parent failure, focused deterministic tests, one native browser/MCP flow and retained screenshots. Exact-head CI remains pending after publication. Focused Node 44/Deno 19, native Chromium plus the existing worker-policy scenario and independent MCP pass; all owned resources close.
+- [ ] Preserve checksummed evidence, publish and inspect exact-head CI.
 - [ ] Continue the full paced batch runner, automatic RAM-queue revisits, authenticated account scope and every original incomplete requirement. A single-review admission unit does not establish full reference parity or complete HH06/HH08.
 
 Active Windows Deno CLI timeout (`cd2a3337`, run `43606682331`):

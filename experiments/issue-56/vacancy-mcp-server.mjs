@@ -1,3 +1,4 @@
+import { applicationPacingControl } from './application-pacing-mcp-control.mjs';
 import { applicationDraftControl } from './application-draft-mcp-control.mjs';
 import { applicationHoldControl } from './application-hold-mcp-control.mjs';
 import { applicationRetryControl } from './application-retry-mcp-control.mjs';
@@ -19,6 +20,7 @@ let fixture;
 const clock = { value: Date.UTC(2026, 10, 14), rejections: 0 };
 const retryFixture = process.env.APPLICATION_RETRY_FIXTURE === '1';
 const limitFixture = process.env.APPLICATION_LIMIT_FIXTURE === '1';
+const pacingFixture = process.env.APPLICATION_PACING_FIXTURE === '1';
 const popup = process.env.APPLICATION_POPUP_FIXTURE === '1';
 try {
   const create =
@@ -34,8 +36,13 @@ try {
   fixture = await create(browser, {
     popup,
     language: process.env.APPLICATION_LANGUAGE_FIXTURE === '1',
-    ...(retryFixture || limitFixture
-      ? { application: { now: () => clock.value } }
+    ...(retryFixture || limitFixture || pacingFixture
+      ? {
+          application: {
+            now: () => clock.value,
+            ...(pacingFixture ? { pacingRandom: () => 0 } : {}),
+          },
+        }
       : {}),
   });
   await fixture.page.context().close();
@@ -72,14 +79,28 @@ const captchaControl =
   process.env.APPLICATION_HH_CAPTCHA_FIXTURE === '1'
     ? hhCaptchaControl(browser)
     : null;
+const pacingControl = pacingFixture
+  ? applicationPacingControl(fixture, clock)
+  : null;
+const handlers = [
+  draftControl,
+  holdControl,
+  retryControl,
+  limitControl,
+  captchaControl,
+  pacingControl,
+];
+const runControl = async (req) => {
+  for (const handler of handlers) {
+    const result = await handler?.(req);
+    if (result) {
+      return result;
+    }
+  }
+};
 const control = createServer(async (req, res) => {
   try {
-    const draft =
-      (await draftControl?.(req)) ??
-      (await holdControl?.(req)) ??
-      (await retryControl?.(req)) ??
-      (await limitControl?.(req)) ??
-      (await captchaControl?.(req));
+    const draft = await runControl(req);
     if (draft) {
       res.setHeader('content-type', 'application/json');
       res.end(JSON.stringify(draft));

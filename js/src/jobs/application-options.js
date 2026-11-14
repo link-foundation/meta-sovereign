@@ -1,6 +1,7 @@
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { jobsBrowserOptions, jobsFailure, jobsObject } from './options.js';
 import { applicationResumeContext } from './application-resume-context.js';
+import { applicationInterval } from './application-pacing-data.js';
 import {
   applicationStandardLetters,
   applicationLetterLanguage,
@@ -72,6 +73,13 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     // Absence preserves the exact signatures of acknowledged legacy reviews.
     ...(input.supervised === true ? { supervised: true } : {}),
     ...languageSettings(input, legacy),
+    ...(input.applicationIntervalSeconds === undefined
+      ? {}
+      : {
+          applicationIntervalSeconds: applicationInterval(
+            input.applicationIntervalSeconds
+          ),
+        }),
   };
 };
 export const applicationDelay = (ms, signal) =>

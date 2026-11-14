@@ -192,4 +192,20 @@ export const enApplication = {
     'This pause covers every HH application slot in this workspace. The current refused form stays open; reading and chats can continue. A native hold and any unconfirmed delivery reservation still require separate review.',
   'application.limitUnsaved':
     'This pause is held in memory. Saving failed, so restart recovery is not verified. Keep this worker and form open and read again to retry saving.',
+  'application.pacingEnabled': 'Space new application reviews',
+  'application.pacingInterval': 'Interval in seconds (0: adaptive)',
+  'application.pacingHint':
+    'Optional spacing starts at two minutes and adapts within 1–4 minutes after native HH delivery or CAPTCHA observations. Positive seconds use a fixed interval, up to 86400. Time spent reviewing counts. This workspace schedule survives restarts and applies across slots. Read the queue after the deadline; expiry does not open or send anything.',
+  'application.pacingWaiting':
+    'New vacancy reviews wait until {at}. Read the queue to refresh eligibility.',
+  'application.pacingReady':
+    'The saved review interval ended at {at}. Starting a review still requires an explicit action.',
+  'application.pacingStats':
+    '{mode}: {seconds} seconds. Observed deliveries: {deliveries}; CAPTCHAs: {challenges}.',
+  'application.pacingMode.adaptive': 'Adaptive',
+  'application.pacingMode.fixed': 'Fixed',
+  'application.pacingHold':
+    'Successful delivery cannot speed up the adaptive pace before {at}.',
+  'application.pacingUnsaved':
+    'This schedule has not been acknowledged by storage. Keep this worker open; new review admission remains blocked until it can save.',
 };

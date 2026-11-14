@@ -145,6 +145,7 @@ export class ApplicationReview {
     record.state = applicationState(record.page);
     this.service.holds.observe(record);
     await this.service.limits.observe(record);
+    await this.service.pacing.observe(record, signal);
     record.report = null;
     record.exact = false;
     record.code = null;

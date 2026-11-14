@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+[Optional saved application pacing](application-pacing.md) adds adaptive/fixed review admission, acknowledged native feedback and explicit queue refresh; full paced batches and all original incomplete rows remain required.
+
 - [CV Save recovery fixture clock](ci-cv-save-recovery-clock.md): preserve the macOS Node failure, reproduce a finite late navigation probe and use logical fixture time while retaining the production deadline and five-read bound.
 
 - [CLI help import boundary](ci-cli-help-startup.md): avoid provider imports for help and unknown commands while preserving exact usage bytes, all 116 registrations, exit statuses and delayed-output drainage. The Windows cold-import cause remains unproven; exact-parent, focused Node/Deno and module observations are preserved.

@@ -10,6 +10,7 @@ import {
   ApplicationLimitWaitControls,
 } from './application-limit-view.js';
 import { applicationLimitHeld } from '../jobs/application-limit-data.js';
+import { ApplicationPacingSettings } from './application-pacing-view.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -64,6 +65,7 @@ const Settings = ({ application, disabled, t }) => {
       t('application.languagePolicyHint')
     ),
     el(ApplicationLetterSettings, { key: 'letter', options, setOptions, t }),
+    el(ApplicationPacingSettings, { key: 'pacing', options, setOptions, t }),
     check(
       'supervised',
       t('application.supervised'),
@@ -416,7 +418,10 @@ const RecoveryControls = ({ application, idle, supported, t }) => {
       'start',
       t('application.start'),
       application.start,
-      blocked || !canStart(application)
+      blocked ||
+        (application.queue?.pacing?.waiting &&
+          !application.options?.testMode) ||
+        !canStart(application)
     ),
     button(
       'recover',

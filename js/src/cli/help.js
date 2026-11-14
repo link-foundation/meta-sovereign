@@ -1,6 +1,6 @@
 /** Shared immutable CLI usage text; no providers, stores or command execution. */
 
-export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--standard-letter-en-file=<text-file> --standard-letter-ru-file=<text-file>] [--no-auto-select-resume-language=true|false] [--supervised=true|false] [--auto-exact=true|false] [--review-delay-ms=3000] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
+export const APPLICATION_HELP = `  vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--standard-letter-en-file=<text-file> --standard-letter-ru-file=<text-file>] [--no-auto-select-resume-language=true|false] [--supervised=true|false] [--auto-exact=true|false] [--review-delay-ms=3000] [--job-application-interval=0|seconds] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]`;
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.lino> | delete <id>

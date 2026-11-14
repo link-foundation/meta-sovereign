@@ -26,6 +26,7 @@ export class ApplicationDeferrals {
       {
         ok: true,
         mode: 'hh-application-queue',
+        pacing: await this.service.pacing.read(),
         browserSlot,
         revision: this.revision,
         applicationLimit: await this.service.limits.read(),
