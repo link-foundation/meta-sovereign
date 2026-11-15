@@ -327,8 +327,8 @@ jobs:
       cancel-in-progress: true
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Retain the 10min deadline. Observed cold macOS setup plus four Node
-    # partitions reaches it; use eight. Windows Node and all Deno use three.
+    # Retain the 10min deadline. Cold macOS setup must not fetch unused
+    # historical blobs; retain eight Node shards, three Windows/Deno shards.
     # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
@@ -446,8 +446,10 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-          # For PRs, fetch enough history to merge with base branch
+          # Retain the full commit DAG for a fresh-base merge. Fetch current
+          # tree blobs on demand instead of every historical evidence bundle.
           fetch-depth: 0
+          filter: blob:none
 
       - name: Simulate fresh merge with base branch (PR only)
         if: github.event_name == 'pull_request'
