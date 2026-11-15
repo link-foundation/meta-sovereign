@@ -32,6 +32,7 @@ import {
 import { contentSticker } from './sticker.js';
 import { vkMediaUrl } from './vk-hosts.js';
 import { createVkPublications } from './vk-publication.js';
+import { createVkFriends } from './vk-friends.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 import {
@@ -808,6 +809,7 @@ export const createVkLive = ({
 
   return {
     call,
+    ...createVkFriends({ call, once }),
     async setOnline(options = {}) {
       const result = await call('account.setOnline', {}, options.token);
       if (result !== 1) {

@@ -1,0 +1,136 @@
+/** Opt-in priority requests and ranked acceptance with durable per-target receipts. */
+import { setTimeout as pause } from 'node:timers/promises';
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { createStoreQueue } from '../storage/serialized.js';
+import { getSource, liveOptionsFrom } from '../sources/index.js';
+import { safeMessage } from '../server/redact.js';
+import { refuseFriendAction as refuse } from './vk-friends-records.js';
+import { friendProvider, previewVkFriendPlan } from './vk-friends-planner.js';
+import { applyVkFriendPlan } from './vk-friends-executor.js';
+import {
+  VK_FRIENDS_STATE as STATE,
+  VK_FRIENDS_PLAN as PLAN,
+  readVkFriendSettings,
+  readVkFriends,
+} from './vk-friends-settings.js';
+export { loadVkFriends, saveVkFriends } from './vk-friends-settings.js';
+
+const execute = createStoreQueue();
+export const createVkFriendsJob = ({
+  store,
+  resolve = getSource,
+  optionsFor = () => liveOptionsFrom(store, 'vk'),
+  now = Date.now,
+  sleep = (ms, signal) => pause(ms, undefined, { signal }),
+  setInterval = globalThis.setInterval,
+  clearInterval = globalThis.clearInterval,
+  log = () => {},
+} = {}) => {
+  let stopped = false;
+  let timer;
+  let active;
+  let planning;
+  const controller = new AbortController();
+  const context = {
+    store,
+    now,
+    optionsFor,
+    sleep,
+    log,
+    signal: controller.signal,
+    isStopped: () => stopped,
+    provider: () => friendProvider(resolve, optionsFor),
+  };
+  const preview = () => previewVkFriendPlan(context);
+  const apply = (plan) => applyVkFriendPlan(context, plan);
+  const run = (input = {}) => {
+    if (!input.scheduled && input.confirm !== true) {
+      return Promise.reject(new Error('Confirm the reviewed friend plan'));
+    }
+    if (active) {
+      return active;
+    }
+    active = execute(store, async () => {
+      if (stopped) {
+        refuse('Service stopped');
+      }
+      if (input.scheduled) {
+        const settings = await readVkFriendSettings(store);
+        const last = await store.get(STATE);
+        const elapsed = now() - Date.parse(last?.attemptedAt ?? '');
+        if (
+          !settings.enabled ||
+          (Number.isFinite(elapsed) && elapsed < settings.everyMinutes * 60000)
+        ) {
+          return { ...(await readVkFriends(store)), skipped: 'not-due' };
+        }
+        const attempt = {
+          id: STATE,
+          attemptedAt: new Date(now()).toISOString(),
+          status: 'pending',
+          results: [],
+          observeIds: (last?.results ?? [])
+            .filter((row) => row.status === 'confirmed')
+            .map((row) => row.userId),
+        };
+        await saveAcknowledgedRecord(store, attempt);
+        let planned;
+        try {
+          planned = await preview();
+        } catch (error) {
+          await saveAcknowledgedRecord(store, {
+            ...attempt,
+            status: 'refused',
+            error: safeMessage(error),
+          });
+          throw error;
+        }
+        return apply(planned.plan);
+      }
+      const plan = await store.get(PLAN);
+      if (
+        input.confirm !== true ||
+        !plan ||
+        plan.status !== 'review' ||
+        plan.planId !== input.planId
+      ) {
+        refuse('Confirm the current reviewed friend plan');
+      }
+      return apply(plan);
+    }).finally(() => {
+      active = null;
+    });
+    return active;
+  };
+  return {
+    preview: () => {
+      if (!planning) {
+        planning = execute(store, preview).finally(() => {
+          planning = null;
+        });
+      }
+      return planning;
+    },
+    run,
+    start() {
+      if (timer || stopped) {
+        return;
+      }
+      timer = setInterval(
+        () =>
+          run({ scheduled: true }).catch(() =>
+            log({ event: 'vk_friend_batch_failed' })
+          ),
+        60000
+      );
+      timer.unref?.();
+    },
+    async stop() {
+      stopped = true;
+      clearInterval(timer);
+      controller.abort();
+      await active?.catch(() => {});
+      await planning?.catch(() => {});
+    },
+  };
+};

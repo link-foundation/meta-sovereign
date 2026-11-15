@@ -1,4 +1,4 @@
-import { vkOnlineLocale } from './vk-online.js';
+import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { ruGratitude } from './ru-gratitude.js';
 import { ruGreetingCatalog } from './ru-greeting-catalog.js';
@@ -33,7 +33,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
-  ...vkOnlineLocale('ru'),
+  ...vkProviderJobsLocale('ru'),
   ...vkAttachmentsLocale('ru'),
   ...ruGratitude,
   ...ruVacancy,

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add reviewed priority VK friend requests and mutual-ranked incoming acceptance with saved capacity, batch size, opt-in pacing and scheduling. Require fresh account/policy checks and durable per-target acknowledgements; retain uncertain outcomes without replay across CLI, default Lino API and four-language online/offline controls.
+
 Add explicitly enabled incoming VK attachment metadata collection with first-observation deduplication, durable pause/resume, cursor-safe read recovery and CLI, default Lino API and four-language connection controls. Preserve existing message counts and media rendering.
 
 Retain structured Telegram Bot API, caption, MTProto and Desktop-export destinations in shared question planning and frozen history checks. Require fresh review for hidden targets, refuse ambiguous metadata and expose literal destinations in CLI and shared answer evidence.

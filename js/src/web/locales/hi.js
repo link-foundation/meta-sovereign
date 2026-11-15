@@ -1,4 +1,4 @@
-import { vkOnlineLocale } from './vk-online.js';
+import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { hiGratitude } from './hi-gratitude.js';
 import { hiGreetingCatalog } from './hi-greeting-catalog.js';
@@ -32,7 +32,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
-  ...vkOnlineLocale('hi'),
+  ...vkProviderJobsLocale('hi'),
   ...vkAttachmentsLocale('hi'),
   ...hiGratitude,
   ...hiVacancy,

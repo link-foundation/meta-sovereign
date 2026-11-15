@@ -1333,3 +1333,9 @@ Active stored-draft confirmation correction before ordered VK06 delivery:
 - [x] Reproduce the request-body-only confirmation gap on actual parent `3cd0d746`: eight changed text/sticker/incoming-proof cases through both Lino encodings each deliver one mocked VK message. Keep exact parent bytes and restore sources before verification.
 - [x] Freeze an independent rendered preview, including overrides and complete evidence; compare again inside the runner before delivery. Reuse the comparison for automatic runs. Refuse changes with retained drafts, no outbox entries and no provider calls; unchanged edited content still sends once. Ten Node/ten Deno checks pass.
 - [ ] Preserve checked evidence, publish this atomic correction and inspect exact-head hosted workflows. Continue ordered VK06 delivery and every other unchecked inventory criterion; PR57 remains draft/unmerged.
+      Active prioritized VK friend requests (VK11):
+
+- [x] Read the complete pinned acceptance trigger, caller, priority configuration and cache helpers. Check official current method/receipt schemas; preserve priority-first ordering and mutual-ranked incoming batches without copying personal IDs or long cache sleeps.
+- [x] Draft disabled persisted scheduling, configurable capacity/batch/priority IDs, fresh account/request checks, durable per-target receipts and uncertainty refusal. Expose reviewed manual plans, owned scheduler, CLI/default Lino and shared translated/offline controls.
+- [x] Reproduce absent behavior on the actual published parent; 36 focused Node / 31 Deno and two registry checks pass, with native WebKit and independent four-language MCP before/after evidence. Online-job compatibility passes; full matrices remain in CI.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head hosted workflows. All original incomplete criteria remain required; PR57 stays draft/unmerged.

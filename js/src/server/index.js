@@ -111,6 +111,8 @@ import { handleStickerCollections } from './routes-sticker-collections.js';
 import { handleVkAttachments } from './routes-vk-attachments.js';
 import { handleVkOnline } from './routes-vk-online.js';
 import { createVkOnlineJob } from '../automation/vk-online.js';
+import { createVkFriendsJob } from '../automation/vk-friends.js';
+import { handleVkFriends } from './routes-vk-friends.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
@@ -380,6 +382,11 @@ const automationContext = (
     ...automations.vkOnline,
     log: say,
   });
+  const vkFriends = createVkFriendsJob({
+    store,
+    ...automations.vkFriends,
+    log: say,
+  });
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
   const recover = () =>
@@ -397,6 +404,7 @@ const automationContext = (
     later.push(() => {
       scheduler.start();
       vkOnline.start();
+      vkFriends.start();
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
       (recovered ?? recover())
@@ -421,12 +429,13 @@ const automationContext = (
     setTyping,
     automations: { runner, scheduler, autopilot },
     vkOnline,
+    vkFriends,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
       scheduler.stop();
-      await vkOnline.stop();
+      await Promise.all([vkOnline.stop(), vkFriends.stop()]);
       await questionBrowser.close();
       await send.close?.();
     },
@@ -669,6 +678,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   for (const handle of [
     () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleVkOnline(store, req, res, p, url, ctx),
+    () => handleVkFriends(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleBrowserRoutes(store, req, res, p, url, ctx),

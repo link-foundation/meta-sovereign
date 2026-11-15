@@ -42,6 +42,7 @@ import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
 import { createVkAttachmentsApi } from './vk-attachments-api.js';
 import { createVkOnlineApi } from './vk-online-api.js';
+import { createVkFriendsApi } from './vk-friends-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
@@ -554,6 +555,10 @@ const rawApi = {
     local: async () => (await ensure()).store,
   }),
   ...createVkOnlineApi({
+    ...remote,
+    local: async () => (await ensure()).store,
+  }),
+  ...createVkFriendsApi({
     ...remote,
     local: async () => (await ensure()).store,
   }),

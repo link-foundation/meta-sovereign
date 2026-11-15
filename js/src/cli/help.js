@@ -171,6 +171,7 @@ export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,tele
   greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--texts=<phrases separated by newlines>] [--json] [--store=<dir>]
   vk-attachments    [--after=<cursor>] [--limit=1..100] [--enabled=true|false] [--store=<dir>]
   vk-online         [--enabled=true|false] [--every-minutes=1..14] [--run=true] [--store=<dir>]
+  vk-friends        status|save|plan|run [--enabled=true|false] [--every-minutes=20] [--max-friends=10000] [--batch-size=23] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]
   greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
   greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
 

@@ -126,4 +126,5 @@ export const ordinaryCommandNames = new Set([
   'version',
   'vk-attachments',
   'vk-online',
+  'vk-friends',
 ]);
