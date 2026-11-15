@@ -69,6 +69,10 @@ test(
           (await store.get('outbox:vk-cancelled:1:9:once')).status,
           'sent'
         );
+        assert.equal(
+          (await store.get('outbox:vk-cancelled:1:9:once')).sequence.step,
+          'greeting-and-question'
+        );
         await job.stop();
         await store.close();
         job = store = null;

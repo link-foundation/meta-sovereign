@@ -2,7 +2,7 @@
 'meta-sovereign': minor
 ---
 
-Add independent disabled VK friend greetings with fresh friendship, online, unread, history and write-permission evidence, configurable silence/cooldown/limits and text or native sticker review. Share acknowledged per-person delivery, durable uncertainty, owned scheduling and optional friend-count ordering through CLI, default Lino and four-language/offline controls.
+Add independent disabled VK friend greetings (issue #56, VK15) with fresh friendship, online, unread, history and write-permission evidence, configurable silence/cooldown/limits and text or native sticker review. Share acknowledged per-person delivery, durable uncertainty, owned scheduling and optional friend-count ordering through CLI, default Lino and four-language/offline controls.
 
 Add an independent disabled VK friendship follow-up with an exact reviewed greeting/question, durable repeat suppression and separate unanswered/unwritable blocking choices. Preserve outgoing-only evidence, fresh personal history/permission checks, unknown outcomes, owned pacing and scheduling through CLI, default Lino and shared four-language/offline controls.
 

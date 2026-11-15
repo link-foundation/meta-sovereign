@@ -1,6 +1,22 @@
 import { positiveVkId } from '../automation/vk-friends-settings.js';
 import { friendCredentialIdentity } from '../automation/vk-friends-records.js';
 
+const validateFriendEvidence = (users, userId, state) => {
+  const user = users?.[0];
+  if (
+    !Array.isArray(users) ||
+    users.length !== 1 ||
+    user?.id !== userId ||
+    ![0, 1].includes(user.online) ||
+    ![0, 1].includes(user.can_write_private_message) ||
+    typeof state.markedUnread !== 'boolean' ||
+    !Number.isSafeInteger(state.unreadCount) ||
+    state.unreadCount < 0
+  ) {
+    throw new Error('Incomplete VK friend greeting evidence');
+  }
+};
+
 /** Fresh friend, conversation and optional ordering evidence; no cached writes. */
 export const createVkGreet = ({ call, once, maintenance, conversations }) => ({
   async greetSnapshot(options) {
@@ -25,18 +41,7 @@ export const createVkGreet = ({ call, once, maintenance, conversations }) => ({
       options.token
     );
     const user = users?.[0];
-    if (
-      !Array.isArray(users) ||
-      users.length !== 1 ||
-      user?.id !== userId ||
-      ![0, 1].includes(user.online) ||
-      ![0, 1].includes(user.can_write_private_message) ||
-      typeof state.markedUnread !== 'boolean' ||
-      !Number.isSafeInteger(state.unreadCount) ||
-      state.unreadCount < 0
-    ) {
-      throw new Error('Incomplete VK friend greeting evidence');
-    }
+    validateFriendEvidence(users, userId, state);
     let friendCount = null;
     if (options.orderByFriends) {
       const result = await call(

@@ -36,6 +36,10 @@ const messageEvidence = (row, userId, accountId) => {
     service: Boolean(row.action),
   };
 };
+const unreadEvidence = (conversation) => ({
+  unreadCount: conversation.unread_count ?? 0,
+  markedUnread: conversation.is_marked_unread ?? false,
+});
 /** Read a finite complete history. Partial history never authorizes a prompt. */
 export const createVkCancelled = ({ call, once, maintenance }) => {
   const history = async (userId, accountId, options) => {
@@ -112,12 +116,7 @@ export const createVkCancelled = ({ call, once, maintenance }) => {
         ...relation,
         canWrite: conversation.can_write.allowed,
         messages,
-        ...(options.friendGreeting
-          ? {
-              unreadCount: conversation.unread_count ?? 0,
-              markedUnread: conversation.is_marked_unread ?? false,
-            }
-          : {}),
+        ...(options.friendGreeting ? unreadEvidence(conversation) : {}),
       };
       return {
         ...state,

@@ -1,4 +1,4 @@
-# VK friend greetings
+# VK friend greetings (languages: en • [ru](VK-FRIEND-GREETINGS.ru.md) • [hi](VK-FRIEND-GREETINGS.hi.md) • [zh](VK-FRIEND-GREETINGS.zh.md))
 
 Open **Connections → VK → Enter manually → VK friend greetings**. The service
 checks current friends through your configured personal VK API credential.

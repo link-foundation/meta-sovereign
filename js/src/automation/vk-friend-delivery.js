@@ -2,6 +2,14 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { safeMessage } from '../server/redact.js';
 import { friendLedgerId, uncertainFriendAction } from './vk-friends-records.js';
+const failedStatus = (issued, error) =>
+  issued && !error.vkCode && error.ambiguous !== false ? 'unknown' : 'refused';
+const intentStillOwned = async (store, intent, saved) => {
+  const current = await store.get(intent.id);
+  return (
+    saved && current?.planId === intent.planId && current.status === 'pending'
+  );
+};
 export const performVkFriendAction = async (
   context,
   plan,
@@ -49,27 +57,17 @@ export const performVkFriendAction = async (
   } catch (error) {
     result = {
       ...intent,
-      status:
-        issued && !error.vkCode && error.ambiguous !== false
-          ? 'unknown'
-          : 'refused',
+      status: failedStatus(issued, error),
       error: safeMessage(error)
         .split(original.options.token)
         .join('<redacted>')
         .slice(0, 300),
     };
   }
-  if (beforeIntent) {
-    const current = await store.get(id);
-    if (
-      !intentSaved ||
-      current?.planId !== intent.planId ||
-      current.status !== 'pending'
-    ) {
-      // A concurrent receipt belongs to its owner. Never replace uncertainty
-      // or another confirmed cooldown with this review's refusal.
-      return { userId: item.userId, status: issued ? 'unknown' : 'refused' };
-    }
+  if (beforeIntent && !(await intentStillOwned(store, intent, intentSaved))) {
+    // A concurrent receipt belongs to its owner. Never replace uncertainty
+    // or another confirmed cooldown with this review's refusal.
+    return { userId: item.userId, status: issued ? 'unknown' : 'refused' };
   }
   // A refused outcome write retains durable pending intent, never success.
   await saveAcknowledgedRecord(store, result);

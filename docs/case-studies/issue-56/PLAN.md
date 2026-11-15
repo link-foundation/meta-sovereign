@@ -1409,3 +1409,16 @@ without changing the 6.5% gate. Preserve the MCP draft's mistaken repeated
 confirmation and its corrected one-send review; all fixture resources close.
 Acceptance still requires the complete new head's hosted workflows. The remaining
 66 unchecked inventory rows retain their full original scope.
+
+VK15 contribution review adds a durable regression for VK14's unchanged receipt
+step, extracting complex admission/provider/outcome helpers without changing
+filter precedence or delivery guards. The actual published parent fails the
+receipt-label assertion. The new guide now has all four required languages.
+Strict zero-warning lint and focused compatibility checks apply before another
+push; no product criterion is accepted until exact-head hosted verification.
+
+Compatibility review verification passes 70 focused Node checks, 28 Deno checks,
+strict zero-warning lint and the unchanged duplication gate. The existing durable
+receipt label is retained; every new greeting guide has four language versions.
+The actual parent fails the new label regression. Replacement hosted acceptance
+remains pending and the remaining 66 criteria stay active.

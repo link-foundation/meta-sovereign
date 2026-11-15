@@ -24,6 +24,7 @@ export const createVkCancelledJob = (options) =>
     pace: 15000,
     event: 'vk_cancelled_batch',
     messageOutcome: 'prompted',
+    messageStep: 'greeting-and-question',
     outboxKey: (plan, item) =>
       `vk-cancelled:${plan.accountId}:${item.userId}:once`,
     ledgerId: (plan, item) =>

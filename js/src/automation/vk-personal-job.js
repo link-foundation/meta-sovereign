@@ -23,14 +23,17 @@ const lifetime = (context, plan) => {
     refuseFriendAction('VK follow-up stopped or expired; review again');
   }
 };
-const current = async (context, plan, item, original) => {
-  lifetime(context, plan);
+const ownPendingIntent = async (context, plan, item) => {
   if (context.policy.repeatable) {
     const own = await context.store.get(context.policy.ledgerId(plan, item));
     if (own?.planId !== plan.planId || own?.status !== 'pending') {
       refuseFriendAction('VK greeting receipt changed; review again');
     }
   }
+};
+const current = async (context, plan, item, original) => {
+  lifetime(context, plan);
+  await ownPendingIntent(context, plan, item);
   const relationship = await context.store.get(
     friendLedgerId(plan.accountId, item.userId)
   );
@@ -92,7 +95,10 @@ const prompt = async (context, plan, item, original, beforeIssue) => {
     chat: String(item.userId),
     text: item.text,
     ...(item.sticker ? { sticker: { id: String(item.sticker) } } : {}),
-    sequence: { policy: context.policy.name, step: 'reviewed-message' },
+    sequence: {
+      policy: context.policy.name,
+      step: context.policy.messageStep ?? 'reviewed-message',
+    },
   };
   const outcome = await guardedSend({
     store: context.store,
