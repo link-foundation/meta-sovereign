@@ -1422,3 +1422,12 @@ strict zero-warning lint and the unchanged duplication gate. The existing durabl
 receipt label is retained; every new greeting guide has four language versions.
 The actual parent fails the new label regression. Replacement hosted acceptance
 remains pending and the remaining 66 criteria stay active.
+
+Active dormant VK conversations (VK16–VK18):
+
+- [x] Read the complete pinned topic, help and music triggers. Preserve nonempty dormant personal history, online/write filters, greeting-before-question order and the separate music attachment step; use owner configuration rather than reference personal audio IDs.
+- [x] Draft three independent disabled policies, frozen ordered review and durable per-step provider receipts. Recheck current consent, account, relationship and complete history after the actual rate wait; allow only explicit reviewed continuation of definite partial delivery and never replay acknowledged or uncertain steps.
+- [x] Expose foreground CLI, both Lino encodings, offline configuration and four-language shared controls. Reproduce actual-parent absence, run focused guard/restart/ordering/interface checks and one owned native scenario plus independent MCP evidence.
+- [ ] Preserve checked source/log/screenshot evidence, publish atomically and inspect all exact-head workflows. Every original unmet criterion stays active; PR57 remains draft and unmerged.
+
+VK16–VK18 draft verification retains the initial causal admission, manual-preview queue and test-fixture failures. The corrected causal durable reopen resumes only the original remaining steps; explicit review renews expiry while scheduled continuation stays held. Native WebKit and independent four-language MCP pass with no page exceptions and drained fixtures. Shared consent admission and hostile-input fixtures retain the 6.5% duplication gate. Exact-head acceptance and every original unchecked criterion remain required.

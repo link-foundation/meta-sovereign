@@ -119,6 +119,9 @@ import { createVkCancelledJob } from '../automation/vk-cancelled.js';
 import { handleVkCancelled } from './routes-vk-cancelled.js';
 import { createVkGreetJob } from '../automation/vk-greet.js';
 import { handleVkGreet } from './routes-vk-greet.js';
+import { createVkReengageJob } from '../automation/vk-reengage.js';
+import { reengageKinds } from '../automation/vk-reengage-settings.js';
+import { handleVkReengage } from './routes-vk-reengage.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -326,6 +329,14 @@ const replyService = (store, storeDir, replies = {}) => {
   return createReplyService({ store, self: replies.self ?? [], clink });
 };
 
+const vkPolicyJobs = (store, kinds, create, options, log) =>
+  Object.fromEntries(
+    kinds.map((kind) => [
+      kind,
+      create({ store, kind, ...options?.[kind], log }),
+    ])
+  );
+
 /**
  * Sending, typing and automations. `automations.send` and `.setTyping`
  * replace the adapters (tests); by default a message goes through the
@@ -395,21 +406,24 @@ const automationContext = (
     log: say,
   });
   const vkGreet = createVkGreetJob({ store, ...automations.vkGreet, log: say });
+  const vkReengage = vkPolicyJobs(
+    store,
+    reengageKinds,
+    createVkReengageJob,
+    automations.vkReengage,
+    say
+  );
   const vkCancelled = createVkCancelledJob({
     store,
     ...automations.vkCancelled,
     log: say,
   });
-  const vkMaintenance = Object.fromEntries(
-    maintenanceKinds.map((kind) => [
-      kind,
-      createVkMaintenanceJob({
-        store,
-        kind,
-        ...automations.vkMaintenance?.[kind],
-        log: say,
-      }),
-    ])
+  const vkMaintenance = vkPolicyJobs(
+    store,
+    maintenanceKinds,
+    createVkMaintenanceJob,
+    automations.vkMaintenance,
+    say
   );
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
@@ -431,6 +445,7 @@ const automationContext = (
       vkFriends.start();
       vkCancelled.start();
       vkGreet.start();
+      Object.values(vkReengage).forEach((job) => job.start());
       Object.values(vkMaintenance).forEach((job) => job.start());
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
@@ -459,6 +474,7 @@ const automationContext = (
     vkFriends,
     vkCancelled,
     vkGreet,
+    vkReengage,
     vkMaintenance,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
@@ -470,6 +486,7 @@ const automationContext = (
         vkFriends.stop(),
         vkCancelled.stop(),
         vkGreet.stop(),
+        ...Object.values(vkReengage).map((job) => job.stop()),
         ...Object.values(vkMaintenance).map((job) => job.stop()),
       ]);
       await questionBrowser.close();
@@ -717,6 +734,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkFriends(store, req, res, p, url, ctx),
     () => handleVkCancelled(store, req, res, p, url, ctx),
     () => handleVkGreet(store, req, res, p, url, ctx),
+    () => handleVkReengage(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

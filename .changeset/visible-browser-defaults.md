@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add three independent disabled VK dormant-conversation policies for topic questions, offers of help and music questions. Review the exact ordered greeting, optional native audio attachment and selected question; retain positive per-step receipts, canonical Chat delivery and durable uncertainty. Resume definite partial delivery only after a fresh explicit review, preserve acknowledged steps across restart, and expose all settings through CLI, both Lino formats and four-language online/offline controls.
+
 Add independent disabled VK friend greetings (issue #56, VK15) with fresh friendship, online, unread, history and write-permission evidence, configurable silence/cooldown/limits and text or native sticker review. Share acknowledged per-person delivery, durable uncertainty, owned scheduling and optional friend-count ordering through CLI, default Lino and four-language/offline controls.
 
 Add an independent disabled VK friendship follow-up with an exact reviewed greeting/question, durable repeat suppression and separate unanswered/unwritable blocking choices. Preserve outgoing-only evidence, fresh personal history/permission checks, unknown outcomes, owned pacing and scheduling through CLI, default Lino and shared four-language/offline controls.

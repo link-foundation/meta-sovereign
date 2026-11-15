@@ -14,6 +14,9 @@ const sentMessage = (draft, { at, via, automation, receipt }) => ({
   sender: 'me',
   body: draft.text,
   ...(draft.sticker ? { sticker: draft.sticker } : {}),
+  ...(draft.sequence && draft.attachments
+    ? { attachments: draft.attachments }
+    : {}),
   timestamp: at,
   automation: automation.id,
   ...(via ? { via } : {}),

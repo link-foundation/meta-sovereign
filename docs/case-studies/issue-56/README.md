@@ -510,3 +510,5 @@ VK12/VK13 friend maintenance has independently enabled saved policies and protec
 [Hosted verification on f2cf0d6e](hosted-verification-f2cf.md) confirms all five workflows and 69 jobs, including the Ubuntu Deno and macOS Node deadline corrections. VK11–VK13 are complete; 66 inventory rows remain unchecked, including the separately committed desktop policy pending its own exact-head CI.
 
 - [macOS Deno deadline](ci-macos-deno-shards.md): preserve the exact failed run and add three native partitions with unchanged discovery and deadlines; finite coverage/failure checks pass, replacement hosted verification remains required.
+
+- [Dormant VK conversations (VK16–VK18)](vk-reengage.md): independent topic, help and native-audio sequences, exact ordered review, durable per-step receipts and explicit partial continuation. Focused Node/Deno and native/four-language MCP evidence is preserved; exact-head hosted acceptance remains required.

@@ -3,9 +3,11 @@ import { verifyVkFriends } from './helpers/e2e-vk-friends.mjs';
 import { verifyVkDesktopPolicy } from './helpers/e2e-vk-desktop-policy.mjs';
 import { verifyVkCancelled } from './helpers/e2e-vk-cancelled.mjs';
 import { verifyVkGreet } from './helpers/e2e-vk-greet.mjs';
+import { verifyVkReengage } from './helpers/e2e-vk-reengage.mjs';
 await runBrowserScenarios('vk-friends', [
   verifyVkFriends,
   verifyVkDesktopPolicy,
   verifyVkCancelled,
   verifyVkGreet,
+  verifyVkReengage,
 ]);

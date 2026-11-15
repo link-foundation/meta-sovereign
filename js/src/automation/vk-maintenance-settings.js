@@ -4,6 +4,7 @@ import { createStoreQueue } from '../storage/serialized.js';
 import { positiveVkId, readVkFriendSettings } from './vk-friends-settings.js';
 import { readVkCancelledSettings } from './vk-cancelled-settings.js';
 import { vkGreetSettings } from './vk-greet-settings.js';
+import { vkReengageSettings } from './vk-reengage-settings.js';
 
 export const maintenanceKinds = ['cleanup', 'outgoing'];
 export const maintenanceKeys = (kind) => {
@@ -59,6 +60,13 @@ export const protectedVkFriends = async (store, settings) => {
       ...(await readVkFriendSettings(store)).priorityIds,
       ...(await readVkCancelledSettings(store)).priorityIds,
       ...(await vkGreetSettings.settings(store)).priorityIds,
+      ...(
+        await Promise.all(
+          Object.values(vkReengageSettings).map((policy) =>
+            policy.settings(store)
+          )
+        )
+      ).flatMap((policy) => policy.priorityIds),
       ...policies.flatMap((policy) => policy.priorityIds),
     ]),
   ];

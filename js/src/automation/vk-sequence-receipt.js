@@ -12,9 +12,14 @@ export const vkSequenceReceipt = (result, draft) => {
         chat: String(draft.chat),
         text: draft.text ?? '',
         sticker: draft.sticker?.id ?? null,
+        ...(draft.attachments ? { attachments: draft.attachments } : {}),
       }
     : null;
 };
+
+const matchesAttachments = (message, receipt) =>
+  !receipt.attachments ||
+  JSON.stringify(message.attachments) === JSON.stringify(receipt.attachments);
 
 export const matchesVkSequenceReceipt = (message, receipt) =>
   Boolean(
@@ -26,5 +31,6 @@ export const matchesVkSequenceReceipt = (message, receipt) =>
     !message.deleted &&
     !message.service &&
     (message.body ?? '') === receipt.text &&
-    (message.sticker?.id ?? null) === receipt.sticker
+    (message.sticker?.id ?? null) === receipt.sticker &&
+    matchesAttachments(message, receipt)
   );

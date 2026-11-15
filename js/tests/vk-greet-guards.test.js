@@ -9,112 +9,20 @@ import {
   vkGreetSettings,
   greetLedgerId,
 } from '../src/automation/vk-greet-settings.js';
-import { cancelledNow } from '../../experiments/issue-56/vk-cancelled-fixture.mjs';
-import { saveSettings } from '../src/automation/safety.js';
+import { verifyPersonalAdmission } from '../../experiments/issue-56/vk-personal-admission.mjs';
 
 test('provider limiter and durable intent recheck changed history, permission, policy, account, token and time', async () => {
-  for (const stage of ['limiter', 'ack']) {
-    for (const change of [
-      'history',
-      'permission',
-      'policy',
-      'account',
-      'token',
-      'time',
-      'receipt',
-      'online',
-      'unread',
-      'relationship',
-      'optOut',
-    ]) {
-      let mutate = async () => {};
-      let token = 'fixture-user-token';
-      let now = cancelledNow;
-      const adapter = greetAdapter({
-        ids: [9],
-        limiter: {
-          wait: async () => {
-            if (stage === 'limiter') {
-              const current = mutate;
-              mutate = async () => {};
-              await current();
-            }
-          },
-        },
-      });
-      await withGreetJob(
-        async ({ job, store }) => {
-          const { plan } = await job.preview();
-          const mutation = async () => {
-            if (change === 'history') {
-              adapter.addMessage(9, 'changed', { out: 0 });
-            }
-            if (change === 'permission') {
-              adapter.canWrite.set(9, false);
-            }
-            if (change === 'policy') {
-              await vkGreetSettings.save(store, {
-                ...plan.settings,
-                message: 'Changed',
-              });
-            }
-            if (change === 'account') {
-              adapter.account(2);
-            }
-            if (change === 'token') {
-              token = 'changed-token';
-            }
-            if (change === 'time') {
-              now += 300001;
-            }
-            if (change === 'receipt') {
-              await store.put({
-                id: greetLedgerId(1, 9),
-                status: 'confirmed',
-                attemptedAt: new Date(now).toISOString(),
-                planId: 'other-owner',
-              });
-            }
-            if (change === 'online') {
-              adapter.online.set(9, 0);
-            }
-            if (change === 'unread') {
-              adapter.unread.set(9, 1);
-            }
-            if (change === 'relationship') {
-              adapter.relations.set(9, 1);
-            }
-            if (change === 'optOut') {
-              await saveSettings(store, {
-                optOut: [{ source: 'vk', chat: '9' }],
-              });
-            }
-          };
-          if (stage === 'ack') {
-            store.flush = async () => {
-              const intent = await store.get(greetLedgerId(1, 9));
-              if (intent?.status === 'pending') {
-                store.flush = async () => {};
-                await mutation();
-              }
-            };
-          } else {
-            mutate = mutation;
-          }
-          const result = await job.run({ planId: plan.planId, confirm: true });
-          assert.equal(result.last.status, 'refused', `${stage}/${change}`);
-          assert.equal(adapter.effects.length, 0, `${stage}/${change}`);
-          if (change === 'receipt') {
-            assert.equal(
-              (await store.get(greetLedgerId(1, 9))).planId,
-              'other-owner'
-            );
-          }
-        },
-        { adapter, optionsFor: async () => ({ token }), now: () => now }
-      );
-    }
-  }
+  await verifyPersonalAdmission({
+    createAdapter: greetAdapter,
+    withJob: (check, options) =>
+      withGreetJob(
+        (fixture) => check({ ...fixture, policy: vkGreetSettings }),
+        options
+      ),
+    ledgerId: greetLedgerId(1, 9),
+    field: 'message',
+    foreignStatus: 'confirmed',
+  });
 });
 
 test('failed intent refuses delivery and a failed outcome retains uncertainty without replay', async () => {

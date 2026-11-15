@@ -3,8 +3,9 @@ export const saveAcknowledgedRecord = async (store, row) => {
   const previous = await store.get(row.id);
   try {
     // Stores may admit memory before their mutation promise rejects on disk.
-    await store.put(row);
+    const admitted = await store.put(row);
     await store.flush?.();
+    return admitted;
   } catch (error) {
     if (previous) {
       await store.put(previous);

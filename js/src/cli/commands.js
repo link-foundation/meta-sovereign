@@ -22,6 +22,7 @@ import { createVkFriendsCommands } from './vk-friends-commands.js';
 import { createVkMaintenanceCommands } from './vk-maintenance-commands.js';
 import { createVkCancelledCommands } from './vk-cancelled-commands.js';
 import { createVkGreetCommands } from './vk-greet-commands.js';
+import { createVkReengageCommands } from './vk-reengage-commands.js';
 import { createTelegramGreetingCommands } from './telegram-greetings-commands.js';
 import { createTelegramUsersCommands } from './telegram-users-commands.js';
 import { createTelegramLoginCommands } from './telegram-login-commands.js';
@@ -814,6 +815,7 @@ const COMMANDS = {
   ...createVkMaintenanceCommands({ openStore, openReadOnly }),
   ...createVkCancelledCommands({ openStore, openReadOnly }),
   ...createVkGreetCommands({ openStore, openReadOnly }),
+  ...createVkReengageCommands({ openStore, openReadOnly }),
   ...createTelegramExportCommands({ openStore }),
   ...createTelegramUsersCommands({ openStore }),
   ...createTelegramGreetingCommands({ openStore }),

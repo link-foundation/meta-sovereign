@@ -1,5 +1,6 @@
 import { positiveVkId } from '../automation/vk-friends-settings.js';
 import { friendCredentialIdentity } from '../automation/vk-friends-records.js';
+import { personalAttachments } from './vk-personal-attachments.js';
 
 const invalid = () => {
   throw new Error('Incomplete VK friendship follow-up evidence');
@@ -14,7 +15,7 @@ const countOf = (page) => {
   }
   return page.count;
 };
-const messageEvidence = (row, userId, accountId) => {
+const messageEvidence = (row, userId, accountId, options) => {
   if (
     !positiveVkId(row?.id) ||
     row.peer_id !== userId ||
@@ -34,6 +35,9 @@ const messageEvidence = (row, userId, accountId) => {
     date: row.date,
     text: row.text,
     service: Boolean(row.action),
+    ...(options.personalSequence
+      ? { attachments: personalAttachments(row.attachments) }
+      : {}),
   };
 };
 const unreadEvidence = (conversation) => ({
@@ -70,7 +74,7 @@ export const createVkCancelled = ({ call, once, maintenance }) => {
       }
       total = count;
       for (const row of page.items) {
-        messages.push(messageEvidence(row, userId, accountId));
+        messages.push(messageEvidence(row, userId, accountId, options));
       }
     } while (messages.length < total);
     if (

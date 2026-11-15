@@ -46,7 +46,8 @@ export const createVkFriendsJob = ({
     isStopped: () => stopped,
     provider: () => friendProvider(resolve, optionsFor, profile.capability),
   };
-  const preview = () => (profile.preview ?? previewVkFriendPlan)(context);
+  const preview = (scheduled = false) =>
+    (profile.preview ?? previewVkFriendPlan)({ ...context, scheduled });
   const apply = (plan, scheduled = false) =>
     (profile.apply ?? applyVkFriendPlan)({ ...context, scheduled }, plan);
   const run = (input = {}) => {
@@ -82,7 +83,7 @@ export const createVkFriendsJob = ({
         await saveAcknowledgedRecord(store, attempt);
         let planned;
         try {
-          planned = await preview();
+          planned = await preview(true);
         } catch (error) {
           await saveAcknowledgedRecord(store, {
             ...attempt,
@@ -111,7 +112,7 @@ export const createVkFriendsJob = ({
   return {
     preview: () => {
       if (!planning) {
-        planning = execute(store, preview).finally(() => {
+        planning = execute(store, () => preview()).finally(() => {
           planning = null;
         });
       }

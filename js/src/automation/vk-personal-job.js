@@ -4,25 +4,12 @@ import {
   runVkFriendBatch,
 } from './vk-friend-delivery.js';
 import {
-  equalFriendPolicy,
   friendCredentialIdentity,
   refuseFriendAction,
-  friendLedgerId,
-  uncertainFriendAction,
 } from './vk-friends-records.js';
-import { protectedVkFriends } from './vk-maintenance-settings.js';
 import { guardedSend } from './outbox.js';
-import { loadSettings, optOutEntry, quietMsLeft } from './safety.js';
+import { currentVkPersonalPolicy } from './vk-personal-policy.js';
 import { recordOutcome } from './record-outcome.js';
-const lifetime = (context, plan) => {
-  if (
-    context.isStopped() ||
-    context.now() < plan.createdAt ||
-    context.now() - plan.createdAt > 300000
-  ) {
-    refuseFriendAction('VK follow-up stopped or expired; review again');
-  }
-};
 const ownPendingIntent = async (context, plan, item) => {
   if (context.policy.repeatable) {
     const own = await context.store.get(context.policy.ledgerId(plan, item));
@@ -32,38 +19,8 @@ const ownPendingIntent = async (context, plan, item) => {
   }
 };
 const current = async (context, plan, item, original) => {
-  lifetime(context, plan);
+  await currentVkPersonalPolicy(context, plan, item, original);
   await ownPendingIntent(context, plan, item);
-  const relationship = await context.store.get(
-    friendLedgerId(plan.accountId, item.userId)
-  );
-  if (
-    !equalFriendPolicy(
-      plan.settings,
-      await context.policy.settings(context.store)
-    ) ||
-    !equalFriendPolicy(
-      plan.priorityIds,
-      await protectedVkFriends(context.store, plan.settings)
-    ) ||
-    (await context.optionsFor())?.token !== original.options.token ||
-    uncertainFriendAction(relationship) ||
-    (relationship?.status === 'confirmed' && !relationship.settled)
-  ) {
-    refuseFriendAction(
-      'VK follow-up policy, relationship, time or consent changed; review again'
-    );
-  }
-  const safety = await loadSettings(context.store);
-  if (
-    optOutEntry(safety, { source: 'vk', chat: item.userId }) ||
-    (context.scheduled && quietMsLeft(context.now(), safety))
-  ) {
-    refuseFriendAction(
-      'VK messaging consent or quiet hours changed; review again'
-    );
-  }
-  lifetime(context, plan);
 };
 const guard = async (context, plan, item, original) => {
   await current(context, plan, item, original);

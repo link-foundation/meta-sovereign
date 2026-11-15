@@ -197,6 +197,9 @@ const newRecord = ({ id, key, kind, owner, draft, at }) => ({
   ),
   ...(draft.answer?.textReply ? { answerType: 'text' } : {}),
   ...(draft.sticker ? { sticker: { id: draft.sticker.id } } : {}),
+  ...(draft.sequence && draft.attachments
+    ? { attachments: draft.attachments }
+    : {}),
   ...(draft.sequence ? { sequence: draft.sequence } : {}),
   status: 'sending',
   createdAt: at,
