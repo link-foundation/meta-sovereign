@@ -46,8 +46,9 @@ The full audit also identifies two remaining parity requirements: the source
 can hold a matching top-ten invitation authored by anybody, while the existing
 workflow holds the current account's invitations; the source skips missing-post
 errors 100/104, while safe continuation needs positive current absence evidence.
-These remain explicit unfinished work in the [active checklist](vk-friend-invitations-plan.md),
-alongside exact final-head hosted verification. VK20 stays unchecked. All 57
+The [follow-up implementation](vk-wall-parity.md) now covers both behaviors
+with distinct absent/deleted evidence and reviewed recovery. Exact final-head
+hosted verification remains required. VK20 stays unchecked. All 57
 unchecked original inventory rows remain required in this single PR.
 
 The [checked archive](data/vk-friend-invitations.tar.gz) and

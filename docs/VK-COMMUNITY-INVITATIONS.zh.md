@@ -12,4 +12,8 @@
 
 CLI 支持 `meta-sovereign vk-wall save`、`plan`、`run --plan <id> --confirm`；API 为 `/api/vk/wall`，使用文本或二进制 Lino。选项包括 `--communities`、`--messages`、`--marker`、`--attachments`、`--restricted-communities`、`--restricted-message`、`--replace-owned`、`--active-avatar`、`--limit`、`--cooldown-days` 和 `--every-minutes`。浏览器可离线保存设置；审核和发布需要本地服务器及 VK 账号。计划由所属服务器启动，关闭时停止并等待任务结束。
 
-此功能发布到社区墙。好友邀请的独立要求仍未完成。[验证记录](case-studies/issue-56/vk-wall.md)。
+“前十条中有任意作者的邀请时暂停”默认关闭；默认只暂停自己的邀请。CLI：`--hold-any-visible true`；API 和离线设置：`holdAnyVisible`。
+
+如果成功的当前 VK 查询确认已审核的旧帖不存在，可继续处理剩余旧帖。不存在的 ID 与已确认删除的 ID 分开显示。单凭 100/104 拒绝不能确认不存在；结果未知的写入仍为未知。审核后旧帖重新出现时，需要重新审核。已确认的新帖必须仍然存在且内容未变。
+
+源好友邀请脚本同样发布到配置的社区墙。[源码审查](case-studies/issue-56/vk-friend-invitations.md)和[验证记录](case-studies/issue-56/vk-wall.md)。

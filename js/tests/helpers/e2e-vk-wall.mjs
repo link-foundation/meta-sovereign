@@ -61,7 +61,10 @@ export const verifyVkWall = async (
     browser,
     fixture,
     async ({ page, errors, heading }) => {
-      const { panel, ready, action } = vkReviewedControls(page, 'wall');
+      const { panel, ready, action, review, deliver } = vkReviewedControls(
+        page,
+        'wall'
+      );
       if (before) {
         assert.equal(await panel.count(), 0);
         await captureVkAutomationLayouts(page, heading, screenshots, 'before');
@@ -105,8 +108,7 @@ export const verifyVkWall = async (
         screenshots,
         'review'
       );
-      await action('run');
-      await panel.locator('[data-vk-wall-status=refused]').waitFor();
+      await deliver('refused');
       assert.equal(fixture.effects[0].attachments, selected[0]);
       assert.deepEqual(
         fixture.effects.map((s) => s.action),
@@ -129,17 +131,12 @@ export const verifyVkWall = async (
         'partial'
       );
       refuseDelete = false;
-      await action('run');
-      await panel.locator('[data-vk-wall-status=confirmed]').waitFor();
+      await deliver('confirmed');
       assert.deepEqual(
         fixture.effects.map((s) => s.action),
         ['post', 'delete', 'delete']
       );
-      await action('plan');
-      assert.equal(
-        await panel.locator('[data-wall-reason=visible]').count(),
-        1
-      );
+      await review('visible');
       await captureVkAutomationLayouts(
         page,
         panel.locator('[data-vk-wall-plan]'),
@@ -150,15 +147,10 @@ export const verifyVkWall = async (
       await action('save');
       await action('plan');
       fixture.mode('unknown');
-      await action('run');
-      await panel.locator('[data-vk-wall-status=unknown]').waitFor();
+      await deliver('unknown');
       assert.equal(fixture.effects.length, 4);
       fixture.mode('confirmed');
-      await action('plan');
-      assert.equal(
-        await panel.locator('[data-wall-reason=unknown]').count(),
-        1
-      );
+      await review('unknown');
       await action('run');
       assert.equal(fixture.effects.length, 4);
       fixture.refuseWrites(true);

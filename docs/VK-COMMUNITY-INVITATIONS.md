@@ -12,4 +12,8 @@ Confirm the current review to publish. The new positive VK post receipt is durab
 
 The same foreground flow is available with `meta-sovereign vk-wall save`, `plan` and `run --plan <id> --confirm`, and `/api/vk/wall` using the default Lino text or binary transport. CLI options include `--communities`, `--messages`, `--marker`, `--attachments`, `--restricted-communities`, `--restricted-message`, `--replace-owned`, `--active-avatar`, `--limit`, `--cooldown-days` and `--every-minutes`. Browser-only configuration can be saved offline; provider review and delivery require the local server and your VK account. Start/stop belongs to the owning server and shutdown drains pending work.
 
-This publishes to community walls. It does not verify or complete the separate friend-invitation requirement. [Implementation and verification evidence](case-studies/issue-56/vk-wall.md).
+“Hold when an invitation from any author is in the top ten” also holds matching invitations written by other people. It starts off; the default holds your own invitations. CLI: `--hold-any-visible true`; API/offline: `holdAnyVisible`.
+
+If a successful current VK read finds a reviewed old post absent, replacement can continue with the remaining posts. The result lists absent IDs separately from acknowledged deletions. A 100/104 refusal alone does not establish absence, and an unknown write remains unknown. If an absent post reappears after review, review again. The retained new post must still be present and unchanged.
+
+The pinned friend-invitation trigger also publishes to configured community walls. [Source audit](case-studies/issue-56/vk-friend-invitations.md) and [implementation evidence](case-studies/issue-56/vk-wall.md).

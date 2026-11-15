@@ -1488,3 +1488,5 @@ required under VK26. VK23 and every other unmet criterion remain unchecked.
 ## VK20 complete source audit
 
 [The friend-invitation checklist](vk-friend-invitations-plan.md) maps the pinned trigger to community walls and preserves its missing optional random single-media choice through the existing reviewed wall job. Correct the earlier filename-based inventory interpretation with explicit source evidence. Do not accept VK20 before focused and exact-head hosted verification; all other original unchecked requirements remain active.
+
+[The wall parity checklist](vk-wall-parity-plan.md) and [evidence](vk-wall-parity.md) cover any-author visible holds and positively confirmed absence, distinct from delete receipts. VK20 and the whole issue remain unfinished pending exact-head hosted verification.

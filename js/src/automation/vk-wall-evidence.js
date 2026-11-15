@@ -44,6 +44,7 @@ export const wallItemIdentity = (plan, item) =>
     old: item.old,
     reviewedPostId: item.reviewedPostId,
     reviewedDeleted: item.reviewedDeleted,
+    reviewedAbsent: item.reviewedAbsent ?? [],
     resumed: item.resumed,
     previousFingerprint: item.previousFingerprint,
   });
@@ -53,7 +54,7 @@ export const wallReceiptOwned = async (context, plan, item, original) => {
     item.postId,
     original.options
   );
-  if (post.fromId !== plan.accountId || post.text !== item.text) {
+  if (post?.fromId !== plan.accountId || post.text !== item.text) {
     refuseFriendAction('The acknowledged invitation post changed');
   }
   const identities = post.attachments

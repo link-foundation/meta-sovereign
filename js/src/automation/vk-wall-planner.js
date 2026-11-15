@@ -22,6 +22,9 @@ const policyIdentity = (settings) => {
     // Retain the identity of legacy fixed-media receipts for manual recovery.
     delete policy.randomAttachment;
   }
+  if (!settings.holdAnyVisible) {
+    delete policy.holdAnyVisible;
+  }
   return evidenceHash(policy);
 };
 
@@ -45,7 +48,14 @@ const resume = async (context, plan, item, previous, original) => {
         old.id,
         original.options
       );
-      if ((await evidenceHash(current)) !== (await evidenceHash(old))) {
+      if (current === null) {
+        if (!item.absent.includes(old.id)) {
+          item.absent.push(old.id);
+        }
+      } else if (
+        item.absent.includes(old.id) ||
+        (await evidenceHash(current)) !== (await evidenceHash(old))
+      ) {
         return 'changed';
       }
     }
@@ -64,11 +74,11 @@ const currentReason = (context, plan, state, previous) => {
   if (
     state.top.some(
       (post) =>
-        post.fromId === plan.accountId &&
+        (plan.settings.holdAnyVisible || post.fromId === plan.accountId) &&
         post.text.includes(plan.settings.marker)
     )
   ) {
-    return 'visible';
+    return plan.settings.holdAnyVisible ? 'visibleInvitation' : 'visible';
   }
   const at = Date.parse(previous?.attemptedAt ?? '');
   return Number.isFinite(at) &&
@@ -87,6 +97,7 @@ const invitationDraft = (plan, state, previous) => {
       attachments: previous.attachments,
       old: previous.old,
       deleted: previous.deleted,
+      absent: [...(previous.absent ?? [])],
       postId: previous.postId,
       baseline: previous.baseline,
     };
@@ -113,6 +124,7 @@ const invitationDraft = (plan, state, previous) => {
     ],
     old: state.owned,
     deleted: [],
+    absent: [],
     postId: null,
   };
 };
@@ -156,10 +168,11 @@ const candidate = async (context, plan, community, original, safety) => {
       'Avatar and configured attachments exceed ten VK attachments'
     );
   }
-  item.signature = await wallItemIdentity(plan, item);
   item.reason = item.resumed
     ? await resume(context, plan, item, previous, original)
     : currentReason(context, plan, state, previous);
+  item.reviewedAbsent = [...item.absent];
+  item.signature = await wallItemIdentity(plan, item);
   return item;
 };
 export const previewVkWall = async (context) => {

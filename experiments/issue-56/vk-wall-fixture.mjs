@@ -6,6 +6,7 @@ import {
 import { createVkWallJob } from '../../js/src/automation/vk-wall.js';
 import { wallPolicy } from '../../js/src/automation/vk-wall-settings.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
+import { serveQuestionLinkFixture } from './question-api-links-server.mjs';
 
 /** Finite native-method fixture. It never opens an authenticated VK session. */
 export const wallAdapter = (options = {}) => {
@@ -165,5 +166,17 @@ export const wallServer = (options = {}) => {
     ...options,
     adapter,
     vkWall: personalFixtureOptions(adapter, options.vkWall),
+  });
+};
+
+export const serveWallInspection = async (options = {}) => {
+  const fixture = await wallServer(options);
+  serveQuestionLinkFixture({
+    ...fixture,
+    stats: () => ({
+      syntheticWallCalls: fixture.effects.length,
+      unexpectedMessages: fixture.messages(),
+      liveProvider: false,
+    }),
   });
 };

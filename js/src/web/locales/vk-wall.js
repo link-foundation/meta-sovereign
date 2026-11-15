@@ -26,6 +26,10 @@ const keys = [
   'providerBackoff',
   'heldPosts',
   'randomAttachment',
+  'holdAnyVisible',
+  'visibleInvitation',
+  'alreadyAbsent',
+  'deliveredWithAbsent',
 ];
 const words = {
   en: [
@@ -55,6 +59,10 @@ const words = {
     'VK account invitation backoff: wait at least one minute',
     'Matching owned posts (this destination is held): {ids}',
     'Choose one configured media item at random for each reviewed post',
+    'Hold when an invitation from any author is in the top ten',
+    'A matching invitation is already in the top ten',
+    'Old posts confirmed absent, without a deletion receipt: {ids}',
+    'Publication acknowledged; some old posts confirmed absent',
   ],
   ru: [
     'Приглашения в сообщества ВКонтакте',
@@ -83,6 +91,10 @@ const words = {
     'Пауза приглашений аккаунта ВКонтакте: подождите не менее минуты',
     'Совпавшие свои записи (действие приостановлено): {ids}',
     'Случайно выбирать одно заданное медиа для каждой проверяемой записи',
+    'Приостанавливать при приглашении любого автора в верхних десяти записях',
+    'Совпавшее приглашение уже среди десяти верхних записей',
+    'Старые записи отсутствуют по текущей проверке, без подтверждения удаления: {ids}',
+    'Публикация подтверждена; часть старых записей отсутствует',
   ],
   hi: [
     'VK समुदाय आमंत्रण',
@@ -111,6 +123,10 @@ const words = {
     'VK खाता आमंत्रण विराम: कम से कम एक मिनट प्रतीक्षा करें',
     'मेल खाती अपनी पोस्ट (यह गंतव्य रुका है): {ids}',
     'हर समीक्षित पोस्ट के लिए चुने मीडिया में से एक यादृच्छिक आइटम चुनें',
+    'शीर्ष दस में किसी भी लेखक का आमंत्रण होने पर रोकें',
+    'मेल खाता आमंत्रण पहले से शीर्ष दस में है',
+    'हटाने की पुष्टि के बिना पुरानी पोस्ट का अनुपस्थित होना जाँचा गया: {ids}',
+    'प्रकाशन की पुष्टि हुई; कुछ पुरानी पोस्ट अनुपस्थित मिलीं',
   ],
   zh: [
     'VK 社区邀请',
@@ -139,6 +155,10 @@ const words = {
     'VK 账号邀请退避：请至少等待一分钟',
     '匹配的自己的帖子（此目标已暂停）：{ids}',
     '为每条待审核帖子随机选择一个配置的媒体附件',
+    '前十条中有任意作者的邀请时暂停',
+    '匹配的邀请已在前十条中',
+    '已检查旧帖不存在，没有删除确认：{ids}',
+    '发布已确认；部分旧帖经检查已不存在',
   ],
 };
 export const vkWallLocale = (language) => ({

@@ -33,11 +33,13 @@ test(
           communities: '42',
           attachments: 'audio-1_23',
           randomAttachment: true,
+          holdAnyVisible: true,
           replaceOwned: true,
         };
         const plan = await assertReviewedVkPlan(post, settings);
         assert.equal(plan.items[0].text, settings.messages);
         assert.equal(plan.settings.randomAttachment, true);
+        assert.equal(plan.settings.holdAnyVisible, true);
         assert.deepEqual(plan.items[0].attachments, ['audio-1_23']);
         assert.equal(plan.items[0].old.length, 1);
       }
@@ -64,6 +66,7 @@ test('offline wall settings and all four languages retain server-required delive
     ...(await wallPolicy.settings(store)),
     communities: '42',
     randomAttachment: true,
+    holdAnyVisible: true,
   };
   assert.deepEqual((await api.saveVkWall(settings)).settings, settings);
   assert.equal((await api.vkWall()).canRun, false);
@@ -79,6 +82,10 @@ test('offline wall settings and all four languages retain server-required delive
       'replaceOwned',
       'activeAvatar',
       'randomAttachment',
+      'holdAnyVisible',
+      'visibleInvitation',
+      'alreadyAbsent',
+      'deliveredWithAbsent',
       'oldPosts',
       'partial',
       'manualReview',
@@ -103,12 +110,14 @@ test('foreground CLI retains wall options and requires explicit reviewed confirm
         attachments: 'audio-1_23',
         'replace-owned': true,
         'random-attachment': true,
+        'hold-any-visible': true,
       },
       log
     ),
     0
   );
   assert.equal((await wallPolicy.settings(store)).randomAttachment, true);
+  assert.equal((await wallPolicy.settings(store)).holdAnyVisible, true);
   await assertVkOwnedCommandRun(
     owned,
     adapter,

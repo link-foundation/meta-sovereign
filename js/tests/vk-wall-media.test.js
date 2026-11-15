@@ -15,6 +15,7 @@ test('optional single-media choice preserves legacy saved wall policies and reje
   assert.equal(original.randomAttachment, false);
   const legacy = { ...original };
   delete legacy.randomAttachment;
+  delete legacy.holdAnyVisible;
   await store.put({ id: wallPolicy.keys.job, ...legacy });
   assert.deepEqual(await wallPolicy.settings(store), original);
   assert.deepEqual((await wallPolicy.save(store, legacy)).settings, original);
@@ -162,6 +163,7 @@ test('legacy fixed-media partial receipts keep their policy identity after setti
       const { plan } = await job.preview();
       const legacy = { ...plan.settings };
       delete legacy.randomAttachment;
+      delete legacy.holdAnyVisible;
       assert.equal(plan.policyIdentity, await evidenceHash(legacy));
       assert.equal(
         (await job.run({ planId: plan.planId, confirm: true })).last.status,

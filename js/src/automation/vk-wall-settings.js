@@ -19,6 +19,7 @@ export const wallBooleans = [
   'replaceOwned',
   'activeAvatar',
   'randomAttachment',
+  'holdAnyVisible',
 ];
 export const wallLines = (value) =>
   value
@@ -50,7 +51,11 @@ export const wallPolicy = createVkPersonalSettings('wall', {
   fields: wallFields,
   textFields: wallTextFields,
   booleans: wallBooleans,
-  upgrade: (input) => ({ randomAttachment: false, ...input }),
+  upgrade: (input) => ({
+    randomAttachment: false,
+    holdAnyVisible: false,
+    ...input,
+  }),
   defaults: {
     enabled: false,
     everyMinutes: 60,
@@ -65,6 +70,7 @@ export const wallPolicy = createVkPersonalSettings('wall', {
     replaceOwned: false,
     activeAvatar: false,
     randomAttachment: false,
+    holdAnyVisible: false,
     priorityIds: [],
   },
   validate: (settings) => {

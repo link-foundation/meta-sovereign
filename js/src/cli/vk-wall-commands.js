@@ -24,6 +24,7 @@ export const createVkWallCommands = (options) =>
       'replace-owned': 'replaceOwned',
       'active-avatar': 'activeAvatar',
       'random-attachment': 'randomAttachment',
+      'hold-any-visible': 'holdAnyVisible',
     },
     ...options,
   });

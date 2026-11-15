@@ -5,6 +5,7 @@ import { positiveVkId } from './vk-friends-settings.js';
 import { evidenceHash } from './vk-reengage-evidence.js';
 import { wallLedgerId } from './vk-wall-settings.js';
 import { retainWallBackoff } from './vk-wall-backoff.js';
+import { completeReviewedWallDeletion } from './vk-wall-absence.js';
 import {
   wallCurrent,
   wallItemIdentity,
@@ -32,12 +33,14 @@ const persist = async (state, status, error) => {
     credentialIdentity: state.plan.credentialIdentity,
     ...state.item,
     deleted: [...state.item.deleted],
+    absent: [...state.item.absent],
     ...(error ? { error } : {}),
   });
   state.expected = await evidenceHash(row);
 };
 const guard = async (state, old) => {
   const { context, plan, item, original } = state;
+  let oldPost;
   await wallCurrent(context, plan, item, original);
   if ((await wallItemIdentity(plan, item)) !== item.signature) {
     refuseFriendAction('The reviewed VK invitation changed');
@@ -56,15 +59,17 @@ const guard = async (state, old) => {
   } else {
     await wallReceiptOwned(context, plan, item, original);
     if (old) {
-      const post = await original.live.wallInvitePostState(
+      oldPost = await original.live.wallInvitePostState(
         item.userId,
         old.id,
         original.options
       );
       if (
-        post.fromId !== plan.accountId ||
-        !post.canDelete ||
-        (await evidenceHash(post)) !== (await evidenceHash(old))
+        oldPost !== null &&
+        (item.reviewedAbsent.includes(old.id) ||
+          oldPost.fromId !== plan.accountId ||
+          !oldPost.canDelete ||
+          (await evidenceHash(oldPost)) !== (await evidenceHash(old)))
       ) {
         refuseFriendAction(
           'The reviewed old invitation is no longer owned or unchanged'
@@ -74,6 +79,7 @@ const guard = async (state, old) => {
   }
   await wallCurrent(context, plan, item, original);
   await checkJournal(state);
+  return oldPost;
 };
 const issue = async (state, old) => {
   state.issued = false;
@@ -87,7 +93,11 @@ const issue = async (state, old) => {
     state.original.options,
     async () => {
       await persist(state, 'pending');
-      await guard(state, old);
+      if ((await guard(state, old)) === null) {
+        throw Object.assign(new Error('Reviewed VK post is absent'), {
+          code: 'wall-post-absent',
+        });
+      }
       state.issued = true;
     }
   );
@@ -140,18 +150,25 @@ const failed = async (state, error) => {
     outcome: status === 'partial' ? 'partial' : undefined,
     postId: state.item.postId,
     deleted: [...state.item.deleted],
+    absent: [...state.item.absent],
   };
 };
 export const deliverVkWall = async (context, plan, reviewed, original) => {
   if (
     reviewed.postId !== reviewed.reviewedPostId ||
     !equalFriendPolicy(reviewed.deleted, reviewed.reviewedDeleted) ||
+    !equalFriendPolicy(reviewed.absent ?? [], reviewed.reviewedAbsent ?? []) ||
     (await wallItemIdentity(plan, reviewed)) !== reviewed.signature
   ) {
     // Keep the previous receipt intact when a saved review was changed.
     return { userId: reviewed.userId, status: 'refused' };
   }
-  const item = { ...reviewed, deleted: [...reviewed.deleted] };
+  const item = {
+    ...reviewed,
+    deleted: [...reviewed.deleted],
+    absent: [...(reviewed.absent ?? [])],
+    reviewedAbsent: [...(reviewed.reviewedAbsent ?? [])],
+  };
   const state = {
     context,
     plan,
@@ -173,16 +190,20 @@ export const deliverVkWall = async (context, plan, reviewed, original) => {
     for (const old of item.old.filter(
       (post) => !item.deleted.includes(post.id)
     )) {
-      await context.sleep(5000, context.signal);
-      await issue(state, old);
+      await completeReviewedWallDeletion(state, old, {
+        guard,
+        persist,
+        issue,
+      });
     }
     await persist(state, 'confirmed');
     return {
       userId: item.userId,
       status: 'confirmed',
-      outcome: 'delivered',
+      outcome: item.absent.length ? 'deliveredWithAbsent' : 'delivered',
       postId: item.postId,
       deleted: item.deleted,
+      absent: item.absent,
     };
   } catch (error) {
     return failed(state, error);

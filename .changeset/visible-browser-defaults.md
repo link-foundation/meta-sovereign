@@ -552,3 +552,5 @@ Add independent disabled VK suggestion ranking, configurable community friend di
 Observe acknowledged vacancy discovery progress before terminal completion in the native browser check. Preserve unchanged locator deadlines, exact result counts, read-only reload and four-language coverage; retain bounded per-read failure diagnostics.
 
 Add optional single-media selection for reviewed VK friend invitation posts on configured community walls. Keep fixed attachments as the default, upgrade legacy policies, freeze selected media across partial recovery and share CLI, Lino, offline and four-language controls.
+
+Community wall replacement now optionally holds matching invitations from any author and continues after a current read confirms an old post absent. Absence and acknowledged deletion have separate durable results and translated review evidence; unknown writes remain unreplayed.

@@ -1,4 +1,5 @@
 import { mkdir } from 'node:fs/promises';
+import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import {
   TUTORIAL_STORAGE_KEY,
@@ -115,5 +116,16 @@ export const vkReviewedControls = (page, name) => {
     await panel.locator(`[data-action=vk-${name}-${command}]`).click();
     await ready();
   };
-  return { panel, ready, action };
+  const review = async (reason) => {
+    await action('plan');
+    assert.equal(
+      await panel.locator(`[data-${name}-reason=${reason}]`).count(),
+      1
+    );
+  };
+  const deliver = async (status) => {
+    await action('run');
+    await panel.locator(`[data-vk-${name}-status=${status}]`).waitFor();
+  };
+  return { panel, ready, action, review, deliver };
 };

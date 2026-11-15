@@ -164,7 +164,7 @@ const FriendResults = ({
                 count: plan.friendCount,
               })
             ),
-            Summary ? el(Summary, { key: 'summary', plan }) : null,
+            Summary ? el(Summary, { key: 'summary', plan, last }) : null,
             el(
               'ul',
               { key: 'items' },
@@ -181,7 +181,7 @@ const FriendResults = ({
                   [
                     `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}${friendMutualLabel(t, item)}`,
                     Evidence
-                      ? el(Evidence, { key: 'evidence', item, plan })
+                      ? el(Evidence, { key: 'evidence', item, plan, last })
                       : null,
                   ]
                 )

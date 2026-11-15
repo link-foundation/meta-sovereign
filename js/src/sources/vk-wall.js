@@ -189,8 +189,11 @@ export const createVkWall = ({ call, once }) => {
         options.token
       );
       const posts = Array.isArray(raw) ? raw : raw?.items;
-      if (!Array.isArray(posts) || posts.length !== 1) {
+      if (!Array.isArray(posts) || posts.length > 1) {
         incomplete();
+      }
+      if (!posts.length) {
+        return null;
       }
       const result = postEvidence(posts[0], community);
       if (result.id !== postId) {
