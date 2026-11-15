@@ -1,3 +1,5 @@
+import { redactLogValue } from '../server/log-value.js';
+
 /** Observe a trigger; diagnostic failures never change its delivery outcome. */
 export const traceTrigger = async (log, trigger, work) => {
   const started = globalThis.performance.now();
@@ -23,7 +25,9 @@ export const traceTrigger = async (log, trigger, work) => {
       level: 'error',
       event: 'trigger_failed',
       durationMs: Math.max(0, globalThis.performance.now() - started),
-      error,
+      // Pass a bounded plain summary to custom sinks too. Raw Error inspection
+      // can expose an unredacted provider cause even when its message is safe.
+      error: redactLogValue(error),
     });
     throw error;
   }

@@ -93,7 +93,12 @@ test('first live trigger observes its newest 100 native messages without replayi
   await f.inbox().step({ wait: 0 });
   await scheduler.stop();
   assert.deepEqual(observed, [100]);
-  assert.deepEqual(errors, []);
+  assert.deepEqual(
+    errors.map(({ event }) => event),
+    ['trigger_check', 'trigger_finished']
+  );
+  assert.ok(errors.every(({ level }) => level === 'debug'));
+  assert.ok(Number.isFinite(errors[1].durationMs));
   const history = f.fake.calls.filter((c) => c.name === 'messages.getHistory');
   assert.equal(history.length, 1);
   assert.equal(history[0].params.count, '100');

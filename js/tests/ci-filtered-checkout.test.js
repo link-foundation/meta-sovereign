@@ -55,6 +55,7 @@ test(
     git(source, 'config', 'user.email', 'fixture@example.invalid');
     git(source, 'config', 'user.name', 'Finite checkout fixture');
     git(source, 'config', 'commit.gpgsign', 'false');
+    git(source, 'config', 'core.autocrlf', 'true');
     git(source, 'config', 'uploadpack.allowFilter', 'true');
     for (let index = 0; index < 8; index++) {
       writeFileSync(
@@ -77,6 +78,7 @@ test(
     git(
       root,
       'clone',
+      '--config=core.autocrlf=true',
       '--filter=blob:none',
       '--no-checkout',
       pathToFileURL(source).href,
@@ -108,11 +110,11 @@ test(
     );
     assert.equal(
       readFileSync(join(checkout, 'base.txt'), 'utf8'),
-      'fresh base\n'
+      'fresh base\r\n'
     );
     assert.equal(
       readFileSync(join(checkout, 'feature.txt'), 'utf8'),
-      'reviewed feature\n'
+      'reviewed feature\r\n'
     );
     assert.ok(
       missing().length >= 7,

@@ -602,7 +602,17 @@ test('scheduled read refusals are redacted, throttled at the saved interval and 
     const result = await loadVkFriends(store);
     assert.equal(result.last.status, 'refused');
     assert.ok(!JSON.stringify(result).includes('fixture-user-token'));
-    assert.deepEqual(events, [{ event: 'vk_friend_batch_failed' }]);
+    assert.deepEqual(
+      events.map(({ event }) => event),
+      ['trigger_check', 'trigger_failed', 'vk_friend_batch_failed']
+    );
+    assert.equal(events[0].level, 'debug');
+    assert.equal(events[1].level, 'error');
+    assert.ok(Number.isFinite(events[1].durationMs));
+    assert.ok(events[1].durationMs >= 0);
+    assert.ok(!JSON.stringify(events).includes('fixture-user-token'));
+    assert.equal(events[1].error.message, '<redacted> refused');
+    assert.equal(Object.hasOwn(events[1].error, 'cause'), false);
   } finally {
     await job.stop();
   }
