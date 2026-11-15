@@ -508,3 +508,5 @@ Allow an explicitly selected, integrity-checked native résumé export as a sani
 Offer desktop installers only from uploaded, nonempty GitHub release assets. Retain upload state in the session cache, refresh legacy metadata and label missing-platform fallback links accurately. Preserve completed platforms and API-error recovery.
 
 Retain complete email alternative destinations through MIME, Gmail, JMAP and Graph imports, shared question review and frozen history checks. Refuse malformed or bounded-out safe-tree metadata, preserve ordinary automatic and confirmed linked delivery, and display full literal destinations through CLI, Lino and native previews.
+
+Edit greeting response catalogs per language through CLI and the shared localized UI. Keep normalized outgoing VK messages and non-personal destinations out of greeting delivery while retaining preview, confirmation, daily limits and actual adapter receipts.

@@ -1,3 +1,4 @@
+import { ruGreetingCatalog } from './ru-greeting-catalog.js';
 import { ruQuestions } from './ru-questions.js';
 import { ruVacancy } from './ru-vacancy.js';
 import { ruAnswerModel } from './ru-answer-model.js';
@@ -1215,10 +1216,7 @@ export const ru = {
   'greetings.telegramDefault':
     'Стикеры, которые Telegram предлагает в пустом чате, приходят из пользовательского API ({method} «{emoticon}»), а бот его вызвать не может. Вместо этого получите стикеры из наборов ниже или добавьте свои наборы.',
   'greetings.sets': 'Наборы стикеров Telegram',
-  'greetings.language': 'Язык приветствия',
-  'greetings.prefer': 'Отправлять',
-  'greetings.prefer.sticker': 'Стикер, где это возможно',
-  'greetings.prefer.text': 'Текстовое приветствие',
+  ...ruGreetingCatalog,
   'greetings.listLive': 'Получить стикеры из сетей',
   'greetings.save': 'Сохранить выбор',
   'greetings.saved': 'Выбор сохранён.',

@@ -32,6 +32,27 @@ export * from './detect.js';
 export const GREETING_SELECTION_ID = 'greetings:selection';
 export const greetingLinkId = (network, chat) => `greeting:${network}:${chat}`;
 
+const greetingChatType = (chat) => chat.chatType ?? chat.last?.chatType ?? null;
+
+/** VK's greeting trigger only targets personal user dialogs. */
+export const greetingDestinationReason = ({
+  network,
+  chat,
+  chatType,
+  last,
+}) => {
+  if (network !== 'vk') {
+    return null;
+  }
+  const type = greetingChatType({ chatType, last });
+  const peer = String(chat ?? '');
+  return /^[1-9][0-9]{0,9}$/.test(peer) &&
+    Number(peer) < 2_000_000_000 &&
+    (!type || type === 'private' || type === 'user')
+    ? null
+    : 'personal-chat-required';
+};
+
 const HOUR_MS = 60 * 60 * 1000;
 const DEFAULT_RULES = { business: [], settings: normalizeSettings() };
 
@@ -158,6 +179,7 @@ const emptyChat = (link) => ({
   network: link.source,
   chat: String(link.chat),
   contact: null,
+  chatType: link.chatType ?? null,
   outgoing: 0,
   incoming: 0,
   last: null,
@@ -181,7 +203,10 @@ export const createGreetingChatAggregation = ({ me = null } = {}) => {
     const key = `${link.source}:${link.chat}`;
     const chat = chats.get(key) ?? emptyChat(link);
     chat.unreachable ??= unreachableReason([link]);
-    const outgoing = mine.has(String(link.sender));
+    if (link.chatType && !['private', 'user'].includes(link.chatType)) {
+      chat.chatType = link.chatType;
+    }
+    const outgoing = link.outgoing === true || mine.has(String(link.sender));
     chat[outgoing ? 'outgoing' : 'incoming'] += 1;
     if (!outgoing && !chat.contact) {
       chat.contact = String(link.sender);
@@ -261,6 +286,10 @@ const blockedReason = (chat, now, { business = [], settings }) => {
   if (chat.unreachable) {
     return chat.unreachable;
   }
+  const destinationReason = greetingDestinationReason(chat);
+  if (destinationReason) {
+    return destinationReason;
+  }
   if (network.initiate === 'window' && windowApplies(chat, business)) {
     const lastIncoming = chat.last && !chat.lastOutgoing ? chat.last : null;
     const since = lastIncoming ? now - timeOf(lastIncoming) : Infinity;
@@ -317,6 +346,7 @@ const planEnvelope = ({ chat, mode, selection, now, random, rules }) => {
     network: chat.network,
     chat: chat.chat,
     contact: chat.contact,
+    chatType: greetingChatType(chat),
     language,
     kind: choice?.kind ?? null,
     sticker: choice?.sticker ?? null,
@@ -414,6 +444,7 @@ export const planFromStore = async (store, options = {}) => {
       body: link.body,
       sticker: link.sticker,
       chatType: link.chatType,
+      outgoing: link.outgoing,
       blocked: reason === 'blocked',
       bot: reason === 'bot',
       left: reason === 'left',

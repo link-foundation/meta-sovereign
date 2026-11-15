@@ -285,6 +285,30 @@ const SelectionControls = ({ state }) => {
   ]);
 };
 
+const GreetingTexts = ({ state }) => {
+  const t = useT();
+  const selection = state.selection ?? {};
+  const language = selection.language ?? 'en';
+  return el('label', { className: 'col greetings-field' }, [
+    el('span', { key: 'label' }, t('greetings.texts')),
+    el('textarea', {
+      key: 'texts',
+      'data-field': 'texts',
+      rows: 4,
+      value: (selection.texts?.[language] ?? []).join('\n'),
+      disabled: state.busy !== '',
+      onChange: (event) =>
+        state.update({
+          texts: {
+            ...selection.texts,
+            [language]: event.target.value.split('\n'),
+          },
+        }),
+    }),
+    el('span', { key: 'hint', className: 'meta' }, t('greetings.textsHint')),
+  ]);
+};
+
 const PlanControls = ({ state }) => {
   const t = useT();
   const idle = state.busy === '';
@@ -333,7 +357,12 @@ const envelopeStatus = (envelope, result, t) => {
     return result.ok ? t('greetings.sent') : `! ${result.error}`;
   }
   return envelope.skipped
-    ? t('greetings.skipped', { reason: envelope.skipped })
+    ? t('greetings.skipped', {
+        reason:
+          envelope.skipped === 'personal-chat-required'
+            ? t('greetings.personalOnly')
+            : envelope.skipped,
+      })
     : t('greetings.ready');
 };
 
@@ -626,6 +655,7 @@ export const GreetingsScreen = ({ state }) => {
     state.busy ? el(Busy, { key: 'busy' }, t('greetings.busy')) : null,
     el('h3', { key: 'stickers-h' }, t('greetings.stickers')),
     el(SelectionControls, { key: 'selection', state }),
+    el(GreetingTexts, { key: 'texts', state }),
     state.saved
       ? el('p', { key: 'saved', className: 'meta' }, t('greetings.saved'))
       : null,

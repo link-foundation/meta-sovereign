@@ -1,3 +1,4 @@
+import { zhGreetingCatalog } from './zh-greeting-catalog.js';
 import { zhAnswerModel } from './zh-answer-model.js';
 import { zhVacancy } from './zh-vacancy.js';
 import { zhBrowserAnswer } from './zh-browser-answer.js';
@@ -1153,10 +1154,7 @@ export const zh = {
   'greetings.telegramDefault':
     'Telegram 在空聊天中推荐的贴纸来自其用户 API（{method} "{emoticon}"），机器人无法调用。请改为从下面的贴纸集中列出贴纸，或添加你自己的贴纸集。',
   'greetings.sets': '要列出的 Telegram 贴纸集',
-  'greetings.language': '问候语言',
-  'greetings.prefer': '发送',
-  'greetings.prefer.sticker': '尽可能发送贴纸',
-  'greetings.prefer.text': '文字问候',
+  ...zhGreetingCatalog,
   'greetings.listLive': '实时列出贴纸',
   'greetings.save': '保存选择',
   'greetings.saved': '选择已保存。',

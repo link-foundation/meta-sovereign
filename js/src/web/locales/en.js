@@ -1,3 +1,4 @@
+import { enGreetingCatalog } from './en-greeting-catalog.js';
 import { enAnswerModel } from './en-answer-model.js';
 import { enVacancy } from './en-vacancy.js';
 import { enBrowserAnswer } from './en-browser-answer.js';
@@ -1200,10 +1201,7 @@ export const en = {
   'greetings.telegramDefault':
     'The stickers Telegram suggests on an empty chat come from its user API ({method} "{emoticon}"), which a bot cannot call. List stickers from the sets below instead, or add your own sets.',
   'greetings.sets': 'Telegram sticker sets to list',
-  'greetings.language': 'Greeting language',
-  'greetings.prefer': 'Send',
-  'greetings.prefer.sticker': 'A sticker where possible',
-  'greetings.prefer.text': 'A text greeting',
+  ...enGreetingCatalog,
   'greetings.listLive': 'List stickers live',
   'greetings.save': 'Save selection',
   'greetings.saved': 'Selection saved.',

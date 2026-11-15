@@ -1,3 +1,4 @@
+import { verifyVkGreetingCatalog } from './helpers/e2e-vk-greeting-catalog.mjs';
 import { createLinoFetch } from '../src/transport/fetch.js';
 const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 /**
@@ -212,6 +213,41 @@ const traceFailure = async (page, selector) => {
   });
 };
 
+const verifyGreetingDryRun = async (store, base, calls) => {
+  // The outbox holds each greeting once, and a dry run lists who would
+  // get what without sending (R-Z3).
+  const logged = await store.query(
+    (l) => l.id.startsWith('outbox:greeting:vk:100:') && l.status === 'sent'
+  );
+  assert(logged.length === 1, 'the greeting was not written to the outbox');
+  const dry = await (
+    await fetch(`${base}/api/greetings/plan`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ networks: ['whatsapp'], run: 'dry' }),
+    })
+  ).json();
+  assert(
+    dry.dryRun === true && dry.held[0]?.held === 'outside-messaging-window',
+    `dry run: ${JSON.stringify(dry)}`
+  );
+  // Without the Cloud API credentials WhatsApp is a personal account.
+  await store.delete('secret:whatsapp:access-token');
+  const personal = await (
+    await fetch(`${base}/api/greetings/plan`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ networks: ['whatsapp'] }),
+    })
+  ).json();
+  assert(
+    personal.envelopes[0]?.skipped === undefined &&
+      personal.envelopes[0]?.chat === '1555',
+    `a personal WhatsApp has no window: ${JSON.stringify(personal)}`
+  );
+  assert(calls.length === 3, `the dry run sent nothing: ${calls.length}`);
+};
+
 const run = async () => {
   const store = createMemoryStore();
   await seed(store);
@@ -345,41 +381,11 @@ const run = async () => {
       await store.get('greeting:vk:100'),
       'the sent greeting was not recorded'
     );
-    // The outbox holds each greeting once, and a dry run lists who would
-    // get what without sending (R-Z3).
-    const logged = await store.query(
-      (l) => l.id.startsWith('outbox:greeting:vk:100:') && l.status === 'sent'
-    );
-    assert(logged.length === 1, 'the greeting was not written to the outbox');
-    const dry = await (
-      await fetch(`${base}/api/greetings/plan`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ networks: ['whatsapp'], run: 'dry' }),
-      })
-    ).json();
-    assert(
-      dry.dryRun === true && dry.held[0]?.held === 'outside-messaging-window',
-      `dry run: ${JSON.stringify(dry)}`
-    );
-    // Without the Cloud API credentials WhatsApp is a personal account.
-    await store.delete('secret:whatsapp:access-token');
-    const personal = await (
-      await fetch(`${base}/api/greetings/plan`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ networks: ['whatsapp'] }),
-      })
-    ).json();
-    assert(
-      personal.envelopes[0]?.skipped === undefined &&
-        personal.envelopes[0]?.chat === '1555',
-      `a personal WhatsApp has no window: ${JSON.stringify(personal)}`
-    );
-    assert(calls.length === 3, `the dry run sent nothing: ${calls.length}`);
+    await verifyGreetingDryRun(store, base, calls);
     assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
 
     await captureScreenshot(page);
+    await verifyVkGreetingCatalog(browser);
   } catch (error) {
     await traceFailure(page, firstVk).catch((diagnostic) =>
       console.error(

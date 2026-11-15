@@ -112,9 +112,13 @@ links `secret:<network>:…`, которые уже использует sync.
 meta-sovereign greetings-stickers                       # built-in catalogue
 meta-sovereign greetings-stickers --live --networks=vk,telegram
 meta-sovereign greetings-select --stickers=vk:72789,vk:21 --sets=UtyaDuck --language=ru
+meta-sovereign greetings-select --language=ru --prefer=text --texts="Привет!
+👋"
 meta-sovereign greetings-plan --mode=initiate --limit=10
 meta-sovereign greetings-send --mode=reply --delay-ms=30000
 ```
+
+В разделе приветствий редактируйте фразы для выбранного языка, по одной на строку. Пустой список при сохранении восстанавливает стандартные фразы этого языка; остальные языки сохраняются. CLI принимает такой же список с переводами строк через `--texts`; `--prefer=text` выбирает текст вместо доступных стикеров. Планирование, предварительный просмотр и отправка приветствий ВКонтакте допускают только личные диалоги и учитывают признак исходящего сообщения.
 
 | Method | Path                       | Назначение                                                      |
 | ------ | -------------------------- | --------------------------------------------------------------- |

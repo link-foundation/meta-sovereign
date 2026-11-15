@@ -122,12 +122,22 @@ const selectionInput = (args, current) => ({
   ...(args.sets ? { telegramSets: parseList(args.sets) ?? [] } : {}),
   ...(args.language ? { language: args.language } : {}),
   ...(args.prefer ? { prefer: args.prefer } : {}),
+  ...(args.texts !== undefined
+    ? {
+        texts: {
+          ...current.texts,
+          [args.language ?? current.language]: String(args.texts).split(
+            /\r?\n/u
+          ),
+        },
+      }
+    : {}),
 });
 
 const selectCmd = async (args, log, deps) => {
   const store = await storeOf(args, deps.openStore);
   const current = await loadGreetingSelection(store);
-  const changed = ['stickers', 'sets', 'language', 'prefer'].some(
+  const changed = ['stickers', 'sets', 'language', 'prefer', 'texts'].some(
     (key) => args[key] !== undefined
   );
   const selection = changed
@@ -138,6 +148,9 @@ const selectCmd = async (args, log, deps) => {
     return 0;
   }
   log(`language ${selection.language}, prefer ${selection.prefer}`);
+  selection.texts[selection.language].forEach((text) =>
+    log(`  text ${JSON.stringify(text)}`)
+  );
   selection.stickers.forEach((sticker) => log(`  ${stickerLine(sticker)}`));
   log(`  telegram sets: ${selection.telegramSets.join(', ') || '(none)'}`);
   return 0;

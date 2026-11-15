@@ -109,9 +109,13 @@ sticker, text, lastMessageAt, skipped?}`। `limit` सिर्फ उन envel
 meta-sovereign greetings-stickers                       # built-in catalogue
 meta-sovereign greetings-stickers --live --networks=vk,telegram
 meta-sovereign greetings-select --stickers=vk:72789,vk:21 --sets=UtyaDuck --language=ru
+meta-sovereign greetings-select --language=hi --prefer=text --texts="नमस्ते!
+👋"
 meta-sovereign greetings-plan --mode=initiate --limit=10
 meta-sovereign greetings-send --mode=reply --delay-ms=30000
 ```
+
+अभिवादन स्क्रीन में चुनी गई भाषा के वाक्य संपादित करें, हर पंक्ति में एक। खाली सूची सहेजने पर उस भाषा के डिफ़ॉल्ट वाक्य लौट आते हैं और अन्य भाषाएँ बनी रहती हैं। CLI में यही सूची `--texts` से दें; `--prefer=text` उपलब्ध स्टिकर की जगह टेक्स्ट चुनता है। VK अभिवादन की योजना, पूर्वावलोकन और भेजना केवल निजी उपयोगकर्ता बातचीत के लिए हैं; आयातित आउटगोइंग संदेशों का जवाब नहीं दिया जाता।
 
 | Method | Path                       | उद्देश्य                                                   |
 | ------ | -------------------------- | ---------------------------------------------------------- |

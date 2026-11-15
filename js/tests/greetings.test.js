@@ -604,7 +604,7 @@ describe('greeting runner', () => {
       live: {
         async post(content, options) {
           posted.push({ name, content, options });
-          if (content.chat === 'boom') {
+          if (content.chat === '200') {
             throw new Error('vk API 901: Can not send messages');
           }
           return { ok: true };
@@ -622,7 +622,7 @@ describe('greeting runner', () => {
           sticker: { id: '21' },
           text: null,
         },
-        { network: 'vk', chat: 'boom', kind: 'text', text: 'Hi!' },
+        { network: 'vk', chat: '200', kind: 'text', text: 'Hi!' },
         { network: 'whatsapp', chat: '1', skipped: 'outside-messaging-window' },
         { network: 'vk', chat: '300', kind: 'text', text: 'Hi!' },
       ],
@@ -649,7 +649,7 @@ describe('greeting runner', () => {
     const record = await store.get(greetingLinkId('vk', '100'));
     expect(record.kind).toBe('sticker');
     expect(record.sentAt).toBe('2026-10-11T12:00:00.000Z');
-    expect(await store.get(greetingLinkId('vk', 'boom'))).toBeNull();
+    expect(await store.get(greetingLinkId('vk', '200'))).toBeNull();
   });
 });
 

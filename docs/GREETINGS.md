@@ -104,9 +104,13 @@ read from the same `secret:<network>:…` links the sync already uses.
 meta-sovereign greetings-stickers                       # built-in catalogue
 meta-sovereign greetings-stickers --live --networks=vk,telegram
 meta-sovereign greetings-select --stickers=vk:72789,vk:21 --sets=UtyaDuck --language=ru
+meta-sovereign greetings-select --language=en --prefer=text --texts="Hello!
+👋"
 meta-sovereign greetings-plan --mode=initiate --limit=10
 meta-sovereign greetings-send --mode=reply --delay-ms=30000
 ```
+
+Edit response phrases under Greetings for the selected language, one phrase per line. Saving an empty list restores that language’s defaults and preserves the other languages. The CLI accepts the same newline-separated catalog with `--texts`; `--prefer=text` selects phrases instead of available stickers. VK greeting plans, dry runs and sends require a personal user dialog and ignore normalized outgoing messages.
 
 | Method | Path                       | Purpose                                                    |
 | ------ | -------------------------- | ---------------------------------------------------------- |

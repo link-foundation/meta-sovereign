@@ -1,3 +1,4 @@
+import { hiGreetingCatalog } from './hi-greeting-catalog.js';
 import { hiAnswerModel } from './hi-answer-model.js';
 import { hiVacancy } from './hi-vacancy.js';
 import { hiBrowserAnswer } from './hi-browser-answer.js';
@@ -1198,10 +1199,7 @@ export const hi = {
   'greetings.telegramDefault':
     'खाली चैट में Telegram जो स्टिकर सुझाता है, वे उसके यूज़र API ({method} "{emoticon}") से आते हैं, जिसे बॉट कॉल नहीं कर सकता। इसके बजाय नीचे दिए सेट से स्टिकर सूचीबद्ध करें, या अपने सेट जोड़ें।',
   'greetings.sets': 'सूचीबद्ध करने के लिए Telegram स्टिकर सेट',
-  'greetings.language': 'अभिवादन की भाषा',
-  'greetings.prefer': 'भेजें',
-  'greetings.prefer.sticker': 'जहाँ संभव हो स्टिकर',
-  'greetings.prefer.text': 'टेक्स्ट अभिवादन',
+  ...hiGreetingCatalog,
   'greetings.listLive': 'स्टिकर लाइव सूचीबद्ध करें',
   'greetings.save': 'चयन सहेजें',
   'greetings.saved': 'चयन सहेजा गया।',
