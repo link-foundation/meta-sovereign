@@ -1,0 +1,23 @@
+{
+  "archive": "startup-configuration.tar.gz",
+  "files": {
+    "js/src/cli/startup-configuration.js": "1dc8cd1098e4eee53d2274ab5e4c62cc11563ef4f2ffa7d8eedb5269705bfb2e",
+    "js/src/cli/command-runner.js": "ca2d7dc1e389791860d8bed30f910a48008dc5f39f0c49e93692783aff5fc052",
+    "js/src/cli/help.js": "bdbd49e0c90556458d52d71367f8175643c5e62e9b0f09d5bd2bf27373268eff",
+    "js/tests/startup-configuration.test.js": "7973b1931fdc255ed3e05a9165e1e0b0b441e0e1dbe63b2c83757c4eab024ebd",
+    "experiments/issue-56/startup-configuration.mjs": "2c8e59c69317c431c976363c7b391a8db9d7a6c80768432db33537d507ffe231",
+    "experiments/issue-56/desktop-config-codec.mjs": "bffce130b33677bc8e4e2fda9223fdee21d1b7b21d428223a1e9b850ae10ad61",
+    "experiments/issue-56/collect-startup-configuration.py": "dcc23099c0e4eeadc3f7c4dd91d3e3eb823149b148fa6ee2fa77255e9616a1f0",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/SERVER-CONFIGURATION.md": "ee63cc34272c1f181a8af6f62fea6c519fe67c6b3554aba8a2783c3b9cecce14",
+    "docs/case-studies/issue-56/startup-configuration.md": "f16131fac76266e19c6f8271cdea2d858c35ca39697347a812be9dc89f9935c0",
+    "ci-logs/startup-config-before.log": "8ff9cc26377f98fb661dc93448fe843f1593d43394af6f1bdd6de99e3f7ea1ac",
+    "ci-logs/startup-config-after.log": "331a9089ea2d6d9815b07bc70d3288f6bd0e9120de9b5eb3ed94b15fb4f4e498",
+    "ci-logs/startup-config-focused.log": "750c606d8a7b8ee14bd2da4c179db6f8c3a8f01c4719648768f9266ac181e05a",
+    "ci-logs/startup-config-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/startup-config-lint-config-missing.log": "045bbee21742236bec9d76d3757c64c30b62385a573aaa4a5c33717c08535e7f",
+    "ci-logs/desktop-config-codec.log": "bf856de898f884aa91889d9c0739680c04d4231d28bc5d045529b39ad0349923",
+    "before/js/src/cli/command-runner.js": "f0fb82b2437e15ff22bd360696c99563e7a87b13c77aace9e29ccbb496b8fdc2",
+    "metadata.json": "171df349f989e9e7e644561650b9164fa2a991919f62f40799f0c4ff5e59e66c"
+  }
+}

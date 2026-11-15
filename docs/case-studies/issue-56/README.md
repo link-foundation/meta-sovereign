@@ -1,3 +1,5 @@
+- [Layered server startup configuration](startup-configuration.md): bounded readable global/local/CLI precedence, generic refusal and actual-parent dispatch evidence; desktop configuration and wider parity remain unfinished.
+
 - [First-live peer history](vk-live-history.md): load native context before the incoming trigger, suppress historical replies and retain durable/cursor/credential/shutdown ownership; 79 focused Node/Deno checks pass and exact-head CI remains required.
 - [Foreground queue lifecycle](ci-vk-queue-lifecycle.md): preserve four exact-head CLI failures and replace stopped queues only after admitted effects drain; exact-head hosted acceptance remains required.
 - [Durable trigger admission](vk-trigger-state.md): reproduce concurrent duplicate drafts and premature shutdown flush; preserve per-peer acknowledgements, failed-run retry and owned draining. The wider VK26 queue remains required.

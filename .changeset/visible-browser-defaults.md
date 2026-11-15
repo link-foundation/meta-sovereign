@@ -586,3 +586,5 @@ Add owned VK user-token acquisition with exact standalone redirects, an isolated
 Use the actual lino-arguments parser across CLI consumers, preserving existing option value conventions while honoring the end-of-options marker and refusing reserved option keys without credential echoes.
 
 Copy visible redacted logs through an owned write-only desktop clipboard bridge, require native acknowledgement and preserve translated refusal recovery and browser copying outside the desktop bridge.
+
+Load bounded readable global/local server startup configuration before explicit CLI overrides, with documented nonsecret fields and generic validation failures.

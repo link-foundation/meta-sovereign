@@ -16,6 +16,8 @@ node js/bin/meta-sovereign.js serve --trust=true --open=true
 
 Use `--trust=false` to leave system trust unchanged and `--open=false` to keep the browser closed. The standalone `trust` command remains available. Certificate trust is an OS decision; a website cannot grant it silently. When trust is declined, the server prints how to complete setup later.
 
+Server startup also supports [layered readable Lino configuration](SERVER-CONFIGURATION.md), with local app-folder values overriding user values and explicit options taking precedence.
+
 ## Certificate identity and hardware protection
 
 Each installation generates a random P-256 key and a unique self-signed leaf certificate. The certificate covers only `localhost`, `127.0.0.1` and `::1`; it is not a certificate authority. Startup prints its SHA-256 fingerprint. Before reusing an existing identity, the server checks its validity, loopback names, self-signature and matching private key. Expiring certificates are renewed and need trust again.

@@ -6,11 +6,15 @@ import { SCHEMA_ERROR_CODES } from './errors.js';
 export const runCliCommand = async (
   argv,
   handler,
-  { log = console.log } = {}
+  { log = console.log, configuration } = {}
 ) => {
   const [cmd, ...rest] = argv;
   try {
-    const args = parseArgs(rest);
+    let args = parseArgs(rest);
+    if (cmd === 'serve') {
+      const { startupArguments } = await import('./startup-configuration.js');
+      args = await startupArguments(args, configuration);
+    }
     if (
       args.store === undefined &&
       ![
@@ -32,7 +36,11 @@ export const runCliCommand = async (
     return await handler(args, log);
   } catch (error) {
     if (
-      ['STORE_LOCKED', 'INVALID_CLI_ARGUMENTS'].includes(error?.code) ||
+      [
+        'STORE_LOCKED',
+        'INVALID_CLI_ARGUMENTS',
+        'INVALID_APP_CONFIGURATION',
+      ].includes(error?.code) ||
       SCHEMA_ERROR_CODES.has(error?.code)
     ) {
       log(error.message);
