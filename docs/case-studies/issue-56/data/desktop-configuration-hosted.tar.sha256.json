@@ -1,0 +1,18 @@
+{
+  "archive": "desktop-configuration-hosted.tar.gz",
+  "files": {
+    "ci-logs/catalogs-desktop-jobs.json": "4d7baf788221212099163288b975d035eee3d75a216ca060d3c09633864ad69e",
+    "ci-logs/desktop-config-native-hosted.log": "ba3ef8832b500f8ffda722d9beebec93823b7d324ef00ca5c8a34cb98cc4be65",
+    "docs/case-studies/issue-56/desktop-configuration-hosted.md": "3a5bfdfe9d4e42cd9f6e7c4ffcc6961fca45189f5d66dd5fa0fd382a5e491f2f",
+    "experiments/issue-56/collect-desktop-configuration-hosted.py": "80989f3ad2a71f4fdcfbdeceda698c0edd36f64c755bc41967769ec5b7c8e8da",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "published/js/electron/local-certificate.js": "4ac600c40bc8540df5519a39e9010c21e104f0f53128b22169997d10e17e6010",
+    "published/js/electron/window.js": "7e3d56d284f79d4a27a39ff4355b953ad0065670466d6d2f7a684464d9605063",
+    "published/js/scripts/prepare-desktop.mjs": "ed4c04bfed91f8cfd77908ae66cb461e26b6e8862e623e0039300e002819cc07",
+    "published/js/scripts/validate-desktop-runtime.mjs": "e85718422382af68773f924759b2839f79d5d1e81228e379d8cbec9044def524",
+    "published/experiments/issue-56/desktop-config-electron.mjs": "d92d9e65fd42d71f1d862ce0e5341631833886e2a869a21ca12296a0a74c77d1",
+    "published/experiments/issue-56/vk-token-electron.mjs": "5a97a9a59c8e5fed8ce1c9f4672c096760e012455ce8d7acbaf57cb6c142e5fb",
+    "published/.github/workflows/desktop-release.yml": "34fc15375fb33439c722f3e3c9896c1c479155a5a1d00315c3e8859cbd3610cb",
+    "metadata.json": "bc950654b35c48c6cab94d0211f68fe306686fa94bceb5eb68019e9fb044c778"
+  }
+}

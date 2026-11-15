@@ -60,3 +60,8 @@ rows stay unfinished in [PR #57](https://github.com/link-foundation/meta-soverei
 
 Evidence: [archive](data/desktop-configuration.tar.gz),
 [hash manifest](data/desktop-configuration.tar.sha256.json).
+
+[Subsequent hosted verification](desktop-configuration-hosted.md) records the
+passing native TLS and staged runtime gates on `3a24c7a5`, preserving this
+original pending-state archive unchanged. Complete current-head acceptance
+and every remaining criterion are still required.
