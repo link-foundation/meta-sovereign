@@ -216,6 +216,12 @@ Source: vk-bot-desktop README and its configuration/runner/release entry points.
 | VD09 | Unsigned macOS operation, five desktop artifacts, checksums/provenance and installation instructions.             | [ ] Existing packaging passes; runtime/instructions audit remains.                                                                                                                                                               |
 | VD10 | Landing release links reflect actual assets and never fabricate downloads.                                        | [x] Catalogue/cache/page and public release metadata pass; all five exact-head `d34db92c` workflows pass. See [desktop landing evidence](desktop-landing-availability.md) and [hosted verification](hosted-verification-d34.md). |
 
+| VD11 | Initial friend count and acknowledged accepted-friend totals for all time, current month and current week, with scoped Lino stats and visible summaries. | [ ] Explicit pinned desktop requirements audit; implementation and verification remain. |
+| VD12 | Seed protected priority users from current outgoing requests, inspect them and clear only by explicit owner choice; normalize legacy empty/scalar lists. | [ ] Explicit pinned desktop requirements audit; implementation and verification remain. |
+| VD13 | Constrained desktop token acquisition, exact permitted OAuth redirects, token-only capture, validation and protected auto-save with truthful unsupported states. | [ ] Existing VK auth research requires desktop execution and all-interface parity verification. |
+| VD14 | Persist a redacted log for each successful or failed runner session and expose configurable verbose trigger timing without leaking credentials. | [ ] Live memory diagnostics are implemented; per-session persistence and trigger timing remain required. |
+| VD15 | Ten original configurable invitation defaults and ten birthday defaults, random frozen selection and convenient reset behavior without replacing owner choices. | [ ] Birthday defaults exist; invitation defaults and complete reset/parity verification remain. |
+
 ## Integration order and retained constraints
 
 Implement shared Q/A and policy records first, then provider execution and reviewed HH/CV workflows, then reference jobs and desktop controls. The universal React/device/storage workstreams in [PLAN.md](PLAN.md) remain separately required. No row is deferred by this ordering. Tests use isolated accounts/fixtures, actual protocol adapters and finite inputs; CI owns the full runtime/browser/platform matrices.

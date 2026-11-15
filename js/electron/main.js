@@ -14,6 +14,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { attachDesktopLifecycle } from './lifecycle.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const preload = path.join(here, 'preload.cjs');
@@ -146,7 +147,12 @@ export const createMainWindow = async ({
     },
   });
   win.once('ready-to-show', () => win.show());
-  await win.loadURL(`http://127.0.0.1:${port}/`);
+  try {
+    await win.loadURL(`http://127.0.0.1:${port}/`);
+  } catch (error) {
+    win.destroy();
+    throw error;
+  }
   return win;
 };
 
@@ -158,33 +164,36 @@ export const createMainWindow = async ({
 export const resolveDesktopStoreDir = ({ app, env = process.env } = {}) =>
   env.META_SOVEREIGN_STORE_DIR || path.join(app.getPath('userData'), 'store');
 
-export const startDesktop = async () => {
+export const startDesktop = async ({
+  electronLoader = loadElectron,
+  serverLoader = () => import('../src/server/index.js'),
+  updaterLoader = loadAutoUpdater,
+} = {}) => {
   const [{ app, BrowserWindow, nativeTheme }, { startServer }, autoUpdater] =
-    await Promise.all([
-      loadElectron(),
-      import('../src/server/index.js'),
-      loadAutoUpdater(),
-    ]);
+    await Promise.all([electronLoader(), serverLoader(), updaterLoader()]);
   const handle = await startServer({
     port: 0,
     localUi: true,
     storeDir: resolveDesktopStoreDir({ app }),
   });
+  let closing;
+  const close = () =>
+    (closing ??= Promise.resolve().then(() => handle.close()));
 
-  await app.whenReady();
-  configureAutoUpdates({ app, autoUpdater });
-  await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
-
-  app.on('activate', async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
-    }
-  });
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      handle.close().then(() => app.quit());
-    }
-  });
+  try {
+    await app.whenReady();
+    configureAutoUpdates({ app, autoUpdater });
+    return await attachDesktopLifecycle({
+      app,
+      BrowserWindow,
+      handle: { close },
+      createWindow: () =>
+        createMainWindow({ BrowserWindow, nativeTheme, port: handle.port }),
+    });
+  } catch (error) {
+    await close();
+    throw error;
+  }
 };
 
 // Packaged apps load this file as `package.json#main` with no script

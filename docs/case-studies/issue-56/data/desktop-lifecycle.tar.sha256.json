@@ -1,0 +1,33 @@
+{
+  "archive": "desktop-lifecycle.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "e0bd573484d69b5430e5c1e9d3361e50a365a83fe56c257453849b38eb9b2ef4",
+    "before/js/electron/main.js": "5e3e9c410eb4a2ec54930b60f1e5c26902967f5d09e175778e418f40c9ef4432",
+    "ci-logs/desktop-lifecycle-after.log": "27400e1c6122c0ca1486d1954ea8a67354997dd934ee7d6315d7f75d22f2f518",
+    "ci-logs/desktop-lifecycle-before.log": "8408656c644e582b275b59e3ed7951216e4e69f5915d314c7a03bb6954c02a2d",
+    "ci-logs/desktop-lifecycle-ci-jobs.json": "cd18c345a8f41cfbf856ee326a8c3ba9d0b2d65d54a03000f8459617688cdbee",
+    "ci-logs/desktop-lifecycle-deno.log": "38c1e67801c8e094d17b35b74fa5a03b3a5ae955fc6ec11f5a0ca674b9b97e46",
+    "ci-logs/desktop-lifecycle-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/desktop-lifecycle-doc-format.log": "1e0396d47f5c782f8fa65fc40a24e5424f9d582723f3a3b44678488050f3110b",
+    "ci-logs/desktop-lifecycle-duplication.log": "ecebe96772475bb77becdbae389ba205acb66a8a9705f0d24d8586a9bd359b2d",
+    "ci-logs/desktop-lifecycle-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/desktop-lifecycle-format-write.log": "fa6735140c0489d5ff15c0c3a21ce7f4ddfbdd29991caa6115292ac0ab1cf227",
+    "ci-logs/desktop-lifecycle-latest-runs.json": "3847d879100f57c9a11c595845c50fcc85461c3321844028724970730794ed93",
+    "ci-logs/desktop-lifecycle-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/desktop-lifecycle-node.log": "18996c3dffbaeef4695e552ee69e532366a8bf11fdb346c7dac4f3f8501ce6ac",
+    "ci-logs/desktop-lifecycle-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/PLAN.md": "8c1fa0a8f8358de1b63952184908eeede320569f9f85778d0932e6c1c6804946",
+    "docs/case-studies/issue-56/desktop-lifecycle.md": "f2e7f53a5f23552940b0230a7b907cc5490b552ee31b8ef5d22c4f062e63b7a2",
+    "docs/case-studies/issue-56/reference-feature-inventory.md": "39cffbcac940dd5507f6acb94865d6108cf040589c58a9b945ec6e4058380240",
+    "docs/case-studies/issue-56/vk-desktop-execution-plan.md": "e091db0b5c8288f05f7c3b8bee8586e0af0e22ebe3a766823edeb15c74fbc1e8",
+    "experiments/issue-56/__pycache__/evidence_bundle.cpython-315.pyc": "c8d465ac29ab545ee14d3bbbefb8724d174a39f651ed8e7c6f1a089a594d8ea6",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-desktop-lifecycle.py": "aa9dd0ec2f5c40175ac3178413afccf0755133e60370915c8660c29ef4c84ca7",
+    "experiments/issue-56/desktop-lifecycle-probe.mjs": "7e0aca32804839133d967d1e489b901bc23a1d73ce52e4c476d9ccebba384a2d",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/electron/lifecycle.js": "6e79fa09e8cee8615e5ebaa7536b3b3fc424eb7493e02f4b157b118f4ff29f22",
+    "js/electron/main.js": "e06847e90603c3dc7f3bc97b5cb5a179f643a56b00dd20a06aa27670315a5f06",
+    "js/tests/desktop-lifecycle.test.js": "984d01e2d1023379e45dff67c2b168710ca69ee5248153f141f24e3362ee7b3a",
+    "metadata.json": "cfabfc5c8f90ce9367c8c52c61667aace61b84c1283df22c887a66dab25e7b85"
+  }
+}

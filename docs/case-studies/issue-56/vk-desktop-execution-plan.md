@@ -7,6 +7,9 @@ until every criterion has implementation and verification evidence.
       local/remote lifecycle, SSH installer, Lino store and CLI entry point. The
       reference's remote UI produces an installation script but does not establish
       a running remote process; implement actual SSH execution and observed status.
+- [x] Map the complete pinned requirements, including missing stats, outgoing
+      priority seeding, constrained token acquisition, per-session logs and
+      invitation-default/reset requirements to explicit VD11–VD15 rows.
 - [ ] Audit automatic local dependency preparation, independent policies,
       single-window controls, theme/language, layered configuration, live redacted
       logs and all five artifact/install paths against VD01–VD09.
@@ -24,5 +27,6 @@ until every criterion has implementation and verification evidence.
 Pinned source: `konard/vk-bot-desktop` at
 `8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1`. Source blobs are retained in
 the local `vk-desktop-reference-*` research files for the checked evidence
-archive. Current first-live-history head `77ac37e3` still needs its hosted
-matrix; all 55 original unchecked inventory rows retain their requested scope.
+archive. Diagnostics head `6e2116d9` still needs its hosted matrix. The
+[desktop lifecycle correction](desktop-lifecycle.md) has finite parent/current
+evidence; all 60 unchecked inventory rows retain their requested scope.
