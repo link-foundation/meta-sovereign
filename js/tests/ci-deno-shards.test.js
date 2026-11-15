@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-test('Ubuntu and Windows Deno partitions retain the original test discovery and deadline', () => {
+test('every Deno platform retains native partitions, test discovery and deadline', () => {
   const job = parse(
     readFileSync(
       new URL('../../.github/workflows/release.yml', import.meta.url),
@@ -14,7 +14,7 @@ test('Ubuntu and Windows Deno partitions retain the original test discovery and 
     )
   ).jobs.test;
   const { matrix } = job.strategy;
-  for (const targetOS of ['ubuntu-26.04', 'windows-2025']) {
+  for (const targetOS of ['ubuntu-26.04', 'macos-26', 'windows-2025']) {
     assert.deepEqual(
       matrix.include
         .filter(({ os, runtime }) => os === targetOS && runtime === 'deno')
