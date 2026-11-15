@@ -30,8 +30,13 @@ readbacks and restoration. Two added regressions hold a write pending, reject
 another asynchronously and exercise the actual fixture against asynchronous
 native-method fakes, including foreign-origin refusal, restoration and disposal.
 Eight focused checks pass. The renderer is unchanged, so existing browser/MCP
-views still apply. Actual native and full runtime checks remain pending on the
-corrected commit; VD08 and all other unchecked requirements remain open.
+views still apply. The corrected `36ee8ba8544a6595ac2eabfb0f45413e5f198fdf`
+passes [hosted Linux job 132968648852](https://github.com/link-foundation/meta-sovereign/actions/runs/43765113926/job/132968648852).
+The retained 859-line log identifies Electron 45.3.2 at line 300 and records
+`nativeClipboard`, `ownedOriginRequired` and `foreignNavigationRefused` as true
+at line 334. The same job builds, smoke-tests and uploads the Linux app.
+Other platform and runtime checks remain pending; VD08 and all other unchecked
+requirements remain open.
 
 Evidence: [archive](data/desktop-clipboard-async.tar.gz),
 [hash manifest](data/desktop-clipboard-async.tar.sha256.json).

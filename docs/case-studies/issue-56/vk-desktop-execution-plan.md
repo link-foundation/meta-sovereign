@@ -16,7 +16,9 @@ until every criterion has implementation and verification evidence.
       The [desktop clipboard bridge](desktop-clipboard.md) now checks the owned
       main frame and origin, requires a successful native receipt and shows
       refusal. Browser fallback remains available without a desktop bridge.
-      Hosted native clipboard verification remains pending on this change.
+      Hosted native clipboard verification passes on `36ee8ba8`, including
+      asynchronous completion, actual readback and foreign-origin refusal;
+      the wider logging and exact-head platform acceptance remain required.
 - [ ] Implement remaining local/remote lifecycle and configuration gaps through
       shared CLI, Lino API and UI controls. Preserve stopped defaults and refuse a
       mode switch when the other process cannot be confirmed stopped.
