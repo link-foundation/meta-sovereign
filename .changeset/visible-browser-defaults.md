@@ -518,3 +518,5 @@ Add configurable personal VK identity replies and evidenced address preference f
 Add a disabled personal VK acquaintance reply preset with configurable formal/informal introductions, a durable per-chat daily cooldown, latest-message guards and shared CLI/Lino/UI controls.
 
 Add disabled personal VK presets for the first greeting exchange, well-being, purpose and adjacent-turn clarification, with configurable reply catalogs, durable cooldown and exact context checks before sending.
+
+Bind draft-send confirmation to an independent rendered snapshot of the destination, identity, form, text/sticker and complete question/personal-reply evidence. Refuse changed drafts before typing/outbox/provider effects, retain them for review, and preserve explicit owner edits and form overrides through both default Lino encodings.

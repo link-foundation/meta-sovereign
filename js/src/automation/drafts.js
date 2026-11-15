@@ -16,6 +16,33 @@ import {
   runRecordId,
 } from './automations.js';
 import { validateAnswerDraft } from './question-store.js';
+import { personalReplyKinds } from './contextual-replies.js';
+
+// Bind the destination, rendered content and evidence the owner reviewed.
+// Queue bookkeeping is excluded: it does not change the reviewed operation.
+export const draftConfirmationKey = (draft) =>
+  JSON.stringify([
+    draft.id,
+    draft.automation,
+    draft.source,
+    draft.chat,
+    draft.contact ?? null,
+    draft.form,
+    draft.text,
+    draft.answer ?? null,
+    draft.sticker ?? null,
+    ...personalReplyKinds.map((key) => draft[key] ?? null),
+  ]);
+
+const renderDraft = (automation, stored, { text, form } = {}) => {
+  const draft =
+    form && form !== stored.form
+      ? redraftWithForm(automation, stored, form)
+      : stored;
+  return typeof text === 'string'
+    ? { ...draft, text, ...(text.trim() ? { sticker: undefined } : {}) }
+    : draft;
+};
 
 export class ConfirmationRequiredError extends Error {
   constructor(message) {
@@ -195,6 +222,12 @@ export const draftOperations = ({
   };
 
   return {
+    async previewDraft(id, options = {}) {
+      const { draft, automation } = await pendingDraft(id);
+      return globalThis.structuredClone(
+        renderDraft(automation, draft, options)
+      );
+    },
     /** Pending drafts, optionally for one chat or one automation. */
     async drafts({ source, chat, automation } = {}) {
       const owner = automation
@@ -209,22 +242,23 @@ export const draftOperations = ({
       );
     },
     /** Send one draft after the user confirmed it (optionally edited). */
-    async sendDraft(id, { confirm = false, text, form } = {}) {
+    async sendDraft(id, { confirm = false, text, form, confirmedDraft } = {}) {
       if (!confirm) {
         throw new ConfirmationRequiredError(
           'safe mode sends one message per confirmation; pass confirm: true'
         );
       }
       const { draft: stored, automation } = await pendingDraft(id);
-      let draft =
-        form && form !== stored.form
-          ? redraftWithForm(automation, stored, form)
-          : stored;
-      if (typeof text === 'string') {
-        draft = {
-          ...draft,
-          text,
-          ...(text.trim() ? { sticker: undefined } : {}),
+      const draft = renderDraft(automation, stored, { text, form });
+      if (
+        confirmedDraft &&
+        draftConfirmationKey(draft) !== draftConfirmationKey(confirmedDraft)
+      ) {
+        return {
+          status: 'failed',
+          code: 'draft-changed',
+          error: 'The draft changed. Review it again before sending',
+          draft,
         };
       }
       const outcome = await deliver(automation, draft, { reviewed: true });

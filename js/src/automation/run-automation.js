@@ -1,24 +1,15 @@
-import { personalReplyKinds } from './contextual-replies.js';
 import { STATE_PREFIX, automationKey } from './automations.js';
 import {
   ConfirmationRequiredError,
   pendingTestDrafts,
   existingTestResult,
+  draftConfirmationKey,
 } from './drafts.js';
 
 // Only the same chat and text the user saw in the confirmation may be sent.
-const draftKey = (draft) =>
-  JSON.stringify([
-    draft.source,
-    draft.chat,
-    draft.text,
-    draft.answer?.message ?? '',
-    draft.sticker ?? null,
-    ...personalReplyKinds.map((key) => draft[key] ?? null),
-  ]);
 export const stillConfirmed = (planned, confirmed) => {
-  const ok = new Set(confirmed.map(draftKey));
-  return planned.filter((draft) => ok.has(draftKey(draft)));
+  const ok = new Set(confirmed.map(draftConfirmationKey));
+  return planned.filter((draft) => ok.has(draftConfirmationKey(draft)));
 };
 
 export const createAutomationRun =

@@ -1292,3 +1292,9 @@ Active VK04 acquaintance replies:
 - [ ] Reproduce actual-parent absence; verify bounded recognition, cooldown/recovery, current-input/policy refusal and confirmed actual mocked VK receipts. Capture native/MCP before/after evidence, preserve checked sources and inspect exact-head hosted CI. Every unchecked original criterion stays required.
 
 VK04 local verification: the actual parent lacks the preset; five focused Node/five Deno and 28 existing identity/gratitude/API compatibility checks pass. Acknowledged daily cooldown survives durable reopen and stays per chat; input, owner reply, saved action and post-admission changes refuse. Native WebKit before/after and independent four-language MCP verify saved variants, daily control, private previews and phone fit with zero sends/page exceptions and closed resources. Preserve the known MCP cache-write console diagnostics without a clean-console claim. Archive/publish and exact-head hosted checks remain required; all 78 unchecked criteria stay active.
+
+Active stored-draft confirmation correction before ordered VK06 delivery:
+
+- [x] Reproduce the request-body-only confirmation gap on actual parent `3cd0d746`: eight changed text/sticker/incoming-proof cases through both Lino encodings each deliver one mocked VK message. Keep exact parent bytes and restore sources before verification.
+- [x] Freeze an independent rendered preview, including overrides and complete evidence; compare again inside the runner before delivery. Reuse the comparison for automatic runs. Refuse changes with retained drafts, no outbox entries and no provider calls; unchanged edited content still sends once. Ten Node/ten Deno checks pass.
+- [ ] Preserve checked evidence, publish this atomic correction and inspect exact-head hosted workflows. Continue ordered VK06 delivery and every other unchecked inventory criterion; PR57 remains draft/unmerged.
