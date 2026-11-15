@@ -1,0 +1,12 @@
+{
+  "archive": "vacancy-input-order.tar.gz",
+  "files": {
+    "experiments/issue-56/vacancy-input-order.mjs": "0a62b9150462606ac68cc420020652b52ddb60aa12882d41c1d1cba6ae4a3a85",
+    "experiments/issue-56/vacancy-browser-fixture.mjs": "f24de13d6e508ef7292df4b08c47403a40ebcb9b0ea24442f0ab3c9b7bc8656a",
+    "experiments/issue-56/collect-vacancy-input-order.py": "ec41a20268a809d92239e686f38fc74e5b29929a5941149f16ef9c717eb86300",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/vacancy-input-order.md": "b8a1cd32ed5cd6b540241dff671ef219434bcd0f09ac419a51e791cee81ab510",
+    "ci-logs/vacancy-input-order-before.log": "de45ec423301cf431cfaf4f33418fd14fcc9c6f72afcffb71eae9ed1c426841e",
+    "metadata.json": "5926042f3788a098b8469f8d40066f4d939b8ba08a9e785d56136683450cdbce"
+  }
+}
