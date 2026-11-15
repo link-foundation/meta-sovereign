@@ -7,9 +7,14 @@ import {
 } from '../src/automation/vk-reengage-settings.js';
 import { createVkReengageApi } from '../src/web/vk-reengage-api.js';
 import { createVkReengageCommands } from '../src/cli/vk-reengage-commands.js';
-import { dictionaries } from '../src/web/locales/index.js';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createWirePost } from './helpers/http-wire.mjs';
+import {
+  assertReviewedVkPlan,
+  assertVkTranslations,
+  offlineVkPolicy,
+  ownedVkCommand,
+} from './helpers/vk-policy-interfaces.mjs';
 import {
   reengageServer,
   reengageAdapter,
@@ -34,21 +39,8 @@ test(
             questions: 'Owner chosen question',
             ...(kind === 'music' ? { audio: 'audio-1_23' } : {}),
           };
-          assert.equal(
-            (await post('', settings, 'https://foreign.invalid')).status,
-            403
-          );
-          assert.deepEqual(
-            (await post('', settings)).answer.settings,
-            settings
-          );
-          const { plan } = (await post('/plan', {})).answer;
+          const plan = await assertReviewedVkPlan(post, settings);
           assert.equal(plan.items[0].steps.at(-1).text, settings.questions);
-          assert.equal(
-            (await post('/run', { planId: plan.planId })).status,
-            400
-          );
-          assert.equal((await post('/run', { scheduled: true })).status, 400);
         }
       }
       assert.equal(fixture.effects.length, 0);
@@ -74,12 +66,7 @@ test(
   }
 );
 test('offline configuration and every four-language control preserve truthful server capability', async () => {
-  const store = createMemoryStore();
-  const api = createVkReengageApi({
-    get: async () => null,
-    report: async () => null,
-    local: async () => store,
-  });
+  const { store, api } = offlineVkPolicy(createVkReengageApi);
   for (const kind of reengageKinds) {
     const title = `Vk${kind[0].toUpperCase()}${kind.slice(1)}`;
     const settings = {
@@ -89,43 +76,32 @@ test('offline configuration and every four-language control preserve truthful se
     assert.deepEqual((await api[`save${title}`](settings)).settings, settings);
     assert.equal((await api[`vk${title.slice(2)}`]()).canRun, false);
     assert.equal((await api[`plan${title}`]()).ok, false);
-    for (const dictionary of Object.values(dictionaries)) {
-      for (const key of [
-        'title',
-        'hint',
-        'greeting',
-        'questions',
-        'audio',
-        'partial',
-        'manualReview',
-        'noHistory',
-        'audioMissing',
-        'delivered',
-        'run',
-        'cooldown',
-      ]) {
-        assert.ok(dictionary[`vk${title.slice(2)}.${key}`], key);
-      }
-    }
+    assertVkTranslations(`vk${title.slice(2)}`, [
+      'title',
+      'hint',
+      'greeting',
+      'questions',
+      'audio',
+      'partial',
+      'manualReview',
+      'noHistory',
+      'audioMissing',
+      'delivered',
+      'run',
+      'cooldown',
+    ]);
   }
 });
 test('foreground CLI saves independent strict settings, applies only explicit review and drains owned resources', async () => {
   for (const kind of reengageKinds) {
     const store = createMemoryStore();
     const adapter = reengageAdapter();
-    let closed = 0;
-    store.close = async () => {
-      closed++;
-    };
-    const command = createVkReengageCommands({
-      openStore: async () => store,
-      openReadOnly: async () => store,
-      createJob: () => reengageJob(kind, store, adapter),
-    })[`vk-${kind}`];
-    let answer;
-    const log = (value) => {
-      answer = JSON.parse(value);
-    };
+    const { command, log, answer, closed } = ownedVkCommand(
+      createVkReengageCommands,
+      `vk-${kind}`,
+      store,
+      () => reengageJob(kind, store, adapter)
+    );
     assert.equal(
       await command(
         {
@@ -139,12 +115,12 @@ test('foreground CLI saves independent strict settings, applies only explicit re
       0
     );
     assert.equal(await command({ _: ['plan'] }, log), 0);
-    const plan = answer.plan.planId;
+    const plan = answer().plan.planId;
     await assert.rejects(command({ _: ['run'], plan }, log), /Confirm/);
     assert.equal(adapter.effects.length, 0);
     assert.equal(await command({ _: ['run'], plan, confirm: true }, log), 0);
     assert.equal(adapter.effects.length, kind === 'music' ? 3 : 2);
     await assert.rejects(command({ _: ['save'], 'online-only': 'yes' }, log));
-    assert.equal(closed, 5);
+    assert.equal(closed(), 5);
   }
 });

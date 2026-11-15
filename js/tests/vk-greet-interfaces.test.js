@@ -4,9 +4,14 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { vkGreetSettings } from '../src/automation/vk-greet-settings.js';
 import { createVkGreetApi } from '../src/web/vk-greet-api.js';
 import { createVkGreetCommands } from '../src/cli/vk-greet-commands.js';
-import { dictionaries } from '../src/web/locales/index.js';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createWirePost } from './helpers/http-wire.mjs';
+import {
+  assertReviewedVkPlan,
+  assertVkTranslations,
+  offlineVkPolicy,
+  ownedVkCommand,
+} from './helpers/vk-policy-interfaces.mjs';
 import {
   greetServer,
   greetAdapter,
@@ -26,15 +31,8 @@ test(
           message: 'Hello, friend.',
           limit: 1,
         };
-        assert.equal(
-          (await post('', settings, 'https://foreign.invalid')).status,
-          403
-        );
-        assert.deepEqual((await post('', settings)).answer.settings, settings);
-        const { plan } = (await post('/plan', {})).answer;
+        const plan = await assertReviewedVkPlan(post, settings);
         assert.equal(plan.items[0].text, settings.message);
-        assert.equal((await post('/run', { planId: plan.planId })).status, 400);
-        assert.equal((await post('/run', { scheduled: true })).status, 400);
       }
       assert.equal(fixture.effects.length, 0);
       fixture.refuseWrites(true);
@@ -50,12 +48,7 @@ test(
 );
 
 test('offline policy stays editable without claiming provider capability; every control is translated', async () => {
-  const store = createMemoryStore();
-  const api = createVkGreetApi({
-    get: async () => null,
-    report: async () => null,
-    local: async () => store,
-  });
+  const { store, api } = offlineVkPolicy(createVkGreetApi);
   const settings = {
     ...(await vkGreetSettings.settings(store)),
     emptyOnly: true,
@@ -63,39 +56,31 @@ test('offline policy stays editable without claiming provider capability; every 
   assert.deepEqual((await api.saveVkGreet(settings)).settings, settings);
   assert.equal((await api.vkGreet()).canRun, false);
   assert.equal((await api.planVkGreet()).ok, false);
-  for (const dictionary of Object.values(dictionaries)) {
-    for (const key of [
-      'title',
-      'hint',
-      'message',
-      'onlineOnly',
-      'emptyOnly',
-      'orderByFriends',
-      'scanLimit',
-      'staleDays',
-      'cooldownDays',
-      'stickerId',
-      'runLimit',
-      'history',
-      'prompt',
-      'greeted',
-    ]) {
-      assert.equal(typeof dictionary[`vkGreet.${key}`], 'string', key);
-      assert.ok(dictionary[`vkGreet.${key}`].length, key);
-    }
-  }
+  assertVkTranslations('vkGreet', [
+    'title',
+    'hint',
+    'message',
+    'onlineOnly',
+    'emptyOnly',
+    'orderByFriends',
+    'scanLimit',
+    'staleDays',
+    'cooldownDays',
+    'stickerId',
+    'runLimit',
+    'history',
+    'prompt',
+    'greeted',
+  ]);
 });
 
 test('foreground CLI saves strict filters and closes stores on invalid input', async () => {
   const store = createMemoryStore();
-  let closed = 0;
-  store.close = async () => {
-    closed++;
-  };
-  const { 'vk-greet': command } = createVkGreetCommands({
-    openStore: async () => store,
-    openReadOnly: async () => store,
-  });
+  const { command, closed } = ownedVkCommand(
+    createVkGreetCommands,
+    'vk-greet',
+    store
+  );
   assert.equal(
     await command(
       {
@@ -117,32 +102,25 @@ test('foreground CLI saves strict filters and closes stores on invalid input', a
   ]) {
     await assert.rejects(command({ _: ['save'], ...args }, () => {}));
   }
-  assert.equal(closed, 5);
+  assert.equal(closed(), 5);
 });
 
 test('foreground CLI applies only its explicitly confirmed saved plan and drains each owned job', async () => {
   const store = createMemoryStore();
   const adapter = greetAdapter({ ids: [9] });
-  let closed = 0;
-  store.close = async () => {
-    closed++;
-  };
-  const { 'vk-greet': command } = createVkGreetCommands({
-    openStore: async () => store,
-    openReadOnly: async () => store,
-    createJob: () => greetJob(store, adapter),
-  });
-  let answer;
-  const log = (value) => {
-    answer = JSON.parse(value);
-  };
+  const { command, closed, answer, log } = ownedVkCommand(
+    createVkGreetCommands,
+    'vk-greet',
+    store,
+    () => greetJob(store, adapter)
+  );
   assert.equal(await command({ _: ['plan'] }, log), 0);
-  const plan = answer.plan.planId;
+  const plan = answer().plan.planId;
   assert.equal(adapter.effects.length, 0);
   await assert.rejects(command({ _: ['run'], plan }, log), /Confirm/);
   assert.equal(adapter.effects.length, 0);
   assert.equal(await command({ _: ['run'], plan, confirm: true }, log), 0);
-  assert.equal(answer.last.status, 'confirmed');
+  assert.equal(answer().last.status, 'confirmed');
   assert.equal(adapter.effects.length, 1);
-  assert.equal(closed, 3);
+  assert.equal(closed(), 3);
 });
