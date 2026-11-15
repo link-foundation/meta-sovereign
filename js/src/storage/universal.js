@@ -158,13 +158,13 @@ export const createMemoryStore = ({
  * Put a batch through `putMany` when the store offers it (file-backed
  * stores then write once), else one `put` at a time.
  */
-export const putAll = async (store, links) => {
+export const putAll = async (store, links, options) => {
   if (typeof store.putMany === 'function') {
-    await store.putMany(links);
+    await store.putMany(links, options);
     return links.length;
   }
   for (const link of links) {
-    await store.put(link);
+    await store.put(link, options);
   }
   return links.length;
 };

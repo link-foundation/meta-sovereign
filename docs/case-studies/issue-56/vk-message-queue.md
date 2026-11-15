@@ -69,9 +69,10 @@ threshold pass. The [checked archive](data/vk-queue.tar.gz) and
 [hash manifest](data/vk-queue.tar.sha256.json) retain source/parent bytes, pinned
 references, finite logs and ten PNG hashes. Exact-head hosted verification is
 still required. VK23's outgoing-script mapping is covered here, but neither VK23
-nor VK26 is accepted yet. In particular, the pinned runner loads a peer's newest
-100 messages on its first live update; the current general history backfill
-must still be checked against that before-live-trigger requirement. All other
+nor VK26 is accepted yet. [First-live history](vk-live-history.md) now establishes
+the native 100-message context before the incoming trigger, independently of
+periodic backfill. [The foreground lifecycle correction](ci-vk-queue-lifecycle.md)
+retains four actual hosted CLI regressions and focused passing recovery. All other
 unchecked criteria remain required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57), which stays
 draft and unmerged.

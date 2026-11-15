@@ -564,3 +564,5 @@ Add account-scoped VK history, conversation, friend, profile and friend-count ca
 Add account-scoped acknowledged VK sticker catalogs, native pack/keyword and usable greeting-ID selection, received attachment filtering and bounded metadata JSON export. Share CLI, both Lino forms, offline inspection and four-language Connections/collection controls; retain prior snapshots on incomplete reads and drain owned catalog work at shutdown.
 
 Allow later foreground commands to acquire a fresh shared VK queue after the previous owner fully drains. Preserve stopped admission during close, FIFO ordering and explicit reviewed sends without replaying persisted work.
+
+Load each live VK peer's native 100-message context before its first incoming automation event. Keep historical messages from triggering replies, retain existing edits and exact partial coverage, reject incomplete or unacknowledged windows, and preserve credential, cursor and shutdown ownership.

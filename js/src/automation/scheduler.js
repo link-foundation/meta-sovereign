@@ -1,4 +1,5 @@
 import { messageTime } from '../crm/message-time.js';
+import { historicalMutation } from '../storage/mutation.js';
 /** Owned, serialized trigger admission; effects remain reviewed safe drafts. */
 import { clearInterval, setInterval } from 'node:timers';
 import { createStoreQueue } from '../storage/serialized.js';
@@ -15,6 +16,10 @@ import {
 } from './automations.js';
 
 const serialize = createStoreQueue();
+const liveMessageMutation = (event) =>
+  event?.type === 'put' &&
+  event.link?.id?.startsWith('msg:') &&
+  !event[historicalMutation];
 const enabledAutomations = async (store) =>
   (await store.query((row) => row?.id?.startsWith(AUTOMATION_PREFIX)))
     .map((row) => {
@@ -159,7 +164,7 @@ export const createAutomationScheduler = ({
         if (typeof id === 'string' && id.startsWith(AUTOMATION_PREFIX)) {
           known = null;
         }
-        if (event?.type === 'put' && event.link?.id?.startsWith('msg:')) {
+        if (liveMessageMutation(event)) {
           safely(onMessage(event.link));
         }
       });

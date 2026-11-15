@@ -55,7 +55,7 @@ const checkedSingle = (kind, peerId, rows) => {
   }
   return { items: rows, total: rows.length, complete: true };
 };
-const checkedRows = (request, raw, offset) => {
+export const checkedVkCachePage = (request, raw, offset) => {
   const { kind, peerId } = request;
   const rows = kind === 'profile' ? raw : raw?.items;
   if (kind === 'friend-count') {
@@ -102,7 +102,7 @@ export const readVkCachePage = async (live, options, request, offset) => {
     paramsFor(request, offset),
     options.token
   );
-  return checkedRows(request, raw, offset);
+  return checkedVkCachePage(request, raw, offset);
 };
 export const cachePageHash = (page) => evidenceHash(page);
 export const verifyCachePage = async (page, ref) => {

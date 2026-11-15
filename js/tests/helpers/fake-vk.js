@@ -57,6 +57,7 @@ export const createFakeVk = ({ methods = {}, poll = null } = {}) => {
 // A user token's usual methods; `extra` overrides or adds.
 export const userMethods = (extra = {}) => ({
   'users.get': () => [{ id: 1, first_name: 'Me', last_name: 'Self' }],
+  'messages.getHistory': () => ({ count: 0, items: [] }),
   'messages.getLongPollServer': () => ({
     key: 'k1',
     server: 'lp.vk.fake/im1',

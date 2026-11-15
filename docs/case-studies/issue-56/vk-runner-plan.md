@@ -24,12 +24,14 @@ queue and public controls below remain required.
       the production diff, commit/push only the prepared branch and inspect all
       exact-head hosted workflows. Audit VK23 outgoing-message mapping before
       accepting either row. PR57 stays draft/unmerged until the full issue passes.
-- [ ] Load the newest native peer history before its first live trigger, including
+- [x] Load the newest native peer history before its first live trigger, including
       a peer absent from the separate periodic backfill. Preserve cursor/write
       ownership, historical-trigger suppression and native update/edit handling.
 
 [Queue implementation and local evidence](vk-message-queue.md): shared FIFO,
 opt-in read/typing/text/sticker delays, foreground CLI, both Lino forms and four
 languages. Forty-eight Node/Deno checks, actual parent failure, one native
-browser and independent MCP pass. Exact-head hosted verification and first-live
-peer history remain required; no persisted work resumes itself.
+browser and independent MCP pass. [First-live history](vk-live-history.md) now
+passes 79 focused Node/Deno checks; [foreground lifecycle](ci-vk-queue-lifecycle.md)
+corrects the published queue's closed-owner regression. Exact-head hosted
+verification remains required; no persisted work resumes itself.

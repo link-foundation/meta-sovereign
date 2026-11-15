@@ -37,6 +37,12 @@ planning finished; it is not a delivery receipt. Failed saves retain the last
 acknowledged settings and expose a retryable error. Offline controls save local
 configuration and inspect local records; they do not execute provider work.
 
+On a peer's first live update, the connected inbox reads its newest 100 native
+messages before evaluating incoming automation. Historical context does not
+trigger replies. An incomplete or failed history read holds the event and its
+cursor for retry; saved coverage reports whether more native history exists.
+Reopening the inbox refreshes this bounded context and preserves stored edits.
+
 ```sh
 meta-sovereign vk-send-queue
 meta-sovereign vk-send-queue --enabled=true --mark-read=true --typing=true

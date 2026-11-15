@@ -43,12 +43,15 @@ const enabledStore = async () => {
 const collected = async (store) => (await listVkAttachments(store)).items;
 const importMessages = (store, ...messages) =>
   importInto(store, 'vk', archive(...messages));
-const refusalStore = (store) => ({
+const refusalStore = (store, shouldRefuse = async () => true) => ({
   ...store,
   flush: async () => {
-    throw Object.assign(new Error('Metadata flush refused'), {
-      code: 'STORE_WRITE_FAILED',
-    });
+    if (await shouldRefuse()) {
+      throw Object.assign(new Error('Metadata flush refused'), {
+        code: 'STORE_WRITE_FAILED',
+      });
+    }
+    await store.flush?.();
   },
 });
 
@@ -287,7 +290,9 @@ test(
         requestsPerSecond: 1000,
       });
     await assert.rejects(
-      inbox(refusalStore(store)).step({ wait: 0 }),
+      inbox(
+        refusalStore(store, async () => Boolean(await store.get('msg:vk:77')))
+      ).step({ wait: 0 }),
       /Metadata flush refused/u
     );
     assert.equal((await loadPullState(store, 'vk')).ts, undefined);

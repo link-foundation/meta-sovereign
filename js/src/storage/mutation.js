@@ -3,6 +3,10 @@
 export const replicatedMutation = Symbol.for(
   'meta-sovereign.replicated-mutation'
 );
+// A fetched context window is observable data, not a new incoming event.
+export const historicalMutation = Symbol.for(
+  'meta-sovereign.historical-mutation'
+);
 
 // A receiver reserves forwarding when this exact mutation reaches storage,
 // including a delete of an absent record. Wrappers forward the options to the
@@ -17,6 +21,7 @@ export const mutationEvent = (type, link, options) => ({
   type,
   link,
   ...(options?.[replicatedMutation] ? { [replicatedMutation]: true } : {}),
+  ...(options?.[historicalMutation] ? { [historicalMutation]: true } : {}),
 });
 
 // Atomic updates run this synchronous callback at mutation admission, after

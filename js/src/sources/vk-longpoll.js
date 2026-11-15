@@ -86,6 +86,13 @@ const serverOf = (call, state) =>
     ? call('groups.getLongPollServer', { group_id: state.groupId })
     : call('messages.getLongPollServer', { need_pts: 1, lp_version: 3 });
 
+const resumedSession = async (live, state, current) => {
+  const session = current ?? (await serverOf(live.call, state));
+  return state.ts !== undefined && state.ts !== null && !session.resumed
+    ? { ...session, ts: state.ts, resumed: true }
+    : session;
+};
+
 export const pollUrl = (state, session, wait) => {
   const base = /^https?:\/\//.test(session.server)
     ? session.server
@@ -205,6 +212,24 @@ const failureDelay = (error, fails) =>
     ? 5 * 60_000
     : Math.min(5 * 60_000, 5000 * 2 ** Math.min(fails - 1, 6));
 
+const recordFailure = async (store, error, log, now) => {
+  log?.({
+    level: 'warn',
+    event: 'vk_longpoll_failed',
+    code: error.code ?? error.vkCode ?? null,
+  });
+  if (error.code === 'captcha') {
+    // Only the user can solve it in the app; the loop reports and waits.
+    await savePullState(store, SOURCE, {
+      lastError: {
+        code: 'captcha',
+        at: new Date(now()).toISOString(),
+        needsAttention: true,
+      },
+    }).catch(() => {});
+  }
+};
+
 /**
  * `context()` -> `{ state, live }` (the saved cursor and the VK client);
  * `catchUp(live)` reads the conversations once (after lost events);
@@ -223,8 +248,11 @@ export const createVkLongPoll = ({
   idleMs = 30_000,
   // The first poll waits a little after the server starts listening.
   startDelayMs = 5000,
+  beforeMessages = async () => {},
+  assertCurrent = async () => {},
 }) => {
   let session = null;
+  let sessionClient = null;
   let looping = false;
   // Each start's loop; a stopped one ends even if another has started.
   let generation = 0;
@@ -278,16 +306,20 @@ export const createVkLongPoll = ({
   const step = async ({ wait: seconds = wait } = {}) => {
     abort = new AbortController();
     const { state, live } = await context();
-    session ??= await serverOf(live.call, state);
-    if (state.ts !== undefined && state.ts !== null && !session.resumed) {
-      session = { ...session, ts: state.ts, resumed: true };
-    }
+    session = await resumedSession(
+      live,
+      state,
+      sessionClient === live ? session : null
+    );
+    sessionClient = live;
     const answer = await request(state, seconds);
+    await assertCurrent(live);
     if (answer.failed) {
       const failed = Number(answer.failed);
       if (await recover(failed, answer, state, live)) {
         await catchUp(live);
       }
+      await assertCurrent(live);
       await savePullState(store, SOURCE, { ts: String(session.ts) });
       return { ok: true, failed, imported: 0 };
     }
@@ -295,8 +327,11 @@ export const createVkLongPoll = ({
     const read = state.mode === 'community' ? communityBatch : userBatch;
     const batch = read(updates, now());
     const links = await linksOfBatch(live, batch);
+    await beforeMessages(live, links, state);
+    await assertCurrent(live);
     await storeSourceMessages(store, SOURCE, stamp(links));
     await putAll(store, batch.typing);
+    await assertCurrent(live);
     // The cursor moves only now that the batch is stored.
     await savePullState(store, SOURCE, { ts: String(answer.ts) });
     session = { ...session, ts: answer.ts };
@@ -326,22 +361,7 @@ export const createVkLongPoll = ({
         }
         fails += 1;
         session = null;
-        log?.({
-          level: 'warn',
-          event: 'vk_longpoll_failed',
-          code: error.code ?? error.vkCode ?? null,
-        });
-        if (error.code === 'captcha') {
-          // Only the user can solve it, in the app; this loop just waits
-          // and says so (R-Z20).
-          await savePullState(store, SOURCE, {
-            lastError: {
-              code: 'captcha',
-              at: new Date(now()).toISOString(),
-              needsAttention: true,
-            },
-          }).catch(() => {});
-        }
+        await recordFailure(store, error, log, now);
         await sleep(failureDelay(error, fails));
       }
     }
