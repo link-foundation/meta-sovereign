@@ -1,0 +1,32 @@
+{
+  "archive": "ci-preset-catalog.tar.gz",
+  "files": {
+    "before/js/src/automation/contextual-replies.js": "9cd980dfc7f3a230491e792bdcc798747562b522176f7d519bcc72da82ee14df",
+    "before/js/tests/automations-server.test.js": "3f34c433e0e607fc711781821a3f1638e799fe605dfe5f0731af43969cfb52d1",
+    "before/js/tests/automations-view.test.js": "d2459d2f7f2aefee09391c3cc52f00734bd26f8437a00e4a07a5d27bb8e8f649",
+    "ci-logs/ci-corrections-deno.log": "6b3172c397e7c475ef561000b56ea048282a51c8fc547ce2cc999364190bb699",
+    "ci-logs/ci-corrections-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-corrections-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-corrections-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-corrections-node.log": "ad1e506949e47c3cdb7f568e6e6619ba6c96c6f1ba0696e13f20d611d2bd6b16",
+    "ci-logs/ci-corrections-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/e386-132708918027.log": "3c69b8bbb2447f02ffb4dc5cd17ff4815b4c70577233a3544a589c701debb69b",
+    "ci-logs/e386-132708918028.log": "32359721ec5e19117c92648c9a23133160f802067fe74f59b8bf69bdf3349d41",
+    "ci-logs/e386-132708918034.log": "5f2ab6bb06e637756c33c7bd04424c7916a7c2503770f774737e1aa25167802b",
+    "ci-logs/e386-132708918116.log": "956fc1f3011cd951e6e4873e381b52d8b03fc2aaa699f03733ebc4ee717860ce",
+    "ci-logs/e386-132708918156.log": "3c327e4e58b1640179065b46f2d5011841ea4ae7939fcf6d55890fb4ff56d7db",
+    "ci-logs/e386-132708918177.log": "5fa913399ed8b98eb47d1c2270ed64b0ab0e7d7391a7728cb80001006ad948da",
+    "ci-logs/e386-132708918184.log": "bdc766a554f5e1e43ad07ac645255bec8474fddcbc4a47cbbd4c50a17684a86a",
+    "ci-logs/e386-all-runs-current.json": "2deb5124653d4bfc55329c3ab519310bf5b3f94d41ee379b9b88929b69edcc51",
+    "ci-logs/e386-checks-current.json": "aecc35060199e9e6f7770b7c8e9cc1b0c17706e7e7e80485c8f7a7c936ea4946",
+    "ci-logs/preset-catalog-before.log": "efdca8ac70b0d7664c86648f74ecbd701e8cd49aee174dde465b4803c8a85ef6",
+    "docs/case-studies/issue-56/ci-preset-catalog.md": "7911476041e6c2459c7a3b6a98ee0823d182272f3827c0111b3762b85d09e9db",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-corrections.py": "b8d6bd6a9b2d23240bb09346ae2d1d6ba945669e09761e8681d0f4e4ba09ae68",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/src/automation/contextual-replies.js": "45f3636707485a0b3591697a12d64864f561f263e9f558b5288bf1c8ab73b25b",
+    "js/tests/automations-server.test.js": "26d71ea5edbeee8691b67836996f5a272e2e677224848b0ea9943b6ce3f2e5d6",
+    "js/tests/automations-view.test.js": "d2459d2f7f2aefee09391c3cc52f00734bd26f8437a00e4a07a5d27bb8e8f649",
+    "metadata.json": "1b727a8899c33b3717b9941bb5badf0352b2bcb2fbca1e5394b3e796cdc46ff3"
+  }
+}

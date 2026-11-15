@@ -206,7 +206,7 @@ export const contextualReplyPresets = () =>
     [
       'engagement',
       'Introduce yourself after a negative acquaintance answer',
-      'Review a VK sticker followed by your introduction after a negative answer to the adjacent previous-acquaintance question.',
+      'Review a sticker followed by your introduction after a negative answer to “Have we talked before?” in a personal VK chat.',
       'Рад познакомиться. Расскажи о себе?',
       'Рад познакомиться. Расскажите о себе?',
     ],
