@@ -47,10 +47,29 @@ export const wallAttachments = (value) =>
   vkNativeAttachments(
     value.trim() ? value.split(',').map((s) => s.trim()) : []
   );
+// Original opt-in invitation variants; each retains the reviewable marker.
+export const wallMessages = [
+  'Add me as a friend if you would like to talk.',
+  'Add me as a friend to share ideas and interests.',
+  'Add me as a friend if you enjoy meeting new people.',
+  'Add me as a friend for a friendly conversation.',
+  'Add me as a friend if we have something in common.',
+  'Add me as a friend to keep in touch.',
+  'Add me as a friend if you would like to exchange recommendations.',
+  'Add me as a friend to connect beyond this community.',
+  'Add me as a friend if you would like to get acquainted.',
+  'Add me as a friend and say hello when it suits you.',
+];
+const messageDefaults = {
+  messages: wallMessages.join('\n'),
+  marker: 'Add me as a friend',
+  restrictedMessage: wallMessages[0],
+};
 export const wallPolicy = createVkPersonalSettings('wall', {
   fields: wallFields,
   textFields: wallTextFields,
   booleans: wallBooleans,
+  messageDefaults,
   upgrade: (input) => ({
     randomAttachment: false,
     holdAnyVisible: false,
@@ -62,11 +81,9 @@ export const wallPolicy = createVkPersonalSettings('wall', {
     limit: 10,
     cooldownDays: 1,
     communities: '',
-    messages: 'Add me as a friend if you would like to talk.',
-    marker: 'Add me as a friend',
+    ...messageDefaults,
     attachments: '',
     restrictedCommunities: '',
-    restrictedMessage: 'Add me as a friend if you would like to talk.',
     replaceOwned: false,
     activeAvatar: false,
     randomAttachment: false,

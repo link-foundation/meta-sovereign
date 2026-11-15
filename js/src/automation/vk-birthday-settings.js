@@ -56,6 +56,7 @@ export const vkBirthdaySettings = createVkPersonalSettings('birthday', {
   fields: birthdayFields,
   textFields: birthdayTextFields,
   booleans: ['onlineOnly'],
+  messageDefaults: { messages: birthdayMessages.join('\n') },
   defaults: {
     enabled: false,
     everyMinutes: 60,

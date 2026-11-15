@@ -7,6 +7,7 @@ import {
   friendPriorityActions,
 } from './vk-friend-priority.js';
 import { useAcknowledgedResource } from './use-acknowledged-resource.js';
+import { VkMessageDefaults } from './vk-message-defaults.js';
 import {
   FriendAcceptanceChoice,
   FriendQuotaSummary,
@@ -51,6 +52,7 @@ const FriendSettings = ({
   name,
   priorityVersion,
   priorityActions,
+  messageDefaults,
 }) => {
   const t = useT();
   const [draft, setDraft] = useState({});
@@ -109,6 +111,17 @@ const FriendSettings = ({
         }),
       ])
     ),
+    messageDefaults
+      ? el(VkMessageDefaults, {
+          key: 'message-defaults',
+          name,
+          defaults: messageDefaults,
+          settings,
+          draft,
+          disabled,
+          replace: (patch) => setDraft((before) => ({ ...before, ...patch })),
+        })
+      : null,
     ...booleanFields.map((key) =>
       el('label', { key, className: 'row' }, [
         el('input', {
@@ -297,6 +310,7 @@ export const VkFriendPolicy = ({
           prefix,
           name,
           priorityVersion,
+          messageDefaults: data.messageDefaults,
           priorityActions: friendPriorityActions(resource, data, editPriority),
         })
       : null,

@@ -572,3 +572,5 @@ Add a bounded redacted live server log through CLI, both default Lino transports
 Desktop Quit and startup failure now drain their owned server, and overlapping activation shares one window.
 
 Seed friend priorities from a complete, account-checked outgoing request list, preserving owner IDs. Add explicit acknowledged clearing and normalize legacy saved empty/singleton lists through the shared CLI, Lino API and translated UI.
+
+Provide ten original invitation defaults alongside the ten birthday defaults, preserving saved owner text. Expose the catalogs through shared CLI/API/offline status and add translated draft reset with undo before explicit Save.

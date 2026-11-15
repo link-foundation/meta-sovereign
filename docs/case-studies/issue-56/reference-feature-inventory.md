@@ -220,7 +220,7 @@ Source: vk-bot-desktop README and its configuration/runner/release entry points.
 | VD12 | Seed protected priority users from current outgoing requests, inspect them and clear only by explicit owner choice; normalize legacy empty/scalar lists. | [ ] [Focused parent/current, Node/Deno, native and MCP evidence](vk-friend-priority.md); exact-head hosted verification remains required. |
 | VD13 | Constrained desktop token acquisition, exact permitted OAuth redirects, token-only capture, validation and protected auto-save with truthful unsupported states. | [ ] Existing VK auth research requires desktop execution and all-interface parity verification. |
 | VD14 | Persist a redacted log for each successful or failed runner session and expose configurable verbose trigger timing without leaking credentials. | [ ] Live memory diagnostics are implemented; per-session persistence and trigger timing remain required. |
-| VD15 | Ten original configurable invitation defaults and ten birthday defaults, random frozen selection and convenient reset behavior without replacing owner choices. | [ ] Birthday defaults exist; invitation defaults and complete reset/parity verification remain. |
+| VD15 | Ten original configurable invitation defaults and ten birthday defaults, random frozen selection and convenient reset behavior without replacing owner choices. | [ ] [Parent regression, Node/Deno and native/MCP evidence](vk-message-defaults.md); exact-head hosted verification remains required. |
 
 ## Integration order and retained constraints
 

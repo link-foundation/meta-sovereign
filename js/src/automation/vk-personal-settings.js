@@ -53,6 +53,9 @@ export const createVkPersonalSettings = (name, spec) => {
     return {
       ok: true,
       settings: await settings(store),
+      ...(spec.messageDefaults
+        ? { messageDefaults: { ...spec.messageDefaults } }
+        : {}),
       plan: await store.get(keys.plan),
       last: last
         ? {
