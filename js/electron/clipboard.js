@@ -7,7 +7,7 @@ export const attachClipboard = ({ ipcMain, clipboard, contents, origin }) => {
     return () => {};
   }
   let active = true;
-  ipcMain.handle(CLIPBOARD_WRITE_CHANNEL, (event, value) => {
+  ipcMain.handle(CLIPBOARD_WRITE_CHANNEL, async (event, value) => {
     try {
       if (
         !active ||
@@ -20,7 +20,7 @@ export const attachClipboard = ({ ipcMain, clipboard, contents, origin }) => {
       ) {
         return { ok: false };
       }
-      clipboard.writeText(value);
+      await clipboard.writeText(value);
       return { ok: true };
     } catch {
       return { ok: false };

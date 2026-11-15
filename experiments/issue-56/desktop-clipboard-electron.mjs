@@ -19,7 +19,7 @@ export const verifyNativeDesktopClipboard = async ({
   let window;
   let dispose;
   try {
-    previous = clipboard.readText();
+    previous = await clipboard.readText();
     phase = 'listen';
     await new Promise((resolve, reject) => {
       server.once('error', reject);
@@ -63,7 +63,7 @@ export const verifyNativeDesktopClipboard = async ({
     );
     assert.deepEqual(receipt, { ok: true });
     phase = 'owned-readback';
-    assert.equal(clipboard.readText(), text);
+    assert.equal(await clipboard.readText(), text);
     phase = 'load-foreign';
     await window.loadURL('data:text/html,foreign%20fixture');
     phase = 'foreign-preload';
@@ -78,7 +78,7 @@ export const verifyNativeDesktopClipboard = async ({
       "globalThis.metaSovereignShell.copyText('refused')"
     );
     assert.deepEqual(refused, { ok: false });
-    assert.equal(clipboard.readText(), text);
+    assert.equal(await clipboard.readText(), text);
     return {
       nativeClipboard: true,
       ownedOriginRequired: true,
@@ -96,7 +96,7 @@ export const verifyNativeDesktopClipboard = async ({
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
     if (previous !== undefined) {
-      clipboard.writeText(previous);
+      await clipboard.writeText(previous);
     }
   }
 };

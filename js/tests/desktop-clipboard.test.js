@@ -10,6 +10,7 @@ import {
 } from '../electron/clipboard.js';
 import { createMainWindow } from '../electron/main.js';
 import { writeClipboardText } from '../src/web/clipboard-write.js';
+import { verifyNativeDesktopClipboard } from '../../experiments/issue-56/desktop-clipboard-electron.mjs';
 
 const fixture = () => {
   let handler;
@@ -45,19 +46,22 @@ const fixture = () => {
 test(
   'desktop clipboard accepts only its owned live main frame and drains its handler',
   { timeout: 5000 },
-  () => {
+  async () => {
     const f = fixture();
     const dispose = attachClipboard({ ...f, origin: 'http://127.0.0.1:1234' });
-    assert.deepEqual(f.invoke(f.event, 'redacted visible log\nsecond line'), {
-      ok: true,
-    });
+    assert.deepEqual(
+      await f.invoke(f.event, 'redacted visible log\nsecond line'),
+      {
+        ok: true,
+      }
+    );
     assert.deepEqual(f.writes, ['redacted visible log\nsecond line']);
     for (const event of [
       { ...f.event, sender: {} },
       { ...f.event, senderFrame: { url: f.contents.mainFrame.url } },
       {},
     ]) {
-      assert.deepEqual(f.invoke(event, 'refused'), { ok: false });
+      assert.deepEqual(await f.invoke(event, 'refused'), { ok: false });
     }
     for (const url of [
       'https://foreign.invalid/',
@@ -66,7 +70,7 @@ test(
       'invalid',
     ]) {
       f.contents.mainFrame.url = url;
-      assert.deepEqual(f.invoke(f.event, 'refused'), { ok: false });
+      assert.deepEqual(await f.invoke(f.event, 'refused'), { ok: false });
     }
     f.contents.mainFrame.url = 'http://127.0.0.1:1234/';
     for (const text of [
@@ -75,15 +79,15 @@ test(
       42,
       'x'.repeat(MAX_CLIPBOARD_TEXT + 1),
     ]) {
-      assert.deepEqual(f.invoke(f.event, text), { ok: false });
+      assert.deepEqual(await f.invoke(f.event, text), { ok: false });
     }
     f.contents.isDestroyed = () => true;
-    assert.deepEqual(f.invoke(f.event, 'refused'), { ok: false });
+    assert.deepEqual(await f.invoke(f.event, 'refused'), { ok: false });
     f.contents.isDestroyed = () => false;
     dispose();
     dispose();
     assert.equal(f.removed(), 1);
-    assert.deepEqual(f.invoke(f.event, 'refused'), { ok: false });
+    assert.deepEqual(await f.invoke(f.event, 'refused'), { ok: false });
     assert.equal(f.writes.length, 1);
   }
 );
@@ -91,13 +95,15 @@ test(
 test(
   'native clipboard refusal has no successful receipt or sensitive diagnostics',
   { timeout: 5000 },
-  () => {
+  async () => {
     const f = fixture();
     f.clipboard.writeText = () => {
       throw new Error('fixture_private_value');
     };
     attachClipboard({ ...f, origin: 'http://127.0.0.1:1234' });
-    assert.deepEqual(f.invoke(f.event, 'fixture_private_value'), { ok: false });
+    assert.deepEqual(await f.invoke(f.event, 'fixture_private_value'), {
+      ok: false,
+    });
   }
 );
 
@@ -194,7 +200,9 @@ test(
           this.webContents = f.contents;
         }
         async loadURL() {
-          assert.deepEqual(f.invoke(f.event, 'during load'), { ok: true });
+          assert.deepEqual(await f.invoke(f.event, 'during load'), {
+            ok: true,
+          });
           if (failed) {
             throw new Error('fixture failed load');
           }
@@ -215,7 +223,111 @@ test(
         window.destroy();
       }
       assert.equal(f.removed(), 1);
-      assert.deepEqual(f.invoke(f.event, 'after close'), { ok: false });
+      assert.deepEqual(await f.invoke(f.event, 'after close'), { ok: false });
     }
+  }
+);
+
+// Electron 45 returns Promises; a receipt must follow their settlement.
+test(
+  'native clipboard waits for asynchronous completion and acknowledges rejection',
+  { timeout: 5000 },
+  async () => {
+    const f = fixture();
+    let resolve;
+    const write = new Promise((done) => {
+      resolve = done;
+    });
+    f.clipboard.writeText = () => write;
+    attachClipboard({ ...f, origin: 'http://127.0.0.1:1234' });
+    let settled = false;
+    const receipt = Promise.resolve(f.invoke(f.event, 'visible')).then(
+      (answer) => {
+        settled = true;
+        return answer;
+      }
+    );
+    await Promise.resolve();
+    assert.equal(
+      settled,
+      false,
+      'no successful receipt before native completion'
+    );
+    resolve();
+    assert.deepEqual(await receipt, { ok: true });
+    f.clipboard.writeText = async () => {
+      throw new Error('fixture_private_value');
+    };
+    assert.deepEqual(await f.invoke(f.event, 'visible'), { ok: false });
+  }
+);
+
+test(
+  'native fixture awaits readback and restores an asynchronous clipboard',
+  { timeout: 5000 },
+  async () => {
+    let text = 'previous synthetic clipboard';
+    let handler;
+    const ipcMain = {
+      handle: (_channel, callback) => {
+        handler = callback;
+      },
+      removeHandler: () => {
+        handler = undefined;
+      },
+    };
+    const clipboard = {
+      readText: async () => text,
+      writeText: async (value) => {
+        assert.equal(typeof value, 'string');
+        text = value;
+      },
+    };
+    class Window {
+      constructor() {
+        this.destroyed = false;
+        const mainFrame = { url: '' };
+        this.webContents = {
+          mainFrame,
+          isDestroyed: () => this.destroyed,
+          on() {},
+          executeJavaScript: (code) =>
+            runInNewContext(code, {
+              globalThis: {
+                metaSovereignShell: {
+                  copyText: (value) =>
+                    handler(
+                      { sender: this.webContents, senderFrame: mainFrame },
+                      value
+                    ),
+                },
+              },
+            }),
+        };
+      }
+      async loadURL(url) {
+        this.webContents.mainFrame.url = url;
+      }
+      isDestroyed() {
+        return this.destroyed;
+      }
+      destroy() {
+        this.destroyed = true;
+      }
+    }
+    assert.deepEqual(
+      await verifyNativeDesktopClipboard({
+        BrowserWindow: Window,
+        ipcMain,
+        clipboard,
+      }),
+      {
+        nativeClipboard: true,
+        ownedOriginRequired: true,
+        foreignNavigationRefused: true,
+      }
+    );
+    assert.equal(text, 'previous synthetic clipboard');
+    assert.equal(handler, undefined);
   }
 );

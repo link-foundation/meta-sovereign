@@ -12,7 +12,7 @@ one owned WebKit fixture. No provider account or user server is involved.
 The sandboxed preload now exposes one write-only invocation. Main accepts
 bounded text only from its live owned main frame at the app's exact loopback
 origin. Another window, subframe, origin, invalid input or closed window gets
-`{ok:false}`. Main returns success after the synchronous native write and
+`{ok:false}`. Main returns success after the awaited native write and
 removes its handler when the window closes or loading fails. The renderer
 requires an explicit successful receipt; refusal keeps the existing translated
 manual-copy instruction. The browser path remains available when a desktop
@@ -63,3 +63,7 @@ After:
 
 Evidence: [archive](data/desktop-clipboard.tar.gz),
 [hash manifest](data/desktop-clipboard.tar.sha256.json).
+
+The first hosted native check exposed an asynchronous clipboard API mismatch.
+The [compatibility follow-up](desktop-clipboard-async.md) retains the exact
+failure and the correction; the original archive preserves the first draft.
