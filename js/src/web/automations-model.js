@@ -202,7 +202,7 @@ export const fromForm = (form, base = {}) => ({
           ),
         }
       : {}),
-    ...(form.actionKind === 'reply-gratitude'
+    ...(['reply-gratitude', 'reply-engagement'].includes(form.actionKind)
       ? {
           preferSticker: form.preferSticker,
           stickerIds: csv(form.gratitudeStickers),

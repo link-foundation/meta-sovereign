@@ -3,8 +3,8 @@ import {
   ConfirmationRequiredError,
   pendingTestDrafts,
   existingTestResult,
-  draftConfirmationKey,
 } from './drafts.js';
+import { draftConfirmationKey } from './draft-confirmation.js';
 
 // Only the same chat and text the user saw in the confirmation may be sent.
 export const stillConfirmed = (planned, confirmed) => {

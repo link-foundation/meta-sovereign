@@ -71,9 +71,9 @@ export const captureVkAutomationLayouts = async (
   prefix
 ) => {
   for (const phone of [false, true]) {
-    if (phone) {
-      await page.setViewportSize({ width: 390, height: 844 });
-    }
+    await page.setViewportSize(
+      phone ? { width: 390, height: 844 } : { width: 1180, height: 950 }
+    );
     await target.scrollIntoViewIfNeeded();
     await assertViewportFits(page);
     if (directory) {

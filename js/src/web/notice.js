@@ -36,7 +36,7 @@ export const Notice = ({ notice, labels, dismiss }) => {
       el(
         'span',
         { key: 'text' },
-        t(labels[notice.kind] ?? labels.failed, {
+        t(notice.messageKey ?? labels[notice.kind] ?? labels.failed, {
           count: notice.count ?? 0,
           name: notice.name ?? '',
           error: notice.error ?? '',

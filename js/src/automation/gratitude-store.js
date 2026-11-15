@@ -13,10 +13,11 @@ import { acquaintanceMessageReason } from './acquaintance.js';
 import { greetingDestinationReason } from '../greetings/plan.js';
 import { messageTime } from '../crm/message-time.js';
 import { editId, normalizeAutomation, withEdit } from './automations.js';
+import { matchesVkSequenceReceipt } from './vk-sequence-receipt.js';
 
 // Retain three latest records at most (including a possible preceding-turn tie); a large archive never becomes a second
 // in-memory history. Ties and unorderable records refuse instead of guessing.
-const latestFromStore = async (store, draft) => {
+const latestFromStore = async (store, draft, acknowledged) => {
   let recent = [];
   let invalid = false;
   let count = 0;
@@ -26,6 +27,9 @@ const latestFromStore = async (store, draft) => {
     String(link.chat) === String(draft.chat);
   const consume = (batch) => {
     for (const message of batch) {
+      if (draft.engagement && matchesVkSequenceReceipt(message, acknowledged)) {
+        continue;
+      }
       const merged = [...recent, message];
       count += 1;
       const time = (m) => messageTime(m.timestamp);
@@ -67,7 +71,7 @@ const replyReasons = new Map([
   ['gratitude', gratitudeMessageReason],
   ['identity', identityMessageReason],
   ['acquaintance', acquaintanceMessageReason],
-  ...contextualReplyKinds.map((key) => [
+  ...[...contextualReplyKinds, 'engagement'].map((key) => [
     key,
     (message, isSelf) => contextualMessageReason(key, message, isSelf),
   ]),
@@ -81,11 +85,18 @@ const sameContext = (current, proof) =>
   current !== false &&
   JSON.stringify(current) === JSON.stringify(proof.context ?? null);
 
+const samePolicy = (automation, current, proof, key) =>
+  JSON.stringify(automation.action) === proof.policy &&
+  JSON.stringify(current.action) === proof.policy &&
+  (key !== 'engagement' ||
+    automation.action.stickerIds.includes(proof.sticker));
+
 export const validatePersonalReplyDraft = async (
   store,
   automation,
   draft,
-  self = []
+  self = [],
+  { acknowledged = null } = {}
 ) => {
   const key = contextKey(automation, draft);
   if (
@@ -94,7 +105,7 @@ export const validatePersonalReplyDraft = async (
   ) {
     return { ok: true };
   }
-  const history = await latestFromStore(store, draft);
+  const history = await latestFromStore(store, draft, acknowledged);
   const { latest } = history;
   const proof = draft[key];
   const reasonFor = replyReasons.get(key);
@@ -115,8 +126,7 @@ export const validatePersonalReplyDraft = async (
     reasonFor(latest, (sender) => owners.has(String(sender))) ||
     latest.id !== proof.message ||
     gratitudeFingerprint(latest) !== proof.fingerprint ||
-    JSON.stringify(automation.action) !== proof.policy ||
-    JSON.stringify(current.action) !== proof.policy ||
+    !samePolicy(automation, current, proof, key) ||
     !validContent(draft, proof) ||
     !sameContext(currentContext, proof)
   ) {

@@ -16,23 +16,13 @@ import {
   runRecordId,
 } from './automations.js';
 import { validateAnswerDraft } from './question-store.js';
-import { personalReplyKinds } from './contextual-replies.js';
+import { draftConfirmationKey } from './draft-confirmation.js';
+import { orderedReplyState } from './ordered-reply.js';
 
-// Bind the destination, rendered content and evidence the owner reviewed.
-// Queue bookkeeping is excluded: it does not change the reviewed operation.
-export const draftConfirmationKey = (draft) =>
-  JSON.stringify([
-    draft.id,
-    draft.automation,
-    draft.source,
-    draft.chat,
-    draft.contact ?? null,
-    draft.form,
-    draft.text,
-    draft.answer ?? null,
-    draft.sticker ?? null,
-    ...personalReplyKinds.map((key) => draft[key] ?? null),
-  ]);
+const currentDraft = async (store, draft) =>
+  draft.engagement
+    ? { ...draft, progress: (await orderedReplyState(store, draft)).progress }
+    : draft;
 
 const renderDraft = (automation, stored, { text, form } = {}) => {
   const draft =
@@ -133,7 +123,7 @@ export const queueDrafts = async (store, automation, drafts, at) => {
       status: 'pending',
       createdAt: at,
     });
-    queued.push(draft);
+    queued.push(await currentDraft(store, draft));
   }
   return queued;
 };
@@ -152,7 +142,7 @@ export const existingTestResult = async (store, automation, options, at) => {
     if (draft?.status !== 'pending') {
       return null;
     }
-    queued.push(draft);
+    queued.push(await currentDraft(store, draft));
   }
   return {
     automation: automation.id,
@@ -186,7 +176,7 @@ export const pendingTestDrafts = async (store, automation, plan, options) => {
         draft?.status === 'pending' &&
         !found.some((item) => item.id === draft.id)
       ) {
-        found.push(draft);
+        found.push(await currentDraft(store, draft));
       }
     }
   }
@@ -206,7 +196,10 @@ export const draftOperations = ({
     if (!draft?.id?.startsWith(DRAFT_PREFIX)) {
       throw new Error(`no draft ${id}`);
     }
-    return { draft, automation: await load(draft.automation) };
+    return {
+      draft: await currentDraft(store, draft),
+      automation: await load(draft.automation),
+    };
   };
 
   const settleDraft = async (id, status, extra = {}) => {
@@ -233,19 +226,24 @@ export const draftOperations = ({
       const owner = automation
         ? `${AUTOMATION_PREFIX}${automationKey(automation)}`
         : null;
-      return store.query(
+      const found = await store.query(
         (l) =>
           l?.id?.startsWith(DRAFT_PREFIX) &&
           (!source || l.source === source) &&
           (chat === undefined || String(l.chat) === String(chat)) &&
           (!owner || l.automation === owner)
       );
+      const drafts = [];
+      for (const draft of found) {
+        drafts.push(await currentDraft(store, draft));
+      }
+      return drafts;
     },
     /** Send one draft after the user confirmed it (optionally edited). */
     async sendDraft(id, { confirm = false, text, form, confirmedDraft } = {}) {
       if (!confirm) {
         throw new ConfirmationRequiredError(
-          'safe mode sends one message per confirmation; pass confirm: true'
+          'safe mode sends one draft per confirmation; pass confirm: true'
         );
       }
       const { draft: stored, automation } = await pendingDraft(id);

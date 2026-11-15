@@ -3,23 +3,36 @@ import { useT } from './i18n.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 
 const el = React.createElement;
-export const GratitudeFields = ({ form, set, error, Input, Check }) => {
+export const GratitudeFields = ({
+  form,
+  set,
+  error,
+  Input,
+  Check,
+  ordered = false,
+}) => {
   const t = useT();
   const p = { form, set, error };
   return el('div', { 'data-gratitude-fields': true }, [
-    el('p', { key: 'hint', className: 'meta' }, t('gratitude.hint')),
-    el(Check, {
-      ...p,
-      key: 'prefer',
-      name: 'preferSticker',
-      label: t('gratitude.preferSticker'),
-    }),
+    el(
+      'p',
+      { key: 'hint', className: 'meta' },
+      t(ordered ? 'engagement.hint' : 'gratitude.hint')
+    ),
+    ordered
+      ? null
+      : el(Check, {
+          ...p,
+          key: 'prefer',
+          name: 'preferSticker',
+          label: t('gratitude.preferSticker'),
+        }),
     el(Input, {
       ...p,
       key: 'ids',
       name: 'gratitudeStickers',
       label: t('gratitude.stickers'),
-      hint: t('gratitude.stickersHint'),
+      hint: t(ordered ? 'engagement.stickersHint' : 'gratitude.stickersHint'),
     }),
   ]);
 };

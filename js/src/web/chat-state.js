@@ -662,6 +662,15 @@ const useNextChat = (api, current, show) => {
   return { next, look, open, dismiss: () => setNext(null) };
 };
 
+const sequenceNotice = (code, result) => {
+  if (code === 'sequence-partial') {
+    return { messageKey: 'engagement.partial' };
+  }
+  return result?.status === 'unknown' && code?.startsWith('sequence-')
+    ? { messageKey: 'engagement.uncertain' }
+    : {};
+};
+
 export const draftActionNotice = (action, result) => {
   const complete =
     action === 'form'
@@ -674,9 +683,23 @@ export const draftActionNotice = (action, result) => {
       kind: 'failed',
       code,
       error: result?.error ?? code ?? 'no-answer',
+      ...sequenceNotice(code, result),
     };
   }
   return action === 'form' ? null : { kind: `draft-${action}` };
+};
+
+const refreshOrderedDrafts = async (api, draft, setDrafts) => {
+  if (!draft.engagement) {
+    return;
+  }
+  // A failed HTTP response may omit the durable partial progress.
+  const pending = await api
+    .drafts({ source: draft.source, chat: draft.chat })
+    .catch(() => null);
+  if (pending) {
+    setDrafts(pending);
+  }
 };
 
 const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
@@ -715,6 +738,7 @@ const useDrafts = ({ api, current, tick, after, show, setNotice }) => {
       code: result?.status ?? (result?.id ? 'draft' : 'no-answer'),
     });
     if (notice?.kind === 'failed') {
+      await refreshOrderedDrafts(api, draft, setDrafts);
       after(notice);
       return result;
     }

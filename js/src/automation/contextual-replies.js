@@ -14,9 +14,11 @@ import {
   personalReplyDraft,
   personalReplyPreset,
   replyFingerprint,
+  replyVariantIndex,
 } from './personal-reply.js';
 import { acquaintanceText } from './acquaintance.js';
 import { prefillLinkFor } from '../crm/reengage.js';
+import { negativeAcquaintanceReply } from './engagement.js';
 
 export const contextualReplyKinds = [
   'first-exchange',
@@ -24,7 +26,11 @@ export const contextualReplyKinds = [
   'purpose',
   'clarification',
 ];
-export const catalogReplyKinds = ['acquaintance', ...contextualReplyKinds];
+export const catalogReplyKinds = [
+  'acquaintance',
+  ...contextualReplyKinds,
+  'engagement',
+];
 export const personalReplyKinds = [
   'gratitude',
   'identity',
@@ -81,6 +87,9 @@ export const recognizesContextualReply = (kind, message) => {
   if (kind === 'purpose') {
     return purpose(message?.body);
   }
+  if (kind === 'engagement') {
+    return negativeAcquaintanceReply(message?.body);
+  }
   return kind === 'clarification' && clarification(message?.body);
 };
 export const contextualMessageReason = (kind, message, isSelf) => {
@@ -108,7 +117,7 @@ export const contextualHistory = (
   isSelf,
   total = messages.length
 ) => {
-  if (!['first-exchange', 'clarification'].includes(kind)) {
+  if (!['first-exchange', 'clarification', 'engagement'].includes(kind)) {
     return null;
   }
   if (kind === 'first-exchange' && total !== 2) {
@@ -125,6 +134,12 @@ export const contextualHistory = (
     return false;
   }
   if (kind === 'first-exchange' && !greeting(previous)) {
+    return false;
+  }
+  if (
+    kind === 'engagement' &&
+    wholeVkQuestion(previous.body) !== 'мы общались ранее'
+  ) {
     return false;
   }
   return [replyFingerprint(previous), replyFingerprint(latest)];
@@ -149,6 +164,11 @@ export const contextualReplyDraft = (automation, candidate, draft, isSelf) => {
   );
   if (result.draft && context) {
     result.draft[kind].context = context;
+  }
+  if (result.draft && kind === 'engagement') {
+    const ids = automation.action.stickerIds;
+    result.draft.engagement.sticker =
+      ids[replyVariantIndex(latest.id, ids.length)];
   }
   return result;
 };
@@ -182,6 +202,13 @@ export const contextualReplyPresets = () =>
       'Review a clarification of a bare question only after the adjacent outgoing personal VK turn.',
       'Что именно тебя интересует?',
       'Что именно Вас интересует?',
+    ],
+    [
+      'engagement',
+      'Introduce yourself after a negative acquaintance answer',
+      'Review a VK sticker followed by your introduction after a negative answer to the adjacent previous-acquaintance question.',
+      'Рад познакомиться. Расскажи о себе?',
+      'Рад познакомиться. Расскажите о себе?',
     ],
   ].map(([id, name, description, informal, formal]) =>
     personalReplyPreset(id, name, description, { informal, formal })

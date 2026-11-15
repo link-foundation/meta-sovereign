@@ -73,7 +73,11 @@ const indent = (text) =>
 
 const FORM_LABEL = { informal: 'ты', formal: 'вы', neutral: '—' };
 const draftContent = (draft) =>
-  draft.sticker ? `VK sticker ${draft.sticker.id}` : draft.text;
+  draft.engagement
+    ? `1. VK sticker ${draft.engagement.sticker} (${draft.progress?.steps?.[0]?.status ?? 'pending'})\n2. ${draft.text} (${draft.progress?.steps?.[1]?.status ?? 'pending'})`
+    : draft.sticker
+      ? `VK sticker ${draft.sticker.id}`
+      : draft.text;
 
 const describeDraft = (draft) => {
   const af = draft.addressForm ?? { reason: 'chosen' };

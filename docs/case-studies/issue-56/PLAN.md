@@ -1,3 +1,10 @@
+Active ordered VK acquaintance follow-up (VK06):
+
+- [x] Read the complete pinned engage trigger and all twenty positive examples. Add a disabled personal-only preset after the actual adjacent outgoing acquaintance question, configurable sticker IDs and introduction variants.
+- [x] Verify frozen two-step permission, distinct durable receipts, exact context before each effect, partial progress, definite-failure resume after review, uncertainty refusal and no acknowledged-step replay through restart. Cover CLI, both default Lino encodings and scheduler/offline planning with focused regressions.
+- [x] Verify the common plan/Chat/Operator review in one native scenario and independent four-language MCP review; preserve before/after phone/desktop screenshots and checked evidence. Native/MCP and focused verification pass; preserve checked evidence and publish atomically.
+- [ ] Inspect every exact-head workflow; every unmet issue criterion remains required.
+
 Active inactive-peer sync fixture correction:
 
 - [x] Match published `c930cf39` Checks `43673148877` and WebKit shard 2 job `132688300301`; preserve complete logs. Lines 1713–1721 show successful reconciliation followed by a five-second receive-completion predicate timeout. All four companion workflows pass.

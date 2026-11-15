@@ -28,6 +28,7 @@ import { FollowChatsControls } from './follow-chats-controls.js';
 import { FollowTelegramControls } from './follow-telegram-controls.js';
 import { FollowBacklinkControls } from './follow-backlink-controls.js';
 import { GratitudeSticker } from './gratitude-fields.js';
+import { OrderedReplyReview } from './ordered-reply.js';
 
 const el = React.createElement;
 
@@ -590,7 +591,11 @@ const PlanPreview = ({ runs }) => {
                   : networkName(t, draft.source)
               } · ${t(`automations.form.${draft.form}`)}`
             ),
-            draft.text ? el('blockquote', { key: 't' }, draft.text) : null,
+            draft.engagement
+              ? el(OrderedReplyReview, { key: 'ordered', draft })
+              : draft.text
+                ? el('blockquote', { key: 't' }, draft.text)
+                : null,
             el(GratitudeSticker, { key: 'sticker', draft }),
             el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
           ])

@@ -14,6 +14,7 @@ import { isTelegramWebUrl } from '../sources/telegram-chat-url.js';
 import { useDraftFocus } from './chat-draft-focus.js';
 import { AnswerEvidence } from './question-evidence.js';
 import { GratitudeSticker } from './gratitude-fields.js';
+import { OrderedReplyReview } from './ordered-reply.js';
 
 const el = React.createElement;
 
@@ -83,6 +84,13 @@ export const DraftCard = ({ draft, drafts, autopilot }) => {
       drafts.act(action, { ...draft, ...extra });
   const piloting =
     autopilot?.shown?.on && autopilot.shown.automation === draft.automation;
+  const editor = el('textarea', {
+    key: 'text',
+    rows: 4,
+    value: draft.text,
+    'aria-label': t('chat.draft.text'),
+    onChange: (event) => drafts.edit(draft.id, event.target.value),
+  });
   return el(
     'div',
     {
@@ -116,13 +124,9 @@ export const DraftCard = ({ draft, drafts, autopilot }) => {
           el(Icon, { name: 'close', size: 16 })
         ),
       ]),
-      el('textarea', {
-        key: 'text',
-        rows: 4,
-        value: draft.text,
-        'aria-label': t('chat.draft.text'),
-        onChange: (event) => drafts.edit(draft.id, event.target.value),
-      }),
+      draft.engagement
+        ? el(OrderedReplyReview, { key: 'ordered', draft }, editor)
+        : editor,
       el(GratitudeSticker, { key: 'sticker', draft, editable: true }),
       el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
       el('div', { key: 'actions', className: 'row' }, [

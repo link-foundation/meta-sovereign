@@ -1,4 +1,5 @@
 // Titles are shared by the preset, action selector and incoming recognizer.
+import { engagementLocale } from './engagement.js';
 const words = {
   en: [
     [
@@ -80,8 +81,9 @@ const words = {
   ],
 };
 const kinds = ['first-exchange', 'wellbeing', 'purpose', 'clarification'];
-export const contextualReplyLocale = (language) =>
-  Object.fromEntries(
+export const contextualReplyLocale = (language) => ({
+  ...engagementLocale(language),
+  ...Object.fromEntries(
     kinds.flatMap((kind, index) => [
       [`automations.presets.${kind}.name`, words[language][index][0]],
       [`automations.presets.${kind}.description`, words[language][index][1]],
@@ -91,4 +93,5 @@ export const contextualReplyLocale = (language) =>
       [`automations.reason.${kind}-question-required`, words[language][5]],
       [`automations.reason.${kind}-context-required`, words[language][6]],
     ])
-  );
+  ),
+});

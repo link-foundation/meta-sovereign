@@ -216,6 +216,13 @@ const normalizeAction = (action = {}) => {
     form,
     fallbackForm: action.fallbackForm ?? 'formal',
     ...(kind === 'reply-gratitude' ? gratitudeOptions(action) : {}),
+    ...(kind === 'reply-engagement'
+      ? gratitudeOptions({
+          ...action,
+          preferSticker: true,
+          stickerIds: action.stickerIds ?? ['59431'],
+        })
+      : {}),
     ...(catalogReplyKinds.some((key) => kind === `reply-${key}`)
       ? { alternatives: acquaintanceAlternatives(action.alternatives) }
       : {}),
@@ -752,7 +759,10 @@ const personalReplyBuilders = new Map([
   ['reply-gratitude', gratitudeDraft],
   ['reply-identity', identityDraft],
   ['reply-acquaintance', acquaintanceDraft],
-  ...contextualReplyKinds.map((key) => [`reply-${key}`, contextualReplyDraft]),
+  ...[...contextualReplyKinds, 'engagement'].map((key) => [
+    `reply-${key}`,
+    contextualReplyDraft,
+  ]),
 ]);
 
 export const planAutomation = (links = [], input, options = {}) => {

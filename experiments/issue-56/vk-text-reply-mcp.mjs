@@ -48,9 +48,11 @@ const inspectTextReply = async (page, fixture) => {
   const capturePhone = async (form, action) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await (
-      fixture.alternatives
-        ? form.locator('[data-acquaintance-catalog]')
-        : action
+      fixture.kind === 'engagement'
+        ? page.locator('.automation-plan [data-ordered-reply]').first()
+        : fixture.alternatives
+          ? form.locator('[data-acquaintance-catalog]')
+          : action
     ).scrollIntoViewIfNeeded();
     if (
       !(await page.evaluate(
@@ -134,6 +136,23 @@ const inspectTextReply = async (page, fixture) => {
       .locator('.automation-plan blockquote')
       .allTextContents();
     await verifyIntroductions(form, replies, words);
+    if (fixture.kind === 'engagement') {
+      const reviews = page.locator('.automation-plan [data-ordered-reply]');
+      if ((await reviews.count()) !== 2) {
+        throw Error('Missing ordered personal reply reviews');
+      }
+      for (const review of await reviews.all()) {
+        if (
+          (await review.locator('[data-ordered-step]').count()) !== 2 ||
+          !(await review.innerText()).includes(words.orderedHint) ||
+          !(
+            await review.locator('[data-ordered-step="1"]').innerText()
+          ).includes('59431')
+        ) {
+          throw Error('Missing translated sticker-first ordered review');
+        }
+      }
+    }
     if (
       firstReplies &&
       JSON.stringify(firstReplies) !== JSON.stringify(replies)
@@ -150,6 +169,7 @@ const inspectTextReply = async (page, fixture) => {
       retainedVariants: true,
       privateReplies: 2,
       stableAlternatives: Boolean(fixture.alternatives),
+      ...(fixture.kind === 'engagement' ? { orderedSteps: 2 } : {}),
     });
   }
   if (exceptions.length) {
@@ -193,6 +213,7 @@ export const writeVkTextReplyInspection = (kind, base) =>
             save: dictionaries[language]['common.save'],
             preview: dictionaries[language]['automations.preview'],
             catalogHint: dictionaries[language]['acquaintance.catalogHint'],
+            orderedHint: dictionaries[language]['engagement.hint'] ?? null,
           },
         ])
       ),

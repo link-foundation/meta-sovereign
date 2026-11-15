@@ -4,6 +4,7 @@ import { queueDrafts } from './drafts.js';
 import { validateAnswerDraft } from './question-store.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { validatePersonalReplyDraft } from './gratitude-store.js';
+import { deliverOrderedReply } from './ordered-reply.js';
 
 const indicateTyping = (showTyping, automation, draft) =>
   draft.answer?.strictOptions || draft.sticker
@@ -11,6 +12,7 @@ const indicateTyping = (showTyping, automation, draft) =>
     : showTyping(automation, draft);
 
 const deliveryKey = (automation, draft, clock) =>
+  draft.sequence?.key ??
   questionChoiceKey(draft) ??
   outboxKey({
     owner: automation.id,
@@ -20,12 +22,43 @@ const deliveryKey = (automation, draft, clock) =>
     now: clock().getTime(),
   });
 
-export const createDelivery =
-  ({ store, send, showTyping, clock, log, nowIso, self = [] }) =>
+const outcomeFailure = (outcome) =>
+  outcome.status === 'sent'
+    ? {}
+    : {
+        error: outcome.error,
+        ...(outcome.code ? { code: outcome.code } : {}),
+        ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
+      };
+
+export const createDelivery = ({
+  store,
+  send,
+  showTyping,
+  clock,
+  log,
+  nowIso,
+  self = [],
+}) => {
   /** Send one draft now: typing, the guarded send, ledger, chat history. */
-  async (automation, draft, { reviewed = false } = {}) => {
+  const deliver = async (
+    automation,
+    draft,
+    { reviewed = false, orderedStep = false, acknowledged = null } = {}
+  ) => {
     if (typeof send !== 'function') {
       throw new Error('no sender configured; send it yourself and mark it');
+    }
+    if (draft.engagement && !orderedStep) {
+      return deliverOrderedReply({
+        store,
+        automation,
+        draft,
+        reviewed,
+        deliver,
+        log,
+        queue: () => queueDrafts(store, automation, [draft], nowIso()),
+      });
     }
     if (
       draft.answer &&
@@ -44,7 +77,8 @@ export const createDelivery =
       store,
       automation,
       draft,
-      self
+      self,
+      { acknowledged }
     );
     if (!context.ok) {
       return { status: 'failed', ...context, draft };
@@ -78,7 +112,8 @@ export const createDelivery =
           store,
           automation,
           outgoing,
-          self
+          self,
+          { acknowledged }
         );
         if (!valid.ok) {
           throw Object.assign(new Error(valid.error), {
@@ -105,12 +140,8 @@ export const createDelivery =
       draft,
       record,
       outbox: outcome.outbox,
-      ...(outcome.status === 'sent'
-        ? {}
-        : {
-            error: outcome.error,
-            ...(outcome.code ? { code: outcome.code } : {}),
-            ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
-          }),
+      ...outcomeFailure(outcome),
     };
   };
+  return deliver;
+};

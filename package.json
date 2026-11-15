@@ -51,6 +51,7 @@
     "test:e2e:browser-preferences": "node js/tests/e2e-browser-preferences.mjs",
     "test:e2e:backup": "node js/tests/e2e-backup-browser.mjs",
     "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
+    "test:e2e:vk-engagement": "node js/tests/e2e-vk-engagement-browser.mjs",
     "test:e2e:vk-contextual": "node js/tests/e2e-vk-contextual-browser.mjs",
     "test:e2e:vk-contextual:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vk-contextual-browser.mjs",
     "test:e2e:greetings": "node js/tests/e2e-greetings-browser.mjs",

@@ -31,13 +31,24 @@ export const seedGratitude = async (store = createMemoryStore()) => {
   return store;
 };
 
-export const gratitudeServer = async ({ seed = seedGratitude } = {}) => {
+export const gratitudeServer = async ({
+  seed = seedGratitude,
+  sendResult = () => 919,
+} = {}) => {
   const store = await seed();
-  const vk = createFakeVk({ methods: { 'messages.send': () => 919 } });
+  const vk = createFakeVk({ methods: { 'messages.send': sendResult } });
   const live = createVkLive({ fetchImpl: vk.fetchImpl, baseUrl: vk.baseUrl });
   const send = createDefaultSender({
     getSource: () => ({ live }),
     options: { vk: { token: 'fixture-vk-token' } },
+    browser: {
+      send: async () => {
+        throw Object.assign(new Error('Fixture browser fallback refused'), {
+          code: 'fixture-refusal',
+        });
+      },
+      close: async () => {},
+    },
   });
   const receipts = [];
   const server = await startServer({

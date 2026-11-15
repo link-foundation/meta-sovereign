@@ -1,3 +1,4 @@
+- [Ordered VK acquaintance replies](vk-engagement.md): frozen sticker-then-introduction review, distinct durable acknowledgements, partial progress and reviewed text-only retry through CLI/Lino/shared Chat and Operator. VK06 awaits exact-head hosted checks.
 - [Inactive-peer sync predicate](ci-sync-isolation-polling.md): published WebKit timeout, exact-helper scheduling reproduction, native convergence despite failure and bounded timer polling without deadline changes.
 - [Stored draft confirmation](draft-confirmation.md): exact-parent changed-content sends, frozen independent preview evidence and focused refusal/unchanged-delivery checks through both default Lino encodings.
 - [Contextual VK replies](vk-contextual.md): first greeting exchange, well-being, purpose and adjacent-turn clarification; shared catalogs, proofs and focused verification. VK05/VK07/VK08 await hosted checks.

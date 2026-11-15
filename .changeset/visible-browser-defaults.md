@@ -520,3 +520,5 @@ Add a disabled personal VK acquaintance reply preset with configurable formal/in
 Add disabled personal VK presets for the first greeting exchange, well-being, purpose and adjacent-turn clarification, with configurable reply catalogs, durable cooldown and exact context checks before sending.
 
 Bind draft-send confirmation to an independent rendered snapshot of the destination, identity, form, text/sticker and complete question/personal-reply evidence. Refuse changed drafts before typing/outbox/provider effects, retain them for review, and preserve explicit owner edits and form overrides through both default Lino encodings.
+
+Add a disabled personal VK acquaintance follow-up with configurable sticker and introduction catalogs. Review both ordered steps together, retain separate positive API receipts, resume a definite partial failure after review and refuse uncertain or acknowledged-step replay through durable recovery. Share progress across CLI, both Lino encodings, Chat and Operator.

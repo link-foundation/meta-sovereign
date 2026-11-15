@@ -24,6 +24,7 @@
 import { browserAnswerReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
+import { vkSequenceReceipt } from './vk-sequence-receipt.js';
 
 export const OUTBOX_PREFIX = 'outbox:';
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -195,6 +196,8 @@ const newRecord = ({ id, key, kind, owner, draft, at }) => ({
     draft.answer?.textReply ? 12000 : 2000
   ),
   ...(draft.answer?.textReply ? { answerType: 'text' } : {}),
+  ...(draft.sticker ? { sticker: { id: draft.sticker.id } } : {}),
+  ...(draft.sequence ? { sequence: draft.sequence } : {}),
   status: 'sending',
   createdAt: at,
   at,
@@ -296,8 +299,21 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
     };
   }
-  // The message is out: whatever the store does now, it stays "sent".
   const receipt = browserAnswerReceipt(result, draft);
+  const vkReceipt = vkSequenceReceipt(result, draft);
+  if (draft.sequence && draft.source === 'vk' && !vkReceipt) {
+    const error =
+      'VK did not acknowledge a positive message ID; check the chat manually';
+    const code = 'sequence-receipt-missing';
+    const outbox = await settle(
+      store,
+      record,
+      { status: 'unknown', at: clock().toISOString(), error, code },
+      log
+    );
+    return { status: 'unknown', outbox, error, code };
+  }
+  // The acknowledged message is out: a later store failure cannot unsend it.
   const outbox = await settle(
     store,
     record,
@@ -306,6 +322,7 @@ const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
       at: clock().toISOString(),
       ...(result?.via ? { via: result.via } : {}),
       ...(receipt ? { receipt } : {}),
+      ...(vkReceipt ? { vkReceipt } : {}),
     },
     log
   );
