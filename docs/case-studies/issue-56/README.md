@@ -1,3 +1,4 @@
+- [Foreground queue lifecycle](ci-vk-queue-lifecycle.md): preserve four exact-head CLI failures and replace stopped queues only after admitted effects drain; first-live history and hosted acceptance remain required.
 - [Durable trigger admission](vk-trigger-state.md): reproduce concurrent duplicate drafts and premature shutdown flush; preserve per-peer acknowledgements, failed-run retry and owned draining. The wider VK26 queue remains required.
 - [VK sticker catalog](vk-stickers.md): bounded account-scoped pack/keyword reads, all usable greeting IDs, received filtering and metadata export through CLI, Lino and shared four-language collections; local/native/MCP verification is preserved and exact-head CI remains required.
 - [VK cache security follow-up](vk-cache-security-follow-up.md): exact CodeQL assertion finding, complete Markdown destination check and focused passing regression; no security gate is suppressed.

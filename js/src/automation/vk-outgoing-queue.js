@@ -155,7 +155,13 @@ export const createVkOutgoingQueue = ({
 };
 
 export const vkOutgoingFor = (store, options) => {
-  if (!queues.has(store)) {
+  const runtime = queues.get(store)?.inspect();
+  // A stopped foreground owner can be replaced after every admitted effect
+  // drains. Retain the closed queue meanwhile so no replacement overlaps it.
+  if (
+    !runtime ||
+    (runtime.stopped && !runtime.active && runtime.waiting === 0)
+  ) {
     queues.set(store, createVkOutgoingQueue({ store, ...options }));
   }
   return queues.get(store);
