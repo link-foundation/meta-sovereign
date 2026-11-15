@@ -17,7 +17,7 @@ for (const targetOS of ['macos-26', 'windows-2025']) {
     const shards = job.strategy.matrix.include.filter(
       ({ os, runtime }) => os === targetOS && runtime === 'node'
     );
-    const count = targetOS === 'macos-26' ? 4 : 3;
+    const count = targetOS === 'macos-26' ? 8 : 3;
     assert.deepEqual(
       shards.map(({ shard }) => shard).sort(),
       Array.from({ length: count }, (_, index) => `${index + 1}/${count}`)

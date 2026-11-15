@@ -327,8 +327,8 @@ jobs:
       cancel-in-progress: true
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Retain the 10min deadline. Cold macOS Node setup plus three partitions
-    # can exceed it; use four. Windows Node and Ubuntu/Windows Deno use three.
+    # Retain the 10min deadline. Observed cold macOS setup plus four Node
+    # partitions reaches it; use eight. Windows Node and all Deno use three.
     # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
@@ -395,19 +395,35 @@ jobs:
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 1/4
+            shard: 1/8
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 2/4
+            shard: 2/8
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 3/4
+            shard: 3/8
           - os: macos-26
             runtime: node
             runner: macos-26-intel
-            shard: 4/4
+            shard: 4/8
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 5/8
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 6/8
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 7/8
+          - os: macos-26
+            runtime: node
+            runner: macos-26-intel
+            shard: 8/8
           - os: windows-2025
             runtime: node
             shard: 1/3
