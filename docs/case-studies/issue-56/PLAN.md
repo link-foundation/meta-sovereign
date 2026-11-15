@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Hosted verification `d34db92c` completed: all five workflows and every browser
+shard pass. [Recorded evidence](hosted-verification-d34.md) closes the remaining
+verification for QA03 and VD10; 79 inventory rows remain unchecked. PR57 stays
+draft. Structured Telegram fix `7ba65f1e` is published with its checked archive;
+its exact-head workflows remain pending. Continue every unfinished criterion.
+
 Active structured Telegram question destinations (QA04 remains incomplete):
 
 - [x] Reproduce lost Bot API, caption, MTProto and Desktop-export link destinations with the actual import/planning paths, including a destination-only edit after frozen review. All four parent probes approve and retain the stale draft; five of seven integrated regression checks fail on the actual parent.

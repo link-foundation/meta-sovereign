@@ -62,8 +62,9 @@ retained alongside the final receipt.
 All provider pages and senders here are disposable fixtures. No authenticated
 provider account was contacted. This verifies the shared template mechanism
 and one native adapter path; authenticated provider parity, other QA entries
-and the rest of issue #56 remain unfinished. QA03 stays pending exact-head
-hosted verification in the inventory; PR57 remains draft and unmerged.
+and the rest of issue #56 remain unfinished. All five exact-head `d34db92c` workflows now pass; see
+[hosted verification](hosted-verification-d34.md). QA03 is complete for its
+shared saved-template scope. PR57 remains draft and unmerged.
 
 ![Saved template review](../../screenshots/issue-56-question-templates/template-review.png)
 ![Recovered reply on a phone](../../screenshots/issue-56-question-templates/mcp-receipt-phone.png)

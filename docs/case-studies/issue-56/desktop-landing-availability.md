@@ -58,6 +58,7 @@ The same archive preserves exact-parent CI failures and the bounded
 [canonical-path fixture correction](ci-cv-publication-alias.md), including
 the previous capability expectation failure and complete workflow log.
 
-VD10's local and public-metadata evidence is complete; exact-head hosted
-checks remain required before marking its inventory row complete. Every
-other unfinished issue criterion remains required. PR #57 remains draft.
+VD10's local and public-metadata evidence is complete. All five exact-head
+`d34db92c` workflows now pass; see [hosted verification](hosted-verification-d34.md).
+VD10 is complete. Every other unfinished issue criterion remains required.
+PR #57 remains draft.

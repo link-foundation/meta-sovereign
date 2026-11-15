@@ -45,5 +45,6 @@ one 2200px viewport, and reuses the original pixel sampling and tolerance.
 The [checked evidence](data/selection-clock.tar.gz) and
 [SHA-256 manifest](data/selection-clock.tar.sha256.json) retain the actual hosted
 failure, artifact, source snapshots, exact-parent seed, before/after results and
-screenshot hashes. Exact corrected-head CI remains required. Every original
-incomplete criterion remains active; PR57 remains draft and unmerged.
+screenshot hashes. All five corrected-head `d34db92c` workflows pass, including
+every browser shard; see [hosted verification](hosted-verification-d34.md).
+Every remaining incomplete criterion stays active; PR57 remains draft and unmerged.
