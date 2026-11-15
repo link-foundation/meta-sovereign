@@ -1,0 +1,20 @@
+{
+  "archive": "ci-legacy-disclosure.tar.gz",
+  "files": {
+    "ci-logs/vk-desktop-webkit-shard2.log": "2d6d5823c9b3e34eb008f9f4f3efb0f2a499d8c12e81c726e39613d304cbc0e2",
+    "ci-logs/vk-desktop-webkit2-artifacts/ms-e2e-questions-webkit.png": "2650bf4a41226221fc79a3aa8b56d3fbb63e6b45d7d5094a4571bb20ddb29d3c",
+    "ci-logs/ci-legacy-disclosure-before.log": "12d3f41bc1e65698ff91202cf288ce3f7d828f1d3a168d26e5d23cfa9e215028",
+    "ci-logs/ci-legacy-disclosure-after.log": "301ddbd68c456386bf626d2c736902f335975de8e0391619d20c4c17cd0ef8c3",
+    "ci-logs/ci-legacy-disclosure-controls.log": "d383c22c56387b7b68f7e7fe340b1897e4b67c1be94855681d981b0319d2a0c2",
+    "ci-logs/ci-legacy-disclosure-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "js/tests/helpers/e2e-question-legacy-profile.mjs": "61a47c21891b61dc21ad600a187f5ff48e380e9f93900d8f0b9bfa56927ee474",
+    "js/tests/helpers/question-preview.mjs": "93cdb608fe24870ad95ab5a0332378d191b6ce8b88ae98559c1e8c36578a349c",
+    "js/tests/helpers/e2e-question-disclosures.mjs": "037bd27502098106d2cdbb2d38ce3eb66f3c942088cae3d7fa5bda63d8ef7ea7",
+    "experiments/issue-56/ci-legacy-disclosure-native.mjs": "6c1544fc5907078409b7861608ba1a426f0cde23731263922a36b931d430ef3e",
+    "experiments/issue-56/collect-ci-legacy-disclosure.py": "9d32321414f779479727f9f10a96354a029278220ea2b31710939341cc3fdf7b",
+    "docs/case-studies/issue-56/ci-legacy-disclosure.md": "2bde70067cf9bbcbba18a6c21746425674924ff1fd362cd096f6823e0b559706",
+    "docs/screenshots/issue-56-ci-legacy-disclosure/before.png": "9e57db6ae0ed64b808963cfa98fb13f082169ddf8dcd2d1c34ea8d03a487bca2",
+    "docs/screenshots/issue-56-ci-legacy-disclosure/after.png": "b9010ed16a82fd8d905466e55a02a68aa1e2a9af0e19f7a65e3dbb6539edb55c",
+    "before/js/tests/helpers/e2e-question-legacy-profile.mjs": "2e419f3ecf06cfb5e9f0dcce5a18835fb468dfc906ec72277f46c844d184b9cf"
+  }
+}
