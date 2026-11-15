@@ -77,7 +77,7 @@ Reviewed capacity and priority, confirmed receipts, and retained unknown action:
 The checked [source/log archive](data/vk-friends.tar.gz) and
 [manifest](data/vk-friends.tar.sha256.json) preserve parent sources, source pins,
 failed draft checks, final receipts and screenshot hashes. Exact-head hosted
-verification remains pending, so VK11 stays unchecked. The desktop reference's
+verification now passes for VK11; see [the checked receipt](hosted-verification-f2cf.md). The desktop reference's
 top-ten-percent/mutual-only policy, friend deletion/cancellation/rejection and
 every other incomplete original criterion remain required. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 stays draft and unmerged; this unit does not complete issue #56.

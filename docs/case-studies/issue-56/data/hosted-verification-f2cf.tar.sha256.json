@@ -1,0 +1,12 @@
+{
+  "archive": "hosted-verification-f2cf.tar.gz",
+  "files": {
+    "ci-logs/hosted-verification-f2cf-checks.json": "5ce80eafc68ff14b131321298162e82e41f75af497f8a7ccbe89cecaf9fb181f",
+    "ci-logs/hosted-verification-f2cf-desktop.json": "1d705326b76600df1e314683881709ba6c4d248476957de0528b59e282b54469",
+    "ci-logs/hosted-verification-f2cf-links.json": "931aff44771d66387c1ea1fe9f51d352c758fe1d486de99e982efc02ed3cd254",
+    "ci-logs/hosted-verification-f2cf-pages.json": "9b75409ae93f1327a18772e343cc8734fddbdc3d2ce192149b9926deb08d76ed",
+    "ci-logs/hosted-verification-f2cf-security.json": "a6f7e5bbd5ec5aa48dd26684ebd2d4d310386d2d55fd2666335b1ff92cbd0e1e",
+    "experiments/issue-56/collect-hosted-verification.py": "6a47b93f6939734d3c07f747f752039ba1ba73af296086846ffd2ef1ed2946b4",
+    "metadata.json": "b00c1c177225d4232ae5cf308117de06d92e2ebea2f2a1283b3f4c5996682fd6"
+  }
+}

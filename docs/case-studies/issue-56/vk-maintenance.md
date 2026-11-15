@@ -2,8 +2,8 @@
 
 This unit adds independent disabled policies for banned/deleted friend cleanup
 and bounded outgoing request cancellation. See [usage](../../VK-FRIEND-MAINTENANCE.md).
-Both inventory rows remain unchecked until exact published-head hosted checks
-pass. This does not complete issue 56 or its other required features; PR57 stays
+Both inventory rows now pass exact published-head hosted checks in
+[the checked receipt](hosted-verification-f2cf.md). This does not complete issue 56 or its other required features; PR57 stays
 draft and unmerged.
 
 The reference is `konard/vk-bot` at
@@ -76,8 +76,8 @@ Before and after phone evidence:
 The published parent's Ubuntu Deno job exceeded its ten-minute deadline before
 finishing its serial suite. See the separate
 [Ubuntu partition correction](ci-ubuntu-deno-shards.md) and
-[macOS cold-setup correction](ci-macos-node-four.md). Exact new-head hosted checks
-remain required before either inventory row is checked.
+[macOS cold-setup correction](ci-macos-node-four.md). All five exact-head workflows now pass; both inventory rows are checked in
+[the hosted receipt](hosted-verification-f2cf.md).
 
 The initial 41/45 draft result had probe mistakes: an incorrect limiter argument,
 a directory instead of a Lino file, a stale-list expectation after a valid
