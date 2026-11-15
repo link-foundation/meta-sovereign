@@ -3,7 +3,7 @@ import {
   messageDefaultPolicies,
 } from './vk-message-defaults-fixture.mjs';
 
-export const legacyCatalogsServer = async () => {
+export const legacyCatalogsServer = async ({ invalid = false } = {}) => {
   const fixture = await messageDefaultsServer();
   try {
     for (const [name, policy] of Object.entries(messageDefaultPolicies)) {
@@ -11,7 +11,7 @@ export const legacyCatalogsServer = async () => {
       await fixture.store.put({
         id: policy.keys.job,
         ...saved,
-        messages: saved.messages.split('\n'),
+        messages: invalid ? { unexpected: 42 } : saved.messages.split('\n'),
         attachments: {},
         ...(name === 'wall' ? { communities: [42, 43] } : { stickers: 60302 }),
       });

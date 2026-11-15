@@ -596,3 +596,5 @@ Apply readable global/local configuration and explicit launch options to the des
 Normalize declared legacy saved VK message, question, attachment and destination lists before strict read validation. Preserve owner records and new-write guards, and display saved catalogs in connected/offline editors.
 
 Bound immutable server-release hashing to four concurrent file reads, preserve existing ordered content identities and drain reads before failed staging cleanup.
+
+Report connected VK read failures without substituting local defaults. Preserve acknowledged settings on failed refresh and retain offline editing for absent or unsupported routes.

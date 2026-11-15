@@ -545,3 +545,5 @@ exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next aud
 [Persisted catalog compatibility](legacy-catalogs.md) retains exact-parent list/read failures, 15 focused checks and native/MCP before/after views. Invalid saved shapes and new writes remain strict; hosted acceptance and complete desktop configuration remain required.
 
 [Bounded release hashing](rolling-digest.md) retains the actual macOS startup failure and exact-parent serial-read regression. Twelve focused checks pass locally with unchanged deadlines; hosted verification remains pending.
+
+[Connected VK read refusals](vk-read-failure.md) preserve actual-parent defaults substitution, seven focused checks and native/MCP recovery evidence. Absent-route offline editing remains supported; exact-head hosted acceptance remains required.

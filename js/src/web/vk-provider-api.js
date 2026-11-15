@@ -12,6 +12,7 @@ import { createVkRetentionApi } from './vk-retention-api.js';
 import { createVkDiscoveryApi } from './vk-discovery-api.js';
 import { createVkCacheApi } from './vk-cache-api.js';
 import { createVkStickerApi } from './vk-sticker-api.js';
+import { createVkRead } from './vk-read-response.js';
 
 /** Shared transport and local settings for every VK Connections policy. */
 export const createVkProviderApi = (options) =>
@@ -32,5 +33,10 @@ export const createVkProviderApi = (options) =>
       createVkStickerApi,
       createVkReengageApi,
       createVkCancelledApi,
-    ].map((create) => create(options))
+    ].map((create) =>
+      create({
+        ...options,
+        get: options.request ? createVkRead(options.request) : options.get,
+      })
+    )
   );
