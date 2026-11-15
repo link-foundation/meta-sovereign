@@ -582,3 +582,5 @@ Retain acknowledged accepted-friend history across later relationship changes, w
 Retain a private redacted file for each owned server session, including startup and shutdown failures. Share default-on verbose trigger timing and acknowledged preferences through CLI, both Lino encodings and translated Settings, with a finite full-session download.
 
 Add owned VK user-token acquisition with exact standalone redirects, an isolated desktop window, read-only validation and acknowledged protected saving. Share cancellable CLI, both Lino encodings and four-language Connections controls without credential echoes or mutation replay.
+
+Use the actual lino-arguments parser across CLI consumers, preserving existing option value conventions while honoring the end-of-options marker and refusing reserved option keys without credential echoes.

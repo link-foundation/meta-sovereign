@@ -31,7 +31,10 @@ export const runCliCommand = async (
     }
     return await handler(args, log);
   } catch (error) {
-    if (error?.code === 'STORE_LOCKED' || SCHEMA_ERROR_CODES.has(error?.code)) {
+    if (
+      ['STORE_LOCKED', 'INVALID_CLI_ARGUMENTS'].includes(error?.code) ||
+      SCHEMA_ERROR_CODES.has(error?.code)
+    ) {
       log(error.message);
       return 1;
     }

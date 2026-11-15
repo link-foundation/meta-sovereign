@@ -16,6 +16,9 @@ until every criterion has implementation and verification evidence.
 - [ ] Implement remaining local/remote lifecycle and configuration gaps through
       shared CLI, Lino API and UI controls. Preserve stopped defaults and refuse a
       mode switch when the other process cannot be confirmed stopped.
+      The shared handwritten CLI parser is now replaced by the actual
+      `lino-arguments` parser with existing command value conventions retained;
+      layered desktop configuration and runner control remain required.
 - [ ] Add finite regressions for precedence, protected secrets, remote quoting,
       positive process receipts, ambiguous SSH failures and draining shutdown.
       Use mock transports locally; full platform/runtime coverage belongs in CI.
