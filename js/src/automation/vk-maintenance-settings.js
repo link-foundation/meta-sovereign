@@ -1,7 +1,11 @@
 /** Independent destructive policies; neither runs until explicitly enabled. */
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
-import { positiveVkId, readVkFriendSettings } from './vk-friends-settings.js';
+import {
+  positiveVkId,
+  readVkFriendSettings,
+  legacyFriendPriority,
+} from './vk-friends-settings.js';
 import { readVkCancelledSettings } from './vk-cancelled-settings.js';
 import { vkGreetSettings } from './vk-greet-settings.js';
 import { vkReengageSettings } from './vk-reengage-settings.js';
@@ -43,15 +47,18 @@ export const normalizeVkMaintenance = (input) => {
     priorityIds: [...new Set(input.priorityIds)],
   };
 };
-export const readVkMaintenanceSettings = async (store, kind) =>
-  normalizeVkMaintenance(
-    (await store.get(maintenanceKeys(kind).job)) ?? {
-      enabled: false,
-      everyMinutes: kind === 'cleanup' ? 30 : 8,
-      limit: kind === 'cleanup' ? 10000 : 20,
-      priorityIds: [],
-    }
-  );
+export const readVkMaintenanceSettings = async (store, kind) => {
+  const saved = (await store.get(maintenanceKeys(kind).job)) ?? {
+    enabled: false,
+    everyMinutes: kind === 'cleanup' ? 30 : 8,
+    limit: kind === 'cleanup' ? 10000 : 20,
+    priorityIds: [],
+  };
+  return normalizeVkMaintenance({
+    ...saved,
+    priorityIds: legacyFriendPriority(saved.priorityIds),
+  });
+};
 export const protectedVkFriends = async (store, settings) => {
   const policies = await Promise.all(
     maintenanceKinds.map((kind) => readVkMaintenanceSettings(store, kind))

@@ -18,6 +18,10 @@ Existing shared cleanup/cancellation guards protect seeded IDs. Neither action
 sends, accepts or cancels a provider request. Persisted legacy null/empty lists
 and numeric singletons normalize on read; new writes remain strictly validated.
 
+The [persisted-list follow-up](legacy-priorities.md) extends read normalization
+to cleanup, cancellation and every personal policy while retaining strict new
+writes and refusing populated unknown shapes.
+
 CLI commands `vk-friends seed-priority` and `vk-friends clear-priority` own and
 close their stores. The corresponding `/api/vk/friends/seed-priority` and
 `/api/vk/friends/clear-priority` actions enforce trusted origins through both

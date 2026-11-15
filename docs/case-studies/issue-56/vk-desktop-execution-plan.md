@@ -25,6 +25,9 @@ until every criterion has implementation and verification evidence.
       The shared handwritten CLI parser is now replaced by the actual
       `lino-arguments` parser with existing command value conventions retained;
       layered desktop configuration and runner control remain required.
+      [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
+      saved lists across all policies, with strict writes and actual protected-user
+      cleanup checks; other configuration lists and hosted acceptance remain open.
 - [ ] Add finite regressions for precedence, protected secrets, remote quoting,
       positive process receipts, ambiguous SSH failures and draining shutdown.
       Use mock transports locally; full platform/runtime coverage belongs in CI.

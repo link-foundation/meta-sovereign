@@ -1,6 +1,6 @@
 import { createStoreQueue } from '../storage/serialized.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
-import { positiveVkId } from './vk-friends-settings.js';
+import { positiveVkId, legacyFriendPriority } from './vk-friends-settings.js';
 
 /** Browser-safe acknowledged configuration for an independent personal job. */
 export const createVkPersonalSettings = (name, spec) => {
@@ -46,8 +46,13 @@ export const createVkPersonalSettings = (name, spec) => {
     spec.validate(result);
     return result;
   };
-  const settings = async (store) =>
-    normalize((await store.get(keys.job)) ?? spec.defaults);
+  const settings = async (store) => {
+    const saved = (await store.get(keys.job)) ?? spec.defaults;
+    return normalize({
+      ...saved,
+      priorityIds: legacyFriendPriority(saved.priorityIds),
+    });
+  };
   const read = async (store) => {
     const last = await store.get(keys.state);
     return {

@@ -62,10 +62,16 @@ export const readVkFriendSettings = async (store) => {
         }
   );
 };
-// Old Lino settings represented an empty list as null/empty text and a
-// singleton as a number. Normalize only persisted input, never new writes.
+const emptyBareList = (value) =>
+  value &&
+  typeof value === 'object' &&
+  [Object.prototype, null].includes(Object.getPrototypeOf(value)) &&
+  Object.keys(value).length === 0;
+// Old Lino settings used null/empty text/an empty bare-key object or a numeric
+// singleton. Normalize only persisted reads; preserve invalid populated shapes
+// for strict refusal rather than silently dropping potentially protected users.
 export const legacyFriendPriority = (value) =>
-  value === null || value === undefined || value === ''
+  value === null || value === undefined || value === '' || emptyBareList(value)
     ? []
     : positiveVkId(value)
       ? [value]

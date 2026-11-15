@@ -588,3 +588,5 @@ Use the actual lino-arguments parser across CLI consumers, preserving existing o
 Copy visible redacted logs through an owned write-only desktop clipboard bridge, require native acknowledgement and preserve translated refusal recovery and browser copying outside the desktop bridge.
 
 Load bounded readable global/local server startup configuration before explicit CLI overrides, with documented nonsecret fields and generic validation failures.
+
+Normalize legacy saved empty and numeric singleton VK priority lists across policy readers, preserving protected users and strict validation of new settings.
