@@ -69,6 +69,12 @@ export const wallPolicy = createVkPersonalSettings('wall', {
   fields: wallFields,
   textFields: wallTextFields,
   booleans: wallBooleans,
+  listFields: {
+    communities: ',',
+    restrictedCommunities: ',',
+    messages: '\n',
+    attachments: ',',
+  },
   messageDefaults,
   upgrade: (input) => ({
     randomAttachment: false,

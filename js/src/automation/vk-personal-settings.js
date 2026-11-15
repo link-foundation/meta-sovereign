@@ -1,6 +1,7 @@
 import { createStoreQueue } from '../storage/serialized.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { positiveVkId, legacyFriendPriority } from './vk-friends-settings.js';
+import { legacyTextList } from './vk-legacy-lists.js';
 
 /** Browser-safe acknowledged configuration for an independent personal job. */
 export const createVkPersonalSettings = (name, spec) => {
@@ -47,9 +48,15 @@ export const createVkPersonalSettings = (name, spec) => {
     return result;
   };
   const settings = async (store) => {
-    const saved = (await store.get(keys.job)) ?? spec.defaults;
+    const saved = { ...spec.defaults, ...(await store.get(keys.job)) };
     return normalize({
       ...saved,
+      ...Object.fromEntries(
+        Object.entries(spec.listFields ?? {}).map(([key, separator]) => [
+          key,
+          legacyTextList(saved[key], separator),
+        ])
+      ),
       priorityIds: legacyFriendPriority(saved.priorityIds),
     });
   };

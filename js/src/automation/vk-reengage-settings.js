@@ -59,6 +59,7 @@ export const vkReengageSettings = Object.fromEntries(
         ...(kind === 'music' ? { audio: 64 } : {}),
       },
       booleans: reengageBooleans,
+      listFields: { questions: '\n' },
       defaults: {
         enabled: false,
         everyMinutes: 20,

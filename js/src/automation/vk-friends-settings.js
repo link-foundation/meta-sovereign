@@ -2,6 +2,7 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
 import { readVkFriendStats } from './vk-friend-stats.js';
+import { emptyLegacyList } from './vk-legacy-lists.js';
 
 export const VK_FRIENDS_JOB = 'provider-job:vk:friends';
 export const VK_FRIENDS_STATE = 'provider-job-state:vk:friends';
@@ -62,16 +63,14 @@ export const readVkFriendSettings = async (store) => {
         }
   );
 };
-const emptyBareList = (value) =>
-  value &&
-  typeof value === 'object' &&
-  [Object.prototype, null].includes(Object.getPrototypeOf(value)) &&
-  Object.keys(value).length === 0;
 // Old Lino settings used null/empty text/an empty bare-key object or a numeric
 // singleton. Normalize only persisted reads; preserve invalid populated shapes
 // for strict refusal rather than silently dropping potentially protected users.
 export const legacyFriendPriority = (value) =>
-  value === null || value === undefined || value === '' || emptyBareList(value)
+  value === null ||
+  value === undefined ||
+  value === '' ||
+  emptyLegacyList(value)
     ? []
     : positiveVkId(value)
       ? [value]

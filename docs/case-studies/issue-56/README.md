@@ -541,3 +541,5 @@ exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next aud
 [Legacy priority compatibility](legacy-priorities.md) corrects saved empty and singleton reads across VK policies without weakening new writes; exact-parent failures and 29 focused checks retain protection through text/binary reopen.
 
 [Shared desktop configuration](desktop-configuration.md) adds actual-parent dispatch/packaging failures, immediate FIFO refusal and 50 focused checks. Owned TLS navigation and production dependency staging are covered by new hosted gates; shared editing and actual local/SSH control remain unfinished.
+
+[Persisted catalog compatibility](legacy-catalogs.md) retains exact-parent list/read failures, 15 focused checks and native/MCP before/after views. Invalid saved shapes and new writes remain strict; hosted acceptance and complete desktop configuration remain required.

@@ -29,7 +29,10 @@ until every criterion has implementation and verification evidence.
       native hosted verification, shared editing and runner control remain required.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
-      cleanup checks; other configuration lists and hosted acceptance remain open.
+      cleanup checks. [Persisted catalog compatibility](legacy-catalogs.md) now covers
+      declared invitation, birthday, question and destination lists, with strict new
+      writes, 15 focused checks and native/MCP evidence; hosted acceptance and
+      complete shared configuration editing remain open.
 - [ ] Add finite regressions for precedence, protected secrets, remote quoting,
       positive process receipts, ambiguous SSH failures and draining shutdown.
       Use mock transports locally; full platform/runtime coverage belongs in CI.

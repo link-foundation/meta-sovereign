@@ -592,3 +592,5 @@ Load bounded readable global/local server startup configuration before explicit 
 Normalize legacy saved empty and numeric singleton VK priority lists across policy readers, preserving protected users and strict validation of new settings.
 
 Apply readable global/local configuration and explicit launch options to the desktop runtime through the shared server adapter. Load the owned TLS origin with a window/origin/certificate-scoped exception, include production runtime dependencies in desktop staging and refuse nonregular configuration files without blocking.
+
+Normalize declared legacy saved VK message, question, attachment and destination lists before strict read validation. Preserve owner records and new-write guards, and display saved catalogs in connected/offline editors.

@@ -27,6 +27,7 @@ export const retentionPolicy = createVkPersonalSettings('retention', {
   fields: retentionFields,
   textFields: retentionTextFields,
   booleans: [],
+  listFields: { peers: ',' },
   defaults: {
     enabled: false,
     everyMinutes: 60,
