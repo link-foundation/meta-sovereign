@@ -1,4 +1,5 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { vkMessageRandomId } from './vk-message-random.js';
 import { loadSettings, optOutEntry } from './safety.js';
 import { protectedVkFriends } from './vk-maintenance-settings.js';
 import {
@@ -102,8 +103,7 @@ const planItem = (userId, row, state) => ({
   historyCount: state?.messages?.length ?? null,
   canWrite: state?.canWrite ?? null,
   evidence: 'outgoing-only',
-  randomId:
-    (globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 2147483646) + 1,
+  randomId: vkMessageRandomId(),
 });
 export const previewVkCancelled = async (context) => {
   if (context.isStopped()) {
