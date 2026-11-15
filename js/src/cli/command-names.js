@@ -75,6 +75,7 @@ export const ordinaryCommandNames = new Set([
   'vk-cache',
   'vk-send-queue',
   'vk-stickers',
+  'vk-token',
   'trust',
   'upwork-message',
   'upwork-search',

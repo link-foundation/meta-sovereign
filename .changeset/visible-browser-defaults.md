@@ -580,3 +580,5 @@ Inspect error fields before materializing native stacks so diagnostic formatting
 Retain acknowledged accepted-friend history across later relationship changes, with initial and UTC period counts, private scoped Lino statistics files and a translated shared summary that preserves counts through failed reads.
 
 Retain a private redacted file for each owned server session, including startup and shutdown failures. Share default-on verbose trigger timing and acknowledged preferences through CLI, both Lino encodings and translated Settings, with a finite full-session download.
+
+Add owned VK user-token acquisition with exact standalone redirects, an isolated desktop window, read-only validation and acknowledged protected saving. Share cancellable CLI, both Lino encodings and four-language Connections controls without credential echoes or mutation replay.

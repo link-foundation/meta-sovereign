@@ -57,6 +57,7 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/create-github-release.mjs'
       - 'js/scripts/github-release-content.mjs'
       - 'js/electron/**'
+      - 'experiments/issue-56/vk-token-electron.mjs'
       - 'js/scripts/build-desktop.mjs'
       - 'js/scripts/desktop-release-gate.mjs'
       - 'js/scripts/command-process.mjs'
@@ -262,6 +263,13 @@ jobs:
 
       - name: Build web bundle
         run: npm run build:web
+
+      - name: Verify native VK authorization isolation
+        if: matrix.name == 'linux-x64'
+        env:
+          ELECTRON_VERSION: ${{ steps.electron.outputs.version }}
+        # One owned, network-intercepted case; no provider account is used.
+        run: xvfb-run -a npm exec --yes --package="electron@$ELECTRON_VERSION" -- electron --no-sandbox experiments/issue-56/vk-token-electron.mjs
 
       - name: Choose macOS signing mode
         if: matrix.os == 'macos'

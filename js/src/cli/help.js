@@ -50,7 +50,9 @@ export const BROADCAST_HELP = `  broadcast-targets [--store=<dir>]
   broadcast-delete --id=<publication-id> [--targets=<id,id>] [--yes]
                 all broadcast commands accept --store=<dir>; legacy broadcast --networks still queues`;
 
-export const BROWSER_HELP = `  browser-policies [--platform=hh] [--slot=main] [--case=cv] [--store=<dir>]
+export const BROWSER_HELP = `  vk-token      status | start --confirm | import --confirm | cancel --id=<current-id> [--url=http://127.0.0.1:8787]
+                start opens the connected Electron authorization window; import uses a masked terminal prompt. Encrypted secret storage is required; start/import return a task ID. Read status until saved/failed; status never resumes work.
+  browser-policies [--platform=hh] [--slot=main] [--case=cv] [--store=<dir>]
   browser-configure --scope=default|case|slot [--key=cv|hh/forms] --mode=visible|headless|inherit [--store=<dir>]`;
 
 export const TRUST_HELP = `  trust         [--store=<dir>] [--remove=true]

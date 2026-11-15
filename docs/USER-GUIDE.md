@@ -656,3 +656,5 @@ Temporary connection failures keep retrying automatically, without a manual retr
 After updating, repeat `serve` while the original host stays running: it keeps serving while the replacement warms up, then transfers the single store writer and retains the public listener/certificate. Failed replacements roll back automatically. Older single-process installations need one initial restart to adopt this host. See [rolling server upgrades](ROLLING-SERVER.md).
 
 [Reviewed provider-browser answers, exact option confirmation and status recovery](QUESTION-BROWSER.md).
+
+See [VK user-token acquisition](VK-USER-TOKEN.md) for constrained desktop authorization, private import and validated protected saving.

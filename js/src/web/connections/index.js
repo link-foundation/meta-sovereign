@@ -60,10 +60,12 @@ import { VkDiscovery } from './vk-discovery.js';
 import { VkCache } from './vk-cache.js';
 import { VkStickerCatalog } from '../vk-sticker-catalog.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
+import { VkToken } from './vk-token.js';
 
 const el = React.createElement;
 const VkConnectionJobs = () =>
   el(React.Fragment, null, [
+    el(VkToken, { key: 'token' }),
     el(VkAttachments, { key: 'attachments' }),
     el(VkSendQueue, { key: 'send-queue' }),
     el(VkOnline, { key: 'online' }),

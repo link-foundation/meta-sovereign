@@ -141,6 +141,7 @@ const OPTION_KEYS = {
 const secretToken = async (store, source, explicitId) => {
   const ids = [
     explicitId,
+    source === 'vk' ? 'secret:vk:user-token' : null,
     ...TOKEN_KEYS.map((key) => `secret:${source}:${key}`),
   ].filter(Boolean);
   for (const id of ids) {

@@ -60,6 +60,8 @@ import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import { createRequestGate } from './request-gate.js';
 import { createRuntimeLifecycle } from './runtime-lifecycle.js';
+import { createVkTokenAcquisition } from '../sources/vk-token-acquisition.js';
+import { handleVkToken } from './routes-vk-token.js';
 import { listenFailure } from './listen-error.js';
 import {
   getSource as getSourceDefault,
@@ -795,6 +797,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   }
   for (const handle of [
     () => handleDiagnostics(req, res, p, url, ctx),
+    () => handleVkToken(req, res, p, ctx),
     () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleVkSendQueue(store, req, res, p, url, ctx),
     () => handleVkCache(store, req, res, p, url, ctx),
@@ -1105,6 +1108,13 @@ const initLogSettings = async (options, releaseStore) => {
   }
 };
 
+const tokenService = (store, passphrase, options) =>
+  createVkTokenAcquisition({
+    ...options,
+    store,
+    protectedStorage: Boolean(passphrase),
+  });
+
 const startServerRuntime = async ({
   port = 0,
   storeDir = defaultStoreDir(),
@@ -1117,6 +1127,7 @@ const startServerRuntime = async ({
   diagnosticsSession,
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
+  vkToken,
   emailLiveFactory = null,
   emailPoll,
   cv = {},
@@ -1199,6 +1210,7 @@ const startServerRuntime = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    vkToken: tokenService(store, secretPassphrase, vkToken),
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv, vacancies),

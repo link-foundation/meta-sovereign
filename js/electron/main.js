@@ -15,6 +15,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attachDesktopLifecycle } from './lifecycle.js';
+import { openVkAuthorization } from './vk-authorization.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const preload = path.join(here, 'preload.cjs');
@@ -171,10 +172,21 @@ export const startDesktop = async ({
 } = {}) => {
   const [{ app, BrowserWindow, nativeTheme }, { startServer }, autoUpdater] =
     await Promise.all([electronLoader(), serverLoader(), updaterLoader()]);
+  let mainWindow;
   const handle = await startServer({
     port: 0,
     localUi: true,
     storeDir: resolveDesktopStoreDir({ app }),
+    vkToken: {
+      openAuthorization: async ({ signal }) => {
+        await app.whenReady();
+        return openVkAuthorization({
+          BrowserWindow,
+          parent: mainWindow,
+          signal,
+        });
+      },
+    },
   });
   let closing;
   const close = () =>
@@ -187,8 +199,14 @@ export const startDesktop = async ({
       app,
       BrowserWindow,
       handle: { close },
-      createWindow: () =>
-        createMainWindow({ BrowserWindow, nativeTheme, port: handle.port }),
+      createWindow: async () => {
+        mainWindow = await createMainWindow({
+          BrowserWindow,
+          nativeTheme,
+          port: handle.port,
+        });
+        return mainWindow;
+      },
     });
   } catch (error) {
     await close();
