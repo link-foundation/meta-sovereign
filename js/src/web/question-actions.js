@@ -26,9 +26,12 @@ export const AutomationActionFields = ({
       key: 'kind',
       name: 'actionKind',
       label: t('questions.action'),
-      options: ['send-template', 'answer-questions', 'reply-gratitude'].map(
-        (kind) => [kind, t(`questions.kind.${kind}`)]
-      ),
+      options: [
+        'send-template',
+        'answer-questions',
+        'reply-gratitude',
+        'reply-identity',
+      ].map((kind) => [kind, t(`questions.kind.${kind}`)]),
     }),
     form.actionKind === 'reply-gratitude'
       ? el(GratitudeFields, { ...p, key: 'gratitude', Input, Check })

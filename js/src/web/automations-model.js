@@ -121,10 +121,11 @@ const triggersFrom = (form, base) => {
     form.manual && { kind: 'manual' },
     form.chatMenu && { kind: 'chat-menu' },
     form.schedule.trim() && { kind: 'schedule', every: form.schedule.trim() },
-    (form.incomingRecognizer === 'gratitude' || form.incoming.trim()) && {
+    (['gratitude', 'identity'].includes(form.incomingRecognizer) ||
+      form.incoming.trim()) && {
       kind: 'incoming',
-      ...(form.incomingRecognizer === 'gratitude'
-        ? { recognizer: 'gratitude' }
+      ...(['gratitude', 'identity'].includes(form.incomingRecognizer)
+        ? { recognizer: form.incomingRecognizer }
         : {
             pattern: form.incoming.trim(),
             ...(incoming?.flags ? { flags: incoming.flags } : {}),

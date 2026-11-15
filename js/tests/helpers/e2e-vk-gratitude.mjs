@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { gratitudeServer } from '../../../experiments/issue-56/vk-gratitude-fixture.mjs';
-import { decoded } from './e2e-form-review.mjs';
 import {
   vkAutomationBrowser,
   captureVkAutomationLayouts,
+  previewVkAutomation,
+  saveVkAutomation,
 } from './vk-automation-browser.mjs';
 
 export const verifyVkGratitude = async (
@@ -26,17 +27,7 @@ export const verifyVkGratitude = async (
         await page.locator('[name="incomingRecognizer"]').inputValue(),
         'gratitude'
       );
-      const editor = page.locator('.automation-editor');
-      const preview = async () => {
-        const waiting = page.waitForResponse((r) =>
-          r.url().endsWith('/api/automations/plan')
-        );
-        await editor
-          .getByRole('button', { name: 'Preview', exact: true })
-          .click();
-        return decoded(await waiting);
-      };
-      const plan = await preview();
+      const plan = await previewVkAutomation(page);
       assert.deepEqual(plan.drafts.map((d) => d.chat).sort(), ['41', '42']);
       await page.locator('[data-gratitude-sticker]').first().waitFor();
       if (screenshots) {
@@ -46,12 +37,7 @@ export const verifyVkGratitude = async (
       }
       await page.locator('[name="preferSticker"]').uncheck();
       await page.locator('[name="formal"]').fill('You are welcome <friend>!');
-      const saving = page.waitForResponse(
-        (r) =>
-          r.url().endsWith('/api/automations') && r.request().method() === 'PUT'
-      );
-      await editor.getByRole('button', { name: 'Save', exact: true }).click();
-      const saved = await decoded(await saving);
+      const saved = await saveVkAutomation(page);
       assert.equal(saved.action.preferSticker, false);
       await page.reload();
       await open.click();
@@ -64,7 +50,7 @@ export const verifyVkGratitude = async (
         await page.locator('[name="preferSticker"]').isChecked(),
         false
       );
-      const textPlan = await preview();
+      const textPlan = await previewVkAutomation(page);
       assert.ok(
         textPlan.drafts.every(
           (d) => d.text === 'You are welcome <friend>!' && !d.sticker

@@ -19,4 +19,14 @@ export const ruGratitude = {
     'Последнее сообщение должно быть входящей благодарностью.',
   'automations.reason.gratitude-message-required':
     'Полное сообщение не распознано как благодарность.',
+  'automations.presets.identity.name': 'Ответить на вопрос «кто ты/вы?»',
+  'automations.presets.identity.description':
+    'Проверьте ответ на личный вопрос во ВКонтакте «кто ты/вы?». Форма обращения запоминается по входящей истории.',
+  'gratitude.recognizer.identity': 'Вопрос «кто ты/вы?»',
+  'automations.reason.identity-incoming-required':
+    'Последним должен быть входящий личный вопрос во ВКонтакте «кто ты/вы?».',
+  'automations.reason.identity-question-required':
+    'Сообщение целиком не распознано как вопрос «кто ты/вы?».',
+  'chat.about.identity': 'обращение в вопросе «кто ты/вы?» {when}',
+  'questions.kind.reply-identity': 'Ответить на вопрос «кто ты/вы?»',
 };

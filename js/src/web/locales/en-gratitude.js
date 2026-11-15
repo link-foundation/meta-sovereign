@@ -19,4 +19,14 @@ export const enGratitude = {
     'The latest message must be incoming gratitude.',
   'automations.reason.gratitude-message-required':
     'The complete message is not recognized as gratitude.',
+  'automations.presets.identity.name': 'Reply to identity questions',
+  'automations.presets.identity.description':
+    'Review your formal or informal reply to a personal VK “who are you?” question. Its address form is learned from incoming history.',
+  'gratitude.recognizer.identity': 'Identity question: who are you?',
+  'automations.reason.identity-incoming-required':
+    'The latest message must be an incoming personal VK identity question.',
+  'automations.reason.identity-question-required':
+    'The complete message is not recognized as an identity question.',
+  'chat.about.identity': 'addressed you in an identity question {when}',
+  'questions.kind.reply-identity': 'Reply to identity questions',
 };

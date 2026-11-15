@@ -6,6 +6,7 @@ import {
   linkRequest,
   affirmation,
 } from './conversation-rules.js';
+import { messageTime } from './message-time.js';
 import { isQuestion } from './question-recognition.js';
 export { isQuestion } from './question-recognition.js';
 const DAY_MS = 24 * 60 * 60_000;
@@ -17,7 +18,7 @@ const W = '[\\p{L}\\p{M}\\p{N}_]';
 const phrase = (source) => new RegExp(`(?<!${W})(?:${source})(?!${W})`, 'iu');
 
 const textOf = (message) => String(message?.body ?? '').trim();
-const timeOf = (message) => Date.parse(message?.timestamp ?? '') || 0;
+const timeOf = (message) => messageTime(message?.timestamp) || 0;
 const cut = (text, size = MAX_VALUE) =>
   text.length > size ? `${text.slice(0, size - 1)}…` : text;
 

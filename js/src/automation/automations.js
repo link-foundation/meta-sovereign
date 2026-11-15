@@ -52,6 +52,8 @@ import {
 } from '../crm/reengage.js';
 
 import { OUTBOX_PREFIX } from './outbox.js';
+import { identityQuestionForm } from '../crm/identity-question.js';
+import { identityDraft } from './identity.js';
 import {
   gratitudeDraft,
   gratitudeOptions,
@@ -148,8 +150,8 @@ const normalizeTrigger = (trigger) => {
     return { kind, every: trigger.every };
   }
   if (kind === 'incoming') {
-    if (trigger.recognizer === 'gratitude') {
-      return { kind, recognizer: 'gratitude' };
+    if (['gratitude', 'identity'].includes(trigger.recognizer)) {
+      return { kind, recognizer: trigger.recognizer };
     }
     if (trigger.recognizer) {
       throw new Error(`unknown incoming recognizer "${trigger.recognizer}"`);
@@ -167,9 +169,9 @@ const normalizeAction = (action = {}) => {
   if (kind === 'answer-questions') {
     return normalizeAnswerAction(action);
   }
-  if (!['send-template', 'reply-gratitude'].includes(kind)) {
+  if (!['send-template', 'reply-gratitude', 'reply-identity'].includes(kind)) {
     throw new Error(
-      `unknown action "${kind}"; known: send-template, reply-gratitude, answer-questions`
+      `unknown action "${kind}"; known: send-template, reply-gratitude, reply-identity, answer-questions`
     );
   }
   const form = action.form ?? 'auto';
@@ -242,6 +244,9 @@ export const hasTrigger = (automation, kind) =>
 /** The `incoming` trigger whose pattern matches `text`, if any. */
 export const incomingTrigger = (automation, text, message = {}) =>
   automation.triggers.find((t) => {
+    if (t.kind === 'incoming' && t.recognizer === 'identity') {
+      return Boolean(identityQuestionForm(text));
+    }
     if (t.kind === 'incoming' && t.recognizer === 'gratitude') {
       return isGratitudeMessage({ ...message, body: text });
     }
@@ -350,6 +355,31 @@ export const automationPresets = () =>
         templates: {
           informal: 'Пожалуйста! Рад тебе помочь.',
           formal: 'Пожалуйста! Рад Вам помочь.',
+        },
+      },
+    },
+    {
+      id: 'identity',
+      preset: 'identity',
+      name: 'Reply to identity questions',
+      description:
+        'Review your formal or informal reply to a personal VK “who are you?” question. Its address form is learned from incoming history.',
+      enabled: false,
+      triggers: [
+        { kind: 'incoming', recognizer: 'identity' },
+        { kind: 'chat-menu' },
+      ],
+      conditions: {
+        mutual: false,
+        lastFrom: 'contact',
+        networks: ['vk'],
+        cooldownDays: 1,
+      },
+      action: {
+        kind: 'reply-identity',
+        templates: {
+          informal: 'Я программист, а ты?',
+          formal: 'Я программист, а Вы?',
         },
       },
     },
@@ -706,6 +736,11 @@ const planningContext = (links, automation, options, now) => {
   return { ctx, selfIds, isSelf };
 };
 
+const personalReplyBuilders = new Map([
+  ['reply-gratitude', gratitudeDraft],
+  ['reply-identity', identityDraft],
+]);
+
 export const planAutomation = (links = [], input, options = {}) => {
   const automation = plannedAutomation(input);
   if (automation.action.kind === 'answer-questions') {
@@ -745,8 +780,11 @@ export const planAutomation = (links = [], input, options = {}) => {
             ...result,
           });
         }
-      } else if (automation.action.kind === 'reply-gratitude') {
-        const result = gratitudeDraft(
+      } else if (
+        ['reply-gratitude', 'reply-identity'].includes(automation.action.kind)
+      ) {
+        const build = personalReplyBuilders.get(automation.action.kind);
+        const result = build(
           automation,
           candidate,
           draftFor(automation, candidate, { isSelf, rules }),
@@ -814,7 +852,9 @@ export const templateFromText = (text, draft = {}) => {
 
 /** The automation with the user's edited templates in place of its own. */
 export const withEdit = (automation, edit) =>
-  ['send-template', 'reply-gratitude'].includes(automation.action.kind) &&
+  ['send-template', 'reply-gratitude', 'reply-identity'].includes(
+    automation.action.kind
+  ) &&
   edit?.templates &&
   Object.keys(edit.templates).length > 0
     ? {

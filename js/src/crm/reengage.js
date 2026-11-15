@@ -27,6 +27,7 @@ import {
   isTelegramWebUrl,
 } from '../sources/telegram-chat-url.js';
 import { addressFormOf } from './person-learn.js';
+import { messageTime } from './message-time.js';
 import {
   batchStopReason,
   guardedSend,
@@ -117,6 +118,10 @@ export const collectSelfIds = (explicit = []) => {
   const chatsBySender = new Map();
   return {
     add(m) {
+      if (m.sender && (m.outgoing === true || m.out === true || m.out === 1)) {
+        ids.add(String(m.sender));
+        return;
+      }
       if (explicit.length || !m.sender) {
         return;
       }
@@ -173,8 +178,8 @@ const lastMessage = (messages) => {
   let last = null;
   let lastMs = null;
   for (const m of messages) {
-    const ms = toMs(m.timestamp);
-    if (ms !== null && (lastMs === null || ms > lastMs)) {
+    const ms = messageTime(m.timestamp);
+    if (Number.isFinite(ms) && (lastMs === null || ms > lastMs)) {
       last = m;
       lastMs = ms;
     }

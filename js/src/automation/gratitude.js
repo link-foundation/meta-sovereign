@@ -1,6 +1,11 @@
 // Behavior researched at konard/vk-bot 175d2d13218d9e791ae2f3e824a0d24f10319dcb.
 // This bounded whole-message recognizer is independent of its regex builder.
 import { greetingDestinationReason } from '../greetings/plan.js';
+import { personalReplyDraft, latestReplyMessage } from './personal-reply.js';
+export {
+  latestReplyMessage as latestGratitudeMessage,
+  replyFingerprint as gratitudeFingerprint,
+} from './personal-reply.js';
 
 export const gratitudeStickerIds = Object.freeze([
   '6342',
@@ -101,43 +106,6 @@ export const gratitudeOptions = (action) => {
   };
 };
 
-const at = (message) =>
-  typeof message.timestamp === 'number'
-    ? message.timestamp
-    : Date.parse(message.timestamp);
-export const latestGratitudeMessage = (messages) => {
-  let latest = null;
-  let ambiguous = false;
-  for (const message of messages) {
-    if (!Number.isFinite(at(message))) {
-      return null;
-    }
-    if (!latest || at(message) > at(latest)) {
-      latest = message;
-      ambiguous = false;
-    } else if (at(message) === at(latest) && message.id !== latest.id) {
-      ambiguous = true;
-    }
-  }
-  return ambiguous ? null : latest;
-};
-
-export const gratitudeFingerprint = (message) =>
-  JSON.stringify([
-    message.id,
-    message.source,
-    String(message.chat),
-    message.sender,
-    message.body,
-    message.sticker?.id,
-    message.timestamp,
-    message.outgoing,
-    message.out,
-    message.deleted,
-    message.service,
-    message.chatType,
-  ]);
-
 export const gratitudeMessageReason = (
   message,
   isSelf = (sender) => sender === 'me'
@@ -172,32 +140,24 @@ const variantIndex = (id, length) => {
 };
 
 export const gratitudeDraft = (automation, candidate, draft, isSelf) => {
-  const message = latestGratitudeMessage(candidate.messages);
-  const reason =
-    gratitudeMessageReason(message, isSelf) ||
-    (candidate.messages.some(
-      (m) =>
-        m.chatType && greetingDestinationReason({ ...m, network: m.source })
-    ) &&
-      'personal-chat-required');
-  if (reason) {
-    return { reason };
+  const message = latestReplyMessage(candidate.messages);
+  if (!message) {
+    return { reason: 'gratitude-incoming-required' };
   }
   const id = automation.action.preferSticker
     ? automation.action.stickerIds[
         variantIndex(message.id, automation.action.stickerIds.length)
       ]
     : null;
-  return {
-    draft: {
+  return personalReplyDraft(
+    automation,
+    candidate,
+    {
       ...draft,
       ...(id ? { text: '', sticker: { id }, prefill: null } : {}),
-      gratitude: {
-        message: message.id,
-        fingerprint: gratitudeFingerprint(message),
-        policy: JSON.stringify(automation.action),
-        sticker: id,
-      },
     },
-  };
+    isSelf,
+    'gratitude',
+    gratitudeMessageReason
+  );
 };

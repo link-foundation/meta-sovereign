@@ -5,6 +5,30 @@ import {
   TUTORIAL_VERSION,
 } from '../../src/web/tutorial.js';
 import { assertViewportFits } from './e2e-viewport.mjs';
+import { decoded } from './e2e-form-review.mjs';
+
+export const previewVkAutomation = async (page) => {
+  const waiting = page.waitForResponse((r) =>
+    r.url().endsWith('/api/automations/plan')
+  );
+  await page
+    .locator('.automation-editor')
+    .getByRole('button', { name: 'Preview', exact: true })
+    .click();
+  return decoded(await waiting);
+};
+
+export const saveVkAutomation = async (page) => {
+  const waiting = page.waitForResponse(
+    (r) =>
+      r.url().endsWith('/api/automations') && r.request().method() === 'PUT'
+  );
+  await page
+    .locator('.automation-editor')
+    .getByRole('button', { name: 'Save', exact: true })
+    .click();
+  return decoded(await waiting);
+};
 
 // Both VK automation scenarios own their context and use synthetic sticker
 // images. Keep fixture setup and viewport evidence identical across them.

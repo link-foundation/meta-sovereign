@@ -32,12 +32,8 @@ import { toForm, checkForm } from '../src/web/automations-model.js';
 import { GratitudeSticker } from '../src/web/gratitude-fields.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { renderInLocale } from './util-render.js';
-import {
-  encodeWire,
-  readWireResponse,
-  LINO_TEXT,
-  LINO_BINARY,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
+import { vkReplyApi, confirmVkReplyOnce } from './helpers/vk-reply-api.mjs';
 
 test('gratitude recognizes every pinned contextual phrase and all 38 stickers with finite bounds', async () => {
   const cases = JSON.parse(
@@ -465,18 +461,7 @@ test(
   async () => {
     for (const type of [LINO_TEXT, LINO_BINARY]) {
       const fixture = await gratitudeServer();
-      const call = async (path, body, method = 'POST') => {
-        const response = await fetch(`${fixture.base}/api/automations${path}`, {
-          method,
-          headers: { accept: type, 'content-type': type },
-          body: encodeWire(body, type),
-        });
-        assert.ok(response.headers.get('content-type').startsWith(type));
-        return {
-          status: response.status,
-          body: await readWireResponse(response),
-        };
-      };
+      const call = vkReplyApi(fixture, type);
       try {
         const saved = await call('', { automation: gratitudePreset() }, 'PUT');
         assert.equal(saved.status, 200);
@@ -485,29 +470,9 @@ test(
           targets: [{ source: 'vk', chat: '41' }],
         });
         const draft = run.body.queued[0];
-        assert.equal(fixture.vk.calls.length, 0);
-        const request = { id: draft.id, text: '', form: draft.form };
-        const asked = await call('/drafts/send', request);
-        assert.equal(asked.status, 428);
-        assert.equal(fixture.vk.calls.length, 0);
-        const done = await call('/drafts/send', {
-          ...request,
-          confirmToken: asked.body.confirm.token,
+        await confirmVkReplyOnce(fixture, call, draft, (params) => {
+          assert.equal(String(params.sticker_id), draft.sticker.id);
         });
-        assert.equal(done.body.status, 'sent');
-        assert.equal(fixture.receipts[0].via, 'api');
-        assert.equal(fixture.receipts[0].result, 919);
-        assert.equal(fixture.vk.calls.length, 1);
-        assert.equal(
-          String(fixture.vk.calls[0].params.sticker_id),
-          draft.sticker.id
-        );
-        assert.equal(String(fixture.vk.calls[0].params.peer_id), '41');
-        await call('/drafts/send', {
-          ...request,
-          confirmToken: asked.body.confirm.token,
-        });
-        assert.equal(fixture.vk.calls.length, 1);
       } finally {
         await fixture.close();
       }

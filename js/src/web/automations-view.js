@@ -309,7 +309,7 @@ const editorFields = ({ form, set, error, t }) => {
         key: 'recognizer',
         name: 'incomingRecognizer',
         label: t('gratitude.recognizer'),
-        options: ['pattern', 'gratitude'].map((value) => [
+        options: ['pattern', 'gratitude', 'identity'].map((value) => [
           value,
           t(`gratitude.recognizer.${value}`),
         ]),

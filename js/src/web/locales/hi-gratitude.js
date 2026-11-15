@@ -19,4 +19,14 @@ export const hiGratitude = {
     'अंतिम संदेश आने वाला आभार होना चाहिए।',
   'automations.reason.gratitude-message-required':
     'पूरे संदेश को आभार के रूप में नहीं पहचाना गया।',
+  'automations.presets.identity.name': 'पहचान के प्रश्नों का उत्तर',
+  'automations.presets.identity.description':
+    'व्यक्तिगत VK “आप कौन हैं?” प्रश्न का औपचारिक या अनौपचारिक उत्तर जाँचें। संबोधन आने वाले इतिहास से सीखा जाता है।',
+  'gratitude.recognizer.identity': 'पहचान का प्रश्न: आप कौन हैं?',
+  'automations.reason.identity-incoming-required':
+    'नवीनतम संदेश व्यक्तिगत VK पहचान का आने वाला प्रश्न होना चाहिए।',
+  'automations.reason.identity-question-required':
+    'पूरा संदेश पहचान के प्रश्न के रूप में नहीं पहचाना गया।',
+  'chat.about.identity': 'पहचान के प्रश्न में संबोधन {when}',
+  'questions.kind.reply-identity': 'पहचान के प्रश्नों का उत्तर',
 };

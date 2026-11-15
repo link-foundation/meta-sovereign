@@ -1,9 +1,11 @@
 import {
   gratitudeFingerprint,
-  gratitudeMessageReason,
   latestGratitudeMessage,
+  gratitudeMessageReason,
 } from './gratitude.js';
+import { identityMessageReason } from './identity.js';
 import { greetingDestinationReason } from '../greetings/plan.js';
+import { messageTime } from '../crm/message-time.js';
 import { editId, normalizeAutomation, withEdit } from './automations.js';
 
 // Retain two latest records at most; a large archive never becomes a second
@@ -19,8 +21,7 @@ const latestFromStore = async (store, draft) => {
     for (const message of batch) {
       const merged = [...recent, message];
       const latest = latestGratitudeMessage(merged);
-      const time = (m) =>
-        typeof m.timestamp === 'number' ? m.timestamp : Date.parse(m.timestamp);
+      const time = (m) => messageTime(m.timestamp);
       if (
         !Number.isFinite(time(message)) ||
         greetingDestinationReason({ ...message, network: message.source })
@@ -53,26 +54,37 @@ const latestFromStore = async (store, draft) => {
   return invalid ? null : latestGratitudeMessage(recent);
 };
 
-export const validateGratitudeDraft = async (
+const contextKey = (automation, draft) =>
+  automation.action.kind === 'reply-identity' || draft.identity
+    ? 'identity'
+    : 'gratitude';
+
+export const validatePersonalReplyDraft = async (
   store,
   automation,
   draft,
   self = []
 ) => {
-  if (automation.action.kind !== 'reply-gratitude' && !draft.gratitude) {
+  const key = contextKey(automation, draft);
+  if (
+    !['reply-gratitude', 'reply-identity'].includes(automation.action.kind) &&
+    !draft[key]
+  ) {
     return { ok: true };
   }
   const latest = await latestFromStore(store, draft);
-  const proof = draft.gratitude;
+  const proof = draft[key];
+  const reasonFor =
+    key === 'identity' ? identityMessageReason : gratitudeMessageReason;
   const owners = new Set(['me', ...self.map(String)]);
   const saved = await store.get(automation.id);
   const current = saved
     ? withEdit(normalizeAutomation(saved), await store.get(editId(saved)))
     : automation;
   if (
-    automation.action.kind !== 'reply-gratitude' ||
+    automation.action.kind !== `reply-${key}` ||
     !proof ||
-    gratitudeMessageReason(latest, (sender) => owners.has(String(sender))) ||
+    reasonFor(latest, (sender) => owners.has(String(sender))) ||
     latest.id !== proof.message ||
     gratitudeFingerprint(latest) !== proof.fingerprint ||
     JSON.stringify(automation.action) !== proof.policy ||
@@ -81,9 +93,9 @@ export const validateGratitudeDraft = async (
   ) {
     return {
       ok: false,
-      code: 'gratitude-stale',
+      code: `${key}-stale`,
       error:
-        'Review the latest personal gratitude message again before sending',
+        'Review the latest personal message and reply again before sending',
     };
   }
   return { ok: true };
@@ -95,3 +107,5 @@ const validContent = (draft, proof) =>
       String(draft.sticker.id) === proof.sticker &&
       !draft.text
     : Boolean(String(draft.text ?? '').trim());
+
+export const validateGratitudeDraft = validatePersonalReplyDraft;

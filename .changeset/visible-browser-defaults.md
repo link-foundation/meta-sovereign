@@ -512,3 +512,5 @@ Retain complete email alternative destinations through MIME, Gmail, JMAP and Gra
 Edit greeting response catalogs per language through CLI and the shared localized UI. Keep normalized outgoing VK messages and non-personal destinations out of greeting delivery while retaining preview, confirmation, daily limits and actual adapter receipts.
 
 Add configurable private VK gratitude replies with contextual phrase and sticker recognition, exact sticker previews, explicit text variants and fresh-message delivery guards through the shared automation UI, CLI and Lino APIs.
+
+Add configurable personal VK identity replies and evidenced address preference from the latest qualifying question. Respect later explicit address agreements, retain guarded exact-preview delivery and order mixed VK seconds/local ISO receipts consistently through CLI, Lino and the shared localized UI.

@@ -31,8 +31,8 @@ export const seedGratitude = async (store = createMemoryStore()) => {
   return store;
 };
 
-export const gratitudeServer = async () => {
-  const store = await seedGratitude();
+export const gratitudeServer = async ({ seed = seedGratitude } = {}) => {
+  const store = await seed();
   const vk = createFakeVk({ methods: { 'messages.send': () => 919 } });
   const live = createVkLive({ fetchImpl: vk.fetchImpl, baseUrl: vk.baseUrl });
   const send = createDefaultSender({

@@ -18,4 +18,14 @@ export const zhGratitude = {
   'automations.reason.gratitude-incoming-required':
     '最新消息必须是收到的感谢消息。',
   'automations.reason.gratitude-message-required': '完整消息未被识别为感谢。',
+  'automations.presets.identity.name': '回复身份问题',
+  'automations.presets.identity.description':
+    '审核 VK 私聊中“你是谁？”的正式或非正式回复。称呼偏好从收到的历史消息中学习。',
+  'gratitude.recognizer.identity': '身份问题：你是谁？',
+  'automations.reason.identity-incoming-required':
+    '最新消息必须是收到的 VK 私聊身份问题。',
+  'automations.reason.identity-question-required':
+    '整条消息未被识别为身份问题。',
+  'chat.about.identity': '在身份问题中使用的称呼 {when}',
+  'questions.kind.reply-identity': '回复身份问题',
 };

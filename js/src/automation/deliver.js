@@ -3,7 +3,7 @@ import { guardedSend, outboxKey } from './outbox.js';
 import { queueDrafts } from './drafts.js';
 import { validateAnswerDraft } from './question-store.js';
 import { questionChoiceKey } from './question-choice-key.js';
-import { validateGratitudeDraft } from './gratitude-store.js';
+import { validatePersonalReplyDraft } from './gratitude-store.js';
 
 const indicateTyping = (showTyping, automation, draft) =>
   draft.answer?.strictOptions || draft.sticker
@@ -40,14 +40,14 @@ export const createDelivery =
         draft,
       };
     }
-    const gratitude = await validateGratitudeDraft(
+    const context = await validatePersonalReplyDraft(
       store,
       automation,
       draft,
       self
     );
-    if (!gratitude.ok) {
-      return { status: 'failed', ...gratitude, draft };
+    if (!context.ok) {
+      return { status: 'failed', ...context, draft };
     }
     await indicateTyping(showTyping, automation, draft);
     if (draft.answer) {
@@ -74,7 +74,7 @@ export const createDelivery =
       key: deliveryKey(automation, draft, clock),
       draft,
       send: async (outgoing) => {
-        const valid = await validateGratitudeDraft(
+        const valid = await validatePersonalReplyDraft(
           store,
           automation,
           outgoing,
