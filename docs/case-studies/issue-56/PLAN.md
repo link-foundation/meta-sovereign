@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active hosted selection fixture clock correction:
+
+- [x] Match `060048e9` run `43656081415`, preserve Chromium shard 1 job `132635591776` and inspect its valid 2200px failure screenshot. Log lines 971–974 fail the seam assertion; the artifact shows a real Today divider between messages 12 (23:59) and 13 (00:00).
+- [x] Reproduce the exact fixture at a finite 00:07 UTC clock, then keep the intended adjacent-row sample within one UTC day. The parent has a 65.59px date gap and two pixel colors; the corrected fixture has a 3.20px seam and one color. Selected/cleared geometry stays within one pixel. Every selection/geometry/pixel assertion, viewport, engine and deadline remains; production CSS is unchanged.
+- [x] One focused native 2200px before/after comparison passes with screenshots, zero page exceptions and drained owned resources. Scoped lint/format/secrets/diff and the unchanged duplication gate (6.49%) pass. Full local matrices were not run.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head hosted workflows. Every original incomplete criterion remains active.
+
 Active native question anchor identity correction (QA04 remains incomplete):
 
 - [x] Reproduce an actual hidden-anchor destination mutation on `438f2bf4`: identical captured questions permit one owned native choice after the href changes. Preserve the finite disposable probe and its log.

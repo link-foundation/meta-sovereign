@@ -1,5 +1,9 @@
 # Issue 56: unified automation and device architecture
 
+- [Selection fixture midnight failure](ci-selection-clock.md): the actual hosted screenshot and finite native reproduction identify a date divider inside a clock-dependent adjacent-row sample; fixed UTC fixture data preserves every rendering assertion.
+
+- [Native question link destinations](question-hidden-links.md): actual href-only mutation, bounded full-target capture, fresh review and frozen native actions, with focused parent failures and native/MCP evidence. QA04 remains incomplete.
+
 - [Question-template link identity](question-template-links.md): exact-parent failures and native before/after evidence for extra URLs, bare/action links and path/query changes; default CLI/Lino and preview compatibility remain covered. QA04 and the wider issue remain incomplete.
 
 - [Desktop landing availability](desktop-landing-availability.md): reject unfinished uploads, retain cache state and preserve completed platforms, with exact-parent regressions, native/MCP before/after screenshots and current public release metadata. Exact-head hosted checks remain required.

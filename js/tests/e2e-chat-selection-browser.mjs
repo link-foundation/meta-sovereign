@@ -20,7 +20,9 @@ const CHAT = '-1001234';
 const idOf = (n) => `msg:telegram:${CHAT}:${n}`;
 
 const store = createMemoryStore();
-const now = Date.now();
+// The seam sample needs adjacent rows. A clock-relative seed straddles
+// midnight near 00:07 UTC and correctly inserts a date pill between them.
+const now = Date.parse('2026-11-14T12:00:00Z');
 const names = ['Alice', 'Bob', 'Carol'];
 for (let i = 1; i <= 14; i++) {
   const mine = i % 4 === 0 || i >= 12;
@@ -57,6 +59,7 @@ if (process.env.CI_TUTORIAL_DEBUG === '1') {
 }
 const context = await browser.newContext({
   viewport: { width: 1100, height: 800 },
+  timezoneId: 'UTC',
 });
 // WebKit knows no clipboard permissions (it allows writes on a click).
 if (engine === 'chromium') {
@@ -192,6 +195,13 @@ try {
   await page.goto(`${base}/#chat=telegram:${CHAT}`);
   await page.waitForSelector('[data-row]', { timeout: 15000 });
   await page.waitForTimeout(500);
+  assert(
+    (await page
+      .locator(`[data-row="${idOf(13)}"]`)
+      .evaluate((node) => node.previousElementSibling?.dataset.row)) ===
+      idOf(12),
+    'the selection seam fixture has adjacent message rows without a day divider'
+  );
 
   // One message's menu, in Desktop's order.
   await rightClick(2);
