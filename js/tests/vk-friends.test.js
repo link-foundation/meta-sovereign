@@ -15,12 +15,8 @@ import { saveVkOnline } from '../src/automation/vk-online.js';
 import { runCli } from '../src/cli/index.js';
 import { createVkFriendsApi } from '../src/web/vk-friends-api.js';
 import { dictionaries } from '../src/web/locales/index.js';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY, encodeWire } from '../src/transport/lino.js';
+import { createWirePost } from './helpers/http-wire.mjs';
 import {
   friendsAdapter,
   friendsServer,
@@ -444,20 +440,7 @@ test(
     const fixture = await friendsServer();
     try {
       for (const type of [LINO_TEXT, LINO_BINARY]) {
-        const post = async (path, body, origin = fixture.base) => {
-          const response = await fetch(
-            `${fixture.base}/api/vk/friends${path}`,
-            {
-              method: 'POST',
-              headers: { 'content-type': type, accept: type, origin },
-              body: encodeWire(body, type),
-            }
-          );
-          return {
-            status: response.status,
-            answer: await readWireResponse(response),
-          };
-        };
+        const post = createWirePost(fixture.base, '/api/vk/friends', type);
         assert.equal(
           (await post('', defaults, 'https://foreign.invalid')).status,
           403

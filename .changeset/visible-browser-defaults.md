@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add separately enabled reviewed VK banned/deleted friend cleanup and limited outgoing cancellation, protecting saved priority accounts and requiring current provider state plus specific deletion receipts. Share durable uncertainty protection, paced owned scheduling, CLI/default Lino and four-language/offline controls.
+
 Add reviewed priority VK friend requests and mutual-ranked incoming acceptance with saved capacity, batch size, opt-in pacing and scheduling. Require fresh account/policy checks and durable per-target acknowledgements; retain uncertain outcomes without replay across CLI, default Lino API and four-language online/offline controls.
 
 Add explicitly enabled incoming VK attachment metadata collection with first-observation deduplication, durable pause/resume, cursor-safe read recovery and CLI, default Lino API and four-language connection controls. Preserve existing message counts and media rendering.

@@ -1339,3 +1339,30 @@ Active stored-draft confirmation correction before ordered VK06 delivery:
 - [x] Draft disabled persisted scheduling, configurable capacity/batch/priority IDs, fresh account/request checks, durable per-target receipts and uncertainty refusal. Expose reviewed manual plans, owned scheduler, CLI/default Lino and shared translated/offline controls.
 - [x] Reproduce absent behavior on the actual published parent; 36 focused Node / 31 Deno and two registry checks pass, with native WebKit and independent four-language MCP before/after evidence. Online-job compatibility passes; full matrices remain in CI.
 - [ ] Preserve checked evidence, publish atomically and inspect exact-head hosted workflows. All original incomplete criteria remain required; PR57 stays draft/unmerged.
+
+Active VK friend maintenance (VK12/VK13):
+
+- [x] Read the complete pinned banned/deleted cleanup, outgoing cancellation and caller. Inspect official method/receipt schemas. Preserve priority exclusions, 30/8-minute examples, 5/3-second pacing and explicit outgoing scan limits without copying personal IDs.
+- [x] Draft independent disabled acknowledged policies, fresh identity/relation/deactivation guards, shared per-target uncertainty protection, owned scheduling and reviewed CLI/default Lino/four-language/offline controls.
+- [x] Reproduce actual-parent absence and verify finite provider receipt, changed-input, durable restart, shutdown and interface cases with 50 Node/48 Deno checks, two registry checks and before/after native/MCP evidence. Existing acceptance and online browser flows pass. Full matrices remain in hosted CI.
+- [ ] Archive checked evidence, publish atomically and inspect every exact-head workflow. Every other original incomplete requirement remains required; PR57 stays draft/unmerged.
+
+Ubuntu Deno CI investigation: exact published `4dca9462` job `132737990438`
+exceeded the unchanged ten-minute deadline after 760 progressing test modules.
+Preserve its complete log and explicit deadline annotation. The expanded
+partition contract fails on that parent's empty Ubuntu shard list; three native
+partitions pass 23 focused Node checks (one Deno-only skip) and two Deno checks.
+Publish the separate correction, retain every runtime target and require the
+new exact-head matrix. All 69 original unchecked rows remain active.
+
+macOS Node CI investigation: the same published head exceeded its ten-minute
+job deadline immediately after 2,025 passing assertions and one skipped check.
+Cold runner setup consumed over five minutes before the native test partition.
+Four native macOS partitions retain every test, the existing two-worker limit
+and the unchanged deadline. Preserve full logs and exact annotations in
+ci-macos-node-four.md; require the new head’s hosted matrix before acceptance.
+
+The shared maintenance fixture initially passed its captured clock to the separate
+friend-request service, adding a third captured timer. The focused ownership
+assertion caught this refactor error; each service now owns its distinct clock.
+The retained failing draft and corrected focused check document the correction.

@@ -19,7 +19,10 @@ import { telegramConnectionState } from '../provider-live-state.js';
 import { RecommendedHeader } from './recommended.js';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
-import { LocalServerHelp } from '../connection-guide.js';
+import {
+  LocalServerHelp,
+  translateGuideValue as tx,
+} from '../connection-guide.js';
 import {
   buildProbeHeaders,
   buildProbeUrl,
@@ -45,19 +48,17 @@ import { GithubInbox } from './github-inbox.js';
 import { VkAttachments } from './vk-attachments.js';
 import { VkOnline } from './vk-online.js';
 import { VkFriends } from './vk-friends.js';
+import { VkMaintenance } from './vk-maintenance.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
 
 const el = React.createElement;
-
-const tx = (t, value, key) => {
-  if (key) {
-    const translated = t(key);
-    if (translated !== key) {
-      return translated;
-    }
-  }
-  return value;
-};
+const VkConnectionJobs = () =>
+  el(React.Fragment, null, [
+    el(VkAttachments, { key: 'attachments' }),
+    el(VkOnline, { key: 'online' }),
+    el(VkFriends, { key: 'friends' }),
+    el(VkMaintenance, { key: 'maintenance' }),
+  ]);
 
 // A status that is still at work ("Saving…") shows Telegram's arc
 // (R-Y84); one that is done is plain text.
@@ -773,9 +774,7 @@ export const ProviderConnectionControls = ({
       providerId === 'email' ? el(EmailPullRow, { key: 'email-pull' }) : null,
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
       providerId === 'github' ? el(GithubInbox, { key: 'inbox' }) : null,
-      providerId === 'vk' ? el(VkAttachments, { key: 'attachments' }) : null,
-      providerId === 'vk' ? el(VkOnline, { key: 'online' }) : null,
-      providerId === 'vk' ? el(VkFriends, { key: 'friends' }) : null,
+      providerId === 'vk' ? el(VkConnectionJobs, { key: 'vk-jobs' }) : null,
       el(ConnectionProbeRow, {
         key: 'probe',
         provider,

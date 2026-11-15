@@ -1,5 +1,4 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
-import { safeMessage } from '../server/redact.js';
 import {
   VK_FRIENDS_STATE as STATE,
   VK_FRIENDS_PLAN as PLAN,
@@ -11,12 +10,18 @@ import {
   friendCredentialIdentity,
   observeFriendReceipt,
   friendPlanReason,
+  friendObservationIds,
+  readFriendState,
 } from './vk-friends-records.js';
 
-export const friendProvider = async (resolve, optionsFor) => {
+export const friendProvider = async (
+  resolve,
+  optionsFor,
+  capability = 'friendSnapshot'
+) => {
   const options = await optionsFor();
   const live = resolve('vk')?.live;
-  if (!options?.token || typeof live?.friendSnapshot !== 'function') {
+  if (!options?.token || typeof live?.[capability] !== 'function') {
     refuse('VK user-token friend API required');
   }
   return { options, live };
@@ -33,23 +38,11 @@ export const previewVkFriendPlan = async ({
   const settings = await readVkFriendSettings(store);
   const { options, live } = await provider();
   const last = await store.get(STATE);
-  const observeIds = [
-    ...new Set([
-      ...(last?.observeIds ?? []),
-      ...(last?.results ?? [])
-        .filter((row) => row.status === 'confirmed')
-        .map((row) => row.userId),
-    ]),
-  ];
-  let source;
-  try {
-    source = await live.friendSnapshot({ ...options, ...settings, observeIds });
-  } catch (cause) {
-    throw new Error(
-      safeMessage(cause).split(options.token).join('<redacted>'),
-      { cause }
-    );
-  }
+  const observeIds = friendObservationIds(last);
+  const source = await readFriendState(
+    () => live.friendSnapshot({ ...options, ...settings, observeIds }),
+    options.token
+  );
   const previous = new Map();
   for (const userId of new Set([...observeIds, ...source.ids])) {
     previous.set(

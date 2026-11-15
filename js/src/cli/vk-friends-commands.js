@@ -19,9 +19,9 @@ const keys = {
   'max-friends': 'maxFriends',
   'batch-size': 'batchSize',
 };
-const configuration = (args, saved) => {
+const configuration = (args, saved, flags) => {
   const settings = { ...saved, enabled: bool(args.enabled, saved.enabled) };
-  for (const [flag, key] of Object.entries(keys)) {
+  for (const [flag, key] of Object.entries(flags)) {
     if (args[flag] !== undefined) {
       settings[key] = Number(args[flag]);
     }
@@ -33,15 +33,19 @@ const configuration = (args, saved) => {
   }
   return settings;
 };
-export const createVkFriendsCommands = ({
+export const createVkFriendPolicyCommands = ({
   openStore,
   openReadOnly,
-  createJob = createVkFriendsJob,
+  createJob,
+  name,
+  load,
+  save,
+  flags = keys,
 }) => ({
-  'vk-friends': async (args, log) => {
+  [name]: async (args, log) => {
     const action = args._?.[0] ?? 'status';
     if (!['status', 'save', 'plan', 'run'].includes(action)) {
-      throw new Error('vk-friends status|save|plan|run required');
+      throw new Error(`${name} status|save|plan|run required`);
     }
     const confirm = bool(args.confirm);
     const store = await (action === 'status' ? openReadOnly : openStore)(
@@ -49,12 +53,9 @@ export const createVkFriendsCommands = ({
     );
     let job;
     try {
-      let answer = await loadVkFriends(store);
+      let answer = await load(store);
       if (action === 'save') {
-        answer = await saveVkFriends(
-          store,
-          configuration(args, answer.settings)
-        );
+        answer = await save(store, configuration(args, answer.settings, flags));
       }
       if (['plan', 'run'].includes(action)) {
         job = createJob({ store });
@@ -74,3 +75,12 @@ export const createVkFriendsCommands = ({
     }
   },
 });
+
+export const createVkFriendsCommands = (options) =>
+  createVkFriendPolicyCommands({
+    name: 'vk-friends',
+    load: loadVkFriends,
+    save: saveVkFriends,
+    createJob: createVkFriendsJob,
+    ...options,
+  });

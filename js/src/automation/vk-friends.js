@@ -25,7 +25,12 @@ export const createVkFriendsJob = ({
   setInterval = globalThis.setInterval,
   clearInterval = globalThis.clearInterval,
   log = () => {},
+  profile = {},
 } = {}) => {
+  const stateKey = profile.state ?? STATE;
+  const planKey = profile.plan ?? PLAN;
+  const settingsFor = profile.settings ?? readVkFriendSettings;
+  const read = profile.read ?? readVkFriends;
   let stopped = false;
   let timer;
   let active;
@@ -39,10 +44,10 @@ export const createVkFriendsJob = ({
     log,
     signal: controller.signal,
     isStopped: () => stopped,
-    provider: () => friendProvider(resolve, optionsFor),
+    provider: () => friendProvider(resolve, optionsFor, profile.capability),
   };
-  const preview = () => previewVkFriendPlan(context);
-  const apply = (plan) => applyVkFriendPlan(context, plan);
+  const preview = () => (profile.preview ?? previewVkFriendPlan)(context);
+  const apply = (plan) => (profile.apply ?? applyVkFriendPlan)(context, plan);
   const run = (input = {}) => {
     if (!input.scheduled && input.confirm !== true) {
       return Promise.reject(new Error('Confirm the reviewed friend plan'));
@@ -55,17 +60,17 @@ export const createVkFriendsJob = ({
         refuse('Service stopped');
       }
       if (input.scheduled) {
-        const settings = await readVkFriendSettings(store);
-        const last = await store.get(STATE);
+        const settings = await settingsFor(store);
+        const last = await store.get(stateKey);
         const elapsed = now() - Date.parse(last?.attemptedAt ?? '');
         if (
           !settings.enabled ||
           (Number.isFinite(elapsed) && elapsed < settings.everyMinutes * 60000)
         ) {
-          return { ...(await readVkFriends(store)), skipped: 'not-due' };
+          return { ...(await read(store)), skipped: 'not-due' };
         }
         const attempt = {
-          id: STATE,
+          id: stateKey,
           attemptedAt: new Date(now()).toISOString(),
           status: 'pending',
           results: [],
@@ -87,7 +92,7 @@ export const createVkFriendsJob = ({
         }
         return apply(planned.plan);
       }
-      const plan = await store.get(PLAN);
+      const plan = await store.get(planKey);
       if (
         input.confirm !== true ||
         !plan ||
@@ -119,7 +124,7 @@ export const createVkFriendsJob = ({
       timer = setInterval(
         () =>
           run({ scheduled: true }).catch(() =>
-            log({ event: 'vk_friend_batch_failed' })
+            log({ event: profile.failureEvent ?? 'vk_friend_batch_failed' })
           ),
         60000
       );

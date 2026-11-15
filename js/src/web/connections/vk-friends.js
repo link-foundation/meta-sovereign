@@ -5,19 +5,19 @@ import { Busy } from '../spinner.js';
 import { useAcknowledgedResource } from './use-acknowledged-resource.js';
 
 const el = React.createElement;
-const fields = {
+const friendFields = {
   everyMinutes: [1, 1440],
   maxFriends: [1, 10000],
   batchSize: [1, 100],
 };
-const FriendSettings = ({ settings, disabled, save }) => {
+const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
   const t = useT();
   const [draft, setDraft] = useState({});
   const update = (key, value) =>
     setDraft((before) => ({ ...before, [key]: value }));
   const controls = Object.entries(fields).map(([key, [min, max]]) =>
     el('label', { key, className: 'col' }, [
-      t(`vkFriends.${key}`),
+      t(`${prefix}.${key}`),
       el('input', {
         key: 'input',
         type: 'number',
@@ -25,7 +25,7 @@ const FriendSettings = ({ settings, disabled, save }) => {
         max,
         step: 1,
         disabled,
-        'data-friend-field': key,
+        [`data-${name === 'friends' ? 'friend' : name}-field`]: key,
         value: draft[key] ?? settings[key],
         onChange: (event) => update(key, event.target.value),
       }),
@@ -43,13 +43,13 @@ const FriendSettings = ({ settings, disabled, save }) => {
   return el('div', { className: 'col' }, [
     ...controls,
     el('label', { key: 'priority', className: 'col' }, [
-      t('vkFriends.priorityIds'),
+      t(`${prefix}.priorityIds`),
       el('input', {
         key: 'input',
         type: 'text',
         disabled,
         value: draft.priorityIds ?? settings.priorityIds.join(','),
-        'data-friend-field': 'priorityIds',
+        [`data-${name === 'friends' ? 'friend' : name}-field`]: 'priorityIds',
         onChange: (event) => update('priorityIds', event.target.value),
       }),
     ]),
@@ -59,14 +59,14 @@ const FriendSettings = ({ settings, disabled, save }) => {
         key: 'save',
         type: 'button',
         disabled,
-        'data-action': 'vk-friends-save',
+        'data-action': `vk-${name}-save`,
         onClick: submit,
       },
-      t('vkFriends.save')
+      t(`${prefix}.save`)
     ),
   ]);
 };
-const FriendResults = ({ data }) => {
+const FriendResults = ({ data, prefix, name }) => {
   const t = useT();
   const plan = data?.plan;
   const last = data?.last;
@@ -77,13 +77,13 @@ const FriendResults = ({ data }) => {
           {
             key: 'plan',
             className: 'col',
-            'data-vk-friends-plan': plan.status,
+            [`data-vk-${name}-plan`]: plan.status,
           },
           [
             el(
               'p',
               { key: 'account' },
-              t('vkFriends.account', {
+              t(`${prefix}.account`, {
                 id: plan.accountId,
                 count: plan.friendCount,
               })
@@ -96,10 +96,12 @@ const FriendResults = ({ data }) => {
                   'li',
                   {
                     key: item.userId,
-                    'data-friend-id': item.userId,
-                    'data-friend-reason': item.reason,
+                    [`data-${name === 'friends' ? 'friend' : name}-id`]:
+                      item.userId,
+                    [`data-${name === 'friends' ? 'friend' : name}-reason`]:
+                      item.reason,
                   },
-                  `${item.userId}: ${t(`vkFriends.${item.action}`)} · ${t(`vkFriends.${item.reason}`)}${item.priority ? ` · ${t('vkFriends.priority')}` : ''}`
+                  `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}`
                 )
               )
             ),
@@ -111,9 +113,9 @@ const FriendResults = ({ data }) => {
       {
         key: 'last',
         role: 'status',
-        'data-vk-friends-status': last?.status ?? 'idle',
+        [`data-vk-${name}-status`]: last?.status ?? 'idle',
       },
-      t(`vkFriends.${last?.status ?? 'idle'}`)
+      t(`${prefix}.${last?.status ?? 'idle'}`)
     ),
     el(
       'ul',
@@ -122,46 +124,54 @@ const FriendResults = ({ data }) => {
         el(
           'li',
           { key: row.userId },
-          `${row.userId}: ${t(`vkFriends.${row.outcome ?? row.status}`)}`
+          `${row.userId}: ${t(`${prefix}.${row.outcome ?? row.status}`)}`
         )
       )
     ),
   ]);
 };
-const FriendFeedback = ({ busy, error, data }) => {
+const FriendFeedback = ({ busy, error, data, prefix }) => {
   const t = useT();
   return el(React.Fragment, null, [
-    busy ? el(Busy, { key: 'busy' }, t('vkFriends.loading')) : null,
+    busy ? el(Busy, { key: 'busy' }, t(`${prefix}.loading`)) : null,
     error
-      ? el('p', { key: 'error', role: 'alert' }, t('vkFriends.failed'))
+      ? el('p', { key: 'error', role: 'alert' }, t(`${prefix}.failed`))
       : null,
     data && !data.schedulerRunning
-      ? el('p', { key: 'inactive', className: 'meta' }, t('vkFriends.inactive'))
+      ? el('p', { key: 'inactive', className: 'meta' }, t(`${prefix}.inactive`))
       : null,
   ]);
 };
-export const VkFriends = () => {
+export const VkFriendPolicy = ({ resource, name, prefix, fields }) => {
   const t = useT();
-  const { data, busy, error, run } = useAcknowledgedResource(api.vkFriends);
-  const save = (settings) => run(() => api.saveVkFriends(settings));
+  const { data, busy, error, run } = useAcknowledgedResource(resource.load);
+  const save = (settings) => run(() => resource.save(settings));
   const settings = data?.settings;
-  return el('section', { className: 'col', 'data-vk-friends': '' }, [
-    el('h3', { key: 'title' }, t('vkFriends.title')),
-    el('p', { key: 'hint', className: 'meta' }, t('vkFriends.hint')),
+  return el('section', { className: 'col', [`data-vk-${name}`]: '' }, [
+    el('h3', { key: 'title' }, t(`${prefix}.title`)),
+    el('p', { key: 'hint', className: 'meta' }, t(`${prefix}.hint`)),
     el('label', { key: 'enabled', className: 'row' }, [
       el('input', {
         key: 'input',
         type: 'checkbox',
         disabled: busy || !settings,
         checked: settings?.enabled ?? false,
-        'data-action': 'vk-friends-enabled',
+        'data-action': `vk-${name}-enabled`,
         onChange: (event) =>
           save({ ...settings, enabled: event.target.checked }),
       }),
-      t('vkFriends.enabled'),
+      t(`${prefix}.enabled`),
     ]),
     settings
-      ? el(FriendSettings, { key: 'settings', settings, disabled: busy, save })
+      ? el(FriendSettings, {
+          key: 'settings',
+          settings,
+          disabled: busy,
+          save,
+          fields,
+          prefix,
+          name,
+        })
       : null,
     el('div', { key: 'buttons', className: 'row' }, [
       el(
@@ -170,10 +180,10 @@ export const VkFriends = () => {
           key: 'plan',
           type: 'button',
           disabled: busy || !data?.canRun,
-          'data-action': 'vk-friends-plan',
-          onClick: () => run(api.planVkFriends),
+          'data-action': `vk-${name}-plan`,
+          onClick: () => run(resource.plan),
         },
-        t('vkFriends.plan')
+        t(`${prefix}.plan`)
       ),
       el(
         'button',
@@ -181,10 +191,10 @@ export const VkFriends = () => {
           key: 'run',
           type: 'button',
           disabled: busy || !data?.canRun || data?.plan?.status !== 'review',
-          'data-action': 'vk-friends-run',
-          onClick: () => run(() => api.runVkFriends(data.plan.planId)),
+          'data-action': `vk-${name}-run`,
+          onClick: () => run(() => resource.run(data.plan.planId)),
         },
-        t('vkFriends.run')
+        t(`${prefix}.run`)
       ),
       el(
         'button',
@@ -192,13 +202,26 @@ export const VkFriends = () => {
           key: 'refresh',
           type: 'button',
           disabled: busy,
-          'data-action': 'vk-friends-refresh',
-          onClick: () => run(api.vkFriends),
+          'data-action': `vk-${name}-refresh`,
+          onClick: () => run(resource.load),
         },
-        t('vkFriends.refresh')
+        t(`${prefix}.refresh`)
       ),
     ]),
-    el(FriendFeedback, { key: 'feedback', busy, error, data }),
-    el(FriendResults, { key: 'results', data }),
+    el(FriendFeedback, { key: 'feedback', busy, error, data, prefix }),
+    el(FriendResults, { key: 'results', data, prefix, name }),
   ]);
 };
+
+export const VkFriends = () =>
+  el(VkFriendPolicy, {
+    name: 'friends',
+    prefix: 'vkFriends',
+    fields: friendFields,
+    resource: {
+      load: api.vkFriends,
+      save: api.saveVkFriends,
+      plan: api.planVkFriends,
+      run: api.runVkFriends,
+    },
+  });

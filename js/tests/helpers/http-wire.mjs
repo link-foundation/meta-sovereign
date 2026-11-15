@@ -1,5 +1,24 @@
 // Legacy JSON fixtures remain readable; real browser traffic uses Lino.
-import { LINO_TEXT, encodeWire, decodeWire } from '../../src/transport/lino.js';
+import {
+  LINO_TEXT,
+  encodeWire,
+  decodeWire,
+  readWireResponse,
+} from '../../src/transport/lino.js';
+
+export const createWirePost =
+  (base, endpoint, type) =>
+  async (path, body, origin = base) => {
+    const response = await fetch(`${base}${endpoint}${path}`, {
+      method: 'POST',
+      headers: { 'content-type': type, accept: type, origin },
+      body: encodeWire(body, type),
+    });
+    return {
+      status: response.status,
+      answer: await readWireResponse(response),
+    };
+  };
 
 export const requestBody = (request) =>
   decodeWire(

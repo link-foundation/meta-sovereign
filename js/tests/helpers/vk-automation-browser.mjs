@@ -64,6 +64,22 @@ export const vkAutomationBrowser = async (browser, emoji, base) => {
   }
 };
 
+export const reviewVkConnection = async (browser, fixture, review) => {
+  let context;
+  try {
+    const view = await vkAutomationBrowser(browser, '👥', fixture.base);
+    context = view.context;
+    context.setDefaultTimeout(10000);
+    await view.page.goto(`${fixture.base}/#conn-vk/manual`);
+    const heading = view.page.getByRole('heading', { name: 'VK', exact: true });
+    await heading.waitFor();
+    return await review({ ...view, heading });
+  } finally {
+    await context?.close();
+    await fixture.close();
+  }
+};
+
 export const captureVkAutomationLayouts = async (
   page,
   target,

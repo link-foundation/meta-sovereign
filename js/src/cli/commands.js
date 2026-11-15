@@ -19,6 +19,7 @@ import { createContactCommands } from './contact-commands.js';
 import { createVkAttachmentCommands } from './vk-attachment-commands.js';
 import { createVkOnlineCommands } from './vk-online-commands.js';
 import { createVkFriendsCommands } from './vk-friends-commands.js';
+import { createVkMaintenanceCommands } from './vk-maintenance-commands.js';
 import { createTelegramGreetingCommands } from './telegram-greetings-commands.js';
 import { createTelegramUsersCommands } from './telegram-users-commands.js';
 import { createTelegramLoginCommands } from './telegram-login-commands.js';
@@ -808,6 +809,7 @@ const COMMANDS = {
   ...createVkAttachmentCommands({ openStore, openReadOnly }),
   ...createVkOnlineCommands({ openStore, openReadOnly }),
   ...createVkFriendsCommands({ openStore, openReadOnly }),
+  ...createVkMaintenanceCommands({ openStore, openReadOnly }),
   ...createTelegramExportCommands({ openStore }),
   ...createTelegramUsersCommands({ openStore }),
   ...createTelegramGreetingCommands({ openStore }),

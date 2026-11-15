@@ -3,6 +3,15 @@ import { startServer } from '../../js/src/server/index.js';
 import { createVkLive } from '../../js/src/sources/vk.js';
 import { createFakeVk } from '../../js/tests/helpers/fake-vk.js';
 
+export const friendRelations = (relations) => (params) =>
+  params.user_ids
+    .split(',')
+    .map(Number)
+    .map((user_id) => ({
+      user_id,
+      friend_status: relations.get(user_id) ?? 0,
+    }));
+
 /** Finite actual-adapter fixture, with no authenticated provider sessions. */
 export const friendsAdapter = (extra = {}) => {
   let mode = 'confirmed';
@@ -25,14 +34,7 @@ export const friendsAdapter = (extra = {}) => {
           .filter((id) => relations.get(id) === 2)
           .slice(0, Number(params.count)),
       }),
-      'friends.areFriends': (params) =>
-        params.user_ids
-          .split(',')
-          .map(Number)
-          .map((user_id) => ({
-            user_id,
-            friend_status: relations.get(user_id) ?? 0,
-          })),
+      'friends.areFriends': friendRelations(relations),
       'friends.add': (params) => {
         const userId = Number(params.user_id);
         effects.push(userId);
@@ -83,9 +85,10 @@ export const friendsServer = async ({
   clock = {},
   online = {},
   port = 0,
+  adapter = friendsAdapter(),
+  vkMaintenance,
 } = {}) => {
   const store = createMemoryStore();
-  const adapter = friendsAdapter();
   let writesRefused = false;
   let messages = 0;
   store.flush = async () => {
@@ -103,6 +106,7 @@ export const friendsServer = async ({
     automations: {
       scheduler,
       vkOnline: online,
+      vkMaintenance,
       vkFriends: {
         sleep: async () => {},
         ...clock,

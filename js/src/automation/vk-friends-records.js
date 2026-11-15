@@ -1,4 +1,23 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { safeMessage } from '../server/redact.js';
+
+export const friendObservationIds = (last) => [
+  ...new Set([
+    ...(last?.observeIds ?? []),
+    ...(last?.results ?? [])
+      .filter((row) => row.status === 'confirmed')
+      .map((row) => row.userId),
+  ]),
+];
+export const readFriendState = async (read, token) => {
+  try {
+    return await read();
+  } catch (cause) {
+    throw new Error(safeMessage(cause).split(token).join('<redacted>'), {
+      cause,
+    });
+  }
+};
 
 export const equalFriendPolicy = (a, b) =>
   JSON.stringify(a) === JSON.stringify(b);
@@ -30,7 +49,9 @@ export const observeFriendReceipt = async (
   if (
     previous?.status === 'confirmed' &&
     !previous.settled &&
-    [1, 3].includes(relation)
+    (previous.expectedRelation === 0
+      ? relation === 0
+      : [1, 3].includes(relation))
   ) {
     const settled = { ...previous, settled: true };
     await saveAcknowledgedRecord(store, settled);
