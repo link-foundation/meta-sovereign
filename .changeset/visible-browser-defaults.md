@@ -594,3 +594,5 @@ Normalize legacy saved empty and numeric singleton VK priority lists across poli
 Apply readable global/local configuration and explicit launch options to the desktop runtime through the shared server adapter. Load the owned TLS origin with a window/origin/certificate-scoped exception, include production runtime dependencies in desktop staging and refuse nonregular configuration files without blocking.
 
 Normalize declared legacy saved VK message, question, attachment and destination lists before strict read validation. Preserve owner records and new-write guards, and display saved catalogs in connected/offline editors.
+
+Bound immutable server-release hashing to four concurrent file reads, preserve existing ordered content identities and drain reads before failed staging cleanup.

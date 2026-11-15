@@ -39,11 +39,24 @@ const runtimeFiles = async (root) => {
 };
 const digest = async (root, names) => {
   const hash = createHash('sha256');
-  for (const name of names) {
-    hash.update(name);
-    hash.update('\0');
-    hash.update(await fs.readFile(path.join(root, name)));
-    hash.update('\0');
+  // Bound both filesystem admission and retained buffers. Hash in manifest
+  // order so existing releases keep exactly the same content identity.
+  for (let offset = 0; offset < names.length; offset += 4) {
+    const batch = names.slice(offset, offset + 4);
+    const reads = await Promise.allSettled(
+      batch.map((name) => fs.readFile(path.join(root, name)))
+    );
+    const failure = reads.find((read) => read.status === 'rejected');
+    if (failure) {
+      // No read may outlive a failed snapshot's cleanup.
+      throw failure.reason;
+    }
+    for (const [index, read] of reads.entries()) {
+      hash.update(batch[index]);
+      hash.update('\0');
+      hash.update(read.value);
+      hash.update('\0');
+    }
   }
   return hash.digest('hex');
 };
