@@ -1,4 +1,5 @@
 import { vkFriendPolicyLocale } from './vk-friend-policy.js';
+import { vkFriendPriorityLocale } from './vk-friend-priority.js';
 const keys = [
   'title',
   'hint',
@@ -171,4 +172,5 @@ export const vkFriendsLocale = (language) => ({
     keys.map((key, i) => [`vkFriends.${key}`, words[language][i]])
   ),
   ...vkFriendPolicyLocale(language),
+  ...vkFriendPriorityLocale(language),
 });

@@ -570,3 +570,5 @@ Load each live VK peer's native 100-message context before its first incoming au
 Add a bounded redacted live server log through CLI, both default Lino transports and four-language Settings controls. Retain entries through failed reads, back off retries, acknowledge clipboard outcomes and drain owned polling on close. Strengthen structured file/stdout redaction without invoking getters or toJSON.
 
 Desktop Quit and startup failure now drain their owned server, and overlapping activation shares one window.
+
+Seed friend priorities from a complete, account-checked outgoing request list, preserving owner IDs. Add explicit acknowledged clearing and normalize legacy saved empty/singleton lists through the shared CLI, Lino API and translated UI.

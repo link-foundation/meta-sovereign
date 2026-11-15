@@ -6,6 +6,8 @@ export const handleVkFriends = createVkJobRoute({
   load: loadVkFriends,
   save: saveVkFriends,
   actions: {
+    'seed-priority': (ctx) => ctx.vkFriends.seedPriority(),
+    'clear-priority': (ctx) => ctx.vkFriends.clearPriority(),
     plan: (ctx) => ctx.vkFriends.preview(),
     run: (ctx, body) =>
       ctx.vkFriends.run({ planId: body.planId, confirm: body.confirm }),

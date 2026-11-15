@@ -1,5 +1,5 @@
 import { createMemoryStore } from '../../js/src/storage/universal.js';
-import { startServer } from '../../js/src/server/index.js';
+import { diagnosticServer } from './diagnostics-fixture.mjs';
 import { createVkLive } from '../../js/src/sources/vk.js';
 import { createFakeVk } from '../../js/tests/helpers/fake-vk.js';
 import { createVkFriendsJob } from '../../js/src/automation/vk-friends.js';
@@ -126,7 +126,7 @@ export const friendsServer = async ({
       throw new Error('Fixture friend acknowledgement refused');
     }
   };
-  const server = await startServer({
+  const server = await diagnosticServer({
     store,
     port,
     localUi: true,
@@ -160,8 +160,8 @@ export const friendsServer = async ({
   return {
     ...adapter,
     store,
-    base: `http://127.0.0.1:${server.port}`,
-    port: server.port,
+    base: server.base,
+    port: Number(new URL(server.base).port),
     messages: () => messages,
     refuseWrites: (value) => {
       writesRefused = value;

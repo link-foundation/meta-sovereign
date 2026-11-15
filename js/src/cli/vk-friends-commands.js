@@ -53,11 +53,18 @@ export const createVkFriendPolicyCommands = ({
   flags = keys,
   stringFlags = {},
   booleanFlags = {},
+  actions = {},
 }) => ({
   [name]: async (args, log) => {
     const action = args._?.[0] ?? 'status';
-    if (!['status', 'save', 'plan', 'run'].includes(action)) {
-      throw new Error(`${name} status|save|plan|run required`);
+    if (
+      !['status', 'save', 'plan', 'run', ...Object.keys(actions)].includes(
+        action
+      )
+    ) {
+      throw new Error(
+        `${name} ${['status', 'save', 'plan', 'run', ...Object.keys(actions)].join('|')} required`
+      );
     }
     const confirm = bool(args.confirm);
     const store = await (action === 'status' ? openReadOnly : openStore)(
@@ -79,6 +86,10 @@ export const createVkFriendPolicyCommands = ({
             ? await job.preview()
             : await job.run({ planId: args.plan, confirm });
       }
+      if (actions[action]) {
+        job = createJob({ store });
+        answer = await actions[action](job);
+      }
       log(JSON.stringify({ ...answer, schedulerRunning: false }, null, 2));
       return action === 'run' &&
         ['unknown', 'refused'].includes(answer.last?.status)
@@ -98,5 +109,9 @@ export const createVkFriendsCommands = (options) =>
     save: saveVkFriends,
     createJob: createVkFriendsJob,
     stringFlags: { 'acceptance-policy': 'acceptancePolicy' },
+    actions: {
+      'seed-priority': (job) => job.seedPriority(),
+      'clear-priority': (job) => job.clearPriority(),
+    },
     ...options,
   });

@@ -3,6 +3,7 @@ import {
   positiveVkId,
   desktopFriendPolicy,
 } from '../automation/vk-friends-settings.js';
+import { outgoingFriendPriority } from './vk-friend-priority.js';
 
 const invalid = () => {
   throw new Error('Incomplete VK friend state');
@@ -37,20 +38,29 @@ export const createVkFriends = ({ call, once }) => {
   const state = async (ids, options) => {
     const self = await call('users.get', {}, options.token);
     const friends = await call('friends.get', { count: 1 }, options.token);
-    const statuses = ids.length
-      ? await call(
-          'friends.areFriends',
-          { user_ids: ids.join(',') },
-          options.token
-        )
-      : [];
+    const statuses = [];
+    for (let offset = 0; offset < ids.length; offset += 1000) {
+      const chunk = ids.slice(offset, offset + 1000);
+      const rows = await call(
+        'friends.areFriends',
+        { user_ids: chunk.join(',') },
+        options.token
+      );
+      if (
+        !Array.isArray(rows) ||
+        rows.length !== chunk.length ||
+        !chunk.every((id) => rows.some((row) => row?.user_id === id))
+      ) {
+        invalid();
+      }
+      statuses.push(...rows);
+    }
     if (
       !Array.isArray(self) ||
       self.length !== 1 ||
       !positiveVkId(self[0]?.id) ||
       !Number.isSafeInteger(friends?.count) ||
-      friends.count < 0 ||
-      !Array.isArray(statuses)
+      friends.count < 0
     ) {
       invalid();
     }
@@ -67,6 +77,7 @@ export const createVkFriends = ({ call, once }) => {
     return { accountId: self[0].id, count: friends.count, statuses: indexed };
   };
   return {
+    outgoingFriendPriority: (options) => outgoingFriendPriority(call, options),
     async friendSnapshot(options) {
       const requests = await call(
         'friends.getRequests',

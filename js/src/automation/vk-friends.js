@@ -7,6 +7,7 @@ import { safeMessage } from '../server/redact.js';
 import { refuseFriendAction as refuse } from './vk-friends-records.js';
 import { friendProvider, previewVkFriendPlan } from './vk-friends-planner.js';
 import { applyVkFriendPlan } from './vk-friends-executor.js';
+import { createVkFriendPriority } from './vk-friend-priority.js';
 import {
   VK_FRIENDS_STATE as STATE,
   VK_FRIENDS_PLAN as PLAN,
@@ -44,8 +45,10 @@ export const createVkFriendsJob = ({
     log,
     signal: controller.signal,
     isStopped: () => stopped,
-    provider: () => friendProvider(resolve, optionsFor, profile.capability),
+    provider: (capability = profile.capability) =>
+      friendProvider(resolve, optionsFor, capability),
   };
+  const priority = createVkFriendPriority(context);
   const preview = (scheduled = false) =>
     (profile.preview ?? previewVkFriendPlan)({ ...context, scheduled });
   const apply = (plan, scheduled = false) =>
@@ -110,6 +113,8 @@ export const createVkFriendsJob = ({
     return active;
   };
   return {
+    seedPriority: () => priority.edit('seed'),
+    clearPriority: () => priority.edit('clear'),
     preview: () => {
       if (!planning) {
         planning = execute(store, () => preview()).finally(() => {
@@ -136,6 +141,7 @@ export const createVkFriendsJob = ({
       stopped = true;
       clearInterval(timer);
       controller.abort();
+      await priority.stop();
       await active?.catch(() => {});
       await planning?.catch(() => {});
     },

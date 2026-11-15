@@ -361,7 +361,7 @@ test('policy validation rolls back unacknowledged choices without importing pers
     { maxFriends: 10001 },
     { batchSize: 101 },
     { priorityIds: [0] },
-    { priorityIds: Array(101).fill(1) },
+    { priorityIds: Array(10001).fill(1) },
   ]) {
     await assert.rejects(saveVkFriends(store, { ...defaults, ...patch }));
   }

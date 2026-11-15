@@ -14,6 +14,8 @@ export const createVkFriendsApi = (options) => {
   return {
     vkFriends: api.load,
     saveVkFriends: api.save,
+    seedVkFriendPriority: () => api.action('seed-priority', {}),
+    clearVkFriendPriority: () => api.action('clear-priority', {}),
     planVkFriends: () => api.action('plan', {}),
     runVkFriends: (planId) => api.action('run', { planId, confirm: true }),
   };

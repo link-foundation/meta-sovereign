@@ -5,6 +5,7 @@ import { createStoreQueue } from '../storage/serialized.js';
 export const VK_FRIENDS_JOB = 'provider-job:vk:friends';
 export const VK_FRIENDS_STATE = 'provider-job-state:vk:friends';
 export const VK_FRIENDS_PLAN = 'provider-job-plan:vk:friends';
+export const MAX_FRIEND_PRIORITY = 10000;
 export const serializeVkFriends = createStoreQueue();
 export const positiveVkId = (value) => Number.isSafeInteger(value) && value > 0;
 export const desktopFriendPolicy = (settings) =>
@@ -20,11 +21,11 @@ export const normalizeVkFriendSettings = (input) => {
   if (
     typeof input?.enabled !== 'boolean' ||
     !Array.isArray(input.priorityIds) ||
-    input.priorityIds.length > 100 ||
+    input.priorityIds.length > MAX_FRIEND_PRIORITY ||
     !input.priorityIds.every(positiveVkId)
   ) {
     throw new Error(
-      'enabled and up to 100 positive numeric priorityIds required'
+      'enabled and up to 10000 positive numeric priorityIds required'
     );
   }
   const settings = { enabled: input.enabled };
@@ -49,15 +50,25 @@ export const normalizeVkFriendSettings = (input) => {
 export const readVkFriendSettings = async (store) => {
   const saved = await store.get(VK_FRIENDS_JOB);
   return normalizeVkFriendSettings(
-    saved ?? {
-      enabled: false,
-      everyMinutes: 20,
-      maxFriends: 10000,
-      batchSize: 23,
-      priorityIds: [],
-    }
+    saved
+      ? { ...saved, priorityIds: legacyFriendPriority(saved.priorityIds) }
+      : {
+          enabled: false,
+          everyMinutes: 20,
+          maxFriends: 10000,
+          batchSize: 23,
+          priorityIds: [],
+        }
   );
 };
+// Old Lino settings represented an empty list as null/empty text and a
+// singleton as a number. Normalize only persisted input, never new writes.
+export const legacyFriendPriority = (value) =>
+  value === null || value === undefined || value === ''
+    ? []
+    : positiveVkId(value)
+      ? [value]
+      : value;
 export const readVkFriends = async (store) => {
   const last = await store.get(VK_FRIENDS_STATE);
   return {

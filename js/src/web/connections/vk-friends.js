@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 import { Busy } from '../spinner.js';
+import {
+  VkFriendPriorityActions,
+  friendPriorityActions,
+} from './vk-friend-priority.js';
 import { useAcknowledgedResource } from './use-acknowledged-resource.js';
 import {
   FriendAcceptanceChoice,
@@ -45,11 +49,17 @@ const FriendSettings = ({
   booleanFields,
   prefix,
   name,
+  priorityVersion,
+  priorityActions,
 }) => {
   const t = useT();
   const [draft, setDraft] = useState({});
   const update = (key, value) =>
     setDraft((before) => ({ ...before, [key]: value }));
+  const savedPriority = settings.priorityIds.join(',');
+  const priorityKey = `${priorityVersion}:${savedPriority}`;
+  const priorityText =
+    draft.priorityKey === priorityKey ? draft.priorityIds : savedPriority;
   const controls = Object.entries(fields).map(([key, [min, max]]) =>
     el('label', { key, className: 'col' }, [
       t(
@@ -76,7 +86,7 @@ const FriendSettings = ({
     for (const key of [...Object.keys(textFields), ...booleanFields]) {
       next[key] = draft[key] ?? settings[key];
     }
-    const ids = draft.priorityIds ?? settings.priorityIds.join(',');
+    const ids = priorityText;
     next.priorityIds = ids.trim() ? ids.split(',').map(Number) : [];
     return save(next);
   };
@@ -118,11 +128,23 @@ const FriendSettings = ({
         key: 'input',
         type: 'text',
         disabled,
-        value: draft.priorityIds ?? settings.priorityIds.join(','),
+        value: priorityText,
         [`data-${name === 'friends' ? 'friend' : name}-field`]: 'priorityIds',
-        onChange: (event) => update('priorityIds', event.target.value),
+        onChange: (event) =>
+          setDraft((before) => ({
+            ...before,
+            priorityIds: event.target.value,
+            priorityKey,
+          })),
       }),
     ]),
+    priorityActions
+      ? el(VkFriendPriorityActions, {
+          key: 'priority-actions',
+          disabled,
+          ...priorityActions,
+        })
+      : null,
     el(
       'button',
       {
@@ -237,6 +259,15 @@ export const VkFriendPolicy = ({
 }) => {
   const t = useT();
   const { data, busy, error, run } = useAcknowledgedResource(resource.load);
+  const [priorityVersion, setPriorityVersion] = useState(0);
+  const editPriority = (operation) =>
+    run(async () => {
+      const answer = await operation();
+      if (answer?.ok) {
+        setPriorityVersion((version) => version + 1);
+      }
+      return answer;
+    });
   const save = (settings) => run(() => resource.save(settings));
   const settings = data?.settings;
   return el('section', { className: 'col', [`data-vk-${name}`]: '' }, [
@@ -265,6 +296,8 @@ export const VkFriendPolicy = ({
           booleanFields,
           prefix,
           name,
+          priorityVersion,
+          priorityActions: friendPriorityActions(resource, data, editPriority),
         })
       : null,
     el('div', { key: 'buttons', className: 'row' }, [
@@ -324,5 +357,7 @@ export const VkFriends = () =>
       save: api.saveVkFriends,
       plan: api.planVkFriends,
       run: api.runVkFriends,
+      seedPriority: api.seedVkFriendPriority,
+      clearPriority: api.clearVkFriendPriority,
     },
   });
