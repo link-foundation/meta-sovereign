@@ -26,6 +26,7 @@ import { FollowControls } from './follow-controls.js';
 import { FollowChatsControls } from './follow-chats-controls.js';
 import { FollowTelegramControls } from './follow-telegram-controls.js';
 import { FollowBacklinkControls } from './follow-backlink-controls.js';
+import { GratitudeSticker } from './gratitude-fields.js';
 
 const el = React.createElement;
 
@@ -303,6 +304,16 @@ const editorFields = ({ form, set, error, t }) => {
         placeholder: '^(привет|hi)',
         hint: t('automations.hint.incoming'),
       }),
+      el(Choice, {
+        ...p,
+        key: 'recognizer',
+        name: 'incomingRecognizer',
+        label: t('gratitude.recognizer'),
+        options: ['pattern', 'gratitude'].map((value) => [
+          value,
+          t(`gratitude.recognizer.${value}`),
+        ]),
+      }),
     ]),
   ];
 };
@@ -578,7 +589,8 @@ const PlanPreview = ({ runs }) => {
                   : networkName(t, draft.source)
               } · ${t(`automations.form.${draft.form}`)}`
             ),
-            el('blockquote', { key: 't' }, draft.text),
+            draft.text ? el('blockquote', { key: 't' }, draft.text) : null,
+            el(GratitudeSticker, { key: 'sticker', draft }),
             el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
           ])
         )

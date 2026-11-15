@@ -857,6 +857,7 @@ export const createDefaultSender = ({
       // A plain browser send cannot preserve these message semantics.
       // Refuse rather than silently turning a reply into a normal message.
       if (
+        draft.sticker ||
         draft.replyTo ||
         draft.replyQuote ||
         draft.topic ||

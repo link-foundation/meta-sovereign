@@ -2,6 +2,8 @@
 
 [Exact-head hosted verification for saved templates and download availability](hosted-verification-d34.md) records five passing workflows; QA03/VD10 complete, 79 rows remain unchecked.
 
+- [VK gratitude replies](vk-gratitude.md): bounded contextual text/sticker recognition, configurable safe drafts, exact sticker delivery and late-message/policy refusal, with actual-parent, durable Lino, CLI/offline, native and four-language MCP evidence. VK02 awaits exact-head hosted checks.
+
 - [Refreshed destination fixture](ci-question-link-locator.md): exact hosted and local strict-locator reproduction; scoped pending-turn assertion retains all stale-target, fresh-receipt and late-pointer checks.
 
 - [VK greeting recognition and catalogs](vk-greeting-catalog.md): actual-parent outgoing/group and missing phrase-editor regressions, shared personal-dialog guards, durable per-language CLI/UI catalogs, reference sticker/text audit and focused Lino/native/MCP evidence. VK01 awaits exact-head hosted checks.

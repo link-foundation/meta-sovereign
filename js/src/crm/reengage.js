@@ -495,6 +495,12 @@ const SEND_FIELDS = [
 export const createAdapterSender =
   ({ getSource, options = {} }) =>
   async (draft) => {
+    if (draft.sticker && draft.source !== 'vk') {
+      throw Object.assign(
+        new Error('This automation sticker requires the VK API'),
+        { code: 'unsupported-send-options', fallback: false }
+      );
+    }
     const live = getSource(draft.source)?.live;
     // `sendMessage` is the chat-only route; `post` may publish (R-Z4).
     const send = live?.sendMessage ?? live?.post;
@@ -509,6 +515,7 @@ export const createAdapterSender =
         chat: draft.chat,
         to: draft.contact ?? draft.to,
         text: draft.text,
+        ...(draft.sticker ? { sticker: draft.sticker } : {}),
         ...Object.fromEntries(
           SEND_FIELDS.filter((key) => draft[key] !== undefined).map((key) => [
             key,

@@ -1,3 +1,4 @@
+import { ruGratitude } from './ru-gratitude.js';
 import { ruGreetingCatalog } from './ru-greeting-catalog.js';
 import { ruQuestions } from './ru-questions.js';
 import { ruVacancy } from './ru-vacancy.js';
@@ -30,6 +31,7 @@ import { ruFeedback } from './ru-feedback.js';
 import { ruStickers } from './ru-stickers.js';
 
 export const ru = {
+  ...ruGratitude,
   ...ruVacancy,
   ...ruForms,
   ...ruAnswerModel,

@@ -172,6 +172,7 @@ export const createAutomationRunner = ({
     clock,
     log,
     nowIso,
+    self,
   });
 
   const queue = (automation, drafts) =>
@@ -305,12 +306,20 @@ export const createAutomationScheduler = ({
 
   const onMessage = async (message) => {
     const at = Date.parse(message.timestamp ?? '') || 0;
-    if (isSelf(message.sender) || at < startedAt || message.service) {
+    if (
+      isSelf(message.sender) ||
+      message.outgoing === true ||
+      message.out === true ||
+      message.out === 1 ||
+      at < startedAt ||
+      message.service ||
+      message.deleted
+    ) {
       return [];
     }
     const ran = [];
     for (const automation of await automations()) {
-      if (incomingTrigger(automation, message.body)) {
+      if (incomingTrigger(automation, message.body, message)) {
         ran.push(
           await safely(
             runner.run(automation, {

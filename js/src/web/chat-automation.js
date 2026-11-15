@@ -13,6 +13,7 @@ import { failureText } from './chat-failure.js';
 import { isTelegramWebUrl } from '../sources/telegram-chat-url.js';
 import { useDraftFocus } from './chat-draft-focus.js';
 import { AnswerEvidence } from './question-evidence.js';
+import { GratitudeSticker } from './gratitude-fields.js';
 
 const el = React.createElement;
 
@@ -122,6 +123,7 @@ export const DraftCard = ({ draft, drafts, autopilot }) => {
         'aria-label': t('chat.draft.text'),
         onChange: (event) => drafts.edit(draft.id, event.target.value),
       }),
+      el(GratitudeSticker, { key: 'sticker', draft, editable: true }),
       el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
       el('div', { key: 'actions', className: 'row' }, [
         button('send', t('chat.draft.send'), act('send')),

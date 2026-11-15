@@ -3,9 +3,12 @@ import { guardedSend, outboxKey } from './outbox.js';
 import { queueDrafts } from './drafts.js';
 import { validateAnswerDraft } from './question-store.js';
 import { questionChoiceKey } from './question-choice-key.js';
+import { validateGratitudeDraft } from './gratitude-store.js';
 
 const indicateTyping = (showTyping, automation, draft) =>
-  draft.answer?.strictOptions ? undefined : showTyping(automation, draft);
+  draft.answer?.strictOptions || draft.sticker
+    ? undefined
+    : showTyping(automation, draft);
 
 const deliveryKey = (automation, draft, clock) =>
   questionChoiceKey(draft) ??
@@ -18,7 +21,7 @@ const deliveryKey = (automation, draft, clock) =>
   });
 
 export const createDelivery =
-  ({ store, send, showTyping, clock, log, nowIso }) =>
+  ({ store, send, showTyping, clock, log, nowIso, self = [] }) =>
   /** Send one draft now: typing, the guarded send, ledger, chat history. */
   async (automation, draft, { reviewed = false } = {}) => {
     if (typeof send !== 'function') {
@@ -36,6 +39,15 @@ export const createDelivery =
         error: 'Review this answer in its chat before sending',
         draft,
       };
+    }
+    const gratitude = await validateGratitudeDraft(
+      store,
+      automation,
+      draft,
+      self
+    );
+    if (!gratitude.ok) {
+      return { status: 'failed', ...gratitude, draft };
     }
     await indicateTyping(showTyping, automation, draft);
     if (draft.answer) {
@@ -61,7 +73,22 @@ export const createDelivery =
       owner: automation.id,
       key: deliveryKey(automation, draft, clock),
       draft,
-      send,
+      send: async (outgoing) => {
+        const valid = await validateGratitudeDraft(
+          store,
+          automation,
+          outgoing,
+          self
+        );
+        if (!valid.ok) {
+          throw Object.assign(new Error(valid.error), {
+            code: valid.code,
+            fallback: false,
+            definitive: true,
+          });
+        }
+        return send(outgoing);
+      },
       clock,
       log,
     });

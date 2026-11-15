@@ -33,3 +33,9 @@ metadata, the complete failing hosted job, actual parent/current helper and
 focused failing/passing logs. The correction requires its own exact-head hosted
 checks. Every unchecked original criterion remains active; [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 stays draft and unmerged.
+
+The completed parent run also fails WebKit shard 2/4, job `132657458862`,
+at complete job lines 1376–1381 with the same two-match strict-locator error.
+Both complete failing browser jobs and the full downloaded parent workflow are
+additionally preserved in the [gratitude verification archive](data/vk-gratitude.tar.gz).
+The scoped assertion applies to both engines; each requires hosted verification.

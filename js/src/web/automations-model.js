@@ -51,6 +51,11 @@ const numberText = (value) =>
 
 const seconds = (ms) => numberText(ms === undefined ? ms : ms / 1000);
 
+const gratitudeForm = (action) => ({
+  preferSticker: action.preferSticker !== false,
+  gratitudeStickers: (action.stickerIds ?? ['60075', '89452']).join(', '),
+});
+
 /** An automation (saved or preset) as the editor's fields. */
 export const toForm = (input) => {
   const a = normalizeAutomation(input);
@@ -66,6 +71,7 @@ export const toForm = (input) => {
     chatMenu: Boolean(triggerOf(a, 'chat-menu')),
     schedule: triggerOf(a, 'schedule')?.every ?? '',
     incoming: triggerOf(a, 'incoming')?.pattern ?? '',
+    incomingRecognizer: triggerOf(a, 'incoming')?.recognizer ?? 'pattern',
     audience: formatAudienceSpec(a.audience ?? DEFAULT_AUDIENCE),
     silentDays: numberText(c.silentDays),
     cooldownDays: numberText(c.cooldownDays),
@@ -75,6 +81,7 @@ export const toForm = (input) => {
     networks: (c.networks ?? []).join(', '),
     form: a.action.form,
     actionKind: a.action.kind,
+    ...gratitudeForm(a.action),
     ruleIds: (a.action.ruleIds ?? []).join(', '),
     profile: { ...a.action.profile },
     profileId: a.action.profileId ?? '',
@@ -114,10 +121,14 @@ const triggersFrom = (form, base) => {
     form.manual && { kind: 'manual' },
     form.chatMenu && { kind: 'chat-menu' },
     form.schedule.trim() && { kind: 'schedule', every: form.schedule.trim() },
-    form.incoming.trim() && {
+    (form.incomingRecognizer === 'gratitude' || form.incoming.trim()) && {
       kind: 'incoming',
-      pattern: form.incoming.trim(),
-      ...(incoming?.flags ? { flags: incoming.flags } : {}),
+      ...(form.incomingRecognizer === 'gratitude'
+        ? { recognizer: 'gratitude' }
+        : {
+            pattern: form.incoming.trim(),
+            ...(incoming?.flags ? { flags: incoming.flags } : {}),
+          }),
     },
   ]
     .filter(Boolean)
@@ -165,6 +176,12 @@ export const fromForm = (form, base = {}) => ({
   action: {
     ...base.action,
     kind: form.actionKind ?? base.action?.kind ?? 'send-template',
+    ...(form.actionKind === 'reply-gratitude'
+      ? {
+          preferSticker: form.preferSticker,
+          stickerIds: csv(form.gratitudeStickers),
+        }
+      : {}),
     ...(form.actionKind === 'answer-questions'
       ? {
           ruleIds: csv(form.ruleIds),

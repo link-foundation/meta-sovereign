@@ -102,7 +102,10 @@ test('presets are listed, saved, edited and deleted', async () => {
     const gone = await call('DELETE', '/api/automations/reengage-dormant');
     assert.equal(gone.body.deleted, 'automation:reengage-dormant');
     const presets = await call('GET', '/api/automations/presets');
-    assert.equal(presets.body.presets.length, 4);
+    assert.equal(presets.body.presets.length, 5);
+    assert.ok(
+      presets.body.presets.some((a) => a.id === 'automation:gratitude')
+    );
   } finally {
     await server.close();
   }

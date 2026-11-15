@@ -36,6 +36,7 @@ export const runRecord = (automation, draft, { status, at, ...extra }) => ({
   at,
   form: draft.form ?? null,
   text: draft.text ?? '',
+  ...(draft.sticker ? { sticker: draft.sticker } : {}),
   ...Object.fromEntries(
     Object.entries(extra).filter(([, value]) => value !== undefined)
   ),
@@ -215,9 +216,16 @@ export const draftOperations = ({
         );
       }
       const { draft: stored, automation } = await pendingDraft(id);
-      let draft = form ? redraftWithForm(automation, stored, form) : stored;
+      let draft =
+        form && form !== stored.form
+          ? redraftWithForm(automation, stored, form)
+          : stored;
       if (typeof text === 'string') {
-        draft = { ...draft, text };
+        draft = {
+          ...draft,
+          text,
+          ...(text.trim() ? { sticker: undefined } : {}),
+        };
       }
       const outcome = await deliver(automation, draft, { reviewed: true });
       if (outcome.status === 'sent') {

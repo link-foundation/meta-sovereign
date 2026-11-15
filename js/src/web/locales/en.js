@@ -1,3 +1,4 @@
+import { enGratitude } from './en-gratitude.js';
 import { enGreetingCatalog } from './en-greeting-catalog.js';
 import { enAnswerModel } from './en-answer-model.js';
 import { enVacancy } from './en-vacancy.js';
@@ -31,6 +32,7 @@ import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...enGratitude,
   ...enVacancy,
   ...enForms,
   ...enAnswerModel,

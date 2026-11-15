@@ -1,3 +1,4 @@
+import { zhGratitude } from './zh-gratitude.js';
 import { zhGreetingCatalog } from './zh-greeting-catalog.js';
 import { zhAnswerModel } from './zh-answer-model.js';
 import { zhVacancy } from './zh-vacancy.js';
@@ -33,6 +34,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...zhGratitude,
   ...zhVacancy,
   ...zhForms,
   ...zhAnswerModel,

@@ -13,6 +13,7 @@ const sentMessage = (draft, { at, via, automation }) => ({
   chat: String(draft.chat),
   sender: 'me',
   body: draft.text,
+  ...(draft.sticker ? { sticker: draft.sticker } : {}),
   timestamp: at,
   automation: automation.id,
   ...(via ? { via } : {}),

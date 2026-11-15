@@ -1,4 +1,5 @@
 import { verifyVkGreetingCatalog } from './helpers/e2e-vk-greeting-catalog.mjs';
+import { verifyVkGratitude } from './helpers/e2e-vk-gratitude.mjs';
 import { createLinoFetch } from '../src/transport/fetch.js';
 const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 /**
@@ -386,6 +387,7 @@ const run = async () => {
 
     await captureScreenshot(page);
     await verifyVkGreetingCatalog(browser);
+    await verifyVkGratitude(browser);
   } catch (error) {
     await traceFailure(page, firstVk).catch((diagnostic) =>
       console.error(

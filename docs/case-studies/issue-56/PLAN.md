@@ -1247,3 +1247,11 @@ Active VK01 greeting audit:
 - [ ] Preserve checksummed evidence, update the draft PR and inspect exact-head CI before checking VK01. Continue every other unchecked original requirement.
 
 Active refreshed-destination CI correction: exact published parent `0a628365` fails Chromium shard 2/4 at complete job log lines 1575–1587 because one broad strict text locator matches both pending-turn and latest-question review targets. The unchanged helper reproduces locally; scope its exact visible-target assertion to the pending turn, retaining all guards and deadlines. Four corrected native cases pass with one fresh receipt, zero stale sends/errors and closed resources. Preserve checked evidence, publish separately and inspect exact-head CI. VK01 hosted verification and all 79 unchecked original criteria remain active; PR57 stays draft/unmerged.
+
+Active VK02 gratitude responses:
+
+- [x] Preserve pinned gratitude trigger, tests and sticker catalog; independently recognize complete contextual phrases and all 38 incoming sticker identifiers with finite input bounds.
+- [x] Reuse configurable automations, formal/informal templates, safe drafts and guarded paced delivery. Show the actual chosen sticker, preserve explicit text edits, refuse unsupported sticker delivery and revalidate the latest incoming personal VK message before dispatch.
+- [x] Verify actual-parent absence, focused recognition/durable/CLI/offline/text-binary Lino and adapter regressions, one native UI case and independent MCP. Preserve before/after evidence and require exact-head hosted checks before checking VK02. Continue all other unchecked original criteria.
+
+- [ ] Publish the locally verified gratitude unit with its checked archive and permanent images; inspect its own exact-head hosted matrix before checking VK02. Thirteen Node/thirteen Deno, 63 compatibility checks, one native gratitude case, the existing greeting case and four independent MCP locales pass locally. Keep all 79 original unchecked criteria active until their exact acceptance evidence passes.

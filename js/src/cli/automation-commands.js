@@ -72,6 +72,8 @@ const indent = (text) =>
     .join('\n');
 
 const FORM_LABEL = { informal: 'ты', formal: 'вы', neutral: '—' };
+const draftContent = (draft) =>
+  draft.sticker ? `VK sticker ${draft.sticker.id}` : draft.text;
 
 const describeDraft = (draft) => {
   const af = draft.addressForm ?? { reason: 'chosen' };
@@ -133,7 +135,7 @@ const logPlan = (plan, log) => {
   log(`${plan.name}: ${plan.total} to message (preview — nothing was sent)`);
   plan.drafts.forEach((draft, i) => {
     log(`${i + 1}. ${describeDraft(draft)}`);
-    log(indent(draft.text));
+    log(indent(draftContent(draft)));
     const targets = draft.answer?.turn?.messages?.flatMap(
       (message) => message.links ?? []
     );
@@ -249,7 +251,7 @@ const draftsCmd = async ({ args, runner, log }) => {
   log(`${drafts.length} pending draft(s)`);
   for (const draft of drafts) {
     log(`${draft.id}\t${draft.automationName ?? draft.automation}`);
-    log(indent(draft.text));
+    log(indent(draftContent(draft)));
   }
   return 0;
 };
@@ -351,7 +353,7 @@ const reviewCmd = async ({ args, runner, log, ask }) => {
     let draft = pending;
     for (;;) {
       log(`\n[${i + 1}/${queue.length}] ${describeDraft(draft)}`);
-      log(indent(draft.text));
+      log(indent(draftContent(draft)));
       if (draft.prefill?.url) {
         log(`    open: ${draft.prefill.url}`);
       }

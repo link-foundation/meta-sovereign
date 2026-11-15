@@ -53,6 +53,11 @@ import {
 
 import { OUTBOX_PREFIX } from './outbox.js';
 import {
+  gratitudeDraft,
+  gratitudeOptions,
+  isGratitudeMessage,
+} from './gratitude.js';
+import {
   normalizeAnswerAction,
   planAnswer,
   QA_RULE_PREFIX,
@@ -143,6 +148,12 @@ const normalizeTrigger = (trigger) => {
     return { kind, every: trigger.every };
   }
   if (kind === 'incoming') {
+    if (trigger.recognizer === 'gratitude') {
+      return { kind, recognizer: 'gratitude' };
+    }
+    if (trigger.recognizer) {
+      throw new Error(`unknown incoming recognizer "${trigger.recognizer}"`);
+    }
     const pattern = String(trigger.pattern ?? '');
     const flags = String(trigger.flags ?? 'iu');
     safeRegExp(pattern, flags);
@@ -156,9 +167,9 @@ const normalizeAction = (action = {}) => {
   if (kind === 'answer-questions') {
     return normalizeAnswerAction(action);
   }
-  if (kind !== 'send-template') {
+  if (!['send-template', 'reply-gratitude'].includes(kind)) {
     throw new Error(
-      `unknown action "${kind}"; known: send-template, answer-questions`
+      `unknown action "${kind}"; known: send-template, reply-gratitude, answer-questions`
     );
   }
   const form = action.form ?? 'auto';
@@ -180,6 +191,7 @@ const normalizeAction = (action = {}) => {
     templates,
     form,
     fallbackForm: action.fallbackForm ?? 'formal',
+    ...(kind === 'reply-gratitude' ? gratitudeOptions(action) : {}),
   };
 };
 
@@ -228,8 +240,11 @@ export const hasTrigger = (automation, kind) =>
   automation.triggers.some((t) => t.kind === kind);
 
 /** The `incoming` trigger whose pattern matches `text`, if any. */
-export const incomingTrigger = (automation, text) =>
+export const incomingTrigger = (automation, text, message = {}) =>
   automation.triggers.find((t) => {
+    if (t.kind === 'incoming' && t.recognizer === 'gratitude') {
+      return isGratitudeMessage({ ...message, body: text });
+    }
     // A stored pattern that cannot be used (too long, invalid) never fires;
     // one that runs too long counts as no match (R-Z1, ReDoS).
     const regex = t.kind === 'incoming' && safeRegExpOrNull(t.pattern, t.flags);
@@ -312,6 +327,31 @@ export const automationPresets = () =>
       ],
       conditions: { mutual: false, cooldownDays: 1 },
       action: { templates: PRESET_TEXTS.greeting },
+    },
+    {
+      id: 'gratitude',
+      preset: 'gratitude',
+      name: 'Reply to gratitude',
+      description:
+        'Review a reply to a personal VK gratitude message or sticker; choose stickers or your formal and informal texts.',
+      enabled: false,
+      triggers: [
+        { kind: 'incoming', recognizer: 'gratitude' },
+        { kind: 'chat-menu' },
+      ],
+      conditions: {
+        mutual: false,
+        lastFrom: 'contact',
+        networks: ['vk'],
+        cooldownDays: 1,
+      },
+      action: {
+        kind: 'reply-gratitude',
+        templates: {
+          informal: 'Пожалуйста! Рад тебе помочь.',
+          formal: 'Пожалуйста! Рад Вам помочь.',
+        },
+      },
     },
   ].map(normalizeAutomation);
 
@@ -530,6 +570,7 @@ export const redraftWithForm = (automation, draft, form) => {
   );
   return {
     ...draft,
+    ...(draft.gratitude ? { sticker: undefined } : {}),
     form,
     text,
     edited: Boolean(automation.edited?.includes(form)),
@@ -704,6 +745,22 @@ export const planAutomation = (links = [], input, options = {}) => {
             ...result,
           });
         }
+      } else if (automation.action.kind === 'reply-gratitude') {
+        const result = gratitudeDraft(
+          automation,
+          candidate,
+          draftFor(automation, candidate, { isSelf, rules }),
+          isSelf
+        );
+        if (result.draft) {
+          drafts.push(result.draft);
+        } else {
+          excluded.push({
+            key: candidate.key,
+            name: candidate.name,
+            reason: result.reason,
+          });
+        }
       } else {
         drafts.push(draftFor(automation, candidate, { isSelf, rules }));
       }
@@ -757,7 +814,7 @@ export const templateFromText = (text, draft = {}) => {
 
 /** The automation with the user's edited templates in place of its own. */
 export const withEdit = (automation, edit) =>
-  automation.action.kind === 'send-template' &&
+  ['send-template', 'reply-gratitude'].includes(automation.action.kind) &&
   edit?.templates &&
   Object.keys(edit.templates).length > 0
     ? {
@@ -772,7 +829,7 @@ export const withEdit = (automation, edit) =>
 
 /** The edit link after the user sent `text` (null: nothing to keep). */
 export const editAfterSend = (automation, before, draft, text, at) => {
-  if (automation.action.kind === 'answer-questions') {
+  if (automation.action.kind === 'answer-questions' || draft.sticker) {
     return null;
   }
   const original = automation.action.templates;

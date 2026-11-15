@@ -510,3 +510,5 @@ Offer desktop installers only from uploaded, nonempty GitHub release assets. Ret
 Retain complete email alternative destinations through MIME, Gmail, JMAP and Graph imports, shared question review and frozen history checks. Refuse malformed or bounded-out safe-tree metadata, preserve ordinary automatic and confirmed linked delivery, and display full literal destinations through CLI, Lino and native previews.
 
 Edit greeting response catalogs per language through CLI and the shared localized UI. Keep normalized outgoing VK messages and non-personal destinations out of greeting delivery while retaining preview, confirmation, daily limits and actual adapter receipts.
+
+Add configurable private VK gratitude replies with contextual phrase and sticker recognition, exact sticker previews, explicit text variants and fresh-message delivery guards through the shared automation UI, CLI and Lino APIs.
