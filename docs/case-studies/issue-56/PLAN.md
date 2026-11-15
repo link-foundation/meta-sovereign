@@ -1473,3 +1473,10 @@ verification alone. All 66 unchecked inventory rows retain their full scope.
 VK22 final local review binds prior receipt and eligibility to prevent edited reviews from replacing uncertainty or bypassing a zero limit. Eighteen new feature checks and fourteen compatibility checks pass on Node; Deno passes 31 with one existing runtime-specific skip. Native WebKit exercises 103-message partial recovery; independent four-language MCP confirms account-only deletion and recoverable local records. Exact-head hosted acceptance and every other unchecked original criterion remain required.
 
 Hosted acceptance on published `3ea98ecc`: all five workflows and 75 jobs finish successfully or intentionally skip. The [criterion audit and checked metadata](hosted-verification-3ea.md) complete VK14–VK19, VK21, VD04 and VD05 after their preserved reference/local/native/MCP evidence. Fifty-seven original inventory rows remain unchecked. Retention `07de3ef6` still requires its own hosted matrix; VK20 and every other unmet criterion remain required, and PR57 stays draft/unmerged.
+
+## VK23 discovery draft and verification
+
+[The active discovery checklist](vk-discovery-plan.md) tracks the complete pinned
+standalone-script scope, implementation and focused evidence. Three independent
+reviewed friendship policies are drafted; the paced outgoing-message queue stays
+required under VK26. VK23 and every other unmet criterion remain unchecked.

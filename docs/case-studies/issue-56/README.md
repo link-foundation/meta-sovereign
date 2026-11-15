@@ -518,3 +518,8 @@ VK12/VK13 friend maintenance has independently enabled saved policies and protec
 - [Dormant VK conversations (VK16–VK18)](vk-reengage.md): independent topic, help and native-audio sequences, exact ordered review, durable per-step receipts and explicit partial continuation. Focused Node/Deno and native/four-language MCP evidence is preserved; exact-head hosted acceptance remains required.
 
 [Hosted verification on 3ea98ecc](hosted-verification-3ea.md) accepts nine audited VK/desktop criteria after all five workflows and 75 jobs complete; retention and 57 unchecked original criteria remain required.
+
+[Reviewed VK friendship discovery](vk-discovery.md) records the bounded suggestion,
+community and deactivated-request policies, actual-parent regression and focused
+verification. Hosted acceptance and the separate outgoing-message queue remain
+required; VK23 is unchecked.

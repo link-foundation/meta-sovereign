@@ -5,12 +5,15 @@ import { createVkGreet } from './vk-greet.js';
 import { createVkReengage } from './vk-reengage.js';
 import { createVkWall } from './vk-wall.js';
 import { createVkRetention } from './vk-retention.js';
+import { createVkDiscovery } from './vk-discovery.js';
 export const createVkRelationships = (requests) => {
   const maintenance = createVkMaintenance(requests);
+  const friends = createVkFriends(requests);
   const conversations = createVkCancelled({ ...requests, maintenance });
   const greetings = createVkGreet({ ...requests, maintenance, conversations });
   return {
-    ...createVkFriends(requests),
+    ...friends,
+    ...createVkDiscovery({ ...requests, friends }),
     ...maintenance,
     ...conversations,
     ...greetings,

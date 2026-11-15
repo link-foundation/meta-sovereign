@@ -100,6 +100,8 @@ export const createVkFriends = ({ call, once }) => {
       };
     },
     friendState: (userId, options) => state([userId], options),
+    friendStates: state,
+    friendMutualCounts: mutualCounts,
     friendMutualCount: async (userId, options) =>
       (await mutualCounts([userId], options))[userId],
     async addFriend(userId, options, beforeIssue) {

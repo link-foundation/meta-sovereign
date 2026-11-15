@@ -7,6 +7,7 @@ import { verifyVkReengage } from './helpers/e2e-vk-reengage.mjs';
 import { verifyVkWall } from './helpers/e2e-vk-wall.mjs';
 import { verifyVkBirthday } from './helpers/e2e-vk-birthday.mjs';
 import { verifyVkRetention } from './helpers/e2e-vk-retention.mjs';
+import { verifyVkDiscovery } from './helpers/e2e-vk-discovery.mjs';
 await runBrowserScenarios('vk-friends', [
   verifyVkFriends,
   verifyVkDesktopPolicy,
@@ -16,4 +17,5 @@ await runBrowserScenarios('vk-friends', [
   verifyVkWall,
   verifyVkBirthday,
   verifyVkRetention,
+  verifyVkDiscovery,
 ]);

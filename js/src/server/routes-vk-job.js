@@ -47,3 +47,29 @@ export const createVkJobRoute = ({ path: base, load, save, actions }) => {
     }
   };
 };
+
+/** Related reviewed jobs retain independent policies and owned schedulers. */
+export const createVkJobFamilyRoutes = (kinds, policyFor, jobFor) => {
+  const routes = kinds.map((kind) =>
+    createVkJobRoute({
+      path: `/api/vk/${kind}`,
+      ...policyFor(kind),
+      actions: {
+        plan: (ctx) => jobFor(ctx, kind).preview(),
+        run: (ctx, body) =>
+          jobFor(ctx, kind).run({
+            planId: body.planId,
+            confirm: body.confirm,
+          }),
+      },
+    })
+  );
+  return async (...args) => {
+    for (const route of routes) {
+      if (await route(...args)) {
+        return true;
+      }
+    }
+    return false;
+  };
+};

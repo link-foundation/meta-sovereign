@@ -116,6 +116,7 @@ export const friendsServer = async ({
   vkWall,
   vkBirthday,
   vkRetention,
+  vkDiscovery,
 } = {}) => {
   const store = createMemoryStore();
   let writesRefused = false;
@@ -142,6 +143,7 @@ export const friendsServer = async ({
       vkWall,
       vkBirthday,
       vkRetention,
+      vkDiscovery,
       vkFriends: {
         sleep: async () => {},
         ...clock,

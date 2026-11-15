@@ -128,6 +128,9 @@ import { createVkBirthdayJob } from '../automation/vk-birthday.js';
 import { handleVkBirthday } from './routes-vk-birthday.js';
 import { createVkRetentionJob } from '../automation/vk-retention.js';
 import { handleVkRetention } from './routes-vk-retention.js';
+import { createVkDiscoveryJob } from '../automation/vk-discovery.js';
+import { handleVkDiscovery } from './routes-vk-discovery.js';
+import { discoveryKinds } from '../automation/vk-discovery-settings.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -343,6 +346,70 @@ const vkPolicyJobs = (store, kinds, create, options, log) =>
     ])
   );
 
+const vkAutomationJobs = (store, automations, say) => {
+  const providerJob = (create, options) =>
+    create({ store, ...options, log: say });
+  const vkOnline = providerJob(createVkOnlineJob, automations.vkOnline);
+  const vkFriends = providerJob(createVkFriendsJob, automations.vkFriends);
+  const vkGreet = providerJob(createVkGreetJob, automations.vkGreet);
+  const vkWall = providerJob(createVkWallJob, automations.vkWall);
+  const vkBirthday = providerJob(createVkBirthdayJob, automations.vkBirthday);
+  const vkRetention = providerJob(
+    createVkRetentionJob,
+    automations.vkRetention
+  );
+  const vkReengage = vkPolicyJobs(
+    store,
+    reengageKinds,
+    createVkReengageJob,
+    automations.vkReengage,
+    say
+  );
+  const vkCancelled = providerJob(
+    createVkCancelledJob,
+    automations.vkCancelled
+  );
+  const vkMaintenance = vkPolicyJobs(
+    store,
+    maintenanceKinds,
+    createVkMaintenanceJob,
+    automations.vkMaintenance,
+    say
+  );
+  const vkDiscovery = vkPolicyJobs(
+    store,
+    discoveryKinds,
+    createVkDiscoveryJob,
+    automations.vkDiscovery,
+    say
+  );
+  const ownedVkJobs = [
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    ...Object.values(vkReengage),
+    ...Object.values(vkMaintenance),
+    ...Object.values(vkDiscovery),
+  ];
+  return {
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkReengage,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    vkMaintenance,
+    vkDiscovery,
+    ownedVkJobs,
+  };
+};
+
 /**
  * Sending, typing and automations. `automations.send` and `.setTyping`
  * replace the adapters (tests); by default a message goes through the
@@ -401,46 +468,19 @@ const automationContext = (
     log: say,
   });
   const autopilot = createAutopilot({ store, runner, log: say });
-  const providerJob = (create, options) =>
-    create({ store, ...options, log: say });
-  const vkOnline = providerJob(createVkOnlineJob, automations.vkOnline);
-  const vkFriends = providerJob(createVkFriendsJob, automations.vkFriends);
-  const vkGreet = createVkGreetJob({ store, ...automations.vkGreet, log: say });
-  const vkWall = createVkWallJob({ store, ...automations.vkWall, log: say });
-  const vkBirthday = providerJob(createVkBirthdayJob, automations.vkBirthday);
-  const vkRetention = providerJob(
-    createVkRetentionJob,
-    automations.vkRetention
-  );
-  const vkReengage = vkPolicyJobs(
-    store,
-    reengageKinds,
-    createVkReengageJob,
-    automations.vkReengage,
-    say
-  );
-  const vkCancelled = providerJob(
-    createVkCancelledJob,
-    automations.vkCancelled
-  );
-  const vkMaintenance = vkPolicyJobs(
-    store,
-    maintenanceKinds,
-    createVkMaintenanceJob,
-    automations.vkMaintenance,
-    say
-  );
-  const ownedVkJobs = [
+  const {
     vkOnline,
     vkFriends,
     vkCancelled,
     vkGreet,
+    vkReengage,
     vkWall,
     vkBirthday,
     vkRetention,
-    ...Object.values(vkReengage),
-    ...Object.values(vkMaintenance),
-  ];
+    vkMaintenance,
+    vkDiscovery,
+    ownedVkJobs,
+  } = vkAutomationJobs(store, automations, say);
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
   const recover = () =>
@@ -490,6 +530,7 @@ const automationContext = (
     vkBirthday,
     vkRetention,
     vkMaintenance,
+    vkDiscovery,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
     closeAutomations: async () => {
@@ -745,6 +786,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkWall(store, req, res, p, url, ctx),
     () => handleVkBirthday(store, req, res, p, url, ctx),
     () => handleVkRetention(store, req, res, p, url, ctx),
+    () => handleVkDiscovery(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

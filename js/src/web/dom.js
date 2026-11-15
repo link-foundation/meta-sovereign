@@ -40,16 +40,7 @@ import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
-import { createVkAttachmentsApi } from './vk-attachments-api.js';
-import { createVkOnlineApi } from './vk-online-api.js';
-import { createVkFriendsApi } from './vk-friends-api.js';
-import { createVkMaintenanceApi } from './vk-maintenance-api.js';
-import { createVkCancelledApi } from './vk-cancelled-api.js';
-import { createVkGreetApi } from './vk-greet-api.js';
-import { createVkReengageApi } from './vk-reengage-api.js';
-import { createVkWallApi } from './vk-wall-api.js';
-import { createVkBirthdayApi } from './vk-birthday-api.js';
-import { createVkRetentionApi } from './vk-retention-api.js';
+import { createVkProviderApi } from './vk-provider-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
@@ -557,37 +548,7 @@ const rawApi = {
     ...remote,
     local: async () => (await ensure()).store,
   }),
-  ...createVkAttachmentsApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkOnlineApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkFriendsApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkMaintenanceApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkGreetApi({ ...remote, local: async () => (await ensure()).store }),
-  ...createVkWallApi({ ...remote, local: async () => (await ensure()).store }),
-  ...createVkBirthdayApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkRetentionApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkReengageApi({
-    ...remote,
-    local: async () => (await ensure()).store,
-  }),
-  ...createVkCancelledApi({
+  ...createVkProviderApi({
     ...remote,
     local: async () => (await ensure()).store,
   }),

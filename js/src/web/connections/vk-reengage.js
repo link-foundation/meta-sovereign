@@ -1,7 +1,6 @@
 import React from 'react';
-import { api } from '../dom.js';
 import { useT } from '../i18n.js';
-import { VkFriendPolicy } from './vk-friends.js';
+import { VkFriendPolicies } from './vk-friends.js';
 import {
   reengageKinds,
   reengageFields,
@@ -46,28 +45,15 @@ export const SequenceEvidence = ({ item }) => {
   ]);
 };
 export const VkReengage = () =>
-  el(
-    React.Fragment,
-    null,
-    reengageKinds.map((kind) => {
-      const title = `Vk${kind[0].toUpperCase()}${kind.slice(1)}`;
-      return el(VkFriendPolicy, {
-        key: kind,
-        name: kind,
-        prefix: `vk${title.slice(2)}`,
-        fields: reengageFields,
-        textFields: {
-          ...reengageTextFields,
-          ...(kind === 'music' ? { audio: 64 } : {}),
-        },
-        booleanFields: reengageBooleans,
-        evidence: SequenceEvidence,
-        resource: {
-          load: api[`vk${title.slice(2)}`],
-          save: api[`save${title}`],
-          plan: api[`plan${title}`],
-          run: api[`run${title}`],
-        },
-      });
-    })
-  );
+  el(VkFriendPolicies, {
+    kinds: reengageKinds,
+    optionsFor: (kind) => ({
+      fields: reengageFields,
+      textFields: {
+        ...reengageTextFields,
+        ...(kind === 'music' ? { audio: 64 } : {}),
+      },
+      booleanFields: reengageBooleans,
+      evidence: SequenceEvidence,
+    }),
+  });

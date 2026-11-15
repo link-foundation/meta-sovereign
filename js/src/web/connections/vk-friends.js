@@ -10,6 +10,27 @@ import {
 } from './vk-friend-choice.js';
 
 const el = React.createElement;
+/** Keep policy controls, review and transport naming consistent across VK jobs. */
+export const VkFriendPolicies = ({ kinds, optionsFor }) =>
+  el(
+    React.Fragment,
+    null,
+    kinds.map((kind) => {
+      const title = `Vk${kind[0].toUpperCase()}${kind.slice(1)}`;
+      return el(VkFriendPolicy, {
+        key: kind,
+        name: kind,
+        prefix: `vk${title.slice(2)}`,
+        ...optionsFor(kind),
+        resource: {
+          load: api[`vk${title.slice(2)}`],
+          save: api[`save${title}`],
+          plan: api[`plan${title}`],
+          run: api[`run${title}`],
+        },
+      });
+    })
+  );
 const friendFields = {
   everyMinutes: [1, 1440],
   maxFriends: [1, 10000],
@@ -115,7 +136,13 @@ const FriendSettings = ({
     ),
   ]);
 };
-const FriendResults = ({ data, prefix, name, evidence: Evidence }) => {
+const FriendResults = ({
+  data,
+  prefix,
+  name,
+  evidence: Evidence,
+  summary: Summary,
+}) => {
   const t = useT();
   const plan = data?.plan;
   const last = data?.last;
@@ -137,6 +164,7 @@ const FriendResults = ({ data, prefix, name, evidence: Evidence }) => {
                 count: plan.friendCount,
               })
             ),
+            Summary ? el(Summary, { key: 'summary', plan }) : null,
             el(
               'ul',
               { key: 'items' },
@@ -152,7 +180,9 @@ const FriendResults = ({ data, prefix, name, evidence: Evidence }) => {
                   },
                   [
                     `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}${friendMutualLabel(t, item)}`,
-                    Evidence ? el(Evidence, { key: 'evidence', item }) : null,
+                    Evidence
+                      ? el(Evidence, { key: 'evidence', item, plan })
+                      : null,
                   ]
                 )
               )
@@ -203,6 +233,7 @@ export const VkFriendPolicy = ({
   textFields = {},
   booleanFields = [],
   evidence,
+  summary,
 }) => {
   const t = useT();
   const { data, busy, error, run } = useAcknowledgedResource(resource.load);
@@ -272,7 +303,14 @@ export const VkFriendPolicy = ({
       ),
     ]),
     el(FriendFeedback, { key: 'feedback', busy, error, data, prefix }),
-    el(FriendResults, { key: 'results', data, prefix, name, evidence }),
+    el(FriendResults, {
+      key: 'results',
+      data,
+      prefix,
+      name,
+      evidence,
+      summary,
+    }),
   ]);
 };
 

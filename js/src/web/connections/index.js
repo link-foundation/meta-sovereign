@@ -55,6 +55,7 @@ import { VkReengage } from './vk-reengage.js';
 import { VkWall } from './vk-wall.js';
 import { VkBirthday } from './vk-birthday.js';
 import { VkRetention } from './vk-retention.js';
+import { VkDiscovery } from './vk-discovery.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
 
 const el = React.createElement;
@@ -70,6 +71,7 @@ const VkConnectionJobs = () =>
     el(VkWall, { key: 'wall' }),
     el(VkBirthday, { key: 'birthday' }),
     el(VkRetention, { key: 'retention' }),
+    el(VkDiscovery, { key: 'discovery' }),
   ]);
 
 // A status that is still at work ("Saving…") shows Telegram's arc
