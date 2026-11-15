@@ -29,7 +29,9 @@ until every criterion has implementation and verification evidence.
       native hosted verification, shared editing and runner control remain required.
       [The explicit session CLI](runner-session-control.md) now has strict local/SSH
       observation, retained target identity and cancelled-child draining. Automatic
-      preparation, actual backend readiness and shared Lino/UI integration remain
+      [The protected Lino API and connected CLI](runner-session-api.md) share
+      those observations and retain owned transports through shutdown. Automatic
+      preparation, actual backend readiness and shared UI/configuration integration remain
       required; this foundation does not accept VD01–VD09.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user

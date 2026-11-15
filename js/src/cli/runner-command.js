@@ -1,14 +1,20 @@
-import path from 'node:path';
-import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire, LINO_TEXT } from '../transport/lino.js';
 import { createRunnerController } from '../server/runner-controller.js';
+import { requestRunner } from './runner-client.js';
 
-const appDirectory = () =>
-  path.dirname(
-    defaultStoreDir({
-      env: { ...process.env, META_SOVEREIGN_STORE_DIR: '' },
-    })
+const validSelection = (args) => {
+  if (args.url !== undefined) {
+    return (
+      typeof args.url === 'string' &&
+      Boolean(args.url) &&
+      args.profile === undefined
+    );
+  }
+  return (
+    args.profile === undefined ||
+    (typeof args.profile === 'string' && Boolean(args.profile))
   );
+};
 
 /** Do not open the application's store or install/launch anything on a read. */
 export const createRunnerCommand =
@@ -21,12 +27,11 @@ export const createRunnerCommand =
       (action === 'status'
         ? mode !== undefined
         : !['local', 'server'].includes(mode)) ||
-      Object.keys(args).some((key) => !['_', 'profile'].includes(key)) ||
-      (args.profile !== undefined &&
-        (typeof args.profile !== 'string' || !args.profile))
+      Object.keys(args).some((key) => !['_', 'profile', 'url'].includes(key)) ||
+      !validSelection(args)
     ) {
       log(
-        'Use runner status|start local|start server|stop local|stop server --profile=<file>.'
+        'Use runner status|start local|start server|stop local|stop server [--profile=<file> | --url=<server-origin>].'
       );
       return 1;
     }
@@ -35,16 +40,16 @@ export const createRunnerCommand =
     process.on('SIGINT', cancel);
     process.on('SIGTERM', cancel);
     try {
-      const control = createRunnerController({
-        directory: appDirectory,
-        ...options,
-      });
-      const answer = await control.execute({
+      const input = {
         action,
         mode,
         profile: args.profile,
         signal: abort.signal,
-      });
+      };
+      const answer =
+        args.url !== undefined
+          ? await requestRunner({ ...input, url: args.url }, options.fetchImpl)
+          : await createRunnerController(options).execute(input);
       log(encodeWire(answer, LINO_TEXT));
       return answer.ok && !abort.signal.aborted ? 0 : 1;
     } catch {

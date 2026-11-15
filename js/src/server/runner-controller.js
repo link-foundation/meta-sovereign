@@ -9,6 +9,14 @@ import {
   validateRunnerProfile,
 } from '../cli/runner-profile.js';
 import { createRunnerControl } from './runner-control.js';
+import { defaultStoreDir } from '../storage/app-directory.js';
+
+export const defaultRunnerDirectory = () =>
+  path.dirname(
+    defaultStoreDir({
+      env: { ...process.env, META_SOVEREIGN_STORE_DIR: '' },
+    })
+  );
 
 const readBinding = async (file) => {
   try {
@@ -50,7 +58,7 @@ const validAction = (action, mode) =>
 
 /** Serialize all callers and retain target identity across profile edits/crashes. */
 export const createRunnerController = ({
-  directory,
+  directory = defaultRunnerDirectory,
   run,
   load = readRunnerProfile,
   lock = acquireStoreLock,

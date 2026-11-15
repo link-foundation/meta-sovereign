@@ -205,7 +205,7 @@ Commands:
   backup-config [--store=<dir>] [--interval-hours=<h>] [--keep=<n>] [--formats=text,binary|none]
   restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
-  runner        status|start local|start server|stop local|stop server [--profile=<runner.lino>]
+  runner        status|start local|start server|stop local|stop server [--profile=<runner.lino> | --url=<server-origin>]
                 observes isolated server sessions; starts/stops require confirmed backend state
                 local and SSH targets use screen via link-foundation/start; no automatic start
   diagnostics   logs [--url=http://127.0.0.1:8787] [--after=0] [--follow]

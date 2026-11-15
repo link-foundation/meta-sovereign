@@ -172,6 +172,8 @@ import { createLogJournal } from './log-journal.js';
 import { withLoggedSession } from './log-session.js';
 import { createLogSettings } from './log-settings.js';
 import { handleDiagnostics } from './routes-diagnostics.js';
+import { handleRunner } from './routes-runner.js';
+import { createRunnerRuntime } from './runner-runtime.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { listenLocal } from './local-tls.js';
 import { handlePullRoutes, pullContext } from './routes-pull.js';
@@ -797,6 +799,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   }
   for (const handle of [
     () => handleDiagnostics(req, res, p, url, ctx),
+    () => handleRunner(req, res, p, ctx),
     () => handleVkToken(req, res, p, ctx),
     () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleVkSendQueue(store, req, res, p, url, ctx),
@@ -1125,6 +1128,7 @@ const startServerRuntime = async ({
   log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
   verbose,
   diagnosticsSession,
+  runnerSessions,
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   vkToken,
@@ -1231,6 +1235,7 @@ const startServerRuntime = async ({
     logJournal,
     diagnostics,
     diagnosticsSession,
+    runnerSessions: createRunnerRuntime(runnerSessions),
     learned: createLearnedRoute(),
     githubCheck: githubCheckOf(store, log, githubCheck),
     autoImport: null,
@@ -1263,20 +1268,16 @@ const startServerRuntime = async ({
     releaseStore,
     flushLog: logFlusher(providedStore),
   });
-  const { wsHandle, signaling } = attachSockets(server, ctx, store, {
-    enableSync,
-    node,
-  });
+  const transports = attachSockets(server, ctx, store, { enableSync, node });
   const listening = await listenOrRelease(
     server,
     sockets,
     { port, storeDir, tls, log },
-    releaseBeforeListen({ wsHandle, signaling, lifecycle, flush, releaseStore })
+    releaseBeforeListen({ ...transports, lifecycle, flush, releaseStore })
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);
   return serverHandle(store, ctx, listening, lifecycle, {
-    wsHandle,
-    signaling,
+    ...transports,
     server,
   });
 };

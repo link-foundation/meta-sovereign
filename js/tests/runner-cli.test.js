@@ -105,6 +105,9 @@ test(
       ['status', '--profile='],
       ['status', '--token=PRIVATE'],
       ['status', '--store=PRIVATE'],
+      ['status', '--url'],
+      ['status', '--url='],
+      ['status', '--url=http://127.0.0.1', '--profile=PRIVATE'],
     ]) {
       assert.equal(await runCli(['runner', ...args], options), 1);
     }

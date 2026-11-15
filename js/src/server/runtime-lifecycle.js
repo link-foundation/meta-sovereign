@@ -53,6 +53,7 @@ export const createRuntimeLifecycle = ({
       ctx.vkCache?.close(),
       ctx.vkStickers?.close(),
       ctx.vkToken?.close(),
+      ctx.runnerSessions?.close(),
       ctx.forms?.stop(),
       ctx.vacancies?.stop(),
       ctx.answerModel?.stop?.(),
