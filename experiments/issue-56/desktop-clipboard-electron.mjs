@@ -10,7 +10,8 @@ export const verifyNativeDesktopClipboard = async ({
   ipcMain,
   clipboard,
 }) => {
-  const previous = clipboard.readText();
+  let phase = 'read-previous';
+  let previous;
   const text = 'redacted visible native fixture\nsecond line';
   const server = createServer((_request, response) =>
     response.end('<!doctype html><title>Private clipboard fixture</title>')
@@ -18,11 +19,14 @@ export const verifyNativeDesktopClipboard = async ({
   let window;
   let dispose;
   try {
+    previous = clipboard.readText();
+    phase = 'listen';
     await new Promise((resolve, reject) => {
       server.once('error', reject);
       server.listen(0, '127.0.0.1', resolve);
     });
     const origin = `http://127.0.0.1:${server.address().port}`;
+    phase = 'create-window';
     window = new BrowserWindow({
       show: false,
       webPreferences: {
@@ -34,19 +38,42 @@ export const verifyNativeDesktopClipboard = async ({
         sandbox: true,
       },
     });
+    window.webContents.on('preload-error', (_event, _path, error) => {
+      console.error('Native clipboard preload refused:', error?.name);
+    });
+    phase = 'attach';
     dispose = attachClipboard({
       ipcMain,
       clipboard,
       contents: window.webContents,
       origin,
     });
+    phase = 'load-owned';
     await window.loadURL(origin);
+    phase = 'owned-preload';
+    assert.equal(
+      await window.webContents.executeJavaScript(
+        'typeof globalThis.metaSovereignShell?.copyText'
+      ),
+      'function'
+    );
+    phase = 'owned-write';
     const receipt = await window.webContents.executeJavaScript(
       `globalThis.metaSovereignShell.copyText(${JSON.stringify(text)})`
     );
     assert.deepEqual(receipt, { ok: true });
+    phase = 'owned-readback';
     assert.equal(clipboard.readText(), text);
+    phase = 'load-foreign';
     await window.loadURL('data:text/html,foreign%20fixture');
+    phase = 'foreign-preload';
+    assert.equal(
+      await window.webContents.executeJavaScript(
+        'typeof globalThis.metaSovereignShell?.copyText'
+      ),
+      'function'
+    );
+    phase = 'foreign-write';
     const refused = await window.webContents.executeJavaScript(
       "globalThis.metaSovereignShell.copyText('refused')"
     );
@@ -57,6 +84,10 @@ export const verifyNativeDesktopClipboard = async ({
       ownedOriginRequired: true,
       foreignNavigationRefused: true,
     };
+  } catch (error) {
+    throw Object.assign(new Error('Native clipboard fixture failed.'), {
+      code: `NATIVE_CLIPBOARD_${phase}_${error?.name}`,
+    });
   } finally {
     dispose?.();
     if (window && !window.isDestroyed()) {
@@ -64,6 +95,8 @@ export const verifyNativeDesktopClipboard = async ({
     }
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
-    clipboard.writeText(previous);
+    if (previous !== undefined) {
+      clipboard.writeText(previous);
+    }
   }
 };
