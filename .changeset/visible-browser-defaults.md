@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Require fresh review when a question changes or adds link targets, including bare domains and action links, even if an approved template already contains a URL. Preserve full URL path case and punctuation before normalized matching. Share text-only link recognition with HTTP chat previews.
+
 Add opt-in publication of reviewed sanitized saved CV snapshots through foreground CLI, text/binary Lino and four-language controls. Commit only generated snapshot paths with an isolated Git index, preserve private/staged content and require exact remote confirmation without recovery retries.
 
 Resolve the native viewed-vacancy survey setting from explicit CLI flags, environment and selected/default Lino environment files at single/batch review start. Preserve isolated configuration, frozen receipts, read-only status and lightweight help, and include the configuration library in production dependencies.
