@@ -97,6 +97,13 @@ enforcement. It uses a private temporary Electron profile, a 15-second
 operation deadline and no account or running application server. This case
 must pass on the pushed head before VD13 is accepted.
 
+The initial hosted case stalled during Electron readiness. The corrected
+entry releases ESM evaluation before awaiting readiness and can terminate a
+readiness/cleanup stall. The [entry investigation](vk-token-electron-entry.md)
+retains pinned loader evidence and a finite parent/current regression. The
+[registry correction](vk-token-registration.md) restores the missing browser
+npm command. Neither correction substitutes for real exact-head CI acceptance.
+
 The [active checklist](vk-token-plan.md), [source/log archive](data/vk-token.tar.gz)
 and [SHA-256 manifest](data/vk-token.tar.sha256.json) retain the evidence.
 Exact-head hosted verification remains pending; all other unchecked criteria

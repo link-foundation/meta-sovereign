@@ -17,8 +17,10 @@ remain required until implementation and verification are evidenced.
 - [x] Add finite parser, navigation, lifecycle, protected-persistence and
       transport regressions. Verify the relevant native browser scenario and
       independent MCP desktop/phone/localization states with owned fixtures.
-- [ ] Archive sources, raw checks, screenshots and hashes, review the complete
+- [x] Archive sources, raw checks, screenshots and hashes, review the complete
       atomic change, commit/push and update PR57 with reproducible commands.
+- [x] Correct the browser registry command and finite Electron entry readiness
+      cycle, with parent/current regressions and a terminating deadline.
 - [ ] Inspect all exact-head workflows and failure logs before accepting VD13.
 
 Electron's security and window APIs were rechecked against its official
