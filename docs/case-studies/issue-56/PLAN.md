@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active structured Telegram question destinations (QA04 remains incomplete):
+
+- [x] Reproduce lost Bot API, caption, MTProto and Desktop-export link destinations with the actual import/planning paths, including a destination-only edit after frozen review. All four parent probes approve and retain the stale draft; five of seven integrated regression checks fail on the actual parent.
+- [x] Preserve bounded full destinations without rewriting the visible body; refuse ambiguous metadata and retain target identity at the final stored-history check. Extract before both raw-record projections; share literal review evidence across CLI, API-backed previews, Chat and Operator.
+- [x] Seven focused Node/Deno checks and 39 compatibility checks pass, including foreground CLI/both Lino, send refusal and one ordinary positive receipt. Isolated native/MCP review passes with actual-parent/current screenshots, four locales, phone layout, zero provider effects and drained owned resources. Keep full runtime/browser matrices in CI; preserved MCP console diagnostics are not claimed clean.
+- [ ] Preserve checked evidence, publish atomically and inspect exact-head workflows. Continue every original incomplete criterion; this unit alone cannot complete QA04 or issue 56.
+
 Active hosted selection fixture clock correction:
 
 - [x] Match `060048e9` run `43656081415`, preserve Chromium shard 1 job `132635591776` and inspect its valid 2200px failure screenshot. Log lines 971–974 fail the seam assertion; the artifact shows a real Today divider between messages 12 (23:59) and 13 (00:00).

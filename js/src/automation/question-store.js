@@ -32,6 +32,7 @@ import {
 } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
 import { mergeObservedAnswers } from './question-merge.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import {
   prepareSalaryExchange,
   withSalaryExchangeEvidence,
@@ -231,7 +232,8 @@ const sameQuestion = (latest, draft, selected) =>
   (draft.answer.turn
     ? selected.question === draft.answer.question &&
       JSON.stringify(selected.turn) === JSON.stringify(draft.answer.turn)
-    : latest.body === draft.answer.question);
+    : latest.body === draft.answer.question &&
+      selected.turn.messages.every((message) => !message.links?.length));
 
 // Recheck the actual latest turn and current approvals immediately before an
 // automatic send. A newer/edited question or changed rule invalidates a plan.
@@ -271,7 +273,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       status: link.status,
       answerContext: link.answerContext,
       body: link.body,
-      links: link.links,
+      ...sourceMessageLinkProperties(link),
       timestamp: link.timestamp,
       deleted: link.deleted,
       service: link.service,

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Retain structured Telegram Bot API, caption, MTProto and Desktop-export destinations in shared question planning and frozen history checks. Require fresh review for hidden targets, refuse ambiguous metadata and expose literal destinations in CLI and shared answer evidence.
+
 Preserve bounded native message link destinations through pending-turn review, archived planning and frozen native replies. Display destinations as literal text, require fresh review for hidden targets and refuse choice/text/prefill actions after destination-only changes.
 
 Require fresh review when a question changes or adds link targets, including bare domains and action links, even if an approved template already contains a URL. Preserve full URL path case and punctuation before normalized matching. Share text-only link recognition with HTTP chat previews.

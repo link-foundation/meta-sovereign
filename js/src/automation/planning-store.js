@@ -1,12 +1,13 @@
 import { createAcceptedSummaryIndex } from './question-summary-choice.js';
 import { collectSelfIds } from '../crm/reengage.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 
 const isMessage = (link) =>
   link?.id?.startsWith('msg:') && link.chat !== undefined && link.chat !== null;
 
 // Planning needs message text and reachability flags, never provider media or
 // edit snapshots. In particular, do not copy their packed bytes out of disk.
-const summary = (link) => {
+const summary = (link, questionLinks) => {
   const record = {};
   for (const key of Object.keys(link)) {
     if (!['raw', 'snapshot', 'tokens', 'children'].includes(key)) {
@@ -17,6 +18,9 @@ const summary = (link) => {
         writable: true,
       });
     }
+  }
+  if (questionLinks && isMessage(link)) {
+    Object.assign(record, sourceMessageLinkProperties(link));
   }
   return record;
 };
@@ -45,7 +49,7 @@ export const planningRecords = async (
         return null;
       }
     }
-    return summary(link);
+    return summary(link, summaryChoices);
   };
   if (store.scan) {
     await store.scan(
@@ -72,7 +76,7 @@ export const planningRecords = async (
       return true;
     });
     for (const record of found) {
-      records.push(summary(record));
+      records.push(summary(record, summaryChoices));
     }
   }
   const ids = owner.finish();

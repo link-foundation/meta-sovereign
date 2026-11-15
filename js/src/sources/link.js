@@ -29,6 +29,8 @@ const OPTIONAL = {
   edited: given,
   deleted: given,
   raw: known,
+  // Keep null as explicit unverified destination metadata; never erase a refusal.
+  links: (value) => value !== undefined,
   outgoing: known,
   attachments: nonEmpty,
   forwardedFrom: given,

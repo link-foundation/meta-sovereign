@@ -1,6 +1,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { AnswerModelStatus } from './answer-model-settings.js';
+import { QuestionLinkTargets } from './question-link-targets.js';
 import {
   SalaryCalculationEvidence,
   SalaryExchangeEvidence,
@@ -72,6 +73,7 @@ export const AnswerEvidence = ({ answer, noticeAdmitted = false }) => {
   return el('div', { className: 'col', 'data-answer-evidence': true }, [
     el(AnswerModelStatus, { key: 'model', model: answer.model }),
     el(AnswerParts, { key: 'parts', parts: answer.parts }),
+    el(QuestionLinkTargets, { key: 'links', links: answer.links }),
     el('strong', { key: 'match' }, t(`questions.match.${answer.match}`)),
     el(
       'p',

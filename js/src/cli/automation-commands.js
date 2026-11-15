@@ -134,6 +134,15 @@ const logPlan = (plan, log) => {
   plan.drafts.forEach((draft, i) => {
     log(`${i + 1}. ${describeDraft(draft)}`);
     log(indent(draft.text));
+    const targets = draft.answer?.turn?.messages?.flatMap(
+      (message) => message.links ?? []
+    );
+    if (targets?.length) {
+      log(`    review required: ${draft.answer.requiresReview}`);
+      for (const target of targets) {
+        log(`    link destination: ${target}`);
+      }
+    }
     if (draft.answer?.model) {
       log(
         `    model: ${draft.answer.model.state}; review required: ${draft.answer.requiresReview}`

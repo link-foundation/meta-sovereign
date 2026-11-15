@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { questionBrowserUi } from './question-browser-ui.mjs';
 import { decoded } from './e2e-form-review.mjs';
+import { assertViewportFits } from './e2e-viewport.mjs';
 import { browserChoiceDraft } from '../../src/automation/question-browser-state.js';
 import {
   hiddenLink as link,
@@ -127,12 +128,7 @@ export const verifyHiddenQuestionLinks = async (
         await ui.shot(before ? 'hidden-links-before' : 'hidden-links-after');
         await page.setViewportSize({ width: 390, height: 844 });
         await messages.scrollIntoViewIfNeeded();
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth <= globalThis.innerWidth
-          ),
-          true
-        );
+        await assertViewportFits(page);
         await ui.shot(
           before ? 'hidden-links-before-phone' : 'hidden-links-after-phone'
         );

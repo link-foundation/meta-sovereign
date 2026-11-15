@@ -1,5 +1,6 @@
 import React from 'react';
 import { useT } from './i18n.js';
+import { QuestionLinkTargets } from './question-link-targets.js';
 
 const el = React.createElement;
 const scopeKey = (snapshot, plan) => {
@@ -37,26 +38,7 @@ export const BrowserPendingTurn = ({
         messages.map((message) =>
           el('li', { key: message.id, className: 'wrap' }, [
             el('span', { key: 'body' }, message.body),
-            message.links?.length
-              ? el(
-                  'div',
-                  {
-                    key: 'links',
-                    className: 'col',
-                    'data-question-links': true,
-                  },
-                  [
-                    el(
-                      'small',
-                      { key: 'label', className: 'meta' },
-                      t('browserAnswer.links')
-                    ),
-                    ...message.links.map((target, index) =>
-                      el('code', { key: index, className: 'wrap' }, target)
-                    ),
-                  ]
-                )
-              : null,
+            el(QuestionLinkTargets, { key: 'links', links: message.links }),
           ])
         )
       ),

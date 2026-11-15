@@ -1,5 +1,7 @@
 # Issue 56: unified automation and device architecture
 
+- [Structured Telegram question destinations](question-api-links.md): actual API/export parent regressions, bounded extraction before raw-record projection, frozen history checks and shared literal review evidence, with focused CLI/Lino/native/MCP checks. QA04 remains incomplete.
+
 - [Selection fixture midnight failure](ci-selection-clock.md): the actual hosted screenshot and finite native reproduction identify a date divider inside a clock-dependent adjacent-row sample; fixed UTC fixture data preserves every rendering assertion.
 
 - [Native question link destinations](question-hidden-links.md): actual href-only mutation, bounded full-target capture, fresh review and frozen native actions, with focused parent failures and native/MCP evidence. QA04 remains incomplete.

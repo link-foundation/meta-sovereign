@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { questionBrowserUi } from './question-browser-ui.mjs';
 import { openQuestionDisclosure } from './question-preview.mjs';
 import { decoded } from './e2e-form-review.mjs';
+import { assertViewportFits } from './e2e-viewport.mjs';
 import {
   templateExample as example,
   templateLinkExample,
@@ -105,12 +106,7 @@ export const verifyQuestionTemplates = async (browser, options = {}) => {
         await ui.controls
           .locator('[data-browser-text-draft]')
           .scrollIntoViewIfNeeded();
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth <= globalThis.innerWidth
-          ),
-          true
-        );
+        await assertViewportFits(page);
         await ui.shot('template-receipt-phone');
       }
     );
@@ -169,12 +165,7 @@ export const verifyTemplateLinkGuards = async (
         await ui.shot(before ? 'link-guard-before' : 'link-guard-after');
         await page.setViewportSize({ width: 390, height: 844 });
         await matchLabel.scrollIntoViewIfNeeded();
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth <= globalThis.innerWidth
-          ),
-          true
-        );
+        await assertViewportFits(page);
         await ui.shot(
           before ? 'link-guard-before-phone' : 'link-guard-after-phone'
         );

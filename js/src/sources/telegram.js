@@ -17,6 +17,7 @@
  */
 
 import { buildMessageLink } from './link.js';
+import { sourceMessageLinkProperties } from './message-text-links.js';
 import { contentSticker } from './sticker.js';
 import { greetingEmoji } from '../greetings/detect.js';
 import { DEFAULT_TIMEOUT_MS, timedRequest } from './http.js';
@@ -686,6 +687,11 @@ export const telegramSource = {
             sender: senderId(msg),
             chat: chatId,
             body: messageText(msg),
+            ...sourceMessageLinkProperties({
+              source: SOURCE,
+              body: messageText(msg),
+              raw: msg,
+            }),
             timestamp: messageTimestamp(msg),
             replyTo: msg.reply_to_message_id
               ? String(msg.reply_to_message_id)

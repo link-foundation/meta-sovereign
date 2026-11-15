@@ -2,6 +2,8 @@ import { historyOrder } from '../replies/history-order.js';
 import { answerChoiceState } from './question-options.js';
 import { checkedPendingMessages } from './question-pending-plan.js';
 import { messageLinkProperties } from '../message-link-targets.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
+import { debugQuestionTurn } from './question-turns.js';
 
 const unavailable = () => ({ reason: 'question-turn-unavailable' });
 export const chatAnswerAction = (action) => ({
@@ -89,14 +91,22 @@ export const chatQuestionTurn = (input, ownerIds = []) => {
   if (!latestChoiceState(latest)) {
     return unavailable();
   }
-  const unanswered = unansweredMessages(messages, owners);
+  let unanswered = unansweredMessages(messages, owners);
   if (!unanswered) {
     return unavailable();
   }
   let pendingMessages;
   try {
+    unanswered = unanswered.map((message) => ({
+      ...message,
+      ...sourceMessageLinkProperties(message),
+    }));
     pendingMessages = checkedPendingMessages(unanswered, latest.body);
-  } catch {
+  } catch (error) {
+    debugQuestionTurn('pending-metadata-unverified', {
+      id: latest.id,
+      code: error.code,
+    });
     return unavailable();
   }
   return {
