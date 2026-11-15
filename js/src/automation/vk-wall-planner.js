@@ -16,6 +16,15 @@ import {
   wallAttachments,
 } from './vk-wall-settings.js';
 
+const policyIdentity = (settings) => {
+  const policy = { ...settings };
+  if (!settings.randomAttachment) {
+    // Retain the identity of legacy fixed-media receipts for manual recovery.
+    delete policy.randomAttachment;
+  }
+  return evidenceHash(policy);
+};
+
 const resume = async (context, plan, item, previous, original) => {
   if (context.scheduled) {
     return 'manualReview';
@@ -88,6 +97,11 @@ const invitationDraft = (plan, state, previous) => {
   const variants = wallLines(plan.settings.messages);
   const available = variants.filter((s) => s !== previous?.text);
   const choices = available.length ? available : variants;
+  const media = restricted ? [] : wallAttachments(plan.settings.attachments);
+  const selected =
+    plan.settings.randomAttachment && media.length
+      ? [media[Math.floor(Math.random() * media.length)]]
+      : media;
   return {
     resumed: false,
     guid: globalThis.crypto.randomUUID(),
@@ -95,10 +109,7 @@ const invitationDraft = (plan, state, previous) => {
       ? plan.settings.restrictedMessage
       : choices[Math.floor(Math.random() * choices.length)],
     attachments: [
-      ...new Set([
-        ...(state.avatar ? [state.avatar] : []),
-        ...(restricted ? [] : wallAttachments(plan.settings.attachments)),
-      ]),
+      ...new Set([...(state.avatar ? [state.avatar] : []), ...selected]),
     ],
     old: state.owned,
     deleted: [],
@@ -167,7 +178,7 @@ export const previewVkWall = async (context) => {
     accountId: source.accountId,
     friendCount: communities.length,
     settings,
-    policyIdentity: await evidenceHash(settings),
+    policyIdentity: await policyIdentity(settings),
     credentialIdentity: await evidenceHash(original.options.token),
     items: [],
   };

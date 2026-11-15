@@ -32,10 +32,12 @@ test(
           ...(await wallPolicy.settings(fixture.store)),
           communities: '42',
           attachments: 'audio-1_23',
+          randomAttachment: true,
           replaceOwned: true,
         };
         const plan = await assertReviewedVkPlan(post, settings);
         assert.equal(plan.items[0].text, settings.messages);
+        assert.equal(plan.settings.randomAttachment, true);
         assert.deepEqual(plan.items[0].attachments, ['audio-1_23']);
         assert.equal(plan.items[0].old.length, 1);
       }
@@ -58,7 +60,11 @@ test(
 );
 test('offline wall settings and all four languages retain server-required delivery and complete translated review controls', async () => {
   const { store, api } = offlineVkPolicy(createVkWallApi);
-  const settings = { ...(await wallPolicy.settings(store)), communities: '42' };
+  const settings = {
+    ...(await wallPolicy.settings(store)),
+    communities: '42',
+    randomAttachment: true,
+  };
   assert.deepEqual((await api.saveVkWall(settings)).settings, settings);
   assert.equal((await api.vkWall()).canRun, false);
   assert.equal((await api.planVkWall()).ok, false);
@@ -72,6 +78,7 @@ test('offline wall settings and all four languages retain server-required delive
       'attachments',
       'replaceOwned',
       'activeAvatar',
+      'randomAttachment',
       'oldPosts',
       'partial',
       'manualReview',
@@ -95,11 +102,13 @@ test('foreground CLI retains wall options and requires explicit reviewed confirm
         communities: '42',
         attachments: 'audio-1_23',
         'replace-owned': true,
+        'random-attachment': true,
       },
       log
     ),
     0
   );
+  assert.equal((await wallPolicy.settings(store)).randomAttachment, true);
   await assertVkOwnedCommandRun(
     owned,
     adapter,

@@ -1484,3 +1484,7 @@ required under VK26. VK23 and every other unmet criterion remain unchecked.
 ## Hosted vacancy discovery investigation
 
 [The active CI checklist](ci-vacancy-discovery-progress-plan.md) and [root-cause evidence](ci-vacancy-discovery-progress.md) preserve the exact failed published run and a finite native WebKit reproduction. Acknowledged per-card progress retains the original completion and no-replay assertions; no production deadline changes. Every unchecked inventory row remains required.
+
+## VK20 complete source audit
+
+[The friend-invitation checklist](vk-friend-invitations-plan.md) maps the pinned trigger to community walls and preserves its missing optional random single-media choice through the existing reviewed wall job. Correct the earlier filename-based inventory interpretation with explicit source evidence. Do not accept VK20 before focused and exact-head hosted verification; all other original unchecked requirements remain active.

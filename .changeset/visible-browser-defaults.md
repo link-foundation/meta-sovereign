@@ -550,3 +550,5 @@ Add disabled reviewed VK history retention with bounded provider deletion, expli
 Add independent disabled VK suggestion ranking, configurable community friend discovery and deactivated incoming-request rejection. Preserve bounded current-profile reads, protected accounts, strict relationship receipts, shared daily request reservations, durable provider pauses, no unknown replay, owned scheduling and the same reviewed CLI, Lino and four-language offline controls.
 
 Observe acknowledged vacancy discovery progress before terminal completion in the native browser check. Preserve unchanged locator deadlines, exact result counts, read-only reload and four-language coverage; retain bounded per-read failure diagnostics.
+
+Add optional single-media selection for reviewed VK friend invitation posts on configured community walls. Keep fixed attachments as the default, upgrade legacy policies, freeze selected media across partial recovery and share CLI, Lino, offline and four-language controls.

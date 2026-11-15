@@ -15,7 +15,11 @@ export const wallTextFields = {
   restrictedCommunities: 2000,
   restrictedMessage: 5000,
 };
-export const wallBooleans = ['replaceOwned', 'activeAvatar'];
+export const wallBooleans = [
+  'replaceOwned',
+  'activeAvatar',
+  'randomAttachment',
+];
 export const wallLines = (value) =>
   value
     .split('\n')
@@ -46,6 +50,7 @@ export const wallPolicy = createVkPersonalSettings('wall', {
   fields: wallFields,
   textFields: wallTextFields,
   booleans: wallBooleans,
+  upgrade: (input) => ({ randomAttachment: false, ...input }),
   defaults: {
     enabled: false,
     everyMinutes: 60,
@@ -59,6 +64,7 @@ export const wallPolicy = createVkPersonalSettings('wall', {
     restrictedMessage: 'Add me as a friend if you would like to talk.',
     replaceOwned: false,
     activeAvatar: false,
+    randomAttachment: false,
     priorityIds: [],
   },
   validate: (settings) => {

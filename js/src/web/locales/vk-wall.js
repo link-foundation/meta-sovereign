@@ -25,6 +25,7 @@ const keys = [
   'communityPaused',
   'providerBackoff',
   'heldPosts',
+  'randomAttachment',
 ];
 const words = {
   en: [
@@ -53,6 +54,7 @@ const words = {
     'Community paused for 24 hours after VK refusal',
     'VK account invitation backoff: wait at least one minute',
     'Matching owned posts (this destination is held): {ids}',
+    'Choose one configured media item at random for each reviewed post',
   ],
   ru: [
     'Приглашения в сообщества ВКонтакте',
@@ -80,6 +82,7 @@ const words = {
     'Сообщество приостановлено на сутки после отказа ВКонтакте',
     'Пауза приглашений аккаунта ВКонтакте: подождите не менее минуты',
     'Совпавшие свои записи (действие приостановлено): {ids}',
+    'Случайно выбирать одно заданное медиа для каждой проверяемой записи',
   ],
   hi: [
     'VK समुदाय आमंत्रण',
@@ -107,6 +110,7 @@ const words = {
     'VK के इनकार के बाद समुदाय 24 घंटे के लिए रोका गया',
     'VK खाता आमंत्रण विराम: कम से कम एक मिनट प्रतीक्षा करें',
     'मेल खाती अपनी पोस्ट (यह गंतव्य रुका है): {ids}',
+    'हर समीक्षित पोस्ट के लिए चुने मीडिया में से एक यादृच्छिक आइटम चुनें',
   ],
   zh: [
     'VK 社区邀请',
@@ -134,6 +138,7 @@ const words = {
     'VK 拒绝后暂停此社区 24 小时',
     'VK 账号邀请退避：请至少等待一分钟',
     '匹配的自己的帖子（此目标已暂停）：{ids}',
+    '为每条待审核帖子随机选择一个配置的媒体附件',
   ],
 };
 export const vkWallLocale = (language) => ({

@@ -10,7 +10,8 @@ export const createVkPersonalSettings = (name, spec) => {
       `provider-job${kind === 'job' ? '' : `-${kind}`}:vk:${name}`,
     ])
   );
-  const normalize = (input) => {
+  const normalize = (value) => {
+    const input = spec.upgrade ? spec.upgrade(value) : value;
     const result = {};
     for (const key of ['enabled', ...spec.booleans]) {
       if (typeof input?.[key] !== 'boolean') {

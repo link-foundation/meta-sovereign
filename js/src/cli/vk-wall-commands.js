@@ -23,6 +23,7 @@ export const createVkWallCommands = (options) =>
     booleanFlags: {
       'replace-owned': 'replaceOwned',
       'active-avatar': 'activeAvatar',
+      'random-attachment': 'randomAttachment',
     },
     ...options,
   });
