@@ -1,15 +1,15 @@
 - [Incoming VK attachment metadata](vk-attachments.md): separately enabled first-observation collection, qualified deduplication, durable restart and cursor recovery through CLI/Lino/offline and shared four-language connection controls. VK09 awaits exact-head hosted checks.
 - [Localized preset catalog](ci-preset-catalog.md): two exact-head existing-test regressions, complete runtime logs and restored catalog identity.
 - [Awaited sync-fixture bundle](ci-sync-fixture-bundle.md): captured WebKit route reset, actual-parent replay and bounded real-bundle prefetch with native convergence.
-- [Ordered VK acquaintance replies](vk-engagement.md): frozen sticker-then-introduction review, distinct durable acknowledgements, partial progress and reviewed text-only retry through CLI/Lino/shared Chat and Operator. VK06 awaits exact-head hosted checks.
+- [Ordered VK acquaintance replies](vk-engagement.md): frozen sticker-then-introduction review, distinct durable acknowledgements, partial progress and reviewed text-only retry through CLI/Lino/shared Chat and Operator. VK06 is [verified](hosted-verification-2733.md).
 - [Inactive-peer sync predicate](ci-sync-isolation-polling.md): published WebKit timeout, exact-helper scheduling reproduction, native convergence despite failure and bounded timer polling without deadline changes.
 - [Stored draft confirmation](draft-confirmation.md): exact-parent changed-content sends, frozen independent preview evidence and focused refusal/unchanged-delivery checks through both default Lino encodings.
-- [Contextual VK replies](vk-contextual.md): first greeting exchange, well-being, purpose and adjacent-turn clarification; shared catalogs, proofs and focused verification. VK05/VK07/VK08 await hosted checks.
-- [VK acquaintance replies](vk-acquaintance.md): configurable personal introductions, durable daily cooldown, frozen-input guards and shared CLI/Lino/UI controls. Actual-parent, native and four-language MCP evidence; VK04 awaits hosted checks.
+- [Contextual VK replies](vk-contextual.md): first greeting exchange, well-being, purpose and adjacent-turn clarification; shared catalogs, proofs and focused verification. VK05/VK07/VK08 are [verified](hosted-verification-2733.md).
+- [VK acquaintance replies](vk-acquaintance.md): configurable personal introductions, durable daily cooldown, frozen-input guards and shared CLI/Lino/UI controls. Actual-parent, native and four-language MCP evidence; VK04 is [verified](hosted-verification-2733.md).
 
 - [VK fixture diagnostics](ci-vk-diagnostics.md): exact hosted WebKit failure, actual-parent replay and reuse of the existing narrow engine/origin policy, preserving genuine exceptions and every browser assertion.
 
-- [VK identity questions](vk-identity.md): configurable informal/formal replies, durable evidenced address preference, mixed timestamp ordering and guarded delivery through CLI/Lino/shared UI. VK03 awaits exact-head hosted checks.
+- [VK identity questions](vk-identity.md): configurable informal/formal replies, durable evidenced address preference, mixed timestamp ordering and guarded delivery through CLI/Lino/shared UI. VK03 is [verified](hosted-verification-2733.md).
 
 [Exact-head hosted verification for VK01](hosted-verification-727.md) passes all five workflows and 66 jobs; 78 original inventory rows remain unchecked.
 
@@ -17,11 +17,11 @@
 
 [Exact-head hosted verification for saved templates and download availability](hosted-verification-d34.md) records five passing workflows; QA03/VD10 complete, 79 rows remain unchecked.
 
-- [VK gratitude replies](vk-gratitude.md): bounded contextual text/sticker recognition, configurable safe drafts, exact sticker delivery and late-message/policy refusal, with actual-parent, durable Lino, CLI/offline, native and four-language MCP evidence. VK02 awaits exact-head hosted checks.
+- [VK gratitude replies](vk-gratitude.md): bounded contextual text/sticker recognition, configurable safe drafts, exact sticker delivery and late-message/policy refusal, with actual-parent, durable Lino, CLI/offline, native and four-language MCP evidence. VK02 is [verified](hosted-verification-2733.md).
 
 - [Refreshed destination fixture](ci-question-link-locator.md): exact hosted and local strict-locator reproduction; scoped pending-turn assertion retains all stale-target, fresh-receipt and late-pointer checks.
 
-- [VK greeting recognition and catalogs](vk-greeting-catalog.md): actual-parent outgoing/group and missing phrase-editor regressions, shared personal-dialog guards, durable per-language CLI/UI catalogs, reference sticker/text audit and focused Lino/native/MCP evidence. VK01 awaits exact-head hosted checks.
+- [VK greeting recognition and catalogs](vk-greeting-catalog.md): actual-parent outgoing/group and missing phrase-editor regressions, shared personal-dialog guards, durable per-language CLI/UI catalogs, reference sticker/text audit and focused Lino/native/MCP evidence. VK01 is [verified](hosted-verification-727.md).
 
 - [Email alternative question destinations](question-email-links.md): actual MIME/Gmail/JMAP/Graph parent failures, bounded safe-tree extraction, frozen destination identity and preserved reviewed/ordinary delivery, with focused CLI/Lino/native/MCP evidence. QA04 remains incomplete.
 
@@ -497,3 +497,4 @@ Evidence archives can be reproduced with `experiments/issue-56/archive-evidence.
 Saved ordered-word template workflow: [CLI, Lino, native UI and independent MCP evidence](question-templates.md).
 
 Native-export publication CI: [wait for rendered source-bound consent](ci-cv-publication-consent.md).
+[Exact-head hosted verification for VK02–VK08](hosted-verification-2733.md) passes all five workflows and 66 jobs; seven reply criteria are complete and 71 original inventory rows remain unchecked. The later attachment collector requires its own hosted verification.

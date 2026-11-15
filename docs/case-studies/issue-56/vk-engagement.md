@@ -28,3 +28,7 @@ Review found another concrete edge case: a successful function return with no po
 ![After: Operator reviews the same remaining step](../../screenshots/issue-56-vk-engagement/after-operator-phone.png)
 
 [Checked source and log archive](data/vk-engagement.tar.gz) and [SHA-256 manifest](data/vk-engagement.tar.sha256.json) preserve source bytes, actual-parent snapshots, pinned references, focused logs, native/MCP evidence and screenshot hashes. Exact-head hosted checks remain pending; VK06 remains unchecked until they pass. Every original unmet criterion remains required. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and unmerged.
+
+Subsequent [exact-head hosted verification](hosted-verification-2733.md)
+passes all five workflows and 66 jobs at `2733ff54`. The relevant VK reply
+criteria are now checked; 71 original inventory rows remain incomplete.

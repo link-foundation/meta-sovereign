@@ -27,3 +27,7 @@ Native WebKit before/after captures show the absent preset and saved editable va
 ![Independent phone review](../../screenshots/issue-56-vk-acquaintance/mcp-phone.png)
 
 [Checked evidence](data/vk-acquaintance.tar.gz) and its [SHA-256 manifest](data/vk-acquaintance.tar.sha256.json) preserve current/actual-parent sources, pinned reference bytes, all finite logs and screenshot hashes. Scoped lint/format/secrets/diff and the unchanged duplication gate are checked before publication. VK04 awaits exact-head hosted verification; all 78 original unchecked criteria remain active. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) remains draft and unmerged.
+
+Subsequent [exact-head hosted verification](hosted-verification-2733.md)
+passes all five workflows and 66 jobs at `2733ff54`. The relevant VK reply
+criteria are now checked; 71 original inventory rows remain incomplete.

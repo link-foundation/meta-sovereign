@@ -34,3 +34,7 @@ Independent Playwright MCP checks English, Russian, Hindi and Chinese labels, sa
 ![Configurable identity reply](../../screenshots/issue-56-vk-identity/after-phone.png)
 
 The [checked evidence](data/vk-identity.tar.gz) and [SHA-256 manifest](data/vk-identity.tar.sha256.json) preserve reference blobs, actual-parent sources, logs, verified browser bundle and screenshots. VK03 awaits its own exact-head hosted checks. All original unchecked criteria remain required; [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and unmerged.
+
+Subsequent [exact-head hosted verification](hosted-verification-2733.md)
+passes all five workflows and 66 jobs at `2733ff54`. The relevant VK reply
+criteria are now checked; 71 original inventory rows remain incomplete.

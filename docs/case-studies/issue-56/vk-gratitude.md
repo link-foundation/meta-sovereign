@@ -74,3 +74,7 @@ reference blobs, focused logs, verified browser bundle and screenshots. VK02
 awaits its own exact-head hosted checks. Every unchecked original criterion
 remains required; [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 stays draft and unmerged.
+
+Subsequent [exact-head hosted verification](hosted-verification-2733.md)
+passes all five workflows and 66 jobs at `2733ff54`. The relevant VK reply
+criteria are now checked; 71 original inventory rows remain incomplete.

@@ -38,3 +38,7 @@ The first compatibility run overlapped the read-only parent comparison's tempora
 ![After: adjacent-turn clarification](../../screenshots/issue-56-vk-clarification/after-phone.png)
 
 [Checked source/log evidence](data/vk-contextual.tar.gz) and its [SHA-256 manifest](data/vk-contextual.tar.sha256.json) preserve actual-parent/current bytes, pinned source/test snapshots, finite logs and all twenty screenshot hashes. Scoped format/lint/secrets/diff and the unchanged duplication gate are checked before publication. Exact-head hosted checks remain pending. Every original incomplete issue requirement remains active. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) stays draft and unmerged.
+
+Subsequent [exact-head hosted verification](hosted-verification-2733.md)
+passes all five workflows and 66 jobs at `2733ff54`. The relevant VK reply
+criteria are now checked; 71 original inventory rows remain incomplete.

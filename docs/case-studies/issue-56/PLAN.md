@@ -1,3 +1,10 @@
+Active online status scheduling (VK10):
+
+- [x] Read the complete pinned trigger and caller; check the current official user-token method schema. Preserve the 14-minute example as an opt-in default.
+- [ ] Draft persisted configuration, serialized acknowledged outcomes, due scheduling, owned server lifecycle and CLI/default Lino/shared four-language controls. Keep missing-token and unconfirmed outcomes accurate.
+- [ ] Reproduce absent behavior on the published parent and verify focused tests, restart/failure/overlap cases, one native browser scenario and independent MCP review with before/after screenshots.
+- [ ] Archive checked evidence, publish atomically and inspect exact-head hosted workflows. Continue all original incomplete criteria; PR57 stays draft/unmerged.
+
 Active incoming VK attachment metadata (VK09):
 
 - [x] Read the complete pinned attachment trigger. Draft a separately enabled first-observed collection across archive, live, older-history, automatic-import and individual message writes; preserve message counts and cursor acknowledgement order.
