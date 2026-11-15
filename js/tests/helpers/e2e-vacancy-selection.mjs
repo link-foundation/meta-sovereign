@@ -19,7 +19,7 @@ const captureLayouts = async (page, summary, shot) => {
 
 export const verifyVacancySelection = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots = process.env.E2E_ARTIFACT_DIR, before = false } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser);
   const { page } = fixture;
@@ -39,7 +39,13 @@ export const verifyVacancySelection = async (
   const shot = async (name) => {
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
-      await page.screenshot({ path: join(screenshots, `${name}.png`) });
+      const prefix =
+        screenshots === process.env.E2E_ARTIFACT_DIR
+          ? 'vacancy-selection-'
+          : '';
+      await page.screenshot({
+        path: join(screenshots, `${prefix}${name}.png`),
+      });
     }
   };
   try {
@@ -102,7 +108,7 @@ export const verifyVacancySelection = async (
       pageErrors: [],
     };
   } catch (error) {
-    if (process.env.E2E_TRACE_SELECTION === '1') {
+    if (screenshots || process.env.E2E_TRACE_SELECTION === '1') {
       console.log(
         '[vacancy-selection-state]',
         JSON.stringify({
@@ -111,6 +117,14 @@ export const verifyVacancySelection = async (
             .catch(() => null),
           summary: await summary.allTextContents(),
           cards: await panel.locator('[data-vacancy-card]').allTextContents(),
+          decisions: await panel
+            .locator('[data-vacancy-selection]')
+            .evaluateAll((nodes) =>
+              nodes.map((node) => node.dataset.vacancySelection)
+            ),
+          saved: await page.evaluate(() =>
+            globalThis.localStorage.getItem('meta-sovereign:vacancy-search')
+          ),
           errors: fixture.errors,
         })
       );
