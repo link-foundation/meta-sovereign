@@ -1,8 +1,8 @@
 import { startQuestionFixtureServer } from '../../js/tests/helpers/question-fixture-server.mjs';
 import { seedApiLinkStore } from './question-api-links-fixture.mjs';
 
-export const questionApiLinksServer = async () => {
-  const store = await seedApiLinkStore();
+export const questionApiLinksServer = async (seedStore = seedApiLinkStore) => {
+  const store = await seedStore();
   const sends = [];
   const server = await startQuestionFixtureServer(
     {
@@ -21,8 +21,7 @@ export const questionApiLinksServer = async () => {
   };
 };
 
-if (process.argv.includes('--serve')) {
-  const fixture = await questionApiLinksServer();
+export const serveQuestionLinkFixture = (fixture) => {
   let closing;
   const close = () =>
     (closing ??= (async () => {
@@ -39,4 +38,8 @@ if (process.argv.includes('--serve')) {
       liveProvider: false,
     })
   );
+};
+
+if (process.argv.includes('--serve') && !process.argv.includes('--email')) {
+  serveQuestionLinkFixture(await questionApiLinksServer());
 }

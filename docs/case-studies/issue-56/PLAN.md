@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active email alternative destination identity (QA04 remains incomplete):
+
+- [x] Reproduce assignment links hidden by plain MIME/Gmail/JMAP alternatives on the current published code; target-only edits leave approved drafts valid. Audit Graph's hidden mailto links through its actual normalizer.
+- [x] Extract bounded destination identity from existing safe trees before planning/history projections; retain full targets and explicit refusal for sanitized or incomplete tree metadata. Preserve ordinary mail and confirmed delivery.
+- [x] Add parent-failing focused Node/Deno regressions, verify actual native/MCP review and before/after screenshots using owned fixtures, and register focused hosted coverage without expanding local matrices.
+- [ ] Preserve checked evidence, publish atomic changes and inspect exact-head CI. Continue all 79 remaining unchecked criteria; this unit alone does not complete QA04 or issue 56.
+
 Hosted verification `d34db92c` completed: all five workflows and every browser
 shard pass. [Recorded evidence](hosted-verification-d34.md) closes the remaining
 verification for QA03 and VD10; 79 inventory rows remain unchecked. PR57 stays

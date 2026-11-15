@@ -6,7 +6,11 @@ import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
 } from '../../js/src/web/tutorial.js';
-import { apiLink } from './question-api-links-fixture.mjs';
+import { apiLink, apiLinkAutomation } from './question-api-links-fixture.mjs';
+import {
+  emailLinkAutomation,
+  emailLinkTarget,
+} from './question-email-links-fixture.mjs';
 
 const inspect = async (page, data) => {
   const errors = [];
@@ -32,7 +36,7 @@ const inspect = async (page, data) => {
     );
     await page.goto(`${data.base}/?api-link-review=${locale}#/automation`);
     await page
-      .locator('[data-automation="automation:api-links"]')
+      .locator(`[data-automation="${data.automation}"]`)
       .first()
       .click();
     const response = page.waitForResponse((value) =>
@@ -72,7 +76,7 @@ const inspect = async (page, data) => {
         throw new Error('Phone overflow');
       }
       await page.screenshot({
-        path: `${data.root}/docs/screenshots/issue-56-question-api-links/mcp-phone.png`,
+        path: `${data.root}/docs/screenshots/issue-56-question-${data.kind}-links/mcp-phone.png`,
       });
       await page.setViewportSize({ width: 1180, height: 950 });
     }
@@ -94,13 +98,17 @@ const inspect = async (page, data) => {
   };
 };
 
+const email = process.argv.includes('--email');
+const kind = email ? 'email' : 'api';
 const code = mcpInspectionCode(inspect, {
   base: process.argv[2],
   root: resolve('.'),
   storage: [
     [TUTORIAL_STORAGE_KEY, JSON.stringify({ off: true, v: TUTORIAL_VERSION })],
   ],
-  target: apiLink.first,
+  kind,
+  automation: email ? emailLinkAutomation.id : apiLinkAutomation.id,
+  target: email ? emailLinkTarget('mime') : apiLink.first,
   labels: Object.fromEntries(
     ['en', 'ru', 'hi', 'zh'].map((locale) => [
       locale,
@@ -108,4 +116,4 @@ const code = mcpInspectionCode(inspect, {
     ])
   ),
 });
-await writeFile('ci-logs/question-api-links-mcp-code.js', code);
+await writeFile(`ci-logs/question-${kind}-links-mcp-code.js`, code);

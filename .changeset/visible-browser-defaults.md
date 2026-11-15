@@ -506,3 +506,5 @@ Keep an active batch's matching review controls available while preserving compe
 Allow an explicitly selected, integrity-checked native résumé export as a sanitized CV publication source, with shared source selection and fresh consent.
 
 Offer desktop installers only from uploaded, nonempty GitHub release assets. Retain upload state in the session cache, refresh legacy metadata and label missing-platform fallback links accurately. Preserve completed platforms and API-error recovery.
+
+Retain complete email alternative destinations through MIME, Gmail, JMAP and Graph imports, shared question review and frozen history checks. Refuse malformed or bounded-out safe-tree metadata, preserve ordinary automatic and confirmed linked delivery, and display full literal destinations through CLI, Lino and native previews.

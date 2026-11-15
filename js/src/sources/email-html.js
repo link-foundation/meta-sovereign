@@ -12,6 +12,7 @@
  */
 
 import { visitHtml } from '../markup/parse.js';
+import { sourceMessageLinkProperties } from './message-text-links.js';
 
 const SKIP_CONTENT = new Set([
   'script',
@@ -193,7 +194,15 @@ const span = (value) => {
 
 const elementNode = (tag, attrs) => {
   if (tag === 'a') {
-    return { t: 'a', href: safeHref(attrs.href), c: [] };
+    const href = safeHref(attrs.href);
+    return {
+      t: 'a',
+      href,
+      c: [],
+      ...(attrs.href !== undefined && href !== attrs.href
+        ? { linkUnverified: true }
+        : {}),
+    };
   }
   if (tag === 'td' || tag === 'th') {
     return {
@@ -264,7 +273,11 @@ const makeBuilder = () => {
       return undefined;
     }
     const node = elementNode(tag, attrs);
-    if (stack.length >= MAX_DEPTH || !add(node)) {
+    if (stack.length >= MAX_DEPTH) {
+      overflow = true;
+      return undefined;
+    }
+    if (!add(node)) {
       return undefined;
     }
     stack.push(node);
@@ -413,10 +426,17 @@ export const htmlToSafe = (html) => {
   const builder = makeBuilder();
   feed(builder, String(html ?? ''));
   if (builder.over()) {
-    return { tree: null, text: plainText(html) };
+    return { tree: null, text: plainText(html), links: null };
   }
   const text = tidy(linesOf(builder.root.c, { bullet: '•' }));
-  return { tree: builder.root.c, text };
+  return {
+    tree: builder.root.c,
+    text,
+    ...sourceMessageLinkProperties({
+      source: 'email',
+      bodyTree: builder.root.c,
+    }),
+  };
 };
 
 export const htmlToText = (html) => htmlToSafe(html).text;

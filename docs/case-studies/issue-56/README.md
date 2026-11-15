@@ -2,6 +2,8 @@
 
 [Exact-head hosted verification for saved templates and download availability](hosted-verification-d34.md) records five passing workflows; QA03/VD10 complete, 79 rows remain unchecked.
 
+- [Email alternative question destinations](question-email-links.md): actual MIME/Gmail/JMAP/Graph parent failures, bounded safe-tree extraction, frozen destination identity and preserved reviewed/ordinary delivery, with focused CLI/Lino/native/MCP evidence. QA04 remains incomplete.
+
 - [Structured Telegram question destinations](question-api-links.md): actual API/export parent regressions, bounded extraction before raw-record projection, frozen history checks and shared literal review evidence, with focused CLI/Lino/native/MCP checks. QA04 remains incomplete.
 
 - [Selection fixture midnight failure](ci-selection-clock.md): the actual hosted screenshot and finite native reproduction identify a date divider inside a clock-dependent adjacent-row sample; fixed UTC fixture data preserves every rendering assertion.

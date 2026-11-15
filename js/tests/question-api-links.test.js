@@ -2,24 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { sourceMessageLinkProperties } from '../src/sources/message-text-links.js';
-import {
-  planAutomation,
-  normalizeAutomation,
-} from '../src/automation/automations.js';
+import { planAutomation } from '../src/automation/automations.js';
 import { chatQuestionTurn } from '../src/automation/question-chat-turn.js';
 import {
   readChatAnswerInput,
   validateAnswerDraft,
 } from '../src/automation/question-store.js';
-import { createAutomationRunner } from '../src/automation/runner.js';
-import { createAutomationCommands } from '../src/cli/automation-commands.js';
-import { startQuestionFixtureServer } from './helpers/question-fixture-server.mjs';
 import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+  assertQuestionLinkDelivery,
+  assertQuestionLinkSurfaces,
+} from './helpers/question-links-integration.mjs';
 import {
   apiLink,
   apiLinkRule,
@@ -196,54 +188,16 @@ test('legacy reviewed drafts without destination identity cannot bypass a fresh 
 
 test('the shared sender refuses concealed API links and preserves ordinary automatic answers', async () => {
   for (const hidden of [true, false]) {
-    const store = createMemoryStore();
-    await store.put(apiLinkRule);
     const message = await apiLinkMessage();
     if (!hidden) {
       delete message.raw.entities;
     }
-    await store.put(message);
-    const automation = normalizeAutomation({
-      ...apiLinkAutomation,
-      pacing: { typing: false },
+    await assertQuestionLinkDelivery({
+      message,
+      rule: apiLinkRule,
+      configuration: apiLinkAutomation,
+      requiresReview: hidden,
     });
-    await store.put(automation);
-    const sent = [];
-    const runner = createAutomationRunner({
-      store,
-      self: ['me'],
-      send: async (draft) => {
-        sent.push(draft);
-        return { status: 'sent', messageId: '2' };
-      },
-    });
-    const plan = await runner.plan(automation, {
-      targets: [{ source: 'telegram', chat: '7' }],
-    });
-    assert.equal(plan.drafts.length, 1);
-    assert.equal(plan.drafts[0].answer.requiresReview, hidden);
-    const result = await runner.deliverDraft(automation, plan.drafts[0]);
-    assert.equal(result.status === 'sent', !hidden);
-    assert.equal(sent.length, hidden ? 0 : 1);
-    if (hidden) {
-      assert.equal(
-        (
-          await runner.sendDraft(plan.drafts[0].id, {
-            confirm: true,
-          })
-        ).status,
-        'sent'
-      );
-      await assert.rejects(
-        runner.sendDraft(plan.drafts[0].id, { confirm: true }),
-        /no draft/u
-      );
-    }
-    assert.notEqual(
-      (await runner.deliverDraft(automation, plan.drafts[0])).status,
-      'sent'
-    );
-    assert.equal(sent.length, 1);
   }
 });
 
@@ -251,45 +205,10 @@ test(
   'foreground CLI and both Lino transports expose actual stored API destinations',
   { timeout: 20000 },
   async () => {
-    const store = await seedApiLinkStore();
-    const cli = createAutomationCommands({ openStore: async () => store });
-    const lines = [];
-    assert.equal(
-      await cli.automations(
-        { _: ['plan', apiLinkAutomation.id], chat: 'telegram:7' },
-        (line) => lines.push(line)
-      ),
-      0
-    );
-    assert.equal(
-      lines.some((line) => line.includes(apiLink.first)),
-      true,
-      lines.join('\n')
-    );
-    assert.equal(
-      lines.some((line) => line.includes('review required: true')),
-      true
-    );
-    const server = await startQuestionFixtureServer({ store });
-    try {
-      for (const type of [LINO_TEXT, LINO_BINARY]) {
-        const response = await fetch(
-          `http://127.0.0.1:${server.port}/api/automations/plan`,
-          {
-            method: 'POST',
-            headers: { accept: type, 'content-type': type },
-            body: encodeWire({ automation: apiLinkAutomation }, type),
-          }
-        );
-        assert.equal(response.status, 200);
-        const plan = await readWireResponse(response);
-        assert.equal(plan.drafts[0].answer.requiresReview, true);
-        assert.deepEqual(plan.drafts[0].answer.turn.messages[0].links, [
-          apiLink.first,
-        ]);
-      }
-    } finally {
-      await server.close();
-    }
+    await assertQuestionLinkSurfaces({
+      store: await seedApiLinkStore(),
+      automation: apiLinkAutomation,
+      target: apiLink.first,
+    });
   }
 );

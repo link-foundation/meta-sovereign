@@ -133,14 +133,56 @@ const telegramLinks = (raw, body) => {
     : entityLinks(entities, text, body);
 };
 
+const emailNodeTarget = (node) => {
+  if (node.linkUnverified || (node.href !== undefined && node.t !== 'a')) {
+    invalid();
+  }
+  return node.t === 'a' && node.href !== null && node.href !== undefined
+    ? target(node.href)
+    : undefined;
+};
+
+/** Existing sanitized mail trees retain destinations independently of plain text. */
+const emailLinks = (tree) => {
+  if (tree === undefined || tree === null) {
+    return undefined;
+  }
+  const pending = [{ node: { c: tree }, depth: -1 }];
+  const links = [];
+  let count = 0;
+  while (pending.length) {
+    const { node, depth } = pending.pop();
+    if (!node || typeof node !== 'object' || depth > 40 || ++count > 6001) {
+      invalid();
+    }
+    const href = emailNodeTarget(node);
+    if (href !== undefined) {
+      links.push(href);
+    }
+    if (node.c !== undefined) {
+      if (!Array.isArray(node.c) || pending.length + node.c.length > 6000) {
+        invalid();
+      }
+      for (let i = node.c.length - 1; i >= 0; i--) {
+        pending.push({ node: node.c[i], depth: depth + 1 });
+      }
+    }
+  }
+  return links;
+};
+
+const sourceLinks = (message) => {
+  if (message.source === 'telegram') {
+    return telegramLinks(message.raw, message.body);
+  }
+  return message.source === 'email' ? emailLinks(message.bodyTree) : undefined;
+};
+
 /** Preserve malformed metadata as a refusal, without retaining a large raw record. */
 export const sourceMessageLinkProperties = (message) => {
   try {
     const stored = messageLinkProperties(message.links);
-    const links =
-      message.source === 'telegram'
-        ? telegramLinks(message.raw, message.body)
-        : undefined;
+    const links = sourceLinks(message);
     if (links === undefined) {
       return stored;
     }

@@ -12,6 +12,12 @@ FILES = [
     "js/src/sources/telegram.js",
     "js/src/cli/automation-commands.js",
 ]
+kind = "api"
+if "--email" in sys.argv:
+    kind = "email"
+    PARENT = "7ba65f1e1f511aa307a2765f7c296a3e88cdf851"
+    FILES = [f"js/src/sources/{name}.js" for name in [
+        "message-text-links", "email-html", "email-mime", "email-records"]]
 if "--browser" in sys.argv:
     FILES.append("js/src/web/app.min.js")
 saved = {name: (ROOT / name).read_bytes() for name in FILES}
@@ -23,14 +29,14 @@ try:
     if "--browser" in sys.argv:
         result = subprocess.run([
             "node", "--max-old-space-size=384",
-            "experiments/issue-56/question-api-links-browser.mjs", "--before",
+            f"experiments/issue-56/question-{kind}-links-browser.mjs", "--before",
         ], cwd=ROOT, check=False)
         if result.returncode:
             raise SystemExit(result.returncode)
     else:
         result = subprocess.run([
             "node", "--max-old-space-size=384", "--test", "--test-concurrency=1",
-            "js/tests/question-api-links.test.js",
+            f"js/tests/question-{kind}-links.test.js",
         ], cwd=ROOT, check=False)
         if result.returncode != 1:
             raise AssertionError("The parent regression checks must fail")

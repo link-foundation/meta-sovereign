@@ -355,7 +355,12 @@ test('question provider and control scenarios have separate mandatory browser bu
     'utf8'
   );
   const groups = {
-    'question-providers': ['verifyProviderChoices', 'verifyHhChoices'],
+    'question-providers': [
+      'verifyProviderChoices',
+      'verifyHhChoices',
+      'verifyChoiceVisibility',
+      'verifyEmailQuestionLinks',
+    ],
     'question-templates': [
       'verifyQuestionTemplates',
       'verifyTemplateLinkGuards',
