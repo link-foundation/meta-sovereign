@@ -18,10 +18,13 @@
 - [x] Continue remaining owned deletions after a positively read-back absent
       post, including native missing-post errors 100/104; retain honest absence
       evidence without inventing successful deletion receipts.
-- [ ] Publish atomically and inspect exact-head hosted checks before accepting
+- [x] Publish atomically and inspect exact-head hosted checks before accepting
       VK20. Every other unchecked issue criterion remains required in PR57.
 
 The reference posts invitations to community walls; it does not enumerate
 friends, post to friends' personal walls or send private messages. The inventory
 wording is corrected with this source evidence, without dropping source
 behavior. The original personal IDs, text and media are not default content.
+
+[Exact-head hosted acceptance](hosted-verification-357.md) completes VK20 with
+the preserved single-media and wall-parity evidence.

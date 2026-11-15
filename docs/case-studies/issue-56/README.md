@@ -525,3 +525,8 @@ VK12/VK13 friend maintenance has independently enabled saved policies and protec
 community and deactivated-request policies, actual-parent regression and focused
 verification. Hosted acceptance and the separate outgoing-message queue remain
 required; VK23 is unchecked.
+
+[Hosted verification on 35764037](hosted-verification-357.md) completes VK20 and
+VK22 after all five workflows and 75 jobs pass. Fifty-five original criteria
+remain unchecked. [VK24 cache/export evidence](vk-cache.md) requires its own
+exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next audit.

@@ -56,3 +56,7 @@ The [checked archive](data/vk-friend-invitations.tar.gz) and
 bytes, complete pinned source, original failing assertions, native/MCP evidence,
 quality checks and twelve PNG hashes. Work continues in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+Subsequent [exact-head hosted acceptance](hosted-verification-357.md) completes
+this criterion. The preceding pending statements describe its original local
+verification stage; every other unchecked original requirement remains active.

@@ -66,3 +66,7 @@ hosted verification before accepting VK20. Superseded 8f Checks were cancelled
 by the next push; their aggregate failure identifies cancellation, rather than
 a test assertion. All 57 unchecked inventory rows remain required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+Subsequent [exact-head hosted acceptance](hosted-verification-357.md) completes
+this criterion. The preceding pending statements describe its original local
+verification stage; every other unchecked original requirement remains active.

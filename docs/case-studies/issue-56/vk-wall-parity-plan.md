@@ -16,8 +16,11 @@ behaviors and their hosted checks have evidence.
       recovery and accurate UI/CLI/API outcomes.
 - [x] Reproduce against actual parent 7fc97ee2, run focused Node/Deno checks,
       inspect native and MCP browser fixtures, and preserve before/after images.
-- [ ] Review formatting, lint, duplication, secrets, diff and exact-head
+- [x] Review formatting, lint, duplication, secrets, diff and exact-head
       hosted checks before accepting VK20. Continue the whole issue inventory.
 
 Use finite synthetic fixtures, one local browser and limited test concurrency;
 leave the full browser/runtime matrix to hosted CI. No live provider writes.
+
+[Exact-head hosted acceptance](hosted-verification-357.md) completes VK20. Every
+other original unchecked criterion retains its scope.

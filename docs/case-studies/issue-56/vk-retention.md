@@ -71,3 +71,7 @@ pinned references, schemas, logs and twelve PNG hashes.
 Exact-head hosted acceptance remains required for VK22. Every other unchecked
 criterion retains its full scope; [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 remains draft and unmerged until the whole issue is verified.
+
+Subsequent [exact-head hosted acceptance](hosted-verification-357.md) completes
+this criterion. The preceding pending statements describe its original local
+verification stage; every other unchecked original requirement remains active.
