@@ -37,7 +37,9 @@ test(
           replaceOwned: true,
         };
         const plan = await assertReviewedVkPlan(post, settings);
-        assert.equal(plan.items[0].text, settings.messages);
+        // The reviewed invitation is one saved variant, selected once for the
+        // plan. A multiline policy is never sent as one combined invitation.
+        assert.ok(settings.messages.split('\n').includes(plan.items[0].text));
         assert.equal(plan.settings.randomAttachment, true);
         assert.equal(plan.settings.holdAnyVisible, true);
         assert.deepEqual(plan.items[0].attachments, ['audio-1_23']);

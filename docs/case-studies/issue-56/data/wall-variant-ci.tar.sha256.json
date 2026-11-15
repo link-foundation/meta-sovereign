@@ -1,0 +1,27 @@
+{
+  "archive": "wall-variant-ci.tar.gz",
+  "files": {
+    "ci-logs/friend-stats-current-jobs.json": "9ea190a4faad702d9499e0acec2a2bf976b82bb9c8abceba1befa846294ef75a",
+    "ci-logs/friend-stats-current-runs.json": "60b4b775358e4499ff2567a190b0053830c0f652366953ddf4f81ca1181c9121",
+    "ci-logs/getter-head-132920260301.log": "dfeb3fd9dea8ba91964aa2e33643aac0637f2928d87a688eb353ca1fa1a1a04b",
+    "ci-logs/getter-head-132920260317.log": "3628ac8b334c03cc7e614f03569e5b1076fc0d3b8f15c8d3f95cc1f95c9a5563",
+    "ci-logs/getter-head-132920260335.log": "fc67bc672eefbff633b3cd09d644f17af557dca1626e4ac238b44ab01a657b19",
+    "ci-logs/getter-head-132920260362.log": "7afd6b9eec186317539912b80e6e51ada9feb72d1dcef9d60b47422792cd004b",
+    "ci-logs/getter-head-132920260385.log": "d1c5aa1ffb7241fba26ade8a079dbada916447bf8aa009b3668f41199edcd968",
+    "ci-logs/getter-head-132920260419.log": "5254b7df32bd326b435a5fdb8e92a3b874b5af1fe8fd50b2b84f7a4d423b5ce6",
+    "ci-logs/getter-head-132920260433.log": "2b001c8e535392c0938a844c27f32cca328bde04a7bf2e76e12c151e723af278",
+    "ci-logs/getter-head-132920260584.log": "e5ccec319efa214b46be8854d8a35a64b6d8c9184df8ba9628a2b5008ce5a009",
+    "ci-logs/wall-variants-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/wall-variants-before-node.log": "06fb589db2c25cbe267af5b8ddc924ba8b4fdff00cb144ee39fb8896ae868ada",
+    "ci-logs/wall-variants-bun.log": "5c5bd312b50e2534ed69f44397ffa61fc39ed5075a29dfa26c3b77ee0efec68f",
+    "ci-logs/wall-variants-deno.log": "77ba81cb90fe24be6106b6bacfcf37c817beeed4bd4a38238e979c5f84f2ebec",
+    "ci-logs/wall-variants-format.log": "4a1e1f298753ebe04414eab5823d73625e238c05c3405d518b42292b9a190d79",
+    "ci-logs/wall-variants-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/wall-variants-node.log": "0511bfe0ced3139b7e52e4a69103a4cef299bab46cbc8b901d27f9c194bdd389",
+    "docs/case-studies/issue-56/wall-variant-ci.md": "0c2bd3f6f703036fe336c3c0dd49a482a7553d99eb78e512a27ea93d99fece7d",
+    "experiments/issue-56/collect-wall-variant-ci.py": "d56e357194f82fe110624e39076c583f459a99ff8b249fbe464bee3784099f52",
+    "experiments/issue-56/wall-variants-before.py": "032245b5e3f839288e1cd143b2e3a103315d528e75684d1cb4a66b7d0777cd01",
+    "js/tests/vk-wall-interfaces.test.js": "6e47e6022b6226c24b58a63b3368f18e3194d3d485e1ffb2e7d52dea907f3467",
+    "metadata.json": "f88a9a4a88aea1be6a6ae0d3ffb659201a7a3280ce8b5779cec49d3a446702b3"
+  }
+}
