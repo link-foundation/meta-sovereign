@@ -54,6 +54,8 @@
     "test:e2e:vk-engagement": "node js/tests/e2e-vk-engagement-browser.mjs",
     "test:e2e:vk-attachments": "node js/tests/e2e-vk-attachments-browser.mjs",
     "test:e2e:vk-online": "node js/tests/e2e-vk-online-browser.mjs",
+    "test:e2e:vk-token": "node js/tests/e2e-vk-token-browser.mjs",
+    "test:e2e:vk-token:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vk-token-browser.mjs",
     "test:e2e:vk-maintenance": "node js/tests/e2e-vk-maintenance-browser.mjs",
     "test:e2e:vk-friends": "node js/tests/e2e-vk-friends-browser.mjs",
     "test:e2e:vk-contextual": "node js/tests/e2e-vk-contextual-browser.mjs",
