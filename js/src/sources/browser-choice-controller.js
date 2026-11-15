@@ -26,7 +26,12 @@ export const createChoiceContext = (input, read) => {
       !inactive.interrupted &&
       !document.hasFocus());
   const identity = (value) =>
-    JSON.stringify([value.chat, value.question?.id, value.question?.body]);
+    JSON.stringify([
+      value.chat,
+      value.question?.id,
+      value.question?.body,
+      value.question?.links,
+    ]);
   const ownershipIdentity = (value) =>
     JSON.stringify([identity(value), value.pendingTurn]);
   const samePending = (value) =>

@@ -13,12 +13,13 @@ import {
 } from './question-watch-records.js';
 
 const approvedPart = (part) =>
-  part.noReply ||
+  (part.noReply && !part.linkReview) ||
   (part.complete &&
     !part.requiresReview &&
     ['exact', 'accepted-summary'].includes(part.match));
 const approved = (plan) =>
   plan?.complete === true &&
+  !plan.linkReview &&
   !plan.pending?.blocked &&
   (approvedPart(plan) ||
     (plan.match === 'pending-turn' && plan.parts.every(approvedPart))) &&
@@ -31,6 +32,7 @@ const questionPlan = ({ store }, record, snapshot) =>
     source: record.target.source,
     chat: snapshot.chat,
     question: snapshot.question.body,
+    links: snapshot.question.links,
     pendingMessages: snapshot.pendingTurn?.messages,
     options: snapshot.answerOptions,
     strictOptions: snapshot.strictOptions,

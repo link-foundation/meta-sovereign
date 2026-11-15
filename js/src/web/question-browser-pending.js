@@ -35,7 +35,29 @@ export const BrowserPendingTurn = ({
         'ol',
         { key: 'messages', className: 'col' },
         messages.map((message) =>
-          el('li', { key: message.id, className: 'wrap' }, message.body)
+          el('li', { key: message.id, className: 'wrap' }, [
+            el('span', { key: 'body' }, message.body),
+            message.links?.length
+              ? el(
+                  'div',
+                  {
+                    key: 'links',
+                    className: 'col',
+                    'data-question-links': true,
+                  },
+                  [
+                    el(
+                      'small',
+                      { key: 'label', className: 'meta' },
+                      t('browserAnswer.links')
+                    ),
+                    ...message.links.map((target, index) =>
+                      el('code', { key: index, className: 'wrap' }, target)
+                    ),
+                  ]
+                )
+              : null,
+          ])
         )
       ),
       el(

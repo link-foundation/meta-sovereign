@@ -1,3 +1,5 @@
+import { messageLinkProperties } from '../message-link-targets.js';
+
 /** The complete bounded incoming suffix of rendered history, never provider coverage. */
 export const browserPendingTurn = (rows) => {
   const validText = (value, limit, empty = false) =>
@@ -6,12 +8,23 @@ export const browserPendingTurn = (rows) => {
     (empty || Boolean(value.trim()));
   const end = rows.findLastIndex((row) => row.outgoing || row.service);
   const last = rows[end];
-  const messages = rows.slice(end + 1).map(({ id, body }) => ({ id, body }));
+  let messages;
+  try {
+    messages = rows.slice(end + 1).map(({ id, body, links }) => ({
+      id,
+      body,
+      ...messageLinkProperties(links),
+    }));
+    messageLinkProperties(last?.links);
+  } catch {
+    return { code: 'answer-history-unverified' };
+  }
   const boundary = last
     ? {
         kind: last.service ? 'service' : 'outgoing',
         id: last.id,
         body: last.body,
+        ...messageLinkProperties(last.links),
       }
     : { kind: 'rendered-start' };
   if (
@@ -34,6 +47,15 @@ export const browserPendingTurn = (rows) => {
   return { boundary, messages };
 };
 
+const samePendingQuestion = (latest, question) =>
+  Boolean(latest) &&
+  latest.id === question.id &&
+  latest.body === question.body &&
+  JSON.stringify(messageLinkProperties(latest.links)) ===
+    JSON.stringify(messageLinkProperties(question.links)) &&
+  Boolean(latest.outgoing) === question.outgoing &&
+  !latest.service;
+
 /** Old adapters may omit evidence; present evidence must be complete and coherent. */
 export const checkedBrowserPendingTurn = (turn, question) => {
   if (turn === undefined) {
@@ -47,22 +69,28 @@ export const checkedBrowserPendingTurn = (turn, question) => {
   ) {
     return null;
   }
-  const rows = turn.messages.map((row) => ({ id: row?.id, body: row?.body }));
+  let rows;
+  try {
+    rows = turn.messages.map((row) => ({
+      id: row?.id,
+      body: row?.body,
+      ...messageLinkProperties(row?.links),
+    }));
+    messageLinkProperties(question.links);
+    messageLinkProperties(boundary.links);
+  } catch {
+    return null;
+  }
   if (boundary.kind !== 'rendered-start') {
     rows.unshift({
       id: boundary.id,
       body: boundary.body,
+      ...messageLinkProperties(boundary.links),
       outgoing: boundary.kind === 'outgoing',
       service: boundary.kind === 'service',
     });
   }
   const value = browserPendingTurn(rows);
   const latest = rows.at(-1);
-  return !value.code &&
-    latest?.id === question.id &&
-    latest.body === question.body &&
-    Boolean(latest.outgoing) === question.outgoing &&
-    !latest.service
-    ? value
-    : null;
+  return !value.code && samePendingQuestion(latest, question) ? value : null;
 };

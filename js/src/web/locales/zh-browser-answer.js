@@ -24,6 +24,7 @@ export const zhBrowserAnswer = {
   'questions.match.pending-turn': '待回复消息的答案',
   'browserAnswer.wholeTurn': '草稿涵盖所有待回复消息。填入前请逐一检查答案。',
   'browserAnswer.turn': '已显示的待回复消息：{count}',
+  'browserAnswer.links': '链接目标 — 回复前请核对：',
   'browserAnswer.latestOnly':
     '下面的答案仅针对最后一条消息。更早的消息仍需审核。',
   'browserAnswer.boundary.outgoing':

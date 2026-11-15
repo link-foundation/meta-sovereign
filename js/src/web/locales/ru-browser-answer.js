@@ -27,6 +27,7 @@ export const ruBrowserAnswer = {
   'browserAnswer.wholeTurn':
     'Черновик учитывает все сообщения без ответа. Проверьте каждый ответ перед заполнением.',
   'browserAnswer.turn': 'Отображённые сообщения без ответа: {count}',
+  'browserAnswer.links': 'Адреса ссылок — проверьте перед ответом:',
   'browserAnswer.latestOnly':
     'Ответ ниже относится к последнему сообщению. Более ранние сообщения ещё требуют проверки.',
   'browserAnswer.boundary.outgoing':

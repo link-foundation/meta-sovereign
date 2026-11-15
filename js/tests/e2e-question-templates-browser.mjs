@@ -3,8 +3,10 @@ import {
   verifyQuestionTemplates,
   verifyTemplateLinkGuards,
 } from './helpers/e2e-question-templates.mjs';
+import { verifyHiddenQuestionLinks } from './helpers/e2e-question-hidden-links.mjs';
 
 await runBrowserScenarios('question-templates', [
   verifyQuestionTemplates,
   verifyTemplateLinkGuards,
+  verifyHiddenQuestionLinks,
 ]);

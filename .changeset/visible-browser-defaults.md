@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Preserve bounded native message link destinations through pending-turn review, archived planning and frozen native replies. Display destinations as literal text, require fresh review for hidden targets and refuse choice/text/prefill actions after destination-only changes.
+
 Require fresh review when a question changes or adds link targets, including bare domains and action links, even if an approved template already contains a URL. Preserve full URL path case and punctuation before normalized matching. Share text-only link recognition with HTTP chat previews.
 
 Add opt-in publication of reviewed sanitized saved CV snapshots through foreground CLI, text/binary Lino and four-language controls. Commit only generated snapshot paths with an isolated Git index, preserve private/staged content and require exact remote confirmation without recovery retries.

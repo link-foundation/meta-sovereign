@@ -1,5 +1,6 @@
 import { answerChoiceState } from './question-options.js';
 import { checkedBrowserPendingTurn } from '../sources/browser-pending-turn.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 
 export const browserWatchId = (id) =>
   typeof id === 'string' &&
@@ -85,6 +86,7 @@ export const checkBrowserQuestion = (snapshot) => {
       id: question.id,
       body: question.body,
       outgoing: question.outgoing,
+      ...messageLinkProperties(question.links),
     },
     hasDraft: snapshot.hasDraft,
     strictOptions: choices.strictOptions,
@@ -170,6 +172,7 @@ export const browserChoiceDraft = (record, option = '') => {
           {
             id: message,
             body: snapshot.question.body,
+            ...messageLinkProperties(snapshot.question.links),
             options: JSON.stringify(snapshot.answerOptions),
             strictOptions: true,
           },

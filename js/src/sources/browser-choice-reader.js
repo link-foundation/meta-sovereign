@@ -1,6 +1,25 @@
 /* global document, location, getComputedStyle */
 import { browserPendingTurn } from './browser-pending-turn.js';
 import { browserNoticeContext } from './browser-notice-context.js';
+import { messageLinkProperties } from '../message-link-targets.js';
+
+/** Read destinations as data only. Oversized or unresolvable links refuse capture. */
+export const browserMessageLinks = (body) => {
+  const anchors = body ? [...body.querySelectorAll('a[href]')] : [];
+  if (body?.matches('a[href]')) {
+    anchors.unshift(body);
+  }
+  if (anchors.length > 20) {
+    throw new Error('Message link targets exceed the capture limit.');
+  }
+  // A visible label can belong to a display:contents anchor with no own rect.
+  // Capture every target in the admitted message instead of dropping such links.
+  return messageLinkProperties(
+    anchors.map(
+      (anchor) => new URL(anchor.getAttribute('href'), document.baseURI).href
+    )
+  );
+};
 
 /** Distinguish unscoped greeting chips from actual provider answer controls. */
 export const browserChoiceSuggestions = (spec, group, all, visible, text) => {
@@ -45,17 +64,27 @@ export const browserChoiceHistory = (
   const serviceTitle = spec.messages.serviceTitlePattern
     ? new RegExp(spec.messages.serviceTitlePattern, 'iu')
     : null;
-  const rows = candidates.filter(visible).map((node) => ({
-    node,
-    id: idPattern.exec(node.getAttribute(spec.messages.idAttribute) ?? '')?.[1],
-    body: bodyOf(node),
-    outgoing:
-      node.matches(spec.messages.outgoing) ||
-      Boolean(node.querySelector(spec.messages.outgoing)),
-    ...(serviceTitle?.test(text(node.querySelector(spec.messages.serviceTitle)))
-      ? { service: true }
-      : {}),
-  }));
+  let rows;
+  try {
+    rows = candidates.filter(visible).map((node) => ({
+      node,
+      id: idPattern.exec(
+        node.getAttribute(spec.messages.idAttribute) ?? ''
+      )?.[1],
+      body: bodyOf(node),
+      ...browserMessageLinks(node.querySelector(spec.messages.body)),
+      outgoing:
+        node.matches(spec.messages.outgoing) ||
+        Boolean(node.querySelector(spec.messages.outgoing)),
+      ...(serviceTitle?.test(
+        text(node.querySelector(spec.messages.serviceTitle))
+      )
+        ? { service: true }
+        : {}),
+    }));
+  } catch {
+    return unavailable('answer-history-unverified');
+  }
   if (!validRows(rows)) {
     return unavailable('answer-history-unverified');
   }
@@ -203,7 +232,12 @@ export const readBrowserChoices = (
   }
   const result = {
     chat,
-    question: { id: latest.id, body: latest.body, outgoing: latest.outgoing },
+    question: {
+      id: latest.id,
+      body: latest.body,
+      outgoing: latest.outgoing,
+      ...messageLinkProperties(latest.links),
+    },
     strictOptions,
     answerOptions,
     optionsShown: controls.map(text),

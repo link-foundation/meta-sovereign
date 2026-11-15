@@ -9,7 +9,9 @@ import {
   readBrowserChoices,
   browserChoiceSuggestions,
   browserChoiceHistory,
+  browserMessageLinks,
 } from './browser-choice-reader.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 import {
   createChoiceContext,
   readChoicePublic,
@@ -56,6 +58,8 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const messageLinkProperties = (${messageLinkProperties.toString()});
+  const browserMessageLinks = (${browserMessageLinks.toString()});
   const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});
   const watchChoiceView = (${watchChoiceView.toString()});
   const revealChoiceReply = (${revealChoiceReply.toString()});
@@ -171,6 +175,7 @@ export const enrichBrowserChoices = async (commander, ui, target, rows) => {
       ? {
           ...row,
           body: current.question.body,
+          links: current.question.links,
           strictOptions: current.strictOptions,
           answerOptions: current.answerOptions,
         }
@@ -205,6 +210,7 @@ const expectedPendingTurn = (draft, question, prefix) => {
   const pendingTurn = checkedBrowserPendingTurn(draft.answer.pendingTurn, {
     id: question.id.slice(prefix.length),
     body: question.body,
+    ...messageLinkProperties(question.links),
     outgoing: false,
   });
   if (pendingTurn === null) {
@@ -225,6 +231,7 @@ const expectedPendingMessages = (messages, prefix, question) => {
       messages.map((message) => ({
         id: message.id.slice(prefix.length),
         body: message.body,
+        ...messageLinkProperties(message.links),
       })),
       question.body
     );
@@ -263,7 +270,11 @@ const expectedQuestion = (draft, target) => {
   const pendingMessages = expectedPendingMessages(messages, prefix, question);
   return {
     chat: String(target),
-    question: { id: question.id.slice(prefix.length), body: question.body },
+    question: {
+      id: question.id.slice(prefix.length),
+      body: question.body,
+      ...messageLinkProperties(question.links),
+    },
     answerOptions,
     ...(pendingTurn ? { pendingTurn } : {}),
     ...(pendingMessages ? { pendingMessages } : {}),

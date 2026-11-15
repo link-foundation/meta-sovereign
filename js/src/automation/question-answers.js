@@ -14,6 +14,7 @@ import {
 import { applyAcceptedSummaryChoice } from './question-summary-choice.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { planPendingMessages } from './question-pending-plan.js';
+import { questionLinkReview } from './question-link-review.js';
 import {
   matchNotice,
   noticeSimilarity,
@@ -381,6 +382,7 @@ export const planAnswer = (question, options = {}) => {
     return planPendingMessages(question, options, planAnswer);
   }
   const choices = answerChoiceState(question, options);
+  const linkReview = questionLinkReview(question, options.links);
   if (options.questionMode !== 'field' && completedAnswerSummary(question)) {
     return {
       question,
@@ -389,6 +391,7 @@ export const planAnswer = (question, options = {}) => {
       noReply: true,
       complete: true,
       requiresReview: false,
+      ...linkReview,
       missing: [],
       rules: [],
       parts: [],
@@ -419,6 +422,7 @@ export const planAnswer = (question, options = {}) => {
       parts: [],
       ...notice,
       question,
+      ...linkReview,
       ...(options.profileSource
         ? { profileSource: options.profileSource }
         : {}),
@@ -462,6 +466,7 @@ export const planAnswer = (question, options = {}) => {
   return {
     ...result,
     question,
+    ...linkReview,
     ...(options.profileSource ? { profileSource: options.profileSource } : {}),
   };
 };

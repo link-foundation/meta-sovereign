@@ -1,4 +1,5 @@
 import { debugQuestionTurn } from './question-turns.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 
 const validPendingMessage = (message) =>
   message &&
@@ -22,7 +23,11 @@ export const checkedPendingMessages = (messages, question) => {
   ) {
     throw new Error('Pending messages must be a complete bounded turn.');
   }
-  return messages.map(({ id, body }) => ({ id, body }));
+  return messages.map(({ id, body, links }) => ({
+    id,
+    body,
+    ...messageLinkProperties(links),
+  }));
 };
 
 export const pendingAnswerText = (parts) => {
@@ -37,7 +42,7 @@ export const pendingAnswerText = (parts) => {
         .join('\n');
 };
 
-const aggregate = (parts, latest, count) => {
+const aggregate = (parts, latest, count, linkReview) => {
   const actionable = parts.filter((part) => !part.noReply);
   const base = actionable.length === 1 ? actionable[0] : latest;
   const text = pendingAnswerText(parts);
@@ -51,7 +56,11 @@ const aggregate = (parts, latest, count) => {
     noReplyProposed: actionable.length === 1 && base.noReplyProposed === true,
     complete: !limited && actionable.every((part) => part.complete),
     requiresReview:
-      limited || actionable.length > 1 || Boolean(base.requiresReview),
+      limited ||
+      actionable.length > 1 ||
+      Boolean(base.requiresReview) ||
+      linkReview,
+    ...(linkReview ? { linkReview: true } : {}),
     missing: [...new Set(parts.flatMap((part) => part.missing ?? []))],
     rules: [...new Set(parts.flatMap((part) => part.rules ?? []))],
     parts,
@@ -61,7 +70,17 @@ const aggregate = (parts, latest, count) => {
 
 export const planPendingMessages = (question, options, plan) => {
   const messages = checkedPendingMessages(options.pendingMessages, question);
-  const { pendingMessages: _messages, ...shared } = options;
+  const links = messageLinkProperties(options.links);
+  if (
+    options.links !== undefined &&
+    JSON.stringify(links) !==
+      JSON.stringify(messageLinkProperties(messages.at(-1).links))
+  ) {
+    throw new Error(
+      'Latest question destinations must match pending messages.'
+    );
+  }
+  const { pendingMessages: _messages, links: _links, ...shared } = options;
   const matchBudget = options.matchBudget ?? {
     remaining: 4 * 1024 ** 2,
     exhausted: false,
@@ -69,6 +88,7 @@ export const planPendingMessages = (question, options, plan) => {
   const answers = messages.map((message, index) => ({
     ...plan(message.body, {
       ...shared,
+      ...messageLinkProperties(message.links),
       matchBudget,
       ...(index < messages.length - 1
         ? { options: [], strictOptions: false }
@@ -89,10 +109,11 @@ export const planPendingMessages = (question, options, plan) => {
   const earlierActionable = answers
     .slice(0, -1)
     .some((answer) => !answer.noReply);
+  const linkReview = answers.some((answer) => answer.linkReview);
   if (latest.strictOptions) {
     return {
       ...latest,
-      requiresReview: earlierActionable || latest.requiresReview,
+      requiresReview: earlierActionable || latest.requiresReview || linkReview,
       parts: answers,
       pending: {
         count: messages.length,
@@ -107,5 +128,5 @@ export const planPendingMessages = (question, options, plan) => {
       ? answer.parts.map((part) => ({ ...part, message: answer.message }))
       : [answer]
   );
-  return aggregate(parts, latest, messages.length);
+  return aggregate(parts, latest, messages.length, linkReview);
 };

@@ -23,6 +23,7 @@ export const createBrowserReviewRecorder =
             source: target.source,
             chat: snapshot.chat,
             question: snapshot.question.body,
+            links: snapshot.question.links,
             pendingMessages: snapshot.pendingTurn?.messages,
             options: snapshot.answerOptions,
             strictOptions: snapshot.strictOptions,

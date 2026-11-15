@@ -271,6 +271,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       status: link.status,
       answerContext: link.answerContext,
       body: link.body,
+      links: link.links,
       timestamp: link.timestamp,
       deleted: link.deleted,
       service: link.service,

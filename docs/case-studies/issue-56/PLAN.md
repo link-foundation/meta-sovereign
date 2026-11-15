@@ -1,5 +1,12 @@
 # Issue 56 / PR 57 work plan
 
+Active native question anchor identity correction (QA04 remains incomplete):
+
+- [x] Reproduce an actual hidden-anchor destination mutation on `438f2bf4`: identical captured questions permit one owned native choice after the href changes. Preserve the finite disposable probe and its log.
+- [x] Preserve bounded, ordered full destinations through native history, pending turns, archived planning and frozen choice/text actions. Require fresh review for destinations absent from the visible question, including accepted-summary and model paths; retain body bytes and positive receipts. Split-question aggregation also retains the review reason before watcher admission.
+- [x] Show literal destinations in the shared four-language pending-message review. Ten focused Node/Deno regressions fail against the parent and pass after correction; 42 existing compatibility checks, one native before/after scenario and independent four-language MCP review pass. Browser/runtime matrices remain in CI. Console diagnostics are preserved without a clean-console claim.
+- [ ] Preserve checked evidence, publish atomically and inspect all exact-head hosted workflows. Every original incomplete criterion remains active.
+
 Active question-template link identity correction (QA04 remains incomplete):
 
 - [x] Reproduce four actual parent regressions: extra URLs with an already linked template, bare/action links and exact URL normalization changes. Preserve native before screenshots.

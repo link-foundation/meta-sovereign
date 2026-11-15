@@ -27,6 +27,7 @@ export const hiBrowserAnswer = {
   'browserAnswer.wholeTurn':
     'मसौदे में सभी अनुत्तरित संदेश शामिल हैं। भरने से पहले हर उत्तर की समीक्षा करें।',
   'browserAnswer.turn': 'दिख रहे अनुत्तरित संदेश: {count}',
+  'browserAnswer.links': 'लिंक के पते — उत्तर देने से पहले जाँचें:',
   'browserAnswer.latestOnly':
     'नीचे दिया उत्तर अंतिम संदेश के लिए है। पहले के संदेशों की समीक्षा अभी बाकी है।',
   'browserAnswer.boundary.outgoing':

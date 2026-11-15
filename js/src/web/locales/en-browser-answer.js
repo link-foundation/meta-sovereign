@@ -43,6 +43,7 @@ export const enBrowserAnswer = {
   'browserAnswer.inspect': 'Read current question and choices',
   'browserAnswer.options': 'Current offered options',
   'browserAnswer.turn': 'Pending rendered messages: {count}',
+  'browserAnswer.links': 'Link destinations — review before replying:',
   'browserAnswer.latestOnly':
     'The answer below addresses the latest message. Earlier messages still need review.',
   'browserAnswer.boundary.outgoing':

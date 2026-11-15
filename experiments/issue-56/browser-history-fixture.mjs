@@ -16,7 +16,16 @@ export const withHistory = (records, work) => {
     matches: () => false,
     querySelector: (selector) => {
       if (selector === HH_WEB_UI.messages.body) {
-        return { innerText: record.body ?? '' };
+        return {
+          innerText: record.body ?? '',
+          matches: () => false,
+          querySelectorAll: () =>
+            (record.links ?? []).map((href) => ({
+              isConnected: true,
+              getClientRects: () => (record.linkDisplayContents ? [] : [{}]),
+              getAttribute: (name) => (name === 'href' ? href : null),
+            })),
+        };
       }
       if (selector === HH_WEB_UI.messages.serviceTitle) {
         return { textContent: record.title ?? '' };
@@ -28,6 +37,7 @@ export const withHistory = (records, work) => {
   }));
   const globals = {
     document: {
+      baseURI: 'https://hh.ru/chat/7',
       querySelectorAll: (selector) =>
         selector === HH_WEB_UI.messages.item ? rows : [],
     },

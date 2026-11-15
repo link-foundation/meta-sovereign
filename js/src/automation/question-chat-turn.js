@@ -1,6 +1,7 @@
 import { historyOrder } from '../replies/history-order.js';
 import { answerChoiceState } from './question-options.js';
 import { checkedPendingMessages } from './question-pending-plan.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 
 const unavailable = () => ({ reason: 'question-turn-unavailable' });
 export const chatAnswerAction = (action) => ({
@@ -27,12 +28,14 @@ const questionSnapshot = ({
   timestamp,
   answerOptions,
   strictOptions,
+  links,
 }) => ({
   id,
   body,
   timestamp,
   options: JSON.stringify(answerOptions),
   strictOptions,
+  ...messageLinkProperties(links),
 });
 
 const latestChoiceState = (latest) => {

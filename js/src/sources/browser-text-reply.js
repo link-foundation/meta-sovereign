@@ -1,4 +1,5 @@
 import { answerChoiceState } from '../automation/question-options.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 import { checkedBrowserPendingTurn } from './browser-pending-turn.js';
 import { browserChoiceSpec, dispatchBrowserReply } from './browser-choices.js';
 import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
@@ -29,7 +30,12 @@ const checkedTextSnapshot = (target, expected) => {
   return {
     chat: String(target),
     strictOptions: false,
-    question: { id: question.id, body: question.body, outgoing: false },
+    question: {
+      id: question.id,
+      body: question.body,
+      outgoing: false,
+      ...messageLinkProperties(question.links),
+    },
     pendingTurn,
     answerOptions: [],
     ...(expected.noticeContext

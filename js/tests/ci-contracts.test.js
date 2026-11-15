@@ -359,6 +359,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-templates': [
       'verifyQuestionTemplates',
       'verifyTemplateLinkGuards',
+      'verifyHiddenQuestionLinks',
     ],
     'question-text-replies': ['verifyTextReplyControls'],
     'question-text-guards': ['verifyTextReplyGuards'],
