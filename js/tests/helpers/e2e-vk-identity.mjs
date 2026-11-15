@@ -12,7 +12,11 @@ export const verifyVkIdentity = async (
   { before = false, screenshots } = {}
 ) => {
   const fixture = await identityServer();
-  const { context, page, errors } = await vkAutomationBrowser(browser, '👋');
+  const { context, page, errors } = await vkAutomationBrowser(
+    browser,
+    '👋',
+    fixture.base
+  );
   try {
     await page.goto(`${fixture.base}/#/automation`);
     await page.locator('[data-automation="automation:greet-back"]').waitFor();

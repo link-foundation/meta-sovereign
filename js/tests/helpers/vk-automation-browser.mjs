@@ -6,6 +6,7 @@ import {
 } from '../../src/web/tutorial.js';
 import { assertViewportFits } from './e2e-viewport.mjs';
 import { decoded } from './e2e-form-review.mjs';
+import { watchFixturePages } from './e2e-page-errors.mjs';
 
 export const previewVkAutomation = async (page) => {
   const waiting = page.waitForResponse((r) =>
@@ -32,14 +33,12 @@ export const saveVkAutomation = async (page) => {
 
 // Both VK automation scenarios own their context and use synthetic sticker
 // images. Keep fixture setup and viewport evidence identical across them.
-export const vkAutomationBrowser = async (browser, emoji) => {
+export const vkAutomationBrowser = async (browser, emoji, base) => {
   const context = await browser.newContext({
     viewport: { width: 1180, height: 950 },
   });
   const errors = [];
-  context.on('page', (page) =>
-    page.on('pageerror', (error) => errors.push(error.message))
-  );
+  watchFixturePages(context, browser, base, errors);
   try {
     await context.route('https://vk.com/sticker/**', (route) =>
       route.fulfill({

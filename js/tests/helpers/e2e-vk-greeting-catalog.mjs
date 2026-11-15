@@ -14,7 +14,11 @@ export const verifyVkGreetingCatalog = async (
   { before = false, screenshots } = {}
 ) => {
   const fixture = await vkGreetingCatalogServer();
-  const { context, page, errors } = await vkAutomationBrowser(browser, '👋');
+  const { context, page, errors } = await vkAutomationBrowser(
+    browser,
+    '👋',
+    fixture.base
+  );
   try {
     await page.goto(`${fixture.base}/#/greetings`);
     await page.locator('[data-action="collection-add"]:enabled').waitFor();

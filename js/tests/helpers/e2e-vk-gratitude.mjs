@@ -14,7 +14,11 @@ export const verifyVkGratitude = async (
   { before = false, screenshots } = {}
 ) => {
   const fixture = await gratitudeServer();
-  const { context, page, errors } = await vkAutomationBrowser(browser, '🙏');
+  const { context, page, errors } = await vkAutomationBrowser(
+    browser,
+    '🙏',
+    fixture.base
+  );
   try {
     await page.goto(`${fixture.base}/#/automation`);
     await page.locator('[data-automation="automation:greet-back"]').waitFor();

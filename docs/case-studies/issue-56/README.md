@@ -1,3 +1,5 @@
+- [VK fixture diagnostics](ci-vk-diagnostics.md): exact hosted WebKit failure, actual-parent replay and reuse of the existing narrow engine/origin policy, preserving genuine exceptions and every browser assertion.
+
 - [VK identity questions](vk-identity.md): configurable informal/formal replies, durable evidenced address preference, mixed timestamp ordering and guarded delivery through CLI/Lino/shared UI. VK03 awaits exact-head hosted checks.
 
 [Exact-head hosted verification for VK01](hosted-verification-727.md) passes all five workflows and 66 jobs; 78 original inventory rows remain unchecked.

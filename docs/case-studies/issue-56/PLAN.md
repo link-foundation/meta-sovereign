@@ -1,5 +1,11 @@
 # Issue 56 / PR 57 work plan
 
+Active VK fixture diagnostic correction:
+
+- [x] Preserve exact published `53a84792` Checks run `43668793618`, its complete workflow and 1,859-line WebKit shard log. Lines 1342–1352 show the native same-origin fetch diagnostic bypassing the existing shared fixture policy. All four companion workflows pass.
+- [x] Replay the captured native Error against the actual parent; apply the existing engine/origin policy to all three VK callers. Thirteen focused checks and one rebuilt native WebKit gratitude scenario pass, retaining genuine errors, foreign origins, other engines, deadlines and zero sends.
+- [ ] Preserve checked evidence, publish this atomic fixture correction with the completed identity unit, and inspect every exact-head workflow. VK02/VK03 and all 78 unchecked criteria remain active; PR57 stays draft and unmerged.
+
 Active email alternative destination identity (QA04 remains incomplete):
 
 - [x] Reproduce assignment links hidden by plain MIME/Gmail/JMAP alternatives on the current published code; target-only edits leave approved drafts valid. Audit Graph's hidden mailto links through its actual normalizer.
