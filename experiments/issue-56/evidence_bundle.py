@@ -101,3 +101,28 @@ def write_entries_archive(archive, entries, source_count=None):
         json.dumps({'archive': archive.name, 'files': hashes}, indent=2) + '\n')
     suffix = '' if source_count is None else f' and {source_count} source hashes'
     print(f'Verified {len(hashes)} archive entries{suffix}')
+
+
+def verify_vk_reply_inspection(logs, result_name, server_name):
+    """Require translated, stable private previews and drained owned fixtures."""
+    inspection = json.loads((logs / result_name).read_text())
+    summary = json.loads(inspection['content'][0]['text'].split('### Result\n')[1].split('\n###')[0])
+    assert [item['language'] for item in summary['result']] == ['en', 'ru', 'hi', 'zh']
+    assert all(item['translated'] and item['retainedVariants'] and item['privateReplies'] == 2
+               and item['stableAlternatives'] for item in summary['result'])
+    assert summary['exceptions'] == [] and summary['liveProvider'] is False
+    assert json.loads((logs / server_name).read_text().splitlines()[-1]) == {
+        'sends': 0, 'liveProvider': False, 'resourcesClosed': True,
+    }
+
+
+def parent_reply_sources(root, sources, parent):
+    """Keep exact tracked production parent bytes alongside a reply evidence unit."""
+    before = {}
+    for name in sources:
+        if name.startswith('js/src/') and subprocess.run(
+                ['git', 'cat-file', '-e', f'{parent}:{name}'], cwd=root,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+            before[name] = parent
+    before['js/src/web/app.min.js'] = parent
+    return before

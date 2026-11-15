@@ -1,3 +1,4 @@
+import { catalogReplyKinds } from '../../js/src/automation/contextual-replies.js';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { mcpInspectionCode } from './mcp-inspection-code.mjs';
@@ -166,7 +167,7 @@ export const writeVkTextReplyInspection = (kind, base) =>
       root: resolve('.'),
       informal: `Informal ${kind} <MCP> & 👋`,
       formal: `Formal ${kind} <MCP> & 👋`,
-      ...(kind === 'acquaintance'
+      ...(catalogReplyKinds.includes(kind)
         ? {
             alternatives: {
               informal: [

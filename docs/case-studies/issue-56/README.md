@@ -1,3 +1,4 @@
+- [Contextual VK replies](vk-contextual.md): first greeting exchange, well-being, purpose and adjacent-turn clarification; shared catalogs, proofs and focused verification. VK05/VK07/VK08 await hosted checks.
 - [VK acquaintance replies](vk-acquaintance.md): configurable personal introductions, durable daily cooldown, frozen-input guards and shared CLI/Lino/UI controls. Actual-parent, native and four-language MCP evidence; VK04 awaits hosted checks.
 
 - [VK fixture diagnostics](ci-vk-diagnostics.md): exact hosted WebKit failure, actual-parent replay and reuse of the existing narrow engine/origin policy, preserving genuine exceptions and every browser assertion.

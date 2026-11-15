@@ -74,3 +74,20 @@ export const replyVariantIndex = (id, length) => {
   }
   return hash % length;
 };
+
+// Each personal reply starts with the same reversible private-chat policy.
+export const personalReplyPreset = (id, name, description, templates) => ({
+  id,
+  preset: id,
+  name,
+  description,
+  enabled: false,
+  triggers: [{ kind: 'incoming', recognizer: id }, { kind: 'chat-menu' }],
+  conditions: {
+    mutual: false,
+    lastFrom: 'contact',
+    networks: ['vk'],
+    cooldownDays: 1,
+  },
+  action: { kind: `reply-${id}`, templates },
+});

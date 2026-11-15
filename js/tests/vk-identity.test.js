@@ -18,7 +18,7 @@ import { createAutomationApi } from '../src/web/automation-api.js';
 import { toForm, checkForm } from '../src/web/automations-model.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
-import { vkReplyApi, confirmVkReplyOnce } from './helpers/vk-reply-api.mjs';
+import { confirmVkTextReply } from './helpers/vk-reply-api.mjs';
 import {
   identityMessage,
   identityPreset,
@@ -325,13 +325,8 @@ test(
   async () => {
     for (const type of [LINO_TEXT, LINO_BINARY]) {
       const fixture = await identityServer();
-      const call = vkReplyApi(fixture, type);
       try {
-        const run = await call('/run', { automation: 'identity', ...target });
-        const draft = run.body.queued[0];
-        await confirmVkReplyOnce(fixture, call, draft, (params) => {
-          assert.equal(params.message, draft.text);
-        });
+        await confirmVkTextReply(fixture, type, 'identity', target);
       } finally {
         await fixture.close();
       }

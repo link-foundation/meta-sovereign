@@ -1,4 +1,6 @@
+import { contextualReplyLocale } from './contextual-replies.js';
 export const hiGratitude = {
+  ...contextualReplyLocale('hi'),
   'automations.presets.gratitude.name': 'आभार का उत्तर दें',
   'automations.presets.gratitude.description':
     'निजी VK संदेश या स्टिकर में मिले आभार का उत्तर जाँचें; स्टिकर या अपने औपचारिक और अनौपचारिक पाठ चुनें।',
@@ -40,6 +42,6 @@ export const hiGratitude = {
   'questions.kind.reply-acquaintance': 'परिचय के प्रश्नों का उत्तर',
   'acquaintance.catalogHint':
     'विकल्पों को खाली पंक्ति से अलग करें: हर संबोधन के लिए अधिकतम 32, प्रत्येक 4096 अक्षर तक। हर आने वाले संदेश के लिए चयन स्थिर रहता है। खाली सूची नीचे का सामान्य पाठ चुनती है।',
-  'acquaintance.alternativeInformal': 'वैकल्पिक परिचय (अनौपचारिक)',
-  'acquaintance.alternativeFormal': 'वैकल्पिक परिचय (औपचारिक)',
+  'acquaintance.alternativeInformal': 'वैकल्पिक उत्तर (अनौपचारिक)',
+  'acquaintance.alternativeFormal': 'वैकल्पिक उत्तर (औपचारिक)',
 };

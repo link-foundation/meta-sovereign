@@ -1,3 +1,12 @@
+import { personalReplyPreset } from './personal-reply.js';
+import {
+  contextualReplyKinds,
+  catalogReplyKinds,
+  personalReplyKinds,
+  contextualReplyPresets,
+  recognizesContextualReply,
+  contextualReplyDraft,
+} from './contextual-replies.js';
 /**
  * Automations (issue #31, PR #34): user-configurable rules of the form
  * "trigger → audience → conditions → action", after the triggers of
@@ -156,9 +165,7 @@ const normalizeTrigger = (trigger) => {
     return { kind, every: trigger.every };
   }
   if (kind === 'incoming') {
-    if (
-      ['gratitude', 'identity', 'acquaintance'].includes(trigger.recognizer)
-    ) {
+    if (personalReplyKinds.includes(trigger.recognizer)) {
       return { kind, recognizer: trigger.recognizer };
     }
     if (trigger.recognizer) {
@@ -182,11 +189,11 @@ const normalizeAction = (action = {}) => {
       'send-template',
       'reply-gratitude',
       'reply-identity',
-      'reply-acquaintance',
+      ...catalogReplyKinds.map((key) => `reply-${key}`),
     ].includes(kind)
   ) {
     throw new Error(
-      `unknown action "${kind}"; known: send-template, reply-gratitude, reply-identity, reply-acquaintance, answer-questions`
+      `unknown action "${kind}"; known: send-template, ${personalReplyKinds.map((name) => `reply-${name}`).join(', ')}, answer-questions`
     );
   }
   const form = action.form ?? 'auto';
@@ -209,7 +216,7 @@ const normalizeAction = (action = {}) => {
     form,
     fallbackForm: action.fallbackForm ?? 'formal',
     ...(kind === 'reply-gratitude' ? gratitudeOptions(action) : {}),
-    ...(kind === 'reply-acquaintance'
+    ...(catalogReplyKinds.some((key) => kind === `reply-${key}`)
       ? { alternatives: acquaintanceAlternatives(action.alternatives) }
       : {}),
   };
@@ -262,6 +269,12 @@ export const hasTrigger = (automation, kind) =>
 /** The `incoming` trigger whose pattern matches `text`, if any. */
 export const incomingTrigger = (automation, text, message = {}) =>
   automation.triggers.find((t) => {
+    if (t.kind === 'incoming' && contextualReplyKinds.includes(t.recognizer)) {
+      return recognizesContextualReply(t.recognizer, {
+        ...message,
+        body: text,
+      });
+    }
     if (t.kind === 'incoming' && t.recognizer === 'acquaintance') {
       return isAcquaintanceQuestion(text);
     }
@@ -354,81 +367,34 @@ export const automationPresets = () =>
       conditions: { mutual: false, cooldownDays: 1 },
       action: { templates: PRESET_TEXTS.greeting },
     },
-    {
-      id: 'gratitude',
-      preset: 'gratitude',
-      name: 'Reply to gratitude',
-      description:
-        'Review a reply to a personal VK gratitude message or sticker; choose stickers or your formal and informal texts.',
-      enabled: false,
-      triggers: [
-        { kind: 'incoming', recognizer: 'gratitude' },
-        { kind: 'chat-menu' },
-      ],
-      conditions: {
-        mutual: false,
-        lastFrom: 'contact',
-        networks: ['vk'],
-        cooldownDays: 1,
-      },
-      action: {
-        kind: 'reply-gratitude',
-        templates: {
-          informal: 'Пожалуйста! Рад тебе помочь.',
-          formal: 'Пожалуйста! Рад Вам помочь.',
-        },
-      },
-    },
-    {
-      id: 'identity',
-      preset: 'identity',
-      name: 'Reply to identity questions',
-      description:
-        'Review your formal or informal reply to a personal VK “who are you?” question. Its address form is learned from incoming history.',
-      enabled: false,
-      triggers: [
-        { kind: 'incoming', recognizer: 'identity' },
-        { kind: 'chat-menu' },
-      ],
-      conditions: {
-        mutual: false,
-        lastFrom: 'contact',
-        networks: ['vk'],
-        cooldownDays: 1,
-      },
-      action: {
-        kind: 'reply-identity',
-        templates: {
-          informal: 'Я программист, а ты?',
-          formal: 'Я программист, а Вы?',
-        },
-      },
-    },
-    {
-      id: 'acquaintance',
-      preset: 'acquaintance',
-      name: 'Reply to acquaintance questions',
-      description:
-        'Review your introduction when a personal VK contact asks whether you know each other. Reply at most once a day by default.',
-      enabled: false,
-      triggers: [
-        { kind: 'incoming', recognizer: 'acquaintance' },
-        { kind: 'chat-menu' },
-      ],
-      conditions: {
-        mutual: false,
-        lastFrom: 'contact',
-        networks: ['vk'],
-        cooldownDays: 1,
-      },
-      action: {
-        kind: 'reply-acquaintance',
-        templates: {
-          informal: 'Пока не знакомы. Я программист, а ты?',
-          formal: 'Пока не знакомы. Я программист, а Вы?',
-        },
-      },
-    },
+    personalReplyPreset(
+      'gratitude',
+      'Reply to gratitude',
+      'Review a reply to a personal VK gratitude message or sticker; choose stickers or your formal and informal texts.',
+      {
+        informal: 'Пожалуйста! Рад тебе помочь.',
+        formal: 'Пожалуйста! Рад Вам помочь.',
+      }
+    ),
+    personalReplyPreset(
+      'identity',
+      'Reply to identity questions',
+      'Review your formal or informal reply to a personal VK “who are you?” question. Its address form is learned from incoming history.',
+      {
+        informal: 'Я программист, а ты?',
+        formal: 'Я программист, а Вы?',
+      }
+    ),
+    personalReplyPreset(
+      'acquaintance',
+      'Reply to acquaintance questions',
+      'Review your introduction when a personal VK contact asks whether you know each other. Reply at most once a day by default.',
+      {
+        informal: 'Пока не знакомы. Я программист, а ты?',
+        formal: 'Пока не знакомы. Я программист, а Вы?',
+      }
+    ),
+    ...contextualReplyPresets(),
   ].map(normalizeAutomation);
 
 // ---- planning --------------------------------------------------------
@@ -640,8 +606,9 @@ export const redraftWithForm = (automation, draft, form) => {
   if (automation.action.kind === 'answer-questions') {
     return { ...draft, form };
   }
-  const text = draft.acquaintance
-    ? acquaintanceText(automation, draft, form, draft.acquaintance.message)
+  const proof = catalogReplyKinds.map((key) => draft[key]).find(Boolean);
+  const text = proof
+    ? acquaintanceText(automation, draft, form, proof.message)
     : renderReengageText(templateFor(automation.action.templates, form), draft);
   return {
     ...draft,
@@ -785,6 +752,7 @@ const personalReplyBuilders = new Map([
   ['reply-gratitude', gratitudeDraft],
   ['reply-identity', identityDraft],
   ['reply-acquaintance', acquaintanceDraft],
+  ...contextualReplyKinds.map((key) => [`reply-${key}`, contextualReplyDraft]),
 ]);
 
 export const planAutomation = (links = [], input, options = {}) => {
@@ -900,7 +868,7 @@ export const withEdit = (automation, edit) =>
     'send-template',
     'reply-gratitude',
     'reply-identity',
-    'reply-acquaintance',
+    ...catalogReplyKinds.map((key) => `reply-${key}`),
   ].includes(automation.action.kind) &&
   edit?.templates &&
   Object.keys(edit.templates).length > 0
@@ -920,13 +888,9 @@ export const editAfterSend = (automation, before, draft, text, at) => {
     return null;
   }
   const original = automation.action.templates;
-  const rendered = draft.acquaintance
-    ? acquaintanceText(
-        automation,
-        draft,
-        draft.form,
-        draft.acquaintance.message
-      )
+  const proof = catalogReplyKinds.map((key) => draft[key]).find(Boolean);
+  const rendered = proof
+    ? acquaintanceText(automation, draft, draft.form, proof.message)
     : renderReengageText(templateFor(original, draft.form), draft);
   const templates = { ...(before?.templates ?? {}) };
   if (String(text).trim() === rendered.trim()) {

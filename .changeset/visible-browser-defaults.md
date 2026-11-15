@@ -516,3 +516,5 @@ Add configurable private VK gratitude replies with contextual phrase and sticker
 Add configurable personal VK identity replies and evidenced address preference from the latest qualifying question. Respect later explicit address agreements, retain guarded exact-preview delivery and order mixed VK seconds/local ISO receipts consistently through CLI, Lino and the shared localized UI.
 
 Add a disabled personal VK acquaintance reply preset with configurable formal/informal introductions, a durable per-chat daily cooldown, latest-message guards and shared CLI/Lino/UI controls.
+
+Add disabled personal VK presets for the first greeting exchange, well-being, purpose and adjacent-turn clarification, with configurable reply catalogs, durable cooldown and exact context checks before sending.

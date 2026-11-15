@@ -1,7 +1,5 @@
 """Check finite acquaintance evidence and retain actual parent source bytes."""
-import json
-import subprocess
-from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs, verify_evidence
+from evidence_bundle import bundle, changed_sources, evidence_context, evidence_logs, verify_evidence, verify_vk_reply_inspection, parent_reply_sources
 
 root, logs, read = evidence_context(__file__, 'vk-acquaintance')
 verify_evidence(read, {
@@ -16,26 +14,13 @@ verify_evidence(read, {
     'catalog-identity-browser': ['"identityAvailable":true', '"pageErrors":[]', 'OK (webkit)'],
     'format-final': ['All matched files use Prettier code style!'],
 }, empty=('lint-final', 'secrets-final', 'diff'))
-inspection = json.loads((logs / 'vk-acquaintance-final-mcp-result.json').read_text())
-summary = json.loads(inspection['content'][0]['text'].split('### Result\n')[1].split('\n###')[0])
-assert [item['language'] for item in summary['result']] == ['en', 'ru', 'hi', 'zh']
-assert all(item['translated'] and item['retainedVariants'] and item['privateReplies'] == 2
-           and item['stableAlternatives'] for item in summary['result'])
-assert summary['exceptions'] == [] and summary['liveProvider'] is False
-assert json.loads(read('final-mcp-server').splitlines()[-1]) == {
-    'sends': 0, 'liveProvider': False, 'resourcesClosed': True,
-}
+verify_vk_reply_inspection(logs, 'vk-acquaintance-final-mcp-result.json',
+                           'vk-acquaintance-final-mcp-server.log')
 parent = 'e56d8854979e5ce73c4614dd197442bfe4a6a768'
 extra = ['ci-logs/vk-acquaintance-mcp-code.js', 'ci-logs/vk-acquaintance-verified-app.min.js']
 extra += [str(path.relative_to(root)) for path in logs.glob('vk-acquaintance-reference*.js')]
 sources = changed_sources(root)
-before = {}
-for name in sources:
-    if name.startswith('js/src/') and subprocess.run(
-            ['git', 'cat-file', '-e', f'{parent}:{name}'], cwd=root,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
-        before[name] = parent
-before['js/src/web/app.min.js'] = parent
+before = parent_reply_sources(root, sources, parent)
 bundle(root, sources + evidence_logs(root, 'vk-acquaintance') + extra,
        'docs/case-studies/issue-56/data/vk-acquaintance.tar.gz',
        dict(parent=parent, parent_failing=1, focused_node=6, focused_deno=6,

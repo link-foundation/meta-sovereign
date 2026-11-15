@@ -1,4 +1,6 @@
+import { contextualReplyLocale } from './contextual-replies.js';
 export const enGratitude = {
+  ...contextualReplyLocale('en'),
   'automations.presets.gratitude.name': 'Reply to gratitude',
   'automations.presets.gratitude.description':
     'Review a reply to a personal VK gratitude message or sticker; choose stickers or your formal and informal texts.',
@@ -41,6 +43,6 @@ export const enGratitude = {
   'questions.kind.reply-acquaintance': 'Reply to acquaintance questions',
   'acquaintance.catalogHint':
     'Separate alternatives with a blank line; up to 32 per form, 4096 characters each. A reply is selected consistently for each incoming message. Leave a list empty to use the ordinary text variant below.',
-  'acquaintance.alternativeInformal': 'Alternative introductions (informal)',
-  'acquaintance.alternativeFormal': 'Alternative introductions (formal)',
+  'acquaintance.alternativeInformal': 'Alternative replies (informal)',
+  'acquaintance.alternativeFormal': 'Alternative replies (formal)',
 };

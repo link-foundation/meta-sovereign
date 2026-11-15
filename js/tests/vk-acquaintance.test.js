@@ -1,3 +1,4 @@
+import { refuseMutatedVkReply } from './helpers/vk-reply-mutation.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -164,7 +165,6 @@ test('acquaintance late input, owner reply and saved-policy changes refuse befor
     const store = await seedAcquaintance();
     const preset = acquaintancePreset();
     await store.put(preset);
-    let sends = 0;
     const alter = async () => {
       if (change === 'policy' || change === 'catalog') {
         await store.put({
@@ -187,36 +187,14 @@ test('acquaintance late input, owner reply and saved-policy changes refuse befor
         );
       }
     };
-    if (change === 'admission') {
-      const put = store.put.bind(store);
-      store.put = async (record) => {
-        const result = await put(record);
-        if (record.id.startsWith('outbox:') && record.status === 'sending') {
-          await alter();
-        }
-        return result;
-      };
-    }
-    const runner = createAutomationRunner({
+    await refuseMutatedVkReply({
       store,
-      send: async () => {
-        sends++;
-        return {};
-      },
-      sleep: async () => {
-        if (change !== 'admission') {
-          await alter();
-        }
-      },
-    });
-    const draft = (await runner.run(preset, target)).queued[0];
-    const done = await runner.sendDraft(draft.id, {
-      confirm: true,
+      preset,
+      target,
+      alter,
+      change,
       text: 'Reviewed introduction',
     });
-    assert.equal(done.status, 'failed', change);
-    assert.equal(done.code, 'acquaintance-stale', change);
-    assert.equal(sends, 0, change);
   }
 });
 

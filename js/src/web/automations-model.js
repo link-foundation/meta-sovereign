@@ -1,3 +1,7 @@
+import {
+  personalReplyKinds,
+  catalogReplyKinds,
+} from '../automation/contextual-replies.js';
 // The automation editor's form (issue #31 / PR #34): an automation as
 // flat, editable strings and booleans, and back. Unknown fields (a
 // preset id, a neutral template, the incoming flags, extra pacing) are
@@ -123,14 +127,10 @@ const triggersFrom = (form, base) => {
     form.manual && { kind: 'manual' },
     form.chatMenu && { kind: 'chat-menu' },
     form.schedule.trim() && { kind: 'schedule', every: form.schedule.trim() },
-    (['gratitude', 'identity', 'acquaintance'].includes(
-      form.incomingRecognizer
-    ) ||
+    (personalReplyKinds.includes(form.incomingRecognizer) ||
       form.incoming.trim()) && {
       kind: 'incoming',
-      ...(['gratitude', 'identity', 'acquaintance'].includes(
-        form.incomingRecognizer
-      )
+      ...(personalReplyKinds.includes(form.incomingRecognizer)
         ? { recognizer: form.incomingRecognizer }
         : {
             pattern: form.incoming.trim(),
@@ -183,7 +183,7 @@ export const fromForm = (form, base = {}) => ({
   action: {
     ...base.action,
     kind: form.actionKind ?? base.action?.kind ?? 'send-template',
-    ...(form.actionKind === 'reply-acquaintance'
+    ...(catalogReplyKinds.some((key) => form.actionKind === `reply-${key}`)
       ? {
           alternatives: Object.fromEntries(
             ['informal', 'formal'].map((key) => [

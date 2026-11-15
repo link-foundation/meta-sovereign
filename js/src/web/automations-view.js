@@ -1,3 +1,4 @@
+import { personalReplyKinds } from '../automation/contextual-replies.js';
 // The Automations screen (issue #31 / PR #34). Instead of one screen per
 // feature, every outreach is an automation the user can change: who it
 // is for (an audience merged from friends, chats, communities and
@@ -309,9 +310,10 @@ const editorFields = ({ form, set, error, t }) => {
         key: 'recognizer',
         name: 'incomingRecognizer',
         label: t('gratitude.recognizer'),
-        options: ['pattern', 'gratitude', 'identity', 'acquaintance'].map(
-          (value) => [value, t(`gratitude.recognizer.${value}`)]
-        ),
+        options: ['pattern', ...personalReplyKinds].map((value) => [
+          value,
+          t(`gratitude.recognizer.${value}`),
+        ]),
       }),
     ]),
   ];

@@ -1,4 +1,6 @@
+import { contextualReplyLocale } from './contextual-replies.js';
 export const ruGratitude = {
+  ...contextualReplyLocale('ru'),
   'automations.presets.gratitude.name': 'Ответить на благодарность',
   'automations.presets.gratitude.description':
     'Проверьте ответ на благодарность или стикер в личном диалоге ВК; выберите стикеры или свои тексты на «ты» и «вы».',

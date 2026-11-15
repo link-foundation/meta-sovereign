@@ -1,4 +1,9 @@
 import {
+  contextualReplyKinds,
+  contextualHistory,
+  contextualMessageReason,
+} from './contextual-replies.js';
+import {
   gratitudeFingerprint,
   latestGratitudeMessage,
   gratitudeMessageReason,
@@ -9,11 +14,12 @@ import { greetingDestinationReason } from '../greetings/plan.js';
 import { messageTime } from '../crm/message-time.js';
 import { editId, normalizeAutomation, withEdit } from './automations.js';
 
-// Retain two latest records at most; a large archive never becomes a second
+// Retain three latest records at most (including a possible preceding-turn tie); a large archive never becomes a second
 // in-memory history. Ties and unorderable records refuse instead of guessing.
 const latestFromStore = async (store, draft) => {
   let recent = [];
   let invalid = false;
+  let count = 0;
   const select = (link) =>
     link?.id?.startsWith('msg:') &&
     link.source === draft.source &&
@@ -21,7 +27,7 @@ const latestFromStore = async (store, draft) => {
   const consume = (batch) => {
     for (const message of batch) {
       const merged = [...recent, message];
-      const latest = latestGratitudeMessage(merged);
+      count += 1;
       const time = (m) => messageTime(m.timestamp);
       if (
         !Number.isFinite(time(message)) ||
@@ -29,9 +35,7 @@ const latestFromStore = async (store, draft) => {
       ) {
         invalid = true;
       }
-      recent = latest
-        ? [latest]
-        : merged.sort((a, b) => time(b) - time(a)).slice(0, 2);
+      recent = merged.sort((a, b) => time(b) - time(a)).slice(0, 3);
     }
   };
   if (store.scan) {
@@ -52,18 +56,30 @@ const latestFromStore = async (store, draft) => {
   } else {
     consume(await store.query(select));
   }
-  return invalid ? null : latestGratitudeMessage(recent);
+  return {
+    latest: invalid ? null : latestGratitudeMessage(recent),
+    messages: invalid ? [] : recent,
+    count,
+  };
 };
 
 const replyReasons = new Map([
   ['gratitude', gratitudeMessageReason],
   ['identity', identityMessageReason],
   ['acquaintance', acquaintanceMessageReason],
+  ...contextualReplyKinds.map((key) => [
+    key,
+    (message, isSelf) => contextualMessageReason(key, message, isSelf),
+  ]),
 ]);
 const contextKey = (automation, draft) =>
   [...replyReasons.keys()].find(
     (key) => automation.action.kind === `reply-${key}` || draft[key]
   ) ?? 'gratitude';
+
+const sameContext = (current, proof) =>
+  current !== false &&
+  JSON.stringify(current) === JSON.stringify(proof.context ?? null);
 
 export const validatePersonalReplyDraft = async (
   store,
@@ -78,11 +94,18 @@ export const validatePersonalReplyDraft = async (
   ) {
     return { ok: true };
   }
-  const latest = await latestFromStore(store, draft);
+  const history = await latestFromStore(store, draft);
+  const { latest } = history;
   const proof = draft[key];
   const reasonFor = replyReasons.get(key);
   const owners = new Set(['me', ...self.map(String)]);
   const saved = await store.get(automation.id);
+  const currentContext = contextualHistory(
+    key,
+    history.messages,
+    (sender) => owners.has(String(sender)),
+    history.count
+  );
   const current = saved
     ? withEdit(normalizeAutomation(saved), await store.get(editId(saved)))
     : automation;
@@ -94,7 +117,8 @@ export const validatePersonalReplyDraft = async (
     gratitudeFingerprint(latest) !== proof.fingerprint ||
     JSON.stringify(automation.action) !== proof.policy ||
     JSON.stringify(current.action) !== proof.policy ||
-    !validContent(draft, proof)
+    !validContent(draft, proof) ||
+    !sameContext(currentContext, proof)
   ) {
     return {
       ok: false,

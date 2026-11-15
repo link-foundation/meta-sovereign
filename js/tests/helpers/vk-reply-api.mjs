@@ -37,3 +37,14 @@ export const confirmVkReplyOnce = async (
   await call('/drafts/send', confirmed);
   assert.equal(fixture.vk.calls.length, 1);
 };
+
+export const confirmVkTextReply = async (fixture, type, automation, target) => {
+  const call = vkReplyApi(fixture, type);
+  const run = await call('/run', { automation, ...target });
+  assert.equal(run.status, 200);
+  const draft = run.body.queued[0];
+  assert.ok(draft, automation);
+  await confirmVkReplyOnce(fixture, call, draft, (params) =>
+    assert.equal(params.message, draft.text)
+  );
+};

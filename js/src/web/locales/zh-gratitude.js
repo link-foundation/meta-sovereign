@@ -1,4 +1,6 @@
+import { contextualReplyLocale } from './contextual-replies.js';
 export const zhGratitude = {
+  ...contextualReplyLocale('zh'),
   'automations.presets.gratitude.name': '回复感谢',
   'automations.presets.gratitude.description':
     '审核 VK 私人对话中的感谢消息或贴纸回复；可选择贴纸或自定义正式与非正式文本。',
@@ -38,7 +40,7 @@ export const zhGratitude = {
     '整条消息未被识别为相识问题。',
   'questions.kind.reply-acquaintance': '回复相识问题',
   'acquaintance.catalogHint':
-    '用空行分隔备选介绍；每种称呼最多 32 条，每条不超过 4096 字符。每条收到的消息保持相同选择。列表留空时使用下方的普通文本。',
-  'acquaintance.alternativeInformal': '备选介绍（非正式）',
-  'acquaintance.alternativeFormal': '备选介绍（正式）',
+    '用空行分隔备选回复；每种称呼最多 32 条，每条不超过 4096 字符。每条收到的消息保持相同选择。列表留空时使用下方的普通文本。',
+  'acquaintance.alternativeInformal': '备选回复（非正式）',
+  'acquaintance.alternativeFormal': '备选回复（正式）',
 };

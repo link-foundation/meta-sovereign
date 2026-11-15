@@ -1,3 +1,4 @@
+import { catalogReplyKinds } from '../../src/automation/contextual-replies.js';
 import assert from 'node:assert/strict';
 import {
   vkAutomationBrowser,
@@ -42,19 +43,15 @@ export const verifyVkTextReply = async (
         .locator('[name="informal"]')
         .fill('My informal reply <friend>');
       await editor.locator('[name="formal"]').fill('My formal reply <friend>');
-      const alternatives =
-        kind === 'acquaintance'
-          ? {
-              informal: [
-                'Informal introduction <one>',
-                'Informal introduction <two>',
-              ],
-              formal: [
-                'Formal introduction <one>',
-                'Formal introduction <two>',
-              ],
-            }
-          : null;
+      const alternatives = catalogReplyKinds.includes(kind)
+        ? {
+            informal: [
+              'Informal introduction <one>',
+              'Informal introduction <two>',
+            ],
+            formal: ['Formal introduction <one>', 'Formal introduction <two>'],
+          }
+        : null;
       if (alternatives) {
         await editor
           .locator('[name="alternativeInformal"]')
@@ -107,7 +104,7 @@ export const verifyVkTextReply = async (
       page.locator(
         before
           ? '.automation-list'
-          : kind === 'acquaintance'
+          : catalogReplyKinds.includes(kind)
             ? '[data-acquaintance-catalog]'
             : '[name="actionKind"]'
       ),

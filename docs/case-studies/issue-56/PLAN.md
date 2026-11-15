@@ -1,3 +1,10 @@
+Active contextual VK replies (VK05/VK07/VK08):
+
+- [x] Read all four pinned triggers and tests; reproduce four missing presets on actual parent `c930cf39`. Add disabled personal recognition, configurable address variants/catalogs and the shared acknowledged daily cooldown. Freeze the actual adjacent outgoing turn and first-exchange count.
+- [x] Ten focused Node/Deno cases pass, including every pinned positive example, refusal before typing/after admission, durable restart, CLI/offline/scheduler and eight positive mocked VK adapter receipts through both default Lino encodings.
+- [x] Focused compatibility 34 and registry 2 pass after source restoration. Four native WebKit before/after scenarios and independent four-language MCP review per preset pass, with phone screenshots, zero sends/page exceptions and drained resources.
+- [ ] Retain checked evidence, publish atomically and inspect all exact-head workflows. VK06 and every other original incomplete criterion remain required; PR57 stays draft/unmerged.
+
 Active configurable acquaintance replies (VK04):
 
 - [x] Read the complete pinned trigger and tests; reproduce the absent action on actual parent `e56d8854`. Add disabled private incoming whole-question recognition, editable formal/informal introductions, optional bounded alternative catalogs and acknowledged per-chat daily cooldown.

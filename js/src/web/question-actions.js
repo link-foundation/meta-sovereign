@@ -1,3 +1,7 @@
+import {
+  catalogReplyKinds,
+  contextualReplyKinds,
+} from '../automation/contextual-replies.js';
 import React from 'react';
 import { useT } from './i18n.js';
 import { ProfileFields } from './question-profile-fields.js';
@@ -33,9 +37,10 @@ export const AutomationActionFields = ({
         'reply-gratitude',
         'reply-identity',
         'reply-acquaintance',
+        ...contextualReplyKinds.map((key) => `reply-${key}`),
       ].map((kind) => [kind, t(`questions.kind.${kind}`)]),
     }),
-    form.actionKind === 'reply-acquaintance'
+    catalogReplyKinds.some((key) => form.actionKind === `reply-${key}`)
       ? el(AcquaintanceFields, { ...p, key: 'acquaintance', Input })
       : null,
     form.actionKind === 'reply-gratitude'
