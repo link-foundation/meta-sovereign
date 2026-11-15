@@ -556,3 +556,5 @@ Add optional single-media selection for reviewed VK friend invitation posts on c
 Community wall replacement now optionally holds matching invitations from any author and continues after a current read confirms an old post absent. Absence and acknowledged deletion have separate durable results and translated review evidence; unknown writes remain unreplayed.
 
 Add account-scoped VK history, conversation, friend, profile and friend-count caches with bounded acknowledged resume, truthful expiry and provider-free inspection. Export oldest-first linked Markdown/native JSON with exact partial coverage to new directories, shared through CLI, both Lino formats and four-language Connections controls.
+
+Add account-scoped acknowledged VK sticker catalogs, native pack/keyword and usable greeting-ID selection, received attachment filtering and bounded metadata JSON export. Share CLI, both Lino forms, offline inspection and four-language Connections/collection controls; retain prior snapshots on incomplete reads and drain owned catalog work at shutdown.

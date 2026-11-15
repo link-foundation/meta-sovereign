@@ -1491,6 +1491,6 @@ required under VK26. VK23 and every other unmet criterion remain unchecked.
 
 [The wall parity checklist](vk-wall-parity-plan.md) and [evidence](vk-wall-parity.md) cover any-author visible holds and positively confirmed absence, distinct from delete receipts. [Hosted acceptance on 35764037](hosted-verification-357.md) completes VK20 and VK22 with all five workflows and 75 jobs passed. Fifty-five original rows remain unchecked; the [VK25 checklist](vk-stickers-plan.md) tracks the next audit.
 
-## Active VK24 history export and caches
+## Active VK24 caches and VK25 sticker catalog
 
-[The cache checklist](vk-cache-plan.md) tracks pinned source parity, account-scoped bounded acknowledged refresh, provider-free inspection and linked history export through CLI, Lino and four-language controls. Exact-head hosted verification and every unchecked issue requirement remain active.
+[The cache checklist](vk-cache-plan.md) and [catalog checklist](vk-stickers-plan.md) track pinned parity and local evidence. VK24 requires the [CodeQL assertion correction](vk-cache-security-follow-up.md); VK25 has [focused/native/MCP evidence](vk-stickers.md). Exact-head hosted verification and every unchecked issue requirement remain active.

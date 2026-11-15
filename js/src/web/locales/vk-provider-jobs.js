@@ -9,6 +9,7 @@ import { vkBirthdayLocale } from './vk-birthday.js';
 import { vkRetentionLocale } from './vk-retention.js';
 import { vkDiscoveryLocale } from './vk-discovery.js';
 import { vkCacheLocale } from './vk-cache.js';
+import { vkStickersLocale } from './vk-stickers.js';
 export const vkProviderJobsLocale = (language) => ({
   ...vkOnlineLocale(language),
   ...vkFriendsLocale(language),
@@ -21,4 +22,5 @@ export const vkProviderJobsLocale = (language) => ({
   ...vkRetentionLocale(language),
   ...vkDiscoveryLocale(language),
   ...vkCacheLocale(language),
+  ...vkStickersLocale(language),
 });

@@ -3,10 +3,17 @@ import { json, readBody, bodyFailure } from './util.js';
 import { safeMessage } from './redact.js';
 
 export const handleVkCache = async (store, req, res, p, _url, ctx) => {
-  const action = p.startsWith('/api/vk/cache/')
-    ? p.slice('/api/vk/cache/'.length)
-    : '';
-  if (!['inspect', 'refresh', 'export'].includes(action)) {
+  const resource = p.startsWith('/api/vk/stickers/') ? 'stickers' : 'cache';
+  const prefix = `/api/vk/${resource}/`;
+  const action = p.startsWith(prefix) ? p.slice(prefix.length) : '';
+  if (
+    ![
+      'inspect',
+      'refresh',
+      'export',
+      ...(resource === 'stickers' ? ['filter'] : []),
+    ].includes(action)
+  ) {
     return false;
   }
   if (req.method !== 'POST') {
@@ -17,7 +24,9 @@ export const handleVkCache = async (store, req, res, p, _url, ctx) => {
   }
   try {
     const input = await readBody(req);
-    const result = await ctx.vkCache.run(action, input, ctx.storeDir);
+    const result = await ctx[
+      resource === 'cache' ? 'vkCache' : 'vkStickers'
+    ].run(action, input, ctx.storeDir);
     return json(res, 200, result) ?? true;
   } catch (error) {
     const [status, body] = bodyFailure(error) ?? [

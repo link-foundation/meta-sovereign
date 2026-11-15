@@ -111,6 +111,7 @@ import { handleStickerCollections } from './routes-sticker-collections.js';
 import { handleVkAttachments } from './routes-vk-attachments.js';
 import { handleVkCache } from './routes-vk-cache.js';
 import { createVkCacheRuntime } from './vk-cache-runtime.js';
+import { createVkStickerRuntime } from './vk-sticker-runtime.js';
 import { handleVkOnline } from './routes-vk-online.js';
 import { createVkOnlineJob } from '../automation/vk-online.js';
 import { createVkFriendsJob } from '../automation/vk-friends.js';
@@ -1016,6 +1017,7 @@ const trackSockets = (server) => {
 // The automations' part of the context, fed by the Telegram account.
 const automationFor = (store, automations, log, telegramAccount, later) => ({
   vkCache: createVkCacheRuntime({ store, ...automations.vkCache }),
+  vkStickers: createVkStickerRuntime({ store, ...automations.vkStickers }),
   ...automationContext(
     store,
     automations,

@@ -28,6 +28,7 @@ import { createVkBirthdayCommands } from './vk-birthday-commands.js';
 import { createVkRetentionCommands } from './vk-retention-commands.js';
 import { createVkDiscoveryCommands } from './vk-discovery-commands.js';
 import { createVkCacheCommands } from './vk-cache-commands.js';
+import { createVkStickerCommands } from './vk-sticker-commands.js';
 import { createTelegramGreetingCommands } from './telegram-greetings-commands.js';
 import { createTelegramUsersCommands } from './telegram-users-commands.js';
 import { createTelegramLoginCommands } from './telegram-login-commands.js';
@@ -823,6 +824,7 @@ const COMMANDS = {
   ...createVkReengageCommands({ openStore, openReadOnly }),
   ...createVkWallCommands({ openStore, openReadOnly }),
   ...createVkCacheCommands({ openStore, openReadOnly }),
+  ...createVkStickerCommands({ openStore, openReadOnly }),
   ...createVkBirthdayCommands({ openStore, openReadOnly }),
   ...createVkRetentionCommands({ openStore, openReadOnly }),
   ...createVkDiscoveryCommands({ openStore, openReadOnly }),

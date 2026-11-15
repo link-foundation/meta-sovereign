@@ -2,16 +2,16 @@
 
 All original unchecked requirements remain active in PR57.
 
-- [ ] Read the complete pinned enumeration, filter, keyword and greeting-ID
+- [x] Read the complete pinned enumeration, filter, keyword and greeting-ID
       scripts and their data shapes. Compare existing greeting and collection
       behavior; record each actual parity gap with current native method schemas.
-- [ ] Implement explicit account-scoped bounded catalog refresh, purchased/active
+- [x] Implement explicit account-scoped bounded catalog refresh, purchased/active
       and usable filtering, native keyword/category selection and persisted metadata.
       Preserve empty results, ownership, receipt and failure states accurately.
-- [ ] Provide reusable catalog/asset export through shared foreground CLI,
+- [x] Provide reusable catalog metadata export through shared foreground CLI,
       default Lino and four-language collection controls. Keep provider credentials
       out of exported files and avoid untrusted arbitrary asset downloads.
-- [ ] Add minimal actual-parent regressions and focused Node/Deno interface,
+- [x] Add minimal actual-parent regressions and focused Node/Deno interface,
       durability and lifecycle checks. Verify a native browser case and independent
       Playwright MCP; retain before/after phone and desktop screenshots.
 - [ ] Review quality gates and production diff, preserve checked evidence,

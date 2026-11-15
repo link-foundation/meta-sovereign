@@ -13,6 +13,7 @@ import {
   invalidCacheEvidence,
 } from './vk-cache-provider.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { vkAccountReadGuard } from './vk-read-guard.js';
 
 const queues = new WeakMap();
 const exclusive = (store, action) => {
@@ -22,22 +23,6 @@ const exclusive = (store, action) => {
     next.catch(() => {})
   );
   return next;
-};
-const accountGuard = (optionsFor, options, live, request) => async () => {
-  if ((await optionsFor()).token !== options.token) {
-    invalidCacheEvidence();
-  }
-  const self = await live.call('users.get', {}, options.token);
-  if (
-    !Array.isArray(self) ||
-    self.length !== 1 ||
-    self[0]?.id !== request.accountId
-  ) {
-    invalidCacheEvidence();
-  }
-  if ((await optionsFor()).token !== options.token) {
-    invalidCacheEvidence();
-  }
 };
 
 const newCacheRecord = (request, headHash, now) => ({
@@ -125,7 +110,7 @@ export const createVkCache = ({
           { code: 'not-connected' }
         );
       }
-      const guard = accountGuard(optionsFor, options, live, request);
+      const guard = vkAccountReadGuard(optionsFor, options, live, request);
       await guard();
       const id = cacheId(request);
       const original = checkedCacheRecord(await store.get(id), request);

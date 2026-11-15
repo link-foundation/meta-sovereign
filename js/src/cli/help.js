@@ -170,6 +170,7 @@ ${FORMS_ASSIGNMENT_HELP}`;
 export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
   greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--texts=<phrases separated by newlines>] [--json] [--store=<dir>]
   vk-attachments    [--after=<cursor>] [--limit=1..100] [--enabled=true|false] [--store=<dir>]
+  vk-stickers       inspect|refresh|filter|export --account=<VK-user-ID> [--query=<words>] [--category=all|greeting|birthday|thanks|farewell] [--pack=<ID>] [--usable-only=false] [--offset=<n>] [--file=<received-JSON>] [--folder=<new-absolute-path>] [--store=<dir>]
   vk-cache          inspect|refresh|export --account=<VK-user-ID> [--peer=<ID>] [--kind=history|conversation|friends|profile|friend-count] [--max-pages=1..50] [--page-offset=<cached-offset>] [--restart] [--folder=<new-absolute-path>] [--store=<dir>]
   vk-online         [--enabled=true|false] [--every-minutes=1..14] [--run=true] [--store=<dir>]
   vk-cleanup        status|save|plan|run [--enabled=true|false] [--every-minutes=30] [--limit=10000] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]

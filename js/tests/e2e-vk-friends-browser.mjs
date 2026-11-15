@@ -10,6 +10,7 @@ import { verifyVkBirthday } from './helpers/e2e-vk-birthday.mjs';
 import { verifyVkRetention } from './helpers/e2e-vk-retention.mjs';
 import { verifyVkDiscovery } from './helpers/e2e-vk-discovery.mjs';
 import { verifyVkCache } from './helpers/e2e-vk-cache.mjs';
+import { verifyVkStickers } from './helpers/e2e-vk-stickers.mjs';
 await runBrowserScenarios('vk-friends', [
   verifyVkFriends,
   verifyVkDesktopPolicy,
@@ -22,4 +23,5 @@ await runBrowserScenarios('vk-friends', [
   verifyVkRetention,
   verifyVkDiscovery,
   verifyVkCache,
+  verifyVkStickers,
 ]);

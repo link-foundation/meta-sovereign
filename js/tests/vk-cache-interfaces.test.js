@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createVkCacheCommands } from '../src/cli/vk-cache-commands.js';
 import { createVkCacheApi } from '../src/web/vk-cache-api.js';
 import { createWirePost } from './helpers/http-wire.mjs';
+import { assertVkReadShutdown } from './helpers/vk-read-lifecycle.mjs';
 import { assertVkTranslations } from './helpers/vk-policy-interfaces.mjs';
 import {
   cacheFixture,
@@ -152,50 +152,14 @@ test(
   'server shutdown drains an admitted cache refresh before closing its owned fixture',
   { timeout: 15000 },
   async () => {
-    const f = await cacheServer();
-    let release;
-    let entered;
-    const held = new Promise((resolve) => {
-      release = resolve;
-    });
-    const started = new Promise((resolve) => {
-      entered = resolve;
-    });
-    f.hook(async (method) => {
-      if (method === 'messages.getHistory') {
-        entered();
-        await held;
+    await assertVkReadShutdown(
+      await cacheServer(),
+      'cache',
+      cacheInput,
+      'messages.getHistory',
+      (out) => {
+        assert.equal(out.cache.count, 200);
       }
-    });
-    const post = createWirePost(f.base, '/api/vk/cache', LINO_TEXT);
-    // Ordinary server close disconnects HTTP sockets immediately. Cache work
-    // still owns its provider promise and must finish before store release.
-    const request = post('/refresh', cacheInput).catch(() => null);
-    let closing;
-    try {
-      await started;
-      let closed = false;
-      closing = f.close().then(() => {
-        closed = true;
-      });
-      assert.equal(
-        await Promise.race([
-          closing.then(() => true),
-          delay(100).then(() => false),
-        ]),
-        false
-      );
-      assert.equal(closed, false);
-      release();
-      await request;
-      await closing;
-      assert.equal((await f.service.inspect(cacheInput)).cache.count, 200);
-      assert.equal(closed, true);
-      assert.equal(f.stats().messages, 0);
-    } finally {
-      release();
-      await request;
-      await (closing ?? f.close());
-    }
+    );
   }
 );
