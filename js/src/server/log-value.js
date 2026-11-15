@@ -1,4 +1,5 @@
 import { redact } from './redact.js';
+import { logErrorFields } from './log-error.js';
 
 const SECRET =
   /^(?:(?:access|refresh|id|auth)?token|password|passwd|passphrase|pass|pwd|secret|clientsecret|apikey|auth|authorization|proxyauthorization|privatekey|secretkey|cookie|cookies|setcookie|session|sessionid|stringsession|sessionstring|codeverifier|csrf|signature|credentials?)$|(?:token|password|passphrase|secret|apikey|privatekey|secretkey|stringsession|sessionstring|codeverifier)$/i;
@@ -33,16 +34,10 @@ export const redactLogValue = (value) => {
       return '[circular]';
     }
     seen.add(item);
-    const descriptors = Object.getOwnPropertyDescriptors(item);
     if (item instanceof Error) {
-      const fields = Object.fromEntries(
-        ['name', 'message', 'stack'].map((key) => [
-          key,
-          descriptors[key]?.value ?? (key === 'name' ? 'Error' : '[accessor]'),
-        ])
-      );
-      return visit(fields, depth + 1);
+      return visit(logErrorFields(item), depth + 1);
     }
+    const descriptors = Object.getOwnPropertyDescriptors(item);
     const entries = Object.entries(descriptors)
       .slice(0, 100)
       .map(([key, descriptor]) => [

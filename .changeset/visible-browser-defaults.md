@@ -574,3 +574,5 @@ Desktop Quit and startup failure now drain their owned server, and overlapping a
 Seed friend priorities from a complete, account-checked outgoing request list, preserving owner IDs. Add explicit acknowledged clearing and normalize legacy saved empty/singleton lists through the shared CLI, Lino API and translated UI.
 
 Provide ten original invitation defaults alongside the ten birthday defaults, preserving saved owner text. Expose the catalogs through shared CLI/API/offline status and add translated draft reset with undo before explicit Save.
+
+Inspect error fields before materializing native stacks so diagnostic formatting never invokes name/message accessors or custom stack formatters. Preserve useful ordinary errors and redact short credential fields at the start of shared messages.
