@@ -1490,3 +1490,7 @@ required under VK26. VK23 and every other unmet criterion remain unchecked.
 [The friend-invitation checklist](vk-friend-invitations-plan.md) maps the pinned trigger to community walls and preserves its missing optional random single-media choice through the existing reviewed wall job. Correct the earlier filename-based inventory interpretation with explicit source evidence. Do not accept VK20 before focused and exact-head hosted verification; all other original unchecked requirements remain active.
 
 [The wall parity checklist](vk-wall-parity-plan.md) and [evidence](vk-wall-parity.md) cover any-author visible holds and positively confirmed absence, distinct from delete receipts. VK20 and the whole issue remain unfinished pending exact-head hosted verification.
+
+## Active VK24 history export and caches
+
+[The cache checklist](vk-cache-plan.md) tracks pinned source parity, account-scoped bounded acknowledged refresh, provider-free inspection and linked history export through CLI, Lino and four-language controls. Exact-head hosted verification and every unchecked issue requirement remain active.

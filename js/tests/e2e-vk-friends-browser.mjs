@@ -9,6 +9,7 @@ import { verifyVkWallParity } from './helpers/e2e-vk-wall-parity.mjs';
 import { verifyVkBirthday } from './helpers/e2e-vk-birthday.mjs';
 import { verifyVkRetention } from './helpers/e2e-vk-retention.mjs';
 import { verifyVkDiscovery } from './helpers/e2e-vk-discovery.mjs';
+import { verifyVkCache } from './helpers/e2e-vk-cache.mjs';
 await runBrowserScenarios('vk-friends', [
   verifyVkFriends,
   verifyVkDesktopPolicy,
@@ -20,4 +21,5 @@ await runBrowserScenarios('vk-friends', [
   verifyVkBirthday,
   verifyVkRetention,
   verifyVkDiscovery,
+  verifyVkCache,
 ]);

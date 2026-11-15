@@ -27,11 +27,9 @@ const inspectConnections = async (page, fixture, check) => {
     const panel = page.locator(`[data-${fixture.feature}]`);
     const ready = () =>
       page.waitForFunction((feature) => {
-        const input = document.querySelector(
-          `[data-${feature}] input[type=checkbox]`
-        );
+        const input = document.querySelector(feature);
         return input && !input.disabled;
-      }, fixture.feature);
+      }, `[data-${fixture.feature}] ${fixture.readySelector}`);
     // A mounted heading and an enabled control distinguish loading from absence.
     await panel
       .getByRole('heading', { name: words.title, exact: true })
@@ -47,6 +45,7 @@ const inspectConnections = async (page, fixture, check) => {
       words,
       ready,
       feature: fixture.feature,
+      fixture,
       action: async (name) => {
         await panel.locator(`[data-action=${fixture.feature}-${name}]`).click();
         await ready();
@@ -77,7 +76,8 @@ export const writeVkConnectionInspection = async (
   prefix,
   keys,
   check,
-  evidenceName = feature
+  evidenceName = feature,
+  { readySelector = 'input[type=checkbox]', ...extra } = {}
 ) => {
   await writeFile(
     `ci-logs/${evidenceName}-mcp-code.js`,
@@ -88,6 +88,8 @@ export const writeVkConnectionInspection = async (
         root: resolve('.'),
         feature,
         evidenceName,
+        readySelector,
+        ...extra,
         keys,
         tutorial: [
           TUTORIAL_STORAGE_KEY,

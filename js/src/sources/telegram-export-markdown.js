@@ -32,8 +32,19 @@ const mediaLine = (msg) => {
           .join('/')})`,
       ];
 };
+const authorOf = (msg) => {
+  const name = inline(
+    msg.from ?? msg.actor ?? msg.from_id ?? msg.actor_id ?? 'Unknown'
+  );
+  return /^https:\/\/vk\.com\/(id|club)\d+$/u.test(msg.from_url ?? '')
+    ? `[${name}](${msg.from_url})`
+    : name;
+};
 const linesOf = (msg) => [
-  `**${inline(msg.from ?? msg.actor ?? msg.from_id ?? msg.actor_id ?? 'Unknown')}** [${inline(msg.date).replace('T', ' ')}] · ${inline(msg.source_chat)} / ${msg.id}`,
+  `**${authorOf(msg)}** [${inline(msg.date).replace('T', ' ')}] · ${inline(msg.source_chat)} / ${msg.id}`,
+  ...(typeof msg.reply_text === 'string'
+    ? msg.reply_text.split(/\r\n|\r|\n/).map((line) => `> ${inline(line)}`)
+    : []),
   ...(msg.type === 'service'
     ? [inline(msg.action), ...(msg.members ?? []).map(inline)]
     : textOf(msg)
@@ -47,6 +58,7 @@ export const createMarkdownWriter = async ({
   folder,
   meta,
   maxLines = 1500,
+  exclusive = false,
 }) => {
   let index = 1;
   let lines = [];
@@ -79,8 +91,17 @@ export const createMarkdownWriter = async ({
       nextPart: following?.replace('.md', '.json') ?? null,
     };
     const json = `{"metadata":${JSON.stringify(header)},\n"messages":[\n${messages.map((m) => JSON.stringify(m)).join(',\n')}\n]}\n`;
-    await fs.writeFile(path.join(folder, `history-${index}.md`), markdown);
-    await fs.writeFile(path.join(folder, `history-${index}.json`), json);
+    const options = { flag: exclusive ? 'wx' : 'w' };
+    await fs.writeFile(
+      path.join(folder, `history-${index}.md`),
+      markdown,
+      options
+    );
+    await fs.writeFile(
+      path.join(folder, `history-${index}.json`),
+      json,
+      options
+    );
     index += 1;
     lines = [];
     messages = [];

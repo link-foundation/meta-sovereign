@@ -9,6 +9,7 @@ import { createVkWallApi } from './vk-wall-api.js';
 import { createVkBirthdayApi } from './vk-birthday-api.js';
 import { createVkRetentionApi } from './vk-retention-api.js';
 import { createVkDiscoveryApi } from './vk-discovery-api.js';
+import { createVkCacheApi } from './vk-cache-api.js';
 
 /** Shared transport and local settings for every VK Connections policy. */
 export const createVkProviderApi = (options) =>
@@ -24,6 +25,7 @@ export const createVkProviderApi = (options) =>
       createVkBirthdayApi,
       createVkRetentionApi,
       createVkDiscoveryApi,
+      createVkCacheApi,
       createVkReengageApi,
       createVkCancelledApi,
     ].map((create) => create(options))

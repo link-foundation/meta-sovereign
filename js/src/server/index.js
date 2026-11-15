@@ -109,6 +109,8 @@ import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
 import { handleStickerCollections } from './routes-sticker-collections.js';
 import { handleVkAttachments } from './routes-vk-attachments.js';
+import { handleVkCache } from './routes-vk-cache.js';
+import { createVkCacheRuntime } from './vk-cache-runtime.js';
 import { handleVkOnline } from './routes-vk-online.js';
 import { createVkOnlineJob } from '../automation/vk-online.js';
 import { createVkFriendsJob } from '../automation/vk-friends.js';
@@ -778,6 +780,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   }
   for (const handle of [
     () => handleVkAttachments(store, req, res, p, url, ctx),
+    () => handleVkCache(store, req, res, p, url, ctx),
     () => handleVkOnline(store, req, res, p, url, ctx),
     () => handleVkFriends(store, req, res, p, url, ctx),
     () => handleVkCancelled(store, req, res, p, url, ctx),
@@ -1011,14 +1014,16 @@ const trackSockets = (server) => {
 };
 
 // The automations' part of the context, fed by the Telegram account.
-const automationFor = (store, automations, log, telegramAccount, later) =>
-  automationContext(
+const automationFor = (store, automations, log, telegramAccount, later) => ({
+  vkCache: createVkCacheRuntime({ store, ...automations.vkCache }),
+  ...automationContext(
     store,
     automations,
     log,
     accountSources(telegramAccount),
     later
-  );
+  ),
+});
 
 const logFlusher = (store) => store?.flushLog;
 const applyServerAddress = (ctx, listening, front, activate) => {

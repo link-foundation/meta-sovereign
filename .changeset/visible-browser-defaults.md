@@ -554,3 +554,5 @@ Observe acknowledged vacancy discovery progress before terminal completion in th
 Add optional single-media selection for reviewed VK friend invitation posts on configured community walls. Keep fixed attachments as the default, upgrade legacy policies, freeze selected media across partial recovery and share CLI, Lino, offline and four-language controls.
 
 Community wall replacement now optionally holds matching invitations from any author and continues after a current read confirms an old post absent. Absence and acknowledged deletion have separate durable results and translated review evidence; unknown writes remain unreplayed.
+
+Add account-scoped VK history, conversation, friend, profile and friend-count caches with bounded acknowledged resume, truthful expiry and provider-free inspection. Export oldest-first linked Markdown/native JSON with exact partial coverage to new directories, shared through CLI, both Lino formats and four-language Connections controls.
