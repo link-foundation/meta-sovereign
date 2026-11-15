@@ -1480,3 +1480,7 @@ Hosted acceptance on published `3ea98ecc`: all five workflows and 75 jobs finish
 standalone-script scope, implementation and focused evidence. Three independent
 reviewed friendship policies are drafted; the paced outgoing-message queue stays
 required under VK26. VK23 and every other unmet criterion remain unchecked.
+
+## Hosted vacancy discovery investigation
+
+[The active CI checklist](ci-vacancy-discovery-progress-plan.md) and [root-cause evidence](ci-vacancy-discovery-progress.md) preserve the exact failed published run and a finite native WebKit reproduction. Acknowledged per-card progress retains the original completion and no-replay assertions; no production deadline changes. Every unchecked inventory row remains required.

@@ -40,6 +40,13 @@ export const verifyVacancyDiscovery = async (
       return;
     }
     await start.click();
+    // Four sequential native reads each retain their own navigation readiness.
+    // Require acknowledged forward progress within the existing locator deadline.
+    for (const id of ['123', '124', '125']) {
+      await discovery
+        .locator(`[data-discovery-card="https://hh.ru/vacancy/${id}"]`)
+        .waitFor();
+    }
     const completed = discovery.locator('[data-discovery-phase="completed"]');
     await completed.waitFor();
     assert.equal(await discovery.locator('[data-discovery-card]').count(), 3);
@@ -112,8 +119,28 @@ export const verifyVacancyDiscovery = async (
         batchStarted: false,
         locales: 4,
         resourcesClosed: true,
+        navigationMs: records.map((record) => record.navigationMs),
       })
     );
+  } catch (error) {
+    await shot('failure');
+    console.error(
+      '[vacancy-discovery-diagnostics]',
+      JSON.stringify({
+        phases: await page
+          .locator('[data-discovery-phase]')
+          .evaluateAll((nodes) =>
+            nodes.map((node) => node.dataset.discoveryPhase)
+          ),
+        cards: await page.locator('[data-discovery-card]').count(),
+        reads: records.map(({ closed, clicks, navigationMs }) => ({
+          closed,
+          clicks,
+          navigationMs,
+        })),
+      })
+    );
+    throw error;
   } finally {
     await fixture.close();
   }

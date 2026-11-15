@@ -11,6 +11,30 @@ import { createVacancySearchReader } from '../../js/src/jobs/read-search.js';
 import { createResumeListReader } from '../../js/src/jobs/read-resumes.js';
 import { resumeListHtml } from './resume-list-fixture.mjs';
 
+const traceNavigation = (commander, record, delayMs) => {
+  const goto = commander.goto.bind(commander);
+  commander.goto = async (input) => {
+    record.navigation.push(input.url);
+    const began = Date.now();
+    try {
+      if (delayMs) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+      return await goto(input);
+    } finally {
+      record.navigationMs = Date.now() - began;
+    }
+  };
+};
+
+const fixtureNavigationDelay = () => {
+  const delay = Number(process.env.VACANCY_FIXTURE_NAVIGATION_DELAY_MS ?? 0);
+  if (!Number.isInteger(delay) || delay < 0 || delay > 3000) {
+    throw new Error('Fixture navigation delay must be between 0 and 3000 ms');
+  }
+  return delay;
+};
+
 const cardHtml = (id) =>
   `<article data-qa="vacancy-serp__vacancy"><a data-qa="serp-item__title" href="https://hh.ru/vacancy/${id}?from=search">Python engineer ${id}</a><span data-qa="vacancy-serp__vacancy-employer">Fixture employer</span><span data-qa="vacancy-serp__vacancy-compensation">от 250 000 ₽</span><span data-qa="vacancy-serp__vacancy-address">Москва</span>${id === '124' ? '<span data-qa="vacancy-serp__vacancy_responded">Already responded</span>' : ''}<button data-qa="vacancy-response-link-top">Apply</button></article>`;
 const searchHtml = (url) => {
@@ -47,6 +71,7 @@ export const vacancyBrowserFixture = async (
   browser,
   { exports, store = createMemoryStore() } = {}
 ) => {
+  const navigationDelayMs = fixtureNavigationDelay();
   const records = [];
   const errors = [];
   let mode = 'ready';
@@ -91,11 +116,7 @@ export const vacancyBrowserFixture = async (
       enableNavigationManager: false,
       enableDialogManager: false,
     });
-    const goto = commander.goto.bind(commander);
-    commander.goto = (input) => {
-      record.navigation.push(input.url);
-      return goto(input);
-    };
+    traceNavigation(commander, record, navigationDelayMs);
     return {
       page,
       commander,
