@@ -29,4 +29,17 @@ export const ruGratitude = {
     'Сообщение целиком не распознано как вопрос «кто ты/вы?».',
   'chat.about.identity': 'обращение в вопросе «кто ты/вы?» {when}',
   'questions.kind.reply-identity': 'Ответить на вопрос «кто ты/вы?»',
+  'automations.presets.acquaintance.name': 'Ответить на вопрос о знакомстве',
+  'automations.presets.acquaintance.description':
+    'Проверьте представление в ответ на личный вопрос ВКонтакте о знакомстве. По умолчанию — не чаще раза в сутки.',
+  'gratitude.recognizer.acquaintance': 'Вопрос «мы знакомы?»',
+  'automations.reason.acquaintance-incoming-required':
+    'Последним должен быть входящий личный вопрос ВКонтакте о знакомстве.',
+  'automations.reason.acquaintance-question-required':
+    'Сообщение целиком не распознано как вопрос о знакомстве.',
+  'questions.kind.reply-acquaintance': 'Ответить на вопрос о знакомстве',
+  'acquaintance.catalogHint':
+    'Разделяйте варианты пустой строкой: до 32 на форму, до 4096 символов каждый. Для каждого входящего сообщения выбор сохраняется. Пустой список использует обычный текст ниже.',
+  'acquaintance.alternativeInformal': 'Варианты представления (ты)',
+  'acquaintance.alternativeFormal': 'Варианты представления (вы)',
 };

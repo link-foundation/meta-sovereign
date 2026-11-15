@@ -29,4 +29,17 @@ export const hiGratitude = {
     'पूरा संदेश पहचान के प्रश्न के रूप में नहीं पहचाना गया।',
   'chat.about.identity': 'पहचान के प्रश्न में संबोधन {when}',
   'questions.kind.reply-identity': 'पहचान के प्रश्नों का उत्तर',
+  'automations.presets.acquaintance.name': 'परिचय के प्रश्नों का उत्तर',
+  'automations.presets.acquaintance.description':
+    'निजी VK संपर्क के परिचय संबंधी प्रश्न पर अपना उत्तर जाँचें। सामान्यतः दिन में अधिकतम एक बार उत्तर दें।',
+  'gratitude.recognizer.acquaintance': 'परिचय का प्रश्न: क्या हम परिचित हैं?',
+  'automations.reason.acquaintance-incoming-required':
+    'नवीनतम संदेश निजी VK परिचय का आने वाला प्रश्न होना चाहिए।',
+  'automations.reason.acquaintance-question-required':
+    'पूरे संदेश को परिचय के प्रश्न के रूप में नहीं पहचाना गया।',
+  'questions.kind.reply-acquaintance': 'परिचय के प्रश्नों का उत्तर',
+  'acquaintance.catalogHint':
+    'विकल्पों को खाली पंक्ति से अलग करें: हर संबोधन के लिए अधिकतम 32, प्रत्येक 4096 अक्षर तक। हर आने वाले संदेश के लिए चयन स्थिर रहता है। खाली सूची नीचे का सामान्य पाठ चुनती है।',
+  'acquaintance.alternativeInformal': 'वैकल्पिक परिचय (अनौपचारिक)',
+  'acquaintance.alternativeFormal': 'वैकल्पिक परिचय (औपचारिक)',
 };

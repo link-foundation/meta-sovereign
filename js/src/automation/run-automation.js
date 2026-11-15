@@ -7,7 +7,7 @@ import {
 
 // Only the same chat and text the user saw in the confirmation may be sent.
 const draftKey = (draft) =>
-  `${draft.source}\u0000${draft.chat}\u0000${draft.text}\u0000${draft.answer?.message ?? ''}\u0000${JSON.stringify(draft.sticker ?? null)}\u0000${JSON.stringify(draft.gratitude ?? null)}\u0000${JSON.stringify(draft.identity ?? null)}`;
+  `${draft.source}\u0000${draft.chat}\u0000${draft.text}\u0000${draft.answer?.message ?? ''}\u0000${JSON.stringify(draft.sticker ?? null)}\u0000${JSON.stringify(draft.gratitude ?? null)}\u0000${JSON.stringify(draft.identity ?? null)}\u0000${JSON.stringify(draft.acquaintance ?? null)}`;
 export const stillConfirmed = (planned, confirmed) => {
   const ok = new Set(confirmed.map(draftKey));
   return planned.filter((draft) => ok.has(draftKey(draft)));

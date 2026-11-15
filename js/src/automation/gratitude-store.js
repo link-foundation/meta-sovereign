@@ -4,6 +4,7 @@ import {
   gratitudeMessageReason,
 } from './gratitude.js';
 import { identityMessageReason } from './identity.js';
+import { acquaintanceMessageReason } from './acquaintance.js';
 import { greetingDestinationReason } from '../greetings/plan.js';
 import { messageTime } from '../crm/message-time.js';
 import { editId, normalizeAutomation, withEdit } from './automations.js';
@@ -54,10 +55,15 @@ const latestFromStore = async (store, draft) => {
   return invalid ? null : latestGratitudeMessage(recent);
 };
 
+const replyReasons = new Map([
+  ['gratitude', gratitudeMessageReason],
+  ['identity', identityMessageReason],
+  ['acquaintance', acquaintanceMessageReason],
+]);
 const contextKey = (automation, draft) =>
-  automation.action.kind === 'reply-identity' || draft.identity
-    ? 'identity'
-    : 'gratitude';
+  [...replyReasons.keys()].find(
+    (key) => automation.action.kind === `reply-${key}` || draft[key]
+  ) ?? 'gratitude';
 
 export const validatePersonalReplyDraft = async (
   store,
@@ -67,15 +73,14 @@ export const validatePersonalReplyDraft = async (
 ) => {
   const key = contextKey(automation, draft);
   if (
-    !['reply-gratitude', 'reply-identity'].includes(automation.action.kind) &&
+    !replyReasons.has(automation.action.kind.replace(/^reply-/u, '')) &&
     !draft[key]
   ) {
     return { ok: true };
   }
   const latest = await latestFromStore(store, draft);
   const proof = draft[key];
-  const reasonFor =
-    key === 'identity' ? identityMessageReason : gratitudeMessageReason;
+  const reasonFor = replyReasons.get(key);
   const owners = new Set(['me', ...self.map(String)]);
   const saved = await store.get(automation.id);
   const current = saved

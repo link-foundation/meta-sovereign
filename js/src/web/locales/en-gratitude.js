@@ -29,4 +29,18 @@ export const enGratitude = {
     'The complete message is not recognized as an identity question.',
   'chat.about.identity': 'addressed you in an identity question {when}',
   'questions.kind.reply-identity': 'Reply to identity questions',
+  'automations.presets.acquaintance.name': 'Reply to acquaintance questions',
+  'automations.presets.acquaintance.description':
+    'Review your introduction when a personal VK contact asks whether you know each other. Reply at most once a day by default.',
+  'gratitude.recognizer.acquaintance':
+    'Acquaintance question: do we know each other?',
+  'automations.reason.acquaintance-incoming-required':
+    'The latest message must be an incoming personal VK acquaintance question.',
+  'automations.reason.acquaintance-question-required':
+    'The complete message is not recognized as an acquaintance question.',
+  'questions.kind.reply-acquaintance': 'Reply to acquaintance questions',
+  'acquaintance.catalogHint':
+    'Separate alternatives with a blank line; up to 32 per form, 4096 characters each. A reply is selected consistently for each incoming message. Leave a list empty to use the ordinary text variant below.',
+  'acquaintance.alternativeInformal': 'Alternative introductions (informal)',
+  'acquaintance.alternativeFormal': 'Alternative introductions (formal)',
 };

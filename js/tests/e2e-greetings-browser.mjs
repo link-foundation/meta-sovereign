@@ -1,6 +1,7 @@
 import { verifyVkGreetingCatalog } from './helpers/e2e-vk-greeting-catalog.mjs';
 import { verifyVkGratitude } from './helpers/e2e-vk-gratitude.mjs';
 import { verifyVkIdentity } from './helpers/e2e-vk-identity.mjs';
+import { verifyVkAcquaintance } from './helpers/e2e-vk-acquaintance.mjs';
 import { createLinoFetch } from '../src/transport/fetch.js';
 const fetch = createLinoFetch((...args) => globalThis.fetch(...args));
 /**
@@ -390,6 +391,7 @@ const run = async () => {
     await verifyVkGreetingCatalog(browser);
     await verifyVkGratitude(browser);
     await verifyVkIdentity(browser);
+    await verifyVkAcquaintance(browser);
   } catch (error) {
     await traceFailure(page, firstVk).catch((diagnostic) =>
       console.error(

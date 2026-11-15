@@ -514,3 +514,5 @@ Edit greeting response catalogs per language through CLI and the shared localize
 Add configurable private VK gratitude replies with contextual phrase and sticker recognition, exact sticker previews, explicit text variants and fresh-message delivery guards through the shared automation UI, CLI and Lino APIs.
 
 Add configurable personal VK identity replies and evidenced address preference from the latest qualifying question. Respect later explicit address agreements, retain guarded exact-preview delivery and order mixed VK seconds/local ISO receipts consistently through CLI, Lino and the shared localized UI.
+
+Add a disabled personal VK acquaintance reply preset with configurable formal/informal introductions, a durable per-chat daily cooldown, latest-message guards and shared CLI/Lino/UI controls.

@@ -1,3 +1,9 @@
+Active configurable acquaintance replies (VK04):
+
+- [x] Read the complete pinned trigger and tests; reproduce the absent action on actual parent `e56d8854`. Add disabled private incoming whole-question recognition, editable formal/informal introductions, optional bounded alternative catalogs and acknowledged per-chat daily cooldown.
+- [x] Six focused Node/Deno checks and 28 compatibility checks pass, including stable preview choice, later form override, explicit owner edits, preserved catalog after confirmed send, late policy changes, durable restart, CLI/offline and both default Lino APIs with mocked actual VK receipts. One native WebKit before/after and independent four-language MCP inspection pass with phone evidence, zero sends and drained resources. Full matrices remain in CI.
+- [ ] Preserve checked evidence, publish this atomic feature and inspect every exact-head workflow. Every original unchecked criterion remains required; PR57 stays draft and unmerged.
+
 # Issue 56 / PR 57 work plan
 
 Active VK fixture diagnostic correction:
@@ -1271,3 +1277,11 @@ Active VK03 identity questions and address preference:
 - [ ] Add actual-parent failing regressions, focused local checks and one native/MCP before/after review; preserve checked sources/logs/screenshots, publish and inspect exact-head CI. All 78 unchecked criteria remain required; PR57 stays draft/unmerged.
 
 VK03 local verification: two actual-parent regressions fail; nine focused Node/nine Deno and 63 compatibility checks pass, with 56 combined Node cases for identity/gratitude/address learning/reengagement. Native parent/current UI and independent four-language MCP verify edited variants, private previews and phone layouts with zero page exceptions/sends and closed owned resources. Timestamp ordering now handles actual VK Unix seconds and ISO receipts. Preserve checked evidence, publish and require exact-head CI; every unchecked inventory criterion remains active.
+
+Active VK04 acquaintance replies:
+
+- [x] Read the complete pinned acquaintance trigger and its two tests. It recognizes complete personal incoming “мы знакомы (с тобой/вами)?” questions and uses a per-peer one-day cooldown; its reply introductions are configurable examples.
+- [x] Reuse guarded private replies and the existing formal/informal settings through CLI, offline planning, durable Lino and the shared four-language editor. Retain the one-day default and acknowledged per-peer cooldown across restart.
+- [ ] Reproduce actual-parent absence; verify bounded recognition, cooldown/recovery, current-input/policy refusal and confirmed actual mocked VK receipts. Capture native/MCP before/after evidence, preserve checked sources and inspect exact-head hosted CI. Every unchecked original criterion stays required.
+
+VK04 local verification: the actual parent lacks the preset; five focused Node/five Deno and 28 existing identity/gratitude/API compatibility checks pass. Acknowledged daily cooldown survives durable reopen and stays per chat; input, owner reply, saved action and post-admission changes refuse. Native WebKit before/after and independent four-language MCP verify saved variants, daily control, private previews and phone fit with zero sends/page exceptions and closed resources. Preserve the known MCP cache-write console diagnostics without a clean-console claim. Archive/publish and exact-head hosted checks remain required; all 78 unchecked criteria stay active.

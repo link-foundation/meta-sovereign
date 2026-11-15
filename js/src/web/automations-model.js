@@ -51,9 +51,11 @@ const numberText = (value) =>
 
 const seconds = (ms) => numberText(ms === undefined ? ms : ms / 1000);
 
-const gratitudeForm = (action) => ({
+const replyActionForm = (action) => ({
   preferSticker: action.preferSticker !== false,
   gratitudeStickers: (action.stickerIds ?? ['60075', '89452']).join(', '),
+  alternativeInformal: (action.alternatives?.informal ?? []).join('\n\n'),
+  alternativeFormal: (action.alternatives?.formal ?? []).join('\n\n'),
 });
 
 /** An automation (saved or preset) as the editor's fields. */
@@ -81,7 +83,7 @@ export const toForm = (input) => {
     networks: (c.networks ?? []).join(', '),
     form: a.action.form,
     actionKind: a.action.kind,
-    ...gratitudeForm(a.action),
+    ...replyActionForm(a.action),
     ruleIds: (a.action.ruleIds ?? []).join(', '),
     profile: { ...a.action.profile },
     profileId: a.action.profileId ?? '',
@@ -121,10 +123,14 @@ const triggersFrom = (form, base) => {
     form.manual && { kind: 'manual' },
     form.chatMenu && { kind: 'chat-menu' },
     form.schedule.trim() && { kind: 'schedule', every: form.schedule.trim() },
-    (['gratitude', 'identity'].includes(form.incomingRecognizer) ||
+    (['gratitude', 'identity', 'acquaintance'].includes(
+      form.incomingRecognizer
+    ) ||
       form.incoming.trim()) && {
       kind: 'incoming',
-      ...(['gratitude', 'identity'].includes(form.incomingRecognizer)
+      ...(['gratitude', 'identity', 'acquaintance'].includes(
+        form.incomingRecognizer
+      )
         ? { recognizer: form.incomingRecognizer }
         : {
             pattern: form.incoming.trim(),
@@ -177,6 +183,25 @@ export const fromForm = (form, base = {}) => ({
   action: {
     ...base.action,
     kind: form.actionKind ?? base.action?.kind ?? 'send-template',
+    ...(form.actionKind === 'reply-acquaintance'
+      ? {
+          alternatives: Object.fromEntries(
+            ['informal', 'formal'].map((key) => [
+              key,
+              String(
+                form[
+                  key === 'informal'
+                    ? 'alternativeInformal'
+                    : 'alternativeFormal'
+                ] ?? ''
+              )
+                .replaceAll('\r\n', '\n')
+                .split(/\n\s*\n/u)
+                .filter((text) => text.trim()),
+            ])
+          ),
+        }
+      : {}),
     ...(form.actionKind === 'reply-gratitude'
       ? {
           preferSticker: form.preferSticker,

@@ -1,3 +1,5 @@
+- [VK acquaintance replies](vk-acquaintance.md): configurable personal introductions, durable daily cooldown, frozen-input guards and shared CLI/Lino/UI controls. Actual-parent, native and four-language MCP evidence; VK04 awaits hosted checks.
+
 - [VK fixture diagnostics](ci-vk-diagnostics.md): exact hosted WebKit failure, actual-parent replay and reuse of the existing narrow engine/origin policy, preserving genuine exceptions and every browser assertion.
 
 - [VK identity questions](vk-identity.md): configurable informal/formal replies, durable evidenced address preference, mixed timestamp ordering and guarded delivery through CLI/Lino/shared UI. VK03 awaits exact-head hosted checks.

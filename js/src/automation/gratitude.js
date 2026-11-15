@@ -1,7 +1,11 @@
 // Behavior researched at konard/vk-bot 175d2d13218d9e791ae2f3e824a0d24f10319dcb.
 // This bounded whole-message recognizer is independent of its regex builder.
 import { greetingDestinationReason } from '../greetings/plan.js';
-import { personalReplyDraft, latestReplyMessage } from './personal-reply.js';
+import {
+  personalReplyDraft,
+  latestReplyMessage,
+  replyVariantIndex,
+} from './personal-reply.js';
 export {
   latestReplyMessage as latestGratitudeMessage,
   replyFingerprint as gratitudeFingerprint,
@@ -131,14 +135,6 @@ export const gratitudeMessageReason = (
   return isGratitudeMessage(message) ? null : 'gratitude-message-required';
 };
 
-const variantIndex = (id, length) => {
-  let hash = 0;
-  for (const char of id) {
-    hash = (hash * 31 + char.codePointAt(0)) >>> 0;
-  }
-  return hash % length;
-};
-
 export const gratitudeDraft = (automation, candidate, draft, isSelf) => {
   const message = latestReplyMessage(candidate.messages);
   if (!message) {
@@ -146,7 +142,7 @@ export const gratitudeDraft = (automation, candidate, draft, isSelf) => {
   }
   const id = automation.action.preferSticker
     ? automation.action.stickerIds[
-        variantIndex(message.id, automation.action.stickerIds.length)
+        replyVariantIndex(message.id, automation.action.stickerIds.length)
       ]
     : null;
   return personalReplyDraft(

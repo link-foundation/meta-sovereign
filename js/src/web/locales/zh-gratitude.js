@@ -28,4 +28,17 @@ export const zhGratitude = {
     '整条消息未被识别为身份问题。',
   'chat.about.identity': '在身份问题中使用的称呼 {when}',
   'questions.kind.reply-identity': '回复身份问题',
+  'automations.presets.acquaintance.name': '回复相识问题',
+  'automations.presets.acquaintance.description':
+    '审核 VK 私聊中询问是否相识时的自我介绍。默认每天最多回复一次。',
+  'gratitude.recognizer.acquaintance': '相识问题：我们认识吗？',
+  'automations.reason.acquaintance-incoming-required':
+    '最新消息必须是收到的 VK 私聊相识问题。',
+  'automations.reason.acquaintance-question-required':
+    '整条消息未被识别为相识问题。',
+  'questions.kind.reply-acquaintance': '回复相识问题',
+  'acquaintance.catalogHint':
+    '用空行分隔备选介绍；每种称呼最多 32 条，每条不超过 4096 字符。每条收到的消息保持相同选择。列表留空时使用下方的普通文本。',
+  'acquaintance.alternativeInformal': '备选介绍（非正式）',
+  'acquaintance.alternativeFormal': '备选介绍（正式）',
 };

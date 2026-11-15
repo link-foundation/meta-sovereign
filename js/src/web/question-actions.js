@@ -7,6 +7,7 @@ import { QuestionMatchingFields } from './question-matching-fields.js';
 import { ModelDraftControl } from './answer-model-settings.js';
 import { chatAnswerAction } from '../automation/question-chat-turn.js';
 import { GratitudeFields } from './gratitude-fields.js';
+import { AcquaintanceFields } from './acquaintance-fields.js';
 
 const el = React.createElement;
 export const AutomationActionFields = ({
@@ -31,8 +32,12 @@ export const AutomationActionFields = ({
         'answer-questions',
         'reply-gratitude',
         'reply-identity',
+        'reply-acquaintance',
       ].map((kind) => [kind, t(`questions.kind.${kind}`)]),
     }),
+    form.actionKind === 'reply-acquaintance'
+      ? el(AcquaintanceFields, { ...p, key: 'acquaintance', Input })
+      : null,
     form.actionKind === 'reply-gratitude'
       ? el(GratitudeFields, { ...p, key: 'gratitude', Input, Check })
       : null,

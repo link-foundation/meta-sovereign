@@ -55,6 +55,12 @@ import { OUTBOX_PREFIX } from './outbox.js';
 import { identityQuestionForm } from '../crm/identity-question.js';
 import { identityDraft } from './identity.js';
 import {
+  acquaintanceDraft,
+  isAcquaintanceQuestion,
+  acquaintanceAlternatives,
+  acquaintanceText,
+} from './acquaintance.js';
+import {
   gratitudeDraft,
   gratitudeOptions,
   isGratitudeMessage,
@@ -150,7 +156,9 @@ const normalizeTrigger = (trigger) => {
     return { kind, every: trigger.every };
   }
   if (kind === 'incoming') {
-    if (['gratitude', 'identity'].includes(trigger.recognizer)) {
+    if (
+      ['gratitude', 'identity', 'acquaintance'].includes(trigger.recognizer)
+    ) {
       return { kind, recognizer: trigger.recognizer };
     }
     if (trigger.recognizer) {
@@ -169,9 +177,16 @@ const normalizeAction = (action = {}) => {
   if (kind === 'answer-questions') {
     return normalizeAnswerAction(action);
   }
-  if (!['send-template', 'reply-gratitude', 'reply-identity'].includes(kind)) {
+  if (
+    ![
+      'send-template',
+      'reply-gratitude',
+      'reply-identity',
+      'reply-acquaintance',
+    ].includes(kind)
+  ) {
     throw new Error(
-      `unknown action "${kind}"; known: send-template, reply-gratitude, reply-identity, answer-questions`
+      `unknown action "${kind}"; known: send-template, reply-gratitude, reply-identity, reply-acquaintance, answer-questions`
     );
   }
   const form = action.form ?? 'auto';
@@ -194,6 +209,9 @@ const normalizeAction = (action = {}) => {
     form,
     fallbackForm: action.fallbackForm ?? 'formal',
     ...(kind === 'reply-gratitude' ? gratitudeOptions(action) : {}),
+    ...(kind === 'reply-acquaintance'
+      ? { alternatives: acquaintanceAlternatives(action.alternatives) }
+      : {}),
   };
 };
 
@@ -244,6 +262,9 @@ export const hasTrigger = (automation, kind) =>
 /** The `incoming` trigger whose pattern matches `text`, if any. */
 export const incomingTrigger = (automation, text, message = {}) =>
   automation.triggers.find((t) => {
+    if (t.kind === 'incoming' && t.recognizer === 'acquaintance') {
+      return isAcquaintanceQuestion(text);
+    }
     if (t.kind === 'incoming' && t.recognizer === 'identity') {
       return Boolean(identityQuestionForm(text));
     }
@@ -380,6 +401,31 @@ export const automationPresets = () =>
         templates: {
           informal: 'Я программист, а ты?',
           formal: 'Я программист, а Вы?',
+        },
+      },
+    },
+    {
+      id: 'acquaintance',
+      preset: 'acquaintance',
+      name: 'Reply to acquaintance questions',
+      description:
+        'Review your introduction when a personal VK contact asks whether you know each other. Reply at most once a day by default.',
+      enabled: false,
+      triggers: [
+        { kind: 'incoming', recognizer: 'acquaintance' },
+        { kind: 'chat-menu' },
+      ],
+      conditions: {
+        mutual: false,
+        lastFrom: 'contact',
+        networks: ['vk'],
+        cooldownDays: 1,
+      },
+      action: {
+        kind: 'reply-acquaintance',
+        templates: {
+          informal: 'Пока не знакомы. Я программист, а ты?',
+          formal: 'Пока не знакомы. Я программист, а Вы?',
         },
       },
     },
@@ -594,10 +640,9 @@ export const redraftWithForm = (automation, draft, form) => {
   if (automation.action.kind === 'answer-questions') {
     return { ...draft, form };
   }
-  const text = renderReengageText(
-    templateFor(automation.action.templates, form),
-    draft
-  );
+  const text = draft.acquaintance
+    ? acquaintanceText(automation, draft, form, draft.acquaintance.message)
+    : renderReengageText(templateFor(automation.action.templates, form), draft);
   return {
     ...draft,
     ...(draft.gratitude ? { sticker: undefined } : {}),
@@ -739,6 +784,7 @@ const planningContext = (links, automation, options, now) => {
 const personalReplyBuilders = new Map([
   ['reply-gratitude', gratitudeDraft],
   ['reply-identity', identityDraft],
+  ['reply-acquaintance', acquaintanceDraft],
 ]);
 
 export const planAutomation = (links = [], input, options = {}) => {
@@ -780,9 +826,7 @@ export const planAutomation = (links = [], input, options = {}) => {
             ...result,
           });
         }
-      } else if (
-        ['reply-gratitude', 'reply-identity'].includes(automation.action.kind)
-      ) {
+      } else if (personalReplyBuilders.has(automation.action.kind)) {
         const build = personalReplyBuilders.get(automation.action.kind);
         const result = build(
           automation,
@@ -852,9 +896,12 @@ export const templateFromText = (text, draft = {}) => {
 
 /** The automation with the user's edited templates in place of its own. */
 export const withEdit = (automation, edit) =>
-  ['send-template', 'reply-gratitude', 'reply-identity'].includes(
-    automation.action.kind
-  ) &&
+  [
+    'send-template',
+    'reply-gratitude',
+    'reply-identity',
+    'reply-acquaintance',
+  ].includes(automation.action.kind) &&
   edit?.templates &&
   Object.keys(edit.templates).length > 0
     ? {
@@ -873,7 +920,14 @@ export const editAfterSend = (automation, before, draft, text, at) => {
     return null;
   }
   const original = automation.action.templates;
-  const rendered = renderReengageText(templateFor(original, draft.form), draft);
+  const rendered = draft.acquaintance
+    ? acquaintanceText(
+        automation,
+        draft,
+        draft.form,
+        draft.acquaintance.message
+      )
+    : renderReengageText(templateFor(original, draft.form), draft);
   const templates = { ...(before?.templates ?? {}) };
   if (String(text).trim() === rendered.trim()) {
     // Sent as the automation wrote it: its own text stands again.

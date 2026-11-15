@@ -3,7 +3,7 @@ import { greetingDestinationReason } from '../greetings/plan.js';
 
 // The two pinned VK triggers ask the same whole question in different forms.
 // A bounded independent parser keeps quoted/additional questions out.
-export const identityQuestionForm = (body) => {
+export const wholeVkQuestion = (body) => {
   if (typeof body !== 'string' || body.length > 256) {
     return null;
   }
@@ -12,8 +12,11 @@ export const identityQuestionForm = (body) => {
   if (end < 0 || /[\p{L}\p{N}]/u.test(text.slice(end))) {
     return null;
   }
-  const words = text.slice(0, end).match(/[\p{L}\p{N}]+/gu) ?? [];
-  const question = words.join(' ').replace(/^а /u, '');
+  return (text.slice(0, end).match(/[\p{L}\p{N}]+/gu) ?? []).join(' ');
+};
+
+export const identityQuestionForm = (body) => {
+  const question = wholeVkQuestion(body)?.replace(/^а /u, '');
   if (question === 'кто ты' || question === 'ты кто') {
     return 'informal';
   }
