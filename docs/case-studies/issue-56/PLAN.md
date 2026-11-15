@@ -1,3 +1,10 @@
+Active inactive-peer sync fixture correction:
+
+- [x] Match published `c930cf39` Checks `43673148877` and WebKit shard 2 job `132688300301`; preserve complete logs. Lines 1713–1721 show successful reconciliation followed by a five-second receive-completion predicate timeout. All four companion workflows pass.
+- [x] Reproduce the exact published helper with paused frame callbacks and a finite 250 ms completion-flag delay. Native owner persistence/replication and the remote merge all finish, but the frame-based predicate still times out. Timer polling passes without increasing any deadline; retain bounded failure state for a future distinct cause.
+- [x] The relevant native WebKit sync group passes, including the controlled frame pause, three peers, reconnection, catch-up, deletion and no page exceptions. The original hosted failure did not log its hook state; do not claim its scheduling cause was directly measured.
+- [ ] Preserve checked evidence, publish this correction with the two completed atomic units, and inspect every exact-head workflow. Continue all original incomplete criteria and the saved unverified VK06 ordered-delivery draft; PR57 stays draft/unmerged.
+
 Active contextual VK replies (VK05/VK07/VK08):
 
 - [x] Read all four pinned triggers and tests; reproduce four missing presets on actual parent `c930cf39`. Add disabled personal recognition, configurable address variants/catalogs and the shared acknowledged daily cooldown. Freeze the actual adjacent outgoing turn and first-exchange count.

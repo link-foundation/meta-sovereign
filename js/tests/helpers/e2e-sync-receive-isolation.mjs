@@ -60,7 +60,9 @@ export const checkReceiveIsolation = async ({ page, other, until }) => {
     await other.waitForFunction(
       () => globalThis.__receiveIsolation?.written,
       null,
-      { timeout: 5000 }
+      // This peer can be an inactive page. Persistence and RTC continue even
+      // when WebKit suspends animation frames; observe completion on a timer.
+      { timeout: 5000, polling: 100 }
     );
     await until(
       async () =>
@@ -81,6 +83,14 @@ export const checkReceiveIsolation = async ({ page, other, until }) => {
       'one native owner write admitted during receive'
     );
     console.log('[sync-receive-isolation]', JSON.stringify(state));
+  } catch (error) {
+    // Bounded fixture state distinguishes a missing hook/write from a polling
+    // failure without recording application data, SDP or ICE addresses.
+    console.error(
+      '[sync-receive-isolation-failure]',
+      JSON.stringify(await other.evaluate(() => globalThis.__receiveIsolation))
+    );
+    throw error;
   } finally {
     await other.evaluate(() => {
       globalThis.__restoreReceiveStringify?.();

@@ -8,6 +8,10 @@ import {
 import { traceSyncPeer } from './helpers/e2e-lino-sync-trace.mjs';
 import { readSyncPeer } from './helpers/e2e-lino-sync-read.mjs';
 import { checkReceiveIsolation } from './helpers/e2e-sync-receive-isolation.mjs';
+import {
+  installSyncFrameGate,
+  withPausedSyncFrames,
+} from './helpers/e2e-sync-frame-gate.mjs';
 import { checkSyncMesh } from './helpers/e2e-lino-sync-mesh.mjs';
 import { checkCausalWrites } from './helpers/e2e-causal-writes.mjs';
 import { checkSyncReconciliation } from './helpers/e2e-sync-reconciliation.mjs';
@@ -27,6 +31,7 @@ await finish(async () => {
   const context = await browser.newContext();
   watchChatPages(context, { errors, engine, base });
   const other = await context.newPage();
+  await installSyncFrameGate(other);
   // Exercise the production offline -> rediscovery reload deterministically.
   // Only this isolated peer's first exact-origin identity probe is interrupted.
   let interrupted = false;
@@ -122,7 +127,9 @@ await finish(async () => {
       return Boolean(current && !current.record);
     }, 'WebRTC deletion');
     await checkSyncReconciliation({ page, other, base, until, store });
-    await checkReceiveIsolation({ page, other, until });
+    await withPausedSyncFrames(other, () =>
+      checkReceiveIsolation({ page, other, until })
+    );
     await checkSyncMesh({ page, other, base, engine, until, store });
   } catch (error) {
     // Inspect real connection state without logging SDP, addresses or records.
