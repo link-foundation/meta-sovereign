@@ -11,8 +11,8 @@ requires a user token and describes 15 minutes of online presence per refresh.
 [Usage and exact behavior](../../VK-ONLINE-STATUS.md) describe opt-in,
 intervals, explicit action, restart, uncertainty and offline capability.
 
-Focused verification below passes; exact-head hosted results remain pending. VK10 stays
-unchecked. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) remains draft/unmerged, with every other incomplete original
+Focused verification and all five exact-head workflows pass; VK10 is
+[verified](hosted-verification-e21d.md). [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) remains draft/unmerged, with every other incomplete original
 criterion still required. No authenticated provider session is used for the
 synthetic checks; those checks do not prove live token eligibility.
 
