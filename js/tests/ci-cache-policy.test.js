@@ -73,3 +73,17 @@ test('cache reservations are isolated across workflows, refs and platforms', () 
     assert.ok(writer.with.key.includes(identity), identity);
   }
 });
+
+test('the checkout-dependent cache exception remains scoped and documented', () => {
+  const workflow = readFileSync(
+    new URL('../../.github/workflows/release.yml', import.meta.url),
+    'utf8'
+  );
+  const exceptions = workflow
+    .split('\n')
+    .filter((line) => line.includes('ignore[self-repository]'));
+  assert.equal(exceptions.length, 1);
+  assert.match(exceptions[0], /uses: \.\/\.github\/actions\/npm-cache/);
+  assert.match(exceptions[0], /already checked-out fresh merge/);
+  assert.match(exceptions[0], /full evidence archive before checkout/);
+});

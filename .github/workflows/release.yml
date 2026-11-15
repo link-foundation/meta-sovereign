@@ -466,7 +466,7 @@ jobs:
 
       # Checkout already owns the exact merged source. A local reference also
       # avoids downloading this repository's evidence archive during job setup.
-      - uses: ./.github/actions/npm-cache
+      - uses: ./.github/actions/npm-cache # zizmor: ignore[self-repository] -- Deliberately use the already checked-out fresh merge; $/ downloads the full evidence archive before checkout and can exhaust this job's deadline.
         if: matrix.runtime == 'node'
         with:
           write: ${{ matrix.os != 'ubuntu-26.04' && 'true' || 'false' }}
