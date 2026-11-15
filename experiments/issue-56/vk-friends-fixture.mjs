@@ -2,6 +2,27 @@ import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { startServer } from '../../js/src/server/index.js';
 import { createVkLive } from '../../js/src/sources/vk.js';
 import { createFakeVk } from '../../js/tests/helpers/fake-vk.js';
+import { createVkFriendsJob } from '../../js/src/automation/vk-friends.js';
+import { serveQuestionLinkFixture } from './question-api-links-server.mjs';
+
+export const serveFriendsFixture = (fixture) =>
+  serveQuestionLinkFixture({
+    ...fixture,
+    stats: () => ({
+      syntheticFriendCalls: fixture.effects.length,
+      messages: fixture.messages(),
+      liveProvider: false,
+    }),
+  });
+
+export const friendsJob = (store, adapter, extra = {}) =>
+  createVkFriendsJob({
+    store,
+    resolve: () => ({ live: adapter.live }),
+    optionsFor: async () => ({ token: 'fixture-user-token' }),
+    sleep: async () => {},
+    ...extra,
+  });
 
 export const friendRelations = (relations) => (params) =>
   params.user_ids
@@ -16,13 +37,15 @@ export const friendRelations = (relations) => (params) =>
 export const friendsAdapter = (extra = {}) => {
   let mode = 'confirmed';
   let accountId = 1;
-  let count = 1;
-  const relations = new Map([
-    [7, 0],
-    [8, 3],
-    [9, 2],
-    [11, 2],
-  ]);
+  let count = extra.count ?? 1;
+  const relations =
+    extra.relations ??
+    new Map([
+      [7, 0],
+      [8, 3],
+      [9, 2],
+      [11, 2],
+    ]);
   const effects = [];
   const fake = createFakeVk({
     methods: {

@@ -58,7 +58,7 @@ const inspectConnections = async (page, fixture, check) => {
       throw Error(`Phone overflow: ${language}`);
     }
     await page.screenshot({
-      path: `${fixture.root}/docs/screenshots/issue-56-${fixture.feature}/mcp-${language}-phone.png`,
+      path: `${fixture.root}/docs/screenshots/issue-56-${fixture.evidenceName}/mcp-${language}-phone.png`,
     });
     result.push({ language, translated: true, ...checked });
   }
@@ -72,16 +72,18 @@ export const writeVkConnectionInspection = async (
   feature,
   prefix,
   keys,
-  check
+  check,
+  evidenceName = feature
 ) => {
   await writeFile(
-    `ci-logs/${feature}-mcp-code.js`,
+    `ci-logs/${evidenceName}-mcp-code.js`,
     mcpInspectionCode(
       inspectConnections,
       {
         base: process.argv[2],
         root: resolve('.'),
         feature,
+        evidenceName,
         keys,
         tutorial: [
           TUTORIAL_STORAGE_KEY,

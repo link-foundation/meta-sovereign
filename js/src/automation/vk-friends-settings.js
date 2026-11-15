@@ -7,6 +7,10 @@ export const VK_FRIENDS_STATE = 'provider-job-state:vk:friends';
 export const VK_FRIENDS_PLAN = 'provider-job-plan:vk:friends';
 export const serializeVkFriends = createStoreQueue();
 export const positiveVkId = (value) => Number.isSafeInteger(value) && value > 0;
+export const desktopFriendPolicy = (settings) =>
+  settings.acceptancePolicy === 'desktop-ten-percent';
+export const friendCapacity = (settings) =>
+  desktopFriendPolicy(settings) ? 10000 : settings.maxFriends;
 export const normalizeVkFriendSettings = (input) => {
   const ranges = {
     everyMinutes: [1, 1440],
@@ -24,6 +28,16 @@ export const normalizeVkFriendSettings = (input) => {
     );
   }
   const settings = { enabled: input.enabled };
+  if (input.acceptancePolicy !== undefined) {
+    if (
+      !['ranked-batch', 'desktop-ten-percent'].includes(input.acceptancePolicy)
+    ) {
+      throw new Error(
+        'ranked-batch or desktop-ten-percent acceptancePolicy required'
+      );
+    }
+    settings.acceptancePolicy = input.acceptancePolicy;
+  }
   for (const [key, [min, max]] of Object.entries(ranges)) {
     if (!Number.isInteger(input[key]) || input[key] < min || input[key] > max) {
       throw new Error(`${key} must be an integer from ${min} to ${max}`);

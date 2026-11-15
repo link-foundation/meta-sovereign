@@ -4,7 +4,14 @@ import {
   VK_FRIENDS_PLAN as PLAN,
   readVkFriendSettings,
   readVkFriends,
+  desktopFriendPolicy,
+  friendCapacity,
 } from './vk-friends-settings.js';
+import {
+  observeFriendQuota,
+  availableFriendQuota,
+  desktopFriendReason,
+} from './vk-friend-quota.js';
 import {
   refuseFriendAction as refuse,
   friendCredentialIdentity,
@@ -55,12 +62,16 @@ export const previewVkFriendPlan = async ({
       )
     );
   }
-  let slots = Math.max(0, settings.maxFriends - source.count);
+  const quota = desktopFriendPolicy(settings)
+    ? await observeFriendQuota(store, source.accountId, source.incoming)
+    : null;
+  let allowance = quota ? availableFriendQuota(quota) : Infinity;
+  let slots = Math.max(0, friendCapacity(settings) - source.count);
   const items = [];
   for (const userId of source.ids) {
     const relation = source.statuses[userId];
     const priority = settings.priorityIds.includes(userId);
-    const reason = friendPlanReason({
+    let reason = friendPlanReason({
       userId,
       accountId: source.accountId,
       previous: previous.get(userId),
@@ -69,11 +80,22 @@ export const previewVkFriendPlan = async ({
       slots,
     });
     if (reason === 'eligible') {
+      reason = desktopFriendReason(
+        { settings, friendCount: source.count },
+        { priority, reason, mutualCount: source.mutuals[userId] },
+        allowance
+      );
+    }
+    if (reason === 'eligible') {
       slots--;
+      if (!priority) {
+        allowance--;
+      }
     }
     items.push({
       userId,
       priority,
+      ...(quota ? { mutualCount: source.mutuals[userId] ?? null } : {}),
       relation,
       action: relation === 2 ? 'accept' : 'request',
       reason,
@@ -86,6 +108,15 @@ export const previewVkFriendPlan = async ({
     accountId: source.accountId,
     friendCount: source.count,
     settings,
+    ...(quota
+      ? {
+          quota: {
+            observed: quota.seenIds.length,
+            reserved: quota.reservations.length,
+            available: availableFriendQuota(quota),
+          },
+        }
+      : {}),
     credentialIdentity: await friendCredentialIdentity(options.token),
     items,
     status: 'review',

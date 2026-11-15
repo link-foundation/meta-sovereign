@@ -1366,3 +1366,12 @@ The shared maintenance fixture initially passed its captured clock to the separa
 friend-request service, adding a third captured timer. The focused ownership
 assertion caught this refactor error; each service now owns its distinct clock.
 The retained failing draft and corrected focused check document the correction.
+
+Active desktop friend acceptance policy (VD04):
+
+- [x] Preserve the complete pinned acceptance selector/trigger/tests and inspect current official mutual-count responses. Keep the existing fixed-batch policy independently selectable.
+- [x] Add an acknowledged desktop policy: ranked ten-percent lifetime quota below its configured threshold, mutual-only incoming requests above it, provider hard capacity, priority-first requests and priority deletion protection. Refuse incomplete evidence, reserve uncertain quota and keep fresh action guards.
+- [x] Expose saved choice and quota evidence through CLI, default Lino and shared four-language/offline controls. Reproduce the parent, run focused durable/provider/policy tests and one native/MCP review with permanent before/after evidence.
+- [ ] Archive, publish and require exact-head hosted verification. Resolve the pinned selector's unreachable above-cap branch explicitly: the requested mutual-only policy uses a configured soft threshold while VK's absolute 10,000-friend capacity remains a hard refusal. Every other unchecked requirement remains active.
+
+Desktop local verification: actual parent drops the saved mode and lacks its UI control. Forty-three Node/43 Deno focused checks pass, including late quota-acknowledgement guards and distinct durable observations. One native WebKit case records five synthetic friend actions; independent four-language MCP records eight, no messages/page exceptions and closed owned resources. Existing ranked acceptance, maintenance and online browser compatibility pass. The duplication gate caught a small increase; share the repeated owned desktop test fixture without changing the threshold or exclusions, then require the final gate and exact-head hosted workflows. All 69 unchecked inventory rows remain active.

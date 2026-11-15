@@ -5,11 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createLinoTextStore } from '../src/storage/lino-store.js';
-import {
-  createVkFriendsJob,
-  loadVkFriends,
-  saveVkFriends,
-} from '../src/automation/vk-friends.js';
+import { loadVkFriends, saveVkFriends } from '../src/automation/vk-friends.js';
 import { createVkFriendsCommands } from '../src/cli/vk-friends-commands.js';
 import { saveVkOnline } from '../src/automation/vk-online.js';
 import { runCli } from '../src/cli/index.js';
@@ -20,6 +16,7 @@ import { createWirePost } from './helpers/http-wire.mjs';
 import {
   friendsAdapter,
   friendsServer,
+  friendsJob as jobFor,
 } from '../../experiments/issue-56/vk-friends-fixture.mjs';
 
 const defaults = {
@@ -29,14 +26,6 @@ const defaults = {
   batchSize: 23,
   priorityIds: [],
 };
-const jobFor = (store, adapter, extra = {}) =>
-  createVkFriendsJob({
-    store,
-    resolve: () => ({ live: adapter.live }),
-    optionsFor: async () => ({ token: 'fixture-user-token' }),
-    sleep: async () => {},
-    ...extra,
-  });
 const apply = async (job) =>
   job.run({ planId: (await job.preview()).plan.planId, confirm: true });
 

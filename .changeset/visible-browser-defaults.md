@@ -532,3 +532,5 @@ Add a disabled personal VK acquaintance follow-up with configurable sticker and 
 Add separately enabled first-observed incoming VK attachment metadata collection, preserving native identities, acknowledged cursors and saved records through pause and restart. Share bounded literal metadata and saved settings through CLI, both Lino encodings and localized connection controls.
 
 Add an opt-in VK user online-status schedule with a configurable interval, explicit foreground refresh, durable attempt and outcome records, owned shutdown and truthful offline capability through the CLI, both Lino encodings and localized connection controls.
+
+Add separate disabled VK friend acceptance and maintenance policies with reviewed plans, priority protection, fresh provider guards, durable uncertainty and owned schedules. Preserve ranked-batch acceptance while offering a distinct desktop lifetime ten-percent allowance and mutual-only threshold through CLI, default Lino and shared four-language/offline controls.

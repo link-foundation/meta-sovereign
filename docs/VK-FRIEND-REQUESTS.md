@@ -44,7 +44,35 @@ incoming list cannot replay an acknowledged action. Provider observations do
 not retroactively claim that an uncertain action succeeded. Other targets
 remain independently eligible in later fresh plans.
 
-This fixed-batch VK policy is distinct from the desktop reference's requested
-top-ten-percent/mutual-only policy, whose separate inventory criterion remains
-unfinished. Deletion, outgoing cancellation and request rejection are separate
-required features and are not performed by these controls.
+The incoming acceptance policy defaults to Ranked batch. Its configured capacity
+continues to limit all friend actions. Selecting Desktop: lifetime top ten percent
+saves a separate policy with a mutual-only threshold instead. Below that threshold,
+nonpriority incoming requests qualify in descending mutual-friend order while
+`floor(distinct observed requesters / 10) - confirmed or reserved attempts` is
+positive. Repeated reviews, restart and changing modes do not replenish this
+account-bound allowance. At or above the configured threshold, only incoming
+requests with positive mutual-friend counts qualify; that branch does not require
+below-threshold allowance. VK's absolute 10,000-friend limit applies to both modes.
+
+Priority requests come first, spend no desktop allowance and remain protected
+by both [maintenance policies](VK-FRIEND-MAINTENANCE.md). Current mutual counts
+appear in the review. A change in mutual count or a crossing of the threshold
+requires another review. The desktop allowance is reserved durably before the
+final action guard. Definite refusals release that attempt's reservation;
+confirmed, unknown and unpersisted outcomes retain it. Observed IDs and attempts
+have a finite 100,000-entry review bound; reaching it stops automation rather
+than discarding history to create more allowance.
+
+```sh
+meta-sovereign vk-friends save --acceptance-policy=desktop-ten-percent --max-friends=9000
+meta-sovereign vk-friends plan
+meta-sovereign vk-friends run --plan=<reviewed-plan-id> --confirm=true
+meta-sovereign vk-friends save --acceptance-policy=ranked-batch
+```
+
+The pinned desktop selector returns before its above-capacity branch can run.
+The requested mutual-only behavior therefore uses an explicit soft threshold,
+with the provider limit still enforced. This interpretation is visible in the
+controls and [verification evidence](case-studies/issue-56/vk-desktop-policy.md).
+These controls send no messages and perform no friend deletion, cancellation or
+incoming rejection.

@@ -2,7 +2,13 @@ import {
   VK_FRIENDS_STATE as STATE,
   readVkFriendSettings,
   readVkFriends,
+  desktopFriendPolicy,
+  friendCapacity,
 } from './vk-friends-settings.js';
+import {
+  reserveFriendQuota,
+  releaseRefusedFriendQuota,
+} from './vk-friend-quota.js';
 import {
   equalFriendPolicy as equal,
   refuseFriendAction as refuse,
@@ -35,9 +41,23 @@ const guard = async (context, plan, item, original, reserved) => {
   }
   if (
     Math.max(state.count, plan.friendCount + reserved) >=
-    plan.settings.maxFriends
+    friendCapacity(plan.settings)
   ) {
     refuse('Friend capacity reached');
+  }
+  if (desktopFriendPolicy(plan.settings) && !item.priority) {
+    if (
+      state.count >= plan.settings.maxFriends !==
+      plan.friendCount >= plan.settings.maxFriends
+    ) {
+      refuse('Desktop friend threshold changed; review again');
+    }
+    if (
+      (await original.live.friendMutualCount(item.userId, original.options)) !==
+      item.mutualCount
+    ) {
+      refuse('Mutual friend evidence changed; review again');
+    }
   }
 };
 export const applyVkFriendPlan = async (context, plan) => {
@@ -61,14 +81,23 @@ export const applyVkFriendPlan = async (context, plan) => {
     pace: 10000,
     event: 'vk_friend_batch',
     read: readVkFriends,
-    perform: (item, reserved) =>
-      performVkFriendAction(context, plan, item, original, {
-        issue: (beforeIssue) =>
-          original.live.addFriend(item.userId, original.options, beforeIssue),
-        beforeIssue: async () => {
-          await guard(context, plan, item, original, reserved);
-          await currentPolicy(context, plan, original);
-        },
-      }),
+    perform: async (item, reserved) => {
+      const result = await performVkFriendAction(
+        context,
+        plan,
+        item,
+        original,
+        {
+          issue: (beforeIssue) =>
+            original.live.addFriend(item.userId, original.options, beforeIssue),
+          beforeIssue: async () => {
+            await reserveFriendQuota(store, plan, item);
+            await guard(context, plan, item, original, reserved);
+            await currentPolicy(context, plan, original);
+          },
+        }
+      );
+      return releaseRefusedFriendQuota(store, plan, item, result);
+    },
   });
 };

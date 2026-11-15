@@ -3,6 +3,11 @@ import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 import { Busy } from '../spinner.js';
 import { useAcknowledgedResource } from './use-acknowledged-resource.js';
+import {
+  FriendAcceptanceChoice,
+  FriendQuotaSummary,
+  friendMutualLabel,
+} from './vk-friend-choice.js';
 
 const el = React.createElement;
 const friendFields = {
@@ -17,7 +22,9 @@ const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
     setDraft((before) => ({ ...before, [key]: value }));
   const controls = Object.entries(fields).map(([key, [min, max]]) =>
     el('label', { key, className: 'col' }, [
-      t(`${prefix}.${key}`),
+      t(
+        `${prefix}.${key === 'maxFriends' && settings.acceptancePolicy === 'desktop-ten-percent' ? 'mutualOnlyAt' : key}`
+      ),
       el('input', {
         key: 'input',
         type: 'number',
@@ -41,6 +48,9 @@ const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
     return save(next);
   };
   return el('div', { className: 'col' }, [
+    name === 'friends'
+      ? el(FriendAcceptanceChoice, { key: 'policy', settings, disabled, save })
+      : null,
     ...controls,
     el('label', { key: 'priority', className: 'col' }, [
       t(`${prefix}.priorityIds`),
@@ -101,10 +111,11 @@ const FriendResults = ({ data, prefix, name }) => {
                     [`data-${name === 'friends' ? 'friend' : name}-reason`]:
                       item.reason,
                   },
-                  `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}`
+                  `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}${friendMutualLabel(t, item)}`
                 )
               )
             ),
+            el(FriendQuotaSummary, { key: 'quota', quota: plan.quota }),
           ]
         )
       : null,

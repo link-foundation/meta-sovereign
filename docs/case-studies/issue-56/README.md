@@ -502,3 +502,5 @@ Native-export publication CI: [wait for rendered source-bound consent](ci-cv-pub
 [Exact-head hosted verification for VK02–VK08](hosted-verification-2733.md) passes all five workflows and 66 jobs; seven reply criteria are complete and 71 original inventory rows remain unchecked. The later attachment collector requires its own hosted verification.
 
 VK12/VK13 friend maintenance has independently enabled saved policies and protected priorities. [Focused verification](vk-maintenance.md) passes 50 Node/48 Deno checks, both native policies, existing acceptance/online browser flows and independent four-language MCP review. These rows stay unchecked pending exact-head hosted verification. Every other unfinished requirement remains required.
+
+[Desktop acceptance policy (VD04)](vk-desktop-policy.md) adds an independently saved ten-percent lifetime allowance and mutual-only threshold while retaining the provider hard cap, priority protection and existing ranked-batch mode. Focused durable/provider/interface checks, native browser evidence and four-language MCP pass; exact-head hosted verification remains required. Every other unfinished criterion stays required.

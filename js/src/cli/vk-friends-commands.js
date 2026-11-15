@@ -19,11 +19,16 @@ const keys = {
   'max-friends': 'maxFriends',
   'batch-size': 'batchSize',
 };
-const configuration = (args, saved, flags) => {
+const configuration = (args, saved, flags, stringFlags) => {
   const settings = { ...saved, enabled: bool(args.enabled, saved.enabled) };
   for (const [flag, key] of Object.entries(flags)) {
     if (args[flag] !== undefined) {
       settings[key] = Number(args[flag]);
+    }
+  }
+  for (const [flag, key] of Object.entries(stringFlags)) {
+    if (args[flag] !== undefined) {
+      settings[key] = String(args[flag]);
     }
   }
   if (args.priority !== undefined) {
@@ -41,6 +46,7 @@ export const createVkFriendPolicyCommands = ({
   load,
   save,
   flags = keys,
+  stringFlags = {},
 }) => ({
   [name]: async (args, log) => {
     const action = args._?.[0] ?? 'status';
@@ -55,7 +61,10 @@ export const createVkFriendPolicyCommands = ({
     try {
       let answer = await load(store);
       if (action === 'save') {
-        answer = await save(store, configuration(args, answer.settings, flags));
+        answer = await save(
+          store,
+          configuration(args, answer.settings, flags, stringFlags)
+        );
       }
       if (['plan', 'run'].includes(action)) {
         job = createJob({ store });
@@ -82,5 +91,6 @@ export const createVkFriendsCommands = (options) =>
     load: loadVkFriends,
     save: saveVkFriends,
     createJob: createVkFriendsJob,
+    stringFlags: { 'acceptance-policy': 'acceptancePolicy' },
     ...options,
   });

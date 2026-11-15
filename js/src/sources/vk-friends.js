@@ -1,10 +1,39 @@
 /** Official user-token receipts: 1 sent, 2 approved, 4 resent. */
-import { positiveVkId } from '../automation/vk-friends-settings.js';
+import {
+  positiveVkId,
+  desktopFriendPolicy,
+} from '../automation/vk-friends-settings.js';
 
 const invalid = () => {
   throw new Error('Incomplete VK friend state');
 };
 export const createVkFriends = ({ call, once }) => {
+  const mutualCounts = async (ids, options) => {
+    if (!ids.length) {
+      return {};
+    }
+    const rows = await call(
+      'friends.getMutual',
+      { target_uids: ids.join(',') },
+      options.token
+    );
+    if (
+      !Array.isArray(rows) ||
+      rows.length !== ids.length ||
+      new Set(rows.map((row) => row?.id)).size !== ids.length ||
+      !ids.every((id) =>
+        rows.some(
+          (row) =>
+            row?.id === id &&
+            Number.isSafeInteger(row.common_count) &&
+            row.common_count >= 0
+        )
+      )
+    ) {
+      invalid();
+    }
+    return Object.fromEntries(rows.map((row) => [row.id, row.common_count]));
+  };
   const state = async (ids, options) => {
     const self = await call('users.get', {}, options.token);
     const friends = await call('friends.get', { count: 1 }, options.token);
@@ -50,15 +79,29 @@ export const createVkFriends = ({ call, once }) => {
         !Number.isSafeInteger(requests.count) ||
         requests.count < incoming.length ||
         incoming.length > options.batchSize ||
-        !incoming.every(positiveVkId)
+        !incoming.every(positiveVkId) ||
+        new Set(incoming).size !== incoming.length
       ) {
         invalid();
       }
       const ids = [...new Set([...options.priorityIds, ...incoming])];
       const inspected = [...new Set([...ids, ...(options.observeIds ?? [])])];
-      return { ...(await state(inspected, options)), incoming, ids };
+      const mutuals = desktopFriendPolicy(options)
+        ? await mutualCounts(incoming, options)
+        : {};
+      if (desktopFriendPolicy(options)) {
+        incoming.sort((a, b) => mutuals[b] - mutuals[a] || a - b);
+      }
+      return {
+        ...(await state(inspected, options)),
+        incoming,
+        ids: [...new Set([...options.priorityIds, ...incoming])],
+        mutuals,
+      };
     },
     friendState: (userId, options) => state([userId], options),
+    friendMutualCount: async (userId, options) =>
+      (await mutualCounts([userId], options))[userId],
     async addFriend(userId, options, beforeIssue) {
       const receipt = await once(
         'friends.add',

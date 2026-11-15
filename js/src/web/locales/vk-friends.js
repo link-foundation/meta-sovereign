@@ -1,3 +1,4 @@
+import { vkFriendPolicyLocale } from './vk-friend-policy.js';
 const keys = [
   'title',
   'hint',
@@ -165,7 +166,9 @@ const words = {
     '请求已重新发送',
   ],
 };
-export const vkFriendsLocale = (language) =>
-  Object.fromEntries(
+export const vkFriendsLocale = (language) => ({
+  ...Object.fromEntries(
     keys.map((key, i) => [`vkFriends.${key}`, words[language][i]])
-  );
+  ),
+  ...vkFriendPolicyLocale(language),
+});

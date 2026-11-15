@@ -173,7 +173,7 @@ export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,tele
   vk-online         [--enabled=true|false] [--every-minutes=1..14] [--run=true] [--store=<dir>]
   vk-cleanup        status|save|plan|run [--enabled=true|false] [--every-minutes=30] [--limit=10000] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]
   vk-outgoing       status|save|plan|run [--enabled=true|false] [--every-minutes=8] [--limit=20] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]
-  vk-friends        status|save|plan|run [--enabled=true|false] [--every-minutes=20] [--max-friends=10000] [--batch-size=23] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]
+  vk-friends        status|save|plan|run [--acceptance-policy=ranked-batch|desktop-ten-percent] [--enabled=true|false] [--every-minutes=20] [--max-friends=10000] [--batch-size=23] [--priority=ID,ID] [--plan=<id> --confirm=true] [--store=<dir>]
   greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
   greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
 
