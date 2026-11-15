@@ -1,7 +1,7 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { guardedSend } from './outbox.js';
 import { recordOutcome } from './record-outcome.js';
-import { safeMessage } from '../server/redact.js';
+import { vkEffectError } from './vk-effect-error.js';
 import { refuseFriendAction } from './vk-friends-records.js';
 import { reengageLedgerId } from './vk-reengage-settings.js';
 import {
@@ -122,10 +122,7 @@ const failure = async (state, error) => {
       : completedSteps(state.item.steps).length
         ? 'partial'
         : 'refused';
-  const message = safeMessage(error)
-    .split(state.original.options.token)
-    .join('<redacted>')
-    .slice(0, 300);
+  const message = vkEffectError(error, state.original.options.token);
   try {
     await persist(state, { status, error: message });
   } catch {

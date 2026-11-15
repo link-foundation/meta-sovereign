@@ -4,6 +4,7 @@ import { createVkCancelled } from './vk-cancelled.js';
 import { createVkGreet } from './vk-greet.js';
 import { createVkReengage } from './vk-reengage.js';
 import { createVkWall } from './vk-wall.js';
+import { createVkRetention } from './vk-retention.js';
 export const createVkRelationships = (requests) => {
   const maintenance = createVkMaintenance(requests);
   const conversations = createVkCancelled({ ...requests, maintenance });
@@ -22,5 +23,6 @@ export const createVkRelationships = (requests) => {
       }),
     ...createVkReengage({ ...requests, greetings }),
     ...createVkWall(requests),
+    ...createVkRetention(requests),
   };
 };

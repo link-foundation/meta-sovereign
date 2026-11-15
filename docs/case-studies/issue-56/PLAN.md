@@ -1457,3 +1457,17 @@ Published `05bcbddd` Checks `43705703714` failed one contextual assertion at ful
 VK20's broader friend invitation requirement remains required and open. Birthday work does not accept unrelated scope. All issue-wide unchecked criteria remain active.
 
 Birthday final local verification: eighteen new cases and sixteen existing ordered/interface checks pass in both Node and Deno. Fourteen separate wall lifecycle, CLI admission and browser partition checks pass. Native WebKit and four-language mandatory MCP retain the same-date positive receipts, partial remaining-only recovery, no page exceptions, twelve PNGs and closed owned fixtures. Strict scoped lint/format/secrets and the unchanged duplication gate pass. Preserve the checked archive, publish atomically and inspect exact-head hosted workflows; all unchecked original criteria remain active.
+
+### Active VK history retention (VK22)
+
+- [x] Read the complete pinned retention trigger and message cache; inspect current official conversation and per-message deletion schemas. The reference clears cache after partial errors; preserve confirmed outcomes instead.
+- [x] Draft an independent disabled policy with configured peer IDs, strict threshold, bounded complete review, current account/credential/consent guards and explicit review. Use the current conversation method; permit bounded per-message fallback only after a definitive unsupported-method response, never ambiguous delivery.
+- [x] Preserve durable per-batch receipts and remaining-only manual recovery; clear only reviewed local canonical messages through recoverable acknowledged tombstones, without physical purge or false success.
+- [x] Expose foreground CLI, default text/binary Lino, offline settings and shared four-language controls. Add minimal actual-parent regressions, focused provider/durable/changed-input/lifecycle checks and native/MCP before/after evidence.
+- [ ] Archive checked evidence, commit/push atomically, inspect exact-head hosted workflows and complete all other original unchecked requirements. PR57 remains draft and unmerged.
+
+Birthday commit `3ea98ecc` is published with its checked archive. Its exact-head
+hosted matrix remains pending; no product inventory row is accepted from local
+verification alone. All 66 unchecked inventory rows retain their full scope.
+
+VK22 final local review binds prior receipt and eligibility to prevent edited reviews from replacing uncertainty or bypassing a zero limit. Eighteen new feature checks and fourteen compatibility checks pass on Node; Deno passes 31 with one existing runtime-specific skip. Native WebKit exercises 103-message partial recovery; independent four-language MCP confirms account-only deletion and recoverable local records. Exact-head hosted acceptance and every other unchecked original criterion remain required.

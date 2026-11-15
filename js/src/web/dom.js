@@ -49,6 +49,7 @@ import { createVkGreetApi } from './vk-greet-api.js';
 import { createVkReengageApi } from './vk-reengage-api.js';
 import { createVkWallApi } from './vk-wall-api.js';
 import { createVkBirthdayApi } from './vk-birthday-api.js';
+import { createVkRetentionApi } from './vk-retention-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
@@ -575,6 +576,10 @@ const rawApi = {
   ...createVkGreetApi({ ...remote, local: async () => (await ensure()).store }),
   ...createVkWallApi({ ...remote, local: async () => (await ensure()).store }),
   ...createVkBirthdayApi({
+    ...remote,
+    local: async () => (await ensure()).store,
+  }),
+  ...createVkRetentionApi({
     ...remote,
     local: async () => (await ensure()).store,
   }),

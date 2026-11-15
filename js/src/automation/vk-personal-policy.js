@@ -6,15 +6,14 @@ import {
 } from './vk-friends-records.js';
 import { protectedVkFriends } from './vk-maintenance-settings.js';
 import { loadSettings, optOutEntry, quietMsLeft } from './safety.js';
+import { requireVkReviewLifetime } from './vk-review-lifetime.js';
 
 const currentLifetime = (context, plan, item) => {
-  if (
-    context.isStopped() ||
-    context.now() < plan.createdAt ||
-    context.now() - plan.createdAt > 300000
-  ) {
-    refuseFriendAction('VK messaging review stopped or expired');
-  }
+  requireVkReviewLifetime(
+    context,
+    plan,
+    'VK messaging review stopped or expired'
+  );
   if (
     context.policy.cycle &&
     item.cycle !== context.policy.cycle(plan.settings, context.now())

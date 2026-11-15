@@ -126,6 +126,8 @@ import { createVkWallJob } from '../automation/vk-wall.js';
 import { handleVkWall } from './routes-vk-wall.js';
 import { createVkBirthdayJob } from '../automation/vk-birthday.js';
 import { handleVkBirthday } from './routes-vk-birthday.js';
+import { createVkRetentionJob } from '../automation/vk-retention.js';
+import { handleVkRetention } from './routes-vk-retention.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -399,23 +401,17 @@ const automationContext = (
     log: say,
   });
   const autopilot = createAutopilot({ store, runner, log: say });
-  const vkOnline = createVkOnlineJob({
-    store,
-    ...automations.vkOnline,
-    log: say,
-  });
-  const vkFriends = createVkFriendsJob({
-    store,
-    ...automations.vkFriends,
-    log: say,
-  });
+  const providerJob = (create, options) =>
+    create({ store, ...options, log: say });
+  const vkOnline = providerJob(createVkOnlineJob, automations.vkOnline);
+  const vkFriends = providerJob(createVkFriendsJob, automations.vkFriends);
   const vkGreet = createVkGreetJob({ store, ...automations.vkGreet, log: say });
   const vkWall = createVkWallJob({ store, ...automations.vkWall, log: say });
-  const vkBirthday = createVkBirthdayJob({
-    store,
-    ...automations.vkBirthday,
-    log: say,
-  });
+  const vkBirthday = providerJob(createVkBirthdayJob, automations.vkBirthday);
+  const vkRetention = providerJob(
+    createVkRetentionJob,
+    automations.vkRetention
+  );
   const vkReengage = vkPolicyJobs(
     store,
     reengageKinds,
@@ -423,11 +419,10 @@ const automationContext = (
     automations.vkReengage,
     say
   );
-  const vkCancelled = createVkCancelledJob({
-    store,
-    ...automations.vkCancelled,
-    log: say,
-  });
+  const vkCancelled = providerJob(
+    createVkCancelledJob,
+    automations.vkCancelled
+  );
   const vkMaintenance = vkPolicyJobs(
     store,
     maintenanceKinds,
@@ -442,6 +437,7 @@ const automationContext = (
     vkGreet,
     vkWall,
     vkBirthday,
+    vkRetention,
     ...Object.values(vkReengage),
     ...Object.values(vkMaintenance),
   ];
@@ -492,6 +488,7 @@ const automationContext = (
     vkReengage,
     vkWall,
     vkBirthday,
+    vkRetention,
     vkMaintenance,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
@@ -747,6 +744,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkReengage(store, req, res, p, url, ctx),
     () => handleVkWall(store, req, res, p, url, ctx),
     () => handleVkBirthday(store, req, res, p, url, ctx),
+    () => handleVkRetention(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

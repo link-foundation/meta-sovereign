@@ -1,5 +1,5 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
-import { safeMessage } from '../server/redact.js';
+import { vkEffectError } from './vk-effect-error.js';
 import { equalFriendPolicy, refuseFriendAction } from './vk-friends-records.js';
 import { positiveVkId } from './vk-friends-settings.js';
 import { evidenceHash } from './vk-reengage-evidence.js';
@@ -123,10 +123,7 @@ const failed = async (state, error) => {
     : state.item.postId
       ? 'partial'
       : 'refused';
-  const message = safeMessage(error)
-    .split(state.original.options.token)
-    .join('<redacted>')
-    .slice(0, 300);
+  const message = vkEffectError(error, state.original.options.token);
   try {
     await checkJournal(state);
     await retainWallBackoff(state, error);

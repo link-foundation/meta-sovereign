@@ -1,6 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { writeVkConnectionInspection } from './vk-connection-mcp.mjs';
-const check = async (page, { panel, ready }) => {
+const check = async (page, { panel, ready, action }) => {
   for (const [key, value] of [
     ['timeZone', 'UTC'],
     ['messages', 'Happy birthday!'],
@@ -9,10 +9,6 @@ const check = async (page, { panel, ready }) => {
   ]) {
     await panel.locator(`[data-birthday-field=${key}]`).fill(value);
   }
-  const action = async (name) => {
-    await panel.locator(`[data-action=vk-birthday-${name}]`).click();
-    await ready();
-  };
   await action('save');
   await action('plan');
   if (!(await panel.locator('[data-birthday-reason=cooldown]').count())) {

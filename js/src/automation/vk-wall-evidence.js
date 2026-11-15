@@ -3,12 +3,15 @@ import { evidenceHash } from './vk-reengage-evidence.js';
 import { loadSettings, optOutEntry, quietMsLeft } from './safety.js';
 import { wallPolicy, wallLedgerId } from './vk-wall-settings.js';
 import { wallPauseReason } from './vk-wall-backoff.js';
+import { requireVkReviewLifetime } from './vk-review-lifetime.js';
 
 export const wallCurrent = async (context, plan, item, original) => {
+  requireVkReviewLifetime(
+    context,
+    plan,
+    'VK wall review stopped, expired or changed'
+  );
   if (
-    context.isStopped() ||
-    context.now() < plan.createdAt ||
-    context.now() - plan.createdAt > 300000 ||
     !equalFriendPolicy(
       await wallPolicy.settings(context.store),
       plan.settings

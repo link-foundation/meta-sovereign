@@ -25,7 +25,7 @@ export const serveQuestionLinkFixture = (fixture) => {
   let closing;
   const close = () =>
     (closing ??= (async () => {
-      const stats = fixture.stats();
+      const stats = await fixture.stats();
       await fixture.close();
       console.log(JSON.stringify({ ...stats, resourcesClosed: true }));
     })());

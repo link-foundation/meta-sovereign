@@ -47,6 +47,10 @@ const inspectConnections = async (page, fixture, check) => {
       words,
       ready,
       feature: fixture.feature,
+      action: async (name) => {
+        await panel.locator(`[data-action=${fixture.feature}-${name}]`).click();
+        await ready();
+      },
     });
     await page.setViewportSize({ width: 390, height: 844 });
     await panel.locator(focus).scrollIntoViewIfNeeded();
