@@ -5,7 +5,8 @@ import { mkdtempSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, clipboard } from 'electron';
+import { verifyNativeDesktopClipboard } from './desktop-clipboard-electron.mjs';
 import { openVkAuthorization } from '../../js/electron/vk-authorization.js';
 import { VK_DESKTOP_AUTHORIZE_URL } from '../../js/src/sources/vk-token-input.js';
 
@@ -62,6 +63,11 @@ const run = async () => {
     assert.equal(child.isDestroyed(), true);
     assert.deepEqual(await session.cookies.get({}), []);
     assert.deepEqual(requests, [VK_DESKTOP_AUTHORIZE_URL]);
+    const copied = await verifyNativeDesktopClipboard({
+      BrowserWindow,
+      ipcMain,
+      clipboard,
+    });
     console.log(
       JSON.stringify({
         nativeElectron: true,
@@ -69,6 +75,7 @@ const run = async () => {
         protectedPreferences: true,
         ephemeralSessionCleared: true,
         liveProvider: false,
+        ...copied,
       })
     );
   } catch (error) {

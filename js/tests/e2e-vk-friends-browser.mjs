@@ -14,6 +14,7 @@ import { verifyVkDiscovery } from './helpers/e2e-vk-discovery.mjs';
 import { verifyVkCache } from './helpers/e2e-vk-cache.mjs';
 import { verifyVkStickers } from './helpers/e2e-vk-stickers.mjs';
 import { verifyDiagnostics } from './helpers/e2e-diagnostics.mjs';
+import { verifyDesktopClipboard } from './helpers/e2e-desktop-clipboard.mjs';
 import { verifyRunnerLog } from './helpers/e2e-runner-log.mjs';
 import { verifyVkSendQueue } from './helpers/e2e-vk-send-queue.mjs';
 await runBrowserScenarios('vk-friends', [
@@ -33,5 +34,6 @@ await runBrowserScenarios('vk-friends', [
   verifyVkStickers,
   verifyVkSendQueue,
   verifyDiagnostics,
+  verifyDesktopClipboard,
   verifyRunnerLog,
 ]);

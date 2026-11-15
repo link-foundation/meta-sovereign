@@ -16,6 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attachDesktopLifecycle } from './lifecycle.js';
 import { openVkAuthorization } from './vk-authorization.js';
+import { attachClipboard } from './clipboard.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const preload = path.join(here, 'preload.cjs');
@@ -131,6 +132,8 @@ export const createMainWindow = async ({
   BrowserWindow,
   port,
   nativeTheme,
+  ipcMain,
+  clipboard,
 }) => {
   const win = new BrowserWindow({
     width: 1280,
@@ -148,9 +151,20 @@ export const createMainWindow = async ({
     },
   });
   win.once('ready-to-show', () => win.show());
+  let releaseClipboard = () => {};
   try {
+    releaseClipboard = attachClipboard({
+      ipcMain,
+      clipboard,
+      contents: win.webContents,
+      origin: `http://127.0.0.1:${port}`,
+    });
+    if (ipcMain && clipboard) {
+      win.once('closed', releaseClipboard);
+    }
     await win.loadURL(`http://127.0.0.1:${port}/`);
   } catch (error) {
+    releaseClipboard();
     win.destroy();
     throw error;
   }
@@ -170,8 +184,11 @@ export const startDesktop = async ({
   serverLoader = () => import('../src/server/index.js'),
   updaterLoader = loadAutoUpdater,
 } = {}) => {
-  const [{ app, BrowserWindow, nativeTheme }, { startServer }, autoUpdater] =
-    await Promise.all([electronLoader(), serverLoader(), updaterLoader()]);
+  const [
+    { app, BrowserWindow, nativeTheme, ipcMain, clipboard },
+    { startServer },
+    autoUpdater,
+  ] = await Promise.all([electronLoader(), serverLoader(), updaterLoader()]);
   let mainWindow;
   const handle = await startServer({
     port: 0,
@@ -203,6 +220,8 @@ export const startDesktop = async ({
         mainWindow = await createMainWindow({
           BrowserWindow,
           nativeTheme,
+          ipcMain,
+          clipboard,
           port: handle.port,
         });
         return mainWindow;

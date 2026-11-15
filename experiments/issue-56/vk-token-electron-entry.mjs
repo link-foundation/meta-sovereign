@@ -42,6 +42,8 @@ export const app = {
   whenReady() { return globalThis.__vkEntryFixture.ready(); },
   exit(code) { globalThis.__vkEntryFixture.finish(code); }
 };
+export const ipcMain = {};
+export const clipboard = {};
 export class BrowserWindow {
   constructor() {
     throw Object.assign(new Error('finite entry fixture'), {code:'ENTRY_FIXTURE_REACHED'});

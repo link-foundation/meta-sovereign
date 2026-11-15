@@ -13,6 +13,10 @@ until every criterion has implementation and verification evidence.
 - [ ] Audit automatic local dependency preparation, independent policies,
       single-window controls, theme/language, layered configuration, live redacted
       logs and all five artifact/install paths against VD01–VD09.
+      The [desktop clipboard bridge](desktop-clipboard.md) now checks the owned
+      main frame and origin, requires a successful native receipt and shows
+      refusal. Browser fallback remains available without a desktop bridge.
+      Hosted native clipboard verification remains pending on this change.
 - [ ] Implement remaining local/remote lifecycle and configuration gaps through
       shared CLI, Lino API and UI controls. Preserve stopped defaults and refuse a
       mode switch when the other process cannot be confirmed stopped.

@@ -584,3 +584,5 @@ Retain a private redacted file for each owned server session, including startup 
 Add owned VK user-token acquisition with exact standalone redirects, an isolated desktop window, read-only validation and acknowledged protected saving. Share cancellable CLI, both Lino encodings and four-language Connections controls without credential echoes or mutation replay.
 
 Use the actual lino-arguments parser across CLI consumers, preserving existing option value conventions while honoring the end-of-options marker and refusing reserved option keys without credential echoes.
+
+Copy visible redacted logs through an owned write-only desktop clipboard bridge, require native acknowledgement and preserve translated refusal recovery and browser copying outside the desktop bridge.

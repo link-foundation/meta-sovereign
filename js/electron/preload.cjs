@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 const splitCandidates = (value) => {
   if (!value) {
@@ -17,4 +17,6 @@ const discoveryCandidates = splitCandidates(
 contextBridge.exposeInMainWorld('metaSovereignShell', {
   platform: 'electron',
   discoveryCandidates,
+  copyText: (text) =>
+    ipcRenderer.invoke('meta-sovereign:clipboard-write', text),
 });

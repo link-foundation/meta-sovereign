@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { followDiagnosticLogs } from './diagnostic-log-feed.js';
 import { DiagnosticConfiguration } from './diagnostic-configuration.js';
+import { writeClipboardText } from './clipboard-write.js';
 
 const el = React.createElement;
 const LiveLogs = ({ api }) => {
@@ -24,10 +25,7 @@ const LiveLogs = ({ api }) => {
   const text = data?.items.map((item) => item.text).join('\n') ?? '';
   const copy = async () => {
     try {
-      if (!globalThis.navigator?.clipboard?.writeText) {
-        throw new Error('clipboard unavailable');
-      }
-      await globalThis.navigator.clipboard.writeText(text);
+      await writeClipboardText(text);
       setCopied('copied');
     } catch {
       setCopied('copyFailed');
