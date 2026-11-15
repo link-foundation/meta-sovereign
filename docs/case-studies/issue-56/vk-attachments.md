@@ -76,7 +76,8 @@ claimed.
 [Checked source/log archive](data/vk-attachments.tar.gz) and
 [SHA-256 manifest](data/vk-attachments.tar.sha256.json) preserve production
 and exact-parent sources, pinned reference bytes, focused/native/MCP logs
-and screenshot hashes. Exact-head hosted checks remain required before
-checking VK09. Every original unmet criterion remains required, and
+and screenshot hashes. All five exact-head workflows and 66 jobs now pass
+on `9e934842`; the [hosted receipt](hosted-verification-9e93.md) verifies VK09.
+Every original unmet criterion remains required, and
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57) stays
 draft and unmerged.
