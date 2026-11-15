@@ -205,7 +205,7 @@ test('export writes oldest-first linked Markdown/native JSON with reply evidence
   );
   assert.deepEqual(originals.at(-1).raw, f.history[0]);
   assert.ok(markdown.includes('> Original'));
-  assert.ok(markdown.includes('https://vk.com/id42'));
+  assert.match(markdown, /\]\(https:\/\/vk\.com\/id42\)/u);
   assert.ok(markdown.includes('[Structured data]'));
   assert.equal(f.calls.length, before);
   await assert.rejects(
