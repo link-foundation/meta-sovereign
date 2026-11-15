@@ -5,6 +5,7 @@ import { clearInterval, setInterval } from 'node:timers';
 import { createStoreQueue } from '../storage/serialized.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { triggerReceipt } from './trigger-state.js';
+import { traceTrigger } from './trigger-log.js';
 import {
   AUTOMATION_PREFIX,
   STATE_PREFIX,
@@ -91,7 +92,7 @@ export const createAutomationScheduler = ({
         }
         ran.push(
           await safely(
-            (async () => {
+            traceTrigger(log, `schedule:${automation.id}`, async () => {
               const result = await runner.run(automation, {
                 trigger: 'schedule',
               });
@@ -103,7 +104,7 @@ export const createAutomationScheduler = ({
                 lastTrigger: 'schedule',
               });
               return result;
-            })()
+            })
           )
         );
       }
@@ -137,10 +138,12 @@ export const createAutomationScheduler = ({
                 automation,
                 message,
                 () =>
-                  runner.run(automation, {
-                    trigger: 'incoming',
-                    targets: [{ source: message.source, chat: message.chat }],
-                  }),
+                  traceTrigger(log, `incoming:${automation.id}`, () =>
+                    runner.run(automation, {
+                      trigger: 'incoming',
+                      targets: [{ source: message.source, chat: message.chat }],
+                    })
+                  ),
                 clock().toISOString()
               )
             )

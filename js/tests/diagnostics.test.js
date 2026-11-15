@@ -213,10 +213,12 @@ test(
     try {
       assert.equal((await post('set', { passcode: 'fixture' })).status, 200);
       assert.equal((await post('lock', {})).status, 200);
-      assert.equal(
-        (await fetch(`${fixture.base}/api/diagnostics/logs`)).status,
-        423
-      );
+      for (const endpoint of ['logs', 'settings', 'session']) {
+        assert.equal(
+          (await fetch(`${fixture.base}/api/diagnostics/${endpoint}`)).status,
+          423
+        );
+      }
     } finally {
       await fixture.close();
     }

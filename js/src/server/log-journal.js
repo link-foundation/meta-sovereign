@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { formatServerLogLine } from './log.js';
+import { logField } from './log-value.js';
 
 /** Per-server bounded redacted tail; no timer, disk scan or durable secret copy. */
 export const createLogJournal = ({
@@ -8,16 +9,26 @@ export const createLogJournal = ({
   maxBytes = 256 * 1024,
 } = {}) => {
   const session = randomUUID();
+  let verbose = true;
   let sequence = 0;
   let bytes = 0;
   const items = [];
   return {
+    isVerbose: () => verbose,
+    setVerbose: (value) => {
+      verbose = value;
+    },
     log(entry) {
+      if (logField(entry, 'level') === 'debug' && !verbose) {
+        return;
+      }
       try {
         // Diagnostics reads do not generate their own endless polling traffic.
+        const path = logField(entry, 'path');
         if (
-          entry.event === 'http' &&
-          entry.path?.startsWith('/api/diagnostics/logs')
+          logField(entry, 'event') === 'http' &&
+          typeof path === 'string' &&
+          path.startsWith('/api/diagnostics/logs')
         ) {
           return;
         }

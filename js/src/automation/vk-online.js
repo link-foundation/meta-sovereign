@@ -2,6 +2,7 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { getSource, liveOptionsFrom } from '../sources/index.js';
 import { safeMessage } from '../server/redact.js';
+import { traceTrigger } from './trigger-log.js';
 import {
   VK_ONLINE_STATE as STATE,
   serializeVkOnline as enqueue,
@@ -104,7 +105,7 @@ export const createVkOnlineJob = ({
       }
       timer = setInterval(
         () =>
-          run({ scheduled: true }).catch(() =>
+          traceTrigger(log, STATE, () => run({ scheduled: true })).catch(() =>
             log({ event: 'vk_online_storage_failed' })
           ),
         60000

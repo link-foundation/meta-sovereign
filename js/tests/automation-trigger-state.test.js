@@ -34,7 +34,11 @@ const fixture = async (t, { store = createMemoryStore(), run } = {}) => {
   const scheduler = createAutomationScheduler({
     store,
     clock,
-    log: (row) => errors.push(row),
+    log: (row) => {
+      if (row.event === 'automation_failed') {
+        errors.push(row);
+      }
+    },
     runner: {
       run: async (...args) => {
         calls.push(args);

@@ -8,6 +8,7 @@ import { refuseFriendAction as refuse } from './vk-friends-records.js';
 import { friendProvider, previewVkFriendPlan } from './vk-friends-planner.js';
 import { applyVkFriendPlan } from './vk-friends-executor.js';
 import { createVkFriendPriority } from './vk-friend-priority.js';
+import { traceTrigger } from './trigger-log.js';
 import {
   VK_FRIENDS_STATE as STATE,
   VK_FRIENDS_PLAN as PLAN,
@@ -138,8 +139,9 @@ export const createVkFriendsJob = ({
       }
       timer = setInterval(
         () =>
-          run({ scheduled: true }).catch(() =>
-            log({ event: profile.failureEvent ?? 'vk_friend_batch_failed' })
+          traceTrigger(log, stateKey, () => run({ scheduled: true })).catch(
+            () =>
+              log({ event: profile.failureEvent ?? 'vk_friend_batch_failed' })
           ),
         60000
       );

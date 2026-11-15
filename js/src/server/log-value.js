@@ -5,6 +5,15 @@ const SECRET =
   /^(?:(?:access|refresh|id|auth)?token|password|passwd|passphrase|pass|pwd|secret|clientsecret|apikey|auth|authorization|proxyauthorization|privatekey|secretkey|cookie|cookies|setcookie|session|sessionid|stringsession|sessionstring|codeverifier|csrf|signature|credentials?)$|(?:token|password|passphrase|secret|apikey|privatekey|secretkey|stringsession|sessionstring|codeverifier)$/i;
 const MASK = '<redacted>';
 
+/** Inspect routing metadata without evaluating accessor-backed log fields. */
+export const logField = (entry, key) => {
+  try {
+    return Object.getOwnPropertyDescriptor(entry, key)?.value;
+  } catch {
+    return undefined;
+  }
+};
+
 /** Bound traversal before formatting; never invoke user-supplied toJSON. */
 export const redactLogValue = (value) => {
   let remaining = 500;

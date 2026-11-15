@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { followDiagnosticLogs } from './diagnostic-log-feed.js';
+import { DiagnosticConfiguration } from './diagnostic-configuration.js';
 
 const el = React.createElement;
 const LiveLogs = ({ api }) => {
@@ -86,6 +87,9 @@ export const DiagnosticSettings = ({ api }) => {
           { key: 'summary', 'data-action': 'diagnostics-open' },
           t('diagnostics.show')
         ),
+        open && api.diagnosticSettings
+          ? el(DiagnosticConfiguration, { key: 'configuration', api })
+          : null,
         open ? el(LiveLogs, { key: 'live', api }) : null,
       ]
     ),

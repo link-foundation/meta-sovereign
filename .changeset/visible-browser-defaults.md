@@ -578,3 +578,5 @@ Provide ten original invitation defaults alongside the ten birthday defaults, pr
 Inspect error fields before materializing native stacks so diagnostic formatting never invokes name/message accessors or custom stack formatters. Preserve useful ordinary errors and redact short credential fields at the start of shared messages.
 
 Retain acknowledged accepted-friend history across later relationship changes, with initial and UTC period counts, private scoped Lino statistics files and a translated shared summary that preserves counts through failed reads.
+
+Retain a private redacted file for each owned server session, including startup and shutdown failures. Share default-on verbose trigger timing and acknowledged preferences through CLI, both Lino encodings and translated Settings, with a finite full-session download.

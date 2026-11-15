@@ -241,7 +241,7 @@ const NO_ANSWER = Object.freeze({
 const serverResponse = async (
   path,
   init,
-  { network = false, read = false, recover = true } = {}
+  { network = false, read = false, recover = true, body = 'json' } = {}
 ) => {
   const { origin, requests } = await ensure();
   if (!origin) {
@@ -261,6 +261,7 @@ const serverResponse = async (
       // Mixed read/write endpoints opt in only for their read-only variant.
       retry: recover && (read || isReadRequest(path, init?.method)),
       json: true,
+      body,
     })
     .then(announceLocked)
     .catch(() => (network ? NO_ANSWER : null));
@@ -539,6 +540,32 @@ const automationCall =
   };
 
 const rawApi = {
+  diagnosticSettings: (signal) =>
+    serverFetch('/api/diagnostics/settings', { signal }, { recover: false }),
+  saveDiagnosticSettings: async (input, signal) => {
+    const response = await serverResponse(
+      '/api/diagnostics/settings',
+      {
+        method: 'POST',
+        signal,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      },
+      { network: true, recover: false }
+    );
+    return response?.json();
+  },
+  diagnosticSession: async (signal) => {
+    const response = await serverResponse(
+      '/api/diagnostics/session',
+      { signal },
+      { recover: false, body: 'blob' }
+    );
+    if (!response?.ok) {
+      throw new Error('session log unavailable');
+    }
+    return response.blob();
+  },
   diagnosticLogs: async ({ cursor = 0, session = null } = {}, signal) =>
     (await serverFetch(
       `/api/diagnostics/logs?after=${cursor}${session ? `&session=${encodeURIComponent(session)}` : ''}`,

@@ -1,6 +1,50 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { LINO_TEXT, readWireResponse } from '../transport/lino.js';
+import { LINO_TEXT, readWireResponse, encodeWire } from '../transport/lino.js';
 import { isDiagnosticBatch } from '../transport/diagnostic-batch.js';
+import { isDiagnosticSettings } from '../transport/diagnostic-settings.js';
+import { verboseFlag } from '../server/log-settings.js';
+
+const readSettingsCommand = async (args, log, fetchImpl) => {
+  const url = endpointFor(args.url);
+  url.pathname = '/api/diagnostics/settings';
+  const verbose = verboseFlag(args.verbose);
+  const response = await fetchImpl(
+    url,
+    verbose === undefined
+      ? {
+          headers: { accept: LINO_TEXT },
+        }
+      : {
+          method: 'POST',
+          headers: { accept: LINO_TEXT, 'content-type': LINO_TEXT },
+          body: encodeWire({ verbose }, LINO_TEXT),
+        }
+  );
+  const answer = await readWireResponse(response);
+  if (
+    !response.ok ||
+    !isDiagnosticSettings(answer) ||
+    (verbose !== undefined && answer.verbose !== verbose)
+  ) {
+    log(
+      'Diagnostic settings were not confirmed. Read settings again before retrying.'
+    );
+    return 1;
+  }
+  log(encodeWire(answer, LINO_TEXT));
+  return 0;
+};
+
+const settingsCommand = async (args, log, fetchImpl) => {
+  try {
+    return await readSettingsCommand(args, log, fetchImpl);
+  } catch {
+    log(
+      'Diagnostic settings unavailable; check the address and verbose option, then read settings again.'
+    );
+    return 1;
+  }
+};
 
 const endpointFor = (value) => {
   const url = new URL(value ?? 'http://127.0.0.1:8787');
@@ -51,7 +95,7 @@ const validateArgs = (args) => {
   return cursor;
 };
 
-export const createDiagnosticCommands = ({
+const createLogCommands = ({
   fetchImpl = fetch,
   signals = process,
   wait = delay,
@@ -116,3 +160,13 @@ export const createDiagnosticCommands = ({
     }
   },
 });
+
+export const createDiagnosticCommands = (options = {}) => {
+  const logs = createLogCommands(options);
+  return {
+    diagnostics: (args, log) =>
+      args._?.join(' ') === 'settings'
+        ? settingsCommand(args, log, options.fetchImpl ?? fetch)
+        : logs.diagnostics(args, log),
+  };
+};

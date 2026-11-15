@@ -167,6 +167,8 @@ import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createLogJournal } from './log-journal.js';
+import { withLoggedSession } from './log-session.js';
+import { createLogSettings } from './log-settings.js';
 import { handleDiagnostics } from './routes-diagnostics.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { listenLocal } from './local-tls.js';
@@ -1091,7 +1093,19 @@ const modelContext = (
   };
 };
 
-export const startServer = async ({
+export const startServer = (options = {}) =>
+  withLoggedSession(options, startServerRuntime);
+
+const initLogSettings = async (options, releaseStore) => {
+  try {
+    return await createLogSettings(options);
+  } catch (error) {
+    await releaseStore().catch(() => {});
+    throw error;
+  }
+};
+
+const startServerRuntime = async ({
   port = 0,
   storeDir = defaultStoreDir(),
   archiveDir,
@@ -1099,6 +1113,8 @@ export const startServer = async ({
   enableHandlers = true,
   enableSync = true,
   log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
+  verbose,
+  diagnosticsSession,
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
@@ -1155,6 +1171,10 @@ export const startServer = async ({
       secretPassphrase,
       log,
     });
+  const diagnostics = await initLogSettings(
+    { store, journal: logJournal, session: diagnosticsSession, verbose },
+    releaseStore
+  );
   // Services that run in the background start only after the port is ours.
   const later = [];
   automations = withStoreProfiles(automations, storeDir, front, providedStore);
@@ -1197,6 +1217,8 @@ export const startServer = async ({
     log,
     clientLog: createClientLogRoute(),
     logJournal,
+    diagnostics,
+    diagnosticsSession,
     learned: createLearnedRoute(),
     githubCheck: githubCheckOf(store, log, githubCheck),
     autoImport: null,

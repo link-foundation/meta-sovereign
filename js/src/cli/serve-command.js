@@ -13,6 +13,7 @@ import {
 
 // What `serve` passes to the server besides its port, store and log.
 const serveOptions = (args) => ({
+  ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
   backups: {
     ...(args['backup-interval-hours'] !== undefined
       ? { intervalHours: Number(args['backup-interval-hours']) }

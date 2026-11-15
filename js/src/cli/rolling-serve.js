@@ -6,6 +6,7 @@ import {
 import { startRollingServer } from '../server/rolling-host.js';
 
 const changesFrom = (args) => ({
+  ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
   ...(args['allow-origin'] !== undefined
     ? { allowOrigins: args['allow-origin'] }
     : {}),
