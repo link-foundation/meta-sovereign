@@ -1,0 +1,27 @@
+{
+  "archive": "ci-digest-deno.tar.gz",
+  "files": {
+    "js/tests/rolling-release-digest.test.js": "2f13fd74651ecc07511d56d453e8b1ae0015c08ceaa27a05a2831ea20bff0e31",
+    "js/src/server/rolling-release.js": "aefbe66ef463a6d8c1f96c4dbbea9cd87a79031b7798fd83e7d803399e1e4067",
+    "js/tests/helpers/rolling-release-fixture.mjs": "f057098add6914a7cf31e29513fb58a1b7d74c2a64b40bfd852ef6aa40e31047",
+    "experiments/issue-56/digest-deno-read-trace.mjs": "6a7d339c2cb80cd498b093fde851af094b2f47fa2bb4eecfca5d1538c9486367",
+    "experiments/issue-56/collect-ci-digest-deno.py": "cea93846f4867b42e6641ba80debe859c8cee9e8fc8821e9d7f6620385fdfb14",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-digest-deno.md": "185909b3863cdedde19d92164a562d227f30904538cd3719978bb60bdfb37203",
+    "ci-logs/runner-latest-runs.json": "3e2f0239e47a4802657df409cbbcecfbdb632d8ad2994df781f6cab715c94cb1",
+    "ci-logs/runner-b30-main-jobs.json": "8218063f7bc7501389f9a21a22f4ba8f57bfe543067f665c2e344d5c093e0956",
+    "ci-logs/digest-deno-after.log": "dc89931ea1192c46ff43960ddd9151eafbdc49ecda6b85bcba6aa6be4325f8b3",
+    "ci-logs/digest-deno-before.log": "38db710cd253e3fb8be37d8a90ee767919665423cccb70ccbe653e0f0272129e",
+    "ci-logs/digest-deno-read-trace.log": "9c79d13160c065eed011881d7c30700bb0a34ce046eaeb7dcb9dfc1092ab57cf",
+    "ci-logs/digest-deno-single-before.log": "169c55e20acab715237647b6fc95b2036974c29c8eeadf057efa1500161990b9",
+    "ci-logs/digest-doc-format.log": "c3b42518df5ee06ead715d5512aa78dc835e7fac6aef063fdeeb49d78140c690",
+    "ci-logs/digest-format.log": "0d3d23d64ececad5433887771dd78f30f89ab479fd09be34efa8be26bca1e0d7",
+    "ci-logs/digest-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/digest-node-after.log": "54f5ce9b991aed23e725d09ef97ae16d0136165513fc134a25ad755c499ee219",
+    "ci-logs/b30-deno-macos-shard2.log": "602e04408265f8e7623687fe30475582c2fcea851d3269ba12da0ab2ff7b1fb3",
+    "ci-logs/b30-deno-linux-shard2.log": "bbeab2f644ce595c91b02f9b6a1037f623019b84ea8b0c2708975388c7ef267a",
+    "ci-logs/b30-webkit-shard3.log": "1e2943b81a8f330db7be29efa97a5b26f1a50aa36374b4a38e0bc8cda5f32c74",
+    "before/rolling-release-digest.test.js": "5732c8cd9935fc167aacb140573f7bc6bf04612572c1f4f9b2f2955a02561b55",
+    "metadata.json": "de5c45c1239f90e04871b6aaa539ad620570696331af884bc61a984e6cc7788c"
+  }
+}

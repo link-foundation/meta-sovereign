@@ -42,3 +42,8 @@ in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 
 Evidence: [archive](data/rolling-digest.tar.gz),
 [hash manifest](data/rolling-digest.tar.sha256.json).
+
+[The Deno instrumentation follow-up](ci-digest-deno.md) preserves the actual
+`b30ac9e4` failures, identifies descriptor re-entry in the runtime shim, and
+corrects counting without changing the production read limit or assertions.
+Hosted resolution remains unverified.

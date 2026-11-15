@@ -19,6 +19,11 @@ test(
       let active = 0;
       let maximum = 0;
       fs.readFile = async (...args) => {
+        // Deno's promise shim re-enters readFile with an opened numeric fd.
+        // Count application path admissions once, not the shim's inner read.
+        if (typeof args[0] === 'number') {
+          return original(...args);
+        }
         active++;
         maximum = Math.max(maximum, active);
         try {
@@ -75,6 +80,9 @@ test(
       let count = 0;
       let active = 0;
       fs.readFile = async (...args) => {
+        if (typeof args[0] === 'number') {
+          return original(...args);
+        }
         const index = count++;
         active++;
         firstRead();

@@ -1,3 +1,4 @@
+- [Deno hash instrumentation](ci-digest-deno.md): actual published failures and a finite descriptor re-entry trace; preserve the production read limit and all original assertions. Hosted resolution remains required.
 - [Layered server startup configuration](startup-configuration.md): bounded readable global/local/CLI precedence, generic refusal and actual-parent dispatch evidence; desktop configuration and wider parity remain unfinished.
 
 - [First-live peer history](vk-live-history.md): load native context before the incoming trigger, suppress historical replies and retain durable/cursor/credential/shutdown ownership; 79 focused Node/Deno checks pass and exact-head CI remains required.
