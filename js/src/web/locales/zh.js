@@ -1,3 +1,4 @@
+import { vkOnlineLocale } from './vk-online.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { zhGratitude } from './zh-gratitude.js';
 import { zhGreetingCatalog } from './zh-greeting-catalog.js';
@@ -35,6 +36,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...vkOnlineLocale('zh'),
   ...vkAttachmentsLocale('zh'),
   ...zhGratitude,
   ...zhVacancy,

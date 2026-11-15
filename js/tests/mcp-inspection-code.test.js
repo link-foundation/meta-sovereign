@@ -17,3 +17,17 @@ test('MCP inspection keeps script terminators and line separators inside fixture
   assert.deepEqual(JSON.parse(JSON.stringify(result)), fixture);
   assert.equal(sandbox.injected, undefined);
 });
+
+test('MCP inspection supplies its trusted callback without evaluating fixture data', async () => {
+  const fixture = { value: '</script>\u2028' };
+  const code = mcpInspectionCode(
+    (_page, data, check) => check(data),
+    fixture,
+    (data) => ({ value: data.value, checked: true })
+  );
+  const result = await runInNewContext(`(${code})`, {})(null);
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), {
+    ...fixture,
+    checked: true,
+  });
+});

@@ -1,60 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 import { Busy } from '../spinner.js';
+
+import { useAcknowledgedResource } from './use-acknowledged-resource.js';
 
 const el = React.createElement;
 
 export const VkAttachments = () => {
   const t = useT();
-  const [data, setData] = useState(null);
-  const [busy, setBusy] = useState(true);
-  const [error, setError] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    api
-      .vkAttachments()
-      .then((answer) => {
-        if (alive) {
-          if (answer.ok) {
-            setData(answer);
-          }
-          setError(!answer.ok);
-        }
-      })
-      .catch(() => {
-        if (alive) {
-          setError(true);
-        }
-      })
-      .finally(() => {
-        if (alive) {
-          setBusy(false);
-        }
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
-  const run = async (operation) => {
-    setBusy(true);
-    setError(false);
-    try {
-      const answer = await operation();
-      if (!answer?.ok) {
-        throw new Error('attachment collection unavailable');
-      }
-      setData((previous) => ({
-        ...previous,
-        ...answer,
-        items: answer.items ?? previous?.items ?? [],
-      }));
-    } catch {
-      setError(true);
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { data, busy, error, run } = useAcknowledgedResource(api.vkAttachments);
   return el('section', { className: 'col', 'data-vk-attachments': '' }, [
     el('h3', { key: 'title' }, t('vkAttachments.title')),
     el('p', { key: 'hint', className: 'meta' }, t('vkAttachments.hint')),

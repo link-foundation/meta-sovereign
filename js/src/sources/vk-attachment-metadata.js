@@ -1,18 +1,11 @@
 /** First-observed incoming VK attachment metadata; never downloads media. */
 import { putAll } from '../storage/universal.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { createStoreQueue } from '../storage/serialized.js';
 
 export const VK_ATTACHMENT_PREFIX = 'attachment:vk:';
 const SETTINGS = 'setting:vk:attachment-collection';
-const queues = new WeakMap();
-const serialized = (store, action) => {
-  const pending = (queues.get(store) ?? Promise.resolve()).then(action);
-  queues.set(
-    store,
-    pending.catch(() => {})
-  );
-  return pending;
-};
+const serialized = createStoreQueue();
 const numericId = (value) => /^-?[1-9]\d{0,19}$/u.test(String(value ?? ''));
 const externalIdValid = (value) => /^[1-9]\d{0,19}$/u.test(String(value ?? ''));
 const omittedKey =

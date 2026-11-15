@@ -808,6 +808,15 @@ export const createVkLive = ({
 
   return {
     call,
+    async setOnline(options = {}) {
+      const result = await call('account.setOnline', {}, options.token);
+      if (result !== 1) {
+        throw Object.assign(new Error('VK did not confirm online status'), {
+          code: 'unconfirmed',
+        });
+      }
+      return { confirmed: true };
+    },
     // Follow owns its finite timeout policy and must observe rate/permission
     // refusals without the general adapter's error-6 retry. Reads use POST on
     // VK too: explicitly mark them so a timeout remains a read failure.

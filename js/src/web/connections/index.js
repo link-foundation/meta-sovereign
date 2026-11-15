@@ -43,6 +43,7 @@ import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
 import { VkAttachments } from './vk-attachments.js';
+import { VkOnline } from './vk-online.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
 
 const el = React.createElement;
@@ -772,6 +773,7 @@ export const ProviderConnectionControls = ({
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
       providerId === 'github' ? el(GithubInbox, { key: 'inbox' }) : null,
       providerId === 'vk' ? el(VkAttachments, { key: 'attachments' }) : null,
+      providerId === 'vk' ? el(VkOnline, { key: 'online' }) : null,
       el(ConnectionProbeRow, {
         key: 'probe',
         provider,

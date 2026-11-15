@@ -125,4 +125,5 @@ export const ordinaryCommandNames = new Set([
   'vault-remove',
   'version',
   'vk-attachments',
+  'vk-online',
 ]);

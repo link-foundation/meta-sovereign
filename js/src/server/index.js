@@ -109,6 +109,8 @@ import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
 import { handleStickerCollections } from './routes-sticker-collections.js';
 import { handleVkAttachments } from './routes-vk-attachments.js';
+import { handleVkOnline } from './routes-vk-online.js';
+import { createVkOnlineJob } from '../automation/vk-online.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
@@ -373,6 +375,11 @@ const automationContext = (
     log: say,
   });
   const autopilot = createAutopilot({ store, runner, log: say });
+  const vkOnline = createVkOnlineJob({
+    store,
+    ...automations.vkOnline,
+    log: say,
+  });
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
   const recover = () =>
@@ -389,6 +396,7 @@ const automationContext = (
     // busy port must not run automation on the same store.
     later.push(() => {
       scheduler.start();
+      vkOnline.start();
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
       (recovered ?? recover())
@@ -412,10 +420,13 @@ const automationContext = (
     send,
     setTyping,
     automations: { runner, scheduler, autopilot },
+    vkOnline,
+    vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
       scheduler.stop();
+      await vkOnline.stop();
       await questionBrowser.close();
       await send.close?.();
     },
@@ -657,6 +668,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   }
   for (const handle of [
     () => handleVkAttachments(store, req, res, p, url, ctx),
+    () => handleVkOnline(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleBrowserRoutes(store, req, res, p, url, ctx),

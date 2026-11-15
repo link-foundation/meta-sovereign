@@ -524,3 +524,7 @@ Add disabled personal VK presets for the first greeting exchange, well-being, pu
 Bind draft-send confirmation to an independent rendered snapshot of the destination, identity, form, text/sticker and complete question/personal-reply evidence. Refuse changed drafts before typing/outbox/provider effects, retain them for review, and preserve explicit owner edits and form overrides through both default Lino encodings.
 
 Add a disabled personal VK acquaintance follow-up with configurable sticker and introduction catalogs. Review both ordered steps together, retain separate positive API receipts, resume a definite partial failure after review and refuse uncertain or acknowledged-step replay through durable recovery. Share progress across CLI, both Lino encodings, Chat and Operator.
+
+Add separately enabled first-observed incoming VK attachment metadata collection, preserving native identities, acknowledged cursors and saved records through pause and restart. Share bounded literal metadata and saved settings through CLI, both Lino encodings and localized connection controls.
+
+Add an opt-in VK user online-status schedule with a configurable interval, explicit foreground refresh, durable attempt and outcome records, owned shutdown and truthful offline capability through the CLI, both Lino encodings and localized connection controls.
