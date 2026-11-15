@@ -112,6 +112,12 @@ export const createVkCancelled = ({ call, once, maintenance }) => {
         ...relation,
         canWrite: conversation.can_write.allowed,
         messages,
+        ...(options.friendGreeting
+          ? {
+              unreadCount: conversation.unread_count ?? 0,
+              markedUnread: conversation.is_marked_unread ?? false,
+            }
+          : {}),
       };
       return {
         ...state,

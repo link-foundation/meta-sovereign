@@ -7,7 +7,7 @@ export const performVkFriendAction = async (
   plan,
   item,
   original,
-  { issue, beforeIssue, intentDetails = {}, ledgerId }
+  { issue, beforeIssue, beforeIntent, intentDetails = {}, ledgerId }
 ) => {
   const { store, now } = context;
   const id = ledgerId ?? friendLedgerId(plan.accountId, item.userId);
@@ -28,12 +28,15 @@ export const performVkFriendAction = async (
     ...intentDetails,
   };
   let issued = false;
+  let intentSaved = false;
   let result;
   try {
     const receipt = await issue(async () => {
       // Persist only after the provider's rate wait, then recheck consent and
       // fresh provider state after the durable intent acknowledgement.
+      await beforeIntent?.();
       await saveAcknowledgedRecord(store, intent);
+      intentSaved = true;
       await beforeIssue();
       issued = true;
     });
@@ -55,6 +58,18 @@ export const performVkFriendAction = async (
         .join('<redacted>')
         .slice(0, 300),
     };
+  }
+  if (beforeIntent) {
+    const current = await store.get(id);
+    if (
+      !intentSaved ||
+      current?.planId !== intent.planId ||
+      current.status !== 'pending'
+    ) {
+      // A concurrent receipt belongs to its owner. Never replace uncertainty
+      // or another confirmed cooldown with this review's refusal.
+      return { userId: item.userId, status: issued ? 'unknown' : 'refused' };
+    }
   }
   // A refused outcome write retains durable pending intent, never success.
   await saveAcknowledgedRecord(store, result);

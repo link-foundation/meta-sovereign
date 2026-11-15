@@ -3,6 +3,7 @@ import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
 import { positiveVkId, readVkFriendSettings } from './vk-friends-settings.js';
 import { readVkCancelledSettings } from './vk-cancelled-settings.js';
+import { vkGreetSettings } from './vk-greet-settings.js';
 
 export const maintenanceKinds = ['cleanup', 'outgoing'];
 export const maintenanceKeys = (kind) => {
@@ -57,6 +58,7 @@ export const protectedVkFriends = async (store, settings) => {
       ...settings.priorityIds,
       ...(await readVkFriendSettings(store)).priorityIds,
       ...(await readVkCancelledSettings(store)).priorityIds,
+      ...(await vkGreetSettings.settings(store)).priorityIds,
       ...policies.flatMap((policy) => policy.priorityIds),
     ]),
   ];

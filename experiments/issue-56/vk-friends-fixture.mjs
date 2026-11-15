@@ -111,6 +111,7 @@ export const friendsServer = async ({
   adapter = friendsAdapter(),
   vkMaintenance,
   vkCancelled,
+  vkGreet,
 } = {}) => {
   const store = createMemoryStore();
   let writesRefused = false;
@@ -132,6 +133,7 @@ export const friendsServer = async ({
       vkOnline: online,
       vkMaintenance,
       vkCancelled,
+      vkGreet,
       vkFriends: {
         sleep: async () => {},
         ...clock,

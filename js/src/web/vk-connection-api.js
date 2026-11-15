@@ -42,3 +42,14 @@ export const createVkConnectionApi = (
     },
   };
 };
+
+export const createVkReviewedJobApi = (options, name, { load, save }) => {
+  const api = createVkConnectionApi(options, `/api/vk/${name}`, load, save);
+  const title = `Vk${name[0].toUpperCase()}${name.slice(1)}`;
+  return {
+    [`vk${title.slice(2)}`]: api.load,
+    [`save${title}`]: api.save,
+    [`plan${title}`]: () => api.action('plan', {}),
+    [`run${title}`]: (planId) => api.action('run', { planId, confirm: true }),
+  };
+};

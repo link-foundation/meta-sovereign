@@ -100,3 +100,20 @@ export const captureVkAutomationLayouts = async (
     }
   }
 };
+
+/** Identical readiness and pending-state rules for reviewed personal policies. */
+export const vkReviewedControls = (page, name) => {
+  const panel = page.locator(`[data-vk-${name}]`);
+  const ready = () =>
+    page.waitForFunction((policy) => {
+      const input = document.querySelector(
+        `[data-action=vk-${policy}-enabled]`
+      );
+      return input && !input.disabled;
+    }, name);
+  const action = async (command) => {
+    await panel.locator(`[data-action=vk-${name}-${command}]`).click();
+    await ready();
+  };
+  return { panel, ready, action };
+};

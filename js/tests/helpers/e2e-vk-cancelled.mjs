@@ -5,6 +5,7 @@ import {
 } from '../../../experiments/issue-56/vk-cancelled-fixture.mjs';
 import {
   reviewVkConnection,
+  vkReviewedControls,
   captureVkAutomationLayouts,
 } from './vk-automation-browser.mjs';
 export const verifyVkCancelled = async (
@@ -18,7 +19,7 @@ export const verifyVkCancelled = async (
     browser,
     fixture,
     async ({ page, errors, heading }) => {
-      const panel = page.locator('[data-vk-cancelled]');
+      const { panel, ready, action } = vkReviewedControls(page, 'cancelled');
       if (before) {
         assert.equal(await panel.count(), 0);
         await captureVkAutomationLayouts(page, heading, screenshots, 'before');
@@ -27,17 +28,6 @@ export const verifyVkCancelled = async (
           providerEffects: fixture.effects.length,
         };
       }
-      const ready = () =>
-        page.waitForFunction(() => {
-          const input = document.querySelector(
-            '[data-action=vk-cancelled-enabled]'
-          );
-          return input && !input.disabled;
-        });
-      const action = async (name) => {
-        await panel.locator(`[data-action=vk-cancelled-${name}]`).click();
-        await ready();
-      };
       await ready();
       for (const key of ['enabled', 'blockUnanswered', 'blockUnwritable']) {
         const selector =

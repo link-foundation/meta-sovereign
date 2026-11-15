@@ -117,6 +117,8 @@ import { handleVkMaintenance } from './routes-vk-maintenance.js';
 import { createVkMaintenanceJob } from '../automation/vk-maintenance.js';
 import { createVkCancelledJob } from '../automation/vk-cancelled.js';
 import { handleVkCancelled } from './routes-vk-cancelled.js';
+import { createVkGreetJob } from '../automation/vk-greet.js';
+import { handleVkGreet } from './routes-vk-greet.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -392,6 +394,7 @@ const automationContext = (
     ...automations.vkFriends,
     log: say,
   });
+  const vkGreet = createVkGreetJob({ store, ...automations.vkGreet, log: say });
   const vkCancelled = createVkCancelledJob({
     store,
     ...automations.vkCancelled,
@@ -427,6 +430,7 @@ const automationContext = (
       vkOnline.start();
       vkFriends.start();
       vkCancelled.start();
+      vkGreet.start();
       Object.values(vkMaintenance).forEach((job) => job.start());
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
@@ -454,6 +458,7 @@ const automationContext = (
     vkOnline,
     vkFriends,
     vkCancelled,
+    vkGreet,
     vkMaintenance,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
@@ -464,6 +469,7 @@ const automationContext = (
         vkOnline.stop(),
         vkFriends.stop(),
         vkCancelled.stop(),
+        vkGreet.stop(),
         ...Object.values(vkMaintenance).map((job) => job.stop()),
       ]);
       await questionBrowser.close();
@@ -710,6 +716,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkOnline(store, req, res, p, url, ctx),
     () => handleVkFriends(store, req, res, p, url, ctx),
     () => handleVkCancelled(store, req, res, p, url, ctx),
+    () => handleVkGreet(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

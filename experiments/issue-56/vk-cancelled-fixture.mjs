@@ -47,6 +47,7 @@ export const cancelledAdapter = ({
       action,
       text: params.message ?? null,
       randomId: params.random_id ?? null,
+      ...(params.sticker_id ? { stickerId: Number(params.sticker_id) } : {}),
     });
     if (mode === 'refused') {
       return {
@@ -59,7 +60,9 @@ export const cancelledAdapter = ({
     if (mode === 'unconfirmed') {
       return 0;
     }
-    return action === 'prompt' ? addMessage(userId, params.message).id : 1;
+    return action === 'prompt'
+      ? addMessage(userId, params.message ?? '').id
+      : 1;
   };
   const fake = createFakeVk({
     methods: {
@@ -127,11 +130,7 @@ export const cancelledAdapter = ({
 export const cancelledJob = (store, adapter, options = {}) =>
   createVkCancelledJob({
     store,
-    resolve: () => ({ live: adapter.live }),
-    optionsFor: async () => ({ token: 'fixture-user-token' }),
-    now: () => cancelledNow,
-    sleep: async () => {},
-    ...options,
+    ...personalFixtureOptions(adapter, options),
   });
 export const withCancelledJob = async (
   check,
@@ -159,11 +158,16 @@ export const cancelledServer = async (options = {}) => {
     ...options,
     adapter,
     vkCancelled: {
-      resolve: () => ({ live: adapter.live }),
-      optionsFor: async () => ({ token: 'fixture-user-token' }),
-      now: () => cancelledNow,
-      sleep: async () => {},
-      ...options.vkCancelled,
+      ...personalFixtureOptions(adapter, options.vkCancelled),
     },
   });
 };
+
+/** Keep every owned personal-job fixture on the same finite synthetic clock. */
+export const personalFixtureOptions = (adapter, options = {}) => ({
+  resolve: () => ({ live: adapter.live }),
+  optionsFor: async () => ({ token: 'fixture-user-token' }),
+  now: () => cancelledNow,
+  sleep: async () => {},
+  ...options,
+});

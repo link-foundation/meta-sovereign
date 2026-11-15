@@ -1390,3 +1390,22 @@ Follow-up local verification: actual parent lacks the adapter capability and bro
 Published desktop-policy head `b0bb53ae` failed WebKit shard 2 in legacy-profile disclosure. Preserve the full 1,909-line log and PNG. The exact legacy helper closes an already-open root on a retained document and times out on its hidden nested summary. Reuse the existing idempotent opener; the finite actual-parent reproduction and complete corrected import/recovery both pass. [Evidence](ci-legacy-disclosure.md). Do not accept VD04 or VK14 until their complete replacement hosted matrix passes.
 
 The same exact head's macOS Deno job exceeded its unchanged ten-minute deadline while 758 modules continued progressing. Preserve its complete 11,721-line log and explicit annotation in [macOS Deno evidence](ci-macos-deno-shards.md). Three native partitions retain all tests and runtime/OS targets; the actual-parent contract fails, then 23 focused Node checks and both Deno checks pass (one Deno-only Node skip). Require the new head's complete hosted matrix before acceptance.
+
+Active proactive VK friend greetings (VK15):
+
+- [x] Preserve the pinned complete batch trigger and foreground caller; read related topic/help/music triggers to distinguish their online/history windows. Existing stored-chat Greetings cannot verify current friendship or provider permission.
+- [x] Add independent disabled provider-backed review, online/history/unread/write/cooldown/limit filters, optional friend-count ordering and configurable text/sticker, with fresh acknowledged per-person delivery and owned scheduling. Reuse shared personal delivery and existing controls across CLI, both Lino encodings, offline and four languages.
+- [ ] Reproduce the actual parent; run focused adapter/ordering/durable/guard/lifecycle checks and native/MCP before/after review. Preserve checked evidence, publish and require exact-head hosted CI before accepting VK15. Every other incomplete original requirement remains active.
+
+Published `07d3159e` has an actual CodeQL modulo-bias finding, independently repeated by the security workflow. Three deterministic Node/Deno checks and the actual-parent upper-bound regression verify the replacement; [evidence](ci-vk-message-random.md) preserves both full logs. Its macOS Node assertions pass but the cold setup plus four-partition job still reaches ten minutes; [evidence](ci-macos-node-eight.md) preserves the explicit deadline annotation and eight-partition exact-once/failure propagation contract. Both corrections retain mandatory gates. Every unchecked product criterion still needs exact-head hosted acceptance.
+
+VK15 local evidence now includes the actual-parent missing capability and controls,
+15 new feature checks and 13 existing VK14 checks on Node and Deno, plus the
+separate capability/random-identity/browser-partition contracts. One owned native
+WebKit scenario and independent four-language MCP review verify saved filters,
+exact review, per-person cooldown, retained uncertainty and save rollback. The
+shared personal configuration and browser readiness helper remove duplication
+without changing the 6.5% gate. Preserve the MCP draft's mistaken repeated
+confirmation and its corrected one-send review; all fixture resources close.
+Acceptance still requires the complete new head's hosted workflows. The remaining
+66 unchecked inventory rows retain their full original scope.
