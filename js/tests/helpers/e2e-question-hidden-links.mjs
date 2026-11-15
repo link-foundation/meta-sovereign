@@ -143,7 +143,10 @@ export const verifyHiddenQuestionLinks = async (
           await ui.status('failed').waitFor();
           assert.equal((await fixture.stats()).clicks, 0);
           await ui.readCurrent();
-          await ui.controls.getByText(link.second, { exact: true }).waitFor();
+          await ui.controls
+            .locator('[data-browser-pending-turn]')
+            .getByText(link.second, { exact: true })
+            .waitFor();
           await choose(ui);
         }
         await ui.status('sent').waitFor();

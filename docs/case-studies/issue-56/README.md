@@ -2,6 +2,8 @@
 
 [Exact-head hosted verification for saved templates and download availability](hosted-verification-d34.md) records five passing workflows; QA03/VD10 complete, 79 rows remain unchecked.
 
+- [Refreshed destination fixture](ci-question-link-locator.md): exact hosted and local strict-locator reproduction; scoped pending-turn assertion retains all stale-target, fresh-receipt and late-pointer checks.
+
 - [VK greeting recognition and catalogs](vk-greeting-catalog.md): actual-parent outgoing/group and missing phrase-editor regressions, shared personal-dialog guards, durable per-language CLI/UI catalogs, reference sticker/text audit and focused Lino/native/MCP evidence. VK01 awaits exact-head hosted checks.
 
 - [Email alternative question destinations](question-email-links.md): actual MIME/Gmail/JMAP/Graph parent failures, bounded safe-tree extraction, frozen destination identity and preserved reviewed/ordinary delivery, with focused CLI/Lino/native/MCP evidence. QA04 remains incomplete.
