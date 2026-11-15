@@ -7,13 +7,15 @@ import { createFakeVk } from '../../js/tests/helpers/fake-vk.js';
 
 export const gratitudePreset = () =>
   automationPresets().find((a) => a.id === 'automation:gratitude');
+// Logical IDs share one clock origin even when a busy runner pauses setup.
+const fixtureTime = Math.floor(Date.now() / 1000) - 120;
 export const gratitudeMessage = (id, chat, body, extra = {}) =>
   vkMessageLink({
     id,
     peer_id: Number(chat),
     from_id: Number(chat),
     text: body,
-    date: Math.floor(Date.now() / 1000) - 120 + id,
+    date: fixtureTime + id,
     ...extra,
   });
 export const seedGratitude = async (store = createMemoryStore()) => {
