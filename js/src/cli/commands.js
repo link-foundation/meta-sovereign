@@ -16,6 +16,7 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
 import path from 'node:path';
 import { createContactCommands } from './contact-commands.js';
+import { createVkSendQueueCommands } from './vk-send-queue-commands.js';
 import { createVkAttachmentCommands } from './vk-attachment-commands.js';
 import { createVkOnlineCommands } from './vk-online-commands.js';
 import { createVkFriendsCommands } from './vk-friends-commands.js';
@@ -816,6 +817,7 @@ const COMMANDS = {
   ...createTrustCommands(),
   ...createContactCommands({ openStore }),
   ...createVkAttachmentCommands({ openStore, openReadOnly }),
+  ...createVkSendQueueCommands({ openStore, openReadOnly }),
   ...createVkOnlineCommands({ openStore, openReadOnly }),
   ...createVkFriendsCommands({ openStore, openReadOnly }),
   ...createVkMaintenanceCommands({ openStore, openReadOnly }),

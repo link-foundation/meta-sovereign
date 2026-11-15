@@ -1,3 +1,4 @@
+import { createVkSendQueueApi } from './vk-send-queue-api.js';
 import { createVkAttachmentsApi } from './vk-attachments-api.js';
 import { createVkOnlineApi } from './vk-online-api.js';
 import { createVkFriendsApi } from './vk-friends-api.js';
@@ -18,6 +19,7 @@ export const createVkProviderApi = (options) =>
     {},
     ...[
       createVkAttachmentsApi,
+      createVkSendQueueApi,
       createVkOnlineApi,
       createVkFriendsApi,
       createVkMaintenanceApi,

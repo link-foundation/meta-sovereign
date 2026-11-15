@@ -34,7 +34,7 @@ export const createVkJobRoute = ({ path: base, load, save, actions }) => {
       return (
         json(res, 200, {
           ...answer,
-          canRun: true,
+          canRun: Object.keys(actions).length > 0,
           schedulerRunning: ctx.vkOnlineScheduled,
         }) ?? true
       );

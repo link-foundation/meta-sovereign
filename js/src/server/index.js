@@ -108,6 +108,7 @@ import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
 import { handleStickerCollections } from './routes-sticker-collections.js';
+import { handleVkSendQueue } from './routes-vk-send-queue.js';
 import { handleVkAttachments } from './routes-vk-attachments.js';
 import { handleVkCache } from './routes-vk-cache.js';
 import { createVkCacheRuntime } from './vk-cache-runtime.js';
@@ -458,10 +459,15 @@ const automationContext = (
     store,
     send,
     setTyping,
+    markRead:
+      automations.markRead ??
+      (async ({ chat, id }) =>
+        getSource('vk').live.markRead({ chat, id }, await optionsFor('vk'))),
     resolveAudience: automations.resolveAudience,
     self,
     log: say,
     modelRunner: automations.modelRunner,
+    vkQueue: automations.vkQueue,
   });
   const scheduler = createAutomationScheduler({
     store,
@@ -541,6 +547,7 @@ const automationContext = (
       // Signal every owner before awaiting any held provider operation.
       await Promise.allSettled([
         scheduler.stop(),
+        runner.close(),
         ...ownedVkJobs.map((job) => job.stop()),
       ]);
       await questionBrowser.close();
@@ -784,6 +791,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   }
   for (const handle of [
     () => handleVkAttachments(store, req, res, p, url, ctx),
+    () => handleVkSendQueue(store, req, res, p, url, ctx),
     () => handleVkCache(store, req, res, p, url, ctx),
     () => handleVkOnline(store, req, res, p, url, ctx),
     () => handleVkFriends(store, req, res, p, url, ctx),

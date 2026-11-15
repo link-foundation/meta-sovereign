@@ -72,6 +72,7 @@ export const ordinaryCommandNames = new Set([
   'telegram-users',
   'test-assignment',
   'vk-cache',
+  'vk-send-queue',
   'vk-stickers',
   'trust',
   'upwork-message',

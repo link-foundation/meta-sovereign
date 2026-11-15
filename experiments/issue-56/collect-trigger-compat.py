@@ -11,7 +11,8 @@ assert 'pass 8' in (logs / 'trigger-compat-after.log').read_text()
 assert 'fail 0' in (logs / 'trigger-compat-after.log').read_text()
 names = [str(p.relative_to(root)) for p in logs.glob('checks-43733942504-*.log')]
 names += [str(p.relative_to(root)) for p in logs.glob('trigger-*.log')]
-names += ['ci-logs/checks-42c-jobs-latest.json', 'ci-logs/latest-runs.json',
+names += ['ci-logs/checks-42c-jobs-final.json', 'ci-logs/checks-42c-cancel.log',
+          'ci-logs/latest-runs.json',
           'experiments/issue-56/trigger-compat-probe.mjs',
           'experiments/issue-56/collect-trigger-compat.py',
           'js/src/automation/scheduler.js', 'js/src/automation/trigger-state.js',

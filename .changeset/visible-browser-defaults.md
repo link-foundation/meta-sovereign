@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add a shared owned VK outgoing FIFO for reviewed automation and personal-policy messages, with optional read acknowledgements, repeated typing and configurable text/sticker pacing. Preserve per-request completion, fresh consent, durable delivery truth and shutdown draining. Expose saved settings and bounded queue/peer inspection through foreground CLI, default text/binary Lino and four-language Connections controls without replay on restart.
+
 Persist acknowledged per-peer incoming trigger state, serialize duplicate admission, retain due schedules after failed drafting and drain admitted scheduler work before server shutdown flush. Record processed draft counts without claiming delivery.
 
 Add three independent disabled VK dormant-conversation policies for topic questions, offers of help and music questions. Review the exact ordered greeting, optional native audio attachment and selected question; retain positive per-step receipts, canonical Chat delivery and durable uncertainty. Resume definite partial delivery only after a fresh explicit review, preserve acknowledged steps across restart, and expose all settings through CLI, both Lino formats and four-language online/offline controls.

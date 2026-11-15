@@ -1,6 +1,8 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { guardedSend } from './outbox.js';
+import { currentVkPersonalPolicy } from './vk-personal-policy.js';
 import { recordOutcome } from './record-outcome.js';
+import { queueVkPolicyMessage } from './vk-queued-delivery.js';
 import { vkEffectError } from './vk-effect-error.js';
 import { refuseFriendAction } from './vk-friends-records.js';
 import { reengageLedgerId } from './vk-reengage-settings.js';
@@ -68,16 +70,24 @@ const deliverStep = async (state, index) => {
   const key = reengageKey(context.kind, plan, item, index);
   const draft = reengageDraft(context.kind, item, index);
   state.issued = false;
-  const outcome = await guardedSend({
-    store: context.store,
-    kind: `vk-${context.kind}`,
-    owner: `vk-${context.kind}:${plan.accountId}`,
+  const outcome = await queueVkPolicyMessage(
+    context,
+    state.original,
     key,
     draft,
-    clock: () => new Date(context.now()),
-    log: context.log,
-    send: () => sendStep(state, step),
-  });
+    () =>
+      guardedSend({
+        store: context.store,
+        kind: `vk-${context.kind}`,
+        owner: `vk-${context.kind}:${plan.accountId}`,
+        key,
+        draft,
+        clock: () => new Date(context.now()),
+        log: context.log,
+        send: () => sendStep(state, step),
+      }),
+    () => currentVkPersonalPolicy(context, plan, item, state.original)
+  );
   await recordOutcome({
     store: context.store,
     automation: { id: `vk-${context.kind}:${plan.accountId}` },

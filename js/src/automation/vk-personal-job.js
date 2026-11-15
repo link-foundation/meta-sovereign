@@ -10,6 +10,7 @@ import {
 import { guardedSend } from './outbox.js';
 import { currentVkPersonalPolicy } from './vk-personal-policy.js';
 import { recordOutcome } from './record-outcome.js';
+import { queueVkPolicyMessage } from './vk-queued-delivery.js';
 const ownPendingIntent = async (context, plan, item) => {
   if (context.policy.repeatable) {
     const own = await context.store.get(context.policy.ledgerId(plan, item));
@@ -57,30 +58,38 @@ const prompt = async (context, plan, item, original, beforeIssue) => {
       step: context.policy.messageStep ?? 'reviewed-message',
     },
   };
-  const outcome = await guardedSend({
-    store: context.store,
-    kind: `vk-${context.policy.name}`,
-    owner: `vk-${context.policy.name}:${plan.accountId}`,
-    key: context.policy.outboxKey(plan, item),
+  const outcome = await queueVkPolicyMessage(
+    context,
+    original,
+    context.policy.outboxKey(plan, item),
     draft,
-    clock: () => new Date(context.now()),
-    log: context.log,
-    send: async () => {
-      try {
-        const receipt = await original.live[context.policy.effectMethod](
-          item,
-          original.options,
-          beforeIssue
-        );
-        return { via: 'api', result: receipt.messageId };
-      } catch (error) {
-        if (!error.vkCode && error.code !== 'review-required') {
-          error.ambiguous = true;
-        }
-        throw error;
-      }
-    },
-  });
+    () =>
+      guardedSend({
+        store: context.store,
+        kind: `vk-${context.policy.name}`,
+        owner: `vk-${context.policy.name}:${plan.accountId}`,
+        key: context.policy.outboxKey(plan, item),
+        draft,
+        clock: () => new Date(context.now()),
+        log: context.log,
+        send: async () => {
+          try {
+            const receipt = await original.live[context.policy.effectMethod](
+              item,
+              original.options,
+              beforeIssue
+            );
+            return { via: 'api', result: receipt.messageId };
+          } catch (error) {
+            if (!error.vkCode && error.code !== 'review-required') {
+              error.ambiguous = true;
+            }
+            throw error;
+          }
+        },
+      }),
+    () => currentVkPersonalPolicy(context, plan, item, original)
+  );
   await recordOutcome({
     store: context.store,
     automation: { id: `vk-${context.policy.name}:${plan.accountId}` },

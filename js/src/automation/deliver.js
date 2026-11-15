@@ -5,13 +5,22 @@ import { validateAnswerDraft } from './question-store.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { validatePersonalReplyDraft } from './gratitude-store.js';
 import { deliverOrderedReply } from './ordered-reply.js';
+import { withVkDeliveryPacing } from './vk-queued-delivery.js';
+import { readVkOutgoingSettings } from './vk-outgoing-settings.js';
 
-const indicateTyping = (showTyping, automation, draft) =>
-  draft.answer?.strictOptions || draft.sticker
-    ? undefined
-    : showTyping(automation, draft);
+const indicateTyping = async (store, showTyping, automation, draft) => {
+  if (
+    draft.answer?.strictOptions ||
+    draft.sticker ||
+    (draft.source === 'vk' && (await readVkOutgoingSettings(store)).enabled)
+  ) {
+    return;
+  }
+  return showTyping(automation, draft);
+};
 
-const deliveryKey = (automation, draft, clock) =>
+const deliveryKey = (automation, draft, clock, queued) =>
+  queued ??
   draft.sequence?.key ??
   questionChoiceKey(draft) ??
   outboxKey({
@@ -39,12 +48,20 @@ export const createDelivery = ({
   log,
   nowIso,
   self = [],
+  outgoing,
+  markRead,
+  setTyping,
 }) => {
   /** Send one draft now: typing, the guarded send, ledger, chat history. */
-  const deliver = async (
+  const execute = async (
     automation,
     draft,
-    { reviewed = false, orderedStep = false, acknowledged = null } = {}
+    {
+      reviewed = false,
+      orderedStep = false,
+      acknowledged = null,
+      queueKey,
+    } = {}
   ) => {
     if (typeof send !== 'function') {
       throw new Error('no sender configured; send it yourself and mark it');
@@ -83,7 +100,7 @@ export const createDelivery = ({
     if (!context.ok) {
       return { status: 'failed', ...context, draft };
     }
-    await indicateTyping(showTyping, automation, draft);
+    await indicateTyping(store, showTyping, automation, draft);
     if (draft.answer) {
       const valid = await validateAnswerDraft(store, automation, draft, {
         reviewed,
@@ -105,7 +122,7 @@ export const createDelivery = ({
       store,
       kind: 'automation',
       owner: automation.id,
-      key: deliveryKey(automation, draft, clock),
+      key: deliveryKey(automation, draft, clock, queueKey),
       draft,
       send: async (outgoing) => {
         const valid = await validatePersonalReplyDraft(
@@ -143,5 +160,17 @@ export const createDelivery = ({
       ...outcomeFailure(outcome),
     };
   };
+  const deliver = withVkDeliveryPacing(
+    {
+      store,
+      outgoing,
+      markRead,
+      setTyping,
+      self,
+      clock,
+      keyFor: (automation, draft) => deliveryKey(automation, draft, clock),
+    },
+    execute
+  );
   return deliver;
 };

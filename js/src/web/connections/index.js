@@ -45,6 +45,7 @@ import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
+import { VkSendQueue } from './vk-send-queue.js';
 import { VkAttachments } from './vk-attachments.js';
 import { VkOnline } from './vk-online.js';
 import { VkFriends } from './vk-friends.js';
@@ -64,6 +65,7 @@ const el = React.createElement;
 const VkConnectionJobs = () =>
   el(React.Fragment, null, [
     el(VkAttachments, { key: 'attachments' }),
+    el(VkSendQueue, { key: 'send-queue' }),
     el(VkOnline, { key: 'online' }),
     el(VkFriends, { key: 'friends' }),
     el(VkMaintenance, { key: 'maintenance' }),

@@ -1,3 +1,4 @@
+import { vkQueueLocale } from './vk-queue.js';
 import { vkOnlineLocale } from './vk-online.js';
 import { vkFriendsLocale } from './vk-friends.js';
 import { vkMaintenanceLocale } from './vk-maintenance.js';
@@ -11,6 +12,7 @@ import { vkDiscoveryLocale } from './vk-discovery.js';
 import { vkCacheLocale } from './vk-cache.js';
 import { vkStickersLocale } from './vk-stickers.js';
 export const vkProviderJobsLocale = (language) => ({
+  ...vkQueueLocale(language),
   ...vkOnlineLocale(language),
   ...vkFriendsLocale(language),
   ...vkMaintenanceLocale(language),

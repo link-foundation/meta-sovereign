@@ -23,7 +23,7 @@ import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
 import { decodeWire } from '../transport/lino.js';
 import { createInterface } from 'node:readline/promises';
-import { getSource } from '../sources/index.js';
+import { getSource, liveOptionsFrom } from '../sources/index.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { setTypingFor } from '../sources/live-links.js';
 import {
@@ -401,12 +401,21 @@ const runnerFor = (store, args, deps) => {
   const setTyping =
     deps.setTyping ??
     (({ source, chat }) =>
-      setTypingFor(getSource, { source, chat }).catch(() => null));
+      liveOptionsFrom(store, source)
+        .then((options) => setTypingFor(getSource, { source, chat, options }))
+        .catch(() => null));
   const now = args.now ? new Date(args.now) : null;
   const runner = createAutomationRunner({
     store,
     send,
     setTyping,
+    markRead:
+      deps.markRead ??
+      (async ({ chat, id }) =>
+        getSource('vk').live.markRead(
+          { chat, id },
+          await liveOptionsFrom(store, 'vk')
+        )),
     modelRunner: deps.modelRunner,
     self: parseCsv(args.self),
     ...(now ? { clock: () => now } : {}),
@@ -423,6 +432,7 @@ const runnerFor = (store, args, deps) => {
     runner,
     questionBrowser,
     close: async () => {
+      await runner.close();
       await questionBrowser.close();
       await send.close?.();
     },

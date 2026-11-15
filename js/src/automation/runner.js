@@ -23,6 +23,7 @@ import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
 import { createPacedSender } from './paced-send.js';
 import { createDelivery } from './deliver.js';
+import { vkOutgoingFor } from './vk-outgoing-queue.js';
 import { planningRecords } from './planning-store.js';
 import { draftChatModelAnswers } from './question-chat-model.js';
 import {
@@ -70,6 +71,7 @@ export const createAutomationRunner = ({
   store,
   send = null,
   setTyping = null,
+  markRead = null,
   resolveAudience = resolvePeople,
   self = [],
   clock = () => new Date(),
@@ -77,8 +79,16 @@ export const createAutomationRunner = ({
   random = Math.random,
   log = () => {},
   modelRunner,
+  vkQueue = {},
 } = {}) => {
   const nowIso = () => clock().toISOString();
+  const outgoing = vkOutgoingFor(store, {
+    sleep: (ms, signal) => sleep(ms, undefined, { signal }),
+    now: () => clock().getTime(),
+    random,
+    log,
+    ...vkQueue,
+  });
 
   // The automation as the user last sent it: their edit of the text is
   // carried to the next chats (R-Y86).
@@ -166,6 +176,9 @@ export const createAutomationRunner = ({
     log,
     nowIso,
     self,
+    outgoing,
+    markRead,
+    setTyping,
   });
 
   const queue = (automation, drafts) =>
@@ -189,6 +202,7 @@ export const createAutomationRunner = ({
   });
 
   return {
+    close: () => outgoing.close(),
     load,
     plan,
     /**
