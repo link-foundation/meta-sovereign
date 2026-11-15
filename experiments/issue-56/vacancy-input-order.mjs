@@ -12,15 +12,19 @@ try {
   await page.locator('[data-vacancy-field="query"]').waitFor();
   await page.evaluate(() => {
     for (const [key, value, prototype] of [
-      ['excludeText', 'final paragraph', HTMLTextAreaElement.prototype],
-      ['query', 'Python', HTMLInputElement.prototype],
+      [
+        'excludeText',
+        'final paragraph',
+        globalThis.HTMLTextAreaElement.prototype,
+      ],
+      ['query', 'Python', globalThis.HTMLInputElement.prototype],
     ]) {
       const field = document.querySelector(`[data-vacancy-field="${key}"]`);
       Object.getOwnPropertyDescriptor(prototype, 'value').set.call(
         field,
         value
       );
-      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.dispatchEvent(new globalThis.Event('input', { bubbles: true }));
     }
   });
   await page.locator('[data-vacancy-action="search"]').click();
