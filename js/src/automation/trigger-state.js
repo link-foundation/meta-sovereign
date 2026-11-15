@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 
 export const peerTriggerId = (automation, message) =>
@@ -6,7 +7,7 @@ export const peerTriggerId = (automation, message) =>
 export const triggerReceipt = async (store, automation, message, run, at) => {
   const id = peerTriggerId(automation, message);
   const previous = await store.get(id);
-  const timestamp = Date.parse(message.timestamp);
+  const timestamp = messageTime(message.timestamp);
   const last = previous?.messageTime ?? 0;
   if (
     timestamp < last ||

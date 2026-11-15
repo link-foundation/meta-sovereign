@@ -65,6 +65,36 @@ test('duplicate concurrent live updates admit one durable peer trigger', async (
   assert.equal(state.chat, '7');
 });
 
+test('native VK seconds, numeric strings, milliseconds and ISO dates share one peer watermark', async (t) => {
+  const f = await fixture(t);
+  for (const timestamp of [
+    NOW / 1000,
+    String(NOW / 1000),
+    NOW,
+    clock().toISOString(),
+  ]) {
+    await f.scheduler.onMessage({ ...message(), timestamp });
+  }
+  assert.equal(f.calls.length, 1);
+  assert.equal(
+    (await f.store.get(peerTriggerId(f.a, message()))).messageTime,
+    NOW
+  );
+  assert.equal(
+    (
+      await f.scheduler.onMessage({
+        ...message('2'),
+        timestamp: NOW / 1000 + 1,
+      })
+    ).length,
+    1
+  );
+  assert.deepEqual(
+    await f.scheduler.onMessage({ ...message('3'), timestamp: NOW / 1000 }),
+    []
+  );
+});
+
 test('two schedulers sharing a store serialize peer admission', async (t) => {
   const first = await fixture(t);
   const second = await fixture(t, { store: first.store });

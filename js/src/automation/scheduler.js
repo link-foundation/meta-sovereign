@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 /** Owned, serialized trigger admission; effects remain reviewed safe drafts. */
 import { clearInterval, setInterval } from 'node:timers';
 import { createStoreQueue } from '../storage/serialized.js';
@@ -105,7 +106,7 @@ export const createAutomationScheduler = ({
     });
   const onMessage = (message) =>
     own(async () => {
-      const at = Date.parse(message.timestamp);
+      const at = messageTime(message.timestamp);
       if (
         !message.id ||
         !message.source ||

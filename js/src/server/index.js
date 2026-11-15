@@ -538,8 +538,11 @@ const automationContext = (
     questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
-      await scheduler.stop();
-      await Promise.all(ownedVkJobs.map((job) => job.stop()));
+      // Signal every owner before awaiting any held provider operation.
+      await Promise.allSettled([
+        scheduler.stop(),
+        ...ownedVkJobs.map((job) => job.stop()),
+      ]);
       await questionBrowser.close();
       await send.close?.();
     },
