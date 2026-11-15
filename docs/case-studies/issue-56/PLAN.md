@@ -1,3 +1,10 @@
+Active preset catalog and sync-bundle CI corrections:
+
+- [x] Preserve exact-head `e386d58b` runtime failures and reproduce both catalog regressions with existing tests. Retain the all-preset English identity contract and assert the new disabled safe preset.
+- [x] Preserve the exact `d6841cad` WebKit route-reset failure, reproduce it against the published helper, and await the real bounded bundle before navigation. Three focused regressions and one native two-context convergence scenario pass without deadline changes.
+- [x] Focused Node 17/Deno 17 and scoped static checks pass; retain checked source/log evidence. The latest Windows Bun release-copy and readiness tests pass, without establishing the earlier latency cause.
+- [ ] Publish both atomic corrections and inspect every exact-head workflow. All 78 unchecked original criteria remain required; PR57 stays draft/unmerged.
+
 Active ordered VK acquaintance follow-up (VK06):
 
 - [x] Read the complete pinned engage trigger and all twenty positive examples. Add a disabled personal-only preset after the actual adjacent outgoing acquaintance question, configurable sticker IDs and introduction variants.

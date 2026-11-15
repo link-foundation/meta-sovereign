@@ -1,3 +1,5 @@
+- [Localized preset catalog](ci-preset-catalog.md): two exact-head existing-test regressions, complete runtime logs and restored catalog identity.
+- [Awaited sync-fixture bundle](ci-sync-fixture-bundle.md): captured WebKit route reset, actual-parent replay and bounded real-bundle prefetch with native convergence.
 - [Ordered VK acquaintance replies](vk-engagement.md): frozen sticker-then-introduction review, distinct durable acknowledgements, partial progress and reviewed text-only retry through CLI/Lino/shared Chat and Operator. VK06 awaits exact-head hosted checks.
 - [Inactive-peer sync predicate](ci-sync-isolation-polling.md): published WebKit timeout, exact-helper scheduling reproduction, native convergence despite failure and bounded timer polling without deadline changes.
 - [Stored draft confirmation](draft-confirmation.md): exact-parent changed-content sends, frozen independent preview evidence and focused refusal/unchanged-delivery checks through both default Lino encodings.

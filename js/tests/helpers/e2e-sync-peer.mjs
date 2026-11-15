@@ -1,3 +1,5 @@
+import { readSyncFixtureBundle } from './e2e-sync-bundle.mjs';
+
 export const prepareSyncPeer = async (target, base, engine) => {
   // Changing only #chat to #settings reuses the current document; init scripts
   // would never instrument its already-open sockets. Replace that document
@@ -10,13 +12,10 @@ export const prepareSyncPeer = async (target, base, engine) => {
     // Production must use permitted ICE/network configuration, not ask for
     // microphone access merely to synchronize data.
     await target.context().grantPermissions(['microphone'], { origin: base });
-    await target.route('**/app.min.js', async (route) => {
-      const response = await route.fetch();
-      await route.fulfill({
-        response,
-        body: `globalThis.__syncFixtureMedia = await navigator.mediaDevices.getUserMedia({audio:true});\n${await response.text()}`,
-      });
-    });
+    const body = await readSyncFixtureBundle(base);
+    await target.route('**/app.min.js', (route) =>
+      route.fulfill({ contentType: 'application/javascript', body })
+    );
   }
   await target.addInitScript(() => {
     globalThis.__syncWire = [];
