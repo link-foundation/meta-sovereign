@@ -27,6 +27,10 @@ until every criterion has implementation and verification evidence.
       [Layered desktop configuration](desktop-configuration.md) now shares the
       server loader, with owned TLS navigation and production staging gates;
       native hosted verification, shared editing and runner control remain required.
+      [The explicit session CLI](runner-session-control.md) now has strict local/SSH
+      observation, retained target identity and cancelled-child draining. Automatic
+      preparation, actual backend readiness and shared Lino/UI integration remain
+      required; this foundation does not accept VD01–VD09.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
       cleanup checks. [Persisted catalog compatibility](legacy-catalogs.md) now covers

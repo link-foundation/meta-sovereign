@@ -22,6 +22,7 @@ export const runCliCommand = async (
         '--help',
         '-h',
         'version',
+        'runner',
         '--version',
         '-v',
         undefined,

@@ -1,3 +1,4 @@
+- [Explicit local/SSH session CLI](runner-session-control.md): positive backend observations, retained profile ownership and cancelled-child draining; automatic preparation, actual readiness and shared Lino/UI integration remain required.
 - [Deno hash instrumentation](ci-digest-deno.md): actual published failures and a finite descriptor re-entry trace; preserve the production read limit and all original assertions. Hosted resolution remains required.
 - [Layered server startup configuration](startup-configuration.md): bounded readable global/local/CLI precedence, generic refusal and actual-parent dispatch evidence; desktop configuration and wider parity remain unfinished.
 

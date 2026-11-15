@@ -1,11 +1,8 @@
-import { open } from 'node:fs/promises';
-import { constants } from 'node:fs';
 import path from 'node:path';
-import { parseIndented } from 'lino-objects-codec';
+import { readReadableConfiguration } from './readable-configuration.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { MAX_RECOVERY_HOURS } from '../storage/recovery-settings.js';
 
-const LIMIT = 64 * 1024;
 const FIELDS = new Map([
   ['port', 'port'],
   ['verbose', 'verbose'],
@@ -98,41 +95,14 @@ const validate = (value, scope) => {
 };
 
 const readLayer = async (file, scope, required = false) => {
-  let handle;
   try {
-    handle = await open(file, constants.O_RDONLY | constants.O_NONBLOCK);
-    if (!(await handle.stat()).isFile()) {
-      throw invalid(scope);
-    }
-    // Bound the actual read, including a file that grows after stat().
-    const buffer = Buffer.alloc(LIMIT + 1);
-    let size = 0;
-    while (size < buffer.length) {
-      const { bytesRead } = await handle.read(
-        buffer,
-        size,
-        buffer.length - size
-      );
-      if (!bytesRead) {
-        break;
-      }
-      size += bytesRead;
-    }
-    if (size > LIMIT) {
-      throw invalid(scope);
-    }
-    const { obj } = parseIndented({
-      text: buffer.subarray(0, size).toString('utf8'),
-    });
-    return validate(obj, scope);
+    return validate(await readReadableConfiguration(file), scope);
   } catch (error) {
     if (error.code === 'ENOENT' && !required) {
       return {};
     }
     // Parser and filesystem errors can contain credentials or private paths.
     throw invalid(scope);
-  } finally {
-    await handle?.close();
   }
 };
 

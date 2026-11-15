@@ -14,6 +14,13 @@ const loadConsumer = async (name, load) => {
 };
 
 export const runCli = async (argv, options = {}) => {
+  if (argv[0] === 'runner') {
+    const { createRunnerCommand } = await loadConsumer(
+      'runner command',
+      () => import('./runner-command.js')
+    );
+    return runCliCommand(argv, createRunnerCommand(options.runner), options);
+  }
   if (['version', '--version', '-v'].includes(argv[0])) {
     const { versionCmd } = await loadConsumer(
       'version command',
