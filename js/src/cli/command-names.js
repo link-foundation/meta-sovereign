@@ -24,6 +24,7 @@ export const ordinaryCommandNames = new Set([
   'cv-read',
   'cv-sync',
   'cv-telemetry',
+  'diagnostics',
   'email-send',
   'export',
   'export-encrypted',

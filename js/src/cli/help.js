@@ -203,6 +203,8 @@ Commands:
   backup-config [--store=<dir>] [--interval-hours=<h>] [--keep=<n>] [--formats=text,binary|none]
   restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
+  diagnostics   logs [--url=http://127.0.0.1:8787] [--after=0] [--follow]
+                reads redacted recent server logs without opening the store; follow stops on SIGINT/SIGTERM
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
                 [--backup-interval-hours=<h>] [--backup-keep=<n>] [--recovery-formats=text,binary|none]
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in

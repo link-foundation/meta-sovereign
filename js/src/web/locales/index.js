@@ -14,8 +14,14 @@ import { en } from './en.js';
 import { ru } from './ru.js';
 import { zh } from './zh.js';
 import { hi } from './hi.js';
+import { diagnosticsLocale } from './diagnostics.js';
 
-export const dictionaries = { en, ru, zh, hi };
+export const dictionaries = Object.fromEntries(
+  Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
+    language,
+    { ...dictionary, ...diagnosticsLocale(language) },
+  ])
+);
 
 export const availableLocales = [
   { id: 'en', label: 'English', dir: 'ltr' },

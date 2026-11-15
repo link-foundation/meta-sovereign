@@ -15,6 +15,7 @@
 
 import { defaultStoreDir } from '../storage/app-directory.js';
 import path from 'node:path';
+import { createDiagnosticCommands } from './diagnostic-commands.js';
 import { createContactCommands } from './contact-commands.js';
 import { createVkSendQueueCommands } from './vk-send-queue-commands.js';
 import { createVkAttachmentCommands } from './vk-attachment-commands.js';
@@ -768,6 +769,7 @@ const vaultListCmd = async (args, log) => {
 };
 
 const COMMANDS = {
+  ...createDiagnosticCommands(),
   import: importCmd,
   export: exportCmd,
   'export-encrypted': exportEncryptedCmd,

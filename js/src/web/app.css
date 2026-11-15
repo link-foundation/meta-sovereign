@@ -14095,3 +14095,12 @@ main[data-view='operator']:has(> .operator-workspace) {
 .form-current-value {
   white-space: pre-wrap;
 }
+
+.diagnostic-log-text {
+  max-height: 24rem;
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}

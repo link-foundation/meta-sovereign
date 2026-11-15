@@ -241,7 +241,7 @@ const NO_ANSWER = Object.freeze({
 const serverResponse = async (
   path,
   init,
-  { network = false, read = false } = {}
+  { network = false, read = false, recover = true } = {}
 ) => {
   const { origin, requests } = await ensure();
   if (!origin) {
@@ -259,7 +259,7 @@ const serverResponse = async (
   return requests
     .request(url, init ?? {}, {
       // Mixed read/write endpoints opt in only for their read-only variant.
-      retry: read || isReadRequest(path, init?.method),
+      retry: recover && (read || isReadRequest(path, init?.method)),
       json: true,
     })
     .then(announceLocked)
@@ -278,8 +278,8 @@ const announceLocked = (response) => {
 // auto-lock; the answer has `httpStatus`, null offline.
 const passcodeCall = createPasscodeCaller(ensure, announceLocked);
 
-const serverFetch = async (path, init) => {
-  const response = await serverResponse(path, init);
+const serverFetch = async (path, init, options) => {
+  const response = await serverResponse(path, init, options);
   // "Online" does not mean "implements this route": the Rust backend
   // answers routes it does not have with a 404 and a structured error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
@@ -539,6 +539,13 @@ const automationCall =
   };
 
 const rawApi = {
+  diagnosticLogs: async ({ cursor = 0, session = null } = {}, signal) =>
+    (await serverFetch(
+      `/api/diagnostics/logs?after=${cursor}${session ? `&session=${encodeURIComponent(session)}` : ''}`,
+      { signal },
+      // This visible feed owns bounded retries and must expose failed reads.
+      { recover: false }
+    )) ?? { ok: false, available: false },
   browserPolicies: async () =>
     (await serverFetch('/api/browser/policies')) ?? { available: false },
   saveBrowserPolicy: async (policy) =>

@@ -566,3 +566,5 @@ Add account-scoped acknowledged VK sticker catalogs, native pack/keyword and usa
 Allow later foreground commands to acquire a fresh shared VK queue after the previous owner fully drains. Preserve stopped admission during close, FIFO ordering and explicit reviewed sends without replaying persisted work.
 
 Load each live VK peer's native 100-message context before its first incoming automation event. Keep historical messages from triggering replies, retain existing edits and exact partial coverage, reject incomplete or unacknowledged windows, and preserve credential, cursor and shutdown ownership.
+
+Add a bounded redacted live server log through CLI, both default Lino transports and four-language Settings controls. Retain entries through failed reads, back off retries, acknowledge clipboard outcomes and drain owned polling on close. Strengthen structured file/stdout redaction without invoking getters or toJSON.

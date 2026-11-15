@@ -29,6 +29,7 @@ import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
 import { BrowserSettings } from './settings-browser.js';
+import { DiagnosticSettings } from './settings-diagnostics.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -321,6 +322,7 @@ export const SettingsView = () => {
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(BrowserSettings, { key: 'browser', api }),
+    el(DiagnosticSettings, { key: 'diagnostics', api }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),

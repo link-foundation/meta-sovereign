@@ -21,6 +21,7 @@ import { chmod, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { redact } from './redact.js';
+import { redactLogValue } from './log-value.js';
 import { renameDurableSync } from '../storage/durable.js';
 
 // A stray BigInt (e.g. a GramJS account id) must never crash a log write.
@@ -29,13 +30,19 @@ const safe = (_key, value) =>
 
 // Every line is redacted (tokens in URLs, Authorization, sessions, passwords)
 // before it is written or echoed (R-Z2).
-const formatLine = (entry) =>
-  `${redact(
+export const formatServerLogLine = (entry) => {
+  const value = redactLogValue(entry);
+  return `${redact(
     JSON.stringify(
-      { ts: new Date().toISOString(), level: entry.level ?? 'info', ...entry },
+      {
+        ts: new Date().toISOString(),
+        level: value?.level ?? 'info',
+        ...value,
+      },
       safe
     )
   )}\n`;
+};
 
 // The log is rotated by size: meta-sovereign.log -> .1 -> .2 ... (R-Z2).
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -98,7 +105,7 @@ export const createSafeWriter = (sinks) => {
   };
   const emit = (line) => {
     if (dropped > 0) {
-      const summary = formatLine({
+      const summary = formatServerLogLine({
         level: 'warn',
         event: 'log_lines_dropped',
         count: dropped,
@@ -122,7 +129,7 @@ export const jsonLog = ({
   write = (line) => process.stdout.write(line),
 } = {}) => {
   const emit = createSafeWriter([write]);
-  return (entry) => emit(formatLine(entry));
+  return (entry) => emit(formatServerLogLine(entry));
 };
 
 /**
@@ -182,7 +189,7 @@ export const createServerLog = async ({
     size += line.length;
   };
   emit = createSafeWriter([toFile, ...(toStdout ? [stdout] : [])]);
-  const log = (entry) => emit(formatLine(entry));
+  const log = (entry) => emit(formatServerLogLine(entry));
   log({ level: 'info', event: 'log_opened', file, pid: process.pid });
   return {
     log,

@@ -166,6 +166,8 @@ import { createConversationKnowledge } from './conversation-knowledge.js';
 import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
+import { createLogJournal } from './log-journal.js';
+import { handleDiagnostics } from './routes-diagnostics.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { listenLocal } from './local-tls.js';
 import { handlePullRoutes, pullContext } from './routes-pull.js';
@@ -790,6 +792,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   for (const handle of [
+    () => handleDiagnostics(req, res, p, url, ctx),
     () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleVkSendQueue(store, req, res, p, url, ctx),
     () => handleVkCache(store, req, res, p, url, ctx),
@@ -1134,6 +1137,8 @@ export const startServer = async ({
   // Private rolling-worker options; the public listener remains in its host.
   front,
 } = {}) => {
+  const logJournal = createLogJournal({ sink: log });
+  log = logJournal.log;
   const { store, resolvedArchiveDir, flush, releaseStore, storeHealth } =
     await initStore({
       providedStore,
@@ -1183,6 +1188,7 @@ export const startServer = async ({
     passcode: createPasscodeLock({ dir: storeDir }),
     log,
     clientLog: createClientLogRoute(),
+    logJournal,
     learned: createLearnedRoute(),
     githubCheck: githubCheckOf(store, log, githubCheck),
     autoImport: null,
@@ -1226,22 +1232,34 @@ export const startServer = async ({
     releaseBeforeListen({ wsHandle, signaling, lifecycle, flush, releaseStore })
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);
-  return {
-    port: listening.listener.address().port,
-    tls: ctx.tls,
-    store,
-    bus: lifecycle.bus,
-    sync: wsHandle,
+  return serverHandle(store, ctx, listening, lifecycle, {
+    wsHandle,
     signaling,
-    archiveDir: resolvedArchiveDir,
-    allowOrigins: ctx.allowOrigins,
-    uiUrl: ctx.uiUrl,
-    localUi: ctx.localUi,
-    activate: lifecycle.activate,
-    drain: server.requestGate.drain,
-    passcodeState: () => ctx.passcode.status(),
-    inheritUnlock: () => ctx.passcode.inheritUnlock(),
-    close: (options) =>
-      lifecycle.close(listening, { wsHandle, signaling }, options),
-  };
+    server,
+  });
 };
+
+const serverHandle = (
+  store,
+  ctx,
+  listening,
+  lifecycle,
+  { wsHandle, signaling, server }
+) => ({
+  port: listening.listener.address().port,
+  tls: ctx.tls,
+  store,
+  bus: lifecycle.bus,
+  sync: wsHandle,
+  signaling,
+  archiveDir: ctx.archiveDir,
+  allowOrigins: ctx.allowOrigins,
+  uiUrl: ctx.uiUrl,
+  localUi: ctx.localUi,
+  activate: lifecycle.activate,
+  drain: server.requestGate.drain,
+  passcodeState: () => ctx.passcode.status(),
+  inheritUnlock: () => ctx.passcode.inheritUnlock(),
+  close: (options) =>
+    lifecycle.close(listening, { wsHandle, signaling }, options),
+});
