@@ -1,4 +1,5 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { observeInitialFriendCount } from './vk-friend-stats.js';
 import {
   VK_FRIENDS_STATE as STATE,
   VK_FRIENDS_PLAN as PLAN,
@@ -38,6 +39,7 @@ export const previewVkFriendPlan = async ({
   provider,
   isStopped,
   now,
+  publishFriendStats,
 }) => {
   if (isStopped()) {
     refuse('Service stopped');
@@ -50,6 +52,8 @@ export const previewVkFriendPlan = async ({
     () => live.friendSnapshot({ ...options, ...settings, observeIds }),
     options.token
   );
+  await observeInitialFriendCount(store, source.accountId, source.count, now());
+  await publishFriendStats?.(source.accountId);
   const previous = new Map();
   for (const userId of new Set([...observeIds, ...source.ids])) {
     previous.set(
@@ -121,5 +125,5 @@ export const previewVkFriendPlan = async ({
     items,
     status: 'review',
   });
-  return readVkFriends(store);
+  return readVkFriends(store, now());
 };

@@ -505,7 +505,7 @@ export const serverPostConfirmed = async (path, body, ask, options) => {
 /** The server bridge for ./automation-api.js; null means "no server". */
 const remote = {
   request: serverResponse,
-  get: (path) => serverFetch(path),
+  get: (path, init, options) => serverFetch(path, init, options),
   post: (path, body) => postJson(path, body),
   report: (path, body, options) => serverPostReport(path, body, options),
   // `{ network: true }`: a request that got no answer comes back as

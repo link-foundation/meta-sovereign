@@ -19,6 +19,7 @@ export { loadVkFriends, saveVkFriends } from './vk-friends-settings.js';
 const execute = createStoreQueue();
 export const createVkFriendsJob = ({
   store,
+  storeDir,
   resolve = getSource,
   optionsFor = () => liveOptionsFrom(store, 'vk'),
   now = Date.now,
@@ -31,7 +32,7 @@ export const createVkFriendsJob = ({
   const stateKey = profile.state ?? STATE;
   const planKey = profile.plan ?? PLAN;
   const settingsFor = profile.settings ?? readVkFriendSettings;
-  const read = profile.read ?? readVkFriends;
+  const read = profile.read ?? ((target) => readVkFriends(target, now()));
   let stopped = false;
   let timer;
   let active;
@@ -47,6 +48,13 @@ export const createVkFriendsJob = ({
     isStopped: () => stopped,
     provider: (capability = profile.capability) =>
       friendProvider(resolve, optionsFor, capability),
+    publishFriendStats: storeDir
+      ? async (accountId) => {
+          const { publishVkFriendStats } =
+            await import('./vk-friend-stats-files.js');
+          await publishVkFriendStats(store, storeDir, accountId, now());
+        }
+      : undefined,
   };
   const priority = createVkFriendPriority(context);
   const preview = (scheduled = false) =>

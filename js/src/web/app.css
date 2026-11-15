@@ -135,6 +135,29 @@ body {
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
+.vk-friend-stats {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  font-size: 0.85rem;
+  max-height: 35dvh;
+  overflow-y: auto;
+}
+.vk-friend-stats details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.vk-friend-stats summary {
+  cursor: pointer;
+}
+.vk-friend-stats p {
+  margin: 0.4rem 0 0;
+}
 /* Header controls: one height, one outline style, icon + label; the
    label folds away on phones (the aria-label stays). */
 .header-btn {
@@ -13641,6 +13664,15 @@ main[data-view='operator']:has(> .operator-workspace) {
   max-width: none;
   padding: 0;
 }
+main[data-view='operator']:has(> .vk-friend-stats) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--topbar-h));
+}
+main[data-view='operator']:has(> .vk-friend-stats) > .operator-workspace {
+  height: auto;
+  flex: 1 1 auto;
+}
 .operator-workspace {
   height: calc(100dvh - var(--topbar-h));
   min-height: 0;
@@ -13715,6 +13747,11 @@ main[data-view='operator']:has(> .operator-workspace) {
   color: #000;
 }
 @media (max-width: 640px) {
+  main[data-view='operator']:has(> .vk-friend-stats) {
+    height: calc(
+      100dvh - var(--topbar-h) - var(--bottom-nav-h) - var(--safe-bottom)
+    );
+  }
   .operator-workspace {
     height: calc(
       100dvh - var(--topbar-h) - var(--bottom-nav-h) - var(--safe-bottom)

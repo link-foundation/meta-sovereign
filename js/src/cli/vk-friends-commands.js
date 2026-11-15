@@ -67,8 +67,9 @@ export const createVkFriendPolicyCommands = ({
       );
     }
     const confirm = bool(args.confirm);
+    const storeDir = args.store ?? defaultStoreDir();
     const store = await (action === 'status' ? openReadOnly : openStore)(
-      args.store ?? defaultStoreDir()
+      storeDir
     );
     let job;
     try {
@@ -80,14 +81,14 @@ export const createVkFriendPolicyCommands = ({
         );
       }
       if (['plan', 'run'].includes(action)) {
-        job = createJob({ store });
+        job = createJob({ store, storeDir });
         answer =
           action === 'plan'
             ? await job.preview()
             : await job.run({ planId: args.plan, confirm });
       }
       if (actions[action]) {
-        job = createJob({ store });
+        job = createJob({ store, storeDir });
         answer = await actions[action](job);
       }
       log(JSON.stringify({ ...answer, schedulerRunning: false }, null, 2));

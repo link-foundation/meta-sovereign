@@ -80,7 +80,7 @@ export const applyVkFriendPlan = async (context, plan) => {
     stateKey: STATE,
     pace: 10000,
     event: 'vk_friend_batch',
-    read: readVkFriends,
+    read: (target) => readVkFriends(target, now()),
     perform: async (item, reserved) => {
       const result = await performVkFriendAction(
         context,

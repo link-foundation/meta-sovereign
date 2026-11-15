@@ -37,6 +37,7 @@ import { AddlistHost } from './chat-folder-share.js';
 import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
+import { VkFriendStatsBanner } from './vk-friend-stats-banner.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
@@ -192,6 +193,7 @@ const App = () => {
             'data-view': active,
           },
           [
+            el(VkFriendStatsBanner, { key: 'vk-friend-stats', api }),
             el(DiskBanner, { key: 'disk', api }),
             el(SchemaBanner, { key: 'schema', api }),
             el(ApiErrorToast, { key: 'api-error' }),

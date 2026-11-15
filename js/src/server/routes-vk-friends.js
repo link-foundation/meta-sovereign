@@ -1,7 +1,9 @@
 import { loadVkFriends, saveVkFriends } from '../automation/vk-friends.js';
 import { createVkJobRoute } from './routes-vk-job.js';
+import { readVkFriendStats } from '../automation/vk-friend-stats.js';
+import { json } from './util.js';
 
-export const handleVkFriends = createVkJobRoute({
+const policyRoute = createVkJobRoute({
   path: '/api/vk/friends',
   load: loadVkFriends,
   save: saveVkFriends,
@@ -13,3 +15,19 @@ export const handleVkFriends = createVkJobRoute({
       ctx.vkFriends.run({ planId: body.planId, confirm: body.confirm }),
   },
 });
+
+export const handleVkFriends = async (store, req, res, path, ...rest) => {
+  if (path !== '/api/vk/friends/stats') {
+    return policyRoute(store, req, res, path, ...rest);
+  }
+  if (req.method !== 'GET') {
+    json(res, 405, { ok: false, error: 'method not supported' });
+    return true;
+  }
+  try {
+    json(res, 200, await readVkFriendStats(store));
+  } catch {
+    json(res, 503, { ok: false, error: 'friend statistics unavailable' });
+  }
+  return true;
+};

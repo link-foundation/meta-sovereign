@@ -1009,8 +1009,16 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
 
 // The browser sender signs in to the web apps in profiles inside the store
 // (owner only), the same ones "Sign in to WhatsApp Web" opens (R-Z9).
-const withStoreProfiles = (automations = {}, storeDir, front) => ({
+const withStoreProfiles = (
+  automations = {},
+  storeDir,
+  front,
+  providedStore
+) => ({
   ...automations,
+  ...(!providedStore
+    ? { vkFriends: { storeDir, ...automations.vkFriends } }
+    : {}),
   ...(front?.warming ? { deferRecovery: true } : {}),
   browser: {
     profileDirFor: (source) => profileDirIn(storeDir, source),
@@ -1149,7 +1157,7 @@ export const startServer = async ({
     });
   // Services that run in the background start only after the port is ours.
   const later = [];
-  automations = withStoreProfiles(automations, storeDir, front);
+  automations = withStoreProfiles(automations, storeDir, front, providedStore);
   const chatIndex = createChatIndex(store, { log });
   const telegramAccount = telegramAccountFor(
     store,

@@ -2,8 +2,15 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { safeMessage } from '../server/redact.js';
 import { friendLedgerId, uncertainFriendAction } from './vk-friends-records.js';
+import { retainFriendAcceptance } from './vk-friend-stats.js';
 const failedStatus = (issued, error) =>
   issued && !error.vkCode && error.ambiguous !== false ? 'unknown' : 'refused';
+const rememberFriendResult = async (context, result) => {
+  await retainFriendAcceptance(context.store, result);
+  if (result.status === 'confirmed' && result.outcome === 'accepted') {
+    await context.publishFriendStats?.(result.accountId);
+  }
+};
 const intentStillOwned = async (store, intent, saved) => {
   const current = await store.get(intent.id);
   return (
@@ -26,6 +33,7 @@ export const performVkFriendAction = async (
   ) {
     return { userId: item.userId, status: 'unknown' };
   }
+  await retainFriendAcceptance(store, previous);
   const intent = {
     id,
     accountId: plan.accountId,
@@ -53,7 +61,12 @@ export const performVkFriendAction = async (
         code: 'unconfirmed',
       });
     }
-    result = { ...intent, ...receipt, status: 'confirmed' };
+    result = {
+      ...intent,
+      ...receipt,
+      status: 'confirmed',
+      confirmedAt: new Date(now()).toISOString(),
+    };
   } catch (error) {
     result = {
       ...intent,
@@ -71,6 +84,7 @@ export const performVkFriendAction = async (
   }
   // A refused outcome write retains durable pending intent, never success.
   await saveAcknowledgedRecord(store, result);
+  await rememberFriendResult(context, result);
   return {
     userId: item.userId,
     status: result.status,

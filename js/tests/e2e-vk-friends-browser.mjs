@@ -1,6 +1,7 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyVkFriends } from './helpers/e2e-vk-friends.mjs';
 import { verifyVkFriendPriority } from './helpers/e2e-vk-friend-priority.mjs';
+import { verifyVkFriendStats } from './helpers/e2e-vk-friend-stats.mjs';
 import { verifyVkDesktopPolicy } from './helpers/e2e-vk-desktop-policy.mjs';
 import { verifyVkCancelled } from './helpers/e2e-vk-cancelled.mjs';
 import { verifyVkGreet } from './helpers/e2e-vk-greet.mjs';
@@ -17,6 +18,7 @@ import { verifyVkSendQueue } from './helpers/e2e-vk-send-queue.mjs';
 await runBrowserScenarios('vk-friends', [
   verifyVkFriends,
   verifyVkFriendPriority,
+  verifyVkFriendStats,
   verifyVkDesktopPolicy,
   verifyVkCancelled,
   verifyVkGreet,

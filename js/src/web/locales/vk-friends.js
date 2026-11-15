@@ -1,6 +1,7 @@
 import { vkFriendPolicyLocale } from './vk-friend-policy.js';
 import { vkFriendPriorityLocale } from './vk-friend-priority.js';
 import { vkMessageDefaultsLocale } from './vk-message-defaults.js';
+import { vkFriendStatsLocale } from './vk-friend-stats.js';
 const keys = [
   'title',
   'hint',
@@ -175,4 +176,5 @@ export const vkFriendsLocale = (language) => ({
   ...vkFriendPolicyLocale(language),
   ...vkFriendPriorityLocale(language),
   ...vkMessageDefaultsLocale(language),
+  ...vkFriendStatsLocale(language),
 });

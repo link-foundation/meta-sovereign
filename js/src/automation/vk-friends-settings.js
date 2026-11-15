@@ -1,6 +1,7 @@
 /** Browser-safe acknowledged policy; priority IDs belong to the owner. */
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
+import { readVkFriendStats } from './vk-friend-stats.js';
 
 export const VK_FRIENDS_JOB = 'provider-job:vk:friends';
 export const VK_FRIENDS_STATE = 'provider-job-state:vk:friends';
@@ -69,10 +70,11 @@ export const legacyFriendPriority = (value) =>
     : positiveVkId(value)
       ? [value]
       : value;
-export const readVkFriends = async (store) => {
+export const readVkFriends = async (store, time = Date.now()) => {
   const last = await store.get(VK_FRIENDS_STATE);
   return {
     ok: true,
+    statistics: await readVkFriendStats(store, time),
     settings: await readVkFriendSettings(store),
     plan: await store.get(VK_FRIENDS_PLAN),
     last: last
