@@ -43,6 +43,7 @@ import {
 } from '../storage/soft-delete.js';
 import { exportEncrypted } from '../storage/export-encrypted.js';
 import { SCHEMA_ID } from '../storage/migrations/index.js';
+import { storeSourceLink } from '../sources/store-messages.js';
 
 const includeTombstones = (url) => {
   const v = url?.searchParams.get('include');
@@ -105,7 +106,7 @@ const putLink = async (store, req, res) => {
   if (isReserved(link.id)) {
     return reserved(res);
   }
-  await store.put(link);
+  await storeSourceLink(store, link);
   return json(res, 200, maskSecret(link)) ?? true;
 };
 

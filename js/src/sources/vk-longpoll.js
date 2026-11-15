@@ -21,6 +21,7 @@
  */
 
 import { putAll } from '../storage/universal.js';
+import { storeSourceMessages } from './store-messages.js';
 import { stampSourceLink } from './index.js';
 import { vkLinksOf, vkMessageLink, vkTypingFromUpdate } from './vk.js';
 import { savePullState } from './pull-runner.js';
@@ -294,7 +295,7 @@ export const createVkLongPoll = ({
     const read = state.mode === 'community' ? communityBatch : userBatch;
     const batch = read(updates, now());
     const links = await linksOfBatch(live, batch);
-    await putAll(store, stamp(links));
+    await storeSourceMessages(store, SOURCE, stamp(links));
     await putAll(store, batch.typing);
     // The cursor moves only now that the batch is stored.
     await savePullState(store, SOURCE, { ts: String(answer.ts) });

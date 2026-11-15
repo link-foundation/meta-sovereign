@@ -19,7 +19,7 @@
 
 import { emailSource } from './email.js';
 import { emailOptionsFrom, secretValue } from './email-store.js';
-import { putAll } from '../storage/universal.js';
+import { storeSourceMessages } from './store-messages.js';
 import { telegramSource } from './telegram.js';
 import { vkSource } from './vk.js';
 import { xSource } from './x.js';
@@ -123,7 +123,7 @@ export const stampSourceLink = (link, source) => {
 export const importInto = async (store, source, archive) => {
   const adapter = getSource(source);
   const messages = await adapter.parseArchive(archive);
-  return putAll(store, messages);
+  return storeSourceMessages(store, source, messages);
 };
 
 // The names the connection screens save a network's token under.
@@ -204,8 +204,9 @@ export const pullBrowserInto = async (
       )
     );
   }
-  await putAll(
+  await storeSourceMessages(
     store,
+    source,
     links.map((link) => stampSourceLink(link, source))
   );
   return {
@@ -264,8 +265,9 @@ const pullApiInto = async (store, source, options = {}) => {
   );
   const result = await live.pullMessages({ ...saved, ...given, token, store });
   const links = result.links ?? [];
-  await putAll(
+  await storeSourceMessages(
     store,
+    source,
     links.map((link) => stampSourceLink(link, source))
   );
   // What the pull remembers is written once the links are stored (R-Z5).

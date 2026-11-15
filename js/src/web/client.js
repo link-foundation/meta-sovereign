@@ -20,6 +20,7 @@
  */
 
 import { createReplyCache } from '../replies/reply-cache.js';
+import { storeSourceLink } from '../sources/store-messages.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
 import { createAvailability } from './server-availability.js';
@@ -302,7 +303,7 @@ export const createOfflineClient = ({
 
     // ---- core link operations ----------------------------------------
     async put(link) {
-      return store.put(link);
+      return storeSourceLink(store, link);
     },
     async get(id) {
       return store.get(id);

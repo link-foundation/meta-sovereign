@@ -1,3 +1,10 @@
+Active incoming VK attachment metadata (VK09):
+
+- [x] Read the complete pinned attachment trigger. Draft a separately enabled first-observed collection across archive, live, older-history, automatic-import and individual message writes; preserve message counts and cursor acknowledgement order.
+- [x] Verify stable provider/type/owner identity, deduplication, restart, bounded metadata, cursor recovery, explicit pause/resume and read-only access through focused CLI, both Lino encodings and offline checks. Reproduce the missing feature on the actual parent.
+- [x] Verify the shared four-language VK connection controls in one native browser scenario and independent MCP review, with before/after desktop/phone screenshots, zero provider effects and owned resource drainage.
+- [ ] Preserve checked source/log evidence, publish atomically and inspect every exact-head workflow. Every original unmet criterion remains required; PR57 stays draft/unmerged.
+
 Active preset catalog and sync-bundle CI corrections:
 
 - [x] Preserve exact-head `e386d58b` runtime failures and reproduce both catalog regressions with existing tests. Retain the all-preset English identity contract and assert the new disabled safe preset.

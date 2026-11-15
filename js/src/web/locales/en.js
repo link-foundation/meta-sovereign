@@ -1,3 +1,4 @@
+import { vkAttachmentsLocale } from './vk-attachments.js';
 import { enGratitude } from './en-gratitude.js';
 import { enGreetingCatalog } from './en-greeting-catalog.js';
 import { enAnswerModel } from './en-answer-model.js';
@@ -26,12 +27,11 @@ import { enFolders } from './en-folders.js';
 import { enTranscribe } from './en-transcribe.js';
 import { enGithub } from './en-github.js';
 import { enConversation } from './en-conversation.js';
-
 import { enFeedback } from './en-feedback.js';
-
 import { enStickers } from './en-stickers.js';
 
 export const en = {
+  ...vkAttachmentsLocale('en'),
   ...enGratitude,
   ...enVacancy,
   ...enForms,

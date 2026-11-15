@@ -169,6 +169,7 @@ ${FORMS_ASSIGNMENT_HELP}`;
 
 export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
   greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--texts=<phrases separated by newlines>] [--json] [--store=<dir>]
+  vk-attachments    [--after=<cursor>] [--limit=1..100] [--enabled=true|false] [--store=<dir>]
   greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
   greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
 

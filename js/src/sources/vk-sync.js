@@ -13,7 +13,7 @@
  * `older` (./vk-older.js) is scroll-back for a VK chat (R-Z20).
  */
 
-import { putAll } from '../storage/universal.js';
+import { storeSourceMessages } from './store-messages.js';
 import { liveOptionsFrom } from './index.js';
 import { createVkLive } from './vk.js';
 import { VK_COMMUNITY_RPS, VK_USER_RPS } from './vk-limits.js';
@@ -80,7 +80,7 @@ export const createVkInbox = ({
   // The newest message of each conversation, stored.
   const catchUp = async (live) => {
     const result = await live.pullMessages({ count: 50 });
-    await putAll(store, stamp(result.links));
+    await storeSourceMessages(store, SOURCE, stamp(result.links));
     return result;
   };
 
@@ -108,7 +108,7 @@ export const createVkInbox = ({
         offset: Number(done[peerId] ?? 0),
         maxPages: BACKFILL_PAGES,
       });
-      await putAll(store, stamp(page.links));
+      await storeSourceMessages(store, SOURCE, stamp(page.links));
       imported += page.links.length;
       done[peerId] = page.nextOffset ?? 'done';
       // Saved after the write: a failed write is read again.

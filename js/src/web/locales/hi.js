@@ -1,3 +1,4 @@
+import { vkAttachmentsLocale } from './vk-attachments.js';
 import { hiGratitude } from './hi-gratitude.js';
 import { hiGreetingCatalog } from './hi-greeting-catalog.js';
 import { hiAnswerModel } from './hi-answer-model.js';
@@ -26,14 +27,13 @@ import { hiChatAccount } from './hi-chat-account.js';
 import { hiFolders } from './hi-folders.js';
 import { hiTranscribe } from './hi-transcribe.js';
 import { hiGithub } from './hi-github.js';
-
 import { hiConversation } from './hi-conversation.js';
-
 import { hiFeedback } from './hi-feedback.js';
 
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...vkAttachmentsLocale('hi'),
   ...hiGratitude,
   ...hiVacancy,
   ...hiForms,

@@ -16,6 +16,7 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
 import path from 'node:path';
 import { createContactCommands } from './contact-commands.js';
+import { createVkAttachmentCommands } from './vk-attachment-commands.js';
 import { createTelegramGreetingCommands } from './telegram-greetings-commands.js';
 import { createTelegramUsersCommands } from './telegram-users-commands.js';
 import { createTelegramLoginCommands } from './telegram-login-commands.js';
@@ -802,6 +803,7 @@ const COMMANDS = {
   // Let Safari trust the server's own certificate (R-Y64).
   ...createTrustCommands(),
   ...createContactCommands({ openStore }),
+  ...createVkAttachmentCommands({ openStore, openReadOnly }),
   ...createTelegramExportCommands({ openStore }),
   ...createTelegramUsersCommands({ openStore }),
   ...createTelegramGreetingCommands({ openStore }),

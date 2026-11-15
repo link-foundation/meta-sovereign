@@ -40,6 +40,7 @@ import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 import { createConversationApi } from './conversation-api.js';
 import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
+import { createVkAttachmentsApi } from './vk-attachments-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
@@ -544,6 +545,10 @@ const rawApi = {
     serverPostReport('/api/browser/policies', policy, { network: true }),
   ...createFeedbackApi(remote),
   ...createStickerCollectionsApi({
+    ...remote,
+    local: async () => (await ensure()).store,
+  }),
+  ...createVkAttachmentsApi({
     ...remote,
     local: async () => (await ensure()).store,
   }),

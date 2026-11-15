@@ -108,6 +108,7 @@ import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
 import { handleStickerCollections } from './routes-sticker-collections.js';
+import { handleVkAttachments } from './routes-vk-attachments.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
@@ -655,6 +656,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   for (const handle of [
+    () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleBrowserRoutes(store, req, res, p, url, ctx),

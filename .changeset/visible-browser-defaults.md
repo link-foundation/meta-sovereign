@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add explicitly enabled incoming VK attachment metadata collection with first-observation deduplication, durable pause/resume, cursor-safe read recovery and CLI, default Lino API and four-language connection controls. Preserve existing message counts and media rendering.
+
 Retain structured Telegram Bot API, caption, MTProto and Desktop-export destinations in shared question planning and frozen history checks. Require fresh review for hidden targets, refuse ambiguous metadata and expose literal destinations in CLI and shared answer evidence.
 
 Preserve bounded native message link destinations through pending-turn review, archived planning and frozen native replies. Display destinations as literal text, require fresh review for hidden targets and refuse choice/text/prefill actions after destination-only changes.
