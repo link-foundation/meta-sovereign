@@ -1493,4 +1493,4 @@ required under VK26. VK23 and every other unmet criterion remain unchecked.
 
 ## Active VK24 caches and VK25 sticker catalog
 
-[The cache checklist](vk-cache-plan.md) and [catalog checklist](vk-stickers-plan.md) track pinned parity and local evidence. VK24 requires the [CodeQL assertion correction](vk-cache-security-follow-up.md); VK25 has [focused/native/MCP evidence](vk-stickers.md). Exact-head hosted verification and every unchecked issue requirement remain active.
+[The cache checklist](vk-cache-plan.md), [catalog checklist](vk-stickers-plan.md) and [runner checklist](vk-runner-plan.md) track pinned parity and local evidence. VK24 requires the [CodeQL assertion correction](vk-cache-security-follow-up.md); VK25 has [focused/native/MCP evidence](vk-stickers.md). [Durable trigger admission](vk-trigger-state.md) reproduces duplicate drafts and premature shutdown flush. Exact-head hosted verification and every unchecked issue requirement remain active.

@@ -18,7 +18,6 @@
  */
 
 import { setTimeout as delay } from 'node:timers/promises';
-import { clearInterval, setInterval } from 'node:timers';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
@@ -32,16 +31,10 @@ import {
 } from './salary-exchange-policy.js';
 import { createAutomationRun } from './run-automation.js';
 import {
-  AUTOMATION_PREFIX,
   RUN_PREFIX,
-  STATE_PREFIX,
   automationKey,
   editId,
   withEdit,
-  hasTrigger,
-  incomingTrigger,
-  normalizeAutomation,
-  parseDuration,
   planAutomation,
 } from './automations.js';
 import {
@@ -229,133 +222,4 @@ export const createAutomationRunner = ({
   };
 };
 
-// Only the automations are read (and copied), not the whole store.
-const enabledAutomations = async (store) =>
-  (await store.query((l) => l?.id?.startsWith(AUTOMATION_PREFIX)))
-    .map((l) => {
-      try {
-        return normalizeAutomation(l);
-      } catch {
-        return null;
-      }
-    })
-    .filter((a) => a?.enabled);
-
-/**
- * Fire `schedule` triggers every `tickMs` and `incoming` triggers on
- * every new message someone else sends — vk-bot's `executeTrigger`.
- * Triggered runs only queue drafts (see `run`): nothing is sent until
- * the user confirms.
- */
-export const createAutomationScheduler = ({
-  store,
-  runner,
-  isSelf = (sender) => sender === 'me',
-  clock = () => new Date(),
-  tickMs = 60_000,
-  log = () => {},
-} = {}) => {
-  let timer = null;
-  let unsubscribe = null;
-  let startedAt = 0;
-  // While started, the enabled automations are kept until one changes:
-  // a message arriving does not read them again.
-  let known = null;
-  const automations = () => {
-    if (!unsubscribe) {
-      return enabledAutomations(store);
-    }
-    known ??= enabledAutomations(store).catch((error) => {
-      known = null;
-      throw error;
-    });
-    return known;
-  };
-  const safely = (task) =>
-    task.catch((error) => {
-      log({ event: 'automation_failed', error: error.message });
-      return null;
-    });
-
-  const due = async (automation, now) => {
-    const trigger = automation.triggers.find((t) => t.kind === 'schedule');
-    const state = await store.get(
-      `${STATE_PREFIX}${automationKey(automation)}`
-    );
-    const last = Date.parse(state?.lastRunAt ?? '') || 0;
-    return now - last >= parseDuration(trigger.every);
-  };
-
-  const tick = async () => {
-    const now = clock().getTime();
-    const ran = [];
-    for (const automation of await automations()) {
-      if (hasTrigger(automation, 'schedule') && (await due(automation, now))) {
-        await store.put({
-          id: `${STATE_PREFIX}${automationKey(automation)}`,
-          tokens: ['automation-state', automationKey(automation)],
-          automation: automation.id,
-          lastRunAt: new Date(now).toISOString(),
-          lastTrigger: 'schedule',
-        });
-        ran.push(await safely(runner.run(automation, { trigger: 'schedule' })));
-      }
-    }
-    return ran.filter(Boolean);
-  };
-
-  const onMessage = async (message) => {
-    const at = Date.parse(message.timestamp ?? '') || 0;
-    if (
-      isSelf(message.sender) ||
-      message.outgoing === true ||
-      message.out === true ||
-      message.out === 1 ||
-      at < startedAt ||
-      message.service ||
-      message.deleted
-    ) {
-      return [];
-    }
-    const ran = [];
-    for (const automation of await automations()) {
-      if (incomingTrigger(automation, message.body, message)) {
-        ran.push(
-          await safely(
-            runner.run(automation, {
-              trigger: 'incoming',
-              targets: [{ source: message.source, chat: message.chat }],
-            })
-          )
-        );
-      }
-    }
-    return ran.filter(Boolean);
-  };
-
-  return {
-    tick,
-    onMessage,
-    start() {
-      startedAt = clock().getTime();
-      timer = setInterval(() => safely(tick()), tickMs);
-      timer.unref?.();
-      unsubscribe = store.subscribe?.((event) => {
-        const id = event?.link?.id ?? event?.id;
-        if (typeof id === 'string' && id.startsWith(AUTOMATION_PREFIX)) {
-          known = null;
-        }
-        if (event?.type === 'put' && event.link?.id?.startsWith('msg:')) {
-          safely(onMessage(event.link));
-        }
-      });
-    },
-    stop() {
-      clearInterval(timer);
-      unsubscribe?.();
-      unsubscribe = null;
-      known = null;
-      timer = null;
-    },
-  };
-};
+export { createAutomationScheduler } from './scheduler.js';

@@ -538,7 +538,7 @@ const automationContext = (
     questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
-      scheduler.stop();
+      await scheduler.stop();
       await Promise.all(ownedVkJobs.map((job) => job.stop()));
       await questionBrowser.close();
       await send.close?.();
