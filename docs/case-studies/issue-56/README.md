@@ -1,3 +1,5 @@
+[Exact-head hosted verification for VK01](hosted-verification-727.md) passes all five workflows and 66 jobs; 78 original inventory rows remain unchecked.
+
 # Issue 56: unified automation and device architecture
 
 [Exact-head hosted verification for saved templates and download availability](hosted-verification-d34.md) records five passing workflows; QA03/VD10 complete, 79 rows remain unchecked.

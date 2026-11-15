@@ -1,0 +1,12 @@
+{
+  "archive": "hosted-verification-727.tar.gz",
+  "files": {
+    "ci-logs/hosted-verification-727-43665431125.json": "2c745bdd4f088bc520c91169139ce50563eed0a564dc3a959108e20cbde95dc9",
+    "ci-logs/hosted-verification-727-43665431135.json": "ebc8f228295dba2be9760df051320f9cfe6275467ba5c267bd1e9a4634effeab",
+    "ci-logs/hosted-verification-727-43665431153.json": "9164c2ae9821e31b906ccf3f4430703ff3497e1cc01a34c6ca65d916d3aa3e2d",
+    "ci-logs/hosted-verification-727-43665431162.json": "5fe6cf1bc0e44653eb96f55ba8c5418a92f1b78dc71eb124117f1297dac871d0",
+    "ci-logs/hosted-verification-727-43665431167.json": "1a6ae2624f23c3db425a44d1bcd662488899003a7948c97d11d28b73dab7afc6",
+    "experiments/issue-56/collect-hosted-verification.py": "6a47b93f6939734d3c07f747f752039ba1ba73af296086846ffd2ef1ed2946b4",
+    "metadata.json": "dd31bf5d61bfff7820d1b7d5f79bf484974ba9c8733ca29397d2c0b3d4a5819a"
+  }
+}

@@ -82,6 +82,6 @@ the missing-binary diagnostic is preserved.
 The [checked archive](data/vk-greeting-catalog.tar.gz) and
 [SHA-256 manifest](data/vk-greeting-catalog.tar.sha256.json) preserve the pinned
 trigger, actual parent sources, finite probes, focused/native/MCP logs and
-screenshots. Exact-head hosted verification remains required after publication.
+screenshots. All five exact-head `727e361a` workflows now pass; see [hosted verification](hosted-verification-727.md). VK01 is complete.
 VK26's continuous trigger state and every other unchecked issue requirement stay
 active. PR57 remains draft and unmerged.
