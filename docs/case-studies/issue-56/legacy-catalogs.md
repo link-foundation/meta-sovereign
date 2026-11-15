@@ -39,8 +39,8 @@ HTTP refusal and missing owner catalog. The after case checks exact owner values
 and zero alerts. The same scenario is registered in the existing hosted
 engagement browser group; full runtime/browser matrices remain hosted work.
 
-| Published parent | Corrected saved read |
-| --- | --- |
+| Published parent                                                                                              | Corrected saved read                                                                                  |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | ![Defaults instead of saved birthday catalog](../../screenshots/issue-56-legacy-catalogs/before-birthday.png) | ![Owner catalog and singleton sticker](../../screenshots/issue-56-legacy-catalogs/after-birthday.png) |
 
 Pinned source: `konard/vk-bot-desktop` at
@@ -51,3 +51,10 @@ remain required in [PR #57](https://github.com/link-foundation/meta-sovereign/pu
 
 Evidence: [archive](data/legacy-catalogs.tar.gz),
 [hash manifest](data/legacy-catalogs.tar.sha256.json).
+
+The subsequent `bb9d8f23` [format job](https://github.com/link-foundation/meta-sovereign/actions/runs/43771059305/job/132987145057)
+reports this document's unformatted table at log lines 502–504. Formatting the
+table corrects that exact failure; the focused Prettier check passes. ESLint
+reported zero errors and five unrelated existing warnings. The test matrix was
+skipped after the format failure, so this run cannot verify the hashing change
+on hosted macOS. Replacement exact-head checks remain required.
