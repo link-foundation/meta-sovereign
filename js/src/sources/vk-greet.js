@@ -36,7 +36,7 @@ export const createVkGreet = ({ call, once, maintenance, conversations }) => ({
       'users.get',
       {
         user_ids: userId,
-        fields: 'online,can_write_private_message',
+        fields: `online,can_write_private_message${options.birthdaySequence ? ',bdate' : ''}`,
       },
       options.token
     );
@@ -59,6 +59,7 @@ export const createVkGreet = ({ call, once, maintenance, conversations }) => ({
       online: user.online === 1,
       canWrite: state.canWrite && user.can_write_private_message === 1,
       friendCount,
+      ...(options.birthdaySequence ? { birthday: user.bdate ?? null } : {}),
     };
     return {
       ...result,

@@ -5,6 +5,7 @@ import { positiveVkId, readVkFriendSettings } from './vk-friends-settings.js';
 import { readVkCancelledSettings } from './vk-cancelled-settings.js';
 import { vkGreetSettings } from './vk-greet-settings.js';
 import { vkReengageSettings } from './vk-reengage-settings.js';
+import { vkBirthdaySettings } from './vk-birthday-settings.js';
 
 export const maintenanceKinds = ['cleanup', 'outgoing'];
 export const maintenanceKeys = (kind) => {
@@ -60,6 +61,7 @@ export const protectedVkFriends = async (store, settings) => {
       ...(await readVkFriendSettings(store)).priorityIds,
       ...(await readVkCancelledSettings(store)).priorityIds,
       ...(await vkGreetSettings.settings(store)).priorityIds,
+      ...(await vkBirthdaySettings.settings(store)).priorityIds,
       ...(
         await Promise.all(
           Object.values(vkReengageSettings).map((policy) =>

@@ -2,6 +2,44 @@ import assert from 'node:assert/strict';
 import { saveSettings } from '../../js/src/automation/safety.js';
 import { cancelledNow } from './vk-cancelled-fixture.mjs';
 
+/** Common provider/consent mutations for finite personal-message reviews. */
+export const changePersonalConversation = async (
+  change,
+  { adapter, store, policy }
+) => {
+  const changes = {
+    recent: () => adapter.addMessage(9, 'Recent', { out: 0 }),
+    unread: () => adapter.unread.set(9, 1),
+    permission: () => adapter.canWrite.set(9, false),
+    relation: () => adapter.relations.set(9, 1),
+    optOut: () =>
+      saveSettings(store, { optOut: [{ source: 'vk', chat: '9' }] }),
+    protected: async () =>
+      policy.save(store, {
+        ...(await policy.settings(store)),
+        priorityIds: [9],
+      }),
+    offline: async () => {
+      adapter.online.set(9, 0);
+      await policy.save(store, {
+        ...(await policy.settings(store)),
+        onlineOnly: true,
+      });
+    },
+  };
+  await changes[change]?.();
+};
+
+export const assertPersonalReviewHeld = async (job, adapter, run, change) => {
+  assert.notEqual(
+    (await job.preview()).plan.items[0].reason,
+    'eligible',
+    change
+  );
+  await run(job);
+  assert.equal(adapter.effects.length, 0, change);
+};
+
 /** Finite hostile-input checks shared by personal VK delivery policies. */
 export const verifyPersonalAdmission = async ({
   createAdapter,

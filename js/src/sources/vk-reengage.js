@@ -1,5 +1,6 @@
 import { positiveVkId } from '../automation/vk-friends-settings.js';
 import { vkAudioIdentity } from '../automation/vk-reengage-settings.js';
+import { vkNativeAttachments } from './vk-native-attachment.js';
 
 export const createVkReengage = ({ once, greetings }) => ({
   reengageSnapshot: greetings.greetSnapshot,
@@ -9,6 +10,7 @@ export const createVkReengage = ({ once, greetings }) => ({
     if (item.audio && !vkAudioIdentity(item.audio)) {
       throw new Error('Invalid VK audio attachment identity');
     }
+    const attachments = vkNativeAttachments(item.attachments);
     const id = await once(
       'messages.send',
       {
@@ -18,7 +20,12 @@ export const createVkReengage = ({ once, greetings }) => ({
           ? { sticker_id: item.sticker }
           : item.audio
             ? { attachment: item.audio }
-            : { message: item.text }),
+            : {
+                message: item.text,
+                ...(attachments.length
+                  ? { attachment: attachments.join(',') }
+                  : {}),
+              }),
       },
       options.token,
       { write: true, retries: 0 },

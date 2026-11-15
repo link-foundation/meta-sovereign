@@ -124,6 +124,8 @@ import { reengageKinds } from '../automation/vk-reengage-settings.js';
 import { handleVkReengage } from './routes-vk-reengage.js';
 import { createVkWallJob } from '../automation/vk-wall.js';
 import { handleVkWall } from './routes-vk-wall.js';
+import { createVkBirthdayJob } from '../automation/vk-birthday.js';
+import { handleVkBirthday } from './routes-vk-birthday.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -409,6 +411,11 @@ const automationContext = (
   });
   const vkGreet = createVkGreetJob({ store, ...automations.vkGreet, log: say });
   const vkWall = createVkWallJob({ store, ...automations.vkWall, log: say });
+  const vkBirthday = createVkBirthdayJob({
+    store,
+    ...automations.vkBirthday,
+    log: say,
+  });
   const vkReengage = vkPolicyJobs(
     store,
     reengageKinds,
@@ -428,6 +435,16 @@ const automationContext = (
     automations.vkMaintenance,
     say
   );
+  const ownedVkJobs = [
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkWall,
+    vkBirthday,
+    ...Object.values(vkReengage),
+    ...Object.values(vkMaintenance),
+  ];
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
   const recover = () =>
@@ -444,13 +461,7 @@ const automationContext = (
     // busy port must not run automation on the same store.
     later.push(() => {
       scheduler.start();
-      vkOnline.start();
-      vkFriends.start();
-      vkCancelled.start();
-      vkGreet.start();
-      vkWall.start();
-      Object.values(vkReengage).forEach((job) => job.start());
-      Object.values(vkMaintenance).forEach((job) => job.start());
+      ownedVkJobs.forEach((job) => job.start());
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
       (recovered ?? recover())
@@ -480,21 +491,14 @@ const automationContext = (
     vkGreet,
     vkReengage,
     vkWall,
+    vkBirthday,
     vkMaintenance,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
     closeAutomations: async () => {
       autopilot.stopAll();
       scheduler.stop();
-      await Promise.all([
-        vkOnline.stop(),
-        vkFriends.stop(),
-        vkCancelled.stop(),
-        vkGreet.stop(),
-        vkWall.stop(),
-        ...Object.values(vkReengage).map((job) => job.stop()),
-        ...Object.values(vkMaintenance).map((job) => job.stop()),
-      ]);
+      await Promise.all(ownedVkJobs.map((job) => job.stop()));
       await questionBrowser.close();
       await send.close?.();
     },
@@ -742,6 +746,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkGreet(store, req, res, p, url, ctx),
     () => handleVkReengage(store, req, res, p, url, ctx),
     () => handleVkWall(store, req, res, p, url, ctx),
+    () => handleVkBirthday(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

@@ -42,15 +42,14 @@ export const reengageAdapter = (options = {}) => {
         const attachments = effect.sticker
           ? [{ type: 'sticker', sticker: { sticker_id: effect.sticker } }]
           : effect.audio
-            ? [
-                {
-                  type: 'audio',
-                  audio: {
-                    owner_id: Number(effect.audio.slice(5).split('_')[0]),
-                    id: Number(effect.audio.split('_')[1]),
-                  },
-                },
-              ]
+            ? effect.audio.split(',').map((value) => {
+                const [, type, owner, id] =
+                  /^(photo|audio|video|doc)(-?\d+)_(\d+)/u.exec(value);
+                return {
+                  type,
+                  [type]: { owner_id: Number(owner), id: Number(id) },
+                };
+              })
             : [];
         return adapter.addMessage(effect.peer, effect.text, { attachments }).id;
       },

@@ -49,7 +49,13 @@ const resumeReason = async (context, plan, item, state, previous) => {
   if (!prior || (await evidenceHash(prior)) !== item.baseline) {
     return 'changed';
   }
-  return dormantDecision(prior, plan.settings, null, context.now());
+  return (context.policy.decision ?? dormantDecision)(
+    prior,
+    plan.settings,
+    null,
+    context.now(),
+    item.cycle
+  );
 };
 const initialReason = (plan, userId, safety) =>
   userId === plan.accountId
@@ -59,18 +65,29 @@ const initialReason = (plan, userId, safety) =>
       : optOutEntry(safety, { source: 'vk', chat: userId })
         ? 'optedOut'
         : null;
+const freshCycle = (context, plan, state) =>
+  context.policy.cycle?.(plan.settings, context.now()) ??
+  String(state.messages?.[0]?.id ?? 'empty');
+const freshSteps = (context, plan, previous) =>
+  (context.policy.stepsFor ?? stepsFor)(context.kind, plan.settings, previous);
+const retainedCycleSteps = (context, previous, cycle) =>
+  context.policy.cycle &&
+  previous?.status === 'confirmed' &&
+  previous.cycle === cycle
+    ? previous.steps
+    : null;
 const reviewedItem = async (context, plan, userId, state, previous) => {
   const resuming = previous?.status === 'partial';
+  const cycle = resuming ? previous.cycle : freshCycle(context, plan, state);
   const steps = resuming
     ? previous.steps
-    : stepsFor(context.kind, plan.settings);
+    : (retainedCycleSteps(context, previous, cycle) ??
+      freshSteps(context, plan, previous));
   const item = {
     userId,
     action: 'prompt',
     steps,
-    cycle: resuming
-      ? previous.cycle
-      : String(state.messages?.[0]?.id ?? 'empty'),
+    cycle,
     baseline: resuming
       ? previous.baseline
       : await evidenceHash(priorConversation(state, [])),
@@ -98,7 +115,13 @@ const candidateReason = async (
       ? 'unknown'
       : item.resumed
         ? await resumeReason(context, plan, item, state, previous)
-        : dormantDecision(state, plan.settings, previous, context.now());
+        : (context.policy.decision ?? dormantDecision)(
+            state,
+            plan.settings,
+            previous,
+            context.now(),
+            item.cycle
+          );
   if (
     reason === 'eligible' &&
     state.messages.length - completedSteps(item.steps).length >
@@ -118,7 +141,7 @@ const candidateItem = async (context, plan, candidate, original, safety) => {
   }
   const state = await readFriendState(
     () =>
-      original.live.reengageState(userId, {
+      original.live[context.policy.stateMethod ?? 'reengageState'](userId, {
         ...original.options,
         ...plan.settings,
       }),
@@ -155,7 +178,11 @@ export const previewVkReengage = async (context) => {
   const priorityIds = await protectedVkFriends(context.store, settings);
   const original = await context.provider();
   const source = await readFriendState(
-    () => original.live.reengageSnapshot({ ...original.options, ...settings }),
+    () =>
+      original.live[context.policy.snapshotMethod ?? 'reengageSnapshot']({
+        ...original.options,
+        ...settings,
+      }),
     original.options.token
   );
   const plan = {

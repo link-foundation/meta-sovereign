@@ -11,6 +11,8 @@ import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createWirePost } from './helpers/http-wire.mjs';
 import {
   assertReviewedVkPlan,
+  assertVkDeliveryAndSaveRetention,
+  assertVkOwnedCommandRun,
   assertVkTranslations,
   offlineVkPolicy,
   ownedVkCommand,
@@ -45,21 +47,13 @@ test(
       }
       assert.equal(fixture.effects.length, 0);
       // Complete actual mocked-adapter delivery through the public transport.
-      const post = createWirePost(fixture.base, '/api/vk/music', LINO_BINARY);
-      const { plan } = (await post('/plan', {})).answer;
-      assert.equal(
-        (await post('/run', { planId: plan.planId, confirm: true })).answer.last
-          .status,
-        'confirmed'
+      await assertVkDeliveryAndSaveRetention(
+        fixture,
+        '/api/vk/music',
+        vkReengageSettings.music,
+        { questions: 'Changed' },
+        (effects) => assert.equal(effects.length, 3)
       );
-      assert.equal(fixture.effects.length, 3);
-      fixture.refuseWrites(true);
-      const policy = vkReengageSettings.music;
-      const before = await policy.settings(fixture.store);
-      await assert.rejects(
-        policy.save(fixture.store, { ...before, questions: 'Changed' })
-      );
-      assert.deepEqual(await policy.settings(fixture.store), before);
     } finally {
       await fixture.close();
     }
@@ -96,12 +90,13 @@ test('foreground CLI saves independent strict settings, applies only explicit re
   for (const kind of reengageKinds) {
     const store = createMemoryStore();
     const adapter = reengageAdapter();
-    const { command, log, answer, closed } = ownedVkCommand(
+    const owned = ownedVkCommand(
       createVkReengageCommands,
       `vk-${kind}`,
       store,
       () => reengageJob(kind, store, adapter)
     );
+    const { command, log } = owned;
     assert.equal(
       await command(
         {
@@ -114,13 +109,11 @@ test('foreground CLI saves independent strict settings, applies only explicit re
       ),
       0
     );
-    assert.equal(await command({ _: ['plan'] }, log), 0);
-    const plan = answer().plan.planId;
-    await assert.rejects(command({ _: ['run'], plan }, log), /Confirm/);
-    assert.equal(adapter.effects.length, 0);
-    assert.equal(await command({ _: ['run'], plan, confirm: true }, log), 0);
-    assert.equal(adapter.effects.length, kind === 'music' ? 3 : 2);
-    await assert.rejects(command({ _: ['save'], 'online-only': 'yes' }, log));
-    assert.equal(closed(), 5);
+    await assertVkOwnedCommandRun(
+      owned,
+      adapter,
+      { 'online-only': 'yes' },
+      (effects) => assert.equal(effects.length, kind === 'music' ? 3 : 2)
+    );
   }
 });

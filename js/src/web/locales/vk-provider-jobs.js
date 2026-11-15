@@ -5,6 +5,7 @@ import { vkCancelledLocale } from './vk-cancelled.js';
 import { vkGreetLocale } from './vk-greet.js';
 import { vkReengageLocale } from './vk-reengage.js';
 import { vkWallLocale } from './vk-wall.js';
+import { vkBirthdayLocale } from './vk-birthday.js';
 export const vkProviderJobsLocale = (language) => ({
   ...vkOnlineLocale(language),
   ...vkFriendsLocale(language),
@@ -13,4 +14,5 @@ export const vkProviderJobsLocale = (language) => ({
   ...vkGreetLocale(language),
   ...vkReengageLocale(language),
   ...vkWallLocale(language),
+  ...vkBirthdayLocale(language),
 });

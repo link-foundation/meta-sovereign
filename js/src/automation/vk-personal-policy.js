@@ -7,13 +7,19 @@ import {
 import { protectedVkFriends } from './vk-maintenance-settings.js';
 import { loadSettings, optOutEntry, quietMsLeft } from './safety.js';
 
-const currentLifetime = (context, plan) => {
+const currentLifetime = (context, plan, item) => {
   if (
     context.isStopped() ||
     context.now() < plan.createdAt ||
     context.now() - plan.createdAt > 300000
   ) {
     refuseFriendAction('VK messaging review stopped or expired');
+  }
+  if (
+    context.policy.cycle &&
+    item.cycle !== context.policy.cycle(plan.settings, context.now())
+  ) {
+    refuseFriendAction('VK reviewed calendar date changed; review again');
   }
 };
 
@@ -24,7 +30,7 @@ export const currentVkPersonalPolicy = async (
   item,
   original
 ) => {
-  currentLifetime(context, plan);
+  currentLifetime(context, plan, item);
   const relationship = await context.store.get(
     friendLedgerId(plan.accountId, item.userId)
   );
@@ -52,5 +58,5 @@ export const currentVkPersonalPolicy = async (
   ) {
     refuseFriendAction('VK consent or quiet hours changed; review again');
   }
-  currentLifetime(context, plan);
+  currentLifetime(context, plan, item);
 };

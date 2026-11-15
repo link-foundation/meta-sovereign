@@ -8,6 +8,8 @@ import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 import { createWirePost } from './helpers/http-wire.mjs';
 import {
   assertReviewedVkPlan,
+  assertVkDeliveryAndSaveRetention,
+  assertVkOwnedCommandRun,
   assertVkTranslations,
   offlineVkPolicy,
   ownedVkCommand,
@@ -38,23 +40,17 @@ test(
         assert.equal(plan.items[0].old.length, 1);
       }
       assert.equal(fixture.effects.length, 0);
-      const post = createWirePost(fixture.base, '/api/vk/wall', LINO_BINARY);
-      const { plan } = (await post('/plan', {})).answer;
-      assert.equal(
-        (await post('/run', { planId: plan.planId, confirm: true })).answer.last
-          .status,
-        'confirmed'
+      await assertVkDeliveryAndSaveRetention(
+        fixture,
+        '/api/vk/wall',
+        wallPolicy,
+        { marker: 'changed' },
+        (effects) =>
+          assert.deepEqual(
+            effects.map((s) => s.action),
+            ['post', 'delete']
+          )
       );
-      assert.deepEqual(
-        fixture.effects.map((s) => s.action),
-        ['post', 'delete']
-      );
-      fixture.refuseWrites(true);
-      const before = await wallPolicy.settings(fixture.store);
-      await assert.rejects(
-        wallPolicy.save(fixture.store, { ...before, marker: 'changed' })
-      );
-      assert.deepEqual(await wallPolicy.settings(fixture.store), before);
     } finally {
       await fixture.close();
     }
@@ -88,12 +84,10 @@ test('offline wall settings and all four languages retain server-required delive
 test('foreground CLI retains wall options and requires explicit reviewed confirmation before native writes', async () => {
   const store = createMemoryStore();
   const adapter = wallAdapter();
-  const { command, log, answer, closed } = ownedVkCommand(
-    createVkWallCommands,
-    'vk-wall',
-    store,
-    () => wallJob(store, adapter)
+  const owned = ownedVkCommand(createVkWallCommands, 'vk-wall', store, () =>
+    wallJob(store, adapter)
   );
+  const { command, log } = owned;
   assert.equal(
     await command(
       {
@@ -106,15 +100,14 @@ test('foreground CLI retains wall options and requires explicit reviewed confirm
     ),
     0
   );
-  assert.equal(await command({ _: ['plan'] }, log), 0);
-  const plan = answer().plan.planId;
-  await assert.rejects(command({ _: ['run'], plan }, log), /Confirm/);
-  assert.equal(adapter.effects.length, 0);
-  assert.equal(await command({ _: ['run'], plan, confirm: true }, log), 0);
-  assert.deepEqual(
-    adapter.effects.map((s) => s.action),
-    ['post', 'delete']
+  await assertVkOwnedCommandRun(
+    owned,
+    adapter,
+    { 'replace-owned': 'yes' },
+    (effects) =>
+      assert.deepEqual(
+        effects.map((s) => s.action),
+        ['post', 'delete']
+      )
   );
-  await assert.rejects(command({ _: ['save'], 'replace-owned': 'yes' }, log));
-  assert.equal(closed(), 5);
 });

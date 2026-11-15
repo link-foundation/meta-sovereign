@@ -9,7 +9,7 @@ import {
   reengageBooleans,
 } from '../../automation/vk-reengage-settings.js';
 const el = React.createElement;
-const SequenceEvidence = ({ item }) => {
+export const SequenceEvidence = ({ item }) => {
   const t = useT();
   return el('div', { className: 'col' }, [
     el(
@@ -35,6 +35,7 @@ const SequenceEvidence = ({ item }) => {
               : step.audio
                 ? t('vkReengage.selectedAudio', { id: step.audio })
                 : step.text,
+            step.attachments?.length ? ` · ${step.attachments.join(', ')}` : '',
             step.receipt
               ? ` · ${t('vkReengage.stepSent', { id: step.receipt })}`
               : ` · ${t('vkReengage.stepPending')}`,

@@ -133,6 +133,7 @@ export const ordinaryCommandNames = new Set([
   'vk-help',
   'vk-music',
   'vk-wall',
+  'vk-birthday',
   'vk-cleanup',
   'vk-outgoing',
 ]);

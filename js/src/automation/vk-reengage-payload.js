@@ -15,6 +15,15 @@ export const reengageDraft = (kind, item, index) => {
           ],
         }
       : {}),
+    ...(step.attachments?.length
+      ? {
+          attachments: step.attachments.map((id) => ({
+            kind: id.match(/^[a-z]+/u)[0],
+            providerId: id,
+            title: id,
+          })),
+        }
+      : {}),
     sequence: { policy: kind, index: index + 1, signature: item.signature },
   };
 };

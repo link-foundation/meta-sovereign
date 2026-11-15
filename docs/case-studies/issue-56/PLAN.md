@@ -1443,3 +1443,17 @@ Source clarification: both upstream invitation-post triggers publish to communit
 VK19 local verification: eighteen new wall tests and ten existing interface checks pass on Node and Deno. Nine final shared lifecycle checks pass on each runtime; seven workflow contracts pass. Native WebKit and independent four-language MCP retain twelve before/after PNGs, exact native payloads, partial deletion-only recovery, visible deduplication, unknown-write refusal, zero live effects and closed owned fixtures. Strict lint/format/secrets and the unchanged duplication gate pass. Preserve the checked archive and require new exact-head CI before accepting VK19; every unchecked original criterion remains active.
 
 Published `05bcbddd` Checks `43705703714` failed one contextual assertion at full log lines 1696–1719. A finite three-second fixture-clock advance reproduces it; capture one logical fixture origin without changing production adjacency checks. Twenty-four Node/24 Deno focused checks pass and correction `196eb40a` preserves the full failing log. A distinct macOS shard never completed setup and has no test steps/log blob; retain exact timeout metadata. All browser shards passed, but the aggregate is failed and cannot establish acceptance.
+
+### Current VK birthday work (VK21 / VD05 catalog)
+
+- [x] Read pinned bot/desktop birthday entry points, triggers, catalogs and tests.
+- [x] Draft disabled independent job and shared ordered executor policy hooks.
+- [x] Draft original ten-message catalog, sticker/media configuration, explicit IANA date, permission/consent/recent-history filters and durable per-date receipts.
+- [x] Draft CLI, both default Lino transports, offline-capable four-language controls and hosted browser scenario.
+- [x] Reproduce missing capability and controls on actual published parent `3badd29a`, preserving failure and native before screenshots.
+- [x] Focused Node 34/Deno 34 and final native/MCP checks pass; preserve partial receipt recovery, midnight guard and twelve PNGs. Shared fixtures retain assertions and the unchanged duplication limit. Complete final scoped static checks and production review.
+- [ ] Preserve complete hashed case evidence, commit/push atomic work and verify exact-head hosted workflows.
+
+VK20's broader friend invitation requirement remains required and open. Birthday work does not accept unrelated scope. All issue-wide unchecked criteria remain active.
+
+Birthday final local verification: eighteen new cases and sixteen existing ordered/interface checks pass in both Node and Deno. Fourteen separate wall lifecycle, CLI admission and browser partition checks pass. Native WebKit and four-language mandatory MCP retain the same-date positive receipts, partial remaining-only recovery, no page exceptions, twelve PNGs and closed owned fixtures. Strict scoped lint/format/secrets and the unchanged duplication gate pass. Preserve the checked archive, publish atomically and inspect exact-head hosted workflows; all unchecked original criteria remain active.

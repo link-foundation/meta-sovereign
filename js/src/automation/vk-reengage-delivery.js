@@ -48,10 +48,10 @@ const admitStep = async (state) => {
 };
 const sendStep = async (state, step) => {
   try {
-    const result = await state.original.live.reengageEffect(
-      { userId: state.item.userId, ...step },
-      state.original.options,
-      () => admitStep(state)
+    const result = await state.original.live[
+      state.context.policy.effectMethod ?? 'reengageEffect'
+    ]({ userId: state.item.userId, ...step }, state.original.options, () =>
+      admitStep(state)
     );
     state.uncertain = true;
     return { via: 'api', result: result.messageId };

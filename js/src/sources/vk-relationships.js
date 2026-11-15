@@ -13,6 +13,13 @@ export const createVkRelationships = (requests) => {
     ...maintenance,
     ...conversations,
     ...greetings,
+    birthdaySnapshot: greetings.greetSnapshot,
+    birthdayState: (id, options) =>
+      greetings.greetState(id, {
+        ...options,
+        personalSequence: true,
+        birthdaySequence: true,
+      }),
     ...createVkReengage({ ...requests, greetings }),
     ...createVkWall(requests),
   };

@@ -1,3 +1,7 @@
+import {
+  changePersonalConversation,
+  assertPersonalReviewHeld,
+} from '../../experiments/issue-56/vk-personal-admission.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -108,30 +112,7 @@ test('nonempty history, minimum silence, online, consent and write filters hold 
       if (change === 'empty') {
         adapter.histories.set(9, []);
       }
-      if (change === 'recent') {
-        adapter.addMessage(9, 'Recent', { out: 0 });
-      }
-      if (change === 'offline') {
-        adapter.online.set(9, 0);
-      }
-      if (change === 'unread') {
-        adapter.unread.set(9, 1);
-      }
-      if (change === 'permission') {
-        adapter.canWrite.set(9, false);
-      }
-      if (change === 'relation') {
-        adapter.relations.set(9, 1);
-      }
-      if (change === 'optOut') {
-        await saveSettings(store, { optOut: [{ source: 'vk', chat: '9' }] });
-      }
-      if (change === 'protected') {
-        await policy.save(store, {
-          ...(await policy.settings(store)),
-          priorityIds: [9],
-        });
-      }
+      await changePersonalConversation(change, { adapter, store, policy });
       if (change === 'future') {
         adapter.addMessage(9, 'Future', {
           date: Math.floor(cancelledNow / 1000) + 1,
@@ -155,12 +136,7 @@ test('nonempty history, minimum silence, online, consent and write filters hold 
       if (change === 'attachment') {
         await assert.rejects(job.preview(), /attachment identity/);
       } else {
-        assert.notEqual(
-          (await job.preview()).plan.items[0].reason,
-          'eligible',
-          change
-        );
-        await runReengage(job);
+        await assertPersonalReviewHeld(job, adapter, runReengage, change);
       }
       assert.equal(adapter.effects.length, 0, change);
     });

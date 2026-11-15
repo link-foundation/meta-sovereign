@@ -29,7 +29,13 @@ const matchesStep = (message, step) =>
   message.text === (step.text ?? '') &&
   equalFriendPolicy(
     message.attachments,
-    step.sticker ? [`sticker${step.sticker}`] : step.audio ? [step.audio] : []
+    step.sticker
+      ? [`sticker${step.sticker}`]
+      : step.audio
+        ? [step.audio]
+        : (step.attachments ?? []).map((id) =>
+            id.replace(/^(photo|audio|video|doc)(-?\d+_\d+)(?:_.*)?$/u, '$1$2')
+          )
   );
 export const priorConversation = (state, steps) => {
   const sent = completedSteps(steps).toReversed();
@@ -75,7 +81,9 @@ export const guardReengage = async (context, plan, item, original) => {
   }
   await currentVkPersonalPolicy(context, plan, item, original);
   await verifyStepReceipts(context.store, context.kind, plan, item);
-  const state = await original.live.reengageState(item.userId, {
+  const state = await original.live[
+    context.policy.stateMethod ?? 'reengageState'
+  ](item.userId, {
     ...original.options,
     ...plan.settings,
   });
@@ -83,7 +91,13 @@ export const guardReengage = async (context, plan, item, original) => {
   if (
     !prior ||
     (await evidenceHash(prior)) !== item.baseline ||
-    dormantDecision(prior, plan.settings, null, context.now()) !== 'eligible'
+    (context.policy.decision ?? dormantDecision)(
+      prior,
+      plan.settings,
+      null,
+      context.now(),
+      item.cycle
+    ) !== 'eligible'
   ) {
     refuseFriendAction(
       'VK conversation or prior delivery changed; review again'

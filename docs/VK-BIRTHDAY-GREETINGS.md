@@ -1,0 +1,13 @@
+# VK birthday greetings ([ru](VK-BIRTHDAY-GREETINGS.ru.md) · [hi](VK-BIRTHDAY-GREETINGS.hi.md) · [zh](VK-BIRTHDAY-GREETINGS.zh.md))
+
+Open **Connections → VK → Manual → VK birthday greetings**. Automatic scheduling starts off. Choose an explicit IANA time zone such as `UTC`, `Europe/Moscow` or `Asia/Kolkata`. The selected zone determines today's calendar date; changing dates requires another review.
+
+Edit up to twenty short message variants, one per line, up to twenty positive sticker IDs and ten native `photo`, `audio`, `video` or `doc` attachment IDs. Media may include an access key. These controls reuse existing VK media; URLs and uploads are not accepted. The ten default messages are original short wishes, and no sticker or media is preselected. You can send text, a sticker, media, or a sticker followed by text/media. Alternative variants avoid the previous selection when another distinct choice exists.
+
+Save and review the current friends, selected date, exact text, sticker and media. Private or malformed birthdays, nonmatching dates, inactive accounts, changed relationships, missing write permission, protected people, opt-outs, unread conversations and activity within the previous 24 hours hold delivery. Online-only is optional. History must be complete within the bounded scan. A zero delivery limit sends nothing. Browser-only settings can be saved offline; provider review and delivery require the local server and your VK account.
+
+Confirm the current review to send. An optional sticker precedes text/media by 15 seconds; every step needs its own positive native message receipt. A durable receipt prevents the same friend being greeted twice on the selected date, even if provider history is cleared. Definite partial delivery survives restart: review again to send only remaining original steps. An unknown outcome is held for manual investigation and is never automatically replayed. Each effect rechecks the date, account, credential, consent, settings and complete conversation after waiting and acknowledging its intent. Stop and server shutdown drain owned work.
+
+The same foreground flow is available with `meta-sovereign vk-birthday save`, `plan` and `run --plan <id> --confirm`, and `/api/vk/birthday` over default Lino text or binary. Options include `--time-zone`, `--messages`, `--stickers`, `--attachments`, `--online-only`, `--priority`, `--limit`, `--scan-limit`, `--every-minutes` and `--enabled`. Enabling the schedule authorizes future eligible greetings using saved settings; it does not resume partial or uncertain work automatically.
+
+[Implementation and verification evidence](case-studies/issue-56/vk-birthday.md).
