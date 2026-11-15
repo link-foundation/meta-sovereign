@@ -19,7 +19,7 @@ const keys = {
   'max-friends': 'maxFriends',
   'batch-size': 'batchSize',
 };
-const configuration = (args, saved, flags, stringFlags) => {
+const configuration = (args, saved, flags, stringFlags, booleanFlags) => {
   const settings = { ...saved, enabled: bool(args.enabled, saved.enabled) };
   for (const [flag, key] of Object.entries(flags)) {
     if (args[flag] !== undefined) {
@@ -29,6 +29,11 @@ const configuration = (args, saved, flags, stringFlags) => {
   for (const [flag, key] of Object.entries(stringFlags)) {
     if (args[flag] !== undefined) {
       settings[key] = String(args[flag]);
+    }
+  }
+  for (const [flag, key] of Object.entries(booleanFlags)) {
+    if (args[flag] !== undefined) {
+      settings[key] = bool(args[flag]);
     }
   }
   if (args.priority !== undefined) {
@@ -47,6 +52,7 @@ export const createVkFriendPolicyCommands = ({
   save,
   flags = keys,
   stringFlags = {},
+  booleanFlags = {},
 }) => ({
   [name]: async (args, log) => {
     const action = args._?.[0] ?? 'status';
@@ -63,7 +69,7 @@ export const createVkFriendPolicyCommands = ({
       if (action === 'save') {
         answer = await save(
           store,
-          configuration(args, answer.settings, flags, stringFlags)
+          configuration(args, answer.settings, flags, stringFlags, booleanFlags)
         );
       }
       if (['plan', 'run'].includes(action)) {

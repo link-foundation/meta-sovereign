@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Add an independent disabled VK friendship follow-up with an exact reviewed greeting/question, durable repeat suppression and separate unanswered/unwritable blocking choices. Preserve outgoing-only evidence, fresh personal history/permission checks, unknown outcomes, owned pacing and scheduling through CLI, default Lino and shared four-language/offline controls.
+
 Add separately enabled reviewed VK banned/deleted friend cleanup and limited outgoing cancellation, protecting saved priority accounts and requiring current provider state plus specific deletion receipts. Share durable uncertainty protection, paced owned scheduling, CLI/default Lino and four-language/offline controls.
 
 Add reviewed priority VK friend requests and mutual-ranked incoming acceptance with saved capacity, batch size, opt-in pacing and scheduling. Require fresh account/policy checks and durable per-target acknowledgements; retain uncertain outcomes without replay across CLI, default Lino API and four-language online/offline controls.

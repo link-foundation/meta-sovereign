@@ -7,10 +7,10 @@ export const performVkFriendAction = async (
   plan,
   item,
   original,
-  { issue, beforeIssue, intentDetails = {} }
+  { issue, beforeIssue, intentDetails = {}, ledgerId }
 ) => {
   const { store, now } = context;
-  const id = friendLedgerId(plan.accountId, item.userId);
+  const id = ledgerId ?? friendLedgerId(plan.accountId, item.userId);
   const previous = await store.get(id);
   if (
     uncertainFriendAction(previous) ||
@@ -46,7 +46,10 @@ export const performVkFriendAction = async (
   } catch (error) {
     result = {
       ...intent,
-      status: issued && !error.vkCode ? 'unknown' : 'refused',
+      status:
+        issued && !error.vkCode && error.ambiguous !== false
+          ? 'unknown'
+          : 'refused',
       error: safeMessage(error)
         .split(original.options.token)
         .join('<redacted>')

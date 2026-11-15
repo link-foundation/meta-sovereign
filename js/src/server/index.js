@@ -115,6 +115,8 @@ import { createVkFriendsJob } from '../automation/vk-friends.js';
 import { handleVkFriends } from './routes-vk-friends.js';
 import { handleVkMaintenance } from './routes-vk-maintenance.js';
 import { createVkMaintenanceJob } from '../automation/vk-maintenance.js';
+import { createVkCancelledJob } from '../automation/vk-cancelled.js';
+import { handleVkCancelled } from './routes-vk-cancelled.js';
 import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
@@ -390,6 +392,11 @@ const automationContext = (
     ...automations.vkFriends,
     log: say,
   });
+  const vkCancelled = createVkCancelledJob({
+    store,
+    ...automations.vkCancelled,
+    log: say,
+  });
   const vkMaintenance = Object.fromEntries(
     maintenanceKinds.map((kind) => [
       kind,
@@ -419,6 +426,7 @@ const automationContext = (
       scheduler.start();
       vkOnline.start();
       vkFriends.start();
+      vkCancelled.start();
       Object.values(vkMaintenance).forEach((job) => job.start());
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
@@ -445,6 +453,7 @@ const automationContext = (
     automations: { runner, scheduler, autopilot },
     vkOnline,
     vkFriends,
+    vkCancelled,
     vkMaintenance,
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
@@ -454,6 +463,7 @@ const automationContext = (
       await Promise.all([
         vkOnline.stop(),
         vkFriends.stop(),
+        vkCancelled.stop(),
         ...Object.values(vkMaintenance).map((job) => job.stop()),
       ]);
       await questionBrowser.close();
@@ -699,6 +709,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleVkAttachments(store, req, res, p, url, ctx),
     () => handleVkOnline(store, req, res, p, url, ctx),
     () => handleVkFriends(store, req, res, p, url, ctx),
+    () => handleVkCancelled(store, req, res, p, url, ctx),
     () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),

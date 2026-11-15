@@ -15,7 +15,16 @@ const friendFields = {
   maxFriends: [1, 10000],
   batchSize: [1, 100],
 };
-const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
+const FriendSettings = ({
+  settings,
+  disabled,
+  save,
+  fields,
+  textFields,
+  booleanFields,
+  prefix,
+  name,
+}) => {
   const t = useT();
   const [draft, setDraft] = useState({});
   const update = (key, value) =>
@@ -43,6 +52,9 @@ const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
     for (const key of Object.keys(fields)) {
       next[key] = Number(draft[key] ?? settings[key]);
     }
+    for (const key of [...Object.keys(textFields), ...booleanFields]) {
+      next[key] = draft[key] ?? settings[key];
+    }
     const ids = draft.priorityIds ?? settings.priorityIds.join(',');
     next.priorityIds = ids.trim() ? ids.split(',').map(Number) : [];
     return save(next);
@@ -52,6 +64,33 @@ const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
       ? el(FriendAcceptanceChoice, { key: 'policy', settings, disabled, save })
       : null,
     ...controls,
+    ...Object.entries(textFields).map(([key, maxLength]) =>
+      el('label', { key, className: 'col' }, [
+        t(`${prefix}.${key}`),
+        el('textarea', {
+          key: 'input',
+          maxLength,
+          rows: 2,
+          disabled,
+          [`data-${name}-field`]: key,
+          value: draft[key] ?? settings[key],
+          onChange: (event) => update(key, event.target.value),
+        }),
+      ])
+    ),
+    ...booleanFields.map((key) =>
+      el('label', { key, className: 'row' }, [
+        el('input', {
+          key: 'input',
+          type: 'checkbox',
+          disabled,
+          [`data-${name}-field`]: key,
+          checked: draft[key] ?? settings[key],
+          onChange: (event) => update(key, event.target.checked),
+        }),
+        t(`${prefix}.${key}`),
+      ])
+    ),
     el('label', { key: 'priority', className: 'col' }, [
       t(`${prefix}.priorityIds`),
       el('input', {
@@ -76,7 +115,7 @@ const FriendSettings = ({ settings, disabled, save, fields, prefix, name }) => {
     ),
   ]);
 };
-const FriendResults = ({ data, prefix, name }) => {
+const FriendResults = ({ data, prefix, name, evidence: Evidence }) => {
   const t = useT();
   const plan = data?.plan;
   const last = data?.last;
@@ -111,7 +150,10 @@ const FriendResults = ({ data, prefix, name }) => {
                     [`data-${name === 'friends' ? 'friend' : name}-reason`]:
                       item.reason,
                   },
-                  `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}${friendMutualLabel(t, item)}`
+                  [
+                    `${item.userId}: ${t(`${prefix}.${item.action}`)} · ${t(`${prefix}.${item.reason}`)}${item.priority ? ` · ${t(`${prefix}.priority`)}` : ''}${friendMutualLabel(t, item)}`,
+                    Evidence ? el(Evidence, { key: 'evidence', item }) : null,
+                  ]
                 )
               )
             ),
@@ -153,7 +195,15 @@ const FriendFeedback = ({ busy, error, data, prefix }) => {
       : null,
   ]);
 };
-export const VkFriendPolicy = ({ resource, name, prefix, fields }) => {
+export const VkFriendPolicy = ({
+  resource,
+  name,
+  prefix,
+  fields,
+  textFields = {},
+  booleanFields = [],
+  evidence,
+}) => {
   const t = useT();
   const { data, busy, error, run } = useAcknowledgedResource(resource.load);
   const save = (settings) => run(() => resource.save(settings));
@@ -180,6 +230,8 @@ export const VkFriendPolicy = ({ resource, name, prefix, fields }) => {
           disabled: busy,
           save,
           fields,
+          textFields,
+          booleanFields,
           prefix,
           name,
         })
@@ -220,7 +272,7 @@ export const VkFriendPolicy = ({ resource, name, prefix, fields }) => {
       ),
     ]),
     el(FriendFeedback, { key: 'feedback', busy, error, data, prefix }),
-    el(FriendResults, { key: 'results', data, prefix, name }),
+    el(FriendResults, { key: 'results', data, prefix, name, evidence }),
   ]);
 };
 

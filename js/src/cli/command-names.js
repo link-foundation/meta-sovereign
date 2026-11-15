@@ -127,6 +127,7 @@ export const ordinaryCommandNames = new Set([
   'vk-attachments',
   'vk-online',
   'vk-friends',
+  'vk-cancelled',
   'vk-cleanup',
   'vk-outgoing',
 ]);

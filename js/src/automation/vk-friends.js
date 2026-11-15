@@ -47,7 +47,8 @@ export const createVkFriendsJob = ({
     provider: () => friendProvider(resolve, optionsFor, profile.capability),
   };
   const preview = () => (profile.preview ?? previewVkFriendPlan)(context);
-  const apply = (plan) => (profile.apply ?? applyVkFriendPlan)(context, plan);
+  const apply = (plan, scheduled = false) =>
+    (profile.apply ?? applyVkFriendPlan)({ ...context, scheduled }, plan);
   const run = (input = {}) => {
     if (!input.scheduled && input.confirm !== true) {
       return Promise.reject(new Error('Confirm the reviewed friend plan'));
@@ -90,7 +91,7 @@ export const createVkFriendsJob = ({
           });
           throw error;
         }
-        return apply(planned.plan);
+        return apply(planned.plan, true);
       }
       const plan = await store.get(planKey);
       if (
