@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { app, BrowserWindow, ipcMain, clipboard } from 'electron';
 import { verifyNativeDesktopClipboard } from './desktop-clipboard-electron.mjs';
+import { verifyNativeDesktopTls } from './desktop-config-electron.mjs';
 import { openVkAuthorization } from '../../js/electron/vk-authorization.js';
 import { VK_DESKTOP_AUTHORIZE_URL } from '../../js/src/sources/vk-token-input.js';
 
@@ -68,6 +69,7 @@ const run = async () => {
       ipcMain,
       clipboard,
     });
+    const tls = await verifyNativeDesktopTls({ app, BrowserWindow });
     console.log(
       JSON.stringify({
         nativeElectron: true,
@@ -76,6 +78,7 @@ const run = async () => {
         ephemeralSessionCleared: true,
         liveProvider: false,
         ...copied,
+        ...tls,
       })
     );
   } catch (error) {

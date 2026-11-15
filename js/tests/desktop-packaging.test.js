@@ -65,13 +65,16 @@ const expand = (template, { arch, ext }) =>
     .replaceAll('${ext}', ext);
 
 describe('desktop package.json', () => {
-  it('ships the root version with electron-updater as the only dependency', () => {
+  it('ships the root version and production runtime dependencies with electron-updater', () => {
     const pkg = desktopPackageJson(rootPkg);
     expect(pkg.version).toBe(rootPkg.version);
     expect(pkg.main).toBe('js/electron/main.js');
     expect(pkg.type).toBe('module');
     expect(pkg.private).toBe(true);
-    expect(Object.keys(pkg.dependencies)).toEqual(['electron-updater']);
+    expect(pkg.dependencies).toEqual({
+      ...rootPkg.dependencies,
+      'electron-updater': rootPkg.peerDependencies['electron-updater'],
+    });
     expect(pkg.dependencies['electron-updater']).toBe(
       rootPkg.peerDependencies['electron-updater']
     );

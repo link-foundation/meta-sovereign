@@ -24,7 +24,9 @@ until every criterion has implementation and verification evidence.
       mode switch when the other process cannot be confirmed stopped.
       The shared handwritten CLI parser is now replaced by the actual
       `lino-arguments` parser with existing command value conventions retained;
-      layered desktop configuration and runner control remain required.
+      [Layered desktop configuration](desktop-configuration.md) now shares the
+      server loader, with owned TLS navigation and production staging gates;
+      native hosted verification, shared editing and runner control remain required.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
       cleanup checks; other configuration lists and hosted acceptance remain open.

@@ -6,6 +6,35 @@ import { join } from 'node:path';
 import { formatIndented } from 'lino-objects-codec';
 import { startupArguments } from '../src/cli/startup-configuration.js';
 import { runCliCommand } from '../src/cli/command-runner.js';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+test(
+  'a FIFO configuration refuses without waiting for a writer',
+  {
+    timeout: 10000,
+    skip:
+      process.platform === 'win32' ||
+      Boolean(process.versions.bun || process.versions.deno),
+  },
+  () => {
+    const probe = fileURLToPath(
+      new URL(
+        '../../experiments/issue-56/startup-config-fifo.mjs',
+        import.meta.url
+      )
+    );
+    const output = execFileSync(process.execPath, [probe], {
+      timeout: 6000,
+      encoding: 'utf8',
+      env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=128' },
+    });
+    assert.deepEqual(JSON.parse(output.trim()), {
+      fifoRefused: true,
+      openedServer: false,
+    });
+  }
+);
 
 const fixture = async (run) => {
   const cwd = await mkdtemp(join(tmpdir(), 'startup-configuration-'));

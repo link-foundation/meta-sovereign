@@ -590,3 +590,5 @@ Copy visible redacted logs through an owned write-only desktop clipboard bridge,
 Load bounded readable global/local server startup configuration before explicit CLI overrides, with documented nonsecret fields and generic validation failures.
 
 Normalize legacy saved empty and numeric singleton VK priority lists across policy readers, preserving protected users and strict validation of new settings.
+
+Apply readable global/local configuration and explicit launch options to the desktop runtime through the shared server adapter. Load the owned TLS origin with a window/origin/certificate-scoped exception, include production runtime dependencies in desktop staging and refuse nonregular configuration files without blocking.

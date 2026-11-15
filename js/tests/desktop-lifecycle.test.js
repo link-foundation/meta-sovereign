@@ -177,45 +177,51 @@ test('a failed window load destroys the blank window before surfacing the failur
   assert.equal(destroyed, 1);
 });
 
-test('Quit racing a renderer startup failure shares the same server drain', async () => {
-  const app = new EventEmitter();
-  app.whenReady = async () => {};
-  app.getPath = () => '/unused-fixture';
-  app.quit = () => {};
-  const paint = deferred();
-  const drain = deferred();
-  let closed = 0;
-  class Window {
-    static getAllWindows() {
-      return [];
+test(
+  'Quit racing a renderer startup failure shares the same server drain',
+  { timeout: 5000 },
+  async () => {
+    const app = new EventEmitter();
+    app.whenReady = async () => {};
+    app.getPath = () => '/unused-fixture';
+    app.quit = () => {};
+    const paint = deferred();
+    const entered = deferred();
+    const drain = deferred();
+    let closed = 0;
+    class Window {
+      static getAllWindows() {
+        return [];
+      }
+      once() {}
+      loadURL() {
+        entered.resolve();
+        return paint.promise;
+      }
+      destroy() {}
     }
-    once() {}
-    loadURL() {
-      return paint.promise;
-    }
-    destroy() {}
-  }
-  const starting = startDesktop({
-    electronLoader: async () => ({ app, BrowserWindow: Window }),
-    serverLoader: async () => ({
-      startServer: async () => ({
-        port: 1,
-        close: () => {
-          closed++;
-          return drain.promise;
-        },
+    const starting = startDesktop({
+      electronLoader: async () => ({ app, BrowserWindow: Window }),
+      serverLoader: async () => ({
+        startServer: async () => ({
+          port: 1,
+          close: () => {
+            closed++;
+            return drain.promise;
+          },
+        }),
       }),
-    }),
-    updaterLoader: async () => null,
-  });
-  await turn();
-  app.emit('before-quit', { preventDefault() {} });
-  paint.reject(new Error('synthetic startup failure during Quit'));
-  const rejected = assert.rejects(starting, /startup failure during Quit/);
-  await turn();
-  assert.equal(closed, 1);
-  drain.resolve();
-  await rejected;
-  assert.equal(closed, 1);
-  assert.equal(app.listenerCount('before-quit'), 0);
-});
+      updaterLoader: async () => null,
+    });
+    await entered.promise;
+    app.emit('before-quit', { preventDefault() {} });
+    paint.reject(new Error('synthetic startup failure during Quit'));
+    const rejected = assert.rejects(starting, /startup failure during Quit/);
+    await turn();
+    assert.equal(closed, 1);
+    drain.resolve();
+    await rejected;
+    assert.equal(closed, 1);
+    assert.equal(app.listenerCount('before-quit'), 0);
+  }
+);

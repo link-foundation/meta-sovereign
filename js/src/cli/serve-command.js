@@ -1,6 +1,6 @@
 // Keep the stable rolling host independent of worker/provider command modules.
 import { defaultStoreDir } from '../storage/app-directory.js';
-import { recoveryFormats } from '../storage/recovery-dump.js';
+import { serveOptions } from './server-options.js';
 import { createServerLog, installCrashLogging } from '../server/log.js';
 import { foundOnPort } from '../server/hosted-ui.js';
 import { DEFAULT_PORTS } from '../web/discover.js';
@@ -10,39 +10,6 @@ import {
   upgradeRunningServer,
   startRollingCliServer,
 } from './rolling-serve.js';
-
-// What `serve` passes to the server besides its port, store and log.
-const serveOptions = (args) => ({
-  ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
-  backups: {
-    ...(args['backup-interval-hours'] !== undefined
-      ? { intervalHours: Number(args['backup-interval-hours']) }
-      : {}),
-    ...(args['backup-keep'] !== undefined
-      ? { keep: Number(args['backup-keep']) }
-      : {}),
-    ...(args['recovery-formats'] !== undefined
-      ? {
-          formats:
-            args['recovery-formats'] === 'none'
-              ? []
-              : recoveryFormats(args['recovery-formats']),
-        }
-      : {}),
-  },
-  // Hosted web origins allowed to use this server (issue #37); falls
-  // back to MS_ALLOW_ORIGINS and then the built-in defaults.
-  ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
-  // The hosted app is the UI; the server's own copy is a fallback
-  // enabled with `--local-ui=true` (R-Y58, R-Y59).
-  ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
-  ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
-  ...(args['json-compatibility'] !== undefined
-    ? { jsonCompatibility: String(args['json-compatibility']) === 'true' }
-    : {}),
-  // https beside http on the same port, for Safari (R-Y64).
-  tls: String(args.tls ?? 'true') !== 'false' && process.env.MS_TLS !== 'off',
-});
 
 // Where the server and the app are, as `serve` prints them.
 const logAddresses = (handle, log) => {

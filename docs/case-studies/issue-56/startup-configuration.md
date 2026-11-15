@@ -37,7 +37,8 @@ The finite codec exploration retains the installed package's nested-list
 round trip and rejects unsupported inline nesting. That syntax investigation
 does not establish legacy-list compatibility for every automation setting.
 The [user guide](../../SERVER-CONFIGURATION.md) documents supported startup
-fields and precedence. Desktop file consumption, runner policies, shared
+fields and precedence. [Desktop consumption and FIFO refusal](desktop-configuration.md)
+now have actual-parent regressions and focused checks. Runner policies, shared
 configuration editing and VD07 remain unfinished; all 60 unchecked inventory
 criteria remain required in PR57.
 

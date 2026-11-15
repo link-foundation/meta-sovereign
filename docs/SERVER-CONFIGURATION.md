@@ -1,6 +1,7 @@
 # Server startup configuration
 
-`meta-sovereign serve` reads readable Links Notation configuration in this order:
+`meta-sovereign serve` and the desktop shell read readable Links Notation
+configuration in this order:
 
 1. The OS user's application folder: `config.lino` beside the `store` folder.
    On Linux this is `$XDG_CONFIG_HOME/Meta Sovereign/config.lino`, falling back
@@ -48,8 +49,20 @@ shown above.
 | `allowOrigin`             | `none` or comma/space separated origins                   | `--allow-origin`          |
 | `uiUrl`                   | HTTP(S) address of the hosted app                         | `--ui-url`                |
 
-Files are limited to 64 KiB. Unsupported fields, invalid values, unreadable
+Files are limited to 64 KiB. Named pipes and other nonregular files refuse
+without waiting for a writer. Unsupported fields, invalid values, unreadable
 files and credentials in configured URLs stop startup with a generic message.
 Keep tokens, passwords and cookies in the app's protected credential controls.
-File settings currently configure the CLI server. Desktop runner policies and
-live automation settings continue to use their own controls.
+
+The desktop executable accepts the same startup overrides, including
+`--app-config=<file>`, `--port=<n>` and `--store=<directory>`. Its defaults keep
+the bundled UI enabled, choose a free port and leave TLS off. With `localUi`
+false, the default port becomes 8787 so the hosted app can discover the server;
+an explicit custom port may require choosing that server in Settings. Explicit
+TLS uses HTTPS for the desktop window. Its certificate exception is limited to
+the owned window, exact local origin and server certificate fingerprint;
+unrelated certificates retain normal browser verification. Native clipboard
+permission remains limited to the owned local origin, including over HTTPS.
+
+Configuration is read on the next process start. Live automation settings
+continue to use their existing controls; this file does not start a stopped job.

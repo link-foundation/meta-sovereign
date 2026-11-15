@@ -13,13 +13,12 @@
  */
 
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { attachDesktopLifecycle } from './lifecycle.js';
 import { openVkAuthorization } from './vk-authorization.js';
-import { attachClipboard } from './clipboard.js';
+import { desktopConfiguration } from './configuration.js';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const preload = path.join(here, 'preload.cjs');
+import { createMainWindow } from './window.js';
+export { createMainWindow, MIN_WINDOW } from './window.js';
 
 const loadElectron = async () => {
   const electron = await import('electron').catch(() => ({}));
@@ -120,57 +119,6 @@ export const configureAutoUpdates = ({
   return { enabled: true, reason: 'checking' };
 };
 
-// The page's own background (`--bg` in app.css) for the OS theme, so a
-// dark desktop does not flash white before the app paints. The window
-// shows once the first frame is ready (Electron's "showing the window
-// gracefully"); it narrows to a phone's width, where the app switches to
-// its bottom bar, and no further.
-const WINDOW_BACKGROUND = { light: '#ffffff', dark: '#0e1116' };
-export const MIN_WINDOW = { width: 360, height: 480 };
-
-export const createMainWindow = async ({
-  BrowserWindow,
-  port,
-  nativeTheme,
-  ipcMain,
-  clipboard,
-}) => {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: MIN_WINDOW.width,
-    minHeight: MIN_WINDOW.height,
-    show: false,
-    backgroundColor: nativeTheme?.shouldUseDarkColors
-      ? WINDOW_BACKGROUND.dark
-      : WINDOW_BACKGROUND.light,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      preload,
-    },
-  });
-  win.once('ready-to-show', () => win.show());
-  let releaseClipboard = () => {};
-  try {
-    releaseClipboard = attachClipboard({
-      ipcMain,
-      clipboard,
-      contents: win.webContents,
-      origin: `http://127.0.0.1:${port}`,
-    });
-    if (ipcMain && clipboard) {
-      win.once('closed', releaseClipboard);
-    }
-    await win.loadURL(`http://127.0.0.1:${port}/`);
-  } catch (error) {
-    releaseClipboard();
-    win.destroy();
-    throw error;
-  }
-  return win;
-};
-
 /**
  * Where the desktop shell keeps its links store:
  * `META_SOVEREIGN_STORE_DIR` when set, otherwise `<userData>/store`
@@ -183,17 +131,20 @@ export const startDesktop = async ({
   electronLoader = loadElectron,
   serverLoader = () => import('../src/server/index.js'),
   updaterLoader = loadAutoUpdater,
+  argv,
+  configuration,
 } = {}) => {
-  const [
-    { app, BrowserWindow, nativeTheme, ipcMain, clipboard },
-    { startServer },
-    autoUpdater,
-  ] = await Promise.all([electronLoader(), serverLoader(), updaterLoader()]);
+  const [{ app, BrowserWindow, nativeTheme, ipcMain, clipboard }, autoUpdater] =
+    await Promise.all([electronLoader(), updaterLoader()]);
+  const options = await desktopConfiguration(
+    argv ?? process.argv.slice(app.isPackaged ? 1 : 2),
+    configuration
+  );
+  const { startServer } = await serverLoader();
   let mainWindow;
   const handle = await startServer({
-    port: 0,
-    localUi: true,
     storeDir: resolveDesktopStoreDir({ app }),
+    ...options,
     vkToken: {
       openAuthorization: async ({ signal }) => {
         await app.whenReady();
@@ -218,11 +169,13 @@ export const startDesktop = async ({
       handle: { close },
       createWindow: async () => {
         mainWindow = await createMainWindow({
+          app,
           BrowserWindow,
           nativeTheme,
           ipcMain,
           clipboard,
           port: handle.port,
+          tls: handle.tls,
         });
         return mainWindow;
       },

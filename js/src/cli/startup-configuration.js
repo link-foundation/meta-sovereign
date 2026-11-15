@@ -1,4 +1,5 @@
 import { open } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import path from 'node:path';
 import { parseIndented } from 'lino-objects-codec';
 import { defaultStoreDir } from '../storage/app-directory.js';
@@ -99,7 +100,7 @@ const validate = (value, scope) => {
 const readLayer = async (file, scope, required = false) => {
   let handle;
   try {
-    handle = await open(file, 'r');
+    handle = await open(file, constants.O_RDONLY | constants.O_NONBLOCK);
     if (!(await handle.stat()).isFile()) {
       throw invalid(scope);
     }
