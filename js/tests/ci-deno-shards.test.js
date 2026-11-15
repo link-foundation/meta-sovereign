@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-test('Windows Deno partitions retain the original test discovery and deadline', () => {
+test('Ubuntu and Windows Deno partitions retain the original test discovery and deadline', () => {
   const job = parse(
     readFileSync(
       new URL('../../.github/workflows/release.yml', import.meta.url),
@@ -14,19 +14,22 @@ test('Windows Deno partitions retain the original test discovery and deadline', 
     )
   ).jobs.test;
   const { matrix } = job.strategy;
-  assert.deepEqual(
-    matrix.include
-      .filter(({ os, runtime }) => os === 'windows-2025' && runtime === 'deno')
-      .map(({ shard }) => shard)
-      .sort(),
-    ['1/3', '2/3', '3/3']
-  );
-  assert.ok(
-    matrix.exclude.some(
-      ({ os, runtime }) => os === 'windows-2025' && runtime === 'deno'
-    ),
-    'exclude the original pair so all three entries are appended'
-  );
+  for (const targetOS of ['ubuntu-26.04', 'windows-2025']) {
+    assert.deepEqual(
+      matrix.include
+        .filter(({ os, runtime }) => os === targetOS && runtime === 'deno')
+        .map(({ shard }) => shard)
+        .sort(),
+      ['1/3', '2/3', '3/3'],
+      targetOS
+    );
+    assert.ok(
+      matrix.exclude.some(
+        ({ os, runtime }) => os === targetOS && runtime === 'deno'
+      ),
+      'exclude the original pair so all three entries are appended'
+    );
+  }
   assert.deepEqual(matrix.os, ['ubuntu-26.04', 'macos-26', 'windows-2025']);
   assert.deepEqual(matrix.runtime, ['node', 'bun', 'deno']);
   assert.equal(job.strategy['fail-fast'], false);

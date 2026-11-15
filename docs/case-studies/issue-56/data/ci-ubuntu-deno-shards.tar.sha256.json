@@ -1,0 +1,27 @@
+{
+  "archive": "ci-ubuntu-deno-shards.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "714b4d63afebc75206684b79a758b7838e84564ee13c714adad9826571224b92",
+    "before/.github/workflows/release.yml": "0e02dd1e05c1ff5538d7d1485949e618b507f338b8b2a3a2f21c82bf4ef7a82e",
+    "before/js/tests/ci-deno-shards.test.js": "993528b8d1fa7816a847f29181da491739ea47a39406ff5978e378ae1f7462ea",
+    "ci-logs/ci-ubuntu-deno-before.log": "a010127abf7599a0e8986565ac92019a47068897fc7b9eea7db0a4115240e937",
+    "ci-logs/ci-ubuntu-deno-deno.log": "1f55e7d8fe2c70303cd73035d4f8f49965d0bfb0f0444947719763ab107c9bb0",
+    "ci-logs/ci-ubuntu-deno-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-ubuntu-deno-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-ubuntu-deno-node.log": "024bfedb59c384d3496595f260333915ab679c07f8e3f1932fa7446cba66f4fd",
+    "ci-logs/ci-ubuntu-deno-policy.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/ci-ubuntu-deno-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-ubuntu-deno-timing.json": "83be1f39c9488d2ba76cebcf644a0f24a1ecf4b3862a18eafb29ede41732b294",
+    "ci-logs/vk-maintenance-parent-checks-progress.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-maintenance-parent-deno-annotations.json": "aa5687e9ba3078c4944050754138de5a363ff981b4494ecd4fc90f2ce3842a8a",
+    "ci-logs/vk-maintenance-parent-deno-job.json": "a059e91af23ce3f8b474ca2949c30a01df6731702711191ca657d45b55d01748",
+    "ci-logs/vk-maintenance-parent-deno.log": "7bc44aa498272b1d283629722a63050e556cdcf85cadb8f936ee975f2a47073c",
+    "docs/case-studies/issue-56/ci-ubuntu-deno-shards.md": "25fe525aa4943ddde1545545856c33d6f97f6fdd3679e19b051284c2af62cf6a",
+    "experiments/issue-56/analyze-windows-deno.py": "f98dab36960c7eddc9cec07fc6a69ac74d7ac94fabc2b24b89480a5b4439d6f6",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-ubuntu-deno.py": "af13bc4613d7f8e5ade263a542415194f96f86073d640c28c9fab192a135dadc",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-deno-shards.test.js": "bc04de8174e1d44c793de64f95fc7803f172e77afca232e9ad7cd645dee2f0d7",
+    "metadata.json": "91ff7cc90caed41e515776cc5bbd5fdceb03e994929069a0dac1a5dca3b0a08b"
+  }
+}
