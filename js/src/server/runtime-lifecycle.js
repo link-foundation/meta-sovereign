@@ -13,7 +13,10 @@ const stopAccounts = (ctx, handoff) =>
 
 const stopExperienceExport = (ctx) => {
   ctx.cvExperienceClosing = true;
-  return ctx.cvExperience?.close();
+  return Promise.allSettled([
+    ctx.cvExperience?.close(),
+    ctx.cvExperiencePlans?.close(),
+  ]);
 };
 
 export const createRuntimeLifecycle = ({

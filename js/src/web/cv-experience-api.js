@@ -7,6 +7,19 @@ export const experienceReply = (value) => {
 };
 export const createExperienceApi = ({ get, report }) => ({
   ...Object.fromEntries(
+    ['start', 'stop', 'status'].map((operation) => [
+      `cvExperiencePlan${operation[0].toUpperCase()}${operation.slice(1)}`,
+      async (input) =>
+        experienceReply(
+          await (operation === 'status'
+            ? get(
+                `/api/cv/experience/plan-status?${new URLSearchParams(input)}`
+              )
+            : report(`/api/cv/experience/plan-${operation}`, input))
+        ),
+    ])
+  ),
+  ...Object.fromEntries(
     ['start', 'stop', 'status', 'evidence'].map((operation) => [
       `cvLinkedinExperience${operation[0].toUpperCase()}${operation.slice(1)}`,
       async (input) =>

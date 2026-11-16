@@ -101,7 +101,7 @@ export const useCvTranslation = ({ api, values, run }) => {
   };
 };
 
-const Comparison = ({ comparison, t }) =>
+export const Comparison = ({ comparison, t }) =>
   comparison
     ? el(
         'div',

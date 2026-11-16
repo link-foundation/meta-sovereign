@@ -1,0 +1,28 @@
+import { PrivateCvJobState } from './private-cv-job-state.js';
+import { experiencePlanRunning } from '../cv/experience-plan-record.js';
+import { confirmedExperiencePlan } from '../cv/experience-plan-receipt.js';
+import { encodeLinoValue, LINO_TEXT, LINO_BINARY } from '../transport/lino.js';
+
+export const downloadExperiencePlan = (row, type = LINO_TEXT) => {
+  const href = URL.createObjectURL(
+    new globalThis.Blob([encodeLinoValue(row, type)], { type })
+  );
+  const anchor = globalThis.document.createElement('a');
+  anchor.href = href;
+  anchor.download = `experience-plan-${row.requestId}.${type === LINO_BINARY ? 'bin' : 'lino'}`;
+  anchor.click();
+  globalThis.setTimeout(() => URL.revokeObjectURL(href), 1000);
+};
+export const createExperiencePlanState = (api, changed, options = {}) => {
+  const state = new PrivateCvJobState(api, changed, {
+    initial: { to: 'linkedin' },
+    fields: ['to'],
+    prefix: 'cvExperiencePlan',
+    pendingKey: 'meta-sovereign:experience-plan',
+    checked: confirmedExperiencePlan,
+    running: experiencePlanRunning,
+    ...options,
+  });
+  changed(state.state);
+  return state;
+};

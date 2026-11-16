@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { setTimeout as delay } from 'node:timers/promises';
+import { foregroundPrivateCvJob } from './private-cv-job-command.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import {
@@ -32,34 +32,21 @@ const readonlyService = (store, artifactRoot) => {
 export const foregroundLinkedinExperience = async (
   service,
   input,
-  { wait = () => delay(250), notice = (text) => console.error(text) } = {}
+  { wait, notice = (text) => console.error(text) } = {}
 ) => {
-  let stopping;
-  const stop = () => {
-    stopping ??= service.stop({ requestId: input.requestId });
-    stopping.catch(() => {});
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
   let announced = false;
-  try {
-    let row = await service.start(input);
-    while (linkedinExportRunning(row)) {
+  return foregroundPrivateCvJob(service, input, {
+    running: linkedinExportRunning,
+    wait,
+    observe: (row) => {
       if (row.phase === 'waiting-login' && !announced) {
         announced = true;
         notice(
           'Sign in in the visible LinkedIn experience window. Waiting up to 30 minutes; Ctrl+C stops the export.'
         );
       }
-      await wait();
-      row = await service.status({ requestId: input.requestId });
-    }
-    return row;
-  } finally {
-    process.off('SIGINT', stop);
-    process.off('SIGTERM', stop);
-    await stopping;
-  }
+    },
+  });
 };
 
 export const createLinkedinExperienceCommands = (

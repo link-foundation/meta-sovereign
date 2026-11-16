@@ -21,7 +21,7 @@ const fields = new Set([
   'website',
   'areaId',
 ]);
-const RecordDetails = ({ job, label }) => {
+export const RecordDetails = ({ job, label }) => {
   const t = useT();
   return el('details', null, [
     el(

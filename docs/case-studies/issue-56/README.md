@@ -588,3 +588,5 @@ acceptance remains open.
 message mutations before polling, retains canonical edit and delivery changes,
 rejects reused HH pane ownership and drains admitted writes on Stop. Authenticated
 provider parity and all-unread orchestration remain unfinished; HH11 stays open.
+
+[Directed experience planning](experience-planning.md) adds exact-revision, private, translation-backed plans in both directions, with original records, target-only preservation and durable CLI/Lino/four-language recovery. Native edits, per-change Save, complete acquisition, authenticated acceptance and all 60 unchecked rows remain required.

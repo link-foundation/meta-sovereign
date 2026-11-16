@@ -20,6 +20,7 @@ import { runnerLocale } from './runner.js';
 import { cvExperienceLocale } from './cv-experience.js';
 import { linkedinExperienceLocale } from './cv-linkedin-experience.js';
 import { experienceFilesLocale } from './cv-experience-files.js';
+import { experiencePlanLocale } from './cv-experience-plan.js';
 
 export const dictionaries = Object.fromEntries(
   Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
@@ -32,6 +33,7 @@ export const dictionaries = Object.fromEntries(
       ...cvExperienceLocale(language),
       ...experienceFilesLocale(language),
       ...linkedinExperienceLocale(language),
+      ...experiencePlanLocale(language),
     },
   ])
 );

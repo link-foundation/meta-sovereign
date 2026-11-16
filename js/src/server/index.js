@@ -335,6 +335,7 @@ const cvContext = (cv = {}, vacancies) => ({
   cvSessionFactory: cv.sessionFactory ?? null,
   cvArtifactDir: cv.artifactDir ?? null,
   cvExperienceOptions: cv.experience,
+  cvExperiencePlanningOptions: cv.experiencePlanning,
 });
 
 /**
