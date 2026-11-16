@@ -34,6 +34,7 @@ import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
 import { questionCommands } from './question-commands.js';
+import { questionPeriodConfiguration } from './question-period-configuration.js';
 import { followCommands } from './follow-commands.js';
 import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { withAnswerModel } from './answer-model-commands.js';
@@ -407,6 +408,7 @@ const runnerFor = (store, args, deps) => {
   const now = args.now ? new Date(args.now) : null;
   const runner = createAutomationRunner({
     store,
+    answerFinalPeriod: deps.answerFinalPeriod,
     send,
     setTyping,
     markRead:
@@ -446,11 +448,15 @@ const automationsCmd = async (args, log, deps) => {
     log(`unknown subcommand "${sub}"\n${AUTOMATION_HELP}`);
     return 1;
   }
+  const answerFinalPeriod = ['plan', 'run'].includes(sub)
+    ? await questionPeriodConfiguration(args)
+    : undefined;
   const store = await deps.openStore(args.store ?? defaultStoreDir());
   const work = async (modelRunner) => {
     const { runner, questionBrowser, close } = runnerFor(store, args, {
       ...deps,
       modelRunner,
+      answerFinalPeriod,
     });
     const followDiscovery =
       deps.followDiscovery ?? createFollowDiscovery({ store });

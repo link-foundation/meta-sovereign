@@ -127,6 +127,10 @@ const planOverrides = (args) => ({
       }),
 });
 
+const hasPeriodConfiguration = (args) =>
+  args._[1] === 'plan' ||
+  (args._[1] === 'browser' && ['inspect', 'unread'].includes(args._[2]));
+
 const planInput = async (args, store) => {
   if (args.config && args.automation) {
     throw new Error(
@@ -145,11 +149,12 @@ const planInput = async (args, store) => {
     }
     input = saved.action;
   }
+  const period = hasPeriodConfiguration(args)
+    ? await questionPeriodConfiguration(args)
+    : undefined;
   return {
     ...input,
-    ...(args._[1] === 'plan'
-      ? { answerFinalPeriod: await questionPeriodConfiguration(args) }
-      : {}),
+    ...(period === undefined ? {} : { answerFinalPeriod: period }),
     question: args.question ?? args._[2] ?? input.question,
     source: args.source ?? input.source,
     chat: args.chat ?? input.chat,

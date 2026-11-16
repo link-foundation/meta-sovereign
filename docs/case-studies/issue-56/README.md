@@ -653,3 +653,9 @@ failures, the before/after native preview and the shared planner/learning guard.
 Fifty-four focused checks and native/MCP scenarios preserve transcripts, real
 counts, conflicting-preference review and unrelated-question reuse. This partial
 QA11 correction does not accept the complete criterion or the remaining scope.
+
+[Retained worker period settings](question-period-workers.md) covers CLI
+inspection/unread configuration, watched revalidation, saved-action fallback and
+ordinary confirmed automation delivery. Seven actual-parent regressions and an
+owned native composer check preserve source-bound evidence without claiming
+live provider execution or accepting the complete QA11 criterion.

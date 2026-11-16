@@ -51,6 +51,7 @@ export const createDelivery = ({
   outgoing,
   markRead,
   setTyping,
+  answerFinalPeriod,
 }) => {
   /** Send one draft now: typing, the guarded send, ledger, chat history. */
   const execute = async (
@@ -105,6 +106,7 @@ export const createDelivery = ({
       const valid = await validateAnswerDraft(store, automation, draft, {
         reviewed,
         now: clock().getTime(),
+        answerFinalPeriod,
       });
       if (!valid.ok) {
         log({

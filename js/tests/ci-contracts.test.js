@@ -343,6 +343,62 @@ test('vacancy reads and local analysis have independent mandatory browser budget
   }
 });
 
+const questionBrowserGroups = {
+  'question-providers': [
+    'verifyProviderChoices',
+    'verifyHhChoices',
+    'verifyChoiceVisibility',
+    'verifyEmailQuestionLinks',
+  ],
+  'question-templates': [
+    'verifyQuestionTemplates',
+    'verifyTemplateLinkGuards',
+    'verifyHiddenQuestionLinks',
+    'verifyApiQuestionLinks',
+  ],
+  'question-text-replies': ['verifyTextReplyControls'],
+  'question-text-guards': ['verifyTextReplyGuards'],
+  'question-text-controls': ['verifyQuestionTextControls'],
+  'question-chat-lists': [
+    'verifyHhChatList',
+    'verifyHhChatScan',
+    'verifyHhChatFilter',
+  ],
+  'question-history': ['verifyConversationHistory'],
+  'question-inactive-history': ['verifyInactiveHistory'],
+  'question-unread': ['verifyChatNavigation'],
+  'question-unread-guards': ['verifyUnreadViewGuards'],
+  'question-unread-repeat': ['verifyUnreadRepetition'],
+  'question-unread-controls': ['verifyQuestionUnreadControls'],
+  'question-unread-delivery': [
+    'verifyUnreadDeliveryVisit',
+    'verifyUnreadLiveCapture',
+  ],
+  'question-unread-notices': ['verifyUnreadNoticeControls'],
+  'question-unread-polling': ['verifyUnreadPollingControls'],
+  'question-unread-answers': [
+    'verifyUnreadAnswers',
+    'verifyUnreadAnswerControls',
+    'verifyUnreadModel',
+    'verifyUnreadModelControls',
+  ],
+  'question-unread-reply-view': [
+    'verifyUnreadReplyView',
+    'verifyUnreadReplyViewControls',
+  ],
+  'question-inactive-text': ['verifyInactiveText'],
+  'question-notice-policy': [
+    'verifyNoticePolicies',
+    'verifyNoticePolicyControls',
+  ],
+  'question-controls': [
+    'verifyQuestionBrowserControls',
+    'verifySummaryChoices',
+    'verifyQuestionBrowserWatch',
+    'verifyQuestionPeriodWorkers',
+  ],
+};
+
 test('question provider and control scenarios have separate mandatory browser budgets', () => {
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
@@ -354,60 +410,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     path.join(root, 'js/tests/e2e-questions-browser.mjs'),
     'utf8'
   );
-  const groups = {
-    'question-providers': [
-      'verifyProviderChoices',
-      'verifyHhChoices',
-      'verifyChoiceVisibility',
-      'verifyEmailQuestionLinks',
-    ],
-    'question-templates': [
-      'verifyQuestionTemplates',
-      'verifyTemplateLinkGuards',
-      'verifyHiddenQuestionLinks',
-      'verifyApiQuestionLinks',
-    ],
-    'question-text-replies': ['verifyTextReplyControls'],
-    'question-text-guards': ['verifyTextReplyGuards'],
-    'question-text-controls': ['verifyQuestionTextControls'],
-    'question-chat-lists': [
-      'verifyHhChatList',
-      'verifyHhChatScan',
-      'verifyHhChatFilter',
-    ],
-    'question-history': ['verifyConversationHistory'],
-    'question-inactive-history': ['verifyInactiveHistory'],
-    'question-unread': ['verifyChatNavigation'],
-    'question-unread-guards': ['verifyUnreadViewGuards'],
-    'question-unread-repeat': ['verifyUnreadRepetition'],
-    'question-unread-controls': ['verifyQuestionUnreadControls'],
-    'question-unread-delivery': [
-      'verifyUnreadDeliveryVisit',
-      'verifyUnreadLiveCapture',
-    ],
-    'question-unread-notices': ['verifyUnreadNoticeControls'],
-    'question-unread-polling': ['verifyUnreadPollingControls'],
-    'question-unread-answers': [
-      'verifyUnreadAnswers',
-      'verifyUnreadAnswerControls',
-      'verifyUnreadModel',
-      'verifyUnreadModelControls',
-    ],
-    'question-unread-reply-view': [
-      'verifyUnreadReplyView',
-      'verifyUnreadReplyViewControls',
-    ],
-    'question-inactive-text': ['verifyInactiveText'],
-    'question-notice-policy': [
-      'verifyNoticePolicies',
-      'verifyNoticePolicyControls',
-    ],
-    'question-controls': [
-      'verifyQuestionBrowserControls',
-      'verifySummaryChoices',
-      'verifyQuestionBrowserWatch',
-    ],
-  };
+  const groups = questionBrowserGroups;
   assert.equal(checks.filter((name) => name === 'questions').length, 1);
   const groupSources = Object.keys(groups).map((name) =>
     readFileSync(path.join(root, `js/tests/e2e-${name}-browser.mjs`), 'utf8')

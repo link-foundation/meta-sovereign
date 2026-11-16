@@ -77,13 +77,16 @@ Persist the shared preference through the CLI:
 meta-sovereign automations answers policy --answer-final-period=without
 ```
 
-For a read-only `answers plan`, use `--answer-final-period=with|without`, the
-`ANSWER_FINAL_PERIOD` environment variable, or `ANSWER_FINAL_PERIOD: "without"`
-in `.lenv`. `--configuration=path.lenv` selects another configuration file.
-Precedence is the explicit flag, environment, selected file, working-directory
-`.lenv`, saved policy, then `with`. These planning overrides change neither the
-process environment nor saved policy. They do not start provider automation.
-Other commands use the saved shared preference.
+`answers plan`, `answers browser inspect`, `answers browser unread`, and
+`automations plan` / `automations run` resolve `--answer-final-period=with|without`,
+`ANSWER_FINAL_PERIOD`, or `ANSWER_FINAL_PERIOD: "without"` in `.lenv`.
+`--configuration=path.lenv` selects another configuration file. Precedence is the
+explicit flag, environment, selected file, working-directory `.lenv`, saved
+answer action, saved policy, then `with`. These overrides change neither the
+process environment nor saved policy/action. A browser review retains its
+resolved preference through watch and unread revalidation. Ordinary automation
+runs carry it through confirmed delivery checks; pending edited drafts remain
+under their existing review rules. Planning starts no provider automation.
 
 Both Lino encodings accept `POST /api/automations/answers/policy` with
 `{ policy: { answerFinalPeriod: 'without' } }`; planning accepts

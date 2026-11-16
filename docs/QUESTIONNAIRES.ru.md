@@ -71,12 +71,15 @@ CLI отдельного и пакетного отклика принимает
 выбор и показывает отказ, не подтверждая изменение.
 
 Общая настройка: `meta-sovereign automations answers policy --answer-final-period=without`.
-Для предварительного `answers plan` доступны `--answer-final-period=with|without`,
-переменная `ANSWER_FINAL_PERIOD` и строка `ANSWER_FINAL_PERIOD: "without"` в
-`.lenv`. Файл выбирается через `--configuration=path.lenv`. Приоритет: явный
-флаг, окружение, выбранный файл, `.lenv` рабочего каталога, сохранённая настройка,
-затем `with`. Переопределение плана не меняет окружение или сохранённую настройку
-и не запускает автоматизацию провайдера. Остальные команды используют общую настройку.
+Настройку из `--answer-final-period=with|without`, `ANSWER_FINAL_PERIOD` или
+строки `ANSWER_FINAL_PERIOD: "without"` в `.lenv` читают `answers plan`,
+`answers browser inspect`, `answers browser unread` и `automations plan` / `run`.
+Файл выбирается через `--configuration=path.lenv`. Приоритет: явный флаг,
+окружение, выбранный файл, `.lenv` рабочего каталога, сохранённое действие,
+общая настройка, затем `with`. Окружение, сохранённые действие и настройка не
+меняются. Обзор сохраняет выбранное написание при проверках наблюдателя и
+непрочитанных чатов; обычный запуск — при проверке перед подтверждённой отправкой.
+Предварительный план сам не запускает автоматизацию провайдера.
 
 Оба кодирования Lino поддерживают `POST /api/automations/answers/policy` с
 `{ policy: { answerFinalPeriod: 'without' } }`. В плане `answerFinalPeriod`

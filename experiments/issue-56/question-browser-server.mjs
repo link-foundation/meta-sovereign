@@ -84,6 +84,17 @@ const unreadFixtureHtml = (mode, notices, replyView) =>
       : {}),
   });
 
+const currentFixtureHtml = (mode, noticePolicies) =>
+  `${(noticePolicies
+    ? noticePolicyHtml()
+    : mode.freeText
+      ? textReplyHtml
+      : hhChoiceHtml
+  ).replaceAll(
+    'message-101',
+    `message-${mode.id}`
+  )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.question ? `document.querySelector('#history p').textContent=${JSON.stringify(mode.question)};` : ''}${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`;
+
 const observeBrowserFixture = ({
   commander,
   send,
@@ -109,22 +120,10 @@ const observeBrowserFixture = ({
   }
 };
 
-/** Private, disposable production server and routed provider; no live account. */
-export const questionBrowserServer = async (
-  browser,
-  {
-    summaryChoices = false,
-    noticePolicies = false,
-    unreadReview = false,
-    unreadAnswers = false,
-    unreadModel = false,
-    unreadNotices = false,
-    unreadReplyView = false,
-    afterBrowserEvaluate,
-    onUnreadPass,
-  } = {}
+const seedBrowserScenario = async (
+  env,
+  { unreadModel, unreadReview, noticePolicies, unreadNotices, summaryChoices }
 ) => {
-  const env = await questionBrowserFixture();
   if (unreadModel) {
     env.runner = modelRunnerFixture([]);
     await seedModelAnswers(env.store);
@@ -155,6 +154,32 @@ export const questionBrowserServer = async (
   }
 
   await seedQuestionBrowserChat(env);
+  return setSummary;
+};
+
+/** Private, disposable production server and routed provider; no live account. */
+export const questionBrowserServer = async (
+  browser,
+  {
+    summaryChoices = false,
+    noticePolicies = false,
+    unreadReview = false,
+    unreadAnswers = false,
+    unreadModel = false,
+    unreadNotices = false,
+    unreadReplyView = false,
+    afterBrowserEvaluate,
+    onUnreadPass,
+  } = {}
+) => {
+  const env = await questionBrowserFixture();
+  const setSummary = await seedBrowserScenario(env, {
+    unreadModel,
+    unreadReview,
+    noticePolicies,
+    unreadNotices,
+    summaryChoices,
+  });
   const context = await browser.newContext({
     viewport: { width: 1000, height: 800 },
   });
@@ -185,15 +210,7 @@ export const questionBrowserServer = async (
             unreadNotices,
             unreadReplyView
           )
-        : `${(noticePolicies
-            ? noticePolicyHtml()
-            : mode.freeText
-              ? textReplyHtml
-              : hhChoiceHtml
-          ).replaceAll(
-            'message-101',
-            `message-${mode.id}`
-          )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`,
+        : currentFixtureHtml(mode, noticePolicies),
     });
   });
   const commander = makeBrowserCommander({

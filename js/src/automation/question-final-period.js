@@ -7,6 +7,11 @@ export const normalizeAnswerFinalPeriod = (value = 'with') => {
   return value;
 };
 
+export const finalPeriodOverride = ({ answerFinalPeriod }) =>
+  answerFinalPeriod === undefined
+    ? {}
+    : { answerFinalPeriod: normalizeAnswerFinalPeriod(answerFinalPeriod) };
+
 // Resolve an existing spelling pair, never punctuation in a lone observation.
 // Keep raw variants in storage so learning can replay without recounting them.
 export const finalPeriodMatches = (matches, preference) => {

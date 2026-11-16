@@ -1,6 +1,6 @@
 Continue the complete issue 56 objective in PR57. Every original requirement and
 required sub-issue must be implemented and verified in this single PR. The
-reference inventory currently has 60 unchecked criteria. PR57 stays draft and
+reference inventory currently has 41 unchecked criteria (77 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
 - [x] Read the complete issue, pinned references and all three PR comment types.
@@ -192,5 +192,20 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Read the pinned availability preference implementation and reproduce four actual-parent failures plus the incorrect native preview before editing production code.
 - [x] Draft the shared bounded four-language timing guard, portable CLI/offline/Lino/archived-history regressions, mandatory native browser scenario and independent MCP fixture. Preserve transcripts, separate commitments and closed consent.
 - [x] Verify 54 focused checks, inspect before/after/compact screenshots and pass native browser plus two independent MCP scenarios. Preserve the initial conflict interaction and unchanged duplication gate (6.50%).
-- [ ] Archive source-bound evidence, publish the atomic correction and inspect exact-head CI.
+- [x] Archive source-bound timing evidence and publish 83c5b1f7.
+- [ ] Inspect all five exact-head timing workflows.
 - [ ] Verify complete original QA11 contracts and exact-source hosted results before acceptance. All 41 unchecked original criteria remain required.
+
+2026-11-16 final-period worker configuration (QA11):
+
+- [x] Reproduce seven regressions against published 83c5b1f7: CLI inspection and
+      unread processing ignore configuration; watched revalidation and normalized
+      actions drop it; absent overrides erase saved action values; ordinary
+      automation planning/delivery ignores the configuration file.
+- [x] Retain validated optional action settings, resolve isolated command
+      configuration and carry it through actual delivery revalidation while
+      preserving current knowledge checks, owner edits and unchanged policy.
+- [x] Verify 49 focused portable checks, one affected CI registration contract and the native browser-commander scenario; pass strict lint, build and the unchanged duplication gate.
+- [ ] Preserve source-bound evidence and publish this atomic correction.
+- [ ] Inspect all exact-head hosted workflows and complete the original QA11
+      acceptance mapping. Every other unchecked requirement remains required.

@@ -24,7 +24,7 @@ import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
 import { readAcceptedSummaries } from './question-summary-choice.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
-import { normalizeAnswerFinalPeriod } from './question-final-period.js';
+import { finalPeriodOverride } from './question-final-period.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
 import {
   readAnswerProfile,
@@ -181,13 +181,7 @@ export const prepareAnswerPreview = async (
     ...normalizeAnswerEnvironment(input),
     policy: {
       ...(await readAnswerPolicy(store)),
-      ...(input.answerFinalPeriod === undefined
-        ? {}
-        : {
-            answerFinalPeriod: normalizeAnswerFinalPeriod(
-              input.answerFinalPeriod
-            ),
-          }),
+      ...finalPeriodOverride(input),
     },
     // Caller-provided summaries cannot supply the acceptance proof.
     acceptedSummaries: answerChoiceState(input.question ?? '', input).options
@@ -378,7 +372,7 @@ export const validateAnswerDraft = async (
   store,
   automation,
   draft,
-  { reviewed = false, now } = {}
+  { reviewed = false, now, answerFinalPeriod } = {}
 ) => {
   const turn = await readChatAnswerInput(store, automation, draft);
   if (!turn.ok) {
@@ -404,7 +398,12 @@ export const validateAnswerDraft = async (
       error: 'The question automation changed; review before sending',
     };
   }
-  const input = { ...turn.input, ...chatAnswerAction(current.action), now };
+  const input = {
+    ...turn.input,
+    ...chatAnswerAction(current.action),
+    ...finalPeriodOverride({ answerFinalPeriod }),
+    now,
+  };
   if (draft.answer.model?.used) {
     return validateModelAnswer(store, current, draft, input);
   }

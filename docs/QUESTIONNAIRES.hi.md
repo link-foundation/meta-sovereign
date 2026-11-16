@@ -66,12 +66,14 @@ CV में एक आवेदन या बैच शुरू करने �
 दिखते हैं; परिवर्तन सफल होने का दावा नहीं होता।
 
 साझा पसंद सहेजें: `meta-sovereign automations answers policy --answer-final-period=without`।
-केवल-पठन `answers plan` के लिए `--answer-final-period=with|without`, पर्यावरण
-चर `ANSWER_FINAL_PERIOD`, या `.lenv` में `ANSWER_FINAL_PERIOD: "without"` दें।
+`answers plan`, `answers browser inspect`, `answers browser unread` और
+`automations plan` / `run` में `--answer-final-period=with|without`, पर्यावरण
+चर `ANSWER_FINAL_PERIOD` या `.lenv` की `ANSWER_FINAL_PERIOD: "without"` पंक्ति दें।
 `--configuration=path.lenv` दूसरी फ़ाइल चुनता है। प्राथमिकता: स्पष्ट फ़्लैग,
-पर्यावरण, चुनी फ़ाइल, कार्य निर्देशिका की `.lenv`, सहेजी नीति, फिर `with`।
-योजना का यह विकल्प पर्यावरण या सहेजी नीति नहीं बदलता और प्रदाता स्वचालन नहीं
-चलाता। दूसरे आदेश सहेजी साझा पसंद इस्तेमाल करते हैं।
+पर्यावरण, चुनी फ़ाइल, कार्य निर्देशिका की `.lenv`, सहेजी उत्तर क्रिया, साझा नीति,
+फिर `with`। पर्यावरण, सहेजी क्रिया और नीति नहीं बदलते। ब्राउज़र समीक्षा का विकल्प
+वॉच और अपठित चैट की पुनः-जाँच में बना रहता है; सामान्य रन पुष्टि वाली भेजने की
+जाँच तक इसे रखता है। पूर्वावलोकन स्वयं प्रदाता स्वचालन नहीं चलाता।
 
 दोनों Lino रूप `POST /api/automations/answers/policy` पर
 `{ policy: { answerFinalPeriod: 'without' } }` स्वीकारते हैं। योजना में

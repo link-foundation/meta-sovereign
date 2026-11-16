@@ -8,6 +8,7 @@ import {
 import { matchContextualQuestion } from './question-context-match.js';
 import { indexQuestionnaireRules } from './questionnaire-index.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
+import { finalPeriodOverride } from './question-final-period.js';
 import {
   answerSpellings,
   normalizeAnswerEquivalents,
@@ -165,6 +166,7 @@ export const normalizeAnswerAction = (action) => {
   const profileId = optionalAnswerProfileId(action.profileId);
   return {
     kind: 'answer-questions',
+    ...finalPeriodOverride(action),
     ...(action.modelDraft === undefined
       ? {}
       : { modelDraft: action.modelDraft }),
@@ -396,6 +398,7 @@ const answerContext = (options, rules) => ({
   profile: {},
   approximate: true,
   ...options,
+  policy: { ...(options.policy ?? {}), ...finalPeriodOverride(options) },
   matching: normalizeQuestionMatching(options.matching),
   matchPage: normalizeMatchPage(options.matchPage),
   matchBudget:

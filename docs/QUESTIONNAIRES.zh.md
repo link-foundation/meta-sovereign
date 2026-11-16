@@ -55,12 +55,13 @@ Links Notation 记录）。对应的申请打开及批量启动 API 支持 `prof
 不会宣称更改已成功。
 
 保存共享偏好：`meta-sovereign automations answers policy --answer-final-period=without`。
-只读 `answers plan` 可用 `--answer-final-period=with|without`、环境变量
-`ANSWER_FINAL_PERIOD`，或在 `.lenv` 写入 `ANSWER_FINAL_PERIOD: "without"`。
-用 `--configuration=path.lenv` 指定其他配置文件。优先级依次为显式参数、
-环境、选定文件、工作目录 `.lenv`、已保存策略、最后为 `with`。
-规划覆盖值不修改进程环境或已保存策略，也不启动提供商自动化。
-其他命令使用已保存的共享偏好。
+`answers plan`、`answers browser inspect`、`answers browser unread` 和
+`automations plan` / `run` 支持 `--answer-final-period=with|without`、
+环境变量 `ANSWER_FINAL_PERIOD` 或 `.lenv` 中的 `ANSWER_FINAL_PERIOD: "without"`。
+用 `--configuration=path.lenv` 指定其他文件。优先级依次为显式参数、环境、
+选定文件、工作目录 `.lenv`、已保存的回答动作、共享策略、最后为 `with`。
+覆盖值不修改环境、已保存的动作或策略。浏览器审阅在监看和未读处理的再次验证中
+保留此偏好；普通运行在确认发送前的检查中保留它。预览本身不启动提供商自动化。
 
 两种 Lino 编码均支持向 `POST /api/automations/answers/policy` 发送
 `{ policy: { answerFinalPeriod: 'without' } }`。规划请求中的

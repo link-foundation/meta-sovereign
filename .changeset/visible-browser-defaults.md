@@ -745,3 +745,7 @@ online/offline editing, and migrate the schema without rewriting old answers.
 Exclude unrelated replies from explicit work-start timing questions in shared
 planning and archived learning. Preserve literal transcripts, counts, distinct
 commitments and closed yes/no consent through CLI, offline and both Lino formats.
+
+Retain final-period configuration through watched/unread browser work and confirmed
+automation delivery. Preserve saved action preferences when no command override is
+present; keep process settings and shared policy unchanged.

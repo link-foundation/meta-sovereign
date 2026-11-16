@@ -4,6 +4,11 @@
 
 ### Minor Changes
 
+- Retain the resolved final-period preference through browser inspection, watched
+  draft preparation, unread processing and confirmed automation delivery. Support
+  isolated CLI/environment/Lino configuration without erasing saved action settings
+  or rewriting shared policy and raw answer observations.
+
 - Add explicit automatic current-page prefilling to multi-URL form reviews and
   owned Lino sessions and localized Forms controls. Freeze interrupted requests
   for recovery with their original settings. Preserve owner answers and verify

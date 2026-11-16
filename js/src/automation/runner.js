@@ -26,6 +26,7 @@ import { createDelivery } from './deliver.js';
 import { vkOutgoingFor } from './vk-outgoing-queue.js';
 import { planningRecords } from './planning-store.js';
 import { draftChatModelAnswers } from './question-chat-model.js';
+import { finalPeriodOverride } from './question-final-period.js';
 import {
   prepareSalaryExchange,
   withSalaryExchangeEvidence,
@@ -50,6 +51,12 @@ export { stillConfirmed } from './run-automation.js';
 
 const pick = (object, keys) =>
   Object.fromEntries(keys.map((key) => [key, object[key]]));
+
+const planningAction = (action, period, salary) => ({
+  ...action,
+  ...(action.kind === 'answer-questions' ? period : {}),
+  ...(salary ? { salary } : {}),
+});
 
 /** How long a person would take to type `text`. */
 export const typingDurationMs = (text, pacing) =>
@@ -79,8 +86,10 @@ export const createAutomationRunner = ({
   random = Math.random,
   log = () => {},
   modelRunner,
+  answerFinalPeriod,
   vkQueue = {},
 } = {}) => {
+  const period = finalPeriodOverride({ answerFinalPeriod });
   const nowIso = () => clock().toISOString();
   const outgoing = vkOutgoingFor(store, {
     sleep: (ms, signal) => sleep(ms, undefined, { signal }),
@@ -115,10 +124,7 @@ export const createAutomationRunner = ({
       data.records,
       {
         ...automation,
-        action: {
-          ...automation.action,
-          ...(prepared.salary ? { salary: prepared.salary } : {}),
-        },
+        action: planningAction(automation.action, period, prepared.salary),
       },
       {
         ...pick(options, ['targets', 'test', 'limit']),
@@ -170,6 +176,7 @@ export const createAutomationRunner = ({
 
   const deliver = createDelivery({
     store,
+    answerFinalPeriod,
     send,
     showTyping,
     clock,
