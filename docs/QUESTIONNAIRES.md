@@ -22,6 +22,11 @@ for review. Saved wording adds zero uses; only actual outgoing archived replies
 increase counts. Repeating the operation preserves approval and does not recount
 the same observations. No provider history is downloaded.
 
+Observed form learning also keeps the whole reply and aligned individual
+answers as unapproved proposals with the same observation count and evidence.
+Ambiguous replies stay whole. Repeated observations are not counted twice;
+the journal counts skipped input pairs separately from saved proposals.
+
 The same offline operation is available through:
 
 ```sh

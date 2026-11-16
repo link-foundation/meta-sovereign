@@ -34,6 +34,7 @@ import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
 import { verifyFormMonitorUi } from './helpers/e2e-form-monitor.mjs';
 import { verifyFormLearningUi } from './helpers/e2e-form-learning.mjs';
+import { verifyFormQuestionnaireLearningUi } from './helpers/e2e-form-questionnaire-learning.mjs';
 import { verifyFormCapacityUi } from './helpers/e2e-form-capacity.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
@@ -324,6 +325,7 @@ const formGroups = {
     verifyFormJournalUi,
     verifyFormMonitorUi,
     verifyFormLearningUi,
+    verifyFormQuestionnaireLearningUi,
     verifyFormCapacityUi,
     verifyFormModelUi,
   ],
@@ -373,6 +375,7 @@ const verifyGroupOnly = async ({ page }) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['QUESTIONNAIRE_LEARNING', verifyFormQuestionnaireLearningUi],
     ['QUESTIONNAIRE', verifyFormQuestionnaireUi],
     ['PUBLICATION', verifyAssignmentPublicationUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
@@ -612,6 +615,7 @@ if (
   process.env.FORMS_PAY_ONLY !== '1' &&
   process.env.FORMS_MATCHING_ONLY !== '1' &&
   process.env.FORMS_QUESTIONNAIRE_ONLY !== '1' &&
+  process.env.FORMS_QUESTIONNAIRE_LEARNING_ONLY !== '1' &&
   process.env.FORMS_CAPTCHA_ONLY !== '1' &&
   process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&

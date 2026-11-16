@@ -64,12 +64,15 @@ export const learnFormAnswerPairs = (
     );
     const contract = createAnswerContractor({ ...context, contract: true });
     const learner = createAnswerPairLearner({ ...context, contract });
+    let accepted = 0;
     for (const pair of pairs) {
       if (!excluded(pair) && !known(pair, context, contract, source)) {
-        learner.add(pair.question, pair.text, [pair.evidence], 1, {
-          source,
-          chat: pair.url,
-        });
+        accepted += Number(
+          learner.add(pair.question, pair.text, [pair.evidence], 1, {
+            source,
+            chat: pair.url,
+          })
+        );
       }
     }
     const rules = mergeObservedAnswers(
@@ -104,9 +107,7 @@ export const learnFormAnswerPairs = (
           learner.values().find((entry) => entry.id === rule.id).answers.length,
         0
       ),
-      skipped:
-        pairs.length -
-        learner.values().reduce((sum, rule) => sum + rule.answers.length, 0),
+      skipped: pairs.length - accepted,
       rules: rules.map((rule) => rule.id),
       approved: false,
     };

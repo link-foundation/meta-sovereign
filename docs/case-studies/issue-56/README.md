@@ -1,3 +1,4 @@
+- [Observed form questionnaires](forms-questionnaire-learning.md): retain whole replies and aligned individual answers with shared counts, unapproved proposals, idempotent evidence and accurate skipped-pair counters.
 - [Saved questionnaire indexing](questionnaire-index.md): actual-parent reuse/backfill regressions, bounded shared indexing, offline CLI/Lino/UI learning, accurate counts and before/after/phone browser evidence.
 - [Form questionnaire context](question-assembly-context.md): preserve authored label boundaries and every salary/contact component instead of replacing a complete questionnaire with contact inference.
 - [macOS runner allocation](ci-macos-capacity.md): preserve both exact-head allocation failures and retain the unstarted Deno partition on Intel without dropping ARM coverage, tests or failure gates.

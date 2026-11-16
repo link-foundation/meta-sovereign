@@ -221,6 +221,7 @@ const answerCollection = ({ policy, contract, correction }) => {
       throw new Error('learned answer capacity exceeded; no proposals applied');
     }
     learned.set(key, group);
+    return true;
   };
   return { add, values: () => withNoticePatterns([...learned.values()]) };
 };
@@ -245,9 +246,16 @@ export const createAnswerPairLearner = ({
   return {
     values: collection.values,
     add(question, text, evidence, count = 1, context = {}) {
-      if (!answerAsksQuestion(text)) {
-        collection.add(question, text, evidence, count, context);
+      if (answerAsksQuestion(text)) {
+        return false;
       }
+      const accepted = collection.add(question, text, evidence, count, context);
+      if (accepted && !context.notice) {
+        addAlignedParts(question, text, evidence, (part, answer, ids) =>
+          collection.add(part, answer, ids, count, context)
+        );
+      }
+      return accepted === true;
     },
   };
 };

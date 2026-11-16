@@ -26,6 +26,11 @@ unmerged until the complete acceptance mapping is verified.
       Eleven new portable checks, 32 final focused and 52 compatibility checks
       pass; mandatory Chromium and independent MCP before/after/phone checks pass.
       Publish the atomic correction and require fresh exact-head hosted verification.
+- [x] Reproduce observed form questionnaires saving only a whole reply. Retain
+      aligned individual answers using the shared parser, keep counts and
+      evidence idempotent, and count skipped input pairs independently of
+      derived proposals. Verify five new regressions, 42 focused checks and
+      isolated native/MCP before/after/phone evidence; require fresh hosted CI.
 - [ ] Complete the ten-criterion VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including wider QA09/QA10

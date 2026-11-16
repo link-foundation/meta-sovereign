@@ -1,7 +1,11 @@
 import { createInterface } from 'node:readline';
 import { listAnswerRules } from '../../js/src/automation/question-store.js';
+import { controlQuestionnaireLearning } from './forms-questionnaire-learning-fixture.mjs';
 
 const learningAction = async (action, page) => {
+  if (await controlQuestionnaireLearning(action, page)) {
+    return;
+  }
   if (action === 'edit') {
     await page
       .locator('[name="learningAnswer"]')

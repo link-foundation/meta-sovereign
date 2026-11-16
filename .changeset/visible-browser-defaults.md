@@ -712,3 +712,7 @@ Share explicit named answer profiles and validated salary targets with native
 single and batch applications through CLI, both Lino encodings and the shared
 four-language controls. Freeze acknowledged targets, re-read current contacts,
 retain legacy journal signatures and keep assembled answers for owner review.
+
+Learn aligned individual answers together with confirmed whole form replies.
+Preserve unapproved observations, evidence and idempotent counts; report skipped
+input pairs separately from derived proposals in the learning journal (QA09).
