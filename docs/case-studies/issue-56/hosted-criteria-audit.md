@@ -1,17 +1,20 @@
 # VK and desktop criterion audit
 
-The source and evidence audit concerns nine candidate criteria in
+The source and evidence audit concerns ten candidate criteria in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Acceptance is pending until all five workflows finish successfully on the
 published source being audited. The
 [active plan](hosted-criteria-plan.md) retains that gate and the unresolved
-earlier VK24 reload failure. No inventory row is completed by this draft.
+earlier VK24 reload investigation. No inventory row is completed by this draft.
 
-The earlier `5936c544` retry was superseded. Published `a493e1cf` passes four
-workflows, while its main workflow contains a
-[Windows private pause checkpoint timeout](ci-lino-pause.md). That original
-failure has no phase timings. The new bounded trace is diagnostic; local
-passing checks do not establish its cause or complete this hosted gate.
+Published `cb95c654` is the source selected for this audit. Its desktop,
+Pages, security and link workflows pass, as do all eight browser jobs. The
+main workflow failed solely because its second macOS Deno partition never
+acquired a hosted ARM runner. An isolated retry on the identical SHA failed
+before any test step for the same capacity reason. See the retained
+[runner allocation investigation](ci-macos-capacity.md). No individual job or
+earlier successful revision substitutes for the full gate; select the next
+published corrected source for acceptance.
 
 ## Original behavior and implementation
 
@@ -41,7 +44,7 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py b61cf5fd` streams eighteen
+`python -B experiments/issue-56/audit-hosted-criteria.py cb95c654` streams eighteen
 existing archives, checks every entry against its committed SHA-256 manifest
 and records the selected published production source hashes and their differences. It does
 not extract archives or run a local test matrix. All 1,426 entries pass,
@@ -56,6 +59,12 @@ discovery, live-history, catalog, token-validation and statistics core contracts
 remain intact. The archived full source differences make this comparison
 reviewable instead of treating old test output as current-source proof.
 
+The latest transport change bounds local and SSH commands, escalates a child
+that ignores cancellation and retains ownership until its close event. Its
+timeouts preserve unknown outcomes and do not replay provider effects. The
+portable desktop-validator correction loads Playwright only in the guarded
+native launch path. Neither change alters the ten feature contracts.
+
 The later [runner confirmations](runner-feedback.md) change the shared Settings
 surface after an explicit positive Start/Stop receipt. They do not complete the
 remaining desktop execution requirements. The refreshed source audit includes
@@ -63,11 +72,15 @@ their archived sources, and the acceptance collector now requires their nine
 portable checks and all five shared token/runner scenarios on each browser
 engine. The collector also requires the live diagnostics and clipboard portable
 checks, both mandatory browser scenarios and the native Electron clipboard fields.
-The `b61cf5fd` matrix passes the Windows checkpoint but fails the
-[CV experience fixture](ci-cv-experience-page-errors.md); it cannot satisfy the
-acceptance gate. Require complete positive receipts for the corrected source.
+Earlier `a493e1cf` has a [Windows private pause checkpoint timeout](ci-lino-pause.md)
+without phase timings. The `b61cf5fd` matrix passes that checkpoint but fails
+the [CV experience fixture](ci-cv-experience-page-errors.md). The later
+`b558bd74` passes the CV inspections and real packaged macOS launch, but fails
+the portable desktop validator before six Deno shards can execute. These
+negative records remain preserved. Current passing checks do not establish
+the unwitnessed historical timeout or cache-failure causes.
 
-## VK24 remains unfinished
+## VK24 cache/export mapping and historical diagnostic limit
 
 The [earlier WebKit failure](ci-vk-cache-reload.md) has no witnessed cause.
 Its original raw job and browser artifact both show the same undefined-cache
@@ -75,7 +88,24 @@ assertion after a successful refresh/export. The browser artifact contains no
 request payload, refusal receipt or screenshot of that failed action. The
 later diagnostic verifies positive receipts and retains those fields on a
 future refusal. Passing local or hosted reload checks cannot establish why
-that earlier request failed. VK24 remains unchecked pending that investigation.
+that earlier request failed. The original issue explicitly requires diagnostic
+output when there is insufficient data to find a cause; it does not require an
+invented explanation before evaluating the requested cache/export behavior.
+
+The [feature mapping](vk-cache.md) covers all seven pinned scripts: bounded
+history loading, Markdown conversion with quoted replies and profile links,
+account-scoped history/conversation/friend/profile/count caches, the original
+age policies, complete zero/empty receipts and offline inspection. The actual
+parent lacks the command and controls. Fifteen portable regressions verify
+durable paging, credential/account/head changes, failed acknowledgements,
+causal reopen, corruption refusal, CLI, both Lino forms, shutdown ownership
+and translated controls; twelve existing export checks retain the shared
+writer's bounded Markdown and original structured data. Current helper changes
+preserve these contracts. Acceptance additionally requires positive named
+portable receipts and the complete 401-record export/reload scenario on both
+engines in the audited source's successful five-workflow matrix. VK24 remains
+unchecked until that gate passes. Retain the historical investigation and
+its unknown cause even after feature acceptance.
 
 All other unfinished requirements retain their full scope in this single PR.
 PR57 remains draft and unmerged until the whole issue is verified.

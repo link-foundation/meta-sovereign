@@ -6,8 +6,12 @@ does not complete a criterion without its original behavior and regression
 evidence. This audit concerns VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
-evidence. VK24 retains an unresolved earlier WebKit reload failure; passing a
-later run alone cannot establish its cause or complete that criterion.
+evidence. VK24 retains an unresolved earlier WebKit reload failure. Its cause
+cannot be inferred from a later passing run. The original issue explicitly
+requests retained diagnostic output when the available data cannot establish a
+cause. Evaluate the cache/export feature against its complete behavior mapping,
+actual-parent regressions and exact-source hosted receipts; keep that historical
+investigation separate and never describe its cause as fixed.
 
 - [x] Read the complete pinned desktop requirements, stats implementation and
       the six implementation records. Verify all bytes in their six archived
@@ -32,6 +36,11 @@ later run alone cannot establish its cause or complete that criterion.
       four-language states and owned clipboard bridge. Include the original
       redaction/clipboard regressions and asynchronous native correction as
       VD08 evidence; require their portable, browser and native receipts.
+- [x] Re-read all seven pinned cache/export scripts, current account and page
+      guards, immutable export evidence, shutdown ownership, CLI/Lino/offline
+      interfaces and all fifteen cache tests. Review the later shared helper
+      changes. Require the twelve existing export checks and complete-history
+      reload scenario on both engines, with all assertions retained.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.

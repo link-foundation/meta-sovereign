@@ -69,6 +69,7 @@ test_files = [
     'vk-friend-stats', 'vk-friend-stats-feed', 'vk-friend-priority',
     'vk-discovery', 'vk-discovery-capability', 'vk-discovery-guards',
     'vk-discovery-interfaces', 'vk-stickers', 'vk-sticker-interfaces',
+    'vk-cache', 'vk-cache-interfaces', 'telegram-export-window',
     'vk-outgoing-queue', 'vk-queue-interfaces', 'vk-queue-runner',
     'vk-queue-lifecycle', 'automation-trigger-state', 'vk-live-history',
     'runner-log', 'vk-message-defaults', 'vk-token-acquisition',
@@ -99,7 +100,8 @@ scenarios = {
     'vk-friends': ['verifyVkFriendPriority', 'verifyVkFriendStats',
                    'verifyVkDiscovery', 'verifyVkStickers',
                    'verifyVkSendQueue', 'verifyRunnerLog',
-                   'verifyDiagnostics', 'verifyDesktopClipboard'],
+                   'verifyDiagnostics', 'verifyDesktopClipboard',
+                   'verifyVkCache'],
     'vk-token': ['verifyVkToken', 'verifyRunnerSessions', 'verifyRunnerProfile',
                  'verifyRunnerHealth', 'verifyRunnerFeedback'],
     'vk-engagement': ['verifyVkMessageDefaults'],
@@ -137,6 +139,12 @@ assert codeql == [{'reports': 1, 'auditedFalsePositives': 2}]
 for name in ['hosted-criteria-source-audit.json', 'hosted-criteria-source-deltas.diff']:
     path = logs / name
     entries[str(path.relative_to(root))] = path.read_bytes()
+for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
+               'cancelled-deno-check.json', 'cancelled-deno-annotations.json',
+               'pipeline-attempt1.log', 'cancelled-job-logs.log']:
+    path = logs / f'hosted-{slug}-{suffix}'
+    if path.exists():
+        entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
@@ -146,8 +154,9 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['VK23', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
-    unfinishedCacheInvestigation='VK24', liveProvider=False, acceptance=False,
+    auditedCriteria=['VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
+    liveProvider=False, acceptance=False,
 )
 entries['metadata.json'] = (json.dumps(metadata, indent=2) + '\n').encode()
 write_entries_archive(root / f'docs/case-studies/issue-56/data/hosted-criteria-{slug}.tar.gz', entries)
