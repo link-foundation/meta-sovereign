@@ -22,6 +22,16 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const PREFIX = 'meta-sovereign-desktop';
 
+// SQLite ships flat prebuild filenames for every OS/CPU. Filter per target,
+// without mutating shared staging files when multiple architectures are built.
+const sqlitePrebuilds = (...platforms) => ({
+  files: [
+    `!**/better-sqlite3/prebuilds/!(${platforms
+      .map((name) => `${name}-\${arch}`)
+      .join('|')}).node`,
+  ],
+});
+
 const electronVersion = () => {
   if (process.env.META_SOVEREIGN_ELECTRON_VERSION) {
     return process.env.META_SOVEREIGN_ELECTRON_VERSION;
@@ -66,6 +76,7 @@ module.exports = {
     },
   ],
   linux: {
+    fileOptions: sqlitePrebuilds('linux', 'linuxmusl'),
     target: ['AppImage', 'deb', 'tar.gz'],
     category: 'Utility',
     // Keep the .desktop entry and the staged package.json `desktopName`
@@ -75,6 +86,7 @@ module.exports = {
     artifactName: `${PREFIX}-linux-\${arch}-\${version}.\${ext}`,
   },
   mac: {
+    fileOptions: sqlitePrebuilds('darwin'),
     // The top-level `executableName` also names the .app bundle, so
     // macOS gets the product name back ("Meta Sovereign.app").
     executableName: 'Meta Sovereign',
@@ -97,6 +109,7 @@ module.exports = {
     title: 'Install Meta Sovereign',
   },
   win: {
+    fileOptions: sqlitePrebuilds('win32'),
     // Windows artifacts already ship unsigned (no Authenticode publisher).
     // Keep that channel explicit under v27's fail-closed signing policy.
     verifyUpdateCodeSignature: false,

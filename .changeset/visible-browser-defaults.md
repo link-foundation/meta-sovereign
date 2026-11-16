@@ -655,3 +655,5 @@ packaging instead of accepting omitted optional runtime packages.
 Recheck watched browser reply ownership after arming and before native dispatch for strict choices and explicitly authorized text replies. Refuse Stop, navigation and changed-policy races while draining already-issued positive receipts (issue #56, QA14/QA20/HH11).
 
 Add explicitly enabled sequential unread answers with guarded exact bot-option selection and draft-only ordinary replies. Hold the first unresolved chat open, constrain later polling to that chat until owner reply or no-reply, preserve actual receipts and Stop draining, and share CLI, text/binary Lino and localized Questions/Chat/Operator controls. Migrate legacy passes to review-only intent and keep the native synchronization schema aligned with the migration registry.
+
+Filter bundled SQLite native prebuilds by each desktop installer's target platform and architecture, while retaining provider runtimes, portable fallbacks and the builder's native-binary verification.

@@ -49,6 +49,10 @@ and the unchanged 6.5% duplication gate pass. No local package installation,
 full build, full suite or platform matrix was run. Hosted verification for this
 change remains pending until its published commit completes the desktop matrix.
 
+The first hosted run exposed a separate SQLite foreign-prebuild failure. Its
+actual error, focused reproduction and target-specific correction are preserved
+in [desktop native prebuild filtering](desktop-native-prebuilds.md).
+
 This addresses a VD01 packaging prerequisite. Automatic preparation of remote
 runner tools, browser executable availability, backend readiness and authenticated
 provider parity remain unfinished. All 60 unchecked inventory rows remain
