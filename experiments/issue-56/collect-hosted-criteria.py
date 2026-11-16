@@ -85,6 +85,10 @@ test_files = [
     'question-assembly-context', 'forms-questionnaire-learning',
     'job-application-answer-context', 'job-application-answer-context-controls',
     'job-application-answer-approval',
+    'question-turns', 'question-turns-controls', 'question-policy',
+    'question-corrections', 'question-corrections-controls',
+    'question-concurrency', 'question-concurrency-controls',
+    'question-controls', 'question-substitution', 'question-automation',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -119,7 +123,32 @@ scenarios = {
                                 'verifyNativeApplicationAnswerContext'],
 }
 browser_receipts = {}
+question_entry = 'js/tests/e2e-questions-browser.mjs'
+question_source = subprocess.check_output(
+    ['git', 'show', f'{sha}:{question_entry}'], cwd=root)
+entries[question_entry] = question_source
+question_assertions = {
+    'verifyPolicy': None,
+    'verifyQuestionTurns': 'e2e-question-turns',
+    'verifyQuestionCorrections': 'e2e-question-corrections',
+    'verifyQuestionConcurrency': 'e2e-question-concurrency',
+}
+for name, helper in question_assertions.items():
+    assert len(re.findall(rf'^  await {name}\(', question_source.decode(), re.M)) == 1, name
+    if helper:
+        path = f'js/tests/helpers/{helper}.mjs'
+        entries[path] = subprocess.check_output(
+            ['git', 'show', f'{sha}:{path}'], cwd=root)
 for engine in ['chromium', 'webkit']:
+    # These older assertions precede the group's final success marker and have
+    # no separate scenario envelope. Retain their exact published bodies and
+    # identify group completion honestly instead of inventing semantic logs.
+    completions = [i for i, line in enumerate(raw[f'{engine}-3'], 1)
+                   if f'[e2e-questions] OK ({engine})' in line]
+    assert len(completions) == 1, engine
+    browser_receipts[f'{engine}/questions/mandatory-assertions'] = dict(
+        groupPassedLine=completions[0], entry=question_entry,
+        awaited=list(question_assertions), kind='group-completion')
     for group, names in scenarios.items():
         shard = (2 if group == 'job-application-answers' else
                  3 if group in ['vk-token', 'cv-translation', 'questions'] else 4)
@@ -199,7 +228,7 @@ for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
     if path.exists():
         entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
-             'questionnaire-criteria-audit.md']:
+             'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -208,7 +237,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['QA09', 'QA10', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA26', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )

@@ -27,8 +27,25 @@ names = [
     'question-lists', 'question-assembly-context', 'questionnaire-index',
     'forms-questionnaire-learning', 'application-answer-context',
     'application-answer-approval',
+    'question-turns', 'question-policy', 'question-corrections',
+    'question-concurrency',
 ]
 audits = {}
+hashed_revisions = {
+    'question-lists': '86eebd79',
+    'question-corrections': '2aced5d3',
+    'question-concurrency': 'ed241ef5',
+}
+# These two early archives retain regressions but no production source hashes.
+# Compare their published implementations separately; do not imply that these
+# bytes were present in, or cryptographically bound by, the old archives.
+git_sources = {
+    'question-turns': ('df7c0c28', [
+        'question-answers', 'question-learning', 'question-turns']),
+    'question-policy': ('01f4d6c8', [
+        'question-answers', 'question-learning', 'question-policy',
+        'question-store']),
+}
 
 
 def compare_source(name, source, content, delta):
@@ -64,20 +81,30 @@ with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
                     continue
                 sources[entry.name] = compare_source(name, entry.name, content, delta)
         assert actual == expected, f'archive integrity failure: {name}'
-        # The early list archive records source hashes rather than source bytes.
-        # Recover those exact bytes from its published implementation commit.
-        if name == 'question-lists':
+        if name in hashed_revisions:
             with tarfile.open(archive, 'r:gz') as tar:
                 declared = json.load(tar.extractfile('metadata.json'))['sources']
             for source in declared:
-                if not source.startswith('js/src/automation/'):
+                if not source.startswith('js/src/') or source.endswith('/app.min.js'):
                     continue
                 content = subprocess.check_output(
-                    ['git', 'show', f'86eebd79:{source}'], cwd=root)
+                    ['git', 'show', f'{hashed_revisions[name]}:{source}'], cwd=root)
                 assert hashlib.sha256(content).hexdigest() == declared[source], source
+                sources[source] = compare_source(name, source, content, delta)
+        provenance = None
+        if name in git_sources:
+            implementation, stems = git_sources[name]
+            implementation = subprocess.check_output(
+                ['git', 'rev-parse', implementation], cwd=root).decode().strip()
+            provenance = dict(revision=implementation, archiveSourceHashes=False)
+            for stem in stems:
+                source = f'js/src/automation/{stem}.js'
+                content = subprocess.check_output(
+                    ['git', 'show', f'{implementation}:{source}'], cwd=root)
                 sources[source] = compare_source(name, source, content, delta)
         audits[name] = {
             'entries': len(actual), 'sources': sources,
+            'gitSourceProvenance': provenance,
             'archiveSha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
             'manifestSha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
         }

@@ -31,7 +31,7 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the twelve-criterion questionnaire/VK/desktop evidence audit, accepting only fully
+- [ ] Complete the fourteen-criterion questionnaire/turn/policy/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including questionnaire
       acceptance, CV editing/sync, unread orchestration and desktop execution.
@@ -131,3 +131,17 @@ by this plan change, and all other requested work remains required in PR57.
       MCP, preserve inspected screenshots and close every owned fixture.
 - [ ] Publish the atomic helper correction, inspect fresh hosted Chromium/WebKit
       results and continue all 60 unchecked original criteria.
+
+2026-11-16 reminder and rejected-answer acceptance audit:
+
+- [x] Re-read the full pinned QA16/QA26 contracts and mandatory portable/control
+      and browser assertions. Distinguish shared stored-data behavior from the
+      separately required provider-history and general extraction workflows.
+- [x] Verify four more archives and recover hash-bound correction/concurrency
+      sources. Retain separate Git provenance for the two early archives without
+      production hashes, and review every later core difference.
+- [x] Extend the acceptance collector to preserve the published assertions and
+      require named portable checks plus mandatory group completion on both engines.
+- [ ] Publish the atomic audit, preserve all five exact-source workflows and
+      accept only completely verified mappings. All 60 original unchecked rows
+      remain required until their evidence is complete.
