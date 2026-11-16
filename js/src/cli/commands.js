@@ -808,7 +808,7 @@ const COMMANDS = {
   'vault-remove': vaultRemoveCmd,
   'vault-list': vaultListCmd,
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
-  ...createCvCommands({ openStore }),
+  ...createCvCommands({ openStore, openReadOnly }),
   ...createVacancyCommands({ openStore }),
   ...createBrowserCommands({ openStore, openReadOnly }),
   ...createFormsCommands({ openStore }),

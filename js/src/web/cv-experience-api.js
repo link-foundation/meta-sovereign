@@ -6,6 +6,19 @@ export const experienceReply = (value) => {
   return value;
 };
 export const createExperienceApi = ({ get, report }) => ({
+  ...Object.fromEntries(
+    ['start', 'stop', 'status', 'evidence'].map((operation) => [
+      `cvLinkedinExperience${operation[0].toUpperCase()}${operation.slice(1)}`,
+      async (input) =>
+        experienceReply(
+          await (['start', 'stop'].includes(operation)
+            ? report(`/api/cv/experience/linkedin-${operation}`, input)
+            : get(
+                `/api/cv/experience/linkedin-${operation}?${new URLSearchParams(input)}`
+              ))
+        ),
+    ])
+  ),
   cvExperienceStored: async () =>
     experienceReply(await get('/api/cv/experience/stored')),
   cvExperienceExports: async () =>

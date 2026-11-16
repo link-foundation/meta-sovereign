@@ -47,3 +47,8 @@ writer. Generic CV sync therefore does not establish this requirement.
       and independent MCP before/after evidence. Inspect hosted checks for the
       exact published source. Complete HH21 only after every item is verified in
       [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+The [native LinkedIn reader](linkedin-experience.md) now drafts bounded acquisition,
+private evidence, durable recovery and shared controls with synthetic browser checks.
+Authenticated provider verification, complete HH/About acquisition and every
+remaining item above stay required; HH21 remains unfinished.

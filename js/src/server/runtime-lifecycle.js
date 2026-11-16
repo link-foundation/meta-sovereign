@@ -11,6 +11,11 @@ const stopAccounts = (ctx, handoff) =>
     )
   );
 
+const stopExperienceExport = (ctx) => {
+  ctx.cvExperienceClosing = true;
+  return ctx.cvExperience?.close();
+};
+
 export const createRuntimeLifecycle = ({
   server,
   ctx,
@@ -39,6 +44,7 @@ export const createRuntimeLifecycle = ({
     ctx.publicationsClosing = true;
     ctx.followClosing = true;
     ctx.vacanciesClosing = true;
+    const experienceDone = stopExperienceExport(ctx);
     bus?.close();
     ctx.chatIndex.close();
     ctx.knowledge?.close();
@@ -56,6 +62,7 @@ export const createRuntimeLifecycle = ({
       ctx.runnerSessions?.close(),
       ctx.forms?.stop(),
       ctx.vacancies?.stop(),
+      experienceDone,
       ctx.answerModel?.stop?.(),
       closeTelegramLogins(ctx),
     ]);

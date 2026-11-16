@@ -1,3 +1,8 @@
+export {
+  linkedinExperienceDocument,
+  linkedinExperienceUrl,
+} from './linkedin-experience-parse.js';
+export { createLinkedinExperienceService } from './linkedin-experience-service.js';
 /**
  * CV synchronisation facade (R-V15).
  *

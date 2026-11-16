@@ -38,7 +38,7 @@ const checkedRow = async (row) => {
   if (
     !row ||
     row.version !== 1 ||
-    !['imported', 'hh-export'].includes(row.provenance?.kind)
+    !['imported', 'hh-export', 'linkedin-native'].includes(row.provenance?.kind)
   ) {
     throw experienceDocumentFailure();
   }

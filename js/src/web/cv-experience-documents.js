@@ -6,6 +6,7 @@ import {
   createExperienceState,
   experienceExportKey,
 } from './cv-experience-state.js';
+import { CvLinkedinExperience } from './cv-linkedin-experience.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
 
 const el = React.createElement;
@@ -113,7 +114,7 @@ const ExistingHhExport = ({ state, actions }) => {
     ),
   ]);
 };
-export const CvExperienceDocumentsScreen = ({ state, actions }) => {
+export const CvExperienceDocumentsScreen = ({ state, actions, api }) => {
   const t = useT();
   return el(
     'details',
@@ -180,6 +181,14 @@ export const CvExperienceDocumentsScreen = ({ state, actions }) => {
             t('experienceFiles.truncated')
           )
         : null,
+      api
+        ? el(CvLinkedinExperience, {
+            key: 'native-linkedin',
+            api,
+            select: (id) => actions.selectRevision(id),
+            selecting: state.busy,
+          })
+        : null,
       el(ExistingHhExport, { key: 'native-hh', state, actions }),
       ...['hh', 'linkedin'].map((platform) =>
         el(SnapshotChoice, { key: platform, platform, state, actions })
@@ -211,6 +220,6 @@ export const CvExperienceDocuments = ({ api }) => {
     };
   }, [api]);
   return state
-    ? el(CvExperienceDocumentsScreen, { state, actions: actions.current })
+    ? el(CvExperienceDocumentsScreen, { state, actions: actions.current, api })
     : null;
 };

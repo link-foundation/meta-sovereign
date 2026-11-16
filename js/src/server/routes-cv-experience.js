@@ -9,6 +9,24 @@ import {
   compareStoredExperience,
 } from '../cv/experience-store.js';
 import { experienceFromHhExport } from '../cv/experience-hh.js';
+import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
+
+const linkedinService = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw Object.assign(new Error('Experience exports have stopped.'), {
+      code: 'cv-linkedin-stopped',
+      status: 503,
+    });
+  }
+  return (ctx.cvExperience ??= createLinkedinExperienceService({
+    store,
+    artifactRoot: path.join(
+      ctx.storeDir ?? defaultStoreDir(),
+      'experience-exports'
+    ),
+    ...ctx.cvExperienceOptions,
+  }));
+};
 
 const actions = {
   stored: (store) => storedExperienceDocuments(store),
@@ -25,9 +43,20 @@ const actions = {
       input
     ),
   compare: (store, input) => compareStoredExperience(store, input),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop', 'evidence'].map((operation) => [
+      `linkedin-${operation}`,
+      (store, input, ctx) => linkedinService(store, ctx)[operation](input),
+    ])
+  ),
 };
 const admission = (req, operation, ctx) => {
-  const read = ['stored', 'document'].includes(operation);
+  const read = [
+    'stored',
+    'document',
+    'linkedin-status',
+    'linkedin-evidence',
+  ].includes(operation);
   if (req.method !== (read ? 'GET' : 'POST')) {
     return { status: 405, code: 'method-not-allowed' };
   }

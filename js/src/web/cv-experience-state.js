@@ -33,11 +33,20 @@ export const experienceFileDocument = async (file) => {
 const receipt = (value) => {
   if (
     !revision(value?.revision) ||
-    !['imported', 'hh-export'].includes(value.provenance?.kind)
+    !['imported', 'hh-export', 'linkedin-native'].includes(
+      value.provenance?.kind
+    )
   ) {
     throw new Error('Snapshot acknowledgement is incomplete.');
   }
   return { ...value, document: validateExperienceDocument(value.document) };
+};
+const selectLinkedinRevision = async (api, id) => {
+  const answer = receipt(await api.cvExperienceDocument(id));
+  if (answer.revision !== id || answer.document.platform !== 'linkedin') {
+    throw new Error('The exported snapshot was not confirmed.');
+  }
+  return answer;
 };
 export const downloadExperienceDocument = (document, revisionId, type) => {
   const bytes = experienceDocumentToLino(document, type);
@@ -162,6 +171,8 @@ export const createExperienceState = (
           })
         )
       ),
+    selectRevision: (id) =>
+      run(async () => remember(await selectLinkedinRevision(api, id))),
     fromHh: () =>
       run(async () => {
         const selected = state.exports?.find(

@@ -27,6 +27,7 @@ import {
   syncCvAcross,
 } from '../cv/index.js';
 import { confirmCli } from './confirm.js';
+import { createLinkedinExperienceCommands } from './cv-linkedin-experience-command.js';
 import { createExperienceCommands } from './cv-experience-commands.js';
 
 export { CV_HELP } from './help.js';
@@ -314,10 +315,18 @@ const guarded = (fn) => async (args, log) => {
  * @param {Function} deps.openStore directory → store
  * @param {object} [deps.live] injected `commander`/`openSession` for tests
  */
-export const createCvCommands = ({ openStore, live = {} }) =>
+export const createCvCommands = ({
+  openStore,
+  openReadOnly = openStore,
+  live = {},
+}) =>
   Object.fromEntries(
     Object.entries({
       ...createExperienceCommands(openStore),
+      ...createLinkedinExperienceCommands(
+        { openStore, openReadOnly },
+        live.experience
+      ),
       'cv-platforms': platformsCmd,
       'cv-plan': planCmd,
       'cv-read': (args, log) => readCmd(args, log, openStore, live),

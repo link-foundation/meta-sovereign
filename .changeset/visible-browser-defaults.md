@@ -667,3 +667,5 @@ Honor unread model draft intent loaded from a CLI configuration file or saved au
 Compare HH and LinkedIn experience by normalized employer and overlapping dates, preserving original fields and uncertain matches for review. Expose the read-only comparison in CLI reports, both Lino encodings and all four CV interface languages.
 
 Add private structured experience snapshots with original native workplace metadata, verified HH export reuse, bounded JSON/text and binary Lino imports and downloads, and exact revision comparison through CLI, local API and all four interface languages. Retain owner input and acknowledged snapshots on refusal.
+
+Read native LinkedIn experience in a separate persistent browser slot with shared visibility settings, bounded manual sign-in and expansion, private hashed evidence and immutable snapshots. Share durable request recovery, drained Stop, CLI, both Lino API encodings and four-language CV controls without replacing active comparisons.
