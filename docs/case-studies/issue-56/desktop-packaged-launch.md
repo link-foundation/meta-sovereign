@@ -22,3 +22,13 @@ receipt and screenshot before acceptance. This does not prove a Gatekeeper
 dialog, macOS 15 manual interaction, native boot on the other CPU or live
 provider authorization. The [first-launch instructions](macos-first-launch.md)
 separately explain the documented per-application approval path.
+
+Review caught an initial probe race: shared navigation normalizes the root
+URL to `/#/chat` during rendering. A focused positive-window fixture reproduces
+the old root-only matcher rejecting that valid URL. The corrected matcher
+accepts the root and its application hash while still refusing a foreign host;
+the same refusal/positive test now passes. Each refusal also checks its own
+reason, so a navigation failure cannot masquerade as a healthy refusal check.
+The [before log](evidence/local/desktop-packaged-route-before.txt) and
+[after log](evidence/local/desktop-packaged-route-after.txt) preserve this
+check against the initial `fc9907a4` probe and its correction.

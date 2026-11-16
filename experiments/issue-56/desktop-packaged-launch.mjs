@@ -20,7 +20,7 @@ const closeApplication = async (application) => {
 
 export const inspectPackagedWindow = async (application) => {
   const page = await application.firstWindow({ timeout: 30000 });
-  await page.waitForURL(/^http:\/\/127\.0\.0\.1:\d+\/$/, {
+  await page.waitForURL(/^http:\/\/127\.0\.0\.1:\d+\/(?:#\/.*)?$/, {
     timeout: 30000,
   });
   await page.waitForFunction(
@@ -46,13 +46,17 @@ export const inspectPackagedWindow = async (application) => {
       nodeIntegration: preferences?.nodeIntegration,
     };
   });
-  assert.deepEqual(native, {
-    packaged: true,
-    windows: 1,
-    visible: true,
-    contextIsolation: true,
-    nodeIntegration: false,
-  });
+  assert.deepEqual(
+    native,
+    {
+      packaged: true,
+      windows: 1,
+      visible: true,
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+    'packaged application must own one protected visible window'
+  );
   const health = await page.evaluate(async (accept) => {
     const response = await fetch('/api/health', {
       headers: { accept },
@@ -68,7 +72,11 @@ export const inspectPackagedWindow = async (application) => {
   assert.equal(health.type?.split(';')[0], LINO_TEXT);
   const value = decodeWire(health.text, LINO_TEXT);
   assert.equal(value.ok, true);
-  assert.equal(value.store?.degraded, false);
+  assert.equal(
+    value.store?.degraded,
+    false,
+    'packaged storage must be healthy'
+  );
   return { native, page };
 };
 

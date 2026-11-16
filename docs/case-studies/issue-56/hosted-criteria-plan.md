@@ -52,7 +52,7 @@ workflow was superseded; neither revision satisfies the acceptance gate.
 Published `b61cf5fd` includes the runner confirmations and private checkpoint
 timing diagnostics. Its Windows checkpoint now passes with all 28 bounded
 operations completed. The main workflow nevertheless fails in the
-[CV experience fixture](ci-cv-experience-page-errors.md), while WebKit shard 4
-is still running. That source cannot satisfy this gate. Require all five
+[CV experience fixture](ci-cv-experience-page-errors.md). WebKit shard 4 passes;
+that does not establish either earlier failure's cause. This source cannot satisfy the gate. Require all five
 positive workflow receipts for the corrected published source before accepting
 any row; later documentation does not replace the audited source SHA.

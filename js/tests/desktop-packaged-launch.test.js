@@ -5,7 +5,11 @@ import { encodeWire, LINO_TEXT } from '../src/transport/lino.js';
 
 const fixture = ({ packaged = true, status = 200, degraded = false } = {}) => ({
   firstWindow: async () => ({
-    waitForURL: async () => {},
+    waitForURL: async (pattern) => {
+      assert.equal(pattern.test('http://127.0.0.1:12345/'), true);
+      assert.equal(pattern.test('http://127.0.0.1:12345/#/chat'), true);
+      assert.equal(pattern.test('http://other.example:12345/#/chat'), false);
+    },
     waitForFunction: async () => {},
     evaluate: async () => ({
       status,
@@ -26,12 +30,12 @@ test(
   'packaged launch refuses a checkout, unready backend and degraded storage',
   { timeout: 5000 },
   async () => {
-    for (const options of [
-      { packaged: false },
-      { status: 423 },
-      { degraded: true },
+    for (const [options, reason] of [
+      [{ packaged: false }, /protected visible window/],
+      [{ status: 423 }, /backend/],
+      [{ degraded: true }, /storage/],
     ]) {
-      await assert.rejects(inspectPackagedWindow(fixture(options)));
+      await assert.rejects(inspectPackagedWindow(fixture(options)), reason);
     }
     assert.equal(
       (await inspectPackagedWindow(fixture())).native.packaged,
