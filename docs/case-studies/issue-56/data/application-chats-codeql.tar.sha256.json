@@ -1,0 +1,19 @@
+{
+  "archive": "application-chats-codeql.tar.gz",
+  "files": {
+    "ci-logs/application-chats-codeql-before.log": "158fba0ca4f08ba40eb947bd26b7203235470dc0230a7de981374fa9cf9fac8c",
+    "ci-logs/application-chats-codeql-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/application-chats-codeql-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-chats-codeql-node.log": "ed1725bdaccbe5211c0e56e45f63649d8d05048e83cd4ba0a867345f61b9c086",
+    "ci-logs/application-chats-codeql-report/javascript.sarif": "21436a1deb6740e3e861e5e9e93c78b193c567c6cd72a8bbe3a590e67cff42af",
+    "ci-logs/security-43825987290.log": "4f079b05387a271b9e95046c5733b599e685229231444e46482209fbd06997b8",
+    "docs/case-studies/issue-56/application-chats-codeql.md": "a7bc8f7a232fed44703122f35656dce5dde47dc7e264f031a97ebafe48848342",
+    "experiments/issue-56/application-chats-codeql-before.py": "49ef8e120e1e294f550b8eed028654817b63b8191dcb367b20624bc733d91ee7",
+    "experiments/issue-56/application-chats-mcp.mjs": "63dd9f06c7c3ed9cedef6d64e672b6be0c387177c7f1b678f0d16618e3588986",
+    "experiments/issue-56/collect-application-chats-codeql.py": "7977cc0dce7d635d5237e917ad746359646f54b0b44070002ac511f4397e8e94",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/mcp-inspection-code.mjs": "6bb56eed40fea230d092fb3a4655a4750535983be966a1a45fe9eb8383277b94",
+    "js/tests/mcp-inspection-code.test.js": "742dde246ba2f473f2f456e0c8879123015fc8d2ad434ee91927e2cac7f92a94",
+    "metadata.json": "7b00291032803058a221a84d16174c2a0c8fea152f1e04bc5b2619b6c118145b"
+  }
+}

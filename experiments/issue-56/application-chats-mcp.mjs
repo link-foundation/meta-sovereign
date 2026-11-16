@@ -1,5 +1,6 @@
 /* global localStorage, innerWidth */
 import { resolve } from 'node:path';
+import { mcpInspectionCode } from './mcp-inspection-code.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
   TUTORIAL_VERSION,
@@ -124,4 +125,9 @@ const inspect = async (page, config) => {
 
 /** Browser-only inspection; native fixtures run in a separate owned process. */
 export const applicationChatsMcpCode = (metadata) =>
-  `async (page) => (${inspect.toString()})(page, ${JSON.stringify({ ...metadata, key: TUTORIAL_STORAGE_KEY, version: TUTORIAL_VERSION, screenshots: resolve('docs/screenshots/issue-56-application-chats') })})`;
+  mcpInspectionCode(inspect, {
+    ...metadata,
+    key: TUTORIAL_STORAGE_KEY,
+    version: TUTORIAL_VERSION,
+    screenshots: resolve('docs/screenshots/issue-56-application-chats'),
+  });
