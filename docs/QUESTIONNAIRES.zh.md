@@ -72,6 +72,12 @@ Links Notation 记录）。对应的申请打开及批量启动 API 支持 `prof
 `answerFinalPeriod` 仅覆盖读取值。无效值会被拒绝，策略保持不变。
 离线界面使用相同规划器与已保存偏好。
 
+`forms-plan` 和 `forms-review`（包括 `--prefill`、交互式 `plan`/`prefill`）
+读取相同的命令参数、环境变量和 Lino 配置文件。表单计划在最终答案校验时保留此设置。
+`/api/forms/plan` 及会话 `plan`/`prefill` 路由均支持两种 Lino 编码的
+`answerFinalPeriod`。重试填充请求必须保留原设置；更改设置需要新请求。
+无效设置在读取页面或写入前被拒绝。仍保留用户内容、表单审阅和手动提交规则。
+
 ## 首选答案措辞
 
 在每个已保存答案的**等价答案措辞，每行一个**中列出应改用上方答案的精确

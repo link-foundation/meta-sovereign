@@ -4,6 +4,64 @@ import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
 import { saveConfiguredResume } from '../../src/forms/configured-resume.js';
 import { syntheticResumePdf } from '../../../experiments/issue-56/forms-resume-fixture.mjs';
 import { verifyAutomaticPrefillControls } from './e2e-form-automatic-controls.mjs';
+import { saveAnswerRule } from '../../src/automation/question-store.js';
+
+const verifyPeriodPreference = async (owner, store, prefill) => {
+  const original = await store.get('qa-rule:language');
+  try {
+    await saveAnswerRule(store, {
+      ...original,
+      answers: ['English', 'English.'].map((text, i) => ({
+        text,
+        approved: true,
+        count: i ? 1 : 4,
+      })),
+    });
+    await owner.page.reload();
+    const input = { answerFinalPeriod: 'without' };
+    const result = await prefill('automatic-period', input);
+    if (process.env.FORMS_PERIOD_SCREENSHOT) {
+      await owner.page.setViewportSize({ width: 1000, height: 800 });
+      await owner.page.screenshot({
+        path: process.env.FORMS_PERIOD_SCREENSHOT,
+        fullPage: true,
+      });
+    }
+    assert(
+      result.state === 'prefilled' &&
+        result.receipts[0].status === 'applied' &&
+        result.report.fields[0].plannedAnswer.count === 5 &&
+        !result.submissionAttempted &&
+        (await owner.page.locator('[name="language"]').inputValue()) ===
+          'English',
+      'explicit final-period preference reaches actual form application'
+    );
+    const writes = await owner.page.evaluate(() => globalThis.events.length);
+    const conflict = await prefill('automatic-period', {
+      answerFinalPeriod: 'with',
+    });
+    const recovered = await prefill('automatic-period', input);
+    assert(
+      conflict.code === 'form-prefill-conflict' &&
+        JSON.stringify(recovered.receipts) ===
+          JSON.stringify(result.receipts) &&
+        (await owner.page.evaluate(() => globalThis.events.length)) === writes,
+      'changed spelling refuses recovery and unchanged retry never writes again'
+    );
+    console.log(
+      '[forms-period]',
+      JSON.stringify({
+        answer: 'English',
+        count: result.report.fields[0].plannedAnswer.count,
+        recovered: true,
+        changedPreference: conflict.code,
+        submissionAttempted: result.submissionAttempted,
+      })
+    );
+  } finally {
+    await store.put(original);
+  }
+};
 
 export const verifyFormAutomaticUi = async ({
   page,
@@ -30,7 +88,7 @@ export const verifyFormAutomaticUi = async ({
     path: 'docs/screenshots/issue-56-forms-automatic-before.png',
     fullPage: true,
   });
-  const prefill = async (requestId) =>
+  const prefill = async (requestId, settings = {}) =>
     decoded(
       await page.request.post(`${base}/api/forms/sessions/prefill`, {
         headers: { 'content-type': LINO_TEXT, accept: LINO_TEXT },
@@ -41,6 +99,7 @@ export const verifyFormAutomaticUi = async ({
             profileId: 'qa-profile:forms-fixture',
             approximate: true,
             modelDraft: false,
+            ...settings,
           },
           LINO_TEXT
         ),
@@ -131,6 +190,7 @@ export const verifyFormAutomaticUi = async ({
     (await owner.page.locator('[name="language"]').inputValue()) === 'English',
     'actual second-page answer'
   );
+  await verifyPeriodPreference(owner, store, prefill);
   await closeFormReview(page, until, 'automatic review closed');
   assert(
     owner.closed && fixture.submits === initialSubmits,

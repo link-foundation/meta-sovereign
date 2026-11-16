@@ -1,5 +1,6 @@
 import { createInterface } from 'node:readline';
 import { questionMatchingFlags } from './question-matching-flags.js';
+import { questionPeriodConfiguration } from './question-period-configuration.js';
 import { createFormReader, formUrl } from '../forms/reader.js';
 import { decodeWire } from '../transport/lino.js';
 import { loadResumePdf } from './forms-resume-file.js';
@@ -288,7 +289,10 @@ export const createFormReviewCommands = ({
     const file = args['resume-pdf']
       ? await loadResumePdf(args['resume-pdf'])
       : null;
-    const settings = reviewSettings(args, file, modelDraft);
+    const settings = {
+      ...reviewSettings(args, file, modelDraft),
+      answerFinalPeriod: await questionPeriodConfiguration(args),
+    };
     const store = await openStore(args.store ?? defaultStoreDir());
     const model = reviewModel(options.modelRunner);
     const reader = createFormReader({

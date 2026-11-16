@@ -216,3 +216,13 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Isolate each scenario's saved rules with finally restoration; retain every count/refusal/raw-data assertion and all original timeouts. The focused three-scenario sequence and strict lint pass.
 - [x] Preserve the separate Ubuntu Deno checkout cancellation before test setup; its underlying stall is unestablished.
 - [ ] Publish both worker and fixture corrections, inspect all five exact-source workflows and complete every remaining original requirement.
+
+2026-11-16 final-period form configuration (QA11):
+
+- [x] Identify form CLI, review, HTTP and prefill recovery paths that drop or omit an explicit final-period preference.
+- [x] Draft shared configuration propagation, early validation, frozen final checks and request identity without changing shared policy or owner submission.
+- [x] Preserve six exact-parent failures and pass 39 focused CLI, both Lino formats, reviewed application, retry and owner-edit checks.
+- [x] Pass the mandatory installed-Chrome form scenario and independent MCP probe; inspect before/after screenshots, preserve the probe race and drain all isolated resources.
+- [x] Pass strict focused lint/format/secrets and the unchanged duplication limit; preserve source-bound evidence for publication.
+- [ ] Publish the atomic form correction and inspect exact-head CI.
+- [ ] Inspect exact-source hosted checks and finish the full original QA11 contract. All 41 unchecked original criteria remain required.

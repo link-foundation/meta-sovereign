@@ -6,6 +6,7 @@ const answerOptions = (body) => ({
   profileId: body.profileId,
   approximate: body.approximate,
   matching: body.matching,
+  answerFinalPeriod: body.answerFinalPeriod,
   modelDraft: body.modelDraft,
   salary: body.salary,
   vacancy: body.vacancy,

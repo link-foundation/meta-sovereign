@@ -751,3 +751,7 @@ automation delivery. Preserve saved action preferences when no command override 
 present; keep process settings and shared policy unchanged.
 
 Combine final-period observations across eligible exact-question rules, preserving approval and provider/chat boundaries. Require review for overlapping evidence under either punctuation policy.
+
+Carry final-period settings through form CLI plans and owned Lino review/prefill
+requests, retaining them during final checks. Refuse request recovery with changed
+spelling settings before repeating any write; preserve owner edits and submission.

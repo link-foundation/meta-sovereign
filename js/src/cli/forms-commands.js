@@ -1,6 +1,7 @@
 import { loadFormInspection } from './forms-inspection-file.js';
 import { formsAssignmentCommands } from './forms-assignment-commands.js';
 import { questionMatchingFlags } from './question-matching-flags.js';
+import { questionPeriodConfiguration } from './question-period-configuration.js';
 import { modelDraftFlag, withAnswerModel } from './answer-model-commands.js';
 import { decodeWire } from '../transport/lino.js';
 import { createFormReader, planFormAnswers } from '../forms/reader.js';
@@ -23,6 +24,7 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
   ...createFormReviewCommands({ openStore, ...readerOptions }),
   'forms-plan': async (args, log) => {
     const output = formReportOutput(args.format);
+    const answerFinalPeriod = await questionPeriodConfiguration(args);
     const inspection = await loadFormInspection(args.file);
     const store = await openStore(args.store ?? defaultStoreDir());
     try {
@@ -33,6 +35,7 @@ export const createFormsCommands = ({ openStore, ...readerOptions }) => ({
             store,
             {
               inspection,
+              answerFinalPeriod,
               ...questionMatchingFlags(args),
               profileId: args['profile-id'],
               profile: args.profile ? decodeWire(args.profile) : undefined,

@@ -1,3 +1,4 @@
+- [Form final-period configuration](forms-period-configuration.md): exact-parent CLI/Lino/recovery regressions, frozen final checks and native/MCP before/after evidence. Full QA11 acceptance remains required.
 - [Independent wording fixtures](ci-question-wording-fixtures.md): exact hosted count failure, finite three-scenario reproduction and finally-restored saved rules with unchanged production behavior and deadlines.
 - [Cold worker imports](ci-worker-loading.md): preserve the exact Windows Deno readiness failure and distinguish process startup from pending application-module loading with bounded, default-off checkpoints and real EOF cleanup regressions. The hosted cause remains unproven.
 - [Exact native workplace opening](cv-workplace-opening.md): parent reproduction, full-list native Edit with draft guards, selected resume context and focused native/MCP recovery evidence.

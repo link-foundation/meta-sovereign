@@ -4,6 +4,7 @@ import { writableReviewField, reviewSnapshotKey } from './review-targets.js';
 import { proposalMatches } from './review-apply.js';
 import { resumePdf, resumeUploadField } from './resume-upload.js';
 import { waitForManualChallenge } from './challenge-wait.js';
+import { finalPeriodOverride } from '../automation/question-final-period.js';
 
 /** Automatic writes never replace an answer, including a radio peer's value. */
 export const automaticReviewFields = (plan) =>
@@ -32,6 +33,7 @@ const requestSignature = (input) => {
   return createHash('sha256')
     .update(
       JSON.stringify({
+        ...finalPeriodOverride(input),
         profileId: input.profileId,
         approximate: input.approximate,
         matching: input.matching,

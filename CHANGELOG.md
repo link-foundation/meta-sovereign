@@ -4,6 +4,10 @@
 
 ### Minor Changes
 
+- Carry explicit final-period preferences through form CLI plans, reviewed
+  application and automatic prefill. Bind recovery to the original preference,
+  preserving owner edits and manual submission.
+
 - Combine observed final-period variants across eligible exact-question rules.
   Preserve provider/chat, approval and correction boundaries; require review
   when observation evidence overlaps under either punctuation policy.

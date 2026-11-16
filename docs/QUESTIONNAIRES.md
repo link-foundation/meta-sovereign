@@ -98,6 +98,15 @@ Both Lino encodings accept `POST /api/automations/answers/policy` with
 `answerFinalPeriod` as a read-only override. Invalid values are refused without
 changing policy. The offline interface uses the same planner and saved preference.
 
+`forms-plan` and `forms-review` (including `--prefill` and interactive
+`plan`/`prefill`) resolve the same flag, environment and Lino-file settings.
+Form plans retain the explicit spelling through final knowledge checks. The
+standalone `/api/forms/plan` and session `plan`/`prefill` routes accept
+`answerFinalPeriod` in either Lino encoding. A recovered prefill request must
+retain its original preference; a changed preference needs a new request.
+Invalid preferences refuse before provider inspection or writes. Existing
+owner content, explicit form review and manual submission rules still apply.
+
 ## Preferred answer wording
 
 For each saved answer, **Equivalent answer wordings, one per line** lists exact

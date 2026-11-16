@@ -16,10 +16,12 @@ import { discloseReviewedOptions } from './review-disclosure.js';
 import { configuredResume } from './configured-resume.js';
 import { createDraftRestorer } from './review-restore.js';
 import { automaticReviewFields } from './automatic-prefill.js';
+import { finalPeriodOverride } from '../automation/question-final-period.js';
 
 const answerKey = (plan) =>
   JSON.stringify(plan.fields.map((field) => field.answer));
 const planOptions = (input) => ({
+  ...finalPeriodOverride(input),
   profileId: input.profileId ?? '',
   approximate: input.approximate !== false,
   matching: input.matching,
@@ -61,6 +63,7 @@ export const createReviewedPrefill = ({
     await state?.targets.dispose();
   };
   const plan = async (record, input, check) => {
+    const options = planOptions(input);
     if (
       input.modelDraft !== undefined &&
       typeof input.modelDraft !== 'boolean'
@@ -79,7 +82,6 @@ export const createReviewedPrefill = ({
       },
     });
     requireAnswerForm(inspection);
-    const options = planOptions(input);
     const proposed = withRadioReview(
       await planFormAnswers(
         store,

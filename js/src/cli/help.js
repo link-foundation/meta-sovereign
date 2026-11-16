@@ -170,7 +170,7 @@ export const VACANCY_HELP = `${APPLICATION_HELP}
   vacancies-cv-translation-cancel --request-id=<id> [--browser-slot=jobs] [--store=<dir>]`;
 
 export const FORMS_REVIEW_HELP =
-  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--prefill] [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
+  '  forms-review  <url> [<url> ...] | --url=<http-url> | --urls=<Lino-list> [--prefill] [--max-sessions=<n>] [--format=json|markdown] [--capture-pages=false] [--no-learn] [--browser-slot=<name>] [--resume-pdf=<path>] [--answer-final-period=with|without] [--configuration=<file.lenv>] [--profile-id=<id>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--headed|--headless] [--store=<dir>]';
 
 export const FORMS_WATCHERS_HELP =
   '  forms-watchers [--action=list|status|history|stop] [--browser-slot=<name>] [--store=<dir>]';
@@ -184,7 +184,7 @@ export const TEST_ASSIGNMENT_HELP =
 export const FORMS_ASSIGNMENT_HELP = `  forms-assignment-link --file=<inspection.json> --repository=<https://github.com/owner/repo> --revision=<assignment-revision> [--store=<dir>]\n${TEST_ASSIGNMENT_HELP}`;
 
 export const FORMS_HELP = `  forms-read    --url=<http-url> [--format=json|markdown] [--browser-slot=<name>] [--headed|--headless] [--store=<dir>]
-  forms-plan    --file=<inspection.json> [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
+  forms-plan    --file=<inspection.json> [--answer-final-period=with|without] [--configuration=<file.lenv>] [--format=json|markdown] [--profile-id=<id>] [--profile=<Lino>] [--salary=<Lino>] [--vacancy=<Lino>] [--approximate=false] [--threshold=0.78] [--case-sensitive=false] [--model-draft] [--source=<provider>] [--chat=<id>] [--store=<dir>]
 ${FORMS_REVIEW_HELP}
 ${FORMS_WATCHERS_HELP}
 ${FORMS_RESUME_HELP}
