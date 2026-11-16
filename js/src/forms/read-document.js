@@ -212,9 +212,10 @@ export const readFormDocument = ({
       return membership;
     };
     const ariaRadios = collectAriaRadios();
-    const clip = (value) => {
+    const clip = (value, multiline = false) => {
       const text = String(value ?? '')
-        .replace(/\s+/gu, ' ')
+        .replace(/\r\n?/gu, '\n')
+        .replace(multiline ? /[^\S\n]+/gu : /\s+/gu, ' ')
         .trim();
       if (text.length > 2000) {
         reasons.add('text-limit');
@@ -222,13 +223,14 @@ export const readFormDocument = ({
       return text.slice(0, 2000);
     };
     const attr = (node, key) => node.getAttribute(key) ?? '';
-    const refs = (node, key) =>
+    const refs = (node, key, multiline = false) =>
       clip(
         attr(node, key)
           .split(/\s+/u)
           .slice(0, 20)
           .map((id) => reference(id)?.textContent ?? '')
-          .join(' ')
+          .join(' '),
+        multiline
       );
     const labelText = (label) => {
       const filter = globalThis.NodeFilter;
@@ -240,7 +242,9 @@ export const readFormDocument = ({
             if (node.nodeType === 1) {
               return node.matches('input,textarea,select,button')
                 ? filter.FILTER_REJECT
-                : filter.FILTER_SKIP;
+                : node.matches('br,p,div,li,ol,ul')
+                  ? filter.FILTER_ACCEPT
+                  : filter.FILTER_SKIP;
             }
             return filter.FILTER_ACCEPT;
           },
@@ -252,7 +256,11 @@ export const readFormDocument = ({
         if (!next) {
           return text;
         }
-        text += ` ${next.textContent}`;
+        // Keep authored question boundaries without reading control values.
+        text +=
+          next.nodeType === 1
+            ? '\n'
+            : `${text.endsWith('\n') ? '' : ' '}${next.textContent}`;
         if (text.length > 2000) {
           break;
         }
@@ -262,7 +270,7 @@ export const readFormDocument = ({
     };
     const named = (node) => {
       const candidates = [
-        ['aria-labelledby', refs(node, 'aria-labelledby')],
+        ['aria-labelledby', refs(node, 'aria-labelledby', true)],
         ['aria-label', attr(node, 'aria-label')],
         [
           'label',
@@ -280,7 +288,7 @@ export const readFormDocument = ({
         ],
       ];
       const hit = candidates.find(([, value]) => clip(value));
-      return hit ? { text: clip(hit[1]), source: hit[0] } : null;
+      return hit ? { text: clip(hit[1], true), source: hit[0] } : null;
     };
     const heading = (node) => {
       // Stay within the closest question/section; a heading below a control is
@@ -305,7 +313,7 @@ export const readFormDocument = ({
             : sibling.querySelectorAll('h1,h2,h3,h4,h5,h6,[role="heading"]');
           const found = Array.from(headings).filter(visible).at(-1);
           if (found) {
-            return clip(found.textContent);
+            return clip(found.textContent, true);
           }
         }
         if (
@@ -334,7 +342,7 @@ export const readFormDocument = ({
       }
       return {
         id: groups.get(parent),
-        label: name?.text || clip(legend?.textContent),
+        label: name?.text || clip(legend?.textContent, true),
         source: name?.source || (legend ? 'legend' : 'unlabelled'),
       };
     };
@@ -475,7 +483,7 @@ export const readFormDocument = ({
       ];
       const fallback = fallbacks.find(([, value]) => clip(value));
       const label = named(node) ?? {
-        text: clip(fallback?.[1]),
+        text: clip(fallback?.[1], true),
         source: fallback?.[0] ?? 'unlabelled',
       };
       if (!label.text) {

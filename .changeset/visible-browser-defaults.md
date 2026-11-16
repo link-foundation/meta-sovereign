@@ -686,3 +686,8 @@ Bound local and SSH runner commands and escalate cancellation for children that
 ignore termination. Retain controller ownership until the child actually closes,
 refuse late success after cancellation or expiry and never retry ambiguous effects
 (issue #56, VD01/VD02).
+
+Retain every salary and contact component in form questionnaire proposals.
+Preserve inspected label line breaks and keep whole-field contact inference
+from replacing an assembled questionnaire or an owner's saved complete answer
+(issue #56, QA10).

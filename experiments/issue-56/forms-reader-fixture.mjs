@@ -1,4 +1,5 @@
 import { payFixtureHtml } from './forms-pay-fixture.mjs';
+import { formQuestionnaireHtml } from './form-questionnaire-fixture.mjs';
 import { assignmentFixtureHtml } from './forms-assignment-fixture.mjs';
 import { assignmentSourceHtml } from './assignment-source-fixture.mjs';
 import { captchaFixtureHtml } from './forms-captcha-fixture.mjs';
@@ -34,6 +35,7 @@ const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire<
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
 
 const simplePages = {
+  '/questionnaire': formQuestionnaireHtml,
   '/instructions': assignmentSourceHtml,
   '/assignment': assignmentFixtureHtml,
   '/captcha': captchaFixtureHtml,

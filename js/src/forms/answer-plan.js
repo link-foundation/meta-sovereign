@@ -1,4 +1,5 @@
 import { planAnswer } from '../automation/question-answers.js';
+import { splitQuestions } from '../automation/question-match.js';
 import { prepareAnswerPreview } from '../automation/question-store.js';
 import { withSalaryExchangeEvidence } from '../automation/salary-exchange-policy.js';
 import { validateFormInspection } from './plan-validation.js';
@@ -117,7 +118,10 @@ const planField = (field, fields, prepared) => {
   const { context, rateState } = prepared;
   const choices = choicesFor(field, fields);
   const keys =
-    context.profileId || Object.keys(context.profile).length
+    // A whole-field contact template would hide the other questionnaire parts
+    // and outrank an owner's saved complete answer.
+    splitQuestions(question).length <= 1 &&
+    (context.profileId || Object.keys(context.profile).length)
       ? formProfileFields({ ...field, label: question }, context.profile)
       : [];
   const options = ['select', 'listbox', 'combobox'].includes(field.type)

@@ -21,6 +21,8 @@ import { verifyFormTimezoneUi } from './helpers/e2e-form-timezone.mjs';
 import { seedSubjectAnswers } from '../../experiments/issue-56/forms-subject-fixture.mjs';
 import { verifyFormSubjectsUi } from './helpers/e2e-form-subjects.mjs';
 import { seedFormAnswers } from '../../experiments/issue-56/forms-plan-fixture.mjs';
+import { seedFormQuestionnaire } from '../../experiments/issue-56/form-questionnaire-fixture.mjs';
+import { verifyFormQuestionnaireUi } from './helpers/e2e-form-questionnaire.mjs';
 import { verifyFormPlanUi } from './helpers/e2e-form-plans.mjs';
 import { verifyFormReviewUi } from './helpers/e2e-form-reviews.mjs';
 import { verifyFormPrefillUi } from './helpers/e2e-form-prefill.mjs';
@@ -50,6 +52,7 @@ const fixture = await startFormsFixture();
 fixture.prefillCleanup = prefillCleanupFixture();
 const store = createMemoryStore();
 await seedFormAnswers(store);
+await seedFormQuestionnaire(store);
 await seedLinkAnswers(store);
 await seedFormPlace(store);
 await seedSubjectAnswers(store);
@@ -370,6 +373,7 @@ const verifyGroupOnly = async ({ page }) => {
 
 const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
+    ['QUESTIONNAIRE', verifyFormQuestionnaireUi],
     ['PUBLICATION', verifyAssignmentPublicationUi],
     ['ASSIGNMENT', verifyFormAssignmentUi],
     ['CAPTCHA', verifyFormCaptchaUi],
@@ -576,6 +580,7 @@ await app.finish(async () => {
         ? []
         : Object.values(formGroups).flat()),
     ]);
+    await verifyFormQuestionnaireUi({ page, fixture, owned });
     await page.route('**/api/forms/capabilities', (route) =>
       fulfil(route, { available: false, read: false })
     );
@@ -606,6 +611,7 @@ if (
   process.env.FORMS_SUBJECTS_ONLY !== '1' &&
   process.env.FORMS_PAY_ONLY !== '1' &&
   process.env.FORMS_MATCHING_ONLY !== '1' &&
+  process.env.FORMS_QUESTIONNAIRE_ONLY !== '1' &&
   process.env.FORMS_CAPTCHA_ONLY !== '1' &&
   process.env.FORMS_AUTOMATIC_ONLY !== '1' &&
   process.env.FORMS_PREFILL_ONLY !== '1' &&
