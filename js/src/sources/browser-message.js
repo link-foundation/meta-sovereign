@@ -36,6 +36,7 @@ export const toBrowserMessageLink = (source, chat, row) => {
     body: row.body,
     timestamp,
     outgoing: Boolean(row.outgoing),
+    ...(row.delivery !== undefined ? { delivery: row.delivery } : {}),
     ...(row.service === true ? { service: true } : {}),
     ...(row.strictOptions !== undefined
       ? { strictOptions: row.strictOptions, answerOptions: row.answerOptions }

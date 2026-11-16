@@ -79,7 +79,11 @@ const reusable = (text) =>
 const undelivered = (message) =>
   ['pending', 'sending', 'failed', 'unknown'].includes(
     message.delivery ?? message.status
-  );
+  ) ||
+  (message.source === 'hh' &&
+    message.via === 'browser' &&
+    [undefined, null].includes(message.delivery) &&
+    [undefined, null].includes(message.status));
 const answerAsksQuestion = (text) => {
   const prose = questionProse(text);
   return prose === null || asksQuestion(prose);

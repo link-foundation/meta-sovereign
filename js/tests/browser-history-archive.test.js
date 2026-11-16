@@ -27,6 +27,7 @@ const rows = () => [
     id: '102',
     body: 'Yes, five years.',
     outgoing: true,
+    delivery: 'delivered',
     timestamp: '2026-11-11T10:01:00Z',
   },
 ];
@@ -77,6 +78,32 @@ test('overlapping native IDs avoid duplicate writes and preserve observed edits'
     new Set(versions.versions.map((version) => version.snapshot.body)),
     new Set(['Yes, five years.', 'Yes, six years.'])
   );
+});
+
+test('acknowledged native delivery replaces uncertainty without inventing text versions', async () => {
+  const store = wrappedStore();
+  for (const delivery of ['pending', 'failed', 'unknown', 'delivered']) {
+    const window = rows();
+    window[1].delivery = delivery;
+    await archiveBrowserHistoryWindow(store, input({ rows: window }));
+    assert.equal((await store.get('msg:hh:8:102')).delivery, delivery);
+    assert.equal(
+      (await learnArchivedAnswers(store)).rules.length,
+      delivery === 'delivered' ? 1 : 0
+    );
+  }
+  assert.equal(
+    (await messageVersions(store, 'msg:hh:8:102')).versions.length,
+    1
+  );
+  await assert.rejects(
+    archiveBrowserHistoryWindow(
+      store,
+      input({ rows: [{ ...rows()[1], delivery: 'Private invalid state' }] })
+    ),
+    failure
+  );
+  assert.equal((await store.get('msg:hh:8:102')).delivery, 'delivered');
 });
 
 test('chat identities, service barriers, private links and unknown chronology stay separate', async () => {

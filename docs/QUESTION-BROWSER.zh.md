@@ -58,3 +58,5 @@ CLI：`meta-sovereign automations answers browser watch --id=<review-id>
 标记为部分；不会补造未见消息或未知时间。现有的显式答案学习可以使用归档，
 排除私密链接目标，所有新答案仍需批准。连续 DOM 捕获和浏览器送达状态的
 完整支持仍未完成。[历史验证证据](case-studies/issue-56/browser-history-archive.md)。
+
+HH 浏览器读取保留原生 pending、failed、sent、delivered 和 read 状态。缺失、未知或矛盾的发出状态图标保持 unknown，不能确认发送或用于学习答案。迁移 0021 将无送达证据的旧浏览器回复标为 unknown，直到重新读取。已保存答案仍由所有者保留。读取之间的快速 DOM 变化捕获和真实登录提供方验证仍未完成。[送达验证](case-studies/issue-56/hh-browser-delivery.md)。

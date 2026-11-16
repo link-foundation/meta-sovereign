@@ -1,5 +1,5 @@
+Active HH browser delivery safety (HH11): see [the delivery plan](hh-browser-delivery-plan.md). Native positive status is required; continuous DOM capture and all unchecked original criteria remain required.
 Active online status scheduling (VK10):
-
 - [x] Read the complete pinned trigger and caller; check the current official user-token method schema. Preserve the 14-minute example as an opt-in default.
 - [x] Draft persisted configuration, serialized acknowledged outcomes, due scheduling, owned server lifecycle and CLI/default Lino/shared four-language controls. Keep missing-token and unconfirmed outcomes accurate.
 - [x] Reproduce absent behavior on the published parent and verify focused tests, restart/failure/overlap cases, one native browser scenario and independent MCP review with before/after screenshots. Node 29 and Deno 26 feature/compatibility checks pass; two registry and two MCP generation checks pass separately. The draft browser CSP import and Deno fixture-global errors are preserved and corrected.

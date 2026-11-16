@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial HH11 extension: [native delivery observations](hh-browser-delivery.md) preserve pending, failed, unknown and positively acknowledged HH browser states through canonical storage and archive learning. Uncertain bubbles cannot confirm a send; legacy records remain unknown until re-observed. Continuous DOM capture and authenticated parity remain required; all 60 original incomplete rows stay unchecked.
+
 Partial HH06/HH08 extension: [witnessed daily-refusal recovery](application-limit-rejection.md) distinguishes an issued, same-document native failure from an unknown outcome. Explicit recovery verifies immutable evidence, the shared pause and a fresh form before releasing only that rejected reservation. Later actual owner values remain recoverable; sending requires separate confirmation. All 81 original incomplete rows remain required.
 
 Partial HH06/HH08 extension: [saved optional application pacing](application-pacing.md) spaces explicitly paced review admissions across workspace slots and restarts. [Fresh action guards](application-pacing-guard.md) retain late native feedback before their unchanged dispatch refusal. Native confirmed delivery and unique CAPTCHA observations adapt a bounded interval, with fixed seconds available. Expiry only changes read eligibility; automatic batch execution, queue revisits, authenticated account scope and all 81 original incomplete rows remain required.

@@ -19,6 +19,7 @@ const messageProjection = (message) => {
     typeof message.body === 'string' && message.body.length <= 12000;
   return {
     ...metadata(message),
+    via: message.via,
     sender: message.sender,
     body: valid ? message.body : '',
     service: message.service || !valid,

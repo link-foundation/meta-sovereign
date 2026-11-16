@@ -2,6 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { toBrowserMessageLink } from './browser-message.js';
 import { storeSourceMessages } from './store-messages.js';
 import { messageLinkProperties } from '../message-link-targets.js';
+import { browserDeliveryStates } from './browser-message-state.js';
 
 const invalid = () =>
   Object.assign(new Error('The observed browser history could not be saved.'), {
@@ -25,6 +26,9 @@ const project = ({ source, chat, rows }) => {
         typeof row.body !== 'string' ||
         row.body.length > 6000 ||
         typeof row.outgoing !== 'boolean' ||
+        (row.delivery !== undefined &&
+          row.delivery !== null &&
+          !browserDeliveryStates.includes(row.delivery)) ||
         (row.sender !== undefined &&
           row.sender !== null &&
           (typeof row.sender !== 'string' || row.sender.length > 4096))

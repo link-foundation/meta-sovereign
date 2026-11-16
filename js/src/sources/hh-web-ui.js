@@ -104,7 +104,15 @@ export const HH_WEB_UI = {
     idPattern: '^chatik-chat-message-(\\d+)$',
     body: '[data-qa="chat-bubble-text"]',
     outgoing:
-      '[data-qa="status-icon-delivered"], [data-qa="status-icon-read"], [data-qa="status-icon-sent"]',
+      '[data-qa^="status-icon"], [data-qa^="chat-bubble-icon"]:not([data-qa="chat-bubble-icon-hidden"]), [class*="message_my"], [class*="chat-bubble_outgoing"]',
+    delivery: {
+      pending:
+        '[data-qa="status-icon-pending"], [data-qa="status-icon-sending"]',
+      failed: '[data-qa="status-icon-failed"], [data-qa="status-icon-error"]',
+      sent: '[data-qa="status-icon-sent"]',
+      delivered: '[data-qa="status-icon-delivered"]',
+      read: '[data-qa="status-icon-read"]',
+    },
     timestampAttribute: 'data-time',
     serviceTitle:
       '[data-qa="chat-bubble-title"], [data-qa="chat-bubble-author-name"]',

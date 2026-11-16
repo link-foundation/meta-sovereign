@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { browserMessageState } from './browser-message-state.js';
 import { writeBrowserNativeInput } from './browser-native-input.js';
 import {
   watchChoiceView,
@@ -58,6 +59,7 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const browserMessageState = (${browserMessageState.toString()});
   const messageLinkProperties = (${messageLinkProperties.toString()});
   const browserMessageLinks = (${browserMessageLinks.toString()});
   const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});

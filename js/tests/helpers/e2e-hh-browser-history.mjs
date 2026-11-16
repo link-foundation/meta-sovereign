@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { learnAnswerRules } from '../../src/automation/question-learning.js';
 import { providerChoiceDraft } from '../../../experiments/issue-56/provider-choice-fixture.mjs';
+import { verifyHhDelivery } from './e2e-hh-delivery.mjs';
 
 /** Real native history extraction, normalization, learning and guarded actions. */
 export const verifyHhBrowserHistory = async ({
@@ -127,6 +128,7 @@ export const verifyHhBrowserHistory = async ({
     counters,
     reset,
   });
+  await verifyHhDelivery({ run, reset, page, sender, args, mount, counters });
 };
 
 const verifyHistoryActions = async ({

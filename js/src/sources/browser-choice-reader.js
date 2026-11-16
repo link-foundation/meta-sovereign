@@ -2,6 +2,7 @@
 import { browserPendingTurn } from './browser-pending-turn.js';
 import { browserNoticeContext } from './browser-notice-context.js';
 import { messageLinkProperties } from '../message-link-targets.js';
+import { browserMessageState } from './browser-message-state.js';
 
 /** Read destinations as data only. Oversized or unresolvable links refuse capture. */
 export const browserMessageLinks = (body) => {
@@ -73,9 +74,7 @@ export const browserChoiceHistory = (
       )?.[1],
       body: bodyOf(node),
       ...browserMessageLinks(node.querySelector(spec.messages.body)),
-      outgoing:
-        node.matches(spec.messages.outgoing) ||
-        Boolean(node.querySelector(spec.messages.outgoing)),
+      ...browserMessageState(spec.messages, node),
       ...(serviceTitle?.test(
         text(node.querySelector(spec.messages.serviceTitle))
       )

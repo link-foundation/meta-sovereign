@@ -32,6 +32,7 @@ import * as m0017 from './0017-application-language-policy.js';
 import * as m0018 from './0018-application-limits.js';
 import * as m0019 from './0019-application-limit-drafts.js';
 import * as m0020 from './0020-application-pacing.js';
+import * as m0021 from './0021-hh-browser-delivery.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -54,10 +55,11 @@ export const MIGRATIONS = Object.freeze([
   m0018,
   m0019,
   m0020,
+  m0021,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 20;
+export const CURRENT_SCHEMA = 21;
 
 export {
   SCHEMA_ID,

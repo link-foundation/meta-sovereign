@@ -85,3 +85,5 @@ unseen messages and missing timestamps are not reconstructed. Existing explicit
 answer learning can use the saved turns, with private link targets excluded and
 all new answers unapproved. Continuous DOM capture and browser delivery-state
 parity remain unfinished. See [history evidence](case-studies/issue-56/browser-history-archive.md).
+
+HH browser reads preserve native pending, failed, sent, delivered and read states. Missing, unfamiliar or conflicting outgoing status icons remain unknown; uncertain bubbles cannot confirm a send or become learned answers. Migration 0021 marks older browser replies without status evidence unknown until reread. Existing saved answers remain owner data. This is per-read evidence; rapid DOM changes between reads and authenticated provider parity remain unfinished. [Delivery verification](case-studies/issue-56/hh-browser-delivery.md).

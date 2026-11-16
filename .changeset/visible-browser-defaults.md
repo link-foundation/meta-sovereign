@@ -632,3 +632,5 @@ session. Preserve retained target identity, cancellation and session-state gates
 Save each verified unread browser history window before scrolling away, preserve
 observed edit versions and stop on refused storage. Keep status recovery free of
 replay and exclude hidden private link destinations from reusable answer learning.
+
+Preserve HH browser delivery observations through the canonical archive and learning path (issue #56, HH11). Require a positive native status before confirming a send, keep uncertain replies out of learned answers, and migrate legacy unproven browser delivery to unknown without changing saved owner answers.

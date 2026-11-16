@@ -201,6 +201,8 @@ export const matchingChoiceReplies = (input, current, attempt) => {
   const matchesReply = (row) =>
     row.outgoing &&
     !row.service &&
+    (row.delivery === undefined ||
+      ['sent', 'delivered', 'read'].includes(row.delivery)) &&
     !attempt.before.includes(row.id) &&
     row.body === (option ?? input.text);
   return !current.code && current.chat === expected.chat && questionIndex >= 0
