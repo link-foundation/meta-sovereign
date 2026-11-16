@@ -10,6 +10,10 @@ ordering; child memberships are combined.
 IndexedDB compares and replaces each root in one native transaction.
 The localStorage fallback requires Web Locks. A stale root is re-read and
 merged before another atomic comparison, with at most eight save attempts.
+Each lock request queues behind an active save and cancels after two seconds
+if it has not acquired the lock. Comparison and replacement remain synchronous
+inside the acquired lock. This avoids exhausting initialization retries while
+the browser is still acknowledging another tab's lock release.
 Unavailable coordination, incompatible schemas, conflicting private edits and
 noncausal physical public removals refuse the write. A failed save retains
 the owner's visible memory state and rejects its promise. It does not produce
@@ -32,6 +36,8 @@ atomic revision checks. There is no full-snapshot polling loop.
 including writes admitted by their subscribers. The app also detaches on
 its page lifetime signal. Optional `onError` callbacks report background
 refresh refusals; production browser debug logging records only error codes.
+An optional `onEvent` callback on the opening helper reports migration refusal
+attempts and error codes; it is disabled by default and carries no records.
 Plain `createBrowserStore` remains available for primitive stores, migration
 and fixtures, with its original stale-root refusal. It does not implicitly
 enable causal merging before a caller has completed migration.
@@ -40,6 +46,8 @@ The [case study](case-studies/issue-56/browser-tab-merge.md) records exact-paren
 focused and native-browser verification. This local tab coordination does not
 establish delivery to an external provider or synchronization with a device
 that has no reachable transport.
+The [startup follow-up](case-studies/issue-56/browser-boot-queue.md) retains the
+hosted Chromium failure, exact-parent regression and bounded lock-wait checks.
 
 The account-scoped reply model has a separate ownership rule. Its learned
 counts remain one complete snapshot; editable-record causal merging would

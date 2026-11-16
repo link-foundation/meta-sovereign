@@ -11,12 +11,19 @@ export const openCausalBrowserStore = async ({
   driver = pickBrowserDriver(),
   signal,
   onError,
+  onEvent = () => {},
 } = {}) => {
   for (let attempt = 0; ; attempt += 1) {
     const store = await createBrowserStore({ driver });
     try {
       await migrateBrowserStore(store);
     } catch (error) {
+      await store.close();
+      onEvent({
+        event: 'browser_store_boot_refused',
+        attempt,
+        code: error?.code,
+      });
       if (
         attempt < 3 &&
         ['STORE_SNAPSHOT_CHANGED', 'STORE_SNAPSHOT_BUSY'].includes(error?.code)

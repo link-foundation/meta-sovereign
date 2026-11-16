@@ -613,3 +613,6 @@ Add shared runner profile reads and revision-checked durable edits through CLI,
 protected API and the Settings editor. Refused or uncertain writes retain the
 owner's draft, explicit reload replaces it, and target edits preserve retained
 session addresses without starting or stopping a process.
+
+Queue competing browser snapshot saves behind bounded Web Locks while retaining
+atomic revision comparisons, explicit cancellation and unsaved owner data.

@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { browserOf } from './helpers/e2e-chat.mjs';
 import { startBrowserMergeFixture } from './helpers/browser-merge-fixture.mjs';
+import { checkBrowserBootQueue } from './helpers/e2e-browser-boot.mjs';
+import { waitForBrowserValue } from './helpers/browser-value.mjs';
+import { openBrowserMergeTab } from './helpers/browser-merge-tab.mjs';
 
 const before = process.env.SNAPSHOT_BEFORE;
 const trace = process.env.BROWSER_MERGE_TRACE === '1';
@@ -8,7 +11,12 @@ const { browserType, engine } = await browserOf('browser-merge');
 const fixture = await startBrowserMergeFixture({ before });
 let browser;
 try {
-  browser = await browserType.launch({ headless: true });
+  browser = await browserType.launch({
+    headless: true,
+    ...(process.env.E2E_EXECUTABLE_PATH
+      ? { executablePath: process.env.E2E_EXECUTABLE_PATH }
+      : {}),
+  });
   const context = await browser.newContext();
   const pages = [await context.newPage(), await context.newPage()];
   const errors = [];
@@ -20,6 +28,9 @@ try {
     }
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(fixture.url);
+  }
+  if (!before) {
+    await checkBrowserBootQueue(pages);
   }
   for (const kind of ['indexedDB', 'localStorage']) {
     await checkTabs(pages, kind);
@@ -38,40 +49,12 @@ try {
 async function checkTabs(pages, kind) {
   const name = `merge-${kind}-${globalThis.crypto.randomUUID()}`;
   const open = (page) =>
-    page.evaluate(
-      async ({ name, kind, side, trace }) => {
-        const m = await import(`/${side}.js`);
-        const driver =
-          kind === 'indexedDB'
-            ? m.createIndexedDbDriver({ dbName: name })
-            : m.createLocalStorageDriver(globalThis.localStorage, name);
-        await globalThis.snapshotStore?.close?.();
-        globalThis.snapshotErrors = [];
-        globalThis.snapshotStore = await m.openCausalBrowserStore({
-          driver: {
-            ...driver,
-            async save(...args) {
-              const held = globalThis.snapshotWriteHold;
-              if (held) {
-                globalThis.snapshotWriteAdmitted = true;
-                await held;
-              }
-              try {
-                return await driver.save(...args);
-              } catch (error) {
-                if (trace) {
-                  // Fixture diagnostics omit all snapshot payloads and revisions.
-                  console.log(JSON.stringify({ kind, saveError: error.code }));
-                }
-                throw error;
-              }
-            },
-          },
-          onError: (error) => globalThis.snapshotErrors.push(error.code),
-        });
-      },
-      { name, kind, side: before ? 'before' : 'after', trace }
-    );
+    openBrowserMergeTab(page, {
+      name,
+      kind,
+      side: before ? 'before' : 'after',
+      trace,
+    });
   // The parent is opened sequentially so this regression reaches owner writes
   // rather than failing earlier on its competing empty-schema boot.
   if (before) {
@@ -102,11 +85,11 @@ async function checkTabs(pages, kind) {
     `${kind}: both editable tabs must save`
   );
   const waitRecord = (page, id, body) =>
-    page.waitForFunction(
+    waitForBrowserValue(
+      page,
       async ({ id, body }) =>
         (await globalThis.snapshotStore.get(id))?.body === body,
-      { id, body },
-      { timeout: 5000 }
+      { id, body }
     );
   await Promise.all([
     waitRecord(pages[0], 'tab-1', 'owner-1'),
@@ -119,12 +102,12 @@ async function checkTabs(pages, kind) {
   await concurrentEdits(pages);
   await Promise.all(
     pages.map((page) =>
-      page.waitForFunction(
+      waitForBrowserValue(
+        page,
         async () =>
           (await globalThis.snapshotStore.get('shared'))?.children?.length ===
           2,
-        null,
-        { timeout: 5000 }
+        null
       )
     )
   );
@@ -134,10 +117,10 @@ async function checkTabs(pages, kind) {
   );
   await replaceObservedChildren(pages, waitRecord);
   await pages[0].evaluate(() => globalThis.snapshotStore.delete('shared'));
-  await pages[1].waitForFunction(
+  await waitForBrowserValue(
+    pages[1],
     async () => (await globalThis.snapshotStore.get('shared')) === null,
-    null,
-    { timeout: 5000 }
+    null
   );
   await pages[1].evaluate(() =>
     globalThis.snapshotStore.put({

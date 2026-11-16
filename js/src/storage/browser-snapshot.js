@@ -89,7 +89,21 @@ export const saveIndexedSnapshot = (db, storeName, key, next, expected) =>
     }
   });
 
-export const saveLocalSnapshot = (storage, key, locks, next, expected) => {
+const snapshotBusy = () =>
+  Object.assign(
+    new Error(
+      'Another tab is saving data. This write was not saved; retry it.'
+    ),
+    { code: 'STORE_SNAPSHOT_BUSY' }
+  );
+
+export const saveLocalSnapshot = async (
+  storage,
+  key,
+  locks,
+  next,
+  expected
+) => {
   if (!locks?.request) {
     throw Object.assign(
       new Error(
@@ -98,29 +112,36 @@ export const saveLocalSnapshot = (storage, key, locks, next, expected) => {
       { code: 'STORE_COORDINATION_UNAVAILABLE' }
     );
   }
-  // Do not queue indefinitely behind a suspended tab. The caller may retry
-  // explicitly; the version check still prevents overwriting a newer commit.
-  return locks.request(
-    `meta-sovereign:snapshot:${key}`,
-    { ifAvailable: true },
-    (lock) => {
-      if (!lock) {
-        throw Object.assign(
-          new Error(
-            'Another tab is saving data. This write was not saved; retry it.'
-          ),
-          { code: 'STORE_SNAPSHOT_BUSY' }
-        );
+  // Queue behind an active save instead of racing repeated ifAvailable calls
+  // against the browser's lock-release acknowledgement. Cancel a suspended
+  // holder's wait; the synchronous compare/write never yields while locked.
+  const waiting = new AbortController();
+  const timer = globalThis.setTimeout(() => waiting.abort(), 2000);
+  try {
+    return await locks.request(
+      `meta-sovereign:snapshot:${key}`,
+      { signal: waiting.signal },
+      (lock) => {
+        if (!lock) {
+          throw snapshotBusy();
+        }
+        const raw = storage.getItem(key);
+        let before = null;
+        try {
+          before = raw ? JSON.parse(raw) : null;
+        } catch {
+          // Keep the legacy load contract for malformed local snapshots.
+        }
+        assertSnapshotVersion(before, expected);
+        storage.setItem(key, JSON.stringify(next));
       }
-      const raw = storage.getItem(key);
-      let before = null;
-      try {
-        before = raw ? JSON.parse(raw) : null;
-      } catch {
-        // Keep the legacy load contract for malformed local snapshots.
-      }
-      assertSnapshotVersion(before, expected);
-      storage.setItem(key, JSON.stringify(next));
+    );
+  } catch (error) {
+    if (waiting.signal.aborted && error?.name === 'AbortError') {
+      throw snapshotBusy();
     }
-  );
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timer);
+  }
 };

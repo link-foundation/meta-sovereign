@@ -556,3 +556,7 @@ exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next aud
 [Hosted desktop TLS and packaging](desktop-configuration-hosted.md) retains actual Electron 45.3.2 ownership/refusal receipts and all six successful desktop jobs on `3a24c7a5`. Full issue acceptance and local/SSH execution remain required.
 
 [Shared runner profile editing](runner-profile-editing.md) documents revision-checked CLI/API/UI saves and retained session targets; wider desktop execution and the remaining reference inventory stay active.
+
+[Bounded browser startup coordination](browser-boot-queue.md) retains the hosted
+Chromium failure, exact-parent lock-contention regression and verified async
+browser-state waits. Hosted acceptance and all unchecked criteria remain active.
