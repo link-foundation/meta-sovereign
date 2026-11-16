@@ -639,3 +639,7 @@ Capture mounted message mutations during confirmed current-chat watches before
 the next poll. Acknowledge bounded canonical writes in order, preserve observed
 edits and delivery changes, and drain them on Stop. Refuse reused native HH pane
 ownership, archive failures and capture gaps without replaying provider actions.
+
+Retain native net/gross vacancy compensation, alternate skill tags, publication
+and multiple visible work-format rows. Refuse conflicting salary aliases while
+preserving the acknowledged cached description and metadata.

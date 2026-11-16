@@ -18,11 +18,17 @@ export const readAssignmentVacancyDocument = () => {
   if (challenge) {
     return { url: globalThis.location.href, challenge: true };
   }
-  const text = (selector, limit) => {
+  const text = (selector, limit, equivalentAliases = false) => {
     const elements = [...document.querySelectorAll(selector)].filter(
       (node) => node.getClientRects().length
     );
-    if (elements.length > 1) {
+    if (
+      elements.length > 1 &&
+      (!equivalentAliases ||
+        elements.some(
+          (node) => node.innerText.trim() !== elements[0].innerText.trim()
+        ))
+    ) {
       return null;
     }
     const element = elements[0];
@@ -32,28 +38,52 @@ export const readAssignmentVacancyDocument = () => {
     const value = element.innerText.trim();
     return value.length <= limit ? value : null;
   };
-  const skills = [...document.querySelectorAll('[data-qa="skills-element"]')];
+  const texts = (selector, limit, maxItems) => {
+    const nodes = [...document.querySelectorAll(selector)];
+    if (nodes.length > 200) {
+      return null;
+    }
+    const values = [
+      ...new Set(
+        nodes
+          .filter((node) => node.getClientRects().length)
+          .map((node) => node.innerText.trim())
+          .filter(Boolean)
+      ),
+    ];
+    return values.length <= maxItems && values.join('\n').length <= limit
+      ? values
+      : null;
+  };
+  const workFormats = texts('[data-qa*="work-format"]', 1000, 100);
   return {
     url: globalThis.location.href,
     challenge: false,
     title: text('[data-qa="vacancy-title"]', 500),
     company: text('[data-qa="vacancy-company-name"]', 500),
     description: text('[data-qa="vacancy-description"]', 30000),
-    salary: text('[data-qa="vacancy-salary"]', 1000),
+    salary: text(
+      '[data-qa="vacancy-salary"], [data-qa="vacancy-salary-compensation-type-net"], [data-qa="vacancy-salary-compensation-type-gross"]',
+      1000,
+      true
+    ),
     location: text(
       '[data-qa="vacancy-view-raw-address"], [data-qa="vacancy-view-location"]',
       1000
     ),
     experience: text('[data-qa="vacancy-experience"]', 1000),
     employment: text('[data-qa="vacancy-view-employment-mode"]', 1000),
-    workFormat: text('[data-qa="vacancy-view-work-format"]', 1000),
-    published: text('[data-qa="vacancy-view-creation-time"]', 1000),
-    skills:
-      skills.length <= 100
-        ? skills
-            .filter((node) => node.getClientRects().length)
-            .map((node) => node.innerText.trim())
-        : null,
+    workFormat: workFormats?.join('\n') ?? null,
+    published: text(
+      '[data-qa="vacancy-view-creation-time"], [data-qa="vacancy-creation-time"]',
+      1000,
+      true
+    ),
+    skills: texts(
+      '[data-qa="skills-element"], [data-qa="bloko-tag__text"]',
+      50000,
+      100
+    ),
   };
 };
 
