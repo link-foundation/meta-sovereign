@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { canRunnerAction, followRunnerSessions } from './runner-view-state.js';
 import { RunnerProfileSettings } from './settings-runner-profile.js';
+import { RunnerFeedback } from './settings-runner-feedback.js';
 
 const el = React.createElement;
 const noticeKey = (code) =>
@@ -83,6 +84,12 @@ const RunnerControls = ({ api }) => {
   }, [api]);
   const notice = state.answer?.code ?? state.notice;
   return el('div', { className: 'col', 'aria-busy': state.busy }, [
+    state.feedback
+      ? el(RunnerFeedback, {
+          key: state.feedback.id,
+          feedback: state.feedback,
+        })
+      : null,
     el('p', { key: 'scope', className: 'meta' }, t('runner.scope')),
     state.error
       ? el('p', { key: 'error', role: 'alert' }, t('runner.unavailable'))

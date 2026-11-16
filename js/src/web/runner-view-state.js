@@ -30,6 +30,23 @@ const retainedInspection = (state, answer) =>
     ? state.inspection
     : null;
 
+const actionFeedback = (state, answer, action, mode, id) => {
+  if (['start', 'stop'].includes(action)) {
+    const confirmed = runnerReceipt(answer, action, mode);
+    return confirmed.ok
+      ? { id, action, mode, state: confirmed.states[mode] }
+      : null;
+  }
+  return action === 'status' &&
+    answer.ok &&
+    !answer.code &&
+    ['local', 'server'].every(
+      (target) => answer.states[target] === state.answer?.states[target]
+    )
+    ? state.feedback
+    : null;
+};
+
 /** One owned request; recovery observes state and never replays a mutation. */
 export const followRunnerSessions = ({
   request,
@@ -38,9 +55,16 @@ export const followRunnerSessions = ({
   clock = globalThis,
 }) => {
   const owner = new AbortController();
-  let state = { answer: null, busy: false, error: false, notice: null };
+  let state = {
+    answer: null,
+    busy: false,
+    error: false,
+    notice: null,
+    feedback: null,
+  };
   let active = false;
   let failures = 0;
+  let feedbackId = 0;
   let timer;
   const publish = (patch) => {
     if (!owner.signal.aborted) {
@@ -57,12 +81,19 @@ export const followRunnerSessions = ({
     publish({
       busy: true,
       pending: action,
-      ...(action === 'status' ? {} : { inspection: null }),
+      ...(action === 'status' ? {} : { inspection: null, feedback: null }),
     });
     try {
       const answer = await request(action, mode, owner.signal);
       failures = 0;
       publish({
+        feedback: actionFeedback(
+          state,
+          answer,
+          action,
+          mode,
+          ['start', 'stop'].includes(action) ? ++feedbackId : feedbackId
+        ),
         answer,
         ...(action === 'inspect'
           ? { inspection: { ...answer.application, checkedAt: Date.now() } }
@@ -74,6 +105,7 @@ export const followRunnerSessions = ({
       failures++;
       publish({
         error: true,
+        feedback: null,
         notice: action === 'status' ? state.notice : 'actionNotConfirmed',
       });
     } finally {
@@ -100,3 +132,4 @@ export const followRunnerSessions = ({
     },
   };
 };
+import { runnerReceipt } from '../transport/runner-receipt.js';

@@ -13234,6 +13234,33 @@ main[data-view='chat'] > .api-error-toast {
   margin: 0;
 }
 
+.runner-feedback {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  width: min(36rem, calc(100vw - 2rem));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--gap, 12px);
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elev);
+  color: var(--text);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
+  overflow-wrap: anywhere;
+}
+.runner-feedback p {
+  margin: 0 0 0.25rem;
+}
+.runner-feedback button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
 /* R-Z15: attachments of imported archive messages (pictures, players,
    file chips, "media not imported"). */
 .archive-media audio,

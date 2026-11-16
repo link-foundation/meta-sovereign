@@ -58,6 +58,12 @@ test('runner view reads on open and serializes an explicit action without optimi
     release();
     await pending;
     assert.equal(view.state().answer.states.local, 'running');
+    assert.deepEqual(view.state().feedback, {
+      id: 1,
+      action: 'start',
+      mode: 'local',
+      state: 'running',
+    });
     assert.equal(view.timers.size, 1);
   } finally {
     release?.();
@@ -80,6 +86,7 @@ test('runner view retains unconfirmed observed states and gates unsafe switches'
     await view.owner.act('start', 'local');
     assert.equal(view.state().answer.states.server, 'unknown');
     assert.equal(view.state().notice, 'other-runner-stop-unconfirmed');
+    assert.equal(view.state().feedback, null);
     assert.equal(canRunnerAction(view.state(), 'start', 'local'), false);
     const blocked = {
       answer: receipt('running', 'stopped', {
@@ -116,8 +123,86 @@ test('runner recovery performs only a status read after an ambiguous mutation', 
     assert.equal(view.state().answer.states.local, 'running');
     assert.equal(view.state().error, false);
     assert.equal(view.state().notice, 'actionNotConfirmed');
+    assert.equal(view.state().feedback, null);
     assert.doesNotMatch(JSON.stringify(view.state()), /PRIVATE/);
   } finally {
+    view.owner.close();
+  }
+});
+
+test('runner confirmations belong to explicit receipts and expire on conflicting observations', async () => {
+  let local = 'stopped';
+  let server = 'stopped';
+  const view = fixture(async (action) => {
+    if (action === 'start') {
+      local = 'running';
+    } else if (action === 'stop') {
+      local = 'stopped';
+    }
+    return receipt(local, server);
+  });
+  try {
+    await tick();
+    assert.equal(view.state().feedback, null);
+    await view.owner.act('start', 'local');
+    const first = view.state().feedback;
+    assert.equal(first.state, 'running');
+    await view.owner.refresh();
+    assert.equal(view.state().feedback, first, 'status cannot announce again');
+    server = 'unknown';
+    await view.owner.refresh();
+    assert.equal(view.state().feedback, null);
+    server = 'stopped';
+    await view.owner.refresh();
+    assert.equal(
+      view.state().feedback,
+      null,
+      'recovery cannot create feedback'
+    );
+    await view.owner.act('stop', 'local');
+    assert.deepEqual(view.state().feedback, {
+      id: 2,
+      action: 'stop',
+      mode: 'local',
+      state: 'stopped',
+    });
+  } finally {
+    view.owner.close();
+  }
+});
+
+test('contradictory and closed runner mutation receipts never announce success', async () => {
+  let release;
+  let invalid = true;
+  const view = fixture(async (action) => {
+    if (action === 'status') {
+      return receipt();
+    }
+    if (invalid) {
+      return receipt('running', 'running');
+    }
+    return new Promise((resolve) => {
+      release = resolve;
+    });
+  });
+  try {
+    await tick();
+    await view.owner.act('start', 'local');
+    assert.equal(view.state().error, true);
+    assert.equal(view.state().feedback, null);
+    invalid = false;
+    await view.owner.refresh();
+    const pending = view.owner.act('start', 'local');
+    assert.equal(view.state().feedback, null);
+    view.owner.close();
+    const before = view.state();
+    release(receipt('running'));
+    await pending;
+    assert.equal(view.state(), before);
+    assert.equal(view.state().feedback, null);
+    assert.equal(view.timers.size, 0);
+  } finally {
+    release?.(receipt('running'));
     view.owner.close();
   }
 });

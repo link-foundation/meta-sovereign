@@ -34,6 +34,8 @@ const keys = [
   'health_unknown',
   'health_stopped',
   'health_unconfigured',
+  'feedbackScope',
+  'dismissFeedback',
 ];
 const messages = {
   en: [
@@ -72,6 +74,8 @@ const messages = {
     'Application readiness could not be confirmed. No start or stop was attempted.',
     'The named session was observed stopped. No application check was made.',
     'No target is configured for this mode.',
+    'Named session state only. Application readiness is checked separately.',
+    'Dismiss session confirmation',
   ],
   ru: [
     'Сеансы выполнения',
@@ -109,6 +113,8 @@ const messages = {
     'Готовность приложения не подтверждена. Запуск или остановка не выполнялись.',
     'Именованный сеанс остановлен по результатам проверки. Приложение не проверялось.',
     'Для этого режима не задан узел.',
+    'Подтверждено только состояние именованного сеанса. Готовность приложения проверяется отдельно.',
+    'Закрыть подтверждение сеанса',
   ],
   hi: [
     'रनर सत्र',
@@ -146,6 +152,8 @@ const messages = {
     'ऐप की तैयारी की पुष्टि नहीं हुई। शुरू या रोकने की कोशिश नहीं हुई।',
     'नाम वाला सत्र रुका मिला। ऐप की जाँच नहीं की गई।',
     'इस मोड का लक्ष्य कॉन्फ़िगर नहीं है।',
+    'केवल नाम वाले सत्र की स्थिति की पुष्टि हुई है। ऐप की तैयारी की जाँच अलग होती है।',
+    'सत्र की पुष्टि बंद करें',
   ],
   zh: [
     '运行会话',
@@ -183,6 +191,8 @@ const messages = {
     '无法确认应用是否就绪。未尝试启动或停止。',
     '已观察到指定会话已停止。未检查应用。',
     '此模式尚未配置目标。',
+    '仅确认指定会话的状态。应用是否就绪需要单独检查。',
+    '关闭会话确认',
   ],
 };
 
