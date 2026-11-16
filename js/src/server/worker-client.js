@@ -22,10 +22,10 @@ const workerLifecycleLog = (log) => {
   return (entry) => {
     if (
       entry?.event === 'server_worker_operation' &&
-      entry.operation === 'init' &&
+      ['init', 'import'].includes(entry.operation) &&
       ['started', 'finished', 'failed'].includes(entry.phase)
     ) {
-      phase(`init_${entry.phase}`);
+      phase(`${entry.operation}_${entry.phase}`);
     }
     log(entry);
   };

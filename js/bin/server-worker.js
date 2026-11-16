@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // Private IPC entry point for the rolling server host; never a public API.
-import { createRollingWorker } from '../src/server/rolling-worker.js';
 import { createInterface } from 'node:readline';
 import { startResourceDiagnostics } from '../src/server/resource-diagnostics.js';
 import { snapshotMemory } from '../src/storage/snapshot-memory.js';
@@ -49,6 +48,30 @@ input.on('line', (line) => {
     });
     try {
       if (operation === 'init') {
+        // Establish IPC before loading the application graph. A cold runtime
+        // import otherwise hides all progress between spawn and initialization.
+        const importing = Date.now();
+        send({
+          type: 'log',
+          entry: {
+            level: 'debug',
+            event: 'server_worker_operation',
+            operation: 'import',
+            phase: 'started',
+          },
+        });
+        const { createRollingWorker } =
+          await import('../src/server/rolling-worker.js');
+        send({
+          type: 'log',
+          entry: {
+            level: 'debug',
+            event: 'server_worker_operation',
+            operation: 'import',
+            phase: 'finished',
+            duration_ms: Date.now() - importing,
+          },
+        });
         resources = startResourceDiagnostics({
           log: (entry) => send({ type: 'log', entry }),
           phase: 'warming',

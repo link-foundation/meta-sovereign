@@ -146,3 +146,58 @@ test(
     assert.equal(f.requests.length, 0, 'do not send IPC to an exited process');
   }
 );
+
+test('worker import checkpoints are opt-in and exclude arbitrary diagnostic content', async () => {
+  const previous = process.env.MS_LIFECYCLE_DEBUG;
+  const report = console.error;
+  const lines = [];
+  console.error = (line) => lines.push(line);
+  try {
+    for (const debug of ['0', '1']) {
+      process.env.MS_LIFECYCLE_DEBUG = debug;
+      const start = lines.length;
+      const f = fixture();
+      for (const [operation, phase] of [
+        ['init', 'started'],
+        ['import', 'started'],
+        ['arbitrary-private-content', 'started'],
+        ['import', 'finished'],
+        ['init', 'finished'],
+      ]) {
+        f.child.stdout.write(
+          `${JSON.stringify({
+            type: 'log',
+            entry: {
+              event: 'server_worker_operation',
+              operation,
+              phase,
+              message: 'private fixture text',
+            },
+          })}\n`
+        );
+      }
+      await turn();
+      const emitted = lines.slice(start);
+      assert.equal(emitted.length, debug === '1' ? 5 : 0);
+      if (debug === '1') {
+        assert.ok(emitted.some((line) => line.includes('import_started')));
+        assert.ok(emitted.some((line) => line.includes('import_finished')));
+      }
+      for (const line of emitted) {
+        assert.match(
+          line,
+          /^\[rolling-worker\] (?:spawning|(?:init|import)_(?:started|finished)) after \d+ ms$/u
+        );
+      }
+      f.close();
+      await f.client.close();
+    }
+  } finally {
+    console.error = report;
+    if (previous === undefined) {
+      delete process.env.MS_LIFECYCLE_DEBUG;
+    } else {
+      process.env.MS_LIFECYCLE_DEBUG = previous;
+    }
+  }
+});

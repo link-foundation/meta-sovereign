@@ -1,3 +1,4 @@
+- [Cold worker imports](ci-worker-loading.md): preserve the exact Windows Deno readiness failure and distinguish process startup from pending application-module loading with bounded, default-off checkpoints and real EOF cleanup regressions. The hosted cause remains unproven.
 - [Exact native workplace opening](cv-workplace-opening.md): parent reproduction, full-list native Edit with draft guards, selected resume context and focused native/MCP recovery evidence.
 - [Observed form questionnaires](forms-questionnaire-learning.md): retain whole replies and aligned individual answers with shared counts, unapproved proposals, idempotent evidence and accurate skipped-pair counters.
 - [Saved questionnaire indexing](questionnaire-index.md): actual-parent reuse/backfill regressions, bounded shared indexing, offline CLI/Lino/UI learning, accurate counts and before/after/phone browser evidence.

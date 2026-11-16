@@ -65,3 +65,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reuse the existing durable preparation lane to open the exact record through the complete native list, with draft, identity, ambiguity and hydration guards.
 - [x] Preserve owner Save/Cancel and pass focused portable, native and independent MCP recovery checks; retain selected resume context for full-field preparation and membership inspection.
 - [ ] Publish the atomic opening change and inspect fresh exact-head hosted checks. Shared copies, new identities, batches and all other unchecked criteria remain required.
+
+2026-11-16 Windows Deno startup investigation:
+
+- [x] Publish workplace opening as 484a6b51 with reproduction and verification in PR57.
+- [x] List exact-SHA workflow runs and preserve completed Windows Deno job 133498912762 from run 43922788772. Its lines 5678–5701 show 6,705 ms staging followed by worker spawn without initial IPC before the fixed ten-second deadline; lines 5951–5967 retain the missing named-pipe cause.
+- [x] Distinguish cold process startup and application imports through default-off lifecycle checkpoints; two actual-parent regressions fail, nine Node and ten Deno checks pass, real EOF cleanup is preserved and one isolated production CLI start/reuse/upgrade passes.
+- [ ] Inspect the resulting exact-head Windows trace before claiming a root cause or correction. Keep readiness assertions, deadlines and all runtime partitions unchanged.
+- [ ] Complete every remaining original criterion; this diagnostic work accepts no inventory row.
