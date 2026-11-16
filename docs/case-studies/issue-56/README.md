@@ -607,3 +607,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 [Saved HH area metadata](resume-area-metadata.md) connects official city IDs to native downloads and owner-Save readback while retaining older snapshots and full native metadata. Hosted acceptance and the remaining experience workflow stay unfinished.
 
 - [Hosted selection entry](ci-selection-entry.md): preserve the exact empty-field failure and native screenshot; add bounded focus/native/rendered entry tracing. The actual cause and affected acceptance criteria remain unfinished.
+
+- [CV experience diagnostic ownership](ci-cv-experience-page-errors.md): retain the failed hosted job and actual-parent native WebKit replay, apply the existing exact-origin diagnostic policy and preserve genuine failures. Fresh hosted verification remains required.

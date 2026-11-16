@@ -1,0 +1,28 @@
+{
+  "archive": "ci-cv-experience-page-errors.tar.gz",
+  "files": {
+    "experiments/issue-56/experience-inspect.mjs": "51c7dab776a05b1aa7b465677c1ac753bac29cd9125193e308f9f773a546ccfa",
+    "js/tests/helpers/e2e-cv-experience.mjs": "1ac2e05fd02f0aba18accef0cc68b590f12600df05e2f0995ce966a4ca3e90c0",
+    "js/tests/helpers/e2e-page-errors.mjs": "2b0d51845667efd2164d877ca997963ff8c4f3e4c3252295c14c45e684fec206",
+    "js/tests/e2e-page-errors.test.js": "621f53c453ae87bdf3f91bae3febc8120859c28d14c4230f9baffe62713cb0ea",
+    "experiments/issue-56/cv-experience-page-errors.mjs": "512dc9b36b5cc6f780713c14e08409dc7c767d31645c966df1eb6f6e570c2f14",
+    "experiments/issue-56/experience-browser-fixture.mjs": "0eea8b0a9ca4bad987c366471bddf957a0e269a621a5070d3b4f320c2449c919",
+    "experiments/issue-56/cv-loading-inspect.mjs": "027c29362c8470ca1abc00251c059d4e235d6264dbf86671705f16ea902dbb64",
+    "experiments/issue-56/collect-cv-experience-page-errors.py": "6871fecdb7771f5468889ce931519e63a4cecf3fc7d1d12edd6fa09f99b7707a",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-cv-experience-page-errors.md": "f57bfb35cefdb4d15d00df29bd7709db8050d5bb04e4477b101b5848dce79ffb",
+    "docs/case-studies/issue-56/ci-cv-experience-page-errors-plan.md": "80527a33d1a344140ff84085b2c0cfb5eeb1c713e730da4acc4ff2f4a955a952",
+    "ci-logs/hosted-b61-webkit-3-job.json": "88c9e344e04a50052f8495eb3d421ee2deb29bdbce97cc67e6e8afb590bb539b",
+    "ci-logs/hosted-b61-webkit-3.log": "48e2b43ee0c8342c7df0817a271570665b01095657f8e9da0c8cf7107a9b6525",
+    "ci-logs/hosted-b61-webkit-3-artifact-cv-translation.log": "5f2764b1ec45a1755d8c7015ffa4b057f2a63d4b8820e5645e0a3cd0a6d207b9",
+    "ci-logs/hosted-b61-webkit-3-artifact-summary.json": "0d563bcffcd1be9274373e5083141d3171fcfb6f8de9cbf50a16637d9744fb76",
+    "ci-logs/cv-experience-page-errors-before.log": "a6a1b5bae1bb6bf38cff9b0eeedf9d369d1ba6742449d8176203a992d2edb950",
+    "ci-logs/cv-experience-page-errors-after.log": "a6aec435fc6b10e178b6278512406d8181712c728d9dddf1abbe13993ae1215a",
+    "ci-logs/current-focused-tests.log": "1ed9f221880cd33ea389ff1183e6baccf6c0c5574d3112d431d61ca3d3560fb1",
+    "ci-logs/current-scoped-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-experience-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "before/experiments/issue-56/experience-inspect.mjs": "cdda9a2d77816acd172de15814364e7997d13072946bd0b80cf0e7722fae68bb",
+    "before/js/tests/helpers/e2e-cv-experience.mjs": "a87450eaf3f2a997701d042366667aa9930bb258895fbb7a31d697f9fc5d77f2",
+    "metadata.json": "3b900635a35211dfda168a8ecddd97af5ee7eb32887e0216f783f113a2f03c04"
+  }
+}

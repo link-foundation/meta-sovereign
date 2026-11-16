@@ -50,6 +50,9 @@ The earlier `5936c544` retry was superseded by later commits. Published
 [Windows private pause checkpoint test timed out](ci-lino-pause.md). Its main
 workflow was superseded; neither revision satisfies the acceptance gate.
 Published `b61cf5fd` includes the runner confirmations and private checkpoint
-timing diagnostics. Its hosted matrix is in progress. Require receipts for
-that source before accepting any row; later documentation does not replace
-the source SHA recorded by this audit.
+timing diagnostics. Its Windows checkpoint now passes with all 28 bounded
+operations completed. The main workflow nevertheless fails in the
+[CV experience fixture](ci-cv-experience-page-errors.md), while WebKit shard 4
+is still running. That source cannot satisfy this gate. Require all five
+positive workflow receipts for the corrected published source before accepting
+any row; later documentation does not replace the audited source SHA.

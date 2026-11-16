@@ -5,14 +5,16 @@ import {
   TUTORIAL_VERSION,
 } from '../../js/src/web/tutorial.js';
 
-export const inspectExperience = async (page, config) => {
+export const inspectExperience = async (page, config, observedErrors) => {
   const check = (condition, message) => {
     if (!condition) {
       throw new Error(message);
     }
   };
-  const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  const errors = observedErrors ?? [];
+  if (!observedErrors) {
+    page.on('pageerror', (error) => errors.push(String(error)));
+  }
   await page.setViewportSize({ width: 1180, height: 950 });
   await page.unroute('**/app.min.js');
   if (config.beforeBundle) {

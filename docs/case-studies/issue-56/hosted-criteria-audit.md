@@ -62,7 +62,10 @@ remaining desktop execution requirements. The refreshed source audit includes
 their archived sources, and the acceptance collector now requires their nine
 portable checks and all five shared token/runner scenarios on each browser
 engine. The collector also requires the live diagnostics and clipboard portable
-checks, both mandatory browser scenarios and the native Electron clipboard fields. Hosted verification on `b61cf5fd` remains pending.
+checks, both mandatory browser scenarios and the native Electron clipboard fields.
+The `b61cf5fd` matrix passes the Windows checkpoint but fails the
+[CV experience fixture](ci-cv-experience-page-errors.md); it cannot satisfy the
+acceptance gate. Require complete positive receipts for the corrected source.
 
 ## VK24 remains unfinished
 
