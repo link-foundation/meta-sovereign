@@ -32,12 +32,16 @@ names = [
     'cv-publication', 'cv-publication-consent', 'cv-publication-exports',
     'experience-publication', 'ci-publication-long-paths',
     'ci-publication-panels',
+    'forms-answer-plan', 'forms-reviewed-prefill', 'forms-review-journal',
+    'forms-model-drafts',
 ]
 audits = {}
 hashed_revisions = {
     'question-lists': '86eebd79',
     'question-corrections': '2aced5d3',
     'question-concurrency': 'ed241ef5',
+    'forms-answer-plan': '0176fe7d',
+    'forms-reviewed-prefill': 'afaf8bed',
 }
 # These two early archives retain regressions but no production source hashes.
 # Compare their published implementations separately; do not imply that these

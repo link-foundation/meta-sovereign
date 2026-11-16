@@ -76,7 +76,7 @@ not claim access to a personal account or live provider submission.
 
 ## Source integrity and exact-source hosted verification
 
-The source audit streams 34 evidence archives and verifies all 2,092 entries
+The source audit streams 38 evidence archives and verifies all 2,301 entries
 against their committed manifests, including these six questionnaire archives:
 `question-lists`, `question-assembly-context`, `questionnaire-index`,
 `forms-questionnaire-learning`, `application-answer-context` and
@@ -98,4 +98,4 @@ checks their semantic counters and review/refusal states, in addition to each
 group's successful completion. All eight browser shards are preserved alongside
 the native Electron and resolved CodeQL logs required by the other audited
 criteria. The separate [turn and policy audit](question-turn-policy-audit.md)
-adds QA16 and QA26. Any failed workflow leaves all fifteen candidates pending.
+adds QA16 and QA26. Any failed workflow leaves all sixteen candidates pending.

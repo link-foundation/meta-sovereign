@@ -1,6 +1,6 @@
 # Original requirement acceptance audit
 
-The source and evidence audit concerns fifteen candidate criteria in
+The source and evidence audit concerns sixteen candidate criteria in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Acceptance is pending until all five workflows finish successfully on the
 published source being audited. The
@@ -56,6 +56,12 @@ optional sanitized saved-source publication, private export/PDF/backup/plan
 preservation and reviewed Git effects. Its six portable test files and all three
 mandatory browser scenarios join the same exact-source gate.
 
+The [field provenance mapping](form-provenance-criteria-audit.md) adds QA25:
+per-field exact, approximate, profile, model and unresolved sources, preserved
+observations, CLI output, private Markdown reports and shared downloads. Its
+seven portable files and mandatory plan/journal/model browser assertions join
+the same gate; other provider workflows retain their full separate scope.
+
 | Criterion | Complete behavior mapping and regression evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | VK23      | [Discovery](vk-discovery.md) retains mutual-ranked suggestions, configurable finite community-member windows, deactivated incoming-request rejection with its specific native receipt, and friend/incoming/outgoing inspection. The source `outgoing-messages.js` implements delivery pacing; its behavior maps to the [shared queue](vk-message-queue.md), rather than a separate inspection command. Disabled policies, protected IDs, original profile filters, capacity, daily allowance and native pauses remain enforced. The actual parent lacks `discoverySnapshot`; the current focused tests cover all native reads and positive/negative receipts, CLI, both Lino forms and four-language controls.                                                                                                                                                                                                                      |
@@ -75,16 +81,20 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py REVISION` streams 34
+`python -B experiments/issue-56/audit-hosted-criteria.py REVISION` streams 38
 existing archives, checks every entry against its committed SHA-256 manifest
 and records the selected published production source hashes and their differences.
-It does not extract archives or run a local test matrix. All 2,092 entries pass,
+It does not extract archives or run a local test matrix. All 2,301 entries pass,
 including the runner confirmation, live diagnostics/clipboard and six
-questionnaire archives, four turn/policy archives and six publication archives. The early questionnaire archive's declared source
+questionnaire archives, four turn/policy archives, six publication archives and
+four form-reporting archives. The early questionnaire archive's declared source
 hashes match the exact bytes recovered from its published implementation commit.
 Correction and concurrency source hashes are recovered the same way. The turn
 and policy archives lack production hashes; the audit explicitly distinguishes
 their separately retained published Git provenance.
+The early form planning/prefilling hashes are recovered from their actual
+implementation commits; their later report projections and shared call sites
+are reviewed in the QA25 mapping.
 
 The reviewed later changes include legacy empty-list normalization, provider
 friend-status reads in official-size chunks, the drained foreground queue

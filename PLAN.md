@@ -31,7 +31,7 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the fifteen-criterion questionnaire/turn/policy/publication/VK/desktop evidence audit, accepting only fully
+- [ ] Complete the sixteen-criterion questionnaire/turn/policy/publication/forms/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including questionnaire
       acceptance, CV editing/sync, unread orchestration and desktop execution.
@@ -152,3 +152,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify six more archives (34 total, 2,092 manifest entries) and review later source differences. Require all six portable publication files, both actual Lino variants and all three semantic browser receipts on each engine.
 - [ ] Preserve all five successful workflows for the selected published source, review the receipts and accept only fully verified criteria. The fifteen audit candidates remain unchecked until this gate passes.
 - [ ] Continue every remaining original requirement in PR57; shared/new workplace editing and the other unfinished criteria remain required.
+
+2026-11-16 field provenance acceptance audit:
+
+- [x] Re-read the pinned QA25 report contract and current provenance projections, CLI persistence and shared report call sites. Keep provider acquisition/navigation/submission criteria separate and required.
+- [x] Verify four more archives (38 total, 2,301 manifest entries), recovering the early declared source hashes. Require seven portable files and mandatory plan/journal/model assertions on both browser engines.
+- [ ] Preserve the selected published source's complete five-workflow success, inspect actual receipts and accept only fully verified mappings. All sixteen candidates remain pending until the gate passes.
+- [ ] Continue every remaining original requirement in PR57; no reporting audit completes the wider provider workflows.

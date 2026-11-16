@@ -62,7 +62,7 @@ original archives retain the actual-parent failures for missing publication
 sources and the later Windows/browser corrections. Existing screenshots and
 independent Playwright MCP evidence remain linked in those behavior records.
 
-The source audit streams 34 archives and verifies all 2,092 manifest entries.
+The source audit streams 38 archives and verifies all 2,301 manifest entries.
 It includes all six publication archives and records later production differences
 against the selected published source. Those differences have been reviewed:
 native-export and experience source selection retain the original public

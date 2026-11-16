@@ -3,7 +3,7 @@
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression
-evidence. This audit concerns QA09–QA10, QA16, QA26, HH23, VK23–VK26, VD08 and VD11–VD15. The later
+evidence. This audit concerns QA09–QA10, QA16, QA25–QA26, HH23, VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
 evidence. VK24 retains an unresolved earlier WebKit reload failure. Its cause
@@ -56,6 +56,12 @@ investigation separate and never describe its cause as fixed.
       source paths. Verify six more archives, private-file/Git guards and later
       source differences. Require the six portable files, both actual Lino
       variants and semantic publication receipts on Chromium and WebKit.
+- [x] Map QA25's complete report contract to every field's source/proposal,
+      observed value, model clarification, CLI output and private Markdown
+      persistence. Verify four more archives with early hash-bound source
+      recovery; review the current projections and shared call sites. Require
+      seven portable files and mandatory plan/journal/model assertions on both
+      engines, distinguishing older completion markers from semantic receipts.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.

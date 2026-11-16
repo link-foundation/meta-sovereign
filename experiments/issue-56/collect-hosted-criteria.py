@@ -92,6 +92,8 @@ test_files = [
     'cv-publication', 'cv-publication-boundaries', 'cv-publication-controls',
     'cv-publication-exports', 'cv-publication-experience',
     'cv-publication-long-paths',
+    'forms-answer-plan', 'forms-report', 'forms-markdown', 'forms-journal',
+    'forms-model-review', 'answer-model-drafts', 'answer-model-api',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -158,6 +160,15 @@ for path in ['js/tests/e2e-cv-publication-browser.mjs',
              'js/tests/helpers/e2e-cv-publication-experience.mjs']:
     entries[path] = subprocess.check_output(
         ['git', 'show', f'{sha}:{path}'], cwd=root)
+form_entry = 'js/tests/e2e-forms-reader-browser.mjs'
+form_source = subprocess.check_output(
+    ['git', 'show', f'{sha}:{form_entry}'], cwd=root)
+entries[form_entry] = form_source
+assert 'await verifyFormPlanUi({ page, report, owned });' in form_source.decode()
+for helper in ['plans', 'journal', 'model']:
+    path = f'js/tests/helpers/e2e-form-{helper}.mjs'
+    entries[path] = subprocess.check_output(
+        ['git', 'show', f'{sha}:{path}'], cwd=root)
 for engine in ['chromium', 'webkit']:
     # These older assertions precede the group's final success marker and have
     # no separate scenario envelope. Retain their exact published bodies and
@@ -168,6 +179,31 @@ for engine in ['chromium', 'webkit']:
     browser_receipts[f'{engine}/questions/mandatory-assertions'] = dict(
         groupPassedLine=completions[0], entry=question_entry,
         awaited=list(question_assertions), kind='group-completion')
+    # The report plan and journal assertions predate semantic envelopes. Bind
+    # their published bodies to the actual required group/scenario completion.
+    completions = [i for i, line in enumerate(raw[f'{engine}-4'], 1)
+                   if f'[e2e-forms-reader] OK ({engine})' in line]
+    assert len(completions) == 1, engine
+    browser_receipts[f'{engine}/forms-reader/provenance-plan'] = dict(
+        groupPassedLine=completions[0], entry=form_entry,
+        awaited='verifyFormPlanUi', kind='group-completion')
+    for name in ['verifyFormJournalUi', 'verifyFormModelUi']:
+        completions = [i for i, line in enumerate(raw[f'{engine}-1'], 1)
+                       if re.search(rf'\[forms-scenario\] {name} \d+$', line)]
+        assert len(completions) == 1, (engine, name)
+        browser_receipts[f'{engine}/forms-learning/{name}'] = dict(
+            passedLine=completions[0], entry=form_entry,
+            kind='awaited-scenario-completion')
+    model = [(i, json.loads(line.split('[forms-model] ', 1)[1]))
+             for i, line in enumerate(raw[f'{engine}-1'], 1)
+             if '[forms-model] ' in line]
+    assert len(model) == 1, engine
+    line, receipt = model[0]
+    assert receipt == dict(calls=1, applied=True, clarification=True,
+                           stalePreserved=True, ownerPreserved=True,
+                           closed=True, submits=0)
+    browser_receipts[f'{engine}/forms-learning/model-provenance'] = dict(
+        line=line, receipt=receipt)
     for group, names in scenarios.items():
         shard = (2 if group == 'job-application-answers' else
                  3 if group in ['vk-token', 'cv-translation', 'questions',
@@ -263,7 +299,8 @@ for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
         entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
              'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md',
-             'cv-publication-criteria-audit.md']:
+             'cv-publication-criteria-audit.md',
+             'form-provenance-criteria-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -272,7 +309,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )
