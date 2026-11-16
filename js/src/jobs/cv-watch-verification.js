@@ -3,6 +3,7 @@ import { cvWatchUrl } from './cv-watch-browser.js';
 import { resumePeriod } from './resume-dates.js';
 import { jobsFailure } from './options.js';
 import { confirmedCvIndustryIds } from './cv-watch-industries.js';
+import { resolveResumeArea } from './areas.js';
 
 const invalid = () => {
   throw jobsFailure(
@@ -104,7 +105,10 @@ const workplaceAttempt = (raw) => {
   };
 };
 
-export const sameCvWorkplace = (attempt, saved) => {
+const sameDates = (left, right) =>
+  ['start', 'end', 'current'].every((field) => left[field] === right[field]);
+
+export const sameCvWorkplace = (attempt, saved, areaEntries) => {
   if (
     !attempt.recordId ||
     !attempt.metadataEditable ||
@@ -117,14 +121,13 @@ export const sameCvWorkplace = (attempt, saved) => {
   ) {
     return false;
   }
-  const fields = ['company', 'position', 'description', 'area', 'industryText'];
+  const fields = ['company', 'position', 'description', 'industryText'];
   return (
     fields.every(
       (field) => normalize(saved[field]) === normalize(attempt[field] ?? '')
     ) &&
-    saved.start === attempt.start &&
-    saved.end === attempt.end &&
-    saved.current === attempt.current &&
+    sameAreaNames(attempt.area, saved.area, areaEntries) &&
+    sameDates(saved, attempt) &&
     website(saved.website) === website(attempt.website) &&
     attempt.resumes.every(({ hash, checked }) =>
       saved.resumes.some((row) => row.hash === hash && row.checked === checked)
@@ -135,25 +138,56 @@ export const sameCvWorkplace = (attempt, saved) => {
 const sameJobFields = (attempt, job) =>
   job.company === attempt.company &&
   job.position === attempt.position &&
-  job.start === attempt.start &&
-  job.end === attempt.end &&
-  job.current === attempt.current &&
+  sameDates(job, attempt) &&
   normalize(job.description) === normalize(attempt.description);
 
 /** Complete exported metadata must match the exact native record. */
-export const cvWorkplaceMatchesJob = (attempt, job, industryEntries) => {
+export const cvWorkplaceMatchesJob = (
+  attempt,
+  job,
+  industryEntries,
+  areaEntries
+) => {
   if (!attempt.metadataEditable || attempt.industryText === null) {
     return false;
   }
   const ids = confirmedCvIndustryIds(attempt.industryText, industryEntries);
   return (
     sameJobFields(attempt, job) &&
-    normalize(job.area) === normalize(attempt.area) &&
+    sameArea(attempt, job, areaEntries) &&
     website(job.website) === website(attempt.website) &&
     ids !== null &&
     JSON.stringify(job.industries.map((row) => row.id).sort()) ===
       JSON.stringify(ids)
   );
+};
+
+const sameArea = (attempt, job, entries) => {
+  if (job.areaId && entries) {
+    try {
+      return (
+        resolveResumeArea(attempt.area, entries)?.id === job.areaId &&
+        resolveResumeArea(job.area, entries)?.id === job.areaId
+      );
+    } catch {
+      return false;
+    }
+  }
+  return normalize(job.area) === normalize(attempt.area);
+};
+
+const sameAreaNames = (before, after, entries) => {
+  if (!entries?.length) {
+    return normalize(before) === normalize(after);
+  }
+  try {
+    return (
+      resolveResumeArea(before, entries)?.id ===
+      resolveResumeArea(after, entries)?.id
+    );
+  } catch {
+    return false;
+  }
 };
 
 /** Exact record membership plus fresh exports; a closed form proves nothing. */
@@ -168,7 +202,11 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
   }
   if (
     exports.length !== attempt.resumes.length ||
-    !sameCvWorkplace(attempt, savedWorkplace)
+    !sameCvWorkplace(
+      attempt,
+      savedWorkplace,
+      exports.flatMap((row) => row.areaEntries ?? [])
+    )
   ) {
     return false;
   }
@@ -191,6 +229,11 @@ export const verifyCvSave = (attempt, exports, savedWorkplace) => {
       // Hidden company metadata cannot establish a complete saved record.
       return false;
     }
-    return cvWorkplaceMatchesJob(attempt, matches[0], cv.industryEntries);
+    return cvWorkplaceMatchesJob(
+      attempt,
+      matches[0],
+      cv.industryEntries,
+      cv.areaEntries
+    );
   });
 };

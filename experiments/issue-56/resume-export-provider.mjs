@@ -74,6 +74,13 @@ export const resumeExportProvider = async () => {
         store,
         openSession,
         artifactRoot,
+        fetchAreas: async ({ language }) => [
+          {
+            id: '1',
+            name: 'Remote',
+            parent: language === 'ru' ? 'Мир' : 'World',
+          },
+        ],
         fetchIndustries: async ({ language }) => {
           dictionaries.push(language);
           return industryDirectory(resumeIndustriesFixture(language));

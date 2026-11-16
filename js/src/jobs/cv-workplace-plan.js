@@ -110,8 +110,11 @@ export const cvWorkplaceValues = (raw) => {
     ])
   );
 };
-export const cvWorkplaceJobValues = (job, areaId) =>
-  cvWorkplaceValues({
+export const cvWorkplaceJobValues = (job, areaId) => {
+  if (job.areaId !== undefined && job.areaId !== areaId) {
+    cvWorkplaceFail('dictionary');
+  }
+  return cvWorkplaceValues({
     ...Object.fromEntries(
       cvWorkplaceFields
         .filter((field) => !['areaId', 'industryIds'].includes(field))
@@ -120,6 +123,7 @@ export const cvWorkplaceJobValues = (job, areaId) =>
     areaId,
     industryIds: job.industries.map((row) => row.id),
   });
+};
 export const cvWorkplaceDifferences = (before, after) =>
   cvWorkplaceFields
     .filter(

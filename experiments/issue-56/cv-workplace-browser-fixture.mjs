@@ -19,6 +19,12 @@ export const cvWorkplaceBrowserFixture = async (browser) => {
   let recordNavigations = 0;
   let ownerSaves = 0;
   await store.put({
+    id: 'jobs-areas:en',
+    version: 1,
+    fetchedAt: Date.now(),
+    tree: [{ id: '1', name: 'Remote', areas: [] }],
+  });
+  await store.put({
     id: 'jobs-industries:en',
     version: 1,
     fetchedAt: Date.now(),

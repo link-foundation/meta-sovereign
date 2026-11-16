@@ -58,6 +58,7 @@ const verifyLatestExport = async ({
         )
       );
       const cv = resumeCvFromLino(contents[3]);
+      assert.equal(cv.jobs[0].areaId, '1');
       assert.equal(cv.jobs[0].industries[0].id, '7.540');
       assert.equal(cv.jobs[0].start, '2020-05');
       assert.match(cv.jobs[0].website, /20200101000000/u);

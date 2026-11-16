@@ -15,9 +15,10 @@ import {
 import { readResumeListDocument } from './read-resumes.js';
 import { createResumeDownloadSink } from './resume-download.js';
 import { readResumeExportHtml } from './resume-export-dom.js';
-import { resumePeriod } from './resume-dates.js';
-import { sanitizedResumeCv, resumeCvLino, resumeCvText } from './resume-cv.js';
-import { loadResumeIndustries, resolveResumeIndustry } from './industries.js';
+import { resumeCvLino, resumeCvText } from './resume-cv.js';
+import { loadResumeIndustries } from './industries.js';
+import { loadResumeAreas } from './areas.js';
+import { resumeExportContent } from './resume-export-content.js';
 import {
   RESUME_DERIVED_FORMATS,
   resumeExportResult,
@@ -37,6 +38,7 @@ const extractCv = async ({
   options,
   check,
   fetchIndustries,
+  fetchAreas,
 }) => {
   const html = await fs.readFile(path.join(folder, 'resume.html'), 'utf8');
   const raw = await session.commander.evaluate({
@@ -50,23 +52,14 @@ const extractCv = async ({
       'Native resume export labels were not confirmed. Check the owned browser for login or verification.'
     );
   }
-  const industries = raw.jobs.some((job) => job.industries.length)
-    ? await fetchIndustries({
-        store,
-        language: raw.language,
-        signal: options.signal,
-      })
-    : [];
-  const result = sanitizedResumeCv({
-    ...raw,
-    jobs: raw.jobs.map((job) => ({
-      ...job,
-      ...resumePeriod(job.period),
-      industries: job.industries.map((industry) =>
-        resolveResumeIndustry(industry, industries)
-      ),
-    })),
+  const result = await resumeExportContent({
+    raw,
+    store,
+    signal: options.signal,
+    fetchIndustries,
+    fetchAreas,
   });
+  check();
   if (Buffer.byteLength(JSON.stringify(result.cv)) > 256 * 1024) {
     throw jobsFailure('resume-size', 'The structured resume exceeds 256 KiB.');
   }
@@ -82,6 +75,7 @@ const exportResume = async ({
   options,
   store,
   fetchIndustries,
+  fetchAreas,
 }) => {
   check();
   const folder = path.join(artifactRoot, exportId, entry.hash);
@@ -115,6 +109,7 @@ const exportResume = async ({
       options,
       check,
       fetchIndustries,
+      fetchAreas,
     });
     for (const format of options.formats.filter(
       (format) => format !== 'html'
@@ -175,6 +170,7 @@ export const createResumeExportReader =
     openSession,
     artifactRoot,
     fetchIndustries = loadResumeIndustries,
+    fetchAreas = loadResumeAreas,
   }) =>
   (options, progress) =>
     readAssignmentPage({
@@ -224,6 +220,7 @@ export const createResumeExportReader =
             options,
             store,
             fetchIndustries,
+            fetchAreas,
           });
           results.push(result);
           await progress({ result });

@@ -590,3 +590,5 @@ rejects reused HH pane ownership and drains admitted writes on Stop. Authenticat
 provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 
 [Directed experience planning](experience-planning.md) adds exact-revision, private, translation-backed plans in both directions, with original records, target-only preservation and durable CLI/Lino/four-language recovery. Native edits, per-change Save, complete acquisition, authenticated acceptance and all 60 unchecked rows remain required.
+
+[Saved HH area metadata](resume-area-metadata.md) connects official city IDs to native downloads and owner-Save readback while retaining older snapshots and full native metadata. Hosted acceptance and the remaining experience workflow stay unfinished.

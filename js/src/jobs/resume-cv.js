@@ -57,6 +57,7 @@ export const sanitizedResumeCv = (raw) => {
         current: job.current,
         period: scalar(job.period),
         area: scalar(job.area),
+        ...(Object.hasOwn(job, 'areaId') ? { areaId: areaId(job.areaId) } : {}),
         website: scalar(job.website),
         industries: list(job.industries, 20).map((industry) => {
           if (!/^\d{1,8}\.\d{1,8}$/u.test(industry.id)) {
@@ -78,6 +79,16 @@ export const sanitizedResumeCv = (raw) => {
   return { cv, sanitization: sanitize.report() };
 };
 
+const areaId = (value) => {
+  if (
+    value !== null &&
+    (typeof value !== 'string' || !/^\d{1,12}$/u.test(value))
+  ) {
+    invalid();
+  }
+  return value;
+};
+
 export const resumeCvLino = (cv) => encodeLinoValue(sanitizedResumeCv(cv).cv);
 export const resumeCvFromLino = (text) =>
   sanitizedResumeCv(decodeWire(text, LINO_TEXT)).cv;
@@ -94,7 +105,9 @@ export const resumeCvText = (cv, markdown = false) => {
     ...cv.jobs.flatMap((job) => [
       heading(`${job.position} · ${job.company}`, 2),
       job.period,
-      [job.area, job.website].filter(Boolean).join(' · '),
+      [job.area, job.areaId ? `HH area ${job.areaId}` : '', job.website]
+        .filter(Boolean)
+        .join(' · '),
       ...job.industries.map(
         (industry) => `${industry.id} · ${industry.parent} · ${industry.name}`
       ),

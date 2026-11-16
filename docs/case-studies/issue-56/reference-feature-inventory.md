@@ -230,6 +230,8 @@ Source: vk-bot-desktop README and its configuration/runner/release entry points.
 | VD14 | Persist a redacted log for each successful or failed runner session and expose configurable verbose trigger timing without leaking credentials. | [ ] [Private session files, acknowledged verbosity, trigger timing and finite download](runner-log.md); focused/native/MCP evidence retained. Exact-head hosted verification remains required. |
 | VD15 | Ten original configurable invitation defaults and ten birthday defaults, random frozen selection and convenient reset behavior without replacing owner choices. | [ ] [Parent regression, Node/Deno and native/MCP evidence](vk-message-defaults.md); exact-head hosted verification remains required. |
 
+Saved HH area IDs now survive [native export conversion and independent owner-Save readback](resume-area-metadata.md), with localized dictionary verification and legacy document compatibility. Authenticated acquisition, hidden/new records, complete sync and exact-head hosted acceptance remain required; all 60 rows stay unchecked.
+
 ## Integration order and retained constraints
 
 Implement shared Q/A and policy records first, then provider execution and reviewed HH/CV workflows, then reference jobs and desktop controls. The universal React/device/storage workstreams in [PLAN.md](PLAN.md) remain separately required. No row is deferred by this ordering. Tests use isolated accounts/fixtures, actual protocol adapters and finite inputs; CI owns the full runtime/browser/platform matrices.

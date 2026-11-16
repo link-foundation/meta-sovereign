@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { readResumeExportHtml } from './resume-export-dom.js';
-import { loadResumeIndustries, resolveResumeIndustry } from './industries.js';
-import { resumePeriod } from './resume-dates.js';
-import { sanitizedResumeCv } from './resume-cv.js';
+import { loadResumeIndustries } from './industries.js';
+import { loadResumeAreas } from './areas.js';
+import { resumeExportContent } from './resume-export-content.js';
 import { cvWatchUrl } from './cv-watch-browser.js';
 import { jobsFailure } from './options.js';
 
@@ -80,6 +80,8 @@ export const readCvSavedExports = async ({
   attempt,
   check,
   signal,
+  fetchAreas = loadResumeAreas,
+  fetchIndustries = loadResumeIndustries,
 }) => {
   const hashes =
     attempt.kind === 'about'
@@ -88,7 +90,11 @@ export const readCvSavedExports = async ({
   const exports = [];
   const industryEntries =
     attempt.kind === 'workplace' && attempt.industryText
-      ? await loadResumeIndustries({ store, language: attempt.locale, signal })
+      ? await fetchIndustries({ store, language: attempt.locale, signal })
+      : [];
+  const attemptAreas =
+    attempt.kind === 'workplace' && attempt.area
+      ? await fetchAreas({ store, language: attempt.locale, signal })
       : [];
   let total = 0;
   for (const hash of hashes) {
@@ -116,21 +122,14 @@ export const readCvSavedExports = async ({
         'Native saved CV labels were not confirmed.'
       );
     }
-    const entries = raw.jobs.some((job) => job.industries.length)
-      ? await loadResumeIndustries({ store, language: raw.language, signal })
-      : [];
+    const { rawCv: cv, ...sanitized } = await resumeExportContent({
+      raw,
+      store,
+      signal,
+      fetchAreas,
+      fetchIndustries,
+    });
     check();
-    const cv = {
-      ...raw,
-      jobs: raw.jobs.map((job) => ({
-        ...job,
-        ...resumePeriod(job.period),
-        industries: job.industries.map((industry) =>
-          resolveResumeIndustry(industry, entries)
-        ),
-      })),
-    };
-    const sanitized = sanitizedResumeCv(cv);
     total += JSON.stringify(cv).length;
     if (total > 8 * 1024 ** 2) {
       throw jobsFailure(
@@ -145,6 +144,7 @@ export const readCvSavedExports = async ({
       sanitization: sanitized.sanitization,
       sha256: createHash('sha256').update(html).digest('hex'),
       industryEntries,
+      areaEntries: [...attemptAreas, ...sanitized.areaEntries],
     });
   }
   return exports;

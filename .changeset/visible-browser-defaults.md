@@ -671,3 +671,5 @@ Add private structured experience snapshots with original native workplace metad
 Read native LinkedIn experience in a separate persistent browser slot with shared visibility settings, bounded manual sign-in and expansion, private hashed evidence and immutable snapshots. Share durable request recovery, drained Stop, CLI, both Lino API encodings and four-language CV controls without replacing active comparisons.
 
 Build private directed HH/LinkedIn experience plans from exact snapshot revisions, preserving target-only records and missing metadata. Reuse bounded three-provider translation with private model-version caches and share durable Start/status/Stop, original-field review, all variants and text/binary downloads through CLI, Lino and four-language CV controls.
+
+Preserve official HH area identities through native resume exports, Links Notation and owner-Save readback, verify translated city labels by their stable ID, and refuse conflicting imported metadata while retaining legacy document compatibility.

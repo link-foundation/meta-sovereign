@@ -58,6 +58,7 @@ export const verifyCvWatchWorkplace = async (
           'Final owner workplace description'
         );
         assert.equal(saved.cv.jobs[0].start, '2020-05');
+        assert.equal(saved.cv.jobs[0].areaId, '1');
         assert.equal(saved.cv.jobs[0].industries[0].id, '7.540');
         const snapshots = (await store.get('jobs-cv-snapshots:jobs')).snapshots;
         assert.equal(snapshots.length, 2);
