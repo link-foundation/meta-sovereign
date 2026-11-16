@@ -40,8 +40,12 @@ export const answerModelCommand = async (args, store) => {
   };
 };
 
-export const withAnswerModel = async (runner, work) => {
-  const service = runner ? null : createLocalAnswerModel();
+export const withAnswerModel = async (
+  runner,
+  work,
+  createModel = createLocalAnswerModel
+) => {
+  const service = runner ? null : createModel();
   let cancelled = false;
   const cancel = () => {
     cancelled = true;

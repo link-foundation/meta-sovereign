@@ -477,16 +477,12 @@ const automationsCmd = async (args, log, deps) => {
   };
   // Owned browser commands drain their work before the local model is closed.
   const watch =
-    sub === 'answers' &&
-    args._[1] === 'browser' &&
-    ['watch', 'unread'].includes(args._[2]);
-  const unreadModel =
-    watch &&
-    args._[2] === 'unread' &&
-    [true, 'true'].includes(args['model-draft']);
-  return watch && !unreadModel
+    sub === 'answers' && args._[1] === 'browser' && args._[2] === 'watch';
+  // Unread intent can come from a file or saved automation. The local model
+  // stays lazy: creating its owner does not launch a process or enable drafts.
+  return watch
     ? work(deps.modelRunner)
-    : withAnswerModel(deps.modelRunner, work);
+    : withAnswerModel(deps.modelRunner, work, deps.createAnswerModel);
 };
 
 /**
