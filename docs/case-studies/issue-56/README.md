@@ -1,3 +1,5 @@
+- [Windows private checkpoint timing](ci-lino-pause.md): preserve the exact five-second hosted timeout and add bounded opt-in operation timings while keeping the real log, durability, assertions and deadline. Its cause remains unproven.
+
 - [Observed Start/Stop confirmations](runner-feedback.md): translated, dismissible session receipts with parent regression and focused native/MCP evidence. Wider VD06 execution remains required.
 
 - [Reviewed Formal AI reports](formal-reports.md): exact workplace failure evidence, marker-first deduplication, preserved version comments and consented durable publication through CLI/Lino/four-language controls. Synthetic checks create no upstream issues; live acceptance and all remaining rows stay required.

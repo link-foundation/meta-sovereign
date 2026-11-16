@@ -18,6 +18,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createLinoTextStore } from '../src/storage/lino-store.js';
 import { createVacancyService } from '../src/jobs/service.js';
+import {
+  applicationLimitTrace,
+  tracedLimitStore,
+} from '../../experiments/issue-56/application-limit-trace.mjs';
 
 const read = (fixture, receipt) =>
   fixture.service['application-read'](identity(receipt));
@@ -69,6 +73,7 @@ test(
   'an acknowledged pause survives a real private Lino log close and reopen',
   { timeout: 5000 },
   async (t) => {
+    const trace = applicationLimitTrace();
     const directory = await mkdtemp(join(tmpdir(), 'application-limit-'));
     const resources = {};
     t.after(async () => {
@@ -78,23 +83,29 @@ test(
       await rm(directory, { recursive: true, force: true });
     });
     const path = join(directory, 'private.lino');
-    const first = await createLinoTextStore(path);
+    const first = tracedLimitStore(
+      await trace('open-first', () => createLinoTextStore(path)),
+      trace
+    );
     resources.first = first;
     const fixture = applicationFixture({ store: first });
     resources.fixture = fixture;
-    let receipt = await fixture.enter();
+    let receipt = await trace('enter', () => fixture.enter());
     fixture.state.page.dailyLimit = true;
-    receipt = await read(fixture, receipt);
-    await fixture.service.stop();
+    receipt = await trace('acknowledge-limit', () => read(fixture, receipt));
+    await trace('stop-first-service', () => fixture.service.stop());
     await first.close();
-    const reopened = await createLinoTextStore(path);
+    const reopened = tracedLimitStore(
+      await trace('reopen', () => createLinoTextStore(path)),
+      trace
+    );
     resources.reopened = reopened;
     fixture.service = createVacancyService({
       ...fixture.serviceOptions,
       store: reopened,
     });
-    const status = await fixture.service['application-status'](
-      identity(receipt)
+    const status = await trace('read-reopened-pause', () =>
+      fixture.service['application-status'](identity(receipt))
     );
     assert.deepEqual(status.applicationLimit, receipt.applicationLimit);
     assert.equal(status.active, false);
