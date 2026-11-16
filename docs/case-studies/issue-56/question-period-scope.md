@@ -35,7 +35,7 @@ focused checks and eleven separate wording/correction compatibility checks pass.
 The mandatory native questionnaire scenario now puts the pair in separate rules;
 the three-scenario wording sequence still observes counts five, five and one and
 restores the original saved rules. Failure, reload and compact layout assertions
-remain active. Shared preview requests now reuse one test helper; the same native sequence passes after that extraction. Strict scoped lint/format/secrets, the production build and the unchanged 6.5% duplication limit pass. The initial duplicate-check module path error and the actual over-limit report are preserved; consolidation keeps every assertion. Full runtime/browser matrices are left to hosted CI.
+remain active. Shared preview requests now reuse one test helper; the same native sequence passes after that extraction. Strict scoped lint/format/secrets, the production build and the unchanged 6.5% duplication limit pass. The actual over-limit duplication report is preserved; consolidation keeps every assertion. Full runtime/browser matrices are left to hosted CI.
 
 Independent Playwright MCP uses an isolated temporary server and memory store,
 with no provider account. The parent preview shows four and `Vietnam`; the

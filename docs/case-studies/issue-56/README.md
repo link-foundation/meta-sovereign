@@ -662,3 +662,5 @@ owned native composer check preserve source-bound evidence without claiming
 live provider execution or accepting the complete QA11 criterion.
 
 [Question-wide final-period counts](question-period-scope.md) fixes independently saved exact-rule aggregation and preserves review for overlapping evidence. Four actual-parent failures, 35 focused checks and native/MCP before/after evidence retain literal observations. Exact-source hosted acceptance and all 41 unchecked requirements remain required.
+
+[Watcher phase observation](ci-period-watch-observer.md) preserves the real Ubuntu Deno failure and a finite deterministic reproduction. The test now checks the stable completed draft, retained plan, one actual prefill and zero sends within unchanged deadlines; full hosted verification remains required.

@@ -1,0 +1,31 @@
+{
+  "archive": "ci-period-watch-observer.tar.gz",
+  "files": {
+    "before/js/tests/question-period-workers.test.js": "22e6d67d72562c5efd69a71a7bfe37d8f4bb2a53798583e813b4d82035bc2444",
+    "ci-logs/0e676-deno-133681243959.json": "4d95bd9fa9838e738736043d1dad488fb60098b071c14b2f8714e24b6d275243",
+    "ci-logs/0e676-deno-133681243959.log": "f0b947d3ca2d2c72049a408f2bc94ca371d506750a2398dbdb8e785d9e4f4397",
+    "ci-logs/period-watch-observer-after.log": "cb84abe31d37d39726751ebaf1076876fa6790c4aea3ae2d720608bf714c082d",
+    "ci-logs/period-watch-observer-before.log": "af823806422e7eeddd2f3e891d896a31466d41f3754b52f3c01e4c7eb7129186",
+    "ci-logs/period-watch-observer-before.test.js": "05ebd833a47e6ca2ca72e1c1ff9a68a7db339b37bc8e922a9b7b16d5b27bb4e6",
+    "ci-logs/period-watch-observer-deno.log": "2454a4abd5a47c5d72ab64242ea3aa4a4f3ac9606352641cf3a5ed2619a5d685",
+    "ci-logs/period-watch-observer-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/period-watch-observer-doc-format.log": "3f82a2e403623618edb5ea782eea4f2a2fc9ff5d9064ee50fbafe535660290d3",
+    "ci-logs/period-watch-observer-duplication.log": "65d70525f6288434338933ce39003a68ca31a3ec9f48c5780a3b9be8d7c99850",
+    "ci-logs/period-watch-observer-focused.log": "234167326cbb95011423586c3d1c7cb0f5b7794a4c95704411c6089f7a6108ef",
+    "ci-logs/period-watch-observer-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/period-watch-observer-format.log": "fe61f33dcccfe59dc9e28d0a1a974546405d54245022a896fb911977b0267f42",
+    "ci-logs/period-watch-observer-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/period-watch-observer-parent.log": "17550af90a8da896303077bcdcb5527b4ee886f5de127ec23e6f5d44021cbb5a",
+    "docs/case-studies/issue-56/PLAN.md": "4ed1a9cca40934e72a78a67ad906a2eaca1bc0651cd1efa71ceea3a0ce65664a",
+    "docs/case-studies/issue-56/README.md": "4201b131310cfaa1238c51e38c70f9172e37e3ee556312eca70a6372aa332ff1",
+    "docs/case-studies/issue-56/ci-period-watch-observer.md": "b18de7fb38f2df994f1f85f7e5a0438759abf4d47c14875485c06ef1f871b370",
+    "docs/case-studies/issue-56/question-period-scope.md": "1f2b53d52eee3c3246096e0a093515b01e289c9a6c48aea76058c91df3af07d4",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-period-watch.py": "2ca982a4734805a42c0f430b65c9b458fd6680a49b10095042b28dc4fd2ab731",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/period-watch-observer-before.mjs": "937adc5a2688f00bbcea32d4a4c67e146b87eaca61b02ebd891757149283541d",
+    "experiments/issue-56/previous-module.mjs": "7b6c3bb5bdcfa4e7a84755f804db0bd83c9ae10d3e6982bb08d9dd8d7ac57661",
+    "js/tests/question-period-workers.test.js": "3c1cb7b3fa2894b073011ae0ca090a43f96f610ad0b2fe41ee2ed8d5bada8106",
+    "metadata.json": "6b1078477c5d00b4aacaa18d366422dafdd5ad01c16361abf15e52881b289d18"
+  }
+}

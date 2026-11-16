@@ -1508,3 +1508,10 @@ VD13 now has strict owned token acquisition, protected acknowledged saving, shar
 - [ ] Finish static checks, archive source-bound evidence, commit/push and inspect every exact-source hosted workflow. Complete the rest of QA11 and all other 41 unchecked criteria before readiness.
 
 Worker-setting commit `027ae3c1` and shared wording-fixture correction `0e676ed0` are published. The latter's four companion hosted workflows have passed; main has a Deno watcher assertion failure (job 133681243959, lines 4737–4742) and other jobs remain pending. Preserve and reproduce the transient-phase polling failure separately. No new acceptance is inferred from partial hosted status. PR57 remains draft and unmerged.
+
+### Current hosted watcher assertion
+
+- [x] Preserve exact `0e676ed0` failed job 133681243959 and identify lines 4737–4742.
+- [x] Reproduce the missed transient phase deterministically; verify ten focused Node checks, the failing Deno case and content-free state tracing.
+- [x] Archive the failed hosted assertion, deterministic reproduction, focused checks and exact changed sources.
+- [ ] Publish the correction and inspect all five exact-source workflows. Every one of the 41 unchecked original criteria remains required.

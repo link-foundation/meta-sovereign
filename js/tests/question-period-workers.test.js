@@ -82,10 +82,11 @@ test(
     assert.equal(review.plan.text, 'Vietnam');
     env.input.review = review.id;
     await env.browser.watchStart(env.input);
-    const result = await env.until((status) =>
-      ['prefilled', 'review', 'failed'].includes(status.phase)
-    );
-    assert.equal(result.phase, 'prefilled');
+    // The next read replaces transient "prefilled" with the stable draft state.
+    const result = await env.until((status) => status.phase === 'owner-draft');
+    assert.equal(result.last.plan.text, 'Vietnam');
+    assert.equal(result.last.plan.count, 5);
+    assert.equal(env.state.prefills.length, 1);
     assert.equal(env.state.prefills[0].text, 'Vietnam');
     assert.equal(env.state.sends.length, 0);
   }
