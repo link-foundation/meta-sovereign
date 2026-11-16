@@ -6,7 +6,7 @@
 - [macOS runner allocation](ci-macos-capacity.md): preserve both exact-head allocation failures and retain the unstarted Deno partition on Intel without dropping ARM coverage, tests or failure gates.
 - [macOS first launch](macos-first-launch.md): checksum-first GUI and Terminal instructions in all four READMEs and guides, with current Apple guidance and parent/current documentation evidence. Platform runtime verification remains separate.
 
-- [Original requirement acceptance audit](hosted-criteria-audit.md): map fifteen questionnaire, turn/policy, snapshot publication, VK and desktop candidates to original behavior and preserved evidence, stream-check archive integrity and require successful hosted receipts for the published source. No pending row is accepted by this draft.
+- [Original requirement acceptance audit](hosted-criteria-5a3a.md): nineteen original behavior mappings now have five successful exact-source workflows, 386 named portable assertions, 60 browser receipts and native Electron evidence. The inventory has 77 accepted and 41 unchecked criteria; PR57 remains draft and all remaining work stays required.
 
 - [Windows private checkpoint timing](ci-lino-pause.md): preserve the exact five-second hosted timeout and add bounded opt-in operation timings while keeping the real log, durability, assertions and deadline. Its cause remains unproven.
 

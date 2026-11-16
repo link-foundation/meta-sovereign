@@ -1,5 +1,10 @@
 # Hosted acceptance audit
 
+The selected `5a3a2de3` gate is complete: see the
+[nineteen-criterion acceptance record](hosted-criteria-5a3a.md). The inventory
+now has 77 accepted and 41 unchecked criteria. The historical plan and attempts
+below preserve the original investigation; no remaining requirement is removed.
+
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression

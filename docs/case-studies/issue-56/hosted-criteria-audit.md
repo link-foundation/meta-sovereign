@@ -1,11 +1,12 @@
 # Original requirement acceptance audit
 
-The source and evidence audit concerns nineteen candidate criteria in
-[PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
-Acceptance is pending until all five workflows finish successfully on the
-published source being audited. The
-[active plan](hosted-criteria-plan.md) retains that gate and the unresolved
-earlier VK24 reload investigation. No inventory row is completed by this draft.
+The original behavior mappings and exact-source evidence for nineteen criteria
+are now verified at published `5a3a2de3`. All five workflows passed, with 386
+named portable assertions, 60 browser receipts, native Electron and CodeQL.
+The [completed acceptance record](hosted-criteria-5a3a.md) identifies each mapping
+and the checksummed evidence archive. Forty-one original criteria remain
+unfinished; PR57 stays draft and unmerged. The historical notes below retain
+previous failures and unknown causes without attributing them to a later pass.
 
 Published `9d31c3e7` passes the native Windows long-path comparisons, while its
 publication helpers still contain the independently reproduced
@@ -163,8 +164,8 @@ and translated controls; twelve existing export checks retain the shared
 writer's bounded Markdown and original structured data. Current helper changes
 preserve these contracts. Acceptance additionally requires positive named
 portable receipts and the complete 401-record export/reload scenario on both
-engines in the audited source's successful five-workflow matrix. VK24 remains
-unchecked until that gate passes. Retain the historical investigation and
+engines in the audited source's successful five-workflow matrix. That gate passed on `5a3a2de3`; VK24 is now accepted in the
+[completed record](hosted-criteria-5a3a.md). Retain the historical investigation and
 its unknown cause even after feature acceptance.
 
 All other unfinished requirements retain their full scope in this single PR.

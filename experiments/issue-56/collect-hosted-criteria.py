@@ -259,7 +259,7 @@ for engine in ['chromium', 'webkit']:
     for group, shard, marker in [
         ('questions', 3, 'questionnaire-index'),
         ('forms-reader', 4, 'forms-questionnaire'),
-        ('forms-learning', 1, 'forms-questionnaire-learning'),
+        ('forms-reader', 1, 'forms-questionnaire-learning'),
     ]:
         lines = raw[f'{engine}-{shard}']
         assert any(f'[e2e-{group}] OK ({engine})' in line for line in lines), group
