@@ -43,6 +43,17 @@ checks pass, including the packaged-launch validator; the diagnostic boundary
 checks retain genuine exceptions using identical text, unhandled rejections,
 foreign origins and other engines as failures. Scoped lint and formatting pass.
 
+Published `b558bd74` now passes all five inspections in both Chromium job
+[133377235105](https://github.com/link-foundation/meta-sovereign/actions/runs/43888804953/job/133377235105)
+and WebKit job
+[133377235724](https://github.com/link-foundation/meta-sovereign/actions/runs/43888804953/job/133377235724).
+WebKit log lines 1091–1099 retain the individual positive receipts for experience
+comparison, documents, LinkedIn acquisition, directed plans and Formal reports.
+Each inspection's current source matches that published revision. The original
+lost error names remain unknowable; successful coverage does not establish their
+type. The overall workflow still fails separate Deno import checks, so this
+positive browser evidence accepts no inventory row.
+
 ```sh
 NODE_OPTIONS=--max-old-space-size=384 node experiments/issue-56/cv-experience-page-errors.mjs --before
 CI_BROWSER_DEBUG=1 NODE_OPTIONS=--max-old-space-size=384 node experiments/issue-56/cv-experience-page-errors.mjs

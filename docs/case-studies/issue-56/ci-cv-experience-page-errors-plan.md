@@ -19,10 +19,14 @@ Keep all original requirements active in
 - [x] Apply the same policy to the four later independently owned experience
       inspections with the identical collector. Preserve their action callbacks
       and standalone behavior; require all mandatory scenarios in hosted CI.
+- [x] Preserve exact-source `b558bd74` Chromium and WebKit shard 3 logs and
+      metadata. All five experience inspections pass on each engine; the separate
+      Deno import failure still prevents overall acceptance.
 - [ ] Preserve checked source/log evidence, publish atomically and inspect
       all exact-head hosted jobs before acceptance. The nine candidate rows
       and every other unfinished requirement stay open.
 
 The original job retained only error messages, so it does not itself prove
 their Error.name. A native-form replay verifies the integration defect;
-current-head native WebKit verification remains separately required.
+the corrected five-scenario hosted WebKit group now passes. Overall exact-head
+workflow verification remains separately required.

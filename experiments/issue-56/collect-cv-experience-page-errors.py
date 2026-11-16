@@ -67,14 +67,43 @@ names = sources + [f'ci-logs/{name}' for name in [
     'cv-experience-format-check.log', 'cv-experience-group-lint.log',
 ]]
 entries = {name: (root / name).read_bytes() for name in names}
+published = 'b558bd7424cd03b8e2a50e07ce123635a62b72f1'
+hosted = {}
+required = {'verifyCvExperience', 'verifyCvExperienceDocuments',
+            'verifyCvLinkedinExperience', 'verifyCvExperiencePlans',
+            'verifyCvFormalReports'}
+for engine, ident in [('chromium', 133377235105), ('webkit', 133377235724)]:
+    metadata = logs / f'hosted-b558-{engine}3-status.json'
+    positive = json.loads(metadata.read_text())
+    assert positive['id'] == ident and positive['head_sha'] == published
+    assert positive['status'] == 'completed' and positive['conclusion'] == 'success'
+    path = logs / f'hosted-b558-{engine}-3.log'
+    results = {}
+    for number, line in enumerate(path.read_text().splitlines(), 1):
+        if '[browser-scenario] ' not in line:
+            continue
+        value = json.loads(line.split('[browser-scenario] ', 1)[1])
+        if (value['group'] == 'cv-translation' and
+                value['scenario'] in required and value['phase'] == 'passed'):
+            assert value['scenario'] not in results
+            assert not value['result'].get('errors', [])
+            results[value['scenario']] = {'line': number, 'receipt': value}
+    assert set(results) == required
+    hosted[engine] = {'job': positive['html_url'], 'results': results}
+    entries[str(metadata.relative_to(root))] = metadata.read_bytes()
+    entries[str(path.relative_to(root))] = path.read_bytes()
 for name in inspections:
     entries[f'before/{name}'] = subprocess.check_output(
         ['git', 'show', f'{parent}:{name}'], cwd=root)
+    assert (root / name).read_bytes() == subprocess.check_output(
+        ['git', 'show', f'{published}:{name}'], cwd=root)
 entries['metadata.json'] = (json.dumps({
     'parent': parent, 'job': job['html_url'], 'artifactId': 14234221129,
     'artifactSha256': hashlib.sha256((logs / 'hosted-b61-webkit-3-artifact.zip').read_bytes()).hexdigest(),
     'originalErrorNamesRetained': False, 'replay': receipt,
     'beforeExit': 1, 'afterExit': 0, 'issueComplete': False,
+    'correctedHostedSource': published, 'correctedHostedScenarios': hosted,
+    'wholeWorkflowSuccess': False, 'inventoryAccepted': False,
 }, indent=2) + '\n').encode()
 write_entries_archive(
     root / 'docs/case-studies/issue-56/data/ci-cv-experience-page-errors.tar.gz', entries)

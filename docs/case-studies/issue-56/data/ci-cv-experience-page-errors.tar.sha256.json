@@ -16,10 +16,10 @@
     "experiments/issue-56/cv-experience-page-errors.mjs": "512dc9b36b5cc6f780713c14e08409dc7c767d31645c966df1eb6f6e570c2f14",
     "experiments/issue-56/experience-browser-fixture.mjs": "0eea8b0a9ca4bad987c366471bddf957a0e269a621a5070d3b4f320c2449c919",
     "experiments/issue-56/cv-loading-inspect.mjs": "027c29362c8470ca1abc00251c059d4e235d6264dbf86671705f16ea902dbb64",
-    "experiments/issue-56/collect-cv-experience-page-errors.py": "7c1854a3e535e700e51735a18d2606de7e5a7bc4b8b4c836ca8e46968f9b7b11",
+    "experiments/issue-56/collect-cv-experience-page-errors.py": "f0c83e049e93fc49d42193e7c0b99d17c3c58201d73f0d2ac22ad37dd9dc368a",
     "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
-    "docs/case-studies/issue-56/ci-cv-experience-page-errors.md": "ce1bce24b6c2817cf9fb040ebd8e42d1df89e2f1a66c7d01b55804bfdab39c6b",
-    "docs/case-studies/issue-56/ci-cv-experience-page-errors-plan.md": "7321163c131ab6fbeb1c593d915003ebcea05908552a0261d38f403062694ca7",
+    "docs/case-studies/issue-56/ci-cv-experience-page-errors.md": "74b66c57e81cd7804b2e850ab5a2c3b1bfaf1cc6bee4d289e4c4cfe2f2c099ce",
+    "docs/case-studies/issue-56/ci-cv-experience-page-errors-plan.md": "d25c249cb74d6551ddeec923f825c8d5ba73eb948162b7350393bd17b5dfa6d7",
     "ci-logs/hosted-b61-webkit-3-job.json": "88c9e344e04a50052f8495eb3d421ee2deb29bdbce97cc67e6e8afb590bb539b",
     "ci-logs/hosted-b61-webkit-3.log": "48e2b43ee0c8342c7df0817a271570665b01095657f8e9da0c8cf7107a9b6525",
     "ci-logs/hosted-b61-webkit-3-artifact-cv-translation.log": "5f2764b1ec45a1755d8c7015ffa4b057f2a63d4b8820e5645e0a3cd0a6d207b9",
@@ -30,6 +30,10 @@
     "ci-logs/current-scoped-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "ci-logs/cv-experience-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
     "ci-logs/cv-experience-group-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/hosted-b558-chromium3-status.json": "a83c1fcf5593f0ebfd452157331be2ffb58db1bf79e63bbaef90ca0c384b70c3",
+    "ci-logs/hosted-b558-chromium-3.log": "10ffe981303d591713624a43fd7a743041cb468b96f921b68b94d80c3e314d24",
+    "ci-logs/hosted-b558-webkit3-status.json": "f605c7f648082b196616a2f22a6840c72c5cfec73cb232d0c9b3faf5a43efea7",
+    "ci-logs/hosted-b558-webkit-3.log": "54809d3b842eec52302a36044c33711c83d6dff99f0e7c606d7ed4a3e64eecb9",
     "before/experiments/issue-56/experience-inspect.mjs": "cdda9a2d77816acd172de15814364e7997d13072946bd0b80cf0e7722fae68bb",
     "before/js/tests/helpers/e2e-cv-experience.mjs": "a87450eaf3f2a997701d042366667aa9930bb258895fbb7a31d697f9fc5d77f2",
     "before/experiments/issue-56/experience-document-inspect.mjs": "9ed3b698946cdcf27f87c8f4004255bdeccb48586285ac08bf2afcbdc6449772",
@@ -40,6 +44,6 @@
     "before/js/tests/helpers/e2e-cv-experience-plan.mjs": "37df47163cf655d6cc058726a971595ff536b8dcf8bd398deeaa5e408508ec26",
     "before/experiments/issue-56/formal-report-inspect.mjs": "dc36f41a5560333d989676fdb7295444bf7e55d7f00d4703d41e2867e957d3f5",
     "before/js/tests/helpers/e2e-cv-formal-report.mjs": "254db7d02e3212be5904432805a7eabd3ee99dfa03752248575bdc7c7e8ffac6",
-    "metadata.json": "3b900635a35211dfda168a8ecddd97af5ee7eb32887e0216f783f113a2f03c04"
+    "metadata.json": "c8120521470b745f50d3b9b8bdffff29f4e56873a08a8854fd6947b9f77f6cc1"
   }
 }

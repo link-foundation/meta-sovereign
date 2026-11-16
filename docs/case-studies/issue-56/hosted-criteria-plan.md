@@ -63,7 +63,8 @@ workflow fails six Linux/Windows Deno shards before test execution because
 the portable desktop validator statically imports Playwright; the focused
 reproduction and guarded native-import correction are preserved in
 [packaged launch verification](desktop-packaged-launch.md). Chromium shard 3,
-including the CV inspections, passes. Preserve the remaining WebKit receipts
-before publishing the correction; this revision cannot satisfy the gate.
+including the CV inspections, passes, as does WebKit shard 3 with all five
+experience inspections. Preserve the remaining WebKit shard 4 receipts before
+publishing the correction; this revision cannot satisfy the gate.
 The separate [runner transport correction](runner-transport-deadline.md)
 also requires exact-head hosted verification and review in the source audit.
