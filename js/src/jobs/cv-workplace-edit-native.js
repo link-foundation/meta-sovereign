@@ -24,6 +24,7 @@ import {
 import { sameCvMembership } from './cv-workplace-membership.js';
 import { prepareCvWorkplaceMembership } from './cv-workplace-membership-native.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { cvWorkplaceEditorUrl } from './cv-workplace-open.js';
 
 const contextFor = ({
   session,
@@ -37,7 +38,7 @@ const contextFor = ({
   const recordId = change.workplace.recordId;
   const read = async () => {
     check();
-    if (page.url() !== `https://hh.ru/profile/edit/experience/${recordId}`) {
+    if (!cvWorkplaceEditorUrl(page.url(), recordId, change.hash)) {
       throw cvPrepareFailure('page');
     }
     const state = await session.commander.evaluate({
@@ -258,12 +259,13 @@ export const prepareNativeCvWorkplaceEdit = async ({
 export const inspectNativeCvWorkplace = async ({
   session,
   recordId,
+  hash,
   check,
   readinessMs = 20000,
 }) => {
   const context = contextFor({
     session,
-    change: { workplace: { recordId } },
+    change: { workplace: { recordId }, hash },
     check,
     readinessMs,
   });

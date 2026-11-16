@@ -121,7 +121,7 @@ export const verifyCvWorkplaceFields = async (
       'review and approve all nine fields before exact native draft preparation',
       async () => {
         await configureReview(f, panel);
-        await f.open({ delay: 300 });
+        await f.open({ delay: 300, context: true });
         const baseline = await read();
         const navigations = f.counters.navigations;
         await clickCvPreparation(page, prepare, 'prepared');

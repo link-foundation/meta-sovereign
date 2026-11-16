@@ -11,10 +11,14 @@ import { cvPrepareFailure } from './cv-prepare-record.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { prepareNativeCvWorkplaceEdit } from './cv-workplace-edit-native.js';
 import { readCvWorkplaceControls } from './cv-workplace-controls.js';
+import {
+  cvWorkplaceEditorUrl,
+  openNativeCvWorkplace,
+} from './cv-workplace-open.js';
 
 const selector =
   'textarea[data-qa="resume-editor-experience-description-input"]';
-/** Already open exact record only. Owner Save, Cancel and every other field stay native. */
+/** Open the exact unchanged workplace. Owner Save, Cancel and other fields stay native. */
 export const prepareNativeCvWorkplace = async ({
   session,
   change,
@@ -23,6 +27,7 @@ export const prepareNativeCvWorkplace = async ({
   readinessMs = 20000,
   settleMs = 750,
 }) => {
+  await openNativeCvWorkplace({ session, change, check, phase, readinessMs });
   if (change.plan) {
     return prepareNativeCvWorkplaceEdit({
       session,
@@ -36,8 +41,7 @@ export const prepareNativeCvWorkplace = async ({
   const { recordId, job } = change.workplace;
   const read = async () => {
     check();
-    const url = new URL(session.page.url());
-    if (url.href !== `https://hh.ru/profile/edit/experience/${recordId}`) {
+    if (!cvWorkplaceEditorUrl(session.page.url(), recordId, change.hash)) {
       throw cvPrepareFailure('page');
     }
     const raw = await session.commander.evaluate({

@@ -58,3 +58,10 @@ unresolved; do not claim its cause was fixed. Feature acceptance still requires
 all original cache/export behavior and the complete five-workflow gate, with
 both engines' 401-record export/reload receipts. No inventory row is accepted
 by this plan change, and all other requested work remains required in PR57.
+
+2026-11-16 native workplace opening (partial HH14/HH16):
+
+- [x] Reproduce parent preparation refusing an older reviewed workplace from the compact CV overview.
+- [x] Reuse the existing durable preparation lane to open the exact record through the complete native list, with draft, identity, ambiguity and hydration guards.
+- [x] Preserve owner Save/Cancel and pass focused portable, native and independent MCP recovery checks; retain selected resume context for full-field preparation and membership inspection.
+- [ ] Publish the atomic opening change and inspect fresh exact-head hosted checks. Shared copies, new identities, batches and all other unchecked criteria remain required.

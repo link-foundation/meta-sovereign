@@ -249,7 +249,7 @@ export const enVacancy = {
   'cvPrepare.recordId': 'Existing workplace record ID',
   'cvPrepare.description': 'Prepare description',
   'cvPrepare.workplaceHint':
-    'For a workplace description, open the unchanged existing record yourself and enter its numeric ID. It must belong only to the selected CV; shared records require a separate copy. Preparation changes only the description and leaves Save or Cancel to you.',
+    'Enter the existing workplace’s numeric ID. Preparation can find it in the complete workplace list, including older jobs, and open the exact unchanged record. An open draft blocks navigation. It must belong only to the selected CV; shared records require a separate copy. Only the description is changed; Save or Cancel remains yours.',
   'cvPrepare.reload': 'Reload preparation',
   'cvPrepare.cancel': 'Cancel unresolved request',
   'cvPrepare.cancelHint':
@@ -301,7 +301,7 @@ export const enVacancy = {
   'cvTranslation.noAnswer': 'No answer received',
   'cvWorkplace.title': 'Review workplace fields',
   'cvWorkplace.hint':
-    'Choose a saved CV export and its workplace. Enter the numeric ID from the existing workplace editor URL. Review the changes, approve the plan, then open that record with only this CV selected. Preparation fills its native draft; you save or cancel on HH.',
+    'Choose a saved CV export and its workplace, then enter the existing record’s numeric ID. Review and approve the changes. Preparation can open the exact record from the complete native list; an open draft blocks navigation. Field edits require only this CV selected. You save or cancel on HH.',
   'cvWorkplace.export': 'Saved CV export',
   'cvWorkplace.job': 'Workplace in this export',
   'cvWorkplace.fields': 'Proposed fields',

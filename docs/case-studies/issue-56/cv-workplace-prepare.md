@@ -1,5 +1,8 @@
 # Reviewed native workplace description preparation
 
+The later [native workplace opening change](cv-workplace-opening.md) extends the
+owner-opened-only behavior documented below with guarded full-list navigation.
+
 An explicitly selected, saved bilingual review can now prepare a description
 in the owner's already open existing HH workplace. CLI, both Lino encodings
 and four-language CV controls share the same exact record identity, immutable

@@ -239,3 +239,5 @@ meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
 `GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
 
 `POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`
+
+对于已批准的 HH 工作经历更改，请在简历同步中输入现有记录的数字 ID。准备操作可从简历概览进入包含较早工作经历的完整列表，并使用唯一匹配的原生编辑控件。已有工作经历或自我介绍草稿会阻止导航。填写前会再次核验准确记录及未变更的已保存字段。保存或取消由所有者决定；准备完成的回执不表示已在平台保存。

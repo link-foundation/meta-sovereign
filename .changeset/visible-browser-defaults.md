@@ -716,3 +716,5 @@ retain legacy journal signatures and keep assembled answers for owner review.
 Learn aligned individual answers together with confirmed whole form replies.
 Preserve unapproved observations, evidence and idempotent counts; report skipped
 input pairs separately from derived proposals in the learning journal (QA09).
+
+Open an explicitly reviewed existing HH workplace through its unique hydrated native Edit control in the complete workplace list, including older jobs. Preserve every open draft, verify the exact record and selected resume context before existing baseline checks, and retain owner Save/Cancel, durable recovery and four-language guidance.

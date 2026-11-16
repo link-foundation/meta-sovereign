@@ -267,3 +267,5 @@ meta-sovereign browser-policies --platform=hh --slot=forms --case=cv
 `GET /api/browser/policies?platform=hh&slot=forms&useCase=cv`
 
 `POST /api/browser/policies` → `{ "scope": "slot", "key": "hh/forms", "headless": false }`
+
+For an approved HH workplace change, enter the existing record’s numeric ID in CV sync. Preparation can navigate from the CV overview to the complete workplace list, including older jobs, and open its unique native Edit control. Any open workplace or About draft blocks navigation. The opened record and unchanged saved fields are verified again before preparation. Save and Cancel remain with the owner; a prepared receipt does not confirm a provider save.

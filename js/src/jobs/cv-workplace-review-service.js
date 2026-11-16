@@ -162,6 +162,7 @@ const inspectMembership = async ({ options, input, signal, attach }) => {
     const form = await inspectNativeCvWorkplace({
       session,
       recordId,
+      hash: source.identity.hash,
       check: () => signal.throwIfAborted(),
     });
     if (

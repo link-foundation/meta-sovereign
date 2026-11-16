@@ -4,6 +4,7 @@ import { verifyCvPreparation } from './helpers/e2e-cv-prepare.mjs';
 import { verifyCvPreparationCancellation } from './helpers/e2e-cv-prepare-cancel.mjs';
 import { verifyCvWorkplaceMembership } from './helpers/e2e-cv-workplace-membership.mjs';
 import { verifyCvWorkplaceFields } from './helpers/e2e-cv-workplace-fields.mjs';
+import { verifyCvWorkplaceOpening } from './helpers/e2e-cv-workplace-open.mjs';
 
 await runBrowserScenarios('cv-prepare', [
   verifyCvPreparation,
@@ -11,4 +12,5 @@ await runBrowserScenarios('cv-prepare', [
   verifyCvWorkplacePreparation,
   verifyCvWorkplaceFields,
   verifyCvWorkplaceMembership,
+  verifyCvWorkplaceOpening,
 ]);

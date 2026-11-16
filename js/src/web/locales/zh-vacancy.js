@@ -224,7 +224,7 @@ export const zhVacancy = {
   'cvPrepare.recordId': '现有工作经历记录 ID',
   'cvPrepare.description': '准备描述',
   'cvPrepare.workplaceHint':
-    '要准备工作经历描述，请自行打开未修改的现有记录并输入其数字 ID。该记录必须仅属于所选简历；共享记录需要单独复制。准备操作只修改描述，保存或取消由您决定。',
+    '输入现有工作经历的数字 ID。准备操作可在完整工作经历列表中查找较早的记录，并打开准确且未修改的记录。已有草稿会阻止导航。该记录必须仅属于所选简历；共享记录需要单独复制。只更改描述，保存或取消由您决定。',
   'cvPrepare.reload': '重新读取准备状态',
   'cvPrepare.cancel': '取消未确认的请求',
   'cvPrepare.cancelHint':
@@ -270,7 +270,7 @@ export const zhVacancy = {
   'cvTranslation.noAnswer': '未收到回答',
   'cvWorkplace.title': '审核工作经历字段',
   'cvWorkplace.hint':
-    '选择已保存的简历导出及其中的工作经历。输入现有工作经历编辑器网址中的数字 ID。审核并批准更改，然后打开该记录，仅选中这份简历。准备操作填写原生草稿；请在 HH 上自行保存或取消。',
+    '选择已保存的简历导出及工作经历，输入现有记录的数字 ID，然后审核并批准更改。准备操作可从完整原生列表打开准确记录；已有草稿会阻止导航。编辑字段时必须仅选中此简历。请在 HH 上自行保存或取消。',
   'cvWorkplace.export': '已保存的简历导出',
   'cvWorkplace.job': '导出中的工作经历',
   'cvWorkplace.fields': '拟修改字段',

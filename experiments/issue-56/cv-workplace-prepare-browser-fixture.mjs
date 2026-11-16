@@ -3,12 +3,31 @@ import { renderToString } from 'react-dom/server';
 import { build } from 'esbuild';
 import { makeBrowserCommander } from 'browser-commander';
 import { NativeCvWorkplace } from './cv-prepare-workplace-native.mjs';
+import { NativeCvWorkplaceList } from './cv-workplace-list-native.mjs';
 import { cvPrepareFixture } from './cv-prepare-fixture.mjs';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { prepareNativeCvWorkplace } from '../../js/src/jobs/cv-prepare-workplace.js';
 import { cvWorkplaceDictionaryRows } from './cv-workplace-fields-fixture.mjs';
 
 let bundle;
+const attachProvider = (provider, counters) => async () => {
+  counters.attached++;
+  const commander = makeBrowserCommander({
+    page: provider,
+    enableNetworkTracking: false,
+    enableNavigationManager: false,
+    enableDialogManager: false,
+  });
+  return {
+    page: provider,
+    commander,
+    detach: async () => {
+      counters.detached++;
+      await commander.destroy();
+    },
+  };
+};
+
 export const cvWorkplacePrepareBrowserFixture = async (
   browser,
   { fieldsMode = false } = {}
@@ -23,7 +42,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
   bundle ??= build({
     stdin: {
       contents:
-        "import React from 'react';import{hydrateRoot}from'react-dom/client';import{NativeCvWorkplace}from'./experiments/issue-56/cv-prepare-workplace-native.mjs';setTimeout(()=>{hydrateRoot(document.getElementById('root'),React.createElement(NativeCvWorkplace,globalThis.fixtureProps));globalThis.fixtureHydrated=true;},globalThis.fixtureDelay);",
+        "import React from 'react';import{hydrateRoot}from'react-dom/client';import{NativeCvWorkplace}from'./experiments/issue-56/cv-prepare-workplace-native.mjs';import{NativeCvWorkplaceList}from'./experiments/issue-56/cv-workplace-list-native.mjs';setTimeout(()=>{hydrateRoot(document.getElementById('root'),React.createElement(globalThis.fixtureProps.screen?NativeCvWorkplaceList:NativeCvWorkplace,globalThis.fixtureProps));globalThis.fixtureHydrated=true;},globalThis.fixtureDelay);",
       resolveDir: process.cwd(),
     },
     bundle: true,
@@ -43,6 +62,7 @@ export const cvWorkplacePrepareBrowserFixture = async (
     reads: 0,
     navigations: 0,
     saves: 0,
+    destinations: [],
   };
   const props = (saved = false) => ({
     job: { ...source.cv.jobs[0], ...(saved ? options.saved : options.live) },
@@ -53,8 +73,13 @@ export const cvWorkplacePrepareBrowserFixture = async (
     fieldsMode,
     membershipMode: options.membershipMode ?? false,
   });
-  const html = (saved = false) =>
-    `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(NativeCvWorkplace, props(saved)))}</div><script>globalThis.fixtureProps=${JSON.stringify(props()).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
+  const html = (saved = false, screen) => {
+    const value = {
+      ...props(saved),
+      ...(screen ? { screen, list: options.list } : {}),
+    };
+    return `<!doctype html><html lang="en"><head><style>body{font:17px system-ui;margin:24px;max-width:850px}textarea{display:block;width:95%;height:300px;margin:16px 0}input,button{margin:6px;padding:10px}label{display:block}</style></head><body><div id="root">${renderToString(React.createElement(screen ? NativeCvWorkplaceList : NativeCvWorkplace, value))}</div><script>globalThis.fixtureProps=${JSON.stringify(value).replaceAll('<', '\\u003c')};globalThis.fixtureDelay=${options.delay ?? 100};globalThis.fixtureInputs=0;globalThis.fixtureSaves=0;globalThis.fixturePickerSaves=0;globalThis.fixtureCancels=0;</script><script src="/fixture.js"></script></body></html>`;
+  };
   await native.route('**/*', async (route) => {
     const url = new URL(route.request().url());
     if (url.origin !== 'https://hh.ru') {
@@ -72,7 +97,17 @@ export const cvWorkplacePrepareBrowserFixture = async (
     }
     if (route.request().isNavigationRequest()) {
       counters.navigations++;
-      return route.fulfill({ contentType: 'text/html', body: html() });
+      counters.destinations.push(url.href);
+      const screen =
+        url.pathname === '/profile/edit/experience'
+          ? 'list'
+          : url.pathname.startsWith('/resume/')
+            ? 'overview'
+            : undefined;
+      return route.fulfill({
+        contentType: 'text/html',
+        body: html(false, screen),
+      });
     }
     counters.reads++;
     if (beforeRead) {
@@ -88,28 +123,19 @@ export const cvWorkplacePrepareBrowserFixture = async (
   const open = async (next = {}) => {
     options = next;
     await provider.goto(
-      `https://hh.ru/profile/edit/experience/${next.recordId ?? '123'}`
+      next.screen === 'overview'
+        ? `https://hh.ru/resume/${change.hash}`
+        : next.screen === 'list'
+          ? `https://hh.ru/profile/edit/experience?resumeFrom=${change.hash}&hhtmFrom=resume`
+          : `https://hh.ru/profile/edit/experience/${next.recordId ?? '123'}${next.context ? `?resumeFrom=${change.hash}&hhtmFrom=resume` : ''}`
     );
+    await provider.evaluate(() => {
+      globalThis.sessionStorage.fixtureListClicks = '0';
+    });
   };
   try {
     await open();
-    const attach = async () => {
-      counters.attached++;
-      const commander = makeBrowserCommander({
-        page: provider,
-        enableNetworkTracking: false,
-        enableNavigationManager: false,
-        enableDialogManager: false,
-      });
-      return {
-        page: provider,
-        commander,
-        detach: async () => {
-          counters.detached++;
-          await commander.destroy();
-        },
-      };
-    };
+    const attach = attachProvider(provider, counters);
     app = await vacancyBrowserFixture(browser, {
       exports: {
         service: () => ({

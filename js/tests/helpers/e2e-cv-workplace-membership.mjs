@@ -68,7 +68,7 @@ const verifyMembershipPreparation = async ({
   await panel.locator('[data-cv-workplace-fields]').waitFor();
   await panel.locator('[data-cv-workplace-record]').fill('123');
   await panel.locator('[data-cv-workplace-operation]').selectOption('detach');
-  await open({ delay: 300 });
+  await open({ delay: 300, context: true });
   const baseline = await read();
   await panel.locator('[data-cv-workplace-action="loadMembership"]').click();
   await panel.locator('[data-cv-workplace-membership]').waitFor();
