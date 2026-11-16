@@ -33,10 +33,21 @@ assert receipt == {
 tests = (logs / 'current-focused-tests.log').read_text()
 assert 'tests 12' in tests and 'pass 12' in tests and 'fail 0' in tests
 assert not (logs / 'current-scoped-lint.log').read_text().strip()
+assert not (logs / 'cv-experience-group-lint.log').read_text().strip()
 assert 'All matched files use Prettier code style!' in (logs / 'cv-experience-format-check.log').read_text()
-sources = [
+inspections = [
     'experiments/issue-56/experience-inspect.mjs',
     'js/tests/helpers/e2e-cv-experience.mjs',
+    'experiments/issue-56/experience-document-inspect.mjs',
+    'js/tests/helpers/e2e-cv-experience-documents.mjs',
+    'experiments/issue-56/linkedin-experience-inspect.mjs',
+    'js/tests/helpers/e2e-cv-linkedin-experience.mjs',
+    'experiments/issue-56/experience-plan-inspect.mjs',
+    'js/tests/helpers/e2e-cv-experience-plan.mjs',
+    'experiments/issue-56/formal-report-inspect.mjs',
+    'js/tests/helpers/e2e-cv-formal-report.mjs',
+]
+sources = inspections + [
     'js/tests/helpers/e2e-page-errors.mjs',
     'js/tests/e2e-page-errors.test.js',
     'experiments/issue-56/cv-experience-page-errors.mjs',
@@ -53,10 +64,10 @@ names = sources + [f'ci-logs/{name}' for name in [
     'hosted-b61-webkit-3-artifact-summary.json',
     'cv-experience-page-errors-before.log', 'cv-experience-page-errors-after.log',
     'current-focused-tests.log', 'current-scoped-lint.log',
-    'cv-experience-format-check.log',
+    'cv-experience-format-check.log', 'cv-experience-group-lint.log',
 ]]
 entries = {name: (root / name).read_bytes() for name in names}
-for name in sources[:2]:
+for name in inspections:
     entries[f'before/{name}'] = subprocess.check_output(
         ['git', 'show', f'{parent}:{name}'], cwd=root)
 entries['metadata.json'] = (json.dumps({

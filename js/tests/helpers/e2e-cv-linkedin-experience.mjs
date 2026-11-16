@@ -1,3 +1,4 @@
+import { watchFixturePages } from './e2e-page-errors.mjs';
 import { linkedinExperienceBrowserFixture } from '../../../experiments/issue-56/linkedin-experience-browser-fixture.mjs';
 import {
   inspectLinkedinExperience,
@@ -9,6 +10,8 @@ export const verifyCvLinkedinExperience = async (browser) => {
   const native = await verifyLinkedinAcquisition(browser);
   const fixture = await linkedinExperienceBrowserFixture();
   const context = await browser.newContext({ acceptDownloads: true });
+  const errors = [];
+  watchFixturePages(context, browser, fixture.base, errors);
   try {
     const page = await context.newPage();
     page.setDefaultTimeout(10000);
@@ -16,7 +19,9 @@ export const verifyCvLinkedinExperience = async (browser) => {
       native,
       ui: await inspectLinkedinExperience(
         page,
-        linkedinInspectionConfig({ base: fixture.base })
+        linkedinInspectionConfig({ base: fixture.base }),
+        undefined,
+        errors
       ),
     };
   } finally {

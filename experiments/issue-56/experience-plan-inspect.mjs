@@ -112,15 +112,18 @@ export const runExperiencePlanActions = async (
 export const inspectExperiencePlan = async (
   page,
   config,
-  actions = runExperiencePlanActions
+  actions = runExperiencePlanActions,
+  observedErrors
 ) => {
   const check = (value, text) => {
     if (!value) {
       throw new Error(text);
     }
   };
-  const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  const errors = observedErrors ?? [];
+  if (!observedErrors) {
+    page.on('pageerror', (error) => errors.push(String(error)));
+  }
   await page.setViewportSize({ width: 1180, height: 950 });
   await page.unroute('**/app.min.js');
   if (config.beforeBundle) {

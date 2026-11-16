@@ -17,6 +17,14 @@ receives its collected errors. Standalone inspection still installs its own
 collector, retaining `String(error)`. Application CORS, comparison behavior,
 scenario coverage and deadlines are unchanged.
 
+The same source review finds this collector in the group's four later
+experience-document, LinkedIn, directed-plan and Formal-report inspections.
+Their owned contexts now apply the same policy and pass their error arrays
+into inspection; the existing action callbacks and mandatory scenarios remain.
+Those four registrations were not reached by the failed hosted group. Their
+integration is source-reviewed and linted here; fresh hosted WebKit must run
+all five inspections. The local replay below covers the first failing scenario.
+
 The finite `experiments/issue-56/cv-experience-page-errors.mjs` replay launches
 native WebKit with one private fixture. `--before` obtains the actual published
 inspection and wrapper function bodies with `git show`; it does not substitute

@@ -16,6 +16,9 @@ Keep all original requirements active in
 - [x] Run focused policy checks and one before/after browser comparison.
       Keep genuine exceptions, foreign origins and other engines as failures;
       do not change CORS, app behavior, scenarios or deadlines.
+- [x] Apply the same policy to the four later independently owned experience
+      inspections with the identical collector. Preserve their action callbacks
+      and standalone behavior; require all mandatory scenarios in hosted CI.
 - [ ] Preserve checked source/log evidence, publish atomically and inspect
       all exact-head hosted jobs before acceptance. The nine candidate rows
       and every other unfinished requirement stay open.
