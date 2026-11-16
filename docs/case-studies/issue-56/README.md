@@ -1,3 +1,4 @@
+- [Cache reload investigation](ci-vk-cache-reload.md): preserve the exact hosted failure, negative local reproduction and finite Lino refusal diagnostics; the actual hosted cause and VK24 acceptance remain open.
 - [Named runner launch contract](runner-launch-contract.md): use start's supported session selector for local/SSH launches, with a finite parent failure, 19 focused checks and a source-backed upstream report.
 - [Runner release-note consolidation](runner-release-notes.md): preserve the actual hosted release gate failure and every release paragraph in the established single PR changeset.
 - [Observed runner settings](runner-session-controls.md): shared translated controls, read-only recovery and no mutation replay, with parent/native/MCP evidence; preparation, profile editing and independent desktop ownership remain required.

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { cacheServer } from '../../../experiments/issue-56/vk-cache-fixture.mjs';
 import {
@@ -31,13 +32,41 @@ export const verifyVkCache = async (
           r.url().endsWith(`/api/vk/cache/${endpoint}`)
         );
         await panel.locator(`[data-cache-action=${name}]`).click();
-        const answer = await decoded(await response);
+        const received = await response;
+        const answer = await decoded(received);
         await page.waitForFunction(
           () =>
             document
               .querySelector('[data-vk-cache]')
               ?.getAttribute('aria-busy') === 'false'
         );
+        if (answer.ok !== true) {
+          const directory = screenshots ?? 'docs/screenshots/issue-56-vk-cache';
+          await mkdir(directory, { recursive: true });
+          await page.screenshot({
+            path: path.join(directory, `${name}-refused.png`),
+          });
+          assert.fail(
+            `VK cache fixture action refused: ${JSON.stringify({
+              endpoint,
+              status: received.status(),
+              code: answer.code,
+              // This fixture has synthetic IDs only. Retain the actual wire
+              // input rather than guessing which displayed field was lost.
+              input: received.request().postData()?.slice(0, 1024),
+              fields: await panel
+                .locator('[data-cache-field]')
+                .evaluateAll((nodes) =>
+                  Object.fromEntries(
+                    nodes.map((node) => [
+                      node.getAttribute('data-cache-field'),
+                      node.value,
+                    ])
+                  )
+                ),
+            })}`
+          );
+        }
         return answer;
       };
       await panel.locator('[data-cache-field=accountId]').fill('1');

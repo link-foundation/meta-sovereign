@@ -1,0 +1,15 @@
+{
+  "archive": "ci-vk-cache-reload.tar.gz",
+  "files": {
+    "js/tests/helpers/e2e-vk-cache.mjs": "1c51f69f2bfedd4cd2a2fa9ff016453dde713484fc6051fa41764b4c686a6355",
+    "experiments/issue-56/vk-cache-reload-probe.mjs": "02cd572850de5cfae175acd445432c54f7a4a318685eb9f0457fdb9538ce7d7f",
+    "experiments/issue-56/collect-ci-vk-cache-reload.py": "bef472463296729ccf85accc2f1aefa73286cff5b595c3426d0c20e5aa93a378",
+    "docs/case-studies/issue-56/ci-vk-cache-reload.md": "7163cae93b574dfed8732f7692247fa4e3694798c10affa6aab7d56bdce9a3d0",
+    "docs/case-studies/issue-56/ci-vk-cache-reload-plan.md": "b1497cbae715315bc9b44d272e0d803fba5fbcfea962dbc6004fe58c2afa7c1d",
+    "ci-logs/checks-43799402081-webkit-4.log": "8b4b2288d9d17704f83b734ef23dab23bf366210cde6c3e451749105aa293114",
+    "ci-logs/ci-7973-main-progress.json": "4392018aadf08a11359e158e5de7a6133ad76d8668188439acb806cc4dca0bb1",
+    "ci-logs/vk-cache-reload-probe.log": "f8f6523db3febe611635faeedf0eacf00a3cdedf0b76cb0eae87fc724071f6ac",
+    "ci-logs/vk-cache-reload-refusal.log": "33a27585e7290723fb8b213bd70e871732c6723f52b1124a210ccfa7bc239cf7",
+    "before/js/tests/helpers/e2e-vk-cache.mjs": "c64a318ed0725493010de55662a3864799e3ff901bf054e95e1e04b8126c2249"
+  }
+}
