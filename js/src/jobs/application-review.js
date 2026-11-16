@@ -26,10 +26,12 @@ export const nativeApplicationFields = (report, page) =>
     (field) =>
       field.frame === 'frame-1' && page.fieldIndices.includes(field.index)
   );
+export const approvedExactApplicationAnswer = (field) =>
+  field.answer.source === 'exact' && field.answer.reuseRequiresReview === false;
 const exactField = (field) =>
   !field.disabled &&
   !field.readOnly &&
-  field.answer.source === 'exact' &&
+  approvedExactApplicationAnswer(field) &&
   field.answer.complete &&
   !field.answer.effects?.length &&
   !field.answer.missing?.length &&
@@ -129,6 +131,15 @@ export class ApplicationReview {
         () => signal.throwIfAborted()
       );
       record.exact = exactApplicationPlan(record);
+      this.service.trace({
+        event: 'application-answer-approval',
+        exact: record.exact,
+        reviewRequired: record.report.fields.filter(
+          (field) =>
+            field.answer.source === 'exact' &&
+            !approvedExactApplicationAnswer(field)
+        ).length,
+      });
     } catch (error) {
       if (error.code !== 'form-captcha') {
         throw error;

@@ -7,7 +7,10 @@ import {
   applicationCanReenter,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
-import { nativeApplicationFields } from './application-review.js';
+import {
+  nativeApplicationFields,
+  approvedExactApplicationAnswer,
+} from './application-review.js';
 import { readApplicationJournal } from './application-journal.js';
 import {
   applicationLetterRequested,
@@ -314,7 +317,7 @@ export class ApplicationActions {
         (field) =>
           native.has(field.id) &&
           field.index !== record.page.letter?.index &&
-          field.answer.source === 'exact'
+          approvedExactApplicationAnswer(field)
       )
       .map((field) => field.id)
       .slice(0, 25);

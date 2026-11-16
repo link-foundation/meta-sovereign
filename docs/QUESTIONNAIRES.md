@@ -11,6 +11,11 @@ approved. Source/chat restrictions, explicit corrections, current salary/contact
 context and missing values remain effective. Reading never writes derived rules
 or sends anything. A newly assembled questionnaire also needs review.
 
+Native application prefill and exact-answer automatic submission also require
+an approved, unambiguous saved answer. Extracted, unapproved or conflicting
+answers stay for owner review, even when the current field matches their wording.
+The owner can fill the native form and separately confirm submission.
+
 In **Questions and saved answers → Learn from conversations**, preview saved
 questionnaire components together with archived replies, then save proposals
 for review. Saved wording adds zero uses; only actual outgoing archived replies

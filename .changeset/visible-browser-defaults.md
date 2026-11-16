@@ -701,3 +701,9 @@ shared chat, application and form plans. Extend explicit offline learning and
 backfill through CLI, both Lino encodings and four-language review controls,
 retaining scopes, corrections, zero-use saved wording and idempotent counts.
 Derived answers remain unapproved and the owner's whole replies stay intact.
+
+Preserve saved-answer approval admission through form planning and native
+application prefill, automatic submission and continuation. Require owner review
+for extracted questionnaire components, unapproved answers, conflicting matches
+or missing admission evidence while retaining approved exact reuse and explicit
+native form review.

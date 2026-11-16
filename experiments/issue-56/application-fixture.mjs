@@ -44,6 +44,7 @@ const field = (label, index, value, source = 'exact') =>
     value,
     answer: {
       source,
+      reuseRequiresReview: source !== 'exact',
       complete: true,
       effects: [],
       missing: [],

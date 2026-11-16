@@ -157,6 +157,8 @@ const planField = (field, fields, prepared) => {
       ...provenance(answer, keys, context),
       proposal,
       complete: Boolean(proposal),
+      // Preserve saved-answer admission separately from mandatory form review.
+      reuseRequiresReview: answer.requiresReview !== false,
       requiresReview: true,
       reason,
       // Existing content is evidence, never an implicit instruction to replace it.

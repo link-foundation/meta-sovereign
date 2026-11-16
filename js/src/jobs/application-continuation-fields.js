@@ -1,6 +1,9 @@
 import { automaticReviewFields } from '../forms/automatic-prefill.js';
 import { proposalMatches } from '../forms/review-apply.js';
-import { nativeApplicationFields } from './application-review.js';
+import {
+  nativeApplicationFields,
+  approvedExactApplicationAnswer,
+} from './application-review.js';
 import { applicationFailure as fail } from './application-options.js';
 
 const unavailableResume = (page) =>
@@ -30,7 +33,7 @@ export const continuationFields = (record) => {
 export const continuationWrites = (record) => {
   const native = new Set(continuationFields(record).map((field) => field.id));
   return automaticReviewFields(record.report).filter(
-    (field) => native.has(field.id) && field.answer.source === 'exact'
+    (field) => native.has(field.id) && approvedExactApplicationAnswer(field)
   );
 };
 const selected = (field, fields) =>
@@ -63,7 +66,7 @@ export const continuationAnswered = (field, fields) => {
     return false;
   }
   if (
-    field.answer.source === 'exact' &&
+    approvedExactApplicationAnswer(field) &&
     field.answer.complete &&
     field.answer.proposal &&
     proposalMatches(field, field.answer.proposal)
