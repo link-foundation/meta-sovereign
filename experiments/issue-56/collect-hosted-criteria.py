@@ -5,12 +5,14 @@ logs. This does not run a local matrix or complete an inventory criterion.
 The original behavior mapping and source differences still require review.
 """
 import ast
+import base64
 import hashlib
 import json
 from pathlib import Path
 import re
 import subprocess
 import sys
+import tarfile
 from evidence_bundle import write_entries_archive
 
 root = Path(__file__).resolve().parents[2]
@@ -311,10 +313,25 @@ for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
     path = root / 'experiments/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
+reference_receipts = {}
+with tarfile.open(root / 'docs/case-studies/issue-56/data/question-summary.tar.gz') as archive:
+    for stem in ['corrections', 'requirements']:
+        name = f'ci-logs/question-summary-reference-{stem}.json'
+        response = archive.extractfile(name).read()
+        reference = json.loads(response)
+        content = base64.b64decode(reference['content'])
+        blob = b'blob ' + str(len(content)).encode() + b'\0' + content
+        assert hashlib.sha1(blob).hexdigest() == reference['sha'], name
+        assert 'fa0991b8c2d0896fb3b4be6c69947f0590094b15' in reference['html_url'], name
+        entries[f'references/{stem}.json'] = response
+        entries[f'references/{reference["path"]}'] = content
+        reference_receipts[stem] = dict(url=reference['html_url'],
+                                        blob=reference['sha'])
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['QA01', 'QA07', 'QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    referenceContracts=reference_receipts,
+    auditedCriteria=['QA01', 'QA07', 'QA08', 'QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )

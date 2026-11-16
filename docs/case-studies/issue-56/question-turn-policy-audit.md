@@ -1,12 +1,12 @@
 # Reminder identity and rejected-answer audit
 
-This maps QA16 and QA26 to their complete original contracts at
+This maps QA08, QA16 and QA26 to their complete original contracts at
 `konard/hh-ru@fa0991b8c2d0896fb3b4be6c69947f0590094b15`: README lines
 816–825 and `docs/requirements/forms-and-chats.md` lines 99–105. The original
 scope includes conservative question identity, explicit owner corrections and
-private rejected-answer policy. Historical acquisition and general extraction
-remain separate requirements in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
-Neither criterion is accepted by this document. Both require the original
+private rejected-answer policy. Historical acquisition retains its separate
+requirements in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+No criterion is accepted by this document. Each requires the original
 behavior mapping, reviewed source differences and the successful exact-source
 [five-workflow gate](hosted-criteria-plan.md).
 
@@ -49,8 +49,7 @@ The [correction guard](question-corrections.md) applies explicit clean canonical
 answers across rule IDs, including learning from older conversations and bot
 summaries. Provider/chat scope, enabled state, aliases, context and current
 profile values remain enforced. Approximate matching cannot suppress unrelated
-history; conflicting canonical answers require review. General extraction of
-clean facts from arbitrary apology prose belongs to the separate QA08 criterion.
+history; conflicting canonical answers require review.
 
 The [concurrency correction](question-concurrency.md) rechecks a bounded
 knowledge snapshot before a preview or apply. Policy edits invalidate stale
@@ -59,6 +58,43 @@ CLI rejection additions; failed writes release ownership. The automatic send
 guard reads current policy again and refuses an already planned rejected answer.
 Explicit owner-reviewed sends retain their existing permission contract.
 Underlying storage and device replication keep their separately documented scope.
+
+## QA08: clean factual replacements and private access links
+
+The full pinned `tests/answer-corrections.test.mjs` supplies separate clean
+owner answers for two questions and rejects both wrong wording and a one-off
+apology. Its mixed historical reply contains that apology and both facts. The
+required result is the supplied answer for each question, excluding other
+topics, without changing the transcript or inventing observed sends. The
+reference does not infer either clean fact from arbitrary uncorrected prose.
+Earlier local progress notes described general inference as a remaining gap;
+this comparison distinguishes that additional capability from the original
+explicit-correction contract.
+
+The shared canonical guard and saved clean rules implement those assertions
+across different rule IDs. They also preserve source/chat scope, aliases,
+profile contraction and expansion, owner edits and stale-read refusal. Clean
+actual replies retain their observed frequency; manual replacements and
+quoted summaries remain zero-count. The original mixed reply and earlier
+edited variants remain in the private transcript. Rejected text cannot return
+through Markdown, repeated learning, profile substitution or a paraphrased
+question.
+
+The private-link guards exclude credential-bearing, invite, private-path,
+token/query and fragment URLs, including decoded paths and structured hidden
+destinations. Malformed encodings fail closed. A private continuation invalidates
+the whole pending answer, rather than learning a truncated public fragment.
+Ordinary public portfolio links remain eligible. These checks apply before
+canonical correction and shared archive application; neither reading nor
+learning publishes the private policy or transcript.
+
+The existing seven correction and two control tests cover the original clean
+replacement, mixed reply, current preview, private URLs, edited history and
+repeated application assertions through CLI, offline UI and actual text/binary
+Lino. The policy/concurrency tests and mandatory correction browser helper
+add rejection and stale-edit coverage. The exact-source collector requires
+all these files and both browser engines before acceptance. Provider history
+retrieval and every other unfinished criterion remain separately required.
 
 Portable policy, correction, contraction, concurrency, automation and control
 checks retain actual-parent failures and cover CLI, offline controls and both

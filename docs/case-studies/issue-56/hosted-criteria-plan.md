@@ -3,7 +3,7 @@
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression
-evidence. This audit concerns QA01, QA07, QA09–QA10, QA16, QA25–QA26, HH23, VK23–VK26, VD08 and VD11–VD15. The later
+evidence. This audit concerns QA01, QA07–QA10, QA16, QA25–QA26, HH23, VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
 evidence. VK24 retains an unresolved earlier WebKit reload failure. Its cause
@@ -66,6 +66,10 @@ investigation separate and never describe its cause as fixed.
       archives, distinguish early Git provenance from recovered declared hashes,
       and review the later shared matching/learning/planning changes. Require
       four portable files and both mandatory browser helpers on each engine.
+- [x] Re-read the complete pinned correction test: clean facts are explicitly
+      supplied by the owner. Map QA08 to canonical per-question replacements,
+      excluded one-off apologies/private URLs, unchanged transcripts and current
+      policy/learning controls. Preserve the original Git-verified reference bytes.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.

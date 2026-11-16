@@ -98,4 +98,4 @@ checks their semantic counters and review/refusal states, in addition to each
 group's successful completion. All eight browser shards are preserved alongside
 the native Electron and resolved CodeQL logs required by the other audited
 criteria. The separate [turn and policy audit](question-turn-policy-audit.md)
-adds QA16 and QA26. Any failed workflow leaves all eighteen candidates pending.
+adds QA16 and QA26. Any failed workflow leaves all nineteen candidates pending.

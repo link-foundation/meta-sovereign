@@ -1,6 +1,6 @@
 # Original requirement acceptance audit
 
-The source and evidence audit concerns eighteen candidate criteria in
+The source and evidence audit concerns nineteen candidate criteria in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Acceptance is pending until all five workflows finish successfully on the
 published source being audited. The
@@ -50,9 +50,9 @@ cores and factual handovers without invented sends or replies. Both mandatory
 browser helpers and all four portable files join the same gate. Provider history
 acquisition and unread orchestration remain separately required.
 
-The [turn and policy mapping](question-turn-policy-audit.md) adds QA16 and QA26:
+The [turn and policy mapping](question-turn-policy-audit.md) adds QA08, QA16 and QA26:
 technical-question identity across reminders, refusal of insufficient
-affirmatives, explicit owner corrections and persistent rejected wording across
+affirmatives, explicit owner corrections and persistent rejected wording and per-question clean owner replacements across
 planning, learning, profile expansion and concurrent edits. Their stored-data
 controls and mandatory browser assertions use the shared implementation;
 historical provider acquisition remains separately required.

@@ -31,7 +31,7 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the eighteen-criterion questionnaire/turn/policy/publication/forms/VK/desktop evidence audit, accepting only fully
+- [ ] Complete the nineteen-criterion questionnaire/turn/policy/publication/forms/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including questionnaire
       acceptance, CV editing/sync, unread orchestration and desktop execution.
@@ -165,3 +165,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Map the full QA01/QA07 stored-text contracts, original failures and current CLI/offline/Lino/native browser behavior. Preserve finite recognition limits and keep acquisition/orchestration criteria separately required.
 - [x] Verify two more archives (40 total, 2,336 entries), separating early Git provenance from recovered declared source hashes; review all new production deltas. Require four portable files and mandatory language/summary assertions on both engines.
 - [ ] Preserve the complete five-workflow success on the selected published source, review actual receipts and accept only complete mappings. All eighteen candidates remain pending; other original requirements remain required.
+
+2026-11-16 QA08 contract clarification:
+
+- [x] Read every pinned correction-test assertion. The reference supplies clean owner facts per question and excludes mixed historical apologies; it does not infer facts from arbitrary uncorrected prose. Map the actual contract to canonical saved rules, rejected wording, private links, unchanged history and acknowledged CLI/Lino/UI controls.
+- [x] Add QA08 as the nineteenth audit candidate and retain the pinned Git-verified correction/requirements bytes in the collector. This mapping adds no speculative inference or provider-history claim.
+- [ ] Preserve all five exact-source workflows and actual test/browser receipts before accepting any candidate. Every other unfinished original criterion remains required.
