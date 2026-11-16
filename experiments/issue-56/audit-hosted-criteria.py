@@ -23,6 +23,7 @@ names = [
     'vk-queue', 'vk-trigger', 'vk-live-history', 'vk-queue-lifecycle',
     'vk-token', 'vk-token-registration', 'vk-token-electron-entry',
     'runner-feedback',
+    'live-diagnostics', 'desktop-clipboard', 'desktop-clipboard-async',
 ]
 audits = {}
 with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:

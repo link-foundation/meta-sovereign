@@ -3,7 +3,7 @@
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression
-evidence. This audit concerns VK23–VK26 and VD11–VD15. The later
+evidence. This audit concerns VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
 evidence. VK24 retains an unresolved earlier WebKit reload failure; passing a
@@ -27,6 +27,11 @@ later run alone cannot establish its cause or complete that criterion.
       require its named portable checks plus all five shared token/runner
       browser scenarios on both engines. Allow the source audit to select a
       published revision while later documentation is being prepared.
+- [x] Read the complete live log pipeline, redactor, inert error formatter,
+      bounded journal, origin/passcode admission, Lino/CLI readers, view lifecycle,
+      four-language states and owned clipboard bridge. Include the original
+      redaction/clipboard regressions and asynchronous native correction as
+      VD08 evidence; require their portable, browser and native receipts.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.

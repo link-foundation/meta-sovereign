@@ -74,6 +74,7 @@ test_files = [
     'runner-log', 'vk-message-defaults', 'vk-token-acquisition',
     'vk-token-authorization', 'vk-token-api', 'vk-token-electron-entry',
     'runner-view',
+    'diagnostics', 'desktop-clipboard',
     'cv-formal-report', 'cv-formal-report-github', 'cv-formal-report-surfaces',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
@@ -97,7 +98,8 @@ assert any('ℹ fail 0' in line for line in raw['node']), 'Node failed'
 scenarios = {
     'vk-friends': ['verifyVkFriendPriority', 'verifyVkFriendStats',
                    'verifyVkDiscovery', 'verifyVkStickers',
-                   'verifyVkSendQueue', 'verifyRunnerLog'],
+                   'verifyVkSendQueue', 'verifyRunnerLog',
+                   'verifyDiagnostics', 'verifyDesktopClipboard'],
     'vk-token': ['verifyVkToken', 'verifyRunnerSessions', 'verifyRunnerProfile',
                  'verifyRunnerHealth', 'verifyRunnerFeedback'],
     'vk-engagement': ['verifyVkMessageDefaults'],
@@ -124,7 +126,8 @@ electron = [json.loads(line[line.index('{'):]) for line in raw['electron']
             if '"nativeElectron":true' in line]
 assert len(electron) == 1
 for name in ['nativeElectron', 'mainFrameCapture', 'protectedPreferences',
-             'ephemeralSessionCleared']:
+             'ephemeralSessionCleared', 'nativeClipboard', 'ownedOriginRequired',
+             'foreignNavigationRefused']:
     assert electron[0][name] is True, name
 assert electron[0]['liveProvider'] is False
 codeql = [json.loads(line[line.index('{'):]) for line in raw['codeql']
@@ -143,7 +146,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['VK23', 'VK25', 'VK26', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['VK23', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     unfinishedCacheInvestigation='VK24', liveProvider=False, acceptance=False,
 )
 entries['metadata.json'] = (json.dumps(metadata, indent=2) + '\n').encode()
