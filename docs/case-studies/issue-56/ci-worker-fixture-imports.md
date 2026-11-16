@@ -11,16 +11,16 @@ recovery scenario never started.
 Every reviewed job below has one failing test, `an upgrade can replace a build
 that keeps failing recovery`, with the same unresolved `rolling-worker.js`:
 
-| Job | Runtime and platform | Preserved log and cause line |
-| --- | --- | --- |
-| 133522615752 | Bun Ubuntu | `ci-f09-133522615752.log:2445` |
-| 133522615753 | Node macOS shard 3/8 | `ci-f09-133522615753.log:1686` |
-| 133522615813 | Node Windows shard 3/3 | `ci-f09-133522615813.log:3890` |
+| Job          | Runtime and platform   | Preserved log and cause line                        |
+| ------------ | ---------------------- | --------------------------------------------------- |
+| 133522615752 | Bun Ubuntu             | `ci-f09-133522615752.log:2445`                      |
+| 133522615753 | Node macOS shard 3/8   | `ci-f09-133522615753.log:1686`                      |
+| 133522615813 | Node Windows shard 3/3 | `ci-f09-133522615813.log:3890`                      |
 | 133522615996 | Deno Windows shard 2/3 | `ci-deno-windows-43928621395-133522615996.log:5979` |
-| 133522616020 | Bun Windows | `ci-f09-133522616020.log:8812` |
-| 133522616603 | Deno Ubuntu shard 2/3 | `ci-f09-133522616603.log:4735` |
-| 133522616858 | Node Ubuntu | `ci-f09-133522616858.log:8081` |
-| 133522617198 | Bun macOS | `ci-f09-133522617198.log:6928` |
+| 133522616020 | Bun Windows            | `ci-f09-133522616020.log:8812`                      |
+| 133522616603 | Deno Ubuntu shard 2/3  | `ci-f09-133522616603.log:4735`                      |
+| 133522616858 | Node Ubuntu            | `ci-f09-133522616858.log:8081`                      |
+| 133522617198 | Bun macOS              | `ci-f09-133522617198.log:6928`                      |
 
 The overall run was still active during collection, so `gh run view --log`
 could not provide a complete run archive. Each completed job's raw log is retained
@@ -57,3 +57,10 @@ Fresh hosted verification and every unchecked issue requirement remain required;
 
 [Raw logs, source snapshots and focused results](data/ci-worker-fixture-imports.tar.gz)
 and [hash manifest](data/ci-worker-fixture-imports.tar.sha256.json).
+
+Hosted run `43934104905` on `198123d8` stops at the formatting gate: job
+`133534615861`, log lines 553–555, names this document's unformatted table.
+ESLint has no errors; tests are skipped behind that failed prerequisite. The
+follow-up applies the existing Prettier configuration to the table and checks
+this file again. It changes no runtime, assertion or CI gate. A fresh complete
+matrix is still required; the failed run cannot satisfy the acceptance audit.
