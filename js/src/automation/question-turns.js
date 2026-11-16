@@ -4,6 +4,7 @@ import {
   isQuestion,
   MAX_QUESTION_LENGTH,
 } from '../crm/question-recognition.js';
+import { fitsWorkStartTiming } from './question-availability.js';
 
 export const debugQuestionTurn = (event, identifiers) => {
   if (globalThis.process?.env?.META_SOVEREIGN_QUESTION_DEBUG === '1') {
@@ -89,5 +90,6 @@ const DETAILS =
 const AFFIRMATIVE =
   /^(?:да(?: конечно)?|yes(?: of course)?|yeah|yep|sure|ага|угу|конечно|हाँ|हां|जी(?: हाँ)?|是|是的)$/iu;
 export const sufficientAnswer = (question, text) =>
-  !DETAILS.test(questionCore(question)) ||
-  !AFFIRMATIVE.test(words(text).join(' '));
+  fitsWorkStartTiming(question, text) &&
+  (!DETAILS.test(questionCore(question)) ||
+    !AFFIRMATIVE.test(words(text).join(' ')));

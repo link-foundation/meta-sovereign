@@ -16,6 +16,7 @@ import { verifyQuestionnaireIndex } from './helpers/e2e-questionnaire-index.mjs'
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionFinalPeriod } from './helpers/e2e-question-final-period.mjs';
 import { verifyQuestionEquivalents } from './helpers/e2e-question-equivalents.mjs';
+import { verifyQuestionAvailability } from './helpers/e2e-question-availability.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
 import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
@@ -642,6 +643,9 @@ const verifyProviderHistoryAndNotices = async () => {
 };
 
 const focusedQuestionScenario = () => {
+  if (process.env.QUESTION_AVAILABILITY_ONLY === '1') {
+    return () => verifyQuestionAvailability({ page, store, until });
+  }
   if (process.env.QUESTION_EQUIVALENTS_ONLY === '1') {
     return () => verifyQuestionEquivalents({ page, panel, store, until });
   }
@@ -662,6 +666,12 @@ const focusedQuestionScenario = () => {
     return () => verifyResumeProfile({ page, base, panel, store });
   }
   return null;
+};
+
+const verifyAnswerWording = async (preview) => {
+  await verifyQuestionFinalPeriod({ page, panel, preview, store, until });
+  await verifyQuestionEquivalents({ page, panel, store, until });
+  await verifyQuestionAvailability({ page, store, until });
 };
 
 await finish(async () => {
@@ -800,6 +810,5 @@ await finish(async () => {
       await verifyQuestionnaireIndex({ page, panel, store, until });
     }
   );
-  await verifyQuestionFinalPeriod({ page, panel, preview, store, until });
-  await verifyQuestionEquivalents({ page, panel, store, until });
+  await verifyAnswerWording(preview);
 });

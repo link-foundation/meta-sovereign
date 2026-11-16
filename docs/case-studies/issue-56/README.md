@@ -647,3 +647,9 @@ The [explicit answer-wording correction](question-answer-equivalents.md) preserv
 actual count reconciliation, raw archived observations and acknowledged editing
 for QA11. Four prior-module regressions fail, 68 focused checks and one native/MCP
 scenario pass. This partial correction accepts no additional inventory row.
+
+[Work-start timing relevance](question-availability.md) preserves four actual-parent
+failures, the before/after native preview and the shared planner/learning guard.
+Fifty-four focused checks and native/MCP scenarios preserve transcripts, real
+counts, conflicting-preference review and unrelated-question reuse. This partial
+QA11 correction does not accept the complete criterion or the remaining scope.

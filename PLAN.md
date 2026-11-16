@@ -185,3 +185,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Draft explicit question-scoped declarations, safe count projection, conflict/overlap review, CLI and acknowledged localized editor controls, schema 24 and four-language guides.
 - [x] Verify 68 focused checks and 17 final affected checks, actual CLI, both Lino routes, offline refusal, repeated learning and migration; retain inspected before/after/compact native screenshots and corrected independent MCP results. Preserve both fixture-only MCP failures separately.
 - [ ] Publish the atomic correction and inspect exact-head CI. Keep QA11 and all other 41 unchecked original criteria required until their full contracts and hosted verification are complete.
+
+2026-11-16 work-start timing relevance (QA11):
+
+- [x] Publish explicit equivalent wording as 7001c9a4 and start all five exact-source workflows. Keep its full hosted gate pending.
+- [x] Read the pinned availability preference implementation and reproduce four actual-parent failures plus the incorrect native preview before editing production code.
+- [x] Draft the shared bounded four-language timing guard, portable CLI/offline/Lino/archived-history regressions, mandatory native browser scenario and independent MCP fixture. Preserve transcripts, separate commitments and closed consent.
+- [x] Verify 54 focused checks, inspect before/after/compact screenshots and pass native browser plus two independent MCP scenarios. Preserve the initial conflict interaction and unchanged duplication gate (6.50%).
+- [ ] Archive source-bound evidence, publish the atomic correction and inspect exact-head CI.
+- [ ] Verify complete original QA11 contracts and exact-source hosted results before acceptance. All 41 unchecked original criteria remain required.

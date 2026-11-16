@@ -741,3 +741,7 @@ counts and bounded evidence. Preserve raw history, rejected phrases, independent
 approval and literal choices; require review for ambiguous preferences or
 overlapping observations. Share acknowledged CLI, text/binary Lino and four-language
 online/offline editing, and migrate the schema without rewriting old answers.
+
+Exclude unrelated replies from explicit work-start timing questions in shared
+planning and archived learning. Preserve literal transcripts, counts, distinct
+commitments and closed yes/no consent through CLI, offline and both Lino formats.

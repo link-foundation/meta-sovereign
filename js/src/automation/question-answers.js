@@ -13,6 +13,7 @@ import {
   normalizeAnswerEquivalents,
   validateAnswerEquivalents,
   equivalentWordedAnswers,
+  conflictingAnswerWordings,
 } from './question-equivalents.js';
 import {
   answerRuleEligible,
@@ -251,15 +252,17 @@ const conflictingAnswers = (matches, wordingConflict, best, profile, text) =>
     conflictingAnswer(candidate, best, profile, text)
   );
 
+const wordingRequiresReview = (matches, declaredConflict) =>
+  declaredConflict || matches.some((match) => match.preferenceConflict);
+
 const templateNeedsReview = (value) =>
   value?.approved === false || value?.contextMismatch === true;
 const templateDetails = (salaryTemplates) =>
   salaryTemplates ? { salaryTemplates } : {};
-const usableVariant = (question, answer, canonicalSpellings, context) => {
+const usableVariant = (answer, canonicalSpellings, context) => {
   const text = render(answer.text, context.profile).text;
   return (
     (!canonicalSpellings.size || canonicalSpellings.has(answer.text)) &&
-    sufficientAnswer(question, text) &&
     !rejectedAnswer(text, context.policy)
   );
 };
@@ -300,7 +303,7 @@ const answerOne = (question, input) => {
     );
     for (const answer of rule.answers) {
       if (
-        !usableVariant(core, answer, canonicalSpellings, context) ||
+        !usableVariant(answer, canonicalSpellings, context) ||
         !correction(core, answer.text, context)
       ) {
         continue;
@@ -315,8 +318,13 @@ const answerOne = (question, input) => {
       });
     }
   }
-  matches = equivalentWordedAnswers(matches);
-  const wordingConflict = matches.some((match) => match.preferenceConflict);
+  const declaredConflict = conflictingAnswerWordings(matches);
+  matches = equivalentWordedAnswers(
+    matches.filter(({ answer }) =>
+      sufficientAnswer(core, render(answer.text, context.profile).text)
+    )
+  );
+  const wordingConflict = wordingRequiresReview(matches, declaredConflict);
   matches = equivalentAnswerVariants(matches, context.policy);
   matches.sort(
     (a, b) =>

@@ -115,3 +115,14 @@ or JSON file with `equivalents: [text, text]` on the preferred answer, then run
 `meta-sovereign automations answers save preference.lino`. Re-saving the file
 reads its edits; omitting `equivalents` clears them. Both Lino API encodings retain
 the same answer field. No preference file or aliases means no wording replacement.
+
+## Work-start timing answers
+
+For an explicit question about when you can start work, shared planning and
+learning exclude a reply with no recognized time or timing condition, even if
+it has a high historical count. This narrow English/Russian/Hindi/Chinese guard
+also accepts numeric dates and preserves different commitments. A closed timing
+question can still use yes/no; ordinary office consent and unrelated project or
+metrics questions stay unchanged. This is a bounded wording check, not general
+semantic validation. Original saved answers and transcripts remain inspectable
+and unchanged; a missing usable answer stays unanswered for review.

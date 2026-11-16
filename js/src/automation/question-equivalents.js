@@ -89,7 +89,7 @@ const combine = (preferred, variants) => {
   ];
 };
 
-const resolveGroup = (matches) => {
+const declaredTargets = (matches) => {
   const targets = new Map();
   const claims = new Map();
   for (const match of matches) {
@@ -104,11 +104,20 @@ const resolveGroup = (matches) => {
     targets.set(target, targets.get(target) ?? match);
     for (const text of answerSpellings(match.answer)) {
       if (claims.has(text) && claims.get(text) !== target) {
-        return matches.map((entry) => ({ ...entry, preferenceConflict: true }));
+        return null;
       }
       claims.set(text, target);
     }
   }
+  return { targets, claims };
+};
+
+const resolveGroup = (matches) => {
+  const declared = declaredTargets(matches);
+  if (!declared) {
+    return matches.map((entry) => ({ ...entry, preferenceConflict: true }));
+  }
+  const { targets, claims } = declared;
   const buckets = new Map();
   const unchanged = [];
   for (const match of matches) {
@@ -129,7 +138,7 @@ const resolveGroup = (matches) => {
   ];
 };
 
-export const equivalentWordedAnswers = (matches) => {
+const groupedMatches = (matches) => {
   const groups = new Map();
   for (const match of matches) {
     // Exact matches already refer to this question and passed source/chat guards.
@@ -139,5 +148,12 @@ export const equivalentWordedAnswers = (matches) => {
     group.push(match);
     groups.set(key, group);
   }
-  return [...groups.values()].flatMap(resolveGroup);
+  return [...groups.values()];
 };
+
+// An unusable target cannot silently remove a competing owner declaration.
+export const conflictingAnswerWordings = (matches) =>
+  groupedMatches(matches).some((group) => declaredTargets(group) === null);
+
+export const equivalentWordedAnswers = (matches) =>
+  groupedMatches(matches).flatMap(resolveGroup);

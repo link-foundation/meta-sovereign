@@ -29,6 +29,20 @@ if (process.argv.includes('--wording')) {
     { text: aliases[1], count: 3, evidence: ['wording:b'] }
   );
 }
+if (process.argv.includes('--availability')) {
+  const { availabilityRule } =
+    await import('./answer-availability-fixture.mjs');
+  Object.assign(fixture, availabilityRule());
+}
+if (process.argv.includes('--irrelevant-timing')) {
+  const { unrelated } = await import('./answer-availability-fixture.mjs');
+  fixture.answers.push({
+    text: unrelated,
+    approved: true,
+    count: 9,
+    evidence: ['fixture:unrelated-timing'],
+  });
+}
 await store.put(fixture);
 const server = await startServer({
   store,
