@@ -87,8 +87,8 @@ The application's existing server exposes the same controller:
 Bodies and receipts use the default text or binary Links Notation transport.
 The table describes their decoded shape; JSON compatibility stays disabled by
 default. Existing passcode, origin and server authorization policies apply.
-The API uses the serving user's default runner profile. Callers cannot supply
-profile paths, hosts or executables. `--url` selects that API through the CLI;
+The API uses the serving user's default runner profile. Process-control callers select a configured mode. The profile endpoints
+below edit only that fixed default file; callers cannot choose a server file path. `--url` selects that API through the CLI;
 it cannot be combined with `--profile`, which selects local control instead.
 The client follows no redirects and never retries a mutation automatically.
 
@@ -103,9 +103,46 @@ control the same configured targets in the shared desktop/browser UI. The
 closed panel performs no probes. Unknown or stale state disables starts;
 retained observations stay visible during read recovery. Closing the panel
 disposes its polling and never implies the session was stopped. Local execution
-runs on the connected server's machine. Profile editing is currently through
-the readable file described above.
+runs on the connected server's machine. Open **Edit session targets** to read and edit the same readable Lino profile.
+The editor reads only while open. Saving validates the schema and acknowledges
+the persisted document; it never probes, installs or starts a process. Credential
+fields and arbitrary schema additions are refused. Paths, executable names and
+SSH addresses are configuration, so review them before saving. Credentials stay
+in protected stores and SSH authentication.
+
+A revision accompanies each canonical document. Save submits that revision; a
+changed revision produces a conflict instead of overwriting another controller's edit. On a refused or unconfirmed save, the editor retains your draft and
+disables another save. **Reload saved profile and replace this draft** explicitly reads
+the server copy. Copy any draft you want to keep before reloading. A newer draft
+typed while a save is pending remains in the editor after the acknowledgement.
+Closing the editor aborts its owned request and ignores late responses. A save
+already accepted by the server can still finish; reopen to read the saved file.
 
 These controls are a shared session foundation for the active
 [desktop execution work](case-studies/issue-56/vk-desktop-execution-plan.md),
 not acceptance of the remaining issue requirements.
+
+The same profile operations are available through CLI and API:
+
+```sh
+meta-sovereign runner profile --url=http://127.0.0.1:8787
+meta-sovereign runner configure --input=/absolute/path/reviewed-runner.lino --revision=<saved-revision> --url=http://127.0.0.1:8787
+```
+
+Use `--profile=/absolute/path/runner.lino` instead of `--url` to read or edit a
+local profile. `--input` is a bounded local source file; the CLI validates and
+submits its canonical document. It does not transmit the input file path. Read
+the current revision with `runner profile` before saving.
+
+| Request                      | Decoded body             | Effect                                                  |
+| ---------------------------- | ------------------------ | ------------------------------------------------------- |
+| `GET /api/runner/profile`    | none                     | Read `{ ok, document, revision }` for the default file. |
+| `POST /api/runner/configure` | `{ document, revision }` | Validate and durably save at the matching revision.     |
+
+The document limit is 64 KiB of UTF-8; the configure request limit is 128 KiB.
+Stale revisions return HTTP 409. These operations use the same controller lease
+as session actions and the existing passcode/origin rules. Revision checks
+serialize cooperating CLI/API writers; direct external file edits are outside
+that lease. Editing leaves the retained session binding intact, including when
+an old target is running or unreachable. Status and stop still address that
+target, and new starts stay blocked until the old targets are confirmed stopped.

@@ -3,7 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { diagnosticServer } from './diagnostics-fixture.mjs';
 import { runnerFixture, runnerProfile } from './runner-fixture.mjs';
-import { validateRunnerProfile } from '../../js/src/cli/runner-profile.js';
+import { formatIndented } from 'lino-objects-codec';
+import { writeFileDurable } from '../../js/src/storage/durable.js';
 
 /** One private API/control directory, no installed tools or provider account. */
 export const runnerApiFixture = async (options = {}) => {
@@ -11,10 +12,13 @@ export const runnerApiFixture = async (options = {}) => {
   const backend = runnerFixture(options.initial);
   let server;
   try {
+    await writeFileDurable(
+      join(dir, 'runner.lino'),
+      formatIndented({ id: 'runner', obj: runnerProfile() })
+    );
     server = await diagnosticServer({
       runnerSessions: {
         directory: () => dir,
-        load: async () => validateRunnerProfile(runnerProfile()),
         run: backend.run,
         ...options.control,
       },

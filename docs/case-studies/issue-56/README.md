@@ -554,3 +554,5 @@ exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next aud
 [Connected VK read refusals](vk-read-failure.md) preserve actual-parent defaults substitution, seven focused checks and native/MCP recovery evidence. Absent-route offline editing remains supported; exact-head hosted acceptance remains required.
 
 [Hosted desktop TLS and packaging](desktop-configuration-hosted.md) retains actual Electron 45.3.2 ownership/refusal receipts and all six successful desktop jobs on `3a24c7a5`. Full issue acceptance and local/SSH execution remain required.
+
+[Shared runner profile editing](runner-profile-editing.md) documents revision-checked CLI/API/UI saves and retained session targets; wider desktop execution and the remaining reference inventory stay active.

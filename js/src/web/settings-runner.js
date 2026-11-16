@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { canRunnerAction, followRunnerSessions } from './runner-view-state.js';
+import { RunnerProfileSettings } from './settings-runner-profile.js';
 
 const el = React.createElement;
 const noticeKey = (code) =>
@@ -91,6 +92,7 @@ const RunnerControls = ({ api }) => {
       },
       t('runner.refresh')
     ),
+    el(RunnerProfileSettings, { key: 'profile', api }),
   ]);
 };
 

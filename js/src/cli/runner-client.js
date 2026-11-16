@@ -1,17 +1,21 @@
 import { encodeWire, readWireResponse, LINO_TEXT } from '../transport/lino.js';
 import { runnerReceipt } from '../transport/runner-receipt.js';
+import { runnerProfileReceipt } from '../transport/runner-profile-receipt.js';
+
+const validAction = (action, mode) =>
+  ['status', 'profile', 'configure'].includes(action)
+    ? mode === undefined
+    : ['start', 'stop'].includes(action) && ['local', 'server'].includes(mode);
 
 export const requestRunner = async (
-  { url, action, mode, signal },
+  { url, action, mode, signal, document, revision },
   fetchImpl = fetch
 ) => {
-  if (
-    action === 'status'
-      ? mode !== undefined
-      : !['start', 'stop'].includes(action) ||
-        !['local', 'server'].includes(mode)
-  ) {
+  if (!validAction(action, mode)) {
     throw new Error('Invalid runner action.');
+  }
+  if (action === 'configure') {
+    runnerProfileReceipt({ ok: true, document, revision });
   }
   const origin = new URL(url);
   if (
@@ -33,13 +37,22 @@ export const requestRunner = async (
       signal,
       redirect: 'error',
       headers: { accept: LINO_TEXT, 'content-type': LINO_TEXT },
-      ...(action === 'status'
+      ...(['status', 'profile'].includes(action)
         ? {}
-        : { method: 'POST', body: encodeWire({ mode }, LINO_TEXT) }),
+        : {
+            method: 'POST',
+            body: encodeWire(
+              action === 'configure' ? { document, revision } : { mode },
+              LINO_TEXT
+            ),
+          }),
     }
   );
   if (!response.ok) {
     throw new Error('Runner operation unavailable.');
   }
-  return runnerReceipt(await readWireResponse(response), action, mode);
+  const value = await readWireResponse(response);
+  return ['profile', 'configure'].includes(action)
+    ? runnerProfileReceipt(value)
+    : runnerReceipt(value, action, mode);
 };

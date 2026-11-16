@@ -10,6 +10,7 @@ import {
 } from '../cli/runner-profile.js';
 import { createRunnerControl } from './runner-control.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
+import { runnerProfileOperation } from './runner-profile-store.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -52,7 +53,7 @@ const loadDesired = async (file, load, bound, optional) => {
   }
 };
 const validAction = (action, mode) =>
-  action === 'status'
+  ['status', 'profile', 'configure'].includes(action)
     ? mode === undefined
     : ['start', 'stop'].includes(action) && ['local', 'server'].includes(mode);
 
@@ -63,17 +64,26 @@ export const createRunnerController = ({
   load = readRunnerProfile,
   lock = acquireStoreLock,
 }) => ({
-  async execute({ action, mode, profile, signal }) {
+  async execute({ action, mode, profile, signal, document, revision }) {
     if (!validAction(action, mode)) {
       return { ok: false, code: 'invalid-runner-action' };
     }
     const dir = path.join(directory(), 'runner-control');
     const lease = await lock(dir, { exclusive: true });
     try {
+      const profileFile = profile ?? path.join(directory(), 'runner.lino');
+      if (['profile', 'configure'].includes(action)) {
+        return await runnerProfileOperation(profileFile, {
+          action,
+          document,
+          revision,
+          signal,
+        });
+      }
       const file = path.join(dir, 'binding.lino');
       const bound = await readBinding(file);
       const desired = await loadDesired(
-        profile ?? path.join(directory(), 'runner.lino'),
+        profileFile,
         load,
         bound,
         profile === undefined

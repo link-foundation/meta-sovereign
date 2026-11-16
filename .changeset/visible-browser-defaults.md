@@ -608,3 +608,8 @@ CLI's `runner --url` option, retaining observed states and draining ownership.
 
 Add translated Settings controls for configured local and SSH runner sessions,
 with observed switching, stale-state recovery and no automatic mutation replay.
+
+Add shared runner profile reads and revision-checked durable edits through CLI,
+protected API and the Settings editor. Refused or uncertain writes retain the
+owner's draft, explicit reload replaces it, and target edits preserve retained
+session addresses without starting or stopping a process.
