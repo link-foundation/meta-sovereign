@@ -34,19 +34,25 @@ test(
           )
         ),
       ],
-      { stdio: ['ignore', 'pipe', 'pipe'], signal: context.signal }
+      {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        signal: context.signal,
+        env: { ...process.env, MS_LIFECYCLE_DEBUG: '1' },
+      }
     );
     let output = '';
+    let diagnostics = '';
     child.stdout.on('data', (value) => (output += value));
-    child.stderr.on('data', (value) => (output += value));
+    child.stderr.on('data', (value) => (diagnostics += value));
     let failure;
     const status = await new Promise((resolve) => {
       child.once('error', (error) => (failure = error));
       child.once('close', resolve);
     });
     assert.ifError(failure);
-    assert.equal(status, 0, output);
+    assert.equal(status, 0, `${output}\n${diagnostics}`);
     const receipt = JSON.parse(output.trim());
+    assert.match(diagnostics, /\[lifecycle\] close_finished/u);
     assert.deepEqual(receipt.loaded.sort(), [
       'routes-cv.js',
       'routes-telegram.js',
