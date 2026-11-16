@@ -39,7 +39,7 @@ async (page) => {
     !(await cards.allTextContents()).every(
       (value) =>
         value.includes('$6 000 net per month.') &&
-        value.includes('https://github.com/example-owner')
+        /(?:^|\s)https:\/\/github\.com\/example-owner(?=$|\s)/u.test(value)
     )
   ) {
     throw new Error(

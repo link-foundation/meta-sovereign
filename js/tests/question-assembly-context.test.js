@@ -163,7 +163,10 @@ test('form questionnaire proposals retain salary components and exact whole answ
   assert.ok(answer.proposal.value.includes('From $6 000 net per month.'));
   assert.ok(answer.proposal.value.includes('From 530 000 ₽ gross per month.'));
   assert.ok(answer.proposal.value.includes('owner@example.test'));
-  assert.ok(answer.proposal.value.includes('https://github.com/example-owner'));
+  assert.match(
+    answer.proposal.value,
+    /(?:^|\s)https:\/\/github\.com\/example-owner(?=$|\s)/u
+  );
   assert.equal(answer.requiresReview, true);
   assert.equal(answer.source, 'assembled');
   assert.deepEqual(answer.profileKeys, []);

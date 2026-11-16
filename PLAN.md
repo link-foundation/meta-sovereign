@@ -16,6 +16,8 @@ unmerged until the complete acceptance mapping is verified.
       reuse and explicit review; verify focused regressions and native browser receipts.
 - [x] Preserve the actual hosted duplication failure, consolidate identical
       sticker fixtures, keep all scenario assertions and pass the unchanged gate.
+- [x] Preserve three exact-head CodeQL findings and strengthen questionnaire
+      URL assertions without suppressions; verify focused unit/browser checks.
 - [ ] Publish the corrections and inspect all five exact-head CI workflows.
 - [ ] Complete the ten-criterion VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.

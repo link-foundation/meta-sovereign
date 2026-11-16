@@ -50,7 +50,9 @@ export const verifyFormQuestionnaireUi = async ({ page, fixture, owned }) => {
           answer.parts.every((part, i) => part.question === formQuestions[i]) &&
           answer.proposal.value.includes('$6 000 net per month.') &&
           answer.proposal.value.includes('owner@example.test') &&
-          answer.proposal.value.includes('https://github.com/example-owner')
+          /(?:^|\s)https:\/\/github\.com\/example-owner(?=$|\s)/u.test(
+            answer.proposal.value
+          )
       ),
     'each questionnaire retains all salary and contact proposals for review'
   );
