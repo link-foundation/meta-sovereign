@@ -70,7 +70,7 @@ their awaited execution before the group success marker on both engines.
 
 ## Source provenance and later changes
 
-The streaming audit now verifies 38 archives and all 2,301 manifest entries.
+The streaming audit now verifies 40 archives and all 2,336 manifest entries.
 The correction and concurrency archives record source hashes; their exact bytes
 are recovered from published commits `2aced5d3` and `ed241ef5` and checked
 against those hashes. The earlier turn and policy archives contain no production

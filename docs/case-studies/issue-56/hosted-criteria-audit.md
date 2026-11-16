@@ -1,6 +1,6 @@
 # Original requirement acceptance audit
 
-The source and evidence audit concerns sixteen candidate criteria in
+The source and evidence audit concerns eighteen candidate criteria in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Acceptance is pending until all five workflows finish successfully on the
 published source being audited. The
@@ -44,6 +44,12 @@ The later observed-form learning and native approval/context corrections retain
 their actual-parent failures. The other history, application and CV criteria
 retain their separate original scope.
 
+The [recognition and summary mapping](question-recognition-summary-audit.md)
+adds QA01 and QA07: shared four-language recognition, conservative acknowledgment
+cores and factual handovers without invented sends or replies. Both mandatory
+browser helpers and all four portable files join the same gate. Provider history
+acquisition and unread orchestration remain separately required.
+
 The [turn and policy mapping](question-turn-policy-audit.md) adds QA16 and QA26:
 technical-question identity across reminders, refusal of insufficient
 affirmatives, explicit owner corrections and persistent rejected wording across
@@ -81,13 +87,13 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py REVISION` streams 38
+`python -B experiments/issue-56/audit-hosted-criteria.py REVISION` streams 40
 existing archives, checks every entry against its committed SHA-256 manifest
 and records the selected published production source hashes and their differences.
-It does not extract archives or run a local test matrix. All 2,301 entries pass,
+It does not extract archives or run a local test matrix. All 2,336 entries pass,
 including the runner confirmation, live diagnostics/clipboard and six
 questionnaire archives, four turn/policy archives, six publication archives and
-four form-reporting archives. The early questionnaire archive's declared source
+four form-reporting archives and the language/summary pair. The early questionnaire archive's declared source
 hashes match the exact bytes recovered from its published implementation commit.
 Correction and concurrency source hashes are recovered the same way. The turn
 and policy archives lack production hashes; the audit explicitly distinguishes

@@ -31,7 +31,7 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the sixteen-criterion questionnaire/turn/policy/publication/forms/VK/desktop evidence audit, accepting only fully
+- [ ] Complete the eighteen-criterion questionnaire/turn/policy/publication/forms/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including questionnaire
       acceptance, CV editing/sync, unread orchestration and desktop execution.
@@ -159,3 +159,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify four more archives (38 total, 2,301 manifest entries), recovering the early declared source hashes. Require seven portable files and mandatory plan/journal/model assertions on both browser engines.
 - [ ] Preserve the selected published source's complete five-workflow success, inspect actual receipts and accept only fully verified mappings. All sixteen candidates remain pending until the gate passes.
 - [ ] Continue every remaining original requirement in PR57; no reporting audit completes the wider provider workflows.
+
+2026-11-16 recognition and summary acceptance audit:
+
+- [x] Map the full QA01/QA07 stored-text contracts, original failures and current CLI/offline/Lino/native browser behavior. Preserve finite recognition limits and keep acquisition/orchestration criteria separately required.
+- [x] Verify two more archives (40 total, 2,336 entries), separating early Git provenance from recovered declared source hashes; review all new production deltas. Require four portable files and mandatory language/summary assertions on both engines.
+- [ ] Preserve the complete five-workflow success on the selected published source, review actual receipts and accept only complete mappings. All eighteen candidates remain pending; other original requirements remain required.

@@ -94,6 +94,8 @@ test_files = [
     'cv-publication-long-paths',
     'forms-answer-plan', 'forms-report', 'forms-markdown', 'forms-journal',
     'forms-model-review', 'answer-model-drafts', 'answer-model-api',
+    'question-language', 'question-language-controls',
+    'question-summary', 'question-summary-controls',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -147,6 +149,8 @@ question_assertions = {
     'verifyQuestionTurns': 'e2e-question-turns',
     'verifyQuestionCorrections': 'e2e-question-corrections',
     'verifyQuestionConcurrency': 'e2e-question-concurrency',
+    'verifyQuestionLanguage': 'e2e-question-language',
+    'verifyQuestionSummary': 'e2e-question-summary',
 }
 for name, helper in question_assertions.items():
     assert len(re.findall(rf'^  await {name}\(', question_source.decode(), re.M)) == 1, name
@@ -300,7 +304,8 @@ for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
 for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
              'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md',
              'cv-publication-criteria-audit.md',
-             'form-provenance-criteria-audit.md']:
+             'form-provenance-criteria-audit.md',
+             'question-recognition-summary-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -309,7 +314,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA01', 'QA07', 'QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )

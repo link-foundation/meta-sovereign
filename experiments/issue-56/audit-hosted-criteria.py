@@ -34,6 +34,7 @@ names = [
     'ci-publication-panels',
     'forms-answer-plan', 'forms-reviewed-prefill', 'forms-review-journal',
     'forms-model-drafts',
+    'question-language', 'question-summary',
 ]
 audits = {}
 hashed_revisions = {
@@ -42,8 +43,9 @@ hashed_revisions = {
     'question-concurrency': 'ed241ef5',
     'forms-answer-plan': '0176fe7d',
     'forms-reviewed-prefill': 'afaf8bed',
+    'question-summary': 'dfa1f68d',
 }
-# These two early archives retain regressions but no production source hashes.
+# These early archives retain regressions but no production source hashes.
 # Compare their published implementations separately; do not imply that these
 # bytes were present in, or cryptographically bound by, the old archives.
 git_sources = {
@@ -52,6 +54,10 @@ git_sources = {
     'question-policy': ('01f4d6c8', [
         'question-answers', 'question-learning', 'question-policy',
         'question-store']),
+    'question-language': ('23726697', [
+        'js/src/crm/question-recognition.js',
+        'js/src/crm/conversation-questions.js',
+        'js/src/automation/question-match.js']),
 }
 
 
@@ -105,7 +111,7 @@ with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
                 ['git', 'rev-parse', implementation], cwd=root).decode().strip()
             provenance = dict(revision=implementation, archiveSourceHashes=False)
             for stem in stems:
-                source = f'js/src/automation/{stem}.js'
+                source = stem if '/' in stem else f'js/src/automation/{stem}.js'
                 content = subprocess.check_output(
                     ['git', 'show', f'{implementation}:{source}'], cwd=root)
                 sources[source] = compare_source(name, source, content, delta)
