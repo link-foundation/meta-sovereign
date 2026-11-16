@@ -39,7 +39,10 @@ all four languages. Policy loads before editing, refusals retain pending input,
 and reload returns the saved preference. CLI and both negotiated Lino transports
 use the same policy. Read-only CLI planning supports isolated explicit flag,
 environment, selected `.lenv`, working-directory `.lenv`, saved policy and default
-precedence, including quoted Lino values. Other commands use saved policy.
+precedence, including quoted Lino values. The later
+[worker correction](question-period-workers.md) and
+[form correction](forms-period-configuration.md) carry the same isolated
+configuration through their actual planning and final revalidation paths.
 See the [user guide](../../QUESTIONNAIRES.md#final-period-preference).
 
 Schema migration `0023-answer-final-period` records the default only in an
@@ -71,6 +74,8 @@ The shared policy now retains the saved spelling preference:
 The [evidence archive](data/question-final-period.tar.gz) and its
 [hash manifest](data/question-final-period.tar.sha256.json) preserve reference
 bytes, the original failure, focused results, browser receipts and source hashes.
-These checks cover the period portion of QA11. Its separately required
-question-scoped approved-answer replacement/count contract remains unfinished;
-QA11 and all other unchecked criteria remain required in PR57.
+These original checks cover the period portion of QA11. The later
+[complete contract audit](question-wording-criteria-audit.md) maps the approved
+wording, timing, worker and form corrections as well. QA11 stays unchecked until
+the complete exact-source hosted gate passes; all other unchecked criteria
+remain required in PR57.

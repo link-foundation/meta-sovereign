@@ -224,5 +224,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve six exact-parent failures and pass 39 focused CLI, both Lino formats, reviewed application, retry and owner-edit checks.
 - [x] Pass the mandatory installed-Chrome form scenario and independent MCP probe; inspect before/after screenshots, preserve the probe race and drain all isolated resources.
 - [x] Pass strict focused lint/format/secrets and the unchanged duplication limit; preserve source-bound evidence for publication.
-- [ ] Publish the atomic form correction and inspect exact-head CI.
+- [x] Publish the atomic form correction as 55292dc7; all five exact-source workflows started at 2026-11-16 23:51:17 UTC.
 - [ ] Inspect exact-source hosted checks and finish the full original QA11 contract. All 41 unchecked original criteria remain required.
+
+2026-11-16 complete approved-wording contract audit:
+
+- [x] Map all four pinned preferred-wording and nine final-period tests to shared storage, configuration, learning, review, form and worker behavior. Distinguish literal selected-value sets, owner approval and synthetic native-provider fixtures from unrelated acquisition requirements.
+- [x] Extend the source audit by eight archives and require 73 additional named portable checks plus twelve browser receipts on the exact published revision. Retain both pinned test files with Git blob verification.
+- [x] Verify all 48 archives and 2,769 entries at 55292dc7; read the complete 717-line additional source diff and 380-line integration diff from the previously accepted source. No acceptance is inferred from old passing logs.
+- [ ] Preserve all five exact-source successful workflows and review actual portable/browser receipts before accepting QA11. Every other original unchecked criterion remains required.

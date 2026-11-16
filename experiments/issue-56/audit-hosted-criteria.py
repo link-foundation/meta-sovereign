@@ -35,6 +35,10 @@ names = [
     'forms-answer-plan', 'forms-reviewed-prefill', 'forms-review-journal',
     'forms-model-drafts',
     'question-language', 'question-summary',
+    'question-final-period', 'question-answer-equivalents',
+    'question-availability', 'question-period-workers', 'question-period-scope',
+    'forms-period-configuration', 'ci-question-wording-fixtures',
+    'ci-period-watch-observer',
 ]
 audits = {}
 hashed_revisions = {

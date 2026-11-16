@@ -98,6 +98,12 @@ test_files = [
     'forms-model-review', 'answer-model-drafts', 'answer-model-api',
     'question-language', 'question-language-controls',
     'question-summary', 'question-summary-controls',
+    'question-final-period', 'question-final-period-controls',
+    'migrations-answer-final-period', 'question-answer-equivalents',
+    'question-equivalents-controls', 'migrations-answer-equivalents',
+    'question-availability', 'question-period-workers', 'question-period-scope',
+    'forms-period', 'forms-auto-prefill', 'forms-automatic-controls',
+    'forms-review-prefill',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -113,6 +119,12 @@ for stem in test_files:
                                content.decode())
         assert len(templates) == 1, path
         names.extend(templates[0].replace('${type}', kind) for kind in
+                     ['text/lino', 'application/lino-binary'])
+    if stem == 'forms-auto-prefill':
+        templates = re.findall(r'\btest\(\s*`([^`]+\$\{media\}[^`]*)`\s*,',
+                               content.decode())
+        assert len(templates) == 1, path
+        names.extend(templates[0].replace('${media}', kind) for kind in
                      ['text/lino', 'application/lino-binary'])
     assert names, f'no literal named tests: {path}'
     positive = {}
@@ -166,6 +178,27 @@ for path in ['js/tests/e2e-cv-publication-browser.mjs',
              'js/tests/helpers/e2e-cv-publication-experience.mjs']:
     entries[path] = subprocess.check_output(
         ['git', 'show', f'{sha}:{path}'], cwd=root)
+wording_helpers = {
+    'verifyQuestionFinalPeriod': 'e2e-question-final-period',
+    'verifyQuestionEquivalents': 'e2e-question-equivalents',
+    'verifyQuestionAvailability': 'e2e-question-availability',
+}
+assert 'await verifyAnswerWording(preview);' in question_source.decode()
+assert 'await withIsolatedAnswerRules(verify);' in question_source.decode()
+for name, helper in wording_helpers.items():
+    assert f'() => {name}(' in question_source.decode(), name
+    path = f'js/tests/helpers/{helper}.mjs'
+    entries[path] = subprocess.check_output(
+        ['git', 'show', f'{sha}:{path}'], cwd=root)
+worker_entry = 'js/tests/e2e-question-controls-browser.mjs'
+entries[worker_entry] = subprocess.check_output(
+    ['git', 'show', f'{sha}:{worker_entry}'], cwd=root)
+assert '        verifyQuestionPeriodWorkers,' in entries[worker_entry].decode()
+for path in ['js/tests/helpers/e2e-question-period-workers.mjs',
+             'js/tests/helpers/e2e-form-automatic.mjs',
+             'js/scripts/browser-checks.json', 'js/scripts/run-browser-checks.mjs']:
+    entries[path] = subprocess.check_output(
+        ['git', 'show', f'{sha}:{path}'], cwd=root)
 form_entry = 'js/tests/e2e-forms-reader-browser.mjs'
 form_source = subprocess.check_output(
     ['git', 'show', f'{sha}:{form_entry}'], cwd=root)
@@ -176,6 +209,36 @@ for helper in ['plans', 'journal', 'model']:
     entries[path] = subprocess.check_output(
         ['git', 'show', f'{sha}:{path}'], cwd=root)
 for engine in ['chromium', 'webkit']:
+    wording = {
+        'question-final-period': dict(observations=5, defaultWith=True,
+                                     configuredWithout=True, rawPreserved=True,
+                                     refusalPreserved=True, mobileFits=True),
+        'question-equivalents': dict(observations=5, rawPreserved=True, saved=True,
+                                    refusalPreserved=True, reload=True,
+                                    mobileFits=True),
+        'question-availability': dict(timing=True, unrelatedQuestionLiteral=True,
+                                     observations=1, reload=True,
+                                     rawPreserved=True, mobileFits=True),
+        'question-wording-sequence': dict(scenarios=3, rulesRestored=True),
+        'question-period-workers': dict(overrideRetained=True, draft='Vietnam',
+                                       sends=0, observations=5),
+        'forms-period': dict(answer='English', count=5, recovered=True,
+                             changedPreference='form-prefill-conflict',
+                             submissionAttempted=False),
+    }
+    for marker, expected in wording.items():
+        matches = [(tag, i, json.loads(line.split(f'[{marker}] ', 1)[1]))
+                   for tag, lines in raw.items() if tag.startswith(f'{engine}-')
+                   for i, line in enumerate(lines, 1) if f'[{marker}] ' in line]
+        assert len(matches) == 1, (engine, marker)
+        tag, line, receipt = matches[0]
+        assert receipt == expected, (tag, marker, receipt)
+        group = ('forms-reader' if marker == 'forms-period' else
+                 'question-controls' if marker == 'question-period-workers' else
+                 'questions')
+        assert any(f'[e2e-{group}] OK ({engine})' in value for value in raw[tag]), group
+        browser_receipts[f'{engine}/{group}/{marker}'] = dict(
+            job=tag, line=line, receipt=receipt)
     # These older assertions precede the group's final success marker and have
     # no separate scenario envelope. Retain their exact published bodies and
     # identify group completion honestly instead of inventing semantic logs.
@@ -294,7 +357,9 @@ codeql = [json.loads(line[line.index('{'):]) for line in raw['codeql']
           if '"auditedFalsePositives"' in line]
 assert codeql == [{'reports': 1, 'auditedFalsePositives': 2}]
 
-for name in ['hosted-criteria-source-audit.json', 'hosted-criteria-source-deltas.diff']:
+for name in ['hosted-criteria-source-audit.json', 'hosted-criteria-source-deltas.diff',
+             '55292-source-audit.log', '55292-wording-source-deltas.diff',
+             '55292-shared-integration-delta.diff']:
     path = logs / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
@@ -307,7 +372,8 @@ for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
              'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md',
              'cv-publication-criteria-audit.md',
              'form-provenance-criteria-audit.md',
-             'question-recognition-summary-audit.md']:
+             'question-recognition-summary-audit.md',
+             'question-wording-criteria-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -327,11 +393,24 @@ with tarfile.open(root / 'docs/case-studies/issue-56/data/question-summary.tar.g
         entries[f'references/{reference["path"]}'] = content
         reference_receipts[stem] = dict(url=reference['html_url'],
                                         blob=reference['sha'])
+with tarfile.open(root / 'docs/case-studies/issue-56/data/question-final-period.tar.gz') as archive:
+    for stem in ['answer-preferences.test.mjs', 'answer-variants.test.mjs']:
+        name = f'ci-logs/final-period-{stem}.json'
+        response = archive.extractfile(name).read()
+        reference = json.loads(response)
+        content = base64.b64decode(reference['content'])
+        blob = b'blob ' + str(len(content)).encode() + b'\0' + content
+        assert hashlib.sha1(blob).hexdigest() == reference['sha'], name
+        assert 'fa0991b8c2d0896fb3b4be6c69947f0590094b15' in reference['html_url'], name
+        entries[f'references/{stem}.json'] = response
+        entries[f'references/{reference["path"]}'] = content
+        reference_receipts[stem] = dict(url=reference['html_url'],
+                                        blob=reference['sha'])
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
     referenceContracts=reference_receipts,
-    auditedCriteria=['QA01', 'QA07', 'QA08', 'QA09', 'QA10', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA01', 'QA07', 'QA08', 'QA09', 'QA10', 'QA11', 'QA16', 'QA25', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )
