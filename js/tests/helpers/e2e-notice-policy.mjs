@@ -191,22 +191,7 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
       assert.equal((await counts(page)).draft, '');
     });
   }
-  await run(
-    'employer-changed-before-dispatch',
-    { changeContext: true },
-    async ({ browser, input, status, page }) => {
-      await inactive(page);
-      await browser.watchStart(input);
-      const paused = await until(
-        status,
-        (s) => s.state === 'paused' && !s.owned
-      );
-      assert.equal(paused.phase, 'failed');
-      assert.equal(paused.reason, 'answer-text-changed');
-      assert.equal((await counts(page)).sends, 0);
-      assert.equal((await counts(page)).draft, '');
-    }
-  );
+  await verifyNoticeEmployerChange(engine, { screenshots, outcomes });
   await run(
     'unknown-no-retry',
     {},
@@ -226,4 +211,35 @@ export const verifyNoticePolicies = async (engine, { screenshots } = {}) => {
     }
   );
   return { cases: outcomes.length, outcomes, liveProvider: false };
+};
+
+/** The shared pane guard must refuse a replacement employer before any send. */
+export const verifyNoticeEmployerChange = async (
+  engine,
+  { screenshots, outcomes = [] } = {}
+) => {
+  await runNoticeCase(
+    engine,
+    screenshots,
+    outcomes,
+    'employer-changed-before-dispatch',
+    { changeContext: true },
+    async ({ browser, input, status, page }) => {
+      await inactive(page);
+      await browser.watchStart(input);
+      const paused = await until(
+        status,
+        (s) => s.state === 'paused' && !s.owned
+      );
+      assert.equal(paused.phase, 'failed');
+      // Active history capture rejects the observed replacement pane before
+      // the text sender can compare its frozen notice context.
+      assert.equal(paused.reason, 'answer-chat-unverified');
+      assert.equal(paused.outbox.status, 'failed');
+      assert.equal((await counts(page)).sends, 0);
+      assert.equal((await counts(page)).choices, 0);
+      assert.equal((await counts(page)).draft, '');
+    }
+  );
+  return { cases: 1, liveProvider: false };
 };
