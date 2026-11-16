@@ -707,3 +707,8 @@ application prefill, automatic submission and continuation. Require owner review
 for extracted questionnaire components, unapproved answers, conflicting matches
 or missing admission evidence while retaining approved exact reuse and explicit
 native form review.
+
+Share explicit named answer profiles and validated salary targets with native
+single and batch applications through CLI, both Lino encodings and the shared
+four-language controls. Freeze acknowledged targets, re-read current contacts,
+retain legacy journal signatures and keep assembled answers for owner review.

@@ -6,6 +6,7 @@ import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { applicationResult } from './application-result.js';
 import { applicationConfirmationPolicy } from './application-confirmations.js';
+import { applicationAnswerContext } from './application-answer-context.js';
 import { browserUnreadId } from '../automation/question-unread-identity.js';
 import {
   applicationChatSettings,
@@ -113,6 +114,14 @@ const validLists = (raw, options) =>
   !raw.delivered.some((url) => raw.skipped.includes(url)) &&
   (raw.currentUrl === null || options.urls.includes(raw.currentUrl));
 
+const validChatSnapshot = (raw, options) =>
+  (!options.processChats || browserUnreadId(raw.chatPassId)) &&
+  (raw.chatWorker === undefined ||
+    (options.processChats &&
+      !raw.chatWorker.active &&
+      validApplicationChatView(raw.chatWorker, options, false) &&
+      raw.chatWorker.passId === raw.chatPassId));
+
 /** Private snapshots are validated before recovery; they never recreate a worker. */
 export const readApplicationBatch = (raw, key) => {
   const options = applicationBatchOptions({
@@ -127,12 +136,7 @@ export const readApplicationBatch = (raw, key) => {
     raw.signature !== JSON.stringify(options) ||
     !lifecycle(raw) ||
     !validLists(raw, options) ||
-    (options.processChats && !browserUnreadId(raw.chatPassId)) ||
-    (raw.chatWorker !== undefined &&
-      (!options.processChats ||
-        raw.chatWorker.active ||
-        !validApplicationChatView(raw.chatWorker, options, false) ||
-        raw.chatWorker.passId !== raw.chatPassId)) ||
+    !validChatSnapshot(raw, options) ||
     Date.parse(raw.expiresAt) - Date.parse(raw.startedAt) !== options.durationMs
   ) {
     throw fail('batch-recovery');
@@ -150,6 +154,7 @@ const settingsView = (options) => ({
   testMode: options.review.testMode,
   autoExact: options.review.autoExact,
   reviewDelayMs: options.review.reviewDelayMs,
+  ...applicationAnswerContext(options.review),
 });
 export const applicationBatchView = (
   record,

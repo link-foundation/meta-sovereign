@@ -1,10 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import { ApplicationAnswerReceipt } from './application-answer-settings.js';
 import {
   ApplicationChatControls,
   ApplicationChatReceipt,
 } from './application-chat-controls.js';
 
 const el = React.createElement;
+const chatPolicyDraft = (draft, batch, frozen) =>
+  frozen && batch ? { ...draft, ...batch.settings } : draft;
+const BatchHeading = ({ batch, eligible, action, update, frozen, t }) =>
+  el(React.Fragment, null, [
+    el('h4', { key: 'title' }, t('application.batch.title')),
+    el('p', { key: 'hint', className: 'meta' }, t('application.batch.hint')),
+    el(ApplicationAnswerReceipt, {
+      key: 'answer-context',
+      receipt: batch?.settings,
+    }),
+    eligible.length
+      ? action(
+          'use-discovery',
+          'discovery.useBatch',
+          () => update('urls', eligible.join('\n')),
+          frozen
+        )
+      : null,
+  ]);
+
 export const ApplicationBatchView = ({ application, supported, t }) => {
   const state = application.batch;
   const [draft, setDraft] = useState({
@@ -42,16 +63,15 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
   const action = (...args) => batchAction(t, ...args);
   const check = (...args) => batchCheck(t, ...args);
   return el('div', { className: 'col', 'data-application-batch': true }, [
-    el('h4', { key: 'title' }, t('application.batch.title')),
-    el('p', { key: 'hint', className: 'meta' }, t('application.batch.hint')),
-    eligible.length
-      ? action(
-          'use-discovery',
-          'discovery.useBatch',
-          () => update('urls', eligible.join('\n')),
-          frozen
-        )
-      : null,
+    el(BatchHeading, {
+      key: 'heading',
+      batch,
+      eligible,
+      action,
+      update,
+      frozen,
+      t,
+    }),
     el('label', { key: 'urls', className: 'col' }, [
       t('application.batch.urls'),
       el('textarea', {
@@ -114,7 +134,7 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
     ),
     el(ApplicationChatControls, {
       key: 'chats',
-      draft: frozen && batch ? { ...draft, ...batch.settings } : draft,
+      draft: chatPolicyDraft(draft, batch, frozen),
       update,
       frozen,
       t,

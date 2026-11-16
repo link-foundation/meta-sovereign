@@ -1,4 +1,8 @@
 export const ruApplication = {
+  'application.answerProfile': 'Общий профиль ответов: {profile}',
+  'application.answerTargets': 'Фиксированные зарплатные ожидания: {targets}',
+  'application.answerContext':
+    'Выберите общий профиль ответов и зарплатные ожидания для этого отклика или серии. Ожидания фиксируются на время проверки; каждый план читает актуальные сохранённые значения профиля. Проверьте составные ответы перед отправкой.',
   'application.chats.enable':
     'Проверять непрочитанные чаты параллельно откликам',
   'application.chats.hint':

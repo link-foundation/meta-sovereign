@@ -75,6 +75,7 @@ export const useApplication = ({ api, values, selected, run }) => {
   return {
     ...state,
     options,
+    api,
     setOptions,
     batch,
     occupied: Boolean(state.intent && (!state.known || state.receipt?.active)),

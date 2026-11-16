@@ -1,4 +1,8 @@
 export const enApplication = {
+  'application.answerProfile': 'Shared answer profile: {profile}',
+  'application.answerTargets': 'Fixed salary targets: {targets}',
+  'application.answerContext':
+    'Choose the shared answer profile and salary targets for this application or batch. Targets stay fixed for this review; each plan reads current saved profile values. Review assembled answers before sending.',
   'application.chats.enable': 'Review unread chats alongside applications',
   'application.chats.hint':
     'Uses a separate browser slot. Exact bot choices may send through verified delivery guards; ordinary replies stay as drafts. Applications continue during chat review. Stop or completion finishes chat work and closes its browser. Sign in manually in this slot when required.',

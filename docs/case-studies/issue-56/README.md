@@ -616,5 +616,9 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 
 - [Runner transport cancellation](runner-transport-deadline.md): actual-parent stubborn-child refusal, bounded command escalation, retained close ownership and 24 Node/eight Deno focused checks; wider desktop requirements remain active.
 - [Native application answer approval](application-answer-approval.md): actual-parent unreviewed submission, conservative shared admission, four focused regressions, compatibility checks and before/after native browser evidence.
+
+- [Native application answer context](application-answer-context.md): retain named profiles and fixed salary targets through single/batch CLI, both Lino encodings and shared localized controls, with current-contact reads, mandatory native browser checks and before/after/phone evidence.
+
+- [Bounded native browser registration](ci-application-registration.md): preserve the actual hosted registration failure and restore four-scenario bounds with a separate mandatory answer check.
 - [Shared sticker test fixtures](ci-duplication-fixtures.md): exact hosted duplication failure and preserved browser scenarios with shared setup under the unchanged gate.
 - [Complete questionnaire URL assertions](questionnaire-url-assertions.md): preserve three exact hosted CodeQL findings and require full URL boundaries in unit, native browser and MCP questionnaire checks.

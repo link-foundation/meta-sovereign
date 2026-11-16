@@ -10,6 +10,7 @@ import {
   applicationStandardLetters,
   applicationLetterLanguage,
 } from './application-letters.js';
+import { applicationAnswerContext } from './application-answer-context.js';
 
 export const applicationFailure = (kind) =>
   jobsFailure(
@@ -94,6 +95,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
             input.applicationIntervalSeconds
           ),
         }),
+    ...applicationAnswerContext(input),
   };
 };
 export const applicationDelay = (ms, signal) =>
@@ -199,5 +201,6 @@ export const applicationView = (record) => {
     resumeContext: applicationResumeContext(record),
     resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
+    ...applicationAnswerContext(record.options),
   });
 };

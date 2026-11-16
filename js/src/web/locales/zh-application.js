@@ -1,4 +1,8 @@
 export const zhApplication = {
+  'application.answerProfile': '共享回答档案：{profile}',
+  'application.answerTargets': '固定薪资目标：{targets}',
+  'application.answerContext':
+    '为本次申请或批量申请选择共享回答档案和薪资目标。审核期间薪资目标保持不变；每次规划都会读取档案中当前保存的值。发送前请审核组合回答。',
   'application.chats.enable': '在申请期间检查未读聊天',
   'application.chats.hint':
     '使用独立的浏览器槽位。精确的机器人选项可能在验证送达后发送；普通回复保留为草稿。审核聊天期间申请会继续。停止或完成时将结束聊天操作并关闭其浏览器。需要时请在此槽位中手动登录。',

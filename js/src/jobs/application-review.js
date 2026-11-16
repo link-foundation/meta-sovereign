@@ -127,12 +127,16 @@ export class ApplicationReview {
           vacancy: record.vacancy,
           source: 'hh',
           chat: record.url,
+          profileId: record.options.profileId,
+          salary: record.options.salary,
         },
         () => signal.throwIfAborted()
       );
       record.exact = exactApplicationPlan(record);
       this.service.trace({
         event: 'application-answer-approval',
+        namedProfile: Boolean(record.options.profileId),
+        salaryCurrencies: record.options.salary?.currencies.length ?? 0,
         exact: record.exact,
         reviewRequired: record.report.fields.filter(
           (field) =>

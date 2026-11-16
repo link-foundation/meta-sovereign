@@ -16,6 +16,10 @@ import {
   ApplicationContinuationView,
 } from './application-confirmation-view.js';
 import { ApplicationPacingSettings } from './application-pacing-view.js';
+import {
+  ApplicationAnswerSettings,
+  ApplicationAnswerReceipt,
+} from './application-answer-settings.js';
 
 const el = React.createElement;
 const button = (key, label, onClick, disabled) =>
@@ -58,6 +62,7 @@ const Settings = ({ application, disabled, t }) => {
   const update = (key, value) => setOptions({ ...options, [key]: value });
   return el('fieldset', { className: 'automation-fieldset', disabled }, [
     el('legend', { key: 'legend' }, t('application.settings')),
+    el(ApplicationAnswerSettings, { key: 'answers', application, disabled }),
     check(
       'autoAnswerViewedVacancy',
       t('application.autoAnswerViewedVacancy'),
@@ -560,6 +565,10 @@ export const ApplicationPanel = ({ state, t }) => {
       }),
       el(ApplicationLimitView, { key: 'limit', application, t }),
       el(Status, { key: 'status', application, t }),
+      el(ApplicationAnswerReceipt, {
+        key: 'answer-context',
+        receipt: application.receipt,
+      }),
       check(
         'confirm',
         t('application.confirm'),

@@ -19,6 +19,13 @@ unmerged until the complete acceptance mapping is verified.
 - [x] Preserve three exact-head CodeQL findings and strengthen questionnaire
       URL assertions without suppressions; verify focused unit/browser checks.
 - [ ] Publish the corrections and inspect all five exact-head CI workflows.
+- [x] Reproduce native applications dropping named profile and salary context;
+      carry validated, frozen settings through single/batch CLI, both Lino
+      encodings and existing localized controls. Verify current-profile reads,
+      review-only assembly, legacy journals and isolated browser screenshots.
+      Eleven new portable checks, 32 final focused and 52 compatibility checks
+      pass; mandatory Chromium and independent MCP before/after/phone checks pass.
+      Publish the atomic correction and require fresh exact-head hosted verification.
 - [ ] Complete the ten-criterion VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including wider QA09/QA10

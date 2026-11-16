@@ -25,3 +25,15 @@ meta-sovereign automations answers backfill-questionnaires --apply
 `answers learn` 包含相同操作。两种 Links Notation 编码均支持
 `POST /api/automations/answers/backfill-questionnaires` 和 `/api/automations/answers/learn`。
 `apply: false` 仅预览，`apply: true` 保存建议。容量不足或知识并发变化时拒绝应用；请重新预览。
+
+## 原生申请上下文
+
+在 CV 中开始单次申请或批量申请之前，可在申请设置中选择共享档案并配置薪资目标。
+问卷的每个组成部分分别使用对应币种、税前或税后金额以及联系信息。回执显示已确认的
+档案和固定目标。每次重新规划都会读取已保存档案的当前值；修改联系方式不会改变
+固定的薪资目标。档案不存在时拒绝规划。组合答案需要人工审核，不能触发精确答案自动提交。
+
+单次和批量申请 CLI 支持 `--profile-id` 和 `--salary`（使用共享薪资配置的
+Links Notation 记录）。对应的申请打开及批量启动 API 支持 `profileId` 和
+`salary`，并接受两种 Lino 编码。省略这些字段可保留原有行为。浏览器恢复存储中
+仅保存申请标识。

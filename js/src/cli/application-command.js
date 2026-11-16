@@ -6,7 +6,7 @@ import {
   applicationKey,
 } from '../jobs/application-options.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
-import { encodeWire } from '../transport/lino.js';
+import { encodeWire, decodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
 import { applicationSurveyConfiguration } from './application-configuration.js';
 import {
@@ -62,6 +62,8 @@ const commandInput = async (args, configuration) => {
     recover: boolean(args, 'recover'),
     coverLetter: await letterFile(args['cover-letter-file']),
     standardLetters,
+    profileId: args['profile-id'],
+    salary: args.salary ? decodeWire(args.salary) : undefined,
     autoSelectResumeLanguage:
       boolean(args, 'no-auto-select-resume-language') !== true,
     autoAnswerViewedVacancy: await applicationSurveyConfiguration(

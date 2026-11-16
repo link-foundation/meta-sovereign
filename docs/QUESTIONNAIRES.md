@@ -34,3 +34,19 @@ encodings support `POST /api/automations/answers/backfill-questionnaires` or
 `POST /api/automations/answers/learn`, with `{ apply: false }` for a read-only
 preview and `{ apply: true }` to save proposals. Capacity or concurrent-knowledge
 refusals leave proposals unapplied; review the refusal and run a fresh preview.
+
+## Native application context
+
+Before starting a single application or batch in CV, choose a reusable profile
+and configure salary targets in the application settings. Each questionnaire
+component uses its own currency, net/gross basis and contact key. The receipt
+shows the acknowledged profile and fixed targets. Every new plan reads the
+current saved profile values; editing contacts does not change fixed salary
+targets. A missing profile refuses planning. Assembled answers require review
+and cannot trigger exact-answer automatic submission.
+
+The single and batch application CLI commands accept `--profile-id` and
+`--salary` (a Links Notation record using the shared salary configuration).
+The matching single-open and batch-start API requests accept `profileId` and
+`salary` in either Lino encoding. Omit both to retain existing behavior. Only
+the application identity is saved in browser recovery storage.

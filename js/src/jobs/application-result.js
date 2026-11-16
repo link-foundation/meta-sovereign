@@ -16,6 +16,7 @@ import { applicationHoldReasons } from './application-holds.js';
 import { applicationResumeData } from './application-resume-data.js';
 import { applicationLimitData } from './application-limit-data.js';
 import { applicationLimitWaitData } from './application-limit-wait-data.js';
+import { validApplicationAnswerContext } from './application-answer-context.js';
 
 export const applicationStates = [
   'opening',
@@ -162,6 +163,12 @@ const validateLimitWait = (raw) => {
   }
 };
 
+const validReceiptContext = (raw, input) =>
+  identity(raw, input) &&
+  state(raw) &&
+  page(raw.page) &&
+  validApplicationAnswerContext(raw);
+
 /** Bind public receipts before any UI uses their readiness or delivery state. */
 export const applicationResult = (raw, input) => {
   try {
@@ -169,7 +176,7 @@ export const applicationResult = (raw, input) => {
       validateMissing(raw, input);
       return raw;
     }
-    if (!identity(raw, input) || !state(raw) || !page(raw.page)) {
+    if (!validReceiptContext(raw, input)) {
       fail();
     }
     applicationConfirmations(raw.confirmations);

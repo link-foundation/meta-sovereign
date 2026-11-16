@@ -14,6 +14,10 @@ import { resumeCacheFixture } from './resume-cache-fixture.mjs';
 import { applicationNativeFixture } from './application-native-fixture.mjs';
 import { resumeLanguageBrowserFixture } from './resume-language-browser-fixture.mjs';
 import { applicationResumeNativeFixture } from './application-resume-native-fixture.mjs';
+import {
+  applicationAnswerQuestionnaire,
+  seedApplicationAnswerContext,
+} from './application-answer-context-fixture.mjs';
 
 const browser = await chromium.launch({
   executablePath: '/opt/google/chrome/chrome',
@@ -26,6 +30,7 @@ const limitFixture = process.env.APPLICATION_LIMIT_FIXTURE === '1';
 const pacingFixture = process.env.APPLICATION_PACING_FIXTURE === '1';
 const popup = process.env.APPLICATION_POPUP_FIXTURE === '1';
 const batchFixture = process.env.APPLICATION_BATCH_FIXTURE === '1';
+const answerContext = process.env.APPLICATION_ANSWER_CONTEXT_FIXTURE === '1';
 const batchEffects = [];
 try {
   const create =
@@ -33,7 +38,7 @@ try {
       ? applicationResumeNativeFixture
       : process.env.RESUME_LANGUAGE_FIXTURE === '1'
         ? resumeLanguageBrowserFixture
-        : process.env.APPLICATION_REVIEW_FIXTURE === '1'
+        : process.env.APPLICATION_REVIEW_FIXTURE === '1' || answerContext
           ? applicationNativeFixture
           : process.env.CHOICE_PUT_FAILURE === '1'
             ? choicePutFixture
@@ -42,6 +47,7 @@ try {
               : vacancyBrowserFixture;
   fixture = await create(browser, {
     popup,
+    ...(answerContext ? { questionLabel: applicationAnswerQuestionnaire } : {}),
     ...(batchFixture
       ? { onApplicationClose: (effect) => batchEffects.push(effect) }
       : {}),
@@ -55,6 +61,9 @@ try {
         }
       : {}),
   });
+  if (answerContext) {
+    await seedApplicationAnswerContext(fixture.store);
+  }
   await fixture.page.context().close();
 } catch (error) {
   await browser.close();
