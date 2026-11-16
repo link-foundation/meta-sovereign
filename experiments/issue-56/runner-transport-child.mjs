@@ -5,9 +5,12 @@ if (mode === 'argv') {
   process.stdout.write(JSON.stringify(values));
 } else if (mode === 'large') {
   process.stdout.write('x'.repeat(80000));
-} else if (mode === 'cancel') {
+} else if (mode === 'cancel' || mode === 'stubborn') {
   const deadline = globalThis.setTimeout(() => process.exit(2), 3000);
   process.once('SIGTERM', () => {
+    if (mode === 'stubborn') {
+      return;
+    }
     globalThis.setTimeout(async () => {
       await writeFile(values[0], 'drained');
       globalThis.clearTimeout(deadline);

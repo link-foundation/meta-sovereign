@@ -610,3 +610,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 
 - [CV experience diagnostic ownership](ci-cv-experience-page-errors.md): retain the failed hosted job and actual-parent native WebKit replay, apply the existing exact-origin diagnostic policy and preserve genuine failures. Fresh hosted verification remains required.
 - [Packaged macOS boot check](desktop-packaged-launch.md): require a native packaged window, rendered app, positive backend and drained exit on CI, retaining a screenshot. Hosted acceptance and VD09 remain unfinished.
+
+- [Runner transport cancellation](runner-transport-deadline.md): actual-parent stubborn-child refusal, bounded command escalation, retained close ownership and 24 Node/eight Deno focused checks; wider desktop requirements remain active.

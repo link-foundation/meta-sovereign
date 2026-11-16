@@ -681,3 +681,8 @@ Read bounded LinkedIn experience card text and the selected profile About in one
 Preview exact Formal AI workplace translation failures, search existing reports before publication, preserve same-version comments and require explicit consent. Share durable non-replaying reporting, actual acknowledgement URLs and drained Stop through CLI, both Lino encodings and all four CV interface languages. Resolve the existing localized Role label in experience plans.
 
 Show a translated floating confirmation after an explicitly acknowledged local or SSH session Start/Stop. Preserve session-only scope, read-only recovery, dismissal, expiry and focus without announcing success for pending, refused or ambiguous actions.
+
+Bound local and SSH runner commands and escalate cancellation for children that
+ignore termination. Retain controller ownership until the child actually closes,
+refuse late success after cancellation or expiry and never retry ambiguous effects
+(issue #56, VD01/VD02).

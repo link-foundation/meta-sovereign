@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { setTimeout as pause } from 'node:timers/promises';
 import {
   runRunnerCommand,
+  createRunnerTransport,
   runnerInvocation,
 } from '../src/server/runner-transport.js';
 
@@ -47,6 +48,49 @@ test(
       'meta-sovereign-no-such-test-command',
     ]);
     assert.equal(absent.code, 'ENOENT');
+  }
+);
+
+test(
+  'a real finite child ignoring SIGTERM is killed and reaped on cancellation',
+  { timeout: 6000, skip: process.platform === 'win32' },
+  async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'runner-stubborn-'));
+    const abort = new AbortController();
+    const phases = [];
+    const run = createRunnerTransport({
+      killAfterMs: 30,
+      trace: (phase) => phases.push(phase),
+    });
+    let work;
+    try {
+      const ready = join(dir, 'ready');
+      work = run(
+        { directory: dir },
+        childArgs('stubborn', join(dir, 'unused'), ready),
+        { signal: abort.signal }
+      );
+      let began = false;
+      for (let attempt = 0; attempt < 100 && !began; attempt += 1) {
+        began = await readFile(ready, 'utf8').then(
+          () => true,
+          () => false
+        );
+        if (!began) {
+          await pause(10);
+        }
+      }
+      assert.equal(began, true);
+      abort.abort();
+      const result = await work;
+      assert.equal(result.aborted, true);
+      assert.equal(result.code, 'ABORT_ERR');
+      assert.deepEqual(phases, ['cancel', 'force-kill', 'closed']);
+    } finally {
+      abort.abort();
+      await work;
+      await rm(dir, { recursive: true, force: true });
+    }
   }
 );
 
