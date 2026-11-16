@@ -85,9 +85,11 @@ await runBrowserScenarios('fixture', [async function check() {
   const failed = invoke({ nativeFocus: true, fail: true });
   assert.equal(failed.status, 1);
   assert.match(failed.stderr, /fixture scenario failed/);
-  const entry = readFileSync(
-    new URL('./e2e-question-inactive-history-browser.mjs', import.meta.url),
-    'utf8'
-  );
-  assert.match(entry, /nativeFocus:\s*true/u);
+  for (const name of ['question-inactive-history', 'question-history']) {
+    const entry = readFileSync(
+      new URL(`./e2e-${name}-browser.mjs`, import.meta.url),
+      'utf8'
+    );
+    assert.match(entry, /nativeFocus:\s*true/u, name);
+  }
 });
