@@ -73,6 +73,7 @@ test_files = [
     'vk-queue-lifecycle', 'automation-trigger-state', 'vk-live-history',
     'runner-log', 'vk-message-defaults', 'vk-token-acquisition',
     'vk-token-authorization', 'vk-token-api', 'vk-token-electron-entry',
+    'runner-view',
     'cv-formal-report', 'cv-formal-report-github', 'cv-formal-report-surfaces',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
@@ -97,7 +98,8 @@ scenarios = {
     'vk-friends': ['verifyVkFriendPriority', 'verifyVkFriendStats',
                    'verifyVkDiscovery', 'verifyVkStickers',
                    'verifyVkSendQueue', 'verifyRunnerLog'],
-    'vk-token': ['verifyVkToken'],
+    'vk-token': ['verifyVkToken', 'verifyRunnerSessions', 'verifyRunnerProfile',
+                 'verifyRunnerHealth', 'verifyRunnerFeedback'],
     'vk-engagement': ['verifyVkMessageDefaults'],
     'cv-translation': ['verifyCvFormalReports'],
 }

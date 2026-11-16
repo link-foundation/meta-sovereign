@@ -40,10 +40,11 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py` streams fourteen
+`python -B experiments/issue-56/audit-hosted-criteria.py b61cf5fd` streams fifteen
 existing archives, checks every entry against its committed SHA-256 manifest
-and records current production source hashes and their differences. It does
-not extract archives or run a local test matrix. All 1,192 entries pass.
+and records the selected published production source hashes and their differences. It does
+not extract archives or run a local test matrix. All 1,226 entries pass,
+including the 34-entry runner confirmation archive.
 
 The reviewed later changes include legacy empty-list normalization, provider
 friend-status reads in official-size chunks, the drained foreground queue
@@ -56,9 +57,10 @@ reviewable instead of treating old test output as current-source proof.
 
 The later [runner confirmations](runner-feedback.md) change the shared Settings
 surface after an explicit positive Start/Stop receipt. They do not complete the
-remaining desktop execution requirements. Refresh this source audit and review
-the mandatory runner browser scenario on the newly published source before
-acceptance.
+remaining desktop execution requirements. The refreshed source audit includes
+their archived sources, and the acceptance collector now requires their nine
+portable checks and all five shared token/runner scenarios on each browser
+engine. Hosted verification on `b61cf5fd` remains pending.
 
 ## VK24 remains unfinished
 

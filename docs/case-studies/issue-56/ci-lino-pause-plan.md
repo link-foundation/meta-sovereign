@@ -18,8 +18,13 @@ retry alone cannot prove the cause of an earlier timeout.
 - [x] Add bounded opt-in phase and store put/flush/close timing to the existing
       real integration test; enable only that trace in Windows Node CI. Preserve
       assertions, five-second deadline, durable writes and real file reopening.
-- [ ] Run the focused test with and without tracing, verify the trace contains
+- [x] Run the focused test with and without tracing, verify the trace contains
       only fixed phase names and durations, and publish the diagnostic change.
-- [ ] Read the published Windows result, then resolve any identified stalled
-      operation with a reproducing regression. Keep the cause unfinished if
-      the new run cannot establish it. Review all other current-commit checks.
+- [x] Read published `b61cf5fd` Windows Node shard 1/3: the named test passes in
+      88.994 ms, all 28 traced operations complete and the suite has no failed
+      or cancelled tests. Preserve the full job and raw log as a separate
+      follow-up archive, retaining the original failure evidence unchanged.
+- [ ] Establish the earlier timeout's cause from a witnessed failure, then
+      resolve an identified stalled operation with a reproducing regression.
+      The new passing trace cannot establish that cause. Review all other
+      current-commit checks.

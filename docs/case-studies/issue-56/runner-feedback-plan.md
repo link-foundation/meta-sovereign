@@ -16,7 +16,7 @@ the remaining desktop execution or installation requirements.
 - [x] Extend the existing mandatory browser scenario with observed Start/Stop,
       dismissal and negative-state assertions. Capture the missing parent state
       and fixed desktop/phone state in a finite private fixture.
-- [ ] Run focused checks with bounded concurrency, independently review the UI
+- [x] Run focused checks with bounded concurrency, independently review the UI
       through Playwright MCP, rebuild the web bundle, preserve evidence and update
       PR #57. Leave full runtime/platform matrices to GitHub CI.
 

@@ -9,16 +9,20 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tarfile
 
 root = Path(__file__).resolve().parents[2]
 data = root / 'docs/case-studies/issue-56/data'
-revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip()
+revision = subprocess.check_output(
+    ['git', 'rev-parse', sys.argv[1] if len(sys.argv) > 1 else 'HEAD'],
+    cwd=root).decode().strip()
 names = [
     'vk-friend-stats', 'vk-friend-priority', 'runner-log',
     'vk-message-defaults', 'vk-cache', 'vk-stickers', 'vk-discovery',
     'vk-queue', 'vk-trigger', 'vk-live-history', 'vk-queue-lifecycle',
     'vk-token', 'vk-token-registration', 'vk-token-electron-entry',
+    'runner-feedback',
 ]
 audits = {}
 with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
@@ -38,7 +42,8 @@ with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
                 source = entry.name.startswith(('js/src/', 'js/electron/')) or entry.name == 'experiments/issue-56/vk-token-electron.mjs'
                 if not source or entry.name.endswith('/app.min.js'):
                     continue
-                current = (root / entry.name).read_bytes()
+                current = subprocess.check_output(
+                    ['git', 'show', f'{revision}:{entry.name}'], cwd=root)
                 current_hash = hashlib.sha256(current).hexdigest()
                 sources[entry.name] = {
                     'archived': actual[entry.name], 'current': current_hash,

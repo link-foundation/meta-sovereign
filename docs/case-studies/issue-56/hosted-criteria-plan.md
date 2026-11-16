@@ -23,6 +23,10 @@ later run alone cannot establish its cause or complete that criterion.
       corrections, including the real-window fixture. The exact-head desktop
       Linux x64 job positively passes native authorization isolation; preserve
       its log alongside the portable and browser receipts before acceptance.
+- [x] Include the runner confirmation archive in the source comparison and
+      require its named portable checks plus all five shared token/runner
+      browser scenarios on both engines. Allow the source audit to select a
+      published revision while later documentation is being prepared.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.
@@ -39,7 +43,8 @@ later run alone cannot establish its cause or complete that criterion.
 The earlier `5936c544` retry was superseded by later commits. Published
 `a493e1cf` passes the desktop, Pages, security and link workflows, but its
 [Windows private pause checkpoint test timed out](ci-lino-pause.md). Its main
-workflow is still pending; neither revision satisfies the acceptance gate.
-The locally committed runner confirmations also change the shared Settings
-surface. Refresh the source audit after publishing them and require hosted
-receipts for that source before accepting any row.
+workflow was superseded; neither revision satisfies the acceptance gate.
+Published `b61cf5fd` includes the runner confirmations and private checkpoint
+timing diagnostics. Its hosted matrix is in progress. Require receipts for
+that source before accepting any row; later documentation does not replace
+the source SHA recorded by this audit.

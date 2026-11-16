@@ -38,3 +38,21 @@ cannot establish that cause by itself.
 [hash manifest](data/ci-lino-pause.tar.sha256.json).
 All 60 unchecked criteria remain required; this accepts no inventory row in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+## Published Windows trace
+
+On `b61cf5fd`, [Windows Node shard 1/3](https://github.com/link-foundation/meta-sovereign/actions/runs/43879915890/job/133345481256)
+passes the named regression in 88.994 ms (raw line 2046). Lines 1990–2045
+contain all 56 events, with every one of the 28 operations completing. The
+initial open takes 3.976 ms, entry 27.967 ms, acknowledgement 34.615 ms,
+service Stop 0.360 ms, reopen 8.300 ms and the reopened pause read 0.583 ms.
+The longest individual store flush takes 7.863 ms. Lines 3940–3944 report
+2,348 tests, 2,345 passes, no failures and no cancellations; three tests skip.
+
+These are observations of the later successful run with the unchanged deadline.
+They show no stalled operation in that execution and cannot identify the
+earlier timeout's cause. The original failure remains preserved separately;
+no production storage change or deadline increase is justified by this receipt.
+
+[Hosted log and job metadata](data/ci-lino-pause-hosted.tar.gz),
+[hash manifest](data/ci-lino-pause-hosted.tar.sha256.json).
