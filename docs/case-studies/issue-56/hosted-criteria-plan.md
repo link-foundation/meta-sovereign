@@ -3,7 +3,7 @@
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression
-evidence. This audit concerns QA09–QA10, QA16, QA26, VK23–VK26, VD08 and VD11–VD15. The later
+evidence. This audit concerns QA09–QA10, QA16, QA26, HH23, VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
 evidence. VK24 retains an unresolved earlier WebKit reload failure. Its cause
@@ -52,6 +52,10 @@ investigation separate and never describe its cause as fixed.
       source. Verify four more archives, distinguishing early Git provenance
       from declared archive source hashes. Preserve mandatory browser assertion
       bodies and require their group completion on both engines.
+- [x] Re-read the pinned HH23 saved-snapshot publication contract and all three
+      source paths. Verify six more archives, private-file/Git guards and later
+      source differences. Require the six portable files, both actual Lino
+      variants and semantic publication receipts on Chromium and WebKit.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.
@@ -93,6 +97,6 @@ Parent `bf15f721` fails four experience publication checks in each Windows
 runtime. Its [raw failures and scoped long-path investigation](ci-publication-long-paths.md)
 remain preserved. Published `9d31c3e7` now passes all three native Windows
 comparisons, but retains the separately reproduced broad publication selector.
-Select the next published source with the scoped helpers; none of its twelve
-audit candidates is accepted until all five fresh workflows and their semantic
+Select the next published source with the scoped helpers; none of the audit
+candidates is accepted until all five fresh workflows and their semantic
 receipts pass. Other unchecked original criteria remain required in PR57.

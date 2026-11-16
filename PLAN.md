@@ -31,7 +31,7 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the fourteen-criterion questionnaire/turn/policy/VK/desktop evidence audit, accepting only fully
+- [ ] Complete the fifteen-criterion questionnaire/turn/policy/publication/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
 - [ ] Complete the remaining original requirements, including questionnaire
       acceptance, CV editing/sync, unread orchestration and desktop execution.
@@ -145,3 +145,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [ ] Publish the atomic audit, preserve all five exact-source workflows and
       accept only completely verified mappings. All 60 original unchecked rows
       remain required until their evidence is complete.
+
+2026-11-16 saved snapshot publication acceptance audit:
+
+- [x] Map the complete HH23 contract to verified owner Save, native export and immutable experience publication, preserving private originals, PDFs, backups and pending plans.
+- [x] Verify six more archives (34 total, 2,092 manifest entries) and review later source differences. Require all six portable publication files, both actual Lino variants and all three semantic browser receipts on each engine.
+- [ ] Preserve all five successful workflows for the selected published source, review the receipts and accept only fully verified criteria. The fifteen audit candidates remain unchecked until this gate passes.
+- [ ] Continue every remaining original requirement in PR57; shared/new workplace editing and the other unfinished criteria remain required.

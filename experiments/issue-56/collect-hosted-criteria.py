@@ -89,6 +89,9 @@ test_files = [
     'question-corrections', 'question-corrections-controls',
     'question-concurrency', 'question-concurrency-controls',
     'question-controls', 'question-substitution', 'question-automation',
+    'cv-publication', 'cv-publication-boundaries', 'cv-publication-controls',
+    'cv-publication-exports', 'cv-publication-experience',
+    'cv-publication-long-paths',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -98,6 +101,13 @@ for stem in test_files:
     entries[path] = content
     names = [ast.literal_eval(match.group(1)) for match in
              literal_test.finditer(content.decode())]
+    if stem in ['cv-publication-controls', 'cv-publication-exports',
+                'cv-publication-experience']:
+        templates = re.findall(r'\btest\(\s*`([^`]+\$\{type\}[^`]*)`\s*,',
+                               content.decode())
+        assert len(templates) == 1, path
+        names.extend(templates[0].replace('${type}', kind) for kind in
+                     ['text/lino', 'application/lino-binary'])
     assert names, f'no literal named tests: {path}'
     positive = {}
     for name in names:
@@ -119,6 +129,9 @@ scenarios = {
     'vk-engagement': ['verifyVkMessageDefaults'],
     'cv-translation': ['verifyCvFormalReports'],
     'questions': ['saved-questionnaire-index'],
+    'cv-snapshot-publication': ['verifyCvSnapshotPublication',
+                                'verifyNativeExportPublication',
+                                'verifyExperiencePublication'],
     'job-application-answers': ['verifyNativeApplicationAnswerApproval',
                                 'verifyNativeApplicationAnswerContext'],
 }
@@ -139,6 +152,12 @@ for name, helper in question_assertions.items():
         path = f'js/tests/helpers/{helper}.mjs'
         entries[path] = subprocess.check_output(
             ['git', 'show', f'{sha}:{path}'], cwd=root)
+for path in ['js/tests/e2e-cv-publication-browser.mjs',
+             'js/tests/helpers/e2e-cv-publication.mjs',
+             'js/tests/helpers/e2e-cv-publication-exports.mjs',
+             'js/tests/helpers/e2e-cv-publication-experience.mjs']:
+    entries[path] = subprocess.check_output(
+        ['git', 'show', f'{sha}:{path}'], cwd=root)
 for engine in ['chromium', 'webkit']:
     # These older assertions precede the group's final success marker and have
     # no separate scenario envelope. Retain their exact published bodies and
@@ -151,7 +170,8 @@ for engine in ['chromium', 'webkit']:
         awaited=list(question_assertions), kind='group-completion')
     for group, names in scenarios.items():
         shard = (2 if group == 'job-application-answers' else
-                 3 if group in ['vk-token', 'cv-translation', 'questions'] else 4)
+                 3 if group in ['vk-token', 'cv-translation', 'questions',
+                                'cv-snapshot-publication'] else 4)
         tag = f'{engine}-{shard}'
         assert any(f'[e2e-{group}] OK ({engine})' in line for line in raw[tag]), tag
         for name in names:
@@ -176,6 +196,20 @@ for engine in ['chromium', 'webkit']:
                 assert all(receipt['automaticWrites'] == receipt['automaticSubmissions'] == 0
                            and receipt['reviewedSubmissions'] == 1
                            and receipt['ownedBrowserClosed'] is True for receipt in result)
+            elif group == 'cv-snapshot-publication':
+                assert result['providerSessions'] == 0 and result['locales'] == 4
+                assert result['recoveryReplayed'] is False
+                if name == 'verifyCvSnapshotPublication':
+                    assert result['localSnapshotPushes'] == 2
+                    assert result['privateIndexPreserved'] is True
+                else:
+                    assert result['localPushes'] == 1
+                    if name == 'verifyNativeExportPublication':
+                        assert result['nativeExportSource'] is True
+                        assert result['privateExportPreserved'] is True
+                    else:
+                        assert result['experiencePublication'] is True
+                        assert result['privateOriginalsPreserved'] == 2
             browser_receipts[f'{engine}/{group}/{name}'] = matches[0]
 
     # These older shared scenarios emit explicit result records, rather than
@@ -228,7 +262,8 @@ for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
     if path.exists():
         entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
-             'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md']:
+             'questionnaire-criteria-audit.md', 'question-turn-policy-audit.md',
+             'cv-publication-criteria-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -237,7 +272,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA26', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA09', 'QA10', 'QA16', 'QA26', 'HH23', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )

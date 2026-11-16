@@ -29,6 +29,9 @@ names = [
     'application-answer-approval',
     'question-turns', 'question-policy', 'question-corrections',
     'question-concurrency',
+    'cv-publication', 'cv-publication-consent', 'cv-publication-exports',
+    'experience-publication', 'ci-publication-long-paths',
+    'ci-publication-panels',
 ]
 audits = {}
 hashed_revisions = {
