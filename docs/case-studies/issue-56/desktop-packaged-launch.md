@@ -44,7 +44,7 @@ from that native application, using its throwaway empty store.
 
 The same revision fails Deno type checking before the tests run: the newly
 imported validator statically loads the optional Node Playwright package.
-Five downloaded Linux/Windows shard logs retain `TS2307`; the Linux shard 3
+Six downloaded Linux/Windows shard logs retain `TS2307`; the Linux shard 3
 error is at line 3002. A single focused Deno test reproduces it locally.
 The native launcher now loads Playwright through Node's `createRequire` only
 after the isolated-CI guard. The portable validator passes type checking and

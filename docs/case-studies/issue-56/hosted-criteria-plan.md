@@ -56,3 +56,14 @@ operations completed. The main workflow nevertheless fails in the
 that does not establish either earlier failure's cause. This source cannot satisfy the gate. Require all five
 positive workflow receipts for the corrected published source before accepting
 any row; later documentation does not replace the audited source SHA.
+
+Published `b558bd74` positively passes the desktop, Pages, security and link
+workflows. The actual packaged macOS ARM64 launch also passes. Its main
+workflow fails six Linux/Windows Deno shards before test execution because
+the portable desktop validator statically imports Playwright; the focused
+reproduction and guarded native-import correction are preserved in
+[packaged launch verification](desktop-packaged-launch.md). Chromium shard 3,
+including the CV inspections, passes. Preserve the remaining WebKit receipts
+before publishing the correction; this revision cannot satisfy the gate.
+The separate [runner transport correction](runner-transport-deadline.md)
+also requires exact-head hosted verification and review in the source audit.

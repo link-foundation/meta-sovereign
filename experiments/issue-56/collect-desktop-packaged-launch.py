@@ -35,7 +35,7 @@ names = [
 ]
 names += [str(p.relative_to(root)) for p in logs.glob('desktop-packaged-deno-*.log')]
 for ident in [133377236381, 133377236733, 133377236845,
-              133377237014, 133377237458]:
+              133377237014, 133377237363, 133377237458]:
     path = f'ci-logs/hosted-b558-job-{ident}.log'
     assert 'TS2307' in (root / path).read_text()
     names.append(path)

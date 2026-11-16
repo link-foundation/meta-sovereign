@@ -6,6 +6,7 @@
 - [x] Reproduce cancellation remaining pending when a child ignores SIGTERM, using the published source and bounded simulated child events.
 - [x] Bound commands and escalate termination while retaining ownership through the child close event; preserve unknown outcomes and never retry effects.
 - [x] Run focused transport and controller compatibility checks with one test worker; preserve before/after evidence and a changeset.
-- [ ] Commit and push the atomic fix, inspect exact-head hosted checks and continue all unfinished requirements.
+- [x] Commit the atomic transport and portable desktop-validator corrections.
+- [ ] Push the corrections, inspect exact-head hosted checks and continue all unfinished requirements.
 
 The packaged macOS ARM64 boot in hosted job 133374773400 on b558bd74 passes. Preserve its native receipt and screenshot separately from manual Gatekeeper or other-CPU claims. PR57 remains draft; the original acceptance inventory remains active.

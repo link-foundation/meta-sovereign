@@ -22,7 +22,7 @@ These local checks do not establish native macOS launch success.
 
 - [x] Publish the verification step and preserve the exact `b558bd74` native
       ARM64 receipt and screenshot from successful job 133374773400.
-- [x] Preserve five Deno shard logs and reproduce their static Playwright
+- [x] Preserve six Deno shard logs and reproduce their static Playwright
       import failure in the single portable validator test. Load the native
       dependency only inside the guarded Node launcher; keep type checking.
 - [ ] Recheck the correction on hosted runners, map the complete original
