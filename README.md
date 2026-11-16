@@ -32,7 +32,29 @@ Without a server the hosted app runs in **browser-only mode**: contacts, pattern
 
 ## Desktop app
 
-Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for unsigned builds, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for builds without an Apple Developer ID, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+
+### First launch on macOS
+
+Before opening an ad-hoc signed build, compare the downloaded `.dmg` or `.zip`
+with `SHA256SUMS.txt` from the same release using **Verify your download** on the
+[download page](https://link-foundation.github.io/meta-sovereign/download/).
+Continue only when the checksum matches. Copy `Meta Sovereign.app` to
+`/Applications` (expand the `.zip` first).
+
+On macOS 15 Sequoia and later, try opening the app and dismiss the unverified
+developer dialog with **Done**. Open **System Settings → Privacy & Security**,
+scroll to **Security**, choose **Open Anyway** for Meta Sovereign, authenticate
+if asked, then confirm **Open**. [Apple's current instructions](https://support.apple.com/en-us/102445)
+describe this per-app exception. An ad-hoc signature does not provide Apple
+notarization.
+
+Alternatively, after verifying that same download, remove quarantine only from
+the installed app, then open it:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## Run a local server (recommended for sync)
 

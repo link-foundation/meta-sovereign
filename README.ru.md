@@ -26,7 +26,29 @@ meta-sovereign представляет **человека или организ
 
 ## Desktop app
 
-Скачайте installer для своей системы на <https://link-foundation.github.io/meta-sovereign/download/> или в [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) и Windows (installer, portable), каждый для x64 и arm64. Desktop app включает сервер, поэтому все функции работают без отдельного запуска сервера. Первый запуск неподписанных сборок, контрольные суммы и обновления описаны в [`docs/USER-GUIDE.ru.md` §4](docs/USER-GUIDE.ru.md#4-установить-desktop-или-mobile-app).
+Скачайте installer для своей системы на <https://link-foundation.github.io/meta-sovereign/download/> или в [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) и Windows (installer, portable), каждый для x64 и arm64. Desktop app включает сервер, поэтому все функции работают без отдельного запуска сервера. Первый запуск сборок без Apple Developer ID, контрольные суммы и обновления описаны в [`docs/USER-GUIDE.ru.md` §4](docs/USER-GUIDE.ru.md#4-установить-desktop-или-mobile-app).
+
+### Первый запуск в macOS
+
+Перед открытием сборки с ad-hoc подписью сверьте скачанный `.dmg` или `.zip`
+с `SHA256SUMS.txt` из того же релиза в разделе **Verify your download**
+на [странице загрузки](https://link-foundation.github.io/meta-sovereign/download/).
+Продолжайте только при совпадении контрольной суммы. Скопируйте
+`Meta Sovereign.app` в `/Applications` (сначала распакуйте `.zip`).
+
+В macOS 15 Sequoia и новее попробуйте открыть приложение и закройте предупреждение
+о непроверенном разработчике кнопкой **Done**. Откройте **System Settings →
+Privacy & Security**, прокрутите до **Security**, нажмите **Open Anyway** для
+Meta Sovereign, при необходимости подтвердите личность, затем нажмите **Open**.
+[Инструкция Apple](https://support.apple.com/en-us/102445) описывает это
+исключение для одного приложения. Ad-hoc подпись не означает нотарификацию Apple.
+
+Другой способ после проверки того же файла — снять карантин только с
+установленного приложения, затем открыть его:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## Локальный сервер (рекомендуется для синхронизации)
 

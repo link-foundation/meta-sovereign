@@ -26,7 +26,26 @@ meta-sovereign 在网上**代表一个人或一个组织**。连接 Telegram、V
 
 ## 桌面应用
 
-从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
+从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未使用 Apple Developer ID 签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
+
+### macOS 首次启动
+
+打开临时签名（ad-hoc）的构建前，请在[下载页](https://link-foundation.github.io/meta-sovereign/download/)
+的 **Verify your download** 中，用同一版本的 `SHA256SUMS.txt` 校验下载的 `.dmg`
+或 `.zip`。仅在校验和一致后继续。将 `Meta Sovereign.app` 复制到 `/Applications`
+（先解压 `.zip`）。
+
+在 macOS 15 Sequoia 及更新版本中，先尝试打开应用，在开发者未验证的提示中点击
+**Done**。打开 **System Settings → Privacy & Security**，滚动到 **Security**，
+为 Meta Sovereign 点击 **Open Anyway**，按提示验证身份，再点击 **Open**。
+[Apple 的说明](https://support.apple.com/en-us/102445)介绍了此单个应用的例外。
+临时签名不代表经过 Apple 公证。
+
+或者，在校验同一下载文件后，仅移除已安装应用的隔离标记，再打开应用：
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## 运行本地服务器（推荐用于同步）
 

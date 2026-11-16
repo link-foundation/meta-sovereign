@@ -87,7 +87,7 @@ JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `
 
 首次启动：
 
-- **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。打开 System Settings → Privacy & Security，点击 **Open Anyway**。这类构建不会自动更新，请从下载页获取新版本。
+- **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。请先按下文校验下载文件。尝试打开已安装应用，点击 **Done**，再打开 System Settings → Privacy & Security → Security，为 Meta Sovereign 点击 **Open Anyway**。按提示验证身份并点击 **Open**。这类构建不会自动更新，请从下载页获取新版本。
 - **Windows。** 如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
 - **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，或用 `sudo apt install ./<file>.deb` 安装 `.deb`。
 
@@ -97,6 +97,16 @@ JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `
 sha256sum --check --ignore-missing SHA256SUMS.txt
 gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+对于已校验的 macOS 下载文件，也可仅处理复制到 `/Applications` 的应用
+（先解压 `.zip`）。执行一次以下命令，然后打开应用：
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple 的说明介绍了单个应用的首次启动例外](https://support.apple.com/en-us/102445)。
+临时签名不代表经过公证。
 
 应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
 

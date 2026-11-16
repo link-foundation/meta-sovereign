@@ -87,7 +87,7 @@ Desktop и mobile apps заворачивают тот же SPA с GitHub Pages 
 
 Первый запуск:
 
-- **macOS.** Сборки без Apple Developer ID подписаны ad-hoc, поэтому macOS блокирует первый запуск («Apple could not verify…»). Откройте System Settings → Privacy & Security и нажмите **Open Anyway**. Такие сборки не обновляются сами; новые версии скачивайте со страницы.
+- **macOS.** Сборки без Apple Developer ID подписаны ad-hoc, поэтому macOS блокирует первый запуск («Apple could not verify…»). Сначала проверьте скачанный файл, как описано ниже. Попробуйте открыть установленное приложение, нажмите **Done**, затем откройте System Settings → Privacy & Security → Security и нажмите **Open Anyway** для Meta Sovereign. При необходимости подтвердите личность и нажмите **Open**. Такие сборки не обновляются сами; новые версии скачивайте со страницы.
 - **Windows.** Если SmartScreen показывает «Windows protected your PC», нажмите **More info** → **Run anyway**.
 - **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` и запустите его, или установите `.deb` через `sudo apt install ./<file>.deb`.
 
@@ -97,6 +97,17 @@ Desktop и mobile apps заворачивают тот же SPA с GitHub Pages 
 sha256sum --check --ignore-missing SHA256SUMS.txt
 gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+Для проверенной сборки macOS другой способ ограничен приложением, скопированным
+в `/Applications` (сначала распакуйте `.zip`). Выполните один раз, затем откройте
+приложение:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple описывает исключение для одного приложения](https://support.apple.com/en-us/102445).
+Ad-hoc подпись не означает нотарификацию.
 
 Приложение хранит данные в системной папке приложений пользователя, поэтому они переживают обновления. Чтобы собрать installers самостоятельно: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (см. `js/scripts/build-desktop.mjs`).
 

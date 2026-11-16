@@ -26,7 +26,27 @@ Server के बिना hosted app **browser-only mode** में चलत�
 
 ## Desktop app
 
-अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Unsigned builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
+अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Apple Developer ID के बिना builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
+
+### macOS पर पहली बार खोलना
+
+Ad-hoc signed build खोलने से पहले [download page](https://link-foundation.github.io/meta-sovereign/download/)
+के **Verify your download** में उसी release की `SHA256SUMS.txt` से डाउनलोड की गई
+`.dmg` या `.zip` जाँचें। Checksum मिलने पर ही आगे बढ़ें। `Meta Sovereign.app` को
+`/Applications` में कॉपी करें (`.zip` पहले खोलें)।
+
+macOS 15 Sequoia और बाद के versions में app खोलने का प्रयास करें और unverified
+developer dialog में **Done** चुनें। **System Settings → Privacy & Security**
+खोलें, **Security** तक जाएँ, Meta Sovereign के लिए **Open Anyway** चुनें,
+माँगे जाने पर पहचान सत्यापित करें, फिर **Open** चुनें। [Apple के निर्देश](https://support.apple.com/en-us/102445)
+इस एक app के exception को समझाते हैं। Ad-hoc signature Apple notarization नहीं है।
+
+वैकल्पिक रूप से, उसी download का checksum जाँचने के बाद केवल installed app का
+quarantine flag हटाएँ, फिर app खोलें:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
 
 ## local server चलाएँ (sync के लिए recommended)
 

@@ -87,7 +87,7 @@ Desktop और mobile apps GitHub Pages वाले उसी SPA को built-
 
 पहली बार चलाना:
 
-- **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। System Settings → Privacy & Security खोलें और **Open Anyway** click करें। ये builds खुद update नहीं होते; नए versions page से download करें।
+- **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। पहले नीचे बताए अनुसार download जाँचें। Installed app खोलने का प्रयास करें, **Done** चुनें, फिर System Settings → Privacy & Security → Security में Meta Sovereign के लिए **Open Anyway** चुनें। माँगे जाने पर पहचान सत्यापित करें और **Open** चुनें। ये builds खुद update नहीं होते; नए versions page से download करें।
 - **Windows.** अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
 - **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, या `.deb` को `sudo apt install ./<file>.deb` से install करें।
 
@@ -97,6 +97,16 @@ Download की गई file को release के `SHA256SUMS.txt` से check 
 sha256sum --check --ignore-missing SHA256SUMS.txt
 gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+जाँचे हुए macOS download के लिए Terminal विकल्प केवल `/Applications` में कॉपी
+की गई app पर लागू है (`.zip` पहले खोलें)। एक बार यह command चलाएँ, फिर app खोलें:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple के निर्देश एक app के first-launch exception को समझाते हैं](https://support.apple.com/en-us/102445)।
+Ad-hoc signing notarization नहीं है।
 
 App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
 

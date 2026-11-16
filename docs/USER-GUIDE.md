@@ -106,9 +106,11 @@ attached to the [GitHub releases](https://github.com/link-foundation/meta-sovere
 First launch:
 
 - **macOS.** Builds without an Apple Developer ID are ad-hoc signed,
-  so macOS blocks the first launch ("Apple could not verify…"). Go to
-  System Settings → Privacy & Security and click **Open Anyway**. These
-  builds do not auto-update; download new versions from the page.
+  so macOS blocks the first launch ("Apple could not verify…"). First verify
+  the download as described below. Try opening the installed app, click
+  **Done**, then open System Settings → Privacy & Security → Security and
+  click **Open Anyway** for Meta Sovereign. Authenticate if asked and confirm
+  **Open**. These builds do not auto-update; download new versions from the page.
 - **Windows.** If SmartScreen shows "Windows protected your PC",
   click **More info** → **Run anyway**.
 - **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` and run
@@ -122,6 +124,17 @@ and `SHA256SUMS.txt`; nothing leaves the browser) or in a terminal:
 sha256sum --check --ignore-missing SHA256SUMS.txt
 gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+For a verified macOS download, the Terminal alternative is scoped to the app
+copied into `/Applications` (expand `.zip` downloads first). Run this once,
+then open the app:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple describes the per-app first-launch exception](https://support.apple.com/en-us/102445).
+Ad-hoc signing does not provide notarization.
 
 The app keeps its data in the system's per-user app folder, so it
 survives updates. To build the installers yourself:
