@@ -15,7 +15,9 @@ const { getNodeModuleFileMatcher } = await import(
 const { verifyNativeBinaries } = await import(
   new URL('./util/nativeBinaryVerifier.js', entry)
 );
-const { Arch } = await import('builder-util');
+// Resolve the transitive helper from its owning package. Deno intentionally
+// rejects bare imports of packages absent from the root dependency manifest.
+const { Arch } = createRequire(entry)('builder-util');
 const config = require('../../desktop/electron-builder.config.cjs');
 const prebuilds = ['darwin', 'linux', 'linuxmusl', 'win32'].flatMap(
   (platform) => ['x64', 'arm64'].map((arch) => `${platform}-${arch}.node`)

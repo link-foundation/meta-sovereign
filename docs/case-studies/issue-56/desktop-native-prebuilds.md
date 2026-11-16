@@ -44,3 +44,9 @@ unfinished in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57
 
 Evidence: [archive](data/desktop-native-prebuilds.tar.gz) and
 [hash manifest](data/desktop-native-prebuilds.tar.sha256.json).
+
+The next exact-head run, [43815507700](https://github.com/link-foundation/meta-sovereign/actions/runs/43815507700), verifies successful Linux x64/arm64 and Windows x64/arm64 builds. macOS passes native validation but fails later in DMG creation with `hdiutil: create failed - Resource busy` (preserved lines 4892–4966); that separate failure remains under investigation.
+
+Checks run [43815507714](https://github.com/link-foundation/meta-sovereign/actions/runs/43815507714) exposes a clean-install Deno test-resolution error: `builder-util` is a transitive dependency, and Deno refuses its bare import from the root test. Linux log lines 4843–4852 and Windows lines 5904–5913 identify this exact import. The test now resolves the helper from its owning builder package with `createRequire`, like its other builder internals. All seven focused cases pass in Node and Deno. A previously populated local dependency graph had masked that clean-install distinction.
+
+Follow-up evidence: [archive](data/desktop-prebuild-resolution.tar.gz) and [hash manifest](data/desktop-prebuild-resolution.tar.sha256.json).
