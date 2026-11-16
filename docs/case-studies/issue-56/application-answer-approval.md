@@ -47,7 +47,7 @@ Run the small portable regression with:
 
 ```sh
 node --test --test-concurrency=1 js/tests/job-application-answer-approval.test.js
-RUN_BROWSER_E2E=1 APPLICATION_ANSWER_APPROVAL_ONLY=1 node js/tests/e2e-job-application-browser.mjs
+RUN_BROWSER_E2E=1 node js/tests/e2e-job-application-answers-browser.mjs
 ```
 
 Set `E2E_EXECUTABLE_PATH` when using an existing local browser. The ordinary
