@@ -81,3 +81,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify five focused routing/shutdown checks, three existing CV catalogue checks, one isolated production CLI scenario and the unchanged duplication gate; preserve bounded graph and regression evidence.
 - [ ] Publish this atomic change, inspect the resulting exact-head CI, and preserve the Windows diagnostic trace before drawing causal conclusions.
 - [ ] Complete all 60 unchecked original criteria. This resource change does not accept any inventory row.
+
+2026-11-16 relocated worker recovery fixtures:
+
+- [x] Read all eight completed failing f09c8d2b jobs and preserve exact raw logs. Each reports the same copied fixture missing the dynamic application import; the Windows CLI readiness scenario passes at 6,905 ms and does not establish the old timeout's cause.
+- [x] Reproduce the fixture failure against parent 36d41ffb; bind both relocated copies to all original imports and require the intended activation failure in the rollback assertion.
+- [x] Verify both selected recovery/rollback checks on Node and Deno with finite inputs and limited memory; retain strict cleanup and acknowledged-write assertions.
+- [ ] Publish both atomic commits, inspect fresh exact-head hosted checks, and continue every unchecked original requirement without treating CI alone as completion.

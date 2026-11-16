@@ -627,3 +627,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Complete questionnaire URL assertions](questionnaire-url-assertions.md): preserve three exact hosted CodeQL findings and require full URL boundaries in unit, native browser and MCP questionnaire checks.
 
 - [Deferred provider routes](deferred-provider-routes.md): retain a failing actual-parent idle-import boundary, 230 deferred local modules, first-use Lino and shutdown checks, and one real isolated CLI scenario. Windows causality and all unchecked acceptance criteria remain unfinished.
+
+- [Relocated worker imports](ci-worker-fixture-imports.md): preserve eight actual fixture failures, the new passing Windows readiness trace and an actual-parent missing-import reproduction. Retain real recovery/rollback checks with strict failure identity; fresh hosted acceptance remains required.

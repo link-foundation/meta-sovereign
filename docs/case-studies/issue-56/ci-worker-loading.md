@@ -54,3 +54,10 @@ criterion; all 60 unchecked requirements remain unfinished and
 
 [Preserved evidence](data/ci-worker-loading.tar.gz) and
 [hash manifest](data/ci-worker-loading.tar.sha256.json).
+
+The next exact-head Windows Deno trace passes initial CLI readiness at 6,905 ms
+and distinguishes its import phase. Its later failure is a relocated recovery
+fixture that missed the new dynamic import, reproduced separately in
+[worker fixture imports](ci-worker-fixture-imports.md). The older readiness
+refusal's cause remains unproven; this successful observation does not replace
+the complete exact-head CI gate.
