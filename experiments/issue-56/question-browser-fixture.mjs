@@ -59,7 +59,13 @@ export const questionBrowserFixture = async (options = {}) => {
     state,
     send,
     clock,
-    browser: createQuestionBrowser({ store, send, clock }),
+    runner: options.runner,
+    browser: createQuestionBrowser({
+      store,
+      send,
+      clock,
+      runner: options.runner,
+    }),
   };
 };
 export const browserTarget = { source: 'hh', chat: 'https://hh.ru/chat/7' };

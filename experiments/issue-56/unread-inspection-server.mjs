@@ -5,7 +5,7 @@ import { seedQuestionBrowserChat } from './question-browser-fixture.mjs';
 /** Private counted UI fixture shared by read-only and notice inspections. */
 export const runUnreadInspectionFixture = async (
   env,
-  { pending, handle, beforeClose = () => {} }
+  { pending, handle, beforeClose = () => {}, extraStats = () => ({}) }
 ) => {
   await seedQuestionBrowserChat(env);
   const server = await startQuestionFixtureServer(env, true);
@@ -17,6 +17,7 @@ export const runUnreadInspectionFixture = async (
     reads: env.state.reads.length,
     senderStub: true,
     liveProvider: false,
+    ...extraStats(),
   });
   const control = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');

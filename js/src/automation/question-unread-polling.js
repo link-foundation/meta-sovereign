@@ -117,7 +117,7 @@ class UnreadPolling {
       source: input.source,
       ...settings,
       confirm: true,
-      modelDraft: false,
+      modelDraft: input.modelDraft === true,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
       ...(input.answerChats ? { answerChats: true } : {}),
     };

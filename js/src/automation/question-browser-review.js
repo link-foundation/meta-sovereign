@@ -7,7 +7,7 @@ import { checkBrowserQuestion } from './question-browser-state.js';
 /** Freeze observed questions once; later review actions still recheck the provider. */
 export const createBrowserReviewRecorder =
   ({ store, clock, runner, status }) =>
-  async (target, observed, input = {}) => {
+  async (target, observed, input = {}, options = {}) => {
     const snapshot = checkBrowserQuestion(observed);
     const planning = {
       ...normalizeAnswerAction(input),
@@ -28,7 +28,7 @@ export const createBrowserReviewRecorder =
             options: snapshot.answerOptions,
             strictOptions: snapshot.strictOptions,
           },
-          { runner }
+          { runner, signal: options.signal }
         );
     const record = {
       id: `question-browser:${randomUUID()}`,

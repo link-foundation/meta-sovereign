@@ -35,6 +35,12 @@ export const unreadAnswerFixture = async (options = {}) => {
         continue;
       }
       const observation = { chat: snapshot.chat, question: snapshot };
+      if (options.history) {
+        await input.onHistoryWindow?.({
+          chat: snapshot.chat,
+          rows: options.history(snapshot),
+        });
+      }
       let held = false;
       const value = await input.onConversation?.(observation, {
         snapshot,
@@ -42,14 +48,14 @@ export const unreadAnswerFixture = async (options = {}) => {
           held = true;
         },
         async prefillInactive(expected, text, verify) {
-          await options.queued?.(current);
+          await options.queued?.(current, input, snapshot);
           await verify();
           assert.deepEqual(expected, snapshot);
           current.state.prefills.push({ chat: snapshot.chat, text });
           return { prefilled: true };
         },
         async selectInactive(draft, verify) {
-          await options.queued?.(current);
+          await options.queued?.(current, input, snapshot);
           await verify();
           current.state.sends.push(draft);
           return options.issue
@@ -91,7 +97,7 @@ export const unreadAnswerFixture = async (options = {}) => {
       visited: pass.conversations.length,
     };
     return pass;
-  });
+  }, options);
   env.send.unreadAnswerReplySources = () => [{ id: 'hh', name: 'HeadHunter' }];
   env.send.openAnswerWatch = () =>
     assert.fail('A borrowed visit cannot open another watch');

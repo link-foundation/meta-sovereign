@@ -390,6 +390,8 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-answers': [
       'verifyUnreadAnswers',
       'verifyUnreadAnswerControls',
+      'verifyUnreadModel',
+      'verifyUnreadModelControls',
     ],
     'question-unread-reply-view': [
       'verifyUnreadReplyView',

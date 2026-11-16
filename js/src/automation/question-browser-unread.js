@@ -83,6 +83,7 @@ const executeUnreadReview = async ({
   save,
   context,
 }) => {
+  let recentWindow;
   try {
     const pass = checkedPass(
       await send.scanUnreadConversations({
@@ -95,6 +96,10 @@ const executeUnreadReview = async ({
             ...window,
             source: record.source,
             signal: controller.signal,
+          });
+          recentWindow = globalThis.structuredClone({
+            chat: window.chat,
+            rows: window.rows.slice(-21),
           });
           const previous = record.archive ?? {
             windows: 0,
@@ -112,7 +117,7 @@ const executeUnreadReview = async ({
           ? {
               onConversation: (observation, handle) =>
                 visitUnreadAnswer({
-                  context,
+                  context: { ...context, recentWindow: () => recentWindow },
                   record,
                   controller,
                   observation,
@@ -205,6 +210,7 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
         ({ id }) => id === input.source
       )) ||
     (input.answerChats && input.noticeReplies) ||
+    (input.modelDraft === true && !input.answerChats) ||
     (input.heldChat && !input.answerChats)
   ) {
     throw failure(
@@ -315,7 +321,7 @@ export const createQuestionUnreadReviews = ({
     const planning = {
       ...normalizeAnswerAction(input),
       ...normalizeAnswerEnvironment(input),
-      modelDraft: false,
+      modelDraft: input.modelDraft === true,
     };
     if (
       [...runtimes.values()].some((runtime) => runtime.source === input.source)

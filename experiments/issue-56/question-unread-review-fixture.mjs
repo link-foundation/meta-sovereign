@@ -23,8 +23,11 @@ export const unreadPass = () => ({
   },
   restoration: { restored: true, reason: 'checked' },
 });
-export const unreadReviewFixture = async (scan = async () => unreadPass()) => {
-  const env = await questionBrowserFixture();
+export const unreadReviewFixture = async (
+  scan = async () => unreadPass(),
+  options = {}
+) => {
+  const env = await questionBrowserFixture(options);
   env.state.scans = [];
   env.send.unreadConversationSources = () => [{ id: 'hh', name: 'HeadHunter' }];
   env.send.scanUnreadConversations = async (options) => {

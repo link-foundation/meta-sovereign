@@ -5,7 +5,7 @@ import { hiUnreadReview } from '../../js/src/web/locales/hi-unread-review.js';
 import { zhUnreadReview } from '../../js/src/web/locales/zh-unread-review.js';
 
 const inspect = async (page, screenshots) => {
-  const { controls, errors, stats, check, shot, unreadSurface } =
+  const { controls, errors, stats, check, shot, recoverHeldSurfaces } =
     await prepareQuestionBrowserMcp(page, { screenshots });
   const unread = controls.locator('[data-browser-unread-controls]');
   await unread.locator('[data-browser-unread-answers]').check();
@@ -25,23 +25,7 @@ const inspect = async (page, screenshots) => {
     before.scans === 1 && before.sends === 1 && before.prefills === 1,
     'Exactly one approved bot option and one review draft'
   );
-  for (const [surface, hash, width] of [
-    ['chat', '#chat=hh:7', 1180],
-    ['operator', '#/operator?chat=hh%3A7', 390],
-  ]) {
-    const shared = await unreadSurface(surface, hash, width);
-    await shared
-      .getByRole('button', { name: 'Recover unread pass status', exact: true })
-      .click();
-    await shared.locator('[data-browser-unread-held="9"]').waitFor();
-    await shot(surface, shared);
-    check(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= globalThis.innerWidth
-      ),
-      'No viewport overflow'
-    );
-  }
+  await recoverHeldSurfaces('9');
   check(!errors.length, errors.join(', '));
   check((await stats()).scans === 1, 'Shared recovery never replays');
   return {

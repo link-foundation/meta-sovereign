@@ -20,7 +20,7 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>
                 answers browser watch --id=<review> --confirm=true [--duration-ms=7200000] [--watch-id=<request-id>] (foreground; Ctrl+C stops and drains)
                 answers browser watch-status | watch-stop --watch-id=<saved-id> (status never resumes a watcher)
-                answers browser unread --source=hh --confirm=true [--pass-id=<request-id>] [--max-chats=20] [--budget-ms=30000] (existing inactive browser; opening may mark read; saved answers only)
+                answers browser unread --source=hh --confirm=true [--pass-id=<request-id>] [--max-chats=20] [--budget-ms=30000] [--answer-chats=true|false] [--model-draft=true|false] (inactive browser; opening may mark read; generated text stays in review)
                 answers browser unread-status | unread-stop --pass-id=<saved-id> (status never repeats traversal)
                 answers exchange: [--refresh] [--max-age-days=7] (cached snapshot unless explicitly refreshed)
                 answers profiles list | show <id> | save <id> --name=<name> --values=<lino> [--revision=<revision>] | save --file=profile.lino | delete <id> --revision=<revision> [--json]

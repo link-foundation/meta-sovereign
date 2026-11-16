@@ -17,6 +17,11 @@ import { chatNavigationHtml } from './chat-navigation-fixture.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { saveAnswerPolicy } from '../../js/src/automation/question-policy.js';
 import { rejectionText } from './notice-policy-fixture.mjs';
+import {
+  modelQuestion,
+  modelRunnerFixture,
+  seedModelAnswers,
+} from './forms-model-fixture.mjs';
 
 const unreadTrace = (enabled) => (message) => {
   if (enabled && process.env.MS_BROWSER_CHAT_VIEW_DEBUG === '1') {
@@ -112,6 +117,7 @@ export const questionBrowserServer = async (
     noticePolicies = false,
     unreadReview = false,
     unreadAnswers = false,
+    unreadModel = false,
     unreadNotices = false,
     unreadReplyView = false,
     afterBrowserEvaluate,
@@ -119,6 +125,10 @@ export const questionBrowserServer = async (
   } = {}
 ) => {
   const env = await questionBrowserFixture();
+  if (unreadModel) {
+    env.runner = modelRunnerFixture([]);
+    await seedModelAnswers(env.store);
+  }
   if (unreadReview) {
     await saveAnswerRule(env.store, {
       id: 'start-time',
@@ -167,7 +177,11 @@ export const questionBrowserServer = async (
       contentType: 'text/html',
       body: unreadReview
         ? unreadFixtureHtml(
-            { ...mode, ...(unreadAnswers ? { precedingOutgoing: true } : {}) },
+            {
+              ...mode,
+              ...(unreadAnswers ? { precedingOutgoing: true } : {}),
+              ...(unreadModel ? { latestMessages: { 8: modelQuestion } } : {}),
+            },
             unreadNotices,
             unreadReplyView
           )
@@ -210,7 +224,7 @@ export const questionBrowserServer = async (
     onUnreadPass,
   });
   const server = await startQuestionFixtureServer(
-    { store: env.store, send },
+    { store: env.store, send, runner: env.runner },
     true
   );
   const localBase = `http://127.0.0.1:${server.port}`;

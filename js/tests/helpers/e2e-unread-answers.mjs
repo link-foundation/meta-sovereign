@@ -16,7 +16,7 @@ import {
   verifyUnreadFocusRefusal,
 } from './e2e-question-unread-controls.mjs';
 
-const waitUnreadReview = async (service, id) => {
+export const waitUnreadReview = async (service, id) => {
   for (let i = 0; i < 600; i++) {
     const result = await service.unreadStatus({ id });
     if (result.state !== 'active') {

@@ -8,19 +8,11 @@ import {
   checkBrowserQuestion,
 } from './question-browser-state.js';
 import { unreadFailure } from './question-unread-identity.js';
-
-const freshPlan = (context, record, snapshot) =>
-  previewAnswer(context.store, {
-    ...record.planning,
-    modelDraft: false,
-    source: record.source,
-    chat: snapshot.chat,
-    question: snapshot.question.body,
-    links: snapshot.question.links,
-    pendingMessages: snapshot.pendingTurn?.messages,
-    options: snapshot.answerOptions,
-    strictOptions: snapshot.strictOptions,
-  });
+import {
+  unreadAnswerInput,
+  mayDraftUnreadAnswer,
+  sameUnreadAnswer,
+} from './question-unread-model.js';
 
 const select = async ({
   context,
@@ -100,10 +92,13 @@ export const visitUnreadAnswer = async ({
       'The borrowed conversation changed.'
     );
   }
+  const input = unreadAnswerInput(context, record, snapshot);
+  const baseline = await previewAnswer(context.store, input);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
     snapshot,
-    record.planning
+    { ...input, modelDraft: mayDraftUnreadAnswer(record, snapshot, baseline) },
+    { signal: controller.signal }
   );
   const plan = reviewed.plan;
   const entry = {
@@ -126,8 +121,13 @@ export const visitUnreadAnswer = async ({
   const verify = async () => {
     if (
       controller.signal.aborted ||
-      JSON.stringify(await freshPlan(context, record, snapshot)) !==
-        JSON.stringify(plan)
+      !(await sameUnreadAnswer(
+        context.store,
+        unreadAnswerInput(context, record, snapshot),
+        baseline,
+        plan
+      )) ||
+      controller.signal.aborted
     ) {
       throw unreadFailure(
         'question-watch-plan-changed',
@@ -159,7 +159,7 @@ export const visitUnreadAnswer = async ({
   if (
     !snapshot.strictOptions &&
     !snapshot.hasDraft &&
-    plan?.complete &&
+    (plan?.complete || plan?.model?.used) &&
     !plan.linkReview &&
     !plan.pending?.blocked &&
     plan.text?.trim()

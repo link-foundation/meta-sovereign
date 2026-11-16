@@ -66,7 +66,8 @@ and browser are closed after inspection.
 The browser scenarios are registered once in their own mandatory
 `question-unread-answers` group with native focus checks and unchanged job and
 runner budgets. Hosted verification for the exact published commit is required.
-Automatic configured-model drafts, independent application/chat slots, remaining
+[Configured-model drafts](unread-model.md) now have separate focused evidence.
+Independent application/chat slots, remaining
 pinned application workflows and authenticated provider parity are still
 unfinished. No inventory row is accepted by this prerequisite alone; all 60
 unchecked rows retain their full scope in

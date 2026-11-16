@@ -2,6 +2,7 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { browserUnreadId } from '../automation/question-unread-state.js';
 import { browserWatchPhaseKey } from './question-browser-watch-state.js';
+import { ModelDraftControl } from './answer-model-settings.js';
 import {
   useUnreadPolling,
   UnreadPollingFields,
@@ -325,6 +326,7 @@ const UnreadControls = ({
   const [limit, setLimit] = React.useState('20');
   const [noticeReplies, setNoticeReplies] = React.useState(false);
   const [answerChats, setAnswerChats] = React.useState(false);
+  const [modelDraft, setModelDraft] = React.useState(false);
   const polling = useUnreadPolling();
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
@@ -377,6 +379,14 @@ const UnreadControls = ({
             t('browserUnread.answers'),
           ])
         : null,
+      answerChats && answersAvailable
+        ? el(ModelDraftControl, {
+            key: 'model',
+            value: modelDraft,
+            set: setModelDraft,
+            busy: locked,
+          })
+        : null,
       el('label', { key: 'limit', className: 'field' }, [
         el(
           'span',
@@ -415,6 +425,7 @@ const UnreadControls = ({
           onClick: () =>
             pass.start({
               ...planning,
+              modelDraft: answerChats && answersAvailable && modelDraft,
               source,
               confirm: true,
               maxChats,

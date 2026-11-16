@@ -2,7 +2,7 @@ export const enUnreadReview = {
   'browserUnread.answers':
     'Handle bot options and hold ordinary replies for review',
   'browserUnread.answersHint':
-    'Visit unread chats one at a time in the inactive provider window. Complete exact saved answers may select an offered bot option. Ordinary text is only drafted: the first reply needing review stays open and later checks inspect only that chat until you reply or no reply is needed. No model is called.',
+    'Visit unread chats one at a time in the inactive provider window. Complete exact saved answers may select an offered bot option. Ordinary text is only drafted: the first reply needing review stays open and later checks inspect only that chat until you reply or no reply is needed. Optionally enable configured model drafts for unresolved text. Every generated draft still needs your review.',
   'browserUnread.startAnswers': 'Handle unread answers sequentially',
   'browserUnread.activeAnswers':
     'Checking unread questions. Approved bot options may be selected; ordinary replies remain drafts for your review.',

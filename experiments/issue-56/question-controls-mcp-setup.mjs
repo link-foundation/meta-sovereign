@@ -65,7 +65,57 @@ export const prepareQuestionBrowserMcp = async (page, { screenshots } = {}) => {
     await menu.locator(':scope > summary').click();
     return menu.locator('[data-browser-unread-controls]');
   };
-  return { control, controls, errors, read, stats, check, shot, unreadSurface };
+  const recoverHeldSurfaces = async (chat) => {
+    for (const [surface, hash, width] of [
+      ['chat', '#chat=hh:7', 1180],
+      ['operator', '#/operator?chat=hh%3A7', 390],
+    ]) {
+      const shared = await unreadSurface(surface, hash, width);
+      await shared
+        .getByRole('button', {
+          name: 'Recover unread pass status',
+          exact: true,
+        })
+        .click();
+      await shared.locator(`[data-browser-unread-held="${chat}"]`).waitFor();
+      await shot(surface, shared);
+      check(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= globalThis.innerWidth
+        ),
+        'No viewport overflow'
+      );
+    }
+  };
+  const localizedUnread = async (localized, language) => {
+    localized.on('pageerror', (error) => errors.push(error.message));
+    await localized.addInitScript((locale) => {
+      globalThis.localStorage.setItem('metaSovereignLocale', locale);
+      globalThis.localStorage.setItem(
+        'metaSovereignTutorial',
+        JSON.stringify({ off: true, v: 5 })
+      );
+    }, language);
+    await localized.goto(`${base}/#/automation`);
+    await localized.locator('[data-question-controls] > summary').click();
+    const panel = localized.locator(
+      '[data-question-controls] [data-browser-answer-controls]'
+    );
+    await panel.locator(':scope > summary').click();
+    return panel.locator('[data-browser-unread-controls]');
+  };
+  return {
+    control,
+    controls,
+    errors,
+    read,
+    stats,
+    check,
+    shot,
+    unreadSurface,
+    recoverHeldSurfaces,
+    localizedUnread,
+  };
 };
 
 export const waitForQuestionPrefill = (controls) =>

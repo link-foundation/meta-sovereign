@@ -8,6 +8,7 @@ export const questionBrowserCli = (env) => {
   const cli = createAutomationCommands({
     openStore: async () => env.store,
     send: env.send,
+    modelRunner: env.runner,
   });
   const output = [];
   return async (action, extra = {}) => {

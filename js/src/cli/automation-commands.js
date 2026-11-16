@@ -475,12 +475,16 @@ const automationsCmd = async (args, log, deps) => {
       await close();
     }
   };
-  // The finite watch uses saved answers and owns its draining signal handlers.
+  // Owned browser commands drain their work before the local model is closed.
   const watch =
     sub === 'answers' &&
     args._[1] === 'browser' &&
     ['watch', 'unread'].includes(args._[2]);
-  return watch
+  const unreadModel =
+    watch &&
+    args._[2] === 'unread' &&
+    [true, 'true'].includes(args['model-draft']);
+  return watch && !unreadModel
     ? work(deps.modelRunner)
     : withAnswerModel(deps.modelRunner, work);
 };
