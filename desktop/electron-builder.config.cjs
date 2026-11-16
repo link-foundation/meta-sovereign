@@ -43,7 +43,8 @@ module.exports = {
   copyright: 'Unlicense — released into the public domain',
   electronVersion: electronVersion(),
   asar: true,
-  // The app has no native modules; electron-updater is pure JS.
+  // Provider imports have portable fallbacks; keep optional native accelerators
+  // from triggering cross-platform source builds during packaging.
   nativeModules: { npmRebuild: false },
   // v27 includes checksummed native FPM bundles for Linux x64 and arm64.
   directories: {

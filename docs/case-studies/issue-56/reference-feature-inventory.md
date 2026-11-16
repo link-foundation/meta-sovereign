@@ -1,5 +1,7 @@
 # Reference feature inventory
 
+Partial VD01 prerequisite: [desktop provider packaging](desktop-provider-packaging.md) now includes the browser and Telegram runtimes and validates the staged adapters. Remote dependency preparation, readiness and every unchecked criterion remain unfinished; all 60 rows stay unchecked.
+
 Partial HH11 extension: [native delivery observations](hh-browser-delivery.md) preserve pending, failed, unknown and positively acknowledged HH browser states through canonical storage and archive learning. [Confirmed live capture](hh-live-capture.md) adds bounded mounted-message snapshots, ordered acknowledged writes, observed pane ownership and Stop draining. Uncertain bubbles cannot confirm a send; legacy records remain unknown until re-observed. All-unread orchestration, other windows and authenticated parity remain required; all 60 original incomplete rows stay unchecked.
 
 Partial HH06/HH08 extension: [witnessed daily-refusal recovery](application-limit-rejection.md) distinguishes an issued, same-document native failure from an unknown outcome. Explicit recovery verifies immutable evidence, the shared pause and a fresh form before releasing only that rejected reservation. Later actual owner values remain recoverable; sending requires separate confirmation. All 81 original incomplete rows remain required.

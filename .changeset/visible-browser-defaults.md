@@ -647,3 +647,7 @@ preserving the acknowledged cached description and metadata.
 Capture observed message edits and delivery changes during borrowed unread-chat
 reply visits. Drain canonical writes before restoring the owner view, refuse
 later effects after archive failure and retain already witnessed reply receipts.
+
+Include browser automation and Telegram runtimes in desktop installers, preserve
+shared dependency overrides and validate the staged provider imports before
+packaging instead of accepting omitted optional runtime packages.

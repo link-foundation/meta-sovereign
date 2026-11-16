@@ -1,4 +1,6 @@
 - [Borrowed unread capture](unread-live-capture.md): retain transient edits and delivery during an owned reply callback, drain archive writes before restoring the view and preserve positive receipts on later storage failure; HH11 remains unfinished.
+
+- [Desktop provider packaging](desktop-provider-packaging.md): actual-parent omission regressions, required browser/Telegram staging, retained dependency overrides and offline adapter checks. Clean hosted installation remains pending; all original incomplete criteria remain required.
 - [Native vacancy metadata](vacancy-metadata.md): preserve net/gross salary, alternate skill tags, publication and multiple work formats with parent/native/MCP evidence; wider HH03 parity remains required.
 - [Cache reload investigation](ci-vk-cache-reload.md): preserve the exact hosted failure, negative local reproduction and finite Lino refusal diagnostics; the actual hosted cause and VK24 acceptance remain open.
 - [Named runner launch contract](runner-launch-contract.md): use start's supported session selector for local/SSH launches, with a finite parent failure, 19 focused checks and a source-backed upstream report.
