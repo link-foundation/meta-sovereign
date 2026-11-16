@@ -77,6 +77,114 @@ const visit = (env, work) =>
     now: () => 0,
   });
 
+const capturedFixture = (save = async () => {}) => {
+  const env = fixture();
+  let snapshot;
+  env.options.onHistoryWindow = save;
+  env.options.document.bindHistory = async (_token, receive) => {
+    snapshot = receive;
+    return {
+      binding: 'ownedHistory',
+      release: () => env.events.push('unbindHistory'),
+    };
+  };
+  const evaluate = env.options.document.evaluate;
+  env.options.document.evaluate = async (input) => {
+    const operation = input.args[0].operation;
+    if (
+      ['observeHistory', 'flushHistory', 'releaseHistory'].includes(operation)
+    ) {
+      env.events.push(operation);
+      return {};
+    }
+    return evaluate(input);
+  };
+  env.publish = (body) => snapshot({ chat: '7', rows: [{ id: '102', body }] });
+  return env;
+};
+
+test(
+  'borrowed capture drains transient snapshots before restoring the original view',
+  { timeout: 5000 },
+  async () => {
+    let finish;
+    let started;
+    const held = new Promise((resolve) => {
+      finish = resolve;
+    });
+    const entered = new Promise((resolve) => {
+      started = resolve;
+    });
+    const saved = [];
+    const env = capturedFixture(async (window) => {
+      saved.push(window);
+      started();
+      await held;
+    });
+    let writing;
+    const work = visit(env, async () => {
+      assert.equal(typeof env.publish, 'function');
+      writing = env.publish('Disappeared between reads');
+      await entered;
+    });
+    await Promise.race([entered, work]);
+    assert.equal(env.events.includes('restore'), false);
+    finish();
+    await work;
+    await writing;
+    assert.equal(saved[0].rows[0].body, 'Disappeared between reads');
+    assert.ok(
+      env.events.indexOf('observeHistory') < env.events.indexOf('read')
+    );
+    assert.ok(
+      env.events.indexOf('releaseHistory') < env.events.indexOf('restore')
+    );
+    assert.ok(
+      env.events.indexOf('unbindHistory') < env.events.indexOf('restore')
+    );
+  }
+);
+
+test('refused borrowed capture blocks a later send and still releases both owners', async () => {
+  const env = capturedFixture(async () => {
+    throw new Error('Private text');
+  });
+  await assert.rejects(
+    visit(env, async (handle) => {
+      await assert.rejects(env.publish('Edited'), {
+        code: 'question-history-save-failed',
+      });
+      await assert.rejects(
+        handle.replyTextInactive(handle.snapshot, 'Thanks'),
+        { code: 'question-history-save-failed' }
+      );
+    }),
+    { code: 'question-history-save-failed' }
+  );
+  assert.equal(env.events.includes('click'), false);
+  assert.equal(env.events.includes('unbindHistory'), true);
+  assert.equal(env.events.at(-1), 'release');
+});
+
+test('a later capture refusal cannot revoke an already witnessed reply', async () => {
+  const env = capturedFixture(async () => {
+    throw new Error('Private text');
+  });
+  let receipt;
+  await assert.rejects(
+    visit(env, async (handle) => {
+      receipt = await handle.replyTextInactive(handle.snapshot, 'Thanks');
+      await assert.rejects(env.publish('Later'), {
+        code: 'question-history-save-failed',
+      });
+    }),
+    { code: 'question-history-save-failed' }
+  );
+  assert.equal(receipt.messageId, '102');
+  assert.equal(env.events.filter((event) => event === 'click').length, 1);
+  assert.equal(env.events.at(-1), 'release');
+});
+
 test('only actual positive replies reach view bookkeeping and observer failure preserves delivery', async () => {
   const env = fixture();
   const retained = [];

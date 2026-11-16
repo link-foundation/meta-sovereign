@@ -1,17 +1,7 @@
-import { chromium } from 'playwright';
+import { questionBrowserProbe } from './question-browser-probe.mjs';
 import { verifyHhLiveCapture } from '../../js/tests/helpers/e2e-hh-live-capture.mjs';
 
-const browser = await chromium.launch({
-  executablePath:
-    process.env.E2E_EXECUTABLE_PATH ?? '/opt/google/chrome/chrome',
-  headless: true,
-  args: ['--disable-dev-shm-usage'],
-});
-try {
-  const result = await verifyHhLiveCapture(browser, {
-    collectFailures: process.env.HH_CAPTURE_BEFORE === '1',
-  });
-  console.log(JSON.stringify(result));
-} finally {
-  await browser.close();
-}
+await questionBrowserProbe(
+  { collectFailures: process.env.HH_CAPTURE_BEFORE === '1' },
+  verifyHhLiveCapture
+);

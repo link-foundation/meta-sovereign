@@ -643,3 +643,7 @@ ownership, archive failures and capture gaps without replaying provider actions.
 Retain native net/gross vacancy compensation, alternate skill tags, publication
 and multiple visible work-format rows. Refuse conflicting salary aliases while
 preserving the acknowledged cached description and metadata.
+
+Capture observed message edits and delivery changes during borrowed unread-chat
+reply visits. Drain canonical writes before restoring the owner view, refuse
+later effects after archive failure and retain already witnessed reply receipts.

@@ -1,4 +1,4 @@
-/* global history, queueMicrotask */
+/* global history */
 import assert from 'node:assert/strict';
 import { makeBrowserCommander } from 'browser-commander';
 import { createBrowserSender } from '../../src/sources/browser-sender.js';
@@ -11,6 +11,7 @@ import {
   messageVersions,
 } from '../../src/storage/message-versions.js';
 import { hhChoiceHtml } from '../../../experiments/issue-56/hh-choice-fixture.mjs';
+import { transientMessageFixture } from '../../../experiments/issue-56/transient-message-fixture.mjs';
 
 const fixture = async (browser) => {
   const context = await browser.newContext();
@@ -91,20 +92,9 @@ export const verifyHhLiveCapture = async (
           archiveBrowserHistoryWindow(store, { ...window, source: 'hh' }),
       });
       try {
-        await page.evaluate(async () => {
-          const row = document.createElement('article');
-          row.dataset.qa = 'chatik-chat-message-102';
-          row.innerHTML =
-            '<p data-qa="chat-bubble-text">First answer</p><span data-qa="status-icon-pending"></span>';
-          document.querySelector('#history').append(row);
-          await new Promise((resolve) => queueMicrotask(resolve));
-          row.querySelector('p').textContent = 'Edited answer';
-          row.querySelector('span').dataset.qa = 'status-icon-failed';
-          await new Promise((resolve) => queueMicrotask(resolve));
-          row.querySelector('p').textContent = 'Final answer';
-          row.querySelector('span').dataset.qa = 'status-icon-delivered';
-          await new Promise((resolve) => queueMicrotask(resolve));
-          row.remove();
+        await page.evaluate(transientMessageFixture, {
+          root: '#history',
+          id: '102',
         });
       } finally {
         await watch.close();

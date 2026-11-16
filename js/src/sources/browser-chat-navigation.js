@@ -81,9 +81,13 @@ class ChatNavigation {
     this.changed = false;
     this.restoration = { restored: false, reason: 'unavailable' };
     this.adapter = Object.fromEntries(
-      ['evaluate', 'evaluateOwner', 'prepareInactiveView', 'clickButton'].map(
-        (method) => [method, (input) => this.call(method, input)]
-      )
+      [
+        'evaluate',
+        'evaluateOwner',
+        'prepareInactiveView',
+        'clickButton',
+        'bindHistory',
+      ].map((method) => [method, (...args) => this.call(method, ...args)])
     );
     this.navigated = (frame) => {
       const binding = this.bindings.find((item) => item.frame === frame);
@@ -249,11 +253,13 @@ class ChatNavigation {
     }
   }
 
-  async call(method, input) {
-    if (input?.args?.[0]?.operation !== 'release') {
+  async call(method, ...args) {
+    if (
+      !['release', 'releaseHistory'].includes(args[0]?.args?.[0]?.operation)
+    ) {
       await this.verify();
     }
-    return this.currentDocument[method](input);
+    return this.currentDocument[method](...args);
   }
 
   async view(operation, extra = {}) {

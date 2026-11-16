@@ -3,6 +3,7 @@ import { createBrowserScanControl } from './browser-scan-control.js';
 import { releaseBrowserConversation } from './browser-conversation-history.js';
 import { readBrowserAnswerChoices } from './browser-choices.js';
 import { sendBrowserTextReply } from './browser-text-reply.js';
+import { openBrowserHistoryCapture } from './browser-history-capture.js';
 
 const failure = (reason) =>
   Object.assign(new Error('The borrowed unread conversation is unavailable.'), {
@@ -35,7 +36,17 @@ const stableQuestion = async ({ read, checked, control, settings, pause }) => {
 
 /** Borrow this visit's lease and queue slot; never open another watch or lease. */
 export const withBrowserConversationTail = async (
-  { document, ui, chat, settings, signal, token, verify, retainReply },
+  {
+    document,
+    ui,
+    chat,
+    settings,
+    signal,
+    token,
+    verify,
+    retainReply,
+    onHistoryWindow,
+  },
   work,
   { pause = sleep, now = () => globalThis.performance.now() } = {}
 ) => {
@@ -62,6 +73,7 @@ export const withBrowserConversationTail = async (
   let queued = Promise.resolve();
   let value;
   let restored;
+  let capture;
   const read = () =>
     readBrowserAnswerChoices(document, ui, chat, { preserveDraft: true });
   const checked = async () => {
@@ -69,6 +81,7 @@ export const withBrowserConversationTail = async (
       throw failure(closed ? 'visit-closed' : 'cancelled');
     }
     await verify();
+    await capture?.flush();
     if (closed || signal?.aborted || now() >= deadline) {
       throw failure(closed ? 'visit-closed' : 'cancelled');
     }
@@ -90,6 +103,14 @@ export const withBrowserConversationTail = async (
     await checked();
     if ((await control('open')).state !== 'ready') {
       throw failure('tail-unavailable');
+    }
+    if (onHistoryWindow) {
+      capture = await openBrowserHistoryCapture({
+        document,
+        ui,
+        target: chat,
+        onHistoryWindow,
+      });
     }
     const snapshot = await stableQuestion({
       read,
@@ -131,12 +152,16 @@ export const withBrowserConversationTail = async (
   } finally {
     closed = true;
     await Promise.allSettled([...pending]);
-    restored = await releaseBrowserConversation(
-      control,
-      pause,
-      settings.waitMs,
-      verify
-    );
+    try {
+      await capture?.close();
+    } finally {
+      restored = await releaseBrowserConversation(
+        control,
+        pause,
+        settings.waitMs,
+        verify
+      );
+    }
   }
   return { value, restored };
 };

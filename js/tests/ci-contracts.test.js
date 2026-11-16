@@ -381,7 +381,10 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-guards': ['verifyUnreadViewGuards'],
     'question-unread-repeat': ['verifyUnreadRepetition'],
     'question-unread-controls': ['verifyQuestionUnreadControls'],
-    'question-unread-delivery': ['verifyUnreadDeliveryVisit'],
+    'question-unread-delivery': [
+      'verifyUnreadDeliveryVisit',
+      'verifyUnreadLiveCapture',
+    ],
     'question-unread-notices': ['verifyUnreadNoticeControls'],
     'question-unread-polling': ['verifyUnreadPollingControls'],
     'question-unread-reply-view': [

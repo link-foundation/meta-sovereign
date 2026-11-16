@@ -145,6 +145,7 @@ export const scanUnreadBrowserConversations = ({
                   token,
                   verify,
                   retainReply,
+                  onHistoryWindow: options.onHistoryWindow,
                 },
                 (handle) => options.onConversation(observation, handle)
               );
