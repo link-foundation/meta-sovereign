@@ -1,6 +1,6 @@
 """Bind criterion evidence to successful exact-source hosted jobs.
 
-Run after preserving all five workflow responses and the seven named raw job
+Run after preserving all five workflow responses and the eleven named raw job
 logs. This does not run a local matrix or complete an inventory criterion.
 The original behavior mapping and source differences still require review.
 """
@@ -36,8 +36,12 @@ jobs = {
     'node': ('Checks and release', 'Test (node on ubuntu-26.04)'),
     'codeql': ('Checks and release', 'CodeQL (javascript-typescript)'),
     'electron': ('Desktop release', 'Build (linux-x64)'),
+    'chromium-1': ('Checks and release', 'Browser e2e (chromium, shard 1/4)'),
+    'chromium-2': ('Checks and release', 'Browser e2e (chromium, shard 2/4)'),
     'chromium-3': ('Checks and release', 'Browser e2e (chromium, shard 3/4)'),
     'chromium-4': ('Checks and release', 'Browser e2e (chromium, shard 4/4)'),
+    'webkit-1': ('Checks and release', 'Browser e2e (webkit, shard 1/4)'),
+    'webkit-2': ('Checks and release', 'Browser e2e (webkit, shard 2/4)'),
     'webkit-3': ('Checks and release', 'Browser e2e (webkit, shard 3/4)'),
     'webkit-4': ('Checks and release', 'Browser e2e (webkit, shard 4/4)'),
 }
@@ -77,6 +81,10 @@ test_files = [
     'runner-view',
     'diagnostics', 'desktop-clipboard',
     'cv-formal-report', 'cv-formal-report-github', 'cv-formal-report-surfaces',
+    'question-lists', 'question-lists-controls', 'questionnaire-index',
+    'question-assembly-context', 'forms-questionnaire-learning',
+    'job-application-answer-context', 'job-application-answer-context-controls',
+    'job-application-answer-approval',
 ]
 literal_test = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
 test_receipts = {}
@@ -106,11 +114,15 @@ scenarios = {
                  'verifyRunnerHealth', 'verifyRunnerFeedback'],
     'vk-engagement': ['verifyVkMessageDefaults'],
     'cv-translation': ['verifyCvFormalReports'],
+    'questions': ['saved-questionnaire-index'],
+    'job-application-answers': ['verifyNativeApplicationAnswerApproval',
+                                'verifyNativeApplicationAnswerContext'],
 }
 browser_receipts = {}
 for engine in ['chromium', 'webkit']:
     for group, names in scenarios.items():
-        shard = 3 if group in ['vk-token', 'cv-translation'] else 4
+        shard = (2 if group == 'job-application-answers' else
+                 3 if group in ['vk-token', 'cv-translation', 'questions'] else 4)
         tag = f'{engine}-{shard}'
         assert any(f'[e2e-{group}] OK ({engine})' in line for line in raw[tag]), tag
         for name in names:
@@ -122,7 +134,48 @@ for engine in ['chromium', 'webkit']:
                 if (value['group'], value['scenario'], value['phase']) == (group, name, 'passed'):
                     matches.append({'line': i, 'receipt': value})
             assert len(matches) == 1, (tag, group, name)
+            result = matches[0]['receipt'].get('result')
+            if name == 'verifyNativeApplicationAnswerContext':
+                assert result['components'] == result['locales'] == 4
+                assert result['automaticWrites'] == result['automaticSubmissions'] == 0
+                assert result['reviewedSubmissions'] == 1
+                assert result['identityOnlyRecovery'] is True
+                assert result['ownedBrowserClosed'] is True and result['errors'] == []
+            elif name == 'verifyNativeApplicationAnswerApproval':
+                assert {receipt['name'] for receipt in result} == {'whole', 'unapproved', 'conflicting'}
+                assert len(result) == 3
+                assert all(receipt['automaticWrites'] == receipt['automaticSubmissions'] == 0
+                           and receipt['reviewedSubmissions'] == 1
+                           and receipt['ownedBrowserClosed'] is True for receipt in result)
             browser_receipts[f'{engine}/{group}/{name}'] = matches[0]
+
+    # These older shared scenarios emit explicit result records, rather than
+    # traceBrowserScenario envelopes. Require their actual semantic receipts.
+    for group, shard, marker in [
+        ('questions', 3, 'questionnaire-index'),
+        ('forms-reader', 4, 'forms-questionnaire'),
+        ('forms-learning', 1, 'forms-questionnaire-learning'),
+    ]:
+        lines = raw[f'{engine}-{shard}']
+        assert any(f'[e2e-{group}] OK ({engine})' in line for line in lines), group
+        matches = [(i, json.loads(line.split(f'[{marker}] ', 1)[1]))
+                   for i, line in enumerate(lines, 1) if f'[{marker}] ' in line]
+        assert len(matches) == 1, (engine, marker)
+        line, receipt = matches[0]
+        if marker == 'questionnaire-index':
+            assert all(receipt[key] is True for key in
+                       ['indexedExisting', 'previewReadOnly', 'backfilled', 'requiresReview'])
+            assert receipt['savedOnlyCount'] == receipt['providerWrites'] == 0
+        elif marker == 'forms-questionnaire':
+            assert receipt == dict(controls=2, parts=3, requiresReview=True,
+                                   providerWrites=0, closed=True)
+        else:
+            assert receipt['saved'] == len(receipt['rules']) == 3
+            assert receipt['skipped'] == 0 and receipt['submissions'] == 1
+            assert receipt['closed'] is True and receipt['overflow'] is False
+            assert all(answer['count'] == 1 and answer['approved'] is False
+                       for rule in receipt['rules'] for answer in rule['answers'])
+        browser_receipts[f'{engine}/{group}/{marker}'] = dict(line=line, receipt=receipt)
 
 electron = [json.loads(line[line.index('{'):]) for line in raw['electron']
             if '"nativeElectron":true' in line]
@@ -145,7 +198,8 @@ for suffix in ['checks-attempt1.json', 'cancelled-deno-job.json',
     path = logs / f'hosted-{slug}-{suffix}'
     if path.exists():
         entries[str(path.relative_to(root))] = path.read_bytes()
-for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md']:
+for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
+             'questionnaire-criteria-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
@@ -154,7 +208,7 @@ for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence
 metadata = dict(
     sha=sha, workflows=5, jobs=job_receipts, namedTests=test_receipts,
     browserScenarios=browser_receipts, electron=electron[0], codeql=codeql[0],
-    auditedCriteria=['VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
+    auditedCriteria=['QA09', 'QA10', 'VK23', 'VK24', 'VK25', 'VK26', 'VD08', 'VD11', 'VD12', 'VD13', 'VD14', 'VD15'],
     historicalCacheFailureCause='Unwitnessed; original evidence and bounded refusal diagnostics retained',
     liveProvider=False, acceptance=False,
 )

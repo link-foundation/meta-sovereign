@@ -24,8 +24,27 @@ names = [
     'vk-token', 'vk-token-registration', 'vk-token-electron-entry',
     'runner-feedback',
     'live-diagnostics', 'desktop-clipboard', 'desktop-clipboard-async',
+    'question-lists', 'question-assembly-context', 'questionnaire-index',
+    'forms-questionnaire-learning', 'application-answer-context',
+    'application-answer-approval',
 ]
 audits = {}
+
+
+def compare_source(name, source, content, delta):
+    current = subprocess.check_output(
+        ['git', 'show', f'{revision}:{source}'], cwd=root)
+    if content != current:
+        delta.writelines(difflib.unified_diff(
+            content.decode().splitlines(True), current.decode().splitlines(True),
+            fromfile=f'{name}/{source}', tofile=f'{revision}/{source}'))
+    return {
+        'archived': hashlib.sha256(content).hexdigest(),
+        'current': hashlib.sha256(current).hexdigest(),
+        'changed': content != current,
+    }
+
+
 with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
     for name in names:
         archive = data / f'{name}.tar.gz'
@@ -43,18 +62,20 @@ with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
                 source = entry.name.startswith(('js/src/', 'js/electron/')) or entry.name == 'experiments/issue-56/vk-token-electron.mjs'
                 if not source or entry.name.endswith('/app.min.js'):
                     continue
-                current = subprocess.check_output(
-                    ['git', 'show', f'{revision}:{entry.name}'], cwd=root)
-                current_hash = hashlib.sha256(current).hexdigest()
-                sources[entry.name] = {
-                    'archived': actual[entry.name], 'current': current_hash,
-                    'changed': content != current,
-                }
-                if content != current:
-                    delta.writelines(difflib.unified_diff(
-                        content.decode().splitlines(True), current.decode().splitlines(True),
-                        fromfile=f'{name}/{entry.name}', tofile=f'{revision}/{entry.name}'))
+                sources[entry.name] = compare_source(name, entry.name, content, delta)
         assert actual == expected, f'archive integrity failure: {name}'
+        # The early list archive records source hashes rather than source bytes.
+        # Recover those exact bytes from its published implementation commit.
+        if name == 'question-lists':
+            with tarfile.open(archive, 'r:gz') as tar:
+                declared = json.load(tar.extractfile('metadata.json'))['sources']
+            for source in declared:
+                if not source.startswith('js/src/automation/'):
+                    continue
+                content = subprocess.check_output(
+                    ['git', 'show', f'86eebd79:{source}'], cwd=root)
+                assert hashlib.sha256(content).hexdigest() == declared[source], source
+                sources[source] = compare_source(name, source, content, delta)
         audits[name] = {
             'entries': len(actual), 'sources': sources,
             'archiveSha256': hashlib.sha256(archive.read_bytes()).hexdigest(),

@@ -31,10 +31,10 @@ unmerged until the complete acceptance mapping is verified.
       evidence idempotent, and count skipped input pairs independently of
       derived proposals. Verify five new regressions, 42 focused checks and
       isolated native/MCP before/after/phone evidence; require fresh hosted CI.
-- [ ] Complete the ten-criterion VK/desktop evidence audit, accepting only fully
+- [ ] Complete the twelve-criterion questionnaire/VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
-- [ ] Complete the remaining original requirements, including wider QA09/QA10
-      behavior, CV editing/sync, unread orchestration and desktop execution.
+- [ ] Complete the remaining original requirements, including questionnaire
+      acceptance, CV editing/sync, unread orchestration and desktop execution.
 - [ ] Review the complete PR diff, merge the current default branch if needed,
       verify a clean tree and passing CI, update the final description and ready PR57.
 
@@ -106,13 +106,15 @@ by this plan change, and all other requested work remains required in PR57.
       indexing, form learning and native application review without accepting
       unrelated history or orchestration requirements.
 - [x] Verify 24 archives and all 1,693 manifest entries against selected source
-      bf15f721, recovering the early list source bytes by their declared hashes.
-- [ ] Complete source-difference review, retain exact-source hosted receipts
+      9d31c3e7, recovering the early list source bytes by their declared hashes.
+- [x] Review the later production source differences against all twelve original contracts.
+- [ ] Retain exact-source hosted receipts
       for all twelve audit candidates, and accept only fully verified mappings.
 - [x] Preserve the four actual bf15 experience-publication failures from each
       Windows runtime. Add scoped Git long-path support, default-off private
       diagnostics and a finite native comparison; pass 22 Node and eight Deno
       focused checks with limited concurrency.
-- [ ] Publish the correction, verify native Windows failure/success receipts
+- [x] Publish the long-path correction as 9d31c3e7.
+- [ ] Verify native Windows failure/success receipts
       and every exact-head workflow. The full 60 unchecked requirements remain
       active; no criterion is accepted by a diagnostic or partial correction.

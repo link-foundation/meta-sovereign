@@ -1,20 +1,27 @@
-# VK and desktop criterion audit
+# Original requirement acceptance audit
 
-The source and evidence audit concerns ten candidate criteria in
+The source and evidence audit concerns twelve candidate criteria in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 Acceptance is pending until all five workflows finish successfully on the
 published source being audited. The
 [active plan](hosted-criteria-plan.md) retains that gate and the unresolved
 earlier VK24 reload investigation. No inventory row is completed by this draft.
 
-Published `cb95c654` is the source selected for this audit. Its desktop,
-Pages, security and link workflows pass, as do all eight browser jobs. The
+Published `9d31c3e7` is the current source selected for this audit. Its fresh
+five-workflow gate remains pending. Parent `bf15f721` fails the same four
+[experience publication checks](ci-publication-long-paths.md) in all three
+Windows runtimes, so it cannot complete acceptance. No criterion is accepted
+until the original behavior mapping and all five exact-source receipts pass.
+
+Earlier published `cb95c654` passed its desktop,
+Pages, security and link workflows, as well as all eight browser jobs. The
 main workflow failed solely because its second macOS Deno partition never
 acquired a hosted ARM runner. An isolated retry on the identical SHA failed
 before any test step for the same capacity reason. See the retained
 [runner allocation investigation](ci-macos-capacity.md). No individual job or
 earlier successful revision substitutes for the full gate; select the next
-published corrected source for acceptance.
+published corrected source for acceptance. These historical results do not
+replace the current source's receipts.
 
 ## Original behavior and implementation
 
@@ -24,6 +31,15 @@ store and desktop requirements were read. The source revisions remain
 `konard/vk-bot-desktop@8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1`.
 Native method schemas remain pinned at
 `VKCOM/vk-api-schema@333481bd082ad747d4873ef4a77f9247097eeef0`.
+
+The complete [questionnaire mapping](questionnaire-criteria-audit.md) adds QA09
+and QA10 against `konard/hh-ru@fa0991b8c2d0896fb3b4be6c69947f0590094b15`.
+It covers whole and aligned component preservation, saved-answer indexing,
+explicit offline backfill, independent component salary/contact context and
+review-only assembly across shared chats, native applications and forms.
+The later observed-form learning and native approval/context corrections retain
+their actual-parent failures. The other history, application and CV criteria
+retain their separate original scope.
 
 | Criterion | Complete behavior mapping and regression evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -44,11 +60,13 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py cb95c654` streams eighteen
+`python -B experiments/issue-56/audit-hosted-criteria.py 9d31c3e7` streams 24
 existing archives, checks every entry against its committed SHA-256 manifest
-and records the selected published production source hashes and their differences. It does
-not extract archives or run a local test matrix. All 1,426 entries pass,
-including the runner confirmation and live diagnostics/clipboard archives.
+and records the selected published production source hashes and their differences.
+It does not extract archives or run a local test matrix. All 1,693 entries pass,
+including the runner confirmation, live diagnostics/clipboard and six
+questionnaire archives. The early questionnaire archive's declared source
+hashes match the exact bytes recovered from its published implementation commit.
 
 The reviewed later changes include legacy empty-list normalization, provider
 friend-status reads in official-size chunks, the drained foreground queue
@@ -64,6 +82,12 @@ that ignores cancellation and retains ownership until its close event. Its
 timeouts preserve unknown outcomes and do not replay provider effects. The
 portable desktop-validator correction loads Playwright only in the guarded
 native launch path. Neither change alters the ten feature contracts.
+
+The latest source comparison also reviews the questionnaire learning,
+matching, indexing, approval and context deltas. Existing whole answers,
+deterministic frequency ordering, scope/correction guards and mandatory derived
+review remain intact. The publication-owned Git long-path option concerns a
+separate CV operation and does not change these twelve contracts.
 
 The later [runner confirmations](runner-feedback.md) change the shared Settings
 surface after an explicit positive Start/Stop receipt. They do not complete the

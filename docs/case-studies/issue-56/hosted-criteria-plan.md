@@ -3,7 +3,7 @@
 Keep the complete issue 56 objective active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57). Passing CI
 does not complete a criterion without its original behavior and regression
-evidence. This audit concerns VK23–VK26, VD08 and VD11–VD15. The later
+evidence. This audit concerns QA09–QA10, VK23–VK26, VD08 and VD11–VD15. The later
 outgoing queue, first-live history and foreground ownership corrections now
 provide VK23's previously missing outgoing-message mapping and VK26's integration
 evidence. VK24 retains an unresolved earlier WebKit reload failure. Its cause
@@ -41,6 +41,12 @@ investigation separate and never describe its cause as fixed.
       interfaces and all fifteen cache tests. Review the later shared helper
       changes. Require the twelve existing export checks and complete-history
       reload scenario on both engines, with all assertions retained.
+- [x] Read the complete pinned QA09/QA10 requirements, shared parser and
+      learning/planning paths, saved-answer index/backfill, observed-form
+      learning and native application context/approval. Verify six more archives
+      and review their production deltas, including hash-bound recovery of the
+      early source bytes. Require all eight browser shards and explicit semantic
+      receipts for both browser engines. Retain the complete questionnaire mapping.
 - [ ] Preserve all five workflow responses for the next published source,
       including exact SHA, timestamps, every job and step. Investigate any
       failed or cancelled job from its downloaded log before acceptance.
@@ -77,3 +83,9 @@ experience inspections. Preserve the remaining WebKit shard 4 receipts before
 publishing the correction; this revision cannot satisfy the gate.
 The separate [runner transport correction](runner-transport-deadline.md)
 also requires exact-head hosted verification and review in the source audit.
+
+Parent `bf15f721` fails four experience publication checks in each Windows
+runtime. Its [raw failures and scoped long-path investigation](ci-publication-long-paths.md)
+remain preserved. The current selected source is `9d31c3e7`; none of its twelve
+audit candidates is accepted until all five fresh workflows and their semantic
+receipts pass. Other unchecked original criteria remain required in PR57.
