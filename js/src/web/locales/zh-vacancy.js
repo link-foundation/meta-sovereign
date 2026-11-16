@@ -327,6 +327,9 @@ export const zhVacancy = {
   'cvPublish.source': '已保存简历的来源',
   'cvPublish.ownerSource': '已验证的所有者保存',
   'cvPublish.exportSource': '原生简历导出',
+  'cvPublish.experienceSource': '已保存的工作经历文档',
+  'cvPublish.experienceHint':
+    '发布所选快照的隐私过滤副本。这并不确认在提供方执行了新的保存。完整私人字段、媒体和来源证据仍保留在原始文档中。',
   'cvPublish.hint':
     '可选。提交和推送前，请检查已清除隐私信息的已保存简历。私人导出、待处理计划和其他暂存更改保留在工作区中。',
   'cvPublish.repository': '现有本地 Git 仓库的根目录',

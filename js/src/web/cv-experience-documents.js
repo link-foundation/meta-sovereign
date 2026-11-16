@@ -9,6 +9,7 @@ import {
 import { CvLinkedinExperience } from './cv-linkedin-experience.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
 import { CvExperiencePlan } from './cv-experience-plan.js';
+import { CvExperiencePublication } from './cv-experience-publication.js';
 
 const el = React.createElement;
 const button = (id, text, onClick, disabled) =>
@@ -208,6 +209,9 @@ export const CvExperienceDocumentsScreen = ({ state, actions, api }) => {
         : null,
       api
         ? el(CvExperiencePlan, { key: 'plan', api, choices: state.choices })
+        : null,
+      typeof api?.vacancyCvPublishPlan === 'function'
+        ? el(CvExperiencePublication, { key: 'publication', api, state })
         : null,
     ]
   );

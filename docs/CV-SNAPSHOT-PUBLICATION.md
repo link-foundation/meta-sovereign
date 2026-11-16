@@ -1,6 +1,6 @@
 # Publish a saved CV snapshot
 
-The CV screen can publish a verified HH owner-save snapshot or native résumé export to an existing local
+The CV screen can publish a verified HH owner-save snapshot, native résumé export or saved HH/LinkedIn experience document to an existing local
 Git repository and its configured remote. Publication is optional. Observation,
 preparation, status and reload never commit or push anything.
 
@@ -25,7 +25,29 @@ Optional `--remote=origin`, `--directory=examples/cv-snapshots`,
 One CLI plan can select up to 20 distinct saved hashes separated by commas.
 For a verified native export, add `--export-id=<id>` to the plan command and select résumé hashes belonging to that export. The equivalent API field is `exportId`. The server checks the private `resume.json` bytes against their export receipt, verifies the browser slot, language and title, then sanitizes the content again. It never refreshes an export or opens a provider browser during publication.
 
-Plans expire after 24 hours and refuse if a selected saved snapshot or native-export provenance changes.
+In **CV → Experience documents**, the publication review also lists saved HH
+and LinkedIn document revisions. Choose the exact source, captured time and
+revision, then review and confirm its public projection through the same flow.
+The CLI alternative is:
+
+```bash
+meta-sovereign vacancies-cv-publish-plan --repository=/path/to/repository --experience-revision=<64-character-revision> --request-id=<new-id>
+```
+
+The corresponding API field is `experienceRevision`. It selects one immutable
+document; omit `exportId` and `resumes` (or use exactly that revision as the sole
+resume). The public CV allowlist includes name, title, profile skills, About and
+workplace company, role, dates, location, description, website and industries.
+Without a profile title, the heading is **Experience** (or **Опыт работы**).
+Missing required public fields or incomplete industry metadata refuse the plan
+before Git. The review applies the existing contact, birth-date and salary
+filter; inspect the exact content before choosing a public destination. Private
+originals retain every field, per-job skills, native metadata, media and provenance.
+Publishing a captured document does not prove a new save at HH or LinkedIn and
+does not apply an edit plan or refresh a provider browser.
+
+Plans expire after 24 hours and refuse if a selected saved snapshot,
+native-export provenance or immutable document changes or disappears.
 
 HTTP clients use trusted `POST /api/vacancies/cv-publish-plan`, trusted
 `POST /api/vacancies/cv-publish` and read-only
@@ -50,7 +72,7 @@ inspect the local branch and remote manually. Status, restart and repeating the
 same request never retry that attempt. A fresh request is an explicit new
 review, not a recovery retry.
 
-Sources are the verified owner-save snapshot cache and checked native-export artifacts. Publication from every
-remaining import/edit pipeline and complete reference workflow parity remain
+Sources are the verified owner-save snapshot cache, checked native-export artifacts and immutable experience documents. Publication from every
+remaining edit pipeline and complete reference workflow parity remain
 unfinished. [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57)
 retains the broader requirement inventory and verification evidence.

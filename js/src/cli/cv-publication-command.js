@@ -10,6 +10,9 @@ export const cvPublicationCommandInput = (operation, args) => ({
         repository: args.repository,
         remote: args.remote,
         directory: args.directory,
+        ...(args['experience-revision'] === undefined
+          ? {}
+          : { experienceRevision: args['experience-revision'] }),
         ...(args['export-id'] === undefined
           ? {}
           : { exportId: args['export-id'] }),

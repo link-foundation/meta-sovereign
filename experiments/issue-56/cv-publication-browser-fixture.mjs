@@ -1,10 +1,11 @@
 import { cvPublicationFixture } from './cv-publication-fixture.mjs';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 import { seedPublicationExport } from './cv-publication-export-fixture.mjs';
+import { seedExperiencePublication } from './experience-publication-fixture.mjs';
 
 export const cvPublicationBrowserFixture = async (
   browser,
-  { nativeExport = false } = {}
+  { nativeExport = false, experienceDocuments = false } = {}
 ) => {
   let loseReceipt = false;
   const publication = await cvPublicationFixture({
@@ -20,6 +21,13 @@ export const cvPublicationBrowserFixture = async (
     const exported = nativeExport
       ? await seedPublicationExport(publication)
       : null;
+    const experiences = experienceDocuments
+      ? await Promise.all(
+          ['hh', 'linkedin'].map((platform) =>
+            seedExperiencePublication(publication, platform)
+          )
+        )
+      : [];
     const app = await vacancyBrowserFixture(browser, {
       store: publication.store,
       exports: {
@@ -33,6 +41,7 @@ export const cvPublicationBrowserFixture = async (
       ...app,
       publication,
       exported,
+      experiences,
       loseReceipt: () => {
         loseReceipt = true;
       },

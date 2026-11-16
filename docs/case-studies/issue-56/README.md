@@ -629,3 +629,6 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Deferred provider routes](deferred-provider-routes.md): retain a failing actual-parent idle-import boundary, 230 deferred local modules, first-use Lino and shutdown checks, and one real isolated CLI scenario. Windows causality and all unchecked acceptance criteria remain unfinished.
 
 - [Relocated worker imports](ci-worker-fixture-imports.md): preserve eight actual fixture failures, the new passing Windows readiness trace and an actual-parent missing-import reproduction. Retain real recovery/rollback checks with strict failure identity; fresh hosted acceptance remains required.
+
+- [Experience document publication](experience-publication.md): actual-parent refusal, six new portable checks, local Git publication, both Lino encodings and native/MCP source-bound consent and reload evidence. Wider CV editing/sync and all 60 unchecked criteria remain required.
+- [Route observer output](ci-route-observer-output.md): preserve the exact hosted Windows JSON parse failure and verify separate stdout receipts and stderr lifecycle diagnostics.

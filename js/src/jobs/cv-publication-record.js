@@ -22,11 +22,35 @@ const text = (value, max) =>
     const code = character.codePointAt(0);
     return code > 31 && code !== 127;
   });
+const validateExperienceSource = (input, resumes) => {
+  const revision = input.experienceRevision;
+  if (revision === undefined) {
+    return;
+  }
+  if (
+    typeof revision !== 'string' ||
+    !/^[a-f\d]{64}$/u.test(revision) ||
+    input.exportId !== undefined ||
+    !Array.isArray(resumes) ||
+    resumes.length !== 1 ||
+    resumes[0] !== revision
+  ) {
+    invalid();
+  }
+};
+const sourceResumes = (input) =>
+  input.resumes ??
+  (input.experienceRevision ? [input.experienceRevision] : undefined);
+const experienceOptions = (input) =>
+  input.experienceRevision === undefined
+    ? {}
+    : { experienceRevision: input.experienceRevision };
 export const cvPublicationOptions = (input) => {
   jobsObject(input);
   const remote = input.remote ?? 'origin';
   const directory = input.directory ?? 'examples/cv-snapshots';
-  const resumes = input.resumes;
+  const resumes = sourceResumes(input);
+  validateExperienceSource(input, resumes);
   if (
     !text(input.repository, 2048) ||
     !text(remote, 64) ||
@@ -50,6 +74,7 @@ export const cvPublicationOptions = (input) => {
     remote,
     directory,
     resumes: resumes.map(resumeHash).sort(),
+    ...experienceOptions(input),
     ...(input.exportId === undefined
       ? {}
       : { exportId: resumeExportId(input.exportId) }),
@@ -118,6 +143,8 @@ const validReceipt = (raw) =>
 const sameIdentity = (input, options) =>
   (input.requestId === undefined || input.requestId === options.requestId) &&
   (input.exportId === undefined || input.exportId === options.exportId) &&
+  (input.experienceRevision === undefined ||
+    input.experienceRevision === options.experienceRevision) &&
   (input.browserSlot === undefined ||
     input.browserSlot === options.browserSlot);
 export const cvPublicationResult = (raw, input = {}) => {

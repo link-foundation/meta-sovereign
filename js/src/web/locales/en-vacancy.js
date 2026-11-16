@@ -359,6 +359,9 @@ export const enVacancy = {
   'cvPublish.source': 'Saved CV source',
   'cvPublish.ownerSource': 'Verified owner Save',
   'cvPublish.exportSource': 'Native résumé export',
+  'cvPublish.experienceSource': 'Saved experience document',
+  'cvPublish.experienceHint':
+    'Publish a sanitized projection of the selected captured document. This does not confirm a new provider Save. Full private fields, media and source evidence stay in the original document.',
   'cvPublish.hint':
     'Optional. Review the sanitized saved CV before committing and pushing it. Private exports, pending plans and unrelated staged changes stay in your workspace.',
   'cvPublish.repository': 'Existing local Git repository root',

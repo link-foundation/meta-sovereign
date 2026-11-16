@@ -22,7 +22,8 @@ const sameSavedSnapshot = (receipt, snapshot) =>
   receipt.resumes[0] === snapshot?.hash &&
   receipt.files[0].sourceSha256 === snapshot?.sha256 &&
   receipt.files[0].savedAt === snapshot?.savedAt &&
-  receipt.exportId === snapshot?.exportId;
+  receipt.exportId === snapshot?.exportId &&
+  receipt.experienceRevision === snapshot?.experienceRevision;
 const canPublishSnapshot = (state, snapshot, supported) =>
   !state.loadError &&
   supported &&
@@ -33,10 +34,39 @@ const canPublishSnapshot = (state, snapshot, supported) =>
   sameSavedSnapshot(state.receipt, snapshot) &&
   Date.now() < Date.parse(state.receipt.expiresAt);
 
+const targetFields = (state, disabled, t) =>
+  ['repository', 'remote', 'directory'].map((key) =>
+    el('label', { key, className: 'chat-form-field' }, [
+      el('span', { key: 'label' }, t(`cvPublish.${key}`)),
+      el('input', {
+        key: 'input',
+        value: state[key],
+        disabled,
+        onChange: (event) =>
+          state[`set${key[0].toUpperCase()}${key.slice(1)}`](
+            event.target.value
+          ),
+        'data-cv-publication-field': key,
+      }),
+    ])
+  );
+
+const experienceHint = (experiences, t) =>
+  experiences
+    ? el(
+        'p',
+        { key: 'experience-hint', className: 'meta' },
+        t('cvPublish.experienceHint')
+      )
+    : null;
+const canReview = (state, busy, supported, chosen) =>
+  !busy && supported && !!chosen && !!state.repository;
+
 export const CvSnapshotPublication = ({
   publication: state,
   snapshot,
   exports,
+  experiences,
   browserSlot,
   busy,
   supported,
@@ -45,6 +75,7 @@ export const CvSnapshotPublication = ({
   const { source, picker } = useCvPublicationSource({
     snapshot,
     exports,
+    experiences,
     browserSlot,
     receipt: state.receipt,
     busy,
@@ -56,7 +87,13 @@ export const CvSnapshotPublication = ({
   const canPublish = canPublishSnapshot(state, source, supported);
   useEffect(() => {
     state.setConsent(false);
-  }, [chosen, source?.sha256, source?.savedAt, source?.exportId]);
+  }, [
+    chosen,
+    source?.sha256,
+    source?.savedAt,
+    source?.exportId,
+    source?.experienceRevision,
+  ]);
   return el(
     'section',
     {
@@ -67,30 +104,18 @@ export const CvSnapshotPublication = ({
     [
       el('h4', { key: 'title' }, t('cvPublish.title')),
       el('p', { key: 'hint', className: 'meta' }, t('cvPublish.hint')),
+      experienceHint(experiences, t),
       el(React.Fragment, { key: 'source' }, picker),
-      ...['repository', 'remote', 'directory'].map((key) =>
-        el('label', { key, className: 'chat-form-field' }, [
-          el('span', { key: 'label' }, t(`cvPublish.${key}`)),
-          el('input', {
-            key: 'input',
-            value: state[key],
-            disabled: busy || !supported,
-            onChange: (event) =>
-              state[`set${key[0].toUpperCase()}${key.slice(1)}`](
-                event.target.value
-              ),
-            'data-cv-publication-field': key,
-          }),
-        ])
-      ),
+      ...targetFields(state, busy || !supported, t),
       el('div', { key: 'actions', className: 'row' }, [
         el(
           'button',
           {
             key: 'plan',
             type: 'button',
-            disabled: busy || !supported || !chosen || !state.repository,
-            onClick: () => state.plan(chosen, source?.exportId),
+            disabled: !canReview(state, busy, supported, chosen),
+            onClick: () =>
+              state.plan(chosen, source?.exportId, source?.experienceRevision),
             'data-cv-publication-action': 'plan',
           },
           t('cvPublish.plan')

@@ -88,3 +88,14 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce the fixture failure against parent 36d41ffb; bind both relocated copies to all original imports and require the intended activation failure in the rollback assertion.
 - [x] Verify both selected recovery/rollback checks on Node and Deno with finite inputs and limited memory; retain strict cleanup and acknowledged-write assertions.
 - [ ] Publish both atomic commits, inspect fresh exact-head hosted checks, and continue every unchecked original requirement without treating CI alone as completion.
+
+2026-11-16 experience snapshot publication (partial HH23):
+
+- [x] Verify the current publication path accepts only observed saves or native HH exports; immutable imported/native-acquired experience documents have no publication source.
+- [x] Add an explicit immutable experience revision through CLI, both Lino transports and the shared CV publication review, preserving private originals and all existing confirmation/recovery guards.
+- [x] Reuse the public CV allowlist for a reviewed sanitized projection; disclose its source without claiming a new provider save or publishing pending plans.
+- [x] Reproduce the missing source on the published parent; pass 28 focused portable checks and one native/MCP scenario, with preserved private originals and non-replaying reload.
+- [ ] Publish the experience source and inspect fresh exact-head hosted CI; broader CV requirements remain unfinished.
+- [ ] Complete every other original requirement. Add/copy editing and the remaining acceptance criteria remain unfinished.
+
+2026-11-16 route observer CI correction: exact b868 Windows job 133541760585 merges lifecycle stderr into its JSON receipt. Reproduce that parse failure against the published parent, keep the streams separate, explicitly exercise tracing and pass both focused checks. Atomic correction 4beb8fb3 is pushed; exact-head hosted verification remains required.
