@@ -118,3 +118,14 @@ by this plan change, and all other requested work remains required in PR57.
 - [ ] Verify native Windows failure/success receipts
       and every exact-head workflow. The full 60 unchecked requirements remain
       active; no criterion is accepted by a diagnostic or partial correction.
+
+2026-11-16 publication browser ownership:
+
+- [x] Preserve the newly completed bf15 Chromium shard 3 failure and its artifact.
+      The older page-wide publication selector now matches two panels.
+- [x] Reproduce the published helper failure, scope both older scenarios to
+      their native-save owner and pass all three existing publication scenarios.
+- [x] Independently verify separate panel state and consent through Playwright
+      MCP, preserve inspected screenshots and close every owned fixture.
+- [ ] Publish the atomic helper correction, inspect fresh hosted Chromium/WebKit
+      results and continue all 60 unchecked original criteria.

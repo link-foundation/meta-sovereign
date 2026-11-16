@@ -34,7 +34,7 @@ export const verifyCvSnapshotPublication = async (
 ) => {
   const fixture = await cvPublicationBrowserFixture(browser);
   const { page, publication: f } = fixture;
-  const panel = page.locator('[data-cv-publication]');
+  const panel = page.locator('[data-cv-save-watch] [data-cv-publication]');
   const action = (name) =>
     panel.locator(`[data-cv-publication-action="${name}"]`);
   const field = (name) =>

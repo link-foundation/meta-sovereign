@@ -12,7 +12,7 @@ export const verifyNativeExportPublication = async (
     nativeExport: true,
   });
   const { page, publication: f, exported } = fixture;
-  const panel = page.locator('[data-cv-publication]');
+  const panel = page.locator('[data-cv-save-watch] [data-cv-publication]');
   const source = panel.locator('[data-cv-publication-source]');
   const action = (name) =>
     panel.locator(`[data-cv-publication-action="${name}"]`);

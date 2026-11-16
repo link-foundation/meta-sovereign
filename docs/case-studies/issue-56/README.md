@@ -634,3 +634,4 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Route observer output](ci-route-observer-output.md): preserve the exact hosted Windows JSON parse failure and verify separate stdout receipts and stderr lifecycle diagnostics.
 
 - [Windows publication paths](ci-publication-long-paths.md): preserve the same four failures across Node, Bun and Deno; add scoped Git long-path support, private refusal diagnostics and a bounded native comparison. Windows confirmation remains required.
+- [Publication browser ownership](ci-publication-panels.md): retain the actual two-panel selector failure, scope both older scenarios to their owner, and verify all three publication paths with independent MCP panel-state evidence.
