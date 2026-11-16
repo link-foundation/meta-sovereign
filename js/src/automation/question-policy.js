@@ -5,6 +5,10 @@ import {
   finalPeriodMatches,
   normalizeAnswerFinalPeriod,
 } from './question-final-period.js';
+import {
+  answerMatchBoundary,
+  combineAnswerObservations,
+} from './question-equivalents.js';
 
 export const QA_POLICY_ID = 'qa-policy:reuse';
 export const normalizeAnswerPolicy = (input = {}) => {
@@ -72,28 +76,24 @@ export const equivalentAnswerVariants = (matches, policy = {}) => {
   }
   const groups = new Map();
   for (const match of matches) {
-    const { answer, rule } = match;
+    const { answer } = match;
     const text = answer.text.trim().replace(/[.!。！]+$/u, '');
-    const key = `${rule.id}\u0000${answer.approved}\u0000${answer.canonical}\u0000${text}`;
-    const previous = groups.get(key);
-    if (!previous) {
-      groups.set(key, { ...match, variantCount: answer.count });
-      continue;
-    }
-    const preferred =
-      answer.count > previous.variantCount
-        ? { ...match, variantCount: answer.count }
-        : previous;
-    groups.set(key, {
-      ...preferred,
-      answer: {
-        ...preferred.answer,
-        count: previous.answer.count + answer.count,
-        evidence: [
-          ...new Set([...previous.answer.evidence, ...answer.evidence]),
-        ].slice(0, 100),
-      },
-    });
+    const key = JSON.stringify([
+      answerMatchBoundary(match),
+      answer.approved,
+      answer.canonical,
+      text,
+    ]);
+    const group = groups.get(key) ?? [];
+    group.push(match);
+    groups.set(key, group);
   }
-  return [...groups.values()];
+  return [...groups.values()].flatMap((group) => {
+    const preferred = group.reduce((best, match) =>
+      match.answer.count > best.answer.count ? match : best
+    );
+    return group.length === 1
+      ? group
+      : combineAnswerObservations(preferred, group);
+  });
 };

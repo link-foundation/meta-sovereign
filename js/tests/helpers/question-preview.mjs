@@ -15,3 +15,13 @@ export const openQuestionPreview = async (page) => {
   await openQuestionDisclosure(preview);
   return { panel, preview };
 };
+
+/** Request a preview through its visible controls; assertions stay with callers. */
+export const requestQuestionPreview = async (preview, question) => {
+  await preview
+    .getByLabel('Question or pattern', { exact: true })
+    .fill(question);
+  await preview
+    .getByRole('button', { name: 'Preview answer', exact: true })
+    .click();
+};

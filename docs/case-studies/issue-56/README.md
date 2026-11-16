@@ -660,3 +660,5 @@ inspection/unread configuration, watched revalidation, saved-action fallback and
 ordinary confirmed automation delivery. Seven actual-parent regressions and an
 owned native composer check preserve source-bound evidence without claiming
 live provider execution or accepting the complete QA11 criterion.
+
+[Question-wide final-period counts](question-period-scope.md) fixes independently saved exact-rule aggregation and preserves review for overlapping evidence. Four actual-parent failures, 35 focused checks and native/MCP before/after evidence retain literal observations. Exact-source hosted acceptance and all 41 unchecked requirements remain required.

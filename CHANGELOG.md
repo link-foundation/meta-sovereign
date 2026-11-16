@@ -4,6 +4,10 @@
 
 ### Minor Changes
 
+- Combine observed final-period variants across eligible exact-question rules.
+  Preserve provider/chat, approval and correction boundaries; require review
+  when observation evidence overlaps under either punctuation policy.
+
 - Retain the resolved final-period preference through browser inspection, watched
   draft preparation, unread processing and confirmed automation delivery. Support
   isolated CLI/environment/Lino configuration without erasing saved action settings

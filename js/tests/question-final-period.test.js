@@ -64,7 +64,22 @@ test('period pairs cannot transfer approval, canonical intent or question scope'
       { id: 'qa-rule:two', question, answers: [variant('Vietnam.', 1)] },
     ],
   });
-  assert.equal(scoped.count, 4);
+  assert.equal(scoped.count, 5);
+  assert.equal(scoped.text, 'Vietnam.');
+  for (const other of ['Where is the office?', 'Where do you live now?']) {
+    const separate = planAnswer(question, {
+      rules: [
+        { id: 'qa-rule:one', question, answers: [variant('Vietnam', 4)] },
+        {
+          id: 'qa-rule:two',
+          question: other,
+          answers: [variant('Vietnam.', 99)],
+        },
+      ],
+    });
+    assert.equal(separate.count, 4);
+    assert.equal(separate.text, 'Vietnam');
+  }
   const canonical = plan([
     variant('Vietnam', 4),
     { ...variant('Vietnam.', 0), canonical: true },

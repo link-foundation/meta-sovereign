@@ -1,4 +1,7 @@
-import { debugQuestionTurn } from './question-turns.js';
+import {
+  answerMatchBoundary,
+  combineAnswerObservations,
+} from './question-equivalents.js';
 
 export const normalizeAnswerFinalPeriod = (value = 'with') => {
   if (!['with', 'without'].includes(value)) {
@@ -18,8 +21,12 @@ export const finalPeriodMatches = (matches, preference) => {
   const style = normalizeAnswerFinalPeriod(preference);
   const groups = new Map();
   for (const match of matches) {
-    const { rule, answer } = match;
-    const key = JSON.stringify([rule.id, answer.approved, answer.canonical]);
+    const { answer } = match;
+    const key = JSON.stringify([
+      answerMatchBoundary(match),
+      answer.approved,
+      answer.canonical,
+    ]);
     const group = groups.get(key) ?? new Map();
     group.set(answer.text, [...(group.get(answer.text) ?? []), match]);
     groups.set(key, group);
@@ -36,35 +43,13 @@ export const finalPeriodMatches = (matches, preference) => {
       }
       const preferred = (style === 'with' ? dotted : plain)[0];
       const variants = [...plain, ...dotted];
-      const count = variants.reduce(
-        (sum, match) => sum + match.answer.count,
-        0
-      );
-      if (!Number.isSafeInteger(count)) {
-        throw new Error(
-          'combined answer frequency exceeds the safe integer limit'
-        );
-      }
-      const combined = {
-        ...preferred,
-        answer: {
-          ...preferred.answer,
-          count,
-          evidence: [
-            ...new Set(variants.flatMap((match) => match.answer.evidence)),
-          ].slice(0, 100),
-        },
-      };
-      debugQuestionTurn('final-period-pair', {
-        rule: preferred.rule.id,
-        observations: count,
-        variants: variants.length,
-        preference: style,
-      });
+      const combined = combineAnswerObservations(preferred, variants);
       for (const variant of variants) {
         replacements.set(variant, combined);
       }
     }
   }
-  return [...new Set(matches.map((match) => replacements.get(match) ?? match))];
+  return [
+    ...new Set(matches.flatMap((match) => replacements.get(match) ?? [match])),
+  ];
 };

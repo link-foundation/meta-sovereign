@@ -66,6 +66,11 @@ spelling. A lone spelling remains exact. Other punctuation, case, different
 questions and different approval states remain separate. Original answer records
 and transcripts are preserved, so repeated learning does not recount replies.
 
+Counts include independently saved rules that match this exact question and pass
+the current provider/chat restrictions. Template and approximate matches keep
+their own rule boundaries. Overlapping observation evidence requires review
+under either punctuation policy; it is never silently counted twice.
+
 The separate broad punctuation-equivalence option retains its existing behavior:
 when enabled, it takes precedence and keeps the most frequent original spelling.
 The final-period selector is disabled while that option is enabled. A failed save

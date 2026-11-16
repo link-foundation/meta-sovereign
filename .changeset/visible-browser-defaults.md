@@ -749,3 +749,5 @@ commitments and closed yes/no consent through CLI, offline and both Lino formats
 Retain final-period configuration through watched/unread browser work and confirmed
 automation delivery. Preserve saved action preferences when no command override is
 present; keep process settings and shared policy unchanged.
+
+Combine final-period observations across eligible exact-question rules, preserving approval and provider/chat boundaries. Require review for overlapping evidence under either punctuation policy.

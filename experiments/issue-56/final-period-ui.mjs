@@ -43,6 +43,15 @@ if (process.argv.includes('--irrelevant-timing')) {
     evidence: ['fixture:unrelated-timing'],
   });
 }
+if (process.argv.includes('--split-period')) {
+  const [plain, dotted] = fixture.answers;
+  await store.put({
+    ...fixture,
+    id: `${fixture.id}-dotted`,
+    answers: [dotted],
+  });
+  fixture.answers = [plain];
+}
 await store.put(fixture);
 const server = await startServer({
   store,

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { saveAnswerRule } from '../../src/automation/question-store.js';
 import { saveAnswerPolicy } from '../../src/automation/question-policy.js';
-import { openQuestionDisclosure } from './question-preview.mjs';
+import {
+  openQuestionDisclosure,
+  requestQuestionPreview,
+} from './question-preview.mjs';
 import { fulfil } from './e2e-chat.mjs';
 
 export const verifyQuestionFinalPeriod = async ({
@@ -15,10 +18,12 @@ export const verifyQuestionFinalPeriod = async ({
   await saveAnswerRule(store, {
     id: 'qa-rule:final-period-fixture',
     question,
-    answers: [
-      { text: 'Hanoi', count: 4, approved: true },
-      { text: 'Hanoi.', count: 1, approved: true },
-    ],
+    answers: [{ text: 'Hanoi', count: 4, approved: true }],
+  });
+  const dotted = await saveAnswerRule(store, {
+    id: 'qa-rule:final-period-observed',
+    question,
+    answers: [{ text: 'Hanoi.', count: 1, approved: true }],
   });
   const original = await store.get('qa-rule:final-period-fixture');
   await saveAnswerPolicy(store, { answerFinalPeriod: 'with' });
@@ -35,12 +40,7 @@ export const verifyQuestionFinalPeriod = async ({
   );
   await openQuestionDisclosure(preview);
   const runPreview = async (text) => {
-    await preview
-      .getByLabel('Question or pattern', { exact: true })
-      .fill(question);
-    await preview
-      .getByRole('button', { name: 'Preview answer', exact: true })
-      .click();
+    await requestQuestionPreview(preview, question);
     await until(
       async () =>
         (await preview.locator('[data-answer-preview] > pre').textContent()) ===
@@ -53,6 +53,11 @@ export const verifyQuestionFinalPeriod = async ({
       .waitFor();
   };
   await runPreview('Hanoi.');
+  if (process.env.QUESTION_PERIOD_SCOPE_SCREENSHOT) {
+    await preview.screenshot({
+      path: process.env.QUESTION_PERIOD_SCOPE_SCREENSHOT,
+    });
+  }
   await select.selectOption('without');
   await policy.getByRole('button', { name: 'Save', exact: true }).click();
   await policy
@@ -94,6 +99,7 @@ export const verifyQuestionFinalPeriod = async ({
     original,
     'raw variants stay available for idempotent learning'
   );
+  assert.deepEqual(await store.get(dotted.id), dotted);
   await policy
     .getByRole('button', { name: 'Refresh answers', exact: true })
     .click();

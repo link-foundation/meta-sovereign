@@ -6,7 +6,10 @@ import {
   preferred,
   aliases,
 } from '../../../experiments/issue-56/answer-equivalents-fixture.mjs';
-import { openQuestionDisclosure } from './question-preview.mjs';
+import {
+  openQuestionDisclosure,
+  requestQuestionPreview,
+} from './question-preview.mjs';
 import { fulfil } from './e2e-chat.mjs';
 
 export const verifyQuestionEquivalents = async ({
@@ -48,12 +51,7 @@ export const verifyQuestionEquivalents = async ({
     has: page.locator(':scope > summary', { hasText: /^Preview answer$/u }),
   });
   await openQuestionDisclosure(preview);
-  await preview
-    .getByLabel('Question or pattern', { exact: true })
-    .fill(question);
-  await preview
-    .getByRole('button', { name: 'Preview answer', exact: true })
-    .click();
+  await requestQuestionPreview(preview, question);
   await until(
     async () =>
       (await preview.locator('[data-answer-preview] > pre').textContent()) ===

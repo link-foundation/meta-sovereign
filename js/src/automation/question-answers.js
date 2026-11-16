@@ -326,8 +326,8 @@ const answerOne = (question, input) => {
       sufficientAnswer(core, render(answer.text, context.profile).text)
     )
   );
-  const wordingConflict = wordingRequiresReview(matches, declaredConflict);
   matches = equivalentAnswerVariants(matches, context.policy);
+  const wordingConflict = wordingRequiresReview(matches, declaredConflict);
   matches.sort(
     (a, b) =>
       Number(b.match === 'exact') - Number(a.match === 'exact') ||

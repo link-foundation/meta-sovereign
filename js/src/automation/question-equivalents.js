@@ -51,11 +51,14 @@ export const validateAnswerEquivalents = (answers) => {
   }
 };
 
-const combine = (preferred, variants) => {
+export const combineAnswerObservations = (preferred, variants) => {
   const evidence = new Set();
   for (const { answer } of variants) {
     for (const id of answer.evidence) {
       if (answer.count > 0 && evidence.has(id)) {
+        debugQuestionTurn('answer-observation-overlap', {
+          variants: variants.length,
+        });
         return variants.map((match) => ({
           ...match,
           preferenceConflict: true,
@@ -133,17 +136,20 @@ const resolveGroup = (matches) => {
   return [
     ...unchanged,
     ...[...buckets].flatMap(([target, variants]) =>
-      combine(targets.get(target), variants)
+      combineAnswerObservations(targets.get(target), variants)
     ),
   ];
 };
+
+export const answerMatchBoundary = ({ match, rule }) =>
+  match === 'exact' ? 'exact' : rule.id;
 
 const groupedMatches = (matches) => {
   const groups = new Map();
   for (const match of matches) {
     // Exact matches already refer to this question and passed source/chat guards.
     // Template and approximate matches retain their individual rule boundary.
-    const key = match.match === 'exact' ? 'exact' : match.rule.id;
+    const key = answerMatchBoundary(match);
     const group = groups.get(key) ?? [];
     group.push(match);
     groups.set(key, group);
