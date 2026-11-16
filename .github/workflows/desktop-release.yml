@@ -401,6 +401,28 @@ jobs:
             if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
           }
 
+      - name: Launch packaged app (macOS)
+        if: matrix.os == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+          arch=$(node -p 'process.arch')
+          app_dir=mac
+          if [ "$arch" = arm64 ]; then app_dir=mac-arm64; fi
+          mkdir -p artifacts
+          node experiments/issue-56/desktop-packaged-launch.mjs \
+            "dist/desktop/release/$app_dir/Meta Sovereign.app/Contents/MacOS/Meta Sovereign" \
+            artifacts/desktop-launch-macos.png
+
+      - name: Preserve packaged launch screenshot
+        if: always() && matrix.os == 'macos'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: desktop-launch-macos
+          path: artifacts/desktop-launch-macos.png
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Check provenance metadata regression
         if: matrix.name == 'linux-x64'
         run: node experiments/issue-56/desktop-provenance-version.mjs

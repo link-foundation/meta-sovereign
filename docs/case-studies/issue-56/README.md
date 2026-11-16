@@ -609,3 +609,4 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Hosted selection entry](ci-selection-entry.md): preserve the exact empty-field failure and native screenshot; add bounded focus/native/rendered entry tracing. The actual cause and affected acceptance criteria remain unfinished.
 
 - [CV experience diagnostic ownership](ci-cv-experience-page-errors.md): retain the failed hosted job and actual-parent native WebKit replay, apply the existing exact-origin diagnostic policy and preserve genuine failures. Fresh hosted verification remains required.
+- [Packaged macOS boot check](desktop-packaged-launch.md): require a native packaged window, rendered app, positive backend and drained exit on CI, retaining a screenshot. Hosted acceptance and VD09 remain unfinished.
