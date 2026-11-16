@@ -1,3 +1,4 @@
+import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { zhGratitude } from './zh-gratitude.js';
@@ -36,6 +37,7 @@ import { zhFeedback } from './zh-feedback.js';
 import { zhStickers } from './zh-stickers.js';
 
 export const zh = {
+  ...questionFinalPeriodLocale('zh'),
   ...vkProviderJobsLocale('zh'),
   ...vkAttachmentsLocale('zh'),
   ...zhGratitude,
@@ -1314,8 +1316,6 @@ export const zh = {
   'questions.aliases': '等价问题，每行一个',
   'questions.canonical': '用此更正替代旧答案',
   'questions.policy': '答案复用规则',
-  'questions.policyHint':
-    '拒绝的短语不会用于已保存或学习的答案，包括个人资料替换。历史消息保持不变。仅在您选择合并时才合并标点不同的答案。',
   'questions.rejected': '拒绝的短语，每行一个',
   'questions.punctuationEquivalent': '合并仅句末标点不同的答案次数',
   'questions.policySaved': '答案复用规则已保存。',

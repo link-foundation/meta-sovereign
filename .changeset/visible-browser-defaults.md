@@ -728,3 +728,10 @@ Publish a reviewed public CV projection from an explicitly selected immutable HH
 Allow full revision snapshot paths in publication-owned Git commands on Windows
 without changing repository configuration. Retain opt-in content-free refusal
 diagnostics and bounded native long-path regressions.
+
+Combine actual observations of existing final-period spelling pairs, defaulting
+to the spelling with a period. Share a saved with/without preference through
+acknowledged four-language controls, CLI and both Lino encodings; support isolated
+CLI planning configuration. Preserve raw observations, approval/correction scope,
+other punctuation and existing broad equivalence. Migrate policy without
+rewriting answers or replaying learning.

@@ -15,7 +15,8 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
                 answers: list | save [file.lino] | delete <id> | plan --question=<text> [--model-draft] [--config=file.lino|--automation=id] | learn | backfill-questionnaires [--apply] [--contract] [--config=file.lino|--automation=id]
                 answers save: --id=<id> --question=<text> --answer=<text> [--kind=question|notice] [--approved] [--canonical] [--sources=hh,telegram] [--chats=hh:123]
-                answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false]
+                answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] [--answer-final-period=with|without]
+                answers plan: [--answer-final-period=with|without] [--configuration=<file.lenv>]; CLI > ANSWER_FINAL_PERIOD environment > selected .lenv > current-directory .lenv > saved policy > with. Previews never save this override.
                 answers model show | save --enabled=true|false --revision=<revision|null> [--model=id] [--cv=cv:id] [--timeout-ms=60000]
                 answers plan choices: --options='(Yes No)' --strict-options=true (Links Notation labels)
                 answers browser show | inspect --source=hh --chat=<web-reference> [--browser-url=<application-url>] | prefill --id=<review> | select --id=<review> --option=<exact-label> --confirm=true | status --id=<review>

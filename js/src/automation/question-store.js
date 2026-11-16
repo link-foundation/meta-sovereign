@@ -24,6 +24,7 @@ import { answerTemplateEnvironment } from './salary-template.js';
 import { renderAnswer } from './question-profile.js';
 import { readAcceptedSummaries } from './question-summary-choice.js';
 import { readAnswerPolicy, rejectedAnswer } from './question-policy.js';
+import { normalizeAnswerFinalPeriod } from './question-final-period.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
 import {
   readAnswerProfile,
@@ -178,7 +179,16 @@ export const prepareAnswerPreview = async (
     ...action,
     salary: prepared.salary,
     ...normalizeAnswerEnvironment(input),
-    policy: await readAnswerPolicy(store),
+    policy: {
+      ...(await readAnswerPolicy(store)),
+      ...(input.answerFinalPeriod === undefined
+        ? {}
+        : {
+            answerFinalPeriod: normalizeAnswerFinalPeriod(
+              input.answerFinalPeriod
+            ),
+          }),
+    },
     // Caller-provided summaries cannot supply the acceptance proof.
     acceptedSummaries: answerChoiceState(input.question ?? '', input).options
       .length

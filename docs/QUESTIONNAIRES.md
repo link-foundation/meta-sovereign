@@ -55,3 +55,37 @@ The single and batch application CLI commands accept `--profile-id` and
 The matching single-open and batch-start API requests accept `profileId` and
 `salary` in either Lino encoding. Omit both to retain existing behavior. Only
 the application identity is saved in browser recovery storage.
+
+## Final-period preference
+
+In **Questions and saved answers → Answer reuse policy**, choose **With a final
+period** (the default) or **Without a final period** and save. When both `Vietnam`
+and `Vietnam.` were observed for the same question and approval/correction state,
+reuse combines their actual counts and evidence and chooses the configured
+spelling. A lone spelling remains exact. Other punctuation, case, different
+questions and different approval states remain separate. Original answer records
+and transcripts are preserved, so repeated learning does not recount replies.
+
+The separate broad punctuation-equivalence option retains its existing behavior:
+when enabled, it takes precedence and keeps the most frequent original spelling.
+The final-period selector is disabled while that option is enabled. A failed save
+retains the pending selection and shows the failure; it does not confirm a change.
+
+Persist the shared preference through the CLI:
+
+```sh
+meta-sovereign automations answers policy --answer-final-period=without
+```
+
+For a read-only `answers plan`, use `--answer-final-period=with|without`, the
+`ANSWER_FINAL_PERIOD` environment variable, or `ANSWER_FINAL_PERIOD: "without"`
+in `.lenv`. `--configuration=path.lenv` selects another configuration file.
+Precedence is the explicit flag, environment, selected file, working-directory
+`.lenv`, saved policy, then `with`. These planning overrides change neither the
+process environment nor saved policy. They do not start provider automation.
+Other commands use the saved shared preference.
+
+Both Lino encodings accept `POST /api/automations/answers/policy` with
+`{ policy: { answerFinalPeriod: 'without' } }`; planning accepts
+`answerFinalPeriod` as a read-only override. Invalid values are refused without
+changing policy. The offline interface uses the same planner and saved preference.

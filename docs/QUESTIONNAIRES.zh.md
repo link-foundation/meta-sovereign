@@ -41,3 +41,28 @@ meta-sovereign automations answers backfill-questionnaires --apply
 Links Notation 记录）。对应的申请打开及批量启动 API 支持 `profileId` 和
 `salary`，并接受两种 Lino 编码。省略这些字段可保留原有行为。浏览器恢复存储中
 仅保存申请标识。
+
+## 答案末尾句点偏好
+
+在**问题与已保存答案 → 答案复用策略**中选择带句点（默认）或不带句点，
+然后保存。同一问题、相同批准和更正状态下，只有实际观察到 `Vietnam`
+和 `Vietnam.` 两种写法时，规划器才合并真实次数和证据，并选择指定写法。
+只有一种写法时保持原样。其他标点、大小写、不同问题及批准状态保持分开。
+原始答案记录和聊天内容保持完整，重复学习不会重复计数。
+
+独立的广义标点等价选项保留原有行为：启用时优先使用出现次数最多的原始
+写法，此时末尾句点选择器禁用。保存失败会保留待保存选择并显示实际错误，
+不会宣称更改已成功。
+
+保存共享偏好：`meta-sovereign automations answers policy --answer-final-period=without`。
+只读 `answers plan` 可用 `--answer-final-period=with|without`、环境变量
+`ANSWER_FINAL_PERIOD`，或在 `.lenv` 写入 `ANSWER_FINAL_PERIOD: "without"`。
+用 `--configuration=path.lenv` 指定其他配置文件。优先级依次为显式参数、
+环境、选定文件、工作目录 `.lenv`、已保存策略、最后为 `with`。
+规划覆盖值不修改进程环境或已保存策略，也不启动提供商自动化。
+其他命令使用已保存的共享偏好。
+
+两种 Lino 编码均支持向 `POST /api/automations/answers/policy` 发送
+`{ policy: { answerFinalPeriod: 'without' } }`。规划请求中的
+`answerFinalPeriod` 仅覆盖读取值。无效值会被拒绝，策略保持不变。
+离线界面使用相同规划器与已保存偏好。

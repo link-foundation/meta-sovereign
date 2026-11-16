@@ -5,10 +5,51 @@ import { normalizeNoticePolicy } from '../automation/question-notice-policy.js';
 
 const el = React.createElement;
 
+const FinalPeriodField = ({ value, change, disabled }) => {
+  const t = useT();
+  return el('label', { className: 'field' }, [
+    el(
+      'span',
+      { key: 'label', className: 'field-label' },
+      t('questions.finalPeriod')
+    ),
+    el(
+      'select',
+      {
+        key: 'input',
+        'data-answer-final-period': true,
+        value,
+        disabled,
+        onChange: (event) => change(event.target.value),
+      },
+      ['with', 'without'].map((style) =>
+        el(
+          'option',
+          {
+            key: style,
+            value: style,
+          },
+          t(
+            style === 'with'
+              ? 'questions.finalPeriodWith'
+              : 'questions.finalPeriodWithout'
+          )
+        )
+      )
+    ),
+    el(
+      'span',
+      { key: 'hint', className: 'meta' },
+      t('questions.finalPeriodHint')
+    ),
+  ]);
+};
+
 export const AnswerPolicyControls = ({ api, busy, run }) => {
   const t = useT();
   const [rejected, setRejected] = React.useState('');
   const [equivalent, setEquivalent] = React.useState(false);
+  const [finalPeriod, setFinalPeriod] = React.useState('with');
   const [loaded, setLoaded] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
   const [notices, setNotices] = React.useState(normalizeNoticePolicy);
@@ -17,6 +58,7 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
       const policy = await api.answerPolicy();
       setRejected(policy.rejected.join('\n'));
       setEquivalent(policy.punctuationEquivalent);
+      setFinalPeriod(policy.answerFinalPeriod ?? 'with');
       setNotices(normalizeNoticePolicy(policy.notices));
       setLoaded(true);
       setSaved(false);
@@ -57,6 +99,7 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
                   .map((text) => text.trim())
                   .filter(Boolean),
                 punctuationEquivalent: equivalent,
+                answerFinalPeriod: finalPeriod,
                 notices,
               });
               setSaved(true);
@@ -94,6 +137,15 @@ export const AnswerPolicyControls = ({ api, busy, run }) => {
                   },
                 }),
               ]),
+              el(FinalPeriodField, {
+                key: 'period',
+                value: finalPeriod,
+                disabled: equivalent,
+                change: (value) => {
+                  setFinalPeriod(value);
+                  setSaved(false);
+                },
+              }),
               el('label', { key: 'equivalent', className: 'check' }, [
                 el('input', {
                   key: 'input',

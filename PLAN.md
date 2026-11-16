@@ -171,3 +171,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Read every pinned correction-test assertion. The reference supplies clean owner facts per question and excludes mixed historical apologies; it does not infer facts from arbitrary uncorrected prose. Map the actual contract to canonical saved rules, rejected wording, private links, unchanged history and acknowledged CLI/Lino/UI controls.
 - [x] Add QA08 as the nineteenth audit candidate and retain the pinned Git-verified correction/requirements bytes in the collector. This mapping adds no speculative inference or provider-history claim.
 - [ ] Preserve all five exact-source workflows and actual test/browser receipts before accepting any candidate. Every other unfinished original criterion remains required.
+
+2026-11-16 final-period conflict correction (QA11):
+
+- [x] Read the pinned final-period tests, storage and preference contracts. The current default leaves real period pairs separate; broad punctuation equivalence is a different opt-in.
+- [x] Preserve a failing finite regression, then combine only observed single-period pairs with exact counts, separate approvals and unchanged raw observations. Preserve all lone spellings and other punctuation.
+- [x] Add acknowledged shared policy controls, CLI/environment/Lino configuration, schema migration, four-language documentation and focused API/browser checks with before/after screenshots. Thirty-two policy/migration checks, seven updated planner/control checks, 25 locale checks and the focused installed-Chrome scenario pass; lint and the unchanged duplication gate pass.
+- [ ] Review exact-head hosted coverage. Keep QA11 unchecked while its separate approved-answer replacement/count contract or other required evidence remains unfinished.

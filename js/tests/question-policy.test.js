@@ -139,7 +139,7 @@ test('rejections apply after profile substitution and conflicting corrections ne
   );
 });
 
-test('punctuation equivalence combines only explicitly configured variants', () => {
+test('broad punctuation equivalence remains an explicit option beyond final-period pairs', () => {
   const options = {
     rules: [
       {
@@ -151,7 +151,7 @@ test('punctuation equivalence combines only explicitly configured variants', () 
       },
     ],
   };
-  assert.equal(planAnswer(question, options).count, 3);
+  assert.equal(planAnswer(question, options).count, 5);
   const combined = planAnswer(question, {
     ...options,
     policy: { punctuationEquivalent: true },

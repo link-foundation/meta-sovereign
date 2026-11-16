@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs';
 import { questionBrowserCommand } from './question-browser-commands.js';
+import { questionPeriodConfiguration } from './question-period-configuration.js';
 import {
   questionMatchingFlags,
   questionMatchPageFlags,
@@ -70,7 +71,12 @@ const policyCommand = async (args, store) => {
   }
   const clear =
     args['clear-rejected'] === true || args['clear-rejected'] === 'true';
-  if (args.reject || clear || args['punctuation-equivalent'] !== undefined) {
+  if (
+    args.reject ||
+    clear ||
+    args['punctuation-equivalent'] !== undefined ||
+    args['answer-final-period'] !== undefined
+  ) {
     return updateAnswerPolicy(store, (current) => ({
       ...current,
       rejected: clear
@@ -80,6 +86,8 @@ const policyCommand = async (args, store) => {
         args['punctuation-equivalent'] === undefined
           ? current.punctuationEquivalent
           : ['true', true].includes(args['punctuation-equivalent']),
+      answerFinalPeriod:
+        args['answer-final-period'] ?? current.answerFinalPeriod,
     }));
   }
   return readAnswerPolicy(store);
@@ -136,6 +144,9 @@ const planInput = async (args, store) => {
   }
   return {
     ...input,
+    ...(args._[1] === 'plan'
+      ? { answerFinalPeriod: await questionPeriodConfiguration(args) }
+      : {}),
     question: args.question ?? args._[2] ?? input.question,
     source: args.source ?? input.source,
     chat: args.chat ?? input.chat,
@@ -226,7 +237,7 @@ export const questionCommands = async ({
     });
   } else {
     throw new Error(
-      'answers expects model show | model save --enabled=true|false --revision=<revision|null> [--cv=cv:id] [--model=id] | list | save [file.lino] | delete <id> | plan --question=<text> [--threshold=0.78] [--case-sensitive=false] [--match-offset=0] [--match-limit=20] [--model-draft] [--config=file.lino|--automation=id] | learn | backfill-questionnaires [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
+      'answers expects model show | model save --enabled=true|false --revision=<revision|null> [--cv=cv:id] [--model=id] | list | save [file.lino] | delete <id> | plan --question=<text> [--threshold=0.78] [--case-sensitive=false] [--match-offset=0] [--match-limit=20] [--model-draft] [--config=file.lino|--automation=id] | learn | backfill-questionnaires [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] [--answer-final-period=with|without] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

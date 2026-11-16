@@ -1,6 +1,10 @@
 import { questionWords } from './question-match.js';
 import { writeAnswerKnowledge } from './question-knowledge.js';
 import { normalizeNoticePolicy } from './question-notice-policy.js';
+import {
+  finalPeriodMatches,
+  normalizeAnswerFinalPeriod,
+} from './question-final-period.js';
 
 export const QA_POLICY_ID = 'qa-policy:reuse';
 export const normalizeAnswerPolicy = (input = {}) => {
@@ -30,6 +34,7 @@ export const normalizeAnswerPolicy = (input = {}) => {
     tokens: ['qa-policy'],
     rejected: [...new Set(rejected.map((text) => text.trim()))],
     punctuationEquivalent: input.punctuationEquivalent === true,
+    answerFinalPeriod: normalizeAnswerFinalPeriod(input.answerFinalPeriod),
     notices: normalizeNoticePolicy(input.notices),
   };
 };
@@ -63,7 +68,7 @@ export const updateAnswerPolicy = (store, update) =>
 
 export const equivalentAnswerVariants = (matches, policy = {}) => {
   if (!policy.punctuationEquivalent) {
-    return matches;
+    return finalPeriodMatches(matches, policy.answerFinalPeriod);
   }
   const groups = new Map();
   for (const match of matches) {

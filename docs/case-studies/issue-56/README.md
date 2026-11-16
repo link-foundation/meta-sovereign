@@ -637,3 +637,8 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Publication browser ownership](ci-publication-panels.md): retain the actual two-panel selector failure, scope both older scenarios to their owner, and verify all three publication paths with independent MCP panel-state evidence.
 
 [Field provenance acceptance mapping](form-provenance-criteria-audit.md) adds QA25 to the pending exact-source audit: actual per-field source and observed/proposed values, private Markdown reports, CLI/Lino/shared downloads and model clarification. Thirty-eight archives and 2,301 manifest entries verify; all sixteen candidates still require the complete five-workflow gate. The other original criteria remain unfinished in PR57.
+
+[Observed final-period correction](question-final-period.md) adds configurable
+spelling reuse with actual combined counts and unchanged raw observations. This
+verifies one QA11 behavior; its separate approved-wording count contract and every
+other unchecked requirement remain active.

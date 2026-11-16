@@ -1,3 +1,4 @@
+import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { enGratitude } from './en-gratitude.js';
@@ -31,6 +32,7 @@ import { enConversation } from './en-conversation.js';
 import { enFeedback } from './en-feedback.js';
 import { enStickers } from './en-stickers.js';
 export const en = {
+  ...questionFinalPeriodLocale('en'),
   ...vkProviderJobsLocale('en'),
   ...vkAttachmentsLocale('en'),
   ...enGratitude,
@@ -1375,8 +1377,6 @@ export const en = {
   'questions.aliases': 'Equivalent questions, one per line',
   'questions.canonical': 'Use this correction instead of older variants',
   'questions.policy': 'Answer reuse policy',
-  'questions.policyHint':
-    'Rejected phrases are excluded from learned and saved answers, including profile substitutions. Historical messages are preserved. Punctuation variants stay separate unless you choose to combine them.',
   'questions.rejected': 'Rejected phrases, one per line',
   'questions.punctuationEquivalent':
     'Combine frequencies of answers differing only by final punctuation',

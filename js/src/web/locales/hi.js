@@ -1,3 +1,4 @@
+import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
 import { hiGratitude } from './hi-gratitude.js';
@@ -32,6 +33,7 @@ import { hiFeedback } from './hi-feedback.js';
 import { hiStickers } from './hi-stickers.js';
 
 export const hi = {
+  ...questionFinalPeriodLocale('hi'),
   ...vkProviderJobsLocale('hi'),
   ...vkAttachmentsLocale('hi'),
   ...hiGratitude,
@@ -1371,8 +1373,6 @@ export const hi = {
   'questions.aliases': 'समान अर्थ वाले प्रश्न, प्रत्येक पंक्ति में एक',
   'questions.canonical': 'पुराने विकल्पों की जगह इस सुधार का उपयोग करें',
   'questions.policy': 'उत्तर दोबारा उपयोग करने के नियम',
-  'questions.policyHint':
-    'अस्वीकृत वाक्यांश सहेजे और सीखे गए उत्तरों से हटाए जाते हैं, प्रोफ़ाइल से भरी गई जानकारी में भी। पुराने संदेश सुरक्षित रहते हैं। विराम चिह्न वाले विकल्प आपके चुने बिना नहीं जोड़े जाते।',
   'questions.rejected': 'अस्वीकृत वाक्यांश, प्रत्येक पंक्ति में एक',
   'questions.punctuationEquivalent':
     'केवल अंतिम विराम चिह्न में अलग उत्तरों की गिनती जोड़ें',
