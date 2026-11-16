@@ -7,6 +7,7 @@ import {
   captureVkAutomationLayouts,
 } from './vk-automation-browser.mjs';
 import { decoded } from './e2e-form-review.mjs';
+import { traceBrowserInputs, inputTrace } from './e2e-input-trace.mjs';
 
 export const verifyVkCache = async (
   browser,
@@ -17,6 +18,9 @@ export const verifyVkCache = async (
     browser,
     fixture,
     async ({ page, errors, heading }) => {
+      if (process.env.CI_RESUME_INPUT_DEBUG === '1') {
+        await traceBrowserInputs(page, '[data-cache-field]');
+      }
       const panel = page.locator('[data-vk-cache]');
       if (before) {
         assert.equal(await panel.count(), 0);
@@ -51,6 +55,7 @@ export const verifyVkCache = async (
               endpoint,
               status: received.status(),
               code: answer.code,
+              inputTrace: await inputTrace(page),
               // This fixture has synthetic IDs only. Retain the actual wire
               // input rather than guessing which displayed field was lost.
               input: received.request().postData()?.slice(0, 1024),

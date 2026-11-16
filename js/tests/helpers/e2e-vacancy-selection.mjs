@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
+import { traceBrowserInputs, inputTrace } from './e2e-input-trace.mjs';
 
 const captureLayouts = async (page, summary, shot) => {
   await summary.scrollIntoViewIfNeeded();
@@ -15,6 +16,19 @@ const captureLayouts = async (page, summary, shot) => {
     true
   );
   await shot('phone');
+};
+
+const traceSelectionInput = async (page, install = false) => {
+  if (process.env.CI_RESUME_INPUT_DEBUG !== '1') {
+    return;
+  }
+  if (install) {
+    return traceBrowserInputs(page, '[data-vacancy-field]');
+  }
+  console.log(
+    '[vacancy-selection-input]',
+    JSON.stringify(await inputTrace(page))
+  );
 };
 
 export const verifyVacancySelection = async (
@@ -33,6 +47,7 @@ export const verifyVacancySelection = async (
     '[data-vacancy-card="https://hh.ru/vacancy/124"]'
   );
   const search = async () => {
+    await traceSelectionInput(page);
     await panel.locator('[data-vacancy-action="search"]').click();
     await panel.locator('[data-vacancy-selection-summary="current"]').waitFor();
   };
@@ -49,6 +64,7 @@ export const verifyVacancySelection = async (
     }
   };
   try {
+    await traceSelectionInput(page, true);
     await page.goto(`${fixture.base}/#/cv`);
     await field('query').fill('Python');
     if (before) {
@@ -112,6 +128,7 @@ export const verifyVacancySelection = async (
       console.log(
         '[vacancy-selection-state]',
         JSON.stringify({
+          inputTrace: await inputTrace(page),
           terms: await field('excludeText')
             .inputValue()
             .catch(() => null),

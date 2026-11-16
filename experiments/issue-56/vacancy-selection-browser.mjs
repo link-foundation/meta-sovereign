@@ -5,6 +5,8 @@ await runBrowserScenarios('vacancy-selection', [
   (browser) =>
     verifyVacancySelection(browser, {
       before: process.argv.includes('--before'),
-      screenshots: 'docs/screenshots/issue-56-vacancy-selection',
+      screenshots:
+        process.env.E2E_ARTIFACT_DIR ??
+        'docs/screenshots/issue-56-vacancy-selection',
     }),
 ]);
