@@ -11,6 +11,7 @@ import {
 import { createRunnerControl } from './runner-control.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { runnerProfileOperation } from './runner-profile-store.js';
+import { readRunnerInspection } from './runner-inspection.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -42,6 +43,10 @@ const stopped = (states) =>
   );
 const same = (a, b) =>
   JSON.stringify(runnerProfileData(a)) === JSON.stringify(runnerProfileData(b));
+const profileFailure = (desired) =>
+  desired ? 'runner-profile-change-blocked' : 'runner-profile-unavailable';
+const profileMismatch = (bound, desired, states) =>
+  !desired || (bound && !same(bound, desired) && !stopped(states));
 const loadDesired = async (file, load, bound, optional) => {
   try {
     return await load(file, { optional });
@@ -55,7 +60,8 @@ const loadDesired = async (file, load, bound, optional) => {
 const validAction = (action, mode) =>
   ['status', 'profile', 'configure'].includes(action)
     ? mode === undefined
-    : ['start', 'stop'].includes(action) && ['local', 'server'].includes(mode);
+    : ['start', 'stop', 'inspect'].includes(action) &&
+      ['local', 'server'].includes(mode);
 
 /** Serialize all callers and retain target identity across profile edits/crashes. */
 export const createRunnerController = ({
@@ -90,16 +96,12 @@ export const createRunnerController = ({
       );
       let control = createRunnerControl({ targets: bound ?? desired, run });
       const observed = await control.status({ signal });
-      const mismatch =
-        !desired ||
-        (bound && !same(bound, desired) && !stopped(observed.states));
-      if (mismatch && action !== 'stop') {
+      const mismatch = profileMismatch(bound, desired, observed.states);
+      if (mismatch && !['stop', 'inspect'].includes(action)) {
         return {
           ...observed,
           ok: action === 'status',
-          code: desired
-            ? 'runner-profile-change-blocked'
-            : 'runner-profile-unavailable',
+          code: profileFailure(desired),
           scope: 'isolated-session',
         };
       }
@@ -112,6 +114,16 @@ export const createRunnerController = ({
             : await control.status({ signal })),
           scope: 'isolated-session',
         };
+      }
+      if (action === 'inspect') {
+        return await readRunnerInspection({
+          control,
+          targets,
+          mode,
+          run,
+          signal,
+          code: mismatch ? profileFailure(desired) : undefined,
+        });
       }
       // Retain both addresses even if launch/SSH is interrupted or ambiguous.
       await writeFileDurable(

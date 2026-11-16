@@ -35,6 +35,14 @@ until every criterion has implementation and verification evidence.
       observed mode controls, read-only recovery and unknown-state refusal with
       native/MCP evidence. Automatic preparation, actual backend readiness and shared configuration editing remain
       required; this foundation does not accept VD01–VD09.
+      The revision-checked profile editor now has focused/native/MCP evidence.
+      [Explicit application inspection](runner-health.md) now has bounded private
+      host/worker reads through configured local/SSH transports, CLI, both Lino
+      forms and translated controls. Finite actual-parent regressions, real
+      worker/passcode checks and native/MCP views preserve separate session
+      observations and no process mutation. Exact-head hosted verification,
+      automatic dependency preparation and independent desktop job ownership
+      remain required; no unchecked reference criterion is accepted here.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
       cleanup checks. [Persisted catalog compatibility](legacy-catalogs.md) now covers

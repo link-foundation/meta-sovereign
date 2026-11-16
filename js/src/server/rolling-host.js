@@ -65,6 +65,7 @@ export const startRollingServer = async ({
     uiUrl: hostedUiUrl(options.uiUrl),
     localUi: localUiEnabled(options.localUi),
     status: () => supervisor.status(),
+    health: () => supervisor.health(),
     upgrade: (next, changes) => supervisor.upgrade(next, changes),
     close: async () => {
       listening.listener.close();

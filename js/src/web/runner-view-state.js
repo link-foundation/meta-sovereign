@@ -1,9 +1,12 @@
 /** Last observations cannot authorize another action while stale or pending. */
 export const canRunnerAction = ({ answer, busy, error }, action, mode) => {
-  if (busy || error || !answer) {
+  if (busy || error || !answer || !['local', 'server'].includes(mode)) {
     return false;
   }
   const state = answer.states[mode];
+  if (action === 'inspect') {
+    return state !== 'unconfigured';
+  }
   if (action === 'stop') {
     return state === 'running';
   }
@@ -18,6 +21,14 @@ export const canRunnerAction = ({ answer, busy, error }, action, mode) => {
     )
   );
 };
+
+const retainedInspection = (state, answer) =>
+  state.inspection &&
+  answer.states[state.inspection.mode] ===
+    state.answer?.states[state.inspection.mode] &&
+  answer.code === state.answer?.code
+    ? state.inspection
+    : null;
 
 /** One owned request; recovery observes state and never replays a mutation. */
 export const followRunnerSessions = ({
@@ -43,12 +54,19 @@ export const followRunnerSessions = ({
     }
     active = true;
     clock.clearTimeout(timer);
-    publish({ busy: true, pending: action });
+    publish({
+      busy: true,
+      pending: action,
+      ...(action === 'status' ? {} : { inspection: null }),
+    });
     try {
       const answer = await request(action, mode, owner.signal);
       failures = 0;
       publish({
         answer,
+        ...(action === 'inspect'
+          ? { inspection: { ...answer.application, checkedAt: Date.now() } }
+          : { inspection: retainedInspection(state, answer) }),
         error: false,
         notice: action === 'status' ? state.notice : (answer.code ?? null),
       });

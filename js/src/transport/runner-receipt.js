@@ -1,4 +1,11 @@
 const states = new Set(['unconfigured', 'stopped', 'running', 'unknown']);
+
+export const runnerRequestPath = (action, mode) =>
+  action === 'status'
+    ? '/api/runner'
+    : action === 'inspect'
+      ? `/api/runner/inspect?mode=${mode}`
+      : `/api/runner/${action}`;
 const refusals = new Set([
   'invalid-runner-action',
   'runner-profile-change-blocked',
@@ -9,6 +16,7 @@ const refusals = new Set([
   'runner-unconfigured',
   'runner-stop-unconfirmed',
   'runner-control-unconfirmed',
+  'runner-application-unconfirmed',
 ]);
 
 const valid = (value) =>

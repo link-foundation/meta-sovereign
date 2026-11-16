@@ -19,10 +19,16 @@ const protocol = 1;
 export const requestServerControl = (
   storeDir,
   command,
-  { timeoutMs = 600_000 } = {}
+  { timeoutMs = 600_000, signal } = {}
 ) =>
   new Promise((resolve, reject) => {
     const socket = net.connect(controlAddress(storeDir));
+    const cancel = () => socket.destroy(new Error('server control cancelled'));
+    signal?.addEventListener('abort', cancel, { once: true });
+    socket.once('close', () => signal?.removeEventListener('abort', cancel));
+    if (signal?.aborted) {
+      cancel();
+    }
     let response = '';
     socket.setTimeout(timeoutMs, () =>
       socket.destroy(
@@ -139,6 +145,9 @@ export const createServerControl = async ({
     if (command.operation === 'status') {
       trace('status_ready');
       return handle.status();
+    }
+    if (command.operation === 'health') {
+      return handle.health();
     }
     if (command.operation !== 'upgrade') {
       throw new Error('unknown server control operation');

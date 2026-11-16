@@ -3,6 +3,7 @@ import { createRunnerController } from '../server/runner-controller.js';
 import { requestRunner } from './runner-client.js';
 import { readRunnerProfile, runnerProfileData } from './runner-profile.js';
 import { formatIndented } from 'lino-objects-codec';
+import { runnerHealthCommand } from './runner-health-command.js';
 
 const validSelection = (args) => {
   if (args.url !== undefined) {
@@ -30,9 +31,14 @@ export const createRunnerCommand =
   (options = {}) =>
   async (args, log) => {
     const [action, mode, extra] = args._;
+    if (action === 'health') {
+      return runnerHealthCommand(args, log);
+    }
     if (
       extra ||
-      !['status', 'start', 'stop', 'profile', 'configure'].includes(action) ||
+      !['status', 'start', 'stop', 'inspect', 'profile', 'configure'].includes(
+        action
+      ) ||
       (['status', 'profile', 'configure'].includes(action)
         ? mode !== undefined
         : !['local', 'server'].includes(mode)) ||
@@ -43,7 +49,7 @@ export const createRunnerCommand =
       !validConfiguration(args, action)
     ) {
       log(
-        'Use runner status|start local|start server|stop local|stop server|profile|configure --input=<file> --revision=<saved-revision> [--profile=<file> | --url=<server-origin>].'
+        'Use runner status|start local|start server|stop local|stop server|inspect local|inspect server|profile|configure --input=<file> --revision=<saved-revision> [--profile=<file> | --url=<server-origin>].'
       );
       return 1;
     }

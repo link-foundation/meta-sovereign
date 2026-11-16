@@ -159,3 +159,68 @@ test('browser runner bridge opts out of mutation recovery and rejects unsafe rec
   await assert.rejects(api.runnerRequest('PRIVATE', 'local'));
   assert.equal(calls.length, 1);
 });
+
+test('application checks are explicit, serialized and cleared when session observations change', async () => {
+  const calls = [];
+  let local = 'running';
+  const view = fixture(async (action) => {
+    calls.push(action);
+    return receipt(
+      local,
+      'stopped',
+      action === 'inspect'
+        ? { application: { mode: 'local', state: 'ready' } }
+        : {}
+    );
+  });
+  try {
+    await tick();
+    assert.deepEqual(calls, ['status']);
+    assert.equal(view.state().inspection, null);
+    await view.owner.act('inspect', 'local');
+    assert.equal(view.state().inspection.state, 'ready');
+    assert.equal(typeof view.state().inspection.checkedAt, 'number');
+    await view.owner.refresh();
+    assert.equal(view.state().inspection.state, 'ready');
+    local = 'stopped';
+    await view.owner.refresh();
+    assert.equal(view.state().inspection, null);
+    assert.deepEqual(calls, ['status', 'inspect', 'status', 'status']);
+  } finally {
+    view.owner.close();
+  }
+});
+
+test('closing an application check aborts it and ignores a late positive reply', async () => {
+  let release;
+  let signal;
+  const view = fixture(async (action, _mode, owned) => {
+    if (action === 'status') {
+      return receipt('running');
+    }
+    signal = owned;
+    return new Promise((resolve) => {
+      release = resolve;
+    });
+  });
+  await tick();
+  const pending = view.owner.act('inspect', 'local');
+  try {
+    assert.equal(view.state().inspection, null);
+    await view.owner.act('inspect', 'local');
+    view.owner.close();
+    assert.equal(signal.aborted, true);
+    release(
+      receipt('running', 'stopped', {
+        application: { mode: 'local', state: 'ready' },
+      })
+    );
+    await pending;
+    assert.equal(view.state().inspection, null);
+    assert.equal(view.timers.size, 0);
+  } finally {
+    release?.(receipt());
+    view.owner.close();
+    await pending;
+  }
+});

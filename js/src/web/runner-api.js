@@ -1,5 +1,9 @@
-import { runnerReceipt } from '../transport/runner-receipt.js';
+import {
+  runnerReceipt,
+  runnerRequestPath,
+} from '../transport/runner-receipt.js';
 import { runnerProfileReceipt } from '../transport/runner-profile-receipt.js';
+import { runnerInspectionReceipt } from '../transport/runner-health-receipt.js';
 
 /** The wire bridge encodes Lino; every mutation is issued once. */
 export const createRunnerApi = ({ serverResponse }) => ({
@@ -33,16 +37,16 @@ export const createRunnerApi = ({ serverResponse }) => ({
     if (
       action === 'status'
         ? mode !== undefined
-        : !['start', 'stop'].includes(action) ||
+        : !['start', 'stop', 'inspect'].includes(action) ||
           !['local', 'server'].includes(mode)
     ) {
       throw new Error('Invalid runner action.');
     }
     const response = await serverResponse(
-      action === 'status' ? '/api/runner' : `/api/runner/${action}`,
+      runnerRequestPath(action, mode),
       {
         signal,
-        ...(action === 'status'
+        ...(['status', 'inspect'].includes(action)
           ? {}
           : {
               method: 'POST',
@@ -55,6 +59,9 @@ export const createRunnerApi = ({ serverResponse }) => ({
     if (!response?.ok) {
       throw new Error('Runner operation unavailable.');
     }
-    return runnerReceipt(await response.json(), action, mode);
+    const value = await response.json();
+    return action === 'inspect'
+      ? runnerInspectionReceipt(value, mode)
+      : runnerReceipt(value, action, mode);
   },
 });

@@ -206,6 +206,8 @@ Commands:
   restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
   runner        status|start local|start server|stop local|stop server [--profile=<runner.lino> | --url=<server-origin>]
+                inspect local|inspect server [--profile=<runner.lino> | --url=<server-origin>]
+                health [--store=<directory>]
                 profile|configure --input=<runner.lino> --revision=<saved-revision> [--profile=<runner.lino> | --url=<server-origin>]
                 observes isolated server sessions; starts/stops require confirmed backend state
                 local and SSH targets use screen via link-foundation/start; no automatic start

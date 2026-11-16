@@ -3,6 +3,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { spawnWorker } from './worker-client.js';
 import { setTimeout, clearTimeout } from 'node:timers';
 import { hostedUiUrl, localUiEnabled } from './hosted-ui.js';
+import { probeRunnerWorker } from './runner-health.js';
 
 export class RollingSupervisor {
   constructor({
@@ -102,6 +103,21 @@ export class RollingSupervisor {
       uiUrl: hostedUiUrl(this.options.uiUrl),
       localUi: localUiEnabled(this.options.localUi),
     };
+  }
+  async health() {
+    const worker = this.current;
+    const stable = () =>
+      !this.closed &&
+      !this.busy &&
+      !this.recovering &&
+      worker &&
+      !worker.client.exited &&
+      this.current === worker;
+    if (!stable()) {
+      return { state: 'unknown' };
+    }
+    const state = await probeRunnerWorker(worker, this);
+    return { state: stable() ? state : 'unknown' };
   }
   async retirePrevious() {
     clearTimeout(this.timer);

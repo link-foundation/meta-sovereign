@@ -616,3 +616,9 @@ session addresses without starting or stopping a process.
 
 Queue competing browser snapshot saves behind bounded Web Locks while retaining
 atomic revision comparisons, explicit cancellation and unsaved owner data.
+
+Add explicit application health inspection for configured local/SSH runner
+targets (issue #56, VD01/VD02). Query the private host and its owned worker,
+distinguish ready, locked, storage-degraded and unconfirmed responses, and share
+CLI, default Lino and four-language controls without installing or starting a
+session. Preserve retained target identity, cancellation and session-state gates.

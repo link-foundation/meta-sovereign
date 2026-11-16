@@ -1,6 +1,8 @@
 import { runnerApiFixture } from './runner-api-fixture.mjs';
 
-const fixture = await runnerApiFixture();
+const fixture = await runnerApiFixture({
+  initial: process.argv.includes('--health') ? { local: 'running' } : {},
+});
 console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
 let timer;
 try {
@@ -19,8 +21,11 @@ try {
       resourcesClosed: true,
       liveProvider: false,
       mutations: fixture.backend.calls.filter(
-        ([, action]) => action !== 'probe'
+        ([, action]) => !['probe', 'health'].includes(action)
       ),
+      healthReads: fixture.backend.calls.filter(
+        ([, action]) => action === 'health'
+      ).length,
     })
   );
 }

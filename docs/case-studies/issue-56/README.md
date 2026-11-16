@@ -560,3 +560,8 @@ exact-head matrix; the [VK25 checklist](vk-stickers-plan.md) tracks the next aud
 [Bounded browser startup coordination](browser-boot-queue.md) retains the hosted
 Chromium failure, exact-parent lock-contention regression and verified async
 browser-state waits. Hosted acceptance and all unchecked criteria remain active.
+
+[Explicit runner application checks](runner-health.md) add bounded private
+host/worker reads with separate session observations, retained targets and shared
+CLI/Lino/four-language controls. Parent/current and native/MCP evidence is
+preserved; automatic preparation and independent desktop ownership remain open.

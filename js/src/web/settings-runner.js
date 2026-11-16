@@ -9,6 +9,7 @@ const noticeKey = (code) =>
     'runner-profile-change-blocked': 'profileChanged',
     'runner-profile-unavailable': 'profileUnavailable',
     'runner-unconfigured': 'unconfigured',
+    'runner-application-unconfirmed': 'health_unknown',
   })[code] ?? 'actionNotConfirmed';
 
 const RunnerMode = ({ mode, state, act }) => {
@@ -28,7 +29,7 @@ const RunnerMode = ({ mode, state, act }) => {
         className: 'row',
         style: { flexWrap: 'wrap', gap: 'var(--gap, 12px)' },
       },
-      ['start', 'stop'].map((action) =>
+      ['start', 'stop', 'inspect'].map((action) =>
         el(
           'button',
           {
@@ -42,6 +43,29 @@ const RunnerMode = ({ mode, state, act }) => {
         )
       )
     ),
+    state.inspection?.mode === mode
+      ? el(
+          'p',
+          {
+            key: 'health',
+            role: 'status',
+            'data-runner-health': state.inspection.state,
+          },
+          [
+            `${t('runner.lastCheck')} `,
+            t(`runner.health_${state.inspection.state}`),
+            ' ',
+            el(
+              'time',
+              {
+                key: 'at',
+                dateTime: new Date(state.inspection.checkedAt).toISOString(),
+              },
+              new Date(state.inspection.checkedAt).toLocaleTimeString()
+            ),
+          ]
+        )
+      : null,
   ]);
 };
 
