@@ -1,4 +1,4 @@
-// Isolated finite policy fixture. No provider adapters, credentials or sends.
+// Isolated finite answer controls. No provider adapters, credentials or sends.
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -7,7 +7,7 @@ import { startServer } from '../../js/src/server/index.js';
 
 const directory = await mkdtemp(join(tmpdir(), 'ms-final-period-'));
 const store = createMemoryStore();
-await store.put({
+const fixture = {
   id: 'qa-rule:period',
   question: 'Where do you live?',
   answers: [
@@ -19,7 +19,17 @@ await store.put({
       evidence: ['fixture:period'],
     },
   ],
-});
+};
+if (process.argv.includes('--wording')) {
+  const { wordingRule, aliases } =
+    await import('./answer-equivalents-fixture.mjs');
+  Object.assign(fixture, wordingRule());
+  fixture.answers.push(
+    { text: aliases[0], count: 2, evidence: ['wording:a'] },
+    { text: aliases[1], count: 3, evidence: ['wording:b'] }
+  );
+}
+await store.put(fixture);
 const server = await startServer({
   store,
   storeDir: directory,

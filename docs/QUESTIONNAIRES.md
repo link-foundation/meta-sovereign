@@ -89,3 +89,29 @@ Both Lino encodings accept `POST /api/automations/answers/policy` with
 `{ policy: { answerFinalPeriod: 'without' } }`; planning accepts
 `answerFinalPeriod` as a read-only override. Invalid values are refused without
 changing policy. The offline interface uses the same planner and saved preference.
+
+## Preferred answer wording
+
+For each saved answer, **Equivalent answer wordings, one per line** lists exact
+observed spellings that should use the answer above. This is an explicit preference
+for that question, including its saved equivalent questions and provider/chat
+scope. It never guesses paraphrases. For example, two observed replies saying
+“One or two weeks after an offer.” and three saying “After an offer, in 1–2 weeks.”
+can use “Within one to two weeks of an offer.” with five observed uses. A manual
+preferred answer starts at zero uses. Other commitments, such as “In a month.”,
+and answers to unrelated questions stay separate.
+
+Approval belongs to the preferred answer. An unapproved preference still needs
+review. Declaring equivalent wording does not send a reply. Conflicting preferences
+or overlapping observation evidence require review and are not silently summed.
+Original answer records and messages stay unchanged; repeated learning keeps the
+same actual counts. Rejected phrases remain excluded. Choices remain literal.
+
+The shared online/offline editor confirms a save only after acknowledgement;
+a failed save retains the draft. Reload reads current saved wording. Remove all
+lines to clear a preference. CLI `answers save` accepts one literal
+`--equivalent-answer=<text>`. For several spellings, save an answer rule in a Lino
+or JSON file with `equivalents: [text, text]` on the preferred answer, then run
+`meta-sovereign automations answers save preference.lino`. Re-saving the file
+reads its edits; omitting `equivalents` clears them. Both Lino API encodings retain
+the same answer field. No preference file or aliases means no wording replacement.

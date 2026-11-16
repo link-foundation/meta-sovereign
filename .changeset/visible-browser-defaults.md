@@ -735,3 +735,9 @@ acknowledged four-language controls, CLI and both Lino encodings; support isolat
 CLI planning configuration. Preserve raw observations, approval/correction scope,
 other punctuation and existing broad equivalence. Migrate policy without
 rewriting answers or replaying learning.
+
+Reuse explicit question-scoped preferred answer wording with actual observation
+counts and bounded evidence. Preserve raw history, rejected phrases, independent
+approval and literal choices; require review for ambiguous preferences or
+overlapping observations. Share acknowledged CLI, text/binary Lino and four-language
+online/offline editing, and migrate the schema without rewriting old answers.

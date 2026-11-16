@@ -642,3 +642,8 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 spelling reuse with actual combined counts and unchanged raw observations. This
 verifies one QA11 behavior; its separate approved-wording count contract and every
 other unchecked requirement remain active.
+
+The [explicit answer-wording correction](question-answer-equivalents.md) preserves
+actual count reconciliation, raw archived observations and acknowledged editing
+for QA11. Four prior-module regressions fail, 68 focused checks and one native/MCP
+scenario pass. This partial correction accepts no additional inventory row.

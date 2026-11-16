@@ -9,6 +9,12 @@ import { matchContextualQuestion } from './question-context-match.js';
 import { indexQuestionnaireRules } from './questionnaire-index.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import {
+  answerSpellings,
+  normalizeAnswerEquivalents,
+  validateAnswerEquivalents,
+  equivalentWordedAnswers,
+} from './question-equivalents.js';
+import {
   answerRuleEligible,
   createAnswerCorrectionGuard,
 } from './question-corrections.js';
@@ -100,14 +106,17 @@ export const normalizeAnswerRule = (input) => {
     if (!Number.isSafeInteger(count) || count < 0) {
       throw new Error('answer frequency must be a nonnegative integer');
     }
+    const equivalents = normalizeAnswerEquivalents(answer.equivalents);
     return {
       text: answer.text,
       count,
       approved: answer.approved === true,
       canonical: answer.canonical === true,
       evidence: strings(answer.evidence, 'answer evidence'),
+      ...(equivalents.length ? { equivalents } : {}),
     };
   });
+  validateAnswerEquivalents(answers);
   if (
     !Number.isSafeInteger(
       answers.reduce((sum, answer) => sum + answer.count, 0)
@@ -236,14 +245,20 @@ const conflictingAnswer = (candidate, best, profile, text) =>
     candidate.answer.count === best.answer.count) &&
   render(candidate.answer.text, profile).text !== text;
 
+const conflictingAnswers = (matches, wordingConflict, best, profile, text) =>
+  wordingConflict ||
+  matches.some((candidate) =>
+    conflictingAnswer(candidate, best, profile, text)
+  );
+
 const templateNeedsReview = (value) =>
   value?.approved === false || value?.contextMismatch === true;
 const templateDetails = (salaryTemplates) =>
   salaryTemplates ? { salaryTemplates } : {};
-const usableVariant = (question, answer, canonical, context) => {
+const usableVariant = (question, answer, canonicalSpellings, context) => {
   const text = render(answer.text, context.profile).text;
   return (
-    (!canonical || answer.canonical) &&
+    (!canonicalSpellings.size || canonicalSpellings.has(answer.text)) &&
     sufficientAnswer(question, text) &&
     !rejectedAnswer(text, context.policy)
   );
@@ -280,10 +295,12 @@ const answerOne = (question, input) => {
     ) {
       continue;
     }
-    const canonical = rule.answers.some((answer) => answer.canonical);
+    const canonicalSpellings = new Set(
+      rule.answers.filter((answer) => answer.canonical).flatMap(answerSpellings)
+    );
     for (const answer of rule.answers) {
       if (
-        !usableVariant(core, answer, canonical, context) ||
+        !usableVariant(core, answer, canonicalSpellings, context) ||
         !correction(core, answer.text, context)
       ) {
         continue;
@@ -298,6 +315,8 @@ const answerOne = (question, input) => {
       });
     }
   }
+  matches = equivalentWordedAnswers(matches);
+  const wordingConflict = matches.some((match) => match.preferenceConflict);
   matches = equivalentAnswerVariants(matches, context.policy);
   matches.sort(
     (a, b) =>
@@ -326,8 +345,12 @@ const answerOne = (question, input) => {
   const best = matches[0];
   const result = render(best.answer.text, context.profile);
   const salaryTemplates = salaryTemplateEvidence(best.answer.text, environment);
-  const conflicting = matches.some((candidate) =>
-    conflictingAnswer(candidate, best, context.profile, result.text)
+  const conflicting = conflictingAnswers(
+    matches,
+    wordingConflict,
+    best,
+    context.profile,
+    result.text
   );
   return applyNoticeAnswer(
     {

@@ -5,6 +5,7 @@ import { questionCore } from './question-turns.js';
 import { renderAnswer } from './question-profile.js';
 import { rejectedAnswer } from './question-policy.js';
 import { matchNotice } from './question-notices.js';
+import { answerSpellings } from './question-equivalents.js';
 
 export const answerRuleEligible = (rule, { source, chat } = {}) =>
   rule.enabled !== false &&
@@ -39,12 +40,13 @@ export const createAnswerCorrectionGuard = (
       answers: new Set(
         rule.answers
           .filter((answer) => answer.canonical)
-          .flatMap((answer) => {
-            const rendered = renderAnswer(answer.text, profile).text;
-            return rejectedAnswer(answer.text, policy) ||
+          .flatMap(answerSpellings)
+          .flatMap((text) => {
+            const rendered = renderAnswer(text, profile).text;
+            return rejectedAnswer(text, policy) ||
               rejectedAnswer(rendered, policy)
               ? []
-              : [identity(answer.text), identity(rendered)];
+              : [identity(text), identity(rendered)];
           })
       ),
     }));

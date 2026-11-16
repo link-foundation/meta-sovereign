@@ -73,7 +73,7 @@ const AnswerVariant = ({
   canRemove,
 }) => {
   const t = useT();
-  return el('fieldset', { className: 'col' }, [
+  return el('fieldset', { className: 'col', disabled }, [
     el('legend', { key: 'l' }, t('questions.variant', { count: index + 1 })),
     el(Field, {
       key: 't',
@@ -84,6 +84,24 @@ const AnswerVariant = ({
       required: true,
       maxLength: 12000,
     }),
+    el(Field, {
+      key: 'equivalents',
+      label: t('questions.equivalentAnswers'),
+      value: variant.equivalentsText ?? (variant.equivalents ?? []).join('\n'),
+      change: (value) =>
+        change({
+          equivalents: value.split('\n').filter((text) => text.trim()),
+          equivalentsText: value,
+        }),
+      rows: 3,
+      maxLength: 120099,
+      'data-equivalent-answers': true,
+    }),
+    el(
+      'small',
+      { key: 'equivalentsHint', className: 'meta' },
+      t('questions.equivalentAnswersHint')
+    ),
     el('label', { key: 'a', className: 'check' }, [
       el('input', {
         key: 'i',

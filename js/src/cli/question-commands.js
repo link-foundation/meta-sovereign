@@ -59,6 +59,9 @@ const answerInput = async (args) => {
           count: 0,
           approved: args.approved === true || args.approved === 'true',
           canonical: args.canonical === true || args.canonical === 'true',
+          ...(args['equivalent-answer'] === undefined
+            ? {}
+            : { equivalents: [args['equivalent-answer']] }),
         },
       ],
     };

@@ -178,3 +178,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve a failing finite regression, then combine only observed single-period pairs with exact counts, separate approvals and unchanged raw observations. Preserve all lone spellings and other punctuation.
 - [x] Add acknowledged shared policy controls, CLI/environment/Lino configuration, schema migration, four-language documentation and focused API/browser checks with before/after screenshots. Thirty-two policy/migration checks, seven updated planner/control checks, 25 locale checks and the focused installed-Chrome scenario pass; lint and the unchanged duplication gate pass.
 - [ ] Review exact-head hosted coverage. Keep QA11 unchecked while its separate approved-answer replacement/count contract or other required evidence remains unfinished.
+
+2026-11-16 explicit equivalent answer wording (QA11):
+
+- [x] Read the pinned approved-wording/count contract and preserve four failing finite regressions on published 244e6da5.
+- [x] Draft explicit question-scoped declarations, safe count projection, conflict/overlap review, CLI and acknowledged localized editor controls, schema 24 and four-language guides.
+- [x] Verify 68 focused checks and 17 final affected checks, actual CLI, both Lino routes, offline refusal, repeated learning and migration; retain inspected before/after/compact native screenshots and corrected independent MCP results. Preserve both fixture-only MCP failures separately.
+- [ ] Publish the atomic correction and inspect exact-head CI. Keep QA11 and all other 41 unchecked original criteria required until their full contracts and hosted verification are complete.

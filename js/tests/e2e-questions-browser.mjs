@@ -15,6 +15,7 @@ import { verifyQuestionLists } from './helpers/e2e-question-lists.mjs';
 import { verifyQuestionnaireIndex } from './helpers/e2e-questionnaire-index.mjs';
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionFinalPeriod } from './helpers/e2e-question-final-period.mjs';
+import { verifyQuestionEquivalents } from './helpers/e2e-question-equivalents.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
 import { verifyQuestionProfile } from './helpers/e2e-question-profile.mjs';
@@ -641,6 +642,9 @@ const verifyProviderHistoryAndNotices = async () => {
 };
 
 const focusedQuestionScenario = () => {
+  if (process.env.QUESTION_EQUIVALENTS_ONLY === '1') {
+    return () => verifyQuestionEquivalents({ page, panel, store, until });
+  }
   if (process.env.QUESTION_FINAL_PERIOD_ONLY === '1') {
     const preview = panel.locator('details').filter({
       has: page.locator(':scope > summary', { hasText: /^Preview answer$/u }),
@@ -797,4 +801,5 @@ await finish(async () => {
     }
   );
   await verifyQuestionFinalPeriod({ page, panel, preview, store, until });
+  await verifyQuestionEquivalents({ page, panel, store, until });
 });
