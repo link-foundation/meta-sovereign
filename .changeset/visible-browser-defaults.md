@@ -691,3 +691,7 @@ Retain every salary and contact component in form questionnaire proposals.
 Preserve inspected label line breaks and keep whole-field contact inference
 from replacing an assembled questionnaire or an owner's saved complete answer
 (issue #56, QA10).
+
+Route the repeatedly unallocated macOS Deno test partition to the native Intel
+runner pool while retaining every runtime/OS partition, ARM Deno coverage on
+the other partitions, and the existing deadlines and failure gate.

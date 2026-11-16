@@ -32,6 +32,19 @@ test('every Deno platform retains native partitions, test discovery and deadline
   }
   assert.deepEqual(matrix.os, ['ubuntu-26.04', 'macos-26', 'windows-2025']);
   assert.deepEqual(matrix.runtime, ['node', 'bun', 'deno']);
+  const mac = matrix.include.filter(
+    ({ os, runtime }) => os === 'macos-26' && runtime === 'deno'
+  );
+  assert.deepEqual(
+    mac.map(({ shard, runner }) => [shard, runner ?? 'macos-26']),
+    [
+      ['1/3', 'macos-26'],
+      ['2/3', 'macos-26-intel'],
+      ['3/3', 'macos-26'],
+    ],
+    'the capacity-refused shard uses Intel while the other partitions retain ARM'
+  );
+  assert.equal(job['runs-on'], '${{ matrix.runner || matrix.os }}');
   assert.equal(job.strategy['fail-fast'], false);
   assert.equal(job['timeout-minutes'], 10);
   const step = job.steps.find(({ name }) => name === 'Run tests (Deno)');

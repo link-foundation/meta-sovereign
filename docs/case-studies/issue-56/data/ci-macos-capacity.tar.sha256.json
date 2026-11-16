@@ -1,0 +1,24 @@
+{
+  "archive": "ci-macos-capacity.tar.gz",
+  "files": {
+    "ci-logs/hosted-cb95-cancelled-deno-job.json": "a678bd88dde96da7d0dd2c897b82f2e1a212ae61ec63177322c4b3ce920003cc",
+    "ci-logs/hosted-cb95-cancelled-deno-annotations.json": "8bc226268e817ce509f5718ac5b62657f4fc26878d86822408bf328f830c7991",
+    "ci-logs/hosted-cb95-cancelled-deno-attempt2-job.json": "dfbef587de2244e331d7c288f22345b9210579ac60412acf6526d01ae8f65546",
+    "ci-logs/hosted-cb95-cancelled-deno-attempt2-annotations.json": "8bc226268e817ce509f5718ac5b62657f4fc26878d86822408bf328f830c7991",
+    "ci-logs/hosted-cb95-checks-attempt1.json": "9a0cd737e9e9e80d1b0363052fd614054dae6dbc8f3c3b9c72975c211fbf9bca",
+    "ci-logs/hosted-cb95-attempt2-status.json": "142599bb8621e1236d1e80b5c12f0a95b131c16e82fdf2838baf982b4575d6e0",
+    "ci-logs/hosted-cb95-pipeline-attempt1.log": "b9f5607591f076820376a0c5f58e12fd7aa9bbe83e940c66f8a90b2b23081180",
+    "ci-logs/hosted-cb95-pipeline-attempt2.log": "fe612f15251d7e291e432191c50943ec218f25ac042076c246d951c3a40e13f5",
+    "ci-logs/hosted-cb95-cancelled-job-logs.log": "c35a85bb757278e064dcce85d9b36fd77851f0dcbc99f7c98c6405846c25c473",
+    "ci-logs/ci-macos-capacity-parent-release.yml": "98fbc67be573a9aaecd27672d726ef36c4c6c207a5d131f26e229742639af060",
+    "ci-logs/ci-macos-capacity-parent.log": "974e8840c3a4491b3cec0f42e6a079c873a833bf13943003f806ca324821940d",
+    "ci-logs/ci-macos-capacity-node.log": "88d37f220903b1f6a00a7e8e2f447437b5767005e740962dd6a252f717a8f976",
+    "ci-logs/ci-macos-capacity-format.log": "66676b2187746aa6ac934314448ebbb4dbbdee6b9dfb075b27fca70e4721d6d2",
+    ".github/workflows/release.yml": "2090b09b8a4b75b0f43936bfecab4a7776b2a89fafc09c02a2ff6f30cae4e79b",
+    "js/tests/ci-deno-shards.test.js": "48b598f19699c1a48028d6899b8024ec38549af5c88cae6191f7339a24c5e257",
+    "docs/case-studies/issue-56/ci-macos-capacity.md": "24b58e4a16906ec5fe555cccd5bce94f0f425eb218ee6209f667bc11deddcd56",
+    "experiments/issue-56/collect-ci-macos-capacity.py": "aa39f8439ea3191c9b7788902992631f0e720a24eff02f56138c839fd55cda90",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "metadata.json": "c0b00f982c700e9ffe5c4826dcf6288cec15281663e1f04dc580a3ac827dcf5a"
+  }
+}
