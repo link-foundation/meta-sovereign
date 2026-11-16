@@ -93,7 +93,9 @@ export const visitUnreadAnswer = async ({
     );
   }
   const input = unreadAnswerInput(context, record, snapshot);
-  const baseline = await previewAnswer(context.store, input);
+  const baseline = snapshot.question.outgoing
+    ? null
+    : await previewAnswer(context.store, input);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
     snapshot,

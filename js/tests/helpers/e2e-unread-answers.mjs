@@ -127,6 +127,8 @@ export const verifyUnreadAnswers = async (
         const finalInput = { ...next, id: unreadInput().id };
         await service.unreadStart(finalInput);
         const final = await waitUnreadReview(service, finalInput.id);
+        assert.equal(final.state, 'completed', JSON.stringify(final));
+        assert.equal(final.entries.length, 1, JSON.stringify(final));
         assert.equal(final.entries[0].answer.phase, 'no-reply');
         assert.equal(final.restoration.restored, true);
         assert.equal(await page.evaluate(() => window.fixture.unread['9']), 1);

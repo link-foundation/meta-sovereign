@@ -8,14 +8,17 @@ import { UnreadPollingCycle } from '../../js/src/automation/question-unread-poll
 
 /** Bounded observation only; waiting never starts a pass. */
 export const waitUnreadPolling = async (browser, id, accept) => {
+  let result;
   for (let attempt = 0; attempt < 600; attempt++) {
-    const result = await browser.unreadStatus({ id });
+    result = await browser.unreadStatus({ id });
     if (accept(result)) {
       return result;
     }
     await delay(5);
   }
-  throw new Error('Unread polling did not reach the expected state');
+  throw new Error(
+    `Unread polling did not reach the expected state: ${JSON.stringify(result)}`
+  );
 };
 
 export const pollingSettings = {

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import {
   withUnreadModel,
   modelUnreadRow,
@@ -76,17 +77,29 @@ test('missing personal facts become visible clarification drafts without sending
   ));
 
 test('model drafts require both explicit unread answer mode and explicit model intent', () =>
-  withUnreadModel(async (env) => {
-    for (const polling of [undefined, pollingSettings]) {
-      await assert.rejects(
-        env.browser.unreadStart({ ...env.input, answerChats: false, polling })
-      );
-    }
-    const result = await env.complete({ ...env.input, modelDraft: false });
-    assert.equal(result.entries[0].answer.phase, 'review');
-    assert.equal(env.calls.length, 0);
-    assert.equal(env.state.prefills.length, 0);
-  }));
+  withUnreadModel(
+    async (env) => {
+      for (const polling of [undefined, pollingSettings]) {
+        const input = {
+          ...env.input,
+          id: `question-unread:${randomUUID()}`,
+          answerChats: false,
+          polling,
+        };
+        await env.browser.unreadStart(input);
+        await waitUnreadPolling(env.browser, input.id, (value) =>
+          polling ? value.polling.phase === 'waiting' : value.state !== 'active'
+        );
+        await env.browser.unreadStop(input);
+        assert.equal(env.calls.length, 0);
+      }
+      const result = await env.complete({ ...env.input, modelDraft: false });
+      assert.equal(result.entries[0].answer.phase, 'review');
+      assert.equal(env.calls.length, 0);
+      assert.equal(env.state.prefills.length, 0);
+    },
+    { rows: [modelUnreadRow] }
+  ));
 
 test('offered bot options and owner drafts never call the configured model', async () => {
   for (const row of [
@@ -319,7 +332,10 @@ test(
           const started = await http.call('unread-start', env.input, media);
           assert.equal(started.status, 200);
           await waitUnreadPolling(
-            env.browser,
+            {
+              unreadStatus: async (input) =>
+                (await http.call('unread-status', input, media)).body,
+            },
             env.input.id,
             (value) => value.state !== 'active'
           );

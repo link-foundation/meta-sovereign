@@ -178,6 +178,9 @@ const executeUnreadReview = async ({
         ? 'paused'
         : 'completed';
   } catch (error) {
+    if (process.env.MS_QUESTION_UNREAD_DEBUG === '1') {
+      console.error('[question-unread-review]', { id: record.id, error });
+    }
     record.state = controller.signal.aborted
       ? 'stopped'
       : error.code === 'question-unread-notice-paused'
@@ -210,7 +213,6 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
         ({ id }) => id === input.source
       )) ||
     (input.answerChats && input.noticeReplies) ||
-    (input.modelDraft === true && !input.answerChats) ||
     (input.heldChat && !input.answerChats)
   ) {
     throw failure(
@@ -321,7 +323,7 @@ export const createQuestionUnreadReviews = ({
     const planning = {
       ...normalizeAnswerAction(input),
       ...normalizeAnswerEnvironment(input),
-      modelDraft: input.modelDraft === true,
+      modelDraft: input.answerChats === true && input.modelDraft === true,
     };
     if (
       [...runtimes.values()].some((runtime) => runtime.source === input.source)

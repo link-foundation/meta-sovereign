@@ -84,7 +84,13 @@ test('owner answers and a closed conversation continue to the next unread chat',
   check(
     {
       rows: [
-        { question: { id: '105', body: 'I have replied', outgoing: true } },
+        {
+          question: { id: '105', body: 'I have replied', outgoing: true },
+          pendingTurn: {
+            boundary: { kind: 'outgoing', id: '105', body: 'I have replied' },
+            messages: [],
+          },
+        },
         { noticeContext: { canReply: false } },
         { strictOptions: false },
       ],
