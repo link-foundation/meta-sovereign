@@ -209,3 +209,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [ ] Preserve source-bound evidence and publish this atomic correction.
 - [ ] Inspect all exact-head hosted workflows and complete the original QA11
       acceptance mapping. Every other unchecked requirement remains required.
+
+2026-11-16 shared wording browser fixtures:
+
+- [x] Preserve the exact 83c5 Chromium failure and reproduce the same three-scenario interaction with installed Chrome. The wording fixture's five observations contaminate the timing fixture's expected count of one.
+- [x] Isolate each scenario's saved rules with finally restoration; retain every count/refusal/raw-data assertion and all original timeouts. The focused three-scenario sequence and strict lint pass.
+- [x] Preserve the separate Ubuntu Deno checkout cancellation before test setup; its underlying stall is unestablished.
+- [ ] Publish both worker and fixture corrections, inspect all five exact-source workflows and complete every remaining original requirement.

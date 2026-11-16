@@ -29,7 +29,10 @@ import {
   inputTrace,
 } from './helpers/e2e-input-trace.mjs';
 import { traceBrowserScenario } from './helpers/e2e-browser-scenarios.mjs';
-import { openQuestionDisclosure } from './helpers/question-preview.mjs';
+import {
+  openQuestionDisclosure,
+  openQuestionPreview,
+} from './helpers/question-preview.mjs';
 import { verifyQuestionDisclosures } from './helpers/e2e-question-disclosures.mjs';
 import {
   verifyHhHistory,
@@ -643,6 +646,12 @@ const verifyProviderHistoryAndNotices = async () => {
 };
 
 const focusedQuestionScenario = () => {
+  if (process.env.QUESTION_WORDING_SEQUENCE_ONLY === '1') {
+    return async () => {
+      const { preview } = await openQuestionPreview(page);
+      await verifyAnswerWording(preview);
+    };
+  }
   if (process.env.QUESTION_AVAILABILITY_ONLY === '1') {
     return () => verifyQuestionAvailability({ page, store, until });
   }
@@ -668,10 +677,36 @@ const focusedQuestionScenario = () => {
   return null;
 };
 
+const withIsolatedAnswerRules = async (verify) => {
+  const original = globalThis.structuredClone(await rules());
+  const clear = async () => {
+    for (const rule of await rules()) {
+      await store.delete(rule.id);
+    }
+  };
+  await clear();
+  try {
+    await verify();
+  } finally {
+    await clear();
+    await store.putMany(original);
+  }
+};
+
 const verifyAnswerWording = async (preview) => {
-  await verifyQuestionFinalPeriod({ page, panel, preview, store, until });
-  await verifyQuestionEquivalents({ page, panel, store, until });
-  await verifyQuestionAvailability({ page, store, until });
+  const original = JSON.stringify(await rules());
+  for (const verify of [
+    () => verifyQuestionFinalPeriod({ page, panel, preview, store, until }),
+    () => verifyQuestionEquivalents({ page, panel, store, until }),
+    () => verifyQuestionAvailability({ page, store, until }),
+  ]) {
+    await withIsolatedAnswerRules(verify);
+    assert(JSON.stringify(await rules()) === original, 'answer rules restored');
+  }
+  console.log(
+    '[question-wording-sequence]',
+    JSON.stringify({ scenarios: 3, rulesRestored: true })
+  );
 };
 
 await finish(async () => {

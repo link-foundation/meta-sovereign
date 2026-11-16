@@ -72,5 +72,6 @@ The representative Chromium 1/4 log records passing scenarios through line 1338,
 then cancellation at line 1341 during the next browser check. This establishes
 superseded verification, without establishing a failing application assertion.
 Full-run log retrieval exceeded GitHub CLI's API-request limit; targeted job logs
-and job/run metadata are preserved instead. The newer `83c5b1f7` run has a browser
-failure still under investigation; it is not treated as accepted verification.
+and job/run metadata are preserved instead. The newer `83c5b1f7` browser failure is a reproduced shared-fixture interaction;
+see [the separate investigation](ci-question-wording-fixtures.md). It is not
+treated as accepted verification.
