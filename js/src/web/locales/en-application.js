@@ -1,4 +1,19 @@
 export const enApplication = {
+  'application.chats.enable': 'Review unread chats alongside applications',
+  'application.chats.hint':
+    'Uses a separate browser slot. Exact bot choices may send through verified delivery guards; ordinary replies stay as drafts. Applications continue during chat review. Stop or completion finishes chat work and closes its browser. Sign in manually in this slot when required.',
+  'application.chats.chatsIntervalMinutes':
+    'Chat check interval in minutes (default 120)',
+  'application.chats.chatBrowserSlot': 'Separate chat browser slot',
+  'application.chats.status': 'Chats: {phase} · slot {slot}',
+  'application.chats.held': 'Review in the chat browser: {title}',
+  'application.chats.phase.starting': 'Starting',
+  'application.chats.phase.running': 'Checking unread chats',
+  'application.chats.phase.draining': 'Stopping and draining',
+  'application.chats.phase.refused': 'Unavailable; read the error',
+  'application.chats.phase.stopped': 'Stopped',
+  'application.chats.phase.interrupted': 'Interrupted; explicit start required',
+  'application.chats.phase.preview': 'Preview; chats unchanged',
   'application.autoAnswerViewedVacancy':
     'Answer the viewed-vacancy survey automatically',
   'application.feedbackHint':

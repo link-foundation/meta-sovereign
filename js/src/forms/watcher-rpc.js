@@ -2,7 +2,12 @@ import net from 'node:net';
 import { timingSafeEqual } from 'node:crypto';
 import { createFormChannel } from './local-channel.js';
 
-export const watcherRequest = async (metadata, operation, value) => {
+export const watcherRequest = async (
+  metadata,
+  operation,
+  value,
+  channelOptions
+) => {
   if (
     !Number.isInteger(metadata.port) ||
     metadata.port < 1 ||
@@ -12,7 +17,10 @@ export const watcherRequest = async (metadata, operation, value) => {
   ) {
     throw new Error('Invalid form watcher connection metadata.');
   }
-  const channel = createFormChannel(net.connect(metadata.port, '127.0.0.1'));
+  const channel = createFormChannel(
+    net.connect(metadata.port, '127.0.0.1'),
+    channelOptions
+  );
   try {
     await channel.send({ version: 1, token: metadata.token, operation, value });
     const response = await channel.next();
@@ -26,7 +34,11 @@ export const watcherRequest = async (metadata, operation, value) => {
 };
 
 /** Each short control request is private, authenticated and bounded. */
-export const createWatcherControl = async ({ token, dispatch }) => {
+export const createWatcherControl = async ({
+  token,
+  dispatch,
+  timeoutMs = 15000,
+}) => {
   const sockets = new Set();
   const tasks = new Set();
   let closing = false;
@@ -36,7 +48,7 @@ export const createWatcherControl = async ({ token, dispatch }) => {
       return;
     }
     sockets.add(socket);
-    const channel = createFormChannel(socket);
+    const channel = createFormChannel(socket, { timeoutMs });
     const task = (async () => {
       try {
         const request = await channel.next();

@@ -6,6 +6,12 @@ import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { applicationResult } from './application-result.js';
 import { applicationConfirmationPolicy } from './application-confirmations.js';
+import { browserUnreadId } from '../automation/question-unread-identity.js';
+import {
+  applicationChatSettings,
+  applicationChatView,
+  validApplicationChatView,
+} from './application-chat-settings.js';
 
 export const applicationBatchKey = (input) => {
   const browserSlot = vacancyChoiceSlot(input);
@@ -59,6 +65,7 @@ export const applicationBatchOptions = (input) => {
     maxApplications: input.supervised ? 1 : (input.maxApplications ?? 0),
     durationMs: input.durationMs ?? 86400000,
     noQuestionnaires: input.noQuestionnaires === true,
+    ...applicationChatSettings(input, key.browserSlot),
   };
 };
 export const applicationBatchPhases = [
@@ -120,6 +127,12 @@ export const readApplicationBatch = (raw, key) => {
     raw.signature !== JSON.stringify(options) ||
     !lifecycle(raw) ||
     !validLists(raw, options) ||
+    (options.processChats && !browserUnreadId(raw.chatPassId)) ||
+    (raw.chatWorker !== undefined &&
+      (!options.processChats ||
+        raw.chatWorker.active ||
+        !validApplicationChatView(raw.chatWorker, options, false) ||
+        raw.chatWorker.passId !== raw.chatPassId)) ||
     Date.parse(raw.expiresAt) - Date.parse(raw.startedAt) !== options.durationMs
   ) {
     throw fail('batch-recovery');
@@ -127,6 +140,7 @@ export const readApplicationBatch = (raw, key) => {
   return { ...raw, options };
 };
 const settingsView = (options) => ({
+  ...applicationChatSettings(options, options.browserSlot),
   ...(options.review.autoAnswerViewedVacancy === undefined
     ? {}
     : { autoAnswerViewedVacancy: options.review.autoAnswerViewedVacancy }),
@@ -141,7 +155,8 @@ export const applicationBatchView = (
   record,
   active,
   application = null,
-  modes = { paused: false, noQuestionnaires: false }
+  modes = { paused: false, noQuestionnaires: false },
+  runtime = null
 ) => ({
   ok: true,
   mode: 'hh-application-batch',
@@ -164,6 +179,9 @@ export const applicationBatchView = (
         expiresAt: record.expiresAt,
         nextAt: record.nextAt,
         code: record.code,
+        ...(record.options.processChats
+          ? { chatWorker: applicationChatView(record, runtime) }
+          : {}),
       }
     : null,
   application,
@@ -175,7 +193,7 @@ const publicCounts = (row) =>
   integer(row.delivered, row.total) &&
   integer(row.skipped, row.total - row.delivered) &&
   integer(row.maxApplications, 1000);
-const publicSettings = (settings) => {
+const publicSettings = (settings, browserSlot) => {
   if (!settings) {
     return false;
   }
@@ -184,7 +202,11 @@ const publicSettings = (settings) => {
     url: 'https://hh.ru/vacancy/1',
     requestId: 'batch-settings',
   });
-  const expected = settingsView({ review: options });
+  const expected = settingsView({
+    review: options,
+    browserSlot,
+    ...applicationChatSettings(settings, browserSlot),
+  });
   return (
     Object.keys(settings).length === Object.keys(expected).length &&
     Object.entries(expected).every(
@@ -202,7 +224,8 @@ const validatePublicBatch = (row, input) => {
     typeof row.paused !== 'boolean' ||
     typeof row.noQuestionnaires !== 'boolean' ||
     !publicCounts(row) ||
-    !publicSettings(row.settings) ||
+    !publicSettings(row.settings, row.browserSlot) ||
+    !validApplicationChatView(row.chatWorker, row.settings, row.active) ||
     (row.currentUrl !== null &&
       assignmentVacancyUrl(row.currentUrl) !== row.currentUrl)
   ) {

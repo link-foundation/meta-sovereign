@@ -1,4 +1,20 @@
 export const ruApplication = {
+  'application.chats.enable':
+    'Проверять непрочитанные чаты параллельно откликам',
+  'application.chats.hint':
+    'Используется отдельный слот браузера. Точные варианты бота могут отправляться с проверкой доставки; обычные ответы остаются черновиками. Отклики продолжаются во время проверки чатов. При остановке или завершении работа с чатами завершается и их браузер закрывается. При необходимости войдите в аккаунт вручную в этом слоте.',
+  'application.chats.chatsIntervalMinutes':
+    'Интервал проверки чатов в минутах (по умолчанию 120)',
+  'application.chats.chatBrowserSlot': 'Отдельный слот браузера для чатов',
+  'application.chats.status': 'Чаты: {phase} · слот {slot}',
+  'application.chats.held': 'Проверьте в браузере чатов: {title}',
+  'application.chats.phase.starting': 'Запуск',
+  'application.chats.phase.running': 'Проверка непрочитанных чатов',
+  'application.chats.phase.draining': 'Остановка и ожидание завершения',
+  'application.chats.phase.refused': 'Недоступно; прочитайте ошибку',
+  'application.chats.phase.stopped': 'Остановлено',
+  'application.chats.phase.interrupted': 'Прервано; нужен явный запуск',
+  'application.chats.phase.preview': 'Предпросмотр; чаты не изменяются',
   'application.autoAnswerViewedVacancy':
     'Автоматически отвечать на опрос о просмотренной вакансии',
   'application.feedbackHint':

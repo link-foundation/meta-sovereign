@@ -33,6 +33,7 @@ import { ApplicationLimitWait } from './application-limit-wait.js';
 import { ApplicationContinuation } from './application-continuation.js';
 import { ApplicationBatch } from './application-batch.js';
 import { ApplicationPacing } from './application-pacing.js';
+import { ApplicationChats } from './application-chats.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import { watchApplicationFeedback } from './application-feedback.js';
 import {
@@ -63,6 +64,15 @@ class ApplicationService {
     limitWait,
     pacingRandom,
     batchWait,
+    chatRunner,
+    chatLog = () => {},
+    createChats = () =>
+      new ApplicationChats({
+        store,
+        openSession,
+        runner: chatRunner,
+        log: chatLog,
+      }),
     trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
       ? (value) => console.error(value)
       : () => {},
@@ -82,6 +92,7 @@ class ApplicationService {
       selectResume,
       watchFeedback,
       trace,
+      createChats,
     });
     this.review = new ApplicationReview(this);
     this.actions = new ApplicationActions(this);

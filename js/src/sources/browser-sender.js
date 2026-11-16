@@ -581,6 +581,21 @@ export const createBrowserSender = ({
     ...texts,
     ...senderCapabilities(platforms),
 
+    /** Explicit ownership may prepare a new slot; ordinary unread scans never do. */
+    prepareUnreadConversations({ source, signal } = {}) {
+      if (
+        !unreadConversationSources(platforms).some(
+          (entry) => entry.id === source
+        )
+      ) {
+        throw codedError(
+          'Unread conversation review is unavailable.',
+          'unsupported-source'
+        );
+      }
+      return inList(source, () => ({ source, slot, ready: true }), { signal });
+    },
+
     /** Type and send one message in the network's web UI. */
     async send(draft = {}) {
       const { source, chat, to, text, answer } = draft;

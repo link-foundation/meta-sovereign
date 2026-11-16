@@ -56,7 +56,14 @@ const screenshot = (screenshots) => async (page, name, receipt) => {
 
 const fixture = (
   browser,
-  { html = chatNavigationHtml(), onRead, onMove, frames, setup } = {},
+  {
+    html = chatNavigationHtml(),
+    onRead,
+    onMove,
+    frames,
+    setup,
+    senderOptions,
+  } = {},
   work
 ) => {
   let armed = false;
@@ -65,6 +72,7 @@ const fixture = (
     {
       html,
       frames,
+      senderOptions,
       isRead: ({ fn, args }) =>
         fn === browserChoicePage && args?.[0]?.operation === 'history',
       onRead: (...args) => armed && onRead?.(...args),
@@ -107,7 +115,7 @@ const fixture = (
       try {
         await other.bringToFront();
         armed = true;
-        await work({ sender, page, commander, original });
+        return await work({ sender, page, commander, original });
       } finally {
         await other.close();
       }

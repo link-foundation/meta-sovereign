@@ -659,3 +659,5 @@ Add explicitly enabled sequential unread answers with guarded exact bot-option s
 Filter bundled SQLite native prebuilds by each desktop installer's target platform and architecture, while retaining provider runtimes, portable fallbacks and the builder's native-binary verification.
 
 Allow explicitly enabled configured-model drafts in sequential unread review using the selected CV, profile, approved answers and acknowledged history. Revalidate model context before prefilling, hold the first review, drain cancellation, and share default-off controls across CLI, text/binary Lino and all four localized Questions/Chat/Operator surfaces.
+
+Add an explicitly enabled application-owned chat child with a separate persistent browser slot and a 120 minute default check interval. Keep held chat review independent of application progress, preserve model opt-in and truthful status, and drain the child and its browser on Stop, completion, expiry and shutdown. Share CLI, both Lino encodings and four-language application controls.

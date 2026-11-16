@@ -57,7 +57,8 @@ export class ApplicationBatch {
         record,
         this.runtime?.record.id === key.id,
         application,
-        this.service.modes.read(browserSlot)
+        this.service.modes.read(browserSlot),
+        this.runtime?.record.id === key.id ? this.runtime : null
       );
     });
   }
@@ -110,6 +111,9 @@ export class ApplicationBatch {
         nextAt: null,
         startedAt,
         expiresAt: new Date(started + options.durationMs).toISOString(),
+        ...(options.processChats
+          ? { chatPassId: `question-unread:${globalThis.crypto.randomUUID()}` }
+          : {}),
       };
       readApplicationBatch(record, options);
       await saveAcknowledgedRecord(this.service.store, record);
@@ -186,6 +190,10 @@ export class ApplicationBatch {
     try {
       // Yield until the start acknowledgement releases its writer.
       await this.wait(0, runtime.controller.signal);
+      if (runtime.record.options.processChats) {
+        runtime.chats = this.service.createChats();
+        await runtime.chats.start(runtime.record);
+      }
       while (!applicationBatchTerminal(runtime.record.phase)) {
         try {
           await this.service.operate((writer) =>
@@ -236,8 +244,33 @@ export class ApplicationBatch {
         code: record.code,
       });
     } finally {
-      await this.drainLimitWait(runtime);
+      try {
+        await this.drainLimitWait(runtime);
+      } finally {
+        await this.finishChats(runtime);
+      }
     }
+  }
+  async finishChats(runtime) {
+    if (!runtime.chats) {
+      return;
+    }
+    let code;
+    try {
+      await runtime.chats.close();
+    } catch (error) {
+      code = error.code ?? 'jobs-application-chats-stop';
+      this.service.trace({ event: 'application-chats-drain-refused', code });
+    }
+    const chatWorker = {
+      ...runtime.chats.status(),
+      active: false,
+      pid: null,
+      ...(code ? { phase: 'refused', code } : {}),
+    };
+    const record = { ...runtime.record, chatWorker };
+    await saveAcknowledgedRecord(this.service.store, record);
+    runtime.record = record;
   }
   async drainLimitWait(runtime) {
     if (

@@ -1,4 +1,18 @@
 export const zhApplication = {
+  'application.chats.enable': '在申请期间检查未读聊天',
+  'application.chats.hint':
+    '使用独立的浏览器槽位。精确的机器人选项可能在验证送达后发送；普通回复保留为草稿。审核聊天期间申请会继续。停止或完成时将结束聊天操作并关闭其浏览器。需要时请在此槽位中手动登录。',
+  'application.chats.chatsIntervalMinutes': '聊天检查间隔（分钟，默认 120）',
+  'application.chats.chatBrowserSlot': '独立的聊天浏览器槽位',
+  'application.chats.status': '聊天：{phase} · 槽位 {slot}',
+  'application.chats.held': '请在聊天浏览器中审核：{title}',
+  'application.chats.phase.starting': '正在启动',
+  'application.chats.phase.running': '正在检查未读聊天',
+  'application.chats.phase.draining': '正在停止并等待结束',
+  'application.chats.phase.refused': '不可用；请查看错误',
+  'application.chats.phase.stopped': '已停止',
+  'application.chats.phase.interrupted': '已中断；需要明确启动',
+  'application.chats.phase.preview': '预览；聊天未更改',
   'application.autoAnswerViewedVacancy': '自动回答已浏览职位的问卷',
   'application.feedbackHint':
     '在本次申请审核期间，在 HH 问卷中选择“也许稍后申请”并关闭问卷。保留你已选择的其他原因。预览模式不会点击。',

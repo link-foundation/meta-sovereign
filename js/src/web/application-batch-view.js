@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import {
+  ApplicationChatControls,
+  ApplicationChatReceipt,
+} from './application-chat-controls.js';
 
 const el = React.createElement;
 export const ApplicationBatchView = ({ application, supported, t }) => {
@@ -8,6 +12,10 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
     maxApplications: 0,
     durationMs: 86400000,
     noQuestionnaires: false,
+    processChats: false,
+    chatsIntervalMinutes: 120,
+    chatBrowserSlot: 'chat-slot',
+    chatModelDraft: false,
   });
   const [confirmed, setConfirmed] = useState(false);
   const batch = state?.receipt?.batch;
@@ -104,6 +112,13 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
       setConfirmed,
       frozen
     ),
+    el(ApplicationChatControls, {
+      key: 'chats',
+      draft: frozen && batch ? { ...draft, ...batch.settings } : draft,
+      update,
+      frozen,
+      t,
+    }),
     el('div', { key: 'actions', className: 'row' }, [
       action(
         'start',
@@ -196,6 +211,7 @@ const BatchReceipt = ({ batch, state, t, check }) =>
           )
         : null,
       batch.code ? el('p', { key: 'code' }, batch.code) : null,
+      el(ApplicationChatReceipt, { key: 'chats', worker: batch.chatWorker, t }),
       check(
         'batchPaused',
         'application.pause',

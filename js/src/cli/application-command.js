@@ -235,6 +235,19 @@ export const createApplicationCommands = ({
     ].map((operation) => [
       `vacancies-${operation}`,
       async (args, log) => {
+        if (
+          operation !== 'application-batch' &&
+          [
+            'process-chats',
+            'chats-interval-minutes',
+            'chat-browser-slot',
+            'chat-model-draft',
+          ].some((name) => args[name] !== undefined)
+        ) {
+          throw new Error(
+            'Chat worker settings require vacancies application-batch.'
+          );
+        }
         const urls =
           operation === 'application-batch'
             ? await applicationBatchFile(args['vacancies-file'])
@@ -255,6 +268,13 @@ export const createApplicationCommands = ({
                   ? undefined
                   : Number(args['duration-ms']),
               noQuestionnaires: boolean(args, 'no-questions'),
+              processChats: boolean(args, 'process-chats'),
+              chatModelDraft: boolean(args, 'chat-model-draft'),
+              chatBrowserSlot: args['chat-browser-slot'],
+              chatsIntervalMinutes:
+                args['chats-interval-minutes'] === undefined
+                  ? undefined
+                  : Number(args['chats-interval-minutes']),
             }
           : operation === 'application-batch-status'
             ? {
@@ -272,7 +292,15 @@ export const createApplicationCommands = ({
                 };
         const storeDir = args.store ?? defaultStoreDir();
         const store = await openStore(storeDir);
-        const service = createVacancyService({ store, storeDir, ...options });
+        const service = createVacancyService({
+          store,
+          storeDir,
+          ...options,
+          application: {
+            ...options.application,
+            chatLog: (entry) => log(encodeWire(entry)),
+          },
+        });
         try {
           if (operation === 'application-batch') {
             return await applicationBatchCommand(

@@ -1,6 +1,6 @@
 /** Shared immutable CLI usage text; no providers, stores or command execution. */
 
-export const APPLICATION_HELP = `  vacancies-application-batch --vacancies-file=<url-lines.txt> --request-id=<id> [--max-applications=0] [--duration-ms=86400000] [--no-questions=true|false] [application settings below]
+export const APPLICATION_HELP = `  vacancies-application-batch --vacancies-file=<url-lines.txt> --request-id=<id> [--max-applications=0] [--duration-ms=86400000] [--no-questions=true|false] [--process-chats=true|false] [--chats-interval-minutes=120] [--chat-browser-slot=chat-slot] [--chat-model-draft=true|false] [application settings below]
   vacancies-application-batch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--standard-letter-en-file=<text-file> --standard-letter-ru-file=<text-file>] [--no-auto-select-resume-language=true|false] [--no-auto-answer-viewed-vacancy=true|false] [--supervised=true|false] [--confirm=answers,cover-letter,send,popup|none] [--auto-exact=true|false] [--review-delay-ms=3000] [--job-application-interval=0|seconds] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]

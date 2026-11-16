@@ -20,6 +20,7 @@ const withFixture = async (
     onRead,
     onMove,
     choiceReceiptMs = 10000,
+    senderOptions = {},
   } = {},
   run
 ) => {
@@ -56,6 +57,7 @@ const withFixture = async (
     return result;
   };
   const sender = createBrowserSender({
+    ...senderOptions,
     loginTimeoutMs: 500,
     pollMs: 10,
     choiceReceiptMs,

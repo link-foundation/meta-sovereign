@@ -1,4 +1,19 @@
 export const hiApplication = {
+  'application.chats.enable': 'आवेदनों के साथ अपठित चैट की समीक्षा करें',
+  'application.chats.hint':
+    'अलग ब्राउज़र स्लॉट इस्तेमाल होता है। बॉट के सटीक विकल्प सत्यापित डिलीवरी जाँच के साथ भेजे जा सकते हैं; सामान्य उत्तर ड्राफ़्ट रहते हैं। चैट समीक्षा के दौरान आवेदन जारी रहते हैं। रोकने या पूरा होने पर चैट का काम पूरा करके उसका ब्राउज़र बंद होता है। ज़रूरत होने पर इस स्लॉट में खुद साइन इन करें।',
+  'application.chats.chatsIntervalMinutes':
+    'चैट जाँच का अंतराल मिनटों में (डिफ़ॉल्ट 120)',
+  'application.chats.chatBrowserSlot': 'चैट के लिए अलग ब्राउज़र स्लॉट',
+  'application.chats.status': 'चैट: {phase} · स्लॉट {slot}',
+  'application.chats.held': 'चैट ब्राउज़र में समीक्षा करें: {title}',
+  'application.chats.phase.starting': 'शुरू हो रहा है',
+  'application.chats.phase.running': 'अपठित चैट जाँची जा रही हैं',
+  'application.chats.phase.draining': 'रोककर काम समाप्त होने की प्रतीक्षा',
+  'application.chats.phase.refused': 'उपलब्ध नहीं; त्रुटि पढ़ें',
+  'application.chats.phase.stopped': 'रुका हुआ',
+  'application.chats.phase.interrupted': 'बाधित; स्पष्ट शुरुआत आवश्यक',
+  'application.chats.phase.preview': 'पूर्वावलोकन; चैट अपरिवर्तित',
   'application.autoAnswerViewedVacancy':
     'देखी गई नौकरी के सर्वे का उत्तर अपने आप दें',
   'application.feedbackHint':
