@@ -615,3 +615,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Packaged macOS boot check](desktop-packaged-launch.md): require a native packaged window, rendered app, positive backend and drained exit on CI, retaining a screenshot. Hosted acceptance and VD09 remain unfinished.
 
 - [Runner transport cancellation](runner-transport-deadline.md): actual-parent stubborn-child refusal, bounded command escalation, retained close ownership and 24 Node/eight Deno focused checks; wider desktop requirements remain active.
+- [Native application answer approval](application-answer-approval.md): actual-parent unreviewed submission, conservative shared admission, four focused regressions, compatibility checks and before/after native browser evidence.
+- [Shared sticker test fixtures](ci-duplication-fixtures.md): exact hosted duplication failure and preserved browser scenarios with shared setup under the unchanged gate.

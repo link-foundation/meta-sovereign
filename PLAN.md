@@ -11,6 +11,11 @@ unmerged until the complete acceptance mapping is verified.
       bounded evidence archives with isolated fixtures and no provider writes.
 - [x] Preserve both actual macOS Deno ARM allocation failures; retain the refused
       partition on Intel while keeping all runtime partitions and ARM coverage.
+- [x] Reproduce and correct native application automatic approval bypass for
+      derived, conflicting and unapproved exact answers. Preserve approved exact
+      reuse and explicit review; verify focused regressions and native browser receipts.
+- [x] Preserve the actual hosted duplication failure, consolidate identical
+      sticker fixtures, keep all scenario assertions and pass the unchanged gate.
 - [ ] Publish the corrections and inspect all five exact-head CI workflows.
 - [ ] Complete the ten-criterion VK/desktop evidence audit, accepting only fully
       verified mappings. Preserve historical unknown causes and diagnostics.
