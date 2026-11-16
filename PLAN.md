@@ -73,3 +73,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Distinguish cold process startup and application imports through default-off lifecycle checkpoints; two actual-parent regressions fail, nine Node and ten Deno checks pass, real EOF cleanup is preserved and one isolated production CLI start/reuse/upgrade passes.
 - [ ] Inspect the resulting exact-head Windows trace before claiming a root cause or correction. Keep readiness assertions, deadlines and all runtime partitions unchanged.
 - [ ] Complete every remaining original criterion; this diagnostic work accepts no inventory row.
+
+2026-11-16 deferred provider routes:
+
+- [x] Reproduce the idle loading of all CV, vacancy and Telegram route graphs against exact published parent f09c8d2b.
+- [x] Keep shared request guards and existing route handlers, account scope and lifecycle; defer 230 local static modules until a matching namespace is requested.
+- [x] Verify five focused routing/shutdown checks, three existing CV catalogue checks, one isolated production CLI scenario and the unchanged duplication gate; preserve bounded graph and regression evidence.
+- [ ] Publish this atomic change, inspect the resulting exact-head CI, and preserve the Windows diagnostic trace before drawing causal conclusions.
+- [ ] Complete all 60 unchecked original criteria. This resource change does not accept any inventory row.

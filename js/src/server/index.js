@@ -76,8 +76,11 @@ import { bodyFailure, fail, json } from './util.js';
 import { bindWire, requestWireFailure } from './wire.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
-import { handleCvRoutes } from './routes-cv.js';
-import { handleVacancyRoutes } from './routes-vacancies.js';
+import {
+  handleCvRoutes,
+  handleVacancyRoutes,
+  handleTelegramRoutes,
+} from './route-modules.js';
 import { handleBrowserRoutes } from './routes-browser.js';
 import { handleFormRoutes } from './routes-forms.js';
 import { createFormReader } from '../forms/reader.js';
@@ -143,7 +146,6 @@ import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
 import { handleMarketplaceRoutes } from './routes-marketplaces.js';
 import { profileDirIn } from '../sources/whatsapp-web-signin.js';
-import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
 import { handleMediaGets } from './routes-media.js';

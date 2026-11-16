@@ -625,3 +625,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 - [Bounded native browser registration](ci-application-registration.md): preserve the actual hosted registration failure and restore four-scenario bounds with a separate mandatory answer check.
 - [Shared sticker test fixtures](ci-duplication-fixtures.md): exact hosted duplication failure and preserved browser scenarios with shared setup under the unchanged gate.
 - [Complete questionnaire URL assertions](questionnaire-url-assertions.md): preserve three exact hosted CodeQL findings and require full URL boundaries in unit, native browser and MCP questionnaire checks.
+
+- [Deferred provider routes](deferred-provider-routes.md): retain a failing actual-parent idle-import boundary, 230 deferred local modules, first-use Lino and shutdown checks, and one real isolated CLI scenario. Windows causality and all unchecked acceptance criteria remain unfinished.

@@ -720,3 +720,5 @@ input pairs separately from derived proposals in the learning journal (QA09).
 Open an explicitly reviewed existing HH workplace through its unique hydrated native Edit control in the complete workplace list, including older jobs. Preserve every open draft, verify the exact record and selected resume context before existing baseline checks, and retain owner Save/Cancel, durable recovery and four-language guidance.
 
 Distinguish cold worker module loading from process startup in the existing opt-in lifecycle trace. Establish IPC before application imports while retaining serialized initialization, EOF draining, readiness deadlines and private diagnostic boundaries.
+
+Defer unused CV, vacancy and Telegram route modules until a guarded matching request. Retain existing first-use behavior, account scope, mutation admission, provider capability states and shutdown ownership while reducing the worker's static local import graph.

@@ -1,0 +1,33 @@
+{
+  "archive": "deferred-provider-routes.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "f4a8222b572c8281f7c790922e896a711d914900d20264c288e928d2ec107bf0",
+    "PLAN.md": "b685503a2cdc71ee5e30e3aa6534dd565cd36621366611b5bad28f84f79db47a",
+    "docs/case-studies/issue-56/README.md": "390d4e85931ed76aee9c786ff48128b255b5d50180ca002a6d101528a22f5c20",
+    "docs/case-studies/issue-56/deferred-provider-routes.md": "5990c99b5f2422770961318d3ab3380e67865b2edbbff51f4684f02fe0f32eb6",
+    "experiments/issue-56/collect-route-loading.py": "92bc4a4696f07a5f915d63ac58da33479ac242db5db6a6dee0d0d7c467ab3eea",
+    "experiments/issue-56/route-loading-before.py": "1f40bcc1348672a607993e416ec0a92c2b432e189a976cccd306ad36b4949a59",
+    "experiments/issue-56/route-loading-fixture.mjs": "ec1f6476521af465a2e3a3824aa9623cef7b7a2bde47bc257faaf3adaf76ad72",
+    "experiments/issue-56/route-loading-probe.mjs": "865c07131ea73706aac6de1f68a54e3ebf70c525bd964e3e5cc8fb6d6eef8d3d",
+    "experiments/issue-56/worker-import-graph.mjs": "6343bc99bfcf3777b6655af0d40c059c67c93f89216ddd3deb99d5950a842cb4",
+    "js/src/server/index.js": "f59f298fbbde060392835c3de5118a2c09ad5559598d03c3003cbd19eb7ef3bb",
+    "js/src/server/route-modules.js": "61609284c1f5b389fb7a272353e189d4d98f1cf54e5c26e0422962c95887bf3c",
+    "js/tests/route-loading.test.js": "28f1b9711075c5abf6ea5817ffcf10994e73c2804c34e15feee839aad8dfd9f5",
+    "ci-logs/route-loading-startup-before.log": "4371b6745594b412c04c210596b821fb2dc3c8ee82f56328f7f92d5701b3f4cd",
+    "ci-logs/route-loading-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/route-loading-cv-compatibility.log": "4bb689bbca368a151f0de530c95677d60e15a5101cf6c326155f82045fc6e2f3",
+    "ci-logs/route-loading-duplication.log": "acfaf744d3a24eacebe7660208d3a0adac9690dfd5672c66ad23bd1e1089c15b",
+    "ci-logs/route-loading-format.log": "08f19e689c4bacbab08823385f784b691fa5b8a2c615cb95cef10af054f8308f",
+    "ci-logs/route-loading-node-final.log": "92bb113159016d9c9a1fd4a501a8f4de2f649a8eb69349edf0d068ce60ddf7bb",
+    "ci-logs/route-loading-parent-replay.log": "74769f5447c433ccde7a2cdc302c4adcb967a0ede12098650ca38e5ad11993b1",
+    "ci-logs/route-loading-graph-after.json": "c440a574e9d4018eb6f8dfcd854fc15ab370ade1a201f41ee050f15f6a32efa5",
+    "ci-logs/route-loading-f09-windows-job.json": "7e030ed1e6778dc366972da1f1e21dd32c99468e396d4b14b4d9f1cdad3863a5",
+    "ci-logs/route-loading-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/route-loading-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/route-loading-ci-before-push.json": "4f736827ece425c715c54e9ad35e7b55dda822e2311a277fd722d3c5c82b179d",
+    "ci-logs/route-loading-startup-profile.log": "118691ef20ff5eb8e57cddf0e6bb91f11420878c1e2afd2127fb31056247d5a4",
+    "ci-logs/route-loading-graph-before.json": "416132e8d2c87b8b03fdbac08df73ea60e6b0e54a797d797d1bad88a87b6d2b2",
+    "before/js/src/server/index.js": "06a30a2990bb1319c25b5dc2aea9c234c27b166049d9b4a0a89609508b4feefa",
+    "metadata.json": "c21e546b848c98b1c4680d663253283d886c9067b170596d0b548e6a1da13b7b"
+  }
+}
