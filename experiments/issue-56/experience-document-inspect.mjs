@@ -210,6 +210,7 @@ export const inspectExperienceDocuments = async (
     locales.push(locale);
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-layout="compact"]').waitFor();
   await panel.scrollIntoViewIfNeeded();
   await capture('documents-phone');
   const layout = await page.evaluate(() => ({

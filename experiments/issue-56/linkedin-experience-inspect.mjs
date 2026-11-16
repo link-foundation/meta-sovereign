@@ -193,6 +193,7 @@ export const inspectLinkedinExperience = async (
     locales.push(locale);
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-layout="compact"]').waitFor();
   await capture('linkedin-phone');
   const layout = await page.evaluate(() => ({
     viewport: innerWidth,

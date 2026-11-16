@@ -673,3 +673,5 @@ Read native LinkedIn experience in a separate persistent browser slot with share
 Build private directed HH/LinkedIn experience plans from exact snapshot revisions, preserving target-only records and missing metadata. Reuse bounded three-provider translation with private model-version caches and share durable Start/status/Stop, original-field review, all variants and text/binary downloads through CLI, Lino and four-language CV controls.
 
 Preserve official HH area identities through native resume exports, Links Notation and owner-Save readback, verify translated city labels by their stable ID, and refuse conflicting imported metadata while retaining legacy document compatibility.
+
+Keep CV actions disabled while initial snapshots and platform metadata load, show the shared loading state, and wait for the responsive shell before experience browser layout assertions.

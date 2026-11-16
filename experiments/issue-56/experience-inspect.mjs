@@ -99,6 +99,7 @@ export const inspectExperience = async (page, config) => {
     locales.push(locale);
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-layout="compact"]').waitFor();
   await section.scrollIntoViewIfNeeded();
   await capture('experience-phone');
   const layout = await page.evaluate(() => ({

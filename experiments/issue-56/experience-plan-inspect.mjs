@@ -187,12 +187,16 @@ export const inspectExperiencePlan = async (
     locales.push(locale);
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-layout="compact"]').waitFor();
   await capture('plan-phone');
   const layout = await page.evaluate(() => ({
     viewport: innerWidth,
     width: document.documentElement.scrollWidth,
   }));
-  check(layout.width <= layout.viewport, 'No horizontal overflow on a phone');
+  check(
+    layout.width <= layout.viewport,
+    `No horizontal overflow on a phone: ${JSON.stringify(layout)}`
+  );
   check(errors.length === 0, 'No browser errors');
   return {
     synthetic: true,
