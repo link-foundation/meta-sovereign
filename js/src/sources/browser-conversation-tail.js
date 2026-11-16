@@ -1,7 +1,11 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 import { createBrowserScanControl } from './browser-scan-control.js';
 import { releaseBrowserConversation } from './browser-conversation-history.js';
-import { readBrowserAnswerChoices } from './browser-choices.js';
+import {
+  readBrowserAnswerChoices,
+  prefillBrowserAnswer,
+  selectBrowserAnswer,
+} from './browser-choices.js';
 import { sendBrowserTextReply } from './browser-text-reply.js';
 import { openBrowserHistoryCapture } from './browser-history-capture.js';
 
@@ -45,6 +49,7 @@ export const withBrowserConversationTail = async (
     token,
     verify,
     retainReply,
+    retainReview,
     onHistoryWindow,
   },
   work,
@@ -122,6 +127,33 @@ export const withBrowserConversationTail = async (
     value = await work({
       snapshot,
       readInactiveQuestion: () => run(read),
+      holdReviewInactive: () =>
+        run(async () => {
+          await retainReview({ chat, questionId: snapshot.question.id });
+          return { held: true };
+        }),
+      prefillInactive: (expected, text, verifyCurrent) =>
+        run(() =>
+          prefillBrowserAnswer(document, ui, expected, text, {
+            inactiveToken: token,
+            verifyCurrent: async () => {
+              await checked();
+              await verifyCurrent?.();
+            },
+          })
+        ),
+      selectInactive: (draft, verifyCurrent) =>
+        run(() =>
+          selectBrowserAnswer(document, ui, draft, chat, {
+            receiptMs: settings.receiptMs,
+            pollMs: settings.pollMs,
+            inactiveToken: token,
+            verifyCurrent: async () => {
+              await checked();
+              await verifyCurrent?.();
+            },
+          })
+        ),
       replyTextInactive: (expected, text, verifyCurrent) =>
         run(async () => {
           const receipt = await sendBrowserTextReply(

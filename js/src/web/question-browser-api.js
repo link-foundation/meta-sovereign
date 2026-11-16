@@ -142,6 +142,7 @@ export const questionBrowserApi = ({ remote }) => {
         result.noticeSources,
         result.unreadSources,
         result.unreadNoticeSources,
+        result.unreadAnswerSources,
       ]) {
         if (
           sources !== undefined &&

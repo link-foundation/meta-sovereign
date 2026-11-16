@@ -1,6 +1,7 @@
 import { previewAnswer } from './question-store.js';
 import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
+import { approvedBrowserPlan as approved } from './question-browser-plan.js';
 import { tickQuestionNotices } from './question-notice-watch.js';
 import {
   browserChoiceDraft,
@@ -12,19 +13,6 @@ import {
   saveQuestionWatch,
 } from './question-watch-records.js';
 
-const approvedPart = (part) =>
-  (part.noReply && !part.linkReview) ||
-  (part.complete &&
-    !part.requiresReview &&
-    ['exact', 'accepted-summary'].includes(part.match));
-const approved = (plan) =>
-  plan?.complete === true &&
-  !plan.linkReview &&
-  !plan.pending?.blocked &&
-  (approvedPart(plan) ||
-    (plan.match === 'pending-turn' && plan.parts.every(approvedPart))) &&
-  typeof plan.text === 'string' &&
-  Boolean(plan.text.trim());
 const questionPlan = ({ store }, record, snapshot) =>
   previewAnswer(store, {
     ...record.planning,

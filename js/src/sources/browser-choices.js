@@ -201,7 +201,13 @@ export const enrichBrowserChoices = async (commander, ui, target, rows) => {
   );
 };
 
-export const prefillBrowserAnswer = async (commander, ui, expected, text) => {
+export const prefillBrowserAnswer = async (
+  commander,
+  ui,
+  expected,
+  text,
+  { inactiveToken, verifyCurrent } = {}
+) => {
   if (
     typeof text !== 'string' ||
     !text.trim() ||
@@ -212,11 +218,13 @@ export const prefillBrowserAnswer = async (commander, ui, expected, text) => {
   ) {
     throw failure('bad-draft');
   }
+  await verifyCurrent?.();
   const result = await evaluate(commander, {
     spec: browserChoiceSpec(ui),
     operation: 'prefill',
     expected,
     text,
+    ...(inactiveToken ? { inactiveToken } : {}),
   });
   if (!result.prefilled) {
     throw failure(result.code);
@@ -313,7 +321,7 @@ export const selectBrowserAnswer = async (
   ui,
   draft,
   target,
-  { receiptMs = 10000, pollMs = 100, verifyCurrent } = {}
+  { receiptMs = 10000, pollMs = 100, verifyCurrent, inactiveToken } = {}
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
@@ -327,7 +335,7 @@ export const selectBrowserAnswer = async (
       expected,
       option: draft.answer.option,
     },
-    { receiptMs, pollMs, verifyCurrent }
+    { receiptMs, pollMs, verifyCurrent, inactiveToken }
   );
   return {
     via: 'browser',

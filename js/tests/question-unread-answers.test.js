@@ -1,0 +1,300 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { unreadAnswerFixture } from '../../experiments/issue-56/unread-answer-fixture.mjs';
+import {
+  unreadInput,
+  waitUnreadReview,
+} from '../../experiments/issue-56/question-unread-review-fixture.mjs';
+import { checkUnreadReview } from '../src/automation/question-unread-state.js';
+import { listOutbox } from '../src/automation/outbox.js';
+import { saveAnswerRule } from '../src/automation/question-store.js';
+import { createQuestionBrowser } from '../src/automation/question-browser.js';
+import { pollingCycleFixture } from '../../experiments/issue-56/unread-polling-fixture.mjs';
+
+const check = async (options, work) => {
+  const env = await unreadAnswerFixture(options);
+  try {
+    await work(env);
+  } finally {
+    await env.browser.close();
+  }
+};
+
+test('sequential answer admission requires explicit supported boolean intent', () =>
+  check({}, async (env) => {
+    for (const answerChats of ['true', 1, null]) {
+      await assert.rejects(
+        env.browser.unreadStart(unreadInput({ answerChats }))
+      );
+    }
+    await assert.rejects(
+      env.browser.unreadStart({ ...env.input, noticeReplies: true })
+    );
+    env.send.unreadAnswerReplySources = () => [];
+    await assert.rejects(env.browser.unreadStart(env.input), {
+      code: 'question-unread-answers-unavailable',
+    });
+    assert.equal(env.state.scans.length, 0);
+  }));
+
+test('approved bot choices continue sequentially and the first ordinary draft holds review', () =>
+  check({}, async (env) => {
+    const result = await env.complete();
+    checkUnreadReview(result, env.input.id);
+    assert.equal(result.state, 'completed');
+    assert.deepEqual(
+      result.entries.map((entry) => entry.answer.phase),
+      ['sent', 'prefilled']
+    );
+    assert.deepEqual(
+      env.state.sends.map(({ chat, text }) => ({ chat, text })),
+      [{ chat: '8', text: 'Yes' }]
+    );
+    assert.deepEqual(env.state.prefills, [{ chat: '9', text: 'Yes' }]);
+    assert.equal(result.restoration.restored, false);
+    assert.equal(result.restoration.heldReview.chat, '9');
+    assert.equal((await listOutbox(env.store)).length, 1);
+    assert.equal(
+      (await env.store.get(result.entries[1].reviewId)).planning.modelDraft,
+      false
+    );
+  }));
+
+test('pending bot options, unresolved text and owner drafts hold without edits or delivery', async () => {
+  for (const snapshot of [
+    { strictOptions: true, answerOptions: [] },
+    { strictOptions: false, hasDraft: true },
+    {
+      strictOptions: false,
+      question: { id: '102', body: 'Unrecognized request', outgoing: false },
+    },
+  ]) {
+    await check({ rows: [snapshot, {}] }, async (env) => {
+      const result = await env.complete();
+      assert.equal(result.entries.length, 1);
+      assert.equal(result.restoration.heldReview.chat, '8');
+      assert.equal(env.state.prefills.length, 0);
+      assert.equal(env.state.sends.length, 0);
+      assert.deepEqual(await listOutbox(env.store), []);
+    });
+  }
+});
+
+test('owner answers and a closed conversation continue to the next unread chat', () =>
+  check(
+    {
+      rows: [
+        { question: { id: '105', body: 'I have replied', outgoing: true } },
+        { noticeContext: { canReply: false } },
+        { strictOptions: false },
+      ],
+    },
+    async (env) => {
+      const result = await env.complete();
+      assert.deepEqual(
+        result.entries.map((entry) => entry.answer.phase),
+        ['no-reply', 'no-reply', 'prefilled']
+      );
+      assert.equal(result.restoration.heldReview.chat, '10');
+      assert.equal(env.state.sends.length, 0);
+    }
+  ));
+
+test('uncertain choices stop traversal and status recovery never replays a click', () =>
+  check({ issue: () => ({ via: 'browser' }) }, async (env) => {
+    const result = await env.complete();
+    assert.equal(result.state, 'paused');
+    assert.equal(result.entries[0].answer.phase, 'unknown');
+    assert.equal(result.entries.length, 1);
+    const reader = createQuestionBrowser(env);
+    try {
+      assert.equal(
+        (await reader.unreadStart(env.input)).entries[0].answer.phase,
+        'unknown'
+      );
+      assert.equal(env.state.scans.length, 1);
+      assert.equal(env.state.sends.length, 1);
+    } finally {
+      await reader.close();
+    }
+  }));
+
+test('a queued saved-answer change refuses selection before the native effect', () =>
+  check(
+    {
+      queued: (env) =>
+        saveAnswerRule(env.store, {
+          id: 'experience',
+          question: env.state.snapshot.question.body,
+          answers: [{ text: 'No', approved: true }],
+        }),
+    },
+    async (env) => {
+      const result = await env.complete();
+      assert.equal(result.state, 'paused');
+      assert.equal(result.entries[0].answer.phase, 'failed');
+      assert.equal(env.state.sends.length, 0);
+    }
+  ));
+
+test('wire receipts bind held review and delivered choices to the actual source and chat', () =>
+  check({}, async (env) => {
+    const result = await env.complete();
+    for (const mutate of [
+      (x) => {
+        x.restoration.heldReview.url = 'javascript:alert(1)';
+      },
+      (x) => {
+        x.restoration.heldReview.url = 'https://owner:password@hh.ru/chat/9';
+      },
+      (x) => {
+        x.answerChats = false;
+      },
+      (x) => {
+        x.restoration.restored = true;
+      },
+      (x) => {
+        x.restoration.heldReview.chat = '10';
+      },
+      (x) => {
+        x.restoration.heldReview.questionId = '999';
+      },
+      (x) => {
+        x.entries[0].answer.outbox.chat = '9';
+      },
+      (x) => {
+        x.entries[0].answer.outbox.receipt.source = 'vk';
+      },
+      (x) => {
+        x.entries[0].answer.phase = 'marked-sent';
+      },
+      (x) => {
+        x.entries[0].answer.selection.key = 'different';
+      },
+    ]) {
+      const forged = globalThis.structuredClone(result);
+      mutate(forged);
+      assert.throws(() => checkUnreadReview(forged, env.input.id));
+    }
+  }));
+
+test(
+  'repeating cycles stay on the held chat until an owner reply releases it',
+  { timeout: 5000 },
+  async () => {
+    await check({ rows: [{ strictOptions: false }] }, async (env) => {
+      const held = await env.complete();
+      const released = {
+        ...held,
+        restoration: { restored: true, reason: 'checked' },
+      };
+      const inputs = [];
+      let count = 0;
+      const finite = {
+        async start(input) {
+          inputs.push(input);
+          return count++ === 0 ? held : released;
+        },
+        async status() {
+          assert.fail('A settled child needs no additional read');
+        },
+        async stop() {},
+      };
+      const { cycle, runtime } = pollingCycleFixture({ finite });
+      runtime.input.answerChats = true;
+      await cycle.visit();
+      assert.equal(runtime.input.heldChat, '8');
+      await cycle.visit();
+      assert.equal(inputs[1].heldChat, '8');
+      assert.equal(runtime.input.heldChat, undefined);
+    });
+  }
+);
+
+test(
+  'CLI enables answer mode explicitly and negotiated Lino clients retain held receipts',
+  { timeout: 10000 },
+  async () => {
+    const { questionBrowserCli, questionBrowserHttp } =
+      await import('../../experiments/issue-56/question-browser-clients.mjs');
+    const { LINO_TEXT, LINO_BINARY } = await import('../src/transport/lino.js');
+    await check({}, async (env) => {
+      const result = await questionBrowserCli(env)('unread', {
+        source: 'hh',
+        confirm: true,
+        'pass-id': env.input.id,
+        'answer-chats': true,
+      });
+      assert.equal(result.code, 0, JSON.stringify(result.value));
+      assert.equal(result.value.answerChats, true);
+      assert.equal(result.value.restoration.heldReview.chat, '9');
+    });
+    for (const media of [LINO_TEXT, LINO_BINARY]) {
+      await check({}, async (env) => {
+        const http = await questionBrowserHttp(env);
+        try {
+          const started = await http.call('unread-start', env.input, media);
+          assert.equal(started.status, 200);
+          await waitUnreadReview(env.browser, env.input.id);
+          const response = await http.call(
+            'unread-status',
+            { id: env.input.id },
+            media
+          );
+          assert.equal(response.status, 200);
+          checkUnreadReview(response.body, env.input.id);
+          assert.equal(response.body.restoration.heldReview.chat, '9');
+        } finally {
+          await http.server.close();
+        }
+      });
+    }
+  }
+);
+
+test(
+  'Stop drains an issued option and retains its receipt without visiting another chat',
+  { timeout: 5000 },
+  async () => {
+    const { questionWatchGate } =
+      await import('../../experiments/issue-56/question-watch-fixture.mjs');
+    const entered = questionWatchGate();
+    const release = questionWatchGate();
+    await check(
+      {
+        issue: async (draft) => {
+          entered.release();
+          await release.promise;
+          return {
+            via: 'browser',
+            source: 'hh',
+            chat: draft.chat,
+            option: draft.text,
+            messageId: '808',
+          };
+        },
+      },
+      async (env) => {
+        try {
+          await env.browser.unreadStart(env.input);
+          await entered.promise;
+          let settled = false;
+          const stopping = env.browser.unreadStop(env.input).then((value) => {
+            settled = true;
+            return value;
+          });
+          await new Promise((resolve) => setTimeout(resolve, 20));
+          assert.equal(settled, false);
+          release.release();
+          const result = await stopping;
+          assert.equal(result.state, 'stopped');
+          assert.equal(result.entries.length, 1);
+          assert.equal(result.entries[0].answer.phase, 'sent');
+          assert.equal(env.state.sends.length, 1);
+        } finally {
+          release.release();
+        }
+      }
+    );
+  }
+);

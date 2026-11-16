@@ -1,4 +1,30 @@
 export const enUnreadReview = {
+  'browserUnread.answers':
+    'Handle bot options and hold ordinary replies for review',
+  'browserUnread.answersHint':
+    'Visit unread chats one at a time in the inactive provider window. Complete exact saved answers may select an offered bot option. Ordinary text is only drafted: the first reply needing review stays open and later checks inspect only that chat until you reply or no reply is needed. No model is called.',
+  'browserUnread.startAnswers': 'Handle unread answers sequentially',
+  'browserUnread.activeAnswers':
+    'Checking unread questions. Approved bot options may be selected; ordinary replies remain drafts for your review.',
+  'browserUnread.pausedAnswers':
+    'Answer processing is paused. Inspect the held chat and saved outbox before starting another pass. Status recovery never repeats an action.',
+  'browserUnread.held':
+    'Chat {chat} is left open for review. Its draft is preserved. Repeated checks inspect only this chat until you reply or no reply is needed.',
+  'browserUnread.answer.review': 'Needs your review.',
+  'browserUnread.answer.no-reply': 'No reply is needed.',
+  'browserUnread.answer.pending-options': 'Waiting for offered bot options.',
+  'browserUnread.answer.owner-draft': 'Your existing draft is preserved.',
+  'browserUnread.answer.prefilled':
+    'Draft prepared for your review; no text was sent.',
+  'browserUnread.answer.selecting': 'An exact bot option is being selected.',
+  'browserUnread.answer.sent':
+    'A bot option was confirmed by an outgoing message.',
+  'browserUnread.answer.marked-sent': 'You marked this selection as sent.',
+  'browserUnread.answer.unknown':
+    'Selection delivery is uncertain; inspect the provider chat.',
+  'browserUnread.answer.failed':
+    'The option was refused; inspect the saved outcome.',
+
   'browserUnread.title': 'Unread conversations',
   'browserUnread.hint':
     'Read a bounded set of unread chats in an already connected, inactive provider window. Keep that window inactive until the pass settles. Saved answers prepare reviews; this pass never sends or calls a model. Rendered lists and history may be incomplete.',

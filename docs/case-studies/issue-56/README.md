@@ -1,3 +1,5 @@
+- [Sequential unread answers](unread-answers.md): guarded borrowed bot choices, ordinary review drafts, truthful held-view receipts and held-only polling through CLI, both Lino encodings and shared localized controls. Focused parent/native/MCP evidence is retained; wider criteria remain unfinished.
+
 - [Hosted employer-change refusal](ci-notice-pane.md): preserve the exact Chromium failure and finite native reproduction; require the earlier observed-pane guard, a failed outbox and zero text/choice effects. Exact-head CI remains required.
 - [Watched dispatch ownership](browser-watch-dispatch.md): reproduce Stop, navigation and policy changes during native arming; recheck before issue while draining already-issued receipts. Wider unread orchestration remains required.
 - [Borrowed unread capture](unread-live-capture.md): retain transient edits and delivery during an owned reply callback, drain archive writes before restoring the view and preserve positive receipts on later storage failure; HH11 remains unfinished.

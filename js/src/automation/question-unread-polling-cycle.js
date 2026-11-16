@@ -74,6 +74,14 @@ export class UnreadPollingCycle {
     runtime.childId = id;
     try {
       child = await this.collect(child);
+      if (runtime.input.answerChats) {
+        const held = child.restoration?.heldReview;
+        if (held) {
+          runtime.input.heldChat = held.chat;
+        } else if (child.state === 'completed' && child.restoration?.restored) {
+          delete runtime.input.heldChat;
+        }
+      }
       await this.save({
         entries: child.entries,
         coverage: child.coverage,

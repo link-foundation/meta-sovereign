@@ -2,7 +2,7 @@ use meta_sovereign_server::{
     ServerState,
     json::{self, Value},
     state::StatePersistence,
-    sync_session::SyncSession,
+    sync_session::{SCHEMA, SyncSession},
 };
 use std::io;
 use std::sync::{
@@ -11,7 +11,7 @@ use std::sync::{
 };
 
 fn value(text: &str) -> Value {
-    json::parse(text).unwrap()
+    json::parse(&text.replace("$schema", &SCHEMA.to_string())).unwrap()
 }
 fn field(event: &Value, name: &str) -> Value {
     event.get(name).unwrap().clone()
@@ -26,7 +26,7 @@ fn hello(session: &mut SyncSession, state: &ServerState) -> (Value, Value) {
     let replies = session
         .receive(
             state,
-            &value(r#"{"type":"hello","schema":19,"reconcile":1,"session":"javascript"}"#),
+            &value(r#"{"type":"hello","schema":$schema,"reconcile":1,"session":"javascript"}"#),
         )
         .unwrap();
     assert_eq!(replies.len(), 2);
@@ -40,7 +40,7 @@ fn control(local: &Value, kind: &str, request: Value, sequence: u64) -> Value {
     Value::Object(
         [
             ("type".into(), Value::String(kind.into())),
-            ("schema".into(), Value::Number(19.0)),
+            ("schema".into(), Value::Number(SCHEMA)),
             ("from".into(), Value::String("javascript".into())),
             ("to".into(), field(local, "session")),
             ("request".into(), request),
@@ -69,14 +69,17 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     let state = ServerState::new();
     let mut session = SyncSession::default();
     assert!(session.deadline().is_some());
-    let mutation =
-        value(r#"{"type":"put","schema":19,"link":{"id":"public","vc":{"js":1},"body":"saved"}}"#);
+    let mutation = value(
+        r#"{"type":"put","schema":$schema,"link":{"id":"public","vc":{"js":1},"body":"saved"}}"#,
+    );
     assert!(session.receive(&state, &mutation).is_err());
     assert!(
         session
             .receive(
                 &state,
-                &value(r#"{"type":"hello","schema":19,"reconcile":1,"session":"invalid session"}"#)
+                &value(
+                    r#"{"type":"hello","schema":$schema,"reconcile":1,"session":"invalid session"}"#
+                )
             )
             .is_err()
     );
@@ -92,7 +95,7 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     assert!(state.is_empty());
     assert!(
         session
-            .receive(&state, &value(r#"{"type":"hello","schema":19}"#))
+            .receive(&state, &value(r#"{"type":"hello","schema":$schema}"#))
             .unwrap()
             .is_empty()
     );
@@ -100,10 +103,10 @@ fn native_session_requires_schema_and_hello_before_mutation() {
     assert!(session.receive(&state, &mutation).unwrap().is_empty());
     assert_eq!(state.get("public"), mutation.get("link").cloned());
     for record in [
-        r#"{"type":"put","schema":19,"link":{"id":"secret:key"}}"#,
-        r#"{"type":"put","schema":19,"link":{"id":"meta:schema"}}"#,
-        r#"{"type":"delete","schema":19,"link":{"id":"public","vc":{"js":2}}}"#,
-        r#"{"type":"put","schema":19,"link":{"id":"public","__msSyncDeleted":1,"vc":{"js":2}}}"#,
+        r#"{"type":"put","schema":$schema,"link":{"id":"secret:key"}}"#,
+        r#"{"type":"put","schema":$schema,"link":{"id":"meta:schema"}}"#,
+        r#"{"type":"delete","schema":$schema,"link":{"id":"public","vc":{"js":2}}}"#,
+        r#"{"type":"put","schema":$schema,"link":{"id":"public","__msSyncDeleted":1,"vc":{"js":2}}}"#,
     ] {
         assert!(session.receive(&state, &value(record)).is_err());
     }
@@ -266,7 +269,7 @@ fn native_session_controls_cannot_cross_sessions_or_restart_an_active_scan() {
         session
             .receive(
                 &state,
-                &value(r#"{"type":"hello","schema":19,"reconcile":1,"session":"other"}"#)
+                &value(r#"{"type":"hello","schema":$schema,"reconcile":1,"session":"other"}"#)
             )
             .is_err()
     );

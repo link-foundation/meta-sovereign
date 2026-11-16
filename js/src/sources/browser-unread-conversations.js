@@ -3,6 +3,7 @@ import { scanBrowserConversation } from './browser-conversation-history.js';
 import { readBrowserAnswerChoices } from './browser-choices.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
 import { withBrowserConversationTail } from './browser-conversation-tail.js';
+import { boundedBrowserText } from '../automation/question-browser-state.js';
 
 export const normalizeUnreadScanOptions = (options = {}) => {
   const settings = normalizeChatScanOptions(options);
@@ -12,6 +13,8 @@ export const normalizeUnreadScanOptions = (options = {}) => {
     maxChats < 1 ||
     maxChats > 100 ||
     options.unreadOnly === false ||
+    (options.heldChat !== undefined &&
+      !boundedBrowserText(options.heldChat, 480)) ||
     (options.onConversation !== undefined &&
       typeof options.onConversation !== 'function')
   ) {
@@ -45,14 +48,27 @@ export const scanUnreadBrowserConversations = ({
   const deadline = globalThis.performance.now() + settings.budgetMs;
   return withBrowserChatNavigation(
     { commander, page, ui, signal: options.signal, waitMs: settings.waitMs },
-    async ({ document, visit, verifyCurrent, inactiveToken, retainReply }) => {
-      const list = await scanList(document, ui, {
-        ...options,
-        ...settings,
-        unreadOnly: true,
-        verifyCurrent,
-        inactiveToken,
-      });
+    async ({
+      document,
+      visit,
+      verifyCurrent,
+      inactiveToken,
+      retainReply,
+      retainReview,
+    }) => {
+      // A held review is checked in place; never scan or navigate other chats.
+      const list = options.heldChat
+        ? {
+            rows: [{ chat: options.heldChat }],
+            coverage: { endObserved: false, reason: 'held-chat' },
+          }
+        : await scanList(document, ui, {
+            ...options,
+            ...settings,
+            unreadOnly: true,
+            verifyCurrent,
+            inactiveToken,
+          });
       if (process.env.MS_BROWSER_CHAT_VIEW_DEBUG === '1') {
         console.error('[browser-unread-list]', {
           elapsedMs:
@@ -75,6 +91,12 @@ export const scanUnreadBrowserConversations = ({
           break;
         }
         await verifyCurrent();
+        if (options.heldChat) {
+          // Resolve the current document without visiting another list item.
+          await readBrowserAnswerChoices(document, ui, options.heldChat, {
+            preserveDraft: true,
+          });
+        }
         const observation = await visit(
           row.chat,
           async (chatDocument, chat, verify, token) => {
@@ -145,6 +167,7 @@ export const scanUnreadBrowserConversations = ({
                   token,
                   verify,
                   retainReply,
+                  retainReview,
                   onHistoryWindow: options.onHistoryWindow,
                 },
                 (handle) => options.onConversation(observation, handle)
@@ -159,6 +182,10 @@ export const scanUnreadBrowserConversations = ({
           break;
         }
         conversations.push(observation);
+        if (observation.processing?.value?.holdReview) {
+          reason = 'review-held';
+          break;
+        }
         if (observation.processing?.restored === false) {
           reason = 'visit-restoration-failed';
           break;

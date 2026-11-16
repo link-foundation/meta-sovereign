@@ -138,6 +138,36 @@ const UnreadRestoration = ({ restoration }) => {
   if (!restoration) {
     return null;
   }
+  if (restoration.heldReview) {
+    const held = restoration.heldReview;
+    return el(
+      'div',
+      { className: 'col', 'data-browser-unread-held': held.chat },
+      [
+        el(
+          'p',
+          { key: 'state', role: 'status' },
+          t('browserUnread.held', { chat: held.chat })
+        ),
+        held.title
+          ? el('p', { key: 'title', className: 'wrap' }, held.title)
+          : null,
+        held.url
+          ? el(
+              'a',
+              {
+                key: 'link',
+                href: held.url,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                className: 'wrap',
+              },
+              held.url
+            )
+          : null,
+      ]
+    );
+  }
   const revealed = restoration.replyView?.state === 'revealed';
   const key = restoration.restored
     ? revealed
@@ -179,7 +209,7 @@ const UnreadResult = ({ result, blocked, select }) => {
         { key: 'state', role: 'status' },
         !result.polling &&
           t(
-            `browserUnread.${result.state}${result.noticeReplies && ['active', 'paused'].includes(result.state) ? 'Notices' : ''}`
+            `browserUnread.${result.state}${['active', 'paused'].includes(result.state) ? (result.answerChats ? 'Answers' : result.noticeReplies ? 'Notices' : '') : ''}`
           )
       ),
       el(UnreadPollingStatus, { key: 'polling', polling: result.polling }),
@@ -216,6 +246,33 @@ const UnreadResult = ({ result, blocked, select }) => {
         : null,
       ...result.entries.map((entry) =>
         el('div', { key: entry.chat, className: 'col' }, [
+          entry.answer
+            ? el(
+                'p',
+                {
+                  key: 'answer',
+                  role: 'status',
+                  'data-browser-unread-answer': entry.answer.phase,
+                },
+                t(`browserUnread.answer.${entry.answer.phase}`)
+              )
+            : null,
+          entry.answer?.selection
+            ? el(
+                'p',
+                { key: 'option', className: 'wrap' },
+                entry.answer.selection.option
+              )
+            : null,
+          entry.answer?.outbox?.receipt?.messageId
+            ? el(
+                'small',
+                { key: 'receipt', className: 'meta' },
+                t('browserAnswer.receipt', {
+                  id: entry.answer.outbox.receipt.messageId,
+                })
+              )
+            : null,
           entry.preview
             ? el('p', { key: 'preview', className: 'wrap' }, entry.preview)
             : null,
@@ -254,6 +311,7 @@ const UnreadControls = ({
   legacyStorageKey,
   select,
   noticesAvailable,
+  answersAvailable,
 }) => {
   const t = useT();
   const pass = useUnreadPass({
@@ -266,6 +324,7 @@ const UnreadControls = ({
   const [confirm, setConfirm] = React.useState(false);
   const [limit, setLimit] = React.useState('20');
   const [noticeReplies, setNoticeReplies] = React.useState(false);
+  const [answerChats, setAnswerChats] = React.useState(false);
   const polling = useUnreadPolling();
   const active = activePass(pass.result);
   const locked = blocked || pass.busy || pass.pending || active;
@@ -278,7 +337,9 @@ const UnreadControls = ({
       el(
         'p',
         { key: 'hint', className: 'meta' },
-        t(`browserUnread.${noticeReplies ? 'noticesHint' : 'hint'}`)
+        t(
+          `browserUnread.${answerChats ? 'answersHint' : noticeReplies ? 'noticesHint' : 'hint'}`
+        )
       ),
       noticesAvailable
         ? el('label', { key: 'notices', className: 'check' }, [
@@ -288,9 +349,32 @@ const UnreadControls = ({
               checked: noticeReplies,
               disabled: locked,
               'data-browser-unread-notices': true,
-              onChange: (event) => setNoticeReplies(event.target.checked),
+              onChange: (event) => {
+                setNoticeReplies(event.target.checked);
+                if (event.target.checked) {
+                  setAnswerChats(false);
+                }
+              },
             }),
             t('browserUnread.notices'),
+          ])
+        : null,
+      answersAvailable
+        ? el('label', { key: 'answers', className: 'check' }, [
+            el('input', {
+              key: 'input',
+              type: 'checkbox',
+              checked: answerChats,
+              disabled: locked,
+              'data-browser-unread-answers': true,
+              onChange: (event) => {
+                setAnswerChats(event.target.checked);
+                if (event.target.checked) {
+                  setNoticeReplies(false);
+                }
+              },
+            }),
+            t('browserUnread.answers'),
           ])
         : null,
       el('label', { key: 'limit', className: 'field' }, [
@@ -338,10 +422,11 @@ const UnreadControls = ({
               ...(noticeReplies && noticesAvailable
                 ? { noticeReplies: true }
                 : {}),
+              ...(answerChats && answersAvailable ? { answerChats: true } : {}),
             }),
         },
         t(
-          `browserUnread.${noticeReplies && noticesAvailable ? 'startNotices' : 'start'}`
+          `browserUnread.${answerChats && answersAvailable ? 'startAnswers' : noticeReplies && noticesAvailable ? 'startNotices' : 'start'}`
         )
       ),
       pass.pending

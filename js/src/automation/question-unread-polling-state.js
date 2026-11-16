@@ -89,7 +89,13 @@ const retryableEmptyFailure = (child) =>
   ['ETIMEDOUT', 'timeout'].includes(child.code);
 
 export const unreadPollingOutcome = (child, unissued = false) => {
-  if (child.state === 'completed' && child.restoration?.restored) {
+  if (
+    child.state === 'completed' &&
+    (child.restoration?.restored ||
+      (child.answerChats &&
+        child.restoration?.reason === 'review-held' &&
+        child.restoration.heldReview))
+  ) {
     return 'waiting';
   }
   if (

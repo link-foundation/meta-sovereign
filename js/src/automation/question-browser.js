@@ -66,6 +66,11 @@ const extraBrowserCapabilities = (send, sources, available) => {
     ['noticeSources', 'openAnswerWatch', 'noticeReplySources'],
     ['unreadSources', 'scanUnreadConversations', 'unreadConversationSources'],
     [
+      'unreadAnswerSources',
+      'scanUnreadConversations',
+      'unreadAnswerReplySources',
+    ],
+    [
       'unreadNoticeSources',
       'scanUnreadConversations',
       'unreadNoticeReplySources',

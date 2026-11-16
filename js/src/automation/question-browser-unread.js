@@ -14,6 +14,11 @@ import {
   validUnreadReplyView,
 } from './question-unread-state.js';
 import { visitUnreadNotice } from './question-unread-notices.js';
+import { visitUnreadAnswer } from './question-unread-answers.js';
+import {
+  unreadAnswerStatus,
+  validUnreadAnswer,
+} from './question-unread-answer-state.js';
 import {
   unreadNoticeStatus,
   validUnreadNotice,
@@ -83,6 +88,7 @@ const executeUnreadReview = async ({
       await send.scanUnreadConversations({
         source: record.source,
         ...record.settings,
+        ...(record.heldChat ? { heldChat: record.heldChat } : {}),
         signal: controller.signal,
         onHistoryWindow: async (window) => {
           const captured = await archiveBrowserHistoryWindow(context.store, {
@@ -102,21 +108,34 @@ const executeUnreadReview = async ({
           };
           await save(record);
         },
-        ...(record.noticeReplies
+        ...(record.answerChats
           ? {
               onConversation: (observation, handle) =>
-                visitUnreadNotice({
+                visitUnreadAnswer({
                   context,
                   record,
                   controller,
                   observation,
                   handle,
-                  reviewEntry: (entry, current) =>
-                    reviewEntry(entry, current, review),
+                  review,
                   save,
                 }),
             }
-          : {}),
+          : record.noticeReplies
+            ? {
+                onConversation: (observation, handle) =>
+                  visitUnreadNotice({
+                    context,
+                    record,
+                    controller,
+                    observation,
+                    handle,
+                    reviewEntry: (entry, current) =>
+                      reviewEntry(entry, current, review),
+                    save,
+                  }),
+              }
+            : {}),
       }),
       record.settings.maxChats
     );
@@ -128,7 +147,9 @@ const executeUnreadReview = async ({
     }
     record.coverage = pass.coverage;
     record.restoration = pass.restoration;
-    for (const entry of record.noticeReplies ? [] : pass.conversations) {
+    for (const entry of record.noticeReplies || record.answerChats
+      ? []
+      : pass.conversations) {
       if (controller.signal.aborted) {
         break;
       }
@@ -144,7 +165,13 @@ const executeUnreadReview = async ({
         'The unread visitor did not confirm every chat.'
       );
     }
-    record.state = controller.signal.aborted ? 'stopped' : 'completed';
+    record.state = controller.signal.aborted
+      ? 'stopped'
+      : record.entries.some((entry) =>
+            ['failed', 'unknown'].includes(entry.answer?.phase)
+          )
+        ? 'paused'
+        : 'completed';
   } catch (error) {
     record.state = controller.signal.aborted
       ? 'stopped'
@@ -170,6 +197,21 @@ export const normalizeUnreadReviewSettings = (input, capabilities) => {
     );
   }
   const settings = normalizeUnreadScanOptions(input);
+  if (
+    (input.answerChats !== undefined &&
+      typeof input.answerChats !== 'boolean') ||
+    (input.answerChats &&
+      !capabilities.unreadAnswerSources?.some(
+        ({ id }) => id === input.source
+      )) ||
+    (input.answerChats && input.noticeReplies) ||
+    (input.heldChat && !input.answerChats)
+  ) {
+    throw failure(
+      'question-unread-answers-unavailable',
+      'Sequential answers require an explicitly supported provider and separate notice controls.'
+    );
+  }
   if (
     (input.noticeReplies !== undefined &&
       typeof input.noticeReplies !== 'boolean') ||
@@ -233,18 +275,22 @@ export const createQuestionUnreadReviews = ({
       record.code = 'question-unread-owner-unavailable';
     }
     record.entries = await Promise.all(
-      record.entries.map((entry) => unreadNoticeStatus(store, entry))
+      record.entries.map(async (entry) =>
+        unreadAnswerStatus(store, await unreadNoticeStatus(store, entry))
+      )
     );
     if (
       record.entries.some(
         (entry) =>
-          entry.notice &&
-          !validUnreadNotice(entry.notice, record.source, entry.chat)
+          (entry.notice &&
+            !validUnreadNotice(entry.notice, record.source, entry.chat)) ||
+          (entry.answer &&
+            !validUnreadAnswer(entry.answer, record.source, entry.chat))
       )
     ) {
       throw failure(
         'question-browser-receipt-missing',
-        'The unread notice receipt was not verified.'
+        'The unread reply receipt was not verified.'
       );
     }
     return unreadStatusResult(record, runtimes.has(record.id));
@@ -287,6 +333,8 @@ export const createQuestionUnreadReviews = ({
       settings,
       planning,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
+      ...(input.answerChats ? { answerChats: true } : {}),
+      ...(input.heldChat ? { heldChat: input.heldChat } : {}),
       state: 'active',
       startedAt: clock().toISOString(),
       entries: [],

@@ -18,6 +18,7 @@ import {
   revealBrowserChatReply,
 } from './browser-chat-reply-view.js';
 import { browserTextReceipt } from '../automation/question-browser-state.js';
+import { readBrowserAnswerChoices } from './browser-choices.js';
 import {
   claimBrowserHistoryTail,
   verifyBrowserHistoryTransition,
@@ -396,6 +397,7 @@ class ChatNavigation {
       throw failure('cancelled');
     }
     this.trace('visit', 'ready');
+    this.currentTarget = target;
     return read(this.adapter, target, () => this.verify(), this.inactiveToken);
   }
 
@@ -431,6 +433,34 @@ class ChatNavigation {
     let replyView;
     try {
       await this.verify();
+      if (this.review) {
+        const current = await readBrowserAnswerChoices(
+          this.adapter,
+          this.ui,
+          this.review.chat,
+          { preserveDraft: true }
+        );
+        await this.verify();
+        return {
+          restored: false,
+          reason: 'review-held',
+          heldReview: {
+            ...this.review,
+            url: this.original.frame.url(),
+            ...(current.noticeContext
+              ? {
+                  title:
+                    `${current.noticeContext.company} · ${current.noticeContext.vacancy}`.slice(
+                      0,
+                      1200
+                    ),
+                }
+              : {}),
+            currentQuestionId: current.question.id,
+            hasDraft: current.hasDraft,
+          },
+        };
+      }
       await this.restoreRoutes();
       await this.view('restore-filter');
       await sleep(this.waitMs);
@@ -512,6 +542,13 @@ class ChatNavigation {
               visit: (chat, read) => this.visit(chat, read),
               verifyCurrent: inactive,
               inactiveToken: token,
+              retainReview: async (review) => {
+                await this.verify();
+                if (review.chat !== this.currentTarget || !review.questionId) {
+                  throw failure('review-unverified');
+                }
+                this.review = review;
+              },
               retainReply: (receipt) => {
                 const reply = browserTextReceipt(receipt, {
                   source: this.ui.id,

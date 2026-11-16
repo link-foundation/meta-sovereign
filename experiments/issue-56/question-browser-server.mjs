@@ -111,6 +111,7 @@ export const questionBrowserServer = async (
     summaryChoices = false,
     noticePolicies = false,
     unreadReview = false,
+    unreadAnswers = false,
     unreadNotices = false,
     unreadReplyView = false,
     afterBrowserEvaluate,
@@ -165,7 +166,11 @@ export const questionBrowserServer = async (
     return route.fulfill({
       contentType: 'text/html',
       body: unreadReview
-        ? unreadFixtureHtml(mode, unreadNotices, unreadReplyView)
+        ? unreadFixtureHtml(
+            { ...mode, ...(unreadAnswers ? { precedingOutgoing: true } : {}) },
+            unreadNotices,
+            unreadReplyView
+          )
         : `${(noticePolicies
             ? noticePolicyHtml()
             : mode.freeText

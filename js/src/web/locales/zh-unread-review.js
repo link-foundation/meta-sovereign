@@ -1,4 +1,25 @@
 export const zhUnreadReview = {
+  'browserUnread.answers': '处理机器人选项，普通回复留待审核',
+  'browserUnread.answersHint':
+    '在未激活的服务窗口中逐一检查未读聊天。完整且精确匹配的已保存答案可选择机器人提供的选项。普通文字只填入草稿：第一个需要审核的聊天会保持打开。后续检查只查看该聊天，直到你回复或无需回复。不调用模型。',
+  'browserUnread.startAnswers': '逐一处理未读答案',
+  'browserUnread.activeAnswers':
+    '正在检查未读问题。可选择已批准的机器人选项；普通回复保留为草稿供你审核。',
+  'browserUnread.pausedAnswers':
+    '答案处理已暂停。开始新一轮前请检查保留的聊天和已保存发件箱。恢复状态不会重复操作。',
+  'browserUnread.held':
+    '聊天 {chat} 已保持打开供审核，草稿已保留。重复检查只查看此聊天，直到你回复或无需回复。',
+  'browserUnread.answer.review': '需要你审核。',
+  'browserUnread.answer.no-reply': '无需回复。',
+  'browserUnread.answer.pending-options': '正在等待机器人提供选项。',
+  'browserUnread.answer.owner-draft': '你原有的草稿已保留。',
+  'browserUnread.answer.prefilled': '草稿已准备供审核；未发送文字。',
+  'browserUnread.answer.selecting': '正在选择精确匹配的机器人选项。',
+  'browserUnread.answer.sent': '已通过发出消息确认机器人选项。',
+  'browserUnread.answer.marked-sent': '你已将此选择标记为已发送。',
+  'browserUnread.answer.unknown': '选项的送达情况不确定；请检查服务聊天。',
+  'browserUnread.answer.failed': '选项已被拒绝；请检查已保存结果。',
+
   'browserUnread.restoredReply':
     '已恢复原聊天、筛选条件和空白输入框。已显示确认的回复 {id}，而非先前的阅读位置。',
   'browserUnread.replyNotRevealed':

@@ -119,6 +119,7 @@ class UnreadPolling {
       confirm: true,
       modelDraft: false,
       ...(input.noticeReplies ? { noticeReplies: true } : {}),
+      ...(input.answerChats ? { answerChats: true } : {}),
     };
     const runtime = {
       controller: new AbortController(),
@@ -133,6 +134,7 @@ class UnreadPolling {
         state: 'active',
         startedAt: this.clock().toISOString(),
         ...(input.noticeReplies ? { noticeReplies: true } : {}),
+        ...(input.answerChats ? { answerChats: true } : {}),
         entries: [],
         coverage: null,
         restoration: null,

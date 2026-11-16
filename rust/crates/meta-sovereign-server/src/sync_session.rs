@@ -10,7 +10,7 @@ use crate::json::Value;
 use crate::record_sync;
 use crate::state::ServerState;
 
-pub const SCHEMA: f64 = 19.0;
+pub const SCHEMA: f64 = 22.0;
 
 fn id() -> String {
     static NEXT: AtomicU64 = AtomicU64::new(0);
@@ -188,9 +188,9 @@ impl SyncSession {
             return Ok(vec![]);
         }
         if event.get("schema") != Some(&Value::Number(SCHEMA)) {
-            return Err(invalid(
-                "SCHEMA_MISMATCH: native data schema is 19; no record admitted",
-            ));
+            return Err(invalid(&format!(
+                "SCHEMA_MISMATCH: native data schema is {SCHEMA}; no record admitted"
+            )));
         }
         let kind = string(event, "type")?;
         if kind == "hello" {

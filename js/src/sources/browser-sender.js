@@ -486,6 +486,7 @@ const senderCapabilities = (platforms) => ({
   textReplySources: () => textReplySources(platforms),
   noticeReplySources: () => noticeReplySources(platforms),
   unreadConversationSources: () => unreadConversationSources(platforms),
+  unreadAnswerReplySources: () => unreadConversationSources(platforms),
   unreadNoticeReplySources: () =>
     unreadConversationSources(platforms).filter(({ id }) =>
       noticeReplySources(platforms).some((source) => source.id === id)
@@ -883,6 +884,8 @@ export const createDefaultSender = ({
       browserFor().unreadConversationSources?.() ?? [],
     unreadNoticeReplySources: () =>
       browserFor().unreadNoticeReplySources?.() ?? [],
+    unreadAnswerReplySources: () =>
+      browserFor().unreadAnswerReplySources?.() ?? [],
     answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
     openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),
