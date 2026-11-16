@@ -83,7 +83,17 @@ pass and attempts to restore the owned view. Stop waits for an admitted save.
 Status recovery never repeats the traversal. Partial coverage stays partial;
 unseen messages and missing timestamps are not reconstructed. Existing explicit
 answer learning can use the saved turns, with private link targets excluded and
-all new answers unapproved. Continuous DOM capture and browser delivery-state
-parity remain unfinished. See [history evidence](case-studies/issue-56/browser-history-archive.md).
+all new answers unapproved. See [history evidence](case-studies/issue-56/browser-history-archive.md).
 
-HH browser reads preserve native pending, failed, sent, delivered and read states. Missing, unfamiliar or conflicting outgoing status icons remain unknown; uncertain bubbles cannot confirm a send or become learned answers. Migration 0021 marks older browser replies without status evidence unknown until reread. Existing saved answers remain owner data. This is per-read evidence; rapid DOM changes between reads and authenticated provider parity remain unfinished. [Delivery verification](case-studies/issue-56/hh-browser-delivery.md).
+HH browser reads preserve native pending, failed, sent, delivered and read states. Missing, unfamiliar or conflicting outgoing status icons remain unknown; uncertain bubbles cannot confirm a send or become learned answers. Migration 0021 marks older browser replies without status evidence unknown until reread. Existing saved answers remain owner data. [Delivery verification](case-studies/issue-56/hh-browser-delivery.md).
+
+A confirmed current-chat watch also snapshots mounted message changes as the DOM
+observer sees them, before the next polling read. Acknowledged archive writes run
+in order; observed text versions and delivery changes survive later removal from
+the pane. Reused message IDs or changed previously observed HH header facts refuse
+attribution. A failed save or a backlog over 64 snapshots or 2 MiB pauses the
+watch; Stop disconnects capture and waits for admitted writes, reporting any gap.
+Status recovery does not restart capture. This covers the confirmed document,
+not other chats or every intermediate synchronous DOM state. Authenticated
+provider parity and all-unread orchestration remain unfinished.
+[Live capture evidence](case-studies/issue-56/hh-live-capture.md).

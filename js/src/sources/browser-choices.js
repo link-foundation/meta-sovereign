@@ -1,5 +1,13 @@
 import { randomBytes } from 'node:crypto';
 import { browserMessageState } from './browser-message-state.js';
+import {
+  browserPaneIdentity,
+  browserPaneHeader,
+} from './browser-pane-identity.js';
+import {
+  observeBrowserHistory,
+  controlBrowserHistory,
+} from './browser-history-observer.js';
 import { writeBrowserNativeInput } from './browser-native-input.js';
 import {
   watchChoiceView,
@@ -50,6 +58,9 @@ import {
 
 // Only these application functions become code. Provider strings remain args.
 const methods = {
+  observeHistory: controlBrowserHistory,
+  flushHistory: controlBrowserHistory,
+  releaseHistory: controlBrowserHistory,
   read: readChoicePublic,
   history: readChoiceHistory,
   prefill: prefillChoiceDraft,
@@ -59,6 +70,10 @@ const methods = {
   release: releaseChoiceClick,
 };
 const source = `(input) => {
+  const readBrowserChoices = (${readBrowserChoices.toString()});
+  const observeBrowserHistory = (${observeBrowserHistory.toString()});
+  const browserPaneIdentity = (${browserPaneIdentity.toString()});
+  const browserPaneHeader = (${browserPaneHeader.toString()});
   const browserMessageState = (${browserMessageState.toString()});
   const messageLinkProperties = (${messageLinkProperties.toString()});
   const browserMessageLinks = (${browserMessageLinks.toString()});
@@ -76,7 +91,7 @@ const source = `(input) => {
   const browserPendingTurn = (${browserPendingTurn.toString()});
   const browserChoiceSuggestions = (${browserChoiceSuggestions.toString()});
   const browserChoiceHistory = (${browserChoiceHistory.toString()});
-  const context = (${createChoiceContext.toString()})(input, ${readBrowserChoices.toString()});
+  const context = (${createChoiceContext.toString()})(input, readBrowserChoices);
   const methods = {${Object.entries(methods)
     .map(([name, method]) => `${name}: ${method.toString()}`)
     .join(',')}};
@@ -123,6 +138,7 @@ export const browserChoiceSpec = (ui) => {
     composer: ui.composer,
     ...(ui.textReply ? { textReply: ui.textReply } : {}),
     ...(ui.noticeContext ? { noticeContext: ui.noticeContext } : {}),
+    ...(ui.paneIdentity ? { paneIdentity: ui.paneIdentity } : {}),
   };
 };
 
@@ -412,9 +428,21 @@ export const createBrowserChoiceActions = ({
     async closeAnswerWatches() {
       closed = true;
       await Promise.allSettled([...opening]);
-      await Promise.allSettled([...handles].map((handle) => handle.close()));
+      const results = await Promise.allSettled(
+        [...handles].map((handle) => handle.close())
+      );
+      const failed = results.find((result) => result.status === 'rejected');
+      if (failed) {
+        throw failed.reason;
+      }
     },
-    async openAnswerWatch({ source, chat, to, browserUrl } = {}) {
+    async openAnswerWatch({
+      source,
+      chat,
+      to,
+      browserUrl,
+      onHistoryWindow,
+    } = {}) {
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       if (closed || !ui.documents || !queue || watches.has(source)) {
@@ -434,6 +462,7 @@ export const createBrowserChoiceActions = ({
             target,
             receiptMs,
             pollMs,
+            onHistoryWindow,
             queue: (work) => queue(source, work),
             released: () => {
               watches.delete(source);

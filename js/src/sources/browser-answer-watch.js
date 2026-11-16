@@ -12,12 +12,45 @@ import {
 import { withInactiveBrowserView } from './browser-inactive-view.js';
 import { scanBrowserConversation } from './browser-conversation-history.js';
 import { normalizeChatScanOptions } from './browser-scan-options.js';
+import { openBrowserHistoryCapture } from './browser-history-capture.js';
 
 const failure = () =>
   Object.assign(new Error('The watched provider page changed or closed.'), {
     code: 'question-watch-page-changed',
     fallback: false,
   });
+
+const openWatchCapture = async (options, page, events, invalidate) => {
+  try {
+    return options.onHistoryWindow
+      ? await openBrowserHistoryCapture(options)
+      : null;
+  } catch (error) {
+    for (const event of events) {
+      page.off(event, invalidate);
+    }
+    throw error;
+  }
+};
+
+const releaseWatch = async ({
+  page,
+  events,
+  invalidate,
+  pending,
+  capture,
+  released,
+}) => {
+  for (const event of events) {
+    page.off(event, invalidate);
+  }
+  try {
+    await Promise.allSettled([...pending]);
+    await capture?.close();
+  } finally {
+    released();
+  }
+};
 
 /** A single owned document. Later reads/writes never reopen or navigate a chat. */
 export const openBrowserAnswerWatch = async ({
@@ -29,6 +62,7 @@ export const openBrowserAnswerWatch = async ({
   receiptMs,
   pollMs,
   released,
+  onHistoryWindow,
 }) => {
   if (!ui.documents || !page?.on || !page?.off) {
     throw failure();
@@ -49,6 +83,12 @@ export const openBrowserAnswerWatch = async ({
   for (const event of events) {
     page.on(event, invalidate);
   }
+  const capture = await openWatchCapture(
+    { document, ui, target, onHistoryWindow },
+    page,
+    events,
+    invalidate
+  );
   const pending = new Set();
   const verifyCurrent = async (verify) => {
     await verify?.();
@@ -57,6 +97,7 @@ export const openBrowserAnswerWatch = async ({
         historyReason: closed ? 'cancelled' : 'document-changed',
       });
     }
+    await capture?.flush();
   };
   const run = (work) => {
     if (closed || changed) {
@@ -66,6 +107,7 @@ export const openBrowserAnswerWatch = async ({
       if (closed || changed) {
         throw failure();
       }
+      await capture?.flush();
       return work();
     });
     pending.add(result);
@@ -97,6 +139,9 @@ export const openBrowserAnswerWatch = async ({
       return run(() =>
         withInactiveBrowserView(document, async (inactive, token) =>
           scanBrowserConversation(document, ui, target, {
+            ...(onHistoryWindow
+              ? { onHistoryWindow: capture.writeWindow }
+              : {}),
             ...options,
             inactiveToken: token,
             verifyRestore: inactive,
@@ -143,14 +188,15 @@ export const openBrowserAnswerWatch = async ({
       );
     },
     close() {
-      closing ??= (async () => {
-        closed = true;
-        for (const event of events) {
-          page.off(event, invalidate);
-        }
-        await Promise.allSettled([...pending]);
-        released();
-      })();
+      closed = true;
+      closing ??= releaseWatch({
+        page,
+        events,
+        invalidate,
+        pending,
+        capture,
+        released,
+      });
       return closing;
     },
   };

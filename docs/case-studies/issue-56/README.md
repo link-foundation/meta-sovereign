@@ -573,3 +573,8 @@ focused checks verify trigger completion and explicit shutdown; wider desktop
 acceptance remains open.
 
 [Browser history checkpoints](browser-history-archive.md) persist verified native windows before scrolling, retain edit versions and hidden-link privacy, stop on refused storage and drain admitted writes. Six exact-parent regressions, focused checks, native physical reopen and independent MCP evidence preserve partial coverage; HH11 and every unchecked criterion remain active.
+
+[Confirmed live browser capture](hh-live-capture.md) records observed mounted
+message mutations before polling, retains canonical edit and delivery changes,
+rejects reused HH pane ownership and drains admitted writes on Stop. Authenticated
+provider parity and all-unread orchestration remain unfinished; HH11 stays open.

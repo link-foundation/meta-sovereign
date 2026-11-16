@@ -10,6 +10,70 @@ import {
 } from '../../experiments/issue-56/question-watch-fixture.mjs';
 import { summaryChoiceMessage } from '../../experiments/issue-56/summary-choice-fixture.mjs';
 
+test('a Stop-time capture gap remains paused and recoverable without restarting', async () => {
+  const env = await questionWatchFixture({
+    closing() {
+      throw Object.assign(new Error('Capture stopped'), {
+        code: 'question-history-capture-gap',
+      });
+    },
+  });
+  env.state.snapshot.hasDraft = true;
+  env.input.review = (await env.browser.inspect(env.review.target)).id;
+  try {
+    await env.browser.watchStart(env.input);
+    await assert.rejects(env.browser.watchStop(env.input), {
+      code: 'question-history-capture-gap',
+    });
+    const status = await env.browser.watchStatus(env.input);
+    assert.equal(status.state, 'paused');
+    assert.equal(status.reason, 'question-history-capture-gap');
+    assert.equal(status.owned, false);
+    await env.browser.watchStart(env.input);
+    assert.equal(env.state.opens, 1);
+  } finally {
+    await env.browser.close();
+  }
+});
+
+test('confirmed watches attach live snapshots to the canonical archive through the shared service', async () => {
+  const env = await questionWatchFixture();
+  env.state.snapshot.hasDraft = true;
+  env.input.review = (await env.browser.inspect(env.review.target)).id;
+  const original = env.send.openAnswerWatch;
+  let observe;
+  env.send.openAnswerWatch = (input) => {
+    observe = input.onHistoryWindow;
+    return original(input);
+  };
+  try {
+    await env.browser.watchStart(env.input);
+    assert.equal(typeof observe, 'function');
+    await observe({
+      chat: env.review.target.chat,
+      rows: [
+        {
+          id: '105',
+          body: 'Owner observation',
+          outgoing: true,
+          delivery: 'read',
+        },
+      ],
+    });
+    const saved = await env.store.get(
+      `msg:${env.review.target.source}:${env.review.target.chat}:105`
+    );
+    assert.equal(saved.body, 'Owner observation');
+    assert.equal(saved.delivery, 'read');
+    await env.browser.watchStop(env.input);
+    const opens = env.state.opens;
+    await env.browser.watchStart(env.input);
+    assert.equal(env.state.opens, opens);
+  } finally {
+    await env.browser.close();
+  }
+});
+
 test('watch start requires an exact reviewed page, real capability and explicit confirmation', async () => {
   const env = await questionWatchFixture();
   try {

@@ -9,10 +9,18 @@ import {
   readQuestionWatch,
 } from './question-watch-records.js';
 import { createQuestionWatchCycle } from './question-watch-cycle.js';
+import { archiveBrowserHistoryWindow } from '../sources/browser-history-archive.js';
 
 const openWatch = async (context, runtime, review) => {
   await context.store.put(runtime.record);
-  runtime.handle = await context.send.openAnswerWatch(review.target);
+  runtime.handle = await context.send.openAnswerWatch({
+    ...review.target,
+    onHistoryWindow: (window) =>
+      archiveBrowserHistoryWindow(context.store, {
+        ...window,
+        source: review.target.source,
+      }),
+  });
   const snapshot = checkBrowserQuestion(
     await runtime.handle.read({
       preserveDraft: runtime.record.noticeReplies === true,
@@ -40,6 +48,12 @@ export const createQuestionBrowserWatches = ({
     runtime.release ??= (async () => {
       try {
         await runtime.handle?.close();
+      } catch (error) {
+        await saveQuestionWatch(context, runtime, {
+          state: 'paused',
+          reason: error.code ?? 'question-watch-failed',
+        });
+        throw error;
       } finally {
         running.delete(runtime.record.id);
         slots.delete(runtime.record.target.source);

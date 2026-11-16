@@ -68,6 +68,13 @@ export const HH_WEB_UI = {
   composer: 'textarea[data-qa="text-input"]',
   location: { origins, pathPattern: '^/chat/(\\d{1,30})/?$' },
   documents: { ownerOrigins: origins, ancestorOrigins: origins, maxFrames: 32 },
+  paneIdentity: {
+    fields: [
+      '[data-qa="participant-info-title"]',
+      '[data-qa="chatik-header-sub-header"]',
+      '[data-qa="chatik-header-sub-header"] a[href*="/vacancy/"]',
+    ],
+  },
   chatScan: {
     pathPattern: '^/chat/?$',
     unreadFilter: {

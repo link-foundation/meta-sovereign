@@ -653,10 +653,13 @@ export const createBrowserSender = ({
 
     /** Close every page that was opened. */
     close: async () => {
-      await scans.closeChatScans();
-      await texts.closeTextReplies();
-      await choices.closeAnswerWatches();
-      await pool.closeAll();
+      try {
+        await scans.closeChatScans();
+        await texts.closeTextReplies();
+        await choices.closeAnswerWatches();
+      } finally {
+        await pool.closeAll();
+      }
     },
   };
 };

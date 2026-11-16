@@ -56,7 +56,14 @@ CLI：`meta-sovereign automations answers browser watch --id=<review-id>
 消息版本。保存失败会停止遍历，并在仍持有视图控制权时尝试恢复原视图。
 停止操作会等待已开始的保存完成。恢复状态不会重新遍历聊天。部分历史仍
 标记为部分；不会补造未见消息或未知时间。现有的显式答案学习可以使用归档，
-排除私密链接目标，所有新答案仍需批准。连续 DOM 捕获和浏览器送达状态的
-完整支持仍未完成。[历史验证证据](case-studies/issue-56/browser-history-archive.md)。
+排除私密链接目标，所有新答案仍需批准。[历史验证证据](case-studies/issue-56/browser-history-archive.md)。
 
-HH 浏览器读取保留原生 pending、failed、sent、delivered 和 read 状态。缺失、未知或矛盾的发出状态图标保持 unknown，不能确认发送或用于学习答案。迁移 0021 将无送达证据的旧浏览器回复标为 unknown，直到重新读取。已保存答案仍由所有者保留。读取之间的快速 DOM 变化捕获和真实登录提供方验证仍未完成。[送达验证](case-studies/issue-56/hh-browser-delivery.md)。
+HH 浏览器读取保留原生 pending、failed、sent、delivered 和 read 状态。缺失、未知或矛盾的发出状态图标保持 unknown，不能确认发送或用于学习答案。迁移 0021 将无送达证据的旧浏览器回复标为 unknown，直到重新读取。已保存答案仍由所有者保留。[送达验证](case-studies/issue-56/hh-browser-delivery.md)。
+
+已确认的当前聊天监视会在 DOM 观察器收到变化时捕获已挂载消息，早于下一次
+轮询。归档按顺序确认写入；观察到的文字版本和送达变化在面板移除消息后仍会
+保留。其他聊天复用消息 ID，或先前观察到的 HH 标题变化时，拒绝归属。
+写入失败，或积压超过 64 个快照或 2 MiB 时暂停监视。停止会断开捕获并等待
+已接收的写入完成，同时报告捕获缺口。恢复状态不会重启捕获。范围仅限已确认
+的文档，不包括其他聊天或每个同步 DOM 中间状态。真实登录提供方验证及所有
+未读聊天的编排仍未完成。[实时捕获证据](case-studies/issue-56/hh-live-capture.md)。

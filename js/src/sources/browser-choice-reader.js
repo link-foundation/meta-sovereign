@@ -3,6 +3,7 @@ import { browserPendingTurn } from './browser-pending-turn.js';
 import { browserNoticeContext } from './browser-notice-context.js';
 import { messageLinkProperties } from '../message-link-targets.js';
 import { browserMessageState } from './browser-message-state.js';
+import { browserPaneIdentity } from './browser-pane-identity.js';
 
 /** Read destinations as data only. Oversized or unresolvable links refuse capture. */
 export const browserMessageLinks = (body) => {
@@ -93,6 +94,10 @@ export const browserChoiceHistory = (
       ? node.getAttribute(spec.messages.timestampAttribute)
       : null,
   }));
+  const pane = browserPaneIdentity(spec, chat, messages);
+  if (pane) {
+    return pane;
+  }
   const latest = rows.at(-1);
   const pendingTurn = historyOnly ? undefined : browserPendingTurn(messages);
   if (pendingTurn?.code) {

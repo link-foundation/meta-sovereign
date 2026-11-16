@@ -35,6 +35,7 @@ export const questionWatchFixture = async (options = {}) => {
       },
       async close() {
         state.closes++;
+        await options.closing?.();
       },
     };
   };

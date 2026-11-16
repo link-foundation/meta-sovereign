@@ -20,7 +20,11 @@ export const verifyHhChoiceWatch = async ({
       await mount(frame());
       const events = ['framenavigated', 'framedetached', 'close'];
       const before = events.map((event) => page.listenerCount(event));
-      const watch = await sender.openAnswerWatch(appArgs);
+      const observed = [];
+      const watch = await sender.openAnswerWatch({
+        ...appArgs,
+        onHistoryWindow: ({ rows }) => observed.push(...rows),
+      });
       try {
         const current = await watch.read();
         assert.deepEqual(current.answerOptions, ['Yes.', 'No.']);
@@ -36,6 +40,16 @@ export const verifyHhChoiceWatch = async ({
       assert.deepEqual(
         events.map((event) => page.listenerCount(event)),
         before
+      );
+      assert.equal(
+        observed.some((row) => row.id === '101'),
+        true
+      );
+      assert.equal(
+        observed.some(
+          (row) => row.id === '102' && row.delivery === 'delivered'
+        ),
+        true
       );
       await assert.rejects(watch.read(), {
         code: 'question-watch-page-changed',

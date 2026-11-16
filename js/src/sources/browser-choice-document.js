@@ -3,6 +3,7 @@ import {
   browserInactiveView,
   prepareBrowserInactiveView,
 } from './browser-inactive-view.js';
+import { bindBrowserHistory } from './browser-history-binding.js';
 
 const failure = () =>
   Object.assign(
@@ -159,6 +160,10 @@ const resolveBrowserDocument = async (
   };
   const ownerFrame = page.mainFrame();
   return {
+    async bindHistory(token, onSnapshot) {
+      await assertCurrent();
+      return bindBrowserHistory(page, selected.frame, token, onSnapshot);
+    },
     async prepareInactiveView() {
       await assertCurrent();
       await prepareBrowserInactiveView(page);
@@ -180,7 +185,7 @@ const resolveBrowserDocument = async (
       if (args.length > 1) {
         throw failure();
       }
-      if (args[0]?.operation === 'release') {
+      if (['release', 'releaseHistory'].includes(args[0]?.operation)) {
         return selected.frame.evaluate(fn, args[0]);
       }
       await assertCurrent();
