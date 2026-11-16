@@ -3,10 +3,10 @@
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { _electron as electron } from 'playwright';
 import { decodeWire, LINO_TEXT } from '../../js/src/transport/lino.js';
 
 const closeApplication = async (application) => {
@@ -88,6 +88,8 @@ export const launchPackagedDesktop = async (binary, screenshot) => {
     'true',
     'packaged launch belongs on an isolated CI runner'
   );
+  // Portable receipt checks do not need the Node-only native launch dependency.
+  const { _electron: electron } = createRequire(import.meta.url)('playwright');
   const directory = await mkdtemp(join(tmpdir(), 'packaged-desktop-launch-'));
   const feed = createServer((_request, response) => {
     response.writeHead(404);

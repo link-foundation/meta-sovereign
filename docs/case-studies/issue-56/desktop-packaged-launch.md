@@ -32,3 +32,25 @@ reason, so a navigation failure cannot masquerade as a healthy refusal check.
 The [before log](evidence/local/desktop-packaged-route-before.txt) and
 [after log](evidence/local/desktop-packaged-route-after.txt) preserve this
 check against the initial `fc9907a4` probe and its correction.
+
+Hosted macOS job [133374773400](https://github.com/link-foundation/meta-sovereign/actions/runs/43888804975/job/133374773400)
+passes on `b558bd74`. Its log line 1264 reports the actual packaged ARM64
+application, one visible protected window, healthy backend, completed runtime
+drain and clean exit. The updater's local 404 is the deliberately unavailable
+fixture feed; it does not prevent boot or shutdown. The screenshot below comes
+from that native application, using its throwaway empty store.
+
+![Packaged macOS ARM64 application](../../screenshots/issue-56-packaged-macos-arm64.png)
+
+The same revision fails Deno type checking before the tests run: the newly
+imported validator statically loads the optional Node Playwright package.
+Five downloaded Linux/Windows shard logs retain `TS2307`; the Linux shard 3
+error is at line 3002. A single focused Deno test reproduces it locally.
+The native launcher now loads Playwright through Node's `createRequire` only
+after the isolated-CI guard. The portable validator passes type checking and
+its refusal/positive test on Deno and Node without loading Playwright. Type
+checking and the native launch gate remain enabled. Hosted verification of
+the correction is still required; no inventory criterion is accepted here.
+
+Evidence: [archive](data/desktop-packaged-launch.tar.gz) and
+[manifest](data/desktop-packaged-launch.tar.sha256.json).

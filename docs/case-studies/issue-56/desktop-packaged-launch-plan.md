@@ -20,8 +20,13 @@ its positive case passes. The native launch also waits for a visible renderer
 and the runtime's completed-drain trace, and rejects forced process exit.
 These local checks do not establish native macOS launch success.
 
-- [ ] Publish this atomic verification step, inspect its exact-head job and
-      preserve the native receipt and screenshot before accepting VD09.
+- [x] Publish the verification step and preserve the exact `b558bd74` native
+      ARM64 receipt and screenshot from successful job 133374773400.
+- [x] Preserve five Deno shard logs and reproduce their static Playwright
+      import failure in the single portable validator test. Load the native
+      dependency only inside the guarded Node launcher; keep type checking.
+- [ ] Recheck the correction on hosted runners, map the complete original
+      VD09 requirement and satisfy the overall acceptance gate before accepting it.
 
 This does not claim a Gatekeeper dialog, macOS 15 manual interaction, native
 launch on another CPU, live provider authorization or authenticated parity.
