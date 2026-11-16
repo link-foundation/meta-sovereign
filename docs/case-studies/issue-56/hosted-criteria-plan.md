@@ -86,6 +86,8 @@ also requires exact-head hosted verification and review in the source audit.
 
 Parent `bf15f721` fails four experience publication checks in each Windows
 runtime. Its [raw failures and scoped long-path investigation](ci-publication-long-paths.md)
-remain preserved. The current selected source is `9d31c3e7`; none of its twelve
+remain preserved. Published `9d31c3e7` now passes all three native Windows
+comparisons, but retains the separately reproduced broad publication selector.
+Select the next published source with the scoped helpers; none of its twelve
 audit candidates is accepted until all five fresh workflows and their semantic
 receipts pass. Other unchecked original criteria remain required in PR57.

@@ -7,8 +7,11 @@ published source being audited. The
 [active plan](hosted-criteria-plan.md) retains that gate and the unresolved
 earlier VK24 reload investigation. No inventory row is completed by this draft.
 
-Published `9d31c3e7` is the current source selected for this audit. Its fresh
-five-workflow gate remains pending. Parent `bf15f721` fails the same four
+Published `9d31c3e7` passes the native Windows long-path comparisons, while its
+publication helpers still contain the independently reproduced
+[two-panel selector failure](ci-publication-panels.md). Select the next published
+source containing the scoped helper correction for the complete five-workflow
+gate. Parent `bf15f721` fails the same four
 [experience publication checks](ci-publication-long-paths.md) in all three
 Windows runtimes, so it cannot complete acceptance. No criterion is accepted
 until the original behavior mapping and all five exact-source receipts pass.
@@ -60,7 +63,7 @@ behavior; no automatic policy is enabled by reading or upgrading configuration.
 
 ## Evidence integrity and later source changes
 
-`python -B experiments/issue-56/audit-hosted-criteria.py 9d31c3e7` streams 24
+`python -B experiments/issue-56/audit-hosted-criteria.py REVISION` streams 24
 existing archives, checks every entry against its committed SHA-256 manifest
 and records the selected published production source hashes and their differences.
 It does not extract archives or run a local test matrix. All 1,693 entries pass,

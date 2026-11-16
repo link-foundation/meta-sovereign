@@ -115,8 +115,10 @@ by this plan change, and all other requested work remains required in PR57.
       diagnostics and a finite native comparison; pass 22 Node and eight Deno
       focused checks with limited concurrency.
 - [x] Publish the long-path correction as 9d31c3e7.
-- [ ] Verify native Windows failure/success receipts
-      and every exact-head workflow. The full 60 unchecked requirements remain
+- [x] Verify native Windows failure/success receipts on Node, Deno and Bun;
+      retain all three 321-character comparisons and the four original passing checks.
+- [ ] Verify every exact-head workflow after the separate browser helper correction.
+      The full 60 unchecked requirements remain
       active; no criterion is accepted by a diagnostic or partial correction.
 
 2026-11-16 publication browser ownership:

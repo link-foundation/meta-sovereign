@@ -6,6 +6,10 @@
     "ci-logs/ci-bf15-windows-deno-133562828649.log": "4e949428dd47164a9dab06544b36ff6c783376c9d5994eae976e878eb729ee3a",
     "ci-logs/ci-bf15-windows-node-133562828810.log": "0e674cb68c04fc91d17768cd5986a79f8f106110d4f9dedeb0833c437c47b48b",
     "ci-logs/ci-bf15-windows-bun-133562828672.log": "ab9261866cd487f87baccb2d8444f027daa0fe74af71d9887a45ee1d65465a12",
+    "ci-logs/ci-9d31-windows-node-133576613964.log": "7ac38fac137f952c65264b11218cbc333c12fdbe80dc9752c1de26ca16ceadca",
+    "ci-logs/ci-9d31-windows-node2-133576614147.log": "cb80d7fee58c4c6b1b3f5ec27c2c54f8b81462f8cf79096121548875b51e430d",
+    "ci-logs/ci-9d31-windows-deno1-133576614241.log": "30567a1502a2c6af905b1384aba3709f2787c4b8a74a09b7a550a4aaa63cfcc2",
+    "ci-logs/ci-9d31-windows-bun-133576613983.log": "cfe7e17ff62322908e11718977af838af832987260301c960418cd911e94d511",
     "ci-logs/publication-long-path-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "ci-logs/publication-long-path-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
     "duplication.json": "c2998decb5d2cb1ea8fac8beaff58cbcae17ec482a30f727b2668c3a9b3c1673",
@@ -13,11 +17,11 @@
     "js/tests/cv-publication-long-paths.test.js": "7ff5aada97d2982124efdcef3a59f8df85e1b85cb1b1d3fb1f198c5efd40c08a",
     "js/tests/cv-publication-experience.test.js": "f6ff773a4b4748c233d06ca9a970a617ba9f0f716bdd692eab124014a74e53e4",
     "experiments/issue-56/publication-long-path-fixture.mjs": "8934df134ffb8d705b130d0b2dd84c39d9d0d9b80f9aaf667ef0364dbb00af80",
-    "experiments/issue-56/collect-publication-long-paths.py": "aec918472b6a279d0b74fe636777aec94422116a7070e06f05cf258bbd56432a",
+    "experiments/issue-56/collect-publication-long-paths.py": "c53d76f42bc732dc6b57c798d1aebaf91ae0087868c4303f14a8d1d3e4f1540b",
     "experiments/issue-56/cv-publication-fixture.mjs": "2e5274b00ed5e094477e477a1ffff6ae9cf245f5e3839f1416a30bdb96a68bdc",
-    "docs/case-studies/issue-56/ci-publication-long-paths.md": "5cb52b2f7c85b5b06c6ced3a55cc317fef19b856fcd70431c62763206862531f",
+    "docs/case-studies/issue-56/ci-publication-long-paths.md": "4e398bccc1952d7bc99629a98f248dc00cac583fb8f8d67a337c4af800563991",
     "before/js/src/jobs/cv-publication-git.js": "9336029c8b76cb87d54db721431e571a0cd4fed62433cbe41c4b7b5aaa5424d2",
     "before/js/tests/cv-publication-experience.test.js": "f6ff773a4b4748c233d06ca9a970a617ba9f0f716bdd692eab124014a74e53e4",
-    "metadata.json": "ece0e301861173a2b7bc278619e802f6653772a2f720646c73f8b91b4bd87a7e"
+    "metadata.json": "4c4f126ffb39d24943dbefefcd454f2e727a0bd5914165f98b189cbfe575871d"
   }
 }
