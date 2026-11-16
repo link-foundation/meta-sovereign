@@ -15,6 +15,7 @@ import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { Busy } from './spinner.js';
 import { VacanciesPanel } from './vacancies-panel.js';
+import { CvExperienceComparison } from './cv-experience-view.js';
 
 const el = React.createElement;
 
@@ -459,6 +460,10 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
     el(ComparisonTable, {
       key: 'cmp',
       comparison: state.comparison?.comparison ?? null,
+    }),
+    el(CvExperienceComparison, {
+      key: 'experience',
+      comparison: state.comparison?.comparison?.experience ?? null,
     }),
     el('h3', { key: 'sync-h' }, t('cv.syncTitle')),
     el(SyncPlan, { key: 'sync', result: state.sync }),

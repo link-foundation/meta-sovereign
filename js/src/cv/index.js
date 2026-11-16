@@ -36,6 +36,7 @@ import { getCvPlatform, listCvPlatforms } from './platforms/index.js';
 import { createCvRunner } from './runner.js';
 import { openBrowserSession } from './browser.js';
 import { resolveBrowserPolicy } from '../browser/policy.js';
+import { compareCvExperience } from './experience.js';
 
 export {
   BROWSER_PACKAGES,
@@ -46,6 +47,8 @@ export {
   withBrowserSession,
 } from './browser.js';
 export * from './diff.js';
+export * from './experience.js';
+export * from './experience-report.js';
 export * from './model.js';
 export * from './telemetry.js';
 export {
@@ -194,7 +197,10 @@ export const loadStoredCvs = async (store, platformIds = null) => {
  * @param {Array<{platform: string, cv: object, capturedAt?: string}>} entries
  * @param {{prefer?: string|null}} [options] platform that wins ties
  */
-export const compareAllCvs = (entries = [], { prefer = null } = {}) => {
+export const compareAllCvs = (
+  entries = [],
+  { prefer = null, experience = {} } = {}
+) => {
   const matrix = compareCvs(entries);
   const plan = reconcileCvs(entries, { prefer });
   const updates = {};
@@ -210,6 +216,7 @@ export const compareAllCvs = (entries = [], { prefer = null } = {}) => {
   }
   return {
     ...matrix,
+    experience: compareCvExperience(entries, experience),
     plan,
     updates,
     agreed: matrix.rows.filter(

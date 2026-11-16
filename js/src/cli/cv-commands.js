@@ -16,6 +16,7 @@ import {
   compareAllCvs,
   cvPlatformCatalogue,
   diffAllCvs,
+  formatExperienceComparison,
   dryRunPlan,
   getCvPlatform,
   listCvPlatforms,
@@ -191,6 +192,9 @@ const diffCmd = async (args, log, openStore) => {
   }
   log(`platforms: ${entries.map((entry) => entry.platform).join(', ')}`);
   log(`agreed on ${comparison.agreed} of ${comparison.rows.length} fields`);
+  if (comparison.experience) {
+    log(formatExperienceComparison(comparison.experience));
+  }
   for (const row of comparison.rows.filter(
     (item) => item.conflict || item.missing.length
   )) {

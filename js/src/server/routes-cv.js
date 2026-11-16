@@ -125,7 +125,10 @@ const handleCompare = async (store, req, res, p) => {
     const entries = await entriesFor(store, body);
     return json(res, 200, {
       entries,
-      comparison: compareAllCvs(entries, { prefer: body.prefer ?? null }),
+      comparison: compareAllCvs(entries, {
+        prefer: body.prefer ?? null,
+        experience: body.experience ?? {},
+      }),
       diffs: diffAllCvs(entries, body.canonical ?? null),
     });
   });
