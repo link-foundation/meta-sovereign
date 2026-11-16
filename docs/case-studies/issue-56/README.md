@@ -1,3 +1,4 @@
+- [Observed runner settings](runner-session-controls.md): shared translated controls, read-only recovery and no mutation replay, with parent/native/MCP evidence; preparation, profile editing and independent desktop ownership remain required.
 - [Shared runner API and connected CLI](runner-session-api.md): fixed local/server controls, both Lino encodings, protected admission and owned shutdown draining; UI, preparation and application readiness remain required.
 - [Explicit local/SSH session CLI](runner-session-control.md): positive backend observations, retained profile ownership and cancelled-child draining; automatic preparation, actual readiness and shared Lino/UI integration remain required.
 - [Deno hash instrumentation](ci-digest-deno.md): actual published failures and a finite descriptor re-entry trace; preserve the production read limit and all original assertions. Hosted resolution remains required.

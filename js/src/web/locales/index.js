@@ -16,6 +16,7 @@ import { zh } from './zh.js';
 import { hi } from './hi.js';
 import { diagnosticsLocale } from './diagnostics.js';
 import { vkTokenLocale } from './vk-token.js';
+import { runnerLocale } from './runner.js';
 
 export const dictionaries = Object.fromEntries(
   Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
@@ -24,6 +25,7 @@ export const dictionaries = Object.fromEntries(
       ...dictionary,
       ...diagnosticsLocale(language),
       ...vkTokenLocale(language),
+      ...runnerLocale(language),
     },
   ])
 );

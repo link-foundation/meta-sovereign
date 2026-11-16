@@ -55,8 +55,8 @@ documented prerequisites on each execution host.
 SSH uses existing host-key and key authentication with batch mode;
 it does not accept unknown host keys or request passwords. This screen backend
 requires a compatible host. Missing tools, refused SSH and malformed status
-output report `unknown` and prevent a switch. Automatic dependency preparation,
-desktop controls and full remote workflow integration remain under development.
+output report `unknown` and prevent a switch. Automatic dependency preparation
+and full independent desktop workflow integration remain under development.
 
 Starting one mode first confirms the other is stopped, requesting its stop
 when necessary. It then rechecks the destination and starts only when its
@@ -98,6 +98,14 @@ that transport before releasing its controller lease. Closing the API does not
 stop a detached session. Read status after reconnecting. The private durable
 binding still retains the target if a start or stop was interrupted.
 
-These controls are a CLI/API foundation for the active
+Open **Settings → Runner sessions → Show session controls** to observe or
+control the same configured targets in the shared desktop/browser UI. The
+closed panel performs no probes. Unknown or stale state disables starts;
+retained observations stay visible during read recovery. Closing the panel
+disposes its polling and never implies the session was stopped. Local execution
+runs on the connected server's machine. Profile editing is currently through
+the readable file described above.
+
+These controls are a shared session foundation for the active
 [desktop execution work](case-studies/issue-56/vk-desktop-execution-plan.md),
 not acceptance of the remaining issue requirements.

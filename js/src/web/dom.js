@@ -42,6 +42,7 @@ import { createFeedbackApi } from './feedback-api.js';
 import { createStickerCollectionsApi } from './sticker-collections-api.js';
 import { createVkProviderApi } from './vk-provider-api.js';
 import { createVkTokenApi } from './vk-token-api.js';
+import { createRunnerApi } from './runner-api.js';
 import { openTelegramAccountEvents } from './telegram-capabilities.js';
 import { createBroadcastApi } from './broadcast-api.js';
 import { createFormsApi } from './forms-api.js';
@@ -542,6 +543,7 @@ const automationCall =
 
 const rawApi = {
   ...createVkTokenApi({ serverFetch, serverResponse }),
+  ...createRunnerApi({ serverResponse }),
   diagnosticSettings: (signal) =>
     serverFetch('/api/diagnostics/settings', { signal }, { recover: false }),
   saveDiagnosticSettings: async (input, signal) => {
