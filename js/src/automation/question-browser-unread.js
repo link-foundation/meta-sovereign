@@ -1,3 +1,4 @@
+import { archiveBrowserHistoryWindow } from '../sources/browser-history-archive.js';
 import { normalizeUnreadScanOptions } from '../sources/browser-unread-conversations.js';
 import { normalizeAnswerAction } from './question-answers.js';
 import { normalizeAnswerEnvironment } from './question-context.js';
@@ -83,6 +84,24 @@ const executeUnreadReview = async ({
         source: record.source,
         ...record.settings,
         signal: controller.signal,
+        onHistoryWindow: async (window) => {
+          const captured = await archiveBrowserHistoryWindow(context.store, {
+            ...window,
+            source: record.source,
+            signal: controller.signal,
+          });
+          const previous = record.archive ?? {
+            windows: 0,
+            observations: 0,
+            changed: 0,
+          };
+          record.archive = {
+            windows: previous.windows + 1,
+            observations: previous.observations + captured.observed,
+            changed: previous.changed + captured.changed,
+          };
+          await save(record);
+        },
         ...(record.noticeReplies
           ? {
               onConversation: (observation, handle) =>

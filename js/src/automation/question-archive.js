@@ -30,6 +30,7 @@ const messageProjection = (message) => {
     status: message.status,
     out: message.out,
     outgoing: message.outgoing,
+    links: message.links,
   };
 };
 

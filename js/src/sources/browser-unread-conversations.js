@@ -96,6 +96,7 @@ export const scanUnreadBrowserConversations = ({
                 inactiveToken: token,
                 verifyCurrent: verify,
                 verifyRestore: verify,
+                onHistoryWindow: options.onHistoryWindow,
               },
               {
                 readNewest: async () => {
@@ -112,6 +113,15 @@ export const scanUnreadBrowserConversations = ({
                 },
               }
             );
+            if (history.coverage.reason === 'history-save-failed') {
+              throw Object.assign(
+                new Error('Conversation history could not be saved.'),
+                {
+                  code: 'question-history-save-failed',
+                  fallback: false,
+                }
+              );
+            }
             await verify();
             const observation = {
               ...row,

@@ -11,10 +11,12 @@ const bounded = (value, fallback, minimum, maximum) => {
 
 export const normalizeChatScanOptions = (options = {}) => {
   if (
-    options.unreadOnly !== undefined &&
-    typeof options.unreadOnly !== 'boolean'
+    (options.unreadOnly !== undefined &&
+      typeof options.unreadOnly !== 'boolean') ||
+    (options.onHistoryWindow !== undefined &&
+      typeof options.onHistoryWindow !== 'function')
   ) {
-    throw Object.assign(new Error('Unread-only selection must be a boolean'), {
+    throw Object.assign(new Error('Invalid browser scan setting'), {
       code: 'bad-chat-scan',
       fallback: false,
     });

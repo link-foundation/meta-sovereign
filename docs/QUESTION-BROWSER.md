@@ -75,3 +75,13 @@ paused/owner-unavailable. A new watch requires a fresh explicit start.
 Validation uses synthetic routed provider pages and the production sender. Live
 signed-in provider parity and all-unread chat orchestration remain unfinished
 issue #56 criteria. See [current-chat evidence](case-studies/issue-56/question-watch.md).
+
+Explicit unread passes now save each verified history window to the selected
+server's normal message archive before scrolling away. Repeated native IDs update
+the same message; observed edits retain message versions. A failed save stops the
+pass and attempts to restore the owned view. Stop waits for an admitted save.
+Status recovery never repeats the traversal. Partial coverage stays partial;
+unseen messages and missing timestamps are not reconstructed. Existing explicit
+answer learning can use the saved turns, with private link targets excluded and
+all new answers unapproved. Continuous DOM capture and browser delivery-state
+parity remain unfinished. See [history evidence](case-studies/issue-56/browser-history-archive.md).

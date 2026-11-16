@@ -45,8 +45,9 @@ const fixtures = Object.fromEntries(
     ['stalled', { marker: false }],
   ].map(([name, options]) => [name, conversationHistoryHtml(options)])
 );
+const checkpoints = process.argv.includes('--checkpoints');
 await writeFile(
-  'ci-logs/conversation-history-mcp-code.js',
+  `ci-logs/${checkpoints ? 'browser-history-archive' : 'conversation-history'}-mcp-code.js`,
   `async (page) => {
   const process = {env:{}};
   ${result.outputFiles[0].text}
@@ -60,6 +61,31 @@ await writeFile(
   const dependencies={now:()=>Date.now(),pause:ms=>page.waitForTimeout(ms)};
   const snapshot=()=>page.evaluate(()=>{const root=document.querySelector('#history'),composer=document.querySelector('textarea');return {top:root.scrollTop,draft:composer.value,selection:[composer.selectionStart,composer.selectionEnd],live:Boolean(window[Symbol.for('meta-sovereign.browser-conversation-history.v1')]),clicks:window.fixture.clicks,sends:window.fixture.sends};});
   const outcomes=[];
+  if (${checkpoints}) {
+    await page.goto('https://hh.ru/chat/7?fixture=ordinary');
+    const before=await snapshot();
+    const saved=new Map();
+    let windows=0;
+    const captured=await conversationContract.scanBrowserConversation(document,ui,'7',{
+      ...options,
+      onHistoryWindow:async ({chat,rows})=>{
+        if(chat!=='7'||!rows.length) throw new Error('Invalid checkpoint identity');
+        const mounted=await page.locator('#history article').evaluateAll(nodes=>nodes.map(node=>node.dataset.qa.replace('chatik-chat-message-','')));
+        if(!rows.every(row=>mounted.includes(row.id))) throw new Error('Window moved before acknowledgement');
+        await page.waitForTimeout(10);
+        for(const row of rows) saved.set(row.id,row);
+        windows++;
+      },
+    },dependencies);
+    if(!captured.coverage.complete||windows<2||saved.size!==expected.length||!expected.every(id=>saved.has(id))||JSON.stringify(before)!==JSON.stringify(await snapshot())) throw new Error('Acknowledged windows or owner restoration missing');
+    let refused=0;
+    const stopped=await conversationContract.scanBrowserConversation(document,ui,'7',{
+      ...options,
+      onHistoryWindow:async()=>{refused++;throw new Error('Private refused checkpoint');},
+    },dependencies);
+    if(refused!==1||stopped.coverage.reason!=='history-save-failed'||stopped.coverage.complete||!stopped.restored||JSON.stringify(before)!==JSON.stringify(await snapshot())||errors.length) throw new Error('Refused checkpoint did not stop and restore');
+    return {cases:2,windows,uniqueMessages:saved.size,acknowledgementBeforeMove:true,refusedWriteStopped:true,ownerRestored:true,errors,liveProvider:false};
+  }
   for(const name of ['ordinary','reversed','stalled']){
     await page.goto('https://hh.ru/chat/7?fixture='+name);
     const before=await snapshot();

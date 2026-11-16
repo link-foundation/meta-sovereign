@@ -9,6 +9,7 @@ import { historyOrder } from '../replies/history-order.js';
 import { questionProse, splitNumberedAnswers } from './question-lists.js';
 import { createAnswerCorrectionGuard } from './question-corrections.js';
 import { withNoticePatterns } from './notice-pattern-learning.js';
+import { messageLinkProperties } from '../message-link-targets.js';
 import {
   noticeCore,
   passiveNotice,
@@ -57,6 +58,17 @@ const privateUrl = (text) => {
     }
   }
   return false;
+};
+const privateMessageLinks = (message) => {
+  try {
+    return (messageLinkProperties(message.links).links ?? []).some(
+      (link) =>
+        !['https:', 'http:'].includes(new URL(link).protocol) ||
+        privateUrl(link)
+    );
+  } catch {
+    return true;
+  }
 };
 const reusable = (text) =>
   text.length <= 12000 &&
@@ -291,6 +303,18 @@ export const createAnswerLearner = ({
   };
   return {
     accept(message) {
+      if (privateMessageLinks(message)) {
+        // A private continuation invalidates the whole pending answer, including
+        // any preceding public fragment. Never learn a truncated response.
+        if (isSelf(message)) {
+          question = null;
+          priorQuestion = null;
+          answers = [];
+        } else {
+          finish();
+        }
+        return;
+      }
       const target = answerTarget(
         question,
         priorQuestion,

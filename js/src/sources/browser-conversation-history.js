@@ -9,6 +9,18 @@ const stopped = (historyReason) => {
   });
 };
 
+const checkpointHistory = async ({ onHistoryWindow }, chat, rows, check) => {
+  if (!onHistoryWindow) {
+    return;
+  }
+  try {
+    await onHistoryWindow({ chat: String(chat), rows });
+  } catch {
+    stopped('history-save-failed');
+  }
+  await check();
+};
+
 /** Overlapping windows establish chronology without interpreting provider IDs. */
 export const mergeConversationWindow = (known, incoming) => {
   if (!known.length) {
@@ -183,6 +195,7 @@ export const scanBrowserConversation = async (
         await check();
       }
       const completed = observed.accept(found, state);
+      await checkpointHistory(options, target, found, check);
       if (completed) {
         reason = completed;
         break;

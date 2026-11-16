@@ -571,3 +571,5 @@ preserved; automatic preparation and independent desktop ownership remain open.
 automation intervals. Three finite parent child-process regressions and 42
 focused checks verify trigger completion and explicit shutdown; wider desktop
 acceptance remains open.
+
+[Browser history checkpoints](browser-history-archive.md) persist verified native windows before scrolling, retain edit versions and hidden-link privacy, stop on refused storage and drain admitted writes. Six exact-parent regressions, focused checks, native physical reopen and independent MCP evidence preserve partial coverage; HH11 and every unchecked criterion remain active.

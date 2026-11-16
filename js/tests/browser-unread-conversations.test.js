@@ -29,6 +29,10 @@ test('unread passes require explicit bounded existing-view admission before open
         { code: 'bad-chat-scan' }
       );
     }
+    await assert.rejects(
+      sender.scanUnreadConversations({ source: 'hh', onHistoryWindow: false }),
+      { code: 'bad-chat-scan' }
+    );
     await assert.rejects(sender.scanUnreadConversations({ source: 'hh' }), {
       code: 'browser-view-unavailable',
     });

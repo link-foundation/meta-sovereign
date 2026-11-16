@@ -255,6 +255,12 @@ test('public conversation scanner validates bounds and capability without launch
         { code: 'bad-chat-scan' }
       );
     }
+    for (const onHistoryWindow of [null, false, 'callback']) {
+      await assert.rejects(
+        sender.scanConversation({ source: 'hh', chat: '7', onHistoryWindow }),
+        { code: 'bad-chat-scan' }
+      );
+    }
     const controller = new AbortController();
     controller.abort();
     await assert.rejects(
@@ -272,4 +278,63 @@ test('public conversation scanner validates bounds and capability without launch
   await assert.rejects(sender.scanConversation({ source: 'hh', chat: '7' }), {
     code: 'browser-closed',
   });
+});
+
+test('conversation checkpoints each accepted window before moving or returning', async () => {
+  const windows = [];
+  const value = fixture({
+    hook: ({ reads }) => {
+      assert.equal(windows.length, reads - 1);
+    },
+  });
+  const result = await run(value, {
+    onHistoryWindow: async (window) => {
+      assert.equal(window.chat, '7');
+      await Promise.resolve();
+      windows.push(window.rows.map((row) => row.id));
+    },
+  });
+  assert.equal(result.coverage.complete, true);
+  assert.deepEqual(windows, [
+    ['z', 'a'],
+    ['application', 'z'],
+  ]);
+  assert.deepEqual(value.releases, [true]);
+});
+
+test('a rejected history checkpoint stops before the next window and restores ownership', async () => {
+  const value = fixture();
+  const result = await run(value, {
+    onHistoryWindow: async () => {
+      throw new Error('private storage diagnostic');
+    },
+  });
+  assert.equal(result.coverage.complete, false);
+  assert.equal(result.coverage.reason, 'history-save-failed');
+  assert.equal(value.reads(), 1);
+  assert.equal(result.restored, true);
+  assert.deepEqual(value.releases, [true]);
+  assert.equal(
+    JSON.stringify(result).includes('private storage diagnostic'),
+    false
+  );
+});
+
+test('cancellation during an admitted history checkpoint drains it before restoration', async () => {
+  const controller = new AbortController();
+  let acknowledged = false;
+  const value = fixture();
+  const result = await run(value, {
+    signal: controller.signal,
+    onHistoryWindow: async () => {
+      controller.abort();
+      await Promise.resolve();
+      acknowledged = true;
+      assert.deepEqual(value.releases, []);
+    },
+  });
+  assert.equal(acknowledged, true);
+  assert.equal(result.coverage.reason, 'cancelled');
+  assert.equal(value.reads(), 1);
+  assert.deepEqual(value.releases, [true]);
 });
