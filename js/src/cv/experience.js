@@ -200,6 +200,11 @@ const snapshotJobs = (value, budget) => {
     return copy;
   });
 };
+/** Detached bounded JSON for private structured experience documents. */
+export const copyExperienceData = (value) =>
+  cloneData(value, { nodes: 16000, characters: 2 * 1024 * 1024 });
+export const validateExperienceJobs = (value) =>
+  snapshotJobs(value, { nodes: 16000, characters: 2 * 1024 * 1024 });
 const companyAliases = (groups) => {
   if (!Array.isArray(groups) || groups.length > 100) {
     fail();

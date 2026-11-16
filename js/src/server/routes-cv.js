@@ -19,6 +19,7 @@
 
 import { json, readBody } from './util.js';
 import { confirmed, offerConfirmation } from './confirmations.js';
+import { handleCvExperienceRoutes } from './routes-cv-experience.js';
 import {
   compareAllCvs,
   cvPlatformCatalogue,
@@ -199,6 +200,7 @@ export const handleCvRoutes = async (store, req, res, p, url, ctx) => {
     return false;
   }
   return (
+    (await handleCvExperienceRoutes(store, req, res, p, url, ctx)) ||
     (await handleCatalogue(store, req, res, p, url)) ||
     (await handleRead(store, req, res, p, ctx)) ||
     (await handleCompare(store, req, res, p)) ||

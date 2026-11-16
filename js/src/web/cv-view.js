@@ -16,6 +16,7 @@ import { useDates, useT } from './i18n.js';
 import { Busy } from './spinner.js';
 import { VacanciesPanel } from './vacancies-panel.js';
 import { CvExperienceComparison } from './cv-experience-view.js';
+import { CvExperienceDocuments } from './cv-experience-documents.js';
 
 const el = React.createElement;
 
@@ -477,6 +478,7 @@ export const CvView = ({ api = defaultApi }) => {
   const state = useCvState(api);
   return el('div', { className: 'col' }, [
     el(CvScreen, { key: 'cv', state, login, setLogin }),
+    el(CvExperienceDocuments, { key: 'documents', api }),
     el(VacanciesPanel, { key: 'vacancies', api }),
   ]);
 };

@@ -18,6 +18,7 @@ import { diagnosticsLocale } from './diagnostics.js';
 import { vkTokenLocale } from './vk-token.js';
 import { runnerLocale } from './runner.js';
 import { cvExperienceLocale } from './cv-experience.js';
+import { experienceFilesLocale } from './cv-experience-files.js';
 
 export const dictionaries = Object.fromEntries(
   Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
@@ -28,6 +29,7 @@ export const dictionaries = Object.fromEntries(
       ...vkTokenLocale(language),
       ...runnerLocale(language),
       ...cvExperienceLocale(language),
+      ...experienceFilesLocale(language),
     },
   ])
 );

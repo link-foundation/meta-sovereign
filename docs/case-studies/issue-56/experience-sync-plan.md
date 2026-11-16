@@ -21,6 +21,11 @@ writer. Generic CV sync therefore does not establish this requirement.
       acknowledged HH exports; refresh only explicitly or when absent. Keep
       LinkedIn in a separate visible persistent slot, with cancellable manual login
       and bounded traversal of load-more results.
+      Partial export/import evidence: [private structured documents](experience-documents.md)
+      preserves complete supplied records, reuses verified HH exports and adds CLI,
+      both Lino encodings and four-language browser import/download/comparison.
+      The live LinkedIn reader, missing-export refresh and complete native metadata
+      acquisition remain unfinished; this checkbox stays open.
 - [ ] Connect existing three-provider translation comparison/cache to directed
       experience planning. Retain side-by-side outputs, invalid-output refusal,
       selected-language direction and reviewed upstream failure reporting.

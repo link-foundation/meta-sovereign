@@ -27,6 +27,7 @@ import {
   syncCvAcross,
 } from '../cv/index.js';
 import { confirmCli } from './confirm.js';
+import { createExperienceCommands } from './cv-experience-commands.js';
 
 export { CV_HELP } from './help.js';
 
@@ -316,6 +317,7 @@ const guarded = (fn) => async (args, log) => {
 export const createCvCommands = ({ openStore, live = {} }) =>
   Object.fromEntries(
     Object.entries({
+      ...createExperienceCommands(openStore),
       'cv-platforms': platformsCmd,
       'cv-plan': planCmd,
       'cv-read': (args, log) => readCmd(args, log, openStore, live),

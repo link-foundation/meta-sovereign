@@ -100,6 +100,12 @@ export const CV_HELP = `  cv-platforms  [--json]
   cv-plan       --platform=<id> [--json]
   cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
   cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
+  cv-experience-import --file=<experience.lino|experience.bin|experience.json> [--store=<dir>]
+  cv-experience-export --revision=<sha256> [--json] [--store=<dir>]
+  cv-experience-stored [--store=<dir>]
+  cv-experience-from-hh --export-id=<id> --resume=<hash> [--browser-slot=jobs] [--store=<dir>]
+  cv-experience-compare --hh=<revision> --linkedin=<revision> [--store=<dir>]
+                Private snapshot interchange only. Reuses a verified native HH export; never opens an editor or saves a provider change.
   cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--store=<dir>]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 

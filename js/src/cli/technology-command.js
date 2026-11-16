@@ -44,12 +44,12 @@ export const technologyCommandInput = async (operation, args) => {
   return boundedCommandFile(args.file);
 };
 
-export const boundedCommandFile = async (file) => {
+export const boundedCommandFile = async (file, limit = 256 * 1024) => {
   const handle = await open(file, 'r');
   try {
     const stat = await handle.stat();
-    if (!stat.isFile() || stat.size > 256 * 1024) {
-      throw new Error('Input files must be at most 256 KiB.');
+    if (!stat.isFile() || stat.size > limit) {
+      throw new Error(`Input files must be at most ${limit / 1024} KiB.`);
     }
     const bytes = Buffer.alloc(stat.size);
     let offset = 0;

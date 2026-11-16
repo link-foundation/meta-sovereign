@@ -1,0 +1,91 @@
+const entries = {
+  en: {
+    title: 'Private experience snapshots',
+    hint: 'Import structured HH or LinkedIn experience, reuse an existing HH export and compare selected snapshots. Files retain original job metadata. Provider changes require a separate review.',
+    file: 'Experience file · Lino, binary Lino or JSON · up to 4 MiB',
+    import: 'Import snapshot',
+    reload: 'Reload saved snapshots',
+    busy: 'Updating snapshots…',
+    error:
+      'The operation was not confirmed. Your file, selections and saved snapshots are retained. Try again.',
+    unknown: 'Saved snapshots could not be confirmed yet.',
+    saved: 'Private snapshot saved: {revision}',
+    truncated:
+      'Only 100 saved snapshots are listed. Use a known revision in the CLI to access older snapshots.',
+    hhExport: 'Existing HH native export',
+    reuseHh: 'Reuse verified HH export',
+    choose: 'Choose a saved snapshot',
+    snapshot: '{platform} snapshot',
+    text: 'Download Lino',
+    binary: 'Download binary Lino',
+    compare: 'Compare selected snapshots',
+  },
+  ru: {
+    title: 'Личные снимки опыта работы',
+    hint: 'Импортируйте структурированный опыт HH или LinkedIn, используйте готовый экспорт HH и сравнивайте выбранные снимки. Файлы сохраняют исходные данные мест работы. Изменения на площадках требуют отдельной проверки.',
+    file: 'Файл опыта · Lino, двоичный Lino или JSON · до 4 МиБ',
+    import: 'Импортировать снимок',
+    reload: 'Обновить список снимков',
+    busy: 'Обновление снимков…',
+    error:
+      'Операция не подтверждена. Ваш файл, выбор и сохранённые снимки сохранены. Повторите попытку.',
+    unknown: 'Сохранённые снимки пока не подтверждены.',
+    saved: 'Личный снимок сохранён: {revision}',
+    truncated:
+      'Показаны только 100 снимков. Более старые снимки доступны в CLI по известной ревизии.',
+    hhExport: 'Готовый нативный экспорт HH',
+    reuseHh: 'Использовать проверенный экспорт HH',
+    choose: 'Выберите сохранённый снимок',
+    snapshot: 'Снимок {platform}',
+    text: 'Скачать Lino',
+    binary: 'Скачать двоичный Lino',
+    compare: 'Сравнить выбранные снимки',
+  },
+  hi: {
+    title: 'निजी कार्य अनुभव स्नैपशॉट',
+    hint: 'HH या LinkedIn का संरचित अनुभव आयात करें, मौजूदा HH निर्यात का उपयोग करें और चुने हुए स्नैपशॉट की तुलना करें। फ़ाइलें नौकरी का मूल मेटाडेटा रखती हैं। प्रदाता पर बदलाव के लिए अलग समीक्षा चाहिए।',
+    file: 'अनुभव फ़ाइल · Lino, बाइनरी Lino या JSON · अधिकतम 4 MiB',
+    import: 'स्नैपशॉट आयात करें',
+    reload: 'सहेजे स्नैपशॉट फिर लोड करें',
+    busy: 'स्नैपशॉट अपडेट हो रहे हैं…',
+    error:
+      'कार्य की पुष्टि नहीं हुई। आपकी फ़ाइल, चयन और सहेजे स्नैपशॉट सुरक्षित हैं। फिर कोशिश करें।',
+    unknown: 'सहेजे स्नैपशॉट की पुष्टि अभी नहीं हुई है।',
+    saved: 'निजी स्नैपशॉट सहेजा गया: {revision}',
+    truncated:
+      'केवल 100 सहेजे स्नैपशॉट दिखते हैं। पुराने स्नैपशॉट के लिए CLI में ज्ञात रिविज़न का उपयोग करें।',
+    hhExport: 'मौजूदा HH मूल निर्यात',
+    reuseHh: 'सत्यापित HH निर्यात का उपयोग करें',
+    choose: 'सहेजा स्नैपशॉट चुनें',
+    snapshot: '{platform} स्नैपशॉट',
+    text: 'Lino डाउनलोड करें',
+    binary: 'बाइनरी Lino डाउनलोड करें',
+    compare: 'चुने स्नैपशॉट की तुलना करें',
+  },
+  zh: {
+    title: '私有工作经历快照',
+    hint: '导入 HH 或 LinkedIn 结构化工作经历，复用现有 HH 导出，并比较所选快照。文件保留原始职位元数据。平台更改需要单独审核。',
+    file: '经历文件 · Lino、二进制 Lino 或 JSON · 最大 4 MiB',
+    import: '导入快照',
+    reload: '重新加载已存快照',
+    busy: '正在更新快照…',
+    error: '操作未获确认。您的文件、选择和已存快照均已保留。请重试。',
+    unknown: '尚未确认已存快照。',
+    saved: '私有快照已保存：{revision}',
+    truncated: '仅列出 100 份快照。可在 CLI 中使用已知版本标识访问较早的快照。',
+    hhExport: '现有 HH 原生导出',
+    reuseHh: '复用已验证的 HH 导出',
+    choose: '选择已存快照',
+    snapshot: '{platform} 快照',
+    text: '下载 Lino',
+    binary: '下载二进制 Lino',
+    compare: '比较所选快照',
+  },
+};
+export const experienceFilesLocale = (locale) =>
+  Object.fromEntries(
+    Object.entries(entries[locale] ?? entries.en).map(([key, value]) => [
+      `experienceFiles.${key}`,
+      value,
+    ])
+  );

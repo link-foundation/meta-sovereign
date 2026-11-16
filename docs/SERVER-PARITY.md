@@ -131,6 +131,13 @@ manual archive import keeps working.
 | `/api/cv/sync`      | POST   | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
 | `/api/cv/telemetry` | GET    | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
 
+The private experience snapshot routes `GET /api/cv/experience/{stored,document}`
+and `POST /api/cv/experience/{import,from-hh,compare}` are also **JS only**,
+implemented in `js/src/server/routes-cv-experience.js`. They retain complete
+original job metadata, require acknowledged private saves and compare explicit
+immutable revisions. The shared CV panel reports unavailable reads and retains
+owner input on refusal. These operations do not edit a provider profile.
+
 These seven routes (R-V16) drive the CV screen described in
 [`docs/CV-SYNC.md`](./CV-SYNC.md). They are JS only for a structural
 reason rather than a scheduling one: `/api/cv/read` and `/api/cv/sync`

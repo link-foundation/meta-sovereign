@@ -1,0 +1,30 @@
+/** Private snapshot operations require an actual acknowledgement, including reads. */
+export const experienceReply = (value) => {
+  if (!value || value.error || value.ok === false || value.httpStatus >= 400) {
+    throw new Error('Experience snapshot operation was not acknowledged.');
+  }
+  return value;
+};
+export const createExperienceApi = ({ get, report }) => ({
+  cvExperienceStored: async () =>
+    experienceReply(await get('/api/cv/experience/stored')),
+  cvExperienceExports: async () =>
+    experienceReply(await get('/api/vacancies/resume-exports-stored')),
+  cvExperienceDocument: async (revision) =>
+    experienceReply(
+      await get(
+        `/api/cv/experience/document?${new URLSearchParams({ revision })}`
+      )
+    ),
+  ...Object.fromEntries(
+    ['import', 'from-hh', 'compare'].map((operation) => [
+      {
+        import: 'cvExperienceImport',
+        'from-hh': 'cvExperienceFromHh',
+        compare: 'cvExperienceCompare',
+      }[operation],
+      async (input) =>
+        experienceReply(await report(`/api/cv/experience/${operation}`, input)),
+    ])
+  ),
+});

@@ -49,6 +49,7 @@ export {
 export * from './diff.js';
 export * from './experience.js';
 export * from './experience-report.js';
+export * from './experience-document.js';
 export * from './model.js';
 export * from './telemetry.js';
 export {
