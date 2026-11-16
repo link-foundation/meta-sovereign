@@ -1,4 +1,5 @@
 // Real production bundle, routes and Lino; only provider RPCs use isolated fixtures.
+import { openFollowDisclosure } from './helpers/follow-disclosure.mjs';
 import { followAutoFixture } from './helpers/follow-auto.mjs';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
@@ -22,7 +23,7 @@ await finish(async () => {
     await page.goto(`${base}/#/automation`);
     await trace('auto-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
-    await card.locator('summary').click();
+    await openFollowDisclosure(card);
     await trace('auto-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);

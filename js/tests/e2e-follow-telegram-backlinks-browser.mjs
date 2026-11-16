@@ -1,7 +1,9 @@
 // The production bundle, routes and Lino codec with only Telegram's SDK RPCs faked.
+import { openFollowDisclosure } from './helpers/follow-disclosure.mjs';
 import { telegramBacklinksFixture } from './helpers/telegram-backlinks.mjs';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
+import { verifyFollowDisclosure } from './helpers/e2e-follow-disclosure.mjs';
 
 const f = await telegramBacklinksFixture();
 const { telegramAccount: _account, ...timing } = f.options;
@@ -23,10 +25,19 @@ await page.addInitScript(() => {
 const trace = await followDisclosureTrace(page, 'backlinks');
 await finish(async () => {
   try {
+    const isolated = await page.context().newPage();
+    try {
+      console.log(
+        '[follow-native-disclosure]',
+        JSON.stringify(await verifyFollowDisclosure(isolated))
+      );
+    } finally {
+      await isolated.close();
+    }
     await page.goto(`${base}/#/automation`);
     await trace('telegram-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
-    await card.locator('summary').click();
+    await openFollowDisclosure(card);
     await trace('telegram-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);

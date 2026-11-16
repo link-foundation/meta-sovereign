@@ -1,4 +1,4 @@
-// Default-off native-event metadata for the unresolved hosted disclosure failure.
+// Default-off native-event metadata for hosted disclosure regressions.
 export const followDisclosureTrace = async (page, panel = 'chats') => {
   if (process.env.CI_FOLLOW_DISCLOSURE_DEBUG !== '1') {
     return async () => {};
@@ -69,6 +69,9 @@ export const followDisclosureTrace = async (page, panel = 'chats') => {
           onSummary: Boolean(summary),
           inside: Boolean(root?.contains(event.target)),
           targetOpen: target?.open,
+          activationKey: ['Enter', ' '].includes(event.key)
+            ? event.key
+            : undefined,
           x: Number.isFinite(event.clientX) ? event.clientX : undefined,
           y: Number.isFinite(event.clientY) ? event.clientY : undefined,
         });
@@ -76,7 +79,15 @@ export const followDisclosureTrace = async (page, panel = 'chats') => {
           records.shift();
         }
       };
-      for (const type of ['pointerdown', 'pointerup', 'click', 'toggle']) {
+      for (const type of [
+        'pointerdown',
+        'pointerup',
+        'click',
+        'toggle',
+        'focusin',
+        'keydown',
+        'keyup',
+      ]) {
         globalThis.addEventListener(type, record, {
           capture: true,
           passive: true,

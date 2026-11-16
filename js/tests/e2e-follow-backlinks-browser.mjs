@@ -1,4 +1,5 @@
 // Production bundle, server and default Lino; only VK's external HTTP is faked.
+import { openFollowDisclosure } from './helpers/follow-disclosure.mjs';
 import { followBacklinksFixture } from './helpers/follow-backlinks.mjs';
 import { followReadWait } from '../src/follow/read-policy.js';
 import { readWireResponse } from '../src/transport/lino.js';
@@ -111,7 +112,7 @@ const verifyPreviewStop = async (card, field, action) => {
   f.state.sleep = undefined;
   await page.goto(`${base}/#/automation`);
   await trace('return-after-navigation');
-  await card.locator('summary').click();
+  await openFollowDisclosure(card);
   await trace('return-after-summary-click');
   await field('chats').fill('2000000007');
   await field('backlink').fill('https://t.me/study_group');
@@ -124,7 +125,7 @@ await finish(async () => {
     await page.goto(`${base}/#/automation`);
     await trace('initial-after-navigation');
     const card = page.locator('[data-follow-backlinks]');
-    await card.locator('summary').click();
+    await openFollowDisclosure(card);
     await trace('initial-after-summary-click');
     const field = (key) =>
       card.locator(`[data-follow-backlink-field="${key}"]`);

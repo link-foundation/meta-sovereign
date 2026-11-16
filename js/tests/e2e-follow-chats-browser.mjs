@@ -1,3 +1,4 @@
+import { openFollowDisclosure } from './helpers/follow-disclosure.mjs';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { followChatsFixture } from './helpers/follow-chats.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
@@ -23,7 +24,7 @@ await finish(async () => {
   await trace('before-navigation');
   await page.goto(`${base}/#/automation`);
   await trace('after-navigation');
-  await panel.locator(':scope > summary').click();
+  await openFollowDisclosure(panel);
   await trace('after-summary-click');
   assert(
     f.calls.length === 0,
