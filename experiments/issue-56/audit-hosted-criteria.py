@@ -1,0 +1,62 @@
+"""Verify archived implementation bytes and record their current source hashes.
+
+This finite audit establishes integrity and source changes, not acceptance.
+Hosted run receipts and the original behavior mapping require separate review.
+It streams archives without extracting files or running local test matrices.
+"""
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tarfile
+
+root = Path(__file__).resolve().parents[2]
+data = root / 'docs/case-studies/issue-56/data'
+revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip()
+names = [
+    'vk-friend-stats', 'vk-friend-priority', 'runner-log',
+    'vk-message-defaults', 'vk-cache', 'vk-stickers', 'vk-discovery',
+    'vk-queue', 'vk-trigger', 'vk-live-history', 'vk-queue-lifecycle',
+    'vk-token', 'vk-token-registration', 'vk-token-electron-entry',
+]
+audits = {}
+with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
+    for name in names:
+        archive = data / f'{name}.tar.gz'
+        manifest = archive.with_suffix('').with_suffix('.tar.sha256.json')
+        expected = json.loads(manifest.read_text())['files']
+        actual = {}
+        sources = {}
+        with tarfile.open(archive, 'r:gz') as tar:
+            for entry in tar:
+                if not entry.isfile():
+                    continue
+                assert entry.name not in actual, f'duplicate entry: {entry.name}'
+                content = tar.extractfile(entry).read()
+                actual[entry.name] = hashlib.sha256(content).hexdigest()
+                source = entry.name.startswith(('js/src/', 'js/electron/')) or entry.name == 'experiments/issue-56/vk-token-electron.mjs'
+                if not source or entry.name.endswith('/app.min.js'):
+                    continue
+                current = (root / entry.name).read_bytes()
+                current_hash = hashlib.sha256(current).hexdigest()
+                sources[entry.name] = {
+                    'archived': actual[entry.name], 'current': current_hash,
+                    'changed': content != current,
+                }
+                if content != current:
+                    delta.writelines(difflib.unified_diff(
+                        content.decode().splitlines(True), current.decode().splitlines(True),
+                        fromfile=f'{name}/{entry.name}', tofile=f'{revision}/{entry.name}'))
+        assert actual == expected, f'archive integrity failure: {name}'
+        audits[name] = {
+            'entries': len(actual), 'sources': sources,
+            'archiveSha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
+            'manifestSha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
+        }
+        print(f'{name}: {len(actual)} verified entries, '
+              f'{sum(source["changed"] for source in sources.values())} changed sources')
+output = {'revision': revision, 'acceptance': False, 'archives': audits}
+(root / 'ci-logs/hosted-criteria-source-audit.json').write_text(
+    json.dumps(output, indent=2) + '\n')
+print(f'All {len(audits)} archives verified without extraction; acceptance remains separate')
