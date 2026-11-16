@@ -145,7 +145,7 @@ export const createVkFriendsJob = ({
           ),
         60000
       );
-      timer.unref?.();
+      // The scheduled job owns process lifetime until stop() clears its timer.
     },
     async stop() {
       stopped = true;

@@ -46,6 +46,9 @@ until every criterion has implementation and verification evidence.
       The [named launch contract](runner-launch-contract.md) corrects the stale
       reference's unsupported start selector with a finite parent regression;
       upstream source evidence and the report remain retained.
+      [Scheduler process lifetime](vk-scheduler-lifetime.md) now retains the
+      standalone runner until explicit stop, with three real-child parent
+      regressions and 42 focused checks. Full VD03 acceptance remains required.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
       cleanup checks. [Persisted catalog compatibility](legacy-catalogs.md) now covers

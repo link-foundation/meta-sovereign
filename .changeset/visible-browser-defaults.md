@@ -2,6 +2,9 @@
 'meta-sovereign': minor
 ---
 
+Keep owned VK scheduler intervals referenced until explicit stop, preventing a
+standalone automation process from exiting before its next trigger (issue #56).
+
 Correct local/SSH runner launches to use start's supported `--session` selector,
 with a finite refusal regression for both modes (issue #56, VD01/VD02).
 

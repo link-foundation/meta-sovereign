@@ -566,3 +566,8 @@ browser-state waits. Hosted acceptance and all unchecked criteria remain active.
 host/worker reads with separate session observations, retained targets and shared
 CLI/Lino/four-language controls. Parent/current and native/MCP evidence is
 preserved; automatic preparation and independent desktop ownership remain open.
+
+[Scheduled process lifetime](vk-scheduler-lifetime.md) removes unreferenced
+automation intervals. Three finite parent child-process regressions and 42
+focused checks verify trigger completion and explicit shutdown; wider desktop
+acceptance remains open.
