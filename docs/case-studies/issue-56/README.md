@@ -1,3 +1,4 @@
+- [Watched dispatch ownership](browser-watch-dispatch.md): reproduce Stop, navigation and policy changes during native arming; recheck before issue while draining already-issued receipts. Wider unread orchestration remains required.
 - [Borrowed unread capture](unread-live-capture.md): retain transient edits and delivery during an owned reply callback, drain archive writes before restoring the view and preserve positive receipts on later storage failure; HH11 remains unfinished.
 
 - [Desktop provider packaging](desktop-provider-packaging.md): actual-parent omission regressions, required browser/Telegram staging, retained dependency overrides and offline adapter checks. Clean hosted installation remains pending; all original incomplete criteria remain required.

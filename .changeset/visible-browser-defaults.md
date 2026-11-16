@@ -651,3 +651,5 @@ later effects after archive failure and retain already witnessed reply receipts.
 Include browser automation and Telegram runtimes in desktop installers, preserve
 shared dependency overrides and validate the staged provider imports before
 packaging instead of accepting omitted optional runtime packages.
+
+Recheck watched browser reply ownership after arming and before native dispatch for strict choices and explicitly authorized text replies. Refuse Stop, navigation and changed-policy races while draining already-issued positive receipts (issue #56, QA14/QA20/HH11).

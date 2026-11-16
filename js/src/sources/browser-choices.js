@@ -313,7 +313,7 @@ export const selectBrowserAnswer = async (
   ui,
   draft,
   target,
-  { receiptMs = 10000, pollMs = 100 } = {}
+  { receiptMs = 10000, pollMs = 100, verifyCurrent } = {}
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
@@ -327,7 +327,7 @@ export const selectBrowserAnswer = async (
       expected,
       option: draft.answer.option,
     },
-    { receiptMs, pollMs }
+    { receiptMs, pollMs, verifyCurrent }
   );
   return {
     via: 'browser',

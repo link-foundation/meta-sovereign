@@ -165,6 +165,7 @@ export const openBrowserAnswerWatch = async ({
         return selectBrowserAnswer(document, ui, draft, target, {
           receiptMs,
           pollMs,
+          verifyCurrent: () => verifyCurrent(verify),
         });
       }),
     replyText: (expected, text, verify) => {
@@ -174,6 +175,7 @@ export const openBrowserAnswerWatch = async ({
         return sendBrowserTextReply(document, ui, target, frozen, text, {
           receiptMs,
           pollMs,
+          verifyCurrent: () => verifyCurrent(verify),
         });
       });
     },
