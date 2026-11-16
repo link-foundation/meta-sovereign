@@ -492,3 +492,8 @@ export {
   readExperiencePlan,
 } from './experience-plan-service.js';
 export { confirmedExperiencePlan } from './experience-plan-receipt.js';
+export {
+  createFormalExperienceReports,
+  previewFormalExperienceReport,
+  readFormalExperienceReport,
+} from './formal-report-service.js';

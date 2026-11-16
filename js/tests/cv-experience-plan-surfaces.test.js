@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setTimeout as delay } from 'node:timers/promises';
-import { startServer } from '../src/server/index.js';
+import {
+  startCvFixtureServer,
+  cvFixtureRequest,
+} from '../../experiments/issue-56/cv-fixture-server.mjs';
 import { createCvCommands } from '../src/cli/cv-commands.js';
 import { createExperienceApi } from '../src/web/cv-experience-api.js';
 import { createExperiencePlanState } from '../src/web/cv-experience-plan-state.js';
@@ -10,44 +13,19 @@ import {
   experiencePlanFixture,
   settledExperiencePlan,
 } from '../../experiments/issue-56/experience-plan-fixture.mjs';
-import {
-  LINO_TEXT,
-  LINO_BINARY,
-  encodeWire,
-  readWireResponse,
-} from '../src/transport/lino.js';
+import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
 
 test(
   'planning API uses private text/binary Lino acknowledgements, trusted mutations and exact immutable revisions',
   { timeout: 10000 },
   async () => {
     const fixture = await experiencePlanFixture();
-    const server = await startServer({
-      port: 0,
+    const server = await startCvFixtureServer({
       store: fixture.store,
       cv: { experiencePlanning: { adapters: fixture.adapters } },
-      enableHandlers: false,
-      enableSync: false,
-      telegramAccount: false,
-      automations: { scheduler: false },
     });
     const base = `http://127.0.0.1:${server.port}/api/cv/experience/plan-`;
-    const request = async (operation, type, input, origin) => {
-      const read = operation === 'status';
-      const response = await fetch(
-        `${base}${operation}${read ? `?${new URLSearchParams(input)}` : ''}`,
-        {
-          method: read ? 'GET' : 'POST',
-          headers: {
-            accept: type,
-            ...(read ? {} : { 'content-type': type }),
-            ...(origin ? { origin } : {}),
-          },
-          ...(read ? {} : { body: encodeWire(input, type) }),
-        }
-      );
-      return { response, row: await readWireResponse(response) };
-    };
+    const request = cvFixtureRequest(base, ['status']);
     try {
       for (const [index, type] of [LINO_TEXT, LINO_BINARY].entries()) {
         const input = fixture.input(`http-plan-${index}`);

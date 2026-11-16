@@ -111,6 +111,11 @@ export const CV_HELP = `  cv-platforms  [--json]
   cv-experience-plan-start --hh=<revision> --linkedin=<revision> --to=<hh|linkedin> [--as-of=YYYY-MM] [--request-id=<id>] [--store=<dir>]
   cv-experience-plan-status --request-id=<id> [--store=<dir>]
   cv-experience-plan-stop --request-id=<id> [--store=<dir>]
+  cv-experience-report-preview --plan-request-id=<id> [--store=<dir>]
+  cv-experience-report-start --plan-request-id=<id> --review=<preview-sha256> [--mode=dry-run|off|publish] [--confirm=true] [--dry-run-issues] [--no-report-formal-ai] [--request-id=<id>] [--store=<dir>]
+  cv-experience-report-status --request-id=<id> [--store=<dir>]
+  cv-experience-report-stop --request-id=<id> [--store=<dir>]
+                Reports default to dry run. Publishing workplace text to link-assistant/formal-ai requires the exact reviewed preview and explicit confirmation.
   cv-experience-compare --hh=<revision> --linkedin=<revision> [--store=<dir>]
                 Private snapshot interchange only. Reuses a verified native HH export; never opens an editor or saves a provider change.
   cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headless|--headed] [--browser-slot=<name>] [--store=<dir>]

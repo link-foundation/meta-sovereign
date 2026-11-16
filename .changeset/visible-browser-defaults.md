@@ -677,3 +677,5 @@ Preserve official HH area identities through native resume exports, Links Notati
 Keep CV actions disabled while initial snapshots and platform metadata load, show the shared loading state, and wait for the responsive shell before experience browser layout assertions.
 
 Read bounded LinkedIn experience card text and the selected profile About in one separately owned tab, retain original private evidence and unobserved absence, and drain cancellation without closing an owner draft.
+
+Preview exact Formal AI workplace translation failures, search existing reports before publication, preserve same-version comments and require explicit consent. Share durable non-replaying reporting, actual acknowledgement URLs and drained Stop through CLI, both Lino encodings and all four CV interface languages. Resolve the existing localized Role label in experience plans.

@@ -22,7 +22,7 @@ const fieldLabel = (field, t) =>
   ].includes(field)
     ? t(`cvExperience.${field}`)
     : field === 'title'
-      ? t('cvExperience.titleField')
+      ? t('cvExperience.role')
       : field === 'about'
         ? t('experiencePlan.about')
         : field === 'media'

@@ -11,6 +11,22 @@ import {
 import { experienceFromHhExport } from '../cv/experience-hh.js';
 import { createLinkedinExperienceService } from '../cv/linkedin-experience-service.js';
 import { createExperiencePlanningService } from '../cv/experience-plan-service.js';
+import {
+  createFormalExperienceReports,
+  previewFormalExperienceReport,
+} from '../cv/formal-report-service.js';
+
+const formalReports = (store, ctx) => {
+  if (ctx.cvExperienceClosing) {
+    throw Object.assign(new Error('Experience reporting has stopped.'), {
+      status: 503,
+    });
+  }
+  return (ctx.cvFormalReports ??= createFormalExperienceReports({
+    store,
+    ...ctx.cvFormalReportOptions,
+  }));
+};
 
 const planningService = (store, ctx) => {
   if (ctx.cvExperienceClosing) {
@@ -57,6 +73,14 @@ const actions = {
       input
     ),
   compare: (store, input) => compareStoredExperience(store, input),
+  'report-preview': (store, input) =>
+    previewFormalExperienceReport(store, input),
+  ...Object.fromEntries(
+    ['start', 'status', 'stop'].map((operation) => [
+      `report-${operation}`,
+      (store, input, ctx) => formalReports(store, ctx)[operation](input),
+    ])
+  ),
   ...Object.fromEntries(
     ['start', 'status', 'stop'].map((operation) => [
       `plan-${operation}`,
@@ -77,6 +101,8 @@ const admission = (req, operation, ctx) => {
     'linkedin-status',
     'linkedin-evidence',
     'plan-status',
+    'report-preview',
+    'report-status',
   ].includes(operation);
   if (req.method !== (read ? 'GET' : 'POST')) {
     return { status: 405, code: 'method-not-allowed' };

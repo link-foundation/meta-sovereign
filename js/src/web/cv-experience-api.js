@@ -6,6 +6,25 @@ export const experienceReply = (value) => {
   return value;
 };
 export const createExperienceApi = ({ get, report }) => ({
+  cvFormalReportPreview: async (input) =>
+    experienceReply(
+      await get(
+        `/api/cv/experience/report-preview?${new URLSearchParams(input)}`
+      )
+    ),
+  ...Object.fromEntries(
+    ['start', 'stop', 'status'].map((operation) => [
+      `cvFormalReport${operation[0].toUpperCase()}${operation.slice(1)}`,
+      async (input) =>
+        experienceReply(
+          await (operation === 'status'
+            ? get(
+                `/api/cv/experience/report-status?${new URLSearchParams(input)}`
+              )
+            : report(`/api/cv/experience/report-${operation}`, input))
+        ),
+    ])
+  ),
   ...Object.fromEntries(
     ['start', 'stop', 'status'].map((operation) => [
       `cvExperiencePlan${operation[0].toUpperCase()}${operation.slice(1)}`,

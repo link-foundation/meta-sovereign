@@ -1,3 +1,4 @@
+import { waitForCvFixtureShutdown } from './cv-fixture-server.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { experiencePlanBrowserFixture } from './experience-plan-browser-fixture.mjs';
@@ -19,12 +20,4 @@ for (const before of [true, false]) {
     })
   );
 }
-console.log(JSON.stringify({ base: fixture.base, synthetic: true }));
-await new Promise((finish) => {
-  const stop = async () => {
-    await fixture.close();
-    finish();
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
-});
+await waitForCvFixtureShutdown(fixture);

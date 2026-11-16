@@ -16,6 +16,7 @@ const stopExperienceExport = (ctx) => {
   return Promise.allSettled([
     ctx.cvExperience?.close(),
     ctx.cvExperiencePlans?.close(),
+    ctx.cvFormalReports?.close(),
   ]);
 };
 

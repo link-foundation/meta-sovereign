@@ -1,4 +1,4 @@
-import { startServer } from '../../js/src/server/index.js';
+import { startCvFixtureServer } from './cv-fixture-server.mjs';
 import { technologyFixture } from './technology-fixture.mjs';
 import { experiencePlanFixture } from './experience-plan-fixture.mjs';
 
@@ -27,17 +27,11 @@ export const experiencePlanBrowserFixture = async () => {
     },
   };
   try {
-    const server = await startServer({
+    const server = await startCvFixtureServer({
       localUi: true,
-      tls: false,
-      port: 0,
       store: fixture.store,
       vacancies: { artifactRoot: native.artifactRoot },
       cv: { experiencePlanning: { adapters } },
-      enableHandlers: false,
-      enableSync: false,
-      telegramAccount: false,
-      automations: { scheduler: false },
     });
     return {
       base: `http://127.0.0.1:${server.port}`,

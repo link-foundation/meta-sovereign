@@ -8,6 +8,7 @@ import {
 import { experiencePlanRunning } from '../cv/experience-plan-record.js';
 import { LINO_TEXT, LINO_BINARY } from '../transport/lino.js';
 import { CvExperiencePlanView } from './cv-experience-plan-view.js';
+import { CvFormalReport } from './cv-formal-report.js';
 
 const el = React.createElement;
 const PlanProgress = ({ state }) => {
@@ -121,6 +122,13 @@ export const CvExperiencePlanScreen = ({ state, actions, choices }) => {
             )
           )
         )
+      : null,
+    state.row?.phase === 'completed'
+      ? el(CvFormalReport, {
+          key: 'reports',
+          api: actions.api,
+          planRequestId: state.row.requestId,
+        })
       : null,
   ]);
 };

@@ -30,6 +30,7 @@ import { confirmCli } from './confirm.js';
 import { createLinkedinExperienceCommands } from './cv-linkedin-experience-command.js';
 import { createExperienceCommands } from './cv-experience-commands.js';
 import { createExperiencePlanCommands } from './cv-experience-plan-command.js';
+import { createFormalReportCommands } from './cv-formal-report-command.js';
 
 export { CV_HELP } from './help.js';
 
@@ -324,6 +325,10 @@ export const createCvCommands = ({
   Object.fromEntries(
     Object.entries({
       ...createExperienceCommands(openStore),
+      ...createFormalReportCommands(
+        { openStore, openReadOnly },
+        live.formalReports
+      ),
       ...createExperiencePlanCommands(
         { openStore, openReadOnly },
         live.experiencePlanning
