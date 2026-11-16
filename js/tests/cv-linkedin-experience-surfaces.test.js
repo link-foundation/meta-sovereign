@@ -16,6 +16,7 @@ import {
   linkedinReaderFixture,
   linkedinExportInput,
 } from '../../experiments/issue-56/linkedin-experience-fixture.mjs';
+import { settledLinkedinFixture } from '../../experiments/issue-56/linkedin-export-settled.mjs';
 
 test(
   'HTTP native exports use both Lino formats, trusted mutations, private reads and stop on server shutdown',
@@ -65,15 +66,10 @@ test(
           403
         );
         assert.equal((await request('start', type, input)).status, 200);
-        let row;
-        for (let i = 0; i < 100; i++) {
-          row = (await request('status', type, { requestId: input.requestId }))
-            .row;
-          if (row.phase === 'completed') {
-            break;
-          }
-          await delay(1);
-        }
+        const row = await settledLinkedinFixture(
+          async () =>
+            (await request('status', type, { requestId: input.requestId })).row
+        );
         assert.equal(row.phase, 'completed');
         assert.equal(
           (await request('start', type, input)).row.revision,

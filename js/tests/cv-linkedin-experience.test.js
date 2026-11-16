@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
 import * as cv from '../src/cv/index.js';
 import { createLinkedinExperienceService } from '../src/cv/linkedin-experience-service.js';
 import {
@@ -18,17 +17,10 @@ import {
   linkedinExperienceRaw,
   linkedinExportInput,
 } from '../../experiments/issue-56/linkedin-experience-fixture.mjs';
+import { settledLinkedinFixture } from '../../experiments/issue-56/linkedin-export-settled.mjs';
 
-const settled = async (service, requestId) => {
-  for (let i = 0; i < 100; i++) {
-    const row = await service.status({ requestId });
-    if (!['opening', 'waiting-login', 'reading'].includes(row.phase)) {
-      return row;
-    }
-    await delay(1);
-  }
-  assert.fail('Export did not reach a terminal state.');
-};
+const settled = (service, requestId) =>
+  settledLinkedinFixture(() => service.status({ requestId }));
 
 test('public native LinkedIn parser preserves separate grouped roles, native links and year-only dates', () => {
   assert.equal(typeof cv.linkedinExperienceDocument, 'function');

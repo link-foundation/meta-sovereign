@@ -1,3 +1,6 @@
+- [LinkedIn card text and About](linkedin-acquisition.md): bounded observed-card fallback, separately owned profile acquisition, original private evidence and native Chromium guard regressions. Live provider acceptance and native sync remain required.
+- [CV initial loading](cv-loading.md): deterministic slow-catalogue regression, disabled controls and shared loading state, with before/after browser captures.
+
 - [Desktop native prebuild filtering](desktop-native-prebuilds.md): preserve the actual five-job packaging failure, reproduce it through the installed builder, and keep only target-compatible SQLite addons while retaining native verification. Exact-head hosted builds remain required.
 - [Sequential unread answers](unread-answers.md): guarded borrowed bot choices, ordinary review drafts, truthful held-view receipts and held-only polling through CLI, both Lino encodings and shared localized controls. Focused parent/native/MCP evidence is retained; wider criteria remain unfinished.
 

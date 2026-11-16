@@ -13,6 +13,11 @@ import {
   linkedinExportFailure,
 } from './linkedin-experience-record.js';
 import { linkedinExperienceDocument } from './linkedin-experience-parse.js';
+import { readLinkedinProfileAbout } from './linkedin-profile-reader.js';
+import {
+  evaluateLinkedin as evaluate,
+  linkedinSessionGate as gateFor,
+} from './linkedin-experience-session.js';
 import {
   linkedinExperienceGate,
   readLinkedinExperienceDocument,
@@ -24,25 +29,6 @@ const trace = (phase) => {
   if (process.env.MS_CV_LINKEDIN_DEBUG === '1') {
     console.error({ event: 'linkedin-experience', phase });
   }
-};
-const evaluate = (session, fn, args = []) =>
-  session.commander.evaluate({ fn, args });
-const gateFor = async (session, url, check) => {
-  check();
-  const gate = await evaluate(session, linkedinExperienceGate);
-  check();
-  if (gate.draft && !gate.wall) {
-    throw linkedinExportFailure('draft');
-  }
-  // Cookie objects never leave this predicate or enter logs, evidence or storage.
-  const signedIn = (
-    await session.page.context().cookies('https://www.linkedin.com')
-  ).some((cookie) => cookie.name === 'li_at');
-  check();
-  return {
-    ready: signedIn && !gate.wall && gate.ready && gate.url === url,
-    gate,
-  };
 };
 const waitForLogin = async (context) => {
   const { session, options, check, now, wait, progress, headless } = context;
@@ -80,7 +66,11 @@ const checkedScan = (raw, url, identities) => {
     throw linkedinExportFailure('incomplete');
   }
   const current = raw.items.map((item) =>
-    JSON.stringify([item.parent?.id, item.parent?.title, item.parent?.period])
+    JSON.stringify(
+      item.fallback
+        ? ['text', item.heading.split('\n').slice(0, 3)]
+        : [item.parent?.id, item.parent?.title, item.parent?.period]
+    )
   );
   if (identities.some((identity, index) => current[index] !== identity)) {
     throw linkedinExportFailure('incomplete');
@@ -250,6 +240,11 @@ export const createLinkedinExperienceReader =
       await waitForLogin(context);
       trace('reading');
       const raw = await traverse(context);
+      trace('reading-about');
+      raw.profileAbout = await readLinkedinProfileAbout(context);
+      if (!(await gateFor(session, options.url, check)).ready) {
+        throw linkedinExportFailure('session');
+      }
       const document = linkedinExperienceDocument(
         raw,
         options,

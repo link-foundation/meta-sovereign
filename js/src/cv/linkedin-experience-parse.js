@@ -1,4 +1,5 @@
 import { resumePeriod } from '../jobs/resume-dates.js';
+import { linkedinTextItem } from './linkedin-experience-text.js';
 import {
   validateExperienceDocument,
   experienceDocumentFailure,
@@ -38,7 +39,7 @@ const jobFrom = (item, role, grouped) => {
   }
   const marks = role.marks ?? [];
   const skills = marks.filter((mark) =>
-    /\/details\/skills\/|\/skill-associations\//u.test(mark.href)
+    /\/details\/skills\/|\/skill-associations(?:-details)?\//u.test(mark.href)
   );
   const media = marks.filter((mark) => {
     try {
@@ -59,11 +60,44 @@ const jobFrom = (item, role, grouped) => {
     description: role.descriptions
       .filter((part) => !skills.some((mark) => mark.text === part))
       .join('\n'),
-    skills: skills.map((mark) =>
-      mark.text.replace(/^(?:skills|навыки):\s*/iu, '')
-    ),
+    skills: [
+      ...new Set([
+        ...skills.map((mark) =>
+          mark.text.replace(/^(?:skills|навыки):\s*/iu, '')
+        ),
+        ...(role.skills ?? []),
+      ]),
+    ],
     media: media.map((mark) => ({ url: mark.href, title: mark.text })),
-    native: { ...role, grouped, company: parent.title },
+    native: { ...role, grouped, company },
+  };
+};
+const aboutValueValid = (about) =>
+  about.observed
+    ? typeof about.about === 'string' && about.about.length <= 24000
+    : about.reason === 'section-not-rendered' && about.about === undefined;
+const profileFrom = (raw, url) => {
+  const about = raw.profileAbout;
+  if (about === undefined) {
+    return {};
+  }
+  const observed = about?.observed === true;
+  if (
+    !about ||
+    about.url !== url.replace(/details\/experience\/$/u, '') ||
+    typeof about.observed !== 'boolean' ||
+    !Number.isInteger(about.passes) ||
+    about.passes < 3 ||
+    about.passes > 30 ||
+    about.boundary !==
+      (observed ? 'rendered-about-section' : 'rendered-bottom') ||
+    !aboutValueValid(about)
+  ) {
+    throw experienceDocumentFailure();
+  }
+  return {
+    aboutAcquisition: about,
+    ...(observed ? { about: about.about } : {}),
   };
 };
 /** Unknown cards refuse the export; dateless nested fragments never become jobs. */
@@ -73,11 +107,12 @@ export const linkedinExperienceDocument = (raw, options, capturedAt) => {
     !Array.isArray(raw.items) ||
     raw.items.length > 200 ||
     (!raw.items.length && !raw.empty) ||
-    raw.items.some((item) => item.unparsed)
+    raw.items.some((item) => item.unparsed && !item.fallback)
   ) {
     throw experienceDocumentFailure();
   }
-  const jobs = raw.items.flatMap((item) => {
+  const jobs = raw.items.flatMap((input) => {
+    const item = input.fallback ? linkedinTextItem(input) : input;
     const grouped = item.roles.length > 0;
     return (grouped ? item.roles : [item.parent]).map((role) =>
       jobFrom(item, role, grouped)
@@ -96,6 +131,7 @@ export const linkedinExperienceDocument = (raw, options, capturedAt) => {
     profile: {
       language: raw.language,
       acquisition: 'rendered-experience-page',
+      ...profileFrom(raw, options.url),
     },
     jobs,
   });

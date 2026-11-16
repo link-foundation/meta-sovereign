@@ -34,11 +34,20 @@ document.querySelector('main').append(list); event.target.remove();
 };
 </script></body></html>`;
 
+export const linkedinAboutHtml = `<!doctype html><html lang="en"><body><main>
+<section><h2>About</h2><div id="about"></div><div class="inline-show-more-text"><p>Original biography.</p><p id="tail">Truncated</p></div>
+<button onclick="document.getElementById('tail').textContent='Rust and PostgreSQL.';this.remove()">…see more</button></section>
+</main></body></html>`;
+
 /** Real commander and DOM callbacks; all network is intercepted with synthetic data. */
-export const verifyLinkedinNativeExperience = async (browser) => {
+export const verifyLinkedinNativeExperience = async (
+  browser,
+  html = linkedinNativeHtml
+) => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'linkedin-native-browser-'));
   const context = await browser.newContext();
   let loads = 0;
+  let profileLoads = 0;
   try {
     await context.addCookies([
       {
@@ -50,11 +59,18 @@ export const verifyLinkedinNativeExperience = async (browser) => {
     ]);
     const input = linkedinExportInput('native-browser-read');
     await context.route('**/*', async (route) => {
-      assert.equal(route.request().url(), input.url);
-      loads++;
+      const profile =
+        route.request().url() ===
+        input.url.replace(/details\/experience\/$/u, '');
+      assert.ok(profile || route.request().url() === input.url);
+      if (profile) {
+        profileLoads++;
+      } else {
+        loads++;
+      }
       await route.fulfill({
         contentType: 'text/html; charset=utf-8',
-        body: linkedinNativeHtml,
+        body: profile ? linkedinAboutHtml : html,
       });
     });
     const read = createLinkedinExperienceReader({
@@ -73,6 +89,7 @@ export const verifyLinkedinNativeExperience = async (browser) => {
     });
     const result = await read(input);
     assert.equal(loads, 1);
+    assert.equal(profileLoads, 1);
     assert.deepEqual(
       result.document.jobs.map(({ company, title }) => [company, title]),
       [
@@ -92,10 +109,16 @@ export const verifyLinkedinNativeExperience = async (browser) => {
       'Built Rust systems.\nKept original descriptions.'
     );
     assert.equal(result.files.length, 4);
+    assert.equal(
+      result.document.profile.about,
+      'Original biography.\nRust and PostgreSQL.'
+    );
+    assert.equal(result.document.profile.aboutAcquisition.observed, true);
     return {
       synthetic: true,
       actualCommander: true,
       loads,
+      profileLoads,
       jobs: 3,
       datelessFragmentsAreJobs: false,
     };

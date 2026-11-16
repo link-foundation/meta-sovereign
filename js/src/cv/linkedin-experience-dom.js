@@ -33,11 +33,14 @@ export const readLinkedinExperienceDocument = () => {
     return { blocked: true };
   }
   const main = document.querySelector('main');
-  const text = (node) => {
+  const text = (node, lines = false, own = false) => {
     if (!node) {
       return '';
     }
     const copy = node.cloneNode(true);
+    if (own) {
+      copy.querySelectorAll('ul, ol').forEach((nested) => nested.remove());
+    }
     for (const hidden of copy.querySelectorAll(
       '.visually-hidden, .sr-only, script, style'
     )) {
@@ -46,9 +49,14 @@ export const readLinkedinExperienceDocument = () => {
     for (const br of copy.querySelectorAll('br')) {
       br.replaceWith('\n');
     }
+    if (lines) {
+      copy
+        .querySelectorAll('div, p, li, h2, h3')
+        .forEach((block) => block.append('\n'));
+    }
     return copy.textContent.replace(/\r/gu, '').trim();
   };
-  const entity = '.pvs-entity';
+  const entity = '.pvs-entity, [data-view-name="profile-component-entity"]';
   const own = (root, selector) =>
     [...root.querySelectorAll(selector)].filter(
       (node) => node.closest(entity) === root
@@ -64,7 +72,7 @@ export const readLinkedinExperienceDocument = () => {
       root,
       '.t-14.t-normal span[aria-hidden="true"], .pvs-entity__caption-wrapper span[aria-hidden="true"]'
     )
-      .map(text)
+      .map((node) => text(node))
       .filter(Boolean),
     period: first(root, '.pvs-entity__caption-wrapper'),
     descriptions: own(
@@ -75,7 +83,7 @@ export const readLinkedinExperienceDocument = () => {
         (node, index, nodes) =>
           !nodes.some((other, j) => j !== index && other.contains(node))
       )
-      .map(text)
+      .map((node) => text(node))
       .filter(Boolean),
     marks: [...root.querySelectorAll('a[href]')]
       .filter(
@@ -86,22 +94,49 @@ export const readLinkedinExperienceDocument = () => {
       .map((node) => ({ text: text(node), href: node.href })),
     text: text(root),
   });
-  const roots = [
+  const cards = [
     ...(main?.querySelectorAll('.pvs-list__paged-list-item') ?? []),
-  ].filter(
+  ];
+  const cardSelector = cards.length ? '.pvs-list__paged-list-item' : entity;
+  const roots = [...(main?.querySelectorAll(cardSelector) ?? [])].filter(
     (node) =>
-      node.getClientRects().length &&
-      !node.parentElement?.closest('.pvs-list__paged-list-item')
+      node.getClientRects().length && !node.parentElement?.closest(cardSelector)
   );
+  const fallback = (card) => {
+    const marks = (node) =>
+      [...node.querySelectorAll('a[href]')].map((link) => ({
+        text: text(link),
+        href: link.href,
+      }));
+    const children = [...card.querySelectorAll('li')].filter((node) =>
+      /^(?:[a-zа-яё]+\.?\s+)?(?:19|20)\d{2}(?:\s*г\.)?\s+[—–-]\s+/imu.test(
+        text(node, true, true)
+      )
+    );
+    return {
+      unparsed: true,
+      fallback: true,
+      text: text(card, true),
+      heading: text(card, true, true),
+      marks: marks(card),
+      roles: children.map((node) => ({
+        text: text(node, true),
+        marks: marks(node),
+      })),
+    };
+  };
   const items = roots.map((card) => {
     const root = card.matches(entity) ? card : card.querySelector(entity);
     if (!root) {
-      return { unparsed: true, text: text(card) };
+      return fallback(card);
     }
     const children = [...root.querySelectorAll(entity)].filter((node) =>
       /(?:19|20)\d{2}/u.test(first(node, '.pvs-entity__caption-wrapper'))
     );
-    return { parent: read(root), roles: children.map(read) };
+    const parent = read(root);
+    return !parent.period && !children.length
+      ? fallback(card)
+      : { parent, roles: children.map(read) };
   });
   const visible = (node) => Boolean(node.getClientRects().length);
   const more = [...(main?.querySelectorAll('button') ?? [])]

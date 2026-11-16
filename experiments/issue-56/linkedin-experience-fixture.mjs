@@ -58,10 +58,48 @@ export const linkedinReaderFixture = async (options = {}) => {
       throw new Error('Credential value read');
     },
   };
+  let profileUrl = 'about:blank';
+  const context = {
+    cookies: async () => options.cookies ?? [cookie],
+    newPage: async () => {
+      calls.push(['profile-new-page']);
+      await options.profileOpen?.();
+      return {
+        setDefaultTimeout: (ms) => calls.push(['profile-timeout', ms]),
+        context: () => context,
+        goto: async (url) => {
+          calls.push(['profile-goto', url]);
+          profileUrl = url;
+        },
+        evaluate: async (fn, args) => {
+          calls.push([fn.name, args]);
+          return fn.name === 'linkedinExperienceGate'
+            ? (options.profileGate?.() ?? {
+                url: profileUrl,
+                wall: false,
+                draft: false,
+                ready: true,
+              })
+            : (options.profileRaw?.() ?? {
+                url: profileUrl,
+                observed: true,
+                about: 'Synthetic profile biography.',
+                busy: false,
+                more: 0,
+                bottom: true,
+              });
+        },
+        close: async () => {
+          calls.push(['profile-close']);
+          await options.profileClose?.();
+        },
+      };
+    },
+  };
   const session = {
     page: {
       setDefaultTimeout: (ms) => calls.push(['timeout', ms]),
-      context: () => ({ cookies: async () => options.cookies ?? [cookie] }),
+      context: () => context,
     },
     commander: {
       goto: async (input) => {

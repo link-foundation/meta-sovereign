@@ -675,3 +675,5 @@ Build private directed HH/LinkedIn experience plans from exact snapshot revision
 Preserve official HH area identities through native resume exports, Links Notation and owner-Save readback, verify translated city labels by their stable ID, and refuse conflicting imported metadata while retaining legacy document compatibility.
 
 Keep CV actions disabled while initial snapshots and platform metadata load, show the shared loading state, and wait for the responsive shell before experience browser layout assertions.
+
+Read bounded LinkedIn experience card text and the selected profile About in one separately owned tab, retain original private evidence and unobserved absence, and drain cancellation without closing an owner draft.

@@ -3,10 +3,10 @@ import {
   inspectLinkedinExperience,
   linkedinInspectionConfig,
 } from '../../../experiments/issue-56/linkedin-experience-inspect.mjs';
-import { verifyLinkedinNativeExperience } from '../../../experiments/issue-56/linkedin-experience-native.mjs';
+import { verifyLinkedinAcquisition } from '../../../experiments/issue-56/linkedin-acquisition-native.mjs';
 
 export const verifyCvLinkedinExperience = async (browser) => {
-  const native = await verifyLinkedinNativeExperience(browser);
+  const native = await verifyLinkedinAcquisition(browser);
   const fixture = await linkedinExperienceBrowserFixture();
   const context = await browser.newContext({ acceptDownloads: true });
   try {
