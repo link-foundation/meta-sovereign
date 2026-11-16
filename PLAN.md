@@ -99,3 +99,20 @@ by this plan change, and all other requested work remains required in PR57.
 - [ ] Complete every other original requirement. Add/copy editing and the remaining acceptance criteria remain unfinished.
 
 2026-11-16 route observer CI correction: exact b868 Windows job 133541760585 merges lifecycle stderr into its JSON receipt. Reproduce that parse failure against the published parent, keep the streams separate, explicitly exercise tracing and pass both focused checks. Atomic correction 4beb8fb3 is pushed; exact-head hosted verification remains required.
+
+2026-11-16 questionnaire audit and Windows publication follow-up:
+
+- [x] Re-read the complete pinned QA09/QA10 requirements and map parser, saved
+      indexing, form learning and native application review without accepting
+      unrelated history or orchestration requirements.
+- [x] Verify 24 archives and all 1,693 manifest entries against selected source
+      bf15f721, recovering the early list source bytes by their declared hashes.
+- [ ] Complete source-difference review, retain exact-source hosted receipts
+      for all twelve audit candidates, and accept only fully verified mappings.
+- [x] Preserve the four actual bf15 experience-publication failures from each
+      Windows runtime. Add scoped Git long-path support, default-off private
+      diagnostics and a finite native comparison; pass 22 Node and eight Deno
+      focused checks with limited concurrency.
+- [ ] Publish the correction, verify native Windows failure/success receipts
+      and every exact-head workflow. The full 60 unchecked requirements remain
+      active; no criterion is accepted by a diagnostic or partial correction.

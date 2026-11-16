@@ -18,6 +18,20 @@ export const publicationDigest = (text) =>
 const refuse = () => {
   throw cvPublicationFailure();
 };
+const traceCommandFailure = (args, error) => {
+  if (process.env.CI_CV_PUBLICATION_DEBUG !== '1') {
+    return;
+  }
+  // Never log arguments, native stderr, a repository path or snapshot content.
+  const operation = args[0] === '-c' ? args[2] : args[0];
+  console.error(
+    '[cv-publication-git]',
+    JSON.stringify({
+      operation,
+      filenameTooLong: /filename too long/iu.test(error?.commandError ?? ''),
+    })
+  );
+};
 const allowedNetworkRemote = (parsed) =>
   ['https:', 'http:', 'ssh:', 'git:', 'file:'].includes(parsed.protocol) &&
   !parsed.password &&
@@ -75,24 +89,29 @@ const createGitCommand =
   (run) =>
   async (repository, args, signal, extra = {}) => {
     try {
-      const answer = await run('git', ['--literal-pathspecs', ...args], {
-        cwd: repository,
-        signal,
-        ...extra,
-        env: {
-          GIT_DIR: undefined,
-          GIT_COMMON_DIR: undefined,
-          GIT_WORK_TREE: undefined,
-          GIT_INDEX_FILE: undefined,
-          GIT_OBJECT_DIRECTORY: undefined,
-          GIT_ALTERNATE_OBJECT_DIRECTORIES: undefined,
-          ...extra.env,
-        },
-      });
+      const answer = await run(
+        'git',
+        ['-c', 'core.longpaths=true', '--literal-pathspecs', ...args],
+        {
+          cwd: repository,
+          signal,
+          ...extra,
+          env: {
+            GIT_DIR: undefined,
+            GIT_COMMON_DIR: undefined,
+            GIT_WORK_TREE: undefined,
+            GIT_INDEX_FILE: undefined,
+            GIT_OBJECT_DIRECTORY: undefined,
+            GIT_ALTERNATE_OBJECT_DIRECTORIES: undefined,
+            ...extra.env,
+          },
+        }
+      );
       signal?.throwIfAborted();
       return answer.stdout;
-    } catch {
+    } catch (error) {
       signal?.throwIfAborted();
+      traceCommandFailure(args, error);
       throw cvPublicationFailure();
     }
   };

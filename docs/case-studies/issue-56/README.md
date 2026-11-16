@@ -632,3 +632,5 @@ provider parity and all-unread orchestration remain unfinished; HH11 stays open.
 
 - [Experience document publication](experience-publication.md): actual-parent refusal, six new portable checks, local Git publication, both Lino encodings and native/MCP source-bound consent and reload evidence. Wider CV editing/sync and all 60 unchecked criteria remain required.
 - [Route observer output](ci-route-observer-output.md): preserve the exact hosted Windows JSON parse failure and verify separate stdout receipts and stderr lifecycle diagnostics.
+
+- [Windows publication paths](ci-publication-long-paths.md): preserve the same four failures across Node, Bun and Deno; add scoped Git long-path support, private refusal diagnostics and a bounded native comparison. Windows confirmation remains required.

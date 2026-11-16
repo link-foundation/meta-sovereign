@@ -1,0 +1,23 @@
+{
+  "archive": "ci-publication-long-paths.tar.gz",
+  "files": {
+    "ci-logs/publication-long-path-focused.log": "734f5c42acb0f572cd11d5cc0065164b5199c06f88fe4d5441f84f887029f321",
+    "ci-logs/publication-long-path-deno.log": "e91ba1e58e9b3357fada8690f72aafbe39cb8cda1d2d24989ec2598662115d4b",
+    "ci-logs/ci-bf15-windows-deno-133562828649.log": "4e949428dd47164a9dab06544b36ff6c783376c9d5994eae976e878eb729ee3a",
+    "ci-logs/ci-bf15-windows-node-133562828810.log": "0e674cb68c04fc91d17768cd5986a79f8f106110d4f9dedeb0833c437c47b48b",
+    "ci-logs/ci-bf15-windows-bun-133562828672.log": "ab9261866cd487f87baccb2d8444f027daa0fe74af71d9887a45ee1d65465a12",
+    "ci-logs/publication-long-path-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/publication-long-path-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "duplication.json": "c2998decb5d2cb1ea8fac8beaff58cbcae17ec482a30f727b2668c3a9b3c1673",
+    "js/src/jobs/cv-publication-git.js": "b42500e946494ac98e543000ebbc9fe55d2cc0c8c0b9971590ed66645d4f5354",
+    "js/tests/cv-publication-long-paths.test.js": "7ff5aada97d2982124efdcef3a59f8df85e1b85cb1b1d3fb1f198c5efd40c08a",
+    "js/tests/cv-publication-experience.test.js": "f6ff773a4b4748c233d06ca9a970a617ba9f0f716bdd692eab124014a74e53e4",
+    "experiments/issue-56/publication-long-path-fixture.mjs": "8934df134ffb8d705b130d0b2dd84c39d9d0d9b80f9aaf667ef0364dbb00af80",
+    "experiments/issue-56/collect-publication-long-paths.py": "aec918472b6a279d0b74fe636777aec94422116a7070e06f05cf258bbd56432a",
+    "experiments/issue-56/cv-publication-fixture.mjs": "2e5274b00ed5e094477e477a1ffff6ae9cf245f5e3839f1416a30bdb96a68bdc",
+    "docs/case-studies/issue-56/ci-publication-long-paths.md": "5cb52b2f7c85b5b06c6ced3a55cc317fef19b856fcd70431c62763206862531f",
+    "before/js/src/jobs/cv-publication-git.js": "9336029c8b76cb87d54db721431e571a0cd4fed62433cbe41c4b7b5aaa5424d2",
+    "before/js/tests/cv-publication-experience.test.js": "f6ff773a4b4748c233d06ca9a970a617ba9f0f716bdd692eab124014a74e53e4",
+    "metadata.json": "ece0e301861173a2b7bc278619e802f6653772a2f720646c73f8b91b4bd87a7e"
+  }
+}

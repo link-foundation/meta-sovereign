@@ -724,3 +724,7 @@ Distinguish cold worker module loading from process startup in the existing opt-
 Defer unused CV, vacancy and Telegram route modules until a guarded matching request. Retain existing first-use behavior, account scope, mutation admission, provider capability states and shutdown ownership while reducing the worker's static local import graph.
 
 Publish a reviewed public CV projection from an explicitly selected immutable HH or LinkedIn experience document through CLI, both Lino encodings and the shared localized CV screen. Preserve private originals, source-bound consent and non-replaying Git recovery.
+
+Allow full revision snapshot paths in publication-owned Git commands on Windows
+without changing repository configuration. Retain opt-in content-free refusal
+diagnostics and bounded native long-path regressions.
