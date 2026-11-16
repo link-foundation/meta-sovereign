@@ -214,7 +214,7 @@ test('launch uses screen/start, literal argv and explicit noninteractive serve o
     '$',
     '--isolated',
     'screen',
-    '--name',
+    '--session',
     target.session,
     '--detached',
     '--',
@@ -227,3 +227,31 @@ test('launch uses screen/start, literal argv and explicit noninteractive serve o
   assert.ok(argv.includes('--open=false'));
   assert.ok(argv.includes('--trust=false'));
 });
+
+test(
+  'both launch paths use the documented start session selector before the command separator',
+  { timeout: 3000 },
+  async () => {
+    for (const mode of ['local', 'server']) {
+      const fixture = runnerFixture();
+      const run = async (target, argv, options) => {
+        if (argv[1] === '--isolated') {
+          const wrapper = argv.slice(1, argv.indexOf('--'));
+          // start rejects unknown wrapper flags before executing the command.
+          if (
+            wrapper.includes('--name') ||
+            wrapper[2] !== '--session' ||
+            wrapper[3] !== target.session
+          ) {
+            return { code: 1, stdout: '', stderr: 'Unknown wrapper option' };
+          }
+        }
+        return fixture.run(target, argv, options);
+      };
+      const runner = createRunnerControl({ targets: targets(), run });
+      assert.equal((await runner.act('start', mode)).ok, true);
+      assert.equal(fixture.state[mode], 'running');
+      assert.deepEqual(mutations(fixture), [[mode, 'start']]);
+    }
+  }
+);

@@ -43,7 +43,7 @@ export const runnerLaunch = (target) => [
   target.start ?? '$',
   '--isolated',
   'screen',
-  '--name',
+  '--session',
   target.session,
   '--detached',
   '--',

@@ -43,6 +43,9 @@ until every criterion has implementation and verification evidence.
       observations and no process mutation. Exact-head hosted verification,
       automatic dependency preparation and independent desktop job ownership
       remain required; no unchecked reference criterion is accepted here.
+      The [named launch contract](runner-launch-contract.md) corrects the stale
+      reference's unsupported start selector with a finite parent regression;
+      upstream source evidence and the report remain retained.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user
       cleanup checks. [Persisted catalog compatibility](legacy-catalogs.md) now covers

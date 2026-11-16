@@ -1,3 +1,4 @@
+- [Named runner launch contract](runner-launch-contract.md): use start's supported session selector for local/SSH launches, with a finite parent failure, 19 focused checks and a source-backed upstream report.
 - [Runner release-note consolidation](runner-release-notes.md): preserve the actual hosted release gate failure and every release paragraph in the established single PR changeset.
 - [Observed runner settings](runner-session-controls.md): shared translated controls, read-only recovery and no mutation replay, with parent/native/MCP evidence; preparation, profile editing and independent desktop ownership remain required.
 - [Shared runner API and connected CLI](runner-session-api.md): fixed local/server controls, both Lino encodings, protected admission and owned shutdown draining; UI, preparation and application readiness remain required.

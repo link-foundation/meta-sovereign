@@ -2,6 +2,9 @@
 'meta-sovereign': minor
 ---
 
+Correct local/SSH runner launches to use start's supported `--session` selector,
+with a finite refusal regression for both modes (issue #56, VD01/VD02).
+
 Add a shared owned VK outgoing FIFO for reviewed automation and personal-policy messages, with optional read acknowledgements, repeated typing and configurable text/sticker pacing. Preserve per-request completion, fresh consent, durable delivery truth and shutdown draining. Expose saved settings and bounded queue/peer inspection through foreground CLI, default text/binary Lino and four-language Connections controls without replay on restart.
 
 Persist acknowledged per-peer incoming trigger state, serialize duplicate admission, retain due schedules after failed drafting and drain admitted scheduler work before server shutdown flush. Record processed draft counts without claiming delivery.
