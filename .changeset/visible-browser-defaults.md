@@ -598,3 +598,13 @@ Normalize declared legacy saved VK message, question, attachment and destination
 Bound immutable server-release hashing to four concurrent file reads, preserve existing ordered content identities and drain reads before failed staging cleanup.
 
 Report connected VK read failures without substituting local defaults. Preserve acknowledged settings on failed refresh and retain offline editing for absent or unsupported routes.
+
+Add explicit CLI observation and control of configured local/SSH screen sessions through link-foundation/start. Require positive backend state, stop the other mode before starting, retain private target bindings across profile edits and uncertain launches, and drain cancelled transport children before releasing ownership. Keep unconfigured defaults and distinguish session state from application readiness and provider delivery. Automatic dependency preparation and full independent desktop workflow integration remain under development.
+
+Fix simultaneous exclusive requests in one process so a second request cannot remove the first request's live lock while its handle is being published.
+
+Expose configured local and SSH session control through the Lino API and the
+CLI's `runner --url` option, retaining observed states and draining ownership.
+
+Add translated Settings controls for configured local and SSH runner sessions,
+with observed switching, stale-state recovery and no automatic mutation replay.

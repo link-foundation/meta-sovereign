@@ -28,13 +28,12 @@ until every criterion has implementation and verification evidence.
       server loader, with owned TLS navigation and production staging gates;
       native hosted verification, shared editing and runner control remain required.
       [The explicit session CLI](runner-session-control.md) now has strict local/SSH
-      observation, retained target identity and cancelled-child draining. Automatic
+      observation, retained target identity and cancelled-child draining.
       [The protected Lino API and connected CLI](runner-session-api.md) share
       those observations and retain owned transports through shutdown.
       [Shared translated settings](runner-session-controls.md) now expose
       observed mode controls, read-only recovery and unknown-state refusal with
-      native/MCP evidence. Automatic
-      preparation, actual backend readiness and shared UI/configuration integration remain
+      native/MCP evidence. Automatic preparation, actual backend readiness and shared configuration editing remain
       required; this foundation does not accept VD01–VD09.
       [Legacy priority reads](legacy-priorities.md) now normalize empty/singleton
       saved lists across all policies, with strict writes and actual protected-user

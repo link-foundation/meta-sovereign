@@ -30,7 +30,7 @@ sources = [
     'experiments/issue-56/evidence_bundle.py', 'docs/DESKTOP-RUNNER.md',
     'docs/case-studies/issue-56/runner-session-control.md',
     'docs/case-studies/issue-56/vk-desktop-execution-plan.md',
-    '.changeset/runner-session-control.md',
+    '.changeset/visible-browser-defaults.md',
 ]
 names = sources + [f'ci-logs/{name}' for name in (
     'runner-cli-before.log', 'runner-cli-after.log', 'runner-lease-before.log',

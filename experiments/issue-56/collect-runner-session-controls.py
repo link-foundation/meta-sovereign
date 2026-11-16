@@ -43,7 +43,7 @@ names = [
     'experiments/issue-56/runner-ui-mcp-server.mjs',
     'experiments/issue-56/collect-runner-session-controls.py',
     'experiments/issue-56/evidence_bundle.py',
-    'docs/DESKTOP-RUNNER.md', '.changeset/runner-session-controls.md',
+    'docs/DESKTOP-RUNNER.md', '.changeset/visible-browser-defaults.md',
     'docs/case-studies/issue-56/runner-session-controls.md',
     *[f'ci-logs/{name}' for name in (
         'runner-ui-parent.log', 'runner-ui-before.log', 'runner-ui-browser.log',

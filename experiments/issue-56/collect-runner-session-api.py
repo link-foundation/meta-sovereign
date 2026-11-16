@@ -30,7 +30,7 @@ names = [
     'experiments/issue-56/diagnostics-fixture.mjs',
     'experiments/issue-56/collect-runner-session-api.py',
     'experiments/issue-56/evidence_bundle.py',
-    'docs/DESKTOP-RUNNER.md', '.changeset/runner-session-api.md',
+    'docs/DESKTOP-RUNNER.md', '.changeset/visible-browser-defaults.md',
     'docs/case-studies/issue-56/runner-session-api.md',
     *[f'ci-logs/{name}' for name in (
         'runner-api-before.log', 'runner-api-after.log',
