@@ -3,6 +3,7 @@
 import { repliedId } from '../crm/conversation-questions.js';
 import { asksQuestion, questionKey, splitQuestions } from './question-match.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
+import { answerKeyHash } from './answer-key-hash.js';
 import { rejectedAnswer } from './question-policy.js';
 import { summaryAnswerPairs } from './question-summary.js';
 import { historyOrder } from '../replies/history-order.js';
@@ -24,16 +25,6 @@ import {
   debugQuestionTurn,
 } from './question-turns.js';
 
-const hash = (text) => {
-  let result = 14695981039346656037n;
-  for (const char of text) {
-    result = BigInt.asUintN(
-      64,
-      (result ^ BigInt(char.codePointAt(0))) * 1099511628211n
-    );
-  }
-  return result.toString(36);
-};
 const privateUrl = (text) => {
   for (const [raw] of text.matchAll(/(?:https?|tg):\/\/[^\s<>]+/giu)) {
     let url;
@@ -194,7 +185,7 @@ const answerCollection = ({ policy, contract, correction }) => {
     text = contract(text);
     const key = identity.key;
     const group = learned.get(key) ?? {
-      id: `${QA_RULE_PREFIX}${hash(key)}`,
+      id: `${QA_RULE_PREFIX}${answerKeyHash(key)}`,
       tokens: ['qa-rule'],
       ...(notice ? { kind: 'notice' } : {}),
       question,

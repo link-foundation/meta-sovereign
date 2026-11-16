@@ -695,3 +695,9 @@ from replacing an assembled questionnaire or an owner's saved complete answer
 Route the repeatedly unallocated macOS Deno test partition to the native Intel
 runner pool while retaining every runtime/OS partition, ARM Deno coverage on
 the other partitions, and the existing deadlines and failure gate.
+
+Reuse aligned individual answers from existing saved whole questionnaires in
+shared chat, application and form plans. Extend explicit offline learning and
+backfill through CLI, both Lino encodings and four-language review controls,
+retaining scopes, corrections, zero-use saved wording and idempotent counts.
+Derived answers remain unapproved and the owner's whole replies stay intact.

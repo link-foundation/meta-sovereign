@@ -32,6 +32,7 @@ import {
 } from './question-profiles.js';
 import { debugQuestionTurn } from './question-turns.js';
 import { mergeObservedAnswers } from './question-merge.js';
+import { savedQuestionnaireProposals } from './questionnaire-backfill.js';
 import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import {
   prepareSalaryExchange,
@@ -465,6 +466,11 @@ const collectSavedAnswers = async (
     true
   );
   const saved = new Map(knowledge.rules.map((rule) => [rule.id, rule]));
+  const components = savedQuestionnaireProposals(knowledge.rules, {
+    policy: knowledge.policy,
+    contract: createAnswerContractor(options),
+    profile: options.profile,
+  });
   const learned = await learnArchivedAnswers(store, {
     self: [...new Set(['me', ...self])],
     policy: knowledge.policy,
@@ -472,11 +478,25 @@ const collectSavedAnswers = async (
     profile: options.profile,
     rules: knowledge.rules,
   });
-  const rules = mergeObservedAnswers(
+  const indexed = mergeObservedAnswers(
     saved,
+    components,
+    apply ? 1000 : Infinity
+  );
+  const combined = new Map([
+    ...saved,
+    ...indexed.map((rule) => [rule.id, rule]),
+  ]);
+  const observed = mergeObservedAnswers(
+    combined,
     learned.rules,
     apply ? 1000 : Infinity
   );
+  const rules = [
+    ...new Map(
+      [...indexed, ...observed].map((rule) => [rule.id, rule])
+    ).values(),
+  ];
   checkArchive();
   if (apply === true) {
     await writeAnswerKnowledge(store, async () => {

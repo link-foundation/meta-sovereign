@@ -217,7 +217,7 @@ export const questionCommands = async ({
     result = await withAnswerModel(null, async (runner) =>
       previewAnswer(store, await planInput(args, store), { runner })
     );
-  } else if (sub === 'learn') {
+  } else if (['learn', 'backfill-questionnaires'].includes(sub)) {
     result = await learnSavedAnswers(store, {
       ...(await planInput(args, store)),
       self: csv(args.self),
@@ -226,7 +226,7 @@ export const questionCommands = async ({
     });
   } else {
     throw new Error(
-      'answers expects model show | model save --enabled=true|false --revision=<revision|null> [--cv=cv:id] [--model=id] | list | save [file.lino] | delete <id> | plan --question=<text> [--threshold=0.78] [--case-sensitive=false] [--match-offset=0] [--match-limit=20] [--model-draft] [--config=file.lino|--automation=id] | learn [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
+      'answers expects model show | model save --enabled=true|false --revision=<revision|null> [--cv=cv:id] [--model=id] | list | save [file.lino] | delete <id> | plan --question=<text> [--threshold=0.78] [--case-sensitive=false] [--match-offset=0] [--match-limit=20] [--model-draft] [--config=file.lino|--automation=id] | learn | backfill-questionnaires [--apply] [--contract] [--config=file.lino|--automation=id] | policy [file.lino] [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] | exchange [--refresh] [--max-age-days=7] | profile-sources | profile [--cv=id] [--text-file=path]'
     );
   }
   log(args.json ? JSON.stringify(result, null, 2) : encodeLinoValue(result));

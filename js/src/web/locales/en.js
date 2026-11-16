@@ -1342,7 +1342,7 @@ export const en = {
   'questions.automationName': 'Answer incoming questions',
   'questions.learn': 'Learn from conversations',
   'questions.learnHint':
-    'Learn question and passive-notice replies from messages saved on this device. Actual outgoing replies contribute to frequencies; quoted summaries add no uses. Silence never creates a no-reply rule. Proposals remain unapproved.',
+    'Learn replies from messages and aligned components from whole questionnaires saved on this device. Only actual outgoing replies contribute to frequencies; saved wording and quoted summaries add no uses. Silence never creates a no-reply rule. Proposals remain unapproved.',
   'questions.previewLearning': 'Preview learned answers',
   'questions.applyLearning': 'Save proposals for review',
   'questions.learned':

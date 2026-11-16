@@ -21,3 +21,13 @@ Keep the complete issue 56 objective active in
 - [ ] Publish the correction and inspect every exact-head hosted check.
 - [ ] Complete the wider QA10 behavior mapping and all other unfinished issue
       requirements before marking the PR ready.
+
+The pinned HH README also requires reusing components from an already saved
+whole questionnaire, indexing existing saved questionnaires when tools start,
+and explicit offline backfill of saved knowledge and archived counts. The
+parent learning path splits newly observed aligned pairs, but reading saved
+rules did not derive those components. The separate
+[saved questionnaire correction](questionnaire-index.md) now supplies indexing
+and explicit offline backfill, with parent regressions and local verification.
+Verify its published hosted receipts and complete the wider QA09/QA10 mapping
+before accepting either complete criterion.

@@ -6,6 +6,7 @@ import {
   MAX_QUESTION_LENGTH,
 } from './question-match.js';
 import { matchContextualQuestion } from './question-context-match.js';
+import { indexQuestionnaireRules } from './questionnaire-index.js';
 import { equivalentAnswerVariants, rejectedAnswer } from './question-policy.js';
 import {
   answerRuleEligible,
@@ -404,7 +405,10 @@ export const planAnswer = (question, options = {}) => {
       return [];
     }
   });
-  const context = answerContext(options, rules);
+  const context = answerContext(options, [
+    ...rules,
+    ...indexQuestionnaireRules(rules),
+  ]);
   if (
     options.questionMode !== 'field' &&
     !choices.strictOptions &&

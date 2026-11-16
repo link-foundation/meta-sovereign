@@ -1,5 +1,8 @@
 # Reviewed browser answers
 
+Existing whole replies also supply reviewable individual answers. See
+[saved questionnaire indexing and offline backfill](QUESTIONNAIRES.md).
+
 In Automation → Questions and saved answers, open **Provider browser answers**.
 The same controls appear in Chat and Operator's automation menu. Choose a
 supported provider and an explicit web-chat reference, then read the current

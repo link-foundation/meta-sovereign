@@ -12,6 +12,7 @@ import { verifyQuestionSubstitution } from './helpers/e2e-question-substitution.
 import { verifyQuestionLanguage } from './helpers/e2e-question-language.mjs';
 import { verifyQuestionTurns } from './helpers/e2e-question-turns.mjs';
 import { verifyQuestionLists } from './helpers/e2e-question-lists.mjs';
+import { verifyQuestionnaireIndex } from './helpers/e2e-questionnaire-index.mjs';
 import { verifyQuestionSummary } from './helpers/e2e-question-summary.mjs';
 import { verifyQuestionCorrections } from './helpers/e2e-question-corrections.mjs';
 import { verifyQuestionConcurrency } from './helpers/e2e-question-concurrency.mjs';
@@ -638,14 +639,24 @@ const verifyProviderHistoryAndNotices = async () => {
   });
 };
 
-await finish(async () => {
-  await prepareQuestionPage();
+const focusedQuestionScenario = () => {
+  if (process.env.QUESTIONNAIRE_INDEX_ONLY === '1') {
+    return () => verifyQuestionnaireIndex({ page, panel, store, until });
+  }
   if (process.env.QUESTIONS_MATCHING_ONLY === '1') {
-    await verifyQuestionMatching({ page, panel, store, until });
-    return;
+    return () => verifyQuestionMatching({ page, panel, store, until });
   }
   if (process.env.RESUME_PROFILE_ONLY === '1') {
-    await verifyResumeProfile({ page, base, panel, store });
+    return () => verifyResumeProfile({ page, base, panel, store });
+  }
+  return null;
+};
+
+await finish(async () => {
+  await prepareQuestionPage();
+  const focused = focusedQuestionScenario();
+  if (focused) {
+    await focused();
     return;
   }
   const saved = await saveInitialRule();
@@ -770,4 +781,11 @@ await finish(async () => {
   verifySyncCapability();
   await verifyQuestionMatching({ page, panel, store, until });
   await verifyProviderHistoryAndNotices();
+  await traceBrowserScenario(
+    'questions',
+    'saved-questionnaire-index',
+    async () => {
+      await verifyQuestionnaireIndex({ page, panel, store, until });
+    }
+  );
 });
