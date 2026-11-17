@@ -3,15 +3,7 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { normalizeAutomation } from '../src/automation/automations.js';
 import { createAutomationRunner } from '../src/automation/runner.js';
-import { createAutomationCommands } from '../src/cli/automation-commands.js';
-import { questionApi } from '../src/web/question-api.js';
-import { startServer } from '../src/server/index.js';
-import {
-  encodeWire,
-  readWireResponse,
-  LINO_TEXT,
-  LINO_BINARY,
-} from '../src/transport/lino.js';
+import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
 
 const question = 'What salary in USD net and gross do you expect?';
 const salary = {
@@ -34,54 +26,16 @@ test(
   async () => {
     const store = createMemoryStore();
     await store.put(normalizeAutomation(definition));
-    const output = [];
-    const cli = createAutomationCommands({ openStore: async () => store });
-    assert.equal(
-      await cli.automations(
-        {
-          _: ['answers', 'plan'],
-          automation: 'both-bases',
-          question,
-          json: true,
-        },
-        (line) => output.push(line)
-      ),
-      0
-    );
-    assert.equal(JSON.parse(output.at(-1)).text, expected);
-    const offline = questionApi({
+    await assertQuestionPreviewSurfaces({
       store,
-      remote: { get: async () => null, report: async () => null },
-    });
-    assert.equal(
-      (await offline.previewAnswer({ question, salary })).text,
-      expected
-    );
-    const server = await startServer({
-      store,
-      enableSync: false,
-      enableHandlers: false,
-      automations: { scheduler: false },
-    });
-    try {
-      for (const type of [LINO_TEXT, LINO_BINARY]) {
-        const response = await fetch(
-          `http://127.0.0.1:${server.port}/api/automations/answers/plan`,
-          {
-            method: 'POST',
-            headers: { accept: type, 'content-type': type },
-            body: encodeWire({ question, salary }, type),
-          }
-        );
-        assert.equal(response.status, 200);
-        const answer = await readWireResponse(response);
+      automationId: 'both-bases',
+      input: { question, salary },
+      verify(answer) {
         assert.equal(answer.text, expected);
         assert.equal(answer.requiresReview, false);
         assert.deepEqual(answer.salary.amounts, { net: 6000, gross: 7100 });
-      }
-    } finally {
-      await server.close();
-    }
+      },
+    });
   }
 );
 

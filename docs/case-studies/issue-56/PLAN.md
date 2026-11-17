@@ -1515,3 +1515,12 @@ Worker-setting commit `027ae3c1` and shared wording-fixture correction `0e676ed0
 - [x] Reproduce the missed transient phase deterministically; verify ten focused Node checks, the failing Deno case and content-free state tracing.
 - [x] Archive the failed hosted assertion, deterministic reproduction, focused checks and exact changed sources.
 - [ ] Publish the correction and inspect all five exact-source workflows. Every one of the 41 unchecked original criteria remains required.
+
+## Salary option contract follow-up (QA12 / QA13 / QA15)
+
+- [x] Read the pinned salary option tests and complete README range/follow-up contract; trace the actual dual-basis scalar mismatch and missing form nearest-band behavior.
+- [x] Draft shared all-amount containment and field-only unique nearest proposals, preserving ambiguity, currency, period, approval and rejected-answer guards.
+- [x] Reproduce all four new checks and the native form failure on exact parent `640de38b`; verify 29 focused checks, actual native select/radio readback, retry receipts, preserved owner text, no submission and independent Playwright MCP with drained fixtures.
+- [ ] Complete scoped static checks, preserve a checked evidence archive, commit/push and inspect exact-source hosted workflows. Full QA12/QA13/QA15 and every other unchecked original requirement remain active. PR57 stays draft and unmerged.
+
+Salary option final local gates pass: 29 focused checks, native select/radio readback with zero retry events, independent MCP, scoped lint/format/secrets and the unchanged 6.5% duplication limit. The checked archive retains both exact parent modules, four failures, pinned reference blobs and three screenshots. Publishing and exact-source hosted acceptance remain required; all 41 original unchecked rows stay open.

@@ -78,8 +78,6 @@ const salaryDetails = (selection, resolved) => ({
   ...(resolved.amounts ? { amounts: resolved.amounts } : {}),
   ...(resolved.calculation ? { calculation: resolved.calculation } : {}),
 });
-const selectedOption = (choices, amount, selection, config) =>
-  amount ? (salaryOption(choices, amount, selection, config) ?? '') : '';
 const salaryContent = (input, config, selection, entry, resolved, guidance) => {
   const { amount } = resolved;
   const hasAmount = Boolean(amount || resolved.amounts);
@@ -90,11 +88,19 @@ const salaryContent = (input, config, selection, entry, resolved, guidance) => {
     ? (guidance?.text ?? resolvedWording(resolved, selection))
     : `{{${missing[0]}}}`;
   let optionMismatch = false;
+  let option = null;
   if (hasAmount && input.options?.length) {
-    text = selectedOption(input.options, amount, selection, config);
+    option = salaryOption(
+      input.options,
+      resolved.amounts ? Object.values(resolved.amounts) : [amount],
+      selection,
+      config,
+      input.questionMode === 'field'
+    );
+    text = option?.choice ?? '';
     optionMismatch = !text;
   }
-  return { missing, text, optionMismatch };
+  return { missing, text, optionMismatch, option };
 };
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(
@@ -105,7 +111,7 @@ const salaryResult = (question, input, previous, config, selection) => {
   if (guidance) {
     resolved = { ...resolved, amount: guidance.amount };
   }
-  const { missing, text, optionMismatch } = salaryContent(
+  const { missing, text, optionMismatch, option } = salaryContent(
     input,
     config,
     selection,
@@ -122,6 +128,7 @@ const salaryResult = (question, input, previous, config, selection) => {
     requiresReview:
       !config.approved ||
       Boolean(guidance) ||
+      option?.contained === false ||
       missing.length > 0 ||
       optionMismatch ||
       rejected,
@@ -130,6 +137,7 @@ const salaryResult = (question, input, previous, config, selection) => {
     contexts: salaryContexts(previous, selection),
     salary: {
       ...salaryDetails(selection, resolved),
+      ...(option ? { option } : {}),
       ...(guidance ? { guidance } : {}),
     },
     ...(optionMismatch ? { optionMismatch: true } : {}),

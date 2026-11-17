@@ -4,7 +4,7 @@ The pinned HH reference explicitly labels both gross and net amounts when a ques
 
 The question classifier now selects `both`. Each amount resolves independently through the existing explicit, progressive-personal or company/payout method, with the same currency and period. English and Russian output label both amounts. Hourly amounts round separately; a monthly target never becomes an hourly answer without the configured hours. Calculation evidence remains attached to the gross result. Existing single-basis wording stays unchanged.
 
-Both amounts must resolve before the answer is complete. A missing target, stale exchange rate or ambiguous period remains unresolved; separate salary approval still applies. A question asking for both bases cannot silently select a single numeric form band. Rejected wording stays excluded. Final validation rereads both values after typing, so a change to either stops delivery before an outbox claim.
+Both amounts must resolve before the answer is complete. A missing target, stale exchange rate or ambiguous period remains unresolved; separate salary approval still applies. A question asking for both bases can select a single numeric band only when the same unique range contains both configured amounts; see the subsequent [salary option correction](salary-option-contract.md). Split or ambiguous bands remain unresolved. Rejected wording stays excluded. Final validation rereads both values after typing, so a change to either stops delivery before an outbox claim.
 
 Verification:
 

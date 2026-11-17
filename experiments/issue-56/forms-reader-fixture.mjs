@@ -1,4 +1,5 @@
 import { payFixtureHtml } from './forms-pay-fixture.mjs';
+import { salaryOptionHtml } from './salary-option-fixture.mjs';
 import { formQuestionnaireHtml } from './form-questionnaire-fixture.mjs';
 import { questionnaireLearningHtml } from './forms-questionnaire-learning-fixture.mjs';
 import { assignmentFixtureHtml } from './forms-assignment-fixture.mjs';
@@ -36,6 +37,7 @@ const frameHtml = `<!doctype html><html lang="en"><title>Embedded questionnaire<
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
 
 const simplePages = {
+  '/salary-options': salaryOptionHtml,
   '/questionnaire-learning': questionnaireLearningHtml,
   '/questionnaire': formQuestionnaireHtml,
   '/instructions': assignmentSourceHtml,

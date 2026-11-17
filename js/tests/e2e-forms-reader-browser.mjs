@@ -12,6 +12,7 @@ import { seedFormPay } from '../../experiments/issue-56/forms-pay-fixture.mjs';
 import { verifyFormMatchingUi } from './helpers/e2e-form-matching.mjs';
 import { verifyFormAutomaticUi } from './helpers/e2e-form-automatic.mjs';
 import { verifyFormPayUi } from './helpers/e2e-form-pay.mjs';
+import { verifyFormSalaryOptions } from './helpers/e2e-form-salary-options.mjs';
 import { modelRunnerFixture } from '../../experiments/issue-56/forms-model-fixture.mjs';
 import { verifyFormModelUi } from './helpers/e2e-form-model.mjs';
 import { verifyFormLinksUi } from './helpers/e2e-form-links.mjs';
@@ -334,6 +335,7 @@ const formGroups = {
     verifyFormTimezoneUi,
     verifyFormSubjectsUi,
     verifyFormPayUi,
+    verifyFormSalaryOptions,
     verifyFormMatchingUi,
     verifyFormAutomaticUi,
     verifyFormCaptchaUi,
@@ -383,6 +385,7 @@ const verifyCustomOnly = async ({ page, until }) => {
     ['AUTOMATIC', verifyFormAutomaticUi],
     ['MATCHING', verifyFormMatchingUi],
     ['PAY', verifyFormPayUi],
+    ['SALARY_OPTIONS', verifyFormSalaryOptions],
     ['SUBJECTS', verifyFormSubjectsUi],
     ['TIMEZONE', verifyFormTimezoneUi],
     ['LINKS', verifyFormLinksUi],
@@ -613,6 +616,7 @@ if (
   process.env.FORMS_TIMEZONE_ONLY !== '1' &&
   process.env.FORMS_SUBJECTS_ONLY !== '1' &&
   process.env.FORMS_PAY_ONLY !== '1' &&
+  process.env.FORMS_SALARY_OPTIONS_ONLY !== '1' &&
   process.env.FORMS_MATCHING_ONLY !== '1' &&
   process.env.FORMS_QUESTIONNAIRE_ONLY !== '1' &&
   process.env.FORMS_QUESTIONNAIRE_LEARNING_ONLY !== '1' &&

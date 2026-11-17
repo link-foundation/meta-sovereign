@@ -31,36 +31,34 @@ const range = (text) => {
     return null;
   }
   if (values.length === 2) {
-    return values[0] <= values[1]
-      ? (target) => target >= values[0] && target <= values[1]
-      : null;
+    return values[0] <= values[1] ? { low: values[0], high: values[1] } : null;
   }
   const value = values[0];
   if (/свыше|более|больше|\b(?:over|above|more)\b|>/iu.test(text)) {
-    return (target) => target > value;
+    return { low: value, high: Infinity, lowOpen: true };
   }
   if (/\b(?:under|below|less)\b|меньше|</iu.test(text)) {
-    return (target) => target < value;
+    return { low: 0, high: value, highOpen: true };
   }
   if (/\b(?:up to|to)\b|до/iu.test(text)) {
-    return (target) => target <= value;
+    return { low: 0, high: value };
   }
   if (/\b(?:from|at least)\b|от|не менее/iu.test(text)) {
-    return (target) => target >= value;
+    return { low: value, high: Infinity };
   }
-  return (target) => target === value;
+  return { low: value, high: value };
 };
-export const salaryOption = (choices, target, selection, config) => {
-  if (!Array.isArray(choices) || choices.length > 100) {
-    return null;
-  }
-  const matches = choices.filter((choice) => {
+const contains = (band, target) =>
+  (band.lowOpen ? target > band.low : target >= band.low) &&
+  (band.highOpen ? target < band.high : target <= band.high);
+const compatibleRanges = (choices, selection, config) =>
+  choices.flatMap((choice) => {
     if (
       typeof choice !== 'string' ||
       choice.length > 2000 ||
       unknownSalaryCurrency(choice, config)
     ) {
-      return false;
+      return [];
     }
     const currencies = salaryCurrencies(choice, config);
     const basis = salaryBasis(choice);
@@ -71,9 +69,33 @@ export const salaryOption = (choices, target, selection, config) => {
       (basis && basis !== selection.basis) ||
       (period && period !== selection.period)
     ) {
-      return false;
+      return [];
     }
-    return range(choice)?.(target) === true;
+    const band = range(choice);
+    return band ? [{ ...band, choice }] : [];
   });
-  return matches.length === 1 ? matches[0] : null;
+export const salaryOption = (choices, targets, selection, config, closest) => {
+  if (!Array.isArray(choices) || choices.length > 100) {
+    return null;
+  }
+  const bands = compatibleRanges(choices, selection, config);
+  const matches = bands.filter((band) =>
+    targets.every((target) => contains(band, target))
+  );
+  if (matches.length) {
+    return matches.length === 1
+      ? { choice: matches[0].choice, contained: true }
+      : null;
+  }
+  // Conflicting bases need one containing range even in a reviewed form.
+  if (!closest || targets.length !== 1 || !bands.length) {
+    return null;
+  }
+  const target = targets[0];
+  const distance = (band) => Math.max(band.low - target, target - band.high, 0);
+  const minimum = Math.min(...bands.map(distance));
+  const nearest = bands.filter((band) => distance(band) === minimum);
+  return nearest.length === 1
+    ? { choice: nearest[0].choice, contained: false }
+    : null;
 };
