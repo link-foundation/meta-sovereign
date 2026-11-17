@@ -1,0 +1,19 @@
+{
+  "archive": "ci-salary-changeset.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "83daf7500603edf594a58ef1e10ea57b525fa3baf775fec3bdaadc154c8fca13",
+    "docs/case-studies/issue-56/ci-salary-changeset.md": "942f113bc6cd00912dd9b347ec0c58da93fca123265148fb3c369e54016b636b",
+    "js/scripts/validate-changeset.mjs": "46c4be5a704ba6bf98d49fe800edd02714b96bca172861249607f1b23df682e1",
+    "ci-logs/salary-band-watch-current-runs.json": "5c5f9c041430e1970508ab6397e71b9289f9ba3096a38105a92ba8709bbdf6d8",
+    "ci-logs/salary-band-watch-current-jobs.json": "2668d9580fc62a9216c4fae340fe6494803c059f3c17d79cea612a8a034ef242",
+    "ci-logs/checks-44034710813-133875089174.log": "3fddfd6eecbbbacf088c85dd2cef0db8ab9f62d865e0a85b50b6ad378849befb",
+    "ci-logs/checks-44034710813-133876468852.log": "32cdeadb62fa16b7dc12bee4204c5b94eff4eeb9f997bbcaf795452feae4581e",
+    "ci-logs/ci-salary-changeset-format.log": "ea9d0d5b3a395422b26be44b9c8028a2964828eaf76f1c99c8a416a59ec7ca4c",
+    "ci-logs/ci-salary-changeset-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-changeset-after.log": "f4cf7962c23f528601c15a21a357ba7db2eec0a6d7465150daedcad0e3101de3",
+    "ci-logs/ci-salary-changeset-before.log": "cf0d0aee2bbc2930f59882b6e02e693bb01129edc0f2057ef4c88c56c4d04411",
+    "before/.changeset/salary-band-safety.md": "69512ccac3010632717b31bd486e637394c98b815b28cc7fb7a8a3a30ddba202",
+    "before/.changeset/salary-band-watch.md": "9b05a234968decb969df242adb3f58ec20a791bfcf14c9804566f2571e4e3bc9",
+    "before/.changeset/visible-browser-defaults.md": "f1aad86c04ef5066f275d8b9a508eb263aa7fab8a675f09024403036a90e5c8d"
+  }
+}

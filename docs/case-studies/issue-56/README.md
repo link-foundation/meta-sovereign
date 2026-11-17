@@ -1,3 +1,4 @@
+- [Single PR release changeset](ci-salary-changeset.md): preserve the exact three-changeset failure and consolidate both salary summaries into the existing minor release entry. The unchanged validator reproduces and verifies the correction.
 - [Automatic salary bands](salary-band-watch.md): confirmed watches and sequential unread answers admit approved unique containing native choices, retain review holds and preserve owner drafts. Exact-parent, focused, native and independent MCP evidence is included; full acceptance remains required.
 - [Salary band safety](salary-band-safety.md): specific saved amounts and mixed currencies require review; four parent regressions, 67 focused passes, native positive receipts and independent MCP before/after evidence. Full acceptance remains required.
 - [macOS cleanup trap lint](ci-macos-trap-call.md): preserve the exact ShellCheck diagnostic and verify the indirect EXIT invocation without changing cleanup behavior.

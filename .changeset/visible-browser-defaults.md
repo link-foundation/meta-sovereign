@@ -794,3 +794,8 @@ vacancy context behind native application popups without navigating over owner
 answers. Preserve canonical vacancy caching for ordinary application review.
 Retain unadvertised salary context for résumé language selection while keeping
 unreadable native content under review and out of the public cache.
+
+Require review for salary bands that conflict with a specific saved amount or
+contain mixed currencies. Allow approved unique containing native options during
+confirmed browser watches and sequential unread answers while preserving owner
+drafts, current-knowledge checks, reservations and uncertain-receipt holds.

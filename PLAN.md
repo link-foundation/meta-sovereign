@@ -385,3 +385,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Admit only complete approved strict native containing choices, preserving owner drafts, queued knowledge checks, one-choice reservations, positive receipts and uncertain outcome recovery.
 - [x] Verify 57 focused checks, native parent/repaired watch behavior and independent MCP receipts with drained owned resources. Update all four help locales and inspect the rebuilt final UI.
 - [ ] Publish verified evidence and both atomic salary corrections; inspect all exact-head hosted workflows and finish the full QA15 mapping. All 40 unchecked original criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-17 release metadata follow-up:
+
+- [x] Preserve exact-head main run 44034710813 and both failed job logs.
+- [x] Reproduce the unchanged validator's three-changeset failure and consolidate
+      salary summaries into the existing correctly named minor changeset.
+- [ ] Verify committed base/head and hosted validation; continue all 40 unchecked criteria.
