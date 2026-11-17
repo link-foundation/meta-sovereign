@@ -1,3 +1,4 @@
+- [Windows publication boundaries](ci-publication-boundaries.md): preserve the exact hosted binary Lino deadline, passing focused attempt and opt-in Git/HTTP/cleanup timings. The historical cause remains unproven; deadlines and assertions are unchanged.
 - [Unread model direction assertion](ci-unread-model-direction.md): preserve the exact hosted mismatch, retain the direction field and all existing assertions, and verify eleven focused Node/Deno tests without changing production behavior.
 - [Complete salary context mapping](salary-context-criteria-audit.md): map QA12 to pinned behavior, verify eighteen archives and review every later source change; require 120 named portable checks and both engines' native receipts before acceptance.
 - [Portable salary fixture dependency](ci-salary-fixture-import.md): reproduce the hosted Deno import failure, separate constant data from optional browser code and retain six passing portable tests plus native browser verification.

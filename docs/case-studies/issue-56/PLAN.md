@@ -1,3 +1,10 @@
+Active Windows Bun publication investigation:
+
+- [x] Preserve published `5f982b17` Windows Bun job `134128955900`, timestamps and complete 14,005-line log. Lines 2,901–2,910 report the binary Lino native-export publication case reaching its existing 20-second deadline; the text case and all other tests pass.
+- [x] The six original cases pass in a focused Linux Bun attempt, without reproducing the Windows cause. Add opt-in numbered Git/HTTP/shutdown boundaries, enabled only for Windows Bun CI, without changing behavior, deadlines or assertions.
+- [x] Node 9/Bun 7/Deno 7 focused checks and the final trace privacy check pass. Preserve the exact failure, negative reproduction and final static checks in [the checked investigation](ci-publication-boundaries.md); the historical cause remains unproven.
+- [ ] Publish atomically and inspect all five workflows at the same source commit. Every original unfinished criterion remains required.
+
 Active VK online refresh admission correction (VD03 remains required):
 
 - [x] Reproduce fifteen actual-parent cases where owner settings remain blocked or an unissued POST survives disable, interval, token or Stop changes. Preserve five positive controls, including a token acquired after its rotation.

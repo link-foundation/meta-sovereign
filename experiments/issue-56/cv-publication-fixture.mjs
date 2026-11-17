@@ -6,6 +6,7 @@ import { createVacancyService } from '../../js/src/jobs/service.js';
 import { createCvPublicationGit } from '../../js/src/jobs/cv-publication-git.js';
 import { runAssignmentCommand } from '../../js/src/assignments/commands.js';
 import { cvWatchRaw } from './cv-watch-fixture.mjs';
+import { traceCvPublicationFixture as trace } from './cv-publication-trace.mjs';
 
 /** Two tiny owned repositories: no account, network transport or real CV data. */
 export const cvPublicationFixture = async ({
@@ -17,7 +18,9 @@ export const cvPublicationFixture = async ({
   const remote = path.join(folder, 'remote.git');
   const calls = [];
   const command = (args, cwd = repository, options = {}) =>
-    runAssignmentCommand('git', args, { cwd, ...options });
+    trace('setup-git', () =>
+      runAssignmentCommand('git', args, { cwd, ...options })
+    );
   const store = createMemoryStore();
   let service;
   try {
@@ -87,7 +90,10 @@ export const cvPublicationFixture = async ({
     const git = createCvPublicationGit({
       run: async (name, args, options) => {
         calls.push(args);
-        const proceed = () => runAssignmentCommand(name, args, options);
+        const proceed = () =>
+          trace('publication-git', () =>
+            runAssignmentCommand(name, args, options)
+          );
         return intercept
           ? intercept({ name, args, options, proceed })
           : proceed();
@@ -117,8 +123,10 @@ export const cvPublicationFixture = async ({
         resumes: ['saved123'],
       },
       async close() {
-        await service.stop();
-        await rm(folder, { recursive: true, force: true });
+        await trace('service-stop', () => service.stop());
+        await trace('fixture-remove', () =>
+          rm(folder, { recursive: true, force: true })
+        );
       },
     };
   } catch (error) {

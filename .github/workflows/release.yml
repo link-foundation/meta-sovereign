@@ -512,6 +512,9 @@ jobs:
         # headroom while still failing fast on a hung promise.
         env:
           MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
+          # Keep the unresolved Windows publication deadline diagnosable.
+          CI_CV_PUBLICATION_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
+          CI_FIXTURE_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
         run: bun test --timeout 30000
 
       - name: Setup Deno

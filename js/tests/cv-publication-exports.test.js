@@ -12,6 +12,7 @@ import { translate } from '../src/web/i18n.js';
 import { renderInLocale } from './util-render.js';
 import { LINO_TEXT, LINO_BINARY, decodeWire } from '../src/transport/lino.js';
 import { withRoutes, wirePost } from './helpers/vacancy-routes.mjs';
+import { traceCvPublicationFixture as trace } from '../../experiments/issue-56/cv-publication-trace.mjs';
 
 const confirm = (publication) => ({
   requestId: publication.requestId,
@@ -19,8 +20,10 @@ const confirm = (publication) => ({
   publish: true,
 });
 const nativeExportFixture = (work) =>
-  withCvPublicationFixture(async (f) =>
-    work(f, await seedPublicationExport(f))
+  trace('native-export-fixture', () =>
+    withCvPublicationFixture(async (f) =>
+      work(f, await trace('seed-export', () => seedPublicationExport(f)))
+    )
   );
 
 test(
@@ -191,17 +194,21 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
         assert.equal(parsed.exportId, exported.receipt.exportId);
         await withRoutes(
           async (base) => {
-            const plan = await wirePost(base, 'cv-publish-plan', parsed, type);
+            const plan = await trace('wire-plan', () =>
+              wirePost(base, 'cv-publish-plan', parsed, type)
+            );
             assert.equal(plan.status, 200);
             assert.equal(
               plan.value.publication.exportId,
               exported.receipt.exportId
             );
-            const answer = await wirePost(
-              base,
-              'cv-publish',
-              confirm(plan.value.publication),
-              type
+            const answer = await trace('wire-publish', () =>
+              wirePost(
+                base,
+                'cv-publish',
+                confirm(plan.value.publication),
+                type
+              )
             );
             assert.equal(answer.status, 200);
             assert.equal(answer.value.publication.state, 'published');
