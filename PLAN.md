@@ -691,3 +691,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Draft read-only Lino show, validated partial configuration and exact provider/chat or contact opt-out changes. Reuse acknowledged persistence and keep safety commands independent of browser/model/provider owners.
 - [x] Verify seven exact-parent failures and 28 focused compatibility checks, disk reopen, ordinary command routing and refused-write send protection. Scoped lint/format/secrets and source limits pass; duplication remains below the unchanged threshold.
 - [ ] Commit/publish this atomic feature, verify every exact-head hosted workflow and complete the full QA19 criterion. All 36 unfinished criteria remain required.
+
+2026-11-17 shared cooldown UI (QA19):
+
+- [x] Trace the existing global cooldown through the shared CLI/API record and reproduce its missing UI control with a bounded native regression and independent MCP screenshot.
+- [x] Expose optional fractional days in all four UI languages; reject invalid input locally and retain acknowledged-save, per-automation precedence and silence conditions.
+- [x] Verify focused portable checks, actual native save/reload/reset, independent MCP and inspected desktop/phone screenshots with no provider effects and drained fixtures.
+- [ ] Pass scoped static checks, preserve source-bound evidence, commit and publish only to the prepared branch. Verify all exact-head hosted workflows; the 36 full-scope criteria remain unfinished.

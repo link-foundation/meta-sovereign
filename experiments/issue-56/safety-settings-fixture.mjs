@@ -47,6 +47,6 @@ export const safetySettingsFixture = async () => {
 
 if (process.argv.includes('--serve-safety')) {
   const fixture = await safetySettingsFixture();
-  fixture.refuse(true);
+  fixture.refuse(!process.argv.includes('--allow-settings'));
   serveQuestionLinkFixture(fixture);
 }

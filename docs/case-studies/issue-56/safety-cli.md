@@ -1,7 +1,8 @@
 # Shared safeguard CLI (QA19)
 
-Global opt-outs, quiet hours and the automated-send cooldown were configurable
-through the shared API and UI, but had no CLI controls. Seven focused checks fail
+Global opt-outs and quiet hours were configurable through the shared API and UI;
+the automated-send cooldown was available through the API. These settings had no
+CLI controls. Seven focused checks fail
 against dispatcher `757e241e`; the help control still passes. This is a missing
 surface of [issue #56](https://github.com/link-foundation/meta-sovereign/issues/56),
 not acceptance of the full per-system/per-chat requirement.
@@ -19,7 +20,8 @@ Use `--contact=<id>` instead of `--chat` for a person opt-out. Both together are
 refused, keeping changes precise. Updating an existing target retains its time
 and replaces its note only when explicitly supplied. Other provider, chat and
 contact entries remain intact. `--timezone=local` selects the computer's zone;
-`--cooldown-days=none` restores the per-automation cooldown policy.
+`--cooldown-days=none` restores the seven-day global default. Each automation's
+explicit cooldown still takes precedence; its silence condition still applies.
 
 Show uses the read-only store opener and defaults to Lino output; `--json` is an
 explicit CLI output choice. Mutations use the same acknowledged record writer

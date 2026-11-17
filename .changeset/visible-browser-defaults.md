@@ -871,3 +871,7 @@ QA19/QA20).
 Expose global automated-send safeguards through read-only Lino CLI display,
 validated quiet-hour/cooldown configuration and precise provider/chat or person
 opt-out changes, sharing acknowledged persistence with the API and UI.
+
+Expose the shared automated-message cooldown in all four UI languages, with
+fractional days, default reset, invalid-input refusal and acknowledged save/reload
+behavior matching the CLI and Lino API.

@@ -376,6 +376,10 @@ export const zhChatAccount = {
   'safety.quiet.zone': '时区（留空：本机时区）',
   'safety.quiet.save': '保存',
   'safety.saved': '已保存',
+  'safety.cooldown.label': '自动消息的默认间隔（天）',
+  'safety.cooldown.hint':
+    '自动化未设置自身间隔时使用；距上次聊天的条件仍然适用。留空：{days} 天。',
+  'safety.cooldown.invalid': '请输入零或更大的天数，或留空以使用默认值。',
   'safety.failed': '设置尚未确认。您的更改尚未标记为已保存。',
   'email.pull.button': '立即收取邮件',
   'email.pull.working': '正在收取邮件…',

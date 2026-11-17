@@ -413,6 +413,11 @@ export const enChatAccount = {
   'safety.quiet.zone': 'Time zone (empty: this computer)',
   'safety.quiet.save': 'Save',
   'safety.saved': 'Saved',
+  'safety.cooldown.label': 'Default wait between automated messages (days)',
+  'safety.cooldown.hint':
+    'Used when an automation has no own cooldown; its silence condition still applies. Empty: {days} days.',
+  'safety.cooldown.invalid':
+    'Enter zero or more days, or leave this empty for the default.',
   'safety.failed':
     'Settings were not confirmed. Your changes have not been marked as saved.',
   'email.pull.button': 'Fetch mail now',

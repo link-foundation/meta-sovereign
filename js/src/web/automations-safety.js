@@ -7,6 +7,7 @@ import { useDates, useT } from './i18n.js';
 import { useLoaded } from './chat-state.js';
 import { useAcknowledgedResource } from './connections/use-acknowledged-resource.js';
 import { Busy } from './spinner.js';
+import { DEFAULT_COOLDOWN_DAYS } from '../automation/automations.js';
 
 const el = React.createElement;
 
@@ -150,6 +151,11 @@ const QuietHours = ({ settings, save }) => {
   const [form, setForm] = useState(null);
   const shown = form ?? settings.quietHours;
   const zone = form?.timezone ?? settings.timezone ?? '';
+  const cooldown = form?.cooldownDays ?? settings.cooldownDays ?? '';
+  const validCooldown =
+    !form?.cooldownInvalid &&
+    (cooldown === '' ||
+      (Number.isFinite(Number(cooldown)) && Number(cooldown) >= 0));
   const change = (patch) => setForm({ ...shown, timezone: zone, ...patch });
   return el('div', { className: 'col quiet-hours' }, [
     el('h4', { key: 'h' }, t('safety.quiet.title')),
@@ -189,12 +195,42 @@ const QuietHours = ({ settings, save }) => {
         onChange: (event) => change({ timezone: event.target.value }),
       }),
     ]),
+    el(Field, { key: 'cooldown', label: t('safety.cooldown.label') }, [
+      el('input', {
+        key: 'i',
+        type: 'number',
+        min: 0,
+        step: 'any',
+        value: cooldown,
+        'data-field': 'safety-cooldown',
+        'aria-invalid': validCooldown ? undefined : true,
+        'aria-describedby': 'safety-cooldown-hint',
+        onChange: (event) =>
+          change({
+            cooldownDays: event.target.value,
+            cooldownInvalid: !event.target.validity.valid,
+          }),
+      }),
+    ]),
+    el(
+      'p',
+      { key: 'cooldown-hint', id: 'safety-cooldown-hint', className: 'meta' },
+      t('safety.cooldown.hint', { days: DEFAULT_COOLDOWN_DAYS })
+    ),
+    !validCooldown
+      ? el(
+          'p',
+          { key: 'cooldown-error', role: 'alert' },
+          t('safety.cooldown.invalid')
+        )
+      : null,
     el(
       'button',
       {
         key: 's',
         type: 'button',
         'data-action': 'quiet-save',
+        disabled: !validCooldown,
         onClick: () =>
           save({
             quietHours: {
@@ -203,6 +239,7 @@ const QuietHours = ({ settings, save }) => {
               to: shown.to,
             },
             timezone: zone.trim() || null,
+            cooldownDays: cooldown === '' ? null : Number(cooldown),
           }),
       },
       t('safety.quiet.save')
