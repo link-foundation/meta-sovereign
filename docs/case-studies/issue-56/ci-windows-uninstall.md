@@ -33,5 +33,9 @@ Windows result.
 job log, exact source, positive launch receipt, correction and focused checks.
 Both Linux architectures and macOS passed the preceding native desktop jobs.
 The corrected Windows installation checks and every exact-head workflow still
-need hosted verification. VD09 and all other unchecked criteria remain required;
+need complete current-source verification. The subsequent
+[hosted native report](desktop-native-hosted.md) records all five desktop jobs
+passing and both PowerShell regressions passing on Windows Node, Deno and Bun.
+The corresponding main matrix was superseded, rather than completely passing.
+VD09 and all other unchecked criteria remain required;
 PR #57 stays draft and unmerged.

@@ -27,8 +27,10 @@ unmerged until the complete acceptance mapping is verified.
       pass, then recursive parent cleanup races the NSIS child resource deletion.
 - [x] Wait for the whole owned installation directory, retaining the ten-second
       bound and refusal; add finite Windows filesystem regressions.
-- [ ] Publish source-bound evidence and verify both Windows native installs and
-      the two PowerShell regressions in CI. All 40 criteria remain required.
+- [x] Publish source-bound evidence and verify both Windows native installs and
+      the two PowerShell regressions on hosted Node, Deno and Bun.
+- [ ] Verify the complete current-source matrix and finish VD09 plus every
+      other original unchecked criterion. All 40 remain required.
 
 2026-11-17 configured salary currencies (QA15):
 

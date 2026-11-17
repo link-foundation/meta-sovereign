@@ -42,3 +42,9 @@ prior job/artifact metadata, fetched records, exact merge-tree mapping,
 documentation comparison, focused checks and changed sources. All new native
 checks must pass on the exact new head before VD09 can be accepted. The full
 40 unchecked criteria remain required; PR #57 stays draft and unmerged.
+
+The subsequent [native hosted report](desktop-native-hosted.md) retains five
+successful packaged launch receipts and screenshots, Windows installation and
+uninstall completion, and the cleanup regressions passing in all three Windows
+runtimes. Its collector binds the exact desktop sources and guides to `94efd84b`.
+Full current-source checks and the complete VD09 mapping remain required.

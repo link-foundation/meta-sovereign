@@ -694,3 +694,4 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Native Windows uninstall cleanup race](ci-windows-uninstall.md)
 - [Individual salary target overlap](salary-band-overlap.md)
 - [Currency supplied by salary choices](salary-choice-currency.md)
+- [Hosted native desktop receipts](desktop-native-hosted.md)
