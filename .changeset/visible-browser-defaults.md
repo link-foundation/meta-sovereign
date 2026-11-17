@@ -927,3 +927,5 @@ Merge app-folder runner profiles over global settings and accept ephemeral local
 CLI field overrides. Share effective revision-checked editing across CLI, Lino and
 Settings, preserve global files and retain running targets through configuration
 changes (issue #56 VD07).
+
+Add owner-selectable weighted character/keyword question rewording across saved actions, CLI, both Lino transports and translated answer/Forms controls. Retain ordered matching defaults, subject protection, finite work and mandatory review for approximate suggestions (issue #56, QA02).

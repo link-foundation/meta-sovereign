@@ -1,3 +1,4 @@
+import { hiQuestionMatching } from './hi-question-matching.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
@@ -1282,12 +1283,7 @@ export const hi = {
   'questions.ruleIds': 'जवाब नियम की आईडी',
   'questions.ruleIdsHint':
     'कॉमा से अलग करें; सभी चालू नियमों के लिए खाली छोड़ें।',
-  'questions.matchingSettings': 'प्रश्न मिलान',
-  'questions.matchingThreshold': 'न्यूनतम समानता (%)',
-  'questions.matchingCase': 'अक्षरों का केस मिलाएँ',
-  'questions.matchingHint':
-    'अनुमानित मिलान की हमेशा समीक्षा आवश्यक है। विषय, दायरे और अस्वीकृत उत्तरों के नियम लागू रहते हैं।',
-  'questions.matchingInvalid': '0 से 100 के बीच समानता दर्ज करें।',
+  ...hiQuestionMatching,
   'questions.inspectMatches': 'सभी योग्य मिलान देखें',
   'questions.matchesTitle': 'क्रमबद्ध मिलान',
   'questions.matchesRange': 'कुल {total} में से {start}–{end} मिलान',

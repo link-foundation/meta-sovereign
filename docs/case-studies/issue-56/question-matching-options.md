@@ -16,7 +16,7 @@ CLI question preview and form planning/review accept `--threshold=0.6`, `--case-
 
 In the isolated `question-matching-fixture.mjs`, twelve approved rules answer `What is your city?` with different Hanoi districts. Ask `What is your current city of residence?`: the unchanged default produces no answer; at 60%, the 8/11 similarity produces a reviewed proposal. Inspect all matches to see ten results followed by the final two. Each result shows its saved wording, score, rendered answer, observed count, rule ID and selected state. Changing pages does not issue another model request.
 
-Inspection returns at most 50 entries per API page (ten in the UI), evaluates at most 1,000 stored rules and shares a 4,194,304-cell work budget. A partial scan is explicitly marked incomplete. These resource limits do not imply that omitted candidates were evaluated; the legacy eight-alternative summary remains available without inspection. Full weighted rewording and provider parity remain required separately.
+Inspection returns at most 50 entries per API page (ten in the UI), evaluates at most 1,000 stored rules and shares a 4,194,304-cell work budget. A partial scan is explicitly marked incomplete. These resource limits do not imply that omitted candidates were evaluated; the legacy eight-alternative summary remains available without inspection. Selectable [weighted rewording](question-weighted.md) is verified separately; historical/provider parity remains required.
 
 The initial eight regressions fail against parent `c3912720`; the before browser also fails because the controls are absent. The final checks pass:
 
@@ -44,4 +44,4 @@ Production Chromium verifies the two match pages, phone layout, threshold/case c
 
 The [verified archive](data/question-matching-options.tar.gz) and [manifest](data/question-matching-options.tar.sha256.json) retain before/after source snapshots, initial failures, full focused logs, reference PR evidence, actual browser/MCP receipts and screenshot hashes. Recollect with [collect-question-matching.py](../../../experiments/issue-56/collect-question-matching.py). Strict changed-code lint, scoped formatting, the production web bundle and the existing 6.5% duplication gate pass. Complete runtime/browser/native matrices remain on hosted CI and must be assessed for the new SHA.
 
-This verifies the matching settings and inspection mechanism. Complete weighted fuzzy rewording, historical/provider parity, automatic multi-form filling and every other unchecked issue requirement remain open. PR 57 stays draft and unmerged; issue 56 is unfinished.
+This verifies the matching settings and inspection mechanism. Historical/provider parity, automatic multi-form filling and every other unchecked issue requirement remain open. PR 57 stays draft and unmerged; issue 56 is unfinished.

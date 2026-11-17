@@ -7,6 +7,7 @@ import {
 import { splitQuestionBlocks } from './question-lists.js';
 import { sameQuestionSubjects } from './question-subjects.js';
 import { textLinks } from '../message-links.js';
+import { weightedQuestionSimilarity } from './question-weighted.js';
 
 export { MAX_QUESTION_LENGTH } from '../crm/question-recognition.js';
 const MAX_WORDS = 256;
@@ -134,6 +135,9 @@ export const questionSimilarity = (left, right, budget, options) => {
   }
   if (!sameQuestionSubjects(left, right)) {
     return 0;
+  }
+  if (options?.algorithm === 'weighted') {
+    return weightedQuestionSimilarity(a, b, budget, options);
   }
   // Optional shared batch budget. Exhaustion leaves approximate answers for
   // explicit review; standalone/chat matching keeps its existing behavior.

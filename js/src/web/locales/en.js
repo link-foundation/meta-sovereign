@@ -1,3 +1,4 @@
+import { enQuestionMatching } from './en-question-matching.js';
 import { questionFinalPeriodLocale } from './question-final-period.js';
 import { vkProviderJobsLocale } from './vk-provider-jobs.js';
 import { vkAttachmentsLocale } from './vk-attachments.js';
@@ -1286,12 +1287,7 @@ export const en = {
   'questions.ruleIds': 'Answer rule IDs',
   'questions.ruleIdsHint':
     'Comma-separated; leave empty to use every enabled rule.',
-  'questions.matchingSettings': 'Question matching',
-  'questions.matchingThreshold': 'Minimum similarity (%)',
-  'questions.matchingCase': 'Match letter case',
-  'questions.matchingHint':
-    'Approximate matches always require review. Subject, scope and rejected-answer rules still apply.',
-  'questions.matchingInvalid': 'Enter a similarity from 0 to 100.',
+  ...enQuestionMatching,
   'questions.inspectMatches': 'Inspect all eligible matches',
   'questions.matchesTitle': 'Ranked matches',
   'questions.matchesRange': 'Matches {start}–{end} of {total}',

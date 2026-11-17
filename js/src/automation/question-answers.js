@@ -406,7 +406,8 @@ const answerContext = (options, rules) => {
     matchPage: normalizeMatchPage(options.matchPage),
     matchBudget:
       options.matchBudget ??
-      (options.matchPage === undefined
+      (options.matchPage === undefined &&
+      options.matching?.algorithm !== 'weighted'
         ? undefined
         : { remaining: 4 * 1024 ** 2, exhausted: false }),
     matchRulesLimited: (options.rules?.length ?? 0) > 1000,

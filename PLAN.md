@@ -1,3 +1,11 @@
+2026-11-17 weighted question rewording (QA02 remains required):
+
+- [x] Read the pinned complete Q/A matcher and PR 123; trace shared review, Forms, CLI, and bounded candidate inspection.
+- [x] Add selectable weighted edit/keyword matching with subject guards, finite work, preserved defaults, and shared translated controls.
+- [x] Reproduce nine failures and one exhausted-budget control on the exact parent; pass 45 focused tests, 25 locale checks and native/MCP browser readback with zero sends and drained fixtures.
+- [x] Preserve and independently rehash 77 source/log evidence entries; pass scoped formatting, lint, secrets, source/doc limits and the unchanged 6.49% duplication gate.
+- [ ] Publish only to the prepared branch and review exact-source CI. Full provider history parity and every unfinished criterion remain required.
+
 2026-11-17 layered runner configuration (VD07 remains required):
 
 - [x] Read the complete pinned desktop configuration contract and trace shared CLI/API/UI profile reads, revisions and retained session addresses.

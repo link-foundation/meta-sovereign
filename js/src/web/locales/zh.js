@@ -1234,6 +1234,9 @@ export const zh = {
   'questions.ruleIds': '回答规则 ID',
   'questions.ruleIdsHint': '用逗号分隔；留空则使用所有启用的规则。',
   'questions.matchingSettings': '问题匹配',
+  'questions.matchingAlgorithm': '匹配方法',
+  'questions.matchingordered': '词语顺序',
+  'questions.matchingweighted': '加权改写',
   'questions.matchingThreshold': '最低相似度 (%)',
   'questions.matchingCase': '区分字母大小写',
   'questions.matchingHint':

@@ -1,6 +1,7 @@
 // Production Q/A controls with an isolated store and no provider sends.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { verifyQuestionMatching } from './helpers/e2e-question-matching.mjs';
+import { verifyQuestionWeighted } from './helpers/e2e-question-weighted.mjs';
 import { verifyQuestionNotices } from './helpers/e2e-question-notices.mjs';
 import { verifyNoticeLearning } from './helpers/e2e-notice-learning.mjs';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -671,6 +672,9 @@ const focusedQuestionScenario = () => {
   if (process.env.QUESTIONS_MATCHING_ONLY === '1') {
     return () => verifyQuestionMatching({ page, panel, store, until });
   }
+  if (process.env.QUESTION_WEIGHTED_ONLY === '1') {
+    return () => verifyQuestionWeighted({ page, store, until });
+  }
   if (process.env.RESUME_PROFILE_ONLY === '1') {
     return () => verifyResumeProfile({ page, base, panel, store });
   }
@@ -837,6 +841,7 @@ await finish(async () => {
   await verifyProfileControls(preview);
   verifySyncCapability();
   await verifyQuestionMatching({ page, panel, store, until });
+  await verifyQuestionWeighted({ page, store, until });
   await verifyProviderHistoryAndNotices();
   await traceBrowserScenario(
     'questions',

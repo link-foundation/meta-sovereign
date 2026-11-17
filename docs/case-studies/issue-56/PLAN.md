@@ -1,3 +1,10 @@
+Active weighted question rewording (QA02):
+
+- [x] Compare the complete pinned database and PR 123 with the shared question matcher; identify ordered-token-only rewording.
+- [ ] Implement an explicit weighted choice, strict configuration, shared review controls and finite work admission.
+- [ ] Verify parent failures and focused shared-path behavior, then preserve browser evidence and static checks.
+- [ ] Publish and review exact-source CI. Provider acquisition and the complete original contract remain required.
+
 2026-11-17 layered runner configuration (VD07 remains required):
 
 - [x] Read the complete pinned desktop configuration contract and trace shared CLI/API/UI profile reads, revisions and retained session addresses.

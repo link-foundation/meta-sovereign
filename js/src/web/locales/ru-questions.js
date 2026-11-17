@@ -13,6 +13,9 @@ export const ruQuestions = {
   'questions.ruleIdsHint':
     'Через запятую; оставьте пустым для всех включённых правил.',
   'questions.matchingSettings': 'Сопоставление вопросов',
+  'questions.matchingAlgorithm': 'Способ сопоставления',
+  'questions.matchingordered': 'Порядок слов',
+  'questions.matchingweighted': 'Взвешенное перефразирование',
   'questions.matchingThreshold': 'Минимальное сходство (%)',
   'questions.matchingCase': 'Учитывать регистр букв',
   'questions.matchingHint':

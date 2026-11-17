@@ -18,6 +18,7 @@ export const questionMatchingFlags = (args) => {
   const supplied =
     args.matching !== undefined ||
     args.threshold !== undefined ||
+    args['matching-algorithm'] !== undefined ||
     args['case-sensitive'] !== undefined;
   if (!supplied) {
     return {};
@@ -33,6 +34,9 @@ export const questionMatchingFlags = (args) => {
   return {
     matching: normalizeQuestionMatching({
       ...input,
+      ...(args['matching-algorithm'] === undefined
+        ? {}
+        : { algorithm: args['matching-algorithm'] }),
       ...(args.threshold === undefined
         ? {}
         : { threshold: numberFlag(args.threshold, 'threshold') }),

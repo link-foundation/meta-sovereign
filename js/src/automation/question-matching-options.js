@@ -20,7 +20,17 @@ export const normalizeQuestionMatching = (input = {}) => {
   ) {
     throw new Error('matching case sensitivity must be a boolean');
   }
-  return { threshold, caseSensitive: input.caseSensitive === true };
+  if (
+    input.algorithm !== undefined &&
+    !['ordered', 'weighted'].includes(input.algorithm)
+  ) {
+    throw new Error('matching algorithm must be ordered or weighted');
+  }
+  return {
+    threshold,
+    caseSensitive: input.caseSensitive === true,
+    ...(input.algorithm === undefined ? {} : { algorithm: input.algorithm }),
+  };
 };
 
 export const normalizeMatchPage = (input) => {

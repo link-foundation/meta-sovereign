@@ -16,6 +16,14 @@ an approved, unambiguous saved answer. Extracted, unapproved or conflicting
 answers stay for owner review, even when the current field matches their wording.
 The owner can fill the native form and separately confirm submission.
 
+In answer previews, question automations and Forms planning, **Question matching**
+offers **Ordered words** (the existing default) or **Weighted rewording**. Weighted
+matching combines character edits with stemmed keywords; its suggestions always
+need review. The same threshold and case controls apply. CLI previews and
+`forms-plan`/`forms-review` accept `--matching-algorithm=weighted`; both Lino
+formats accept `matching: { algorithm: 'weighted', threshold: 0.7 }`. Existing
+saved actions retain their settings unless explicitly changed.
+
 In **Questions and saved answers → Learn from conversations**, preview saved
 questionnaire components together with archived replies, then save proposals
 for review. Saved wording adds zero uses; only actual outgoing archived replies

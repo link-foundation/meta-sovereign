@@ -20,6 +20,26 @@ export const QuestionMatchingFields = ({ matching, set, disabled = false }) => {
     { className: 'col', disabled, 'data-question-matching': '' },
     [
       el('legend', { key: 'legend' }, t('questions.matchingSettings')),
+      el('label', { key: 'algorithm', className: 'field' }, [
+        el(
+          'span',
+          { key: 'label', className: 'field-label' },
+          t('questions.matchingAlgorithm')
+        ),
+        el(
+          'select',
+          {
+            key: 'input',
+            value: current.algorithm ?? 'ordered',
+            'aria-label': t('questions.matchingAlgorithm'),
+            onChange: (event) =>
+              set({ ...current, algorithm: event.target.value }),
+          },
+          ['ordered', 'weighted'].map((value) =>
+            el('option', { key: value, value }, t(`questions.matching${value}`))
+          )
+        ),
+      ]),
       el('label', { key: 'threshold', className: 'field' }, [
         el(
           'span',
