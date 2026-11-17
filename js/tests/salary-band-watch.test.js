@@ -47,7 +47,7 @@ test('only an approved complete native containing salary choice passes automatic
     }),
     planAnswer('What salary net do you expect?', {
       salary: { ...salary, defaultCurrency: null },
-      options,
+      options: options.map((option) => option.replace('USD ', '')),
     }),
     planAnswer(question, { salary, options, rules: [bandSavedRule()] }),
     planAnswer(question, { salary, options: ['USD 0–7000', 'USD 5000–8000'] }),

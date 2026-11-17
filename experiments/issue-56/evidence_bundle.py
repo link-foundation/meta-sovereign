@@ -116,6 +116,21 @@ def verify_vk_reply_inspection(logs, result_name, server_name):
     }
 
 
+def verify_salary_watch_mcp(logs, prefix, phase, sent):
+    """Require the native choice receipt and complete owned-fixture cleanup."""
+    result = json.loads((logs / f'{prefix}-mcp-{phase}.json').read_text())
+    receipt = json.loads(result['content'][0]['text'].split('### Result\n')[1].split('\n###')[0])
+    assert receipt['phase'] == ('sent' if sent else 'review')
+    if sent:
+        assert receipt['receipt']['messageId'] == '102'
+    else:
+        assert receipt['receipt'] is None and receipt['option'] is None
+    server = json.loads((logs / f'{prefix}-mcp-{phase}-server.log').read_text().splitlines()[-1])
+    assert server['resourcesClosed'] and not server['liveProvider']
+    assert server['stats'] == {'clicks': int(sent), 'textSends': 0, 'draft': ''}
+    return receipt
+
+
 def parent_reply_sources(root, sources, parent):
     """Keep exact tracked production parent bytes alongside a reply evidence unit."""
     before = {}

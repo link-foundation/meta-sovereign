@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 currency supplied by choices (QA12/QA15):
+
+- [x] Reproduce two exact-parent failures while preserving the safety control;
+      resolve only a unique configured choice currency and keep explicit precedence.
+- [x] Pass 23 focused checks and inspect native/MCP parent review versus one
+      corrected receipt, unchanged knowledge records and closed owned fixtures.
+- [ ] Publish checked evidence and inspect exact-source hosted verification;
+      finish the entire original contracts and every other unchecked criterion.
+
 2026-11-17 individual salary target overlap (QA15):
 
 - [x] Reproduce three published-parent failures where intersecting targets hid

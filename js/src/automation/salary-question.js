@@ -225,13 +225,45 @@ const unrelatedCurrencyQuestion = (entry, config, vocabulary) =>
   (asksQuestion(entry.text) &&
     !directSalaryQuestion(entry.text, vocabulary) &&
     !clarification(entry.text, config));
-const chooseCurrency = (text, config, environment, vocabulary) => {
+const optionCurrency = (options, config) => {
+  if (!options?.length) {
+    return null;
+  }
+  if (
+    !Array.isArray(options) ||
+    options.length > 100 ||
+    options.some((option) => typeof option !== 'string' || option.length > 2000)
+  ) {
+    return { code: null, source: 'ambiguous' };
+  }
+  const numeric = options.filter((option) => /\d/u.test(option));
+  const codes = new Set(
+    numeric.flatMap((option) =>
+      salaryCurrencies(option, config).map((entry) => entry.code)
+    )
+  );
+  if (
+    numeric.some((option) => unknownSalaryCurrency(option, config)) ||
+    codes.size > 1
+  ) {
+    return { code: null, source: 'ambiguous' };
+  }
+  return codes.size === 1 ? { code: [...codes][0], source: 'options' } : null;
+};
+const questionCurrency = (text, config) => {
   const explicit = salaryCurrencies(text, config);
   if (unknownSalaryCurrency(text, config) || explicit.length > 1) {
     return { code: null, source: 'ambiguous' };
   }
-  if (explicit.length === 1) {
-    return { code: explicit[0].code, source: 'question' };
+  return explicit.length === 1
+    ? { code: explicit[0].code, source: 'question' }
+    : null;
+};
+const chooseCurrency = (text, config, environment, vocabulary, options) => {
+  const explicit =
+    questionCurrency(text, config) ?? optionCurrency(options, config);
+  if (explicit) {
+    return explicit;
   }
   for (const entry of environment.recent) {
     if (unrelatedCurrencyQuestion(entry, config, vocabulary)) {
@@ -323,7 +355,13 @@ export const salaryQuestion = (text, config, input) => {
   if (followup && period && period !== inheritedPeriod) {
     return null;
   }
-  const selected = chooseCurrency(text, config, environment, vocabulary);
+  const selected = chooseCurrency(
+    text,
+    config,
+    environment,
+    vocabulary,
+    input.options
+  );
   return {
     currency: selected.code,
     basis: effectiveBasis(text, previous, followup, config, vocabulary),

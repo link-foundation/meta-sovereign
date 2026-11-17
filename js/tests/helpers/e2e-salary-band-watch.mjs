@@ -7,6 +7,7 @@ import {
   bandMixedChoices,
 } from '../../../experiments/issue-56/salary-band-safety-fixture.mjs';
 import { overlapBandCase } from '../../../experiments/issue-56/salary-band-overlap-fixture.mjs';
+import { choiceCurrencyCase } from '../../../experiments/issue-56/salary-choice-currency-fixture.mjs';
 
 /** Explicit finite watch; native choices are the only possible delivery effect. */
 const verifySalaryWatchCase = async (browser, scenario = {}) => {
@@ -107,7 +108,16 @@ export const verifySalaryBandOverlap = (browser) =>
     hold: true,
   });
 
+export const verifySalaryChoiceCurrency = (browser) =>
+  verifySalaryWatchCase(browser, {
+    ...choiceCurrencyCase,
+    group: 'salary-choice-currency',
+    beforeVariable: 'SALARY_CHOICE_CURRENCY_BEFORE',
+    screenshotVariable: 'SALARY_CHOICE_CURRENCY_SCREENSHOTS',
+  });
+
 export const verifySalaryBandWatch = async (browser) => ({
   ...(await verifySalaryWatchCase(browser)),
   overlap: await verifySalaryBandOverlap(browser),
+  currency: await verifySalaryChoiceCurrency(browser),
 });

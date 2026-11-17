@@ -414,6 +414,10 @@ test('question provider and control scenarios have separate mandatory browser bu
     salaryWatch,
     /overlap: await verifySalaryBandOverlap\(browser\)/u
   );
+  assert.match(
+    salaryWatch,
+    /currency: await verifySalaryChoiceCurrency\(browser\)/u
+  );
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
   );

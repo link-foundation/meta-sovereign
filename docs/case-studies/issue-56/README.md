@@ -693,3 +693,4 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Configured currencies in saved salary bands](salary-band-currencies.md)
 - [Native Windows uninstall cleanup race](ci-windows-uninstall.md)
 - [Individual salary target overlap](salary-band-overlap.md)
+- [Currency supplied by salary choices](salary-choice-currency.md)

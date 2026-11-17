@@ -821,3 +821,6 @@ drafts, current-knowledge checks, reservations and uncertain-receipt holds.
 
 Hold a dual-basis salary choice when either target fits overlapping bands,
 before requiring both targets to share one unique containing choice.
+
+Use a unique configured currency in numeric salary choices when the question
+omits currency, retaining explicit question precedence and ambiguous-choice review.
