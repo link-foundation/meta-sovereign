@@ -33,6 +33,7 @@ import { contentSticker } from './sticker.js';
 import { vkMediaUrl } from './vk-hosts.js';
 import { createVkPublications } from './vk-publication.js';
 import { createVkRelationships } from './vk-relationships.js';
+import { createVkOnline } from './vk-online.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 import {
@@ -810,15 +811,7 @@ export const createVkLive = ({
   return {
     call,
     ...createVkRelationships({ call, once }),
-    async setOnline(options = {}) {
-      const result = await call('account.setOnline', {}, options.token);
-      if (result !== 1) {
-        throw Object.assign(new Error('VK did not confirm online status'), {
-          code: 'unconfirmed',
-        });
-      }
-      return { confirmed: true };
-    },
+    ...createVkOnline({ once, token, sleep }),
     // Follow owns its finite timeout policy and must observe rate/permission
     // refusals without the general adapter's error-6 retry. Reads use POST on
     // VK too: explicitly mark them so a timeout remains a read failure.

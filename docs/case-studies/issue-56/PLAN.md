@@ -1,3 +1,10 @@
+Active VK online refresh admission correction (VD03 remains required):
+
+- [x] Reproduce fifteen actual-parent cases where owner settings remain blocked or an unissued POST survives disable, interval, token or Stop changes. Preserve five positive controls, including a token acquired after its rotation.
+- [x] Separate refresh execution from settings serialization and use the actual adapter's post-rate-wait callback on every bounded error-6 attempt. Keep manual refresh, already issued receipts, unknown outcomes and independent job owners.
+- [x] Node 34/Deno 34, strict scoped lint/format/secrets, file limits and unchanged duplication gate (6.49%) pass; regenerate the production web bundle and preserve checked evidence, including the corrected first-read fixture assumption.
+- [ ] Publish atomically and inspect every exact-head hosted workflow. No original unfinished criterion is accepted by this correction alone.
+
 Active release workflow line-limit correction:
 
 - [x] Preserve exact published `9846a827` Checks run `44105002455` and file-limit job `134115587678`. Raw lines 380–382 report 1,506 workflow lines; runtime/browser dependents are skipped.

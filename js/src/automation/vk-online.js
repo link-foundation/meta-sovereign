@@ -3,13 +3,16 @@ import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { getSource, liveOptionsFrom } from '../sources/index.js';
 import { safeMessage } from '../server/redact.js';
 import { traceTrigger } from './trigger-log.js';
+import { createStoreQueue } from '../storage/serialized.js';
 import {
   VK_ONLINE_STATE as STATE,
-  serializeVkOnline as enqueue,
   readVkOnlineSettings as settingsOf,
   readVkOnlineSnapshot as snapshot,
 } from './vk-online-settings.js';
 export { loadVkOnline, saveVkOnline } from './vk-online-settings.js';
+
+// Provider waits serialize with other refreshes, never with owner settings.
+const enqueue = createStoreQueue();
 
 export const createVkOnlineJob = ({
   store,
@@ -23,7 +26,7 @@ export const createVkOnlineJob = ({
   let stopped = false;
   let timer;
   let active = null;
-  const perform = async () => {
+  const perform = async (settings) => {
     let options = {};
     const attemptedAt = new Date(now()).toISOString();
     const pending = { id: STATE, attemptedAt, status: 'pending' };
@@ -39,7 +42,24 @@ export const createVkOnlineJob = ({
           { code: 'unavailable' }
         );
       }
-      const reply = await live.setOnline(options);
+      const beforeIssue = async () => {
+        const freshOptions = (await optionsFor()) ?? {};
+        const freshSettings = await settingsOf(store);
+        if (
+          stopped ||
+          options.token !== freshOptions.token ||
+          settings.enabled !== freshSettings.enabled ||
+          settings.everyMinutes !== freshSettings.everyMinutes
+        ) {
+          throw Object.assign(
+            new Error(
+              'Online refresh policy, credentials or lifecycle changed'
+            ),
+            { code: 'policy-changed' }
+          );
+        }
+      };
+      const reply = await live.setOnline(options, beforeIssue);
       if (reply?.confirmed !== true) {
         throw Object.assign(new Error('VK did not confirm online status'), {
           code: 'unconfirmed',
@@ -54,7 +74,9 @@ export const createVkOnlineJob = ({
       outcome = {
         ...pending,
         status:
-          error.vkCode || error.code === 'unavailable' ? 'refused' : 'unknown',
+          error.vkCode || ['unavailable', 'policy-changed'].includes(error.code)
+            ? 'refused'
+            : 'unknown',
         code: String(error.code ?? 'provider-failed'),
         error: safeMessage(error)
           .split(options.token ?? '\0')
@@ -80,8 +102,8 @@ export const createVkOnlineJob = ({
       if (stopped) {
         return { ...(await snapshot(store)), skipped: 'stopped' };
       }
+      const settings = await settingsOf(store);
       if (scheduled) {
-        const settings = await settingsOf(store);
         const last = await store.get(STATE);
         const elapsed = now() - Date.parse(last?.attemptedAt ?? '');
         if (
@@ -91,7 +113,7 @@ export const createVkOnlineJob = ({
           return { ...(await snapshot(store)), skipped: 'not-due' };
         }
       }
-      return perform();
+      return perform(settings);
     }).finally(() => {
       active = null;
     });
