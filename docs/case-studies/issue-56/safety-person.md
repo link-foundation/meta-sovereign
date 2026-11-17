@@ -51,7 +51,7 @@ After, the same identifier has distinct chat and person entries and controls:
 ![Independent phone inspection](../../screenshots/issue-56-safety-person/mcp-after-phone.png)
 
 The [checked source/log archive](data/safety-person.tar.gz) and
-[per-file manifest](data/safety-person.tar.sha256.json) preserve 52 entries: the exact parent
+[per-file manifest](data/safety-person.tar.sha256.json) preserve 53 entries: the exact parent
 component, missing-control failure, native receipts and independent inspection.
 Archive integrity is separate from complete criterion acceptance. The inventory
 remains **83 of 118 accepted, 35 unfinished**; full QA19 and every other unchecked

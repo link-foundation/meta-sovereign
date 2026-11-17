@@ -49,9 +49,13 @@ export const DESKTOP_AUTHOR = Object.freeze({
   email: 'link-foundation@users.noreply.github.com',
 });
 
-// Copied verbatim into the staged app. Everything the Electron main
-// process imports lives under these two directories.
-export const DESKTOP_SOURCE_DIRS = Object.freeze(['js/src', 'js/electron']);
+// Copy application sources and the local artifact needed by the independent
+// production installation. The Electron entry imports live under js/.
+export const DESKTOP_SOURCE_DIRS = Object.freeze([
+  'js/src',
+  'js/electron',
+  'vendor/picomatch',
+]);
 
 // Built web assets the SPA needs at runtime.
 export const DESKTOP_REQUIRED_FILES = Object.freeze([
@@ -95,6 +99,9 @@ export const desktopPackageJson = (rootPkg) => ({
     ...rootPkg.dependencies,
     ...providerDependencies(rootPkg),
     'electron-updater': rootPkg.peerDependencies['electron-updater'],
+    // The inherited $picomatch override needs its direct reference and local
+    // artifact in this independent installation, after dev tools are omitted.
+    picomatch: rootPkg.devDependencies.picomatch,
   },
   // Both methods return the same deep-comparison boolean with two arguments.
   // Scope the exact alias to updater 6; aliasing the whole lodash package

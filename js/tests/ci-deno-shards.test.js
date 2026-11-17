@@ -6,6 +6,25 @@ import os from 'node:os';
 import path from 'node:path';
 import { parse } from 'yaml';
 
+test('Deno uses the shared locked tree including local security overrides', () => {
+  const config = JSON.parse(
+    readFileSync(new URL('../../deno.json', import.meta.url), 'utf8')
+  );
+  assert.equal(config.nodeModulesDir, 'manual');
+  const job = parse(
+    readFileSync(
+      new URL('../../.github/workflows/release.yml', import.meta.url),
+      'utf8'
+    )
+  ).jobs.test;
+  const install = job.steps.find(
+    ({ name }) => name === 'Install locked dependencies (Deno)'
+  );
+  assert.equal(install.if, "matrix.runtime == 'deno'");
+  assert.equal(install.run, 'npm ci --no-audit --no-fund');
+  assert.notEqual(install['continue-on-error'], true);
+});
+
 test('every Deno platform retains native partitions, test discovery and deadline', () => {
   const job = parse(
     readFileSync(

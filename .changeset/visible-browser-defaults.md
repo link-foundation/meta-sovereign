@@ -879,3 +879,8 @@ behavior matching the CLI and Lino API.
 Expose distinct chat and person opt-outs in all four UI languages, retain refused
 owner drafts and preserve same-ID entries through acknowledged reload and precise
 removal, sharing the existing CLI/Lino settings and send guards (issue #56 QA19).
+
+Patch repeated wildcard extglobs in an auditable private picomatch fork while
+retaining strict registry audits and matching regressions. Use the shared locked
+installation for Deno so local security overrides and native dependencies remain
+consistent across supported runtimes.

@@ -1,9 +1,18 @@
+2026-11-17 strict picomatch audit repair:
+
+- [x] Preserve both failed exact-source workflow logs and identify the new repeated-extglob advisory plus the independent inventory formatting failure.
+- [x] Reproduce the unsafe generated expression without a hostile parent execution. Package only the reviewed parser patch over the exact released source with deterministic hashes and original license.
+- [x] Pass 31 focused portable/desktop checks, four checks per isolated Bun/Deno installer fixture and unchanged strict registry audit with zero findings; retain type checking, partitions, assertions and deadlines.
+- [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve 96 independently rehashed source/log/archive entries.
+- [ ] Publish both the person opt-out and CI repair commits only to the prepared branch.
+- [ ] Review every exact-head hosted workflow, then continue all 35 unfinished original requirements. PR57 stays draft and unmerged.
+
 2026-11-17 distinct person opt-outs (QA19 remains required):
 
 - [x] Reproduce the missing person selector against the published parent; preserve independent MCP before inspection and screenshot.
 - [x] Expose explicit translated Chat/Person scopes, distinct same-ID rows and precise removal through acknowledged shared settings.
 - [x] Pass 46 focused portable checks and all three native safety scenarios; independently verify reload, removal, four languages and phone layout with zero live effects and drained fixtures.
-- [x] Collect and rehash all 52 source/log/screenshot archive entries; preserve exact parent and final bundle hash.
+- [x] Collect and rehash all 53 source/log/screenshot archive entries; preserve exact parent and final bundle hash.
 - [ ] Publish this atomic unit and require exact-source hosted verification. Full QA19 and all 35 unfinished criteria remain required.
 
 2026-11-17 complete independent VK acceptance:

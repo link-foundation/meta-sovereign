@@ -32,6 +32,8 @@ npm के लिए Node 26.12.1 और pinned npm 12.2.1, `id-token: write` �
 
 Release helpers manifest और lockfile में pinned हैं। Telegram का maintained `teleproto` client और compatibility layer इस्तेमाल होता है; provider की पहचान `telegram` रहती है। KaTeX patched है। समीक्षा किए native install scripts npm, Bun और Deno में स्पष्ट रूप से स्वीकृत हैं।
 
+Deno साझा `npm ci` निर्भरताएँ और `nodeModulesDir: "manual"` इस्तेमाल करता है; उसका installer स्थानीय tarball निर्भरताएँ छोड़ देता है। [निजी picomatch security fork](../vendor/picomatch/README.md) registry audit को सख्त रखता है और patched source hashes, matching तथा सीमित hostile-input handling की अलग जाँच करता है।
+
 `electron-builder` को `27.0.0-alpha.13` पर pin किया है क्योंकि 26.x में deprecated dependencies बची हैं। यह build tool का prerelease है और हर native packaging target को CI पास करना चाहिए। warnings न छिपाएँ और असंगत major overrides न करें। lockfile regression deprecated entries रोकता है।
 
 v27 बिल्डर का नया कॉन्फ़िगरेशन पैकेज की वही फ़ाइलें, नेटिव मॉड्यूल नीति, desktop प्रविष्टि और macOS अनुमतियाँ रखता है। Ad-hoc हस्ताक्षर में `mac.sign.identity` और `mac.sign.sign` उपयोग होते हैं। मौजूदा updater 6 चैनल बिना हस्ताक्षर वाले अपडेट मैनिफ़ेस्ट और Windows आर्टिफ़ैक्ट स्पष्ट रूप से रखता है; Authenticode जाँच सक्षम करने के लिए हस्ताक्षर प्रकाशक कॉन्फ़िगर होना चाहिए। Staged updater में सीमित और सटीक npm alias अप्रचलित `lodash.isequal` को `lodash.isequalwith@4.4.0` से बदलता है। Customizer के बिना दोनों समान boolean deep comparison करते हैं। प्रत्येक इंस्टॉल वास्तविक updater cache में समान/बदले metadata और गायब फ़ाइल जाँचता है। Upstream सुधार के बाद override हटाएँ; पूरे `lodash` का alias wrapper लौटाता है और सुरक्षित नहीं है।

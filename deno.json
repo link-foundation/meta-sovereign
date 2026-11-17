@@ -1,5 +1,5 @@
 {
-  "nodeModulesDir": "auto",
+  "nodeModulesDir": "manual",
   "imports": {
     "teleproto": "npm:teleproto@1.232.1"
   },

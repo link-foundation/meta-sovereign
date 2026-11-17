@@ -523,9 +523,11 @@ jobs:
         with:
           deno-version: v2.9.8
 
-      - name: Install reviewed native dependency scripts (Deno)
+      # Deno's installer skips local tarball overrides. Use the shared lock
+      # and reviewed npm install scripts, then run Deno against that tree.
+      - name: Install locked dependencies (Deno)
         if: matrix.runtime == 'deno'
-        run: deno install
+        run: npm ci --no-audit --no-fund
 
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'

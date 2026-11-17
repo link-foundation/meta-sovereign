@@ -590,6 +590,7 @@
     "katex": "0.19.1",
     "lint-staged": "^17.6.0",
     "lottie-web": "5.13.0",
+    "picomatch": "file:vendor/picomatch/picomatch-4.0.7-patched.1.tgz",
     "prettier": "^3.9.10",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -608,7 +609,8 @@
     "glob": "14.0.4",
     "minimatch": "11.0.5",
     "links-notation": "$links-notation",
-    "lino-objects-codec": "$lino-objects-codec"
+    "lino-objects-codec": "$lino-objects-codec",
+    "picomatch": "$picomatch"
   },
   "peerDependencies": {
     "@capacitor/android": "^8.6.0",

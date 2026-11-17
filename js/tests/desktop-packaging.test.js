@@ -77,6 +77,7 @@ describe('desktop package.json', () => {
       playwright: rootPkg.optionalDependencies.playwright,
       teleproto: rootPkg.optionalDependencies.teleproto,
       'electron-updater': rootPkg.peerDependencies['electron-updater'],
+      picomatch: rootPkg.devDependencies.picomatch,
     });
     expect(pkg.dependencies['electron-updater']).toBe(
       rootPkg.peerDependencies['electron-updater']
