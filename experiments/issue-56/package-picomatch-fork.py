@@ -36,7 +36,7 @@ patched = parser.replace(needle, replacement)
 entries['lib/parse.js'] = patched.encode()
 (destination / 'security.patch').write_text(''.join(difflib.unified_diff(
     parser.splitlines(True), patched.splitlines(True),
-    fromfile='a/lib/parse.js', tofile='b/lib/parse.js')))
+    fromfile='a/lib/parse.js', tofile='b/lib/parse.js', n=0)))
 package = json.loads(entries['package.json'])
 package.update(name='meta-sovereign-picomatch', version='4.0.7+patched.1', private=True,
     description='Private picomatch 4.0.7 security fork for meta-sovereign; see provenance.json')

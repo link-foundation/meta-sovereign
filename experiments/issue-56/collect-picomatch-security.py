@@ -26,8 +26,8 @@ assert len(runs) == 5 and {run['headSha'] for run in runs} == {
     'd3513d3988c276838c180809a06426af20f5d263'}
 assert sum(run['conclusion'] == 'failure' for run in runs) == 2
 assert '21 high severity vulnerabilities' in (logs / 'd3513d39-audit-failed.log').read_text()
-parent = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip()
-assert parent.startswith('322b7fab')
+parent = subprocess.check_output(['git', 'rev-parse', '322b7fab'], cwd=root).decode().strip()
+subprocess.run(['git', 'merge-base', '--is-ancestor', parent, 'HEAD'], cwd=root, check=True)
 provenance = json.loads((root / 'vendor/picomatch/provenance.json').read_text())
 artifact = root / 'vendor/picomatch/picomatch-4.0.7-patched.1.tgz'
 assert hashlib.sha256(artifact.read_bytes()).hexdigest() == provenance['archiveSha256']
@@ -38,7 +38,7 @@ for name, value in fork.items():
     assert hashlib.sha256(value).hexdigest() == provenance['after'][name.removeprefix('package/')]
 original = logs / 'picomatch-4.0.7.tgz'
 assert hashlib.sha256(original.read_bytes()).hexdigest() == provenance['upstreamSha256']
-names = [name for name in changed_sources(root) if not name.endswith('PLAN.md')]
+names = [name for name in changed_sources(root, revision=parent) if not name.endswith('PLAN.md')]
 names += evidence_logs(root, 'picomatch') + evidence_logs(root, 'd3513d39')
 names += [str(path.relative_to(root)) for path in logs.glob('picomatch-*.diff')]
 names += ['ci-logs/picomatch-4.0.7.tgz', 'js/scripts/command-process.mjs',
