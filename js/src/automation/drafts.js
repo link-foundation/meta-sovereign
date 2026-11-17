@@ -18,6 +18,9 @@ import {
 import { validateAnswerDraft } from './question-store.js';
 import { draftConfirmationKey } from './draft-confirmation.js';
 import { orderedReplyState } from './ordered-reply.js';
+import { createStoreQueue } from '../storage/serialized.js';
+
+const serializeDrafts = createStoreQueue();
 
 const currentDraft = async (store, draft) =>
   draft.engagement
@@ -96,37 +99,40 @@ export const listAutomations = async (store) => {
 };
 
 /** Write planned drafts; they are shown in their chats until settled. */
-export const queueDrafts = async (store, automation, drafts, at) => {
-  // A draft is settled against its automation later; keep an unsaved one.
-  if (drafts.length > 0 && !(await store.get(automation.id))) {
-    await store.put(automation);
-  }
-  const queued = [];
-  for (const draft of drafts) {
-    if (draft.answer?.model?.used) {
+export const queueDrafts = (store, automation, drafts, at) =>
+  serializeDrafts(store, async () => {
+    // A draft is settled against its automation later; keep an unsaved one.
+    if (drafts.length > 0 && !(await store.get(automation.id))) {
+      await store.put(automation);
+    }
+    const queued = [];
+    for (const draft of drafts) {
+      // Planning can finish after another run or the owner saved this draft.
+      // Preserve pending previews for every action, including ordinary text.
       const existing = await store.get(draft.id);
       if (existing?.status === 'pending') {
-        queued.push(existing);
+        queued.push(await currentDraft(store, existing));
         continue;
       }
-      const valid = await validateAnswerDraft(store, automation, draft, {
-        reviewed: true,
-        now: Date.parse(at),
-      });
-      if (!valid.ok) {
-        throw Object.assign(new Error(valid.error), { code: valid.code });
+      if (draft.answer?.model?.used) {
+        const valid = await validateAnswerDraft(store, automation, draft, {
+          reviewed: true,
+          now: Date.parse(at),
+        });
+        if (!valid.ok) {
+          throw Object.assign(new Error(valid.error), { code: valid.code });
+        }
       }
+      await store.put({
+        ...draft,
+        tokens: ['automation-draft', automationKey(automation), draft.source],
+        status: 'pending',
+        createdAt: at,
+      });
+      queued.push(await currentDraft(store, draft));
     }
-    await store.put({
-      ...draft,
-      tokens: ['automation-draft', automationKey(automation), draft.source],
-      status: 'pending',
-      createdAt: at,
-    });
-    queued.push(await currentDraft(store, draft));
-  }
-  return queued;
-};
+    return queued;
+  });
 
 // Revealing an existing preview is a read, so it needs no archive planning.
 export const existingTestResult = async (store, automation, options, at) => {

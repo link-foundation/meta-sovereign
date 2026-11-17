@@ -3,13 +3,22 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 pending draft ownership (QA20 remains required):
+
+- [x] Reproduce two failures against the published parent: delayed ordinary planning and overlapping preview queues overwrite the pending owner wording.
+- [x] Preserve every pending action draft through the shared queue and serialize queue writes per store using the existing recoverable operation family.
+- [x] Pass 37 focused checks with one worker, including five shared provider identities, refused-write recovery and existing model/CLI/Lino behavior; rebuild the actual web bundle.
+- [x] Complete static checks and collect/independently rehash the source/log evidence.
+- [ ] Publish this atomic unit only to the prepared branch, then require exact-source hosted verification.
+- [ ] Require exact-source hosted verification and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
 2026-11-17 strict picomatch audit repair:
 
 - [x] Preserve both failed exact-source workflow logs and identify the new repeated-extglob advisory plus the independent inventory formatting failure.
 - [x] Reproduce the unsafe generated expression without a hostile parent execution. Package only the reviewed parser patch over the exact released source with deterministic hashes and original license.
 - [x] Pass 31 focused portable/desktop checks, four checks per isolated Bun/Deno installer fixture and unchanged strict registry audit with zero findings; retain type checking, partitions, assertions and deadlines.
 - [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve independently rehashed source/log/archive entries.
-- [ ] Publish both the person opt-out and CI repair commits only to the prepared branch.
+- [x] Publish both the person opt-out and CI repair commits only to the prepared branch at `d517e9d4`; exact-source hosted verification continues.
 - [ ] Review every exact-head hosted workflow, then continue all 35 unfinished original requirements. PR57 stays draft and unmerged.
 
 2026-11-17 distinct person opt-outs (QA19 remains required):
