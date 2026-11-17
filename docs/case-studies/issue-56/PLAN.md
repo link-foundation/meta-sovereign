@@ -1,3 +1,10 @@
+2026-11-17 external form-learning acceptance audit (QA23):
+
+- [x] Reconcile B2/B3/B11/B14/B23/B24, including the later full-minute owner-edit extension and unchanged no-auto-submit behavior.
+- [x] Independently verify 105 original evidence entries and retain current production source comparisons; review learner, observer, writer, detached worker and cleanup paths.
+- [ ] Require all five exact-source workflows, named focused checks, both native learning scenarios and the full-minute detached Chromium receipt; manually review before accepting QA23.
+- [ ] Publish only to the prepared branch and continue all unfinished requirements. PR57 stays draft and unmerged.
+
 2026-11-17 hosted EC2 browser dependency downloads:
 
 - [x] Preserve the exact `5e438e1b` Pages timeout, all log bytes and annotations; identify an unrecognized EC2 archive rather than a browser assertion failure.
