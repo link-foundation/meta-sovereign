@@ -482,12 +482,26 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Run tests (Node.js)
+        id: node-tests
         if: matrix.runtime == 'node'
         env:
           MS_LIFECYCLE_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
           MS_CLINK_DEBUG: ${{ runner.os != 'Linux' && '1' || '0' }}
           MS_APPLICATION_LIMIT_DEBUG: ${{ runner.os == 'Windows' && '1' || '0' }}
         run: node --test --test-concurrency=2 --test-timeout=30000 --test-shard=${{ matrix.shard || '1/1' }} js/tests/*.test.js
+
+      - name: Trace the five timed-out Windows storage fixtures
+        if: failure() && steps.node-tests.outcome == 'failure' && runner.os == 'Windows'
+        run: node experiments/issue-56/storage-windows-timeout.mjs
+
+      - name: Preserve Windows storage operation traces
+        if: failure() && steps.node-tests.outcome == 'failure' && runner.os == 'Windows'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: storage-timeout-node-windows-${{ strategy.job-index }}
+          path: ci-logs/storage-timeout/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Setup Bun
         if: matrix.runtime == 'bun'

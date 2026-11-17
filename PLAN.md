@@ -13,6 +13,17 @@ unmerged until the complete acceptance mapping is verified.
 - [ ] Publish checked evidence and inspect fresh hosted checks. Complete all
       40 original unchecked acceptance criteria; QA12 is not yet accepted.
 
+2026-11-17 Windows storage timeout investigation:
+
+- [x] Preserve exact 45bb2376 Node Windows shard 2 log. Lines 3803–3821
+      identify five ten-second storage/reopen timeouts, with zero assertion failures.
+- [x] Run only those five tests locally unchanged: all pass with one worker.
+- [x] Verify a focused native filesystem trace and preserve the failed log;
+      add failure-only hosted tracing without changing the original test gate.
+- [ ] Capture native filesystem operation timing on a hosted recurrence,
+      identify the cause and correct it without weakening tests or deadlines.
+- [ ] Require all fresh hosted checks and all 40 original unchecked criteria.
+
 2026-11-17 named salary clarifications (QA12):
 
 - [x] Reproduce three published-parent failures with nine passing controls;
