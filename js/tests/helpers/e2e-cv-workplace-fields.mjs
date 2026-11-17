@@ -7,6 +7,7 @@ import { readCvEditorDocument } from '../../src/jobs/cv-watch-document.js';
 import { cvSaveAttempt } from '../../src/jobs/cv-watch-verification.js';
 import { clickCvPreparation } from './e2e-cv-prepare-recovery.mjs';
 import { traceBrowserScenario } from './e2e-browser-scenarios.mjs';
+import { installCvWorkplaceTrace } from './e2e-cv-workplace-trace.mjs';
 
 const screenshot = async (target, directory, name, fullPage = false) => {
   if (directory) {
@@ -15,15 +16,18 @@ const screenshot = async (target, directory, name, fullPage = false) => {
   }
 };
 
-const configureReview = async (f, panel) => {
+const configureReview = async (f, panel, trace) => {
   const { identity } = f.data.sources.find(
     (row) => row.identity.language === 'en'
   );
   await panel
     .locator('[data-cv-workplace-export]')
     .selectOption(`${identity.exportId}:${identity.hash}`);
+  await trace('export-selected');
   await panel.locator('[data-cv-workplace-action="loadSource"]').click();
+  await trace('load-clicked');
   await panel.locator('[data-cv-workplace-fields]').waitFor();
+  await trace('fields-loaded');
   await panel.locator('[data-cv-workplace-record]').fill('123');
   for (const key of [
     'company',
@@ -90,6 +94,7 @@ export const verifyCvWorkplaceFields = async (
     fieldsMode: true,
   });
   const { page, provider } = f;
+  const trace = await installCvWorkplaceTrace(page);
   const panel = page.locator('[data-cv-workplace-review]');
   const prepare = panel.locator('[data-cv-workplace-action="prepare"]');
   const read = async () =>
@@ -120,7 +125,7 @@ export const verifyCvWorkplaceFields = async (
     await run(
       'review and approve all nine fields before exact native draft preparation',
       async () => {
-        await configureReview(f, panel);
+        await configureReview(f, panel, trace);
         await f.open({ delay: 300, context: true });
         const baseline = await read();
         const navigations = f.counters.navigations;
@@ -222,6 +227,11 @@ export const verifyCvWorkplaceFields = async (
       JSON.stringify({ cases, ...f.counters, errors: f.errors })
     );
     return { cases };
+  } catch (error) {
+    await trace('failed').catch((failure) => {
+      console.error('[cv-workplace-debug-failed]', failure.message);
+    });
+    throw error;
   } finally {
     await f.close();
   }

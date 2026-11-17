@@ -3,6 +3,18 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 hosted workplace source-loading timeout:
+
+- [x] Preserve the exact 94efd84b WebKit failure, aggregate failure, metadata
+      and browser artifact. Read the actual source-loading wait and stack.
+- [x] Run only the four relevant WebKit cases locally; unchanged and traced
+      versions pass with closed fixtures, no native saves and no page errors.
+- [x] Add opt-in bounded request/event/state diagnostics and a failure screenshot
+      to the mandatory scenario without changing assertions or deadlines.
+- [ ] Publish the evidence, inspect fresh exact-source hosted results and
+      investigate any recurrence. Historical cause remains unconfirmed.
+- [ ] Complete the full QA15 mapping and every other unchecked original criterion.
+
 2026-11-17 approved saved salary baseline (QA15):
 
 - [x] Read the pinned selector and native radio regression; reproduce two
