@@ -116,19 +116,28 @@ export class ApplicationReview {
           : assignmentText(raw.salary ?? '', 1000, 'vacancy salary', true),
       url: record.url,
     };
-    await vacancySnapshot(
-      this.service.store,
-      async () => ({
-        ...raw,
-        ...vacancy,
-        salary: vacancy.salary ?? '',
-        capturedAt: new Date().toISOString(),
-      }),
-      record.url,
-      true,
-      signal
-    );
+    if (!record.options.testMode && vacancy.salary !== null) {
+      await vacancySnapshot(
+        this.service.store,
+        async () => ({
+          ...raw,
+          ...vacancy,
+          salary: vacancy.salary ?? '',
+          capturedAt: new Date().toISOString(),
+        }),
+        record.url,
+        true,
+        signal
+      );
+    }
     record.vacancy = vacancy;
+    this.service.trace({
+      event: 'application-vacancy-context',
+      popup: record.page.scope,
+      preview: record.options.testMode,
+      salaryReadable: vacancy.salary !== null,
+      salaryAdvertised: Boolean(vacancy.salary),
+    });
   }
   async plan(record, signal) {
     const { filling } = this.service;
@@ -167,6 +176,9 @@ export class ApplicationReview {
     }
   }
   async cachedVacancy(record, signal) {
+    if (record.options.testMode || record.vacancy.salary === null) {
+      return;
+    }
     const cached = await vacancySnapshot(
       this.service.store,
       async () => ({
@@ -180,7 +192,7 @@ export class ApplicationReview {
     );
     record.vacancy = {
       ...assignmentVacancy(cached),
-      salary: cached.salary || null,
+      salary: cached.salary,
       url: record.url,
     };
   }
@@ -216,7 +228,12 @@ export class ApplicationReview {
     return applicationView(record);
   }
   async prepare(record, signal) {
-    if (record.state === 'ready') {
+    if (
+      record.state === 'ready' ||
+      (record.state === 'review' &&
+        !record.vacancy &&
+        record.page.url === record.url)
+    ) {
       await this.vacancy(record, signal);
     }
     if (

@@ -330,4 +330,14 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce batches completing while salary-deferred URLs remain unvisited, including the independent MCP parent backend run.
 - [x] Add worker-owned tier revisits after the current URL pass is exhausted, preserving frozen settings, permanent choices, native guards, actual drafts, confirmations and delivery caps.
 - [x] Verify ten parent failures, focused service/interface checks and native/MCP UI; preserve before/after screenshots, separate Send confirmations, four locales, phone layout, reload behavior and owned-resource cleanup.
-- [ ] Publish the atomic change, inspect exact-head CI and continue every original unchecked requirement. Do not treat a finite supplied-URL batch as complete automatic search/application orchestration.
+- [x] Publish the atomic change as 939a205b with 90 verified evidence entries. Four exact-source workflows pass; main CI exposes the pre-existing application-context regressions investigated below.
+- [ ] Complete every original unchecked requirement. Do not treat a finite supplied-URL batch as complete automatic search/application orchestration.
+
+2026-11-17 application-context CI regressions:
+
+- [x] Preserve all fifteen failed and four cancelled 4089a860 jobs; reproduce the seven portable failures in 29 focused tests on published 939a205b. Preserve the thirteen already-failed 939a205b job logs as well.
+- [x] Keep test previews free of public cache writes; read popup vacancy context in place; validate the complete canonical public record while retaining all private worker-policy assertions.
+- [x] Preserve the difference between an unadvertised salary and unreadable native context. The empty-string cache coercion caused both Chromium résumé-selection failures; unreadable content must not become a usable public snapshot.
+- [x] Verify six exact-parent failures and 73 passing focused checks. Both affected Chromium scenarios and the existing popup/re-entry scenario pass with owned-resource cleanup.
+- [x] Independently reproduce the parent HTTP 400 résumé-context failure through Playwright MCP, then verify HTTP 200 automatic selection, a fresh Send confirmation, four actual locale reloads, phone layout and closed fixtures. Inspect all three before/after screenshots.
+- [ ] Publish preserved evidence and inspect all exact-head workflows. Four 939a205b workflows pass; main CI still contains the reproduced context failures. All forty original criteria remain required; PR57 stays draft and unmerged.

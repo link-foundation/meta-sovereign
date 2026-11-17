@@ -788,3 +788,9 @@ Revisit salary-held URLs after each exhausted finite application pass, reducing
 the current floor by ₽50,000 while retaining frozen targets, actual drafts,
 fresh permanent choices, separate confirmations and delivery caps. Expose tier
 progress through CLI, both Lino transports and four translated UI locales.
+
+Keep application test previews free of public vacancy cache writes, and read
+vacancy context behind native application popups without navigating over owner
+answers. Preserve canonical vacancy caching for ordinary application review.
+Retain unadvertised salary context for résumé language selection while keeping
+unreadable native content under review and out of the public cache.

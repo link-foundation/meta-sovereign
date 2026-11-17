@@ -13,6 +13,7 @@ import {
   applicationIdentity as identity,
 } from '../../experiments/issue-56/application-run-fixture.mjs';
 import { gate } from '../../experiments/issue-56/vacancy-fixture.mjs';
+import { vacancyContent } from '../src/assignments/vacancy-content.js';
 
 const mode = (fixture, receipt, options) =>
   fixture.service['application-mode'](identity(receipt, options));
@@ -28,8 +29,18 @@ const assertPrivate = async (fixture) => {
   for (const row of await fixture.store.query()) {
     assert(
       row.id.startsWith('secret:jobs-application') ||
-        row.id.startsWith('qa-rule:')
+        row.id.startsWith('qa-rule:') ||
+        row.id.startsWith('assignment-vacancy:')
     );
+    if (row.id.startsWith('assignment-vacancy:')) {
+      assert.deepEqual(row, {
+        id: row.id,
+        version: 1,
+        tokens: ['assignment', 'vacancy'],
+        children: [],
+        ...vacancyContent(row, row.url),
+      });
+    }
     for (const key of ['noQuestionnaires', 'paused', 'slots']) {
       assert.equal(Object.hasOwn(row, key), false);
       assert.equal(Object.hasOwn(row.options ?? {}, key), false);
