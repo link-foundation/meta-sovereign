@@ -1,3 +1,9 @@
+Active contact guide link recovery:
+
+- [x] Preserve published `b5999ae5` link run `44129087291`, its complete 745-line log and bounded response rechecks with anonymous cookies omitted from committed evidence.
+- [x] Replace only the repeatably dead Apple contact guide with the checker-discovered exact archive; retain the pinned GitHub source after its successful recheck and keep strict checker rules.
+- [ ] Publish the repair and inspect all exact-head workflows; all 36 original unfinished criteria remain required.
+
 Active acceptance checkpoint (`6c20f4dc`):
 
 - [x] Five complete workflows succeed: 72 jobs pass and six release/deployment jobs intentionally skip; every test and native build passes. Preserve three actual runner-allocation failures and their unchanged successful retry.

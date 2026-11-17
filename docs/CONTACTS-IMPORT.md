@@ -21,7 +21,7 @@ This is a manual snapshot import. Run it again to pick up changes. It does not s
 
 ## vCard exports on any platform
 
-Export contacts as a `.vcf` file from [iCloud Contacts](https://support.apple.com/en-ca/guide/icloud/mmfba748b2/icloud), [Google Contacts](https://support.google.com/contacts/answer/7199294?co=GENIE.Platform&hl=en), or another address book. In **Contacts → Import contacts**, choose **Choose vCard file**, select the file, review the preview, then choose **Import**.
+Export contacts as a `.vcf` file from [iCloud Contacts (archived Apple guide)](https://web.archive.org/web/20260921173549/https://support.apple.com/en-ca/guide/icloud/mmfba748b2/icloud), [Google Contacts](https://support.google.com/contacts/answer/7199294?co=GENIE.Platform&hl=en), or another address book. In **Contacts → Import contacts**, choose **Choose vCard file**, select the file, review the preview, then choose **Import**.
 
 Supported formats are vCard 2.1, 3.0 and 4.0, including folded lines, quoted-printable legacy exports and UTF-16 files. The limit is 10 MiB per file and 20,000 entries per batch. Imported fields are name, nickname, organisation, job title, email addresses, phone numbers, website URLs and postal addresses. Photos, notes and birthdays are not imported.
 

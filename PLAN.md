@@ -3,6 +3,12 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 36 unchecked criteria (82 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 contact guide link recovery:
+
+- [x] Preserve the current-source link failure and bounded remote rechecks; distinguish the repeatable Apple 404 from the later successful pinned GitHub source request.
+- [x] Replace the dead contact guide with its explicitly labelled exact archive; preserve strict checker rules and the original source reference.
+- [ ] Publish the documentation repair and inspect fresh exact-head hosted checks. All 36 unfinished criteria remain required.
+
 2026-11-17 current acceptance checkpoint:
 
 - [x] Read the complete QA12/QA14/QA15/VD09 behavior mappings and current-source comparisons; all five workflows succeed at `6c20f4dc` after the three unacquired macOS jobs pass unchanged on retry.
