@@ -765,3 +765,8 @@ Recognize owner-learned salary vocabulary from distinct eligible approved monthl
 answers, including inherited gross clarifications (issue #56 QA12). Require the
 reference's minimum examples and topic purity, preserve explicit basis and scope,
 and keep past/current pay, offer acceptance and payroll topics outside inference.
+
+Recognize ordinary expected-income and salary-range requests, gross/net aliases
+and explicit hourly abbreviations across shared salary planning (issue #56
+QA12/QA13). Preserve unsupported periods, current-pay/offer exclusions and bounded
+related-topic clarification; retain owner drafts and unchanged saved observations.

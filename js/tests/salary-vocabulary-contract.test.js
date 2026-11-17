@@ -4,7 +4,7 @@ import { planAnswer } from '../src/automation/question-answers.js';
 import { createAutomationRunner } from '../src/automation/runner.js';
 import { normalizeAutomation } from '../src/automation/automations.js';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
+import { assertStoredSalaryPreviews } from './helpers/salary-preview-surfaces.mjs';
 import {
   vocabularySalary as salary,
   salaryVocabularyQuestion as question,
@@ -175,28 +175,16 @@ test(
   'stored learned salary vocabulary reaches actual CLI, offline and both Lino formats',
   { timeout: 15000 },
   async () => {
-    const store = createMemoryStore();
-    for (const rule of salaryVocabularyRules()) {
-      await store.put(rule);
-    }
-    const automationId = 'salary-vocabulary';
-    await store.put({
-      id: `automation:${automationId}`,
-      tokens: ['automation'],
-      enabled: true,
-      action: { kind: 'answer-questions', salary },
-    });
-    const before = JSON.stringify(await store.query(() => true));
-    await assertQuestionPreviewSurfaces({
-      store,
-      automationId,
-      input: { question, salary },
+    await assertStoredSalaryPreviews({
+      id: 'salary-vocabulary',
+      rules: salaryVocabularyRules(),
+      salary,
+      question,
       verify(answer) {
         assert.equal(answer.text, expected);
         assert.equal(answer.salary.basis, 'gross');
       },
     });
-    assert.equal(JSON.stringify(await store.query(() => true)), before);
   }
 );
 

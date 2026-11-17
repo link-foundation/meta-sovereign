@@ -255,3 +255,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify 39 focused checks, native prefill/owner preservation and independent MCP with zero sends; verify a corpus edit during typing prevents an outbox claim. Inspect valid before/after screenshots.
 - [ ] Preserve source-bound evidence and publish after final static checks; inspect all five exact-source workflows.
 - [ ] Complete the entire QA12/QA13/QA15 reference mapping and all other original unchecked requirements. All 40 remain in scope, with PR57 draft and unmerged.
+
+2026-11-17 ordinary salary intent (partial QA12/QA13):
+
+- [x] Preserve all five passing 59252a5e workflows and eleven raw job logs; publish approved wording and learned vocabulary as 6a2b60cb and update PR57 with reproduction, screenshots and remaining scope.
+- [x] Reproduce six exact-parent failures for expected-income phrases, gross/net aliases, explicit pay periods, current-pay/offer exclusions and actual CLI/Lino previews.
+- [x] Pass 34 focused checks with one worker; native and independent MCP prefill preserve owner drafts and zero sends. Inspect valid before/after screenshots and consolidate repeated persisted-preview setup without losing assertions.
+- [ ] Preserve source-bound evidence, commit the atomic correction and inspect all five exact-head hosted workflows.
+- [ ] Complete every original salary and other unchecked criterion. No row is accepted by this partial correction; PR57 remains draft and unmerged.

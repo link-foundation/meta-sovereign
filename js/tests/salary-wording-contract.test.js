@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { planAnswer } from '../src/automation/question-answers.js';
-import { createMemoryStore } from '../src/storage/universal.js';
-import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
+import { assertStoredSalaryPreviews } from './helpers/salary-preview-surfaces.mjs';
 import {
   wordingSalary as salary,
   salaryWordingQuestion as question,
@@ -228,25 +227,15 @@ test(
   'CLI, offline and both Lino previews reuse stored salary wording without rewriting counts',
   { timeout: 15000 },
   async () => {
-    const store = createMemoryStore();
-    await store.put(rule());
-    const automationId = 'salary-wording';
-    await store.put({
-      id: `automation:${automationId}`,
-      tokens: ['automation'],
-      enabled: true,
-      action: { kind: 'answer-questions', salary },
-    });
-    const before = JSON.stringify(await store.query(() => true));
-    await assertQuestionPreviewSurfaces({
-      store,
-      automationId,
-      input: { question, salary },
+    await assertStoredSalaryPreviews({
+      id: 'salary-wording',
+      rules: [rule()],
+      salary,
+      question,
       verify(answer) {
         assert.equal(answer.text, expected);
         assert.equal(answer.salary.currency, 'EUR');
       },
     });
-    assert.equal(JSON.stringify(await store.query(() => true)), before);
   }
 );
