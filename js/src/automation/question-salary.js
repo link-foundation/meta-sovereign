@@ -4,6 +4,7 @@ import { salaryQuestion } from './salary-question.js';
 import { salaryOption } from './salary-options.js';
 import { rejectedAnswer } from './question-policy.js';
 import { salaryGuidance } from './salary-guidance.js';
+import { salaryWording } from './salary-wording.js';
 
 const wording = (value, selection) => {
   const { language, basis, period } = selection;
@@ -59,7 +60,7 @@ const plainPay = (text) => {
     .replace(/\{\{salary_[a-z0-9_]+\}\}/gu, '')
     .replace(/[\d\s.,₽$€+\-–—/()]/gu, '')
     .replace(
-      /руб\S*|тыс\S*|млн\S*|доллар\S*|евро|на|руки|от|до|вычета|налогов|в|час\S*|месяц\S*|чистыми|гросс|from|net|gross|per|month\S*|hour\S*|before|after|tax\S*|RUB|USD|EUR|USDT/giu,
+      /руб\S*|тыс\S*|млн\S*|доллар\S*|евро|на|руки|от|до|вычета|ндфл|налогов|в|час\S*|месяц\S*|ежемесячно|чистыми|гросс|from|net|gross|per|month\S*|hour\S*|before|after|tax\S*|RUB|USD|EUR|USDT/giu,
       ''
     );
   return !stripped.trim();
@@ -102,6 +103,22 @@ const salaryContent = (input, config, selection, entry, resolved, guidance) => {
   }
   return { missing, text, optionMismatch, option };
 };
+const salaryNeedsReview = ({
+  config,
+  guidance,
+  option,
+  missing,
+  optionMismatch,
+  rejected,
+  wording,
+}) =>
+  !config.approved ||
+  wording?.requiresReview === true ||
+  Boolean(guidance) ||
+  option?.contained === false ||
+  missing.length > 0 ||
+  optionMismatch ||
+  rejected;
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(
     (item) => item.code === selection.currency
@@ -119,21 +136,28 @@ const salaryResult = (question, input, previous, config, selection) => {
     resolved,
     guidance
   );
-  const rejected = Boolean(rejectedAnswer(text, input.policy));
+  const wording =
+    !missing.length && !guidance
+      ? salaryWording(question, input, previous, selection)
+      : null;
+  const selectedText = wording?.text ?? text;
+  const rejected = Boolean(rejectedAnswer(selectedText, input.policy));
   return {
     question,
-    text: rejected ? '' : text,
+    text: rejected ? '' : selectedText,
     match: 'salary',
     complete: missing.length === 0 && !optionMismatch && !rejected,
-    requiresReview:
-      !config.approved ||
-      Boolean(guidance) ||
-      option?.contained === false ||
-      missing.length > 0 ||
-      optionMismatch ||
+    requiresReview: salaryNeedsReview({
+      config,
+      guidance,
+      option,
+      missing,
+      optionMismatch,
       rejected,
+      wording,
+    }),
     missing,
-    rules: [],
+    rules: wording ? [wording.rule] : [],
     contexts: salaryContexts(previous, selection),
     salary: {
       ...salaryDetails(selection, resolved),

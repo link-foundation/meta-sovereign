@@ -239,3 +239,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve all five successful exact-source workflows and every required job; review the complete source mapping and twelve additional semantic receipts on both engines. The checked archive verifies 459 named assertions, 72 browser records and native Electron.
 - [x] Accept the full original QA11 approved-wording/final-period contract. The inventory now has 78 accepted and 40 unchecked criteria.
 - [ ] Publish the new salary corrections, inspect their exact-head CI and complete all remaining original requirements. PR57 remains draft and unmerged.
+
+2026-11-17 approved salary wording (QA12):
+
+- [x] Study complete pinned salary question, clarification and hourly contracts; reproduce seven exact-parent failures and the actual overwritten composer text on 59252a5e.
+- [x] Preserve approved exact wording and deterministic compatible detailed alternatives while substituting current amounts/currency; retain scope, canonical corrections, equivalents, final-period policy, owner explanations and unchanged counts.
+- [x] Pass 30 focused portable checks, mandatory native prefill/owner preservation and independent MCP with zero sends; inspect before/after screenshots.
+- [ ] Preserve source-bound evidence and publish the atomic correction after focused static checks.
+- [ ] Inspect all five exact-head workflows and complete full QA12 and every remaining unchecked requirement. All 40 remain required; PR57 stays draft and unmerged.

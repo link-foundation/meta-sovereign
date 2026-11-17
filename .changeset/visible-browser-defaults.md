@@ -755,3 +755,8 @@ Combine final-period observations across eligible exact-question rules, preservi
 Carry final-period settings through form CLI plans and owned Lino review/prefill
 requests, retaining them during final checks. Refuse request recovery with changed
 spelling settings before repeating any write; preserve owner edits and submission.
+
+Preserve approved salary-only wording when answering another salary question,
+using current configured amounts and the requested currency (issue #56 QA12).
+Exact approved wording, declared equivalents and final-period preferences remain
+in force; saved observations and counts are unchanged.

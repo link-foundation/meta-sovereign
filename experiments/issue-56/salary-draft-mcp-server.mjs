@@ -1,0 +1,30 @@
+import { chromium } from 'playwright';
+import { questionBrowserServer } from './question-browser-server.mjs';
+import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+
+export const salaryDraftMcpServer = async ({ question, rules = [] }) => {
+  const browser = await chromium.launch({
+    executablePath:
+      process.env.E2E_EXECUTABLE_PATH ?? '/opt/google/chrome/chrome',
+    headless: true,
+    args: ['--disable-dev-shm-usage'],
+  });
+  const fixture = await questionBrowserServer(browser);
+  try {
+    for (const rule of rules) {
+      await saveAnswerRule(fixture.store, rule);
+    }
+    await fixture.reset({ freeText: true, question });
+    console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
+    process.stdin.resume();
+    await new Promise((resolve) => process.stdin.once('data', resolve));
+  } finally {
+    process.stdin.pause();
+    const stats = await fixture.stats();
+    await fixture.close();
+    await browser.close();
+    console.log(
+      JSON.stringify({ stats, resourcesClosed: true, liveProvider: false })
+    );
+  }
+};
