@@ -15,6 +15,7 @@ check_app() {
 check_image() (
   local mounted_dir
   mounted_dir=$(mktemp -d)
+  # shellcheck disable=SC2329 # Invoked indirectly by this image's EXIT trap.
   cleanup() {
     local status="$?" attempt
     trap - EXIT
