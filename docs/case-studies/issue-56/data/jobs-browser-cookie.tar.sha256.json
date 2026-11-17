@@ -1,0 +1,33 @@
+{
+  "archive": "jobs-browser-cookie.tar.gz",
+  "files": {
+    "ci-logs/jobs-browser-cookie-archive-initial.log": "88b8460907665be5a73ca5a4a914aa7e52472df892d962a32963449bf8fe289c",
+    "ci-logs/jobs-browser-cookie-browser.log": "ed8a4c988e17256b8e2a3e20674b152437c0d4645f2602945fafb1b15c5ee9f6",
+    "ci-logs/jobs-browser-cookie-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/jobs-browser-cookie-doc-format.log": "c13eda6b9720dd2a65b2877b7431bdae40bb3dc833c4d540a6b613c4dee1aa1b",
+    "ci-logs/jobs-browser-cookie-duplication-initial-2.log": "7f0719a77752b0cbc6bc63f67a9df03a4db720f3d6568c8cda91f16b396774e1",
+    "ci-logs/jobs-browser-cookie-duplication-initial.log": "ccd33ddc0f2b69ffdfa12ea562185770bfe81fccde518bd5aca62d10a41eb376",
+    "ci-logs/jobs-browser-cookie-duplication.log": "8afb40e6e76f3546608bee55aa8e41787abe35e66a98cfe7ae45592af352e392",
+    "ci-logs/jobs-browser-cookie-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/jobs-browser-cookie-format.log": "f314688d73a962b9165ebd00d03e7d43fe6a4db4a50e786d69a05e633badb6f3",
+    "ci-logs/jobs-browser-cookie-limits.log": "65619dac80efbc8eabdacc4063934f3a9fe8d7a3afefec5a64bbea34afffe2aa",
+    "ci-logs/jobs-browser-cookie-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/jobs-browser-cookie-native.log": "41a276227e1568477094fb94a7d99865aef065e8bc1769132a9872b5aa82e0ba",
+    "ci-logs/jobs-browser-cookie-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/jobs-browser-cookie.md": "25a0842f9f166363d3b97de49c286a2cc1f867835c90bfd1af42aa05ae1ef365",
+    "experiments/issue-56/collect-jobs-browser-cookie.py": "12865da383cd23f8c255a14723f80567b44eb9f60b607d58ef8b50c552324d92",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/jobs-browser-cookie.mjs": "ce379398843a04629248dfa117f458893f7f10472ccf5e363dbda267e8ec4afb",
+    "js/scripts/browser-checks.json": "f33689526348609c1f82f7f83ee4dd8e577d5620ca1d50c5fda10f47744bc675",
+    "js/src/browser/policy.js": "fc3710844f8cd9bcd453f655e1b7262d0dce6517feb759e84add0798fd91d77d",
+    "js/src/cv/browser.js": "fdd8d2b03fa1137abef092e2a1789744a7817a586bd25f63d1fb52b5aa1029ff",
+    "js/src/jobs/browser-dependencies.js": "66f46b3959c9774c7fdc3c9643f69624853d351dccd2091e17f1216a8bc84785",
+    "js/src/jobs/browser-profile.js": "204d7724f789266f8494c1554fcc044d6ce481d0e40f6f8aa3c51b748ccb0f26",
+    "js/tests/e2e-jobs-browser-profile-browser.mjs": "6cb34e6146a6a3ce904fb1fdc6ee98fa5723b500e7feab319102352e546b1af8",
+    "js/tests/helpers/e2e-browser-scenarios.mjs": "d6c3e934e1dd454d64dde4fb8631e983407b0ba27b86b1177968acfdead6253e",
+    "js/tests/helpers/e2e-jobs-browser-profile.mjs": "ab154cef5f021ed9ceb72e47b34ab1ffca47613a0de8cf8ceaf52bca2eab3d60",
+    "js/tests/helpers/fixture-server.mjs": "944e587cc039ee8c468ed8d69166d71c964e4f0fab0bbee0ea15e73e26eded0d",
+    "package.json": "3bc22afef4f99c447a9509d4c4a24c942e49a6b20e37578f49cc357bba3c4b15",
+    "metadata.json": "92f8a86fc7fc1a922c3270b9c63d485512daec40f6110b9d3320d45a0149c91f"
+  }
+}

@@ -1607,3 +1607,9 @@ The [native watcher disclosure investigation](ci-question-watch-disclosure.md) p
 - [ ] Finish focused profile/legacy/ownership/CLI/Lino checks, strict static gates, source-bound archive, atomic commit/push and hosted verification. Full persistent manual login/challenge control and all forty unchecked original criteria remain unfinished; PR57 stays draft.
 
 Shared-profile local verification is complete: five actual-parent failures, 14 focused checks, 28 existing service/CLI/Lino checks and strict static gates pass. Existing legacy profiles and locks remain in place; distinct accounts are refused before launch. The source-bound archive retains actual parent modules and complete local logs. Publication and hosted verification remain required; HH01 and all forty unchecked original rows remain unfinished.
+
+Native profile persistence follow-up:
+
+- [x] Verify one synthetic HTTP-only session cookie across a clean Chromium restart through the actual shared factory; verify another slot and workspace start without it. Four sequential launches use owned temporary profiles and loopback traffic only.
+- [x] Register a mandatory bounded native group, with explicit WebKit capability refusal, and retain the successful focused Chromium receipt.
+- [ ] Finish scoped static checks, preserve checked evidence, publish and inspect all hosted workflows. Interactive headed login/challenge handling and all forty original unchecked criteria remain required; PR57 stays draft/unmerged.

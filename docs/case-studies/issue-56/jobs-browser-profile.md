@@ -47,3 +47,8 @@ and browser coverage remains required for the published source.
 This fixes one HH01 integration defect. Interactive login/challenge controls,
 complete persistent headed workflow acceptance and every other unchecked
 criterion remain unfinished. PR57 remains draft and unmerged.
+
+[Native cookie evidence](jobs-browser-cookie.md) additionally verifies clean
+restart retention of a synthetic session cookie in the actual Chromium disk
+profile, with independent slots and workspaces. Its four sequential headless
+launches do not establish manual headed login or CAPTCHA acceptance.
