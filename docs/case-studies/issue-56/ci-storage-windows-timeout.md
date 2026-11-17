@@ -31,6 +31,15 @@ verifies complete partitions, propagation of a failing test, unchanged test
 deadlines and diagnostic conditions. Node expands the quoted test glob to keep
 the Windows command line bounded. Twenty-two focused workflow checks pass.
 
+The next source `027b8575` passes the hosted line-limit check. Its
+[workflow contracts job](https://github.com/link-foundation/meta-sovereign/actions/runs/44077538834/job/134019951831)
+fails at log lines 644–650 because the cache policy still expects exactly one
+local-action exception. The extracted Node action is a second intentional
+consumer of the checked-out fresh merge. The policy now enumerates exactly
+`npm-cache` and `node-tests`, requires the explanation on both, and verifies
+that both run after fresh-merge preparation. The unchanged policy reproduces
+one failure with two passing controls; all three corrected policy tests pass.
+
 ```sh
 node experiments/issue-56/storage-windows-timeout.mjs
 ```

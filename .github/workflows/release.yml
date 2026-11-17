@@ -483,7 +483,7 @@ jobs:
 
       - name: Run tests (Node.js)
         if: matrix.runtime == 'node'
-        uses: ./.github/actions/node-tests # zizmor: ignore[self-repository] -- Use the checked-out fresh merge, as for npm-cache above.
+        uses: ./.github/actions/node-tests # zizmor: ignore[self-repository] -- Use the already checked-out fresh merge; avoid downloading the full evidence archive before checkout.
         with:
           shard: ${{ matrix.shard || '1/1' }}
           artifact: storage-timeout-node-windows-${{ strategy.job-index }}

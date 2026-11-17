@@ -74,7 +74,7 @@ test('cache reservations are isolated across workflows, refs and platforms', () 
   }
 });
 
-test('the checkout-dependent cache exception remains scoped and documented', () => {
+test('checkout-dependent action exceptions remain scoped and documented', () => {
   const workflow = readFileSync(
     new URL('../../.github/workflows/release.yml', import.meta.url),
     'utf8'
@@ -82,8 +82,23 @@ test('the checkout-dependent cache exception remains scoped and documented', () 
   const exceptions = workflow
     .split('\n')
     .filter((line) => line.includes('ignore[self-repository]'));
-  assert.equal(exceptions.length, 1);
-  assert.match(exceptions[0], /uses: \.\/\.github\/actions\/npm-cache/);
-  assert.match(exceptions[0], /already checked-out fresh merge/);
-  assert.match(exceptions[0], /full evidence archive before checkout/);
+  const allowed = ['npm-cache', 'node-tests'];
+  assert.equal(exceptions.length, allowed.length);
+  const steps = parse(workflow).jobs.test.steps;
+  const merged = steps.findIndex((step) =>
+    step.run?.includes('simulate-fresh-merge.sh')
+  );
+  for (const name of allowed) {
+    const uses = `./.github/actions/${name}`;
+    const matching = exceptions.filter((line) =>
+      line.includes(`uses: ${uses} `)
+    );
+    assert.equal(matching.length, 1, name);
+    assert.match(matching[0], /already checked-out fresh merge/);
+    assert.match(matching[0], /full evidence archive before checkout/);
+    assert.ok(
+      merged >= 0 && merged < steps.findIndex((step) => step.uses === uses),
+      name
+    );
+  }
 });
