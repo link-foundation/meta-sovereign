@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { saveAnswerRule } from '../../src/automation/question-store.js';
-import { openFormPlan, closeFormReview } from './e2e-form-review.mjs';
+import {
+  openFormPlan,
+  closeFormReview,
+  applyFormFieldsWithRecovery,
+} from './e2e-form-review.mjs';
 import {
   savedBaselineRule,
   savedBaselineOptions,
@@ -62,31 +66,14 @@ export const verifyFormSavedBaseline = async ({
       false,
       'the saved baseline has approved numeric evidence'
     );
-    const input = {
-      id: plan.reviewPlan.sessionId,
-      planId: plan.reviewPlan.id,
-      fields: [selected[0].id],
-    };
-    const apply = () =>
-      page.evaluate(
-        (input) => globalThis.__msApi.formsApplyReview(input),
-        input
-      );
-    const result = await apply();
-    assert.equal(result.state, 'applied');
-    assert.equal(result.receipts.length, 1);
-    assert.equal(result.receipts[0].status, 'applied');
-    receipts = result.receipts.length;
+    const result = await applyFormFieldsWithRecovery(page, owner, plan, [
+      selected[0].id,
+    ]);
     assert.equal(
       await owner.page.locator('[name="savedBaseline"]:checked').inputValue(),
       '2'
     );
-    const events = await owner.page.evaluate(() => globalThis.events.length);
-    assert.deepEqual((await apply()).receipts, result.receipts);
-    assert.equal(
-      await owner.page.evaluate(() => globalThis.events.length),
-      events
-    );
+    receipts = result.receipts.length;
     recovered = true;
   }
   await shot(before ? 'before' : 'after');

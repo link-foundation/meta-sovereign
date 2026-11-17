@@ -160,15 +160,18 @@ export const salaryOption = (choices, targets, selection, config, closest) => {
       ? { choice: matches[0].choice, contained: true }
       : null;
   }
-  // Conflicting bases need one containing range even in a reviewed form.
-  if (!closest || targets.length !== 1 || !bands.length) {
+  if (!closest || !bands.length) {
     return null;
   }
-  const target = targets[0];
-  const distance = (band) => Math.max(band.low - target, target - band.high, 0);
-  const minimum = Math.min(...bands.map(distance));
-  const nearest = bands.filter((band) => distance(band) === minimum);
-  return nearest.length === 1
-    ? { choice: nearest[0].choice, contained: false }
+  // Each basis must independently choose the same unique nearest form band.
+  const nearest = targets.map((target) => {
+    const distance = (band) =>
+      Math.max(band.low - target, target - band.high, 0);
+    const minimum = Math.min(...bands.map(distance));
+    const choices = bands.filter((band) => distance(band) === minimum);
+    return choices.length === 1 ? choices[0].choice : null;
+  });
+  return nearest[0] && nearest.every((choice) => choice === nearest[0])
+    ? { choice: nearest[0], contained: false }
     : null;
 };

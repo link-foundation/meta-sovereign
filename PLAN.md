@@ -3,6 +3,17 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 reviewed nearest salary bands with two bases (QA13/QA15):
+
+- [x] Read the complete pinned selector; preserve three exact-parent failures
+      and the passing safety control for per-basis nearest agreement.
+- [x] Require one unique nearest choice per target and agreement, retaining
+      explicit form review and automatic chat containment.
+- [x] Pass 20 focused checks, native and independent MCP parent/corrected paths,
+      and both saved-baseline compatibility checks with closed zero-submit fixtures.
+- [ ] Publish checked evidence and verify all five exact-source hosted workflows;
+      complete the full QA15 mapping and every other unchecked requirement.
+
 2026-11-17 hosted workplace source-loading timeout:
 
 - [x] Preserve the exact 94efd84b WebKit failure, aggregate failure, metadata

@@ -109,3 +109,40 @@ export const assertAppliedReceipts = (result, count, message) =>
         .length === count,
     message
   );
+
+/** Apply explicit fields once and require recovery without another native event. */
+export const applyFormFieldsWithRecovery = async (
+  page,
+  owner,
+  plan,
+  fields
+) => {
+  const input = {
+    id: plan.reviewPlan.sessionId,
+    planId: plan.reviewPlan.id,
+    fields,
+  };
+  const apply = () =>
+    page.evaluate((input) => globalThis.__msApi.formsApplyReview(input), input);
+  const result = await apply();
+  assert(
+    result.receipts.length === fields.length,
+    'exact native receipt count'
+  );
+  assertAppliedReceipts(
+    result,
+    fields.length,
+    'every selected field has a receipt'
+  );
+  const events = await owner.page.evaluate(() => globalThis.events.length);
+  assert(
+    JSON.stringify((await apply()).receipts) ===
+      JSON.stringify(result.receipts),
+    'retry recovers the acknowledged receipts'
+  );
+  assert(
+    (await owner.page.evaluate(() => globalThis.events.length)) === events,
+    'recovery repeats no native event'
+  );
+  return result;
+};

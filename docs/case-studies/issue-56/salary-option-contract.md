@@ -19,7 +19,10 @@ retains currency, basis, period and overlap guards. A label specifying only net
 or only gross cannot stand in for both bases. A single configured amount may
 use a unique nearest band only in field planning; the result explicitly records
 `contained: false` and requires review. Chat planning still needs containment,
-and a conflicting dual-basis question never uses nearest-band fallback. Current
+and a conflicting dual-basis question never uses nearest-band fallback. The later
+[per-basis nearest correction](salary-nearest-bases.md) permits a reviewed form
+proposal when both independently choose the same unique nearest band; chat still
+requires containment. Current
 configured targets override a plain stale saved salary band. Missing targets,
 unapproved settings and rejected wording keep their existing holds.
 

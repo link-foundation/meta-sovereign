@@ -828,3 +828,7 @@ omits currency, retaining explicit question precedence and ambiguous-choice revi
 Reuse a compatible exact approved saved salary amount as a missing numeric
 choice baseline. Preserve configured target precedence, failed tax calculations,
 explicit form review, unchanged knowledge records and zero submissions.
+
+Propose a reviewed nearest salary band when each net/gross target independently
+chooses the same unique option. Preserve ties, overlap and unit guards, explicit
+native review, automatic chat containment and idempotent receipt recovery.
