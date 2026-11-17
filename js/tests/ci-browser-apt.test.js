@@ -175,3 +175,43 @@ test('browser apt mirror priorities retain metadata and leave incomplete or alre
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('browser apt preparation recognizes hosted EC2 archives without changing their failover metadata', async () => {
+  const { prepareBrowserApt } =
+    await import('../scripts/prepare-browser-apt.mjs');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ms-browser-apt-ec2-'));
+  const mirror = 'http://us-east-2.ec2.archive.ubuntu.com/ubuntu/';
+  const primary = 'https://archive.ubuntu.com/ubuntu/';
+  const mirrors = `${mirror}\tpriority:1 arch:amd64v3\n${primary}\tpriority:2\nhttps://security.ubuntu.com/ubuntu/\tpriority:3\n`;
+  const direct = `deb ${mirror} resolute main\n`;
+  const unrelated = [
+    'deb https://us-east-2.ec2.archive.ubuntu.com.example/ubuntu resolute main',
+    'deb https://ports.ubuntu.com/ubuntu-ports resolute main',
+    'deb https://security.ubuntu.com/ubuntu resolute-security main',
+    '',
+  ].join('\n');
+  try {
+    await mkdir(path.join(root, 'sources.list.d'));
+    await writeFile(path.join(root, 'apt-mirrors.txt'), mirrors);
+    await writeFile(path.join(root, 'sources.list'), direct);
+    await writeFile(path.join(root, 'sources.list.d/other.sources'), unrelated);
+    assert.equal(await prepareBrowserApt(root), 2);
+    assert.equal(
+      await readFile(path.join(root, 'apt-mirrors.txt'), 'utf8'),
+      mirrors
+        .replace(`${mirror}\tpriority:1`, `${mirror}\tpriority:2`)
+        .replace(`${primary}\tpriority:2`, `${primary}\tpriority:1`)
+    );
+    assert.equal(
+      await readFile(path.join(root, 'sources.list'), 'utf8'),
+      `deb ${primary} resolute main\n`
+    );
+    assert.equal(
+      await readFile(path.join(root, 'sources.list.d/other.sources'), 'utf8'),
+      unrelated
+    );
+    assert.equal(await prepareBrowserApt(root), 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

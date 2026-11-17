@@ -932,3 +932,5 @@ Add owner-selectable weighted character/keyword question rewording across saved 
 
 Bound standalone weighted question matching before tokenization, preserving the
 6,000-character boundary, legacy ordered matching and finite work budgets.
+
+Recognize hosted regional EC2 Ubuntu archives when preparing browser dependencies, preserving fallback mirrors, metadata and existing CI deadlines (issue #56).

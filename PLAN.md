@@ -1,3 +1,11 @@
+2026-11-17 hosted EC2 browser dependency downloads:
+
+- [x] Preserve the exact `5e438e1b` Pages timeout, all log bytes and annotations; identify an unrecognized EC2 archive rather than a browser assertion failure.
+- [x] Reproduce one failure and five positive setup controls; recognize regional EC2 hosts while retaining failover metadata, source boundaries and existing deadlines.
+- [x] Pass all 26 focused setup/workflow checks with one worker and no host package changes.
+- [x] Pass scoped lint/format/secrets, workflow policy, source/doc limits and the unchanged 6.49% duplication gate; preserve the parent helper and complete failure evidence.
+- [ ] Independently hash the evidence and publish only to the prepared branch; review actual hosted source changes, package downloads and the full exact-commit gate. All 35 unfinished criteria remain required.
+
 2026-11-17 generic form-reader acceptance audit (QA21):
 
 - [x] Reconcile the full pinned B10/B13 reading contract with current labels, groups, cross-origin frames, CLI, both Lino encodings and shared UI.

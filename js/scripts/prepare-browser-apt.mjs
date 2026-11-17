@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Hosted Azure mirror stalls have consumed the Pages job before browser tests.
+// Hosted cloud mirror stalls have consumed the Pages job before browser tests.
 // Prefer the primary archive without removing the runner's mirror failover.
 // Keep suites, signature keys, security sources and unrelated repositories.
 import { readFile, readdir, writeFile } from 'node:fs/promises';
@@ -19,30 +19,30 @@ const optional = async (operation, fallback) => {
 
 const mirrorEntry = (line) => {
   const uri =
-    /^(https?:\/\/(azure\.)?archive\.ubuntu\.com\/ubuntu\/?)(?=\s|$)/u.exec(
+    /^(https?:\/\/((?:azure\.|[a-z0-9-]+\.ec2\.))?archive\.ubuntu\.com\/ubuntu\/?)(?=\s|$)/u.exec(
       line
     );
   const priority = /(?:^|\s)priority:(\d+)(?=\s|$)/u.exec(line);
   const value = Number(priority?.[1]);
   return uri && priority && Number.isSafeInteger(value)
-    ? { line, azure: Boolean(uri[2]), priority: value }
+    ? { cloud: Boolean(uri[2]), priority: value }
     : null;
 };
 
 const preferPrimaryMirror = (before) => {
   const entries = before.split('\n').map(mirrorEntry).filter(Boolean);
-  const priority = (azure) =>
+  const priority = (cloud) =>
     Math.min(
       ...entries
-        .filter((entry) => entry.azure === azure)
+        .filter((entry) => entry.cloud === cloud)
         .map((entry) => entry.priority)
     );
-  const azure = priority(true);
+  const cloud = priority(true);
   const primary = priority(false);
   if (
-    !Number.isFinite(azure) ||
+    !Number.isFinite(cloud) ||
     !Number.isFinite(primary) ||
-    primary <= azure
+    primary <= cloud
   ) {
     return before;
   }
@@ -50,8 +50,8 @@ const preferPrimaryMirror = (before) => {
     .split('\n')
     .map((line) => {
       const entry = mirrorEntry(line);
-      const old = entry?.azure ? azure : primary;
-      const next = entry?.azure ? primary : azure;
+      const old = entry?.cloud ? cloud : primary;
+      const next = entry?.cloud ? primary : cloud;
       return entry?.priority === old
         ? line.replace(/(\spriority:)\d+(?=\s|$)/u, `$1${next}`)
         : line;
@@ -84,7 +84,7 @@ export const prepareBrowserApt = async (directory = '/etc/apt') => {
       name === 'apt-mirrors.txt'
         ? preferPrimaryMirror(before)
         : before.replace(
-            /(^|\s)https?:\/\/azure\.archive\.ubuntu\.com\/ubuntu(?=\/?(?:\s|$))/gu,
+            /(^|\s)https?:\/\/(?:azure\.|[a-z0-9-]+\.ec2\.)archive\.ubuntu\.com\/ubuntu(?=\/?(?:\s|$))/gu,
             '$1https://archive.ubuntu.com/ubuntu'
           );
     if (after !== before) {
