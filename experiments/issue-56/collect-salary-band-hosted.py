@@ -5,17 +5,15 @@ hosted-verification-SLUG-*.json and hosted-SLUG-TAG.log before running this.
 Run audit-hosted-criteria.py with salary-band-evidence.json for the same SHA.
 Integrity and positive receipts do not independently accept a criterion.
 """
-import ast
-import base64
-import hashlib
 import json
 from pathlib import Path
-import re
 import subprocess
 import sys
-import tarfile
 from evidence_bundle import write_entries_archive
-from hosted_evidence import read_workflows, read_jobs
+from hosted_evidence import (
+    read_workflows, read_jobs, source_reader, read_catalog_audit, read_literal_tests,
+    read_reference_contracts,
+)
 
 root = Path(__file__).resolve().parents[2]
 revision, slug = sys.argv[1:]
@@ -30,38 +28,11 @@ raw, jobs = read_jobs(root, runs, slug, {
 }, entries)
 
 
-def source(name):
-    content = subprocess.check_output(['git', 'show', f'{sha}:{name}'], cwd=root)
-    entries[name] = content
-    return content.decode()
-
-
+source = source_reader(root, sha, entries)
 catalog = json.loads((root / 'experiments/issue-56/salary-band-evidence.json').read_text())
-audit_path = logs / 'salary-band-criteria-source-audit.json'
-audit = json.loads(audit_path.read_text())
-assert audit['revision'] == sha and set(audit['archives']) == set(catalog)
-for name, archive in audit['archives'].items():
-    path = root / 'docs/case-studies/issue-56/data' / f'{name}.tar.gz'
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == archive['archiveSha256']
-    manifest = path.with_suffix('').with_suffix('.tar.sha256.json')
-    assert hashlib.sha256(manifest.read_bytes()).hexdigest() == archive['manifestSha256']
-    entries[str(manifest.relative_to(root))] = manifest.read_bytes()
-    for path, hashes in archive['sources'].items():
-        assert hashlib.sha256(source(path).encode()).hexdigest() == hashes['current'], path
-
-literal = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
-tests = {}
-for stem in catalog:
-    path = f'js/tests/{stem}.test.js'
-    names = [ast.literal_eval(match.group(1)) for match in literal.finditer(source(path))]
-    assert names and len(names) == len(set(names)), path
-    tests[path] = {}
-    for name in names:
-        lines = [i for i, line in enumerate(raw['node'], 1) if f'✔ {name} (' in line]
-        assert len(lines) == 1, (name, lines)
-        tests[path][name] = lines[0]
+read_catalog_audit(root, sha, 'salary-band-criteria', catalog, source, entries)
+tests = read_literal_tests(catalog, source, raw['node'])
 assert sum(map(len, tests.values())) == 53
-assert any('ℹ fail 0' in line for line in raw['node'])
 
 scenario_entry = source('js/tests/e2e-question-salary-options-browser.mjs')
 assert 'question-salary-options' in scenario_entry
@@ -131,28 +102,14 @@ for engine in ['chromium', 'webkit']:
         assert len(matches) == 1 and matches[0][1] == expected, (engine, marker, matches)
         receipts[f'{engine}/{marker}'] = dict(line=matches[0][0], receipt=matches[0][1])
 
-references = {}
-for archive_name, paths in {
+references = read_reference_contracts(root, {
     'salary-option-contract': ['ci-logs/salary-options-reference-readme.json',
                                'ci-logs/salary-options-reference-tests.json'],
     'salary-band-numbers': [f'ci-logs/salary-band-numbers-reference-{i}.json'
                             for i in range(3)],
-}.items():
-    with tarfile.open(root / 'docs/case-studies/issue-56/data' / f'{archive_name}.tar.gz') as archive:
-        for path in paths:
-            response = archive.extractfile(path).read()
-            reference = json.loads(response)
-            content = base64.b64decode(reference['content'])
-            blob = b'blob ' + str(len(content)).encode() + b'\0' + content
-            assert hashlib.sha1(blob).hexdigest() == reference['sha'], path
-            assert 'fa0991b8c2d0896fb3b4be6c69947f0590094b15' in reference['html_url']
-            entries[path] = response
-            entries[f'references/{reference["path"]}'] = content
-            references[reference['path']] = dict(url=reference['html_url'], blob=reference['sha'])
+}, entries, 'fa0991b8c2d0896fb3b4be6c69947f0590094b15')
 assert {'src/salary-options.mjs', 'tests/salary-options.test.mjs',
         'tests/chat-options.test.mjs', 'README.md'} <= set(references)
-for name in ['salary-band-criteria-source-audit.json', 'salary-band-criteria-source-deltas.diff']:
-    entries[f'ci-logs/{name}'] = (logs / name).read_bytes()
 for name in ['experiments/issue-56/collect-salary-band-hosted.py',
              'experiments/issue-56/hosted_evidence.py',
              'experiments/issue-56/evidence_bundle.py',

@@ -1,5 +1,11 @@
 """Read exact-source hosted workflow and job receipts without running a matrix."""
 import json
+import ast
+import hashlib
+import re
+import subprocess
+import base64
+import tarfile
 
 
 def read_workflows(root, sha, slug, entries):
@@ -36,3 +42,69 @@ def read_jobs(root, runs, slug, jobs, entries):
             'url': job['url'], 'log': str(path.relative_to(root)),
         }
     return raw, receipts
+
+
+def source_reader(root, sha, entries):
+    def read(name):
+        content = subprocess.check_output(['git', 'show', f'{sha}:{name}'], cwd=root)
+        entries[name] = content
+        return content.decode()
+    return read
+
+
+def read_catalog_audit(root, sha, prefix, catalog, source, entries):
+    logs = root / 'ci-logs'
+    audit = json.loads((logs / f'{prefix}-source-audit.json').read_text())
+    assert audit['revision'] == sha and set(audit['archives']) == set(catalog)
+    for name, archive in audit['archives'].items():
+        path = root / 'docs/case-studies/issue-56/data' / f'{name}.tar.gz'
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == archive['archiveSha256']
+        manifest = path.with_suffix('').with_suffix('.tar.sha256.json')
+        assert hashlib.sha256(manifest.read_bytes()).hexdigest() == archive['manifestSha256']
+        entries[str(manifest.relative_to(root))] = manifest.read_bytes()
+        for path, hashes in archive['sources'].items():
+            assert hashlib.sha256(source(path).encode()).hexdigest() == hashes['current'], path
+    for suffix in ['source-audit.json', 'source-deltas.diff']:
+        name = f'ci-logs/{prefix}-{suffix}'
+        entries[name] = (root / name).read_bytes()
+    return audit
+
+
+def read_literal_tests(stems, source, lines):
+    literal = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
+    tests = {}
+    for stem in sorted(stems):
+        path = f'js/tests/{stem}.test.js'
+        content = source(path)
+        assert not re.search(r'\btest\(\s*`', content), f'expand dynamic names: {path}'
+        names = [ast.literal_eval(match.group(1)) for match in literal.finditer(content)]
+        assert names and len(names) == len(set(names)), path
+        tests[path] = {}
+        for name in names:
+            matches = [i for i, line in enumerate(lines, 1) if f'✔ {name} (' in line]
+            assert len(matches) == 1, (name, matches)
+            tests[path][name] = matches[0]
+    assert any('ℹ fail 0' in line for line in lines)
+    return tests
+
+
+def read_reference_contracts(root, selection, entries, revision):
+    references = {}
+    for archive_name, paths in selection.items():
+        archive_path = root / 'docs/case-studies/issue-56/data' / f'{archive_name}.tar.gz'
+        archive = tarfile.open(archive_path) if archive_name else None
+        try:
+            for path in paths:
+                response = archive.extractfile(path).read() if archive else (root / path).read_bytes()
+                reference = json.loads(response)
+                content = base64.b64decode(reference['content'])
+                blob = b'blob ' + str(len(content)).encode() + b'\0' + content
+                assert hashlib.sha1(blob).hexdigest() == reference['sha'], path
+                assert revision in reference['html_url'], path
+                entries[path] = response
+                entries[f'references/{reference["path"]}'] = content
+                references[reference['path']] = dict(url=reference['html_url'], blob=reference['sha'])
+        finally:
+            if archive:
+                archive.close()
+    return references

@@ -3,6 +3,17 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 complete salary context audit (QA12):
+
+- [x] Map all pinned salary/context/clarification/hourly behavior and distinguish
+      the other original numeric, application and unread criteria.
+- [x] Verify eighteen archives, 781 entries and the complete 2,146-line source
+      comparison; review all 23 changed records across fourteen production files.
+- [x] Draft an exact-source collector requiring 120 named checks, fourteen
+      semantic receipts per engine, mandatory native groups and five workflows.
+- [ ] Execute and inspect current-source hosted receipts, then update QA12 only
+      when its complete contract passes. All forty original criteria remain open.
+
 2026-11-17 portable salary fixture import:
 
 - [x] Preserve and reproduce Deno TS2307 from importing browser machinery for
