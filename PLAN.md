@@ -1,3 +1,11 @@
+2026-11-17 native link checker transient retries:
+
+- [x] Preserve all 14 HTTP 503 entries from exact `2769b823` run 44171573167; read upstream issue 2319 and merged correction 2324.
+- [x] Reproduce four failures and two positive passes on stable 0.24.2; pass six corrected native retry controls, four existing pacing controls and all eleven finite source rechecks on the verified official nightly.
+- [x] Retain host pacing, all existing assertions, exclusions and strict failure handling; add mandatory native recovery controls to hosted validation.
+- [x] Preserve and independently rehash all 37 source/log evidence entries; scoped formatting, secrets, source/doc limits and the unchanged 6.49% duplication gate pass.
+- [ ] Publish only to the prepared branch and inspect every exact-head workflow. All 35 original unfinished criteria remain required.
+
 2026-11-17 autopilot Stop ownership (QA20 remains required):
 
 - [x] Reproduce 18 failures on published `2769b823`: Stop permits later sends, acknowledges held provider requests early and loses terminal state ownership.
