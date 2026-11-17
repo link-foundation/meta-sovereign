@@ -1,3 +1,5 @@
+import { messageTime } from '../crm/message-time.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 // Learn proposals from actual complete turns. Approval is separate from
 // observed frequency; importing a conversation never authorizes sending.
 import { repliedId } from '../crm/conversation-questions.js';
@@ -52,7 +54,10 @@ const privateUrl = (text) => {
 };
 const privateMessageLinks = (message) => {
   try {
-    return (messageLinkProperties(message.links).links ?? []).some(
+    return (
+      messageLinkProperties(sourceMessageLinkProperties(message).links).links ??
+      []
+    ).some(
       (link) =>
         !['https:', 'http:'].includes(new URL(link).protocol) ||
         privateUrl(link)
@@ -88,7 +93,7 @@ const usableAnswer = (question, next, isSelf) =>
   !next.failed &&
   !answerAsksQuestion(next.body) &&
   !undelivered(next) &&
-  Date.parse(next.timestamp) - Date.parse(question.timestamp) <= 86400000 &&
+  messageTime(next.timestamp) - messageTime(question.timestamp) <= 86400000 &&
   (!repliedId(next) || repliedId(next) === question.id);
 
 const addAlignedParts = (question, text, evidence, add) => {
@@ -145,7 +150,7 @@ const questionBeforeReminder = (
   const previous = prior ?? question;
   return previous &&
     usableQuestion(previous, isSelf) &&
-    Date.parse(message.timestamp) - Date.parse(previous.timestamp) <= 86400000
+    messageTime(message.timestamp) - messageTime(previous.timestamp) <= 86400000
     ? previous
     : null;
 };
@@ -390,7 +395,7 @@ export const learnAnswerRules = (messages, options = {}) => {
     // Missing chronology cannot establish adjacency. Keep service records,
     // including those without a body, so they cannot disappear between turns.
     if (
-      list.some((message) => !Number.isFinite(Date.parse(message.timestamp)))
+      list.some((message) => !Number.isFinite(messageTime(message.timestamp)))
     ) {
       continue;
     }

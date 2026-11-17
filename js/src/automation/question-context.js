@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 // Configured context groups work for currencies, work formats, or other owner
 // vocabulary. A different choice cannot inherit another choice's fields.
 import { asksQuestion, questionKey } from './question-match.js';
@@ -102,9 +103,8 @@ export const normalizeAnswerEnvironment = ({
     );
   }
   const messages = recent.map((entry) => {
-    const text = typeof entry === 'string' ? entry : entry?.text;
-    const evidence = typeof entry === 'string' ? undefined : entry?.evidence;
-    const outgoing = typeof entry === 'string' ? undefined : entry?.outgoing;
+    const data = typeof entry === 'string' ? { text: entry } : entry;
+    const { text, evidence, outgoing } = data ?? {};
     if (
       typeof text !== 'string' ||
       text.length > 6000 ||
@@ -219,7 +219,7 @@ export const resolveAnswerContexts = (question, options) => {
 // Actual archived turns are newest first, with barriers kept before filtering.
 // No history text is included in diagnostic traces, only message identifiers.
 export const answerEnvironmentFromMessages = (messages, latest, owners) => {
-  const at = Date.parse(latest.timestamp);
+  const at = messageTime(latest.timestamp);
   const sorted = messages
     .filter(
       (message) =>
@@ -230,7 +230,7 @@ export const answerEnvironmentFromMessages = (messages, latest, owners) => {
     .toSorted((a, b) => historyOrder(b, a));
   const recent = [];
   for (const message of sorted.slice(0, 20)) {
-    const time = Date.parse(message.timestamp);
+    const time = messageTime(message.timestamp);
     if (
       !Number.isFinite(time) ||
       time > at ||

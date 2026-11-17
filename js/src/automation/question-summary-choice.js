@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 // Accepted summaries are evidence for current native choices only. They never
 // approve a learned fact, count as an owner send or authorize free-text reuse.
 import { completedSummaryPairs } from './question-summary.js';
@@ -14,7 +15,7 @@ const validSummaryMessage = (message) =>
   message.source.length <= 80 &&
   message.chat !== undefined &&
   message.chat !== null &&
-  Number.isFinite(Date.parse(message.timestamp)) &&
+  Number.isFinite(messageTime(message.timestamp)) &&
   typeof message.body === 'string' &&
   message.body.length <= 12000;
 const incoming = (message, owners) =>

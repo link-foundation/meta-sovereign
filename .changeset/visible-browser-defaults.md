@@ -917,3 +917,8 @@ await all autopilot owners during server shutdown (issue #56 QA20).
 Use the official corrected lychee nightly for transient HTTP retry handling and
 verify actual recovery, finite exhaustion, zero retries and permanent failures
 with mandatory native checks; preserve strict link validation and host pacing.
+
+Retain VK link, file and wall destinations through shared question review, frozen
+history and final admission. Compare native Unix timestamps with ISO history
+consistently and preserve private destination exclusions during answer learning
+(issue #56 QA04).

@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 import { historyOrder } from '../replies/history-order.js';
 import { answerChoiceState } from './question-options.js';
 import { checkedPendingMessages } from './question-pending-plan.js';
@@ -76,7 +77,7 @@ const unansweredMessages = (messages, owners) => {
 export const chatQuestionTurn = (input, ownerIds = []) => {
   const owners = [...new Set(['me', ...ownerIds.map(String)])];
   if (
-    input.some((message) => !Number.isFinite(Date.parse(message.timestamp)))
+    input.some((message) => !Number.isFinite(messageTime(message.timestamp)))
   ) {
     return unavailable();
   }

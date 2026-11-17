@@ -12,6 +12,11 @@ import {
   emailLinkTarget,
 } from './question-email-links-fixture.mjs';
 
+import {
+  vkQuestionAutomation,
+  vkQuestionLink,
+} from './question-vk-links-fixture.mjs';
+
 const inspect = async (page, data) => {
   const errors = [];
   const followed = [];
@@ -99,7 +104,8 @@ const inspect = async (page, data) => {
 };
 
 const email = process.argv.includes('--email');
-const kind = email ? 'email' : 'api';
+const vk = process.argv.includes('--vk');
+const kind = vk ? 'vk' : email ? 'email' : 'api';
 const code = mcpInspectionCode(inspect, {
   base: process.argv[2],
   root: resolve('.'),
@@ -107,8 +113,16 @@ const code = mcpInspectionCode(inspect, {
     [TUTORIAL_STORAGE_KEY, JSON.stringify({ off: true, v: TUTORIAL_VERSION })],
   ],
   kind,
-  automation: email ? emailLinkAutomation.id : apiLinkAutomation.id,
-  target: email ? emailLinkTarget('mime') : apiLink.first,
+  automation: vk
+    ? vkQuestionAutomation.id
+    : email
+      ? emailLinkAutomation.id
+      : apiLinkAutomation.id,
+  target: vk
+    ? vkQuestionLink.first
+    : email
+      ? emailLinkTarget('mime')
+      : apiLink.first,
   labels: Object.fromEntries(
     ['en', 'ru', 'hi', 'zh'].map((locale) => [
       locale,

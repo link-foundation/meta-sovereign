@@ -1,4 +1,5 @@
 import { messageLinkProperties } from '../message-link-targets.js';
+import { vkMessageTargets } from './vk-message-links.js';
 
 const invalid = () => {
   throw Object.assign(new Error('Message link metadata is unverified.'), {
@@ -174,6 +175,9 @@ const emailLinks = (tree) => {
 const sourceLinks = (message) => {
   if (message.source === 'telegram') {
     return telegramLinks(message.raw, message.body);
+  }
+  if (message.source === 'vk') {
+    return vkMessageTargets(message)?.map(target);
   }
   return message.source === 'email' ? emailLinks(message.bodyTree) : undefined;
 };

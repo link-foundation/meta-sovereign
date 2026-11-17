@@ -1,3 +1,4 @@
+import { messageTime } from '../crm/message-time.js';
 // Shared persisted answer knowledge for the CLI, server and offline editor.
 import { createBoundedHistory } from '../replies/bounded-history.js';
 import { modelAnswerPreview } from './answer-model-preview.js';
@@ -258,7 +259,7 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       String(link.chat) === String(draft.chat),
     (batch) => {
       for (const message of batch) {
-        const at = Date.parse(message.timestamp);
+        const at = messageTime(message.timestamp);
         if (!Number.isFinite(at)) {
           unknownTime = true;
         }

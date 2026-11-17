@@ -1,3 +1,5 @@
+import { messageTime } from '../crm/message-time.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 import { historyOrder } from '../replies/history-order.js';
 import { createAnswerLearner } from './question-learning.js';
 import { QA_RULE_PREFIX } from './question-answers.js';
@@ -31,7 +33,7 @@ const messageProjection = (message) => {
     status: message.status,
     out: message.out,
     outgoing: message.outgoing,
-    links: message.links,
+    ...sourceMessageLinkProperties(message),
   };
 };
 
@@ -59,7 +61,7 @@ export const indexAnswerArchive = async (store, maxBytes = MAX_INDEX_BYTES) => {
       !message.source ||
       message.chat === undefined ||
       message.chat === null ||
-      !Number.isFinite(Date.parse(message.timestamp));
+      !Number.isFinite(messageTime(message.timestamp));
     chat.entries.push({ id: message.id, timestamp: message.timestamp });
     chats.set(key, chat);
     seen++;

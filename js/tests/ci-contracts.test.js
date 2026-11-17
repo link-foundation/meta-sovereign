@@ -366,6 +366,7 @@ const questionBrowserGroups = {
     'verifyTemplateLinkGuards',
     'verifyHiddenQuestionLinks',
     'verifyApiQuestionLinks',
+    'verifyVkQuestionLinks',
   ],
   'question-text-replies': ['verifyTextReplyControls'],
   'question-text-guards': ['verifyTextReplyGuards'],

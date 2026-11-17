@@ -18,6 +18,12 @@ if "--email" in sys.argv:
     PARENT = "7ba65f1e1f511aa307a2765f7c296a3e88cdf851"
     FILES = [f"js/src/sources/{name}.js" for name in [
         "message-text-links", "email-html", "email-mime", "email-records"]]
+if "--vk" in sys.argv:
+    kind = "vk"
+    PARENT = "6d1dcc249d224f9ea8d46d1d98acd7fcc31ff957"
+    FILES = [f"js/src/automation/question-{name}.js" for name in [
+        "archive", "chat-turn", "context", "learning", "store", "summary-choice"]]
+    FILES += ["js/src/replies/history-order.js", "js/src/sources/message-text-links.js"]
 if "--browser" in sys.argv:
     FILES.append("js/src/web/app.min.js")
 saved = {name: (ROOT / name).read_bytes() for name in FILES}
@@ -37,6 +43,7 @@ try:
         result = subprocess.run([
             "node", "--max-old-space-size=384", "--test", "--test-concurrency=1",
             f"js/tests/question-{kind}-links.test.js",
+            *(["js/tests/question-message-time.test.js"] if kind == "vk" else []),
         ], cwd=ROOT, check=False)
         if result.returncode != 1:
             raise AssertionError("The parent regression checks must fail")

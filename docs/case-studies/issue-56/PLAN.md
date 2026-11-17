@@ -1,10 +1,18 @@
+2026-11-17 VK question attachment destinations (QA04 remains required):
+
+- [x] Trace actual VK live/history/archive adapters and reproduce missing direct link/document/wall destinations in saved-answer review.
+- [x] Bind native and normalized bounded targets into shared planning, frozen history and final admission; retain ordinary-message behavior and refusal diagnostics.
+- [x] Verify 25 failures and two positive controls on the exact parent; pass 50 focused checks, 36 compatibility checks, CLI, both Lino formats and actual before/after browser/MCP views with drained fixtures. Native chronology and private learning are covered separately.
+- [x] Pass scoped lint/format/secrets, source/doc limits and the unchanged 6.49% duplication gate; preserve and independently rehash source/log/screenshot evidence.
+- [ ] Publish the atomic correction and inspect exact-head hosted validation. Complete QA04 and all other unfinished criteria remain required.
+
 2026-11-17 native link checker transient retries:
 
 - [x] Preserve all 14 HTTP 503 entries from exact `2769b823` run 44171573167; read upstream issue 2319 and merged correction 2324.
 - [x] Reproduce four failures and two positive passes on stable 0.24.2; pass six corrected native retry controls, four existing pacing controls and all eleven finite source rechecks on the verified official nightly.
 - [x] Retain host pacing, all existing assertions, exclusions and strict failure handling; add mandatory native recovery controls to hosted validation.
-- [x] Preserve and independently rehash all 37 source/log evidence entries; scoped formatting, secrets, source/doc limits and the unchanged 6.49% duplication gate pass.
-- [ ] Publish only to the prepared branch and inspect every exact-head workflow. All 35 original unfinished criteria remain required.
+- [x] Preserve and independently rehash all 38 source/log evidence entries; scoped formatting, secrets, source/doc limits and the unchanged 6.49% duplication gate pass.
+- [x] Publish native retries and Stop ownership on `6d1dcc24`; its strict link workflow passes. Other exact-head workflows and all 35 original unfinished criteria remain required.
 
 2026-11-17 autopilot Stop ownership (QA20 remains required):
 
