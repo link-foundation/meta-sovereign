@@ -51,9 +51,10 @@ production modules; the source auditor compares those snapshots with the
 selected published revision and records every changed source hash and unified
 delta. Current hosted portable and native execution is required separately.
 
-At `8c2260b6dc99ad04e44f2b2001b774be98b0ede5`, all 781 archived entries
-verify. Twenty-three archive/source records differ across fourteen production
-files. The complete 2,146-line comparison was read. Changes preserve explicit
+At `06953e31ac283d568d424935923038b3f5bc5060`, all 781 archived entries
+verify. Twenty-five archive/source records differ across fifteen production
+files. The earlier complete 2,146-line comparison and the subsequent shared
+planner/context changes were read. Changes preserve explicit
 currency boundaries, configured priority and stems, personal wording, independent
 language/basis/period, bounded clarifications, current amounts and saved-baseline
 guards. Browser changes share asynchronous captured-context planning between
@@ -61,6 +62,13 @@ manual, watch and unread paths, preserve cancellation, use an observed card
 before a separate page and exclude outgoing turns only after chronology and
 delivery barriers. English/Hindi watch copy accurately includes approved salary
 choices. No removed feature was found in this comparison.
+
+The latest shared guard holds identical answer wording after a repeated question
+and consecutive sent owner replies, while allowing a different candidate. The
+archive planner and fresh browser dispatch use the same owner-direction
+predicate, including archived owner identities. This strengthens rejection
+handling without letting outgoing text select salary context. Six focused
+repetition checks and the mandatory sixth watcher case cover the new behavior.
 
 ```sh
 python -B experiments/issue-56/audit-hosted-criteria.py HEAD \
@@ -106,7 +114,7 @@ an invented live-account acceptance gate must not defer implemented behavior.
 ## Remaining acceptance work
 
 - Recheck the source comparison if any mapped production module changes after
-  the reviewed `8c2260b6` comparison.
+  the reviewed `06953e31` comparison.
 - Bind named portable checks and semantic receipts from both browser engines
   to one published SHA and five successful complete hosted workflows.
 - Read actual receipts and any failure logs before updating QA12. Integrity,

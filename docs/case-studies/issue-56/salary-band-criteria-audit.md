@@ -48,7 +48,7 @@ amounts are never converted implicitly.
 ## Evidence integrity and later source changes
 
 `experiments/issue-56/salary-band-evidence.json` selects eleven completed
-implementation archives. At `8c2260b6`, all 660 entries and their manifests
+implementation archives. At `06953e31`, all 660 entries and their manifests
 verify without extraction. Fifteen archive/source records differ from their
 original production bytes across four files: `question-salary.js`,
 `question-unread-answers.js`, `salary-question.js` and `salary-options.js`.
