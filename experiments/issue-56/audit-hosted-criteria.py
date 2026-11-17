@@ -4,18 +4,23 @@ This finite audit establishes integrity and source changes, not acceptance.
 Hosted run receipts and the original behavior mapping require separate review.
 It streams archives without extracting files or running local test matrices.
 """
+import argparse
 import difflib
 import hashlib
 import json
 from pathlib import Path
 import subprocess
-import sys
 import tarfile
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('revision', nargs='?', default='HEAD')
+parser.add_argument('--names-file', type=Path, help='JSON array selecting evidence archives')
+parser.add_argument('--output-prefix', default='hosted-criteria')
+arguments = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 data = root / 'docs/case-studies/issue-56/data'
 revision = subprocess.check_output(
-    ['git', 'rev-parse', sys.argv[1] if len(sys.argv) > 1 else 'HEAD'],
+    ['git', 'rev-parse', arguments.revision],
     cwd=root).decode().strip()
 names = [
     'vk-friend-stats', 'vk-friend-priority', 'runner-log',
@@ -40,6 +45,12 @@ names = [
     'forms-period-configuration', 'ci-question-wording-fixtures',
     'ci-period-watch-observer',
 ]
+if arguments.names_file:
+    names = json.loads(arguments.names_file.read_text())
+    assert isinstance(names, list) and names and all(
+        isinstance(name, str) and Path(name).name == name for name in names)
+    assert len(names) == len(set(names)), 'duplicate archive selection'
+assert Path(arguments.output_prefix).name == arguments.output_prefix
 audits = {}
 hashed_revisions = {
     'question-lists': '86eebd79',
@@ -79,7 +90,7 @@ def compare_source(name, source, content, delta):
     }
 
 
-with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
+with (root / f'ci-logs/{arguments.output_prefix}-source-deltas.diff').open('w') as delta:
     for name in names:
         archive = data / f'{name}.tar.gz'
         manifest = archive.with_suffix('').with_suffix('.tar.sha256.json')
@@ -128,6 +139,6 @@ with (root / 'ci-logs/hosted-criteria-source-deltas.diff').open('w') as delta:
         print(f'{name}: {len(actual)} verified entries, '
               f'{sum(source["changed"] for source in sources.values())} changed sources')
 output = {'revision': revision, 'acceptance': False, 'archives': audits}
-(root / 'ci-logs/hosted-criteria-source-audit.json').write_text(
+(root / f'ci-logs/{arguments.output_prefix}-source-audit.json').write_text(
     json.dumps(output, indent=2) + '\n')
 print(f'All {len(audits)} archives verified without extraction; acceptance remains separate')
