@@ -4,6 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
 import { mountRepeatedQuestion } from '../../../experiments/issue-56/repeated-question-fixture.mjs';
+import { openFollowDisclosure as openNativeDisclosure } from './follow-disclosure.mjs';
 import {
   traceBrowserInputs,
   traceBrowserDetails,
@@ -88,10 +89,10 @@ export const verifyQuestionBrowserWatch = async (
       `${fixture.base}/?watch-review=${++navigation}#/automation`
     );
     await trace('before');
-    await page.locator('[data-question-controls] > summary').click();
-    await trace('root-click');
-    await controls.locator(':scope > summary').click();
-    await trace('child-click');
+    await openNativeDisclosure(page.locator('[data-question-controls]'));
+    await trace('root-open');
+    await openNativeDisclosure(controls);
+    await trace('child-open');
   };
   const start = () => watch.locator('[data-browser-watch-start]').click();
   const stop = async () => {

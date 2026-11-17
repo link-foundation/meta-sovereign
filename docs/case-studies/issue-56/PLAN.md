@@ -1539,3 +1539,5 @@ Active repeated-answer and current CI verification:
 - [x] Verify six focused Node/Deno checks, 26 Node compatibility checks, native before/after screenshots and independent MCP review with zero choices/sends and drained resources. Preserve existing diagnostic warnings accurately.
 - [x] Preserve the macOS Deno deadline cancellation and verify six finite native partitions through the existing configuration and failure-propagation tests; keep the ten-minute deadline and every test/runtime/OS.
 - [ ] Resolve the actual `8c2260b6` WebKit question-disclosure failure, publish atomic corrections and verify every current-head hosted workflow. Continue all forty unchecked original requirements; PR57 remains draft and unmerged.
+
+The [native watcher disclosure investigation](ci-question-watch-disclosure.md) preserves the actual WebKit trace, a finite actual-parent pointer miss and the successful native keyboard opener. Scoped checks and the unchanged duplication gate pass; published hosted verification and all forty unchecked criteria remain required.

@@ -1,0 +1,32 @@
+{
+  "archive": "watch-disclosure-coordinate.tar.gz",
+  "files": {
+    "ci-logs/8c22-webkit-2-artifact/ms-e2e-question-watch-failed-webkit.png": "ba8347442e2757a84837294602d740ea1f07130c189d66df98faec2cb7e8056e",
+    "ci-logs/8c22-webkit-2-job.json": "302624f288cba5db41b091beb0a4ee5a0ef4ee1edb7d58e0dd8ab5ef45034cc4",
+    "ci-logs/8c22-webkit-2.log": "62b445810e6fd65cd91302acca31fcff921077c351ae9a0ea4bd451c3c1ca9ad",
+    "ci-logs/watch-coordinate-collection.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/watch-coordinate-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/watch-coordinate-duplication.log": "0e77bf8241630478b397c1de97a3ab8cf336c168dac39b22fe994983cc15e38b",
+    "ci-logs/watch-coordinate-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/watch-coordinate-format.log": "e59a4731d81588955f253e574963eb57246f8c1dd079e1ade8eaf169e2e73cab",
+    "ci-logs/watch-coordinate-initial-layout-probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/watch-coordinate-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/watch-coordinate-native-after.log": "df172d7d1f49fd408ffc9c9b8e8908db8113cd0023f9109c585dee5957d40dd2",
+    "ci-logs/watch-coordinate-native-before.log": "1142495771eb175b8f4238adc67b215ef189b008bc1321aa36bb7fef7683504e",
+    "ci-logs/watch-coordinate-parent.log": "f5e8cd6ec08d805d0c7df5050df42687c7914ad97806dc679a9e7d00639847a8",
+    "ci-logs/watch-coordinate-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/ci-question-watch-disclosure.md": "2f26a2062355d0e6bfd81823c5cfd0d8a05b8943ab86935e1cc524d1ef3498f7",
+    "docs/screenshots/issue-56-watch-coordinate/after/repeated-question-after.png": "f649bd163d0baabe7f778cfc49fdc313fc7772a0a4bf3ca0574bc4e79b3c076d",
+    "docs/screenshots/issue-56-watch-coordinate/before/ms-e2e-question-watch-failed-webkit.png": "877925598d2f4bfd115a73a7a50b6940726cbdeca31b306c795949b44c3caf12",
+    "experiments/issue-56/collect-watch-disclosure-coordinate.py": "f64a0371e4d162fe8bbc2f6ae15794d3e1befa6e53e815da2cba4cf4e030e6ac",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "experiments/issue-56/watch-disclosure-coordinate-parent.py": "d701d788e443d794dab901dcf27968248d783e2a9628aaf6303c605fa03cc2f4",
+    "experiments/issue-56/watch-disclosure-coordinate.mjs": "d91912712b49322eaffd81be17f75703e6f4838ae52807908e577289f717dd25",
+    "js/tests/helpers/e2e-follow-disclosure.mjs": "f43d8b4161feacde534fbc781e08d422450007b60d0f77309e3bad5350fb28d8",
+    "js/tests/helpers/e2e-question-browser-watch.mjs": "bca689445c1bda88a77483555c8a5f48fb30b137801a7ad82f85dea647187211",
+    "js/tests/helpers/follow-disclosure.mjs": "c54b7505de92a19087082c0cdb8f635f6d9100ad469709cac3c8a0d810930af3",
+    "before/js/tests/helpers/e2e-question-browser-watch.mjs": "efe12607c00f53392ac24517115f61d316833d732555166989c2d03dbed71426",
+    "metadata.json": "ada13a9b5f5ad12b96798f66db4425c3adc19d3fefe0932e35fe912b660d0dd2"
+  }
+}
