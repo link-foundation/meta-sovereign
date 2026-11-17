@@ -51,7 +51,7 @@ production modules; the source auditor compares those snapshots with the
 selected published revision and records every changed source hash and unified
 delta. Current hosted portable and native execution is required separately.
 
-At `0041b2a8859ccf157f36fe82c9b52d0aeed285df`, all 781 archived entries
+At `8c2260b6dc99ad04e44f2b2001b774be98b0ede5`, all 781 archived entries
 verify. Twenty-three archive/source records differ across fourteen production
 files. The complete 2,146-line comparison was read. Changes preserve explicit
 currency boundaries, configured priority and stems, personal wording, independent
@@ -106,7 +106,7 @@ an invented live-account acceptance gate must not defer implemented behavior.
 ## Remaining acceptance work
 
 - Recheck the source comparison if any mapped production module changes after
-  the reviewed `0041b2a8` comparison.
+  the reviewed `8c2260b6` comparison.
 - Bind named portable checks and semantic receipts from both browser engines
   to one published SHA and five successful complete hosted workflows.
 - Read actual receipts and any failure logs before updating QA12. Integrity,

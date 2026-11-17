@@ -48,15 +48,19 @@ amounts are never converted implicitly.
 ## Evidence integrity and later source changes
 
 `experiments/issue-56/salary-band-evidence.json` selects eleven completed
-implementation archives. At `9c9c1fc4`, all 660 entries and their manifests
-verify without extraction. Thirteen archive/source records differ from their
-original production bytes across three files: `question-salary.js`,
-`salary-question.js` and `salary-options.js`. The complete 1,539-line delta was
+implementation archives. At `8c2260b6`, all 660 entries and their manifests
+verify without extraction. Fifteen archive/source records differ from their
+original production bytes across four files: `question-salary.js`,
+`question-unread-answers.js`, `salary-question.js` and `salary-options.js`.
+The complete 1,848-line delta was
 read. It consists of the subsequent recorded salary corrections: independent
 basis resolution, saved wording and amount guards, explicit ranges and scales,
 whole-decision currency refusal, each target's overlap check, configured
 currency vocabulary, choice currency precedence, the saved baseline and unique
-per-basis nearest agreement for explicitly reviewed form proposals.
+per-basis nearest agreement for explicitly reviewed form proposals. Later
+clarifications retain the employer's language and incoming direction. Unread
+planning now captures and rechecks actual browser context before native effects;
+it preserves the original chronological and delivery barriers.
 No removed feature was found in that comparison. Archive integrity does not
 replace current-source tests or the original behavior mapping.
 
