@@ -692,3 +692,4 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Desktop installation verification](desktop-installation-verification.md): add actual Linux launch and owned Windows silent-install/launch/uninstall checks; preserve source-bound metadata from all five preceding desktop jobs and correct all four installation guides. Exact-head native verification remains required.
 - [Configured currencies in saved salary bands](salary-band-currencies.md)
 - [Native Windows uninstall cleanup race](ci-windows-uninstall.md)
+- [Individual salary target overlap](salary-band-overlap.md)

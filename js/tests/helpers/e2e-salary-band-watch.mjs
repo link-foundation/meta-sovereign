@@ -6,20 +6,30 @@ import {
   bandChoices,
   bandMixedChoices,
 } from '../../../experiments/issue-56/salary-band-safety-fixture.mjs';
+import { overlapBandCase } from '../../../experiments/issue-56/salary-band-overlap-fixture.mjs';
 
 /** Explicit finite watch; native choices are the only possible delivery effect. */
-export const verifySalaryBandWatch = async (browser) => {
-  const before = process.env.SALARY_BAND_WATCH_BEFORE === '1';
+const verifySalaryWatchCase = async (browser, scenario = {}) => {
+  const group = scenario.group ?? 'salary-band-watch';
+  const before =
+    process.env[scenario.beforeVariable ?? 'SALARY_BAND_WATCH_BEFORE'] === '1';
+  const sends = scenario.hold ? before : !before;
+  const question = scenario.question ?? bandQuestion;
+  const choices = scenario.options ?? bandChoices;
+  const salary = scenario.salary ?? bandSalary;
   const ui = await questionBrowserUi(browser, {
-    group: 'salary-band-watch',
-    screenshots: process.env.SALARY_BAND_WATCH_SCREENSHOTS,
+    group,
+    screenshots:
+      process.env[
+        scenario.screenshotVariable ?? 'SALARY_BAND_WATCH_SCREENSHOTS'
+      ],
   });
   const { fixture } = ui;
   const watch = ui.controls.locator('[data-browser-answer-watch]');
   const phase = (value) =>
     watch.locator(`[data-browser-watch-phase="${value}"]`);
-  const reset = async (options = bandChoices, draft = '') => {
-    await fixture.reset({ question: bandQuestion, options, draft });
+  const reset = async (options = choices, draft = '') => {
+    await fixture.reset({ question, options, draft });
     await ui.readCurrent();
   };
   const start = async () => {
@@ -31,36 +41,36 @@ export const verifySalaryBandWatch = async (browser) => {
     await watch.locator('[data-browser-watch-state="stopped"]').waitFor();
   };
   try {
-    await inspectSalaryBrowser(ui, bandSalary);
+    await inspectSalaryBrowser(ui, salary);
     await ui.run(
-      'approved containing salary choice reaches the native provider',
+      scenario.hold
+        ? 'overlap for one salary basis holds the entire watched decision'
+        : 'approved containing salary choice reaches the native provider',
       async () => {
         await reset();
         await start();
-        await phase(before ? 'review' : 'sent').waitFor();
-        if (!before) {
+        await phase(sends ? 'sent' : 'review').waitFor();
+        if (sends) {
           await watch
             .getByText('Provider message receipt: 102', { exact: true })
             .waitFor();
         }
         await ui.expectStats({
-          clicks: before ? 0 : 1,
+          clicks: sends ? 1 : 0,
           textSends: 0,
           draft: '',
         });
         await watch.scrollIntoViewIfNeeded();
-        await ui.shot(
-          before ? 'before-salary-band-watch' : 'after-salary-band-watch'
-        );
+        await ui.shot(`${before ? 'before' : 'after'}-${group}`);
         await stop();
         await ui.expectStats({
-          clicks: before ? 0 : 1,
+          clicks: sends ? 1 : 0,
           textSends: 0,
           draft: '',
         });
       }
     );
-    if (!before) {
+    if (!before && !scenario.hold) {
       await ui.run(
         'mixed currency and owner drafts remain held during a watch',
         async () => {
@@ -80,10 +90,24 @@ export const verifySalaryBandWatch = async (browser) => {
     return {
       ...ui.result(),
       before,
-      nativeReceipts: before ? 0 : 1,
+      nativeReceipts: sends ? 1 : 0,
       textSends: 0,
     };
   } finally {
     await ui.close();
   }
 };
+
+export const verifySalaryBandOverlap = (browser) =>
+  verifySalaryWatchCase(browser, {
+    ...overlapBandCase,
+    group: 'salary-band-overlap',
+    beforeVariable: 'SALARY_BAND_OVERLAP_BEFORE',
+    screenshotVariable: 'SALARY_BAND_OVERLAP_SCREENSHOTS',
+    hold: true,
+  });
+
+export const verifySalaryBandWatch = async (browser) => ({
+  ...(await verifySalaryWatchCase(browser)),
+  overlap: await verifySalaryBandOverlap(browser),
+});

@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 individual salary target overlap (QA15):
+
+- [x] Reproduce three published-parent failures where intersecting targets hid
+      an ambiguous net or gross band; keep the unique-band positive control.
+- [x] Require each target's containing band to be unique; pass 30 focused checks
+      and native/MCP parent selection versus corrected zero-effect review.
+- [ ] Publish checked evidence and require exact-source hosted receipts; finish
+      the entire original QA15 contract and every other unchecked criterion.
+
 2026-11-17 Windows native uninstall cleanup:
 
 - [x] Preserve the exact 935fbf8e x64 log: silent installation and native launch

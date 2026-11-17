@@ -143,6 +143,15 @@ export const salaryOption = (choices, targets, selection, config, closest) => {
     return null;
   }
   const bands = compatibleRanges(choices, selection, config);
+  // Each basis must be unambiguous before requiring the same choice for both.
+  // Intersecting their matches alone can hide an overlap for just one target.
+  if (
+    targets.some(
+      (target) => bands.filter((band) => contains(band, target)).length > 1
+    )
+  ) {
+    return null;
+  }
   const matches = bands.filter((band) =>
     targets.every((target) => contains(band, target))
   );

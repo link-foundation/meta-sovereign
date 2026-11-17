@@ -406,6 +406,14 @@ const questionBrowserGroups = {
 };
 
 test('question provider and control scenarios have separate mandatory browser budgets', () => {
+  const salaryWatch = readFileSync(
+    path.join(root, 'js/tests/helpers/e2e-salary-band-watch.mjs'),
+    'utf8'
+  );
+  assert.match(
+    salaryWatch,
+    /overlap: await verifySalaryBandOverlap\(browser\)/u
+  );
   const checks = JSON.parse(
     readFileSync(path.join(root, 'js/scripts/browser-checks.json'))
   );

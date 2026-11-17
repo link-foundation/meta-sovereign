@@ -818,3 +818,6 @@ Require review for salary bands that conflict with a specific saved amount or
 contain mixed currencies. Allow approved unique containing native options during
 confirmed browser watches and sequential unread answers while preserving owner
 drafts, current-knowledge checks, reservations and uncertain-receipt holds.
+
+Hold a dual-basis salary choice when either target fits overlapping bands,
+before requiring both targets to share one unique containing choice.
