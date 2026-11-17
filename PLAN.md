@@ -3,6 +3,16 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 observed vacancy card currency (QA12):
+
+- [x] Read the pinned source order: employer messages, observed vacancy card,
+      then the separate vacancy page only when currency still changes a reply.
+- [x] Reproduce five parent failures and verify manual/watch/unread card priority,
+      unreadable currencies, context changes and no unnecessary page reads.
+- [x] Preserve native and independent MCP before/after drafts and closed fixtures.
+- [ ] Publish the atomic correction and inspect exact-source hosted verification.
+- [ ] Complete all forty original unchecked criteria; QA12 remains unfinished.
+
 2026-11-17 native vacancy salary context (QA12):
 
 - [x] Reproduce parent default-currency drafts without caller vacancy context.

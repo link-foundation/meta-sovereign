@@ -847,3 +847,7 @@ owner drafts and context revalidation before native actions (issue #56 QA12).
 Read and cache a verified linked HH vacancy only when its currency can change a
 salary reply in browser review, watches or unread answering. Preserve source
 priority, owner drafts, page refusal and owned cancellation (issue #56 QA12).
+
+Use currency from the observed HH chat vacancy card before opening its linked
+page, including watches and unread answering. Preserve explicit context,
+ambiguous-currency review and owner text without extra page reads (issue #56 QA12).

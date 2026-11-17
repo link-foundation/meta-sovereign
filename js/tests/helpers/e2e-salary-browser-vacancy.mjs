@@ -11,7 +11,7 @@ import {
   mountSalaryVacancy,
 } from '../../../experiments/issue-56/salary-vacancy-browser-fixture.mjs';
 
-export const verifySalaryBrowserVacancy = async (browser) => {
+export const verifySalaryBrowserVacancy = async (browser, scenario = {}) => {
   const reader = salaryVacancyBrowserReader(browser);
   const baseline = process.env.SALARY_VACANCY_EXPECT_DEFAULT === '1';
   const receipt = await verifySalaryDraft(browser, {
@@ -21,8 +21,9 @@ export const verifySalaryBrowserVacancy = async (browser) => {
     fixtureOptions: { readVacancy: reader.readVacancy },
     prepare: mountSalaryVacancy,
     screenshot: process.env.SALARY_VACANCY_SCREENSHOT,
+    ...scenario,
   });
-  assert.equal(reader.records.length, baseline ? 0 : 1);
+  assert.equal(reader.records.length, scenario.reads ?? (baseline ? 0 : 1));
   for (const record of reader.records) {
     assert.equal(record.closed, true);
     assert.deepEqual(record.navigation, [salaryVacancyUrl]);
@@ -30,7 +31,7 @@ export const verifySalaryBrowserVacancy = async (browser) => {
     assert.equal(record.useCase, 'messages');
   }
   console.log(
-    '[salary-browser-vacancy]',
+    scenario.marker ?? '[salary-browser-vacancy]',
     JSON.stringify({
       ...receipt,
       reads: reader.records.length,

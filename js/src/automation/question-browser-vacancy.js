@@ -60,9 +60,8 @@ const vacancyEnvironment = (snapshot, config) => {
   };
 };
 
-const vacancyTarget = (target, observed, planning, readVacancy) => {
+const vacancyTarget = (target, observed, planning) => {
   if (
-    !readVacancy ||
     target.source !== 'hh' ||
     observed.question.outgoing ||
     observed.hasDraft ||
@@ -76,7 +75,7 @@ const vacancyTarget = (target, observed, planning, readVacancy) => {
   return url ? assignmentVacancyUrl(url) : null;
 };
 
-/** Read a verified vacancy only when different configured contexts change pay. */
+/** Prefer the observed card; read its page only when currency changes pay. */
 export const createBrowserAnswerPlanning = ({ store, readVacancy, signal }) => {
   let tail = Promise.resolve();
   return async (input, observed, target, options = {}) => {
@@ -85,7 +84,7 @@ export const createBrowserAnswerPlanning = ({ store, readVacancy, signal }) => {
     if (planning.vacancy.evidence.startsWith('browser-vacancy:')) {
       planning.vacancy = { pay: '', description: '', evidence: '' };
     }
-    const url = vacancyTarget(target, observed, planning, readVacancy);
+    const url = vacancyTarget(target, observed, planning);
     if (!url) {
       return planning;
     }
@@ -99,7 +98,24 @@ export const createBrowserAnswerPlanning = ({ store, readVacancy, signal }) => {
       return planning;
     }
     const { context } = await prepareAnswerPreview(store, request);
+    const card = observed.noticeContext.vacancy;
     if (
+      context.salary?.enabled &&
+      typeof card === 'string' &&
+      card.length <= 600 &&
+      tellsCurrency(card, context.salary)
+    ) {
+      return {
+        ...planning,
+        vacancy: {
+          pay: '',
+          description: card,
+          evidence: `browser-vacancy:${url}#card`,
+        },
+      };
+    }
+    if (
+      !readVacancy ||
       !context.salary?.enabled ||
       context.salary.currencies.every(({ code }) => {
         const other = planAnswer(request.question, {

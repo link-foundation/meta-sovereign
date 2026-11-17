@@ -131,20 +131,22 @@ def verify_salary_watch_mcp(logs, prefix, phase, sent):
     return receipt
 
 
-def verify_salary_draft_mcp(logs, prefix, phase, expected):
+def verify_salary_draft_mcp(logs, prefix, phase, expected, currency='USD', basis='gross',
+                            parent_fragment='"match":"unanswered"'):
     """Require a refused parent or acknowledged draft and drained owned fixture."""
     response = json.loads((logs / f'{prefix}-mcp-{phase}.json').read_text())
     text = response['content'][0]['text']
     if phase == 'before':
-        assert response['isError'] and '"match":"unanswered"' in text
+        assert response['isError'] and parent_fragment in text
     else:
         result = json.loads(text.split('### Result\n', 1)[1].split('\n###', 1)[0])
-        assert result == dict(text=expected, currency='USD', basis='gross',
+        assert result == dict(text=expected, currency=currency, basis=basis,
                               status='review', prefilled=True, draftExists=True)
     server = json.loads((logs / f'{prefix}-mcp-{phase}-server.log').read_text().splitlines()[-1])
     assert server['resourcesClosed'] and not server['liveProvider']
     assert server['stats'] == dict(clicks=0, textSends=0,
                                    draft=expected if phase == 'after' else '')
+    return server
 
 
 def parent_reply_sources(root, sources, parent):

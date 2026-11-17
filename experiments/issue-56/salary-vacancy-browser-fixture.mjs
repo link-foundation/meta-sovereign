@@ -69,3 +69,15 @@ export const mountSalaryVacancy = async ({ page }) =>
     header.append(company, vacancy);
     document.querySelector('main').before(header);
   });
+
+export const salaryVacancyMcpSetup = (
+  browser,
+  prepare = mountSalaryVacancy
+) => {
+  const reader = salaryVacancyBrowserReader(browser);
+  return {
+    fixtureOptions: { readVacancy: reader.readVacancy },
+    prepare,
+    stats: () => ({ reads: reader.records }),
+  };
+};

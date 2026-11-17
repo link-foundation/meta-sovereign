@@ -1,6 +1,7 @@
 import { verifySalaryDraft } from './salary-draft-browser.mjs';
 import { verifySalaryBrowserContext } from './e2e-salary-browser-context.mjs';
 import { verifySalaryBrowserVacancy } from './e2e-salary-browser-vacancy.mjs';
+import { verifySalaryBrowserVacancyCard } from './e2e-salary-browser-vacancy-card.mjs';
 import {
   clarificationSalary as salary,
   salaryAnchor,
@@ -37,6 +38,7 @@ export const verifySalaryClarification = async (browser) => {
   await verifySalaryNumbers(browser);
   await verifySalaryBrowserContext(browser);
   await verifySalaryBrowserVacancy(browser);
+  await verifySalaryBrowserVacancyCard(browser);
 };
 
 export const verifySalaryPhrasing = (browser) =>
