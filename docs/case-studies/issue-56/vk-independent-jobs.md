@@ -73,3 +73,13 @@ configuration/requirements, finite tests, native receipt and final static checks
 VD03 remains unchecked pending same-source hosted receipts and a complete
 criterion review. All forty unfinished criteria stay required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+
+The prepared hosted collector requires all five successful workflows at one
+published source, 92 uniquely named existing portable policy checks, the six new
+independence checks, and both engines' exact twelve-toggle/six-reload receipts.
+Its nine-archive source audit verifies 1,057 entries, retaining historical
+production differences for review. The collector preserves acceptance as false;
+passing collection still requires the full manual criterion mapping. Production
+review for this row covers independent settings keys, scheduling admission,
+server port ownership and Stop drainage, shared controls and CLI delegation.
+Broader job business behavior remains mapped to its separate inventory rows.
