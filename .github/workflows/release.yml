@@ -829,58 +829,10 @@ jobs:
           persist-credentials: false
 
       - name: Check documentation file sizes
-        run: |
-          LIMIT=2500
-          FAILURES=()
-
-          echo "Checking that documentation files are under ${LIMIT} lines..."
-
-          while IFS= read -r -d '' file; do
-            line_count=$(wc -l < "$file")
-            if [ "$line_count" -gt "$LIMIT" ]; then
-              echo "ERROR: $file has $line_count lines (limit: ${LIMIT})"
-              echo "::error file=$file::Documentation file has $line_count lines (limit: ${LIMIT})"
-              FAILURES+=("$file")
-            fi
-          done < <(find docs -name "*.md" -type f -print0 2>/dev/null)
-
-          if [ "${#FAILURES[@]}" -gt 0 ]; then
-            echo "The following docs exceed the ${LIMIT} line limit:"
-            printf '  %s\n' "${FAILURES[@]}"
-            exit 1
-          else
-            echo "All documentation files are within the ${LIMIT} line limit."
-          fi
+        run: bash js/scripts/check-doc-line-limits.sh
 
       - name: Check required documentation files exist
-        run: |
-          REQUIRED_FILES=(
-            "docs/BEST-PRACTICES.md"
-            "docs/CONTRIBUTING.md"
-            "docs/ROADMAP.md"
-            "docs/REQUIREMENTS.md"
-            "README.md"
-            "CHANGELOG.md"
-          )
-
-          MISSING=()
-          for file in "${REQUIRED_FILES[@]}"; do
-            if [ ! -f "$file" ]; then
-              echo "ERROR: Required documentation file missing: $file"
-              MISSING+=("$file")
-            else
-              echo "Found: $file"
-            fi
-          done
-
-          if [ "${#MISSING[@]}" -gt 0 ]; then
-            echo ""
-            echo "Missing required documentation files:"
-            printf '  %s\n' "${MISSING[@]}"
-            exit 1
-          else
-            echo "All required documentation files present."
-          fi
+        run: bash js/scripts/check-required-docs.sh
 
   # The package as npm would ship it, without publishing: `npm pack`
   # builds the tarball `npm publish` uploads, npx runs it, and the

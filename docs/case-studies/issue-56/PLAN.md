@@ -1,3 +1,10 @@
+Active release workflow line-limit correction:
+
+- [x] Preserve exact published `9846a827` Checks run `44105002455` and file-limit job `134115587678`. Raw lines 380–382 report 1,506 workflow lines; runtime/browser dependents are skipped.
+- [x] Extract the unchanged two documentation gate bodies into focused shell helpers. Actual published workflow fails the existing limit; current 1,458-line workflow passes. Six bounded fixture comparisons preserve exit status and output, including both negative gates.
+- [x] Preserve checked evidence for six gate comparisons, Node 2/Deno 2, shell syntax, full file limits, formatting, workflow lint, secret lint and the unchanged 6.5% duplication threshold (6.49%).
+- [ ] Publish atomically and inspect every exact-head hosted workflow. Every original unfinished criterion remains required; PR57 stays draft/unmerged.
+
 Active macOS runtime checkout repair:
 
 - [x] Preserve exact-source `06953e31` Node partition 3 cancellation and setup timestamps. Checkout takes 147 seconds; setup leaves less than four minutes for tests, with no assertion failure in the log.
