@@ -908,3 +908,8 @@ after a lowered daily limit (issue #56 QA20).
 Space and serialize GitHub source-link requests while retaining strict HTTP
 failure handling. Verify real checker pacing with a finite isolated host and
 permanent missing-page/server-error controls.
+
+Make autopilot Stop drain its owned planning and delivery work, cancel unissued
+messages through typing, VK pacing and durable admission, and retain actual
+confirmed or uncertain receipts. Serialize controls for each automation and
+await all autopilot owners during server shutdown (issue #56 QA20).

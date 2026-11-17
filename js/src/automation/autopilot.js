@@ -21,6 +21,7 @@ import { DAY_MS } from '../crm/reengage.js';
 import { AUTOPILOT_PREFIX, RUN_PREFIX, automationKey } from './automations.js';
 import { MAX_CONSECUTIVE_FAILURES, recentSends } from './outbox.js';
 import { loadSettings, quietMsLeft } from './safety.js';
+import { createAutopilotOwners } from './autopilot-owners.js';
 
 export const autopilotId = (automation) =>
   `${AUTOPILOT_PREFIX}${automationKey(automation)}`;
@@ -73,6 +74,30 @@ const failureStep = (outcome, streak) => {
   }
   const doubt = outcome.status === 'unknown' ? 'unknown-send' : null;
   return { pause: outcome.code ?? doubt ?? outcome.error ?? 'send-failed' };
+};
+
+// One chat: its draft, typing, send. What happened, and what next.
+const step = async (runner, save, automation, passed, signal) => {
+  const { draft } = await runner.next(automation.id, {
+    exclude: passed,
+    signal,
+  });
+  if (signal.aborted) {
+    return { stopped: true };
+  }
+  if (!draft) {
+    return { done: true };
+  }
+  await save(automation, {
+    status: 'sending',
+    current: { source: draft.source, chat: draft.chat, name: draft.name },
+    nextAt: null,
+  });
+  if (signal.aborted) {
+    return { stopped: true };
+  }
+  const outcome = await runner.deliverDraft(automation.id, draft, { signal });
+  return { draft, outcome };
 };
 
 // The autopilot's work, step by step: its state link, the cap, one chat.
@@ -139,24 +164,6 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
     return true;
   };
 
-  // One chat: its draft, typing, send. What happened, and what next.
-  const step = async (automation, passed, signal) => {
-    const { draft } = await runner.next(automation.id, { exclude: passed });
-    if (!draft) {
-      return { done: true };
-    }
-    await save(automation, {
-      status: 'sending',
-      current: { source: draft.source, chat: draft.chat, name: draft.name },
-      nextAt: null,
-    });
-    if (signal.aborted) {
-      return { stopped: true };
-    }
-    const outcome = await runner.deliverDraft(automation.id, draft);
-    return { draft, outcome };
-  };
-
   const loop = async (automation, signal) => {
     const passed = [];
     const counts = {
@@ -177,7 +184,7 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
       ) {
         continue;
       }
-      const result = await step(automation, passed, signal);
+      const result = await step(runner, save, automation, passed, signal);
       if (result.done) {
         await save(automation, { on: false, status: 'done', current: null });
         return;
@@ -249,7 +256,6 @@ export const createAutopilot = ({
   random = Math.random,
   log = () => {},
 } = {}) => {
-  const running = new Map(); // automation id -> AbortController
   const { save, loop } = pilotSteps({
     store,
     runner,
@@ -259,28 +265,21 @@ export const createAutopilot = ({
     log,
   });
 
-  const run = (automation) => {
-    const controller = new AbortController();
-    running.set(automation.id, controller);
-    loop(automation, controller.signal)
-      .catch(async (error) => {
-        log({
-          level: 'error',
-          event: 'autopilot_failed',
-          error: error.message,
-        });
-        await save(automation, {
-          on: false,
-          status: 'paused',
-          error: error.message,
-        }).catch(() => {});
-      })
-      .finally(() => {
-        if (running.get(automation.id) === controller) {
-          running.delete(automation.id);
-        }
+  const owners = createAutopilotOwners({
+    loop,
+    failed: async (automation, error) => {
+      log({
+        level: 'error',
+        event: 'autopilot_failed',
+        error: error.message,
       });
-  };
+      await save(automation, {
+        on: false,
+        status: 'paused',
+        error: error.message,
+      }).catch(() => {});
+    },
+  });
 
   return {
     /** Turn it on (confirmed by the user) and go. */
@@ -289,31 +288,35 @@ export const createAutopilot = ({
       { monitor = true, resumeOnStart = false } = {}
     ) {
       const automation = await runner.load(automationOrId);
-      running.get(automation.id)?.abort();
-      const state = await save(automation, {
-        on: true,
-        monitor,
-        resumeOnStart: resumeOnStart === true,
-        status: 'starting',
-        startedAt: clock().toISOString(),
-        sent: 0,
-        failed: 0,
-        error: null,
-        current: null,
-        last: null,
+      return owners.control(automation.id, async () => {
+        owners.requireOpen();
+        await owners.stop(automation.id);
+        const state = await save(automation, {
+          on: true,
+          monitor,
+          resumeOnStart: resumeOnStart === true,
+          status: 'starting',
+          startedAt: clock().toISOString(),
+          sent: 0,
+          failed: 0,
+          error: null,
+          current: null,
+          last: null,
+        });
+        owners.run(automation);
+        return state;
       });
-      run(automation);
-      return state;
     },
     async stop(automationOrId) {
       const automation = await runner.load(automationOrId);
-      running.get(automation.id)?.abort();
-      running.delete(automation.id);
-      return save(automation, {
-        on: false,
-        status: 'stopped',
-        current: null,
-        nextAt: null,
+      return owners.control(automation.id, async () => {
+        await owners.stop(automation.id);
+        return save(automation, {
+          on: false,
+          status: 'stopped',
+          current: null,
+          nextAt: null,
+        });
       });
     },
     /** Watching it or not changes nothing in what it does. */
@@ -331,28 +334,32 @@ export const createAutopilot = ({
      */
     async resume() {
       for (const state of await this.states()) {
-        if (!state.on || running.has(state.automation)) {
+        if (!state.on) {
           continue;
         }
         const automation = await runner.load(state.automation);
-        if (state.resumeOnStart === true) {
-          run(automation);
-        } else {
-          await save(automation, {
-            on: false,
-            status: 'paused',
-            error: 'paused-after-restart',
-            current: null,
-            nextAt: null,
-          });
-        }
+        await owners.control(automation.id, async () => {
+          owners.requireOpen();
+          const current = await store.get(autopilotId(automation));
+          if (!current?.on || owners.has(automation.id)) {
+            return;
+          }
+          if (current.resumeOnStart === true) {
+            owners.run(automation);
+          } else {
+            await save(automation, {
+              on: false,
+              status: 'paused',
+              error: 'paused-after-restart',
+              current: null,
+              nextAt: null,
+            });
+          }
+        });
       }
     },
     stopAll() {
-      for (const controller of running.values()) {
-        controller.abort();
-      }
-      running.clear();
+      return owners.close();
     },
   };
 };

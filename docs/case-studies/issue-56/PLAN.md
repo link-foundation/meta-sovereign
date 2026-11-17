@@ -1,3 +1,12 @@
+2026-11-17 autopilot Stop ownership (QA20 remains required):
+
+- [x] Reproduce 18 failures on published `2769b823`: Stop permits later sends, acknowledges held provider requests early and loses terminal state ownership.
+- [x] Carry cancellation through planning, typing, VK pacing and final provider admission; drain issued effects and retain truthful sent/unknown receipts.
+- [x] Serialize controls for each automation while preserving independent owners; drain all owners on server shutdown and retain restart policy.
+- [x] Verify 72 focused checks, including ordered replies, concurrent controls and existing safety tests with one worker; reproduce 22 failures and one positive pass in the final 23-case parent probe.
+- [x] Pass clean scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve and independently rehash final source-bound evidence.
+- [ ] Publish the atomic correction, inspect all exact-head CI and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
 2026-11-17 strict GitHub link pacing:
 
 - [x] Preserve exact `448c2234` run 44168812180: 43 HTTP 503 entries across 32 GitHub source URLs; distinguish successful finite rechecks from hosted acceptance.

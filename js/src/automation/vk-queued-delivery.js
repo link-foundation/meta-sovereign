@@ -32,7 +32,7 @@ const replyMessage = async (store, draft) => {
 };
 
 export const queueVkDelivery = async (
-  { store, outgoing, key, draft, markRead, setTyping, validate },
+  { store, outgoing, key, draft, markRead, setTyping, validate, signal },
   work
 ) => {
   const message = await replyMessage(store, draft);
@@ -41,6 +41,7 @@ export const queueVkDelivery = async (
       key,
       draft,
       validate,
+      signal,
       ...(message && markRead
         ? {
             markRead: () =>
@@ -127,6 +128,7 @@ export const withVkDeliveryPacing =
         ...context,
         key,
         draft,
+        signal: options.signal,
         setTyping:
           automation.pacing.typing && !draft.answer?.strictOptions
             ? context.setTyping

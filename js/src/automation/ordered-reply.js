@@ -120,7 +120,7 @@ const stepFailure = (last, draft, progress, index) => ({
 });
 
 const deliverSteps = async (
-  { store, automation, draft, reviewed, deliver },
+  { store, automation, draft, reviewed, deliver, signal },
   state,
   signature
 ) => {
@@ -142,6 +142,7 @@ const deliverSteps = async (
     };
     last = await deliver(automation, child, {
       reviewed,
+      signal,
       orderedStep: true,
       acknowledged: index ? records[0]?.vkReceipt : null,
     });

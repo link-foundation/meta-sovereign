@@ -151,7 +151,7 @@ export const createAutomationRunner = ({
     return drafted;
   };
 
-  const showTyping = async (automation, draft) => {
+  const showTyping = async (automation, draft, { signal } = {}) => {
     if (!automation.pacing.typing) {
       return;
     }
@@ -171,7 +171,7 @@ export const createAutomationRunner = ({
     await setTyping?.({ source: draft.source, chat: draft.chat }).catch(
       (error) => log({ event: 'typing_failed', error: error.message })
     );
-    await sleep(ms);
+    await sleep(ms, undefined, { signal });
   };
 
   const deliver = createDelivery({

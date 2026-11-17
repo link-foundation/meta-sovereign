@@ -1,3 +1,4 @@
+- [Autopilot Stop ownership](autopilot-stop.md): 22 parent failures and 72 focused passes verify cancellation before provider admission, draining of issued effects, retained receipts and serialized controls. Full QA20 remains unfinished.
 - [Strict GitHub link pacing](ci-github-pacing.md): actual 503 failure logs, finite before/after native checks and permanent 404/503 controls support serialized host requests without weakening strict validation. Exact-source hosted acceptance remains required.
 - [Autopilot cap lifecycle](autopilot-cap-lifecycle.md): two parent failures and 72 focused passes verify finite empty-cap waits and fresh saved limits after a capacity race. QA20 remains unfinished.
 - [Atomic automatic send capacity](automatic-cap.md): 24 parent failures and 90 focused passes verify shared durable admission across concurrent batches and steps, uncertainty reservations, owner review and independent-owner progress. QA20 remains unfinished.
@@ -441,7 +442,7 @@ The complete scope and open delivery gates are tracked in [PLAN.md](PLAN.md) and
 
 - [ci-2284c2f5.md](ci-2284c2f5.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for actual broadcast outcomes and interrupted-write recovery.
 
-- [x-publishing-auth.md](x-publishing-auth.md) records ignored legacy credentials, app-only write refusal, receipt validation, universal OAuth signing and an upstream report, with 71 focused checks and real Chrome verification.
+- [x-publishing-auth.md](x-publishing-auth.md) records ignored legacy credentials, app-only write refusal, receipt validation, universal OAuth signing and an upstream report, with 72 focused checks and real Chrome verification.
 
 - [ci-df7c0c28.md](ci-df7c0c28.md) preserves all five successful workflows and all 34 Checks jobs, including both browsers, for bounded question-turn matching and archive learning.
 

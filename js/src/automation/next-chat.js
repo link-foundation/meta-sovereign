@@ -8,6 +8,7 @@
 
 import { editAfterSend, editId } from './automations.js';
 import { loadAutomation } from './drafts.js';
+import { requireDeliveryOwner } from './delivery-owner.js';
 
 /**
  * `load` gives the automation with the edit in place, `plan` its drafts,
@@ -34,8 +35,9 @@ export const nextChatOperations = ({
   },
   methods: {
     /** Send a planned draft now (the autopilot's step). */
-    async deliverDraft(automationOrId, draft) {
+    async deliverDraft(automationOrId, draft, { signal } = {}) {
       const automation = await load(automationOrId);
+      requireDeliveryOwner(signal);
       if (draft.answer?.requiresReview || draft.answer?.complete === false) {
         await queue(automation, [draft]);
         return {
@@ -45,7 +47,7 @@ export const nextChatOperations = ({
           draft,
         };
       }
-      const outcome = await deliver(automation, draft);
+      const outcome = await deliver(automation, draft, { signal });
       if (outcome.status === 'sent') {
         // A draft waiting in that chat is the one just sent.
         await store.delete(draft.id).catch(() => {});
@@ -63,10 +65,15 @@ export const nextChatOperations = ({
      * (`[{ source, chat }]`); with `queue`, its draft is written for the
      * chat to show. `{ draft: null }` when none is left.
      */
-    async next(automationOrId, { exclude = [], queue: write = false } = {}) {
+    async next(
+      automationOrId,
+      { exclude = [], queue: write = false, signal } = {}
+    ) {
       const automation = await load(automationOrId);
+      requireDeliveryOwner(signal);
       const skip = new Set(exclude.map((t) => `${t.source}:${t.chat}`));
-      const planned = await plan(automation, { limit: skip.size + 1 });
+      const planned = await plan(automation, { limit: skip.size + 1, signal });
+      requireDeliveryOwner(signal);
       const draft =
         planned.drafts.find((d) => !skip.has(`${d.source}:${d.chat}`)) ?? null;
       if (draft && write) {

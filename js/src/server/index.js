@@ -559,9 +559,10 @@ const automationContext = (
     vkOnlineScheduled: automations.scheduler !== false,
     questionBrowser,
     closeAutomations: async () => {
-      autopilot.stopAll();
+      const stoppedAutopilots = autopilot.stopAll();
       // Signal every owner before awaiting any held provider operation.
       await Promise.allSettled([
+        stoppedAutopilots,
         scheduler.stop(),
         runner.close(),
         ...ownedVkJobs.map((job) => job.stop()),

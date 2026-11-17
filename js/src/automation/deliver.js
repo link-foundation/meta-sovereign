@@ -8,8 +8,9 @@ import { deliverOrderedReply } from './ordered-reply.js';
 import { withVkDeliveryPacing } from './vk-queued-delivery.js';
 import { readVkOutgoingSettings } from './vk-outgoing-settings.js';
 import { RUN_PREFIX, automationKey } from './automations.js';
+import { requireDeliveryOwner } from './delivery-owner.js';
 
-const indicateTyping = async (store, showTyping, automation, draft) => {
+const indicateTyping = async (store, showTyping, automation, draft, signal) => {
   if (
     draft.answer?.strictOptions ||
     draft.sticker ||
@@ -17,7 +18,8 @@ const indicateTyping = async (store, showTyping, automation, draft) => {
   ) {
     return;
   }
-  return showTyping(automation, draft);
+  requireDeliveryOwner(signal);
+  return showTyping(automation, draft, { signal });
 };
 
 const deliveryKey = (automation, draft, clock, queued) =>
@@ -71,8 +73,10 @@ export const createDelivery = ({
       orderedStep = false,
       acknowledged = null,
       queueKey,
+      signal,
     } = {}
   ) => {
+    requireDeliveryOwner(signal);
     if (typeof send !== 'function') {
       throw new Error('no sender configured; send it yourself and mark it');
     }
@@ -82,6 +86,7 @@ export const createDelivery = ({
         automation,
         draft,
         reviewed,
+        signal,
         deliver,
         log,
         queue: () => queueDrafts(store, automation, [draft], nowIso()),
@@ -110,7 +115,8 @@ export const createDelivery = ({
     if (!context.ok) {
       return { status: 'failed', ...context, draft };
     }
-    await indicateTyping(store, showTyping, automation, draft);
+    await indicateTyping(store, showTyping, automation, draft, signal);
+    requireDeliveryOwner(signal);
     if (draft.answer) {
       const valid = await validateAnswerDraft(store, automation, draft, {
         reviewed,
@@ -151,6 +157,9 @@ export const createDelivery = ({
             definitive: true,
           });
         }
+        // Admission can await durable storage. Recheck immediately before the
+        // provider effect, then retain its actual result even if Stop arrives.
+        requireDeliveryOwner(signal);
         return send(outgoing);
       },
       clock,
