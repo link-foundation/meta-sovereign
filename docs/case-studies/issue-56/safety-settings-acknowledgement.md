@@ -75,7 +75,7 @@ cache and favicon console diagnostics are retained separately from page errors.
 
 The [source and log archive](data/safety-settings-acknowledgement.tar.gz) and
 [per-file hashes](data/safety-settings-acknowledgement.tar.sha256.json) retain the
-parent failures, corrected checks, native/MCP receipts and source snapshots (80 checked entries).
+parent failures, corrected checks, native/MCP receipts and source snapshots (81 checked entries).
 An initial ESLint invocation omitted the repository's explicit config argument;
 its tooling error is preserved separately from the corrected configured check.
 The focused native run uses the existing system Chrome because the Playwright-managed binary is absent; that environment failure is retained separately. The tests use owned local fixtures and zero live provider actions. Full QA19 and

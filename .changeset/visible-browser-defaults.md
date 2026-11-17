@@ -867,3 +867,7 @@ Await acknowledged automation safeguard persistence before send guards read it.
 Keep connected save refusals and lost responses visible, retain owner drafts and
 opt-outs, and recover through reads without repeating uncertain writes (issue #56
 QA19/QA20).
+
+Expose global automated-send safeguards through read-only Lino CLI display,
+validated quiet-hour/cooldown configuration and precise provider/chat or person
+opt-out changes, sharing acknowledged persistence with the API and UI.

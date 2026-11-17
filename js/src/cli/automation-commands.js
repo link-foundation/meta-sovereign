@@ -40,6 +40,7 @@ import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { withAnswerModel } from './answer-model-commands.js';
 import { createQuestionBrowser } from '../automation/question-browser.js';
 import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
+import { safetyCommands } from './safety-commands.js';
 
 import { AUTOMATION_HELP } from './help.js';
 export { AUTOMATION_HELP };
@@ -446,6 +447,9 @@ const runnerFor = (store, args, deps) => {
 
 const automationsCmd = async (args, log, deps) => {
   const sub = args._[0] ?? 'list';
+  if (sub === 'safety') {
+    return safetyCommands({ args, log, ...deps });
+  }
   const handler = SUBCOMMANDS[sub];
   if (!handler) {
     log(`unknown subcommand "${sub}"\n${AUTOMATION_HELP}`);

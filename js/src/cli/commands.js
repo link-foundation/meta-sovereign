@@ -813,7 +813,7 @@ const COMMANDS = {
   ...createBrowserCommands({ openStore, openReadOnly }),
   ...createFormsCommands({ openStore }),
   // Automations: plan, run and review drafts one by one (issue #31).
-  ...createAutomationCommands({ openStore }),
+  ...createAutomationCommands({ openStore, openReadOnly }),
   // Hi/hello and greeting-sticker openers (issue #35).
   ...createGreetingCommands({ openStore }),
   ...createBroadcastCommands({ openStore, openReadOnly }),

@@ -13,6 +13,8 @@ export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | 
                 run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
                 answer-questions: saved action modelDraft=true drafts unanswered parts using answers model settings; every model draft requires review
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time
+                safety [show] | configure [--quiet-enabled=true|false] [--quiet-from=22:00 --quiet-to=08:00] [--timezone=IANA-zone|local] [--cooldown-days=nonnegative|none]
+                safety opt-out-add | opt-out-remove --source=<provider> --chat=<id>|--contact=<id> [--note=<text> (add only)] [--json] [--store=<dir>]; changes affect every automated send; no messages are sent
                 answers: list | save [file.lino] | delete <id> | plan --question=<text> [--model-draft] [--config=file.lino|--automation=id] | learn | backfill-questionnaires [--apply] [--contract] [--config=file.lino|--automation=id]
                 answers save: --id=<id> --question=<text> --answer=<text> [--kind=question|notice] [--approved] [--canonical] [--equivalent-answer=<literal wording>] [--sources=hh,telegram] [--chats=hh:123]
                 answers policy [file.lino]: [--reject=<text>] [--clear-rejected] [--punctuation-equivalent=true|false] [--answer-final-period=with|without]

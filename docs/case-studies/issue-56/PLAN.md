@@ -1642,6 +1642,13 @@ Native profile persistence follow-up:
 - [x] Reproduce four storage/guard failures and five web failures at exact parent 62e7c474, including a false Saved message after a real HTTP refusal.
 - [x] Queue reads behind acknowledged persistence/rollback; require matching connected receipts and retain pending controls, owner drafts and truthful translated errors without automatic write replay.
 - [x] Pass 46 focused checks and actual native/MCP before/after verification with three deliberate PUTs, no page exceptions, no provider sends and drained fixtures. Inspect desktop and phone screenshots.
-- [x] Pass scoped lint, formatting, secrets and source limits; retain the unchanged 6.49% duplication result and 80 source-bound archive entries.
+- [x] Pass scoped lint, formatting, secrets and source limits; retain the unchanged 6.49% duplication result and 81 source-bound archive entries.
 - [ ] Commit the atomic correction and publish only to the prepared branch.
 - [ ] Verify all exact-head hosted checks and complete full QA19/QA20 mapping. The 36 unchecked original criteria remain unfinished; PR57 stays draft and unmerged.
+
+2026-11-17 shared safeguard CLI (QA19):
+
+- [x] Trace global quiet hours, cooldown and opt-outs through the shared record; identify missing CLI access and preserve the independent acknowledged-save commit 757e241e.
+- [x] Draft read-only Lino show, validated partial configuration and exact provider/chat or contact opt-out changes. Reuse acknowledged persistence and keep safety commands independent of browser/model/provider owners.
+- [x] Verify seven exact-parent failures and 28 focused compatibility checks, disk reopen, ordinary command routing and refused-write send protection. Scoped lint/format/secrets and source limits pass; duplication remains below the unchanged threshold.
+- [ ] Commit/publish this atomic feature, verify every exact-head hosted workflow and complete the full QA19 criterion. All 36 unfinished criteria remain required.
