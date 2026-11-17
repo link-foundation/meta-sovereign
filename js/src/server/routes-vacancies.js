@@ -33,6 +33,8 @@ const failureReply = (error) => {
       ? 503
       : [
             'jobs-busy',
+            'jobs-login-conflict',
+            'jobs-login-close',
             'jobs-stopped',
             'jobs-technology-conflict',
             'jobs-cv-conflict',
@@ -76,6 +78,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
   const read =
     [
       'capabilities',
+      'login-status',
       'application-status',
       'application-batch-status',
       'discovery-status',
@@ -100,6 +103,8 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
     !read &&
     ![
       'search',
+      'login-open',
+      'login-close',
       'discovery-start',
       'discovery-stop',
       'application-open',

@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
 import { foregroundCvWatch } from './cv-watch-command.js';
+import { foregroundJobLogin } from './job-login-command.js';
 import { cvTranslationCommandInput } from './cv-translation-command.js';
 import { cvWorkplaceCommandInput } from './cv-workplace-command.js';
 import { foregroundVacancyDiscovery } from './discovery-command.js';
@@ -50,53 +51,57 @@ const salaryDiscoveryInput = (args) => ({
   salaryLadder:
     typedFlag(args, 'no-salary-ladder', 'boolean') === true ? false : undefined,
 });
+const vacancyOperations = [
+  'search',
+  'login-open',
+  'login-status',
+  'login-close',
+  'discovery-start',
+  'discovery-status',
+  'discovery-stop',
+  'collect',
+  'stored',
+  'choices-stored',
+  'choice-save',
+  'choice-clear',
+  'resumes',
+  'resumes-stored',
+  'resume-export',
+  'resume-export-status',
+  'resume-export-cancel',
+  'resume-exports-stored',
+  'technology-catalog',
+  'technology-catalog-save',
+  'technology-analyze',
+  'technology-analysis-stored',
+  'technology-review',
+  'technology-review-stored',
+  'technology-review-save',
+  'cv-watch',
+  'cv-watch-status',
+  'cv-watch-stop',
+  'cv-snapshots',
+  'cv-publish-plan',
+  'cv-publish',
+  'cv-publish-status',
+  'cv-workplace-membership',
+  'cv-workplace-source',
+  'cv-workplace-dictionaries',
+  'cv-workplace-plan',
+  'cv-workplace-plan-stored',
+  'cv-workplace-review',
+  'cv-prepare',
+  'cv-prepare-status',
+  'cv-prepare-cancel',
+  'cv-translate',
+  'cv-translation-status',
+  'cv-translation-cancel',
+];
 export const createVacancyCommands = ({ openStore, ...options }) =>
   Object.assign(
     createApplicationCommands({ openStore, ...options }),
     Object.fromEntries(
-      [
-        'search',
-        'discovery-start',
-        'discovery-status',
-        'discovery-stop',
-        'collect',
-        'stored',
-        'choices-stored',
-        'choice-save',
-        'choice-clear',
-        'resumes',
-        'resumes-stored',
-        'resume-export',
-        'resume-export-status',
-        'resume-export-cancel',
-        'resume-exports-stored',
-        'technology-catalog',
-        'technology-catalog-save',
-        'technology-analyze',
-        'technology-analysis-stored',
-        'technology-review',
-        'technology-review-stored',
-        'technology-review-save',
-        'cv-watch',
-        'cv-watch-status',
-        'cv-watch-stop',
-        'cv-snapshots',
-        'cv-publish-plan',
-        'cv-publish',
-        'cv-publish-status',
-        'cv-workplace-membership',
-        'cv-workplace-source',
-        'cv-workplace-dictionaries',
-        'cv-workplace-plan',
-        'cv-workplace-plan-stored',
-        'cv-workplace-review',
-        'cv-prepare',
-        'cv-prepare-status',
-        'cv-prepare-cancel',
-        'cv-translate',
-        'cv-translation-status',
-        'cv-translation-cancel',
-      ].map((operation) => [
+      vacancyOperations.map((operation) => [
         `vacancies-${operation}`,
         async (args, log) => {
           const input = operation.startsWith('cv-publish')
@@ -147,6 +152,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                         args['request-id'] ??
                         ([
                           'resume-export',
+                          'login-open',
                           'cv-watch',
                           'cv-prepare',
                           'discovery-start',
@@ -182,7 +188,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                   ? await foregroundResumeExport(service, input, args.out)
                   : operation === 'cv-watch'
                     ? await foregroundCvWatch(service, input, log)
-                    : await service[operation](input);
+                    : operation === 'login-open'
+                      ? await foregroundJobLogin(service, input, log)
+                      : await service[operation](input);
             log(encodeWire(result));
             return vacancyCommandExit(operation, result);
           } finally {

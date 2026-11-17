@@ -666,3 +666,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass 56 focused checks and native parent/corrected draft readback. Reproduce stale context admission on the parent controller and confirm corrected refusal. Inspect both screenshots and independent MCP no-send receipts with drained fixtures.
 - [x] Pass scoped formatting, lint, secrets, bundle and the unchanged 6.5% duplication gate; preserve 78 verified evidence files and exact parent modules.
 - [ ] Publish the atomic correction and inspect exact-source hosted checks. Full QA12 vacancy/source mapping and all forty original unchecked criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-17 controlled HH manual login (HH01):
+
+- [x] Re-read the persistent headed-login/CAPTCHA contract and existing workspace ownership, profile, visibility and foreground-command mechanisms.
+- [x] Draft a finite manually operated HH login browser with shared profiles, durable non-replaying IDs, explicit unverified authentication, failed-close ownership and shared CLI/Lino/four-language controls.
+- [x] Verify 37 focused lifecycle/policy/storage/CLI/Lino/UI checks, draft failures and corrected native recovery; inspect before/after screenshots and independent MCP with drained fixtures. Two actual headed launches retain a synthetic session cookie; four existing cookie/isolation launches also pass.
+- [x] Pass scoped lint, formatting, secrets, source limits and the unchanged duplication gate (6.49%); preserve 110 source-bound evidence entries.
+- [ ] Publish atomic changes and verify exact-source CI.
+- [ ] Inspect all exact-head workflows and finish the complete HH01 contract. All 36 original unchecked criteria remain unfinished; PR57 stays draft and unmerged.

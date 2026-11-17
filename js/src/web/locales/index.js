@@ -22,6 +22,7 @@ import { linkedinExperienceLocale } from './cv-linkedin-experience.js';
 import { experienceFilesLocale } from './cv-experience-files.js';
 import { experiencePlanLocale } from './cv-experience-plan.js';
 import { formalReportLocale } from './cv-formal-report.js';
+import { jobLoginLocale } from './job-login.js';
 
 export const dictionaries = Object.fromEntries(
   Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
@@ -36,6 +37,7 @@ export const dictionaries = Object.fromEntries(
       ...linkedinExperienceLocale(language),
       ...experiencePlanLocale(language),
       ...formalReportLocale(language),
+      ...jobLoginLocale(language),
     },
   ])
 );

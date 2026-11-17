@@ -1,5 +1,6 @@
 import { browserAvailability } from '../cv/browser.js';
 import { jobBrowserDependencies } from './browser-dependencies.js';
+import { createJobLoginService, jobLoginOwned } from './login-service.js';
 import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
 import {
@@ -38,6 +39,13 @@ import {
 } from './application-service.js';
 
 const owners = new WeakSet();
+const loginControl = ({ store, openSession, login }, run) =>
+  createJobLoginService({
+    store,
+    openSession,
+    run: (operation) => run(operation, 'login'),
+    ...login,
+  });
 
 /** Finite owned work. Stop drains the issued browser before releasing ownership. */
 export const createVacancyService = (options) =>
@@ -63,16 +71,21 @@ const createWorkspaceVacancyService = ({
   cvTranslation = {},
   application = {},
   discovery = {},
+  login = {},
 }) => {
   let active;
   let stopping;
-  const run = (operation, application = false) => {
+  const run = (operation, owner = null) => {
     if (stopping) {
       return Promise.reject(
         jobsFailure('stopped', 'Vacancy reading has stopped.')
       );
     }
-    if (owners.has(store) || (!application && applicationOwned(store))) {
+    if (
+      owners.has(store) ||
+      (owner !== 'application' && applicationOwned(store)) ||
+      (owner !== 'login' && jobLoginOwned(store))
+    ) {
       return Promise.reject(
         jobsFailure('busy', 'Another vacancy read owns this workspace.')
       );
@@ -96,6 +109,7 @@ const createWorkspaceVacancyService = ({
     owned?.controller.abort();
     await owned?.task.catch(() => {});
     await applications.cancel();
+    await manualLogin.cancel();
     return { stopped: true };
   };
   const exports = createResumeExportControl({
@@ -116,10 +130,12 @@ const createWorkspaceVacancyService = ({
     storeDir,
     artifactRoot,
     openSession,
-    run: (operation) => run(operation, true),
+    run: (operation) => run(operation, 'application'),
     ...application,
   });
+  const manualLogin = loginControl({ store, openSession, login }, run);
   return {
+    ...manualLogin.operations,
     ...createVacancyDiscovery({
       store,
       run: discoveryRun(run, applications),
@@ -178,6 +194,7 @@ const createWorkspaceVacancyService = ({
         const drained = preparation.stop();
         active?.controller.abort();
         await active?.task.catch(() => {});
+        await manualLogin.stop();
         await applications.stop();
         await drained;
       }));
@@ -195,6 +212,7 @@ const discoveryRun = (run, applications) => (work) =>
 const vacancyCapabilities = (browser) => ({
   ...browser,
   search: browser.available === true,
+  manualLogin: browser.available === true,
   discovery: browser.available === true,
   collect: browser.available === true,
   resumes: browser.available === true,

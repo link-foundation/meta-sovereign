@@ -856,3 +856,9 @@ Retain outgoing identity in bounded answer context and use incoming employer
 turns for salary currency, basis and clarification anchors. Keep delivery barriers
 and owner-defined generic context behavior across browser and archive planning.
 This preserves issue #56 QA12 context priority.
+
+Open a bounded visible HH sign-in window in the selected private workspace
+profile through CLI, protected Lino routes and four-language controls. Leave
+login and CAPTCHA input to the owner, retain unverified authentication and
+recover status without reopening or replaying a request. Drain owned browsers
+before acknowledging Close, Stop or shutdown (issue #56 HH01).

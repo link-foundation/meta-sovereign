@@ -4,9 +4,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import * as commander from 'browser-commander';
 import * as playwright from 'playwright';
-import { openBrowserSession } from '../../js/src/cv/browser.js';
+import { openJobProbeBrowser } from './job-browser-probe.mjs';
 import { jobBrowserDependencies } from '../../js/src/jobs/browser-dependencies.js';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import { fixtureServerClose } from '../../js/tests/helpers/fixture-server.mjs';
@@ -40,28 +39,7 @@ export const verifyJobBrowserCookies = async (executablePath) => {
         storeDir: path.join(directory, workspace),
         openSession: (options) => {
           assert(options.profileDir.startsWith(`${directory}${path.sep}`));
-          return openBrowserSession({
-            ...options,
-            importers: {
-              playwright: async () => playwright,
-              'browser-commander': async () => ({
-                ...commander,
-                launchBrowser: async (launch) => {
-                  const browser = await commander.launchBrowser({
-                    ...launch,
-                    executablePath,
-                    args: [...launch.args, '--no-sandbox'],
-                  });
-                  launches.push({
-                    profileDir: launch.userDataDir,
-                    headless: launch.headless,
-                    keepSessionCookies: browser.keepSessionCookies,
-                  });
-                  return browser;
-                },
-              }),
-            },
-          });
+          return openJobProbeBrowser(options, executablePath, launches);
         },
       });
     const open = async (workspace, slot) => {

@@ -1,4 +1,5 @@
 - [Contact guide link recovery](ci-contacts-guide.md): preserve the exact latest link-check failure and bounded rechecks; retain the pinned GitHub source and replace the dead Apple address with its explicitly labelled archive.
+- [Controlled HH manual sign-in](jobs-manual-login.md): finite visible owner-operated windows, shared CLI/Lino/four-language controls, non-replaying status recovery, 37 focused checks, actual headed cookie retention and native/MCP evidence. HH01 remains unfinished.
 - [Native HH profile cookies](jobs-browser-cookie.md): four sequential Chromium launches verify clean restart retention and workspace/slot isolation using only a synthetic loopback cookie. Manual login and full HH01 acceptance remain required.
 
 - [Four complete hosted contract reviews](hosted-criteria-6c20.md): QA12, QA14, QA15 and VD09 are verified at `6c20f4dc` after five successful workflows and complete source/semantic review. Current acceptance is **82 of 118**, with **36 unchecked**; earlier counts below describe historical checkpoints. All remaining work stays required in this draft PR.

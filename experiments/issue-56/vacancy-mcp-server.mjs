@@ -9,6 +9,7 @@ import { createServer } from 'node:http';
 import { setImmediate } from 'node:timers';
 import { chromium } from 'playwright';
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
+import { jobLoginBrowserFixture } from './job-login-browser-fixture.mjs';
 import { choicePutFixture } from './choice-put-fixture.mjs';
 import { resumeCacheFixture } from './resume-cache-fixture.mjs';
 import { applicationNativeFixture } from './application-native-fixture.mjs';
@@ -45,7 +46,11 @@ try {
             : process.env.RESUME_CACHE_FAILURE === '1'
               ? resumeCacheFixture
               : vacancyBrowserFixture;
-  fixture = await create(browser, {
+  const createFixture =
+    process.env.JOBS_MANUAL_LOGIN_FIXTURE === '1'
+      ? jobLoginBrowserFixture
+      : create;
+  fixture = await createFixture(browser, {
     popup,
     ...(answerContext ? { questionLabel: applicationAnswerQuestionnaire } : {}),
     ...(batchFixture

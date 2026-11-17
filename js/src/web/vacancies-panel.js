@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { JobLoginPanel, useJobLogin } from './job-login-panel.js';
 import { useDates, useT } from './i18n.js';
 import { hhSearchUrl } from '../jobs/options.js';
 import { ApplicationPanel } from './application-panel.js';
@@ -83,6 +84,8 @@ const activeVacancyOperation = (busy, resumeExports, cvTranslation) =>
   busy ||
   (resumeExports.job?.state === 'running' ? 'resume-export' : '') ||
   (cvTranslation.comparison?.state === 'running' ? 'cv-translate' : '');
+const loginBusy = (login) =>
+  login.busy || login.receipt?.login?.active ? 'manual-login' : '';
 
 const validSearch = (values) => {
   try {
@@ -154,6 +157,7 @@ export const useVacancies = (api) => {
     }
   };
   const application = useApplication({ api, values, selected, run });
+  const jobLogin = useJobLogin({ api, values, remember: persistSettings });
   const discovery = useVacancyDiscovery({ api, values });
   const discovering = discovery.receipt?.discovery?.phase === 'running';
   application.discovery = discovery;
@@ -210,14 +214,17 @@ export const useVacancies = (api) => {
     result,
     selected,
     setSelected,
-    busy: workspaceBusy(
-      busy,
-      resumeExports,
-      cvTranslation,
-      discovering,
-      application
-    ),
+    busy:
+      loginBusy(jobLogin) ||
+      workspaceBusy(
+        busy,
+        resumeExports,
+        cvTranslation,
+        discovering,
+        application
+      ),
     application,
+    jobLogin,
     discovery,
     resumeExports,
     technology,
@@ -524,6 +531,7 @@ export const VacanciesScreen = ({ state }) => {
       el('h2', { key: 'title' }, t('vacancy.title')),
       el('p', { key: 'hint', className: 'meta' }, t('vacancy.hint')),
       el(Fields, { key: 'settings', state, t }),
+      el(JobLoginPanel, { key: 'login', state, t }),
       el(VacancyResumes, { key: 'resumes', state, t }),
       el(VacancyDiscoveryView, {
         key: `discovery:${state.values.browserSlot}`,

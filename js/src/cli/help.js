@@ -124,6 +124,10 @@ export const CV_HELP = `  cv-platforms  [--json]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 
 export const VACANCY_HELP = `${APPLICATION_HELP}
+  vacancies-login-open [--request-id=<id>] [--browser-slot=jobs] [--headless=false] [--duration-ms=1800000] [--store=<dir>]
+    Keep a visible browser open for manual HH login/CAPTCHA. Ctrl+C closes it. Authentication is not verified.
+  vacancies-login-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
+  vacancies-login-close [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-discovery-start [search/filter/browser flags from vacancies-search] [--salary-config=<Lino salary settings>] [--no-salary-ladder=true|false] [--max-pages=10] [--max-vacancies=100] [--duration-ms=900000] [--refresh=true|false] [--request-id=<id>] [--store=<dir>]
   vacancies-discovery-status|vacancies-discovery-stop [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
     Finite native pagination and acknowledged description collection; no applications. Start owns the foreground until completion; SIGINT/SIGTERM stop and drain it. Saved status and repeated IDs never resume discovery. Use completed entries with decision.reason=review as an explicitly reviewed batch URL list. Stop requires a request ID.

@@ -1627,3 +1627,12 @@ Native profile persistence follow-up:
 - [x] Verify one synthetic HTTP-only session cookie across a clean Chromium restart through the actual shared factory; verify another slot and workspace start without it. Four sequential launches use owned temporary profiles and loopback traffic only.
 - [x] Register a mandatory bounded native group, with explicit WebKit capability refusal, and retain the successful focused Chromium receipt.
 - [ ] Finish scoped static checks, preserve checked evidence, publish and inspect all hosted workflows. Interactive headed login/challenge handling and all forty original unchecked criteria remain required; PR57 stays draft/unmerged.
+
+2026-11-17 controlled HH manual login (HH01):
+
+- [x] Re-read the persistent headed-login/CAPTCHA contract and existing workspace ownership, profile, visibility and foreground-command mechanisms.
+- [x] Draft a finite manually operated HH login browser with shared profiles, durable non-replaying IDs, explicit unverified authentication, failed-close ownership and shared CLI/Lino/four-language controls.
+- [x] Verify 37 focused lifecycle/policy/storage/CLI/Lino/UI checks, draft failures and corrected native recovery; inspect before/after screenshots and independent MCP with drained fixtures. Two actual headed launches retain a synthetic session cookie; four existing cookie/isolation launches also pass.
+- [x] Pass scoped lint, formatting, secrets, source limits and the unchanged duplication gate (6.49%); preserve 110 source-bound evidence entries.
+- [ ] Publish atomic changes and verify exact-source CI.
+- [ ] Inspect all exact-head workflows and finish the complete HH01 contract. All 36 original unchecked criteria remain unfinished; PR57 stays draft and unmerged.

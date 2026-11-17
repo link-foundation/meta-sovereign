@@ -30,6 +30,7 @@ import { createVacancyChoiceApi } from './vacancy-choice-api.js';
 import { createApplicationApi } from './application-api.js';
 import { vacancySelectionResult } from '../jobs/vacancy-selection.js';
 import { createDiscoveryApi } from './discovery-api.js';
+import { createJobLoginApi } from './job-login-api.js';
 
 const confirmedResumes = (answer, input) => {
   const list = resumeList(answer, input.browserSlot ?? 'jobs', true);
@@ -100,6 +101,7 @@ const confirmedExport = (result, requestId) => {
 };
 export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   ...createDiscoveryApi({ get, report }),
+  ...createJobLoginApi({ get, report }),
   ...createApplicationApi({ get, report }),
   ...createVacancyChoiceApi({ get, report, local }),
   ...createTechnologyApi({ get, report, local }),
@@ -112,6 +114,7 @@ export const createVacancyApi = ({ get, report, local, fileUrl }) => ({
   vacancyCapabilities: async () =>
     (await get('/api/vacancies/capabilities')) ?? {
       available: false,
+      manualLogin: false,
       search: false,
       discovery: false,
       collect: false,
