@@ -362,3 +362,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve the exact 13806114 desktop log: signatures pass, then image detach exits 16 with Resource busy. Keep the separate slow macOS runtime cancellation unresolved.
 - [x] Reproduce four parent failures and retain all package assertions in a shared script with bounded owned-image EXIT cleanup; pass 31 focused checks with one worker and no local disk mounts.
 - [ ] Publish source-bound evidence and inspect hosted macOS verification plus every exact-head workflow. Continue all 40 unchecked original requirements; PR57 stays draft and unmerged.
+
+2026-11-17 vacancy browser grouping:
+
+- [x] Preserve the exact 13806114 WebKit timeout and original artifact. Four vacancy scenarios pass; the fifth starts when the shared three-minute budget is nearly spent.
+- [x] Reproduce the five-scenario contract failure; retain all five scenarios exactly once across separate read and discovery groups, both engines, existing partitions and unchanged deadlines. Pass 26 focused contracts.
+- [x] Run the new native entry once on installed Chromium: both scenarios pass with closed resources and zero provider clicks.
+- [ ] Publish source-bound evidence and inspect every exact-head workflow. The separate slow macOS runtime partition and all 40 original criteria remain required; PR57 stays draft and unmerged.

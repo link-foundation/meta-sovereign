@@ -517,6 +517,8 @@
     "test:e2e:job-application-limit-restore": "node js/tests/e2e-job-application-limit-restore-browser.mjs",
     "test:e2e:vacancies": "node js/tests/e2e-vacancies-browser.mjs",
     "test:e2e:vacancies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancies-browser.mjs",
+    "test:e2e:vacancy-discovery": "node js/tests/e2e-vacancy-discovery-browser.mjs",
+    "test:e2e:vacancy-discovery:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vacancy-discovery-browser.mjs",
     "test:e2e:cv-technologies": "node js/tests/e2e-cv-technologies-browser.mjs",
     "test:e2e:cv-technologies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-cv-technologies-browser.mjs",
     "test:e2e:cv-prepare": "node js/tests/e2e-cv-prepare-browser.mjs",
