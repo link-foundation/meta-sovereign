@@ -1,3 +1,11 @@
+2026-11-17 generic form-reader acceptance audit (QA21):
+
+- [x] Reconcile the full pinned B10/B13 reading contract with current labels, groups, cross-origin frames, CLI, both Lino encodings and shared UI.
+- [x] Verify all 35 original archive entries, recover declared source hashes from published `7c18eee6` and retain 19 changed-source comparisons without treating integrity as acceptance.
+- [x] Review current reader/inspection, CLI/API/UI paths and the awaited native assertions; distinguish already implemented automatic prefilling from the broader unfinished workflows.
+- [ ] Require all five exact-source workflows, every named focused check and both registered native reader completions; collect and manually review the bounded acceptance evidence.
+- [ ] Update only verified criteria, publish only to the prepared branch and continue every unfinished requirement. PR57 stays draft and unmerged.
+
 2026-11-17 standalone weighted matching input boundary:
 
 - [x] Reproduce direct weighted calls admitting 6,001-character input against exact `e574976e`; preserve the admitted boundary/ordered positive control.
@@ -16,8 +24,8 @@
 Active weighted question rewording (QA02):
 
 - [x] Compare the complete pinned database and PR 123 with the shared question matcher; identify ordered-token-only rewording.
-- [ ] Implement an explicit weighted choice, strict configuration, shared review controls and finite work admission.
-- [ ] Verify parent failures and focused shared-path behavior, then preserve browser evidence and static checks.
+- [x] Implement an explicit weighted choice, strict configuration, shared review controls and finite work admission.
+- [x] Verify parent failures and focused shared-path behavior, then preserve browser evidence and static checks.
 - [ ] Publish and review exact-source CI. Provider acquisition and the complete original contract remain required.
 
 2026-11-17 layered runner configuration (VD07 remains required):

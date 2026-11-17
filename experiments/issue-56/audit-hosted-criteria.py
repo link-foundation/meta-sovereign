@@ -53,6 +53,7 @@ if arguments.names_file:
 assert Path(arguments.output_prefix).name == arguments.output_prefix
 audits = {}
 hashed_revisions = {
+    'forms-reader': '7c18eee6',
     'question-lists': '86eebd79',
     'question-corrections': '2aced5d3',
     'question-concurrency': 'ed241ef5',
