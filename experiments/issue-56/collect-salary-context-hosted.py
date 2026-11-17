@@ -1,6 +1,6 @@
 """Bind QA12's complete mapping to current-source portable and native receipts.
 
-Preserve all five workflow responses and Node plus browser shard 2/3 logs as
+Preserve all five workflow responses and Node plus assigned browser shard logs as
 hosted-verification-SLUG-*.json and hosted-SLUG-TAG.log. Run the catalog source
 audit at the same published SHA first. Integrity alone never accepts a criterion.
 """
@@ -19,13 +19,20 @@ revision, slug = sys.argv[1:]
 sha = subprocess.check_output(['git', 'rev-parse', revision], cwd=root).decode().strip()
 entries = {}
 runs = read_workflows(root, sha, slug, entries)
+source = source_reader(root, sha, entries)
+registration = json.loads(source('js/scripts/browser-checks.json'))
+split = 'question-salary-context' in registration
+assert split == ('question-salary-wording' in registration)
+context_group = 'question-salary-context' if split else 'question-controls'
+wording_group = 'question-salary-wording' if split else 'question-controls'
+groups = {name: registration.index(name) % 4 + 1
+          for name in [context_group, wording_group, 'questions']}
 selected = {'node': ('Checks and release', 'Test (node on ubuntu-26.04)')}
 for engine in ['chromium', 'webkit']:
-    for shard in [2, 3]:
+    for shard in sorted(set(groups.values())):
         selected[f'{engine}-{shard}'] = (
             'Checks and release', f'Browser e2e ({engine}, shard {shard}/4)')
 raw, jobs = read_jobs(root, runs, slug, selected, entries)
-source = source_reader(root, sha, entries)
 catalog_path = 'experiments/issue-56/salary-context-evidence.json'
 catalog = json.loads((root / catalog_path).read_text())
 read_catalog_audit(root, sha, 'salary-context-criteria', catalog, source, entries)
@@ -36,17 +43,16 @@ stems.update(f'{stem}-controls' for stem in [
 tests = read_literal_tests(stems, source, raw['node'])
 assert sum(map(len, tests.values())) == 120
 
-registration = json.loads(source('js/scripts/browser-checks.json'))
-assert registration.index('question-controls') % 4 == 1
-assert registration.index('questions') % 4 == 2
 runner = source('js/scripts/run-browser-checks.mjs')
 assert 'timeout: 180_000' in runner
-control_entry = source('js/tests/e2e-question-controls-browser.mjs')
 clarification = source('js/tests/helpers/e2e-salary-clarification.mjs')
 helpers = ['Clarification', 'Wording', 'Vocabulary', 'Intent',
            'TemplateContext', 'ContextPriority']
+helper_groups = {name: wording_group if name in ['Wording', 'Vocabulary', 'Intent']
+                 else context_group for name in helpers}
 for name in helpers:
-    assert f'                    verifySalary{name},' in control_entry
+    entry = source(f'js/tests/e2e-{helper_groups[name]}-browser.mjs')
+    assert f'verifySalary{name}' in entry[entry.index('await runBrowserScenarios('):]
 for name in ['Phrasing', 'Numbers', 'BrowserContext', 'BrowserVacancy',
              'BrowserVacancyCard', 'EmployerContext']:
     assert f'await verifySalary{name}(browser);' in clarification
@@ -87,20 +93,25 @@ expected['salary-priority-controls'] = dict(
     contextPriority=10, tiedPriorityRequiresReview=True, narrowLayout=True, textSends=0)
 receipts = {}
 for engine in ['chromium', 'webkit']:
-    controls = raw[f'{engine}-2']
-    assert any(f'[e2e-question-controls] OK ({engine})' in line for line in controls)
-    assert any(f'[e2e-questions] OK ({engine})' in line for line in raw[f'{engine}-3'])
+    for group, shard in groups.items():
+        assert any(f'[e2e-{group}] OK ({engine})' in line
+                   for line in raw[f'{engine}-{shard}'])
     for name in helpers:
+        group = helper_groups[name]
+        controls = raw[f'{engine}-{groups[group]}']
         matches = [json.loads(line.split('[browser-scenario] ', 1)[1])
                    for line in controls if '[browser-scenario] ' in line]
         passed = [value for value in matches if (value['group'], value['scenario'], value['phase'])
-                  == ('question-controls', f'verifySalary{name}', 'passed')]
+                  == (group, f'verifySalary{name}', 'passed')]
         assert len(passed) == 1, (engine, name)
     for marker, value in expected.items():
+        group = wording_group if marker in ['salary-wording', 'salary-vocabulary',
+                                            'salary-intent'] else context_group
+        controls = raw[f'{engine}-{groups[group]}']
         matches = [(i, json.loads(line.split(f'[{marker}] ', 1)[1]))
                    for i, line in enumerate(controls, 1) if f'[{marker}] ' in line]
         assert len(matches) == 1 and matches[0][1] == value, (engine, marker, matches)
-        receipts[f'{engine}/{marker}'] = dict(line=matches[0][0], receipt=value)
+        receipts[f'{engine}/{marker}'] = dict(line=matches[0][0], group=group, receipt=value)
 
 references = read_reference_contracts(root, {
     'salary-clarification-contract': [

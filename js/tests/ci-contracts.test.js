@@ -409,6 +409,16 @@ const questionBrowserGroups = {
     'verifyQuestionBrowserWatch',
     'verifyQuestionPeriodWorkers',
   ],
+  'question-salary-context': [
+    'verifySalaryClarification',
+    'verifySalaryTemplateContext',
+    'verifySalaryContextPriority',
+  ],
+  'question-salary-wording': [
+    'verifySalaryWording',
+    'verifySalaryVocabulary',
+    'verifySalaryIntent',
+  ],
 };
 
 test('question provider and control scenarios have separate mandatory browser budgets', () => {

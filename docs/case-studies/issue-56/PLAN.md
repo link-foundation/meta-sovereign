@@ -1,3 +1,10 @@
+Active salary browser CI grouping repair:
+
+- [x] Preserve exact-source `06953e31` WebKit partition 2. All four native question controls and two salary scenarios pass before the aggregate three-minute deadline interrupts vocabulary; six completed scenarios account for 176 seconds. No individual vocabulary hang is established.
+- [x] Give salary context and wording separate mandatory three-scenario groups without moving existing partitions or increasing deadlines. Preserve focused environment entry points; extend the existing parent-failing workflow contract and exact-source collector mapping.
+- [x] Seven focused contract/registry checks and one native WebKit context group pass. The latter completes three top-level scenarios in 111 seconds with owner drafts/rules retained and zero sends; local full matrices remain excluded.
+- [ ] Preserve checked evidence, publish the atomic repair and inspect every exact-head workflow. All forty original unfinished criteria remain required; PR57 stays draft/unmerged.
+
 Active current-source acceptance audit (`06953e31`):
 
 - [x] Refresh issue and all three PR feedback endpoints; retain the complete original scope and all 40 unfinished criteria.
