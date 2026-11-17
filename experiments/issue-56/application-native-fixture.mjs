@@ -10,10 +10,13 @@ export const applicationNativeHtml = ({
   resumeChooser = false,
   questionLabel,
   vacancyId = '123',
+  salary,
+  ownerAnswers,
 } = {}) => {
   const vacancy = vacancySnapshotFixture();
   return `<!doctype html><html><body>
     <h1 data-qa="vacancy-title">${html(vacancy.title)}</h1>
+    ${salary === undefined ? '' : `<span data-qa="vacancy-salary">${html(salary)}</span>`}
     <div data-qa="vacancy-description">${html(vacancy.description)}</div>
     <span data-qa="skills-element">Python</span>
     <label>Header search<input id="header" value="Owner header"></label>
@@ -22,6 +25,8 @@ export const applicationNativeHtml = ({
     <script>
       globalThis.applicationAttempts=0;
       globalThis.applicationEntries=0;
+      globalThis.fixtureClicks=0;
+      document.addEventListener('click',()=>globalThis.fixtureClicks++);
       function openApplication(recordEntry = true) {
         if (recordEntry) globalThis.applicationEntries++;
         document.querySelector('[data-qa="vacancy-response-link-top"]').remove();
@@ -41,6 +46,13 @@ export const applicationNativeHtml = ({
         button.remove();
       }
       ${response ? 'openApplication(false);' : ''}
+      ${
+        response && ownerAnswers
+          ? `document.querySelector('#experience').value=${JSON.stringify(ownerAnswers.experience)};
+      showLetter(document.querySelector('[data-qa="add-cover-letter"]'));
+      document.querySelector('[data-qa="vacancy-response-form-letter-input"]').value=${JSON.stringify(ownerAnswers.letter)};`
+          : ''
+      }
     </script></body></html>`;
 };
 
@@ -55,8 +67,11 @@ export const applicationNativeFixture = async (
     artifactRoot,
     vacancyIds = ['123'],
     onApplicationClose,
+    salary,
+    ownerAnswers,
   } = {}
 ) => {
+  let nativeForms = 0;
   const fixture = await vacancyBrowserFixture(browser, {
     ...(store ? { store } : {}),
     exports: {
@@ -81,6 +96,9 @@ export const applicationNativeFixture = async (
             popup,
             resumeChooser,
             questionLabel,
+            salary,
+            ownerAnswers:
+              response && ++nativeForms === 1 ? ownerAnswers : undefined,
             vacancyId: response
               ? url.searchParams.get('vacancyId')
               : url.pathname.split('/').at(-1),

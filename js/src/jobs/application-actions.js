@@ -43,6 +43,7 @@ export class ApplicationActions {
   async click(record, action, signal) {
     const service = this.service;
     await service.review.check(record, action, signal);
+    service.salary.admit(record);
     const handle = await service.target(
       record.browser.page,
       applicationSelectors[action]
@@ -71,6 +72,7 @@ export class ApplicationActions {
       reserved = true;
       signal.throwIfAborted();
       await service.review.check(record, action, signal);
+      service.salary.admit(record);
       issued = true;
       const result = await service.dispatch(handle, record, action);
       if (result?.dispatched === false) {
@@ -218,7 +220,12 @@ export class ApplicationActions {
       record.page.letterToggle &&
       !record.page.letterToggle.disabled
     ) {
-      await service.review.check(record, 'submit', signal);
+      await service.review.check(
+        record,
+        'submit',
+        signal,
+        record.contextRecovering === true
+      );
       policy();
       const toggle = await service.target(
         record.browser.page,

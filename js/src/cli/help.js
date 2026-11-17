@@ -4,7 +4,7 @@ export const APPLICATION_HELP = `  vacancies-application-batch --vacancies-file=
   vacancies-application-batch-status [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
   vacancies-application --url=<hh-vacancy-url> --request-id=<id> [--cover-letter-file=<text-file>] [--standard-letter-en-file=<text-file> --standard-letter-ru-file=<text-file>] [--no-auto-select-resume-language=true|false] [--no-auto-answer-viewed-vacancy=true|false] [--supervised=true|false] [--confirm=answers,cover-letter,send,popup|none] [--auto-exact=true|false] [--review-delay-ms=3000] [--job-application-interval=0|seconds] [--test-mode=true|false] [--recover=true|false] [--browser-slot=jobs] [--headless=true|false] [--store=<dir>]
   vacancies-application-status --url=<hh-vacancy-url> [--request-id=<id>] [--browser-slot=jobs] [--store=<dir>]
-                shared answer context (single or batch): [--profile-id=<saved-profile-id>] [--salary=<lino>]; targets are frozen for this review, named contact values are resolved on each plan; assembled answers require review
+                shared answer context (single or batch): [--profile-id=<saved-profile-id>] [--salary=<lino>] [--no-salary-ladder=true|false] [--salary-floor-rub=<amount> --form-url=<same-vacancy-native-form>]; targets are frozen for this review, named contact values are resolved on each plan; assembled answers require review
                 survey start setting: [--auto-answer-viewed-vacancy=true|false] [--configuration=<file.lenv>]
                 priority: explicit positive/negative flag > AUTO_ANSWER_VIEWED_VACANCY environment > selected .lenv > current-directory .lenv > true; status never changes saved settings`;
 

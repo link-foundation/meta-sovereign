@@ -17,6 +17,7 @@ import { applicationResumeData } from './application-resume-data.js';
 import { applicationLimitData } from './application-limit-data.js';
 import { applicationLimitWaitData } from './application-limit-wait-data.js';
 import { validApplicationAnswerContext } from './application-answer-context.js';
+import { applicationSalaryDecision } from './application-salary.js';
 
 export const applicationStates = [
   'opening',
@@ -167,7 +168,11 @@ const validReceiptContext = (raw, input) =>
   identity(raw, input) &&
   state(raw) &&
   page(raw.page) &&
-  validApplicationAnswerContext(raw);
+  validApplicationAnswerContext(raw) &&
+  ((raw.salaryAdmission === undefined &&
+    applicationSalaryDecision(raw, raw.vacancy) === null) ||
+    JSON.stringify(raw.salaryAdmission) ===
+      JSON.stringify(applicationSalaryDecision(raw, raw.vacancy)));
 
 /** Bind public receipts before any UI uses their readiness or delivery state. */
 export const applicationResult = (raw, input) => {

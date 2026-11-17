@@ -57,6 +57,7 @@ export const applicationFixture = ({
   store = createMemoryStore(),
   application = {},
   readSearch,
+  vacancy = vacancySnapshotFixture,
 } = {}) => {
   const state = {
     page: applicationPageFixture(),
@@ -109,7 +110,7 @@ export const applicationFixture = ({
         page: {},
         commander: {
           goto: async () => {},
-          evaluate: async () => vacancySnapshotFixture(),
+          evaluate: async () => vacancy(),
         },
         close: async () => {
           state.closed++;

@@ -1,4 +1,24 @@
 export const ruApplication = {
+  'application.salary.rates-stale':
+    'Обновите датированный снимок курсов перед продолжением.',
+  'application.directForm':
+    'URL существующей формы отклика (необязательно; та же вакансия)',
+  'application.salaryPolicy': 'Проверять оплату перед откликом',
+  'application.salaryFloor':
+    'Текущий минимум в RUB (пусто — целевая сумма на руки в RUB)',
+  'application.salaryPolicyHint':
+    'Используются общие цели выше. Максимум ниже половины цели исключается; меньшая оплата ждёт своего уровня. Неизвестная оплата допускается. При копировании из поиска используется подтверждённый уровень.',
+  'application.salaryCurrentFloor': 'Текущий минимум: эквивалент {amount} RUB',
+  'application.salary.eligible-pay': 'Оплата подходит',
+  'application.salary.unknown-pay':
+    'Оплата не указана или не распознана; отклик допускается',
+  'application.salary.below-half-target':
+    'Максимум ниже половины цели; отклик удержан',
+  'application.salary.below-current-tier':
+    'Оплата ниже текущего уровня; отклик отложен',
+  'application.salary.missing-vacancy-context':
+    'Перед откликом прочитайте полную вакансию',
+
   'application.answerProfile': 'Общий профиль ответов: {profile}',
   'application.answerTargets': 'Фиксированные зарплатные ожидания: {targets}',
   'application.answerContext':

@@ -45,6 +45,7 @@ const commandInput = async (args, configuration) => {
       : undefined;
   const input = {
     url: args.url,
+    ...(args['form-url'] === undefined ? {} : { formUrl: args['form-url'] }),
     requestId: args['request-id'],
     browserSlot: args['browser-slot'],
     headless: boolean(args, 'headless'),
@@ -64,6 +65,14 @@ const commandInput = async (args, configuration) => {
     standardLetters,
     profileId: args['profile-id'],
     salary: args.salary ? decodeWire(args.salary) : undefined,
+    salaryLadder:
+      args['no-salary-ladder'] === undefined
+        ? undefined
+        : !boolean(args, 'no-salary-ladder'),
+    salaryFloorRub:
+      args['salary-floor-rub'] === undefined
+        ? undefined
+        : Number(args['salary-floor-rub']),
     autoSelectResumeLanguage:
       boolean(args, 'no-auto-select-resume-language') !== true,
     autoAnswerViewedVacancy: await applicationSurveyConfiguration(

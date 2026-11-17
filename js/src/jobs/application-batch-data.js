@@ -35,6 +35,7 @@ const validateOptions = (input) => {
     !input.urls.length ||
     input.urls.length > 1000 ||
     !integer(input.maxApplications ?? 0, 1000) ||
+    input.formUrl !== undefined ||
     !integer(input.durationMs ?? 86400000, 86400000) ||
     (input.durationMs ?? 86400000) < 1000 ||
     (input.noQuestionnaires !== undefined &&

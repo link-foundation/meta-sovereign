@@ -1,4 +1,23 @@
 export const hiApplication = {
+  'application.salary.rates-stale':
+    'जारी रखने से पहले दिनांकित विनिमय दरें अपडेट करें।',
+  'application.directForm': 'मौजूदा मूल आवेदन का URL (वैकल्पिक; वही रिक्ति)',
+  'application.salaryPolicy': 'आवेदन से पहले विज्ञापित वेतन जाँचें',
+  'application.salaryFloor':
+    'वर्तमान न्यूनतम वेतन RUB में (खाली होने पर RUB शुद्ध लक्ष्य)',
+  'application.salaryPolicyHint':
+    'ऊपर दिए साझा लक्ष्य लागू होते हैं। लक्ष्य के आधे से कम अधिकतम वेतन वाले पद हटते हैं; कम वेतन वाले पद अपने स्तर की प्रतीक्षा करते हैं। अज्ञात वेतन स्वीकार्य है। खोज से प्रतिलिपि करने पर उसका पुष्ट स्तर लागू होता है।',
+  'application.salaryCurrentFloor': 'वर्तमान न्यूनतम: {amount} RUB के बराबर',
+  'application.salary.eligible-pay': 'वेतन उपयुक्त है',
+  'application.salary.unknown-pay':
+    'वेतन अज्ञात या पहचाना नहीं गया; आवेदन स्वीकार्य है',
+  'application.salary.below-half-target':
+    'अधिकतम वेतन लक्ष्य के आधे से कम है; आवेदन रुका है',
+  'application.salary.below-current-tier':
+    'वेतन वर्तमान स्तर से कम है; आवेदन स्थगित है',
+  'application.salary.missing-vacancy-context':
+    'आवेदन से पहले पूरा पद विवरण पढ़ें',
+
   'application.answerProfile': 'साझा उत्तर प्रोफ़ाइल: {profile}',
   'application.answerTargets': 'स्थिर वेतन लक्ष्य: {targets}',
   'application.answerContext':

@@ -32,6 +32,7 @@ import {
   ApplicationAnswerReceipt,
 } from '../src/web/application-answer-settings.js';
 import { LocaleContext, translate } from '../src/web/i18n.js';
+import { vacancySnapshotFixture } from '../../experiments/issue-56/vacancy-fixture.mjs';
 
 const options = { timeout: 6000 };
 const profileId = 'qa-profile:questionnaire';
@@ -40,7 +41,9 @@ for (const type of [LINO_TEXT, LINO_BINARY]) {
     `batch freezes and forwards answer context through ${type}`,
     options,
     async (t) => {
-      const fixture = applicationBatchFixture(t);
+      const fixture = applicationBatchFixture(t, {
+        vacancy: () => ({ ...vacancySnapshotFixture(), salary: 'от 600000 ₽' }),
+      });
       await withApplicationRouteFixture(fixture, type, async (api) => {
         let receipt = await api.vacancyApplicationBatchStart({
           ...batchInput,

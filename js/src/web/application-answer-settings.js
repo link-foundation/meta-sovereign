@@ -3,6 +3,7 @@ import { useT } from './i18n.js';
 import { SharedProfile } from './question-shared-profile.js';
 import { SalaryFields } from './question-salary-fields.js';
 import { formatSalary } from '../automation/salary-config.js';
+import { ApplicationSalarySettings } from './application-salary-view.js';
 
 const el = React.createElement;
 export const ApplicationAnswerSettings = ({ application, disabled }) => {
@@ -31,6 +32,12 @@ export const ApplicationAnswerSettings = ({ application, disabled }) => {
         api,
         salary: options.salary,
         set: (value) => update('salary', value),
+      }),
+      el(ApplicationSalarySettings, {
+        key: 'salary-policy',
+        options,
+        setOptions,
+        disabled,
       }),
     ]
   );

@@ -39,6 +39,7 @@ export class ApplicationFullForm {
     admitFullForm(record);
     const service = this.service;
     await service.review.check(record, 'enter', signal);
+    service.salary.admit(record);
     if (record.options.testMode) {
       return applicationView({ ...record, state: 'test-preview' });
     }
@@ -51,6 +52,8 @@ export class ApplicationFullForm {
     }
     try {
       signal.throwIfAborted();
+      await service.review.check(record, 'enter', signal);
+      service.salary.admit(record);
       const result = await service.dispatch(handle, record, 'fullForm');
       if (result?.navigated !== true) {
         throw fail('changed');

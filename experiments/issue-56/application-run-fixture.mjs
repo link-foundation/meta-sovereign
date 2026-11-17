@@ -18,7 +18,7 @@ export const applicationRunFixture = (options = {}) => {
               fixture.state.page = { ...applicationPageFixture(), url };
             },
             evaluate: async () => ({
-              ...vacancySnapshotFixture(),
+              ...(options.vacancy?.() ?? vacancySnapshotFixture()),
               url: fixture.state.page.url,
             }),
           },

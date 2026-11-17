@@ -19,6 +19,8 @@ import {
   saveApplicationJournal,
 } from './application-journal.js';
 import { ApplicationReview } from './application-review.js';
+import { ApplicationSalary } from './application-salary.js';
+import { ApplicationContextRecovery } from './application-context-recovery.js';
 import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
 import { ApplicationRunModes } from './application-run-modes.js';
@@ -44,12 +46,19 @@ import {
 const owners = new WeakMap();
 export const applicationOwned = (store) => owners.has(store);
 
+const applicationArtifactRoot = (storeDir) =>
+  storeDir ? path.join(storeDir, 'resume-exports') : undefined;
+const applicationTrace = () =>
+  process.env.MS_JOBS_APPLICATION_DEBUG === '1'
+    ? (value) => console.error(value)
+    : () => {};
+
 /** One owned browser; journals reserve dispatch before any provider effect. */
 class ApplicationService {
   constructor({
     store,
     storeDir,
-    artifactRoot = storeDir ? path.join(storeDir, 'resume-exports') : undefined,
+    artifactRoot = applicationArtifactRoot(storeDir),
     run,
     openSession = openBrowserSession,
     filling = createReviewedPrefill({ store }),
@@ -73,9 +82,7 @@ class ApplicationService {
         runner: chatRunner,
         log: chatLog,
       }),
-    trace = process.env.MS_JOBS_APPLICATION_DEBUG === '1'
-      ? (value) => console.error(value)
-      : () => {},
+    trace = applicationTrace(),
   }) {
     Object.assign(this, {
       store,
@@ -95,6 +102,8 @@ class ApplicationService {
       createChats,
     });
     this.review = new ApplicationReview(this);
+    this.salary = new ApplicationSalary(this, now);
+    this.context = new ApplicationContextRecovery(this);
     this.actions = new ApplicationActions(this);
     this.continuation = new ApplicationContinuation(this);
     this.drafts = new ApplicationDrafts(this);
@@ -197,6 +206,7 @@ class ApplicationService {
           (await this.limitRejections.observe(signal)) ??
           backed ??
           (await this.retries.automatic(signal)) ??
+          (await this.salary.automatic(signal)) ??
           (await this.deferrals.automatic(signal)) ??
           result;
       }
@@ -400,7 +410,7 @@ class ApplicationService {
         location: record.resumeUrl ? 'questionnaire' : 'vacancy',
       });
       await record.browser.commander.goto({
-        url: record.resumeUrl ?? options.url,
+        url: record.resumeUrl ?? options.formUrl ?? options.url,
         waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
@@ -417,7 +427,10 @@ class ApplicationService {
     }
   }
   async openingFailure(record, error) {
-    if (record.browser && record.hold === 'daily-limit') {
+    if (
+      record.browser &&
+      (record.hold === 'daily-limit' || record.page?.scope)
+    ) {
       // A refused checkpoint cannot authorize losing the owner's held form.
       this.trace({
         event: 'application-limit-opening-held',
@@ -447,6 +460,7 @@ class ApplicationService {
     this.deferrals.clear();
     this.holds.clear();
     this.retries.clear();
+    this.salary.deferred.clear();
   }
 }
 export const createApplicationService = (options) => {

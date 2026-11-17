@@ -158,6 +158,10 @@ export class ApplicationContinuation {
   }
   async run(record, input, signal) {
     this.validate(input);
+    const pay = this.service.salary.decision(record);
+    if (pay && pay.action !== 'apply') {
+      return applicationView(record);
+    }
     if (record.options.testMode) {
       return applicationView({ ...record, state: 'test-preview' });
     }

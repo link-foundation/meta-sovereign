@@ -1,4 +1,24 @@
 export const enApplication = {
+  'application.salary.rates-stale':
+    'Refresh the dated exchange rates before continuing.',
+  'application.directForm':
+    'Existing native application URL (optional; same vacancy)',
+  'application.salaryPolicy': 'Check advertised pay before applications',
+  'application.salaryFloor':
+    'Current salary floor in RUB (blank uses the RUB net target)',
+  'application.salaryPolicyHint':
+    'Uses the shared targets above. Caps below half the independent target are excluded; lower offers wait for their tier. Unknown pay remains eligible. Copying discovery uses its acknowledged tier.',
+  'application.salaryCurrentFloor':
+    'Current salary floor: {amount} RUB equivalent',
+  'application.salary.eligible-pay': 'Pay eligible',
+  'application.salary.unknown-pay': 'Pay unspecified or unrecognized; eligible',
+  'application.salary.below-half-target':
+    'Advertised maximum is below half the target; application held',
+  'application.salary.below-current-tier':
+    'Pay is below the current tier; application deferred',
+  'application.salary.missing-vacancy-context':
+    'Collect the full vacancy before applying',
+
   'application.answerProfile': 'Shared answer profile: {profile}',
   'application.answerTargets': 'Fixed salary targets: {targets}',
   'application.answerContext':

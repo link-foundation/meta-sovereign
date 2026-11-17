@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { salaryTierFloor } from '../jobs/salary-ladder.js';
 import { ApplicationAnswerReceipt } from './application-answer-settings.js';
 import {
   ApplicationChatControls,
@@ -8,7 +9,7 @@ import {
 const el = React.createElement;
 const chatPolicyDraft = (draft, batch, frozen) =>
   frozen && batch ? { ...draft, ...batch.settings } : draft;
-const BatchHeading = ({ batch, eligible, action, update, frozen, t }) =>
+const BatchHeading = ({ batch, eligible, action, copy, frozen, t }) =>
   el(React.Fragment, null, [
     el('h4', { key: 'title' }, t('application.batch.title')),
     el('p', { key: 'hint', className: 'meta' }, t('application.batch.hint')),
@@ -17,12 +18,7 @@ const BatchHeading = ({ batch, eligible, action, update, frozen, t }) =>
       receipt: batch?.settings,
     }),
     eligible.length
-      ? action(
-          'use-discovery',
-          'discovery.useBatch',
-          () => update('urls', eligible.join('\n')),
-          frozen
-        )
+      ? action('use-discovery', 'discovery.useBatch', copy, frozen)
       : null,
   ]);
 
@@ -68,8 +64,14 @@ export const ApplicationBatchView = ({ application, supported, t }) => {
       batch,
       eligible,
       action,
-      update,
-      frozen,
+      copy: () => {
+        update('urls', eligible.join('\n'));
+        application.setOptions((current) => ({
+          ...current,
+          ...discoveredSalarySettings(application.discovery),
+        }));
+      },
+      frozen: frozen || Boolean(application.intent),
       t,
     }),
     el('label', { key: 'urls', className: 'col' }, [
@@ -288,6 +290,7 @@ const batchStartDisabled = (state, frozen, confirmed, draft, application) =>
   !confirmed ||
   !draft.urls.trim() ||
   application.occupied ||
+  Boolean(application.options.formUrl) ||
   application.discoveryRunning;
 
 export const discoveredReviewUrls = (state) => {
@@ -301,4 +304,17 @@ export const discoveredReviewUrls = (state) => {
         )
         .map((row) => row.card.url)
     : [];
+};
+
+export const discoveredSalarySettings = (state) => {
+  const discovery = state?.receipt?.discovery;
+  const options = discovery?.options;
+  const floor = options ? salaryTierFloor(options, discovery.salaryTier) : null;
+  return discovery?.phase === 'completed' && options.salaryConfig
+    ? {
+        salary: options.salaryConfig,
+        salaryLadder: options.salaryLadder !== false,
+        ...(floor === null ? {} : { salaryFloorRub: floor }),
+      }
+    : {};
 };

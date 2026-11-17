@@ -402,6 +402,10 @@ export class ApplicationBatch {
       await this.service.open({ ...record.options.review, url }, signal);
     }
     const current = this.service.current;
+    if (current && (await this.service.salary.preserve(current, signal))) {
+      await this.service.close();
+      return;
+    }
     if (
       current &&
       ['ready', 'review'].includes(current.state) &&
@@ -448,6 +452,10 @@ export class ApplicationBatch {
     signal.throwIfAborted();
     if (observedOutcome(page)) {
       await this.service.review.inspect(current, signal);
+    }
+    if (await this.service.salary.preserve(current, signal)) {
+      await this.service.close();
+      return;
     }
     if (current.delivery === 'provider-confirmed') {
       await this.save(runtime, {

@@ -4,6 +4,7 @@ import {
   assignmentText,
 } from '../assignments/validation.js';
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
+import { vacancySnapshot } from '../assignments/vacancy.js';
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
@@ -107,7 +108,7 @@ export class ApplicationReview {
     ) {
       throw fail('vacancy');
     }
-    record.vacancy = {
+    const vacancy = {
       ...assignmentVacancy(raw),
       salary:
         raw.salary === null
@@ -115,6 +116,19 @@ export class ApplicationReview {
           : assignmentText(raw.salary ?? '', 1000, 'vacancy salary', true),
       url: record.url,
     };
+    await vacancySnapshot(
+      this.service.store,
+      async () => ({
+        ...raw,
+        ...vacancy,
+        salary: vacancy.salary ?? '',
+        capturedAt: new Date().toISOString(),
+      }),
+      record.url,
+      true,
+      signal
+    );
+    record.vacancy = vacancy;
   }
   async plan(record, signal) {
     const { filling } = this.service;
@@ -152,6 +166,24 @@ export class ApplicationReview {
       record.code = error.code;
     }
   }
+  async cachedVacancy(record, signal) {
+    const cached = await vacancySnapshot(
+      this.service.store,
+      async () => ({
+        ...record.vacancy,
+        salary: record.vacancy.salary ?? '',
+        capturedAt: new Date().toISOString(),
+      }),
+      record.url,
+      false,
+      signal
+    );
+    record.vacancy = {
+      ...assignmentVacancy(cached),
+      salary: cached.salary || null,
+      url: record.url,
+    };
+  }
   async inspect(record, signal) {
     const { filling, readPage } = this.service;
     signal.throwIfAborted();
@@ -180,19 +212,22 @@ export class ApplicationReview {
         : null,
     };
     await this.service.save(record);
+    await this.service.context.recover(record, signal);
     return applicationView(record);
   }
   async prepare(record, signal) {
-    if (record.state === 'ready' && !record.vacancy) {
+    if (record.state === 'ready') {
       await this.vacancy(record, signal);
     }
     if (
       (record.state === 'review' ||
         record.state === 'daily-limit' ||
         record.page.error === 'generic-error') &&
-      record.page.scope &&
-      record.vacancy
+      record.page.scope
     ) {
+      if (record.vacancy) {
+        await this.cachedVacancy(record, signal);
+      }
       await this.plan(record, signal);
     }
   }
@@ -215,6 +250,7 @@ export class ApplicationReview {
       throw fail('changed');
     }
     checkPolicy(record, allowHeld);
+    await this.service.salary.refresh(record, signal);
     const before = await readPage(record.browser, record.url);
     this.service.holds.observe(record, before);
     await this.service.limits.observe(record, before);

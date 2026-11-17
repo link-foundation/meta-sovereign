@@ -11,6 +11,8 @@ import {
   applicationLetterLanguage,
 } from './application-letters.js';
 import { applicationAnswerContext } from './application-answer-context.js';
+import { applicationSalaryDecision } from './application-salary.js';
+import { applicationResumeUrl } from './application-location.js';
 
 export const applicationFailure = (kind) =>
   jobsFailure(
@@ -63,6 +65,15 @@ const feedbackSettings = (input) =>
   input.autoAnswerViewedVacancy === undefined
     ? {}
     : { autoAnswerViewedVacancy: input.autoAnswerViewedVacancy };
+const formSettings = (input, url) => {
+  if (input.formUrl === undefined) {
+    return {};
+  }
+  if (typeof input.formUrl !== 'string') {
+    throw applicationFailure('input');
+  }
+  return { formUrl: applicationResumeUrl(input.formUrl, url) };
+};
 export const applicationSettings = (input, { legacy = false } = {}) => {
   const options = applicationKey(input);
   if (
@@ -96,6 +107,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
           ),
         }),
     ...applicationAnswerContext(input),
+    ...formSettings(input, options.url),
   };
 };
 export const applicationDelay = (ms, signal) =>
@@ -202,5 +214,6 @@ export const applicationView = (record) => {
     resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
     ...applicationAnswerContext(record.options),
+    salaryAdmission: applicationSalaryDecision(record.options, record.vacancy),
   });
 };

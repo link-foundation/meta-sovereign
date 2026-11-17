@@ -779,3 +779,5 @@ numbers, incompatible basis, periods and unapproved configuration (issue #56 QA1
 Allow explicit salary context priorities while preserving question precedence and tied-priority review. Match configured word stems and currency symbols adjacent to amounts; retain independent targets and existing source order (issue #56 QA12).
 
 Add bounded resume-matching salary tiers with exact owner targets, observed page exhaustion, deferred minimum-only offers, advertised hard-cap exclusions, shared CLI/Lino/UI settings and non-replaying receipts (issue #56, partial HH02/HH05).
+
+Check full-vacancy salary targets before application entry, full-form navigation and send. Preserve actual direct-form answers before recovering missing vacancy context, restore empty native controls, and carry discovery salary tiers into unarmed application drafts.

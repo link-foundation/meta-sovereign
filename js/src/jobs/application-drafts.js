@@ -62,8 +62,7 @@ export const nativeDraftFields = (record) => {
     !completeReport(report) ||
     !page.scope ||
     !page.bound ||
-    page.ambiguousLetter ||
-    !record.vacancy
+    page.ambiguousLetter
   ) {
     throw draftFailure();
   }
@@ -99,15 +98,26 @@ export class ApplicationDrafts {
       throw fail('confirmation');
     }
     if (
-      !['review', ...(restoring ? [] : ['paused', 'deferred'])].includes(
-        record.state
-      ) ||
+      ![
+        'review',
+        ...(restoring
+          ? record.contextRecovering
+            ? ['deferred']
+            : []
+          : ['paused', 'deferred']),
+      ].includes(record.state) ||
       record.attempted.submit ||
-      record.delivery === 'provider-confirmed'
+      record.delivery === 'provider-confirmed' ||
+      (restoring && !record.vacancy && !record.contextRecovering)
     ) {
       throw fail('state');
     }
-    await this.service.review.check(record, 'submit', signal, !restoring);
+    await this.service.review.check(
+      record,
+      'submit',
+      signal,
+      !restoring || record.contextRecovering === true
+    );
   }
   async backup(
     record,

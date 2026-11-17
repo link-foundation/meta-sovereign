@@ -5,6 +5,7 @@ import {
 } from '../../../experiments/issue-56/application-answer-context-fixture.mjs';
 import { planFormAnswers } from '../../src/forms/answer-plan.js';
 import { formModelInspection } from './forms-plan-inspection.mjs';
+import { vacancySnapshotFixture } from '../../../experiments/issue-56/vacancy-fixture.mjs';
 
 /** Exercise actual service admission and shared planning with no browser process. */
 export const applicationAnswerContextFixture = async (t) => {
@@ -13,6 +14,7 @@ export const applicationAnswerContextFixture = async (t) => {
     navigation: { nextPage: false, limited: false },
   });
   const fixture = applicationFixture({
+    vacancy: () => ({ ...vacancySnapshotFixture(), salary: 'от 600000 ₽' }),
     application: {
       filling: {
         clear: async (record) => {

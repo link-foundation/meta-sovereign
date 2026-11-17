@@ -1,4 +1,17 @@
 export const zhApplication = {
+  'application.salary.rates-stale': '请先更新带日期的汇率快照，再继续。',
+  'application.directForm': '现有原生申请网址（可选，须为同一职位）',
+  'application.salaryPolicy': '申请前检查公布的薪资',
+  'application.salaryFloor': '当前薪资下限（RUB，留空则使用 RUB 税后目标）',
+  'application.salaryPolicyHint':
+    '使用上方的共享目标。最高薪资低于独立目标一半的职位会被排除；较低薪资等待对应档位。薪资未知的职位仍可申请。从搜索复制时使用其已确认的档位。',
+  'application.salaryCurrentFloor': '当前下限：等值 {amount} RUB',
+  'application.salary.eligible-pay': '薪资符合条件',
+  'application.salary.unknown-pay': '薪资未注明或无法识别，仍可申请',
+  'application.salary.below-half-target': '最高薪资低于目标的一半，申请已暂停',
+  'application.salary.below-current-tier': '薪资低于当前档位，申请已暂缓',
+  'application.salary.missing-vacancy-context': '申请前请读取完整职位信息',
+
   'application.answerProfile': '共享回答档案：{profile}',
   'application.answerTargets': '固定薪资目标：{targets}',
   'application.answerContext':

@@ -301,5 +301,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce the absent tier progression and controls against published 51047939.
 - [x] Add shared salary settings, dated FX, observed pagination, temporary deferrals and batch exclusions with preserved owner/responded decisions.
 - [x] Verify 29 focused checks, native and independent MCP UI, four locales, phone layout and zero provider clicks; keep all source and failure evidence.
-- [ ] Publish this atomic discovery change and inspect exact-head hosted checks.
+- [x] Publish discovery as 4fefd254; four workflows pass. Main CI has a Windows busy-port timeout; its trace and investigation are preserved separately.
 - [ ] Complete full application, direct-form and retry salary admission and remaining 40 original criteria; keep PR57 draft and unmerged.
+
+2026-11-17 application salary admission (partial HH02/HH05/HH06):
+
+- [x] Publish discovery as 4fefd254; exact-source security, Pages and link workflows pass, main and desktop remain active.
+- [x] Verify entry/full-form/send guards, frozen salary receipts, discovery handoff and private draft preservation before salary deferral (50 focused checks).
+- [x] Verify direct-form missing context recovery and retry checks with finite regressions, native UI and independent MCP; preserve before/after evidence. No wider HH criterion accepted yet.
+- [ ] Publish the atomic application change, inspect all exact-source workflows and continue all 40 original unchecked criteria. PR57 remains draft and unmerged.

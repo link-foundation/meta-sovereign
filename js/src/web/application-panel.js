@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ApplicationSalaryReceipt } from './application-salary-view.js';
 import { ApplicationDraftView } from './application-draft-view.js';
 import { FormInspectionReport } from './forms-view.js';
 import { applicationMayRestart } from './application-session.js';
@@ -153,6 +154,7 @@ const FeedbackReceipt = ({ receipt, t }) =>
 const Receipt = ({ receipt, t }) =>
   el('div', { className: 'col' }, [
     el(FeedbackReceipt, { key: 'feedback', receipt, t }),
+    el(ApplicationSalaryReceipt, { key: 'salary', receipt }),
     el(
       'p',
       {
@@ -303,15 +305,26 @@ const PrefillControls = ({ receipt, action, writable, t }) =>
         action('Prefill', { confirm: true }),
         !writable
       );
-const NativeControls = ({ application, idle, confirmed, t }) => {
+const nativeAdmission = (application, idle, confirmed) => {
   const receipt = application.receipt;
   const ready = idle && application.known && receipt.active;
   const admitted = ready && !applicationLimitHeld(application);
+  const payAllowed =
+    !receipt.salaryAdmission || receipt.salaryAdmission.action === 'apply';
   const writable =
     admitted &&
     confirmed &&
     receipt.state === 'review' &&
     !receipt.attempted.submit;
+  return { ready, admitted, payAllowed, writable };
+};
+const NativeControls = ({ application, idle, confirmed, t }) => {
+  const receipt = application.receipt;
+  const { ready, admitted, payAllowed, writable } = nativeAdmission(
+    application,
+    idle,
+    confirmed
+  );
   const action = (name, input) => () => application.action(name, input);
   return el('div', { className: 'col' }, [
     el(ApplicationResumeView, { key: 'resume', receipt, action, writable, t }),
@@ -319,7 +332,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
       key: 'continuation',
       receipt,
       application,
-      ready: admitted,
+      ready: admitted && payAllowed,
       confirmed,
       t,
     }),
@@ -329,7 +342,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         'form',
         t('application.form'),
         action('Advance', { action: 'form', confirm: true }),
-        !canOpenForm(admitted, confirmed, receipt)
+        !canOpenForm(admitted && payAllowed, confirmed, receipt)
       ),
       button(
         'enter',
@@ -339,7 +352,7 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
             : 'application.enter'
         ),
         action('Advance', { action: 'enter', confirm: true }),
-        !canEnter(admitted, confirmed, receipt)
+        !canEnter(admitted && payAllowed, confirmed, receipt)
       ),
       el(PrefillControls, { key: 'prefill', receipt, action, writable, t }),
       receipt.reentryAvailable
@@ -351,14 +364,14 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
                 : 'application.reenter'
             ),
             action('Advance', { action: 'reenter', confirm: true }),
-            !admitted || !confirmed
+            !admitted || !confirmed || !payAllowed
           )
         : null,
       button(
         'submit',
         t('application.submit'),
         action('Advance', { action: 'submit', confirm: true }),
-        !writable
+        !writable || !payAllowed
       ),
       button(
         'backup',

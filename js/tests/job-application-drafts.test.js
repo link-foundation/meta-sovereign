@@ -67,6 +67,14 @@ const choiceAnswers = (fixture) => {
   );
 };
 
+const selectOwnerOption = (select, value) => {
+  select.value = value;
+  select.options = select.options.map((option) => ({
+    ...option,
+    selected: option.value === value,
+  }));
+};
+
 test(
   'native checkbox, select and complete radio choices restore without changing their option identity',
   { timeout: 3000 },
@@ -85,10 +93,7 @@ test(
         recover: true,
       });
       const select = fixture.state.fields[4];
-      select.options = select.options.map((option) => ({
-        ...option,
-        selected: option.value === '',
-      }));
+      selectOwnerOption(select, '');
       receipt = await read(fixture, receipt);
       receipt = await restore(fixture, receipt);
       assert.equal(receipt.restoration.state, 'restored');
@@ -113,22 +118,14 @@ test(
       receipt = await backup(fixture, await read(fixture, receipt));
       empty(fixture);
       const select = fixture.state.fields[4];
-      select.value = 'night';
-      select.options = select.options.map((option) => ({
-        ...option,
-        selected: option.value === 'night',
-      }));
+      selectOwnerOption(select, 'night');
       receipt = await read(fixture, receipt);
       await assert.rejects(restore(fixture, receipt), {
         code: 'form-existing-value',
       });
       assert.equal(fixture.state.fields[1].value, '');
       assert.equal(select.value, 'night');
-      select.value = '';
-      select.options = select.options.map((option) => ({
-        ...option,
-        selected: option.value === '',
-      }));
+      selectOwnerOption(select, '');
       select.options[1].label = 'Changed meaning';
       receipt = await read(
         fixture,
@@ -196,8 +193,10 @@ test(
       assert.equal(fixture.state.entered, 1);
       assert.equal(fixture.state.submitted, 0);
       assert(
-        (await fixture.store.query()).every((row) =>
-          row.id.startsWith('secret:jobs-application:')
+        (await fixture.store.query()).every(
+          (row) =>
+            row.id.startsWith('secret:jobs-application:') ||
+            row.id.startsWith('assignment-vacancy:')
         )
       );
       const again = await recovered['application-restore'](identity(receipt));

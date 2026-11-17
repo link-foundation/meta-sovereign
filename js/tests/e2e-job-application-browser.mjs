@@ -1,5 +1,6 @@
 import { runBrowserScenarios } from './helpers/e2e-browser-scenarios.mjs';
 import { verifyApplicationPanel } from './helpers/e2e-application-panel.mjs';
+import { verifyApplicationSalary } from './helpers/e2e-application-salary.mjs';
 import {
   verifyNativeApplication,
   verifyNativeApplicationGuards,
@@ -10,4 +11,5 @@ await runBrowserScenarios('job-application', [
   verifyNativeApplicationGuards,
   verifyApplicationPanel,
   verifyNativeApplicationRecovery,
+  verifyApplicationSalary,
 ]);
