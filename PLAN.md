@@ -1,6 +1,6 @@
 Continue the complete issue 56 objective in PR57. Every original requirement and
 required sub-issue must be implemented and verified in this single PR. The
-reference inventory currently has 41 unchecked criteria (77 of 118 accepted). PR57 stays draft and
+reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
 - [x] Read the complete issue, pinned references and all three PR comment types.
@@ -233,3 +233,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Extend the source audit by eight archives and require 73 additional named portable checks plus twelve browser receipts on the exact published revision. Retain both pinned test files with Git blob verification.
 - [x] Verify all 48 archives and 2,769 entries at 55292dc7; read the complete 717-line additional source diff and 380-line integration diff from the previously accepted source. No acceptance is inferred from old passing logs.
 - [ ] Preserve all five exact-source successful workflows and review actual portable/browser receipts before accepting QA11. Every other original unchecked criterion remains required.
+
+2026-11-17 QA11 acceptance at published 55292dc7:
+
+- [x] Preserve all five successful exact-source workflows and every required job; review the complete source mapping and twelve additional semantic receipts on both engines. The checked archive verifies 459 named assertions, 72 browser records and native Electron.
+- [x] Accept the full original QA11 approved-wording/final-period contract. The inventory now has 78 accepted and 40 unchecked criteria.
+- [ ] Publish the new salary corrections, inspect their exact-head CI and complete all remaining original requirements. PR57 remains draft and unmerged.

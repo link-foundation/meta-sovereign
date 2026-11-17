@@ -107,6 +107,7 @@ across Chromium and WebKit, mandatory registration and final group completion.
 The two pinned reference test files are recovered from their archived GitHub
 responses and checked against their Git blob hashes. Five complete successful
 exact-SHA workflows, every required job and the matching source audit are
-mandatory. Until that gate and manual source review pass, QA11 remains unchecked
-and all 41 unchecked original criteria remain required in
+mandatory. That gate and the manual receipt review now pass at `55292dc7`;
+[the acceptance record](hosted-criteria-55292.md) verifies QA11. All 40 other
+unchecked original criteria remain required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
