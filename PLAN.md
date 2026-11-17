@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 hosted workflow line-limit correction:
+
+- [x] Preserve the exact 40b4caaa failure: the diagnostic addition made
+      release.yml 1,514 lines, exceeding the unchanged 1,500-line gate.
+- [x] Extract the Node shard and failure-only trace into a focused action;
+      retain test deadlines, shard coverage and failure propagation.
+- [ ] Publish the correction and inspect exact-source hosted checks. The
+      historical Windows storage cause and all forty original criteria remain open.
+
 2026-11-17 observed vacancy card currency (QA12):
 
 - [x] Read the pinned source order: employer messages, observed vacancy card,

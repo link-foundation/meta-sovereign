@@ -22,6 +22,15 @@ trigger the retry. The original test step still fails, and its assertions,
 concurrency, partitions and deadlines are unchanged. This diagnostic is off on
 normal passing runs and does not run a full suite again.
 
+The first diagnostic commit `40b4caaa` made `release.yml` 1,514 lines. Its
+[line-limit job](https://github.com/link-foundation/meta-sovereign/actions/runs/44074639134/job/134014093274)
+fails at preserved log lines 376–377. The Node shard and failure-only tracing
+now live together in a focused composite action; the workflow is 1,499 lines.
+The unchanged 1,500-line gate also checks composite actions. The shard contract
+verifies complete partitions, propagation of a failing test, unchanged test
+deadlines and diagnostic conditions. Node expands the quoted test glob to keep
+the Windows command line bounded. Twenty-two focused workflow checks pass.
+
 ```sh
 node experiments/issue-56/storage-windows-timeout.mjs
 ```
