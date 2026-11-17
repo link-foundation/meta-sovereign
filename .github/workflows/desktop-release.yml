@@ -361,31 +361,7 @@ jobs:
       - name: Smoke test (macOS)
         if: matrix.os == 'macos'
         shell: bash
-        run: |
-          set -euo pipefail
-          cd dist/desktop/release
-          ls -la
-          check_app() {
-            local app="$1" id
-            ls -la "$app/Contents"
-            test "$(basename "$app")" = 'Meta Sovereign.app'
-            id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")
-            echo "$app: $id"
-            test "$id" = foundation.link.meta.sovereign
-            codesign --verify --deep --strict --verbose=2 "$app"
-          }
-          for dir in mac mac-arm64; do
-            ls -la "$dir"
-            check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"
-          done
-          for dmg in meta-sovereign-desktop-macos-*.dmg; do
-            mount=$(mktemp -d)
-            hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"
-            ls -la "$mount"
-            check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"
-            hdiutil detach "$mount" > /dev/null
-          done
-          test -f latest-mac.yml
+        run: bash js/scripts/verify-macos-packages.sh
 
       - name: Smoke test (Windows)
         if: matrix.os == 'windows'

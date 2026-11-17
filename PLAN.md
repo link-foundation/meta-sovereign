@@ -356,3 +356,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Read the pinned numeric range implementation and all chat-option tests in addition to the four salary-option tests. Identify missing inclusive open-boundary and scaled-number behavior.
 - [x] Reproduce five parent failures and repair grouped amounts, word/Cyrillic scales, safe unit inheritance, inclusive/exclusive boundaries and ambiguous labels; 52 focused checks and native/MCP readback pass with zero submissions.
 - [ ] Verify actual reviewed form readback, preserve evidence and publish both atomic steps; inspect exact-head CI before any acceptance. All forty original unchecked criteria remain required.
+
+2026-11-17 macOS package cleanup:
+
+- [x] Preserve the exact 13806114 desktop log: signatures pass, then image detach exits 16 with Resource busy. Keep the separate slow macOS runtime cancellation unresolved.
+- [x] Reproduce four parent failures and retain all package assertions in a shared script with bounded owned-image EXIT cleanup; pass 31 focused checks with one worker and no local disk mounts.
+- [ ] Publish source-bound evidence and inspect hosted macOS verification plus every exact-head workflow. Continue all 40 unchecked original requirements; PR57 stays draft and unmerged.
