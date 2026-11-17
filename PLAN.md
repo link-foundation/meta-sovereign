@@ -1,3 +1,11 @@
+2026-11-17 strict GitHub link pacing:
+
+- [x] Preserve exact `448c2234` run 44168812180: 43 HTTP 503 entries across 32 GitHub source URLs; distinguish successful finite rechecks from hosted acceptance.
+- [x] Serialize and space only GitHub requests without changing status acceptance, exclusions, retries or the strict final failure; include explicit configuration and path triggers.
+- [x] Reproduce one failure in four native checks with parent defaults; pass all four with the actual settings, including permanent 404/503 negative controls and drained loopback fixtures.
+- [x] Complete scoped static checks; preserve and independently rehash the exact workflow/config/source/log archive. Publication remains on the prepared branch only.
+- [ ] Inspect every exact-head hosted workflow and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
 Continue the complete issue 56 objective in PR57. Every original requirement and
 required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and

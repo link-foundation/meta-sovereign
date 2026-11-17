@@ -904,3 +904,7 @@ review; return cap races to normal pacing without recording failed sends
 Reread saved automatic pacing at each autopilot step and retain a finite wait
 for an empty zero-cap ledger, preventing invalid wake dates and repeated planning
 after a lowered daily limit (issue #56 QA20).
+
+Space and serialize GitHub source-link requests while retaining strict HTTP
+failure handling. Verify real checker pacing with a finite isolated host and
+permanent missing-page/server-error controls.

@@ -1,3 +1,11 @@
+2026-11-17 strict GitHub link pacing:
+
+- [x] Preserve exact `448c2234` run 44168812180: 43 HTTP 503 entries across 32 GitHub source URLs; distinguish successful finite rechecks from hosted acceptance.
+- [x] Serialize and space only GitHub requests without changing status acceptance, exclusions, retries or the strict final failure; include explicit configuration and path triggers.
+- [x] Reproduce one failure in four native checks with parent defaults; pass all four with the actual settings, including permanent 404/503 negative controls and drained loopback fixtures.
+- [x] Complete scoped static checks; preserve and independently rehash the exact workflow/config/source/log archive. Publication remains on the prepared branch only.
+- [ ] Inspect every exact-head hosted workflow and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
 2026-11-17 autopilot cap lifecycle (QA20 remains required):
 
 - [x] Reproduce two failures against published `448c2234`: an empty zero cap creates an invalid wake date; a lowered saved limit permits a second planning attempt after durable refusal.

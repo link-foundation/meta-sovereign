@@ -9,6 +9,8 @@ on:
       - '**.html'
       - '.github/workflows/links.yml'
       - '.lycheeignore'
+      - 'lychee.toml'
+      - 'experiments/issue-56/lychee-host-pacing.py'
       - 'js/scripts/check-web-archive.mjs'
       - 'js/scripts/lychee-report.mjs'
       - 'js/scripts/wayback-state.mjs'
@@ -21,6 +23,8 @@ on:
       - '**.html'
       - '.github/workflows/links.yml'
       - '.lycheeignore'
+      - 'lychee.toml'
+      - 'experiments/issue-56/lychee-host-pacing.py'
       - 'js/scripts/check-web-archive.mjs'
       - 'js/scripts/lychee-report.mjs'
       - 'js/scripts/wayback-state.mjs'
@@ -62,6 +66,7 @@ jobs:
           # external repos with references to files and issues that don't exist
           # in this repository (similar exclusion pattern as eslint.config.js)
           args: >-
+            --config lychee.toml
             --verbose
             --no-progress
             --cache
@@ -83,6 +88,9 @@ jobs:
           jobSummary: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify host pacing and strict failure handling
+        run: python3 -B experiments/issue-56/lychee-host-pacing.py "$RUNNER_TEMP/lychee/bin/lychee"
 
       - name: Check broken links against Web Archive
         if: steps.lychee.outputs.exit_code != 0
