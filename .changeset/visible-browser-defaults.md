@@ -843,3 +843,7 @@ salary clarifications, including Russian amount wording and topic guards.
 Use verified captured browser history for salary clarification review, watches
 and unread answering without model opt-in. Retain dated chronology barriers,
 owner drafts and context revalidation before native actions (issue #56 QA12).
+
+Read and cache a verified linked HH vacancy only when its currency can change a
+salary reply in browser review, watches or unread answering. Preserve source
+priority, owner drafts, page refusal and owned cancellation (issue #56 QA12).

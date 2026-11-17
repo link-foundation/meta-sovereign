@@ -170,6 +170,7 @@ export const questionBrowserServer = async (
     unreadReplyView = false,
     afterBrowserEvaluate,
     onUnreadPass,
+    readVacancy,
   } = {}
 ) => {
   const env = await questionBrowserFixture();
@@ -241,7 +242,7 @@ export const questionBrowserServer = async (
     onUnreadPass,
   });
   const server = await startQuestionFixtureServer(
-    { store: env.store, send, runner: env.runner },
+    { store: env.store, send, runner: env.runner, readVacancy },
     true
   );
   const localBase = `http://127.0.0.1:${server.port}`;

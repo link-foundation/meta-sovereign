@@ -8,6 +8,7 @@ export const salaryDraftMcpServer = async ({
   rules = [],
   options,
   recent,
+  setup = () => ({}),
 }) => {
   const browser = await chromium.launch({
     executablePath:
@@ -15,13 +16,18 @@ export const salaryDraftMcpServer = async ({
     headless: true,
     args: ['--disable-dev-shm-usage'],
   });
-  const fixture = await questionBrowserServer(browser);
+  const configured = await setup(browser);
+  const fixture = await questionBrowserServer(
+    browser,
+    configured.fixtureOptions
+  );
   try {
     for (const rule of rules) {
       await saveAnswerRule(fixture.store, rule);
     }
     await fixture.reset({ freeText: !options, question, options });
     await mountSalaryHistory(fixture, recent);
+    await configured.prepare?.(fixture);
     console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
     process.stdin.resume();
     await new Promise((resolve) => process.stdin.once('data', resolve));
@@ -31,7 +37,12 @@ export const salaryDraftMcpServer = async ({
     await fixture.close();
     await browser.close();
     console.log(
-      JSON.stringify({ stats, resourcesClosed: true, liveProvider: false })
+      JSON.stringify({
+        stats,
+        ...configured.stats?.(),
+        resourcesClosed: true,
+        liveProvider: false,
+      })
     );
   }
 };

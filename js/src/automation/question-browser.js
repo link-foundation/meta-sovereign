@@ -3,6 +3,7 @@ import { questionChoiceKey } from './question-choice-key.js';
 import { createQuestionBrowserWatches } from './question-browser-watch.js';
 import { createBrowserTextReview } from './question-browser-text.js';
 import { createBrowserReviewRecorder } from './question-browser-review.js';
+import { createBrowserAnswerPlanning } from './question-browser-vacancy.js';
 import { createQuestionUnreadReviews } from './question-browser-unread.js';
 import { withQuestionUnreadPolling } from './question-unread-polling.js';
 import {
@@ -240,10 +241,23 @@ export const createQuestionBrowser = ({
   runner,
   log = () => {},
   watchIntervalMs = 1500,
+  readVacancy,
 }) => {
+  const controller = new AbortController();
+  const answerPlanning = createBrowserAnswerPlanning({
+    store,
+    readVacancy,
+    signal: controller.signal,
+  });
   const capabilities = () => browserCapabilities(send);
   const status = (input) => browserReviewStatus(store, clock, input);
-  const review = createBrowserReviewRecorder({ store, clock, runner, status });
+  const review = createBrowserReviewRecorder({
+    store,
+    clock,
+    runner,
+    status,
+    answerPlanning,
+  });
   const finiteUnread = createQuestionUnreadReviews({
     store,
     send,
@@ -251,6 +265,7 @@ export const createQuestionBrowser = ({
     capabilities,
     review,
     log,
+    answerPlanning,
   });
   const unread = withQuestionUnreadPolling({
     finite: finiteUnread,
@@ -264,6 +279,7 @@ export const createQuestionBrowser = ({
     clock,
     log,
     intervalMs: watchIntervalMs,
+    answerPlanning,
   });
   const actions = {
     replyText: createBrowserTextReview({
@@ -319,6 +335,7 @@ export const createQuestionBrowser = ({
     ),
     async close() {
       closed = true;
+      controller.abort();
       try {
         await unread.close();
         await watches.close();

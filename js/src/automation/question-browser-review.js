@@ -1,33 +1,23 @@
 import { randomUUID } from 'node:crypto';
 import { previewAnswer } from './question-store.js';
 import { normalizeAnswerAction } from './question-answers.js';
-import { browserAnswerPlanning } from './question-browser-context.js';
+import { browserQuestionInput } from './question-browser-vacancy.js';
 import { checkBrowserQuestion } from './question-browser-state.js';
 
 /** Freeze observed questions once; later review actions still recheck the provider. */
 export const createBrowserReviewRecorder =
-  ({ store, clock, runner, status }) =>
+  ({ store, clock, runner, status, answerPlanning }) =>
   async (target, observed, input = {}, options = {}) => {
     const snapshot = checkBrowserQuestion(observed);
     const planning = {
       ...normalizeAnswerAction(input),
-      ...browserAnswerPlanning(input, observed),
+      ...(await answerPlanning(input, observed, target, options)),
     };
     const plan = snapshot.question.outgoing
       ? null
       : await previewAnswer(
           store,
-          {
-            ...input,
-            ...planning,
-            source: target.source,
-            chat: snapshot.chat,
-            question: snapshot.question.body,
-            links: snapshot.question.links,
-            pendingMessages: snapshot.pendingTurn?.messages,
-            options: snapshot.answerOptions,
-            strictOptions: snapshot.strictOptions,
-          },
+          browserQuestionInput(target, snapshot, { ...input, ...planning }),
           { runner, signal: options.signal }
         );
     const record = {

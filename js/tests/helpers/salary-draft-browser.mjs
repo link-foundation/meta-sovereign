@@ -7,7 +7,7 @@ import { mountSalaryHistory } from '../../../experiments/issue-56/salary-browser
 
 /** Inspect and explicitly prefill one native composer, retaining owner drafts. */
 export const verifySalaryDraft = async (browser, scenario) => {
-  const fixture = await questionBrowserServer(browser);
+  const fixture = await questionBrowserServer(browser, scenario.fixtureOptions);
   const call = async (action, input) =>
     postQuestion(fixture.base, `browser/${action}`, input, LINO_TEXT);
   const input = { source: 'hh', chat: '7', ...scenario.input };
@@ -28,6 +28,7 @@ export const verifySalaryDraft = async (browser, scenario) => {
       fixture,
       scenario.recent ?? scenario.input?.recent
     );
+    await scenario.prepare?.(fixture);
     const inspected = await call('inspect', input);
     await capture();
     assert.equal(inspected.status, 200);
@@ -55,6 +56,7 @@ export const verifySalaryDraft = async (browser, scenario) => {
       fixture,
       scenario.recent ?? scenario.input?.recent
     );
+    await scenario.prepare?.(fixture);
     const owned = await call('inspect', input);
     const held = await call('prefill', { id: owned.body.id });
     assert.notEqual(held.status, 200);

@@ -3,6 +3,16 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 native vacancy salary context (QA12):
+
+- [x] Reproduce parent default-currency drafts without caller vacancy context.
+- [x] Reuse the verified vacancy reader and existing cache only when currency
+      changes the reply; retain chat priority, owner drafts and owned cancellation.
+- [x] Pass 60 focused checks plus native and independent MCP parent/corrected
+      drafts, with real routed vacancy reads, cache reuse and closed zero-send fixtures.
+- [ ] Publish checked evidence and inspect fresh hosted checks. Complete all
+      40 original unchecked acceptance criteria; QA12 is not yet accepted.
+
 2026-11-17 named salary clarifications (QA12):
 
 - [x] Reproduce three published-parent failures with nine passing controls;
@@ -538,5 +548,5 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Trace captured history lost at manual review, watch and unread planning boundaries; reproduce three failures against published 19cedfee with two passing barrier controls.
 - [x] Reuse the existing recent-context shape with bounded identity, timestamp, chronology and delivery checks. Recompute watch context and revalidate native actions without changing free-text admission.
 - [x] Pass 56 focused checks and native parent/corrected draft readback. Reproduce stale context admission on the parent controller and confirm corrected refusal. Inspect both screenshots and independent MCP no-send receipts with drained fixtures.
-- [x] Pass scoped formatting, lint, secrets, bundle and the unchanged 6.5% duplication gate; preserve 77 verified evidence files and exact parent modules.
+- [x] Pass scoped formatting, lint, secrets, bundle and the unchanged 6.5% duplication gate; preserve 78 verified evidence files and exact parent modules.
 - [ ] Publish the atomic correction and inspect exact-source hosted checks. Full QA12 vacancy/source mapping and all forty original unchecked criteria remain required; PR57 stays draft and unmerged.

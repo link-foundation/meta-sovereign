@@ -256,11 +256,12 @@ export const createQuestionUnreadReviews = ({
   capabilities,
   review,
   log = () => {},
+  answerPlanning,
 }) => {
   const runtimes = new Map();
   let admitting = Promise.resolve();
   let closed = false;
-  const context = { store, clock, log };
+  const context = { store, clock, log, answerPlanning };
   const save = async (record) => {
     record.updatedAt = clock().toISOString();
     await store.put(record);

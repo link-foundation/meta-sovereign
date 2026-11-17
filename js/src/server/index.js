@@ -99,6 +99,7 @@ import {
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { createQuestionBrowser } from '../automation/question-browser.js';
+import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
 import { backgroundJobs } from './background-jobs.js';
@@ -537,6 +538,8 @@ const automationContext = (
     store,
     send,
     runner: automations.modelRunner,
+    readVacancy:
+      automations.readVacancy ?? createAssignmentVacancyReader({ store }),
     log: say,
   });
   return {

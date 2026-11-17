@@ -1,5 +1,5 @@
 import { previewAnswer } from './question-store.js';
-import { browserAnswerPlanning } from './question-browser-context.js';
+import { browserQuestionInput } from './question-browser-vacancy.js';
 import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { approvedBrowserPlan as approved } from './question-browser-plan.js';
@@ -15,17 +15,13 @@ import {
 } from './question-watch-records.js';
 
 const questionPlan = ({ store }, record, snapshot) =>
-  previewAnswer(store, {
-    ...record.planning,
-    modelDraft: false,
-    source: record.target.source,
-    chat: snapshot.chat,
-    question: snapshot.question.body,
-    links: snapshot.question.links,
-    pendingMessages: snapshot.pendingTurn?.messages,
-    options: snapshot.answerOptions,
-    strictOptions: snapshot.strictOptions,
-  });
+  previewAnswer(
+    store,
+    browserQuestionInput(record.target, snapshot, {
+      ...record.planning,
+      modelDraft: false,
+    })
+  );
 const choiceDraft = (runtime, snapshot, plan) =>
   browserChoiceDraft({ target: runtime.record.target, snapshot }, plan.option);
 
@@ -154,7 +150,12 @@ const tick = async (context, runtime) => {
   const snapshot = checkBrowserQuestion(observed);
   const planning = {
     ...runtime.record.planning,
-    ...browserAnswerPlanning(runtime.record.planning, observed),
+    ...(await context.answerPlanning(
+      runtime.record.planning,
+      observed,
+      runtime.record.target,
+      { signal: runtime.controller.signal }
+    )),
   };
   const record = { ...runtime.record, planning };
   const plan = snapshot.question.outgoing

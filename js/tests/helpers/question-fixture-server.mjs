@@ -2,7 +2,7 @@ import { startServer } from '../../src/server/index.js';
 
 /** Disposable question fixtures use an isolated port with live services disabled. */
 export const startQuestionFixtureServer = (
-  { store, send, runner },
+  { store, send, runner, readVacancy },
   localUi = false
 ) =>
   startServer({
@@ -12,6 +12,6 @@ export const startQuestionFixtureServer = (
     enableSync: false,
     enableHandlers: false,
     telegramAccount: false,
-    automations: { scheduler: false, send, modelRunner: runner },
+    automations: { scheduler: false, send, modelRunner: runner, readVacancy },
     log: null,
   });

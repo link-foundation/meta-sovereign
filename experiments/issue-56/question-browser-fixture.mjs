@@ -60,11 +60,13 @@ export const questionBrowserFixture = async (options = {}) => {
     send,
     clock,
     runner: options.runner,
+    readVacancy: options.readVacancy,
     browser: createQuestionBrowser({
       store,
       send,
       clock,
       runner: options.runner,
+      readVacancy: options.readVacancy,
     }),
   };
 };

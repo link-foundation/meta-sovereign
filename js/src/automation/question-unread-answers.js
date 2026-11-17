@@ -100,7 +100,9 @@ export const visitUnreadAnswer = async ({
       'The borrowed conversation changed.'
     );
   }
-  const input = unreadAnswerInput(context, record, observed);
+  const input = await unreadAnswerInput(context, record, observed, {
+    signal: controller.signal,
+  });
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
@@ -133,7 +135,9 @@ export const visitUnreadAnswer = async ({
       controller.signal.aborted ||
       !(await sameUnreadAnswer(
         context.store,
-        unreadAnswerInput(context, record, observed),
+        await unreadAnswerInput(context, record, observed, {
+          signal: controller.signal,
+        }),
         baseline,
         plan
       )) ||

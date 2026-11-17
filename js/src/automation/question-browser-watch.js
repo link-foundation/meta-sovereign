@@ -38,10 +38,11 @@ export const createQuestionBrowserWatches = ({
   clock,
   log,
   intervalMs = 1500,
+  answerPlanning,
 }) => {
   const running = new Map();
   const slots = new Set();
-  const context = { store, send, clock, log, intervalMs };
+  const context = { store, send, clock, log, intervalMs, answerPlanning };
   let closed = false;
   const status = (input) => questionWatchStatus(store, running, input);
   const release = (runtime) => {

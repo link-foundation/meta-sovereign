@@ -39,6 +39,7 @@ import { followCommands } from './follow-commands.js';
 import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { withAnswerModel } from './answer-model-commands.js';
 import { createQuestionBrowser } from '../automation/question-browser.js';
+import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 
 import { AUTOMATION_HELP } from './help.js';
 export { AUTOMATION_HELP };
@@ -428,6 +429,8 @@ const runnerFor = (store, args, deps) => {
     send,
     ...(now ? { clock: () => now } : {}),
     runner: deps.modelRunner,
+    readVacancy:
+      deps.readAssignmentVacancy ?? createAssignmentVacancyReader({ store }),
     log: deps.trace,
   });
   return {
