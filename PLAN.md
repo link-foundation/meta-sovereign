@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 macOS Deno partition deadline:
+
+- [x] Preserve the exact 8c2260b6 job cancellation, timestamps and full raw log;
+      distinguish the broad middle file range from snapshot-only overhead.
+- [x] Split macOS Deno into six complete native partitions, keeping all tests,
+      runner fallback and the ten-minute deadline; pass two focused contracts.
+- [ ] Inspect fresh hosted completion. All forty original unchecked criteria
+      remain required, and the PR remains draft.
+
 2026-11-17 native unread option coverage (QA14/QA17):
 
 - [x] Exercise the actual native adapter through an isolated unread pass;

@@ -328,7 +328,7 @@ jobs:
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
     # Retain the 10min deadline. Cold macOS setup must not fetch unused
-    # historical blobs; retain eight Node shards, three Windows/Deno shards.
+    # historical blobs; retain eight Node shards and three Windows shards.
     # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
@@ -374,18 +374,17 @@ jobs:
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
         include:
+          - { os: macos-26, runtime: deno, shard: 1/6 }
           - os: macos-26
             runtime: deno
-            shard: 1/3
-          - os: macos-26
-            runtime: deno
-            # Two hosted attempts never acquired an ARM runner. Retain this
-            # partition on the Intel pool; partitions 1/3 and 3/3 stay ARM.
+            # Keep the Intel allocation fallback. Six bounded partitions split
+            # the large middle file range that exhausted the ten-minute job.
             runner: macos-26-intel
-            shard: 2/3
-          - os: macos-26
-            runtime: deno
-            shard: 3/3
+            shard: 2/6
+          - { os: macos-26, runtime: deno, shard: 3/6 }
+          - { os: macos-26, runtime: deno, shard: 4/6 }
+          - { os: macos-26, runtime: deno, shard: 5/6 }
+          - { os: macos-26, runtime: deno, shard: 6/6 }
           - os: ubuntu-26.04
             runtime: deno
             shard: 1/3
