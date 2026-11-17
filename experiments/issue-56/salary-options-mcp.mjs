@@ -2,6 +2,7 @@ async (page) => {
   const initial = new URL(page.url());
   const before = initial.searchParams.get('before') === '1';
   const intervalProbe = initial.searchParams.has('intervalProbe');
+  const numbersProbe = initial.searchParams.has('numbersProbe');
   const fixture = new URL(initial.searchParams.get('fixture'));
   fixture.pathname = '/salary-options';
   await page.addInitScript(() => {
@@ -18,7 +19,7 @@ async (page) => {
   await page.locator('[data-review-action="read"]').click();
   await page.locator('[data-form-field]').first().waitFor();
   const result = await page.evaluate(
-    async ({ before }) => {
+    async ({ before, numbersProbe }) => {
       const api = globalThis.__msApi;
       const session = (await api.formsReviews()).sessions.find(
         (item) => item.browserSlot === 'salary-options-mcp'
@@ -34,6 +35,7 @@ async (page) => {
       const plan = await api.formsPlanReview({ id: session.id, salary });
       const both = plan.fields.find((field) => field.name === 'both');
       const ambiguous = plan.fields.find((field) => field.name === 'ambiguous');
+      const inclusive = plan.fields.find((field) => field.name === 'inclusive');
       const nearest = plan.fields.find(
         (field) => field.name === 'nearest' && field.answer.proposal?.checked
       );
@@ -45,7 +47,7 @@ async (page) => {
         throw new Error(`Unexpected salary plan: ${JSON.stringify(plan)}`);
       }
       const checkAlternative = (field) => {
-        if (before) {
+        if (before && !numbersProbe) {
           if (!field?.answer.proposal) {
             throw new Error(
               'The parent did not propose the numeric alternative'
@@ -60,16 +62,36 @@ async (page) => {
         }
       };
       checkAlternative(ambiguous);
+      const checkInclusive = () => {
+        const valid = before
+          ? inclusive?.answer.salary.option.contained === false &&
+            inclusive.answer.reuseRequiresReview
+          : inclusive?.answer.text === 'USD 6000 or more' &&
+            inclusive.answer.salary.option.contained;
+        if (!valid) {
+          throw new Error(
+            `Unexpected inclusive floor: ${JSON.stringify(inclusive)}`
+          );
+        }
+      };
+      if (numbersProbe) {
+        checkInclusive();
+      }
+      const fields =
+        before && !numbersProbe ? [ambiguous.id] : [both.id, nearest.id];
+      if (numbersProbe && !before) {
+        fields.push(inclusive.id);
+      }
       const input = {
         id: session.id,
         planId: plan.reviewPlan.id,
-        fields: before ? [ambiguous.id] : [both.id, nearest.id],
+        fields,
       };
       const applied = await api.formsApplyReview(input);
       const recovered = await api.formsApplyReview(input);
       if (
         applied.state !== 'applied' ||
-        applied.receipts.length !== (before ? 1 : 2) ||
+        applied.receipts.length !== fields.length ||
         !applied.receipts.every((item) => item.status === 'applied') ||
         JSON.stringify(recovered.receipts) !== JSON.stringify(applied.receipts)
       ) {
@@ -85,7 +107,7 @@ async (page) => {
         nearestRequiresReview: true,
       };
     },
-    { before }
+    { before, numbersProbe }
   );
   const read = page.waitForResponse((response) =>
     response.url().endsWith('/api/forms/sessions/read')
@@ -93,7 +115,7 @@ async (page) => {
   await page.locator('[data-review-action="read"]').click();
   await read;
   await page.locator('[data-form-field]').first().scrollIntoViewIfNeeded();
-  if (!intervalProbe) {
+  if (!intervalProbe && !numbersProbe) {
     await page.screenshot({
       path: 'docs/screenshots/issue-56-salary-options-mcp.png',
       fullPage: true,
@@ -105,6 +127,15 @@ async (page) => {
   await page.locator('[data-review-action="close"]').click();
   await closing;
   await page.locator('[data-form-review]').waitFor({ state: 'detached' });
+  if (numbersProbe) {
+    return {
+      before,
+      inclusiveMatched: !before,
+      receipts: result.receipts,
+      recovered: result.recovered,
+      closed: true,
+    };
+  }
   if (intervalProbe) {
     return {
       before,

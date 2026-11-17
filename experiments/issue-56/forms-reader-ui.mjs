@@ -36,6 +36,7 @@ const captureAutomaticFrames = async (page, read) => {
     read.salaryOptions = await page.evaluate(() => ({
       both: document.querySelector('[name="both"]').value,
       ambiguous: document.querySelector('[name="ambiguous"]').value,
+      inclusive: document.querySelector('[name="inclusive"]').value,
       nearest:
         document.querySelector('[name="nearest"]:checked')?.value ?? null,
       owner: document.querySelector('[name="owner"]').value,

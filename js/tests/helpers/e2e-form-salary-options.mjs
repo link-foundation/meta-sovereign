@@ -5,6 +5,7 @@ import {
   salaryOptionConfig as salary,
   salaryBothChoices,
   salaryGapChoices,
+  salaryInclusiveChoice,
 } from '../../../experiments/issue-56/salary-option-fixture.mjs';
 
 const capture = async (page) => {
@@ -21,6 +22,15 @@ const assertAlternativeHeld = (field) =>
       !field.answer.complete &&
       field.answer.requiresReview,
     'numeric alternatives remain unresolved in the native select'
+  );
+const assertReviewedValues = (values) =>
+  assert(
+    values.both === '0' &&
+      values.nearest === '1' &&
+      values.ambiguous === '' &&
+      values.inclusive === 'floor' &&
+      values.owner === 'Keep my explanation',
+    'only reviewed native salary choices change'
   );
 
 export const verifyFormSalaryOptions = async ({
@@ -47,6 +57,7 @@ export const verifyFormSalaryOptions = async ({
   await capture(owner.page);
   const both = plan.fields.find((field) => field.name === 'both');
   const ambiguous = plan.fields.find((field) => field.name === 'ambiguous');
+  const inclusive = plan.fields.find((field) => field.name === 'inclusive');
   const nearest = plan.fields.find(
     (field) => field.name === 'nearest' && field.answer.proposal?.checked
   );
@@ -63,35 +74,36 @@ export const verifyFormSalaryOptions = async ({
   );
   assertAlternativeHeld(ambiguous);
   assert(
+    inclusive?.answer.text === salaryInclusiveChoice &&
+      inclusive.answer.salary.option.contained,
+    'the inclusive native salary floor contains its exact boundary'
+  );
+  assert(
     (await owner.page.locator('[name="both"]').inputValue()) === '' &&
+      (await owner.page.locator('[name="inclusive"]').inputValue()) === '' &&
       !(await owner.page.locator('[name="nearest"]:checked').count()),
     'planning has no native effects'
   );
   const input = {
     id,
     planId: plan.reviewPlan.id,
-    fields: [both.id, nearest.id],
+    fields: [both.id, nearest.id, inclusive.id],
   };
   const result = await request('apply', input);
   assert(
     result.state === 'applied' &&
-      result.receipts.length === 2 &&
+      result.receipts.length === 3 &&
       result.receipts.every((item) => item.status === 'applied'),
-    'two selected salary fields have positive readback receipts'
+    'three selected salary fields have positive readback receipts'
   );
   const values = await owner.page.evaluate(() => ({
     both: document.querySelector('[name="both"]').value,
     nearest: document.querySelector('[name="nearest"]:checked')?.value,
     ambiguous: document.querySelector('[name="ambiguous"]').value,
+    inclusive: document.querySelector('[name="inclusive"]').value,
     owner: document.querySelector('[name="owner"]').value,
   }));
-  assert(
-    values.both === '0' &&
-      values.nearest === '1' &&
-      values.ambiguous === '' &&
-      values.owner === 'Keep my explanation',
-    'only reviewed native salary choices change'
-  );
+  assertReviewedValues(values);
   const events = await owner.page.evaluate(() => globalThis.events.length);
   const recovered = await request('apply', input);
   assert(
@@ -112,6 +124,7 @@ export const verifyFormSalaryOptions = async ({
       nearest: values.nearest,
       receipts: result.receipts.length,
       ambiguousHeld: true,
+      inclusive: values.inclusive,
       recovered: true,
       closed: owner.closed,
       submissions: fixture.submits,

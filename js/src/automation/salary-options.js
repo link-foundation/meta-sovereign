@@ -7,14 +7,40 @@ import {
 } from './salary-question.js';
 
 const scale = (value) =>
-  /тыс|k/iu.test(value) ? 1000 : /млн|m/iu.test(value) ? 1000000 : 1;
-const number = (value) =>
-  Number(
-    value
-      .replaceAll(/[\s\u00a0\u202f]/gu, '')
-      .replace(/,(?=\d{3}(?:\D|$))/gu, '')
-      .replace(',', '.')
+  /^(?:млн|million|m|м)/iu.test(value) ? 1000000 : 1000;
+const number = (value) => {
+  const raw = value.replaceAll(/[ \u00a0\u202f]/gu, '');
+  return Number(
+    /^\d{1,3}(?:[.,]\d{3})+$/u.test(raw)
+      ? raw.replaceAll(/[.,]/gu, '')
+      : raw.replace(',', '.')
   );
+};
+const boundary = (text, value) => {
+  if (
+    /(?:>=|≥)|(?<!\p{L})(?:from|at\s+least|от|не\s+менее|(?:or|and)\s+(?:more|above)|(?:и|или)\s+(?:более|выше))(?!\p{L})/iu.test(
+      text
+    )
+  ) {
+    return { low: value, high: Infinity };
+  }
+  if (/(?:<=|≤)|(?<!\p{L})(?:up\s+to|to|до)(?!\p{L})/iu.test(text)) {
+    return { low: 0, high: value };
+  }
+  if (
+    />|(?<!\p{L})(?:over|above|more\s+than|свыше|более|больше|выше)(?!\p{L})/iu.test(
+      text
+    )
+  ) {
+    return { low: value, high: Infinity, lowOpen: true };
+  }
+  if (
+    /<|(?<!\p{L})(?:under|below|less\s+than|менее|меньше)(?!\p{L})/iu.test(text)
+  ) {
+    return { low: 0, high: value, highOpen: true };
+  }
+  return { low: value, high: value };
+};
 const rangeSeparator = (text, parts, config) => {
   const firstEnd = parts[0].index + parts[0][0].length;
   const separator = stripSalaryCurrencies(
@@ -31,18 +57,29 @@ const rangeSeparator = (text, parts, config) => {
   );
 };
 const range = (text, config) => {
+  if (
+    /(?<!\p{L})(?:not|except|excluding|кроме|не(?!\s+менее))(?!\p{L})/iu.test(
+      text
+    )
+  ) {
+    return null;
+  }
   const parts = [
     ...text.matchAll(
-      /(\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)?)(?:\s*(тыс\.?|млн\.?|[km]))?/giu
+      /(\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)*)(?:\s*(тыс\.?|млн\.?|million|thousand|[kкmм])(?!\p{L}))?/giu
     ),
   ];
   if (!parts.length || parts.length > 2) {
     return null;
   }
-  const common = scale(parts.at(-1)[2] ?? '');
-  const values = parts.map(
-    (part) => number(part[1]) * (part[2] ? scale(part[2]) : common)
+  const scales = new Set(
+    parts.filter((part) => part[2]).map((part) => scale(part[2]))
   );
+  const common = scales.size === 1 ? [...scales][0] : 1;
+  const values = parts.map((part) => {
+    const value = number(part[1]);
+    return value * (part[2] ? scale(part[2]) : value < 1000 ? common : 1);
+  });
   if (values.some((value) => !Number.isFinite(value) || value < 0)) {
     return null;
   }
@@ -51,20 +88,7 @@ const range = (text, config) => {
       ? { low: values[0], high: values[1] }
       : null;
   }
-  const value = values[0];
-  if (/свыше|более|больше|\b(?:over|above|more)\b|>/iu.test(text)) {
-    return { low: value, high: Infinity, lowOpen: true };
-  }
-  if (/\b(?:under|below|less)\b|меньше|</iu.test(text)) {
-    return { low: 0, high: value, highOpen: true };
-  }
-  if (/\b(?:up to|to)\b|до/iu.test(text)) {
-    return { low: 0, high: value };
-  }
-  if (/\b(?:from|at least)\b|от|не менее/iu.test(text)) {
-    return { low: value, high: Infinity };
-  }
-  return { low: value, high: value };
+  return boundary(text, values[0]);
 };
 const contains = (band, target) =>
   (band.lowOpen ? target > band.low : target >= band.low) &&

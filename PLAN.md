@@ -349,3 +349,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce three numeric-alternative failures on 13806114; require an actual range separator while preserving currency labels, scales and native review.
 - [x] Verify 51 focused checks, the final four syntax checks, mandatory native form coverage and independent parent/repaired MCP readback. Inspect before/after images, preserve real values and zero submissions, and drain all owned resources.
 - [ ] Publish the atomic correction and inspect exact-head CI. Complete the full QA15 mapping and all other unchecked original criteria before accepting them.
+
+2026-11-17 complete numeric salary-band audit (QA15):
+
+- [x] Commit interval syntax as 246bf5e6 with 59 verified evidence files. Keep the preceding CI run alive while the full numeric contract is audited.
+- [x] Read the pinned numeric range implementation and all chat-option tests in addition to the four salary-option tests. Identify missing inclusive open-boundary and scaled-number behavior.
+- [x] Reproduce five parent failures and repair grouped amounts, word/Cyrillic scales, safe unit inheritance, inclusive/exclusive boundaries and ambiguous labels; 52 focused checks and native/MCP readback pass with zero submissions.
+- [ ] Verify actual reviewed form readback, preserve evidence and publish both atomic steps; inspect exact-head CI before any acceptance. All forty original unchecked criteria remain required.
