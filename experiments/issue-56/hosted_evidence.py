@@ -70,13 +70,14 @@ def read_catalog_audit(root, sha, prefix, catalog, source, entries):
     return audit
 
 
-def read_literal_tests(stems, source, lines):
-    literal = re.compile(r'''\btest\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
+def read_literal_tests(stems, source, lines, call='test'):
+    assert call in ['test', 'it']
+    literal = re.compile(r'''\b''' + call + r'''\(\s*((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\s*,''')
     tests = {}
     for stem in sorted(stems):
         path = f'js/tests/{stem}.test.js'
         content = source(path)
-        assert not re.search(r'\btest\(\s*`', content), f'expand dynamic names: {path}'
+        assert not re.search(r'\b' + call + r'\(\s*`', content), f'expand dynamic names: {path}'
         names = [ast.literal_eval(match.group(1)) for match in literal.finditer(content)]
         assert names and len(names) == len(set(names)), path
         tests[path] = {}

@@ -1,3 +1,11 @@
+Active current-source acceptance audit (`06953e31`):
+
+- [x] Refresh issue and all three PR feedback endpoints; retain the complete original scope and all 40 unfinished criteria.
+- [x] Map the complete QA12/QA14/QA15 salary/context/native-choice contracts to current production source and mandatory portable/native coverage. Retain historical source differences and original failures.
+- [x] Map VD09's complete packaging/installation contract; inspect all five current native launch receipts, both Mac bundle/image signatures and bounded checksum/provenance metadata. Validate the shared metadata reader against historical/current artifacts; 25 named portable desktop checks and the existing 88 option-choice checks appear exactly once in the current successful Node log.
+- [ ] Require all five complete successful workflows for the same published source. Preserve actual failures and fix their causes if any; queued jobs are unfinished verification.
+- [ ] Run checked collectors, read semantic receipts, update only fully verified inventory criteria and preserve the draft PR. Continue every remaining original requirement in this single PR.
+
 Active online status scheduling (VK10):
 
 - [x] Read the complete pinned trigger and caller; check the current official user-token method schema. Preserve the 14-minute example as an opt-in default.
