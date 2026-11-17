@@ -14,7 +14,6 @@ unmerged until the complete acceptance mapping is verified.
 - [ ] Inspect fresh hosted results and investigate any recurrence. Historical
       cause remains unconfirmed; no original requirement is accepted by tracing.
 
-
 2026-11-17 reviewed nearest salary bands with two bases (QA13/QA15):
 
 - [x] Read the complete pinned selector; preserve three exact-parent failures
