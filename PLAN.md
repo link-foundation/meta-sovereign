@@ -340,4 +340,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve the difference between an unadvertised salary and unreadable native context. The empty-string cache coercion caused both Chromium résumé-selection failures; unreadable content must not become a usable public snapshot.
 - [x] Verify six exact-parent failures and 73 passing focused checks. Both affected Chromium scenarios and the existing popup/re-entry scenario pass with owned-resource cleanup.
 - [x] Independently reproduce the parent HTTP 400 résumé-context failure through Playwright MCP, then verify HTTP 200 automatic selection, a fresh Send confirmation, four actual locale reloads, phone layout and closed fixtures. Inspect all three before/after screenshots.
-- [ ] Publish preserved evidence and inspect all exact-head workflows. Four 939a205b workflows pass; main CI still contains the reproduced context failures. All forty original criteria remain required; PR57 stays draft and unmerged.
+- [x] Publish the context repair as 13806114 with 88 verified evidence files; the working tree is clean. Exact-head CI is running.
+- [ ] Inspect all exact-head workflows. All forty original criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-17 salary range syntax (QA15):
+
+- [x] Read the pinned range contract and all four reference tests; audit shared numeric parsing, reviewed form proposals and mandatory native coverage.
+- [x] Reproduce three numeric-alternative failures on 13806114; require an actual range separator while preserving currency labels, scales and native review.
+- [x] Verify 51 focused checks, the final four syntax checks, mandatory native form coverage and independent parent/repaired MCP readback. Inspect before/after images, preserve real values and zero submissions, and drain all owned resources.
+- [ ] Publish the atomic correction and inspect exact-head CI. Complete the full QA15 mapping and all other unchecked original criteria before accepting them.

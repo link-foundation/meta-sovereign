@@ -32,6 +32,21 @@ import {
 } from './forms-model-fixture.mjs';
 
 const captureAutomaticFrames = async (page, read) => {
+  if (new URL(page.url()).pathname === '/salary-options') {
+    read.salaryOptions = await page.evaluate(() => ({
+      both: document.querySelector('[name="both"]').value,
+      ambiguous: document.querySelector('[name="ambiguous"]').value,
+      nearest:
+        document.querySelector('[name="nearest"]:checked')?.value ?? null,
+      owner: document.querySelector('[name="owner"]').value,
+    }));
+    if (process.env.SALARY_RANGE_SCREENSHOT) {
+      await page.screenshot({
+        path: process.env.SALARY_RANGE_SCREENSHOT,
+        fullPage: true,
+      });
+    }
+  }
   if (new URL(page.url()).pathname === '/assignment') {
     read.assignment = await page.evaluate(() => ({
       values: Object.fromEntries(

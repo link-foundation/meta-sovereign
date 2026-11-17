@@ -2,6 +2,7 @@ import {
   salaryBasis,
   salaryPeriod,
   salaryCurrencies,
+  stripSalaryCurrencies,
   unknownSalaryCurrency,
 } from './salary-question.js';
 
@@ -14,7 +15,22 @@ const number = (value) =>
       .replace(/,(?=\d{3}(?:\D|$))/gu, '')
       .replace(',', '.')
   );
-const range = (text) => {
+const rangeSeparator = (text, parts, config) => {
+  const firstEnd = parts[0].index + parts[0][0].length;
+  const separator = stripSalaryCurrencies(
+    text.slice(firstEnd, parts[1].index),
+    config
+  )
+    .replaceAll('.', ' ')
+    .trim();
+  const prefix = stripSalaryCurrencies(text.slice(0, parts[0].index), config);
+  return (
+    /^(?:[-–—−]|до|to)$/iu.test(separator) ||
+    (/^(?:and|и)$/iu.test(separator) &&
+      /(?:\bbetween|между)\s*$/iu.test(prefix))
+  );
+};
+const range = (text, config) => {
   const parts = [
     ...text.matchAll(
       /(\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)?)(?:\s*(тыс\.?|млн\.?|[km]))?/giu
@@ -31,7 +47,9 @@ const range = (text) => {
     return null;
   }
   if (values.length === 2) {
-    return values[0] <= values[1] ? { low: values[0], high: values[1] } : null;
+    return values[0] <= values[1] && rangeSeparator(text, parts, config)
+      ? { low: values[0], high: values[1] }
+      : null;
   }
   const value = values[0];
   if (/свыше|более|больше|\b(?:over|above|more)\b|>/iu.test(text)) {
@@ -71,7 +89,7 @@ const compatibleRanges = (choices, selection, config) =>
     ) {
       return [];
     }
-    const band = range(choice);
+    const band = range(choice, config);
     return band ? [{ ...band, choice }] : [];
   });
 export const salaryOption = (choices, targets, selection, config, closest) => {

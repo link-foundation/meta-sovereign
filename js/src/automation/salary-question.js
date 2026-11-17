@@ -7,11 +7,12 @@ import {
 } from './salary-vocabulary.js';
 
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-const literal = (text, word) =>
+const literalPattern = (word, flags = 'iu') =>
   new RegExp(
     `${/^[\p{L}\p{N}]/u.test(word) ? '(?<![\\p{L}\\p{N}])' : ''}${escape(word)}${/[\p{L}\p{N}]$/u.test(word) ? '(?![\\p{L}\\p{N}])' : ''}`,
-    'iu'
-  ).test(text);
+    flags
+  );
+const literal = (text, word) => literalPattern(word).test(text);
 const keyword = (text, word) =>
   /^\p{L}{4,}$/u.test(word) && !knownCurrencies.has(word.toUpperCase())
     ? new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}`, 'iu').test(text)
@@ -22,6 +23,17 @@ const currencyWords = {
   EUR: ['€', 'евро', 'euros'],
   GBP: ['£', 'фунтов', 'фунтах', 'pounds'],
 };
+export const stripSalaryCurrencies = (text, config) =>
+  config.currencies
+    .flatMap((entry) => [
+      entry.code,
+      ...(currencyWords[entry.code] ?? []),
+      ...entry.keywords,
+    ])
+    .reduce(
+      (value, word) => value.replaceAll(literalPattern(word, 'giu'), ' '),
+      text
+    );
 export const salaryCurrencies = (text, config) =>
   config.currencies.filter(
     (entry) =>

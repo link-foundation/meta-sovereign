@@ -15,6 +15,13 @@ const capture = async (page) => {
     });
   }
 };
+const assertAlternativeHeld = (field) =>
+  assert(
+    field?.answer.proposal === null &&
+      !field.answer.complete &&
+      field.answer.requiresReview,
+    'numeric alternatives remain unresolved in the native select'
+  );
 
 export const verifyFormSalaryOptions = async ({
   page,
@@ -39,6 +46,7 @@ export const verifyFormSalaryOptions = async ({
   const plan = await request('plan', { id, salary });
   await capture(owner.page);
   const both = plan.fields.find((field) => field.name === 'both');
+  const ambiguous = plan.fields.find((field) => field.name === 'ambiguous');
   const nearest = plan.fields.find(
     (field) => field.name === 'nearest' && field.answer.proposal?.checked
   );
@@ -53,6 +61,7 @@ export const verifyFormSalaryOptions = async ({
       nearest.answer.reuseRequiresReview,
     'nearest native radio is explicitly held for form review'
   );
+  assertAlternativeHeld(ambiguous);
   assert(
     (await owner.page.locator('[name="both"]').inputValue()) === '' &&
       !(await owner.page.locator('[name="nearest"]:checked').count()),
@@ -73,11 +82,13 @@ export const verifyFormSalaryOptions = async ({
   const values = await owner.page.evaluate(() => ({
     both: document.querySelector('[name="both"]').value,
     nearest: document.querySelector('[name="nearest"]:checked')?.value,
+    ambiguous: document.querySelector('[name="ambiguous"]').value,
     owner: document.querySelector('[name="owner"]').value,
   }));
   assert(
     values.both === '0' &&
       values.nearest === '1' &&
+      values.ambiguous === '' &&
       values.owner === 'Keep my explanation',
     'only reviewed native salary choices change'
   );
@@ -100,6 +111,7 @@ export const verifyFormSalaryOptions = async ({
       both: values.both,
       nearest: values.nearest,
       receipts: result.receipts.length,
+      ambiguousHeld: true,
       recovered: true,
       closed: owner.closed,
       submissions: fixture.submits,
