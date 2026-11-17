@@ -743,3 +743,6 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Repeated answer review](question-repeated-answer.md): actual-parent failures and native before/after evidence; shared archive, watcher and final-dispatch guards retain wording and counts. Full QA14 and exact-head hosted acceptance remain required.
 
 - [Shared HH job account profiles](jobs-browser-profile.md): five actual-parent failures, workspace/slot isolation, existing-cookie retention and account-conflict refusal; HH01 remains unfinished.
+
+- [Selectable weighted question rewording](question-weighted.md): shared bounded edit/keyword matching, unchanged ordered defaults, mandatory review and translated CLI/Lino/Forms/browser evidence. Full QA02 remains required.
+- [Preserved strict link-check cache](ci-link-cache.md): both exact-source failed attempts, successful-only cache reuse, one-day expiry, permanent-failure controls and hosted verification still required.

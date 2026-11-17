@@ -1,3 +1,11 @@
+2026-11-17 preserve strict link-check successes between runs:
+
+- [x] Preserve and read both exact `1b449fb5` failed attempts: two initial GitHub 503 entries, then eighteen entries across seventeen different source URLs; native recovery and strict failure controls passed.
+- [x] Trace the action and native cache: ephemeral checkouts discard the existing one-day cache, repeating hundreds of successful requests. Verify successful and failed response behavior with isolated native checks.
+- [x] Restore a ref/policy-scoped cache and save partial successes before strict failure, retaining one-day expiry, uncached failures, all status checks and the existing job deadline.
+- [x] Reproduce one workflow failure and four native controls against exact `502b0b07`; pass all five corrected controls and the focused report check. Scoped checks, strict YAML-policy verification and the unchanged 6.49% duplication gate pass; preserve and independently rehash the complete evidence.
+- [ ] Publish only to the prepared branch and review exact-source restore/save and all CI results. The preceding unchanged cold-cache `502b0b07` link run passes independently; all 35 original unfinished criteria remain required.
+
 Active weighted question rewording (QA02):
 
 - [x] Compare the complete pinned database and PR 123 with the shared question matcher; identify ordered-token-only rewording.
