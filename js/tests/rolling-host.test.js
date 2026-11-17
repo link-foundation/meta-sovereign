@@ -17,21 +17,13 @@ import { canShareTlsPort } from '../src/server/local-tls.js';
 import { connect } from 'node:http2';
 import { createLinoFetch } from '../src/transport/fetch.js';
 import { workerFixtureSource } from './helpers/worker-fixture.mjs';
+import { rollingWorkerOptions as options } from './helpers/rolling-options.mjs';
 
 const fetch = createLinoFetch(globalThis.fetch.bind(globalThis));
 
 const entry = fileURLToPath(
   new URL('../bin/server-worker.js', import.meta.url)
 );
-const options = {
-  tls: false,
-  telegramAccount: false,
-  enableSync: false,
-  enableHandlers: false,
-  automations: { scheduler: false },
-  emailPoll: false,
-  backups: { intervalHours: 0 },
-};
 
 test('an upgrade can replace a build that keeps failing recovery', async () => {
   const dir = await mkdtemp(

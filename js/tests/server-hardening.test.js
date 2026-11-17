@@ -422,20 +422,26 @@ test('a busy port: startServer rejects clearly and starts no background service'
     }
     // `serve` ends with a message and a non-zero status.
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-busy-cli-'));
-    const lines = [];
-    const code = await runCli(
-      [
-        'serve',
-        `--port=${port}`,
-        `--store=${dir}`,
-        '--quiet-logs',
-        '--tls=false',
-      ],
-      { log: (line) => lines.push(line) }
-    );
-    assert.equal(code, 1);
-    assert.match(lines.join('\n'), /already in use/);
-    await fs.rm(dir, { recursive: true, force: true });
+    try {
+      const lines = [];
+      const code = await runCli(
+        [
+          'serve',
+          `--port=${port}`,
+          `--store=${dir}`,
+          '--quiet-logs',
+          '--tls=false',
+        ],
+        { log: (line) => lines.push(line) }
+      );
+      assert.equal(code, 1);
+      assert.match(lines.join('\n'), /already in use/);
+      await assert.rejects(fs.stat(path.join(dir, 'runtime', 'releases')), {
+        code: 'ENOENT',
+      });
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
   } finally {
     blocker.close();
   }

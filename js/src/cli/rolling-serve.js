@@ -61,14 +61,17 @@ export const startRollingCliServer = async ({
       );
     }
   };
-  phase('staging');
-  const release = await stageServerRelease({ storeDir });
-  phase('release_ready');
+  phase('binding');
   const handle = await startRollingServer({
     storeDir,
     port,
     options,
-    release,
+    prepareRelease: async () => {
+      phase('staging');
+      const release = await stageServerRelease({ storeDir });
+      phase('release_ready');
+      return release;
+    },
     log,
   });
   phase('worker_ready');

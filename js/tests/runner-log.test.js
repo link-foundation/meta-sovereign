@@ -1,8 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import { withLoggedSession } from '../src/server/log-session.js';
 import { createLogSettings, verboseFlag } from '../src/server/log-settings.js';
 import { createLogJournal } from '../src/server/log-journal.js';
@@ -25,12 +24,9 @@ import {
   LINO_BINARY,
 } from '../src/transport/lino.js';
 import { runnerLogServer } from '../../experiments/issue-56/runner-log-fixture.mjs';
+import { temporaryDirectory } from './helpers/temporary-directory.mjs';
 
-const directory = async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), 'ms-session-test-'));
-  t.after(() => rm(dir, { recursive: true, force: true }));
-  return dir;
-};
+const directory = (t) => temporaryDirectory(t, 'ms-session-test-');
 const entries = async (dir) => {
   const names = (await readdir(join(dir, 'logs'))).filter((name) =>
     name.endsWith('.log')

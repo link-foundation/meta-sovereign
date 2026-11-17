@@ -309,4 +309,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Publish discovery as 4fefd254; exact-source security, Pages and link workflows pass, main and desktop remain active.
 - [x] Verify entry/full-form/send guards, frozen salary receipts, discovery handoff and private draft preservation before salary deferral (50 focused checks).
 - [x] Verify direct-form missing context recovery and retry checks with finite regressions, native UI and independent MCP; preserve before/after evidence. No wider HH criterion accepted yet.
-- [ ] Publish the atomic application change, inspect all exact-source workflows and continue all 40 original unchecked criteria. PR57 remains draft and unmerged.
+- [x] Publish the atomic application change as 811b03a0. Exact-source Pages, links and security pass; main reports the native scenario-group contract failure, and desktop is still running.
+- [ ] Repair the native scenario registration contract, inspect all exact-source workflows and continue all 40 original unchecked criteria. PR57 remains draft and unmerged.
+
+2026-11-17 Windows busy-port startup investigation:
+
+- [x] Preserve exact 4fefd254 Windows job 133788790554 log; lines 2977–2992 show 21.6s snapshot staging before attempting an occupied listener; lines 3918–3925 cancel the existing 30s test.
+- [x] Claim the initial rolling listener before package preparation; retain upgrade behavior and cleanup, with four focused checks and three parent failures.
+- [ ] Publish this atomic startup repair and verify exact-head Windows and all other workflow jobs. Forty original criteria remain unchecked; PR57 stays draft and unmerged.

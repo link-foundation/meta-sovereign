@@ -781,3 +781,5 @@ Allow explicit salary context priorities while preserving question precedence an
 Add bounded resume-matching salary tiers with exact owner targets, observed page exhaustion, deferred minimum-only offers, advertised hard-cap exclusions, shared CLI/Lino/UI settings and non-replaying receipts (issue #56, partial HH02/HH05).
 
 Check full-vacancy salary targets before application entry, full-form navigation and send. Preserve actual direct-form answers before recovering missing vacancy context, restore empty native controls, and carry discovery salary tiers into unarmed application drafts.
+
+Reject an occupied initial server port before staging the immutable runtime snapshot, and clean up the listener when package preparation fails.
