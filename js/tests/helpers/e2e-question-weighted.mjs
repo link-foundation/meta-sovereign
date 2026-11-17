@@ -22,10 +22,12 @@ export const verifyQuestionWeighted = async ({ page, store, until }) => {
   const method = settings.getByLabel('Matching method', { exact: true });
   const threshold = settings.getByLabel('Minimum similarity (%)');
   const letterCase = settings.getByLabel('Match letter case');
+  const inspect = preview.getByLabel('Inspect all eligible matches');
   const previous = {
     algorithm: await method.inputValue(),
     threshold: await threshold.inputValue(),
     caseSensitive: await letterCase.isChecked(),
+    inspect: await inspect.isChecked(),
   };
   const run = async () => {
     const response = page.waitForResponse((item) =>
@@ -43,6 +45,7 @@ export const verifyQuestionWeighted = async ({ page, store, until }) => {
     await method.selectOption('ordered');
     await threshold.fill('70');
     await letterCase.uncheck();
+    await inspect.check();
     assert(
       (await run()).match === 'unanswered',
       'ordered default stays unchanged'
@@ -57,10 +60,16 @@ export const verifyQuestionWeighted = async ({ page, store, until }) => {
       result.text === weightedQuestions.answer,
       'most frequent approved wording proposed'
     );
-    await preview
-      .locator('[data-answer-preview]')
-      .getByText(weightedQuestions.answer, { exact: true })
-      .waitFor();
+    await until(
+      async () =>
+        (await preview.locator('[data-answer-preview] > pre').textContent()) ===
+        weightedQuestions.answer,
+      'weighted wording in the main answer preview'
+    );
+    assert(
+      (await preview.locator('[data-ranked-match]').count()) > 0,
+      'eligible ranked matches remain visible beside the main wording'
+    );
     if (process.env.QUESTION_WEIGHTED_SCREENSHOTS === '1') {
       await settings.scrollIntoViewIfNeeded();
       await page.screenshot({
@@ -122,5 +131,6 @@ export const verifyQuestionWeighted = async ({ page, store, until }) => {
     await method.selectOption(previous.algorithm);
     await threshold.fill(previous.threshold);
     await letterCase.setChecked(previous.caseSensitive);
+    await inspect.setChecked(previous.inspect);
   }
 };

@@ -1,0 +1,27 @@
+{
+  "archive": "weighted-preview-selector.tar.gz",
+  "files": {
+    "js/tests/helpers/e2e-question-weighted.mjs": "a091bbe27a658911e88b67a26e483bc746c014381a1c66ff53f61d37eae4165a",
+    "js/tests/e2e-questions-browser.mjs": "7f22dcb0790b6e0a74cb3ce23f1a6a6057f0b122f1369dc53ad735583ffc4ff8",
+    "js/tests/helpers/e2e-question-matching.mjs": "65a0675148342ca665d69087b796f4590e2fd0947316a7393e08401e79cb3ffc",
+    "js/tests/helpers/e2e-chat.mjs": "89d74178a9eba8b68f9c183697ea59f6b536e5cde7f25e62652028b48bde1ead",
+    "js/src/web/question-controls.js": "6becb2cab39d4f73c0cef387e4239822489b94dfa305c5dab225aa31c47f832a",
+    "experiments/issue-56/question-weighted-fixture.mjs": "c5207244451d9da464ebd17ee483fffb64ebc9b74f45d65df581ae2631eb0c95",
+    "experiments/issue-56/weighted-preview-selector-parent.py": "45ffddb1c08e56a7c80d955fe9e70667a9ee82b24867ce5422c3572defc1ff83",
+    "experiments/issue-56/collect-weighted-preview-selector.py": "935476965639d055d5b3a594a7984186c5c9baaaf3f259b0123dbabb8003a424",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/ci-weighted-preview-selector.md": "0b5c2142f3544c1964f2bbbe76a83d1f3de4c83172a84417f9f28eaef27308d9",
+    "before/js/tests/helpers/e2e-question-weighted.mjs": "fb61c00590b43021b11336e2e00cd3979c75167e771369d1deb7799d2fdc4f89",
+    "ci-logs/weighted-preview-selector-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/weighted-preview-selector-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/weighted-preview-selector-before.log": "71d85a203ab049bda7aef4bb714b1093d947d95ea7dc0eb062b9d89714e452f5",
+    "ci-logs/weighted-preview-selector-parent.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/weighted-preview-selector-reproducing-helper.mjs": "2464e72cb1015a9a07bc17c0039e0e848f8bc441a20564259d9ba32b8ffb945a",
+    "ci-logs/weighted-preview-selector-after.log": "a041c1dc0981c013ddf3bd156a4fddaca887c0488c321a8e2d3337a5444b07ea",
+    "ci-logs/weighted-preview-selector-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/weighted-preview-selector-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/4bb61220-main-progress.json": "e37481727e96a193725bd4a7d2aafee307b21eddd7557326a03b40f7077cd1d3",
+    "ci-logs/4bb61220-chromium-shard3-failure.log": "cda245f366cdb624941b5be0ad1e434a07336f250de5148de4af9515085f6b91",
+    "metadata.json": "651a237a48bf37a2c8a16fdc62a4f5ebfe7d39dbf03882273cc5de293263b250"
+  }
+}
