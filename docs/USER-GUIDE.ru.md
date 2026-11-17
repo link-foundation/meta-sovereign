@@ -81,22 +81,30 @@ Desktop и mobile apps заворачивают тот же SPA с GitHub Pages 
 
 | Система | Файлы (x64 и arm64)                                                     |
 | ------- | ----------------------------------------------------------------------- |
-| Linux   | `.AppImage` (обновляется сам), `.deb`, `.tar.gz`                        |
+| Linux   | `.AppImage` (x64 обновляется сам), `.deb`, `.tar.gz`                    |
 | macOS   | `.dmg` (перетащите в Applications), `.zip`                              |
 | Windows | `windows-installer` `.exe` (обновляется сам), `windows-portable` `.exe` |
+
+Выберите **arm64** для Apple Silicon и других систем ARM64, **x64** — для Intel/AMD. Проверьте скачанный файл до установки или запуска.
 
 Первый запуск:
 
 - **macOS.** Сборки без Apple Developer ID подписаны ad-hoc, поэтому macOS блокирует первый запуск («Apple could not verify…»). Сначала проверьте скачанный файл, как описано ниже. Попробуйте открыть установленное приложение, нажмите **Done**, затем откройте System Settings → Privacy & Security → Security и нажмите **Open Anyway** для Meta Sovereign. При необходимости подтвердите личность и нажмите **Open**. Такие сборки не обновляются сами; новые версии скачивайте со страницы.
-- **Windows.** Если SmartScreen показывает «Windows protected your PC», нажмите **More info** → **Run anyway**.
-- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` и запустите его, или установите `.deb` через `sudo apt install ./<file>.deb`.
+- **Windows.** Запустите installer или portable `.exe` напрямую. Сборки Windows arm64 требуют ручного обновления. Если SmartScreen показывает «Windows protected your PC», нажмите **More info** → **Run anyway**.
+- **Linux.** Выполните `chmod +x meta-sovereign-desktop-linux-*.AppImage` и запустите файл, установите `.deb` через `sudo apt install ./<file>.deb` или распакуйте `.tar.gz` в папку и запустите `meta-sovereign`.
 
 Проверьте скачанный файл по `SHA256SUMS.txt` из release: в разделе **Verify your download** на странице загрузки (выберите файл и `SHA256SUMS.txt`; ничего не покидает браузер) или в терминале:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+На macOS используйте `shasum -a 256 <file>`, на Windows — PowerShell
+`Get-FileHash -Algorithm SHA256 <file>`. Сравните полный хеш со строкой нужного
+файла в `SHA256SUMS.txt`. В release также есть `BUILD-PROVENANCE.txt`: репозиторий,
+workflow, тег, коммит исходников, runner и версии инструментов. Проверьте эти
+данные и, если доступна аттестация GitHub, выполните:
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`.
 
 Для проверенной сборки macOS другой способ ограничен приложением, скопированным
 в `/Applications` (сначала распакуйте `.zip`). Выполните один раз, затем откройте
@@ -109,7 +117,7 @@ xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
 [Apple описывает исключение для одного приложения](https://support.apple.com/en-us/102445).
 Ad-hoc подпись не означает нотарификацию.
 
-Приложение хранит данные в системной папке приложений пользователя, поэтому они переживают обновления. Чтобы собрать installers самостоятельно: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (см. `js/scripts/build-desktop.mjs`).
+Приложение хранит данные в системной папке приложений пользователя, поэтому они переживают обновления. Чтобы собрать installers самостоятельно: `npm ci && npm run build:web && npm run desktop:build -- --linux --x64` (см. `js/scripts/build-desktop.mjs`).
 
 ### Mobile и development сборки
 

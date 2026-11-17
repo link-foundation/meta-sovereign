@@ -102,6 +102,7 @@ export const launchPackagedDesktop = async (binary, screenshot) => {
       executablePath: resolve(binary),
       cwd: directory,
       args: [
+        ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
         '--port=0',
         '--tls=false',
         '--local-ui=true',

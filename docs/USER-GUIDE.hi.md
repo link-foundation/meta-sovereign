@@ -81,22 +81,30 @@ Desktop और mobile apps GitHub Pages वाले उसी SPA को built-
 
 | System  | Files (x64 और arm64)                                                       |
 | ------- | -------------------------------------------------------------------------- |
-| Linux   | `.AppImage` (खुद update होता है), `.deb`, `.tar.gz`                        |
+| Linux   | `.AppImage` (x64 खुद update होता है), `.deb`, `.tar.gz`                    |
 | macOS   | `.dmg` (Applications में drag करें), `.zip`                                |
 | Windows | `windows-installer` `.exe` (खुद update होता है), `windows-portable` `.exe` |
+
+Apple Silicon या दूसरे ARM64 system के लिए **arm64**, Intel/AMD के लिए **x64** चुनें। Install या open करने से पहले download की गई file जाँचें।
 
 पहली बार चलाना:
 
 - **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। पहले नीचे बताए अनुसार download जाँचें। Installed app खोलने का प्रयास करें, **Done** चुनें, फिर System Settings → Privacy & Security → Security में Meta Sovereign के लिए **Open Anyway** चुनें। माँगे जाने पर पहचान सत्यापित करें और **Open** चुनें। ये builds खुद update नहीं होते; नए versions page से download करें।
-- **Windows.** अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
-- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, या `.deb` को `sudo apt install ./<file>.deb` से install करें।
+- **Windows.** Installer चलाएँ या portable `.exe` सीधे चलाएँ। Windows arm64 builds को manually update करना होता है। अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
+- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, `.deb` को `sudo apt install ./<file>.deb` से install करें, या `.tar.gz` को folder में extract करके उसका `meta-sovereign` executable चलाएँ।
 
 Download की गई file को release के `SHA256SUMS.txt` से check करें: download page के **Verify your download** section में (file और `SHA256SUMS.txt` चुनें; कुछ भी browser से बाहर नहीं जाता) या terminal में:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+macOS पर `shasum -a 256 <file>` और Windows PowerShell में
+`Get-FileHash -Algorithm SHA256 <file>` इस्तेमाल करें। पूरा hash `SHA256SUMS.txt`
+में उसी filename वाली entry से मिलाएँ। Release में `BUILD-PROVENANCE.txt` भी है:
+repository, workflow, tag, source commit, runner और tool versions। इनकी जाँच करें
+और GitHub attestation उपलब्ध होने पर चलाएँ:
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`।
 
 जाँचे हुए macOS download के लिए Terminal विकल्प केवल `/Applications` में कॉपी
 की गई app पर लागू है (`.zip` पहले खोलें)। एक बार यह command चलाएँ, फिर app खोलें:
@@ -108,7 +116,7 @@ xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
 [Apple के निर्देश एक app के first-launch exception को समझाते हैं](https://support.apple.com/en-us/102445)।
 Ad-hoc signing notarization नहीं है।
 
-App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
+App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm ci && npm run build:web && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
 
 ### Mobile और development builds
 

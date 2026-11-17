@@ -688,3 +688,4 @@ live provider execution or accepting the complete QA11 criterion.
 failures for expected-income phrases, tax aliases, pay periods and offer/current-pay
 exclusions. Thirty-four focused checks and native/MCP prefill evidence preserve
 owner drafts and zero sends; complete salary acceptance remains required.
+- [Desktop installation verification](desktop-installation-verification.md): add actual Linux launch and owned Windows silent-install/launch/uninstall checks; preserve source-bound metadata from all five preceding desktop jobs and correct all four installation guides. Exact-head native verification remains required.

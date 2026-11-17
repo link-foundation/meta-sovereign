@@ -65,6 +65,8 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/validate-desktop-updater.mjs'
       - 'js/scripts/normalize-desktop-artifacts.mjs'
       - 'js/scripts/validate-desktop-assets.mjs'
+      - 'js/scripts/verify-*-packages.*'
+      - 'experiments/issue-56/desktop-packaged-launch.mjs'
       - 'js/src/web/download/downloads.js'
 
 permissions:
@@ -352,6 +354,9 @@ jobs:
           chmod +x "$appimage"
           ./"$appimage" --appimage-extract > /dev/null
           test -x squashfs-root/meta-sovereign
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          xvfb-run -a node "$GITHUB_WORKSPACE/experiments/issue-56/desktop-packaged-launch.mjs" \
+            squashfs-root/meta-sovereign "$GITHUB_WORKSPACE/artifacts/desktop-launch-${{ matrix.name }}.png"
           rm -rf squashfs-root
           tar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt
           grep -q '/meta-sovereign$' tar-contents.txt
@@ -366,16 +371,7 @@ jobs:
       - name: Smoke test (Windows)
         if: matrix.os == 'windows'
         shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Set-Location dist/desktop/release
-          Get-ChildItem
-          $installers = Get-ChildItem 'meta-sovereign-desktop-windows-installer-*.exe'
-          $portables = Get-ChildItem 'meta-sovereign-desktop-windows-portable-*.exe'
-          if ($installers.Count -ne 1 -or $portables.Count -ne 1) { throw 'expected one installer and one portable exe' }
-          foreach ($exe in @($installers) + @($portables)) {
-            if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
-          }
+        run: ./js/scripts/verify-windows-packages.ps1 -Screenshot "artifacts/desktop-launch-${{ matrix.name }}.png"
 
       - name: Launch packaged app (macOS)
         if: matrix.os == 'macos'
@@ -391,11 +387,11 @@ jobs:
             artifacts/desktop-launch-macos.png
 
       - name: Preserve packaged launch screenshot
-        if: always() && matrix.os == 'macos'
+        if: always()
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: desktop-launch-macos
-          path: artifacts/desktop-launch-macos.png
+          name: desktop-launch-${{ matrix.name }}
+          path: artifacts/desktop-launch-${{ matrix.name }}.png
           if-no-files-found: warn
           retention-days: 14
 

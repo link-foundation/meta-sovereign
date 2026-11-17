@@ -99,9 +99,11 @@ attached to the [GitHub releases](https://github.com/link-foundation/meta-sovere
 
 | System  | Files (x64 and arm64)                                                |
 | ------- | -------------------------------------------------------------------- |
-| Linux   | `.AppImage` (auto-updates), `.deb`, `.tar.gz`                        |
+| Linux   | `.AppImage` (x64 auto-updates), `.deb`, `.tar.gz`                    |
 | macOS   | `.dmg` (drag to Applications), `.zip`                                |
 | Windows | `windows-installer` `.exe` (auto-updates), `windows-portable` `.exe` |
+
+Choose **arm64** for Apple Silicon or another ARM64 system, and **x64** for Intel/AMD. Verify the downloaded file before installing or opening it.
 
 First launch:
 
@@ -111,10 +113,11 @@ First launch:
   **Done**, then open System Settings → Privacy & Security → Security and
   click **Open Anyway** for Meta Sovereign. Authenticate if asked and confirm
   **Open**. These builds do not auto-update; download new versions from the page.
-- **Windows.** If SmartScreen shows "Windows protected your PC",
+- **Windows.** Run the installer, or run the portable `.exe` directly. Windows arm64 builds require manual updates. If SmartScreen shows "Windows protected your PC",
   click **More info** → **Run anyway**.
 - **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` and run
-  it, or install the `.deb` with `sudo apt install ./<file>.deb`.
+  it, install the `.deb` with `sudo apt install ./<file>.deb`, or extract
+  `.tar.gz` into a folder and run its `meta-sovereign` executable.
 
 Check a download against the release's `SHA256SUMS.txt`, either in
 the download page's **Verify your download** section (pick the file
@@ -122,8 +125,14 @@ and `SHA256SUMS.txt`; nothing leaves the browser) or in a terminal:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+On macOS use `shasum -a 256 <file>`; on Windows use PowerShell
+`Get-FileHash -Algorithm SHA256 <file>`. Compare the full hash with the matching
+filename in `SHA256SUMS.txt`. The release also includes `BUILD-PROVENANCE.txt`
+with the repository, workflow, tag, source commit, runner and tool versions.
+Check that provenance and, when available, verify its GitHub attestation:
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`.
 
 For a verified macOS download, the Terminal alternative is scoped to the app
 copied into `/Applications` (expand `.zip` downloads first). Run this once,
@@ -138,7 +147,7 @@ Ad-hoc signing does not provide notarization.
 
 The app keeps its data in the system's per-user app folder, so it
 survives updates. To build the installers yourself:
-`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`
+`npm ci && npm run build:web && npm run desktop:build -- --linux --x64`
 (see `js/scripts/build-desktop.mjs`).
 
 ### Mobile and development builds

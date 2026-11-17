@@ -3,6 +3,18 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 desktop installation verification (VD09):
+
+- [x] Read the entire pinned desktop requirements and map the missing real Linux
+      launch and Windows silent-install checks without accepting size-only smoke tests.
+- [x] Preserve bounded metadata from all five successful 549635f2 artifacts;
+      verify the recorded merge tree equals that selected head.
+- [x] Add owned, finite native installation/launch/uninstall checks and correct
+      native checksums, provenance, build and startup instructions in all locales.
+- [ ] Publish the correction, inspect every native receipt and screenshot plus
+      all exact-head workflows, then complete the VD09 acceptance mapping.
+- [ ] Finish all 40 original unchecked criteria; keep PR57 draft and unmerged.
+
 2026-11-17 saved salary boundary follow-up:
 
 - [x] Reproduce five published-parent failures for saved English/Russian bands

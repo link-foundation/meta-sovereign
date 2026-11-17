@@ -81,22 +81,29 @@ JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `
 
 | 系统    | 文件（x64 和 arm64）                                              |
 | ------- | ----------------------------------------------------------------- |
-| Linux   | `.AppImage`（自动更新）、`.deb`、`.tar.gz`                        |
+| Linux   | `.AppImage`（x64 自动更新）、`.deb`、`.tar.gz`                    |
 | macOS   | `.dmg`（拖到 Applications）、`.zip`                               |
 | Windows | `windows-installer` `.exe`（自动更新）、`windows-portable` `.exe` |
+
+Apple Silicon 或其他 ARM64 系统请选择 **arm64**，Intel/AMD 系统请选择 **x64**。安装或打开之前请先校验下载文件。
 
 首次启动：
 
 - **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。请先按下文校验下载文件。尝试打开已安装应用，点击 **Done**，再打开 System Settings → Privacy & Security → Security，为 Meta Sovereign 点击 **Open Anyway**。按提示验证身份并点击 **Open**。这类构建不会自动更新，请从下载页获取新版本。
-- **Windows。** 如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
-- **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，或用 `sudo apt install ./<file>.deb` 安装 `.deb`。
+- **Windows。** 运行安装程序，或直接运行 portable `.exe`。Windows arm64 构建需要手动更新。如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
+- **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，用 `sudo apt install ./<file>.deb` 安装 `.deb`，或将 `.tar.gz` 解压到文件夹后运行其中的 `meta-sovereign`。
 
 用 release 中的 `SHA256SUMS.txt` 校验下载的文件：可以在下载页的 **Verify your download** 区域进行（选择文件和 `SHA256SUMS.txt`，数据不会离开浏览器），也可以在终端中执行：
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+macOS 可使用 `shasum -a 256 <file>`，Windows 可使用 PowerShell
+`Get-FileHash -Algorithm SHA256 <file>`。将完整哈希值与 `SHA256SUMS.txt` 中对应文件名的记录比较。
+Release 还包含 `BUILD-PROVENANCE.txt`，记录仓库、workflow、标签、源代码提交、runner 和工具版本。
+请核对这些来源信息；如果提供了 GitHub 证明，可执行：
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`。
 
 对于已校验的 macOS 下载文件，也可仅处理复制到 `/Applications` 的应用
 （先解压 `.zip`）。执行一次以下命令，然后打开应用：
@@ -108,7 +115,7 @@ xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
 [Apple 的说明介绍了单个应用的首次启动例外](https://support.apple.com/en-us/102445)。
 临时签名不代表经过公证。
 
-应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
+应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm ci && npm run build:web && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
 
 ### 移动端和开发构建
 

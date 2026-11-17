@@ -2,6 +2,11 @@
 'meta-sovereign': minor
 ---
 
+Verify actual Linux packaged startup and Windows silent installation, explicit
+packaged startup and owned uninstall on both hosted architectures. Document
+native checksum tools, provenance, architecture selection and the committed
+desktop build dependencies in every user-guide locale (issue #56).
+
 Use current numeric salary targets when a saved offered band contains English or
 Russian boundaries or scaled amounts. Keep authored explanations under review
 and refuse saved multi-basis answers when any amount conflicts with the current
