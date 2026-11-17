@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 unread model direction assertion:
+
+- [x] Preserve exact 0041b2a8 Deno/Bun failures and reproduce the old expected
+      context omitting the deliberately retained outgoing direction.
+- [x] Retain the full exact assertion and add its expected flag; pass all eleven
+      focused Node/Deno checks without changing production behavior or deadlines.
+- [ ] Publish the correction and inspect fresh hosted checks. QA12, QA15 and
+      all forty original unchecked criteria remain required.
+
 2026-11-17 complete salary context audit (QA12):
 
 - [x] Map all pinned salary/context/clarification/hourly behavior and distinguish

@@ -39,6 +39,7 @@ test('unread model opt-in uses stored CV, profile, approved answers and the ackn
       {
         text: modelUnreadHistory(modelUnreadRow)[0].body,
         evidence: 'msg:hh:8:101',
+        outgoing: true,
       },
     ]);
     const saved = await review(env, result);

@@ -1,3 +1,4 @@
+- [Unread model direction assertion](ci-unread-model-direction.md): preserve the exact hosted mismatch, retain the direction field and all existing assertions, and verify eleven focused Node/Deno tests without changing production behavior.
 - [Complete salary context mapping](salary-context-criteria-audit.md): map QA12 to pinned behavior, verify eighteen archives and review every later source change; require 120 named portable checks and both engines' native receipts before acceptance.
 - [Portable salary fixture dependency](ci-salary-fixture-import.md): reproduce the hosted Deno import failure, separate constant data from optional browser code and retain six passing portable tests plus native browser verification.
 - [Initial résumé discovery trace](ci-resume-cache-trace.md): retain the actual hosted timeout and passing focused WebKit receipts; add bounded pointer/request/state diagnostics with unchanged assertions. The historical cause remains unconfirmed.
