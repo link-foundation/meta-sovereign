@@ -393,6 +393,7 @@ const questionBrowserGroups = {
     'verifyUnreadModel',
     'verifyUnreadModelControls',
   ],
+  'question-unread-choices': ['verifyUnreadBotChoices'],
   'question-unread-reply-view': [
     'verifyUnreadReplyView',
     'verifyUnreadReplyViewControls',
@@ -452,6 +453,7 @@ test('question provider and control scenarios have separate mandatory browser bu
     'question-unread-reply-view',
     'question-unread-polling',
     'question-unread-answers',
+    'question-unread-choices',
   ]) {
     assert.match(
       groupSources[Object.keys(groups).indexOf(name)],

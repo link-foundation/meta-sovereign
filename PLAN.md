@@ -3,6 +3,17 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 native unread option coverage (QA14/QA17):
+
+- [x] Exercise the actual native adapter through an isolated unread pass;
+      select the exact saved Yes option with receipt 808 and zero text sends.
+- [x] Hold the next ordinary draft; verify a second pass preserves its text,
+      chat identity and visit history without another choice or text send.
+- [x] Retain all three ordinary native scenarios after sharing fixture cleanup;
+      register a separate mandatory finite group and pass its focused contract.
+- [ ] Inspect current-source hosted results, including explicit WebKit focus
+      refusal; complete all forty original unchecked acceptance criteria.
+
 2026-11-17 native option clear/retry coverage (QA14):
 
 - [x] Read the pinned delayed-option, draft-clear/retry and generic-chip contract;
