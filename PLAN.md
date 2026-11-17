@@ -1,7 +1,15 @@
 Continue the complete issue 56 objective in PR57. Every original requirement and
 required sub-issue must be implemented and verified in this single PR. The
-reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
+reference inventory currently has 36 unchecked criteria (82 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
+
+2026-11-17 current acceptance checkpoint:
+
+- [x] Read the complete QA12/QA14/QA15/VD09 behavior mappings and current-source comparisons; all five workflows succeed at `6c20f4dc` after the three unacquired macOS jobs pass unchanged on retry.
+- [x] Verify and read 120/88/53 named checks, 28/14/14 native records and 25 desktop checks with five actual packaged windows; accept only these four complete criteria. See [the evidence review](docs/case-studies/issue-56/hosted-criteria-6c20.md).
+- [ ] Publish local independent VK, desktop appearance and HH profile/cookie checks; require all five exact-head workflows. Continue all 36 unfinished original criteria; keep PR57 draft/unmerged.
+
+The entries below retain their historical checkpoint counts.
 
 2026-11-17 macOS Deno partition deadline:
 

@@ -4,7 +4,7 @@ The pinned desktop requirements are
 [`docs/REQUIREMENTS.md` at `8fbf3b7c`](https://github.com/konard/vk-bot-desktop/blob/8fbf3b7c42fd8e995ef137cab9b9653a7dc9b1a1/docs/REQUIREMENTS.md).
 VD09 covers distribution, installation and operation without a developer
 account. Runner execution, action configuration and mode switching remain
-separate criteria. The source selected for this review is `06953e31`.
+separate criteria. The source selected for this review is `6c20f4dc`.
 
 | Required behavior                                                                                           | Current implementation                                                                                                                                                                                                                                                                                                                      | Verification                                                                                                                                                                                                                                                                      |
 | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -26,7 +26,7 @@ successful published download.
 
 ## Current receipts and limits
 
-[Desktop run 44093457458](https://github.com/link-foundation/meta-sovereign/actions/runs/44093457458)
+[Desktop run 44113259106](https://github.com/link-foundation/meta-sovereign/actions/runs/44113259106)
 passes all five build jobs. Each records one visible packaged window,
 `contextIsolation: true`, `nodeIntegration: false`, `backendReady: true`,
 `cleanExit: true` and `runtimeDrained: true`. No live provider is used.
@@ -34,9 +34,9 @@ The packaged updater reports a missing release-channel file on this unpublished
 PR build; a successful launch receipt does not assert a clean updater console
 or a published update.
 
-The package provenance names synthetic merge `001085fc`. Its parents are
-default `1dc57835` and selected head `06953e31`; its tree exactly equals the
-selected head tree. Five bounded metadata reads transfer **5,560 bytes** in
+The package provenance names synthetic merge `0c662a90`. Its parents are
+default `1dc57835` and selected head `6c20f4dc`; its tree exactly equals the
+selected head tree. Five bounded metadata reads transfer **5,548 bytes** in
 total. Large installers are neither downloaded nor executed on the user's
 machine. Native execution remains on the hosted target runners.
 
@@ -46,11 +46,12 @@ receipts and screenshots, the four Mac signature checks, matching artifact
 identities and the exact merge-tree mapping:
 
 ```sh
-python -B experiments/issue-56/collect-desktop-packaging-hosted.py 06953e31 06953e31
+python -B experiments/issue-56/collect-desktop-packaging-hosted.py 6c20f4dc 6c20f4dc
 ```
 
 It retains a checked archive with `acceptance: false`: integrity checks support
-the contract review rather than replacing it. Full current-source hosted
-verification is still pending; VD09 stays unchecked until that succeeds.
+the contract review rather than replacing it. All five current-source workflows succeed. The complete contract, actual
+native receipts, screenshots, signatures and metadata were reviewed;
+[the acceptance record](hosted-criteria-6c20.md) verifies VD09 with these limits.
 Every other unfinished requirement remains active in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).

@@ -1,9 +1,9 @@
 # Salary-band contract mapping (QA15)
 
-QA15 remains unchecked until the complete mapping below and all five workflows
-pass for the selected published source. This audit accepts no criterion by
-itself. The complete issue remains active in
-[PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+QA15 is verified at `6c20f4dc` after review of this complete mapping, current
+source comparisons and semantic hosted receipts. The [acceptance record](hosted-criteria-6c20.md)
+preserves the evidence and limits. Every other unchecked criterion remains
+required in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 
 ## Original source and boundary
 
@@ -92,14 +92,15 @@ It writes a hash-checked archive with `acceptance: false`; human review of this
 mapping and actual source differences remains necessary. No local full suite,
 stress test or full browser/runtime matrix is required by these audit commands.
 
-## Pending acceptance
+## Acceptance review
 
-- The [dual-basis nearest correction](salary-nearest-bases.md) and checked local
-  evidence are committed; require their exact-source hosted receipts.
-- Verify the complete source comparison and semantic receipts for the final
-  published source, including all five successful workflows.
-- Update QA15 only after its entire contract is verified. Continue every other
-  unchecked issue criterion in this same PR.
+The source audit was refreshed for `6c20f4dc`; the four mapped production files
+are unchanged from the reviewed comparison. All five workflows succeed. The
+collector verifies 53 named checks and fourteen semantic native records,
+including dual-basis nearest proposals and recovered forms. The actual positive
+receipts, overlap/currency holds and zero submissions were read. The
+[complete review](hosted-criteria-6c20.md) accepts QA15 and retains every other
+unchecked requirement.
 
 The historical WebKit workplace source-loading timeout is unrelated to a
 salary selection receipt. Its raw failure and opt-in diagnostics remain in

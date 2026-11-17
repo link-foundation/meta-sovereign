@@ -1,8 +1,9 @@
 # Offered-answer contract mapping (QA14)
 
-QA14 remains unchecked pending current-source hosted verification. This report
-maps the pinned behavior; it does not accept the whole criterion or any of the
-other forty unfinished criteria in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+QA14 is verified at `6c20f4dc` after review of this complete mapping, current
+source comparisons and semantic hosted receipts. The [acceptance record](hosted-criteria-6c20.md)
+preserves the evidence and limits. Every other unchecked criterion remains
+required in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 
 ## Pinned behavior
 
@@ -67,4 +68,7 @@ WebKit partitions 2, 3 and 4 as `hosted-SLUG-TAG.log` first. The collector refus
 stale, incomplete, failed, unregistered or missing evidence. Its checked archive
 retains `acceptance: false`; the contract mapping and current source review are
 separate from integrity validation. Any later mapped production change requires
-a refreshed comparison. Full current hosted verification remains pending.
+a refreshed comparison. All five workflows succeed at `6c20f4dc`. The collector verifies 88 named checks
+and fourteen semantic native scenario records. The actual watcher, provider,
+summary, visibility and unread receipts were read, including WebKit's explicit
+zero-effect focus refusal. See the [complete acceptance review](hosted-criteria-6c20.md).

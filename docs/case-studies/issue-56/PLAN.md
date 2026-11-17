@@ -1,3 +1,11 @@
+Active acceptance checkpoint (`6c20f4dc`):
+
+- [x] Five complete workflows succeed: 72 jobs pass and six release/deployment jobs intentionally skip; every test and native build passes. Preserve three actual runner-allocation failures and their unchanged successful retry.
+- [x] Review complete QA12/QA14/QA15/VD09 contracts, current-source comparisons, named checks and native semantic receipts; accept only these four criteria. See [the evidence review](hosted-criteria-6c20.md).
+- [ ] Publish independent VK, desktop appearance and HH profile/cookie checks and inspect all five workflows at their exact source. Current inventory: 82 verified, 36 unchecked. Every unfinished requirement remains required in PR57, which stays draft/unmerged.
+
+The chronological notes below retain their checkpoint counts; the current acceptance record above supersedes those counts.
+
 Active shared desktop appearance verification (VD06):
 
 - [x] Read the complete pinned Desktop UI contract, existing runner switching/feedback and single-window ownership, shared theme and language implementation, and existing portable/native checks.

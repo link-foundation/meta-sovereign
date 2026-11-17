@@ -1,8 +1,9 @@
 # Salary context contract mapping (QA12)
 
-QA12 remains unchecked until the complete mapping and current-source hosted
-receipts pass. This audit does not accept a criterion. All other unchecked
-requirements remain active in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
+QA12 is verified at `6c20f4dc` after review of this complete mapping, current
+source comparisons and semantic hosted receipts. The [acceptance record](hosted-criteria-6c20.md)
+preserves the evidence and limits. Every other unchecked criterion remains
+required in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 
 ## Pinned reference and scope
 
@@ -115,12 +116,11 @@ DOM paths. They do not claim execution against anyone's live account. The
 product vision expressly keeps live conversations separate from test fixtures;
 an invented live-account acceptance gate must not defer implemented behavior.
 
-## Remaining acceptance work
+## Acceptance review
 
-- Recheck the source comparison if any mapped production module changes after
-  the reviewed `06953e31` comparison.
-- Bind named portable checks and semantic receipts from both browser engines
-  to one published SHA and five successful complete hosted workflows.
-- Read actual receipts and any failure logs before updating QA12. Integrity,
-  passing CI or an individual correction alone does not accept the criterion.
-- Continue all other original unchecked criteria in this single PR.
+The source audit was refreshed for `6c20f4dc`; mapped production modules are
+unchanged from the reviewed `06953e31` source. All five workflows succeed.
+The collector verifies all 120 named checks and all 28 exact semantic receipts;
+the actual draft, refusal, priority and owner-preservation receipts were read.
+The [complete review](hosted-criteria-6c20.md) accepts QA12 alone and preserves
+all other unchecked requirements.
