@@ -1,5 +1,7 @@
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { observeInitialFriendCount } from './vk-friend-stats.js';
+import { loadSettings, optOutEntry } from './safety.js';
+import { vkSafetyTarget } from './vk-safety-target.js';
 import {
   VK_FRIENDS_STATE as STATE,
   VK_FRIENDS_PLAN as PLAN,
@@ -45,6 +47,7 @@ export const previewVkFriendPlan = async ({
     refuse('Service stopped');
   }
   const settings = await readVkFriendSettings(store);
+  const safety = await loadSettings(store);
   const { options, live } = await provider();
   const last = await store.get(STATE);
   const observeIds = friendObservationIds(last);
@@ -83,6 +86,9 @@ export const previewVkFriendPlan = async ({
       priority,
       slots,
     });
+    if (optOutEntry(safety, vkSafetyTarget(userId))) {
+      reason = 'optedOut';
+    }
     if (reason === 'eligible') {
       reason = desktopFriendReason(
         { settings, friendCount: source.count },

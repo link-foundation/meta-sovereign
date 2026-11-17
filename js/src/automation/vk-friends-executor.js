@@ -18,10 +18,13 @@ import {
   performVkFriendAction,
   runVkFriendBatch,
 } from './vk-friend-delivery.js';
+import { loadSettings, optOutEntry } from './safety.js';
+import { vkSafetyTarget } from './vk-safety-target.js';
 const currentPolicy = async (
   { store, isStopped, optionsFor },
   plan,
-  original
+  original,
+  item
 ) => {
   if (isStopped() || !equal(plan.settings, await readVkFriendSettings(store))) {
     refuse('Service stopped or friend policy changed; review again');
@@ -29,9 +32,12 @@ const currentPolicy = async (
   if ((await optionsFor())?.token !== original.options.token) {
     refuse('VK account credential changed; review again');
   }
+  if (optOutEntry(await loadSettings(store), vkSafetyTarget(item.userId))) {
+    refuse('VK consent changed; review again');
+  }
 };
 const guard = async (context, plan, item, original, reserved) => {
-  await currentPolicy(context, plan, original);
+  await currentPolicy(context, plan, original, item);
   const state = await original.live.friendState(item.userId, original.options);
   if (
     state.accountId !== plan.accountId ||
@@ -93,7 +99,7 @@ export const applyVkFriendPlan = async (context, plan) => {
           beforeIssue: async () => {
             await reserveFriendQuota(store, plan, item);
             await guard(context, plan, item, original, reserved);
-            await currentPolicy(context, plan, original);
+            await currentPolicy(context, plan, original, item);
           },
         }
       );

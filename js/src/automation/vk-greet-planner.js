@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { vkMessageRandomId } from './vk-message-random.js';
 import { loadSettings, optOutEntry } from './safety.js';
@@ -72,7 +73,7 @@ const initial = (userId, accountId, priorityIds, safety) =>
     ? 'owner'
     : priorityIds.includes(userId)
       ? 'protected'
-      : optOutEntry(safety, { source: 'vk', chat: userId })
+      : optOutEntry(safety, vkSafetyTarget(userId))
         ? 'optedOut'
         : null;
 

@@ -1,6 +1,8 @@
 /** Reviewed friend cleanup/cancellation share scheduling and relationship receipts. */
 import { createVkFriendsJob } from './vk-friends.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { loadSettings, optOutEntry } from './safety.js';
+import { vkSafetyTarget } from './vk-safety-target.js';
 import {
   maintenanceKeys,
   readVkMaintenanceSettings,
@@ -52,6 +54,7 @@ const previewMaintenance = async (context, kind) => {
   const keys = maintenanceKeys(kind);
   const settings = await readVkMaintenanceSettings(store, kind);
   const priorityIds = await protectedVkFriends(store, settings);
+  const safety = await loadSettings(store);
   const { live, options } = await provider();
   const last = await store.get(keys.state);
   const observeIds = friendObservationIds(last);
@@ -81,14 +84,16 @@ const previewMaintenance = async (context, kind) => {
       item.userId,
       item.relation
     );
-    const reason = reasonFor(
-      item,
-      source.accountId,
-      priorityIds,
-      previous,
-      remaining,
-      kind
-    );
+    const reason = optOutEntry(safety, vkSafetyTarget(item.userId))
+      ? 'optedOut'
+      : reasonFor(
+          item,
+          source.accountId,
+          priorityIds,
+          previous,
+          remaining,
+          kind
+        );
     if (reason === 'eligible') {
       remaining--;
     }
@@ -112,7 +117,7 @@ const previewMaintenance = async (context, kind) => {
   });
   return readVkMaintenance(store, kind);
 };
-const currentMaintenance = async (context, plan, original) => {
+const currentMaintenance = async (context, plan, original, item) => {
   if (
     context.isStopped() ||
     !equal(
@@ -127,9 +132,15 @@ const currentMaintenance = async (context, plan, original) => {
   ) {
     refuse('VK maintenance policy, account or consent changed; review again');
   }
+  if (
+    item &&
+    optOutEntry(await loadSettings(context.store), vkSafetyTarget(item.userId))
+  ) {
+    refuse('VK consent changed; review again');
+  }
 };
 const guardMaintenance = async (context, plan, item, original) => {
-  await currentMaintenance(context, plan, original);
+  await currentMaintenance(context, plan, original, item);
   const fresh = await original.live.maintenanceState(
     item.userId,
     original.options
@@ -143,7 +154,7 @@ const guardMaintenance = async (context, plan, item, original) => {
   ) {
     refuse('VK account, relationship or deactivation changed; review again');
   }
-  await currentMaintenance(context, plan, original);
+  await currentMaintenance(context, plan, original, item);
 };
 const applyMaintenance = async (context, plan, kind) => {
   const original = await context.provider();

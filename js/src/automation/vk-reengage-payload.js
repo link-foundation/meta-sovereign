@@ -1,11 +1,11 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { equalFriendPolicy } from './vk-friends-records.js';
 import { vkSequenceReceipt } from './vk-sequence-receipt.js';
 
 export const reengageDraft = (kind, item, index) => {
   const step = item.steps[index];
   return {
-    source: 'vk',
-    chat: String(item.userId),
+    ...vkSafetyTarget(item.userId),
     text: step.text,
     ...(step.sticker ? { sticker: { id: String(step.sticker) } } : {}),
     ...(step.audio

@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { evidenceHash } from './vk-reengage-evidence.js';
 import { refuseFriendAction } from './vk-friends-records.js';
 import { retentionPolicy, retentionLedgerId } from './vk-retention-settings.js';
@@ -52,7 +53,7 @@ export const retentionCurrent = async (state) => {
     (await evidenceHash(plan.settings)) !== plan.policyIdentity ||
     (await context.optionsFor())?.token !== original.options.token ||
     settings.priorityIds.includes(Math.abs(item.userId)) ||
-    optOutEntry(safety, { source: 'vk', chat: item.userId }) ||
+    optOutEntry(safety, vkSafetyTarget(item.userId)) ||
     (context.scheduled &&
       (!settings.enabled || quietMsLeft(context.now(), safety)))
   ) {

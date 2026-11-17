@@ -3,6 +3,14 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 VK person consent propagation (QA19/QA20 remain required):
+
+- [x] Reproduce explicit person opt-outs being ignored by independent VK previews and final provider admission; include positive foreign-provider controls.
+- [x] Carry verified private-user identity through shared safety targets and queued message drafts; preserve group/community distinctions.
+- [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged duplication gate; rebuild after 45 final parent failures and 107 focused passes across thirteen policy variants.
+- [x] Collect and independently rehash all 67 archive entries.
+- [ ] Publish the atomic correction and require exact-source hosted validation; all 35 unfinished criteria remain required.
+
 2026-11-17 manual HH login CLI admission repair:
 
 - [x] Preserve exact published Windows Node, Linux Bun and Linux Deno failure logs; reproduce the missing names and public entry-point refusal.

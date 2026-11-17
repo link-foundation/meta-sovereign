@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { createVkFriendsJob } from './vk-friends.js';
 import {
   performVkFriendAction,
@@ -49,8 +50,7 @@ const guard = async (context, plan, item, original) => {
 };
 const prompt = async (context, plan, item, original, beforeIssue) => {
   const draft = {
-    source: 'vk',
-    chat: String(item.userId),
+    ...vkSafetyTarget(item.userId),
     text: item.text,
     ...(item.sticker ? { sticker: { id: String(item.sticker) } } : {}),
     sequence: {

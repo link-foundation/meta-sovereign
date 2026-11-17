@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { evidenceHash } from './vk-reengage-evidence.js';
 import { requireVkReviewLifetime } from './vk-review-lifetime.js';
 import { discoveryPolicies } from './vk-discovery-settings.js';
@@ -44,7 +45,7 @@ export const currentDiscovery = async (
     (await context.optionsFor())?.token !== original.options.token ||
     discoveryDate(context.now()) !== plan.date ||
     priority.includes(item.userId) ||
-    optOutEntry(safety, { source: 'vk', chat: item.userId }) ||
+    optOutEntry(safety, vkSafetyTarget(item.userId)) ||
     (context.scheduled &&
       (!settings.enabled || quietMsLeft(context.now(), safety))) ||
     (await discoveryPaused(context.store, plan.accountId, context.now()))

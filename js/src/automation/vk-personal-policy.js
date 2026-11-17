@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import {
   equalFriendPolicy,
   refuseFriendAction,
@@ -52,7 +53,7 @@ export const currentVkPersonalPolicy = async (
   }
   const safety = await loadSettings(context.store);
   if (
-    optOutEntry(safety, { source: 'vk', chat: item.userId }) ||
+    optOutEntry(safety, vkSafetyTarget(item.userId)) ||
     (context.scheduled && quietMsLeft(context.now(), safety))
   ) {
     refuseFriendAction('VK consent or quiet hours changed; review again');

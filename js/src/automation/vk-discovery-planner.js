@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { discoveryPolicies } from './vk-discovery-settings.js';
 import { protectedVkFriends } from './vk-maintenance-settings.js';
@@ -24,7 +25,7 @@ const reasonFor = (plan, item, previous, safety, remaining, paused) => {
   }
   if (
     plan.priorityIds.includes(item.userId) ||
-    optOutEntry(safety, { source: 'vk', chat: item.userId })
+    optOutEntry(safety, vkSafetyTarget(item.userId))
   ) {
     return 'protected';
   }

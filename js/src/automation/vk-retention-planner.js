@@ -1,3 +1,4 @@
+import { vkSafetyTarget } from './vk-safety-target.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { evidenceHash } from './vk-reengage-evidence.js';
 import {
@@ -24,7 +25,7 @@ const candidate = async (context, plan, peer, original, safety) => {
   const item = { userId: peer, action: 'clear', messages: [], local: [] };
   if (
     plan.settings.priorityIds.includes(Math.abs(peer)) ||
-    optOutEntry(safety, { source: 'vk', chat: peer })
+    optOutEntry(safety, vkSafetyTarget(peer))
   ) {
     return { ...item, reason: 'protected' };
   }

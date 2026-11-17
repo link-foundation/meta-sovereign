@@ -890,3 +890,8 @@ or overlapping queues finish. Share serialized, recoverable queue writes across
 server and offline automation without changing model validation or send consent.
 
 Restore public CLI admission for all three controlled HH manual sign-in commands.
+
+Respect explicit person opt-outs across independent VK personal, friendship,
+maintenance, discovery and retention policies. Carry verified private-user
+identity into queued message receipts and recheck consent after provider waits,
+preserving distinct community and group targets (issue #56 QA19/QA20).
