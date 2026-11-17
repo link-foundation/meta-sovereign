@@ -3,6 +3,14 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 manual HH login CLI admission repair:
+
+- [x] Preserve exact published Windows Node, Linux Bun and Linux Deno failure logs; reproduce the missing names and public entry-point refusal.
+- [x] Register all three login commands while retaining lazy help; pass 15 focused checks including the unchanged complete command comparison.
+- [x] Finish scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve and independently verify all 24 archive entries.
+- [ ] Publish the atomic correction on the prepared branch.
+- [ ] Require fresh exact-source hosted validation and continue all 35 unfinished criteria.
+
 2026-11-17 pending draft ownership (QA20 remains required):
 
 - [x] Reproduce two failures against the published parent: delayed ordinary planning and overlapping preview queues overwrite the pending owner wording.

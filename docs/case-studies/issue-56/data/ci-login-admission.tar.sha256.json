@@ -1,0 +1,29 @@
+{
+  "archive": "ci-login-admission.tar.gz",
+  "files": {
+    "ci-logs/cli-login-admission-before.log": "4f1b1105850b89845f83d71c9739b7b86e091447386614a5972fa9c20cd36cc4",
+    "ci-logs/cli-login-admission-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cli-login-admission-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/cli-login-admission-duplication.log": "4177705d6aa0d4e0cccd816429eb44a1cf2cd6334e7cffdd02a1710387a8b220",
+    "ci-logs/cli-login-admission-focused.log": "58df4fb895a26ff0550fedf51a4162de3d15d99a08d42a550034b5fb81a293c6",
+    "ci-logs/cli-login-admission-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/cli-login-admission-format.log": "5a2f5176647a0b592d1151f54c44edc3f5f04bf876f30f21b2963fc99730b36a",
+    "ci-logs/cli-login-admission-invalid-probe.log": "ce3684787856b44b77556d53cb2e1aefa5eb542524539c197afdc95f621ff141",
+    "ci-logs/cli-login-admission-limits.log": "b44d087b3a58cb7fd6def60214b7284c5e92ab2cbf777c0d69229e44126d4524",
+    "ci-logs/cli-login-admission-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cli-login-admission-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/d517e9d4-ubuntu-bun-failed.log": "a277a9daa89fa7bec69d7923c3a703985d3aecec77d0a39d5e1fe1c80b3ab1a9",
+    "ci-logs/d517e9d4-ubuntu-deno1-failed.log": "52b689b51c5bb27014ae8dbd83190b9b7b3e433ce766a12595c2a3fc25f40671",
+    "ci-logs/d517e9d4-windows-node2-failed.log": "956f2b09e6f8d869758bc54209d227e47869459360d39aa0122975958a9e47cf",
+    "docs/case-studies/issue-56/ci-login-admission.md": "0c6249d9931d35dc48ca94606d8db32357a3064166c5329d71b251bbf22ed77a",
+    "experiments/issue-56/collect-ci-login-admission.py": "640bc89318bba60e774275121e576b4a0b17e2ad5bd9779f5c3733067f9eb843",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/src/cli/command-names.js": "89ae781dede8d629d055d7a0b9c7e68b5c9f9b92e8b52fb08b2751460e2cdafc",
+    "js/src/cli/index.js": "4faeab8b65ce0a906948beca234c33bc46f2f95377dfc451396df14bf87180e5",
+    "js/src/cli/lino-args.js": "fe45f88ff9e79b94c3f672ec0152b06e8779f8900d852a6e0f5b799873abfc47",
+    "js/tests/cli-help-imports.test.js": "83fb6e3848bdfcf35ed03b754b5c7071fd4008bffba0eb63831231591bf8851e",
+    "js/tests/jobs-manual-login-controls.test.js": "86a5cf678f06be034b08249ea908b060b349c3dd34502574ff26780c94618c85",
+    "before/js/src/cli/command-names.js": "309c5c64fadc4eb070cdd77a2fb8cb8fe0b75b008761b2332f0db0d95faab5b6",
+    "metadata.json": "2855344c2db32329b1b464ea382a2d9feabc994528bb0ebf6d64eec8ceda2fc4"
+  }
+}

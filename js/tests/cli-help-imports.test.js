@@ -53,6 +53,25 @@ test(
 );
 
 test(
+  'manual login commands reach argument validation through the public entry point',
+  { timeout: 10000 },
+  async () => {
+    for (const operation of ['open', 'status', 'close']) {
+      const output = [];
+      assert.equal(
+        await runCli([`vacancies-login-${operation}`, '--__proto__=refused'], {
+          log: (line) => output.push(line),
+        }),
+        1
+      );
+      assert.equal(output.length, 1);
+      assert.ok(output[0] !== HELP, `${operation} returned usage`);
+      assert.match(output[0], /Invalid/u);
+    }
+  }
+);
+
+test(
   'usage, aliases and unknown-command status preserve existing behavior',
   { timeout: 5000 },
   async () => {

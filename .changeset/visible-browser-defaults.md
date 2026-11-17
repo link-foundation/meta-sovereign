@@ -888,3 +888,5 @@ consistent across supported runtimes.
 Preserve pending owner drafts for every automation action when delayed planning
 or overlapping queues finish. Share serialized, recoverable queue writes across
 server and offline automation without changing model validation or send consent.
+
+Restore public CLI admission for all three controlled HH manual sign-in commands.
