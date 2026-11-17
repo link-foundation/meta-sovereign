@@ -2,9 +2,11 @@
 // automated send and whether it went out, with the unknown ones for the
 // user to settle), quiet hours and the "never message" list.
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { useLoaded } from './chat-state.js';
+import { useAcknowledgedResource } from './connections/use-acknowledged-resource.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -100,12 +102,14 @@ const OptOutForm = ({ add }) => {
     setDraft({ ...draft, [name]: event.target.value });
   const submit = async () => {
     if (draft.source.trim() && draft.chat.trim()) {
-      await add({
+      const saved = await add({
         source: draft.source.trim(),
         chat: draft.chat.trim(),
         note: draft.note.trim(),
       });
-      setDraft({ source: '', chat: '', note: '' });
+      if (saved) {
+        setDraft({ source: '', chat: '', note: '' });
+      }
     }
   };
   return el(
@@ -208,65 +212,111 @@ const QuietHours = ({ settings, save }) => {
 
 const Settings = ({ api }) => {
   const t = useT();
-  const [tick, setTick] = useState(0);
   const [saved, setSaved] = useState(false);
-  const [settings] = useLoaded(() => api.safetySettings(), [api, tick], null);
-  if (!settings) {
-    return null;
-  }
+  const pending = useRef(false);
+  const { data, busy, error, run } = useAcknowledgedResource(async () => ({
+    ok: true,
+    settings: await api.safetySettings(),
+  }));
+  const settings = data?.settings;
   const save = async (patch) => {
-    await api.saveSafetySettings({ ...settings, ...patch });
-    setSaved(true);
-    setTick((n) => n + 1);
+    if (pending.current) {
+      return false;
+    }
+    pending.current = true;
+    setSaved(false);
+    let acknowledged = false;
+    try {
+      await run(async () => {
+        const next = await api.saveSafetySettings({ ...settings, ...patch });
+        acknowledged = true;
+        return { ok: true, settings: next };
+      });
+      setSaved(acknowledged);
+      return acknowledged;
+    } finally {
+      pending.current = false;
+    }
   };
+  if (!settings) {
+    return el(
+      'p',
+      { role: error ? 'alert' : 'status' },
+      t(error ? 'safety.failed' : 'common.loading')
+    );
+  }
   const remove = (entry) =>
     save({ optOut: settings.optOut.filter((e) => e !== entry) });
   return el('section', { className: 'card automation-optout' }, [
     el('h3', { key: 'h' }, t('safety.optout.title')),
     el('p', { key: 'i', className: 'meta' }, t('safety.optout.intro')),
-    settings.optOut.length === 0
-      ? el('p', { key: 'n', className: 'meta' }, t('safety.optout.empty'))
-      : el(
-          'ul',
-          { key: 'l', className: 'optout-list' },
-          settings.optOut.map((entry) =>
-            el(
-              'li',
-              {
-                key: `${entry.source}:${entry.chat ?? entry.contact}`,
-                'data-optout': `${entry.source}:${entry.chat ?? entry.contact}`,
-              },
-              [
-                `${entry.source}:${entry.chat ?? entry.contact} `,
-                entry.note
-                  ? el('span', { key: 'n', className: 'meta' }, entry.note)
-                  : null,
+    el(
+      'fieldset',
+      {
+        key: 'controls',
+        disabled: busy,
+        className: 'col',
+        style: { border: 0, margin: 0, padding: 0, minWidth: 0 },
+      },
+      [
+        settings.optOut.length === 0
+          ? el('p', { key: 'n', className: 'meta' }, t('safety.optout.empty'))
+          : el(
+              'ul',
+              { key: 'l', className: 'optout-list' },
+              settings.optOut.map((entry) =>
                 el(
-                  'button',
+                  'li',
                   {
-                    key: 'x',
-                    type: 'button',
-                    'data-action': 'optout-remove',
-                    onClick: () => remove(entry),
+                    key: `${entry.source}:${entry.chat ?? entry.contact}`,
+                    'data-optout': `${entry.source}:${entry.chat ?? entry.contact}`,
                   },
-                  t('safety.optout.remove')
-                ),
-              ]
-            )
-          )
-        ),
-    el(OptOutForm, {
-      key: 'f',
-      add: (entry) =>
-        save({
-          optOut: [
-            ...settings.optOut,
-            { ...entry, at: new Date().toISOString() },
-          ],
+                  [
+                    `${entry.source}:${entry.chat ?? entry.contact} `,
+                    entry.note
+                      ? el('span', { key: 'n', className: 'meta' }, entry.note)
+                      : null,
+                    el(
+                      'button',
+                      {
+                        key: 'x',
+                        type: 'button',
+                        'data-action': 'optout-remove',
+                        onClick: () => remove(entry),
+                      },
+                      t('safety.optout.remove')
+                    ),
+                  ]
+                )
+              )
+            ),
+        el(OptOutForm, {
+          key: 'f',
+          add: (entry) =>
+            save({
+              optOut: [
+                ...settings.optOut,
+                { ...entry, at: new Date().toISOString() },
+              ],
+            }),
         }),
-    }),
-    el(QuietHours, { key: 'q', settings, save }),
-    saved ? el('p', { key: 's', className: 'meta' }, t('safety.saved')) : null,
+        el(QuietHours, { key: 'q', settings, save }),
+      ]
+    ),
+    busy ? el(Busy, { key: 'busy' }, t('common.loading')) : null,
+    error ? el('p', { key: 'error', role: 'alert' }, t('safety.failed')) : null,
+    saved
+      ? el(
+          'p',
+          {
+            key: 's',
+            className: 'meta',
+            role: 'status',
+            'data-safety-saved': true,
+          },
+          t('safety.saved')
+        )
+      : null,
   ]);
 };
 

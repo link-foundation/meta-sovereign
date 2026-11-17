@@ -413,6 +413,8 @@ export const enChatAccount = {
   'safety.quiet.zone': 'Time zone (empty: this computer)',
   'safety.quiet.save': 'Save',
   'safety.saved': 'Saved',
+  'safety.failed':
+    'Settings were not confirmed. Your changes have not been marked as saved.',
   'email.pull.button': 'Fetch mail now',
   'email.pull.working': 'Fetching mail…',
   'email.pull.done': 'Fetched {count} new messages',

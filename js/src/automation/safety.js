@@ -9,6 +9,9 @@
  * so the browser can plan with it too.
  */
 
+import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
+import { createStoreQueue } from '../storage/serialized.js';
+
 export const SETTINGS_ID = 'automation-settings:global';
 
 /** Night hours in the user's own timezone: nothing is sent by itself. */
@@ -98,18 +101,27 @@ export const normalizeSettings = (input = {}) => {
   };
 };
 
-export const loadSettings = async (store) =>
-  normalizeSettings((await store?.get?.(SETTINGS_ID)) ?? {});
+const serializeSettings = createStoreQueue();
 
-export const saveSettings = async (store, input) => {
+// Readers, including final send guards, wait for acknowledgement or rollback.
+export const loadSettings = (store) =>
+  store
+    ? serializeSettings(store, async () =>
+        normalizeSettings((await store.get(SETTINGS_ID)) ?? {})
+      )
+    : Promise.resolve(normalizeSettings());
+
+export const saveSettings = (store, input) => {
   const settings = normalizeSettings(input);
-  await store.put({
-    id: SETTINGS_ID,
-    tokens: ['automation-settings', 'global'],
-    ...settings,
-    updatedAt: new Date().toISOString(),
+  return serializeSettings(store, async () => {
+    await saveAcknowledgedRecord(store, {
+      id: SETTINGS_ID,
+      tokens: ['automation-settings', 'global'],
+      ...settings,
+      updatedAt: new Date().toISOString(),
+    });
+    return settings;
   });
-  return settings;
 };
 
 /** The opt-out entry covering this chat or person, or null. */

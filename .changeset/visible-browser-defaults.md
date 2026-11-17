@@ -862,3 +862,8 @@ profile through CLI, protected Lino routes and four-language controls. Leave
 login and CAPTCHA input to the owner, retain unverified authentication and
 recover status without reopening or replaying a request. Drain owned browsers
 before acknowledging Close, Stop or shutdown (issue #56 HH01).
+
+Await acknowledged automation safeguard persistence before send guards read it.
+Keep connected save refusals and lost responses visible, retain owner drafts and
+opt-outs, and recover through reads without repeating uncertain writes (issue #56
+QA19/QA20).

@@ -416,6 +416,8 @@ export const hiChatAccount = {
   'safety.quiet.zone': 'समय क्षेत्र (खाली: इस कंप्यूटर का)',
   'safety.quiet.save': 'सहेजें',
   'safety.saved': 'सहेजा गया',
+  'safety.failed':
+    'सेटिंग की पुष्टि नहीं हुई। आपके बदलाव सहेजे गए नहीं माने गए हैं।',
   'email.pull.button': 'अभी मेल लाएँ',
   'email.pull.working': 'मेल लाया जा रहा है…',
   'email.pull.done': '{count} नए संदेश मिले',

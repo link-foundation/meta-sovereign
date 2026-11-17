@@ -438,6 +438,8 @@ export const ruChatAccount = {
   'safety.quiet.zone': 'Часовой пояс (пусто: как на этом компьютере)',
   'safety.quiet.save': 'Сохранить',
   'safety.saved': 'Сохранено',
+  'safety.failed':
+    'Сохранение настроек не подтверждено. Изменения не отмечены как сохранённые.',
   'email.pull.button': 'Получить почту',
   'email.pull.working': 'Получаем почту…',
   'email.pull.done': 'Получено новых писем: {count}',

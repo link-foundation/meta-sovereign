@@ -19,7 +19,7 @@ import {
   normalizeAutomation,
   planAutomation,
 } from '../automation/automations.js';
-import { SETTINGS_ID, normalizeSettings } from '../automation/safety.js';
+import { safetySettingsApi } from './safety-settings-api.js';
 import {
   draftOperations,
   loadAutomation,
@@ -274,19 +274,7 @@ const automationCalls = ({ remote, store, local }) => ({
           decision,
         })) ?? SERVER_REQUIRED
     ),
-  /** Quiet hours, time zone and the opt-out list. */
-  safetySettings: async () =>
-    (await remote.get('/api/automations/settings')) ??
-    normalizeSettings((await store.get(SETTINGS_ID)) ?? {}),
-  saveSafetySettings: async (settings) => {
-    const saved = normalizeSettings(settings);
-    await store.put({
-      id: SETTINGS_ID,
-      tokens: ['automation-settings', 'global'],
-      ...saved,
-    });
-    return (await remote.put('/api/automations/settings', saved)) ?? saved;
-  },
+  ...safetySettingsApi({ remote, store }),
   automationHistory: async ({ automation } = {}) =>
     (
       await remote.get(

@@ -376,6 +376,7 @@ export const zhChatAccount = {
   'safety.quiet.zone': '时区（留空：本机时区）',
   'safety.quiet.save': '保存',
   'safety.saved': '已保存',
+  'safety.failed': '设置尚未确认。您的更改尚未标记为已保存。',
   'email.pull.button': '立即收取邮件',
   'email.pull.working': '正在收取邮件…',
   'email.pull.done': '已收取 {count} 封新邮件',

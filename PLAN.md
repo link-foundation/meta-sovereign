@@ -675,3 +675,12 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass scoped lint, formatting, secrets, source limits and the unchanged duplication gate (6.49%); preserve 110 source-bound evidence entries.
 - [ ] Publish atomic changes and verify exact-source CI.
 - [ ] Inspect all exact-head workflows and finish the complete HH01 contract. All 36 original unchecked criteria remain unfinished; PR57 stays draft and unmerged.
+
+2026-11-17 acknowledged automation safeguards (QA19/QA20):
+
+- [x] Reproduce four storage/guard failures and five web failures at exact parent 62e7c474, including a false Saved message after a real HTTP refusal.
+- [x] Queue reads behind acknowledged persistence/rollback; require matching connected receipts and retain pending controls, owner drafts and truthful translated errors without automatic write replay.
+- [x] Pass 46 focused checks and actual native/MCP before/after verification with three deliberate PUTs, no page exceptions, no provider sends and drained fixtures. Inspect desktop and phone screenshots.
+- [x] Pass scoped lint, formatting, secrets and source limits; retain the unchanged 6.49% duplication result and 80 source-bound archive entries.
+- [ ] Commit the atomic correction and publish only to the prepared branch.
+- [ ] Verify all exact-head hosted checks and complete full QA19/QA20 mapping. The 36 unchecked original criteria remain unfinished; PR57 stays draft and unmerged.
