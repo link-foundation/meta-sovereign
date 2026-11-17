@@ -1533,3 +1533,9 @@ Salary option final local gates pass: 29 focused checks, native select/radio rea
 - [ ] Pass scoped static gates, archive source-bound evidence, commit/push and inspect exact-head hosted workflows. All original unchecked criteria remain required; PR57 stays draft and unmerged.
 
 Salary clarification local verification passes: five exact-parent failures, 26 focused checks, native zero-send draft readback, owner-draft refusal and independent MCP with drained resources. Strict scoped lint, format, secrets, the generated web bundle and unchanged duplication gate pass. The checked archive retains all three exact parent modules, three pinned reference blobs and both screenshots. Publishing and exact-source hosted acceptance remain required; no original inventory criterion is accepted from this unit alone.
+Active repeated-answer and current CI verification:
+
+- [x] Replay the pinned repeated-question requirement against actual parent `9636107f`; five of six focused checks fail. Add a shared review hold, consistent archived owner identity and fresh dispatch refusal without changing knowledge counts.
+- [x] Verify six focused Node/Deno checks, 26 Node compatibility checks, native before/after screenshots and independent MCP review with zero choices/sends and drained resources. Preserve existing diagnostic warnings accurately.
+- [x] Preserve the macOS Deno deadline cancellation and verify six finite native partitions through the existing configuration and failure-propagation tests; keep the ten-minute deadline and every test/runtime/OS.
+- [ ] Resolve the actual `8c2260b6` WebKit question-disclosure failure, publish atomic corrections and verify every current-head hosted workflow. Continue all forty unchecked original requirements; PR57 remains draft and unmerged.

@@ -14,7 +14,7 @@ const pending = (message) =>
   message.pending ||
   message.failed ||
   ['unknown', 'failed', 'pending'].includes(message.delivery ?? message.status);
-const outgoing = (message, owners) =>
+export const outgoingQuestionMessage = (message, owners = ['me']) =>
   owners.includes(String(message.sender)) ||
   message.out === true ||
   message.outgoing === true;
@@ -53,7 +53,7 @@ const latestChoiceState = (latest) => {
 const unansweredMessages = (messages, owners) => {
   const unanswered = [];
   for (const message of messages.toReversed()) {
-    if (outgoing(message, owners) || message.service) {
+    if (outgoingQuestionMessage(message, owners) || message.service) {
       break;
     }
     if (
@@ -82,7 +82,7 @@ export const chatQuestionTurn = (input, ownerIds = []) => {
   }
   const messages = input.toSorted(historyOrder);
   const latest = messages.at(-1);
-  if (!latest || outgoing(latest, owners)) {
+  if (!latest || outgoingQuestionMessage(latest, owners)) {
     return { reason: 'question-already-answered' };
   }
   if (!usableLatest(latest)) {

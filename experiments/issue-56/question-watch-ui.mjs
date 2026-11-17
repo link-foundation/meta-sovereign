@@ -12,6 +12,8 @@ try {
     JSON.stringify(
       await verifyQuestionBrowserWatch(browser, {
         before,
+        repeatOnly: process.argv.includes('--repeat-only'),
+        repeatBefore: process.argv.includes('--repeat-before'),
         screenshots: process.argv.includes('--no-screenshots')
           ? undefined
           : `docs/screenshots/issue-56-question-watch/${before ? 'before' : 'after'}`,

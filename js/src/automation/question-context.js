@@ -3,6 +3,7 @@
 import { asksQuestion, questionKey } from './question-match.js';
 import { historyOrder } from '../replies/history-order.js';
 import { normalizeAnswerProfile, PROFILE_KEY } from './question-profile.js';
+import { outgoingQuestionMessage } from './question-chat-turn.js';
 
 const identifier = (value) =>
   typeof value === 'string' && PROFILE_KEY.test(value);
@@ -217,7 +218,7 @@ export const resolveAnswerContexts = (question, options) => {
 
 // Actual archived turns are newest first, with barriers kept before filtering.
 // No history text is included in diagnostic traces, only message identifiers.
-export const answerEnvironmentFromMessages = (messages, latest) => {
+export const answerEnvironmentFromMessages = (messages, latest, owners) => {
   const at = Date.parse(latest.timestamp);
   const sorted = messages
     .filter(
@@ -249,7 +250,7 @@ export const answerEnvironmentFromMessages = (messages, latest) => {
     recent.push({
       text: message.body,
       evidence: message.id,
-      ...(message.outgoing ? { outgoing: true } : {}),
+      ...(outgoingQuestionMessage(message, owners) ? { outgoing: true } : {}),
     });
   }
   // Provider adapters may attach context only from this turn's actual vacancy.

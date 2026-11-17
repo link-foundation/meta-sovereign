@@ -673,7 +673,7 @@ const answerDraft = (
     acceptedSummaries,
     policy: answerPolicy,
     ...chatAnswerAction(automation.action),
-    ...answerEnvironmentFromMessages(messages, latest),
+    ...answerEnvironmentFromMessages(messages, latest, turn.owners),
     source: candidate.source,
     chat: String(candidate.chat),
     options: latest.answerOptions,

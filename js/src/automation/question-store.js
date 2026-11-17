@@ -311,7 +311,11 @@ export const readChatAnswerInput = async (store, automation, draft) => {
       ...chatAnswerAction(automation.action),
       question: selected.question,
       pendingMessages: selected.pendingMessages,
-      ...answerEnvironmentFromMessages(history.values(), latest),
+      ...answerEnvironmentFromMessages(
+        history.values(),
+        latest,
+        selected.turn.owners
+      ),
       source: draft.source,
       chat: String(draft.chat),
       options: latest.answerOptions,

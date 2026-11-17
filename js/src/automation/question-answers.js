@@ -23,6 +23,7 @@ import {
 import { applyAcceptedSummaryChoice } from './question-summary-choice.js';
 import { completedAnswerSummary } from './question-summary.js';
 import { planPendingMessages } from './question-pending-plan.js';
+import { holdRepeatedAnswer } from './question-repetition.js';
 import { questionLinkReview } from './question-link-review.js';
 import {
   matchNotice,
@@ -510,6 +511,7 @@ export const planAnswer = (question, options = {}) => {
     applyAnswerChoices(result, choices),
     choices
   );
+  result = holdRepeatedAnswer(question, result, context);
   return {
     ...result,
     question,

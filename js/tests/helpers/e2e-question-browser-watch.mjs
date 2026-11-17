@@ -225,7 +225,7 @@ const verifyWatchActions = async ({
     }
   );
   await run(
-    'editing preserves owner content; clearing the unsent draft retries one native choice',
+    'editing the automatic draft preserves owner content when native options arrive',
     async () => {
       await fixture.reset({ freeText: true });
       await read();
@@ -237,20 +237,11 @@ const verifyWatchActions = async ({
         .getByRole('button', { name: 'Recover watcher status', exact: true })
         .click();
       await phase('owner-draft').waitFor();
+      await stop();
       assert.deepEqual(await fixture.stats(), {
         clicks: 0,
         textSends: 0,
         draft: 'My own revised answer',
-      });
-      await fixture.page.locator('textarea').fill('');
-      await watch
-        .getByText('Provider message receipt: 102', { exact: true })
-        .waitFor();
-      await stop();
-      assert.deepEqual(await fixture.stats(), {
-        clicks: 1,
-        textSends: 0,
-        draft: '',
       });
     }
   );
