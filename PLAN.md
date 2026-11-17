@@ -3,6 +3,17 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 native option clear/retry coverage (QA14):
+
+- [x] Read the pinned delayed-option, draft-clear/retry and generic-chip contract;
+      inspect shared draft ownership, watch polling and native choice receipts.
+- [x] Add the missing same-watcher owner-clear regression; pass all seventeen
+      focused watch checks with one worker and bounded polling.
+- [x] Verify all five isolated native scenarios with no page errors; preserve
+      edited owner text before clearing, one native receipt after and zero text sends.
+- [ ] Complete the QA14 source mapping and exact-source hosted verification;
+      all forty original unchecked criteria remain required.
+
 2026-11-17 unread model direction assertion:
 
 - [x] Preserve exact 0041b2a8 Deno/Bun failures and reproduce the old expected

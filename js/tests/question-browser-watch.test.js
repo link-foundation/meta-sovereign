@@ -156,6 +156,26 @@ test('owner drafts and unapproved/approximate answers never cause an automatic a
   }
 });
 
+test('clearing an unsent owner draft retries the same question once without restarting', async () => {
+  const env = await questionWatchFixture();
+  env.state.snapshot.hasDraft = true;
+  env.input.review = (await env.browser.inspect(env.review.target)).id;
+  try {
+    await env.browser.watchStart(env.input);
+    await env.until((s) => s.phase === 'owner-draft');
+    assert.equal(env.state.sends.length, 0);
+    env.state.snapshot.hasDraft = false;
+    const sent = await env.until((s) => s.phase === 'sent');
+    assert.equal(sent.outbox.receipt.messageId, '102');
+    await delay(20);
+    assert.equal(env.state.opens, 1);
+    assert.equal(env.state.sends.length, 1);
+    assert.equal(env.state.prefills.length, 0);
+  } finally {
+    await env.browser.close();
+  }
+});
+
 test('a new incoming question can use one accepted summary; conflicts stay manual', async () => {
   const env = await questionWatchFixture();
   await env.store.delete('qa-rule:experience');

@@ -12,7 +12,9 @@ try {
     JSON.stringify(
       await verifyQuestionBrowserWatch(browser, {
         before,
-        screenshots: `docs/screenshots/issue-56-question-watch/${before ? 'before' : 'after'}`,
+        screenshots: process.argv.includes('--no-screenshots')
+          ? undefined
+          : `docs/screenshots/issue-56-question-watch/${before ? 'before' : 'after'}`,
       })
     )
   );
