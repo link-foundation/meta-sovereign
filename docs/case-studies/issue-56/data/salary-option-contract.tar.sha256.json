@@ -30,9 +30,8 @@
     "docs/screenshots/issue-56-salary-options-after.png": "1d8c3c3278499e453b2fa8373dc35d4ceef99a61ae1ffd8f5924b36c7098241c",
     "docs/screenshots/issue-56-salary-options-before.png": "b49fa69bd78cc5114ce784af46116c4ebb8aef4d390b4c38c42865dfbf9af5de",
     "docs/screenshots/issue-56-salary-options-mcp.png": "53670a7c6db185d2e4966cc71170fd798ab00063fed86e1f0c113ac1f1634694",
-    "experiments/issue-56/__pycache__/collect-salary-options.cpython-315.pyc": "a36721d9e5c8205bf699a70ad18cba0f9040a0fc34ff4e54ce8193bd3b8bb224",
     "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
-    "experiments/issue-56/collect-salary-options.py": "842939404d4151f0b923896c5b1e24e2ecb40b201440eff04476391f71e1164b",
+    "experiments/issue-56/collect-salary-options.py": "e53c0bebc6a934bf2414ab30ec88ddafe76fd02267c9dab18a53a2b132cc7a9b",
     "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
     "experiments/issue-56/forms-reader-fixture.mjs": "82e48fb3571304c41c46f1e378e5fd8a1d5f8a8251ff0affaef5ccc2d9823f3a",
     "experiments/issue-56/salary-option-fixture.mjs": "0955eea69b44b1f45c9e8c6cb3d20558c5fb247bc34183779485431bdbb3b42a",
@@ -45,6 +44,6 @@
     "js/tests/helpers/question-surfaces.mjs": "343c7f2b216ae4eb17d1d72ef8b60619e2469854de87aef80f81005f506ef77a",
     "js/tests/salary-both-controls.test.js": "d6fcd364b62a4122a03863446c74ee962bcac2e6c4023fcf63e20697d864e94d",
     "js/tests/salary-option-contract.test.js": "ff29f9605db98d1a606ebe0b92eb161226bc8b78bb6afc6ea7dc2434ef759c6c",
-    "metadata.json": "dda5e3f2de50ed973ffbdb2fa2ed3cf97191d803ea8dc4349028fe0d0ce1ad70"
+    "metadata.json": "76b886e9a5f5374f6c88db2ffe1704f1f486a0d3955271b20e94f911366ba6c7"
   }
 }

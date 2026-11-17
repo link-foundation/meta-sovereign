@@ -35,7 +35,7 @@ server = json.loads(read('mcp-server').splitlines()[-1])
 assert server['submissions'] == 0 and len(server['reads']) == 1
 record = server['reads'][0]
 assert record['closed'] and record['events'] == ['input', 'change', 'click', 'input', 'change']
-sources = evidence['changed_sources'](root)
+sources = evidence['changed_sources'](root, '640de38b')
 before = dict.fromkeys([
     'js/src/automation/question-salary.js', 'js/src/automation/salary-options.js',
 ], '640de38b')
