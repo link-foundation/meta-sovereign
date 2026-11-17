@@ -47,15 +47,16 @@ amounts are never converted implicitly.
 
 ## Evidence integrity and later source changes
 
-`experiments/issue-56/salary-band-evidence.json` selects the ten completed
-implementation archives. At `ddd08a57`, all 598 entries and their manifests
-verify without extraction. Twelve archive/source records differ from their
+`experiments/issue-56/salary-band-evidence.json` selects eleven completed
+implementation archives. At `9c9c1fc4`, all 660 entries and their manifests
+verify without extraction. Thirteen archive/source records differ from their
 original production bytes across three files: `question-salary.js`,
-`salary-question.js` and `salary-options.js`. The complete 1,402-line delta was
+`salary-question.js` and `salary-options.js`. The complete 1,539-line delta was
 read. It consists of the subsequent recorded salary corrections: independent
 basis resolution, saved wording and amount guards, explicit ranges and scales,
 whole-decision currency refusal, each target's overlap check, configured
-currency vocabulary, choice currency precedence and the saved baseline.
+currency vocabulary, choice currency precedence, the saved baseline and unique
+per-basis nearest agreement for explicitly reviewed form proposals.
 No removed feature was found in that comparison. Archive integrity does not
 replace current-source tests or the original behavior mapping.
 
@@ -89,7 +90,8 @@ stress test or full browser/runtime matrix is required by these audit commands.
 
 ## Pending acceptance
 
-- Complete the newly found dual-basis nearest-band correction and evidence.
+- The [dual-basis nearest correction](salary-nearest-bases.md) and checked local
+  evidence are committed; require their exact-source hosted receipts.
 - Verify the complete source comparison and semantic receipts for the final
   published source, including all five successful workflows.
 - Update QA15 only after its entire contract is verified. Continue every other
