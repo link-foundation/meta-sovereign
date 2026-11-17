@@ -263,3 +263,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass 34 focused checks with one worker; native and independent MCP prefill preserve owner drafts and zero sends. Inspect valid before/after screenshots and consolidate repeated persisted-preview setup without losing assertions.
 - [ ] Preserve source-bound evidence, commit the atomic correction and inspect all five exact-head hosted workflows.
 - [ ] Complete every original salary and other unchecked criterion. No row is accepted by this partial correction; PR57 remains draft and unmerged.
+
+2026-11-17 contextual personal salary templates (partial QA12):
+
+- [x] Reproduce six exact-parent failures for requested currency substitution, vacancy precedence, owner tax labels, review guards and stored CLI/Lino previews.
+- [x] Preserve personal wording while resolving every pay alias against the recognized current context; keep missing, stale, incompatible and unapproved values under review.
+- [x] Pass 33 focused tests, native before/after readback, a compatibility scenario and independent MCP with zero sends; drain owned fixtures and inspect valid screenshots.
+- [ ] Preserve the source-bound archive, publish the atomic correction and inspect exact-head hosted workflows.
+- [ ] Complete every original unchecked requirement. All 40 remain required; PR57 remains draft and unmerged.

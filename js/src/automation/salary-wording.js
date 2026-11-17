@@ -74,10 +74,7 @@ const renderedWording = (answer, environment, policy) => {
     payField,
     (_, basis, hourly) => `{{salary_${basis}${hourly ?? ''}}}`
   );
-  const rendered = renderAnswer(
-    template.replaceAll('{{salary_tax}}', 'налогов'),
-    environment.profile
-  );
+  const rendered = renderAnswer(template, environment.profile);
   return rendered.missing.length ||
     rejectedAnswer(answer.text, policy) ||
     rejectedAnswer(rendered.text, policy)

@@ -130,7 +130,7 @@ test('learning configured substitutions remains reviewable and repeatable', asyn
   assert.equal(second.rules[0].answers[0].count, 1);
 });
 
-test('generic salary placeholders follow question context and explicit mismatches need review', async () => {
+test('generic and currency-specific salary placeholders follow the question context', async () => {
   const store = createMemoryStore();
   const question = 'What salary in EUR do you expect?';
   await saveAnswerRule(
@@ -145,8 +145,9 @@ test('generic salary placeholders follow question context and explicit mismatche
     rule('I expect {{salary_net_usd}}, negotiable.', question)
   );
   const mismatch = await previewAnswer(store, { question, salary });
-  assert.equal(mismatch.requiresReview, true);
-  assert.equal(mismatch.salaryTemplates.contextMismatch, true);
+  assert.equal(mismatch.text, 'I expect 5 500 €, negotiable.');
+  assert.equal(mismatch.requiresReview, false);
+  assert.equal(mismatch.salaryTemplates.contextMismatch, false);
 });
 
 test('stale calculated salary placeholders cannot inherit supplied profile estimates', async () => {

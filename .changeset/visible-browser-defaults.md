@@ -770,3 +770,8 @@ Recognize ordinary expected-income and salary-range requests, gross/net aliases
 and explicit hourly abbreviations across shared salary planning (issue #56
 QA12/QA13). Preserve unsupported periods, current-pay/offer exclusions and bounded
 related-topic clarification; retain owner drafts and unchanged saved observations.
+
+Resolve currency-specific placeholders in approved personal salary answers against
+the requested current currency while retaining owner wording and explicit tax
+labels. Preserve independent amounts and review guards for missing values, stale
+numbers, incompatible basis, periods and unapproved configuration (issue #56 QA12).

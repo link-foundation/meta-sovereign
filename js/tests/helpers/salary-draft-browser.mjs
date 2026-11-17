@@ -55,10 +55,13 @@ export const verifySalaryDraft = async (browser, scenario) => {
       draft: 'Keep my own answer',
     });
     assert.deepEqual(await savedRules(), before);
+    const salary =
+      inspected.body.plan.salary ??
+      inspected.body.plan.salaryTemplates.fields[0];
     return {
       draft: result.draft,
-      currency: inspected.body.plan.salary.currency,
-      basis: inspected.body.plan.salary.basis,
+      currency: salary.currency,
+      basis: salary.basis,
       textSends: 0,
       ownerDraftPreserved: true,
       rulesPreserved: true,
