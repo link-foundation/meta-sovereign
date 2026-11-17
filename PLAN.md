@@ -317,3 +317,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve exact 4fefd254 Windows job 133788790554 log; lines 2977–2992 show 21.6s snapshot staging before attempting an occupied listener; lines 3918–3925 cancel the existing 30s test.
 - [x] Claim the initial rolling listener before package preparation; retain upgrade behavior and cleanup, with four focused checks and three parent failures.
 - [ ] Publish this atomic startup repair and verify exact-head Windows and all other workflow jobs. Forty original criteria remain unchecked; PR57 stays draft and unmerged.
+
+2026-11-17 application browser registration correction:
+
+- [x] Publish busy-port repair as 086a6eb1 with 35 verified evidence files.
+- [x] Preserve exact 811b03a0 contract failure: a fifth native scenario exceeded the unchanged four-per-entry bound.
+- [x] Move salary admission into the existing answer/context group; require it exactly once and retain every other scenario, engine, shard and deadline. Three focused contracts pass.
+- [ ] Publish the registration correction and inspect all exact-head workflows. Continue all 40 original unchecked criteria; PR57 stays draft and unmerged.
