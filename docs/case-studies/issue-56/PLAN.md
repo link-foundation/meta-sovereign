@@ -1,3 +1,10 @@
+Active macOS runtime checkout repair:
+
+- [x] Preserve exact-source `06953e31` Node partition 3 cancellation and setup timestamps. Checkout takes 147 seconds; setup leaves less than four minutes for tests, with no assertion failure in the log.
+- [x] Exclude only the three archived-evidence directories from runtime worktrees while preserving full history, actual source/fixtures/docs, every partition and the existing deadline. Verify official checkout sequencing and the complete fresh-base merge in a bounded fixture.
+- [x] The published workflow fails the new contract; both focused Node/Deno checks pass after correction, including changed archive retrieval without materialization.
+- [ ] Preserve checked evidence, publish and inspect exact-head hosted completion. All forty original unfinished criteria remain required in PR57.
+
 Active salary browser CI grouping repair:
 
 - [x] Preserve exact-source `06953e31` WebKit partition 2. All four native question controls and two salary scenarios pass before the aggregate three-minute deadline interrupts vocabulary; six completed scenarios account for 176 seconds. No individual vocabulary hang is established.
@@ -10,6 +17,7 @@ Active current-source acceptance audit (`06953e31`):
 - [x] Refresh issue and all three PR feedback endpoints; retain the complete original scope and all 40 unfinished criteria.
 - [x] Map the complete QA12/QA14/QA15 salary/context/native-choice contracts to current production source and mandatory portable/native coverage. Retain historical source differences and original failures.
 - [x] Map VD09's complete packaging/installation contract; inspect all five current native launch receipts, both Mac bundle/image signatures and bounded checksum/provenance metadata. Validate the shared metadata reader against historical/current artifacts; 25 named portable desktop checks and the existing 88 option-choice checks appear exactly once in the current successful Node log.
+- [x] Map QA13's complete current-target/calculation/rate/form-guidance contract and retain its unfinished provider discovery/submission paths. Verify nine archives and 94 named current-source checks; require six native receipts plus complete groups in both engines without treating isolated arithmetic as full provider coverage.
 - [ ] Require all five complete successful workflows for the same published source. Preserve actual failures and fix their causes if any; queued jobs are unfinished verification.
 - [ ] Run checked collectors, read semantic receipts, update only fully verified inventory criteria and preserve the draft PR. Continue every remaining original requirement in this single PR.
 

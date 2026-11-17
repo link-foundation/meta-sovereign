@@ -327,8 +327,8 @@ jobs:
       cancel-in-progress: true
     name: Test (${{ matrix.runtime }} on ${{ matrix.os }}${{ matrix.shard && format(', shard {0}', matrix.shard) || '' }})
     runs-on: ${{ matrix.runner || matrix.os }}
-    # Retain the 10min deadline. Cold macOS setup must not fetch unused
-    # historical blobs; retain eight Node shards and three Windows shards.
+    # Retain the 10min deadline. Cold setup must not materialize archived
+    # evidence; retain eight Node shards and three Windows shards.
     # Native runtime sharding keeps every test without adding local parallelism.
     timeout-minutes: 10
     needs:
@@ -452,6 +452,14 @@ jobs:
           # tree blobs on demand instead of every historical evidence bundle.
           fetch-depth: 0
           filter: blob:none
+          # Runtime tests use source, fixtures and Markdown documentation.
+          # Keep archived evidence in Git without downloading its worktree.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/case-studies/issue-56/data/
+            !/docs/screenshots/
+            !/dev/log/
 
       - name: Simulate fresh merge with base branch (PR only)
         if: github.event_name == 'pull_request'
