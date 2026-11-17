@@ -87,7 +87,7 @@ export const salaryPeriod = (text) => {
     return 'unsupported';
   }
   const hour =
-    /\bhour(?:ly)?\b|\/(?:h|hrs?)\b|почасов|часов\S*\s+ставк|(?:в|за)\s+час|\/\s*ч(?:ас)?(?!\p{L})/iu.test(
+    /\bhour(?:ly)?\b|\/(?:h|hrs?)\b|почасов|часов\p{L}{0,32}\s+ставк|(?:в|за)\s+час|\/\s*ч(?:ас)?(?!\p{L})/iu.test(
       text
     );
   const month = /\bmonth(?:ly)?\b|в\s+месяц|ежемесяч/iu.test(text);

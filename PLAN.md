@@ -3,6 +3,16 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 current follow-up:
+
+- [x] Preserve the exact 51047939 CodeQL failure and SARIF; bound the Russian
+      hourly inflection and verify the published-parent regression plus seven focused checks.
+- [ ] Publish the security correction and require fresh hosted CodeQL verification.
+- [ ] Complete salary-tier discovery, full application gates and recovery parity;
+      preserve parent regressions, CLI/Lino and native/MCP browser evidence.
+- [ ] Complete all 40 remaining original criteria. No diagnostic or partial
+      salary-tier implementation accepts an inventory row.
+
 - [x] Read the complete issue, pinned references and all three PR comment types.
 - [x] Reproduce and correct form questionnaire contact/line-boundary loss.
 - [x] Reproduce and implement existing saved-questionnaire indexing and explicit
