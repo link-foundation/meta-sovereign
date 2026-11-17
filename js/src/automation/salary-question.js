@@ -70,7 +70,9 @@ export const unknownSalaryCurrency = (text, config) => {
   const codes = [...text.matchAll(/\b[A-Z]{3,10}\b/gu)].map(([word]) => word);
   codes.push(
     ...[
-      ...text.matchAll(/\b(?:gbp|cad|aud|chf|jpy|cny|inr|usdt|btc|eth)\b/giu),
+      ...text.matchAll(
+        /\b(?:usd|eur|rub|gbp|cad|aud|chf|jpy|cny|inr|usdt|btc|eth)\b/giu
+      ),
     ].map(([word]) => word.toUpperCase())
   );
   return codes.some(

@@ -93,7 +93,7 @@ const currentFixtureHtml = (mode, noticePolicies) =>
   ).replaceAll(
     'message-101',
     `message-${mode.id}`
-  )}<script>mountChoices(['Yes','No']);fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.question ? `document.querySelector('#history p').textContent=${JSON.stringify(mode.question)};` : ''}${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`;
+  )}<script>mountChoices(${JSON.stringify(mode.options ?? ['Yes', 'No'])});fixture.receipt=${JSON.stringify(mode.receipt ?? 'normal')};document.querySelector('textarea').value=${JSON.stringify(mode.draft ?? '')};${mode.question ? `document.querySelector('#history p').textContent=${JSON.stringify(mode.question)};` : ''}${mode.freeText ? "document.querySelector('#choices').replaceChildren();document.querySelector('#choices').className='';" : ''}</script>`;
 
 const observeBrowserFixture = ({
   commander,

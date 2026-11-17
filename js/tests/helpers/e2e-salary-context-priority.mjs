@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { verifySalaryDraft } from './salary-draft-browser.mjs';
+import { configureSalaryPreview } from './salary-preview-controls.mjs';
 import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
 import {
   openQuestionPreview,
@@ -32,41 +33,13 @@ const verifyPriorityControl = async (browser) => {
     );
     await page.goto(`${fixture.base}/#/automation`);
     const { preview } = await openQuestionPreview(page);
-    const controls = preview.locator('[data-answer-salary]');
-    await openQuestionDisclosure(controls);
-    await controls
-      .getByRole('checkbox', {
-        name: 'Use configured salary targets',
-        exact: true,
-      })
-      .check();
-    await controls
-      .getByRole('checkbox', {
-        name: 'Approve complete salary answers for automatic sending',
-        exact: true,
-      })
-      .check();
-    const entries = [
-      salary.currencies.find((entry) => entry.code === 'USD'),
-      salary.currencies.at(-1),
-    ];
-    for (const [index, entry] of entries.entries()) {
-      if (index) {
-        await controls
-          .getByRole('button', { name: 'Add salary currency', exact: true })
-          .click();
-      }
-      const fields = controls.locator('[data-salary-currency]').nth(index);
-      await fields
-        .getByLabel('Currency code, e.g. USD', { exact: true })
-        .fill(entry.code);
-      await fields
-        .getByLabel('Currency words, comma-separated', { exact: true })
-        .fill(entry.keywords.join(', '));
-      await fields
-        .getByLabel('Monthly net amount', { exact: true })
-        .fill(String(entry.net));
-    }
+    const controls = await configureSalaryPreview(preview, {
+      ...salary,
+      currencies: [
+        salary.currencies.find((entry) => entry.code === 'USD'),
+        salary.currencies.at(-1),
+      ],
+    });
     const environment = preview.locator('[data-answer-environment]');
     await openQuestionDisclosure(environment);
     await environment

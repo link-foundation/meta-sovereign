@@ -101,6 +101,8 @@ export const questionBrowserUi = async (
     },
     status: (value) =>
       controls.locator(`[data-browser-answer-status="${value}"]`),
+    expectStats: async (expected) =>
+      assert.deepEqual(await fixture.stats(), expected),
     run: async (name, work) => {
       await work();
       cases++;

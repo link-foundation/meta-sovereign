@@ -369,3 +369,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce the five-scenario contract failure; retain all five scenarios exactly once across separate read and discovery groups, both engines, existing partitions and unchanged deadlines. Pass 26 focused contracts.
 - [x] Run the new native entry once on installed Chromium: both scenarios pass with closed resources and zero provider clicks.
 - [ ] Publish source-bound evidence and inspect every exact-head workflow. The separate slow macOS runtime partition and all 40 original criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-17 saved salary and mixed-currency band safety (QA15):
+
+- [x] Re-read every pinned salary/chat option test and implementation; reproduce four parent failures and one compatible case.
+- [x] Hold exact saved amount conflicts and whole mixed-currency numeric decisions; preserve current templates, offered bands and reviewed form targets.
+- [x] Verify 67 focused checks, native parent/repaired review UI, one explicit positive provider receipt, owner drafts and unchanged rules. Independent MCP inspections have zero effects and drained resources.
+- [x] Preserve and repair exact-head SC2329 from the indirect macOS EXIT cleanup trap as 1120026a; parent diagnostic reproduces and four cleanup tests pass.
+- [ ] Publish checked evidence, inspect every exact-head hosted workflow and finish the full QA15 mapping. All 40 original unchecked criteria remain required; PR57 stays draft and unmerged.

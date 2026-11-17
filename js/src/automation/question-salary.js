@@ -1,7 +1,8 @@
 import { normalizeSalary, formatSalary } from './salary-config.js';
 import { resolveSalaryAmount } from './salary-calculation.js';
 import { salaryQuestion } from './salary-question.js';
-import { salaryOption } from './salary-options.js';
+import { salaryOption, salaryAmounts } from './salary-options.js';
+import { questionKey } from './question-match.js';
 import { rejectedAnswer } from './question-policy.js';
 import { salaryGuidance } from './salary-guidance.js';
 import { salaryWording } from './salary-wording.js';
@@ -119,6 +120,24 @@ const salaryNeedsReview = ({
   missing.length > 0 ||
   optionMismatch ||
   rejected;
+const savedAmountConflict = (input, previous, resolved) => {
+  if (
+    input.questionMode === 'field' ||
+    !input.options?.length ||
+    previous.match !== 'exact' ||
+    previous.requiresReview ||
+    input.options.some(
+      (option) => questionKey(option) === questionKey(previous.text)
+    )
+  ) {
+    return false;
+  }
+  const targets = resolved.amounts
+    ? Object.values(resolved.amounts)
+    : [resolved.amount];
+  const saved = salaryAmounts(previous.text);
+  return saved.length > 0 && !saved.some((value) => targets.includes(value));
+};
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(
     (item) => item.code === selection.currency
@@ -127,6 +146,18 @@ const salaryResult = (question, input, previous, config, selection) => {
   const guidance = salaryGuidance(input, config, selection, entry, resolved);
   if (guidance) {
     resolved = { ...resolved, amount: guidance.amount };
+  }
+  if (savedAmountConflict(input, previous, resolved)) {
+    return {
+      ...previous,
+      text: '',
+      complete: false,
+      requiresReview: true,
+      salary: {
+        ...salaryDetails(selection, resolved),
+        savedAmountConflict: true,
+      },
+    };
   }
   const { missing, text, optionMismatch, option } = salaryContent(
     input,

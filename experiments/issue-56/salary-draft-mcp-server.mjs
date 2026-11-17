@@ -2,7 +2,11 @@ import { chromium } from 'playwright';
 import { questionBrowserServer } from './question-browser-server.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 
-export const salaryDraftMcpServer = async ({ question, rules = [] }) => {
+export const salaryDraftMcpServer = async ({
+  question,
+  rules = [],
+  options,
+}) => {
   const browser = await chromium.launch({
     executablePath:
       process.env.E2E_EXECUTABLE_PATH ?? '/opt/google/chrome/chrome',
@@ -14,7 +18,7 @@ export const salaryDraftMcpServer = async ({ question, rules = [] }) => {
     for (const rule of rules) {
       await saveAnswerRule(fixture.store, rule);
     }
-    await fixture.reset({ freeText: true, question });
+    await fixture.reset({ freeText: !options, question, options });
     console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
     process.stdin.resume();
     await new Promise((resolve) => process.stdin.once('data', resolve));

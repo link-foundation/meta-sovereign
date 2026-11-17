@@ -16,6 +16,25 @@ const number = (value) => {
       : raw.replace(',', '.')
   );
 };
+const amountParts = (text) => [
+  ...text.matchAll(
+    /(\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)*)(?:\s*(тыс\.?|млн\.?|million|thousand|[kкmм])(?!\p{L}))?/giu
+  ),
+];
+const amountValues = (parts) => {
+  const scales = new Set(
+    parts.filter((part) => part[2]).map((part) => scale(part[2]))
+  );
+  const common = scales.size === 1 ? [...scales][0] : 1;
+  return parts.map((part) => {
+    const value = number(part[1]);
+    return value * (part[2] ? scale(part[2]) : value < 1000 ? common : 1);
+  });
+};
+export const salaryAmounts = (text) =>
+  typeof text === 'string' && text.length <= 2000
+    ? amountValues(amountParts(text)).filter(Number.isFinite)
+    : [];
 const boundary = (text, value) => {
   if (
     /(?:>=|≥)|(?<!\p{L})(?:from|at\s+least|от|не\s+менее|(?:or|and)\s+(?:more|above)|(?:и|или)\s+(?:более|выше))(?!\p{L})/iu.test(
@@ -64,22 +83,11 @@ const range = (text, config) => {
   ) {
     return null;
   }
-  const parts = [
-    ...text.matchAll(
-      /(\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)*)(?:\s*(тыс\.?|млн\.?|million|thousand|[kкmм])(?!\p{L}))?/giu
-    ),
-  ];
+  const parts = amountParts(text);
   if (!parts.length || parts.length > 2) {
     return null;
   }
-  const scales = new Set(
-    parts.filter((part) => part[2]).map((part) => scale(part[2]))
-  );
-  const common = scales.size === 1 ? [...scales][0] : 1;
-  const values = parts.map((part) => {
-    const value = number(part[1]);
-    return value * (part[2] ? scale(part[2]) : value < 1000 ? common : 1);
-  });
+  const values = amountValues(parts);
   if (values.some((value) => !Number.isFinite(value) || value < 0)) {
     return null;
   }
@@ -118,6 +126,20 @@ const compatibleRanges = (choices, selection, config) =>
   });
 export const salaryOption = (choices, targets, selection, config, closest) => {
   if (!Array.isArray(choices) || choices.length > 100) {
+    return null;
+  }
+  if (
+    choices.some(
+      (choice) =>
+        typeof choice === 'string' &&
+        choice.length <= 2000 &&
+        salaryAmounts(choice).length > 0 &&
+        (unknownSalaryCurrency(choice, config) ||
+          salaryCurrencies(choice, config).some(
+            ({ code }) => code !== selection.currency
+          ))
+    )
+  ) {
     return null;
   }
   const bands = compatibleRanges(choices, selection, config);
