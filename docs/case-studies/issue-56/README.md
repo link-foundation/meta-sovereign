@@ -1,3 +1,4 @@
+- [Portable salary fixture dependency](ci-salary-fixture-import.md): reproduce the hosted Deno import failure, separate constant data from optional browser code and retain six passing portable tests plus native browser verification.
 - [Initial résumé discovery trace](ci-resume-cache-trace.md): retain the actual hosted timeout and passing focused WebKit receipts; add bounded pointer/request/state diagnostics with unchanged assertions. The historical cause remains unconfirmed.
 - [Workplace source-loading trace](ci-workplace-review-trace.md): preserve the exact hosted WebKit timeout and passing focused local checks; add bounded opt-in request/event/state diagnostics without weakening assertions. Historical cause remains unconfirmed.
 - [Saved salary boundaries](salary-band-saved.md): five published-parent failures, 33 focused passes and native/MCP before/after receipts; full QA15 acceptance remains required.

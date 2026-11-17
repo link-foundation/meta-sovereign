@@ -1,7 +1,10 @@
 import { mountSalaryVacancy } from './salary-vacancy-browser-fixture.mjs';
+import { salaryVacancyCard } from './salary-vacancy-fixture.mjs';
 
-export const salaryVacancyCard = 'Platform engineer — 5 000 EUR';
-export const salaryVacancyCardAnswer = 'From 5 500 € net per month.';
+export {
+  salaryVacancyCard,
+  salaryVacancyCardAnswer,
+} from './salary-vacancy-fixture.mjs';
 export const mountSalaryVacancyCard = async (fixture) => {
   await mountSalaryVacancy(fixture);
   await fixture.page

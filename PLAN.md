@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 portable salary fixture import:
+
+- [x] Preserve and reproduce Deno TS2307 from importing browser machinery for
+      two constants; retain type checking and optional dependency declarations.
+- [x] Separate pure fixture data while retaining native exports; pass all six
+      Deno and Node checks plus the native zero-send vacancy-card scenario.
+- [ ] Publish checked evidence and inspect fresh hosted verification. Full QA12,
+      QA15 and all forty original unchecked criteria remain required.
+
 2026-11-17 incoming employer salary context (QA12):
 
 - [x] Reproduce the exact 027b8575 parent: outgoing USD replies override an

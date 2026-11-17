@@ -2,6 +2,8 @@ import { browserQuestion } from './question-browser-fixture.mjs';
 
 export const salaryVacancyQuestion = 'What are your salary expectations?';
 export const salaryVacancyAnswer = 'From $6 000 net per month.';
+export const salaryVacancyCard = 'Platform engineer — 5 000 EUR';
+export const salaryVacancyCardAnswer = 'From 5 500 € net per month.';
 export const salaryVacancyUrl = 'https://hh.ru/vacancy/123';
 export const salaryVacancySnapshot = (url = salaryVacancyUrl, patch = {}) => ({
   url,

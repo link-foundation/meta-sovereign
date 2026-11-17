@@ -14,11 +14,9 @@ import {
   salaryVacancyQuestion as question,
   salaryVacancySnapshot as page,
   salaryVacancyQuestionSnapshot as snapshot,
-} from '../../experiments/issue-56/salary-vacancy-fixture.mjs';
-import {
   salaryVacancyCard as card,
   salaryVacancyCardAnswer as expected,
-} from '../../experiments/issue-56/salary-vacancy-card-fixture.mjs';
+} from '../../experiments/issue-56/salary-vacancy-fixture.mjs';
 
 const observedCard = () => {
   const observed = snapshot();
