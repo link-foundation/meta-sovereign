@@ -3,6 +3,14 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 distinct person opt-outs (QA19 remains required):
+
+- [x] Reproduce the missing person selector against the published parent; preserve independent MCP before inspection and screenshot.
+- [x] Expose explicit translated Chat/Person scopes, distinct same-ID rows and precise removal through acknowledged shared settings.
+- [x] Pass 46 focused portable checks and all three native safety scenarios; independently verify reload, removal, four languages and phone layout with zero live effects and drained fixtures.
+- [x] Collect and rehash all 52 source/log/screenshot archive entries; preserve exact parent and final bundle hash.
+- [ ] Publish this atomic unit and require exact-source hosted verification. Full QA19 and all 35 unfinished criteria remain required.
+
 2026-11-17 complete independent VK acceptance:
 
 - [x] Review the full pinned six-switch configuration and Bot Behavior 16, independent settings/admission/lifecycle, shared CLI/Lino/controls, six positive disk-reopen/disable cases and both native semantic receipts.

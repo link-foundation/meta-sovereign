@@ -98,52 +98,65 @@ const Field = ({ label, children }) =>
 
 const OptOutForm = ({ add }) => {
   const t = useT();
-  const [draft, setDraft] = useState({ source: '', chat: '', note: '' });
+  const empty = { source: '', chat: '', contact: '', note: '' };
+  const [draft, setDraft] = useState(empty);
+  const [kind, setKind] = useState('chat');
   const set = (name) => (event) =>
     setDraft({ ...draft, [name]: event.target.value });
   const submit = async () => {
-    if (draft.source.trim() && draft.chat.trim()) {
+    if (draft.source.trim() && draft[kind].trim()) {
       const saved = await add({
         source: draft.source.trim(),
-        chat: draft.chat.trim(),
+        [kind]: draft[kind].trim(),
         note: draft.note.trim(),
       });
       if (saved) {
-        setDraft({ source: '', chat: '', note: '' });
+        setDraft(empty);
       }
     }
   };
-  return el(
-    'div',
-    { className: 'row optout-form' },
-    [
-      ['source', 'safety.optout.network'],
-      ['chat', 'safety.optout.chat'],
-      ['note', 'safety.optout.note'],
-    ]
-      .map(([name, label]) =>
-        el(Field, { key: name, label: t(label) }, [
-          el('input', {
-            key: 'i',
-            value: draft[name],
-            'data-field': `optout-${name}`,
-            onChange: set(name),
-          }),
-        ])
-      )
-      .concat(
-        el(
-          'button',
-          {
-            key: 'add',
-            type: 'button',
-            'data-action': 'optout-add',
-            onClick: submit,
-          },
-          t('safety.optout.add')
+  return el('div', { className: 'row optout-form' }, [
+    el(Field, { key: 'kind', label: t('safety.optout.kind') }, [
+      el(
+        'select',
+        {
+          key: 'select',
+          value: kind,
+          'data-field': 'optout-kind',
+          onChange: (event) => setKind(event.target.value),
+        },
+        ['chat', 'contact'].map((value) =>
+          el('option', { key: value, value }, t(`safety.optout.${value}Kind`))
         )
-      )
-  );
+      ),
+    ]),
+    ...[
+      ['source', 'safety.optout.network'],
+      [kind, `safety.optout.${kind}`],
+      ['note', 'safety.optout.note'],
+    ].map(([name, label]) =>
+      el(Field, { key: name, label: t(label) }, [
+        el('input', {
+          key: 'i',
+          value: draft[name],
+          'data-field': `optout-${name}`,
+          onChange: set(name),
+          ...(name === 'note' ? { maxLength: 200 } : {}),
+        }),
+      ])
+    ),
+    el(
+      'button',
+      {
+        key: 'add',
+        type: 'button',
+        'data-action': 'optout-add',
+        onClick: submit,
+        disabled: !draft.source.trim() || !draft[kind].trim(),
+      },
+      t('safety.optout.add')
+    ),
+  ]);
 };
 
 const QuietHours = ({ settings, save }) => {
@@ -305,11 +318,28 @@ const Settings = ({ api }) => {
                 el(
                   'li',
                   {
-                    key: `${entry.source}:${entry.chat ?? entry.contact}`,
+                    key: JSON.stringify([
+                      entry.source,
+                      entry.chat,
+                      entry.contact,
+                    ]),
                     'data-optout': `${entry.source}:${entry.chat ?? entry.contact}`,
+                    'data-optout-kind':
+                      entry.chat !== undefined
+                        ? entry.contact !== undefined
+                          ? 'chat-contact'
+                          : 'chat'
+                        : 'contact',
                   },
                   [
-                    `${entry.source}:${entry.chat ?? entry.contact} `,
+                    ['chat', 'contact']
+                      .filter((kind) => entry[kind] !== undefined)
+                      .map(
+                        (kind) =>
+                          `${t(`safety.optout.${kind}Kind`)} ${entry.source}:${entry[kind]}`
+                      )
+                      .join(' · '),
+                    ' ',
                     entry.note
                       ? el('span', { key: 'n', className: 'meta' }, entry.note)
                       : null,

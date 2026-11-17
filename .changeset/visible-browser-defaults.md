@@ -875,3 +875,7 @@ opt-out changes, sharing acknowledged persistence with the API and UI.
 Expose the shared automated-message cooldown in all four UI languages, with
 fractional days, default reset, invalid-input refusal and acknowledged save/reload
 behavior matching the CLI and Lino API.
+
+Expose distinct chat and person opt-outs in all four UI languages, retain refused
+owner drafts and preserve same-ID entries through acknowledged reload and precise
+removal, sharing the existing CLI/Lino settings and send guards (issue #56 QA19).
