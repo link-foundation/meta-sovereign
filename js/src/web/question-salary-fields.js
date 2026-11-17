@@ -52,6 +52,20 @@ const CurrencyFields = ({ entry, set, remove }) => {
         t(`questions.salaryMethod.${method}`),
       ]),
     }),
+    el(Field, {
+      key: 'priority',
+      label: t('questions.salaryContextPriority'),
+      type: 'number',
+      min: '0',
+      max: '1000',
+      step: '1',
+      value: entry.contextPriority ?? 0,
+      change: (value) =>
+        set({
+          ...entry,
+          contextPriority: value === '' ? undefined : Number(value),
+        }),
+    }),
     ...[
       'net',
       'gross',

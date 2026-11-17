@@ -29,6 +29,19 @@ const grossSettings = (entry) => {
   }
   return result;
 };
+const contextSettings = (entry) => {
+  if (entry.contextPriority === undefined) {
+    return {};
+  }
+  if (
+    !Number.isInteger(entry.contextPriority) ||
+    entry.contextPriority < 0 ||
+    entry.contextPriority > 1000
+  ) {
+    fail('context priority must be an integer from 0 to 1000');
+  }
+  return { contextPriority: entry.contextPriority };
+};
 const currency = (entry) => {
   if (!/^[A-Z][A-Z0-9]{2,9}$/u.test(entry?.code ?? '')) {
     fail('currency needs a code of 3 to 10 uppercase letters or digits');
@@ -56,7 +69,7 @@ const currency = (entry) => {
     entry.hourlyStep ?? (entry.code === 'RUB' ? 500 : 5),
     'hourlyStep'
   );
-  return { ...result, ...grossSettings(entry) };
+  return { ...result, ...grossSettings(entry), ...contextSettings(entry) };
 };
 const configuredHours = (input) =>
   input.monthlyHours === null

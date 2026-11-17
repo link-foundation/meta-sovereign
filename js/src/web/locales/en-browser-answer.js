@@ -2,6 +2,8 @@ import { enNoticePolicy } from './en-notice-policy.js';
 import { enUnreadReview } from './en-unread-review.js';
 
 export const enBrowserAnswer = {
+  'questions.salaryContextPriority':
+    'Context priority (higher wins; explicit question first)',
   ...enNoticePolicy,
   ...enUnreadReview,
   'browserText.title': 'Reviewed text reply',

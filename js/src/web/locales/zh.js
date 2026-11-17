@@ -1368,6 +1368,8 @@ export const zh = {
   'questions.salaryCurrency': '薪酬币种',
   'questions.salaryCode': '币种代码，例如 USD',
   'questions.salaryKeywords': '币种关键词，以逗号分隔',
+  'questions.salaryContextPriority':
+    '上下文优先级（数值越高越优先；问题指定币种优先）',
   'questions.salary.net': '税后月薪',
   'questions.salary.gross': '税前月薪',
   'questions.salary.hourlyStep': '时薪向上取整步长',

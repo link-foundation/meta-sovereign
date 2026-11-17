@@ -271,3 +271,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass 33 focused tests, native before/after readback, a compatibility scenario and independent MCP with zero sends; drain owned fixtures and inspect valid screenshots.
 - [ ] Preserve the source-bound archive, publish the atomic correction and inspect exact-head hosted workflows.
 - [ ] Complete every original unchecked requirement. All 40 remain required; PR57 remains draft and unmerged.
+
+2026-11-17 salary context priorities (partial QA12):
+
+- [x] Reproduce three exact-parent failures for competing vacancy clues, inflected keywords and adjacent currency symbols.
+- [x] Add optional bounded owner priorities with explicit-question precedence, equal-priority review, source order and independent-target guards; expose shared four-language controls and guides.
+- [x] Pass 51 focused checks, mandatory native/UI and independent MCP zero-send verification; inspect before/after and 1200/390-pixel screenshots and close every fixture.
+- [ ] Preserve source-bound evidence, publish the atomic correction and inspect every exact-head workflow.
+- [ ] Complete all 40 unchecked original criteria; PR57 remains draft and unmerged.

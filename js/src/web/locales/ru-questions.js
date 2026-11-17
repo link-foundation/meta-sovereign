@@ -164,6 +164,8 @@ export const ruQuestions = {
   'questions.salaryCurrency': 'Валюта зарплаты',
   'questions.salaryCode': 'Код валюты, например USD',
   'questions.salaryKeywords': 'Слова для валюты через запятую',
+  'questions.salaryContextPriority':
+    'Приоритет контекста (выше — важнее; валюта вопроса первая)',
   'questions.salary.net': 'Месячная сумма на руки',
   'questions.salary.gross': 'Месячная сумма до вычета налогов',
   'questions.salary.hourlyStep': 'Шаг округления почасовой ставки',

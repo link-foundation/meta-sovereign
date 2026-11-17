@@ -8,9 +8,14 @@ import {
 
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 const literal = (text, word) =>
-  new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}(?![\\p{L}\\p{N}])`, 'iu').test(
-    text
-  );
+  new RegExp(
+    `${/^[\p{L}\p{N}]/u.test(word) ? '(?<![\\p{L}\\p{N}])' : ''}${escape(word)}${/[\p{L}\p{N}]$/u.test(word) ? '(?![\\p{L}\\p{N}])' : ''}`,
+    'iu'
+  ).test(text);
+const keyword = (text, word) =>
+  /^\p{L}{4,}$/u.test(word) && !knownCurrencies.has(word.toUpperCase())
+    ? new RegExp(`(?<![\\p{L}\\p{N}])${escape(word)}`, 'iu').test(text)
+    : literal(text, word);
 const currencyWords = {
   RUB: ['₽', 'руб', 'рублей', 'рублях', 'рубли', 'roubles', 'rubles'],
   USD: ['$', 'долларов', 'долларах', 'доллары', 'dollars'],
@@ -18,11 +23,22 @@ const currencyWords = {
   GBP: ['£', 'фунтов', 'фунтах', 'pounds'],
 };
 export const salaryCurrencies = (text, config) =>
-  config.currencies.filter((entry) =>
-    [entry.code, ...entry.keywords, ...(currencyWords[entry.code] ?? [])].some(
-      (word) => literal(text, word)
-    )
+  config.currencies.filter(
+    (entry) =>
+      [entry.code, ...(currencyWords[entry.code] ?? [])].some((word) =>
+        literal(text, word)
+      ) || entry.keywords.some((word) => keyword(text, word))
   );
+// Priority applies only to contextual evidence. Explicit currency questions and
+// equal priorities remain ambiguous rather than silently selecting a default.
+const contextCurrencies = (text, config) => {
+  const matches = salaryCurrencies(text, config);
+  const priority = Math.max(
+    0,
+    ...matches.map((entry) => entry.contextPriority ?? 0)
+  );
+  return matches.filter((entry) => (entry.contextPriority ?? 0) === priority);
+};
 const knownCurrencies = new Set([
   ...Intl.supportedValuesOf('currency'),
   'USDT',
@@ -203,7 +219,7 @@ const chooseCurrency = (text, config, environment, vocabulary) => {
     if (unrelatedCurrencyQuestion(entry, config, vocabulary)) {
       break;
     }
-    const matches = salaryCurrencies(entry.text, config);
+    const matches = contextCurrencies(entry.text, config);
     if (unknownSalaryCurrency(entry.text, config) || matches.length > 1) {
       return { code: null, source: 'ambiguous', evidence: entry.evidence };
     }
@@ -221,7 +237,7 @@ const chooseCurrency = (text, config, environment, vocabulary) => {
   for (const { text: value, source, evidence } of vacancyCurrencySources(
     environment
   )) {
-    const matches = salaryCurrencies(value, config);
+    const matches = contextCurrencies(value, config);
     if (unknownSalaryCurrency(value, config) || matches.length > 1) {
       return { code: null, source: 'ambiguous' };
     }

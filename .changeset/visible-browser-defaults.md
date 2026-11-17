@@ -775,3 +775,5 @@ Resolve currency-specific placeholders in approved personal salary answers again
 the requested current currency while retaining owner wording and explicit tax
 labels. Preserve independent amounts and review guards for missing values, stale
 numbers, incompatible basis, periods and unapproved configuration (issue #56 QA12).
+
+Allow explicit salary context priorities while preserving question precedence and tied-priority review. Match configured word stems and currency symbols adjacent to amounts; retain independent targets and existing source order (issue #56 QA12).

@@ -2,6 +2,8 @@ import { hiNoticePolicy } from './hi-notice-policy.js';
 import { hiUnreadReview } from './hi-unread-review.js';
 
 export const hiBrowserAnswer = {
+  'questions.salaryContextPriority':
+    'संदर्भ प्राथमिकता (बड़ा मान पहले; प्रश्न की मुद्रा सर्वोपरि)',
   ...hiNoticePolicy,
   ...hiUnreadReview,
   'browserText.title': 'समीक्षित पाठ उत्तर',

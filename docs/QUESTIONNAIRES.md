@@ -143,3 +143,5 @@ question can still use yes/no; ordinary office consent and unrelated project or
 metrics questions stay unchanged. This is a bounded wording check, not general
 semantic validation. Original saved answers and transcripts remain inspectable
 and unchanged; a missing usable answer stays unanswered for review.
+
+Salary currency entries accept optional `contextPriority` (integer 0–1000, default 0). Higher values resolve competing words within a context source; an explicitly requested currency still wins. Equal priorities and conflicting explicit currencies require review. In shared salary settings, use **Context priority** for preferences such as USDT for Blockchain work. Configured alphabetic keywords of four or more letters match word beginnings; currency codes retain exact boundaries.
