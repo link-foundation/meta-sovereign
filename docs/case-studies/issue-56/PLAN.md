@@ -1,3 +1,10 @@
+Active independent VK policy verification (VD03):
+
+- [x] Map all six pinned switches to their own policy, state, routes and shared controls. Verify eight prior archives (1,007 entries); retain changed-source audit without treating integrity as acceptance.
+- [x] Six bounded real-Lino checks pass on Node/Bun/Deno: isolated scheduled provider acknowledgement after reopen, unchanged siblings, disabled calls prevented after two days, retained receipts and six cleared timers.
+- [x] Add a mandatory native group for twelve acknowledged toggles and six reloads; focused Chromium and independent MCP checks retain fields with zero provider effects/page exceptions.
+- [ ] Publish checked evidence, inspect all five workflows at one SHA and review complete VD03 acceptance. All forty unfinished criteria remain required.
+
 Active Windows Bun publication investigation:
 
 - [x] Preserve published `5f982b17` Windows Bun job `134128955900`, timestamps and complete 14,005-line log. Lines 2,901–2,910 report the binary Lino native-export publication case reaching its existing 20-second deadline; the text case and all other tests pass.
