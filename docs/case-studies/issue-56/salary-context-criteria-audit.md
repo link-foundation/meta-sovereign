@@ -76,26 +76,30 @@ python -B experiments/issue-56/audit-hosted-criteria.py HEAD \
   --output-prefix salary-context-criteria
 ```
 
-The mandatory `question-controls` browser group awaits clarification, wording,
-vocabulary, intent, templates and context priorities. Clarification additionally
+The mandatory salary context and wording groups await clarification, wording,
+vocabulary, intent, templates and context priorities. Their
+[independent budgets](ci-salary-browser-groups.md) retain every scenario previously
+included in `question-controls`. Clarification additionally
 awaits phrasing, named numbers, observed history, stale-history refusal, linked
 vacancy, observed card and incoming-employer context. The native helper reads
 the actual composer after acknowledged prefill, holds an owner's pre-existing
 draft, compares saved rules and closes its fixture. No text is sent by these
 salary draft scenarios. Chromium and WebKit must both emit each receipt and
-complete the group. The ordinary `questions` group separately exercises salary
+complete every assigned group. The ordinary `questions` group separately exercises salary
 settings, calculations, dual-basis output and contextual contraction.
 
 `collect-salary-context-hosted.py` requires 120 named portable checks from twenty
-files, fourteen exact semantic receipts per engine and both complete browser
-groups. The checked source registry assigns `question-controls` to shard 2 and
-`questions` to shard 3. The collector shares archive, test-name and pinned
+files, fourteen exact semantic receipts per engine and complete browser
+groups. The collector reads their actual partitions from the selected source;
+the split assigns wording to shard 1, context to shard 4 and `questions` to
+shard 3, while retaining the legacy layout for historical runs.
+The collector shares archive, test-name and pinned
 reference validation with QA15's collector and preserves five verified original
 reference responses. It also requires five complete successful workflows at
 the selected SHA, including every recorded job conclusion.
 
 Preserve the workflow responses as `ci-logs/hosted-verification-SLUG-*.json`
-and the Node, Chromium 2/3 and WebKit 2/3 raw logs as
+and the Node plus registry-assigned Chromium/WebKit raw logs as
 `ci-logs/hosted-SLUG-TAG.log`, then run:
 
 ```sh
