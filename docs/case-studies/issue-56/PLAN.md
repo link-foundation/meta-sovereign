@@ -1524,3 +1524,12 @@ Worker-setting commit `027ae3c1` and shared wording-fixture correction `0e676ed0
 - [ ] Complete scoped static checks, preserve a checked evidence archive, commit/push and inspect exact-source hosted workflows. Full QA12/QA13/QA15 and every other unchecked original requirement remain active. PR57 stays draft and unmerged.
 
 Salary option final local gates pass: 29 focused checks, native select/radio readback with zero retry events, independent MCP, scoped lint/format/secrets and the unchanged 6.5% duplication limit. The checked archive retains both exact parent modules, four failures, pinned reference blobs and three screenshots. Publishing and exact-source hosted acceptance remain required; all 41 original unchecked rows stay open.
+
+## Salary clarification context follow-up (QA12)
+
+- [x] Read all pinned clarification, expected-pay, hourly and current-target contracts. Preserve four exact-parent regressions for polite requests, consecutive basis inheritance, unrelated-topic currency and ordinary field labels.
+- [x] Draft shared bounded clarification parsing and context selection, with salary-specific notice handling and preserved unrelated-topic/period/approval guards.
+- [x] Verify focused portable CLI/offline/both-Lino behavior and actual browser draft readback; preserve before/after screenshots and drain isolated fixtures.
+- [ ] Pass scoped static gates, archive source-bound evidence, commit/push and inspect exact-head hosted workflows. All original unchecked criteria remain required; PR57 stays draft and unmerged.
+
+Salary clarification local verification passes: five exact-parent failures, 26 focused checks, native zero-send draft readback, owner-draft refusal and independent MCP with drained resources. Strict scoped lint, format, secrets, the generated web bundle and unchanged duplication gate pass. The checked archive retains all three exact parent modules, three pinned reference blobs and both screenshots. Publishing and exact-source hosted acceptance remain required; no original inventory criterion is accepted from this unit alone.

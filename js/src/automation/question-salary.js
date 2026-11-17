@@ -143,6 +143,10 @@ const salaryResult = (question, input, previous, config, selection) => {
     ...(optionMismatch ? { optionMismatch: true } : {}),
   };
 };
+export const isSalaryRequest = (question, input) => {
+  const config = normalizeSalary(input.salary);
+  return Boolean(config?.enabled && salaryQuestion(question, config, input));
+};
 export const applySalaryAnswer = (question, input, previous) => {
   const config = normalizeSalary(input.salary);
   if (!config?.enabled) {

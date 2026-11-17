@@ -63,17 +63,19 @@ export const salaryPeriod = (text) => {
     return 'unsupported';
   }
   const hour =
-    /\bhour(?:ly)?\b|\/(?:h|hr)\b|почасов|в\s+час|руб\s*\/\s*час/iu.test(text);
+    /\bhour(?:ly)?\b|\/(?:h|hr)\b|почасов|часов\S*\s+ставк|в\s+час|руб\s*\/\s*час/iu.test(
+      text
+    );
   const month = /\bmonth(?:ly)?\b|в\s+месяц|ежемесяч/iu.test(text);
   return hour && month ? 'ambiguous' : hour ? 'hour' : month ? 'month' : null;
 };
 const excluded = (text) =>
-  /\b(?:previous|past|last|payroll|revenue|accept|suit|cards?)\b|прошл|предыдущ|была|были|устраив|подходит|подходят|выручк|зарплатн\S*\s+карт|как\s+рассчит|github|\bstack\b/iu.test(
+  /\b(?:previous|past|last|payroll|revenue|budget|expenses?|accept|suit|cards?)\b|прошл|предыдущ|была|были|устраив|подходит|подходят|выручк|бюджет|расход|зарплатн\S*\s+карт|как\s+рассчит|github|\bstack\b/iu.test(
     text
   );
 export const directSalaryQuestion = (text) =>
   !excluded(text) &&
-  /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|почасов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)/iu.test(
+  /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|(?:по)?часов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)|(?:желаем\S*|ожидаем\S*)\s+(?:уровень\s+)?доход|ожидан\S*\s+по\s+з\/?п|(?:от\s+какой\s+суммы|в\s+каком\s+диапазоне)\s+рассматриваете\s+предложени/iu.test(
     text
   );
 const language = (text) => (/[а-яё]/iu.test(text) ? 'ru' : 'en');
@@ -81,7 +83,11 @@ const clarification = (text, config) => {
   if (text.length > 300 || excluded(text)) {
     return false;
   }
-  let words = text;
+  // A short salutation is allowed only before an explicit request verb.
+  let words = text.replace(
+    /^(?:\p{Lu}[\p{L}-]{1,30}[,\s]+){1,2}(?=(?:подскажи(?:те)?|please)(?!\p{L}))/iu,
+    ''
+  );
   if (
     !salaryCurrencies(text, config).length &&
     !salaryBasis(text) &&
@@ -90,16 +96,26 @@ const clarification = (text, config) => {
     return false;
   }
   for (const entry of config.currencies) {
-    for (const word of [entry.code, ...entry.keywords]) {
-      words = words.replaceAll(new RegExp(escape(word), 'giu'), ' ');
+    for (const word of [
+      entry.code,
+      ...entry.keywords,
+      ...(currencyWords[entry.code] ?? []),
+    ]) {
+      words = words.replaceAll(
+        new RegExp(
+          `(?<![\\p{L}\\p{N}])${escape(word)}(?![\\p{L}\\p{N}])`,
+          'giu'
+        ),
+        ' '
+      );
     }
   }
   words = words.replace(
-    /before\s+taxes|after\s+taxes|до\s+вычета\s+налогов|на\s+руки/giu,
+    /(?:before|after)\s+(?:income\s+)?tax(?:es)?|до\s+(?:вычета\s+)?налогов|на\s+руки/giu,
     ' '
   );
   const allowed = new Set(
-    'and in what about please net gross per hour hourly month monthly а в и по сколько тогда до налогов чистыми гросс час месяц рублях долларах евро'.split(
+    'and in what about please provide the figures amount amounts net gross per hour hourly month monthly а в и по сколько тогда до налогов чистыми гросс час месяц подскажи подскажите пожалуйста цифры сумму какие спасибо'.split(
       ' '
     )
   );
@@ -109,13 +125,24 @@ const clarification = (text, config) => {
     .filter(Boolean)
     .every((word) => allowed.has(word));
 };
-const anchor = (environment) => {
+const anchor = (environment, config) => {
+  const chain = [];
   for (const entry of environment.recent) {
     if (
       directSalaryQuestion(entry.text) &&
       !['unsupported', 'ambiguous'].includes(salaryPeriod(entry.text))
     ) {
-      return entry;
+      const period = salaryPeriod(entry.text) ?? 'month';
+      return chain.some((item) => {
+        const requested = salaryPeriod(item.text);
+        return requested && requested !== period;
+      })
+        ? null
+        : { ...entry, chain };
+    }
+    if (clarification(entry.text, config)) {
+      chain.push(entry);
+      continue;
     }
     if (asksQuestion(entry.text)) {
       break;
@@ -136,6 +163,11 @@ const vacancyCurrencySources = (environment) => [
     evidence: environment.vacancy.evidence,
   },
 ];
+const unrelatedCurrencyQuestion = (entry, config) =>
+  excluded(entry.text) ||
+  (asksQuestion(entry.text) &&
+    !directSalaryQuestion(entry.text) &&
+    !clarification(entry.text, config));
 const chooseCurrency = (text, config, environment) => {
   const explicit = salaryCurrencies(text, config);
   if (unknownSalaryCurrency(text, config) || explicit.length > 1) {
@@ -145,6 +177,9 @@ const chooseCurrency = (text, config, environment) => {
     return { code: explicit[0].code, source: 'question' };
   }
   for (const entry of environment.recent) {
+    if (unrelatedCurrencyQuestion(entry, config)) {
+      break;
+    }
     const matches = salaryCurrencies(entry.text, config);
     if (unknownSalaryCurrency(entry.text, config) || matches.length > 1) {
       return { code: null, source: 'ambiguous', evidence: entry.evidence };
@@ -186,7 +221,11 @@ const salaryLanguage = (text, previous, followup) =>
     : language(text);
 const effectiveBasis = (text, previous, followup, config) =>
   salaryBasis(text) ??
-  (followup ? salaryBasis(previous.text) : null) ??
+  (followup
+    ? [...previous.chain, previous]
+        .map((entry) => salaryBasis(entry.text))
+        .find(Boolean)
+    : null) ??
   config.defaultBasis;
 const effectivePeriod = (period, inherited, followup) =>
   period ?? (followup ? inherited : 'month');
@@ -197,7 +236,7 @@ export const salaryQuestion = (text, config, input) => {
     return null;
   }
   const environment = normalizeAnswerEnvironment(input);
-  const previous = anchor(environment);
+  const previous = anchor(environment, config);
   const followup = !directSalaryQuestion(text);
   if (!followup && input.questionMode !== 'field' && !asksQuestion(text)) {
     return null;

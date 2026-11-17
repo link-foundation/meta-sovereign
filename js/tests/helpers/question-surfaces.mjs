@@ -13,6 +13,7 @@ import { postQuestion } from './question-http.mjs';
 export const assertQuestionPreviewSurfaces = async ({
   store,
   automationId,
+  cliArguments = {},
   input,
   verify,
 }) => {
@@ -23,6 +24,7 @@ export const assertQuestionPreviewSurfaces = async ({
     automation: automationId,
     question: input.question,
     json: true,
+    ...cliArguments,
   };
   if (input.options) {
     args.options = encodeWire(input.options);

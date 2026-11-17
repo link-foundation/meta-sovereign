@@ -37,7 +37,7 @@ import {
 } from './question-matching-options.js';
 import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
-import { applySalaryAnswer } from './question-salary.js';
+import { applySalaryAnswer, isSalaryRequest } from './question-salary.js';
 import { questionCore, sufficientAnswer } from './question-turns.js';
 import { answerChoiceState, applyAnswerChoices } from './question-options.js';
 import { answerModelFailure } from './answer-model-config.js';
@@ -411,6 +411,8 @@ const answerContext = (options, rules) => ({
   rules,
 });
 
+const hasQuestionIntent = (question, context) =>
+  asksQuestion(question) || isSalaryRequest(question, context);
 /** Read-only plan; the existing automation runner owns queuing and delivery. */
 export const planAnswer = (question, options = {}) => {
   if (options.pendingMessages !== undefined) {
@@ -446,7 +448,7 @@ export const planAnswer = (question, options = {}) => {
   if (
     options.questionMode !== 'field' &&
     !choices.strictOptions &&
-    !asksQuestion(question)
+    !hasQuestionIntent(question, context)
   ) {
     const notice = answerOne(question, {
       ...context,
