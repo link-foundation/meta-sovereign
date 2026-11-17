@@ -36,6 +36,26 @@ const fixture = (options = {}) => {
   return { first, newPage, errors };
 };
 
+test('opt-in failed-request diagnostics retain navigation failures without URL secrets', () => {
+  const trace = [];
+  const { first, errors } = fixture({ trace: (event) => trace.push(event) });
+  first.emit('requestfailed', {
+    url: () => `${base}/?token=private#fragment`,
+    isNavigationRequest: () => true,
+    failure: () => ({ errorText: 'The network connection was lost.' }),
+  });
+  assert.deepEqual(trace, [
+    `request failed ${JSON.stringify({
+      url: `${base}/`,
+      navigation: true,
+      error: 'The network connection was lost.',
+    })}`,
+  ]);
+  assert.deepEqual(errors, []);
+  // With tracing disabled, no network diagnostic handler is installed.
+  assert.equal(fixture().first.listenerCount('requestfailed'), 0);
+});
+
 test('standalone fixtures retain their actual engine, origin and genuine errors', () => {
   for (const engine of ['webkit', 'chromium']) {
     const context = new EventEmitter();

@@ -38,6 +38,19 @@ export const watchChatPages = (
   { errors, engine, base, trace, acceptDialog = () => false }
 ) => {
   const watch = (page) => {
+    if (trace) {
+      page.on('requestfailed', (request) => {
+        const url = new URL(request.url());
+        // Deliberately omit query values and fragments from opt-in diagnostics.
+        trace(
+          `request failed ${JSON.stringify({
+            url: `${url.origin}${url.pathname}`,
+            navigation: request.isNavigationRequest(),
+            error: request.failure()?.errorText,
+          })}`
+        );
+      });
+    }
     page.on('pageerror', (error) => {
       const message = String(error);
       if (handledWebKitLoad(error, engine, base)) {

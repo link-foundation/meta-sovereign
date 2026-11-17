@@ -279,3 +279,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass 51 focused checks, mandatory native/UI and independent MCP zero-send verification; inspect before/after and 1200/390-pixel screenshots and close every fixture.
 - [ ] Preserve source-bound evidence, publish the atomic correction and inspect every exact-head workflow.
 - [ ] Complete all 40 unchecked original criteria; PR57 remains draft and unmerged.
+
+2026-11-17 WebKit reload investigation:
+
+- [x] Verify all five latest workflow timestamps and source SHA. Preserve the actual failed WebKit job and browser artifact; locate the Stories reload network failure.
+- [x] Run two finite WebKit checks, both passing. Add named checkpoints and opt-in request traces with query/fragment redaction; preserve twelve passing diagnostic tests.
+- [ ] Inspect fresh exact-head hosted results. Historical navigation failure root cause remains unconfirmed; no assertion or timeout has been weakened. All 40 unchecked original requirements remain required.

@@ -3,6 +3,7 @@ import { requestBody } from './helpers/http-wire.mjs';
 import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp, fulfil } from './helpers/e2e-chat.mjs';
+import { traceBrowserScenario } from './helpers/e2e-browser-scenarios.mjs';
 
 const store = createMemoryStore();
 const message = (n) => ({
@@ -177,7 +178,9 @@ const optionalStoriesSteps = async () => {
   const count = storiesRequested;
   const profiles = profileStoriesRequested;
   await page.locator('button[data-view="chat"]').click();
-  await page.reload();
+  await traceBrowserScenario('chat-loading', 'stories-disabled-reload', () =>
+    page.reload()
+  );
   await page.locator('.chat-composer').waitFor();
   assert(
     (await page.locator('[data-stories]').count()) === 0,
@@ -311,7 +314,9 @@ await finish(async () => {
     'details column also resizes'
   );
   await details.getByRole('button', { name: 'Close', exact: true }).click();
-  await page.reload();
+  await traceBrowserScenario('chat-loading', 'resized-columns-reload', () =>
+    page.reload()
+  );
   await page.locator('[data-row="msg:telegram:42:50"]').waitFor();
   assert(
     (await page.locator('.permanent-drawer').boundingBox()).width >
