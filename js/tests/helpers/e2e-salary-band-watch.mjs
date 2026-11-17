@@ -1,6 +1,5 @@
 import { questionBrowserUi } from './question-browser-ui.mjs';
-import { openQuestionPreview } from './question-preview.mjs';
-import { configureSalaryPreview } from './salary-preview-controls.mjs';
+import { inspectSalaryBrowser } from './salary-preview-controls.mjs';
 import {
   bandSalary,
   bandQuestion,
@@ -15,7 +14,7 @@ export const verifySalaryBandWatch = async (browser) => {
     group: 'salary-band-watch',
     screenshots: process.env.SALARY_BAND_WATCH_SCREENSHOTS,
   });
-  const { fixture, page } = ui;
+  const { fixture } = ui;
   const watch = ui.controls.locator('[data-browser-answer-watch]');
   const phase = (value) =>
     watch.locator(`[data-browser-watch-phase="${value}"]`);
@@ -32,11 +31,7 @@ export const verifySalaryBandWatch = async (browser) => {
     await watch.locator('[data-browser-watch-state="stopped"]').waitFor();
   };
   try {
-    await ui.open();
-    const { preview } = await openQuestionPreview(page);
-    const salary = await configureSalaryPreview(preview, bandSalary);
-    await salary.locator(':scope > summary').click();
-    await ui.inspect();
+    await inspectSalaryBrowser(ui, bandSalary);
     await ui.run(
       'approved containing salary choice reaches the native provider',
       async () => {

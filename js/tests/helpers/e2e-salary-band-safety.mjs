@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { questionBrowserUi } from './question-browser-ui.mjs';
-import { openQuestionPreview } from './question-preview.mjs';
-import { configureSalaryPreview } from './salary-preview-controls.mjs';
+import { inspectSalaryBrowser } from './salary-preview-controls.mjs';
 import { saveAnswerRule } from '../../src/automation/question-store.js';
 import {
   bandSalary,
@@ -17,7 +16,7 @@ export const verifySalaryBandSafety = async (browser) => {
     group: 'salary-band-safety',
     screenshots: process.env.SALARY_BAND_SAFETY_SCREENSHOTS,
   });
-  const { fixture, page } = ui;
+  const { fixture } = ui;
   const rule = await saveAnswerRule(fixture.store, bandSavedRule());
   const check = async (choices, expected) => {
     await fixture.reset({ question: bandQuestion, options: choices });
@@ -45,11 +44,7 @@ export const verifySalaryBandSafety = async (browser) => {
     });
   };
   try {
-    await ui.open();
-    const { preview } = await openQuestionPreview(page);
-    const salary = await configureSalaryPreview(preview, bandSalary);
-    await salary.locator(':scope > summary').click();
-    await ui.inspect();
+    await inspectSalaryBrowser(ui, bandSalary);
     await ui.run('a specific saved amount requires owner review', async () => {
       await check(bandChoices, before ? bandChoices[1] : '');
       await ui.controls

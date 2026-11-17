@@ -1,4 +1,7 @@
-import { openQuestionDisclosure } from './question-preview.mjs';
+import {
+  openQuestionDisclosure,
+  openQuestionPreview,
+} from './question-preview.mjs';
 
 /** Configure the shared preview and browser planning state through visible fields. */
 export const configureSalaryPreview = async (preview, salary) => {
@@ -29,4 +32,13 @@ export const configureSalaryPreview = async (preview, salary) => {
     }
   }
   return controls;
+};
+
+/** Open the real salary planner once and inspect its current provider question. */
+export const inspectSalaryBrowser = async (ui, salary) => {
+  await ui.open();
+  const { preview } = await openQuestionPreview(ui.page);
+  const controls = await configureSalaryPreview(preview, salary);
+  await controls.locator(':scope > summary').click();
+  await ui.inspect();
 };

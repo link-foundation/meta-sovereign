@@ -59,7 +59,11 @@ const missingField = (selection, config, entry) => {
 const plainPay = (text) => {
   const stripped = text
     .replace(/\{\{salary_[a-z0-9_]+\}\}/gu, '')
-    .replace(/[\d\s.,₽$€+\-–—/()]/gu, '')
+    .replace(
+      /(?<!\p{L})(?:up\s+to|at\s+least|(?:or|and)\s+(?:more|above)|(?:more|less)\s+than|between|under|below|over|above|to|and|не\s+менее|(?:и|или)\s+(?:более|выше)|между|свыше|более|больше|выше|менее|меньше|и|thousand|million|[kкmм])(?!\p{L})/giu,
+      ''
+    )
+    .replace(/[\d\s.,₽$€+\-–—/()<>≤≥=]/gu, '')
     .replace(
       /руб\S*|тыс\S*|млн\S*|доллар\S*|евро|на|руки|от|до|вычета|ндфл|налогов|в|час\S*|месяц\S*|ежемесячно|чистыми|гросс|from|net|gross|per|month\S*|hour\S*|before|after|tax\S*|RUB|USD|EUR|USDT/giu,
       ''
@@ -136,7 +140,7 @@ const savedAmountConflict = (input, previous, resolved) => {
     ? Object.values(resolved.amounts)
     : [resolved.amount];
   const saved = salaryAmounts(previous.text);
-  return saved.length > 0 && !saved.some((value) => targets.includes(value));
+  return saved.some((value) => !targets.includes(value));
 };
 const salaryResult = (question, input, previous, config, selection) => {
   const entry = config.currencies.find(

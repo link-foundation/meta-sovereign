@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 saved salary boundary follow-up:
+
+- [x] Reproduce five published-parent failures for saved English/Russian bands
+      and partially matching multi-basis amounts. Preserve authored explanations.
+- [x] Pass 33 relevant checks with one worker; inspect native before/after images
+      and independent MCP watch receipts with zero text sends and closed fixtures.
+- [ ] Publish the atomic correction, inspect all exact-head workflows and finish
+      the full QA15 acceptance mapping. All 40 unchecked criteria remain active.
+
 2026-11-17 current follow-up:
 
 - [x] Preserve the exact 51047939 CodeQL failure and SARIF; bound the Russian

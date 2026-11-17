@@ -1,3 +1,4 @@
+- [Saved salary boundaries](salary-band-saved.md): five published-parent failures, 33 focused passes and native/MCP before/after receipts; full QA15 acceptance remains required.
 - [Single PR release changeset](ci-salary-changeset.md): preserve the exact three-changeset failure and consolidate both salary summaries into the existing minor release entry. The unchanged validator reproduces and verifies the correction.
 - [Automatic salary bands](salary-band-watch.md): confirmed watches and sequential unread answers admit approved unique containing native choices, retain review holds and preserve owner drafts. Exact-parent, focused, native and independent MCP evidence is included; full acceptance remains required.
 - [Salary band safety](salary-band-safety.md): specific saved amounts and mixed currencies require review; four parent regressions, 67 focused passes, native positive receipts and independent MCP before/after evidence. Full acceptance remains required.

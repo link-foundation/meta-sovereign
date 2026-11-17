@@ -2,6 +2,11 @@
 'meta-sovereign': minor
 ---
 
+Use current numeric salary targets when a saved offered band contains English or
+Russian boundaries or scaled amounts. Keep authored explanations under review
+and refuse saved multi-basis answers when any amount conflicts with the current
+targets. Preserve native selection receipts and stored rules (issue #56).
+
 Keep owned VK scheduler intervals referenced until explicit stop, preventing a
 standalone automation process from exiting before its next trigger (issue #56).
 
