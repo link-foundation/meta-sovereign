@@ -142,12 +142,13 @@ export const withBrowserConversationTail = async (
             },
           })
         ),
-      selectInactive: (draft, verifyCurrent) =>
+      selectInactive: (draft, verifyCurrent, recent) =>
         run(() =>
           selectBrowserAnswer(document, ui, draft, chat, {
             receiptMs: settings.receiptMs,
             pollMs: settings.pollMs,
             inactiveToken: token,
+            recent,
             verifyCurrent: async () => {
               await checked();
               await verifyCurrent?.();

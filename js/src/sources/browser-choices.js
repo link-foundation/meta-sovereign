@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { browserMessageState } from './browser-message-state.js';
+import { browserAnswerRecent } from './browser-answer-context.js';
 import {
   browserPaneIdentity,
   browserPaneHeader,
@@ -75,6 +76,7 @@ const source = `(input) => {
   const browserPaneIdentity = (${browserPaneIdentity.toString()});
   const browserPaneHeader = (${browserPaneHeader.toString()});
   const browserMessageState = (${browserMessageState.toString()});
+  const browserAnswerRecent = (${browserAnswerRecent.toString()});
   const messageLinkProperties = (${messageLinkProperties.toString()});
   const browserMessageLinks = (${browserMessageLinks.toString()});
   const writeBrowserNativeInput = (${writeBrowserNativeInput.toString()});
@@ -321,12 +323,15 @@ export const selectBrowserAnswer = async (
   ui,
   draft,
   target,
-  { receiptMs = 10000, pollMs = 100, verifyCurrent, inactiveToken } = {}
+  { receiptMs = 10000, pollMs = 100, verifyCurrent, inactiveToken, recent } = {}
 ) => {
   if (!validWait(receiptMs, pollMs)) {
     throw failure('bad-draft');
   }
-  const expected = expectedQuestion(draft, target);
+  const expected = {
+    ...expectedQuestion(draft, target),
+    ...(recent ? { recent } : {}),
+  };
   const spec = browserChoiceSpec(ui);
   const result = await dispatchBrowserReply(
     commander,

@@ -532,3 +532,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce the unchanged validator's three-changeset failure and consolidate
       salary summaries into the existing correctly named minor changeset.
 - [ ] Verify committed base/head and hosted validation; continue all 40 unchecked criteria.
+
+2026-11-17 browser-derived salary history (QA12):
+
+- [x] Trace captured history lost at manual review, watch and unread planning boundaries; reproduce three failures against published 19cedfee with two passing barrier controls.
+- [x] Reuse the existing recent-context shape with bounded identity, timestamp, chronology and delivery checks. Recompute watch context and revalidate native actions without changing free-text admission.
+- [x] Pass 56 focused checks and native parent/corrected draft readback. Reproduce stale context admission on the parent controller and confirm corrected refusal. Inspect both screenshots and independent MCP no-send receipts with drained fixtures.
+- [x] Pass scoped formatting, lint, secrets, bundle and the unchanged 6.5% duplication gate; preserve 77 verified evidence files and exact parent modules.
+- [ ] Publish the atomic correction and inspect exact-source hosted checks. Full QA12 vacancy/source mapping and all forty original unchecked criteria remain required; PR57 stays draft and unmerged.

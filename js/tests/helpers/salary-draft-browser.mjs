@@ -3,6 +3,7 @@ import { questionBrowserServer } from '../../../experiments/issue-56/question-br
 import { saveAnswerRule } from '../../src/automation/question-store.js';
 import { postQuestion } from './question-http.mjs';
 import { LINO_TEXT } from '../../src/transport/lino.js';
+import { mountSalaryHistory } from '../../../experiments/issue-56/salary-browser-history.mjs';
 
 /** Inspect and explicitly prefill one native composer, retaining owner drafts. */
 export const verifySalaryDraft = async (browser, scenario) => {
@@ -23,6 +24,10 @@ export const verifySalaryDraft = async (browser, scenario) => {
     }
     const before = await savedRules();
     await fixture.reset({ freeText: true, question: scenario.question });
+    await mountSalaryHistory(
+      fixture,
+      scenario.recent ?? scenario.input?.recent
+    );
     const inspected = await call('inspect', input);
     await capture();
     assert.equal(inspected.status, 200);
@@ -46,6 +51,10 @@ export const verifySalaryDraft = async (browser, scenario) => {
       question: scenario.question,
       draft: 'Keep my own answer',
     });
+    await mountSalaryHistory(
+      fixture,
+      scenario.recent ?? scenario.input?.recent
+    );
     const owned = await call('inspect', input);
     const held = await call('prefill', { id: owned.body.id });
     assert.notEqual(held.status, 200);

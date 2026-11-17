@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { previewAnswer } from './question-store.js';
 import { normalizeAnswerAction } from './question-answers.js';
-import { normalizeAnswerEnvironment } from './question-context.js';
+import { browserAnswerPlanning } from './question-browser-context.js';
 import { checkBrowserQuestion } from './question-browser-state.js';
 
 /** Freeze observed questions once; later review actions still recheck the provider. */
@@ -11,7 +11,7 @@ export const createBrowserReviewRecorder =
     const snapshot = checkBrowserQuestion(observed);
     const planning = {
       ...normalizeAnswerAction(input),
-      ...normalizeAnswerEnvironment(input),
+      ...browserAnswerPlanning(input, observed),
     };
     const plan = snapshot.question.outgoing
       ? null

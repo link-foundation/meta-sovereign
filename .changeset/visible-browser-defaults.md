@@ -839,3 +839,7 @@ bare-code language inheritance, unrelated-topic barriers and owner drafts.
 
 Retain figure/number nouns and name-prefixed known request verbs in bounded
 salary clarifications, including Russian amount wording and topic guards.
+
+Use verified captured browser history for salary clarification review, watches
+and unread answering without model opt-in. Retain dated chronology barriers,
+owner drafts and context revalidation before native actions (issue #56 QA12).

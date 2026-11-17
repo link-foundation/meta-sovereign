@@ -181,7 +181,7 @@ const createReviewActions = ({
     const result = await send.prefillAnswer({
       ...record.target,
       chat: record.snapshot.chat,
-      expected: record.snapshot,
+      expected: { ...record.snapshot, recent: record.planning.recent },
       text: record.plan.text,
     });
     if (result?.prefilled !== true) {

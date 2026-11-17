@@ -1,11 +1,13 @@
 import { chromium } from 'playwright';
 import { questionBrowserServer } from './question-browser-server.mjs';
 import { saveAnswerRule } from '../../js/src/automation/question-store.js';
+import { mountSalaryHistory } from './salary-browser-history.mjs';
 
 export const salaryDraftMcpServer = async ({
   question,
   rules = [],
   options,
+  recent,
 }) => {
   const browser = await chromium.launch({
     executablePath:
@@ -19,6 +21,7 @@ export const salaryDraftMcpServer = async ({
       await saveAnswerRule(fixture.store, rule);
     }
     await fixture.reset({ freeText: !options, question, options });
+    await mountSalaryHistory(fixture, recent);
     console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
     process.stdin.resume();
     await new Promise((resolve) => process.stdin.once('data', resolve));

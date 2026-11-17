@@ -2,6 +2,7 @@ import { previewAnswer, prepareAnswerPreview } from './question-store.js';
 import { prepareAnswerModelContext } from './answer-model-context.js';
 import { answerEnvironmentFromMessages } from './question-context.js';
 import { toBrowserMessageLink } from '../sources/browser-message.js';
+import { browserAnswerPlanning } from './question-browser-context.js';
 
 /** Only an acknowledged window for this exact question supplies native context. */
 export const unreadAnswerInput = (context, record, snapshot) => {
@@ -27,7 +28,7 @@ export const unreadAnswerInput = (context, record, snapshot) => {
   return {
     ...record.planning,
     modelDraft: false,
-    recent,
+    ...browserAnswerPlanning({ ...record.planning, recent }, snapshot),
     source: record.source,
     chat: snapshot.chat,
     question: snapshot.question.body,

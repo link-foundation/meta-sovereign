@@ -57,7 +57,7 @@ const reviewEntry = async (entry, record, review) => {
     }
     const result = await review(
       { source: record.source, chat: entry.chat },
-      snapshot,
+      entry.question,
       record.planning
     );
     return {

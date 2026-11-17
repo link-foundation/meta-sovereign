@@ -1,4 +1,5 @@
 import { previewAnswer } from './question-store.js';
+import { browserAnswerPlanning } from './question-browser-context.js';
 import { guardedSend } from './outbox.js';
 import { questionChoiceKey } from './question-choice-key.js';
 import { approvedBrowserPlan as approved } from './question-browser-plan.js';
@@ -62,9 +63,10 @@ const outcomePatch = (outcome, draft) => {
   };
 };
 
-const act = async (context, runtime, snapshot, plan) => {
+const act = async (context, runtime, snapshot, plan, planning) => {
+  const record = { ...runtime.record, planning };
   const verify = async () => {
-    const latest = await questionPlan(context, runtime.record, snapshot);
+    const latest = await questionPlan(context, record, snapshot);
     if (
       !runtime.fresh() ||
       !approved(latest) ||
@@ -75,7 +77,11 @@ const act = async (context, runtime, snapshot, plan) => {
     }
   };
   if (!snapshot.strictOptions) {
-    const result = await runtime.handle.prefill(snapshot, plan.text, verify);
+    const result = await runtime.handle.prefill(
+      { ...snapshot, recent: planning.recent },
+      plan.text,
+      verify
+    );
     if (result?.prefilled !== true) {
       throw questionWatchFailure('question-browser-prefill-unconfirmed');
     }
@@ -102,7 +108,7 @@ const act = async (context, runtime, snapshot, plan) => {
       send: async (selected) => {
         await verify();
         return checkedBrowserChoiceReceipt(
-          await runtime.handle.select(selected, verify),
+          await runtime.handle.select(selected, verify, planning.recent),
           selected
         );
       },
@@ -144,10 +150,16 @@ const tick = async (context, runtime) => {
   if (runtime.record.noticeReplies) {
     return tickQuestionNotices(context, runtime);
   }
-  const snapshot = checkBrowserQuestion(await runtime.handle.read());
+  const observed = await runtime.handle.read();
+  const snapshot = checkBrowserQuestion(observed);
+  const planning = {
+    ...runtime.record.planning,
+    ...browserAnswerPlanning(runtime.record.planning, observed),
+  };
+  const record = { ...runtime.record, planning };
   const plan = snapshot.question.outgoing
     ? null
-    : await questionPlan(context, runtime.record, snapshot);
+    : await questionPlan(context, record, snapshot);
   let phase = phaseOf(snapshot, plan);
   const previous = runtime.record.outbox;
   if (alreadySelected(phase, snapshot, previous, runtime, plan)) {
@@ -160,7 +172,7 @@ const tick = async (context, runtime) => {
   if (phase !== 'ready' || !runtime.fresh()) {
     return;
   }
-  const latest = await questionPlan(context, runtime.record, snapshot);
+  const latest = await questionPlan(context, record, snapshot);
   if (
     !approved(latest) ||
     latest.text !== plan.text ||
@@ -172,7 +184,7 @@ const tick = async (context, runtime) => {
   await saveQuestionWatch(
     context,
     runtime,
-    await act(context, runtime, snapshot, latest)
+    await act(context, runtime, snapshot, latest, planning)
   );
 };
 

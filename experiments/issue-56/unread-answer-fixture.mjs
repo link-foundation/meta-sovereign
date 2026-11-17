@@ -6,6 +6,17 @@ import {
   waitUnreadReview,
 } from './question-unread-review-fixture.mjs';
 import { browserQuestion } from './question-browser-fixture.mjs';
+import { checkBrowserQuestion } from '../../js/src/automation/question-browser-state.js';
+
+const verifyExpected = (expected, snapshot) => {
+  const { recent, ...identity } = expected;
+  assert.deepEqual(identity, checkBrowserQuestion(snapshot));
+  if (snapshot.messages) {
+    assert.ok(Array.isArray(recent));
+  } else {
+    assert.equal(recent, undefined);
+  }
+};
 
 /** Sequential bounded mock: text sends and nested watches are forbidden. */
 export const unreadAnswerFixture = async (options = {}) => {
@@ -50,7 +61,7 @@ export const unreadAnswerFixture = async (options = {}) => {
         async prefillInactive(expected, text, verify) {
           await options.queued?.(current, input, snapshot);
           await verify();
-          assert.deepEqual(expected, snapshot);
+          verifyExpected(expected, snapshot);
           current.state.prefills.push({ chat: snapshot.chat, text });
           return { prefilled: true };
         },

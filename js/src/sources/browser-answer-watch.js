@@ -159,12 +159,13 @@ export const openBrowserAnswerWatch = async ({
         await verifyCurrent(verify);
         return prefillBrowserAnswer(document, ui, expected, text);
       }),
-    select: (draft, verify) =>
+    select: (draft, verify, recent) =>
       run(async () => {
         await verifyCurrent(verify);
         return selectBrowserAnswer(document, ui, draft, target, {
           receiptMs,
           pollMs,
+          recent,
           verifyCurrent: () => verifyCurrent(verify),
         });
       }),

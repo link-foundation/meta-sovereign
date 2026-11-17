@@ -5,6 +5,7 @@ import {
   revealChoiceReply,
 } from './browser-choice-visibility.js';
 import { armBrowserReply } from './browser-reply-guard.js';
+import { browserAnswerRecent } from './browser-answer-context.js';
 
 /** Page-local ownership and one-use event guards. Never returns composer text. */
 export const createChoiceContext = (input, read) => {
@@ -47,6 +48,9 @@ export const createChoiceContext = (input, read) => {
     !value.code &&
     !value.question.outgoing &&
     identity(value) === identity(expected) &&
+    (expected.recent === undefined ||
+      JSON.stringify(browserAnswerRecent(value)) ===
+        JSON.stringify(expected.recent)) &&
     samePending(value) &&
     (!expected.noticeContext ||
       JSON.stringify(value.noticeContext) ===

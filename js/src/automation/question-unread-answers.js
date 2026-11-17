@@ -23,6 +23,7 @@ const select = async ({
   verify,
   entry,
   save,
+  recent,
 }) => {
   const draft = browserChoiceDraft(
     {
@@ -49,7 +50,7 @@ const select = async ({
     send: async (selected) => {
       await verify();
       return checkedBrowserChoiceReceipt(
-        await handle.selectInactive(selected, verify),
+        await handle.selectInactive(selected, verify, recent),
         selected
       );
     },
@@ -91,20 +92,21 @@ export const visitUnreadAnswer = async ({
   review,
   save,
 }) => {
-  const snapshot = checkBrowserQuestion(handle.snapshot);
+  const observed = handle.snapshot;
+  const snapshot = checkBrowserQuestion(observed);
   if (snapshot.chat !== observation.chat) {
     throw unreadFailure(
       'question-unread-unverified',
       'The borrowed conversation changed.'
     );
   }
-  const input = unreadAnswerInput(context, record, snapshot);
+  const input = unreadAnswerInput(context, record, observed);
   const baseline = snapshot.question.outgoing
     ? null
     : await previewAnswer(context.store, input);
   const reviewed = await review(
     { source: record.source, chat: snapshot.chat },
-    snapshot,
+    observed,
     { ...input, modelDraft: mayDraftUnreadAnswer(record, snapshot, baseline) },
     { signal: controller.signal }
   );
@@ -131,7 +133,7 @@ export const visitUnreadAnswer = async ({
       controller.signal.aborted ||
       !(await sameUnreadAnswer(
         context.store,
-        unreadAnswerInput(context, record, snapshot),
+        unreadAnswerInput(context, record, observed),
         baseline,
         plan
       )) ||
@@ -154,6 +156,7 @@ export const visitUnreadAnswer = async ({
         verify,
         entry,
         save,
+        recent: observed.messages ? input.recent : undefined,
       })
     ) {
       return { holdReview: false };
@@ -172,7 +175,14 @@ export const visitUnreadAnswer = async ({
     !plan.pending?.blocked &&
     plan.text?.trim()
   ) {
-    const result = await handle.prefillInactive(snapshot, plan.text, verify);
+    const result = await handle.prefillInactive(
+      {
+        ...snapshot,
+        ...(observed.messages ? { recent: input.recent } : {}),
+      },
+      plan.text,
+      verify
+    );
     if (result?.prefilled !== true) {
       throw unreadFailure(
         'question-browser-prefill-unconfirmed',

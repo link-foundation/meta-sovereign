@@ -703,3 +703,4 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Salary clarification phrasing and language](salary-clarification-phrasing.md)
 - [Named salary clarifications](salary-clarification-numbers.md): missing number nouns and name-prefixed request verbs, three parent regressions, 26 focused passes and native/MCP zero-send readback. Full provider-context integration remains required.
 - [Résumé trace mock](ci-resume-input-mock.md): preserve the actual Node/Bun/Deno CI failure and repair the missing page event API; two focused tests per runtime retain bounded value-free diagnostics.
+- [Captured browser salary context](salary-browser-context.md): three exact-parent regressions, dated native history in manual/watch/unread plans, and stale-context refusal before prefill. Full QA12 and all forty unchecked original criteria remain required.
