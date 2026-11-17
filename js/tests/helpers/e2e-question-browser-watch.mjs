@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { questionBrowserServer } from '../../../experiments/issue-56/question-browser-server.mjs';
+import { mountRepeatedQuestion } from '../../../experiments/issue-56/repeated-question-fixture.mjs';
 import {
   traceBrowserInputs,
   traceBrowserDetails,
@@ -32,7 +33,7 @@ const watchDisclosureTrace = async (page) => {
 /** Production controls and real browser-commander writes; official origins are routed. */
 export const verifyQuestionBrowserWatch = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, repeatOnly = false, repeatBefore = false } = {}
 ) => {
   const fixture = await questionBrowserServer(browser);
   const context = await browser.newContext({
@@ -135,9 +136,13 @@ export const verifyQuestionBrowserWatch = async (
       state,
       shot,
       open,
+      repeatBefore,
     };
-    await verifyWatchActions(scenario);
-    await verifyWatchRecovery(scenario);
+    if (!repeatOnly) {
+      await verifyWatchActions(scenario);
+      await verifyWatchRecovery(scenario);
+    }
+    await verifyRepeatedQuestion(scenario);
     assert.deepEqual(errors, []);
     return { cases, pageErrors: errors, liveProvider: false };
   } catch (error) {
@@ -164,6 +169,44 @@ export const verifyQuestionBrowserWatch = async (
     await context.close();
     await fixture.close();
   }
+};
+
+const verifyRepeatedQuestion = async ({
+  fixture,
+  run,
+  read,
+  start,
+  stop,
+  phase,
+  watch,
+  shot,
+  repeatBefore,
+}) => {
+  await run(
+    'a repeated question holds the previously sent wording for review',
+    async () => {
+      await fixture.reset();
+      await fixture.page.evaluate(mountRepeatedQuestion);
+      await read();
+      await start();
+      if (repeatBefore) {
+        await watch
+          .getByText('Provider message receipt: 102', { exact: true })
+          .waitFor();
+      } else {
+        await phase('review').waitFor();
+      }
+      await shot(
+        repeatBefore ? 'repeated-question-before' : 'repeated-question-after'
+      );
+      await stop();
+      assert.deepEqual(await fixture.stats(), {
+        clicks: Number(repeatBefore),
+        textSends: 0,
+        draft: '',
+      });
+    }
+  );
 };
 
 const verifyWatchActions = async ({
@@ -225,7 +268,7 @@ const verifyWatchActions = async ({
     }
   );
   await run(
-    'editing the automatic draft preserves owner content when native options arrive',
+    'editing preserves owner content; clearing the unsent draft retries one native choice',
     async () => {
       await fixture.reset({ freeText: true });
       await read();
@@ -237,11 +280,20 @@ const verifyWatchActions = async ({
         .getByRole('button', { name: 'Recover watcher status', exact: true })
         .click();
       await phase('owner-draft').waitFor();
-      await stop();
       assert.deepEqual(await fixture.stats(), {
         clicks: 0,
         textSends: 0,
         draft: 'My own revised answer',
+      });
+      await fixture.page.locator('textarea').fill('');
+      await watch
+        .getByText('Provider message receipt: 102', { exact: true })
+        .waitFor();
+      await stop();
+      assert.deepEqual(await fixture.stats(), {
+        clicks: 1,
+        textSends: 0,
+        draft: '',
       });
     }
   );
