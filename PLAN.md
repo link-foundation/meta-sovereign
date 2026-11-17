@@ -3,6 +3,18 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 incoming employer salary context (QA12):
+
+- [x] Reproduce the exact 027b8575 parent: outgoing USD replies override an
+      employer's EUR request and outgoing questions create false salary anchors.
+- [x] Preserve direction in bounded browser/archive context and normalize it;
+      restrict salary interpretation to incoming turns without changing generic
+      owner vocabulary or chronological/delivery barriers.
+- [x] Pass 42 focused checks and native/MCP parent versus corrected drafts;
+      preserve owner text and saved rules with zero sends and closed fixtures.
+- [ ] Publish the correction and inspect exact-source hosted checks; complete
+      the full QA12 mapping and all forty original unchecked criteria.
+
 2026-11-17 hosted workflow line-limit correction:
 
 - [x] Preserve the exact 40b4caaa failure: the diagnostic addition made

@@ -103,15 +103,21 @@ export const normalizeAnswerEnvironment = ({
   const messages = recent.map((entry) => {
     const text = typeof entry === 'string' ? entry : entry?.text;
     const evidence = typeof entry === 'string' ? undefined : entry?.evidence;
+    const outgoing = typeof entry === 'string' ? undefined : entry?.outgoing;
     if (
       typeof text !== 'string' ||
       text.length > 6000 ||
+      (outgoing !== undefined && typeof outgoing !== 'boolean') ||
       (evidence !== undefined &&
         (typeof evidence !== 'string' || evidence.length > 500))
     ) {
       throw new Error('invalid recent answer context');
     }
-    return { text, ...(evidence ? { evidence } : {}) };
+    return {
+      text,
+      ...(evidence ? { evidence } : {}),
+      ...(outgoing ? { outgoing: true } : {}),
+    };
   });
   if (!vacancy || typeof vacancy !== 'object' || Array.isArray(vacancy)) {
     throw new Error('invalid vacancy answer context');
@@ -240,7 +246,11 @@ export const answerEnvironmentFromMessages = (messages, latest) => {
     ) {
       break;
     }
-    recent.push({ text: message.body, evidence: message.id });
+    recent.push({
+      text: message.body,
+      evidence: message.id,
+      ...(message.outgoing ? { outgoing: true } : {}),
+    });
   }
   // Provider adapters may attach context only from this turn's actual vacancy.
   let vacancy = {};

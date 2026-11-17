@@ -851,3 +851,8 @@ priority, owner drafts, page refusal and owned cancellation (issue #56 QA12).
 Use currency from the observed HH chat vacancy card before opening its linked
 page, including watches and unread answering. Preserve explicit context,
 ambiguous-currency review and owner text without extra page reads (issue #56 QA12).
+
+Retain outgoing identity in bounded answer context and use incoming employer
+turns for salary currency, basis and clarification anchors. Keep delivery barriers
+and owner-defined generic context behavior across browser and archive planning.
+This preserves issue #56 QA12 context priority.

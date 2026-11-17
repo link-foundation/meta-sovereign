@@ -56,7 +56,11 @@ export const browserAnswerRecent = ({ messages, question }) => {
     ) {
       break;
     }
-    recent.push({ text: row.body, evidence: `browser:${row.id}` });
+    recent.push({
+      text: row.body,
+      evidence: `browser:${row.id}`,
+      ...(row.outgoing ? { outgoing: true } : {}),
+    });
     previous = when;
   }
   return recent;

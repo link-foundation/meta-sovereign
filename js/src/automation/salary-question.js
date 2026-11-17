@@ -362,6 +362,8 @@ export const salaryQuestion = (text, config, input, savedCurrency) => {
   }
   const vocabulary = input.salaryVocabulary ?? createSalaryVocabulary(input);
   const environment = normalizeAnswerEnvironment(input);
+  // An owner's previous answer can use another currency, basis or period.
+  environment.recent = environment.recent.filter((entry) => !entry.outgoing);
   const previous = anchor(environment, config, vocabulary);
   const followup = !directSalaryQuestion(text, vocabulary);
   if (!followup && input.questionMode !== 'field' && !asksQuestion(text)) {
