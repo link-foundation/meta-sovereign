@@ -4,25 +4,16 @@ from pathlib import Path
 import subprocess
 import sys
 from evidence_bundle import write_entries_archive
+from hosted_evidence import read_workflows
 
 root = Path(__file__).resolve().parents[2]
 revision, slug = sys.argv[1:]
 sha = subprocess.check_output(['git', 'rev-parse', revision], cwd=root).decode().strip()
-paths = sorted((root / 'ci-logs').glob(f'hosted-verification-{slug}-*.json'))
-assert len(paths) == 5, 'preserve all five workflow metadata files'
-names = set()
-jobs = 0
-for path in paths:
-    run = json.loads(path.read_text())
-    assert run['headSha'] == sha and run['status'] == 'completed', path
-    assert run['conclusion'] == 'success', path
-    assert all(job['status'] == 'completed' and job['conclusion'] in
-               ['success', 'skipped'] for job in run['jobs']), path
-    names.add(run['name'])
-    jobs += len(run['jobs'])
-assert names == {'Checks and release', 'Desktop release', 'Deploy to GitHub Pages',
-                 'Scheduled security audit', 'Broken Link Checker'}
-entries = {str(path.relative_to(root)): path.read_bytes() for path in paths}
+entries = {}
+runs = read_workflows(root, sha, slug, entries)
+jobs = sum(len(run['jobs']) for run in runs.values())
+helper = root / 'experiments/issue-56/hosted_evidence.py'
+entries[str(helper.relative_to(root))] = helper.read_bytes()
 source = Path(__file__).resolve()
 entries[str(source.relative_to(root))] = source.read_bytes()
 entries['metadata.json'] = (json.dumps(dict(sha=sha, workflows=5, jobs=jobs,

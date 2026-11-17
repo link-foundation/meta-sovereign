@@ -14,25 +14,14 @@ import subprocess
 import sys
 import tarfile
 from evidence_bundle import write_entries_archive
+from hosted_evidence import read_workflows, read_jobs
 
 root = Path(__file__).resolve().parents[2]
 revision, slug = sys.argv[1:]
 sha = subprocess.check_output(['git', 'rev-parse', revision], cwd=root).decode().strip()
 logs = root / 'ci-logs'
-runs = {}
 entries = {}
-for path in sorted(logs.glob(f'hosted-verification-{slug}-*.json')):
-    run = json.loads(path.read_text())
-    assert run['headSha'] == sha and run['status'] == 'completed', path
-    assert run['conclusion'] == 'success', path
-    assert all(job['status'] == 'completed' and job['conclusion'] in
-               ['success', 'skipped'] for job in run['jobs']), path
-    assert run['name'] not in runs, 'duplicate workflow'
-    runs[run['name']] = run
-    entries[str(path.relative_to(root))] = path.read_bytes()
-assert set(runs) == {'Checks and release', 'Desktop release',
-                     'Deploy to GitHub Pages', 'Scheduled security audit',
-                     'Broken Link Checker'}, 'preserve all five workflows'
+runs = read_workflows(root, sha, slug, entries)
 
 jobs = {
     'node': ('Checks and release', 'Test (node on ubuntu-26.04)'),
@@ -47,21 +36,7 @@ jobs = {
     'webkit-3': ('Checks and release', 'Browser e2e (webkit, shard 3/4)'),
     'webkit-4': ('Checks and release', 'Browser e2e (webkit, shard 4/4)'),
 }
-raw = {}
-job_receipts = {}
-for tag, (workflow, name) in jobs.items():
-    candidates = [job for job in runs[workflow]['jobs'] if job['name'] == name]
-    assert len(candidates) == 1, (workflow, name)
-    job = candidates[0]
-    assert job['conclusion'] == 'success', name
-    path = logs / f'hosted-{slug}-{tag}.log'
-    entries[str(path.relative_to(root))] = path.read_bytes()
-    raw[tag] = path.read_text().splitlines()
-    job_receipts[tag] = {
-        'id': job['databaseId'], 'name': name,
-        'startedAt': job['startedAt'], 'completedAt': job['completedAt'],
-        'url': job['url'], 'log': str(path.relative_to(root)),
-    }
+raw, job_receipts = read_jobs(root, runs, slug, jobs, entries)
 
 audit_path = logs / 'hosted-criteria-source-audit.json'
 audit = json.loads(audit_path.read_text())
@@ -376,7 +351,8 @@ for name in ['hosted-criteria-audit.md', 'hosted-criteria-plan.md',
              'question-wording-criteria-audit.md']:
     path = root / 'docs/case-studies/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
-for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py']:
+for name in ['audit-hosted-criteria.py', 'collect-hosted-criteria.py', 'evidence_bundle.py',
+             'hosted_evidence.py']:
     path = root / 'experiments/issue-56' / name
     entries[str(path.relative_to(root))] = path.read_bytes()
 reference_receipts = {}
