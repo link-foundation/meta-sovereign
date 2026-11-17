@@ -934,3 +934,5 @@ Bound standalone weighted question matching before tokenization, preserving the
 6,000-character boundary, legacy ordered matching and finite work budgets.
 
 Recognize hosted regional EC2 Ubuntu archives when preparing browser dependencies, preserving fallback mirrors, metadata and existing CI deadlines (issue #56).
+
+Observe exact runner shutdown after graceful Stop before acknowledging success or switching modes; retain bounded waiting, cancellation, exclusive ownership and truthful unknown/stuck refusals (issue #56 VD02).

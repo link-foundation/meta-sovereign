@@ -1,3 +1,12 @@
+2026-11-17 runner graceful Stop and weighted browser coverage:
+
+- [x] Reproduce native Stop returning before a finite 3.5-second cleanup; trace successful signal dispatch versus actual screen drainage.
+- [x] Observe shutdown within a bounded monotonic window while retaining the controller lease, cancellation and unknown/stuck refusals; six actual-parent regressions fail and 22 corrected focused checks pass.
+- [x] Preserve current-commit Chromium shard-3 failure and reproduce weighted-preview ambiguity with match inspection enabled; retain exact main text, candidates, review and persistence assertions.
+- [x] Pass scoped static checks and preserve independently hashed before/after sources and logs; the duplication gate remains 6.49%.
+- [ ] Commit each unit and push only to the prepared branch.
+- [ ] Review the full exact-source hosted gate, then finish every pending acceptance audit and original requirement. PR57 stays draft and unmerged.
+
 2026-11-17 external form-learning acceptance audit (QA23):
 
 - [x] Reconcile B2/B3/B11/B14/B23/B24, including the later full-minute owner-edit extension and unchanged no-auto-submit behavior.

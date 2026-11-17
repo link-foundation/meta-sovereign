@@ -13,8 +13,17 @@ import {
 } from '../../experiments/issue-56/runner-fixture.mjs';
 
 const targets = () => validateRunnerProfile(runnerProfile());
-const control = (fixture) =>
-  createRunnerControl({ targets: targets(), run: fixture.run });
+const control = (fixture) => {
+  let elapsed = 0;
+  return createRunnerControl({
+    targets: targets(),
+    run: fixture.run,
+    now: () => elapsed,
+    pause: async (milliseconds) => {
+      elapsed += milliseconds;
+    },
+  });
+};
 const mutations = (fixture) =>
   fixture.calls.filter(([, action]) => action !== 'probe');
 

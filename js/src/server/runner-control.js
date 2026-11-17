@@ -4,11 +4,22 @@ import {
   observedRunnerState,
 } from './runner-session.js';
 import { runRunnerCommand } from './runner-transport.js';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const refused = (code, states) => ({ ok: false, code, states });
 
 /** The caller owns a cross-process controller lease for each mutation. */
-export const createRunnerControl = ({ targets, run = runRunnerCommand }) => {
+export const createRunnerControl = ({
+  targets,
+  run = runRunnerCommand,
+  now = () => globalThis.performance.now(),
+  pause = delay,
+  trace = (event) => {
+    if (process.env.MS_RUNNER_CONTROL_DEBUG === '1') {
+      console.error(`[runner-control] ${event}`);
+    }
+  },
+}) => {
   const observe = async (mode, options) => {
     const target = targets[mode];
     if (!target) {
@@ -36,7 +47,22 @@ export const createRunnerControl = ({ targets, run = runRunnerCommand }) => {
     }
     const target = targets[mode];
     await run(target, [target.start ?? '$', '--stop', target.session], options);
+    const deadline = now() + 10000;
     current[mode] = await observe(mode, options);
+    // start-command acknowledges the signal, not the application's cleanup.
+    // Keep the controller lease until the exact session disappears or refuses.
+    while (
+      current[mode] === 'running' &&
+      !options.signal?.aborted &&
+      now() < deadline
+    ) {
+      trace('stop-wait');
+      await pause(Math.min(100, deadline - now()), undefined, {
+        signal: options.signal,
+      });
+      current[mode] = await observe(mode, options);
+    }
+    trace(current[mode] === 'stopped' ? 'stop-stopped' : 'stop-unconfirmed');
     return current[mode] === 'stopped';
   };
   const start = async (mode, current, options) => {
