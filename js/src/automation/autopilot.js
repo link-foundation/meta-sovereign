@@ -180,6 +180,11 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
         return;
       }
       const { draft, outcome } = result;
+      if (outcome.code === 'daily-cap') {
+        // Another admitted send consumed the room while this step planned.
+        // Re-enter the ordinary durable cap wait without recording a failure.
+        continue;
+      }
       let wait = pauseMs(automation.pacing, random);
       const ok = outcome.status === 'sent';
       streak = ok ? 0 : streak + 1;

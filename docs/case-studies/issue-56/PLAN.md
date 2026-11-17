@@ -1,17 +1,25 @@
+2026-11-17 atomic automatic send capacity (QA20 remains required):
+
+- [x] Reproduce 24 failures in 36 finite checks against published parent `6f7bdd6f`, including simultaneous distinct-target cap snapshots and bypass through single-step delivery.
+- [x] Share serialized durable outbox admission across automatic batches and steps; retain uncertainty reservations, owner review and independent-owner progress.
+- [x] Pass 90 focused checks with one worker and rebuild the actual production browser bundle.
+- [x] Complete scoped static checks and preserve all source/log archive entries; collect and independently rehash the final archive before publication.
+- [ ] Publish this atomic correction, require exact-source hosted verification and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+
 2026-11-17 VK person consent propagation (QA19/QA20 remain required):
 
 - [x] Reproduce explicit person opt-outs being ignored by independent VK previews and final provider admission; include positive foreign-provider controls.
 - [x] Carry verified private-user identity through shared safety targets and queued message drafts; preserve group/community distinctions.
 - [x] Pass scoped lint/format/secrets, source/documentation limits and the unchanged duplication gate; rebuild after 45 final parent failures and 107 focused passes across thirteen policy variants.
 - [x] Collect and independently rehash all 67 archive entries.
-- [ ] Publish the atomic correction and require exact-source hosted validation; all 35 unfinished criteria remain required.
+- [x] Publish the atomic correction at `6f7bdd6f`; exact-source hosted validation remains required, as do all 35 unfinished criteria.
 
 2026-11-17 manual HH login CLI admission repair:
 
 - [x] Preserve exact published Windows Node, Linux Bun and Linux Deno failure logs; reproduce the missing names and public entry-point refusal.
 - [x] Register all three login commands while retaining lazy help; pass 15 focused checks including the unchanged complete command comparison.
 - [x] Finish scoped lint/format/secrets, source/documentation limits and the unchanged 6.49% duplication gate; preserve and independently verify all 24 archive entries.
-- [ ] Publish the atomic correction on the prepared branch.
+- [x] Publish the atomic correction on the prepared branch at `fe44affd` (included in `6f7bdd6f`).
 - [ ] Require fresh exact-source hosted validation and continue all 35 unfinished criteria.
 
 2026-11-17 pending draft ownership (QA20 remains required):
@@ -20,7 +28,7 @@
 - [x] Preserve every pending action draft through the shared queue and serialize queue writes per store using the existing recoverable operation family.
 - [x] Pass 37 focused checks with one worker, including five shared provider identities, refused-write recovery and existing model/CLI/Lino behavior; rebuild the actual web bundle.
 - [x] Complete static checks and collect/independently rehash the source/log evidence.
-- [ ] Publish this atomic unit only to the prepared branch, then require exact-source hosted verification.
+- [x] Publish this atomic unit only to the prepared branch at `010c255b` (included in `6f7bdd6f`); exact-source hosted verification remains required.
 - [ ] Require exact-source hosted verification and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
 
 2026-11-17 strict picomatch audit repair:

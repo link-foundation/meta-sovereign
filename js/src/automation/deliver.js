@@ -7,6 +7,7 @@ import { validatePersonalReplyDraft } from './gratitude-store.js';
 import { deliverOrderedReply } from './ordered-reply.js';
 import { withVkDeliveryPacing } from './vk-queued-delivery.js';
 import { readVkOutgoingSettings } from './vk-outgoing-settings.js';
+import { RUN_PREFIX, automationKey } from './automations.js';
 
 const indicateTyping = async (store, showTyping, automation, draft) => {
   if (
@@ -38,6 +39,14 @@ const outcomeFailure = (outcome) =>
         error: outcome.error,
         ...(outcome.code ? { code: outcome.code } : {}),
         ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
+      };
+
+const automaticQuota = (automation, reviewed) =>
+  reviewed
+    ? null
+    : {
+        dailyCap: automation.pacing.dailyCap,
+        runPrefix: `${RUN_PREFIX}${automationKey(automation)}:`,
       };
 
 export const createDelivery = ({
@@ -124,6 +133,7 @@ export const createDelivery = ({
       store,
       kind: 'automation',
       owner: automation.id,
+      quota: automaticQuota(automation, reviewed),
       key: deliveryKey(automation, draft, clock, queueKey),
       draft,
       send: async (outgoing) => {

@@ -895,3 +895,8 @@ Respect explicit person opt-outs across independent VK personal, friendship,
 maintenance, discovery and retention policies. Carry verified private-user
 identity into queued message receipts and recheck consent after provider waits,
 preserving distinct community and group targets (issue #56 QA19/QA20).
+
+Reserve automatic daily capacity atomically in the durable outbox across batch
+and single-step delivery. Preserve uncertainty reservations and explicit owner
+review; return cap races to normal pacing without recording failed sends
+(issue #56 QA20).

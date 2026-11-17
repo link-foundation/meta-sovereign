@@ -25,6 +25,7 @@ import { browserAnswerReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
 import { vkSequenceReceipt } from './vk-sequence-receipt.js';
+import { createStoreQueue } from '../storage/serialized.js';
 
 export const OUTBOX_PREFIX = 'outbox:';
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -132,6 +133,7 @@ export const batchStopReason = (
 };
 
 const inflightOf = new WeakMap();
+const serializeAdmission = createStoreQueue();
 const inflight = (store) => {
   if (!inflightOf.has(store)) {
     inflightOf.set(store, new Set());
@@ -219,6 +221,9 @@ export const guardedSend = async ({
   draft,
   send,
   settings = null,
+  // Automatic owners supply their current cap and shared ledger prefix.
+  // Explicit per-message owner sends retain their existing confirmation policy.
+  quota = null,
   // The user pressed Send on this very message. Anything else is an
   // automated send and carries `automated: true` to the sender, which
   // refuses WhatsApp Web for it (R-Z9).
@@ -237,18 +242,33 @@ export const guardedSend = async ({
     });
   const id = outboxId(useKey);
   const running = inflight(store);
-  const stop = refusal(
-    await store.get(id),
-    id,
-    running,
-    settings ?? (await loadSettings(store)),
-    draft
-  );
-  if (stop) {
-    return stop;
-  }
-  running.add(id);
-  try {
+  const admission = await serializeAdmission(store, async () => {
+    const stop = refusal(
+      await store.get(id),
+      id,
+      running,
+      settings ?? (await loadSettings(store)),
+      draft
+    );
+    if (stop) {
+      return { stop };
+    }
+    if (quota) {
+      const links = await store.query(
+        (link) =>
+          (link?.id?.startsWith(OUTBOX_PREFIX) &&
+            link.owner === String(owner)) ||
+          (quota.runPrefix && link?.id?.startsWith(quota.runPrefix))
+      );
+      if (
+        recentSends(links, String(owner), clock().getTime(), quota.runPrefix)
+          .length >= Number(quota.dailyCap ?? Infinity)
+      ) {
+        return {
+          stop: refused('daily-cap', 'The automatic daily limit is reached'),
+        };
+      }
+    }
     const record = newRecord({
       id,
       key: useKey,
@@ -257,15 +277,25 @@ export const guardedSend = async ({
       draft,
       at: clock().toISOString(),
     });
+    running.add(id);
     try {
       await store.put(record);
       await store.flush?.();
     } catch (error) {
-      return refused('outbox-unavailable', `not sent: ${error.message}`);
+      running.delete(id);
+      return {
+        stop: refused('outbox-unavailable', `not sent: ${error.message}`),
+      };
     }
+    return { record };
+  });
+  if (admission.stop) {
+    return admission.stop;
+  }
+  try {
     return await deliverOnce({
       store,
-      record,
+      record: admission.record,
       draft: { ...draft, automated: !userConfirmed },
       send,
       clock,

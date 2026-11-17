@@ -39,6 +39,10 @@ export const createPacedSender =
         await sleep(pacing.minDelayMs + Math.round(random() * span));
       }
       const outcome = await deliver(automation, draft);
+      if (outcome.code === 'daily-cap') {
+        stopped = 'daily-cap';
+        break;
+      }
       results.push(outcome);
       failures = outcome.status === 'sent' ? 0 : failures + 1;
       stopped = batchStopReason(outcome, failures);
