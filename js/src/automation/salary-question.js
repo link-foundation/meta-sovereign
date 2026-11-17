@@ -154,7 +154,7 @@ const clarification = (text, config) => {
   }
   // A short salutation is allowed only before an explicit request verb.
   let words = text.replace(
-    /^(?:\p{Lu}[\p{L}-]{1,30}[,\s]+){1,2}(?=(?:подскажи(?:те)?|please)(?!\p{L}))/iu,
+    /^(?:\p{Lu}[\p{L}-]{1,30}[,\s]+){1,2}(?=(?:подскажи(?:те)?|уточни(?:те)?|укажи(?:те)?|напиши(?:те)?|можно|please|could\s+you)(?!\p{L}))/iu,
     ''
   );
   if (
@@ -184,7 +184,7 @@ const clarification = (text, config) => {
     ' '
   );
   const allowed = new Set(
-    'and in what how about could you please provide the figures amount amounts net gross per hour hourly month monthly а в и по сколько тогда до после вычета уплаты налогов ндфл чистыми гросс брутто нетто час месяц подскажи подскажите уточни уточните укажи укажите напиши напишите можно пожалуйста цифры сумму какие спасибо'.split(
+    'and in what how about could you please provide the figure figures number numbers amount amounts net gross per hour hourly month monthly а в и по сколько тогда до после вычета уплаты налогов ндфл чистыми гросс брутто нетто час месяц подскажи подскажите уточни уточните укажи укажите напиши напишите можно пожалуйста цифры сумма сумму суммы какая какие спасибо'.split(
       ' '
     )
   );

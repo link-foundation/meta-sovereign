@@ -3,6 +3,16 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 named salary clarifications (QA12):
+
+- [x] Reproduce three published-parent failures with nine passing controls;
+      accept figure/number nouns and known request verbs after a bounded name.
+- [x] Pass 26 focused checks, CLI/offline/both Lino previews and native/MCP
+      parent versus corrected draft readback with zero sends and closed fixtures.
+- [ ] Publish checked evidence and inspect fresh hosted workflows. Complete
+      browser-derived recent/vacancy context and the full original QA12 mapping;
+      supplied-context fixtures alone do not establish provider integration.
+
 2026-11-17 hosted résumé diagnostic mock regression:
 
 - [x] Preserve three exact-source runtime failures and reproduce the unchanged

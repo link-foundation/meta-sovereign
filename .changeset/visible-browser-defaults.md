@@ -836,3 +836,6 @@ native review, automatic chat containment and idempotent receipt recovery.
 Recognize bounded polite English and Russian salary clarifications and retain
 the current question's language independently of currency and tax basis. Keep
 bare-code language inheritance, unrelated-topic barriers and owner drafts.
+
+Retain figure/number nouns and name-prefixed known request verbs in bounded
+salary clarifications, including Russian amount wording and topic guards.

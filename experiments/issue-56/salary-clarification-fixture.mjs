@@ -16,3 +16,5 @@ export const salaryClarificationAnswer = 'От $7 100 в месяц до выч�
 export const salaryPhrasingQuestion =
   'Could you provide the figures in USD gross?';
 export const salaryPhrasingAnswer = 'From $7 100 gross per month.';
+export const salaryNumberQuestion =
+  'Alex, could you provide the numbers in USD gross?';

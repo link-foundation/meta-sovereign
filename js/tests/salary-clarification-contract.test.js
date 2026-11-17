@@ -14,6 +14,7 @@ import {
   salaryClarificationAnswer,
   salaryPhrasingQuestion,
   salaryPhrasingAnswer,
+  salaryNumberQuestion,
 } from '../../experiments/issue-56/salary-clarification-fixture.mjs';
 
 const verifyClarificationSurfaces = async (t, question, expected) => {
@@ -36,6 +37,79 @@ const verifyClarificationSurfaces = async (t, question, expected) => {
   });
   assert.deepEqual(await store.query(() => true), []);
 };
+
+test('salary figure and number nouns keep explicit currency and basis in bounded follow-ups', () => {
+  for (const noun of [
+    'figure',
+    'figures',
+    'number',
+    'numbers',
+    'amount',
+    'amounts',
+  ]) {
+    const question = `Please provide the ${noun} in USD gross.`;
+    assert.equal(
+      planAnswer(question, { salary, recent: [salaryAnchor] }).text,
+      salaryPhrasingAnswer,
+      noun
+    );
+  }
+});
+
+test('named salary requests accept known request verbs and retain unrelated topic barriers', () => {
+  for (const question of [
+    salaryNumberQuestion,
+    'Алексей, уточни, пожалуйста, сумму в USD до вычета налогов?',
+    'Мария, укажите цифры в USD gross?',
+    'Анна Иванова, напишите сумму в USD gross?',
+    'Какая сумма в USD gross?',
+  ]) {
+    const expected = /[а-яё]/iu.test(question)
+      ? salaryClarificationAnswer
+      : salaryPhrasingAnswer;
+    assert.equal(
+      planAnswer(question, { salary, recent: [salaryAnchor] }).text,
+      expected,
+      question
+    );
+    assert.notEqual(
+      planAnswer(question, {
+        salary,
+        recent: ['What is your role?', salaryAnchor],
+      }).match,
+      'salary',
+      question
+    );
+    assert.notEqual(planAnswer(question, { salary }).match, 'salary', question);
+  }
+  for (const question of [
+    'Please provide the budget numbers in USD gross.',
+    'Alex, could you provide your GitHub profile in USD?',
+    'Какая выручка в USD gross?',
+    'Уточните сумму расходов в USD gross?',
+    'Мария, укажите сумму в USD gross за год?',
+    'Alex, could you provide the numbers in USD gross per hour?',
+    'Alex, could you provide the numbers in CAD gross?',
+  ]) {
+    assert.notEqual(
+      planAnswer(question, { salary, recent: [salaryAnchor] }).match,
+      'salary',
+      question
+    );
+  }
+});
+
+test(
+  'named salary number requests survive CLI, offline and both Lino previews',
+  { timeout: 15000 },
+  async (t) => {
+    await verifyClarificationSurfaces(
+      t,
+      salaryNumberQuestion,
+      salaryPhrasingAnswer
+    );
+  }
+);
 
 test('polite English salary phrasing keeps the requested independent currency and basis', () => {
   for (const source of ['hh', 'linkedin', 'telegram', 'vk', 'x']) {
