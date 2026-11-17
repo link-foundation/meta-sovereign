@@ -1,3 +1,10 @@
+2026-11-17 layered runner configuration (VD07 remains required):
+
+- [x] Read the complete pinned desktop configuration contract and trace shared CLI/API/UI profile reads, revisions and retained session addresses.
+- [x] Add bounded global/local runner profile precedence and explicit CLI field overrides without credential fields or automatic starts.
+- [x] Reproduce against the exact parent; verify shared profile edits, stale revisions, refused local files, retained Stop addresses and ephemeral overrides with focused tests.
+- [ ] Preserve source/log evidence, pass scoped static checks, commit/push only to the prepared branch and inspect exact-head CI. Complete VD07 and every unfinished criterion remain required.
+
 2026-11-17 VK question attachment destinations (QA04 remains required):
 
 - [x] Trace actual VK live/history/archive adapters and reproduce missing direct link/document/wall destinations in saved-answer review.

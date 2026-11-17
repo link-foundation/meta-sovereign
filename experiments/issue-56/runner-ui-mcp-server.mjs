@@ -1,9 +1,23 @@
 import { runnerApiFixture } from './runner-api-fixture.mjs';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
+const layered = process.argv.includes('--layered');
 const fixture = await runnerApiFixture({
   initial: process.argv.includes('--health') ? { local: 'running' } : {},
+  ...(layered
+    ? {
+        overlay: {
+          local: { port: 8128 },
+          server: { host: 'local@example.invalid' },
+        },
+      }
+    : {}),
 });
-console.log(JSON.stringify({ base: fixture.base, liveProvider: false }));
+const globalBefore = await readFile(join(fixture.dir, 'runner.lino'));
+console.log(
+  JSON.stringify({ base: fixture.base, pid: process.pid, liveProvider: false })
+);
 let timer;
 try {
   await new Promise((resolve) => {
@@ -15,11 +29,15 @@ try {
 } finally {
   clearTimeout(timer);
   process.stdin.pause();
+  const globalUnchanged = globalBefore.equals(
+    await readFile(join(fixture.dir, 'runner.lino'))
+  );
   await fixture.close();
   console.log(
     JSON.stringify({
       resourcesClosed: true,
       liveProvider: false,
+      ...(layered ? { globalUnchanged } : {}),
       mutations: fixture.backend.calls.filter(
         ([, action]) => !['probe', 'health'].includes(action)
       ),

@@ -30,32 +30,39 @@ const optionalTextValid = (target) =>
   ['start', 'node'].every(
     (key) => target[key] === undefined || text(target[key])
   );
-const pathsValid = (target, mode) =>
+const pathsValid = (target, mode, partial) =>
   ['directory', 'cli', 'store'].every(
     (key) =>
-      text(target[key]) &&
-      (mode === 'server' ? path.posix : path).isAbsolute(target[key])
+      (partial && target[key] === undefined) ||
+      (text(target[key]) &&
+        (mode === 'server' ? path.posix : path).isAbsolute(target[key]))
   );
-const addressValid = (target, mode) =>
-  mode === 'server' ? hostValid(target.host) : target.host === undefined;
-const validateTarget = (target, mode, session) => {
+const addressValid = (target, mode, partial) =>
+  mode === 'server'
+    ? (partial && target.host === undefined) || hostValid(target.host)
+    : target.host === undefined;
+const portValid = (value, partial) =>
+  (partial && value === undefined) ||
+  (Number.isInteger(value) && value >= 1 && value <= 65535);
+const validateTarget = (target, mode, session, partial) => {
   if (
     !record(target) ||
     Object.keys(target).some((key) => !fields.has(key)) ||
-    !pathsValid(target, mode) ||
-    !Number.isInteger(target.port) ||
-    target.port < 1 ||
-    target.port > 65535 ||
+    !pathsValid(target, mode, partial) ||
+    !portValid(target.port, partial) ||
     !optionalTextValid(target)
   ) {
     throw invalid();
   }
-  if (!addressValid(target, mode)) {
+  if (!addressValid(target, mode, partial)) {
     throw invalid();
   }
   const isolation = target.isolation ?? 'screen';
   if (isolation !== 'screen') {
     throw invalid();
+  }
+  if (partial) {
+    return { ...target };
   }
   return {
     ...target,
@@ -67,7 +74,7 @@ const validateTarget = (target, mode, session) => {
 };
 
 /** Profiles contain paths and an SSH address; credentials stay in protected stores. */
-export const validateRunnerProfile = (value) => {
+export const validateRunnerProfile = (value, { partial = false } = {}) => {
   if (
     !record(value) ||
     Object.keys(value).some(
@@ -76,7 +83,8 @@ export const validateRunnerProfile = (value) => {
   ) {
     throw invalid();
   }
-  const session = value.session ?? 'meta-sovereign-bot';
+  const session =
+    value.session === undefined ? 'meta-sovereign-bot' : value.session;
   if (
     typeof session !== 'string' ||
     !/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}$/.test(session)
@@ -88,9 +96,14 @@ export const validateRunnerProfile = (value) => {
     if (value[mode] === undefined) {
       continue;
     }
-    targets[mode] = validateTarget(value[mode], mode, session);
+    targets[mode] =
+      partial && value[mode] === false
+        ? false
+        : validateTarget(value[mode], mode, session, partial);
   }
-  return targets;
+  return partial
+    ? { ...(value.session === undefined ? {} : { session }), ...targets }
+    : targets;
 };
 
 /** Read at most 64 KiB, including growth after stat and nonregular-file refusal. */

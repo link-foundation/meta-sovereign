@@ -18,12 +18,23 @@ const invalid = () =>
   Object.assign(new Error('Runner profile unavailable or invalid.'), {
     code: 'INVALID_RUNNER_PROFILE',
   });
+const storedDocument = (previous, targets, document) => {
+  const stored = previous.encode ? previous.encode(targets) : document;
+  if (Buffer.byteLength(stored) > 65536) {
+    throw invalid();
+  }
+  return stored;
+};
 
 /** Called under the same lease as process control; never probes or launches. */
 export const runnerProfileOperation = async (
   file,
   input,
-  write = writeFileDurable
+  write = writeFileDurable,
+  read = async () => ({
+    targets: await readRunnerProfile(file, { optional: true }),
+    file,
+  })
 ) => {
   input.signal?.throwIfAborted();
   if (input.action === 'configure') {
@@ -36,27 +47,25 @@ export const runnerProfileOperation = async (
       throw invalid();
     }
     let document;
+    let targets;
     try {
-      document = documentFor(
-        validateRunnerProfile(parseIndented({ text: input.document }).obj)
+      targets = validateRunnerProfile(
+        parseIndented({ text: input.document }).obj
       );
+      document = documentFor(targets);
     } catch {
       throw invalid();
     }
     if (Buffer.byteLength(document) > 65536) {
       throw invalid();
     }
-    const previous = snapshot(
-      documentFor(await readRunnerProfile(file, { optional: true }))
-    );
-    if (previous.revision !== input.revision) {
+    const previous = await read();
+    if (snapshot(documentFor(previous.targets)).revision !== input.revision) {
       return { ok: false, code: 'runner-profile-conflict' };
     }
     input.signal?.throwIfAborted();
-    await write(file, document);
+    await write(previous.file, storedDocument(previous, targets, document));
     return snapshot(document);
   }
-  return snapshot(
-    documentFor(await readRunnerProfile(file, { optional: true }))
-  );
+  return snapshot(documentFor((await read()).targets));
 };

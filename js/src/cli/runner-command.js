@@ -4,6 +4,10 @@ import { requestRunner } from './runner-client.js';
 import { readRunnerProfile, runnerProfileData } from './runner-profile.js';
 import { formatIndented } from 'lino-objects-codec';
 import { runnerHealthCommand } from './runner-health-command.js';
+import {
+  runnerConfigurationOverrides,
+  runnerOverrideOptions,
+} from './runner-configuration.js';
 
 const validSelection = (args) => {
   if (args.url !== undefined) {
@@ -25,6 +29,16 @@ const validConfiguration = (args, action) =>
       typeof args.revision === 'string' &&
       /^[a-f0-9]{64}$/.test(args.revision)
     : args.input === undefined && args.revision === undefined;
+const selectedOverrides = (args, action) => {
+  const overrides = runnerConfigurationOverrides(args);
+  if (
+    Object.keys(overrides).length &&
+    (args.url !== undefined || action === 'configure')
+  ) {
+    throw new Error('Invalid runner overrides.');
+  }
+  return overrides;
+};
 
 /** Do not open the application's store or install/launch anything on a read. */
 export const createRunnerCommand =
@@ -43,7 +57,9 @@ export const createRunnerCommand =
         ? mode !== undefined
         : !['local', 'server'].includes(mode)) ||
       Object.keys(args).some(
-        (key) => !['_', 'profile', 'url', 'input', 'revision'].includes(key)
+        (key) =>
+          !['_', 'profile', 'url', 'input', 'revision'].includes(key) &&
+          !runnerOverrideOptions.has(key)
       ) ||
       !validSelection(args) ||
       !validConfiguration(args, action)
@@ -58,11 +74,13 @@ export const createRunnerCommand =
     process.on('SIGINT', cancel);
     process.on('SIGTERM', cancel);
     try {
+      const overrides = selectedOverrides(args, action);
       const input = {
         action,
         mode,
         profile: args.profile,
         signal: abort.signal,
+        overrides,
         ...(action === 'configure'
           ? {
               document: formatIndented({

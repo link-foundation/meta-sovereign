@@ -922,3 +922,8 @@ Retain VK link, file and wall destinations through shared question review, froze
 history and final admission. Compare native Unix timestamps with ISO history
 consistently and preserve private destination exclusions during answer learning
 (issue #56 QA04).
+
+Merge app-folder runner profiles over global settings and accept ephemeral local
+CLI field overrides. Share effective revision-checked editing across CLI, Lino and
+Settings, preserve global files and retain running targets through configuration
+changes (issue #56 VD07).

@@ -4,7 +4,6 @@ import { acquireStoreLock } from '../storage/store-lock.js';
 import { writeFileDurable } from '../storage/durable.js';
 import { readReadableConfiguration } from '../cli/readable-configuration.js';
 import {
-  readRunnerProfile,
   runnerProfileData,
   validateRunnerProfile,
 } from '../cli/runner-profile.js';
@@ -12,6 +11,7 @@ import { createRunnerControl } from './runner-control.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { runnerProfileOperation } from './runner-profile-store.js';
 import { readRunnerInspection } from './runner-inspection.js';
+import { readRunnerConfiguration } from '../cli/runner-configuration.js';
 
 export const defaultRunnerDirectory = () =>
   path.dirname(
@@ -57,40 +57,81 @@ const loadDesired = async (file, load, bound, optional) => {
     return null;
   }
 };
-const validAction = (action, mode) =>
-  ['status', 'profile', 'configure'].includes(action)
+const validAction = (action, mode, overrides) => {
+  if (action === 'configure' && Object.keys(overrides).length) {
+    return false;
+  }
+  return ['status', 'profile', 'configure'].includes(action)
     ? mode === undefined
     : ['start', 'stop', 'inspect'].includes(action) &&
-      ['local', 'server'].includes(mode);
+        ['local', 'server'].includes(mode);
+};
+const profileReader =
+  ({ load, file, profile, localDirectory, overrides }) =>
+  async () =>
+    load
+      ? {
+          targets: await load(file, { optional: profile === undefined }),
+          file,
+        }
+      : await readRunnerConfiguration(file, {
+          localFile:
+            profile === undefined
+              ? path.join(localDirectory(), 'runner.lino')
+              : undefined,
+          optional: profile === undefined,
+          overrides,
+        });
 
 /** Serialize all callers and retain target identity across profile edits/crashes. */
 export const createRunnerController = ({
   directory = defaultRunnerDirectory,
+  localDirectory = () => path.join(process.cwd(), '.meta-sovereign'),
   run,
-  load = readRunnerProfile,
+  load,
   lock = acquireStoreLock,
 }) => ({
-  async execute({ action, mode, profile, signal, document, revision }) {
-    if (!validAction(action, mode)) {
+  async execute({
+    action,
+    mode,
+    profile,
+    signal,
+    document,
+    revision,
+    overrides = {},
+  }) {
+    if (!validAction(action, mode, overrides)) {
       return { ok: false, code: 'invalid-runner-action' };
     }
     const dir = path.join(directory(), 'runner-control');
     const lease = await lock(dir, { exclusive: true });
     try {
       const profileFile = profile ?? path.join(directory(), 'runner.lino');
+      const read = profileReader({
+        load,
+        file: profileFile,
+        profile,
+        localDirectory,
+        overrides,
+      });
       if (['profile', 'configure'].includes(action)) {
-        return await runnerProfileOperation(profileFile, {
-          action,
-          document,
-          revision,
-          signal,
-        });
+        return await runnerProfileOperation(
+          profileFile,
+          {
+            action,
+            document,
+            revision,
+            signal,
+          },
+          undefined,
+          read
+        );
       }
       const file = path.join(dir, 'binding.lino');
       const bound = await readBinding(file);
       const desired = await loadDesired(
         profileFile,
-        load,
+        async () => (await read()).targets,
         bound,
         profile === undefined
       );

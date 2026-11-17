@@ -16,9 +16,18 @@ Neither mode starts automatically. A missing default profile reports both
 modes as `unconfigured`. A selected missing or invalid profile refuses a new
 start. Status never installs dependencies or opens the application's store.
 
-The default profile is `runner.lino` in the per-user Meta Sovereign application
-directory, alongside the default store directory. Use `--profile` to select
-another readable Lino file. For example:
+Read configuration in this order:
+
+1. `runner.lino` in the per-user Meta Sovereign application directory, alongside
+   the default store directory.
+2. `.meta-sovereign/runner.lino` in the current app folder. Its supplied fields
+   override global fields, so an app-folder file may contain only a different port
+   or SSH host. Missing implicit files are optional; an invalid layer refuses even
+   when a later layer would hide it.
+3. Explicit local CLI field options, which last for that command only.
+
+`--profile=<file>` instead selects one required readable Lino file and bypasses
+both implicit files. For example, a complete profile is:
 
 ```text
 runner:
@@ -88,7 +97,7 @@ Bodies and receipts use the default text or binary Links Notation transport.
 The table describes their decoded shape; JSON compatibility stays disabled by
 default. Existing passcode, origin and server authorization policies apply.
 The API uses the serving user's default runner profile. Process-control callers select a configured mode. The profile endpoints
-below edit only that fixed default file; callers cannot choose a server file path. `--url` selects that API through the CLI;
+below edit that configuration through the shared controller; callers cannot choose a server file path. `--url` selects that API through the CLI;
 it cannot be combined with `--profile`, which selects local control instead.
 The client follows no redirects and never retries a mutation automatically.
 
@@ -103,7 +112,14 @@ control the same configured targets in the shared desktop/browser UI. The
 closed panel performs no probes. Unknown or stale state disables starts;
 retained observations stay visible during read recovery. Closing the panel
 disposes its polling and never implies the session was stopped. Local execution
-runs on the connected server's machine. Open **Edit session targets** to read and edit the same readable Lino profile.
+runs on the connected server's machine. Open **Edit session targets** to read and edit the effective readable Lino profile.
+When an app-folder profile exists, saving writes that file and preserves the
+per-user source. Otherwise it retains the existing per-user save location.
+A complete effective copy is saved, so inherited values visible during review
+remain frozen in that app-folder copy. Removing an inherited target writes an
+explicit `local false` or `server false` overlay; reloading leaves it unconfigured.
+You can use the same declarations in an app-folder file. Status and Stop still
+retain any old running target until its stopped state is confirmed.
 The editor reads only while open. Saving validates the schema and acknowledges
 the persisted document; it never probes, installs or starts a process. Credential
 fields and arbitrary schema additions are refused. Paths, executable names and
@@ -132,12 +148,13 @@ meta-sovereign runner configure --input=/absolute/path/reviewed-runner.lino --re
 Use `--profile=/absolute/path/runner.lino` instead of `--url` to read or edit a
 local profile. `--input` is a bounded local source file; the CLI validates and
 submits its canonical document. It does not transmit the input file path. Read
-the current revision with `runner profile` before saving.
+the current revision with `runner profile` before saving. The revision covers the
+effective document; a visible change in either source conflicts with an old edit.
 
-| Request                      | Decoded body             | Effect                                                  |
-| ---------------------------- | ------------------------ | ------------------------------------------------------- |
-| `GET /api/runner/profile`    | none                     | Read `{ ok, document, revision }` for the default file. |
-| `POST /api/runner/configure` | `{ document, revision }` | Validate and durably save at the matching revision.     |
+| Request                      | Decoded body             | Effect                                                       |
+| ---------------------------- | ------------------------ | ------------------------------------------------------------ |
+| `GET /api/runner/profile`    | none                     | Read `{ ok, document, revision }` for the effective profile. |
+| `POST /api/runner/configure` | `{ document, revision }` | Validate and durably save at the matching revision.          |
 
 The document limit is 64 KiB of UTF-8; the configure request limit is 128 KiB.
 Stale revisions return HTTP 409. These operations use the same controller lease
@@ -146,3 +163,23 @@ serialize cooperating CLI/API writers; direct external file edits are outside
 that lease. Editing leaves the retained session binding intact, including when
 an old target is running or unreachable. Status and stop still address that
 target, and new starts stay blocked until the old targets are confirmed stopped.
+
+For direct CLI control, `--session` and each target's `--local-<field>` or
+`--server-<field>` override `directory`, `cli`, `store`, `port`, `node`, `start`
+and `isolation`; `--server-host` overrides the SSH address. Ports are decimal
+integers from 1 to 65535. Other values retain the profile validation above.
+For example:
+
+```sh
+meta-sovereign runner profile --local-port=8790
+meta-sovereign runner start local --local-port=8790
+meta-sovereign runner stop local
+```
+
+The first command previews the effective configuration without probing a
+process. The second retains its exact addresses in the durable session binding;
+the last stops that retained target even though the temporary port option is
+absent. These options never write a configuration file or process environment.
+They cannot accompany `--url` or `configure`: connected operations use the
+server's saved configuration and edits require the actual saved revision.
+Tokens, passwords and cookies remain rejected in every layer and command.

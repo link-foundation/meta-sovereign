@@ -9,11 +9,55 @@ import {
   captureVkAutomationLayouts,
 } from './vk-automation-browser.mjs';
 
+const overlay = {
+  local: { port: 8128 },
+  server: { host: 'local@example.invalid' },
+};
+const verifyOverlay = async ({
+  layered,
+  beforeLayers,
+  profile,
+  page,
+  editor,
+  screenshots,
+  errors,
+}) => {
+  if (!layered) {
+    return false;
+  }
+  assert.equal(profile.local.port, beforeLayers ? 8123 : 8128);
+  assert.equal(
+    profile.server.host,
+    beforeLayers ? 'fixture@example.invalid' : 'local@example.invalid'
+  );
+  if (!beforeLayers) {
+    return false;
+  }
+  await captureVkAutomationLayouts(page, editor, screenshots, 'before', true);
+  assert.deepEqual(errors, []);
+  return true;
+};
+const verifyGlobal = async (layered, fixture) => {
+  if (layered) {
+    assert.equal(
+      (await readRunnerProfile(join(fixture.dir, 'runner.lino'))).server.host,
+      'fixture@example.invalid'
+    );
+  }
+};
+const closeEditor = async (panel, editor, page, readCount) => {
+  await panel.locator('[data-runner-profile-open]').click();
+  await editor.waitFor({ state: 'detached' });
+  const closedReads = readCount();
+  await page.waitForTimeout(100);
+  assert.equal(readCount(), closedReads);
+};
+
 export const verifyRunnerProfile = async (
   browser,
-  { screenshots, beforeBundle } = {}
+  { screenshots, beforeBundle, layered = false, beforeLayers = false } = {}
 ) => {
-  const fixture = await runnerApiFixture();
+  const fixture = await runnerApiFixture(layered ? { overlay } : {});
   let context;
   try {
     const view = await vkAutomationBrowser(browser, '', fixture.base);
@@ -59,12 +103,33 @@ export const verifyRunnerProfile = async (
     );
     assert.equal(await save.isDisabled(), true);
     const profile = parseIndented({ text: await document.inputValue() }).obj;
+    const profileFile = join(
+      layered ? fixture.localDir : fixture.dir,
+      'runner.lino'
+    );
+    if (
+      await verifyOverlay({
+        layered,
+        beforeLayers,
+        profile,
+        page,
+        editor,
+        screenshots,
+        errors,
+      })
+    ) {
+      return {
+        localIgnored: true,
+        noProcessMutation: true,
+        liveProvider: false,
+      };
+    }
     profile.server.host = 'reviewed@example.invalid';
     await document.fill(formatIndented({ id: 'runner', obj: profile }));
     await save.click();
     await editor.locator('[data-runner-profile-saved]').waitFor();
     assert.equal(
-      (await readRunnerProfile(join(fixture.dir, 'runner.lino'))).server.host,
+      (await readRunnerProfile(profileFile)).server.host,
       'reviewed@example.invalid'
     );
     assert.equal(await save.isDisabled(), true);
@@ -72,7 +137,7 @@ export const verifyRunnerProfile = async (
       page,
       editor,
       screenshots,
-      'issue-56-runner-profile-after',
+      layered ? 'after' : 'issue-56-runner-profile-after',
       true
     );
     const saved = await requestRunner({ url: fixture.base, action: 'profile' });
@@ -83,32 +148,32 @@ export const verifyRunnerProfile = async (
       document: formatIndented({ id: 'runner', obj: profile }),
       revision: saved.revision,
     });
-    const draft = (await document.inputValue()).replace('8123', '8125');
+    const draft = (await document.inputValue()).replace(
+      layered ? '8128' : '8123',
+      '8125'
+    );
     await document.fill(draft);
     await save.click();
     await editor.getByRole('alert').waitFor();
     assert.equal(await document.inputValue(), draft);
     assert.equal(await save.isDisabled(), true);
     assert.equal(
-      (await readRunnerProfile(join(fixture.dir, 'runner.lino'))).server.host,
+      (await readRunnerProfile(profileFile)).server.host,
       'other-owner@example.invalid'
     );
     await captureVkAutomationLayouts(
       page,
       editor,
       screenshots,
-      'issue-56-runner-profile-conflict',
+      layered ? 'conflict' : 'issue-56-runner-profile-conflict',
       true
     );
     await editor.locator('[data-runner-profile-reload]').click();
     await editor.getByRole('alert').waitFor({ state: 'detached' });
     assert.equal(await document.inputValue(), other.document);
     assert.equal(await save.isDisabled(), true);
-    await panel.locator('[data-runner-profile-open]').click();
-    await editor.waitFor({ state: 'detached' });
-    const closedReads = reads;
-    await page.waitForTimeout(100);
-    assert.equal(reads, closedReads);
+    await verifyGlobal(layered, fixture);
+    await closeEditor(panel, editor, page, () => reads);
     assert.ok(
       fixture.backend.calls.every(([, action]) => action === 'probe'),
       'editing never starts or stops a session'
@@ -128,3 +193,6 @@ export const verifyRunnerProfile = async (
     await fixture.close();
   }
 };
+
+export const verifyLayeredRunnerProfile = (browser, options = {}) =>
+  verifyRunnerProfile(browser, { ...options, layered: true });

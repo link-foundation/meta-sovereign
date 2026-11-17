@@ -9,6 +9,7 @@ import { writeFileDurable } from '../../js/src/storage/durable.js';
 /** One private API/control directory, no installed tools or provider account. */
 export const runnerApiFixture = async (options = {}) => {
   const dir = await mkdtemp(join(tmpdir(), 'runner-api-'));
+  const localDir = join(dir, 'local');
   const backend = runnerFixture(options.initial);
   let server;
   try {
@@ -16,9 +17,16 @@ export const runnerApiFixture = async (options = {}) => {
       join(dir, 'runner.lino'),
       formatIndented({ id: 'runner', obj: runnerProfile() })
     );
+    if (options.overlay) {
+      await writeFileDurable(
+        join(localDir, 'runner.lino'),
+        formatIndented({ id: 'runner', obj: options.overlay })
+      );
+    }
     server = await diagnosticServer({
       runnerSessions: {
         directory: () => dir,
+        localDirectory: () => localDir,
         run: backend.run,
         ...options.control,
       },
@@ -30,6 +38,7 @@ export const runnerApiFixture = async (options = {}) => {
   return {
     ...server,
     dir,
+    localDir,
     backend,
     close: async () => {
       try {

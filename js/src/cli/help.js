@@ -233,6 +233,7 @@ Commands:
   restore       --file=<path> --store=<dir> [--replace] [--passphrase=<pp>]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
   runner        status|start local|start server|stop local|stop server [--profile=<runner.lino> | --url=<server-origin>]
+                direct local overrides: [--session=<name>] [--local-port=<n>] [--server-host=<ssh-host>] [--local-<field>=<value>] [--server-<field>=<value>] (see docs/DESKTOP-RUNNER.md)
                 inspect local|inspect server [--profile=<runner.lino> | --url=<server-origin>]
                 health [--store=<directory>]
                 profile|configure --input=<runner.lino> --revision=<saved-revision> [--profile=<runner.lino> | --url=<server-origin>]
