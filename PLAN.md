@@ -3,6 +3,18 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 hosted initial résumé discovery timeout:
+
+- [x] Preserve the exact ddd08a57 WebKit shard 1 failure and browser artifact;
+      distinguish the first discovery timeout from the later deliberate refusal.
+- [x] Run only the relevant unchanged and traced WebKit cache scenario, retaining
+      three rows, one refused write, zero provider clicks and closed sessions.
+- [x] Add default-off bounded pointer/request/state diagnostics and a failure
+      screenshot without changing any assertion, scenario or deadline.
+- [ ] Inspect fresh hosted results and investigate any recurrence. Historical
+      cause remains unconfirmed; no original requirement is accepted by tracing.
+
+
 2026-11-17 reviewed nearest salary bands with two bases (QA13/QA15):
 
 - [x] Read the complete pinned selector; preserve three exact-parent failures

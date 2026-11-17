@@ -1,3 +1,4 @@
+- [Initial résumé discovery trace](ci-resume-cache-trace.md): retain the actual hosted timeout and passing focused WebKit receipts; add bounded pointer/request/state diagnostics with unchanged assertions. The historical cause remains unconfirmed.
 - [Workplace source-loading trace](ci-workplace-review-trace.md): preserve the exact hosted WebKit timeout and passing focused local checks; add bounded opt-in request/event/state diagnostics without weakening assertions. Historical cause remains unconfirmed.
 - [Saved salary boundaries](salary-band-saved.md): five published-parent failures, 33 focused passes and native/MCP before/after receipts; full QA15 acceptance remains required.
 - [Single PR release changeset](ci-salary-changeset.md): preserve the exact three-changeset failure and consolidate both salary summaries into the existing minor release entry. The unchanged validator reproduces and verifies the correction.

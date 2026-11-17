@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { resumeCacheFixture } from '../../../experiments/issue-56/resume-cache-fixture.mjs';
+import {
+  installResumeInputTrace,
+  traceResumeInput,
+} from './e2e-resume-input.mjs';
 
 /** Real native discovery and production snapshot persistence; no provider traffic. */
 export const verifyResumeCacheRecovery = async (
@@ -14,12 +18,15 @@ export const verifyResumeCacheRecovery = async (
   const fixture = await resumeCacheFixture(browser);
   try {
     const { page, records } = fixture;
+    await installResumeInputTrace(page);
     await page.goto(`${fixture.base}/#/cv`);
     const panel = page.locator('[data-vacancies]');
     const rows = panel.locator('[data-vacancy-resume]');
     const action = panel.locator('[data-vacancy-action="resumes"]');
     await action.click();
+    await traceResumeInput(page, 'cache-discovery-clicked');
     await rows.nth(2).waitFor();
+    await traceResumeInput(page, 'cache-discovery-loaded');
     assert.equal(await rows.count(), 3);
     fixture.failNext();
     await action.click();
@@ -73,6 +80,29 @@ export const verifyResumeCacheRecovery = async (
         resourcesClosed: true,
       })
     );
+  } catch (error) {
+    await traceResumeInput(fixture.page, 'cache-failed');
+    if (process.env.CI_RESUME_INPUT_DEBUG === '1') {
+      console.error(
+        '[resume-cache-debug]',
+        JSON.stringify({
+          rejectedWrites: fixture.failed(),
+          pageErrors: fixture.errors.length,
+          sessions: fixture.records.map(({ closed, clicks, navigationMs }) => ({
+            closed,
+            clicks,
+            navigationMs,
+          })),
+        })
+      );
+    }
+    if (process.env.E2E_ARTIFACT_DIR) {
+      await mkdir(process.env.E2E_ARTIFACT_DIR, { recursive: true });
+      await fixture.page.screenshot({
+        path: join(process.env.E2E_ARTIFACT_DIR, 'resume-cache-failed.png'),
+      });
+    }
+    throw error;
   } finally {
     await fixture.close();
   }
