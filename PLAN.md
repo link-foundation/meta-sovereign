@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 Windows native uninstall cleanup:
+
+- [x] Preserve the exact 935fbf8e x64 log: silent installation and native launch
+      pass, then recursive parent cleanup races the NSIS child resource deletion.
+- [x] Wait for the whole owned installation directory, retaining the ten-second
+      bound and refusal; add finite Windows filesystem regressions.
+- [ ] Publish source-bound evidence and verify both Windows native installs and
+      the two PowerShell regressions in CI. All 40 criteria remain required.
+
 2026-11-17 configured salary currencies (QA15):
 
 - [x] Reproduce four exact-parent failures for configured codes, longer aliases,

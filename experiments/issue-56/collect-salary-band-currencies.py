@@ -1,13 +1,10 @@
 """Preserve configured-currency regressions and actual native option receipts."""
 import json
-from pathlib import Path
-import runpy
+from evidence_bundle import evidence_context, verify_evidence, changed_sources, evidence_logs, bundle
 
-root = Path(__file__).resolve().parents[2]
-evidence = runpy.run_path(str(root / 'experiments/issue-56/evidence_bundle.py'))
-_, logs, read = evidence['evidence_context'](__file__, 'salary-band-currencies')
+root, logs, read = evidence_context(__file__, 'salary-band-currencies')
 assert 'fail 4' in read('parent') and 'pass 0' in read('parent')
-evidence['verify_evidence'](read, {
+verify_evidence(read, {
     'focused-final': ['pass 33', 'fail 0', 'skipped 0'],
     'contracts': ['pass 1', 'fail 0'],
     'native-parent': ['"before":true', '"nativeReceipts":0', '"pageErrors":[]'],
@@ -29,9 +26,9 @@ for phase, before in [('before', True), ('after', False)]:
     server = json.loads(read(f'mcp-{phase}-server').splitlines()[-1])
     assert server['resourcesClosed'] and not server['liveProvider']
     assert server['stats'] == {'clicks': 0 if before else 1, 'textSends': 0, 'draft': ''}
-evidence['bundle'](root,
-    [*evidence['changed_sources'](root),
-     *evidence['evidence_logs'](root, 'salary-band-currencies'),
+bundle(root,
+    [*changed_sources(root),
+     *evidence_logs(root, 'salary-band-currencies'),
      'ci-logs/salary-band-currencies-mcp-code.mjs'],
     'docs/case-studies/issue-56/data/salary-band-currencies.tar.gz', {
         'acceptance': False, 'parentFailures': 4, 'focusedTests': 33,

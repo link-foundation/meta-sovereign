@@ -2,6 +2,10 @@
 'meta-sovereign': minor
 ---
 
+Wait for the Windows uninstaller to remove its complete installation tree before
+cleaning the owned parent directory, preserving the existing finite cleanup
+bound and native launch assertions (issue #56).
+
 Use the configured currency vocabulary for saved salary bands. Match complete
 aliases before shorter words and keep genuinely foreign currency choices under
 review, including when a configured alias contains another currency's common

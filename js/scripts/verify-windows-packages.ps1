@@ -69,10 +69,9 @@ try {
   $uninstallers = @(Get-ChildItem $installDirectory -Filter 'Uninstall*.exe' -ErrorAction SilentlyContinue)
   if ($uninstallers.Count -eq 1) {
     Wait-OwnedInstaller (Start-Process -FilePath $uninstallers[0].FullName -ArgumentList '/S' -PassThru)
-    for ($attempt = 0; $attempt -lt 100 -and (Test-Path $executable); $attempt++) {
-      Start-Sleep -Milliseconds 100
-    }
-    if (Test-Path $executable) { throw 'Owned uninstaller left the application installed' }
+    # NSIS's temporary child continues deleting resources after app.exe is gone.
+    # Wait for its entire installation tree before touching the owned parent.
+    & "$PSScriptRoot/wait-windows-uninstall.ps1" -Directory $installDirectory
   }
   Remove-Item $ownedRoot -Recurse -Force
 }

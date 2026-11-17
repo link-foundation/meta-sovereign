@@ -66,6 +66,7 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/scripts/normalize-desktop-artifacts.mjs'
       - 'js/scripts/validate-desktop-assets.mjs'
       - 'js/scripts/verify-*-packages.*'
+      - 'js/scripts/wait-windows-uninstall.ps1'
       - 'experiments/issue-56/desktop-packaged-launch.mjs'
       - 'js/src/web/download/downloads.js'
 
