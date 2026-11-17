@@ -377,3 +377,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify 67 focused checks, native parent/repaired review UI, one explicit positive provider receipt, owner drafts and unchanged rules. Independent MCP inspections have zero effects and drained resources.
 - [x] Preserve and repair exact-head SC2329 from the indirect macOS EXIT cleanup trap as 1120026a; parent diagnostic reproduces and four cleanup tests pass.
 - [ ] Publish checked evidence, inspect every exact-head hosted workflow and finish the full QA15 mapping. All 40 original unchecked criteria remain required; PR57 stays draft and unmerged.
+
+2026-11-17 automatic salary-band delivery (QA15):
+
+- [x] Commit the saved-amount/currency correction as f3412a16 with 92 verified evidence entries. Keep the preceding hosted matrix alive while automatic admission is audited.
+- [x] Reproduce six parent failures and two compatible safety cases: the shared automatic gate excluded valid approved salary choices from both current-chat watches and sequential unread answers.
+- [x] Admit only complete approved strict native containing choices, preserving owner drafts, queued knowledge checks, one-choice reservations, positive receipts and uncertain outcome recovery.
+- [x] Verify 57 focused checks, native parent/repaired watch behavior and independent MCP receipts with drained owned resources. Update all four help locales and inspect the rebuilt final UI.
+- [ ] Publish verified evidence and both atomic salary corrections; inspect all exact-head hosted workflows and finish the full QA15 mapping. All 40 unchecked original criteria remain required; PR57 stays draft and unmerged.

@@ -86,7 +86,7 @@ export const enBrowserAnswer = {
   'browserAnswer.outgoing':
     'The latest provider message is outgoing. Read again when a new question arrives.',
   'browserWatch.hint':
-    'Watch this chat for known answers. Exact approved answers and unique completed summaries can select native choices automatically. Free text is only prefilled. Owner edits are preserved. Navigation, reload or an uncertain selection pauses the watcher; restarting the server never resumes it.',
+    'Watch this chat for known answers. Exact approved answers, unique completed summaries and approved salary targets with one containing band can select native choices automatically. Free text is only prefilled. Owner edits are preserved. Navigation, reload or an uncertain selection pauses the watcher; restarting the server never resumes it.',
   'browserWatch.minutes': 'Minutes (1–120)',
   'browserWatch.start': 'Watch this chat and answer known choices',
   'browserWatch.unconfirmed':

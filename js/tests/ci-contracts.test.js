@@ -344,7 +344,10 @@ test('vacancy reads and local analysis have independent mandatory browser budget
 });
 
 const questionBrowserGroups = {
-  'question-salary-options': ['verifySalaryBandSafety'],
+  'question-salary-options': [
+    'verifySalaryBandSafety',
+    'verifySalaryBandWatch',
+  ],
   'question-providers': [
     'verifyProviderChoices',
     'verifyHhChoices',

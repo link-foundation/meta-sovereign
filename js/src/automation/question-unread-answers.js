@@ -75,6 +75,12 @@ const select = async ({
   return delivered;
 };
 
+const maySelect = (snapshot, plan) =>
+  snapshot.strictOptions &&
+  !snapshot.hasDraft &&
+  approvedBrowserPlan(plan) &&
+  Boolean(plan.option);
+
 /** Ordinary text is held for owner review; only approved native options dispatch. */
 export const visitUnreadAnswer = async ({
   context,
@@ -137,7 +143,7 @@ export const visitUnreadAnswer = async ({
       );
     }
   };
-  if (snapshot.strictOptions && approvedBrowserPlan(plan) && plan.option) {
+  if (maySelect(snapshot, plan)) {
     if (
       await select({
         context,
