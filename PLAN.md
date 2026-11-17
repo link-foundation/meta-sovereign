@@ -3,6 +3,23 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 salary clarification phrasing and language (QA12):
+
+- [x] Compare the complete pinned classifier; reproduce four exact-parent
+      failures and preserve five passing clarification safety controls.
+- [x] Recognize bounded polite English and Russian requests; inherit language
+      only for bare currency/basis follow-ups and keep unrelated-topic barriers.
+- [x] Pass 23 focused checks, CLI/offline/both Lino previews, native and
+      independent MCP prefill with zero sends and closed owned fixtures.
+- [ ] Publish checked evidence and verify the current-source hosted workflows;
+      complete the entire QA12 contract and every other unchecked requirement.
+
+2026-11-17 hosted checklist formatting:
+
+- [x] Preserve the exact 6edc5698 lint log; its only failure is the extra blank
+      line in PLAN.md (lines 542–544). Format the file and retain the lint gate.
+- [ ] Verify the correction on the next exact-source hosted run.
+
 2026-11-17 hosted initial résumé discovery timeout:
 
 - [x] Preserve the exact ddd08a57 WebKit shard 1 failure and browser artifact;

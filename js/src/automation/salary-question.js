@@ -184,7 +184,7 @@ const clarification = (text, config) => {
     ' '
   );
   const allowed = new Set(
-    'and in what about please provide the figures amount amounts net gross per hour hourly month monthly а в и по сколько тогда до после вычета уплаты налогов ндфл чистыми гросс брутто нетто час месяц подскажи подскажите пожалуйста цифры сумму какие спасибо'.split(
+    'and in what how about could you please provide the figures amount amounts net gross per hour hourly month monthly а в и по сколько тогда до после вычета уплаты налогов ндфл чистыми гросс брутто нетто час месяц подскажи подскажите уточни уточните укажи укажите напиши напишите можно пожалуйста цифры сумму какие спасибо'.split(
       ' '
     )
   );
@@ -325,10 +325,12 @@ const chooseCurrency = (
         source: config.defaultCurrency ? 'default' : 'missing',
       };
 };
-const salaryLanguage = (text, previous, followup) =>
-  followup && !/[а-яё]|\b(?:and|in|what|please)\b/iu.test(text)
-    ? language(previous.text)
-    : language(text);
+const salaryLanguage = (text, previous, followup, config) => {
+  const words = stripSalaryCurrencies(text, config)
+    .replace(/\b(?:gross|net)\b/giu, '')
+    .replace(/[^\p{L}]/gu, '');
+  return followup && !words ? language(previous.text) : language(text);
+};
 const effectiveBasis = (text, previous, followup, config, vocabulary) =>
   salaryBasis(text) ??
   (followup
@@ -388,7 +390,7 @@ export const salaryQuestion = (text, config, input, savedCurrency) => {
     currency: selected.code,
     basis: effectiveBasis(text, previous, followup, config, vocabulary),
     period: effectivePeriod(period, inheritedPeriod, followup),
-    language: salaryLanguage(text, previous, followup),
+    language: salaryLanguage(text, previous, followup, config),
     context: {
       key: 'salary_currency',
       choice: selected.code,

@@ -700,3 +700,4 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Hosted native desktop receipts](desktop-native-hosted.md)
 - [Reviewed nearest bands with two salary bases](salary-nearest-bases.md)
 - [Complete salary-band contract mapping](salary-band-criteria-audit.md)
+- [Salary clarification phrasing and language](salary-clarification-phrasing.md)

@@ -832,3 +832,7 @@ explicit form review, unchanged knowledge records and zero submissions.
 Propose a reviewed nearest salary band when each net/gross target independently
 chooses the same unique option. Preserve ties, overlap and unit guards, explicit
 native review, automatic chat containment and idempotent receipt recovery.
+
+Recognize bounded polite English and Russian salary clarifications and retain
+the current question's language independently of currency and tax basis. Keep
+bare-code language inheritance, unrelated-topic barriers and owner drafts.

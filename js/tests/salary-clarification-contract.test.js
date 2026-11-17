@@ -12,7 +12,96 @@ import {
   salaryAnchor,
   salaryClarification,
   salaryClarificationAnswer,
+  salaryPhrasingQuestion,
+  salaryPhrasingAnswer,
 } from '../../experiments/issue-56/salary-clarification-fixture.mjs';
+
+const verifyClarificationSurfaces = async (t, question, expected) => {
+  const store = createMemoryStore();
+  const directory = await mkdtemp(join(tmpdir(), 'ms-salary-clarification-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const input = { question, salary, recent: [salaryAnchor] };
+  const file = join(directory, 'clarification.lino');
+  await writeFile(file, encodeLinoValue(input));
+  await assertQuestionPreviewSurfaces({
+    store,
+    cliArguments: { config: file },
+    input,
+    verify(answer) {
+      assert.equal(answer.text, expected);
+      assert.equal(answer.salary.currency, 'USD');
+      assert.equal(answer.salary.basis, 'gross');
+      assert.equal(answer.requiresReview, false);
+    },
+  });
+  assert.deepEqual(await store.query(() => true), []);
+};
+
+test('polite English salary phrasing keeps the requested independent currency and basis', () => {
+  for (const source of ['hh', 'linkedin', 'telegram', 'vk', 'x']) {
+    for (const question of [
+      salaryPhrasingQuestion,
+      'How about USD gross?',
+      'Could you provide USD gross?',
+    ]) {
+      const result = planAnswer(question, {
+        salary,
+        recent: [salaryAnchor],
+        source,
+      });
+      assert.equal(result.text, salaryPhrasingAnswer, question);
+      assert.equal(result.requiresReview, false);
+      assert.equal(result.salary.currency, 'USD');
+      assert.equal(result.salary.basis, 'gross');
+    }
+  }
+});
+
+test('Russian salary request verbs retain only the relevant salary anchor', () => {
+  for (const verb of [
+    'Уточните',
+    'Укажи',
+    'Укажите',
+    'Напиши',
+    'Напишите',
+    'Можно',
+  ]) {
+    const question = `${verb}, пожалуйста, сумму в USD до вычета налогов?`;
+    assert.equal(
+      planAnswer(question, { salary, recent: [salaryAnchor] }).text,
+      salaryClarificationAnswer,
+      verb
+    );
+    assert.notEqual(
+      planAnswer(question, {
+        salary,
+        recent: ['Какая ваша должность?', salaryAnchor],
+      }).match,
+      'salary'
+    );
+  }
+});
+
+test('lexical English salary clarifications choose their own language while bare codes inherit it', () => {
+  for (const question of ['Figures USD gross?', 'Amount USD gross?']) {
+    const result = planAnswer(question, { salary, recent: [salaryAnchor] });
+    assert.equal(result.text, salaryPhrasingAnswer, question);
+  }
+  const bare = planAnswer('EUR net?', { salary, recent: [salaryAnchor] });
+  assert.equal(bare.text, 'От 5 500 € в месяц на руки.');
+});
+
+test(
+  'salary phrasing survives CLI configuration, offline and both Lino previews without mutations',
+  { timeout: 15000 },
+  async (t) => {
+    await verifyClarificationSurfaces(
+      t,
+      salaryPhrasingQuestion,
+      salaryPhrasingAnswer
+    );
+  }
+);
 
 test('polite salary figure requests preserve independent language, currency and tax basis', () => {
   const recent = ['От 450000 рублей в месяц на руки.', salaryAnchor];
@@ -93,28 +182,11 @@ test(
   'CLI file, offline and both Lino previews retain bounded salary clarification context without mutation',
   { timeout: 15000 },
   async (t) => {
-    const store = createMemoryStore();
-    const directory = await mkdtemp(join(tmpdir(), 'ms-salary-clarification-'));
-    t.after(() => rm(directory, { recursive: true, force: true }));
-    const input = {
-      question: salaryClarification,
-      salary,
-      recent: [salaryAnchor],
-    };
-    const file = join(directory, 'clarification.lino');
-    await writeFile(file, encodeLinoValue(input));
-    await assertQuestionPreviewSurfaces({
-      store,
-      cliArguments: { config: file },
-      input,
-      verify(answer) {
-        assert.equal(answer.text, salaryClarificationAnswer);
-        assert.equal(answer.salary.currency, 'USD');
-        assert.equal(answer.salary.basis, 'gross');
-        assert.equal(answer.requiresReview, false);
-      },
-    });
-    assert.deepEqual(await store.query(() => true), []);
+    await verifyClarificationSurfaces(
+      t,
+      salaryClarification,
+      salaryClarificationAnswer
+    );
   }
 );
 

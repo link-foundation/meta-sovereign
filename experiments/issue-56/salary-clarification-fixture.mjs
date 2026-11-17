@@ -13,3 +13,6 @@ export const salaryAnchor = 'Ваши зарплатные ожидания в �
 export const salaryClarification =
   'Алексей подскажи пожалуйста цифры в долларах и до вычета налогов, спасибо!';
 export const salaryClarificationAnswer = 'От $7 100 в месяц до вычета налогов.';
+export const salaryPhrasingQuestion =
+  'Could you provide the figures in USD gross?';
+export const salaryPhrasingAnswer = 'From $7 100 gross per month.';
