@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 hosted résumé diagnostic mock regression:
+
+- [x] Preserve three exact-source runtime failures and reproduce the unchanged
+      mock's missing page event API locally.
+- [x] Supply page events and document row lookup; retain existing assertions and
+      verify bounded, value-free request traces on Node, Bun and Deno.
+- [ ] Publish the atomic fixture correction and require fresh hosted verification;
+      finish every original unchecked criterion in PR57.
+
 2026-11-17 salary clarification phrasing and language (QA12):
 
 - [x] Compare the complete pinned classifier; reproduce four exact-parent
