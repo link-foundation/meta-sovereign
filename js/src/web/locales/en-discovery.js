@@ -28,4 +28,12 @@ export const enDiscovery = {
     'The page limit was reached; more results may exist',
   'discovery.reason.vacancy-limit':
     'The vacancy limit was reached; the current page may be partial',
+  'discovery.salaryLadder': 'Descend matching-search salary tiers',
+  'discovery.salaryHint':
+    'Use the shared salary targets below. Resume searches start at the RUB net target when no minimum is set, then drop by 50,000 RUB only after every page is exhausted. Unknown pay stays eligible. No applications are sent.',
+  'discovery.salaryTier': 'Salary tier {tier} · Minimum {floor} RUB equivalent',
+  'discovery.pay.apply': 'Pay eligible',
+  'discovery.pay.defer': 'Pay deferred to a lower tier',
+  'discovery.pay.exclude':
+    'Pay excluded: advertised maximum below half the target',
 };

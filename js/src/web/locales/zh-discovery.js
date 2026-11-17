@@ -25,4 +25,11 @@ export const zhDiscovery = {
   'discovery.reason.page-limit': '已达到页数限制；可能还有其他结果',
   'discovery.reason.vacancy-limit':
     '已达到职位数限制；当前页可能只读取了一部分',
+  'discovery.salaryLadder': '逐级降低简历匹配搜索的薪资下限',
+  'discovery.salaryHint':
+    '使用下方共享薪资目标。未设置最低薪资时，简历搜索从 RUB 税后目标开始，遍历当前级别的所有页面后才降低 50,000 RUB。薪资未知的职位仍符合条件。不会发送申请。',
+  'discovery.salaryTier': '薪资级别 {tier} · 最低 {floor} RUB 等值',
+  'discovery.pay.apply': '薪资符合条件',
+  'discovery.pay.defer': '等待较低薪资级别',
+  'discovery.pay.exclude': '薪资已排除：公布上限低于目标一半',
 };

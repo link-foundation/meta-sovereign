@@ -2,6 +2,13 @@ import { hhSearchUrl, jobsBrowserOptions, jobsFailure } from './options.js';
 import { resumeExportRequestId } from './resume-export-options.js';
 import { validateVacancySearch } from './search-result.js';
 import {
+  salaryLadderSettings,
+  salaryLadderStart,
+  salaryTierSearch,
+  salaryTierFloor,
+  assessVacancySalary,
+} from './salary-ladder.js';
+import {
   vacancySelectionOptions,
   vacancySelectionResult,
 } from './vacancy-selection.js';
@@ -44,6 +51,7 @@ export const discoveryOptions = (input) => {
     maxVacancies,
     durationMs,
     refresh: input.refresh === true,
+    ...salaryLadderSettings(input),
   };
 };
 const frozenSearch = (input) => {
@@ -93,7 +101,32 @@ const discoveryFilters = (input) => {
 };
 const date = (value) =>
   typeof value === 'string' && Number.isFinite(Date.parse(value));
+const entryPay = (raw, options) => {
+  const pay = raw?.pay;
+  if (
+    pay !== undefined &&
+    (!pay ||
+      !salaryLadderStart(options) ||
+      !integer(pay.tier, 100) ||
+      JSON.stringify(pay) !==
+        JSON.stringify({
+          tier: pay.tier,
+          ...assessVacancySalary(
+            raw.card?.salary,
+            options.salaryConfig,
+            salaryTierFloor(options, pay.tier)
+          ),
+        }))
+  ) {
+    fail();
+  }
+  if (salaryLadderStart(options) && pay === undefined) {
+    fail();
+  }
+  return pay;
+};
 export const discoveryEntry = (raw, options) => {
+  const pay = entryPay(raw, options);
   const result = validateVacancySearch(
     { url: hhSearchUrl(options.search), cards: [raw?.card], next: null },
     hhSearchUrl(options.search)
@@ -116,7 +149,11 @@ export const discoveryEntry = (raw, options) => {
   if (raw.capturedAt !== null && !date(raw.capturedAt)) {
     fail();
   }
-  if (raw.decision.reason === 'review' && raw.capturedAt === null) {
+  if (
+    raw.decision.reason === 'review' &&
+    raw.capturedAt === null &&
+    (!pay || pay.action === 'apply')
+  ) {
     fail();
   }
   return {
@@ -124,9 +161,18 @@ export const discoveryEntry = (raw, options) => {
     decision: selection.decisions[0],
     choiceRevision: raw.choiceRevision,
     capturedAt: raw.capturedAt,
+    ...(pay ? { pay } : {}),
   };
 };
 const validateProgress = (raw, options) => {
+  const ladder = salaryLadderStart(options);
+  if (
+    ladder
+      ? !integer(raw.salaryTier, Math.min(raw.pages, 100))
+      : raw.salaryTier !== undefined
+  ) {
+    fail();
+  }
   if (
     ![
       'running',
@@ -140,7 +186,8 @@ const validateProgress = (raw, options) => {
     !integer(raw.pages, options.maxPages) ||
     !integer(raw.duplicates, 10000) ||
     (raw.nextPage !== null &&
-      (!integer(raw.nextPage, 999) || raw.nextPage < options.search.page))
+      (!integer(raw.nextPage, 999) ||
+        raw.nextPage < salaryTierSearch(options, raw.salaryTier).page))
   ) {
     fail();
   }
@@ -174,6 +221,9 @@ export const discoveryRecord = (raw, key) => {
   }
   validateProgress(raw, options);
   const entries = raw.entries.map((entry) => discoveryEntry(entry, options));
+  if (entries.some((entry) => entry.pay && entry.pay.tier > raw.salaryTier)) {
+    fail();
+  }
   if (new Set(entries.map((entry) => entry.card.url)).size !== entries.length) {
     fail();
   }

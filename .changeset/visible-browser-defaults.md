@@ -777,3 +777,5 @@ labels. Preserve independent amounts and review guards for missing values, stale
 numbers, incompatible basis, periods and unapproved configuration (issue #56 QA12).
 
 Allow explicit salary context priorities while preserving question precedence and tied-priority review. Match configured word stems and currency symbols adjacent to amounts; retain independent targets and existing source order (issue #56 QA12).
+
+Add bounded resume-matching salary tiers with exact owner targets, observed page exhaustion, deferred minimum-only offers, advertised hard-cap exclusions, shared CLI/Lino/UI settings and non-replaying receipts (issue #56, partial HH02/HH05).

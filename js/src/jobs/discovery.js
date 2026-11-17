@@ -11,6 +11,13 @@ import {
   discoveryView,
 } from './discovery-data.js';
 import { confirmedVacancySearch } from './search-result.js';
+import {
+  freshSalaryLadder,
+  salaryLadderStart,
+  salaryTierSearch,
+  salaryTierFloor,
+  assessVacancySalary,
+} from './salary-ladder.js';
 
 const latest = (slot) => `secret:jobs-discovery-latest:${slot}`;
 const immediate = (work) => work();
@@ -22,6 +29,29 @@ const defaultTrace =
   process.env.MS_JOBS_DISCOVERY_DEBUG === '1'
     ? (value) => console.error(value)
     : () => {};
+
+const pageProgress = (record, options, result) => {
+  const pages = record.pages + 1;
+  const limit = record.entries.length === options.maxVacancies;
+  const advance =
+    !limit &&
+    pages < options.maxPages &&
+    result.nextPage === null &&
+    salaryTierFloor(options, record.salaryTier) > 0;
+  const reason = limit
+    ? 'vacancy-limit'
+    : result.nextPage === null &&
+        !advance &&
+        !(
+          pages === options.maxPages &&
+          salaryTierFloor(options, record.salaryTier) > 0
+        )
+      ? 'exhausted'
+      : pages === options.maxPages
+        ? 'page-limit'
+        : null;
+  return { pages, limit, advance, reason };
+};
 
 /** One finite owned read lane; only acknowledged checkpoints become public progress. */
 class VacancyDiscovery {
@@ -94,10 +124,21 @@ class VacancyDiscovery {
     let choices = await storedVacancyChoices(this.store, options);
     let decision = vacancySelectionDecision(card, choices, [], options.filters);
     let capturedAt = null;
+    const pay = salaryLadderStart(options)
+      ? {
+          tier: owned.record.salaryTier,
+          ...assessVacancySalary(
+            card.salary,
+            options.salaryConfig,
+            salaryTierFloor(options, owned.record.salaryTier)
+          ),
+        }
+      : null;
     const waiting = () =>
       this.retryWaiting({ url: card.url, browserSlot: options.browserSlot });
     if (
       ['review', 'needs-description'].includes(decision.reason) &&
+      (!pay || pay.action === 'apply') &&
       !waiting()
     ) {
       const snapshot = await acknowledgedWrite(this.store, immediate, () =>
@@ -126,7 +167,13 @@ class VacancyDiscovery {
     ) {
       decision = { ...decision, reason: 'retry-wait' };
     }
-    return { card, decision, choiceRevision: choices.revision, capturedAt };
+    return {
+      card,
+      decision,
+      choiceRevision: choices.revision,
+      capturedAt,
+      ...(pay ? { pay } : {}),
+    };
   }
   async cards(owned, cards, signal) {
     for (const card of cards) {
@@ -161,7 +208,10 @@ class VacancyDiscovery {
       this.check(owned, signal);
       const record = owned.record;
       const options = record.options;
-      const search = { ...options.search, page: record.nextPage };
+      const search = {
+        ...salaryTierSearch(options, record.salaryTier),
+        page: record.nextPage,
+      };
       this.trace({
         event: 'vacancy-discovery-page',
         page: record.nextPage,
@@ -174,22 +224,32 @@ class VacancyDiscovery {
       this.check(owned, signal);
       await this.cards(owned, result.cards, signal);
       this.check(owned, signal);
-      const pages = owned.record.pages + 1;
-      const limit = owned.record.entries.length === options.maxVacancies;
-      const reason = limit
-        ? 'vacancy-limit'
-        : result.nextPage === null
-          ? 'exhausted'
-          : pages === options.maxPages
-            ? 'page-limit'
-            : null;
+      const { pages, limit, advance, reason } = pageProgress(
+        owned.record,
+        options,
+        result
+      );
       await this.save(owned, {
         ...owned.record,
         pages,
-        nextPage: limit ? record.nextPage : result.nextPage,
+        nextPage: limit ? record.nextPage : advance ? 0 : result.nextPage,
+        ...(advance ? { salaryTier: record.salaryTier + 1 } : {}),
         reason,
         phase: reason ? 'completed' : 'running',
       });
+      if (advance) {
+        for (let index = 0; index < owned.record.entries.length; index += 1) {
+          const row = owned.record.entries[index];
+          if (row.pay?.action !== 'defer') {
+            continue;
+          }
+          this.check(owned, signal);
+          const entries = [...owned.record.entries];
+          entries[index] = await this.entry(owned, row.card, signal);
+          this.check(owned, signal);
+          await this.save(owned, { ...owned.record, entries });
+        }
+      }
     }
   }
   async cycle(owned, writer, accept) {
@@ -199,6 +259,7 @@ class VacancyDiscovery {
       owned.controller.signal,
     ]);
     const began = this.now();
+    const ladder = freshSalaryLadder(options, began);
     await this.save(owned, {
       id: options.id,
       version: 1,
@@ -207,7 +268,8 @@ class VacancyDiscovery {
       phase: 'running',
       reason: null,
       pages: 0,
-      nextPage: options.search.page,
+      nextPage: ladder ? ladder.search.page : options.search.page,
+      ...(ladder ? { salaryTier: 0 } : {}),
       entries: [],
       duplicates: 0,
       startedAt: new Date(began).toISOString(),

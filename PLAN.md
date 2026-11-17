@@ -295,3 +295,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Verify all five latest workflow timestamps and source SHA. Preserve the actual failed WebKit job and browser artifact; locate the Stories reload network failure.
 - [x] Run two finite WebKit checks, both passing. Add named checkpoints and opt-in request traces with query/fragment redaction; preserve twelve passing diagnostic tests.
 - [ ] Inspect fresh exact-head hosted results. Historical navigation failure root cause remains unconfirmed; no assertion or timeout has been weakened. All 40 unchecked original requirements remain required.
+
+2026-11-17 salary-tier discovery (partial HH02/HH05):
+
+- [x] Reproduce the absent tier progression and controls against published 51047939.
+- [x] Add shared salary settings, dated FX, observed pagination, temporary deferrals and batch exclusions with preserved owner/responded decisions.
+- [x] Verify 29 focused checks, native and independent MCP UI, four locales, phone layout and zero provider clicks; keep all source and failure evidence.
+- [ ] Publish this atomic discovery change and inspect exact-head hosted checks.
+- [ ] Complete full application, direct-form and retry salary admission and remaining 40 original criteria; keep PR57 draft and unmerged.

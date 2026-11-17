@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { SalaryFields } from './question-salary-fields.js';
+import {
+  salaryLadderSettings,
+  salaryTierFloor,
+} from '../jobs/salary-ladder.js';
 
 const el = React.createElement;
 const button = (name, callback, disabled, t) =>
@@ -24,24 +29,34 @@ export const VacancyDiscoveryView = ({ state, t }) => {
     maxVacancies: 100,
     durationMs: 900000,
     refresh: false,
+    salaryLadder: true,
   });
   const discovery = state.discovery;
   const job = discovery?.receipt?.discovery;
   if (!discovery || (state.capabilities?.discovery !== true && !job)) {
     return null;
   }
-  const valid = [
-    [bounds.maxPages, 100],
-    [bounds.maxVacancies, 1000],
-    [bounds.durationMs / 1000, 86400],
-  ].every(
-    ([value, max]) => Number.isInteger(value) && value >= 1 && value <= max
-  );
+  const valid =
+    validSalarySettings(bounds) &&
+    [
+      [bounds.maxPages, 100],
+      [bounds.maxVacancies, 1000],
+      [bounds.durationMs / 1000, 86400],
+    ].every(
+      ([value, max]) => Number.isInteger(value) && value >= 1 && value <= max
+    );
   const frozen = discovery.busy || job?.phase === 'running';
   return el('section', { className: 'col', 'data-vacancy-discovery': true }, [
     el('h3', { key: 'title' }, t('discovery.title')),
     el('p', { key: 'hint', className: 'meta' }, t('discovery.hint')),
-    el(DiscoveryBounds, { key: 'bounds', frozen, bounds, setBounds, t }),
+    el(DiscoveryBounds, {
+      key: 'bounds',
+      frozen,
+      bounds,
+      setBounds,
+      t,
+      api: state.application?.api,
+    }),
     el('div', { key: 'actions', className: 'row' }, [
       button(
         'start',
@@ -68,7 +83,15 @@ export const VacancyDiscoveryView = ({ state, t }) => {
   ]);
 };
 
-const DiscoveryBounds = ({ frozen, bounds, setBounds, t }) =>
+const validSalarySettings = (input) => {
+  try {
+    salaryLadderSettings(input);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const DiscoveryBounds = ({ frozen, bounds, setBounds, t, api }) =>
   el(
     'fieldset',
     { key: 'bounds', disabled: frozen, className: 'automation-fieldset' },
@@ -110,6 +133,28 @@ const DiscoveryBounds = ({ frozen, bounds, setBounds, t }) =>
         }),
         t('discovery.refresh'),
       ]),
+      el('label', { key: 'ladder', className: 'row' }, [
+        el('input', {
+          key: 'input',
+          type: 'checkbox',
+          checked: bounds.salaryLadder,
+          'data-discovery-field': 'salaryLadder',
+          onChange: (event) =>
+            setBounds({ ...bounds, salaryLadder: event.target.checked }),
+        }),
+        t('discovery.salaryLadder'),
+      ]),
+      el(
+        'p',
+        { key: 'salaryHint', className: 'meta' },
+        t('discovery.salaryHint')
+      ),
+      el(SalaryFields, {
+        key: 'salary',
+        api,
+        salary: bounds.salaryConfig,
+        set: (salaryConfig) => setBounds({ ...bounds, salaryConfig }),
+      }),
     ]
   );
 
@@ -136,6 +181,16 @@ const DiscoveryReceipt = ({ job, t }) =>
       job.reason
         ? el('p', { key: 'reason' }, t(`discovery.reason.${job.reason}`))
         : null,
+      job.salaryTier === undefined
+        ? null
+        : el(
+            'p',
+            { key: 'tier' },
+            t('discovery.salaryTier', {
+              tier: job.salaryTier + 1,
+              floor: salaryTierFloor(job.options, job.salaryTier),
+            })
+          ),
       job.code ? el('p', { key: 'code' }, job.code) : null,
       el(
         'p',
@@ -175,6 +230,9 @@ const DiscoveryReceipt = ({ job, t }) =>
               { key: 'reason' },
               t(`vacancySelection.${row.decision.reason}`)
             ),
+            row.pay
+              ? el('span', { key: 'pay' }, t(`discovery.pay.${row.pay.action}`))
+              : null,
             row.capturedAt
               ? el(
                   'span',

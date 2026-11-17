@@ -1,7 +1,7 @@
 import { createApplicationCommands } from './application-command.js';
 import { createVacancyService } from '../jobs/service.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
-import { encodeWire } from '../transport/lino.js';
+import { encodeWire, decodeWire } from '../transport/lino.js';
 import { randomUUID } from 'node:crypto';
 import { foregroundResumeExport } from './resume-export-command.js';
 import { technologyCommandInput } from './technology-command.js';
@@ -43,6 +43,13 @@ const typedFlag = (args, key, kind) => {
   }
   throw new Error(`--${key} must be a ${kind}`);
 };
+const salaryDiscoveryInput = (args) => ({
+  salaryConfig: args['salary-config']
+    ? decodeWire(args['salary-config'])
+    : undefined,
+  salaryLadder:
+    typedFlag(args, 'no-salary-ladder', 'boolean') === true ? false : undefined,
+});
 export const createVacancyCommands = ({ openStore, ...options }) =>
   Object.assign(
     createApplicationCommands({ openStore, ...options }),
@@ -126,6 +133,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                         ])
                       ),
                       salary: typedFlag(args, 'salary', 'number'),
+                      ...salaryDiscoveryInput(args),
                       skipResponded: typedFlag(
                         args,
                         'skip-responded',

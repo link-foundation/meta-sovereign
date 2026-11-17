@@ -26,4 +26,11 @@ export const hiDiscovery = {
   'discovery.reason.page-limit': 'पृष्ठ सीमा पूरी हुई; और नतीजे हो सकते हैं',
   'discovery.reason.vacancy-limit':
     'रिक्ति सीमा पूरी हुई; वर्तमान पृष्ठ अधूरा हो सकता है',
+  'discovery.salaryLadder': 'रिज्यूमे खोज में वेतन स्तर घटाएँ',
+  'discovery.salaryHint':
+    'नीचे साझा वेतन लक्ष्य इस्तेमाल होते हैं। न्यूनतम न होने पर रिज्यूमे खोज RUB शुद्ध लक्ष्य से शुरू होती है और सभी पृष्ठ पूरे होने पर ही 50,000 RUB घटती है। अज्ञात वेतन पात्र रहता है। आवेदन नहीं भेजे जाते।',
+  'discovery.salaryTier': 'वेतन स्तर {tier} · न्यूनतम {floor} RUB समतुल्य',
+  'discovery.pay.apply': 'वेतन पात्र है',
+  'discovery.pay.defer': 'कम वेतन स्तर तक स्थगित',
+  'discovery.pay.exclude': 'विज्ञापित अधिकतम लक्ष्य के आधे से कम है',
 };

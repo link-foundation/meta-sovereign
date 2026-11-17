@@ -290,11 +290,15 @@ const batchStartDisabled = (state, frozen, confirmed, draft, application) =>
   application.occupied ||
   application.discoveryRunning;
 
-const discoveredReviewUrls = (state) => {
+export const discoveredReviewUrls = (state) => {
   const discovery = state?.receipt?.discovery;
   return discovery?.phase === 'completed'
     ? discovery.entries
-        .filter((row) => row.decision.reason === 'review')
+        .filter(
+          (row) =>
+            row.decision.reason === 'review' &&
+            (!row.pay || row.pay.action === 'apply')
+        )
         .map((row) => row.card.url)
     : [];
 };
