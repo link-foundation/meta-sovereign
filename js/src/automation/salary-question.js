@@ -1,5 +1,10 @@
 import { asksQuestion } from './question-match.js';
 import { normalizeAnswerEnvironment } from './question-context.js';
+import {
+  learnSalaryVocabulary,
+  learnedSalaryTopic,
+  learnedSalaryGross,
+} from './salary-vocabulary.js';
 
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 const literal = (text, word) =>
@@ -70,14 +75,21 @@ export const salaryPeriod = (text) => {
   return hour && month ? 'ambiguous' : hour ? 'hour' : month ? 'month' : null;
 };
 const excluded = (text) =>
+  /\bcurrent\s+(?:hourly\s+)?(?:pay|rate|salary|package|retainer)\b(?!\s+expectations?\b)|\bhow\s+(?:do|to)\b.*\bcalculat|текущ\p{L}*\s+(?:зарплат\p{L}*|доход\p{L}*|оклад\p{L}*)(?!\p{L}|\s+ожидан)|(?:входит|вписыва|соглас|готов\S*\s+ли)|подсистем|выплат\S*\s+(?:зарплат|заработн)/iu.test(
+    text
+  ) ||
   /\b(?:previous|past|last|payroll|revenue|budget|expenses?|accept|suit|cards?)\b|прошл|предыдущ|была|были|устраив|подходит|подходят|выручк|бюджет|расход|зарплатн\S*\s+карт|как\s+рассчит|github|\bstack\b/iu.test(
     text
   );
-export const directSalaryQuestion = (text) =>
+export const directSalaryQuestion = (text, vocabulary) =>
   !excluded(text) &&
-  /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|(?:по)?часов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)|(?:желаем\S*|ожидаем\S*)\s+(?:уровень\s+)?доход|ожидан\S*\s+по\s+з\/?п|(?:от\s+какой\s+суммы|в\s+каком\s+диапазоне)\s+рассматриваете\s+предложени/iu.test(
-    text
-  );
+  (learnedSalaryTopic(text, vocabulary) ||
+    /(?:^|[^\p{L}])(?:оклад\p{L}*|зп|з\s*\/\s*пл?)(?!\p{L})|вознагражден|компенсац|денежн\S*\s+(?:ожидан|пожелан|услов)|комфортн\S*\s+(?:уровень\s+)?доход|\brate\s+expectations?\b/iu.test(
+      text
+    ) ||
+    /\b(?:salary|compensation|remuneration|income)\b|hourly\s+rate|expected\s+pay|pay\s+expectations|зарплат|заработн\S*\s+плат|финансов\S*\s+ожидан|(?:по)?часов\S*\s+(?:ставк|ожидан)|(?:какую|минимальн\S*|ожидаем\S*)\s+(?:оплат|ставк)|(?:желаем\S*|ожидаем\S*)\s+(?:уровень\s+)?доход|ожидан\S*\s+по\s+з\/?п|(?:от\s+какой\s+суммы|в\s+каком\s+диапазоне)\s+рассматриваете\s+предложени/iu.test(
+      text
+    ));
 const language = (text) => (/[а-яё]/iu.test(text) ? 'ru' : 'en');
 const clarification = (text, config) => {
   if (text.length > 300 || excluded(text)) {
@@ -125,11 +137,11 @@ const clarification = (text, config) => {
     .filter(Boolean)
     .every((word) => allowed.has(word));
 };
-const anchor = (environment, config) => {
+const anchor = (environment, config, vocabulary) => {
   const chain = [];
   for (const entry of environment.recent) {
     if (
-      directSalaryQuestion(entry.text) &&
+      directSalaryQuestion(entry.text, vocabulary) &&
       !['unsupported', 'ambiguous'].includes(salaryPeriod(entry.text))
     ) {
       const period = salaryPeriod(entry.text) ?? 'month';
@@ -163,12 +175,12 @@ const vacancyCurrencySources = (environment) => [
     evidence: environment.vacancy.evidence,
   },
 ];
-const unrelatedCurrencyQuestion = (entry, config) =>
+const unrelatedCurrencyQuestion = (entry, config, vocabulary) =>
   excluded(entry.text) ||
   (asksQuestion(entry.text) &&
-    !directSalaryQuestion(entry.text) &&
+    !directSalaryQuestion(entry.text, vocabulary) &&
     !clarification(entry.text, config));
-const chooseCurrency = (text, config, environment) => {
+const chooseCurrency = (text, config, environment, vocabulary) => {
   const explicit = salaryCurrencies(text, config);
   if (unknownSalaryCurrency(text, config) || explicit.length > 1) {
     return { code: null, source: 'ambiguous' };
@@ -177,7 +189,7 @@ const chooseCurrency = (text, config, environment) => {
     return { code: explicit[0].code, source: 'question' };
   }
   for (const entry of environment.recent) {
-    if (unrelatedCurrencyQuestion(entry, config)) {
+    if (unrelatedCurrencyQuestion(entry, config, vocabulary)) {
       break;
     }
     const matches = salaryCurrencies(entry.text, config);
@@ -219,25 +231,39 @@ const salaryLanguage = (text, previous, followup) =>
   followup && !/[а-яё]|\b(?:and|in|what|please)\b/iu.test(text)
     ? language(previous.text)
     : language(text);
-const effectiveBasis = (text, previous, followup, config) =>
+const effectiveBasis = (text, previous, followup, config, vocabulary) =>
   salaryBasis(text) ??
   (followup
     ? [...previous.chain, previous]
-        .map((entry) => salaryBasis(entry.text))
+        .map(
+          (entry) =>
+            salaryBasis(entry.text) ??
+            (learnedSalaryGross(entry.text, vocabulary) ? 'gross' : null)
+        )
         .find(Boolean)
     : null) ??
-  config.defaultBasis;
+  (learnedSalaryGross(text, vocabulary) ? 'gross' : config.defaultBasis);
 const effectivePeriod = (period, inherited, followup) =>
   period ?? (followup ? inherited : 'month');
 const invalidSalaryText = (text) =>
   typeof text !== 'string' || text.length > 6000 || excluded(text);
+export const createSalaryVocabulary = (input) =>
+  learnSalaryVocabulary(
+    input.matchRulesLimited ? [] : (input.rules ?? []),
+    input,
+    (text) =>
+      !invalidSalaryText(text) && [null, 'month'].includes(salaryPeriod(text))
+  );
+const previousPeriod = (previous) =>
+  previous ? (salaryPeriod(previous.text) ?? 'month') : 'month';
 export const salaryQuestion = (text, config, input) => {
   if (invalidSalaryText(text)) {
     return null;
   }
+  const vocabulary = input.salaryVocabulary ?? createSalaryVocabulary(input);
   const environment = normalizeAnswerEnvironment(input);
-  const previous = anchor(environment, config);
-  const followup = !directSalaryQuestion(text);
+  const previous = anchor(environment, config, vocabulary);
+  const followup = !directSalaryQuestion(text, vocabulary);
   if (!followup && input.questionMode !== 'field' && !asksQuestion(text)) {
     return null;
   }
@@ -248,16 +274,14 @@ export const salaryQuestion = (text, config, input) => {
   ) {
     return null;
   }
-  const inheritedPeriod = previous
-    ? (salaryPeriod(previous.text) ?? 'month')
-    : 'month';
+  const inheritedPeriod = previousPeriod(previous);
   if (followup && period && period !== inheritedPeriod) {
     return null;
   }
-  const selected = chooseCurrency(text, config, environment);
+  const selected = chooseCurrency(text, config, environment, vocabulary);
   return {
     currency: selected.code,
-    basis: effectiveBasis(text, previous, followup, config),
+    basis: effectiveBasis(text, previous, followup, config, vocabulary),
     period: effectivePeriod(period, inheritedPeriod, followup),
     language: salaryLanguage(text, previous, followup),
     context: {

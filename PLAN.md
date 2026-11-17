@@ -247,3 +247,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass 30 focused portable checks, mandatory native prefill/owner preservation and independent MCP with zero sends; inspect before/after screenshots.
 - [ ] Preserve source-bound evidence and publish the atomic correction after focused static checks.
 - [ ] Inspect all five exact-head workflows and complete full QA12 and every remaining unchecked requirement. All 40 remain required; PR57 stays draft and unmerged.
+
+2026-11-17 learned salary vocabulary (QA12):
+
+- [x] Read the complete pinned input-pattern contract and reproduce missing learned salary intent/basis, ordinary labels and current-pay exclusion boundaries on 6b4b4df6.
+- [x] Draft a bounded once-per-plan vocabulary from distinct scoped approved monthly examples; retain purity, canonical corrections, explicit basis, unrelated-topic barriers and current amount substitution.
+- [x] Verify 39 focused checks, native prefill/owner preservation and independent MCP with zero sends; verify a corpus edit during typing prevents an outbox claim. Inspect valid before/after screenshots.
+- [ ] Preserve source-bound evidence and publish after final static checks; inspect all five exact-source workflows.
+- [ ] Complete the entire QA12/QA13/QA15 reference mapping and all other original unchecked requirements. All 40 remain in scope, with PR57 draft and unmerged.

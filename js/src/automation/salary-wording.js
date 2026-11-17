@@ -123,7 +123,7 @@ const candidates = (question, input, selected, environment, previous) => {
     if (
       rule.kind === 'notice' ||
       !answerRuleEligible(rule, input) ||
-      !directSalaryQuestion(rule.question)
+      !directSalaryQuestion(rule.question, input.salaryVocabulary)
     ) {
       continue;
     }

@@ -760,3 +760,8 @@ Preserve approved salary-only wording when answering another salary question,
 using current configured amounts and the requested currency (issue #56 QA12).
 Exact approved wording, declared equivalents and final-period preferences remain
 in force; saved observations and counts are unchanged.
+
+Recognize owner-learned salary vocabulary from distinct eligible approved monthly
+answers, including inherited gross clarifications (issue #56 QA12). Require the
+reference's minimum examples and topic purity, preserve explicit basis and scope,
+and keep past/current pay, offer acceptance and payroll topics outside inference.

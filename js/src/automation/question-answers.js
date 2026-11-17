@@ -37,6 +37,7 @@ import {
 } from './question-matching-options.js';
 import { optionalAnswerProfileId } from './question-profiles.js';
 import { normalizeSalary } from './salary-config.js';
+import { createSalaryVocabulary } from './salary-question.js';
 import { applySalaryAnswer, isSalaryRequest } from './question-salary.js';
 import { questionCore, sufficientAnswer } from './question-turns.js';
 import { answerChoiceState, applyAnswerChoices } from './question-options.js';
@@ -394,22 +395,28 @@ const answerOne = (question, input) => {
   );
 };
 
-const answerContext = (options, rules) => ({
-  profile: {},
-  approximate: true,
-  ...options,
-  policy: { ...(options.policy ?? {}), ...finalPeriodOverride(options) },
-  matching: normalizeQuestionMatching(options.matching),
-  matchPage: normalizeMatchPage(options.matchPage),
-  matchBudget:
-    options.matchBudget ??
-    (options.matchPage === undefined
-      ? undefined
-      : { remaining: 4 * 1024 ** 2, exhausted: false }),
-  matchRulesLimited: (options.rules?.length ?? 0) > 1000,
-  contexts: normalizeAnswerContexts(options.contexts),
-  rules,
-});
+const answerContext = (options, rules) => {
+  const context = {
+    profile: {},
+    approximate: true,
+    ...options,
+    policy: { ...(options.policy ?? {}), ...finalPeriodOverride(options) },
+    matching: normalizeQuestionMatching(options.matching),
+    matchPage: normalizeMatchPage(options.matchPage),
+    matchBudget:
+      options.matchBudget ??
+      (options.matchPage === undefined
+        ? undefined
+        : { remaining: 4 * 1024 ** 2, exhausted: false }),
+    matchRulesLimited: (options.rules?.length ?? 0) > 1000,
+    contexts: normalizeAnswerContexts(options.contexts),
+    rules,
+  };
+  if (options.salary?.enabled) {
+    context.salaryVocabulary = createSalaryVocabulary(context);
+  }
+  return context;
+};
 
 const hasQuestionIntent = (question, context) =>
   asksQuestion(question) || isSalaryRequest(question, context);
