@@ -1,6 +1,6 @@
 import { normalizeSalary, formatSalary } from './salary-config.js';
 import { resolveSalaryAmount } from './salary-calculation.js';
-import { salaryQuestion } from './salary-question.js';
+import { salaryQuestion, stripSalaryCurrencies } from './salary-question.js';
 import { salaryOption, salaryAmounts } from './salary-options.js';
 import { questionKey } from './question-match.js';
 import { rejectedAnswer } from './question-policy.js';
@@ -56,8 +56,8 @@ const missingField = (selection, config, entry) => {
   }
   return `salary_${selection.basis}_${entry.code.toLowerCase()}`;
 };
-const plainPay = (text) => {
-  const stripped = text
+const plainPay = (text, config) => {
+  const stripped = stripSalaryCurrencies(text, config)
     .replace(/\{\{salary_[a-z0-9_]+\}\}/gu, '')
     .replace(
       /(?<!\p{L})(?:up\s+to|at\s+least|(?:or|and)\s+(?:more|above)|(?:more|less)\s+than|between|under|below|over|above|to|and|не\s+менее|(?:и|или)\s+(?:более|выше)|между|свыше|более|больше|выше|менее|меньше|и|thousand|million|[kкmм])(?!\p{L})/giu,
@@ -217,7 +217,7 @@ export const applySalaryAnswer = (question, input, previous) => {
   }
   // A personal explanation belongs to its author; changing the numeric target
   // cannot silently approve stale details in that explanation.
-  if (previous.text && !plainPay(previous.text)) {
+  if (previous.text && !plainPay(previous.text, config)) {
     const literal = previous.salaryTemplates
       ? previous.salaryTemplates.literalNumbers
       : /\d/u.test(previous.text);

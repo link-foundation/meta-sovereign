@@ -2,6 +2,11 @@
 'meta-sovereign': minor
 ---
 
+Use the configured currency vocabulary for saved salary bands. Match complete
+aliases before shorter words and keep genuinely foreign currency choices under
+review, including when a configured alias contains another currency's common
+name (issue #56).
+
 Verify actual Linux packaged startup and Windows silent installation, explicit
 packaged startup and owned uninstall on both hosted architectures. Document
 native checksum tools, provenance, architecture selection and the committed

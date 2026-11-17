@@ -8,18 +8,28 @@ import {
   bandSavedRule,
 } from '../../../experiments/issue-56/salary-band-safety-fixture.mjs';
 
-export const verifySalaryBandSaved = async (browser) => {
-  const before = process.env.SALARY_BAND_SAVED_BEFORE === '1';
+export const verifySalaryBandSaved = async (browser, scenario = {}) => {
+  const group = scenario.group ?? 'salary-band-saved';
+  const before =
+    process.env[scenario.beforeVariable ?? 'SALARY_BAND_SAVED_BEFORE'] === '1';
   const ui = await questionBrowserUi(browser, {
-    group: 'salary-band-saved',
-    screenshots: process.env.SALARY_BAND_SAVED_SCREENSHOTS,
+    group,
+    screenshots:
+      process.env[
+        scenario.screenshotVariable ?? 'SALARY_BAND_SAVED_SCREENSHOTS'
+      ],
   });
   const { fixture } = ui;
-  const options = ['USD up to 5000', 'USD 5001–7999'];
-  const rule = await saveAnswerRule(fixture.store, bandSavedRule(options[0]));
+  const options = scenario.options ?? ['USD up to 5000', 'USD 5001–7999'];
+  const question = scenario.question ?? bandQuestion;
+  const salary = scenario.salary ?? bandSalary;
+  const rule = await saveAnswerRule(
+    fixture.store,
+    bandSavedRule(options[0], { question })
+  );
   try {
-    await fixture.reset({ question: bandQuestion, options });
-    await inspectSalaryBrowser(ui, bandSalary);
+    await fixture.reset({ question, options });
+    await inspectSalaryBrowser(ui, salary);
     await ui.run(
       'an old offered boundary uses the current containing band',
       async () => {
@@ -38,7 +48,7 @@ export const verifySalaryBandSaved = async (browser) => {
         await ui.controls
           .locator('[data-browser-answer-review]')
           .scrollIntoViewIfNeeded();
-        await ui.shot(`${before ? 'before' : 'after'}-salary-band-saved`);
+        await ui.shot(`${before ? 'before' : 'after'}-${group}`);
         if (!before) {
           assert.equal(
             await ui.controls

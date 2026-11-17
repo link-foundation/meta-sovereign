@@ -3,6 +3,15 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 configured salary currencies (QA15):
+
+- [x] Reproduce four exact-parent failures for configured codes, longer aliases,
+      saved amount conflicts and shared previews.
+- [x] Reuse configured vocabulary and preserve foreign/personal review; verify
+      33 focused checks plus native and independent MCP parent/corrected receipts.
+- [ ] Publish checked evidence, inspect exact-source CI and complete the entire
+      QA15 contract mapping. All 40 unchecked criteria remain required.
+
 2026-11-17 desktop installation verification (VD09):
 
 - [x] Read the entire pinned desktop requirements and map the missing real Linux

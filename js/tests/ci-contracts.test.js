@@ -347,6 +347,8 @@ const questionBrowserGroups = {
   'question-salary-options': [
     'verifySalaryBandSafety',
     'verifySalaryBandWatch',
+    'verifySalaryBandSaved',
+    'verifySalaryBandCurrencies',
   ],
   'question-providers': [
     'verifyProviderChoices',

@@ -30,6 +30,7 @@ export const stripSalaryCurrencies = (text, config) =>
       ...(currencyWords[entry.code] ?? []),
       ...entry.keywords,
     ])
+    .sort((left, right) => right.length - left.length)
     .reduce(
       (value, word) => value.replaceAll(literalPattern(word, 'giu'), ' '),
       text
@@ -58,19 +59,22 @@ const knownCurrencies = new Set([
   'ETH',
 ]);
 export const unknownSalaryCurrency = (text, config) => {
+  const unconfigured = stripSalaryCurrencies(text, config);
   if (
     Object.entries(currencyWords).some(
       ([code, words]) =>
         !config.currencies.some((entry) => entry.code === code) &&
-        words.some((word) => literal(text, word))
+        words.some((word) => literal(unconfigured, word))
     )
   ) {
     return true;
   }
-  const codes = [...text.matchAll(/\b[A-Z]{3,10}\b/gu)].map(([word]) => word);
+  const codes = [...unconfigured.matchAll(/\b[A-Z]{3,10}\b/gu)].map(
+    ([word]) => word
+  );
   codes.push(
     ...[
-      ...text.matchAll(
+      ...unconfigured.matchAll(
         /\b(?:usd|eur|rub|gbp|cad|aud|chf|jpy|cny|inr|usdt|btc|eth)\b/giu
       ),
     ].map(([word]) => word.toUpperCase())
