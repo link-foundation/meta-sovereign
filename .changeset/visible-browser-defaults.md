@@ -900,3 +900,7 @@ Reserve automatic daily capacity atomically in the durable outbox across batch
 and single-step delivery. Preserve uncertainty reservations and explicit owner
 review; return cap races to normal pacing without recording failed sends
 (issue #56 QA20).
+
+Reread saved automatic pacing at each autopilot step and retain a finite wait
+for an empty zero-cap ledger, preventing invalid wake dates and repeated planning
+after a lowered daily limit (issue #56 QA20).

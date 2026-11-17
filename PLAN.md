@@ -3,13 +3,21 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 autopilot cap lifecycle (QA20 remains required):
+
+- [x] Reproduce two failures against published `448c2234`: an empty zero cap creates an invalid wake date; a lowered saved limit permits a second planning attempt after durable refusal.
+- [x] Reread the saved automation at loop boundaries and retain a finite one-day empty-cap wait without changing existing receipt expiries.
+- [x] Pass 72 focused checks with one worker and rebuild the actual production bundle; drain every owned finite wait.
+- [x] Complete static checks; collect and independently rehash the final source/log archive before the atomic commit. Publication remains on the prepared branch only.
+- [ ] Review exact-source hosted validation and continue all 35 unfinished criteria. PR57 stays draft and unmerged.
+
 2026-11-17 atomic automatic send capacity (QA20 remains required):
 
 - [x] Reproduce 24 failures in 36 finite checks against published parent `6f7bdd6f`, including simultaneous distinct-target cap snapshots and bypass through single-step delivery.
 - [x] Share serialized durable outbox admission across automatic batches and steps; retain uncertainty reservations, owner review and independent-owner progress.
 - [x] Pass 90 focused checks with one worker and rebuild the actual production browser bundle.
-- [x] Complete scoped static checks and preserve all source/log archive entries; collect and independently rehash the final archive before publication.
-- [ ] Publish this atomic correction, require exact-source hosted verification and continue all 35 unfinished original criteria. PR57 stays draft and unmerged.
+- [x] Complete scoped static checks, collect and independently rehash all 38 final source/log archive entries.
+- [x] Publish the atomic correction at `448c2234`; exact-source hosted verification and all 35 unfinished original criteria remain required. PR57 stays draft and unmerged.
 
 2026-11-17 VK person consent propagation (QA19/QA20 remain required):
 

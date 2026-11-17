@@ -53,7 +53,8 @@ const capEndsAt = (links, automation, now) => {
     now,
     `${RUN_PREFIX}${automationKey(automation)}:`
   ).map((s) => s.ms);
-  return { count: times.length, endsAt: Math.min(...times) + DAY_MS };
+  const oldest = times.length ? Math.min(...times) : now;
+  return { count: times.length, endsAt: oldest + DAY_MS };
 };
 
 const pauseMs = (pacing, random) => {
@@ -165,6 +166,11 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
     };
     let streak = 0;
     while (!signal.aborted) {
+      // Settings may change while a step plans or waits for its provider.
+      automation = await runner.load(automation.id);
+      if (signal.aborted) {
+        return;
+      }
       if (
         (await quiet(automation, signal)) ||
         (await capped(automation, signal))
