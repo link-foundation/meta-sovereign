@@ -824,3 +824,7 @@ before requiring both targets to share one unique containing choice.
 
 Use a unique configured currency in numeric salary choices when the question
 omits currency, retaining explicit question precedence and ambiguous-choice review.
+
+Reuse a compatible exact approved saved salary amount as a missing numeric
+choice baseline. Preserve configured target precedence, failed tax calculations,
+explicit form review, unchanged knowledge records and zero submissions.

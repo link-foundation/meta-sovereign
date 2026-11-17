@@ -2,9 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { planAnswer } from '../src/automation/question-answers.js';
 import { approvedBrowserPlan } from '../src/automation/question-browser-plan.js';
-import { createMemoryStore } from '../src/storage/universal.js';
-import { normalizeAutomation } from '../src/automation/automations.js';
-import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
+import { assertStoredSalaryPreviews } from './helpers/salary-preview-surfaces.mjs';
 import { choiceCurrencyCase as input } from '../../experiments/issue-56/salary-choice-currency-fixture.mjs';
 
 const selected = (result) => {
@@ -68,20 +66,10 @@ test(
   'unique choice currency shares CLI, offline and both Lino previews',
   { timeout: 15000 },
   async () => {
-    const store = createMemoryStore();
-    await store.put(
-      normalizeAutomation({
-        id: 'choice-currency',
-        action: { kind: 'answer-questions', salary: input.salary },
-      })
-    );
-    const original = JSON.stringify(await store.query(() => true));
-    await assertQuestionPreviewSurfaces({
-      store,
-      automationId: 'choice-currency',
-      input,
+    await assertStoredSalaryPreviews({
+      ...input,
+      id: 'choice-currency',
       verify: selected,
     });
-    assert.equal(JSON.stringify(await store.query(() => true)), original);
   }
 );

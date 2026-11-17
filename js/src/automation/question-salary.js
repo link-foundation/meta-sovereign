@@ -1,6 +1,12 @@
 import { normalizeSalary, formatSalary } from './salary-config.js';
 import { resolveSalaryAmount } from './salary-calculation.js';
-import { salaryQuestion, stripSalaryCurrencies } from './salary-question.js';
+import { salaryQuestion } from './salary-question.js';
+import {
+  plainSalaryPay,
+  savedSalaryConfiguration,
+  savedSalaryBaseline,
+  resolveSavedSalaryBaseline,
+} from './salary-saved-baseline.js';
 import { salaryOption, salaryAmounts } from './salary-options.js';
 import { questionKey } from './question-match.js';
 import { rejectedAnswer } from './question-policy.js';
@@ -56,20 +62,6 @@ const missingField = (selection, config, entry) => {
   }
   return `salary_${selection.basis}_${entry.code.toLowerCase()}`;
 };
-const plainPay = (text, config) => {
-  const stripped = stripSalaryCurrencies(text, config)
-    .replace(/\{\{salary_[a-z0-9_]+\}\}/gu, '')
-    .replace(
-      /(?<!\p{L})(?:up\s+to|at\s+least|(?:or|and)\s+(?:more|above)|(?:more|less)\s+than|between|under|below|over|above|to|and|не\s+менее|(?:и|или)\s+(?:более|выше)|между|свыше|более|больше|выше|менее|меньше|и|thousand|million|[kкmм])(?!\p{L})/giu,
-      ''
-    )
-    .replace(/[\d\s.,₽$€+\-–—/()<>≤≥=]/gu, '')
-    .replace(
-      /руб\S*|тыс\S*|млн\S*|доллар\S*|евро|на|руки|от|до|вычета|ндфл|налогов|в|час\S*|месяц\S*|ежемесячно|чистыми|гросс|from|net|gross|per|month\S*|hour\S*|before|after|tax\S*|RUB|USD|EUR|USDT/giu,
-      ''
-    );
-  return !stripped.trim();
-};
 const salaryContexts = (previous, selection) => [
   ...(previous.contexts ?? []).filter(
     (entry) => entry.key !== 'salary_currency'
@@ -83,6 +75,7 @@ const salaryDetails = (selection, resolved) => ({
   ...(resolved.amount ? { amount: resolved.amount } : {}),
   ...(resolved.amounts ? { amounts: resolved.amounts } : {}),
   ...(resolved.calculation ? { calculation: resolved.calculation } : {}),
+  ...(resolved.baseline ? { baseline: resolved.baseline } : {}),
 });
 const salaryContent = (input, config, selection, entry, resolved, guidance) => {
   const { amount } = resolved;
@@ -142,11 +135,23 @@ const savedAmountConflict = (input, previous, resolved) => {
   const saved = salaryAmounts(previous.text);
   return saved.some((value) => !targets.includes(value));
 };
-const salaryResult = (question, input, previous, config, selection) => {
+const salaryResult = (
+  question,
+  input,
+  previous,
+  config,
+  selection,
+  baseline
+) => {
   const entry = config.currencies.find(
     (item) => item.code === selection.currency
   );
-  let resolved = resolveSelection(config, entry, selection, input.now);
+  let resolved = resolveSavedSalaryBaseline(
+    baseline,
+    selection,
+    entry,
+    resolveSelection(config, entry, selection, input.now)
+  );
   const guidance = salaryGuidance(input, config, selection, entry, resolved);
   if (guidance) {
     resolved = { ...resolved, amount: guidance.amount };
@@ -207,21 +212,22 @@ export const isSalaryRequest = (question, input) => {
   return Boolean(config?.enabled && salaryQuestion(question, config, input));
 };
 export const applySalaryAnswer = (question, input, previous) => {
-  const config = normalizeSalary(input.salary);
+  const config = savedSalaryConfiguration(input, previous);
   if (!config?.enabled) {
     return previous;
   }
-  const selection = salaryQuestion(question, config, input);
+  const baseline = savedSalaryBaseline(input, previous, config);
+  const selection = salaryQuestion(question, config, input, baseline?.currency);
   if (!selection) {
     return previous;
   }
   // A personal explanation belongs to its author; changing the numeric target
   // cannot silently approve stale details in that explanation.
-  if (previous.text && !plainPay(previous.text, config)) {
+  if (previous.text && !plainSalaryPay(previous.text, config)) {
     const literal = previous.salaryTemplates
       ? previous.salaryTemplates.literalNumbers
       : /\d/u.test(previous.text);
     return literal ? { ...previous, requiresReview: true } : previous;
   }
-  return salaryResult(question, input, previous, config, selection);
+  return salaryResult(question, input, previous, config, selection, baseline);
 };

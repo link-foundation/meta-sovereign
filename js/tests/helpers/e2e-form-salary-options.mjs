@@ -1,4 +1,5 @@
 import { assert } from './e2e-chat.mjs';
+import { verifyFormSavedBaseline } from './e2e-form-saved-baseline.mjs';
 import { openFormPlan, closeFormReview, decoded } from './e2e-form-review.mjs';
 import { encodeWire, LINO_TEXT } from '../../src/transport/lino.js';
 import {
@@ -39,6 +40,7 @@ export const verifyFormSalaryOptions = async ({
   fixture,
   base,
   until,
+  store,
 }) => {
   const initial = await openFormPlan(
     page,
@@ -130,4 +132,5 @@ export const verifyFormSalaryOptions = async ({
       submissions: fixture.submits,
     })
   );
+  await verifyFormSavedBaseline({ page, owned, fixture, until, store });
 };

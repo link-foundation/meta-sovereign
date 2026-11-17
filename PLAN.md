@@ -3,6 +3,17 @@ required sub-issue must be implemented and verified in this single PR. The
 reference inventory currently has 40 unchecked criteria (78 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
+2026-11-17 approved saved salary baseline (QA15):
+
+- [x] Read the pinned selector and native radio regression; reproduce two
+      parent failures and retain the two passing safety controls.
+- [x] Reuse an exact approved saved numeric amount only when compatible and no
+      configured target exists; preserve disabled settings and failed tax guards.
+- [x] Verify focused portable checks, read-only CLI/offline/Lino previews and
+      native plus independent MCP parent/corrected receipts with zero submissions.
+- [ ] Publish checked evidence, inspect exact-source hosted verification and
+      complete the entire original QA15 contract plus all other unchecked criteria.
+
 2026-11-17 currency supplied by choices (QA12/QA15):
 
 - [x] Reproduce two exact-parent failures while preserving the safety control;

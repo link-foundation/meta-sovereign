@@ -309,6 +309,11 @@ test('inbox history and form inspection run in both mandatory browser lanes', ()
     'utf8'
   );
   assert.match(reader, /await import\('\.\/e2e-forms-watcher-browser\.mjs'\)/);
+  const salaryOptions = readFileSync(
+    path.join(root, 'js/tests/helpers/e2e-form-salary-options.mjs'),
+    'utf8'
+  );
+  assert.match(salaryOptions, /await verifyFormSavedBaseline\(/u);
 });
 
 test('vacancy reads and local analysis have independent mandatory browser budgets', () => {

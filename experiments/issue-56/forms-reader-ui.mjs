@@ -1,5 +1,7 @@
 // Isolated MCP fixture: synthetic forms, owned review/inspection browsers, no account or scheduler.
 import { seedFormPay } from './forms-pay-fixture.mjs';
+import { savedBaselineRule } from './salary-saved-baseline-fixture.mjs';
+import { saveAnswerRule } from '../../js/src/automation/question-store.js';
 import { assignmentPublisherFixture } from './assignment-publisher-fixture.mjs';
 import {
   assignmentSourceBrowserFixture,
@@ -34,6 +36,8 @@ import {
 const captureAutomaticFrames = async (page, read) => {
   if (new URL(page.url()).pathname === '/salary-options') {
     read.salaryOptions = await page.evaluate(() => ({
+      savedBaseline:
+        document.querySelector('[name="savedBaseline"]:checked')?.value ?? null,
       both: document.querySelector('[name="both"]').value,
       ambiguous: document.querySelector('[name="ambiguous"]').value,
       inclusive: document.querySelector('[name="inclusive"]').value,
@@ -101,6 +105,9 @@ if (process.env.FORMS_MATCHING_MCP === '1') {
 }
 if (process.env.FORMS_PAY_MCP === '1') {
   await seedFormPay(store);
+}
+if (process.env.FORMS_SALARY_BASELINE_MCP === '1') {
+  await saveAnswerRule(store, savedBaselineRule());
 }
 if (process.env.FORMS_SUBJECTS_MCP === '1') {
   await seedSubjectAnswers(store);

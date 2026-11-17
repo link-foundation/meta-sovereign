@@ -6,6 +6,7 @@ import { assertQuestionPreviewSurfaces } from './question-surfaces.mjs';
 export const assertStoredSalaryPreviews = async ({
   salary,
   question,
+  options,
   rules = [],
   id,
   verify,
@@ -24,7 +25,7 @@ export const assertStoredSalaryPreviews = async ({
   await assertQuestionPreviewSurfaces({
     store,
     automationId: id,
-    input: { question, salary },
+    input: { question, salary, ...(options ? { options } : {}) },
     verify,
   });
   assert.equal(JSON.stringify(await store.query(() => true)), before);

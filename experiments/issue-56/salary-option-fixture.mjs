@@ -18,6 +18,11 @@ export const salaryOptionHtml = `<!doctype html><html lang="en"><meta charset="u
 <label>${salaryBothQuestion}<select name="ambiguous"><option value="">Choose a range</option><option value="ambiguous">${salaryAlternativeChoice}</option></select></label>
 <label>What salary in USD net do you expect?<select name="inclusive"><option value="">Choose a range</option><option value="floor">${salaryInclusiveChoice}</option></select></label>
 <fieldset><legend>What salary in USD net do you expect?</legend>${salaryGapChoices.map((label, i) => `<label><input type="radio" name="nearest" value="${i}">${label}</label>`).join('')}</fieldset>
+<fieldset><legend>${savedBaselineQuestion}</legend>${savedBaselineOptions.map((label, i) => `<label><input type="radio" name="savedBaseline" value="${i}">${label}</label>`).join('')}</fieldset>
 <label>Owner comment<input name="owner" value="Keep my explanation"></label>
 <button type="submit">Submit</button></form>
 <script>globalThis.events=[];for(const name of ['input','change','click','submit'])document.addEventListener(name,e=>events.push(name));</script>`;
+import {
+  savedBaselineQuestion,
+  savedBaselineOptions,
+} from './salary-saved-baseline-fixture.mjs';

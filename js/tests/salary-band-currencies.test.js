@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { planAnswer } from '../src/automation/question-answers.js';
-import { createMemoryStore } from '../src/storage/universal.js';
-import { normalizeAutomation } from '../src/automation/automations.js';
-import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
+import { assertStoredSalaryPreviews } from './helpers/salary-preview-surfaces.mjs';
 import { currencyBandCase } from '../../experiments/issue-56/salary-band-currencies-fixture.mjs';
 
 test('saved numeric bands honor configured currency codes and literal aliases', () => {
@@ -64,24 +62,13 @@ test(
   { timeout: 15000 },
   async () => {
     const input = currencyBandCase();
-    const store = createMemoryStore();
-    await store.put(input.rules[0]);
-    await store.put(
-      normalizeAutomation({
-        id: 'currency-band',
-        action: { kind: 'answer-questions', salary: input.salary },
-      })
-    );
-    const original = JSON.stringify(await store.query(() => true));
-    await assertQuestionPreviewSurfaces({
-      store,
-      automationId: 'currency-band',
-      input,
+    await assertStoredSalaryPreviews({
+      ...input,
+      id: 'currency-band',
       verify: (result) => {
         assert.equal(result.text, input.options[1]);
         assert.equal(result.requiresReview, false);
       },
     });
-    assert.equal(JSON.stringify(await store.query(() => true)), original);
   }
 );

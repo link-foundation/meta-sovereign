@@ -58,6 +58,18 @@ const knownCurrencies = new Set([
   'BTC',
   'ETH',
 ]);
+/** Discover a saved answer's explicit currency without inventing a default. */
+export const recognizedSalaryCurrencies = (text) => {
+  const codes = new Set([
+    ...Object.keys(currencyWords),
+    ...[...text.matchAll(/\b[A-Z]{3,10}\b/giu)]
+      .map(([word]) => word.toUpperCase())
+      .filter((code) => knownCurrencies.has(code)),
+  ]);
+  return salaryCurrencies(text, {
+    currencies: [...codes].map((code) => ({ code, keywords: [code] })),
+  });
+};
 export const unknownSalaryCurrency = (text, config) => {
   const unconfigured = stripSalaryCurrencies(text, config);
   if (
@@ -259,7 +271,14 @@ const questionCurrency = (text, config) => {
     ? { code: explicit[0].code, source: 'question' }
     : null;
 };
-const chooseCurrency = (text, config, environment, vocabulary, options) => {
+const chooseCurrency = (
+  text,
+  config,
+  environment,
+  vocabulary,
+  options,
+  saved
+) => {
   const explicit =
     questionCurrency(text, config) ?? optionCurrency(options, config);
   if (explicit) {
@@ -299,10 +318,12 @@ const chooseCurrency = (text, config, environment, vocabulary, options) => {
       };
     }
   }
-  return {
-    code: config.defaultCurrency,
-    source: config.defaultCurrency ? 'default' : 'missing',
-  };
+  return saved
+    ? { code: saved, source: 'saved-answer' }
+    : {
+        code: config.defaultCurrency,
+        source: config.defaultCurrency ? 'default' : 'missing',
+      };
 };
 const salaryLanguage = (text, previous, followup) =>
   followup && !/[а-яё]|\b(?:and|in|what|please)\b/iu.test(text)
@@ -333,7 +354,7 @@ export const createSalaryVocabulary = (input) =>
   );
 const previousPeriod = (previous) =>
   previous ? (salaryPeriod(previous.text) ?? 'month') : 'month';
-export const salaryQuestion = (text, config, input) => {
+export const salaryQuestion = (text, config, input, savedCurrency) => {
   if (invalidSalaryText(text)) {
     return null;
   }
@@ -360,7 +381,8 @@ export const salaryQuestion = (text, config, input) => {
     config,
     environment,
     vocabulary,
-    input.options
+    input.options,
+    savedCurrency
   );
   return {
     currency: selected.code,

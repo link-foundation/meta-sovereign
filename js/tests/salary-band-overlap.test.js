@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import { planAnswer } from '../src/automation/question-answers.js';
 import { planFormAnswers } from '../src/forms/answer-plan.js';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { normalizeAutomation } from '../src/automation/automations.js';
-import { assertQuestionPreviewSurfaces } from './helpers/question-surfaces.mjs';
+import { assertStoredSalaryPreviews } from './helpers/salary-preview-surfaces.mjs';
 import {
   formModelField as field,
   formModelInspection as inspection,
@@ -68,20 +67,12 @@ test(
   'overlapping dual-basis review survives CLI, offline and both Lino previews',
   { timeout: 15000 },
   async () => {
-    const store = createMemoryStore();
-    await store.put(
-      normalizeAutomation({
-        id: 'band-overlap',
-        action: { kind: 'answer-questions', salary },
-      })
-    );
-    const original = JSON.stringify(await store.query(() => true));
-    await assertQuestionPreviewSurfaces({
-      store,
-      automationId: 'band-overlap',
-      input: { question, salary, options },
+    await assertStoredSalaryPreviews({
+      id: 'band-overlap',
+      question,
+      salary,
+      options,
       verify: held,
     });
-    assert.equal(JSON.stringify(await store.query(() => true)), original);
   }
 );
