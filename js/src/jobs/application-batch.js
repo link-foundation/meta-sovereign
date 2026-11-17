@@ -16,6 +16,10 @@ import {
 import { storedVacancyChoices } from './vacancy-choice-service.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
+import {
+  ApplicationBatchSalary,
+  batchSalaryFloor,
+} from './application-batch-salary.js';
 
 const observedOutcome = (page) =>
   page.bound &&
@@ -27,6 +31,7 @@ const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
 export class ApplicationBatch {
   constructor(service, now, wait = applicationDelay) {
     Object.assign(this, { service, now, wait });
+    this.salary = new ApplicationBatchSalary(this);
   }
   async status(input = {}) {
     return acknowledgedRead(this.service.store, async () => {
@@ -109,6 +114,13 @@ export class ApplicationBatch {
         currentUrl: null,
         code: null,
         nextAt: null,
+        ...(batchSalaryFloor(options.review) === null
+          ? {}
+          : {
+              salaryTier: 0,
+              salaryFloorRub: batchSalaryFloor(options.review),
+              salaryDeferred: 0,
+            }),
         startedAt,
         expiresAt: new Date(started + options.durationMs).toISOString(),
         ...(options.processChats
@@ -130,7 +142,11 @@ export class ApplicationBatch {
         options.browserSlot,
         options.noQuestionnaires
       );
-      const runtime = { record, controller: new AbortController() };
+      const runtime = {
+        record,
+        controller: new AbortController(),
+        salaryPending: new Map(),
+      };
       runtime.timer = globalThis.setTimeout(() => {
         runtime.expired = true;
         runtime.controller.abort();
@@ -140,6 +156,7 @@ export class ApplicationBatch {
       owners.set(this.service.store, this);
       runtime.work = this.cycle(runtime).finally(() => {
         globalThis.clearTimeout(runtime.timer);
+        this.salary.clear(runtime);
         if (this.runtime === runtime) {
           this.runtime = null;
         }
@@ -346,8 +363,15 @@ export class ApplicationBatch {
         ? !modes.noQuestionnaires
         : this.service.retries.ready(row)
     );
-    const url = due?.url ?? record.options.urls[record.cursor];
+    const salaryUrl =
+      !due && record.cursor === record.options.urls.length
+        ? this.salary.due(runtime)
+        : null;
+    const url = due?.url ?? record.options.urls[record.cursor] ?? salaryUrl;
     if (!url) {
+      if (await this.salary.advance(runtime)) {
+        return;
+      }
       if (!queue.length) {
         return this.save(runtime, {
           phase: 'completed',
@@ -373,21 +397,22 @@ export class ApplicationBatch {
     );
     signal.throwIfAborted();
     if (choices.entries.some((row) => row.url === url)) {
-      return this.exclude(runtime, url, due);
+      await this.salary.remove(runtime, url);
+      return this.exclude(runtime, url, due, Boolean(salaryUrl));
     }
     const pace = await this.service.pacing.read();
     if (pace?.waiting) {
       return this.save(runtime, { phase: 'pacing', nextAt: pace.nextAt });
     }
-    return this.open(runtime, url, due, signal);
+    return this.open(runtime, url, due, signal, Boolean(salaryUrl));
   }
-  async open(runtime, url, due, signal) {
+  async open(runtime, url, due, signal, salaryRetry = false) {
     const record = runtime.record;
     await this.save(runtime, {
       currentUrl: url,
       phase: 'review',
       nextAt: null,
-      cursor: due ? record.cursor : record.cursor + 1,
+      cursor: due || salaryRetry ? record.cursor : record.cursor + 1,
     });
     signal.throwIfAborted();
     if (due) {
@@ -399,12 +424,22 @@ export class ApplicationBatch {
         await this.restore(this.service.current, signal);
       }
     } else {
-      await this.service.open({ ...record.options.review, url }, signal);
+      await this.service.open(
+        {
+          ...record.options.review,
+          url,
+          ...(salaryRetry ? { recover: true } : {}),
+        },
+        signal
+      );
     }
     const current = this.service.current;
-    if (current && (await this.service.salary.preserve(current, signal))) {
-      await this.service.close();
+    if (current && (await this.salary.preserve(runtime, current, signal))) {
       return;
+    }
+    if (salaryRetry) {
+      await this.salary.remove(runtime, url);
+      await this.restoreSalary(current, signal);
     }
     if (
       current &&
@@ -414,14 +449,22 @@ export class ApplicationBatch {
       await this.service.continuation.run(current, {}, signal);
     }
   }
-  async exclude(runtime, url, entry) {
+  async restoreSalary(current, signal) {
+    if (current?.draft && current.state === 'review') {
+      await this.restore(current, signal);
+    }
+  }
+  async exclude(runtime, url, entry, salaryRetry = false) {
     if (entry) {
       this.service.deferrals.entries.delete(applicationKey(entry).id);
       this.service.deferrals.revision = globalThis.crypto.randomUUID();
     }
     return this.save(runtime, {
       skipped: [...new Set([...runtime.record.skipped, url])],
-      cursor: entry ? runtime.record.cursor : runtime.record.cursor + 1,
+      cursor:
+        entry || salaryRetry
+          ? runtime.record.cursor
+          : runtime.record.cursor + 1,
     });
   }
   async restore(current, signal) {
@@ -453,8 +496,7 @@ export class ApplicationBatch {
     if (observedOutcome(page)) {
       await this.service.review.inspect(current, signal);
     }
-    if (await this.service.salary.preserve(current, signal)) {
-      await this.service.close();
+    if (await this.salary.preserve(runtime, current, signal)) {
       return;
     }
     if (current.delivery === 'provider-confirmed') {

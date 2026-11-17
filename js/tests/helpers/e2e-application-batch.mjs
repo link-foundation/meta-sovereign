@@ -14,17 +14,9 @@ export const verifyNativeApplicationBatch = async (
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action } = controls;
-  const batch = panel.locator('[data-application-batch]');
-  const field = (name) =>
-    batch.locator(`[data-application-batch-field="${name}"]`);
-  const button = (name) =>
-    batch.locator(`[data-application-batch-action="${name}"]`);
   // A batch crosses several documents, each with commander URL stabilization.
   // Bound those transitions separately from individual UI interactions.
-  const phase = (name) =>
-    batch
-      .locator(`[data-application-batch-phase="${name}"]`)
-      .waitFor({ timeout: 60000 });
+  const { batch, field, button, phase } = controls.batch();
   const shot = controls.screenshot(screenshots, 'application-batch');
   try {
     await controls.select();

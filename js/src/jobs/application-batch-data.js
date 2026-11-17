@@ -9,6 +9,10 @@ import { applicationConfirmationPolicy } from './application-confirmations.js';
 import { applicationAnswerContext } from './application-answer-context.js';
 import { browserUnreadId } from '../automation/question-unread-identity.js';
 import {
+  batchSalaryProgress,
+  validBatchSalary,
+} from './application-batch-salary.js';
+import {
   applicationChatSettings,
   applicationChatView,
   validApplicationChatView,
@@ -137,6 +141,7 @@ export const readApplicationBatch = (raw, key) => {
     raw.signature !== JSON.stringify(options) ||
     !lifecycle(raw) ||
     !validLists(raw, options) ||
+    !validBatchSalary(raw, options.review, options.urls.length) ||
     !validChatSnapshot(raw, options) ||
     Date.parse(raw.expiresAt) - Date.parse(raw.startedAt) !== options.durationMs
   ) {
@@ -185,6 +190,10 @@ export const applicationBatchView = (
         expiresAt: record.expiresAt,
         nextAt: record.nextAt,
         code: record.code,
+        ...batchSalaryProgress(record),
+        ...(record.salaryTier !== undefined && !active
+          ? { salaryDeferred: 0 }
+          : {}),
         ...(record.options.processChats
           ? { chatWorker: applicationChatView(record, runtime) }
           : {}),
@@ -223,14 +232,13 @@ const publicSettings = (settings, browserSlot) => {
 const validatePublicBatch = (row, input) => {
   applicationBatchKey(row);
   if (
-    (input?.requestId !== undefined && input.requestId !== row.requestId) ||
-    (input?.browserSlot !== undefined &&
-      input.browserSlot !== row.browserSlot) ||
+    !matchesPublicIdentity(row, input) ||
     !lifecycle(row) ||
     typeof row.paused !== 'boolean' ||
     typeof row.noQuestionnaires !== 'boolean' ||
     !publicCounts(row) ||
     !publicSettings(row.settings, row.browserSlot) ||
+    !validBatchSalary(row, row.settings, row.total) ||
     !validApplicationChatView(row.chatWorker, row.settings, row.active) ||
     (row.currentUrl !== null &&
       assignmentVacancyUrl(row.currentUrl) !== row.currentUrl)
@@ -238,6 +246,9 @@ const validatePublicBatch = (row, input) => {
     throw fail('batch-recovery');
   }
 };
+const matchesPublicIdentity = (row, input) =>
+  (input?.requestId === undefined || input.requestId === row.requestId) &&
+  (input?.browserSlot === undefined || input.browserSlot === row.browserSlot);
 export const applicationBatchResult = (raw, input) => {
   if (!raw || raw.ok !== true || raw.mode !== 'hh-application-batch') {
     throw fail('batch-recovery');

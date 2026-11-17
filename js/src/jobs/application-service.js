@@ -371,6 +371,7 @@ class ApplicationService {
       delivery: 'none',
       attempted: { enter: false, submit: false },
       ...restored.previous,
+      salaryTierFloorRub: this.batch.salary.floor(options),
       id: options.id,
       ...this.modes.read(options.browserSlot),
       hold: this.holds.read(options.id),

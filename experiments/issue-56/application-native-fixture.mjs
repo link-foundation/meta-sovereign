@@ -96,7 +96,14 @@ export const applicationNativeFixture = async (
             popup,
             resumeChooser,
             questionLabel,
-            salary,
+            salary:
+              typeof salary === 'function'
+                ? salary(
+                    response
+                      ? url.searchParams.get('vacancyId')
+                      : url.pathname.split('/').at(-1)
+                  )
+                : salary,
             ownerAnswers:
               response && ++nativeForms === 1 ? ownerAnswers : undefined,
             vacancyId: response

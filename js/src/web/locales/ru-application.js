@@ -68,6 +68,7 @@ export const ruApplication = {
   'application.batch.progress':
     'Доставлено: {delivered}; исключено: {skipped}; в списке: {total}.',
   'application.batch.next': 'Следующее открытие: {at}.',
+  'application.batch.salaryDeferred': 'Временно отложено по зарплате: {count}',
   'application.batch.phase.starting': 'Пакет запускается.',
   'application.batch.phase.pacing': 'Ожидание сохранённого интервала.',
   'application.batch.phase.review': 'Текущая вакансия ожидает проверки.',

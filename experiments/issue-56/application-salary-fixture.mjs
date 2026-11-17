@@ -5,6 +5,17 @@ import { createVacancyService } from '../../js/src/jobs/service.js';
 import { ladderSalary } from './salary-ladder-fixture.mjs';
 
 export const applicationSalary = { ...ladderSalary, exchange: undefined };
+export const refuseApplicationDrafts = (store) => {
+  const put = store.put.bind(store);
+  store.put = async (row) => {
+    if (row.draft) {
+      throw Object.assign(new Error('Private backup refused'), {
+        code: 'fixture-backup',
+      });
+    }
+    return put(row);
+  };
+};
 export const salaryApplicationFixture = async (
   t,
   salaryText = 'до 200000 ₽'

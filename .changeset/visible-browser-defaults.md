@@ -783,3 +783,8 @@ Add bounded resume-matching salary tiers with exact owner targets, observed page
 Check full-vacancy salary targets before application entry, full-form navigation and send. Preserve actual direct-form answers before recovering missing vacancy context, restore empty native controls, and carry discovery salary tiers into unarmed application drafts.
 
 Reject an occupied initial server port before staging the immutable runtime snapshot, and clean up the listener when package preparation fails.
+
+Revisit salary-held URLs after each exhausted finite application pass, reducing
+the current floor by ₽50,000 while retaining frozen targets, actual drafts,
+fresh permanent choices, separate confirmations and delivery caps. Expose tier
+progress through CLI, both Lino transports and four translated UI locales.

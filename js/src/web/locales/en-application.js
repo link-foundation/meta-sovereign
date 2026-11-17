@@ -65,6 +65,7 @@ export const enApplication = {
   'application.batch.progress':
     'Delivered: {delivered}; excluded: {skipped}; listed: {total}.',
   'application.batch.next': 'Next admission: {at}.',
+  'application.batch.salaryDeferred': 'Temporary salary holds: {count}',
   'application.batch.phase.starting': 'Starting the owned batch.',
   'application.batch.phase.pacing': 'Waiting for the saved spacing deadline.',
   'application.batch.phase.review': 'Current vacancy needs review.',

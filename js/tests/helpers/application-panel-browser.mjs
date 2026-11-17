@@ -15,6 +15,20 @@ export const applicationPanelBrowser = (fixture) => {
     panel,
     action,
     confirm,
+    batch() {
+      const batch = panel.locator('[data-application-batch]');
+      return {
+        batch,
+        field: (name) =>
+          batch.locator(`[data-application-batch-field="${name}"]`),
+        button: (name) =>
+          batch.locator(`[data-application-batch-action="${name}"]`),
+        phase: (name) =>
+          batch
+            .locator(`[data-application-batch-phase="${name}"]`)
+            .waitFor({ timeout: 60000 }),
+      };
+    },
     screenshot(directory, prefix) {
       return async (name) => {
         if (directory) {

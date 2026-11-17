@@ -11,7 +11,10 @@ import {
   applicationLetterLanguage,
 } from './application-letters.js';
 import { applicationAnswerContext } from './application-answer-context.js';
-import { applicationSalaryDecision } from './application-salary.js';
+import {
+  applicationSalaryDecision,
+  applicationSalaryOptions,
+} from './application-salary.js';
 import { applicationResumeUrl } from './application-location.js';
 
 export const applicationFailure = (kind) =>
@@ -213,7 +216,10 @@ export const applicationView = (record) => {
     resumeContext: applicationResumeContext(record),
     resumePreference: record.resumePreference ?? null,
     letter: record.letter ?? 'not-requested',
-    ...applicationAnswerContext(record.options),
-    salaryAdmission: applicationSalaryDecision(record.options, record.vacancy),
+    ...applicationAnswerContext(applicationSalaryOptions(record)),
+    salaryAdmission: applicationSalaryDecision(
+      applicationSalaryOptions(record),
+      record.vacancy
+    ),
   });
 };

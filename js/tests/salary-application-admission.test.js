@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   salaryApplicationFixture,
+  refuseApplicationDrafts,
   applicationSalary as salary,
 } from '../../experiments/issue-56/application-salary-fixture.mjs';
 import { applicationInput } from '../../experiments/issue-56/application-fixture.mjs';
@@ -136,15 +137,7 @@ test(
   limits,
   async (t) => {
     const f = await salaryApplicationFixture(t);
-    const put = f.store.put.bind(f.store);
-    f.store.put = async (row) => {
-      if (row.draft) {
-        throw Object.assign(new Error('Private backup refused'), {
-          code: 'fixture-backup',
-        });
-      }
-      return put(row);
-    };
+    refuseApplicationDrafts(f.store);
     await assert.rejects(open(f, { formUrl: applicationFormUrl }), {
       code: 'fixture-backup',
     });
@@ -180,7 +173,7 @@ test(
 );
 
 test(
-  'batch salary deferrals do not enter questionnaires or become permanent exclusions',
+  'batch salary deferrals revisit at the lower tier without becoming permanent exclusions',
   limits,
   async (t) => {
     const f = applicationBatchFixture(t, {
@@ -191,13 +184,17 @@ test(
       (receipt) => receipt.batch.phase === 'completed'
     );
     assert.equal(result.batch.skipped, 0);
-    assert.equal(f.state.submitted, 0);
+    assert.equal(result.batch.salaryTier, 1);
+    assert.equal(result.batch.salaryFloorRub, 400000);
+    assert.equal(result.batch.delivered, 2);
+    assert.equal(f.state.submitted, 2);
     assert.equal(f.state.entered, 0);
     assert.equal(f.state.opened, f.state.closed);
     assert.deepEqual(
       (await f.service['application-queue'](applicationInput)).entries,
       []
     );
+    assert.deepEqual((await f.service['choices-stored']({})).entries, []);
   }
 );
 

@@ -193,6 +193,18 @@ const BatchReceipt = ({ batch, state, t, check }) =>
           total: batch.total,
         })
       ),
+      batch.salaryTier === undefined
+        ? null
+        : el('p', { key: 'salary', 'data-application-batch-salary': true }, [
+            t('discovery.salaryTier', {
+              tier: batch.salaryTier + 1,
+              floor: batch.salaryFloorRub,
+            }),
+            ' · ',
+            t('application.batch.salaryDeferred', {
+              count: batch.salaryDeferred,
+            }),
+          ]),
       el(
         'p',
         {

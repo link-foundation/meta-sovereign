@@ -17,6 +17,13 @@ const canPreserveSalary = (record) =>
   !record.attempted.submit &&
   record.delivery === 'none';
 
+// A finite batch may lower its runtime floor without rewriting frozen journals.
+// A reopened worker has no override and returns to the acknowledged base policy.
+export const applicationSalaryOptions = (record) =>
+  record.salaryTierFloorRub === undefined
+    ? record.options
+    : { ...record.options, salaryFloorRub: record.salaryTierFloorRub };
+
 /** Omitted controls preserve acknowledged legacy signatures. */
 export const applicationSalarySettings = (input) => {
   if (
@@ -68,7 +75,7 @@ export class ApplicationSalary {
   }
   decision(record) {
     const decision = applicationSalaryDecision(
-      record.options,
+      applicationSalaryOptions(record),
       record.vacancy,
       this.now()
     );

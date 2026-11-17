@@ -324,3 +324,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve exact 811b03a0 contract failure: a fifth native scenario exceeded the unchanged four-per-entry bound.
 - [x] Move salary admission into the existing answer/context group; require it exactly once and retain every other scenario, engine, shard and deadline. Three focused contracts pass.
 - [ ] Publish the registration correction and inspect all exact-head workflows. Continue all 40 original unchecked criteria; PR57 stays draft and unmerged.
+
+2026-11-17 salary deferrals within finite application batches:
+
+- [x] Reproduce batches completing while salary-deferred URLs remain unvisited, including the independent MCP parent backend run.
+- [x] Add worker-owned tier revisits after the current URL pass is exhausted, preserving frozen settings, permanent choices, native guards, actual drafts, confirmations and delivery caps.
+- [x] Verify ten parent failures, focused service/interface checks and native/MCP UI; preserve before/after screenshots, separate Send confirmations, four locales, phone layout, reload behavior and owned-resource cleanup.
+- [ ] Publish the atomic change, inspect exact-head CI and continue every original unchecked requirement. Do not treat a finite supplied-URL batch as complete automatic search/application orchestration.

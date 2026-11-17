@@ -54,6 +54,7 @@ export const zhApplication = {
   'application.batch.progress':
     '已送达：{delivered}；已排除：{skipped}；列表总数：{total}。',
   'application.batch.next': '下次打开时间：{at}。',
+  'application.batch.salaryDeferred': '因薪资暂缓：{count}',
   'application.batch.phase.starting': '正在启动批次。',
   'application.batch.phase.pacing': '等待已保存的间隔截止时间。',
   'application.batch.phase.review': '当前职位需要审核。',

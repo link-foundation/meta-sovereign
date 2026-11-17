@@ -63,6 +63,7 @@ export const hiApplication = {
   'application.batch.progress':
     'पहुंचे: {delivered}; बाहर रखे: {skipped}; सूची में: {total}।',
   'application.batch.next': 'अगला प्रवेश: {at}।',
+  'application.batch.salaryDeferred': 'वेतन के कारण अस्थायी रोक: {count}',
   'application.batch.phase.starting': 'बैच शुरू हो रहा है।',
   'application.batch.phase.pacing':
     'सहेजे हुए अंतराल के समाप्त होने की प्रतीक्षा है।',
