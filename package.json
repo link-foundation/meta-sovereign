@@ -56,6 +56,8 @@
     "test:e2e:vk-online": "node js/tests/e2e-vk-online-browser.mjs",
     "test:e2e:vk-independent": "node js/tests/e2e-vk-independent-browser.mjs",
     "test:e2e:vk-independent:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vk-independent-browser.mjs",
+    "test:e2e:desktop-appearance": "node js/tests/e2e-desktop-appearance-browser.mjs",
+    "test:e2e:desktop-appearance:webkit": "E2E_BROWSER=webkit node js/tests/e2e-desktop-appearance-browser.mjs",
     "test:e2e:vk-token": "node js/tests/e2e-vk-token-browser.mjs",
     "test:e2e:vk-token:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vk-token-browser.mjs",
     "test:e2e:vk-maintenance": "node js/tests/e2e-vk-maintenance-browser.mjs",

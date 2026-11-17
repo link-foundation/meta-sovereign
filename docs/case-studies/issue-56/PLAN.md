@@ -1,3 +1,10 @@
+Active shared desktop appearance verification (VD06):
+
+- [x] Read the complete pinned Desktop UI contract, existing runner switching/feedback and single-window ownership, shared theme and language implementation, and existing portable/native checks.
+- [x] Add a bounded native group for actual Russian/English detection, retained explicit choices, reset, light/dark/system and live system changes; the focused Chromium group passes with zero runner/provider actions.
+- [x] Preserve the passing focused native group, initial harness failure, strict static checks, final desktop/phone screenshots and [checked source/evidence](desktop-appearance.md).
+- [ ] Publish and require hosted verification and the complete VD06 mapping before acceptance; browser-local preferences do not yet provide every requested configuration interface.
+
 Active independent VK policy verification (VD03):
 
 - [x] Map all six pinned switches to their own policy, state, routes and shared controls. Verify eight prior archives (1,007 entries); retain changed-source audit without treating integrity as acceptance.
