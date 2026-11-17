@@ -65,6 +65,16 @@ for name in [catalog_path, 'experiments/issue-56/collect-vk-independent-hosted.p
              'experiments/issue-56/evidence_bundle.py',
              'docs/case-studies/issue-56/vk-independent-jobs.md']:
     entries[name] = (root / name).read_bytes()
+for name in [
+    *[str(p.relative_to(root)) for p in sorted(
+        (root / 'ci-logs').glob('safety-settings-hosted-*'))],
+    f'ci-logs/hosted-{slug}-attempt2-failed.log',
+    f'ci-logs/hosted-{slug}-bun-attempt2-annotations.json',
+    f'ci-logs/hosted-{slug}-bun-attempt3.json',
+    f'ci-logs/vk-independent-{slug}-reference-shape.log',
+    'ci-logs/vk-independent-delta-index.log',
+]:
+    entries[name] = (root / name).read_bytes()
 entries['metadata.json'] = (json.dumps(dict(
     sha=sha, criterion='VD03', workflows=5, jobs=jobs, namedTests=tests,
     independentTests=dynamic, nativeReceipts=receipts, referenceContracts=references,

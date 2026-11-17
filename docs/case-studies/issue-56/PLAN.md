@@ -1,3 +1,11 @@
+2026-11-17 complete independent VK acceptance:
+
+- [x] Review the full pinned six-switch configuration and Bot Behavior 16, independent settings/admission/lifecycle, shared CLI/Lino/controls, six positive disk-reopen/disable cases and both native semantic receipts.
+- [x] Verify all five workflows at `20e603f1` succeed (72 successful jobs, six intentional skips); preserve actual runner-acquisition failures and successful unchanged retries.
+- [x] Collect the checked hosted archive and manual VD03 mapping; accept only VD03. Current inventory is 83 verified and 35 unfinished. Historical counts below describe earlier checkpoints.
+- [x] Commit the four subsequent manual-login and shared-safeguard feature units with focused tests, actual browser evidence and screenshots.
+- [ ] Publish the feature and acceptance commits, review all five workflows at their exact source, then continue every unfinished criterion. PR57 stays draft and unmerged.
+
 Active contact guide link recovery:
 
 - [x] Preserve published `b5999ae5` link run `44129087291`, its complete 745-line log and bounded response rechecks with anonymous cookies omitted from committed evidence.

@@ -44,7 +44,8 @@ stays visibly inactive and no provider action is requested. The focused native
 Chromium check passes with zero provider effects and page exceptions. A missing
 Playwright-managed binary is preserved as an environment failure; the check uses
 the existing system Chrome in an owned profile without installing browsers.
-The hosted Chromium and WebKit groups remain required at the published source.
+The hosted Chromium and WebKit groups subsequently pass at `20e603f1`, as
+recorded in the complete review below.
 Independent Playwright MCP also verifies all twelve toggles and six reloads,
 then closes its browser and owned fixture with zero provider effects. Its
 console retains a missing favicon, a Chromium cache-write failure and password
@@ -70,8 +71,10 @@ CLI, both Lino encodings, localized control and provider-receipt checks.
 The new [checked evidence](data/vk-independent-jobs.tar.gz) and
 [manifest](data/vk-independent-jobs.tar.sha256.json) preserve the pinned
 configuration/requirements, finite tests, native receipt and final static checks.
-VD03 remains unchecked pending same-source hosted receipts and a complete
-criterion review. All forty unfinished criteria stay required in
+The initial checkpoint left VD03 unchecked pending hosted receipts and full
+review. That historical pending status is superseded by the
+[complete exact-source VD03 review](hosted-vk-independent-20e603f1.md).
+Current acceptance is 83 of 118; all 35 unfinished criteria stay required in
 [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).
 
 The prepared hosted collector requires all five successful workflows at one
