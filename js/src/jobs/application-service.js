@@ -391,12 +391,6 @@ class ApplicationService {
         useCase: 'jobs',
         slot: options.browserSlot,
         headless: options.headless,
-        profileDir: path.join(
-          this.storeDir,
-          'browser-profiles',
-          'hh',
-          options.browserSlot
-        ),
       });
       signal.throwIfAborted();
       record.stopFeedback = await this.watchFeedback(record.browser, options);

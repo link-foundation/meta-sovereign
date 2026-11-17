@@ -719,3 +719,5 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Native unread options](unread-native-options.md): require one actual option receipt before holding the next ordinary draft, preserve that draft on another pass, and register a separate mandatory hosted group. Full acceptance remains required.
 - [macOS Deno partition deadline](ci-deno-macos-partitions.md): preserve the exact timed-out middle partition and split its growing file range into six complete partitions without extending the job deadline. Fresh hosted timing remains required.
 - [Repeated answer review](question-repeated-answer.md): actual-parent failures and native before/after evidence; shared archive, watcher and final-dispatch guards retain wording and counts. Full QA14 and exact-head hosted acceptance remain required.
+
+- [Shared HH job account profiles](jobs-browser-profile.md): five actual-parent failures, workspace/slot isolation, existing-cookie retention and account-conflict refusal; HH01 remains unfinished.

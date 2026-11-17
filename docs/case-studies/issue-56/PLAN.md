@@ -1599,3 +1599,11 @@ Active repeated-answer and current CI verification:
 - [ ] Resolve the actual `8c2260b6` WebKit question-disclosure failure, publish atomic corrections and verify every current-head hosted workflow. Continue all forty unchecked original requirements; PR57 remains draft and unmerged.
 
 The [native watcher disclosure investigation](ci-question-watch-disclosure.md) preserves the actual WebKit trace, a finite actual-parent pointer miss and the successful native keyboard opener. Scoped checks and the unchanged duplication gate pass; published hosted verification and all forty unchecked criteria remain required.
+
+### Active HH01 shared job account profile
+
+- [x] Reproduce five actual-parent (`5512acf2`) service failures: four readers omit the workspace profile and application review uses a different path for the same named slot.
+- [x] Share the workspace profile resolver across job readers, applications and connect-only CV work. Preserve existing profiles in place, refuse distinct-account conflicts, retain headed/headless policy precedence and add default-off content-free selection tracing.
+- [ ] Finish focused profile/legacy/ownership/CLI/Lino checks, strict static gates, source-bound archive, atomic commit/push and hosted verification. Full persistent manual login/challenge control and all forty unchecked original criteria remain unfinished; PR57 stays draft.
+
+Shared-profile local verification is complete: five actual-parent failures, 14 focused checks, 28 existing service/CLI/Lino checks and strict static gates pass. Existing legacy profiles and locks remain in place; distinct accounts are refused before launch. The source-bound archive retains actual parent modules and complete local logs. Publication and hosted verification remain required; HH01 and all forty unchecked original rows remain unfinished.

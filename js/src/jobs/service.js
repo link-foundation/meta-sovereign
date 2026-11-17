@@ -1,4 +1,5 @@
 import { browserAvailability } from '../cv/browser.js';
+import { jobBrowserDependencies } from './browser-dependencies.js';
 import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
 import {
@@ -39,7 +40,10 @@ import {
 const owners = new WeakSet();
 
 /** Finite owned work. Stop drains the issued browser before releasing ownership. */
-export const createVacancyService = ({
+export const createVacancyService = (options) =>
+  createWorkspaceVacancyService(jobBrowserDependencies(options));
+
+const createWorkspaceVacancyService = ({
   store,
   openSession,
   availability = browserAvailability,
