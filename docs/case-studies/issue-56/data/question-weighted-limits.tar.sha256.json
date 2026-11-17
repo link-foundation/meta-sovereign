@@ -1,0 +1,32 @@
+{
+  "archive": "question-weighted-limits.tar.gz",
+  "files": {
+    "ci-logs/question-weighted-limits-before-node.log": "48321f4a77c154ff6595d077d85a08cb5dc3542a926ab3e3a7066a474df3ae7b",
+    "ci-logs/question-weighted-limits-before.log": "447f4bf33d00fec109878288c9a17824b73c95e016157d6f793d1f4446e6446a",
+    "ci-logs/question-weighted-limits-build.log": "a75f149c93c2294e601c6162d97568f9646fa9845f8b5cd4731968145c7c2664",
+    "ci-logs/question-weighted-limits-collector-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-weighted-limits-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-weighted-limits-doc-format.log": "b4503ead54db4e232608258be2d85376f013d570877197d284dd53f83739a0f1",
+    "ci-logs/question-weighted-limits-doc-limits.log": "fe8e4a3173b8a2311abfc17c059f56d2969845bb3985ec710c710eb6687746b5",
+    "ci-logs/question-weighted-limits-duplication.log": "63a629551abcf035abf7a50f7a1ab81118075caa808da3fc58c4a0c563d017bc",
+    "ci-logs/question-weighted-limits-focused.log": "5d0694ab43a832aa58c53aa7e59ee6ff29acb66b2a95aea823206d7890caf6e9",
+    "ci-logs/question-weighted-limits-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/question-weighted-limits-format-write.log": "10be17bde70ae81f7d6a59f7d70b1a79c20e4c7a3704fbd88a451133d0903da9",
+    "ci-logs/question-weighted-limits-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-weighted-limits-parent.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-weighted-limits-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-weighted-limits-source-limits.log": "01898e2ef85a4800234bc81145fa3b7cdf5cfd950404dd487820a228c31c61fd",
+    "docs/case-studies/issue-56/question-weighted.md": "146649ec5dda0450be922dbd2bc922cc94c989becd0e0e61bbdf5d748432fcce",
+    "experiments/issue-56/collect-question-weighted-limits.py": "f1e6211fbeca7b23dc7a9bc55cf24755441d67ce87ffecadcc4acef8f361dd8c",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/parent_source_probe.py": "c9af4e821363322707ef1de7e2bde48189b49ccaf6982ee3002958be3893888c",
+    "experiments/issue-56/question-weighted-limits-parent.py": "dd892a4104ae0c401b20d516f15a9d32fc31da5a21122328b732a66a5c098a61",
+    "js/src/automation/question-match.js": "ab6e3b5b757f090a6621668380d35c4c27c996dd01125d2f6771eb462ec510e3",
+    "js/src/automation/question-weighted.js": "f59b12a9bc12645bf4d9ea3ee9298a2eb95e9d022035114538f97e3076e4a832",
+    "js/src/web/app.min.js": "fb9584ded62f13c35664071ac87ac4776c3f45749229bbe5eebc025a6bba8a02",
+    "js/tests/question-weighted-limits.test.js": "c60e85741c43608583506f40a18ff02679e852e6a18e4016618118612026f279",
+    "js/tests/question-weighted.test.js": "65bfd469d31ffac6146dcffe80874871028af8c110b150ed5a86b9278fd7c489",
+    "before/js/src/automation/question-match.js": "bef8ed654255b264994c13d911104b265f094ade761d9b013cb425b9c62e8d50",
+    "metadata.json": "ee912fa2930562ce645604f92319adb39f2a4b2e8a91872d3c2eb7240e0f9202"
+  }
+}

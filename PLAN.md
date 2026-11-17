@@ -1,3 +1,10 @@
+2026-11-17 standalone weighted matching input boundary:
+
+- [x] Reproduce direct weighted calls admitting 6,001-character input against exact `e574976e`; preserve the admitted boundary/ordered positive control.
+- [x] Refuse non-text and oversized weighted inputs before tokenization or budget admission; retain ordered behavior and rebuild the actual bundle.
+- [x] Pass 12 focused checks, lint/format/secrets, source/doc limits and the unchanged 6.49% duplication gate; preserve source and independently hashed evidence.
+- [ ] Publish only to the prepared branch, review exact-source CI and continue all 35 unfinished requirements.
+
 2026-11-17 preserve strict link-check successes between runs:
 
 - [x] Preserve and read both exact `1b449fb5` failed attempts: two initial GitHub 503 entries, then eighteen entries across seventeen different source URLs; native recovery and strict failure controls passed.

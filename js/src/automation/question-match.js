@@ -126,8 +126,17 @@ export const matchQuestion = (pattern, text, options) => {
   return states.has(input.length) ? 'template' : null;
 };
 
-/** Ordered token similarity; its result never qualifies for automatic reuse. */
+const invalidWeightedInputs = (left, right, options) =>
+  options?.algorithm === 'weighted' &&
+  [left, right].some(
+    (value) => typeof value !== 'string' || value.length > MAX_QUESTION_LENGTH
+  );
+
+/** Similarity suggestions never qualify for automatic reuse. */
 export const questionSimilarity = (left, right, budget, options) => {
+  if (invalidWeightedInputs(left, right, options)) {
+    return 0;
+  }
   const a = questionWords(left, options);
   const b = questionWords(right, options);
   if (!a.length || !b.length || a.length > MAX_WORDS || b.length > MAX_WORDS) {

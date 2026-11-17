@@ -80,3 +80,27 @@ Full runtime, browser and native matrices remain on hosted CI for the published
 SHA. Historical/provider parity and the other 35 unchecked acceptance criteria
 remain unfinished; this unit does not complete issue 56. PR57 stays draft and
 unmerged.
+
+## Standalone input boundary follow-up
+
+Self-review found that the planner's 6,000-character admission check did not
+protect direct calls to the new weighted similarity function. A 6,001-character
+question could still produce a score and consume matching work. Weighted calls
+now validate both original inputs before tokenization and budget admission;
+non-text and oversized inputs return no match without spending the budget.
+Ordered matching retains its existing behavior, and an exactly 6,000-character
+question remains eligible within the finite work budget.
+
+Against exact published parent `e574976e`, the refusal regression fails and the
+boundary/ordered control passes. All twelve focused weighted checks pass after
+correction, including shared Forms, CLI and both actual Lino encodings. The
+production bundle is rebuilt. Reproduce with:
+
+```sh
+python3 -B experiments/issue-56/question-weighted-limits-parent.py
+node --max-old-space-size=256 --test --test-concurrency=1 js/tests/question-weighted-limits.test.js js/tests/question-weighted.test.js
+```
+
+The [follow-up archive](data/question-weighted-limits.tar.gz) and
+[manifest](data/question-weighted-limits.tar.sha256.json) preserve source and
+finite verification. Complete QA02 history/provider parity remains required.
