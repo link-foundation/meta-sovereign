@@ -2,16 +2,19 @@
   "archive": "ci-deno-macos-partitions.tar.gz",
   "files": {
     ".github/workflows/release.yml": "8e7d441ab40101fb91bd63a3c2fec907aea1edcb04514ae072e179d95368244b",
-    "ci-logs/8c22-current-jobs.json": "72c2aacde679ddbc3ec4d5111ff50e5368fd6cffe9349a4ec13e7d92991822a6",
+    "ci-logs/8c22-current-jobs.json": "9412d8a2be6d08e1f0129c7e5343a0b6ae5b28c04cc2c373d859fd1e13ec88ab",
     "ci-logs/8c22-deno-macos-2-job.json": "d94ee9a117cfc57fe6852a2f3f5ac473c395480d3a2c2932c67414acb8dec8e2",
     "ci-logs/8c22-deno-macos-2.log": "95e662806ea6d99b94c3703daed94503fe92206b0ddc6348822fb07ff88a2c42",
     "ci-logs/8c22-run-list.json": "5f0cf7539e03f8378746c6544e08cfbb9bff70a042b784405870a1b0e1187ea7",
-    "ci-logs/ci-deno-macos-shards-after.log": "331e2816b9f52aacd3cd73323f1b73c18f0ad1d189d57ff4cfcc0bd400f5751a",
+    "ci-logs/ci-deno-macos-existing-before.log": "707111d95ad084351e48da54880a3416206fe4c106d9385f17c4d2494c7d18d8",
+    "ci-logs/ci-deno-macos-shards-after.log": "acb8ae84a4b7c308340859202a86cbd33fe6f0773e50ba90974dbe12785a4add",
     "ci-logs/ci-deno-macos-shards-before.log": "a58b27a2cb3aa5fde716f80568ca9c94c76bb09167b56a00ef10e232e1be96ea",
-    "docs/case-studies/issue-56/ci-deno-macos-partitions.md": "9cb06d9837d710b297e2b75a8e7e5b9d9e76979e5cc9d9f659eb45cba1356da6",
-    "experiments/issue-56/collect-ci-deno-macos-partitions.py": "37b9bd6b75acd8580eeabb118d6fdcd748a8c3583d43d9468762394f3407c515",
+    "ci-logs/ci-deno-macos-shards-deno.log": "7b64795144736b0fc4b8f05b9b98fe8b1a4c06cd06db66590be64e255d39ede9",
+    "docs/case-studies/issue-56/ci-deno-macos-partitions.md": "ad6d1513ecb9272f6ebe8bf2e16535e78a6aaa0bbf35a989affb9e9ea1b5cacf",
+    "experiments/issue-56/collect-ci-deno-macos-partitions.py": "3a049e230b492e8a6ddfbab421c8608953fb238a28abf8d132ace067d900ec94",
     "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
-    "js/tests/ci-contracts.test.js": "96c1b1e8d8c9f012c5db0dff8e6ee16be5109e20c2d0a8e37e4d3605267c4ddf",
+    "js/tests/ci-contracts.test.js": "f8f207e76f2297ec4f15f7c66e58d5579eff7fd20ff1160249154091fd3783a0",
+    "js/tests/ci-deno-shards.test.js": "5e81546a2f3e4c17da3db415b3d21558b2eb891a8b724eb5d3fa7ddcdbdcb03e",
     "metadata.json": "a60272b23a25c5776482216d6e1e8272e411e9ed2c623e5236bf4bd4040171ea"
   }
 }

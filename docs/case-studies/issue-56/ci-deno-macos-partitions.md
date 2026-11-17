@@ -20,7 +20,11 @@ A focused configuration regression fails against the old three-part matrix
 and passes after the change. It requires the complete six-part partition set,
 exclusion of the original unpartitioned macOS Deno pair, the unchanged deadline
 and independent failure reporting. Both relevant contract tests pass locally
-with one worker. Hosted completion is still needed to verify timing.
+with one worker. The existing Deno shard test also runs six finite fixture files
+exactly once, checks invalid partitions and propagates a child failure; both
+native Deno checks pass locally. The existing configuration contract carries
+these assertions rather than adding a second copy. Hosted completion is still
+needed to verify timing.
 
 The hash-verified [archive](data/ci-deno-macos-partitions.tar.gz) and
 [manifest](data/ci-deno-macos-partitions.tar.sha256.json) retain the actual job,

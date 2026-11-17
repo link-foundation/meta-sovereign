@@ -15,19 +15,20 @@ test('every Deno platform retains native partitions, test discovery and deadline
   ).jobs.test;
   const { matrix } = job.strategy;
   for (const targetOS of ['ubuntu-26.04', 'macos-26', 'windows-2025']) {
+    const count = targetOS === 'macos-26' ? 6 : 3;
     assert.deepEqual(
       matrix.include
         .filter(({ os, runtime }) => os === targetOS && runtime === 'deno')
         .map(({ shard }) => shard)
         .sort(),
-      ['1/3', '2/3', '3/3'],
+      Array.from({ length: count }, (_, index) => `${index + 1}/${count}`),
       targetOS
     );
     assert.ok(
       matrix.exclude.some(
         ({ os, runtime }) => os === targetOS && runtime === 'deno'
       ),
-      'exclude the original pair so all three entries are appended'
+      'exclude the original pair so every partition is appended'
     );
   }
   assert.deepEqual(matrix.os, ['ubuntu-26.04', 'macos-26', 'windows-2025']);
@@ -38,9 +39,12 @@ test('every Deno platform retains native partitions, test discovery and deadline
   assert.deepEqual(
     mac.map(({ shard, runner }) => [shard, runner ?? 'macos-26']),
     [
-      ['1/3', 'macos-26'],
-      ['2/3', 'macos-26-intel'],
-      ['3/3', 'macos-26'],
+      ['1/6', 'macos-26'],
+      ['2/6', 'macos-26-intel'],
+      ['3/6', 'macos-26'],
+      ['4/6', 'macos-26'],
+      ['5/6', 'macos-26'],
+      ['6/6', 'macos-26'],
     ],
     'the capacity-refused shard uses Intel while the other partitions retain ARM'
   );
@@ -92,10 +96,12 @@ if (Deno.env.get('MS_DENO_SHARD_FAIL') === '${index}') throw new Error('fixture 
         env: { ...process.env, NO_COLOR: '1', MS_DENO_SHARD_FAIL: failure },
       }
     );
-  const results = ['1/3', '2/3', '3/3'].map((shard) => ({
-    shard,
-    result: invoke(shard),
-  }));
+  const results = Array.from({ length: 6 }, (_, index) => `${index + 1}/6`).map(
+    (shard) => ({
+      shard,
+      result: invoke(shard),
+    })
+  );
   const executed = [];
   for (const { result } of results) {
     assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -110,7 +116,7 @@ if (Deno.env.get('MS_DENO_SHARD_FAIL') === '${index}') throw new Error('fixture 
   const failure = invoke(failingShard, '3');
   assert.equal(failure.status, 1, failure.stdout + failure.stderr);
   assert.match(failure.stdout + failure.stderr, /fixture failure/u);
-  const invalid = invoke('4/3');
+  const invalid = invoke('7/6');
   assert.notEqual(invalid.status, 0, invalid.stdout + invalid.stderr);
   assert.doesNotMatch(invalid.stdout, /executed:/u);
 });

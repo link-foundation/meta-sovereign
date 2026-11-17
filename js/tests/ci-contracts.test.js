@@ -30,24 +30,6 @@ test('runtime test deadlines exclude the completed release-copy experiment', () 
   assert.doesNotMatch(commands, /release-copy-strategies/u);
 });
 
-test('macOS Deno partitions retain every file within the unchanged job deadline', () => {
-  const job = workflow('release.yml').jobs.test;
-  const partitions = job.strategy.matrix.include.filter(
-    ({ os, runtime }) => os === 'macos-26' && runtime === 'deno'
-  );
-  assert.deepEqual(
-    partitions.map(({ shard }) => shard).sort(),
-    Array.from({ length: 6 }, (_, index) => `${index + 1}/6`)
-  );
-  assert.equal(job['timeout-minutes'], 10);
-  assert.equal(job.strategy['fail-fast'], false);
-  assert.ok(
-    job.strategy.matrix.exclude.some(
-      ({ os, runtime }) => os === 'macos-26' && runtime === 'deno'
-    )
-  );
-});
-
 test('browser failures cannot become a green release', () => {
   const jobs = workflow('release.yml').jobs;
   assert.ok(
