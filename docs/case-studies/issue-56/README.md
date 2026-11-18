@@ -1,3 +1,4 @@
+- [Snapshot diagnostic ownership](ci-snapshot-observers.md): preserve the exact macOS Bun failure and two finite parent regressions; owner-specific cleanup assertions retain unrelated workers and all acknowledgement/workspace checks.
 - [Shared automation file defaults](automation-defaults.md): six native VK policies share global/local readable Lino, CLI overrides, saved-owner precedence and rolling configuration removal. Focused before/after evidence supports unfinished VD07.
 - [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass; remote tools and system prerequisites keep VD01 unfinished.
 

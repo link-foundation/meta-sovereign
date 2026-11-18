@@ -1,3 +1,11 @@
+2026-11-18 Bun snapshot diagnostics ownership:
+
+- [x] Preserve exact-source b98098b7 macOS Bun job 134820578729. Lines 30357–30403 show the cancelled fake worker's empty-global-registry assertion encountering a different real thread (136); the same job passes its real cancellation and workspace cleanup control.
+- [x] Draft owner-specific cancellation assertions with a deliberately retained unrelated diagnostic entry; retain acknowledgement, termination and workspace checks. Add default-off tracking/release events to investigate any later unrelated worker lifetime.
+- [x] Reproduce two failures and two independent controls against the exact published test. Six focused cancellation/disk checks pass in Node and Bun with retained unrelated owners and actual encoder cleanup; no deadline is increased.
+- [x] Pass scoped lint, formatting, secrets, whitespace and source/document limits; preserve source-bound evidence and the complete failed job log. Full duplication/platform checks remain in CI.
+- [ ] Publish only to the prepared branch and require fresh hosted results. No conclusion about the unrelated worker's earlier owner is claimed. All 30 unfinished criteria remain required.
+
 2026-11-18 shared desktop automation file defaults (VD07 remains unfinished):
 
 - [x] Read the complete pinned bot configuration and layered store contract; trace the shared native settings, protected credentials, server/desktop startup, CLI and rolling-worker paths.

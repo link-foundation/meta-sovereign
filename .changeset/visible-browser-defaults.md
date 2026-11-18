@@ -1021,3 +1021,8 @@ the CLI, server and desktop. Reuse native validation and legacy list handling,
 preserve protected credentials and saved owner choices, and apply changed or
 removed file defaults through the rolling server without replacing an unchanged
 worker or writing default settings into the owner's store.
+
+Bind snapshot cancellation checks to their actual worker while preserving
+unrelated diagnostic owners. Retain cleanup acknowledgement and workspace
+verification, and add default-off worker tracking/release diagnostics for
+shared-process investigations (issue #56).

@@ -7,16 +7,21 @@ import path from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { snapshotInWorker } from '../src/storage/doublets-mirror.js';
 import { formatLinoRecords } from '../src/storage/lino-store.js';
-import { snapshotMemory } from '../src/storage/snapshot-memory.js';
+import {
+  snapshotMemory,
+  trackSnapshot,
+} from '../src/storage/snapshot-memory.js';
 import { awaitSnapshotWorker } from '../src/storage/snapshot-worker-control.js';
 
 const fixture = async (run) => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-snapshot-stop-'));
+  const unrelated = trackSnapshot(90211, 'fixture');
   try {
     const log = path.join(dir, 'data.lino');
     await fs.writeFile(log, formatLinoRecords([{ id: 'one', body: 'tiny' }]));
     await run(log, path.join(dir, 'data.bin'));
   } finally {
+    unrelated.stop();
     await fs.rm(dir, { recursive: true, force: true });
   }
 };
@@ -93,13 +98,26 @@ test(
           'the owner cannot release a worker still holding files'
         );
         assert.deepEqual(requests, [{ type: 'snapshot-cancel' }]);
+        assert.equal(
+          snapshotMemory().some(({ threadId }) => threadId === worker.threadId),
+          true,
+          'the cancelled worker stays visible until its cleanup acknowledgement'
+        );
       } finally {
         // A final result/ack is sent only after encoder and file cleanup.
         worker.emit('message', { cancelled: true });
         await rejected;
       }
       assert.equal(terminated, true);
-      assert.deepEqual(snapshotMemory(), []);
+      assert.equal(
+        snapshotMemory().some(({ threadId }) => threadId === worker.threadId),
+        false
+      );
+      assert.equal(
+        snapshotMemory().some(({ threadId }) => threadId === 90211),
+        true,
+        'finishing one snapshot must retain unrelated diagnostic owners'
+      );
     });
   }
 );
@@ -111,10 +129,12 @@ test(
     await fixture(async (log, binary) => {
       const controller = new AbortController();
       let started = false;
+      let ownedThread;
       const pending = snapshotInWorker(log, binary, {
         signal: controller.signal,
         createWorker: (...args) => {
           const worker = new Worker(...args);
+          ownedThread = worker.threadId;
           worker.on('message', (message) => {
             if (message.progress && !started) {
               started = true;
@@ -132,7 +152,14 @@ test(
         ),
         false
       );
-      assert.deepEqual(snapshotMemory(), []);
+      assert.equal(
+        snapshotMemory().some(({ threadId }) => threadId === ownedThread),
+        false
+      );
+      assert.equal(
+        snapshotMemory().some(({ threadId }) => threadId === 90211),
+        true
+      );
     });
   }
 );
