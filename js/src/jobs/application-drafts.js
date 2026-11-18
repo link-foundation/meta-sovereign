@@ -200,6 +200,7 @@ export class ApplicationDrafts {
         page.challenge ||
         page.dailyLimit ||
         page.external ||
+        page.resumeNotVisible ||
         page.delivered ||
         !page.submit ||
         page.submit.disabled

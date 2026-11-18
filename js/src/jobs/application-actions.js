@@ -32,6 +32,7 @@ export class ApplicationActions {
         page.dailyLimit ||
         page.error ||
         page.external ||
+        page.resumeNotVisible ||
         (action === 'enter' && page.submit)
       ) {
         break;

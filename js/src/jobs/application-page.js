@@ -159,6 +159,58 @@ export const applicationDocument = (target, input) => {
     };
   };
   const marked = (selector) => nodes(selector).length > 0;
+  const resumeNotVisible = (scope) => {
+    if (!scope) {
+      return false;
+    }
+    const phrases = [
+      'поменяйте видимость резюме',
+      'change the visibility of your resume',
+      'change your resume visibility',
+      'change resume visibility',
+    ];
+    const rendered = (element) => {
+      for (let depth = 0; element && depth < 64; depth += 1) {
+        const style = globalThis.getComputedStyle(element);
+        if (
+          !visible(element) ||
+          (element.getBoundingClientRect().height === 0 &&
+            [style.overflow, style.overflowY].some(
+              (value) => value !== 'visible'
+            ))
+        ) {
+          return false;
+        }
+        if (element === scope) {
+          return true;
+        }
+        element = element.parentElement;
+      }
+      return false;
+    };
+    const walker = doc.createTreeWalker(scope, globalThis.NodeFilter.SHOW_TEXT);
+    for (let count = 0; count < 8000; count += 1) {
+      const node = walker.nextNode();
+      if (!node) {
+        break;
+      }
+      const parent = node.parentElement;
+      const text = node.textContent.toLowerCase().replaceAll('ё', 'е').trim();
+      if (
+        text &&
+        !parent.closest('script,style,template') &&
+        (parent.closest('[data-qa="hidden-resume-warning"]') ||
+          phrases.some((phrase) => text.includes(phrase))) &&
+        rendered(parent)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const visibilityScope = (form) =>
+    form ??
+    (current.pathname === '/applicant/vacancy_response' ? doc.body : null);
   const formSnapshot = () => {
     const submit = unique(selectors.submit);
     const form = submit?.form ?? submit?.closest('form');
@@ -185,6 +237,7 @@ export const applicationDocument = (target, input) => {
       letters.length === 1 && form?.contains(letters[0]) ? letters[0] : null;
     const html = form?.outerHTML ?? '';
     return {
+      resumeNotVisible: resumeNotVisible(visibilityScope(form)),
       error: applicationError(form),
       enter: describe(selectors.enter),
       submit: describe(selectors.submit),
@@ -248,6 +301,7 @@ export const applicationDocument = (target, input) => {
     };
     const content = metadata.challenge
       ? {
+          resumeNotVisible: false,
           error: null,
           enter: null,
           submit: null,
@@ -285,6 +339,7 @@ export const applicationDocument = (target, input) => {
     result.scope &&
     !result.challenge &&
     !result.external &&
+    !result.resumeNotVisible &&
     !result.delivered &&
     JSON.stringify(result) === input.guard &&
     target?.isConnected &&
@@ -311,7 +366,7 @@ export const applicationDocument = (target, input) => {
       !result.challenge &&
       !result.dailyLimit &&
       !result.error &&
-      !result.external &&
+      ![result.external, result.resumeNotVisible].some(Boolean) &&
       !result.delivered;
     const nativeAction = input.action === 'fullForm' ? 'enter' : input.action;
     const action = ['resumeMenu', 'resumeChoice'].includes(input.action)

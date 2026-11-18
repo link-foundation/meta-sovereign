@@ -27,6 +27,7 @@ export const applicationStates = [
   'verification',
   'daily-limit',
   'external',
+  'resume-not-visible',
   'delivered',
   'wrong-page',
   'unavailable',
@@ -127,6 +128,8 @@ const page = (value) =>
     ].every((key) => typeof value[key] === 'boolean') &&
     (value.url === null || text(value.url, 4000)) &&
     optionalChoice(value.error, ['generic-error', 'validation-error']) &&
+    (value.resumeNotVisible === undefined ||
+      typeof value.resumeNotVisible === 'boolean') &&
     ['enter', 'submit', 'letterToggle'].every((key) =>
       actionDescriptor(value[key])
     ));

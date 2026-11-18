@@ -216,6 +216,8 @@ export const zhApplication = {
   'application.state.verification': '请在此 HH 浏览器中完成验证',
   'application.state.daily-limit': '已达到 HH 每日申请上限',
   'application.state.external': '外部申请需要人工审核',
+  'application.state.resume-not-visible':
+    'HH 要求简历对所有雇主可见。请先在 HH 修改可见性，再重新审核。',
   'application.state.delivered': '申请已送达',
   'application.state.wrong-page': '原生页面与此职位不匹配',
   'application.state.unavailable': '原生申请控件不可用',
@@ -234,6 +236,7 @@ export const zhApplication = {
   'application.hold.verification': '手动验证',
   'application.hold.daily-limit': '提供商申请上限',
   'application.hold.external': '外部申请',
+  'application.hold.resume-not-visible': '简历可见性警告',
   'application.defer': '保存答案并暂缓',
   'application.queueTitle': '暂缓的申请',
   'application.queueHint':

@@ -11,7 +11,7 @@ const eligible = (record) =>
   record.report &&
   !(
     record.page.challenge ||
-    record.page.external ||
+    [record.page.external, record.page.resumeNotVisible].some(Boolean) ||
     record.page.delivered ||
     record.paused ||
     record.options.testMode

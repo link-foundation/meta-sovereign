@@ -526,6 +526,7 @@
     "test:e2e:job-application-drafts": "node js/tests/e2e-job-application-drafts-browser.mjs",
     "test:e2e:job-application-language": "node js/tests/e2e-job-application-language-browser.mjs",
     "test:e2e:job-application-policies": "node js/tests/e2e-job-application-policies-browser.mjs",
+    "test:e2e:job-application-visibility": "node js/tests/e2e-job-application-visibility-browser.mjs",
     "test:e2e:job-application-feedback": "node js/tests/e2e-job-application-feedback-browser.mjs",
     "test:e2e:job-application-limits": "node js/tests/e2e-job-application-limits-browser.mjs",
     "test:e2e:job-application-limit-restore": "node js/tests/e2e-job-application-limit-restore-browser.mjs",

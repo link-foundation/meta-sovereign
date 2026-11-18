@@ -255,6 +255,8 @@ export const enApplication = {
     'Complete verification in the owned HH browser',
   'application.state.daily-limit': 'HH daily application limit reached',
   'application.state.external': 'External application requires manual review',
+  'application.state.resume-not-visible':
+    'HH requires a résumé visible to all employers. Change its visibility in HH before reviewing again.',
   'application.state.delivered': 'Application delivered',
   'application.state.wrong-page': 'Native page does not match this vacancy',
   'application.state.unavailable': 'Native application control unavailable',
@@ -276,6 +278,7 @@ export const enApplication = {
   'application.hold.verification': 'manual verification',
   'application.hold.daily-limit': 'provider application limit',
   'application.hold.external': 'external application',
+  'application.hold.resume-not-visible': 'résumé visibility warning',
   'application.defer': 'Save answers and defer',
   'application.queueTitle': 'Deferred applications',
   'application.queueHint':

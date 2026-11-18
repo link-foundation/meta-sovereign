@@ -1,3 +1,10 @@
+2026-11-18 rendered HH résumé visibility warning (HH05 remains unfinished):
+
+- [x] Read pinned skip, deferred-question and résumé-visibility contracts: a rendered warning blocks an application; the collapsed warning present in every popup must not block it.
+- [x] Add bounded native visibility detection, synchronous dispatch refusal, shared validated receipt/hold and translated recovery guidance; preserve drafts and uncertain/confirmed delivery reservations.
+- [x] Reproduce six actual-parent failures plus the native visible-warning failure; pass 24 focused checks, native main/popup and independent MCP recovery. Inspect desktop/phone screenshots and drain all owned fixtures.
+- [ ] Preserve source-bound evidence, commit/push only to the prepared branch and require exact-source hosted validation. Durable reason/session policies and every unfinished criterion remain required.
+
 2026-11-18 complete Forms prefill and learning acceptance:
 
 - [x] Preserve all five successful exact-source `997b0dd2` workflows after the requested rerun, including complete job metadata and raw logs.

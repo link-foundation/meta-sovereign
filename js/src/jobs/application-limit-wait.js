@@ -16,6 +16,7 @@ const canWait = (record) =>
   record.page.bound &&
   !record.page.challenge &&
   !record.page.external &&
+  !record.page.resumeNotVisible &&
   !record.page.delivered &&
   !record.paused &&
   !record.noQuestionnaires &&

@@ -85,7 +85,8 @@ export class ApplicationContextRecovery {
         page.url !== record.url ||
         page.scope ||
         page.challenge ||
-        page.external
+        page.external ||
+        page.resumeNotVisible
       ) {
         throw fail('vacancy');
       }

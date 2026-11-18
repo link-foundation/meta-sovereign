@@ -262,6 +262,8 @@ export const ruApplication = {
   'application.state.verification': 'Пройдите проверку в браузере HH',
   'application.state.daily-limit': 'Достигнут дневной лимит HH',
   'application.state.external': 'Внешний отклик требует ручной проверки',
+  'application.state.resume-not-visible':
+    'HH требует резюме, видимое всем работодателям. Измените видимость в HH перед повторной проверкой.',
   'application.state.delivered': 'Отклик доставлен',
   'application.state.wrong-page': 'Страница не соответствует вакансии',
   'application.state.unavailable': 'Элемент отклика недоступен',
@@ -283,6 +285,7 @@ export const ruApplication = {
   'application.hold.verification': 'ручная проверка',
   'application.hold.daily-limit': 'лимит откликов провайдера',
   'application.hold.external': 'внешний отклик',
+  'application.hold.resume-not-visible': 'предупреждение о видимости резюме',
   'application.defer': 'Сохранить ответы и отложить',
   'application.queueTitle': 'Отложенные отклики',
   'application.queueHint':

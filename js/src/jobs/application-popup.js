@@ -29,6 +29,7 @@ export const rememberApplicationPopup = (record) => {
     page.challenge ||
     page.dailyLimit ||
     page.external ||
+    page.resumeNotVisible ||
     page.error
   ) {
     record.popupReview = false;

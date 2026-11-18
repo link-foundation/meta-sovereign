@@ -143,6 +143,9 @@ export const applicationState = (page) => {
   if (page.delivered) {
     return 'delivered';
   }
+  if (page.resumeNotVisible) {
+    return 'resume-not-visible';
+  }
   if (page.error) {
     return 'provider-error';
   }

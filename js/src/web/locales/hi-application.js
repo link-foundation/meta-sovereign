@@ -256,6 +256,8 @@ export const hiApplication = {
   'application.state.verification': 'अपने HH ब्राउज़र में सत्यापन पूरा करें',
   'application.state.daily-limit': 'HH की दैनिक आवेदन सीमा पूरी हुई',
   'application.state.external': 'बाहरी आवेदन को मानवीय समीक्षा चाहिए',
+  'application.state.resume-not-visible':
+    'HH को सभी नियोक्ताओं को दिखने वाला रेज़्यूमे चाहिए। दोबारा समीक्षा से पहले HH में उसकी दृश्यता बदलें।',
   'application.state.delivered': 'आवेदन पहुँच गया',
   'application.state.wrong-page': 'मूल पेज इस नौकरी से मेल नहीं खाता',
   'application.state.unavailable': 'मूल आवेदन नियंत्रण उपलब्ध नहीं',
@@ -277,6 +279,7 @@ export const hiApplication = {
   'application.hold.verification': 'हाथ से सत्यापन',
   'application.hold.daily-limit': 'प्रदाता की आवेदन सीमा',
   'application.hold.external': 'बाहरी आवेदन',
+  'application.hold.resume-not-visible': 'रेज़्यूमे की दृश्यता की चेतावनी',
   'application.defer': 'उत्तर सहेजें और टालें',
   'application.queueTitle': 'टाले गए आवेदन',
   'application.queueHint':

@@ -6,6 +6,7 @@ export const applicationHoldReasons = [
   'verification',
   'daily-limit',
   'external',
+  'resume-not-visible',
 ];
 
 /** Dismissing native errors never grants automatic sending permission. */

@@ -23,7 +23,11 @@ import {
 
 const observedOutcome = (page) =>
   page.bound &&
-  (page.delivered || page.dailyLimit || page.challenge || page.error);
+  (page.delivered ||
+    page.dailyLimit ||
+    page.challenge ||
+    page.error ||
+    page.resumeNotVisible);
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
 
