@@ -1,9 +1,16 @@
+2026-11-18 private vacancy description HTML (HH03 remains unfinished):
+
+- [x] Trace pinned A10/A12 and the original vacancy insight reader: both browser extraction and cache projection omit the employer description HTML.
+- [x] Preserve bounded, exact description-container HTML as private data across collection, restart, CLI and both Lino formats; retain plain-text model context, unchanged technology analysis and legacy snapshots.
+- [x] Reproduce 15 actual-parent failures with two compatibility controls; pass 31 focused checks and native browser cache readback, including two refused refreshes, seven closed pages and zero provider clicks. Rebuild the production bundle and pass scoped static checks.
+- [ ] Preserve source-bound evidence, publish only to the prepared branch and require hosted checks. Continue every unfinished criterion; PR57 stays draft and unmerged.
+
 2026-11-18 complete generic reader acceptance (QA21):
 
 - [x] Preserve all five successful exact-source workflows at `5283e26a`: 72 successful jobs and six intentional skips.
 - [x] Bind 18 uniquely named reader/report checks, mandatory registration and both actual awaited native reader completions; independently rehash all 51 hosted archive entries.
 - [x] Review the pinned reading contract, current extraction/frame/lifecycle and shared interface paths; accept only QA21. Current inventory is 84 verified / 34 unfinished. Historical counts below describe earlier checkpoints.
-- [ ] Publish the four prepared feature/audit commits and this acceptance unit only to the prepared branch; require the new source gate and continue every unfinished criterion. PR57 stays draft and unmerged.
+- [x] Publish the four prepared feature/audit commits and acceptance unit only to the prepared branch at `1f0c7287`; its source gate is running. Continue every unfinished criterion; PR57 stays draft and unmerged.
 
 2026-11-18 full shared-prefill acceptance mapping (QA22):
 

@@ -1,5 +1,6 @@
 import {
   assignmentFailure,
+  assignmentText,
   assignmentVacancy,
   assignmentVacancyUrl,
 } from './validation.js';
@@ -8,6 +9,13 @@ import { vacancyMetadata } from './vacancy-metadata.js';
 export const vacancyContent = (value, expectedUrl) => {
   const url = assignmentVacancyUrl(value?.url);
   const content = { ...assignmentVacancy(value), ...vacancyMetadata(value) };
+  // Optional for old snapshots; employer HTML is private data, never markup
+  // for rendering or model context. Validate without changing its exact bytes.
+  const html = value.descriptionHtml;
+  if (html !== undefined) {
+    assignmentText(html, 120000, 'vacancy description HTML');
+    content.descriptionHtml = html;
+  }
   if (
     !content.title ||
     !content.description ||

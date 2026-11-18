@@ -1,10 +1,6 @@
 import { readAssignmentPage } from './read-page.js';
-import {
-  assignmentFailure,
-  assignmentVacancy,
-  assignmentVacancyUrl,
-} from './validation.js';
-import { vacancyMetadata } from './vacancy-metadata.js';
+import { assignmentFailure, assignmentVacancyUrl } from './validation.js';
+import { vacancyContent } from './vacancy-content.js';
 
 export { assignmentVacancyUrl } from './validation.js';
 
@@ -56,12 +52,18 @@ export const readAssignmentVacancyDocument = () => {
       : null;
   };
   const workFormats = texts('[data-qa*="work-format"]', 1000, 100);
+  const descriptions = [
+    ...document.querySelectorAll('[data-qa="vacancy-description"]'),
+  ].filter((node) => node.getClientRects().length);
+  const description = descriptions.length === 1 ? descriptions[0] : null;
+  const html = description?.innerHTML;
   return {
     url: globalThis.location.href,
     challenge: false,
     title: text('[data-qa="vacancy-title"]', 500),
     company: text('[data-qa="vacancy-company-name"]', 500),
     description: text('[data-qa="vacancy-description"]', 30000),
+    descriptionHtml: html?.length <= 120000 ? html : null,
     salary: text(
       '[data-qa="vacancy-salary"], [data-qa="vacancy-salary-compensation-type-net"], [data-qa="vacancy-salary-compensation-type-gross"]',
       1000,
@@ -117,6 +119,7 @@ export const createAssignmentVacancyReader =
           read.challenge ||
           !read.title ||
           !read.description ||
+          read.descriptionHtml === null ||
           read.skills === null ||
           read.company === null
         ) {
@@ -125,12 +128,11 @@ export const createAssignmentVacancyReader =
             'The intended vacancy title and description were not readable.'
           );
         }
-        return {
-          ...assignmentVacancy(read),
-          ...vacancyMetadata(read),
+        return vacancyContent({
+          ...read,
           url,
           capturedAt: new Date().toISOString(),
-        };
+        });
       },
     });
   };

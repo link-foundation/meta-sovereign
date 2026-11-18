@@ -1,7 +1,23 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { vacancyMetadataFixture } from '../../../experiments/issue-56/vacancy-metadata-fixture.mjs';
+import {
+  vacancyMetadataFixture,
+  vacancyDescriptionHtml,
+} from '../../../experiments/issue-56/vacancy-metadata-fixture.mjs';
+import { decodeWire, LINO_TEXT } from '../../src/transport/lino.js';
+
+const verifyCachedHtml = async (page, base) => {
+  const response = await page.request.get(`${base}/api/vacancies/stored`, {
+    headers: { accept: LINO_TEXT },
+  });
+  assert.equal(response.status(), 200);
+  assert.equal(
+    decodeWire(await response.body(), response.headers()['content-type'])
+      .entries[0].descriptionHtml,
+    vacancyDescriptionHtml
+  );
+};
 
 /** One focused native metadata/cache scenario, also mandatory in browser CI. */
 export const verifyVacancyMetadataVariants = async (
@@ -51,6 +67,8 @@ export const verifyVacancyMetadataVariants = async (
       saved[0].description,
       'Build Python services.\nFinal employer paragraph.'
     );
+    assert.equal(saved[0].descriptionHtml, vacancyDescriptionHtml);
+    assert.equal(saved[0].descriptionHtml.includes('fixtureClicks'), false);
     assert.equal(gross.includes('Hidden template'), false);
 
     fixture.metadataMode('net');
@@ -62,6 +80,22 @@ export const verifyVacancyMetadataVariants = async (
     );
     await shot('net');
     const net = await snapshot.innerText();
+    const acknowledged = await fixture.store.query((row) =>
+      row.id.startsWith('assignment-vacancy:')
+    );
+    for (const mode of ['ambiguous-html', 'oversized-html']) {
+      fixture.metadataMode(mode);
+      await action('refresh').click();
+      await panel.locator('[data-vacancy-error]').waitFor();
+      assert.equal(await snapshot.innerText(), net);
+      assert.deepEqual(
+        await fixture.store.query((row) =>
+          row.id.startsWith('assignment-vacancy:')
+        ),
+        acknowledged,
+        `${mode} leaves the complete acknowledged cache unchanged`
+      );
+    }
     fixture.metadataMode('conflict');
     await action('refresh').click();
     await panel.locator('[data-vacancy-error]').waitFor();
@@ -91,6 +125,7 @@ export const verifyVacancyMetadataVariants = async (
       opens,
       'cache recovery performs no provider read'
     );
+    await verifyCachedHtml(page, fixture.base);
     assert.ok(
       fixture.records.every((record) => record.closed && record.clicks === 0)
     );
@@ -105,6 +140,8 @@ export const verifyVacancyMetadataVariants = async (
     );
     return {
       variants: 4,
+      htmlRefusals: 2,
+      exactDescriptionHtml: true,
       opens,
       cacheRetained: true,
       providerClicks: 0,

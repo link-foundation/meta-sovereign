@@ -1,5 +1,8 @@
 import { vacancyBrowserFixture } from './vacancy-browser-fixture.mjs';
 
+export const vacancyDescriptionHtml =
+  'Build Python services.<br>Final employer paragraph.';
+
 export const vacancyMetadataHtml = (mode = 'gross') => {
   const gross = mode !== 'net';
   const salary = gross
@@ -17,7 +20,8 @@ export const vacancyMetadataHtml = (mode = 'gross') => {
     <p data-qa="vacancy-view-work-format">Remote</p>
     <p data-qa="vacancy-additional-work-format">Hybrid by agreement</p>
     <p data-qa="vacancy-creation-time">16 November 2026</p>
-    <div data-qa="vacancy-description">Build Python services.<br>Final employer paragraph.</div>
+    <div data-qa="vacancy-description">${mode === 'oversized-html' ? `<!--${'x'.repeat(120000)}-->` : ''}${vacancyDescriptionHtml}</div>
+    ${mode === 'ambiguous-html' ? '<div data-qa="vacancy-description">Another description</div>' : ''}
     <span data-qa="skills-element"><span data-qa="bloko-tag__text">Python</span></span>
     <span data-qa="bloko-tag__text">SQL</span>
     <span hidden data-qa="bloko-tag__text">Hidden template skill</span>

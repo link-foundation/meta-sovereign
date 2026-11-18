@@ -92,7 +92,10 @@ export const analyzeTechnologies = async ({
     throw technologyFailure('limit');
   }
   const cv = sanitizedResumeCv(raw).cv;
-  const snapshots = vacancies.map((row) => vacancyContent(row));
+  const snapshots = vacancies.map((row) => {
+    const { descriptionHtml: _html, ...content } = vacancyContent(row);
+    return content;
+  });
   if (
     new Set(snapshots.map((row) => row.url)).size !== snapshots.length ||
     JSON.stringify([snapshots, cv]).length > 4 * 1024 * 1024
