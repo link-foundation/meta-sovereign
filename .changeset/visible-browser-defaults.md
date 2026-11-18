@@ -1041,3 +1041,7 @@ reservations and ten-percent defaults for existing records (issue #56).
 Recheck acknowledged chat and person consent after durable send admission so
 opt-outs saved during that wait block the shared sender. Preserve owner drafts,
 definite refusals and existing uncertain-delivery reservations (issue #56).
+
+Recheck the same acknowledged consent after saved connection loading and before
+browser fallback. Preserve definite refusal codes, eligible explicit recovery,
+resolved adapter options and already positive delivery receipts (issue #56).

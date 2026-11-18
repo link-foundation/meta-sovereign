@@ -400,7 +400,12 @@ const SUBCOMMANDS = {
 const runnerFor = (store, args, deps) => {
   const send =
     deps.send ??
-    createDefaultSender({ getSource, browser: { store }, log: deps.trace });
+    createDefaultSender({
+      store,
+      getSource,
+      browser: { store },
+      log: deps.trace,
+    });
   const setTyping =
     deps.setTyping ??
     (({ source, chat }) =>

@@ -1,3 +1,11 @@
+2026-11-18 consent after credentials and transport fallback:
+
+- [x] Trace connection loading after shared admission and preserve fourteen exact-parent failures with two independent controls. Chat/person opt-outs across five provider identities can otherwise reach the adapter; three eligible browser fallbacks can also ignore a newly saved refusal.
+- [x] Draft a shared acknowledged-consent guard, preserve definite refusal codes through fallback and wire the actual server, CLI and additional Telegram account stores. Retain source options, explicit eligible browser recovery and the shared durable reservation.
+- [x] Pass all 112 focused checks and scoped formatting, secret, source/document-limit and whitespace gates. Lint retains the exact parent browser-factory warning without adding or suppressing warnings; later SDK/browser waits and all thirty original unfinished criteria remain required.
+- [x] Preserve and independently rehash all 49 source-bound evidence entries. Commit this independently useful correction before continuing the remaining provider audit.
+- [ ] Inspect exact-source hosted checks and publish only to the prepared branch. PR57 stays draft/unmerged until every requirement is verified.
+
 2026-11-18 browser deadline and hosted capacity investigation:
 
 - [x] Preserve exact b3364503 Checks attempt 1, all four cancellation annotations and the complete WebKit shard-4 log. Three ARM jobs never acquired runners; the WebKit job exhausted 35 minutes and its combined vacancy group separately exhausted 180 seconds.

@@ -144,6 +144,7 @@ const senderOf = (store, account, log) => {
   const getSourceFor = sourcesFor(account);
   return {
     send: createDefaultSender({
+      store,
       getSource: getSourceFor,
       optionsFor,
       browser: NO_BROWSER,

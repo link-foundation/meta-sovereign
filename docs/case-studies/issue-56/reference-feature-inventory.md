@@ -6,6 +6,11 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+QA19/QA20 also include [consent after connection loading](consent-provider.md):
+fourteen exact-parent failures and 112 focused checks cover current opt-outs
+before adapter entry and browser fallback. Later SDK/browser waits and the full
+provider-trigger audit remain required; neither criterion is accepted here.
+
 QA19/QA20 also include [fresh consent after durable admission](consent-admission.md):
 shared sends re-read acknowledged opt-outs after the reservation wait. Fourteen
 actual-parent failures and 55 focused checks preserve rollback, provider/scope

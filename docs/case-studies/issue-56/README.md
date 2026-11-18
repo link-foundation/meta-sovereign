@@ -1,3 +1,4 @@
+- [Consent after connection loading](consent-provider.md): fourteen actual-parent failures and 112 focused passes protect adapter entry and browser fallback after consent changes; full QA19/QA20 remain required.
 - [Consent after durable admission](consent-admission.md): fresh acknowledged opt-outs block the shared sender after a pending reservation. Fourteen actual-parent failures and 55 focused passes support unfinished QA19/QA20.
 - [Browser CI budgets](ci-browser-budget.md): retain both deadlines and every native scenario in eight mandatory shards per engine, with independent vacancy selection. Preserve the exact timeout and separate ARM allocation failures; hosted acceptance remains required.
 - [Preview refusal isolation](vacancy-skip-preview.md): nine actual-parent regressions and 28 focused checks preserve permanent skip records during zero-dispatch preview. Native and independent UI verification support unfinished HH08.

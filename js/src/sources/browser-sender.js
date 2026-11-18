@@ -53,6 +53,10 @@ import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
 import { createBrowserChatScans } from './browser-chat-scan.js';
 import { createBrowserTextActions } from './browser-text-reply.js';
 import { toBrowserMessageLink } from './browser-message.js';
+import {
+  isSendConsentRefusal,
+  requireSendConsent,
+} from '../automation/send-consent.js';
 
 export { WEB_UIS };
 
@@ -698,7 +702,7 @@ const markUnknown = (error) => {
 // What a failed web-UI send raises after the API failed with `apiError`.
 const browserFailure = (error, apiError, draft, action) => {
   // "Not allowed to automate this" is the answer, not a pair of failures.
-  if (error?.code === 'unsupported') {
+  if (error?.code === 'unsupported' || isSendConsentRefusal(error)) {
     return error;
   }
   // Maybe delivered by the web UI: told as such, never "failed" (R-Z4).
@@ -798,6 +802,7 @@ const refuseAutomatedWeb = (draft) => {
  *   saved connection's options (token, ids) for a network
  * @param {object} [options.browser] a `createBrowserSender()` instance,
  *   or options for one (created lazily on the first fallback)
+ * @param {object} [options.store] shared acknowledged automation consent
  * @param {Function} [options.log]
  * @returns {Function & {close: Function, perform: Function, supports: Function}}
  *   `(draft) => result`
@@ -807,11 +812,12 @@ export const createDefaultSender = ({
   options = {},
   optionsFor = async () => ({}),
   browser = {},
+  store = browser?.store ?? null,
   log = () => {},
 } = {}) => {
   let browserSender = typeof browser?.send === 'function' ? browser : null;
   const browserFor = () => {
-    browserSender ??= createBrowserSender({ log, ...browser });
+    browserSender ??= createBrowserSender({ log, store, ...browser });
     return browserSender;
   };
   const merged = async (source) => ({
@@ -819,15 +825,20 @@ export const createDefaultSender = ({
     ...(options[source] ?? {}),
   });
   const adapterSend = getSource
-    ? async (draft) =>
-        createAdapterSender({
+    ? async (draft) => {
+        const resolved = await merged(draft.source);
+        await requireSendConsent(store, draft);
+        return createAdapterSender({
           getSource,
-          options: { [draft.source]: await merged(draft.source) },
-        })(draft)
+          options: { [draft.source]: resolved },
+        })(draft);
+      }
     : null;
   const sendText = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: (draft) => {
+    browserSend: async (draft) => {
+      // A definite API refusal may arrive after the owner withdrew consent.
+      await requireSendConsent(store, draft);
       refuseAutomatedWeb(draft);
       // A plain browser send cannot preserve these message semantics.
       // Refuse rather than silently turning a reply into a normal message.
@@ -865,7 +876,9 @@ export const createDefaultSender = ({
       refuseAutomatedWeb(draft);
       const chooser = browserFor();
       if (typeof chooser.chooseAnswer === 'function') {
-        return chooser.chooseAnswer(draft);
+        return requireSendConsent(store, draft).then(() =>
+          chooser.chooseAnswer(draft)
+        );
       }
       throw codedError(
         'This answer requires a verified option click; open the provider chat to select it',

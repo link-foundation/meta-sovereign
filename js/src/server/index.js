@@ -453,6 +453,7 @@ const automationContext = (
   const send =
     automations.send ??
     createDefaultSender({
+      store,
       getSource,
       options: automations.options,
       optionsFor,

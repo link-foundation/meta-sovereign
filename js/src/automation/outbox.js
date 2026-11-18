@@ -25,6 +25,7 @@
 import { browserAnswerReceipt } from './question-browser-state.js';
 import { safeMessage } from '../server/redact.js';
 import { loadSettings, optOutEntry } from './safety.js';
+import { requireSendConsent } from './send-consent.js';
 import { vkSequenceReceipt } from './vk-sequence-receipt.js';
 import { createStoreQueue } from '../storage/serialized.js';
 
@@ -311,14 +312,10 @@ export const guardedSend = async ({
 // planning snapshot cannot replace this fresh acknowledged record.
 const currentConsent = async (store, draft) => {
   try {
-    return optOutEntry(await loadSettings(store), draft)
-      ? refused('opted-out', 'this chat is on the opt-out list')
-      : null;
+    await requireSendConsent(store, draft);
+    return null;
   } catch (error) {
-    return refused(
-      'safety-settings-unavailable',
-      `not sent: ${safeMessage(error)}`
-    );
+    return refused(error.code, safeMessage(error));
   }
 };
 
