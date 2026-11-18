@@ -1,3 +1,10 @@
+2026-11-18 complete generic reader acceptance (QA21):
+
+- [x] Preserve all five successful exact-source workflows at `5283e26a`: 72 successful jobs and six intentional skips.
+- [x] Bind 18 uniquely named reader/report checks, mandatory registration and both actual awaited native reader completions; independently rehash all 51 hosted archive entries.
+- [x] Review the pinned reading contract, current extraction/frame/lifecycle and shared interface paths; accept only QA21. Current inventory is 84 verified / 34 unfinished. Historical counts below describe earlier checkpoints.
+- [ ] Publish the four prepared feature/audit commits and this acceptance unit only to the prepared branch; require the new source gate and continue every unfinished criterion. PR57 stays draft and unmerged.
+
 2026-11-18 full shared-prefill acceptance mapping (QA22):
 
 - [x] Map pinned B1/B4–B11/B13/B15/B25–B27 to current shared planning, writing, contact/PDF/model discovery, challenge waiting, time zones and salary guidance.
@@ -140,7 +147,7 @@
 
 Continue the complete issue 56 objective in PR57. Every original requirement and
 required sub-issue must be implemented and verified in this single PR. The
-reference inventory currently has 35 unchecked criteria (83 of 118 accepted). PR57 stays draft and
+reference inventory currently has 34 unchecked criteria (84 of 118 accepted). PR57 stays draft and
 unmerged until the complete acceptance mapping is verified.
 
 2026-11-17 autopilot cap lifecycle (QA20 remains required):

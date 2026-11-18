@@ -5,8 +5,9 @@ to B13 in the pinned `konard/hh-ru@fa0991b8c2d0896fb3b4be6c69947f0590094b15`
 requirements: a generic question reader uses referenced labels, labels, legends,
 placeholders and nearby headings. B10 adds iframe access. The shared answer and
 option engines are covered separately by QA22 and the accepted QA14 contract;
-this mapping does not accept those broader workflows. QA21 remains pending until
-the complete exact-source hosted gate and manual evidence review succeed.
+this mapping does not accept those broader workflows. The [separate complete
+hosted review](hosted-form-reader-5283e26a.md) accepts QA21 at `5283e26a` after
+the full five-workflow gate and manual evidence review.
 
 ## Current behavior
 
