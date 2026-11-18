@@ -12,6 +12,7 @@ import { createVacancyChoiceService } from '../src/jobs/vacancy-choice-service.j
 import { vacancySnapshot } from '../src/assignments/vacancy.js';
 import { vacancySnapshotFixture } from '../../experiments/issue-56/vacancy-fixture.mjs';
 import { applicationIdentity } from '../../experiments/issue-56/application-run-fixture.mjs';
+import { afterBatchAdmission } from '../../experiments/issue-56/application-batch-admission.mjs';
 
 const limits = { timeout: 6000 };
 const atSend = (f, url) =>
@@ -129,7 +130,9 @@ const deferCurrentSalary = async (f, receipt) => {
     receipt.application.url,
     true
   );
-  await f.service['application-read'](applicationIdentity(receipt.application));
+  await afterBatchAdmission(() =>
+    f.service['application-read'](applicationIdentity(receipt.application))
+  );
 };
 
 test(
@@ -172,7 +175,23 @@ test(
     await f.start({ urls: [batchUrls[0]] });
     const first = await atSend(f, batchUrls[0]);
     refuseApplicationDrafts(f.store);
+    const read = f.service['application-read'];
+    let admissions = 0;
+    f.service['application-read'] = (...args) => {
+      if (++admissions === 1) {
+        return Promise.reject(
+          Object.assign(
+            new Error('Another vacancy read owns this workspace.'),
+            {
+              code: 'jobs-busy',
+            }
+          )
+        );
+      }
+      return read(...args);
+    };
     await deferCurrentSalary(f, first);
+    assert(admissions >= 2, 'known pre-admission contention was recovered');
     const refused = await f.until((r) => r.batch.phase === 'refused');
     assert.equal(refused.application.active, true);
     assert.equal(refused.batch.salaryTier, 0);

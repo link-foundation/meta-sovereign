@@ -1,0 +1,33 @@
+{
+  "archive": "batch-admission.tar.gz",
+  "files": {
+    "PLAN.md": "9167986bceb1937081bc3d342ffa562d6b1d4145ee2db9aba902dcc509e10797",
+    "ci-logs/77bd5f71-deno-macos-shard5.json": "14947b5f0a548b0a8042fe02f5ee713a4d9093ee8f94667abe2f53894b53c63c",
+    "ci-logs/77bd5f71-deno-macos-shard5.log": "8d0fe04d219a16f850a4cd612627bddfdbb2307807475237241ac56889f01a84",
+    "ci-logs/batch-admission-before.log": "eb2a9039a37f6de2a51eb4943bbe0b147f6f1370e4207e0c13cd8f82e45e7cf0",
+    "ci-logs/batch-admission-deno.log": "43e613dd64c0228845fcccc72118528507b0b4f2a9f666d36d5c1c26653b1106",
+    "ci-logs/batch-admission-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/batch-admission-doc-format.log": "078a3022ad48428ef29574e0fbf206150437e7e334630a71e9dc9345972b1193",
+    "ci-logs/batch-admission-duplication.log": "77f5ea0ca655d1012dceafabd4a5990e979a9d8fef0e6cbf84bf23399e25b045",
+    "ci-logs/batch-admission-focused.log": "1e6e5114a1a2f25e2521741ae20653ee971a63a7a2ce8c404b42358a472e1ce1",
+    "ci-logs/batch-admission-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/batch-admission-format.log": "4aa97a20bd8a4bc7e81940acc051d5adf0dadf0c5b1c63b74a952aaffcbccf47",
+    "ci-logs/batch-admission-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/batch-admission-parent.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/batch-admission-plan-format.log": "5a249e0ed6884816776b5f7fb561e1198285c249634bc118bf053036daf62b0d",
+    "ci-logs/batch-admission-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/ci-salary-batch-admission.md": "4ecddc5f7fa8de86658fbd8a0f85dfbc42249b3cc7d6d463d9d4cd0b115e9cd2",
+    "experiments/issue-56/application-batch-admission.mjs": "19ee62c7d23c256eab9ee73a017251a7ac8074a5a9676deefc97b39d01bee87a",
+    "experiments/issue-56/application-batch-fixture.mjs": "a462de079892f1d505068fb8ee03499d9b8776958103fb5fe7010739d6c138bd",
+    "experiments/issue-56/batch-admission-parent.py": "8d2ecf0ccedb58d052fa0ca6f46f70865edd1b5494045069a40dc674be4f5dcf",
+    "experiments/issue-56/collect-batch-admission.py": "d3d14099d88b85ea6bd9c664809bb45415437660696248554136ffde132b8c77",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/src/jobs/acknowledged-store.js": "3d5bc263dcee79a264d78ce5257ec2598de628f5dc3027420130582e1e57bc9b",
+    "js/src/jobs/application-batch.js": "38153fe62ba1323290301f6aa543c5e4fa2a82ee3d6e22d067dbfed9027b3f59",
+    "js/src/jobs/service.js": "4de695e3ee80e05165a7e56855c492b17d3f24b0d5ddc4c7a3a6de7998fe99fa",
+    "js/tests/application-batch-admission.test.js": "7fceb719f77e6f69efd42e71724a91618edd905220535f14b6ecc810e327305f",
+    "js/tests/salary-application-batch.test.js": "5f20854a83f933404002b629253fbf58a12dab97a59656bdd4f8cda1f140468d",
+    "before/js/tests/salary-application-batch.test.js": "0f4febe5ce703b6e7c2360fc13de5ddffb66922de0765f824d45e4061c3f9a84",
+    "metadata.json": "e1fa6914d256af71b942d676d3071da6de999bbab2ece865b48715b582cfc033"
+  }
+}

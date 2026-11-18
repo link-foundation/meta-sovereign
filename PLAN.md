@@ -1,3 +1,12 @@
+2026-11-18 macOS Deno salary-batch fixture admission:
+
+- [x] Preserve the exact 77bd5f71 job log and locate `jobs-busy` at lines 3619–3630, after 1,256 passing checks.
+- [x] Trace the accelerated one-millisecond background poll competing with a manual fixture read; retain the production pre-admission ownership refusal.
+- [x] Draft finite fixture-only admission recovery, deterministic contention and no-repeat coverage for issued/uncertain failures; all 12 focused Node checks pass.
+- [x] Reproduce the exact parent caller with deterministic busy admission; pass all 12 Node/Deno checks and scoped static checks, and independently verify the 27-entry evidence archive.
+- [ ] Commit the fixture repair and publish both atomic commits only to the prepared branch.
+- [ ] Require all five exact-source workflows and continue all 35 unfinished requirements. PR57 stays draft and unmerged.
+
 2026-11-18 automatic private Forms profile defaults (QA22 remains unfinished):
 
 - [x] Trace pinned B4/B4a loading and precedence, selected-store CLI/API/UI planning and detached learning.
