@@ -9,19 +9,13 @@ import { deferralStorageFault } from '../../experiments/issue-56/application-def
 import { createVacancyService } from '../src/jobs/service.js';
 import { applicationResult } from '../src/jobs/application-result.js';
 
-const read = (fixture, receipt) =>
-  fixture.service['application-read'](identity(receipt));
-const prefill = (fixture, receipt) =>
-  fixture.service['application-prefill'](identity(receipt, { confirm: true }));
-const owned = async (t, options) => {
-  const fixture = applicationFixture(options);
-  t.after(() => fixture.close());
-  const receipt = await fixture.enter(fixture.service, {
-    autoExact: true,
-    reviewDelayMs: 0,
-  });
-  return { fixture, receipt };
-};
+import {
+  readHeldApplication as read,
+  prefillHeldApplication as prefill,
+  ownHeldApplication as owned,
+  submitHeldApplication as submit,
+  verifyUncertainHold,
+} from '../../experiments/issue-56/application-hold-fixture.mjs';
 
 test(
   'dismissing a verification banner cannot enable exact automatic sending',
@@ -43,15 +37,10 @@ test(
     assert.equal(receipt.hold, 'verification');
     assert.equal(receipt.exact, true);
     assert.equal(receipt.attempted.submit, false);
-    await assert.rejects(
-      fixture.service['application-advance'](
-        identity(receipt, { action: 'submit', confirm: true, automatic: true })
-      ),
-      { code: 'jobs-application-exact' }
-    );
-    receipt = await fixture.service['application-advance'](
-      identity(receipt, { action: 'submit', confirm: true })
-    );
+    await assert.rejects(submit(fixture, receipt, { automatic: true }), {
+      code: 'jobs-application-exact',
+    });
+    receipt = await submit(fixture, receipt);
     assert.equal(receipt.delivery, 'provider-confirmed');
     assert.equal(receipt.hold, null);
     assert.equal(fixture.state.submitted, 1);
@@ -186,12 +175,9 @@ test(
     fixture.state.fields[1].value = 'Reviewed answer';
     receipt = await read(fixture, receipt);
     fixture.state.page.error = 'generic-error';
-    await assert.rejects(
-      fixture.service['application-advance'](
-        identity(receipt, { action: 'submit', confirm: true })
-      ),
-      { code: 'jobs-application-changed' }
-    );
+    await assert.rejects(submit(fixture, receipt), {
+      code: 'jobs-application-changed',
+    });
     fixture.state.page.error = null;
     receipt = await read(fixture, receipt);
     assert.equal(receipt.hold, 'generic-error');
@@ -253,44 +239,7 @@ test(
 test(
   'native error holds never erase an acknowledged uncertain submission',
   { timeout: 3000 },
-  async (t) => {
-    const fixture = applicationFixture({
-      application: {
-        dispatch: async (_handle, _record, action) => {
-          if (action === 'enter') {
-            fixture.state.page.enter = null;
-            fixture.state.page.submit = {
-              qa: 'vacancy-response-letter-submit',
-              disabled: false,
-            };
-            fixture.state.page.scope = true;
-            fixture.state.page.questions = true;
-            fixture.state.page.fieldIndices = [1];
-          } else {
-            fixture.state.page.error = 'validation-error';
-          }
-          return { dispatched: true };
-        },
-      },
-    });
-    t.after(() => fixture.close());
-    let receipt = await fixture.enter();
-    receipt = await fixture.service['application-advance'](
-      identity(receipt, { action: 'submit', confirm: true })
-    );
-    assert.equal(receipt.state, 'provider-error');
-    assert.equal(receipt.delivery, 'unknown');
-    assert.equal(receipt.attempted.submit, true);
-    fixture.state.page.error = null;
-    receipt = await read(fixture, receipt);
-    assert.equal(receipt.delivery, 'unknown');
-    await assert.rejects(
-      fixture.service['application-advance'](
-        identity(receipt, { action: 'submit', confirm: true })
-      ),
-      { code: 'jobs-application-already-attempted' }
-    );
-  }
+  (t) => verifyUncertainHold(t, 'error', 'validation-error', 'provider-error')
 );
 
 test(

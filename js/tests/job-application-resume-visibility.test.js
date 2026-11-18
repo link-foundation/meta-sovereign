@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applicationFixture,
   applicationInput,
   applicationPageFixture,
 } from '../../experiments/issue-56/application-fixture.mjs';
@@ -9,23 +8,13 @@ import { applicationIdentity as identity } from '../../experiments/issue-56/appl
 import { applicationState } from '../src/jobs/application-options.js';
 import { applicationResult } from '../src/jobs/application-result.js';
 
-const read = (fixture, receipt) =>
-  fixture.service['application-read'](identity(receipt));
-const prefill = (fixture, receipt) =>
-  fixture.service['application-prefill'](identity(receipt, { confirm: true }));
-const submit = (fixture, receipt, extra = {}) =>
-  fixture.service['application-advance'](
-    identity(receipt, { action: 'submit', confirm: true, ...extra })
-  );
-const owned = async (t, options = {}) => {
-  const fixture = applicationFixture(options);
-  t.after(() => fixture.close());
-  const receipt = await fixture.enter(fixture.service, {
-    autoExact: true,
-    reviewDelayMs: 0,
-  });
-  return { fixture, receipt };
-};
+import {
+  readHeldApplication as read,
+  prefillHeldApplication as prefill,
+  ownHeldApplication as owned,
+  submitHeldApplication as submit,
+  verifyUncertainHold,
+} from '../../experiments/issue-56/application-hold-fixture.mjs';
 
 test('a rendered résumé warning has a distinct state without hiding delivery or challenge boundaries', () => {
   const page = { ...applicationPageFixture(), resumeNotVisible: true };
@@ -127,39 +116,7 @@ test(
 test(
   'a résumé warning after an issued send never releases uncertain delivery or authorizes another attempt',
   { timeout: 3000 },
-  async (t) => {
-    const fixture = applicationFixture({
-      application: {
-        dispatch: async (_handle, _record, action) => {
-          if (action === 'enter') {
-            fixture.state.page.enter = null;
-            fixture.state.page.submit = {
-              qa: 'vacancy-response-letter-submit',
-              disabled: false,
-            };
-            fixture.state.page.scope = true;
-            fixture.state.page.questions = true;
-            fixture.state.page.fieldIndices = [1];
-          } else {
-            fixture.state.page.resumeNotVisible = true;
-          }
-          return { dispatched: true };
-        },
-      },
-    });
-    t.after(() => fixture.close());
-    let receipt = await fixture.enter();
-    receipt = await submit(fixture, receipt);
-    assert.equal(receipt.state, 'resume-not-visible');
-    assert.equal(receipt.delivery, 'unknown');
-    assert.equal(receipt.attempted.submit, true);
-    fixture.state.page.resumeNotVisible = false;
-    receipt = await read(fixture, receipt);
-    assert.equal(receipt.delivery, 'unknown');
-    await assert.rejects(submit(fixture, receipt), {
-      code: 'jobs-application-already-attempted',
-    });
-  }
+  (t) => verifyUncertainHold(t, 'resumeNotVisible', true, 'resume-not-visible')
 );
 
 test(

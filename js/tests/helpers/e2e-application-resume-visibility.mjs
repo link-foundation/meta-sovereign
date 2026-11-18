@@ -6,34 +6,17 @@ import {
   nativeApplicationForm,
   nativeApplicationReviewRequest,
 } from './application-native-request.mjs';
-import {
-  applicationDocument,
-  applicationSelectors,
-} from '../../src/jobs/application-page.js';
 import { applicationResult } from '../../src/jobs/application-result.js';
 import { LINO_BINARY } from '../../src/transport/lino.js';
 import { wirePost } from './vacancy-routes.mjs';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 
-const warningRefusesSynchronousSend = async (owned, url) => {
-  const handle = await owned.$(applicationSelectors.submit);
-  try {
-    const snapshot = await handle.evaluate(applicationDocument, {
-      url,
-      selectors: applicationSelectors,
-    });
+import { refuseNativeSubmit } from './application-native-guard.mjs';
+
+const warningRefusesSynchronousSend = (page, url) =>
+  refuseNativeSubmit(page, url, (snapshot) => {
     assert.equal(snapshot.resumeNotVisible, true);
-    const result = await handle.evaluate(applicationDocument, {
-      url,
-      selectors: applicationSelectors,
-      action: 'submit',
-      guard: JSON.stringify(snapshot),
-    });
-    assert.equal(result.dispatched, false);
-  } finally {
-    await handle.dispose();
-  }
-};
+  });
 
 export const verifyNativeResumeVisibility = async (
   browser,

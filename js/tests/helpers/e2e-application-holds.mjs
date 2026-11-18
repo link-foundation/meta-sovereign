@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict';
-import {
-  applicationDocument,
-  applicationSelectors,
-} from '../../src/jobs/application-page.js';
+import { refuseNativeSubmit } from './application-native-guard.mjs';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { changeApplicationHoldFixture } from '../../../experiments/issue-56/application-hold-dom.mjs';
 import {
@@ -91,26 +88,12 @@ export const verifyNativeApplicationHolds = async (browser) => {
         receipt.state,
         kind === 'daily-limit' ? 'daily-limit' : 'provider-error'
       );
-      const handle = await page.$(applicationSelectors.submit);
-      try {
-        const snapshot = await handle.evaluate(applicationDocument, {
-          url: receipt.url,
-          selectors: applicationSelectors,
-        });
-        const result = await handle.evaluate(applicationDocument, {
-          url: receipt.url,
-          selectors: applicationSelectors,
-          action: 'submit',
-          guard: JSON.stringify(snapshot),
-        });
-        assert.equal(
-          result.dispatched,
-          false,
-          'visible native errors refuse synchronous dispatch even with an otherwise matching snapshot'
-        );
-      } finally {
-        await handle.dispose();
-      }
+      await refuseNativeSubmit(
+        page,
+        receipt.url,
+        null,
+        'visible native errors refuse synchronous dispatch even with an otherwise matching snapshot'
+      );
       await page.evaluate(changeApplicationHoldFixture, 'clear');
       receipt = await request('read', receipt);
       assert.equal(receipt.hold, reason);

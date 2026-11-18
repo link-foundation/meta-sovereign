@@ -1,17 +1,12 @@
 """Finite actual-parent browser reproduction; always restore production sources."""
-from pathlib import Path
+from application_parent_fixture import published_application_sources
 import os
 import subprocess
 
-root = Path(__file__).resolve().parents[2]
 parent = 'c35f813d507dbff50a2d094ebe12177b01304020'
 paths = ['js/src/sources/browser-choice-controller.js',
          'js/src/sources/browser-choices.js']
-current = {name: (root / name).read_bytes() for name in paths}
-try:
-    for name in paths:
-        (root / name).write_bytes(subprocess.check_output(
-            ['git', 'show', f'{parent}:{name}'], cwd=root))
+with published_application_sources(__file__, parent, paths) as (root, env):
     env = dict(os.environ, NODE_OPTIONS='--max-old-space-size=384',
                CHOICE_SCREENSHOTS='docs/screenshots/issue-56-choice-visibility/before')
     log = root / 'ci-logs/choice-visibility-before.log'
@@ -24,6 +19,3 @@ try:
     assert text.count('[choice-visibility] FAIL') == 2
     assert text.count('[choice-visibility] PASS') == 9
     print('Actual parent: two reveal regressions fail; nine existing guards pass.')
-finally:
-    for name, content in current.items():
-        (root / name).write_bytes(content)

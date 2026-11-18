@@ -6,16 +6,17 @@ import subprocess
 
 
 @contextmanager
-def published_application_sources(script, parent):
+def published_application_sources(script, parent, paths=None):
     root = Path(script).resolve().parents[2]
-    changed = subprocess.check_output([
+    changed = paths if paths is not None else subprocess.check_output([
         'git', 'diff', '--name-only', parent, '--', 'js/src'], cwd=root,
         text=True).splitlines()
     original = {name: (root / name).read_bytes() for name in changed
-                if subprocess.run(['git', 'cat-file', '-e', f'{parent}:{name}'],
+                if paths is not None or subprocess.run(['git', 'cat-file', '-e', f'{parent}:{name}'],
                     cwd=root, stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL).returncode == 0}
-    env = dict(os.environ, RUN_BROWSER_E2E='1', E2E_BROWSER='chromium',
+    env = dict(os.environ, NODE_OPTIONS='--max-old-space-size=384',
+               RUN_BROWSER_E2E='1', E2E_BROWSER='chromium',
                E2E_EXECUTABLE_PATH='/opt/google/chrome/chrome')
     try:
         for name in original:
