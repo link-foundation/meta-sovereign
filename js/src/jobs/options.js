@@ -1,5 +1,10 @@
 import { browserName } from '../browser/policy.js';
 import {
+  hhSearchBase,
+  searchFieldKeys,
+  validateSearchBase,
+} from './search-url.js';
+import {
   assignmentText,
   assignmentVacancyUrl,
 } from '../assignments/validation.js';
@@ -69,15 +74,27 @@ const searchLimits = (input) => {
 };
 export const hhSearchUrl = (input) => {
   jobsObject(input);
-  const url = new URL('https://hh.ru/search/vacancy');
+  const base = hhSearchBase(input.url);
+  const url = base ?? new URL('https://hh.ru/search/vacancy');
   for (const [key, value] of Object.entries({
     ...searchFields(input),
     ...searchLimits(input),
   })) {
+    if (
+      base &&
+      input[searchFieldKeys[key]] === undefined &&
+      (url.searchParams.has(key) ||
+        !['currency', 'order_by', 'page'].includes(key))
+    ) {
+      continue;
+    }
     if (value !== undefined && value !== '') {
       url.searchParams.set(key, String(value));
+    } else {
+      url.searchParams.delete(key);
     }
   }
+  validateSearchBase(url);
   return url.href;
 };
 export const collectionOptions = (input) => {

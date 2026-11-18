@@ -1,3 +1,10 @@
+2026-11-18 owner-supplied HH search URLs (HH02 remains unfinished):
+
+- [x] Trace the pinned README: custom URLs and existing native filters must survive résumé selection; current search ignores the CLI URL and discovery drops extra filters.
+- [x] Draft shared strict destination validation and preserved filter pagination/discovery; expose URL mode in CLI, text/binary Lino and four-language UI without silently overriding URL filters.
+- [x] Reproduce five actual-parent failures and the missing native control; pass ten Node/Deno checks, 34 compatibility checks and native/MCP recovery. Inspect desktop/phone images, drain fixtures and preserve source-bound evidence.
+- [ ] Commit/publish only to the prepared branch, require exact-source hosted checks and continue every unfinished criterion.
+
 2026-11-18 exact-source WebKit recurrence:
 
 - [x] Preserve all failed job logs and verified failure screenshots for `997b0dd2` run 44220122766; identify a lost HTTP/2 reload and a closed Follow cache disclosure. Keep the current gate failed and all pending acceptance rows open.

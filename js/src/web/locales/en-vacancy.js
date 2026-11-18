@@ -113,6 +113,9 @@ export const enVacancy = {
   'vacancy.hint':
     'Search and collect full descriptions in your owned HH browser. Application review below has separate controls that can send an application. Saved descriptions are shared with assignment drafting.',
   'vacancy.settings': 'Search and browser settings',
+  'vacancy.searchUrl': 'Search URL (optional)',
+  'vacancy.searchUrlHint':
+    'Use the filters in this HH search URL. Select a résumé above to replace only its résumé; clear the URL to edit individual filters.',
   'vacancy.query': 'Search words',
   'vacancy.resume': 'Selected resume hash (optional)',
   'vacancy.area': 'HH area ID (optional)',

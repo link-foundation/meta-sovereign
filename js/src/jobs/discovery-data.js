@@ -68,6 +68,17 @@ const frozenSearch = (input) => {
       ? { salary: Number(url.searchParams.get('salary')) }
       : {}),
   };
+  if (input.url) {
+    const { resume, currency, order, page, salary } = search;
+    return {
+      url: url.href,
+      resume,
+      currency,
+      order,
+      page,
+      ...(salary === undefined ? {} : { salary }),
+    };
+  }
   return search;
 };
 const validateBounds = ({ maxPages, maxVacancies, durationMs, refresh }) => {

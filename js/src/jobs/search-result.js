@@ -7,7 +7,7 @@ import { hhSearchUrl, jobsFailure, sameSearch } from './options.js';
 /** Recheck a native reader or remote receipt against the frozen requested page. */
 export const confirmedVacancySearch = (answer, input) => {
   const url = hhSearchUrl(input);
-  const page = input.page ?? 0;
+  const page = Number(new URL(url).searchParams.get('page'));
   if (
     !answer ||
     answer.page !== page ||

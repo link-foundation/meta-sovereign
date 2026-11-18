@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { JobLoginPanel, useJobLogin } from './job-login-panel.js';
 import { useDates, useT } from './i18n.js';
 import { hhSearchUrl } from '../jobs/options.js';
+import {
+  vacancySearchInput as searchInput,
+  vacancyUrlFilterDisabled,
+} from './vacancy-search-input.js';
 import { ApplicationPanel } from './application-panel.js';
 import { useApplication } from './application-state.js';
 import { VacancyResumes } from './vacancy-resumes.js';
@@ -34,6 +38,7 @@ import {
 const el = React.createElement;
 const settingsKey = 'meta-sovereign:vacancy-search';
 const defaults = {
+  searchUrl: '',
   query: '',
   resume: '',
   area: '',
@@ -50,7 +55,7 @@ const defaults = {
 const initialSettings = () => {
   try {
     const raw = globalThis.localStorage?.getItem(settingsKey);
-    const saved = raw?.length < 6000 ? JSON.parse(raw) : {};
+    const saved = raw?.length < 12000 ? JSON.parse(raw) : {};
     return {
       ...defaults,
       ...Object.fromEntries(
@@ -66,12 +71,6 @@ const initialSettings = () => {
     return defaults;
   }
 };
-const searchInput = (values, page) => ({
-  ...values,
-  page,
-  salary: values.salary === '' ? undefined : Number(values.salary),
-  headless: values.mode === 'inherit' ? undefined : values.mode === 'headless',
-});
 const persistSettings = (values) => {
   try {
     globalThis.localStorage?.setItem(settingsKey, JSON.stringify(values));
@@ -287,6 +286,7 @@ const Fields = ({ state, t }) => {
                     {
                       key: 'input',
                       value: state.values[key],
+                      disabled: vacancyUrlFilterDisabled(state.values, key),
                       'data-vacancy-field': key,
                       onChange: (event) => update(key, event.target.value),
                     },
@@ -303,18 +303,27 @@ const Fields = ({ state, t }) => {
                     value: state.values[key],
                     type: key === 'salary' ? 'number' : 'text',
                     min: key === 'salary' ? 0 : undefined,
-                    maxLength: 500,
+                    maxLength: key === 'searchUrl' ? 6000 : 500,
+                    disabled: vacancyUrlFilterDisabled(state.values, key),
                     'data-vacancy-field': key,
                     onChange: (event) => update(key, event.target.value),
                   }),
             ])
           )
       ),
+      state.values.searchUrl
+        ? el(
+            'p',
+            { key: 'url-hint', className: 'meta' },
+            t('vacancy.searchUrlHint')
+          )
+        : null,
       el('label', { key: 'remote', className: 'check' }, [
         el('input', {
           key: 'input',
           type: 'checkbox',
           checked: state.values.remote,
+          disabled: vacancyUrlFilterDisabled(state.values, 'remote'),
           'data-vacancy-field': 'remote',
           onChange: (event) => update('remote', event.target.checked),
         }),

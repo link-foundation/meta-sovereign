@@ -100,6 +100,9 @@ export const zhVacancy = {
   'vacancy.hint':
     '在专用 HH 浏览器中搜索并采集完整职位描述。下方申请审核的独立控件可以发送申请。保存的描述也可用于准备测试任务。',
   'vacancy.settings': '搜索与浏览器设置',
+  'vacancy.searchUrl': '搜索网址（可选）',
+  'vacancy.searchUrlHint':
+    '使用此 HH 搜索网址中的筛选条件。上方选择的简历仅替换简历；清空网址后可编辑各项筛选条件。',
   'vacancy.query': '搜索词',
   'vacancy.resume': '所选简历哈希（可选）',
   'vacancy.area': 'HH 地区 ID（可选）',
