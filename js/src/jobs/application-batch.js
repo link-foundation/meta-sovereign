@@ -28,7 +28,8 @@ const observedOutcome = (page) =>
     page.dailyLimit ||
     page.challenge ||
     page.error ||
-    page.resumeNotVisible);
+    page.resumeNotVisible ||
+    page.vacancyUnavailable);
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
 

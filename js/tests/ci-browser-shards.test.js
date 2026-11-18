@@ -84,6 +84,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeResumeVisibility',
       'verifyPopupResumeVisibility',
       'verifyNativeVacancySkips',
+      'verifyNativeVacancyUnavailable',
       'verifyNativeApplicationLanguage',
       'verifyNativeApplicationLimits',
       'verifyNativeApplicationLimitWait',

@@ -88,7 +88,11 @@ test('clearing a recorded refusal cannot release an uncertain provider dispatch'
   assert.equal(fixture.state.opened, 1);
 });
 
-for (const reason of ['external_site', 'resume_not_visible']) {
+for (const reason of [
+  'external_site',
+  'resume_not_visible',
+  'vacancy_unavailable',
+]) {
   test(
     `native ${reason} refusals are private, durable and separate from owner choices`,
     { timeout: 5000 },

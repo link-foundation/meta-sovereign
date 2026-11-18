@@ -1,4 +1,7 @@
 export const enApplication = {
+  'application.state.vacancy-unavailable':
+    'HH says this vacancy is unavailable to your account. Close the review; clear its recorded refusal only after access changes.',
+  'application.hold.vacancy-unavailable': 'vacancy unavailable to this account',
   'application.salary.rates-stale':
     'Refresh the dated exchange rates before continuing.',
   'application.directForm':

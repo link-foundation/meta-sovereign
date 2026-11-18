@@ -159,16 +159,10 @@ export const applicationDocument = (target, input) => {
     };
   };
   const marked = (selector) => nodes(selector).length > 0;
-  const resumeNotVisible = (scope) => {
+  const renderedWarning = (scope, matches) => {
     if (!scope) {
       return false;
     }
-    const phrases = [
-      'поменяйте видимость резюме',
-      'change the visibility of your resume',
-      'change your resume visibility',
-      'change resume visibility',
-    ];
     const rendered = (element) => {
       for (let depth = 0; element && depth < 64; depth += 1) {
         const style = globalThis.getComputedStyle(element);
@@ -195,18 +189,54 @@ export const applicationDocument = (target, input) => {
         break;
       }
       const parent = node.parentElement;
-      const text = node.textContent.toLowerCase().replaceAll('ё', 'е').trim();
+      const text = node.textContent
+        .toLowerCase()
+        .replaceAll('ё', 'е')
+        .replace(/\s+/gu, ' ')
+        .trim();
       if (
         text &&
         !parent.closest('script,style,template') &&
-        (parent.closest('[data-qa="hidden-resume-warning"]') ||
-          phrases.some((phrase) => text.includes(phrase))) &&
-        rendered(parent)
+        rendered(parent) &&
+        matches(parent, text)
       ) {
         return true;
       }
     }
     return false;
+  };
+  const resumeNotVisible = (scope) =>
+    renderedWarning(
+      scope,
+      (parent, text) =>
+        parent.closest('[data-qa="hidden-resume-warning"]') ||
+        [
+          'поменяйте видимость резюме',
+          'change the visibility of your resume',
+          'change your resume visibility',
+          'change resume visibility',
+        ].some((phrase) => text.includes(phrase))
+    );
+  const vacancyUnavailable = () => {
+    if (!bound || current.pathname !== expected.pathname) {
+      return false;
+    }
+    let text = '';
+    return renderedWarning(doc.body, (parent, fragment) => {
+      if (
+        parent.closest(
+          'form,input,textarea,select,[contenteditable],[data-qa="vacancy-description"],[data-qa="task-body"]'
+        )
+      ) {
+        text = '';
+        return false;
+      }
+      const joined = `${text} ${fragment}`;
+      text = joined.slice(-250);
+      return /вам недоступна эта вакансия|(?:this )?vacancy is (?:not available|unavailable) (?:to|for) you/iu.test(
+        joined
+      );
+    });
   };
   const visibilityScope = (form) =>
     form ??
@@ -267,6 +297,7 @@ export const applicationDocument = (target, input) => {
     return {
       externalUrl: externalDestination(),
       resumeNotVisible: resumeNotVisible(visibilityScope(form)),
+      vacancyUnavailable: vacancyUnavailable(),
       error: applicationError(form),
       enter: describe(selectors.enter),
       submit: describe(selectors.submit),
@@ -332,6 +363,7 @@ export const applicationDocument = (target, input) => {
       ? {
           externalUrl: null,
           resumeNotVisible: false,
+          vacancyUnavailable: false,
           error: null,
           enter: null,
           submit: null,
@@ -370,6 +402,7 @@ export const applicationDocument = (target, input) => {
     !result.challenge &&
     !result.external &&
     !result.resumeNotVisible &&
+    !result.vacancyUnavailable &&
     !result.delivered &&
     JSON.stringify(result) === input.guard &&
     target?.isConnected &&
@@ -396,7 +429,11 @@ export const applicationDocument = (target, input) => {
       !result.challenge &&
       !result.dailyLimit &&
       !result.error &&
-      ![result.external, result.resumeNotVisible].some(Boolean) &&
+      ![
+        result.external,
+        result.resumeNotVisible,
+        result.vacancyUnavailable,
+      ].some(Boolean) &&
       !result.delivered;
     const nativeAction = input.action === 'fullForm' ? 'enter' : input.action;
     const action = ['resumeMenu', 'resumeChoice'].includes(input.action)

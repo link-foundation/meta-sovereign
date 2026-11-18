@@ -50,7 +50,9 @@ const nativeSkipReason = (page) =>
     ? 'external_site'
     : page.resumeNotVisible
       ? 'resume_not_visible'
-      : null;
+      : page.vacancyUnavailable
+        ? 'vacancy_unavailable'
+        : null;
 const observedEntry = (record, previous, reason, now) =>
   vacancySkipEntry({
     url: record.url,

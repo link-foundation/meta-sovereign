@@ -30,6 +30,7 @@ const failedForm = (record) =>
   !record.page.challenge &&
   !record.page.external &&
   !record.page.resumeNotVisible &&
+  !record.page.vacancyUnavailable &&
   !record.page.delivered &&
   !record.paused &&
   !record.options.testMode &&
@@ -149,7 +150,11 @@ export class ApplicationLimitRejections {
       record.page.challenge ||
       record.page.dailyLimit ||
       record.page.error ||
-      [record.page.external, record.page.resumeNotVisible].some(Boolean) ||
+      [
+        record.page.external,
+        record.page.resumeNotVisible,
+        record.page.vacancyUnavailable,
+      ].some(Boolean) ||
       record.page.delivered ||
       !record.page.bound ||
       !record.page.scope ||

@@ -1,6 +1,10 @@
 import { ruDiscovery } from './ru-discovery.js';
 import { ruApplication } from './ru-application.js';
 export const ruVacancy = {
+  'vacancySkip.clear-vacancy_unavailable':
+    'Очистить отказы по недоступным вакансиям',
+  'vacancySkip.vacancy_unavailable':
+    'HH закрыл доступ к вакансии для вашей учётной записи',
   ...ruDiscovery,
   'vacancySelection.retry-wait':
     'Ожидание повтора после общей ошибки (пять часов); ответы сохранены',

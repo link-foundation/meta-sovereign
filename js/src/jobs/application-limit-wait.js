@@ -15,8 +15,11 @@ const canWait = (record) =>
   record.page.scope &&
   record.page.bound &&
   !record.page.challenge &&
-  !record.page.external &&
-  !record.page.resumeNotVisible &&
+  ![
+    record.page.external,
+    record.page.resumeNotVisible,
+    record.page.vacancyUnavailable,
+  ].some(Boolean) &&
   !record.page.delivered &&
   !record.paused &&
   !record.noQuestionnaires &&

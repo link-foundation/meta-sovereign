@@ -1,4 +1,8 @@
 export const hiApplication = {
+  'application.state.vacancy-unavailable':
+    'HH के अनुसार यह रिक्ति आपके खाते के लिए उपलब्ध नहीं है। समीक्षा बंद करें; पहुँच बदलने के बाद ही दर्ज अस्वीकृति हटाएँ।',
+  'application.hold.vacancy-unavailable':
+    'रिक्ति इस खाते के लिए उपलब्ध नहीं है',
   'application.salary.rates-stale':
     'जारी रखने से पहले दिनांकित विनिमय दरें अपडेट करें।',
   'application.directForm': 'मौजूदा मूल आवेदन का URL (वैकल्पिक; वही रिक्ति)',

@@ -1,6 +1,8 @@
 import { enDiscovery } from './en-discovery.js';
 import { enApplication } from './en-application.js';
 export const enVacancy = {
+  'vacancySkip.clear-vacancy_unavailable': 'Clear unavailable-vacancy refusals',
+  'vacancySkip.vacancy_unavailable': 'HH closed this vacancy to your account',
   ...enDiscovery,
   'vacancySelection.retry-wait':
     'Waiting for the backed generic-error retry (five hours)',

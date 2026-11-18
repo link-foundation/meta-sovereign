@@ -7,7 +7,11 @@ import { vacancyChoiceResult, vacancyChoiceSlot } from './vacancy-choice.js';
 import { jobsFailure, jobsObject } from './options.js';
 import { vacancySkipPrefillCommand } from './vacancy-skip-command.js';
 
-export const vacancySkipReasons = ['external_site', 'resume_not_visible'];
+export const vacancySkipReasons = [
+  'external_site',
+  'resume_not_visible',
+  'vacancy_unavailable',
+];
 export const vacancySkipFailure = (kind = 'state') =>
   jobsFailure(
     `skip-${kind}`,

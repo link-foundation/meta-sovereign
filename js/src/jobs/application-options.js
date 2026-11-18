@@ -146,6 +146,9 @@ export const applicationState = (page) => {
   if (page.resumeNotVisible) {
     return 'resume-not-visible';
   }
+  if (page.vacancyUnavailable) {
+    return 'vacancy-unavailable';
+  }
   if (page.error) {
     return 'provider-error';
   }

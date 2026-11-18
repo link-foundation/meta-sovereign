@@ -29,6 +29,7 @@ export const applicationStates = [
   'daily-limit',
   'external',
   'resume-not-visible',
+  'vacancy-unavailable',
   'delivered',
   'wrong-page',
   'unavailable',
@@ -129,8 +130,9 @@ const page = (value) =>
     ].every((key) => typeof value[key] === 'boolean') &&
     (value.url === null || text(value.url, 4000)) &&
     optionalChoice(value.error, ['generic-error', 'validation-error']) &&
-    (value.resumeNotVisible === undefined ||
-      typeof value.resumeNotVisible === 'boolean') &&
+    ['resumeNotVisible', 'vacancyUnavailable'].every(
+      (key) => value[key] === undefined || typeof value[key] === 'boolean'
+    ) &&
     (value.externalUrl === undefined ||
       value.externalUrl === null ||
       (value.external &&

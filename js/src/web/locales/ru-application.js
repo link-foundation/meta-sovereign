@@ -1,4 +1,8 @@
 export const ruApplication = {
+  'application.state.vacancy-unavailable':
+    'HH сообщает, что эта вакансия недоступна вашей учётной записи. Закройте просмотр; очищайте сохранённый отказ только после изменения доступа.',
+  'application.hold.vacancy-unavailable':
+    'вакансия недоступна этой учётной записи',
   'application.salary.rates-stale':
     'Обновите датированный снимок курсов перед продолжением.',
   'application.directForm':

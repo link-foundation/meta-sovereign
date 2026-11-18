@@ -86,7 +86,8 @@ export class ApplicationContextRecovery {
         page.scope ||
         page.challenge ||
         page.external ||
-        page.resumeNotVisible
+        page.resumeNotVisible ||
+        page.vacancyUnavailable
       ) {
         throw fail('vacancy');
       }

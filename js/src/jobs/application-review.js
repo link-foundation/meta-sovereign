@@ -59,6 +59,7 @@ const invalidNativeRead = (page, action, capture) =>
   (page.dailyLimit && capture !== 'daily-limit') ||
   page.external ||
   page.resumeNotVisible ||
+  page.vacancyUnavailable ||
   page.delivered ||
   captureError(page, capture) ||
   !page[action] ||

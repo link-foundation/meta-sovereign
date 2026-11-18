@@ -1055,4 +1055,6 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Read pinned refusal wording and exclusion policies. Detect visible vacancy-page evidence while excluding hidden warnings, owner fields and descriptions.
 - [x] Preserve private answers, block unsafe mutation and retain an acknowledged reason across restart until explicit owner clear. Add all four translations.
 - [x] Reproduce actual-parent unit/native failures. Pass 98 focused checks and one native browser scenario with ten ignored and five visible variants.
-- [ ] Complete independent MCP verification, screenshots, scoped static checks and evidence; publish and review exact-source CI. Full deferred-question and later-run policies remain required.
+- [x] Independent MCP verifies the actual parent failure, four translated states, preserved owner values, reload/manual clear and a bounded phone layout. Both owned fixtures close with zero submissions.
+- [x] Pass scoped lint, formatting, secrets, source/document limits and the unchanged 6.5% duplication gate. Preserve 110 independently hashed source/evidence entries.
+- [ ] Publish and review exact-source CI. Full deferred-question and later-run policies remain required.

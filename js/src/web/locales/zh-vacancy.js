@@ -1,6 +1,8 @@
 import { zhDiscovery } from './zh-discovery.js';
 import { zhApplication } from './zh-application.js';
 export const zhVacancy = {
+  'vacancySkip.clear-vacancy_unavailable': '清除不可用职位的拒绝记录',
+  'vacancySkip.vacancy_unavailable': 'HH 已对您的账号关闭此职位',
   ...zhDiscovery,
   'vacancySelection.retry-wait': '答案已保存；一般错误后等待五小时再重试',
   ...zhApplication,

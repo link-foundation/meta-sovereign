@@ -1,6 +1,10 @@
 import { hiDiscovery } from './hi-discovery.js';
 import { hiApplication } from './hi-application.js';
 export const hiVacancy = {
+  'vacancySkip.clear-vacancy_unavailable':
+    'अनुपलब्ध रिक्तियों की अस्वीकृतियाँ हटाएँ',
+  'vacancySkip.vacancy_unavailable':
+    'HH ने आपके खाते के लिए यह रिक्ति बंद कर दी है',
   ...hiDiscovery,
   'vacancySelection.retry-wait':
     'उत्तर सहेजे गए हैं; सामान्य त्रुटि के बाद पुनः प्रयास के लिए पाँच घंटे की प्रतीक्षा',

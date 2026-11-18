@@ -961,3 +961,8 @@ through CLI, both Lino formats and the saved-profile editor (issue #56 VD02).
 Recheck the other runner before accepting an already-running destination and
 after launch. Refuse stale mutual-exclusion success when a peer becomes running
 or unknown, retaining current observations without repeating a mutation.
+
+Recognize a rendered HH account-specific vacancy refusal, preserve owner answers
+and uncertain delivery, and block unsafe actions. Retain its distinct private
+refusal reason until explicitly cleared through CLI, both Lino formats or the
+four-language review controls (issue #56 HH05).

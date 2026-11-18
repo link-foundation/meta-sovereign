@@ -16,6 +16,7 @@ const eligible = (record) =>
   record.applicationLimit.saved &&
   !record.page.external &&
   !record.page.resumeNotVisible &&
+  !record.page.vacancyUnavailable &&
   !record.page.delivered &&
   !record.paused &&
   !record.options.testMode;

@@ -1,4 +1,7 @@
 export const zhApplication = {
+  'application.state.vacancy-unavailable':
+    'HH 提示此职位对您的账号不可用。请关闭审核，仅在访问权限更改后清除此拒绝记录。',
+  'application.hold.vacancy-unavailable': '此职位对该账号不可用',
   'application.salary.rates-stale': '请先更新带日期的汇率快照，再继续。',
   'application.directForm': '现有原生申请网址（可选，须为同一职位）',
   'application.salaryPolicy': '申请前检查公布的薪资',

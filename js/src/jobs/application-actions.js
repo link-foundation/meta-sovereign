@@ -33,6 +33,7 @@ export class ApplicationActions {
         page.error ||
         page.external ||
         page.resumeNotVisible ||
+        page.vacancyUnavailable ||
         (action === 'enter' && page.submit)
       ) {
         break;

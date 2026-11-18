@@ -32,8 +32,13 @@ export const observedSkip = async (
   const f = applicationFixture(options);
   t.after(() => f.close());
   let receipt = await f.enter();
-  f.state.page[reason === 'external_site' ? 'external' : 'resumeNotVisible'] =
-    true;
+  f.state.page[
+    {
+      external_site: 'external',
+      resume_not_visible: 'resumeNotVisible',
+      vacancy_unavailable: 'vacancyUnavailable',
+    }[reason]
+  ] = true;
   if (reason === 'external_site') {
     f.state.page.externalUrl = 'https://employer.example/apply';
   }

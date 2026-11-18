@@ -201,6 +201,7 @@ export class ApplicationDrafts {
         page.dailyLimit ||
         page.external ||
         page.resumeNotVisible ||
+        page.vacancyUnavailable ||
         page.delivered ||
         !page.submit ||
         page.submit.disabled
