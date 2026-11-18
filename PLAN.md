@@ -1,10 +1,17 @@
+2026-11-18 WebKit deferred-window and detached-form cleanup investigation:
+
+- [x] Preserve exact-source b98098b7 WebKit shard 2 job 134820577849, its complete 5,053-line log and available artifact logs/images. Lines 2461–2480 report an unhandled close wait; 4979–4987 report ENOTEMPTY after the detached form assertions.
+- [x] Reproduce premature persistent Close acknowledgement and the unobserved native close wait with finite focused fixtures. Preserve the unexplained hosted Save/close timing and exact late-writer limits; retain existing scenario deadlines and ownership assertions.
+- [x] Draft process-exit drainage and immediate observation of both native operations. All 26 focused checks pass; actual reattached Chromium closes before acknowledgement, and isolated WebKit plus independent MCP settings recovery pass with all owned resources closed.
+- [ ] Preserve source-bound evidence, publish only to the prepared branch and inspect fresh hosted results. All 30 unfinished criteria remain required; PR57 stays draft/unmerged.
+
 2026-11-18 Bun snapshot diagnostics ownership:
 
 - [x] Preserve exact-source b98098b7 macOS Bun job 134820578729. Lines 30357–30403 show the cancelled fake worker's empty-global-registry assertion encountering a different real thread (136); the same job passes its real cancellation and workspace cleanup control.
 - [x] Draft owner-specific cancellation assertions with a deliberately retained unrelated diagnostic entry; retain acknowledgement, termination and workspace checks. Add default-off tracking/release events to investigate any later unrelated worker lifetime.
 - [x] Reproduce two failures and two independent controls against the exact published test. Six focused cancellation/disk checks pass in Node and Bun with retained unrelated owners and actual encoder cleanup; no deadline is increased.
 - [x] Pass scoped lint, formatting, secrets, whitespace and source/document limits; preserve source-bound evidence and the complete failed job log. Full duplication/platform checks remain in CI.
-- [ ] Publish only to the prepared branch and require fresh hosted results. No conclusion about the unrelated worker's earlier owner is claimed. All 30 unfinished criteria remain required.
+- [x] Publish 3ca58536 only to the prepared branch. Its macOS Bun job 134851775119 passes; other hosted jobs remain pending. No conclusion about the unrelated worker's earlier owner is claimed. All 30 unfinished criteria remain required.
 
 2026-11-18 shared desktop automation file defaults (VD07 remains unfinished):
 

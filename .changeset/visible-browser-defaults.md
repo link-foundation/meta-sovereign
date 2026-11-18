@@ -1026,3 +1026,8 @@ Bind snapshot cancellation checks to their actual worker while preserving
 unrelated diagnostic owners. Retain cleanup acknowledgement and workspace
 verification, and add default-off worker tracking/release diagnostics for
 shared-process investigations (issue #56).
+
+Wait for the SDK-validated persistent browser process to exit before confirming
+Close. Preserve detached sessions, refuse unconfirmed cleanup without signalling
+saved PIDs, and observe native deferred-question activation/closure together so
+failures retain owned cleanup and targeted diagnostics.

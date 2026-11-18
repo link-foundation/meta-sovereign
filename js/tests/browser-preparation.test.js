@@ -269,7 +269,11 @@ for (const persistent of [false, true]) {
       const launch = async (options) => {
         assert(prepared, 'missing executable must be prepared before launch');
         opened.push(options);
-        return { page: preparedPage(), close: async () => {} };
+        return {
+          page: preparedPage(),
+          close: async () => {},
+          browserProcess: { pid: 90210, exitCode: 0, signalCode: null },
+        };
       };
       const browser = await launchWithCommander({
         bc: { launchBrowser: launch, connectOrLaunch: launch },
@@ -303,6 +307,7 @@ test(
       },
       bc: {
         connectOrLaunch: async () => ({
+          browserProcess: { pid: 90210, exitCode: 0, signalCode: null },
           page: preparedPage(),
           close: async () => {},
         }),

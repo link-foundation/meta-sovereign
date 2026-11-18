@@ -2,6 +2,10 @@ import net from 'node:net';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { prepareBrowserExecutable } from '../browser/preparation.js';
+import {
+  createPersistentClose,
+  persistentProcessOwner,
+} from './persistent-process.js';
 
 /** The SDK validates the saved profile/port/browser identity before reuse. */
 const debuggingPort = async (profileDir) => {
@@ -52,7 +56,10 @@ export const launchPersistentBrowser = async ({
     remoteDebuggingPort: await debuggingPort(profileDir),
     idleTimeoutMs: idleMs,
   });
+  let close = () => session.close();
   try {
+    const owner = await persistentProcessOwner(session, profileDir);
+    close = createPersistentClose(session, owner);
     const cdp = await session.page.context().newCDPSession(session.page);
     let targetId;
     try {
@@ -67,10 +74,10 @@ export const launchPersistentBrowser = async ({
       page: session.page,
       persistent: { endpoint: session.cdpEndpoint, targetId, profileDir },
       detach: () => session.detach(),
-      close: () => session.close(),
+      close,
     };
   } catch (error) {
-    await session.close();
+    await close();
     throw error;
   }
 };

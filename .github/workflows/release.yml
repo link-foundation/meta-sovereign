@@ -733,7 +733,7 @@ jobs:
       - run: npm run build:web
       - name: Run browser checks
         id: browser-checks
-        run: node js/scripts/run-browser-checks.mjs
+        run: CI_DEFERRED_DEBUG=1 node js/scripts/run-browser-checks.mjs
       - name: Preserve browser diagnostics
         if: ${{ !cancelled() && ((steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '') || steps.browser-preparation.outcome == 'success' || steps.browser-preparation.outcome == 'failure') }}
         uses: actions/upload-artifact@v7.0.2

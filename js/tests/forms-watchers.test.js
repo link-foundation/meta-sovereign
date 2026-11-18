@@ -39,6 +39,7 @@ test(
         connectOrLaunch: async (options) => {
           calls.push(options);
           return {
+            browserProcess: { pid: 90210, exitCode: 0, signalCode: null },
             browser: {},
             cdpEndpoint: 'http://127.0.0.1:45678',
             page: {

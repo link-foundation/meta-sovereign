@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { storedDeferredQuestions } from '../../src/jobs/deferred-questions.js';
+import { activateAndWaitForClose } from './native-action-close.mjs';
 import {
   openNativeAnsweredApplication,
   nativeApplicationQueue,
@@ -11,7 +12,7 @@ import {
 /** Actual native form, revisioned web mutation, private backup and reload. */
 export const verifyDeferredQuestions = async (
   browser,
-  { screenshots } = {}
+  { screenshots = process.env.E2E_ARTIFACT_DIR } = {}
 ) => {
   const effects = [];
   const fixture = await applicationNativeFixture(browser, {
@@ -20,6 +21,17 @@ export const verifyDeferredQuestions = async (
   });
   const { page } = fixture;
   const policy = page.locator('[data-deferred-questions]');
+  const responses = [];
+  page.on('response', (response) => {
+    if (
+      new URL(response.url()).pathname.endsWith('/vacancies/question-change')
+    ) {
+      responses.push(response.status());
+      if (responses.length > 8) {
+        responses.shift();
+      }
+    }
+  });
   const shot = async (name) => {
     if (screenshots) {
       await mkdir(screenshots, { recursive: true });
@@ -45,9 +57,9 @@ export const verifyDeferredQuestions = async (
     await policy
       .locator('[data-deferred-question-input]')
       .fill('Relevant projects');
-    const closed = owned.waitForEvent('close');
-    await policy.locator('[data-deferred-question-save]').click();
-    await closed;
+    await activateAndWaitForClose(owned, () =>
+      policy.locator('[data-deferred-question-save]').click()
+    );
     await policy.locator('[data-deferred-question]').waitFor();
     const saved = await storedDeferredQuestions(fixture.store);
     assert.deepEqual(
@@ -93,6 +105,29 @@ export const verifyDeferredQuestions = async (
       pageErrors: [],
       liveProvider: false,
     };
+  } catch (error) {
+    await shot('failed').catch(() => {});
+    if (process.env.CI_DEFERRED_DEBUG === '1') {
+      const controls = await policy
+        .evaluate((node) => ({
+          inputLength: node.querySelector('textarea')?.value.length,
+          saveDisabled: node.querySelector('[data-deferred-question-save]')
+            ?.disabled,
+          savedEntries: node.querySelectorAll('[data-deferred-question]')
+            .length,
+          alerts: node.querySelectorAll('[role="alert"]').length,
+        }))
+        .catch(() => ({ unavailable: true }));
+      console.log(
+        '[deferred-question-state]',
+        JSON.stringify({
+          controls,
+          responses,
+          ownedClosed: fixture.records.map((row) => row.closed),
+        })
+      );
+    }
+    throw error;
   } finally {
     await fixture.close();
   }
