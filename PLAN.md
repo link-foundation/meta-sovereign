@@ -1036,3 +1036,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reuse the finite lifecycle for both SSH backends. Separate the fixture's remote Screen sockets using the documented daemon environment, retain real binaries/authentication and preserve all Docker foreign-ownership assertions.
 - [x] Pass scoped syntax, lint, formatting, secret checks and ShellCheck; unchanged duplication gate passes at 6.49%. Preserve the first repaired Docker job and actual artifact.
 - [ ] Publish only to the prepared branch and verify both real hosted receipts plus all exact-source workflows before VD02 acceptance. Continue every unfinished criterion.
+
+2026-11-18 fresh mutual-exclusion receipts (VD02 remains unfinished):
+
+- [x] Reproduce six stale peer observations against published 43e91c4f, including both directions, unknown observations and idempotent Start.
+- [x] Refresh peer observations before success, retain both actual states and refuse without replaying a mutation. All 46 focused runner checks pass with one worker.
+- [x] Pass scoped formatting, lint, secrets and source/document limits; the unchanged duplication gate passes at 6.49%. Preserve source-bound reproduction and corrected checks.
+- [ ] Publish only to the prepared branch. Verify both actual remote backends and all exact-source workflows before acceptance; all 32 criteria remain required.

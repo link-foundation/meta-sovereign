@@ -957,3 +957,7 @@ verified Start cleanup instead of start-command's automatic completion cleanup.
 Preserve Dockerless local Screen execution, owned
 container identity, acknowledged state and mutual exclusion. Share configuration
 through CLI, both Lino formats and the saved-profile editor (issue #56 VD02).
+
+Recheck the other runner before accepting an already-running destination and
+after launch. Refuse stale mutual-exclusion success when a peer becomes running
+or unknown, retaining current observations without repeating a mutation.

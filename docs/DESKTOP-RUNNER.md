@@ -91,7 +91,10 @@ and full independent desktop workflow integration remain under development.
 
 Starting one mode first confirms the other is stopped, requesting its stop
 when necessary. It then rechecks the destination and starts only when its
-state is confirmed stopped. A failed or uncertain operation is never retried
+state is confirmed stopped. It rechecks the other mode before accepting an
+already-running destination and after launch. A running or unknown peer refuses
+success and preserves both observations, including when SSH aliases this host.
+A failed or uncertain operation is never retried
 automatically. `running` confirms the named isolated session exists;
 `scope isolated-session` does not establish application readiness, enabled
 provider jobs or message delivery. Check the application's status separately.

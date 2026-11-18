@@ -10,6 +10,10 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const refused = (code, states) => ({ ok: false, code, states });
 const cancelled = (options) => options.signal?.aborted === true;
+const startReceipt = (reply, mode, current, options) =>
+  reply.code === 0 && current[mode] === 'running' && !cancelled(options)
+    ? { ok: true, states: current }
+    : refused('runner-start-unconfirmed', current);
 const prepareRunner = async (target, run, options) => {
   if (
     target.isolation === 'docker' &&
@@ -97,6 +101,13 @@ export const createRunnerControl = ({
     }
     // A stop may also affect this target (e.g. SSH points to this machine).
     current[mode] = await observe(mode, options);
+    current[other] = await observe(other, options);
+    if (!['stopped', 'unconfigured'].includes(current[other])) {
+      return refused('other-runner-stop-unconfirmed', current);
+    }
+    if (cancelled(options)) {
+      return refused('runner-state-unconfirmed', current);
+    }
     if (current[mode] === 'running') {
       return { ok: true, states: current };
     }
@@ -112,9 +123,12 @@ export const createRunnerControl = ({
       options
     );
     current[mode] = await observe(mode, options);
-    return reply.code === 0 && current[mode] === 'running'
-      ? { ok: true, states: current }
-      : refused('runner-start-unconfirmed', current);
+    // Launching can reveal a shared backend or a concurrently changed peer.
+    current[other] = await observe(other, options);
+    if (!['stopped', 'unconfigured'].includes(current[other])) {
+      return refused('other-runner-stop-unconfirmed', current);
+    }
+    return startReceipt(reply, mode, current, options);
   };
   return {
     status: async (options) => ({ ok: true, states: await states(options) }),
