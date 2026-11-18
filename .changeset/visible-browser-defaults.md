@@ -1037,3 +1037,7 @@ Lino formats, offline settings and four-language controls. Add a separate policy
 that enforces the configured friend capacity and lifetime percentage together;
 preserve ranked batches, the existing mutual-threshold policy, durable unknown
 reservations and ten-percent defaults for existing records (issue #56).
+
+Recheck acknowledged chat and person consent after durable send admission so
+opt-outs saved during that wait block the shared sender. Preserve owner drafts,
+definite refusals and existing uncertain-delivery reservations (issue #56).

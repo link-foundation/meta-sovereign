@@ -9,7 +9,8 @@
  *      a rerun, a restart): never send twice;
  *   3. write `outbox:<key>` as `{ status: 'sending' }` BEFORE the send; if
  *      that write fails nothing is sent;
- *   4. send with the key as the draft's `clientId` (Telegram turns it into
+ *   4. recheck acknowledged consent, then send with the key as `clientId`
+ *      (Telegram turns it into
  *      the message's `random_id`, so even a lost answer cannot duplicate);
  *   5. write `sent`; a failing store write after a successful send is only
  *      logged and never becomes `failed` (the record stays `sending`, which
@@ -306,7 +307,40 @@ export const guardedSend = async ({
   }
 };
 
+// Admission may wait for disk while the owner saves a new opt-out. A supplied
+// planning snapshot cannot replace this fresh acknowledged record.
+const currentConsent = async (store, draft) => {
+  try {
+    return optOutEntry(await loadSettings(store), draft)
+      ? refused('opted-out', 'this chat is on the opt-out list')
+      : null;
+  } catch (error) {
+    return refused(
+      'safety-settings-unavailable',
+      `not sent: ${safeMessage(error)}`
+    );
+  }
+};
+
 const deliverOnce = async ({ store, record, draft, send, clock, log }) => {
+  const stop = await currentConsent(store, draft);
+  if (stop) {
+    // No sender was invoked. Retain a definite refusal, not an invented send
+    // or an uncertain delivery. Failed settlement still leaves the old reserve.
+    const outbox = await settle(
+      store,
+      record,
+      {
+        status: 'failed',
+        code: stop.code,
+        error: stop.error,
+        at: clock().toISOString(),
+      },
+      log
+    );
+    log({ event: 'outbox_consent_refused', id: record.id, code: stop.code });
+    return { ...stop, outbox };
+  }
   let result;
   try {
     result = await send({ clientId: record.key, ...draft });

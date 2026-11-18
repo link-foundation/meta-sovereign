@@ -6,6 +6,11 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+QA19/QA20 also include [fresh consent after durable admission](consent-admission.md):
+shared sends re-read acknowledged opt-outs after the reservation wait. Fourteen
+actual-parent failures and 55 focused checks preserve rollback, provider/scope
+isolation and uncertain reservations. Both full criteria remain unfinished.
+
 QA11 is [verified against the complete pinned wording/period contract](hosted-criteria-55292.md): all five exact-source workflows, 459 named portable checks and 72 browser records pass. Raw observations, actual counts, approval and scope boundaries are preserved. All 40 remaining unchecked criteria retain their complete original scope.
 
 Partial HH21 extension: [company/time experience comparison](experience-comparison.md) pairs translated employer/role records conservatively and retains original data, one-sided jobs and unresolved dates. CLI, both Lino encodings and four-language CV controls share the read-only report. Complete exports, translation plans, native reviewed writes and exact-head hosted acceptance remain required; all 60 rows stay unchecked. [Directed experience plans](experience-planning.md) now bind both directions to exact private snapshots, preserve originals and target-only records, and connect three-provider translation with CLI/Lino/four-language recovery; complete acquisition, native writes and authenticated acceptance remain required.

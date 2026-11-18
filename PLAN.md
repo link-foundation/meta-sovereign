@@ -1236,3 +1236,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [ ] Draft validated discovery settings, bounded shared RAM context, owner cleanup, CLI/Lino controls, four-language receipts and batch handoff without changing legacy signatures or saved descriptions.
 - [ ] Reproduce against the exact published parent; verify focused regressions and native/MCP before/after recovery, review screenshots and drain owned fixtures.
 - [ ] Preserve source-bound evidence, pass scoped gates, publish only to the prepared branch and review exact-source hosted CI. Every unfinished requirement remains required; PR57 stays draft and unmerged.
+
+2026-11-18 consent after durable send admission (QA19/QA20 remain unfinished):
+
+- [x] Trace the shared sender's acknowledged admission wait: consent is checked before persistence, allowing a later saved opt-out to be missed before the sender starts.
+- [x] Reproduce fourteen actual-parent failures across five shared provider identities; pass all 55 focused checks after a fresh acknowledged consent read, preserving reservation and delivery uncertainty semantics.
+- [x] Verify 55 focused rejection, rollback, isolation and compatibility checks; retain default-off refusal diagnostics, source-bound evidence and the existing release trigger. Scoped formatting, lint, secrets and source/document limits pass; hosted matrices remain required.
+- [ ] Publish only to the prepared branch and inspect exact-source hosted checks. Continue all 30 unfinished criteria and keep PR57 draft/unmerged.
