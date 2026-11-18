@@ -1089,3 +1089,7 @@ used. Preserve public exports, synchronous route CORS, native proxy bytes,
 authenticated health and complete immutable release verification.
 
 Record disabled native Apply/Send controls and clicks explicitly refused before dispatch. Permit one later-run retry, share admission across search, discovery and batches, and explain recovery in four languages. Preserve uncertain-write reservations and owner answers (partial HH05).
+
+Give native application salary checks a separate mandatory browser budget while
+retaining every answer, language and refusal scenario, both engines, existing
+entry deadlines and shard limits.

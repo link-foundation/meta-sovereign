@@ -556,7 +556,8 @@
     "test:e2e:jobs-manual-login": "node js/tests/e2e-jobs-manual-login-browser.mjs",
     "test:e2e:jobs-manual-login:webkit": "E2E_BROWSER=webkit node js/tests/e2e-jobs-manual-login-browser.mjs",
     "test:e2e:safety-settings": "node js/tests/e2e-safety-settings-browser.mjs",
-    "test:e2e:safety-settings:webkit": "E2E_BROWSER=webkit node js/tests/e2e-safety-settings-browser.mjs"
+    "test:e2e:safety-settings:webkit": "E2E_BROWSER=webkit node js/tests/e2e-safety-settings-browser.mjs",
+    "test:e2e:job-application-salary": "node js/tests/e2e-job-application-salary-browser.mjs"
   },
   "keywords": [
     "personal-crm",

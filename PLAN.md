@@ -1388,3 +1388,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Draft focused policy, service, restart, batch, discovery, transport and translated UI regressions; preserve eleven actual-parent failures with three controls, pass 73 focused checks and verify native plus independent MCP evidence. Correct fixture bundle, selection and locale checks; drain all owned resources.
 - [x] Preserve source-bound native/MCP evidence and actual-parent failures; pass 73 focused checks, scoped format/secrets/line limits and unchanged duplication after sharing browser helpers. The constructor complexity warning is identical on the parent.
 - [ ] Publish only to the prepared branch and review exact-source hosted checks; investigate the new WebKit application-answer group deadline. Complete all thirty unfinished criteria before marking PR57 ready.
+
+2026-11-18 application-answer browser budgets:
+
+- [x] Preserve complete exact-source 9c369eaf WebKit shard-5 job 135207203393: approval, context and salary pass in 32,870 / 41,889 / 50,793 ms before the shared 180-second deadline kills salary batch. No individual assertion reports a failure.
+- [x] Draft separate salary and answer groups, move the existing language scenario into answers, and retain all scenarios once across 160 entries, eight shards and twenty entries per shard. Keep 180-second entry and 35-minute job deadlines. Include the new transient-refusal scenario in the registration contract.
+- [x] Reproduce one actual-parent registration failure with ten controls; pass all 31 focused CI contracts and the isolated native WebKit salary batch in 66,675 ms. Its two submissions target owned offline fixtures, and all owned resources close.
+- [x] Preserve 34 independently hashed archive entries and pass scoped lint, formatting, secrets, whitespace, line limits and unchanged duplication. Retain the initial missing-config lint invocation separately.
+- [ ] Publish and review exact-source hosted checks. Continue every unfinished original criterion.

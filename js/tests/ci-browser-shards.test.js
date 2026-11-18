@@ -117,6 +117,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeResumeVisibility',
       'verifyPopupResumeVisibility',
       'verifyNativeVacancySkips',
+      'verifyNativeVacancySkipRetries',
       'verifyNativeVacancySkipPreview',
       'verifyNativeVacancyUnavailable',
       'verifyNativeApplicationLanguage',
@@ -159,7 +160,10 @@ test('long application workflows have separate registered budgets without nestin
         'verifyNativeVacancyUnavailable',
       ],
     ],
-    ['job-application-vacancy-skips', ['verifyNativeVacancySkips']],
+    [
+      'job-application-vacancy-skips',
+      ['verifyNativeVacancySkips', 'verifyNativeVacancySkipRetries'],
+    ],
     [
       'job-application-vacancy-skip-preview',
       ['verifyNativeVacancySkipPreview'],
@@ -176,6 +180,28 @@ test('long application workflows have separate registered budgets without nestin
     /verifyNativeVacancySkipPreview/u,
     'Preview refusal coverage has its own mandatory entry and must not run twice'
   );
+});
+
+test('application salary and answer scenarios have separate mandatory deadlines', () => {
+  assert.equal(registry.length, 160);
+  assert.ok(!registry.includes('job-application-language'));
+  for (const [group, expected] of [
+    [
+      'job-application-answers',
+      [
+        'verifyNativeApplicationAnswerApproval',
+        'verifyNativeApplicationAnswerContext',
+        'verifyNativeApplicationLanguage',
+      ],
+    ],
+    [
+      'job-application-salary',
+      ['verifyApplicationSalary', 'verifyApplicationSalaryBatch'],
+    ],
+  ]) {
+    assert.ok(registry.includes(group), group);
+    assert.deepEqual(registeredScenarios([group]), expected);
+  }
 });
 
 test('every registered browser check resolves to an existing direct Node entry', () => {

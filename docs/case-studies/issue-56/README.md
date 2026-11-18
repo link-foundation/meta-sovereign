@@ -805,3 +805,4 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Browser composer ownership](browser-composer-draft.md): retain owner drafts and stop partial native sends across textarea and rich composers; 118 focused checks, six native cases and independent phone inspection support unfinished QA20.
 
 - [Bounded native vacancy retries](vacancy-skip-retries.md): retain one later-run attempt for four definitive native refusals, stable reads, unknown-write reservations and revisioned clearing. HH05 remains unfinished.
+- [Application answer and salary budgets](application-answer-budgets.md): preserve the exact WebKit aggregate deadline, separate the salary group and retain every native scenario once with unchanged deadlines and shard limits.
