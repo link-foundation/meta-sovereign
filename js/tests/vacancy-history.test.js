@@ -224,6 +224,7 @@ test('older content without history stays compatible and a cached read invents n
     assert.deepEqual((await service.stored()).entries[0], {
       id: old.id,
       ...snapshot(),
+      status: 'encountered',
     });
   } finally {
     await service.stop();

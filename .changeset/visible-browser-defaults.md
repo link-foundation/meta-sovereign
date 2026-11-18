@@ -984,3 +984,7 @@ search and batches while retaining the independent worker questionnaire queue.
 Verify batch continuation completion against an accepted idle receipt after
 native browser ownership moves to the next vacancy, and preserve bounded
 failure-only response diagnostics without changing delivery guards or deadlines.
+
+Retain provider-confirmed application status in shared private vacancy snapshots,
+including acknowledged recovery, legacy migration and refreshes, and display the
+saved confirmation in all four languages without replaying delivery.

@@ -2,6 +2,7 @@ import { deferredQuestionsLocale } from './deferred-questions.js';
 import { ruDiscovery } from './ru-discovery.js';
 import { ruApplication } from './ru-application.js';
 export const ruVacancy = {
+  'vacancy.appliedAt': 'Отклик подтверждён на HH: {date}',
   ...deferredQuestionsLocale('ru'),
   'vacancySkip.clear-vacancy_unavailable':
     'Очистить отказы по недоступным вакансиям',

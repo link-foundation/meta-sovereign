@@ -1,3 +1,11 @@
+2026-11-18 confirmed applications in the private vacancy cache (HH03 remains unfinished):
+
+- [x] Read the pinned insight/cache contract; confirmed applications currently leave no status in shared cached descriptions.
+- [x] Draft validated optional application evidence, an acknowledged native-confirmation hook, refresh preservation and four-locale saved-description rendering.
+- [x] Reproduce three actual-parent failures and the native missing receipt; pass 66 focused checks and the mandatory native scenario. Verify independent MCP refresh/recovery, four locales, before/after/phone screenshots, one submission and drained resources.
+- [x] Preserve and independently rehash 71 source-bound evidence entries; scoped format, lint, source/document limits and whitespace checks pass.
+- [ ] Publish only to the prepared branch and inspect exact-source hosted checks. Continue every unfinished criterion; PR57 stays draft and unmerged.
+
 2026-11-18 batch receipt completion and security-test diagnostics:
 
 - [x] Preserve both exact-parent WebKit failures with timestamps/SHA, keep the DNS checkout failure separate, and request failed-job reruns after completion.

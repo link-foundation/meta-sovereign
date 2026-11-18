@@ -261,12 +261,16 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
           ...selected,
           firstSeenAt: '2026-11-01T00:00:00Z',
           lastSeenAt: '2026-11-18T00:00:00Z',
+          status: 'applied',
+          appliedAt: '2026-11-18T09:00:00Z',
         },
       },
       locale
     );
     assert.match(withHistory, /data-vacancy-observed="firstSeenAt"/u);
     assert.match(withHistory, /data-vacancy-observed="lastSeenAt"/u);
+    assert.match(withHistory, /data-vacancy-applied="true"/u);
+    assert.equal(html.includes('data-vacancy-applied'), false);
     assert.doesNotMatch(withHistory, />(?:vacancy|application)\./u);
   }
 });

@@ -5,7 +5,7 @@ import {
   assignmentVacancyUrl,
 } from './validation.js';
 import { vacancyMetadata } from './vacancy-metadata.js';
-import { vacancyHistory } from './vacancy-history.js';
+import { vacancyHistory, vacancyApplication } from './vacancy-history.js';
 
 export const vacancyContent = (value, expectedUrl) => {
   const url = assignmentVacancyUrl(value?.url);
@@ -13,6 +13,7 @@ export const vacancyContent = (value, expectedUrl) => {
     ...assignmentVacancy(value),
     ...vacancyMetadata(value),
     ...vacancyHistory(value),
+    ...vacancyApplication(value),
   };
   // Optional for old snapshots; employer HTML is private data, never markup
   // for rendering or model context. Validate without changing its exact bytes.

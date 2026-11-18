@@ -37,7 +37,11 @@ export const vacancySnapshot = async (
     }
     const snapshot = await readVacancy(url, { ...browserOptions, signal });
     signal?.throwIfAborted();
-    const content = vacancyContent(snapshot, url);
+    const {
+      status: _status,
+      appliedAt: _appliedAt,
+      ...content
+    } = vacancyContent(snapshot, url);
     saved = {
       id,
       version: 1,
@@ -45,6 +49,9 @@ export const vacancySnapshot = async (
       children: [],
       ...content,
       ...observedVacancyHistory(saved, content),
+      // A description refresh cannot erase or manufacture delivery evidence.
+      status: saved?.status ?? 'encountered',
+      ...(saved?.appliedAt ? { appliedAt: saved.appliedAt } : {}),
     };
     await saveAcknowledgedRecord(store, saved);
   }

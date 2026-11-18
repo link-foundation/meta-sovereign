@@ -2,6 +2,7 @@ import { deferredQuestionsLocale } from './deferred-questions.js';
 import { zhDiscovery } from './zh-discovery.js';
 import { zhApplication } from './zh-application.js';
 export const zhVacancy = {
+  'vacancy.appliedAt': 'HH 已确认申请：{date}',
   ...deferredQuestionsLocale('zh'),
   'vacancySkip.clear-vacancy_unavailable': '清除不可用职位的拒绝记录',
   'vacancySkip.vacancy_unavailable': 'HH 已对您的账号关闭此职位',

@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { gate } from '../../../experiments/issue-56/vacancy-fixture.mjs';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
+import { verifySavedVacancyApplication } from './vacancy-application-browser.mjs';
 
 export const verifyApplicationPanel = async (
   browser,
-  { screenshots, before = false } = {}
+  { screenshots, before = false, cacheBefore = false } = {}
 ) => {
   const fixture = await applicationNativeFixture(browser);
   const controls = applicationPanelBrowser(fixture);
@@ -95,7 +96,12 @@ export const verifyApplicationPanel = async (
     assert.equal(await action('submit').isDisabled(), true);
     await shot('application-delivered');
     await closeReview({ page, owned, controls });
+    const cache = await verifySavedVacancyApplication(fixture, {
+      screenshots,
+      before: cacheBefore,
+    });
     return {
+      ...cache,
       entries: 1,
       submissions: 1,
       lostResponsePosts: posts,

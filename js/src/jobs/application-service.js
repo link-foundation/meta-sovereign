@@ -104,6 +104,7 @@ class ApplicationService {
       watchFeedback,
       trace,
       createChats,
+      now,
     });
     this.review = new ApplicationReview(this);
     this.salary = new ApplicationSalary(this, now);

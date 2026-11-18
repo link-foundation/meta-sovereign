@@ -6,6 +6,7 @@ import {
 import { readAssignmentVacancyDocument } from '../assignments/vacancy-reader.js';
 import { readLoadedVacancy } from '../assignments/vacancy-loading.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
+import { observeVacancyApplication } from '../assignments/vacancy-application.js';
 import { proposalMatches } from '../forms/review-apply.js';
 import { reviewSnapshotKey } from '../forms/review-targets.js';
 import { rememberApplicationLocation } from './application-location.js';
@@ -229,6 +230,11 @@ export class ApplicationReview {
         : null,
     };
     await this.service.save(record);
+    await observeVacancyApplication(
+      this.service.store,
+      record,
+      this.service.now
+    );
     await observeVacancySkip(this.service.store, record);
     await this.service.context.recover(record, signal);
     return applicationView(record);

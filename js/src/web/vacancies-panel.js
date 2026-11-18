@@ -480,6 +480,19 @@ const Snapshot = ({ state, t, idle }) => {
                 `${t(`vacancy.${key}`)}: ${dateTime(state.selected[key])}`
               )
             ),
+          state.selected.status === 'applied'
+            ? el(
+                'p',
+                {
+                  key: 'applied',
+                  className: 'meta',
+                  'data-vacancy-applied': true,
+                },
+                t('vacancy.appliedAt', {
+                  date: dateTime(state.selected.appliedAt),
+                })
+              )
+            : null,
           el(
             'a',
             {

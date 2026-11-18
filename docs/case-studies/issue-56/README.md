@@ -1,5 +1,7 @@
 - [Complete generic reader contract](hosted-form-reader-5283e26a.md): all five workflows, 18 named reader/report checks and both actual native engines pass at `5283e26a`. Current acceptance is **84 of 118**, with **34 unfinished**; every remaining criterion stays required in the draft PR. Earlier counts below are historical checkpoints.
 
+[Confirmed application cache evidence](vacancy-application-cache.md) records the latest HH03 correction; the inventory remains 88 verified / 30 unfinished.
+
 - [Weighted preview browser assertion](ci-weighted-preview-selector.md): the exact hosted strict-mode failure and finite native reproduction retain match inspection while verifying the main wording, reviewed candidates and saved action. Production behavior and all original acceptance criteria remain unchanged.
 
 - [Detached Forms CI execution](ci-forms-watchers.md): trace an unreachable post-exit import, retain failing registration and run the full-minute example in its own mandatory browser group; QA23 remains unfinished.
