@@ -1,3 +1,11 @@
+2026-11-18 owner-created workplace identity (HH18 and shared copy remain unfinished):
+
+- [x] Read pinned copy/save/deselection and new-form behavior. Trace the current watcher: a final Save can capture a null record ID, but exact saved-record readback requires a numeric identity.
+- [x] Draft a bounded inert complete-list baseline before observation of an existing new form, unique new-record resolution after trusted Save and unchanged full-field/membership/export verification. Never infer success from a closed form or reuse an older identical record.
+- [x] Add focused parent regressions and one native owner-created-record scenario, including ambiguity, stale baseline, cancellation and retained snapshots. Keep all matrices hosted.
+- [x] Preserve source-bound evidence and pass scoped formatting, secret, source/document-limit and whitespace gates. Scoped lint has zero errors and three retained complexity/length warnings; no warnings are suppressed. Inspect native and independent MCP screenshots and retain initial harness and console diagnostics.
+- [ ] Publish only to the prepared branch and require exact-source CI. Continue all unfinished criteria; no automatic copy workflow is accepted by this prerequisite alone.
+
 2026-11-18 Windows/Deno staged worker import investigation:
 
 - [x] Verify branch, clean source and exact-source run timestamps. Preserve aa095a98 Windows/Deno shard 2 job 135108320789: readiness failures at lines 17403–17443; first worker reaches import_started at lines 15159–15191 without import_finished before the unchanged ten-second deadline.

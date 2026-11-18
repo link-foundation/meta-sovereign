@@ -6,6 +6,8 @@ import { cvWatchUrl } from './cv-watch-browser.js';
 import { publishCvSave } from './cv-watch-publication.js';
 import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
+import { readCvEditorDocument } from './cv-watch-document.js';
+import { readCvSavedWorkplaceIds } from './cv-workplace-created.js';
 
 const stale = () =>
   jobsFailure(
@@ -27,6 +29,7 @@ export const runCvWatch = async ({
   let attempted = false;
   let cycle;
   let monitor;
+  let workplaceBaseline;
   let tail = Promise.resolve();
   const tasks = new Set();
   const queue = (operation) => {
@@ -97,6 +100,7 @@ export const runCvWatch = async ({
     // A native Save handler may synchronously change the SPA URL before the
     // binding reaches the host. Both URLs still have to be allowlisted HH CV URLs.
     const attempt = cvSaveAttempt(value.form);
+    const baseline = workplaceBaseline;
     const attemptId = randomUUID();
     const fingerprint = createHash('sha256')
       .update(JSON.stringify(attempt))
@@ -116,9 +120,16 @@ export const runCvWatch = async ({
           signal: cycleSignal,
           readExports,
           ...verification,
+          workplaceBaseline: baseline,
         })
       )
-      .then((result) => publish(result, current, attemptId))
+      .then(async (result) => {
+        await publish(result, current, attemptId);
+        check(current);
+        if (result.workplaceIds) {
+          workplaceBaseline = result.workplaceIds;
+        }
+      })
       .catch((error) => {
         if (!signal.aborted && !stopped && current === generation) {
           return update(
@@ -141,6 +152,23 @@ export const runCvWatch = async ({
   };
   try {
     signal.throwIfAborted();
+    const initial = await session.commander.evaluate({
+      fn: readCvEditorDocument,
+      args: [],
+    });
+    signal.throwIfAborted();
+    if (initial?.kind === 'workplace' && initial.recordId === null) {
+      workplaceBaseline = await (
+        verification?.readWorkplaceIds ?? readCvSavedWorkplaceIds
+      )({
+        session,
+        check: () => check(generation),
+        signal,
+      });
+      traceCvWatch('workplace-list-baseline', {
+        records: workplaceBaseline.length,
+      });
+    }
     monitor = await monitorCvSaves({ page: session.page, receive, failed });
     signal.throwIfAborted();
     return {

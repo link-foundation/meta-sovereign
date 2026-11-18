@@ -6,6 +6,11 @@ import { sanitizedResumeCv } from './resume-cv.js';
 import { jobsFailure } from './options.js';
 import { traceCvWatch } from './cv-watch-trace.js';
 import { readCvSavedWorkplace } from './cv-workplace-readback.js';
+import {
+  readCvSavedWorkplaceIds,
+  createdCvWorkplaceAttempt,
+  confirmedCvWorkplaceIds,
+} from './cv-workplace-created.js';
 
 const systemClock = Object.freeze({ now: Date.now, wait: delay });
 
@@ -18,10 +23,15 @@ export const verifyOwnerCvSave = async ({
   signal,
   readExports,
   readWorkplace = readCvSavedWorkplace,
+  readWorkplaceIds = readCvSavedWorkplaceIds,
+  workplaceBaseline,
   pollMs = 500,
   verificationMs = 30000,
   clock = systemClock,
 }) => {
+  if (attempt.kind === 'workplace' && attempt.recordId === null) {
+    workplaceBaseline = confirmedCvWorkplaceIds(workplaceBaseline);
+  }
   const deadline = clock.now() + verificationMs;
   let reads = 0;
   let code = 'jobs-cv-form-open';
@@ -54,13 +64,34 @@ export const verifyOwnerCvSave = async ({
         signal,
       });
       confirm();
+      let effectiveAttempt = attempt;
+      let workplaceIds;
+      if (attempt.kind === 'workplace' && attempt.recordId === null) {
+        workplaceIds = await readWorkplaceIds({
+          session,
+          check: confirm,
+          signal,
+        });
+        confirm();
+        effectiveAttempt = createdCvWorkplaceAttempt(
+          attempt,
+          workplaceBaseline,
+          workplaceIds
+        );
+      }
       const workplace =
         attempt.kind === 'workplace'
-          ? await readWorkplace({ session, attempt, check: confirm, signal })
+          ? await readWorkplace({
+              session,
+              attempt: effectiveAttempt,
+              check: confirm,
+              signal,
+            })
           : undefined;
       confirm();
-      if (verifyCvSave(attempt, exports, workplace)) {
+      if (verifyCvSave(effectiveAttempt, exports, workplace)) {
         return {
+          ...(workplaceIds ? { workplaceIds } : {}),
           exports: exports.map((row) => ({
             hash: row.hash,
             cv: sanitizedResumeCv(row.cv).cv,

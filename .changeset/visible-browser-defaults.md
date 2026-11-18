@@ -1074,3 +1074,5 @@ Wait for existing birthday greetings before inserting reminders, so already-gree
 Keep synthetic MCP fixture data separate from trusted inspection callbacks, escaping script delimiters and preserving JSON property semantics in generated verification code (R-Z3, R-Z4).
 
 Add bounded opt-in worker import resource measurements, with final CPU/memory/loop observations and preserved EOF ownership. Retain startup deadlines while investigating intermittent Windows/Deno readiness failures.
+
+Verify owner-created workplace Saves from a pre-Save inert list baseline and one additional numeric ID, retaining full-field, membership and export proof, prior snapshots and drained Stop. Refuse incomplete or ambiguous identity readback; shared copy/save/detach remains unfinished (HH18).

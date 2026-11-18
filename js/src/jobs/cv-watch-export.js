@@ -7,12 +7,22 @@ import { cvWatchUrl } from './cv-watch-browser.js';
 import { jobsFailure } from './options.js';
 
 /** Native GET only, in the current page's authenticated origin. No navigation. */
-export const fetchCvSavedHtml = async ({ hash, recordId }) => {
+export const fetchCvSavedHtml = async ({ hash, recordId, workplaceList }) => {
   const { location, AbortSignal } = globalThis;
   if (location.origin !== 'https://hh.ru') {
     throw new Error('The native CV page changed.');
   }
   const targetUrl = () => {
+    if (workplaceList !== undefined) {
+      if (
+        workplaceList !== true ||
+        hash !== undefined ||
+        recordId !== undefined
+      ) {
+        throw new Error('The native saved workplace list is unavailable.');
+      }
+      return new URL('/profile/edit/experience', location.origin);
+    }
     const workplace = recordId !== undefined;
     if (
       workplace

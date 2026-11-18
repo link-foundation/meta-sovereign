@@ -46,15 +46,16 @@ export const cvSaveAttempt = (raw) => {
 };
 
 const workplaceResumes = (raw) => {
+  const url = new URL(raw.url);
   const recordId =
-    new URL(raw.url).pathname.match(
-      /^\/profile\/edit\/experience\/(\d+)\/?$/u
-    )?.[1] ?? null;
+    url.pathname.match(/^\/profile\/edit\/experience\/(\d+)\/?$/u)?.[1] ?? null;
   if (
     raw.kind !== 'workplace' ||
     typeof raw.current !== 'boolean' ||
     typeof raw.metadataEditable !== 'boolean' ||
     raw.recordId !== recordId ||
+    (recordId === null &&
+      !/^\/profile\/edit\/experience\/?$/u.test(url.pathname)) ||
     !Array.isArray(raw.resumes) ||
     !raw.resumes.length ||
     raw.resumes.length > 100
