@@ -53,6 +53,7 @@
  */
 
 import http from 'node:http';
+import { validateUiDefaults } from '../configuration/ui-defaults.js';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -1111,8 +1112,11 @@ const modelContext = (
   };
 };
 
-export const startServer = (options = {}) =>
-  withLoggedSession(options, startServerRuntime);
+export const startServer = async (options = {}) =>
+  withLoggedSession(
+    { ...options, uiDefaults: validateUiDefaults(options.uiDefaults ?? {}) },
+    startServerRuntime
+  );
 
 const initLogSettings = async (options, releaseStore) => {
   try {
@@ -1176,6 +1180,7 @@ const startServerRuntime = async ({
   // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
+  uiDefaults,
   // Legacy JSON is an explicit opt-in. Normal servers speak text/binary LINO.
   jsonCompatibility = process.env.MS_JSON_COMPATIBILITY === '1',
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
@@ -1229,6 +1234,7 @@ const startServerRuntime = async ({
     vkToken: tokenService(store, secretPassphrase, vkToken),
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
+    uiDefaults,
     ...cvContext(cv, vacancies),
     ...modelContext(store, forms, automations, answerModel),
     replies: replyService(store, storeDir, replies),

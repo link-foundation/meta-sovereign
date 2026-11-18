@@ -144,6 +144,7 @@ const cachedStatus = (store) => {
 };
 
 const HANDLERS = {
+  '/api/ui/defaults': async (_store, _url, ctx = {}) => ctx.uiDefaults ?? {},
   '/api/contacts': contactsFromStore,
   '/api/status': async (store, url, ctx = {}) => ({
     service: 'meta-sovereign',

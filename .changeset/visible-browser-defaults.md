@@ -966,3 +966,8 @@ Recognize a rendered HH account-specific vacancy refusal, preserve owner answers
 and uncertain delivery, and block unsafe actions. Retain its distinct private
 refusal reason until explicitly cleared through CLI, both Lino formats or the
 four-language review controls (issue #56 HH05).
+
+Share validated theme, skin and language defaults across global/local Lino
+startup files, explicit CLI options and a read-only Lino endpoint. Retain browser
+choices, apply fresh connection defaults and expose an explicit appearance reset
+in all four languages (issue #56 VD06/VD07).

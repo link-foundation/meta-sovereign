@@ -1058,3 +1058,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Independent MCP verifies the actual parent failure, four translated states, preserved owner values, reload/manual clear and a bounded phone layout. Both owned fixtures close with zero submissions.
 - [x] Pass scoped lint, formatting, secrets, source/document limits and the unchanged 6.5% duplication gate. Preserve 110 independently hashed source/evidence entries.
 - [ ] Publish and review exact-source CI. Full deferred-question and later-run policies remain required.
+
+2026-11-18 shared desktop appearance defaults (VD06/VD07):
+
+- [x] Audit current desktop, layered startup files and browser-only appearance/language preferences; preserve all prior acceptance limits.
+- [x] Draft validated global/local Lino theme, skin and language defaults, explicit CLI overrides and a read-only shared Lino endpoint. Apply defaults without replacing owner browser choices; allow explicit reset.
+- [x] Add focused precedence, invalid-input, read-only transport, late-response, cancellation and owner-choice regressions, plus mandatory native appearance coverage and independent MCP before/after screenshots.
+- [ ] Run only focused local checks, preserve source-bound evidence and publish atomic changes to the prepared branch. Review hosted exact-source workflows before accepting any full criterion.
+- [ ] Finish the other original unchecked requirements. Automatic runner dependency preparation remains unimplemented; source investigation alone does not complete VD01. PR57 stays draft and unmerged.

@@ -15,7 +15,7 @@ import {
   readPreference,
   useTutorialPreference,
 } from './tutorial.js';
-import { LocaleContext, useLocale } from './i18n.js';
+import { LocaleContext, useLocale, useLocaleContext } from './i18n.js';
 import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
@@ -43,6 +43,7 @@ import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
 import { PageLoading } from './spinner.js';
 import { OutboxHost } from './outbox-host.js';
+import { followUiDefaults } from './ui-defaults.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -105,7 +106,7 @@ const App = () => {
   // The interface scale and message text size (R-Y192).
   useApplyUiScale();
   const { theme, toggle } = useAppearance();
-  const localeApi = useLocale();
+  const localeApi = useLocaleContext();
   const { t } = localeApi;
   const tutorial = useTutorialPreference();
   const width = useViewportWidth();
@@ -239,6 +240,7 @@ const App = () => {
 // The local passcode (R-Y183): while the server is locked the app is not
 // shown at all, only the unlock screen.
 const Root = () => {
+  useEffect(() => followUiDefaults(api), []);
   const localeApi = useLocale();
   const lock = useLocalLock(api);
   return lock.phase === 'locked'
@@ -249,7 +251,7 @@ const Root = () => {
           { value: localeApi },
           el('div', { className: 'app-start-loading' }, el(PageLoading))
         )
-      : el(App);
+      : el(LocaleContext.Provider, { value: localeApi }, el(App));
 };
 
 const mount = document.getElementById('app');

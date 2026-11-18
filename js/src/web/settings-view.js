@@ -74,6 +74,16 @@ export const AppearanceSettings = ({ appearance }) => {
       ),
       el('p', { key: 'p', className: 'meta' }, t('settings.appearance.intro')),
       el(
+        'button',
+        {
+          key: 'reset',
+          type: 'button',
+          'data-action': 'appearance-reset',
+          onClick: appearance.reset,
+        },
+        t('settings.appearance.reset')
+      ),
+      el(
         'div',
         { key: 'c', className: 'row appearance-row' },
         el(Choices, {

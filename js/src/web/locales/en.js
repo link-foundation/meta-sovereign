@@ -99,7 +99,7 @@ export const en = {
   'header.tutorialAria': 'Open tutorial',
   'header.language': 'Language',
   'header.languageAria': 'Select interface language',
-  'header.systemDefault': 'System default',
+  'header.systemDefault': 'App or system default',
   'header.online': 'Online',
   'header.offline': 'Offline',
   'header.reconnecting': 'Reconnecting',
@@ -1181,6 +1181,7 @@ export const en = {
   'settings.folderTabs.start': 'At the start',
   'settings.folderTabs.hint':
     'All and Unread are first and second from the chosen edge. Other folders keep their order; Telegram is unchanged.',
+  'settings.appearance.reset': 'Use app defaults',
   'settings.appearance.title': 'Appearance',
   'settings.appearance.intro':
     'The theme and skin apply to every screen and are kept in this browser. The Theme button in the header switches between light and dark.',

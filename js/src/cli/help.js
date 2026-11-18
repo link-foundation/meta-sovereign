@@ -248,6 +248,8 @@ Commands:
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
                 [--backup-interval-hours=<h>] [--backup-keep=<n>] [--recovery-formats=text,binary|none] [--app-config=<file>]
                 user config.lino < .meta-sovereign/config.lino (or --app-config) < explicit options
+                [--theme=system|light|dark|auto] [--skin=t3|telegram|whatsapp|signal] [--language=system|en|ru|zh|hi]
+                interface defaults; saved browser choices take precedence
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
                 on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
                 each runtime retains a private redacted session in <store>/logs/<timestamp>-<pid>-<id>.log

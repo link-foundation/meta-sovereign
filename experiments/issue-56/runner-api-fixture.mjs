@@ -24,6 +24,7 @@ export const runnerApiFixture = async (options = {}) => {
       );
     }
     server = await diagnosticServer({
+      ...options.serverOptions,
       runnerSessions: {
         directory: () => dir,
         localDirectory: () => localDir,

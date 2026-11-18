@@ -1,7 +1,20 @@
 import { recoveryFormats } from '../storage/recovery-dump.js';
+import { validateUiDefaults } from '../configuration/ui-defaults.js';
+
+const interfaceOptions = (args) => {
+  const values = Object.fromEntries(
+    ['theme', 'skin', 'language']
+      .filter((key) => args[key] !== undefined)
+      .map((key) => [key, args[key]])
+  );
+  return Object.keys(values).length
+    ? { uiDefaults: validateUiDefaults(values) }
+    : {};
+};
 
 // What `serve` passes to the server besides its port, store and log.
 export const serveOptions = (args, { defaultTls = true } = {}) => ({
+  ...interfaceOptions(args),
   ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
   backups: {
     ...(args['backup-interval-hours'] !== undefined

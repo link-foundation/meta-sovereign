@@ -101,7 +101,7 @@ export const hi = {
   'header.tutorialAria': 'ट्यूटोरियल खोलें',
   'header.language': 'भाषा',
   'header.languageAria': 'इंटरफ़ेस की भाषा चुनें',
-  'header.systemDefault': 'सिस्टम डिफ़ॉल्ट',
+  'header.systemDefault': 'ऐप या सिस्टम डिफ़ॉल्ट',
   'header.online': 'ऑनलाइन',
   'header.offline': 'ऑफ़लाइन',
   'header.reconnecting': 'फिर से कनेक्ट हो रहा है',
@@ -1178,6 +1178,7 @@ export const hi = {
   'settings.folderTabs.start': 'शुरुआत में',
   'settings.folderTabs.hint':
     'चुने हुए किनारे से “सभी” पहले और “अपठित” दूसरे स्थान पर हैं। अन्य फ़ोल्डरों का क्रम बना रहता है; Telegram नहीं बदलता।',
+  'settings.appearance.reset': 'ऐप के डिफ़ॉल्ट उपयोग करें',
   'settings.appearance.title': 'रूप-रंग',
   'settings.appearance.intro':
     'थीम और स्किन हर स्क्रीन पर लागू होती हैं और इसी ब्राउज़र में सहेजी जाती हैं। हेडर का थीम बटन हल्की और गहरी थीम के बीच बदलता है।',

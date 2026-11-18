@@ -634,6 +634,8 @@ const rawApi = {
     const { client } = await ensure();
     return client.isOnline();
   },
+  // Public presentation defaults from the connected app; saved browser choices win.
+  uiDefaults: ({ signal } = {}) => serverFetch('/api/ui/defaults', { signal }),
   // The server's disk and store health, null when it cannot be asked (R-Z14).
   health: async () => {
     const response = await serverResponse('/api/health');

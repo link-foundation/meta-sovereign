@@ -2,6 +2,7 @@ import path from 'node:path';
 import { readReadableConfiguration } from './readable-configuration.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { MAX_RECOVERY_HOURS } from '../storage/recovery-settings.js';
+import { validUiDefault } from '../configuration/ui-defaults.js';
 
 const FIELDS = new Map([
   ['port', 'port'],
@@ -14,6 +15,9 @@ const FIELDS = new Map([
   ['recoveryFormats', 'recovery-formats'],
   ['allowOrigin', 'allow-origin'],
   ['uiUrl', 'ui-url'],
+  ['theme', 'theme'],
+  ['skin', 'skin'],
+  ['language', 'language'],
 ]);
 const invalid = (scope) =>
   Object.assign(new Error(`Invalid ${scope} application configuration.`), {
@@ -49,6 +53,9 @@ const publicUrl = (value, origin = false) => {
   }
 };
 const validField = (key, value) => {
+  if (['theme', 'skin', 'language'].includes(key)) {
+    return validUiDefault(key, value);
+  }
   if (booleanFields.has(key)) {
     return typeof value === 'boolean';
   }
@@ -143,5 +150,11 @@ export const startupArguments = async (
       value,
     ])
   );
-  return { ...defaults, ...args };
+  const merged = { ...defaults, ...args };
+  for (const key of ['theme', 'skin', 'language']) {
+    if (merged[key] !== undefined && !validUiDefault(key, merged[key])) {
+      throw invalid('interface');
+    }
+  }
+  return merged;
 };

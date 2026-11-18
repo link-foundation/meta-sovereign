@@ -98,7 +98,7 @@ export const ru = {
   'header.tutorialAria': 'Открыть руководство',
   'header.language': 'Язык',
   'header.languageAria': 'Выбрать язык интерфейса',
-  'header.systemDefault': 'Системный',
+  'header.systemDefault': 'Настройки приложения или системы',
   'header.online': 'Онлайн',
   'header.offline': 'Оффлайн',
   'header.reconnecting': 'Переподключение',
@@ -1196,6 +1196,7 @@ export const ru = {
   'settings.folderTabs.start': 'В начале',
   'settings.folderTabs.hint':
     '«Все» и «Непрочитанные» — первые две вкладки от выбранного края. Остальные папки сохраняют свой порядок; Telegram не меняется.',
+  'settings.appearance.reset': 'Использовать настройки приложения',
   'settings.appearance.title': 'Внешний вид',
   'settings.appearance.intro':
     'Тема и оформление действуют на всех экранах и сохраняются в этом браузере. Кнопка «Тема» в шапке переключает светлую и тёмную.',

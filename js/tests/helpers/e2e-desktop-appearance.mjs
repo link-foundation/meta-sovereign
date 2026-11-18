@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { runnerApiFixture } from '../../../experiments/issue-56/runner-api-fixture.mjs';
 import { watchFixturePages } from './e2e-page-errors.mjs';
+import { verifyUiDefaults } from './e2e-ui-defaults.mjs';
 import { captureVkAutomationLayouts } from './vk-automation-browser.mjs';
 import {
   TUTORIAL_STORAGE_KEY,
@@ -115,6 +116,7 @@ export const verifyDesktopAppearance = async (browser) => {
       runnerCalls: 0,
       pageErrors: 0,
       liveProvider: false,
+      configuredDefaults: await verifyUiDefaults(browser),
     };
   } finally {
     await fixture.close();

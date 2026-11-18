@@ -101,7 +101,7 @@ export const zh = {
   'header.tutorialAria': '打开教程',
   'header.language': '语言',
   'header.languageAria': '选择界面语言',
-  'header.systemDefault': '跟随系统',
+  'header.systemDefault': '应用或系统默认设置',
   'header.online': '在线',
   'header.offline': '离线',
   'header.reconnecting': '正在重新连接',
@@ -1136,6 +1136,7 @@ export const zh = {
   'settings.folderTabs.start': '开头',
   'settings.folderTabs.hint':
     '从所选边缘起，“全部”和“未读”分别位于第一和第二位。其他文件夹的顺序保持不变，不会更改 Telegram。',
+  'settings.appearance.reset': '使用应用默认设置',
   'settings.appearance.title': '外观',
   'settings.appearance.intro':
     '主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。',
