@@ -1,0 +1,30 @@
+{
+  "archive": "question-reload-disclosure.tar.gz",
+  "files": {
+    "js/tests/e2e-questions-browser.mjs": "21d867a1165950f661446825b136835a873ec2396f484802198d17c774bd03e2",
+    "js/tests/helpers/question-preview.mjs": "1e78544268e82146a8b5c1e8c5ec3016ed08311d1d936b83e9036957cb5e0a26",
+    "js/tests/helpers/e2e-chat.mjs": "040955d835321ce2fdb3c7364e7679e3e70b6cbefde8dcfdc9db10519d27d588",
+    "js/tests/helpers/e2e-input-trace.mjs": "49c48cbcbd9d0acc5bb1687c19bd3bca03ac5d2939e7765b481a2acdd3c9afad",
+    "experiments/issue-56/question-reload-disclosure.mjs": "1e4d9f8a2f5c66fd9388ad2265acf2e40fbfe7cf68ae43fcf08d5d1d42cf12c5",
+    "experiments/issue-56/collect-question-reload-disclosure.py": "894b9f2a63a07c803b1bf206c87935eb7d7d6e0eeaafb53b49e834276e2a9a5c",
+    "experiments/issue-56/previous-module.mjs": "7b6c3bb5bdcfa4e7a84755f804db0bd83c9ae10d3e6982bb08d9dd8d7ac57661",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/ci-question-reload-disclosure.md": "18e082a7264cbffe5497ad98040638394f7a83af7e8caa642ed4af76a41e2c91",
+    "docs/screenshots/issue-56-question-reload/before.png": "91b64010e5a6673d787a0025bdee5cd40bfacc9cf2dee745bd1266e595d273f2",
+    "docs/screenshots/issue-56-question-reload/after.png": "475c5e9566b23d55af6042e6825e49512c62a67dbf54299a49108601649c8c0a",
+    "ci-logs/question-reload-parent.log": "f0f4835ed59422230c69c785a51d8f1fa940beca6a1689b85969913f899a473e",
+    "ci-logs/question-reload-current.log": "0686c00f09f27ea4bddcd56164d15474cea67f3532ea5a07a01f36595f31d985",
+    "ci-logs/question-reload-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-reload-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-reload-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-reload-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/hosted-72dc9552-webkit-7.log": "f1a87a8c87927f5a24bc1261e76239d0f18a09001f14c0feabccfc52742f2af0",
+    "ci-logs/hosted-72dc9552-webkit-7-job.json": "d73346adeb913a5d107f32e900d4fc441754796b6d06daa1b4626425f5777e6c",
+    "ci-logs/hosted-72dc9552-webkit-7-annotations.json": "f47b39781676b8f18c62813ccc7f4acb8ca6b4a8e42f28cb65707990282acbb8",
+    "ci-logs/72dc9552-webkit-7-artifacts/summary.json": "1f3d76c6fa74b7cb74237fa2e7d76ada207786916941da6ddbe81b4e6053c419",
+    "ci-logs/question-reload-parent/ms-e2e-questions-chromium.png": "5842553e0f2261e75fbac42f3e0475a721b28d30230de67923447bea490d4bb8",
+    "ci-logs/question-reload-parent-open.png": "72beb6e9b6b4cf107801c2dae574a84b2edfda5b0b70db23ae424014f4fd9c00",
+    "before/js/tests/e2e-questions-browser.mjs": "7f22dcb0790b6e0a74cb3ce23f1a6a6057f0b122f1369dc53ad735583ffc4ff8",
+    "metadata.json": "c96ba9e13b7c7502da5e194118dee03f7d5c1704b11a14cea865a877c275242b"
+  }
+}

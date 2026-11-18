@@ -527,7 +527,7 @@ const verifySubstitution = async (saved, preview) => {
 
 const verifyPersistedRule = async (saved) => {
   await page.reload();
-  await panel.locator(':scope > summary').click();
+  await openQuestionDisclosure(panel);
   await panel
     .getByRole('button', { name: 'Где вы живете?', exact: true })
     .click();

@@ -1,3 +1,11 @@
+2026-11-18 restored saved-answer disclosure verification:
+
+- [x] Preserve the exact `72dc9552` WebKit shard-7 failure, annotations and valid native screenshot; identify the blind post-reload toggle.
+- [x] Reproduce the same hidden-question lookup on the actual published entry with a finite restored-open precondition; preserve all persistence assertions and isolated cleanup.
+- [x] Use the existing conditional disclosure helper; pass the corrected focused native probe and scoped lint/format/secrets without changing production UI or CI deadlines.
+- [ ] Publish this correction and the committed provider-consent/source-review units only to the prepared branch; review all exact-head workflows.
+- [ ] Continue all 30 unfinished acceptance criteria. PR57 stays draft and unmerged.
+
 2026-11-17 runner graceful Stop and weighted browser coverage:
 
 - [x] Reproduce native Stop returning before a finite 3.5-second cleanup; trace successful signal dispatch versus actual screen drainage.
