@@ -162,7 +162,8 @@ test(
       ['apply', 'exclude', 'apply', 'apply']
     );
     assert.equal(job.entries[0].pay.tier, 1);
-    assert.equal(f.descriptions.length, 2);
+    assert.equal(f.descriptions.length, 3);
+    assert.equal((await f.service.stored()).entries.length, 3);
     assert.deepEqual(discoveredReviewUrls({ receipt }), [
       'https://hh.ru/vacancy/801',
       'https://hh.ru/vacancy/803',

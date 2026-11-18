@@ -998,3 +998,7 @@ Lino formats and four-language controls. Keep complete vacancy context in bounde
 RAM for forms, chats and assignments, omit it from durable application journals
 and preserve existing saved descriptions and their delivery metadata. Frozen
 batches retain the setting; restart reports the unavailable temporary context.
+
+Collect complete selected vacancy descriptions before local text and salary
+exclusions during discovery. Preserve responded/owner/retry holds, acknowledged
+cache reuse and existing application eligibility.

@@ -137,13 +137,15 @@ class VacancyDiscovery {
     );
     let capturedAt = null;
     let questions;
+    let questionHeld = false;
     const deferQuestion = async () => {
       questions = await storedDeferredQuestions(this.store, options);
+      questionHeld = (
+        await pendingDeferredVacancies(this.store, options, questions)
+      ).has(card.url);
       if (
         ['review', 'needs-description'].includes(decision.reason) &&
-        (await pendingDeferredVacancies(this.store, options, questions)).has(
-          card.url
-        )
+        questionHeld
       ) {
         decision = { ...decision, reason: 'question-deferred' };
       }
@@ -162,9 +164,13 @@ class VacancyDiscovery {
     const waiting = () =>
       this.retryWaiting({ url: card.url, browserSlot: options.browserSlot });
     if (
-      ['review', 'needs-description'].includes(decision.reason) &&
-      (!pay || pay.action === 'apply') &&
-      !waiting()
+      // Selected vacancies contribute their complete description even when
+      // later local text or salary checks exclude them from applications.
+      ['review', 'needs-description', 'configured-text'].includes(
+        decision.reason
+      ) &&
+      !waiting() &&
+      !questionHeld
     ) {
       const snapshot = await acknowledgedWrite(this.store, immediate, () =>
         vacancySnapshot(

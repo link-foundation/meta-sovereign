@@ -11,7 +11,13 @@ export const verifySalaryLadder = async (browser) => {
       before: process.env.SALARY_LADDER_BEFORE === '1',
       screenshots: process.env.APPLICATION_SCREENSHOTS,
     });
-    assert.equal(f.records.length, 5, 'Reload must not replay discovery');
+    assert.equal(f.records.length, 6, 'Reload must not replay discovery');
+    assert.equal(
+      (await f.store.query((row) => row.id.startsWith('assignment-vacancy:')))
+        .length,
+      3,
+      'Salary exclusions retain the selected full vacancy in the corpus'
+    );
     assert(f.records.every((row) => row.closed && row.clicks === 0));
     assert.deepEqual(f.errors, []);
     console.log(

@@ -3,12 +3,23 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vacancyBrowserFixture } from '../../../experiments/issue-56/vacancy-browser-fixture.mjs';
 
+const verifyCollectedVacancies = async (store) => {
+  const cached = await store.query((row) =>
+    row.id.startsWith('assignment-vacancy:')
+  );
+  assert.deepEqual(cached.map((row) => row.url).sort(), [
+    'https://hh.ru/vacancy/123',
+    'https://hh.ru/vacancy/125',
+  ]);
+};
+
 /** Exercise actual HH pagination and description readers through the shared UI. */
 export const verifyVacancyDiscovery = async (
   browser,
   {
     before = process.env.DISCOVERY_BEFORE === '1',
     screenshots = process.env.APPLICATION_SCREENSHOTS,
+    excludedTitle = false,
   } = {}
 ) => {
   const fixture = await vacancyBrowserFixture(browser);
@@ -27,6 +38,11 @@ export const verifyVacancyDiscovery = async (
     const discovery = panel.locator('[data-vacancy-discovery]');
     const start = discovery.locator('[data-discovery-action="start"]');
     await panel.locator('[data-vacancy-field="query"]').fill('Python');
+    if (excludedTitle) {
+      await panel
+        .locator('[data-vacancy-field="excludeText"]')
+        .fill('Python engineer 123');
+    }
     if (before) {
       await panel
         .locator('[data-vacancy-action="search"]')
@@ -55,14 +71,15 @@ export const verifyVacancyDiscovery = async (
       await completed.innerText(),
       /Excluded: native card already marks a response/u
     );
+    await completed.scrollIntoViewIfNeeded();
+    await shot('after');
     assert.equal(
       records.length,
       4,
-      'Two search pages and two full eligible descriptions'
+      'Two search pages and two full selected descriptions'
     );
     assert(records.every((row) => row.closed && row.clicks === 0));
-    await completed.scrollIntoViewIfNeeded();
-    await shot('after');
+    await verifyCollectedVacancies(fixture.store);
     const count = records.length;
     await page.reload();
     await completed.waitFor();
@@ -77,7 +94,9 @@ export const verifyVacancyDiscovery = async (
       .click();
     assert.equal(
       await batch.locator('[data-application-batch-field="urls"]').inputValue(),
-      'https://hh.ru/vacancy/123\nhttps://hh.ru/vacancy/125'
+      excludedTitle
+        ? 'https://hh.ru/vacancy/125'
+        : 'https://hh.ru/vacancy/123\nhttps://hh.ru/vacancy/125'
     );
     assert(
       await batch
@@ -114,6 +133,7 @@ export const verifyVacancyDiscovery = async (
         pages: 2,
         vacancies: 3,
         descriptions: 2,
+        excludedTitleCollected: excludedTitle,
         providerClicks: 0,
         recoveryReplayed: false,
         batchStarted: false,
@@ -145,3 +165,6 @@ export const verifyVacancyDiscovery = async (
     await fixture.close();
   }
 };
+
+export const verifyFilteredVacancyDiscovery = (browser) =>
+  verifyVacancyDiscovery(browser, { excludedTitle: true });

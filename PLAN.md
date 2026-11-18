@@ -1,9 +1,16 @@
+2026-11-18 collect selected vacancies before local exclusions:
+
+- [x] Compare the pinned README and actual selection order: full collection precedes salary and configured-text filters, while previously processed/owner-held cards are not selected.
+- [x] Draft the shared discovery correction and focused regressions for title/company exclusions, salary defer/exclude, cache reuse, read failure and existing holds.
+- [x] Reproduce five failures against the exact published parent and pass 48 focused checks, including an excluded card with a pending-question hold. Verify native excluded-card collection, four-language recovery, saved cache identities and unchanged unarmed batch behavior; inspect valid before/after/phone images.
+- [ ] Preserve evidence, publish the atomic change and require exact-source CI. Investigate the preserved Deno/Windows worker startup failure separately. HH03 and every unfinished criterion remain required.
+
 2026-11-18 real anonymous vacancy navigation:
 
 - [x] Run the exact previously refused public service probe: the shared cache, byte-equal HTML, canonical reuse, reopen and CLI recovery pass with zero clicks and all browsers closed.
 - [x] Preserve the library-default timeout, then trace the actual application wrapper. Production already disables the network/navigation/dialog managers; the changed probe configuration was incorrect and is not a production defect.
 - [x] Rerun through the actual shared session wrapper: verified exact URL, complete 3,035-character prose and 4,393-character HTML, canonical reuse, recovered store/CLI, one closed browser and zero clicks. Review the valid screenshot and preserve successful/refused evidence; the original intermittent refusal remains unexplained.
-- [ ] Publish the corrected finite probe and independently hashed evidence. No production navigation fix follows from this observation. Continue all 30 unfinished criteria; PR57 remains draft.
+- [x] Publish the corrected finite probe and independently hashed evidence as 9da8b847. No production navigation fix follows from this observation. Continue all 30 unfinished criteria; PR57 remains draft.
 
 2026-11-18 optional persistent vacancy collection (HH03 remains unfinished):
 

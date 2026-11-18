@@ -767,3 +767,5 @@ Current public HH employment/publication extraction and guarded synthetic recove
 [Cold-run Deno budget](ci-deno-macos-budget.md) preserves the exact ten-minute cancellation and complete eight-way macOS partitions; full hosted timing remains required.
 
 Optional persistent collection with full current-run context: [collection evidence](application-collection.md). HH03 remains unfinished; 88 verified / 30 unfinished.
+
+[Collect selected vacancies before exclusions](discovery-collection.md): exact-parent failures, saved excluded descriptions, native recovery and unchanged application handoff. All 30 unfinished criteria remain required.
