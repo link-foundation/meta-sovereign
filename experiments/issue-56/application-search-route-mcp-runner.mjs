@@ -86,6 +86,7 @@ const verify = async (
 await writeFile(
   'ci-logs/application-route-mcp-code.js',
   applicationAnswerMcpRunner(
-    `(page, createControls) => (${verify.toString()})(page, createControls, ${JSON.stringify(parameters)})`
+    `(page, createControls, _configure, fixture) => (${verify.toString()})(page, createControls, fixture)`,
+    parameters
   )
 );

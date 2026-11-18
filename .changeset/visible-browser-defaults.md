@@ -1070,3 +1070,5 @@ Add the configurable HH application route through the original search before ope
 Keep acknowledged application controls enabled during automatic status reads so a poll cannot cancel a native pointer click. Preserve blocking manual recovery, stale-response exclusion and server action guards.
 
 Wait for existing birthday greetings before inserting reminders, so already-greeted contacts cannot shift a pressed chat row during reload.
+
+Keep synthetic MCP fixture data separate from trusted inspection callbacks, escaping script delimiters and preserving JSON property semantics in generated verification code (R-Z3, R-Z4).

@@ -13,4 +13,4 @@ node --test --test-concurrency=1 experiments/issue-56/ci-generators-parent.mjs
 node --test --test-concurrency=1 js/tests/mcp-inspection-code.test.js
 ```
 
-The unchanged changeset validator reproduces the extra-entry refusal before consolidation and accepts the committed consolidated tree afterward. Logs, exact source, the original SARIF finding and validation evidence are preserved by `collect-ci-generators.py`. No issue criterion is promoted; PR57 remains draft and unmerged with 88 verified and 30 unfinished criteria.
+The unchanged changeset validator reproduces the extra-entry refusal before consolidation and accepts the committed consolidated tree afterward. Its hosted job passes on `aa095a98`, but CodeQL still identifies two fixture-data findings; see the [subsequent serialization correction](mcp-fixture-serialization.md). Logs, exact source, the original SARIF finding and validation evidence are preserved by `collect-ci-generators.py`. No issue criterion is promoted; PR57 remains draft and unmerged with 88 verified and 30 unfinished criteria.

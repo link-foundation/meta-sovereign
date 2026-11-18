@@ -6,14 +6,14 @@ const { base, stats } = JSON.parse(
     await readFile('ci-logs/application-collection-mcp-server.log', 'utf8')
   ).split(/\r?\n/u)[0]
 );
-const work = `async (page, createControls) => {
+const work = `async (page, createControls, _configure, fixture) => {
   const assert = { equal(a, b) { if (a !== b) throw new Error('Browser assertion failed: '+JSON.stringify({actual:a,expected:b})); } };
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  const controls = createControls({ page, base: ${JSON.stringify(base)} });
+  const controls = createControls({ page, base: fixture.base });
   const { panel, action } = controls;
   await controls.select();
-  const before = await (await page.request.get(${JSON.stringify(stats)})).json();
+  const before = await (await page.request.get(fixture.stats)).json();
   const check = panel.locator('[data-application-option="collectVacancies"]');
   assert.equal(await check.isChecked(), true);
   await check.uncheck();
@@ -30,7 +30,7 @@ const work = `async (page, createControls) => {
   await page.reload();
   await panel.waitFor();
   assert.equal(await panel.locator('[data-application-description]').count(), 0);
-  const stats = await (await page.request.get(${JSON.stringify(stats)})).json();
+  const stats = await (await page.request.get(fixture.stats)).json();
   assert.equal(stats.collection, false);
   assert.equal(stats.journalVacancy, false);
   assert.equal(stats.cacheEntries, 1);
@@ -43,5 +43,5 @@ const work = `async (page, createControls) => {
 }`;
 await writeFile(
   'ci-logs/application-collection-mcp-code.js',
-  applicationAnswerMcpRunner(work)
+  applicationAnswerMcpRunner(work, { base, stats })
 );

@@ -6,7 +6,7 @@ const { base, stats } = JSON.parse(
     /\r?\n/u
   )[0]
 );
-const work = `async (page, createControls) => {
+const work = `async (page, createControls, _configure, fixture) => {
   const require = (value, message) => { if (!value) throw new Error(message); };
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -15,7 +15,7 @@ const work = `async (page, createControls) => {
     localStorage.setItem('metaSovereignTutorial', '{"off":true,"v":5}');
     if (!localStorage.getItem('metaSovereignLocale')) localStorage.setItem('metaSovereignLocale', 'en');
   });
-  const controls = createControls({ page, base: ${JSON.stringify(base)} });
+  const controls = createControls({ page, base: fixture.base });
   const { panel, action } = controls;
   await controls.select();
   const seconds = panel.locator('[data-application-option="vacancyPreviewSeconds"]');
@@ -44,7 +44,7 @@ const work = `async (page, createControls) => {
   await panel.screenshot({ path: 'docs/screenshots/issue-56-vacancy-preview/mcp-phone.png' });
   await action('close').click();
   await panel.locator('[data-application-state="closed"]').waitFor();
-  const receipt = await (await page.request.get(${JSON.stringify(stats)})).json();
+  const receipt = await (await page.request.get(fixture.stats)).json();
   require(receipt.closed && receipt.outcomes.length === 1, 'Owned browser did not drain');
   require(receipt.outcomes[0].entries === 1 && receipt.outcomes[0].attempts === 0, 'Unexpected native application effects');
   require(receipt.errors.length === 0 && errors.length === 0, 'Browser exception');
@@ -52,5 +52,5 @@ const work = `async (page, createControls) => {
 }`;
 await writeFile(
   'ci-logs/application-preview-mcp-code.js',
-  applicationAnswerMcpRunner(work)
+  applicationAnswerMcpRunner(work, { base, stats })
 );

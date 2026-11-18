@@ -9,7 +9,7 @@ const directory = fileURLToPath(
     import.meta.url
   )
 );
-const work = `async (page, panel, configure) => {
+const work = `async (page, panel, configure, fixture) => {
   const url = new URL(page.url());
   const before = url.searchParams.get('phase') === 'before';
   const stats = url.searchParams.get('stats');
@@ -31,7 +31,7 @@ const work = `async (page, panel, configure) => {
     screenshot: async (name, batch) => {
       const receipt = batch.locator('[data-application-batch-phase]');
       await receipt.evaluate((node) => node.scrollIntoView({ block: 'center' }));
-      await receipt.screenshot({ path: ${JSON.stringify(directory)} + 'application-salary-batch-' + name + '.png' });
+      await receipt.screenshot({ path: fixture.directory + 'application-salary-batch-' + name + '.png' });
     }
   });
   const native = await (await page.request.get(stats)).json();
@@ -46,5 +46,5 @@ await writeFile(
     '../../ci-logs/application-salary-batch-mcp-runner.js',
     import.meta.url
   ),
-  applicationAnswerMcpRunner(work)
+  applicationAnswerMcpRunner(work, { directory })
 );

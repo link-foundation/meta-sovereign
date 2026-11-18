@@ -1,3 +1,12 @@
+2026-11-18 MCP fixture serialization correction:
+
+- [x] Preserve exact `aa095a98` CodeQL job and SARIF; distinguish the remaining fixture-string finding from the preceding trusted-source terminator correction.
+- [x] Keep trusted callbacks intact and serialize fixture values through escaped JSON parsing. Preserve special property names, optional data, script delimiters, line separators and existing work-file callbacks.
+- [x] Reproduce five focused failures and all three actual generator boundary failures on published `aa095a98`; pass nine corrected focused checks and three generator probes with owned temporary files removed and no browser/provider work.
+- [x] Pass scoped lint, formatting, secrets and file limits and preserve independently hashed evidence. Compile the fourth changed generator without opening a browser or provider.
+- [ ] Publish the atomic correction only to the prepared branch and require the resulting hosted CodeQL result without changing its rules or exceptions. Full duplication/runtime/browser checks stay hosted.
+- [ ] Complete HH03's remaining private cache/configuration and analysis-bundle contracts and every other unfinished criterion. Current acceptance remains 88/118; all thirty unfinished criteria remain required and PR57 stays draft/unmerged.
+
 2026-11-18 current desktop configuration verification:
 
 - [x] Refresh the complete issue and all PR comment types; no new human requirements are present. Keep every original unfinished criterion in scope.
