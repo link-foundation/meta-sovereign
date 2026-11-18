@@ -1141,3 +1141,8 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Add focused precedence, invalid-input, read-only transport, late-response, cancellation and owner-choice regressions, plus mandatory native appearance coverage and independent MCP before/after screenshots.
 - [ ] Run only focused local checks, preserve source-bound evidence and publish atomic changes to the prepared branch. Review hosted exact-source workflows before accepting any full criterion.
 - [ ] Finish the other original unchecked requirements. Automatic runner dependency preparation remains unimplemented; source investigation alone does not complete VD01. PR57 stays draft and unmerged.
+      2026-11-18 Deno/Windows startup investigation:
+
+- [x] Preserve full failed b4cf60bb Windows shard 2 logs and the succeeding unchanged startup path on 9da8b847. Failure lines 13247–13276 reach worker launch but never report initialization; the later run reaches readiness in 5,922 ms. Root cause remains unproven.
+- [x] Add default-off, value-free worker launch/IPC/stdio/exit checkpoints so a recurrence distinguishes process launch from input delivery and output. Preserve two parent contract failures, pass seven Node/eight Deno focused checks and one real Deno CLI lifecycle. The unchanged readiness budget holds; the native trace reaches spawn return, creation, input completion and first output.
+- [ ] Preserve source-bound evidence, publish the diagnostic unit and require exact-source hosted checks. No historical startup fix or acceptance completion is claimed.

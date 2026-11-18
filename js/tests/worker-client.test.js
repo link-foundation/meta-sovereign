@@ -178,7 +178,7 @@ test('worker import checkpoints are opt-in and exclude arbitrary diagnostic cont
       }
       await turn();
       const emitted = lines.slice(start);
-      assert.equal(emitted.length, debug === '1' ? 5 : 0);
+      assert.equal(emitted.length, debug === '1' ? 7 : 0);
       if (debug === '1') {
         assert.ok(emitted.some((line) => line.includes('import_started')));
         assert.ok(emitted.some((line) => line.includes('import_finished')));
@@ -186,7 +186,7 @@ test('worker import checkpoints are opt-in and exclude arbitrary diagnostic cont
       for (const line of emitted) {
         assert.match(
           line,
-          /^\[rolling-worker\] (?:spawning|(?:init|import)_(?:started|finished)) after \d+ ms$/u
+          /^\[rolling-worker\] (?:spawning|spawn_returned|stdout_received|(?:init|import)_(?:started|finished)) after \d+ ms$/u
         );
       }
       f.close();
@@ -201,3 +201,52 @@ test('worker import checkpoints are opt-in and exclude arbitrary diagnostic cont
     }
   }
 });
+
+test(
+  'worker startup checkpoints distinguish launch, IPC, output and drained exit without private values',
+  { timeout: 2000 },
+  async () => {
+    const previous = process.env.MS_LIFECYCLE_DEBUG;
+    const report = console.error;
+    const lines = [];
+    process.env.MS_LIFECYCLE_DEBUG = '1';
+    console.error = (line) => lines.push(line);
+    const f = fixture();
+    try {
+      f.child.emit('spawn');
+      const init = f.client.call('init', { private: 'owner secret' });
+      await turn();
+      f.child.stderr.write('private runtime diagnostic');
+      f.response();
+      await init;
+      f.child.emit('exit', 0, null);
+      f.close();
+      await f.client.close();
+      const phases = lines.map((line) => line.split(' ')[1]);
+      assert.deepEqual(phases, [
+        'spawning',
+        'spawn_returned',
+        'spawned',
+        'init_written',
+        'stderr_received',
+        'stdout_received',
+        'exited',
+        'closed',
+      ]);
+      assert.ok(
+        lines.every((line) =>
+          /^\[rolling-worker\] [a-z_]+ after \d+ ms$/u.test(line)
+        )
+      );
+    } finally {
+      f.close();
+      await f.client.close();
+      console.error = report;
+      if (previous === undefined) {
+        delete process.env.MS_LIFECYCLE_DEBUG;
+      } else {
+        process.env.MS_LIFECYCLE_DEBUG = previous;
+      }
+    }
+  }
+);

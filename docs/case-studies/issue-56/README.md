@@ -769,3 +769,5 @@ Current public HH employment/publication extraction and guarded synthetic recove
 Optional persistent collection with full current-run context: [collection evidence](application-collection.md). HH03 remains unfinished; 88 verified / 30 unfinished.
 
 [Collect selected vacancies before exclusions](discovery-collection.md): exact-parent failures, saved excluded descriptions, native recovery and unchanged application handoff. All 30 unfinished criteria remain required.
+
+[Deno Windows worker startup](ci-worker-startup.md): preserve the failed launch and later successful unchanged path; add opt-in value-free spawn/IPC/stdio checkpoints without extending deadlines. Historical cause remains unresolved.

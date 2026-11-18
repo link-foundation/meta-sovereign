@@ -19,7 +19,7 @@ const workerLifecycleLog = (log) => {
     }
   };
   phase('spawning');
-  return (entry) => {
+  const report = (entry) => {
     if (
       entry?.event === 'server_worker_operation' &&
       ['init', 'import'].includes(entry.operation) &&
@@ -29,6 +29,27 @@ const workerLifecycleLog = (log) => {
     }
     log(entry);
   };
+  return { phase, report };
+};
+
+const readWorkerMessages = (input, receive, log) => {
+  const lines = createInterface({ input });
+  lines.on('line', (line) => {
+    try {
+      const message = JSON.parse(line);
+      if (message.type === 'log' || message.type === 'response') {
+        receive(message);
+        return;
+      }
+    } catch {
+      /* A runtime/library diagnostic, not an IPC frame. */
+    }
+    log({
+      level: 'debug',
+      event: 'worker_output',
+      message: line.slice(0, 2000),
+    });
+  });
 };
 
 export const spawnWorker = ({
@@ -37,10 +58,14 @@ export const spawnWorker = ({
   execPath = process.execPath,
   spawnChild = spawn,
 }) => {
-  const report = workerLifecycleLog(log);
+  const { phase, report } = workerLifecycleLog(log);
   const child = spawnChild(execPath, workerArgs(entry), {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
+  phase('spawn_returned');
+  child.once('spawn', () => phase('spawned'));
+  child.stdout.once('data', () => phase('stdout_received'));
+  child.stderr.once('data', () => phase('stderr_received'));
   const pending = new Map();
   let sequence = 0;
   let port = null;
@@ -73,7 +98,12 @@ export const spawnWorker = ({
         );
       }, timeoutMs);
       pending.set(id, { resolve, reject, timer });
-      child.stdin.write(`${JSON.stringify({ id, operation, body })}\n`);
+      child.stdin.write(
+        `${JSON.stringify({ id, operation, body })}\n`,
+        operation === 'init'
+          ? (error) => phase(error ? 'init_write_failed' : 'init_written')
+          : undefined
+      );
     });
   const receive = (message) => {
     if (message.type === 'log') {
@@ -95,28 +125,13 @@ export const spawnWorker = ({
       slot.resolve(message.result);
     }
   };
-  const lines = createInterface({ input: child.stdout });
-  lines.on('line', (line) => {
-    try {
-      const message = JSON.parse(line);
-      if (message.type === 'log' || message.type === 'response') {
-        receive(message);
-        return;
-      }
-    } catch {
-      /* A runtime/library diagnostic, not an IPC frame. */
-    }
-    log({
-      level: 'debug',
-      event: 'worker_output',
-      message: line.slice(0, 2000),
-    });
-  });
+  readWorkerMessages(child.stdout, receive, log);
   const ended = (code, signal) => {
     if (exited) {
       return;
     }
     exited = true;
+    phase('exited');
     exitInfo = { code, signal };
     pending.forEach((slot) => {
       clearTimeout(slot.timer);
@@ -129,11 +144,15 @@ export const spawnWorker = ({
     pending.clear();
   };
   child.once('exit', ended);
-  child.once('error', (error) => ended(error.code, null));
+  child.once('error', (error) => {
+    phase('spawn_failed');
+    ended(error.code, null);
+  });
   // An IPC acknowledgment precedes process termination; even `exit` can
   // precede closure of the child's stdio. Keep the supervisor's ownership
   // until `close`, so store/cache files can be safely reused or removed.
   child.once('close', (code, signal) => {
+    phase('closed');
     ended(code, signal);
     onExit(exitInfo);
     resolveClosed();
