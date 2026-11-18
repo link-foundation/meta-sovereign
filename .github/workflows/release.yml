@@ -1153,6 +1153,7 @@ jobs:
           RUNNER_START_PACKAGE: ${{ github.workspace }}/experiments/issue-56/runner-tools
           RUNNER_DOCKER_IMAGE: meta-sovereign-web
         run: |
+          mkdir -p ci-logs
           set -o pipefail
           bash experiments/issue-56/runner-docker-hosted.sh 2>&1 | tee ci-logs/runner-docker-hosted.log
       - name: Preserve remote runner diagnostics

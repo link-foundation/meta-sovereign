@@ -134,20 +134,23 @@ try {
     })
   );
 } finally {
-  assert.equal((await control.act('stop', 'local')).ok, true);
-  const remaining = () =>
-    exec('docker', [
-      'container',
-      'ls',
-      '--all',
-      '--filter',
-      `name=^/${session}$`,
-      '--format',
-      '{{.ID}}',
-    ]);
-  if ((await remaining()).stdout.trim()) {
-    await exec('docker', ['container', 'rm', '--force', session]);
+  try {
+    assert.equal((await control.act('stop', 'local')).ok, true);
+  } finally {
+    const remaining = () =>
+      exec('docker', [
+        'container',
+        'ls',
+        '--all',
+        '--filter',
+        `name=^/${session}$`,
+        '--format',
+        '{{.ID}}',
+      ]);
+    if ((await remaining()).stdout.trim()) {
+      await exec('docker', ['container', 'rm', '--force', session]);
+    }
+    assert.equal((await remaining()).stdout.trim(), '');
   }
-  assert.equal((await remaining()).stdout.trim(), '');
 }
 console.log(JSON.stringify({ applicationResourcesClosed: true }));
