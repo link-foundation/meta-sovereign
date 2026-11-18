@@ -60,14 +60,14 @@ test('MCP inspection supplies its trusted callback without evaluating fixture da
 
 for (const terminator of ['', ';', ';\n// retained final comment']) {
   test(`application answer MCP accepts trusted function source ending ${JSON.stringify(terminator)}`, async () => {
-    const fixture = 'quote\'"; backslash\\; </script>\u2028\u2029';
-    const work = `(page, controls, configure) => ({ value: ${JSON.stringify(fixture)},
+    const fixture =
+      'quote\'"; backslash\\; </script><script>globalThis.injected=true</script>\u2028\u2029';
+    const work = `(page, controls, configure, fixture) => ({ value: fixture,
       page, controls: typeof controls, configure: typeof configure })${terminator}`;
+    const code = applicationAnswerMcpRunner(work, fixture);
+    assert.doesNotMatch(code, /<\/script|[\u2028\u2029]/u);
     const sandbox = {};
-    const result = await runInNewContext(
-      `(${applicationAnswerMcpRunner(work)})`,
-      sandbox
-    )('sentinel');
+    const result = await runInNewContext(`(${code})`, sandbox)('sentinel');
     assert.deepEqual(JSON.parse(JSON.stringify(result)), {
       value: fixture,
       page: 'sentinel',
@@ -77,3 +77,47 @@ for (const terminator of ['', ';', ';\n// retained final comment']) {
     assert.equal(sandbox.injected, undefined);
   });
 }
+
+test('MCP fixture objects retain special property names without changing their prototype', async () => {
+  const fixture = JSON.parse(
+    '{"__proto__":{"injected":true},"constructor":"literal","value":"</script>"}'
+  );
+  const inspect = (_page, data) => ({
+    keys: Object.keys(data),
+    own: Object.hasOwn(data, '__proto__'),
+    inherited: data.injected ?? null,
+    data,
+  });
+  for (const code of [
+    mcpInspectionCode(inspect, fixture),
+    applicationAnswerMcpRunner(
+      '(page, _controls, _configure, data) => ({ keys: Object.keys(data), own: Object.hasOwn(data, "__proto__"), inherited: data.injected ?? null, data })',
+      fixture
+    ),
+  ]) {
+    const result = await runInNewContext(`(${code})`, {})(null);
+    assert.deepEqual(JSON.parse(JSON.stringify(result)), {
+      keys: ['__proto__', 'constructor', 'value'],
+      own: true,
+      inherited: null,
+      data: fixture,
+    });
+  }
+});
+
+test('application answer MCP preserves work files that do not supply fixture data', async () => {
+  const code = applicationAnswerMcpRunner(
+    '(_page, controls, configure, data) => [typeof controls, typeof configure, data]'
+  );
+  const result = await runInNewContext(`(${code})`, {})(null);
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), [
+    'function',
+    'function',
+    null,
+  ]);
+});
+
+test('MCP inspection preserves absent fixture compatibility', async () => {
+  const code = mcpInspectionCode((_page, fixture) => fixture);
+  assert.equal(await runInNewContext(`(${code})`, {})(null), undefined);
+});
