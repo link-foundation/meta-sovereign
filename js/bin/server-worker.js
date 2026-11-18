@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // Private IPC entry point for the rolling server host; never a public API.
 import { createInterface } from 'node:readline';
-import { startResourceDiagnostics } from '../src/server/resource-diagnostics.js';
+import {
+  observeImportResources,
+  startResourceDiagnostics,
+} from '../src/server/resource-diagnostics.js';
 import { snapshotMemory } from '../src/storage/snapshot-memory.js';
 
 let worker = null;
@@ -60,8 +63,10 @@ input.on('line', (line) => {
             phase: 'started',
           },
         });
-        const { createRollingWorker } =
-          await import('../src/server/rolling-worker.js');
+        const { createRollingWorker } = await observeImportResources(
+          () => import('../src/server/rolling-worker.js'),
+          { log: (entry) => send({ type: 'log', entry }), build }
+        );
         send({
           type: 'log',
           entry: {

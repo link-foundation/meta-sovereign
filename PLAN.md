@@ -1,3 +1,11 @@
+2026-11-18 Windows/Deno staged worker import investigation:
+
+- [x] Verify branch, clean source and exact-source run timestamps. Preserve aa095a98 Windows/Deno shard 2 job 135108320789: readiness failures at lines 17403–17443; first worker reaches import_started at lines 15159–15191 without import_finished before the unchanged ten-second deadline.
+- [x] Confirm f34c800a security audit passes. Retain all thirty unfinished issue criteria and draft/unmerged PR57; security success does not verify the remaining scope.
+- [x] Compare finite staged and direct import paths and preserve the following exact-source Windows/Deno pass (initial readiness 5,750 ms; staged import 1,302 ms). Cause remains unproven. Draft opt-in CPU/memory/loop baseline, thirty-sample cap and final observation while preserving lifecycle ownership and deadlines.
+- [x] Reproduce two actual-parent observability failures and an independent default-off control. Fourteen focused Node checks pass; the isolated real Deno start/reuse/upgrade passes with final import CPU/memory/loop measurements. Full matrices stay hosted.
+- [ ] Preserve source-bound evidence, finish scoped static checks and publish the atomic diagnostic change only to the prepared branch. Require all exact-source hosted workflows and continue all thirty unfinished original requirements; no startup performance correction or criterion acceptance is claimed.
+
 2026-11-18 vacancy preview before application entry (HH03 remains unfinished):
 
 - [x] Draft native document/prose-bound scrolling and the independent default three-second preview before both reviewed entry paths. Freeze the bounded option across CLI/environment/configuration, both Lino formats, batch and four-language controls; preserve existing form review delay and issued receipts.

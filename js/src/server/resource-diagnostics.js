@@ -115,3 +115,42 @@ export const startResourceDiagnostics = ({
     },
   };
 };
+
+// Module loading precedes the application's normal resource observer. Keep
+// this separate opt-in observation finite, including a rejected module load.
+export const observeImportResources = async (
+  load,
+  {
+    enabled = process.env.MS_LIFECYCLE_DEBUG === '1',
+    log,
+    build = null,
+    timers = globalThis,
+  } = {}
+) => {
+  if (!enabled) {
+    return load();
+  }
+  const resources = startResourceDiagnostics({
+    log,
+    phase: 'importing',
+    build,
+    automatic: false,
+    intervalMs: 1000,
+  });
+  let samples = 0;
+  const timer = timers.setInterval(() => {
+    resources.sample();
+    if (++samples === 30) {
+      timers.clearInterval(timer);
+      resources.stop();
+    }
+  }, 1000);
+  timer?.unref?.();
+  try {
+    return await load();
+  } finally {
+    timers.clearInterval(timer);
+    resources.sample('server_import_resources_final');
+    resources.stop();
+  }
+};

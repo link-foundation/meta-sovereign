@@ -11,15 +11,35 @@ export const workerArgs = (entry, versions = process.versions) =>
 
 const workerLifecycleLog = (log) => {
   const started = globalThis.performance.now();
-  const phase = (name) => {
+  const phase = (name, details = '') => {
     if (process.env.MS_LIFECYCLE_DEBUG === '1') {
       console.error(
-        `[rolling-worker] ${name} after ${Math.round(globalThis.performance.now() - started)} ms`
+        `[rolling-worker] ${name} after ${Math.round(globalThis.performance.now() - started)} ms${details}`
       );
     }
   };
   phase('spawning');
   const report = (entry) => {
+    if (
+      entry?.phase === 'importing' &&
+      [
+        'server_resource_baseline',
+        'server_resources',
+        'server_import_resources_final',
+      ].includes(entry.event)
+    ) {
+      const values = ['cpuPercent', 'rssBytes', 'schedulerLagMs'].map(
+        (name) => entry[name]
+      );
+      if (values.every((value) => Number.isFinite(value) && value >= 0)) {
+        phase(
+          entry.event === 'server_import_resources_final'
+            ? 'import_resources_final'
+            : 'import_resources',
+          ` (cpu_percent=${values[0]}, rss_bytes=${values[1]}, loop_lag_ms=${values[2]})`
+        );
+      }
+    }
     if (
       entry?.event === 'server_worker_operation' &&
       ['init', 'import'].includes(entry.operation) &&

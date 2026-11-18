@@ -16,7 +16,7 @@ while (pending.length) {
   }
   const code = await readFile(new URL(href), 'utf8');
   const ast = parse(code, { ecmaVersion: 'latest', sourceType: 'module' });
-  const imports = ast.body
+  const names = ast.body
     .filter((node) =>
       [
         'ImportDeclaration',
@@ -25,9 +25,15 @@ while (pending.length) {
       ].includes(node.type)
     )
     .map((node) => node.source?.value)
-    .filter((name) => name?.startsWith('.') && name.endsWith('.js'))
+    .filter(Boolean);
+  const imports = names
+    .filter((name) => name.startsWith('.') && name.endsWith('.js'))
     .map((name) => new URL(name, href).href);
-  graph.set(href, { imports, bytes: Buffer.byteLength(code) });
+  graph.set(href, {
+    imports,
+    external: names.filter((name) => !name.startsWith('.')),
+    bytes: Buffer.byteLength(code),
+  });
   pending.push(...imports);
 }
 const reachable = (href) => {
@@ -66,6 +72,13 @@ console.log(
         0
       ),
       externalAndDynamicImports: 'not traversed',
+      bareImports: [...graph.entries()]
+        .flatMap(([href, node]) =>
+          node.external
+            .filter((name) => !name.startsWith('node:'))
+            .map((name) => ({ name, importer: href.slice(root.href.length) }))
+        )
+        .sort((a, b) => a.name.localeCompare(b.name)),
       serverBranches: branches,
     },
     null,

@@ -1072,3 +1072,5 @@ Keep acknowledged application controls enabled during automatic status reads so 
 Wait for existing birthday greetings before inserting reminders, so already-greeted contacts cannot shift a pressed chat row during reload.
 
 Keep synthetic MCP fixture data separate from trusted inspection callbacks, escaping script delimiters and preserving JSON property semantics in generated verification code (R-Z3, R-Z4).
+
+Add bounded opt-in worker import resource measurements, with final CPU/memory/loop observations and preserved EOF ownership. Retain startup deadlines while investigating intermittent Windows/Deno readiness failures.

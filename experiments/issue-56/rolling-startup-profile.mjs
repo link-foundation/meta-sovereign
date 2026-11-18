@@ -1,15 +1,24 @@
 // One finite real CLI startup/upgrade, with opt-in phase tracing and no builds.
 import { spawn } from 'node:child_process';
 const started = globalThis.performance.now();
+const deno = process.argv.includes('--deno');
 const child = spawn(
-  process.execPath,
-  [
-    '--test',
-    '--test-concurrency=1',
-    '--test-timeout=30000',
-    '--test-name-pattern=default serve owns',
-    'js/tests/rolling-cli.test.js',
-  ],
+  deno ? 'deno' : process.execPath,
+  deno
+    ? [
+        'test',
+        '--allow-all',
+        '--v8-flags=--max-old-space-size=384',
+        '--filter=default serve owns',
+        'js/tests/rolling-cli.test.js',
+      ]
+    : [
+        '--test',
+        '--test-concurrency=1',
+        '--test-timeout=30000',
+        '--test-name-pattern=default serve owns',
+        'js/tests/rolling-cli.test.js',
+      ],
   {
     stdio: 'inherit',
     env: {
@@ -24,6 +33,7 @@ console.log(
   '[startup-probe]',
   JSON.stringify({
     code,
+    runtime: deno ? 'deno' : 'node',
     elapsedMs: Math.round(globalThis.performance.now() - started),
   })
 );

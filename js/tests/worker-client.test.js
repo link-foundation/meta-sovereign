@@ -176,17 +176,43 @@ test('worker import checkpoints are opt-in and exclude arbitrary diagnostic cont
           })}\n`
         );
       }
+      for (const [event, phase, cpuPercent] of [
+        ['server_resource_baseline', 'importing', 0],
+        ['server_resources', 'importing', 42.5],
+        ['server_import_resources_final', 'importing', 42.5],
+        ['server_resources', 'active', 1],
+        ['server_resources', 'importing', 'private fixture text'],
+        ['server_resources', 'importing', -1],
+      ]) {
+        f.child.stdout.write(
+          `${JSON.stringify({
+            type: 'log',
+            entry: {
+              event,
+              phase,
+              cpuPercent,
+              rssBytes: 123456,
+              schedulerLagMs: 7,
+              message: 'private fixture text',
+            },
+          })}\n`
+        );
+      }
       await turn();
       const emitted = lines.slice(start);
-      assert.equal(emitted.length, debug === '1' ? 7 : 0);
+      assert.equal(emitted.length, debug === '1' ? 10 : 0);
       if (debug === '1') {
         assert.ok(emitted.some((line) => line.includes('import_started')));
         assert.ok(emitted.some((line) => line.includes('import_finished')));
+        assert.equal(
+          emitted.filter((line) => line.includes('import_resources')).length,
+          3
+        );
       }
       for (const line of emitted) {
         assert.match(
           line,
-          /^\[rolling-worker\] (?:spawning|spawn_returned|stdout_received|(?:init|import)_(?:started|finished)) after \d+ ms$/u
+          /^\[rolling-worker\] (?:(?:spawning|spawn_returned|stdout_received|(?:init|import)_(?:started|finished)) after \d+ ms|import_resources(?:_final)? after \d+ ms \(cpu_percent=(?:0|42\.5), rss_bytes=123456, loop_lag_ms=7\))$/u
         );
       }
       f.close();
