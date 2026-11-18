@@ -759,3 +759,5 @@ owner drafts and zero sends; complete salary acceptance remains required.
 
 - [Selectable weighted question rewording](question-weighted.md): shared bounded edit/keyword matching, unchanged ordered defaults, mandatory review and translated CLI/Lino/Forms/browser evidence. Full QA02 remains required.
 - [Preserved strict link-check cache](ci-link-cache.md): both exact-source failed attempts, successful-only cache reuse, one-day expiry, permanent-failure controls and hosted verification still required.
+
+Current public HH employment/publication extraction and guarded synthetic recovery: [metadata evidence](vacancy-modern.md). HH03 remains unfinished.

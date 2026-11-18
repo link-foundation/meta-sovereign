@@ -14,7 +14,7 @@ export const enVacancy = {
     'Exclude native cards already marked responded',
   'vacancySelection.excludeText': 'Exclude literal text, one phrase per line',
   'vacancySelection.hint':
-    'Use up to 32 phrases of 120 characters. Match title, employer and up to 100 cached descriptions without case differences (ё/е are equivalent). Uncollected descriptions stay undecided. All cards remain visible; these choices do not apply.',
+    'Use up to 32 phrases of 120 characters. Match title, employer and cached descriptions without case differences (ё/е are equivalent). Uncollected descriptions stay undecided. All cards remain visible; these choices do not apply.',
   'vacancySelection.unavailable':
     'Selection review is unavailable from this server.',
   'vacancySelection.stale':
@@ -38,7 +38,7 @@ export const enVacancy = {
   'technology.working': 'Working with saved evidence…',
   'technology.title': 'Vacancy technology analysis',
   'technology.hint':
-    'Analyze up to 100 cached descriptions against an explicitly chosen verified resume export. Mentions are textual evidence, not proof of competence. Only catalog names are classified; unknown skill tags stay visible. Counts use distinct vacancies. This does not edit a resume or apply.',
+    'Analyze cached descriptions against an explicitly chosen verified resume export. Mentions are textual evidence, not proof of competence. Only catalog names are classified; unknown skill tags stay visible. Counts use distinct vacancies. This does not edit a resume or apply.',
   'technology.catalog': 'Local technology names and aliases',
   'technology.catalogEdit': 'Edit catalog (up to 256 names; 8 aliases each)',
   'technology.entry': 'Catalog entry',
@@ -148,7 +148,7 @@ export const enVacancy = {
   'vacancy.previous': 'Previous page',
   'vacancy.next': 'Next page',
   'vacancy.responded': 'Already responded',
-  'vacancy.cached': 'Saved descriptions (latest 100)',
+  'vacancy.cached': 'Saved descriptions',
   'vacancy.empty': 'Collect a vacancy to keep its full description here.',
   'vacancy.refresh': 'Read description again',
   'vacancy.salaryValue': 'Salary',

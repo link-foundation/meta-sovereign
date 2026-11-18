@@ -1,3 +1,11 @@
+2026-11-18 current public HH metadata (HH03 remains unfinished):
+
+- [x] Compare pinned full-container extraction with a current anonymous public page. Trace missing modern employment/publication fields; keep the separate native navigation refusal unverified.
+- [x] Draft observed selectors and a bounded semantic publication fallback. Preserve old aliases, exact employer text/HTML and acknowledged cache on ambiguity; correct obsolete translated 100-description wording.
+- [x] Reproduce the exact published-parent native failure; pass four successful variants, eight refused refreshes and 30 focused checks. Verify independent four-language MCP recovery and desktop/phone screenshots; drain both fixtures.
+- [x] Preserve independently hashed source-bound evidence entries and reviewed screenshots; pass scoped static checks, the unchanged duplication gate and both focused native scenarios after fixture reuse.
+- [ ] Publish only to the prepared branch, verify exact-source hosted checks and continue all 30 unfinished criteria; PR57 stays draft and unmerged.
+
 2026-11-18 complete private vacancy corpus reads (HH03 remains unfinished):
 
 - [x] Compare the pinned cache's complete enumeration with server/offline reads and technology analysis; trace silent loss after the newest 100 descriptions.

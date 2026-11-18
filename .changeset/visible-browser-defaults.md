@@ -990,3 +990,5 @@ including acknowledged recovery, legacy migration and refreshes, and display the
 saved confirmation in all four languages without replaying delivery.
 
 Return the complete saved vacancy corpus through shared cache controls and technology analysis, preserving explicit byte/mention budgets and older exclusion context.
+
+Retain current HH employment and semantic publication metadata, with conflicting-refresh preservation and bounded native regressions. Correct translated cache and analysis wording to describe the complete saved corpus (issue #56 HH03).

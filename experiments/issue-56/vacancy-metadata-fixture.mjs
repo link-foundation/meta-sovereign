@@ -32,7 +32,7 @@ export const vacancyMetadataHtml = (mode = 'gross') => {
 /** All provider HTML is synthetic; the shared server/reader/cache remain real. */
 export const vacancyMetadataFixture = async (
   browser,
-  { delayed = false } = {}
+  { delayed = false, render = vacancyMetadataHtml } = {}
 ) => {
   let mode = delayed ? 'delayed' : 'gross';
   const delayedReads = [];
@@ -45,7 +45,7 @@ export const vacancyMetadataFixture = async (
         }
         await route.fulfill({
           contentType: 'text/html; charset=utf-8',
-          body: vacancyMetadataHtml(mode),
+          body: render(mode),
         });
         return true;
       },

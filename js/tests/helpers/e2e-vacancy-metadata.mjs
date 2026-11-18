@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import {
+  collectFirstVacancy,
+  vacancySnapshotShot,
+} from './vacancy-browser-controls.mjs';
 import {
   vacancyMetadataFixture,
   vacancyDescriptionHtml,
@@ -65,21 +67,9 @@ export const verifyVacancyMetadataVariants = async (
   const panel = page.locator('[data-vacancies]');
   const action = (name) => panel.locator(`[data-vacancy-action="${name}"]`);
   const snapshot = panel.locator('[data-vacancy-snapshot]');
-  const shot = async (name) => {
-    if (screenshots) {
-      await mkdir(screenshots, { recursive: true });
-      await snapshot.scrollIntoViewIfNeeded();
-      await page.screenshot({ path: join(screenshots, `${name}.png`) });
-    }
-  };
+  const shot = vacancySnapshotShot(page, snapshot, screenshots);
   try {
-    await page.goto(`${fixture.base}/#/cv`);
-    await panel.waitFor();
-    await panel.locator('[data-vacancy-field="query"]').fill('Python');
-    await action('search').click();
-    await panel.locator('[data-vacancy-card]').first().waitFor();
-    await action('collect').first().click();
-    await snapshot.waitFor();
+    await collectFirstVacancy(fixture);
     await shot('gross');
     const gross = await snapshot.innerText();
     assert.ok(

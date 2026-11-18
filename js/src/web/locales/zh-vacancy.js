@@ -13,7 +13,7 @@ export const zhVacancy = {
   'vacancySelection.skipResponded': '排除原生卡片上已标记申请的职位',
   'vacancySelection.excludeText': '排除指定文本，每行一个短语',
   'vacancySelection.hint':
-    '最多 32 个短语，每个 120 字符。匹配标题、雇主及最多 100 份缓存描述，忽略大小写（ё/е 等同）。未读取的描述保持待定。所有卡片仍显示；不会提交申请。',
+    '最多 32 个短语，每个 120 字符。匹配标题、雇主及缓存描述，忽略大小写（ё/е 等同）。未读取的描述保持待定。所有卡片仍显示；不会提交申请。',
   'vacancySelection.unavailable': '此服务器不支持筛选检查。',
   'vacancySelection.stale':
     '筛选结果已过期。请使用当前设置和已保存的选择重新搜索。',
@@ -34,7 +34,7 @@ export const zhVacancy = {
   'technology.working': '正在处理已保存的证据…',
   'technology.title': '职位技术分析',
   'technology.hint':
-    '将最多 100 份已缓存的职位描述与明确选择的已验证简历导出进行比较。提及只是文本证据，不代表具备能力。仅识别目录中的名称；未知技能标签单独保留。按不同职位计数。此操作不会修改简历或投递申请。',
+    '将已缓存的职位描述与明确选择的已验证简历导出进行比较。提及只是文本证据，不代表具备能力。仅识别目录中的名称；未知技能标签单独保留。按不同职位计数。此操作不会修改简历或投递申请。',
   'technology.catalog': '本地技术名称和别名',
   'technology.catalogEdit': '编辑目录（最多 256 个名称，每个 8 个别名）',
   'technology.entry': '目录条目',
@@ -136,7 +136,7 @@ export const zhVacancy = {
   'vacancy.previous': '上一页',
   'vacancy.next': '下一页',
   'vacancy.responded': '已申请',
-  'vacancy.cached': '已保存的描述（最近 100 条）',
+  'vacancy.cached': '已保存的描述',
   'vacancy.empty': '保存职位后，其完整描述会显示在这里。',
   'vacancy.refresh': '重新读取描述',
   'vacancy.salaryValue': '薪资',
