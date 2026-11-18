@@ -15,11 +15,14 @@ import {
 
 const exec = promisify(execFile);
 const fixture = process.env.RUNNER_DOCKER_FIXTURE;
+const isolation = process.env.RUNNER_SERVER_ISOLATION ?? 'docker';
+assert(['docker', 'screen'].includes(isolation));
+const docker = isolation === 'docker';
 assert(
   fixture && process.env.RUNNER_START_PACKAGE && process.env.RUNNER_DOCKER_IMAGE
 );
 const root = resolve('.');
-const session = `ms-runner-proof-${process.pid}`;
+const session = `ms-runner-${isolation}-${process.pid}`;
 const start = join(fixture, 'start');
 const store = join(fixture, 'private store, "quoted"');
 await mkdir(store);
@@ -47,8 +50,10 @@ const targets = validateRunnerProfile({
     cli: join(root, 'js/bin/meta-sovereign.js'),
     store,
     port: 8787,
-    isolation: 'docker',
-    image: process.env.RUNNER_DOCKER_IMAGE,
+    isolation,
+    ...(docker
+      ? { image: process.env.RUNNER_DOCKER_IMAGE }
+      : { node: process.execPath }),
     start,
   },
 });
@@ -77,6 +82,7 @@ const poll = async (read, expected) => {
 try {
   // Readiness polling belongs only to this finite server fixture.
   await poll(async () => (await control.status()).states.server, 'stopped');
+  assert.equal(calls.filter((argv) => argv[1] === '--isolated').length, 0);
   assert.equal((await control.act('start', 'server')).ok, true);
   await poll(() => inspectRunnerApplication(target, run), 'ready');
   await writeFile(join(store, 'owner-marker'), 'retained private data\n');
@@ -92,44 +98,47 @@ try {
     await readFile(join(store, 'owner-marker'), 'utf8'),
     'retained private data\n'
   );
-  assert.equal(calls.filter((argv) => argv[2] === 'rm').length, 1);
+  assert.equal(calls.filter((argv) => argv[2] === 'rm').length, Number(docker));
   assert.equal((await control.act('start', 'local')).ok, true);
   assert.equal((await control.status()).states.server, 'stopped');
   assert.equal((await control.act('stop', 'local')).ok, true);
   assert.equal((await control.act('stop', 'server')).states.server, 'stopped');
-  await exec('docker', ['container', 'rm', session]);
-  await exec('docker', [
-    'create',
-    '--name',
-    session,
-    process.env.RUNNER_DOCKER_IMAGE,
-  ]);
-  for (const action of ['start', 'stop']) {
-    assert.equal((await control.act(action, 'server')).ok, false);
+  if (docker) {
+    await exec('docker', ['container', 'rm', session]);
+    await exec('docker', [
+      'create',
+      '--name',
+      session,
+      process.env.RUNNER_DOCKER_IMAGE,
+    ]);
+    for (const action of ['start', 'stop']) {
+      assert.equal((await control.act(action, 'server')).ok, false);
+    }
+    assert.equal(await inspectRunnerApplication(target, run), 'unknown');
+    assert.equal(
+      (
+        await exec('docker', [
+          'inspect',
+          '--format',
+          '{{.State.Status}}',
+          session,
+        ])
+      ).stdout.trim(),
+      'created'
+    );
   }
-  assert.equal(await inspectRunnerApplication(target, run), 'unknown');
-  assert.equal(
-    (
-      await exec('docker', [
-        'inspect',
-        '--format',
-        '{{.State.Status}}',
-        session,
-      ])
-    ).stdout.trim(),
-    'created'
-  );
   console.log(
     JSON.stringify({
       actualSsh: true,
-      actualDocker: true,
+      actualDocker: docker,
+      serverIsolation: isolation,
       actualApplication: true,
       health: 'ready',
       explicitStarts: 2,
       noImplicitLaunch: true,
       privateDataRetained: true,
-      foreignContainerRefused: true,
-      mutuallyExclusiveScreenAndDocker: true,
+      foreignContainerRefused: docker,
+      mutuallyExclusiveModes: true,
       liveProvider: false,
     })
   );
@@ -140,20 +149,27 @@ try {
   try {
     assert.equal((await control.act('stop', 'local')).ok, true);
   } finally {
-    const remaining = () =>
-      exec('docker', [
-        'container',
-        'ls',
-        '--all',
-        '--filter',
-        `name=^/${session}$`,
-        '--format',
-        '{{.ID}}',
-      ]);
-    if ((await remaining()).stdout.trim()) {
-      await exec('docker', ['container', 'rm', '--force', session]);
+    if (!docker) {
+      assert.equal(
+        (await control.act('stop', 'server')).states.server,
+        'stopped'
+      );
+    } else {
+      const remaining = () =>
+        exec('docker', [
+          'container',
+          'ls',
+          '--all',
+          '--filter',
+          `name=^/${session}$`,
+          '--format',
+          '{{.ID}}',
+        ]);
+      if ((await remaining()).stdout.trim()) {
+        await exec('docker', ['container', 'rm', '--force', session]);
+      }
+      assert.equal((await remaining()).stdout.trim(), '');
     }
-    assert.equal((await remaining()).stdout.trim(), '');
   }
 }
 console.log(JSON.stringify({ applicationResourcesClosed: true }));

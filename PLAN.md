@@ -1028,4 +1028,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve exact 13788383 failed hosted lifecycle: Screen switching passes, but the default completion watcher removes the exited Docker container before the controller can clean it up.
 - [x] Explicitly retain exited containers with the supported start-command policy. Model default auto-removal and reproduce the published-parent lifecycle failure; pass 40 focused runner checks with one worker.
 - [x] Pass scoped formatting, lint, secrets, source/document limits and the unchanged duplication gate (6.49%). Preserve 29 independently hashed retention evidence entries.
-- [ ] Publish only to the prepared branch and require the actual hosted SSH/Docker lifecycle. Complete the full VD02 audit before acceptance; all 32 criteria remain required.
+- [x] Publish only to the prepared branch. Exact-source 9c42ac80 hosted SSH/Docker lifecycle passes, including actual health, owned restart, retained data, foreign refusal and closed resources. Complete the full VD02 audit before acceptance; all 32 criteria remain required.
+
+2026-11-18 complete remote backend verification (VD02 remains unfinished):
+
+- [x] Map all eight pinned Execution Modes clauses to the shared controller and existing CLI/Lino/UI evidence. The real hosted proof must include remote Screen as well as Docker.
+- [x] Reuse the finite lifecycle for both SSH backends. Separate the fixture's remote Screen sockets using the documented daemon environment, retain real binaries/authentication and preserve all Docker foreign-ownership assertions.
+- [x] Pass scoped syntax, lint, formatting, secret checks and ShellCheck; unchanged duplication gate passes at 6.49%. Preserve the first repaired Docker job and actual artifact.
+- [ ] Publish only to the prepared branch and verify both real hosted receipts plus all exact-source workflows before VD02 acceptance. Continue every unfinished criterion.

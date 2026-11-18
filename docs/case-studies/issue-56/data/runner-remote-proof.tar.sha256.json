@@ -1,0 +1,25 @@
+{
+  "archive": "runner-remote-proof.tar.gz",
+  "files": {
+    "experiments/issue-56/runner-docker-hosted.mjs": "2ed561c5ab7fba3e30d885590e222667d21a1f2acf8433c30f2629412aecd51a",
+    "experiments/issue-56/runner-docker-hosted.sh": "cdca8284dd088b46418e2422957dc868286a7842065db0bfa8534cbb852aab44",
+    "experiments/issue-56/collect-runner-remote-proof.py": "221fa8425658b20f612061d17a6b965c8ceb2a3ed64929e902c44eaa78088341",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "docs/case-studies/issue-56/runner-remote-verification.md": "8db4c2feffba4dae4eb1df3bb83ac167a54a244fa8c7a7680490ee9164528f7a",
+    "ci-logs/runner-retention-native-job.json": "f26b02675f847dff99e09c89d0f035b40583407fe748afefc462dab33781b608",
+    "ci-logs/native-docker-134609494750.log": "2784abb8e255a4a696c47625be70fb9e1b32f8db5471a9aa8d716d1eb4903603",
+    "ci-logs/docker-9c42ac80-artifact/runner-docker-hosted.log": "de5123e379f3b3c2bbe5050b76c356bfcfcec49ab64043c07103f506c34c2536",
+    "ci-logs/docker-9c42ac80-artifact/runner-docker-sshd.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-desktop-reference-requirements.source": "e0f0458349c20edbd3b31386f772ab18fd7fbc332ec55a1ff96b511c6028de90",
+    "ci-logs/runner-screen-hosted-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-screen-hosted-shellcheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-remote-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-remote-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-remote-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/runner-remote-duplication.log": "10b844e032a4271abbb1fe5e88090173b70b54b00da56fad4f2620636910034f",
+    "verified/experiments/issue-56/runner-docker-hosted.mjs": "ede0303a443f24f11cdaa00efa47fb89930b3bf063df38cb96ccf3fd22bc4cec",
+    "verified/experiments/issue-56/runner-docker-hosted.sh": "15bd5bc309983bb4875276b4f141f6d9dbfc2f48373bb5287d394729e8d6c85a",
+    "verified/js/src/server/runner-docker.js": "9d1883c924b1a7aaf61ca1a62c66cf27aa0f1ae4430de41150a648ac539c5fc7",
+    "metadata.json": "551f279511ee8f08445b2b438802852003026aef96735ebbd6119dd31c3f26d9"
+  }
+}

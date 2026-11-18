@@ -13,7 +13,8 @@ cleanup_runner_fixture() {
   sudo -n rm -rf -- "$runner_fixture"
 }
 trap cleanup_runner_fixture EXIT
-mkdir -p ci-logs "$runner_fixture/bin"
+mkdir -p ci-logs "$runner_fixture/bin" "$runner_fixture/remote-screen"
+chmod 700 "$runner_fixture/remote-screen"
 if [[ ! -x /usr/sbin/sshd ]] || ! command -v screen >/dev/null; then
   sudo -n apt-get update >ci-logs/runner-docker-apt.log 2>&1 &
   runner_install_pid=$!
@@ -39,6 +40,7 @@ PubkeyAuthentication yes
 UsePAM yes
 StrictModes no
 LogLevel ERROR
+SetEnv SCREENDIR=$runner_fixture/remote-screen
 EOF
 cat >"$runner_fixture/ssh_config" <<EOF
 Host runner-docker-fixture
@@ -64,3 +66,5 @@ runner_sshd_pid=$!
 export PATH="$runner_fixture/bin:$PATH"
 export RUNNER_DOCKER_FIXTURE="$runner_fixture"
 node experiments/issue-56/runner-docker-hosted.mjs
+mkdir "$runner_fixture/screen"
+RUNNER_DOCKER_FIXTURE="$runner_fixture/screen" RUNNER_SERVER_ISOLATION=screen node experiments/issue-56/runner-docker-hosted.mjs
