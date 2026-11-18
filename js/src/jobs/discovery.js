@@ -4,6 +4,10 @@ import { hhSearchUrl, jobsBrowserOptions, jobsFailure } from './options.js';
 import { vacancySnapshot } from '../assignments/vacancy.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
 import { storedVacancySkips } from './vacancy-skip-service.js';
+import {
+  pendingDeferredVacancies,
+  storedDeferredQuestions,
+} from './deferred-questions.js';
 import { vacancySelectionDecision } from './vacancy-selection.js';
 import {
   discoveryKey,
@@ -132,6 +136,19 @@ class VacancyDiscovery {
       skips
     );
     let capturedAt = null;
+    let questions;
+    const deferQuestion = async () => {
+      questions = await storedDeferredQuestions(this.store, options);
+      if (
+        ['review', 'needs-description'].includes(decision.reason) &&
+        (await pendingDeferredVacancies(this.store, options, questions)).has(
+          card.url
+        )
+      ) {
+        decision = { ...decision, reason: 'question-deferred' };
+      }
+    };
+    await deferQuestion();
     const pay = salaryLadderStart(options)
       ? {
           tier: owned.record.salaryTier,
@@ -170,6 +187,7 @@ class VacancyDiscovery {
         options.filters,
         skips
       );
+      await deferQuestion();
     }
     if (
       ['review', 'needs-description'].includes(decision.reason) &&
@@ -182,6 +200,7 @@ class VacancyDiscovery {
       decision,
       choiceRevision: choices.revision,
       skipRevision: skips.revision,
+      questionRevision: questions.revision,
       capturedAt,
       ...(pay ? { pay } : {}),
     };

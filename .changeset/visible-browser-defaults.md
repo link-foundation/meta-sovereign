@@ -975,3 +975,8 @@ in all four languages (issue #56 VD06/VD07).
 Wait for delayed native vacancy titles and descriptions before collection or
 application review, with finite cancellation and unchanged cache protection.
 Keep delayed-loading coverage in an independently registered browser group.
+
+Persist private HH question deferrals by browser slot with revisioned CLI, Lino
+and four-language controls. Preserve actual answers before closing matching
+forms, watch waiting forms, and share answer-aware exclusions across discovery,
+search and batches while retaining the independent worker questionnaire queue.

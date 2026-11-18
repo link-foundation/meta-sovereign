@@ -56,11 +56,15 @@ export const createApplicationApi = ({ get, report }) => ({
       'backup',
       'restore',
       'defer',
+      'defer-questions',
       'retry',
       'mode',
       'close',
     ].map((operation) => [
-      `vacancyApplication${operation[0].toUpperCase()}${operation.slice(1)}`,
+      `vacancyApplication${operation
+        .split('-')
+        .map((part) => part[0].toUpperCase() + part.slice(1))
+        .join('')}`,
       async (input) => {
         const result = confirmed(
           await report(`/api/vacancies/application-${operation}`, input, {

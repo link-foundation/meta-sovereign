@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-export const useVacancyRecords = ({ api, values, run, adapter }) => {
+export const useVacancyRecords = ({
+  api,
+  values,
+  run,
+  adapter,
+  refreshKey,
+}) => {
   const browserSlot = values.browserSlot;
   const [snapshot, setSnapshot] = useState(null);
   const [ready, setReady] = useState(false);
@@ -37,7 +43,7 @@ export const useVacancyRecords = ({ api, values, run, adapter }) => {
         owner.current = null;
       }
     };
-  }, [api, browserSlot, adapter]);
+  }, [api, browserSlot, adapter, refreshKey]);
   const current = snapshot?.browserSlot === browserSlot ? snapshot : null;
   const change = (input) =>
     run(adapter.writeOperation, async () => {

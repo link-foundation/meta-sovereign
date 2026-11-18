@@ -67,6 +67,15 @@ test('vacancy search, loading and discovery retain all seven scenarios in bounde
   ]);
 });
 
+test('durable question deferrals retain an independent mandatory native browser scenario', () => {
+  assert.deepEqual(
+    registeredScenarios(
+      registry.filter((name) => name === 'deferred-questions')
+    ),
+    ['verifyDeferredQuestions']
+  );
+});
+
 test('native application scenarios remain registered once in bounded groups', () => {
   const scenarios = registeredScenarios(
     registry.filter((name) => name.startsWith('job-application'))

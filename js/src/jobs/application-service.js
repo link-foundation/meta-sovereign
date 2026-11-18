@@ -25,6 +25,8 @@ import { ApplicationDrafts } from './application-drafts.js';
 import { ApplicationActions } from './application-actions.js';
 import { ApplicationRunModes } from './application-run-modes.js';
 import { ApplicationDeferrals } from './application-deferrals.js';
+import { ApplicationQuestionDeferrals } from './application-question-deferrals.js';
+import { storedDeferredQuestions } from './deferred-questions.js';
 import { ApplicationHolds } from './application-holds.js';
 import { ApplicationRetries } from './application-retries.js';
 import { ApplicationFullForm } from './application-full-form.js';
@@ -73,6 +75,7 @@ class ApplicationService {
     now = Date.now,
     limitWait,
     pacingRandom,
+    questionWatchMs,
     batchWait,
     chatRunner,
     chatLog = () => {},
@@ -110,6 +113,10 @@ class ApplicationService {
     this.drafts = new ApplicationDrafts(this);
     this.modes = new ApplicationRunModes();
     this.deferrals = new ApplicationDeferrals(this);
+    this.questionDeferrals = new ApplicationQuestionDeferrals(
+      this,
+      questionWatchMs
+    );
     this.holds = new ApplicationHolds(this.trace);
     this.retries = new ApplicationRetries(this, now);
     this.resumes = new ApplicationResumes(this);
@@ -126,6 +133,7 @@ class ApplicationService {
     return saveApplicationJournal(this.store, record);
   }
   async close() {
+    this.questionDeferrals.stopWatch();
     this.limitWait.abort();
     globalThis.clearTimeout(this.timer);
     const record = this.current;
@@ -147,6 +155,7 @@ class ApplicationService {
     return { ...applicationView(record), state: 'closed' };
   }
   touch() {
+    this.questionDeferrals.watch();
     globalThis.clearTimeout(this.timer);
     if (
       !this.current ||
@@ -173,6 +182,7 @@ class ApplicationService {
       return Promise.reject(fail('stopped'));
     }
     const next = acknowledgedWrite(this.store, this.run, async (signal) => {
+      this.questionDeferrals.stopWatch();
       globalThis.clearTimeout(this.timer);
       try {
         return await this.perform(operation, signal);
@@ -203,13 +213,20 @@ class ApplicationService {
       // A failed read/save must keep that form open without a second save attempt.
       if (!failure || failure.code === 'jobs-application-state') {
         const backed = await this.limitBackups.automatic(signal);
+        let questionDeferred;
         result =
           (await this.limitRejections.observe(signal)) ??
           backed ??
           (await this.retries.automatic(signal)) ??
           (await this.salary.automatic(signal)) ??
+          (questionDeferred = await this.questionDeferrals.automatic(signal)) ??
           (await this.deferrals.automatic(signal)) ??
           result;
+        // The policy guard deliberately interrupted dispatch. Its acknowledged
+        // preservation and owned close are the completed action for this turn.
+        if (questionDeferred) {
+          failure = null;
+        }
       }
     } catch (error) {
       this.trace({
@@ -352,6 +369,7 @@ class ApplicationService {
       throw fail('busy');
     }
     await assertVacancyNotSkipped(this.store, options);
+    await this.questionDeferrals.assertVacancyAllowed(options);
     const restored = await this.restore(options, input);
     options = restored.options;
     if (restored.previous && !input.recover) {
@@ -447,10 +465,12 @@ class ApplicationService {
   }
   async stop() {
     this.stopped = true;
+    this.questionDeferrals.stopWatch();
     await this.batch.drain();
     this.limitWait.abort();
     globalThis.clearTimeout(this.timer);
     await this.task?.catch(() => {});
+    await this.questionDeferrals.work;
     await this.limitWait.drain();
     await this.close();
     this.modes.clear();
@@ -487,6 +507,18 @@ export const createApplicationService = (options) => {
             : Promise.reject(fail('input')),
       'application-queue': (input) =>
         acknowledgedRead(service.store, () => service.deferrals.list(input)),
+      'questions-stored': (input) =>
+        acknowledgedRead(service.store, () =>
+          storedDeferredQuestions(service.store, input)
+        ),
+      'question-change': (input) =>
+        service.operate((signal) =>
+          service.questionDeferrals.change(input, signal)
+        ),
+      'application-defer-questions': (input) =>
+        service.operate((signal) =>
+          service.questionDeferrals.defer(service.owned(input), input, signal)
+        ),
       'application-defer': (input) =>
         service.operate((signal) =>
           service.deferrals.defer(service.owned(input), input, signal)

@@ -151,6 +151,9 @@ export const discoveryEntry = (raw, options) => {
       ...(raw.skipRevision === undefined
         ? {}
         : { skipRevision: raw.skipRevision }),
+      ...(raw.questionRevision === undefined
+        ? {}
+        : { questionRevision: raw.questionRevision }),
       decisions: [raw.decision],
     },
     result,
@@ -177,6 +180,9 @@ export const discoveryEntry = (raw, options) => {
     ...(raw.skipRevision === undefined
       ? {}
       : { skipRevision: raw.skipRevision }),
+    ...(raw.questionRevision === undefined
+      ? {}
+      : { questionRevision: selection.questionRevision }),
     capturedAt: raw.capturedAt,
     ...(pay ? { pay } : {}),
   };

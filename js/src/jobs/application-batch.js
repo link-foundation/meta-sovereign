@@ -15,6 +15,7 @@ import {
 } from './application-batch-data.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
 import { storedVacancySkips } from './vacancy-skip-service.js';
+import { pendingDeferredVacancies } from './deferred-questions.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
 import {
@@ -402,8 +403,15 @@ export class ApplicationBatch {
       record.options
     );
     const skips = await storedVacancySkips(this.service.store, record.options);
+    const pending = await pendingDeferredVacancies(
+      this.service.store,
+      record.options.review
+    );
     signal.throwIfAborted();
-    if ([...choices.entries, ...skips.entries].some((row) => row.url === url)) {
+    if (
+      pending.has(url) ||
+      [...choices.entries, ...skips.entries].some((row) => row.url === url)
+    ) {
       await this.salary.remove(runtime, url);
       return this.exclude(runtime, url, due, Boolean(salaryUrl));
     }
@@ -440,6 +448,7 @@ export class ApplicationBatch {
         signal
       );
     }
+    await this.service.questionDeferrals.automatic(signal);
     const current = this.service.current;
     if (current && (await this.salary.preserve(runtime, current, signal))) {
       return;
@@ -473,6 +482,19 @@ export class ApplicationBatch {
           ? runtime.record.cursor
           : runtime.record.cursor + 1,
     });
+  }
+  async questionDeferred(record) {
+    const runtime = this.runtime;
+    if (
+      runtime?.record.active &&
+      runtime.record.currentUrl === record.url &&
+      runtime.record.options.requestId === record.requestId &&
+      runtime.record.options.browserSlot === record.browserSlot
+    ) {
+      await this.save(runtime, {
+        skipped: [...new Set([...runtime.record.skipped, record.url])],
+      });
+    }
   }
   async restore(current, signal) {
     if (

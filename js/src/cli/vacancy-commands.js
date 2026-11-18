@@ -63,6 +63,8 @@ const vacancyOperations = [
   'stored',
   'choices-stored',
   'skips-stored',
+  'questions-stored',
+  'question-change',
   'skip-clear',
   'choice-save',
   'choice-clear',
@@ -131,6 +133,9 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                           'state',
                           'revision',
                           'reason',
+                          'action',
+                          'question',
+                          'mode',
                           'note',
                         ].map((key) => [key, args[key]])
                       ),
@@ -148,6 +153,7 @@ export const createVacancyCommands = ({ openStore, ...options }) =>
                         'boolean'
                       ),
                       excludeText: args['exclude-text'],
+                      entryId: args['entry-id'],
                       page: typedFlag(args, 'page', 'number'),
                       browserSlot: args['browser-slot'],
                       resumeLanguage: args['resume-language'],

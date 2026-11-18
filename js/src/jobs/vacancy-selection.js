@@ -137,6 +137,18 @@ const validateMatch = (row, card, filters, choiceRevision) => {
   }
 };
 
+const validatePolicyReason = (row, skipRevision, questionRevision) => {
+  if (row.reason === 'question-deferred' && questionRevision === 'empty') {
+    fail();
+  }
+  if (
+    row.reason === 'native-skip' &&
+    (skipRevision === 'empty' || !vacancySkipReasons.includes(row.skipReason))
+  ) {
+    fail();
+  }
+};
+
 /** Validate one bound decision per card without treating selection as delivery. */
 export const vacancySelectionResult = (raw, result, input) => {
   const browserSlot = vacancyChoiceSlot(input);
@@ -161,6 +173,10 @@ export const vacancySelectionResult = (raw, result, input) => {
     raw.skipRevision ?? 'empty',
     browserSlot
   );
+  const questionRevision = vacancySkipRevision(
+    raw.questionRevision ?? 'empty',
+    browserSlot
+  );
   const decisions = raw.decisions.map((row, index) => {
     const card = result.cards[index];
     if (
@@ -173,6 +189,7 @@ export const vacancySelectionResult = (raw, result, input) => {
         'configured-text',
         'needs-description',
         'retry-wait',
+        'question-deferred',
         'native-skip',
         'review',
       ].includes(row.reason) ||
@@ -187,12 +204,7 @@ export const vacancySelectionResult = (raw, result, input) => {
       fail();
     }
     validateMatch(row, card, filters, choiceRevision);
-    if (
-      row.reason === 'native-skip' &&
-      (skipRevision === 'empty' || !vacancySkipReasons.includes(row.skipReason))
-    ) {
-      fail();
-    }
+    validatePolicyReason(row, skipRevision, questionRevision);
     return {
       url: row.url,
       reason: row.reason,
@@ -209,5 +221,6 @@ export const vacancySelectionResult = (raw, result, input) => {
     filters,
     decisions,
     ...(raw.skipRevision === undefined ? {} : { skipRevision }),
+    ...(raw.questionRevision === undefined ? {} : { questionRevision }),
   };
 };

@@ -359,6 +359,7 @@ test('four locales show reversible preferences, each reason and explicit stale s
       result,
       choices: { ready: true, snapshot: { revision: 'empty' } },
       skips: { ready: true, snapshot: { revision: 'empty' } },
+      questions: { ready: true, snapshot: { revision: 'empty' } },
     };
     for (const locale of ['en', 'ru', 'zh', 'hi']) {
       const t = (key, vars) => translate(locale, key, vars);

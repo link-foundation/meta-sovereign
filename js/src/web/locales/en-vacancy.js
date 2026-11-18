@@ -1,6 +1,8 @@
+import { deferredQuestionsLocale } from './deferred-questions.js';
 import { enDiscovery } from './en-discovery.js';
 import { enApplication } from './en-application.js';
 export const enVacancy = {
+  ...deferredQuestionsLocale('en'),
   'vacancySkip.clear-vacancy_unavailable': 'Clear unavailable-vacancy refusals',
   'vacancySkip.vacancy_unavailable': 'HH closed this vacancy to your account',
   ...enDiscovery,

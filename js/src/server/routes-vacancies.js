@@ -45,6 +45,8 @@ const failureReply = (error) => {
             'jobs-application-changed',
             'jobs-application-already-attempted',
             'jobs-application-skipped',
+            'jobs-question-deferral-conflict',
+            'jobs-application-question-deferred',
           ].includes(code)
         ? 409
         : 400);
@@ -87,6 +89,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-queue',
       'choices-stored',
       'skips-stored',
+      'questions-stored',
       'stored',
       'resumes-stored',
       'resume-export-status',
@@ -121,6 +124,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'application-backup',
       'application-restore',
       'application-defer',
+      'application-defer-questions',
       'application-retry',
       'application-advance',
       'application-continue',
@@ -129,6 +133,7 @@ export const handleVacancyRoutes = async (store, req, res, path, ctx) => {
       'choice-save',
       'choice-clear',
       'skip-clear',
+      'question-change',
       'collect',
       'cancel',
       'resumes',

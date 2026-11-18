@@ -109,6 +109,8 @@ export const ordinaryCommandNames = new Set([
   'vacancies-choice-save',
   'vacancies-choices-stored',
   'vacancies-skips-stored',
+  'vacancies-questions-stored',
+  'vacancies-question-change',
   'vacancies-skip-clear',
   'vacancies-collect',
   'vacancies-cv-prepare',

@@ -318,6 +318,11 @@ const nativeAdmission = (application, idle, confirmed) => {
     !receipt.attempted.submit;
   return { ready, admitted, payAllowed, writable };
 };
+const canDeferQuestions = (ready, confirmed, receipt) =>
+  canBackup(ready, confirmed, receipt) &&
+  receipt.page?.questions &&
+  !receipt.paused &&
+  !receipt.testMode;
 const NativeControls = ({ application, idle, confirmed, t }) => {
   const receipt = application.receipt;
   const { ready, admitted, payAllowed, writable } = nativeAdmission(
@@ -384,6 +389,12 @@ const NativeControls = ({ application, idle, confirmed, t }) => {
         t('application.defer'),
         action('Defer', { confirm: true }),
         !canBackup(ready, confirmed, receipt) || !receipt.page?.questions
+      ),
+      button(
+        'defer-questions',
+        t('application.deferQuestions'),
+        action('DeferQuestions', { confirm: true }),
+        !canDeferQuestions(ready, confirmed, receipt)
       ),
       button(
         'restore',

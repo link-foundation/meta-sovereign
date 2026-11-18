@@ -32,6 +32,10 @@ export const VacancySelectionSettings = ({ state, t, update }) =>
     el('p', { key: 'hint', className: 'meta' }, t('vacancySelection.hint')),
   ]);
 
+const revisionIsCurrent = (revision, records) =>
+  revision === undefined ||
+  Boolean(records?.ready && revision === records.snapshot?.revision);
+
 export const selectionIsCurrent = (state) => {
   const result = state.result;
   return Boolean(
@@ -39,9 +43,8 @@ export const selectionIsCurrent = (state) => {
     state.choices?.ready &&
     result.selection.browserSlot === state.values.browserSlot &&
     result.selection.choiceRevision === state.choices.snapshot?.revision &&
-    (result.selection.skipRevision === undefined ||
-      (state.skips?.ready &&
-        result.selection.skipRevision === state.skips.snapshot?.revision)) &&
+    revisionIsCurrent(result.selection.skipRevision, state.skips) &&
+    revisionIsCurrent(result.selection.questionRevision, state.questions) &&
     JSON.stringify(result.input) === JSON.stringify(state.values)
   );
 };
@@ -64,7 +67,7 @@ export const VacancySelectionSummary = ({ state, t }) => {
             'retry-wait',
             'native-skip',
           ]),
-          deferred: count(['owner-deferred']),
+          deferred: count(['owner-deferred', 'question-deferred']),
           unread: count(['needs-description']),
           review: count(['review']),
         });

@@ -27,6 +27,10 @@ import { CvWorkplaceReview } from './cv-workplace-panel.js';
 import { useVacancyChoices } from './vacancy-choice-state.js';
 import { useVacancySkips } from './vacancy-skip-state.js';
 import { VacancySkips } from './vacancy-skips.js';
+import {
+  useDeferredQuestions,
+  DeferredQuestions,
+} from './deferred-questions.js';
 import { VacancyChoices, VacancyChoiceControls } from './vacancy-choices.js';
 import { vacancySelectionOptions } from '../jobs/vacancy-selection.js';
 import { useVacancyDiscovery } from './discovery-state.js';
@@ -103,16 +107,10 @@ const cancelVacancyOperation = ({ application, api, run }) =>
     ? application.stop()
     : run('cancel', () => api.vacancyCancel());
 
-export const useVacancies = (api) => {
-  const [values, setValues] = useState(initialSettings);
-  const [capabilities, setCapabilities] = useState(null);
-  const [stored, setStored] = useState([]);
-  const [result, setResult] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [busy, setBusy] = useState('');
-  const [error, setError] = useState('');
-  const [loaded, setLoaded] = useState(false);
-  const [resumeLists, setResumeLists] = useState([]);
+const useInitialVacancies = (
+  api,
+  { setCapabilities, setStored, setResumeLists, setLoaded, setError }
+) => {
   useEffect(() => {
     let current = true;
     Promise.all([
@@ -138,7 +136,26 @@ export const useVacancies = (api) => {
     return () => {
       current = false;
     };
-  }, [api]);
+  }, [api, setCapabilities, setStored, setResumeLists, setLoaded, setError]);
+};
+
+export const useVacancies = (api) => {
+  const [values, setValues] = useState(initialSettings);
+  const [capabilities, setCapabilities] = useState(null);
+  const [stored, setStored] = useState([]);
+  const [result, setResult] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [loaded, setLoaded] = useState(false);
+  const [resumeLists, setResumeLists] = useState([]);
+  useInitialVacancies(api, {
+    setCapabilities,
+    setStored,
+    setResumeLists,
+    setLoaded,
+    setError,
+  });
   const run = async (kind, operation) => {
     setBusy(kind);
     setError('');
@@ -177,6 +194,12 @@ export const useVacancies = (api) => {
   const cvTranslation = useCvTranslation({ api, values, run });
   const choices = useVacancyChoices({ api, values, run });
   const skips = useVacancySkips({ api, values, run });
+  const questions = useDeferredQuestions({
+    api,
+    values,
+    run,
+    refreshKey: application.receipt?.revision,
+  });
   const search = (page = 0) =>
     run('search', async () => {
       const input = searchInput(values, page);
@@ -234,6 +257,7 @@ export const useVacancies = (api) => {
     cvTranslation,
     choices,
     skips,
+    questions,
     error,
     loaded,
     valid: browserValid && validSearch(values),
@@ -609,6 +633,11 @@ export const VacanciesScreen = ({ state }) => {
         t,
       }),
       el(VacancySkips, { key: `skips:${state.values.browserSlot}`, state, t }),
+      el(DeferredQuestions, {
+        key: `questions:${state.values.browserSlot}`,
+        state,
+        t,
+      }),
       el('h3', { key: 'stored-title' }, t('vacancy.cached')),
       ...state.stored.map((row) =>
         action(row.id, row.title, () => state.setSelected(row), !idle)

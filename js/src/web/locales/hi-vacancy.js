@@ -1,6 +1,8 @@
+import { deferredQuestionsLocale } from './deferred-questions.js';
 import { hiDiscovery } from './hi-discovery.js';
 import { hiApplication } from './hi-application.js';
 export const hiVacancy = {
+  ...deferredQuestionsLocale('hi'),
   'vacancySkip.clear-vacancy_unavailable':
     'अनुपलब्ध रिक्तियों की अस्वीकृतियाँ हटाएँ',
   'vacancySkip.vacancy_unavailable':

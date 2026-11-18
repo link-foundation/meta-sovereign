@@ -304,6 +304,7 @@ export class ApplicationReview {
     signal.throwIfAborted();
     checkPolicy(record, allowHeld);
     if (!allowHeld) {
+      await this.service.questionDeferrals.assertAllowed(record, signal);
       await this.service.limits.admit(record);
       signal.throwIfAborted();
     }
