@@ -1078,3 +1078,7 @@ Add bounded opt-in worker import resource measurements, with final CPU/memory/lo
 Verify owner-created workplace Saves from a pre-Save inert list baseline and one additional numeric ID, retaining full-field, membership and export proof, prior snapshots and drained Stop. Refuse incomplete or ambiguous identity readback; shared copy/save/detach remains unfinished (HH18).
 
 Reject CV Save readback that finishes at or after its original monotonic verification deadline. Preserve cancellation, drained reads and acknowledged snapshots; a fresh owner Save starts a separate verification cycle (HH18).
+
+Preserve existing and changed owner drafts before plain browser input and Send,
+avoid WhatsApp URL prefill, and keep multiline fill from issuing Enter mid-message.
+Use native rich-composer typing when textarea-only fill cannot verify emptiness (QA20).

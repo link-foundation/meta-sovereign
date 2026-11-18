@@ -31,6 +31,8 @@
 /* global document -- `extractMessages` runs in the page */
 
 import { setTimeout as sleep } from 'node:timers/promises';
+import { randomUUID } from 'node:crypto';
+import { verifyBrowserComposer } from './browser-composer-draft.js';
 
 import {
   defaultProfileDir,
@@ -440,17 +442,19 @@ const browserUiFor = (platforms) => (source) => {
   return ui;
 };
 
-const composerFocus = (waitFor) => async (source, ui, commander) => {
-  const composer = await waitFor(commander, ui.composer);
-  if (!composer) {
-    throw codedError(
-      `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
-      'composer-missing'
-    );
-  }
-  await commander.clickButton({ selector: composer, scrollIntoView: true });
-  return composer;
-};
+const composerFocus =
+  (waitFor) => async (source, ui, commander, beforeFocus) => {
+    const composer = await waitFor(commander, ui.composer);
+    if (!composer) {
+      throw codedError(
+        `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
+        'composer-missing'
+      );
+    }
+    await beforeFocus?.(composer);
+    await commander.clickButton({ selector: composer, scrollIntoView: true });
+    return composer;
+  };
 
 /**
  * Drive the official web UIs through browser-commander.
@@ -528,27 +532,42 @@ const createBrowserTextSender =
     const ui = requireTextUi(uiFor(source));
     const target = ui.target({ chat, to });
     await consent();
-    await inChat(
-      source,
-      target,
-      { text: body, beforeOpen: consent },
-      async (commander) => {
-        const composer = await focusComposer(source, ui, commander);
+    await inChat(source, target, { beforeOpen: consent }, async (commander) => {
+      const token = randomUUID();
+      const verify = (operation, text = '') =>
+        verifyBrowserComposer(commander, {
+          operation,
+          token,
+          selector: ui.composer,
+          text,
+        });
+      try {
+        const composer = await focusComposer(source, ui, commander, () =>
+          verify('begin')
+        );
         await consent();
-        // A pre-filled chat URL already put the text into the composer.
-        if (!ui.prefill && input === 'fill') {
+        const current = await verify('check');
+        // fillTextArea reads .value; rich composers use native key events.
+        if (input === 'fill' && !current.contentEditable) {
           await commander.fillTextArea({
             selector: composer,
             text: body,
-            checkEmpty: false,
-            simulateTyping: true,
+            checkEmpty: true,
+            simulateTyping: false,
           });
-        } else if (!ui.prefill) {
+        } else {
           await typeLines(commander, body, typingDelayMs);
         }
-        await pressSend(ui, commander, consent);
+        await pressSend(ui, commander, async () => {
+          await consent();
+          await verify('check', body);
+        });
+      } finally {
+        await verify('release').catch(() => {
+          log(`[browser:${source}] composer check cleanup unavailable`);
+        });
       }
-    );
+    });
     log(`[browser:${source}] sent to ${target}`);
     return {
       via: 'browser',

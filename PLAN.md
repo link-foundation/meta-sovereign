@@ -1,3 +1,11 @@
+2026-11-18 owner drafts in plain browser sending (QA20 remains unfinished):
+
+- [x] Trace the actual plain sender: unchecked fill can append to and submit native owner text; WhatsApp navigation can prefill before inspection. Compare shared strict-reply ownership checks and pinned draft preservation references.
+- [x] Reproduce 21 published-parent fixture failures with two controls and actual native owner text submission, retaining before/after screenshots. Refuse existing or changed composers before input/Send, keep typing and fill options, avoid URL prefill, and preserve already-issued uncertainty.
+- [x] Pass 118 relevant checks with one worker and six actual native commander cases. Independent MCP phone inspection retains existing and changed textarea/rich drafts with zero sends and no console messages; cleared rich-composer whitespace is conservatively preserved. Keep all matrices hosted.
+- [x] Preserve source-bound evidence and pass scoped format, lint, secret, source/document-limit and whitespace gates. No matrix or stress test runs locally.
+- [ ] Publish the atomic correction and verify current-source hosted checks. Continue every unfinished original criterion; this prerequisite alone does not accept QA20 or complete PR57.
+
 2026-11-18 final import resource warnings:
 
 - [x] Preserve exact 08cf9ee5 macOS/Bun and Ubuntu/Bun failures. Both reject an allowed warning transition emitted immediately after the final sample; the specific underlying resource threshold is not recorded in the failed assertions.

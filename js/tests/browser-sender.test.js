@@ -50,6 +50,9 @@ const fakeCommander = ({ present = [], rows = [], calls = [] } = {}) => {
       return { filled: true };
     },
     async evaluate({ fn, args }) {
+      if (fn.name === 'browserComposerDraft') {
+        return { verified: true };
+      }
       calls.push(['evaluate', args[0].item, args[0].limit]);
       return typeof rows === 'function' ? rows(fn, args) : rows;
     },
@@ -232,7 +235,7 @@ test('input "fill" fills the composer instead of typing', async () => {
   ]);
 });
 
-test('WhatsApp relies on the pre-filled composer and only sends', async () => {
+test('WhatsApp opens without prefill and types after checking the composer', async () => {
   const commander = fakeCommander({ present: signedIn('whatsapp') });
   const { openSession } = fakeSessions(() => commander);
   const sender = createBrowserSender({ openSession, ...quick });
@@ -244,8 +247,9 @@ test('WhatsApp relies on the pre-filled composer and only sends', async () => {
   });
   assert.equal(result.chat, '+1 555 0100');
   assert.deepEqual(commander.calls, [
-    ['goto', 'https://web.whatsapp.com/send?phone=15550100&text=hi'],
+    ['goto', 'https://web.whatsapp.com/send?phone=15550100'],
     ['click', first(WEB_UIS.whatsapp.composer)],
+    ['type', 'hi'],
     ['click', first(WEB_UIS.whatsapp.send.selector)],
   ]);
 });

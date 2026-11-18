@@ -23,6 +23,7 @@ export const withBrowserSendConsent = async (
   const composer = first(ui.composer);
   const button = first(ui.send.selector);
   const commander = {
+    evaluate: async () => ({ verified: true }),
     goto: async (target) => {
       navigations.push(target);
       await wait('open');
