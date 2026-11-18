@@ -10,7 +10,7 @@ use crate::json::Value;
 use crate::record_sync;
 use crate::state::ServerState;
 
-pub const SCHEMA: f64 = 25.0;
+pub const SCHEMA: f64 = 26.0;
 
 fn id() -> String {
     static NEXT: AtomicU64 = AtomicU64::new(0);

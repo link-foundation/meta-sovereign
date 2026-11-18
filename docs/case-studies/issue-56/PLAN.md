@@ -9,8 +9,9 @@
 2026-11-18 HH application route parity investigation:
 
 - [x] Read the pinned route/configuration/native-test sources and compare actual shared entry paths. The reference can return through the original search before opening the canonical full form, avoiding an Apply shortcut that may submit immediately.
-- [ ] Implement the missing route option across CLI/environment/file, both Lino encodings, frozen single/batch settings and shared localized controls, retaining strict document/Stop/draft guards and legacy signatures.
-- [ ] Reproduce against the exact published parent, verify bounded native before/after routes and independently inspect the UI; preserve source-bound evidence. Complete the remaining cache/insight audit before accepting HH03.
+- [x] Implement the missing route option across CLI/environment/file, both Lino encodings, frozen single/batch settings and shared localized controls, retaining strict document/Stop/draft guards and legacy signatures.
+- [x] Reproduce 22 assertions against the exact published parent, retain two controls and pass 80 focused checks. Verify bounded native before/after routes, four actual DOM refusals and independent MCP recovery, translations and phone width with zero Apply/Send clicks.
+- [ ] Preserve independently hashed source-bound route evidence and complete the remaining cache/insight audit before accepting HH03. Retain the MCP bundle cache-write console diagnostics without claiming their cause is known.
 - [ ] Review exact-source hosted checks and finish all remaining requirements. Current acceptance stays 88/118; all thirty unfinished criteria remain required.
 
 2026-11-18 native browser answer consent:

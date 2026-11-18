@@ -52,6 +52,90 @@ export const applicationDocument = (target, input) => {
   );
   const bound =
     sameVacancy(current) && !current.username && !current.password && !foreign;
+  const searchDestination = () => {
+    if (typeof input.searchUrl !== 'string') {
+      return null;
+    }
+    const value = new URL(input.searchUrl);
+    return value.origin === expected.origin &&
+      value.pathname === '/search/vacancy' &&
+      !value.username &&
+      !value.password &&
+      !value.hash
+      ? value
+      : null;
+  };
+  const searchState = () => {
+    const destination = searchDestination();
+    if (!destination || current.pathname !== '/search/vacancy') {
+      return {};
+    }
+    const actual = new URL(current);
+    actual.searchParams.sort();
+    destination.searchParams.sort();
+    const links = nodes('a[data-qa="serp-item__title"]');
+    const empty = nodes(
+      '[data-qa="vacancy-serp__vacancy-not-found"], [data-qa="vacancy-serp__no-results"]'
+    );
+    const controls = [
+      ...doc.querySelectorAll('input,textarea,select,[contenteditable="true"]'),
+    ];
+    // A search page may contain its own search fields, never an application draft.
+    const draft = controls.some(
+      (node) =>
+        (node.matches('textarea,[contenteditable="true"]') &&
+          Boolean((node.value ?? node.textContent).trim())) ||
+        (node.matches('input[type="file"]') && node.files.length > 0)
+    );
+    const text = doc.body?.innerText ?? '';
+    const fields = [];
+    let bounded = controls.length <= 2000 && text.length <= 200000;
+    let fieldSize = text.length;
+    if (bounded && !draft) {
+      for (const node of controls) {
+        const html = node.outerHTML;
+        const value = String(node.value ?? node.textContent);
+        fieldSize += html.length + value.length;
+        if (html.length > 8000 || value.length > 24000 || fieldSize > 500000) {
+          bounded = false;
+          break;
+        }
+        fields.push([
+          html,
+          value,
+          Boolean(node.checked),
+          node.selectedIndex ?? null,
+        ]);
+      }
+    }
+    const searchKey =
+      bounded && !draft
+        ? JSON.stringify([
+            text,
+            fields,
+            links.slice(0, 100).map((node) => node.href),
+          ])
+        : '';
+    return {
+      searchBound: actual.href === destination.href,
+      searchReady:
+        bounded &&
+        searchKey.length <= 1000000 &&
+        !draft &&
+        (links.length > 0 || empty.length === 1) &&
+        links.length <= 100 &&
+        links.every((node) => {
+          const value = new URL(node.href);
+          return (
+            value.origin === expected.origin &&
+            /^\/vacancy\/\d+$/u.test(value.pathname) &&
+            !value.username &&
+            !value.password
+          );
+        }),
+      searchKey: searchKey.length <= 1000000 ? searchKey : '',
+    };
+  };
   const describe = (selector) => {
     const node = unique(selector);
     if (!node) {
@@ -379,7 +463,11 @@ export const applicationDocument = (target, input) => {
           scopeKey: JSON.stringify(['', []]),
         }
       : formSnapshot();
-    return { ...metadata, ...content };
+    return {
+      ...metadata,
+      ...content,
+      ...(metadata.challenge ? {} : searchState()),
+    };
   };
   const result = snapshot();
   if (!input.action) {
@@ -395,6 +483,22 @@ export const applicationDocument = (target, input) => {
     globalThis.location.assign(destination.href);
     return { navigated: true };
   };
+  if (input.action === 'searchForm') {
+    return result.searchBound &&
+      result.searchReady &&
+      !bound &&
+      !result.challenge &&
+      !result.dailyLimit &&
+      !result.error &&
+      !result.external &&
+      !result.delivered &&
+      !result.questions &&
+      !result.scope &&
+      !result.submit &&
+      JSON.stringify(result) === input.guard
+      ? navigateFullForm()
+      : { navigated: false };
+  }
   const refreshLimitedForm = () =>
     bound &&
     result.dailyLimit &&
@@ -435,7 +539,9 @@ export const applicationDocument = (target, input) => {
         result.vacancyUnavailable,
       ].some(Boolean) &&
       !result.delivered;
-    const nativeAction = input.action === 'fullForm' ? 'enter' : input.action;
+    const nativeAction = ['fullForm', 'search'].includes(input.action)
+      ? 'enter'
+      : input.action;
     const action = ['resumeMenu', 'resumeChoice'].includes(input.action)
       ? resumeAction()
       : result[nativeAction];
@@ -453,6 +559,14 @@ export const applicationDocument = (target, input) => {
   };
   if (!admits()) {
     return { dispatched: false };
+  }
+  if (input.action === 'search') {
+    const destination = searchDestination();
+    if (!destination || result.scope || result.submit || result.questions) {
+      return { navigated: false };
+    }
+    globalThis.location.assign(destination.href);
+    return { navigated: true };
   }
   if (input.action === 'fullForm') {
     return navigateFullForm();
@@ -532,6 +646,29 @@ export const dispatchApplication = (handle, record, action) =>
     selectors: applicationSelectors,
     action,
     guard: record.guard.page,
+    ...(action === 'search'
+      ? {
+          searchUrl:
+            record.options.applicationSearchUrl ??
+            'https://hh.ru/search/vacancy',
+        }
+      : {}),
+  });
+
+/** The intermediate search has its own document snapshot, without vacancy authority. */
+export const applicationSearchPage = (browser, record, guard) =>
+  browser.commander.evaluate({
+    fn: applicationDocument,
+    args: [
+      null,
+      {
+        url: record.url,
+        selectors: applicationSelectors,
+        searchUrl:
+          record.options.applicationSearchUrl ?? 'https://hh.ru/search/vacancy',
+        ...(guard === undefined ? {} : { action: 'searchForm', guard }),
+      },
+    ],
   });
 
 /** The letter uses the same synchronous vacancy/document/form admission. */

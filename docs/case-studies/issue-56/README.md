@@ -795,3 +795,5 @@ Optional persistent collection with full current-run context: [collection eviden
 [Complete-corpus binary layout](corpus-binary-layout.md): preserve the macOS timeout, reduce the same typed corpus graph with published codec options, retain old packets and unchanged limits/deadlines, and verify recovery/sync compatibility. Exact-source hosted checks remain required.
 
 [First-use managed browser preparation](browser-preparation.md): installed-version CLI preparation, shared cancellable owners, explicit browser selection preservation and CI-only cold-cache headed proof. VD01 and all other unfinished criteria remain required.
+
+- [Native application search route](application-search-route.md): frozen CLI/Lino/UI search-return navigation, original filters, document/draft/Stop guards and schema preservation, with actual-parent and bounded native/MCP evidence. HH03 remains unfinished.

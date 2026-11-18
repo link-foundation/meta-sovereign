@@ -133,6 +133,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeApplicationFeedback',
       'verifyNativeApplicationCollection',
       'verifyNativeVacancyPreview',
+      'verifyNativeApplicationSearchRoute',
       'verifyNativeApplicationAnswerApproval',
       'verifyNativeApplicationAnswerContext',
       'verifyApplicationSalary',

@@ -8,13 +8,14 @@ export const reserveApplicationField = async (
     key,
     option,
     code,
+    prefix = 'secret:jobs-application:',
     contains = (row) => Object.hasOwn(option ? (row.options ?? {}) : row, key),
   }
 ) => {
   if (versionOf(await ctx.get(SCHEMA_ID)) >= to) {
     return;
   }
-  await ctx.scan({ prefix: 'secret:jobs-application:' }, async (batch) => {
+  await ctx.scan({ prefix }, async (batch) => {
     if (batch.some(contains)) {
       throw Object.assign(
         new Error(`Application field ${key} is already in use`),

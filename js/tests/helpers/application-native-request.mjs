@@ -6,6 +6,20 @@ import { applicationResumeUrl } from '../../src/jobs/application-location.js';
 
 export const nativeApplicationFormUrl =
   'https://hh.ru/applicant/vacancy_response?vacancyId=123';
+
+/** Compare both actual native owner values after a guarded route or recovery. */
+export const assertNativeApplicationAnswers = async (page, answers) => {
+  assert.equal(
+    await page.locator('#experience').inputValue(),
+    answers.experience
+  );
+  assert.equal(
+    await page
+      .locator('[data-qa="vacancy-response-form-letter-input"]')
+      .inputValue(),
+    answers.letter
+  );
+};
 export const nativeApplicationForm = (
   browser,
   url = nativeApplicationFormUrl

@@ -1,4 +1,11 @@
 export const zhApplication = {
+  'application.applyFromVacancyPage': '从职位页面打开完整申请表',
+  'application.routeHint':
+    '关闭后，先返回原搜索页面，再打开完整申请表。完整申请表审核不会点击申请按钮。关闭简历语言自动选择时，直接进入申请会使用网站按钮。停止操作、页面变化或已有草稿会阻止路径跳转。',
+  'application.applicationSearchUrl':
+    '返回路径的搜索网址（可选；留空使用原搜索或 HH 搜索页面）',
+  'application.routeVacancy': '完整申请表审核路径：职位 → 完整申请表。',
+  'application.routeSearch': '完整申请表审核路径：职位 → 原搜索 → 完整申请表。',
   'application.vacancyPreviewSeconds': '打开申请前预览职位（0–30 秒）',
   'application.vacancyPreviewHint':
     '打开申请前滚动到完整职位描述，并显示指定时长。默认 3 秒；设为零可取消暂停。发送已填写答案前另有审核延时。',

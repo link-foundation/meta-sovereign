@@ -17,6 +17,10 @@ import {
 } from './application-salary.js';
 import { applicationResumeUrl } from './application-location.js';
 import {
+  applicationRouteSettings,
+  applicationRouteView,
+} from './application-route-settings.js';
+import {
   validVacancyPreviewSeconds,
   vacancyPreviewSeconds,
   applicationPreviewOptions,
@@ -113,6 +117,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     ...feedbackSettings(input),
     ...collectionSettings(input),
     ...applicationPreviewOptions(input),
+    ...applicationRouteSettings(input),
     ...(input.confirmations === undefined
       ? {}
       : { confirmations: applicationConfirmations(input.confirmations) }),
@@ -227,6 +232,7 @@ export const applicationView = (record) => {
     letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
     vacancyPreviewSeconds: vacancyPreviewSeconds(record.options),
+    ...applicationRouteView(record.options),
     noQuestionnaires: record.noQuestionnaires ?? false,
     paused: record.paused ?? false,
     vacancy: record.vacancy ?? null,

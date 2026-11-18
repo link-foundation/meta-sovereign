@@ -11,6 +11,7 @@ import { applicationModeSignals } from './application-signals.js';
 import {
   applicationSurveyConfiguration,
   applicationPreviewConfiguration,
+  applicationRouteConfiguration,
 } from './application-configuration.js';
 import {
   applicationBatchCommand,
@@ -90,6 +91,13 @@ const commandInput = async (args, configuration) => {
       args,
       configuration
     ),
+    applyFromVacancyPage: await applicationRouteConfiguration(
+      args,
+      configuration
+    ),
+    ...(args['application-search-url'] === undefined
+      ? {}
+      : { applicationSearchUrl: args['application-search-url'] }),
     reviewDelayMs:
       args['review-delay-ms'] === undefined
         ? undefined

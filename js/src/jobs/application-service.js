@@ -14,6 +14,7 @@ import {
   readApplicationPage,
   writeApplicationLetter,
   dispatchApplication,
+  applicationSearchPage,
 } from './application-page.js';
 import {
   readApplicationJournal,
@@ -78,6 +79,7 @@ class ApplicationService {
     target = applicationTarget,
     writeLetter = writeApplicationLetter,
     dispatch = dispatchApplication,
+    searchPage = applicationSearchPage,
     selectResume = dispatchResumeChoice,
     watchFeedback = watchApplicationFeedback,
     now = Date.now,
@@ -110,6 +112,7 @@ class ApplicationService {
       target,
       writeLetter,
       dispatch,
+      searchPage,
       selectResume,
       watchFeedback,
       trace,

@@ -1,4 +1,13 @@
 export const enApplication = {
+  'application.applyFromVacancyPage':
+    'Open the full form from the vacancy page',
+  'application.routeHint':
+    'When off, return through the original search before opening the full form. Full-form review avoids clicking Apply. With automatic CV language selection off, direct Apply entry uses the provider button. Stop, changed pages and existing drafts block route navigation.',
+  'application.applicationSearchUrl':
+    'Search URL for the return route (optional; blank uses the collected search or the HH search page)',
+  'application.routeVacancy': 'Full-form review route: vacancy → full form.',
+  'application.routeSearch':
+    'Full-form review route: vacancy → original search → full form.',
   'application.vacancyPreviewSeconds':
     'Vacancy preview before entry (0–30 seconds)',
   'application.vacancyPreviewHint':

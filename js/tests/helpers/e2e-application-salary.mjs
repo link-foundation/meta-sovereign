@@ -6,6 +6,7 @@ import {
   nativeApplicationReviewRequest,
   nativeApplicationForm,
   nativeApplicationFormUrl,
+  assertNativeApplicationAnswers,
 } from './application-native-request.mjs';
 import { applicationSalary } from '../../../experiments/issue-56/application-salary-fixture.mjs';
 import { seedApplicationAnswerContext } from '../../../experiments/issue-56/application-answer-context-fixture.mjs';
@@ -66,16 +67,10 @@ export const verifyApplicationSalary = async (browser) => {
     assert.equal(receipt.salaryAdmission.action, 'exclude');
     assert.equal(receipt.restoration.state, 'restored');
     const owned = nativeApplicationForm(browser);
-    assert.equal(
-      await owned.locator('#experience').inputValue(),
-      'Actual owner experience'
-    );
-    assert.equal(
-      await owned
-        .locator('[data-qa="vacancy-response-form-letter-input"]')
-        .inputValue(),
-      'Actual owner letter'
-    );
+    await assertNativeApplicationAnswers(owned, {
+      experience: 'Actual owner experience',
+      letter: 'Actual owner letter',
+    });
     assert.equal(await owned.evaluate(() => globalThis.applicationAttempts), 0);
     assert.equal(receipt.draft.fields.length, 2);
     const qa = await direct.store.get(

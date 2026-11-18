@@ -5,6 +5,7 @@ import {
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
 import { previewApplicationVacancy } from './application-preview.js';
+import { enterApplicationSearch } from './application-search-route.js';
 
 const admitFullForm = (record) => {
   if (
@@ -56,9 +57,13 @@ export class ApplicationFullForm {
       signal.throwIfAborted();
       await service.review.check(record, 'enter', signal);
       service.salary.admit(record);
-      const result = await service.dispatch(handle, record, 'fullForm');
-      if (result?.navigated !== true) {
-        throw fail('changed');
+      if (record.options.applyFromVacancyPage === false) {
+        await enterApplicationSearch(service, record, handle, signal);
+      } else {
+        const result = await service.dispatch(handle, record, 'fullForm');
+        if (result?.navigated !== true) {
+          throw fail('changed');
+        }
       }
       service.trace({ event: 'application-full-form-navigation' });
     } finally {

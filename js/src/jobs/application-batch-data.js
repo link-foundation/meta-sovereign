@@ -5,6 +5,10 @@ import {
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { assignmentVacancyUrl } from '../assignments/validation.js';
 import { applicationResult } from './application-result.js';
+import {
+  applicationRouteSettings,
+  matchingApplicationRoute,
+} from './application-route-settings.js';
 import { applicationConfirmationPolicy } from './application-confirmations.js';
 import { applicationAnswerContext } from './application-answer-context.js';
 import { browserUnreadId } from '../automation/question-unread-identity.js';
@@ -150,6 +154,7 @@ export const readApplicationBatch = (raw, key) => {
   return { ...raw, options };
 };
 const settingsView = (options) => ({
+  ...applicationRouteSettings(options.review),
   ...applicationChatSettings(options, options.browserSlot),
   ...(options.review.vacancyPreviewSeconds === undefined
     ? {}
@@ -253,6 +258,7 @@ const validatePublicBatch = (row, input) => {
   }
 };
 const matchesPublicIdentity = (row, input) =>
+  matchingApplicationRoute(row.settings, input) &&
   (input?.requestId === undefined || input.requestId === row.requestId) &&
   (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
   (input?.vacancyPreviewSeconds === undefined ||

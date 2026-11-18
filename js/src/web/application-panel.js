@@ -7,6 +7,10 @@ import { ApplicationQueueView } from './application-queue-view.js';
 import { ApplicationBatchView } from './application-batch-view.js';
 import { ApplicationCollectionReceipt } from './application-collection-view.js';
 import {
+  ApplicationRouteSettings,
+  ApplicationRouteReceipt,
+} from './application-route-view.js';
+import {
   ApplicationPreviewSettings,
   ApplicationPreviewReceipt,
 } from './application-preview-view.js';
@@ -70,6 +74,7 @@ const Settings = ({ application, disabled, t }) => {
     el('legend', { key: 'legend' }, t('application.settings')),
     el(ApplicationAnswerSettings, { key: 'answers', application, disabled }),
     el(ApplicationPreviewSettings, { key: 'preview', options, setOptions, t }),
+    el(ApplicationRouteSettings, { key: 'route', options, setOptions, t }),
     check(
       'collectVacancies',
       t('application.collectVacancies'),
@@ -173,6 +178,7 @@ const Receipt = ({ receipt, t }) =>
     el(FeedbackReceipt, { key: 'feedback', receipt, t }),
     el(ApplicationCollectionReceipt, { key: 'collection', receipt, t }),
     el(ApplicationPreviewReceipt, { key: 'preview', receipt, t }),
+    el(ApplicationRouteReceipt, { key: 'route', receipt, t }),
     el(ApplicationSalaryReceipt, { key: 'salary', receipt }),
     el(
       'p',

@@ -1,3 +1,4 @@
+import { hhSearchUrl } from '../jobs/options.js';
 import React, { useEffect, useState } from 'react';
 import { salaryTierFloor } from '../jobs/salary-ladder.js';
 import { ApplicationAnswerReceipt } from './application-answer-settings.js';
@@ -345,7 +346,14 @@ export const discoveredCollectionSettings = (state) => {
     : {};
 };
 
-const discoveredApplicationSettings = (state) => ({
+export const discoveredApplicationSettings = (state) => ({
   ...discoveredSalarySettings(state),
   ...discoveredCollectionSettings(state),
+  ...(state?.receipt?.discovery?.phase === 'completed'
+    ? {
+        applicationSearchUrl: hhSearchUrl(
+          state.receipt.discovery.options.search
+        ),
+      }
+    : {}),
 });

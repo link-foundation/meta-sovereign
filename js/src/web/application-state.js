@@ -11,6 +11,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     autoAnswerViewedVacancy: true,
     collectVacancies: true,
     vacancyPreviewSeconds: 3,
+    applyFromVacancyPage: true,
     autoExact: false,
     testMode: false,
     supervised: false,
@@ -87,6 +88,10 @@ export const useApplication = ({ api, values, selected, run }) => {
       operate('open', () =>
         session.start({
           ...options,
+          ...(options.applicationSearchUrl !== undefined ||
+          selected?.applicationSearchUrl === undefined
+            ? {}
+            : { applicationSearchUrl: selected.applicationSearchUrl }),
           headless:
             values.mode === 'inherit' ? undefined : values.mode === 'headless',
         })

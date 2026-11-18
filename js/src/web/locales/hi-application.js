@@ -1,4 +1,13 @@
 export const hiApplication = {
+  'application.applyFromVacancyPage': 'पद के पृष्ठ से पूरा आवेदन फ़ॉर्म खोलें',
+  'application.routeHint':
+    'बंद होने पर पूरे फ़ॉर्म से पहले मूल खोज पर लौटें। पूरे फ़ॉर्म की समीक्षा में Apply नहीं दबाया जाता। CV भाषा का स्वतः चयन बंद होने पर सीधा आवेदन प्रवेश प्रदाता का बटन दबाता है। रोकने, पृष्ठ बदलने या मसौदा होने पर मार्ग का नेविगेशन रुकता है।',
+  'application.applicationSearchUrl':
+    'वापसी का खोज URL (वैकल्पिक; खाली रखने पर मूल खोज या HH खोज पृष्ठ)',
+  'application.routeVacancy':
+    'पूरे फ़ॉर्म की समीक्षा का मार्ग: पद → पूरा फ़ॉर्म।',
+  'application.routeSearch':
+    'पूरे फ़ॉर्म की समीक्षा का मार्ग: पद → मूल खोज → पूरा फ़ॉर्म।',
   'application.vacancyPreviewSeconds':
     'आवेदन खोलने से पहले पद का पूर्वावलोकन (0–30 सेकंड)',
   'application.vacancyPreviewHint':

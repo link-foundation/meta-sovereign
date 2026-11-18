@@ -10,28 +10,28 @@ const configurationArgv = (args) => {
 };
 
 /** Resolve the native survey policy without mutating the host environment. */
-export const applicationSurveyConfiguration = async (
+const applicationBooleanConfiguration = async (
   args,
+  name,
+  environment,
   { env = process.env, cwd = process.cwd() } = {}
 ) => {
-  const positive = args['auto-answer-viewed-vacancy'];
-  const negative = args['no-auto-answer-viewed-vacancy'];
+  const positive = args[name];
+  const negative = args[`no-${name}`];
   if (positive !== undefined && negative !== undefined) {
-    throw new Error('Use one viewed-vacancy survey option.');
+    throw new Error(`Use one --${name} option.`);
   }
   const explicit = positive ?? negative;
   if (
     explicit !== undefined &&
     ![true, false, 'true', 'false'].includes(explicit)
   ) {
-    throw new Error('The viewed-vacancy survey option must be true or false.');
+    throw new Error(`--${name} must be true or false.`);
   }
   const argv = configurationArgv(args);
   if (explicit !== undefined) {
     const enabled = explicit === true || explicit === 'true';
-    argv.push(
-      `--auto-answer-viewed-vacancy=${negative === undefined ? enabled : !enabled}`
-    );
+    argv.push(`--${name}=${negative === undefined ? enabled : !enabled}`);
   }
   const { makeConfig } = await import('lino-arguments');
   const config = makeConfig({
@@ -39,14 +39,32 @@ export const applicationSurveyConfiguration = async (
     cwd,
     env: { values: env },
     yargs: ({ yargs }) =>
-      yargs.option('auto-answer-viewed-vacancy', {
+      yargs.option(name, {
         type: 'boolean',
-        env: 'AUTO_ANSWER_VIEWED_VACANCY',
+        env: environment,
         default: true,
       }),
   });
-  return config.autoAnswerViewedVacancy;
+  return config[
+    name.replace(/-([a-z])/gu, (_, letter) => letter.toUpperCase())
+  ];
 };
+
+export const applicationSurveyConfiguration = (args, configuration) =>
+  applicationBooleanConfiguration(
+    args,
+    'auto-answer-viewed-vacancy',
+    'AUTO_ANSWER_VIEWED_VACANCY',
+    configuration
+  );
+
+export const applicationRouteConfiguration = (args, configuration) =>
+  applicationBooleanConfiguration(
+    args,
+    'apply-from-vacancy-page',
+    'APPLY_FROM_VACANCY_PAGE',
+    configuration
+  );
 
 export const applicationPreviewConfiguration = async (
   args,

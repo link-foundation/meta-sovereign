@@ -184,7 +184,8 @@ export class ApplicationActions {
     if (
       input.action === 'form' ||
       ((record.options.autoSelectResumeLanguage ||
-        record.options.standardLetters) &&
+        record.options.standardLetters ||
+        record.options.applyFromVacancyPage === false) &&
         ['enter', 'reenter'].includes(input.action))
     ) {
       const result = await this.service.fullForm.open(record, input, signal);

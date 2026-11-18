@@ -29,6 +29,14 @@ export const assertApplicationMigration = async (
       }
       await store.put(row);
     }
+    const prior = await store.query();
+    const preview = await runMigrations(store, {
+      migrations: [migration],
+      dryRun: true,
+    });
+    assert.equal(preview.to, migration.to);
+    assert.equal(preview.steps[0].changed, 0);
+    assert.deepEqual(await store.query(), prior);
     await runMigrations(store, { migrations: [migration] });
     assert.equal((await store.get(SCHEMA_ID)).version, migration.to);
     await runMigrations(store, { migrations: [migration] });

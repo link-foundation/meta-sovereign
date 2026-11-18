@@ -20,6 +20,7 @@ import { applicationLimitWaitData } from './application-limit-wait-data.js';
 import { validApplicationAnswerContext } from './application-answer-context.js';
 import { applicationSalaryDecision } from './application-salary.js';
 import { validVacancyPreviewSeconds } from './application-preview-settings.js';
+import { matchingApplicationRoute } from './application-route-settings.js';
 
 export const applicationStates = [
   'opening',
@@ -183,6 +184,7 @@ const validateLimitWait = (raw) => {
 
 const validReceiptContext = (raw, input) =>
   identity(raw, input) &&
+  matchingApplicationRoute(raw, input) &&
   (input.vacancyPreviewSeconds === undefined ||
     raw.vacancyPreviewSeconds === input.vacancyPreviewSeconds) &&
   (input.collectVacancies === undefined ||

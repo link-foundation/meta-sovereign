@@ -222,7 +222,10 @@ export const useVacancies = (api) => {
         headless: options.headless,
       });
       if (answer?.url === url && answer.title && answer.description) {
-        setSelected(answer);
+        setSelected({
+          ...answer,
+          applicationSearchUrl: result?.url ?? hhSearchUrl(options),
+        });
         setStored((rows) =>
           [answer, ...rows.filter((row) => row.url !== url)].slice(0, 100)
         );
