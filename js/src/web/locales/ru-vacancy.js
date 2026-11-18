@@ -155,6 +155,8 @@ export const ruVacancy = {
   'vacancy.experience': 'Опыт',
   'vacancy.employment': 'Занятость',
   'vacancy.workFormat': 'Формат работы',
+  'vacancy.firstSeenAt': 'Впервые собрана',
+  'vacancy.lastSeenAt': 'Последний сбор',
   'vacancy.published': 'Опубликовано',
   'vacancy.resumeLanguage': 'Предпочтительный язык резюме',
   'vacancy.ru': 'Сначала русский',

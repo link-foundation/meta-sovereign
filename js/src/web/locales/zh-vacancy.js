@@ -136,6 +136,8 @@ export const zhVacancy = {
   'vacancy.experience': '经验',
   'vacancy.employment': '雇佣类型',
   'vacancy.workFormat': '工作方式',
+  'vacancy.firstSeenAt': '首次采集',
+  'vacancy.lastSeenAt': '最近采集',
   'vacancy.published': '发布时间',
   'vacancy.resumeLanguage': '简历语言偏好',
   'vacancy.ru': '俄语优先',

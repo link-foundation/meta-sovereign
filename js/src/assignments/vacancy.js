@@ -11,6 +11,7 @@ import {
 import { vacancyContent } from './vacancy-content.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { ensureLegacyVacancies } from './vacancy-legacy-cache.js';
+import { observedVacancyHistory } from './vacancy-history.js';
 
 export const vacancySnapshot = async (
   store,
@@ -31,6 +32,9 @@ export const vacancySnapshot = async (
     );
   }
   if (!saved || refresh === true) {
+    if (saved) {
+      vacancyContent(saved, url);
+    }
     const snapshot = await readVacancy(url, { ...browserOptions, signal });
     signal?.throwIfAborted();
     const content = vacancyContent(snapshot, url);
@@ -40,6 +44,7 @@ export const vacancySnapshot = async (
       tokens: ['assignment', 'vacancy'],
       children: [],
       ...content,
+      ...observedVacancyHistory(saved, content),
     };
     await saveAcknowledgedRecord(store, saved);
   }

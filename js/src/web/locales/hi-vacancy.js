@@ -150,6 +150,8 @@ export const hiVacancy = {
   'vacancy.experience': 'अनुभव',
   'vacancy.employment': 'रोज़गार',
   'vacancy.workFormat': 'काम का तरीका',
+  'vacancy.firstSeenAt': 'पहली बार एकत्र किया',
+  'vacancy.lastSeenAt': 'आखिरी बार एकत्र किया',
   'vacancy.published': 'प्रकाशित',
   'vacancy.resumeLanguage': 'रिज्यूमे भाषा की प्राथमिकता',
   'vacancy.ru': 'रूसी पहले',

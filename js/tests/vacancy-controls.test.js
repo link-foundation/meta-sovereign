@@ -253,5 +253,20 @@ test('vacancy controls render search, saved prose, exact metadata and offline re
     assert.match(html, /data-resume-export-action="stop"/u);
     assert.match(html, /data-resume-export-unknown/u);
     assert.match(html, /resume\.lino/u);
+    assert.doesNotMatch(html, /data-vacancy-observed/u);
+    const withHistory = render(
+      {
+        ...state,
+        selected: {
+          ...selected,
+          firstSeenAt: '2026-11-01T00:00:00Z',
+          lastSeenAt: '2026-11-18T00:00:00Z',
+        },
+      },
+      locale
+    );
+    assert.match(withHistory, /data-vacancy-observed="firstSeenAt"/u);
+    assert.match(withHistory, /data-vacancy-observed="lastSeenAt"/u);
+    assert.doesNotMatch(withHistory, />(?:vacancy|application)\./u);
   }
 });

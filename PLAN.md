@@ -1,3 +1,11 @@
+2026-11-18 vacancy observation history (HH03 remains unfinished):
+
+- [x] Trace pinned A12: the reference preserves first/last observation times, while each current successful refresh replaces the only capture timestamp.
+- [x] Preserve acknowledged first/last observation metadata through refresh, restart, legacy migration and the existing CLI/text-binary cache interfaces; refuse malformed history without replacing acknowledged content.
+- [x] Reproduce eight actual-parent failures plus one control; pass 24 Node/Deno cache checks, six interface checks and native/MCP readback. Inspect screenshots, close fixtures and independently rehash all 50 evidence entries.
+- [ ] Review exact-source hosted checks before acceptance.
+- [ ] Publish only to the prepared branch and continue every unfinished criterion. PR57 stays draft and unmerged.
+
 2026-11-18 legacy private vacancy cache migration (HH03 remains unfinished):
 
 - [x] Verify pinned A12 and the original migration: copy old repository-local records automatically, preserve complete content/originals and never replace current app records.

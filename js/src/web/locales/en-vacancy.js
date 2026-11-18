@@ -149,6 +149,8 @@ export const enVacancy = {
   'vacancy.experience': 'Experience',
   'vacancy.employment': 'Employment',
   'vacancy.workFormat': 'Work format',
+  'vacancy.firstSeenAt': 'First collected',
+  'vacancy.lastSeenAt': 'Last collected',
   'vacancy.published': 'Published',
   'vacancy.resumeLanguage': 'Resume language preference',
   'vacancy.ru': 'Russian first',

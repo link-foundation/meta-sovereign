@@ -436,6 +436,15 @@ const Snapshot = ({ state, t, idle }) => {
             { key: 'date', className: 'meta' },
             `${state.selected.company} · ${dateTime(state.selected.capturedAt)}`
           ),
+          ...['firstSeenAt', 'lastSeenAt']
+            .filter((key) => state.selected[key])
+            .map((key) =>
+              el(
+                'p',
+                { key, className: 'meta', 'data-vacancy-observed': key },
+                `${t(`vacancy.${key}`)}: ${dateTime(state.selected[key])}`
+              )
+            ),
           el(
             'a',
             {
