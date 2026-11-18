@@ -1031,3 +1031,9 @@ Wait for the SDK-validated persistent browser process to exit before confirming
 Close. Preserve detached sessions, refuse unconfirmed cleanup without signalling
 saved PIDs, and observe native deferred-question activation/closure together so
 failures retain owned cleanup and targeted diagnostics.
+
+Expose the desktop friend percentage through shared file defaults, CLI, both
+Lino formats, offline settings and four-language controls. Add a separate policy
+that enforces the configured friend capacity and lifetime percentage together;
+preserve ranked batches, the existing mutual-threshold policy, durable unknown
+reservations and ten-percent defaults for existing records (issue #56).

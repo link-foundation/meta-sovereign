@@ -72,7 +72,7 @@ export const previewVkFriendPlan = async ({
   const quota = desktopFriendPolicy(settings)
     ? await observeFriendQuota(store, source.accountId, source.incoming)
     : null;
-  let allowance = quota ? availableFriendQuota(quota) : Infinity;
+  let allowance = quota ? availableFriendQuota(quota, settings) : Infinity;
   let slots = Math.max(0, friendCapacity(settings) - source.count);
   const items = [];
   for (const userId of source.ids) {
@@ -123,7 +123,7 @@ export const previewVkFriendPlan = async ({
           quota: {
             observed: quota.seenIds.length,
             reserved: quota.reservations.length,
-            available: availableFriendQuota(quota),
+            available: availableFriendQuota(quota, settings),
           },
         }
       : {}),

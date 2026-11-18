@@ -45,7 +45,9 @@ export const validateAutomationDefaults = async (value = {}) => {
       const base = await read({ get: async () => undefined });
       const fields = new Set([
         ...Object.keys(base),
-        ...(name === 'friends' ? ['acceptancePolicy'] : []),
+        ...(name === 'friends'
+          ? ['acceptancePolicy', 'topPercentMutuals']
+          : []),
       ]);
       if (Object.keys(input).some((key) => !fields.has(key))) {
         throw invalidAutomationConfiguration();

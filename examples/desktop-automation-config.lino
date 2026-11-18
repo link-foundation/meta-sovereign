@@ -22,6 +22,9 @@ configuration_automations_vk_online:
   everyMinutes 5
 
 configuration_automations_vk_friends:
+  acceptancePolicy desktop-configured
+  topPercentMutuals 10
+  maxFriends 10000
   everyMinutes 31
   batchSize 2
   priorityIds configuration_automations_vk_friends_priorityIds

@@ -7,6 +7,7 @@ import {
   friendPriorityActions,
 } from './vk-friend-priority.js';
 import { useAcknowledgedResource } from './use-acknowledged-resource.js';
+import { desktopFriendPolicy } from '../../automation/vk-friends-settings.js';
 import { VkMessageDefaults } from './vk-message-defaults.js';
 import {
   FriendAcceptanceChoice,
@@ -62,7 +63,15 @@ const FriendSettings = ({
   const priorityKey = `${priorityVersion}:${savedPriority}`;
   const priorityText =
     draft.priorityKey === priorityKey ? draft.priorityIds : savedPriority;
-  const controls = Object.entries(fields).map(([key, [min, max]]) =>
+  const numericFields = {
+    ...fields,
+    ...(name === 'friends' && desktopFriendPolicy(settings)
+      ? { topPercentMutuals: [0, 100] }
+      : {}),
+  };
+  const numberValue = (key) =>
+    draft[key] ?? settings[key] ?? (key === 'topPercentMutuals' ? 10 : '');
+  const controls = Object.entries(numericFields).map(([key, [min, max]]) =>
     el('label', { key, className: 'col' }, [
       t(
         `${prefix}.${key === 'maxFriends' && settings.acceptancePolicy === 'desktop-ten-percent' ? 'mutualOnlyAt' : key}`
@@ -72,18 +81,18 @@ const FriendSettings = ({
         type: 'number',
         min,
         max,
-        step: 1,
+        step: key === 'topPercentMutuals' ? 'any' : 1,
         disabled,
         [`data-${name === 'friends' ? 'friend' : name}-field`]: key,
-        value: draft[key] ?? settings[key],
+        value: numberValue(key),
         onChange: (event) => update(key, event.target.value),
       }),
     ])
   );
   const submit = () => {
     const next = { ...settings };
-    for (const key of Object.keys(fields)) {
-      next[key] = Number(draft[key] ?? settings[key]);
+    for (const key of Object.keys(numericFields)) {
+      next[key] = Number(numberValue(key));
     }
     for (const key of [...Object.keys(textFields), ...booleanFields]) {
       next[key] = draft[key] ?? settings[key];

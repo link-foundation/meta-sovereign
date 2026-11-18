@@ -1,3 +1,4 @@
+- [Configured friend percentage and capacity](vk-configured.md): ten exact-parent failures, fifteen focused passes, retained legacy policies and native/MCP four-language recovery support unfinished VD07.
 - [Persistent browser exit and close-wait ownership](browser-closure.md): reproduce premature Close acknowledgement and an unobserved native wait; retain process drainage, failure diagnostics and the unexplained hosted timing limits.
 - [Snapshot diagnostic ownership](ci-snapshot-observers.md): preserve the exact macOS Bun failure and two finite parent regressions; owner-specific cleanup assertions retain unrelated workers and all acknowledgement/workspace checks.
 - [Shared automation file defaults](automation-defaults.md): six native VK policies share global/local readable Lino, CLI overrides, saved-owner precedence and rolling configuration removal. Focused before/after evidence supports unfinished VD07.

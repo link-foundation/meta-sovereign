@@ -65,7 +65,7 @@ configuration_server:
 
 | नीति                  | फ़ील्ड                                                                                                                                                                                                         |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `friends`             | `maxFriends`, `batchSize`, `priorityIds`, `acceptancePolicy` (`ranked-batch` / `desktop-ten-percent`)                                                                                                          |
+| `friends`             | `maxFriends`, `batchSize`, `priorityIds`, `topPercentMutuals` (0–100), `acceptancePolicy` (`ranked-batch` / `desktop-ten-percent` / `desktop-configured`)                                                      |
 | `cleanup`, `outgoing` | `limit`, `priorityIds`                                                                                                                                                                                         |
 | `wall`                | `limit`, `cooldownDays`, `communities`, `messages`, `marker`, `attachments`, `restrictedCommunities`, `restrictedMessage`, `replaceOwned`, `activeAvatar`, `randomAttachment`, `holdAnyVisible`, `priorityIds` |
 | `birthday`            | `limit`, `scanLimit`, `timeZone`, `messages`, `stickers`, `attachments`, `onlineOnly`, `priorityIds`                                                                                                           |

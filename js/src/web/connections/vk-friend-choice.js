@@ -19,11 +19,18 @@ export const FriendAcceptanceChoice = ({ settings, disabled, save }) => {
         onChange: (event) =>
           save({ ...settings, acceptancePolicy: event.target.value }),
       },
-      ['ranked-batch', 'desktop-ten-percent'].map((value) =>
-        el('option', { key: value, value }, t(`vkFriends.${value}`))
+      ['ranked-batch', 'desktop-ten-percent', 'desktop-configured'].map(
+        (value) => el('option', { key: value, value }, t(`vkFriends.${value}`))
       )
     ),
-    el('span', { key: 'hint', className: 'meta' }, t('vkFriends.desktopHint')),
+    el(
+      'span',
+      { key: 'hint', className: 'meta' },
+      t(
+        `vkFriends.${settings.acceptancePolicy === 'desktop-configured' ? 'configuredHint' : 'desktopHint'}`,
+        { percent: settings.topPercentMutuals ?? 10 }
+      )
+    ),
   ]);
 };
 export const FriendQuotaSummary = ({ quota }) => {

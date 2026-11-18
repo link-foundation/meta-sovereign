@@ -12,9 +12,19 @@ export const MAX_FRIEND_PRIORITY = 10000;
 export const serializeVkFriends = createStoreQueue();
 export const positiveVkId = (value) => Number.isSafeInteger(value) && value > 0;
 export const desktopFriendPolicy = (settings) =>
+  ['desktop-ten-percent', 'desktop-configured'].includes(
+    settings.acceptancePolicy
+  );
+export const mutualThresholdPolicy = (settings) =>
   settings.acceptancePolicy === 'desktop-ten-percent';
 export const friendCapacity = (settings) =>
-  desktopFriendPolicy(settings) ? 10000 : settings.maxFriends;
+  mutualThresholdPolicy(settings) ? 10000 : settings.maxFriends;
+const normalizePercentage = (value) => {
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
+    throw new Error('topPercentMutuals must be a number from 0 to 100');
+  }
+  return value;
+};
 export const normalizeVkFriendSettings = (input) => {
   const ranges = {
     everyMinutes: [1, 1440],
@@ -34,13 +44,18 @@ export const normalizeVkFriendSettings = (input) => {
   const settings = { enabled: input.enabled };
   if (input.acceptancePolicy !== undefined) {
     if (
-      !['ranked-batch', 'desktop-ten-percent'].includes(input.acceptancePolicy)
+      !['ranked-batch', 'desktop-ten-percent', 'desktop-configured'].includes(
+        input.acceptancePolicy
+      )
     ) {
       throw new Error(
-        'ranked-batch or desktop-ten-percent acceptancePolicy required'
+        'ranked-batch, desktop-ten-percent or desktop-configured acceptancePolicy required'
       );
     }
     settings.acceptancePolicy = input.acceptancePolicy;
+  }
+  if (input.topPercentMutuals !== undefined) {
+    settings.topPercentMutuals = normalizePercentage(input.topPercentMutuals);
   }
   for (const [key, [min, max]] of Object.entries(ranges)) {
     if (!Number.isInteger(input[key]) || input[key] < min || input[key] > max) {

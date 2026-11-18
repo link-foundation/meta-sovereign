@@ -113,6 +113,7 @@ export const createVkFriendsCommands = (options) =>
     load: loadVkFriends,
     save: saveVkFriends,
     createJob: createVkFriendsJob,
+    flags: { ...keys, 'top-percent-mutuals': 'topPercentMutuals' },
     stringFlags: { 'acceptance-policy': 'acceptancePolicy' },
     actions: {
       'seed-priority': (job) => job.seedPriority(),

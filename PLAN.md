@@ -1,9 +1,17 @@
+2026-11-18 configurable friend acceptance (VD07 remains unfinished):
+
+- [x] Read pinned selector and caller: topPercentMutuals is configurable and maxFriends is a capacity limit; native code hardcodes ten percent and only offers its separate mutual-threshold interpretation.
+- [x] Draft an additional desktop-configured mode, strict optional percentage, shared file/CLI/API settings and four-language controls. Preserve ranked batches, saved-record shape, ten-percent defaults and the existing mutual-threshold mode.
+- [x] Reproduce ten exact published-parent failures with one legacy control; pass fifteen focused and forty-three combined checks. Native configured and unchanged threshold scenarios pass; independent four-language MCP recovery and all eight inspected images are retained with closed fixtures. One unexplained browser cache warning is preserved without claiming a clean console.
+- [x] Pass scoped formatting, lint, secrets, whitespace and source/document limits; preserve source-bound parent/current evidence and independent image/receipt checks. Full duplication and runtime/browser matrices remain in hosted CI.
+- [ ] Publish only to the prepared branch, inspect exact-source CI and complete the full VD07 contract audit. All 30 unfinished criteria remain required and PR57 stays draft/unmerged.
+
 2026-11-18 WebKit deferred-window and detached-form cleanup investigation:
 
 - [x] Preserve exact-source b98098b7 WebKit shard 2 job 134820577849, its complete 5,053-line log and available artifact logs/images. Lines 2461–2480 report an unhandled close wait; 4979–4987 report ENOTEMPTY after the detached form assertions.
 - [x] Reproduce premature persistent Close acknowledgement and the unobserved native close wait with finite focused fixtures. Preserve the unexplained hosted Save/close timing and exact late-writer limits; retain existing scenario deadlines and ownership assertions.
 - [x] Draft process-exit drainage and immediate observation of both native operations. All 26 focused checks pass; actual reattached Chromium closes before acknowledgement, and isolated WebKit plus independent MCP settings recovery pass with all owned resources closed.
-- [ ] Preserve source-bound evidence, publish only to the prepared branch and inspect fresh hosted results. All 30 unfinished criteria remain required; PR57 stays draft/unmerged.
+- [x] Preserve 61 source-bound entries and publish 132c16f6 only to the prepared branch. Security, links and Pages pass; desktop and Checks remain pending. All 30 unfinished criteria remain required; PR57 stays draft/unmerged.
 
 2026-11-18 Bun snapshot diagnostics ownership:
 

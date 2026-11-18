@@ -1,6 +1,9 @@
 /** Account-bound, acknowledged desktop quota; reading never replenishes it. */
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
-import { desktopFriendPolicy } from './vk-friends-settings.js';
+import {
+  desktopFriendPolicy,
+  mutualThresholdPolicy,
+} from './vk-friends-settings.js';
 import { refuseFriendAction as refuse } from './vk-friends-records.js';
 
 const quotaId = (account) => `provider-friend-quota:vk:${account}`;
@@ -10,10 +13,12 @@ export const readFriendQuota = async (store, account) =>
     seenIds: [],
     reservations: [],
   };
-export const availableFriendQuota = (quota) =>
+export const availableFriendQuota = (quota, settings = {}) =>
   Math.max(
     0,
-    Math.floor(quota.seenIds.length / 10) - quota.reservations.length
+    Math.floor(
+      (quota.seenIds.length * (settings.topPercentMutuals ?? 10)) / 100
+    ) - quota.reservations.length
   );
 export const observeFriendQuota = async (store, account, incoming) => {
   const quota = await readFriendQuota(store, account);
@@ -32,7 +37,10 @@ export const desktopFriendReason = (plan, item, remaining) => {
   if (!desktopFriendPolicy(plan.settings) || item.priority) {
     return item.reason;
   }
-  if (plan.friendCount >= plan.settings.maxFriends) {
+  if (
+    mutualThresholdPolicy(plan.settings) &&
+    plan.friendCount >= plan.settings.maxFriends
+  ) {
     return item.mutualCount > 0 ? item.reason : 'noMutual';
   }
   return remaining > 0 ? item.reason : 'quota';
@@ -46,8 +54,9 @@ export const reserveFriendQuota = async (store, plan, item) => {
     refuse('Desktop friend quota reached its review bound');
   }
   if (
-    plan.friendCount < plan.settings.maxFriends &&
-    availableFriendQuota(quota) <= 0
+    (!mutualThresholdPolicy(plan.settings) ||
+      plan.friendCount < plan.settings.maxFriends) &&
+    availableFriendQuota(quota, plan.settings) <= 0
   ) {
     refuse('Desktop friend quota changed; review again');
   }

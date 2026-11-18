@@ -3,6 +3,7 @@ import {
   readVkFriendSettings,
   readVkFriends,
   desktopFriendPolicy,
+  mutualThresholdPolicy,
   friendCapacity,
 } from './vk-friends-settings.js';
 import {
@@ -53,8 +54,9 @@ const guard = async (context, plan, item, original, reserved) => {
   }
   if (desktopFriendPolicy(plan.settings) && !item.priority) {
     if (
+      mutualThresholdPolicy(plan.settings) &&
       state.count >= plan.settings.maxFriends !==
-      plan.friendCount >= plan.settings.maxFriends
+        plan.friendCount >= plan.settings.maxFriends
     ) {
       refuse('Desktop friend threshold changed; review again');
     }

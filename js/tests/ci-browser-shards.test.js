@@ -23,6 +23,13 @@ test('detached form learning has an independent mandatory browser entry', () => 
   assert.ok(registry.includes('forms-reader'));
 });
 
+test('configured friend acceptance has an independent mandatory browser entry', () => {
+  assert.deepEqual(
+    registeredScenarios(registry.filter((name) => name === 'vk-configured')),
+    ['verifyVkConfigured']
+  );
+});
+
 const registeredScenarios = (groups) => {
   const root = new URL('../../', import.meta.url);
   const { scripts } = JSON.parse(readFileSync(new URL('package.json', root)));

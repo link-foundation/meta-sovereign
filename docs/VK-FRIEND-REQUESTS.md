@@ -45,14 +45,23 @@ not retroactively claim that an uncertain action succeeded. Other targets
 remain independently eligible in later fresh plans.
 
 The incoming acceptance policy defaults to Ranked batch. Its configured capacity
-continues to limit all friend actions. Selecting Desktop: lifetime top ten percent
-saves a separate policy with a mutual-only threshold instead. Below that threshold,
-nonpriority incoming requests qualify in descending mutual-friend order while
-`floor(distinct observed requesters / 10) - confirmed or reserved attempts` is
-positive. Repeated reviews, restart and changing modes do not replenish this
-account-bound allowance. At or above the configured threshold, only incoming
-requests with positive mutual-friend counts qualify; that branch does not require
-below-threshold allowance. VK's absolute 10,000-friend limit applies to both modes.
+continues to limit all friend actions. **Lifetime quota with friend capacity**
+(`desktop-configured`) also applies a configurable percentage, ranked by mutual
+friends. Its allowance is `floor(observed * percentage / 100) - reserved`, where
+observed counts distinct requesters and reserved includes confirmed and uncertain
+attempts. The percentage defaults to 10 and may be any finite number from 0 to
+100, including fractions. Zero holds ordinary incoming requests; it leaves
+separately configured priority requests eligible within capacity. The configured
+friend capacity limits every action.
+
+**Lifetime quota with mutual-friend threshold** (`desktop-ten-percent`) retains
+the existing alternative: below its configured threshold it uses the same
+percentage allowance; at or above that threshold it accepts only incoming
+requests with positive mutual-friend counts, without requiring remaining quota.
+VK's absolute 10,000-friend limit still applies. Existing saved policies retain
+their behavior, including the ten-percent default when no percentage was saved.
+Repeated reviews, restart and changing modes do not replenish account-bound
+allowance. Lowering the percentage cannot discard existing reservations.
 
 Priority requests come first, spend no desktop allowance and remain protected
 by both [maintenance policies](VK-FRIEND-MAINTENANCE.md). Current mutual counts
@@ -64,6 +73,7 @@ have a finite 100,000-entry review bound; reaching it stops automation rather
 than discarding history to create more allowance.
 
 ```sh
+meta-sovereign vk-friends save --acceptance-policy=desktop-configured --top-percent-mutuals=25 --max-friends=9000
 meta-sovereign vk-friends save --acceptance-policy=desktop-ten-percent --max-friends=9000
 meta-sovereign vk-friends plan
 meta-sovereign vk-friends run --plan=<reviewed-plan-id> --confirm=true
@@ -71,8 +81,10 @@ meta-sovereign vk-friends save --acceptance-policy=ranked-batch
 ```
 
 The pinned desktop selector returns before its above-capacity branch can run.
-The requested mutual-only behavior therefore uses an explicit soft threshold,
-with the provider limit still enforced. This interpretation is visible in the
-controls and [verification evidence](case-studies/issue-56/vk-desktop-policy.md).
+The configured-capacity mode follows that selection boundary; the original
+mutual-threshold mode remains available as a separate choice. Shared file defaults
+use `automations.vk.friends.topPercentMutuals` and `acceptancePolicy`; explicit CLI
+or saved UI settings take precedence. See [configuration verification](case-studies/issue-56/vk-configured.md)
+and [original threshold evidence](case-studies/issue-56/vk-desktop-policy.md).
 These controls send no messages and perform no friend deletion, cancellation or
 incoming rejection.
