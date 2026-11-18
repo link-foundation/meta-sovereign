@@ -1,3 +1,10 @@
+2026-11-18 complete Forms prefill and learning acceptance:
+
+- [x] Preserve all five successful exact-source `997b0dd2` workflows after the requested rerun, including complete job metadata and raw logs.
+- [x] Review the pinned full prefill and learning contracts, 148/59 named checks, awaited native assertions, private-source receipts and both actual unchanged production minutes. Independently rehash all 182/76 hosted evidence entries.
+- [x] Accept only QA22 and QA23: inventory is 86 verified / 32 unfinished. Every other criterion remains required; PR57 stays draft and unmerged.
+- [ ] Publish prepared units only to the issue branch and require fresh exact-source hosted checks.
+
 2026-11-18 owner-supplied HH search URLs (HH02 remains unfinished):
 
 - [x] Trace the pinned README: custom URLs and existing native filters must survive résumé selection; current search ignores the CLI URL and discovery drops extra filters.

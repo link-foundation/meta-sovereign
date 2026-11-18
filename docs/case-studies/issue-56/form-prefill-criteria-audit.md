@@ -4,8 +4,9 @@ This maps QA22 in [PR #57](https://github.com/link-foundation/meta-sovereign/pul
 to the pinned `konard/hh-ru@fa0991b8c2d0896fb3b4be6c69947f0590094b15`
 B1/B4–B11/B13/B15/B25–B27 contract. QA21 covers accessible extraction;
 QA23 covers isolated lifetimes and learning; QA24 covers assignment handoff.
-Each retains its separate acceptance evidence. QA22 remains unfinished while
-the complete exact-source hosted gate and assertion review are pending.
+Each retains its separate acceptance evidence. The completed
+[hosted and assertion review](hosted-form-prefill-learning-997b0dd2.md)
+accepts QA22 at `997b0dd2` after all five exact-source workflows pass.
 
 ## Contract and implementation
 

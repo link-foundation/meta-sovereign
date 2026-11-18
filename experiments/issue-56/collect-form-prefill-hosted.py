@@ -83,6 +83,7 @@ for group in groups:
                 assert receipt['email'] == 'updated@example.test' and receipt['ownerNameRetained']
             elif kind == 'resume':
                 assert receipt['source'] == 'resume/resume.pdf' and receipt['ownerFileRetained']
+                assert receipt['savedSelectionUnchanged'] is True
                 assert re.fullmatch('[a-f0-9]{64}', receipt['sha256'])
             else:
                 assert receipt['source'] == 'resume/resume.md' and receipt['selectedCv'] == ''

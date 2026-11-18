@@ -5,8 +5,9 @@ to the complete pinned `konard/hh-ru@fa0991b8c2d0896fb3b4be6c69947f0590094b15`
 B2/B3/B11/B14/B23/B24 contract. B23 explicitly extends submission learning:
 an owner edit that differs from the prefill is also saved after an unchanged
 minute, before Send. The inventory's older “only confirmed final submission”
-wording must include this later requirement. Acceptance remains pending until
-the exact-source hosted gate and the collected assertions are reviewed.
+wording must include this later requirement. The completed
+[hosted and assertion review](hosted-form-prefill-learning-997b0dd2.md)
+accepts QA23 at `997b0dd2` after all five exact-source workflows pass.
 
 ## Current behavior
 
