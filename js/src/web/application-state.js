@@ -10,6 +10,7 @@ export const useApplication = ({ api, values, selected, run }) => {
     autoSelectResumeLanguage: true,
     autoAnswerViewedVacancy: true,
     collectVacancies: true,
+    vacancyPreviewSeconds: 3,
     autoExact: false,
     testMode: false,
     supervised: false,

@@ -4,6 +4,7 @@ import {
   applicationCanReenter,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
+import { previewApplicationVacancy } from './application-preview.js';
 
 const admitFullForm = (record) => {
   if (
@@ -43,6 +44,7 @@ export class ApplicationFullForm {
     if (record.options.testMode) {
       return applicationView({ ...record, state: 'test-preview' });
     }
+    await previewApplicationVacancy(service, record, signal);
     const handle = await service.target(
       record.browser.page,
       applicationSelectors.enter

@@ -2,6 +2,8 @@
 'meta-sovereign': minor
 ---
 
+Show the reviewed full HH vacancy description for a separately configurable three-second preview before entry or full-form navigation. Preserve Stop, native-change guards, preview mode, frozen batch timing and legacy signatures across CLI, Lino and four-language controls; reserve schema 25 without replaying work (issue #56, HH03, R-Z17).
+
 Wait for the Windows uninstaller to remove its complete installation tree before
 cleaning the owned parent directory, preserving the existing finite cleanup
 bound and native launch assertions (issue #56).

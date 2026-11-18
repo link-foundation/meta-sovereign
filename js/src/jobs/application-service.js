@@ -7,6 +7,7 @@ import {
   applicationSettings,
   applicationFailure as fail,
   applicationView,
+  applicationDelay,
 } from './application-options.js';
 import {
   applicationTarget,
@@ -40,6 +41,7 @@ import { ApplicationPacing } from './application-pacing.js';
 import { ApplicationChats } from './application-chats.js';
 import { ApplicationLimitRejections } from './application-limit-rejections.js';
 import { watchApplicationFeedback } from './application-feedback.js';
+import { scrollApplicationVacancy } from './application-preview.js';
 import { assertVacancyNotSkipped } from './vacancy-skip-service.js';
 import { clearRunVacancies } from '../assignments/vacancy-run-context.js';
 import {
@@ -56,6 +58,11 @@ const applicationTrace = () =>
   process.env.MS_JOBS_APPLICATION_DEBUG === '1'
     ? (value) => console.error(value)
     : () => {};
+
+const previewDependencies = ({
+  previewVacancy = scrollApplicationVacancy,
+  previewWait = applicationDelay,
+}) => ({ previewVacancy, previewWait });
 
 /** One owned browser; journals reserve dispatch before any provider effect. */
 class ApplicationService {
@@ -88,6 +95,8 @@ class ApplicationService {
         log: chatLog,
       }),
     trace = applicationTrace(),
+    previewVacancy,
+    previewWait,
   }) {
     Object.assign(this, {
       store,
@@ -106,6 +115,7 @@ class ApplicationService {
       trace,
       createChats,
       now,
+      ...previewDependencies({ previewVacancy, previewWait }),
     });
     this.review = new ApplicationReview(this);
     this.salary = new ApplicationSalary(this, now);

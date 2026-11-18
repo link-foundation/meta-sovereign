@@ -151,6 +151,9 @@ export const readApplicationBatch = (raw, key) => {
 };
 const settingsView = (options) => ({
   ...applicationChatSettings(options, options.browserSlot),
+  ...(options.review.vacancyPreviewSeconds === undefined
+    ? {}
+    : { vacancyPreviewSeconds: options.review.vacancyPreviewSeconds }),
   ...(options.review.collectVacancies === undefined
     ? {}
     : { collectVacancies: options.review.collectVacancies }),
@@ -252,6 +255,8 @@ const validatePublicBatch = (row, input) => {
 const matchesPublicIdentity = (row, input) =>
   (input?.requestId === undefined || input.requestId === row.requestId) &&
   (input?.browserSlot === undefined || input.browserSlot === row.browserSlot) &&
+  (input?.vacancyPreviewSeconds === undefined ||
+    input.vacancyPreviewSeconds === row.settings?.vacancyPreviewSeconds) &&
   (input?.collectVacancies === undefined ||
     input.collectVacancies === row.settings?.collectVacancies);
 export const applicationBatchResult = (raw, input) => {

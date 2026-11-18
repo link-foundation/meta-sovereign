@@ -4,7 +4,7 @@ import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { applicationRouteApi } from './application-controls.mjs';
 import { LINO_TEXT } from '../../src/transport/lino.js';
 import { vacancySnapshot } from '../../src/assignments/vacancy.js';
-import { publishedWebBundle } from '../../../experiments/issue-56/published-web-bundle.mjs';
+import { routePublishedWebBundle } from '../../../experiments/issue-56/published-web-bundle.mjs';
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 
 /** Real native form and shared UI; collection off must preserve the old cache. */
@@ -18,16 +18,10 @@ export const verifyNativeApplicationCollection = async (
   const shot = controls.screenshot(screenshots, 'collection');
   try {
     if (before) {
-      const body = await publishedWebBundle('d48a6179', [
+      await routePublishedWebBundle(page, 'd48a6179', [
         'js/src/web/application-panel.js',
         'js/src/web/application-state.js',
       ]);
-      await page.route('**/app.min.js', (route) =>
-        route.fulfill({
-          contentType: 'text/javascript',
-          body,
-        })
-      );
     }
     await controls.select();
     const check = panel.locator('[data-application-option="collectVacancies"]');

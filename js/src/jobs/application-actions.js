@@ -7,6 +7,7 @@ import {
   applicationCanReenter,
 } from './application-options.js';
 import { applicationSelectors } from './application-page.js';
+import { previewApplicationVacancy } from './application-preview.js';
 import {
   nativeApplicationFields,
   approvedExactApplicationAnswer,
@@ -44,6 +45,9 @@ export class ApplicationActions {
   }
   async click(record, action, signal) {
     const service = this.service;
+    if (action === 'enter') {
+      await previewApplicationVacancy(service, record, signal);
+    }
     await service.review.check(record, action, signal);
     service.salary.admit(record);
     const handle = await service.target(

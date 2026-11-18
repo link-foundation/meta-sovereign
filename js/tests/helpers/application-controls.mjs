@@ -7,7 +7,10 @@ import { translate } from '../../src/web/i18n.js';
 import { decodeWire } from '../../src/transport/lino.js';
 import { wirePost, withRoutes } from './vacancy-routes.mjs';
 import { createVacancyCommands } from '../../src/cli/vacancy-commands.js';
-import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
+import {
+  applicationFixture,
+  applicationInput,
+} from '../../../experiments/issue-56/application-fixture.mjs';
 
 /** A queue reopen reveals the saved draft without editing or submitting it. */
 export const assertApplicationReviewOnly = (fixture, receipt, answer) => {
@@ -48,6 +51,22 @@ export const successfulApplicationFixtureCommand = async (...args) => {
   const { status, output } = await runApplicationFixtureCommand(...args);
   assert.equal(status, 0);
   return output;
+};
+
+/** A foreground configuration check owns its fixture and drains through quit. */
+export const closedApplicationFixtureCommand = async (t, args) => {
+  const fixture = applicationFixture();
+  t.after(() => fixture.close());
+  const input = async function* () {
+    yield 'quit';
+  };
+  const output = await successfulApplicationFixtureCommand(
+    fixture,
+    input,
+    args
+  );
+  assert.equal(fixture.state.closed, 1);
+  return output[0];
 };
 
 /** Exercise production API decoding and actual route admission in each format. */

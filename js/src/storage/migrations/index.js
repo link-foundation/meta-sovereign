@@ -36,6 +36,7 @@ import * as m0021 from './0021-hh-browser-delivery.js';
 import * as m0022 from './0022-unread-answers.js';
 import * as m0023 from './0023-answer-final-period.js';
 import * as m0024 from './0024-answer-equivalents.js';
+import * as m0025 from './0025-application-preview.js';
 
 export const MIGRATIONS = Object.freeze([
   m0001,
@@ -62,10 +63,11 @@ export const MIGRATIONS = Object.freeze([
   m0022,
   m0023,
   m0024,
+  m0025,
 ]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 24;
+export const CURRENT_SCHEMA = 25;
 
 export {
   SCHEMA_ID,

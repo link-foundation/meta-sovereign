@@ -1,5 +1,7 @@
 # Job boards feature matrix (languages: en • [zh](job-boards.zh.md) • [hi](job-boards.hi.md) • [ru](job-boards.ru.md))
 
+HH application reviews scroll to the full vacancy description before either opening the full form or activating Apply, then pause for three seconds. Configure `vacancyPreviewSeconds` (0–30, decimals allowed) in the shared UI or text/binary Lino request. CLI: `--vacancy-preview-seconds`, `VACANCY_PREVIEW_SECONDS`, or `.lenv` (`vacancyPreviewSeconds`), in that precedence order. Zero removes the pause; filled-answer review keeps its separate delay. The option is frozen in a batch and survives read-only recovery. Stop, CAPTCHA and changed native documents/descriptions refuse entry before a delivery reservation; test mode does not scroll or wait. This is verified with isolated native fixtures, without a live account. Full HH workflow parity remains unfinished.
+
 Back to the [Telegram feature support matrix](../FEATURES.md).
 
 ## Scope and access

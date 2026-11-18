@@ -1,5 +1,7 @@
 # 求职网站 功能矩阵 (languages: [en](job-boards.md) • zh • [hi](job-boards.hi.md) • [ru](job-boards.ru.md))
 
+HH 申请审核在打开完整表单或点击申请前，先滚动到完整职位描述并暂停三秒。可在共享 UI 或文本/二进制 Lino 请求中设置 `vacancyPreviewSeconds`（0–30，可用小数）。CLI 优先级为 `--vacancy-preview-seconds`、`VACANCY_PREVIEW_SECONDS`、`.lenv` 中的 `vacancyPreviewSeconds`。零可取消暂停；填写答案后的审核延时独立保留。批次固定此设置，只读恢复保留设置。停止、验证码、原生文档或描述变化都会在预留发送前阻止申请入口操作；测试模式不滚动或等待。验证使用隔离原生浏览器实例，未使用真实账户。完整 HH 功能对等仍未完成。
+
 返回 [Telegram 功能支持矩阵](../FEATURES.zh.md)。
 
 ## 范围与访问方式

@@ -6,8 +6,8 @@ import {
 } from '../../experiments/issue-56/application-fixture.mjs';
 import {
   withApplicationRouteFixture,
-  runApplicationFixtureCommand,
-  applicationPanelMarkup,
+  closedApplicationFixtureCommand,
+  assertApplicationPanelLocales,
   assertApplicationTranslation,
 } from './helpers/application-controls.mjs';
 import { LINO_TEXT, LINO_BINARY } from '../src/transport/lino.js';
@@ -69,26 +69,15 @@ test(
   'foreground CLI exposes the opt-out and drains the owned review',
   { timeout: 5000 },
   async (t) => {
-    const fixture = applicationFixture();
-    t.after(() => fixture.close());
-    const input = async function* () {
-      yield 'quit';
-    };
-    const result = await runApplicationFixtureCommand(fixture, input, {
+    const receipt = await closedApplicationFixtureCommand(t, {
       'no-auto-answer-viewed-vacancy': true,
     });
-    assert.equal(result.status, 0);
-    assert.equal(result.output[0].autoAnswerViewedVacancy, false);
-    assert.equal(fixture.state.closed, 1);
+    assert.equal(receipt.autoAnswerViewedVacancy, false);
   }
 );
 
 test('four locales expose the default survey setting and preview/owner-choice explanation', () => {
-  for (const locale of ['en', 'ru', 'hi', 'zh']) {
-    const markup = applicationPanelMarkup(
-      { options: {}, setOptions: () => {}, intent: null },
-      locale
-    );
+  assertApplicationPanelLocales(undefined, [], (markup, locale) => {
     assert(
       markup.includes('data-application-option="autoAnswerViewedVacancy"')
     );
@@ -101,5 +90,5 @@ test('four locales expose the default survey setting and preview/owner-choice ex
     ]) {
       assertApplicationTranslation(locale, suffix);
     }
-  }
+  });
 });

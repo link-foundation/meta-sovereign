@@ -1,4 +1,10 @@
 export const enApplication = {
+  'application.vacancyPreviewSeconds':
+    'Vacancy preview before entry (0–30 seconds)',
+  'application.vacancyPreviewHint':
+    'Before opening an application, scroll to the full vacancy description and show it for this long. Default: 3 seconds. Zero removes the pause. Sending filled answers has its own review delay.',
+  'application.vacancyPreviewPolicy':
+    'Vacancy preview before entry: {seconds} seconds.',
   'application.collectVacancies': 'Keep collected vacancy descriptions',
   'application.collectionHint':
     'When off, descriptions stay in memory for this run and are omitted from the application journal. They cannot be recovered after restart. Existing saved descriptions are kept.',

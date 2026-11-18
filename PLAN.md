@@ -1,3 +1,10 @@
+2026-11-18 vacancy preview before application entry (HH03 remains unfinished):
+
+- [x] Draft native document/prose-bound scrolling and the independent default three-second preview before both reviewed entry paths. Freeze the bounded option across CLI/environment/configuration, both Lino formats, batch and four-language controls; preserve existing form review delay and issued receipts.
+- [x] Add finite parent regressions, Stop/change/preview controls, legacy signature recovery and numbered schema reservation with idempotency/dry-run checks. Exact published parent fails 25 assertions with four independent controls; all 107 relevant checks pass.
+- [x] Verify focused checks, actual native and independent MCP behavior with before/after screenshots; keep full matrices hosted. Native scroll/timing, four languages, read-only recovery and phone layout retain one entry, zero submissions and closed resources. Preserve initial harness diagnostics and unexplained browser cache warnings.
+- [ ] Preserve source-bound evidence, review and publish the atomic change, inspect exact-source CI and continue all thirty unfinished original criteria.
+
 2026-11-18 automatic Stop at sender boundaries:
 
 - [x] Carry the owned cancellation signal separately from durable draft data through API/fallback/browser dispatch; recheck after acknowledged settings and SDK waits, preserving issued and partial receipts.

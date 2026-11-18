@@ -39,3 +39,11 @@ export const publishedWebBundle = async (parent, names) => {
   });
   return built.outputFiles[0].text;
 };
+
+/** Keep before screenshots bound to published modules without editing fixtures. */
+export const routePublishedWebBundle = async (page, parent, names) => {
+  const body = await publishedWebBundle(parent, names);
+  await page.route('**/app.min.js', (route) =>
+    route.fulfill({ contentType: 'text/javascript', body })
+  );
+};

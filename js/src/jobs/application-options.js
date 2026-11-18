@@ -16,6 +16,11 @@ import {
   applicationSalaryOptions,
 } from './application-salary.js';
 import { applicationResumeUrl } from './application-location.js';
+import {
+  validVacancyPreviewSeconds,
+  vacancyPreviewSeconds,
+  applicationPreviewOptions,
+} from './application-preview-settings.js';
 
 export const applicationFailure = (kind) =>
   jobsFailure(
@@ -47,7 +52,9 @@ const validateApplicationFlags = (input) => {
     ].some(
       (name) => input[name] !== undefined && typeof input[name] !== 'boolean'
     ) ||
-    !boundedInteger(input.reviewDelayMs ?? 3000, 30000)
+    !boundedInteger(input.reviewDelayMs ?? 3000, 30000) ||
+    (input.vacancyPreviewSeconds !== undefined &&
+      !validVacancyPreviewSeconds(input.vacancyPreviewSeconds))
   ) {
     throw applicationFailure('input');
   }
@@ -105,6 +112,7 @@ export const applicationSettings = (input, { legacy = false } = {}) => {
     ...languageSettings(input, legacy),
     ...feedbackSettings(input),
     ...collectionSettings(input),
+    ...applicationPreviewOptions(input),
     ...(input.confirmations === undefined
       ? {}
       : { confirmations: applicationConfirmations(input.confirmations) }),
@@ -218,6 +226,7 @@ export const applicationView = (record) => {
     dailyRejection: dailyRejectionView(record),
     letterLanguage: applicationLetterLanguage(record),
     reviewDelayMs: record.options.reviewDelayMs,
+    vacancyPreviewSeconds: vacancyPreviewSeconds(record.options),
     noQuestionnaires: record.noQuestionnaires ?? false,
     paused: record.paused ?? false,
     vacancy: record.vacancy ?? null,

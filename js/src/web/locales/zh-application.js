@@ -1,4 +1,8 @@
 export const zhApplication = {
+  'application.vacancyPreviewSeconds': '打开申请前预览职位（0–30 秒）',
+  'application.vacancyPreviewHint':
+    '打开申请前滚动到完整职位描述，并显示指定时长。默认 3 秒；设为零可取消暂停。发送已填写答案前另有审核延时。',
+  'application.vacancyPreviewPolicy': '打开申请前预览职位：{seconds} 秒。',
   'application.collectVacancies': '保存已收集的职位描述',
   'application.collectionHint':
     '关闭后，描述仅保留在本次运行的内存中，不会写入申请日志。重启后无法恢复。之前保存的描述将保留。',

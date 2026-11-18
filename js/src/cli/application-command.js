@@ -8,7 +8,10 @@ import {
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { encodeWire, decodeWire } from '../transport/lino.js';
 import { applicationModeSignals } from './application-signals.js';
-import { applicationSurveyConfiguration } from './application-configuration.js';
+import {
+  applicationSurveyConfiguration,
+  applicationPreviewConfiguration,
+} from './application-configuration.js';
 import {
   applicationBatchCommand,
   applicationBatchFile,
@@ -80,6 +83,10 @@ const commandInput = async (args, configuration) => {
     autoSelectResumeLanguage:
       boolean(args, 'no-auto-select-resume-language') !== true,
     autoAnswerViewedVacancy: await applicationSurveyConfiguration(
+      args,
+      configuration
+    ),
+    vacancyPreviewSeconds: await applicationPreviewConfiguration(
       args,
       configuration
     ),

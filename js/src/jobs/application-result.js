@@ -19,6 +19,7 @@ import { applicationLimitData } from './application-limit-data.js';
 import { applicationLimitWaitData } from './application-limit-wait-data.js';
 import { validApplicationAnswerContext } from './application-answer-context.js';
 import { applicationSalaryDecision } from './application-salary.js';
+import { validVacancyPreviewSeconds } from './application-preview-settings.js';
 
 export const applicationStates = [
   'opening',
@@ -61,6 +62,8 @@ const identity = (raw, input) =>
   text(raw.revision, 100) &&
   raw.revision.length > 0;
 const supervised = (raw) =>
+  (raw.vacancyPreviewSeconds === undefined ||
+    validVacancyPreviewSeconds(raw.vacancyPreviewSeconds)) &&
   (raw.collectVacancies === undefined ||
     typeof raw.collectVacancies === 'boolean') &&
   (raw.autoAnswerViewedVacancy === undefined ||
@@ -180,6 +183,8 @@ const validateLimitWait = (raw) => {
 
 const validReceiptContext = (raw, input) =>
   identity(raw, input) &&
+  (input.vacancyPreviewSeconds === undefined ||
+    raw.vacancyPreviewSeconds === input.vacancyPreviewSeconds) &&
   (input.collectVacancies === undefined ||
     (typeof input.collectVacancies === 'boolean' &&
       raw.collectVacancies === input.collectVacancies)) &&

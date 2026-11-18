@@ -1,3 +1,14 @@
+const configurationArgv = (args) => {
+  const argv = ['node', 'meta-sovereign'];
+  if (args.configuration !== undefined) {
+    if (typeof args.configuration !== 'string' || !args.configuration) {
+      throw new Error('--configuration requires a file path.');
+    }
+    argv.push('--configuration', args.configuration);
+  }
+  return argv;
+};
+
 /** Resolve the native survey policy without mutating the host environment. */
 export const applicationSurveyConfiguration = async (
   args,
@@ -15,13 +26,7 @@ export const applicationSurveyConfiguration = async (
   ) {
     throw new Error('The viewed-vacancy survey option must be true or false.');
   }
-  const argv = ['node', 'meta-sovereign'];
-  if (args.configuration !== undefined) {
-    if (typeof args.configuration !== 'string' || !args.configuration) {
-      throw new Error('--configuration requires a file path.');
-    }
-    argv.push('--configuration', args.configuration);
-  }
+  const argv = configurationArgv(args);
   if (explicit !== undefined) {
     const enabled = explicit === true || explicit === 'true';
     argv.push(
@@ -41,4 +46,27 @@ export const applicationSurveyConfiguration = async (
       }),
   });
   return config.autoAnswerViewedVacancy;
+};
+
+export const applicationPreviewConfiguration = async (
+  args,
+  { env = process.env, cwd = process.cwd() } = {}
+) => {
+  const argv = configurationArgv(args);
+  if (args['vacancy-preview-seconds'] !== undefined) {
+    argv.push(`--vacancy-preview-seconds=${args['vacancy-preview-seconds']}`);
+  }
+  const { makeConfig } = await import('lino-arguments');
+  const config = makeConfig({
+    argv,
+    cwd,
+    env: { values: env },
+    yargs: ({ yargs }) =>
+      yargs.option('vacancy-preview-seconds', {
+        type: 'number',
+        env: 'VACANCY_PREVIEW_SECONDS',
+        default: 3,
+      }),
+  });
+  return config.vacancyPreviewSeconds;
 };

@@ -119,6 +119,9 @@ export const applicationFixture = ({
     },
     application: {
       filling,
+      // Preview timing and native scrolling have their own finite boundary tests.
+      previewVacancy: async () => true,
+      previewWait: async (_ms, signal) => signal.throwIfAborted(),
       readPage: async () => globalThis.structuredClone(state.page),
       target: async () => ({
         dispose: async () => {
