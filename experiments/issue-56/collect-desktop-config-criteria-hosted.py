@@ -10,6 +10,7 @@ import re
 import subprocess
 import sys
 from evidence_bundle import write_entries_archive
+from hosted_browser_layout import read_browser_layout
 from hosted_evidence import (
     read_workflows, read_jobs, source_reader, read_catalog_audit,
     read_literal_tests, read_reference_contracts, browser_group_block,
@@ -21,7 +22,7 @@ sha = subprocess.check_output(['git', 'rev-parse', revision], cwd=root).decode()
 entries = {}
 runs = read_workflows(root, sha, slug, entries)
 source = source_reader(root, sha, entries)
-registration = json.loads(source('js/scripts/browser-checks.json'))
+registration, shard_count = read_browser_layout(source)
 platforms = {'linux-x64': ('linux', 'x64'), 'linux-arm64': ('linux', 'arm64'),
              'windows-x64': ('win32', 'x64'), 'windows-arm64': ('win32', 'arm64'),
              'macos': ('darwin', 'arm64')}
@@ -31,10 +32,10 @@ selection['node'] = ('Checks and release', 'Test (node on ubuntu-26.04)')
 groups = ['vk-token', 'desktop-appearance', 'vk-engagement', 'vk-friends',
           'vk-configured']
 for group in groups:
-    shard = registration.index(group) % 4 + 1
+    shard = registration.index(group) % shard_count + 1
     for engine in ['chromium', 'webkit']:
         selection[f'{engine}-{shard}'] = ('Checks and release',
-            f'Browser e2e ({engine}, shard {shard}/4)')
+            f'Browser e2e ({engine}, shard {shard}/{shard_count})')
 raw, jobs = read_jobs(root, runs, slug, selection, entries)
 
 catalog_path = 'experiments/issue-56/desktop-configuration-evidence.json'
@@ -126,7 +127,7 @@ for group in groups:
     entry = source(f'js/tests/e2e-{group}-browser.mjs')
     expected = re.findall(r'\bverify\w+\b', entry.split('await runBrowserScenarios', 1)[1])
     assert expected and len(expected) == len(set(expected))
-    shard = registration.index(group) % 4 + 1
+    shard = registration.index(group) % shard_count + 1
     for engine in ['chromium', 'webkit']:
         start, end, block = browser_group_block(raw[f'{engine}-{shard}'], group)
         assert any(f'[e2e-{group}] OK ({engine})' in line for line in block)
@@ -212,12 +213,16 @@ for path in ['js/src/cli/readable-configuration.js', 'js/src/cli/startup-configu
              '.github/workflows/release.yml', '.github/workflows/desktop-release.yml']:
     source(path)
 for path in [catalog_path, 'experiments/issue-56/collect-desktop-config-criteria-hosted.py',
+             'experiments/issue-56/hosted_browser_layout.py',
+             'experiments/issue-56/check-hosted-browser-layout.py',
+             'ci-logs/desktop-configuration-browser-layout.log',
              'experiments/issue-56/hosted_evidence.py',
              'experiments/issue-56/evidence_bundle.py',
              'docs/case-studies/issue-56/desktop-configuration-criteria-audit.md']:
     entries[path] = (root / path).read_bytes()
 entries['metadata.json'] = (json.dumps(dict(sha=sha, criteria=['VD07'], workflows=5,
-    jobs=jobs, namedTests=tests, nativeElectron=dict(line=native_line, result=native_result),
+    jobs=jobs, browserShards=shard_count, namedTests=tests,
+    nativeElectron=dict(line=native_line, result=native_result),
     packagedReceipts=packaged, browserReceipts=browser, referenceContracts=references,
     archiveEntries=sum(item['entries'] for item in audit['archives'].values()),
     acceptance=False, fullIssueComplete=False), indent=2) + '\n').encode()

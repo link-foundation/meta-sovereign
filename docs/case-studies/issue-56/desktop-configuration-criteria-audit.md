@@ -95,6 +95,16 @@ The second command requires the complete successful workflow metadata and
 selected full job logs under `ci-logs/hosted-verification-b3364503-*.json` and
 `ci-logs/hosted-b3364503-*.log`. Pending workflows must refuse collection.
 
+The collector reads the native partition count, complete shard list, both
+engines, job names and unique registry from the selected source commit. It
+supports the historical four-shard and corrected eight-shard layouts without
+relabeling old receipts. The finite regression reader checks both actual Git
+sources and refuses five contradictory/missing layouts:
+
+```sh
+python3 -B experiments/issue-56/check-hosted-browser-layout.py
+```
+
 **Pending:** hosted validation for production source `b3364503`. No criterion is
 accepted by this draft mapping. The inventory remains **88 verified / 30
 unfinished**; VD01 and all other unfinished requirements remain required. PR57
