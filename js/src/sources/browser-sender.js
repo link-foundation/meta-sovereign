@@ -57,10 +57,7 @@ import {
   sendConsentOptions,
 } from './browser-send-consent.js';
 import { toBrowserMessageLink } from './browser-message.js';
-import {
-  isSendConsentRefusal,
-  requireSendConsent,
-} from '../automation/send-consent.js';
+import { isSendConsentRefusal } from '../automation/send-consent.js';
 
 export { WEB_UIS };
 
@@ -376,6 +373,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
           'cancelled'
         );
       }
+      await options.beforeOpen?.();
       const state = await openChat(source, target, options);
       return fn(state.commander, state.session?.page ?? null);
     });
@@ -517,35 +515,40 @@ const createBrowserTextSender =
     log,
     clock,
   }) =>
-  async (draft = {}) => {
+  async (draft = {}, dispatch = {}) => {
     const { source, chat, to, text, answer } = draft;
     if (answer?.strictOptions) {
-      return choices.chooseAnswer(draft);
+      return choices.chooseAnswer(draft, dispatch);
     }
     const body = String(text ?? '');
     if (!body.trim()) {
       throw codedError(`${source}: message text is required`, 'bad-draft');
     }
-    const consent = createBrowserSendConsent(store, draft);
+    const consent = createBrowserSendConsent(store, draft, dispatch);
     const ui = requireTextUi(uiFor(source));
     const target = ui.target({ chat, to });
     await consent();
-    await inChat(source, target, { text: body }, async (commander) => {
-      const composer = await focusComposer(source, ui, commander);
-      await consent();
-      // A pre-filled chat URL already put the text into the composer.
-      if (!ui.prefill && input === 'fill') {
-        await commander.fillTextArea({
-          selector: composer,
-          text: body,
-          checkEmpty: false,
-          simulateTyping: true,
-        });
-      } else if (!ui.prefill) {
-        await typeLines(commander, body, typingDelayMs);
+    await inChat(
+      source,
+      target,
+      { text: body, beforeOpen: consent },
+      async (commander) => {
+        const composer = await focusComposer(source, ui, commander);
+        await consent();
+        // A pre-filled chat URL already put the text into the composer.
+        if (!ui.prefill && input === 'fill') {
+          await commander.fillTextArea({
+            selector: composer,
+            text: body,
+            checkEmpty: false,
+            simulateTyping: true,
+          });
+        } else if (!ui.prefill) {
+          await typeLines(commander, body, typingDelayMs);
+        }
+        await pressSend(ui, commander, consent);
       }
-      await pressSend(ui, commander, consent);
-    });
+    );
     log(`[browser:${source}] sent to ${target}`);
     return {
       via: 'browser',
@@ -737,7 +740,11 @@ const markUnknown = (error) => {
 // What a failed web-UI send raises after the API failed with `apiError`.
 const browserFailure = (error, apiError, draft, action) => {
   // "Not allowed to automate this" is the answer, not a pair of failures.
-  if (error?.code === 'unsupported' || isSendConsentRefusal(error)) {
+  if (
+    error?.code === 'unsupported' ||
+    error?.code === 'stopped' ||
+    isSendConsentRefusal(error)
+  ) {
     return error;
   }
   // Maybe delivered by the web UI: told as such, never "failed" (R-Z4).
@@ -771,11 +778,11 @@ export const createFallbackSender =
     shouldFallback = defaultShouldFallback,
     action = 'send',
   } = {}) =>
-  async (draft) => {
+  async (draft, dispatch) => {
     let apiError = null;
     if (typeof apiSend === 'function') {
       try {
-        return annotate(await apiSend(draft), 'api');
+        return annotate(await apiSend(draft, dispatch), 'api');
       } catch (error) {
         if (!shouldFallback(error) || typeof browserSend !== 'function') {
           throw markUnknown(error);
@@ -793,7 +800,7 @@ export const createFallbackSender =
       );
     }
     try {
-      const result = await browserSend(draft);
+      const result = await browserSend(draft, dispatch);
       return annotate(
         result,
         'browser',
@@ -840,7 +847,7 @@ const refuseAutomatedWeb = (draft) => {
  * @param {object} [options.store] shared acknowledged automation consent
  * @param {Function} [options.log]
  * @returns {Function & {close: Function, perform: Function, supports: Function}}
- *   `(draft) => result`
+ *   `(draft, { signal }?) => result`; cancellation is never stored in the draft
  */
 export const createDefaultSender = ({
   getSource = null,
@@ -860,22 +867,27 @@ export const createDefaultSender = ({
     ...(options[source] ?? {}),
   });
   const adapterSend = getSource
-    ? async (draft) => {
+    ? async (draft, dispatch) => {
         const resolved = await merged(draft.source);
-        await requireSendConsent(store, draft);
+        await createBrowserSendConsent(store, draft, dispatch)();
         return createAdapterSender({
           getSource,
           options: {
-            [draft.source]: sendConsentOptions(store, draft, resolved),
+            [draft.source]: sendConsentOptions(
+              store,
+              draft,
+              resolved,
+              dispatch
+            ),
           },
         })(draft);
       }
     : null;
   const sendText = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: async (draft) => {
+    browserSend: async (draft, dispatch) => {
       // A definite API refusal may arrive after the owner withdrew consent.
-      await requireSendConsent(store, draft);
+      await createBrowserSendConsent(store, draft, dispatch)();
       refuseAutomatedWeb(draft);
       // A plain browser send cannot preserve these message semantics.
       // Refuse rather than silently turning a reply into a normal message.
@@ -899,23 +911,26 @@ export const createDefaultSender = ({
           'unsupported-send-options'
         );
       }
-      return browserFor().send({
-        source: draft.source,
-        chat: draft.chat,
-        to: draft.contact ?? draft.to,
-        text: draft.text,
-      });
+      return browserFor().send(
+        {
+          source: draft.source,
+          chat: draft.chat,
+          to: draft.contact ?? draft.to,
+          text: draft.text,
+        },
+        dispatch
+      );
     },
     log,
   });
-  const send = (input) => {
+  const send = (input, dispatch) => {
     const draft = { ...input };
     if (draft.answer?.strictOptions) {
       refuseAutomatedWeb(draft);
       const chooser = browserFor();
       if (typeof chooser.chooseAnswer === 'function') {
-        return requireSendConsent(store, draft).then(() =>
-          chooser.chooseAnswer(draft)
+        return createBrowserSendConsent(store, draft, dispatch)().then(() =>
+          chooser.chooseAnswer(draft, dispatch)
         );
       }
       throw codedError(
@@ -923,7 +938,7 @@ export const createDefaultSender = ({
         'answer-choice-required'
       );
     }
-    return sendText(draft);
+    return sendText(draft, dispatch);
   };
   const actions = createMessageActions({
     getSource,

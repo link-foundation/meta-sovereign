@@ -1,3 +1,4 @@
+- [Stop during sender preparation](dispatch-stop.md): 45 actual-parent failures and 383 focused passes cover separate dispatch ownership, SDK/browser waits, issued receipts and real autopilot drainage. Full QA19/QA20 remain required.
 - [Consent at provider SDK boundaries](consent-sdk.md): 48 actual-parent regressions and 259 focused passes cover late preparation, frozen API recipients and retained positive/partial receipts. Full QA19/QA20 remain required.
 - [Consent fixture duplication](ci-consent-duplication.md): exact hosted threshold failure, shared finite fixture helpers, retained 151 focused passes and unchanged 44/28 parent regressions. No threshold or scenario is removed.
 - [Consent for native browser answers](consent-browser-answer.md): 44 actual-parent regressions and 151 focused passes cover choices, text and inactive watched replies, frozen scope and Stop during settings reads. Full QA19/QA20 remain required.

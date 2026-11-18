@@ -148,7 +148,7 @@ const otherSendError = (error) => {
 
 /** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
 export const sendError = (error) =>
-  (['opted-out', 'safety-settings-unavailable'].includes(error?.code)
+  (['opted-out', 'safety-settings-unavailable', 'stopped'].includes(error?.code)
     ? error
     : null) ??
   (error?.code === 'send-unknown'

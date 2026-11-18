@@ -195,7 +195,7 @@ export const sdkVariants = [
 ];
 
 /** Exercise real adapters and shared dispatch, with finite offline waits. */
-export const withSdkConsent = async (variant, stage, check) => {
+export const withSdkConsent = async (variant, stage, check, dispatch = {}) => {
   const store = createMemoryStore();
   const { entered, release, wait } = consentBarrier(stage);
   const effects = [];
@@ -229,7 +229,11 @@ export const withSdkConsent = async (variant, stage, check) => {
       },
     },
   });
-  const pending = consentOutcome(send(draft));
+  const pending = consentOutcome(
+    dispatch.invoke
+      ? dispatch.invoke({ send, draft, store })
+      : send(draft, dispatch)
+  );
   try {
     await Promise.race([
       entered.promise,
@@ -241,6 +245,7 @@ export const withSdkConsent = async (variant, stage, check) => {
   } finally {
     release.resolve();
     await pending;
+    await dispatch.close?.();
     await send.close();
     await adapter.close?.();
     await store.close?.();

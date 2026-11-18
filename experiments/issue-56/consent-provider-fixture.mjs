@@ -3,7 +3,7 @@ import { guardedSend } from '../../js/src/automation/outbox.js';
 import { createDefaultSender } from '../../js/src/sources/browser-sender.js';
 
 /** Pause credential resolution or a definitely refused API; never contact a provider. */
-export const withProviderConsent = async (source, stage, check) => {
+export const withProviderConsent = async (source, stage, check, dispatch) => {
   const store = createMemoryStore();
   const entered = Promise.withResolvers();
   const release = Promise.withResolvers();
@@ -50,7 +50,7 @@ export const withProviderConsent = async (source, stage, check) => {
   const pending = guardedSend({
     store,
     draft,
-    send,
+    send: (outgoing) => send(outgoing, dispatch),
     userConfirmed: stage === 'fallback',
   });
   try {

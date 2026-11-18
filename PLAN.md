@@ -1,9 +1,16 @@
+2026-11-18 automatic Stop at sender boundaries:
+
+- [x] Carry the owned cancellation signal separately from durable draft data through API/fallback/browser dispatch; recheck after acknowledged settings and SDK waits, preserving issued and partial receipts.
+- [x] Reproduce 45 published-parent assertion failures with 25 independent controls through finite actual adapters and browser waits; all 383 relevant checks pass, including actual runner/autopilot drainage and unchanged scope/consent behavior.
+- [x] Pass scoped formatting, lint, secret, source/document-limit and whitespace checks plus the unchanged 6.5% duplication gate. Preserve source-bound evidence for the atomic correction.
+- [ ] Commit/push and inspect exact-source CI. All thirty unfinished original criteria remain required.
+
 2026-11-18 consent at provider SDK boundaries:
 
 - [x] Trace awaited VK limiter/retry, Telegram connection/peer and multipart boundaries, mail thread/JMAP discovery and SMTP DATA preparation. Draft optional composed dispatch guards and freeze the original API draft identity.
 - [x] Draft finite actual-adapter cases with acknowledged chat/person refusals, unreadable settings, issued positive receipts, separate scopes and partial Telegram sends; all provider effects are offline or owned loopback SMTP.
 - [x] Reproduce 48 exact published-parent assertion failures with 25 independent controls; pass all 259 focused checks. Review source changes and unchanged duplication/static gates; preserve source-bound evidence before committing. Keep issued partial/unknown outcomes and existing deadlines.
-- [ ] Commit/push the atomic correction, review exact-source hosted CI and continue all thirty unfinished original criteria, including the unresolved Windows/Deno cold import delay. PR57 remains draft/unmerged.
+- [x] Commit/push the atomic correction as 2761c35b. Exact-source hosted checks remain pending; continue all thirty unfinished original criteria, including the unresolved Windows/Deno cold import delay. PR57 remains draft/unmerged.
 
 2026-11-18 unchanged duplication gate:
 

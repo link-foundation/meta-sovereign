@@ -7,17 +7,26 @@ import {
 } from '../../js/src/sources/browser-sender.js';
 
 /** Finite browser waits; no browser, profile or provider is accessed. */
-export const withBrowserSendConsent = async (source, stage, check) => {
+export const withBrowserSendConsent = async (
+  source,
+  stage,
+  check,
+  dispatch
+) => {
   const store = createMemoryStore();
   const { entered, release, wait } = consentBarrier(stage);
   const effects = [];
   const typed = [];
+  const navigations = [];
   const ui = WEB_UIS[source];
   const first = (value) => value?.split(',')[0].trim();
   const composer = first(ui.composer);
   const button = first(ui.send.selector);
   const commander = {
-    goto: async () => wait('open'),
+    goto: async (target) => {
+      navigations.push(target);
+      await wait('open');
+    },
     count: async ({ selector }) => {
       if (selector === button) {
         await wait('button');
@@ -64,7 +73,7 @@ export const withBrowserSendConsent = async (source, stage, check) => {
     to: source === 'whatsapp' ? '+12025550123' : 'person-201',
     text: 'Review',
   };
-  const pending = consentOutcome(sender.send(draft));
+  const pending = consentOutcome(sender.send(draft, dispatch));
   try {
     await Promise.race([
       entered.promise,
@@ -80,6 +89,7 @@ export const withBrowserSendConsent = async (source, stage, check) => {
       release,
       effects,
       typed,
+      navigations,
       pending,
     });
   } finally {

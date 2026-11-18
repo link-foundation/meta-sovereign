@@ -65,7 +65,12 @@ const answerPage = (wait, state, choice) => {
 };
 
 /** Real sender/watch factories with finite fake native effects and no provider. */
-export const withBrowserAnswerConsent = async (mode, stage, check) => {
+export const withBrowserAnswerConsent = async (
+  mode,
+  stage,
+  check,
+  dispatch
+) => {
   const store = createMemoryStore();
   const { entered, release, wait } = consentBarrier(stage);
   const state = { clicks: 0, operations: [], closed: 0 };
@@ -98,7 +103,7 @@ export const withBrowserAnswerConsent = async (mode, stage, check) => {
         return watch[method](textReplyExpected(), textReplyBody);
       }
       return mode === 'choice'
-        ? sender.send(draft)
+        ? sender.send(draft, dispatch)
         : sender.replyText({
             ...target,
             expected: textReplyExpected(),

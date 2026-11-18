@@ -6,6 +6,12 @@ the earlier exact-source reviews, supersedes pending statuses and historical
 counts in the dated progress notes below.
 Every remaining requirement stays in scope for PR57.
 
+QA19/QA20 also include [Stop during sender preparation](dispatch-stop.md):
+forty-five actual-parent failures and 383 focused passes cover separate dispatch
+ownership, native queues and real autopilot drainage while preserving issued
+positive/partial/unknown receipts. Full provider-trigger and third-party internal
+queue verification remain required; neither criterion is accepted here.
+
 QA19/QA20 also include [provider preparation consent](consent-sdk.md):
 48 exact-parent assertion failures and 259 focused passes cover actual adapter
 waits, frozen recipients and positive/partial receipts. Third-party internal queues

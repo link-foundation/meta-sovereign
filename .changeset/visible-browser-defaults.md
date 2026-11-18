@@ -1057,3 +1057,8 @@ Recheck acknowledged consent after provider SDK preparation: VK limiter/retry,
 Telegram connection/peer resolution and every text part, mail thread/JMAP discovery
 and SMTP recipient/DATA readiness. Keep the original API recipient, composed
 dispatch hooks, positive receipts and partial-send uncertainty (QA19, QA20).
+
+Preserve automatic Stop ownership through connection loading, provider SDK
+preparation and native browser dispatch (QA19, QA20; R-Z3, R-Z4). Carry cancellation
+separately from durable drafts, refuse stopped work before the provider effect,
+and retain already issued positive, partial and uncertain receipts.

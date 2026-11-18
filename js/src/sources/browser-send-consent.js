@@ -1,17 +1,22 @@
 import { requireSendConsent } from '../automation/send-consent.js';
+import { requireDeliveryOwner } from '../automation/delivery-owner.js';
 
-/** Bind the original target; later caller edits cannot move its consent scope. */
-export const createBrowserSendConsent = (store, draft) => {
+/** Bind the original target and ephemeral owner across dispatch waits. */
+export const createBrowserSendConsent = (store, draft, { signal } = {}) => {
   const identity = {
     source: draft.source,
     chat: draft.chat,
     contact: draft.contact ?? draft.to,
   };
-  return () => requireSendConsent(store, identity);
+  return async () => {
+    requireDeliveryOwner(signal);
+    await requireSendConsent(store, identity);
+    requireDeliveryOwner(signal);
+  };
 };
 
-export const sendConsentOptions = (store, draft, options) => {
-  const verifyConsent = createBrowserSendConsent(store, draft);
+export const sendConsentOptions = (store, draft, options, dispatch) => {
+  const verifyConsent = createBrowserSendConsent(store, draft, dispatch);
   return {
     ...options,
     beforeIssue: async () => {

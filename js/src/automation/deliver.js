@@ -157,10 +157,10 @@ export const createDelivery = ({
             definitive: true,
           });
         }
-        // Admission can await durable storage. Recheck immediately before the
-        // provider effect, then retain its actual result even if Stop arrives.
+        // Admission and sender preparation may wait. Carry ownership through
+        // the final dispatch guard, then retain any issued provider result.
         requireDeliveryOwner(signal);
-        return send(outgoing);
+        return send(outgoing, { signal });
       },
       clock,
       log,

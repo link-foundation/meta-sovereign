@@ -509,8 +509,8 @@ export const createBrowserChoiceActions = ({
       }
     },
     /** Strict choices bypass API/plain-text sending and require a receipt. */
-    async chooseAnswer(draft) {
-      const consent = createBrowserSendConsent(store, draft);
+    async chooseAnswer(draft, dispatch) {
+      const consent = createBrowserSendConsent(store, draft, dispatch);
       const verifyCurrent = async () => {
         await consent();
         if (closed) {
@@ -526,7 +526,7 @@ export const createBrowserChoiceActions = ({
       return inChat(
         draft.source,
         target,
-        { browserUrl: draft.browserUrl },
+        { browserUrl: draft.browserUrl, beforeOpen: verifyCurrent },
         async (commander, page) =>
           selectBrowserAnswer(
             await resolveBrowserChoiceDocument(commander, page, ui, target),
