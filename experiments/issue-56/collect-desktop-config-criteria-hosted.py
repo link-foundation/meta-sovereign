@@ -57,6 +57,24 @@ assert review['pairs'] == [dict(path=path, archived=old, current=new)
 assert review['reviewedChangedSourcePairs'] == len(pairs)
 assert review['reviewedChangedFiles'] == len({path for path, _, _ in pairs})
 entries[review_path] = (root / review_path).read_bytes()
+if 'unchangedSourceReview' in review:
+    carried = review['unchangedSourceReview']
+    baseline = f"ci-logs/desktop-configuration-criteria-{carried['revision'][:8]}"
+    before = {}
+    for suffix in ['source-audit.json', 'source-deltas.diff', 'source-review.json']:
+        path = f'{baseline}-{suffix}'
+        before[suffix] = (root / path).read_bytes()
+        entries[path] = before[suffix]
+    assert hashlib.sha256(before['source-review.json']).hexdigest() == carried['reviewSha256']
+    previous_review = json.loads(before['source-review.json'])
+    assert hashlib.sha256(before['source-audit.json']).hexdigest() == previous_review['auditSha256']
+    assert hashlib.sha256(before['source-deltas.diff']).hexdigest() == previous_review['diffSha256']
+    previous = json.loads(before['source-audit.json'])
+    assert previous['revision'] == carried['revision']
+    assert previous['archives'] == audit['archives']
+    assert before['source-deltas.diff'].replace(
+        previous['revision'].encode(), sha.encode()) == entries[
+            'ci-logs/desktop-configuration-criteria-source-deltas.diff']
 stems = '''startup-configuration desktop-configuration automation-defaults
 rolling-cli runner-configuration runner-profile runner-profile-store
 runner-profile-api lino-cli-arguments app-directory runner-log diagnostics
@@ -215,6 +233,7 @@ for path in ['js/src/cli/readable-configuration.js', 'js/src/cli/startup-configu
 for path in [catalog_path, 'experiments/issue-56/collect-desktop-config-criteria-hosted.py',
              'experiments/issue-56/hosted_browser_layout.py',
              'experiments/issue-56/check-hosted-browser-layout.py',
+             'experiments/issue-56/rebind-desktop-config-review.py',
              'ci-logs/desktop-configuration-browser-layout.log',
              'experiments/issue-56/hosted_evidence.py',
              'experiments/issue-56/evidence_bundle.py',

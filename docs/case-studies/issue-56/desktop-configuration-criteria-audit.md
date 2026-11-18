@@ -105,7 +105,28 @@ sources and refuses five contradictory/missing layouts:
 python3 -B experiments/issue-56/check-hosted-browser-layout.py
 ```
 
-**Pending:** hosted validation for production source `b3364503`. No criterion is
+The current `72dc9552` audit independently rehashes all 1,137 entries. Every
+archive map and selected production source hash is identical to the complete
+`b3364503` review; every comparison line is identical after replacing only the
+Git revision in its headers. The finite rebinding reader verifies the original
+audit/diff hashes and refuses changed source bytes. It preserves the original
+review identity separately; the hosted collector retains and checks that chain.
+Both original/current audit and review receipts, the complete comparisons and
+the pending-workflow refusal are retained in the [rebinding archive](data/desktop-config-review-rebind.tar.gz)
+and its [manifest](data/desktop-config-review-rebind.tar.sha256.json). This makes
+the audit inputs recoverable without reconstructing local progress notes.
+
+```sh
+python3 -B experiments/issue-56/audit-hosted-criteria.py 72dc9552 --names-file experiments/issue-56/desktop-configuration-evidence.json --output-prefix desktop-configuration-criteria
+python3 -B experiments/issue-56/rebind-desktop-config-review.py
+python3 -B experiments/issue-56/collect-desktop-config-criteria-hosted.py 72dc9552 72dc9552
+```
+
+The final command requires all five complete successful workflow metadata files
+under `ci-logs/hosted-verification-72dc9552-*.json` and their selected full job
+logs under `ci-logs/hosted-72dc9552-*.log`. Pending results still refuse acceptance.
+
+**Pending:** hosted validation for production source `72dc9552`. No criterion is
 accepted by this draft mapping. The inventory remains **88 verified / 30
 unfinished**; VD01 and all other unfinished requirements remain required. PR57
 stays draft and unmerged.

@@ -1,0 +1,20 @@
+{
+  "archive": "desktop-config-review-rebind.tar.gz",
+  "files": {
+    "ci-logs/desktop-configuration-criteria-source-audit.json": "b3bb7e02404982e6e0bc714313e0687d4ba49169982f18d715d4928eb3d27b1e",
+    "ci-logs/desktop-configuration-criteria-source-deltas.diff": "aad3397c719ae28e6d484f1e0c7a4c1c5ec58ca2f31a1e2c44ae37d920be89d3",
+    "ci-logs/desktop-configuration-criteria-source-review.json": "30108db7b9d43bc0297b212d1418f8df1a14037c44bc6ec9f93c3c7496961871",
+    "ci-logs/desktop-configuration-criteria-b3364503-source-audit.json": "9bdc9d08368cf995efb5fc618f11de8065cd42e9b5cb74612e4acd6c97f70de6",
+    "ci-logs/desktop-configuration-criteria-b3364503-source-deltas.diff": "1a3a72f46ae450f9c05cf60f2ebfc082d377c7179d47f8de2ce452de0424bcaf",
+    "ci-logs/desktop-configuration-criteria-b3364503-source-review.json": "ade6a9c6df100a51d02a08847eb8d1ee0baddf335b6a8a492d43f46189bd83c4",
+    "experiments/issue-56/rebind-desktop-config-review.py": "28062bdd8e4a2c3f793d24bbdd9ea5b85f82adfb157e16e8f97ced98994d2833",
+    "experiments/issue-56/collect-desktop-config-criteria-hosted.py": "68688eec2a7251002852bfa535b322e77ceb4befb40700b7a12e4954c9a0493c",
+    "experiments/issue-56/audit-hosted-criteria.py": "1b212669d8b7e20aa63c41b246e0e63012a0166995458ed7657dca2268718d56",
+    "experiments/issue-56/desktop-configuration-evidence.json": "ff19838c93de5ebf18f826fbf1555364775ed8c0650e36cec731422531df8c6f",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "ci-logs/desktop-configuration-criteria-audit-72dc9552.log": "dffa2ce66931f6f7bdc578930c1bfe3f05d3f3b6d5c89e202cab4dcb45ad1f37",
+    "ci-logs/desktop-config-rebind-pending.log": "accd9e288185199359c8eef8d4a00b5f62f0ca30e69e4d47935c87543b87a3d8",
+    "docs/case-studies/issue-56/desktop-configuration-criteria-audit.md": "e1889a1f35902139bdc76902f842fc36a68c9348003ae104461d3c3123cd891a",
+    "metadata.json": "3dab8b5930646b9e3a199bc407d6dc4189f499a66c7056ba3b6aaa2966a925bb"
+  }
+}
