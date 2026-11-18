@@ -29,5 +29,8 @@ export const applicationAnswerMcpRunner = (work) =>
   const applicationAnswerSalary = ${JSON.stringify(applicationAnswerSalary)};
   const applicationPanelBrowser = ${applicationPanelBrowser.toString()};
   const configureApplicationAnswerContext = ${configureApplicationAnswerContext.toString()};
-  return (${work.trim().replace(/;$/u, '')})(page, applicationPanelBrowser, configureApplicationAnswerContext);
+  // Work is trusted repository function source, including any final semicolon.
+  // Keep fixture string values intact instead of rewriting generated code.
+  const inspect = ${work}
+  ; return inspect(page, applicationPanelBrowser, configureApplicationAnswerContext);
 }`;

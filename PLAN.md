@@ -1313,3 +1313,10 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Pass eight focused reminder checks and an independent MCP held-history selection/phone check with zero page exceptions or sends; close owned resources. Preserve initial fixture corrections separately.
 - [ ] Preserve source-bound evidence, pass scoped gates, commit and push this atomic correction. Review fresh exact-source workflows; investigate the new CodeQL and changeset failures on 37bbae0d without weakening checks.
 - [ ] Complete every one of the 30 unfinished criteria. PR57 remains draft and unmerged; passing a focused check does not complete broader parity requirements.
+
+2026-11-18 release notes and inspection source generation:
+
+- [x] Preserve exact-head 37bbae0d security logs/SARIF and the completed changeset job log. Identify one CodeQL finding in text rewriting and three release entries against the single-entry rule.
+- [x] Retain trusted inspection function source verbatim, including a final semicolon/comment; consolidate all release summaries into the existing minor entry without changing either gate.
+- [ ] Verify the finite parent/current VM regressions, existing generated work syntax and unchanged changeset validator; preserve scoped gates and source-bound evidence. Commit/push only to the prepared branch and review fresh hosted CodeQL and the complete CI matrix.
+- [ ] Complete all 30 unfinished original criteria; no synthetic test or fixture proves authenticated provider parity.

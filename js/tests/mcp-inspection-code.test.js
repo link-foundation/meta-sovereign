@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
 import { mcpInspectionCode } from '../../experiments/issue-56/mcp-inspection-code.mjs';
 import { applicationChatsMcpCode } from '../../experiments/issue-56/application-chats-mcp.mjs';
+import { applicationAnswerMcpRunner } from '../../experiments/issue-56/application-answer-context-mcp-runner.mjs';
 
 test('MCP inspection keeps script terminators and line separators inside fixture data', async () => {
   const fixture = {
@@ -56,3 +57,23 @@ test('MCP inspection supplies its trusted callback without evaluating fixture da
     checked: true,
   });
 });
+
+for (const terminator of ['', ';', ';\n// retained final comment']) {
+  test(`application answer MCP accepts trusted function source ending ${JSON.stringify(terminator)}`, async () => {
+    const fixture = 'quote\'"; backslash\\; </script>\u2028\u2029';
+    const work = `(page, controls, configure) => ({ value: ${JSON.stringify(fixture)},
+      page, controls: typeof controls, configure: typeof configure })${terminator}`;
+    const sandbox = {};
+    const result = await runInNewContext(
+      `(${applicationAnswerMcpRunner(work)})`,
+      sandbox
+    )('sentinel');
+    assert.deepEqual(JSON.parse(JSON.stringify(result)), {
+      value: fixture,
+      page: 'sentinel',
+      controls: 'function',
+      configure: 'function',
+    });
+    assert.equal(sandbox.injected, undefined);
+  });
+}

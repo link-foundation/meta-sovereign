@@ -1064,3 +1064,9 @@ Preserve automatic Stop ownership through connection loading, provider SDK
 preparation and native browser dispatch (QA19, QA20; R-Z3, R-Z4). Carry cancellation
 separately from durable drafts, refuse stopped work before the provider effect,
 and retain already issued positive, partial and uncertain receipts.
+
+Add the configurable HH application route through the original search before opening the full form, with document, draft and Stop checks and frozen review/batch receipts.
+
+Keep acknowledged application controls enabled during automatic status reads so a poll cannot cancel a native pointer click. Preserve blocking manual recovery, stale-response exclusion and server action guards.
+
+Wait for existing birthday greetings before inserting reminders, so already-greeted contacts cannot shift a pressed chat row during reload.
