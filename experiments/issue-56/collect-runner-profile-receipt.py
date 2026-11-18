@@ -36,7 +36,7 @@ names = [
 ] + [f'ci-logs/runner-profile-receipt-{name}.log' for name in
      ['before', 'focused', 'lint', 'diff', 'format-check']]
 failed_jobs = sorted(logs.glob('runner-receipt-job-*.log'))
-assert len(failed_jobs) == 8
+assert len(failed_jobs) == 9
 for log in failed_jobs:
     text = log.read_text()
     assert 'local target edits cannot redirect Stop or hide a running retained address' in text, log.name

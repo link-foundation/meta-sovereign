@@ -15,7 +15,8 @@ assertion that Stop uses the previously running address after a profile edit.
 All 19 focused profile and fresh-receipt tests pass with one worker.
 
 Preserved exact-source failures include Node Linux job `134617834288`, lines
-8749–8764; Node Windows `134617834233`, lines 17386–17401; Deno Linux
+8749–8764; Node Windows `134617834233`, lines 17386–17401; Node macOS
+`134617834284`, lines 6211–6225; Deno Linux
 `134617834311`, lines 4216–4228; Deno macOS `134617834221`, lines 11345–11357;
 Deno Windows `134617834162`, lines 15435–15449; Bun Linux `134617834014`,
 lines 9372–9395; Bun macOS `134617834174`, lines 47798–47820; and Bun Windows
