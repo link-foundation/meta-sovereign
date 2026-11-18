@@ -1,4 +1,4 @@
-import { defaultStoreDir } from '../storage/app-directory.js';
+import { openConfiguredVkStore } from './configured-vk-store.js';
 import {
   createVkOnlineJob,
   loadVkOnline,
@@ -27,14 +27,17 @@ export const createVkOnlineCommands = ({
   openStore,
   openReadOnly,
   createJob = createVkOnlineJob,
+  configuration: files,
 }) => ({
   'vk-online': async (args, log) => {
     const change =
       args.enabled !== undefined || args['every-minutes'] !== undefined;
     const run = booleanArg(args.run);
     booleanArg(args.enabled);
-    const store = await (change || run ? openStore : openReadOnly)(
-      args.store ?? defaultStoreDir()
+    const store = await openConfiguredVkStore(
+      change || run ? openStore : openReadOnly,
+      args,
+      files
     );
     let job;
     try {

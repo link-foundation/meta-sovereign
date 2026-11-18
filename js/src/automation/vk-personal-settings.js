@@ -2,6 +2,7 @@ import { createStoreQueue } from '../storage/serialized.js';
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { positiveVkId, legacyFriendPriority } from './vk-friends-settings.js';
 import { legacyTextList } from './vk-legacy-lists.js';
+import { readAutomationSettings } from './configured-settings.js';
 
 /** Browser-safe acknowledged configuration for an independent personal job. */
 export const createVkPersonalSettings = (name, spec) => {
@@ -48,7 +49,10 @@ export const createVkPersonalSettings = (name, spec) => {
     return result;
   };
   const settings = async (store) => {
-    const saved = { ...spec.defaults, ...(await store.get(keys.job)) };
+    const saved = {
+      ...spec.defaults,
+      ...(await readAutomationSettings(store, keys.job)),
+    };
     return normalize({
       ...saved,
       ...Object.fromEntries(

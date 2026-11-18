@@ -123,6 +123,8 @@ import { createVkCacheRuntime } from './vk-cache-runtime.js';
 import { createVkStickerRuntime } from './vk-sticker-runtime.js';
 import { handleVkOnline } from './routes-vk-online.js';
 import { createVkOnlineJob } from '../automation/vk-online.js';
+import { configureAutomationSettings } from '../automation/configured-settings.js';
+import { validateAutomationDefaults } from '../configuration/automation-defaults.js';
 import { createVkFriendsJob } from '../automation/vk-friends.js';
 import { handleVkFriends } from './routes-vk-friends.js';
 import { handleVkMaintenance } from './routes-vk-maintenance.js';
@@ -1114,7 +1116,13 @@ const modelContext = (
 
 export const startServer = async (options = {}) =>
   withLoggedSession(
-    { ...options, uiDefaults: validateUiDefaults(options.uiDefaults ?? {}) },
+    {
+      ...options,
+      uiDefaults: validateUiDefaults(options.uiDefaults ?? {}),
+      automationDefaults: await validateAutomationDefaults(
+        options.automationDefaults
+      ),
+    },
     startServerRuntime
   );
 
@@ -1125,6 +1133,19 @@ const initLogSettings = async (options, releaseStore) => {
     await releaseStore().catch(() => {});
     throw error;
   }
+};
+
+const initRuntimeStore = async (
+  { automationDefaults, ...options },
+  logging
+) => {
+  const resources = await initStore({ ...options, log: logging.journal.log });
+  configureAutomationSettings(resources.store, automationDefaults);
+  const diagnostics = await initLogSettings(
+    { ...logging, store: resources.store },
+    resources.releaseStore
+  );
+  return { ...resources, diagnostics };
 };
 
 const tokenService = (store, passphrase, options) =>
@@ -1148,6 +1169,7 @@ const startServerRuntime = async ({
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   vkToken,
+  automationDefaults,
   emailLiveFactory = null,
   emailPoll,
   cv = {},
@@ -1195,18 +1217,17 @@ const startServerRuntime = async ({
 } = {}) => {
   const logJournal = createLogJournal({ sink: log });
   log = logJournal.log;
-  const { store, resolvedArchiveDir, flush, releaseStore, storeHealth } =
-    await initStore({
+  const resources = await initRuntimeStore(
+    {
       providedStore,
       storeDir,
       archiveDir,
       secretPassphrase,
-      log,
-    });
-  const diagnostics = await initLogSettings(
-    { store, journal: logJournal, session: diagnosticsSession, verbose },
-    releaseStore
+      automationDefaults,
+    },
+    { journal: logJournal, session: diagnosticsSession, verbose }
   );
+  const { store, releaseStore, storeHealth, diagnostics, flush } = resources;
   // Services that run in the background start only after the port is ours.
   const later = [];
   automations = withStoreProfiles(automations, storeDir, front, providedStore);
@@ -1226,7 +1247,7 @@ const startServerRuntime = async ({
   const ctx = {
     front,
     jsonCompatibility: jsonCompatibility === true,
-    archiveDir: resolvedArchiveDir,
+    archiveDir: resources.resolvedArchiveDir,
     sync: null,
     signaling: null,
     secretPassphrase,

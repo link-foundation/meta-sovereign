@@ -15,6 +15,9 @@ const interfaceOptions = (args) => {
 // What `serve` passes to the server besides its port, store and log.
 export const serveOptions = (args, { defaultTls = true } = {}) => ({
   ...interfaceOptions(args),
+  ...(args.automationDefaults !== undefined
+    ? { automationDefaults: args.automationDefaults }
+    : {}),
   ...(args.verbose !== undefined ? { verbose: args.verbose } : {}),
   backups: {
     ...(args['backup-interval-hours'] !== undefined

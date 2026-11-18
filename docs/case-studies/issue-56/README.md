@@ -1,3 +1,6 @@
+- [Shared automation file defaults](automation-defaults.md): six native VK policies share global/local readable Lino, CLI overrides, saved-owner precedence and rolling configuration removal. Focused before/after evidence supports unfinished VD07.
+- [Actual first-use browser preparation](browser-preparation.md): exact-source hosted cold-cache download, headed render, reuse and resource closure pass; remote tools and system prerequisites keep VD01 unfinished.
+
 - [Complete generic reader contract](hosted-form-reader-5283e26a.md): all five workflows, 18 named reader/report checks and both actual native engines pass at `5283e26a`. Current acceptance is **84 of 118**, with **34 unfinished**; every remaining criterion stays required in the draft PR. Earlier counts below are historical checkpoints.
 
 [Bounded vacancy browser groups](ci-vacancy-groups.md): preserve the exact-source five-scenario registration failure and keep all eight scenarios within the existing four-scenario maximum.

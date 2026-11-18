@@ -1015,3 +1015,9 @@ Prepare a missing managed Chromium executable on explicit first use through the
 installed Playwright CLI, with shared cancellable ownership and confirmed file
 readback. Preserve chosen browser connections and await startup cancellation in
 assignments, form review, manual login and auto-import shutdown.
+
+Read global/local readable Lino defaults for the six desktop VK automations in
+the CLI, server and desktop. Reuse native validation and legacy list handling,
+preserve protected credentials and saved owner choices, and apply changed or
+removed file defaults through the rolling server without replacing an unchanged
+worker or writing default settings into the owner's store.

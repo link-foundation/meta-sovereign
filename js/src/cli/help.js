@@ -218,6 +218,7 @@ export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,tele
   vk-community     status|save|plan|run [--community-id=ID --offset=0 --sex=2] [--online-only=true --photo-required=true --open-only=true] [--plan=<id> --confirm=true]
   vk-rejections    status|save|plan|run [--limit=1 --scan-limit=1000] [--plan=<id> --confirm=true] [--store=<dir>]
   vk-birthday       status|save|plan|run [--time-zone=UTC] [--messages=<one per line>] [--stickers=ID,ID] [--attachments=videoOWNER_ID_ID] [--online-only=false] [--plan=<id> --confirm=true] [--store=<dir>]
+                VK policy commands read --app-config=<file> and --automation-defaults=<readable-Lino>; saved choices take precedence over file defaults
   vk-topic          status|save|plan|run [--greeting=<text>] [--questions=<one per line>] [--stale-days=7] [--limit=10] [--plan=<id> --confirm=true] [--store=<dir>]
   vk-help           status|save|plan|run [--greeting=<text>] [--questions=<one per line>] [--stale-days=31] [--limit=10] [--plan=<id> --confirm=true] [--store=<dir>]
   vk-music          status|save|plan|run [--audio=audioOWNER_ID_AUDIO_ID] [--greeting=<text>] [--questions=<one per line>] [--stale-days=31] [--limit=10] [--plan=<id> --confirm=true] [--store=<dir>]
@@ -251,6 +252,7 @@ Commands:
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--json-compatibility=true] [--quiet-logs]
                 [--backup-interval-hours=<h>] [--backup-keep=<n>] [--recovery-formats=text,binary|none] [--app-config=<file>]
                 user config.lino < .meta-sovereign/config.lino (or --app-config) < explicit options
+                [--automation-defaults=<readable-Lino>] overrides six VK file defaults; saved owner policy takes precedence
                 [--theme=system|light|dark|auto] [--skin=t3|telegram|whatsapp|signal] [--language=system|en|ru|zh|hi]
                 interface defaults; saved browser choices take precedence
                 open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in

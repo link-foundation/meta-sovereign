@@ -1,6 +1,7 @@
 /** Independent destructive policies; neither runs until explicitly enabled. */
 import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
+import { readAutomationSettings } from './configured-settings.js';
 import {
   positiveVkId,
   readVkFriendSettings,
@@ -48,7 +49,10 @@ export const normalizeVkMaintenance = (input) => {
   };
 };
 export const readVkMaintenanceSettings = async (store, kind) => {
-  const saved = (await store.get(maintenanceKeys(kind).job)) ?? {
+  const saved = (await readAutomationSettings(
+    store,
+    maintenanceKeys(kind).job
+  )) ?? {
     enabled: false,
     everyMinutes: kind === 'cleanup' ? 30 : 8,
     limit: kind === 'cleanup' ? 10000 : 20,

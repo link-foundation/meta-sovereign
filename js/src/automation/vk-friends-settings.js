@@ -3,6 +3,7 @@ import { saveAcknowledgedRecord } from '../storage/acknowledged-record.js';
 import { createStoreQueue } from '../storage/serialized.js';
 import { readVkFriendStats } from './vk-friend-stats.js';
 import { emptyLegacyList } from './vk-legacy-lists.js';
+import { readAutomationSettings } from './configured-settings.js';
 
 export const VK_FRIENDS_JOB = 'provider-job:vk:friends';
 export const VK_FRIENDS_STATE = 'provider-job-state:vk:friends';
@@ -50,18 +51,17 @@ export const normalizeVkFriendSettings = (input) => {
   return { ...settings, priorityIds: [...new Set(input.priorityIds)] };
 };
 export const readVkFriendSettings = async (store) => {
-  const saved = await store.get(VK_FRIENDS_JOB);
-  return normalizeVkFriendSettings(
-    saved
-      ? { ...saved, priorityIds: legacyFriendPriority(saved.priorityIds) }
-      : {
-          enabled: false,
-          everyMinutes: 20,
-          maxFriends: 10000,
-          batchSize: 23,
-          priorityIds: [],
-        }
-  );
+  const saved = (await readAutomationSettings(store, VK_FRIENDS_JOB)) ?? {
+    enabled: false,
+    everyMinutes: 20,
+    maxFriends: 10000,
+    batchSize: 23,
+    priorityIds: [],
+  };
+  return normalizeVkFriendSettings({
+    ...saved,
+    priorityIds: legacyFriendPriority(saved.priorityIds),
+  });
 };
 // Old Lino settings used null/empty text/an empty bare-key object or a numeric
 // singleton. Normalize only persisted reads; preserve invalid populated shapes

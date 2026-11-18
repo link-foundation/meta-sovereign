@@ -3,6 +3,7 @@ import { readReadableConfiguration } from './readable-configuration.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { MAX_RECOVERY_HOURS } from '../storage/recovery-settings.js';
 import { validUiDefault } from '../configuration/ui-defaults.js';
+import { parseIndented } from 'lino-objects-codec';
 
 const FIELDS = new Map([
   ['port', 'port'],
@@ -88,7 +89,9 @@ const validField = (key, value) => {
 const validate = (value, scope) => {
   if (
     !record(value) ||
-    Object.keys(value).some((key) => key !== 'server') ||
+    Object.keys(value).some(
+      (key) => !['server', 'automations'].includes(key)
+    ) ||
     (value.server !== undefined && !record(value.server))
   ) {
     throw invalid(scope);
@@ -98,7 +101,7 @@ const validate = (value, scope) => {
       throw invalid(scope);
     }
   }
-  return value.server ?? {};
+  return { server: value.server ?? {}, automations: value.automations };
 };
 
 const readLayer = async (file, scope, required = false) => {
@@ -106,11 +109,54 @@ const readLayer = async (file, scope, required = false) => {
     return validate(await readReadableConfiguration(file), scope);
   } catch (error) {
     if (error.code === 'ENOENT' && !required) {
-      return {};
+      return { server: {} };
     }
     // Parser and filesystem errors can contain credentials or private paths.
     throw invalid(scope);
   }
+};
+
+const automationDefaults = async (global, local, args) => {
+  if (
+    global.automations === undefined &&
+    local.automations === undefined &&
+    args['automation-defaults'] === undefined
+  ) {
+    return {};
+  }
+  const { mergeAutomationDefaults, validateAutomationDefaults } =
+    await import('../configuration/automation-defaults.js');
+  let merged = {};
+  let normalized;
+  const layers = [
+    ['global', () => global.automations],
+    ['local', () => local.automations],
+    [
+      'command',
+      () => {
+        const text = args['automation-defaults'];
+        if (text === undefined) {
+          return undefined;
+        }
+        if (typeof text !== 'string' || Buffer.byteLength(text) > 64 * 1024) {
+          throw invalid('command');
+        }
+        return parseIndented({ text }).obj;
+      },
+    ],
+  ];
+  for (const [scope, read] of layers) {
+    try {
+      const value = read();
+      if (value !== undefined) {
+        merged = mergeAutomationDefaults(merged, value);
+        normalized = await validateAutomationDefaults(merged);
+      }
+    } catch {
+      throw invalid(scope);
+    }
+  }
+  return { automationDefaults: normalized };
 };
 
 /** User config < local app-folder config < explicit CLI. No process env writes. */
@@ -145,10 +191,9 @@ export const startupArguments = async (
       ? global
       : await readLayer(localFile, 'local', selected);
   const defaults = Object.fromEntries(
-    Object.entries({ ...global, ...local }).map(([key, value]) => [
-      FIELDS.get(key),
-      value,
-    ])
+    Object.entries({ ...global.server, ...local.server }).map(
+      ([key, value]) => [FIELDS.get(key), value]
+    )
   );
   const merged = { ...defaults, ...args };
   for (const key of ['theme', 'skin', 'language']) {
@@ -156,5 +201,5 @@ export const startupArguments = async (
       throw invalid('interface');
     }
   }
-  return merged;
+  return { ...merged, ...(await automationDefaults(global, local, args)) };
 };

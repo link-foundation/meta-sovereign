@@ -15,6 +15,8 @@ import {
   verifyRelease,
 } from '../src/server/rolling-release.js';
 import { workerArgs } from '../src/server/worker-client.js';
+import { LINO_TEXT, readWireResponse } from '../src/transport/lino.js';
+import { automationDefaultsFixture } from '../../experiments/issue-56/automation-defaults-fixture.mjs';
 
 const cli = fileURLToPath(new URL('../bin/meta-sovereign.js', import.meta.url));
 const invoke = (dir, ...extra) => {
@@ -106,6 +108,55 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test(
+  'rolling serve replaces changed file defaults and clears removed defaults without saving policy',
+  { timeout: 30000 },
+  async () =>
+    automationDefaultsFixture(async (f) => {
+      const dir = path.join(f.cwd, 'store');
+      await f.put('local', { vk: { online: { everyMinutes: 5 } } });
+      const config = `--app-config=${f.file('local')}`;
+      const first = invoke(dir, config);
+      const settings = async () => {
+        const { port } = await statusWhenReady(dir);
+        return readWireResponse(
+          await fetch(`http://127.0.0.1:${port}/api/vk/online`, {
+            headers: { accept: LINO_TEXT },
+          })
+        );
+      };
+      try {
+        const initial = await statusWhenReady(dir);
+        assert.equal((await settings()).settings.everyMinutes, 5);
+        const repeated = await invoke(dir, config).ended;
+        assert.equal(repeated.code, 0, repeated.output);
+        assert.match(repeated.output, /already running/);
+        assert.equal((await statusWhenReady(dir)).pid, initial.pid);
+        await f.put('local', { vk: { online: { everyMinutes: 2 } } });
+        const changed = await invoke(dir, config).ended;
+        assert.equal(changed.code, 0, changed.output);
+        assert.match(changed.output, /server upgraded/);
+        assert.equal((await settings()).settings.everyMinutes, 2);
+        await f.put('local', {});
+        const removed = await invoke(dir, config).ended;
+        assert.equal(removed.code, 0, removed.output);
+        assert.match(removed.output, /server upgraded/);
+        assert.equal((await settings()).settings.everyMinutes, 14);
+        assert.equal((await settings()).settings.enabled, false);
+        const next = await statusWhenReady(dir);
+        assert.equal(next.port, initial.port);
+        assert.equal(
+          JSON.parse(await readFile(path.join(dir, 'runtime/server.json')))
+            .hostPid,
+          first.child.pid
+        );
+      } finally {
+        first.child.kill('SIGTERM');
+        await first.ended;
+      }
+    })
+);
 
 test('prepared release snapshots reject changed worker code', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-release-'));

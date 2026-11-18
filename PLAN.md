@@ -1,10 +1,19 @@
+2026-11-18 shared desktop automation file defaults (VD07 remains unfinished):
+
+- [x] Read the complete pinned bot configuration and layered store contract; trace the shared native settings, protected credentials, server/desktop startup, CLI and rolling-worker paths.
+- [x] Draft global/local readable Lino defaults for the six desktop VK automations, strict native validation and legacy lists; preserve saved owner choices, explicit CLI overrides and protected credentials.
+- [x] Reproduce the actual parent gap and verify focused layering, invalid hidden values, no writes/provider work, shared API formats, restart, CLI and owner edits with bounded fixtures.
+- [x] Pass scoped static checks, preserve source-bound evidence and four-language documentation. Ten new configuration, three rolling, thirteen startup/desktop and eleven diagnostics checks pass; eight actual-parent regressions fail with two controls passing. The duplication gate remains 6.49%.
+- [ ] Commit/push only to the prepared branch and inspect exact-source CI. Complete the full bot configuration/storage/logging/protected-secret contract audit before accepting VD07. Every unfinished criterion remains required; PR57 stays draft/unmerged.
+
 2026-11-18 first-use managed browser preparation (VD01 remains unfinished):
 
 - [x] Compare the pinned desktop first-launch promise with actual Browser Commander resolution: installed provider packages do not include Chrome for Testing, and the current launch asks the owner to install it manually.
 - [x] Draft shared first-use preparation through the installed Playwright CLI, with bounded drained processes, coalesced owners, truthful readback and default-off value-free tracing. Preserve explicit browser/CDP selections and exact-target watcher connections.
 - [x] Pass owned cancellation through assignment deadlines/stops, form closure, manual login shutdown and auto-import termination. Await installer drainage and preserve the terminal auto-import state.
 - [x] Verify 18 focused launch/reuse/refusal/cancellation regressions, eight exact-parent failures, 92 compatibility checks and scoped gates; preserve independently hashed source-bound evidence. Actual downloads and headed first-use proof remain required in isolated hosted CI.
-- [ ] Publish only to the prepared branch and inspect exact-source CI. Remote runner tools/system prerequisites and every unfinished criterion remain required; PR57 stays draft and unmerged.
+- [x] Publish browser preparation on the prepared branch. Exact-source b98098b7 Chromium shard 1 passes an actual absent-cache download, headed render, reuse and closed-resource receipt; all five packaged desktop build jobs pass. Preserve 18 independently hashed hosted entries.
+- [ ] Inspect the complete exact-source Checks workflow. Remote runner tools/system prerequisites and every unfinished criterion remain required; PR57 stays draft and unmerged.
 
 2026-11-18 binary complete-corpus latency:
 

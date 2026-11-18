@@ -1,4 +1,5 @@
 import { defaultStoreDir } from '../storage/app-directory.js';
+import { openConfiguredVkStore } from './configured-vk-store.js';
 import {
   createVkFriendsJob,
   loadVkFriends,
@@ -54,6 +55,7 @@ export const createVkFriendPolicyCommands = ({
   stringFlags = {},
   booleanFlags = {},
   actions = {},
+  configuration: files,
 }) => ({
   [name]: async (args, log) => {
     const action = args._?.[0] ?? 'status';
@@ -68,8 +70,10 @@ export const createVkFriendPolicyCommands = ({
     }
     const confirm = bool(args.confirm);
     const storeDir = args.store ?? defaultStoreDir();
-    const store = await (action === 'status' ? openReadOnly : openStore)(
-      storeDir
+    const store = await openConfiguredVkStore(
+      action === 'status' ? openReadOnly : openStore,
+      args,
+      files
     );
     let job;
     try {
