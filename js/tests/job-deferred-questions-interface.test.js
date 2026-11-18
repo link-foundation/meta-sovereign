@@ -190,7 +190,8 @@ for (const locale of ['en', 'ru', 'hi', 'zh']) {
     );
     assert.match(html, /&lt;script&gt;private owner question&lt;\/script&gt;/u);
     assert.match(html, /role="alert"/u);
-    assert.doesNotMatch(html, /deferredQuestions\.|<script>/u);
+    assert.equal(html.includes('deferredQuestions.'), false);
+    assert.equal(html.includes('<script'), false);
     assert.match(html, /disabled="" data-deferred-question-save/u);
   });
 }

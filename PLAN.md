@@ -1,3 +1,11 @@
+2026-11-18 batch receipt completion and security-test diagnostics:
+
+- [x] Preserve both exact-parent WebKit failures with timestamps/SHA, keep the DNS checkout failure separate, and request failed-job reruns after completion.
+- [x] Reproduce the current-source completion timeout in one isolated WebKit batch; retain the accepted delivery receipt and successful exact-parent control. Keep the older hosted unknown receipt unexplained.
+- [x] Wait for accepted idle receipts after batch ownership changes, retain every delivery/reload assertion and deadline, and add bounded drained failure diagnostics. Pass the focused native scenario and 18 relevant checks.
+- [x] Preserve the exact-source CodeQL test-regex finding; retain escaped private-content assertions with direct string checks. Scoped static checks pass.
+- [ ] Publish this correction only to the prepared branch, review fresh exact-source hosted checks, and continue all 30 unfinished criteria. PR57 stays draft and unmerged.
+
 2026-11-18 delayed native vacancy descriptions (HH03 remains unfinished):
 
 - [x] Trace the pinned full-description wait and both immediate extraction callers; DOMContentLoaded does not establish that the native description has hydrated.

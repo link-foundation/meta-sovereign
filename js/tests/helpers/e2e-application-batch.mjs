@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { applicationNativeFixture } from '../../../experiments/issue-56/application-native-fixture.mjs';
 import { applicationPanelBrowser } from './application-panel-browser.mjs';
 import { nativeApplicationForm } from './application-native-request.mjs';
+import { applicationBrowserResponses } from './application-browser-responses.mjs';
 
 export const verifyNativeApplicationBatch = async (
   browser,
@@ -14,6 +15,7 @@ export const verifyNativeApplicationBatch = async (
   });
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action } = controls;
+  const responses = applicationBrowserResponses(page);
   // A batch crosses several documents, each with commander URL stabilization.
   // Bound those transitions separately from individual UI interactions.
   const { batch, field, button, phase } = controls.batch();
@@ -113,6 +115,7 @@ export const verifyNativeApplicationBatch = async (
       resourcesClosed: true,
     };
   } catch (error) {
+    console.log('Application mutation receipts', await responses.stop());
     await shot('failed').catch(() => {});
     console.log(
       'Application panel at refusal',
@@ -127,6 +130,7 @@ export const verifyNativeApplicationBatch = async (
     );
     throw error;
   } finally {
+    await responses.stop();
     await fixture.close();
   }
 };

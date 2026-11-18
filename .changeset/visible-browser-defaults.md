@@ -980,3 +980,7 @@ Persist private HH question deferrals by browser slot with revisioned CLI, Lino
 and four-language controls. Preserve actual answers before closing matching
 forms, watch waiting forms, and share answer-aware exclusions across discovery,
 search and batches while retaining the independent worker questionnaire queue.
+
+Verify batch continuation completion against an accepted idle receipt after
+native browser ownership moves to the next vacancy, and preserve bounded
+failure-only response diagnostics without changing delivery guards or deadlines.

@@ -74,12 +74,15 @@ export const applicationPanelBrowser = (fixture) => {
     async confirmed(name) {
       await confirm();
       await action(name).click();
-      // Completion includes the new receipt and its renewed owner confirmation.
+      // A batch can close this delivered browser and move to its next review.
+      // Completion needs an accepted, idle receipt, not an active native page.
       await page.waitForFunction(
         () =>
           !document.querySelector('[data-application-option="confirm"]')
             .checked &&
-          !document.querySelector('[data-application-action="read"]').disabled
+          !document.querySelector('[data-application-action="recover"]')
+            .disabled &&
+          !document.querySelector('[data-application-unknown]')
       );
     },
     async select() {
