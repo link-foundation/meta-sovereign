@@ -19,6 +19,7 @@ export const dockerResult = (state, session = 'meta-sovereign-test') => ({
 export const dockerFixture = ({ container = 'missing', ...options } = {}) => {
   const screen = runnerFixture(options.initial);
   const calls = [];
+  let keepContainer = true;
   const run = async (target, argv, supplied) => {
     calls.push(argv);
     if (target.isolation !== 'docker') {
@@ -33,8 +34,10 @@ export const dockerFixture = ({ container = 'missing', ...options } = {}) => {
       }
       container = 'missing';
     } else if (argv[2] === 'stop') {
-      container = 'exited';
+      // start-command removes successful exits unless explicitly retained.
+      container = keepContainer ? 'exited' : 'missing';
     } else {
+      keepContainer = argv.includes('--keep-container');
       container = options.launchState ?? 'running';
     }
     return { code: options.launchCode ?? 0 };

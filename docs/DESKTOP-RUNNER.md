@@ -101,7 +101,10 @@ ownership label. An unrelated container, paused/created container or ambiguous
 daemon reply reports `unknown` and blocks mutation. Stop and application health
 use the observed container ID. A later explicit Start removes only a positively
 observed owned exited container, without force, then rechecks that its name is
-available before launch. It never removes the mounted application or store.
+available before launch. The launch explicitly retains the exited container so
+start-command's completion watcher cannot remove it independently. Stop leaves
+that container for the next Start; its writable layer uses disk until then.
+Cleanup never removes the mounted application or store.
 No container ports are published by this session controller; application health
 runs inside the container. Configure any separate network access explicitly.
 

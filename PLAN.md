@@ -1014,4 +1014,18 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Preserve exact 802c6168 failed jobs and artifact. The workflow cache contract rejects the new Node setup; same-host Screen Stop resolves an old Docker record through start-command.
 - [x] Reproduce two failures and two compatible controls against published 802c6168. Stop uses a fresh exact Screen ID, duplicate names refuse, and hosted failures print the original error before cleanup.
 - [x] Pass 43 focused controller, drain, Docker, inspection and workflow-cache tests with one worker.
-- [ ] Finish scoped static checks, preserve source-bound evidence and publish this correction. Review actual SSH/Docker lifecycle and all exact-head workflows; all 32 criteria remain required.
+- [x] Publish 13788383 with source-bound evidence. Actual hosted Screen switching and the workflow cache-policy job pass; Docker restart reveals the separate completion-watcher retention mismatch below. All 32 criteria remain required.
+
+2026-11-18 packaged macOS drain investigation:
+
+- [x] Preserve exact 802c6168 job 134599326077. HTTP closes, but the runtime does not finish before the unchanged ten-second fixture kill. Expected update-feed 404s do not establish causation.
+- [x] Add default-off fixed-name pending/settled traces for the runtime and nested automation/background owners. Preserve cleanup ordering, rejection and drain barriers.
+- [x] Pass all eleven focused compatibility checks and the existing controlled shutdown barrier with diagnostics enabled. The next unmodified 13788383 macOS packaged build passes; root cause remains unproven.
+- [x] Pass scoped static checks and commit the diagnostic unit with 18 independently hashed evidence entries. Retain investigation evidence and inspect any actual hosted recurrence; all 32 criteria remain open.
+
+2026-11-18 Docker completion ownership:
+
+- [x] Preserve exact 13788383 failed hosted lifecycle: Screen switching passes, but the default completion watcher removes the exited Docker container before the controller can clean it up.
+- [x] Explicitly retain exited containers with the supported start-command policy. Model default auto-removal and reproduce the published-parent lifecycle failure; pass 40 focused runner checks with one worker.
+- [x] Pass scoped formatting, lint, secrets, source/document limits and the unchanged duplication gate (6.49%). Preserve 29 independently hashed retention evidence entries.
+- [ ] Publish only to the prepared branch and require the actual hosted SSH/Docker lifecycle. Complete the full VD02 audit before acceptance; all 32 criteria remain required.

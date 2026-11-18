@@ -55,6 +55,7 @@ export const dockerRunnerLaunch = (target, command) => {
     '--label',
     `meta-sovereign.runner=${target.session}`,
     '--init',
+    '--keep-container',
     ...mounts.flatMap((directory) => ['--mount', mount(directory)]),
     '--',
     'sh',
