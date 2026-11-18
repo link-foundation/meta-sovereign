@@ -1,0 +1,22 @@
+{
+  "archive": "ci-webkit-reload.tar.gz",
+  "files": {
+    "ci-logs/6a2b-final-runs.json": "9762a10c2b911df5f3ee3885b1f647c768133916cdb306a506914b88f65c8919",
+    "ci-logs/browser-webkit-2-43995881927/chat-loading.log": "f85e37c2574397eb3e3ec1e512501056a54058ab0462959064816ab8c0282737",
+    "ci-logs/browser-webkit-2-43995881927/ms-e2e-chat-loading-webkit.png": "dda54332c9110217e35411839a9d84389d3013215389c53ce2d8f60c0664d8e1",
+    "ci-logs/chat-loading-diagnostic-browser.log": "6e486f9f7c8c92d5aefc1443a2304ac91fa347d63e2e9a070a21193aa4afaf94",
+    "ci-logs/chat-loading-diagnostic-docs-format.log": "3f4e4628c2495628aecee2af56d7f1eb9d0ff2cbd52adc41ff2671f1b2953050",
+    "ci-logs/chat-loading-diagnostic-focused.log": "83385f3af2927108648cb72a165fa5aed57c279dbeab9abe797830c138e92d2f",
+    "ci-logs/chat-loading-diagnostic-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/chat-loading-diagnostic-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/chat-loading-webkit-probe.log": "2f1abb2d50e8be1d84e1e3040041ed76260cdf898b81ba8e05d57cdbf76b8d63",
+    "ci-logs/checks-43995881927-webkit-2-final.log": "b107eda4eb9d27fa6365c12bb8ae312755bac135fd0fb250ea34264e499fbd06",
+    "docs/case-studies/issue-56/ci-webkit-reload.md": "d369a1c53ebef844d6a90623643fc5b07261fbeedcb42a7967a5cbcc6303ea75",
+    "experiments/issue-56/collect-chat-loading-diagnostic.py": "7ba7a7e970ab3b1dd77fc78ee9c7a0ca212221ee0f0a7334fba86a1ea53cd95f",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/e2e-chat-loading-browser.mjs": "9aa51e22fc8c5ef46c7eed19359825c3407d88ae0211ed89bb711f7ea4fddb7f",
+    "js/tests/e2e-page-errors.test.js": "5f19d7bf7f9ec99cc979584fd0783833d0d2896888c0872f990095c7bd0ad758",
+    "js/tests/helpers/e2e-page-errors.mjs": "6f045f6483bf4fefa8cd1cb03349ed79737fc5be5882b7c3f566aee6dfce085b",
+    "metadata.json": "3b03c58588224cd96939285effac0ac4920c5e90144eec124134b9a81005b010"
+  }
+}

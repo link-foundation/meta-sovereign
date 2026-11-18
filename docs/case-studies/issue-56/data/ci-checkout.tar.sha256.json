@@ -1,0 +1,27 @@
+{
+  "archive": "ci-checkout.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "8ac7427ee9e9e1b9c00f3c55e56feffa540e7f3c4cb8171d9ce7d2982c9d3936",
+    "ci-logs/checkout-filter-before.log": "cd2a155c5740b658c41051381e9bdb0b1ba6b0882d41a7dbf196ff12aaf02e7b",
+    "ci-logs/checkout-filter-bun.log": "656eb9e09815dfdc7bbbf3aeb1b5399bece0b600a92268065b4f0b13e9b2b4b5",
+    "ci-logs/checkout-filter-current-jobs.json": "1cc21e9924fab13cd6f096f97c4a1ca9096ed1979267e993d5293cf9c4242cbe",
+    "ci-logs/checkout-filter-deno.log": "d42f2ba92b948f357565be7c0fb274c6d3134386911c51ddf9555d458e05feec",
+    "ci-logs/checkout-filter-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/checkout-filter-failed-job.json": "b7699ec97a6548ba72b3ac9e11b411fd26580c995a8755229d2b1a691b4d8af0",
+    "ci-logs/checkout-filter-format-final.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/checkout-filter-format.log": "8492c5bf0e5ab3e7392be03d52c28c9d6dcc15d79376853c236b1a83120c54d4",
+    "ci-logs/checkout-filter-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/checkout-filter-node.log": "c1ca7d44cbb72f5f9f7f2b581a87892e5785f26647048326b0d55c1ed7ebbed0",
+    "ci-logs/checkout-filter-pr-current.json": "3362b8f2cbddbf06647f627e52dd4024bdd6c8fc4cdec5c3c63cc1a46f038929",
+    "ci-logs/checkout-filter-webkit-two.log": "2f6b649c5ab09f7fcf0075e977b6242d80f1ea15225e0328c596dc3d89b91bf4",
+    "ci-logs/runner-log-checkout-action.yml": "d59219cb79590abdb877deaa14e3b65a00c05318bf5a6f3b989b9162b5d08c35",
+    "ci-logs/runner-log-current-macos-api.log": "0799a7c071376255e6ea45de19f002861f400797743dd6b4b149c8931cd5010c",
+    "docs/case-studies/issue-56/ci-checkout-plan.md": "29436490d44db11ff1592325155221bfaf29aceb6882863535bdabd454083de2",
+    "docs/case-studies/issue-56/ci-checkout.md": "d7b891d52eaed097fed51708b43e72cd15fc68c82f4dd7a29d160a9f6c627abf",
+    "experiments/issue-56/collect-ci-checkout.py": "7ef973ace8379f5080dec52728656e8bf461e570ae258ff97f07c8d8fee177e2",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-filtered-checkout.test.js": "390a960f805e708937e6785cef87090692aab46bef0cb1a8f7933013c1e9e936",
+    "before/.github/workflows/release.yml": "4cdfb96a4b57fde6aadbf9fbe2e8d8b48ac62a68b02c92fa8dc4b3e8c63b979d",
+    "metadata.json": "ce24fd5bd093cc22a34565d79fa5d32411e3a9a854ec250ff187ba260e6e96f7"
+  }
+}

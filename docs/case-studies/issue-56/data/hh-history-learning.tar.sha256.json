@@ -1,0 +1,27 @@
+{
+  "archive": "hh-history-learning.tar.gz",
+  "files": {
+    "ci-logs/hh-history-after.log": "f8ffed95d5e0ab9a58086fe96e36d3e4eedd7b2a60c55f19b7de7fce8b066985",
+    "ci-logs/hh-history-before.log": "7a900dd7c6b24f039c041e0844ea475a8625fc6d4f80729576707377a9a7e039",
+    "ci-logs/hh-history-browser-after.log": "cc64f8943baf6a5a6c019d8cab3ff5ebd84db60ea493ccbff2b836d71888c750",
+    "ci-logs/hh-history-browser-before.log": "09e9643b8e4b828539b2f7c37a057dac98999fb54c2a891f4e943d549739cf8e",
+    "ci-logs/hh-history-browser-install-sites.log": "b215ee0a6430897c618b8e525a20a167165a35bf798df61e471a4ffa617e17b7",
+    "ci-logs/hh-history-browser-integrated.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "ci-logs/hh-history-build.log": "1da3618db641ff44375e5664da07aceec72dac190c4b9cc4a4e4df58d1ae5d5a",
+    "ci-logs/hh-history-current-runs.json": "9c0fe6cab29fbdc68248147f85ab269db5bc61299b16c4a5c51cf0fa05216222",
+    "ci-logs/hh-history-deno.log": "f99a78fb2d8da61e0dbf0519699b9b18c215f4d442f92afb7ac95fede81e1597",
+    "ci-logs/hh-history-doc-format.log": "5c1a85d11fd96521613a3c03b15904ebe5b769436db39e67140fa9c3647d1bb7",
+    "ci-logs/hh-history-draft.log": "3847b3848abb8d507474944f80bb40f882e4dea5d07e9119e2c0b1b9f1c93627",
+    "ci-logs/hh-history-format.log": "04c895188949525eec35758002cddf1f9482f66fdbc1d0b64050b98e1038bea7",
+    "ci-logs/hh-history-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/hh-history-mcp-after.log": "f9edad18f0694ec7c4f822179ab6884a0e2368c20421df9c524126bd8df6a651",
+    "ci-logs/hh-history-mcp-preview.log": "fd694fa6d7e313a6f26ca71956d22c326668eaea9bfff3bf1ed72b3874738653",
+    "ci-logs/hh-history-mcp-refusal.log": "5e310931096faba979a9bf081ccf91abcc11f6e1309c63d52cb6049b357dec2c",
+    "ci-logs/hh-history-mcp-saved.log": "9f516bbb32373ce96805789fe8b41da7c9061ca13e6bff16f48d41f178b6ebc9",
+    "ci-logs/hh-history-pages-42812224902.log": "35fe9849302fe69314aec841a95b24c08b9eb2a6c26742fc06af252248acd935",
+    "ci-logs/hh-history-pages-jobs.json": "c8147ef279ca715661689a6d97d841e03df8a17099fb562835fd571cb6c06f16",
+    "ci-logs/question-concurrency-issue56.json": "c86146b967fdc121a1e5dfda76b054a8011cf29f1dbcda4f4394e53bf51f1625",
+    "experiments/issue-56/collect-hh-history.py": "a37c2b3573a6d2a9447fa4f7f021381d2b283b4e9f36768bf16dece7190e1de6",
+    "metadata.json": "7842936bb1f2bf5ec9ce22bf02b75b6b7ee6cfdb638b50a72b653e0839b9471d"
+  }
+}

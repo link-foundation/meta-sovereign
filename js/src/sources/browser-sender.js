@@ -30,18 +30,36 @@
 
 /* global document -- `extractMessages` runs in the page */
 
-import { createHash } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { randomUUID } from 'node:crypto';
+import { verifyBrowserComposer } from './browser-composer-draft.js';
 
-import { defaultProfileDir, openBrowserSession } from '../cv/browser.js';
+import {
+  defaultProfileDir,
+  openBrowserSession,
+  slotProfileDir,
+} from '../cv/browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 import { selectorCandidates } from '../cv/runner.js';
 import { createAdapterSender } from '../crm/reengage.js';
 import { WEB_UIS } from './web-uis.js';
 import { createBrowserActions } from './browser-actions.js';
 import { createMessageActions } from './message-actions.js';
 import { markSendOutcome } from './http.js';
-
-const isNumericId = (value) => /^-?\d+$/.test(String(value));
+import {
+  createBrowserChoiceActions,
+  enrichBrowserChoices,
+  readBrowserHistory,
+} from './browser-choices.js';
+import { resolveBrowserChoiceDocument } from './browser-choice-document.js';
+import { createBrowserChatScans } from './browser-chat-scan.js';
+import { createBrowserTextActions } from './browser-text-reply.js';
+import {
+  createBrowserSendConsent,
+  sendConsentOptions,
+} from './browser-send-consent.js';
+import { toBrowserMessageLink } from './browser-message.js';
+import { isSendConsentRefusal } from '../automation/send-consent.js';
 
 export { WEB_UIS };
 
@@ -71,6 +89,16 @@ export class SendFallbackError extends AggregateError {
 
 const codedError = (message, code) =>
   Object.assign(new Error(message), { code });
+
+const requireTextUi = (ui, code = 'answer-choice-required') => {
+  if (ui.documents) {
+    throw codedError(
+      'Review the current provider answer controls; free-text browser input is unavailable',
+      code
+    );
+  }
+  return ui;
+};
 
 /** Errors that must never trigger a browser retry. */
 export const NO_FALLBACK_CODES = Object.freeze([
@@ -138,42 +166,30 @@ export const extractMessages = (spec) => {
   }));
 };
 
-/** WhatsApp's `data-pre-plain-text`: "[10:15, 11/10/2026] Anna: ". */
-const PRE_PLAIN = /^\[([^\]]+)\]\s*(.*?):?\s*$/;
-
-const toIso = (value) => {
-  if (value === null || value === undefined || value === '') {
-    return null;
+/** Keep HH history and choice metadata in one read-only verified snapshot. */
+const readCurrentHistory = async (commander, page, ui, target, limit) => {
+  if (ui.documents) {
+    const document = await resolveBrowserChoiceDocument(
+      commander,
+      page,
+      ui,
+      target
+    );
+    const history = await readBrowserHistory(document, ui, target);
+    if (process.env.MS_BROWSER_HISTORY_DEBUG === '1') {
+      console.error('[browser-history]', {
+        source: ui.id,
+        rows: history.length,
+        services: history.filter((row) => row.service === true).length,
+      });
+    }
+    return history.slice(-limit);
   }
-  if (isNumericId(value)) {
-    const n = Number(value);
-    return new Date(n < 1e12 ? n * 1000 : n).toISOString();
-  }
-  const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
-};
-
-const shortHash = (value) =>
-  createHash('sha1').update(value).digest('hex').slice(0, 12);
-
-/** Turn an extracted row into a message link like the API adapters'. */
-const toMessageLink = (source, chat, row) => {
-  const pre = PRE_PLAIN.exec(row.sender ?? '');
-  const sender = (pre ? pre[2] : row.sender) || (row.outgoing ? 'me' : '');
-  const timestamp =
-    toIso(row.timestamp) ?? toIso(pre ? pre[1] : row.time) ?? null;
-  const key = row.id || shortHash(`${sender}\n${row.body}\n${row.time ?? ''}`);
-  return {
-    id: `msg:${source}:${chat}:${key}`,
-    tokens: ['message', source, chat],
-    source,
-    chat,
-    sender: sender || null,
-    body: row.body,
-    timestamp,
-    outgoing: Boolean(row.outgoing),
-    via: 'browser',
-  };
+  const history = await commander.evaluate({
+    fn: extractMessages,
+    args: [{ ...ui.messages, limit }],
+  });
+  return enrichBrowserChoices(commander, ui, target, history);
 };
 
 /** First candidate of a comma-separated selector list that matches. */
@@ -238,10 +254,12 @@ const sentInDoubt = (error) =>
   });
 
 /** Click the send button when it is there, otherwise press the key. */
-const pressSend = async (ui, commander) => {
+const pressSend = async (ui, commander, verifyCurrent) => {
   const button = ui.send?.selector
     ? await firstMatch(commander, ui.send.selector)
     : null;
+  // A lookup can wait behind native UI work. Refusal still precedes dispatch.
+  await verifyCurrent?.();
   try {
     if (button) {
       await commander.clickButton({ selector: button, scrollIntoView: true });
@@ -262,6 +280,7 @@ const createSessionPool = ({ open, log }) => {
   const sessions = new Map();
   const queues = new Map();
   return {
+    existing: (source) => sessions.get(source),
     get(source) {
       if (!sessions.has(source)) {
         const opening = Promise.resolve(open({ source })).then((session) => ({
@@ -332,7 +351,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   };
 
   /** Open the chat; a pre-filled URL is reloaded every time. */
-  const openChat = (source, target, { text = '' } = {}) => {
+  const openChat = (source, target, { text = '', browserUrl } = {}) => {
     const ui = uiFor(source);
     if (target === null || target === undefined || target === '') {
       throw codedError(
@@ -342,7 +361,7 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
     }
     // The reload is what puts the text back into the composer.
     const prefill = ui.prefill && text ? text : '';
-    return openPage(source, ui.chatUrl(target, { text: prefill }), {
+    return openPage(source, ui.chatUrl(target, { text: prefill, browserUrl }), {
       reload: Boolean(prefill),
     });
   };
@@ -350,20 +369,92 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
   /** Run `fn(commander, page)` with the chat open, in the network's queue. */
   const inChat = (source, target, options, fn) =>
     pool.queue(source, async () => {
+      if (options.signal?.aborted) {
+        throw codedError(
+          'The browser conversation scan was cancelled',
+          'cancelled'
+        );
+      }
+      await options.beforeOpen?.();
       const state = await openChat(source, target, options);
       return fn(state.commander, state.session?.page ?? null);
     });
 
   /** Run `fn(commander, page)` with the chat list open. */
-  const inList = (source, fn) =>
+  const inList = (source, fn, { signal } = {}) =>
     pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The browser chat scan was cancelled', 'cancelled');
+      }
       const ui = uiFor(source);
       const state = await openPage(source, ui.listUrl ?? ui.loginUrl);
       return fn(state.commander, state.session?.page ?? null);
     });
 
-  return { inChat, inList };
+  const inExisting = (source, fn, { signal } = {}) =>
+    pool.queue(source, async () => {
+      if (signal?.aborted) {
+        throw codedError('The unread browser scan was cancelled', 'cancelled');
+      }
+      const opening = pool.existing(source);
+      if (!opening) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      const state = await opening;
+      const page = state.session?.page;
+      if (!page || page.isClosed()) {
+        throw codedError(
+          'An existing browser view is required',
+          'browser-view-unavailable'
+        );
+      }
+      try {
+        return await fn(state.commander, page);
+      } finally {
+        state.url = page.isClosed() ? null : page.url();
+      }
+    });
+  return { inChat, inList, inExisting };
 };
+
+const choiceSources = (platforms) =>
+  Object.entries(platforms)
+    .filter(([, ui]) => ui.choices && ui.location)
+    .map(([id, ui]) => ({ id, name: ui.name ?? id }));
+
+const textReplySources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return ui.documents && ui.textReply?.send && ui.textReply.closedText;
+  });
+
+const browserUiFor = (platforms) => (source) => {
+  const ui = platforms[source];
+  if (!ui) {
+    throw codedError(
+      `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
+      'unsupported-source'
+    );
+  }
+  return ui;
+};
+
+const composerFocus =
+  (waitFor) => async (source, ui, commander, beforeFocus) => {
+    const composer = await waitFor(commander, ui.composer);
+    if (!composer) {
+      throw codedError(
+        `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
+        'composer-missing'
+      );
+    }
+    await beforeFocus?.(composer);
+    await commander.clickButton({ selector: composer, scrollIntoView: true });
+    return composer;
+  };
 
 /**
  * Drive the official web UIs through browser-commander.
@@ -386,6 +477,106 @@ const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
  * @param {Function} [options.log] progress messages
  * @param {() => Date} [options.clock]
  */
+const noticeReplySources = (platforms) =>
+  textReplySources(platforms).filter(
+    ({ id }) => platforms[id].noticeContext && platforms[id].historyScan
+  );
+
+const unreadConversationSources = (platforms) =>
+  choiceSources(platforms).filter(({ id }) => {
+    const ui = platforms[id];
+    return (
+      ui.chatNavigation?.sameDocument &&
+      ui.documents &&
+      ui.historyScan &&
+      ui.chatScan?.unreadFilter
+    );
+  });
+
+const senderCapabilities = (platforms) => ({
+  choiceSources: () => choiceSources(platforms),
+  textReplySources: () => textReplySources(platforms),
+  noticeReplySources: () => noticeReplySources(platforms),
+  unreadConversationSources: () => unreadConversationSources(platforms),
+  unreadAnswerReplySources: () => unreadConversationSources(platforms),
+  unreadNoticeReplySources: () =>
+    unreadConversationSources(platforms).filter(({ id }) =>
+      noticeReplySources(platforms).some((source) => source.id === id)
+    ),
+  answerWatchSources: () =>
+    choiceSources(platforms).filter(({ id }) => platforms[id].documents),
+});
+
+const createBrowserTextSender =
+  ({
+    store,
+    choices,
+    uiFor,
+    inChat,
+    focusComposer,
+    input,
+    typingDelayMs,
+    log,
+    clock,
+  }) =>
+  async (draft = {}, dispatch = {}) => {
+    const { source, chat, to, text, answer } = draft;
+    if (answer?.strictOptions) {
+      return choices.chooseAnswer(draft, dispatch);
+    }
+    const body = String(text ?? '');
+    if (!body.trim()) {
+      throw codedError(`${source}: message text is required`, 'bad-draft');
+    }
+    const consent = createBrowserSendConsent(store, draft, dispatch);
+    const ui = requireTextUi(uiFor(source));
+    const target = ui.target({ chat, to });
+    await consent();
+    await inChat(source, target, { beforeOpen: consent }, async (commander) => {
+      const token = randomUUID();
+      const verify = (operation, text = '') =>
+        verifyBrowserComposer(commander, {
+          operation,
+          token,
+          selector: ui.composer,
+          text,
+        });
+      try {
+        const composer = await focusComposer(source, ui, commander, () =>
+          verify('begin')
+        );
+        await consent();
+        const current = await verify('check');
+        // fillTextArea reads .value; rich composers use native key events.
+        if (input === 'fill' && !current.contentEditable) {
+          await commander.fillTextArea({
+            selector: composer,
+            text: body,
+            checkEmpty: true,
+            simulateTyping: false,
+          });
+        } else {
+          await typeLines(commander, body, typingDelayMs);
+        }
+        await pressSend(ui, commander, async () => {
+          await consent();
+          await verify('check', body);
+        });
+      } finally {
+        await verify('release').catch(() => {
+          log(`[browser:${source}] composer check cleanup unavailable`);
+        });
+      }
+    });
+    log(`[browser:${source}] sent to ${target}`);
+    return {
+      via: 'browser',
+      source,
+      chat: String(target),
+      sentAt: clock().toISOString(),
+    };
+  };
+
 export const createBrowserSender = ({
   openSession = null,
   platforms = WEB_UIS,
@@ -393,31 +584,33 @@ export const createBrowserSender = ({
   input = 'type',
   loginTimeoutMs = 20000,
   pollMs = 250,
-  headless = true,
+  choiceReceiptMs = 10000,
+  headless,
+  store = null,
+  slot = 'main',
   profileDirFor = defaultProfileDir,
   log = () => {},
   clock = () => new Date(),
 } = {}) => {
-  const open =
-    openSession ??
-    (({ source }) =>
-      openBrowserSession({
-        platform: source,
-        headless,
-        profileDir: profileDirFor(source),
-      }));
+  const open = async ({ source }) => {
+    const policy = await resolveBrowserPolicy(store, {
+      platform: source,
+      useCase: 'messages',
+      headless,
+      slot,
+    });
+    return (openSession ?? openBrowserSession)({
+      source,
+      platform: source,
+      useCase: 'messages',
+      slot,
+      headless: policy.headless,
+      profileDir: slotProfileDir(profileDirFor(source), slot),
+    });
+  };
   const pool = createSessionPool({ open, log });
 
-  const uiFor = (source) => {
-    const ui = platforms[source];
-    if (!ui) {
-      throw codedError(
-        `${source}: no web UI is known; known: ${Object.keys(platforms).join(', ')}`,
-        'unsupported-source'
-      );
-    }
-    return ui;
-  };
+  const uiFor = browserUiFor(platforms);
 
   const waitFor = (commander, want, extra = {}) =>
     waitForAny(commander, want, {
@@ -426,25 +619,15 @@ export const createBrowserSender = ({
       ...extra,
     });
 
-  const { inChat, inList } = createChatPages({
+  const { inChat, inList, inExisting } = createChatPages({
     pool,
     uiFor,
     waitFor,
     log,
-    profileDirFor,
+    profileDirFor: (source) => slotProfileDir(profileDirFor(source), slot),
   });
 
-  const focusComposer = async (source, ui, commander) => {
-    const composer = await waitFor(commander, ui.composer);
-    if (!composer) {
-      throw codedError(
-        `${source}: message composer not found (selector ${ui.composer}); update WEB_UIS.${source}.composer`,
-        'composer-missing'
-      );
-    }
-    await commander.clickButton({ selector: composer, scrollIntoView: true });
-    return composer;
-  };
+  const focusComposer = composerFocus(waitFor);
 
   const actions = createBrowserActions({
     inChat: (source, chat, fn) => inChat(source, chat, {}, fn),
@@ -457,46 +640,62 @@ export const createBrowserSender = ({
     pressSend,
     clock,
   });
+  const choices = createBrowserChoiceActions({
+    store,
+    inChat,
+    queue: (source, work) => pool.queue(source, work),
+    uiFor,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
+  const scans = createBrowserChatScans({ uiFor, inList, inChat, inExisting });
+  const texts = createBrowserTextActions({
+    store,
+    uiFor,
+    inChat,
+    receiptMs: choiceReceiptMs,
+    pollMs,
+  });
 
   return {
     platforms,
     ...actions,
+    ...choices,
+    ...scans,
+    ...texts,
+    ...senderCapabilities(platforms),
+
+    /** Explicit ownership may prepare a new slot; ordinary unread scans never do. */
+    prepareUnreadConversations({ source, signal } = {}) {
+      if (
+        !unreadConversationSources(platforms).some(
+          (entry) => entry.id === source
+        )
+      ) {
+        throw codedError(
+          'Unread conversation review is unavailable.',
+          'unsupported-source'
+        );
+      }
+      return inList(source, () => ({ source, slot, ready: true }), { signal });
+    },
 
     /** Type and send one message in the network's web UI. */
-    async send({ source, chat, to, text } = {}) {
-      const body = String(text ?? '');
-      if (!body.trim()) {
-        throw codedError(`${source}: message text is required`, 'bad-draft');
-      }
-      const ui = uiFor(source);
-      const target = ui.target({ chat, to });
-      await inChat(source, target, { text: body }, async (commander) => {
-        const composer = await focusComposer(source, ui, commander);
-        // A pre-filled chat URL already put the text into the composer.
-        if (!ui.prefill && input === 'fill') {
-          await commander.fillTextArea({
-            selector: composer,
-            text: body,
-            checkEmpty: false,
-            simulateTyping: true,
-          });
-        } else if (!ui.prefill) {
-          await typeLines(commander, body, typingDelayMs);
-        }
-        await pressSend(ui, commander);
-      });
-      log(`[browser:${source}] sent to ${target}`);
-      return {
-        via: 'browser',
-        source,
-        chat: String(target),
-        sentAt: clock().toISOString(),
-      };
-    },
+    send: createBrowserTextSender({
+      store,
+      choices,
+      uiFor,
+      inChat,
+      focusComposer,
+      input,
+      typingDelayMs,
+      log,
+      clock,
+    }),
 
     /** Emit the "typing…" status: type a character and erase it. */
     async setTyping({ source, chat, to } = {}) {
-      const ui = uiFor(source);
+      const ui = requireTextUi(uiFor(source), 'unsupported');
       await inChat(source, ui.target({ chat, to }), {}, async (commander) => {
         await focusComposer(source, ui, commander);
         await commander.typeText({ text: '.' });
@@ -506,7 +705,7 @@ export const createBrowserSender = ({
     },
 
     /** Read the visible history of a chat as message links. */
-    async readRecent({ source, chat, to, limit = 20 } = {}) {
+    async readRecent({ source, chat, to, browserUrl, limit = 20 } = {}) {
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
       // A stable chat id (E.164 number / group JID), not the typed form
@@ -514,22 +713,31 @@ export const createBrowserSender = ({
       const normalize = (value) => ui.normalizeChat?.(value) ?? null;
       const chatOf = (row) =>
         normalize(row.chat) ?? normalize(target) ?? String(target);
-      const rows = await inChat(source, target, {}, (commander) =>
-        commander.evaluate({
-          fn: extractMessages,
-          args: [{ ...ui.messages, limit }],
-        })
+      const rows = await inChat(
+        source,
+        target,
+        { browserUrl },
+        (commander, page) =>
+          readCurrentHistory(commander, page, ui, target, limit)
       );
       return (Array.isArray(rows) ? rows : [])
-        .filter((row) => row && String(row.body ?? '').length > 0)
-        .map((row) => toMessageLink(source, chatOf(row), row));
+        .filter((row) => row?.service === true || row?.body)
+        .map((row) => toBrowserMessageLink(source, chatOf(row), row));
     },
 
     /** Networks with an open page. */
     openSources: pool.sources,
 
     /** Close every page that was opened. */
-    close: pool.closeAll,
+    close: async () => {
+      try {
+        await scans.closeChatScans();
+        await texts.closeTextReplies();
+        await choices.closeAnswerWatches();
+      } finally {
+        await pool.closeAll();
+      }
+    },
   };
 };
 
@@ -551,7 +759,11 @@ const markUnknown = (error) => {
 // What a failed web-UI send raises after the API failed with `apiError`.
 const browserFailure = (error, apiError, draft, action) => {
   // "Not allowed to automate this" is the answer, not a pair of failures.
-  if (error?.code === 'unsupported') {
+  if (
+    error?.code === 'unsupported' ||
+    error?.code === 'stopped' ||
+    isSendConsentRefusal(error)
+  ) {
     return error;
   }
   // Maybe delivered by the web UI: told as such, never "failed" (R-Z4).
@@ -585,11 +797,11 @@ export const createFallbackSender =
     shouldFallback = defaultShouldFallback,
     action = 'send',
   } = {}) =>
-  async (draft) => {
+  async (draft, dispatch) => {
     let apiError = null;
     if (typeof apiSend === 'function') {
       try {
-        return annotate(await apiSend(draft), 'api');
+        return annotate(await apiSend(draft, dispatch), 'api');
       } catch (error) {
         if (!shouldFallback(error) || typeof browserSend !== 'function') {
           throw markUnknown(error);
@@ -607,7 +819,7 @@ export const createFallbackSender =
       );
     }
     try {
-      const result = await browserSend(draft);
+      const result = await browserSend(draft, dispatch);
       return annotate(
         result,
         'browser',
@@ -651,20 +863,22 @@ const refuseAutomatedWeb = (draft) => {
  *   saved connection's options (token, ids) for a network
  * @param {object} [options.browser] a `createBrowserSender()` instance,
  *   or options for one (created lazily on the first fallback)
+ * @param {object} [options.store] shared acknowledged automation consent
  * @param {Function} [options.log]
  * @returns {Function & {close: Function, perform: Function, supports: Function}}
- *   `(draft) => result`
+ *   `(draft, { signal }?) => result`; cancellation is never stored in the draft
  */
 export const createDefaultSender = ({
   getSource = null,
   options = {},
   optionsFor = async () => ({}),
   browser = {},
+  store = browser?.store ?? null,
   log = () => {},
 } = {}) => {
   let browserSender = typeof browser?.send === 'function' ? browser : null;
   const browserFor = () => {
-    browserSender ??= createBrowserSender({ log, ...browser });
+    browserSender ??= createBrowserSender({ log, store, ...browser });
     return browserSender;
   };
   const merged = async (source) => ({
@@ -672,19 +886,32 @@ export const createDefaultSender = ({
     ...(options[source] ?? {}),
   });
   const adapterSend = getSource
-    ? async (draft) =>
-        createAdapterSender({
+    ? async (draft, dispatch) => {
+        const resolved = await merged(draft.source);
+        await createBrowserSendConsent(store, draft, dispatch)();
+        return createAdapterSender({
           getSource,
-          options: { [draft.source]: await merged(draft.source) },
-        })(draft)
+          options: {
+            [draft.source]: sendConsentOptions(
+              store,
+              draft,
+              resolved,
+              dispatch
+            ),
+          },
+        })(draft);
+      }
     : null;
-  const send = createFallbackSender({
+  const sendText = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: (draft) => {
+    browserSend: async (draft, dispatch) => {
+      // A definite API refusal may arrive after the owner withdrew consent.
+      await createBrowserSendConsent(store, draft, dispatch)();
       refuseAutomatedWeb(draft);
       // A plain browser send cannot preserve these message semantics.
       // Refuse rather than silently turning a reply into a normal message.
       if (
+        draft.sticker ||
         draft.replyTo ||
         draft.replyQuote ||
         draft.topic ||
@@ -703,15 +930,35 @@ export const createDefaultSender = ({
           'unsupported-send-options'
         );
       }
-      return browserFor().send({
-        source: draft.source,
-        chat: draft.chat,
-        to: draft.contact ?? draft.to,
-        text: draft.text,
-      });
+      return browserFor().send(
+        {
+          source: draft.source,
+          chat: draft.chat,
+          to: draft.contact ?? draft.to,
+          text: draft.text,
+        },
+        dispatch
+      );
     },
     log,
   });
+  const send = (input, dispatch) => {
+    const draft = { ...input };
+    if (draft.answer?.strictOptions) {
+      refuseAutomatedWeb(draft);
+      const chooser = browserFor();
+      if (typeof chooser.chooseAnswer === 'function') {
+        return createBrowserSendConsent(store, draft, dispatch)().then(() =>
+          chooser.chooseAnswer(draft, dispatch)
+        );
+      }
+      throw codedError(
+        'This answer requires a verified option click; open the provider chat to select it',
+        'answer-choice-required'
+      );
+    }
+    return sendText(draft, dispatch);
+  };
   const actions = createMessageActions({
     getSource,
     optionsFor: merged,
@@ -722,7 +969,25 @@ export const createDefaultSender = ({
     perform: actions.perform,
     supports: actions.supports,
     readChats: (params) => browserFor().readChats(params),
+    scanChats: (params) => browserFor().scanChats(params),
+    scanConversation: (params) => browserFor().scanConversation(params),
+    scanUnreadConversations: (params) =>
+      browserFor().scanUnreadConversations(params),
     readRecent: (params) => browserFor().readRecent(params),
+    readAnswerChoices: (params) => browserFor().readAnswerChoices(params),
+    prefillAnswer: (params) => browserFor().prefillAnswer(params),
+    replyText: (params) => browserFor().replyText(params),
+    choiceSources: () => browserFor().choiceSources?.() ?? [],
+    textReplySources: () => browserFor().textReplySources?.() ?? [],
+    noticeReplySources: () => browserFor().noticeReplySources?.() ?? [],
+    unreadConversationSources: () =>
+      browserFor().unreadConversationSources?.() ?? [],
+    unreadNoticeReplySources: () =>
+      browserFor().unreadNoticeReplySources?.() ?? [],
+    unreadAnswerReplySources: () =>
+      browserFor().unreadAnswerReplySources?.() ?? [],
+    answerWatchSources: () => browserFor().answerWatchSources?.() ?? [],
+    openAnswerWatch: (params) => browserFor().openAnswerWatch(params),
     close: async () => browserSender?.close(),
   });
 };

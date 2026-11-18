@@ -30,7 +30,10 @@ const RULES = [
   ],
   [/\b(Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{6,}/g, `$1 ${MARK}`],
   // query strings and form bodies: access_token=xxx
-  [new RegExp(`([?&;\\s](?:${FIELDS}))=[^&\\s"'<>]+`, 'gi'), `$1=${MARK}`],
+  [
+    new RegExp(`((?:^|[?&;\\s])(?:${FIELDS}))=[^&\\s"'<>]+`, 'gi'),
+    `$1=${MARK}`,
+  ],
   // JSON string fields: "password":"xxx"
   [
     new RegExp(

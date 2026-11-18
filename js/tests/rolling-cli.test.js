@@ -5,7 +5,7 @@ import { mkdtemp, rm, readFile, stat, appendFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { setTimeout as sleep } from 'node:timers/promises';
+import { statusWhenReady } from './helpers/rolling-cli-readiness.mjs';
 import {
   controlAddress,
   requestServerControl,
@@ -15,6 +15,8 @@ import {
   verifyRelease,
 } from '../src/server/rolling-release.js';
 import { workerArgs } from '../src/server/worker-client.js';
+import { LINO_TEXT, readWireResponse } from '../src/transport/lino.js';
+import { automationDefaultsFixture } from '../../experiments/issue-56/automation-defaults-fixture.mjs';
 
 const cli = fileURLToPath(new URL('../bin/meta-sovereign.js', import.meta.url));
 const invoke = (dir, ...extra) => {
@@ -41,33 +43,22 @@ const invoke = (dir, ...extra) => {
     output += String(chunk);
   });
   const ended = new Promise((resolve) =>
-    child.once('exit', (code) => resolve({ code, output }))
+    child.once('close', (code) => resolve({ code, output }))
   );
-  return { child, ended };
+  return { child, ended, output: () => output };
 };
-const statusWhenReady = async (dir) => {
-  for (let i = 0; i < 200; i += 1) {
-    try {
-      return await requestServerControl(
-        dir,
-        { operation: 'status' },
-        { timeoutMs: 1000 }
-      );
-    } catch (error) {
-      if (!['ENOENT', 'ECONNREFUSED'].includes(error.code)) {
-        throw error;
-      }
-    }
-    await sleep(50);
-  }
-  throw new Error('CLI host did not start');
-};
-
 test('default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-cli-rolling-'));
   const first = invoke(dir);
+  const started = globalThis.performance.now();
+  let phase = 'initial host readiness';
   try {
     const initial = await statusWhenReady(dir);
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(
+        `[rolling-cli] initial host ready after ${Math.round(globalThis.performance.now() - started)} ms\n${first.output().slice(-8192)}`
+      );
+    }
     const info = JSON.parse(
       await readFile(path.join(dir, 'runtime/server.json'), 'utf8')
     );
@@ -75,10 +66,12 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
     if (process.platform !== 'win32') {
       assert.equal((await stat(controlAddress(dir))).mode & 0o777, 0o600);
     }
+    phase = 'repeated serve';
     const second = await invoke(dir).ended;
     assert.equal(second.code, 0, second.output);
     assert.match(second.output, /already running/);
     assert.equal((await statusWhenReady(dir)).pid, initial.pid);
+    phase = 'prepared UI upgrade';
     const updated = await invoke(dir, '--local-ui=true').ended;
     assert.equal(updated.code, 0, updated.output);
     assert.match(updated.output, /server upgraded/);
@@ -92,6 +85,7 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
         .hostPid,
       first.child.pid
     );
+    phase = 'control rejection and public listener';
     await assert.rejects(
       requestServerControl(dir, { operation: 'arbitrary-execution' }),
       /unknown/
@@ -100,12 +94,69 @@ test('default serve owns a stable host; repeated serve reuses it and applies UI 
       (await fetch(`http://127.0.0.1:${next.port}/api/health`)).status,
       200
     );
+  } catch (error) {
+    // Report at file completion: the spec reporter otherwise delays the
+    // assertion stack until suite completion, which a job deadline can cut off.
+    console.error(
+      `[rolling-cli] ${phase} after ${Math.round(globalThis.performance.now() - started)} ms: ${error.stack}`
+    );
+    console.error(first.output().slice(-8192));
+    throw error;
   } finally {
     first.child.kill('SIGTERM');
     await first.ended;
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test(
+  'rolling serve replaces changed file defaults and clears removed defaults without saving policy',
+  { timeout: 30000 },
+  async () =>
+    automationDefaultsFixture(async (f) => {
+      const dir = path.join(f.cwd, 'store');
+      await f.put('local', { vk: { online: { everyMinutes: 5 } } });
+      const config = `--app-config=${f.file('local')}`;
+      const first = invoke(dir, config);
+      const settings = async () => {
+        const { port } = await statusWhenReady(dir);
+        return readWireResponse(
+          await fetch(`http://127.0.0.1:${port}/api/vk/online`, {
+            headers: { accept: LINO_TEXT },
+          })
+        );
+      };
+      try {
+        const initial = await statusWhenReady(dir);
+        assert.equal((await settings()).settings.everyMinutes, 5);
+        const repeated = await invoke(dir, config).ended;
+        assert.equal(repeated.code, 0, repeated.output);
+        assert.match(repeated.output, /already running/);
+        assert.equal((await statusWhenReady(dir)).pid, initial.pid);
+        await f.put('local', { vk: { online: { everyMinutes: 2 } } });
+        const changed = await invoke(dir, config).ended;
+        assert.equal(changed.code, 0, changed.output);
+        assert.match(changed.output, /server upgraded/);
+        assert.equal((await settings()).settings.everyMinutes, 2);
+        await f.put('local', {});
+        const removed = await invoke(dir, config).ended;
+        assert.equal(removed.code, 0, removed.output);
+        assert.match(removed.output, /server upgraded/);
+        assert.equal((await settings()).settings.everyMinutes, 14);
+        assert.equal((await settings()).settings.enabled, false);
+        const next = await statusWhenReady(dir);
+        assert.equal(next.port, initial.port);
+        assert.equal(
+          JSON.parse(await readFile(path.join(dir, 'runtime/server.json')))
+            .hostPid,
+          first.child.pid
+        );
+      } finally {
+        first.child.kill('SIGTERM');
+        await first.ended;
+      }
+    })
+);
 
 test('prepared release snapshots reject changed worker code', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-release-'));

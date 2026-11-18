@@ -61,7 +61,7 @@ export class RollingSupervisor {
       worker.readyAt = Date.now();
       return worker;
     } catch (error) {
-      client.discard();
+      await client.discard();
       throw error;
     }
   }
@@ -102,6 +102,25 @@ export class RollingSupervisor {
       uiUrl: hostedUiUrl(this.options.uiUrl),
       localUi: localUiEnabled(this.options.localUi),
     };
+  }
+  async health() {
+    const worker = this.current;
+    const stable = () =>
+      !this.closed &&
+      !this.busy &&
+      !this.recovering &&
+      worker &&
+      !worker.client.exited &&
+      this.current === worker;
+    if (!stable()) {
+      return { state: 'unknown' };
+    }
+    const { probeRunnerWorker } = await import('./runner-health.js');
+    if (!stable()) {
+      return { state: 'unknown' };
+    }
+    const state = await probeRunnerWorker(worker, this);
+    return { state: stable() ? state : 'unknown' };
   }
   async retirePrevious() {
     clearTimeout(this.timer);
@@ -310,7 +329,17 @@ export class RollingSupervisor {
     clearTimeout(this.timer);
     this.target.close();
     await Promise.allSettled(
-      [...this.workers].map((worker) => worker.client.close())
+      [...this.workers].map((worker) =>
+        worker.client.close().catch((error) => {
+          this.log({
+            level: 'warn',
+            event: 'server_worker_shutdown_failed',
+            pid: worker.client.pid,
+            code: error.code,
+          });
+          return worker.client.discard();
+        })
+      )
     );
   }
 }

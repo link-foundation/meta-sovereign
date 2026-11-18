@@ -1,0 +1,30 @@
+{
+  "archive": "ci-salary-fixture-import.tar.gz",
+  "files": {
+    "PLAN.md": "5d49f421ac727afff904b36b8267860d8ec035360ce3735341cc274a3940d6ba",
+    "before/experiments/issue-56/salary-vacancy-card-fixture.mjs": "2661fef402134ee36782d868a5d12c770f8e11c79319be0d1886b49c5d55c7d4",
+    "before/experiments/issue-56/salary-vacancy-fixture.mjs": "e3f6df8b3c00743b37dcbf0f96aa6d2d1e159418458d625a44870318ee83b6ab",
+    "before/js/tests/salary-browser-vacancy-card.test.js": "4b6ddd1eea2ffb5d5032e68a9ff0273fd3bc975943f1b4f34244ee31b33241d4",
+    "ci-logs/ci-salary-fixture-import-before.log": "2db3dd6773933e5be0da909254290bf7e8094e1698798b429cfa26181227dfb5",
+    "ci-logs/ci-salary-fixture-import-browser.log": "cd8ebe22269dafa856746856719c1518fdc339d5785790af4a4b94dc065957aa",
+    "ci-logs/ci-salary-fixture-import-deno.log": "2cd73a586f919ff93b4667c9ecf23886ca3889e0232c75b24f98a32e5a7e3dee",
+    "ci-logs/ci-salary-fixture-import-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-fixture-import-duplication.log": "208f59586c21bbb4f8c02e09ea30e8c4e63ae95a04be1963e9d65530ade39ea9",
+    "ci-logs/ci-salary-fixture-import-format-write.log": "21c968b1991060d527221251e0fd051c767d67c162853f2da056c41fafbfc9d9",
+    "ci-logs/ci-salary-fixture-import-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-salary-fixture-import-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-salary-fixture-import-node.log": "7aa89eecdfe4a7ad4d7b0aa8ba2200684ab7335c04a7cf8f78b10f391ff7a774",
+    "ci-logs/ci-salary-fixture-import-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ed68-current-jobs.json": "8b90ac886b7b0a78297ac14ba48660ad82ca577a0805eaf89f34c6d6b7913510",
+    "ci-logs/ed68-deno-windows-2.log": "fb154fae849deafa3f1439ea729699fc548b10b84ba2df461c9cebca25b91e14",
+    "docs/case-studies/issue-56/README.md": "ddf370c6f70ff07fdfff3cf416d9425afcacc5c51b3e965ecd55ef309cdf4e6b",
+    "docs/case-studies/issue-56/ci-salary-fixture-import.md": "a3a3ae994f325eadc859a22f4abd83f0d6d186f849721a851ab1148636a897ac",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-salary-fixture-import.py": "0e6381b6340592050990da809a1c8d9e1fa3128131b2e27fde4146b01b81b310",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/salary-vacancy-card-fixture.mjs": "9a62a9632e953bcb7e21726f765e646d672fd986e21b5c1090232bd8bfc3f58f",
+    "experiments/issue-56/salary-vacancy-fixture.mjs": "8fd14967d785051d2b520b19ed17ad14b5a219e35b218da56d2c6547ac93de0b",
+    "js/tests/salary-browser-vacancy-card.test.js": "fc63b53a83f388cfa2fa70b7cbfac6ce6de9fb4bdd96146f7615b29ec8176632",
+    "metadata.json": "e0926e78b3728c381c7e1f5e8dab1644d8c082eb35e7fb5a1da1426f6fc877e3"
+  }
+}

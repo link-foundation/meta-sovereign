@@ -65,17 +65,32 @@ const expand = (template, { arch, ext }) =>
     .replaceAll('${ext}', ext);
 
 describe('desktop package.json', () => {
-  it('ships the root version with electron-updater as the only dependency', () => {
+  it('ships the root version and production runtime dependencies with electron-updater', () => {
     const pkg = desktopPackageJson(rootPkg);
     expect(pkg.version).toBe(rootPkg.version);
     expect(pkg.main).toBe('js/electron/main.js');
     expect(pkg.type).toBe('module');
     expect(pkg.private).toBe(true);
-    expect(Object.keys(pkg.dependencies)).toEqual(['electron-updater']);
+    expect(pkg.dependencies).toEqual({
+      ...rootPkg.dependencies,
+      'browser-commander': rootPkg.optionalDependencies['browser-commander'],
+      playwright: rootPkg.optionalDependencies.playwright,
+      teleproto: rootPkg.optionalDependencies.teleproto,
+      'electron-updater': rootPkg.peerDependencies['electron-updater'],
+      picomatch: rootPkg.devDependencies.picomatch,
+    });
     expect(pkg.dependencies['electron-updater']).toBe(
       rootPkg.peerDependencies['electron-updater']
     );
     expect(pkg.devDependencies).toBe(undefined);
+  });
+
+  it('rejects an absent provider version instead of creating an incomplete installer', () => {
+    const optionalDependencies = { ...rootPkg.optionalDependencies };
+    delete optionalDependencies.teleproto;
+    expect(() =>
+      desktopPackageJson({ ...rootPkg, optionalDependencies })
+    ).toThrow(/Desktop provider dependency has no version: teleproto/);
   });
 
   it('names the .desktop entry after the executable', () => {
@@ -87,6 +102,7 @@ describe('desktop package.json', () => {
 
   it('replaces only the updater deprecated comparator with its compatible two-argument form', () => {
     expect(desktopPackageJson(rootPkg).overrides).toEqual({
+      ...rootPkg.overrides,
       'electron-updater': {
         'lodash.isequal': 'npm:lodash.isequalwith@4.4.0',
       },

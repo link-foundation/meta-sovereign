@@ -1,0 +1,10 @@
+{
+  "archive": "ci-follow-fixture.tar.gz",
+  "files": {
+    "run-42751038486.log": "6fc5bd37720141838dc4ec348b0c1414756294486460a8fa209335f753cbbea5",
+    "run-42751038486.json": "14e814e44adef1485c773d067c5666e42b7ccdb43c634c3128738fc5211c8ee9",
+    "follow-secret-fixture-tests.log": "3b71c7f55d47dbbed515a944f219a7dc012144750b8686e2ce20a1a97a4e0ab9",
+    "follow-secret-fixture-scan.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "follow-secret-fixture-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+  }
+}

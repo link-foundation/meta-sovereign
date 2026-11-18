@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for reporting single messages (R-Y175), as Telegram
 // Desktop has it: "Report" in the menu of another person's message in a
 // group and on the selection's bar (only when every selected message is
@@ -56,7 +57,7 @@ await page.route('**/api/telegram/peer-settings', (route) =>
 );
 const calls = [];
 await page.route('**/api/telegram/peer-report', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(body);
   if (!body.option) {
     return fulfil(route, {

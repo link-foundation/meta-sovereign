@@ -15,19 +15,15 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { startRollingServer } from '../src/server/rolling-host.js';
 import { canShareTlsPort } from '../src/server/local-tls.js';
 import { connect } from 'node:http2';
+import { createLinoFetch } from '../src/transport/fetch.js';
+import { workerFixtureSource } from './helpers/worker-fixture.mjs';
+import { rollingWorkerOptions as options } from './helpers/rolling-options.mjs';
+
+const fetch = createLinoFetch(globalThis.fetch.bind(globalThis));
 
 const entry = fileURLToPath(
   new URL('../bin/server-worker.js', import.meta.url)
 );
-const options = {
-  tls: false,
-  telegramAccount: false,
-  enableSync: false,
-  enableHandlers: false,
-  automations: { scheduler: false },
-  emailPoll: false,
-  backups: { intervalHours: 0 },
-};
 
 test('an upgrade can replace a build that keeps failing recovery', async () => {
   const dir = await mkdtemp(
@@ -51,16 +47,10 @@ test('an upgrade can replace a build that keeps failing recovery', async () => {
       path.join(dir, 'node_modules'),
       process.platform === 'win32' ? 'junction' : 'dir'
     );
-    const source = (await readFile(entry, 'utf8'))
-      .replace(
-        /from '(\.\.\/src\/[^']+)'/g,
-        (_whole, relative) =>
-          `from ${JSON.stringify(new URL(relative, new URL('../bin/server-worker.js', import.meta.url)).href)}`
-      )
-      .replace(
-        'worker = await createRollingWorker({',
-        `if (existsSync(${JSON.stringify(marker)})) throw new Error('fixture broken old build');\nworker = await createRollingWorker({`
-      );
+    const source = (await workerFixtureSource()).replace(
+      'worker = await createRollingWorker({',
+      `if (existsSync(${JSON.stringify(marker)})) throw new Error('fixture broken old build');\nworker = await createRollingWorker({`
+    );
     await writeFile(
       old,
       `import {existsSync} from 'node:fs';\n${source.replace(/^#![^\n]*\n/, '')}`
@@ -162,20 +152,17 @@ test('a rolling upgrade serves during warm-up and preserves every acknowledged w
     }
     assert.equal((await read('before')).body, 'before');
     const failingHandoff = path.join(dir, 'failing-handoff.mjs');
-    const original = await readFile(entry, 'utf8');
-    const library = new URL('../src/server/rolling-worker.js', import.meta.url)
-      .href;
+    const original = await workerFixtureSource();
     await writeFile(
       failingHandoff,
-      original
-        .replace("'../src/server/rolling-worker.js'", JSON.stringify(library))
-        .replace(
-          'const result = await worker[operation](body);',
-          'if (operation === "activate") { throw new Error("fixture handoff failure"); }\nconst result = await worker[operation](body);'
-        )
+      original.replace(
+        'const result = await worker[operation](body);',
+        'if (operation === "activate") { throw new Error("fixture handoff failure"); }\nconst result = await worker[operation](body);'
+      )
     );
     await assert.rejects(
-      host.upgrade({ entry: failingHandoff, build: 'failed-handoff' })
+      host.upgrade({ entry: failingHandoff, build: 'failed-handoff' }),
+      /fixture handoff failure/u
     );
     assert.equal(
       host.status().build,

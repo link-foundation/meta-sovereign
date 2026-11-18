@@ -111,9 +111,15 @@ const Address = ({ address, t, dateTime }) => {
     return el('p', { className: 'meta' }, t('chat.about.addressUnknown'));
   }
   const basis =
-    address.basis === 'agreed'
-      ? t('chat.about.agreed', { when: address.at ? dateTime(address.at) : '' })
-      : t('chat.about.used', { count: address.messages ?? 0 });
+    address.basis === 'identity'
+      ? t('chat.about.identity', {
+          when: address.at ? dateTime(address.at) : '',
+        })
+      : address.basis === 'agreed'
+        ? t('chat.about.agreed', {
+            when: address.at ? dateTime(address.at) : '',
+          })
+        : t('chat.about.used', { count: address.messages ?? 0 });
   return el('p', { className: 'person-address' }, [
     el('strong', { key: 'f' }, t(`chat.about.${address.form}`)),
     el('span', { key: 'b', className: 'meta' }, ` · ${basis}`),

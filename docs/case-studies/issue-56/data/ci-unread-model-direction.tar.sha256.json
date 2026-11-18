@@ -1,0 +1,26 @@
+{
+  "archive": "ci-unread-model-direction.tar.gz",
+  "files": {
+    "PLAN.md": "c4a43fd251e3fc8afd7c1f09853f9d92df69de87b8df06cf44c4ad8b227e8843",
+    "before/js/tests/question-unread-model.test.js": "1ad92e3393c0e298493fcd388f88ff4e2c12a1dd4458e5702c6843fc779521e1",
+    "ci-logs/0041-bun-linux.log": "332faa67439fe6024ffe298d435aacc2053492094a0bb11a9081490ec942d798",
+    "ci-logs/0041-current-jobs.json": "bef06753c2ce923b13570b7c64a199ba03d96b6bf113792ab49999782b85d2b9",
+    "ci-logs/0041-deno-linux-2.log": "83a2b0612a7a26f4b7947014e20df84e10245ff9528d3fd56b3f44600ed3daa9",
+    "ci-logs/ci-unread-model-direction-before.log": "9389ceb41246b90f7feb0eb2c5f7ce6cc684a12dba5fddf06035d510f0ba8555",
+    "ci-logs/ci-unread-model-direction-deno.log": "f98a27741c5c6966f9b0acbb4e552c6540f13e74f8bbf698a8343109248ccbdf",
+    "ci-logs/ci-unread-model-direction-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-unread-model-direction-duplication.log": "26ccf37aa108474bf138fc42e55c02f1172bd62185c3fc768f0f04f1ff0f5306",
+    "ci-logs/ci-unread-model-direction-format-write.log": "cf1517c907e2f3f17c9e1c1586c095689d227f833b90e1f904498b45c510d61b",
+    "ci-logs/ci-unread-model-direction-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-unread-model-direction-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-unread-model-direction-node.log": "fd3dbe6081c1f29e500d801825dae5120c22fd4fde70dc3ccc5351ebc45e3a8b",
+    "ci-logs/ci-unread-model-direction-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/README.md": "a0c804fa548138ab3e4f6683b1f68a914ece47ae7dd80165c2e331684b8d4dd8",
+    "docs/case-studies/issue-56/ci-unread-model-direction.md": "2f17efef3b962d3ed7ba0aa89971e0dc10a009c417f41617c878e4459f44798e",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-unread-model-direction.py": "da6f662716acb6fd805aaf014a0ec57441d6fafa1b31e217fb05389f88e4aad1",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/tests/question-unread-model.test.js": "6acbfd01406c4edbc5e97bd8f813ddf1507b9533da15255b5583e56ee7d29f7f",
+    "metadata.json": "58e550bcbdab55e144ccf8561c23cb21315674b2b6f79daf11e97d469313d215"
+  }
+}

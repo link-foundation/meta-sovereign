@@ -5,6 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { messageAck } from './helpers/telegram-message-ack.mjs';
 import { Readable } from 'node:stream';
 
 import { createStickers } from '../src/sources/telegram-stickers.js';
@@ -63,7 +64,7 @@ const make = (log, installedDate) => {
           documents: [doc(1), doc(2)],
         };
       }
-      return true;
+      return request.className === 'SendMedia' ? messageAck(request) : true;
     },
   };
   return createStickers(

@@ -19,10 +19,16 @@ const protocol = 1;
 export const requestServerControl = (
   storeDir,
   command,
-  { timeoutMs = 600_000 } = {}
+  { timeoutMs = 600_000, signal } = {}
 ) =>
   new Promise((resolve, reject) => {
     const socket = net.connect(controlAddress(storeDir));
+    const cancel = () => socket.destroy(new Error('server control cancelled'));
+    signal?.addEventListener('abort', cancel, { once: true });
+    socket.once('close', () => signal?.removeEventListener('abort', cancel));
+    if (signal?.aborted) {
+      cancel();
+    }
     let response = '';
     socket.setTimeout(timeoutMs, () =>
       socket.destroy(
@@ -108,6 +114,12 @@ export const createServerControl = async ({
   log = () => {},
   writeInfo = writeFileDurable,
 }) => {
+  const startedAt = Date.now();
+  const trace = (stage) => {
+    if (process.env.MS_LIFECYCLE_DEBUG === '1') {
+      console.error(`[control] ${stage} after ${Date.now() - startedAt} ms`);
+    }
+  };
   await fs.mkdir(rollingDirectory(storeDir), { recursive: true, mode: 0o700 });
   await cleanStaleSocket(storeDir);
   let saving = Promise.resolve();
@@ -125,12 +137,17 @@ export const createServerControl = async ({
   const perform = async (command) => {
     // A socket can accept before its startup metadata has finished writing,
     // especially on Windows. Readiness must include that durable write.
+    trace('request_received');
     await initialized;
     if (command.protocol !== protocol) {
       throw new Error('incompatible server control protocol');
     }
     if (command.operation === 'status') {
+      trace('status_ready');
       return handle.status();
+    }
+    if (command.operation === 'health') {
+      return handle.health();
     }
     if (command.operation !== 'upgrade') {
       throw new Error('unknown server control operation');
@@ -202,10 +219,13 @@ export const createServerControl = async ({
       server.listen(controlAddress(storeDir), resolve);
     });
     listening = true;
+    trace('listening');
     if (process.platform !== 'win32') {
       await fs.chmod(controlAddress(storeDir), 0o600);
     }
+    trace('metadata_saving');
     await save();
+    trace('metadata_saved');
   })();
   try {
     await initialized;

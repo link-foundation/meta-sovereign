@@ -13,7 +13,7 @@
  *   time; each is sent only after the user answers `y`, and can be
  *   edited, switched to the other "ты"/"вы" form, marked as sent by
  *   hand, or skipped.
- * - `automations drafts | history | save <file.json> | delete <id>`.
+ * - `automations drafts | history | save <file.lino> | delete <id>`.
  *
  * `--chat=vk:101,telegram:5` narrows a plan or run to chosen chats (what
  * the chat menu does); with `--test` the conditions are ignored there.
@@ -21,8 +21,9 @@
 
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
+import { decodeWire } from '../transport/lino.js';
 import { createInterface } from 'node:readline/promises';
-import { getSource } from '../sources/index.js';
+import { getSource, liveOptionsFrom } from '../sources/index.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { setTypingFor } from '../sources/live-links.js';
 import {
@@ -32,11 +33,17 @@ import {
 import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
 import { confirmCli } from './confirm.js';
+import { questionCommands } from './question-commands.js';
+import { questionPeriodConfiguration } from './question-period-configuration.js';
+import { followCommands } from './follow-commands.js';
+import { createFollowDiscovery } from '../follow/chat-discovery.js';
+import { withAnswerModel } from './answer-model-commands.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
+import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
+import { safetyCommands } from './safety-commands.js';
 
-export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.json> | delete <id>
-                [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
-                run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
-                review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time`;
+import { AUTOMATION_HELP } from './help.js';
+export { AUTOMATION_HELP };
 
 const parseCsv = (value) =>
   typeof value === 'string' && value.trim()
@@ -68,6 +75,12 @@ const indent = (text) =>
     .join('\n');
 
 const FORM_LABEL = { informal: 'ты', formal: 'вы', neutral: '—' };
+const draftContent = (draft) =>
+  draft.engagement
+    ? `1. VK sticker ${draft.engagement.sticker} (${draft.progress?.steps?.[0]?.status ?? 'pending'})\n2. ${draft.text} (${draft.progress?.steps?.[1]?.status ?? 'pending'})`
+    : draft.sticker
+      ? `VK sticker ${draft.sticker.id}`
+      : draft.text;
 
 const describeDraft = (draft) => {
   const af = draft.addressForm ?? { reason: 'chosen' };
@@ -129,8 +142,27 @@ const logPlan = (plan, log) => {
   log(`${plan.name}: ${plan.total} to message (preview — nothing was sent)`);
   plan.drafts.forEach((draft, i) => {
     log(`${i + 1}. ${describeDraft(draft)}`);
-    log(indent(draft.text));
+    log(indent(draftContent(draft)));
+    const targets = draft.answer?.turn?.messages?.flatMap(
+      (message) => message.links ?? []
+    );
+    if (targets?.length) {
+      log(`    review required: ${draft.answer.requiresReview}`);
+      for (const target of targets) {
+        log(`    link destination: ${target}`);
+      }
+    }
+    if (draft.answer?.model) {
+      log(
+        `    model: ${draft.answer.model.state}; review required: ${draft.answer.requiresReview}`
+      );
+    }
   });
+  for (const entry of plan.excluded.filter((item) => item.answer?.model)) {
+    log(
+      `${entry.key}: model ${entry.answer.model.state}${entry.answer.model.code ? ` (${entry.answer.model.code})` : ''}`
+    );
+  }
   const reasons = {};
   for (const { reason } of plan.excluded) {
     reasons[reason] = (reasons[reason] ?? 0) + 1;
@@ -226,7 +258,7 @@ const draftsCmd = async ({ args, runner, log }) => {
   log(`${drafts.length} pending draft(s)`);
   for (const draft of drafts) {
     log(`${draft.id}\t${draft.automationName ?? draft.automation}`);
-    log(indent(draft.text));
+    log(indent(draftContent(draft)));
   }
   return 0;
 };
@@ -249,10 +281,14 @@ const historyCmd = async ({ args, runner, log }) => {
 const saveCmd = async ({ args, store, log }) => {
   const file = args._[1] ?? args.file;
   if (!file) {
-    throw new Error('automations save <file.json>');
+    throw new Error('automations save <file.lino>');
   }
+  if ((await fs.stat(file)).size > 4 * 1024 ** 2) {
+    throw new Error('automation configuration exceeds 4 MiB');
+  }
+  const text = await fs.readFile(file, 'utf8');
   const automation = normalizeAutomation(
-    JSON.parse(await fs.readFile(file, 'utf8'))
+    file.endsWith('.json') ? JSON.parse(text) : decodeWire(text)
   );
   await store.put(automation);
   log(`saved ${automation.id}`);
@@ -324,7 +360,7 @@ const reviewCmd = async ({ args, runner, log, ask }) => {
     let draft = pending;
     for (;;) {
       log(`\n[${i + 1}/${queue.length}] ${describeDraft(draft)}`);
-      log(indent(draft.text));
+      log(indent(draftContent(draft)));
       if (draft.prefill?.url) {
         log(`    open: ${draft.prefill.url}`);
       }
@@ -349,6 +385,8 @@ const summaryLine = (tally, left) =>
   `sent ${tally.sent}, skipped ${tally.skipped}, failed ${tally.failed}, left ${left}`;
 
 const SUBCOMMANDS = {
+  follow: followCommands,
+  answers: questionCommands,
   list: listCmd,
   plan: planCmd,
   run: runCmd,
@@ -360,45 +398,109 @@ const SUBCOMMANDS = {
 };
 
 const runnerFor = (store, args, deps) => {
-  const send = deps.send ?? createDefaultSender({ getSource, log: deps.trace });
+  const send =
+    deps.send ??
+    createDefaultSender({
+      store,
+      getSource,
+      browser: { store },
+      log: deps.trace,
+    });
   const setTyping =
     deps.setTyping ??
     (({ source, chat }) =>
-      setTypingFor(getSource, { source, chat }).catch(() => null));
+      liveOptionsFrom(store, source)
+        .then((options) => setTypingFor(getSource, { source, chat, options }))
+        .catch(() => null));
   const now = args.now ? new Date(args.now) : null;
   const runner = createAutomationRunner({
     store,
+    answerFinalPeriod: deps.answerFinalPeriod,
     send,
     setTyping,
+    markRead:
+      deps.markRead ??
+      (async ({ chat, id }) =>
+        getSource('vk').live.markRead(
+          { chat, id },
+          await liveOptionsFrom(store, 'vk')
+        )),
+    modelRunner: deps.modelRunner,
     self: parseCsv(args.self),
     ...(now ? { clock: () => now } : {}),
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
   });
-  return { runner, close: () => send.close?.() };
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    ...(now ? { clock: () => now } : {}),
+    runner: deps.modelRunner,
+    readVacancy:
+      deps.readAssignmentVacancy ?? createAssignmentVacancyReader({ store }),
+    log: deps.trace,
+  });
+  return {
+    runner,
+    questionBrowser,
+    close: async () => {
+      await runner.close();
+      await questionBrowser.close();
+      await send.close?.();
+    },
+  };
 };
 
 const automationsCmd = async (args, log, deps) => {
   const sub = args._[0] ?? 'list';
+  if (sub === 'safety') {
+    return safetyCommands({ args, log, ...deps });
+  }
   const handler = SUBCOMMANDS[sub];
   if (!handler) {
     log(`unknown subcommand "${sub}"\n${AUTOMATION_HELP}`);
     return 1;
   }
+  const answerFinalPeriod = ['plan', 'run'].includes(sub)
+    ? await questionPeriodConfiguration(args)
+    : undefined;
   const store = await deps.openStore(args.store ?? defaultStoreDir());
-  const { runner, close } = runnerFor(store, args, deps);
-  try {
-    return await handler({
-      args,
-      store,
-      runner,
-      log,
-      ask: deps.ask ?? defaultAsk,
-      // y/N before sending (tests answer it; otherwise the terminal).
-      confirmAsk: deps.confirm ?? null,
+  const work = async (modelRunner) => {
+    const { runner, questionBrowser, close } = runnerFor(store, args, {
+      ...deps,
+      modelRunner,
+      answerFinalPeriod,
     });
-  } finally {
-    await close();
-  }
+    const followDiscovery =
+      deps.followDiscovery ?? createFollowDiscovery({ store });
+    try {
+      return await handler({
+        args,
+        store,
+        runner,
+        questionBrowser,
+        log,
+        ask: deps.ask ?? defaultAsk,
+        // y/N before sending (tests answer it; otherwise the terminal).
+        confirmAsk: deps.confirm ?? null,
+        followDiscovery,
+        createAccount: deps.createAccount,
+        followBacklinks: deps.followBacklinks,
+      });
+    } finally {
+      if (!deps.followDiscovery) {
+        await followDiscovery.stop();
+      }
+      await close();
+    }
+  };
+  // Owned browser commands drain their work before the local model is closed.
+  const watch =
+    sub === 'answers' && args._[1] === 'browser' && args._[2] === 'watch';
+  // Unread intent can come from a file or saved automation. The local model
+  // stays lazy: creating its owner does not launch a process or enable drafts.
+  return watch
+    ? work(deps.modelRunner)
+    : withAnswerModel(deps.modelRunner, work, deps.createAnswerModel);
 };
 
 /**

@@ -1,0 +1,15 @@
+✔ one backup produces independently restorable text and binary recovery dumps (686.807705ms)
+✔ truncation, changed bytes and data after the trailer never mutate the target (275.106746ms)
+✔ streamed log updates and tombstones replay in order without querying the live store (196.589022ms)
+✔ binary declared length is bounded before payload allocation (7.175843ms)
+✔ a failed dump pair leaves older recovery points intact and no partial new pair (2055.739211ms)
+✔ retention keeps N of each format and preserves older files if the newest is broken (324.903041ms)
+✔ both dump formats atomically replace a closed folder and carry its existing secrets (249.639285ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4220.201241

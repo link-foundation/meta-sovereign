@@ -1,0 +1,23 @@
+{
+  "archive": "ci-codeql-audit-digest.tar.gz",
+  "files": {
+    ".github/codeql/audited-findings.json": "4b89bc16047d0bd178d561cc190ded1b03581a28706960f4c72b2859231fb555",
+    "before/.github/codeql/audited-findings.json": "9d6ec060bb42373708cdc2a1e34d49e1f277dac28bcd46c3323b3990d6de1e3a",
+    "ci-logs/ci-codeql-hash-after.log": "de9c67cbd342a1062bdbc2687782d93b8e1fcd3c22487a4237797d2d71519fa7",
+    "ci-logs/ci-codeql-hash-before.log": "22551c84da62665674e0a5ccc80c1f25b670482623e95720e054e7aefd9aa0f3",
+    "ci-logs/ci-codeql-hash-focused.log": "d7593832b67cdf29f7e26636b0e8629c11dd11b31f92ef576542ec5d96c66d95",
+    "ci-logs/ci-codeql-hash-format.log": "419e9d0e790cc2a8c8627007031f50b6728dbf10d3fc50bef20f0e3301f23c68",
+    "ci-logs/security-44014091633.json": "b3f426cba63c429927ba9d661668a211c6d9c7ed57b90397426251699bf2902d",
+    "ci-logs/security-44014091633.log": "bd5172759d128be997c1e24380433dc59bb629a1ff08d64dddff940c6fbadf1d",
+    "ci-logs/security-82ff-sarif/javascript.sarif": "389119e1267cad216ae98a47014384109ad26b99a4da057cbf670b6bf46d0862",
+    "docs/case-studies/issue-56/ci-codeql-audit-digest.md": "44512a2dd5e16de73283b0e67e532db4d006c9c9f24fda1286f6f21250aac4dd",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-codeql-digest.py": "e3d1a01a3b3fe37c28044bfd9c213f5453b50b44c9179c8925924d5e609c9939",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/scripts/check-codeql-results.mjs": "49b7b8095a1620208fd52167ba686e7363e51fe0dbb8f91d4dc6cd69e0dc662f",
+    "js/src/patterns/safe-regex.js": "9f05b51214216a2cf7be0483ed7b961a10ea3d7c334efaa433153bfc967f0ea1",
+    "js/tests/ci-codeql-results.test.js": "bab9fc25504e12675f9799da3c18a9851945137cc35be2d4217510ce9bbc65bc",
+    "js/tests/server-hardening.test.js": "8ffa6339f24fc09d36077b092fa475f5f7de48a24293e59e9b4ad9cc30fe57bb",
+    "metadata.json": "55c3468b0194a04306fa2df16377d10ee649e3ff4b4f9adc8dc6e122e5edbabb"
+  }
+}

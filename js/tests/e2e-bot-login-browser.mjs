@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a bot's login links and attachment-menu bots
 // (R-Y201), as Telegram Desktop has them: a login button under a bot's
 // message asks Telegram (only when pressed); a default or accepted answer
@@ -91,7 +92,7 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(route, {
     chat,
     kind: 'user',
@@ -110,7 +111,7 @@ await page.route('**/api/telegram/url-auth-domains', (route) =>
   fulfil(route, { ok: true, domains: ['login.example'] })
 );
 await page.route('**/api/telegram/bot-url-auth', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   auths.push(body);
   if (body.url) {
     return fulfil(route, {
@@ -140,7 +141,7 @@ await page.route('**/api/telegram/bot-url-auth', (route) => {
   });
 });
 await page.route('**/api/telegram/bot-url-accept', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   accepts.push(body);
   return fulfil(route, {
     ok: true,
@@ -177,7 +178,7 @@ await page.route('**/api/telegram/attach-menu-bot', (route) =>
   })
 );
 await page.route('**/api/telegram/attach-menu-toggle', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   toggles.push(body);
   if (body.enabled === false) {
     installed = installed.filter((b) => b.id !== body.bot);
@@ -185,7 +186,7 @@ await page.route('**/api/telegram/attach-menu-toggle', (route) => {
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/web-app-open', (route) => {
-  webApps.push(route.request().postDataJSON());
+  webApps.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     url: `${ORIGIN}/app#tgWebAppData=fake`,

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a channel's direct messages and suggested posts
 // (R-Y191), as Telegram's apps have them: the info column of a channel with
 // a linked monoforum has a "Direct messages" button that opens it; the
@@ -106,7 +107,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
   })
 );
 await page.route('**/api/telegram/channel-dm-threads', (route) => {
-  calls.threads.push(route.request().postDataJSON());
+  calls.threads.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     threads: [
@@ -130,7 +131,7 @@ await page.route('**/api/telegram/channel-dm-threads', (route) => {
   });
 });
 await page.route('**/api/telegram/channel-dm-history', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.history.push(body);
   return fulfil(route, {
     ok: true,
@@ -149,11 +150,11 @@ await page.route('**/api/telegram/channel-dm-history', (route) => {
   });
 });
 await page.route('**/api/telegram/channel-dm-send', (route) => {
-  calls.send.push(route.request().postDataJSON());
+  calls.send.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/channel-dm-decide', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.decide.push(body);
   const target = thread.messages.find((m) => m.id === body.id);
   target.suggested.status = body.approve ? 'accepted' : 'rejected';

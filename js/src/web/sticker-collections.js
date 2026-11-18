@@ -8,6 +8,7 @@ import {
 } from '../greetings/collections.js';
 import { activeAccount } from './telegram-account-scope.js';
 import { useCollectionState } from './sticker-collection-state.js';
+import { VkStickerCatalog } from './vk-sticker-catalog.js';
 const el = React.createElement;
 const field = (key, title, value, options, change) =>
   el('label', { key, className: 'col' }, [
@@ -243,6 +244,9 @@ const CollectionEditor = ({ api }) => {
             el(CollectionFields, { key: 'fields', state }),
             state.current.source === 'telegram'
               ? el(TelegramChoices, { key: 'telegram', state })
+              : null,
+            state.current.source === 'vk'
+              ? el(VkStickerCatalog, { key: 'vk', api, onChoose: state.toggle })
               : null,
             el(CollectionGrid, { key: 'grid', state }),
           ])

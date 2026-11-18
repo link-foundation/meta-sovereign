@@ -1,3 +1,4 @@
+import { personalReplyKinds } from '../automation/contextual-replies.js';
 // The Automations screen (issue #31 / PR #34). Instead of one screen per
 // feature, every outreach is an automation the user can change: who it
 // is for (an audience merged from friends, chats, communities and
@@ -8,6 +9,8 @@
 // out; people can be searched, picked and run on directly.
 
 import React from 'react';
+import { AnswerEvidence } from './question-evidence.js';
+import { AnswerModelExclusions } from './answer-model-settings.js';
 import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
@@ -18,6 +21,14 @@ import { exclusionSummary } from './automations-model.js';
 import { PageLoading } from './spinner.js';
 import { SafetyPanel } from './automations-safety.js';
 import { autopilotText, useSecondsTo } from './chat-automation.js';
+import { AutomationActionFields } from './question-actions.js';
+import { QuestionControls } from './question-controls.js';
+import { FollowControls } from './follow-controls.js';
+import { FollowChatsControls } from './follow-chats-controls.js';
+import { FollowTelegramControls } from './follow-telegram-controls.js';
+import { FollowBacklinkControls } from './follow-backlink-controls.js';
+import { GratitudeSticker } from './gratitude-fields.js';
+import { OrderedReplyReview } from './ordered-reply.js';
 
 const el = React.createElement;
 
@@ -295,6 +306,16 @@ const editorFields = ({ form, set, error, t }) => {
         placeholder: '^(привет|hi)',
         hint: t('automations.hint.incoming'),
       }),
+      el(Choice, {
+        ...p,
+        key: 'recognizer',
+        name: 'incomingRecognizer',
+        label: t('gratitude.recognizer'),
+        options: ['pattern', ...personalReplyKinds].map((value) => [
+          value,
+          t(`gratitude.recognizer.${value}`),
+        ]),
+      }),
     ]),
   ];
 };
@@ -388,34 +409,17 @@ const audienceFields = ({ form, set, error, t, state }) => {
   ];
 };
 
-const messageFields = ({ form, set, error, t }) => {
+const messageFields = ({ form, set, error, t, state }) => {
   const p = { form, set, error };
   return [
     el(Fieldset, { key: 'what', legend: t('automations.section.message') }, [
-      el(Choice, {
+      el(AutomationActionFields, {
         ...p,
-        key: 'f',
-        name: 'form',
-        label: t('automations.field.form'),
-        options: ['auto', 'informal', 'formal'].map((f) => [
-          f,
-          t(`automations.form.${f}`),
-        ]),
-      }),
-      el(Input, {
-        ...p,
-        key: 'i',
-        name: 'informal',
-        multiline: 6,
-        label: t('automations.form.informal'),
-      }),
-      el(Input, {
-        ...p,
-        key: 'o',
-        name: 'formal',
-        multiline: 6,
-        label: t('automations.form.formal'),
-        hint: t('automations.hint.template'),
+        key: 'action',
+        Input,
+        Choice,
+        Check,
+        api: state.api,
       }),
     ]),
     el(Fieldset, { key: 'pace', legend: t('automations.section.pacing') }, [
@@ -587,10 +591,17 @@ const PlanPreview = ({ runs }) => {
                   : networkName(t, draft.source)
               } · ${t(`automations.form.${draft.form}`)}`
             ),
-            el('blockquote', { key: 't' }, draft.text),
+            draft.engagement
+              ? el(OrderedReplyReview, { key: 'ordered', draft })
+              : draft.text
+                ? el('blockquote', { key: 't' }, draft.text)
+                : null,
+            el(GratitudeSticker, { key: 'sticker', draft }),
+            el(AnswerEvidence, { key: 'evidence', answer: draft.answer }),
           ])
         )
       ),
+      el(AnswerModelExclusions, { key: 'models', excluded: plan.excluded }),
       plan.excluded?.length
         ? el(
             'p',
@@ -987,6 +998,15 @@ export const AutomationsScreen = ({ state }) => {
       el(AudiencesPanel, { key: 'aud', state }),
     ]),
     el(SafetyPanel, { key: 'safety', api: state.api }),
+    el(FollowControls, { key: 'follow', api: state.api }),
+    el(FollowChatsControls, { key: 'followChats', api: state.api }),
+    el(FollowTelegramControls, { key: 'followTelegram', api: state.api }),
+    el(FollowBacklinkControls, { key: 'followBacklinks', api: state.api }),
+    el(QuestionControls, {
+      key: 'questions',
+      api: state.api,
+      openAutomation: editor.open,
+    }),
   ]);
 };
 

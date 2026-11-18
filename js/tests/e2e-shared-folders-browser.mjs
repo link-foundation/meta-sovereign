@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for shared folders, chat lists (R-Y172), as Telegram
 // Desktop has them: "Share folder" in the folder editor makes a link for
 // chosen groups and channels, lists the folder's links and copies, edits
@@ -111,7 +112,7 @@ await page.route('**/api/telegram/folders-suggested', (route) =>
   fulfil(route, { ok: true, suggested: [] })
 );
 await page.route('**/api/telegram/folder-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.save.push(body);
   folders = folders.map((f) =>
     f.id === body.id ? { id: f.id, ...body.folder } : f
@@ -129,7 +130,7 @@ await page.route('**/api/telegram/chatlist-invites', (route) =>
   })
 );
 await page.route('**/api/telegram/chatlist-export', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.export.push(body);
   const invite = {
     slug: 'NewSlug12345',
@@ -145,7 +146,7 @@ await page.route('**/api/telegram/chatlist-export', (route) => {
   return fulfil(route, { ok: true, invite, folderId: body.id });
 });
 await page.route('**/api/telegram/chatlist-invite-edit', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.edit.push(body);
   links = links.map((l) =>
     l.slug === body.slug ? { ...l, title: body.title, chats: body.chats } : l
@@ -153,7 +154,7 @@ await page.route('**/api/telegram/chatlist-invite-edit', (route) => {
   return fulfil(route, { ok: true, invite: links[0] });
 });
 await page.route('**/api/telegram/chatlist-invite-delete', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.remove.push(body);
   links = links.filter((l) => l.slug !== body.slug);
   return fulfil(route, { ok: true });
@@ -165,7 +166,7 @@ const peer = (chat, name, joined = false) => ({
   joined,
 });
 await page.route('**/api/telegram/chatlist-check', (route) => {
-  const { slug } = route.request().postDataJSON();
+  const { slug } = requestBody(route.request());
   sent.check.push(slug);
   if (slug === 'SharedSlug12') {
     return fulfil(route, {
@@ -189,7 +190,7 @@ await page.route('**/api/telegram/chatlist-check', (route) => {
   return fulfil(route, { ok: false, error: 'x', code: 'invite-expired' });
 });
 await page.route('**/api/telegram/chatlist-join', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.join.push(body);
   if (body.slug === 'SharedSlug12') {
     folders = [
@@ -209,7 +210,7 @@ await page.route('**/api/telegram/chatlist-leave-suggestions', (route) =>
   fulfil(route, { ok: true, chats: ['-333'] })
 );
 await page.route('**/api/telegram/chatlist-leave', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.leave.push(body);
   folders = folders.filter((f) => f.id !== body.id);
   return fulfil(route, { ok: true });

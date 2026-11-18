@@ -1,11 +1,13 @@
+import { createAcceptedSummaryIndex } from './question-summary-choice.js';
 import { collectSelfIds } from '../crm/reengage.js';
+import { sourceMessageLinkProperties } from '../sources/message-text-links.js';
 
 const isMessage = (link) =>
   link?.id?.startsWith('msg:') && link.chat !== undefined && link.chat !== null;
 
 // Planning needs message text and reachability flags, never provider media or
 // edit snapshots. In particular, do not copy their packed bytes out of disk.
-const summary = (link) => {
+const summary = (link, questionLinks) => {
   const record = {};
   for (const key of Object.keys(link)) {
     if (!['raw', 'snapshot', 'tokens', 'children'].includes(key)) {
@@ -17,24 +19,37 @@ const summary = (link) => {
       });
     }
   }
+  if (questionLinks && isMessage(link)) {
+    Object.assign(record, sourceMessageLinkProperties(link));
+  }
   return record;
 };
 
-export const planningRecords = async (store, { targets, self = [] } = {}) => {
+const summaryCollector = (enabled, owners) =>
+  enabled
+    ? createAcceptedSummaryIndex({ owners })
+    : { accept: () => {}, snapshot: () => undefined };
+
+export const planningRecords = async (
+  store,
+  { targets, self = [], inferSelf = true, summaryChoices = false } = {}
+) => {
   const wanted = Array.isArray(targets)
     ? new Set(targets.map((target) => `${target.source}:${target.chat}`))
     : null;
-  const owner = collectSelfIds(self);
+  const owner = collectSelfIds(inferSelf ? self : ['me', ...self]);
+  const accepted = summaryCollector(summaryChoices, self);
   const records = [];
   const project = (link) => {
     if (isMessage(link)) {
+      accepted.accept(link);
       // Keep global owner inference even when only one chat is requested.
       owner.add(link);
       if (wanted && !wanted.has(`${link.source}:${link.chat}`)) {
         return null;
       }
     }
-    return summary(link);
+    return summary(link, summaryChoices);
   };
   if (store.scan) {
     await store.scan(
@@ -54,14 +69,27 @@ export const planningRecords = async (store, { targets, self = [] } = {}) => {
     // Lightweight in-memory/browser stores may not expose a projection scan.
     const found = await store.query((link) => {
       if (isMessage(link)) {
+        accepted.accept(link);
         owner.add(link);
         return !wanted || wanted.has(`${link.source}:${link.chat}`);
       }
       return true;
     });
     for (const record of found) {
-      records.push(summary(record));
+      records.push(summary(record, summaryChoices));
     }
   }
-  return { records, self: [...owner.finish()] };
+  const ids = owner.finish();
+  if (!inferSelf) {
+    for (const message of records) {
+      if (
+        isMessage(message) &&
+        (message.outgoing === true || message.out === true) &&
+        message.sender
+      ) {
+        ids.add(message.sender);
+      }
+    }
+  }
+  return { records, self: [...ids], acceptedSummaries: accepted.snapshot() };
 };

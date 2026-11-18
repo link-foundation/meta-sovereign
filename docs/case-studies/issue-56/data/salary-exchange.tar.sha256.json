@@ -1,0 +1,18 @@
+{
+  "archive": "salary-exchange.tar.gz",
+  "files": {
+    "cbr-daily-2026-11-09.xml": "6f65bf78461890885a4a5d8b8f7b30fd4513ffbb68788005110ad916d444be50",
+    "draft-missing-api-registration.png": "445ddb39682caf509e88882df1069111eaeb9cb8e3f055f81ce200c0e4baee6a",
+    "mcp-verification.json": "0319036a30448ef8147f03d5f0ad1c513c74e8e5acc86ca9c1d923a44855e7f2",
+    "salary-exchange-before.log": "b4387a7654716a231c7431383272ab7b98e6164f8381d04fd1d46aa62c849394",
+    "salary-exchange-browser-draft.log": "e3ddbbabdad97c52097f07cd6fe38bb110c4ff5be310668e20dad4cd73fbdd72",
+    "salary-exchange-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "salary-exchange-build.log": "4dd2316a4add3f5d64c04e3ac1368b2313e3dded3ecce78d1ad2f2a0fe6c5d1a",
+    "salary-exchange-dependency.log": "ce7bf91f54adc7390cff6bf1c2572fd00ce9cfbd0611637e273059c4710a80c9",
+    "salary-exchange-expiry-before.log": "6dd28341232cec36f42e5ec8249a426f50de7c57e14c381d45129b344c8aa708",
+    "salary-exchange-focused.log": "35b049c10a9a4762437134316d56a7815e8d22db9aa1f3df77e8f06b600e9be1",
+    "salary-exchange-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "salary-exchange-ui-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "salary-rates-cbr-download.log": "5495884f683dd687b50b73dbc6e37f0f4b32e880d4ec1d946e371a106cc081af"
+  }
+}

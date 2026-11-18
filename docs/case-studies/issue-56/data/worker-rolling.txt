@@ -1,0 +1,9 @@
+✔ a rolling upgrade serves during warm-up and preserves every acknowledged write; bad replacements leave the old version active (3264.873325ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3667.537456

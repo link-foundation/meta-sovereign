@@ -1,0 +1,23 @@
+{
+  "archive": "runner-transport-deadline.tar.gz",
+  "files": {
+    "js/src/server/runner-transport.js": "1e467419bee4ce50698bed37758882e604e374d174507f7a31269280e2f58e5e",
+    "js/tests/runner-transport.test.js": "da1fd2bba4c438d344610c2f5f2b9a4e2caa98a4aec5255804587aa71fd21cc7",
+    "js/tests/runner-transport-lifecycle.test.js": "9d8b9743cc17816c12476968b1679955cfd1ff11c1d274777dff464f9f130327",
+    "experiments/issue-56/runner-transport-child.mjs": "7fc788e58d7f451e627dcf389c0ce813dd9d17ed9562cfa7758160f5fe94590b",
+    "experiments/issue-56/runner-transport-fixture.mjs": "6445134c07f7262e7a4217fcbf13105c4d5a283fca857797387a853b7e48f816",
+    "experiments/issue-56/runner-transport-deadline.mjs": "787214581b3324ed40be4e7b930f8a2dab5b137a4e6a301e7a0b6e4b3c425f21",
+    "experiments/issue-56/collect-runner-transport-deadline.py": "0ce577c9f827fe95a319902e073cf113773d4c63e977920283d7858db0a115ed",
+    "docs/case-studies/issue-56/runner-transport-deadline.md": "09821af8aee0d0e2b4974d542eb9f5ca337563cb80426c26473853273b89cae6",
+    "PLAN.md": "cf8270a86a820b6d8e14e8c17628a17ed6884fe8ce8d140a86ca55af2222d5e8",
+    "ci-logs/runner-transport-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/runner-transport-deadline-after.log": "ad020a5c99d55ed1c795d37dcae9d7810ef7bde5eedd7d4ab4ccc2a0b521342f",
+    "ci-logs/runner-transport-deadline-before.log": "f575790f1802cad5675e61792ca239f8e74124b8b95a575b32185d888cbdf79a",
+    "ci-logs/runner-transport-format.log": "8868ebf7d2913683653346fd16780c2d7e5a9875f27f2a1f28ee0e0fdc8c9831",
+    "ci-logs/runner-transport-deno.log": "59a86c108fe0817c6217156174e62628465ae4048041c199e63620aac03b4feb",
+    "ci-logs/runner-transport-focused.log": "29822471a720ed481ef323e99cad9565fd3dc1e8e79463eeec84ca7a2b077371",
+    "ci-logs/runner-transport-doc-format.log": "d318e491eb0691163a35397511af47cd4390c176ba2dd3455116abdc19defafb",
+    "before/js/src/server/runner-transport.js": "2116e54c4df1f3d19b847183da97f90630b9006073d15296d6082b68c694d1bf",
+    "metadata.json": "530bcf2b22dbaef45523ab499d3eee6173863c5b71f9f4331f12f08ed836e524"
+  }
+}

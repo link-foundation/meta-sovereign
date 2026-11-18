@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { freeBand, placedClear } from '../src/web/tutorial-clear.js';
+import { freeBand, placedClear, clearOnce } from '../src/web/tutorial-clear.js';
 
 const viewport = { width: 1280, height: 560 };
 const card = { top: 277, left: 456, width: 368, height: 271 };
@@ -40,4 +40,66 @@ test('a target taller than the screen is read from its top', () => {
   assert.equal(placedClear(tall, card, band, viewport), true);
   const scrolled = { ...tall, top: -400 };
   assert.equal(placedClear(scrolled, card, band, viewport), false);
+});
+
+test('a required control outside the viewport is scrolled clear even without card overlap', () => {
+  const previousDocument = globalThis.document;
+  const previousHeight = globalThis.innerHeight;
+  globalThis.innerHeight = viewport.height;
+  globalThis.document = {
+    querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 56 }) }),
+  };
+  try {
+    for (const top of [736, -20, 36]) {
+      let controlTop = top;
+      const scrolls = [];
+      const control = {
+        style: {},
+        getBoundingClientRect: () => ({
+          top: controlTop,
+          left: 252,
+          width: 200,
+          height: 36,
+        }),
+        scrollIntoView: (options) => {
+          scrolls.push(options);
+          controlTop = 80;
+        },
+      };
+      const target = {
+        style: {},
+        querySelector: () => control,
+        getBoundingClientRect: () => ({
+          top: 60,
+          left: 252,
+          width: 1008,
+          height: 2400,
+        }),
+        scrollIntoView: () => {},
+      };
+      const cardNode = { getBoundingClientRect: () => card };
+      assert.equal(
+        clearOnce(target, cardNode, viewport, '.required'),
+        'scrolled'
+      );
+      assert.equal(
+        scrolls.length,
+        1,
+        `required control at ${top} was revealed`
+      );
+      assert.equal(control.style.scrollMarginTop, undefined);
+      assert.equal(control.style.scrollMarginBottom, undefined);
+    }
+  } finally {
+    if (previousDocument === undefined) {
+      delete globalThis.document;
+    } else {
+      globalThis.document = previousDocument;
+    }
+    if (previousHeight === undefined) {
+      delete globalThis.innerHeight;
+    } else {
+      globalThis.innerHeight = previousHeight;
+    }
+  }
 });

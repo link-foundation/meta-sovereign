@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { openBrowserSession } from '../cv/browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
 import {
   MARKETPLACES,
   marketplaceProfileId,
@@ -93,7 +94,14 @@ export const createMarketplaceSessions = ({
     const session = await openSession({
       platform: id,
       profileDir,
-      headless: false,
+      store,
+      useCase: 'marketplace',
+      headless: (
+        await resolveBrowserPolicy(store, {
+          platform: id,
+          useCase: 'marketplace',
+        })
+      ).headless,
       locale: 'en-US',
     });
     try {

@@ -1,0 +1,13 @@
+{
+  "archive": "hosted-0aa60851.tar.gz",
+  "files": {
+    "ci-logs/application-pacing-current-ci.json": "cafc9a740f309e98065b17287f5b3ff6f3f5630f8981a1e196c36273f77acfbe",
+    "ci-logs/application-pacing-head-runs.json": "1269d86dd3567a71c97db3a92605ff23167557d33a5c4e628ebe6659912eb646",
+    "ci-logs/hosted-0aa60851-43613931591.log": "0951b162956e4e3231ebf32871d278b20a8e4a5b9c11a78b9fcfe625d670100c",
+    "ci-logs/hosted-0aa60851-43613931631.log": "0855298de5b9c58822dd228f2e4aaf7bea03b4bbe874eec998ae0c1220edb3a1",
+    "ci-logs/hosted-0aa60851-43613931687.log": "648373ae0fd52314e20d2d547a22d36f3d4d9e5025ffbdf73eef0b638e7d514d",
+    "ci-logs/hosted-0aa60851-43613931712.log": "083babb03abf6e5f26a95aef339712066832ab3565eac2b97d41a29c417fa79f",
+    "ci-logs/hosted-0aa60851-43613931779.log": "3ebfad2772441ed5e50c2d8a1d531a12b909ee28d9e5c33c54637b78f38490f7",
+    "metadata.json": "1231a833590572a9afd9988e4f82810c254097d4d4814ee96bd1c2d58efd06eb"
+  }
+}

@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for the emoji panel (R-Y104): the smiley by the
 // message box opens it; a pick goes in at the caret, the panel stays and
 // the pick leads the recent ones (kept on the next visit); the bar jumps
@@ -60,7 +61,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),

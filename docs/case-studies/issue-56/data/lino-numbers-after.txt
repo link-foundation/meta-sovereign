@@ -1,0 +1,18 @@
+✔ text/lino preserves typed values, Unicode and empty containers (15.194044ms)
+✔ application/lino-binary preserves typed values, Unicode and empty containers (34.127703ms)
+✔ text/lino-line preserves typed values, Unicode and empty containers (6.394328ms)
+✔ text/lino-compact preserves typed values, Unicode and empty containers (5.198327ms)
+✔ wire and HTTP replies preserve large numbers and numeric-looking keys (48.005481ms)
+✔ recovery archives preserve unsafe integer Number values (94.184385ms)
+✔ HTTP normalization preserves provider bigint IDs and dates (2.297545ms)
+✔ JSON compatibility requires explicit opt-in in both directions (1.64576ms)
+✔ response reader accepts text and binary and refuses unexpected JSON (60.63987ms)
+✔ malformed bytes and finite excessive nesting are rejected (1.649107ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 741.11525

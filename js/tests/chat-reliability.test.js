@@ -464,7 +464,7 @@ const routeAccount = () => {
 };
 
 test('the server marks chats read and saves drafts on Telegram', async () => {
-  const { startServer } = await import('../src/server/index.js');
+  const { startServer } = await import('./helpers/legacy-server.js');
   const account = routeAccount();
   const server = await startServer({
     store: createMemoryStore(),

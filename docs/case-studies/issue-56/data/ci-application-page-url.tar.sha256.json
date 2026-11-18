@@ -1,0 +1,25 @@
+{
+  "archive": "ci-application-page-url.tar.gz",
+  "files": {
+    "before/js/tests/helpers/e2e-job-application.mjs": "c66d03a81202f0c69ba1f8852dafa37890b6b1f0769ec366f436b517632b2a53",
+    "ci-logs/application-codeql-job.log": "b982cf6881eaa1a0f91b0290ef3a7a076bf34266f7f155e46ce8bfb6c7b0064d",
+    "ci-logs/application-url-artifacts.json": "c5ccb5bf032f97d0da6f673474a39c8775f8078441a117cdeeea6dc595e7273e",
+    "ci-logs/application-url-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-url-doc-format.log": "9fd4f6b89b5336ed486f5a38ee715c260ae8a09a59e731cd33eeadd13fe78ca1",
+    "ci-logs/application-url-findings.json": "8e4912a9279915b65d8e90b596564287d8c31ac537cc4b54ef6c8acc1c8564a5",
+    "ci-logs/application-url-format.log": "fcf64aac10d7b5337ee4280c914e766f4aafc8e9689702de595f3c7aa1136f4e",
+    "ci-logs/application-url-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-url-native.log": "78e1e0dbe99a4166c745be6190a67be62a7d3f1d7d34f0464225235d635e184b",
+    "ci-logs/application-url-prettier.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/application-url-regression.log": "5d418a01e6344ff33ebbcfaf8c5c0d9730621612f99afd797918529af0526248",
+    "ci-logs/application-url-runs.json": "bd166b321ac0b84506872b78b8ed7268111652bafc733eb55463a53c952432ce",
+    "docs/case-studies/issue-56/PLAN.md": "1f40f1fe4d292c1bd0da2bbc90a4e5f325dea140363df3476833e12caf2300ee",
+    "docs/case-studies/issue-56/native-applications.md": "e3bde198cad13cb4c5ee4c47c51f7c992bf5eb6f70698d199c35870bb9739331",
+    "experiments/issue-56/application-fixture-page-url.mjs": "6e0e3e64ee615c93160f57dcef4a0746895970aa8840a7d086e7482de959378b",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-application-page-url.py": "9c5bd91ae39575a74ab8ad2ebbcb6720fd1a973ba1fe500c6c7a78ae2ee3fa24",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "js/tests/helpers/e2e-job-application.mjs": "96f3c817f072a7249f907790d97409d9a64eb89922223050ae2111e8a6999e6b",
+    "metadata.json": "3c1856ab08ae9a2a21c3f140c9ff50e6b4d9c63e5f8cfb3340581e502c48a2e8"
+  }
+}

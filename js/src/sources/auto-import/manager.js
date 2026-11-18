@@ -28,6 +28,9 @@ import {
   scrapedRowsToLinks,
 } from './files.js';
 import { stampSourceLink } from '../index.js';
+import { browserName, resolveBrowserPolicy } from '../../browser/policy.js';
+import { slotProfileDir } from '../../cv/browser.js';
+import { prepareBrowserExecutable } from '../../browser/preparation.js';
 
 const ACTIVE = new Set(['launching', 'waiting', 'importing']);
 const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
@@ -35,6 +38,18 @@ const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 /** Can this server drive a browser at all? */
 // browser-commander declares node >=22.12.
 const MIN_NODE = [22, 12];
+const usesManagedBrowser = (env) =>
+  ![
+    env.MS_BROWSER_CDP_URL,
+    env.MS_BROWSER_CHANNEL,
+    env.MS_BROWSER_EXECUTABLE,
+  ].some(Boolean);
+const prepareManagedBrowser = async (env, prepare, signal) => {
+  if (usesManagedBrowser(env)) {
+    await prepare({ signal });
+  }
+  signal?.throwIfAborted();
+};
 
 export const probeBrowserAutomation = async (
   importer = () => import('browser-commander'),
@@ -71,14 +86,19 @@ export const launchWithBrowserCommander = async ({
   downloadsDir,
   cookies = [],
   env = process.env,
+  headless = env.MS_BROWSER_HEADLESS === '1',
+  prepare = prepareBrowserExecutable,
+  loadCommander = () => import('browser-commander'),
+  signal,
 }) => {
-  const bc = await import('browser-commander');
+  const bc = await loadCommander();
   const common = {
     engine: 'playwright',
     verbose: env.MS_BROWSER_VERBOSE === '1',
     downloads: { directory: downloadsDir, conflict: 'rename' },
   };
   const cdp = env.MS_BROWSER_CDP_URL;
+  await prepareManagedBrowser(env, prepare, signal);
   const session = cdp
     ? await bc.connectBrowser({
         ...common,
@@ -86,7 +106,7 @@ export const launchWithBrowserCommander = async ({
       })
     : await bc.launchBrowser({
         ...common,
-        headless: env.MS_BROWSER_HEADLESS === '1',
+        headless,
         userDataDir,
         // Sign-ins the user chose to bring over from their own browsers.
         ...(cookies.length ? { storageState: { cookies, origins: [] } } : {}),
@@ -139,6 +159,7 @@ export const launchWithBrowserCommander = async ({
 const snapshot = (job) => ({
   id: job.id,
   provider: job.provider,
+  slot: job.slot,
   state: job.state,
   url: job.url,
   canCapture: job.canCapture,
@@ -149,6 +170,27 @@ const snapshot = (job) => ({
   startedAt: job.startedAt,
   updatedAt: job.updatedAt,
 });
+
+const newJob = (provider, slot, recipe) => {
+  const now = new Date().toISOString();
+  return {
+    id: randomUUID(),
+    provider,
+    slot,
+    state: 'launching',
+    url: recipe.url,
+    canCapture: Boolean(recipe.scrape),
+    imported: 0,
+    files: [],
+    error: null,
+    startedAt: now,
+    updatedAt: now,
+    signedIn: false,
+    session: null,
+    idleTimer: null,
+    controller: new AbortController(),
+  };
+};
 
 const statusError = (message, status) =>
   Object.assign(new Error(message), { status });
@@ -171,10 +213,16 @@ const importArtifact = async (store, provider, filePath, options = {}) => {
 
 // Per-provider browser profile + download folder under the store dir.
 // Profiles hold the user's provider sessions: owner-only access.
-const prepareDirs = async (dataDir, provider) => {
+const prepareDirs = async (dataDir, provider, slot) => {
   const base = path.join(dataDir, 'auto-import');
-  const userDataDir = path.join(base, 'profiles', provider);
-  const downloadsDir = path.join(base, 'downloads', provider);
+  const userDataDir = slotProfileDir(
+    path.join(base, 'profiles', provider),
+    slot
+  );
+  const downloadsDir = slotProfileDir(
+    path.join(base, 'downloads', provider),
+    slot
+  );
   await fs.mkdir(userDataDir, { recursive: true, mode: 0o700 });
   await fs.mkdir(downloadsDir, { recursive: true, mode: 0o700 });
   return { userDataDir, downloadsDir };
@@ -182,15 +230,25 @@ const prepareDirs = async (dataDir, provider) => {
 
 // Opens the provider's window, seeded once with the sign-ins the user
 // chose to bring over from their own browsers (./sign-ins.js).
-const openSession = async (job, { launcher, signIns, dataDir, env }) => {
-  const dirs = await prepareDirs(dataDir, job.provider);
+const openSession = async (job, { launcher, signIns, dataDir, env, store }) => {
+  const dirs = await prepareDirs(dataDir, job.provider, job.slot);
+  const policy = await resolveBrowserPolicy(store, {
+    platform: job.provider,
+    useCase: 'auto-import',
+    slot: job.slot,
+    headless: ['0', '1'].includes(env.MS_BROWSER_HEADLESS)
+      ? env.MS_BROWSER_HEADLESS === '1'
+      : undefined,
+  });
   const cookies = (await signIns?.peek(job.provider)) ?? [];
   const session = await launcher({
     provider: job.provider,
+    headless: policy.headless,
     url: job.url,
     env,
     cookies,
     ...dirs,
+    signal: job.controller.signal,
   });
   if (cookies.length) {
     await signIns.consume(job.provider);
@@ -246,7 +304,7 @@ export const createAutoImportManager = ({
   idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS,
 } = {}) => {
   const jobs = new Map();
-  const deps = { launcher, signIns, dataDir, env };
+  const deps = { launcher, signIns, dataDir, env, store };
 
   const touch = (job, patch = {}) => {
     Object.assign(job, patch, { updatedAt: new Date().toISOString() });
@@ -266,14 +324,22 @@ export const createAutoImportManager = ({
     });
   };
 
-  const finish = async (job, state, error = null) => {
+  const finish = (job, state, error = null) => {
+    if (job.finishing) {
+      return job.finishing;
+    }
     if (!ACTIVE.has(job.state)) {
-      return;
+      return Promise.resolve();
     }
     touch(job, { state, ...(error ? { error } : {}) });
-    const session = job.session;
-    job.session = null;
-    await session?.close().catch(() => {});
+    job.controller.abort();
+    job.finishing = (async () => {
+      await job.ready;
+      const session = job.session;
+      job.session = null;
+      await session?.close().catch(() => {});
+    })();
+    return job.finishing;
   };
 
   const onDownload = async (job, artifact) => {
@@ -304,13 +370,16 @@ export const createAutoImportManager = ({
         ...(session.navigationError ? { error: session.navigationError } : {}),
       });
     } catch (error) {
-      touch(job, { state: 'failed', error: error.message });
+      if (job.state === 'launching') {
+        touch(job, { state: 'failed', error: error.message });
+      }
     }
   };
 
-  const activeFor = (provider) =>
+  const activeFor = (provider, slot) =>
     [...jobs.values()].find(
-      (job) => job.provider === provider && ACTIVE.has(job.state)
+      (job) =>
+        job.provider === provider && job.slot === slot && ACTIVE.has(job.state)
     );
 
   const requireJob = (id) => {
@@ -322,31 +391,17 @@ export const createAutoImportManager = ({
   };
 
   return {
-    start(provider) {
+    start(provider, { slot = 'main' } = {}) {
+      browserName(slot);
       const recipe = autoImportRecipes[provider];
       if (!recipe) {
         throw statusError(`no auto-import recipe for "${provider}"`, 400);
       }
-      const existing = activeFor(provider);
+      const existing = activeFor(provider, slot);
       if (existing) {
         return snapshot(existing);
       }
-      const now = new Date().toISOString();
-      const job = {
-        id: randomUUID(),
-        provider,
-        state: 'launching',
-        url: recipe.url,
-        canCapture: Boolean(recipe.scrape),
-        imported: 0,
-        files: [],
-        error: null,
-        startedAt: now,
-        updatedAt: now,
-        signedIn: false,
-        session: null,
-        idleTimer: null,
-      };
+      const job = newJob(provider, slot, recipe);
       jobs.set(job.id, job);
       touch(job, { state: 'launching' });
       job.ready = launch(job);

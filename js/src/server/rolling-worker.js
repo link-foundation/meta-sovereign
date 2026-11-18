@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs';
 import { openDualStore, openWarmDualStore } from '../storage/dual-store.js';
 import { startServer } from './index.js';
 import { accountDir } from './telegram-extras.js';
+import { withLoggedSession } from './log-session.js';
 
 const entriesOf = (checkpoints) =>
   Object.entries(checkpoints ?? {}).map(([slot, checkpoint]) => [
@@ -38,12 +39,19 @@ const closeOwnedStores = async (stores) => {
   }
 };
 
-export const createRollingWorker = async ({
+export const createRollingWorker = (input) =>
+  withLoggedSession(
+    { ...input, verbose: input.options?.verbose },
+    createRollingWorkerRuntime
+  );
+
+const createRollingWorkerRuntime = async ({
   storeDir,
   options = {},
   front,
   checkpoints,
   log = () => {},
+  diagnosticsSession,
 }) => {
   const stores = new Map();
   let handle = null;
@@ -77,6 +85,7 @@ export const createRollingWorker = async ({
       store: home,
       archiveDir: path.join(storeDir, 'archives'),
       log,
+      diagnosticsSession,
       front: currentFront,
       telegramExtraStore: async (slot) => ({
         store: await own(slot),

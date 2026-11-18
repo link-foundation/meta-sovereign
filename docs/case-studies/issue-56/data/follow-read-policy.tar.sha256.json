@@ -1,0 +1,30 @@
+{
+  "archive": "follow-read-policy.tar.gz",
+  "files": {
+    "ci-logs/follow-read-auto-browser.log": "d9bf82784af62cd9632e61e7de817fc521c323f2746b2dee40374529687a2ecc",
+    "ci-logs/follow-read-browser-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-read-controls-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-read-http-recovery-before.log": "41b1aff88923a388caf3d45915a167200a9822b2275c0695797e3455c630496b",
+    "ci-logs/follow-read-http-recovery-tests.log": "9f32e2308e957e2b904c98f831a4d1ab20952696a06a865f45845e5e3ef4f3fe",
+    "ci-logs/follow-read-policy-baseline-runs.json": "f611fbf29e8c251e17e2db325b4822d4a432b1680d2c726637916ed1277bcc74",
+    "ci-logs/follow-read-policy-before.log": "b12dc2adcea18b6fe79873dac4bcb2983cb2e940a327e02a9c7c1cb79b455ae7",
+    "ci-logs/follow-read-policy-build.log": "088de637c22671c32def777facee7fef6f32337c0999743435b033566ee10272",
+    "ci-logs/follow-read-policy-core.log": "fe57a8569980b986dc6081c91320be21870241d770661756e6228c5b5bded42e",
+    "ci-logs/follow-read-policy-current-runs.json": "ddac0f53d0fec8e16bec6000db02b90ff78cf698d7abb7d8892bf4d163fe9b17",
+    "ci-logs/follow-read-policy-draft.log": "d2e567a0352cc62625f19602a6ed70bd36facb179c22527fe109dbdd94c5120c",
+    "ci-logs/follow-read-policy-format-write.log": "aecca56c91da37057d5aac637e52327a6374ad9266aa4df6da3c08c38751232e",
+    "ci-logs/follow-read-policy-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/follow-read-policy-lint-draft.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-read-policy-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-read-policy-pr-baseline.json": "14f53353e448b4174c178bfc1503382f06935d98c009872c0c81752963ec5d94",
+    "ci-logs/follow-read-policy-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-read-policy-tests.log": "3b5c77c4302aad9023767f605c6965addcf988346f161a70ae152c57269ff516",
+    "ci-logs/follow-read-policy-ui-before.log": "3b84c004d3de86ed6e0493e32c1cc5abb107591172260571c9c20040e2e035f3",
+    "ci-logs/follow-read-telegram-browser.log": "90668fc8a248b6658ad189a050918839f197eff0ba60bc9e30ed3fcecaf4a5f7",
+    "ci-logs/follow-read-telegram-recovery-before.log": "e947ee4d36c8b9a938eaea9bd0de9019665c03a84d11e5f49e70b560bc900d5c",
+    "ci-logs/follow-read-vk-browser.log": "5f2d2924f3a1cfeb66223d74f03017531cc140b366cfb386c116db1262a423ad",
+    "ci-logs/follow-read-vk-recovery-before.log": "1a09c04209b31801403a24c0701be4293010b635f7c83ccd7f73b202455c22d0",
+    "experiments/issue-56/collect-follow-read-policy.py": "2c7c29336280ca82e1012775a9a516803a90b47ffcf3ce94c8ba03f7e860cf2a",
+    "metadata.json": "ec43278ee1d71074a0efb255a13e6e22ce6eb7b5008747ea792096203ade742b"
+  }
+}

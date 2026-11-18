@@ -1,0 +1,21 @@
+{
+  "archive": "ci-lino-pause.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "98fbc67be573a9aaecd27672d726ef36c4c6c207a5d131f26e229742639af060",
+    "js/tests/job-application-limit.test.js": "c299cbaf861a183ba0378a45dae111760d315457b52c9dccf44877feea349b78",
+    "experiments/issue-56/application-limit-trace.mjs": "57cfa796ba8811ede1a644cae7af3616e9cdd739613a9cdffa9a83312f585e63",
+    "experiments/issue-56/collect-lino-pause.py": "3db7000930c98866d925cef1614f16162f1f40e10f80c100c50971f588f24414",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-lino-pause.md": "ca02cca821b2fe04c03c70ff54296962077044cc650308fe1d912b7eda3adab3",
+    "docs/case-studies/issue-56/ci-lino-pause-plan.md": "1f0273a26e06683b67f270c86cae74938d180b73669d676df2d2f61cb27e6394",
+    "ci-logs/hosted-a493-windows-node-1-failure.log": "fc74eb0f52588fd3e11919e54703625a5271d8895831d4aba9571ef891bb3474",
+    "ci-logs/hosted-a493-windows-node-1-job.json": "1ee65e4965a3a3c7975d9f70cae0653e0150a8282e13fe2de321f800e3c9a15f",
+    "ci-logs/hosted-a493-lino-pause-local.log": "977a0a15c8b6f7f6a7515ac15461cf96edd3edac0981b997b441d555b4a3d144",
+    "ci-logs/lino-pause-default.log": "ecfd7fb9fded3eccb9a55fa12ed6822ff053bfe3b9562f7ffaf9e886d43f2fbf",
+    "ci-logs/lino-pause-traced.log": "00194c6983cf7a67b6ab622a03ca58b6d26626de706a25f4428af6156b300ea1",
+    "ci-logs/lino-pause-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/lino-pause-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/lino-pause-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "metadata.json": "b746dab029cde8e6ecf818f00d9b9b038af68222e3db3d0fedd872d46b3be3c9"
+  }
+}

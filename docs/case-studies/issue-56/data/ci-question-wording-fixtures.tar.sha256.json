@@ -1,0 +1,21 @@
+{
+  "archive": "ci-question-wording-fixtures.tar.gz",
+  "files": {
+    "js/tests/e2e-questions-browser.mjs": "67fc33953b25812055a7f4fff1a773a2dd51947f2a65e2b6e6990ceffee02dcd",
+    "docs/case-studies/issue-56/ci-question-wording-fixtures.md": "78845087bbc4516e77c6a837b69d78e72c444d3d5eba34eb649ae7a3935765af",
+    "experiments/issue-56/collect-wording-sequence.py": "f0e4febecae7d1f9452247cc8d17c3cb68497b00e271237e0c3b81c0be0a4957",
+    "ci-logs/wording-sequence-before.log": "8edc4ac5f792451c7b53445203ca09f705776b7f55164df086312023b6e357a0",
+    "ci-logs/wording-sequence-after.log": "1c5b785ab390f3fc4ab4516b7faa8cc016f03df2c994a8c15aac8533182eca98",
+    "ci-logs/wording-sequence-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/wording-sequence-format.log": "fec25ee8ff8bc583315a779eb7ec6f1725eb36736deb41aae153614027b63310",
+    "ci-logs/wording-sequence-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/wording-sequence-runs.json": "aa3d773968f73f44bff9e5cc8a4399c1df395c5a2ee14d42592089ba3c623868",
+    "ci-logs/wording-sequence-jobs.json": "79d988fa1ed802d26896cc0177889b204f9d603cd72666e523f1d7216bcf932b",
+    "ci-logs/83c5-browser-133664238751.log": "4b6057bd4170ba095a6cf9f8060d280678efdc9d3ea42259e9f009142fb82914",
+    "ci-logs/83c5-browser-133664238751.json": "a25a98440586cbee5b955903fc8056c63bb3bdbab48a894e546d5668d3d8eab0",
+    "ci-logs/83c5-deno-133664239991.log": "4dff92d5ac240f265e3520202094d2d021b3b5fc2e5c62cd7ed92ceece5ff82c",
+    "ci-logs/83c5-deno-133664239991.json": "a20aba07bac8c9220179bb259769563800e9156f06b222fd0bf698d9639ebdf1",
+    "before/js/tests/e2e-questions-browser.mjs": "7e448e71ab0294288615faae341e33440ff52710239dff1f713def74d414dcae",
+    "metadata.json": "c48271bdb8e0744f1d72566d1571358f511d688c0132fa9a60371dc241393f0c"
+  }
+}

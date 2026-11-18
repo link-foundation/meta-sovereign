@@ -1,0 +1,19 @@
+# VK community invitations (languages: en • [ru](VK-COMMUNITY-INVITATIONS.ru.md) • [hi](VK-COMMUNITY-INVITATIONS.hi.md) • [zh](VK-COMMUNITY-INVITATIONS.zh.md))
+
+Open **Connections → VK → Manual → VK community invitations**. Scheduling, replacement and avatar attachment start off. Enter positive community IDs, one invitation variant per line and a marker contained in every variant. Configure your own destinations and content; the reference projects' personal destinations are not defaults.
+
+Attachments accept up to ten native `photo`, `audio`, `video` or `doc` IDs, including an optional access key. URLs and uploads are not accepted here. Optional avatar reuse attaches the current profile's native photo without reuploading it. Restricted communities use their separate message and omit configured media; an explicitly enabled avatar may still be included. Multiple variants avoid repeating the previous selection when another variant is available.
+
+Enable “Choose one configured media item at random” to select one item from the configured pool for each new review. The exact choice appears before confirmation and stays fixed during delivery and partial recovery. The optional current avatar remains additional; restricted communities omit the pool. Leave the choice off to attach all configured items. CLI: `--random-attachment true` (disable with `false`). API/offline settings: `randomAttachment`.
+
+Save, then review each community, exact message, attachments and owned old-post IDs. A matching own invitation in the top ten, cooldown, protected community, consent hold or incomplete evidence prevents publication. A zero limit publishes nothing. Replacement requires a complete bounded search (up to 1,000 matches) and includes only unchanged posts authored by the current account with deletion permission.
+
+Confirm the current review to publish. The new positive VK post receipt is durably saved before any old post is deleted. Each deletion requires its own positive receipt and a fresh check of the retained new post and old ownership/content. A definite partial replacement needs a new manual review and resumes only remaining deletions. An unknown post or deletion outcome is never automatically replayed. VK codes 15/210/219 pause that community for 24 hours; these codes and 10/14 also pause the account's invitations for at least one minute.
+
+The same foreground flow is available with `meta-sovereign vk-wall save`, `plan` and `run --plan <id> --confirm`, and `/api/vk/wall` using the default Lino text or binary transport. CLI options include `--communities`, `--messages`, `--marker`, `--attachments`, `--restricted-communities`, `--restricted-message`, `--replace-owned`, `--active-avatar`, `--limit`, `--cooldown-days` and `--every-minutes`. Browser-only configuration can be saved offline; provider review and delivery require the local server and your VK account. Start/stop belongs to the owning server and shutdown drains pending work.
+
+“Hold when an invitation from any author is in the top ten” also holds matching invitations written by other people. It starts off; the default holds your own invitations. CLI: `--hold-any-visible true`; API/offline: `holdAnyVisible`.
+
+If a successful current VK read finds a reviewed old post absent, replacement can continue with the remaining posts. The result lists absent IDs separately from acknowledged deletions. A 100/104 refusal alone does not establish absence, and an unknown write remains unknown. If an absent post reappears after review, review again. The retained new post must still be present and unchanged.
+
+The pinned friend-invitation trigger also publishes to configured community walls. [Source audit](case-studies/issue-56/vk-friend-invitations.md) and [implementation evidence](case-studies/issue-56/vk-wall.md).

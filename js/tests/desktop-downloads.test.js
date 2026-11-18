@@ -24,6 +24,7 @@ import {
 
 const asset = (name) => ({
   name,
+  state: 'uploaded',
   size: 1024,
   browser_download_url: `https://github.com/link-foundation/meta-sovereign/releases/download/v1.2.3/${name}`,
 });

@@ -1,0 +1,13 @@
+✔ GET /api/suggest/model: compressed JSON, or Links Notation (45.990916ms)
+✔ request bodies: malformed JSON is 400 bad-json, an oversized one 413 (301.686849ms)
+✔ every JSON error is { ok: false, error, code } with the same status (116.300249ms)
+✔ readBody refuses an oversized or non-object body (3.444294ms)
+✔ archive route imports a text export and refuses garbage (98.603472ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2614.079558

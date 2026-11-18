@@ -1,0 +1,23 @@
+{
+  "archive": "ci-application-registration.tar.gz",
+  "files": {
+    "package.json": "6de3e7608bcf941a92346102974b19eb1ac454296e0207f0464e0b1283631150",
+    "js/scripts/browser-checks.json": "8b3242398e2fbcfc5818ce5d44c35ad7ace12fb90b1016de908cbeec5479522f",
+    "js/tests/e2e-job-application-browser.mjs": "8dc03a742e3850d02fd0bcecdad009d66241836f49ab4aea6b93fb3bafd4b081",
+    "js/tests/e2e-job-application-answers-browser.mjs": "edfcfa8b2e626098e8271b17e5adb319500dbb76c4531f9387b34c045fdc72c1",
+    "js/tests/ci-browser-shards.test.js": "ab9f9af5c94ae7e45f4ddf10f5b8364a59c01cfcf6f6db6a2e3d3e9978d71200",
+    "js/tests/helpers/e2e-application-answer-approval.mjs": "c1f89705d542245e2141d2ada364fae91dd0e05d2628de82b313d9b8134c3c3c",
+    "experiments/issue-56/collect-ci-application-registration.py": "a9e14c2a42c13425dce82f239aa85f3a937807963043dd551d4a839089cf9518",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-application-registration.md": "8850f12cb3aef15e76de6d0fe5cf25128bcc481c90c11e4b261f8fb5319da9eb",
+    "before/package.json": "b8962c8eb85adc022aa644d036486888847ac262c34244257093fbbb2323bc95",
+    "before/js/scripts/browser-checks.json": "64e2ef1fa413a18f6c5fa92036bdd1d6c900ebe5ead806283d2ff305671cfb53",
+    "before/js/tests/e2e-job-application-browser.mjs": "8c4257c15a9f1f359049e674e4f2c533e605d53fbfc35251670f42e75823ee27",
+    "before/js/tests/ci-browser-shards.test.js": "2e1d2f9739f67452c351e26896dcc72f97a159db40414d8f325d8fbd7b659ad0",
+    "ci-logs/ci-application-registration-parent.log": "5907ec462b40fa8fd133c1e8e6956d52cbe8fc4cb4ef1133da8dc8774e1923a4",
+    "ci-logs/ci-application-registration-final.log": "79c7b794df87b95c3bb857db6667b5de515cada81175b6f0e5d4726c3cf3a652",
+    "ci-logs/ci-application-registration-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-application-registration-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/hosted-7d105-workflow-contracts.log": "606fd1aa870a1dcd45e09b6e4847e3f8aba6927a0705e5a4a234b30aeffdc7c2"
+  }
+}

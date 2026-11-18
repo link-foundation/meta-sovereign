@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the security extras of Privacy and Security
 // (R-Y177), as Telegram Desktop's Settings has them: two-step verification
 // (set with a hint and a recovery email whose code is asked in the dialog,
@@ -113,7 +114,7 @@ await page.route('**/api/telegram/security', (route) =>
 );
 const sent = [];
 const record = (name, reply) => async (route) => {
-  const body = route.request().postDataJSON() ?? {};
+  const body = requestBody(route.request()) ?? {};
   sent.push([name, body]);
   return fulfil(route, typeof reply === 'function' ? reply(body) : reply);
 };

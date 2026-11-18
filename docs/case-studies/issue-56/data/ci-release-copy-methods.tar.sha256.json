@@ -1,0 +1,24 @@
+{
+  "archive": "ci-release-copy-methods.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "420fefb84fb8373446bfa759a1c79bbef3cc40344ee1584fd9fb1eaa4cb76bbc",
+    "before/.github/workflows/release.yml": "aa5cea31eab89fdbf912cbf64b121f69f0b0a656ce1a36f6286efdd096260f49",
+    "ci-logs/inactive-focus-parent-checks.json": "a40981c968153ff66a4646def70d0da583332b4c8eb657e89147af5bcbf4cb4b",
+    "ci-logs/inactive-focus-parent-windows-deno-130772387445.log": "256921b532037c755ea4fae63da8fd41c98231368fec312396601cd7f1dbb47c",
+    "ci-logs/release-copy-method-doc-format.log": "93aa9bf122e4642f0b4d0ab5157dd27c5d23734b91e239833b1c24c18a67b53a",
+    "ci-logs/release-copy-method-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/release-copy-method-format.log": "0a25059bde1c29570944751a155f777f1c867652d4b0f124b886a55fcd00e3c8",
+    "ci-logs/release-copy-method-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/release-copy-method-linux.log": "f6bbe015a952b645560ff614e53a24209d0dd90118a47e3db9cd4faf4d3a375d",
+    "ci-logs/release-copy-method-node.log": "023484d047f4b8129fc829d7a008eede760856e1c2ce6244afcd17ca1e6156d4",
+    "ci-logs/release-copy-method-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/release-copy-method-workflow.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "docs/case-studies/issue-56/PLAN.md": "bb6e5896e5c91c724b2a5050519a1780c8d34f8f763dab3410a011a7e702c3a1",
+    "docs/case-studies/issue-56/ci-release-copy-methods.md": "6fbf581756e70ee95206449c0f5e1a8221fc035e7a79e371bc6c30fc6373ce3a",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-release-copy-methods.py": "4f137a959d471b2238b7b51ebe247320baa7a084e03d57ae6877ce08b84bed89",
+    "experiments/issue-56/evidence_bundle.py": "7a8f4f26810b49fdef7b6c8b6b8091ca2912cb74f4fa7f75a85051cfc5bba74b",
+    "experiments/issue-56/release-copy-strategies.mjs": "f6802dad04f958ca58ed89f8873495843831e3168071f26209bb7dcc2566747b",
+    "metadata.json": "c31db0c4ec2dc27537ce908aaaa3eeac02ea4ad915cb865ba62e88ca73d2d26f"
+  }
+}

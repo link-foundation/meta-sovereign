@@ -13,7 +13,7 @@
  */
 
 import { classifyOrigin } from './cors.js';
-import { json } from './util.js';
+import { json, readBody } from './util.js';
 
 const LEVELS = new Set(['error', 'warn', 'info', 'debug']);
 const EVENT = /^[a-z][a-z0-9_]{0,59}$/;
@@ -79,26 +79,7 @@ export const clientEntry = (body) => {
 };
 
 const readLimited = (req) =>
-  new Promise((resolve) => {
-    const chunks = [];
-    let size = 0;
-    req.on('data', (chunk) => {
-      size += chunk.length;
-      if (size <= MAX_BODY) {
-        chunks.push(chunk);
-      }
-    });
-    req.on('end', () => {
-      try {
-        resolve(
-          size <= MAX_BODY ? JSON.parse(Buffer.concat(chunks).toString()) : null
-        );
-      } catch {
-        resolve(null);
-      }
-    });
-    req.on('error', () => resolve(null));
-  });
+  readBody(req, { limit: MAX_BODY, allowEmpty: false }).catch(() => null);
 
 export const createClientLogRoute = ({ now = Date.now } = {}) => {
   let windowStart = 0;

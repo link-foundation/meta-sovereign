@@ -138,3 +138,22 @@ test('draft actions require confirmed outcomes and keep uncertain sends distinct
   );
   assert.equal(draftActionNotice('form', { id: 'fixture-draft' }), null);
 });
+
+test('ordered reply notices preserve acknowledged progress and uncertain delivery', () => {
+  assert.equal(
+    draftActionNotice('send', { status: 'failed', code: 'sequence-partial' })
+      .messageKey,
+    'engagement.partial'
+  );
+  for (const code of ['sequence-unknown', 'sequence-receipt-missing']) {
+    assert.equal(
+      draftActionNotice('send', { status: 'unknown', code }).messageKey,
+      'engagement.uncertain'
+    );
+  }
+  assert.equal(
+    draftActionNotice('send', { status: 'failed', code: 'ordinary-refusal' })
+      .messageKey,
+    undefined
+  );
+});

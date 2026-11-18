@@ -31,7 +31,11 @@
 export const HOSTED_UI_URL =
   'https://link-foundation.github.io/meta-sovereign/';
 
-import { BEACON_PATH, BEACON_WIDTH, DEFAULT_PORTS } from '../web/discover.js';
+import {
+  BEACON_PATH,
+  BEACON_WIDTH,
+  DEFAULT_PORTS,
+} from '../web/discovery-constants.js';
 
 const OFF = new Set(['0', 'false', 'off', 'no', 'none']);
 

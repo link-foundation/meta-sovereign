@@ -1,0 +1,26 @@
+{
+  "archive": "ci-optional-model-render.tar.gz",
+  "files": {
+    "ci-logs/ci-answer-model-build.log": "b3323293302740b093c4909d30a27911d455a4ceaf0630b7d5cbbe4de9417482",
+    "ci-logs/ci-answer-model-parent-ci.json": "61d5f2ef0be3928d46e114c40fad950ed8c3ba71e1ef8e4cd8b2039fbf35f6c0",
+    "ci-logs/ci-answer-model-render-after.log": "5b590696beff721e1ba86d29154b32b2c0aaba76a6aeb415f57fb2b06db17f4b",
+    "ci-logs/ci-answer-model-render-before.log": "a4a3d3c57115e077059b418f52d82b65d717b6273271764714df847000c0098c",
+    "ci-logs/ci-answer-model-render-deno.log": "c8dec5e28ec80b8264b90bd0c39c3ce1a210acf2caab3a160a94dca212863044",
+    "ci-logs/ci-answer-model-render-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-answer-model-render-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-answer-model-runs.json": "9a265bb3ab951b80bdf246e191195c25124bb9fbf26bc345d291a919e0d8ee87",
+    "ci-logs/resume-profile-parent-job-130187500005.log": "b87f657ad8a060328ff76d365414ea7281b28a7f464a12cf0db743580b45e9b1",
+    "ci-logs/resume-profile-parent-job-130187500063.log": "2eae01f35edc8ad8fd1eeb97e7c200e93ea3cacfee66fc4688cc57d256af352a",
+    "ci-logs/resume-profile-parent-job-130187500074.log": "7cec1bda502adfe822d938f46811e12dffa5f879435e4ca4d88ba0711c30eb4c",
+    "ci-logs/resume-profile-parent-job-130187500131.log": "9eee8a43459b66a257c524db1e97d4ee8119e8d946c2ab9eb346d4f7cab0746c",
+    "ci-logs/resume-profile-parent-job-130187500183.log": "34ea70ada46119d48c7f01cdbc330a69b33f7e42a9abd2483125c5dfef09e6f2",
+    "ci-logs/resume-profile-parent-job-130187500226.log": "b33bf6a3c8104b4b45edbe5c2064a5083e65a3a3138fad65aba439ad8c477a22",
+    "ci-logs/resume-profile-parent-job-130187500237.log": "79b7435905516da9e207c7d37b1b11e6b7d6b7469db4bbff085a0b11b37618f7",
+    "ci-logs/resume-profile-parent-job-130187500302.log": "56b97ced3a37144abbcbee8885aac974e6d6f77a349b22f3ea536ecb68714ec5",
+    "ci-logs/resume-profile-parent-job-130187500386.log": "03e30600f7d0b1879d21de5576a063bd2461b2e8ce3ef211edf4dfd2b1035dab",
+    "docs/case-studies/issue-56/ci-optional-model-render.md": "057d0c3fd823987d8244226af354bf753dfbaa32fb7ce0788c020917fefd8271",
+    "js/src/web/question-controls.js": "66216f09daa38057ef8911bab6db4d7139023b528fcee17293aef3119980204d",
+    "js/tests/automations-view.test.js": "d2459d2f7f2aefee09391c3cc52f00734bd26f8437a00e4a07a5d27bb8e8f649",
+    "js/tests/autopilot-views.test.js": "40340761a8bbcf64d7320d9691f2fee6914b953f941a0788fe35d1e311a87aa4"
+  }
+}

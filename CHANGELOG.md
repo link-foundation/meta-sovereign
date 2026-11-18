@@ -4,6 +4,37 @@
 
 ### Minor Changes
 
+- Carry explicit final-period preferences through form CLI plans, reviewed
+  application and automatic prefill. Bind recovery to the original preference,
+  preserving owner edits and manual submission.
+
+- Combine observed final-period variants across eligible exact-question rules.
+  Preserve provider/chat, approval and correction boundaries; require review
+  when observation evidence overlaps under either punctuation policy.
+
+- Retain the resolved final-period preference through browser inspection, watched
+  draft preparation, unread processing and confirmed automation delivery. Support
+  isolated CLI/environment/Lino configuration without erasing saved action settings
+  or rewriting shared policy and raw answer observations.
+
+- Add explicit automatic current-page prefilling to multi-URL form reviews and
+  owned Lino sessions and localized Forms controls. Freeze interrupted requests
+  for recovery with their original settings. Preserve owner answers and verify
+  configured or selected PDFs,
+  retain provenance and recover receipts without repeating writes. Keep page
+  navigation and form submission under owner control. Wait up to 30 minutes
+  for manual CAPTCHA verification, exclude challenge data from answers and
+  resume through fresh guarded inspection with read-only status recovery.
+
+- Add configurable question similarity/case and paged ranked-match inspection
+  across CLI, Lino, automation and Forms controls. Preserve subject guards,
+  configured context templates and owner answers. Prevent model reloads from
+  overwriting edits and failed backup streams from leaving temporary files.
+
+- Add reviewed vacancy/form minimum-pay guidance with a separate comfortable rate,
+  visible introduction priority, per-frame context and explicit source evidence.
+  Preserve owner answers and exclude vacancy-specific pay from reusable learning.
+
 - Show Telegram sign-in requirements and broken/reconnecting transport states
   before the saved-session flag, keeping Connections status accurate during recovery.
 

@@ -13,6 +13,8 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
 import { createFakeVk, userMethods, FAKE_VK_BASE } from './helpers/fake-vk.js';
 import { fakePph, fakeUpwork } from './helpers/fake-marketplaces.js';
+import { hhCommonFixture } from '../../experiments/issue-56/hh-common-fixture.mjs';
+import { verifyHhCommon } from './helpers/e2e-hh-common.mjs';
 
 const store = createMemoryStore();
 await store.put({
@@ -84,10 +86,14 @@ const fakeVk = createFakeVk({
   }),
 });
 
+const hh = hhCommonFixture();
+let pullNow = Date.now();
 const { page, base, until, finish } = await openChatApp('inbox-pull', {
   store,
   serverOptions: {
     pulls: {
+      hh: { ...hh, maxRequests: 2 },
+      now: () => pullNow,
       vk: {
         fetchImpl: fakeVk.fetchImpl,
         baseUrl: FAKE_VK_BASE,
@@ -160,7 +166,7 @@ const fetchSteps = async () => {
 };
 
 const mediaSteps = async () => {
-  await page.goto(`${base}/`);
+  await page.goto(`${base}/#/chat`);
   await page.locator('[data-chat="vk:7"]').click();
   const media = page.locator('[data-remote-media]');
   await media.waitFor({ timeout: 5000 });
@@ -199,4 +205,14 @@ const mediaSteps = async () => {
 await finish(async () => {
   await fetchSteps();
   await mediaSteps();
+  await verifyHhCommon({
+    page,
+    base,
+    store,
+    until,
+    fake: hh,
+    advance: () => {
+      pullNow += 16000;
+    },
+  });
 });

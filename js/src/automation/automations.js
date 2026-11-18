@@ -1,3 +1,12 @@
+import { personalReplyPreset } from './personal-reply.js';
+import {
+  contextualReplyKinds,
+  catalogReplyKinds,
+  personalReplyKinds,
+  contextualReplyPresets,
+  recognizesContextualReply,
+  contextualReplyDraft,
+} from './contextual-replies.js';
 /**
  * Automations (issue #31, PR #34): user-configurable rules of the form
  * "trigger → audience → conditions → action", after the triggers of
@@ -30,6 +39,7 @@
  * sending lives in `./runner.js`.
  */
 
+import { acceptedSummariesFromLinks } from './question-summary-choice.js';
 import {
   addressRulesFromPatterns,
   defaultAddressRules,
@@ -51,6 +61,30 @@ import {
 } from '../crm/reengage.js';
 
 import { OUTBOX_PREFIX } from './outbox.js';
+import { identityQuestionForm } from '../crm/identity-question.js';
+import { identityDraft } from './identity.js';
+import {
+  acquaintanceDraft,
+  isAcquaintanceQuestion,
+  acquaintanceAlternatives,
+  acquaintanceText,
+} from './acquaintance.js';
+import {
+  gratitudeDraft,
+  gratitudeOptions,
+  isGratitudeMessage,
+} from './gratitude.js';
+import {
+  normalizeAnswerAction,
+  planAnswer,
+  QA_RULE_PREFIX,
+} from './question-answers.js';
+import { QA_POLICY_ID } from './question-policy.js';
+import { resolveAnswerProfile } from './question-profiles.js';
+import { answerEnvironmentFromMessages } from './question-context.js';
+import { chatQuestionTurn, chatAnswerAction } from './question-chat-turn.js';
+import { asksQuestion } from './question-match.js';
+import { historyOrder } from '../replies/history-order.js';
 import {
   SETTINGS_ID,
   normalizeSettings,
@@ -131,6 +165,12 @@ const normalizeTrigger = (trigger) => {
     return { kind, every: trigger.every };
   }
   if (kind === 'incoming') {
+    if (personalReplyKinds.includes(trigger.recognizer)) {
+      return { kind, recognizer: trigger.recognizer };
+    }
+    if (trigger.recognizer) {
+      throw new Error(`unknown incoming recognizer "${trigger.recognizer}"`);
+    }
     const pattern = String(trigger.pattern ?? '');
     const flags = String(trigger.flags ?? 'iu');
     safeRegExp(pattern, flags);
@@ -141,8 +181,20 @@ const normalizeTrigger = (trigger) => {
 
 const normalizeAction = (action = {}) => {
   const kind = action.kind ?? 'send-template';
-  if (kind !== 'send-template') {
-    throw new Error(`unknown action "${kind}"; known: send-template`);
+  if (kind === 'answer-questions') {
+    return normalizeAnswerAction(action);
+  }
+  if (
+    ![
+      'send-template',
+      'reply-gratitude',
+      'reply-identity',
+      ...catalogReplyKinds.map((key) => `reply-${key}`),
+    ].includes(kind)
+  ) {
+    throw new Error(
+      `unknown action "${kind}"; known: send-template, ${personalReplyKinds.map((name) => `reply-${name}`).join(', ')}, answer-questions`
+    );
   }
   const form = action.form ?? 'auto';
   if (!ADDRESS_CHOICES.includes(form)) {
@@ -163,6 +215,17 @@ const normalizeAction = (action = {}) => {
     templates,
     form,
     fallbackForm: action.fallbackForm ?? 'formal',
+    ...(kind === 'reply-gratitude' ? gratitudeOptions(action) : {}),
+    ...(kind === 'reply-engagement'
+      ? gratitudeOptions({
+          ...action,
+          preferSticker: true,
+          stickerIds: action.stickerIds ?? ['59431'],
+        })
+      : {}),
+    ...(catalogReplyKinds.some((key) => kind === `reply-${key}`)
+      ? { alternatives: acquaintanceAlternatives(action.alternatives) }
+      : {}),
   };
 };
 
@@ -211,8 +274,23 @@ export const hasTrigger = (automation, kind) =>
   automation.triggers.some((t) => t.kind === kind);
 
 /** The `incoming` trigger whose pattern matches `text`, if any. */
-export const incomingTrigger = (automation, text) =>
+export const incomingTrigger = (automation, text, message = {}) =>
   automation.triggers.find((t) => {
+    if (t.kind === 'incoming' && contextualReplyKinds.includes(t.recognizer)) {
+      return recognizesContextualReply(t.recognizer, {
+        ...message,
+        body: text,
+      });
+    }
+    if (t.kind === 'incoming' && t.recognizer === 'acquaintance') {
+      return isAcquaintanceQuestion(text);
+    }
+    if (t.kind === 'incoming' && t.recognizer === 'identity') {
+      return Boolean(identityQuestionForm(text));
+    }
+    if (t.kind === 'incoming' && t.recognizer === 'gratitude') {
+      return isGratitudeMessage({ ...message, body: text });
+    }
     // A stored pattern that cannot be used (too long, invalid) never fires;
     // one that runs too long counts as no match (R-Z1, ReDoS).
     const regex = t.kind === 'incoming' && safeRegExpOrNull(t.pattern, t.flags);
@@ -296,6 +374,34 @@ export const automationPresets = () =>
       conditions: { mutual: false, cooldownDays: 1 },
       action: { templates: PRESET_TEXTS.greeting },
     },
+    personalReplyPreset(
+      'gratitude',
+      'Reply to gratitude',
+      'Review a reply to a personal VK gratitude message or sticker; choose stickers or your formal and informal texts.',
+      {
+        informal: 'Пожалуйста! Рад тебе помочь.',
+        formal: 'Пожалуйста! Рад Вам помочь.',
+      }
+    ),
+    personalReplyPreset(
+      'identity',
+      'Reply to identity questions',
+      'Review your formal or informal reply to a personal VK “who are you?” question. Its address form is learned from incoming history.',
+      {
+        informal: 'Я программист, а ты?',
+        formal: 'Я программист, а Вы?',
+      }
+    ),
+    personalReplyPreset(
+      'acquaintance',
+      'Reply to acquaintance questions',
+      'Review your introduction when a personal VK contact asks whether you know each other. Reply at most once a day by default.',
+      {
+        informal: 'Пока не знакомы. Я программист, а ты?',
+        formal: 'Пока не знакомы. Я программист, а Вы?',
+      }
+    ),
+    ...contextualReplyPresets(),
   ].map(normalizeAutomation);
 
 // ---- planning --------------------------------------------------------
@@ -504,12 +610,16 @@ export const draftFor = (automation, candidate, { isSelf, rules }) => {
 
 /** Re-render a draft in the other form when the user overrides it. */
 export const redraftWithForm = (automation, draft, form) => {
-  const text = renderReengageText(
-    templateFor(automation.action.templates, form),
-    draft
-  );
+  if (automation.action.kind === 'answer-questions') {
+    return { ...draft, form };
+  }
+  const proof = catalogReplyKinds.map((key) => draft[key]).find(Boolean);
+  const text = proof
+    ? acquaintanceText(automation, draft, form, proof.message)
+    : renderReengageText(templateFor(automation.action.templates, form), draft);
   return {
     ...draft,
+    ...(draft.gratitude ? { sticker: undefined } : {}),
     form,
     text,
     edited: Boolean(automation.edited?.includes(form)),
@@ -538,13 +648,89 @@ const ledgerContext = (links, automation) => ({
   settings: normalizeSettings(links.find((l) => l?.id === SETTINGS_ID) ?? {}),
 });
 
-export const planAutomation = (links = [], input, options = {}) => {
-  const automation = plannedAutomation(input);
-  const now = toMs(options.now) ?? Number(options.now ?? Date.now());
+const answerDraft = (
+  automation,
+  candidate,
+  {
+    self,
+    answerRules,
+    answerPolicy,
+    acceptedSummaries,
+    savedAutomation,
+    now,
+    modelCandidates,
+  }
+) => {
+  const messages = candidate.messages.toSorted(historyOrder);
+  const selected = chatQuestionTurn(messages, self);
+  if (selected.reason) {
+    return selected;
+  }
+  const { latest, question, turn, pendingMessages } = selected;
+  const answer = planAnswer(question, {
+    now,
+    rules: answerRules,
+    acceptedSummaries,
+    policy: answerPolicy,
+    ...chatAnswerAction(automation.action),
+    ...answerEnvironmentFromMessages(messages, latest, turn.owners),
+    source: candidate.source,
+    chat: String(candidate.chat),
+    options: latest.answerOptions,
+    strictOptions: latest.strictOptions,
+    pendingMessages,
+  });
+  if (
+    !answer.text &&
+    !(
+      modelCandidates &&
+      automation.action.modelDraft &&
+      !answer.noReply &&
+      !answer.optionPending &&
+      asksQuestion(question)
+    )
+  ) {
+    return {
+      reason: answer.noReply
+        ? answer.notice
+          ? 'notice-no-reply'
+          : 'question-summary-complete'
+        : 'question-unanswered',
+      answer,
+    };
+  }
+  const { messages: _messages, ...summary } = candidate;
+  return {
+    draft: {
+      ...summary,
+      id: draftId(automation, candidate),
+      automation: automation.id,
+      automationName: automation.name,
+      form: 'neutral',
+      addressForm: { form: 'neutral', reason: 'answer' },
+      text: answer.text,
+      answer: { ...answer, turn, message: latest.id, savedAutomation },
+      edited: false,
+      prefill: prefillLinkFor({ ...candidate, text: answer.text }),
+    },
+  };
+};
+
+const selectedAnswerRules = (links, action) =>
+  links.filter(
+    (link) =>
+      link?.id?.startsWith(QA_RULE_PREFIX) &&
+      (!action.ruleIds?.length || action.ruleIds.includes(link.id))
+  );
+
+const planningContext = (links, automation, options, now) => {
   const { contacts, selfIds, isSelf } = findDormantContacts(links, {
     now,
     days: 0,
-    self: options.self ?? [],
+    self:
+      automation.action.kind === 'answer-questions'
+        ? ['me', ...(options.self ?? [])]
+        : (options.self ?? []),
     requireMutual: false,
   });
   const ctx = {
@@ -555,8 +741,45 @@ export const planAutomation = (links = [], input, options = {}) => {
     targets: options.targets ?? null,
     test: Boolean(options.test && options.targets),
     resolveAudience: options.resolveAudience ?? null,
+    answerRules: selectedAnswerRules(links, automation.action),
+    answerPolicy: links.find((link) => link?.id === QA_POLICY_ID) ?? {},
+    acceptedSummaries:
+      automation.action.kind === 'answer-questions'
+        ? (options.acceptedSummaries ??
+          acceptedSummariesFromLinks(links, [...selfIds]))
+        : undefined,
+    savedAutomation: links.some((link) => link?.id === automation.id),
+    modelCandidates: options.modelCandidates === true,
     ...ledgerContext(links, automation),
   };
+  return { ctx, selfIds, isSelf };
+};
+
+const personalReplyBuilders = new Map([
+  ['reply-gratitude', gratitudeDraft],
+  ['reply-identity', identityDraft],
+  ['reply-acquaintance', acquaintanceDraft],
+  ...[...contextualReplyKinds, 'engagement'].map((key) => [
+    `reply-${key}`,
+    contextualReplyDraft,
+  ]),
+]);
+
+export const planAutomation = (links = [], input, options = {}) => {
+  const automation = plannedAutomation(input);
+  if (automation.action.kind === 'answer-questions') {
+    automation.action = resolveAnswerProfile(
+      automation.action,
+      links.find((link) => link?.id === automation.action.profileId)
+    );
+  }
+  const now = toMs(options.now) ?? Number(options.now ?? Date.now());
+  const { ctx, selfIds, isSelf } = planningContext(
+    links,
+    automation,
+    options,
+    now
+  );
   const rules = [...defaultAddressRules, ...addressRulesFromPatterns(links)];
   const drafts = [];
   const excluded = [];
@@ -570,7 +793,37 @@ export const planAutomation = (links = [], input, options = {}) => {
     if (reason) {
       excluded.push({ key: candidate.key, name: candidate.name, reason });
     } else {
-      drafts.push(draftFor(automation, candidate, { isSelf, rules }));
+      if (automation.action.kind === 'answer-questions') {
+        const result = answerDraft(automation, candidate, ctx);
+        if (result.draft) {
+          drafts.push(result.draft);
+        } else {
+          excluded.push({
+            key: candidate.key,
+            name: candidate.name,
+            ...result,
+          });
+        }
+      } else if (personalReplyBuilders.has(automation.action.kind)) {
+        const build = personalReplyBuilders.get(automation.action.kind);
+        const result = build(
+          automation,
+          candidate,
+          draftFor(automation, candidate, { isSelf, rules }),
+          isSelf
+        );
+        if (result.draft) {
+          drafts.push(result.draft);
+        } else {
+          excluded.push({
+            key: candidate.key,
+            name: candidate.name,
+            reason: result.reason,
+          });
+        }
+      } else {
+        drafts.push(draftFor(automation, candidate, { isSelf, rules }));
+      }
     }
   }
   const limit = Number(options.limit ?? automation.limit);
@@ -621,7 +874,14 @@ export const templateFromText = (text, draft = {}) => {
 
 /** The automation with the user's edited templates in place of its own. */
 export const withEdit = (automation, edit) =>
-  edit?.templates && Object.keys(edit.templates).length > 0
+  [
+    'send-template',
+    'reply-gratitude',
+    'reply-identity',
+    ...catalogReplyKinds.map((key) => `reply-${key}`),
+  ].includes(automation.action.kind) &&
+  edit?.templates &&
+  Object.keys(edit.templates).length > 0
     ? {
         ...automation,
         edited: Object.keys(edit.templates),
@@ -634,8 +894,14 @@ export const withEdit = (automation, edit) =>
 
 /** The edit link after the user sent `text` (null: nothing to keep). */
 export const editAfterSend = (automation, before, draft, text, at) => {
+  if (automation.action.kind === 'answer-questions' || draft.sticker) {
+    return null;
+  }
   const original = automation.action.templates;
-  const rendered = renderReengageText(templateFor(original, draft.form), draft);
+  const proof = catalogReplyKinds.map((key) => draft[key]).find(Boolean);
+  const rendered = proof
+    ? acquaintanceText(automation, draft, draft.form, proof.message)
+    : renderReengageText(templateFor(original, draft.form), draft);
   const templates = { ...(before?.templates ?? {}) };
   if (String(text).trim() === rendered.trim()) {
     // Sent as the automation wrote it: its own text stands again.

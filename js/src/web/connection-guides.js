@@ -432,7 +432,7 @@ export const providerCatalogue = {
     archive: {
       title: 'Import an hh.ru negotiations archive',
       titleKey: 'connections.hh.archive.title',
-      hint: 'Open https://hh.ru/applicant/negotiations, use the JSON export, save the file and load it here.',
+      hint: 'Import a JSON file containing actual negotiation messages that you have already obtained. A negotiation list alone contains no message history. For live history, enter an API token and choose Fetch now.',
       hintKey: 'connections.hh.archive.hint',
       fileHint: 'negotiations.json',
       accept: '.json,application/json',
@@ -441,7 +441,7 @@ export const providerCatalogue = {
       title: 'Connect the hh.ru API',
       titleKey: 'connections.hh.api.title',
       envVar: 'HH_ACCESS_TOKEN',
-      hint: 'Register an app at https://dev.hh.ru/, run the OAuth2 client-credentials/authorisation-code flow and paste the access token as "secret:hh:token".',
+      hint: 'Register an app at https://dev.hh.ru/, authorize your HH account with OAuth and paste the user access token below. Chat access depends on app and account permissions.',
       hintKey: 'connections.hh.api.hint',
       docsUrl: 'https://github.com/hhru/api',
       apiBase: 'https://api.hh.ru',
@@ -989,6 +989,13 @@ export const connectionGuides = {
     bodyKey: 'guide.cv.body',
     providers: ['linkedin', 'hh', 'naukri', 'vietnamworks', 'topcv'],
     connectFirst: { providerId: 'linkedin' },
+  },
+  forms: {
+    title: 'Form inspection',
+    titleKey: 'forms.title',
+    body: 'Read visible questions and current values in an isolated browser slot. Inspection leaves answers unchanged and closes its browser when finished.',
+    bodyKey: 'forms.hint',
+    providers: [],
   },
   greetings: {
     title: 'Greetings',

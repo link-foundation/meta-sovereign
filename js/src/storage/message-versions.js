@@ -3,7 +3,10 @@
 // on a write or create versions for read receipts, counters or tombstones.
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
+import { changedLink, replicatedMutation } from './mutation.js';
+import { syncRecords } from './sync-deletions.js';
 import { isTombstone } from './soft-delete.js';
+import { SYNC_STAMP } from '../sync/register.js';
 
 export const VERSION_PREFIX = 'message-version:';
 export const isMessageVersion = (link) => link?.kind === 'message-version';
@@ -96,7 +99,12 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     }
     const before = await inner.get(link.id);
     const immutable = (record) => {
-      const { assets: _assets, ...rest } = record;
+      const {
+        assets: _assets,
+        vc: _clock,
+        [SYNC_STAMP]: _stamp,
+        ...rest
+      } = record;
       return rest;
     };
     if (before && !isDeepStrictEqual(immutable(before), immutable(link))) {
@@ -148,17 +156,20 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       versionPartial: partial,
     };
   };
-  return async (links, single = false) => {
+  return async (links, single = false, options) => {
     const pending = new Map();
     const writes = [];
     const history = [];
     const after = [];
-    const output = [];
     for (const link of links) {
-      if (!isMessage(link)) {
-        await guard(link);
+      if (
+        !isMessage(link) ||
+        (inner[syncRecords] && options?.[replicatedMutation])
+      ) {
+        if (!isMessage(link)) {
+          await guard(link);
+        }
         writes.push(link);
-        output.push(link);
         continue;
       }
       const before = pending.get(link.id) ?? (await inner.get(link.id));
@@ -182,20 +193,21 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
       }
       pending.set(link.id, next);
       writes.push(next);
-      output.push(next);
     }
     const write = async (records, one = false) => {
       if (!records.length) {
-        return;
+        return [];
       }
       if (one && records.length === 1) {
-        await inner.put(records[0]);
+        return [await inner.put(records[0], options)];
       } else if (inner.putMany) {
-        await inner.putMany(records);
+        return inner.putMany(records, options);
       } else {
+        const output = [];
         for (const record of records) {
-          await inner.put(record);
+          output.push(await inner.put(record, options));
         }
+        return output;
       }
     };
     await write(history);
@@ -203,7 +215,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
     for (const finish of after) {
       await finish();
     }
-    await write(writes, single);
+    const output = await write(writes, single);
     indexVersions(writes);
     return output;
   };
@@ -258,29 +270,55 @@ export const withMessageVersions = (
     {},
     Object.getOwnPropertyDescriptors(inner)
   );
-  result.put = (link) =>
-    isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
-      ? enqueue(async () => (await prepare([link], true))[0])
-      : inner.put(link);
-  result.putMany = (links) =>
+  // Causal production peers replicate the origin's immutable revision records
+  // separately. Generating new revisions from a delayed losing message could
+  // retain text that its causal hard-delete has already erased.
+  const originHistory = (options) =>
+    inner[syncRecords] && options?.[replicatedMutation];
+  result.put = (link, options) =>
+    originHistory(options) && isMessage(link)
+      ? enqueue(() => inner.put(link, options))
+      : isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
+        ? enqueue(async () => (await prepare([link], true, options))[0])
+        : inner.put(link, options);
+  result.update = (id, change, options) =>
+    originHistory(options) && String(id).startsWith('msg:')
+      ? enqueue(() => inner.update(id, change, options))
+      : String(id).startsWith('msg:') || String(id).startsWith(VERSION_PREFIX)
+        ? enqueue(async () => {
+            const next = changedLink(id, change, await inner.get(id));
+            return (await prepare([next], true, options))[0];
+          })
+        : inner.update(id, change, options);
+  result.putMany = (links, options) =>
     links.some(
       (link) => isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
     )
-      ? enqueue(() => prepare(links))
+      ? enqueue(() => prepare(links, false, options))
       : inner.putMany
-        ? inner.putMany(links)
-        : Promise.all(links.map((link) => inner.put(link)));
-  result.delete = (id) =>
+        ? inner.putMany(links, options)
+        : Promise.all(links.map((link) => inner.put(link, options)));
+  result.delete = (id, options) =>
     !String(id).startsWith('msg:')
-      ? inner.delete(id)
+      ? inner.delete(id, options)
       : enqueue(async () => {
+          // Validate and merge an incoming deletion before erasing revisions.
+          // A delayed deletion can lose to an explicit recreation; malformed
+          // metadata must not erase any current message history either.
+          let removed;
+          if (originHistory(options)) {
+            removed = await inner.delete(id, options);
+            if (await inner.get(id)) {
+              return removed;
+            }
+          }
           // Hard deletion is already an explicitly confirmed local operation. Its
           // saved text must be erased too, rather than left as hidden revision links.
           const records = await versionsFor(id);
           for (const record of records) {
-            await inner.delete(record.id);
+            await inner.delete(record.id, options);
           }
-          const removed = await inner.delete(id);
+          removed ??= await inner.delete(id, options);
           versionIds.delete(id);
           await purgeMedia(records, inner);
           return removed;

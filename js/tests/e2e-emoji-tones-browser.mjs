@@ -1,3 +1,4 @@
+import { fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for the emoji skin tones (R-Y114): emoji that take a
 // tone carry a mark; a right click or a held press opens the six
 // variants; a pick goes in at the caret and the tone is remembered (in
@@ -60,7 +61,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(body),

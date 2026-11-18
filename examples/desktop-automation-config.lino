@@ -1,0 +1,70 @@
+configuration:
+  server configuration_server
+  automations configuration_automations
+
+configuration_server:
+  localUi true
+  verbose false
+
+configuration_automations:
+  vk configuration_automations_vk
+
+configuration_automations_vk:
+  online configuration_automations_vk_online
+  friends configuration_automations_vk_friends
+  cleanup configuration_automations_vk_cleanup
+  outgoing configuration_automations_vk_outgoing
+  wall configuration_automations_vk_wall
+  birthday configuration_automations_vk_birthday
+
+configuration_automations_vk_online:
+  enabled false
+  everyMinutes 5
+
+configuration_automations_vk_friends:
+  acceptancePolicy desktop-configured
+  topPercentMutuals 10
+  maxFriends 10000
+  everyMinutes 31
+  batchSize 2
+  priorityIds configuration_automations_vk_friends_priorityIds
+  enabled false
+
+configuration_automations_vk_friends_priorityIds:
+  7
+  8
+
+configuration_automations_vk_cleanup:
+  everyMinutes 41
+  limit 3
+  priorityIds configuration_automations_vk_cleanup_priorityIds
+  enabled false
+
+configuration_automations_vk_cleanup_priorityIds:
+  8
+
+configuration_automations_vk_outgoing:
+  everyMinutes 11
+  limit 2
+  priorityIds configuration_automations_vk_outgoing_priorityIds
+  enabled false
+
+configuration_automations_vk_outgoing_priorityIds:
+  9
+
+configuration_automations_vk_wall:
+  everyMinutes 9
+  communities configuration_automations_vk_wall_communities
+  enabled false
+
+configuration_automations_vk_wall_communities:
+  100
+  101
+
+configuration_automations_vk_birthday:
+  everyMinutes 1380
+  messages configuration_automations_vk_birthday_messages
+  enabled false
+
+configuration_automations_vk_birthday_messages:
+  'Happy birthday!'

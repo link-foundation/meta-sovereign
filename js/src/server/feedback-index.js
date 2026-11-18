@@ -86,7 +86,9 @@ export const createFeedbackIndex = (store, log) => {
     }
   };
   const observeAuthors = (link, deleted) => {
-    const id = link.messageId;
+    const id =
+      link.messageId ??
+      (deleted ? link.id.slice(FEEDBACK_AUTHORS_PREFIX.length) : undefined);
     if (deleted) {
       collected.delete(id);
     } else {
@@ -109,6 +111,11 @@ export const createFeedbackIndex = (store, log) => {
     }
     const data = link.feedback;
     const previous = rows.get(link.id);
+    if (deleted && previous) {
+      rows.set(link.id, { ...previous, deleted: true });
+      revision += 1;
+      return;
+    }
     if (!data && !previous) {
       return;
     }

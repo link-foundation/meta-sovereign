@@ -1,0 +1,114 @@
+export const zhFollowBacklink = {
+  'followBacklink.title': 'Follow：发布并检查回链',
+  'followBacklink.hint':
+    '先审核 Telegram 或 VK 邀请链接，再发布到选定的 Telegram 或 VK 群组。离开页面后，已连接的服务器会继续检查。结果不明的帖子将保留供核查，绝不会自动重发。',
+  'followBacklink.chats': '群组 ID，以逗号分隔（Telegram：-7；VK：2000000007）',
+  'followBacklink.backlink': '您的 Telegram 或 VK 邀请链接',
+  'followBacklink.monitorMs': '检查时长（毫秒）',
+  'followBacklink.intervalMs': '检查间隔（毫秒）',
+  'followBacklink.delayMs': '发布间隔（毫秒）',
+  'followBacklink.deleteIncoming': '确认回链仍存在后，仅为我删除收到的消息',
+  'followBacklink.historyLimit': '清理时检查的最近消息数（1–200）',
+  'followBacklink.attempts': '读取超时的尝试次数（1–10）',
+  'followBacklink.retryDelayMs': '首次重试等待（毫秒）',
+  'followBacklink.retryMaxDelayMs': '最长重试等待（毫秒）',
+  'followBacklink.preview': '审核发布',
+  'followBacklink.apply': '确认这些帖子和清理设置',
+  'followBacklink.list': '加载已保存的任务',
+  'followBacklink.status': '刷新结果',
+  'followBacklink.resume': '继续剩余的安全步骤',
+  'followBacklink.cancel': '停止剩余步骤',
+  'followBacklink.stopPreview': '停止预览',
+  'followBacklink.cancel-failed': '停止请求未确认。预览可能仍在运行，请重试。',
+  'followBacklink.working': '处理中…',
+  'followBacklink.review': '审核具体账号、群组和设置',
+  'followBacklink.owner': '{source} 账号 {owner}',
+  'followBacklink.window': '检查 {duration} 毫秒；每 {interval} 毫秒核查一次。',
+  'followBacklink.cleanupHint':
+    '确认回链仍存在后，检查最多 {limit} 条最近消息，并仅为此账号删除收到的消息。保留已发消息和服务消息。Telegram 仅在普通群组支持这种清理。',
+  'followBacklink.message': '消息 {id}',
+  'followBacklink.providerCode': 'VK 错误 {code}',
+  'followBacklink.cleanupResult': '清理：{status}；已确认删除 {count} 条。',
+  'followBacklink.skipNotice':
+    '最近的群聊提示要求等待另外五条链接。此已移除的帖子不会自动重发。',
+  'followBacklink.history':
+    '共 {count} 次已保存的运行。再次发布前请检查现有运行。',
+  'followBacklink.next': '下一页已保存的运行',
+  'followBacklink.queued': '排队中',
+  'followBacklink.running': '正在发布或检查',
+  'followBacklink.paused': '已暂停；已保留确认记录',
+  'followBacklink.confirmed': '已确认',
+  'followBacklink.rejected': '帖子已移除',
+  'followBacklink.unknown': '结果不明；继续前请核查',
+  'followBacklink.failed': '操作失败。已保留确认记录；请检查连接和平台权限。',
+  'followBacklink.ready': '待审核',
+  'followBacklink.sending': '已发出请求；等待确认',
+  'followBacklink.monitoring': '已确认送达；正在检查是否仍存在',
+  'followBacklink.survived': '检查期结束后仍存在',
+  'followBacklink.skipped': '已跳过',
+  'followBacklink.bad-request': '请检查群组 ID、邀请链接、数值范围和重试设置。',
+  'followBacklink.not-connected': '请在此服务器连接所选平台的用户账号。',
+  'followBacklink.account-changed': '已连接账号发生变化。已保留现有确认记录。',
+  'followBacklink.not-writable': '其中一个选定群组无法发布消息。',
+  'followBacklink.provider-response':
+    '平台返回的确认记录不可用，无法认定成功。',
+  'followBacklink.timeout':
+    '配置的尝试次数后读取仍超时。可继续剩余的安全检查。',
+  'followBacklink.rate-limited': 'VK 正在限制请求。请稍后再继续检查。',
+  'followBacklink.captcha': 'VK 要求验证码。请在连接设置中完成。',
+  'followBacklink.provider-refused': '平台拒绝了此操作。请查看错误和权限。',
+  'followBacklink.outcome-unknown':
+    '无法确认写入结果。请核查已保存任务；系统不会自动重放。',
+  'followBacklink.read-failed': '检查失败。已保留结果；继续前请刷新。',
+  'followBacklink.follow-server-required':
+    '请连接已登录所选平台用户账号的服务器，以发布和检查链接。',
+  'followBacklink.busy': '此服务器已有回链任务运行。请先检查该任务。',
+  'followBacklink.plan-expired': '此次审核已过期或已使用。请重新审核设置。',
+  'followBacklink.not-running': '此任务当前未在此处运行。请刷新已保存结果。',
+  'followBacklink.unsupported': '此平台或连接无法执行该流程。',
+  'followBacklink.cancelled':
+    '已停止剩余步骤；已发出写入请求的实际结果将保留。',
+  'followBacklink.stopped': '服务器正在关闭；已保留确认记录。',
+  'followBacklink.not-found': '在已连接服务器上找不到此保存任务。',
+  'followBacklink.confirmation-required': '请先审核并明确确认此操作。',
+  'followBacklink.source': '用于发布的账号',
+  'followBacklink.providerError': 'Telegram 错误 {error}',
+  'followBacklink.user-account-required':
+    '请在此服务器连接 Telegram 用户账号。机器人账号无法执行此流程。',
+  'followBacklink.cleanup-unavailable':
+    'Telegram 仅在普通群组支持只为自己清理。请为频道或超级群组关闭清理。',
+  'followBacklink.flood-wait':
+    'Telegram 正在限制请求。请等待平台限制结束后再继续。',
+  'followBacklink.target-unavailable':
+    '无法找到群组。请先在 Follow 中加载，并检查成员资格和权限。',
+  'followBacklink.autoFollow': '发帖前自动加入收到的链接所指向的群聊',
+  'followBacklink.maxRetries': '已删除帖子的最大重试次数（0–10）',
+  'followBacklink.maxLinks': '每轮每个群聊的不同链接上限（1–100）',
+  'followBacklink.joinDelayMs': '处理每个链接后的间隔（毫秒）',
+  'followBacklink.followMute': '将加入的 Telegram 群聊静音',
+  'followBacklink.followArchive': '归档加入的 Telegram 群聊',
+  'followBacklink.autoPolicy':
+    '使用 {source} 账号 {owner} 加入群聊。每轮每个群聊最多读取 {messages} 条近期消息，处理 {links} 个不同的收到链接。只有已删除的帖子可以重试，最多 {retries} 次。每次重试都在这些限制内重新读取链接。',
+  'followBacklink.autoPreferences':
+    '加入的 Telegram 群聊：静音 {mute}；归档 {archive}。',
+  'followBacklink.autoVkPreferences':
+    '仅处理 VK 群聊成员资格。此流程不更改 VK 通知或归档设置。',
+  'followBacklink.followLimited':
+    '已达到设置的上限，可能还有更早的消息或其他链接。',
+  'followBacklink.followingResult': '已确认加入：{confirmed}/{total} 个链接。',
+  'followBacklink.previousAttempts': '先前被移除的发布（{count}）',
+  'followBacklink.round':
+    '发帖轮次 {round}；保留了 {previous} 条被删除的帖子。',
+  'followBacklink.inviteTarget': '邀请目标；加入后才可获取 ID',
+  'followBacklink.fromMessage': '来自收到的消息 {id}',
+  'followBacklink.enabled': '开启',
+  'followBacklink.disabled': '关闭',
+  'followBacklink.follow-incomplete':
+    '尚未完全确认加入。继续前请检查每个步骤；此群聊还未发布新回链。',
+  'followBacklink.preferences-unavailable': '此提供商不支持这些成员设置。',
+  'followBacklink.retry-limit':
+    '已达到设置的重试上限。被删除的帖子仍然保留，不计为成功。',
+  'followBacklink.wait-notice':
+    '剩余被删除的帖子因等待通知或重试上限而不再重试。',
+  'followBacklink.pending': '等待加入审批',
+};

@@ -1,7 +1,7 @@
 /**
  * Sending as the user (MTProto), the way Telegram's own apps do it.
  *
- *   - Exactly once: every message carries a `random_id`. Telegram drops a
+ *   - Deduplication: every raw message carries a `random_id`. Telegram drops a
  *     second request with the same one (RANDOM_ID_DUPLICATE), so a retry
  *     after a lost answer never posts twice. It is derived from the
  *     composer's `clientId`, so a retry of the same draft reuses it.
@@ -22,12 +22,14 @@
 
 import { createHash } from 'node:crypto';
 import { isTelegramConnectionError } from './telegram-connection-error.js';
-
 import {
-  apiEntities,
-  parseFormatted,
-  sliceFormatted,
-} from './telegram-format.js';
+  messageReceipt,
+  missingMessageReceipt,
+  libraryMessageReceipt,
+} from './telegram-message-receipt.js';
+
+import { apiEntities, sliceFormatted } from './telegram-format.js';
+import { telegramPostFormat } from './telegram-post-format.js';
 
 export const MAX_MESSAGE_LENGTH = 4096;
 
@@ -74,8 +76,8 @@ export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) =>
  * (./telegram-format.js), then split at the limit, each part with its
  * own entities.
  */
-export const formattedParts = (typed, max = MAX_MESSAGE_LENGTH) => {
-  const formatted = parseFormatted(typed);
+export const formattedParts = (typed, max = MAX_MESSAGE_LENGTH, format) => {
+  const formatted = telegramPostFormat(typed, format);
   return sliceFormatted(formatted, splitRanges(formatted.text, max));
 };
 
@@ -146,6 +148,14 @@ const otherSendError = (error) => {
 
 /** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
 export const sendError = (error) =>
+  (['opted-out', 'safety-settings-unavailable', 'stopped'].includes(error?.code)
+    ? error
+    : null) ??
+  (error?.code === 'send-unknown'
+    ? Object.assign(missingMessageReceipt(), {
+        ...(error.duplicate ? { duplicate: true } : {}),
+      })
+    : null) ??
   (isTelegramConnectionError(error)
     ? codeError('telegram-reconnect', errorText(error))
     : null) ??
@@ -289,6 +299,11 @@ const partRequest = (Api, { text, formatting, preview, ...fields }) => {
       });
 };
 
+const sendLibraryPart = async ({ beforeIssue, client, peer, ...fields }) => {
+  await beforeIssue?.();
+  return libraryMessageReceipt(await sendThroughLibrary(client, peer, fields));
+};
+
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
@@ -306,10 +321,14 @@ const sendPart = async ({
   when,
   preview = null,
   onResult,
+  beforeIssue,
 }) => {
   const formatting = apiEntities(Api, entities);
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
-    return sendThroughLibrary(client, peer, {
+    return sendLibraryPart({
+      beforeIssue,
+      client,
+      peer,
       text,
       formatting,
       replyTo,
@@ -328,18 +347,23 @@ const sendPart = async ({
     ...whenFields(when),
     ...replyHeader(Api, replyTo, replyQuote, topic),
   });
+  await beforeIssue?.();
   try {
     const result = await client.invoke(request);
-    onResult?.(result);
-    if (result?.className === 'UpdateShortSentMessage') {
-      return { id: result.id, date: result.date };
+    try {
+      onResult?.(result);
+    } catch {
+      // A local observer failure cannot prove that Telegram rejected a write.
+      throw missingMessageReceipt();
     }
-    return client._getResponseMessage?.(request, result, peer) ?? null;
+    return {
+      id: Number(messageReceipt(result, request)),
+      date: result?.date ?? null,
+    };
   } catch (error) {
     if (/RANDOM_ID_DUPLICATE/.test(errorText(error))) {
-      // Telegram already has this exact message (an earlier try got
-      // through): it is sent, we just do not know its id here.
-      return { id: null, duplicate: true };
+      // The random ID exists, but this answer supplies no message receipt.
+      throw Object.assign(missingMessageReceipt(), { duplicate: true });
     }
     throw error;
   }
@@ -356,7 +380,7 @@ const firstPartOnly = (index, { replyTo, replyQuote }) => ({
 
 /**
  * Send `text` to `peer`, part by part.
- * Returns `[{ id, date, text, entities, duplicate? }]`, one per part.
+ * Returns `[{ id, date, text, entities }]`, one per acknowledged part.
  */
 const recordSend = (log, fields) =>
   log?.({
@@ -376,6 +400,7 @@ export const sendText = async ({
   helpers,
   peer,
   text,
+  format,
   clientId,
   maxLength = MAX_MESSAGE_LENGTH,
   replyTo = null,
@@ -387,8 +412,9 @@ export const sendText = async ({
   preview = null,
   onResult,
   log,
+  beforeIssue,
 }) => {
-  const parts = formattedParts(text, maxLength);
+  const parts = formattedParts(text, maxLength, format);
   recordSend(log, {
     clientId,
     replyTo,
@@ -419,13 +445,27 @@ export const sendText = async ({
       },
       preview: previewOfPart(preview, index),
       onResult,
+      beforeIssue,
+    }).catch((error) => {
+      // A later refusal cannot make already accepted parts unsent. Stop here
+      // and require inspection of the chat before any whole-draft resend.
+      const failure = sent.length ? missingMessageReceipt() : error;
+      if (failure?.code === 'send-unknown') {
+        log?.({
+          level: 'debug',
+          event: 'telegram_send_unknown',
+          part: index + 1,
+          acknowledged: sent.length,
+          duplicate: Boolean(error?.duplicate),
+        });
+      }
+      throw failure;
     });
     sent.push({
-      id: message?.id ?? null,
-      date: message?.date ?? null,
+      id: message.id,
+      date: message.date,
       text: part.text,
       entities: part.entities,
-      ...(message?.duplicate ? { duplicate: true } : {}),
     });
   }
   return sent;

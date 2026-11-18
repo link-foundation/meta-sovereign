@@ -1,0 +1,20 @@
+{
+  "archive": "cache-action-audit.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "7001e20ef400e192b410914860f228724f5160e4bc152ba17e4885fb1387f6bf",
+    "ci-logs/cache-audit-after.log": "9a276dde18123ddb381621d395b19a1897de95d248f27d0677a211e6b36b4eec",
+    "ci-logs/cache-audit-before.log": "114cf7becac7c6617b68b6b2d05ea458e3f515fbdeac26c8e88e6640e49a5b2f",
+    "ci-logs/cache-audit-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/cache-audit-install.log": "dccf7e17663d96a10ecb4fb9d001cda97d5ff3743738df09153fde68c0d5e313",
+    "ci-logs/cache-audit-node.log": "b954cfbe883c9a3fd6bd5b46948177f361c0509cc8b1bc7cac4940ab3d87f35e",
+    "ci-logs/vk-token-ea0-audit.log": "53293c17e0a12a3e847326109d9d0c9b5dc7b5880244673aa2efe22c71f2f595",
+    "ci-logs/vk-token-ea0-jobs.json": "dfb632f7d9f846f7ae71064ee7fa698ba57705243c7acad2dc27403fe6af6782",
+    "docs/case-studies/issue-56/cache-action-audit.md": "e05071fb0508bac45c12f5d3e5d8eb943e4f7cd3af406d368be2377e0b719e2b",
+    "experiments/issue-56/cache-action-audit.py": "5c16e404e74954ad449ab64547c5f45cdd3d945b4645ab752c777e27fb325252",
+    "experiments/issue-56/collect-cache-action-audit.py": "4505346ccea3c12c4111a4b826eae794fe4a54d573b03711147583e96ec434db",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-cache-policy.test.js": "3498487a2c359329d1bfccd2819f01cb9d59864df45c465f63899a037283b518",
+    "before/.github/workflows/release.yml": "daf1d313f49069eddbef2b14260fabed18ccd69dfb669c40b69eeb3664aaa8e6",
+    "metadata.json": "ce24fd5bd093cc22a34565d79fa5d32411e3a9a854ec250ff187ba260e6e96f7"
+  }
+}

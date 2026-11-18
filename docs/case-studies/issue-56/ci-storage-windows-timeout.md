@@ -1,0 +1,55 @@
+# Windows durable storage timeouts
+
+The [45bb2376 workflow](https://github.com/link-foundation/meta-sovereign/actions/runs/44069711910)
+fails in Node Windows shard 2, job `133996283032`. Its preserved log lines
+3803–3821 identify five tests cancelled at their existing ten-second bounds:
+managed atomic receives, durable offline edit and deletion reconciliation,
+desktop friendship quota reopen, and real Lino friendship restart. There are
+2,302 passing tests, five cancellations and zero assertion failures in this job.
+
+The same five tests pass locally unchanged with one worker. A second focused
+run with native filesystem tracing also passes. Both managed dual stores and
+plain Lino stores are affected in the hosted log, so that evidence does not
+isolate the native mirror or a particular provider as the cause. The historical
+cause remains unconfirmed; a passing local retry does not resolve it.
+
+After a failed Node Windows test step, CI now runs only these five fixtures
+with one worker, existing storage debug checkpoints and Node's native
+filesystem trace. The trace records operation entry and completion separately,
+including operations that never reach the next application checkpoint. It is
+retained for seven days as a diagnostic artifact. Failed setup steps do not
+trigger the retry. The original test step still fails, and its assertions,
+concurrency, partitions and deadlines are unchanged. This diagnostic is off on
+normal passing runs and does not run a full suite again.
+
+The first diagnostic commit `40b4caaa` made `release.yml` 1,514 lines. Its
+[line-limit job](https://github.com/link-foundation/meta-sovereign/actions/runs/44074639134/job/134014093274)
+fails at preserved log lines 376–377. The Node shard and failure-only tracing
+now live together in a focused composite action; the workflow is 1,499 lines.
+The unchanged 1,500-line gate also checks composite actions. The shard contract
+verifies complete partitions, propagation of a failing test, unchanged test
+deadlines and diagnostic conditions. Node expands the quoted test glob to keep
+the Windows command line bounded. Twenty-two focused workflow checks pass.
+
+The next source `027b8575` passes the hosted line-limit check. Its
+[workflow contracts job](https://github.com/link-foundation/meta-sovereign/actions/runs/44077538834/job/134019951831)
+fails at log lines 644–650 because the cache policy still expects exactly one
+local-action exception. The extracted Node action is a second intentional
+consumer of the checked-out fresh merge. The policy now enumerates exactly
+`npm-cache` and `node-tests`, requires the explanation on both, and verifies
+that both run after fresh-merge preparation. The unchanged policy reproduces
+one failure with two passing controls; all three corrected policy tests pass.
+
+```sh
+node experiments/issue-56/storage-windows-timeout.mjs
+```
+
+The [checked archive](data/ci-storage-windows-timeout.tar.gz) retains the exact
+failed log, source/job identity, both focused local results, diagnostic source
+and verified native trace summaries. The five local process traces contain
+filesystem open/read/write/close and fsync events; all five JSON files parse.
+The raw traces remain diagnostic artifacts rather than accepted behavior.
+
+Hosted recurrence analysis, a demonstrated root cause and any necessary
+regression correction remain unfinished. All forty unchecked original criteria
+also remain required in [PR #57](https://github.com/link-foundation/meta-sovereign/pull/57).

@@ -9,6 +9,10 @@ on:
       - '**.html'
       - '.github/workflows/links.yml'
       - '.lycheeignore'
+      - 'lychee.toml'
+      - 'experiments/issue-56/lychee-host-pacing.py'
+      - 'experiments/issue-56/lychee-transient-retry.py'
+      - 'experiments/issue-56/lychee-cache-policy.py'
       - 'js/scripts/check-web-archive.mjs'
       - 'js/scripts/lychee-report.mjs'
       - 'js/scripts/wayback-state.mjs'
@@ -21,6 +25,10 @@ on:
       - '**.html'
       - '.github/workflows/links.yml'
       - '.lycheeignore'
+      - 'lychee.toml'
+      - 'experiments/issue-56/lychee-host-pacing.py'
+      - 'experiments/issue-56/lychee-transient-retry.py'
+      - 'experiments/issue-56/lychee-cache-policy.py'
       - 'js/scripts/check-web-archive.mjs'
       - 'js/scripts/lychee-report.mjs'
       - 'js/scripts/wayback-state.mjs'
@@ -53,20 +61,39 @@ jobs:
         with:
           persist-credentials: false
 
+      # Keep successful checks across runs, including partial failed runs.
+      # Native timestamps still expire after one day; errors are never reused.
+      - name: Restore previously verified links
+        id: link-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .lycheecache
+          key: ${{ runner.os }}-lychee-v1-${{ hashFiles('lychee.toml', '.lycheeignore', '.github/workflows/links.yml') }}-${{ github.ref }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ runner.os }}-lychee-v1-${{ hashFiles('lychee.toml', '.lycheeignore', '.github/workflows/links.yml') }}-${{ github.ref }}-
+
       - name: Check links with lychee
         id: lychee
         uses: lycheeverse/lychee-action@v2.9.0
         with:
+          # Stable 0.24.2 omits retries for rejected 408/5xx responses.
+          # Upstream merged the correction in lycheeverse/lychee#2324.
+          # Verify its actual native behavior below on every link-check run.
+          lycheeVersion: nightly
           # Check all Markdown and HTML files
           # Exclude case-studies directory - these are research documents from
           # external repos with references to files and issues that don't exist
           # in this repository (similar exclusion pattern as eslint.config.js)
           args: >-
+            --config lychee.toml
             --verbose
             --no-progress
             --cache
             --max-cache-age 1d
+            --cache-exclude-status '408,429,500..600'
+            --max-concurrency 4
             --max-retries 3
+            --retry-wait-time 2
             --timeout 30
             --exclude-path docs/case-studies
             --exclude-path dev/log
@@ -80,6 +107,24 @@ jobs:
           jobSummary: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify host pacing and strict failure handling
+        run: python3 -B experiments/issue-56/lychee-host-pacing.py "$RUNNER_TEMP/lychee/bin/lychee"
+
+      - name: Verify transient recovery and permanent failure handling
+        run: python3 -B experiments/issue-56/lychee-transient-retry.py "$RUNNER_TEMP/lychee/bin/lychee"
+
+      - name: Verify cache recovery, expiry and permanent failures
+        id: cache-policy
+        run: python3 -B experiments/issue-56/lychee-cache-policy.py "$RUNNER_TEMP/lychee/bin/lychee"
+
+      # Save before the strict failure below, even if some links failed.
+      - name: Preserve successful checks for the next run
+        if: ${{ !cancelled() && steps.cache-policy.outcome == 'success' && steps.lychee.outputs.exit_code != '' && hashFiles('.lycheecache') != '' }}
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .lycheecache
+          key: ${{ steps.link-cache.outputs.cache-primary-key }}
 
       - name: Check broken links against Web Archive
         if: steps.lychee.outputs.exit_code != 0

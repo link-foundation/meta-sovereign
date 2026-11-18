@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for managing a channel (R-Y216), as Telegram Desktop lets
 // its owner:
 // - Edit → Channel type: Public/Private, the link checked as it is typed,
@@ -84,14 +85,14 @@ await page.route('**/api/telegram/emoji-statuses', (route) =>
 // The link: "crowded_one" meets the limit until a link is revoked.
 let crowded = true;
 await page.route('**/api/telegram/channel-username-check', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.check.push(body);
   return body.username === 'crowded_one' && crowded
     ? fulfil(route, { ok: false, error: 'x', code: 'too-many-public' })
     : fulfil(route, { ok: true, status: 'available' });
 });
 await page.route('**/api/telegram/channel-username-save', (route) => {
-  calls.save.push(route.request().postDataJSON());
+  calls.save.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/public-channels', (route) =>
@@ -101,16 +102,16 @@ await page.route('**/api/telegram/public-channels', (route) =>
   })
 );
 await page.route('**/api/telegram/public-link-revoke', (route) => {
-  calls.revoke.push(route.request().postDataJSON());
+  calls.revoke.push(requestBody(route.request()));
   crowded = false;
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/channel-color-save', (route) => {
-  calls.color.push(route.request().postDataJSON());
+  calls.color.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/remove-chat', (route) => {
-  calls.destroy.push(route.request().postDataJSON());
+  calls.destroy.push(requestBody(route.request()));
   return fulfil(route, { ok: true, deleted: 0 });
 });
 
@@ -153,7 +154,7 @@ await page.route('**/api/telegram/inactive-channels', (route) =>
   })
 );
 await page.route('**/api/telegram/leave-channels', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.leave.push(body);
   return fulfil(route, { ok: true, left: body.chats });
 });

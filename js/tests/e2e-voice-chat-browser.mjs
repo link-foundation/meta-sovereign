@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for voice chats (R-Y188), as Telegram Desktop shows
 // them: the bar under the top bar with "Voice chat", the title, faces and
 // Join; a scheduled one with its start and "Notify me"; the panel with the
@@ -176,11 +177,11 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/call-info', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   return fulfil(route, { ok: true, call: CALLS[body.chat] ?? null });
 });
 await page.route('**/api/telegram/call-open', (route) => {
-  calls.push(['call-open', route.request().postDataJSON()]);
+  calls.push(['call-open', requestBody(route.request())]);
   const list = participants();
   return fulfil(route, {
     ok: true,
@@ -201,12 +202,12 @@ await page.route('**/api/telegram/call-join-as', (route) =>
 );
 for (const name of ['call-notify', 'call-leave', 'call-self']) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    calls.push([name, route.request().postDataJSON()]);
+    calls.push([name, requestBody(route.request())]);
     return fulfil(route, { ok: true, subscribed: true });
   });
 }
 await page.route('**/api/telegram/call-join', (route) => {
-  calls.push(['call-join', route.request().postDataJSON()]);
+  calls.push(['call-join', requestBody(route.request())]);
   return fulfil(route, { ok: true, connection: ANSWER, source: -1 });
 });
 

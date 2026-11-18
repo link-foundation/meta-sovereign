@@ -41,6 +41,7 @@ const releaseWith = (names, extra = {}) => ({
   prerelease: false,
   assets: names.map((name) => ({
     name,
+    state: 'uploaded',
     size: 1024 * 1024,
     browser_download_url: `${RELEASES_URL}/download/v${VERSION}/${name}`,
     uploader: { login: 'github-actions[bot]' },

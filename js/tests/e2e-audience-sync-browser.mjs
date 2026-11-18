@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the audience members button (R-Z7, R-X13): on the
 // Automation screen "Refresh members" asks the server to read the friends
 // and members the saved audiences name, and the page says how many came
@@ -23,7 +24,7 @@ const { base, page, until, finish } = await openChatApp('audience-sync', {
 });
 const asked = [];
 await page.route('**/api/audience/sync', (route) => {
-  asked.push(route.request().postDataJSON());
+  asked.push(requestBody(route.request()));
   return fulfil(route, {
     ok: false,
     sources: [

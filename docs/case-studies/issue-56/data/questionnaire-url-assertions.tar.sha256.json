@@ -1,0 +1,23 @@
+{
+  "archive": "questionnaire-url-assertions.tar.gz",
+  "files": {
+    "before/js/tests/question-assembly-context.test.js": "41d0702b14f9bae252d617850302b437ca8501ca2ff5e12af1551837c31f680d",
+    "before/js/tests/helpers/e2e-form-questionnaire.mjs": "1a465e61e22f1d7fd4a1ce92375b3348a5fae4d934b53feccb01744eaf92be05",
+    "before/experiments/issue-56/form-questionnaire-mcp.mjs": "6e11cc65e6410ee427be24c4c94f85a07cc34ce11ca7c2633f2ec9325bb93150",
+    "js/tests/question-assembly-context.test.js": "8c66b109685ddb78f70ea2f0798257db602fb126eda7f6d7ec80d3f2afa045bc",
+    "js/tests/helpers/e2e-form-questionnaire.mjs": "1e3919d229902e4d6f3a3df6920bf3dce591646b1a266ac0bbfe9b416dde4868",
+    "experiments/issue-56/form-questionnaire-mcp.mjs": "e45e533b1b4d1824d339e7db7fc3f3ccf1eb91641b92fc59ab89b63681847e2c",
+    "experiments/issue-56/collect-questionnaire-url-assertions.py": "5a84202076627a429af5512ae70b837a50e419fc5ca10b7794e6deed5e089f6c",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/questionnaire-url-assertions.md": "54a49063426b34b8cfd9285a4736dc202c3bafe68d054fd4db73cc3c5de97d32",
+    "ci-logs/hosted-3fee-security.json": "9395a447545dc63ffb76e74879687065dee28937c4287c999daecd456ee62928",
+    "ci-logs/hosted-3fee-codeql-alerts.json": "aff2529f37999b037ea9a948bbb2f13ad2a5bdb4c14e71d0c4ef5bc7c5a95842",
+    "ci-logs/hosted-3fee-codeql-js.log": "ed83f5e38ad6b2f588075577015ae08f9951287366656a1cabfe38ad71fb157b",
+    "ci-logs/questionnaire-url-assertion-browser.log": "de9985be630ae10caaf2b9196834e7499afdf0daa420b7ce7c6c7b4737b13113",
+    "ci-logs/questionnaire-url-assertion-format.log": "ca66ed11556c2b52b7065292338aa9ff5fb87c9aad9d74ed7cb080f7677b538b",
+    "ci-logs/questionnaire-url-assertion-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/questionnaire-url-assertion-docs-format.log": "0d337650feea61a737c8f109e5e79a787f963ea11c3e972ea75afb4d1aaf7373",
+    "ci-logs/questionnaire-url-assertion-node.log": "99fb2bb599144881685efc17ef7f186361236fa428d2a5754e7e6fd7824639e0",
+    "metadata.json": "b8a31596d0f0a8c932f01a57a2330f35c52f841047f468cd51a8f353ff72d70b"
+  }
+}

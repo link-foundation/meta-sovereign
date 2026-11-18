@@ -1,0 +1,26 @@
+{
+  "archive": "ci-legacy-cleanup.tar.gz",
+  "files": {
+    "ci-logs/hosted-c4ebc9de-134580700737.log": "eaff789620fd568d46edbfe266c46e0f7357bf351964cc2dce56531063df8048",
+    "ci-logs/hosted-c4ebc9de-134580701099.log": "1add11718d8747cdb30538c039ff59ab7a071e57edb1b3aa327cdd3999ab546f",
+    "ci-logs/hosted-c4ebc9de-134580701104.log": "77515700f9deb528f269a2007a2560387a5f2dc766c48e44dd16a92b9d977207",
+    "ci-logs/hosted-c4ebc9de-checks.json": "190f0ad04bfc5ba611dc208d8940e114c572fb2ec244fc71a5a5a7a069408280",
+    "ci-logs/legacy-cleanup-before-driver.log": "57d76ec01a2d9f3192f56030e396617618cd007e0ce6d84e4fc7060c2c21b21c",
+    "ci-logs/legacy-cleanup-before.log": "d6d38f22d6511b600d45a5d65ace7d45260cb5374bcc976803c671b8b25d60f6",
+    "ci-logs/legacy-cleanup-bun.log": "714da70effe01a9b0b00d7d8dfd7de166e334339359ce79f9a9c24ac1e764967",
+    "ci-logs/legacy-cleanup-deno.log": "cb51c4b136fd15a17a4896ed2860ec9ac1456a6dbfe5afe775cb4b47de0aff18",
+    "ci-logs/legacy-cleanup-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/legacy-cleanup-duplication.log": "22ee5d8c42b3b8a28d95907e3e5d8c613fe3b814ef91810851fe1cf8c82aeab2",
+    "ci-logs/legacy-cleanup-focused.log": "af6a57cebf7f2ab3005e0f34649c79d3442e4b965aa8fc612802b1828f38f5bf",
+    "ci-logs/legacy-cleanup-format.log": "2941e4554b8ac9e56c55f1d561b10c95c3e93e99417bce694684d14adbe2df34",
+    "ci-logs/legacy-cleanup-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/ci-legacy-cleanup.md": "a48c2c44a764ba4b64b4693e7c0946c164dc9e6082900953f019f382c429f46d",
+    "experiments/issue-56/collect-legacy-cleanup.py": "5d81c5145c6cd2356eca2f9eebde2155543d0e9f9e6619915656335272dd8d35",
+    "experiments/issue-56/legacy-cleanup-before.py": "cc5c5084e0dae58e9d4d1f8c1dfad9970f7905527cfe08762325e001b3557e7c",
+    "experiments/issue-56/vacancy-legacy-fixture.mjs": "650e7918d09d72c75e379298ac0c2f752b674366c9be3f75df53dc482806e7d9",
+    "js/tests/vacancy-legacy-lifecycle.test.js": "930e2ca9dd6ada9c36d1e93aa7ba4e9fd555515c91b00805a522c00e49cede23",
+    "js/tests/vacancy-legacy-paths.test.js": "a9f0c1da806914b7e0d164cade9483a873ce61d6726015adee13a110b3697caf",
+    "js/tests/vacancy-legacy.test.js": "5a6da3bda190ad6d9ed99cdcda11216b30c8c84a28a7c4fd0adfae7c6b3feddc",
+    "before/experiments/issue-56/vacancy-legacy-fixture.mjs": "feb71cf538856cf974e8a0f2f621985ff8c34b760ca4b6adb3cfa6b315eddf20"
+  }
+}

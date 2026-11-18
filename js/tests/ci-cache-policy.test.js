@@ -12,7 +12,17 @@ test('npm caching has explicit writers instead of implicit setup-node saves', ()
     for (const [jobName, job] of Object.entries(workflow.jobs)) {
       for (const step of job.steps || []) {
         if (step.uses?.includes('/.github/actions/npm-cache')) {
-          assert.equal(step.uses, '$/.github/actions/npm-cache');
+          const local = name === 'release.yml' && jobName === 'test';
+          assert.equal(
+            step.uses,
+            `${local ? '.' : '$'}/.github/actions/npm-cache`
+          );
+          if (local) {
+            const checkout = job.steps.findIndex((item) =>
+              item.uses?.startsWith('actions/checkout@')
+            );
+            assert.ok(checkout >= 0 && checkout < job.steps.indexOf(step));
+          }
           assert.doesNotThrow(() =>
             readFileSync(
               new URL(`../../${step.uses.slice(2)}/action.yml`, import.meta.url)
@@ -61,5 +71,34 @@ test('cache reservations are isolated across workflows, refs and platforms', () 
     "hashFiles('package-lock.json')",
   ]) {
     assert.ok(writer.with.key.includes(identity), identity);
+  }
+});
+
+test('checkout-dependent action exceptions remain scoped and documented', () => {
+  const workflow = readFileSync(
+    new URL('../../.github/workflows/release.yml', import.meta.url),
+    'utf8'
+  );
+  const exceptions = workflow
+    .split('\n')
+    .filter((line) => line.includes('ignore[self-repository]'));
+  const allowed = ['npm-cache', 'node-tests'];
+  assert.equal(exceptions.length, allowed.length);
+  const steps = parse(workflow).jobs.test.steps;
+  const merged = steps.findIndex((step) =>
+    step.run?.includes('simulate-fresh-merge.sh')
+  );
+  for (const name of allowed) {
+    const uses = `./.github/actions/${name}`;
+    const matching = exceptions.filter((line) =>
+      line.includes(`uses: ${uses} `)
+    );
+    assert.equal(matching.length, 1, name);
+    assert.match(matching[0], /already checked-out fresh merge/);
+    assert.match(matching[0], /full evidence archive before checkout/);
+    assert.ok(
+      merged >= 0 && merged < steps.findIndex((step) => step.uses === uses),
+      name
+    );
   }
 });

@@ -1,0 +1,8 @@
+{
+  "archive": "ci-c84-final.tar.gz",
+  "files": {
+    "checks-42619112738.log": "b9846f027b07939c73e0a7a58f40d2de7f227f91a32ed81f2a8212fa169ca94b",
+    "checks-c84-status.json": "2880a3e09c9ac0c4c04f70bb3fa66b359eff531c74d69edab1da17886498bbdf",
+    "deno-windows-42619112738.log": "fa97c295efe2d06a587cba41029484814add1624d44d0878c2da0acba3b85cff"
+  }
+}

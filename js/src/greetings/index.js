@@ -27,7 +27,11 @@ import {
   outboxKey,
   transientStore,
 } from '../automation/outbox.js';
-import { defaultGreetingSelection, greetingLinkId } from './plan.js';
+import {
+  defaultGreetingSelection,
+  greetingDestinationReason,
+  greetingLinkId,
+} from './plan.js';
 
 export * from './plan.js';
 export { isRateLimit } from '../automation/outbox.js';
@@ -190,6 +194,10 @@ const defaultSleep = (ms) =>
 const holdReason = (envelope, { used, room, perRun, seen }) => {
   if (envelope.skipped) {
     return envelope.skipped;
+  }
+  const destinationReason = greetingDestinationReason(envelope);
+  if (destinationReason) {
+    return destinationReason;
   }
   if (
     used.has(`${envelope.network}:${envelope.chat}`) ||

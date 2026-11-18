@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the photo editor of the send box (R-Y187): a
 // generated 400×200 picture is attached; the editor turns it left, crops
 // it square, draws on it and applies (Enter); the preview shows the
@@ -70,7 +71,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({
@@ -83,7 +84,7 @@ await page.route('**/api/telegram/status', (route) =>
   })
 );
 await page.route('**/api/telegram/history', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ written: 0, cached: 0, complete: true }),
@@ -91,8 +92,8 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const sends = [];
 await page.route('**/api/telegram/send-files', (route) => {
-  sends.push(JSON.parse(route.request().postData() ?? '{}'));
-  route.fulfill({
+  sends.push(requestBody(route.request()));
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ ok: true, chat: CHAT, ids: [2] }),

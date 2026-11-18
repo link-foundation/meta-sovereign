@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for block, contacts and report in the info column
 // (R-Y128), as Telegram Desktop offers them: "Block user" is asked in the
 // page and then reads "Unblock user" (which acts at once); "Add to
@@ -77,7 +78,7 @@ const answers = {
 };
 for (const [name, answer] of Object.entries(answers)) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     calls.push([name, body]);
     return fulfil(route, answer(body));
   });
@@ -85,7 +86,7 @@ for (const [name, answer] of Object.entries(answers)) {
 // The report: reasons, then a narrower list, then words, then the end.
 const reports = [];
 await page.route('**/api/telegram/peer-report', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   reports.push(body);
   if (!body.option) {
     return fulfil(route, {

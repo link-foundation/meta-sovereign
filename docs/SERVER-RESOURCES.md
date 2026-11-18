@@ -158,3 +158,26 @@ Legacy autocomplete, simple audience/outreach evaluation and fuzzy search now
 stream projections too; search retains the best 100 results. Their scans yield
 to foreground work. Metrics stream IDs. These remove avoidable peak allocations
 without deleting archived content or raising the Node heap limit.
+
+## Live activity log
+
+Settings → Live activity log shows the connected JavaScript server's recent
+redacted diagnostics. Opening it starts one read at a time; closing the view
+aborts its request and timer. Failures retain visible entries and retry with
+backoff up to 30 seconds. Copy reports success only after the clipboard confirms
+it; unavailable diagnostics remain visibly unavailable.
+
+The server retains at most 300 entries and 256 KiB per running instance, with
+4,096-character line limits. Cursor gaps and process restarts are explicit. The
+feed excludes its own HTTP access entries and never scans existing disk logs.
+File/stdout formatting uses the same bounded structured secret redaction.
+Known secret fields and common token forms are masked before serialization;
+application diagnostics should still avoid including message bodies or secrets.
+The private rotated file log remains available independently.
+
+`meta-sovereign diagnostics logs --url=http://127.0.0.1:8787` reads the same tail
+without opening the data store. Add `--follow` to keep reading until SIGINT or
+SIGTERM, or `--after=<cursor>` for a later starting point. The read-only
+`GET /api/diagnostics/logs?after=0&session=<previous-session>` endpoint uses the
+default text/binary Lino transports, existing origin checks and local passcode.
+A locked server must be unlocked in the app before the CLI can read its log.

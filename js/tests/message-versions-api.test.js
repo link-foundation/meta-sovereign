@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createTelegramLive } from '../src/sources/telegram-account-live.js';
 import { telegramDialogLinks } from '../src/sources/telegram-account.js';

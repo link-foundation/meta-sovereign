@@ -1,0 +1,30 @@
+{
+  "archive": "rolling-digest.tar.gz",
+  "files": {
+    "js/src/server/rolling-release.js": "aefbe66ef463a6d8c1f96c4dbbea9cd87a79031b7798fd83e7d803399e1e4067",
+    "js/tests/rolling-release-digest.test.js": "5732c8cd9935fc167aacb140573f7bc6bf04612572c1f4f9b2f2955a02561b55",
+    "js/tests/rolling-release-copy.test.js": "598e0ff86589a8fda648d55c0eb581bf80d3d054eff54555f0160cbfe2ad9d75",
+    "js/tests/helpers/rolling-release-fixture.mjs": "f057098add6914a7cf31e29513fb58a1b7d74c2a64b40bfd852ef6aa40e31047",
+    "js/tests/helpers/rolling-cli-readiness.mjs": "9b1e4d6abedd1e5aec301d950ddb8ecefd74fb62f2f6395c1edb7bd62af0f853",
+    "js/tests/rolling-cli.test.js": "bbe38dd186438fb450f25966147daa1bd491e1111ae8c6a6a49074f4858c8e6b",
+    "js/tests/rolling-cli-readiness.test.js": "454a2c5995ca47acac72db9468fef89ce57919801d4fd1014df7ec994da65745",
+    "docs/case-studies/issue-56/rolling-digest.md": "00ac35da8610281bd2635381c0652de1fac81c5d00bd5bc5fb3ee07f6bc56e85",
+    "experiments/issue-56/rolling-digest-before.py": "97bbfb320dcf3f55fc901cd041604b11cec2131267e1e3431d2ec63b552acaac",
+    "experiments/issue-56/collect-rolling-digest.py": "19088ef501fbaa06237ae17565a2a07cf48805aaa0c290f077b558229e825804",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "ci-logs/3a24-node-macos-shard3.log": "48a581c482dcfaf31d353de942d4718bb5ece839a2c27cbec421e1d425b8753e",
+    "ci-logs/3a24-final-jobs.json": "96a920614577e8fadf2f4cac622441d1f49fe05e1f38cca1db56d3a37c1e5c7e",
+    "ci-logs/rolling-digest-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/rolling-digest-before-helper.log": "2a0a3282f172220d2d8397321b83dc1590edb638304f69c4b8290d91cef3a70c",
+    "ci-logs/rolling-digest-before.log": "4c593058ce22e7a1e6c9e33f9fd4135021b45e1b412263cfc12a86b114bfcbbd",
+    "ci-logs/rolling-digest-cli.log": "1ed1711a59b98f2df629b478a4fb6acfb6ca2134dc46511f1726f948fae02d49",
+    "ci-logs/rolling-digest-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/rolling-digest-focused.log": "53559c928da3a2e3de589370978d33f4976b6c110cbb6e7e769d740db6bf7a35",
+    "ci-logs/rolling-digest-format.log": "97fefbc1e486202cfc43132760f1521853d8519d4c5bb9ca1068f591f3beb5e8",
+    "ci-logs/rolling-digest-lint-initial.log": "19a2926a11a4d8f7a1accac747c7669618b3dbdfd5056244f581a7ed28ed37e7",
+    "ci-logs/rolling-digest-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before/js/src/server/rolling-release.js": "a63e2a298e1b6b2119eed615d07e36a354dc65c6da205662cae95926db2f0d5e",
+    "before/js/tests/rolling-release-copy.test.js": "90a6c33e1c2073324a3c61efa4543fc946388f5b402700955968cf79020a9945",
+    "metadata.json": "61bc5a0ede9f30d46ecfa1c4c86a6def5a1809b8a7141ff996875e2eb9f0f31b"
+  }
+}

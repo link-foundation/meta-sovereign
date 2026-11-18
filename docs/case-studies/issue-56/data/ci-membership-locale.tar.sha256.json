@@ -1,0 +1,16 @@
+{
+  "archive": "ci-membership-locale.tar.gz",
+  "files": {
+    "ci-logs/run-42755799003.log": "15d0b205ccd06141dcd21945b4914927ad68459a726c606ba72587fb78318427",
+    "ci-logs/8ff2040c-failed-checks.json": "89f9fef10b8c69183902fb12a9e5bd9a89b06d58d9ce8b518d0bdea0811ac0e5",
+    "ci-logs/8ff2040c-runs.json": "43e78f209e2c374c6bd7ef5f8147b583bed4d8eeaad485d47973edc2ab0263e0",
+    "experiments/issue-56/collect-membership-locale-evidence.py": "d4a438f580754ea8e581063638f04ed8279e7d94f01e9bb84f3393d54e05f232",
+    "ci-logs/ci-membership-locale-bundle.log": "f0b2a8347a0a619f6933519b0c87f7c0d3b14e7fd9446c279640766070933c3d",
+    "ci-logs/ci-membership-locale-doc-format.log": "a002cba3187235db94d75aa7091f2c5fed6560e46d968af967e6e7d2cdcf1f71",
+    "ci-logs/ci-membership-locale-format.log": "b03eeacb1cbcb40baa645f5d3046f8b5dbd2b2c548e12374f5f8bfddc9b8efec",
+    "ci-logs/ci-membership-locale-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-membership-locale-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-membership-locale-tests.log": "a05eddc1b092dea28d02832ea0c621c90d336420f153c055aff6ca330352b072",
+    "metadata.json": "d8291f21686b1642b890fb5e0662d45919e7c091eb0a3cff97818a7d66a6ccaa"
+  }
+}

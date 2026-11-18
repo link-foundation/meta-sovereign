@@ -5,6 +5,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { AnswerModelExclusions } from './answer-model-settings.js';
 
 const el = React.createElement;
 
@@ -31,10 +32,11 @@ export const Notice = ({ notice, labels, dismiss }) => {
       'data-notice': notice.kind,
     },
     [
+      el(AnswerModelExclusions, { key: 'models', excluded: notice.excluded }),
       el(
         'span',
         { key: 'text' },
-        t(labels[notice.kind] ?? labels.failed, {
+        t(notice.messageKey ?? labels[notice.kind] ?? labels.failed, {
           count: notice.count ?? 0,
           name: notice.name ?? '',
           error: notice.error ?? '',

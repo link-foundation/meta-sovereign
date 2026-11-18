@@ -21,9 +21,10 @@ import {
   tombstoneRecord,
 } from '../src/storage/lino-store.js';
 import { CURRENT_SCHEMA, schemaLink } from '../src/storage/migrations/index.js';
-import { startServer } from '../src/server/index.js';
-import { waitFor } from './helpers/wait-for.js';
+import { startServer } from './helpers/legacy-server.js';
+import { snapshotIntervalClock } from '../../experiments/issue-56/snapshot-interval-clock.mjs';
 import { messageVersions } from '../src/storage/message-versions.js';
+import { syncRecords, isSyncDeleted } from '../src/storage/sync-deletions.js';
 
 const tmpdir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-append-'));
 
@@ -178,33 +179,71 @@ test('a legacy indented file is read and rewritten as records', async () => {
   );
 });
 
-test('the binary snapshot is written on an interval, and at once on flush', async () => {
-  const file = path.join(await tmpdir(), 'data.bin');
-  const store = await createDoubletsStore(file, { minIntervalMs: 200 });
-  await store.put(message(1)); // the first change after a quiet spell
-  await waitFor(
-    async () => decodeArchive(await fs.readFile(file).catch(() => '')).length,
-    { what: 'the first snapshot' }
+for (const { cost, diagnosticsFail } of [
+  { cost: 0, diagnosticsFail: false },
+  { cost: 600, diagnosticsFail: false },
+  { cost: 0, diagnosticsFail: true },
+]) {
+  test(
+    `the binary snapshot is written on an interval, and at once on flush (${cost} ms write cost, diagnostic failure: ${diagnosticsFail})`,
+    { timeout: 5000 },
+    async () => {
+      const directory = await tmpdir();
+      const file = path.join(directory, 'data.bin');
+      const clock = snapshotIntervalClock();
+      const events = [];
+      let store;
+      try {
+        store = await createDoubletsStore(file, {
+          minIntervalMs: 200,
+          clock,
+          onEvent: (event) => {
+            events.push(event);
+            if (diagnosticsFail) {
+              throw new Error('Refused diagnostic event');
+            }
+          },
+        });
+        const written = async () => decodeArchive(await fs.readFile(file));
+        await store.put(message(1));
+        await clock.advance(0, cost);
+        assert.equal((await written()).length, 1);
+        assert.deepEqual(events.at(-1), {
+          event: 'snapshot-settled',
+          durationMs: cost,
+        });
+        await store.put(message(2));
+        await store.put(message(3));
+        const interval = Math.max(200, cost * 10);
+        assert.equal(clock.pending, 1, 'changes share one pending snapshot');
+        assert.deepEqual(events.at(-1), {
+          event: 'snapshot-scheduled',
+          waitMs: interval,
+          intervalMs: interval,
+        });
+        assert.equal((await written()).length, 1);
+        await clock.advance(interval - 1);
+        assert.equal(
+          (await written()).length,
+          1,
+          'no write before the adaptive interval'
+        );
+        await clock.advance(1);
+        assert.equal((await written()).length, 3);
+        await store.delete('msg:telegram:1:1');
+        await store.flush();
+        assert.deepEqual(
+          (await written()).map((link) => link.id),
+          ['msg:telegram:1:2', 'msg:telegram:1:3']
+        );
+        assert.equal(clock.pending, 0, 'flush cancels the deferred timer');
+      } finally {
+        await store?.flush();
+        await fs.rm(directory, { recursive: true, force: true });
+      }
+    }
   );
-  assert.equal(decodeArchive(await fs.readFile(file)).length, 1);
-  await store.put(message(2));
-  await store.put(message(3));
-  // Within the interval: not written yet, and the puts did not wait.
-  assert.equal(decodeArchive(await fs.readFile(file)).length, 1);
-  // After the interval (a worker starts slowly on a busy runner).
-  let written = 1;
-  for (let i = 0; i < 100 && written < 3; i += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    written = decodeArchive(await fs.readFile(file)).length;
-  }
-  assert.equal(written, 3);
-  await store.delete('msg:telegram:1:1');
-  await store.flush();
-  assert.deepEqual(
-    decodeArchive(await fs.readFile(file)).map((l) => l.id),
-    ['msg:telegram:1:2', 'msg:telegram:1:3']
-  );
-});
+}
 
 test('reconcile repairs a binary snapshot that missed the last writes', async () => {
   const dir = await tmpdir();
@@ -266,7 +305,21 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
   await store.flush();
   const bin = path.join(dir, 'data.bin');
-  const saved = await store.query();
+  const visible = await store.query();
+  const saved = [];
+  await store[syncRecords].scan(null, 10, (batch) => saved.push(...batch));
+  assert.equal(
+    visible.some((link) => link.id === message(1).id),
+    false
+  );
+  const deleted = saved.find((link) => link.id === message(1).id);
+  assert.equal(isSyncDeleted(deleted), true);
+  assert.deepEqual(Object.keys(deleted).sort(), [
+    '__msSyncDeleted',
+    'id',
+    'vc',
+  ]);
+  assert(Object.values(deleted.vc).some((tick) => tick > 0));
   const sorted = (links) => links.toSorted((a, b) => a.id.localeCompare(b.id));
   assert.deepEqual(
     sorted(decodeArchive(await fs.readFile(bin))),

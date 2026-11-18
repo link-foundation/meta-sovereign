@@ -1,0 +1,31 @@
+{
+  "archive": "ci-selection-entry.tar.gz",
+  "files": {
+    "ci-logs/hosted-593-checks-attempt-1.json": "9f6124e36b553be687dc549fef2595be230cfcfeffbd6b01cf125e1fc7bccfba",
+    "ci-logs/hosted-593-pipeline-failure.log": "5d03c0a0dd5abb2031ec774b65e0d9c7233c01e85f9b05006dbb3872bca6b00d",
+    "ci-logs/hosted-593-webkit-4.log": "a1033fddab8460bf0441aea77ec42f524c8a34931a6d7c8d1c1633b72c0bac63",
+    "ci-logs/selection-entry-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-entry-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-entry-focused.log": "e14a34d113351a195c4e02e194d51d792d04977cd539629c6d7c3fbfed3f9c0c",
+    "ci-logs/selection-entry-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/selection-entry-format-write.log": "c0be2c2518c1d0dc6536d2a4f7c90a0789b973569c2c70e5fca5c1eb7882b513",
+    "ci-logs/selection-entry-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-entry-webkit.log": "17ef1590e56ac5bc1ab4a5f307d2459825eb47ffaa996f70a3ea8f1ded466437",
+    "docs/case-studies/issue-56/ci-selection-entry-plan.md": "f2d6e48a16628b1503aed18935555cdd53df416842f27ac3091e0aa987a96bb6",
+    "docs/case-studies/issue-56/ci-selection-entry.md": "a9a30063866da9b40181b13f5f3e1d1e938d48fbb9e5fabea31f47b7167a71b3",
+    "docs/screenshots/issue-56-vacancy-selection/hosted-593-failure.png": "fca927d2057414ae525bdf2d21a64f33ef44e4abdebee531c6a5714856f83a4f",
+    "experiments/issue-56/collect-selection-entry.py": "160387477f3c5055ff6c0e39a3087a4494b563a353cb7bd0018e8cdb6b0cc3da",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/vacancy-browser-fixture.mjs": "f24de13d6e508ef7292df4b08c47403a40ebcb9b0ea24442f0ab3c9b7bc8656a",
+    "experiments/issue-56/vacancy-selection-browser.mjs": "95621637c3ba27eedc7b83bbaea8656624fcf16b3ca0649403f0b4448201f3e7",
+    "js/tests/browser-input-trace.test.js": "a412d666878e9977b4985c2102989ab89835907408f979b5dc846f65b09427fa",
+    "js/tests/helpers/e2e-input-trace.mjs": "49c48cbcbd9d0acc5bb1687c19bd3bca03ac5d2939e7765b481a2acdd3c9afad",
+    "js/tests/helpers/e2e-vacancy-selection.mjs": "6fe2ca75ff66567186c9f34170d07b2b84d5355294aca447483ee109fa53b940",
+    "js/tests/helpers/e2e-vk-cache.mjs": "e8cf833aa1a11cb1ce5f50fdf8900894c41646ab8e47a93b813581f9b0f13509",
+    "js/tests/resume-input-trace.test.js": "242e5361776acf204a14f6603ed03fbff32cb69d2c38d893b5887993336b3c4c",
+    "failed-artifact/summary.json": "1c5aebebda010c45aa53c342ffdbea1fe6efcc5092a244c700bb76a75950e730",
+    "ci-logs/selection-entry-screenshots/vacancy-selection-after.png": "a6afb1fa3e793a651b1f1279a08214c629df1591902847c001b9bad76029b413",
+    "ci-logs/selection-entry-screenshots/vacancy-selection-phone.png": "296d9b9404cec230b72aad75923ffa8d22b85f30a9a24544b070ca62ad9dd6d7",
+    "metadata.json": "e5a4968a18cfa931b11e9a6eef1b1102f4a32eab56ec21bb7c99179ad26f76d7"
+  }
+}

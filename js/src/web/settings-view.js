@@ -28,6 +28,9 @@ import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import { ConversationSettings } from './settings-conversation.js';
 import { BirthdaySettings } from './settings-birthdays.js';
 import { FeedbackSettings } from './settings-feedback.js';
+import { BrowserSettings } from './settings-browser.js';
+import { DiagnosticSettings } from './settings-diagnostics.js';
+import { RunnerSettings } from './settings-runner.js';
 import {
   NOTIFY_KEY,
   NOTIFY_PREVIEW_KEY,
@@ -70,6 +73,16 @@ export const AppearanceSettings = ({ appearance }) => {
         t('settings.appearance.title')
       ),
       el('p', { key: 'p', className: 'meta' }, t('settings.appearance.intro')),
+      el(
+        'button',
+        {
+          key: 'reset',
+          type: 'button',
+          'data-action': 'appearance-reset',
+          onClick: appearance.reset,
+        },
+        t('settings.appearance.reset')
+      ),
       el(
         'div',
         { key: 'c', className: 'row appearance-row' },
@@ -319,6 +332,9 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    el(BrowserSettings, { key: 'browser', api }),
+    el(DiagnosticSettings, { key: 'diagnostics', api }),
+    el(RunnerSettings, { key: 'runner', api }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
     el(StoriesSettings, { key: 'stories' }),
     el(BirthdaySettings, { key: 'birthdays' }),

@@ -1,0 +1,28 @@
+{
+  "archive": "ci-workflow-modules.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "81e41a3ac75811fb55ac1cadbf8d8a1c5ee32dc9dbd4f0f68bdcb6e4ae924efe",
+    "ci-logs/9846a827-line-limits-job.json": "cfc2875fa87dda05de71e81a4404cacfabb0377f3d964466c95900de408abc44",
+    "ci-logs/9846a827-main-current.json": "868913dbdebfbb93b7c2d8c09f7b760a6cb42e7bd6254e1455584a26c07721c5",
+    "ci-logs/9846a827-workflows-final.json": "55598190db10fa1852ebafc087a27ec52f832d5cf8897f891bd6f7cd04077281",
+    "ci-logs/ci-workflow-modules-deno.log": "5345e3cf7db485513ae442eeff8e6654403bcb84c7af13f67d7857484b18cd59",
+    "ci-logs/ci-workflow-modules-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-workflow-modules-duplication.log": "7781ec76b09b5b08d47b0542fd25920f41e08dfd083459ccbe73b98a6c3667dc",
+    "ci-logs/ci-workflow-modules-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-workflow-modules-limits.log": "66bdb6c3aceed5dc33a17026e5aeab3cabe537178b2443d628c8fa188b66e853",
+    "ci-logs/ci-workflow-modules-node.log": "69ccf42897742f8186a4934a07942ec44a9fea39519a1729e2af3b0dc2bbcf12",
+    "ci-logs/ci-workflow-modules-replay.log": "b63d75519d32e9b5738c1286efcf6849f35855998ef6e7b9d6c22fdbd2a53bae",
+    "ci-logs/ci-workflow-modules-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-workflow-modules-workflow-lint.log": "5155730f6e97fc7ca0e82bf05ae0edfa063de6e70c6455b02fb299e0b219be5d",
+    "ci-logs/hosted-9846a827-line-limits.log": "6a19f83103b53e5da589155ecbaa24302e698078464c4f0231c1ba3cc1f5c211",
+    "docs/case-studies/issue-56/ci-workflow-modules.md": "450dbca74b4fdc4456822266650ebce9e6a1ca6b5158544b223a1fe65dca8b21",
+    "experiments/issue-56/ci-workflow-modules.py": "ecab50c0cceda4eca3256ceff06de9eaede50f70838e4e39731f15a3332a4d53",
+    "experiments/issue-56/collect-ci-workflow-modules.py": "3d0ab8f989c8309bbf5c65c06c0267a44e33a48018b736db90dce58b4bf2b492",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/scripts/check-doc-line-limits.sh": "1ef60d03eed0d05113f884fc39f8996268f687f112607ebd7b513dafa92dfcca",
+    "js/scripts/check-file-line-limits.sh": "afcc9256f0c145786cf0d68aab75ec9adcc460bdff02cd0ba20dea8a5e8902c1",
+    "js/scripts/check-required-docs.sh": "29c801b15e51154eeac02e3088adfbdcd655b05108bc056a5353c1bc5d196bb7",
+    "before/.github/workflows/release.yml": "cc4740b810b23cac92bfe10a2f2e270db217deec58189a7ae5a324b1c5b72c86",
+    "metadata.json": "f53b907f917cc704d864b78e6a23180824302762ea2f3340422831293a4d210d"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "archive": "application-feedback-shard.tar.gz",
+  "files": {
+    "before/js/scripts/browser-checks.json": "baafe809567922a6e8d7ad3dd23fa1fd7b7ad0e0ad92876fb1fae98fa06d8696",
+    "before/js/tests/ci-browser-shards.test.js": "c80c05d06b9f24bc444d3080d4233dd54882d4d759a1467a15c926547bd42d09",
+    "before/js/tests/e2e-job-application-policies-browser.mjs": "a2d1c5faa2738026133f65afa239f60ff3fbb1143afe119fdee4c95ad9e0d898",
+    "before/package.json": "275861adc4f200802bfc4d4c0132c34fe23919e75cdd656769e8485fb9af98c7",
+    "ci-logs/application-configuration-parent-contracts.log": "46f9a6e23dda030ea164db560ccf7f1226efceabfd7b160b035e6dacc3d8a7bd",
+    "ci-logs/application-configuration-parent-jobs.json": "6181d560605fb8374952f582ef1a55fdc5478be3aed2113c9d990394136fecea",
+    "ci-logs/application-configuration-parent-workflow.log": "23d0ad18db45b4fda6c7e11e72dae9537ba6692db5a1ad37c06f27edaf193767",
+    "ci-logs/application-feedback-shard-before.log": "860438e1f9e8d993d7cc604d773e91b12b68c4f69ebfa9d966676fdd75c1a05f",
+    "ci-logs/application-feedback-shard-format.log": "fbfea34da6971a1ae52172e449b31ba8737f36e7aecf1a7f6f204fd35faa9bc8",
+    "ci-logs/application-feedback-shard-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-feedback-shard-node.log": "a61d2baccc7e8b852725097a1440607c96fa73ead61a7a233b9c6218549803d9",
+    "docs/case-studies/issue-56/ci-application-feedback-shard.md": "51c17bdd38fc9d7e06bdb978447ac49b47e0ba653b113cdce2c3ce73cc7d05a1",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-application-feedback-shard.py": "c1dce3d3acc553f4cdb5178801db9d4696c79b89a6143dd1bcebe17c44d8c77f",
+    "experiments/issue-56/evidence_bundle.py": "635598c595ab81c67e59c1878e005f3dc986e83b9cf014115fae4dea7c629be9",
+    "js/scripts/browser-checks.json": "c694c85642f967e02fb9aa66bf109a0b1a64dac8c9a0a9b985a9b1d22c036cd4",
+    "js/tests/ci-browser-shards.test.js": "ba7ce56ec57c7b4381cb11417eab004b31a055fced92301097c40f92e16b7a41",
+    "js/tests/e2e-job-application-feedback-browser.mjs": "5eeeaa0a95179d292dcf40f933be56ce22b72c406a3b9106b0b3ffb08cf1866c",
+    "js/tests/e2e-job-application-policies-browser.mjs": "ab15e26d8e2a64ba9ba582320af934607d6680b4935a4c64cc31303d1ffe6824",
+    "metadata.json": "f1be6f8f0aa2285069d7bec95e32037d9e49f138469d80103bd96c7ab024fbda"
+  }
+}

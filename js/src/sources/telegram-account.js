@@ -846,14 +846,14 @@ const sentLink = (
   return Object.keys(raw).length > 0 ? { ...known, raw } : known;
 };
 
-// Send as the user: exactly once (random_id), formatted, long text in
-// parts; returns the network's links for what was sent.
+// User sends retain random_id, formatting, ordered parts and network links.
 const postAsUser = async (
   env,
   creds,
   {
     chat,
     text,
+    format,
     clientId,
     replyTo,
     replyQuote = null,
@@ -864,14 +864,14 @@ const postAsUser = async (
     allowPaidStars,
     preview = null,
     effect,
+    beforeIssue,
   }
 ) => {
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const first = await env.connection.open(creds);
   const maxLength = await messageLengthMax(first.client, Api);
-  // Configuration may finish after recovery replaced its connection.
+  // Recovery may replace the connection while configuration loads.
   const { client: own } = await env.connection.open(creds);
-  // Sent as another identity (R-Y141).
   const client = await withSendAs(env, own, sendAs, allowPaidStars).catch(
     (error) => {
       throw sendError(error);
@@ -880,7 +880,7 @@ const postAsUser = async (
   const release = env.live.expectOwn({
     chat,
     clientId,
-    texts: formattedParts(text, maxLength).map((part) => part.text),
+    texts: formattedParts(text, maxLength, format).map((part) => part.text),
   });
   let sent;
   try {
@@ -891,6 +891,7 @@ const postAsUser = async (
         helpers,
         peer,
         text,
+        format,
         clientId,
         maxLength,
         log: env.log,
@@ -902,9 +903,13 @@ const postAsUser = async (
         effect,
         preview,
         onResult: (result) => env.catchUp?.observeResult(result),
+        beforeIssue,
       })
     );
   } catch (error) {
+    if (error?.duplicate) {
+      env.catchUp?.run('duplicate').catch(() => {});
+    }
     throw sendError(error);
   } finally {
     release();
@@ -918,11 +923,6 @@ const postAsUser = async (
     // Held by Telegram, not in the chat: its scheduled ones (R-Y102).
     env.actions?.scheduledChanged?.(chat);
     return { ok: true, scheduled: true, chat, parts: sent.length, links: [] };
-  }
-  if (sent.some((part) => part.duplicate)) {
-    // An earlier try got through but its answer was lost: the catch-up
-    // brings that message in.
-    env.catchUp?.run('duplicate').catch(() => {});
   }
   const at = new Date(env.now());
   const links = sent
@@ -938,6 +938,7 @@ const postAsUser = async (
   return {
     ok: true,
     messageId: idText(sent.at(-1)?.id),
+    messageIds: sent.map((part) => idText(part.id)),
     chat,
     parts: sent.length,
     ...(sent.some((part) => part.duplicate) ? { duplicate: true } : {}),
@@ -950,6 +951,7 @@ const draftOptions = (draft) => {
   const replyTo = Number(draft.replyTo);
   const topic = Number(draft.topic);
   return {
+    ...(draft.format !== undefined ? { format: draft.format } : {}),
     replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
     // A forum topic it goes to (R-Y122).
     topic: Number.isInteger(topic) && topic > 0 ? topic : null,
@@ -992,7 +994,6 @@ const createMessaging = (env) => {
   const post = async (draft = {}, options = {}) => {
     const creds = await readTelegramCredentials(store);
     if (creds?.kind !== 'user') {
-      // A stored bot token, else the environment's one (as before).
       const token = creds?.token ?? options.token;
       return botLive.post(draft, token ? { ...options, token } : options);
     }
@@ -1006,6 +1007,7 @@ const createMessaging = (env) => {
       text,
       clientId: draft.clientId,
       ...draftOptions(draft),
+      beforeIssue: options.beforeIssue,
     });
   };
 
@@ -1317,6 +1319,15 @@ const connectionRecorder = (store) => {
   };
 };
 
+const stopReaders = async (env) => {
+  await env.followBacklinkStop?.();
+  await env.followTelegramStop?.();
+  await env.channels.flush().catch(() => {});
+  await env.catchUp.stop();
+  await env.greetingSendStop?.();
+  await env.chatUsersStop?.();
+  await env.greetingStickersStop?.();
+};
 export const createTelegramAccount = ({
   store,
   // The saved connection proxy is read whenever a client is built (R-Y192).
@@ -1470,8 +1481,7 @@ export const createTelegramAccount = ({
     globalThis.clearInterval(timer);
     timer = null;
     backfill.stop();
-    await env.channels.flush().catch(() => {});
-    await catchUp.stop();
+    await stopReaders(env);
     await connection.disconnect();
   };
 

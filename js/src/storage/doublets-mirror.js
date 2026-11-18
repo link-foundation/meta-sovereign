@@ -25,6 +25,8 @@ import { enoughSpace, skippedEvent } from './disk-space.js';
 import { sqliteRuntime } from './disk-network.js';
 import { trackSnapshot } from './snapshot-memory.js';
 import { sweepSnapshotWorkspaces } from './snapshot-workspace.js';
+import { awaitSnapshotWorker } from './snapshot-worker-control.js';
+import { SNAPSHOT_CLOCK } from './snapshot-clock.js';
 
 const MIN_INTERVAL_MS = 60_000;
 
@@ -34,7 +36,11 @@ const heapLimitMb = () =>
   Math.round(getHeapStatistics().heap_size_limit / 2 ** 20);
 
 /** Write the snapshot of `from` (a `.lino` log) to `to` in a worker. */
-export const snapshotInWorker = async (from, to, { signal } = {}) => {
+export const snapshotInWorker = async (
+  from,
+  to,
+  { signal, createWorker = (...args) => new Worker(...args) } = {}
+) => {
   if (signal?.aborted) {
     throw signal.reason;
   }
@@ -47,61 +53,23 @@ export const snapshotInWorker = async (from, to, { signal } = {}) => {
     : null;
   let memory = null;
   try {
-    return await new Promise((resolve, reject) => {
-      if (signal?.aborted) {
-        reject(signal.reason);
-        return;
-      }
-      const worker = new Worker(WORKER_URL, {
-        workerData: {
-          from,
-          to,
-          diskFile: folder ? path.join(folder, 'network.sqlite') : null,
-        },
-        // Disk-backed indexes leave only bounded caches and the current record
-        // on the worker heap. Older runtimes use the existing memory encoder.
-        resourceLimits: { maxOldGenerationSizeMb: disk ? 512 : heapLimitMb() },
-      });
-      memory = trackSnapshot(worker.threadId, disk ? 'disk' : 'memory');
-      const abort = () => {
-        Promise.resolve(worker.terminate()).then(
-          () => reject(signal.reason),
-          reject
-        );
-      };
-      signal?.addEventListener('abort', abort, { once: true });
-      let result = null;
-      let failure = null;
-      worker.on('message', (message) => {
-        if (message.progress) {
-          memory.update(message);
-          return;
-        }
-        result = message;
-        // The message follows the durable rename. Deno's worker compatibility
-        // layer can keep its port alive without emitting an exit event.
-        Promise.resolve(worker.terminate()).then(
-          () => resolve(message),
-          reject
-        );
-      });
-      worker.once('error', (error) => {
-        failure = error;
-        Promise.resolve(worker.terminate()).then(() => reject(error), reject);
-      });
-      worker.once('exit', (code) => {
-        memory.stop();
-        signal?.removeEventListener('abort', abort);
-        if (signal?.aborted) {
-          reject(signal.reason);
-        } else if (result) {
-          resolve(result);
-        } else {
-          reject(
-            failure ?? new Error(`doublets snapshot worker exited with ${code}`)
-          );
-        }
-      });
+    if (signal?.aborted) {
+      throw signal.reason;
+    }
+    const worker = createWorker(WORKER_URL, {
+      workerData: {
+        from,
+        to,
+        diskFile: folder ? path.join(folder, 'network.sqlite') : null,
+      },
+      // Disk-backed indexes leave only bounded caches and the current record
+      // on the worker heap. Older runtimes use the existing memory encoder.
+      resourceLimits: { maxOldGenerationSizeMb: disk ? 512 : heapLimitMb() },
+    });
+    memory = trackSnapshot(worker.threadId, disk ? 'disk' : 'memory');
+    return await awaitSnapshotWorker(worker, {
+      signal,
+      progress: (message) => memory.update(message),
     });
   } finally {
     memory?.stop();
@@ -131,17 +99,11 @@ const MAX_BACKOFF_MS = 3_600_000;
 // is reported once, not once for every write that arrived meanwhile.
 // `clock` is the real one unless a test hands in a virtual one, so the
 // schedule can be checked without sleeping (R-Z6).
-const REAL_CLOCK = {
-  now: () => Date.now(),
-  setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
-  clearTimeout: (timer) => globalThis.clearTimeout(timer),
-};
-
 const createSnapshots = ({
   run,
   minIntervalMs,
   onError,
-  clock = REAL_CLOCK,
+  clock = SNAPSHOT_CLOCK,
   initialDelayMs = 0,
 }) => {
   let timer = null;

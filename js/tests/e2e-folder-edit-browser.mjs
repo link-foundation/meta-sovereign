@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for creating and editing chat folders (R-Y164), as
 // Telegram Desktop's Settings → Folders and the folder tab's menu: a
 // folder made in Settings with kinds and a picked chat (the exact request
@@ -67,7 +68,7 @@ await page.route('**/api/telegram/folders-suggested', (route) =>
   fulfil(route, { ok: true, suggested })
 );
 await page.route('**/api/telegram/folder-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.save.push(body);
   if (refusal) {
     return fulfil(route, { ok: false, code: refusal });
@@ -79,13 +80,13 @@ await page.route('**/api/telegram/folder-save', (route) => {
   return fulfil(route, { ok: true, id });
 });
 await page.route('**/api/telegram/folder-delete', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.delete.push(body);
   folders = folders.filter((f) => f.id !== body.id);
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/folders-reorder', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   sent.order.push(body);
   const named = body.order.filter((id) => id !== 0);
   folders = named.map((id) => folders.find((f) => f.id === id));

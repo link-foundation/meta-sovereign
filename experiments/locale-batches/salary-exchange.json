@@ -1,0 +1,62 @@
+{
+  "questions.salaryFetchRates": {
+    "en": "Refresh from Bank of Russia",
+    "ru": "Обновить с сайта Банка России",
+    "zh": "从俄罗斯央行刷新",
+    "hi": "रूस के केंद्रीय बैंक से ताज़ा करें"
+  },
+  "questions.salaryUseCachedRates": {
+    "en": "Use cached rates",
+    "ru": "Использовать сохранённые курсы",
+    "zh": "使用缓存汇率",
+    "hi": "सहेजी दरें इस्तेमाल करें"
+  },
+  "questions.salaryRatesLoading": {
+    "en": "Loading exchange rates…",
+    "ru": "Загрузка курсов валют…",
+    "zh": "正在加载汇率…",
+    "hi": "विनिमय दरें लोड हो रही हैं…"
+  },
+  "questions.salaryRates.updated": {
+    "en": "Bank of Russia rates loaded ({date}).",
+    "ru": "Загружены курсы Банка России ({date}).",
+    "zh": "已加载俄罗斯央行汇率（{date}）。",
+    "hi": "रूस के केंद्रीय बैंक की दरें लोड हुईं ({date})।"
+  },
+  "questions.salaryRates.cached": {
+    "en": "Cached rates loaded ({date}).",
+    "ru": "Загружены сохранённые курсы ({date}).",
+    "zh": "已加载缓存汇率（{date}）。",
+    "hi": "सहेजी दरें लोड हुईं ({date})।"
+  },
+  "questions.salaryRates.stale": {
+    "en": "Rates dated {date} are stale. Calculated answers require review.",
+    "ru": "Курсы на {date} устарели. Расчётные ответы требуют проверки.",
+    "zh": "{date} 的汇率已过期。计算所得的回答需要审核。",
+    "hi": "{date} की दरें पुरानी हैं। गणना वाले उत्तरों की समीक्षा ज़रूरी है।"
+  },
+  "questions.salaryRates.unavailable": {
+    "en": "No saved rates are available. Enter a snapshot or retry the refresh.",
+    "ru": "Сохранённых курсов нет. Укажите курсы вручную или повторите обновление.",
+    "zh": "没有可用的已保存汇率。请手动输入或重试刷新。",
+    "hi": "कोई सहेजी दर उपलब्ध नहीं है। दरें भरें या दोबारा ताज़ा करें।"
+  },
+  "questions.salaryRatesFallback": {
+    "en": "Refresh did not provide newer valid rates; any available saved snapshot is retained.",
+    "ru": "Обновление не дало новых корректных курсов; имеющиеся сохранённые данные оставлены.",
+    "zh": "刷新未提供更新的有效汇率；现有已保存数据仍予保留。",
+    "hi": "ताज़ा करने से नई मान्य दरें नहीं मिलीं; उपलब्ध सहेजी दरें रखी गई हैं।"
+  },
+  "questions.salaryRatesDraft": {
+    "en": "Rates are applied to this draft.",
+    "ru": "Курсы применены к этому черновику.",
+    "zh": "汇率已应用于此草稿。",
+    "hi": "दरें इस मसौदे में लागू हुई हैं।"
+  },
+  "questions.salaryRatesChanged": {
+    "en": "Exchange settings changed while rates were loading. Your edits are kept; retry to replace them.",
+    "ru": "Настройки курсов изменились во время загрузки. Правки сохранены; повторите загрузку для замены.",
+    "zh": "汇率加载期间设置已更改。您的修改已保留；重试可替换它们。",
+    "hi": "दरें लोड होते समय सेटिंग बदली। आपके बदलाव रखे गए हैं; उन्हें बदलने के लिए फिर कोशिश करें।"
+  }
+}

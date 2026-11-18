@@ -1,0 +1,28 @@
+{
+  "archive": "question-turns.tar.gz",
+  "files": {
+    "issue-56-question-turns-fixture-failure.png": "8f7a92fdad7c53d164610e61e0ef99e7ba84224b2e8c65e6f4c30e81a560f894",
+    "question-turns-after.log": "05b6d39421dbeb2c42e05ae5e6ac1b457002de83bd1370031c1e5647d836be52",
+    "question-turns-before.log": "f9db03efedba399e9bd1a905dccffd90ad9f990c03e71b42ccbbc0b89fdc5716",
+    "question-turns-browser-after.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "question-turns-browser-fixture-failure.log": "0c41ab783dc5ca69d346d75cbe9948a9739473241fed380b24e9c7af4191dbf3",
+    "question-turns-browser-format.log": "e56fa1f01c5786d0ddef2994c07ea317de9ebca901894251a3944598128b2ae7",
+    "question-turns-browser-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-turns-build.log": "45362046dc5a303c25f28fc11eb6a348649b46e7418fe1ad13acab7dfd40af77",
+    "question-turns-example-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-turns-example.lino": "a264f114ac2264719d461c021a738e3808a7aa33c0b3a1307f566547da27d4b3",
+    "question-turns-final-fixture-failure.log": "fbb8b2e20249119039f259e88b95ba647b7aa284544774fa908f4f2fa3ef9752",
+    "question-turns-final-test-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-turns-final.log": "cc0af1f1d059cad9e5c8005fcea0fbad0722ea23e965ca181b915fae25334719",
+    "question-turns-focused.log": "f267ae3350d05f9efbbadcb15e723452085ef4802645da04df2990f1205e91ea",
+    "question-turns-format.log": "13ba70063c1a8fd1dc51fb574377c6241e482ab2b8aec047ad1ee4b58c33176f",
+    "question-turns-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "question-turns-probe-after.lino": "3c9c194a60e3fba04c19a06fc6e728a601a1a1c03126fd70e115d8b8f9715064",
+    "question-turns-salary-check.log": "01ca66a40401fd708bc0e2894a4a210fa386780dafeca99fc02065d305263f97",
+    "question-turns-trace.log": "335d6d9d6f11cd0603f5ffaa3adde5030e6d72d5bb67e355466195aeff97a7d4",
+    "questionTurnsAfterUi.json": "5a38fe83591ef0a38ab61e581cc065997542ad3155c3b2b6b5656dca06a1c231",
+    "questionTurnsBeforeUi.json": "75afeb833913cd8bed2c8442c5d5b007a91dac507c53c2c2e40ec31c96c65c91",
+    "questionTurnsConsole.json": "6ca11df71062f1494d44e07d7d600c6a7b4a31efa64499f8518a25c90f339150",
+    "questionTurnsNetwork.json": "e4880c6beb479dd297464d711c4425e97457889cbbabde9f8a479792ef4f44a7"
+  }
+}

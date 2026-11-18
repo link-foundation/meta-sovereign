@@ -1,0 +1,1 @@
+[e2e-chat-layout] FAIL (chromium): assertion failed: Chat typing preserves reader position (209.765625 → 97.765625)

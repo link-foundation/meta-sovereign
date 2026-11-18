@@ -1,0 +1,31 @@
+{
+  "archive": "follow-preview.tar.gz",
+  "files": {
+    "ci-logs/follow-preview-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-preview-auto-browser.log": "d9bf82784af62cd9632e61e7de817fc521c323f2746b2dee40374529687a2ecc",
+    "ci-logs/follow-preview-baseline-checks.json": "db37efb586ad4b79d4390511be9cd1a45275ae439af21ba191fa3cc42be590de",
+    "ci-logs/follow-preview-baseline-runs.json": "d6962432f3b1ea47a94ff9cd57390b138e64dcdf386c5732092ee46dede2719a",
+    "ci-logs/follow-preview-before.log": "76efe6b789332ee6c70e8d5f11fec2b9741e2115d88b5e6959b0c55c0fe1c6e5",
+    "ci-logs/follow-preview-browser-before.log": "4418790ab227c1e2b539248e6f2f0205317377ac8fa061aed840a734c9d3a1cf",
+    "ci-logs/follow-preview-browser-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-preview-browser.log": "5be5a9c802b1598a8467cb1b8a8c531a1b126b765ece9067fdb5aea187241a69",
+    "ci-logs/follow-preview-build.log": "599818b593f95bdb0cf6b754e36ca6db874b7f6e76e045d5ca8d32465ea8ca72",
+    "ci-logs/follow-preview-codeql56.json": "7332456813991016c7a2b628fed08e0a40918895d54c6840b95194d2dd0a9f2e",
+    "ci-logs/follow-preview-core.log": "3b2a84008a25214b3f2054a66a80030cd757e83d1dc67f008c69f9eb978f6a23",
+    "ci-logs/follow-preview-draft.log": "ff6ad37650f5767d99ecb792979472be178d53a03a65306dc71dfa44b1ebc12d",
+    "ci-logs/follow-preview-fetch.log": "86194f0b895cd37b4a286ee91d208cb30d9892c2f92af5d9911b89b3a0e09c31",
+    "ci-logs/follow-preview-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/follow-preview-format.log": "2dc0776f83f516039629f3cfc2f5a3a785a597c857d27564f9deb4c9d725a714",
+    "ci-logs/follow-preview-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-preview-mcp.json": "7d2981114abc1621b3a1df3fd461e24ba990286dc63c56b918fefcbf1953d138",
+    "ci-logs/follow-preview-policy.log": "03c6f11f471a4697706805a6cf640091db53677cea037b438a61fc1087897b26",
+    "ci-logs/follow-preview-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-preview-telegram-browser.log": "52f35de162ef790f5b0a3d917a9e71b74456570126e9af14929e0c36b0098a29",
+    "ci-logs/follow-preview-test-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/follow-preview-ui-after.log": "e2eb0f4fd75288a352433d5bf281d8fcadf3b63d7f128e38d256480516a39649",
+    "ci-logs/follow-preview-ui-before.log": "54c583a092a4770923031f665a6b161e968bf4f01237f3c787c7cec98fc7b5ff",
+    "ci-logs/follow-preview-whitespace.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "experiments/issue-56/collect-follow-preview.py": "d44767bb2bebc56a90842ecdf865278fea597816f149ebbb850edc92d34206c0",
+    "metadata.json": "022f7267e35d0a04f2e6bf04f90d8998ed96c2e34d4dcf09ff735609f5f97f26"
+  }
+}

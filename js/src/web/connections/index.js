@@ -19,7 +19,10 @@ import { telegramConnectionState } from '../provider-live-state.js';
 import { RecommendedHeader } from './recommended.js';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
-import { LocalServerHelp } from '../connection-guide.js';
+import {
+  LocalServerHelp,
+  translateGuideValue as tx,
+} from '../connection-guide.js';
 import {
   buildProbeHeaders,
   buildProbeUrl,
@@ -42,19 +45,42 @@ import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
+import { VkSendQueue } from './vk-send-queue.js';
+import { VkAttachments } from './vk-attachments.js';
+import { VkOnline } from './vk-online.js';
+import { VkFriends } from './vk-friends.js';
+import { VkMaintenance } from './vk-maintenance.js';
+import { VkCancelled } from './vk-cancelled.js';
+import { VkGreet } from './vk-greet.js';
+import { VkReengage } from './vk-reengage.js';
+import { VkWall } from './vk-wall.js';
+import { VkBirthday } from './vk-birthday.js';
+import { VkRetention } from './vk-retention.js';
+import { VkDiscovery } from './vk-discovery.js';
+import { VkCache } from './vk-cache.js';
+import { VkStickerCatalog } from '../vk-sticker-catalog.js';
 import { MarketplaceAccounts } from '../marketplace-accounts.js';
+import { VkToken } from './vk-token.js';
 
 const el = React.createElement;
-
-const tx = (t, value, key) => {
-  if (key) {
-    const translated = t(key);
-    if (translated !== key) {
-      return translated;
-    }
-  }
-  return value;
-};
+const VkConnectionJobs = () =>
+  el(React.Fragment, null, [
+    el(VkToken, { key: 'token' }),
+    el(VkAttachments, { key: 'attachments' }),
+    el(VkSendQueue, { key: 'send-queue' }),
+    el(VkOnline, { key: 'online' }),
+    el(VkFriends, { key: 'friends' }),
+    el(VkMaintenance, { key: 'maintenance' }),
+    el(VkCancelled, { key: 'cancelled' }),
+    el(VkGreet, { key: 'greet' }),
+    el(VkReengage, { key: 'reengage' }),
+    el(VkWall, { key: 'wall' }),
+    el(VkBirthday, { key: 'birthday' }),
+    el(VkRetention, { key: 'retention' }),
+    el(VkDiscovery, { key: 'discovery' }),
+    el(VkCache, { key: 'cache' }),
+    el(VkStickerCatalog, { key: 'stickers' }),
+  ]);
 
 // A status that is still at work ("Saving…") shows Telegram's arc
 // (R-Y84); one that is done is plain text.
@@ -770,6 +796,7 @@ export const ProviderConnectionControls = ({
       providerId === 'email' ? el(EmailPullRow, { key: 'email-pull' }) : null,
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
       providerId === 'github' ? el(GithubInbox, { key: 'inbox' }) : null,
+      providerId === 'vk' ? el(VkConnectionJobs, { key: 'vk-jobs' }) : null,
       el(ConnectionProbeRow, {
         key: 'probe',
         provider,

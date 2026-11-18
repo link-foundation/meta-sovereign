@@ -1,0 +1,24 @@
+{
+  "archive": "ci-resume-input-mock.tar.gz",
+  "files": {
+    "before/js/tests/resume-input-trace.test.js": "242e5361776acf204a14f6603ed03fbff32cb69d2c38d893b5887993336b3c4c",
+    "ci-logs/checks-release-44063257040-bun-linux.log": "9c57fa2aec0e44f6c59b67f115396a89639507ce4a3b003193dba04810a393c1",
+    "ci-logs/checks-release-44063257040-deno-windows-2.log": "ba3f7b39e8e0d0f5cf881dc2c449e086dc92d7785f1e41ffa81ac58e125c6523",
+    "ci-logs/checks-release-44063257040-node-windows-2.log": "17f2f3348e5f118aae336d414958c3d23d941708ce4f1097e61f61c92a767b46",
+    "ci-logs/ci-resume-input-mock-before.log": "c2f6c0847b7a0b148e0eeade92de0c4fa22b91e60b71926dcbeeb26cfdb4fb5a",
+    "ci-logs/ci-resume-input-mock-bun.log": "db47774cfaf8165567ab5c1cea1cf1fd9be108aa98cd5e95f38a8d817bd5dc06",
+    "ci-logs/ci-resume-input-mock-deno.log": "4e229c22724ece6a237fb48d72a7d82ab6f9b9969418f878976e4355b7a1bf57",
+    "ci-logs/ci-resume-input-mock-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-resume-input-mock-focused.log": "bf1c28865e1fd770a32a95c552cd4e5d53b8d072c41e8139629fc2e9b513d499",
+    "ci-logs/ci-resume-input-mock-format.log": "c2616c42f43e013f36ff8719f9024b1c55aee4ef54b92811fdbd29552f1a3bdf",
+    "ci-logs/ci-resume-input-mock-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/current-2ece94b4-main.json": "03856d8cb44d4e354a811fc368bd27282e5d4860a96f3b35b594bd93d2b5100b",
+    "docs/case-studies/issue-56/ci-resume-input-mock.md": "6e05355f4cac8cefa40f6733bb172caf4e8480124975bd97112ef0c246bc1dd3",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-resume-input-mock.py": "bfb9fe11fc16f167c04f8f673db17f69ac5da2160a2d9f5cd990c83d9183d426",
+    "experiments/issue-56/evidence_bundle.py": "8548fd032750b19ec08fdb24279af2b8c32feb48d90d2d6bc4bbeded3e6a73a6",
+    "js/tests/helpers/e2e-resume-input.mjs": "51825a89f13950e408643d720b415a086202f80b7e92a24300e808a9dd5ae76f",
+    "js/tests/resume-input-trace.test.js": "6a341a5be5333f0f2e1c0efa5534158b25a8d5bdc959d85a02cef76519c99643",
+    "metadata.json": "ded0489ad26cc269904c05dd1274030e8fdac0f87a54353c969200ffc80ca8c4"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "archive": "vk-token-electron-entry.tar.gz",
+  "files": {
+    "ci-logs/vk-token-desktop-jobs.json": "2033d02001547df002c66ee3c4eb018db25bf36519bc2b976f27ef7363ddac67",
+    "ci-logs/vk-token-electron-entry-after.log": "21fecb782054167d0cc0128c7a1da91f80cdfc4df5efd5597168ff5c0d94265d",
+    "ci-logs/vk-token-electron-entry-before.log": "5d30007d6d57f00086493a20108a76f048587d42e084e7a239f325ba3c432a21",
+    "ci-logs/vk-token-electron-entry-deadline.log": "d5d68285c3abe3b6fa0721eb50ab1eaa66f5894ad99277de92095afc93dee3e9",
+    "ci-logs/vk-token-electron-entry-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/vk-token-electron-entry-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vk-token-electron-entry-node.log": "10bdca44957d131ca97a7206b4a3c17142c4504127486ccee864bc01586b66b8",
+    "ci-logs/vk-token-electron-init.source": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+    "docs/case-studies/issue-56/vk-token-electron-entry.md": "73ebe4b4f27b56e85272236be66a695c175fed402b129363c3e6010d5d7a4467",
+    "docs/case-studies/issue-56/vk-token-plan.md": "86c87eb6ffa44501aa343ec996d39a3455843b6fafe403742492c844a0da660e",
+    "docs/case-studies/issue-56/vk-token.md": "d687e4a6b4dd84d50d16772f8e8f7d4efdd6ffc1de0f46291bb44cfb1ee30a00",
+    "experiments/issue-56/collect-vk-token-electron-entry.py": "dfa2105418390767c5f8a870eb5abe1400d4c9e6368390d44b87b480135ec857",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/vk-token-electron-entry.mjs": "1fad5b4d5a8119af14d41f15b8c3ae4c4c4da6edc9f7907b76b5ebbb4a74c321",
+    "experiments/issue-56/vk-token-electron.mjs": "f5f3ca3f9b867a5a63fd63debf6d00a208d4e31ed0ca93ca564ac5b7b64659ea",
+    "js/tests/vk-token-electron-entry.test.js": "9edb26f7552781dc711e49b76cd6265674c805fa9f0f87f915c28f0663b8fc47",
+    "before/experiments/issue-56/vk-token-electron.mjs": "e4e3fce63accfcab222fbd02f189e2fb5ee30850e31eb2006cae26241234e875",
+    "metadata.json": "5e0ace48f68dd33bfc9d937a08611b7416477aaab9ab16fec43a0b608791e628"
+  }
+}

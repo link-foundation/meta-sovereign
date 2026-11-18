@@ -394,6 +394,7 @@ describe('VK Bots Long Poll, community token (R-Z8)', () => {
       methods: {
         'users.get': () => [],
         'groups.getById': () => ({ groups: [{ id: 555, name: 'Shop' }] }),
+        'messages.getHistory': () => ({ count: 0, items: [] }),
         'groups.getLongPollServer': () => ({
           key: 'gk',
           server: 'https://lp.vk.fake/im1',
@@ -433,6 +434,7 @@ describe('VK Bots Long Poll, community token (R-Z8)', () => {
       methods: {
         'users.get': () => [],
         'groups.getById': () => ({ groups: [{ id: 555, name: 'Shop' }] }),
+        'messages.getHistory': () => ({ count: 0, items: [] }),
         'groups.getLongPollServer': () => ({
           key: 'gk',
           server: 'https://lp.vk.fake/im1',

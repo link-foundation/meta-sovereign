@@ -96,6 +96,9 @@ const Preview = ({ invite, t }) => {
   const members = invite.broadcast
     ? t('chat.info.subscribers', { count: invite.members })
     : t('chat.info.members', { count: invite.members });
+  const kind = t(
+    invite.broadcast ? 'chat.invite.channel' : 'chat.invite.group'
+  );
   return el('div', { className: 'invite-preview' }, [
     el(
       'span',
@@ -106,7 +109,7 @@ const Preview = ({ invite, t }) => {
     el(
       'span',
       { key: 'm', className: 'meta invite-meta' },
-      `${t(invite.broadcast ? 'chat.invite.channel' : 'chat.invite.group')}, ${members}`
+      Number.isInteger(invite.members) ? `${kind}, ${members}` : kind
     ),
     invite.about
       ? el('p', { key: 'b', className: 'invite-about' }, invite.about)
@@ -146,24 +149,38 @@ const InviteDialog = ({ api, hash, close }) => {
   const t = useT();
   const [state, setState] = useInvite(api, hash, close);
   const [busy, setBusy] = useState(false);
+  const sending = useRef(false);
+  const active = useRef(true);
+  useEffect(
+    () => () => {
+      active.current = false;
+    },
+    []
+  );
   useEsc(close);
   const join = async () => {
+    if (sending.current) {
+      return;
+    }
+    sending.current = true;
     setBusy(true);
     const answer = await api
       .telegramInviteJoin({ hash })
-      .catch(() => ({ ok: false, code: 'failed' }));
+      .catch(() => ({ ok: false, code: 'outcome-unknown' }));
+    if (!active.current) {
+      return;
+    }
     setBusy(false);
-    if (answer?.ok) {
-      if (answer.chat) {
-        openChat({ source: 'telegram', chat: answer.chat });
-      }
+    if (answer?.ok && /^-[1-9]\d{0,23}$/.test(answer.chat)) {
+      openChat({ source: 'telegram', chat: answer.chat });
       close();
     } else {
-      setState({ phase: 'error', code: answer?.code ?? 'failed' });
+      setState({ phase: 'error', code: answer?.code ?? 'outcome-unknown' });
       if (isTooMany(answer?.code)) {
         globalThis.dispatchEvent?.(new CustomEvent(LIMIT_EVENT));
       }
     }
+    sending.current = false;
   };
   const { phase, invite } = state;
   let body;

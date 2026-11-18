@@ -9,7 +9,7 @@ import {
   writeEncryptedExport,
   DEFAULT_WARNING,
 } from '../src/storage/export-encrypted.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const fetchJson = async (url, init) => {
   const res = await fetch(url, init);

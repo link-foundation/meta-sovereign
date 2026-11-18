@@ -13,10 +13,12 @@
  */
 
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { attachDesktopLifecycle } from './lifecycle.js';
+import { openVkAuthorization } from './vk-authorization.js';
+import { desktopConfiguration } from './configuration.js';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const preload = path.join(here, 'preload.cjs');
+import { createMainWindow } from './window.js';
+export { createMainWindow, MIN_WINDOW } from './window.js';
 
 const loadElectron = async () => {
   const electron = await import('electron').catch(() => ({}));
@@ -117,39 +119,6 @@ export const configureAutoUpdates = ({
   return { enabled: true, reason: 'checking' };
 };
 
-// The page's own background (`--bg` in app.css) for the OS theme, so a
-// dark desktop does not flash white before the app paints. The window
-// shows once the first frame is ready (Electron's "showing the window
-// gracefully"); it narrows to a phone's width, where the app switches to
-// its bottom bar, and no further.
-const WINDOW_BACKGROUND = { light: '#ffffff', dark: '#0e1116' };
-export const MIN_WINDOW = { width: 360, height: 480 };
-
-export const createMainWindow = async ({
-  BrowserWindow,
-  port,
-  nativeTheme,
-}) => {
-  const win = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: MIN_WINDOW.width,
-    minHeight: MIN_WINDOW.height,
-    show: false,
-    backgroundColor: nativeTheme?.shouldUseDarkColors
-      ? WINDOW_BACKGROUND.dark
-      : WINDOW_BACKGROUND.light,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      preload,
-    },
-  });
-  win.once('ready-to-show', () => win.show());
-  await win.loadURL(`http://127.0.0.1:${port}/`);
-  return win;
-};
-
 /**
  * Where the desktop shell keeps its links store:
  * `META_SOVEREIGN_STORE_DIR` when set, otherwise `<userData>/store`
@@ -158,33 +127,63 @@ export const createMainWindow = async ({
 export const resolveDesktopStoreDir = ({ app, env = process.env } = {}) =>
   env.META_SOVEREIGN_STORE_DIR || path.join(app.getPath('userData'), 'store');
 
-export const startDesktop = async () => {
-  const [{ app, BrowserWindow, nativeTheme }, { startServer }, autoUpdater] =
-    await Promise.all([
-      loadElectron(),
-      import('../src/server/index.js'),
-      loadAutoUpdater(),
-    ]);
+export const startDesktop = async ({
+  electronLoader = loadElectron,
+  serverLoader = () => import('../src/server/index.js'),
+  updaterLoader = loadAutoUpdater,
+  argv,
+  configuration,
+} = {}) => {
+  const [{ app, BrowserWindow, nativeTheme, ipcMain, clipboard }, autoUpdater] =
+    await Promise.all([electronLoader(), updaterLoader()]);
+  const options = await desktopConfiguration(
+    argv ?? process.argv.slice(app.isPackaged ? 1 : 2),
+    configuration
+  );
+  const { startServer } = await serverLoader();
+  let mainWindow;
   const handle = await startServer({
-    port: 0,
-    localUi: true,
     storeDir: resolveDesktopStoreDir({ app }),
+    ...options,
+    vkToken: {
+      openAuthorization: async ({ signal }) => {
+        await app.whenReady();
+        return openVkAuthorization({
+          BrowserWindow,
+          parent: mainWindow,
+          signal,
+        });
+      },
+    },
   });
+  let closing;
+  const close = () =>
+    (closing ??= Promise.resolve().then(() => handle.close()));
 
-  await app.whenReady();
-  configureAutoUpdates({ app, autoUpdater });
-  await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
-
-  app.on('activate', async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
-    }
-  });
-  app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-      handle.close().then(() => app.quit());
-    }
-  });
+  try {
+    await app.whenReady();
+    configureAutoUpdates({ app, autoUpdater });
+    return await attachDesktopLifecycle({
+      app,
+      BrowserWindow,
+      handle: { close },
+      createWindow: async () => {
+        mainWindow = await createMainWindow({
+          app,
+          BrowserWindow,
+          nativeTheme,
+          ipcMain,
+          clipboard,
+          port: handle.port,
+          tls: handle.tls,
+        });
+        return mainWindow;
+      },
+    });
+  } catch (error) {
+    await close();
+    throw error;
+  }
 };
 
 // Packaged apps load this file as `package.json#main` with no script

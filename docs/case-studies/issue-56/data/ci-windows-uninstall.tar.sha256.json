@@ -1,0 +1,31 @@
+{
+  "archive": "ci-windows-uninstall.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "4029fe8d55ecb6b8a9b2adc243d9c4a8d75aa990b06807734288d29a6075e7f3",
+    ".github/workflows/desktop-release.yml": "f96a833b4f69c5052d88fddc2d40be8d32bbb248b2ffa86cf40537fa6f93265e",
+    "PLAN.md": "9e687585a9de65300ab3f9042204420a031f9763ff4ca71b01696bc68a2d8bd7",
+    "docs/case-studies/issue-56/README.md": "48379b1500b5c5a4627a0d37562af7604a8ac17388e8d4e95f3113d96ac4c12d",
+    "docs/case-studies/issue-56/ci-windows-uninstall.md": "4a57b2a3888496b06d66b62d5a8cf0fae29fb18ab85da33a265f0d4f4f924412",
+    "experiments/issue-56/collect-salary-band-currencies.py": "1a53699c83805b3de5014926ae8979e282f92c40b9e892d7c5d506181c262316",
+    "experiments/issue-56/collect-windows-uninstall.py": "775501a993b27d5181bf2befe42a6dcfcb12b9a9e98e7c0e70f2b0aeb1e3c1ca",
+    "js/scripts/verify-windows-packages.ps1": "3b4d4116a95d37da64940ee21d94ed8183ff7e8c1de9767a47ecc4e58bb0f79a",
+    "js/scripts/wait-windows-uninstall.ps1": "7096073d92b2b908271818527f8375fa06bc536895f3dbb32994d80065fff9cb",
+    "js/tests/desktop-windows-cleanup.test.js": "e97e9a1e09e4e796942b080d76a490976aebca2014af8a5301315eda20320a7a",
+    "ci-logs/windows-uninstall-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/windows-uninstall-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/windows-uninstall-format-write.log": "6ccbcd136deb23a50b94d5e631d8f3a01e60bb3292e807d3a33eb668b771579c",
+    "ci-logs/windows-uninstall-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/windows-uninstall-doc-format.log": "17779c997c91e50784b046ca68f08abf32fb7cca77386163823c68af4ff4ab92",
+    "ci-logs/windows-uninstall-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/windows-uninstall-focused.log": "0680e6d095635660944ef80364f2f3904d6b37e7118cea18f12bcf44096e0f11",
+    "ci-logs/windows-uninstall-duplication.log": "5bb505166c41b1370b4254e5872117fe4629cc81b706ca287e8bda0a3bd24778",
+    "ci-logs/windows-uninstall-index-format.log": "2acc1a85b8ffc1ac1ee5e4fb413ed10bddeedc8e94d942f9ddfe167766dd5955",
+    "ci-logs/desktop-installation-windows-x64-133892687330.log": "aa8edf4dcb966462f80e8b2a3595af8583d67135591ebb1f1d2dc40379253905",
+    "ci-logs/desktop-installation-hosted-jobs.json": "df02219a99463a16e8508745bacffd378478f4fa47900bd4d9d2c411ba55d85c",
+    "ci-logs/desktop-installation-windows-arm64-133892687357.log": "7619e838cf5e462a952c787da51ae2208bec19fc3fd9a091c72ade381b490052",
+    "ci-logs/desktop-installation-lint-133892749945.log": "9210065f490704dc2d647296c8dc36ccaef2d0f5bd985775a5626bbb2b6354da",
+    "ci-logs/desktop-installation-pipeline-133894379977.log": "03acffa9e6e2e43cc46885d132fd91be67e728cdd1a2c5f35ee1d28e3215c9a8",
+    "before/js/scripts/verify-windows-packages.ps1": "2d31cfa4e55357e9868a2a3334d523fad7c3449d6b88683b8d7312cd8854269b",
+    "metadata.json": "72b6bb563efb03bed86a65cf337dacd902fe134313cfaa90f7d2657ba81045c6"
+  }
+}

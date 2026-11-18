@@ -22,6 +22,16 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const PREFIX = 'meta-sovereign-desktop';
 
+// SQLite ships flat prebuild filenames for every OS/CPU. Filter per target,
+// without mutating shared staging files when multiple architectures are built.
+const sqlitePrebuilds = (...platforms) => ({
+  files: [
+    `!**/better-sqlite3/prebuilds/!(${platforms
+      .map((name) => `${name}-\${arch}`)
+      .join('|')}).node`,
+  ],
+});
+
 const electronVersion = () => {
   if (process.env.META_SOVEREIGN_ELECTRON_VERSION) {
     return process.env.META_SOVEREIGN_ELECTRON_VERSION;
@@ -43,7 +53,8 @@ module.exports = {
   copyright: 'Unlicense — released into the public domain',
   electronVersion: electronVersion(),
   asar: true,
-  // The app has no native modules; electron-updater is pure JS.
+  // Provider imports have portable fallbacks; keep optional native accelerators
+  // from triggering cross-platform source builds during packaging.
   nativeModules: { npmRebuild: false },
   // v27 includes checksummed native FPM bundles for Linux x64 and arm64.
   directories: {
@@ -53,6 +64,9 @@ module.exports = {
   fileOptions: { files: ['js/**/*', 'package.json', 'LICENSE', 'README.md'] },
   // Retain the existing updater-6 channel; this workflow has no manifest key.
   updateManifest: false,
+  // Keep feeds readable by the current stable updater and installed clients.
+  // Builder 27 otherwise assumes updater 7 and rejects our staged app.
+  electronUpdaterCompatibility: '>=6',
   publish: [
     {
       provider: 'github',
@@ -62,6 +76,7 @@ module.exports = {
     },
   ],
   linux: {
+    fileOptions: sqlitePrebuilds('linux', 'linuxmusl'),
     target: ['AppImage', 'deb', 'tar.gz'],
     category: 'Utility',
     // Keep the .desktop entry and the staged package.json `desktopName`
@@ -71,6 +86,7 @@ module.exports = {
     artifactName: `${PREFIX}-linux-\${arch}-\${version}.\${ext}`,
   },
   mac: {
+    fileOptions: sqlitePrebuilds('darwin'),
     // The top-level `executableName` also names the .app bundle, so
     // macOS gets the product name back ("Meta Sovereign.app").
     executableName: 'Meta Sovereign',
@@ -93,6 +109,7 @@ module.exports = {
     title: 'Install Meta Sovereign',
   },
   win: {
+    fileOptions: sqlitePrebuilds('win32'),
     // Windows artifacts already ship unsigned (no Authenticode publisher).
     // Keep that channel explicit under v27's fail-closed signing policy.
     verifyUpdateCodeSignature: false,

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the translate bar and the summary (R-Y213), as
 // Telegram Desktop and the mobile apps have them: with "Translate entire
 // chats" on in Settings and a Premium account, a chat whose messages are in
@@ -71,7 +72,7 @@ await page.route('**/api/telegram/translate-account', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/translate', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   if (body.chat === FRED) {
     return fulfil(route, {
@@ -91,7 +92,7 @@ await page.route('**/api/telegram/translate', (route) => {
 });
 const summaries = [];
 await page.route('**/api/telegram/summarize', (route) => {
-  summaries.push(route.request().postDataJSON());
+  summaries.push(requestBody(route.request()));
   return fulfil(route, {
     ok: true,
     text: 'A trip, in short.',
@@ -100,7 +101,7 @@ await page.route('**/api/telegram/summarize', (route) => {
 });
 const toggles = [];
 await page.route('**/api/telegram/translations-toggle', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   toggles.push(body);
   return fulfil(route, { ok: true, disabled: body.disabled });
 });

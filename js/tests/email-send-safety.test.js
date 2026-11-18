@@ -13,7 +13,7 @@ import path from 'node:path';
 
 import { createEmailLive } from '../src/sources/email.js';
 import { createAttachmentStore } from '../src/server/email-attachments.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const reply = (status, body = {}) => ({
   ok: status < 400,

@@ -1,0 +1,5 @@
+# GitHub source pages can reject bursts even when the global pool is small.
+# Keep checking their actual status; serialize and space only this host.
+[hosts."github.com"]
+concurrency = 1
+request_interval = "500ms"

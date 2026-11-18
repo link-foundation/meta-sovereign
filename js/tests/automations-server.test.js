@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 
 const daysAgo = (n) => new Date(Date.now() - n * DAY_MS).toISOString();
 let seq = 0;
@@ -102,7 +102,17 @@ test('presets are listed, saved, edited and deleted', async () => {
     const gone = await call('DELETE', '/api/automations/reengage-dormant');
     assert.equal(gone.body.deleted, 'automation:reengage-dormant');
     const presets = await call('GET', '/api/automations/presets');
-    assert.equal(presets.body.presets.length, 4);
+    assert.equal(presets.body.presets.length, 12);
+    assert.ok(
+      presets.body.presets.some((a) => a.id === 'automation:gratitude')
+    );
+    const engagement = presets.body.presets.find(
+      (a) => a.id === 'automation:engagement'
+    );
+    assert.equal(engagement.enabled, false);
+    assert.equal(engagement.mode, 'safe');
+    assert.equal(engagement.action.kind, 'reply-engagement');
+    assert.deepEqual(engagement.action.stickerIds, ['59431']);
   } finally {
     await server.close();
   }
@@ -217,10 +227,13 @@ test('the composer sends through /api/send and stores the message', async () => 
 });
 
 test('a send the network took stays sent when the store write fails', async () => {
-  const { server, store, sent, confirmCall } = await boot();
-  const put = store.put.bind(store);
-  store.put = async (link) => {
+  const { server, sent, confirmCall } = await boot();
+  const put = server.store.put.bind(server.store);
+  let failedWrites = 0;
+  // Inject at the service's storage boundary, above causal admission/history.
+  server.store.put = async (link) => {
     if (link.sender === 'me') {
+      failedWrites++;
       throw Object.assign(new Error('disk full'), {
         code: 'STORE_WRITE_FAILED',
       });
@@ -233,10 +246,12 @@ test('a send the network took stays sent when the store write fails', async () =
     assert.equal(first.status, 200);
     assert.equal(first.body.status, 'sent');
     assert.equal(first.body.stored, false);
+    assert.equal(failedWrites, 1);
     // A retry of the same draft is the first one's answer, not a resend.
     const again = await confirmCall('/api/send', draft);
     assert.equal(again.status, 200);
     assert.equal(sent.length, 1);
+    assert.equal(failedWrites, 1);
   } finally {
     await server.close();
   }

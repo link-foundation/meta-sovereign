@@ -1,0 +1,26 @@
+{
+  "archive": "application-ci-registration.tar.gz",
+  "files": {
+    "PLAN.md": "ea1783f679e2077c6ba4776248c9fc70c3347ff869c544e3223dde3b70b72021",
+    "before/js/tests/ci-browser-shards.test.js": "6e0379ac8d06ed5f1bb33c8c6530a702820e9ca2421bd2ac2646fcdea4f2802e",
+    "before/js/tests/e2e-job-application-answers-browser.mjs": "4f68bd7545f51e24d98d0fe7d5e9f0e899e2bc7dc2e46a0a0806e28c0339b7d8",
+    "before/js/tests/e2e-job-application-browser.mjs": "55de3c5f4f11f64ec61032c1b97f8a4c2d9dd2e13beb95dd61533ec2425e5b8c",
+    "ci-logs/811b-main-current.json": "86a4e5ca1743584393f365499c3e8d55be63c1fc498c3aac767daad814d92fd7",
+    "ci-logs/application-ci-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-ci-duplication.log": "cde52f7909b17ad52d978afa99c3b6261419359fa2590403c481084fbc40d446",
+    "ci-logs/application-ci-focused.log": "38a656525ec27e0e5c4598879b56279c99f84b8042bac2da113838704d9a1009",
+    "ci-logs/application-ci-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/application-ci-format-write.log": "6a641d9f2752c7854c8c17dda700d4a7ae68f06d77c545f1d8d1a476daa77a47",
+    "ci-logs/application-ci-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/application-ci-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/checks-44012731824-workflow-contract.log": "13deebaf28471c9d3038477fa4db2f9f2fdd18f27301b66e184c02bb45a2597f",
+    "docs/case-studies/issue-56/application-ci-registration.md": "a3cf7deb0ae98a5448dd6e3eedd4171160e60e2bbb0c1e19db2fb232bcf6c231",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-application-ci.py": "8eda29b1cc1c00e824c798a81092ae1c4d524cd57480b61d3a484839fe5c35c7",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-browser-shards.test.js": "f514fd5395154ca6c6e74950a0994648b2fb688e921a1bdd3c8a78e48f0e1f8c",
+    "js/tests/e2e-job-application-answers-browser.mjs": "93c21a79b191de469ca339c129723dbf2565d78b808e71b0563a381f6dfaa9da",
+    "js/tests/e2e-job-application-browser.mjs": "8dc03a742e3850d02fd0bcecdad009d66241836f49ab4aea6b93fb3bafd4b081",
+    "metadata.json": "e81c016750c9f5d4755566700a0e9f83630f5a12f3243437b89df63ec9ea70ad"
+  }
+}

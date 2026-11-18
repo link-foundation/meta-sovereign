@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the chat list's menu (R-Y97): a right-click on a
 // chat offers Pin, Mute, Mark as read/unread and Archive as Telegram's
 // apps do; Mute opens the times; each asks /api/telegram/dialog; a chat
@@ -66,7 +67,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({
@@ -80,8 +81,8 @@ await page.route('**/api/telegram/status', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/dialog', (route) => {
-  asked.push(JSON.parse(route.request().postData() ?? '{}'));
-  route.fulfill({
+  asked.push(requestBody(route.request()));
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ ok: true }),
@@ -91,13 +92,13 @@ await page.route('**/api/telegram/dialog', (route) => {
 // deleted, as the real one does.
 const removed = [];
 await page.route('**/api/telegram/remove-chat', async (route) => {
-  const body = JSON.parse(route.request().postData() ?? '{}');
+  const body = requestBody(route.request());
   removed.push(body);
   const link = await store.get(`msg:telegram:${body.chat}:1`);
   if (link) {
     await store.put({ ...link, deleted: true });
   }
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ ok: true, chat: body.chat, deleted: 1 }),

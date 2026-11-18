@@ -1,20 +1,7 @@
-/**
- * RFC 6455 WebSocket framing — minimal text-frame implementation.
- *
- * The full spec defines binary frames, fragmentation, ping/pong,
- * extensions, and a handful of close codes. We use WebSockets only
- * to ship newline-delimited JSON sync events between an http server
- * and a browser, so we narrow to single-fragment text frames with
- * lengths up to 64KiB; pings get a pong reply and other control
- * frames are ignored.
- *
- * Keeping the implementation in-tree avoids pulling the `ws` package
- * (and a transitive native build) into the dependency surface — the
- * issue calls for "no premature optimisation" and the simplest
- * possible code.
- */
+/** RFC 6455 framing for bounded text/binary Lino messages and control frames. */
 
 import crypto from 'node:crypto';
+import { MAX_SYNC_BYTES } from './wire.js';
 
 const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
@@ -28,7 +15,7 @@ export const isWebSocketUpgrade = (req) =>
     .includes('upgrade') &&
   typeof req.headers['sec-websocket-key'] === 'string';
 
-export const writeAcceptHandshake = (socket, req) => {
+export const writeAcceptHandshake = (socket, req, protocol = '') => {
   const key = req.headers['sec-websocket-key'];
   const accept = acceptKey(key);
   socket.write(
@@ -37,60 +24,54 @@ export const writeAcceptHandshake = (socket, req) => {
       'Upgrade: websocket',
       'Connection: Upgrade',
       `Sec-WebSocket-Accept: ${accept}`,
+      ...(protocol ? [`Sec-WebSocket-Protocol: ${protocol}`] : []),
       '',
       '',
     ].join('\r\n')
   );
 };
 
-export const encodeTextFrame = (text) => {
-  const payload = Buffer.from(text, 'utf8');
+const encodeFrame = (data, opcode, masked) => {
+  const payload = Buffer.from(data);
   const len = payload.length;
-  const head = [];
-  head.push(0x81); // FIN + text opcode
+  if (len > MAX_SYNC_BYTES) {
+    throw new RangeError('WebSocket message exceeds 4 MiB');
+  }
+  const head = [0x80 | opcode];
+  const maskBit = masked ? 0x80 : 0;
   if (len < 126) {
-    head.push(len);
+    head.push(maskBit | len);
   } else if (len < 0x10000) {
-    head.push(126, (len >> 8) & 0xff, len & 0xff);
+    head.push(maskBit | 126, (len >> 8) & 0xff, len & 0xff);
   } else {
-    head.push(127, 0, 0, 0, 0);
     head.push(
+      maskBit | 127,
+      0,
+      0,
+      0,
+      0,
       (len >>> 24) & 0xff,
       (len >>> 16) & 0xff,
       (len >>> 8) & 0xff,
       len & 0xff
     );
   }
-  return Buffer.concat([Buffer.from(head), payload]);
-};
-
-const encodeMaskedTextFrame = (text) => {
-  const payload = Buffer.from(text, 'utf8');
-  const len = payload.length;
+  if (!masked) {
+    return Buffer.concat([Buffer.from(head), payload]);
+  }
   const mask = crypto.randomBytes(4);
-  const head = [];
-  head.push(0x81);
-  if (len < 126) {
-    head.push(0x80 | len);
-  } else if (len < 0x10000) {
-    head.push(0x80 | 126, (len >> 8) & 0xff, len & 0xff);
-  } else {
-    head.push(0x80 | 127, 0, 0, 0, 0);
-    head.push(
-      (len >>> 24) & 0xff,
-      (len >>> 16) & 0xff,
-      (len >>> 8) & 0xff,
-      len & 0xff
-    );
-  }
-  const masked = Buffer.alloc(len);
+  const body = Buffer.alloc(len);
   for (let i = 0; i < len; i += 1) {
-    masked[i] = payload[i] ^ mask[i % 4];
+    body[i] = payload[i] ^ mask[i % 4];
   }
-  return Buffer.concat([Buffer.from(head), mask, masked]);
+  return Buffer.concat([Buffer.from(head), mask, body]);
 };
-
-export const encodeClientTextFrame = encodeMaskedTextFrame;
+export const encodeTextFrame = (text) => encodeFrame(text, 1, false);
+export const encodeClientTextFrame = (text) => encodeFrame(text, 1, true);
+export const encodeBinaryFrame = (bytes) => encodeFrame(bytes, 2, false);
+export const encodeClientBinaryFrame = (bytes) => encodeFrame(bytes, 2, true);
+export const encodePongFrame = (bytes, masked = false) =>
+  encodeFrame(bytes, 10, masked);
 
 const decodeMaskedPayload = (buf, offset, len, mask) => {
   const out = Buffer.alloc(len);
@@ -114,8 +95,7 @@ const readLength = (buf, b2) => {
   if (buf.length < 10) {
     return null;
   }
-  // We treat this as a 32-bit length — bigger frames are not used here.
-  const len = (buf[6] << 24) | (buf[7] << 16) | (buf[8] << 8) | buf[9];
+  const len = buf.readUInt32BE(2) === 0 ? buf.readUInt32BE(6) : Infinity;
   return { len, offset: 10 };
 };
 
@@ -129,42 +109,123 @@ const readMask = (buf, offset, masked) => {
   return { mask: buf.subarray(offset, offset + 4), offset: offset + 4 };
 };
 
-const dispatchFrame = (opcode, payload, handlers) => {
-  if (opcode === 0x1) {
-    handlers.onText?.(payload.toString('utf8'));
-  } else if (opcode === 0x8) {
-    handlers.onClose?.();
-  } else if (opcode === 0x9) {
-    handlers.onPing?.(payload);
+const readFrame = (buf, fragmentBytes, fragmentCount) => {
+  const opcode = buf[0] & 0x0f;
+  const fin = (buf[0] & 0x80) !== 0;
+  if ((buf[0] & 0x70) !== 0 || ![0, 1, 2, 8, 9, 10].includes(opcode)) {
+    throw new Error('unsupported WebSocket frame');
   }
-  // opcode 0xA (pong) and others are ignored.
+  const lenInfo = readLength(buf, buf[1]);
+  if (!lenInfo) {
+    return null;
+  }
+  const { len } = lenInfo;
+  if (
+    len > MAX_SYNC_BYTES ||
+    (opcode >= 8 && (!fin || len > 125)) ||
+    (opcode < 8 && len + fragmentBytes > MAX_SYNC_BYTES)
+  ) {
+    throw new Error('invalid WebSocket message length');
+  }
+  if (opcode < 8 && fragmentCount >= 1024) {
+    throw new Error('too many WebSocket fragments');
+  }
+  const masked = (buf[1] & 0x80) !== 0;
+  const maskInfo = readMask(buf, lenInfo.offset, masked);
+  if (!maskInfo) {
+    return null;
+  }
+  const { mask, offset } = maskInfo;
+  if (buf.length < offset + len) {
+    return null;
+  }
+  return {
+    opcode,
+    fin,
+    payload: masked
+      ? decodeMaskedPayload(buf, offset, len, mask)
+      : buf.subarray(offset, offset + len),
+    tail: buf.subarray(offset + len),
+  };
 };
 
 export const createFrameReader = (handlers) => {
   let buf = Buffer.alloc(0);
+  let fragments = [];
+  let fragmentBytes = 0;
+  let fragmentOpcode = 0;
+  let stopped = false;
+  const fail = () => {
+    stopped = true;
+    buf = Buffer.alloc(0);
+    fragments = [];
+    handlers.onClose?.();
+  };
+  const deliver = (opcode, payload) => {
+    if (opcode === 1) {
+      let text;
+      try {
+        text = new TextDecoder('utf-8', { fatal: true }).decode(payload);
+      } catch {
+        fail();
+        return;
+      }
+      handlers.onText?.(text);
+    } else {
+      handlers.onBinary?.(payload);
+    }
+  };
   return (chunk) => {
+    if (stopped) {
+      return;
+    }
     buf = Buffer.concat([buf, chunk]);
-    while (buf.length >= 2) {
-      const opcode = buf[0] & 0x0f;
-      const masked = (buf[1] & 0x80) !== 0;
-      const lenInfo = readLength(buf, buf[1]);
-      if (!lenInfo) {
+    while (buf.length >= 2 && !stopped) {
+      let frame;
+      try {
+        frame = readFrame(buf, fragmentBytes, fragments.length);
+      } catch {
+        fail();
         return;
       }
-      const maskInfo = readMask(buf, lenInfo.offset, masked);
-      if (!maskInfo) {
+      if (!frame) {
         return;
       }
-      const { len } = lenInfo;
-      const { mask, offset } = maskInfo;
-      if (buf.length < offset + len) {
+      const { opcode, fin, payload } = frame;
+      buf = frame.tail;
+      if (opcode === 8) {
+        fail();
         return;
       }
-      const payload = masked
-        ? decodeMaskedPayload(buf, offset, len, mask)
-        : buf.subarray(offset, offset + len);
-      buf = buf.subarray(offset + len);
-      dispatchFrame(opcode, payload, handlers);
+      if (opcode === 9) {
+        handlers.onPing?.(payload);
+        continue;
+      }
+      if (opcode === 10) {
+        continue;
+      }
+      if ((opcode === 0) !== (fragmentOpcode !== 0)) {
+        fail();
+        return;
+      }
+      if (!fin || fragmentOpcode) {
+        if (opcode) {
+          fragmentOpcode = opcode;
+        }
+        fragments.push(payload);
+        fragmentBytes += payload.length;
+        if (!fin) {
+          continue;
+        }
+        const whole = Buffer.concat(fragments, fragmentBytes);
+        const type = fragmentOpcode;
+        fragments = [];
+        fragmentBytes = 0;
+        fragmentOpcode = 0;
+        deliver(type, whole);
+      } else {
+        deliver(opcode, payload);
+      }
     }
   };
 };

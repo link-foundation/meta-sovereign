@@ -1,0 +1,31 @@
+export const hiBrowser = {
+  'browser.title': 'ब्राउज़र स्वचालन',
+  'browser.hint':
+    'चुनें कि कनेक्ट किया गया सर्वर ब्राउज़र विंडो कैसे खोले। बदलाव अगली बार खोलने पर लागू होंगे। प्राथमिकता: रन विकल्प, स्लॉट, कार्यप्रवाह, फिर डिफ़ॉल्ट।',
+  'browser.scope': 'लागू करें',
+  'browser.scope.default': 'डिफ़ॉल्ट',
+  'browser.scope.case': 'कार्यप्रवाह',
+  'browser.scope.slot': 'ब्राउज़र स्लॉट',
+  'browser.workflow': 'कार्यप्रवाह',
+  'browser.case.general': 'सामान्य',
+  'browser.case.cv': 'सीवी',
+  'browser.case.messages': 'संदेश',
+  'browser.case.auto-import': 'आयात',
+  'browser.case.marketplace': 'मार्केटप्लेस',
+  'browser.case.jobs': 'नौकरी के आवेदन',
+  'browser.case.forms': 'फ़ॉर्म',
+  'browser.platform': 'प्रदाता आईडी',
+  'browser.slot': 'स्लॉट का नाम',
+  'browser.mode': 'विंडो',
+  'browser.mode.visible': 'दिखाई दे',
+  'browser.mode.headless': 'छिपी हुई (हेडलेस)',
+  'browser.mode.inherit': 'विरासत में मिली सेटिंग',
+  'browser.slotHint':
+    'छोटे अंग्रेज़ी अक्षर, अंक, हाइफ़न या अंडरस्कोर इस्तेमाल करें। main स्लॉट मौजूदा प्रोफ़ाइल रखता है; नाम वाले स्लॉट में अलग लॉगिन होते हैं। QR साइन-इन एक दिखाई देने वाली विंडो खोलता है।',
+  'browser.save': 'ब्राउज़र सेटिंग सहेजें',
+  'browser.saving': 'सहेज रहे हैं…',
+  'browser.saved': 'ब्राउज़र सेटिंग सहेजी गई।',
+  'browser.failed':
+    'सेटिंग सहेज नहीं सके। आपका चयन फ़ॉर्म में है; फिर कोशिश करें।',
+  'browser.loading': 'ब्राउज़र सेटिंग लोड हो रही हैं…',
+};

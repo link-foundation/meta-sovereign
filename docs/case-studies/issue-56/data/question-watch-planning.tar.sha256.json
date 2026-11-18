@@ -1,0 +1,32 @@
+{
+  "archive": "question-watch-planning.tar.gz",
+  "files": {
+    "before/js/src/automation/question-browser-watch.js": "794d1bed2579c6a5014c6d223b7ada7f16bebe6a4a5701a4e3bcf83d2b1b302f",
+    "before/js/src/automation/question-browser.js": "1b1bdfa3680e6756f27b8facf350c656e3828c0daa3e233fad6b335d65dbf9de",
+    "before/js/src/automation/question-watch-cycle.js": "862ab2534938195243f1e524b8b21dbb8952bd6d2e660a3d43e484bdc4ca95c3",
+    "before/js/src/automation/question-watch-records.js": "fa4f0d785ee7b4f00a7b33dfb40286df705920d874a521f87db0307a598482a6",
+    "ci-logs/question-watch-planning-after.log": "326ceaa9733c89266b7b36505c2b4882533f91c7a7686f3b1312bfa095462a30",
+    "ci-logs/question-watch-planning-before.log": "83c88d8f273bfba431a2b72ad822c0b35b110ff98e6eb499405ee37c404e9e62",
+    "ci-logs/question-watch-planning-deno.log": "0d2ee3cdb6d5dcac5df34ecb37e6d5c70ca74568dfb091a1a601d4d736ca4455",
+    "ci-logs/question-watch-planning-doc-format.log": "19a5874691dfd3fd0f7667b96e6eaa77f84c6856b9f09b534bfd02125eedf911",
+    "ci-logs/question-watch-planning-duplication.log": "7d85989e6395ff504c9c7cfdf33e3edd7a6742fc80d8f4a6e07f3cad6f306aeb",
+    "ci-logs/question-watch-planning-format.log": "3d0f19b525ca15658b9f5fb5a5837685d1f112f965d024750d4e26f7cb9fd325",
+    "ci-logs/question-watch-planning-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/question-watch-planning-node.log": "f7b2af3e5ecfa0a1195283cf2ef13c77cc67f96598352d06eb51d16ceea857b5",
+    "ci-logs/question-watch-planning-parent-tests.log": "b6474196f076b6ccd71a1e013f2a6eae039b1613aca87a6e4ccfe1e64bb947e1",
+    "ci-logs/question-watch-planning-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/question-watch-planning.md": "d043ab95dccb55e5ec437e7c7a20905c7b61ebd57d550f3eba606f19b6402103",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-question-watch-planning.py": "5a1c67af78ef29690a1d38d6accb31a08b199b51cc597b535346f3a881cf26da",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "experiments/issue-56/question-browser-fixture.mjs": "43e33786b5af8a92adde39c79c7991f6282d146f6dc6a3108a0ccab6043f19a1",
+    "experiments/issue-56/question-watch-fixture.mjs": "baff1134e68320d734ab8baa787274145ddc347219723b960d8169942f539e6d",
+    "experiments/issue-56/question-watch-planning-before.py": "cadd76b4814fd9ba0329a54d45344e6307bef41d101a464e7e775ecb8f815ba3",
+    "js/src/automation/question-browser-watch.js": "2c0565413f282fd59d96c0b367cf1dd5eb5a352a0fecaa56b9bd89ce8c6ffbd0",
+    "js/src/automation/question-browser.js": "5a12b8917cd8a3c6b7202fad15f52bbaed88a2cb02221ed11484a90094af6be0",
+    "js/src/automation/question-watch-cycle.js": "af0b0fe216c50ee43e60edfb10237d1fcd63e9380782e5c5c3c579f58caf818a",
+    "js/src/automation/question-watch-records.js": "05eb5e45a6de064bd98446b988f4282d2dbbf634eaa822ef50781c71e0d01e45",
+    "js/tests/question-watch-planning.test.js": "1f96eea3033895e0ff9f739b813c990ec929a133c362c49afb00d632ac869bfe",
+    "metadata.json": "b38dc3768dd96ed924bf31d1f276d5993ffa1f7b3b7c32f98163df4803663b69"
+  }
+}

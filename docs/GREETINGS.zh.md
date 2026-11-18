@@ -95,9 +95,13 @@ envelope，并在消息之间等待 `delayMs`（默认 30 秒，与 vk-bot 相�
 meta-sovereign greetings-stickers                       # built-in catalogue
 meta-sovereign greetings-stickers --live --networks=vk,telegram
 meta-sovereign greetings-select --stickers=vk:72789,vk:21 --sets=UtyaDuck --language=ru
+meta-sovereign greetings-select --language=zh --prefer=text --texts="你好！
+👋"
 meta-sovereign greetings-plan --mode=initiate --limit=10
 meta-sovereign greetings-send --mode=reply --delay-ms=30000
 ```
+
+在问候页面编辑所选语言的回复短语，每行一句。保存空列表会恢复该语言的默认短语，并保留其他语言。CLI 的 `--texts` 接受相同的换行分隔列表；`--prefer=text` 会选择文字而非可用贴纸。VK 问候的计划、预览和发送仅适用于与用户的私人对话，并会识别导入的发出消息。
 
 | Method | Path                       | 用途                                                     |
 | ------ | -------------------------- | -------------------------------------------------------- |

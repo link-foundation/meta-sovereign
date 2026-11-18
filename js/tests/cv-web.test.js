@@ -229,6 +229,20 @@ test('an idle telemetry panel explains that no run happened yet', () => {
   assert.match(render(baseState()), /No runs recorded yet/);
 });
 
+test('initial CV loading disables actions without claiming the routes are unavailable', () => {
+  for (const { id } of availableLocales) {
+    const html = render(
+      baseState({ platforms: [], selected: [], busy: 'load' }),
+      id
+    );
+    assert.doesNotMatch(html, /data-cv="unavailable"/);
+    assert.ok(html.includes(dictionaries[id]['common.loading']));
+    for (const action of ['read', 'compare', 'plan-sync', 'apply-sync']) {
+      assert.match(html, new RegExp(`data-action="cv-${action}"[^>]*disabled`));
+    }
+  }
+});
+
 test('every locale translates the CV screen', () => {
   for (const { id } of availableLocales) {
     const html = render(baseState(), id);

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for notification sounds and automatic media download
 // (R-Y181), as Telegram Desktop has them: Settings lists the saved
 // ringtones and says the limits in words, adds one from an audio file
@@ -156,7 +157,7 @@ const calls = [];
 await page.route('**/api/telegram/notify-chat', (route) =>
   fulfil(route, {
     ok: true,
-    chat: route.request().postDataJSON().chat,
+    chat: requestBody(route.request()).chat,
     exception: false,
     muteUntil: 0,
     forever: false,
@@ -166,7 +167,7 @@ await page.route('**/api/telegram/notify-chat', (route) =>
   })
 );
 await page.route('**/api/telegram/notify-chat-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['chat', body]);
   return fulfil(route, {
     ok: true,
@@ -193,7 +194,7 @@ await page.route('**/api/telegram/upload*', (route) =>
   fulfil(route, { token: 'abc123', name: 'pop.mp3', size: 100 })
 );
 await page.route('**/api/telegram/ringtone-add', (route) => {
-  calls.push(['add', route.request().postDataJSON()]);
+  calls.push(['add', requestBody(route.request())]);
   ringtones = [
     ...ringtones,
     { id: '13', title: 'pop', duration: 1, size: 100 },
@@ -201,7 +202,7 @@ await page.route('**/api/telegram/ringtone-add', (route) => {
   return fulfil(route, { ok: true, ringtone: ringtones.at(-1) });
 });
 await page.route('**/api/telegram/ringtone-remove', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['remove', body]);
   ringtones = ringtones.filter((r) => r.id !== body.id);
   return fulfil(route, { ok: true });

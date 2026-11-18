@@ -135,6 +135,7 @@ export const parseRfc822Message = (input, fallbackId = null, options = {}) => {
     references: thread.references,
     inReplyTo: thread.inReplyTo,
     bodyTree: content.tree,
+    links: content.links,
     raw: { messageId, subject, from: from[0]?.address, date: timestamp },
   });
 };
@@ -259,6 +260,7 @@ export const normalizeGmailMessage = (message) => {
     references,
     inReplyTo: inReplyTo ?? null,
     bodyTree: content.tree,
+    links: content.links,
     raw: {
       id: message.id,
       threadId: message.threadId,
@@ -283,7 +285,7 @@ const graphContent = (message) => {
   const content = message.body?.content ?? message.bodyPreview ?? '';
   if (message.body?.contentType?.toLowerCase() === 'html') {
     const safe = htmlToSafe(content);
-    return { text: safe.text, tree: safe.tree };
+    return { text: safe.text, tree: safe.tree, links: safe.links };
   }
   return { text: content, tree: null };
 };
@@ -331,6 +333,7 @@ export const normalizeGraphMessage = (message) => {
     references: messageIds(headerArrayValue(sent, 'references')),
     inReplyTo: inReplyTo ?? null,
     bodyTree: content.tree,
+    links: content.links,
     raw: {
       id: message.id,
       conversationId: message.conversationId,
@@ -362,6 +365,7 @@ const jmapContent = (message) => {
   return {
     text: text || safe?.text || message.preview || '',
     tree: safe?.tree ?? null,
+    links: safe?.links,
   };
 };
 
@@ -418,6 +422,7 @@ export const normalizeJmapMessage = (message) => {
     references: message.references ?? [],
     inReplyTo,
     bodyTree: content.tree,
+    links: content.links,
     raw: {
       id: message.id,
       threadId: message.threadId,
@@ -507,6 +512,7 @@ export const buildEmailMessageLink = (input) => {
       chatName: f.chatName ?? null,
       attachments: f.attachments ?? null,
       raw: f.raw ?? null,
+      links: f.links,
     }),
     subject: f.subject,
     from: f.from,

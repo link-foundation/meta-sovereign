@@ -1,0 +1,43 @@
+{
+  "messages_getChatPreview_response": {
+    "type": "object",
+    "properties": {
+      "response": {
+        "type": "object",
+        "properties": {
+          "preview": {
+            "$ref": "../messages/objects.json#/definitions/messages_chat_preview",
+            "required": true
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "../users/objects.json#/definitions/users_user_full"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "../groups/objects.json#/definitions/groups_group_full"
+            }
+          }
+        },
+        "required": true
+      }
+    }
+  },
+  "messages_joinChatByInviteLink_response": {
+    "type": "object",
+    "properties": {
+      "response": {
+        "type": "object",
+        "properties": {
+          "chat_id": {
+            "type": "integer"
+          }
+        },
+        "required": true
+      }
+    }
+  }
+}

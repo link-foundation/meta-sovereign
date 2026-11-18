@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a bot's request-peer buttons and recent locations
 // (R-Y208), as Telegram Desktop has them: a button of a bot's keyboard that
 // asks for a chat or a person opens a picker of only what fits (the
@@ -107,7 +108,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/request-peer-candidates', (route) => {
-  const { type } = route.request().postDataJSON();
+  const { type } = requestBody(route.request());
   asked.push(type);
   return fulfil(route, {
     ok: true,
@@ -126,7 +127,7 @@ await page.route('**/api/telegram/request-peer-candidates', (route) => {
 });
 const sent = [];
 await page.route('**/api/telegram/request-peer-send', (route) => {
-  sent.push(route.request().postDataJSON());
+  sent.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/recent-locations', (route) =>
@@ -140,7 +141,7 @@ await page.route('**/api/telegram/recent-locations', (route) =>
 );
 const places = [];
 await page.route('**/api/telegram/send-location', (route) => {
-  places.push(route.request().postDataJSON());
+  places.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 

@@ -1,0 +1,135 @@
+import { setTimeout as delay } from 'node:timers/promises';
+import { readCvEditorDocument } from './cv-watch-document.js';
+import { readCvSavedWorkplace } from './cv-workplace-readback.js';
+import {
+  cvSaveAttempt,
+  sameCvWorkplace,
+  cvWorkplaceMatchesJob,
+} from './cv-watch-verification.js';
+import { prepareCvControlledText } from './cv-prepare-text.js';
+import { cvPrepareFailure } from './cv-prepare-record.js';
+import { traceCvWatch } from './cv-watch-trace.js';
+import { prepareNativeCvWorkplaceEdit } from './cv-workplace-edit-native.js';
+import { readCvWorkplaceControls } from './cv-workplace-controls.js';
+import {
+  cvWorkplaceEditorUrl,
+  openNativeCvWorkplace,
+} from './cv-workplace-open.js';
+
+const selector =
+  'textarea[data-qa="resume-editor-experience-description-input"]';
+/** Open the exact unchanged workplace. Owner Save, Cancel and other fields stay native. */
+export const prepareNativeCvWorkplace = async ({
+  session,
+  change,
+  check,
+  phase,
+  readinessMs = 20000,
+  settleMs = 750,
+}) => {
+  await openNativeCvWorkplace({ session, change, check, phase, readinessMs });
+  if (change.plan) {
+    return prepareNativeCvWorkplaceEdit({
+      session,
+      change,
+      check,
+      phase,
+      readinessMs,
+      settleMs,
+    });
+  }
+  const { recordId, job } = change.workplace;
+  const read = async () => {
+    check();
+    if (!cvWorkplaceEditorUrl(session.page.url(), recordId, change.hash)) {
+      throw cvPrepareFailure('page');
+    }
+    const raw = await session.commander.evaluate({
+      fn: readCvEditorDocument,
+      args: [],
+    });
+    check();
+    const controls = await session.commander.evaluate({
+      fn: readCvWorkplaceControls,
+      args: [{ description: selector }],
+    });
+    check();
+    if (
+      raw?.kind !== 'workplace' ||
+      controls.challenge ||
+      controls.foreign ||
+      controls.foreignSaveDialog
+    ) {
+      throw cvPrepareFailure('draft');
+    }
+    return {
+      form: cvSaveAttempt(raw),
+      control: { ...controls.controls.description, ready: controls.ready },
+    };
+  };
+  const wait = async (accept) => {
+    const deadline = Date.now() + readinessMs;
+    do {
+      const state = await read();
+      if (accept(state)) {
+        return state;
+      }
+      await delay(50);
+      check();
+    } while (Date.now() < deadline);
+    throw cvPrepareFailure('hydration');
+  };
+  const { form: before, control } = await wait(
+    ({ control }) => control.ready && control.controlled && control.writable
+  );
+  const selected = before.resumes.filter((row) => row.checked);
+  if (selected.length !== 1 || selected[0].hash !== change.hash) {
+    throw cvPrepareFailure('shared');
+  }
+  const saved = await readCvSavedWorkplace({ session, attempt: before, check });
+  if (
+    !sameCvWorkplace(before, saved) ||
+    !cvWorkplaceMatchesJob(before, job, job.industries) ||
+    before.description !== change.before ||
+    control.value !== before.description ||
+    (control.maxLength >= 0 && change.after.length > control.maxLength)
+  ) {
+    throw cvPrepareFailure('baseline');
+  }
+  const unchanged = async (expected, controlled = true) => {
+    const state = await read();
+    return (
+      sameCvWorkplace({ ...before, description: expected }, state.form) &&
+      state.form.description === expected &&
+      state.control.writable &&
+      state.control.controlled &&
+      (!controlled || state.control.value === expected)
+    );
+  };
+  if (!(await unchanged(before.description))) {
+    throw cvPrepareFailure('draft');
+  }
+  await prepareCvControlledText({
+    page: session.page,
+    selector,
+    before: before.description,
+    after: change.after,
+    maxLength: control.maxLength,
+    read: unchanged,
+    wait: () =>
+      wait(({ form, control }) => {
+        if (
+          !sameCvWorkplace({ ...before, description: form.description }, form)
+        ) {
+          throw cvPrepareFailure('draft');
+        }
+        return (
+          form.description === change.after && control.value === change.after
+        );
+      }),
+    check,
+    phase,
+    settleMs,
+  });
+  traceCvWatch('workplace-prepared', { state: 'prepared' });
+};

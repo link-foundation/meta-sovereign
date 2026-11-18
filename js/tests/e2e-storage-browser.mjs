@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for local storage management, reaction notifications,
 // resetting all notifications and the automatic-download reset (R-Y215),
 // as Telegram Desktop has them: Settings → Advanced → Manage local storage
@@ -62,7 +63,7 @@ await page.route('**/api/telegram/storage-usage', (route) =>
   })
 );
 await page.route('**/api/telegram/storage-clear', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['clear', body]);
   const empty = { bytes: 0, files: 0 };
   kinds = body.all
@@ -71,7 +72,7 @@ await page.route('**/api/telegram/storage-clear', (route) => {
   return fulfil(route, { ok: true, removed: { bytes: 1, files: 1 } });
 });
 await page.route('**/api/telegram/storage-limits-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['limits', body]);
   limits = body;
   return fulfil(route, { ok: true, ...body, removed: { bytes: 0, files: 0 } });
@@ -98,7 +99,7 @@ await page.route('**/api/telegram/reaction-notify', (route) =>
   fulfil(route, { ok: true, ...reactions })
 );
 await page.route('**/api/telegram/reaction-notify-set', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   calls.push(['reactions', body]);
   reactions = { ...reactions, ...body };
   return fulfil(route, { ok: true, ...reactions });

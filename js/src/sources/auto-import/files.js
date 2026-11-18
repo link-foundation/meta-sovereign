@@ -12,6 +12,7 @@ import { alreadyImported, LEGACY } from '../archive/legacy.js';
 import { mediaSaver } from '../archive/media-store.js';
 import { isZipFile, openZipFile } from '../archive/zip-file.js';
 import { autoImportRecipes } from './recipes.js';
+import { collectVkAttachments } from '../vk-attachment-metadata.js';
 
 const toArchive = (recipe, name, text, ctx) => {
   if (recipe.toArchive) {
@@ -77,6 +78,9 @@ const putLinks = async (store, rows, provider, onChunk, claimed) => {
       }
     }
     onChunk?.(batch.length);
+  }
+  if (provider === 'vk') {
+    await collectVkAttachments(store, rows);
   }
 };
 

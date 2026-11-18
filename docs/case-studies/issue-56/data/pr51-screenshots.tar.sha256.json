@@ -1,0 +1,11 @@
+{
+  "archive": "pr51-screenshots.tar.gz",
+  "files": {
+    "node-after.png": "a271214fffc82b49829ff137f37f9ed9bf66567d87d800afe7ed3ffe022efc80",
+    "node-before.png": "0838ca81774a85fb1fcabb9474afa24295840b765b9691202fdfb5f9c7a64edf",
+    "selection-after.png": "cac9e190e47b0a55d5a8e2245a612ee23f3c3c92cb3639a9d31945be55b7a695",
+    "selection-before.png": "8664c6933f57830edfa7f732acc89269faf8a6bf0c6f2812cc40fe1cc78dde41",
+    "tutorial-after.png": "370c5eaac73b6f16ba640b6f5e37dc6e710e477664b9871bf54b3b41435edc15",
+    "tutorial-before.png": "c30c1f52fead1d592ca166848b3752fa5cd8435f9ed23f74be0c49e6b2511c1d"
+  }
+}

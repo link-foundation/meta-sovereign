@@ -1,0 +1,96 @@
+▶ visible browser defaults
+  ✔ starts the shared factory headed and preserves explicit headless mode (3.992998ms)
+  ✔ does not override the default in the CV facade (1.236817ms)
+  ✔ uses headed CLI runs unless --headless is explicitly enabled (11.024081ms)
+  ✔ uses headed API runs and honors an explicit boolean override (7.590326ms)
+✔ visible browser defaults (30.019772ms)
+✔ WEB_UIS covers vk, telegram and whatsapp with every field (2.681121ms)
+✔ VK chat URLs: user ids, group chats and screen names (0.629975ms)
+✔ Telegram chat URLs: @username vs numeric id (0.467331ms)
+✔ WhatsApp chat URLs keep digits only and pre-fill the text (0.838704ms)
+✔ send types into the composer, then sends, in that order (4.594289ms)
+✔ typingDelayMs types character by character (13.92895ms)
+✔ send presses Enter when no send button is found (0.934823ms)
+✔ a failure while pressing Send is reported as maybe delivered (2.000192ms)
+✔ fallback: a web UI that may have sent is not "both failed" (1.204437ms)
+✔ input "fill" fills the composer instead of typing (1.081287ms)
+✔ WhatsApp relies on the pre-filled composer and only sends (0.862309ms)
+✔ a signed-out web UI raises a login-required error (1.2332ms)
+✔ the login check times out to the same error (0.432035ms)
+✔ missing composer, text, target or network fail clearly (0.706027ms)
+✔ setTyping focuses the composer, types and erases (0.559103ms)
+✔ readRecent maps visible messages to message links (3.111022ms)
+✔ readRecent parses WhatsApp data-pre-plain-text (0.665001ms)
+✔ extractMessages reads the page through the descriptor (0.943038ms)
+✔ sessions open lazily, once per network, and close() (1.596007ms)
+✔ a session that fails to open is retried next time (0.829266ms)
+✔ fallback: API success never touches the browser (0.394366ms)
+✔ fallback: API failure goes through the browser (0.447434ms)
+✔ fallback: no API sender goes straight to the browser (0.379338ms)
+✔ fallback: both failing raises an error with both causes (0.56332ms)
+✔ fallback: safe-mode and bad-draft errors are not retried (0.547631ms)
+✔ fallback: shouldFallback can veto the browser (0.335345ms)
+✔ createDefaultSender: adapter first, browser on failure (1.390513ms)
+✔ createDefaultSender builds a browser sender lazily from options (0.490294ms)
+▶ cv cli catalogue
+  ✔ lists every platform the issue names (2.295492ms)
+  ✔ prints a plan with its steps, write groups and evidence (0.945444ms)
+  ✔ reports an unknown platform as a message, not a stack trace (0.565043ms)
+  ✔ advertises the cv commands in the help text (0.400466ms)
+✔ cv cli catalogue (6.200305ms)
+▶ cv cli option parsing
+  ✔ defaults to every platform and validates the requested ids (0.952115ms)
+  ✔ parses --paths/--groups and treats "absent" as "everything" (0.454086ms)
+  ✔ merges --login into the --vars object (0.527083ms)
+✔ cv cli option parsing (2.51446ms)
+▶ cv cli live commands
+  ✔ reads a platform, then diffs and replays what it stored (25.067835ms)
+  ✔ says so when no snapshot has been read yet (0.66004ms)
+  ✔ plans a sync without writing to a live profile by default (9.057985ms)
+  ✔ --apply shows the plan and writes nothing without a confirmation (6.954211ms)
+  ✔ reports a failing platform with its code and exits non-zero (4.757494ms)
+✔ cv cli live commands (47.200335ms)
+▶ cv api catalogue
+  ✔ lists every platform the issue names (114.903893ms)
+  ✔ returns a dry-run plan with its evidence (20.040198ms)
+  ✔ reports an unknown platform as a 400 listing the known ids (14.868392ms)
+✔ cv api catalogue (152.455362ms)
+▶ cv api live routes
+  ✔ reads a platform, stores the snapshot and serves it back (40.244662ms)
+  ✔ compares stored snapshots and reports the conflicts (15.570622ms)
+  ✔ plans a sync without touching a live profile by default (24.621753ms)
+  ✔ narrows a sync to the paths the request selected (36.335142ms)
+  ✔ serves the telemetry a run recorded (20.453489ms)
+  ✔ reports a failed platform without hiding the rest (13.574919ms)
+✔ cv api live routes (152.190438ms)
+▶ browser session factory
+  ✔ reports which optional packages are missing instead of throwing (2.137406ms)
+  ✔ wraps the launched page in a commander and closes both (0.632359ms)
+  ✔ fails with a typed error when browser-commander is absent (0.436584ms)
+✔ browser session factory (5.196021ms)
+▶ reading CVs through the facade
+  ✔ reads one platform and persists the snapshot as a link (21.517693ms)
+  ✔ records the telemetry of every read in the same store (3.995833ms)
+  ✔ keeps going when one platform fails and reports why (4.788421ms)
+✔ reading CVs through the facade (30.802271ms)
+▶ comparing CVs across platforms
+  ✔ builds a matrix, flags conflicts and lists per-platform updates (9.509987ms)
+  ✔ diffs every platform against a canonical CV (9.042435ms)
+  ✔ round-trips a CV through its flat representation (3.997196ms)
+✔ comparing CVs across platforms (23.227632ms)
+▶ syncing CVs across platforms
+  ✔ plans without touching anything by default (7.499748ms)
+  ✔ applies the reconciled values when the dry run is lifted (11.647645ms)
+  ✔ fails loudly when a platform hides its edit URLs from us (3.616676ms)
+  ✔ narrows a sync to the paths the user selected (5.43136ms)
+  ✔ writes only the selected paths when the dry run is lifted (5.995954ms)
+  ✔ pushes a locally edited CV to one platform (4.303887ms)
+✔ syncing CVs across platforms (39.134783ms)
+ℹ tests 68
+ℹ suites 10
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2723.621109

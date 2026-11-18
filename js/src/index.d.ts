@@ -23,6 +23,8 @@ export declare const startServer: (opts: {
   storeDir?: string;
   /** Serve the bundled web UI; defaults to false (GitHub Pages is the UI). */
   localUi?: boolean | string;
+  /** Opt in to legacy JSON HTTP requests/responses; false by default. */
+  jsonCompatibility?: boolean;
   /** Override the default GitHub Pages app URL. */
   uiUrl?: string;
   /** Inject a local system address-book reader; used only after an import request. */
@@ -30,6 +32,11 @@ export declare const startServer: (opts: {
   emailLiveFactory?: (config: unknown) => unknown;
   /** Periodic pull of a connected mailbox; `false` turns it off. */
   emailPoll?: false | { intervalMs?: number; firstMs?: number };
+  /** Optional local draft service; default launches tool-free Claude Code on explicit opt-in. */
+  answerModel?: {
+    draft: (input: unknown) => Promise<unknown>;
+    stop?: () => Promise<void>;
+  };
   cv?: {
     commander?: unknown;
     sessionFactory?: (options?: unknown) => unknown;

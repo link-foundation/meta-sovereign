@@ -1,0 +1,16 @@
+{
+  "archive": "ci-native-schema-diagnostic.tar.gz",
+  "files": {
+    "before/experiments/issue-56/native-durable-before.py": "a5d6ba3c03f4efa4010caa700e627efe0d12d9184b6ae4927702fcdeb93d2129",
+    "ci-logs/application-supervised-current-main.json": "c4c11200dc2b0c0716dae9d8c4a3407d1e1ae7d26b44b35e2663ad738c69eaee",
+    "ci-logs/application-supervised-parent-diagnostic-final.log": "756a0916ccdc66e8bf6559ab0bd8f9bad7256fc3664a08a3747960b2a9699214",
+    "ci-logs/application-supervised-rust-132362078388.log": "c8525000382ada1fe73c0942739020cfd22fcd87efebbb4804bd86515f60c894",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/evidence_bundle.py": "0dd54c470e5050d5587c8344cfcbb37223575feda2b0a63b56bfe7252f6d8abb",
+    "experiments/issue-56/native-cargo-reference-check.py": "28fdf271d19726d3853715465aaf46c4d39768ac00992df3339463c9a3f9eda3",
+    "experiments/issue-56/native-durable-before.py": "ceb7f033ec180e4679191ab04ce43014af8faa4dfc6ca0264949c2029c62497c",
+    "experiments/issue-56/native-parent-failure-check.py": "51c1d046f1320b3064f2a1ea1a3a6297c95d01f35f26820115593ac8c89657dc",
+    "experiments/issue-56/native_parent_failure.py": "3d020e5475398b594ffdb5f2d39d77a3538d3bb4d2fbb7e8a5d8fdd066539fd4",
+    "metadata.json": "189109fea48bbc42ff2f0fcff55405a7c372886316fe2a4acd826519e02f5afb"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "archive": "vk-token-registration.tar.gz",
+  "files": {
+    "package.json": "d3c1b96bf0785e04e94ed4bd1494f8c4ecb0b43cf0e21301458f4a516e05dda7",
+    "js/scripts/browser-checks.json": "3cd227c735882292add9d52afe6b9a1d6499e3397cafc3e03ff543f6f13d212a",
+    "js/tests/e2e-vk-token-browser.mjs": "646571680421222bbad21ce5b6f1185f23f70977be680df718e3c8f58859fea9",
+    "js/tests/ci-browser-shards.test.js": "ba7ce56ec57c7b4381cb11417eab004b31a055fced92301097c40f92e16b7a41",
+    "docs/case-studies/issue-56/vk-token-registration.md": "2fcf07176b8150b39fc389e034b036105a9ef2d8c2d4450e03c684d477952401",
+    "experiments/issue-56/collect-vk-token-registration.py": "fff893e712fb40e13eaffa262c67678c010d445e3b0e8ec3b2b0e86490661ef3",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "ci-logs/vk-token-workflow-failure.log": "a5807ca9c12cef6e373cd2fb90ac674498b5e04f3444d986469d4d4b399bc1a5",
+    "ci-logs/vk-token-registration-before.log": "8b5c902b4c365856ba0bcc57115f4d3764679a64f6def8e69c637503c0f274b4",
+    "ci-logs/vk-token-registration-after.log": "7cf4f104ba7879d30817d6e26fcf8141a3e87c55e1c8e571541cae38530abfdc",
+    "before/package.json": "4bfef5fe5a441569520bae8e1ff83626ed615925e65a69ef20005026fefbc109",
+    "metadata.json": "511f0de2381100d65efcb5a35be30c9d88ab116a320bc6a4a4fc9bce1cf4f320"
+  }
+}

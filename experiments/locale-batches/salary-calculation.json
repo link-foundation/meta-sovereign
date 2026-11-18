@@ -1,0 +1,200 @@
+{
+  "questions.salaryHint": {
+    "en": "Enter an independent monthly net target for each currency. Enter gross amounts or explicitly choose a calculation using your own tax schedule and dated exchange rates. Hourly rates round up using your hours and step. Missing or stale inputs require review.",
+    "ru": "Задайте независимую месячную сумму на руки для каждой валюты. Укажите сумму до налогов или выберите расчёт по своей налоговой шкале и курсам с датой. Почасовая ставка округляется вверх с учётом часов и шага. Отсутствующие или устаревшие данные требуют проверки.",
+    "zh": "分别填写各币种的税后月薪目标。可直接填写税前金额，或明确选择按您自己的税率表和带日期的汇率计算。时薪按工时和步长向上取整。缺失或过期的数据需要审核。",
+    "hi": "हर मुद्रा के लिए अलग मासिक कर-पश्चात लक्ष्य दें। कर-पूर्व राशि भरें या अपनी कर दरों और दिनांकित विनिमय दरों से गणना चुनें। घंटे की दर आपके घंटों और चरण से ऊपर गोल होगी। अनुपलब्ध या पुरानी जानकारी की समीक्षा ज़रूरी है।"
+  },
+  "questions.salaryMethod": {
+    "en": "Gross amount method",
+    "ru": "Способ расчёта суммы до налогов",
+    "zh": "税前金额计算方式",
+    "hi": "कर-पूर्व राशि का तरीका"
+  },
+  "questions.salaryMethod.explicit": {
+    "en": "Entered gross amount",
+    "ru": "Указанная сумма до налогов",
+    "zh": "直接填写税前金额",
+    "hi": "भरी हुई कर-पूर्व राशि"
+  },
+  "questions.salaryMethod.personal": {
+    "en": "Progressive personal tax",
+    "ru": "Прогрессивный личный налог",
+    "zh": "个人累进税",
+    "hi": "प्रगतिशील व्यक्तिगत कर"
+  },
+  "questions.salaryMethod.company": {
+    "en": "Company tax and payout",
+    "ru": "Налог компании и выплаты",
+    "zh": "公司税和分配税",
+    "hi": "कंपनी कर और वितरण कर"
+  },
+  "questions.salary.grossStep": {
+    "en": "Calculated monthly gross rounding step",
+    "ru": "Шаг округления расчётной месячной суммы до налогов",
+    "zh": "计算税前月薪的取整步长",
+    "hi": "गणना की गई कर-पूर्व मासिक राशि का पूर्णांकन चरण"
+  },
+  "questions.salaryTaxHint.personal": {
+    "en": "Enter your applicable annual gross-income bands and rates. Each rate applies only within its band; the final band is unlimited. No jurisdiction or legal rates are assumed.",
+    "ru": "Укажите применимые годовые пороги дохода до налогов и ставки. Каждая ставка применяется только в своём диапазоне, последний — без ограничения. Юрисдикция и законные ставки не выбираются автоматически.",
+    "zh": "填写适用的年度税前收入上限和税率。各税率仅适用于对应区间，最后一区间无上限。不预设司法辖区或法定税率。",
+    "hi": "अपनी लागू वार्षिक कर-पूर्व आय की सीमाएं और दरें दें। हर दर केवल अपने दायरे पर लागू होती है; अंतिम दायरा असीमित है। क्षेत्र या कानूनी दरें पहले से तय नहीं हैं।"
+  },
+  "questions.salaryTaxHint.company": {
+    "en": "A band selects one tax rate for the whole annual gross income. Payout tax applies after company tax. A band currency can differ from the salary currency when a fresh exchange rate is available.",
+    "ru": "Диапазон выбирает одну ставку для всего годового дохода до налогов. Налог на выплату применяется после налога компании. Валюта порога может отличаться от валюты зарплаты при наличии свежего курса.",
+    "zh": "区间决定整个年度税前收入适用的税率。分配税在公司税之后计算。有有效汇率时，区间币种可与薪酬币种不同。",
+    "hi": "दायरा पूरी वार्षिक कर-पूर्व आय की एक दर चुनता है। वितरण कर कंपनी कर के बाद लगता है। ताज़ा विनिमय दर उपलब्ध हो तो सीमा की मुद्रा वेतन से अलग हो सकती है।"
+  },
+  "questions.salaryTaxCurrency": {
+    "en": "Personal tax currency",
+    "ru": "Валюта личного налога",
+    "zh": "个人税币种",
+    "hi": "व्यक्तिगत कर की मुद्रा"
+  },
+  "questions.salaryBand": {
+    "en": "Tax band {number}",
+    "ru": "Налоговый диапазон {number}",
+    "zh": "税率区间 {number}",
+    "hi": "कर दायरा {number}"
+  },
+  "questions.salaryBandLimit": {
+    "en": "Annual gross upper limit",
+    "ru": "Верхний порог годового дохода до налогов",
+    "zh": "年度税前收入上限",
+    "hi": "वार्षिक कर-पूर्व आय की ऊपरी सीमा"
+  },
+  "questions.salaryBandCurrency": {
+    "en": "Band currency (empty uses salary currency)",
+    "ru": "Валюта порога (пусто — валюта зарплаты)",
+    "zh": "区间币种（留空使用薪酬币种）",
+    "hi": "सीमा की मुद्रा (खाली पर वेतन की मुद्रा)"
+  },
+  "questions.salaryTaxRate": {
+    "en": "Tax rate (%)",
+    "ru": "Ставка налога (%)",
+    "zh": "税率（%）",
+    "hi": "कर दर (%)"
+  },
+  "questions.salaryPayout": {
+    "en": "Additional payout tax (%)",
+    "ru": "Дополнительный налог на выплату (%)",
+    "zh": "额外分配税（%）",
+    "hi": "अतिरिक्त वितरण कर (%)"
+  },
+  "questions.salaryUnlimited": {
+    "en": "Final band: no upper limit",
+    "ru": "Последний диапазон: без верхнего порога",
+    "zh": "最后区间：无上限",
+    "hi": "अंतिम दायरा: कोई ऊपरी सीमा नहीं"
+  },
+  "questions.salaryAddBand": {
+    "en": "Add limited tax band",
+    "ru": "Добавить диапазон с верхним порогом",
+    "zh": "添加有上限的税率区间",
+    "hi": "सीमित कर दायरा जोड़ें"
+  },
+  "questions.salaryRemoveBand": {
+    "en": "Remove tax band",
+    "ru": "Удалить налоговый диапазон",
+    "zh": "删除税率区间",
+    "hi": "कर दायरा हटाएं"
+  },
+  "questions.salaryAddTax": {
+    "en": "Configure tax schedule",
+    "ru": "Настроить налоговую шкалу",
+    "zh": "配置税率表",
+    "hi": "कर दर तालिका बनाएं"
+  },
+  "questions.salaryRemoveTax": {
+    "en": "Remove tax schedule",
+    "ru": "Удалить налоговую шкалу",
+    "zh": "删除税率表",
+    "hi": "कर दर तालिका हटाएं"
+  },
+  "questions.salaryExchange": {
+    "en": "Dated exchange rates",
+    "ru": "Курсы валют с датой",
+    "zh": "带日期的汇率",
+    "hi": "दिनांकित विनिमय दरें"
+  },
+  "questions.salaryExchangeHint": {
+    "en": "Rates are base-currency units for one unit of each listed currency. They convert tax thresholds only; independent net targets are unchanged. Source and date appear with calculated answers. Missing or stale rates require review.",
+    "ru": "Курс — число единиц базовой валюты за единицу указанной валюты. Курсы используются только для налоговых порогов, независимые суммы на руки не меняются. Источник и дата показаны рядом с расчётным ответом. Отсутствующие или устаревшие курсы требуют проверки.",
+    "zh": "汇率表示每一单位所列币种对应多少基准币种。仅用于换算税务门槛，不改变独立的税后目标。计算答复会显示来源和日期。缺失或过期的汇率需要审核。",
+    "hi": "दर हर सूचीबद्ध मुद्रा की एक इकाई के लिए आधार मुद्रा की इकाइयां है। केवल कर सीमाओं का रूपांतरण होता है; अलग कर-पश्चात लक्ष्य नहीं बदलते। उत्तर के साथ स्रोत और तारीख दिखेंगे। अनुपलब्ध या पुरानी दरों की समीक्षा ज़रूरी है।"
+  },
+  "questions.salaryExchangeBase": {
+    "en": "Exchange base currency",
+    "ru": "Базовая валюта курсов",
+    "zh": "汇率基准币种",
+    "hi": "विनिमय की आधार मुद्रा"
+  },
+  "questions.salaryExchangeDate": {
+    "en": "Rate date",
+    "ru": "Дата курсов",
+    "zh": "汇率日期",
+    "hi": "दर की तारीख"
+  },
+  "questions.salaryExchangeSource": {
+    "en": "Rate source",
+    "ru": "Источник курсов",
+    "zh": "汇率来源",
+    "hi": "दर का स्रोत"
+  },
+  "questions.salaryExchangeSource.manual": {
+    "en": "Owner-supplied rates",
+    "ru": "Курсы, указанные владельцем",
+    "zh": "所有者提供的汇率",
+    "hi": "मालिक की दी हुई दरें"
+  },
+  "questions.salaryExchangeSource.cbr": {
+    "en": "CBR snapshot",
+    "ru": "Снимок курсов ЦБ РФ",
+    "zh": "俄罗斯央行汇率快照",
+    "hi": "रूसी केंद्रीय बैंक की दरें"
+  },
+  "questions.salaryExchangeAge": {
+    "en": "Maximum rate age (days)",
+    "ru": "Максимальный возраст курсов (дни)",
+    "zh": "汇率最长有效期（天）",
+    "hi": "दर की अधिकतम आयु (दिन)"
+  },
+  "questions.salaryExchangeRate": {
+    "en": "Base units per one currency unit",
+    "ru": "Единицы базовой валюты за единицу валюты",
+    "zh": "每单位币种对应的基准币种数量",
+    "hi": "एक मुद्रा इकाई के लिए आधार इकाइयां"
+  },
+  "questions.salaryAddRate": {
+    "en": "Add exchange rate",
+    "ru": "Добавить курс валюты",
+    "zh": "添加汇率",
+    "hi": "विनिमय दर जोड़ें"
+  },
+  "questions.salaryRemoveRate": {
+    "en": "Remove exchange rate",
+    "ru": "Удалить курс валюты",
+    "zh": "删除汇率",
+    "hi": "विनिमय दर हटाएं"
+  },
+  "questions.salaryAddExchange": {
+    "en": "Configure exchange rates",
+    "ru": "Настроить курсы валют",
+    "zh": "配置汇率",
+    "hi": "विनिमय दरें बनाएं"
+  },
+  "questions.salaryRemoveExchange": {
+    "en": "Remove exchange rates",
+    "ru": "Удалить курсы валют",
+    "zh": "删除汇率配置",
+    "hi": "विनिमय दरें हटाएं"
+  },
+  "questions.salaryCalculationEvidence": {
+    "en": "Salary calculation details",
+    "ru": "Подробности расчёта зарплаты",
+    "zh": "薪酬计算详情",
+    "hi": "वेतन गणना का विवरण"
+  }
+}

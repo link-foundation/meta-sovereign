@@ -1,0 +1,23 @@
+{
+  "archive": "lino-cli-arguments.tar.gz",
+  "files": {
+    "ci-logs/lino-cli-arguments-after.log": "98968343354f4a8218e48ca48fee743d94e069cdccfb11819ba348280d31fd02",
+    "ci-logs/lino-cli-arguments-before.log": "d238d39830061d965cef9ea555aead51a2bd1729d5a7118871f724c7daa11a10",
+    "ci-logs/lino-cli-arguments-discovery.log": "0ee04fdef6d9f2051b49af723a9bbccf303e8628554ac61d3bdc6398c8373702",
+    "ci-logs/lino-cli-arguments-final-probe.log": "69cad5aca5499e1ccb10591e47ddeba60b316550dee6e9a5651b58a8e50b8212",
+    "ci-logs/lino-cli-arguments-focused.log": "22198a64a8067c2f17f1c68df1cf82924fa84160f302b353a7ecf00844f2f891",
+    "ci-logs/lino-cli-arguments-format.log": "1f9cf38f854bed63dbfe37a6c2f95228a28023fabe9bd643bdcd1186b593ade6",
+    "ci-logs/lino-cli-arguments-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/lino-cli-arguments-regression-before.log": "99a63f3161fb48cc37fa94ed271b9e8198cded961baca70affe5fa9802eba88a",
+    "docs/case-studies/issue-56/lino-cli-arguments.md": "d1437583f349885de689bf62e66e2720a8da78c6a9c0f4c0b4a424292e715769",
+    "docs/case-studies/issue-56/vk-desktop-execution-plan.md": "f57ea5e31b7651cc9bfa6fa1680e99a1cfed770bde97805c3195286391768caf",
+    "experiments/issue-56/collect-lino-cli-arguments.py": "0cd0ca8493f7c3b180a382762d89c4f201765f755863bb72d146fc5270c699a6",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/lino-cli-arguments.mjs": "b7e0b748cbafa47b547d930c0c860f87209eadef866dc1997b27d87ba150a50e",
+    "js/src/cli/command-runner.js": "f0fb82b2437e15ff22bd360696c99563e7a87b13c77aace9e29ccbb496b8fdc2",
+    "js/src/cli/lino-args.js": "fe45f88ff9e79b94c3f672ec0152b06e8779f8900d852a6e0f5b799873abfc47",
+    "js/tests/lino-cli-arguments.test.js": "c567e2159d5751c5206c0e0d30576535db8224206b49ccc376388e1977913015",
+    "before/js/src/cli/lino-args.js": "1e264fd6e3694118cacacb3f0f567cfd4f6a35a181194d598b62b52b35f9bd41",
+    "metadata.json": "ce24fd5bd093cc22a34565d79fa5d32411e3a9a854ec250ff187ba260e6e96f7"
+  }
+}

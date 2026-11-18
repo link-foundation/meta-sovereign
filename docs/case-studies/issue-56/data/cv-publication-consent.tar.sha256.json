@@ -1,0 +1,26 @@
+{
+  "archive": "cv-publication-consent.tar.gz",
+  "files": {
+    "before/js/tests/helpers/e2e-cv-publication-exports.mjs": "79da6020a72ba328329f7fb8cfa259736634ebd77dcad8879d4b83d537ca67cd",
+    "ci-logs/continuation-head-browser-e2e-chromium-shard-1-4-132618517444.log": "05a29b77f6ef7768517f4666ca0eaefbfac0ce29b2ec472b4a413870eec57b62",
+    "ci-logs/cv-publication-consent-after.log": "8fcd5a44eb5038ea8aff6554beef8fdfee558e12d2aca0ef21dfb0fe8c2a37d7",
+    "ci-logs/cv-publication-consent-before.log": "df927e06456944451442f3cd6ac818a858b8ee4ed69a40ef63f76631a324e0cc",
+    "ci-logs/cv-publication-consent-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-publication-consent-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/cv-publication-consent-format-write.log": "8cd1c5d98acd689bf32ae4d64f432f03ebae951065a868856c1adcf6d2b0fdc2",
+    "ci-logs/cv-publication-consent-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-publication-consent-lint-wrong-config.log": "f43090860cdb5cf54e34b13651fc3cdda3e3ae33969601d991647fb60af85255",
+    "ci-logs/cv-publication-consent-parent-checks.json": "ce203d11888a536ea90713570bc5f43ca026f4f1b9413e97175f968c6dfc71c4",
+    "ci-logs/question-templates-parent-browser-e2e-chromium-shard-1-4-132613956011.log": "d76a531f7c423bade561ff4ac4a423e651598cf8b6535d226dc4096c890a845f",
+    "ci-logs/question-templates-parent-checks-43649013601.log": "0979b0c30085ce2272563a2f6e6547e68f7cf7ad4f43ec61ff4467eae49d0cfd",
+    "ci-logs/question-templates-parent-checks.json": "181b7a682749cb33954bc345e11ce626c3e3df86a288e437e7992c1e4400eca8",
+    "docs/case-studies/issue-56/PLAN.md": "32230ebef595430b100e56277da5c5a1a93618d00fc64bba5aa500cd3eb55a17",
+    "docs/case-studies/issue-56/README.md": "c67c6bb64c9fc18dbb9ac82708b0248fb23f36c040074999727788f267116579",
+    "docs/case-studies/issue-56/ci-cv-publication-consent.md": "2875d36b30d56737063b5497a0f9275c8c11cf36822ab0584a8005ade5040037",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-cv-publication-consent.py": "7dcff1eb1c84fb8457cca5cf26abdd15124ce0d0c3f497f0d4b6fa763bcda021",
+    "experiments/issue-56/evidence_bundle.py": "635598c595ab81c67e59c1878e005f3dc986e83b9cf014115fae4dea7c629be9",
+    "js/tests/helpers/e2e-cv-publication-exports.mjs": "c40e9803d75f0a423987ea01d62ead5300c05fd0c252c4214296603b5b647c01",
+    "metadata.json": "b09ce6126561da050be87019a53e530bf4b25cf63e12e01f98c0e9a487764aac"
+  }
+}

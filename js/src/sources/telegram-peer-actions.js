@@ -27,6 +27,8 @@
  */
 
 import { runIn, connected, failureOf } from './telegram-stickers.js';
+import { writeFailureOf } from './telegram-write-outcome.js';
+import { contactReceipt } from './telegram-contact-receipt.js';
 
 const CODES = {
   USER_ID_INVALID: 'no-user',
@@ -96,7 +98,7 @@ const doing = (env, userClient, valid, name, use) => async (request) => {
   return connected(
     env,
     userClient,
-    failure,
+    name === 'peer-contact' ? writeFailureOf(CODES) : failure,
     async (c) =>
       await runIn(env, `${name}:${chat}`, () =>
         env.connection.withPeer(c.client, chat, (peer) => use(c, peer, request))
@@ -113,17 +115,21 @@ const block = async (c, peer, { block: on }) => {
 const contact = async (c, peer, request) => {
   const id = await inputUserOf(c, peer);
   if (!request.add) {
-    await c.client.invoke(new c.Api.contacts.DeleteContacts({ id: [id] }));
+    contactReceipt(
+      await c.client.invoke(new c.Api.contacts.DeleteContacts({ id: [id] }))
+    );
     return { ok: true, contact: false };
   }
-  await c.client.invoke(
-    new c.Api.contacts.AddContact({
-      id,
-      firstName: request.firstName.trim(),
-      lastName: (request.lastName ?? '').trim(),
-      phone: '',
-      ...(request.share ? { addPhonePrivacyException: true } : {}),
-    })
+  contactReceipt(
+    await c.client.invoke(
+      new c.Api.contacts.AddContact({
+        id,
+        firstName: request.firstName.trim(),
+        lastName: (request.lastName ?? '').trim(),
+        phone: '',
+        ...(request.share ? { addPhonePrivacyException: true } : {}),
+      })
+    )
   );
   return { ok: true, contact: true };
 };
@@ -178,6 +184,8 @@ const text = (value, max) => typeof value === 'string' && value.length <= max;
 
 const validContact = (chat, r) =>
   USER.test(chat) &&
+  typeof r.add === 'boolean' &&
+  (r.share === undefined || typeof r.share === 'boolean') &&
   (r.add !== true ||
     (text(r.firstName, 64) &&
       r.firstName.trim() !== '' &&

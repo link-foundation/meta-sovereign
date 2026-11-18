@@ -405,7 +405,11 @@ export const hiChatAccount = {
     'इस सूची की चैट और लोगों को कोई ऑटोमेशन, ऑटोपायलट, अभिवादन या प्रसारण संदेश नहीं भेजता। ब्लॉक, छोड़ी हुई चैट, हटाए गए खाते, बॉट और चैनल अपने आप छोड़ दिए जाते हैं।',
   'safety.optout.empty': 'सूची में कोई नहीं है।',
   'safety.optout.network': 'नेटवर्क',
-  'safety.optout.chat': 'चैट या व्यक्ति की आईडी',
+  'safety.optout.kind': 'इन्हें संदेश न भेजें',
+  'safety.optout.chatKind': 'चैट',
+  'safety.optout.contactKind': 'व्यक्ति',
+  'safety.optout.chat': 'चैट की आईडी',
+  'safety.optout.contact': 'व्यक्ति की आईडी',
   'safety.optout.note': 'टिप्पणी',
   'safety.optout.add': 'जोड़ें',
   'safety.optout.remove': 'हटाएँ',
@@ -416,6 +420,13 @@ export const hiChatAccount = {
   'safety.quiet.zone': 'समय क्षेत्र (खाली: इस कंप्यूटर का)',
   'safety.quiet.save': 'सहेजें',
   'safety.saved': 'सहेजा गया',
+  'safety.cooldown.label': 'स्वचालित संदेशों के बीच डिफ़ॉल्ट अंतराल (दिन)',
+  'safety.cooldown.hint':
+    'ऑटोमेशन का अपना अंतराल न होने पर लागू होता है; अंतिम बातचीत की शर्त भी लागू रहती है। खाली: {days} दिन।',
+  'safety.cooldown.invalid':
+    'शून्य या अधिक दिन दर्ज करें, या डिफ़ॉल्ट के लिए इसे खाली छोड़ें।',
+  'safety.failed':
+    'सेटिंग की पुष्टि नहीं हुई। आपके बदलाव सहेजे गए नहीं माने गए हैं।',
   'email.pull.button': 'अभी मेल लाएँ',
   'email.pull.working': 'मेल लाया जा रहा है…',
   'email.pull.done': '{count} नए संदेश मिले',
@@ -428,6 +439,16 @@ export const hiChatAccount = {
   'email.download': 'डाउनलोड करें',
   'pull.fetchNow': 'अभी प्राप्त करें',
   'pull.fetching': 'प्राप्त हो रहा है…',
+  'pull.history.changed':
+    'पढ़ते समय चैट सूची बदल गई। {count} संदेश पढ़े; कवरेज फिर जाँचने के लिए दोबारा लाएँ।',
+  'pull.history.hint':
+    'ज़रूरत पर HH इतिहास पढ़ें। अधूरा इतिहास जारी रखने के लिए फिर से लाएँ। इससे संदेश पढ़े हुए चिह्नित नहीं होते।',
+  'pull.history.complete':
+    '{count} संदेश पढ़े। उपलब्ध API इतिहास जाँचा गया: {chats} चैट में {total} संदेश।',
+  'pull.history.partial':
+    '{count} संदेश पढ़े। इतिहास अधूरा है ({total} संदेश, {chats} चैट पूरी)। जारी रखने के लिए फिर से लाएँ।',
+  'pull.history.limited':
+    '{count} संदेश पढ़े। API की चैट सूची सीमा आ गई; पुराने चैट गायब हो सकते हैं।',
   'pull.done': 'हो गया। {count} संदेश पढ़े गए।',
   'pull.rateLimited':
     'अभी-अभी प्राप्त किया गया। {seconds} सेकंड बाद फिर कोशिश करें।',

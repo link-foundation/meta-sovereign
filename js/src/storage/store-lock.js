@@ -54,6 +54,8 @@ const lockedError = (dir, pid) =>
   );
 
 const held = new Map(); // lock file -> { count, release }
+const conflicts = (pid, exclusive) =>
+  pid !== null && (pid === process.pid ? exclusive : alive(pid));
 
 /** Take the lock of the store in `dir`; resolves to `{ release }`. */
 export const acquireStoreLock = async (dir, { exclusive = false } = {}) => {
@@ -82,7 +84,9 @@ export const acquireStoreLock = async (dir, { exclusive = false } = {}) => {
         await sleep(50);
         continue; // the owner is still writing its pid
       }
-      if (pid !== null && pid !== process.pid && alive(pid)) {
+      // Another request in this process may still be publishing its handle
+      // into held. An exclusive request must not unlink that live PID's file.
+      if (conflicts(pid, exclusive)) {
         throw lockedError(dir, pid);
       }
       await fs.unlink(file).catch(() => {}); // stale: its process is gone

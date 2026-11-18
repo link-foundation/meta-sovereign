@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a group's invite links and join requests (R-Y152),
 // as Telegram Desktop's "Manage" screens: in the info column an admin who
 // may invite sees "Invite links" (the primary link, the other links with
@@ -101,7 +102,7 @@ let requests = [
 ];
 const posted = {};
 const record = (name) => (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   (posted[name] ??= []).push(body);
   return body;
 };

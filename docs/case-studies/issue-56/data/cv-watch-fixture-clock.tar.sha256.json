@@ -1,0 +1,31 @@
+{
+  "archive": "cv-watch-fixture-clock.tar.gz",
+  "files": {
+    "PLAN.md": "9356e1795056e3a9f30e10f927da7ee73080ecb20ac30635acfdf47fbffe61db",
+    "ci-logs/checks-623a144c-135175316364-job.json": "9728f4a8e3db00a7c82cc38cc92dfc22995e06219ae49340788aa66238952513",
+    "ci-logs/checks-623a144c-135175316364.log": "d40d4fde3c546d8e5b406e72fa524762e6936a3ff1513064ac23755c6d4375b3",
+    "ci-logs/checks-623a144c-135175317099-job.json": "e36347629a5364e3e9b63f170b7a60f0144bfb15e1f9ed639568ad3dd8b83c54",
+    "ci-logs/checks-623a144c-135175317099.log": "d0af87474a543898f9dbf4de7bce56dfa1c086fa203bd4898942466bc56df0f6",
+    "ci-logs/cv-watch-fixture-clock-clock-before.log": "4ae6b668000697e34f3ecd41d99b60f11215840ddc9c13f772afcccdef90da89",
+    "ci-logs/cv-watch-fixture-clock-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-watch-fixture-clock-focused.log": "9ebdad0fa332701933047780088e855737b46de85a405a3951820f8c84c3370f",
+    "ci-logs/cv-watch-fixture-clock-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/cv-watch-fixture-clock-format.log": "1adf90dc8d9bbef5a895f16684475b5d24dd56476d367261b18f160ae0b85614",
+    "ci-logs/cv-watch-fixture-clock-limits.log": "cbda898bab770dcb90ebb2b20c649b5d1db32e2c90d4d3568fa09cb88483694c",
+    "ci-logs/cv-watch-fixture-clock-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/cv-watch-fixture-clock-parent-replay.log": "5ac593a00262bf813d5054875ab0ef6bfa4fab45eb47292218974e1976bc6cb4",
+    "ci-logs/cv-watch-fixture-clock-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/cv-watch-fixture-clock.md": "a81ce6f6c28895af30eedef2cd9a380a1816350c4228d38048d2b5a1b69d0159",
+    "experiments/issue-56/collect-cv-watch-fixture-clock.py": "95322fa407ad0b31660656a1f085f18d6e52c22b122ce6cc2f6d3e26eada7aed",
+    "experiments/issue-56/cv-watch-fixture-clock-before.py": "ec92daaae80c1de45cb70756a4ad83beb1ed1ff86be9cce89c8edf9497cbc83f",
+    "experiments/issue-56/cv-watch-fixture.mjs": "3a96f88d90ede3a79edb2d0a8216d26687635a2c73818e03da82aa01e2c856e0",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "js/src/jobs/cv-save-cycle.js": "a7d80281678691547eeb362ae89cd0b9c720119d3eb497b4f7a0c5e024d191e2",
+    "js/tests/cv-save-deadline.test.js": "467ae076b1c8445fd2278e873a3e88aa90f27b4932d1507e751f10ebb5bc8ead",
+    "js/tests/cv-save-watch.test.js": "022465cfacd3ca8db471c74721d7e4b49975e57001efdbd582e2be6c98a2e994",
+    "js/tests/cv-watch-fixture-clock.test.js": "41db3f85e3c90acc5bfc0b48b888fb8e9ac80e3f3817c8d7998c42b8eb905356",
+    "before/experiments/issue-56/cv-watch-fixture.mjs": "12e511b4df6dadabbf3adcc1bd18fcd64f2ea83e71a26e388fc058a370ca5d61",
+    "metadata.json": "7d70c8b053f1f40fdea5ddfbd2a33c43557b4e8ee942981ee1e68533960952b9"
+  }
+}

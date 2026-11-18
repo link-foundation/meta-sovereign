@@ -1,0 +1,559 @@
+{
+  "checkedAt": "2026-11-09T10:16:31.197Z",
+  "results": [
+    {
+      "name": "htmlparser2",
+      "declared": [
+        {
+          "group": "dependencies",
+          "constraint": "12.0.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "12.0.0",
+      "engines": {
+        "node": ">=20.19.0"
+      },
+      "source": "https://registry.npmjs.org/htmlparser2/latest"
+    },
+    {
+      "name": "links-notation",
+      "declared": [
+        {
+          "group": "dependencies",
+          "constraint": "^0.27.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.31.3",
+      "source": "https://registry.npmjs.org/links-notation/latest"
+    },
+    {
+      "name": "lino-objects-codec",
+      "declared": [
+        {
+          "group": "dependencies",
+          "constraint": "^0.9.3"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.9.5",
+      "engines": {
+        "node": ">=22.11.0"
+      },
+      "source": "https://registry.npmjs.org/lino-objects-codec/latest"
+    },
+    {
+      "name": "@changesets/cli",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^3.0.3"
+        }
+      ],
+      "tag": "latest",
+      "latest": "3.0.3",
+      "engines": {
+        "npm": ">=10.9.0",
+        "node": "^22.11 || ^24 || >=26",
+        "pnpm": ">=10.0.0",
+        "yarn": ">=4.5.2"
+      },
+      "source": "https://registry.npmjs.org/%40changesets%2Fcli/latest"
+    },
+    {
+      "name": "@eslint/js",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^10.0.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "10.0.1",
+      "engines": {
+        "node": "^20.19.0 || ^22.13.0 || >=24"
+      },
+      "source": "https://registry.npmjs.org/%40eslint%2Fjs/latest"
+    },
+    {
+      "name": "@secretlint/secretlint-rule-preset-recommend",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "13.1.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "13.1.0",
+      "engines": {
+        "node": ">=22.0.0"
+      },
+      "source": "https://registry.npmjs.org/%40secretlint%2Fsecretlint-rule-preset-recommend/latest"
+    },
+    {
+      "name": "command-stream",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "2.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "2.6.0",
+      "engines": {
+        "bun": ">=1.0.0",
+        "node": ">=22.0.0"
+      },
+      "source": "https://registry.npmjs.org/command-stream/latest"
+    },
+    {
+      "name": "cross-spawn",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "7.0.6"
+        }
+      ],
+      "tag": "latest",
+      "latest": "7.0.6",
+      "engines": {
+        "node": ">= 8"
+      },
+      "source": "https://registry.npmjs.org/cross-spawn/latest"
+    },
+    {
+      "name": "electron-builder",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "27.0.0-alpha.13"
+        }
+      ],
+      "tag": "next",
+      "latest": "27.0.0-alpha.14",
+      "engines": {
+        "node": ">=22.12.0"
+      },
+      "source": "https://registry.npmjs.org/electron-builder/next"
+    },
+    {
+      "name": "esbuild",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^0.28.2"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.28.2",
+      "engines": {
+        "node": ">=18"
+      },
+      "source": "https://registry.npmjs.org/esbuild/latest"
+    },
+    {
+      "name": "eslint",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^10.13.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "10.14.0",
+      "engines": {
+        "node": "^20.19.0 || ^22.13.0 || >=24"
+      },
+      "source": "https://registry.npmjs.org/eslint/latest"
+    },
+    {
+      "name": "eslint-config-prettier",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^10.1.8"
+        }
+      ],
+      "tag": "latest",
+      "latest": "10.1.8",
+      "source": "https://registry.npmjs.org/eslint-config-prettier/latest"
+    },
+    {
+      "name": "eslint-plugin-prettier",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^5.5.7"
+        }
+      ],
+      "tag": "latest",
+      "latest": "5.5.7",
+      "engines": {
+        "node": "^14.18.0 || >=16.0.0"
+      },
+      "source": "https://registry.npmjs.org/eslint-plugin-prettier/latest"
+    },
+    {
+      "name": "husky",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^9.1.7"
+        }
+      ],
+      "tag": "latest",
+      "latest": "9.1.7",
+      "engines": {
+        "node": ">=18"
+      },
+      "source": "https://registry.npmjs.org/husky/latest"
+    },
+    {
+      "name": "jscpd",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^5.4.2"
+        }
+      ],
+      "tag": "latest",
+      "latest": "5.4.3",
+      "engines": {
+        "node": ">=18"
+      },
+      "source": "https://registry.npmjs.org/jscpd/latest"
+    },
+    {
+      "name": "katex",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "0.19.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.19.1",
+      "source": "https://registry.npmjs.org/katex/latest"
+    },
+    {
+      "name": "lino-arguments",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "0.4.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.4.1",
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=23"
+      },
+      "source": "https://registry.npmjs.org/lino-arguments/latest"
+    },
+    {
+      "name": "lint-staged",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^17.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "17.6.0",
+      "engines": {
+        "node": ">=22.22.1"
+      },
+      "source": "https://registry.npmjs.org/lint-staged/latest"
+    },
+    {
+      "name": "lottie-web",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "5.13.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "5.13.0",
+      "source": "https://registry.npmjs.org/lottie-web/latest"
+    },
+    {
+      "name": "prettier",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^3.9.10"
+        }
+      ],
+      "tag": "latest",
+      "latest": "3.9.10",
+      "engines": {
+        "node": ">=14"
+      },
+      "source": "https://registry.npmjs.org/prettier/latest"
+    },
+    {
+      "name": "react",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^19.3.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "19.3.1",
+      "engines": {
+        "node": ">=0.10.0"
+      },
+      "source": "https://registry.npmjs.org/react/latest"
+    },
+    {
+      "name": "react-dom",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^19.3.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "19.3.1",
+      "source": "https://registry.npmjs.org/react-dom/latest"
+    },
+    {
+      "name": "secretlint",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "13.1.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "13.1.0",
+      "engines": {
+        "node": ">=22.0.0"
+      },
+      "source": "https://registry.npmjs.org/secretlint/latest"
+    },
+    {
+      "name": "test-anywhere",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "^0.9.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.9.1",
+      "engines": {
+        "node": ">=20.0.0"
+      },
+      "source": "https://registry.npmjs.org/test-anywhere/latest"
+    },
+    {
+      "name": "yaml",
+      "declared": [
+        {
+          "group": "devDependencies",
+          "constraint": "2.9.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "2.9.1",
+      "engines": {
+        "node": ">= 14.6"
+      },
+      "source": "https://registry.npmjs.org/yaml/latest"
+    },
+    {
+      "name": "axe-core",
+      "declared": [
+        {
+          "group": "optionalDependencies",
+          "constraint": "^4.14.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "4.14.0",
+      "engines": {
+        "node": ">=4"
+      },
+      "source": "https://registry.npmjs.org/axe-core/latest"
+    },
+    {
+      "name": "browser-commander",
+      "declared": [
+        {
+          "group": "optionalDependencies",
+          "constraint": "^0.34.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.34.1",
+      "engines": {
+        "node": ">=22.12.0"
+      },
+      "source": "https://registry.npmjs.org/browser-commander/latest"
+    },
+    {
+      "name": "doublets-web",
+      "declared": [
+        {
+          "group": "optionalDependencies",
+          "constraint": "^0.1.3"
+        }
+      ],
+      "tag": "latest",
+      "latest": "0.1.3",
+      "source": "https://registry.npmjs.org/doublets-web/latest"
+    },
+    {
+      "name": "playwright",
+      "declared": [
+        {
+          "group": "optionalDependencies",
+          "constraint": "^1.64.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "1.65.0",
+      "engines": {
+        "node": ">=20"
+      },
+      "source": "https://registry.npmjs.org/playwright/latest"
+    },
+    {
+      "name": "teleproto",
+      "declared": [
+        {
+          "group": "optionalDependencies",
+          "constraint": "1.232.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "1.232.1",
+      "engines": {
+        "node": ">=18"
+      },
+      "source": "https://registry.npmjs.org/teleproto/latest"
+    },
+    {
+      "name": "@capacitor/android",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^8.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "8.6.0",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fandroid/latest"
+    },
+    {
+      "name": "@capacitor/cli",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^8.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "8.6.0",
+      "engines": {
+        "node": ">=22.0.0"
+      },
+      "source": "https://registry.npmjs.org/%40capacitor%2Fcli/latest"
+    },
+    {
+      "name": "@capacitor/core",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^8.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "8.6.0",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fcore/latest"
+    },
+    {
+      "name": "@capacitor/ios",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^8.6.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "8.6.0",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fios/latest"
+    },
+    {
+      "name": "electron",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^45.1.0"
+        }
+      ],
+      "tag": "latest",
+      "latest": "45.2.3",
+      "engines": {
+        "node": ">= 22.12.0"
+      },
+      "source": "https://registry.npmjs.org/electron/latest"
+    },
+    {
+      "name": "electron-updater",
+      "declared": [
+        {
+          "group": "peerDependencies",
+          "constraint": "^6.8.11"
+        }
+      ],
+      "tag": "latest",
+      "latest": "6.8.11",
+      "source": "https://registry.npmjs.org/electron-updater/latest"
+    },
+    {
+      "name": "glob",
+      "declared": [
+        {
+          "group": "overrides",
+          "constraint": "14.0.2"
+        }
+      ],
+      "tag": "latest",
+      "latest": "14.0.4",
+      "engines": {
+        "node": "18 || 20 || >=22"
+      },
+      "source": "https://registry.npmjs.org/glob/latest"
+    },
+    {
+      "name": "minimatch",
+      "declared": [
+        {
+          "group": "overrides",
+          "constraint": "11.0.1"
+        }
+      ],
+      "tag": "latest",
+      "latest": "11.0.5",
+      "engines": {
+        "node": "20 || >=22"
+      },
+      "source": "https://registry.npmjs.org/minimatch/latest"
+    },
+    {
+      "name": "lino-rest-api",
+      "declared": [],
+      "tag": "latest",
+      "latest": "0.2.1",
+      "engines": {
+        "node": ">=20.0.0"
+      },
+      "source": "https://registry.npmjs.org/lino-rest-api/latest"
+    }
+  ]
+}

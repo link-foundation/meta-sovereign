@@ -1,4 +1,5 @@
 import { getLocalStorage } from '../storage/local-storage.js';
+import { createLinoFetch } from '../transport/fetch.js';
 
 /**
  * Server autodiscovery for the SPA.
@@ -21,7 +22,7 @@ import { getLocalStorage } from '../storage/local-storage.js';
  *      reaches a server whose certificate it trusts (R-Y64).
  *   5. A list of LAN candidates if the page knows them (passed in).
  *
- * Returns `{ origin: string }` for the first reachable server, or
+ * Returns `{ origin: string, capabilities? }` for the first reachable server, or
  * `null` when none answered. Callers use `null` to mean "go fully
  * offline, only the local browser store is available".
  *
@@ -29,20 +30,19 @@ import { getLocalStorage } from '../storage/local-storage.js';
  * it is fully unit-testable in plain Node (no DOM globals required).
  */
 
-// Older servers ignore the query and return their usual status. Updated
-// servers identify themselves without scanning/verifying message history.
-export const DISCOVERY_PATH = '/api/status?probe=1';
+export {
+  DISCOVERY_PATH,
+  DEFAULT_PORTS,
+  BEACON_PATH,
+  BEACON_WIDTH,
+} from './discovery-constants.js';
+import {
+  DISCOVERY_PATH,
+  DEFAULT_PORTS,
+  BEACON_PATH,
+  BEACON_WIDTH,
+} from './discovery-constants.js';
 const STORAGE_KEY = 'metaServer';
-// The ports a server is looked for on, ours (8787) first; `serve`
-// warns when it listens on another one (R-Y58).
-export const DEFAULT_PORTS = Object.freeze([8787, 8788, 7001, 7002, 3000]);
-// Safari keeps an https page from asking http://127.0.0.1 anything but
-// still shows it pictures from there: the server's picture is this
-// wide, one pixel high when it serves its own copy of the app, two when
-// that copy is off, two more when it answers https as well
-// (../server/hosted-ui.js).
-export const BEACON_PATH = '/api/beacon.svg';
-export const BEACON_WIDTH = 23;
 
 const candidateArray = (value) => {
   if (!value) {
@@ -89,14 +89,20 @@ const probe = async (origin, fetchImpl, signal, timeout) => {
       json?.service === 'meta-sovereign' &&
       json?.code === 'locked'
     ) {
-      return true;
+      return {};
     }
     if (!res.ok) {
       return false;
     }
     // Do not attach to an unrelated JSON service on a common local port.
     // HTTPS authenticates the server; this identifies its wire protocol.
-    return identifiesServer(json);
+    return identifiesServer(json)
+      ? {
+          ...(json.capabilities && typeof json.capabilities === 'object'
+            ? { capabilities: json.capabilities }
+            : {}),
+        }
+      : false;
   } catch {
     return false;
   } finally {
@@ -139,7 +145,7 @@ const buildCandidateList = (origin, storage, candidates) => {
 };
 
 export const discoverServer = async ({
-  fetchImpl = globalThis.fetch,
+  fetchImpl = createLinoFetch((...args) => globalThis.fetch(...args)),
   storage = getLocalStorage(),
   origin = globalThis.location?.origin,
   candidates = [],
@@ -162,8 +168,9 @@ export const discoverServer = async ({
       (scheme) => candidate === `${scheme}//127.0.0.1:${DEFAULT_PORTS[0]}`
     );
     const timeout = probeTimeoutMs ?? (primary ? 15_000 : 1500);
-    if (await probe(candidate, fetchImpl, signal, timeout)) {
-      return { origin: candidate };
+    const identified = await probe(candidate, fetchImpl, signal, timeout);
+    if (identified) {
+      return { origin: candidate, ...identified };
     }
   }
   return null;

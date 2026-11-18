@@ -14,6 +14,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { Busy } from './spinner.js';
+import { VacanciesPanel } from './vacancies-panel.js';
+import { CvExperienceComparison } from './cv-experience-view.js';
+import { CvExperienceDocuments } from './cv-experience-documents.js';
 
 const el = React.createElement;
 
@@ -222,7 +225,7 @@ const useCvState = (api) => {
   const [platforms, setPlatforms] = useState([]);
   const [stored, setStored] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [busy, setBusy] = useState('');
+  const [busy, setBusy] = useState('load');
   const [failures, setFailures] = useState([]);
   const [comparison, setComparison] = useState(null);
   const [sync, setSync] = useState(null);
@@ -248,6 +251,11 @@ const useCvState = (api) => {
       .catch((error) => {
         if (!cancelled) {
           setFailures([clientFailure('load', error)]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setBusy('');
         }
       });
     return () => {
@@ -445,19 +453,31 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
     // (the Rust server, or no server at all), which is worth saying
     // out loud rather than showing an empty table.
     state.platforms.length === 0
-      ? el(
-          'p',
-          { key: 'unavailable', className: 'meta', 'data-cv': 'unavailable' },
-          t('cv.unavailable')
-        )
+      ? state.busy === 'load'
+        ? null
+        : el(
+            'p',
+            { key: 'unavailable', className: 'meta', 'data-cv': 'unavailable' },
+            t('cv.unavailable')
+          )
       : el(CvPlatforms, { key: 'platforms', state }),
     el(CvControls, { key: 'controls', state, login, setLogin }),
-    state.busy ? el(Busy, { key: 'busy' }, t('cv.busy')) : null,
+    state.busy
+      ? el(
+          Busy,
+          { key: 'busy' },
+          t(state.busy === 'load' ? 'common.loading' : 'cv.busy')
+        )
+      : null,
     el(Failures, { key: 'failures', failures: state.failures }),
     el('h3', { key: 'cmp-h' }, t('cv.differences')),
     el(ComparisonTable, {
       key: 'cmp',
       comparison: state.comparison?.comparison ?? null,
+    }),
+    el(CvExperienceComparison, {
+      key: 'experience',
+      comparison: state.comparison?.comparison?.experience ?? null,
     }),
     el('h3', { key: 'sync-h' }, t('cv.syncTitle')),
     el(SyncPlan, { key: 'sync', result: state.sync }),
@@ -468,5 +488,10 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
 
 export const CvView = ({ api = defaultApi }) => {
   const [login, setLogin] = useState('');
-  return el(CvScreen, { state: useCvState(api), login, setLogin });
+  const state = useCvState(api);
+  return el('div', { className: 'col' }, [
+    el(CvScreen, { key: 'cv', state, login, setLogin }),
+    el(CvExperienceDocuments, { key: 'documents', api }),
+    el(VacanciesPanel, { key: 'vacancies', api }),
+  ]);
 };

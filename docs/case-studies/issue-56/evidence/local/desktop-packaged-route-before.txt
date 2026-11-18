@@ -1,0 +1,30 @@
+✖ packaged launch refuses a checkout, unready backend and degraded storage (4.648ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 906.760693
+
+✖ failing tests:
+
+test at js/tests/desktop-packaged-launch.test.js:29:1
+✖ packaged launch refuses a checkout, unready backend and degraded storage (4.648ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at Object.waitForURL (file:///tmp/gh-issue-solver-resume-01a1bfa4-bdec-7780-9e26-c4c5ae2e7a00-1794478565459/js/tests/desktop-packaged-launch.test.js:10:14)
+      at inspectPackagedWindow (file:///tmp/gh-issue-solver-resume-01a1bfa4-bdec-7780-9e26-c4c5ae2e7a00-1794478565459/experiments/issue-56/desktop-packaged-launch.mjs:23:14)
+      at async TestContext.<anonymous> (file:///tmp/gh-issue-solver-resume-01a1bfa4-bdec-7780-9e26-c4c5ae2e7a00-1794478565459/js/tests/desktop-packaged-launch.test.js:41:8)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

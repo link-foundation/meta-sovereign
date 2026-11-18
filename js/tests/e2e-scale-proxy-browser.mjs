@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the interface scale and the connection proxy
 // (R-Y192), as Telegram Desktop has them: Settings → Interface scale picks
 // a step (the page's font size follows, and the message text with it) and
@@ -62,7 +63,7 @@ const sent = [];
 const answers = [];
 page.on('request', (request) => {
   if (request.url().includes('/api/telegram/proxy-save')) {
-    sent.push(request.postDataJSON());
+    sent.push(requestBody(request));
   }
 });
 page.on('response', async (response) => {

@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for "Send as" (R-Y141), as Telegram Desktop has it: in
 // a supergroup where Telegram offers more than one identity a round
 // avatar button sits left of the box; a click lists the identities (the
@@ -50,13 +51,13 @@ await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
 await page.route('**/api/telegram/chat-info*', (route) => {
-  const chat = String(route.request().postDataJSON()?.chat ?? '');
+  const chat = String(requestBody(route.request())?.chat ?? '');
   return fulfil(route, { chat, kind: 'group', title: 'Fake Group' });
 });
 const asked = [];
 const saved = [];
 await page.route('**/api/telegram/send-as', (route) => {
-  asked.push(route.request().postDataJSON().chat);
+  asked.push(requestBody(route.request()).chat);
   return fulfil(route, {
     ok: true,
     current: '42',
@@ -69,7 +70,7 @@ await page.route('**/api/telegram/send-as', (route) => {
   });
 });
 await page.route('**/api/telegram/send-as-save', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   saved.push(body);
   return body.sendAs === LOCKED
     ? fulfil(route, { ok: false, code: 'premium' })
@@ -107,11 +108,11 @@ await page.route('**/api/telegram/inline-results', (route) =>
   })
 );
 await page.route('**/api/telegram/inline-send', (route) => {
-  inlineSends.push(route.request().postDataJSON());
+  inlineSends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: SUPER });
 });
 await page.route('**/api/telegram/send-location', (route) => {
-  locations.push(route.request().postDataJSON());
+  locations.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: SUPER });
 });
 

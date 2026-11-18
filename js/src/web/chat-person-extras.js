@@ -200,13 +200,17 @@ export const BirthdaysBlock = ({
   messages,
 }) => {
   const t = useT();
-  const list = useBirthdayReminders(api, enabled, chats, messages);
+  const { list, status } = useBirthdayReminders(api, enabled, chats, messages);
   if (list.length === 0) {
-    return null;
+    return el('span', { hidden: true, 'data-birthdays-state': status });
   }
   return el(
     'section',
-    { className: 'birthdays-block', 'aria-label': t('chat.birthdays.title') },
+    {
+      className: 'birthdays-block',
+      'aria-label': t('chat.birthdays.title'),
+      'data-birthdays-state': status,
+    },
     [
       el('strong', { key: 'h', className: 'meta' }, t('chat.birthdays.title')),
       el(

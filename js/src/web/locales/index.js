@@ -14,8 +14,33 @@ import { en } from './en.js';
 import { ru } from './ru.js';
 import { zh } from './zh.js';
 import { hi } from './hi.js';
+import { diagnosticsLocale } from './diagnostics.js';
+import { vkTokenLocale } from './vk-token.js';
+import { runnerLocale } from './runner.js';
+import { cvExperienceLocale } from './cv-experience.js';
+import { linkedinExperienceLocale } from './cv-linkedin-experience.js';
+import { experienceFilesLocale } from './cv-experience-files.js';
+import { experiencePlanLocale } from './cv-experience-plan.js';
+import { formalReportLocale } from './cv-formal-report.js';
+import { jobLoginLocale } from './job-login.js';
 
-export const dictionaries = { en, ru, zh, hi };
+export const dictionaries = Object.fromEntries(
+  Object.entries({ en, ru, zh, hi }).map(([language, dictionary]) => [
+    language,
+    {
+      ...dictionary,
+      ...diagnosticsLocale(language),
+      ...vkTokenLocale(language),
+      ...runnerLocale(language),
+      ...cvExperienceLocale(language),
+      ...experienceFilesLocale(language),
+      ...linkedinExperienceLocale(language),
+      ...experiencePlanLocale(language),
+      ...formalReportLocale(language),
+      ...jobLoginLocale(language),
+    },
+  ])
+);
 
 export const availableLocales = [
   { id: 'en', label: 'English', dir: 'ltr' },

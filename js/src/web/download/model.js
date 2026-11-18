@@ -102,10 +102,22 @@ export const assetMeta = (name, bytes) =>
     .filter(Boolean)
     .join('\u00a0· ');
 
+const cacheHasAssetStates = (releases) =>
+  Array.isArray(releases) &&
+  releases.every(
+    (release) =>
+      Array.isArray(release?.assets) &&
+      release.assets.every((asset) => typeof asset?.state === 'string')
+  );
 const readCache = (storage, now) => {
   try {
     const cached = JSON.parse(storage?.getItem?.(RELEASE_CACHE_KEY) ?? 'null');
-    if (cached && now - cached.at < RELEASE_CACHE_TTL_MS) {
+    if (
+      cached &&
+      now >= cached.at &&
+      now - cached.at < RELEASE_CACHE_TTL_MS &&
+      cacheHasAssetStates(cached.releases)
+    ) {
       return cached.releases;
     }
   } catch {
@@ -133,8 +145,9 @@ const slimRelease = (release) => ({
   prerelease: release.prerelease,
   published_at: release.published_at,
   assets: (release.assets ?? []).map(
-    ({ name, size, browser_download_url }) => ({
+    ({ name, state, size, browser_download_url }) => ({
       name,
+      state,
       size,
       browser_download_url,
     })

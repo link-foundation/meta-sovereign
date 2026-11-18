@@ -53,6 +53,7 @@
  */
 
 import http from 'node:http';
+import { validateUiDefaults } from '../configuration/ui-defaults.js';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -60,6 +61,9 @@ import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import { createRequestGate } from './request-gate.js';
 import { createRuntimeLifecycle } from './runtime-lifecycle.js';
+import { traceShutdown } from './shutdown-trace.js';
+import { createVkTokenAcquisition } from '../sources/vk-token-acquisition.js';
+import { handleVkToken } from './routes-vk-token.js';
 import { listenFailure } from './listen-error.js';
 import {
   getSource as getSourceDefault,
@@ -71,13 +75,24 @@ import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { createExtraRuntime, telegramChats } from './telegram-extras.js';
 import { accountScope } from './account-scope.js';
 import { bodyFailure, fail, json } from './util.js';
+import { bindWire, requestWireFailure } from './wire.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
-import { handleCvRoutes } from './routes-cv.js';
+import {
+  handleCvRoutes,
+  handleVacancyRoutes,
+  handleTelegramRoutes,
+} from './route-modules.js';
+import { handleBrowserRoutes } from './routes-browser.js';
+import { handleFormRoutes } from './routes-forms.js';
+import { createFormReader } from '../forms/reader.js';
+import { createLocalAnswerModel } from '../automation/local-answer-model.js';
+import { createFormReportWriter } from '../forms/report-file.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
+import { createFollowDiscovery } from '../follow/chat-discovery.js';
 import { handlePeopleRoutes } from './routes-people.js';
 import { handleContactsImport } from './routes-contacts-import.js';
 import {
@@ -85,12 +100,15 @@ import {
   createAutomationScheduler,
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
+import { createQuestionBrowser } from '../automation/question-browser.js';
+import { createAssignmentVacancyReader } from '../assignments/vacancy-reader.js';
 import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
 import { backgroundJobs } from './background-jobs.js';
 import { handleDeletedRoutes } from './routes-deleted.js';
 import { handleVersionRoutes } from './routes-message-versions.js';
 import { withMessageVersions } from '../storage/message-versions.js';
+import { withCausalWrites } from '../storage/causal-writes.js';
 import { handleAudienceSyncRoute } from './audience-sync.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
@@ -98,12 +116,41 @@ import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
 import { handleFeedbackRoutes } from './routes-feedback.js';
 import { handleStickerCollections } from './routes-sticker-collections.js';
+import { handleVkSendQueue } from './routes-vk-send-queue.js';
+import { handleVkAttachments } from './routes-vk-attachments.js';
+import { handleVkCache } from './routes-vk-cache.js';
+import { createVkCacheRuntime } from './vk-cache-runtime.js';
+import { createVkStickerRuntime } from './vk-sticker-runtime.js';
+import { handleVkOnline } from './routes-vk-online.js';
+import { createVkOnlineJob } from '../automation/vk-online.js';
+import { configureAutomationSettings } from '../automation/configured-settings.js';
+import { validateAutomationDefaults } from '../configuration/automation-defaults.js';
+import { createVkFriendsJob } from '../automation/vk-friends.js';
+import { handleVkFriends } from './routes-vk-friends.js';
+import { handleVkMaintenance } from './routes-vk-maintenance.js';
+import { createVkMaintenanceJob } from '../automation/vk-maintenance.js';
+import { createVkCancelledJob } from '../automation/vk-cancelled.js';
+import { handleVkCancelled } from './routes-vk-cancelled.js';
+import { createVkGreetJob } from '../automation/vk-greet.js';
+import { handleVkGreet } from './routes-vk-greet.js';
+import { createVkReengageJob } from '../automation/vk-reengage.js';
+import { reengageKinds } from '../automation/vk-reengage-settings.js';
+import { handleVkReengage } from './routes-vk-reengage.js';
+import { createVkWallJob } from '../automation/vk-wall.js';
+import { handleVkWall } from './routes-vk-wall.js';
+import { createVkBirthdayJob } from '../automation/vk-birthday.js';
+import { handleVkBirthday } from './routes-vk-birthday.js';
+import { createVkRetentionJob } from '../automation/vk-retention.js';
+import { handleVkRetention } from './routes-vk-retention.js';
+import { createVkDiscoveryJob } from '../automation/vk-discovery.js';
+import { handleVkDiscovery } from './routes-vk-discovery.js';
+import { discoveryKinds } from '../automation/vk-discovery-settings.js';
+import { maintenanceKinds } from '../automation/vk-maintenance-settings.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
 import { handleMarketplaceRoutes } from './routes-marketplaces.js';
 import { profileDirIn } from '../sources/whatsapp-web-signin.js';
-import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
 import { handleMediaGets } from './routes-media.js';
@@ -128,6 +175,12 @@ import { createConversationKnowledge } from './conversation-knowledge.js';
 import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
+import { createLogJournal } from './log-journal.js';
+import { withLoggedSession } from './log-session.js';
+import { createLogSettings } from './log-settings.js';
+import { handleDiagnostics } from './routes-diagnostics.js';
+import { handleRunner } from './routes-runner.js';
+import { createRunnerRuntime } from './runner-runtime.js';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { listenLocal } from './local-tls.js';
 import { handlePullRoutes, pullContext } from './routes-pull.js';
@@ -283,10 +336,14 @@ const uiContext = (allowOrigins, uiUrl, localUi) => {
  * that already owns a session — never open a second one.
  * @param {{commander?: object, sessionFactory?: Function, artifactDir?: string}} cv
  */
-const cvContext = (cv = {}) => ({
+const cvContext = (cv = {}, vacancies) => ({
+  vacancyOptions: vacancies,
   cvCommander: cv.commander ?? null,
   cvSessionFactory: cv.sessionFactory ?? null,
   cvArtifactDir: cv.artifactDir ?? null,
+  cvExperienceOptions: cv.experience,
+  cvExperiencePlanningOptions: cv.experiencePlanning,
+  cvFormalReportOptions: cv.formalReports,
 });
 
 /**
@@ -301,6 +358,78 @@ const replyService = (store, storeDir, replies = {}) => {
       ? createClinkReplyStore({ db: path.join(storeDir, 'replies.links') })
       : option || null;
   return createReplyService({ store, self: replies.self ?? [], clink });
+};
+
+const vkPolicyJobs = (store, kinds, create, options, log) =>
+  Object.fromEntries(
+    kinds.map((kind) => [
+      kind,
+      create({ store, kind, ...options?.[kind], log }),
+    ])
+  );
+
+const vkAutomationJobs = (store, automations, say) => {
+  const providerJob = (create, options) =>
+    create({ store, ...options, log: say });
+  const vkOnline = providerJob(createVkOnlineJob, automations.vkOnline);
+  const vkFriends = providerJob(createVkFriendsJob, automations.vkFriends);
+  const vkGreet = providerJob(createVkGreetJob, automations.vkGreet);
+  const vkWall = providerJob(createVkWallJob, automations.vkWall);
+  const vkBirthday = providerJob(createVkBirthdayJob, automations.vkBirthday);
+  const vkRetention = providerJob(
+    createVkRetentionJob,
+    automations.vkRetention
+  );
+  const vkReengage = vkPolicyJobs(
+    store,
+    reengageKinds,
+    createVkReengageJob,
+    automations.vkReengage,
+    say
+  );
+  const vkCancelled = providerJob(
+    createVkCancelledJob,
+    automations.vkCancelled
+  );
+  const vkMaintenance = vkPolicyJobs(
+    store,
+    maintenanceKinds,
+    createVkMaintenanceJob,
+    automations.vkMaintenance,
+    say
+  );
+  const vkDiscovery = vkPolicyJobs(
+    store,
+    discoveryKinds,
+    createVkDiscoveryJob,
+    automations.vkDiscovery,
+    say
+  );
+  const ownedVkJobs = [
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    ...Object.values(vkReengage),
+    ...Object.values(vkMaintenance),
+    ...Object.values(vkDiscovery),
+  ];
+  return {
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkReengage,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    vkMaintenance,
+    vkDiscovery,
+    ownedVkJobs,
+  };
 };
 
 /**
@@ -324,10 +453,11 @@ const automationContext = (
   const send =
     automations.send ??
     createDefaultSender({
+      store,
       getSource,
       options: automations.options,
       optionsFor,
-      browser: automations.browser,
+      browser: { store, ...automations.browser },
       log: say,
     });
   const setTyping =
@@ -348,9 +478,15 @@ const automationContext = (
     store,
     send,
     setTyping,
+    markRead:
+      automations.markRead ??
+      (async ({ chat, id }) =>
+        getSource('vk').live.markRead({ chat, id }, await optionsFor('vk'))),
     resolveAudience: automations.resolveAudience,
     self,
     log: say,
+    modelRunner: automations.modelRunner,
+    vkQueue: automations.vkQueue,
   });
   const scheduler = createAutomationScheduler({
     store,
@@ -360,6 +496,19 @@ const automationContext = (
     log: say,
   });
   const autopilot = createAutopilot({ store, runner, log: say });
+  const {
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkReengage,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    vkMaintenance,
+    vkDiscovery,
+    ownedVkJobs,
+  } = vkAutomationJobs(store, automations, say);
   // A send the last run never finished may have gone out: it becomes
   // `unknown` and is never retried by itself (R-Z3).
   const recover = () =>
@@ -376,6 +525,7 @@ const automationContext = (
     // busy port must not run automation on the same store.
     later.push(() => {
       scheduler.start();
+      ownedVkJobs.forEach((job) => job.start());
       // An autopilot left on stays paused after a restart until the user
       // resumes it (or it was set to resume on start) (R-Z3).
       (recovered ?? recover())
@@ -389,14 +539,43 @@ const automationContext = (
         );
     });
   }
+  const questionBrowser = createQuestionBrowser({
+    store,
+    send,
+    runner: automations.modelRunner,
+    readVacancy:
+      automations.readVacancy ?? createAssignmentVacancyReader({ store }),
+    log: say,
+  });
   return {
     send,
     setTyping,
     automations: { runner, scheduler, autopilot },
+    vkOnline,
+    vkFriends,
+    vkCancelled,
+    vkGreet,
+    vkReengage,
+    vkWall,
+    vkBirthday,
+    vkRetention,
+    vkMaintenance,
+    vkDiscovery,
+    vkOnlineScheduled: automations.scheduler !== false,
+    questionBrowser,
     closeAutomations: async () => {
-      autopilot.stopAll();
-      scheduler.stop();
-      await send.close?.();
+      const stoppedAutopilots = autopilot.stopAll();
+      // Signal every owner before awaiting any held provider operation.
+      await Promise.allSettled([
+        traceShutdown('autopilots', stoppedAutopilots),
+        traceShutdown('scheduler', scheduler.stop()),
+        traceShutdown('automationRunner', runner.close()),
+        ...ownedVkJobs.map((job, index) =>
+          traceShutdown(`vkJob:${index}`, job.stop())
+        ),
+      ]);
+      await traceShutdown('questionBrowser', questionBrowser.close());
+      await traceShutdown('browserSender', send.close?.());
     },
   };
 };
@@ -579,6 +758,10 @@ const route = async (store, req, res, ctx) => {
   if (redirectLocalTls(req, res, url, ctx)) {
     return;
   }
+  const wireFailure = requestWireFailure(req);
+  if (wireFailure) {
+    return fail(res, ...wireFailure);
+  }
   if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }
@@ -601,6 +784,9 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
     return;
   }
+  if (await handleVacancyRoutes(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleSuggestRoutes(req, res, p, url, ctx)) {
     return;
   }
@@ -620,20 +806,34 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   if (
-    await handleBackupRoutes(
-      store,
-      req,
-      res,
-      p,
-      ctx.archiveDir,
-      ctx.secretPassphrase
-    )
+    await handleBackupRoutes(store, req, res, p, ctx.archiveDir, {
+      fallbackPassphrase: ctx.secretPassphrase,
+      recovery: ctx.recovery,
+    })
   ) {
     return;
   }
   for (const handle of [
+    () => handleDiagnostics(req, res, p, url, ctx),
+    () => handleRunner(req, res, p, ctx),
+    () => handleVkToken(req, res, p, ctx),
+    () => handleVkAttachments(store, req, res, p, url, ctx),
+    () => handleVkSendQueue(store, req, res, p, url, ctx),
+    () => handleVkCache(store, req, res, p, url, ctx),
+    () => handleVkOnline(store, req, res, p, url, ctx),
+    () => handleVkFriends(store, req, res, p, url, ctx),
+    () => handleVkCancelled(store, req, res, p, url, ctx),
+    () => handleVkGreet(store, req, res, p, url, ctx),
+    () => handleVkReengage(store, req, res, p, url, ctx),
+    () => handleVkWall(store, req, res, p, url, ctx),
+    () => handleVkBirthday(store, req, res, p, url, ctx),
+    () => handleVkRetention(store, req, res, p, url, ctx),
+    () => handleVkDiscovery(store, req, res, p, url, ctx),
+    () => handleVkMaintenance(store, req, res, p, url, ctx),
     () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
+    () => handleBrowserRoutes(store, req, res, p, url, ctx),
+    () => handleFormRoutes(store, req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
@@ -695,10 +895,16 @@ const initStore = async ({
     }
   }
   // Kept before wrapping: the secret wrapper does not pass `flush` on.
-  store = withMessageVersions(store);
+  store = withMessageVersions(withCausalWrites(store));
   const unwrapped = store;
   const flush = async () => {
     await unwrapped.flush?.();
+  };
+  // An injected store belongs to its caller (including the rolling host).
+  const releaseStore = async () => {
+    if (!providedStore) {
+      await unwrapped.close?.();
+    }
   };
   if (secretPassphrase) {
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
@@ -709,7 +915,7 @@ const initStore = async ({
     ...(unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 }),
     schema: unwrapped.schema ?? null,
   });
-  return { store, resolvedArchiveDir, flush, storeHealth };
+  return { store, resolvedArchiveDir, flush, releaseStore, storeHealth };
 };
 
 // The HTTP server: each request is logged, and routed (./account-scope.js
@@ -763,7 +969,10 @@ const createHttpServer = (store, ctx, log) => {
   const gate = createRequestGate(dispatch, ctx.front);
   const server = http.createServer(
     { requestTimeout: UPLOAD_TIMEOUT_MS },
-    gate.handle
+    (req, res) => {
+      bindWire(req, res, ctx.jsonCompatibility);
+      return gate.handle(req, res);
+    }
   );
   server.requestGate = gate;
   server.prependListener('upgrade', (req, socket) => {
@@ -793,7 +1002,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   const originAllowed = socketAllowed(ctx);
   const verifyOrigin = (req) =>
     server.requestGate.authorize(req) && originAllowed(req);
-  const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
+  const wsHandle = attachSyncWebSocket(server, {
+    path: '/ws',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   // Peers of another data schema are refused, with a log line (R-Z17).
   createPeer(store, {
     node,
@@ -808,7 +1021,11 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
         message: error.message,
       }),
   }).connect(wsHandle.transport);
-  const signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
+  const signaling = attachSignaling(server, {
+    path: '/rtc',
+    verifyOrigin,
+    jsonCompatibility: ctx.jsonCompatibility,
+  });
   ctx.sync = wsHandle;
   ctx.signaling = signaling;
   return { wsHandle, signaling };
@@ -816,8 +1033,16 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
 
 // The browser sender signs in to the web apps in profiles inside the store
 // (owner only), the same ones "Sign in to WhatsApp Web" opens (R-Z9).
-const withStoreProfiles = (automations = {}, storeDir, front) => ({
+const withStoreProfiles = (
+  automations = {},
+  storeDir,
+  front,
+  providedStore
+) => ({
   ...automations,
+  ...(!providedStore
+    ? { vkFriends: { storeDir, ...automations.vkFriends } }
+    : {}),
   ...(front?.warming ? { deferRecovery: true } : {}),
   browser: {
     profileDirFor: (source) => profileDirIn(storeDir, source),
@@ -836,14 +1061,17 @@ const trackSockets = (server) => {
 };
 
 // The automations' part of the context, fed by the Telegram account.
-const automationFor = (store, automations, log, telegramAccount, later) =>
-  automationContext(
+const automationFor = (store, automations, log, telegramAccount, later) => ({
+  vkCache: createVkCacheRuntime({ store, ...automations.vkCache }),
+  vkStickers: createVkStickerRuntime({ store, ...automations.vkStickers }),
+  ...automationContext(
     store,
     automations,
     log,
     accountSources(telegramAccount),
     later
-  );
+  ),
+});
 
 const logFlusher = (store) => store?.flushLog;
 const applyServerAddress = (ctx, listening, front, activate) => {
@@ -854,7 +1082,81 @@ const applyServerAddress = (ctx, listening, front, activate) => {
   }
 };
 
-export const startServer = async ({
+const releaseBeforeListen =
+  ({ wsHandle, signaling, lifecycle, flush, releaseStore }) =>
+  async () => {
+    wsHandle?.close();
+    signaling?.close();
+    await lifecycle.stopRuntime();
+    try {
+      await flush().catch(() => {});
+    } finally {
+      await releaseStore();
+    }
+  };
+
+const serverForms = (store, options) =>
+  createFormReader({
+    store,
+    reportWriter: createFormReportWriter(),
+    ...options,
+  });
+
+const modelContext = (
+  store,
+  forms,
+  automations,
+  service = createLocalAnswerModel()
+) => {
+  automations.modelRunner ??= service.draft;
+  return {
+    answerModel: service,
+    forms: serverForms(store, { modelRunner: service.draft, ...forms }),
+  };
+};
+
+export const startServer = async (options = {}) =>
+  withLoggedSession(
+    {
+      ...options,
+      uiDefaults: validateUiDefaults(options.uiDefaults ?? {}),
+      automationDefaults: await validateAutomationDefaults(
+        options.automationDefaults
+      ),
+    },
+    startServerRuntime
+  );
+
+const initLogSettings = async (options, releaseStore) => {
+  try {
+    return await createLogSettings(options);
+  } catch (error) {
+    await releaseStore().catch(() => {});
+    throw error;
+  }
+};
+
+const initRuntimeStore = async (
+  { automationDefaults, ...options },
+  logging
+) => {
+  const resources = await initStore({ ...options, log: logging.journal.log });
+  configureAutomationSettings(resources.store, automationDefaults);
+  const diagnostics = await initLogSettings(
+    { ...logging, store: resources.store },
+    resources.releaseStore
+  );
+  return { ...resources, diagnostics };
+};
+
+const tokenService = (store, passphrase, options) =>
+  createVkTokenAcquisition({
+    ...options,
+    store,
+    protectedStorage: Boolean(passphrase),
+  });
+
+const startServerRuntime = async ({
   port = 0,
   storeDir = defaultStoreDir(),
   archiveDir,
@@ -862,17 +1164,27 @@ export const startServer = async ({
   enableHandlers = true,
   enableSync = true,
   log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
+  verbose,
+  diagnosticsSession,
+  runnerSessions,
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
+  vkToken,
+  automationDefaults,
   emailLiveFactory = null,
   emailPoll,
   cv = {},
+  vacancies,
+  forms,
+  answerModel,
   // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
   // setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   replies,
   automations,
   greetings,
+  broadcasting,
   allowOrigins,
+  follow,
   autoImportLauncher,
   // Tests inject a fake `createSignIns()` and a fake MTProto (no real browsers
   // or network are used).
@@ -891,6 +1203,9 @@ export const startServer = async ({
   // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
+  uiDefaults,
+  // Legacy JSON is an explicit opt-in. Normal servers speak text/binary LINO.
+  jsonCompatibility = process.env.MS_JSON_COMPATIBILITY === '1',
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
   tls,
   // diskFree: a test fake `(dir) => bytes|null` (R-Z14); backups:
@@ -901,16 +1216,22 @@ export const startServer = async ({
   // Private rolling-worker options; the public listener remains in its host.
   front,
 } = {}) => {
-  const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
-    providedStore,
-    storeDir,
-    archiveDir,
-    secretPassphrase,
-    log,
-  });
+  const logJournal = createLogJournal({ sink: log });
+  log = logJournal.log;
+  const resources = await initRuntimeStore(
+    {
+      providedStore,
+      storeDir,
+      archiveDir,
+      secretPassphrase,
+      automationDefaults,
+    },
+    { journal: logJournal, session: diagnosticsSession, verbose }
+  );
+  const { store, releaseStore, storeHealth, diagnostics, flush } = resources;
   // Services that run in the background start only after the port is ours.
   const later = [];
-  automations = withStoreProfiles(automations, storeDir, front);
+  automations = withStoreProfiles(automations, storeDir, front, providedStore);
   const chatIndex = createChatIndex(store, { log });
   const telegramAccount = telegramAccountFor(
     store,
@@ -926,24 +1247,35 @@ export const startServer = async ({
   );
   const ctx = {
     front,
-    archiveDir: resolvedArchiveDir,
+    jsonCompatibility: jsonCompatibility === true,
+    archiveDir: resources.resolvedArchiveDir,
     sync: null,
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    vkToken: tokenService(store, secretPassphrase, vkToken),
     ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
-    ...cvContext(cv),
+    uiDefaults,
+    ...cvContext(cv, vacancies),
+    ...modelContext(store, forms, automations, answerModel),
     replies: replyService(store, storeDir, replies),
     ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),
+    broadcasting,
     storeDir,
+    followDiscovery: createFollowDiscovery({ store, ...follow }),
+    followBacklinkOptions: follow?.backlinks,
     storeHealth,
     systemContactsReader,
     diskFree,
     passcode: createPasscodeLock({ dir: storeDir }),
     log,
     clientLog: createClientLogRoute(),
+    logJournal,
+    diagnostics,
+    diagnosticsSession,
+    runnerSessions: createRunnerRuntime(runnerSessions),
     learned: createLearnedRoute(),
     githubCheck: githubCheckOf(store, log, githubCheck),
     autoImport: null,
@@ -973,42 +1305,44 @@ export const startServer = async ({
     enableHandlers,
     sockets,
     flush,
+    releaseStore,
     flushLog: logFlusher(providedStore),
   });
-  const { wsHandle, signaling } = attachSockets(server, ctx, store, {
-    enableSync,
-    node,
-  });
+  const transports = attachSockets(server, ctx, store, { enableSync, node });
   const listening = await listenOrRelease(
     server,
     sockets,
     { port, storeDir, tls, log },
-    async () => {
-      lifecycle.bus?.close();
-      wsHandle?.close();
-      signaling?.close();
-      ctx.replies.close().catch(() => {});
-      ctx.chatIndex.close();
-      await flush().catch(() => {});
-    }
+    releaseBeforeListen({ ...transports, lifecycle, flush, releaseStore })
   );
   applyServerAddress(ctx, listening, front, lifecycle.activate);
-  return {
-    port: listening.listener.address().port,
-    tls: ctx.tls,
-    store,
-    bus: lifecycle.bus,
-    sync: wsHandle,
-    signaling,
-    archiveDir: resolvedArchiveDir,
-    allowOrigins: ctx.allowOrigins,
-    uiUrl: ctx.uiUrl,
-    localUi: ctx.localUi,
-    activate: lifecycle.activate,
-    drain: server.requestGate.drain,
-    passcodeState: () => ctx.passcode.status(),
-    inheritUnlock: () => ctx.passcode.inheritUnlock(),
-    close: (options) =>
-      lifecycle.close(listening, { wsHandle, signaling }, options),
-  };
+  return serverHandle(store, ctx, listening, lifecycle, {
+    ...transports,
+    server,
+  });
 };
+
+const serverHandle = (
+  store,
+  ctx,
+  listening,
+  lifecycle,
+  { wsHandle, signaling, server }
+) => ({
+  port: listening.listener.address().port,
+  tls: ctx.tls,
+  store,
+  bus: lifecycle.bus,
+  sync: wsHandle,
+  signaling,
+  archiveDir: ctx.archiveDir,
+  allowOrigins: ctx.allowOrigins,
+  uiUrl: ctx.uiUrl,
+  localUi: ctx.localUi,
+  activate: lifecycle.activate,
+  drain: server.requestGate.drain,
+  passcodeState: () => ctx.passcode.status(),
+  inheritUnlock: () => ctx.passcode.inheritUnlock(),
+  close: (options) =>
+    lifecycle.close(listening, { wsHandle, signaling }, options),
+});

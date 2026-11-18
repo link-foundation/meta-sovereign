@@ -4,13 +4,12 @@ import {
   pendingTestDrafts,
   existingTestResult,
 } from './drafts.js';
+import { draftConfirmationKey } from './draft-confirmation.js';
 
 // Only the same chat and text the user saw in the confirmation may be sent.
-const draftKey = (draft) =>
-  `${draft.source}\u0000${draft.chat}\u0000${draft.text}`;
 export const stillConfirmed = (planned, confirmed) => {
-  const ok = new Set(confirmed.map(draftKey));
-  return planned.filter((draft) => ok.has(draftKey(draft)));
+  const ok = new Set(confirmed.map(draftConfirmationKey));
+  return planned.filter((draft) => ok.has(draftConfirmationKey(draft)));
 };
 
 export const createAutomationRun =
@@ -63,6 +62,18 @@ export const createAutomationRun =
         queued: [...(await queue(automation, planned.drafts)), ...existing],
       };
     }
+    const modelDrafts = planned.drafts.filter(
+      (draft) => draft.answer?.model?.used
+    );
+    const queued = modelDrafts.length
+      ? await queue(automation, modelDrafts)
+      : [];
+    const deliverable = planned.drafts.filter(
+      (draft) => !draft.answer?.model?.used
+    );
+    if (modelDrafts.length && !deliverable.length) {
+      return { ...planned, trigger, queued, results: [] };
+    }
     if (!Array.isArray(options.confirmed)) {
       throw new ConfirmationRequiredError(
         'auto mode sends messages; confirm the previewed drafts first'
@@ -70,7 +81,7 @@ export const createAutomationRun =
     }
     const outcome = await sendPaced(
       automation,
-      stillConfirmed(planned.drafts, options.confirmed)
+      stillConfirmed(deliverable, options.confirmed)
     );
     await store.put({
       id: `${STATE_PREFIX}${automationKey(automation)}`,
@@ -79,5 +90,10 @@ export const createAutomationRun =
       lastRunAt: nowIso(),
       lastTrigger: trigger,
     });
-    return { ...planned, trigger, ...outcome };
+    return {
+      ...planned,
+      trigger,
+      ...outcome,
+      ...(queued.length ? { queued } : {}),
+    };
   };

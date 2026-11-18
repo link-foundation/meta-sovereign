@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the link preview of the message box (R-Y145), as
 // Telegram Desktop shows it: a link in the text brings a bar above the box
 // (site, title, description, the picture through the app's server); "Loading
@@ -56,7 +57,7 @@ await page.route('**/api/telegram/link-preview-photo*', (route) => {
 const asked = [];
 let pendingFirst = true;
 await page.route('**/api/telegram/link-preview', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body);
   if (body.url.includes('nothing')) {
     return fulfil(route, { ok: true, state: 'empty' });

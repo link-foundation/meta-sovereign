@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createLayoutTrace } from '../src/web/chat-layout-trace.js';
+import {
+  createLayoutTrace,
+  createLayoutReporter,
+} from '../src/web/chat-layout-trace.js';
 import { installClientLog } from '../src/web/client-log.js';
 
 test('layout diagnostics distinguish overlap from reading and suppress duplicates', () => {
@@ -73,4 +76,95 @@ test('a recurring error is reported after the deduplication window', async () =>
   await Promise.resolve();
   assert.equal(entries.length, 2);
   stop();
+});
+
+test('a potential layout warning confirms fresh state once and cancels superseded work', () => {
+  const saved = Object.fromEntries(
+    ['getComputedStyle', 'requestAnimationFrame', 'cancelAnimationFrame'].map(
+      (key) => [key, globalThis[key]]
+    )
+  );
+  const queue = new Map();
+  let id = 0;
+  globalThis.requestAnimationFrame = (fn) => {
+    queue.set(++id, fn);
+    return id;
+  };
+  globalThis.cancelAnimationFrame = (key) => queue.delete(key);
+  globalThis.getComputedStyle = () => ({ paddingBottom: '74px' });
+  const tick = () => {
+    const callbacks = [...queue.values()];
+    queue.clear();
+    callbacks.forEach((fn) => fn());
+  };
+  try {
+    let bottom = 730;
+    let following = true;
+    const node = {
+      closest: () => ({
+        querySelector: () => ({
+          offsetHeight: 61,
+          getBoundingClientRect: () => ({ top: 700 }),
+        }),
+      }),
+      querySelectorAll: () => [{ getBoundingClientRect: () => ({ bottom }) }],
+      getBoundingClientRect: () => ({ bottom: 800 }),
+      scrollTop: 2665,
+      scrollHeight: 3343,
+      clientHeight: 640,
+    };
+    const entries = [];
+    const reporter = createLayoutReporter(
+      createLayoutTrace({ clientLog: (entry) => entries.push(entry) }),
+      (reason) => ({ node, fields: { reason, following, messages: 26 } })
+    );
+    reporter.report('end');
+    tick();
+    tick();
+    assert.equal(
+      entries.length,
+      0,
+      'wait for observer delivery before warning'
+    );
+    bottom = 692;
+    tick();
+    assert.equal(entries[0].level, 'debug');
+    assert.equal(entries[0].bottomGap, 8);
+    assert.equal(queue.size, 0, 'no continuous geometry polling');
+    bottom = 730;
+    reporter.report('persistent');
+    tick();
+    tick();
+    tick();
+    assert.equal(
+      entries[1].level,
+      'warn',
+      'persistent overlaps remain warnings'
+    );
+    reporter.report('stale');
+    tick();
+    tick();
+    reporter.report('latest');
+    following = false;
+    tick();
+    tick();
+    assert.equal(entries.length, 3);
+    assert.equal(entries[2].reason, 'latest');
+    assert.equal(entries[2].level, 'debug', 'fresh reading intent wins');
+    reporter.report('unmounted');
+    tick();
+    tick();
+    reporter.cancel();
+    tick();
+    assert.equal(entries.length, 3);
+    assert.equal(queue.size, 0);
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) {
+        delete globalThis[key];
+      } else {
+        globalThis[key] = value;
+      }
+    }
+  }
 });

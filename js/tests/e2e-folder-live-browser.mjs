@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for folders that follow other devices and can be
 // dragged (R-Y172), as Telegram Desktop does: a folder made, renamed or
 // reordered on another device (the server keeps a `folders-live:telegram`
@@ -64,7 +65,7 @@ await page.route('**/api/telegram/folders-suggested', (route) =>
   fulfil(route, { ok: true, suggested: [] })
 );
 await page.route('**/api/telegram/folders-reorder', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   orders.push(body.order);
   const named = body.order.filter((id) => id !== 0);
   folders = named.map((id) => folders.find((f) => f.id === id));

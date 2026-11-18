@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for transcribing voice and video notes (R-Y175), as
 // Telegram Desktop's "→A" button does: the button beside a voice note's
 // waveform and a round video's circle asks Telegram (messages.
@@ -101,7 +102,7 @@ await page.route('**/api/telegram/file?*', (route) =>
 const asked = [];
 const rated = [];
 await page.route('**/api/telegram/transcribe', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asked.push(body.id);
   const times = asked.filter((id) => id === body.id).length;
   if (body.id === 2) {
@@ -136,7 +137,7 @@ await page.route('**/api/telegram/transcribe', (route) => {
   });
 });
 await page.route('**/api/telegram/transcribe-rate', (route) => {
-  rated.push(route.request().postDataJSON());
+  rated.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

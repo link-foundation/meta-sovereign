@@ -1,0 +1,13 @@
+{
+  "browser": "installed Chrome, visible through browser-commander and Xvfb; Playwright MCP attached through CDP",
+  "tail": {
+    "top": 5941,
+    "below": 0
+  },
+  "reader": {
+    "id": "msg:telegram:555:57",
+    "before": 262.90625,
+    "after": 262.90625
+  },
+  "pageErrors": []
+}

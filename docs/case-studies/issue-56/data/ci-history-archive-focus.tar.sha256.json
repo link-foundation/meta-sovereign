@@ -1,0 +1,23 @@
+{
+  "archive": "ci-history-archive-focus.tar.gz",
+  "files": {
+    "ci-logs/checks-43793268260-chromium1.log": "4e684a13cde1443262607ccd11d0ca975584fb9458386d688d016bd4d715da7a",
+    "ci-logs/ci-bea-runs.json": "2949888a539687f30460aa61448b205e6d9b920d81d2af74510c85ab7da96625",
+    "ci-logs/ci-history-focus-archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-history-focus-before.log": "b0c3fe9c3c033b2c04e7095dba2c858f850d8a2fd0171d8d0660dc123095235d",
+    "ci-logs/ci-history-focus-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-history-focus-format.log": "975f9b744f6b64d27e13b7553c45fbb4ed56cf5de3649835392b0e8b4c998246",
+    "ci-logs/ci-history-focus-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-history-focus-native.log": "40570f3c3e8b552b0d3cc2ad60d6cd80454d0cda5f0f4c51e739e428090e686c",
+    "ci-logs/ci-history-focus-node.log": "7ab0783130bd926d894a06d01a3e71a0cba9a672781cf2a04802b62f0010c2f0",
+    "ci-logs/ci-history-focus-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/case-studies/issue-56/ci-history-archive-focus.md": "003d08e8a1e3c0e9b19bf774d51c9443431cffd7371d002c8970f006dd04c4e3",
+    "experiments/issue-56/collect-ci-history-archive-focus.py": "aba436edeaf64a5c5867b0249c36d319dc215c4865a36afb0089d7316238c70e",
+    "js/tests/ci-native-focus.test.js": "966038fdca32c5363ca05fdf6d94d4989047a6325d24e5dd2ea3491394c52520",
+    "js/tests/e2e-question-history-browser.mjs": "583ab2c240b27d8b38dd72279e76666ac5570141de51f4ca260be45e4c1c6a43",
+    "js/tests/helpers/e2e-browser-history-archive.mjs": "08fe2c39b8a4fb8de51aa65dba4e8c02e52324d29e465d3b418a188be446c999",
+    "js/tests/helpers/e2e-browser-scenarios.mjs": "d6c3e934e1dd454d64dde4fb8631e983407b0ba27b86b1177968acfdead6253e",
+    "before/js/tests/e2e-question-history-browser.mjs": "edd7ad70cfd9eee03d4621cd1e73a7e8ecff14bb3787159150e8ac013a4f5d05",
+    "before/js/tests/ci-native-focus.test.js": "99a60c66b9fd717f42ef4469c5618f645e8f3f1fa656630f01060dbc4864f26c"
+  }
+}

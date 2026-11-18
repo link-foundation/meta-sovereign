@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { runCli } from '../src/cli/index.js';
 import { parseArgs } from '../src/cli/lino-args.js';
+import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 
 describe('lino-args parser', () => {
   it('parses flags and positionals', () => {
@@ -55,7 +56,16 @@ describe('cli end-to-end', () => {
     );
     expect(code2).toBe(0);
     const exported = JSON.parse(await fs.readFile(exportFile, 'utf8'));
-    expect(exported.length).toBe(1);
+    expect(exported.map((link) => link.id).sort()).toEqual([
+      'meta:schema',
+      'msg:telegram:5',
+    ]);
+    expect(exported.find((link) => link.id === 'meta:schema').version).toBe(
+      CURRENT_SCHEMA
+    );
+    expect(exported.find((link) => link.id === 'msg:telegram:5').body).toBe(
+      'yo'
+    );
   });
 
   it('lists sources', async () => {

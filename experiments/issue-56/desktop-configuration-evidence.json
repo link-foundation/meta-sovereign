@@ -1,0 +1,21 @@
+[
+  "startup-configuration",
+  "desktop-configuration",
+  "desktop-configuration-hosted",
+  "runner-configuration",
+  "automation-defaults",
+  "lino-cli-arguments",
+  "runner-log",
+  "runner-log-ci",
+  "live-diagnostics",
+  "legacy-priorities",
+  "legacy-catalogs",
+  "desktop-appearance",
+  "ui-defaults",
+  "vk-token",
+  "vk-token-registration",
+  "vk-token-electron-entry",
+  "vk-message-defaults",
+  "vk-friend-priority",
+  "vk-configured"
+]

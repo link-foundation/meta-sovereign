@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for editing a message in the box (R-Y146), as Telegram
 // Desktop does it: Up in an empty box (or Edit in the message's menu)
 // opens a bar over the box (pencil, "Edit message", the text on one
@@ -50,7 +51,7 @@ await store.put(own(OLD_CHAT, 1, 'a long time ago', 3 * 24 * 60, 'Fake Old'));
 const edits = [];
 const { base, page, until, finish } = await openChatApp('edit', { store });
 await page.route('**/api/message/edit', (route) => {
-  edits.push(route.request().postDataJSON());
+  edits.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 

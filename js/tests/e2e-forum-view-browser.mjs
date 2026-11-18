@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for a forum seen as messages or as topics (R-Y171), as
 // Telegram Desktop's ⋯ menu has it: the header's menu offers "View as
 // messages" in a forum showing its topics, and "View as topics" in one
@@ -105,14 +106,14 @@ const topic = (id, title) => ({
 await page.route('**/api/telegram/forum-topics', (route) =>
   fulfil(route, {
     ok: true,
-    forum: route.request().postDataJSON().chat === FORUM,
+    forum: requestBody(route.request()).chat === FORUM,
     topics: [topic(1, 'General'), topic(2, 'Design')],
   })
 );
 const writes = [];
 let refuse = false;
 await page.route('**/api/telegram/forum-view', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   writes.push(body);
   return fulfil(
     route,

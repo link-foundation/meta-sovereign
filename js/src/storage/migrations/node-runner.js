@@ -27,6 +27,7 @@ import {
   SCHEMA_ID,
   migrationFailed,
   runMigrations,
+  schemaLink,
   storeTooNew,
   versionOf,
 } from './index.js';
@@ -296,10 +297,12 @@ export const migrateOpenStore = async ({
     return { version, current, migrated: null };
   }
   if (text.size() === 0) {
-    // Nothing to migrate; no schema link is added to an empty store (it
-    // would show up in every listing). Data written from now on is in the
-    // current shapes, so it counts as current; a later open that finds data
-    // under no marker runs the (idempotent) migrations once and stamps it.
+    // New stores can immediately write reserved synchronization metadata.
+    // Persist its schema before accepting such data: replaying collision
+    // migrations on an unstamped new store would mistake our own fields for
+    // pre-migration owner data. Browser stores already stamp empty openings.
+    await text.put(schemaLink({ version: current, app }));
+    await text.flush?.();
     return { version: current, current, migrated: null };
   }
   await checkSpace(dir, measureFree, onEvent);

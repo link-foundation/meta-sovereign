@@ -15,6 +15,27 @@ import {
   redraftWithForm,
   runRecordId,
 } from './automations.js';
+import { validateAnswerDraft } from './question-store.js';
+import { draftConfirmationKey } from './draft-confirmation.js';
+import { orderedReplyState } from './ordered-reply.js';
+import { createStoreQueue } from '../storage/serialized.js';
+
+const serializeDrafts = createStoreQueue();
+
+const currentDraft = async (store, draft) =>
+  draft.engagement
+    ? { ...draft, progress: (await orderedReplyState(store, draft)).progress }
+    : draft;
+
+const renderDraft = (automation, stored, { text, form } = {}) => {
+  const draft =
+    form && form !== stored.form
+      ? redraftWithForm(automation, stored, form)
+      : stored;
+  return typeof text === 'string'
+    ? { ...draft, text, ...(text.trim() ? { sticker: undefined } : {}) }
+    : draft;
+};
 
 export class ConfirmationRequiredError extends Error {
   constructor(message) {
@@ -35,6 +56,7 @@ export const runRecord = (automation, draft, { status, at, ...extra }) => ({
   at,
   form: draft.form ?? null,
   text: draft.text ?? '',
+  ...(draft.sticker ? { sticker: draft.sticker } : {}),
   ...Object.fromEntries(
     Object.entries(extra).filter(([, value]) => value !== undefined)
   ),
@@ -77,21 +99,40 @@ export const listAutomations = async (store) => {
 };
 
 /** Write planned drafts; they are shown in their chats until settled. */
-export const queueDrafts = async (store, automation, drafts, at) => {
-  // A draft is settled against its automation later; keep an unsaved one.
-  if (drafts.length > 0 && !(await store.get(automation.id))) {
-    await store.put(automation);
-  }
-  for (const draft of drafts) {
-    await store.put({
-      ...draft,
-      tokens: ['automation-draft', automationKey(automation), draft.source],
-      status: 'pending',
-      createdAt: at,
-    });
-  }
-  return drafts;
-};
+export const queueDrafts = (store, automation, drafts, at) =>
+  serializeDrafts(store, async () => {
+    // A draft is settled against its automation later; keep an unsaved one.
+    if (drafts.length > 0 && !(await store.get(automation.id))) {
+      await store.put(automation);
+    }
+    const queued = [];
+    for (const draft of drafts) {
+      // Planning can finish after another run or the owner saved this draft.
+      // Preserve pending previews for every action, including ordinary text.
+      const existing = await store.get(draft.id);
+      if (existing?.status === 'pending') {
+        queued.push(await currentDraft(store, existing));
+        continue;
+      }
+      if (draft.answer?.model?.used) {
+        const valid = await validateAnswerDraft(store, automation, draft, {
+          reviewed: true,
+          now: Date.parse(at),
+        });
+        if (!valid.ok) {
+          throw Object.assign(new Error(valid.error), { code: valid.code });
+        }
+      }
+      await store.put({
+        ...draft,
+        tokens: ['automation-draft', automationKey(automation), draft.source],
+        status: 'pending',
+        createdAt: at,
+      });
+      queued.push(await currentDraft(store, draft));
+    }
+    return queued;
+  });
 
 // Revealing an existing preview is a read, so it needs no archive planning.
 export const existingTestResult = async (store, automation, options, at) => {
@@ -107,7 +148,7 @@ export const existingTestResult = async (store, automation, options, at) => {
     if (draft?.status !== 'pending') {
       return null;
     }
-    queued.push(draft);
+    queued.push(await currentDraft(store, draft));
   }
   return {
     automation: automation.id,
@@ -141,7 +182,7 @@ export const pendingTestDrafts = async (store, automation, plan, options) => {
         draft?.status === 'pending' &&
         !found.some((item) => item.id === draft.id)
       ) {
-        found.push(draft);
+        found.push(await currentDraft(store, draft));
       }
     }
   }
@@ -161,7 +202,10 @@ export const draftOperations = ({
     if (!draft?.id?.startsWith(DRAFT_PREFIX)) {
       throw new Error(`no draft ${id}`);
     }
-    return { draft, automation: await load(draft.automation) };
+    return {
+      draft: await currentDraft(store, draft),
+      automation: await load(draft.automation),
+    };
   };
 
   const settleDraft = async (id, status, extra = {}) => {
@@ -177,32 +221,51 @@ export const draftOperations = ({
   };
 
   return {
+    async previewDraft(id, options = {}) {
+      const { draft, automation } = await pendingDraft(id);
+      return globalThis.structuredClone(
+        renderDraft(automation, draft, options)
+      );
+    },
     /** Pending drafts, optionally for one chat or one automation. */
     async drafts({ source, chat, automation } = {}) {
       const owner = automation
         ? `${AUTOMATION_PREFIX}${automationKey(automation)}`
         : null;
-      return store.query(
+      const found = await store.query(
         (l) =>
           l?.id?.startsWith(DRAFT_PREFIX) &&
           (!source || l.source === source) &&
           (chat === undefined || String(l.chat) === String(chat)) &&
           (!owner || l.automation === owner)
       );
+      const drafts = [];
+      for (const draft of found) {
+        drafts.push(await currentDraft(store, draft));
+      }
+      return drafts;
     },
     /** Send one draft after the user confirmed it (optionally edited). */
-    async sendDraft(id, { confirm = false, text, form } = {}) {
+    async sendDraft(id, { confirm = false, text, form, confirmedDraft } = {}) {
       if (!confirm) {
         throw new ConfirmationRequiredError(
-          'safe mode sends one message per confirmation; pass confirm: true'
+          'safe mode sends one draft per confirmation; pass confirm: true'
         );
       }
       const { draft: stored, automation } = await pendingDraft(id);
-      let draft = form ? redraftWithForm(automation, stored, form) : stored;
-      if (typeof text === 'string') {
-        draft = { ...draft, text };
+      const draft = renderDraft(automation, stored, { text, form });
+      if (
+        confirmedDraft &&
+        draftConfirmationKey(draft) !== draftConfirmationKey(confirmedDraft)
+      ) {
+        return {
+          status: 'failed',
+          code: 'draft-changed',
+          error: 'The draft changed. Review it again before sending',
+          draft,
+        };
       }
-      const outcome = await deliver(automation, draft);
+      const outcome = await deliver(automation, draft, { reviewed: true });
       if (outcome.status === 'sent') {
         await store.delete(id);
         await afterSend(automation, draft);

@@ -1,12 +1,18 @@
 # Job boards feature matrix (languages: en • [zh](job-boards.zh.md) • [hi](job-boards.hi.md) • [ru](job-boards.ru.md))
 
+HH application reviews scroll to the full vacancy description before either opening the full form or activating Apply, then pause for three seconds. Configure `vacancyPreviewSeconds` (0–30, decimals allowed) in the shared UI or text/binary Lino request. CLI: `--vacancy-preview-seconds`, `VACANCY_PREVIEW_SECONDS`, or `.lenv` (`vacancyPreviewSeconds`), in that precedence order. Zero removes the pause; filled-answer review keeps its separate delay. The option is frozen in a batch and survives read-only recovery. Stop, CAPTCHA and changed native documents/descriptions refuse entry before a delivery reservation; test mode does not scroll or wait. This is verified with isolated native fixtures, without a live account. Full HH workflow parity remains unfinished.
+
 Back to the [Telegram feature support matrix](../FEATURES.md).
 
 ## Scope and access
 
 This page covers six job boards: hh.ru, Habr Career, SuperJob, Naukri, TopCV and VietnamWorks. Issue #29 asks to read and update CVs on LinkedIn, hh.ru, Habr, Naukri, VietnamWorks and TopCV using browser-commander, with telemetry and drafts allowed where the markup is not yet known. Requirement rows: R-E7..R-E13, R-D6, R-V1..R-V22. LinkedIn has its own network; this page does not cover it. Nothing here was verified against a live site: most CV-plan steps are drafts that have never run on the real boards (draft step counts are in each row).
 
-**Messaging with recruiters** has three possible routes: the official API (hh.ru and SuperJob only), the board's web app driven by the browser sender (needs a `WEB_UIS` entry), and archive import. **None of the six boards has a `WEB_UIS` entry** (only vk, telegram, whatsapp, x, facebook, linkedin and upwork do), so the browser route for reading or sending messages is unbuilt on every board. The only "web" work that exists is the CV profile plans, run through browser-commander in a persistent profile ([CV sync](../CV-SYNC.md)).
+An existing owned HH answer watch can read inactive history with real Chromium focus checks and restoration of draft, selection and reading position; returning owner focus takes control. This internal read-only prerequisite is verified in isolated fixtures, and WebKit explicitly refuses unavailable native focus. [Evidence](../case-studies/issue-56/inactive-history.md). Automatic background replies, cross-chat/filter restoration, unread orchestration, shared public controls and live-provider verification remain unfinished.
+
+An owned inactive HH watch can internally send one frozen-turn text reply using the actual provider control without pointer focus. Outer/embedded owner activity blocks dispatch; success requires an outgoing bubble. Nine isolated Chromium cases and independent MCP checks verify this prerequisite. Automatic policy, durable orchestration and live-provider parity remain unfinished. [Evidence](../case-studies/issue-56/inactive-text.md).
+
+**Messaging with recruiters** has three possible routes: official APIs, provider web applications driven by browser-commander, and archive import. HH now has a browser adapter for explicit numeric chat references and trusted application frames, bounded history, guarded native choices and explicitly reviewed text replies through CLI, Lino and shared Questions/Chat/Operator controls. This remains Partial: verification uses isolated real-browser fixtures, complete background/unread workflows remain unfinished, and no live account has been verified. The other five boards have no messaging browser adapter. CV plans use a separate persistent browser profile ([CV sync](../CV-SYNC.md)).
 
 **Official APIs**:
 

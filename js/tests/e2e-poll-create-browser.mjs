@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for creating a poll (R-Y74), as Telegram Desktop does:
 // the paperclip's menu offers "Poll"; "New poll" opens, with Create off
 // until the question and two options are filled; an empty last option
@@ -57,7 +58,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 const fulfil = (route, body, status = 200) =>
-  route.fulfill({
+  fulfilWire(route, {
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
@@ -79,7 +80,7 @@ await page.route('**/api/telegram/scheduled', (route) =>
 );
 const sends = [];
 await page.route('**/api/telegram/send-poll', (route) => {
-  sends.push(route.request().postDataJSON());
+  sends.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: CHAT });
 });
 

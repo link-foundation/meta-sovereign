@@ -1,3 +1,7 @@
+import {
+  personalReplyKinds,
+  catalogReplyKinds,
+} from '../automation/contextual-replies.js';
 // The automation editor's form (issue #31 / PR #34): an automation as
 // flat, editable strings and booleans, and back. Unknown fields (a
 // preset id, a neutral template, the incoming flags, extra pacing) are
@@ -51,6 +55,13 @@ const numberText = (value) =>
 
 const seconds = (ms) => numberText(ms === undefined ? ms : ms / 1000);
 
+const replyActionForm = (action) => ({
+  preferSticker: action.preferSticker !== false,
+  gratitudeStickers: (action.stickerIds ?? ['60075', '89452']).join(', '),
+  alternativeInformal: (action.alternatives?.informal ?? []).join('\n\n'),
+  alternativeFormal: (action.alternatives?.formal ?? []).join('\n\n'),
+});
+
 /** An automation (saved or preset) as the editor's fields. */
 export const toForm = (input) => {
   const a = normalizeAutomation(input);
@@ -66,6 +77,7 @@ export const toForm = (input) => {
     chatMenu: Boolean(triggerOf(a, 'chat-menu')),
     schedule: triggerOf(a, 'schedule')?.every ?? '',
     incoming: triggerOf(a, 'incoming')?.pattern ?? '',
+    incomingRecognizer: triggerOf(a, 'incoming')?.recognizer ?? 'pattern',
     audience: formatAudienceSpec(a.audience ?? DEFAULT_AUDIENCE),
     silentDays: numberText(c.silentDays),
     cooldownDays: numberText(c.cooldownDays),
@@ -74,6 +86,16 @@ export const toForm = (input) => {
     lastFrom: c.lastFrom ?? 'any',
     networks: (c.networks ?? []).join(', '),
     form: a.action.form,
+    actionKind: a.action.kind,
+    ...replyActionForm(a.action),
+    ruleIds: (a.action.ruleIds ?? []).join(', '),
+    profile: { ...a.action.profile },
+    profileId: a.action.profileId ?? '',
+    contexts: a.action.contexts ?? [],
+    salary: a.action.salary,
+    approximate: a.action.approximate !== false,
+    modelDraft: a.action.modelDraft === true,
+    matching: a.action.matching,
     informal: a.action.templates.informal ?? '',
     formal: a.action.templates.formal ?? '',
     dailyCap: numberText(p.dailyCap),
@@ -105,10 +127,15 @@ const triggersFrom = (form, base) => {
     form.manual && { kind: 'manual' },
     form.chatMenu && { kind: 'chat-menu' },
     form.schedule.trim() && { kind: 'schedule', every: form.schedule.trim() },
-    form.incoming.trim() && {
+    (personalReplyKinds.includes(form.incomingRecognizer) ||
+      form.incoming.trim()) && {
       kind: 'incoming',
-      pattern: form.incoming.trim(),
-      ...(incoming?.flags ? { flags: incoming.flags } : {}),
+      ...(personalReplyKinds.includes(form.incomingRecognizer)
+        ? { recognizer: form.incomingRecognizer }
+        : {
+            pattern: form.incoming.trim(),
+            ...(incoming?.flags ? { flags: incoming.flags } : {}),
+          }),
     },
   ]
     .filter(Boolean)
@@ -126,6 +153,11 @@ const templatesFrom = (form, base) => {
   }
   return templates;
 };
+
+const modelDraftFrom = (form, base) =>
+  form.modelDraft || base.action?.modelDraft !== undefined
+    ? { modelDraft: form.modelDraft === true }
+    : {};
 
 /** The editor's fields back into an automation, over `base`. */
 export const fromForm = (form, base = {}) => ({
@@ -150,6 +182,44 @@ export const fromForm = (form, base = {}) => ({
   },
   action: {
     ...base.action,
+    kind: form.actionKind ?? base.action?.kind ?? 'send-template',
+    ...(catalogReplyKinds.some((key) => form.actionKind === `reply-${key}`)
+      ? {
+          alternatives: Object.fromEntries(
+            ['informal', 'formal'].map((key) => [
+              key,
+              String(
+                form[
+                  key === 'informal'
+                    ? 'alternativeInformal'
+                    : 'alternativeFormal'
+                ] ?? ''
+              )
+                .replaceAll('\r\n', '\n')
+                .split(/\n\s*\n/u)
+                .filter((text) => text.trim()),
+            ])
+          ),
+        }
+      : {}),
+    ...(['reply-gratitude', 'reply-engagement'].includes(form.actionKind)
+      ? {
+          preferSticker: form.preferSticker,
+          stickerIds: csv(form.gratitudeStickers),
+        }
+      : {}),
+    ...(form.actionKind === 'answer-questions'
+      ? {
+          ruleIds: csv(form.ruleIds),
+          profile: form.profile,
+          profileId: form.profileId,
+          contexts: form.contexts ?? [],
+          salary: form.salary,
+          approximate: form.approximate,
+          matching: form.matching,
+          ...modelDraftFrom(form, base),
+        }
+      : {}),
     form: form.form,
     templates: templatesFrom(form, base),
   },

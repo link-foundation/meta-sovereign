@@ -1,0 +1,33 @@
+{
+  "archive": "selection-clock.tar.gz",
+  "files": {
+    "before/js/tests/e2e-chat-selection-browser.mjs": "e14e7c01fd836bc8d61d7a69327d19d8269908df2cdf6242c997458eca68cf83",
+    "ci-logs/selection-060-artifacts.json": "132edf1541d3af3964cd6c6461a0303bf178858b769fb5a4799a1947317f0c9e",
+    "ci-logs/selection-clock-after.log": "4123342f7de167815a33d924bd69edc2bc84791a09ec5586ccea0a1dc99d8ca9",
+    "ci-logs/selection-clock-before.log": "03a3930cfdd791e9bb98a04adc19a8f4cc6680139a5ece6dca3820e5b019ffa9",
+    "ci-logs/selection-clock-current-checks.json": "81e18f101250427750faf9c32d58adfd48dc2da7d5e19d11c7b840cf90d9e037",
+    "ci-logs/selection-clock-current-inspection.log": "bbd4becbc284b66efc7b6624b8912248a7e01b0730f9f3f1d4777d365e34469e",
+    "ci-logs/selection-clock-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-clock-duplication.log": "f27249e4cd128147937ad1214ad64b42638d39353afd39b68b0a98b960798edb",
+    "ci-logs/selection-clock-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/selection-clock-format.log": "6f92ac0dff439bde7ab33ebcdeb79adef617fb82004dad82e36563f70ec65907",
+    "ci-logs/selection-clock-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-clock-parent-browser-e2e-chromium-shard-1-4-132635591776.log": "6494f9ae36d74a316910f1425989ee14125699e25115f44026ed6307792e09de",
+    "ci-logs/selection-clock-parent-checks.json": "1bdacbc4d6eecb2c5b2e2e332abc857249b8b2e4e962c05dab75c714a54ef69a",
+    "ci-logs/selection-clock-parent-inspection.log": "f30b0564df3976313b5755ac074c2323433d9d578cf23f1b986bdb17f3004e76",
+    "ci-logs/selection-clock-plan-format.log": "ab073451a50d5ff8163f31b49f094d65f2f5949499214eaa530456b661e442a8",
+    "ci-logs/selection-clock-published-runs.json": "43249c1513dad45e446b21e9071f5c24b0dc17feb9e4acfe9b3bf6b67b077c15",
+    "ci-logs/selection-clock-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/selection-hosted-before.png": "22d52a1a9c17b346729743510275a83426bca373fe23ad25bb62264b73d7589c",
+    "docs/case-studies/issue-56/PLAN.md": "33a130421ff1264b8b4677d867ad402434267803adbac91882db97696f40eefd",
+    "docs/case-studies/issue-56/README.md": "b86ec9a3e09a831e5ba93c60102fcf566539c0d11aff0f60668e4ef3d76f168a",
+    "docs/case-studies/issue-56/ci-selection-clock.md": "8079cd250f58b4a377066c0e98466f3ecb5d01154b6ab0a8fb12fbc7a2825e66",
+    "docs/screenshots/issue-56-selection-clock/after.png": "391454ad8d86065e069ceb82d384b5019f54950d6963790b66c837ab497d553b",
+    "docs/screenshots/issue-56-selection-clock/before.png": "d48dd4b120aa046e55c058ff45b0ff0ad8b9dd0a8d666c4901f8931ccf58b7e6",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/evidence_bundle.py": "635598c595ab81c67e59c1878e005f3dc986e83b9cf014115fae4dea7c629be9",
+    "experiments/issue-56/selection-clock.mjs": "f5f5cacfb8650fdee898703bac35a1cadee3627188c3bdd21f28d87d48650469",
+    "js/tests/e2e-chat-selection-browser.mjs": "d5d6f4f7cb752356dbc9cea34ec6048750d2bb2c01193cd635d64c29c5f76053",
+    "metadata.json": "39d83f80e17a3beaa81cd872d52ade81204338fc6ec63e25bf29570e74b23f3a"
+  }
+}

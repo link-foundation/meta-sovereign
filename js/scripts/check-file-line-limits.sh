@@ -6,7 +6,7 @@ checked=0
 while IFS= read -r -d '' file; do
   case "$file" in
     dev/log/*|docs/case-studies/*|*.min.js) continue ;;
-    *.js|*.mjs|*.cjs|*.rs|*.py|*.sh|*.swift|.github/workflows/*.yml|.github/workflows/*.yaml)
+    *.js|*.mjs|*.cjs|*.rs|*.py|*.sh|*.swift|.github/workflows/*.yml|.github/workflows/*.yaml|.github/actions/*/action.yml)
       lines=$(awk 'END { print NR }' "$file")
       checked=$((checked + 1))
       if [ "$lines" -gt 1500 ]; then

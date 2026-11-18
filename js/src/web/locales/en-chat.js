@@ -1,7 +1,10 @@
+import { enChatInvite } from './en-chat-invite.js';
+
 // The chat screen's words in English, split from ./en.js to keep
 // each file small; its keys are part of the en dictionary.
 
 export const enChat = {
+  ...enChatInvite,
   'chat.history.complete': 'All available messages loaded',
   'chat.history.loading': 'Loading messages…',
   'chat.history.wait': 'Telegram asked to wait. Retrying automatically…',
@@ -305,19 +308,6 @@ export const enChat = {
   'chat.topics.forum': 'Topics',
   'chat.topics.forumHint': 'Show the group as a list of topics.',
   'chat.pollNew.title': 'New poll',
-  'chat.invite.channel': 'Channel',
-  'chat.invite.group': 'Group',
-  'chat.invite.join': 'Join',
-  'chat.invite.request': 'Request to join',
-  'chat.invite.cancel': 'Cancel',
-  'chat.invite.loading': 'Checking the invite link…',
-  'chat.invite.requestSent': 'Your request to join was sent.',
-  'chat.invite.err.invite-expired': 'This invite link has expired.',
-  'chat.invite.err.invite-invalid': 'This invite link is not valid.',
-  'chat.invite.err.chat-full': 'This group is full.',
-  'chat.invite.err.too-many-chats':
-    'You have joined too many groups and channels.',
-  'chat.invite.err.failed': 'Something went wrong. Try again.',
   'chat.members.title': 'Members',
   'chat.members.owner': 'owner',
   'chat.members.admin': 'admin',

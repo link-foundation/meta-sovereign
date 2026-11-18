@@ -8,17 +8,24 @@ import { getLocalStorage } from '../storage/local-storage.js';
 //
 // Detection precedence (highest first):
 //   1. `localStorage.metaSovereignLocale` — explicit user choice.
-//   2. `navigator.languages` walked in order, RFC 4647 §3.4 prefix
+//   2. The connected app's configured language default, when explicit.
+//   3. `navigator.languages` walked in order, RFC 4647 §3.4 prefix
 //      matching against `availableLocales`.
-//   3. `navigator.language` (single tag) for old browsers.
-//   4. `'en'` fallback so the SPA always renders.
+//   4. `navigator.language` (single tag) for old browsers.
+//   5. `'en'` fallback so the SPA always renders.
 //
 // applyLocale() mirrors useTheme()'s contract: side effects on
 // `document.documentElement` (sets `lang` and `dir`) are idempotent
 // and run from the React `useEffect`, never from module init, so the
 // module is safe to import in test environments without a DOM.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import { currentUiDefaults, subscribeUiDefaults } from './ui-defaults.js';
 import {
   dictionaries,
   availableLocales,
@@ -81,6 +88,10 @@ export const detectInitialLocale = (env = {}) => {
     }
   } catch {
     // Storage can be disabled in restricted browser contexts.
+  }
+  const defaults = env.defaults ?? currentUiDefaults();
+  if (localeIds.includes(defaults.language)) {
+    return defaults.language;
   }
   for (const tag of browserPreferences(navigator)) {
     const matched = matchTag(tag);
@@ -162,7 +173,19 @@ export const applyLocale = (locale, env = {}) => {
 };
 
 export const useLocale = () => {
-  const [locale, setLocaleState] = useState(detectInitialLocale);
+  const defaults = useSyncExternalStore(
+    subscribeUiDefaults,
+    currentUiDefaults,
+    currentUiDefaults
+  );
+  const [choice, setLocaleState] = useState(() => {
+    try {
+      return matchTag(getLocalStorage()?.getItem(LOCALE_STORAGE_KEY));
+    } catch {
+      return '';
+    }
+  });
+  const locale = choice || detectInitialLocale({ storage: null, defaults });
 
   useEffect(() => {
     applyLocale(locale);
@@ -184,7 +207,7 @@ export const useLocale = () => {
     } catch {
       // See detectInitialLocale().
     }
-    setLocaleState(detectInitialLocale());
+    setLocaleState('');
   };
 
   const t = useMemo(

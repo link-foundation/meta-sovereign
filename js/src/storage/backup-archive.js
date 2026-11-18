@@ -336,6 +336,18 @@ const takeLine = (seen, line) => {
  * `{ manifest, trailer, lines, sha256 }`; nothing is trusted before it
  * does, so a caller that applies lines as they come should scan once first.
  */
+export async function* archivePlainLines(file, { passphrase } = {}) {
+  const gunzip = createGunzip();
+  const text = Readable.from(unframe(createReadStream(file), { passphrase }));
+  text.on('error', (error) => gunzip.destroy(error));
+  try {
+    yield* linesOf(text.pipe(gunzip));
+  } finally {
+    text.destroy();
+    gunzip.destroy();
+  }
+}
+
 export const scanArchive = async (file, { passphrase, onLine } = {}) => {
   const hash = createHash('sha256');
   const seen = { manifest: null, trailer: null, lines: 0 };
@@ -348,12 +360,8 @@ export const scanArchive = async (file, { passphrase, onLine } = {}) => {
       throw error;
     }
   };
-  const gunzip = createGunzip();
-  const text = Readable.from(unframe(createReadStream(file), { passphrase }));
-  const plain = text.pipe(gunzip);
-  text.on('error', (error) => gunzip.destroy(error));
   try {
-    for await (const line of linesOf(plain)) {
+    for await (const line of archivePlainLines(file, { passphrase })) {
       if (takeLine(seen, line)) {
         await hear(line);
       }
@@ -362,7 +370,6 @@ export const scanArchive = async (file, { passphrase, onLine } = {}) => {
       }
     }
   } catch (error) {
-    text.destroy();
     if (error === fromCaller || error.code?.startsWith?.('BACKUP_')) {
       throw error;
     }

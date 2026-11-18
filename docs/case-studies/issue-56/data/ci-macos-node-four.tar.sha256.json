@@ -1,0 +1,24 @@
+{
+  "archive": "ci-macos-node-four.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "aa5830d03cc9462737c1168106bd2c11d084ca32fa186097a65f667e719022e1",
+    "before/.github/workflows/release.yml": "714b4d63afebc75206684b79a758b7838e84564ee13c714adad9826571224b92",
+    "before/js/tests/ci-node-shards.test.js": "b30b998de9a41d324ad0d1c9abba4c6619e114ba0b449fcb5e9fb15ab184bb70",
+    "ci-logs/ci-macos-node-annotations.json": "01c1d7954cef63f28755d28df161f195454c68476ba96961980fc262edfd4889",
+    "ci-logs/ci-macos-node-four-before.log": "c02ab910cdf3af99ce6aa4045ee23cedcd57a3f1624d88fd746e37e57eec269e",
+    "ci-logs/ci-macos-node-four-format-write.log": "6e125ded1c27048fa7aa559749afe4f5fa5cd47b9ce24722112f5ca0884eab62",
+    "ci-logs/ci-macos-node-four-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-macos-node-four-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-macos-node-four-node.log": "152ee3bf630d6115a2ada3d9974ce704229d27746c41926ebbf9937ccb8d49c2",
+    "ci-logs/ci-macos-node-four-policy.log": "990ebea27086bd363aafcd9754445ba7eab4e4bad2d634c815c8280a6916cb1c",
+    "ci-logs/ci-macos-node-four-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-macos-node-parent.log": "8be7dfeaf81c05ad5e9ec36158d9eed1f5cf7c61886737eb9942d497f46357fe",
+    "ci-logs/vk-maintenance-parent-checks-progress.json": "dce66d37c375f121a2d1d22acb35f07dcc53800fbc4e025e50b63b732b8f70d1",
+    "docs/case-studies/issue-56/ci-macos-node-four.md": "7b4ffc9e30b7e3cb73e045722cf57288d36570a350bd29ec98488c6c97b48088",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-ci-macos-node-four.py": "18687853a6c2579e2429e289675f45c98b09400362d0eb189fad8bf86da5ed0a",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/ci-node-shards.test.js": "e6025a49965e5213f3c3b7d60e961892e42faaffa352a0041782706c6ad335c1",
+    "metadata.json": "eec0e93a5a13d85871dccd9d0793d78ac878f0e4d5cf4aa99b1878e795229845"
+  }
+}

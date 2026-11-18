@@ -1,3 +1,4 @@
+import { requestBody, fulfilWire } from './helpers/http-wire.mjs';
 // Real browser e2e for dice (R-Y130), as Telegram's apps draw them: a die
 // is its animation from Telegram's set for its emoji — the sticker that
 // rolls to its value, shown at rest on that value for an old throw —
@@ -53,7 +54,7 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/dice', (route) => {
-  const { emoticon } = route.request().postDataJSON();
+  const { emoticon } = requestBody(route.request());
   asked.push(emoticon);
   return fulfil(route, {
     ok: true,
@@ -70,7 +71,7 @@ const files = [];
 await page.route('**/api/telegram/sticker?*', (route) => {
   const url = new URL(route.request().url());
   files.push(`${url.searchParams.get('id')}:${url.searchParams.get('full')}`);
-  return route.fulfill({
+  return fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: LOTTIE,

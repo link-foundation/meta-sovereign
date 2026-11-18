@@ -1,0 +1,9 @@
+{
+  "archive": "ci-69339-runtime.tar.gz",
+  "files": {
+    "deno-linux-69339.log": "a35162c55b897841038345baa206e119f2055b64edce0082867ab2f5fbd55250",
+    "deno-windows-69339.log": "5f46c2e53a08974124de1338f301ad4b0d50abfedc4bfcf1e2cfe51a27a220b3",
+    "jobs.json": "dd0afe413cd41aa7740fee8948f4915f920b5413b22a85209f8eb9aad8e83d31",
+    "node-linux-69339.log": "a690bcf771280d85743687188dfe378eebad068c23fc46542fa3da20604e360a"
+  }
+}

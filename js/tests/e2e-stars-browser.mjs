@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for Telegram Stars (R-Y176), as Telegram Desktop shows
 // them: Settings → Telegram Stars (the balance and the history, paged,
 // with All, Incoming and Outgoing tabs and a refunded row); a person's
@@ -159,7 +160,7 @@ const row = (id, amount, extra = {}) => ({
 });
 const histories = [];
 await page.route('**/api/telegram/stars-history', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   histories.push(body);
   const transactions = (() => {
     if (body.filter === 'in') {
@@ -200,7 +201,7 @@ const gift = (msgId, fromName, extra = {}) => ({
 const giftAsks = [];
 const saves = [];
 await page.route('**/api/telegram/star-gifts', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   giftAsks.push(body);
   return fulfil(
     route,
@@ -225,20 +226,20 @@ await page.route('**/api/telegram/star-gifts', (route) => {
   );
 });
 await page.route('**/api/telegram/star-gift-save', (route) => {
-  saves.push(route.request().postDataJSON());
+  saves.push(requestBody(route.request()));
   return fulfil(route, { ok: true, hidden: saves.at(-1).unsave });
 });
 
 const reacts = [];
 let reactAnswer = { ok: false, error: 'BALANCE_TOO_LOW', code: 'balance' };
 await page.route('**/api/telegram/paid-reaction', (route) => {
-  reacts.push(route.request().postDataJSON());
+  reacts.push(requestBody(route.request()));
   return fulfil(route, reactAnswer);
 });
 const unlocks = [];
 let unlockAnswer = { ok: false, error: 'price changed', code: 'price' };
 await page.route('**/api/telegram/paid-media-unlock', (route) => {
-  unlocks.push(route.request().postDataJSON());
+  unlocks.push(requestBody(route.request()));
   return fulfil(route, unlockAnswer);
 });
 

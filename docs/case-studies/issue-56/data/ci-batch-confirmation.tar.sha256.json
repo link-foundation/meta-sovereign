@@ -1,0 +1,17 @@
+{
+  "archive": "ci-batch-confirmation.tar.gz",
+  "files": {
+    "js/tests/helpers/e2e-application-batch.mjs": "41152185e215712f4d0bcc25622055b8b9324bc1621dc4ba5cf6f3bb65e03053",
+    "experiments/issue-56/batch-confirmation-native.mjs": "67583ebdf7d3dd63d8862e5ae483df05dec65bae5a03642d1116ff6d3f0e6714",
+    "experiments/issue-56/collect-batch-confirmation.py": "6c51b03b12518dc885c7c86934bc44d8dcad712668a2075175284a2e5bcc78c8",
+    "docs/case-studies/issue-56/ci-batch-confirmation.md": "438899a3ec2e00d034ef1ccdcef94d535b8b24ea59248ee4e16feadcd27e63af",
+    "ci-logs/hosted-e2acf88a-134567899964.log": "1e8fb3dc56df662c48c1244a590f6f9dca54218fc094714bc57247139182f9a5",
+    "ci-logs/hosted-verification-e2acf88a-checks.json": "00c5c903889dd6ff9df7754df849dbc33ea2312703196cef3dec5ecc6e3bf45b",
+    "ci-logs/batch-confirmation-native.log": "43d8b3232f5b59cba7b02a80b253a606b85154e3b9cf2d762058a9814e121198",
+    "ci-logs/batch-confirmation-smoke/application-batch-phone.png": "3560cef29f3d322cc144adf460f968bc61edf330c180362f9b4534167e0e2256",
+    "ci-logs/batch-confirmation-smoke/application-batch-held.png": "938d45b3a8d3d35775f9ac66fcbde2ce948cc96f8944df989a3740feeeb520db",
+    "ci-logs/batch-confirmation-smoke/application-batch-complete.png": "c3335e9665756d5f83709c17d760d1d4e605010ccd2a66758fc611b809d074e3",
+    "ci-logs/batch-confirmation-smoke/application-batch-review.png": "d5d8a4d91aa6933cc3c7ada4c44c3e1fac7683675b9659cba60ca8712870fa19",
+    "before/js/tests/helpers/e2e-application-batch.mjs": "0625d60f2077b39832f499fb588bd8edf9879112d3f468a5dc6e6701767bcdc4"
+  }
+}

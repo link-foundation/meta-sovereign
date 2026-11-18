@@ -1,0 +1,23 @@
+{
+  "archive": "ci-salary-hour-word.tar.gz",
+  "files": {
+    "ci-logs/510479-security-run.json": "f3a77fa91cc9a6a774d8a9faaccd41c9af7bd0b05a46d02079aed6bdff857639",
+    "ci-logs/codeql-510479-javascript.zip": "68dbf1c81ff974bc6664a2d6ae6b21cbed9416a7dccf0a76b28be6a830a30bd5",
+    "ci-logs/salary-hour-word-after.log": "a0e32cc34ef2b08f13e776b09ec1dbf227b7d088bc0e068b2e6768e57eef2743",
+    "ci-logs/salary-hour-word-before.log": "cade8d946bf27c865dbf5d5dcb7d142b07f0c4ae6530f6d19a44d11ac0b8bbd0",
+    "ci-logs/salary-hour-word-doc-format.log": "070caff3557995d911ea2e9451af3035573cc97475edb63c77c6193a73694dc1",
+    "ci-logs/salary-hour-word-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/salary-hour-word-format.log": "364d718e4cd40441871d6d6579a92892999f42cb21df3c727360e91ef660dbb3",
+    "ci-logs/salary-hour-word-lint-fix.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/salary-hour-word-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/security-44002566692-javascript.log": "478c9791f4c4ddbd56f8190cabd3916e4c6b9241bb585f303c0dfc9032da1f69",
+    "docs/case-studies/issue-56/ci-salary-hour-word.md": "1faabc082e48b7b359dc2f538ca3393087439d974593535903ecd9de1884f988",
+    "experiments/issue-56/collect-salary-hour-word.py": "32f5c520fe0f45238671a4ff3abbca08d2806fdbb10eb59823d2cdd340ee35db",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "experiments/issue-56/previous-module.mjs": "7b6c3bb5bdcfa4e7a84755f804db0bd83c9ae10d3e6982bb08d9dd8d7ac57661",
+    "experiments/issue-56/salary-hour-word-before.mjs": "b40a6de482093b45b80051d1e9e09a6a83762e9b8f57195ad65cf2b9793819db",
+    "js/src/automation/salary-question.js": "a79a61797c7783f00c1ad4daea25ecf6c089863c3f0cc1d89f7f4936e1c32bf6",
+    "js/tests/salary-hour-word.test.js": "46675e307097a0672c6665c9b8250fb89d04c9a51aed7e1e5ee83f26298da41e",
+    "metadata.json": "2b1efe54721a089436e94f41354f4e8700ade409a3d51da2c78b7d60e8dcd3ed"
+  }
+}

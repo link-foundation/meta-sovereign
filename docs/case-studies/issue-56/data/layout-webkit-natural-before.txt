@@ -1,0 +1,12 @@
+[
+  '{"viewport":[648,640],"top":5975,"correctedTop":5975,"contentHeight":6615,"below":0,"following":true}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5975,"top":5937,"correctedTop":5937,"contentHeight":6577,"below":0,"following":true}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5937,"top":5937,"correctedTop":5937,"contentHeight":6577,"below":0,"following":true}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5937,"top":5999,"correctedTop":5999,"contentHeight":6639,"below":0,"following":true}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5999,"top":5587,"correctedTop":5587,"contentHeight":6577,"below":350,"following":false}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5587,"top":5587,"correctedTop":5587,"contentHeight":6577,"below":350,"following":false}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5587,"top":5999,"correctedTop":5999,"contentHeight":6639,"below":0,"following":true}',
+  '{"viewport":[648,640],"previousViewport":[648,640],"previousTop":5999,"top":5999,"correctedTop":5999,"contentHeight":6639,"below":0,"following":true}',
+  '{"viewport":[648,600],"previousViewport":[648,640],"previousTop":5999,"top":5937,"correctedTop":5937,"contentHeight":8210,"below":1673,"following":false}'
+]
+[e2e-chat-layout] FAIL (webkit): timed out: Scaled interface: last message stays just above composer (gap -1680.46875 px)

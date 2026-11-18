@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for groups in common (R-Y158), as Telegram Desktop shows
 // it in a person's profile: the info column says "N groups in common" when
 // the count is above zero, the row opens the list (title, members when
@@ -60,7 +61,7 @@ await page.route('**/api/telegram/chat-info*', (route) => {
 });
 const asks = [];
 await page.route('**/api/telegram/common-chats', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   asks.push(body);
   return fulfil(
     route,

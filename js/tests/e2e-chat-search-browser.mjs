@@ -1,3 +1,4 @@
+import { fulfilWire, requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for search in a chat (R-Y98): Ctrl+F (or the
 // magnifier) opens the bar; what is typed is asked of Telegram; the chat
 // goes to the newest match and lights it up; Enter goes to an older one —
@@ -55,7 +56,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
 await page.route('**/api/telegram/status', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({
@@ -69,7 +70,7 @@ await page.route('**/api/telegram/status', (route) =>
 );
 // Telegram's history is the store's here: nothing more to read.
 await page.route('**/api/telegram/history', (route) =>
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ written: 0, cached: 0, complete: true }),
@@ -77,10 +78,10 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const asked = [];
 await page.route('**/api/telegram/search', (route) => {
-  const body = JSON.parse(route.request().postData() ?? '{}');
+  const body = requestBody(route.request());
   asked.push(body);
   const hit = /needle/i.test(body.q ?? '');
-  route.fulfill({
+  fulfilWire(route, {
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify(

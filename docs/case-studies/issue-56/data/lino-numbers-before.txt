@@ -1,0 +1,48 @@
+✖ wire and HTTP replies preserve large numbers and numeric-looking keys (13.521125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 881.186193
+
+✖ failing tests:
+
+test at js/tests/lino-transport.test.js:30:1
+✖ wire and HTTP replies preserve large numbers and numeric-looking keys (13.521125ms)
+  AssertionError [ERR_ASSERTION]: text/lino
+  + actual - expected
+
+    {
+      '1000000000000000000': '1000000000000000000',
+  +   negative: '-9007199254740992',
+  -   negative: -9007199254740992,
+      nested: [
+  +     '9007199254740992',
+  -     9007199254740992,
+        [
+          null
+        ],
+        {
+  +       count: '1000000000000000100'
+  -       count: 1000000000000000100
+        }
+      ],
+  +   positive: '1000000000000000000'
+  -   positive: 1000000000000000000
+    }
+
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1794216540735/js/tests/lino-transport.test.js:38:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { positive: '1000000000000000000', negative: '-9007199254740992', '1000000000000000000': '1000000000000000000', nested: [ '9007199254740992', [Array], [Object] ] },
+    expected: { positive: 1000000000000000000, negative: -9007199254740992, '1000000000000000000': '1000000000000000000', nested: [ 9007199254740992, [Array], [Object] ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

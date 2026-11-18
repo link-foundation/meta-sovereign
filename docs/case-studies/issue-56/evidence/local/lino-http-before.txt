@@ -1,0 +1,139 @@
+Legacy snapshot: 553bc47580ac8e83ec023f8d234bfe64ec34b081
+✖ HTTP defaults to readable LINO and negotiates binary responses (77.715808ms)
+✖ text and binary writes round-trip and preserve origin checks (42.070816ms)
+✖ JSON, unacceptable responses and malformed bodies cannot mutate by default (17.892121ms)
+✖ explicit JSON compatibility preserves legacy clients (21.751548ms)
+✖ specific Accept exclusions override wildcards (14.038663ms)
+✖ default Lino requests retain object validation and streaming size limits (13.959296ms)
+✖ model downloads and client diagnostics use Lino at their custom boundaries (28.466142ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1366.818092
+
+✖ failing tests:
+
+test at js/tests/lino-http.test.js:28:1
+✖ HTTP defaults to readable LINO and negotiates binary responses (77.715808ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^text\/lino\b/. Input:
+  
+  'application/json'
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:31:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'application/json',
+    expected: /^text\/lino\b/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:44:1
+✖ text and binary writes round-trip and preserve origin checks (42.070816ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 200
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:59:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:67:1
+✖ JSON, unacceptable responses and malformed bodies cannot mutate by default (17.892121ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 406
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:81:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 406,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:93:1
+✖ explicit JSON compatibility preserves legacy clients (21.751548ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^text\/lino/. Input:
+  
+  'application/json'
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:106:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'application/json',
+    expected: /^text\/lino/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:109:1
+✖ specific Accept exclusions override wildcards (14.038663ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 406
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:114:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 406,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:117:1
+✖ default Lino requests retain object validation and streaming size limits (13.959296ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 400
+  
+      at TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:125:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/lino-http.test.js:139:1
+✖ model downloads and client diagnostics use Lino at their custom boundaries (28.466142ms)
+  Error [WireError]: unsupported wire media type: application/json
+      at supported (file:///tmp/ms-legacy-http-crvbm0tj/js/src/transport/lino.js:88:11)
+      at decodeWire (file:///tmp/ms-legacy-http-crvbm0tj/js/src/transport/lino.js:124:3)
+      at readWireResponse (file:///tmp/ms-legacy-http-crvbm0tj/js/src/transport/lino.js:149:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/ms-legacy-http-crvbm0tj/js/tests/lino-http.test.js:148:30)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'unsupported-media'
+  }

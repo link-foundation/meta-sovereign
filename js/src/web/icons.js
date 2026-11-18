@@ -166,6 +166,10 @@ const ICONS = {
     ['line', { x1: 16, y1: 13, x2: 8, y2: 13 }],
     ['line', { x1: 16, y1: 17, x2: 8, y2: 17 }],
   ],
+  forms: [
+    ['rect', { x: 4, y: 3, width: 16, height: 18, rx: 2 }],
+    ['path', { d: 'M8 7h8M8 12h8M8 17h5' }],
+  ],
   greetings: [
     ['rect', { x: 3, y: 8, width: 18, height: 4, rx: 1 }],
     ['path', { d: 'M12 8v13' }],

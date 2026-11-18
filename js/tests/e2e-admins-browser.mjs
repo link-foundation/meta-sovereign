@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for adding members and managing administrators (R-Y204),
 // as Telegram Desktop has them: "Add members" opens a picker of contacts
 // and the people written to most (a search box, a check each); the people
@@ -116,7 +117,7 @@ await page.route('**/api/telegram/chat-add-candidates', (route) =>
 const adds = [];
 const links = [];
 await page.route('**/api/telegram/members-add', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   adds.push(body);
   if (adds.length === 1) {
     return fulfil(route, { ok: false, error: 'x', code: 'users-too-much' });
@@ -129,7 +130,7 @@ await page.route('**/api/telegram/members-add', (route) => {
   });
 });
 await page.route('**/api/telegram/members-invite-link', (route) => {
-  links.push(route.request().postDataJSON());
+  links.push(requestBody(route.request()));
   return fulfil(route, { ok: true, sent: ['4'], failed: [] });
 });
 let adminReads = 0;
@@ -165,17 +166,17 @@ await page.route('**/api/telegram/chat-admins', (route) => {
 });
 const sets = [];
 await page.route('**/api/telegram/admin-set', (route) => {
-  sets.push(route.request().postDataJSON());
+  sets.push(requestBody(route.request()));
   return fulfil(route, { ok: true });
 });
 const histories = [];
 await page.route('**/api/telegram/history-hidden', (route) => {
-  histories.push(route.request().postDataJSON());
+  histories.push(requestBody(route.request()));
   return fulfil(route, { ok: true, hidden: true });
 });
 const upgrades = [];
 await page.route('**/api/telegram/group-upgrade', (route) => {
-  upgrades.push(route.request().postDataJSON());
+  upgrades.push(requestBody(route.request()));
   return fulfil(route, { ok: true, chat: NEW, title: 'Basic Group' });
 });
 

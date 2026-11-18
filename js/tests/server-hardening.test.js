@@ -9,7 +9,7 @@ import net from 'node:net';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { startServer } from '../src/server/index.js';
+import { startServer } from './helpers/legacy-server.js';
 import { classifyOrigin, hostAllowed } from '../src/server/cors.js';
 import { json, readBody, MAX_JSON_BODY } from '../src/server/util.js';
 import { maskSecret } from '../src/server/secret-mask.js';
@@ -422,20 +422,26 @@ test('a busy port: startServer rejects clearly and starts no background service'
     }
     // `serve` ends with a message and a non-zero status.
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-busy-cli-'));
-    const lines = [];
-    const code = await runCli(
-      [
-        'serve',
-        `--port=${port}`,
-        `--store=${dir}`,
-        '--quiet-logs',
-        '--tls=false',
-      ],
-      { log: (line) => lines.push(line) }
-    );
-    assert.equal(code, 1);
-    assert.match(lines.join('\n'), /already in use/);
-    await fs.rm(dir, { recursive: true, force: true });
+    try {
+      const lines = [];
+      const code = await runCli(
+        [
+          'serve',
+          `--port=${port}`,
+          `--store=${dir}`,
+          '--quiet-logs',
+          '--tls=false',
+        ],
+        { log: (line) => lines.push(line) }
+      );
+      assert.equal(code, 1);
+      assert.match(lines.join('\n'), /already in use/);
+      await assert.rejects(fs.stat(path.join(dir, 'runtime', 'releases')), {
+        code: 'ENOENT',
+      });
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
   } finally {
     blocker.close();
   }
@@ -509,7 +515,9 @@ test('regex: pattern length and input size are capped, a runaway match is cut of
   assert.equal(safeTest(/needle/, 'a needle'), true);
   // Catastrophic backtracking returns false inside the budget.
   const started = Date.now();
-  assert.equal(safeTest(/(a+)+$/, `${'a'.repeat(5000)}b`), false);
+  // Construct stored patterns through the same bounded entry point as the
+  // graph and incoming-trigger paths, then exercise the VM time budget.
+  assert.equal(safeTest(safeRegExp('(a+)+$'), `${'a'.repeat(5000)}b`), false);
   assert.ok(Date.now() - started < 2000);
   const automation = {
     triggers: [{ kind: 'incoming', pattern: '(a+)+$', flags: 'i' }],

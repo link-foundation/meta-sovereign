@@ -1,0 +1,19 @@
+{
+  "archive": "ci-route-observer-output.tar.gz",
+  "files": {
+    "js/tests/route-loading.test.js": "8b8b7ec55859c72278f9c124e412ad1ddc001652799a3f2834305cebee20f8c2",
+    "experiments/issue-56/route-output-before.py": "5e98b39f3904ed3d44b347939535c91725b8345d1b6993ccd2dae5b8eb4242d3",
+    "experiments/issue-56/collect-route-output.py": "2091c451771913bea143766fb5d64988ae40b9d0e86a4f3d20524a828d698850",
+    "experiments/issue-56/parent_replay.py": "d773a42482c77d569d3c960498f0dcc035a8922481bbdc3ff85241ea528dc4a6",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "docs/case-studies/issue-56/ci-route-observer-output.md": "8f960a930d68e4a082d1d2a81fc65f24e1525f8c5da939c58c308951d933d7ec",
+    "ci-logs/ci-b868-windows-node-133541760585.log": "f53868faae2e88bd71570bd199187bcb4103f36b4d7aa6d71d1a0e9d28595233",
+    "ci-logs/route-output-node-before.log": "044a1f68caff0d4b3876c5e6cddb4f488680a6072871818f7f19e50b275783c0",
+    "ci-logs/route-output-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/route-output-format.log": "827f11cf8137c19a63f80cea7a963e3f5c34426351a919254958fb382851f277",
+    "ci-logs/route-output-before.log": "2d831ac16ddd3d6953e97100ace2ce7e13f34c4b65db984815cbfb120457cfe8",
+    "ci-logs/route-output-node-final.log": "58008dd4d8fb98398495126847a380ea9b60f38c9828f9f20a68f31259b457e8",
+    "before/js/tests/route-loading.test.js": "28f1b9711075c5abf6ea5817ffcf10994e73c2804c34e15feee839aad8dfd9f5",
+    "metadata.json": "c44a5b6b96b75c92474b6d9fc06c51d869b9805ccffa4721fd2822978f7403dd"
+  }
+}

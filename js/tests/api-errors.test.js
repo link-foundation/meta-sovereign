@@ -65,6 +65,19 @@ test('failureOf reads the uniform shape and server errors', () => {
   assert.equal(failureOf(200, { items: [] }), null);
 });
 
+test('a valid initial confirmation challenge is not an action failure', () => {
+  const challenge = {
+    ok: false,
+    needsConfirmation: true,
+    confirm: { token: 'single-use-preview' },
+    error: 'request failed (428)',
+  };
+  assert.equal(failureOf(428, challenge), null);
+  assert.ok(failureOf(428, { ...challenge, confirm: null }));
+  assert.ok(failureOf(403, challenge));
+  assert.ok(failureOf(428, { ...challenge, error: 'confirmation expired' }));
+});
+
 test('a failed user action is logged once and toasted; reads stay quiet', () => {
   const spy = watch();
   try {

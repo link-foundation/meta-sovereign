@@ -6,7 +6,8 @@ import { ChatScreen } from './chat-view.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { LoadError } from './api-errors.js';
 import { useOperatorUnread } from './operator-unread.js';
-import { navigateApp, operatorHash, appNavigation } from './app-route.js';
+import { navigateApp, operatorHash } from './app-route.js';
+import { syncOperatorRoute } from './operator-route.js';
 import { useOperatorScope } from './operator-prefs.js';
 import { postponeOperatorChat, useOperatorOrder } from './operator-order.js';
 import { PageLoading } from './spinner.js';
@@ -50,12 +51,7 @@ const useOperator = (api, t) => {
   }, [api, unread.current?.key, unread.current?.unread]);
   latest.current = { state, queue, order, busy: busy || !unread.current };
   useEffect(() => {
-    if (unread.current && appNavigation().snapshot().view === 'operator') {
-      navigateApp(
-        { view: 'operator', anchor: operatorHash(unread.current.key) },
-        { replace: true }
-      );
-    }
+    syncOperatorRoute(unread.current, queue);
   }, [unread.current?.key]);
   // Once the read acknowledgement arrives, a later manual unread mark
   // on the same message may enqueue this conversation again.

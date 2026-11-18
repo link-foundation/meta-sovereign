@@ -1,0 +1,19 @@
+{
+  "archive": "runner-release-notes.tar.gz",
+  "files": {
+    ".changeset/visible-browser-defaults.md": "77f5d425cf3218f1be45d528a713e69047f59d2029f232f852a90d26783e9a3a",
+    "docs/case-studies/issue-56/runner-release-notes.md": "761408caba525cb97092d00225deabce7e87b800d926059a7e5dc0eeba951767",
+    "experiments/issue-56/collect-runner-release-notes.py": "f3ea78babd4ad2af2e9aa16bcbcb514d2e5e9656f62fedc5ef579999d9db1007",
+    "js/scripts/merge-changesets.mjs": "09490f7283e1df066080f45791d88d30a9119c356e70853b7af0314156635d8a",
+    "js/scripts/validate-changeset.mjs": "46c4be5a704ba6bf98d49fe800edd02714b96bca172861249607f1b23df682e1",
+    "ci-logs/runner-ui-adb-jobs.json": "dec18dc82eb89f2d1f60b46f37fe7095c482fbe921fac117a7e72d78ca39cfb3",
+    "ci-logs/runner-changeset-before.log": "5f577f70fd5c36a8b4d761c3cb84982538b4a0dbbafd7a1fa4cedb1729c69b9e",
+    "ci-logs/runner-changeset-after.log": "1550e717f0a9452524b54f78243d4539b592fe68a521951d52be39194d451907",
+    "ci-logs/runner-changeset-merge.log": "530bf0d384f8e8bc3bb414f3a1d1494ef9f59e26f0bf73ccd55209f74fbaf773",
+    "ci-logs/runner-changeset-hosted.log": "af134b40c692a8589bb7bcc00421559ab9bde204b5a8fce4e188fe74e30059c6",
+    "before/.changeset/visible-browser-defaults.md": "0ea851adcdfc046085f4a565ab7252ee85b4fa24686dbc0fd35ea603828d090a",
+    "before/.changeset/runner-session-control.md": "91e750de05247eae62e2ff349348570a6a86cf92fe6d82835bb0c6126a68b8f3",
+    "before/.changeset/runner-session-api.md": "754d34545afd09b5688530659e885f1089ec01d2f659f4d37f29ac0905f36444",
+    "before/.changeset/runner-session-controls.md": "7061d523d0339a0a7f10b285144690db315abbfa5236fe78d650e296338e5c97"
+  }
+}

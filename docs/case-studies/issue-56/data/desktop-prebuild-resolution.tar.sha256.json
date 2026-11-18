@@ -1,0 +1,16 @@
+{
+  "archive": "desktop-prebuild-resolution.tar.gz",
+  "files": {
+    "ci-logs/checks-43815507714-deno-linux-1.log": "3bc54504ac480371ce020dadf28c66dc708e4556395d927bf484ae70dee5b677",
+    "ci-logs/checks-43815507714-deno-windows-1.log": "4558785789b1dca9bd0893fbb799d1f2d1a2286e2544865c2673227dbf2ee664",
+    "ci-logs/desktop-43815507700-latest.json": "411d5c6ffe69f9eda4b7d3550dfee4e8db238aafc1471236ad5ff0650c45b65a",
+    "ci-logs/desktop-43815507700.log": "fdebafef4b9776764cd0dde7870189090dc4b54f91ca7e45db004325112e7003",
+    "ci-logs/desktop-prebuild-resolution-deno.log": "525568e4880802e4e481aca7d06434cd02a7fdf616c9233762d13eb457226d46",
+    "ci-logs/desktop-prebuild-resolution-node.log": "e328460692d1c76259df05161275b17636a102fa5ac2e7e786b637a3c7997cbc",
+    "docs/case-studies/issue-56/desktop-native-prebuilds.md": "804b137a2d8d5d75108658c5b614c0bed5f48f6e0a32925a8a78aab3afd76fcd",
+    "experiments/issue-56/collect-desktop-prebuild-resolution.py": "04e5c08b44bcaa43a2129dba8f0d141888b8503507ede8ce16b630f5d2bea719",
+    "experiments/issue-56/evidence_bundle.py": "101f65ccd48ff24e3f1998ae4fa731b7f5cacc10d07175a38a805ce2ac614fd9",
+    "js/tests/desktop-native-prebuilds.test.js": "a5dabd6691e970ae7e9b509b03408fc38585e38b7528e1e9a2059caa37700261",
+    "metadata.json": "9ea95d80d433191fa26f8d3e89b6f890e8e8367373e926c460b7a8c4180b42fa"
+  }
+}

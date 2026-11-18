@@ -1,3 +1,8 @@
+export {
+  linkedinExperienceDocument,
+  linkedinExperienceUrl,
+} from './linkedin-experience-parse.js';
+export { createLinkedinExperienceService } from './linkedin-experience-service.js';
 /**
  * CV synchronisation facade (R-V15).
  *
@@ -35,6 +40,8 @@ import {
 import { getCvPlatform, listCvPlatforms } from './platforms/index.js';
 import { createCvRunner } from './runner.js';
 import { openBrowserSession } from './browser.js';
+import { resolveBrowserPolicy } from '../browser/policy.js';
+import { compareCvExperience } from './experience.js';
 
 export {
   BROWSER_PACKAGES,
@@ -45,6 +52,9 @@ export {
   withBrowserSession,
 } from './browser.js';
 export * from './diff.js';
+export * from './experience.js';
+export * from './experience-report.js';
+export * from './experience-document.js';
 export * from './model.js';
 export * from './telemetry.js';
 export {
@@ -79,9 +89,18 @@ const withCommander = async (platform, options, fn) => {
     return fn(options.commander);
   }
   const open = options.openSession ?? openBrowserSession;
+  const policy = await resolveBrowserPolicy(options.store, {
+    platform: platform.id,
+    useCase: 'cv',
+    slot: options.browserSlot ?? 'main',
+    headless: options.headless,
+  });
   const session = await open({
     platform: platform.id,
-    headless: options.headless ?? true,
+    store: options.store,
+    slot: policy.slot,
+    useCase: 'cv',
+    headless: policy.headless,
     profileDir: options.profileDir ?? null,
     locale: options.locale ?? `${platform.locales[0]}-${platform.region}`,
     verbose: options.verbose ?? false,
@@ -184,7 +203,10 @@ export const loadStoredCvs = async (store, platformIds = null) => {
  * @param {Array<{platform: string, cv: object, capturedAt?: string}>} entries
  * @param {{prefer?: string|null}} [options] platform that wins ties
  */
-export const compareAllCvs = (entries = [], { prefer = null } = {}) => {
+export const compareAllCvs = (
+  entries = [],
+  { prefer = null, experience = {} } = {}
+) => {
   const matrix = compareCvs(entries);
   const plan = reconcileCvs(entries, { prefer });
   const updates = {};
@@ -200,6 +222,7 @@ export const compareAllCvs = (entries = [], { prefer = null } = {}) => {
   }
   return {
     ...matrix,
+    experience: compareCvExperience(entries, experience),
     plan,
     updates,
     agreed: matrix.rows.filter(
@@ -459,3 +482,18 @@ export const summarizeCvRuns = (events = []) => {
     String(b.startedAt).localeCompare(String(a.startedAt))
   );
 };
+export {
+  createExperiencePlan,
+  experienceTranslationTexts,
+  applyExperienceTranslations,
+} from './experience-plan.js';
+export {
+  createExperiencePlanningService,
+  readExperiencePlan,
+} from './experience-plan-service.js';
+export { confirmedExperiencePlan } from './experience-plan-receipt.js';
+export {
+  createFormalExperienceReports,
+  previewFormalExperienceReport,
+  readFormalExperienceReport,
+} from './formal-report-service.js';

@@ -17,6 +17,7 @@ import { assertMode } from './helpers/mode.js';
 import { createLinoTextStore } from '../src/storage/lino-store.js';
 import { openDualStore } from '../src/storage/dual-store.js';
 import { createMemoryStore } from '../src/storage/index.js';
+import { SALARY_EXCHANGE_ID } from '../src/automation/salary-exchange-state.js';
 import {
   encryptBackup,
   makeBackup,
@@ -197,9 +198,16 @@ test('an archive of the earlier format still restores', async () => {
     encryptBackup(JSON.stringify({ version: 1, links }), 'pp')
   );
   const a = createMemoryStore();
-  assert.equal(await restoreBackup(a, plain), 2);
+  assert.equal(await restoreBackup(a, plain), 4); // records + browser default + empty rates
   const b = createMemoryStore();
-  assert.equal(await restoreBackup(b, enc, { passphrase: 'pp' }), 2);
+  assert.equal(await restoreBackup(b, enc, { passphrase: 'pp' }), 4);
+  for (const restored of [a, b]) {
+    assert.deepEqual(await restored.get(SALARY_EXCHANGE_ID), {
+      id: SALARY_EXCHANGE_ID,
+      exchange: null,
+      fetchedAt: null,
+    });
+  }
   assert.equal((await b.get('msg:z:2')).body, 'body 2');
   assert.equal(await verifyBackup(plain), true);
   assert.equal(await verifyBackup(enc), true);

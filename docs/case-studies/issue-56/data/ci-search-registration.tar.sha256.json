@@ -1,0 +1,33 @@
+{
+  "archive": "ci-search-registration.tar.gz",
+  "files": {
+    "js/tests/ci-browser-shards.test.js": "2a02afc4df98b926306d8dbbceeddf0b2539738f983e71048ff40b4956e44ba1",
+    "js/tests/e2e-vacancies-browser.mjs": "66748dc117e854ae87bcb167074840293b5b5ec546b41fd791a71e1d10176445",
+    "js/tests/e2e-vacancy-discovery-browser.mjs": "f00abde72314a7cbba9b6988e844a745bdc917b1bdece194fbdf972e3ec873e0",
+    "js/scripts/browser-checks.json": "8bef3ef792613f7d33316f7cb4d839516b1762da1a3d08fdfff8e1583571ecc6",
+    "js/scripts/browser-check-shards.mjs": "fa8eda7b26c92bc80726ff47225a567a214397f1b2d4f98a447a0044977ecfc9",
+    ".github/workflows/release.yml": "59e6bea37c4a71ea1137de77133fd1cfc48911cba868553fa063a8f74754346e",
+    "docs/case-studies/issue-56/ci-search-registration.md": "acac84bb5f36283d0276580758a838ef83de173be6cb9a0f6d0ea189d4afca6c",
+    "docs/case-studies/issue-56/ci-follow-links-opening.md": "3af47937e4a6b03cd92d0e63388aaac810b7930ad97a226fdc753a53d79308a6",
+    "docs/case-studies/issue-56/vacancy-observation-history.md": "cc42c3b05269ba93ecf0a906639cd4cdc23ee835d6d8973e68a97a976975336a",
+    "experiments/issue-56/collect-ci-search-registration.py": "196f3916dbdc1ff2b655043d74e5859b5e8a133f5949f762ea837984952f36f6",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "ci-logs/checks-44229077094.log": "21a0bfc512630151d683359674b803ae111b0b6c5660641f1ec875d571c55003",
+    "ci-logs/hosted-e68448ac-134549749721.log": "a27c150b84e320d865e8c138a40bc93b4d74f0763bbc7573e3f3332c15882931",
+    "ci-logs/hosted-e68448ac-134549749940.log": "2c00257b7a4bbb949f82256dfb7fa9cb4e09b82007c9e5ae731e1e6881f42ff9",
+    "ci-logs/hosted-e68448ac-134551369203.log": "72884c6f0899c30a921694d062fb3ea7cc266ca6e2e0757ac986800927f20500",
+    "ci-logs/hosted-verification-e68448ac-checks.json": "24782b9859738c14a7535453d66d5b405518b8c2afbb2058f242b5e38028a677",
+    "ci-logs/hosted-verification-e68448ac-desktop.json": "9bbc93c84e50d6621965d66b503ae16bc8786754d9e9b88bb78fe7ee7785a6f9",
+    "ci-logs/hosted-verification-e68448ac-pages.json": "b111a64ce6524a4fff6dacf01ea36f5b1f54fe994aed68133993fba89bbeea8f",
+    "ci-logs/hosted-verification-e68448ac-security.json": "d833aa725763cd42cc9dd2a2815ce7461fde79d2cee1a892e3dd8e2d04340fd1",
+    "ci-logs/hosted-verification-e68448ac-links.json": "047beebf974675a7111a297d986d15135e4eb21ff1d67d86f6164e8fd890c81f",
+    "ci-logs/ci-search-registration-before.log": "b5f2094b0b4c04bf7300a577426cddda8047f6ce01619b54203c1ad6a70af645",
+    "ci-logs/ci-search-registration-after.log": "06b62fe695065d6e6eff8f391a6bec716c6f46eca0645770b6fd235465775014",
+    "ci-logs/ci-search-registration-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-search-registration-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "before/js/tests/ci-browser-shards.test.js": "48282625467276d37c34e3833cd549e549dd4ad5059278f2090090010f943d0d",
+    "before/docs/case-studies/issue-56/ci-follow-links-opening.md": "12d03fe5964fbd3894b8b046c9a065f8cfc4afde90ed48b77a35054139ca1277",
+    "before/docs/case-studies/issue-56/vacancy-observation-history.md": "b44b52978fe68db53f175620439558d93b91c617b7251969a9b4d76bd30fdc5d",
+    "metadata.json": "961220b79d04fe34e925867e01f7cf015768fc17d35558aa9814da6d7b97da95"
+  }
+}

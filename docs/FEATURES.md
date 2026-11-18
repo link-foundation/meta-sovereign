@@ -287,3 +287,7 @@ excludes common function words, and defaults to a configurable frequency of
 five. Repeated observed reply variants, inferred patterns, qualifying Q&A
 facts and their source messages are visible. Counts describe the learning
 window, not an assertion that every archived message was processed.
+
+## Notice reply policies
+
+Questions offers separate acknowledgement, rejection and invitation policies, all requiring review by default. Saving starts nothing. An explicitly selected inactive watch can reply in one reviewed HH employer chat after verifying complete history, an empty open composer and the full pending turn. Acknowledgements require an approved exact saved notice answer; rejection replies use configured text once per chat. Invitations are never accepted automatically. CLI, offline UI and text/binary Lino API share these settings. Unknown delivery stays reserved and restart never resumes a watch. Cross-chat/unread orchestration and wider provider parity remain unfinished; see [verified scope](case-studies/issue-56/notice-policy.md).

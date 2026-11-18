@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for the bar over a chat with a stranger (R-Y137), as
 // Telegram Desktop shows it: "Not a contact" with when they registered
 // and their number's country, then what Telegram offers — Add to
@@ -62,7 +63,7 @@ for (const name of [
   'peer-hide-bar',
 ]) {
   await page.route(`**/api/telegram/${name}`, (route) => {
-    const body = route.request().postDataJSON();
+    const body = requestBody(route.request());
     calls.push([name, body.chat]);
     return fulfil(
       route,

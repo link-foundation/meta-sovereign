@@ -1,0 +1,19 @@
+{
+  "archive": "outbox-flush.tar.gz",
+  "files": {
+    "before/js/src/automation/outbox.js": "7f532c5bb701b793b613c18e924494f104e0593e6963ae0598b9441b22a1a283",
+    "ci-logs/outbox-flush-node.log": "035618cfe4118392444a6e23baa843da2fa2beb11ad3d8bf1d5de614841299ee",
+    "ci-logs/outbox-flush-parent-node.log": "43fe6eba374f9ab16a08bf211aea60fd651594b682508b846772f399cf69927f",
+    "ci-logs/outbox-flush-parent.log": "f4ec1f6dabb6d0211df46fa774072837b1c91a60f1ee691343eaaf6d2ab802ac",
+    "ci-logs/outbox-flush-safety.log": "69b9ca086561a563dfc8de102c8624a3af183a62bd14e7e3f177db7c79dfe0da",
+    "docs/case-studies/issue-56/outbox-flush.md": "0292a0663df519f73eafeb7af3238a20e1a5f622f090df4a172b369c4ced7070",
+    "experiments/issue-56/archive-evidence.py": "23f160d291f56617115191c7af8faa17485051893bf84a4b77203043a5422a7f",
+    "experiments/issue-56/collect-outbox-flush.py": "2e6123308f08559b12798324d4c40f8997148a683f9bb83805963291dce13c98",
+    "experiments/issue-56/evidence_bundle.py": "fc7184f4046fbcb917bf011abd0220b7aff51509fa4a12b64c9a4dab4929b719",
+    "experiments/issue-56/outbox-flush-before.py": "4491da200e9bc4537d0b2000fab8c052564523d4bf2a8b84482c6b186fda0f08",
+    "js/src/automation/outbox.js": "0d2f8e1489e13814c273c1a345d54401e92d5f7f24276a6926ce08c1860dc659",
+    "js/tests/question-outbox-flush.test.js": "7b7127ebddc0740c01873e83210fa772bf173ede6a8ec482b6695d5938abe1fb",
+    "js/tests/send-safety.test.js": "3af3dec2008dd12650a14b17cd0ab48838bbf63e07186df45a9817b132a09b4f",
+    "metadata.json": "865bec6216601e5dd7d8bb59935c6a0ee6914d248a51336636f1449deaba04ca"
+  }
+}

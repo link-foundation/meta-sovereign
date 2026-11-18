@@ -1,0 +1,28 @@
+{
+  "archive": "telegram-follow-retry.tar.gz",
+  "files": {
+    "ci-logs/checks-42779144776.log": "99945f01844e839eeb7689c26881a9d6786015b7fef7ec93ce53c2c979a1c2c0",
+    "ci-logs/links-42780345216-attempt2.log": "4cdbfb220579c23f8da2814c9c4c812f02db069dcb2b1d12542365675f92090d",
+    "ci-logs/links-42780345216.log": "74a267d838f4644f89cf33b2b071f990c70a800399de2684bd9f8c34fdfce9da",
+    "ci-logs/telegram-follow-retry-before.log": "61e51c587a1a9fcca175c0797b21a38b606283b8f91d6b60c4a4641df839db67",
+    "ci-logs/telegram-follow-retry-browser.log": "d3921901917b22111d2204f7feb4ade5acec8a0de6563ec5bf355d813652027d",
+    "ci-logs/telegram-follow-retry-compat.log": "f418abcb26b0e05451c0b27bac25ddbe3d76589c2052a77e0abf3f0634c3cd03",
+    "ci-logs/telegram-follow-retry-doc-format-final.log": "6befe40e22b1a7f5deecbfa81262ae3514e05c33cad572870a4be140f132cca9",
+    "ci-logs/telegram-follow-retry-doc-format.log": "3e7b580c06e57b89c821cacfd00edb79cb10f089a3f7a68157ddf0f340d69d6b",
+    "ci-logs/telegram-follow-retry-draft.log": "479a5f1ad0e4703fc4e31c63831f2585c357bd486c953d7caf38e3ded238d2b1",
+    "ci-logs/telegram-follow-retry-final.log": "8c6103b9c4e4f9055ec401ad1d4c1d1aa2c2bf8a85f3a84b94916290835845bb",
+    "ci-logs/telegram-follow-retry-focused.log": "9e2c5fce4b910d381e15adbf17f027632efdafa439c76c09009f4d6ab852b736",
+    "ci-logs/telegram-follow-retry-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/telegram-follow-retry-format.log": "9435b45892d5b3324886cce4aa545a7ea5ff71448a809faf176ce43c896bb838",
+    "ci-logs/telegram-follow-retry-hi-format.log": "baab19897a64d022f9d01e7c55f32b70e48188de2995a352a3b46a98a92cd825",
+    "ci-logs/telegram-follow-retry-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-follow-retry-prewrite.log": "f0eba7d03ccb1f0c99234add74df566ef0ea0729ecc3ef24039e8f4108726bbc",
+    "ci-logs/telegram-follow-retry-prior-checks.json": "9c3332afbf08025f8f4ec860de178abb6f85942e253a786f9de1acddfe6e5e07",
+    "ci-logs/telegram-follow-retry-prior-jobs.json": "a0a4d8b16c2dc2e276101fc576562e4154d25023a3648b5ab3d4f700a10cec65",
+    "ci-logs/telegram-follow-retry-runs.json": "468b7ebec0d0aba44198f2532b8d0c358346d59bdd3d53d7b851f862226ac556",
+    "ci-logs/telegram-follow-retry-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/telegram-follow-retry-test-format.log": "79ce218cde454a65f230296bfe07325d2f193a5b0d35ebab8c6a4a96c3bbd29c",
+    "experiments/issue-56/collect-telegram-follow-retry.py": "b4084fa64adf3831919ab6f5b12be9d5f1f3272a7476dc9124997bc40e495ba3",
+    "metadata.json": "1f79a02e55274a4b7888e3b5be67bd1145e55ba3d2f2ee2aaa6dc9d6ff6109fe"
+  }
+}

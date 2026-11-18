@@ -2,6 +2,8 @@
 // Polling callers share that attempt; each receives its own response body.
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { retryableReadResponse, retryableReadData } from './request-policy.js';
+import { WIRE_RESPONSE } from '../transport/fetch.js';
+import { readWireResponse } from '../transport/lino.js';
 
 const decodedResponse = async (response, body, progress) => {
   // Deadlines measure inactivity. A large, healthy download can take longer
@@ -20,9 +22,13 @@ const decodedResponse = async (response, body, progress) => {
           { headers: response.headers }
         )
       : response;
+  const decoded = () =>
+    body === 'json' && response[WIRE_RESPONSE]
+      ? readWireResponse(reader, response[WIRE_RESPONSE])
+      : reader[body]();
   const data = [204, 205].includes(response.status)
     ? null
-    : await reader[body]().catch((error) => {
+    : await decoded().catch((error) => {
         if (response.ok) {
           throw error;
         }

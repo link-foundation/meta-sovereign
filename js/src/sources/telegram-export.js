@@ -3,20 +3,22 @@
  * (R-Y186; learned, never copied). The user picks what to include
  * (photos, videos, voice messages, round video messages, stickers, GIFs,
  * files), a size limit for videos and files, a date range, the format
- * (HTML, JSON or both) and a folder; the server then reads the chat's
- * whole history in the background and writes it there:
+ * (HTML, JSON, linked Markdown/JSON or a combination) and a folder. The
+ * server reads complete history or the latest active conversation in
+ * the background, including accessible pre-migration group history:
  * - `exportDefaults()` — `{ ok, folder, job }`: Desktop's default folder
  *   (`~/Downloads/Telegram Desktop/ChatExport_<YYYY-MM-DD>`) and the
  *   running or last export;
  * - `exportStart({ chat, chatName?, media, sizeLimitMb, from?, to?,
- *   formats, folder })` — checks everything first (`bad-request`,
+ *   formats, folder, scope?, gapHours?, maxLines?, debug? })` — checks everything first (`bad-request`,
  *   `relative-folder`, `inside-store`, `bad-folder`, `busy` when one is
  *   running; one export at a time), then starts it → `{ ok, job }`;
  * - `exportStatus()` — `{ ok, job }`, `job` null when none ran;
  * - `exportCancel()` — stops it (what was written stays) → `{ ok, job }`;
  * - `exportReveal()` — opens the finished export's folder in the file
  *   manager.
- * Only reads go to Telegram (./telegram-export-run.js): messages.getHistory
+ * Only reads go to Telegram (./telegram-export-run.js): peer resolution,
+ * migration metadata, messages.getHistory
  * page by page and the files' downloads, through the account's queue. The
  * progress is an `export:telegram:<chat>` link (the events stream carries
  * it); no message text is ever logged.
@@ -32,6 +34,11 @@ import {
   isDay,
 } from './telegram-export-paths.js';
 import { execute, failure, newRun } from './telegram-export-run.js';
+import {
+  exportTarget,
+  exportWindowOptions,
+  resolveExportTarget,
+} from './telegram-export-target.js';
 
 export const MEDIA_KEYS = Object.freeze([
   'photos',
@@ -42,11 +49,10 @@ export const MEDIA_KEYS = Object.freeze([
   'gifs',
   'files',
 ]);
-export const FORMATS = Object.freeze(['html', 'json']);
+export const FORMATS = Object.freeze(['html', 'json', 'markdown']);
 export const MAX_LIMIT_MB = 4000;
 export const DEFAULT_LIMIT_MB = 8;
 const PUT_EVERY_MS = 300;
-const CHAT = /^-?\d{1,20}$/;
 
 const bad = (code) => ({ ok: false, error: code, code });
 
@@ -75,16 +81,19 @@ export const validLimit = (limit) =>
  * The request as `{ ok: true, value }`, or `{ ok: false, code:
  * 'bad-request' }`: a chat id, the kinds (known keys, booleans), a size
  * limit of 1 to 4000 MB, `from` and `to` as `YYYY-MM-DD` or none, one or
- * both formats.
+ * any supported combination of formats and bounded conversation options.
  */
 export const parseExport = (request) => {
   const r = request ?? {};
+  const chat = exportTarget(r.chat);
+  const window = exportWindowOptions(r);
   const from = r.from ?? null;
   const to = r.to ?? null;
   const sizeLimitMb = r.sizeLimitMb ?? DEFAULT_LIMIT_MB;
   const name = r.chatName ?? '';
   const ok =
-    CHAT.test(String(r.chat ?? '')) &&
+    chat &&
+    window &&
     validMedia(r.media) &&
     validLimit(sizeLimitMb) &&
     validRange(from, to) &&
@@ -95,7 +104,8 @@ export const parseExport = (request) => {
     ? {
         ok: true,
         value: {
-          chat: String(r.chat),
+          chat,
+          ...window,
           chatName: name,
           media: Object.fromEntries(
             MEDIA_KEYS.map((k) => [k, r.media[k] === true])
@@ -116,6 +126,10 @@ const snapshot = (job) =>
     state: job.state,
     folder: job.folder,
     formats: job.formats,
+    scope: job.options.scope,
+    gapHours: job.options.gapHours,
+    maxLines: job.options.maxLines,
+    phase: job.phase ?? 'exporting',
     messages: job.messages,
     total: job.total,
     files: job.files,
@@ -238,9 +252,17 @@ export const createHistoryExport = (
     }
     starting = true;
     try {
-      return await connected(env, userClient, failure, (c) =>
-        launch(value, place.folder, c)
-      );
+      return await connected(env, userClient, failure, async (c) => {
+        const resolve = () => resolveExportTarget(c.client, value);
+        const resolved = env.queue
+          ? await env.queue.run(
+              `export:resolve:${value.chat}`,
+              'prefetch',
+              resolve
+            )
+          : await resolve();
+        return launch(resolved, place.folder, c);
+      });
     } finally {
       starting = false;
     }

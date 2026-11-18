@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for managing received gifts, unique gifts and gift codes
 // (R-Y193), as Telegram Desktop has them: a profile's gifts as a grid; on
 // the user's own profile a click opens a gift dialog whose "Hide from my
@@ -74,7 +75,7 @@ const mine = () => [
 const removed = new Set();
 const listAsks = [];
 await page.route('**/api/telegram/star-gifts', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   listAsks.push(body);
   const own = body.chat === SELF;
   return fulfil(route, {
@@ -101,7 +102,7 @@ const calls = {
 };
 const record = (route, name, answer) =>
   page.route(`**/api/telegram/${route}`, (r) => {
-    const body = r.request().postDataJSON();
+    const body = requestBody(r.request());
     calls[name].push(body);
     return fulfil(r, typeof answer === 'function' ? answer(body) : answer);
   });

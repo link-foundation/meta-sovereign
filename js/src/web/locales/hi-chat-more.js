@@ -3,6 +3,17 @@
 // dictionary.
 
 export const hiChatMore = {
+  'chat.export.failedFiles':
+    'डाउनलोड नहीं हो सकीं मीडिया फ़ाइलें: {count}। निर्यात रिकॉर्ड में विफलता के नोट सुरक्षित हैं।',
+  'chat.export.scope': 'निर्यात करने का इतिहास',
+  'chat.export.scope.all': 'पूरा इतिहास',
+  'chat.export.scope.active': 'सक्रिय बातचीत',
+  'chat.export.gap': 'बातचीत का अंतराल (घंटे)',
+  'chat.export.gapHint':
+    'इतने समय या उससे अधिक के अंतिम अंतराल के बाद से शुरू करें। तारीखों का फ़िल्टर भी लागू होता है। समूह के रूपांतरण से पहले का उपलब्ध इतिहास शामिल है।',
+  'chat.export.format.markdown': 'Markdown और लिंक किए गए संरचित JSON भाग',
+  'chat.export.maxLines': 'हर Markdown/JSON भाग में अधिकतम पंक्तियाँ (32–1500)',
+  'chat.export.locating': 'सक्रिय बातचीत खोज रहे हैं…',
   'chat.admin.right.embedLinks': 'लिंक जोड़ें',
   'chat.admin.right.inviteUsers': 'सदस्य जोड़ें',
   'chat.admin.right.pinMessages': 'संदेश पिन करें',

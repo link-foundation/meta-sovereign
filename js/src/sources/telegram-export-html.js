@@ -171,24 +171,28 @@ const joinsPrevious = (msg, prev) =>
   prev.type === 'message' &&
   msg.type === 'message' &&
   prev.from_id === msg.from_id &&
+  prev.source_chat === msg.source_chat &&
   !msg.forwarded_from &&
   Number(msg.date_unixtime) - Number(prev.date_unixtime) <= JOIN_WINDOW_S;
 
 /** One message (the JSON entry and its text's pieces) as HTML. */
-export const messageHtml = (msg, segments, prev = null) => {
+const anchorOf = (msg, id, chat) =>
+  `message${msg.source_chat && msg.source_chat !== chat ? `${msg.source_chat}:` : ''}${id}`;
+
+export const messageHtml = (msg, segments, prev = null, chat) => {
   if (msg.type === 'service') {
-    return `<div class="message service" id="message${msg.id}"><div class="body details">${serviceText(msg)}</div></div>\n`;
+    return `<div class="message service" id="${esc(anchorOf(msg, msg.id, chat))}"><div class="body details">${serviceText(msg)}</div></div>\n`;
   }
   const joined = joinsPrevious(msg, prev);
   const reply = msg.reply_to_message_id
-    ? `<div class="reply_to details">In reply to <a href="#message${msg.reply_to_message_id}">this message</a></div>`
+    ? `<div class="reply_to details">In reply to <a href="#${esc(anchorOf(msg, msg.reply_to_message_id, chat))}">this message</a></div>`
     : '';
   const forwarded = msg.forwarded_from
     ? `<div class="forwarded details">Forwarded from ${esc(msg.forwarded_from)}</div>`
     : '';
   const text = textHtml(segments);
   return [
-    `<div class="message default clearfix${joined ? ' joined' : ''}" id="message${msg.id}"><div class="body">`,
+    `<div class="message default clearfix${joined ? ' joined' : ''}" id="${esc(anchorOf(msg, msg.id, chat))}"><div class="body">`,
     `<div class="pull_right date details" title="${esc(msg.date)}">${esc(msg.date.slice(11, 16))}</div>`,
     joined ? '' : `<div class="from_name">${esc(msg.from ?? '')}</div>`,
     forwarded,
@@ -246,7 +250,12 @@ export const pageName = (n) =>
  * A page is written once the next one begins (it must link to it), the
  * last one on `close`.
  */
-export const createHtmlWriter = async ({ dir, title, perPage = PER_PAGE }) => {
+export const createHtmlWriter = async ({
+  dir,
+  title,
+  chat,
+  perPage = PER_PAGE,
+}) => {
   await fs.mkdir(path.join(dir, 'css'), { recursive: true });
   await fs.writeFile(path.join(dir, 'css', 'style.css'), EXPORT_CSS);
   let page = 1;
@@ -275,7 +284,7 @@ export const createHtmlWriter = async ({ dir, title, perPage = PER_PAGE }) => {
         day = today;
         prev = null;
       }
-      parts.push(messageHtml(msg, segments, prev));
+      parts.push(messageHtml(msg, segments, prev, chat));
       prev = msg;
       count += 1;
     },

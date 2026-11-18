@@ -38,7 +38,7 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-> **Know the limits before you choose it.** The Rust server keeps links **in memory only**: nothing is written to disk, so all data is gone when it stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork and the like, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. For real use pick the JS server (section 3) or the desktop app (section 4). The route-by-route list is in [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
+> **Know the limits before you choose it.** The CLI persists links in native text/binary checkpoints by default; `--data` selects the directory and `--memory` explicitly uses volatile state. See [native storage](./NATIVE-STORAGE.md) for recovery and format limits. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork and the like, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. For real use pick the JS server (section 3) or the desktop app (section 4). The route-by-route list is in [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
 
 The server listens on <http://127.0.0.1:8787> by default. The
 GitHub-Pages-hosted SPA discovers it automatically: it probes the
@@ -99,20 +99,25 @@ attached to the [GitHub releases](https://github.com/link-foundation/meta-sovere
 
 | System  | Files (x64 and arm64)                                                |
 | ------- | -------------------------------------------------------------------- |
-| Linux   | `.AppImage` (auto-updates), `.deb`, `.tar.gz`                        |
+| Linux   | `.AppImage` (x64 auto-updates), `.deb`, `.tar.gz`                    |
 | macOS   | `.dmg` (drag to Applications), `.zip`                                |
 | Windows | `windows-installer` `.exe` (auto-updates), `windows-portable` `.exe` |
+
+Choose **arm64** for Apple Silicon or another ARM64 system, and **x64** for Intel/AMD. Verify the downloaded file before installing or opening it.
 
 First launch:
 
 - **macOS.** Builds without an Apple Developer ID are ad-hoc signed,
-  so macOS blocks the first launch ("Apple could not verify…"). Go to
-  System Settings → Privacy & Security and click **Open Anyway**. These
-  builds do not auto-update; download new versions from the page.
-- **Windows.** If SmartScreen shows "Windows protected your PC",
+  so macOS blocks the first launch ("Apple could not verify…"). First verify
+  the download as described below. Try opening the installed app, click
+  **Done**, then open System Settings → Privacy & Security → Security and
+  click **Open Anyway** for Meta Sovereign. Authenticate if asked and confirm
+  **Open**. These builds do not auto-update; download new versions from the page.
+- **Windows.** Run the installer, or run the portable `.exe` directly. Windows arm64 builds require manual updates. If SmartScreen shows "Windows protected your PC",
   click **More info** → **Run anyway**.
 - **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` and run
-  it, or install the `.deb` with `sudo apt install ./<file>.deb`.
+  it, install the `.deb` with `sudo apt install ./<file>.deb`, or extract
+  `.tar.gz` into a folder and run its `meta-sovereign` executable.
 
 Check a download against the release's `SHA256SUMS.txt`, either in
 the download page's **Verify your download** section (pick the file
@@ -120,12 +125,29 @@ and `SHA256SUMS.txt`; nothing leaves the browser) or in a terminal:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-gh attestation verify <file> --repo link-foundation/meta-sovereign
 ```
+
+On macOS use `shasum -a 256 <file>`; on Windows use PowerShell
+`Get-FileHash -Algorithm SHA256 <file>`. Compare the full hash with the matching
+filename in `SHA256SUMS.txt`. The release also includes `BUILD-PROVENANCE.txt`
+with the repository, workflow, tag, source commit, runner and tool versions.
+Check that provenance and, when available, verify its GitHub attestation:
+`gh attestation verify <file> --repo link-foundation/meta-sovereign`.
+
+For a verified macOS download, the Terminal alternative is scoped to the app
+copied into `/Applications` (expand `.zip` downloads first). Run this once,
+then open the app:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Meta Sovereign.app"
+```
+
+[Apple describes the per-app first-launch exception](https://support.apple.com/en-us/102445).
+Ad-hoc signing does not provide notarization.
 
 The app keeps its data in the system's per-user app folder, so it
 survives updates. To build the installers yourself:
-`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`
+`npm ci && npm run build:web && npm run desktop:build -- --linux --x64`
 (see `js/scripts/build-desktop.mjs`).
 
 ### Mobile and development builds
@@ -261,7 +283,7 @@ What it does:
 - With the variable unset, nothing is encrypted and the server behaves as before.
 - The same passphrase is the default for `POST /api/export-encrypted` when the request brings none.
 
-What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`: contacts, messages, patterns and so on), downloaded media and archives, logs, and backups (a backup is encrypted only when you give a passphrase while creating it). Protect those with disk encryption and file permissions. The Rust server has no such option: it keeps everything in memory.
+What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`: contacts, messages, patterns and so on), downloaded media and archives, logs, and backups (a backup is encrypted only when you give a passphrase while creating it). Protect those with disk encryption and file permissions. The Rust server has no such encryption option: its native checkpoint files are plaintext.
 
 ## 8. Importing data
 
@@ -654,3 +676,7 @@ Operator excludes bots by default. Settings → Operator provides an independent
 Temporary connection failures keep retrying automatically, without a manual retry button. Failed refreshes retain the last good screen. Queued messages keep retrying across sections and resume immediately when the server reconnects. After a server or Telegram has connected, browser-only setup is hidden by default; Settings → Connection recovery can enable that offer. See [Connection recovery](CONNECTION-RECOVERY.md).
 
 After updating, repeat `serve` while the original host stays running: it keeps serving while the replacement warms up, then transfers the single store writer and retains the public listener/certificate. Failed replacements roll back automatically. Older single-process installations need one initial restart to adopt this host. See [rolling server upgrades](ROLLING-SERVER.md).
+
+[Reviewed provider-browser answers, exact option confirmation and status recovery](QUESTION-BROWSER.md).
+
+See [VK user-token acquisition](VK-USER-TOKEN.md) for constrained desktop authorization, private import and validated protected saving.

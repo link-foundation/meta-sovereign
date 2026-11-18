@@ -39,6 +39,7 @@ const tx = (t, value, key) => {
   }
   return value;
 };
+export { tx as translateGuideValue };
 
 export const LocalServerHelp = () => {
   const t = useT();

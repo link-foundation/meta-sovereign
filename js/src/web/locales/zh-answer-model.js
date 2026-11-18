@@ -1,0 +1,31 @@
+export const zhAnswerModel = {
+  'answerModel.title': '可选 Claude Code 草稿',
+  'answerModel.hint':
+    '在此服务器上运行 Claude Code，使用服务器可用的 API/提供商凭据。所选简历、当前资料、近期上下文和相近的已批准答案将发送给该提供商。需要安装 Claude Code 并提供 API/提供商凭据；不使用订阅登录。工具及会话持久化已禁用。每个计划需单独启用；所有模型答案都需审核。不会向聊天发送消息或提交表单。',
+  'answerModel.enable': '启用模型草稿',
+  'answerModel.model': '模型别名或 ID（留空使用 CLI 默认模型）',
+  'answerModel.cv': '包含的已保存简历',
+  'answerModel.noCv': '不包含简历',
+  'answerModel.cvMissing': '不可用',
+  'answerModel.timeout': '请求限制（毫秒，1000–120000）',
+  'answerModel.save': '保存模型设置',
+  'answerModel.reload': '重新加载模型设置',
+  'answerModel.saved': '模型设置已保存。',
+  'answerModel.changed':
+    '模型设置已在别处更改。您的草稿已保留；保存前请重新加载。',
+  'answerModel.error': '模型设置未经确认（{code}）。请重新加载以恢复。',
+  'answerModel.optIn': '对此计划中的未解决答案使用已配置的模型',
+  'answerModel.state.disabled': '模型草稿已禁用。',
+  'answerModel.state.unavailable': '模型草稿需要本地服务器适配器。',
+  'answerModel.state.unneeded': '已保存的答案已覆盖此计划；未调用模型。',
+  'answerModel.state.refused': '未接受任何模型草稿（{code}）。原有答案已保留。',
+  'answerModel.state.drafted':
+    '模型草稿需要审核。请求数：{count}；此批次以外：{omitted}。',
+  'answerModel.source': '模型草稿',
+  'answerModel.clarification': '请向所有者确认缺失的事实。',
+  'answerModel.review': '应用前请审核模型草稿。',
+  'questions.match.model': '模型草稿',
+  'forms.plan.source.model': '模型草稿',
+  'forms.plan.reason.model-clarification': '请向所有者确认缺失的事实。',
+  'forms.plan.reason.model-review': '应用前请审核模型草稿。',
+};

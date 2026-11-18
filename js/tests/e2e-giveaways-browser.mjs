@@ -1,3 +1,4 @@
+import { requestBody } from './helpers/http-wire.mjs';
 // Real browser e2e for giveaways (R-Y184), as Telegram Desktop shows them:
 // a giveaway post is a card with its prize (Telegram Premium months, or
 // Stars, with the extra text), who takes part, from which countries and the
@@ -88,7 +89,7 @@ await page.route('**/api/telegram/chat-info*', (route) =>
   fulfil(route, { chat: CHANNEL, kind: 'channel', title: 'Fake Channel' })
 );
 await page.route('**/api/telegram/giveaway-info', (route) => {
-  const body = route.request().postDataJSON();
+  const body = requestBody(route.request());
   infoAsked.push(body);
   if (body.id === 7) {
     return fulfil(route, {

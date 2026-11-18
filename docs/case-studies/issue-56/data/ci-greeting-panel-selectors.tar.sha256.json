@@ -1,0 +1,14 @@
+{
+  "archive": "ci-greeting-panel-selectors.tar.gz",
+  "files": {
+    "ci-logs/checks-42745344946.log": "c46fd6833a3ed6ad8d0167b0f55a7d7a617ecacd5b188ab0d8a96ba754a000b0",
+    "ci-logs/checks-f5091260-status.json": "172eaab48c0f9cad71162eadb38ea9e0c3a123038e050cbfaefc16e234002074",
+    "ci-logs/greeting-panel-selector-before.log": "8099d2ed218e535361023075852d100aa5c88ff5f457d75d54c72d88bcc2f4e3",
+    "ci-logs/greeting-panel-selector-catalog-after.log": "236fbfbe8b4925559d5aa90f11274e802a98da502ca8864155869c3fd44cefc7",
+    "ci-logs/greeting-panel-selector-doc-format.log": "f6e94f14a9de8a7a3f036ebc37e976ac8cd8af4642603737367d153b1656494d",
+    "ci-logs/greeting-panel-selector-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/greeting-panel-selector-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/greeting-panel-selector-runs.json": "c456ccd212a57f5630c8150efa9323a26a002b41291498711e9b1ba7a63f2fbf",
+    "ci-logs/greeting-panel-selector-send-after.log": "2b325029ff24ca6d8b8744e5a6075ccab5c8d25044deb7072ae27b9acc549666"
+  }
+}

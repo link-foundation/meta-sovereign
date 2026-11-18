@@ -232,7 +232,8 @@ const waCommander = (rows) => {
     clickButton: async ({ selector }) => calls.push(['click', selector]),
     typeText: async ({ text }) => calls.push(['type', text]),
     pressKey: async ({ key }) => calls.push(['press', key]),
-    evaluate: async () => rows ?? [],
+    evaluate: async ({ fn }) =>
+      fn.name === 'browserComposerDraft' ? { verified: true } : (rows ?? []),
   };
 };
 

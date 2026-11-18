@@ -1,0 +1,17 @@
+{
+  "archive": "question-substitution.tar.gz",
+  "files": {
+    "mcp.json": "a0a2a1d9b05e7484d26d87ad2b9bab85c05b52027e520ba5d2bb8547fe95f428",
+    "question-substitution-before.log": "5260ce84ddd98cea0190d2f2dc922cf57c8686f006018a9a960968e895ad2f87",
+    "question-substitution-browser-final.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "question-substitution-browser.log": "ec4e653887bc2b218910247a85336163b29e4ca457b1d1e3b986713ae2bc8b79",
+    "question-substitution-build.log": "0d13977d9e981e8c94d110a5bcb6607c7ef30b8c3b03b6871adf94677ca61e38",
+    "question-substitution-doc-format.log": "b4925feee85187027a7e8bd98cc92bc4345d9a3d11a913d066dd8a937f6d5e85",
+    "question-substitution-draft.log": "099da1f52541de24af807d6f5b5884621dc3ffebf745440f73a64c7e6b486566",
+    "question-substitution-example.log": "70d0595f1a01c1135022c0dd2a3b6b781771bec8a2e4acb305f2cfc94597120e",
+    "question-substitution-focused.log": "ffb2315c9f8d6a501432ca1de3613d31d1245ac3cb4e23bd73f9ee1e152cd58b",
+    "question-substitution-format.log": "296c39f4f189118e06c96935a61b1877f1ca2be2667c31fc13e54b1f81ac77e5",
+    "question-substitution-guards-before.log": "5782073bad9e727a886e211696ebe27bf3ba501da5c47dc97f70b1650b4688a7",
+    "question-substitution-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

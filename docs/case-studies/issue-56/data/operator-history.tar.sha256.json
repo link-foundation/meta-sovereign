@@ -1,0 +1,16 @@
+{
+  "archive": "operator-history.tar.gz",
+  "files": {
+    "9b718-webkit.log": "293219da3ffad0a6e48f49b2faab9cb781182ad4c112bac04d2fa00363ee1c65",
+    "mcp.json": "ac8cbfeaeea55ab8a84ab8e8daec2cc9ee79bc7c0640490ca257a9ddd47bd19e",
+    "operator-history-after.log": "a96bf63567d65547041864adeb29430c76f2b67a1ec7a68e50d8223e27e65104",
+    "operator-history-before.log": "f56822deb63f46acf77dc49ad2ee0719ccacc041ea84c1a149389ae3a9835740",
+    "operator-history-build.log": "982dcdb321a7cf150e7e03e77916a4450285043d90fb5db57f6671b947b22c3c",
+    "operator-history-debug-build.log": "24c3c4b59e3adb49766b05a97ee346d70573d57091f931bc9b49db8e14b1670e",
+    "operator-history-doc-format.log": "8b307404746bd3c516229f8b5a917fceb4adb0419d02c263b2e38844803d2fef",
+    "operator-history-focused.log": "0c8dc8597069770d3dfe3f5d95ef855dba553150170fd0c6d296205797cf9364",
+    "operator-history-format.log": "586df4d1fcbb7cb5454abd2e503ae456e0eb1f3e0313e8d94d5366300fe1aa1f",
+    "operator-history-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "operator-history-regression-before.log": "80009083e417071924acd2160fe6d84987c80f124d595803898acd3a263a4551"
+  }
+}
