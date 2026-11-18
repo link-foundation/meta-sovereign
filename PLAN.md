@@ -1,3 +1,10 @@
+2026-11-18 final import resource warnings:
+
+- [x] Preserve exact 08cf9ee5 macOS/Bun and Ubuntu/Bun failures. Both reject an allowed warning transition emitted immediately after the final sample; the specific underlying resource threshold is not recorded in the failed assertions.
+- [x] Reproduce both published assertions with synthetic counters in a finite isolated process, retaining two controls. Preserve exact sample order, module/error identity, thirty-sample cap, timer cleanup and default-off behavior while allowing the two documented transition events.
+- [x] Pass eight focused checks and six synthetic-counter checks with one worker and a 384 MiB heap. Include two deterministic final-memory-warning cases in the ordinary hosted test file; no memory allocation or CPU stress is used.
+- [ ] Finish scoped static checks, preserve source-bound evidence, publish both atomic corrections and require exact-source hosted CI. All thirty unfinished original criteria remain required.
+
 2026-11-18 CV readback deadline:
 
 - [x] Trace the Save verification cycle after every awaited form, export, identity-list and exact-record read. The loop deadline alone can accept a late successful result.

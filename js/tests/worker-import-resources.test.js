@@ -24,6 +24,27 @@ const clock = () => {
   };
 };
 
+const sampleEvents = (entries) =>
+  entries
+    .filter(
+      ({ event }) =>
+        !['server_resource_high', 'server_resource_recovered'].includes(event)
+    )
+    .map(({ event }) => event);
+
+// Synthetic counters cross the final sample's threshold without allocating
+// memory. The observer reads once before its baseline, then once per sample.
+const warnOnFinalSample = (context) => {
+  let reads = 0;
+  context.mock.method(process, 'memoryUsage', () => ({
+    rss: ++reads >= 3 ? 3 * 1024 ** 3 : 0,
+    heapUsed: 0,
+    heapTotal: 0,
+    external: 0,
+    arrayBuffers: 0,
+  }));
+};
+
 test('ordinary imports allocate no resource observer or timer', async () => {
   let loads = 0;
   assert.equal(
@@ -87,43 +108,68 @@ test('pending imports expose finite opt-in resources and retain their result', a
   assert.equal(entries.length, count);
 });
 
-test('an import rejection stops observation and preserves the actual error', async () => {
-  const f = clock();
-  const entries = [];
-  const failure = new Error('owned fixture import failed');
-  await assert.rejects(
-    observeImportResources(
-      () => {
-        throw failure;
-      },
-      { enabled: true, log: (entry) => entries.push(entry), timers: f.timers }
-    ),
-    (error) => error === failure
-  );
-  assert.deepEqual(f.state(), { cleared: 1, unref: 1 });
-  assert.equal(entries.at(-1).event, 'server_import_resources_final');
-  const count = entries.length;
-  f.tick();
-  assert.equal(entries.length, count, 'rejected import released its observer');
-});
+for (const warning of [false, true]) {
+  const suffix = warning ? ' with a final resource warning' : '';
+  test(`an import rejection stops observation and preserves the actual error${suffix}`, async (context) => {
+    if (warning) {
+      warnOnFinalSample(context);
+    }
+    const f = clock();
+    const entries = [];
+    const failure = new Error('owned fixture import failed');
+    await assert.rejects(
+      observeImportResources(
+        () => {
+          throw failure;
+        },
+        { enabled: true, log: (entry) => entries.push(entry), timers: f.timers }
+      ),
+      (error) => error === failure
+    );
+    assert.deepEqual(f.state(), { cleared: 1, unref: 1 });
+    assert.deepEqual(sampleEvents(entries), [
+      'server_resource_baseline',
+      'server_import_resources_final',
+    ]);
+    if (warning) {
+      assert.equal(entries.at(-1).event, 'server_resource_high');
+      assert.equal(entries.at(-1).memoryHigh, true);
+    }
+    const count = entries.length;
+    f.tick();
+    assert.equal(
+      entries.length,
+      count,
+      'rejected import released its observer'
+    );
+  });
 
-test('a settled import records its final cost even when no interval could run', async () => {
-  const f = clock();
-  const entries = [];
-  const module = Symbol('loaded module');
-  assert.equal(
-    await observeImportResources(() => module, {
-      enabled: true,
-      log: (entry) => entries.push(entry),
-      timers: f.timers,
-    }),
-    module
-  );
-  assert.deepEqual(
-    entries.map(({ event }) => event),
-    ['server_resource_baseline', 'server_import_resources_final']
-  );
-  assert.deepEqual(f.state(), { cleared: 1, unref: 1 });
-  f.tick();
-  assert.equal(entries.length, 2);
-});
+  test(`a settled import records its final cost even when no interval could run${suffix}`, async (context) => {
+    if (warning) {
+      warnOnFinalSample(context);
+    }
+    const f = clock();
+    const entries = [];
+    const module = Symbol('loaded module');
+    assert.equal(
+      await observeImportResources(() => module, {
+        enabled: true,
+        log: (entry) => entries.push(entry),
+        timers: f.timers,
+      }),
+      module
+    );
+    assert.deepEqual(sampleEvents(entries), [
+      'server_resource_baseline',
+      'server_import_resources_final',
+    ]);
+    if (warning) {
+      assert.equal(entries.at(-1).event, 'server_resource_high');
+      assert.equal(entries.at(-1).memoryHigh, true);
+    }
+    assert.deepEqual(f.state(), { cleared: 1, unref: 1 });
+    const count = entries.length;
+    f.tick();
+    assert.equal(entries.length, count);
+  });
+}
