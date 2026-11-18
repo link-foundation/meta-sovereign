@@ -1,0 +1,28 @@
+{
+  "archive": "ci-deno-macos-budget.tar.gz",
+  "files": {
+    ".github/workflows/release.yml": "dea86ca74c0ee70a7396f3cce1c64368a96e89068ff491a3bcc743bd96e0ad9c",
+    "PLAN.md": "6f50b0b13c3678b3d6dc7c4e5d55bec3cfdd4071fca2058ab03af4037011d515",
+    "ci-logs/ci-deno-macos-budget-annotations.json": "b3370a5e939dc7443ee19cf78adad4e9fa9ab2bc91846a43704f93196c90cf67",
+    "ci-logs/ci-deno-macos-budget-before.log": "fb77681560b57970a2c6194f8816e50871a598bba8922386ad5b406130aa0677",
+    "ci-logs/ci-deno-macos-budget-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-deno-macos-budget-doc-format.log": "9048dff3f808a50a9f2329c85ec02e3f02971a6b96a415faafadb2b4cdc30e08",
+    "ci-logs/ci-deno-macos-budget-duplication.log": "c2a6bf832a99d675cd359e0525fb84738be700efd363b49e39b7fe1d407aeda2",
+    "ci-logs/ci-deno-macos-budget-focused.log": "d1b68bb72981e9f8eb6522eb96b60fef1b2943f763276ac1c45217e62c720552",
+    "ci-logs/ci-deno-macos-budget-format-check.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/ci-deno-macos-budget-format.log": "78f214ed01eda15de9f4f1d0a1b14d157c4e6a9d2ea074cf349787ed98210ee2",
+    "ci-logs/ci-deno-macos-budget-job.json": "366d15ee1902135b8b3f3399995d299d6f3670be579a91d25707a411b5c9c7e9",
+    "ci-logs/ci-deno-macos-budget-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/ci-deno-macos-budget-native.log": "6d777759c86e676d4a0500d7f3113652bef5abbad7ed4ca5a1a349d715e6c707",
+    "ci-logs/ci-deno-macos-budget-plan-format.log": "1bdacaa06d05f278da5c6eb7684716afaccf08bcca9506577b135f1892c872d3",
+    "ci-logs/ci-deno-macos-budget-secrets.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vacancy-modern-parent-deno-cancelled.log": "1947e5e9ca9791521cf362a74f9c1dc4be99cfce03b69b5ee14b444bf3047fad",
+    "docs/case-studies/issue-56/ci-deno-macos-budget.md": "0bbad8e8c78d4fc90907b0fbad2319e2bd75f8c9c24cc95a28203d08cde1d49f",
+    "experiments/issue-56/collect-ci-deno-macos-budget.py": "8dd3a1a04800ec8cbf626632abbbeccdd8e1b2420ec9c5a77261ad36069ae545",
+    "experiments/issue-56/evidence_bundle.py": "8aa39f36205717af9e62c8c8c1d324061952752c34d7517b11e0513878d9dc03",
+    "js/tests/ci-contracts.test.js": "d270c129b272d124140fe5d041f8ae6e593b0825a50937e5705eabca360fb3b6",
+    "js/tests/ci-deno-shards.test.js": "55264522936ab6a73162b7fcd9be6ec611c9551280869940834af6cf1f094b7a",
+    "before/release.yml": "b57cebbe5fe3eede88dcc7ac0af25e5e19dd85c2b5ef51c60b5fd510049f0a6d",
+    "metadata.json": "b7b869212539d4489ada88b11c32facaf034e7e5a1342265d68c9b523bb78116"
+  }
+}

@@ -374,17 +374,19 @@ jobs:
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
         include:
-          - { os: macos-26, runtime: deno, shard: 1/6 }
+          - { os: macos-26, runtime: deno, shard: 1/8 }
           - os: macos-26
             runtime: deno
-            # Keep the Intel allocation fallback. Six bounded partitions split
-            # the large middle file range that exhausted the ten-minute job.
+            # Keep the Intel allocation fallback. Eight bounded partitions leave room
+            # for cold setup within the unchanged ten-minute job deadline.
             runner: macos-26-intel
-            shard: 2/6
-          - { os: macos-26, runtime: deno, shard: 3/6 }
-          - { os: macos-26, runtime: deno, shard: 4/6 }
-          - { os: macos-26, runtime: deno, shard: 5/6 }
-          - { os: macos-26, runtime: deno, shard: 6/6 }
+            shard: 2/8
+          - { os: macos-26, runtime: deno, shard: 3/8 }
+          - { os: macos-26, runtime: deno, shard: 4/8 }
+          - { os: macos-26, runtime: deno, shard: 5/8 }
+          - { os: macos-26, runtime: deno, shard: 6/8 }
+          - { os: macos-26, runtime: deno, shard: 7/8 }
+          - { os: macos-26, runtime: deno, shard: 8/8 }
           - os: ubuntu-26.04
             runtime: deno
             shard: 1/3

@@ -1,3 +1,11 @@
+2026-11-18 macOS Deno cold-run budget:
+
+- [x] Preserve exact-parent shard logs and annotations; confirm the ten-minute job limit, 3m03s setup and 6m59s execution with no failed assertions.
+- [x] Draft complete eight-way native macOS Deno partitions with the existing Intel fallback, deadline and all runtime/platform coverage retained.
+- [x] Reproduce the six-part parent contract failure and pass the focused configuration/native-discovery checks with bounded concurrency.
+- [x] Preserve independently hashed source-bound evidence; scoped static and unchanged duplication gates pass.
+- [ ] Publish only to the prepared branch and review exact-source CI. All 30 unfinished criteria remain required.
+
 2026-11-18 current public HH metadata (HH03 remains unfinished):
 
 - [x] Compare pinned full-container extraction with a current anonymous public page. Trace missing modern employment/publication fields; keep the separate native navigation refusal unverified.

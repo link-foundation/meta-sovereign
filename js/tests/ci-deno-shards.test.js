@@ -34,7 +34,7 @@ test('every Deno platform retains native partitions, test discovery and deadline
   ).jobs.test;
   const { matrix } = job.strategy;
   for (const targetOS of ['ubuntu-26.04', 'macos-26', 'windows-2025']) {
-    const count = targetOS === 'macos-26' ? 6 : 3;
+    const count = targetOS === 'macos-26' ? 8 : 3;
     assert.deepEqual(
       matrix.include
         .filter(({ os, runtime }) => os === targetOS && runtime === 'deno')
@@ -58,12 +58,14 @@ test('every Deno platform retains native partitions, test discovery and deadline
   assert.deepEqual(
     mac.map(({ shard, runner }) => [shard, runner ?? 'macos-26']),
     [
-      ['1/6', 'macos-26'],
-      ['2/6', 'macos-26-intel'],
-      ['3/6', 'macos-26'],
-      ['4/6', 'macos-26'],
-      ['5/6', 'macos-26'],
-      ['6/6', 'macos-26'],
+      ['1/8', 'macos-26'],
+      ['2/8', 'macos-26-intel'],
+      ['3/8', 'macos-26'],
+      ['4/8', 'macos-26'],
+      ['5/8', 'macos-26'],
+      ['6/8', 'macos-26'],
+      ['7/8', 'macos-26'],
+      ['8/8', 'macos-26'],
     ],
     'the capacity-refused shard uses Intel while the other partitions retain ARM'
   );
@@ -89,7 +91,7 @@ test('native Deno shards run every fixture once and propagate failures', (t) => 
   }
   const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-deno-shards-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
-  for (let index = 0; index < 6; index++) {
+  for (let index = 0; index < 8; index++) {
     writeFileSync(
       path.join(dir, `${index}.test.js`),
       `Deno.test('fixture ${index}', () => {
@@ -115,7 +117,7 @@ if (Deno.env.get('MS_DENO_SHARD_FAIL') === '${index}') throw new Error('fixture 
         env: { ...process.env, NO_COLOR: '1', MS_DENO_SHARD_FAIL: failure },
       }
     );
-  const results = Array.from({ length: 6 }, (_, index) => `${index + 1}/6`).map(
+  const results = Array.from({ length: 8 }, (_, index) => `${index + 1}/8`).map(
     (shard) => ({
       shard,
       result: invoke(shard),
@@ -128,14 +130,14 @@ if (Deno.env.get('MS_DENO_SHARD_FAIL') === '${index}') throw new Error('fixture 
       ...Array.from(result.stdout.matchAll(/executed:(\d+)/gu), ([, id]) => id)
     );
   }
-  assert.deepEqual(executed.sort(), ['0', '1', '2', '3', '4', '5']);
+  assert.deepEqual(executed.sort(), ['0', '1', '2', '3', '4', '5', '6', '7']);
   const failingShard = results.find(({ result }) =>
     result.stdout.includes('executed:3')
   ).shard;
   const failure = invoke(failingShard, '3');
   assert.equal(failure.status, 1, failure.stdout + failure.stderr);
   assert.match(failure.stdout + failure.stderr, /fixture failure/u);
-  const invalid = invoke('7/6');
+  const invalid = invoke('9/8');
   assert.notEqual(invalid.status, 0, invalid.stdout + invalid.stderr);
   assert.doesNotMatch(invalid.stdout, /executed:/u);
 });

@@ -761,3 +761,5 @@ owner drafts and zero sends; complete salary acceptance remains required.
 - [Preserved strict link-check cache](ci-link-cache.md): both exact-source failed attempts, successful-only cache reuse, one-day expiry, permanent-failure controls and hosted verification still required.
 
 Current public HH employment/publication extraction and guarded synthetic recovery: [metadata evidence](vacancy-modern.md). HH03 remains unfinished.
+
+[Cold-run Deno budget](ci-deno-macos-budget.md) preserves the exact ten-minute cancellation and complete eight-way macOS partitions; full hosted timing remains required.
