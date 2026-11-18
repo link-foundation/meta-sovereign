@@ -154,5 +154,9 @@
   "safety-settings",
   "forms-watchers",
   "vk-configured",
-  "vacancy-selection"
+  "vacancy-selection",
+  "job-application-collection",
+  "job-application-search-route",
+  "job-application-vacancy-skips",
+  "job-application-vacancy-skip-preview"
 ]

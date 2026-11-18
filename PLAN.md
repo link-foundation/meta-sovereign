@@ -1336,3 +1336,9 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Retain trusted inspection function source verbatim, including a final semicolon/comment; consolidate all release summaries into the existing minor entry without changing either gate.
 - [ ] Verify the finite parent/current VM regressions, existing generated work syntax and unchanged changeset validator; preserve scoped gates and source-bound evidence. Commit/push only to the prepared branch and review fresh hosted CodeQL and the complete CI matrix.
 - [ ] Complete all 30 unfinished original criteria; no synthetic test or fixture proves authenticated provider parity.
+      2026-11-18 WebKit application group deadlines:
+
+- [x] Preserve f34c800a run 44392503456 job 135121991350 and artifact 14471913647. Visibility starts nested vacancy refusals after 53 seconds; feedback, collection and preview pass in 103,462 / 32,199 / 27,999 ms before search has only twelve seconds left. Both groups exhaust the unchanged 180-second deadline without an individual assertion failure.
+- [x] Give independent feedback, search, saved-refusal and preview-refusal scenarios mandatory registered budgets. Keep collection/preview together, every scenario exactly once, eight shards, twenty entries per shard, both engines and existing 180-second / 35-minute deadlines.
+- [x] Reproduce two registration failures against the actual parent with eight independent controls; all 31 focused CI contracts pass. The isolated WebKit saved-refusal scenario passes in 50,858 ms with all owned browsers closed and no submissions. Full matrices stay hosted; the cause of the earlier long nested operation remains unproven.
+- [ ] Preserve source-bound evidence, commit/push only to the prepared branch and inspect exact-source CI. Continue every original unfinished criterion; PR57 remains draft/unmerged.

@@ -117,6 +117,7 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyNativeResumeVisibility',
       'verifyPopupResumeVisibility',
       'verifyNativeVacancySkips',
+      'verifyNativeVacancySkipPreview',
       'verifyNativeVacancyUnavailable',
       'verifyNativeApplicationLanguage',
       'verifyNativeApplicationLimits',
@@ -139,6 +140,41 @@ test('native application scenarios remain registered once in bounded groups', ()
       'verifyApplicationSalary',
       'verifyApplicationSalaryBatch',
     ].sort()
+  );
+});
+
+test('long application workflows have separate registered budgets without nesting preview refusals', () => {
+  for (const [group, scenarios] of [
+    ['job-application-feedback', ['verifyNativeApplicationFeedback']],
+    [
+      'job-application-collection',
+      ['verifyNativeApplicationCollection', 'verifyNativeVacancyPreview'],
+    ],
+    ['job-application-search-route', ['verifyNativeApplicationSearchRoute']],
+    [
+      'job-application-visibility',
+      [
+        'verifyNativeResumeVisibility',
+        'verifyPopupResumeVisibility',
+        'verifyNativeVacancyUnavailable',
+      ],
+    ],
+    ['job-application-vacancy-skips', ['verifyNativeVacancySkips']],
+    [
+      'job-application-vacancy-skip-preview',
+      ['verifyNativeVacancySkipPreview'],
+    ],
+  ]) {
+    assert.ok(registry.includes(group), group);
+    assert.deepEqual(registeredScenarios([group]), scenarios, group);
+  }
+  assert.doesNotMatch(
+    readFileSync(
+      new URL('./helpers/e2e-vacancy-skips.mjs', import.meta.url),
+      'utf8'
+    ),
+    /verifyNativeVacancySkipPreview/u,
+    'Preview refusal coverage has its own mandatory entry and must not run twice'
   );
 });
 
