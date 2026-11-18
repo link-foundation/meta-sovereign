@@ -4,7 +4,9 @@ import { verifyNativeVacancySkips } from '../../js/tests/helpers/e2e-vacancy-ski
 await questionBrowserProbe(
   {
     before: process.argv.includes('--before'),
-    screenshots: 'docs/screenshots/issue-56-vacancy-skips',
+    screenshots:
+      process.env.VACANCY_SKIP_SCREENSHOTS ??
+      'docs/screenshots/issue-56-vacancy-skips',
   },
   verifyNativeVacancySkips
 );

@@ -1,3 +1,10 @@
+2026-11-18 later employer-link metadata (HH05 remains unfinished):
+
+- [x] Reproduce the exact published-parent loss when a safe employer link appears after the first refusal; preserve original time, attempt count and request identity.
+- [x] Acknowledge only changed same-attempt metadata and retain known values on incomplete reads. Pass 18 focused checks, the new Deno regression and the mandatory native six-variant scenario with reload, four locales, clear recovery and zero submissions.
+- [x] Inspect desktop/phone images and preserve source-bound evidence. The unchanged duplication gate passes at 6.50%; the initial invocation used a nonexistent tool path and was corrected.
+- [ ] Publish only to the prepared branch and require exact-source hosted checks. Investigate the fresh Windows fixture cleanup failures; all 32 unfinished criteria remain required.
+
 2026-11-18 native batch confirmation investigation:
 
 - [x] Preserve the exact e2acf88a Chromium timeout, omitted recovery-state diagnostics and missing batch screenshot; keep the cause explicitly unproven.

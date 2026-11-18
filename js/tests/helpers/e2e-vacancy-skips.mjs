@@ -12,6 +12,7 @@ import {
 import { applicationInput } from '../../../experiments/issue-56/application-fixture.mjs';
 import { wirePost } from './vacancy-routes.mjs';
 import { LINO_TEXT } from '../../src/transport/lino.js';
+import { vacancySkipId } from '../../src/jobs/vacancy-skip-data.js';
 
 export const verifyNativeVacancySkips = async (
   browser,
@@ -39,31 +40,7 @@ export const verifyNativeVacancySkips = async (
     await owned
       .locator('#experience')
       .fill('Owner experience remains unchanged.');
-    for (const kind of [
-      'hidden',
-      'ambiguous',
-      'unsafe',
-      'provider',
-      'credentials',
-      'valid',
-    ]) {
-      await owned.evaluate(changeExternalSkipNotice, kind);
-      const snapshot = await owned
-        .locator('#native-form')
-        .evaluate(applicationDocument, {
-          url: applicationInput.url,
-          selectors: applicationSelectors,
-        });
-      assert.equal(snapshot.external, kind !== 'hidden');
-      if (!before) {
-        assert.equal(
-          snapshot.externalUrl,
-          kind === 'valid' ? 'https://employer.example/apply' : null,
-          kind
-        );
-      }
-    }
-    await controls.confirmed('read');
+    await verifyExternalLinkVariants({ controls, owned, fixture, before });
     await panel.locator('[data-application-state="external"]').waitFor();
     assert.equal(
       await owned.locator('#experience').inputValue(),
@@ -124,6 +101,7 @@ export const verifyNativeVacancySkips = async (
     assert.deepEqual(fixture.errors, []);
     return {
       linkVariants: 6,
+      laterLinkPreserved: true,
       reloadPreserved: true,
       refusedNewOpen: true,
       translatedLocales: 4,
@@ -133,5 +111,50 @@ export const verifyNativeVacancySkips = async (
     };
   } finally {
     await fixture.close();
+  }
+};
+
+const verifyExternalLinkVariants = async ({
+  controls,
+  owned,
+  fixture,
+  before,
+}) => {
+  let pending;
+  for (const kind of [
+    'hidden',
+    'ambiguous',
+    'unsafe',
+    'provider',
+    'credentials',
+    'valid',
+  ]) {
+    await owned.evaluate(changeExternalSkipNotice, kind);
+    const snapshot = await owned
+      .locator('#native-form')
+      .evaluate(applicationDocument, {
+        url: applicationInput.url,
+        selectors: applicationSelectors,
+      });
+    assert.equal(snapshot.external, kind !== 'hidden');
+    if (!before) {
+      assert.equal(
+        snapshot.externalUrl,
+        kind === 'valid' ? 'https://employer.example/apply' : null,
+        kind
+      );
+      if (kind === 'credentials') {
+        await controls.confirmed('read');
+        pending = await fixture.store.get(vacancySkipId('jobs'));
+        assert.equal(pending.entries[0].externalUrl, null);
+      }
+    }
+  }
+  await controls.confirmed('read');
+  if (!before) {
+    const refreshed = await fixture.store.get(vacancySkipId('jobs'));
+    assert.equal(refreshed.entries[0].attempts, 1);
+    assert.equal(refreshed.entries[0].time, pending.entries[0].time);
+    assert.notEqual(refreshed.revision, pending.revision);
   }
 };

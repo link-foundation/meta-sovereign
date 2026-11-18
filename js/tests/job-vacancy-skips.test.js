@@ -28,6 +28,41 @@ import {
 } from '../../experiments/issue-56/application-batch-fixture.mjs';
 import { verifyUncertainHold } from '../../experiments/issue-56/application-hold-fixture.mjs';
 
+test('a later employer link updates the same refusal without counting another attempt', async (t) => {
+  const f = applicationFixture();
+  t.after(() => f.close());
+  let receipt = await f.enter();
+  f.state.page.external = true;
+  const read = async () => {
+    receipt = await f.service['application-read']({
+      ...applicationInput,
+      revision: receipt.revision,
+    });
+    return f.service['skips-stored']({});
+  };
+  const before = await read();
+  assert.equal(before.entries[0].externalUrl, null);
+  assert.equal(before.entries[0].prefillCommand, null);
+  f.state.page.externalUrl = 'https://employer.example/later';
+  const after = await read();
+  const entry = after.entries[0];
+  assert.notEqual(after.revision, before.revision);
+  assert.equal(entry.externalUrl, f.state.page.externalUrl);
+  assert(entry.prefillCommand.includes('--url='));
+  assert.equal(entry.attempts, before.entries[0].attempts);
+  assert.equal(entry.time, before.entries[0].time);
+  assert.equal(entry.requestId, before.entries[0].requestId);
+  delete f.state.page.externalUrl;
+  assert.deepEqual(await read(), after, 'missing links retain known metadata');
+  const restarted = createVacancyService({ store: f.store });
+  try {
+    assert.deepEqual(await restarted['skips-stored']({}), after);
+  } finally {
+    await restarted.stop();
+  }
+  assert.equal(f.state.submitted, 0);
+});
+
 test('clearing a recorded refusal cannot release an uncertain provider dispatch', async (t) => {
   const { fixture, receipt } = await verifyUncertainHold(
     t,

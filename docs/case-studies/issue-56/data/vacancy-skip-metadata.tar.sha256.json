@@ -1,0 +1,26 @@
+{
+  "archive": "vacancy-skip-metadata.tar.gz",
+  "files": {
+    "js/src/jobs/vacancy-skip-service.js": "22722eaf7ee7965ba54f59aaac97dd68565cf6b201b169e956b07c6ba436196f",
+    "js/tests/job-vacancy-skips.test.js": "2a5fe789f45eee9800a24cdcc5acaf457d349de3e21b3929129349937273b03d",
+    "js/tests/helpers/e2e-vacancy-skips.mjs": "4f5115b417b706966a5da7d141f7e1c7ddfd0546893745bd12b68730adbcf4e1",
+    "experiments/issue-56/vacancy-skips-native.mjs": "5d8a00c49b27201f2043f29365e50cf63c239f0ef4aede6956d8d532387ac09f",
+    "experiments/issue-56/vacancy-skip-metadata-before.py": "d8e25e87cef4491977859b15ee551340b4d2ff2a4fc4fc575e44f93c0a0b2423",
+    "experiments/issue-56/collect-skip-metadata.py": "5af59eb2b5c39dbc84e0114c74f5b6a768db1ef42febe2fdee7e548c10031785",
+    "docs/case-studies/issue-56/vacancy-skip-metadata.md": "3c7f4ce02fc78317fd12c474be0afa7d67789dbd8ffec246096c77374ecc8036",
+    ".jscpd.json": "e71121a1859c71697606e8f4c58870b349a180ecbcef8634fffb7ec6ef3000ae",
+    "ci-logs/vacancy-skip-metadata-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vacancy-skip-metadata-duplication.log": "aceb166e77c1e300328184d20b4aeffd1e05ddc4f24e1585349577be5f4acf78",
+    "ci-logs/vacancy-skip-metadata-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-logs/vacancy-skip-metadata-before.log": "8c59693a6dba03975d63fd0e52b18514772caa70139dec903a526d4662af0c8b",
+    "ci-logs/vacancy-skip-metadata-format.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "ci-logs/vacancy-skip-metadata-focused.log": "e608f9beed9a5dde1f0cbb274d55784348e2a425576607856546f7174866b1b5",
+    "ci-logs/vacancy-skip-metadata-deno.log": "ee48cd041b36b7d7c17e8cb4d9cbddd5bfde30de3af326c9980d8b8c978a3e87",
+    "ci-logs/vacancy-skip-metadata-before-driver.log": "4f6ca72f25dd7bc45549bc21290341394ae7783ee8dce579670d95e9363949e1",
+    "ci-logs/vacancy-skip-metadata-native.log": "13510ed495942d94aa77702276ecdba57c49eead821b041972c37b2c6529cdeb",
+    "ci-logs/vacancy-skip-metadata-format-fix.log": "5eb2bfc81802e951f8916757481d2fc70e30d1bc076d3ed560d7dd0f652e3abe",
+    "docs/screenshots/issue-56-skip-metadata/vacancy-skips-after.png": "689633c53bc54a3a1e02da605c96923690d7991d73e28084f246eda2de3708bf",
+    "docs/screenshots/issue-56-skip-metadata/vacancy-skips-phone.png": "3de2c1709ad73f214f902df09120d77a4e691b92a31b3b0fff997c49077eb275",
+    "before/js/src/jobs/vacancy-skip-service.js": "c0da889aa3d477545166d338923616dffe0815b20caa8507c6f325b48788aa3f"
+  }
+}

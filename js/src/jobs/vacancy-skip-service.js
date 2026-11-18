@@ -61,6 +61,21 @@ const observedEntry = (record, previous, reason, now) =>
     attempts: (previous?.attempts ?? 0) + 1,
     requestId: record.requestId,
   });
+const refreshMetadata = async (store, before, previous, record) => {
+  const entry = vacancySkipEntry({
+    ...previous,
+    title: record.vacancy?.title || previous.title,
+    externalUrl: record.page.externalUrl ?? previous.externalUrl,
+  });
+  return entry.title === previous.title &&
+    entry.externalUrl === previous.externalUrl
+    ? before
+    : save(
+        store,
+        before,
+        before.entries.map((row) => (row.url === record.url ? entry : row))
+      );
+};
 
 /** Run inside the existing application writer; reads never synthesize refusals. */
 export const observeVacancySkip = async (store, record, now = Date.now) => {
@@ -86,7 +101,7 @@ export const observeVacancySkip = async (store, record, now = Date.now) => {
     return;
   }
   if (previous?.requestId === record.requestId && previous.reason === reason) {
-    return before;
+    return refreshMetadata(store, before, previous, record);
   }
   const entry = observedEntry(record, previous, reason, now);
   return save(store, before, [
