@@ -13,6 +13,7 @@ import {
   approvedExactApplicationAnswer,
 } from './application-review.js';
 import { readApplicationJournal } from './application-journal.js';
+import { observeVacancySkip } from './vacancy-skip-service.js';
 import {
   applicationLetterRequested,
   applicationLetterText,
@@ -86,6 +87,11 @@ export class ApplicationActions {
         reserved = false;
         Object.assign(record, prior);
         await service.save(record);
+        await observeVacancySkip(service.store, record, service.now, {
+          ...service.skipContext,
+          clickRefusal:
+            action === 'enter' ? 'apply_click_failed' : 'click_failed',
+        });
         return service.review.inspect(record, signal);
       }
       if (result?.dispatched !== true) {

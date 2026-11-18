@@ -1087,3 +1087,5 @@ Keep stable rolling-host startup independent of recovery streams, browser
 discovery, route error codecs and worker health probes until those consumers are
 used. Preserve public exports, synchronous route CORS, native proxy bytes,
 authenticated health and complete immutable release verification.
+
+Record disabled native Apply/Send controls and clicks explicitly refused before dispatch. Permit one later-run retry, share admission across search, discovery and batches, and explain recovery in four languages. Preserve uncertain-write reservations and owner answers (partial HH05).

@@ -8,6 +8,7 @@ import {
   vacancySkipReasons,
   vacancySkipRevision,
 } from './vacancy-skip-data.js';
+import { vacancySkipBlocks } from './vacancy-skip-policy.js';
 
 const fail = () => {
   throw jobsFailure(
@@ -52,7 +53,8 @@ export const vacancySelectionDecision = (
   choices,
   cached,
   filters,
-  skips = { entries: [] }
+  skips = { entries: [] },
+  context
 ) => {
   const base = {
     url: assignmentVacancyUrl(card.url),
@@ -68,7 +70,7 @@ export const vacancySelectionDecision = (
     return { ...base, reason: 'responded' };
   }
   const skipped = skips.entries.find((row) => row.url === base.url);
-  if (skipped) {
+  if (skipped && vacancySkipBlocks(skipped, context)) {
     return { ...base, reason: 'native-skip', skipReason: skipped.reason };
   }
   const description = cached.find((row) => row.url === base.url);

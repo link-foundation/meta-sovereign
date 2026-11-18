@@ -6,11 +6,16 @@ import {
 import { vacancyChoiceResult, vacancyChoiceSlot } from './vacancy-choice.js';
 import { jobsFailure, jobsObject } from './options.js';
 import { vacancySkipPrefillCommand } from './vacancy-skip-command.js';
+import {
+  transientVacancySkipReasons,
+  transientVacancySkip,
+} from './vacancy-skip-policy.js';
 
 export const vacancySkipReasons = [
   'external_site',
   'resume_not_visible',
   'vacancy_unavailable',
+  ...transientVacancySkipReasons,
 ];
 export const vacancySkipFailure = (kind = 'state') =>
   jobsFailure(
@@ -39,7 +44,10 @@ export const vacancySkipEntry = (raw) => {
     !Number.isSafeInteger(raw.attempts) ||
     raw.attempts < 1 ||
     typeof raw.requestId !== 'string' ||
-    !/^[a-zA-Z\d_-]{1,100}$/u.test(raw.requestId)
+    !/^[a-zA-Z\d_-]{1,100}$/u.test(raw.requestId) ||
+    (transientVacancySkip(raw) &&
+      (typeof raw.runId !== 'string' ||
+        !/^[a-zA-Z\d_-]{1,100}$/u.test(raw.runId)))
   ) {
     throw vacancySkipFailure();
   }
@@ -52,6 +60,7 @@ export const vacancySkipEntry = (raw) => {
     time: raw.time,
     attempts: raw.attempts,
     requestId: raw.requestId,
+    ...(transientVacancySkip(raw) ? { runId: raw.runId } : {}),
     prefillCommand: vacancySkipPrefillCommand(raw),
   };
 };

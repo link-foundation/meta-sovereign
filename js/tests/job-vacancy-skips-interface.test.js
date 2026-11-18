@@ -14,6 +14,109 @@ import { translate } from '../src/web/i18n.js';
 import { spawnSync } from 'node:child_process';
 import { vacancySkipPrefillCommand } from '../src/jobs/vacancy-skip-command.js';
 import { selectionIsCurrent } from '../src/web/vacancy-selection.js';
+import { transientVacancySkipReasons } from '../src/jobs/vacancy-skip-policy.js';
+
+const transientSnapshot = () => {
+  const base = skipSnapshot();
+  return skipSnapshot({
+    entries: transientVacancySkipReasons.map((reason, index) => ({
+      ...base.entries[0],
+      url: `https://hh.ru/vacancy/${123 + index}`,
+      externalUrl: null,
+      reason,
+      runId: 'run-earlier',
+      attempts: (index % 2) + 1,
+    })),
+  });
+};
+
+for (const type of [LINO_TEXT, LINO_BINARY]) {
+  test(
+    `transient retry counts and run identity survive ${type} listing and reason clears`,
+    { timeout: 5000 },
+    async () => {
+      const store = createMemoryStore();
+      const snapshot = transientSnapshot();
+      await store.put({ id: vacancySkipId('jobs'), ...snapshot });
+      try {
+        await withRoutes(
+          async (base) => {
+            const response = await fetch(`${base}/api/vacancies/skips-stored`, {
+              headers: { accept: type },
+            });
+            assert.equal(response.status, 200);
+            const restored = decodeWire(
+              await response.arrayBuffer(),
+              response.headers.get('content-type')
+            );
+            assert.deepEqual(restored, snapshot);
+            const cleared = await wirePost(
+              base,
+              'skip-clear',
+              { revision: snapshot.revision, reason: 'apply_button_disabled' },
+              type
+            );
+            assert.equal(cleared.status, 200);
+            assert.deepEqual(cleared.value.entries, snapshot.entries.slice(1));
+          },
+          { store }
+        );
+      } finally {
+        await store.close?.();
+      }
+    }
+  );
+}
+
+test('CLI preserves transient retry metadata and clears only the selected reason', async () => {
+  const store = createMemoryStore();
+  const snapshot = transientSnapshot();
+  await store.put({ id: vacancySkipId('jobs'), ...snapshot });
+  const commands = createVacancyCommands({ openStore: async () => store });
+  const output = [];
+  const log = (value) => output.push(decodeWire(value));
+  assert.equal(await commands['vacancies-skips-stored']({}, log), 0);
+  assert.deepEqual(output[0], snapshot);
+  assert.equal(
+    await commands['vacancies-skip-clear'](
+      { revision: snapshot.revision, reason: 'click_failed' },
+      log
+    ),
+    0
+  );
+  assert.deepEqual(output[1].entries, snapshot.entries.slice(0, 3));
+});
+
+test('all transient reasons show translated later-run or exhausted recovery instructions', () => {
+  const snapshot = transientSnapshot();
+  const state = {
+    values: { browserSlot: 'jobs' },
+    capabilities: { localChoices: true },
+    skips: { ready: true, snapshot, change() {}, reload() {} },
+  };
+  for (const locale of ['en', 'ru', 'hi', 'zh']) {
+    const html = renderInLocale(
+      locale,
+      React.createElement(VacancySkips, {
+        state,
+        t: (key, values) => translate(locale, key, values),
+      })
+    );
+    for (const entry of snapshot.entries) {
+      assert(html.includes(translate(locale, `vacancySkip.${entry.reason}`)));
+    }
+    assert.equal(
+      (html.match(/data-vacancy-skip-recovery="next-run"/gu) ?? []).length,
+      2
+    );
+    assert.equal(
+      (html.match(/data-vacancy-skip-recovery="retry-exhausted"/gu) ?? [])
+        .length,
+      2
+    );
+    assert.doesNotMatch(html, /vacancySkip\.[a-z]/u);
+  }
+});
 
 test('employer prefill commands preserve one quoted URL and use a separate named browser', () => {
   const entry = skipSnapshot().entries[0];

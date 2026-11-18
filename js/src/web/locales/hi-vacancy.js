@@ -1,3 +1,4 @@
+import { vacancySkipRetryLocale } from './vacancy-skip-retry.js';
 import { deferredQuestionsLocale } from './deferred-questions.js';
 import { hiDiscovery } from './hi-discovery.js';
 import { hiApplication } from './hi-application.js';
@@ -394,8 +395,7 @@ export const hiVacancy = {
     'मैंने सहेजे गए फ़ील्ड और लक्ष्य की समीक्षा की है। केवल सूचीबद्ध स्नैपशॉट कमिट और पुश करें।',
   'cvPublish.publish': 'स्नैपशॉट कमिट और पुश करें',
   'vacancySkip.title': 'दर्ज आवेदन रुकावटें',
-  'vacancySkip.hint':
-    'दर्ज रुकावटें इस ब्राउज़र कार्यक्षेत्र में नए आवेदन रोकती हैं। हटाने से पहले खुली समीक्षा बंद करें। हटाने से आवेदन नहीं भेजा जाता और अनिश्चित डिलीवरी की पुष्टि नहीं होती।',
+  ...vacancySkipRetryLocale('hi'),
   'vacancySkip.reload': 'दर्ज रुकावटें फिर लोड करें',
   'vacancySkip.failed':
     'रिकॉर्ड की पुष्टि नहीं हुई। हटाने से पहले फिर लोड करें।',

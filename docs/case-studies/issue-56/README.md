@@ -803,3 +803,5 @@ Optional persistent collection with full current-run context: [collection eviden
 - [Deferred rolling-host consumers](rolling-consumer-admission.md): preserve exact Windows/Deno startup and WebKit artifact failures; retain 56 focused passes and one isolated start/reuse/upgrade without extending deadlines. Windows and complete hosted confirmation remain required.
 - [Controlled offline CV watch time](cv-watch-fixture-clock.md): preserve two exact-source Windows failures and distinguish a real verification deadline from fixture scheduling; forty focused checks retain expired-clock refusal.
 - [Browser composer ownership](browser-composer-draft.md): retain owner drafts and stop partial native sends across textarea and rich composers; 118 focused checks, six native cases and independent phone inspection support unfinished QA20.
+
+- [Bounded native vacancy retries](vacancy-skip-retries.md): retain one later-run attempt for four definitive native refusals, stable reads, unknown-write reservations and revisioned clearing. HH05 remains unfinished.

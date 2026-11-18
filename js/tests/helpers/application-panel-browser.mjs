@@ -30,16 +30,16 @@ export const applicationPanelBrowser = (fixture) => {
       };
     },
     screenshot(directory, prefix) {
-      return async (name) => {
+      return async (name, target = panel) => {
         if (directory) {
           await mkdir(directory, { recursive: true });
-          await panel.screenshot({
+          await target.screenshot({
             path: join(directory, `${prefix}-${name}.png`),
           });
         }
       };
     },
-    async locales(selector, verify = async () => {}) {
+    async locales(selector, verify = async () => {}, target = panel) {
       for (const locale of ['ru', 'hi', 'zh', 'en']) {
         await page.evaluate(
           (value) =>
@@ -47,9 +47,9 @@ export const applicationPanelBrowser = (fixture) => {
           locale
         );
         await page.reload();
-        await panel.locator(selector).waitFor();
+        await target.locator(selector).waitFor();
         assert.equal(
-          /\bapplication\.[a-z]/iu.test(await panel.innerText()),
+          /\bapplication\.[a-z]/iu.test(await target.innerText()),
           false
         );
         await verify(locale);

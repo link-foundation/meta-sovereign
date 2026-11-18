@@ -1,3 +1,4 @@
+import { vacancySkipRetryLocale } from './vacancy-skip-retry.js';
 import { deferredQuestionsLocale } from './deferred-questions.js';
 import { ruDiscovery } from './ru-discovery.js';
 import { ruApplication } from './ru-application.js';
@@ -408,8 +409,7 @@ export const ruVacancy = {
     'Я проверил сохранённые поля и назначение. Закоммитить и отправить только перечисленные снимки.',
   'cvPublish.publish': 'Закоммитить и отправить снимки',
   'vacancySkip.title': 'Сохранённые причины пропуска',
-  'vacancySkip.hint':
-    'Сохранённые причины блокируют новые отклики в этом браузере. Перед очисткой закройте просмотр отклика. Очистка не отправляет отклик и не подтверждает доставку.',
+  ...vacancySkipRetryLocale('ru'),
   'vacancySkip.reload': 'Обновить причины пропуска',
   'vacancySkip.failed':
     'Сохранение не подтверждено. Обновите список перед очисткой.',

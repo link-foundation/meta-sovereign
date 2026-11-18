@@ -244,7 +244,12 @@ export class ApplicationReview {
       record,
       this.service.now
     );
-    await observeVacancySkip(this.service.store, record);
+    await observeVacancySkip(
+      this.service.store,
+      record,
+      this.service.now,
+      this.service.skipContext
+    );
     await this.service.context.recover(record, signal);
     return applicationView(record);
   }

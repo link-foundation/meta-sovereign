@@ -17,7 +17,8 @@ export const reviewVacancySearch = async (
   store,
   result,
   input,
-  retryWaiting = () => false
+  retryWaiting = () => false,
+  skipContext
 ) => {
   const browserSlot = vacancyChoiceSlot(input);
   const filters = vacancySelectionOptions(input);
@@ -46,7 +47,8 @@ export const reviewVacancySearch = async (
           choices,
           cached,
           filters,
-          skips
+          skips,
+          skipContext?.()
         );
         if (
           ['review', 'needs-description'].includes(decision.reason) &&

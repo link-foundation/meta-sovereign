@@ -1380,3 +1380,11 @@ by this plan change, and all other requested work remains required in PR57.
 - [x] Reproduce one actual-parent import failure with one version control; all 56 focused checks and one isolated real CLI start/reuse/upgrade pass. Initial readiness is 3,978ms; internal imports fall from 47 to 39. Correct the draft local format binding and retain its initial failures. Keep all deadlines, complete snapshots and hosted runtime/browser matrices unchanged.
 - [x] Preserve independently hashed source and log archive entries and pass scoped lint, formatting, secrets, whitespace and the repository's 1,500-line source/document limits.
 - [ ] Commit/push only to the prepared branch and obtain exact-source hosted confirmation. All thirty unfinished original criteria remain required.
+
+2026-11-18 bounded native vacancy retries (HH05 remains unfinished):
+
+- [x] Read the pinned HH skip registry and distinguish permanent refusals, definitive transient refusals and uncertain provider writes.
+- [x] Finish the shared run policy for disabled native controls and clicks explicitly refused before dispatch. Keep one later-run retry, durable attempt counts, revisioned clearing and every uncertain-write reservation.
+- [x] Draft focused policy, service, restart, batch, discovery, transport and translated UI regressions; preserve eleven actual-parent failures with three controls, pass 73 focused checks and verify native plus independent MCP evidence. Correct fixture bundle, selection and locale checks; drain all owned resources.
+- [x] Preserve source-bound native/MCP evidence and actual-parent failures; pass 73 focused checks, scoped format/secrets/line limits and unchanged duplication after sharing browser helpers. The constructor complexity warning is identical on the parent.
+- [ ] Publish only to the prepared branch and review exact-source hosted checks; investigate the new WebKit application-answer group deadline. Complete all thirty unfinished criteria before marking PR57 ready.

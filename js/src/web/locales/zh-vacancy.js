@@ -1,3 +1,4 @@
+import { vacancySkipRetryLocale } from './vacancy-skip-retry.js';
 import { deferredQuestionsLocale } from './deferred-questions.js';
 import { zhDiscovery } from './zh-discovery.js';
 import { zhApplication } from './zh-application.js';
@@ -360,8 +361,7 @@ export const zhVacancy = {
   'cvPublish.consent': '我已检查保存的字段和目标。仅提交并推送列出的快照。',
   'cvPublish.publish': '提交并推送快照',
   'vacancySkip.title': '已记录的申请阻止原因',
-  'vacancySkip.hint':
-    '记录的原因会阻止此浏览器工作区中的新申请。清除前请关闭已打开的审核。清除不会发送申请，也不会确认未知的送达状态。',
+  ...vacancySkipRetryLocale('zh'),
   'vacancySkip.reload': '重新加载阻止原因',
   'vacancySkip.failed': '记录未获确认。清除前请重新加载。',
   'vacancySkip.empty': '没有已记录的阻止原因。',

@@ -9,6 +9,11 @@ import {
   vacancySkipClearInput,
   vacancySkipFailure,
 } from './vacancy-skip-data.js';
+import {
+  vacancySkipBlocks,
+  transientVacancySkip,
+  disabledVacancyControl,
+} from './vacancy-skip-policy.js';
 
 export const storedVacancySkips = async (store, input = {}) => {
   const browserSlot = vacancyChoiceSlot(input);
@@ -33,10 +38,10 @@ const save = async (store, before, entries) => {
   });
   return next;
 };
-export const assertVacancyNotSkipped = async (store, options) => {
+export const assertVacancyNotSkipped = async (store, options, context) => {
   if (
     (await storedVacancySkips(store, options)).entries.some(
-      (row) => row.url === options.url
+      (row) => row.url === options.url && vacancySkipBlocks(row, context)
     )
   ) {
     throw jobsFailure(
@@ -45,23 +50,31 @@ export const assertVacancyNotSkipped = async (store, options) => {
     );
   }
 };
-const nativeSkipReason = (page) =>
-  page.external
+const nativeSkipReason = (record) => {
+  const page = record.page;
+  return page.external
     ? 'external_site'
     : page.resumeNotVisible
       ? 'resume_not_visible'
       : page.vacancyUnavailable
         ? 'vacancy_unavailable'
-        : null;
-const observedEntry = (record, previous, reason, now) =>
+        : disabledVacancyControl(record);
+};
+const observedEntry = (record, previous, reason, now, context) =>
   vacancySkipEntry({
     url: record.url,
     reason,
     title: record.vacancy?.title || previous?.title || '',
     externalUrl: record.page.externalUrl ?? previous?.externalUrl ?? null,
     time: new Date(now()).toISOString(),
-    attempts: (previous?.attempts ?? 0) + 1,
+    attempts:
+      transientVacancySkip({ reason }) &&
+      previous?.runId === context.runId &&
+      transientVacancySkip(previous)
+        ? previous.attempts
+        : (previous?.attempts ?? 0) + 1,
     requestId: record.requestId,
+    ...(transientVacancySkip({ reason }) ? { runId: context.runId } : {}),
   });
 const refreshMetadata = async (store, before, previous, record) => {
   const entry = vacancySkipEntry({
@@ -85,14 +98,37 @@ const canObserveSkip = (record) =>
   !record.page.challenge &&
   !record.page.dailyLimit;
 
+const observedReason = (record, context) => {
+  if (!context.clickRefusal) {
+    return nativeSkipReason(record);
+  }
+  if (
+    !['apply_click_failed', 'click_failed'].includes(context.clickRefusal) ||
+    record.delivery !== 'none' ||
+    record.attempted?.submit
+  ) {
+    throw vacancySkipFailure('state');
+  }
+  return context.clickRefusal;
+};
+const sameObservation = (previous, record, reason, context) =>
+  previous?.requestId === record.requestId &&
+  previous.reason === reason &&
+  (!transientVacancySkip(previous) || previous.runId === context.runId);
+
 /** Run inside the existing application writer; reads never synthesize refusals. */
-export const observeVacancySkip = async (store, record, now = Date.now) => {
+export const observeVacancySkip = async (
+  store,
+  record,
+  now = Date.now,
+  context = {}
+) => {
   const page = record.page;
   if (!canObserveSkip(record)) {
     return;
   }
   const delivered = record.delivery === 'provider-confirmed' && page.delivered;
-  const reason = nativeSkipReason(page);
+  const reason = observedReason(record, context);
   if (!delivered && !reason) {
     return;
   }
@@ -108,14 +144,20 @@ export const observeVacancySkip = async (store, record, now = Date.now) => {
     }
     return;
   }
-  if (previous?.requestId === record.requestId && previous.reason === reason) {
+  if (sameObservation(previous, record, reason, context)) {
     return refreshMetadata(store, before, previous, record);
   }
-  const entry = observedEntry(record, previous, reason, now);
-  return save(store, before, [
+  const entry = observedEntry(record, previous, reason, now, context);
+  const saved = await save(store, before, [
     entry,
     ...before.entries.filter((row) => row.url !== record.url),
   ]);
+  context.trace?.({
+    event: 'application-vacancy-skip-observed',
+    reason,
+    attempts: entry.attempts,
+  });
+  return saved;
 };
 
 export const createVacancySkipService = ({ store, run }) => ({

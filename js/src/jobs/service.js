@@ -144,6 +144,7 @@ const createWorkspaceVacancyService = ({
     readSearch,
     readVacancy,
     retryWaiting: applications.retryWaiting,
+    skipContext: applications.skipContext,
     ...discovery,
   });
   return {
@@ -172,21 +173,7 @@ const createWorkspaceVacancyService = ({
     'resume-exports-stored': () => storedResumeExports(store),
     'resume-export-file': (input) =>
       readResumeExportFile({ store, artifactRoot }, input),
-    search(input) {
-      const url = hhSearchUrl(input);
-      const options = jobsBrowserOptions(input);
-      vacancySelectionOptions(input);
-      return run(async (signal) => {
-        const result = await readSearch(url, { ...options, signal });
-        signal.throwIfAborted();
-        return reviewVacancySearch(
-          store,
-          result,
-          input,
-          applications.retryWaiting
-        );
-      });
-    },
+    search: createVacancySearch({ store, run, readSearch, applications }),
     collect(input) {
       const { url, refresh, ...options } = collectionOptions(input);
       return acknowledgedWrite(store, run, (signal) =>
@@ -208,6 +195,25 @@ const createWorkspaceVacancyService = ({
     },
   };
 };
+
+const createVacancySearch =
+  ({ store, run, readSearch, applications }) =>
+  (input) => {
+    const url = hhSearchUrl(input);
+    const options = jobsBrowserOptions(input);
+    vacancySelectionOptions(input);
+    return run(async (signal) => {
+      const result = await readSearch(url, { ...options, signal });
+      signal.throwIfAborted();
+      return reviewVacancySearch(
+        store,
+        result,
+        input,
+        applications.retryWaiting,
+        applications.skipContext
+      );
+    });
+  };
 
 const discoveryRun = (run, applications) => (work) =>
   applications.batchOwned()

@@ -15,6 +15,7 @@ import {
 } from './application-batch-data.js';
 import { storedVacancyChoices } from './vacancy-choice-service.js';
 import { storedVacancySkips } from './vacancy-skip-service.js';
+import { vacancySkipBlocks } from './vacancy-skip-policy.js';
 import { pendingDeferredVacancies } from './deferred-questions.js';
 import { vacancyChoiceSlot } from './vacancy-choice.js';
 import { applicationPreservationPolicy } from './application-run-modes.js';
@@ -31,6 +32,12 @@ const observedOutcome = (page) =>
     page.error ||
     page.resumeNotVisible ||
     page.vacancyUnavailable);
+const excludedVacancy = (url, pending, choices, skips, context) =>
+  pending.has(url) ||
+  choices.entries.some((row) => row.url === url) ||
+  skips.entries.some(
+    (row) => row.url === url && vacancySkipBlocks(row, context)
+  );
 const owners = new WeakMap();
 const latest = (slot) => `secret:jobs-application-batch-latest:${slot}`;
 
@@ -144,6 +151,10 @@ export class ApplicationBatch {
       if (options.review.testMode) {
         return;
       }
+      this.service.skipContext = Object.freeze({
+        ...this.service.skipContext,
+        runId: globalThis.crypto.randomUUID(),
+      });
       this.service.modes.signal(
         null,
         options.browserSlot,
@@ -409,8 +420,7 @@ export class ApplicationBatch {
     );
     signal.throwIfAborted();
     if (
-      pending.has(url) ||
-      [...choices.entries, ...skips.entries].some((row) => row.url === url)
+      excludedVacancy(url, pending, choices, skips, this.service.skipContext)
     ) {
       await this.salary.remove(runtime, url);
       return this.exclude(runtime, url, due, Boolean(salaryUrl));

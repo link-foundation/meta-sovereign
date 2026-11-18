@@ -121,6 +121,10 @@ class ApplicationService {
       ...previewDependencies({ previewVacancy, previewWait }),
     });
     this.review = new ApplicationReview(this);
+    this.skipContext = Object.freeze({
+      runId: globalThis.crypto.randomUUID(),
+      trace: this.trace,
+    });
     this.salary = new ApplicationSalary(this, now);
     this.context = new ApplicationContextRecovery(this);
     this.actions = new ApplicationActions(this);
@@ -383,7 +387,7 @@ class ApplicationService {
     if (owners.has(this.store)) {
       throw fail('busy');
     }
-    await assertVacancyNotSkipped(this.store, options);
+    await assertVacancyNotSkipped(this.store, options, this.skipContext);
     await this.questionDeferrals.assertVacancyAllowed(options);
     const restored = await this.restore(options, input);
     options = restored.options;
@@ -501,6 +505,7 @@ export const createApplicationService = (options) => {
   return {
     batchOwned: () => Boolean(service.batch.runtime),
     retryWaiting: (input) => service.retries.waiting(input),
+    skipContext: () => service.skipContext,
     operations: {
       // Foreground CLI signals only: the HTTP route allowlist does not expose
       // this interruption channel. It changes RAM policy without waiting behind

@@ -1,3 +1,4 @@
+import { vacancySkipRetryLocale } from './vacancy-skip-retry.js';
 import { deferredQuestionsLocale } from './deferred-questions.js';
 import { enDiscovery } from './en-discovery.js';
 import { enApplication } from './en-application.js';
@@ -397,8 +398,7 @@ export const enVacancy = {
     'I reviewed these saved fields and this target. Commit and push only the listed snapshots.',
   'cvPublish.publish': 'Commit and push snapshots',
   'vacancySkip.title': 'Recorded application refusals',
-  'vacancySkip.hint':
-    'Recorded refusals prevent new applications in this browser workspace. Close the open review before clearing. Clearing does not send or resolve uncertain delivery.',
+  ...vacancySkipRetryLocale('en'),
   'vacancySkip.reload': 'Reload recorded refusals',
   'vacancySkip.failed': 'The record was not confirmed. Reload before clearing.',
   'vacancySkip.empty': 'No recorded refusals.',

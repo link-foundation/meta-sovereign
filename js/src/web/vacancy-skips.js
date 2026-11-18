@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDates } from './i18n.js';
 import { vacancySkipReasons } from '../jobs/vacancy-skip-data.js';
+import { vacancySkipRecovery } from '../jobs/vacancy-skip-policy.js';
 
 const el = React.createElement;
 export const VacancySkips = ({ state, t }) => {
@@ -76,6 +77,15 @@ export const VacancySkips = ({ state, t }) => {
               'p',
               { key: 'reason', className: 'meta' },
               t(`vacancySkip.${row.reason}`)
+            ),
+            el(
+              'p',
+              {
+                key: 'recovery',
+                className: 'meta',
+                'data-vacancy-skip-recovery': vacancySkipRecovery(row),
+              },
+              t(`vacancySkip.${vacancySkipRecovery(row)}`)
             ),
             el(
               'p',

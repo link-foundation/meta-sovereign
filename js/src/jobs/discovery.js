@@ -67,6 +67,7 @@ class VacancyDiscovery {
     readSearch,
     readVacancy,
     retryWaiting = () => false,
+    skipContext,
     now = Date.now,
     trace = defaultTrace,
   }) {
@@ -76,6 +77,7 @@ class VacancyDiscovery {
       readSearch,
       readVacancy,
       retryWaiting,
+      skipContext,
       now,
       trace,
     });
@@ -134,7 +136,8 @@ class VacancyDiscovery {
       choices,
       [],
       options.filters,
-      skips
+      skips,
+      this.skipContext?.()
     );
     let capturedAt = null;
     let questions;
@@ -193,7 +196,8 @@ class VacancyDiscovery {
         choices,
         [snapshot],
         options.filters,
-        skips
+        skips,
+        this.skipContext?.()
       );
       await deferQuestion();
     }
