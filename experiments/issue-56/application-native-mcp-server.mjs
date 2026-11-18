@@ -25,7 +25,7 @@ export const serveNativeMcpFixture = async (
           opens: fixture.records.length,
           closed: fixture.records.every((row) => row.closed),
           clicks: fixture.records.reduce((n, row) => n + (row.clicks ?? 0), 0),
-          ...(await details()),
+          ...(await details(_req)),
           errors: fixture.errors,
           liveProvider: false,
         })

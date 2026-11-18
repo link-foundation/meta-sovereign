@@ -79,10 +79,16 @@ const refreshMetadata = async (store, before, previous, record) => {
       );
 };
 
+const canObserveSkip = (record) =>
+  record.options?.testMode !== true &&
+  record.page?.bound &&
+  !record.page.challenge &&
+  !record.page.dailyLimit;
+
 /** Run inside the existing application writer; reads never synthesize refusals. */
 export const observeVacancySkip = async (store, record, now = Date.now) => {
   const page = record.page;
-  if (!page?.bound || page.challenge || page.dailyLimit) {
+  if (!canObserveSkip(record)) {
     return;
   }
   const delivered = record.delivery === 'provider-confirmed' && page.delivered;

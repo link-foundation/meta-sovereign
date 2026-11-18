@@ -13,11 +13,15 @@ import { applicationInput } from '../../../experiments/issue-56/application-fixt
 import { wirePost } from './vacancy-routes.mjs';
 import { LINO_TEXT } from '../../src/transport/lino.js';
 import { vacancySkipId } from '../../src/jobs/vacancy-skip-data.js';
+import { verifyNativeVacancySkipPreview } from './e2e-vacancy-skip-preview.mjs';
 
 export const verifyNativeVacancySkips = async (
   browser,
   { before = false, screenshots } = {}
 ) => {
+  if (!before) {
+    await verifyNativeVacancySkipPreview(browser);
+  }
   const fixture = await applicationNativeFixture(browser);
   const controls = applicationPanelBrowser(fixture);
   const { page, panel, action } = controls;
