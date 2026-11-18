@@ -1,7 +1,12 @@
+import {
+  withdrawConsent,
+  assertConsentRefusal,
+  refuseConsentReads,
+} from '../../experiments/issue-56/consent-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withBrowserSendConsent } from '../../experiments/issue-56/consent-browser-send-fixture.mjs';
-import { saveSettings, SETTINGS_ID } from '../src/automation/safety.js';
+import { saveSettings } from '../src/automation/safety.js';
 
 for (const source of ['vk', 'telegram', 'whatsapp']) {
   const stages =
@@ -16,17 +21,9 @@ for (const source of ['vk', 'telegram', 'whatsapp']) {
         async () =>
           withBrowserSendConsent(source, stage, async (fixture) => {
             const { store, draft, release, pending, effects, typed } = fixture;
-            await saveSettings(store, {
-              optOut: [
-                { source, [scope]: scope === 'chat' ? draft.chat : draft.to },
-              ],
-            });
+            await withdrawConsent(store, draft, scope);
             release.resolve();
-            const { error, result } = await pending;
-            assert.equal(result, undefined);
-            assert.equal(error?.code, 'opted-out');
-            assert.equal(error.fallback, false);
-            assert.equal(error.ambiguous, undefined);
+            assertConsentRefusal(await pending);
             assert.deepEqual(effects, []);
             if (stage === 'open' || stage === 'focus') {
               assert.deepEqual(typed, []);
@@ -41,7 +38,7 @@ for (const source of ['vk', 'telegram', 'whatsapp']) {
     async () =>
       withBrowserSendConsent(source, 'issued', async (fixture) => {
         const { store, draft, release, pending, effects } = fixture;
-        await saveSettings(store, { optOut: [{ source, chat: draft.chat }] });
+        await withdrawConsent(store, draft);
         release.resolve();
         const { error, result } = await pending;
         assert.equal(error, undefined);
@@ -120,18 +117,11 @@ test(
   async () =>
     withBrowserSendConsent('vk', 'button', async (fixture) => {
       const { store, release, pending, effects } = fixture;
-      const get = store.get.bind(store);
-      store.get = (id) => {
-        if (id === SETTINGS_ID) {
-          throw new Error('unavailable password=fixture-private-value');
-        }
-        return get(id);
-      };
+      refuseConsentReads(store, 'unavailable password=fixture-private-value');
       release.resolve();
-      const { error } = await pending;
-      assert.equal(error?.code, 'safety-settings-unavailable');
-      assert.equal(error.fallback, false);
-      assert.equal(error.ambiguous, undefined);
+      const outcome = await pending;
+      assertConsentRefusal(outcome, 'safety-settings-unavailable');
+      const { error } = outcome;
       assert.ok(!error.message.includes('fixture-private-value'));
       assert.deepEqual(effects, []);
     })

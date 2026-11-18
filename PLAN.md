@@ -1,3 +1,10 @@
+2026-11-18 unchanged duplication gate:
+
+- [x] Preserve exact fa1e21c7 lint job and timestamps: 55,721 duplicated / 856,624 scanned lines is 6.504720857692524%, above the unchanged 6.5% limit despite rounded display.
+- [x] Share consent fixture barriers, outcomes, scoped opt-outs and refusal assertions; keep every scenario, receipt and cleanup assertion. All 151 focused checks pass; actual-parent runs still fail 44 and 28 assertions respectively.
+- [x] Verify scoped static checks and preserve independently hashed evidence.
+- [ ] Commit/push this atomic correction and inspect exact-source hosted gates. Windows/Deno startup and all thirty original unfinished criteria remain required.
+
 2026-11-18 native browser answer consent:
 
 - [x] Trace choices, text, watched and inactive replies after browser/session/document/arm waits; preserve 44 exact-parent assertion failures and ten independent controls.

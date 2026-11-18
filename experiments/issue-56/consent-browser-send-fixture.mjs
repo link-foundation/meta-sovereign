@@ -1,3 +1,4 @@
+import { consentBarrier, consentOutcome } from './consent-fixture.mjs';
 import assert from 'node:assert/strict';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
 import {
@@ -8,20 +9,13 @@ import {
 /** Finite browser waits; no browser, profile or provider is accessed. */
 export const withBrowserSendConsent = async (source, stage, check) => {
   const store = createMemoryStore();
-  const entered = Promise.withResolvers();
-  const release = Promise.withResolvers();
+  const { entered, release, wait } = consentBarrier(stage);
   const effects = [];
   const typed = [];
   const ui = WEB_UIS[source];
   const first = (value) => value?.split(',')[0].trim();
   const composer = first(ui.composer);
   const button = first(ui.send.selector);
-  const wait = async (at) => {
-    if (at === stage) {
-      entered.resolve();
-      await release.promise;
-    }
-  };
   const commander = {
     goto: async () => wait('open'),
     count: async ({ selector }) => {
@@ -70,10 +64,7 @@ export const withBrowserSendConsent = async (source, stage, check) => {
     to: source === 'whatsapp' ? '+12025550123' : 'person-201',
     text: 'Review',
   };
-  const pending = sender.send(draft).then(
-    (result) => ({ result }),
-    (error) => ({ error })
-  );
+  const pending = consentOutcome(sender.send(draft));
   try {
     await Promise.race([
       entered.promise,

@@ -1,3 +1,4 @@
+import { consentBarrier, consentOutcome } from './consent-fixture.mjs';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { createMemoryStore } from '../../js/src/storage/universal.js';
@@ -66,15 +67,8 @@ const answerPage = (wait, state, choice) => {
 /** Real sender/watch factories with finite fake native effects and no provider. */
 export const withBrowserAnswerConsent = async (mode, stage, check) => {
   const store = createMemoryStore();
-  const entered = Promise.withResolvers();
-  const release = Promise.withResolvers();
+  const { entered, release, wait } = consentBarrier(stage);
   const state = { clicks: 0, operations: [], closed: 0 };
-  const wait = async (at) => {
-    if (at === stage) {
-      entered.resolve();
-      await release.promise;
-    }
-  };
   const { page, commander } = answerPage(wait, state, mode.includes('choice'));
   const sender = createBrowserSender({
     store,
@@ -92,26 +86,25 @@ export const withBrowserAnswerConsent = async (mode, stage, check) => {
   const target = { source: 'hh', chat: '7', to: 'person-7' };
   const draft = { ...providerChoiceDraft(), ...target };
   let watch;
-  const pending = (async () => {
-    if (mode.startsWith('watch-')) {
-      watch = await sender.openAnswerWatch(target);
-      if (mode === 'watch-choice') {
-        return watch.select(draft);
+  const pending = consentOutcome(
+    (async () => {
+      if (mode.startsWith('watch-')) {
+        watch = await sender.openAnswerWatch(target);
+        if (mode === 'watch-choice') {
+          return watch.select(draft);
+        }
+        const method =
+          mode === 'watch-inactive' ? 'replyTextInactive' : 'replyText';
+        return watch[method](textReplyExpected(), textReplyBody);
       }
-      const method =
-        mode === 'watch-inactive' ? 'replyTextInactive' : 'replyText';
-      return watch[method](textReplyExpected(), textReplyBody);
-    }
-    return mode === 'choice'
-      ? sender.send(draft)
-      : sender.replyText({
-          ...target,
-          expected: textReplyExpected(),
-          text: textReplyBody,
-        });
-  })().then(
-    (result) => ({ result }),
-    (error) => ({ error })
+      return mode === 'choice'
+        ? sender.send(draft)
+        : sender.replyText({
+            ...target,
+            expected: textReplyExpected(),
+            text: textReplyBody,
+          });
+    })()
   );
   try {
     await Promise.race([

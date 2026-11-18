@@ -1,3 +1,8 @@
+import {
+  withdrawConsent,
+  assertConsentRefusal,
+  refuseConsentReads,
+} from '../../experiments/issue-56/consent-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { saveSettings, SETTINGS_ID } from '../src/automation/safety.js';
@@ -19,20 +24,9 @@ for (const mode of [
         async () =>
           withBrowserAnswerConsent(mode, stage, async (fixture) => {
             const { store, target, pending, release, state } = fixture;
-            await saveSettings(store, {
-              optOut: [
-                {
-                  source: target.source,
-                  [scope]: scope === 'chat' ? target.chat : target.to,
-                },
-              ],
-            });
+            await withdrawConsent(store, target, scope);
             release.resolve();
-            const { error, result } = await pending;
-            assert.equal(result, undefined);
-            assert.equal(error?.code, 'opted-out');
-            assert.equal(error.fallback, false);
-            assert.equal(error.ambiguous, undefined);
+            assertConsentRefusal(await pending);
             assert.equal(state.clicks, 0);
             if (stage === 'arm') {
               assert.equal(state.operations.at(-1), 'release');
@@ -49,9 +43,7 @@ for (const mode of [
         mode,
         'receipt',
         async ({ store, target, pending, release, state }) => {
-          await saveSettings(store, {
-            optOut: [{ source: target.source, chat: target.chat }],
-          });
+          await withdrawConsent(store, target);
           release.resolve();
           const { error, result } = await pending;
           assert.equal(error, undefined);
@@ -68,18 +60,11 @@ for (const mode of [
         mode,
         'arm',
         async ({ store, pending, release, state }) => {
-          const get = store.get.bind(store);
-          store.get = (id) => {
-            if (id === SETTINGS_ID) {
-              throw new Error('unreadable password=private-fixture');
-            }
-            return get(id);
-          };
+          refuseConsentReads(store, 'unreadable password=private-fixture');
           release.resolve();
-          const { error } = await pending;
-          assert.equal(error?.code, 'safety-settings-unavailable');
-          assert.equal(error.fallback, false);
-          assert.equal(error.ambiguous, undefined);
+          const outcome = await pending;
+          assertConsentRefusal(outcome, 'safety-settings-unavailable');
+          const { error } = outcome;
           assert.ok(!error.message.includes('private-fixture'));
           assert.equal(state.clicks, 0);
         }
