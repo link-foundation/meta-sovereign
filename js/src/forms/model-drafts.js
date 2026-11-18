@@ -107,7 +107,8 @@ export const formModelDrafts = async ({
   const prepared = await prepareAnswerModelContext(
     store,
     context,
-    requests.map((request) => request.question)
+    requests.map((request) => request.question),
+    { fallbackCv: context.privateCv }
   );
   prepared.fingerprint = await modelFingerprint({
     context: prepared.fingerprint,

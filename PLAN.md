@@ -1,3 +1,13 @@
+2026-11-18 private résumé model context and detached-learning gate:
+
+- [x] Trace B7: conventional résumé contacts were parsed, but optional model context omitted the full résumé. Preserve opt-in, explicit CV precedence and existing knowledge limits.
+- [x] Reproduce seven actual-parent failures with one positive control; verify 30 focused Node/Deno checks and native changed-source refusal, frozen readback and owner/unknown preservation with zero submissions.
+- [x] Inspect before/after/phone screenshots; preserve source-bound evidence and require exact-source hosted verification before QA22 acceptance.
+- [ ] Publish the atomic model correction after scoped static checks and independent archive verification.
+- [x] Preserve successful Chromium hosted reader logs and trace missing detached proof to an import after the fixture's process exit.
+- [ ] Register a separate mandatory full-minute watcher check with its own unchanged deadline; reproduce the missing registration, verify focused contracts and require actual hosted learning receipts before QA23 acceptance.
+- [ ] Continue all 35 unfinished requirements; PR57 remains draft and unmerged.
+
 2026-11-18 conventional private Forms PDF (QA22 remains unfinished):
 
 - [x] Trace pinned B8 and the existing saved-PDF, reviewed upload and automatic-prefill paths.

@@ -74,11 +74,15 @@ export const readPrivateFormProfile = async (store) => {
   }
   const profile = {};
   const files = [];
+  let resume;
   // Reference precedence: resume < canonical contacts < profile overrides.
   for (const [name, format] of sources) {
     const source = await readSource(directory, name);
     if (!source) {
       continue;
+    }
+    if (format === 'resume-markdown' && source.text.trim()) {
+      resume = { id: name, values: { markdown: source.text } };
     }
     try {
       const extracted = source.text.trim()
@@ -119,13 +123,16 @@ export const readPrivateFormProfile = async (store) => {
       throw sourceFailure(name);
     }
   }
-  return { profile, files };
+  return { profile, files, ...(resume ? { resume } : {}) };
 };
 
 /** The same defaults serve CLI, HTTP, reviewed fills and detached learning. */
 export const prepareFormAnswerPreview = async (store, input, options) => {
   const prepared = await prepareAnswerPreview(store, input, options);
   const defaults = await readPrivateFormProfile(store);
+  if (defaults.resume) {
+    prepared.context.privateCv = defaults.resume;
+  }
   if (defaults.files.length) {
     prepared.context.profile = normalizeAnswerProfile({
       ...defaults.profile,

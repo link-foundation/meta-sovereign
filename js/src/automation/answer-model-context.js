@@ -44,8 +44,13 @@ const references = (context, questions) => {
     .slice(0, 5);
 };
 
-/** Exact explicit context only: never read files or browse from model text. */
-export const prepareAnswerModelContext = async (store, context, questions) => {
+/** Caller-owned context only: never read files or browse from model text. */
+export const prepareAnswerModelContext = async (
+  store,
+  context,
+  questions,
+  { fallbackCv = null } = {}
+) => {
   const settings = await readAnswerModel(store);
   let cv = null;
   if (settings.enabled && settings.cvId) {
@@ -63,6 +68,8 @@ export const prepareAnswerModelContext = async (store, context, questions) => {
       );
     }
     cv = { id: settings.cvId, values: cvFromLink(saved) };
+  } else if (settings.enabled) {
+    cv = fallbackCv;
   }
   const knowledge = {
     profile: context.profile,

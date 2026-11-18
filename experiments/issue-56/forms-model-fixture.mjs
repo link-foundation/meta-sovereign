@@ -30,15 +30,21 @@ export const seedModelAnswers = async (store) => {
 export const modelRunnerFixture = (calls) => async (input) => {
   const prompt = JSON.parse(input.prompt);
   calls.push(prompt);
+  const known = Boolean(prompt.context.cv);
   return {
     drafts: prompt.questions.map(({ id, question }) => ({
       id,
-      text: question === modelQuestion ? modelMarkdownText : '',
+      text: question === modelQuestion && known ? modelMarkdownText : '',
       missing:
-        question === modelQuestion
+        question === modelQuestion && known
           ? []
-          : ['What starting date can you commit to?'],
-      evidence: question === modelQuestion ? ['cv:model-fixture'] : [],
+          : [
+              question === modelQuestion
+                ? 'What background can you confirm?'
+                : 'What starting date can you commit to?',
+            ],
+      evidence:
+        question === modelQuestion && known ? [prompt.context.cv.id] : [],
     })),
   };
 };

@@ -33,6 +33,7 @@ import { verifyFormCustomUi } from './helpers/e2e-form-custom.mjs';
 import { verifyFormConfiguredResumeUi } from './helpers/e2e-form-configured-resume.mjs';
 import { verifyFormPrivateProfileUi } from './helpers/e2e-form-private-profile.mjs';
 import { verifyFormPrivateResumeUi } from './helpers/e2e-form-private-resume.mjs';
+import { verifyFormPrivateModelUi } from './helpers/e2e-form-private-model.mjs';
 import { verifyFormUploadUi } from './helpers/e2e-form-upload.mjs';
 import { verifyFormChoicesUi } from './helpers/e2e-form-choices.mjs';
 import { verifyFormJournalUi } from './helpers/e2e-form-journal.mjs';
@@ -393,6 +394,7 @@ const verifyCustomOnly = async ({ page, until }) => {
   const contactScenario = [
     ['PRIVATE_PROFILE', verifyFormPrivateProfileUi],
     ['PRIVATE_RESUME', verifyFormPrivateResumeUi],
+    ['PRIVATE_MODEL', verifyFormPrivateModelUi],
     ['QUESTIONNAIRE_LEARNING', verifyFormQuestionnaireLearningUi],
     ['QUESTIONNAIRE', verifyFormQuestionnaireUi],
     ['PUBLICATION', verifyAssignmentPublicationUi],
@@ -413,6 +415,7 @@ const verifyCustomOnly = async ({ page, until }) => {
       owned,
       fixture,
       store,
+      modelCalls,
       publication,
       sourceReads,
     });
@@ -601,6 +604,7 @@ await app.finish(async () => {
       verifyFormConfiguredResumeUi,
       verifyFormPrivateProfileUi,
       verifyFormPrivateResumeUi,
+      verifyFormPrivateModelUi,
       ...(process.env.FORMS_GROUP === 'forms-reader'
         ? []
         : Object.values(formGroups).flat()),
@@ -645,7 +649,8 @@ if (
   process.env.FORMS_PUBLICATION_ONLY !== '1' &&
   process.env.FORMS_CONFIGURED_RESUME_ONLY !== '1' &&
   process.env.FORMS_PRIVATE_PROFILE_ONLY !== '1' &&
-  process.env.FORMS_PRIVATE_RESUME_ONLY !== '1'
+  process.env.FORMS_PRIVATE_RESUME_ONLY !== '1' &&
+  process.env.FORMS_PRIVATE_MODEL_ONLY !== '1'
 ) {
   await import('./e2e-forms-watcher-browser.mjs');
 }

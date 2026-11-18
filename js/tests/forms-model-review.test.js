@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { modelReviewFixture } from '../../experiments/issue-56/forms-model-review-fixture.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { createReviewedPrefill } from '../src/forms/review-prefill.js';
 import { createFormReader } from '../src/forms/reader.js';
 import { planFormAnswers } from '../src/forms/answer-plan.js';
 import {
@@ -15,56 +15,11 @@ import {
   modelText,
 } from '../../experiments/issue-56/forms-model-fixture.mjs';
 
-const setup = async () => {
-  const store = createMemoryStore();
-  await seedModelAnswers(store);
-  const calls = [];
-  const report = inspection([field(modelQuestion, { tag: 'input', index: 0 })]);
-  let writes = 0;
-  const prefill = createReviewedPrefill({
-    store,
-    modelRunner: modelRunnerFixture(calls),
-    inspect: async (_browser, options) => {
-      options?.onSnapshot?.({});
-      return globalThis.structuredClone(report);
-    },
-    capture: async () => ({
-      get: (id) => id,
-      check: async () => {},
-      dispose: async () => {},
-    }),
-    write: async (_browser, _target, chosen) => {
-      writes++;
-      report.fields[0].value = chosen.answer.proposal.value;
-    },
-  });
-  const record = { id: 'review-fixture', browser: {} };
-  const plan = () =>
-    prefill.plan(record, { modelDraft: true, approximate: false }, () => {});
-  const apply = (proposed) =>
-    prefill.apply(
-      record,
-      { planId: proposed.reviewPlan.id, fields: [report.fields[0].id] },
-      () => {}
-    );
-  return {
-    store,
-    calls,
-    report,
-    record,
-    plan,
-    apply,
-    get writes() {
-      return writes;
-    },
-  };
-};
-
 test(
   'reviewed model fields apply with readback once and never make a second model request',
   { timeout: 5000 },
   async () => {
-    const env = await setup();
+    const env = await modelReviewFixture();
     const plan = await env.plan();
     const result = await env.apply(plan);
     assert.equal(result.state, 'applied');
@@ -82,7 +37,7 @@ test(
   { timeout: 5000 },
   async () => {
     for (const changed of ['cv', 'dom']) {
-      const env = await setup();
+      const env = await modelReviewFixture();
       const plan = await env.plan();
       if (changed === 'cv') {
         await env.store.put({

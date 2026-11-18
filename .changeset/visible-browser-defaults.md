@@ -945,3 +945,8 @@ approving answers or submitting forms (issue #56 QA22).
 Discover the conventional private Forms PDF as a bounded read-only fallback.
 Preserve explicit selections and owner attachments, refuse stale source bytes,
 and verify actual upload receipts without submitting forms (issue #56 QA22).
+
+Optional Forms model drafts now use the selected store's conventional private
+Markdown résumé when no stored CV is selected. Explicit CVs retain precedence;
+existing opt-in, knowledge limits, unknown-fact review and source-change guards
+apply through CLI, Lino and the shared Forms controls.
