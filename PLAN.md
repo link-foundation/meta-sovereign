@@ -1,3 +1,10 @@
+2026-11-18 native batch confirmation investigation:
+
+- [x] Preserve the exact e2acf88a Chromium timeout, omitted recovery-state diagnostics and missing batch screenshot; keep the cause explicitly unproven.
+- [x] Verify the unchanged isolated native scenario: two deliveries, manual completion, four locales, no reload replay and drained resources. Preserve original deadlines/assertions.
+- [x] Default failure screenshots to the existing hosted artifact directory and print the complete application panel. Preserve source-bound evidence and publish only to the prepared branch.
+- [ ] Review fresh exact-source hosted results and investigate any recurrence from the actual application error state. All 32 unfinished criteria remain required; PR57 stays draft and unmerged.
+
 2026-11-18 rendered HH résumé visibility warning (HH05 remains unfinished):
 
 - [x] Read pinned skip, deferred-question and résumé-visibility contracts: a rendered warning blocks an application; the collapsed warning present in every popup must not block it.

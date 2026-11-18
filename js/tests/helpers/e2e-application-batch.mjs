@@ -5,7 +5,7 @@ import { nativeApplicationForm } from './application-native-request.mjs';
 
 export const verifyNativeApplicationBatch = async (
   browser,
-  { before = false, screenshots } = {}
+  { before = false, screenshots = process.env.E2E_ARTIFACT_DIR } = {}
 ) => {
   const effects = [];
   const fixture = await applicationNativeFixture(browser, {
@@ -115,8 +115,8 @@ export const verifyNativeApplicationBatch = async (
   } catch (error) {
     await shot('failed').catch(() => {});
     console.log(
-      'Batch UI at refusal',
-      await batch.innerText().catch(() => 'missing')
+      'Application panel at refusal',
+      await panel.innerText().catch(() => 'missing')
     );
     console.log('Native errors', fixture.errors);
     console.log(
