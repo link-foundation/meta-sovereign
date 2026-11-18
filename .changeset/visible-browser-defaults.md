@@ -1010,3 +1010,8 @@ legacy receipt signatures and the frozen setting when copying into a batch draft
 Reduce complete-corpus binary encoding cost with the published external-reference
 and variable-arity layout, preserving typed values, older packets and finite
 decoder limits across transport, synchronization and recovery dumps.
+
+Prepare a missing managed Chromium executable on explicit first use through the
+installed Playwright CLI, with shared cancellable ownership and confirmed file
+readback. Preserve chosen browser connections and await startup cancellation in
+assignments, form review, manual login and auto-import shutdown.

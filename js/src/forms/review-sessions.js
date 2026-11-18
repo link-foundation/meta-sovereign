@@ -201,6 +201,7 @@ const launchReviewBrowser = async ({
     headless: input.headless,
     persistent: record.learn && Boolean(store?.logFile),
     idleMs: record.idleMs,
+    signal: record.operationAbort?.signal,
     ...(store?.logFile
       ? {
           profileDir: path.join(

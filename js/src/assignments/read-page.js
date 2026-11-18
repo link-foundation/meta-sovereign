@@ -33,6 +33,10 @@ export const readAssignmentPage = async ({
   let session;
   let closing;
   let expired = false;
+  const deadline = new AbortController();
+  const launchSignal = globalThis.AbortSignal.any(
+    [signal, deadline.signal].filter(Boolean)
+  );
   let responseStatus;
   const response = (value) => {
     if (
@@ -59,6 +63,7 @@ export const readAssignmentPage = async ({
   };
   const timer = globalThis.setTimeout(() => {
     expired = true;
+    deadline.abort();
     abort();
   }, deadlineMs);
   signal?.addEventListener('abort', abort, { once: true });
@@ -70,6 +75,7 @@ export const readAssignmentPage = async ({
       useCase,
       slot,
       ...browserOptions,
+      signal: launchSignal,
     });
     check();
     session.page?.on('response', response);

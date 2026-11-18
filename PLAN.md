@@ -1,3 +1,11 @@
+2026-11-18 first-use managed browser preparation (VD01 remains unfinished):
+
+- [x] Compare the pinned desktop first-launch promise with actual Browser Commander resolution: installed provider packages do not include Chrome for Testing, and the current launch asks the owner to install it manually.
+- [x] Draft shared first-use preparation through the installed Playwright CLI, with bounded drained processes, coalesced owners, truthful readback and default-off value-free tracing. Preserve explicit browser/CDP selections and exact-target watcher connections.
+- [x] Pass owned cancellation through assignment deadlines/stops, form closure, manual login shutdown and auto-import termination. Await installer drainage and preserve the terminal auto-import state.
+- [x] Verify 18 focused launch/reuse/refusal/cancellation regressions, eight exact-parent failures, 92 compatibility checks and scoped gates; preserve independently hashed source-bound evidence. Actual downloads and headed first-use proof remain required in isolated hosted CI.
+- [ ] Publish only to the prepared branch and inspect exact-source CI. Remote runner tools/system prerequisites and every unfinished criterion remain required; PR57 stays draft and unmerged.
+
 2026-11-18 binary complete-corpus latency:
 
 - [x] Preserve exact-source macOS timeout logs (5f63, job 134788617058, lines 5615–5619), retain the original 101-description input and ten-second deadline, and compare fixed phase measurements without private values.

@@ -1,6 +1,7 @@
 import net from 'node:net';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { prepareBrowserExecutable } from '../browser/preparation.js';
 
 /** The SDK validates the saved profile/port/browser identity before reuse. */
 const debuggingPort = async (profileDir) => {
@@ -37,8 +38,13 @@ export const launchPersistentBrowser = async ({
   bc,
   profileDir,
   idleMs,
+  prepare = prepareBrowserExecutable,
   ...options
 }) => {
+  if (!options.targetId) {
+    await prepare({ signal: options.signal });
+  }
+  options.signal?.throwIfAborted();
   const session = await bc.connectOrLaunch({
     ...options,
     engine: 'playwright',

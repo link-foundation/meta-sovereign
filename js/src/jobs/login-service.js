@@ -157,6 +157,7 @@ class JobLogin {
         useCase: 'jobs',
         slot: options.browserSlot,
         headless: false,
+        signal,
       });
       signal.throwIfAborted();
       await this.current.browser.commander.goto({

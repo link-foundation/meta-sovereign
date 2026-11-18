@@ -775,3 +775,5 @@ Optional persistent collection with full current-run context: [collection eviden
 [Discovery without persistent descriptions](discovery-memory.md): preserve complete filtering context in owned RAM, frozen CLI/Lino/UI settings, legacy signatures, unarmed batch handoff and drained native/MCP recovery. HH03 remains unfinished.
 
 [Complete-corpus binary layout](corpus-binary-layout.md): preserve the macOS timeout, reduce the same typed corpus graph with published codec options, retain old packets and unchanged limits/deadlines, and verify recovery/sync compatibility. Exact-source hosted checks remain required.
+
+[First-use managed browser preparation](browser-preparation.md): installed-version CLI preparation, shared cancellable owners, explicit browser selection preservation and CI-only cold-cache headed proof. VD01 and all other unfinished criteria remain required.

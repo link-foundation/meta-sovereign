@@ -30,6 +30,7 @@ import {
 import { stampSourceLink } from '../index.js';
 import { browserName, resolveBrowserPolicy } from '../../browser/policy.js';
 import { slotProfileDir } from '../../cv/browser.js';
+import { prepareBrowserExecutable } from '../../browser/preparation.js';
 
 const ACTIVE = new Set(['launching', 'waiting', 'importing']);
 const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
@@ -37,6 +38,18 @@ const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 /** Can this server drive a browser at all? */
 // browser-commander declares node >=22.12.
 const MIN_NODE = [22, 12];
+const usesManagedBrowser = (env) =>
+  ![
+    env.MS_BROWSER_CDP_URL,
+    env.MS_BROWSER_CHANNEL,
+    env.MS_BROWSER_EXECUTABLE,
+  ].some(Boolean);
+const prepareManagedBrowser = async (env, prepare, signal) => {
+  if (usesManagedBrowser(env)) {
+    await prepare({ signal });
+  }
+  signal?.throwIfAborted();
+};
 
 export const probeBrowserAutomation = async (
   importer = () => import('browser-commander'),
@@ -74,14 +87,18 @@ export const launchWithBrowserCommander = async ({
   cookies = [],
   env = process.env,
   headless = env.MS_BROWSER_HEADLESS === '1',
+  prepare = prepareBrowserExecutable,
+  loadCommander = () => import('browser-commander'),
+  signal,
 }) => {
-  const bc = await import('browser-commander');
+  const bc = await loadCommander();
   const common = {
     engine: 'playwright',
     verbose: env.MS_BROWSER_VERBOSE === '1',
     downloads: { directory: downloadsDir, conflict: 'rename' },
   };
   const cdp = env.MS_BROWSER_CDP_URL;
+  await prepareManagedBrowser(env, prepare, signal);
   const session = cdp
     ? await bc.connectBrowser({
         ...common,
@@ -154,6 +171,27 @@ const snapshot = (job) => ({
   updatedAt: job.updatedAt,
 });
 
+const newJob = (provider, slot, recipe) => {
+  const now = new Date().toISOString();
+  return {
+    id: randomUUID(),
+    provider,
+    slot,
+    state: 'launching',
+    url: recipe.url,
+    canCapture: Boolean(recipe.scrape),
+    imported: 0,
+    files: [],
+    error: null,
+    startedAt: now,
+    updatedAt: now,
+    signedIn: false,
+    session: null,
+    idleTimer: null,
+    controller: new AbortController(),
+  };
+};
+
 const statusError = (message, status) =>
   Object.assign(new Error(message), { status });
 
@@ -210,6 +248,7 @@ const openSession = async (job, { launcher, signIns, dataDir, env, store }) => {
     env,
     cookies,
     ...dirs,
+    signal: job.controller.signal,
   });
   if (cookies.length) {
     await signIns.consume(job.provider);
@@ -285,14 +324,22 @@ export const createAutoImportManager = ({
     });
   };
 
-  const finish = async (job, state, error = null) => {
+  const finish = (job, state, error = null) => {
+    if (job.finishing) {
+      return job.finishing;
+    }
     if (!ACTIVE.has(job.state)) {
-      return;
+      return Promise.resolve();
     }
     touch(job, { state, ...(error ? { error } : {}) });
-    const session = job.session;
-    job.session = null;
-    await session?.close().catch(() => {});
+    job.controller.abort();
+    job.finishing = (async () => {
+      await job.ready;
+      const session = job.session;
+      job.session = null;
+      await session?.close().catch(() => {});
+    })();
+    return job.finishing;
   };
 
   const onDownload = async (job, artifact) => {
@@ -323,7 +370,9 @@ export const createAutoImportManager = ({
         ...(session.navigationError ? { error: session.navigationError } : {}),
       });
     } catch (error) {
-      touch(job, { state: 'failed', error: error.message });
+      if (job.state === 'launching') {
+        touch(job, { state: 'failed', error: error.message });
+      }
     }
   };
 
@@ -352,23 +401,7 @@ export const createAutoImportManager = ({
       if (existing) {
         return snapshot(existing);
       }
-      const now = new Date().toISOString();
-      const job = {
-        id: randomUUID(),
-        provider,
-        slot,
-        state: 'launching',
-        url: recipe.url,
-        canCapture: Boolean(recipe.scrape),
-        imported: 0,
-        files: [],
-        error: null,
-        startedAt: now,
-        updatedAt: now,
-        signedIn: false,
-        session: null,
-        idleTimer: null,
-      };
+      const job = newJob(provider, slot, recipe);
       jobs.set(job.id, job);
       touch(job, { state: 'launching' });
       job.ready = launch(job);

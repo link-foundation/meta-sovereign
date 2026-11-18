@@ -19,6 +19,7 @@ import { promises as fs } from 'node:fs';
 import { defaultStoreDir } from '../storage/app-directory.js';
 import { browserName, resolveBrowserPolicy } from '../browser/policy.js';
 import { launchPersistentBrowser } from './persistent-browser.js';
+import { prepareBrowserExecutable } from '../browser/preparation.js';
 
 /** Packages a live run needs, in the order we report them. */
 export const BROWSER_PACKAGES = ['browser-commander', 'playwright'];
@@ -130,18 +131,24 @@ export const launchWithCommander = async ({
   verbose = false,
   persistent = false,
   idleMs = 24 * 60 * 60 * 1000,
+  prepare = prepareBrowserExecutable,
+  signal,
 }) => {
   if (persistent) {
     return launchPersistentBrowser({
       bc,
+      prepare,
       profileDir,
       idleMs,
       headless,
       slowMo,
       verbose,
       args: [`--lang=${locale}`],
+      signal,
     });
   }
+  await prepare({ signal });
+  signal?.throwIfAborted();
   const session = await bc.launchBrowser({
     engine: 'playwright',
     headless,
@@ -188,6 +195,8 @@ export const openBrowserSession = async ({
   launcher = null,
   persistent = false,
   idleMs,
+  prepare = prepareBrowserExecutable,
+  signal,
 } = {}) => {
   const policy = await resolveBrowserPolicy(store, {
     platform,
@@ -220,6 +229,8 @@ export const openBrowserSession = async ({
           verbose,
           persistent,
           idleMs,
+          prepare,
+          signal,
         });
       })();
   return wrapBrowserSession({ bc, session, policy, verbose });

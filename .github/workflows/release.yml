@@ -640,13 +640,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # === BROWSER E2E (R-Z6) ===
-  # A representative set of the `test:e2e:*` scripts in chromium: the SPA
-  # smoke test, the chat basics, rich and service messages, ephemeral
-  # messages, accounts and data export, offline, the passcode, rich text,
-  # Instant View, email, greetings, autopilot, the peer bar and the tutorial.
-  # Each script prints OK or fails; all run, then the job reports every
-  # failure at once; both engines are release gates.
+  # All assigned browser checks run and report failures; both engines gate release.
   e2e-browser:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-e2e-browser-${{ strategy.job-index || 0 }}
@@ -727,12 +721,21 @@ jobs:
       - name: Let Chromium sandbox itself
         if: runner.os == 'Linux'
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Verify automatic first browser preparation
+        id: browser-preparation
+        if: matrix.browser == 'chromium' && matrix.shard == 1
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/meta-sovereign-first-use
+          MS_BROWSER_PREPARATION_DEBUG: '1'
+        run: |
+          mkdir -p artifacts/browser
+          xvfb-run -a node experiments/issue-56/browser-preparation-native.mjs > artifacts/browser/browser-preparation.log 2>&1
       - run: npm run build:web
       - name: Run browser checks
         id: browser-checks
         run: node js/scripts/run-browser-checks.mjs
       - name: Preserve browser diagnostics
-        if: ${{ !cancelled() && steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '' }}
+        if: ${{ !cancelled() && ((steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '') || steps.browser-preparation.outcome == 'success' || steps.browser-preparation.outcome == 'failure') }}
         uses: actions/upload-artifact@v7.0.2
         with:
           name: browser-${{ matrix.browser }}-${{ matrix.shard }}

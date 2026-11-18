@@ -720,6 +720,7 @@ test('the CV browser launches through browser-commander, never with engine flags
   };
   const session = await launchWithCommander({
     bc,
+    prepare: async () => {},
     headless: false,
     profileDir: '/profile',
     slowMo: 0,
