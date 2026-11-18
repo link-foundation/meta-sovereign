@@ -61,6 +61,7 @@ export const openChatApp = async (
     launchOptions = {},
     fileBackups = false,
     acceptDialog,
+    traceRequests = false,
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -104,7 +105,7 @@ export const openChatApp = async (
     base,
     acceptDialog,
     trace:
-      process.env.CI_BROWSER_DEBUG === '1'
+      process.env.CI_BROWSER_DEBUG === '1' || traceRequests
         ? (event) => console.log(`[e2e-${name}] ${event}`)
         : undefined,
   });

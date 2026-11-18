@@ -689,6 +689,7 @@ jobs:
       CI_CV_WORKPLACE_DEBUG: '1'
       CI_RESUME_INPUT_DEBUG: '1'
       CI_FOLLOW_DISCLOSURE_DEBUG: '1'
+      CI_CHAT_LOADING_DEBUG: '1'
       CI_LINO_SYNC_DEBUG: '1'
       DEBUG: ${{ vars.CI_BROWSER_DEBUG == '1' && 'pw:api' || '' }}
     steps:

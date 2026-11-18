@@ -30,6 +30,7 @@ for (let n = 1; n <= 120; n++) {
 const { page, base, finish } = await openChatApp('chat-loading', {
   store,
   secure: true,
+  traceRequests: process.env.CI_CHAT_LOADING_DEBUG === '1',
 });
 let storiesRequested = 0;
 let profileStoriesRequested = 0;

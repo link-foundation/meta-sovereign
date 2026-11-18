@@ -1,6 +1,8 @@
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { followLinksFixture } from './helpers/follow-links.mjs';
 import { TUTORIAL_STORAGE_KEY, TUTORIAL_VERSION } from '../src/web/tutorial.js';
+import { openFollowDisclosure } from './helpers/follow-disclosure.mjs';
+import { followDisclosureTrace } from './helpers/e2e-follow-disclosure-trace.mjs';
 
 const f = await followLinksFixture();
 const { page, base, finish } = await openChatApp('follow-links', f);
@@ -17,9 +19,12 @@ await page.addInitScript(
 );
 const panel = page.locator('[data-follow-panel]');
 const action = (name) => panel.locator(`[data-follow-action="${name}"]`);
+const trace = await followDisclosureTrace(page, 'links');
 const show = async () => {
   await page.goto(`${base}/#/automation`);
-  await panel.locator(':scope > summary').click();
+  await trace('initial-after-navigation');
+  await openFollowDisclosure(panel);
+  await trace('initial-after-opening');
   await panel.locator('[data-follow-results]').waitFor();
 };
 await finish(async () => {
@@ -28,6 +33,7 @@ await finish(async () => {
     .getByText('0 cached message references', { exact: true })
     .waitFor();
   await action('extract').click();
+  await trace('initial-after-extraction');
   await panel
     .getByText('4 cached message references', { exact: true })
     .waitFor();
@@ -36,7 +42,8 @@ await finish(async () => {
     'incoming references retain both source messages'
   );
   await page.reload();
-  await panel.locator(':scope > summary').click();
+  await openFollowDisclosure(panel);
+  await trace('reload-after-opening');
   await panel
     .getByText('4 cached message references', { exact: true })
     .waitFor();
@@ -99,7 +106,8 @@ await finish(async () => {
   await page.setViewportSize({ width: 390, height: 844 });
   assert(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= globalThis.innerWidth
+      () =>
+        globalThis.document.documentElement.scrollWidth <= globalThis.innerWidth
     ),
     'cache controls fit a phone viewport'
   );

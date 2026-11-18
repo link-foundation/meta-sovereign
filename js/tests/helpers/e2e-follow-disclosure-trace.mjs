@@ -6,6 +6,7 @@ export const followDisclosureTrace = async (page, panel = 'chats') => {
   const selector = {
     chats: '[data-follow-chats-panel]',
     backlinks: '[data-follow-backlinks]',
+    links: '[data-follow-panel]',
   }[panel];
   if (!selector) {
     throw new Error('Unknown Follow disclosure diagnostic');
@@ -25,18 +26,18 @@ export const followDisclosureTrace = async (page, panel = 'chats') => {
       };
       const records = [];
       const snapshot = () => {
-        const root = document.querySelector(selector);
+        const root = globalThis.document.querySelector(selector);
         const summary = root?.querySelector(':scope > summary');
         const rect = summary?.getBoundingClientRect();
         const hit = rect
-          ? document.elementFromPoint(
+          ? globalThis.document.elementFromPoint(
               rect.x + rect.width / 2,
               rect.y + rect.height / 2
             )
           : null;
         return {
           document: globalThis.performance.timeOrigin,
-          ready: document.readyState,
+          ready: globalThis.document.readyState,
           automation: globalThis.location.hash === '#/automation',
           root: identity(root),
           summary: identity(summary),
@@ -51,7 +52,7 @@ export const followDisclosureTrace = async (page, panel = 'chats') => {
         events: records,
       });
       const record = (event) => {
-        const root = document.querySelector(selector);
+        const root = globalThis.document.querySelector(selector);
         const summary = event.target?.closest?.('summary');
         const target = event.target?.closest?.('details');
         if (event.type === 'toggle' && !target?.matches(selector)) {

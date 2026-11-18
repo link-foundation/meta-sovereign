@@ -1,3 +1,10 @@
+2026-11-18 exact-source WebKit recurrence:
+
+- [x] Preserve all failed job logs and verified failure screenshots for `997b0dd2` run 44220122766; identify a lost HTTP/2 reload and a closed Follow cache disclosure. Keep the current gate failed and all pending acceptance rows open.
+- [x] Run one focused WebKit loading scenario with targeted request diagnostics: both named reloads pass; the historical network-loss cause remains unconfirmed.
+- [x] Reproduce the actual Follow caller with finite native layout movement, then reuse the existing checked native keyboard opener at both call sites and retain all cache assertions.
+- [ ] Preserve source-bound evidence, publish only to the prepared branch and require exact-source hosted checks. Review the requested failed-job rerun without treating local success as hosted acceptance.
+
 2026-11-18 vacancy observation history (HH03 remains unfinished):
 
 - [x] Trace pinned A12: the reference preserves first/last observation times, while each current successful refresh replaces the only capture timestamp.
